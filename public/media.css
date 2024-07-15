@@ -104,6 +104,13 @@
     gap: 20px;
     margin-top: 20px;
 }
+
+.media-block {
+    display: block;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
 .media-item {
     position: relative;
     overflow: hidden;
@@ -120,6 +127,7 @@
     object-fit: cover;
     display: block;
 }
+
 .media-overlay {
     position: absolute;
     bottom: 0;
