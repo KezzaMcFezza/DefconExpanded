@@ -39,10 +39,16 @@
 }
 
 /* Better buttons */
-.btn-resource-dl{
+.btn-resource-dl {
     background-color: #232f47;
     color: rgb(255, 255, 255);
     margin:12px;
+}
+
+.btn-resource-ten {
+    background-color: #232f47;
+    color: rgb(255, 255, 255);
+    margin:0px;
 }
 
 

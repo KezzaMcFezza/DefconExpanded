@@ -43,6 +43,13 @@ h5 {
     margin-top: 6px;
 }
 
+.downloadlink {
+    color: #eeeeee;
+    text-align: left;
+    margin-top: 30px;
+    font-weight: 700;
+}
+
 p {
     font-family: 'Open Sans', sans-serif;
     font-weight: bold;
