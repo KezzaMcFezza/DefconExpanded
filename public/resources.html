@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Octocon Resources</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    <link rel="stylesheet" type="text/css" href="media.css" />
+    <link rel="stylesheet" type="text/css" href="btnnav.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .left-column, .right-column {
+            width: 48%;
+        }
+        .tutorial-download-container {
+            display: flex;
+            justify-content: space-between;
+            padding-left: 50px;
+        }
+        .tutorial, .download-links {
+            padding-right: 0px;
+            /* width: 48%; */
+            width: 50rem;
+        }
+
+        .tutorial {
+            /* padding-right: 170px; */
+            padding-right: 10rem;
+            width: 100%;
+        }
+
+        .media-item video {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="bannerdivclass">
+            <div class="logodivclass"></div>
+            <div class="buttondivclass">
+                <a href="https://discord.gg/VXFrmA8X"  target="_blank" class="btn btn-secondary navbtnhover foo"><i class="fab fa-discord"></i> Join Discord</a>
+            </div>
+        </div>
+    </header>
+    <nav>
+        <a class="btn-third foo" href="index.html">Homepage</a>
+        <a class="btn-third foo" href="about.html">About</a>
+        <a class="btn-third foo" href="news.html">News</a>
+        <a class="btn-third foo" href="media.html">Media</a>
+        <a class="btn-third foo" href="resources.html">Resources</a>
+        <a class="btn-third foo" href="10player.html">Experimental</a>
+    </nav>
+    <div class="container">
+        <div class="left-column">
+            <div class="tutorial-download-container">
+                <div class="tutorial">
+                    <h1 class="headerresources">Installation Tutorial...</h1>
+                    <div class="media-grid">
+                        <div class="media-item">
+                            <video src="videos/Installation Guide.mp4" onclick="openModal('videos/Installation Guide.mp4', 'video', 'Installation Guide.mp4')" controls></video>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="download-links">
+                    <h1 class="headerresources">Download links</h1>
+                    <p class="pabout">Link for the most recent 8 Player build...</p>
+                    <a href="somelinkiguess" class="btn btn-secondary btn-third foo">Defcon8P 1.2</a>
+                    <br><br><br>
+                    <p class="pabout">Dedcon for the 8 Player Mod...</p>
+                    <a href="somelinkiguess" class="btn btn-secondary btn-third foo">DedconMod</a>
+                </div> -->
+                <div class="download-links">
+                    <h1 class="headerresources">Download links</h1>
+                    <p class="pabout">Download links for the most recent build and Dedcon</p>
+                    <a href="files/DEFCON 8 Players Prerelease v1.2.zip" class="btn btn-resource-dl foo">Defcon8P 1.2</a>
+                    
+                    <!-- <p class="pabout">Dedcon for the 8 Player Mod...</p> -->
+                    <a href="comingsoon.html" class="btn btn-resource-dl foo">DedconMod</a>
+                </div>
+            </div>
+        </div>
+        <div class="right-column">
+            <h2>Contact Us</h2>
+            <p class="pcontact">If you find any bugs or want to get in contact for any reason, email me at keiron.mcphee1@gmail.com.</p>
+            <h2>Developers</h2>
+            <ul>
+                <li>FasterThanRaito</li>
+                <li>Sievert</li>
+                <li>Wan May</li>
+            </ul>
+            <h2>Game Testers</h2>
+            <ul>
+                <li>FasterThanRaito</li>
+                <li>Sievert</li>
+                <li>KezzaMcFezza</li>
+                <li>Wan May</li>
+                <li>Nicole</li>
+                <li>Laika</li>
+                <li>Ben_Herr</li>
+                <li>Lævateinn</li>
+                <li>demo0096</li>
+                <li>Erroneous</li>
+                <li>Very Fine Art</li>
+                <li>GoodNight</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImg">
+        <video class="modal-content" id="modalVideo" controls></video>
+    </div>
+
+    <script>
+        function openModal(src, type, title) {
+            const modal = document.getElementById("myModal");
+            const modalImg = document.getElementById("modalImg");
+            const modalVideo = document.getElementById("modalVideo");
+
+            modal.style.display = "flex";
+            if (type === 'img') {
+                modalImg.style.display = "block";
+                modalVideo.style.display = "none";
+                modalImg.src = src;
+            } else {
+                modalImg.style.display = "none";
+                modalVideo.style.display = "block";
+                modalVideo.src = src;
+            }
+
+            modalImg.alt = title;
+            modalVideo.title = title;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "none";
+            document.getElementById("modalVideo").pause();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+/* Font imports */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&family=Open+Sans:wght@300;400;600&display=swap');
+
+/* Typography */
+
+h1, h2, h3, h4, h5 {
+    font-family: 'Montserrat', sans-serif;
+}
+
+
+h1 {
+    color: #eeeeee;
+    text-align: center;
+    margin-top: 30px;
+    font-weight: 700;
+}
+
+h2 {
+    color: #ff4d4d;
+    text-align: left;
+    font-weight: 600;
+}
+
+h3 {
+    color: #ff4d4d;
+    text-align: left;
+    font-size: 1.5em;
+    margin: 0px;
+    font-weight: 600;
+}
+
+h4 {
+    color: #ff4d4d;
+    text-align: center;
+    font-size: 1.5em;
+    padding-right: 90px;
+}
+
+h5 {
+    color: #ff4d4d;
+    text-align: center;
+    font-size: 1.5em;
+    margin-top: 6px;
+}
+
+p {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bold;
+    color: white;
+    font-weight: 300;
+}
+
+.pabout {
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.pcontact {
+    font-family: Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 1.05rem;
+    color: white;
+    font-weight: 300;
+}
+
+li {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: bold;
+    color: rgb(255, 255, 255);
+    text-align: left;
+    padding-left: 0px;
+
+}
+
+.headerresources {
+    color: #eeeeee;
+    text-align: center;
+    font-family: Helvetica, sans-serif;
+    font-size: 2.0rem;
+    margin-top: 30px;
+    font-weight: 700;
+}
+
+.headerresources2 {
+    color: #eeeeee;
+    text-align: right;
+    padding-bottom: 0px;
+    font-family: Helvetica, sans-serif;
+    font-size: 2.0rem;
+    margin-top: 30px;
+    font-weight: 700;
+}
+
+ul {
+    padding-left: 0.9137358rem;
+}
+
+/* eat fucking ass */
+
+/* Logo and Banner */
+.logo {
+    width: 700px;
+    height: 100px;
+    display: block;
+    margin: 0px auto;
+}
+
+/* Logo and Banner */
+.logodivclass {
+    background-image: url("images/logo.png");
+    height: 100px;
+    width: 700px;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem;
+    transform: translateX(8%);
+    /* Removed unnecessary padding-left and float properties */
+}
+
+.bannerdivclass {
+    background-image: url("images/banner.jpg");
+    background-repeat: no-repeat;
+    width: 100%;
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    justify-content: center; /* Center items */
+    align-items: center;
+ 
+    position: relative; /* For absolute positioning of buttons */
+}
+
+.buttondivclass {
+    display: flex;
+    gap: 0,5rem; /* Adds spacing between buttons */
+    position: absolute;
+    right: 0px; /* Position buttons to the right */
+    top: 75%;
+    transform: translateY(-50%);
+}
+
+
+
+
+

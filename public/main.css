@@ -1,0 +1,234 @@
+/* Font imports */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&family=Open+Sans:wght@300;400;600&display=swap');
+
+/* General Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: rgb(2,0,36);
+    background: linear-gradient(0deg, rgba(2,0,36,1) 0%, rgba(0,11,88,1) 100%);
+    color: white;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    margin: 0;
+    background-size: 100% 100vh;
+    background-attachment: fixed;
+}
+
+/* Demo Cards */
+.demo-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.demo-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #d3d3d3;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.demo-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.demo-card h3 {
+    font-family: 'Montserrat', sans-serif;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.demo-card p {
+    font-family: 'Open Sans', sans-serif;
+    margin: 5px 0;
+    color: #414141;
+    font-size: 0.9em;
+    font-weight: 300;
+}
+
+.demo-card .btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.demo-card .btn:hover {
+    background-color: #0056b3;
+}
+
+/* Container and Column Layout */
+.container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.left-column {
+    flex: 0 0 80%;
+    align-items: left;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.left-column-exp {
+    flex: 0 0 80%;
+    align-items: left;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+
+.right-column {
+    flex: 0 0 20%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-right: 0px;
+    padding-left: 200px;
+    padding-top: 40px;
+    padding-bottom: 0px;
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: none;
+    background-color: #7289da;
+    color: #ffffff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.pagination button:hover {
+    opacity: 0.9;
+}
+
+.pagination button:disabled {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* Footer */
+footer {
+    background-color: #2c2f33;
+    color: #7289da;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+
+}
+
+/* Pagination */
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: none;
+    background-color: #7289da;
+    color: #ffffff;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.pagination button:hover {
+    opacity: 0.9;
+}
+
+.pagination button:disabled {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* Footer */
+footer {
+    background-color: #2c2f33;
+    color: #7289da;
+    text-align: center;
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Game Statistics */
+.games-played {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    color: #7289da;
+}
+
+/* Table Styles */
+.table-container {
+    font-family: 'Lato', sans-serif;
+    background-color: #182133;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-radius: 8px;
+    border-spacing: 0px;
+    padding-bottom: 0px;
+}
+
+td {
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    padding: 12px;
+    background-color: #055C9D;
+    text-align: center;
+    color: white;
+    font-weight: bold;
+}
+
+tr:hover {
+    background-color: #40444b;
+}
+
+tr {
+    background-color: #021d31;
+}
+
+@media (max-width: 768px) {
+    /* Styles for tablets and smaller screens */
+}
+
+@media (max-width: 480px) {
+    /* Styles for phones */
+}
