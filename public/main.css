@@ -96,9 +96,9 @@ body {
     width: 200%;
     height: 200%;
     background-image: 
-        radial-gradient(circle, #0f03 1px, transparent 1px),
-        linear-gradient(to right, #0f01 1px, transparent 1px),
-        linear-gradient(to bottom, #0f01 1px, transparent 1px);
+        radial-gradient(circle, #0f03 2px, transparent 2px),
+        linear-gradient(to right, #0f01 2px, transparent 2px),
+        linear-gradient(to bottom, #0f01 2px, transparent 2px);
     background-size: 50px 50px, 25px 25px, 25px 25px;
     animation: scan 4s linear infinite;
     z-index: 1;
