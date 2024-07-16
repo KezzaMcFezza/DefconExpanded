@@ -169,6 +169,13 @@ a {
 
 }
 
+.foodedcon:hover {
+    border: 0;
+    box-shadow: 0 0 3px #ff8800, 0 0 20px #ff8800, 0 0 20px #ff8800;
+    background-color: #ff8800;
+
+}
+
 .btn-resource-dedcon:hover {
     background-color: #e68a00; 
 }
