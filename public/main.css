@@ -88,10 +88,6 @@ body {
     transition: background-color 0.2s;
 }
 
-.demo-card .btn:hover {
-    background-color: #0056b3;
-}
-
 .demo-card::before {
     content: '';
     position: absolute;

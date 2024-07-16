@@ -169,3 +169,7 @@ a {
     background-color: #109e10;
 
 }
+
+.btn-resource-dedcon:hover {
+    background-color: #e68a00; 
+}
