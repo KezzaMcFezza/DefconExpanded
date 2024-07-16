@@ -2,7 +2,7 @@
 .btn {
     display: inline-block;
     padding: 10px 20px;
-    margin: 10px 10px;
+    margin: 0px 0px;
     border-radius: 5px;
     text-align: center;
     text-decoration: none;
@@ -34,6 +34,14 @@
 }
 
 .btn-fourth {
+    display: inline-block;
+    padding: 10px 10px;
+    margin: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0s ease;
     background-color: #ff0000;
     color: white;
 }
@@ -42,14 +50,49 @@
 .btn-resource-dl {
     background-color: #232f47;
     color: rgb(255, 255, 255);
-    margin:12px;
-}
-
-.btn-resource-ten {
-    background-color: #232f47;
-    color: rgb(255, 255, 255);
     margin:0px;
 }
+
+.btn-resource-discord {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 12px 12px;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0s ease;
+    background-color: #40444b;
+    color: white;
+}
+
+.btn-resource-dedcon {
+    background-color: #232f47;
+    color: rgb(255, 255, 255);
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 0px 50px;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0s ease;
+}
+
+.btn-resource-10p {
+    background-color: #232f47;
+    color: rgb(255, 255, 255);
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 0px 0px;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0s ease;
+}
+
+
 
 
 

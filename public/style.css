@@ -64,11 +64,11 @@ p {
 }
 
 .pcontact {
-    font-family: Helvetica, sans-serif;
+    font-family: 'Montserrat', sans-serif;
     font-weight: bold;
     font-size: 1.05rem;
     color: white;
-    font-weight: 300;
+    font-weight: 510;
 }
 
 li {
@@ -91,9 +91,8 @@ li {
 
 .headerresources2 {
     color: #eeeeee;
-    text-align: right;
-    padding-bottom: 0px;
-    font-family: Helvetica, sans-serif;
+    text-align: left;
+    font-family: 'Montserrat', sans-serif;
     font-size: 2.0rem;
     margin-top: 30px;
     font-weight: 700;
