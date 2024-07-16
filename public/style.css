@@ -63,6 +63,13 @@ p {
     line-height: 1.6;
 }
 
+.pnotfinal {
+    font-weight: bold;
+    text-align: center;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
 .pcontact {
     font-family: 'Montserrat', sans-serif;
     font-weight: bold;
