@@ -112,7 +112,7 @@ header {
 
 nav {
     background-color: #232f47;
-    padding: 10px 0;
+    padding: 15px 0;
     text-align: center;
     display: flex;
     justify-content: center;
@@ -121,17 +121,16 @@ nav {
 
 nav a {
     text-decoration: none;
-    font-family: Consolas, monospace;
     color: #fff;
     background: transparent;
     padding: 5px 20px;
-    border-radius: 5px;
+    border-radius: 50px;
     font-weight: bold;
     text-transform: uppercase;
     transition: all 0s ease-in-out;
     border: 0px solid #fff;
     margin: 0 10px;
-    box-shadow: 0 0 2px 0 #283652, 0 0 10px 2px #283652, inset 0 10px 10px 0 #283652, inset 0 0 2px 2px #283652;
+    /* box-shadow: 0 0 2px 0 #283652, 0 0 10px 2px #283652, inset 0 10px 10px 0 #283652, inset 0 0 2px 2px #283652; */
 }
 
 .navbtnhover:hover {
