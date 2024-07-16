@@ -23,6 +23,13 @@
     color: white;
 }
 
+.download-icon {
+    width: 15px;
+    height: 15px;
+    max-height: 20px;
+
+ }
+
 .btn-secondary {
     background-color: #40444b;
     color: white;
