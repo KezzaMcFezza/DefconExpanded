@@ -29,6 +29,13 @@
             padding: 20px;
         }
 
+        /* Ensure the icon maintains its aspect ratio */
+        .download-icon {
+            width: 15px;
+            height: 15px;
+            max-height: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -117,7 +124,7 @@
         }
 
         function showPage(pageNumber) {
-            const demosPerPage = 9;
+            const demosPerPage = 12;
             const start = (pageNumber - 1) * demosPerPage;
             const end = start + demosPerPage;
             const demoContainer = document.getElementById('demo-container');
@@ -146,7 +153,9 @@
                                 <h3>${demo.name}</h3>
                                 <p><strong>Size:</strong> ${formatBytes(demo.size)}</p>
                                 <p><strong>Date:</strong> ${new Date(demo.date).toLocaleDateString()}</p>
-                                <a href="/download/${demo.name}" class="btn-download btn-third foo"><i class="fas fa-download"></i> Download</a>
+                                <a href="/download/${demo.name}" class="btn-download btn-third foo">
+                                    <img src="images/dedcon.ico" alt="" class="download-icon"> Download
+                                </a>
                             </div>
                         `;
                         demoContainer.appendChild(demoCard);
