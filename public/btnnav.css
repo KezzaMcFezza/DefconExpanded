@@ -13,13 +13,26 @@
 .btn-download {
     display: inline-block;
     padding: 10px 10px;
-    margin: 50px 0px;
+    margin-top: 150px;
     border-radius: 5px;
     text-align: center;
     text-decoration: none;
     font-weight: bold;
     transition: background-color 0s ease;
-    background-color: #000000;
+    background-color: #232f47;
+    color: white;
+}
+
+.btn-matchroom {
+    display: inline-block;
+    padding: 10px 10px;
+    margin: 10px;
+    border-radius: 5px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0s ease;
+    background-color: #232f47;
     color: white;
 }
 

@@ -146,10 +146,12 @@
                                 <h3>${demo.name}</h3>
                                 <p><strong>Size:</strong> ${formatBytes(demo.size)}</p>
                                 <p><strong>Date:</strong> ${new Date(demo.date).toLocaleDateString()}</p>
-                                <a href="/download/${demo.name}" class="btn-download btn-third foo">
+                                <a href="/download/${demo.name}" class="btn-download foo">
                                     <img src="images/dedcon.ico" alt="" class="download-icon"> Download
+                                    <a href="matchroom.html" class="btn-matchroom foo"> Matchroom
                                 </a>
                             </div>
+
                         `;
                         demoContainer.appendChild(demoCard);
                     });
