@@ -93,8 +93,8 @@ app.get('/resources', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'resources.html'));
 });
 
-app.get('/10player', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', '10player.html'));
+app.get('/experimental', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'experimental.html'));
 });
 
 app.listen(port, () => {
