@@ -1,6 +1,8 @@
 /* Font imports */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&family=Open+Sans:wght@300;400;600&display=swap');
 
+@import url('https://fonts.cdnfonts.com/css/kremlin');
+
 /* Typography */
 
 h1, h2, h3, h4, h5 {
@@ -9,16 +11,25 @@ h1, h2, h3, h4, h5 {
 
 
 h1 {
-    color: #eeeeee;
+    color: #ff4d4d;
     text-align: center;
     margin-top: 30px;
-    font-weight: 700;
+    font-weight: 400;
+    font-family: 'kremlin';
 }
 
 h2 {
     color: #ff4d4d;
     text-align: left;
-    font-weight: 600;
+    font-weight: 400;
+    font-family: 'kremlin';
+}
+
+.h2right {
+    color: #00ff0d;
+    text-align: left;
+    font-weight: 400;
+    font-family: 'kremlin';
 }
 
 h3 {
@@ -58,8 +69,8 @@ p {
 }
 
 .pabout {
-    font-weight: bold;
-    font-size: 16px;
+    font-weight: 900;
+    font-size: 18px;
     line-height: 1.6;
 }
 
@@ -95,21 +106,21 @@ li {
 }
 
 .headerresources {
-    color: #eeeeee;
+    color: #ff4d4d;
     text-align: center;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'kremlin';
     font-size: 2.0rem;
     margin-top: 30px;
-    font-weight: 700;
+    font-weight: 400;
 }
 
 .headerresources2 {
-    color: #eeeeee;
+    color: #ff4d4d;
     text-align: left;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'kremlin';
     font-size: 2.0rem;
     margin-top: 30px;
-    font-weight: 700;
+    font-weight: 400;
 }
 
 ul {

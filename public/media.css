@@ -1,3 +1,10 @@
+@font-face {
+    font-family: 'Kremlin';
+    src: url('C:\xampp\htdocs\website\public\files\kremlin.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
 /* Screenshots and Videos */
 .screenshots,
 .videos {
@@ -68,21 +75,6 @@
 .close:focus {
     color: #bbb;
     text-decoration: none;
-}
-
-/* Announcements and Events */
-.announcement,
-.event {
-    background-color: #2c2f33;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-}
-
-.announcement h2,
-.event h2 {
-    color: #ff4d4d;
 }
 
 /* Media Settings*/
