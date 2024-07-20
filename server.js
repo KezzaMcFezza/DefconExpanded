@@ -101,8 +101,12 @@ app.get('/resources/comingsoon', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'comingsoon.html'));
 });
 
-app.get('/resources/comingsoon', (req, res) => {
+app.get('/homepage/matchroom', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'matchroom.html'));
+});
+
+app.get('/homepage', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(port, () => {
