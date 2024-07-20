@@ -97,6 +97,14 @@ app.get('/experimental', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'experimental.html'));
 });
 
+app.get('/resources/comingsoon', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'comingsoon.html'));
+});
+
+app.get('/resources/comingsoon', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'matchroom.html'));
+});
+
 app.listen(port, () => {
   console.log(`Octocon Demo Server Listening at http://localhost:${port}`);
 });
