@@ -1,0 +1,158 @@
+/* about page */
+
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .about-columns {
+        flex-direction: column;
+    }
+
+    .left-column-about,
+    .right-column-about {
+        width: 100%;
+    }
+}@media screen and (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .about-columns {
+        flex-direction: column;
+    }
+
+    .left-column-about,
+    .right-column-about {
+        width: 100%;
+    }
+}
+
+/* mobile stuff */
+
+@media screen and (max-width: 768px) {
+    .logo {
+        width: 100%;
+        height: auto;
+        max-width: 500px;
+    }
+
+    .logodivclass {
+        width: 100%;
+        height: 80px;
+        background-size: contain;
+        transform: none;
+        margin-top: 1rem;
+    }
+
+    .bannerdivclass {
+        height: auto;
+        min-height: 150px;
+    }
+
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .btn-third {
+        flex: 1 1 auto;
+        font-size: 14px;
+        padding: 5px;
+        margin: 2px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .logo {
+        max-width: 300px;
+    }
+
+    .logodivclass {
+        height: 60px;
+    }
+
+    .bannerdivclass {
+        min-height: 100px;
+    }
+
+    .btn-third {
+        font-size: 12px;
+        padding: 3px;
+    }
+}
+
+/* as devil would say this fixes everything */
+@media screen and (min-width: 769px) {
+    body {
+        background-size: 100% 100vh;
+    }
+}
+
+@media (max-width: 768px) {
+    
+}
+
+@media (max-width: 480px) {
+    
+}
+
+/* resources page mobile */
+
+@media screen and (max-width: 768px) {
+    .tutorial-download-container {
+        flex-direction: column;
+    }
+
+    .tutorial, .download-links {
+        width: 100%;
+    }
+
+    .download-links {
+        margin-top: 30px;
+    }
+
+    .headerresources, .headerresources2 {
+        font-size: 1.5em;
+    }
+
+    .pabout {
+        font-size: 0.9em;
+    }
+
+    .btn, .btn-resource-dl, .btn-resource-dedcon {
+        font-size: 0.9em;
+        padding: 8px 16px;
+    }
+}
+
+/* smaller buttons for mobile view */
+
+@media screen and (max-width: 768px) {
+    .btn-resource-discord {
+        font-size: 0.8em;  /* Reduce font size */
+        padding: 5px 10px; /* Reduce padding */
+        min-width: auto;   /* Remove any minimum width */
+    }
+
+    .btn-resource-discord i {
+        font-size: 1em;    /* Adjust icon size if needed */
+        margin-right: 4px; /* Reduce space between icon and text */
+    }
+
+    .buttondivclass {
+        position: absolute;
+        top: 120px;
+        right: 0px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .btn-resource-discord {
+        font-size: 0.7em;
+        padding: 4px 8px;
+    }
+}
+
+
