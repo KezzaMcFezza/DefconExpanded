@@ -171,10 +171,10 @@ a {
     box-shadow: 0 0 3px #109e10, 0 0 20px #109e10, 0 0 20px #109e10;
     background-color: #109e10;
 }
-.btn-fourth:hover {
+.btn-fourth:hover, .btn-fourth:focus {
     border: 0;
-    box-shadow: 0 0 3px #00ff00, 0 0 20px #00ff00, 0 0 20px #00ff00;
-    background-color: #00ff00;
+    box-shadow: 0 0 3px #ff0022, 0 0 20px #ff0022, 0 0 20px #ff0022;
+    background-color: #ff0022;
 }
 
 .btn:hover {
