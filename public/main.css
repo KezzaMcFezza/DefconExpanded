@@ -163,6 +163,7 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    gap: 20px; 
 }
 
 .about-column {
@@ -171,14 +172,18 @@ body {
 }
 
 .left-column-about {
-    width: 48%;
-    width: 300px;
-    padding-right: 20px;
+    flex: 1; 
+    min-width: 0; 
+}
+
+.center-column-about {
+    flex: 1; 
+    min-width: 0; 
 }
 
 .right-column-about {
-    width: 48%;
-    flex: 1;
+    flex: 1; 
+    min-width: 0; 
 }
 
 .tutorial-download-container {

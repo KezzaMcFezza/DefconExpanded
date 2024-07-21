@@ -133,20 +133,20 @@
 
 @media screen and (max-width: 768px) {
     .btn-resource-discord {
-        font-size: 0.8em;  /* Reduce font size */
-        padding: 5px 10px; /* Reduce padding */
-        min-width: auto;   /* Remove any minimum width */
+        font-size: 0.8em;  
+        padding: 5px 10px; 
+        min-width: auto;   
     }
 
     .btn-resource-discord i {
-        font-size: 1em;    /* Adjust icon size if needed */
-        margin-right: 4px; /* Reduce space between icon and text */
+        font-size: 1em;    
+        margin-right: 4px; 
     }
 
     .buttondivclass {
         position: absolute;
         top: 120px;
-        right: 0px;
+        right: 148px;
     }
 }
 
