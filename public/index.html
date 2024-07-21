@@ -10,8 +10,10 @@
     <link rel="stylesheet" type="text/css" href="/main.css" />
     <link rel="stylesheet" type="text/css" href="/media.css" />
     <link rel="stylesheet" type="text/css" href="/btnnav.css" />
+    <link rel="stylesheet" type="text/css" href="/scaling.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
+
     </style>
 </head>
 <body>
@@ -19,7 +21,7 @@
         <div class="bannerdivclass">
             <div class="logodivclass"></div>
             <div class="buttondivclass">
-                <a href="https://discord.gg/VXFrmA8X" target="_blank"class="btn-resource-discord navbtnhover foo"><i class="fab fa-discord"></i> Join Discord</a>
+                <a href="https://discord.gg/VXFrmA8X" target="_blank" class="btn-resource-discord navbtnhover foo"><i class="fab fa-discord"></i> Join Discord</a>
             </div>
         </div>
     </header>
@@ -32,49 +34,18 @@
         <a class="btn-third foo" href="/experimental">Experimental</a>
     </nav>
     <div class="container">
-        <div class="left-column">
-            <br>
+        <div class="center-column">
             <h1>REcENtly PlayEd GamEs</h1>
             <p class="pnotfinal">This part of the website is just for demonstration purposes until we can implement Dedcon into the modded builds, 
                               so what you see here is a concept and is not final.</p>
             <div class="games-played" id="games-played">Total Games Played: 0</div>
             <div id="demo-container" class="demo-container">
             </div>
+            <br>
             <div class="pagination" id="pagination">
             </div>
             <br>
             <br>
-        </div>
-        <div class="right-column">
-            <h2 class="h2right">CoNtact Us</h2>
-            <p class="pcontact">If you find any bugs or want to get in contact for any reason, email me at 
-                               <a href="mailto:keiron.mcphee1@gmail.com">KezzaMcFezza</a> 
-                               or message Sievert or FasterThanRaito on Discord.</p>
-            <h2 class="h2right">DEvElopERs</h2>
-            <ul>
-                <li>FasterThanRaito</li>
-                <li>Sievert</li>
-                <li>Wan May</li>
-            </ul>
-            <h2 class="h2right">GamE TEstERs</h2>
-            <ul>
-                <li>FasterThanRaito</li>
-                <li>Sievert</li>
-                <li>KezzaMcFezza</li>
-                <li>Wan May</li>
-                <li>Nicole</li>
-                <li>Laika</li>
-                <li>Ben_Herr</li>
-                <li>Lævateinn</li>
-                <li>demo0096</li>
-                <li>Erroneous</li>
-                <li>Very Fine Art</li>
-                <li>GoodNight</li>
-                <li>Gyarados</li>
-                <li>Nexustini</li>
-                <li>Zak</li>
-                <li>Idealist</li>
-            </ul>
         </div>
     </div>
     <script>
@@ -103,7 +74,7 @@
         }
 
         function showPage(pageNumber) {
-            const demosPerPage = 4;
+            const demosPerPage = 6;
             const start = (pageNumber - 1) * demosPerPage;
             const end = start + demosPerPage;
             const demoContainer = document.getElementById('demo-container');
