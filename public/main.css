@@ -62,7 +62,7 @@ body {
 
 .demo-card {
     width: 300px;
-    height: 300px;
+    height: 350px;
     background-color: #001;
     border: 0px solid rgb(21, 148, 21);
     border-radius: 20px;
@@ -71,8 +71,8 @@ body {
     color: #0f0;
     padding: 20px;
     box-shadow: 4px 4px 10px rgb(12, 163, 12);
-    margin-bottom: 40px;
-    margin-left: 50px;
+    margin-bottom: 90px;
+    margin-left: 90px;
     font-family: 'Courier New', monospace;
 }
 
@@ -138,7 +138,7 @@ body {
     position: relative;
     z-index: 3;
     width: 300px;
-    height: 300px;
+    height: 350px;
 }
 @keyframes scan {
     0% { transform: translateY(0); }
@@ -161,13 +161,6 @@ body {
     padding-right: 0px;
 }
 
-.left-column-home {
-    flex: 0 0 100%;
-    align-items: left;
-    padding-left: 0px;
-    padding-right: 100px;
-}
-
 .left-column-exp {
     flex: 0 0 80%;
     align-items: left;
@@ -182,9 +175,16 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     padding-right: 0px;
-    padding-left: 200px;
+    padding-left: 150px;
     padding-top: 40px;
     padding-bottom: 0px;
+}
+/*  
+.left-column-home {
+    flex: 0 0 100%;
+    align-items: left;
+    padding-left: 0px;
+    padding-right: 100px;
 }
 
 .right-column-home {
@@ -193,10 +193,11 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     padding-right: 0px;
-    padding-left: 131.45px;
+    padding-left: 181.45px;
     padding-top: 60px;
     padding-bottom: 0px;
-}
+} 
+/* 
 
 /* Pagination */
 .pagination {
