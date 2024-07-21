@@ -27,7 +27,7 @@ h2 {
 }
 
 .h2right {
-    color: #00ff0d;
+    color: #ff4d4d;
     text-align: left;
     font-weight: 400;
     font-family: 'kremlin';
@@ -93,11 +93,9 @@ p {
 }
 
 .pcontact {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: bold;
-    font-size: 1.05rem;
-    color: white;
-    font-weight: 510;
+    font-weight: 900;
+    font-size: 18px;
+    color: #ebebeb;
 }
 
 li {
@@ -166,7 +164,7 @@ ul {
     background-size: contain;
     width: 100%;
     max-width: 700px;
-    height: 100px;
+    height: 150px;
     margin: 0 auto;
 }
 
