@@ -64,13 +64,13 @@ body {
     width: 300px;
     height: 300px;
     background-color: #001;
-    border: 2px solid rgb(21, 148, 21);
+    border: 0px solid rgb(21, 148, 21);
     border-radius: 20px;
     position: relative;
     overflow: hidden;
     color: #0f0;
     padding: 20px;
-    box-shadow: 0 0 10px rgb(12, 163, 12);
+    box-shadow: 4px 4px 10px rgb(12, 163, 12);
     margin-bottom: 40px;
     margin-left: 50px;
     font-family: 'Courier New', monospace;
@@ -78,7 +78,7 @@ body {
 
 .demo-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(72, 255, 0, 0.253);
+    box-shadow: 4px 4px 10px rgba(12, 163, 12);
 }
 
 .demo-card h3 {
@@ -277,8 +277,10 @@ footer {
 .games-played {
     text-align: center;
     margin-bottom: 20px;
-    font-size: 1.2em;
-    color: #7289da;
+    font-size: 1.3em;
+    color: #00be0a;
+    font-weight: bold;
+
 }
 
 /* Table Styles */
