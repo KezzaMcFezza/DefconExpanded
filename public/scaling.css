@@ -16,7 +16,11 @@
         width: 100%;
     }
 
-    /* mobile stuff */
+    .about-columns2 {
+        flex-direction: column;
+    }
+
+    /* logo, banner and nav scaling this shit is important as fuck */
 
     .logo {
         width: 100%;
@@ -103,9 +107,6 @@
 }
 
 @media screen and (max-width: 768px) {
-    .about-columns2 {
-        flex-direction: column;
-    }
 
     .expcolumns {
         width: 100%;
