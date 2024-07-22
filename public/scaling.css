@@ -1,6 +1,8 @@
-/* about page */
 
 @media screen and (max-width: 768px) {
+
+    /* About page */
+
     .container {
         padding: 10px;
     }
@@ -13,26 +15,9 @@
     .right-column-about {
         width: 100%;
     }
-}
 
-@media screen and (max-width: 768px) {
-    .container {
-        padding: 10px;
-    }
+    /* mobile stuff */
 
-    .about-columns {
-        flex-direction: column;
-    }
-
-    .left-column-about,
-    .right-column-about {
-        width: 100%;
-    }
-}
-
-/* mobile stuff */
-
-@media screen and (max-width: 768px) {
     .logo {
         width: 100%;
         height: auto;
@@ -41,7 +26,7 @@
 
     .logodivclass {
         width: 100%;
-        height: 80px;
+        height: 150px;
         background-size: contain;
         transform: none;
         margin-top: 1rem;
@@ -49,7 +34,6 @@
 
     .bannerdivclass {
         height: auto;
-        min-height: 150px;
     }
 
     nav {
@@ -64,45 +48,9 @@
         padding: 5px;
         margin: 2px;
     }
-}
 
-@media screen and (max-width: 480px) {
-    .logo {
-        max-width: 300px;
-    }
+    /* resources page mobile */
 
-    .logodivclass {
-        height: 60px;
-    }
-
-    .bannerdivclass {
-        min-height: 100px;
-    }
-
-    .btn-third {
-        font-size: 12px;
-        padding: 3px;
-    }
-}
-
-/* as devil would say this fixes everything */
-@media screen and (min-width: 769px) {
-    body {
-        background-size: 100% 100vh;
-    }
-}
-
-@media (max-width: 768px) {
-    
-}
-
-@media (max-width: 480px) {
-    
-}
-
-/* resources page mobile */
-
-@media screen and (max-width: 768px) {
     .tutorial-download-container {
         flex-direction: column;
     }
@@ -129,32 +77,27 @@
     }
 }
 
-/* smaller buttons for mobile view */
-
-@media screen and (max-width: 768px) {
-    .btn-resource-discord {
-        font-size: 0.8em;  
-        padding: 5px 10px; 
-        min-width: auto;   
-    }
-
-    .btn-resource-discord i {
-        font-size: 1em;    
-        margin-right: 4px; 
-    }
-
-    .buttondivclass {
-        position: absolute;
-        top: 120px;
-        right: 148px;
-    }
-}
+/* 480 scaling for the head */
 
 @media screen and (max-width: 480px) {
-    .btn-resource-discord {
-        font-size: 0.7em;
-        padding: 4px 8px;
+    .logo {
+        max-width: 300px;
+    }
+
+    .logodivclass {
+        height: 150px;
+    }
+
+    .btn-third {
+        font-size: 12px;
+        padding: 3px;
     }
 }
 
+/* as devil would say this fixes everything */
 
+@media screen and (min-width: 768px) {
+    body {
+        background-size: 100% 100vh;
+    }
+}

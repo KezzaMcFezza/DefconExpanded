@@ -85,7 +85,6 @@
 .btn-resource-discord {
     display: inline-block;
     padding: 10px 20px;
-    margin: 12px 12px;
     border-radius: 5px;
     text-align: center;
     text-decoration: none;
@@ -138,7 +137,7 @@ header {
 
 nav {
     background-color: #232f47;
-    padding: 15px 0;
+    padding: 8px 0;
     text-align: center;
     display: flex;
     justify-content: center;
