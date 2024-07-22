@@ -164,7 +164,7 @@ ul {
     background-size: contain;
     width: 100%;
     max-width: 700px;
-    height: 150px;
+    height: 100px;
     margin: 0 auto;
 }
 
@@ -178,7 +178,7 @@ ul {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 20px 0;
+    padding: 5px 0;
     position: relative;
 }
 
