@@ -1,6 +1,6 @@
 /* Font imports */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&family=Open+Sans:wght@300;400;600&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Montserrat:wght@400;600;700&family=Lato:wght@300;400;700&family=Open+Sans:wght@300;400;600&display=swap');
 @import url('https://fonts.cdnfonts.com/css/kremlin');
 
 /* Typography */
@@ -8,7 +8,6 @@
 h1, h2, h3, h4, h5 {
     font-family: 'Montserrat', sans-serif;
 }
-
 
 h1 {
     color: #ff4d4d;
@@ -150,6 +149,7 @@ ul {
 /* eat fucking ass */
 
 /* Logo and Banner */
+
 .logo {
     width: 700px;
     height: 100px;
@@ -158,6 +158,7 @@ ul {
 }
 
 /* Logo and Banner */
+
 .logodivclass {
     background-image: url("images/logo.png");
     background-repeat: no-repeat;
