@@ -140,6 +140,7 @@
 
 .media-item-resources video {
     width: 100%;
+    max-width: 450px;
     height: 300px;
     object-fit: cover;
     display: block;
