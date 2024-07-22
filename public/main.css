@@ -141,8 +141,6 @@ body {
     max-width: 850px;
     max-height: 2160px;
     margin: 0 auto;
-    padding-left: 50px;
-    padding-right: 50px;
     flex-direction: column;
 }
 
@@ -165,9 +163,20 @@ body {
     gap: 20px; 
 }
 
+.about-columns2 {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 50px; 
+}
+
 .about-column {
     flex: 1;
     padding: 0 10px;
+}
+
+.expcolumns {
+    width: 500px;
+    height: 500px;   
 }
 
 .left-column-about {
@@ -188,12 +197,11 @@ body {
 .tutorial-download-container {
     display: flex;
     justify-content: space-between;
-    padding-left: 50px;
+    gap: 50px;
 }
 
 .tutorial, .download-links {
-    width: 100%;
-    margin: 30px;
+    width: 100%
 
 }
 
