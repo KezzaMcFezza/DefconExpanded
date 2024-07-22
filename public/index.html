@@ -33,9 +33,9 @@
     <div class="container-homepage">
         <div class="center-column">
             <h1>REcENtly PlayEd GamEs</h1>
+            <div class="games-played" id="games-played">Total GamEs PlayEd: 0</div>
             <p class="pabout2">This part of the website is just for demonstration purposes until we can implement Dedcon into the modded builds, 
                               so what you see here is a concept and is not final.</p>
-            <div class="games-played" id="games-played">Total Games Played: 0</div>
             <div id="demo-container" class="demo-container">
             </div>
             <br>
@@ -111,7 +111,7 @@
                     });
 
                     const gamesPlayed = document.getElementById('games-played');
-                    gamesPlayed.textContent = `Total Games Played: ${demos.length}`;
+                    gamesPlayed.textContent = `Total GamEs PlayEd: ${demos.length}`;
                     showPage(1);
                 })
                 .catch(error => console.error('Error fetching demos:', error));
