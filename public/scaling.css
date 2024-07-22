@@ -101,3 +101,14 @@
         background-size: 100% 100vh;
     }
 }
+
+@media screen and (max-width: 768px) {
+    .about-columns2 {
+        flex-direction: column;
+    }
+
+    .expcolumns {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+}

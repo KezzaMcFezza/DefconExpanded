@@ -48,7 +48,7 @@ body {
     justify-content: center;
     flex: 300px 300px 300px;
     margin: 10px;  
-    width: 300px;
+    width: 240px;
     height: 350px;
     background-color: #001;
     border: 0px solid rgb(21, 148, 21);
@@ -148,7 +148,7 @@ body {
     border: 0px solid rgb(21, 148, 21);
     background-repeat: no-repeat;
     display: flex;
-    max-width: 1200px;
+    max-width: 1000px;
     max-height: 2160px;
     margin: 0 auto;
     flex-direction: column;
@@ -175,7 +175,7 @@ body {
 
 .about-columns2 {
     display: flex;
-    flex-wrap: nowrap;
+    justify-content: space-between;
     gap: 50px; 
 }
 
@@ -185,8 +185,7 @@ body {
 }
 
 .expcolumns {
-    width: 500px;
-    height: 500px;   
+    flex: 1;
 }
 
 .left-column-about {
@@ -300,8 +299,8 @@ footer {
     text-align: center;
     margin-bottom: 20px;
     font-size: 1.3em;
+    font-family: 'kremlin';
     color: #00be0a;
-    font-weight: bold;
 
 }
 

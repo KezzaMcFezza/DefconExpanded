@@ -84,7 +84,7 @@
 
 .btn-resource-discord {
     display: inline-block;
-    padding: 10px 20px;
+    padding: 7px 13px;
     border-radius: 5px;
     text-align: center;
     text-decoration: none;
@@ -109,8 +109,8 @@
 
 .btn-resource-10p {
     background-color: #4CAF50;
-    color: rgb(255, 255, 255);
     display: inline-block;
+    color: rgb(255, 255, 255);
     padding: 10px 20px;
     margin: 0px 0px;
     border-radius: 5px;
