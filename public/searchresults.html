@@ -87,7 +87,7 @@
                 .then(results => {
                     searchResults.innerHTML = '';
                     if (results.length === 0) {
-                        searchResults.innerHTML = 'No results found.';
+                        searchResults.innerHTML = '';
                     } else {
                         const resultList = document.createElement('ul');
                         results.forEach(result => {
