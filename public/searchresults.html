@@ -15,6 +15,7 @@
     <style>
 
         #searchresults {
+            text-align: center;
             margin-top: 20px;
             padding: 10px;
             background-color: #1b212c;
@@ -38,7 +39,7 @@
         }
 
         .search-results {
-            text-transform: lowercase;
+            text-transform: uppercase;
         }
         .search-results h1,
         .search-results h2,
@@ -49,6 +50,12 @@
         }
         .search-results .category {
             text-transform: uppercase;
+        }
+
+        .search-highlight {
+            background-color: transparent;
+            color: #00ff00; /* Bright green text */
+            text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; /* Glow effect */
         }
         
     </style>
@@ -77,63 +84,81 @@
             <div id="searchresults">Searching...</div>
         </div>
     </div>
-    <script>
-        function performSearch(query) {
-            const searchResults = document.getElementById('searchresults');
-            searchResults.innerHTML = 'Searching...';
+<script>
+function performSearch(query) {
+    const searchResults = document.getElementById('searchresults');
+    searchResults.innerHTML = 'Searching...';
 
-            fetch(`/api/search?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(results => {
-                    searchResults.innerHTML = '';
-                    if (results.length === 0) {
-                        searchResults.innerHTML = '';
-                    } else {
-                        const resultList = document.createElement('ul');
-                        results.forEach(result => {
-                            const listItem = document.createElement('li');
-                            const link = document.createElement('a');
-                            link.href = result.url;
-                            link.textContent = result.title;
-                            listItem.appendChild(link);
-                            const snippet = document.createElement('p');
-                            snippet.textContent = result.snippet;
-                            listItem.appendChild(snippet);
-                            resultList.appendChild(listItem);
-                        });
-                        searchResults.appendChild(resultList);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error performing search:', error);
-                    searchResults.innerHTML = 'An error occurred while searching. Please try again.';
+    fetch('/search-index.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(results => {
+            console.log('Fetched results:', results); // Log the fetched results
+            searchResults.innerHTML = '';
+            const filteredResults = results.filter(result => 
+                result.title.toLowerCase().includes(query.toLowerCase()) ||
+                result.snippet.toLowerCase().includes(query.toLowerCase()) ||
+                result.fullContent.toLowerCase().includes(query.toLowerCase())
+            );
+
+            if (filteredResults.length === 0) {
+                searchResults.innerHTML = 'No results found.';
+            } else {
+                const resultList = document.createElement('ul');
+                filteredResults.forEach(result => {
+                    const listItem = document.createElement('li');
+                    
+                    const link = document.createElement('a');
+                    link.href = result.url;
+                    link.textContent = result.title;
+                    listItem.appendChild(link);
+                    
+                    const snippet = document.createElement('p');
+                    const highlightedSnippet = result.snippet.replace(
+                        new RegExp(query, 'gi'),
+                        match => `<span class="search-highlight">${match}</span>`
+                    );
+                    snippet.innerHTML = highlightedSnippet;
+                    listItem.appendChild(snippet);
+                    
+                    resultList.appendChild(listItem);
                 });
-        }
-
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const query = urlParams.get('q');
-        if (query) {
-            document.getElementById('search-input').value = query;
-            performSearch(query);
-        }
-
-
-        document.getElementById('search-button').addEventListener('click', function() {
-            const newQuery = document.getElementById('search-input').value;
-            if (newQuery.trim() !== '') {
-                window.location.href = `/searchresults.html?q=${encodeURIComponent(newQuery)}`;
+                searchResults.appendChild(resultList);
             }
+        })
+        .catch(error => {
+            console.error('Error performing search:', error);
+            searchResults.innerHTML = `An error occurred while searching: ${error.message}. Please try again.`;
         });
+}
 
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                const newQuery = this.value;
-                if (newQuery.trim() !== '') {
-                    window.location.href = `/searchresults.html?q=${encodeURIComponent(newQuery)}`;
-                }
-            }
-        });
-    </script>
+// The rest of your script remains unchanged
+const urlParams = new URLSearchParams(window.location.search);
+const query = urlParams.get('q');
+if (query) {
+    document.getElementById('search-input').value = query;
+    performSearch(query);
+}
+
+document.getElementById('search-button').addEventListener('click', function() {
+    const newQuery = document.getElementById('search-input').value;
+    if (newQuery.trim() !== '') {
+        performSearch(newQuery);
+    }
+});
+
+document.getElementById('search-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const newQuery = this.value;
+        if (newQuery.trim() !== '') {
+            performSearch(newQuery);
+        }
+    }
+});
+</script>
 </body>
 </html>
