@@ -14,9 +14,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
 
+        /* Apply the hide-scrollbar class to the body and html elements */
+        body, html {
+            height: 100%;
+            overflow: hidden;
+        }
+
     </style>
 </head>
-<body>
+<body class="hide-scrollbar">
     <header>
         <div class="bannerdivclass">
             <div class="logodivclass"></div>
@@ -30,7 +36,7 @@
         <a class="btn-third foo" href="/resources">Downloads</a>
         <a class="btn-third foo" href="/experimental">Experimental</a>
     </nav>
-    <div class="container-homepage">
+    <div class="container-homepage hide-scrollbar">
         <div class="center-column">
             <h1>REcENtly PlayEd GamEs</h1>
             <div class="games-played" id="games-played">Total GamEs PlayEd: 0</div>
@@ -102,10 +108,9 @@
                                 <p><strong>Date:</strong> ${new Date(demo.date).toLocaleDateString()}</p>
                                 <a href="/download/${demo.name}" class="btn-download foo">
                                     <img src="images/dedcon.ico" alt="" class="download-icon"> Download
-                                    <a href="/homepage/matchroom" class="btn-matchroom foo"> Matchroom
                                 </a>
+                                <a href="/homepage/matchroom" class="btn-matchroom foo"> Matchroom </a>
                             </div>
-
                         `;
                         demoContainer.appendChild(demoCard);
                     });

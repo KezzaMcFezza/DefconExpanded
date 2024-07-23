@@ -1,21 +1,116 @@
 /* General Styles */
 
-body {
+body, html {
     font-family: 'Roboto', sans-serif;
     background-color: rgb(2,0,36);
     color: white;
     margin: 0;
     padding: 0;
     height: 100%;
+    overflow: hidden;
 }
 
-/* Cool Scroll Bar */
+/* Container and Column Layout */
 
-* {
-    scrollbar-width: 50px;
-    scrollbar-color: #999999 #000000;
-    
+.container {
+    background: rgb(2,0,36);
+    border: 0px solid rgb(21, 148, 21);
+    background-repeat: no-repeat;
+    display: flex;
+    max-width: 850px;
+    max-height: 2160px;
+    margin: 0 auto;
+    flex-direction: column;
 }
+
+.container-homepage {
+    background: rgb(2,0,36);
+    border: 0px solid rgb(21, 148, 21);
+    background-repeat: no-repeat;
+    display: flex;
+    max-width: 1000px;
+    max-height: 2160px;
+    margin: 0 auto;
+    flex-direction: column;
+}
+
+.center-column {
+    width: 100%;
+    flex: 0 100%;
+    align-items: center;
+}
+
+.left-column-exp {
+    flex: 0 0 80%;
+    align-items: left;
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.about-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; 
+}
+
+.about-columns2 {
+    display: flex;
+    justify-content: space-between;
+    gap: 50px; 
+}
+
+.about-column {
+    flex: 1;
+    padding: 0 10px;
+}
+
+.expcolumns {
+    flex: 1;
+
+}
+
+.left-column-about {
+    flex: 1; 
+    min-width: 0; 
+}
+
+.center-column-about {
+    flex: 1; 
+    min-width: 0; 
+}
+
+.right-column-about {
+    flex: 1; 
+    min-width: 0; 
+}
+
+.tutorial-download-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 50px;
+}
+
+.tutorial, .download-links {
+    width: 100%
+
+}
+
+/* hidden scrollbar */
+
+     /* google chrome safari and opera */
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* internetexplorer edge and firefox*/
+    .hide-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+
+    .hide-scrollbar {
+        overflow: auto;
+    }
 
 /* Announcements and Events */
 
@@ -128,90 +223,6 @@ body {
 @keyframes scan {
     0% { transform: translateY(0); }
     100% { transform: translateY(50px); }
-}
-
-/* Container and Column Layout */
-
-.container {
-    background: rgb(2,0,36);
-    border: 0px solid rgb(21, 148, 21);
-    background-repeat: no-repeat;
-    display: flex;
-    max-width: 850px;
-    max-height: 2160px;
-    margin: 0 auto;
-    flex-direction: column;
-}
-
-.container-homepage {
-    background: rgb(2,0,36);
-    border: 0px solid rgb(21, 148, 21);
-    background-repeat: no-repeat;
-    display: flex;
-    max-width: 1000px;
-    max-height: 2160px;
-    margin: 0 auto;
-    flex-direction: column;
-}
-
-.center-column {
-    width: 100%;
-    flex: 0 100%;
-    align-items: center;
-}
-
-.left-column-exp {
-    flex: 0 0 80%;
-    align-items: left;
-    padding-left: 0px;
-    padding-right: 0px;
-}
-
-.about-columns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px; 
-}
-
-.about-columns2 {
-    display: flex;
-    justify-content: space-between;
-    gap: 50px; 
-}
-
-.about-column {
-    flex: 1;
-    padding: 0 10px;
-}
-
-.expcolumns {
-    flex: 1;
-}
-
-.left-column-about {
-    flex: 1; 
-    min-width: 0; 
-}
-
-.center-column-about {
-    flex: 1; 
-    min-width: 0; 
-}
-
-.right-column-about {
-    flex: 1; 
-    min-width: 0; 
-}
-
-.tutorial-download-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 50px;
-}
-
-.tutorial, .download-links {
-    width: 100%
-
 }
 
 /* Pagination */
