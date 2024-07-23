@@ -1,0 +1,37 @@
+[
+    {
+      "url": "/index.html",
+      "title": "Homepage",
+      "content": "REcENtly PlayEd GamEs Total GamEs PlayEd: 11 This part of the website is just for demonstration purposes until we can implement Dedcon into the modded builds, so what you see here is a concept and is not final."
+    },
+    {
+      "url": "/about.html",
+      "title": "About",
+      "content": "Welcome to the Official Website for Defcon Expanded the 8-10 player mod for DEFCON. The mod is months in the making and wouldn't of been possible without some talented people who are passionate about the game. The mod is still in its infancy and I do suggest you email me, or contact one of us on the discord if any bugs or issues arise. ABoUt thE Mod GamE TEstERs  KezzaMcFezza Wan May Nicole Laika Ben_Herr Lævateinn demo0096 Erroneous Very Fine Art GoodNight Gyarados Nexustini Zak Idealist DEvElopERs Wan May WEBsitE DEvElopERs Devil Sierra CoNtact UsIf you find any bugs or want to get in contact for any reason, email me at or message Sievert or FasterThanRaito on Discord. Join Discord"
+    },
+    {
+      "url": "/news.html",
+      "title": "News",
+      "content": "LatEst NEWs aNd EvENts New Update Released A revamped version of the 8 Player Mod that has been built on MINICOM as a base instead of DEFCON, adding MINICOM features to the 8 player build will make the game play better and more stable. To download the newest version see the Resources tab which includes a tutorial on how to install. If you would like to know more about MINICOM and what it changes in DEFCON, here is the link to the Official Website. 10 Player Build The 10 Player build has received alot of changes in the past few weeks and is almost ready for its first public test. The territories have been the main focus of these changes due to game balance most notably shrinking the size of the Antarctic reach for South Africa and Australia/Indonesia territories. If you would like to try the 10 Player build out yourself, the most recent Version 2.10.1 is available in the Experimental tab of the website. Every Sunday Event Sign up for this Sunday's game on 28th july 2024 3-6PM Eastern Standard Time. Register on Discord Dev Blog Most Likely Sievert or Raito if they want this."
+    },
+    {
+      "url": "/media.html",
+      "title": "Media",
+      "content": "screenshots videos"
+    },
+    {
+      "url": "/resources.html",
+      "title": "Resources",
+      "content": "8 PlayER BUild REsoURcEs If you get a virus detected popup and your browser refuses to let you download and of these files, turn off windows defender or any other anti virus software as these modded builds arent signed. INstallatioN TUtoRial... If you are still struggling with the install just ask one of us on the Discord. DoWNload linKs Download links for the most recent 8 player build and older versions including the modified Dedcon build that is compatible with the most recent build. Defcon8P 2.8.3 Dedcon VERsioN HistoRy Defcon8P 2.8.2 Defcon8P 2.8.1 Defcon8P 2.8.0"
+    },
+    {
+      "url": "/experimental.html",
+      "title": "Experimental",
+      "content": "10 PlayER BUild iN DEvElopmENt If you get a virus detected popup and your browser refuses to let you download and of these files, turn off windows defender or any other anti virus software as these modded builds arent signed. New Territories 10 Player Territories We are currently developing an Experimenal 10 Player build that is far from finished but we have working builds that people can try. Hopefully at some point we will host a 10 Player game in the near future possibly at the end of July or start of August 2024. However this is not the main focus of the project we are still mainly working on the 8 Player Build. We have download links for the recent version below and older versions if you are interested in trying it out for yourself, if you encounter any bugs or crashes we would appreciate it if you could send me an email with the error code. Or alternatively you can ask FasterThanRaito or Sievert who are the main developers working on the 10 Player build. TUtoRiAl The installation tutorial for the 10 Player build is the same as the 8 Player build, head over to the resources tab for the tutorial. DoWNload LiNK The most recent build Defcon10p 2.10.1 VERsioN HistoRy Defcon10P 2.10.0"
+    },
+    {
+      "url": "/matchroom.html",
+      "title": "Matchroom",
+      "content": "WaitiNg oN DEdcoN to BEcomE implEmENtEd The goal that i have is to have detailed match statistics available on this page such as player names, score, territory and how many units, population, bases, silos the player had left. Another thing that i want to add is having a video player in the matchroom page of the game where people can watch the game on the website instead of having to download the demo. But the demo download will always be available for those who are comfortable using the Dedcon client."
+    }
+  ]

@@ -1,7 +1,75 @@
 
+/* search bar delete in mobile */
+
 @media screen and (max-width: 768px) {
 
+    .search-container {
+        position: absolute;
+        right: 0px;
+        top: 0%;
+        display: none;
+    }
+
+    #search-input {
+        padding: 0px;
+        width: 0px;
+        border: 0px solid #ddd;
+        border-radius: 0px;
+        display: none;
+    }
+
+    #search-button {
+        padding: 0px 0px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        display: none;
+        border-radius: 0px;
+        cursor: pointer;
+    }
+
+    #search-button:hover {
+        background-color: #45a049;
+        display: none;
+    }
+}
+
+@media screen and (max-width: 480px) {
+
+    .search-container {
+        position: absolute;
+        right: 0px;
+        top: 0%;
+        display: none;
+    }
+
+    #search-input {
+        padding: 0px;
+        width: 0px;
+        border: 0px solid #ddd;
+        border-radius: 0px;
+        display: none;
+    }
+
+    #search-button {
+        padding: 0px 0px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        display: none;
+        border-radius: 0px;
+        cursor: pointer;
+    }
+
+    #search-button:hover {
+        background-color: #45a049;
+        display: none;
+    }
+}
+
     /* About page */
+
+@media screen and (max-width: 768px) {
 
     .container {
         padding: 10px;

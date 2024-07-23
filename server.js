@@ -46,6 +46,31 @@ console.log('File watcher set up.');
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
+// Load the search index
+let searchIndex;
+try {
+    searchIndex = JSON.parse(fs.readFileSync(path.join(__dirname, 'search-index.json'), 'utf8'));
+    console.log('Search index loaded successfully');
+} catch (error) {
+    console.error('Error loading search index:', error);
+    searchIndex = [];
+}
+
+// Add the search API endpoint
+app.get('/api/search', (req, res) => {
+    const query = req.query.q.toLowerCase();
+    const results = searchIndex.filter(page => 
+        page.title.toLowerCase().includes(query) || 
+        page.content.toLowerCase().includes(query)
+    ).map(page => ({
+        url: page.url,
+        title: page.title,
+        snippet: page.content.substring(0, 150) + '...'
+    }));
+
+    res.json(results);
+});
+
 // Route for the home page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -107,6 +132,10 @@ app.get('/homepage/matchroom', (req, res) => {
 
 app.get('/homepage', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/searchresults', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'searchresults.html'));
 });
 
 app.listen(port, () => {
