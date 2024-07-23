@@ -2,7 +2,15 @@
 
 body, html {
     font-family: 'Roboto', sans-serif;
-    background-color: rgb(2,0,36);
+    background: hsla(254, 68%, 9%, 1);
+
+    background: linear-gradient(180deg, hsla(254, 68%, 9%, 1) 0%, hsla(241, 73%, 12%, 1) 40%, hsla(241, 73%, 12%, 1) 60%, hsla(254, 68%, 9%, 1) 100%);
+    
+    background: -moz-linear-gradient(180deg, hsla(254, 68%, 9%, 1) 0%, hsla(241, 73%, 12%, 1) 40%, hsla(241, 73%, 12%, 1) 60%, hsla(254, 68%, 9%, 1) 100%);
+    
+    background: -webkit-linear-gradient(180deg, hsla(254, 68%, 9%, 1) 0%, hsla(241, 73%, 12%, 1) 40%, hsla(241, 73%, 12%, 1) 60%, hsla(254, 68%, 9%, 1) 100%);
+    
+    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#0E0725", endColorstr="#090833", GradientType=1 );
     color: white;
     margin: 0;
     padding: 0;
@@ -10,10 +18,72 @@ body, html {
     overflow: hidden;
 }
 
+    /* search bar*/
+    .search-container {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    #search-input {
+        padding: 6px;
+        width: 150px;
+        border: 0px solid #555555;
+        border-radius: 20px;
+    }
+
+    #search-button {
+        text-decoration: none;
+        color: #fff;
+        background-color: #109e10;
+        padding: 6px 20px;
+        border-radius: 100px;
+        font-weight: bold;
+        text-transform: uppercase;
+        transition: all 0.1s ease-in-out;
+        border: 0px solid #fff;
+        cursor: pointer;
+    }
+
+    #search-button:hover {
+        box-shadow: 0 0 3px #109e10, 0 0 20px #109e10, 0 0 20px #109e10;
+        background-color: #109e10;
+    }
+
+    /* search bar homepage*/
+
+    .search-container2 {
+        justify-content: center;
+        display: flex;
+        right: 10px;
+        top: 50%;
+    }
+
+    #search-input2 {
+        padding: 7px;
+        width: 270px;
+        border: 0px solid #555555;
+        border-radius: 0px;
+    }
+
+    #search-button2 {
+        padding: 8px 15px;
+        background-color: #232f47;
+        color: white;
+        gap: 10px;
+        border: none;
+        border-radius: 0px;
+        cursor: pointer;
+    }
+
+    #search-button2:hover {
+        background-color: #1b2436;
+    }
+
 /* Container and Column Layout */
 
 .container {
-    background: rgb(2,0,36);
     border: 0px solid rgb(21, 148, 21);
     background-repeat: no-repeat;
     display: flex;
@@ -24,7 +94,6 @@ body, html {
 }
 
 .container-homepage {
-    background: rgb(2,0,36);
     border: 0px solid rgb(21, 148, 21);
     background-repeat: no-repeat;
     display: flex;
@@ -98,14 +167,16 @@ body, html {
 /* hidden scrollbar */
 
      /* google chrome safari and opera */
+     
     .hide-scrollbar::-webkit-scrollbar {
         display: none;
     }
 
-    /* internetexplorer edge and firefox*/
+    /* internet explorer edge and firefox*/
+
     .hide-scrollbar {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
+        -ms-overflow-style: none;  
+        scrollbar-width: none;  
     }
 
     .hide-scrollbar {
@@ -116,7 +187,7 @@ body, html {
 
 .announcement,
 .event {
-    background-color: #2c2f33;
+    background-color: #1b212c;
     padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -134,7 +205,7 @@ body, html {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
+    gap: 40px;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     margin-top: 80px;
 }

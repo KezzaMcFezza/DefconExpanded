@@ -12,8 +12,6 @@
     <link rel="stylesheet" type="text/css" href="/btnnav.css" />
     <link rel="stylesheet" type="text/css" href="/scaling.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-    </style>
 </head>
 <body class="hide-scrollbar">
     <header>
@@ -28,9 +26,13 @@
         <a class="btn-third foo" href="/media">Media</a>
         <a class="btn-third foo" href="/resources">Downloads</a>
         <a class="btn-third foo" href="/experimental">Experimental</a>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search...">
+            <button id="search-button">Search</button>
+        </div>
     </nav>
     <div class="container">
-        <!-- <div class="center-column"> -->
+        <div class="center-column">
             <h1>ABoUt thE Mod</h1>
             <p class="pabout">Welcome to the Official Website for Defcon Expanded the 8-10 player mod for DEFCON. The mod is months in the making and 
                               wouldn't of been possible without some talented people who are passionate about the game. The mod is still in its infancy 
@@ -86,7 +88,23 @@
                     <br>
                 </div>
             </div>
-        <!-- </div> -->
+        </div>
     </div>
+    <script>
+
+        function performSearch() {
+            const searchTerm = document.getElementById('search-input').value;
+            if (searchTerm.trim() === '') return;
+            window.location.href = `/searchresults.html?q=${encodeURIComponent(searchTerm)}`;
+        }
+
+        document.getElementById('search-button').addEventListener('click', performSearch);
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+    </script>
 </body>
 </html>

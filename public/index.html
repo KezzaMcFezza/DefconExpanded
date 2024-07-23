@@ -12,14 +12,7 @@
     <link rel="stylesheet" type="text/css" href="/btnnav.css" />
     <link rel="stylesheet" type="text/css" href="/scaling.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-
-        /* Apply the hide-scrollbar class to the body and html elements */
-        body, html {
-            height: 100%;
-            overflow: hidden;
-        }
-
+    <style> 
     </style>
 </head>
 <body class="hide-scrollbar">
@@ -35,6 +28,10 @@
         <a class="btn-third foo" href="/media">Media</a>
         <a class="btn-third foo" href="/resources">Downloads</a>
         <a class="btn-third foo" href="/experimental">Experimental</a>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search...">
+            <button id="search-button">Search</button>
+        </div>
     </nav>
     <div class="container-homepage hide-scrollbar">
         <div class="center-column">
@@ -42,6 +39,11 @@
             <div class="games-played" id="games-played">Total GamEs PlayEd: 0</div>
             <p class="pabout2">This part of the website is just for demonstration purposes until we can implement Dedcon into the modded builds, 
                               so what you see here is a concept and is not final.</p>
+            <br>
+            <div class="search-container2">
+                <input type="text" id="search-input2" placeholder="Search for Games and Players...">
+                <button id="search-button2">Search</button>
+            </div>
             <div id="demo-container" class="demo-container">
             </div>
             <br>
@@ -52,6 +54,8 @@
         </div>
     </div>
     <script>
+        let allDemos = []; 
+        
         function formatBytes(bytes, decimals = 2) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
@@ -60,71 +64,103 @@
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
         }
-
+        
         function updatePagination(totalPages, currentPage) {
             const paginationContainer = document.getElementById('pagination');
             paginationContainer.innerHTML = '';
-
+        
             for (let i = 1; i <= totalPages; i++) {
                 const pageButton = document.createElement('button');
                 pageButton.textContent = i;
                 if (i === currentPage) {
                     pageButton.disabled = true;
                 }
-                pageButton.addEventListener('click', () => showPage(i));
+                pageButton.addEventListener('click', () => showPage(i, allDemos));
                 paginationContainer.appendChild(pageButton);
             }
         }
-
-        function showPage(pageNumber) {
+        
+        function showPage(pageNumber, demos) {
             const demosPerPage = 6;
             const start = (pageNumber - 1) * demosPerPage;
             const end = start + demosPerPage;
             const demoContainer = document.getElementById('demo-container');
-            const demos = Array.from(demoContainer.children);
-            demos.forEach((demo, index) => {
-                if (index >= start && index < end) {
-                    demo.style.display = '';
-                } else {
-                    demo.style.display = 'none';
-                }
+            demoContainer.innerHTML = ''; 
+        
+            demos.slice(start, end).forEach(demo => {
+                const demoCard = createDemoCard(demo);
+                demoContainer.appendChild(demoCard);
             });
+        
             updatePagination(Math.ceil(demos.length / demosPerPage), pageNumber);
         }
-
+        
+        function createDemoCard(demo) {
+            const demoCard = document.createElement('div');
+            demoCard.className = 'demo-card';
+            demoCard.innerHTML = `
+                <div class="demo-content">
+                    <h3>${demo.name}</h3>
+                    <p><strong>Size:</strong> ${formatBytes(demo.size)}</p>
+                    <p><strong>Date:</strong> ${new Date(demo.date).toLocaleDateString()}</p>
+                    <a href="/download/${demo.name}" class="btn-download foo">
+                        <img src="images/dedcon.ico" alt="" class="download-icon"> Download
+                    </a>
+                    <a href="/homepage/matchroom" class="btn-matchroom foo"> Matchroom </a>
+                </div>
+            `;
+            return demoCard;
+        }
+        
         function updateDemoList() {
             fetch('/demos')
                 .then(response => response.json())
                 .then(demos => {
-                    const demoContainer = document.getElementById('demo-container');
-                    demoContainer.innerHTML = '';
-                    demos.forEach(demo => {
-                        const demoCard = document.createElement('div');
-                        demoCard.className = 'demo-card';
-                        demoCard.innerHTML = `
-                            <div class="demo-content">
-                                <h3>${demo.name}</h3>
-                                <p><strong>Size:</strong> ${formatBytes(demo.size)}</p>
-                                <p><strong>Date:</strong> ${new Date(demo.date).toLocaleDateString()}</p>
-                                <a href="/download/${demo.name}" class="btn-download foo">
-                                    <img src="images/dedcon.ico" alt="" class="download-icon"> Download
-                                </a>
-                                <a href="/homepage/matchroom" class="btn-matchroom foo"> Matchroom </a>
-                            </div>
-                        `;
-                        demoContainer.appendChild(demoCard);
-                    });
-
+                    allDemos = demos; 
                     const gamesPlayed = document.getElementById('games-played');
                     gamesPlayed.textContent = `Total GamEs PlayEd: ${demos.length}`;
-                    showPage(1);
+                    showPage(1, allDemos);
                 })
                 .catch(error => console.error('Error fetching demos:', error));
         }
-
+        
+        // Function for the main search bar at the top
+        function performMainSearch() {
+            const searchTerm = document.getElementById('search-input').value;
+            if (searchTerm.trim() === '') return;
+            window.location.href = `/searchresults.html?q=${encodeURIComponent(searchTerm)}`;
+        }
+        
+        // Function for the game search bar
+        function performGameSearch() {
+            const searchTerm = document.getElementById('search-input2').value.toLowerCase();
+            const filteredDemos = allDemos.filter(demo => 
+                demo.name.toLowerCase().includes(searchTerm) ||
+                formatBytes(demo.size).toLowerCase().includes(searchTerm) ||
+                new Date(demo.date).toLocaleDateString().toLowerCase().includes(searchTerm)
+            );
+            showPage(1, filteredDemos);
+        }
+        
+        // Event listeners for the main search bar
+        document.getElementById('search-button').addEventListener('click', performMainSearch);
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performMainSearch();
+            }
+        });
+        
+        // Event listeners for the game search bar
+        document.getElementById('search-button2').addEventListener('click', performGameSearch);
+        document.getElementById('search-input2').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performGameSearch();
+            }
+        });
+        
         updateDemoList();
         setInterval(updateDemoList, 30000);
-    </script>
+        </script>
 </body>
 </html>
 <!--

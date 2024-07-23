@@ -28,6 +28,10 @@
         <a class="btn-third foo" href="/media">Media</a>
         <a class="btn-third foo" href="/resources">Downloads</a>
         <a class="btn-third foo" href="/experimental">Experimental</a>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search...">
+            <button id="search-button">Search</button>
+        </div>
     </nav>
     <div class="container">
         <div class="center-column">
@@ -148,6 +152,20 @@
             modal.style.display = "none";
             document.getElementById("modalVideo").pause();
         }
+
+        function performSearch() {
+            const searchTerm = document.getElementById('search-input').value;
+            if (searchTerm.trim() === '') return;
+            window.location.href = `/searchresults.html?q=${encodeURIComponent(searchTerm)}`;
+        }
+
+        document.getElementById('search-button').addEventListener('click', performSearch);
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
     </script>
 </body>
 </html>

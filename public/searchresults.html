@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Defcon Expanded</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+    <link rel="stylesheet" type="text/css" href="/media.css" />
+    <link rel="stylesheet" type="text/css" href="/btnnav.css" />
+    <link rel="stylesheet" type="text/css" href="/scaling.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+
+        #searchresults {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #1b212c;
+            border-radius: 5px;
+        }
+        #searchresults ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #searchresults li {
+            margin-bottom: 10px;
+        }
+        #searchresults a {
+            font-weight: bold;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        #searchresults p {
+            margin: 5px 0 0 0;
+            font-size: 0.9em;
+        }
+
+        .search-results {
+            text-transform: lowercase;
+        }
+        .search-results h1,
+        .search-results h2,
+        .search-results h3,
+        .search-results h4,
+        .search-results a {
+            text-transform: capitalize;
+        }
+        .search-results .category {
+            text-transform: uppercase;
+        }
+        
+    </style>
+</head>
+<body class="hide-scrollbar">
+    <header>
+        <div class="bannerdivclass">
+            <div class="logodivclass"></div>
+        </div>
+    </header>
+    <nav>
+        <a class="btn-third foo" href="/">Homepage</a>
+        <a class="btn-third foo" href="/about">About</a>
+        <a class="btn-third foo" href="/news">News</a>
+        <a class="btn-third foo" href="/media">Media</a>
+        <a class="btn-third foo" href="/resources">Downloads</a>
+        <a class="btn-third foo" href="/experimental">Experimental</a>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search for Games...">
+            <button id="search-button">Search</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="center-column search-results">
+            <h1>SEaRch REsUlts</h1>
+            <div id="searchresults">Searching...</div>
+        </div>
+    </div>
+    <script>
+        function performSearch(query) {
+            const searchResults = document.getElementById('searchresults');
+            searchResults.innerHTML = 'Searching...';
+
+            fetch(`/api/search?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(results => {
+                    searchResults.innerHTML = '';
+                    if (results.length === 0) {
+                        searchResults.innerHTML = 'No results found.';
+                    } else {
+                        const resultList = document.createElement('ul');
+                        results.forEach(result => {
+                            const listItem = document.createElement('li');
+                            const link = document.createElement('a');
+                            link.href = result.url;
+                            link.textContent = result.title;
+                            listItem.appendChild(link);
+                            const snippet = document.createElement('p');
+                            snippet.textContent = result.snippet;
+                            listItem.appendChild(snippet);
+                            resultList.appendChild(listItem);
+                        });
+                        searchResults.appendChild(resultList);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error performing search:', error);
+                    searchResults.innerHTML = 'An error occurred while searching. Please try again.';
+                });
+        }
+
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('q');
+        if (query) {
+            document.getElementById('search-input').value = query;
+            performSearch(query);
+        }
+
+
+        document.getElementById('search-button').addEventListener('click', function() {
+            const newQuery = document.getElementById('search-input').value;
+            if (newQuery.trim() !== '') {
+                window.location.href = `/searchresults.html?q=${encodeURIComponent(newQuery)}`;
+            }
+        });
+
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const newQuery = this.value;
+                if (newQuery.trim() !== '') {
+                    window.location.href = `/searchresults.html?q=${encodeURIComponent(newQuery)}`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
