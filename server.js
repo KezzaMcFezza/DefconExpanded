@@ -138,6 +138,10 @@ app.get('/searchresults', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'searchresults.html'));
 });
 
+app.get('/sitemap', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+});
+
 app.listen(port, () => {
   console.log(`Octocon Demo Server Listening at http://localhost:${port}`);
 });
