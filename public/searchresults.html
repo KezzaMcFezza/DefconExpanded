@@ -32,7 +32,6 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     </head>
     <style>
-
         #searchresults {
             text-align: center;
             margin-top: 20px;
@@ -76,7 +75,6 @@
             color: #00ff00; /* Bright green text */
             text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; /* Glow effect */
         }
-        
     </style>
 <body class="hide-scrollbar">
     <header>
@@ -102,81 +100,133 @@
             <div id="searchresults">Searching...</div>
         </div>
     </div>
-<script>
-function performSearch(query) {
-    const searchResults = document.getElementById('searchresults');
-    searchResults.innerHTML = 'Searching...';
-
-    fetch('/search-index.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(results => {
-            console.log('Fetched results:', results); // Log the fetched results
-            searchResults.innerHTML = '';
-            const filteredResults = results.filter(result => 
-                result.title.toLowerCase().includes(query.toLowerCase()) ||
-                result.snippet.toLowerCase().includes(query.toLowerCase()) ||
-                result.fullContent.toLowerCase().includes(query.toLowerCase())
-            );
-
-            if (filteredResults.length === 0) {
-                searchResults.innerHTML = 'No results found.';
-            } else {
-                const resultList = document.createElement('ul');
-                filteredResults.forEach(result => {
-                    const listItem = document.createElement('li');
+    <script>
+        function performSearch(query) {
+            query = query.toLowerCase();
+            const searchResults = document.getElementById('searchresults');
+            searchResults.innerHTML = 'Searching...';
+        
+            fetch('/search-index.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(searchIndex => {
+                    console.log('Fetched search index:', searchIndex);
+                    searchResults.innerHTML = '';
                     
-                    const link = document.createElement('a');
-                    link.href = result.url;
-                    link.textContent = result.title;
-                    listItem.appendChild(link);
-                    
-                    const snippet = document.createElement('p');
-                    const highlightedSnippet = result.snippet.replace(
-                        new RegExp(query, 'gi'),
-                        match => `<span class="search-highlight">${match}</span>`
-                    );
-                    snippet.innerHTML = highlightedSnippet;
-                    listItem.appendChild(snippet);
-                    
-                    resultList.appendChild(listItem);
+                    const filteredResults = searchIndex.flatMap(page => {
+                        let pageMatches = [];
+        
+                        // Check title, h1, and metaDescription
+                        if (page.title.toLowerCase().includes(query) ||
+                            page.h1.toLowerCase().includes(query) ||
+                            page.metaDescription.toLowerCase().includes(query)) {
+                            pageMatches.push({
+                                url: page.url,
+                                title: page.title,
+                                snippet: page.metaDescription
+                            });
+                        }
+        
+                        // Check snippets
+                        page.snippets.forEach(snippet => {
+                            if (snippet.content.toLowerCase().includes(query)) {
+                                pageMatches.push({
+                                    url: page.url,
+                                    title: page.title,
+                                    snippet: snippet.content
+                                });
+                            }
+                        });
+        
+                        // Check sections if they exist
+                        if (page.sections) {
+                            page.sections.forEach(section => {
+                                if (section.title.toLowerCase().includes(query) || 
+                                    section.content.toLowerCase().includes(query)) {
+                                    pageMatches.push({
+                                        url: `${page.url}#${section.id}`,
+                                        title: `${page.title} - ${section.title}`,
+                                        snippet: section.content
+                                    });
+                                }
+                            });
+                        }
+        
+                        // Check keywords
+                        if (page.keywords.some(keyword => keyword.toLowerCase().includes(query))) {
+                            pageMatches.push({
+                                url: page.url,
+                                title: page.title,
+                                snippet: `This page contains relevant keywords: ${page.keywords.join(", ")}`
+                            });
+                        }
+        
+                        return pageMatches;
+                    });
+        
+                    if (filteredResults.length === 0) {
+                        searchResults.innerHTML = 'No results found.';
+                    } else {
+                        const resultList = document.createElement('ul');
+                        filteredResults.forEach(result => {
+                            const listItem = document.createElement('li');
+                            
+                            const link = document.createElement('a');
+                            link.href = result.url;
+                            link.textContent = result.title;
+                            listItem.appendChild(link);
+                            
+                            const snippet = document.createElement('p');
+                            const highlightedSnippet = result.snippet.replace(
+                                new RegExp(query, 'gi'),
+                                match => `<span class="search-highlight">${match}</span>`
+                            );
+                            snippet.innerHTML = highlightedSnippet;
+                            listItem.appendChild(snippet);
+                            
+                            resultList.appendChild(listItem);
+                        });
+                        searchResults.innerHTML = '';
+                        searchResults.appendChild(resultList);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error performing search:', error);
+                    searchResults.innerHTML = `An error occurred while searching: ${error.message}. Please try again.`;
                 });
-                searchResults.appendChild(resultList);
-            }
-        })
-        .catch(error => {
-            console.error('Error performing search:', error);
-            searchResults.innerHTML = `An error occurred while searching: ${error.message}. Please try again.`;
-        });
-}
-
-// The rest of your script remains unchanged
-const urlParams = new URLSearchParams(window.location.search);
-const query = urlParams.get('q');
-if (query) {
-    document.getElementById('search-input').value = query;
-    performSearch(query);
-}
-
-document.getElementById('search-button').addEventListener('click', function() {
-    const newQuery = document.getElementById('search-input').value;
-    if (newQuery.trim() !== '') {
-        performSearch(newQuery);
-    }
-});
-
-document.getElementById('search-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        const newQuery = this.value;
-        if (newQuery.trim() !== '') {
-            performSearch(newQuery);
         }
-    }
-});
-</script>
+        
+        // Event listener for search button
+        document.getElementById('search-button').addEventListener('click', function() {
+            const query = document.getElementById('search-input').value;
+            if (query.trim() !== '') {
+                performSearch(query);
+            }
+        });
+        
+        // Event listener for Enter key in search input
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value;
+                if (query.trim() !== '') {
+                    performSearch(query);
+                }
+            }
+        });
+        
+        // Perform search on page load if query parameter is present
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('q');
+            if (query) {
+                document.getElementById('search-input').value = query;
+                performSearch(query);
+            }
+        });
+        </script>
 </body>
 </html>
