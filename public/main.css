@@ -3,14 +3,11 @@
 body, html {
     font-family: 'Roboto', sans-serif;
     background: hsla(254, 68%, 9%, 1);
-
-    background: linear-gradient(180deg, hsla(254, 68%, 9%, 1) 0%, hsla(241, 73%, 12%, 1) 40%, hsla(241, 73%, 12%, 1) 60%, hsla(254, 68%, 9%, 1) 100%);
-    
-    background: -moz-linear-gradient(180deg, hsla(254, 68%, 9%, 1) 0%, hsla(241, 73%, 12%, 1) 40%, hsla(241, 73%, 12%, 1) 60%, hsla(254, 68%, 9%, 1) 100%);
-    
-    background: -webkit-linear-gradient(180deg, hsla(254, 68%, 9%, 1) 0%, hsla(241, 73%, 12%, 1) 40%, hsla(241, 73%, 12%, 1) 60%, hsla(254, 68%, 9%, 1) 100%);
-    
-    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#0E0725", endColorstr="#090833", GradientType=1 );
+    background: hsla(253, 76%, 5%, 1);
+    background: linear-gradient(180deg, hsla(253, 76%, 5%, 1) 0%, hsla(241, 74%, 15%, 1) 40%, hsla(241, 74%, 15%, 1) 60%, hsla(253, 76%, 5%, 1) 100%);
+    background: -moz-linear-gradient(180deg, hsla(253, 76%, 5%, 1) 0%, hsla(241, 74%, 15%, 1) 40%, hsla(241, 74%, 15%, 1) 60%, hsla(253, 76%, 5%, 1) 100%);
+    background: -webkit-linear-gradient(180deg, hsla(253, 76%, 5%, 1) 0%, hsla(241, 74%, 15%, 1) 40%, hsla(241, 74%, 15%, 1) 60%, hsla(253, 76%, 5%, 1) 100%);
+    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#070316", endColorstr="#0B0A42", GradientType=1 );
     color: white;
     margin: 0;
     padding: 0;
@@ -44,8 +41,8 @@ body, html {
 
 #search-button {
     text-decoration: none;
-    color: #000000; 
-    background-color: #00ff00; 
+    color: #8c9cb0; 
+    background-color: #232f47; 
     padding: 6px 15px;
     border-radius: 100px;
     font-weight: bold;
@@ -56,18 +53,17 @@ body, html {
 }
 
 #search-button:hover {
-    background-color: #00cc00; 
-    box-shadow: 0 0 3px #00cc00, 0 0 20px #00cc00, 0 0 20px #00cc00;
+    background-color: #2c58b8; 
 }
 
 #search-input:focus {
-    border-color: #00ff00; 
-    box-shadow: 0 0 1px rgba(0, 255, 0, 0.5); 
+    border-color: #314163; 
+    box-shadow: 0 0 1px #314163; 
 }
 
 #search-button:focus {
     outline: none;
-    box-shadow: 0 0 1px rgba(0, 255, 0, 0.5); 
+    box-shadow: 0 0 1px #2c58b8; 
 }
 
 /* Homepage search bar */
@@ -98,8 +94,8 @@ body, html {
     padding: 8px 15px;
     font-size: 0.8rem;
     font-weight: bold;
-    background-color: #00ff00; 
-    color: #000000; 
+    background-color: #232f47; 
+    color: #8c9cb0; 
     border: none;
     border-radius: 0px;
     cursor: pointer;
@@ -107,17 +103,17 @@ body, html {
 }
 
 #search-button2:hover {
-    background-color: #00cc00; 
+    background-color: #2c58b8; 
 }
 
 #search-input2:focus {
-    border-color: #00ff00; 
-    box-shadow: 0 0 1px rgba(0, 255, 0, 0.5); 
+    border-color: #314163; 
+    box-shadow: 0 0 1px #314163; 
 }
 
 #search-button2:focus {
     outline: none;
-    box-shadow: 0 0 1px rgba(0, 255, 0, 0.5); 
+    box-shadow: 0 0 1px #2c58b8; 
 }
 
 /* Container and Column Layout */
@@ -244,7 +240,7 @@ body, html {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 40px;
+    gap: 20px;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     margin-top: 80px;
 }
@@ -253,7 +249,7 @@ body, html {
     justify-content: center;
     flex: 300px 300px 300px;
     margin: 10px;  
-    width: 246px;
+    width: 256px;
     height: 350px;
     background-color: #001;
     border: 0px solid rgb(21, 148, 21);
@@ -262,13 +258,13 @@ body, html {
     overflow: hidden;
     color: #0f0;
     padding: 20px;
-    box-shadow: 4px 4px 10px rgb(12, 163, 12);
+    box-shadow: 4px 4px 4px rgb(12, 163, 12);
     font-family: 'Courier New', monospace;
 }
 
 .demo-card:hover {
     transform: translateY(-5px);
-    box-shadow: 4px 4px 10px rgba(12, 163, 12);
+    box-shadow: 4px 4px 4px rgb(12, 163, 12);
 }
 
 .demo-card h3 {
