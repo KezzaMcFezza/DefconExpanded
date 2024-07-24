@@ -46,6 +46,14 @@ console.log('File watcher set up.');
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
+// Set the correct MIME type for .webmanifest files
+app.use((req, res, next) => {
+  if (req.url.endsWith('.webmanifest')) {
+    res.setHeader('Content-Type', 'application/manifest+json');
+  }
+  next();
+});
+
 // Load the search index
 let searchIndex;
 try {
@@ -145,6 +153,11 @@ app.get('/sitemap', (req, res) => {
 // New route for serving the site.webmanifest file
 app.get('/site.webmanifest', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'site.webmanifest'));
+});
+
+// New route for serving the browserconfig.xml file
+app.get('/browserconfig.xml', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'browserconfig.xml'));
 });
 
 app.listen(port, () => {
