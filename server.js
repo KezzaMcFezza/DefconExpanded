@@ -142,6 +142,11 @@ app.get('/sitemap', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
 });
 
+// New route for serving the site.webmanifest file
+app.get('/site.webmanifest', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'site.webmanifest'));
+});
+
 app.listen(port, () => {
   console.log(`Octocon Demo Server Listening at http://localhost:${port}`);
 });
