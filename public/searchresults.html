@@ -123,7 +123,7 @@ function performSearch(query) {
             return response.json();
         })
         .then(searchIndex => {
-            console.log('Fetched search index:', searchIndex); // Log the fetched search index
+            console.log('Fetched search index:', searchIndex);
             searchResults.innerHTML = '';
             
             const filteredResults = searchIndex.flatMap(page => {
@@ -136,8 +136,7 @@ function performSearch(query) {
                     pageMatches.push({
                         url: page.url,
                         title: page.title,
-                        snippet: page.metaDescription,
-                        matchType: 'general'
+                        snippet: page.metaDescription
                     });
                 }
 
@@ -147,44 +146,31 @@ function performSearch(query) {
                         pageMatches.push({
                             url: page.url,
                             title: page.title,
-                            snippet: snippet.content,
-                            matchType: 'snippet'
+                            snippet: snippet.content
                         });
                     }
                 });
 
-                // Check sections
-                page.sections.forEach(section => {
-                    if (section.title.toLowerCase().includes(query) || 
-                        section.content.toLowerCase().includes(query)) {
-                        pageMatches.push({
-                            url: `${page.url}#${section.id}`,
-                            title: `${page.title} - ${section.title}`,
-                            snippet: section.content,
-                            matchType: 'section'
-                        });
-                    }
-                });
-
-                // Check people
-                page.people.forEach(person => {
-                    if (person.name.toLowerCase().includes(query)) {
-                        pageMatches.push({
-                            url: page.url,
-                            title: `${person.name} - ${person.roles.join(", ")}`,
-                            snippet: `${person.name} is involved in Defcon Expanded as: ${person.roles.join(", ")}`,
-                            matchType: 'person'
-                        });
-                    }
-                });
+                // Check sections if they exist
+                if (page.sections) {
+                    page.sections.forEach(section => {
+                        if (section.title.toLowerCase().includes(query) || 
+                            section.content.toLowerCase().includes(query)) {
+                            pageMatches.push({
+                                url: `${page.url}#${section.id}`,
+                                title: `${page.title} - ${section.title}`,
+                                snippet: section.content
+                            });
+                        }
+                    });
+                }
 
                 // Check keywords
                 if (page.keywords.some(keyword => keyword.toLowerCase().includes(query))) {
                     pageMatches.push({
                         url: page.url,
                         title: page.title,
-                        snippet: `This page contains relevant keywords: ${page.keywords.join(", ")}`,
-                        matchType: 'keyword'
+                        snippet: `This page contains relevant keywords: ${page.keywords.join(", ")}`
                     });
                 }
 
@@ -210,11 +196,6 @@ function performSearch(query) {
                     );
                     snippet.innerHTML = highlightedSnippet;
                     listItem.appendChild(snippet);
-                    
-                    const matchType = document.createElement('span');
-                    matchType.textContent = `Match type: ${result.matchType}`;
-                    matchType.className = 'match-type';
-                    listItem.appendChild(matchType);
                     
                     resultList.appendChild(listItem);
                 });
