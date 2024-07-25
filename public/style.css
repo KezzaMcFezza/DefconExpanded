@@ -141,6 +141,14 @@ li {
     font-weight: 400;
 }
 
+.headerresources4 {
+    color: #ff4d4d;
+    text-align: center;
+    font-family: 'kremlin';
+    font-size: 1.7rem;
+    font-weight: 400;
+}
+
 ul {
     padding-left: 7.5rem;
 }

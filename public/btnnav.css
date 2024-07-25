@@ -55,16 +55,17 @@
 }
 
 .btn-fourth {
-    display: inline-block;
-    padding: 10px 10px;
-    margin: 10px 20px;
+    color: #ffffff;
+    padding: 10px 20px;
     border-radius: 5px;
-    text-align: center;
     text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
     font-weight: bold;
-    transition: background-color 0s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 15px;
     background-color: #ff0000;
-    color: white;
 }
 
 /* Better buttons */
