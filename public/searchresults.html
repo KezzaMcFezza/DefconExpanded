@@ -33,210 +33,203 @@
         <link rel="stylesheet" type="text/css" href="/btnnav.css" />
         <link rel="stylesheet" type="text/css" href="/scaling.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    </head>
-    <style>
-        #searchresults {
-            text-align: center;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #1b212c;
-            border-radius: 5px;
-        }
-        #searchresults ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        #searchresults li {
-            margin-bottom: 10px;
-        }
-        #searchresults a {
-            font-weight: bold;
-            color: #0066cc;
-            text-decoration: none;
-        }
-        #searchresults p {
-            margin: 5px 0 0 0;
-            font-size: 0.9em;
-        }
-
-        .search-results {
-            text-transform: uppercase;
-        }
-        .search-results h1,
-        .search-results h2,
-        .search-results h3,
-        .search-results h4,
-        .search-results a {
-            text-transform: capitalize;
-        }
-        .search-results .category {
-            text-transform: uppercase;
-        }
-
-        .search-highlight {
-            background-color: transparent;
-            color: #00ff00; /* Bright green text */
-            text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; /* Glow effect */
-        }
-        
-        .match-type {
-            font-size: 0.8em;
-            color: #888;
-            display: block;
-            margin-top: 5px;
-        }
-    </style>
-<body class="hide-scrollbar">
-    <header>
-        <div class="bannerdivclass">
-            <div class="logodivclass"></div>
-        </div>
-    </header>
-    <nav>
-        <a class="btn-third foo" href="/">Homepage</a>
-        <a class="btn-third foo" href="/about">About</a>
-        <a class="btn-third foo" href="/news">News</a>
-        <a class="btn-third foo" href="/media">Media</a>
-        <a class="btn-third foo" href="/resources">Downloads</a>
-        <a class="btn-third foo" href="/experimental">Experimental</a>
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="Search for Games...">
-            <button id="search-button">Search</button>
-        </div>
-    </nav>
-    <div class="container">
-        <div class="center-column search-results">
-            <h1>SEaRch REsUlts</h1>
-            <div id="searchresults">Searching...</div>
-        </div>
-    </div>
-<script>
-function performSearch(query) {
-    query = query.toLowerCase();
-    const searchResults = document.getElementById('searchresults');
-    searchResults.innerHTML = 'Searching...';
-
-    fetch('/search-index.json')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        <style>
+            #searchresults {
+                max-width: 800px;
+                margin: 20px auto;
+                padding: 20px;
+                background-color: rgba(27, 33, 44, 0.8);
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
             }
-            return response.json();
-        })
-        .then(searchIndex => {
-            console.log('Fetched search index:', searchIndex);
-            searchResults.innerHTML = '';
-            
-            const filteredResults = searchIndex.flatMap(page => {
-                let pageMatches = [];
+            #searchresults ul {
+                list-style-type: none;
+                padding: 0;
+            }
+            #searchresults li {
+                margin-bottom: 20px;
+                padding: 15px;
+                background-color: rgba(40, 44, 52, 0.6);
+                border-radius: 5px;
+                transition: background-color 0.3s ease;
+            }
+            #searchresults li:hover {
+                background-color: rgba(50, 54, 62, 0.8);
+            }
+            #searchresults a {
+                font-weight: bold;
+                color: #00ff00;
+                text-decoration: none;
+                font-size: 1.2em;
+                display: block;
+                margin-bottom: 5px;
+            }
+            #searchresults p {
+                margin: 5px 0 0 0;
+                font-size: 0.9em;
+                color: #cccccc;
+                line-height: 1.4;
+            }
 
-                // Check title, h1, and metaDescription
-                if (page.title.toLowerCase().includes(query) ||
-                    page.h1.toLowerCase().includes(query) ||
-                    page.metaDescription.toLowerCase().includes(query)) {
-                    pageMatches.push({
-                        url: page.url,
-                        title: page.title,
-                        snippet: page.metaDescription
-                    });
-                }
+            .search-highlight {
+                background-color: rgba(0, 255, 0, 0.2);
+                color: #00ff00;
+                padding: 2px 4px;
+                border-radius: 3px;
+            }
+        </style>
+    </head>
+    <body class="hide-scrollbar">
+        <header>
+            <div class="bannerdivclass">
+                <div class="logodivclass"></div>
+            </div>
+        </header>
+        <nav>
+            <a class="btn-third foo" href="/">Homepage</a>
+            <a class="btn-third foo" href="/about">About</a>
+            <a class="btn-third foo" href="/news">News</a>
+            <a class="btn-third foo" href="/media">Media</a>
+            <a class="btn-third foo" href="/resources">Downloads</a>
+            <a class="btn-third foo" href="/experimental">Experimental</a>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search for Games...">
+                <button id="search-button">Search</button>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="center-column search-results">
+                <h1>SEaRch REsUlts</h1>
+                <div id="searchresults">Searching...</div>
+            </div>
+        </div>
+        <script>
+            function performSearch(query) {
+                query = query.toLowerCase();
+                const searchResults = document.getElementById('searchresults');
+                searchResults.innerHTML = '<p>Searching...</p>';
 
-                // Check snippets
-                page.snippets.forEach(snippet => {
-                    if (snippet.content.toLowerCase().includes(query)) {
-                        pageMatches.push({
-                            url: page.url,
-                            title: page.title,
-                            snippet: snippet.content
-                        });
-                    }
-                });
-
-                // Check sections if they exist
-                if (page.sections) {
-                    page.sections.forEach(section => {
-                        if (section.title.toLowerCase().includes(query) || 
-                            section.content.toLowerCase().includes(query)) {
-                            pageMatches.push({
-                                url: `${page.url}#${section.id}`,
-                                title: `${page.title} - ${section.title}`,
-                                snippet: section.content
-                            });
+                fetch('/search-index.json')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
                         }
-                    });
-                }
+                        return response.json();
+                    })
+                    .then(searchIndex => {
+                        console.log('Fetched search index:', searchIndex);
+                        searchResults.innerHTML = '';
+                        
+                        const filteredResults = searchIndex.flatMap(page => {
+                            let pageMatches = [];
 
-                // Check keywords
-                if (page.keywords.some(keyword => keyword.toLowerCase().includes(query))) {
-                    pageMatches.push({
-                        url: page.url,
-                        title: page.title,
-                        snippet: `This page contains relevant keywords: ${page.keywords.join(", ")}`
-                    });
-                }
+                            // Check title, h1, and metaDescription
+                            if (page.title.toLowerCase().includes(query) ||
+                                page.h1.toLowerCase().includes(query) ||
+                                page.metaDescription.toLowerCase().includes(query)) {
+                                pageMatches.push({
+                                    url: page.url,
+                                    title: page.title,
+                                    snippet: page.metaDescription
+                                });
+                            }
 
-                return pageMatches;
+                            // Check snippets
+                            page.snippets.forEach(snippet => {
+                                if (snippet.content.toLowerCase().includes(query)) {
+                                    pageMatches.push({
+                                        url: page.url,
+                                        title: page.title,
+                                        snippet: snippet.content
+                                    });
+                                }
+                            });
+
+                            // Check sections if they exist
+                            if (page.sections) {
+                                page.sections.forEach(section => {
+                                    if (section.title.toLowerCase().includes(query) || 
+                                        section.content.toLowerCase().includes(query)) {
+                                        pageMatches.push({
+                                            url: `${page.url}#${section.id}`,
+                                            title: `${page.title} - ${section.title}`,
+                                            snippet: section.content
+                                        });
+                                    }
+                                });
+                            }
+
+                            // Check keywords
+                            if (page.keywords.some(keyword => keyword.toLowerCase().includes(query))) {
+                                pageMatches.push({
+                                    url: page.url,
+                                    title: page.title,
+                                    snippet: `This page contains relevant keywords: ${page.keywords.join(", ")}`
+                                });
+                            }
+
+                            return pageMatches;
+                        });
+
+                        if (filteredResults.length === 0) {
+                            searchResults.innerHTML = '<p>No results found.</p>';
+                        } else {
+                            const resultList = document.createElement('ul');
+                            filteredResults.forEach(result => {
+                                const listItem = document.createElement('li');
+                                
+                                const link = document.createElement('a');
+                                link.href = result.url;
+                                link.textContent = result.title;
+                                listItem.appendChild(link);
+                                
+                                const snippet = document.createElement('p');
+                                const highlightedSnippet = result.snippet.replace(
+                                    new RegExp(query, 'gi'),
+                                    match => `<span class="search-highlight">${match}</span>`
+                                );
+                                snippet.innerHTML = highlightedSnippet;
+                                listItem.appendChild(snippet);
+                                
+                                resultList.appendChild(listItem);
+                            });
+                            searchResults.innerHTML = '';
+                            searchResults.appendChild(resultList);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error performing search:', error);
+                        searchResults.innerHTML = `<p>An error occurred while searching: ${error.message}. Please try again.</p>`;
+                    });
+            }
+
+            // Event listener for search button
+            document.getElementById('search-button').addEventListener('click', function() {
+                const query = document.getElementById('search-input').value;
+                if (query.trim() !== '') {
+                    performSearch(query);
+                }
             });
 
-            if (filteredResults.length === 0) {
-                searchResults.innerHTML = 'No results found.';
-            } else {
-                const resultList = document.createElement('ul');
-                filteredResults.forEach(result => {
-                    const listItem = document.createElement('li');
-                    
-                    const link = document.createElement('a');
-                    link.href = result.url;
-                    link.textContent = result.title;
-                    listItem.appendChild(link);
-                    
-                    const snippet = document.createElement('p');
-                    const highlightedSnippet = result.snippet.replace(
-                        new RegExp(query, 'gi'),
-                        match => `<span class="search-highlight">${match}</span>`
-                    );
-                    snippet.innerHTML = highlightedSnippet;
-                    listItem.appendChild(snippet);
-                    
-                    resultList.appendChild(listItem);
-                });
-                searchResults.innerHTML = '';
-                searchResults.appendChild(resultList);
-            }
-        })
-        .catch(error => {
-            console.error('Error performing search:', error);
-            searchResults.innerHTML = `An error occurred while searching: ${error.message}. Please try again.`;
-        });
-}
+            // Event listener for Enter key in search input
+            document.getElementById('search-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const query = this.value;
+                    if (query.trim() !== '') {
+                        performSearch(query);
+                    }
+                }
+            });
 
-// Event listener for search button
-document.getElementById('search-button').addEventListener('click', function() {
-    const query = document.getElementById('search-input').value;
-    if (query.trim() !== '') {
-        performSearch(query);
-    }
-});
-
-// Event listener for Enter key in search input
-document.getElementById('search-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        const query = this.value;
-        if (query.trim() !== '') {
-            performSearch(query);
-        }
-    }
-});
-
-// Perform search on page load if query parameter is present
-document.addEventListener('DOMContentLoaded', function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const query = urlParams.get('q');
-    if (query) {
-        document.getElementById('search-input').value = query;
-        performSearch(query);
-    }
-});
-</script>
-</body>
+            // Perform search on page load if query parameter is present
+            document.addEventListener('DOMContentLoaded', function() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const query = urlParams.get('q');
+                if (query) {
+                    document.getElementById('search-input').value = query;
+                    performSearch(query);
+                }
+            });
+        </script>
+    </body>
 </html>
