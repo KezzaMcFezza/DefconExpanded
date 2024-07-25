@@ -146,6 +146,18 @@ app.get('/searchresults', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'searchresults.html'));
 });
 
+app.get('/resources/8player', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', '8player.html'));
+});
+
+app.get('/resources/10player', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', '10player.html'));
+});
+
+app.get('/resources/16player', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', '16player.html'));
+});
+
 app.get('/sitemap', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
 });

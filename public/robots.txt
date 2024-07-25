@@ -12,6 +12,9 @@ Allow: /searchresults.html
 Allow: /sitemap.xml
 Allow: /site.webmanifest
 Allow: /browserconfig.xml
+Allow: /8player.html
+Allow: /10player.html
+Allow: /16player.html
 
 Disallow: /demos/
 Disallow: /public/uploads/

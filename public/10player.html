@@ -89,27 +89,56 @@
             <button id="search-button">Search</button>
         </div>
     </nav>
-    <div class="container-homepage">
+    <div class="container">
         <div class="center-column">
-            <h1 class="headerresources">DEFCON EXPANDED RESOURCES</h1>
-            
-            <div class="resources-grid">
-                <div class="resource-item" onclick="location.href='/resources/8player';">
-                    <h2 class="headerresources4">8 PlayER REsoURcEs</h2>
-                    <img src="images/favicon.png" alt="8 Player Resources">
-                    <p class="pabout"></p>
+            <h1 class="headerresources" id="8-player">10 PlayER BUild REsoURcEs</h1>
+            <p class="pabout2">If you get a virus detected popup and your browser refuses
+                              to let you download and of these files, turn off windows defender or any other 
+                              anti virus software as these modded builds arent signed.</p>
+            <div class="tutorial-download-container">
+                <div class="tutorial">
+                    <h1 class="headerresources">INstallatioN TUtoRial...</h1>
+                    <div class="media-grid">
+                        <div class="media-item-resources">
+                            <video 
+                            src="/videos/Installation Guide.mp4" 
+                            poster="/images/installation.png"
+                            controls
+                            onclick="openModal('/videos/Installation Guide.mp4', 'video', 'Installation Guide.mp4')">
+                            Your browser does not support the video tag. Please download the video to view it.
+                            </video>
+                        </div>                    
+                    </div>
+                    <p class="pabout">If you are still struggling with the install just ask one of us on the Discord.</p>    
                 </div>
-                <div class="resource-item" onclick="location.href='/resources/10player';">
-                    <h2 class="headerresources4">10 PlayER REsoURcEs</h2>
-                    <img src="images/Icon3.png" alt="10 Player Resources">
+                <div class="download-links">
+                    <p class="headerresources2">DoWNload linKs</p>
+                    <p class="pabout">Download links for the most recent 10 player build and older versions including the modified Dedcon build that is compatible with the most recent build.</p>
+                    <a href="files/DEFCON 10 Players Prerelease v2.10.1.zip" class="btn btn-resource-dl foo">
+                        <img src="/images/favicon.png" alt="" class="download-icon"> Defcon10P 2.10.1
+                    </a>
+                    <a href="/resources/comingsoon" class="btn-resource-dedcon foodedcon">
+                        <img src="/images/dedcon.ico" alt="" class="download-icon-resources"> Dedcon
+                    </a>
+                    <br>
+                    <br>
+                    <p class="headerresources2">VERsioN HistoRy</p>
                     <p class="pabout"></p>
-                </div>
-                <div class="resource-item" onclick="location.href='/resources/16player';">
-                    <h2 class="headerresources4">16 PlayER REsoURcEs</h2>
-                    <img src="images/Icon3.png" alt="16 Player Resources">
-                    <p class="pabout"></p>
+                    <a href="files/DEFCON 10 Players Prerelease v2.10.0.zip " class="btn btn-resource-dl foo">
+                        <img src="/images/favicon.png" alt="" class="download-icon"> Defcon8P 2.10.0
+                    </a>
                 </div>
             </div>
+        </div>
+    </div>
+    
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImg">
+        <video class="modal-content" id="modalVideo" controls></video>
+    </div>
+
     <script>
         function openModal(src, type, title) {
             const modal = document.getElementById("myModal");
