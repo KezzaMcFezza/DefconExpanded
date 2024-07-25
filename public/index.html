@@ -33,6 +33,35 @@
         <link rel="stylesheet" type="text/css" href="/btnnav.css" />
         <link rel="stylesheet" type="text/css" href="/scaling.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        <style>
+
+            .game-type {
+                color: #fff;
+                padding: 5px;
+                margin-top: 0;
+            }
+            .time-info {
+                font-size: 0.9em;
+                margin-bottom: 10px;
+            }
+            .game-results {
+                width: 80%;
+                border-collapse: collapse;
+                margin-bottom: 10px;
+            }
+            .game-results th, .game-results td {
+                border: 1px solid #333;
+                padding: 5px;
+                text-align: left;
+            }
+
+            .btn-download {
+                background-color: #4CAF50;
+            }
+            .btn-matchroom {
+                background-color: #008CBA;
+            }
+        </style>
     </head>
 <body class="hide-scrollbar">
     <header>
@@ -119,9 +148,21 @@
             demoCard.className = 'demo-card';
             demoCard.innerHTML = `
                 <div class="demo-content">
-                    <h3>${demo.name}</h3>
-                    <p><strong>Size:</strong> ${formatBytes(demo.size)}</p>
-                    <p><strong>Date:</strong> ${new Date(demo.date).toLocaleDateString()}</p>
+                    <h3 class="game-type">${demo.name}</h3>
+                    <p class="time-info">
+                        <span class="time-ago">${getTimeAgo(demo.date)}</span><br>
+                        <span class="game-time">${getGameTime(demo.date)}</span><br>
+                        <span class="game-date">${new Date(demo.date).toLocaleDateString()}</span>
+                        <span class="game-duration">(${getDuration(demo.size)})</span>
+                    </p>
+                    <table class="game-results">
+                        <tr>
+                            <th>Player</th>
+                            <th>Territory</th>
+                            <th>Score</th>
+                        </tr>
+                        ${getPlayerData(demo.name)}
+                    </table>
                     <a href="/download/${demo.name}" class="btn-download foo">
                         <img src="images/dedcon.ico" alt="" class="download-icon"> Download
                     </a>
@@ -129,6 +170,50 @@
                 </div>
             `;
             return demoCard;
+        }
+        
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + " years ago";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + " months ago";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + " days ago";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + " hours ago";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + " minutes ago";
+            return Math.floor(seconds) + " seconds ago";
+        }
+        
+        function getGameTime(date) {
+            const gameDate = new Date(date);
+            const startTime = gameDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            gameDate.setMinutes(gameDate.getMinutes() + Math.floor(Math.random() * 60) + 15); // Random duration between 15-75 minutes
+            const endTime = gameDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            return `${startTime} — ${endTime}`;
+        }
+        
+        function getDuration(size) {
+            // Estimate duration based on file size (this is a rough approximation)
+            const minutes = Math.max(15, Math.min(75, Math.floor(size / 1024 / 1024))); // 1 MB ≈ 1 minute, min 15, max 75
+            return `${minutes} min`;
+        }
+        
+        function getPlayerData(demoName) {
+            // This is a placeholder. In a real scenario, you'd fetch this data from the server
+            const players = [
+                { name: "Player1", territory: "NA", score: Math.floor(Math.random() * 200) - 50 },
+                { name: "Player2", territory: "EU", score: Math.floor(Math.random() * 200) - 50 }
+            ];
+            return players.map(player => `
+                <tr>
+                    <td>${player.name}</td>
+                    <td>${player.territory}</td>
+                    <td>${player.score}</td>
+                </tr>
+            `).join('');
         }
         
         function updateDemoList() {
@@ -143,14 +228,12 @@
                 .catch(error => console.error('Error fetching demos:', error));
         }
         
-        // Function for the main search bar at the top
         function performMainSearch() {
             const searchTerm = document.getElementById('search-input').value;
             if (searchTerm.trim() === '') return;
             window.location.href = `/searchresults.html?q=${encodeURIComponent(searchTerm)}`;
         }
         
-        // Function for the game search bar
         function performGameSearch() {
             const searchTerm = document.getElementById('search-input2').value.toLowerCase();
             const filteredDemos = allDemos.filter(demo => 
@@ -161,7 +244,6 @@
             showPage(1, filteredDemos);
         }
         
-        // Event listeners for the main search bar
         document.getElementById('search-button').addEventListener('click', performMainSearch);
         document.getElementById('search-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -169,7 +251,6 @@
             }
         });
         
-        // Event listeners for the game search bar
         document.getElementById('search-button2').addEventListener('click', performGameSearch);
         document.getElementById('search-input2').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -179,7 +260,7 @@
         
         updateDemoList();
         setInterval(updateDemoList, 30000);
-        </script>
+    </script>
 </body>
 </html>
 <!--

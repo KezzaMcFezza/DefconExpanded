@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+Allow: /index.html
+Allow: /about.html
+Allow: /news.html
+Allow: /media.html
+Allow: /resources.html
+Allow: /experimental.html
+Allow: /comingsoon.html
+Allow: /matchroom.html
+Allow: /searchresults.html
+Allow: /sitemap.xml
+Allow: /site.webmanifest
+Allow: /browserconfig.xml
+
+Disallow: /demos/
+Disallow: /public/uploads/
+Disallow: /server.js
+Disallow: /package.json
+Disallow: /package-lock.json
+Disallow: /main.js
+Disallow: /renderer.js
+Disallow: /serverlaunch.bat
+
+Sitemap: https://defconexpanded.com/sitemap.xml
