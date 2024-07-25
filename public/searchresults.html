@@ -3,18 +3,18 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Defcon Expanded: A Defcon Modding Community</title>
-        <meta name="description" content="DEFCON Expanded - The Home for DEFCON Mods and Demos">
+        <title>Defcon Expanded: Search Results</title>
+        <meta name="description" content="Search results for DEFCON Expanded - The Home for DEFCON Mods and Demos">
         <meta name="keywords" content="Defcon, game demos, Defcon Expanded, modding community, demo downloads, Defcon news, 8 Player, 10 Player, Dedcon, Octocon">
         <meta property="og:type" content="website">
-        <meta property="og:url" content="http://defconexpanded.com">
-        <meta property="og:title" content="DEFCON Expanded - A DEFCON Modding Community">
-        <meta property="og:description" content="The Home for DEFCON Mods and Demos">
+        <meta property="og:url" content="http://defconexpanded.com/searchresults">
+        <meta property="og:title" content="DEFCON Expanded - Search Results">
+        <meta property="og:description" content="Search results for DEFCON Expanded - The Home for DEFCON Mods and Demos">
         <meta property="og:image" content="http://defconexpanded.com/images/socialmedianew.png">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:url" content="http://defconexpanded.com">
-        <meta name="twitter:title" content="DEFCON Expanded - A DEFCON Modding Community">
-        <meta name="twitter:description" content="The Home for DEFCON Mods and Demos">
+        <meta name="twitter:url" content="http://defconexpanded.com/searchresults">
+        <meta name="twitter:title" content="DEFCON Expanded - Search Results">
+        <meta name="twitter:description" content="Search results for DEFCON Expanded - The Home for DEFCON Mods and Demos">
         <meta name="twitter:image" content="http://defconexpanded.com/images/socialmedianew.png">
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -108,7 +108,7 @@
                 query = query.toLowerCase();
                 const searchResults = document.getElementById('searchresults');
                 searchResults.innerHTML = '<p>Searching...</p>';
-
+        
                 fetch('/search-index.json')
                     .then(response => {
                         if (!response.ok) {
@@ -122,29 +122,29 @@
                         
                         const filteredResults = searchIndex.flatMap(page => {
                             let pageMatches = [];
-
-                            // Check title, h1, and metaDescription
-                            if (page.title.toLowerCase().includes(query) ||
-                                page.h1.toLowerCase().includes(query) ||
-                                page.metaDescription.toLowerCase().includes(query)) {
-                                pageMatches.push({
-                                    url: page.url,
-                                    title: page.title,
-                                    snippet: page.metaDescription
-                                });
-                            }
-
-                            // Check snippets
-                            page.snippets.forEach(snippet => {
-                                if (snippet.content.toLowerCase().includes(query)) {
+        
+                            const checkAndAddMatch = (condition, snippet) => {
+                                if (condition) {
                                     pageMatches.push({
                                         url: page.url,
                                         title: page.title,
-                                        snippet: snippet.content
+                                        snippet: snippet || page.metaDescription
                                     });
                                 }
+                            };
+        
+                            // Check title, h1, and metaDescription
+                            checkAndAddMatch(
+                                page.title.toLowerCase().includes(query) ||
+                                page.h1.toLowerCase().includes(query) ||
+                                page.metaDescription.toLowerCase().includes(query)
+                            );
+        
+                            // Check snippets
+                            page.snippets.forEach(snippet => {
+                                checkAndAddMatch(snippet.toLowerCase().includes(query), snippet);
                             });
-
+        
                             // Check sections if they exist
                             if (page.sections) {
                                 page.sections.forEach(section => {
@@ -158,19 +158,16 @@
                                     }
                                 });
                             }
-
+        
                             // Check keywords
-                            if (page.keywords.some(keyword => keyword.toLowerCase().includes(query))) {
-                                pageMatches.push({
-                                    url: page.url,
-                                    title: page.title,
-                                    snippet: `This page contains relevant keywords: ${page.keywords.join(", ")}`
-                                });
-                            }
-
+                            checkAndAddMatch(
+                                page.keywords.some(keyword => keyword.toLowerCase().includes(query)),
+                                `This page contains relevant keywords: ${page.keywords.join(", ")}`
+                            );
+        
                             return pageMatches;
                         });
-
+        
                         if (filteredResults.length === 0) {
                             searchResults.innerHTML = '<p>No results found.</p>';
                         } else {
@@ -179,7 +176,7 @@
                                 const listItem = document.createElement('li');
                                 
                                 const link = document.createElement('a');
-                                link.href = result.url;
+                                link.href = result.url.startsWith('/') ? result.url : '/' + result.url;
                                 link.textContent = result.title;
                                 listItem.appendChild(link);
                                 
@@ -202,7 +199,7 @@
                         searchResults.innerHTML = `<p>An error occurred while searching: ${error.message}. Please try again.</p>`;
                     });
             }
-
+        
             // Event listener for search button
             document.getElementById('search-button').addEventListener('click', function() {
                 const query = document.getElementById('search-input').value;
@@ -210,7 +207,7 @@
                     performSearch(query);
                 }
             });
-
+        
             // Event listener for Enter key in search input
             document.getElementById('search-input').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -220,7 +217,7 @@
                     }
                 }
             });
-
+        
             // Perform search on page load if query parameter is present
             document.addEventListener('DOMContentLoaded', function() {
                 const urlParams = new URLSearchParams(window.location.search);

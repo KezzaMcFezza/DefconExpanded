@@ -5,253 +5,126 @@
     "h1": "Recently Played Games",
     "metaDescription": "Defcon Expanded - The Home for Modded DEFCON Mods and Demos",
     "snippets": [
-      {
-        "type": "stats",
-        "content": "Total Games Played: 11"
-      },
-      {
-        "type": "info",
-        "content": "Demonstration of upcoming features for Defcon Expanded"
-      }
+      "Total Games Played: 0",
+      "Demonstration of upcoming features for Defcon Expanded"
     ],
-    "sections": [
-      {
-        "id": "recent-games",
-        "title": "Recently Played Games",
-        "content": "View the most recent Defcon Expanded matches played by our community."
-      },
-      {
-        "id": "upcoming-features",
-        "title": "Upcoming Features",
-        "content": "Sneak peek at new features coming to Defcon Expanded in future updates."
-      }
-    ],
-    "people": [],
-    "keywords": ["recently played", "games", "stats", "upcoming features", "demonstration"],
-    "lastUpdated": "2024-07-24"
+    "keywords": ["recently played", "games", "stats", "demos", "Dedcon"],
+    "lastUpdated": "2024-07-25"
   },
   {
     "url": "/about.html",
     "title": "About Defcon Expanded: 8-10 Player Mod",
-    "h1": "Welcome to Defcon Expanded",
-    "metaDescription": "Official website for Defcon Expanded, the 8-10 player mod for DEFCON. Learn about the mod, game testers, developers, and how to contact us.",
+    "h1": "About the Mod",
+    "metaDescription": "Official website for Defcon Expanded, the 8-10 player mod for DEFCON.",
     "snippets": [
-      {
-        "type": "description",
-        "content": "Defcon Expanded: The 8-10 player mod for DEFCON, months in the making."
-      },
-      {
-        "type": "warning",
-        "content": "Mod is in its infancy. Report bugs via email or Discord."
-      }
+      "Welcome to the Official Website for Defcon Expanded the 8-10 player mod for DEFCON",
+      "Game Testers: FasterThanRaito, Sievert, KezzaMcFezza, and more",
+      "Developers: FasterThanRaito, Sievert, Wan May"
     ],
-    "sections": [
-      {
-        "id": "game-testers",
-        "title": "Game Testers",
-        "content": "KezzaMcFezza, Wan May, Nicole, Laika, Ben_Herr, Lævateinn, demo0096, Erroneous, Very Fine Art, GoodNight, Gyarados, Nexustini, Zak, Idealist"
-      },
-      {
-        "id": "developers",
-        "title": "Developers",
-        "content": "Wan May, Sievert, FasterThanRaito"
-      },
-      {
-        "id": "website-developers",
-        "title": "Website Developers",
-        "content": "Nexustini, Devil, Sierra, KezzaMcFezza"
-      },
-      {
-        "id": "contact",
-        "title": "Contact Us",
-        "content": "Report bugs or inquiries to Sievert or FasterThanRaito on Discord"
-      }
-    ],
-    "people": [
-      {"name": "KezzaMcFezza", "roles": ["Game Tester", "Website Developer"]},
-      {"name": "Wan May", "roles": ["Game Tester", "Developer"]},
-      {"name": "Nicole", "roles": ["Game Tester"]},
-      {"name": "Laika", "roles": ["Game Tester"]},
-      {"name": "Ben_Herr", "roles": ["Game Tester"]},
-      {"name": "Lævateinn", "roles": ["Game Tester"]},
-      {"name": "demo0096", "roles": ["Game Tester"]},
-      {"name": "Erroneous", "roles": ["Game Tester"]},
-      {"name": "Very Fine Art", "roles": ["Game Tester"]},
-      {"name": "GoodNight", "roles": ["Game Tester"]},
-      {"name": "Gyarados", "roles": ["Game Tester"]},
-      {"name": "Nexustini", "roles": ["Game Tester", "Website Developer"]},
-      {"name": "Zak", "roles": ["Game Tester"]},
-      {"name": "Idealist", "roles": ["Game Tester"]},
-      {"name": "Sievert", "roles": ["Developer"]},
-      {"name": "FasterThanRaito", "roles": ["Developer"]},
-      {"name": "Devil", "roles": ["Website Developer"]},
-      {"name": "Sierra", "roles": ["Website Developer"]}
-    ],
-    "keywords": ["about", "mod", "game testers", "developers", "contact", "DEFCON"],
-    "lastUpdated": "2024-07-24"
+    "keywords": ["about", "mod", "game testers", "developers", "contact", "DEFCON", "8-10 player"],
+    "lastUpdated": "2024-07-25"
   },
   {
     "url": "/news.html",
     "title": "Defcon Expanded: Latest News and Events",
     "h1": "Latest News and Events",
-    "metaDescription": "Stay updated with the latest news about Defcon Expanded, including new updates, the 10 Player Build progress, and upcoming events.",
+    "metaDescription": "Stay updated with the latest news about Defcon Expanded, including new updates and upcoming events.",
     "snippets": [
-      {
-        "type": "update",
-        "title": "New Update Released",
-        "content": "8 Player Mod now based on MINICOM for improved gameplay and stability"
-      },
-      {
-        "type": "progress",
-        "title": "10 Player Build Progress",
-        "content": "Nearing first public test, recent changes focus on territory balancing"
-      },
-      {
-        "type": "event",
-        "title": "Weekly Game Event",
-        "content": "Join us on Sunday, July 28, 2024, 3-6PM EST. Register on Discord."
-      }
+      "16 Player DEFCON mod released for testing",
+      "New 8 Player Mod update built on MINICOM",
+      "10 Player build nearing first public test",
+      "Weekly game event every Sunday"
     ],
-    "sections": [
-      {
-        "id": "latest-update",
-        "title": "Latest Update",
-        "content": "Details about the most recent update to Defcon Expanded, including changelog and new features."
-      },
-      {
-        "id": "upcoming-events",
-        "title": "Upcoming Events",
-        "content": "Information about scheduled Defcon Expanded events, tournaments, and community gatherings."
-      },
-      {
-        "id": "dev-blog",
-        "title": "Developer Blog",
-        "content": "Insights from the development team about ongoing work, challenges, and future plans for Defcon Expanded."
-      }
-    ],
-    "people": [
-      {"name": "Sievert", "roles": ["Developer", "Event Organizer"]},
-      {"name": "FasterThanRaito", "roles": ["Developer", "Event Organizer"]}
-    ],
-    "keywords": ["news", "updates", "10 player", "events", "MINICOM"],
-    "lastUpdated": "2024-07-24"
+    "keywords": ["news", "updates", "16 player", "10 player", "8 player", "events", "MINICOM", "Sunday game"],
+    "lastUpdated": "2024-07-25"
   },
   {
     "url": "/resources.html",
     "title": "Defcon Expanded: Resources and Downloads",
-    "h1": "8 Player Build Resources",
-    "metaDescription": "Download links and installation tutorial for the 8 Player Build of Defcon Expanded. Find the latest version and older releases here.",
+    "h1": "DEFCON EXPANDED RESOURCES",
+    "metaDescription": "Access resources and downloads for various Defcon Expanded builds, including 8 Player, 10 Player, and 16 Player versions.",
     "snippets": [
-      {
-        "type": "warning",
-        "content": "Disable antivirus software if download is blocked"
-      },
-      {
-        "type": "download",
-        "title": "Latest Version",
-        "content": "Defcon8P 2.8.3"
-      }
+      "8 Player Resources: Download and information",
+      "10 Player Resources: Download and information",
+      "16 Player Resources: Download and information"
     ],
-    "sections": [
-      {
-        "id": "installation",
-        "title": "Installation Tutorial",
-        "content": "Step-by-step guide available. Seek help on Discord if needed."
-      },
-      {
-        "id": "version-history",
-        "title": "Version History",
-        "content": "Defcon8P 2.8.2, Defcon8P 2.8.1, Defcon8P 2.8.0"
-      },
-      {
-        "id": "mod-compatibility",
-        "title": "Mod Compatibility",
-        "content": "Information about compatibility with other DEFCON mods and the base game."
-      }
+    "keywords": ["resources", "downloads", "8 player", "10 player", "16 player", "builds"],
+    "lastUpdated": "2024-07-25"
+  },
+  {
+    "url": "/resources/8player",
+    "title": "8 Player Build Resources",
+    "h1": "8 Player Build Resources",
+    "metaDescription": "Download links and installation tutorial for the 8 Player Build of Defcon Expanded.",
+    "snippets": [
+      "Latest Version: Defcon8P 2.8.3",
+      "Installation Tutorial available",
+      "Version History: 2.8.2, 2.8.1, 2.8.0"
     ],
-    "people": [],
-    "keywords": ["download", "installation", "tutorial", "version history", "8 player"],
-    "lastUpdated": "2024-07-24"
+    "keywords": ["8 player", "download", "installation", "tutorial", "version history, 8 player download"],
+    "lastUpdated": "2024-07-25"
+  },
+  {
+    "url": "/resources/10player",
+    "title": "10 Player Build Resources",
+    "h1": "10 Player Build Resources",
+    "metaDescription": "Download links and information for the 10 Player Build of Defcon Expanded.",
+    "snippets": [
+      "Latest Version: Defcon10P 2.10.1",
+      "Experimental build, available for testing",
+      "Version History: 2.10.0"
+    ],
+    "keywords": ["10 player", "download", "experimental", "version history, 10 player download"],
+    "lastUpdated": "2024-07-25"
+  },
+  {
+    "url": "/resources/16player",
+    "title": "16 Player Build Resources",
+    "h1": "16 Player Build Resources",
+    "metaDescription": "Download links and information for the 16 Player Build of Defcon Expanded.",
+    "snippets": [
+      "Latest Version: Defcon8P 2.16.0",
+      "First ever 16 Player DEFCON mod",
+      "Experimental build, expect bugs and issues"
+    ],
+    "keywords": ["16 player", "download", "experimental", "version history, 16 player download"],
+    "lastUpdated": "2024-07-25"
   },
   {
     "url": "/experimental.html",
-    "title": "Defcon Expanded: Experimental 10 Player Build",
-    "h1": "10 Player Build in Development",
-    "metaDescription": "Information about the experimental 10 Player Build in development. Try out the latest version and report any bugs.",
+    "title": "Defcon Expanded: Experimental Builds",
+    "h1": "Experimental Builds",
+    "metaDescription": "Information about experimental builds of Defcon Expanded, including 16 Player and 10 Player versions.",
     "snippets": [
-      {
-        "type": "warning",
-        "content": "Disable antivirus software if download is blocked"
-      },
-      {
-        "type": "info",
-        "content": "Experimental build, far from finished but available for testing"
-      },
-      {
-        "type": "download",
-        "title": "Latest Version",
-        "content": "Defcon10p 2.10.1"
-      }
+      "16 Player Build in development",
+      "10 Player Build nearing first public test",
+      "Download links available for testing"
     ],
-    "sections": [
-      {
-        "id": "new-territories",
-        "title": "New Territories",
-        "content": "10 Player territories with focus on game balance"
-      },
-      {
-        "id": "future-plans",
-        "title": "Future Plans",
-        "content": "Possible 10 Player game event in late July or early August 2024"
-      },
-      {
-        "id": "bug-reporting",
-        "title": "Bug Reporting",
-        "content": "Guidelines for testing the experimental build and reporting any issues or feedback."
-      }
+    "keywords": ["experimental", "16 player", "10 player", "development", "territories", "download"],
+    "lastUpdated": "2024-07-25"
+  },
+  {
+    "url": "/media.html",
+    "title": "Defcon Expanded: Media",
+    "h1": "Media",
+    "metaDescription": "Screenshots and videos showcasing Defcon Expanded gameplay and features.",
+    "snippets": [
+      "Screenshots: CPU, 8 Player, 4v4, Demo, Nukes",
+      "Videos: 4v4 gameplay, 8 CPU simulation, 7 Player diplomacy"
     ],
-    "people": [
-      {"name": "Sievert", "roles": ["Lead Developer", "10 Player Build"]},
-      {"name": "FasterThanRaito", "roles": ["Developer", "10 Player Build"]}
-    ],
-    "keywords": ["experimental", "10 player", "territories", "development", "testing"],
-    "lastUpdated": "2024-07-24"
+    "keywords": ["screenshots", "videos", "gameplay", "media"],
+    "lastUpdated": "2024-07-25"
   },
   {
     "url": "/matchroom.html",
     "title": "Defcon Expanded: Matchroom",
-    "h1": "Matchroom: Future Plans",
-    "metaDescription": "Future plans for the Matchroom feature, including detailed match statistics and in-browser game replay functionality.",
+    "h1": "Waiting on Dedcon to Become Implemented",
+    "metaDescription": "Future plans for the Matchroom feature in Defcon Expanded.",
     "snippets": [
-      {
-        "type": "info",
-        "content": "Waiting on Dedcon implementation"
-      },
-      {
-        "type": "feature",
-        "title": "Planned Features",
-        "content": "Detailed match statistics, in-browser game replay"
-      }
+      "Planned: Detailed match statistics",
+      "Future feature: In-browser game replay"
     ],
-    "sections": [
-      {
-        "id": "match-statistics",
-        "title": "Match Statistics",
-        "content": "Planned feature to display detailed statistics for each Defcon Expanded match."
-      },
-      {
-        "id": "replay-system",
-        "title": "In-Browser Replay",
-        "content": "Future functionality to watch game replays directly in your web browser."
-      },
-      {
-        "id": "dedcon-integration",
-        "title": "Dedcon Integration",
-        "content": "Information about the planned integration with Dedcon for enhanced matchroom features."
-      }
-    ],
-    "people": [],
     "keywords": ["matchroom", "statistics", "replay", "Dedcon", "future plans"],
-    "lastUpdated": "2024-07-24"
+    "lastUpdated": "2024-07-25"
   }
 ]
