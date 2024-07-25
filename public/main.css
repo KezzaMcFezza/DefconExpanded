@@ -220,18 +220,109 @@ body, html {
 
 /* Announcements and Events */
 
-.announcement,
-.event {
-    background-color: #1b212c;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+.event, .announcement {
+    background: linear-gradient(135deg, #003366, #00274d);
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
+    transition: all 0.3s ease;
+    border-left: 5px solid #00b7ff;
 }
 
-.announcement h2,
-.event h2 {
-    color: #ff4d4d;
+.event:hover, .announcement:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.event h5, .announcement h5 {
+    color: #00b7ff;
+    font-size: 1.4em;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.announcementnew {
+    background: linear-gradient(135deg, #1a8d00, #136b00);
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
+    margin-bottom: 25px;
+    position: relative;
+    overflow: hidden;
+    border-left: 5px solid #5eff00;
+}
+
+.announcementnew::before {
+    content: "NEW";
+    position: absolute;
+    top: 5px;
+    right: -28px;
+    background: #5eff00;
+    color: #000;
+    padding: 5px 30px;
+    transform: rotate(45deg);
+    font-weight: bold;
+    font-size: 0.8em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.announcementnew h5 {
+    color: #5eff00;
+    font-size: 1.4em;
+    margin-bottom: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(94, 255, 0, 0.5), 0 1px 5px rgba(94, 255, 0, 0.2);
+    }
+    100% {
+        box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
+    }
+    60% {
+        box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
+    }
+    30% {
+        box-shadow: 0 4px 20px rgba(94, 255, 0, 0.5), 0 1px 5px rgba(94, 255, 0, 0.2);
+    }
+    80% {
+        box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
+    }
+}
+
+.announcementnew {
+    animation: pulse 2s infinite;
+}
+
+.btn-fourth {
+    background-color: #00b7ff;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 15px;
+}
+
+.btn-fourth:hover {
+    background-color: #0090cc;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Demo Cards */

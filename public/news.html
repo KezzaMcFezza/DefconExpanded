@@ -33,6 +33,112 @@
         <link rel="stylesheet" type="text/css" href="/btnnav.css" />
         <link rel="stylesheet" type="text/css" href="/scaling.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        <style>
+            .event, .announcement {
+                background: linear-gradient(135deg, #003366, #00274d);
+                color: #ffffff;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+                margin-bottom: 25px;
+                transition: all 0.3s ease;
+                border-left: 5px solid #00b7ff;
+            }
+        
+            .event:hover, .announcement:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 7px 14px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
+            }
+        
+            .event h5, .announcement h5 {
+                color: #00b7ff;
+                font-size: 1.4em;
+                margin-bottom: 15px;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+        
+            .announcementnew {
+                background: linear-gradient(135deg, #1a8d00, #136b00);
+                color: #ffffff;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
+                margin-bottom: 25px;
+                position: relative;
+                overflow: hidden;
+                border-left: 5px solid #5eff00;
+            }
+        
+            .announcementnew::before {
+                content: "NEW";
+                position: absolute;
+                top: 5px;
+                right: -28px;
+                background: #5eff00;
+                color: #000;
+                padding: 5px 30px;
+                transform: rotate(45deg);
+                font-weight: bold;
+                font-size: 0.8em;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+        
+            .announcementnew h5 {
+                color: #5eff00;
+                font-size: 1.4em;
+                margin-bottom: 15px;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+        
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
+                }
+                50% {
+                    box-shadow: 0 4px 20px rgba(94, 255, 0, 0.5), 0 1px 5px rgba(94, 255, 0, 0.2);
+                }
+                100% {
+                    box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
+                }
+                60% {
+                    box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
+                }
+                30% {
+                    box-shadow: 0 4px 20px rgba(94, 255, 0, 0.5), 0 1px 5px rgba(94, 255, 0, 0.2);
+                }
+                80% {
+                    box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
+                }
+            }
+        
+            .announcementnew {
+                animation: pulse 2s infinite;
+            }
+        
+            .btn-fourth {
+                background-color: #00b7ff;
+                color: #ffffff;
+                padding: 10px 20px;
+                border-radius: 5px;
+                text-decoration: none;
+                display: inline-block;
+                transition: all 0.3s ease;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-top: 15px;
+            }
+        
+            .btn-fourth:hover {
+                background-color: #0090cc;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+        </style>
     </head>
 <body class="hide-scrollbar">
     <header>
@@ -57,6 +163,15 @@
             <h1>LatEst NEWs aNd EvENts</h1>
 
             <!-- Announcement 1 -->
+            <div class="announcementnew">
+                <h5 class="h5new">16 Player Build</h5>
+                <p class="pabout2">We are excited to announce that the first ever 16 Player DEFCON mod has finally been released for anyone to try and test! expect bugs
+                    and issues and dont hesitate to report any of them to <a href="mailto:keiron.mcphee1@gmail.com">KezzaMcFezza</a> or FasterThanRaito on discord.</p>
+                    <p class="pabout2">To try the 10 Player build out yourself, the most recent Version 2.16.0 is available in the 
+                        <a href="http://defconexpanded.com/experimental" target="_blank" >Experimental</a> tab of the website.</p>
+            </div>  
+
+            <!-- Announcement 2 -->
             <div class="announcement">
                 <h5>New Update Released</h5>
                 <p class="pabout2">A revamped version of the 8 Player Mod that has been built on MINICOM as a base instead of DEFCON, 
@@ -66,7 +181,7 @@
                     here is the link to the <a href="http://minicom.simamo.de" target="_blank" >Official Website.</a></p>
             </div>
 
-            <!-- Announcement 2 -->
+            <!-- Announcement 3 -->
             <div class="announcement">
                 <h5>10 Player Build</h5>
                 <p class="pabout2">The 10 Player build has received alot of changes in the past few weeks and is almost ready for its first public test. The territories 
@@ -74,8 +189,8 @@
                     territories.</p>
                     <p class="pabout2">If you would like to try the 10 Player build out yourself, the most recent Version 2.10.1 is available in the 
                         <a href="http://defconexpanded.com/experimental" target="_blank" >Experimental</a> tab of the website.</p>
-            </div>            
-
+            </div>
+            
             <!-- Event 1 -->
             <div class="event">
                 <h5>Every Sunday Event</h5>
