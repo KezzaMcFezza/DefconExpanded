@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,6 +34,43 @@
     <link rel="stylesheet" type="text/css" href="/btnnav.css" />
     <link rel="stylesheet" type="text/css" href="/scaling.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .media-duration {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 2px 4px;
+            font-size: 12px;
+            border-radius: 2px;
+        }
+
+        .media-info {
+            padding: 10px;
+            background-color: #1f1f1f;
+        }
+
+        .media-title {
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .media-meta {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+    </style>
 </head>
 <body class="hide-scrollbar">
     <header>
@@ -53,90 +91,109 @@
         </div>
     </nav>
     <div class="container">
-        <div class="center-column">
-            <section class="media-section">
-                <h1 class="headerresources3">ScREENshots</h1>
-                <div class="media-grid">
-                    <div class="media-item">
-                        <img src="images/cpuscreen.jpg" alt="CPU Screenshot" onclick="openModal('images/cpuscreen.jpg', 'img', 'CPU Screenshot')">
-                        <div class="media-overlay">
-                            <h3 class="media-title">CPU Screenshot</h3>
-                        </div>
-                    </div>
-                    <div class="media-item">
-                        <img src="images/8playerscreen.jpg" alt="8 Player Screenshot" onclick="openModal('images/8playerscreen.jpg', 'img', '8 Player Screenshot')">
-                        <div class="media-overlay">
-                            <h3 class="media-title">8 Player Screenshot</h3>
-                        </div>
-                    </div>
-                    <div class="media-item">
-                        <img src="images/4v4screen.jpg" alt="4v4 Screenshot" onclick="openModal('images/4v4screen.jpg', 'img', '4v4 Screenshot')">
-                        <div class="media-overlay">
-                            <h3 class="media-title">4v4 Screenshot</h3>
-                        </div>
-                    </div>
-                    <div class="media-item">
-                        <img src="images/demoscreen.png" alt="Demo Screenshot" onclick="openModal('images/demoscreen.png', 'img', 'Demo Screenshot')">
-                        <div class="media-overlay">
-                            <h3 class="media-title">Territories Screenshot</h3>
-                        </div>
-                    </div>
-                    <div class="media-item">
-                        <img src="images/nukesscreen.jpg" alt="Nukes Screenshot" onclick="openModal('images/nukesscreen.jpg', 'img', 'Nukes Screenshot')">
-                        <div class="media-overlay">
-                            <h3 class="media-title">Nukes Screenshot</h3>
-                        </div>
-                    </div>
+        <h1>MEDIA GALLERY</h1>
+        
+        <!-- Video Section -->
+        <div class="video-section">
+            <!-- Featured Video (newest) -->
+            <div class="featured-video" onclick="openModal('videos/16cpugameyoutube.mkv', 'video', 'Defcon 16 CPU Game Simulation')">
+                <div class="video-thumbnail">
+                    <video src="videos/16cpugameyoutube.mkv" poster="images/THUMNAIL16CPU.jpg"></video>
+                    <div class="media-duration">06:56</div>
                 </div>
-            </section>
+                <div class="media-info">
+                    <div class="media-title">Defcon 16 CPU Game Simulation</div>
+                    <div class="media-meta">26-07-2024</div>
+                </div>
+            </div>
             
-            <section class="media-section">
-                <h1 class="headerresources3">VidEos</h1>
-                <div class="media-grid">
-                    <div class="media-item">
-                        <video 
-                            src="videos/Defcon 4v4 Speed with Soundtrack.mp4" 
-                            poster="images/4v4speedposter.jpg"
-                            onclick="openModal('videos/Defcon 4v4 Speed with Soundtrack.mp4', 'video', 'Defcon 4v4 Speed with Soundtrack')">
-                        </video>
-                        <div class="media-overlay">
-                            <h3 class="media-title">Defcon 4v4 16x Speed with Soundtrack</h3>
-                        </div>
-                    </div>
-                    <div class="media-item">
-                        <video 
-                            src="videos/8 CPU Game Defcon.mkv" 
-                            poster="images/cpugameposter.jpg"
-                            onclick="openModal('videos/8 CPU Game Defcon.mkv', 'video', '8 CPU Game Defcon')">
-                        </video>
-                        <div class="media-overlay">
-                            <h3 class="media-title">8 CPU Simulation</h3>
-                        </div>
-                    </div>
-                    <div class="media-item">
-                        <video 
-                            src="videos/Defcon 7 Player Diplo Voice.mp4" 
-                            poster="images/7playerdiploposter.jpg"
-                            onclick="openModal('videos/Defcon 7 Player Diplo Voice.mp4', 'video', 'Defcon 7 Player Diplo Voice')">
-                        </video>
-                        <div class="media-overlay">
-                            <h3 class="media-title">7 Player Diplomacy</h3>
-                        </div>
-                    </div>
-                    <div class="media-item">
-                        <video 
-                            src="videos/First Ever 8 Player 4v4 Voices.mp4" 
-                            poster="images/4v4realposter.jpg"
-                            onclick="openModal('videos/First Ever 8 Player 4v4 Voices.mp4', 'video', 'First Ever 8 Player 4v4 Voices')">
-                        </video>
-                        <div class="media-overlay">
-                            <h3 class="media-title">First Ever 8 Player 4v4 With Voices</h3>
-                        </div>
-                    </div>
+            <!-- Other Videos -->
+            <div class="video-item" onclick="openModal('videos/Defcon 4v4 Speed with Soundtrack.mp4', 'video', 'Defcon 4v4 16x Speed with Soundtrack')">
+                <div class="video-thumbnail">
+                    <video src="videos/Defcon 4v4 Speed with Soundtrack.mp4" poster="images/4v4speedposter.jpg"></video>
+                    <div class="media-duration">08:01</div>
                 </div>
-            </section>
+                <div class="media-info">
+                    <div class="media-title">Defcon 4v4 16x Speed with Soundtrack</div>
+                    <div class="media-meta">08-07-2024</div>
+                </div>
+            </div>
+            <div class="video-item" onclick="openModal('videos/8 CPU Game Defcon.mkv', 'video', '8 CPU Game Defcon')">
+                <div class="video-thumbnail">
+                    <video src="videos/8 CPU Game Defcon.mkv" poster="images/cpugameposter.jpg"></video>
+                    <div class="media-duration">07:49</div>
+                </div>
+                <div class="media-info">
+                    <div class="media-title">8 CPU Simulation</div>
+                    <div class="media-meta">05-07-2024</div>
+                </div>
+            </div>
+            <div class="video-item" onclick="openModal('videos/Defcon 7 Player Diplo Voice.mp4', 'video', 'Defcon 7 Player Diplo Voice')">
+                <div class="video-thumbnail">
+                    <video src="videos/Defcon 7 Player Diplo Voice.mp4" poster="images/7playerdiploposter.jpg"></video>
+                    <div class="media-duration">02:10:57</div>
+                </div>
+                <div class="media-info">
+                    <div class="media-title">7 Player Diplomacy</div>
+                    <div class="media-meta">02-07-2024</div>
+                </div>
+            </div>
+            <div class="video-item" onclick="openModal('videos/First Ever 8 Player 4v4 Voices.mp4', 'video', 'First Ever 8 Player 4v4 Voices')">
+                <div class="video-thumbnail">
+                    <video src="videos/First Ever 8 Player 4v4 Voices.mp4" poster="images/4v4realposter.jpg"></video>
+                    <div class="media-duration">02:26:57</div>
+                </div>
+                <div class="media-info">
+                    <div class="media-title">First Ever 8 Player 4v4 With Voices</div>
+                    <div class="media-meta">08-07-2024</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screenshots Section -->
+        <div class="screenshots-section">
+            <div class="screenshot-item" onclick="openModal('images/cpuscreen.jpg', 'img', 'CPU Screenshot')">
+                <div class="screenshot-thumbnail">
+                    <img src="images/cpuscreen.jpg" alt="CPU Screenshot">
+                </div>
+                <div class="media-info">
+                    <div class="media-title">CPU Screenshot</div>
+                    <div class="media-meta">05-07-2024</div>
+                </div>
+            </div>
+            <div class="screenshot-item" onclick="openModal('images/8playerscreen.jpg', 'img', '8 Player Screenshot')">
+                <div class="screenshot-thumbnail">
+                    <img src="images/8playerscreen.jpg" alt="8 Player Screenshot">
+                </div>
+                <div class="media-info">
+                    <div class="media-title">8 Player Screenshot</div>
+                    <div class="media-meta">02-07-2024</div>
+                </div>
+            </div>
+            <div class="screenshot-item" onclick="openModal('images/4v4screen.jpg', 'img', '4v4 Screenshot')">
+                <div class="screenshot-thumbnail">
+                    <img src="images/4v4screen.jpg" alt="4v4 Screenshot">
+                </div>
+                <div class="media-info">
+                    <div class="media-title">4v4 Screenshot</div>
+                    <div class="media-meta">09-07-2024</div>
+                </div>
+            </div>
+            <div class="screenshot-item" onclick="openModal('images/nukesscreen.jpg', 'img', 'Nukes Screenshot')">
+                <div class="screenshot-thumbnail">
+                    <img src="images/nukesscreen.jpg" alt="Nukes Screenshot">
+                </div>
+                <div class="media-info">
+                    <div class="media-title">Nukes Screenshot</div>
+                    <div class="media-meta">08-07-04</div>
+                </div>
+            </div>
         </div>
     </div>
+    <br>
+    <br>
+    <br>
+    <br>
 
     <!-- The Modal -->
     <div id="myModal" class="modal">
@@ -184,13 +241,6 @@
                 performSearch();
             }
         });
-
     </script>
 </body>
 </html>
-<!--
-Website Creators:
-KezzaMcFezza
-Devil
-Nexustini
--->
