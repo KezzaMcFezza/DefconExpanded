@@ -182,6 +182,29 @@
     }
 }
 
-/* resources page */
+/* media page */
+
+@media (max-width: 768px) {
+    .video-section {
+        grid-template-columns: 1fr;
+        aspect-ratio: auto;
+    }
+    .featured-video, .video-item {
+        height: auto;
+        margin-bottom: 10px;
+    }
+    .video-thumbnail {
+        padding-top: 56.25%; 
+    }
+    .media-info {
+        padding: 5px;
+    }
+    .media-title {
+        font-size: 12px;
+    }
+    .media-meta {
+        font-size: 10px;
+    }
+}
 
 
