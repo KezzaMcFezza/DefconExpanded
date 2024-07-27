@@ -34,42 +34,7 @@
     <link rel="stylesheet" type="text/css" href="/scaling.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        .resources-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
 
-        .resource-item {
-            background-color: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-        }
-
-        .resource-item:hover {
-            transform: translateY(-5px);
-        }
-
-        .resource-item img {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 10px;
-        }
-
-        .resource-item h2 {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
-
-        .resource-item p {
-            font-size: 0.9em;
-            color: #999;
-        }
     </style>
 </head>
 <body class="hide-scrollbar">
@@ -113,29 +78,36 @@
                     <p class="pabout">If you are still struggling with the install just ask one of us on the Discord.</p>    
                 </div>
                 <div class="download-links">
-                    <p class="headerresources2">DoWNload linKs</p>
-                    <p class="pabout">Download links for the most recent 16 player build and older versions including the modified Dedcon build that is compatible with the most recent build.</p>
-                    <a href="/files/DEFCON 16 Players Alpha v2.16.4.zip" class="btn btn-resource-dl foo">
-                        <img src="/images/Icon3.png" alt="" class="download-icon"> Defcon16P 2.16.4
-                    </a>
-                    <a href="/resources/comingsoon" class="btn-resource-dedcon foodedcon">
-                        <img src="/images/dedcon.ico" alt="" class="download-icon-resources"> Dedcon
-                    </a>
-                    <br>
-                    <br>
-                    <p class="headerresources2">VERsioN HistoRy</p>
-                    <p class="pabout"></p>
-                    <a href="/files/DEFCON 16 Players Alpha v2.16.3.zip" class="btn btn-resource-dl foo">
-                        <img src="/images/Icon3.png" alt="" class="download-icon"> Defcon16P 2.16.3
-                    </a>
-                    <br>
-                    <p class="pabout"></p>
-                    <a href="/files/DEFCON 16 Players Prerelease v2.16.0.zip.zip" class="btn btn-resource-dl foo">
-                        <img src="/images/Icon3.png" alt="" class="download-icon"> Defcon16P 2.16.0
-                    </a>
-                    <br>
-                    <br>
-                    <br>
+                    <table class="version-history-table">
+                        <thead>
+                            <tr>
+                                <th>Version</th>
+                                <th>Release Date</th>
+                                <th>Download</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2.16.4</td>
+                                <td>Latest Version - 
+                                    27/07/2024
+                                </td>
+                                <td><a href="/files/DEFCON 16 Players Alpha v2.16.4.zip" class="download-link">Download</a></td>
+                            </tr>
+                            <tr>
+                                <td>2.16.3</td>
+                                <td>26/07/2024</td>
+                                <td><a href="/files/DEFCON 10 Players Alpha v2.16.3.zip" class="download-link">Download</a></td>
+                            </tr>
+                            <tr>
+                                <td>2.16.0</td>
+                                <td>First Release - 
+                                    25/07/2024
+                                </td>
+                                <td><a href="/files/DEFCON 16 Players Prerelease v2.16.0.zip" class="download-link">Download</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
