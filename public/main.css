@@ -19,6 +19,7 @@ body, html {
 
 .search-container {
     position: absolute;
+    display: flex;
     right: 10px;
     top: 50%;
     transform: translateY(-50%);
@@ -30,7 +31,6 @@ body, html {
     padding: 6px;
     width: 150px;
     border: 1px solid #3a4556;
-    border-radius: 20px;
     outline: none;
     transition: all 0.3s ease-in-out;
 }
@@ -43,8 +43,7 @@ body, html {
     text-decoration: none;
     color: #8c9cb0; 
     background-color: #232f47; 
-    padding: 6px 15px;
-    border-radius: 100px;
+    padding: 7px 15px;
     font-weight: bold;
     font-size: 0.8rem;
     transition: all 0.1s ease-in-out;
@@ -153,6 +152,7 @@ body, html {
 
 .about-columns {
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
     gap: 20px; 
 }
