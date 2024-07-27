@@ -106,6 +106,14 @@ p {
     color: #ff4d4d;
 }
 
+.pnotfinal3 {
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #ff8400;
+}
+
 .pcontact {
     font-weight: 900;
     font-size: 1.05rem;
