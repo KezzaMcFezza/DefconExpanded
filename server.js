@@ -173,5 +173,5 @@ app.get('/browserconfig.xml', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Octocon Demo Server Listening at http://localhost:${port}`);
+  console.log(`Octocon Demo Server Listening at https://localhost:${port}`);
 });
