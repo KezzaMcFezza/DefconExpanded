@@ -79,9 +79,18 @@ app.get('/api/search', (req, res) => {
     res.json(results);
 });
 
+// Helper function to send HTML file
+function sendHtml(res, fileName) {
+    res.sendFile(path.join(__dirname, 'public', fileName), (err) => {
+        if (err) {
+            res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+        }
+    });
+}
+
 // Route for the home page
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    sendHtml(res, 'index.html');
 });
 
 // Route to list available demos
@@ -110,68 +119,32 @@ app.get('/download/:demoName', (req, res) => {
 });
 
 // Serve additional HTML pages
-app.get('/about', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'about.html'));
-});
+app.get('/about', (req, res) => sendHtml(res, 'about.html'));
+app.get('/news', (req, res) => sendHtml(res, 'news.html'));
+app.get('/media', (req, res) => sendHtml(res, 'media.html'));
+app.get('/resources', (req, res) => sendHtml(res, 'resources.html'));
+app.get('/experimental', (req, res) => sendHtml(res, 'experimental.html'));
+app.get('/resources/comingsoon', (req, res) => sendHtml(res, 'comingsoon.html'));
+app.get('/homepage/matchroom', (req, res) => sendHtml(res, 'matchroom.html'));
+app.get('/homepage', (req, res) => sendHtml(res, 'index.html'));
+app.get('/searchresults', (req, res) => sendHtml(res, 'searchresults.html'));
+app.get('/resources/8player', (req, res) => sendHtml(res, '8player.html'));
+app.get('/resources/10player', (req, res) => sendHtml(res, '10player.html'));
+app.get('/resources/16player', (req, res) => sendHtml(res, '16player.html'));
 
-app.get('/news', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'news.html'));
-});
-
-app.get('/media', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'media.html'));
-});
-
-app.get('/resources', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'resources.html'));
-});
-
-app.get('/experimental', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'experimental.html'));
-});
-
-app.get('/resources/comingsoon', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'comingsoon.html'));
-});
-
-app.get('/homepage/matchroom', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'matchroom.html'));
-});
-
-app.get('/homepage', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/searchresults', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'searchresults.html'));
-});
-
-app.get('/resources/8player', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', '8player.html'));
-});
-
-app.get('/resources/10player', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', '10player.html'));
-});
-
-app.get('/resources/16player', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', '16player.html'));
-});
-
+// Serve special files
 app.get('/sitemap', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
 });
 
-// New route for serving the site.webmanifest file
 app.get('/site.webmanifest', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'site.webmanifest'));
 });
 
-// New route for serving the browserconfig.xml file
 app.get('/browserconfig.xml', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'browserconfig.xml'));
 });
 
 app.listen(port, () => {
-  console.log(`Octocon Demo Server Listening at https://localhost:${port}`);
+  console.log(`Octocon Demo Server Listening at http://localhost:${port}`);
 });
