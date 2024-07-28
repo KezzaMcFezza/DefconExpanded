@@ -1,21 +1,29 @@
 User-agent: *
-Allow: /
-Allow: /index.html
-Allow: /about.html
-Allow: /news.html
-Allow: /media.html
-Allow: /resources.html
-Allow: /experimental.html
-Allow: /comingsoon.html
-Allow: /matchroom.html
-Allow: /searchresults.html
-Allow: /sitemap.xml
-Allow: /site.webmanifest
-Allow: /browserconfig.xml
-Allow: /8player.html
-Allow: /10player.html
-Allow: /16player.html
 
+# Allow HTTPS version of pages without www
+Allow: https://defconexpanded.com/
+Allow: https://defconexpanded.com/index.html
+Allow: https://defconexpanded.com/about.html
+Allow: https://defconexpanded.com/news.html
+Allow: https://defconexpanded.com/media.html
+Allow: https://defconexpanded.com/resources.html
+Allow: https://defconexpanded.com/experimental.html
+Allow: https://defconexpanded.com/comingsoon.html
+Allow: https://defconexpanded.com/matchroom.html
+Allow: https://defconexpanded.com/searchresults.html
+Allow: https://defconexpanded.com/sitemap.xml
+Allow: https://defconexpanded.com/site.webmanifest
+Allow: https://defconexpanded.com/browserconfig.xml
+Allow: https://defconexpanded.com/8player.html
+Allow: https://defconexpanded.com/10player.html
+Allow: https://defconexpanded.com/16player.html
+
+# Disallow all variations with www and http
+Disallow: http://defconexpanded.com/
+Disallow: http://www.defconexpanded.com/
+Disallow: https://www.defconexpanded.com/
+
+# Existing disallow rules
 Disallow: /demos/
 Disallow: /public/uploads/
 Disallow: /server.js
