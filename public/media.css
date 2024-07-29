@@ -235,3 +235,59 @@
     font-size: 0.8em;
     color: #888;
 }
+
+/* secret :) */
+
+#terminal {
+    height: 100%;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+#input-line {
+    display: flex;
+    align-items: center;
+    margin-top: 50px;
+}
+#prompt {
+    color: #0f0;
+    margin-right: 10px;
+}
+#cmd-input {
+    background-color: transparent;
+    border: none;
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    flex-grow: 1;
+    outline: none;
+}
+.output-line {
+    margin-bottom: 10px;
+}
+.file-list {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+.file-column {
+    width: 33.33%;
+    padding-right: 20px;
+    box-sizing: border-box;
+}
+.file-item {
+    cursor: pointer;
+    padding: 5px 0;
+    transition: color 0.3s;
+}
+
+.command-help p {
+    margin: 5px 0;
+}
+
+.command-help .command {
+    color: #ff0;
+}
+.error {
+    color: #f00;
+}
