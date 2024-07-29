@@ -138,6 +138,7 @@ app.get('/searchresults', (req, res) => sendHtml(res, 'searchresults.html'));
 app.get('/resources/8player', (req, res) => sendHtml(res, '8player.html'));
 app.get('/resources/10player', (req, res) => sendHtml(res, '10player.html'));
 app.get('/resources/16player', (req, res) => sendHtml(res, '16player.html'));
+app.get('/cmd', (req, res) => sendHtml(res, 'secret.html'));
 
 // Serve special files
 app.get('/sitemap', (req, res) => {
