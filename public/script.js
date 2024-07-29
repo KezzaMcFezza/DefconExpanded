@@ -125,7 +125,7 @@ function updateDemoList() {
             allDemos = demos; 
             const gamesPlayed = document.getElementById('games-played');
             if (gamesPlayed) {
-                gamesPlayed.textContent = `Total Games Played: ${demos.length}`; // Fixed typo in "Games"
+                gamesPlayed.textContent = `TOTAL GAMES PLAYED: ${demos.length}`; // Fixed typo in "Games"
             }
             showPage(1, allDemos);
         })
