@@ -136,7 +136,7 @@ function performMainSearch() {
     if (!searchInput) return;
     const searchTerm = searchInput.value;
     if (searchTerm.trim() === '') return;
-    window.location.href = `https://defconexpanded.com/searchresults.html?q=${encodeURIComponent(searchTerm)}`;
+    window.location.href = `https://defconexpanded.com/searchresults?q=${encodeURIComponent(searchTerm)}`;
 }
 
 function performGameSearch() {
