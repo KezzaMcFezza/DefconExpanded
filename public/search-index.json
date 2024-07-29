@@ -1,6 +1,6 @@
 [
   {
-    "url": "/index.html",
+    "url": "/homepage",
     "title": "Defcon Expanded: Homepage",
     "h1": "Recently Played Games",
     "metaDescription": "Defcon Expanded - The Home for Modded DEFCON Mods and Demos",
@@ -13,7 +13,7 @@
     "lastUpdated": "2024-07-25"
   },
   {
-    "url": "/about.html",
+    "url": "/about",
     "title": "About Defcon Expanded: 8-16 Player Mod",
     "h1": "About the Mod",
     "metaDescription": "Official website for Defcon Expanded, the 8-16 player mod for DEFCON.",
@@ -27,7 +27,7 @@
     "lastUpdated": "2024-07-25"
   },
   {
-    "url": "/news.html",
+    "url": "/news",
     "title": "Defcon Expanded: Latest News and Events",
     "h1": "Latest News and Events",
     "metaDescription": "Stay updated with the latest news about Defcon Expanded, including new updates and upcoming events.",
@@ -41,7 +41,7 @@
     "lastUpdated": "2024-07-25"
   },
   {
-    "url": "/resources.html",
+    "url": "/resources",
     "title": "Defcon Expanded: Resources and Downloads",
     "h1": "DEFCON EXPANDED RESOURCES",
     "metaDescription": "Access resources and downloads for various Defcon Expanded builds, including 8 Player, 10 Player, and 16 Player versions.",
@@ -97,7 +97,7 @@
     "lastUpdated": "2024-07-27"
   },
   {
-    "url": "/experimental.html",
+    "url": "/experimental",
     "title": "Defcon Expanded: Experimental Builds",
     "h1": "Experimental Builds",
     "metaDescription": "Information about experimental builds of Defcon Expanded, including 16 Player and 10 Player versions.",
@@ -111,7 +111,7 @@
     "lastUpdated": "2024-07-25"
   },
   {
-    "url": "/media.html",
+    "url": "/media",
     "title": "Defcon Expanded: Media",
     "h1": "Media Gallery",
     "metaDescription": "Screenshots and videos showcasing Defcon Expanded gameplay and features.",
@@ -124,7 +124,7 @@
     "lastUpdated": "2024-07-26"
   },
   {
-    "url": "/matchroom.html",
+    "url": "/homepage/matchroom",
     "title": "Defcon Expanded: Matchroom",
     "h1": "Waiting on Dedcon to Become Implemented",
     "metaDescription": "Future plans for the Matchroom feature in Defcon Expanded.",
@@ -137,7 +137,7 @@
     "lastUpdated": "2024-07-25"
   },
   {
-    "url": "/secret.html",
+    "url": "/cmd",
     "title": "?",
     "h1": "What is this?",
     "metaDescription": "",
