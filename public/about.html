@@ -86,37 +86,6 @@
             </div>         
         </div>
     </div>
-<script>
-    function performSearch() {
-        const searchTerm = document.getElementById('search-input').value;
-        if (searchTerm.trim() === '') return;
-        window.location.href = `https://defconexpanded.com/searchresults.html?q=${encodeURIComponent(searchTerm)}`;
-    }
-
-    function addJSONLD() {
-        const script = document.createElement('script');
-        script.type = 'application/ld+json';
-        script.text = JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            "url": "https://defconexpanded.com/about",
-            "name": "About DEFCON Expanded",
-            "description": "Learn about DEFCON Expanded, a modding community for DEFCON"
-        });
-        document.head.appendChild(script);
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('search-button').addEventListener('click', performSearch);
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-
-        // Call the addJSONLD function when the DOM is loaded
-        addJSONLD();
-    });
-</script>
+    <script src="/script.js" defer></script>
 </body>
 </html>

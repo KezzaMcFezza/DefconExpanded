@@ -78,63 +78,6 @@
             </div>
         </div>
     </div>
-<script>
-    function openModal(src, type, title) {
-        const modal = document.getElementById("myModal");
-        const modalImg = document.getElementById("modalImg");
-        const modalVideo = document.getElementById("modalVideo");
-
-        modal.style.display = "flex";
-        if (type === 'img') {
-            modalImg.style.display = "block";
-            modalVideo.style.display = "none";
-            modalImg.src = src;
-        } else {
-            modalImg.style.display = "none";
-            modalVideo.style.display = "block";
-            modalVideo.src = src;
-        }
-
-        modalImg.alt = title;
-        modalVideo.title = title;
-    }
-
-    function closeModal() {
-        const modal = document.getElementById("myModal");
-        modal.style.display = "none";
-        document.getElementById("modalVideo").pause();
-    }
-
-    function performSearch() {
-        const searchTerm = document.getElementById('search-input').value;
-        if (searchTerm.trim() === '') return;
-        window.location.href = `https://defconexpanded.com/searchresults.html?q=${encodeURIComponent(searchTerm)}`;
-    }
-
-    function addJSONLD() {
-        const script = document.createElement('script');
-        script.type = 'application/ld+json';
-        script.text = JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            "url": "https://defconexpanded.com/resources",
-            "name": "DEFCON Expanded Downloads",
-            "description": "Download DEFCON resources for 8, 10, and 16 player games."
-        });
-        document.head.appendChild(script);
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('search-button').addEventListener('click', performSearch);
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-
-        // Call the addJSONLD function when the DOM is loaded
-        addJSONLD();
-    });
-</script>
+    <script src="/script.js" defer></script>
 </body>
 </html>

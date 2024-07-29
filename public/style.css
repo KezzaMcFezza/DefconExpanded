@@ -127,7 +127,6 @@ li {
     text-align: left;
     font-size: 1.05rem;
     padding-left: 0px;
-
 }
 
 .headerresources {
@@ -177,8 +176,6 @@ ul {
     padding-left: 1rem;
 }
 
-/* eat fucking ass */
-
 /* Logo and Banner */
 
 .logo {
@@ -187,8 +184,6 @@ ul {
     display: block;
     margin: 0px auto;
 }
-
-/* Logo and Banner */
 
 .logodivclass {
     background-image: url("images/logo.png");
@@ -213,15 +208,6 @@ ul {
     justify-content: center;
     padding: 5px 0;
     position: relative;
-}
-
-.buttondivclass {
-    display: flex;
-    gap: 0,5rem; 
-    position: absolute;
-    right: 0px; 
-    top: 75%;
-    transform: translateY(-50%);
 }
 
 /* Resources page stuff */
@@ -252,20 +238,6 @@ ul {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-
-/*.resource-item:before {
-    content: "NEW";
-    position: absolute;
-    top: 5px;
-    right: -28px;
-    background: #5eff00;
-    color: #000;
-    padding: 5px 30px;
-    transform: rotate(45deg);
-    font-weight: bold;
-    font-size: 0.8em;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}*/
 
 .resource-item-new {
     background: linear-gradient(135deg, #1a8d00, #136b00);
@@ -314,28 +286,19 @@ ul {
 }
 
 @keyframes pulse {
-0% {
-box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
-}
-50% {
-box-shadow: 0 4px 20px rgba(94, 255, 0, 0.5), 0 1px 5px rgba(94, 255, 0, 0.2);
-}
-100% {
-box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
-}
-60% {
-box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
-}
-30% {
-box-shadow: 0 4px 20px rgba(94, 255, 0, 0.5), 0 1px 5px rgba(94, 255, 0, 0.2);
-}
-80% {
-box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
-}
+    0% {
+        box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(94, 255, 0, 0.5), 0 1px 5px rgba(94, 255, 0, 0.2);
+    }
+    100% {
+        box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
+    }
 }
 
 .resource-item-new {
-animation: pulse 2s infinite;
+    animation: pulse 2s infinite;
 }
 
 /* news page stuff */
@@ -408,15 +371,6 @@ animation: pulse 2s infinite;
         box-shadow: 0 4px 20px rgba(94, 255, 0, 0.5), 0 1px 5px rgba(94, 255, 0, 0.2);
     }
     100% {
-        box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
-    }
-    60% {
-        box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
-    }
-    30% {
-        box-shadow: 0 4px 20px rgba(94, 255, 0, 0.5), 0 1px 5px rgba(94, 255, 0, 0.2);
-    }
-    80% {
         box-shadow: 0 4px 15px rgba(94, 255, 0, 0.3), 0 1px 3px rgba(94, 255, 0, 0.1);
     }
 }
