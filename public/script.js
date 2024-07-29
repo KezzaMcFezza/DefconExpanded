@@ -106,6 +106,7 @@ function getPlayerData(demoName) {
         { name: "Player2", territory: "EU", score: Math.floor(Math.random() * 200) - 50 },
         { name: "Player3", territory: "SA", score: Math.floor(Math.random() * 200) - 50 },
         { name: "Player4", territory: "RU", score: Math.floor(Math.random() * 200) - 50 },
+
     ];
     return players.map(player => `
         <tr>
@@ -173,6 +174,15 @@ function addJSONLD() {
                 "url": "https://defconexpanded.com/about",
                 "name": "About DEFCON Expanded",
                 "description": "Learn about DEFCON Expanded, a modding community for DEFCON"
+            };
+            break;
+        case '/experimental':
+            jsonLDContent = {
+                "@context": "https://schema.org",
+                "@type": "WebPage",
+                "url": "https://defconexpanded.com/experimental",
+                "name": "DEFCON Expanded Experimental Builds",
+                "description": "Find out the new builds we are working on."
             };
             break;
         case '/resources':

@@ -6,28 +6,24 @@
     "metaDescription": "Defcon Expanded - The Home for Modded DEFCON Mods and Demos",
     "snippets": [
       "Total Games Played: 0",
-      "Demonstration of upcoming features for Defcon Expanded",
-      "This part of the website is just for demonstration purposes until we can implement Dedcon into the modded builds",
-      "What you see here is a concept and is not final"
+      "Demonstration of upcoming features",
+      "Concept for Dedcon implementation"
     ],
     "keywords": ["recently played", "games", "stats", "demos", "Dedcon"],
     "lastUpdated": "2024-07-25"
   },
   {
     "url": "/about.html",
-    "title": "About Defcon Expanded: 8-10 Player Mod",
+    "title": "About Defcon Expanded: 8-16 Player Mod",
     "h1": "About the Mod",
-    "metaDescription": "Official website for Defcon Expanded, the 8-10 player mod for DEFCON.",
+    "metaDescription": "Official website for Defcon Expanded, the 8-16 player mod for DEFCON.",
     "snippets": [
-      "Welcome to the Official Website for Defcon Expanded the 8-10 player mod for DEFCON",
-      "Game Testers: FasterThanRaito, Sievert, KezzaMcFezza, and more",
-      "Developers: FasterThanRaito, Sievert, Wan May",
-      "The mod is months in the making and wouldn't of been possible without some talented people who are passionate about the game",
-      "The mod is still in its infancy and I do suggest you email me, or contact one of us on the discord if any bugs or issues arise",
-      "NEW GAMEPLAY FEATURES: Bomber Launch (Empty), Color Picker, Team Color Migration (Not Yet Implemented)",
-      "NEW GRAPHICAL FEATURES: 16 Available Team Colors, Unit Outlines, Radar Ghosting changes, Chatbox Text Visibility enhancer"
+      "Welcome to DEFCON Expanded, 8-16 player mod",
+      "Game Testers and Developers",
+      "New gameplay features: Bomber Launch, Color Picker",
+      "New graphical features: 16 Team Colors, Unit Outlines"
     ],
-    "keywords": ["about", "mod", "game testers", "developers", "contact", "DEFCON", "8-10 player"],
+    "keywords": ["about", "mod", "game testers", "developers", "DEFCON", "8-16 player"],
     "lastUpdated": "2024-07-25"
   },
   {
@@ -37,13 +33,9 @@
     "metaDescription": "Stay updated with the latest news about Defcon Expanded, including new updates and upcoming events.",
     "snippets": [
       "16 Player DEFCON mod released for testing",
-      "New 8 Player Mod update built on MINICOM",
+      "8 Player Mod update built on MINICOM",
       "10 Player build nearing first public test",
-      "Weekly game event every Sunday",
-      "We are excited to announce that the first ever 16 Player DEFCON mod has finally been released for anyone to try and test!",
-      "A revamped version of the 8 Player Mod that has been built on MINICOM as a base instead of DEFCON",
-      "The 10 Player build has received alot of changes in the past few weeks and is almost ready for its first public test",
-      "Sign up for this Sunday's game on 28th july 2024 3-6PM Eastern Standard Time"
+      "Weekly game event every Sunday"
     ],
     "keywords": ["news", "updates", "16 player", "10 player", "8 player", "events", "MINICOM", "Sunday game"],
     "lastUpdated": "2024-07-25"
@@ -57,9 +49,7 @@
       "8 Player Resources: Download and information",
       "10 Player Resources: Download and information",
       "16 Player Resources: Download and information",
-      "Access the latest builds of Defcon Expanded",
-      "Download links for different player versions",
-      "Installation guides and tutorials available"
+      "Installation guides available"
     ],
     "keywords": ["resources", "downloads", "8 player", "10 player", "16 player", "builds"],
     "lastUpdated": "2024-07-25"
@@ -70,15 +60,13 @@
     "h1": "8 Player Build Resources",
     "metaDescription": "Download links and installation tutorial for the 8 Player Build of Defcon Expanded.",
     "snippets": [
-      "Latest Version: Defcon8P 2.8.3",
+      "Latest Version: Defcon8P 2.8.7",
       "Installation Tutorial available",
-      "Version History: 2.8.2, 2.8.1, 2.8.0",
-      "If you get a virus detected popup and your browser refuses to let you download and of these files, turn off windows defender or any other anti virus software as these modded builds arent signed",
-      "Download links for the most recent 8 player build and older versions",
-      "If you are still struggling with the install just ask one of us on the Discord"
+      "Version History: 2.8.6, 2.8.3, 2.8.2, 2.8.1, 2.8.0",
+      "Antivirus warning for downloads"
     ],
-    "keywords": ["8 player", "download", "installation", "tutorial", "version history", "8 player download"],
-    "lastUpdated": "2024-07-25"
+    "keywords": ["8 player", "download", "installation", "tutorial", "version history"],
+    "lastUpdated": "2024-07-27"
   },
   {
     "url": "/resources/10player",
@@ -86,15 +74,13 @@
     "h1": "10 Player Build Resources",
     "metaDescription": "Download links and information for the 10 Player Build of Defcon Expanded.",
     "snippets": [
-      "Latest Version: Defcon10P 2.10.1",
-      "Experimental build, available for testing",
-      "Version History: 2.10.0",
-      "We are currently developing an Experimenal 10 Player build that is far from finished but we have working builds that people can try",
-      "Hopefully at some point we will host a 10 Player game in the near future possibly at the end of July or start of August 2024",
-      "If you encounter any bugs or crashes we would appreciate it if you could send me an email with the error code"
+      "Latest Version: Defcon10P 2.10.5",
+      "Experimental build for testing",
+      "Version History: 2.10.4, 2.10.1, 2.10.0",
+      "Upcoming 10 Player game event"
     ],
-    "keywords": ["10 player", "download", "experimental", "version history", "10 player download"],
-    "lastUpdated": "2024-07-25"
+    "keywords": ["10 player", "download", "experimental", "version history"],
+    "lastUpdated": "2024-07-27"
   },
   {
     "url": "/resources/16player",
@@ -102,15 +88,13 @@
     "h1": "16 Player Build Resources",
     "metaDescription": "Download links and information for the 16 Player Build of Defcon Expanded.",
     "snippets": [
-      "Latest Version: Defcon8P 2.16.0",
+      "Latest Version: Defcon16P 2.16.4",
       "First ever 16 Player DEFCON mod",
-      "Experimental build, expect bugs and issues",
-      "After a long wait the 16 Player build is now ready for everyone to play and test!",
-      "Don't be hesitant to send in any bugs or issues that you find in the build as its just been released",
-      "FasterThanRaito has made a dev blog which you can find here"
+      "Version History: 2.16.3, 2.16.0",
+      "Experimental build, bug reports welcome"
     ],
-    "keywords": ["16 player", "download", "experimental", "version history", "16 player download"],
-    "lastUpdated": "2024-07-25"
+    "keywords": ["16 player", "download", "experimental", "version history"],
+    "lastUpdated": "2024-07-27"
   },
   {
     "url": "/experimental.html",
@@ -120,30 +104,24 @@
     "snippets": [
       "16 Player Build in development",
       "10 Player Build nearing first public test",
-      "Download links available for testing",
-      "The original DEFCON was split into 6 continent-like territories. With DEFCON Expanded, we are able to introduce more players and thus the need to divide the world into more parts",
-      "We have decided to divide the world along not just geographic lines but also regional cultural ones to make sensible factions",
-      "Each territory should have a minimum of 25 cities, but some parts of the world are so sparsely populated that no amount of pure territorial coverage would give them the required city count"
+      "New world territory divisions",
+      "Minimum 25 cities per territory"
     ],
-    "keywords": ["experimental", "16 player", "10 player", "development", "territories", "download"],
+    "keywords": ["experimental", "16 player", "10 player", "development", "territories"],
     "lastUpdated": "2024-07-25"
   },
   {
     "url": "/media.html",
     "title": "Defcon Expanded: Media",
-    "h1": "Media",
+    "h1": "Media Gallery",
     "metaDescription": "Screenshots and videos showcasing Defcon Expanded gameplay and features.",
     "snippets": [
-      "Screenshots: CPU, 8 Player, 4v4, Demo, Nukes",
-      "Videos: 4v4 gameplay, 8 CPU simulation, 7 Player diplomacy",
-      "CPU Screenshot, 8 Player Screenshot, 4v4 Screenshot, Territories Screenshot, Nukes Screenshot",
-      "Defcon 4v4 16x Speed with Soundtrack",
-      "8 CPU Simulation",
-      "7 Player Diplomacy",
+      "Screenshots: CPU, 8 Player, 4v4, Territories, Nukes",
+      "Videos: 16 CPU Game, 4v4 gameplay, 8 CPU simulation, 7 Player diplomacy",
       "First Ever 8 Player 4v4 With Voices"
     ],
     "keywords": ["screenshots", "videos", "gameplay", "media"],
-    "lastUpdated": "2024-07-25"
+    "lastUpdated": "2024-07-26"
   },
   {
     "url": "/matchroom.html",
@@ -153,9 +131,7 @@
     "snippets": [
       "Planned: Detailed match statistics",
       "Future feature: In-browser game replay",
-      "The goal that i have is to have detailed match statistics available on this page such as player names, score, territory and how many units, population, bases, silos the player had left",
-      "Another thing that i want to add is having a video player in the matchroom page of the game where people can watch the game on the website instead of having to download the demo",
-      "The demo download will always be available for those who are comfortable using the Dedcon client"
+      "Demo download option retained"
     ],
     "keywords": ["matchroom", "statistics", "replay", "Dedcon", "future plans"],
     "lastUpdated": "2024-07-25"

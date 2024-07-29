@@ -1,6 +1,6 @@
-/* Mobile Styles (max-width: 768px) */
+/* search bar delete in mobile */
+
 @media screen and (max-width: 768px) {
-    /* Search bar */
     .search-container {
         position: absolute;
         right: 0px;
@@ -8,18 +8,70 @@
         display: none;
     }
 
-    #search-input,
-    #search-button {
+    #search-input {
+        padding: 0px;
+        width: 0px;
+        border: 0px solid #ddd;
+        border-radius: 0px;
         display: none;
     }
 
-    /* Container and layout */
+    #search-button {
+        padding: 0px 0px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        display: none;
+        border-radius: 0px;
+        cursor: pointer;
+    }
+
+    #search-button:hover {
+        background-color: #45a049;
+        display: none;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .search-container {
+        position: absolute;
+        right: 0px;
+        top: 0%;
+        display: none;
+    }
+
+    #search-input {
+        padding: 0px;
+        width: 0px;
+        border: 0px solid #ddd;
+        border-radius: 0px;
+        display: none;
+    }
+
+    #search-button {
+        padding: 0px 0px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        display: none;
+        border-radius: 0px;
+        cursor: pointer;
+    }
+
+    #search-button:hover {
+        background-color: #45a049;
+        display: none;
+    }
+}
+
+/* About page */
+
+@media screen and (max-width: 768px) {
     .container {
         padding: 10px;
     }
 
-    .about-columns,
-    .about-columns2 {
+    .about-columns {
         flex-direction: column;
     }
 
@@ -28,7 +80,12 @@
         width: 100%;
     }
 
-    /* Logo and banner */
+    .about-columns2 {
+        flex-direction: column;
+    }
+
+    /* logo, banner and nav scaling this shit is important as fuck */
+
     .logo {
         width: 100%;
         height: auto;
@@ -47,7 +104,6 @@
         height: auto;
     }
 
-    /* Navigation */
     nav {
         display: flex;
         flex-wrap: wrap;
@@ -61,7 +117,8 @@
         margin: 2px;
     }
 
-    /* Resources page */
+    /* resources page mobile */
+
     .tutorial-download-container {
         flex-direction: column;
     }
@@ -86,42 +143,10 @@
         font-size: 0.9em;
         padding: 8px 16px;
     }
-
-    /* Experimental page */
-    .expcolumns {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-
-    /* Media page */
-    .video-section {
-        grid-template-columns: 1fr;
-        aspect-ratio: auto;
-    }
-
-    .featured-video, .video-item {
-        height: auto;
-        margin-bottom: 10px;
-    }
-
-    .video-thumbnail {
-        padding-top: 56.25%; 
-    }
-
-    .media-info {
-        padding: 5px;
-    }
-
-    .media-title {
-        font-size: 12px;
-    }
-
-    .media-meta {
-        font-size: 10px;
-    }
 }
 
-/* Mobile Styles (max-width: 480px) */
+/* 480 scaling for the head */
+
 @media screen and (max-width: 480px) {
     .logo {
         max-width: 300px;
@@ -137,9 +162,126 @@
     }
 }
 
-/* Tablet and Desktop Styles */
+/* as devil would say this fixes everything */
+
 @media screen and (min-width: 768px) {
     body {
         background-size: 100% 100vh;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .expcolumns {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+}
+
+/* media page */
+
+@media (max-width: 768px) {
+    .video-section {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .featured-video, .video-item {
+        height: auto;
+        width: 100%;
+    }
+
+    .video-thumbnail {
+        padding-top: 56.25%; /* 16:9 aspect ratio */
+        position: relative;
+    }
+
+    .video-thumbnail img,
+    .video-thumbnail video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .media-info {
+        padding: 10px;
+    }
+
+    .media-title {
+        font-size: 14px;
+    }
+
+    .media-meta {
+        font-size: 12px;
+    }
+
+    .screenshots-section {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .screenshot-item {
+        width: 100%;
+    }
+
+    .screenshot-thumbnail {
+        padding-top: 56.25%; /* 16:9 aspect ratio */
+    }
+
+    .modal-content {
+        width: 90%;
+        max-width: 90vw;
+        max-height: 90vh;
+    }
+}
+
+/* Additional general mobile adjustments */
+
+@media screen and (max-width: 768px) {
+    .container, .container-homepage {
+        padding: 10px;
+        max-width: 100%;
+    }
+
+    h1, .headerresources, .headerresources2, .headerresources3, .headerresources4 {
+        font-size: 1.5em;
+    }
+
+    .event, .announcement, .announcementnew {
+        padding: 15px;
+    }
+
+    .event h5, .announcement h5, .announcementnew h5 {
+        font-size: 1.2em;
+    }
+
+    .resources-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .resource-item, .resource-item-new {
+        padding: 15px;
+    }
+
+    .resource-item img, .resource-item-new img {
+        width: 60px;
+        height: 60px;
+        margin-left: 50px;
+    }
+
+    .demo-container {
+        grid-template-columns: 1fr;
+    }
+
+    .demo-card {
+        width: 100%;
+        height: auto;
+    }
+
+    .pagination button {
+        padding: 3px 8px;
+        margin: 0 3px;
     }
 }
