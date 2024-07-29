@@ -34,3 +34,6 @@ Disallow: /renderer.js
 Disallow: /serverlaunch.bat
 
 Sitemap: https://defconexpanded.com/sitemap.xml
+
+# Preferred host
+Host: https://defconexpanded.com
