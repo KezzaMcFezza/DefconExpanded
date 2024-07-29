@@ -131,46 +131,6 @@
         <img class="modal-content" id="modalImg">
         <video class="modal-content" id="modalVideo" controls></video>
     </div>
-
-    <script>
-        function openModal(src, type, title) {
-            const modal = document.getElementById("myModal");
-            const modalImg = document.getElementById("modalImg");
-            const modalVideo = document.getElementById("modalVideo");
-
-            modal.style.display = "flex";
-            if (type === 'img') {
-                modalImg.style.display = "block";
-                modalVideo.style.display = "none";
-                modalImg.src = src;
-            } else {
-                modalImg.style.display = "none";
-                modalVideo.style.display = "block";
-                modalVideo.src = src;
-            }
-
-            modalImg.alt = title;
-            modalVideo.title = title;
-        }
-
-        function closeModal() {
-            const modal = document.getElementById("myModal");
-            modal.style.display = "none";
-            document.getElementById("modalVideo").pause();
-        }
-
-        function performSearch() {
-            const searchTerm = document.getElementById('search-input').value;
-            if (searchTerm.trim() === '') return;
-            window.location.href = `/searchresults.html?q=${encodeURIComponent(searchTerm)}`;
-        }
-
-        document.getElementById('search-button').addEventListener('click', performSearch);
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-    </script>
+    <script src="/script.js" defer></script>
 </body>
 </html>

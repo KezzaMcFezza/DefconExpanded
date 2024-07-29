@@ -62,22 +62,7 @@
                               always be available for those who are comfortable using the Dedcon client.</p>
         </div>
     </div>
-<script>
-
-        function performSearch() {
-            const searchTerm = document.getElementById('search-input').value;
-            if (searchTerm.trim() === '') return;
-            window.location.href = `/searchresults.html?q=${encodeURIComponent(searchTerm)}`;
-        }
-
-        document.getElementById('search-button').addEventListener('click', performSearch);
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-
-</script>
+    <script src="/script.js" defer></script>
 </body>
 </html>
 <!--

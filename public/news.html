@@ -63,7 +63,7 @@
             <div class="announcementnew">
                 <h5 class="h5new">16 Player Build</h5>
                 <p class="pabout2">We are excited to announce that the first ever 16 Player DEFCON mod has finally been released for anyone to try and test! expect bugs
-                    and issues and dont hesitate to report any of them to <a href="mailto:keiron.mcphee1@gmail.com">KezzaMcFezza</a> or FasterThanRaito on discord.</p>
+                    and issues and dont hesitate to report any of them to keiron.mcphee1@gmail.com or FasterThanRaito on discord.</p>
                     <p class="pabout2">To try the 16 Player build out yourself, the most recent Version 2.16.3 is available in the 
                         <a href="https://defconexpanded.com/resources/16player" target="_blank" >Resources</a> tab of the website.</p>
             </div> 
@@ -139,38 +139,7 @@
             </div>            
         </div>
     </div>
-<script>
-    function performSearch() {
-        const searchTerm = document.getElementById('search-input').value;
-        if (searchTerm.trim() === '') return;
-        window.location.href = `https://defconexpanded.com/searchresults.html?q=${encodeURIComponent(searchTerm)}`;
-    }
-
-    function addJSONLD() {
-        const script = document.createElement('script');
-        script.type = 'application/ld+json';
-        script.text = JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebPage",
-            "url": "https://defconexpanded.com/news",
-            "name": "DEFCON Expanded News",
-            "description": "Latest news and updates for DEFCON Expanded, including information on new mods and features."
-        });
-        document.head.appendChild(script);
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('search-button').addEventListener('click', performSearch);
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performSearch();
-            }
-        });
-
-        // Call the addJSONLD function when the DOM is loaded
-        addJSONLD();
-    });
-</script>
+    <script src="/script.js" defer></script>
 </body>
 </html>
 <!--

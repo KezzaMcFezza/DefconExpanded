@@ -1,8 +1,6 @@
-
-/* search bar delete in mobile */
-
+/* Mobile Styles (max-width: 768px) */
 @media screen and (max-width: 768px) {
-
+    /* Search bar */
     .search-container {
         position: absolute;
         right: 0px;
@@ -10,72 +8,18 @@
         display: none;
     }
 
-    #search-input {
-        padding: 0px;
-        width: 0px;
-        border: 0px solid #ddd;
-        border-radius: 0px;
-        display: none;
-    }
-
+    #search-input,
     #search-button {
-        padding: 0px 0px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        display: none;
-        border-radius: 0px;
-        cursor: pointer;
-    }
-
-    #search-button:hover {
-        background-color: #45a049;
-        display: none;
-    }
-}
-
-@media screen and (max-width: 480px) {
-
-    .search-container {
-        position: absolute;
-        right: 0px;
-        top: 0%;
         display: none;
     }
 
-    #search-input {
-        padding: 0px;
-        width: 0px;
-        border: 0px solid #ddd;
-        border-radius: 0px;
-        display: none;
-    }
-
-    #search-button {
-        padding: 0px 0px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        display: none;
-        border-radius: 0px;
-        cursor: pointer;
-    }
-
-    #search-button:hover {
-        background-color: #45a049;
-        display: none;
-    }
-}
-
-    /* About page */
-
-@media screen and (max-width: 768px) {
-
+    /* Container and layout */
     .container {
         padding: 10px;
     }
 
-    .about-columns {
+    .about-columns,
+    .about-columns2 {
         flex-direction: column;
     }
 
@@ -84,12 +28,7 @@
         width: 100%;
     }
 
-    .about-columns2 {
-        flex-direction: column;
-    }
-
-    /* logo, banner and nav scaling this shit is important as fuck */
-
+    /* Logo and banner */
     .logo {
         width: 100%;
         height: auto;
@@ -108,6 +47,7 @@
         height: auto;
     }
 
+    /* Navigation */
     nav {
         display: flex;
         flex-wrap: wrap;
@@ -121,8 +61,7 @@
         margin: 2px;
     }
 
-    /* resources page mobile */
-
+    /* Resources page */
     .tutorial-download-container {
         flex-direction: column;
     }
@@ -147,10 +86,42 @@
         font-size: 0.9em;
         padding: 8px 16px;
     }
+
+    /* Experimental page */
+    .expcolumns {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    /* Media page */
+    .video-section {
+        grid-template-columns: 1fr;
+        aspect-ratio: auto;
+    }
+
+    .featured-video, .video-item {
+        height: auto;
+        margin-bottom: 10px;
+    }
+
+    .video-thumbnail {
+        padding-top: 56.25%; 
+    }
+
+    .media-info {
+        padding: 5px;
+    }
+
+    .media-title {
+        font-size: 12px;
+    }
+
+    .media-meta {
+        font-size: 10px;
+    }
 }
 
-/* 480 scaling for the head */
-
+/* Mobile Styles (max-width: 480px) */
 @media screen and (max-width: 480px) {
     .logo {
         max-width: 300px;
@@ -166,45 +137,9 @@
     }
 }
 
-/* as devil would say this fixes everything */
-
+/* Tablet and Desktop Styles */
 @media screen and (min-width: 768px) {
     body {
         background-size: 100% 100vh;
     }
 }
-
-@media screen and (max-width: 768px) {
-
-    .expcolumns {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-}
-
-/* media page */
-
-@media (max-width: 768px) {
-    .video-section {
-        grid-template-columns: 1fr;
-        aspect-ratio: auto;
-    }
-    .featured-video, .video-item {
-        height: auto;
-        margin-bottom: 10px;
-    }
-    .video-thumbnail {
-        padding-top: 56.25%; 
-    }
-    .media-info {
-        padding: 5px;
-    }
-    .media-title {
-        font-size: 12px;
-    }
-    .media-meta {
-        font-size: 10px;
-    }
-}
-
-
