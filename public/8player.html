@@ -34,7 +34,15 @@
     <link rel="stylesheet" type="text/css" href="/btnnav.css" />
     <link rel="stylesheet" type="text/css" href="/scaling.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://defconexpanded.com/plyr.css">
+    <script src="https://defconexpanded.com/plyr.js"></script>
+    <script src="/script.js" defer></script>
     <style>
+
+.plyr--video {
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
     </style>
 </head>
@@ -67,13 +75,12 @@
                     <h1 class="headerresources">INstallatioN TUtoRial...</h1>
                     <div class="media-grid">
                         <div class="media-item-resources">
-                            <video 
-                            src="/videos/Installation Guide.mp4" 
-                            poster="/images/installation.png"
-                            controls
-                            onclick="openModal('/videos/Installation Guide.mp4', 'video', 'Installation Guide.mp4')">
-                            Your browser does not support the video tag. Please download the video to view it.
-                            </video>
+                            <div class="video-item" data-src="https://defconexpanded.com/videos/Installation Guide.mp4" data-type="video" data-title="Defcon 7 Player Diplo Voice">
+                                <div class="video-thumbnail-downloads">
+                                    <video src="https://defconexpanded.com/videos/Installation Guide.mp4" poster="https://defconexpanded.com/images/installation.png"></video>
+                                    <div class="media-duration">02:31</div>
+                                </div>
+                            </div>
                         </div>                    
                     </div>
                     <p class="pabout">If you are still struggling with the install just ask one of us on the Discord.</p>    
@@ -128,10 +135,8 @@
     <!-- The Modal -->
     <div id="myModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>
-        <img class="modal-content" id="modalImg">
-        <video class="modal-content" id="modalVideo" controls></video>
+        <div id="modalContent" class="modal-content"></div>
     </div>
-    <script src="/script.js" defer></script>
 </body>
 </html>
 <!--
