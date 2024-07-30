@@ -450,58 +450,104 @@ ul {
     color: #000;
 }
 
-/* secret :) */
+/* yes */
 
 #terminal {
     height: 100%;
-    overflow-y: auto;
     padding: 20px;
     box-sizing: border-box;
+    overflow-y: auto;
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            rgba(0, 255, 0, 0.15),
+            rgba(0, 255, 0, 0.15) 1px,
+            transparent 1px,
+            transparent 2px
+        );
 }
+
+.output-line {
+    margin-bottom: 10px;
+    text-shadow: 0 0 5px #00ff00;
+}
+
 #input-line {
     display: flex;
     align-items: center;
-    margin-top: 50px;
+    position: relative;
 }
+
 #prompt {
-    color: #0f0;
     margin-right: 10px;
 }
+
 #cmd-input {
-    background-color: transparent;
+    background: transparent;
     border: none;
-    color: #0f0;
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
-    flex-grow: 1;
+    color: #00ff00;
+    font-family: 'VT323', monospace;
+    font-size: 18px;
     outline: none;
+    caret-color: transparent;
+    flex-grow: 1;
 }
-.output-line {
-    margin-bottom: 10px;
+
+#cursor {
+    position: absolute;
+    top: 2px;
+    left: 0;
+    width: 10px;
+    height: 18px;
+    background-color: #00ff00;
+    animation: blink 0.7s infinite;
 }
+
+@keyframes blink {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
 .file-list {
     display: flex;
     flex-wrap: wrap;
-    margin-top: 20px;
 }
+
 .file-column {
-    width: 33.33%;
-    padding-right: 20px;
-    box-sizing: border-box;
+    flex: 1;
+    min-width: 200px;
+    margin-right: 20px;
 }
+
 .file-item {
     cursor: pointer;
-    padding: 5px 0;
-    transition: color 0.3s;
+    margin-bottom: 5px;
+}
+
+.file-item:hover {
+    text-decoration: underline;
 }
 
 .command-help p {
     margin: 5px 0;
 }
 
-.command-help .command {
-    color: #ff0;
+.command {
+    font-weight: bold;
 }
-.error {
-    color: #f00;
+
+.credits ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.credits li {
+    margin-bottom: 5px;
+}
+
+@keyframes flicker {
+    0% { opacity: 0.9; }
+    50% { opacity: 1; }
+    100% { opacity: 0.9; }
 }
