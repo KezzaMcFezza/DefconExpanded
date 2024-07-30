@@ -21,6 +21,11 @@
     max-height: 80vh;
 }
 
+.modal-content img {
+    width: 1200px;
+    height: auto;
+}
+
 .close {
     position: absolute;
     top: 15px;
@@ -80,10 +85,6 @@
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     transition: transform 0.3s ease;
-}
-
-.media-item:hover {
-    transform: translateY(-5px);
 }
 
 .media-item img,
@@ -164,12 +165,13 @@
     width: 400px;
 }
 
-.video-item:hover {
-    transform: translateY(-5px);
-}
-
 .video-thumbnail {
     position: relative;
+    width: 100%;
+    flex-grow: 1;
+}
+
+.video-thumbnail-downloads {
     width: 100%;
     flex-grow: 1;
 }
@@ -220,20 +222,25 @@
     padding: 10px;
 }
 
-.media-duration {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 2px 5px;
-    border-radius: 3px;
-    font-size: 0.8em;
-}
-
 .media-meta {
     font-size: 0.8em;
     color: #888;
+}
+
+.media-duration {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 2px 4px;
+    font-size: 12px;
+    border-radius: 2px;
+}
+
+.plyr--video {
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 /* secret :) */
