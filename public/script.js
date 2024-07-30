@@ -125,7 +125,7 @@ function updateDemoList() {
             allDemos = demos; 
             const gamesPlayed = document.getElementById('games-played');
             if (gamesPlayed) {
-                gamesPlayed.textContent = `TOTAL GAMES PLAYED: ${demos.length}`; // Fixed typo in "Games"
+                gamesPlayed.textContent = `TOTAL GAMES PLAYED: ${demos.length}`;
             }
             showPage(1, allDemos);
         })
@@ -228,31 +228,50 @@ function addJSONLD() {
 }
 
 function openModal(src, type, title) {
+    console.log('Opening modal:', src, type, title);
     const modal = document.getElementById("myModal");
-    const modalImg = document.getElementById("modalImg");
-    const modalVideo = document.getElementById("modalVideo");
-    if (!modal || !modalImg || !modalVideo) return;
+    const modalContent = document.getElementById("modalContent");
+    if (!modal || !modalContent) {
+        console.error('Modal elements not found');
+        return;
+    }
+
+    modalContent.innerHTML = ''; // Clear previous content
+
+    if (type === 'img') {
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = title;
+        modalContent.appendChild(img);
+    } else if (type === 'video') {
+        const video = document.createElement('video');
+        video.src = src;
+        video.controls = true;
+        video.className = 'plyr__video-embed';
+        modalContent.appendChild(video);
+
+        // Initialize Plyr
+        const player = new Plyr(video, {
+            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
+            settings: ['captions', 'quality', 'speed', 'loop'],
+            title: title
+        });
+    }
 
     modal.style.display = "flex";
-    if (type === 'img') {
-        modalImg.style.display = "block";
-        modalVideo.style.display = "none";
-        modalImg.src = src;
-        modalImg.alt = title;
-    } else {
-        modalImg.style.display = "none";
-        modalVideo.style.display = "block";
-        modalVideo.src = src;
-        modalVideo.title = title;
-    }
 }
 
 function closeModal() {
     const modal = document.getElementById("myModal");
-    const modalVideo = document.getElementById("modalVideo");
-    if (!modal || !modalVideo) return;
+    if (!modal) {
+        console.error('Modal element not found');
+        return;
+    }
     modal.style.display = "none";
-    modalVideo.pause();
+    const modalContent = document.getElementById("modalContent");
+    if (modalContent) {
+        modalContent.innerHTML = ''; // Clear content to stop video playback
+    }
 }
 
 function performSearch(query) {
@@ -405,13 +424,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Set up media item click listeners
-    const mediaItems = document.querySelectorAll('.media-item, .screenshot-item, .video-item');
+    const mediaItems = document.querySelectorAll('.featured-video, .video-item, .screenshot-item');
     mediaItems.forEach(item => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
             const src = this.getAttribute('data-src');
             const type = this.getAttribute('data-type');
             const title = this.getAttribute('data-title') || '';
-            openModal(src, type, title);
+            console.log('Clicked item:', src, type, title); // Debug log
+            if (src && type) {
+                openModal(src, type, title);
+            } else {
+                console.error('Missing data attributes on clicked item');
+            }
         });
     });
 
