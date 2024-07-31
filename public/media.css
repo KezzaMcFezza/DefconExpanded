@@ -22,8 +22,18 @@
 }
 
 .modal-content img {
-    width: 1200px;
-    height: auto;
+    border: 0px solid #353535;
+    box-shadow: 0 0 10px rgba(80, 80, 80, 0.5);
+    border-radius: 40px;
+}
+
+.modal-image {
+    max-width: 90%;
+    max-height: 90vh;
+    object-fit: contain;
+    border: 0px solid #353535; 
+    box-shadow: 0 0 10px rgba(80, 80, 80, 0.5); 
+    border-radius: 40px; 
 }
 
 .close {

@@ -242,6 +242,7 @@ function openModal(src, type, title) {
         const img = document.createElement('img');
         img.src = src;
         img.alt = title;
+        img.className = 'modal-image'; // Add this line
         modalContent.appendChild(img);
     } else if (type === 'video') {
         const video = document.createElement('video');
