@@ -264,19 +264,17 @@ body, html {
     width: 256px;
     height: 350px;
     background-color: #001;
-    border: 0px solid rgb(21, 148, 21);
+    border: 1px solid rgb(21, 148, 21);
     border-radius: 20px;
     position: relative;
     overflow: hidden;
     color: #0f0;
     padding: 20px;
-    box-shadow: 4px 4px 4px rgb(12, 163, 12);
     font-family: 'Courier New', monospace;
 }
 
 .demo-card:hover {
     transform: translateY(-5px);
-    box-shadow: 4px 4px 4px rgb(12, 163, 12);
 }
 
 .demo-card h3 {
