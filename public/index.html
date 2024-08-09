@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="hide-scrollbar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,12 +12,12 @@
     <meta property="og:url" content="https://defconexpanded.com">
     <meta property="og:title" content="DEFCON Expanded: A DEFCON Modding Community">
     <meta property="og:description" content="Defcon Expanded: The Home for DEFCON Mods and Demos">
-    <meta property="og:image" content="https://defconexpanded.com/images/newdefconexpanded.png">
+    <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://defconexpanded.com">
     <meta name="twitter:title" content="DEFCON Expanded: A DEFCON Modding Community">
     <meta name="twitter:description" content="DEFCON Expanded: The Home for DEFCON Mods and Demos">
-    <meta name="twitter:image" content="https://defconexpanded.com/images/newdefconexpanded.png">
+    <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
     <link rel="icon" type="image/x-icon" href="https://defconexpanded.com/favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="https://defconexpanded.com/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="32x32" href="https://defconexpanded.com/favicon-32x32.png">
@@ -29,86 +29,85 @@
     <link rel="mask-icon" href="https://defconexpanded.com/safari-pinned-tab.svg" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="https://defconexpanded.com/style.css" />
-    <link rel="stylesheet" type="text/css" href="https://defconexpanded.com/main.css" />
-    <link rel="stylesheet" type="text/css" href="https://defconexpanded.com/media.css" />
-    <link rel="stylesheet" type="text/css" href="https://defconexpanded.com/btnnav.css" />
-    <link rel="stylesheet" type="text/css" href="https://defconexpanded.com/scaling.css" />
+    <link rel="stylesheet" type="text/css" href="/newmain.css" />
+    <link rel="stylesheet" type="text/css" href="/scaling.css" />
+    <script src="/script.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <style>
-        .game-type {
-            color: #fff;
-            padding: 5px;
-            margin-top: 0;
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "DEFCON Expanded",
+          "url": "https://defconexpanded.com/",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://defconexpanded.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          },
+          "mainEntity": [
+            {
+              "@type": "WebPage",
+              "name": "About",
+              "url": "https://defconexpanded.com/about"
+            },
+            {
+              "@type": "WebPage",
+              "name": "Media",
+              "url": "https://defconexpanded.com/media"
+            },
+            {
+              "@type": "WebPage",
+              "name": "Resources",
+              "url": "https://defconexpanded.com/resources"
+            },
+            {
+              "@type": "WebPage",
+              "name": "News",
+              "url": "https://defconexpanded.com/news"
+            }
+          ]
         }
-        .time-info {
-            font-size: 0.9em;
-            margin-bottom: 10px;
-        }
-        .game-results {
-            width: 80%;
-            border-collapse: collapse;
-            margin-bottom: 10px;
-        }
-        .game-results th, .game-results td {
-            border: 1px solid #333;
-            padding: 5px;
-            text-align: left;
-        }
-        .btn-download {
-            background-color: #4CAF50;
-        }
-        .btn-matchroom {
-            background-color: #008CBA;
-        }
-    </style>
+    </script>
 </head>
 <body class="hide-scrollbar">
-    <header>
-        <div class="bannerdivclass">
-            <div class="logodivclass"></div>
-        </div>
-    </header>
-    <nav>
-        <a class="btn-third foo" href="https://defconexpanded.com/">Homepage</a>
-        <a class="btn-third foo" href="https://defconexpanded.com/about">About</a>
-        <a class="btn-third foo" href="https://defconexpanded.com/news">News</a>
-        <a class="btn-third foo" href="https://defconexpanded.com/media">Media</a>
-        <a class="btn-third foo" href="https://defconexpanded.com/resources">Downloads</a>
-        <a class="btn-third foo" href="https://defconexpanded.com/experimental">Experimental</a>
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="Search...">
-            <button id="search-button">Search</button>
-        </div>
-    </nav>
-    <div class="container-homepage hide-scrollbar">
-        <div class="center-column">
-            <h1>REcENtly PlayEd GamEs</h1>
-            <div class="games-played" id="games-played">TOTAL GAMES PLAYED: 0</div>
-            <p class="pabout2">This part of the website is just for demonstration purposes until we can implement Dedcon into the custom builds, 
-                              so what you see here is a concept and is not final.</p>
-            <br>
-            <div class="search-container2">
-                <input type="text" id="search-input2" placeholder="Search for Games and Players...">
-                <button id="search-button2">Search</button>
+    <div class="container">
+        <div id="sidebar">
+            <div class="title">DEFCON Expanded</div>
+            <ul class="list-items">
+                <li><a href="https://defconexpanded.com/"><i class="fas fa-home"></i>Homepage</a></li>
+                <li><a href="https://defconexpanded.com/about"><i class="fas fa-info-circle"></i>About</a></li>
+                <li><a href="https://defconexpanded.com/resources"><i class="fas fa-download"></i>Downloads</a></li>
+                <li><a href="https://defconexpanded.com/news"><i class="fas fa-newspaper"></i>News</a></li>
+                <li><a href="https://defconexpanded.com/media"><i class="fas fa-photo-video"></i>Media</a></li>
+                <li><a href="https://defconexpanded.com/experimental"><i class="fas fa-flask"></i>Experimental</a></li>
+            </ul>
+            <div class="icons">
+                <a href="mailto:keiron.mcphee1@gmail.com" target="_blank" class="mail-icon"><i class="fas fa-envelope"></i></a>
+                <a href="https://discord.gg/A5QGpytb" target="_blank" class="discord-icon"><i class="fab fa-discord"></i></a>
+                <a href="https://www.youtube.com/@KezzaMacFezza" target="_blank" class="youtube-icon"><i class="fab fa-youtube"></i></a>
+                <a href="https://store.steampowered.com/app/1520/DEFCON/" target="_blank" class="steam-icon"><i class="fab fa-steam"></i></a>
             </div>
-            <div id="demo-container" class="demo-container">
-            </div>
-            <br>
-            <div class="pagination" id="pagination">
-            </div>
-            <br>
-            <br>
         </div>
+        <main>
+            <h2 class="headerresources2">Demos and Match History</h2>
+            <section class="recent-games">
+                <div class="games-played" id="games-played">Total Games Played: 0</div>
+                <p class="pabout2">This part of the website is just for demonstration purposes until we can implement Dedcon into the custom builds, 
+                                  so what you see here is a concept and is not final.</p>
+                
+                <div class="search-container2">
+                    <input type="text" id="search-input2" placeholder="Search for Games and Players...">
+                    <button id="search-button2">Search</button>
+                </div>
+                
+                <div id="demo-container" class="demo-container">
+                </div>
+                
+                <div class="pagination" id="pagination">
+                </div>
+            </section>
+        </main>
     </div>
-    <script src="/script.js" defer></script>
 </body>
 </html>
-<!--
-Website Creators:
-KezzaMcFezza
-Devil
-Nexustini
-What ever you do dont write fuck, shit, cmd, command in the search bar!
--->

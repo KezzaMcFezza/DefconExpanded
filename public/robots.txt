@@ -7,15 +7,10 @@ Allow: https://defconexpanded.com/news
 Allow: https://defconexpanded.com/media
 Allow: https://defconexpanded.com/resources
 Allow: https://defconexpanded.com/experimental
-Allow: https://defconexpanded.com/comingsoon
 Allow: https://defconexpanded.com/matchroom
-Allow: https://defconexpanded.com/searchresults
 Allow: https://defconexpanded.com/sitemap.xml
 Allow: https://defconexpanded.com/site.webmanifest
 Allow: https://defconexpanded.com/browserconfig.xml
-Allow: https://defconexpanded.com/8player
-Allow: https://defconexpanded.com/10player
-Allow: https://defconexpanded.com/16player
 
 # Disallow all variations with www and http
 Disallow: http://defconexpanded.com/

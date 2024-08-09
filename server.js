@@ -61,31 +61,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Load the search index
-let searchIndex;
-try {
-    searchIndex = JSON.parse(fs.readFileSync(path.join(__dirname, 'search-index.json'), 'utf8'));
-    console.log('Search index loaded successfully');
-} catch (error) {
-    console.error('Error loading search index:', error);
-    searchIndex = [];
-}
-
-// Add the search API endpoint
-app.get('/api/search', (req, res) => {
-    const query = req.query.q.toLowerCase();
-    const results = searchIndex.filter(page => 
-        page.title.toLowerCase().includes(query) || 
-        page.content.toLowerCase().includes(query)
-    ).map(page => ({
-        url: page.url,
-        title: page.title,
-        snippet: page.content.substring(0, 150) + '...'
-    }));
-
-    res.json(results);
-});
-
 // Helper function to send HTML file
 function sendHtml(res, fileName) {
     res.sendFile(path.join(__dirname, 'public', fileName), (err) => {
@@ -131,13 +106,8 @@ app.get('/news', (req, res) => sendHtml(res, 'news.html'));
 app.get('/media', (req, res) => sendHtml(res, 'media.html'));
 app.get('/resources', (req, res) => sendHtml(res, 'resources.html'));
 app.get('/experimental', (req, res) => sendHtml(res, 'experimental.html'));
-app.get('/resources/comingsoon', (req, res) => sendHtml(res, 'comingsoon.html'));
 app.get('/homepage/matchroom', (req, res) => sendHtml(res, 'matchroom.html'));
 app.get('/homepage', (req, res) => sendHtml(res, 'index.html'));
-app.get('/searchresults', (req, res) => sendHtml(res, 'searchresults.html'));
-app.get('/resources/8player', (req, res) => sendHtml(res, '8player.html'));
-app.get('/resources/10player', (req, res) => sendHtml(res, '10player.html'));
-app.get('/resources/16player', (req, res) => sendHtml(res, '16player.html'));
 app.get('/cmd', (req, res) => sendHtml(res, 'secret.html'));
 
 // Serve special files
