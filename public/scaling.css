@@ -1,198 +1,265 @@
-/* search bar delete in mobile */
+/* Base styles */
+html {
+    font-size: 16px;
+}
 
-@media screen and (max-width: 768px) {
-    .search-container {
-        position: absolute;
-        right: 0px;
-        top: 0%;
-        display: none;
+body {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Container adjustments */
+.container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+@media (max-width: 768px) {
+    body, html {
+        font-family: 'Roboto', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #fff;
+        height: 100%;
+        line-height: 1.6;
+        overflow: hidden;
     }
-
-    #search-input {
-        padding: 0px;
-        width: 0px;
-        border: 0px solid #ddd;
-        border-radius: 0px;
-        display: none;
-    }
-
-    #search-button {
-        padding: 0px 0px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        display: none;
-        border-radius: 0px;
-        cursor: pointer;
-    }
-
-    #search-button:hover {
-        background-color: #45a049;
-        display: none;
+    
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("images/pxfuel.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        opacity: 0.08; /* Adjust the opacity value as needed (0.0 - 1.0) */
+        z-index: -1;
     }
 }
 
-@media screen and (max-width: 480px) {
-    .search-container {
-        position: absolute;
-        right: 0px;
-        top: 0%;
-        display: none;
+@media (max-width: 480px) {
+    body, html {
+        font-family: 'Roboto', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #fff;
+        height: 100%;
+        line-height: 1.6;
+        overflow: hidden;
     }
-
-    #search-input {
-        padding: 0px;
-        width: 0px;
-        border: 0px solid #ddd;
-        border-radius: 0px;
-        display: none;
-    }
-
-    #search-button {
-        padding: 0px 0px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        display: none;
-        border-radius: 0px;
-        cursor: pointer;
-    }
-
-    #search-button:hover {
-        background-color: #45a049;
-        display: none;
+    
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("images/pxfuel.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        opacity: 0.08; /* Adjust the opacity value as needed (0.0 - 1.0) */
+        z-index: -1;
     }
 }
 
-/* About page */
+/* Sidebar adjustments for larger screens */
+@media (max-width: 1024px) {
+    #sidebar {
+        width: 220px;
+    }
 
-@media screen and (max-width: 768px) {
+    main {
+        margin-left: 220px;
+    }
+}
+
+/* Responsive styles for screens up to 1366px */
+@media (max-width: 1366px) {
     .container {
-        padding: 10px;
+        padding: 0 10px;
     }
 
-    .about-columns {
-        flex-direction: column;
+    /* Adjust table layout for smaller screens */
+    .version-history-table {
+        font-size: 0.9rem;
     }
 
-    .left-column-about,
-    .right-column-about {
-        width: 100%;
+    .version-history-table th,
+    .version-history-table td {
+        padding: 8px 5px;
     }
 
-    .about-columns2 {
-        flex-direction: column;
+    /* Shrink download tables */
+    .resources-container {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
     }
 
-    /* logo, banner and nav scaling this shit is important as fuck */
-
-    .logo {
-        width: 100%;
-        height: auto;
-        max-width: 500px;
+    .resource-item {
+        padding: 0.8rem;
     }
 
-    .logodivclass {
-        width: 100%;
-        height: 150px;
-        background-size: contain;
-        transform: none;
-        margin-top: 1rem;
-    }
-
-    .bannerdivclass {
-        height: auto;
-    }
-
-    nav {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .btn-third {
-        flex: 1 1 auto;
-        font-size: 14px;
-        padding: 5px;
-        margin: 2px;
-    }
-
-    /* resources page mobile */
-
-    .tutorial-download-container {
-        flex-direction: column;
-    }
-
-    .tutorial, .download-links {
-        width: 100%;
-    }
-
-    .download-links {
-        margin-top: 30px;
-    }
-
-    .headerresources, .headerresources2 {
-        font-size: 1.5em;
-    }
-
-    .pabout {
-        font-size: 0.9em;
-    }
-
-    .btn, .btn-resource-dl, .btn-resource-dedcon {
-        font-size: 0.9em;
-        padding: 8px 16px;
+    .resource-item h5 {
+        font-size: 1.2em;
     }
 }
-
-/* 480 scaling for the head */
-
-@media screen and (max-width: 480px) {
-    .logo {
-        max-width: 300px;
-    }
-
-    .logodivclass {
-        height: 150px;
-    }
-
-    .btn-third {
-        font-size: 12px;
-        padding: 3px;
-    }
-}
-
-/* as devil would say this fixes everything */
-
-@media screen and (min-width: 768px) {
-    body {
-        background-size: 100% 100vh;
-    }
-}
-
-@media screen and (max-width: 768px) {
-    .expcolumns {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-}
-
-/* media page */
 
 @media (max-width: 768px) {
-    .video-section {
-        grid-template-columns: 1fr;
-        gap: 15px;
+    .pabout2 {
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .pabout2 {
+        text-align: center;
+    }
+}
+
+/* Responsive styles for screens up to 768px */
+@media (max-width: 768px) {
+    /* Responsive typography */
+    html {
+        font-size: 14px;
     }
 
-    .featured-video, .video-item {
-        height: auto;
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1.3rem;
+    }
+
+    /* Responsive navigation */
+    #sidebar {
         width: 100%;
+        height: auto;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        background-color: #1c1c2e;
+    }
+
+    #sidebar .title {
+        display: flex;
+        line-height: 30px;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 15px;
+        font-size: 1.2rem;
+    }
+
+    #sidebar .title::after {
+        content: "≡";
+        font-size: 1.9rem;
+        cursor: pointer;
+        padding: 10px;
+        display: block;
+    }
+
+    #sidebar .list-items {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    #sidebar .list-items.show {
+        display: block;
+    }
+
+    #sidebar .list-items li {
+        padding: 5px 10px;
+        text-align: left;
+        border-bottom: 1px solid #333;
+    }
+
+    #sidebar .list-items li a {
+        padding: 10px 15px;
+        display: block;
+        font-size: 1rem;
+    }
+
+    /* Main content adjustments */
+    main {
+        margin-left: 0;
+        padding: 60px 15px 0;
+    }
+
+    .container {
+        flex-direction: column;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    /* Adjust other elements to account for the top navigation */
+    .bannerdivclass,
+    .logodivclass {
+        margin-top: 60px;
+        background-size: 90% auto;
+    }
+
+    /* Responsive grid and element adjustments */
+    .video-section,
+    .featured-video,
+    .video-item,
+    .card,
+    .cardcredits,
+    .resource-item,
+    .resource-item-new,
+    .event,
+    .announcement,
+    .announcementnew,
+    .media-grid,
+    .about-container,
+    .resources-container,
+    .demo-container {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .about-container,
+    .resources-container,
+    .demo-container,
+    .media-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Card and element padding adjustments */
+    .card,
+    .cardcredits,
+    .resource-item,
+    .resource-item-new,
+    .event,
+    .announcement,
+    .announcementnew {
+        padding: 1rem;
+    }
+
+    /* Video section specific adjustments */
+    .video-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
 
     .video-thumbnail {
+        width: 100%;
         padding-top: 56.25%; /* 16:9 aspect ratio */
         position: relative;
+        overflow: hidden;
     }
 
     .video-thumbnail img,
@@ -205,83 +272,139 @@
         object-fit: cover;
     }
 
-    .media-info {
-        padding: 10px;
+    /* Table adjustments */
+    .version-history-table {
+        font-size: 0.8rem;
     }
 
-    .media-title {
+    .version-history-table td,
+    .version-history-table th {
+        padding: 8px 4px;
+    }
+
+    /* Search container adjustments */
+    .search-container2 input {
+        width: 200px;
+    }
+
+    /* Modal adjustments */
+    .modal-content {
+        width: 90%;
+    }
+
+    /* Terminal adjustments */
+    #terminal {
         font-size: 14px;
     }
 
-    .media-meta {
-        font-size: 12px;
+    .file-list {
+        flex-direction: column;
     }
 
-    .screenshots-section {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-    .screenshot-item {
+    .file-column {
         width: 100%;
     }
 
-    .screenshot-thumbnail {
-        padding-top: 56.25%; /* 16:9 aspect ratio */
+    /* Button adjustments */
+    .btn-download,
+    .btn-matchroom {
+        font-size: 0.9rem;
+        padding: 8px 12px;
     }
 
-    .modal-content {
-        width: 90%;
-        max-width: 90vw;
-        max-height: 90vh;
+    /* Further shrink download tables for mobile */
+    .resources-container {
+        grid-template-columns: 1fr;
+    }
+
+    .resource-item h5 {
+        font-size: 1.1em;
     }
 }
 
-/* Additional general mobile adjustments */
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
 
-@media screen and (max-width: 768px) {
-    .container, .container-homepage {
-        padding: 10px;
-        max-width: 100%;
+    body {
+        background: #121212;
     }
 
-    h1, .headerresources, .headerresources2, .headerresources3, .headerresources4 {
-        font-size: 1.5em;
+
+/* Dark mode support */
+
+    body {
+        background-color: #121212;
     }
 
-    .event, .announcement, .announcementnew {
-        padding: 15px;
+    .card,
+    .cardcredits,
+    #sidebar {
+        margin: 0.0001rem;
+
     }
 
-    .event h5, .announcement h5, .announcementnew h5 {
-        font-size: 1.2em;
+
+@media (max-width: 768px) {
+    main {
+        margin-left: 0;
+        padding: 1rem;
     }
 
-    .resources-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .resource-item, .resource-item-new {
-        padding: 15px;
-    }
-
-    .resource-item img, .resource-item-new img {
-        width: 60px;
-        height: 60px;
-        margin-left: 50px;
-    }
-
-    .demo-container {
-        grid-template-columns: 1fr;
-    }
-
-    .demo-card {
+    #sidebar {
         width: 100%;
         height: auto;
+        position: relative;
     }
 
-    .pagination button {
-        padding: 3px 8px;
-        margin: 0 3px;
+    .container {
+        flex-direction: column;
+    }
+
+    .video-section {
+        grid-template-columns: 1fr;
+    }
+
+    .featured-video {
+        grid-column: auto;
+        grid-row: auto;
+    }
+
+    .search-container2 input {
+        width: 60%;
+    }
+
+    .btn-download, .btn-matchroom {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .icons {
+        display: flex;
+        justify-content: space-evenly;
+        margin-top: auto;
+        padding: 2px 0;
+        opacity: 0.8;
+    }
+
+    .card-title {
+        text-align: center;
+    }
+
+    h3, h5 {
+        text-align: center;
+    }
+
+}
+
+@media (max-width: 480px) {
+    .cardcredits {
+        max-height: 600px;
     }
 }

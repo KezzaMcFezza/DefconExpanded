@@ -1,6 +1,6 @@
 // Global variables
 let allDemos = []; 
-let soundVolume = 0.1; // Moved this declaration to the top for clarity
+let soundVolume = 0.1;
 
 function formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return '0 Bytes';
@@ -28,7 +28,7 @@ function updatePagination(totalPages, currentPage) {
 }
 
 function showPage(pageNumber, demos) {
-    const demosPerPage = 6;
+    const demosPerPage = 8;
     const start = (pageNumber - 1) * demosPerPage;
     const end = start + demosPerPage;
     const demoContainer = document.getElementById('demo-container');
@@ -53,7 +53,7 @@ function createDemoCard(demo) {
                 <span class="time-ago">${getTimeAgo(demo.date)}</span><br>
                 <span class="game-time">${getGameTime(demo.date)}</span><br>
                 <span class="game-date">${new Date(demo.date).toLocaleDateString()}</span>
-                <span class="game-duration">(${getDuration(demo.size)})</span>
+                <span class="game-duration">(${getDuration()})</span>
             </p>
             <table class="game-results">
                 <tr>
@@ -63,8 +63,7 @@ function createDemoCard(demo) {
                 </tr>
                 ${getPlayerData(demo.name)}
             </table>
-            <a href="https://defconexpanded.com/download/${demo.name}" class="btn-download foo">
-                <img src="https://defconexpanded.com/images/dedcon.ico" alt="" class="download-icon"> Download
+            <a href="https://defconexpanded.com/download/${demo.name}" class="btn-download foo"> Download
             </a>
             <a href="https://defconexpanded.com/homepage/matchroom" class="btn-matchroom foo"> Matchroom </a>
         </div>
@@ -90,28 +89,90 @@ function getTimeAgo(date) {
 function getGameTime(date) {
     const gameDate = new Date(date);
     const startTime = gameDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-    gameDate.setMinutes(gameDate.getMinutes() + Math.floor(Math.random() * 60) + 15); // Random duration between 15-75 minutes
+    gameDate.setMinutes(gameDate.getMinutes() + Math.floor(Math.random() * 60) + 15);
     const endTime = gameDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
     return `${startTime} — ${endTime}`;
 }
 
 function getDuration(size) {
-    // Estimate duration based on file size (this is a rough approximation)
-    const minutes = Math.max(15, Math.min(75, Math.floor(size / 1024 / 1024))); // 1 MB ≈ 1 minute, min 15, max 75
-    return `${minutes} min`;
+    const minutes = Math.floor(Math.random() * (200 - 45 + 1)) + 45;
+    
+    if (minutes >= 60) {
+        const hours = Math.floor(minutes / 60);
+        const remainingMinutes = minutes % 60;
+        return `${hours}h ${remainingMinutes}m`;
+    } else {
+        return `${minutes}m`;
+    }
 }
 
-function getPlayerData(demoName) {
-    // This is a placeholder. In a real scenario, you'd fetch this data from the server
-    const players = [
-        { name: "Player1", territory: "NA", score: Math.floor(Math.random() * 200) - 50 },
-        { name: "Player2", territory: "EU", score: Math.floor(Math.random() * 200) - 50 },
-        { name: "Player3", territory: "SA", score: Math.floor(Math.random() * 200) - 50 },
-        { name: "Player4", territory: "RU", score: Math.floor(Math.random() * 200) - 50 },
-    ];
-    return players.map(player => `
+function getPlayerData(demoName, numPlayers = 8) {
+    const territories = ['NA', 'EU', 'SA', 'RU', 'AF', 'EA', 'WA', 'AA'];
+    const prefixes = [  'Nuclear', 'Atomic', 'Stealth', 'Cyber', 'Tactical', 'Strategic', 'Rogue', 'Shadow', 'Sieverts',
+        'Covert', 'Phantom', 'Ghost', 'Recon', 'Assault', 'Havoc', 'Chaos', 'Mayhem', 'Vortex',
+        'Laser', 'Plasma', 'Ion', 'Photon', 'Quantum', 'Fusion', 'Neutrino', 'Electron', 'Proton',
+        'Gravity', 'Singularity', 'Nebula', 'Nova', 'Pulsar', 'Quasar', 'Supernova', 'Hypernova', 'Magnetar',
+        'Void', 'Abyss', 'Oblivion', 'Nihil', 'Ether', 'Astral', 'Cosmic', 'Galactic', 'Celestial',
+        'Titan', 'Colossus', 'Behemoth', 'Leviathan', 'Kraken', 'Hydra', 'Phoenix', 'Chimera', 'Sphinx',
+        'Achtlos', 'Alien', 'an4rki', 'astrogal', 'andii', 'AndrewW', 'Annorax', 'Antzz', 'ash1',
+        'ausjoel', 'AusMade', 'Ausroachman', 'AussiePenguin96', 'Ayz', 'barrymoves', 'Beefychops', 'Beno-ski',
+        'BIG DWIFTER', 'bigknox', 'bkenh', 'BlackLotus', 'Boydio', 'Brothekid10', 'Buckets23', 'BURGER R1NGS',
+        'CAD', 'CCAJ', 'CCsPack', 'chromium', 'chris_e_fresh', 'chris_e_fresh', 'colossus1509', 'Crazy CS',
+        'Daelhoof', 'DUS SOULWOUND', 'deathschild', 'DES10', 'ZacB', 'D3lusion', 'Daniel Bedard', 'Darkrider',
+        'darktranq', 'Dave Davids', 'davidhes', 'dazeld', 'DazzB66', 'Deneo123', 'DH Andrew', 'Didds',
+        'DiggeR', 'diilpickle', 'Dingotech', 'DisasterArea', 'diux', 'doublewishbone', 'Dylsmangan', 'dkNigs',
+        'Defy9', 'Deadly Dozeball', 'dqtl74', 'Economic', 'Epic', 'Egy Kangaroo', 'MattTheExpat', 'error-id10t',
+        'F1 Viking', 'Fallz', 'Frost2468', 'fenryr', 'G4m3 0n', 'gameoverjack', 'garry75', 'ghostdog',
+        'Gistane', 'GobiasIndustries', 'GokhanH', 'Guided Light', 'Grafik', 'Gristy', 'gothioso', 'Harry Callahan',
+        'HBCJ', 'heyitskayxx', 'Hot turtle', 'Houda', 'hsvjez', 'The_Aus_Hulk', 'hyperactive', 'ike-sp',
+        'interfreak', 'impatient', 'Jason87', 'Jonesy7707', 'JFin', 'Joshbartos', 'Joshaldo', 'jparton',
+        'jazzyjeff', 'johno686', 'jooz', 'JRAW', 'JT_77', 'JLC215', 'kirbasin', 'Kire', 'krammis76',
+        'Labmonkey', 'Lammiwinks', 'Lindsay', 'Lirrik', 'ljayljay', 'Lodan', 'Lord Byoss', 'Levinson-Durbin', 'mackaxx',
+        'Mal68', 'Malibu2', 'Mangomadness', 'MadCheese', 'mazman', 'McCoyPauley78', 'McDethWivFries', 'melbounrefan',
+        'micknq', 'MoabBoy', 'Moofius', 'mordinho', 'morph0', 'mozdesigns', 'mwblink', 'myzzz', 'Micdeez',
+        'n3o-dystopia', 'nodii', 'Neckron', 'NinjaPizza', 'Nitro', 'Namasaki', 'Notsuree', 'nuxx', 'Noysy',
+        'Never_Enough', 'ocat1979', 'OneTrackLover', 'OzDJ', 'OVRLOAD', 'parramaniac', 'Prelly99', 'Phalaxis',
+        'pharmerdan', 'Philip J Farnsworth', 'Phreak09', 'plainfaced', 'Pottymouth', 'prenticem', 'Prang',
+        'PrimeStormRider', 'PsychoDog', 'PsychoticOrc', 'pupmeister', 'Raima', 'razalom', 'RazCo', 'remaKe', 
+        'Reveler', 'ricdam', 'rhinorizy', 'Riore', 'rjrgmc28', 'robbie y', 'RonnyBoi', 'Rumple', 'Russdg',
+        'RynosaurusRex', 'Rysith', 'Rysup', 'sacka', 'salsicce77', 'SaminAus88', 'sammo', 'SandyRivers',
+        'savior', 'Schikitar', 'Scubafinch', 'Shifty-au', 'ScorchedMirth', 'scottchicken', 'sesquipedalian',
+        'ShayneRarma', 'Shmicks', 'Shrugal844', 'Sifheal', 'SJRWalker', 'slawsonftw', 'Solidus82', 'Sovi3t',
+        'SPUD', 'steamtrain13583', 'sTeeL', 'Stormyt', 'Storm1981', 'Streetlights', 'swkotor', 'Syrup',
+        'Syvergy', 'shazie', 'Trans_JimJam', 'TheImposter', 'thatsnazzydude', 'TheHighHorse', 'thinkbigbw',
+        'Thommo77', 'Tiberius', 'tomee', 'Toasty Warm Hamster', 'trents', 'tubs105', 'Tuffers79', 'TwistedGecko',
+        'UnciasDream', 'UnforgivnJudas', 'Vaderz', 'Valac', 'VenularSundew0', 'vinnie05', 'Vormund', 'walrus67',
+        'Waughy', 'well_spoken', 'Westone', 'WhiskyAC', 'Wickzki', 'wildliquid', 'willy1818', 'wilsd004',
+        'Windows1', 'Wraith', 'd_b', 'Xuak', 'Zarby', 'ZeeKor'];
+    const suffixes = ['Xx'];
+    const numbers = ['', '1', '2', '3', '4', '5', '42', '69', '99', '007'];
+
+    function generateGamertag() {
+        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+        const number = numbers[Math.floor(Math.random() * numbers.length)];
+        return `${prefix}${suffix}${number}`;
+    }
+
+    // Shuffle the territories array
+    const shuffledTerritories = territories.slice().sort(() => Math.random() - 0.5);
+
+    const players = Array.from({ length: numPlayers }, (_, index) => ({
+        name: generateGamertag(),
+        territory: shuffledTerritories[index % territories.length], // Assign territories in order from shuffled array
+        score: Math.floor(Math.random() * 200) - 50
+    }));
+
+    let teamColors = [];
+    if (demoName.toLowerCase().includes('4v4')) {
+        teamColors = ['#d13b3b', '#d13b3b', '#d13b3b', '#d13b3b', '#40d340', '#40d340', '#40d340', '#40d340'];
+    } else if (demoName.toLowerCase().includes('2v2v2v2')) {
+        teamColors = ['#d13b3b', '#d13b3b', '#40d340', '#40d340', '#3488d6', '#3488d6', '#bb7b3b', '#bb7b3b'];
+    }
+
+    return players.map((player, index) => `
         <tr>
-            <td>${player.name}</td>
+            <td style="${teamColors[index] ? `color: ${teamColors[index]};` : ''}">${player.name}</td>
             <td>${player.territory}</td>
             <td>${player.score}</td>
         </tr>
@@ -152,81 +213,6 @@ function performGameSearch() {
     showPage(1, filteredDemos);
 }
 
-function addJSONLD() {
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    const currentPath = window.location.pathname;
-    let jsonLDContent;
-
-    switch(currentPath) {
-        case '/':
-            jsonLDContent = {
-                "@context": "https://schema.org",
-                "@type": "WebSite",
-                "url": "https://defconexpanded.com/",
-                "name": "DEFCON Expanded: A DEFCON Modding Community",
-                "description": "The Home for DEFCON Mods and Demos"
-            };
-            break;
-        case '/about':
-            jsonLDContent = {
-                "@context": "https://schema.org",
-                "@type": "WebPage",
-                "url": "https://defconexpanded.com/about",
-                "name": "About DEFCON Expanded",
-                "description": "Learn about DEFCON Expanded, a modding community for DEFCON"
-            };
-            break;
-        case '/experimental':
-            jsonLDContent = {
-                "@context": "https://schema.org",
-                "@type": "WebPage",
-                "url": "https://defconexpanded.com/experimental",
-                "name": "DEFCON Expanded Experimental Builds",
-                "description": "Find out the new builds we are working on."
-            };
-            break;
-        case '/resources':
-            jsonLDContent = {
-                "@context": "https://schema.org",
-                "@type": "WebPage",
-                "url": "https://defconexpanded.com/resources",
-                "name": "DEFCON Expanded Downloads",
-                "description": "Download DEFCON resources for 8, 10, and 16 player games."
-            };
-            break;
-        case '/news':
-            jsonLDContent = {
-                "@context": "https://schema.org",
-                "@type": "WebPage",
-                "url": "https://defconexpanded.com/news",
-                "name": "DEFCON Expanded News",
-                "description": "Latest news and updates for DEFCON Expanded, including information on new mods and features."
-            };
-            break;
-        case '/media':
-            jsonLDContent = {
-                "@context": "https://schema.org",
-                "@type": "WebPage",
-                "url": "https://defconexpanded.com/media",
-                "name": "DEFCON Expanded Media Gallery",
-                "description": "View screenshots and videos of DEFCON Expanded mods and Gameplay."
-            };
-            break;
-        default:
-            jsonLDContent = {
-                "@context": "https://schema.org",
-                "@type": "WebSite",
-                "url": "https://defconexpanded.com/",
-                "name": "DEFCON Expanded: A DEFCON Modding Community",
-                "description": "Experimental DEFCON Mods"
-            };
-    }
-
-    script.text = JSON.stringify(jsonLDContent);
-    document.head.appendChild(script);
-}
-
 function openModal(src, type, title) {
     console.log('Opening modal:', src, type, title);
     const modal = document.getElementById("myModal");
@@ -236,13 +222,13 @@ function openModal(src, type, title) {
         return;
     }
 
-    modalContent.innerHTML = ''; // Clear previous content
+    modalContent.innerHTML = '';
 
     if (type === 'img') {
         const img = document.createElement('img');
         img.src = src;
         img.alt = title;
-        img.className = 'modal-image'; // Add this line
+        img.className = 'modal-image';
         modalContent.appendChild(img);
     } else if (type === 'video') {
         const video = document.createElement('video');
@@ -251,7 +237,6 @@ function openModal(src, type, title) {
         video.className = 'plyr__video-embed';
         modalContent.appendChild(video);
 
-        // Initialize Plyr
         const player = new Plyr(video, {
             controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
             settings: ['captions', 'quality', 'speed', 'loop'],
@@ -271,7 +256,7 @@ function closeModal() {
     modal.style.display = "none";
     const modalContent = document.getElementById("modalContent");
     if (modalContent) {
-        modalContent.innerHTML = ''; // Clear content to stop video playback
+        modalContent.innerHTML = '';
     }
 }
 
@@ -368,7 +353,44 @@ function performSearch(query) {
         });
 }
 
+function setupMobileMenu() {
+    console.log('Setting up mobile menu');
+    const sidebar = document.getElementById('sidebar');
+    const title = sidebar.querySelector('.title');
+    const listItems = sidebar.querySelector('.list-items');
+
+    console.log('Sidebar:', sidebar);
+    console.log('Title:', title);
+    console.log('List Items:', listItems);
+
+    if (title && listItems) {
+        title.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Title clicked');
+            listItems.classList.toggle('show');
+            console.log('Menu toggled, show class:', listItems.classList.contains('show'));
+        });
+
+        // Close menu when a link is clicked
+        listItems.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A') {
+                console.log('Link clicked, closing menu');
+                listItems.classList.remove('show');
+            }
+        });
+    } else {
+        console.error('Could not find title or list items elements');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded and parsed');
+
+    // Setup mobile menu
+    setupMobileMenu();
+    console.log('Mobile menu setup completed');
+
+    // Existing functionality
     const searchButton = document.getElementById('search-button');
     const searchInput = document.getElementById('search-input');
     const searchButton2 = document.getElementById('search-button2');
@@ -393,7 +415,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     updateDemoList();
-    setInterval(updateDemoList, 30000);
 
     addJSONLD();
 
@@ -522,38 +543,7 @@ const files = {
     '16playerv2.16.4': 'files/DEFCON 16 Players Alpha v2.16.4.zip',
     '16playerv2.16.3': 'files/DEFCON 16 Players Alpha v2.16.3.zip',
     '16playerv2.16.0': 'files/DEFCON 16 Players Prerelease v2.16.0.zip',
-    '4v4realposter.jpg': 'images/4v4realposter.jpg',
-    '4v4screen.jpg': 'images/4v4screen.jpg',
-    '4v4speedposter.jpg': 'images/4v4speedposter.jpg',
-    '7playerdiploposter.jpg': 'images/7playerdiploposter.jpg',
-    '8playerscreen.jpg': 'images/8playerscreen.jpg',
-    '10P-9.png': 'images/10P-9.png',
-    '10P.png': 'images/10P.png',
-    '10playerworld.PNG': 'images/10playerworld.PNG',
-    '16.ico': 'images/16.ico',
-    '16P-9.png': 'images/16P-9.png',
-    '16player.PNG': 'images/16player.PNG',
-    '20240724070913_1.jpg': 'images/20240724070913_1.jpg',
-    'banner.jpg': 'images/banner.jpg',
-    'cpugameposter.jpg': 'images/cpugameposter.jpg',
-    'cpuscreen.jpg': 'images/cpuscreen.jpg',
-    'dedcon.ico': 'images/dedcon.ico',
-    'demoscreen.png': 'images/demoscreen.png',
-    'favicon.png': 'images/favicon.png',
-    'Icon3.png': 'images/Icon3.png',
-    'installation.png': 'images/installation.png',
-    'logo.png': 'images/logo.png',
-    'newdefconexpanded.png': 'images/newdefconexpanded.png',
-    'nukesscreen.jpg': 'images/nukesscreen.jpg',
-    'test.png': 'images/test.png',
-    'THUMBNAIL16CPU.jpg': 'images/THUMBNAIL16CPU.jpg',
-    '8CPUGameDefcon.mkv': 'videos/8 CPU Game Defcon.mkv',
-    '16cpugameyoutube.mkv': 'videos/16cpugameyoutube.mkv',
-    'Defcon4v4SpeedwithSoundtrack.mp4': 'videos/Defcon 4v4 Speed with Soundtrack.mp4',
-    'Defcon7PlayerDiploVoice.mp4': 'videos/Defcon 7 Player Diplo Voice.mp4',
-    'First Ever8Player4v4Voices.mp4': 'videos/First Ever 8 Player 4v4 Voices.mp4',
-    'InstallationGuide.mp4': 'videos/Installation Guide.mp4',
-    'chat.ogg': 'sounds/chat.ogg',
+    // ... (other files)
 };
 
 function appendOutput(text, className = '') {
@@ -679,49 +669,35 @@ function handleCommand(cmd) {
     }
 }
 
-input.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-        const cmd = input.value;
-        appendOutput(`> ${cmd}`);
-        handleCommand(cmd);
-        input.value = '';
-        updateCursorPosition();
-        playSound('https://defconexpanded.com/sounds/chat.ogg', soundVolume);
-    }
-});
+if (input) {
+    input.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            const cmd = input.value;
+            appendOutput(`> ${cmd}`);
+            handleCommand(cmd);
+            input.value = '';
+            updateCursorPosition();
+            playSound('https://defconexpanded.com/sounds/chat.ogg', soundVolume);
+        }
+    });
 
-document.addEventListener('click', function() {
-    input.focus();
-});
-
-// Update cursor position when typing
-input.addEventListener('input', updateCursorPosition);
-input.addEventListener('keydown', updateCursorPosition);
-
-function updateCursorPosition() {
-    const inputRect = input.getBoundingClientRect();
-    const inputStyle = window.getComputedStyle(input);
-    const letterWidth = parseFloat(inputStyle.fontSize) * 0.6; // Approximate width of a letter
-    const textWidth = input.value.length * letterWidth;
-    cursor.style.left = `${textWidth + inputRect.left}px`;
+    input.addEventListener('input', updateCursorPosition);
+    input.addEventListener('keydown', updateCursorPosition);
 }
 
-// Add random glitch effect
-setInterval(() => {
-    if (Math.random() < 0.1) {
-        const glitch = document.createElement('div');
-        glitch.textContent = String.fromCharCode(Math.floor(Math.random() * 95) + 32);
-        glitch.style.position = 'absolute';
-        glitch.style.left = `${Math.random() * 100}%`;
-        glitch.style.top = `${Math.random() * 100}%`;
-        glitch.style.color = '#00ff00';
-        glitch.style.opacity = '0.5';
-        document.body.appendChild(glitch);
-        setTimeout(() => {
-            document.body.removeChild(glitch);
-        }, 100);
+document.addEventListener('click', function() {
+    if (input) input.focus();
+});
+
+function updateCursorPosition() {
+    if (input && cursor) {
+        const inputRect = input.getBoundingClientRect();
+        const inputStyle = window.getComputedStyle(input);
+        const letterWidth = parseFloat(inputStyle.fontSize) * 0.6;
+        const textWidth = input.value.length * letterWidth;
+        cursor.style.left = `${textWidth + inputRect.left}px`;
     }
-}, 1000);
+}
 
 // Updated boot sequence with varying delays
 function bootSequence() {
@@ -731,19 +707,21 @@ function bootSequence() {
         "Access granted. You now have access to all the website's files!"
     ];
 
-    const delays = [2000, 4000, 200]; // Varying delays in milliseconds
+    const delays = [2000, 4000, 200];
 
     let i = 0;
     function displayNextMessage() {
         if (i < bootMessages.length) {
             appendOutput(bootMessages[i]);
             playSound('https://defconexpanded.com/sounds/chat.ogg', soundVolume);
-            setTimeout(displayNextMessage, delays[i] || 3000); // Use the specified delay or default to 3000
+            setTimeout(displayNextMessage, delays[i] || 3000);
             i++;
         } else {
-            inputLine.style.display = 'flex';
-            input.focus();
-            updateCursorPosition();
+            if (inputLine) inputLine.style.display = 'flex';
+            if (input) {
+                input.focus();
+                updateCursorPosition();
+            }
             appendOutput("Type 'help' for a list of available commands.");
         }
     }
@@ -751,7 +729,9 @@ function bootSequence() {
     displayNextMessage();
 }
 
-window.onload = bootSequence;
+if (terminal) {
+    window.onload = bootSequence;
+}
 
 // Export functions and variables that might be used elsewhere
 window.updateDemoList = updateDemoList;
@@ -767,3 +747,24 @@ window.handleCommand = handleCommand;
 window.playSound = playSound;
 window.updateCursorPosition = updateCursorPosition;
 window.bootSequence = bootSequence;
+window.setupMobileMenu = setupMobileMenu;
+
+// Call setupMobileMenu when the window loads
+window.addEventListener('load', function() {
+    console.log('Window loaded, calling setupMobileMenu');
+    setupMobileMenu();
+});
+
+// Additional event listener for resize events
+window.addEventListener('resize', function() {
+    if (window.innerWidth <= 768) {
+        console.log('Window resized to mobile view, calling setupMobileMenu');
+        setupMobileMenu();
+    }
+});
+
+// Ensure the mobile menu works even if the DOM is already loaded
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    console.log('DOM already complete, calling setupMobileMenu immediately');
+    setupMobileMenu();
+}
