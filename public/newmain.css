@@ -405,7 +405,7 @@ header {
 }
 
 #sidebar .list-items li a {
-    color: #b1c5ff;
+    color: #c5d4ff;
     text-decoration: none;
     font-size: 1.1rem;
     font-weight: 500;
@@ -426,8 +426,11 @@ header {
     background: #26263a;
 }
 
-#sidebar .list-items li.active {
-    background: #373757d7;
+#sidebar .list-items li.active,
+#sidebar .list-items li.active a {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, #16213e, #1a1a1a);
+    font-weight: bold;
 }
 
 .icons {
