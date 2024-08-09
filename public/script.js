@@ -165,9 +165,11 @@ function getPlayerData(demoName, numPlayers = 8) {
 
     let teamColors = [];
     if (demoName.toLowerCase().includes('4v4')) {
-        teamColors = ['#d13b3b', '#d13b3b', '#d13b3b', '#d13b3b', '#40d340', '#40d340', '#40d340', '#40d340'];
+        teamColors = ['#c70000', '#c70000', '#c70000', '#c70000', '#40d340', '#40d340', '#40d340', '#40d340'];
     } else if (demoName.toLowerCase().includes('2v2v2v2')) {
-        teamColors = ['#d13b3b', '#d13b3b', '#40d340', '#40d340', '#3488d6', '#3488d6', '#bb7b3b', '#bb7b3b'];
+        teamColors = ['#c70000', '#c70000', '#40d340', '#40d340', '#0084ff', '#0084ff', '#ff8000', '#ff8000'];
+    } else if (demoName.toLowerCase().includes('diplomacy')) {
+        teamColors = ['#40d340', '#40d340', '#40d340', '#40d340', '#40d340', '#40d340', '#40d340', '#40d340'];
     }
 
     return players.map((player, index) => `

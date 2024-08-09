@@ -123,6 +123,11 @@ app.get('/browserconfig.xml', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'browserconfig.xml'));
 });
 
+// 404 handler (this should be placed after all other routes)
+app.use((req, res, next) => {
+  res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+});
+
 app.listen(port, () => {
   console.log(`Octocon Demo Server Listening at http://localhost:${port}`);
 });

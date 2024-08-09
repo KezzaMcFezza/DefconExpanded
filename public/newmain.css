@@ -61,7 +61,7 @@ main {
 
 
 .cardcredits {
-    max-height: 520px;
+    max-height: 600px;
 }
 
 .card-title, .matchroom-title, .demo-card h3, .download-section .card-title {
@@ -112,6 +112,13 @@ main {
     text-align: left;
     margin: 1rem auto;
     max-width: 1200px;
+}
+
+.pabout404 {
+    max-width: 600px;
+    margin: 1rem auto;
+    text-align: center;
+    color: #b8b8b8;
 }
 
 .headerresources, .headerresources2 {
@@ -181,7 +188,7 @@ li {
 }
 
 .search-container2 button {
-    background-color: #4da6ff;
+    background-color: #0067b8;
     color: #fff;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -279,6 +286,7 @@ li {
 .version-history-table .td2 {
     color: #ff8400;
     font-weight: bold;
+    font-size: 17px;
 }
 
 .demo-card .btn-container {
@@ -363,6 +371,21 @@ li {
     transition: all 0.3s ease;
 }
 
+header {
+    line-height: 50px;
+    text-align: center;
+    background: #1a1a1a;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #4da6ff;
+    border-bottom: 1px solid #333;
+    font-family: 'Orbitron', sans-serif;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    padding: 10px 0;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
 #sidebar .title:hover {
     background: linear-gradient(135deg, #1a1a1a, #16213e);
     color: #5eff00;
@@ -381,7 +404,7 @@ li {
 }
 
 #sidebar .list-items li a {
-    color: #f2f2f2;
+    color: #b1c5ff;
     text-decoration: none;
     font-size: 1.1rem;
     font-weight: 500;
