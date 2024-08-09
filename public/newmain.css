@@ -401,6 +401,7 @@ header {
 #sidebar .list-items li {
     padding: 1rem 1.5rem;
     border-bottom: 1px solid #333;
+    transition: background-color 0.3s;
 }
 
 #sidebar .list-items li a {
@@ -416,20 +417,13 @@ header {
     margin-right: 1rem;
 }
 
-#sidebar .list-items li:hover {
+#sidebar .list-items li:hover,
+#sidebar .list-items li.active {
     background: #2a2a40;
 }
-
-#sidebar .list-items li a:hover {
-    color: #4da6ff;
-}
-
-#sidebar .list-items li.active {
-    background-color: #2a2a40;
-}
-
-#sidebar .list-items li.active a {
-    color: #4da6ff;
+#sidebar .list-items li:hover a {
+    color: #4da6ff
+    
 }
 
 .icons {
@@ -584,6 +578,11 @@ a {
 }
 
 .alinks {
+    color: #00b7ff;
+    font-size: 16px;
+}
+
+.alinksabout {
     color: #00b7ff;
     font-size: 16px;
 }

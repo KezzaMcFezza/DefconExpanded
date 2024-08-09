@@ -2,6 +2,19 @@
 let allDemos = []; 
 let soundVolume = 0.1;
 
+function setActiveNavItem() {
+    const currentPath = window.location.pathname;
+    const navItems = document.querySelectorAll('#sidebar .list-items li');
+    
+    navItems.forEach(item => {
+        const link = item.querySelector('a');
+        item.classList.remove('active');
+        if (currentPath === link.getAttribute('href') || currentPath.startsWith(link.getAttribute('href') + '/')) {
+            item.classList.add('active');
+        }
+    });
+}
+
 function formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -172,7 +185,7 @@ function getPlayerData(demoName, numPlayers = 8) {
         teamColors = ['#40d340', '#40d340', '#40d340', '#40d340', '#40d340', '#40d340', '#40d340', '#40d340'];
     }
 
-    return players.map((player, index) => `
+return players.map((player, index) => `
         <tr>
             <td style="${teamColors[index] ? `color: ${teamColors[index]};` : ''}">${player.name}</td>
             <td>${player.territory}</td>
@@ -388,6 +401,9 @@ function setupMobileMenu() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded and parsed');
 
+    // Set active navigation item
+    setActiveNavItem();
+
     // Setup mobile menu
     setupMobileMenu();
     console.log('Mobile menu setup completed');
@@ -475,6 +491,9 @@ document.addEventListener('DOMContentLoaded', function() {
         performSearch(query);
     }
 });
+
+// Call setActiveNavItem immediately in case the DOM is already loaded
+setActiveNavItem();
 
 // Function to handle smooth scrolling
 function smoothScroll(target) {
@@ -750,11 +769,13 @@ window.playSound = playSound;
 window.updateCursorPosition = updateCursorPosition;
 window.bootSequence = bootSequence;
 window.setupMobileMenu = setupMobileMenu;
+window.setActiveNavItem = setActiveNavItem;
 
 // Call setupMobileMenu when the window loads
 window.addEventListener('load', function() {
     console.log('Window loaded, calling setupMobileMenu');
     setupMobileMenu();
+    setActiveNavItem();
 });
 
 // Additional event listener for resize events
@@ -769,4 +790,5 @@ window.addEventListener('resize', function() {
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
     console.log('DOM already complete, calling setupMobileMenu immediately');
     setupMobileMenu();
+    setActiveNavItem();
 }
