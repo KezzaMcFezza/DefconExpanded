@@ -417,13 +417,17 @@ header {
     margin-right: 1rem;
 }
 
-#sidebar .list-items li:hover,
-#sidebar .list-items li.active {
-    background: #2a2a40;
+#sidebar .list-items li:not(.active):hover a,
+#sidebar .list-items li.active a {
+    color: #4da6ff;
 }
-#sidebar .list-items li:hover a {
-    color: #4da6ff
-    
+
+#sidebar .list-items li:not(.active):hover {
+    background: #26263a;
+}
+
+#sidebar .list-items li.active {
+    background: #373757d7;
 }
 
 .icons {
