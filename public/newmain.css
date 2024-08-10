@@ -61,7 +61,7 @@ main {
 
 
 .cardcredits {
-    max-height: 600px;
+    max-height: 670px;
 }
 
 .card-title, .matchroom-title, .demo-card h3, .download-section .card-title {
@@ -94,6 +94,7 @@ main {
     text-align: left;
     font-size: 1.2rem;
     font-weight: bold;
+    margin: 5px 0px 5px;
 }
 
 .card p, .pabout, .pabout2, .pabout3 {
@@ -109,7 +110,7 @@ main {
 }
 
 .pabout2 {
-    text-align: left;
+    text-align: center;
     margin: 1rem auto;
     max-width: 1200px;
 }
@@ -592,6 +593,7 @@ a {
 .alinksabout {
     color: #00b7ff;
     font-size: 16px;
+	display: flex;
 }
 
 .modal {
