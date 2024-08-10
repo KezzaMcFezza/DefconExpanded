@@ -678,3 +678,19 @@ a {
     font-weight: bold;
     border: 0;
 }
+
+.save-button, .edit-button, .cancel-button{
+    padding: 0.5rem 0.7rem;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    display: inline-grid;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-align: center;
+    justify-content: center;
+    font-weight: bold;
+    flex: 1;
+    background-color: #0067b8;
+    color: #fff;
+    border: 0;
+}

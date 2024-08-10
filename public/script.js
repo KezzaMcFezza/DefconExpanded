@@ -342,6 +342,7 @@ async function login(username, password) {
             document.getElementById('login-container').remove();
             showLogoutButton();
             updateDemoList(); // Refresh the demo list to show admin controls
+            makeContentEditable(); // Make content editable for admin
         } else {
             alert(data.error || 'Login failed');
         }
@@ -350,6 +351,7 @@ async function login(username, password) {
         alert('An error occurred during login');
     }
 }
+
 function showLogoutButton() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) {
@@ -385,6 +387,7 @@ async function logout() {
             document.getElementById('logout-container').remove();
             showLoginForm();
             updateDemoList(); // Refresh the demo list to hide admin controls
+            removeEditability(); // Remove edit buttons and editability when logging out
         } else {
             alert('Logout failed');
         }
@@ -419,8 +422,124 @@ async function deleteDemo(demoId) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+// Content editing functions
+function makeContentEditable() {
+    if (!isAdmin) return;
+
+    const cards = document.querySelectorAll('.card, .cardcredits');
+    cards.forEach((card, index) => {
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit';
+        editButton.className = 'edit-button';
+        editButton.onclick = () => toggleEditMode(card, index);
+        card.insertBefore(editButton, card.firstChild);
+
+        const saveButton = document.createElement('button');
+        saveButton.textContent = 'Save';
+        saveButton.className = 'save-button';
+        saveButton.style.display = 'none';
+        saveButton.onclick = () => saveChanges(card, index);
+        card.insertBefore(saveButton, card.firstChild);
+
+        // Ensure all elements are not editable by default
+        const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
+        elements.forEach(el => {
+            el.contentEditable = 'false';
+            el.classList.remove('editable');
+        });
+    });
+}
+
+function toggleEditMode(card, index) {
+    if (!isAdmin) return;
+
+    const editButton = card.querySelector('.edit-button');
+    const saveButton = card.querySelector('.save-button');
+    const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
+
+    if (editButton.textContent === 'Edit') {
+        editButton.textContent = 'Cancel';
+        saveButton.style.display = 'inline-block';
+        elements.forEach(el => {
+            el.contentEditable = 'true';
+            el.classList.add('editable');
+        });
+    } else {
+        editButton.textContent = 'Edit';
+        saveButton.style.display = 'none';
+        elements.forEach(el => {
+            el.contentEditable = 'false';
+            el.classList.remove('editable');
+        });
+        location.reload(); // Revert changes without saving
+    }
+}
+
+async function saveChanges(card, index) {
+    if (!isAdmin) return;
+
+    const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
+    const content = {};
+
+    elements.forEach((el, i) => {
+        content[`${el.tagName.toLowerCase()}_${i}`] = {
+            outerHTML: el.outerHTML,
+            text: el.innerText,
+            href: el.tagName.toLowerCase() === 'a' ? el.getAttribute('href') : null
+        };
+    });
+
+    try {
+        const response = await fetch('/api/updateContent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ cardIndex: index, content }),
+        });
+
+        if (response.ok) {
+            alert('Content updated successfully');
+            // Disable editing after saving
+            elements.forEach(el => {
+                el.contentEditable = 'false';
+                el.classList.remove('editable');
+            });
+            const editButton = card.querySelector('.edit-button');
+            const saveButton = card.querySelector('.save-button');
+            editButton.textContent = 'Edit';
+            saveButton.style.display = 'none';
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Failed to update content');
+        }
+    } catch (error) {
+        console.error('Error updating content:', error);
+        alert('An error occurred while updating content');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM fully loaded and parsed');
+
+    // Check if user is already logged in
+    try {
+        const response = await fetch('/api/checkAuth');
+        const data = await response.json();
+        if (data.isAdmin) {
+            isAdmin = true;
+            showLogoutButton();
+            makeContentEditable();
+        } else {
+            isAdmin = false;
+            showLoginForm();
+            removeEditability();
+        }
+    } catch (error) {
+        console.error('Error checking authentication:', error);
+        showLoginForm();
+        removeEditability();
+    }
 
     // Set active navigation item
     setActiveNavItem();
@@ -485,9 +604,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    // Show login form
-    showLoginForm();
 
     // Perform search on page load if query parameter is present
     const urlParams = new URLSearchParams(window.location.search);

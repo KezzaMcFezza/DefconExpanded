@@ -2,9 +2,11 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 const path = require('path');
 const fs = require('fs');
+const fsPromises = require('fs').promises;
 const chokidar = require('chokidar');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const { JSDOM } = require('jsdom');
 
 const app = express();
 const port = 3000;
@@ -107,6 +109,24 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+// Middleware to check for the presence of a valid token in the cookie on each request
+const checkAuthToken = (req, res, next) => {
+  const token = req.cookies.token;
+  if (token) {
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        res.locals.user = null;
+      } else {
+        res.locals.user = user;
+      }
+      next();
+    });
+  } else {
+    res.locals.user = null;
+    next();
+  }
+};
+
 // Helper function to send HTML file
 function sendHtml(res, fileName) {
   res.sendFile(path.join(__dirname, 'public', fileName), (err) => {
@@ -119,7 +139,7 @@ function sendHtml(res, fileName) {
 // Routes
 
 // Home page
-app.get('/', (req, res) => {
+app.get('/', checkAuthToken, (req, res) => {
   sendHtml(res, 'index.html');
 });
 
@@ -131,8 +151,8 @@ app.post('/api/login', async (req, res) => {
     if (rows.length > 0) {
       const user = rows[0];
       if (password === user.password) { // Plain text comparison
-        const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1h' });
-        res.cookie('token', token, { httpOnly: true, maxAge: 3600000 }); // 1 hour
+        const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1d' }); // Set expiration to 1 day
+        res.cookie('token', token, { httpOnly: true, maxAge: 86400000 }); // Set cookie expiration to 1 day (86400000 ms)
         res.json({ message: 'Logged in successfully' });
       } else {
         res.status(400).json({ error: 'Invalid credentials' });
@@ -150,6 +170,22 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/logout', (req, res) => {
   res.clearCookie('token');
   res.json({ message: 'Logged out successfully' });
+});
+
+// Check authentication status
+app.get('/api/checkAuth', (req, res) => {
+  const token = req.cookies.token;
+  if (token) {
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+      if (err) {
+        res.json({ isAdmin: false });
+      } else {
+        res.json({ isAdmin: true });
+      }
+    });
+  } else {
+    res.json({ isAdmin: false });
+  }
 });
 
 // List all demos with associated users
@@ -212,15 +248,88 @@ app.delete('/api/demo/:demoId', authenticateToken, async (req, res) => {
   }
 });
 
+// Update about page content (protected route)
+app.put('/api/about', authenticateToken, async (req, res) => {
+  try {
+    const { heading, content } = req.body;
+
+    // Read the existing about.html file
+    const aboutFilePath = path.join(__dirname, 'public', 'about.html');
+    let aboutContent = await fsPromises.readFile(aboutFilePath, 'utf8');
+
+    // Update the heading
+    aboutContent = aboutContent.replace(/<h2 id="welcome-to-defcon-expanded"[^>]*>.*?<\/h2>/s, `<h2 id="welcome-to-defcon-expanded">${heading}</h2>`);
+
+    // Update the content
+    aboutContent = aboutContent.replace(/<p>.*?<\/p>/s, `<p>${content}</p>`);
+
+    // Write the updated content back to the file
+    await fsPromises.writeFile(aboutFilePath, aboutContent, 'utf8');
+
+    res.json({ message: 'About page updated successfully' });
+  } catch (error) {
+    console.error('Error updating about page:', error);
+    res.status(500).json({ error: 'Unable to update about page' });
+  }
+});
+
+// New route to update content (protected route)
+app.post('/api/updateContent', authenticateToken, async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    const { cardIndex, content } = req.body;
+    const aboutFilePath = path.join(__dirname, 'public', 'about.html');
+    let aboutContent = await fsPromises.readFile(aboutFilePath, 'utf8');
+
+    // Parse the HTML content
+    const dom = new JSDOM(aboutContent);
+    const document = dom.window.document;
+
+    // Find the card and update its content
+    const cards = document.querySelectorAll('.card');
+    if (cardIndex < cards.length) {
+      const card = cards[cardIndex];
+      
+      // Clear existing content
+      card.innerHTML = '';
+
+      // Add new content
+      Object.entries(content).forEach(([key, value]) => {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = value.outerHTML;
+        const newElement = tempDiv.firstChild;
+        newElement.textContent = value.text;
+        if (newElement.tagName.toLowerCase() === 'a' && value.href) {
+          newElement.setAttribute('href', value.href);
+        }
+        card.appendChild(newElement);
+      });
+
+      // Save the updated content
+      aboutContent = dom.serialize();
+      await fsPromises.writeFile(aboutFilePath, aboutContent, 'utf8');
+      res.json({ message: 'Content updated successfully' });
+    } else {
+      res.status(400).json({ error: 'Card not found' });
+    }
+  } catch (error) {
+    console.error('Error updating content:', error);
+    res.status(500).json({ error: 'Unable to update content' });
+  }
+});
+
 // Serve additional HTML pages
-app.get('/about', (req, res) => sendHtml(res, 'about.html'));
-app.get('/news', (req, res) => sendHtml(res, 'news.html'));
-app.get('/media', (req, res) => sendHtml(res, 'media.html'));
-app.get('/resources', (req, res) => sendHtml(res, 'resources.html'));
-app.get('/laikasdefcon', (req, res) => sendHtml(res, 'laikasdefcon.html'));
-app.get('/homepage/matchroom', (req, res) => sendHtml(res, 'matchroom.html'));
-app.get('/homepage', (req, res) => sendHtml(res, 'index.html'));
-app.get('/cmd', (req, res) => sendHtml(res, 'secret.html'));
+app.get('/about', checkAuthToken, (req, res) => sendHtml(res, 'about.html'));
+app.get('/news', checkAuthToken, (req, res) => sendHtml(res, 'news.html'));
+app.get('/media', checkAuthToken, (req, res) => sendHtml(res, 'media.html'));
+app.get('/resources', checkAuthToken, (req, res) => sendHtml(res, 'resources.html'));
+app.get('/laikasdefcon', checkAuthToken, (req, res) => sendHtml(res, 'laikasdefcon.html'));
+app.get('/homepage/matchroom', checkAuthToken, (req, res) => sendHtml(res, 'matchroom.html'));
+app.get('/homepage', checkAuthToken, (req, res) => sendHtml(res, 'index.html'));
+app.get('/cmd', checkAuthToken, (req, res) => sendHtml(res, 'secret.html'));
 
 // Serve special files
 app.get('/sitemap', (req, res) => {

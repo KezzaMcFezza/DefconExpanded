@@ -23,6 +23,7 @@
     "greenlock-express": "^4.0.3",
     "greenlock-store-fs": "^3.2.2",
     "http-proxy-middleware": "^3.0.0",
+    "jsdom": "^24.1.1",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.11.0",
     "systeminformation": "^5.22.11"
