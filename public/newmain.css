@@ -61,7 +61,7 @@ main {
 
 
 .cardcredits {
-    max-height: 670px;
+    max-height: 700px;
 }
 
 .card-title, .matchroom-title, .demo-card h3, .download-section .card-title {
@@ -320,9 +320,10 @@ li {
     color: #fff;
 }
 
-.btn-download:hover, .btn-matchroom:hover {
+.btn-download:hover, .btn-matchroom:hover, .btn-delete:hover {
     opacity: 0.95;
     transform: translateY(-2px);
+    cursor: pointer;
 }
 
 .pagination {
@@ -606,7 +607,24 @@ a {
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0,0,0,0.9);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-image {
+    max-width: 70%;
+    max-height: 70%;
+}
+
+.close {
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    position: absolute;
+    right: 35px;
+    top: 15px;
+    cursor: pointer;
 }
 
 .modal-content {
@@ -682,6 +700,7 @@ a {
 .save-button, .edit-button, .cancel-button{
     padding: 0.5rem 0.7rem;
     font-size: 0.9rem;
+    margin: 0px 5px 10px;
     border-radius: 5px;
     display: inline-grid;
     text-decoration: none;
@@ -694,3 +713,10 @@ a {
     color: #fff;
     border: 0;
 }
+
+.save-button:hover, .edit-button:hover, .cancel-button:hover{
+    opacity: 0.95;
+    transform: translateY(-2px);
+    cursor: pointer;
+}
+

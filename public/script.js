@@ -179,8 +179,14 @@ function getDuration() {
 }
 
 function updateDemoList() {
+    console.log('Updating demo list');
     fetch('/api/demos')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(demos => {
             allDemos = demos; 
             const gamesPlayed = document.getElementById('games-played');
@@ -189,7 +195,11 @@ function updateDemoList() {
             }
             showPage(1, allDemos);
         })
-        .catch(error => console.error('Error fetching demos:', error));
+        .catch(error => {
+            console.error('Error fetching demos:', error);
+            // Display an error message to the user or provide more specific error details
+            alert('Failed to fetch demo data. Please try again later.');
+        });
 }
 
 function performGameSearch() {
@@ -393,7 +403,6 @@ async function logout() {
         }
     } catch (error) {
         console.error('Logout error:', error);
-        alert('An error occurred during logout');
     }
 }
 
@@ -475,6 +484,22 @@ function toggleEditMode(card, index) {
     }
 }
 
+function removeEditability() {
+    const cards = document.querySelectorAll('.card, .cardcredits');
+    cards.forEach(card => {
+        const editButton = card.querySelector('.edit-button');
+        const saveButton = card.querySelector('.save-button');
+        if (editButton) editButton.remove();
+        if (saveButton) saveButton.remove();
+
+        const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
+        elements.forEach(el => {
+            el.contentEditable = 'false';
+            el.classList.remove('editable');
+        });
+    });
+}
+
 async function saveChanges(card, index) {
     if (!isAdmin) return;
 
@@ -533,12 +558,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         } else {
             isAdmin = false;
             showLoginForm();
-            removeEditability();
+            removeEditability(); // Error occurs here
         }
     } catch (error) {
         console.error('Error checking authentication:', error);
         showLoginForm();
-        removeEditability();
+        removeEditability(); // Error occurs here
     }
 
     // Set active navigation item
@@ -549,19 +574,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     console.log('Mobile menu setup completed');
 
     // Setup search functionality
-    const searchButton = document.getElementById('search-button');
-    const searchInput = document.getElementById('search-input');
     const searchButton2 = document.getElementById('search-button2');
     const searchInput2 = document.getElementById('search-input2');
-
-    if (searchButton && searchInput) {
-        searchButton.addEventListener('click', performMainSearch);
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performMainSearch();
-            }
-        });
-    }
 
     if (searchButton2 && searchInput2) {
         searchButton2.addEventListener('click', performGameSearch);
@@ -588,33 +602,22 @@ document.addEventListener('DOMContentLoaded', async function() {
         };
     }
 
-    // Set up media item click listeners
-    const mediaItems = document.querySelectorAll('.featured-video, .video-item, .screenshot-item');
-    mediaItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const src = this.getAttribute('data-src');
-            const type = this.getAttribute('data-type');
-            const title = this.getAttribute('data-title') || '';
-            console.log('Clicked item:', src, type, title); // Debug log
-            if (src && type) {
-                openModal(src, type, title);
-            } else {
-                console.error('Missing data attributes on clicked item');
-            }
-        });
-    });
-
-    // Perform search on page load if query parameter is present
-    const urlParams = new URLSearchParams(window.location.search);
-    const query = urlParams.get('q');
-    if (query) {
-        const searchInput = document.getElementById('search-input');
-        if (searchInput) {
-            searchInput.value = query;
+// Set up media item click listeners
+const mediaItems = document.querySelectorAll('.screenshot-item, .video-item');
+mediaItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const src = this.getAttribute('data-src');
+        const type = this.getAttribute('data-type');
+        const title = this.getAttribute('data-title') || '';
+        console.log('Clicked item:', this, 'src:', src, 'type:', type, 'title:', title); // More detailed logging
+        if (src && type) {
+            openModal(src, type, title);
+        } else {
+            console.error('Missing data attributes on clicked item', this);
         }
-        performSearch(query);
-    }
+    });
+});
 });
 
 // Function to handle smooth scrolling
@@ -668,7 +671,6 @@ if ('IntersectionObserver' in window) {
 
 // Export functions that might be used elsewhere
 window.updateDemoList = updateDemoList;
-window.performMainSearch = performMainSearch;
 window.performGameSearch = performGameSearch;
 window.openModal = openModal;
 window.closeModal = closeModal;
@@ -677,22 +679,6 @@ window.lazyLoadImages = lazyLoadImages;
 window.deleteDemo = deleteDemo;
 window.setupMobileMenu = setupMobileMenu;
 window.setActiveNavItem = setActiveNavItem;
-
-// Function to perform main search
-function performMainSearch() {
-    const searchInput = document.getElementById('search-input');
-    if (!searchInput) return;
-    const searchTerm = searchInput.value;
-    if (searchTerm.trim() === '') return;
-    window.location.href = `/searchresults?q=${encodeURIComponent(searchTerm)}`;
-}
-
-// Function to perform search
-function performSearch(query) {
-    // Implement your search logic here
-    console.log('Performing search for:', query);
-    // This function should be implemented based on your specific search requirements
-}
 
 // Additional event listeners
 window.addEventListener('load', function() {
