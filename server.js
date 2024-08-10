@@ -43,6 +43,14 @@ watcher
     const stats = fs.statSync(path);
     
     try {
+      // Check if a demo with the same name already exists
+      const [rows] = await pool.query('SELECT * FROM demos WHERE name = ?', [fileName]);
+      if (rows.length > 0) {
+        console.log(`Demo ${fileName} already exists in the database. Skipping upload.`);
+        return;
+      }
+
+      // If the demo doesn't exist, insert it into the database
       const [result] = await pool.query(
         'INSERT INTO demos (name, size, date) VALUES (?, ?, ?)',
         [fileName, stats.size, new Date()]
@@ -201,26 +209,6 @@ app.delete('/api/demo/:demoId', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error deleting demo:', error);
     res.status(500).json({ error: 'Unable to delete demo' });
-  }
-});
-
-// Add a user to a demo
-app.post('/api/demo/:demoId/users', authenticateToken, async (req, res) => {
-  const { username, password } = req.body;
-  const demoId = req.params.demoId;
-
-  try {
-    // First, insert the user
-    const [userResult] = await pool.query('INSERT INTO users (username, password) VALUES (?, ?)', [username, password]);
-    const userId = userResult.insertId;
-
-    // Then, associate the user with the demo
-    await pool.query('INSERT INTO demo_users (demo_id, user_id) VALUES (?, ?)', [demoId, userId]);
-
-    res.status(201).json({ message: `User ${username} added to demo ${demoId}` });
-  } catch (error) {
-    console.error('Error adding user to demo:', error);
-    res.status(500).json({ error: 'Unable to add user to demo' });
   }
 });
 

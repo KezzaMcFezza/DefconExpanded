@@ -662,3 +662,19 @@ a {
 #login-form button:hover, #logout-container button:hover {
     background-color: #3a8ad6;
 }
+
+.btn-delete {
+    background-color: #0067b8;
+    color: #fff;
+    margin-left: 9px;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    display: inline-grid;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-align: center;
+    justify-content: center;
+    font-weight: bold;
+    border: 0;
+}

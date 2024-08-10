@@ -77,7 +77,6 @@ function createDemoCard(demo) {
                 </tr>
                 ${getPlayerData(demo.name, demo.users)}
             </table>
-            ${isAdmin ? `<button onclick="addUser(${demo.id})" class="btn-add-user">Add User</button>` : ''}
             <a href="/api/download/${demo.name}" class="btn-download foo"> Download </a>
             <a href="/homepage/matchroom" class="btn-matchroom foo"> Matchroom </a>
             ${isAdmin ? `<button onclick="deleteDemo(${demo.id})" class="btn-delete foo">Delete Demo</button>` : ''}
@@ -351,7 +350,6 @@ async function login(username, password) {
         alert('An error occurred during login');
     }
 }
-
 function showLogoutButton() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) {
@@ -417,36 +415,6 @@ async function deleteDemo(demoId) {
         } catch (error) {
             console.error('Error deleting demo:', error);
             alert('An error occurred while deleting demo');
-        }
-    }
-}
-
-async function addUser(demoId) {
-    if (!isAdmin) {
-        alert('You must be an admin to perform this action');
-        return;
-    }
-    const username = prompt('Enter username:');
-    const password = prompt('Enter password:');
-    if (username && password) {
-        try {
-            const response = await fetch(`/api/demo/${demoId}/users`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
-            });
-            if (response.ok) {
-                alert('User added successfully');
-                updateDemoList(); // Refresh the demo list
-            } else {
-                const data = await response.json();
-                alert(data.error || 'Failed to add user');
-            }
-        } catch (error) {
-            console.error('Error adding user:', error);
-            alert('An error occurred while adding user');
         }
     }
 }
@@ -591,7 +559,6 @@ window.closeModal = closeModal;
 window.smoothScroll = smoothScroll;
 window.lazyLoadImages = lazyLoadImages;
 window.deleteDemo = deleteDemo;
-window.addUser = addUser;
 window.setupMobileMenu = setupMobileMenu;
 window.setActiveNavItem = setActiveNavItem;
 
