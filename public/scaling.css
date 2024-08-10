@@ -417,3 +417,40 @@ body {
         max-height: 730px;
     }
 }
+
+@media (max-width: 768px) {
+
+#login-container, #logout-container {
+    padding: 10px;
+    margin-top: 20px;
+    display: none;
+}
+
+#login-form input {
+    background-color: #1c1c2e;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 0.50rem;
+    margin-top: 5px;
+    width: 200px;
+    border-radius: 4px 0 0 4px;
+    display: none;
+}
+
+#login-form button, #logout-container button {
+    width: 30%;
+    margin-top: 5px;
+    background-color: #0067b8;
+    padding: 5px;
+    border-radius: 4px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: none;
+}
+
+#login-form button:hover, #logout-container button:hover {
+    background-color: #3a8ad6;
+    display: none;
+}
+}

@@ -1,6 +1,7 @@
 // Global variables
 let allDemos = []; 
 let soundVolume = 0.1;
+let isAdmin = false;
 
 function setActiveNavItem() {
     const currentPath = window.location.pathname;
@@ -74,14 +75,73 @@ function createDemoCard(demo) {
                     <th>Territory</th>
                     <th>Score</th>
                 </tr>
-                ${getPlayerData(demo.name)}
+                ${getPlayerData(demo.name, demo.users)}
             </table>
-            <a href="https://defconexpanded.com/download/${demo.name}" class="btn-download foo"> Download
-            </a>
-            <a href="https://defconexpanded.com/homepage/matchroom" class="btn-matchroom foo"> Matchroom </a>
+            ${isAdmin ? `<button onclick="addUser(${demo.id})" class="btn-add-user">Add User</button>` : ''}
+            <a href="/api/download/${demo.name}" class="btn-download foo"> Download </a>
+            <a href="/homepage/matchroom" class="btn-matchroom foo"> Matchroom </a>
+            ${isAdmin ? `<button onclick="deleteDemo(${demo.id})" class="btn-delete foo">Delete Demo</button>` : ''}
         </div>
     `;
     return demoCard;
+}
+
+function getPlayerData(demoName, users) {
+    if (users && users.length > 0) {
+        return users.map(user => `
+            <tr>
+                <td>${user}</td>
+                <td>Unknown</td>
+                <td>0</td>
+            </tr>
+        `).join('');
+    } else {
+        return getRandomPlayerData(demoName);
+    }
+}
+
+function getRandomPlayerData(demoName, numPlayers = 8) {
+    const territories = ['NA', 'EU', 'SA', 'RU', 'AF', 'EA', 'WA', 'AA'];
+    const prefixes = [  'Nuclear', 'Atomic', 'Stealth', 'Cyber', 'Tactical', 'Strategic', 'Rogue', 'Shadow', 'Sieverts',
+        'Covert', 'Phantom', 'Ghost', 'Recon', 'Assault', 'Havoc', 'Chaos', 'Mayhem', 'Vortex',
+        'Laser', 'Plasma', 'Ion', 'Photon', 'Quantum', 'Fusion', 'Neutrino', 'Electron', 'Proton',
+        'Gravity', 'Singularity', 'Nebula', 'Nova', 'Pulsar', 'Quasar', 'Supernova', 'Hypernova', 'Magnetar',
+        'Void', 'Abyss', 'Oblivion', 'Nihil', 'Ether', 'Astral', 'Cosmic', 'Galactic', 'Celestial',
+        'Titan', 'Colossus', 'Behemoth', 'Leviathan', 'Kraken', 'Hydra', 'Phoenix', 'Chimera', 'Sphinx'];
+    const suffixes = ['Xx'];
+    const numbers = ['', '1', '2', '3', '4', '5', '42', '69', '99', '007'];
+
+    function generateGamertag() {
+        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+        const number = numbers[Math.floor(Math.random() * numbers.length)];
+        return `${prefix}${suffix}${number}`;
+    }
+
+    const shuffledTerritories = territories.slice().sort(() => Math.random() - 0.5);
+
+    const players = Array.from({ length: numPlayers }, (_, index) => ({
+        name: generateGamertag(),
+        territory: shuffledTerritories[index % territories.length],
+        score: Math.floor(Math.random() * 200) - 50
+    }));
+
+    let teamColors = [];
+    if (demoName.toLowerCase().includes('4v4')) {
+        teamColors = ['#c70000', '#c70000', '#c70000', '#c70000', '#40d340', '#40d340', '#40d340', '#40d340'];
+    } else if (demoName.toLowerCase().includes('2v2v2v2')) {
+        teamColors = ['#c70000', '#c70000', '#40d340', '#40d340', '#0084ff', '#0084ff', '#ff8000', '#ff8000'];
+    } else if (demoName.toLowerCase().includes('diplomacy')) {
+        teamColors = ['#40d340', '#40d340', '#40d340', '#40d340', '#40d340', '#40d340', '#40d340', '#40d340'];
+    }
+
+    return players.map((player, index) => `
+        <tr>
+            <td style="${teamColors[index] ? `color: ${teamColors[index]};` : ''}">${player.name}</td>
+            <td>${player.territory}</td>
+            <td>${player.score}</td>
+        </tr>
+    `).join('');
 }
 
 function getTimeAgo(date) {
@@ -107,7 +167,7 @@ function getGameTime(date) {
     return `${startTime} — ${endTime}`;
 }
 
-function getDuration(size) {
+function getDuration() {
     const minutes = Math.floor(Math.random() * (200 - 45 + 1)) + 45;
     
     if (minutes >= 60) {
@@ -119,83 +179,8 @@ function getDuration(size) {
     }
 }
 
-function getPlayerData(demoName, numPlayers = 8) {
-    const territories = ['NA', 'EU', 'SA', 'RU', 'AF', 'EA', 'WA', 'AA'];
-    const prefixes = [  'Nuclear', 'Atomic', 'Stealth', 'Cyber', 'Tactical', 'Strategic', 'Rogue', 'Shadow', 'Sieverts',
-        'Covert', 'Phantom', 'Ghost', 'Recon', 'Assault', 'Havoc', 'Chaos', 'Mayhem', 'Vortex',
-        'Laser', 'Plasma', 'Ion', 'Photon', 'Quantum', 'Fusion', 'Neutrino', 'Electron', 'Proton',
-        'Gravity', 'Singularity', 'Nebula', 'Nova', 'Pulsar', 'Quasar', 'Supernova', 'Hypernova', 'Magnetar',
-        'Void', 'Abyss', 'Oblivion', 'Nihil', 'Ether', 'Astral', 'Cosmic', 'Galactic', 'Celestial',
-        'Titan', 'Colossus', 'Behemoth', 'Leviathan', 'Kraken', 'Hydra', 'Phoenix', 'Chimera', 'Sphinx',
-        'Achtlos', 'Alien', 'an4rki', 'astrogal', 'andii', 'AndrewW', 'Annorax', 'Antzz', 'ash1',
-        'ausjoel', 'AusMade', 'Ausroachman', 'AussiePenguin96', 'Ayz', 'barrymoves', 'Beefychops', 'Beno-ski',
-        'BIG DWIFTER', 'bigknox', 'bkenh', 'BlackLotus', 'Boydio', 'Brothekid10', 'Buckets23', 'BURGER R1NGS',
-        'CAD', 'CCAJ', 'CCsPack', 'chromium', 'chris_e_fresh', 'chris_e_fresh', 'colossus1509', 'Crazy CS',
-        'Daelhoof', 'DUS SOULWOUND', 'deathschild', 'DES10', 'ZacB', 'D3lusion', 'Daniel Bedard', 'Darkrider',
-        'darktranq', 'Dave Davids', 'davidhes', 'dazeld', 'DazzB66', 'Deneo123', 'DH Andrew', 'Didds',
-        'DiggeR', 'diilpickle', 'Dingotech', 'DisasterArea', 'diux', 'doublewishbone', 'Dylsmangan', 'dkNigs',
-        'Defy9', 'Deadly Dozeball', 'dqtl74', 'Economic', 'Epic', 'Egy Kangaroo', 'MattTheExpat', 'error-id10t',
-        'F1 Viking', 'Fallz', 'Frost2468', 'fenryr', 'G4m3 0n', 'gameoverjack', 'garry75', 'ghostdog',
-        'Gistane', 'GobiasIndustries', 'GokhanH', 'Guided Light', 'Grafik', 'Gristy', 'gothioso', 'Harry Callahan',
-        'HBCJ', 'heyitskayxx', 'Hot turtle', 'Houda', 'hsvjez', 'The_Aus_Hulk', 'hyperactive', 'ike-sp',
-        'interfreak', 'impatient', 'Jason87', 'Jonesy7707', 'JFin', 'Joshbartos', 'Joshaldo', 'jparton',
-        'jazzyjeff', 'johno686', 'jooz', 'JRAW', 'JT_77', 'JLC215', 'kirbasin', 'Kire', 'krammis76',
-        'Labmonkey', 'Lammiwinks', 'Lindsay', 'Lirrik', 'ljayljay', 'Lodan', 'Lord Byoss', 'Levinson-Durbin', 'mackaxx',
-        'Mal68', 'Malibu2', 'Mangomadness', 'MadCheese', 'mazman', 'McCoyPauley78', 'McDethWivFries', 'melbounrefan',
-        'micknq', 'MoabBoy', 'Moofius', 'mordinho', 'morph0', 'mozdesigns', 'mwblink', 'myzzz', 'Micdeez',
-        'n3o-dystopia', 'nodii', 'Neckron', 'NinjaPizza', 'Nitro', 'Namasaki', 'Notsuree', 'nuxx', 'Noysy',
-        'Never_Enough', 'ocat1979', 'OneTrackLover', 'OzDJ', 'OVRLOAD', 'parramaniac', 'Prelly99', 'Phalaxis',
-        'pharmerdan', 'Philip J Farnsworth', 'Phreak09', 'plainfaced', 'Pottymouth', 'prenticem', 'Prang',
-        'PrimeStormRider', 'PsychoDog', 'PsychoticOrc', 'pupmeister', 'Raima', 'razalom', 'RazCo', 'remaKe', 
-        'Reveler', 'ricdam', 'rhinorizy', 'Riore', 'rjrgmc28', 'robbie y', 'RonnyBoi', 'Rumple', 'Russdg',
-        'RynosaurusRex', 'Rysith', 'Rysup', 'sacka', 'salsicce77', 'SaminAus88', 'sammo', 'SandyRivers',
-        'savior', 'Schikitar', 'Scubafinch', 'Shifty-au', 'ScorchedMirth', 'scottchicken', 'sesquipedalian',
-        'ShayneRarma', 'Shmicks', 'Shrugal844', 'Sifheal', 'SJRWalker', 'slawsonftw', 'Solidus82', 'Sovi3t',
-        'SPUD', 'steamtrain13583', 'sTeeL', 'Stormyt', 'Storm1981', 'Streetlights', 'swkotor', 'Syrup',
-        'Syvergy', 'shazie', 'Trans_JimJam', 'TheImposter', 'thatsnazzydude', 'TheHighHorse', 'thinkbigbw',
-        'Thommo77', 'Tiberius', 'tomee', 'Toasty Warm Hamster', 'trents', 'tubs105', 'Tuffers79', 'TwistedGecko',
-        'UnciasDream', 'UnforgivnJudas', 'Vaderz', 'Valac', 'VenularSundew0', 'vinnie05', 'Vormund', 'walrus67',
-        'Waughy', 'well_spoken', 'Westone', 'WhiskyAC', 'Wickzki', 'wildliquid', 'willy1818', 'wilsd004',
-        'Windows1', 'Wraith', 'd_b', 'Xuak', 'Zarby', 'ZeeKor'];
-    const suffixes = ['Xx'];
-    const numbers = ['', '1', '2', '3', '4', '5', '42', '69', '99', '007'];
-
-    function generateGamertag() {
-        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-        const number = numbers[Math.floor(Math.random() * numbers.length)];
-        return `${prefix}${suffix}${number}`;
-    }
-
-    // Shuffle the territories array
-    const shuffledTerritories = territories.slice().sort(() => Math.random() - 0.5);
-
-    const players = Array.from({ length: numPlayers }, (_, index) => ({
-        name: generateGamertag(),
-        territory: shuffledTerritories[index % territories.length], // Assign territories in order from shuffled array
-        score: Math.floor(Math.random() * 200) - 50
-    }));
-
-    let teamColors = [];
-    if (demoName.toLowerCase().includes('4v4')) {
-        teamColors = ['#c70000', '#c70000', '#c70000', '#c70000', '#40d340', '#40d340', '#40d340', '#40d340'];
-    } else if (demoName.toLowerCase().includes('2v2v2v2')) {
-        teamColors = ['#c70000', '#c70000', '#40d340', '#40d340', '#0084ff', '#0084ff', '#ff8000', '#ff8000'];
-    } else if (demoName.toLowerCase().includes('diplomacy')) {
-        teamColors = ['#40d340', '#40d340', '#40d340', '#40d340', '#40d340', '#40d340', '#40d340', '#40d340'];
-    }
-
-return players.map((player, index) => `
-        <tr>
-            <td style="${teamColors[index] ? `color: ${teamColors[index]};` : ''}">${player.name}</td>
-            <td>${player.territory}</td>
-            <td>${player.score}</td>
-        </tr>
-    `).join('');
-}
-
 function updateDemoList() {
-    fetch('https://defconexpanded.com/demos')
+    fetch('/api/demos')
         .then(response => response.json())
         .then(demos => {
             allDemos = demos; 
@@ -215,7 +200,8 @@ function performGameSearch() {
     const filteredDemos = allDemos.filter(demo => 
         demo.name.toLowerCase().includes(searchTerm) ||
         formatBytes(demo.size).toLowerCase().includes(searchTerm) ||
-        new Date(demo.date).toLocaleDateString().toLowerCase().includes(searchTerm)
+        new Date(demo.date).toLocaleDateString().toLowerCase().includes(searchTerm) ||
+        (demo.users && demo.users.some(user => user.toLowerCase().includes(searchTerm)))
     );
     showPage(1, filteredDemos);
 }
@@ -297,6 +283,174 @@ function setupMobileMenu() {
     }
 }
 
+// Authentication functions
+function showLoginForm() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) {
+        console.error('Sidebar not found');
+        return;
+    }
+
+    // Check if login form already exists
+    if (document.getElementById('login-container')) {
+        console.log('Login form already exists');
+        return;
+    }
+
+    const loginContainer = document.createElement('div');
+    loginContainer.id = 'login-container';
+    loginContainer.innerHTML = `
+        <form id="login-form">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+    `;
+    
+    // Find the list-items and icons elements
+    const listItems = sidebar.querySelector('.list-items');
+    const icons = sidebar.querySelector('.icons');
+    
+    // Insert the login form after the list-items and before the icons
+    if (listItems && icons) {
+        sidebar.insertBefore(loginContainer, icons);
+    } else {
+        console.error('Could not find proper position for login form');
+        sidebar.appendChild(loginContainer);
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        await login(username, password);
+    });
+}
+
+async function login(username, password) {
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+            isAdmin = true;
+            alert('Logged in successfully');
+            document.getElementById('login-container').remove();
+            showLogoutButton();
+            updateDemoList(); // Refresh the demo list to show admin controls
+        } else {
+            alert(data.error || 'Login failed');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        alert('An error occurred during login');
+    }
+}
+
+function showLogoutButton() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) {
+        console.error('Sidebar not found');
+        return;
+    }
+
+    const logoutContainer = document.createElement('div');
+    logoutContainer.id = 'logout-container';
+    const logoutButton = document.createElement('button');
+    logoutButton.textContent = 'Logout';
+    logoutButton.onclick = logout;
+    logoutContainer.appendChild(logoutButton);
+
+    // Find the icons element
+    const icons = sidebar.querySelector('.icons');
+    
+    // Insert the logout button before the icons
+    if (icons) {
+        sidebar.insertBefore(logoutContainer, icons);
+    } else {
+        console.error('Could not find proper position for logout button');
+        sidebar.appendChild(logoutContainer);
+    }
+}
+
+async function logout() {
+    try {
+        const response = await fetch('/api/logout', { method: 'POST' });
+        if (response.ok) {
+            isAdmin = false;
+            alert('Logged out successfully');
+            document.getElementById('logout-container').remove();
+            showLoginForm();
+            updateDemoList(); // Refresh the demo list to hide admin controls
+        } else {
+            alert('Logout failed');
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+        alert('An error occurred during logout');
+    }
+}
+
+// Demo management functions
+async function deleteDemo(demoId) {
+    if (!isAdmin) {
+        alert('You must be an admin to perform this action');
+        return;
+    }
+    if (confirm('Are you sure you want to delete this demo?')) {
+        try {
+            const response = await fetch(`/api/demo/${demoId}`, {
+                method: 'DELETE',
+            });
+            if (response.ok) {
+                alert('Demo deleted successfully');
+                updateDemoList(); // Refresh the demo list
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Failed to delete demo');
+            }
+        } catch (error) {
+            console.error('Error deleting demo:', error);
+            alert('An error occurred while deleting demo');
+        }
+    }
+}
+
+async function addUser(demoId) {
+    if (!isAdmin) {
+        alert('You must be an admin to perform this action');
+        return;
+    }
+    const username = prompt('Enter username:');
+    const password = prompt('Enter password:');
+    if (username && password) {
+        try {
+            const response = await fetch(`/api/demo/${demoId}/users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
+            if (response.ok) {
+                alert('User added successfully');
+                updateDemoList(); // Refresh the demo list
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Failed to add user');
+            }
+        } catch (error) {
+            console.error('Error adding user:', error);
+            alert('An error occurred while adding user');
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM fully loaded and parsed');
 
@@ -307,7 +461,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupMobileMenu();
     console.log('Mobile menu setup completed');
 
-    // Existing functionality
+    // Setup search functionality
     const searchButton = document.getElementById('search-button');
     const searchInput = document.getElementById('search-input');
     const searchButton2 = document.getElementById('search-button2');
@@ -333,19 +487,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     updateDemoList();
 
-    const scrollLinks = document.getElementsByClassName('scroll-to-bottom');
-    for (let i = 0; i < scrollLinks.length; i++) {
-        scrollLinks[i].addEventListener('click', function(e) {
-            e.preventDefault();
-            const win = window.open(this.href, '_blank');
-            if (win) {
-                win.addEventListener('load', function() {
-                    win.scrollTo(0, win.document.body.scrollHeight);
-                });
-            }
-        });
-    }
-    
     // Set up modal functionality
     const modal = document.getElementById("myModal");
     if (modal) {
@@ -377,6 +518,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Show login form
+    showLoginForm();
+
     // Perform search on page load if query parameter is present
     const urlParams = new URLSearchParams(window.location.search);
     const query = urlParams.get('q');
@@ -388,9 +532,6 @@ document.addEventListener('DOMContentLoaded', function() {
         performSearch(query);
     }
 });
-
-// Call setActiveNavItem immediately in case the DOM is already loaded
-setActiveNavItem();
 
 // Function to handle smooth scrolling
 function smoothScroll(target) {
@@ -441,24 +582,42 @@ if ('IntersectionObserver' in window) {
     });
 }
 
-// Export functions and variables that might be used elsewhere
+// Export functions that might be used elsewhere
 window.updateDemoList = updateDemoList;
+window.performMainSearch = performMainSearch;
 window.performGameSearch = performGameSearch;
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.smoothScroll = smoothScroll;
 window.lazyLoadImages = lazyLoadImages;
+window.deleteDemo = deleteDemo;
+window.addUser = addUser;
 window.setupMobileMenu = setupMobileMenu;
 window.setActiveNavItem = setActiveNavItem;
 
-// Call setupMobileMenu when the window loads
+// Function to perform main search
+function performMainSearch() {
+    const searchInput = document.getElementById('search-input');
+    if (!searchInput) return;
+    const searchTerm = searchInput.value;
+    if (searchTerm.trim() === '') return;
+    window.location.href = `/searchresults?q=${encodeURIComponent(searchTerm)}`;
+}
+
+// Function to perform search
+function performSearch(query) {
+    // Implement your search logic here
+    console.log('Performing search for:', query);
+    // This function should be implemented based on your specific search requirements
+}
+
+// Additional event listeners
 window.addEventListener('load', function() {
     console.log('Window loaded, calling setupMobileMenu');
     setupMobileMenu();
     setActiveNavItem();
 });
 
-// Additional event listener for resize events
 window.addEventListener('resize', function() {
     if (window.innerWidth <= 768) {
         console.log('Window resized to mobile view, calling setupMobileMenu');
