@@ -14,7 +14,7 @@ const port = 3000;
 const dbConfig = {
   host: 'localhost',
   user: 'root',
-  password: '', // Make sure to set your actual MySQL password here
+  password: 'cca3d38e2b', // Make sure to set your actual MySQL password here
   database: 'defcon_demos'
 };
 
