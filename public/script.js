@@ -197,7 +197,6 @@ function updateDemoList() {
         })
         .catch(error => {
             console.error('Error fetching demos:', error);
-            // Display an error message to the user or provide more specific error details
             alert('Failed to fetch demo data. Please try again later.');
         });
 }
@@ -280,7 +279,6 @@ function setupMobileMenu() {
             console.log('Menu toggled, show class:', listItems.classList.contains('show'));
         });
 
-        // Close menu when a link is clicked
         listItems.addEventListener('click', function(e) {
             if (e.target.tagName === 'A') {
                 console.log('Link clicked, closing menu');
@@ -292,7 +290,6 @@ function setupMobileMenu() {
     }
 }
 
-// Authentication functions
 function showLoginForm() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) {
@@ -300,7 +297,6 @@ function showLoginForm() {
         return;
     }
 
-    // Check if login form already exists
     if (document.getElementById('login-container')) {
         console.log('Login form already exists');
         return;
@@ -316,11 +312,9 @@ function showLoginForm() {
         </form>
     `;
     
-    // Find the list-items and icons elements
     const listItems = sidebar.querySelector('.list-items');
     const icons = sidebar.querySelector('.icons');
     
-    // Insert the login form after the list-items and before the icons
     if (listItems && icons) {
         sidebar.insertBefore(loginContainer, icons);
     } else {
@@ -376,10 +370,8 @@ function showLogoutButton() {
     logoutButton.onclick = logout;
     logoutContainer.appendChild(logoutButton);
 
-    // Find the icons element
     const icons = sidebar.querySelector('.icons');
     
-    // Insert the logout button before the icons
     if (icons) {
         sidebar.insertBefore(logoutContainer, icons);
     } else {
@@ -406,7 +398,6 @@ async function logout() {
     }
 }
 
-// Demo management functions
 async function deleteDemo(demoId) {
     if (!isAdmin) {
         alert('You must be an admin to perform this action');
@@ -431,7 +422,6 @@ async function deleteDemo(demoId) {
     }
 }
 
-// Content editing functions
 function makeContentEditable() {
     if (!isAdmin) return;
 
@@ -450,7 +440,6 @@ function makeContentEditable() {
         saveButton.onclick = () => saveChanges(card, index);
         card.insertBefore(saveButton, card.firstChild);
 
-        // Ensure all elements are not editable by default
         const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
         elements.forEach(el => {
             el.contentEditable = 'false';
@@ -547,7 +536,6 @@ async function saveChanges(card, index) {
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM fully loaded and molested');
 
-    // Check if user is already logged in
     try {
         const response = await fetch('/api/checkAuth');
         const data = await response.json();
@@ -558,22 +546,19 @@ document.addEventListener('DOMContentLoaded', async function() {
         } else {
             isAdmin = false;
             showLoginForm();
-            removeEditability(); // Error occurs here
+            removeEditability();
         }
     } catch (error) {
         console.error('Error checking authentication:', error);
         showLoginForm();
-        removeEditability(); // Error occurs here
+        removeEditability();
     }
 
-    // Set active navigation item
     setActiveNavItem();
 
-    // Setup mobile menu
     setupMobileMenu();
     console.log('Mobile menu setup completed');
 
-    // Setup search functionality
     const searchButton2 = document.getElementById('search-button2');
     const searchInput2 = document.getElementById('search-input2');
 
@@ -602,7 +587,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         };
     }
 
-// Set up media item click listeners
 const mediaItems = document.querySelectorAll('.screenshot-item, .video-item');
 mediaItems.forEach(item => {
     item.addEventListener('click', function(e) {
@@ -610,7 +594,7 @@ mediaItems.forEach(item => {
         const src = this.getAttribute('data-src');
         const type = this.getAttribute('data-type');
         const title = this.getAttribute('data-title') || '';
-        console.log('Clicked item:', this, 'src:', src, 'type:', type, 'title:', title); // More detailed logging
+        console.log('Clicked item:', this, 'src:', src, 'type:', type, 'title:', title); 
         if (src && type) {
             openModal(src, type, title);
         } else {
@@ -639,7 +623,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Function to handle lazy loading of images
 function lazyLoadImages() {
     const imgObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
@@ -656,11 +639,9 @@ function lazyLoadImages() {
     imgs.forEach(img => imgObserver.observe(img));
 }
 
-// Call lazy loading function when the page is loaded
 if ('IntersectionObserver' in window) {
     window.addEventListener('load', lazyLoadImages);
 } else {
-    // Fallback for browsers that don't support IntersectionObserver
     window.addEventListener('load', () => {
         document.querySelectorAll('img.lazy').forEach(img => {
             img.src = img.dataset.src;
@@ -669,7 +650,6 @@ if ('IntersectionObserver' in window) {
     });
 }
 
-// Export functions that might be used elsewhere
 window.updateDemoList = updateDemoList;
 window.performGameSearch = performGameSearch;
 window.openModal = openModal;
@@ -680,7 +660,6 @@ window.deleteDemo = deleteDemo;
 window.setupMobileMenu = setupMobileMenu;
 window.setActiveNavItem = setActiveNavItem;
 
-// Additional event listeners
 window.addEventListener('load', function() {
     console.log('Window loaded, calling setupMobileMenu');
     setupMobileMenu();
@@ -694,7 +673,6 @@ window.addEventListener('resize', function() {
     }
 });
 
-// Ensure the mobile menu works even if the DOM is already loaded
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
     console.log('DOM already complete, calling setupMobileMenu immediately and preparing to find the snake :)');
     setupMobileMenu();
