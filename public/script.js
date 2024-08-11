@@ -179,7 +179,7 @@ function getDuration() {
 }
 
 function updateDemoList() {
-    console.log('Updating demo list');
+    console.log('Updating demo list, also why are you checking my website on inspect element 0__0');
     fetch('/api/demos')
         .then(response => {
             if (!response.ok) {
@@ -545,7 +545,7 @@ async function saveChanges(card, index) {
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('DOM fully loaded and parsed');
+    console.log('DOM fully loaded and molested');
 
     // Check if user is already logged in
     try {
@@ -696,7 +696,7 @@ window.addEventListener('resize', function() {
 
 // Ensure the mobile menu works even if the DOM is already loaded
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    console.log('DOM already complete, calling setupMobileMenu immediately');
+    console.log('DOM already complete, calling setupMobileMenu immediately and preparing to find the snake :)');
     setupMobileMenu();
     setActiveNavItem();
 }
