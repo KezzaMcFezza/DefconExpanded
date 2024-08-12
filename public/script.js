@@ -21,10 +21,6 @@ function setupMobileMenu() {
     const title = sidebar.querySelector('.title');
     const listItems = sidebar.querySelector('.list-items');
 
-    console.log('Sidebar:', sidebar);
-    console.log('Title:', title);
-    console.log('List Items:', listItems);
-
     if (title && listItems) {
         title.addEventListener('click', function(e) {
             e.preventDefault();
@@ -99,8 +95,8 @@ async function login(username, password) {
             alert('Logged in successfully');
             document.getElementById('login-container').remove();
             showLogoutButton();
-            updateDemoList(); // Refresh the demo list to show admin controls
-            makeContentEditable(); // Make content editable for admin
+            updateDemoList();
+            makeContentEditable();
         } else {
             alert(data.error || 'Login failed');
         }
@@ -142,8 +138,8 @@ async function logout() {
             alert('Logged out successfully');
             document.getElementById('logout-container').remove();
             showLoginForm();
-            updateDemoList(); // Refresh the demo list to hide admin controls
-            removeEditability(); // Remove edit buttons and editability when logging out
+            updateDemoList();
+            removeEditability();
         } else {
             alert('Logout failed');
         }
@@ -157,6 +153,10 @@ function makeContentEditable() {
 
     const cards = document.querySelectorAll('.card, .cardcredits');
     cards.forEach((card, index) => {
+        // Remove existing buttons to avoid duplication
+        const existingButtons = card.querySelectorAll('.edit-button, .save-button, .cancel-button');
+        existingButtons.forEach(button => button.remove());
+
         const editButton = document.createElement('button');
         editButton.textContent = 'Edit';
         editButton.className = 'edit-button';
@@ -168,7 +168,14 @@ function makeContentEditable() {
         saveButton.className = 'save-button';
         saveButton.style.display = 'none';
         saveButton.onclick = () => saveChanges(card, index);
-        card.insertBefore(saveButton, card.firstChild);
+        card.insertBefore(saveButton, editButton.nextSibling);
+
+        const cancelButton = document.createElement('button');
+        cancelButton.textContent = 'Cancel';
+        cancelButton.className = 'cancel-button';
+        cancelButton.style.display = 'none';
+        cancelButton.onclick = () => cancelEdit(card);
+        card.insertBefore(cancelButton, saveButton.nextSibling);
 
         const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
         elements.forEach(el => {
@@ -183,55 +190,64 @@ function toggleEditMode(card, index) {
 
     const editButton = card.querySelector('.edit-button');
     const saveButton = card.querySelector('.save-button');
+    const cancelButton = card.querySelector('.cancel-button');
     const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
 
-    if (editButton.textContent === 'Edit') {
-        editButton.textContent = 'Cancel';
+    if (editButton.style.display !== 'none') {
+        // Entering edit mode
+        editButton.style.display = 'none';
         saveButton.style.display = 'inline-block';
+        cancelButton.style.display = 'inline-block';
         elements.forEach(el => {
             el.contentEditable = 'true';
             el.classList.add('editable');
         });
-    } else {
-        editButton.textContent = 'Edit';
-        saveButton.style.display = 'none';
-        elements.forEach(el => {
-            el.contentEditable = 'false';
-            el.classList.remove('editable');
-        });
-        location.reload(); // Revert changes without saving
     }
 }
 
-function removeEditability() {
-    const cards = document.querySelectorAll('.card, .cardcredits');
-    cards.forEach(card => {
-        const editButton = card.querySelector('.edit-button');
-        const saveButton = card.querySelector('.save-button');
-        if (editButton) editButton.remove();
-        if (saveButton) saveButton.remove();
+function cancelEdit(card) {
+    const editButton = card.querySelector('.edit-button');
+    const saveButton = card.querySelector('.save-button');
+    const cancelButton = card.querySelector('.cancel-button');
+    const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
 
-        const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
-        elements.forEach(el => {
-            el.contentEditable = 'false';
-            el.classList.remove('editable');
-        });
+    editButton.style.display = 'inline-block';
+    saveButton.style.display = 'none';
+    cancelButton.style.display = 'none';
+    elements.forEach(el => {
+        el.contentEditable = 'false';
+        el.classList.remove('editable');
     });
+
+    location.reload(); // Revert changes without saving
 }
 
 async function saveChanges(card, index) {
     if (!isAdmin) return;
 
-    const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
     const content = {};
+    const pageName = getPageName();
 
-    elements.forEach((el, i) => {
-        content[`${el.tagName.toLowerCase()}_${i}`] = {
-            outerHTML: el.outerHTML,
-            text: el.innerText,
-            href: el.tagName.toLowerCase() === 'a' ? el.getAttribute('href') : null
-        };
+    // Collect all content, including nested elements
+    card.childNodes.forEach((node, i) => {
+        if (node.nodeType === Node.ELEMENT_NODE && !node.classList.contains('media-block') && !['button', 'script'].includes(node.tagName.toLowerCase())) {
+            content[`element_${i}`] = {
+                outerHTML: node.outerHTML,
+                isHTML: true
+            };
+        }
     });
+
+    // Preserve media block
+    const mediaBlock = card.querySelector('.media-block');
+    if (mediaBlock) {
+        content['media_block'] = {
+            outerHTML: mediaBlock.outerHTML
+        };
+    }
+
+    console.log('Saving changes for page:', pageName, 'card index:', index);
+    console.log('Content being saved:', content);
 
     try {
         const response = await fetch('/api/updateContent', {
@@ -239,20 +255,12 @@ async function saveChanges(card, index) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ cardIndex: index, content }),
+            body: JSON.stringify({ cardIndex: index, content, pageName }),
         });
 
         if (response.ok) {
             alert('Content updated successfully');
-            // Disable editing after saving
-            elements.forEach(el => {
-                el.contentEditable = 'false';
-                el.classList.remove('editable');
-            });
-            const editButton = card.querySelector('.edit-button');
-            const saveButton = card.querySelector('.save-button');
-            editButton.textContent = 'Edit';
-            saveButton.style.display = 'none';
+            cancelEdit(card); // Reset the edit mode
         } else {
             const data = await response.json();
             alert(data.error || 'Failed to update content');
@@ -263,8 +271,34 @@ async function saveChanges(card, index) {
     }
 }
 
+function removeEditability() {
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        const buttons = card.querySelectorAll('.edit-button, .save-button, .cancel-button');
+        buttons.forEach(button => button.remove());
+
+        const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
+        elements.forEach(el => {
+            el.contentEditable = 'false';
+            el.classList.remove('editable');
+        });
+    });
+}
+
+function getPageName() {
+    const path = window.location.pathname;
+    const pages = ['index.html', 'about.html', 'resources.html', 'news.html', 'laikasdefcon.html', '404.html', 'media.html', 'matchroom.html'];
+    let pageName = pages.find(page => path.endsWith(page));
+    
+    if (!pageName) {
+        pageName = path === '/' ? 'index.html' : path.split('/').pop() + '.html';
+    }
+    
+    return pageName;
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('DOM fully loaded and ready to clap alien cheeks');
+    console.log('DOM fully loaded and parsed');
 
     try {
         const response = await fetch('/api/checkAuth');
@@ -285,9 +319,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     setActiveNavItem();
-
     setupMobileMenu();
-    console.log('Mobile menu setup completed');
 
     const searchButton2 = document.getElementById('search-button2');
     const searchInput2 = document.getElementById('search-input2');
@@ -302,7 +334,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 });
 
-// Function to handle smooth scrolling
 function smoothScroll(target) {
     const element = document.querySelector(target);
     if (element) {
@@ -313,7 +344,6 @@ function smoothScroll(target) {
     }
 }
 
-// Set up smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function(e) {
         e.preventDefault();
@@ -339,7 +369,15 @@ window.addEventListener('resize', function() {
 });
 
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    console.log('DOM already complete, calling setupMobileMenu immediately and preparing to find the snake :)');
+    console.log('DOM already complete, calling setupMobileMenu immediately');
     setupMobileMenu();
     setActiveNavItem();
+}
+
+function performGameSearch() {
+    console.log('Game search functionality not implemented yet.');
+}
+
+function updateDemoList() {
+    console.log('Game demos are currently non-functioning and are just placeholders.');
 }

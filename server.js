@@ -248,69 +248,64 @@ app.delete('/api/demo/:demoId', authenticateToken, async (req, res) => {
   }
 });
 
-// Update about page content (protected route)
-app.put('/api/about', authenticateToken, async (req, res) => {
-  try {
-    const { heading, content } = req.body;
-
-    // Read the existing about.html file
-    const aboutFilePath = path.join(__dirname, 'public', 'about.html');
-    let aboutContent = await fsPromises.readFile(aboutFilePath, 'utf8');
-
-    // Update the heading
-    aboutContent = aboutContent.replace(/<h2 id="welcome-to-defcon-expanded"[^>]*>.*?<\/h2>/s, `<h2 id="welcome-to-defcon-expanded">${heading}</h2>`);
-
-    // Update the content
-    aboutContent = aboutContent.replace(/<p>.*?<\/p>/s, `<p>${content}</p>`);
-
-    // Write the updated content back to the file
-    await fsPromises.writeFile(aboutFilePath, aboutContent, 'utf8');
-
-    res.json({ message: 'About page updated successfully' });
-  } catch (error) {
-    console.error('Error updating about page:', error);
-    res.status(500).json({ error: 'Unable to update about page' });
-  }
-});
-
-// New route to update content (protected route)
+// Update content (protected route)
 app.post('/api/updateContent', authenticateToken, async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   try {
-    const { cardIndex, content } = req.body;
-    const aboutFilePath = path.join(__dirname, 'public', 'about.html');
-    let aboutContent = await fsPromises.readFile(aboutFilePath, 'utf8');
+    const { cardIndex, content, pageName } = req.body;
+    const filePath = path.join(__dirname, 'public', pageName);
+    
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Page not found' });
+    }
 
-    // Parse the HTML content
-    const dom = new JSDOM(aboutContent);
+    let pageContent = await fsPromises.readFile(filePath, 'utf8');
+    const dom = new JSDOM(pageContent);
     const document = dom.window.document;
 
-    // Find the card and update its content
-    const cards = document.querySelectorAll('.card');
+    const cards = document.querySelectorAll('.card, .cardcredits');
     if (cardIndex < cards.length) {
       const card = cards[cardIndex];
       
-      // Clear existing content
-      card.innerHTML = '';
+      // Preserve media block if it exists
+      const existingMediaBlock = card.querySelector('.media-block');
+      
+      // Clear existing content except media block
+      Array.from(card.childNodes).forEach(child => {
+        if (!child.classList || !child.classList.contains('media-block')) {
+          child.remove();
+        }
+      });
 
       // Add new content
       Object.entries(content).forEach(([key, value]) => {
+        if (key === 'media_block' && existingMediaBlock) {
+          // Keep existing media block
+          return;
+        }
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = value.outerHTML;
+        if (value.isHTML || value.isLink) {
+          tempDiv.innerHTML = value.outerHTML;
+        } else {
+          tempDiv.textContent = value.text;
+        }
         const newElement = tempDiv.firstChild;
-        newElement.textContent = value.text;
-        if (newElement.tagName.toLowerCase() === 'a' && value.href) {
+        if (value.isLink && value.href) {
           newElement.setAttribute('href', value.href);
         }
         card.appendChild(newElement);
       });
 
-      // Save the updated content
-      aboutContent = dom.serialize();
-      await fsPromises.writeFile(aboutFilePath, aboutContent, 'utf8');
+      // Ensure media block is at the end of the card
+      if (existingMediaBlock) {
+        card.appendChild(existingMediaBlock);
+      }
+
+      pageContent = dom.serialize();
+      await fsPromises.writeFile(filePath, pageContent, 'utf8');
       res.json({ message: 'Content updated successfully' });
     } else {
       res.status(400).json({ error: 'Card not found' });
