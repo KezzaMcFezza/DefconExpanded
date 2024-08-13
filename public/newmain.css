@@ -477,20 +477,17 @@ li {
 }
 
 .btn-download:hover {
-    opacity: 0.95;
-    transform: translateY(-2px);
+    background-color: #3a8ad6;
     cursor: pointer;
 }
 
 .btn-matchroom:hover {
-    opacity: 0.95;
-    transform: translateY(-2px);
+    background-color: #3a8ad6;
     cursor: pointer;
 }
 
 .btn-delete:hover {
-    opacity: 0.95;
-    transform: translateY(-2px);
+    background-color: #3a8ad6;
     cursor: pointer;
 }
 
@@ -511,7 +508,7 @@ li {
 }
 
 .pagination button:hover {
-    background-color: #4da6ff;
+    background-color: #3a8ad6;
 }
 
 #sidebar {
@@ -842,13 +839,13 @@ a {
 }
 
 .close:hover {
-    color: #4da6ff;
+    background-color: #3a8ad6;
     text-decoration: none;
     cursor: pointer;
 }
 
 .close:focus {
-    color: #4da6ff;
+    background-color: #3a8ad6;
     text-decoration: none;
     cursor: pointer;
 }
@@ -885,8 +882,8 @@ a {
 }
 
 #logout-container button {
-    width: 30%;
-    margin: 5px 15px 5px;
+    width: 35%;
+    margin: 5px 75px 5px;
     background-color: #0067b8;
     padding: 5px;
     border-radius: 4px;
@@ -901,6 +898,50 @@ a {
 
 #logout-container button:hover {
     background-color: #3a8ad6;
+}
+
+.btn-choose-file {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    display: inline-grid;
+    text-decoration: none;
+    border: 0;
+    transition: all 0.3s ease;
+    text-align: center;
+    justify-content: center;
+    font-weight: bold;
+    flex: 1;
+    background-color: #0067b8;
+    color: #fff;
+    margin-left: 9px;
+}
+
+.btn-upload {
+    padding: 0.65rem 0.7rem;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    display: inline-grid;
+    text-decoration: none;
+    border: 0;
+    transition: all 0.3s ease;
+    text-align: center;
+    justify-content: center;
+    font-weight: bold;
+    flex: 1;
+    background-color: #0067b8;
+    color: #fff;
+    margin-left: 9px;
+}
+
+.btn-choose-file:hover {
+    background-color: #3a8ad6;
+    cursor: pointer;
+}
+
+.btn-upload:hover {
+    background-color: #3a8ad6;
+    cursor: pointer;
 }
 
 .btn-delete {
@@ -972,20 +1013,17 @@ a {
 }
 
 .save-button:hover {
-    opacity: 0.95;
-    transform: translateY(-2px);
+    background-color: #3a8ad6;
     cursor: pointer;
 }
 
 .edit-button:hover {
-    opacity: 0.95;
-    transform: translateY(-2px);
+    background-color: #3a8ad6;
     cursor: pointer;
 }
 
 .cancel-button:hover {
-    opacity: 0.95;
-    transform: translateY(-2px);
+    background-color: #3a8ad6;
     cursor: pointer;
 }
 
@@ -1023,7 +1061,7 @@ mark {
 #upload-resource-form label.choose-file {
     background-color: #0067b8;
     color: #fff;
-    padding: 0.3rem 0.8rem;
+    padding: 0.42rem 0.8rem;
     border-radius: 5px;
     cursor: pointer;
     font-size: 13px;
@@ -1032,7 +1070,8 @@ mark {
 }
 
 #upload-resource-form label.choose-file:hover {
-    background-color: #005aa3;
+    background-color: #3a8ad6;
+
 }
 
 #upload-resource-form input[type="text"],
@@ -1048,14 +1087,14 @@ mark {
     background-color: #0067b8;
     color: #fff;
     border: none;
-    padding: 0.5rem 1rem;
+    padding: 0.62rem 1rem;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
 
 #upload-resource-form button.btn-upload:hover {
-    background-color: #005aa3;
+    background-color: #3a8ad6;
 }
 
 .headerresourcesupload {
