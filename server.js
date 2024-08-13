@@ -21,11 +21,12 @@ const dbConfig = {
 };
 
 const demoDir = path.join(__dirname, 'demos');
+const resourcesDir = path.join(__dirname, 'public', 'Files');  // Updated path
 const uploadDir = path.join(__dirname, 'public');
-const upload = multer({ dest: demoDir });
+const upload = multer({ dest: uploadDir });
 
 // Ensure directories exist
-[demoDir, uploadDir].forEach(dir => {
+[demoDir, resourcesDir, uploadDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -35,13 +36,13 @@ const upload = multer({ dest: demoDir });
 const pool = mysql.createPool(dbConfig);
 
 // Watch for new demo files
-console.log(`Watching directory: ${demoDir}`);
-const watcher = chokidar.watch(`${demoDir}/*.dcrec`, {
+console.log(`Watching demo directory: ${demoDir}`);
+const demoWatcher = chokidar.watch(`${demoDir}/*.dcrec`, {
   ignored: /(^|[\/\\])\../,
   persistent: true
 });
 
-watcher
+demoWatcher
   .on('add', async (path) => {
     console.log(`New demo detected: ${path}`);
     const fileName = path.split('\\').pop();
@@ -65,9 +66,42 @@ watcher
       console.error(`Error adding demo to database: ${error}`);
     }
   })
-  .on('error', error => console.error(`Watcher error: ${error}`));
+  .on('error', error => console.error(`Demo watcher error: ${error}`));
+  
+// Watch for new resource files
+console.log(`Watching resources directory: ${resourcesDir}`);
+const resourceWatcher = chokidar.watch(`${resourcesDir}/*.zip`, {
+  ignored: /(^|[\/\\])\../,
+  persistent: true
+});
 
-console.log('File watcher set up.');
+resourceWatcher
+  .on('add', async (path) => {
+    console.log(`New resource detected: ${path}`);
+    const fileName = path.split('\\').pop();
+    const stats = fs.statSync(path);
+    
+    try {
+      // Check if a resource with the same name already exists
+      const [rows] = await pool.query('SELECT * FROM resources WHERE name = ?', [fileName]);
+      if (rows.length > 0) {
+        console.log(`Resource ${fileName} already exists in the database. Skipping upload.`);
+        return;
+      }
+
+      // If the resource doesn't exist, insert it into the database
+      const [result] = await pool.query(
+        'INSERT INTO resources (name, size, date, version) VALUES (?, ?, ?, ?)',
+        [fileName, stats.size, new Date(), '1.0.0'] // Default version
+      );
+      console.log(`Resource ${fileName} added to database`);
+    } catch (error) {
+      console.error(`Error adding resource to database: ${error}`);
+    }
+  })
+  .on('error', error => console.error(`Resource watcher error: ${error}`));
+
+console.log('File watchers set up.');
 
 // Middleware
 app.use(express.static('public'));
@@ -338,6 +372,78 @@ app.post('/api/updateContent', authenticateToken, async (req, res) => {
   }
 });
 
+// New routes for resources
+app.get('/api/resources', async (req, res) => {
+  try {
+    const [resources] = await pool.query('SELECT * FROM resources ORDER BY date DESC');
+    res.json(resources);
+  } catch (error) {
+    console.error('Error fetching resources:', error);
+    res.status(500).json({ error: 'Unable to fetch resources' });
+  }
+});
+
+app.post('/api/upload-resource', authenticateToken, upload.single('resourceFile'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  try {
+    const originalName = req.file.originalname;
+    const filePath = path.join(resourcesDir, originalName);
+    const { version, releaseDate } = req.body;
+
+    // Move the uploaded file to the resources directory
+    fs.renameSync(req.file.path, filePath);
+
+    const stats = fs.statSync(filePath);
+
+    const [result] = await pool.query(
+      'INSERT INTO resources (name, size, date, version) VALUES (?, ?, ?, ?)',
+      [originalName, stats.size, releaseDate || new Date(), version || '1.0.0']
+    );
+
+    res.json({ message: 'Resource uploaded successfully', resourceName: originalName });
+  } catch (error) {
+    console.error('Error uploading resource:', error);
+    res.status(500).json({ error: 'Unable to upload resource' });
+  }
+});
+
+app.delete('/api/resource/:resourceId', authenticateToken, async (req, res) => {
+  try {
+    const [result] = await pool.query('DELETE FROM resources WHERE id = ?', [req.params.resourceId]);
+    if (result.affectedRows === 0) {
+      res.status(404).json({ error: 'Resource not found' });
+    } else {
+      res.json({ message: 'Resource deleted successfully' });
+    }
+  } catch (error) {
+    console.error('Error deleting resource:', error);
+    res.status(500).json({ error: 'Unable to delete resource' });
+  }
+});
+
+// Download a resource
+app.get('/api/download-resource/:resourceName', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM resources WHERE name = ?', [req.params.resourceName]);
+    if (rows.length === 0) {
+      res.status(404).send('Resource not found');
+    } else {
+      const resourcePath = path.join(resourcesDir, rows[0].name);
+      res.download(resourcePath, (err) => {
+        if (err) {
+          res.status(404).send('Resource file not found');
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Error downloading resource:', error);
+    res.status(500).send('Error downloading resource');
+  }
+});
+
 // Serve additional HTML pages
 app.get('/about', checkAuthToken, (req, res) => sendHtml(res, 'about.html'));
 app.get('/news', checkAuthToken, (req, res) => sendHtml(res, 'news.html'));
@@ -366,6 +472,13 @@ app.use((req, res, next) => {
   res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+// Start the server
 app.listen(port, () => {
   console.log(`Octocon Demo Server Listening at http://localhost:${port}`);
 });

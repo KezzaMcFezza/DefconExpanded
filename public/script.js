@@ -1,6 +1,6 @@
 // Global variables
 let soundVolume = 0.1;
-let isAdmin = false;
+window.isAdmin = false; 
 
 function setActiveNavItem() {
     const currentPath = window.location.pathname;
@@ -91,19 +91,48 @@ async function login(username, password) {
         });
         const data = await response.json();
         if (response.ok) {
-            isAdmin = true;
+            window.isAdmin = true;
+            console.log('Logged in, isAdmin set to:', window.isAdmin);
             alert('Logged in successfully');
             document.getElementById('login-container').remove();
             showLogoutButton();
             showUploadForm();
             updateDemoList();
             makeContentEditable();
+            // Force update of resources if on resources page
+            if (typeof updateResourceList === 'function') {
+                updateResourceList();
+            }
         } else {
             alert(data.error || 'Login failed');
         }
     } catch (error) {
         console.error('Login error:', error);
         alert('An error occurred during login');
+    }
+}
+
+async function logout() {
+    try {
+        const response = await fetch('/api/logout', { method: 'POST' });
+        if (response.ok) {
+            window.isAdmin = false;
+            console.log('Logged out, isAdmin set to:', window.isAdmin);
+            alert('Logged out successfully');
+            document.getElementById('logout-container').remove();
+            showLoginForm();
+            hideUploadForm();
+            updateDemoList();
+            removeEditability();
+            // Force update of resources if on resources page
+            if (typeof updateResourceList === 'function') {
+                updateResourceList();
+            }
+        } else {
+            alert('Logout failed');
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
     }
 }
 
@@ -128,25 +157,6 @@ function showLogoutButton() {
     } else {
         console.error('Could not find proper position for logout button');
         sidebar.appendChild(logoutContainer);
-    }
-}
-
-async function logout() {
-    try {
-        const response = await fetch('/api/logout', { method: 'POST' });
-        if (response.ok) {
-            isAdmin = false;
-            alert('Logged out successfully');
-            document.getElementById('logout-container').remove();
-            showLoginForm();
-            hideUploadForm();
-            updateDemoList();
-            removeEditability();
-        } else {
-            alert('Logout failed');
-        }
-    } catch (error) {
-        console.error('Logout error:', error);
     }
 }
 

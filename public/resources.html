@@ -35,6 +35,7 @@
     <link rel="stylesheet" type="text/css" href="/plyr.css" />
     <script src="https://defconexpanded.com/plyr.js"></script>
     <script src="/script.js" defer></script>
+    <script src="/resources.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
     <script type="application/ld+json">
@@ -54,7 +55,7 @@
             "cssSelector": ".resources-container"
           }
         }
-        </script>
+    </script>
 </head>
 <body class="hide-scrollbar">
     <div class="container">
@@ -77,213 +78,30 @@
         </div>
         <main>
             <h2 class="headerresources2">Recent Builds and Version History</h2>
-        <div class="content">
-            <p class="pabout">If you get a virus detected popup and your browser refuses to let you download any of these files, turn off Windows Defender or any other 
-                anti-virus software as these modded builds aren't signed. <mark><a class="alinks" href="https://youtu.be/J5nbZtPTP4Q" target="_blank">Installation tutorial</a></p></mark>
-            <div class="resources-container">
-                <div class="download-section-recent">
-                    <h2 class="headerresources2">Recent Builds</h2>
-                    <h2 class="card-title-download">8 PLAYER BUILD</h2>
-                    <div class="tutorial-download-container">
-                        <table class="version-history-table">
-                            <thead>
-                                <tr>
-                                    <th>Version</th>
-                                    <th>Release Date</th>
-                                    <th>Download Link</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class ="td2">2.8.9</td>
-                                    <td>Latest Version - 11/08/2024</td>
-                                    <td><a href="/files/DEFCON 8 Players Alpha v2.8.9.zip" class="btn-download foo">Download</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
+            <div class="content">
+                <p class="pabout">If you get a virus detected popup and your browser refuses to let you download any of these files, turn off Windows Defender or any other 
+                    anti-virus software as these modded builds aren't signed. <mark><a class="alinks" href="https://youtu.be/J5nbZtPTP4Q" target="_blank">Installation tutorial</a></mark></p>
+                    <div id="admin-upload" style="display: none;">
+                        <h3 class="headerresourcesupload">Upload New Resource</h3>
+                        <form id="upload-resource-form">
+                            <input type="file" name="resourceFile" required>
+                            <input type="text" name="version" placeholder="Version (e.g., 2.8.10)" required>
+                            <input type="date" name="releaseDate" required>
+                            <button type="submit" class="btn-upload foo">Upload</button>
+                        </form>
                     </div>
-                    <h2 class="card-title-download">10 PLAYER BUILD</h2>
-                    <div class="tutorial-download-container">
-                        <table class="version-history-table">
-                            <thead>
-                                <tr>
-                                    <th>Version</th>
-                                    <th>Release Date</th>
-                                    <th>Download Link</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class ="td2">2.10.9</td>
-                                    <td>Latest Version - 11/08/2024</td>
-                                    <td><a href="/files/DEFCON 10 Players Alpha v2.10.9.zip" class="btn-download foo">Download</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="resources-container">
+                    <div class="download-section-recent">
+                        <!-- Recent builds will be dynamically inserted here -->
                     </div>
-                    <h2 class="card-title-download">16 PLAYER BUILD</h2>
-                    <div class="tutorial-download-container">
-                        <table class="version-history-table">
-                            <thead>
-                                <tr>
-                                    <th>Version</th>
-                                    <th>Release Date</th>
-                                    <th>Download Link</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class ="td2">2.16.9</td>
-                                    <td>Latest Version - 11/08/2024</td>
-                                    <td><a href="/files/DEFCON 16 Players Alpha v2.16.9.zip" class="btn-download foo">Download</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="download-section">
-                    <h2 class="headerresources2">Version History</h2>
-                    <h2 class="card-title-download">8 PLAYER BUILD</h2>
-                    <div class="tutorial-download-container">
-                        <table class="version-history-table">
-                            <thead>
-                                <tr>
-                                    <th>Version</th>
-                                    <th>Release Date</th>
-                                    <th>Download Link</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class ="td2">2.8.9</td>
-                                    <td>Latest Version - 11/08/2024</td>
-                                    <td><a href="/files/DEFCON 8 Players Alpha v2.8.9.zip" class="btn-download foo">Download</a></td>
-                                </tr>
-                                <tr>
-                                    <td class ="td2">2.8.8</td>
-                                    <td>04/08/2024</td>
-                                    <td><a href="/files/DEFCON 8 Players Alpha v2.8.8.zip" class="btn-download foo">Download</a></td>
-                                </tr>
-                                <tr>
-                                    <td class ="td2">2.8.7</td>
-                                    <td>27/07/2024</td>
-                                    <td><a href="/files/DEFCON 8 Players Alpha v2.8.7.zip" class="btn-download foo">Download</a></td>
-                                </tr>
-                                <tr>
-                                    <td class ="td2">2.8.6</td>
-                                    <td>26/07/2024</td>
-                                    <td><a href="/files/DEFCON 8 Players Alpha v2.8.6.zip" class="btn-download foo">Download</a></td>
-                                </tr>
-                                <tr>
-                                    <td class ="td2">2.8.3</td>
-                                    <td>21/07/2024</td>
-                                    <td><a href="/files/DEFCON 8 Players Prerelease v2.8.3.zip" class="btn-download foo">Download</a></td>
-                                </tr>
-                                <tr>
-                                    <td class ="td2">2.8.2</td>
-                                    <td>16/07/2024</td>
-                                    <td><a href="/files/DEFCON 8 Players Prerelease v2.8.2.zip" class="btn-download foo">Download</a></td>
-                                </tr>
-                                <tr>
-                                    <td class ="td2">2.8.1</td>
-                                    <td>09/07/2024</td>
-                                    <td><a href="/files/DEFCON 8 Players Prerelease v2.8.1.zip" class="btn-download foo">Download</a></td>
-                                </tr>
-                                <tr>
-                                    <td class ="td2">2.8.0</td>
-                                    <td>First Release - 01/07/2024</td>
-                                    <td><a href="/files/DEFCON 8 Players Prerelease v2.8.0.zip" class="btn-download foo">Download</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <h2 class="card-title-download">10 PLAYER BUILD</h2>
-                        <div class="tutorial-download-container">
-                            <table class="version-history-table">
-                                <thead>
-                                    <tr>
-                                        <th>Version</th>
-                                        <th>Release Date</th>
-                                        <th>Download Link</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class ="td2">2.10.9</td>
-                                        <td>Latest Version -
-                                            11/08/2024
-                                        </td>
-                                        <td><a href="/files/DEFCON 10 Players Alpha v2.10.9.zip" class="btn-download foo">Download</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class ="td2">2.10.5</td>
-                                        <td>27/07/2024</td>
-                                        <td><a href="/files/DEFCON 10 Players Alpha v2.10.5.zip" class="btn-download foo">Download</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class ="td2">2.10.4</td>
-                                        <td>26/07/2024</td>
-                                        <td><a href="/files/DEFCON 10 Players Alpha v2.10.4.zip" class="btn-download foo">Download</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class ="td2">2.10.1</td>
-                                        <td>16/07/2024</td>
-                                        <td><a href="/files/DEFCON 10 Players Prerelease v2.10.1.zip" class="btn-download foo">Download</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class ="td2">2.10.0</td>
-                                        <td>First Release - 
-                                            14/07/2024
-                                        </td>
-                                        <td><a href="/files/DEFCON 10 Players Prerelease v2.10.0.zip" class="btn-download foo">Download</a></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <h2 class="card-title-download">16 PLAYER BUILD</h2>
-                        <div class="tutorial-download-container">
-                            <table class="version-history-table">
-                                <thead>
-                                    <tr>
-                                        <th>Version</th>
-                                        <th>Release Date</th>
-                                        <th>Download Link</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class ="td2">2.16.9</td>
-                                        <td>Latest Version - 
-                                            11/08/2024
-                                        </td>
-                                        <td><a href="/files/DEFCON 16 Players Alpha v2.16.9.zip" class="btn-download foo">Download</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class ="td2">2.16.4</td>
-                                        <td>27/07/2024</td>
-                                        <td><a href="/files/DEFCON 16 Players Alpha v2.16.4.zip" class="btn-download foo">Download</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class ="td2">2.16.3</td>
-                                        <td>26/07/2024</td>
-                                        <td><a href="/files/DEFCON 10 Players Alpha v2.16.3.zip" class="btn-download foo">Download</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td class ="td2">2.16.0</td>
-                                        <td>First Release - 
-                                            25/07/2024
-                                        </td>
-                                        <td><a href="/files/DEFCON 16 Players Prerelease v2.16.0.zip" class="btn-download foo">Download</a></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="download-section">
+                        <!-- Version history will be dynamically inserted here -->
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
-</main>
-                  
+    
     <!-- The Modal -->
     <div id="myModal" class="modal">
         <span class="close" onclick="closeModal()">&times;</span>
