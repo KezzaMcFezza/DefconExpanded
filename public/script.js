@@ -160,13 +160,15 @@ function showLogoutButton() {
     }
 }
 
+// ... (previous code remains the same)
+
 function makeContentEditable() {
     if (!isAdmin) return;
 
     const cards = document.querySelectorAll('.card, .cardcredits');
     cards.forEach((card, index) => {
         // Remove existing buttons to avoid duplication
-        const existingButtons = card.querySelectorAll('.edit-button, .save-button, .cancel-button');
+        const existingButtons = card.querySelectorAll('.edit-button, .save-button, .cancel-button, .add-paragraph-button, .remove-paragraph-button');
         existingButtons.forEach(button => button.remove());
 
         const editButton = document.createElement('button');
@@ -189,6 +191,20 @@ function makeContentEditable() {
         cancelButton.onclick = () => cancelEdit(card);
         card.insertBefore(cancelButton, saveButton.nextSibling);
 
+        const addParagraphButton = document.createElement('button');
+        addParagraphButton.textContent = 'Add Paragraph';
+        addParagraphButton.className = 'add-paragraph-button';
+        addParagraphButton.style.display = 'none';
+        addParagraphButton.onclick = () => addParagraph(card);
+        card.insertBefore(addParagraphButton, cancelButton.nextSibling);
+
+        const removeParagraphButton = document.createElement('button');
+        removeParagraphButton.textContent = 'Remove Paragraph';
+        removeParagraphButton.className = 'remove-paragraph-button';
+        removeParagraphButton.style.display = 'none';
+        removeParagraphButton.onclick = () => removeParagraph(card);
+        card.insertBefore(removeParagraphButton, addParagraphButton.nextSibling);
+
         const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
         elements.forEach(el => {
             el.contentEditable = 'false';
@@ -203,6 +219,8 @@ function toggleEditMode(card, index) {
     const editButton = card.querySelector('.edit-button');
     const saveButton = card.querySelector('.save-button');
     const cancelButton = card.querySelector('.cancel-button');
+    const addParagraphButton = card.querySelector('.add-paragraph-button');
+    const removeParagraphButton = card.querySelector('.remove-paragraph-button');
     const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
 
     if (editButton.style.display !== 'none') {
@@ -210,12 +228,46 @@ function toggleEditMode(card, index) {
         editButton.style.display = 'none';
         saveButton.style.display = 'inline-block';
         cancelButton.style.display = 'inline-block';
+        addParagraphButton.style.display = 'inline-block';
+        removeParagraphButton.style.display = 'inline-block';
         elements.forEach(el => {
             el.contentEditable = 'true';
             el.classList.add('editable');
         });
     }
 }
+
+function addParagraph(card) {
+    const newParagraph = document.createElement('p');
+    newParagraph.textContent = 'New paragraph';
+    newParagraph.contentEditable = 'true';
+    newParagraph.classList.add('editable');
+    
+    // Find the last paragraph or text content in the card
+    const lastTextElement = Array.from(card.children).reverse().find(el => 
+        el.tagName === 'P' || (el.textContent && el.textContent.trim() !== '')
+    );
+
+    if (lastTextElement) {
+        lastTextElement.after(newParagraph);
+    } else {
+        card.appendChild(newParagraph);
+    }
+
+    // Focus on the new paragraph
+    newParagraph.focus();
+}
+
+function removeParagraph(card) {
+    const paragraphs = card.querySelectorAll('p');
+    if (paragraphs.length > 1) {
+        const lastParagraph = paragraphs[paragraphs.length - 1];
+        lastParagraph.remove();
+    } else {
+        alert('Cannot remove the last paragraph.');
+    }
+}
+
 
 function cancelEdit(card) {
     const editButton = card.querySelector('.edit-button');
