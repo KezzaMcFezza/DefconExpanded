@@ -95,6 +95,7 @@ async function login(username, password) {
             alert('Logged in successfully');
             document.getElementById('login-container').remove();
             showLogoutButton();
+            showUploadForm();
             updateDemoList();
             makeContentEditable();
         } else {
@@ -138,6 +139,7 @@ async function logout() {
             alert('Logged out successfully');
             document.getElementById('logout-container').remove();
             showLoginForm();
+            hideUploadForm();
             updateDemoList();
             removeEditability();
         } else {
@@ -297,6 +299,55 @@ function getPageName() {
     return pageName;
 }
 
+function showUploadForm() {
+    const adminUpload = document.getElementById('admin-upload');
+    if (adminUpload) {
+        adminUpload.style.display = isAdmin ? 'block' : 'none';
+    }
+}
+
+function hideUploadForm() {
+    const adminUpload = document.getElementById('admin-upload');
+    if (adminUpload) {
+        adminUpload.style.display = 'none';
+    }
+}
+
+async function uploadDemo(event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    try {
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            alert('Demo uploaded successfully');
+            form.reset();
+            addDemoToList(data.demoName); // Add the new demo to the list
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Failed to upload demo');
+        }
+    } catch (error) {
+        console.error('Error uploading demo:', error);
+        alert('An error occurred while uploading demo');
+    }
+}
+
+function addDemoToList(demoName) {
+    const demoContainer = document.getElementById('demo-container');
+    if (demoContainer) {
+        const demoCard = createDemoCard({ name: demoName, date: new Date() });
+        demoContainer.insertBefore(demoCard, demoContainer.firstChild);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('DOM fully loaded and parsed');
 
@@ -306,15 +357,18 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (data.isAdmin) {
             isAdmin = true;
             showLogoutButton();
+            showUploadForm();
             makeContentEditable();
         } else {
             isAdmin = false;
             showLoginForm();
+            hideUploadForm();
             removeEditability();
         }
     } catch (error) {
         console.error('Error checking authentication:', error);
         showLoginForm();
+        hideUploadForm();
         removeEditability();
     }
 
@@ -331,6 +385,11 @@ document.addEventListener('DOMContentLoaded', async function() {
                 performGameSearch();
             }
         });
+    }
+
+    const uploadForm = document.getElementById('upload-form');
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', uploadDemo);
     }
 });
 

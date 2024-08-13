@@ -7,6 +7,8 @@ const chokidar = require('chokidar');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const { JSDOM } = require('jsdom');
+const multer = require('multer');
+const uploadedDemos = new Set();
 
 const app = express();
 const port = 3000;
@@ -14,12 +16,13 @@ const port = 3000;
 const dbConfig = {
   host: 'localhost',
   user: 'root',
-  password: 'cca3d38e2b', // Make sure to set your actual MySQL password here
+  password: 'cca3d38e2b',
   database: 'defcon_demos'
 };
 
 const demoDir = path.join(__dirname, 'demos');
-const uploadDir = path.join(__dirname, 'public', 'uploads');
+const uploadDir = path.join(__dirname, 'public');
+const upload = multer({ dest: demoDir });
 
 // Ensure directories exist
 [demoDir, uploadDir].forEach(dir => {
@@ -33,7 +36,7 @@ const pool = mysql.createPool(dbConfig);
 
 // Watch for new demo files
 console.log(`Watching directory: ${demoDir}`);
-const watcher = chokidar.watch(demoDir, {
+const watcher = chokidar.watch(`${demoDir}/*.dcrec`, {
   ignored: /(^|[\/\\])\../,
   persistent: true
 });
@@ -58,14 +61,6 @@ watcher
         [fileName, stats.size, new Date()]
       );
       console.log(`Demo ${fileName} added to database`);
-      
-      fs.copyFile(path, `${uploadDir}/${fileName}`, err => {
-        if (err) {
-          console.error(`Error copying file: ${err}`);
-        } else {
-          console.log(`${fileName} was copied to uploads`);
-        }
-      });
     } catch (error) {
       console.error(`Error adding demo to database: ${error}`);
     }
@@ -150,9 +145,9 @@ app.post('/api/login', async (req, res) => {
     const [rows] = await pool.query('SELECT * FROM admin_users WHERE username = ?', [username]);
     if (rows.length > 0) {
       const user = rows[0];
-      if (password === user.password) { // Plain text comparison
-        const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1d' }); // Set expiration to 1 day
-        res.cookie('token', token, { httpOnly: true, maxAge: 86400000 }); // Set cookie expiration to 1 day (86400000 ms)
+      if (password === user.password) {
+        const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1d' });
+        res.cookie('token', token, { httpOnly: true, maxAge: 86400000 });
         res.json({ message: 'Logged in successfully' });
       } else {
         res.status(400).json({ error: 'Invalid credentials' });
@@ -199,7 +194,7 @@ app.get('/api/demos', async (req, res) => {
       GROUP BY d.id
       ORDER BY d.date DESC
     `);
-    
+
     // Parse the usernames string into an array
     demos.forEach(demo => {
       demo.users = demo.usernames ? demo.usernames.split(',') : [];
@@ -233,6 +228,33 @@ app.get('/api/download/:demoName', async (req, res) => {
   }
 });
 
+// Upload a demo (protected route)
+app.post('/api/upload', authenticateToken, upload.single('demoFile'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  try {
+    const originalName = req.file.originalname;
+    const filePath = path.join(demoDir, originalName);
+
+    // Move the uploaded file to the demos directory
+    fs.renameSync(req.file.path, filePath);
+
+    const stats = fs.statSync(filePath);
+
+    const [result] = await pool.query(
+      'INSERT INTO demos (name, size, date) VALUES (?, ?, ?)',
+      [originalName, stats.size, new Date()]
+    );
+
+    res.json({ message: 'Demo uploaded successfully', demoName: originalName });
+  } catch (error) {
+    console.error('Error uploading demo:', error);
+    res.status(500).json({ error: 'Unable to upload demo' });
+  }
+});
+
 // Delete a demo (protected route)
 app.delete('/api/demo/:demoId', authenticateToken, async (req, res) => {
   try {
@@ -257,7 +279,7 @@ app.post('/api/updateContent', authenticateToken, async (req, res) => {
   try {
     const { cardIndex, content, pageName } = req.body;
     const filePath = path.join(__dirname, 'public', pageName);
-    
+
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: 'Page not found' });
     }
@@ -269,10 +291,10 @@ app.post('/api/updateContent', authenticateToken, async (req, res) => {
     const cards = document.querySelectorAll('.card, .cardcredits');
     if (cardIndex < cards.length) {
       const card = cards[cardIndex];
-      
+
       // Preserve media block if it exists
       const existingMediaBlock = card.querySelector('.media-block');
-      
+
       // Clear existing content except media block
       Array.from(card.childNodes).forEach(child => {
         if (!child.classList || !child.classList.contains('media-block')) {

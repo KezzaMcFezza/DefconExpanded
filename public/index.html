@@ -101,6 +101,15 @@
                     <input type="text" id="search-input2" placeholder="Search for Games and Players...">
                     <button id="search-button2">Search</button>
                 </div>
+                <div id="admin-upload" style="display: none;">
+                  <h3 class="headerresourcesupload">Upload New Demo</h3>
+                  <p class="admin-p"></p>
+                  <form id="upload-form" enctype="multipart/form-data">
+                    <input type="file" name="demoFile" id="demoFile" accept=".dcrec" required>
+                    <label for="demoFile" class="btn-download foo">Choose File</label>
+                    <button class="btn-download foo" type="submit">Upload</button>
+                  </form>
+                </div>
                 
                 <div id="demo-container" class="demo-container">
                 </div>
