@@ -93,16 +93,9 @@ async function login(username, password) {
         if (response.ok) {
             window.isAdmin = true;
             console.log('Logged in, isAdmin set to:', window.isAdmin);
-            alert('Logged in successfully');
-            document.getElementById('login-container').remove();
-            showLogoutButton();
-            showUploadForm();
-            updateDemoList();
-            makeContentEditable();
-            // Force update of resources if on resources page
-            if (typeof updateResourceList === 'function') {
-                updateResourceList();
-            }
+            alert('Logged in successfully. The page will now refresh.');
+            // Force a page refresh
+            window.location.reload();
         } else {
             alert(data.error || 'Login failed');
         }
@@ -160,15 +153,13 @@ function showLogoutButton() {
     }
 }
 
-// ... (previous code remains the same)
-
 function makeContentEditable() {
     if (!isAdmin) return;
 
     const cards = document.querySelectorAll('.card, .cardcredits');
     cards.forEach((card, index) => {
         // Remove existing buttons to avoid duplication
-        const existingButtons = card.querySelectorAll('.edit-button, .save-button, .cancel-button, .add-paragraph-button, .remove-paragraph-button');
+        const existingButtons = card.querySelectorAll('.edit-button, .save-button, .cancel-button, .formatting-toolbar');
         existingButtons.forEach(button => button.remove());
 
         const editButton = document.createElement('button');
@@ -191,26 +182,60 @@ function makeContentEditable() {
         cancelButton.onclick = () => cancelEdit(card);
         card.insertBefore(cancelButton, saveButton.nextSibling);
 
-        const addParagraphButton = document.createElement('button');
-        addParagraphButton.textContent = 'Add Paragraph';
-        addParagraphButton.className = 'add-paragraph-button';
-        addParagraphButton.style.display = 'none';
-        addParagraphButton.onclick = () => addParagraph(card);
-        card.insertBefore(addParagraphButton, cancelButton.nextSibling);
+        const formattingToolbar = createFormattingToolbar(card);
+        card.insertBefore(formattingToolbar, cancelButton.nextSibling);
 
-        const removeParagraphButton = document.createElement('button');
-        removeParagraphButton.textContent = 'Remove Paragraph';
-        removeParagraphButton.className = 'remove-paragraph-button';
-        removeParagraphButton.style.display = 'none';
-        removeParagraphButton.onclick = () => removeParagraph(card);
-        card.insertBefore(removeParagraphButton, addParagraphButton.nextSibling);
-
-        const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
+        const elements = card.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, li');
         elements.forEach(el => {
             el.contentEditable = 'false';
             el.classList.remove('editable');
         });
     });
+}
+
+function createFormattingToolbar(card) {
+    const toolbar = document.createElement('div');
+    toolbar.className = 'formatting-toolbar';
+    toolbar.style.display = 'none';
+
+    // Heading dropdown
+    const headingSelect = document.createElement('select');
+    headingSelect.innerHTML = `
+        <option value="h1">Heading 1</option>
+        <option value="h2" selected>Heading 2</option>
+        <option value="h3">Heading 3</option>
+        <option value="h4">Heading 4</option>
+        <option value="h5">Heading 5</option>
+        <option value="h6">Heading 6</option>
+    `;
+
+    // Color picker
+    const colorPicker = document.createElement('input');
+    colorPicker.type = 'color';
+    colorPicker.onchange = () => applyColor(card, colorPicker.value);
+
+    // Add paragraph button
+    const addParagraphButton = document.createElement('button');
+    addParagraphButton.textContent = 'Add Paragraph';
+    addParagraphButton.onclick = () => addParagraph(card);
+
+    // Add heading button
+    const addHeadingButton = document.createElement('button');
+    addHeadingButton.textContent = 'Add Heading';
+    addHeadingButton.onclick = () => addHeading(card, headingSelect.value);
+
+    // Remove paragraph button
+    const removeParagraphButton = document.createElement('button');
+    removeParagraphButton.textContent = 'Remove Paragraph';
+    removeParagraphButton.onclick = () => removeParagraph(card);
+
+    toolbar.appendChild(headingSelect);
+    toolbar.appendChild(colorPicker);
+    toolbar.appendChild(addParagraphButton);
+    toolbar.appendChild(addHeadingButton);
+    toolbar.appendChild(removeParagraphButton);
+
+    return toolbar;
 }
 
 function toggleEditMode(card, index) {
@@ -219,22 +244,45 @@ function toggleEditMode(card, index) {
     const editButton = card.querySelector('.edit-button');
     const saveButton = card.querySelector('.save-button');
     const cancelButton = card.querySelector('.cancel-button');
-    const addParagraphButton = card.querySelector('.add-paragraph-button');
-    const removeParagraphButton = card.querySelector('.remove-paragraph-button');
-    const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
+    const formattingToolbar = card.querySelector('.formatting-toolbar');
+    const elements = card.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, li');
 
     if (editButton.style.display !== 'none') {
         // Entering edit mode
         editButton.style.display = 'none';
         saveButton.style.display = 'inline-block';
         cancelButton.style.display = 'inline-block';
-        addParagraphButton.style.display = 'inline-block';
-        removeParagraphButton.style.display = 'inline-block';
+        formattingToolbar.style.display = 'block';
         elements.forEach(el => {
             el.contentEditable = 'true';
             el.classList.add('editable');
         });
     }
+}
+
+function addHeading(card, headingLevel) {
+    const newHeading = document.createElement(headingLevel);
+    newHeading.textContent = `New ${headingLevel.toUpperCase()}`;
+    newHeading.contentEditable = 'true';
+    newHeading.classList.add('editable');
+    
+    // Find the last paragraph or text content in the card
+    const lastTextElement = Array.from(card.children).reverse().find(el => 
+        ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(el.tagName) || (el.textContent && el.textContent.trim() !== '')
+    );
+
+    if (lastTextElement) {
+        lastTextElement.after(newHeading);
+    } else {
+        card.appendChild(newHeading);
+    }
+
+    // Focus on the new heading
+    newHeading.focus();
+}
+
+function applyColor(card, color) {
+    document.execCommand('foreColor', false, color);
 }
 
 function addParagraph(card) {
@@ -245,7 +293,7 @@ function addParagraph(card) {
     
     // Find the last paragraph or text content in the card
     const lastTextElement = Array.from(card.children).reverse().find(el => 
-        el.tagName === 'P' || (el.textContent && el.textContent.trim() !== '')
+        ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(el.tagName) || (el.textContent && el.textContent.trim() !== '')
     );
 
     if (lastTextElement) {
@@ -259,25 +307,26 @@ function addParagraph(card) {
 }
 
 function removeParagraph(card) {
-    const paragraphs = card.querySelectorAll('p');
+    const paragraphs = card.querySelectorAll('p, h1, h2, h3, h4, h5, h6');
     if (paragraphs.length > 1) {
         const lastParagraph = paragraphs[paragraphs.length - 1];
         lastParagraph.remove();
     } else {
-        alert('Cannot remove the last paragraph.');
+        alert('Cannot remove the last text element.');
     }
 }
-
 
 function cancelEdit(card) {
     const editButton = card.querySelector('.edit-button');
     const saveButton = card.querySelector('.save-button');
     const cancelButton = card.querySelector('.cancel-button');
-    const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
+    const formattingToolbar = card.querySelector('.formatting-toolbar');
+    const elements = card.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, li');
 
     editButton.style.display = 'inline-block';
     saveButton.style.display = 'none';
     cancelButton.style.display = 'none';
+    formattingToolbar.style.display = 'none';
     elements.forEach(el => {
         el.contentEditable = 'false';
         el.classList.remove('editable');
@@ -292,7 +341,7 @@ async function saveChanges(card, index) {
     const content = {};
     const pageName = getPageName();
 
-    // Collect all content, including nested elements
+    // Collect all content, including nested elements and inline styles
     card.childNodes.forEach((node, i) => {
         if (node.nodeType === Node.ELEMENT_NODE && !node.classList.contains('media-block') && !['button', 'script'].includes(node.tagName.toLowerCase())) {
             content[`element_${i}`] = {
@@ -338,10 +387,10 @@ async function saveChanges(card, index) {
 function removeEditability() {
     const cards = document.querySelectorAll('.card');
     cards.forEach(card => {
-        const buttons = card.querySelectorAll('.edit-button, .save-button, .cancel-button');
+        const buttons = card.querySelectorAll('.edit-button, .save-button, .cancel-button, .formatting-toolbar');
         buttons.forEach(button => button.remove());
 
-        const elements = card.querySelectorAll('h1, h2, h3, p, a, li');
+        const elements = card.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, li');
         elements.forEach(el => {
             el.contentEditable = 'false';
             el.classList.remove('editable');

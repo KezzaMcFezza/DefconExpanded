@@ -123,6 +123,16 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/api/getLayout', async (req, res) => {
+  try {
+    // For now, just return an empty layout
+    res.json({ rows: [] });
+  } catch (error) {
+    console.error('Error fetching layout:', error);
+    res.status(500).json({ error: 'Unable to fetch layout' });
+  }
+});
+
 // JWT secret key (change this to a secure random string in production!)
 const JWT_SECRET = 'your-secret-key';
 
@@ -301,6 +311,70 @@ app.delete('/api/demo/:demoId', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error deleting demo:', error);
     res.status(500).json({ error: 'Unable to delete demo' });
+  }
+});
+
+// Update layout route (protected)
+app.post('/api/updateLayout', authenticateToken, async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    const { layout, pageName } = req.body;
+    const filePath = path.join(__dirname, 'public', pageName);
+
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Page not found' });
+    }
+
+    let pageContent = await fsPromises.readFile(filePath, 'utf8');
+    const dom = new JSDOM(pageContent);
+    const document = dom.window.document;
+
+    // Find or create the main content container
+    let mainContent = document.querySelector('main');
+    if (!mainContent) {
+      mainContent = document.createElement('main');
+      document.body.appendChild(mainContent);
+    }
+
+    // Clear existing content in main
+    mainContent.innerHTML = '';
+
+    // Recreate the layout
+    layout.forEach(rowData => {
+      const row = document.createElement('div');
+      row.className = 'grid-row';
+      
+      rowData.columns.forEach(columnData => {
+        const column = document.createElement('div');
+        column.className = 'grid-column';
+        
+        columnData.cards.forEach(cardData => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = cardData.content;
+          card.style.width = cardData.style.width;
+          card.style.height = cardData.style.height;
+          column.appendChild(card);
+        });
+        
+        row.appendChild(column);
+      });
+      
+      mainContent.appendChild(row);
+    });
+
+    // Serialize the updated DOM back to HTML
+    pageContent = dom.serialize();
+
+    // Write the updated content back to the file
+    await fsPromises.writeFile(filePath, pageContent, 'utf8');
+    res.json({ message: 'Layout updated successfully' });
+  } catch (error) {
+    console.error('Error updating layout:', error);
+    res.status(500).json({ error: 'Unable to update layout' });
   }
 });
 
