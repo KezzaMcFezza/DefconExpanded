@@ -190,6 +190,14 @@ main {
     color: #b8b8b8;
 }
 
+.paboutprefix {
+    max-width: 800px;
+    margin: 1rem auto;
+    font-size: 16px;
+    text-align: center;
+    color: #b8b8b8;
+}
+
 .admin-p {
     font-size: 15px;
     margin: 10px;
@@ -356,26 +364,6 @@ li {
 .large {
     width: 200px;
     height: 200px;
-}
-
-.demo-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-.download-section:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-.download-section-recent:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
 .demo-card .time-info {
@@ -928,7 +916,6 @@ a {
     text-align: center;
     justify-content: center;
     font-weight: bold;
-    flex: 1;
     background-color: #0067b8;
     color: #fff;
     margin-left: 9px;
@@ -1063,6 +1050,7 @@ mark {
     color: #fff;
     padding: 0.42rem 0.8rem;
     border-radius: 5px;
+    font-weight: bold;
     cursor: pointer;
     font-size: 13px;
     transition: background-color 0.3s;
@@ -1074,8 +1062,7 @@ mark {
 
 }
 
-#upload-resource-form input[type="text"],
-#upload-resource-form input[type="date"] {
+#upload-resource-form input[type="text"] {
     background-color: #1c1c2e;
     border: 1px solid #333;
     color: #fff;
@@ -1083,11 +1070,20 @@ mark {
     border-radius: 5px;
 }
 
+#upload-resource-form input[type="date"] {
+    background-color: #1c1c2e;
+    border: 1px solid #333;
+    color: #797979;
+    padding: 0.44rem;
+    border-radius: 5px;
+}
+
 #upload-resource-form button.btn-upload {
     background-color: #0067b8;
     color: #fff;
     border: none;
-    padding: 0.62rem 1rem;
+    padding: 0.50rem 1rem;
+    margin: 0;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
