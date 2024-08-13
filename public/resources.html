@@ -81,15 +81,16 @@
             <div class="content">
                 <p class="pabout">If you get a virus detected popup and your browser refuses to let you download any of these files, turn off Windows Defender or any other 
                     anti-virus software as these modded builds aren't signed. <mark><a class="alinks" href="https://youtu.be/J5nbZtPTP4Q" target="_blank">Installation tutorial</a></mark></p>
-                    <div id="admin-upload" style="display: none;">
-                        <h3 class="headerresourcesupload">Upload New Resource</h3>
-                        <form id="upload-resource-form">
-                            <input type="file" name="resourceFile" required>
-                            <input type="text" name="version" placeholder="Version (e.g., 2.8.10)" required>
-                            <input type="date" name="releaseDate" required>
-                            <button type="submit" class="btn-upload foo">Upload</button>
-                        </form>
-                    </div>
+                <div id="admin-upload" style="display: none;">
+                    <h3 class="headerresourcesupload">Upload New Build</h3>
+                    <form id="upload-resource-form">
+                        <label for="resourceFile" class="choose-file">Choose File</label>
+                        <input type="file" id="resourceFile" name="resourceFile" required>
+                        <input type="text" name="version" placeholder="Version (e.g., 2.8.10)" required>
+                        <input type="date" name="releaseDate" required>
+                        <button type="submit" class="btn-upload">Upload</button>
+                    </form>
+                </div>
                 <div class="resources-container">
                     <div class="download-section-recent">
                         <!-- Recent builds will be dynamically inserted here -->

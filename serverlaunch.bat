@@ -1,5 +1,5 @@
 @echo off
-echo Starting Defcon Expanded Demo Listener...
+echo Starting Defcon Expanded File Listener...
 cd /d "%~dp0"
 
 start "Defcon Expanded" cmd /k node server.js

@@ -67,7 +67,7 @@ demoWatcher
     }
   })
   .on('error', error => console.error(`Demo watcher error: ${error}`));
-  
+
 // Watch for new resource files
 console.log(`Watching resources directory: ${resourcesDir}`);
 const resourceWatcher = chokidar.watch(`${resourcesDir}/*.zip`, {
@@ -480,5 +480,5 @@ app.use((err, req, res, next) => {
 
 // Start the server
 app.listen(port, () => {
-  console.log(`Octocon Demo Server Listening at http://localhost:${port}`);
+  console.log(`Defcon Expanded Demo and File Server Listening at http://localhost:${port}`);
 });

@@ -904,19 +904,20 @@ a {
 }
 
 .btn-delete {
-    background-color: #0067b8;
-    color: #fff;
-    margin-left: 9px;
-    padding: 0.5rem 0.7rem;
+    padding: 0.65rem 0.7rem;
     font-size: 0.9rem;
     border-radius: 5px;
     display: inline-grid;
     text-decoration: none;
+    border: 0;
     transition: all 0.3s ease;
     text-align: center;
     justify-content: center;
     font-weight: bold;
-    border: 0;
+    flex: 1;
+    background-color: #0067b8;
+    color: #fff;
+    margin-left: 9px;
 }
 
 .save-button {
@@ -1005,4 +1006,65 @@ mark {
   #demoFile {
     display: none;
   }
+
+  /* Add these new styles to your newmain.css file */
+
+#upload-resource-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#upload-resource-form input[type="file"] {
+    display: none;
+}
+
+#upload-resource-form label.choose-file {
+    background-color: #0067b8;
+    color: #fff;
+    padding: 0.3rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background-color 0.3s;
+
+}
+
+#upload-resource-form label.choose-file:hover {
+    background-color: #005aa3;
+}
+
+#upload-resource-form input[type="text"],
+#upload-resource-form input[type="date"] {
+    background-color: #1c1c2e;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 0.5rem;
+    border-radius: 5px;
+}
+
+#upload-resource-form button.btn-upload {
+    background-color: #0067b8;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#upload-resource-form button.btn-upload:hover {
+    background-color: #005aa3;
+}
+
+.headerresourcesupload {
+    color: #4da6ff;
+    font-size: 1.5rem;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    font-family: 'Orbitron', sans-serif;
+}
   
