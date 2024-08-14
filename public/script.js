@@ -116,11 +116,12 @@ async function logout() {
             showLoginForm();
             hideUploadForm();
             updateDemoList();
-            removeEditability();
+            makeContentEditable(); // This will now set everything to non-editable
             // Force update of resources if on resources page
             if (typeof updateResourceList === 'function') {
                 updateResourceList();
             }
+            location.reload();
         } else {
             alert('Logout failed');
         }
@@ -154,51 +155,111 @@ function showLogoutButton() {
 }
 
 function makeContentEditable() {
-    if (!isAdmin) return;
-
     const cards = document.querySelectorAll('.card, .cardcredits');
     cards.forEach((card, index) => {
-        // Remove existing buttons to avoid duplication
-        const existingButtons = card.querySelectorAll('.edit-button, .save-button, .cancel-button, .formatting-toolbar');
-        existingButtons.forEach(button => button.remove());
-
-        const editButton = document.createElement('button');
-        editButton.textContent = 'Edit';
-        editButton.className = 'edit-button';
-        editButton.onclick = () => toggleEditMode(card, index);
-        card.insertBefore(editButton, card.firstChild);
-
-        const saveButton = document.createElement('button');
-        saveButton.textContent = 'Save';
-        saveButton.className = 'save-button';
-        saveButton.style.display = 'none';
-        saveButton.onclick = () => saveChanges(card, index);
-        card.insertBefore(saveButton, editButton.nextSibling);
-
-        const cancelButton = document.createElement('button');
-        cancelButton.textContent = 'Cancel';
-        cancelButton.className = 'cancel-button';
-        cancelButton.style.display = 'none';
-        cancelButton.onclick = () => cancelEdit(card);
-        card.insertBefore(cancelButton, saveButton.nextSibling);
-
-        const formattingToolbar = createFormattingToolbar(card);
-        card.insertBefore(formattingToolbar, cancelButton.nextSibling);
-
         const elements = card.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, li');
         elements.forEach(el => {
             el.contentEditable = 'false';
             el.classList.remove('editable');
         });
+
+        if (window.isAdmin) {
+            // Only add edit buttons if user is admin
+            if (!card.querySelector('.edit-button')) {
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.className = 'edit-button';
+                editButton.onclick = () => toggleEditMode(card, index);
+                card.insertBefore(editButton, card.firstChild);
+            }
+        } else {
+            // Remove edit buttons if user is not admin
+            const editButton = card.querySelector('.edit-button');
+            if (editButton) editButton.remove();
+        }
     });
 }
 
+function toggleEditMode(card, index) {
+    if (!window.isAdmin) return;
+
+    const editButton = card.querySelector('.edit-button');
+    const isEnteringEditMode = editButton.textContent === 'Edit';
+
+    if (isEnteringEditMode) {
+        // Entering edit mode
+        editButton.textContent = 'Exit Edit';
+        
+        const saveButton = document.createElement('button');
+        saveButton.textContent = 'Save';
+        saveButton.className = 'save-button';
+        saveButton.onclick = () => saveChanges(card, index);
+        card.insertBefore(saveButton, editButton.nextSibling);
+        
+        const cancelButton = document.createElement('button');
+        cancelButton.textContent = 'Cancel';
+        cancelButton.className = 'cancel-button';
+        cancelButton.onclick = () => cancelEdit(card);
+        card.insertBefore(cancelButton, saveButton.nextSibling);
+        
+        const formattingToolbar = createFormattingToolbar(card);
+        formattingToolbar.style.display = 'block';
+        card.insertBefore(formattingToolbar, cancelButton.nextSibling);
+
+        const elements = card.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, li');
+        elements.forEach(el => {
+            el.contentEditable = 'true';
+            el.classList.add('editable');
+            el.addEventListener('keydown', handleEnterKey);
+        });
+    } else {
+        // Exiting edit mode
+        exitEditMode(card);
+    }
+}
+
+function exitEditMode(card) {
+    const editButton = card.querySelector('.edit-button');
+    editButton.textContent = 'Edit';
+
+    // Remove all editing elements
+    const editingElements = card.querySelectorAll('.save-button, .cancel-button, .formatting-toolbar');
+    editingElements.forEach(el => el.remove());
+
+    const elements = card.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, li');
+    elements.forEach(el => {
+        el.contentEditable = 'false';
+        el.classList.remove('editable');
+        el.removeEventListener('keydown', handleEnterKey);
+    });
+}
+
+function handleEnterKey(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        
+        // Create a line break element
+        const br = document.createElement('br');
+        
+        // Insert the line break at the current cursor position
+        const selection = window.getSelection();
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(br);
+        
+        // Move the cursor after the line break
+        range.setStartAfter(br);
+        range.setEndAfter(br);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+}
+
 function createFormattingToolbar(card) {
+    console.log('Creating formatting toolbar');
     const toolbar = document.createElement('div');
     toolbar.className = 'formatting-toolbar';
-    toolbar.style.display = 'none';
 
-    // Heading dropdown
     const headingSelect = document.createElement('select');
     headingSelect.innerHTML = `
         <option value="h1">Heading 1</option>
@@ -209,22 +270,18 @@ function createFormattingToolbar(card) {
         <option value="h6">Heading 6</option>
     `;
 
-    // Color picker
     const colorPicker = document.createElement('input');
     colorPicker.type = 'color';
     colorPicker.onchange = () => applyColor(card, colorPicker.value);
 
-    // Add paragraph button
     const addParagraphButton = document.createElement('button');
     addParagraphButton.textContent = 'Add Paragraph';
     addParagraphButton.onclick = () => addParagraph(card);
 
-    // Add heading button
     const addHeadingButton = document.createElement('button');
     addHeadingButton.textContent = 'Add Heading';
     addHeadingButton.onclick = () => addHeading(card, headingSelect.value);
 
-    // Remove paragraph button
     const removeParagraphButton = document.createElement('button');
     removeParagraphButton.textContent = 'Remove Paragraph';
     removeParagraphButton.onclick = () => removeParagraph(card);
@@ -235,29 +292,8 @@ function createFormattingToolbar(card) {
     toolbar.appendChild(addHeadingButton);
     toolbar.appendChild(removeParagraphButton);
 
+    console.log('Formatting toolbar created:', toolbar);
     return toolbar;
-}
-
-function toggleEditMode(card, index) {
-    if (!isAdmin) return;
-
-    const editButton = card.querySelector('.edit-button');
-    const saveButton = card.querySelector('.save-button');
-    const cancelButton = card.querySelector('.cancel-button');
-    const formattingToolbar = card.querySelector('.formatting-toolbar');
-    const elements = card.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, li');
-
-    if (editButton.style.display !== 'none') {
-        // Entering edit mode
-        editButton.style.display = 'none';
-        saveButton.style.display = 'inline-block';
-        cancelButton.style.display = 'inline-block';
-        formattingToolbar.style.display = 'block';
-        elements.forEach(el => {
-            el.contentEditable = 'true';
-            el.classList.add('editable');
-        });
-    }
 }
 
 function addHeading(card, headingLevel) {
@@ -316,43 +352,62 @@ function removeParagraph(card) {
     }
 }
 
-function cancelEdit(card) {
-    const editButton = card.querySelector('.edit-button');
-    const saveButton = card.querySelector('.save-button');
-    const cancelButton = card.querySelector('.cancel-button');
-    const formattingToolbar = card.querySelector('.formatting-toolbar');
-    const elements = card.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, li');
-
-    editButton.style.display = 'inline-block';
-    saveButton.style.display = 'none';
-    cancelButton.style.display = 'none';
-    formattingToolbar.style.display = 'none';
-    elements.forEach(el => {
-        el.contentEditable = 'false';
-        el.classList.remove('editable');
+function cleanupContent(element) {
+    // Remove any duplicate adjacent links
+    const links = element.querySelectorAll('a');
+    links.forEach((link, index) => {
+        if (index > 0 && link.href === links[index - 1].href && link.textContent === links[index - 1].textContent) {
+            link.remove();
+        }
     });
 
-    location.reload(); // Revert changes without saving
+    // Remove any empty elements
+    const allElements = element.querySelectorAll('*');
+    allElements.forEach(el => {
+        if (el.innerHTML.trim() === '' && !['BR', 'HR'].includes(el.tagName)) {
+            el.remove();
+        }
+    });
+
+    return element;
 }
 
 async function saveChanges(card, index) {
-    if (!isAdmin) return;
+    if (!window.isAdmin) return;
 
     const content = {};
     const pageName = getPageName();
 
-    // Collect all content, including nested elements and inline styles
-    card.childNodes.forEach((node, i) => {
-        if (node.nodeType === Node.ELEMENT_NODE && !node.classList.contains('media-block') && !['button', 'script'].includes(node.tagName.toLowerCase())) {
-            content[`element_${i}`] = {
-                outerHTML: node.outerHTML,
-                isHTML: true
-            };
+    // Temporarily remove editing elements
+    const editingElements = card.querySelectorAll('.edit-button, .save-button, .cancel-button, .formatting-toolbar');
+    editingElements.forEach(el => el.remove());
+
+    // Clone the card to avoid modifying the original content
+    const cardClone = card.cloneNode(true);
+
+    // Clean up links
+    const paragraphs = cardClone.querySelectorAll('p');
+    paragraphs.forEach(paragraph => {
+        const links = paragraph.querySelectorAll('a');
+        if (links.length > 1) {
+            // Keep only the first link and remove others
+            const firstLink = links[0];
+            paragraph.innerHTML = paragraph.innerHTML.replace(/<a\b[^>]*>(.*?)<\/a>/g, '$1');
+            paragraph.innerHTML = paragraph.innerHTML.replace(firstLink.textContent, firstLink.outerHTML);
         }
     });
 
-    // Preserve media block
-    const mediaBlock = card.querySelector('.media-block');
+    // Collect all content, excluding editing elements and media blocks
+    const contentElements = cardClone.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li');
+    contentElements.forEach((el, i) => {
+        content[`element_${i}`] = {
+            outerHTML: el.outerHTML,
+            isHTML: true
+        };
+    });
+
+    // Preserve media block if it exists
+    const mediaBlock = cardClone.querySelector('.media-block');
     if (mediaBlock) {
         content['media_block'] = {
             outerHTML: mediaBlock.outerHTML
@@ -373,7 +428,9 @@ async function saveChanges(card, index) {
 
         if (response.ok) {
             alert('Content updated successfully');
-            cancelEdit(card); // Reset the edit mode
+            // Update the original card with the cleaned-up content
+            card.innerHTML = cardClone.innerHTML;
+            makeContentEditable();
         } else {
             const data = await response.json();
             alert(data.error || 'Failed to update content');
@@ -381,20 +438,22 @@ async function saveChanges(card, index) {
     } catch (error) {
         console.error('Error updating content:', error);
         alert('An error occurred while updating content');
+    } finally {
+        // Restore edit mode
+        exitEditMode(card);
+        makeContentEditable();
     }
 }
 
-function removeEditability() {
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(card => {
-        const buttons = card.querySelectorAll('.edit-button, .save-button, .cancel-button, .formatting-toolbar');
-        buttons.forEach(button => button.remove());
+function cancelEdit(card) {
+    exitEditMode(card);
+    location.reload(); // Revert changes without saving
+}
 
-        const elements = card.querySelectorAll('h1, h2, h3, h4, h5, h6, p, a, li');
-        elements.forEach(el => {
-            el.contentEditable = 'false';
-            el.classList.remove('editable');
-        });
+function removeEditability() {
+    const cards = document.querySelectorAll('.card, .cardcredits');
+    cards.forEach(card => {
+        exitEditMode(card);
     });
 }
 
@@ -413,7 +472,7 @@ function getPageName() {
 function showUploadForm() {
     const adminUpload = document.getElementById('admin-upload');
     if (adminUpload) {
-        adminUpload.style.display = isAdmin ? 'block' : 'none';
+        adminUpload.style.display = window.isAdmin ? 'block' : 'none';
     }
 }
 
@@ -465,22 +524,21 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         const response = await fetch('/api/checkAuth');
         const data = await response.json();
-        if (data.isAdmin) {
-            isAdmin = true;
+        window.isAdmin = data.isAdmin;
+        if (window.isAdmin) {
             showLogoutButton();
             showUploadForm();
-            makeContentEditable();
         } else {
-            isAdmin = false;
             showLoginForm();
             hideUploadForm();
-            removeEditability();
         }
+        makeContentEditable(); // This will now handle both admin and non-admin cases
     } catch (error) {
         console.error('Error checking authentication:', error);
+        window.isAdmin = false;
         showLoginForm();
         hideUploadForm();
-        removeEditability();
+        makeContentEditable(); // Ensure content is not editable in case of error
     }
 
     setActiveNavItem();
