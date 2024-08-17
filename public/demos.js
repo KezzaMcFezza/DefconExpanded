@@ -1,4 +1,3 @@
-// Global variables
 let allDemos = [];
 
 function formatBytes(bytes, decimals = 2) {
@@ -213,7 +212,7 @@ async function deleteDemo(demoId) {
             });
             if (response.ok) {
                 alert('Demo deleted successfully');
-                updateDemoList(); // Refresh the demo list
+                updateDemoList(); 
             } else {
                 const data = await response.json();
                 alert(data.error || 'Failed to delete demo');
@@ -225,7 +224,6 @@ async function deleteDemo(demoId) {
     }
 }
 
-// Export functions that might be used elsewhere
 window.updateDemoList = updateDemoList;
 window.performGameSearch = performGameSearch;
 window.deleteDemo = deleteDemo;

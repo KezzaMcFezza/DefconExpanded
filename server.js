@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const { JSDOM } = require('jsdom');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
+const axios = require('axios');
 
 const app = express();
 const port = 3000;
@@ -121,6 +122,16 @@ app.use((req, res, next) => {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }
   next();
+});
+
+app.get('/api/discord-widget', async (req, res) => {
+  try {
+    const response = await axios.get('https://discord.com/api/guilds/1256842522215579668/widget.json');
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error fetching Discord data:', error);
+    res.status(500).json({ error: 'Failed to fetch Discord data' });
+  }
 });
 
 app.get('/api/getLayout', async (req, res) => {
@@ -583,6 +594,10 @@ app.get('/site.webmanifest', (req, res) => {
 
 app.get('/browserconfig.xml', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'browserconfig.xml'));
+});
+
+app.get('/adminlogin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'adminlogin.html'));
 });
 
 // 404 handler (this should be placed after all other routes)

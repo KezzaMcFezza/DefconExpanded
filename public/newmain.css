@@ -31,6 +31,77 @@ body::before {
     z-index: -1;
 }
 
+
+.discord-widget {
+    background-color: #5865F2;
+    border-radius: 8px;
+    padding: 12px;
+    color: white;
+    margin: 10px;
+  }
+  
+  .discord-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  
+  .discord-logo {
+    width: 130px;
+    height: 40px;
+    margin-right: 8px;
+  }
+  
+  .discord-title {
+    font-weight: bold;
+    flex-grow: 1;
+  }
+  
+  .discord-online-count {
+    font-size: 0.9em;
+  }
+  
+  .discord-event {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 12px;
+  }
+  
+  .event-title {
+    font-size: 1em;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+  }
+  
+  .event-date, .event-time {
+    font-size: 0.9em;
+    margin: 0;
+  }
+  
+  .discord-join-button {
+    display: block;
+    background-color: white;
+    color: #5865F2;
+    text-align: center;
+    padding: 8px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  
+  .discord-join-button:hover {
+    background-color: #f0f0f0;
+  }
+
+  .steam-logo {
+    width: 24px; /* Adjust this value as needed */
+    height: auto;
+    transition: filter 0.3s;
+}
+
+
 * {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -735,6 +806,9 @@ header {
     color: #ffffff;
     font-size: 24px;
     transition: color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .icons a:hover {

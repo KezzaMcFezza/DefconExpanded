@@ -1,4 +1,3 @@
-// Global variables
 let soundVolume = 0.1;
 window.isAdmin = false; 
 
@@ -18,6 +17,45 @@ function setActiveNavItem() {
     });
 }
 
+const discordEvent = {
+    title: "Community Game Night",
+    date: "Sunday, Aug 18th",
+    time: "3PM PM EST"
+  };
+  
+  function updateDiscordWidget() {
+    fetch('/api/discord-widget')
+      .then(response => response.json())
+      .then(data => {
+        const widgetContainer = document.getElementById('discord-widget');
+        if (!widgetContainer) return;
+  
+        let html = `
+          <div class="discord-widget">
+            <div class="discord-header">
+              <img src="/images/discord-logo.png" alt="Discord" class="discord-logo">
+              <span class="discord-title"></span>
+              <span class="discord-online-count">${data.presence_count} Online</span>
+            </div>
+            <div class="discord-event">
+              <h3 class="event-title">${discordEvent.title}</h3>
+              <p class="event-date">${discordEvent.date}</p>
+              <p class="event-time">${discordEvent.time}</p>
+            </div>
+            <a href="${data.instant_invite}" target="_blank" rel="noopener noreferrer" class="discord-join-button">
+              Join Discord
+            </a>
+          </div>
+        `;
+  
+        widgetContainer.innerHTML = html;
+      })
+      .catch(error => console.error('Error updating Discord widget:', error));
+  }
+  
+  updateDiscordWidget();
+  setInterval(updateDiscordWidget, 5 * 60 * 1000);
+
 function setupMobileMenu() {
     console.log('Setting up mobile menu');
     const sidebar = document.getElementById('sidebar');
@@ -30,7 +68,7 @@ function setupMobileMenu() {
             e.preventDefault();
             console.log('Title clicked');
             listItems.classList.toggle('show');
-            title.classList.toggle('menu-open'); // Toggle class for hiding ::after
+            title.classList.toggle('menu-open'); 
             console.log('Menu toggled, show class:', listItems.classList.contains('show'));
         });
 
@@ -38,7 +76,7 @@ function setupMobileMenu() {
             if (e.target.tagName === 'A' && !e.target.parentElement.classList.contains('dropdown')) {
                 console.log('Link clicked, closing menu');
                 listItems.classList.remove('show');
-                title.classList.remove('menu-open'); // Remove class when menu is closed
+                title.classList.remove('menu-open'); 
             }
         });
 
@@ -71,45 +109,6 @@ function togglePatchNotes(button) {
     }
   }
 
-function showLoginForm() {
-    const sidebar = document.getElementById('sidebar');
-    if (!sidebar) {
-        console.error('Sidebar not found');
-        return;
-    }
-
-    if (document.getElementById('login-container')) {
-        console.log('Login form already exists');
-        return;
-    }
-
-    const loginContainer = document.createElement('div');
-    loginContainer.id = 'login-container';
-    loginContainer.innerHTML = `
-        <form id="login-form">
-            <input type="text" id="username" placeholder="Username" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-    `;
-    
-    const listItems = sidebar.querySelector('.list-items');
-    const icons = sidebar.querySelector('.icons');
-    
-    if (listItems && icons) {
-        sidebar.insertBefore(loginContainer, icons);
-    } else {
-        console.error('Could not find proper position for login form');
-        sidebar.appendChild(loginContainer);
-    }
-
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        await login(username, password);
-    });
-}
 
 async function login(username, password) {
     try {
@@ -125,7 +124,6 @@ async function login(username, password) {
             window.isAdmin = true;
             console.log('Logged in, isAdmin set to:', window.isAdmin);
             alert('Logged in successfully. The page will now refresh.');
-            // Force a page refresh
             window.location.reload();
         } else {
             alert(data.error || 'Login failed');
@@ -142,22 +140,15 @@ async function logout() {
         if (response.ok) {
             window.isAdmin = false;
             console.log('Logged out, isAdmin set to:', window.isAdmin);
-            alert('Logged out successfully');
-            document.getElementById('logout-container').remove();
-            showLoginForm();
-            hideUploadForm();
-            updateDemoList();
-            makeContentEditable(); // This will now set everything to non-editable
-            // Force update of resources if on resources page
-            if (typeof updateResourceList === 'function') {
-                updateResourceList();
-            }
-            location.reload();
+            alert('Logged out successfully. The page will now refresh.');
+            
+            window.location.reload();
         } else {
             alert('Logout failed');
         }
     } catch (error) {
         console.error('Logout error:', error);
+        alert('An error occurred during logout');
     }
 }
 
@@ -195,7 +186,6 @@ function makeContentEditable() {
         });
 
         if (window.isAdmin) {
-            // Only add edit buttons if user is admin
             if (!card.querySelector('.edit-button')) {
                 const editButton = document.createElement('button');
                 editButton.textContent = 'Edit';
@@ -204,7 +194,6 @@ function makeContentEditable() {
                 card.insertBefore(editButton, card.firstChild);
             }
         } else {
-            // Remove edit buttons if user is not admin
             const editButton = card.querySelector('.edit-button');
             if (editButton) editButton.remove();
         }
@@ -218,7 +207,6 @@ function toggleEditMode(card, index) {
     const isEnteringEditMode = editButton.textContent === 'Edit';
 
     if (isEnteringEditMode) {
-        // Entering edit mode
         editButton.textContent = 'Exit Edit';
         
         const saveButton = document.createElement('button');
@@ -244,7 +232,6 @@ function toggleEditMode(card, index) {
             el.addEventListener('keydown', handleEnterKey);
         });
     } else {
-        // Exiting edit mode
         exitEditMode(card);
     }
 }
@@ -253,7 +240,6 @@ function exitEditMode(card) {
     const editButton = card.querySelector('.edit-button');
     editButton.textContent = 'Edit';
 
-    // Remove all editing elements
     const editingElements = card.querySelectorAll('.save-button, .cancel-button, .formatting-toolbar');
     editingElements.forEach(el => el.remove());
 
@@ -269,16 +255,13 @@ function handleEnterKey(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         
-        // Create a line break element
         const br = document.createElement('br');
         
-        // Insert the line break at the current cursor position
         const selection = window.getSelection();
         const range = selection.getRangeAt(0);
         range.deleteContents();
         range.insertNode(br);
         
-        // Move the cursor after the line break
         range.setStartAfter(br);
         range.setEndAfter(br);
         selection.removeAllRanges();
@@ -333,7 +316,6 @@ function addHeading(card, headingLevel) {
     newHeading.contentEditable = 'true';
     newHeading.classList.add('editable');
     
-    // Find the last paragraph or text content in the card
     const lastTextElement = Array.from(card.children).reverse().find(el => 
         ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(el.tagName) || (el.textContent && el.textContent.trim() !== '')
     );
@@ -344,7 +326,6 @@ function addHeading(card, headingLevel) {
         card.appendChild(newHeading);
     }
 
-    // Focus on the new heading
     newHeading.focus();
 }
 
@@ -358,7 +339,6 @@ function addParagraph(card) {
     newParagraph.contentEditable = 'true';
     newParagraph.classList.add('editable');
     
-    // Find the last paragraph or text content in the card
     const lastTextElement = Array.from(card.children).reverse().find(el => 
         ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(el.tagName) || (el.textContent && el.textContent.trim() !== '')
     );
@@ -369,7 +349,6 @@ function addParagraph(card) {
         card.appendChild(newParagraph);
     }
 
-    // Focus on the new paragraph
     newParagraph.focus();
 }
 
@@ -384,7 +363,6 @@ function removeParagraph(card) {
 }
 
 function cleanupContent(element) {
-    // Remove any duplicate adjacent links
     const links = element.querySelectorAll('a');
     links.forEach((link, index) => {
         if (index > 0 && link.href === links[index - 1].href && link.textContent === links[index - 1].textContent) {
@@ -392,7 +370,6 @@ function cleanupContent(element) {
         }
     });
 
-    // Remove any empty elements
     const allElements = element.querySelectorAll('*');
     allElements.forEach(el => {
         if (el.innerHTML.trim() === '' && !['BR', 'HR'].includes(el.tagName)) {
@@ -409,26 +386,21 @@ async function saveChanges(card, index) {
     const content = {};
     const pageName = getPageName();
 
-    // Temporarily remove editing elements
     const editingElements = card.querySelectorAll('.edit-button, .save-button, .cancel-button, .formatting-toolbar');
     editingElements.forEach(el => el.remove());
 
-    // Clone the card to avoid modifying the original content
     const cardClone = card.cloneNode(true);
 
-    // Clean up links
     const paragraphs = cardClone.querySelectorAll('p');
     paragraphs.forEach(paragraph => {
         const links = paragraph.querySelectorAll('a');
         if (links.length > 1) {
-            // Keep only the first link and remove others
             const firstLink = links[0];
             paragraph.innerHTML = paragraph.innerHTML.replace(/<a\b[^>]*>(.*?)<\/a>/g, '$1');
             paragraph.innerHTML = paragraph.innerHTML.replace(firstLink.textContent, firstLink.outerHTML);
         }
     });
 
-    // Collect all content, excluding editing elements and media blocks
     const contentElements = cardClone.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li');
     contentElements.forEach((el, i) => {
         content[`element_${i}`] = {
@@ -437,7 +409,6 @@ async function saveChanges(card, index) {
         };
     });
 
-    // Preserve media block if it exists
     const mediaBlock = cardClone.querySelector('.media-block');
     if (mediaBlock) {
         content['media_block'] = {
@@ -459,7 +430,6 @@ async function saveChanges(card, index) {
 
         if (response.ok) {
             alert('Content updated successfully');
-            // Update the original card with the cleaned-up content
             card.innerHTML = cardClone.innerHTML;
             makeContentEditable();
         } else {
@@ -470,7 +440,6 @@ async function saveChanges(card, index) {
         console.error('Error updating content:', error);
         alert('An error occurred while updating content');
     } finally {
-        // Restore edit mode
         exitEditMode(card);
         makeContentEditable();
     }
@@ -478,7 +447,7 @@ async function saveChanges(card, index) {
 
 function cancelEdit(card) {
     exitEditMode(card);
-    location.reload(); // Revert changes without saving
+    location.reload(); 
 }
 
 function removeEditability() {
@@ -530,7 +499,7 @@ async function uploadDemo(event) {
             const data = await response.json();
             alert('Demo uploaded successfully');
             form.reset();
-            addDemoToList(data.demoName); // Add the new demo to the list
+            addDemoToList(data.demoName); 
         } else {
             const data = await response.json();
             alert(data.error || 'Failed to upload demo');
@@ -560,16 +529,14 @@ document.addEventListener('DOMContentLoaded', async function() {
             showLogoutButton();
             showUploadForm();
         } else {
-            showLoginForm();
             hideUploadForm();
         }
-        makeContentEditable(); // This will now handle both admin and non-admin cases
+        makeContentEditable(); 
     } catch (error) {
         console.error('Error checking authentication:', error);
         window.isAdmin = false;
-        showLoginForm();
         hideUploadForm();
-        makeContentEditable(); // Ensure content is not editable in case of error
+        makeContentEditable();
     }
 
     setActiveNavItem();
@@ -664,7 +631,7 @@ async function submitBugReport(event) {
         if (response.ok) {
             const data = await response.json();
             alert(data.message);
-            event.target.reset(); // Clear the form
+            event.target.reset(); 
         } else {
             const data = await response.json();
             alert(data.error || 'Failed to submit bug report');
