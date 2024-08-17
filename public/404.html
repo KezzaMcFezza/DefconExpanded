@@ -12,9 +12,9 @@
         <link rel="apple-touch-icon" sizes="180x180" href="https://defconexpanded.com/apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="192x192" href="https://defconexpanded.com/android-chrome-192x192.png">
         <link rel="icon" type="image/png" sizes="512x512" href="https://defconexpanded.com/android-chrome-512x512.png">
-        <link rel="stylesheet" type="text/css" href="/media.css" />
         <link rel="stylesheet" type="text/css" href="/newmain.css" />
         <link rel="stylesheet" type="text/css" href="/scaling.css" />
+        <link rel="stylesheet" type="text/css" href="/admin.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
         <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
         <script src="/script.js" defer></script>
@@ -41,9 +41,16 @@ body::before {
                 <li><a href="/" id="nav-home"><i class="fas fa-home"></i>Homepage</a></li>
                 <li><a href="/about" id="nav-about"><i class="fas fa-info-circle"></i>About</a></li>
                 <li><a href="/resources" id="nav-resources"><i class="fas fa-download"></i>Downloads</a></li>
-                <li><a href="/news" id="nav-news"><i class="fas fa-newspaper"></i>News and Articles</a></li>
+                <li class="dropdown">
+                    <a href="#" id="nav-news"><i class="fas fa-newspaper"></i>Articles and Information</a>
+                    <ul class="dropdown-content">
+                        <li><a href="/articles-and-events" id="nav-articles"><i class="fas fa-file-alt"></i>Articles</a></li>
+                        <li><a href="/patchnotes" id="nav-patch"><i class="fas fa-cog"></i>Patch Notes</a></li>
+                    </ul>
+                </li>
                 <li><a href="/media" id="nav-media"><i class="fas fa-photo-video"></i>Media</a></li>
                 <li><a href="/laikasdefcon" id="nav-laikasdefcon"><i class="fas fa-radiation"></i>Laika's Defcon</a></li>
+                <li><a href="/bug-report" id="nav-report"><i class="fas fa-bug"></i>Report a bug</a></li>
             </ul>
             <div class="icons">
                 <a href="mailto:keiron.mcphee1@gmail.com" target="_blank" class="mail-icon"><i class="fas fa-envelope"></i></a>
@@ -65,12 +72,6 @@ body::before {
                      However its more likely the page you are looking for doesnt exist, or the link has changed.</p>
     
         </main>
-    </div>
-
-    <!-- The Modal -->
-    <div id="myModal" class="modal">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <div id="modalContent" class="modal-content"></div>
     </div>
 </body>
 </html>

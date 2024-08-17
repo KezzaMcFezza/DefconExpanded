@@ -31,9 +31,10 @@
         <meta name="theme-color" content="#ffffff">
         <link rel="stylesheet" type="text/css" href="/newmain.css" />
         <link rel="stylesheet" type="text/css" href="/scaling.css" />
-        <link rel="stylesheet" type="text/css" href="/plyr.css" />
-        <script src="https://defconexpanded.com/plyr.js"></script>
+        <link rel="stylesheet" type="text/css" href="/admin.css" />
+        <link rel="stylesheet" type="text/css" href="/media.css" />
         <script src="/script.js" defer></script>
+        <script src="/media.js" defer></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
         <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
         <script type="application/ld+json">
@@ -55,7 +56,17 @@
             }
             </script>
     <style>
+        .headerresources2 {
+            margin-bottom: 0px;
+        }
 
+        .pabout {
+            text-align: left;
+        }
+
+        h3 {
+            color: #ff8400;
+        }
 
     </style>
 </head>
@@ -67,9 +78,16 @@
                 <li><a href="/" id="nav-home"><i class="fas fa-home"></i>Homepage</a></li>
                 <li><a href="/about" id="nav-about"><i class="fas fa-info-circle"></i>About</a></li>
                 <li><a href="/resources" id="nav-resources"><i class="fas fa-download"></i>Downloads</a></li>
-                <li><a href="/news" id="nav-news"><i class="fas fa-newspaper"></i>News and Articles</a></li>
-                <li><a href="/media" id="nav-media"><i class="fas fa-photo-video"></i>Media</a></li>
+                <li class="dropdown">
+                    <a href="#" id="nav-news"><i class="fas fa-newspaper"></i>Articles and Information</a>
+                    <ul class="dropdown-content">
+                        <li><a href="/articles-and-events" id="nav-articles"><i class="fas fa-file-alt"></i>Articles</a></li>
+                        <li><a href="/patchnotes" id="nav-patch"><i class="fas fa-cog"></i>Patch Notes</a></li>
+                    </ul>
+                </li>
+                <li><a href="/media" id="nav-media"><i class="fab fa-youtube"></i>Media</a></li>
                 <li><a href="/laikasdefcon" id="nav-laikasdefcon"><i class="fas fa-radiation"></i>Laika's Defcon</a></li>
+                <li><a href="/bug-report" id="nav-report"><i class="fas fa-bug"></i>Report a bug</a></li>
             </ul>
             <div class="icons">
                 <a href="mailto:keiron.mcphee1@gmail.com" target="_blank" class="mail-icon"><i class="fas fa-envelope"></i></a>
@@ -78,50 +96,30 @@
                 <a href="https://store.steampowered.com/app/1520/DEFCON/" target="_blank" class="steam-icon"><i class="fab fa-steam"></i></a>
             </div>
         </div>
-<!--      
-        <main>
-            <div class="content">
-
-                <div class="video-section">
-
-                    <div class="featured-video">
-                        <div class="video-thumbnail">
-                            <iframe width="1236" height="695" src="https://www.youtube.com/embed/lwVrOLSw97U" title="DEFCON | 16-CPU Simulation [MOD]" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                        </div>
+        <main role="main">
+            <div class="media-layout">
+                <div class="installation-tutorial">
+                    <h2 class="headerresources2">Installation Tutorial</h2>
+                    <div class="video-container" id="tutorialVideo">
+                        <!-- Tutorial video will be inserted here by JavaScript -->
                     </div>
-                    
-
-                    <div class="video-item">
-                        <div class="video-thumbnail">
-                            <iframe width="1236" height="695" src="https://www.youtube.com/embed/jcDG5Z23Zn0" title="DEFCON | First Ever 4 vs 4 [8 PLAYER MOD]" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                        </div>
-                    </div>
-                    <div class="video-item">
-                        <div class="video-thumbnail">
-                            <iframe width="1236" height="695" src="https://www.youtube.com/embed/RDYcrpD8k9Y" title="DEFCON | First Ever 4 vs 4 [FULL GAME]" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                        </div>
-                    </div>
-                    <div class="video-item">
-                        <div class="video-thumbnail">
-                            <iframe width="1236" height="695" src="https://www.youtube.com/embed/GEWYloL6kr0" title="DEFCON | 8-CPU Simulation [MOD]" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                        </div>
-                    </div>
-                    <div class="video-item">
-                        <div class="video-thumbnail">
-                            <iframe width="1236" height="695" src="https://www.youtube.com/embed/mBUYr95Hqjk" title="DEFCON | First Ever 7 Player Diplomacy [FULL GAME]" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                        </div>
+                </div>
+                <div class="gameplay-videos">
+                    <h2 class="headerresources2">Featured Gameplay Videos</h2>
+                    <h2 class="card-title-download">Timelapse and Full Games</h2>
+                    <div class="video-grid" id="videoGrid">
+                        <!-- Gameplay videos will be inserted here by JavaScript -->
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
-</main>
--->
 
-    <!-- The Modal -->
-    <div id="myModal" class="modal">
-        <span class="close">&times;</span>
-        <div id="modalContent"></div>
-    </div>
+
+            <div id="videoModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <div id="videoPlayer"></div>
+                </div>
+            </div>
+        </main>
 </body>
 </html>

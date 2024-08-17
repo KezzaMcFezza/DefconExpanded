@@ -11,6 +11,9 @@ function setActiveNavItem() {
         item.classList.remove('active');
         if (currentPath === link.getAttribute('href') || currentPath.startsWith(link.getAttribute('href') + '/')) {
             item.classList.add('active');
+            if (item.classList.contains('dropdown')) {
+                item.querySelector('.dropdown-content').classList.add('show');
+            }
         }
     });
 }
@@ -20,25 +23,53 @@ function setupMobileMenu() {
     const sidebar = document.getElementById('sidebar');
     const title = sidebar.querySelector('.title');
     const listItems = sidebar.querySelector('.list-items');
+    const dropdowns = sidebar.querySelectorAll('.dropdown');
 
     if (title && listItems) {
         title.addEventListener('click', function(e) {
             e.preventDefault();
             console.log('Title clicked');
             listItems.classList.toggle('show');
+            title.classList.toggle('menu-open'); // Toggle class for hiding ::after
             console.log('Menu toggled, show class:', listItems.classList.contains('show'));
         });
 
         listItems.addEventListener('click', function(e) {
-            if (e.target.tagName === 'A') {
+            if (e.target.tagName === 'A' && !e.target.parentElement.classList.contains('dropdown')) {
                 console.log('Link clicked, closing menu');
                 listItems.classList.remove('show');
+                title.classList.remove('menu-open'); // Remove class when menu is closed
             }
+        });
+
+        dropdowns.forEach(dropdown => {
+            const dropdownLink = dropdown.querySelector('a');
+            const dropdownContent = dropdown.querySelector('.dropdown-content');
+            dropdownLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                dropdownContent.classList.toggle('show');
+                dropdowns.forEach(otherDropdown => {
+                    if (otherDropdown !== dropdown) {
+                        otherDropdown.querySelector('.dropdown-content').classList.remove('show');
+                    }
+                });
+            });
         });
     } else {
         console.error('Could not find title or list items elements');
     }
 }
+
+function togglePatchNotes(button) {
+    const details = button.closest('.patchnote-content').querySelector('.patchnote-details');
+    if (details.style.display === 'none') {
+      details.style.display = 'block';
+      button.textContent = 'Hide patch notes';
+    } else {
+      details.style.display = 'none';
+      button.textContent = 'View patch notes';
+    }
+  }
 
 function showLoginForm() {
     const sidebar = document.getElementById('sidebar');
@@ -560,6 +591,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (uploadForm) {
         uploadForm.addEventListener('submit', uploadDemo);
     }
+
+    const bugReportForm = document.getElementById('bug-report-form');
+    if (bugReportForm) {
+        bugReportForm.addEventListener('submit', submitBugReport);
+    }
 });
 
 function smoothScroll(target) {
@@ -608,4 +644,33 @@ function performGameSearch() {
 
 function updateDemoList() {
     console.log('Game demos are currently non-functioning and are just placeholders.');
+}
+
+async function submitBugReport(event) {
+    event.preventDefault();
+
+    const bugTitle = document.querySelector('input[name="bug-title"]').value;
+    const bugDescription = document.querySelector('textarea[name="bug-description"]').value;
+
+    try {
+        const response = await fetch('/api/report-bug', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ bugTitle, bugDescription }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            alert(data.message);
+            event.target.reset(); // Clear the form
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Failed to submit bug report');
+        }
+    } catch (error) {
+        console.error('Error submitting bug report:', error);
+        alert('An error occurred while submitting the bug report');
+    }
 }

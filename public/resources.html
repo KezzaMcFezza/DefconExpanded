@@ -29,11 +29,9 @@
     <link rel="mask-icon" href="https://defconexpanded.com/safari-pinned-tab.svg" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
-    <link rel="stylesheet" type="text/css" href="/media.css" />
     <link rel="stylesheet" type="text/css" href="/newmain.css" />
     <link rel="stylesheet" type="text/css" href="/scaling.css" />
-    <link rel="stylesheet" type="text/css" href="/plyr.css" />
-    <script src="https://defconexpanded.com/plyr.js"></script>
+    <link rel="stylesheet" type="text/css" href="/admin.css" />
     <script src="/script.js" defer></script>
     <script src="/resources.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
@@ -65,9 +63,16 @@
                 <li><a href="/" id="nav-home"><i class="fas fa-home"></i>Homepage</a></li>
                 <li><a href="/about" id="nav-about"><i class="fas fa-info-circle"></i>About</a></li>
                 <li><a href="/resources" id="nav-resources"><i class="fas fa-download"></i>Downloads</a></li>
-                <li><a href="/news" id="nav-news"><i class="fas fa-newspaper"></i>News and Articles</a></li>
+                <li class="dropdown">
+                    <a href="#" id="nav-news"><i class="fas fa-newspaper"></i>Articles and Information</a>
+                    <ul class="dropdown-content">
+                        <li><a href="/articles-and-events" id="nav-articles"><i class="fas fa-file-alt"></i>Articles</a></li>
+                        <li><a href="/patchnotes" id="nav-patch"><i class="fas fa-cog"></i>Patch Notes</a></li>
+                    </ul>
+                </li>
                 <li><a href="/media" id="nav-media"><i class="fas fa-photo-video"></i>Media</a></li>
                 <li><a href="/laikasdefcon" id="nav-laikasdefcon"><i class="fas fa-radiation"></i>Laika's Defcon</a></li>
+                <li><a href="/bug-report" id="nav-report"><i class="fas fa-bug"></i>Report a bug</a></li>
             </ul>
             <div class="icons">
                 <a href="mailto:keiron.mcphee1@gmail.com" target="_blank" class="mail-icon"><i class="fas fa-envelope"></i></a>
@@ -80,7 +85,7 @@
             <h2 class="headerresources2">Recent Builds and Version History</h2>
             <div class="content">
                 <p class="pabout">If you get a virus detected popup and your browser refuses to let you download any of these files, turn off Windows Defender or any other 
-                    anti-virus software as these modded builds aren't signed. <mark><a class="alinks" href="https://youtu.be/J5nbZtPTP4Q" target="_blank">Installation tutorial</a></mark></p>
+                    anti-virus software as these modded builds aren't signed. <mark><a class="alinks" href="/media" target="_blank">Installation tutorial</a></mark></p>
                 <div id="admin-upload" style="display: none;">
                     <h3 class="headerresourcesupload">Upload New Build</h3>
                     <p class="paboutprefix">make sure to only use the prefix for the builds in the place holder, for example for a 16 player build its 2.16 and for a 8 player build its 2.8 and so on</p>
@@ -94,20 +99,15 @@
                 </div>
                 <div class="resources-container">
                     <div class="download-section-recent">
-                        <!-- Recent builds will be dynamically inserted here -->
+
                     </div>
                     <div class="download-section">
-                        <!-- Version history will be dynamically inserted here -->
+
                     </div>
                 </div>
             </div>
         </main>
     </div>
-    
-    <!-- The Modal -->
-    <div id="myModal" class="modal">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <div id="modalContent" class="modal-content"></div>
-    </div>
+
 </body>
 </html>

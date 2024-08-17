@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const { JSDOM } = require('jsdom');
 const multer = require('multer');
-const uploadedDemos = new Set();
+const nodemailer = require('nodemailer');
 
 const app = express();
 const port = 3000;
@@ -21,7 +21,7 @@ const dbConfig = {
 };
 
 const demoDir = path.join(__dirname, 'demos');
-const resourcesDir = path.join(__dirname, 'public', 'Files');  // Updated path
+const resourcesDir = path.join(__dirname, 'public', 'Files');
 const uploadDir = path.join(__dirname, 'public');
 const upload = multer({ dest: uploadDir });
 
@@ -396,7 +396,7 @@ app.post('/api/updateContent', authenticateToken, async (req, res) => {
     const dom = new JSDOM(pageContent);
     const document = dom.window.document;
 
-    const cards = document.querySelectorAll('.card, .cardcredits');
+    const cards = document.querySelectorAll('.card, .cardcredits, .cardproject');
     if (cardIndex < cards.length) {
       const card = cards[cardIndex];
 
@@ -518,15 +518,59 @@ app.get('/api/download-resource/:resourceName', async (req, res) => {
   }
 });
 
+// New route for handling bug reports
+app.post('/api/report-bug', async (req, res) => {
+  const { bugTitle, bugDescription } = req.body;
+
+  // Create a transporter using SMTP
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, // Use TLS
+    auth: {
+      user: "keiron.mcphee1@gmail.com",
+      pass: "ueiz tkqy uqwj lwht"
+    }
+  });
+
+  // Email options
+  let mailOptions = {
+    from: '"DEFCON Expanded" <keiron.mcphee1@gmail.com>',
+    to: "keiron.mcphee1@gmail.com", // You can change this if you want to send to a different email
+    subject: `New Bug Report: ${bugTitle}`,
+    text: `A new bug has been reported:
+
+Title: ${bugTitle}
+
+Description:
+${bugDescription}`,
+    html: `<h2>A new bug has been reported:</h2>
+<p><strong>Title:</strong> ${bugTitle}</p>
+<p><strong>Description:</strong></p>
+<p>${bugDescription}</p>`
+  };
+
+  try {
+    // Send the email
+    let info = await transporter.sendMail(mailOptions);
+    console.log("Bug report email sent: %s", info.messageId);
+    res.json({ message: 'Bug report submitted successfully' });
+  } catch (error) {
+    console.error('Error sending bug report email:', error);
+    res.status(500).json({ error: 'Failed to submit bug report' });
+  }
+});
+
 // Serve additional HTML pages
 app.get('/about', checkAuthToken, (req, res) => sendHtml(res, 'about.html'));
-app.get('/news', checkAuthToken, (req, res) => sendHtml(res, 'news.html'));
+app.get('/articles-and-events', checkAuthToken, (req, res) => sendHtml(res, 'news.html'));
 app.get('/media', checkAuthToken, (req, res) => sendHtml(res, 'media.html'));
 app.get('/resources', checkAuthToken, (req, res) => sendHtml(res, 'resources.html'));
 app.get('/laikasdefcon', checkAuthToken, (req, res) => sendHtml(res, 'laikasdefcon.html'));
 app.get('/homepage/matchroom', checkAuthToken, (req, res) => sendHtml(res, 'matchroom.html'));
 app.get('/homepage', checkAuthToken, (req, res) => sendHtml(res, 'index.html'));
-app.get('/cmd', checkAuthToken, (req, res) => sendHtml(res, 'secret.html'));
+app.get('/patchnotes', checkAuthToken, (req, res) => sendHtml(res, 'patchnotes.html'));
+app.get('/bug-report', checkAuthToken, (req, res) => sendHtml(res, 'bugreport.html'));
 
 // Serve special files
 app.get('/sitemap', (req, res) => {

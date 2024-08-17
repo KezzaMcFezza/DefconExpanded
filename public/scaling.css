@@ -154,7 +154,7 @@ body {
 
     #sidebar .title {
         display: flex;
-        line-height: 30px;
+        line-height: 50px;
         justify-content: space-between;
         align-items: center;
         padding: 0 15px;
@@ -162,12 +162,15 @@ body {
     }
 
     #sidebar .title::after {
-        content: "≡";
-        font-size: 2.3rem;
         cursor: pointer;
-        padding: 12px;
+        padding: 0px 10px 40px 0px;
         display: block;
     }
+
+    #sidebar .title.menu-open::after {
+        display: none;
+    }
+
 
     #sidebar .list-items {
         display: none;
@@ -180,7 +183,6 @@ body {
     }
 
     #sidebar .list-items li {
-        padding: 5px 10px;
         text-align: left;
         border-bottom: 1px solid #333;
     }
@@ -201,6 +203,12 @@ body {
         flex-direction: column;
         padding-left: 0;
         padding-right: 0;
+    }
+
+    .rightmainabout {
+        flex-grow: 1;
+        padding: 0rem 1rem 2rem 1rem;
+        margin: 0;
     }
 
     /* Adjust other elements to account for the top navigation */
@@ -257,9 +265,12 @@ body {
 
     .video-thumbnail {
         width: 100%;
-        padding-top: 56.25%; /* 16:9 aspect ratio */
         position: relative;
         overflow: hidden;
+    }
+
+    .media-layout {
+        padding: 0;
     }
 
     .video-thumbnail img,
@@ -401,6 +412,17 @@ body {
         text-align: center;
     }
 
+    .h2project {
+        text-align: center;
+    }
+
+    .contributor-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
     h3, h5 {
         text-align: center;
     }
@@ -453,4 +475,75 @@ body {
     background-color: #3a8ad6;
     display: none;
 }
+}
+
+/* Mobile-friendly styles for patch notes page */
+@media (max-width: 768px) {
+  .patchnotes-container {
+    padding: 10px;
+  }
+
+  .patchnote-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .patchnote-content {
+    padding: 15px;
+  }
+
+  .patchnote-content h2 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+  }
+
+  .patchnote-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .patchcontainer {
+    margin: 0;
+  }
+
+  .patchnote-meta .release-date {
+    font-size: 0.9rem;
+  }
+
+  .patchnote-meta button {
+    font-size: 0.9rem;
+    padding: 5px 10px;
+    background-color: #0067b8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .patchnote-details {
+    font-size: 0.9rem;
+  }
+
+  .patchnote-details ul {
+    padding-left: 20px;
+  }
+
+  .patchnote-image {
+    display: flex;
+    display: none;
+    justify-content: center;
+    padding: 10px;
+    background-color: #161622;
+  }
+
+  .patchnote-image img {
+    max-width: 40px;
+    height: auto;
+    margin: 0 5px;
+  }
 }
