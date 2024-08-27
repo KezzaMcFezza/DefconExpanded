@@ -1,0 +1,7 @@
+WaitEnd
+Record demo_recordings/game_%Y-%m-%d-%H-%M.dcrec
+AdvertiseOnInternet 0
+Say Game Over !
+Say Restart in 30 Seconds!
+WaitSeconds 30
+Quit

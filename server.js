@@ -21,20 +21,34 @@ const dbConfig = {
   database: 'defcon_demos'
 };
 
-const demoDir = path.join(__dirname, 'demos');
+const demoDir = path.join(__dirname, 'demo_recordings');
 const resourcesDir = path.join(__dirname, 'public', 'Files');
 const uploadDir = path.join(__dirname, 'public');
-const upload = multer({ dest: uploadDir });
+const gameLogsDir = path.join(__dirname, 'game_logs');
 
 // Ensure directories exist
-[demoDir, resourcesDir, uploadDir].forEach(dir => {
+[demoDir, resourcesDir, uploadDir, gameLogsDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 });
 
+// Configure multer for handling file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, demoDir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
+
+const upload = multer({ storage: storage });
+
 // Database connection pool
 const pool = mysql.createPool(dbConfig);
+
+const pendingDemoFiles = new Map();
 
 // Watch for new demo files
 console.log(`Watching demo directory: ${demoDir}`);
@@ -44,30 +58,97 @@ const demoWatcher = chokidar.watch(`${demoDir}/*.dcrec`, {
 });
 
 demoWatcher
-  .on('add', async (path) => {
-    console.log(`New demo detected: ${path}`);
-    const fileName = path.split('\\').pop();
-    const stats = fs.statSync(path);
+  .on('add', async (demoPath) => {
+    console.log(`New demo detected: ${demoPath}`);
+    const demoFileName = path.basename(demoPath);
     
-    try {
-      // Check if a demo with the same name already exists
-      const [rows] = await pool.query('SELECT * FROM demos WHERE name = ?', [fileName]);
-      if (rows.length > 0) {
-        console.log(`Demo ${fileName} already exists in the database. Skipping upload.`);
+    // Check if the demo already exists in the database
+    const exists = await demoExistsInDatabase(demoFileName);
+    if (exists) {
+      console.log(`Demo ${demoFileName} already exists in the database. Skipping.`);
+      return;
+    }
+
+    const demoStats = await fs.promises.stat(demoPath);
+    pendingDemoFiles.set(demoFileName, demoStats);
+    console.log(`Demo ${demoFileName} added to pending list.`);
+  })
+  .on('error', error => console.error(`Demo watcher error: ${error}`));
+
+// Watch for new log files
+console.log(`Watching JSON logs directory: ${gameLogsDir}`);
+const jsonWatcher = chokidar.watch(`${gameLogsDir}/*.json`, {
+  ignored: /(^|[\/\\])\../,
+  persistent: true
+});
+
+const TEN_MINUTES = 10 * 60 * 1000; // 10 minutes in milliseconds
+
+jsonWatcher
+  .on('add', async (jsonPath) => {
+    console.log(`New JSON log file detected: ${jsonPath}`);
+    
+    // Wait for 10 seconds
+    console.log("Waiting 10 seconds before processing the file...");
+    await delay(10000);
+
+    const logFileName = path.basename(jsonPath);
+    const logTimestamp = logFileName.match(/game_(\d{4}-\d{2}-\d{2}-\d{2}-\d{2})_full\.json/);
+    
+    if (!logTimestamp) {
+      console.log(`Unable to extract timestamp from log file: ${logFileName}`);
+      return;
+    }
+
+    const logTime = new Date(logTimestamp[1].replace(/-/g, ':'));
+    
+    let matchingDemoFile = null;
+    let smallestTimeDifference = Infinity;
+
+    for (const [demoFileName, demoStats] of pendingDemoFiles.entries()) {
+      const demoTimestamp = demoFileName.match(/game_(\d{4}-\d{2}-\d{2}-\d{2}-\d{2})\.dcrec/);
+      if (demoTimestamp) {
+        const demoTime = new Date(demoTimestamp[1].replace(/-/g, ':'));
+        const timeDifference = Math.abs(logTime - demoTime);
+        if (timeDifference <= TEN_MINUTES && timeDifference < smallestTimeDifference) {
+          matchingDemoFile = demoFileName;
+          smallestTimeDifference = timeDifference;
+        }
+      }
+    }
+
+    if (matchingDemoFile) {
+      // Check if the demo already exists in the database
+      const exists = await demoExistsInDatabase(matchingDemoFile);
+      if (exists) {
+        console.log(`Demo ${matchingDemoFile} already exists in the database. Skipping processing.`);
+        pendingDemoFiles.delete(matchingDemoFile);
         return;
       }
 
-      // If the demo doesn't exist, insert it into the database
-      const [result] = await pool.query(
-        'INSERT INTO demos (name, size, date) VALUES (?, ?, ?)',
-        [fileName, stats.size, new Date()]
-      );
-      console.log(`Demo ${fileName} added to database`);
-    } catch (error) {
-      console.error(`Error adding demo to database: ${error}`);
+      try {
+        const logContent = await fs.promises.readFile(jsonPath, 'utf8');
+        let logData;
+        try {
+          logData = JSON.parse(logContent);
+        } catch (parseError) {
+          console.error(`Error parsing JSON file ${jsonPath}:`, parseError);
+          console.log('JSON content:', logContent);
+          return; // Skip processing this file
+        }
+        const demoStats = pendingDemoFiles.get(matchingDemoFile);
+
+        console.log(`Corresponding log file found for demo: ${matchingDemoFile}`);
+        await processDemoFile(matchingDemoFile, demoStats.size, logData);
+        pendingDemoFiles.delete(matchingDemoFile);
+      } catch (error) {
+        console.error(`Error processing log file ${jsonPath}:`, error);
+      }
+    } else {
+      console.log(`No matching demo file found for log file: ${logFileName}`);
     }
   })
-  .on('error', error => console.error(`Demo watcher error: ${error}`));
+  .on('error', error => console.error(`JSON watcher error: ${error}`));
 
 // Watch for new resource files
 console.log(`Watching resources directory: ${resourcesDir}`);
@@ -124,25 +205,101 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/api/discord-widget', async (req, res) => {
+// Helper functions
+async function demoExistsInDatabase(demoFileName) {
   try {
-    const response = await axios.get('https://discord.com/api/guilds/1256842522215579668/widget.json');
-    res.json(response.data);
+    const [rows] = await pool.query('SELECT * FROM demos WHERE name = ?', [demoFileName]);
+    return rows.length > 0;
   } catch (error) {
-    console.error('Error fetching Discord data:', error);
-    res.status(500).json({ error: 'Failed to fetch Discord data' });
+    console.error(`Error checking if demo exists in database: ${error}`);
+    return false;
   }
-});
+}
 
-app.get('/api/getLayout', async (req, res) => {
+async function processDemoFile(demoFileName, fileSize, logData) {
+  console.log(`Processing demo file: ${demoFileName}`);
+
   try {
-    // For now, just return an empty layout
-    res.json({ rows: [] });
+    // Check if the demo already exists in the database
+    const [existingDemo] = await pool.query('SELECT * FROM demos WHERE name = ?', [demoFileName]);
+    
+    if (existingDemo.length > 0) {
+      console.log(`Demo ${demoFileName} already exists in the database. Skipping upload.`);
+      return;
+    }
+
+    const playerCount = logData.players ? logData.players.filter(p => p.score !== undefined).length : 0;
+    const gameType = logData.gameType || `${playerCount} Players`;
+    const duration = logData.duration || null;
+
+    const playerColumns = ['player1', 'player2', 'player3', 'player4', 'player5', 'player6', 'player7', 'player8'];
+    const playerData = {};
+
+    // Create a map of team alliances
+    const teamAlliances = {};
+    let lastAlliance = null;
+    if (logData.notes) {
+      logData.notes.forEach(note => {
+        const match = note.match(/TEAM_ALLIANCE (\d+) (\d+)/);
+        if (match) {
+          teamAlliances[match[1]] = match[2];
+          lastAlliance = [match[1], match[2]];
+        }
+      });
+    }
+
+    // Filter and process players
+    const participatingPlayers = logData.players.filter(p => p.score !== undefined);
+    participatingPlayers.forEach((player, index) => {
+      if (index < 8) {
+        const prefix = playerColumns[index];
+        playerData[`${prefix}_name`] = player.name || null;
+        playerData[`${prefix}_team`] = player.team;
+        playerData[`${prefix}_score`] = player.score || null;
+        playerData[`${prefix}_territory`] = player.territory || null;
+      }
+    });
+
+    const columns = [
+      'name', 'size', 'date', 'game_type', 'duration', 'players', 
+      ...Object.keys(playerData), 
+      'alliances', 'last_alliance'
+    ];
+    const values = [
+      demoFileName, fileSize, new Date(logData.start_time), gameType, duration, 
+      JSON.stringify(participatingPlayers), 
+      ...Object.values(playerData),
+      JSON.stringify(teamAlliances),
+      JSON.stringify(lastAlliance)
+    ];
+
+    const placeholders = columns.map(() => '?').join(', ');
+    const query = `INSERT INTO demos (${columns.join(', ')}) VALUES (${placeholders})`;
+
+    const [result] = await pool.query(query, values);
+
+    console.log(`Demo ${demoFileName} processed and added to database with player data`);
+    console.log(`Inserted row ID: ${result.insertId}`);
   } catch (error) {
-    console.error('Error fetching layout:', error);
-    res.status(500).json({ error: 'Unable to fetch layout' });
+    console.error(`Error processing demo ${demoFileName}:`, error);
   }
-});
+}
+
+async function checkExistingDemos() {
+  const files = await fs.promises.readdir(demoDir);
+  for (const file of files) {
+    if (file.endsWith('.dcrec')) {
+      const exists = await demoExistsInDatabase(file);
+      if (!exists) {
+        const demoStats = await fs.promises.stat(path.join(demoDir, file));
+        pendingDemoFiles.set(file, demoStats);
+        console.log(`Existing demo ${file} added to pending list.`);
+      }
+    }
+  }
+}
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // JWT secret key (change this to a secure random string in production!)
 const JWT_SECRET = 'your-secret-key';
@@ -238,24 +395,20 @@ app.get('/api/checkAuth', (req, res) => {
   }
 });
 
+app.get('/api/discord-widget', async (req, res) => {
+  try {
+    const discordResponse = await axios.get('https://discord.com/api/guilds/1256842522215579668/widget.json');
+    res.json(discordResponse.data);
+  } catch (error) {
+    console.error('Error fetching Discord widget:', error);
+    res.status(500).json({ error: 'Failed to fetch Discord widget data' });
+  }
+});
+
 // List all demos with associated users
 app.get('/api/demos', async (req, res) => {
   try {
-    const [demos] = await pool.query(`
-      SELECT d.*, GROUP_CONCAT(u.username) as usernames
-      FROM demos d
-      LEFT JOIN demo_users du ON d.id = du.demo_id
-      LEFT JOIN users u ON du.user_id = u.id
-      GROUP BY d.id
-      ORDER BY d.date DESC
-    `);
-
-    // Parse the usernames string into an array
-    demos.forEach(demo => {
-      demo.users = demo.usernames ? demo.usernames.split(',') : [];
-      delete demo.usernames;
-    });
-
+    const [demos] = await pool.query('SELECT * FROM demos ORDER BY date DESC');
     res.json(demos);
   } catch (error) {
     console.error('Error fetching demos:', error);
@@ -290,23 +443,29 @@ app.post('/api/upload', authenticateToken, upload.single('demoFile'), async (req
   }
 
   try {
-    const originalName = req.file.originalname;
-    const filePath = path.join(demoDir, originalName);
+    const demoFile = req.file;
+    const logFileName = path.parse(demoFile.originalname).name + '_full.json';
+    const logFilePath = path.join(gameLogsDir, logFileName);
 
-    // Move the uploaded file to the demos directory
-    fs.renameSync(req.file.path, filePath);
-
-    const stats = fs.statSync(filePath);
-
-    const [result] = await pool.query(
-      'INSERT INTO demos (name, size, date) VALUES (?, ?, ?)',
-      [originalName, stats.size, new Date()]
-    );
-
-    res.json({ message: 'Demo uploaded successfully', demoName: originalName });
+    // Check if log file exists
+    if (await fs.promises.access(logFilePath).then(() => true).catch(() => false)) {
+      const logContent = await fs.promises.readFile(logFilePath, 'utf8');
+      const logData = JSON.parse(logContent);
+      await processDemoFile(demoFile.originalname, demoFile.size, logData);
+      res.json({ 
+        message: 'Demo uploaded and processed successfully', 
+        demoName: demoFile.originalname
+      });
+    } else {
+      res.status(400).json({ error: 'Corresponding log file not found' });
+      // Delete the uploaded demo file if there was an error
+      await fs.promises.unlink(req.file.path).catch(console.error);
+    }
   } catch (error) {
-    console.error('Error uploading demo:', error);
-    res.status(500).json({ error: 'Unable to upload demo' });
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Failed to process upload' });
+    // Delete the uploaded demo file if there was an error
+    await fs.promises.unlink(req.file.path).catch(console.error);
   }
 });
 
@@ -339,7 +498,7 @@ app.post('/api/updateLayout', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Page not found' });
     }
 
-    let pageContent = await fsPromises.readFile(filePath, 'utf8');
+    let pageContent = await fs.promises.readFile(filePath, 'utf8');
     const dom = new JSDOM(pageContent);
     const document = dom.window.document;
 
@@ -381,7 +540,7 @@ app.post('/api/updateLayout', authenticateToken, async (req, res) => {
     pageContent = dom.serialize();
 
     // Write the updated content back to the file
-    await fsPromises.writeFile(filePath, pageContent, 'utf8');
+    await fs.promises.writeFile(filePath, pageContent, 'utf8');
     res.json({ message: 'Layout updated successfully' });
   } catch (error) {
     console.error('Error updating layout:', error);
@@ -403,7 +562,7 @@ app.post('/api/updateContent', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'Page not found' });
     }
 
-    let pageContent = await fsPromises.readFile(filePath, 'utf8');
+    let pageContent = await fs.promises.readFile(filePath, 'utf8');
     const dom = new JSDOM(pageContent);
     const document = dom.window.document;
 
@@ -446,7 +605,7 @@ app.post('/api/updateContent', authenticateToken, async (req, res) => {
       }
 
       pageContent = dom.serialize();
-      await fsPromises.writeFile(filePath, pageContent, 'utf8');
+      await fs.promises.writeFile(filePath, pageContent, 'utf8');
       res.json({ message: 'Content updated successfully' });
     } else {
       res.status(400).json({ error: 'Card not found' });
@@ -612,6 +771,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`Defcon Expanded Demo and File Server Listening at http://localhost:${port}`);
+  await checkExistingDemos();
 });

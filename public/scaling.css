@@ -423,6 +423,13 @@ body {
         justify-content: center;
     }
 
+    .contributor-category {
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: baseline;
+        flex-direction: column;
+    }
+
     h3, h5 {
         text-align: center;
     }

@@ -1,0 +1,5002 @@
+OutFile = server_output.log
+PlayerLog = player_scores.log
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 26.102.130.209:52110, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13205466 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+client 7 (LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+client 6 (Colimin) is no longer ready to play.
+Countdown aborted.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 7 (LadenBinKezza), keyID = 13205466
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 395 (0x18b)
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 6 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 7 (LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+client 7 (LadenBinKezza) disconnected.
+client 6 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 26.102.130.209:52110, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13205466 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+client 7 (LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 7 (LadenBinKezza), keyID = 13205466
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 145 (0x91)
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 6 (Colimin) requests a speed factor of 20.
+client 7 (LadenBinKezza) : /speed 100
+Host : [private] client 7 (LadenBinKezza) : requested = 20, budget = 307
+Host : [private] client 6 (Colimin) : requested = 20, budget = 307
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 7 (LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+client 7 (LadenBinKezza) disconnected.
+client 6 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 26.102.130.209:52110, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13205466 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+client 7 (LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 7 (LadenBinKezza), keyID = 13205466
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 507 (0x1fb)
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 6 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 7 (LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_18_13_15.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 7 (LadenBinKezza) disconnected.
+client 6 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+SteamPath = c:/program files (x86)/steam
+Loading key from c:/program files (x86)/steam/steamapps/common/defcon/authkey
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 26.102.130.209:63754, version="1.62 STEAM", keyID=13205466 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : LadenBinKezza
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Colimin
+client 7 (Colimin) is ready to play.
+client 6 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 7 (Colimin), keyID = 2935630
+Team 0 : client 6 (LadenBinKezza), keyID = 13205466
+Random seed: 269 (0x10d)
+client 6 (LadenBinKezza) requests a speed factor of 20.
+client 7 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 6 (LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Host : client 7 (Colimin) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_18_13_30.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (LadenBinKezza) disconnected.
+client 7 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+SteamPath = c:/program files (x86)/steam
+Loading key from c:/program files (x86)/steam/steamapps/common/defcon/authkey
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Login request from 26.102.130.209:63754, version="1.62 STEAM", keyID=13205466 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+client 7 (LadenBinKezza) is ready to play.
+client 7 (LadenBinKezza) is no longer ready to play.
+client 6 (Colimin) is ready to play.
+client 7 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 7 (LadenBinKezza), keyID = 13205466
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 325 (0x145)
+client 6 (Colimin) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 7 (LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_18_13_43.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 7 (LadenBinKezza) disconnected.
+client 6 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+ServerKey = <secret>
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13205466 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : LadenBinKezza
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+client 6 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 6 (LadenBinKezza), keyID = 13205466
+Random seed: 207 (0xcf)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (LadenBinKezza) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.141.87:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.240.73.147:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207506 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+Host : Warning: the nickname ladenbinkezza is reserved by a different player. This may be an impostor (or someone who picked the same name just by chance).
+New name for client 6 : fake LadenBinKezza
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:58621, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : Colimin
+client 8 (Colimin) is ready to play.
+client 6 (fake LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (Colimin), keyID = 2935630
+Team 0 : client 6 (fake LadenBinKezza), keyID = 13207506
+Random seed: 458 (0x1ca)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (fake LadenBinKezza) requests a speed factor of 20.
+client 6 (fake LadenBinKezza) requests a speed factor of 20.
+client 8 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_02_46.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (fake LadenBinKezza) disconnected.
+client 8 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.240.73.147:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+client 6 (Colimin) disconnected.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 (Colimin) received.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : fake LadenBinKezza
+client 9 (fake LadenBinKezza) is ready to play.
+client 8 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 9 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 8 (Colimin), keyID = 2935630
+Random seed: 261 (0x105)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (Colimin) requests a speed factor of 20.
+client 9 (fake LadenBinKezza) requests a speed factor of 20.
+Login request from 182.164.127.29:5011, version="1.62 STEAM", keyID=13207750 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : [Joining...]
+Host : c2 packets received.
+Host : client 9 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Host : client 8 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : c2 packets received.
+Host : client 10 ([Joining...]) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_14_11.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 8 (Colimin) disconnected.
+client 9 (fake LadenBinKezza) disconnected.
+client 10 ([Joining...]) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 2935630.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+Login request from 93.44.159.30:5011, version="1.62 STEAM", keyID=13083098 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LOLLOX
+client 8 (fake LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 164 (0xa4)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+Login request from 182.164.127.29:5011, version="1.62 STEAM", keyID=13207750 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : [Joining...]
+client 6 (Colimin) : btw boys im testing out my dedcon server and website implementation
+client 6 (Colimin) : so this isnt a game u wanna watch lol
+client 6 (Colimin) requests a speed factor of 20.
+client 8 (fake LadenBinKezza) requests a speed factor of 20.
+client 9 (LOLLOX) disconnected.
+client 10 ([Joining...]) disconnected.
+Host : c2 packets received.
+Host : client 8 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_14_42.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (Colimin) disconnected.
+client 8 (fake LadenBinKezza) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 24.131.8.43:5011, version="1.62 STEAM", keyID=13085720 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : XxAdolphxX
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 88.130.218.147:20222, version="1.42 linux", keyID=DEMO : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 ([DEMO]) received.
+New name for client 8 ([DEMO]) : uk
+client 8 ([DEMO]uk) : hi
+client 6 (XxAdolphxX) : yo
+client 8 ([DEMO]uk) is ready to play.
+client 6 (XxAdolphxX) : this is a test server for kezza, hes trying to get his server to start
+Host : [private] XxAdolphxX : Please ready up or leave, the other players want to start.
+client 8 ([DEMO]uk) is no longer ready to play.
+client 8 ([DEMO]uk) : so, it is not for playing?
+client 6 (XxAdolphxX) : this is a test server for kezza, its to get his website impementation.  it is for playing
+client 6 (XxAdolphxX) : the more games the better, all about testing
+client 6 (XxAdolphxX) is ready to play.
+client 8 ([DEMO]uk) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 ([DEMO]uk), keyID = DEMO
+Team 0 : client 6 (XxAdolphxX), keyID = 13085720
+Random seed: 442 (0x1ba)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 ([DEMO]uk) : well, its lags horribly
+client 6 (XxAdolphxX) requests a speed factor of 1.
+client 6 (XxAdolphxX) requests a speed factor of 1.
+client 6 (XxAdolphxX) : im no tgetting any lag
+client 8 ([DEMO]uk) requests a speed factor of 1.
+client 8 ([DEMO]uk) requests a speed factor of 1.
+client 8 ([DEMO]uk) : it seems better now
+client 6 (XxAdolphxX) : could have been on your end
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : Colimin
+Login request from 182.164.127.29:5011, version="1.62 STEAM", keyID=13207750 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : [Joining...]
+client 10 ([Joining...]) disconnected.
+Login request from 182.164.127.29:5011, version="1.62 STEAM", keyID=13207750 : naval blacklists apply, accepted, ID = 11.
+client 6 (XxAdolphxX) : im slow asf, i didnt place much
+Team creation request from client 11 ([Joining...]) received.
+client 6 (XxAdolphxX) : thats okay though
+client 8 ([DEMO]uk) requests a speed factor of 5.
+client 8 ([DEMO]uk) requests a speed factor of 5.
+client 6 (XxAdolphxX) requests a speed factor of 5.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 12.
+Team creation request from client 12 received.
+New name for client 12 : fake LadenBinKezza
+Host : [private] Spectator chat is private, name changes are not allowed.
+client 12 (fake LadenBinKezza) : /login
+Host : [private] Access denied, not registered.
+client 6 (XxAdolphxX) requests a speed factor of 10.
+client 8 ([DEMO]uk) requests a speed factor of 10.
+client 8 ([DEMO]uk) requests a speed factor of 5.
+client 8 ([DEMO]uk) requests a speed factor of 5.
+client 8 ([DEMO]uk) requests a speed factor of 5.
+client 8 ([DEMO]uk) requests a speed factor of 5.
+client 8 ([DEMO]uk) requests a speed factor of 10.
+client 8 ([DEMO]uk) requests a speed factor of 10.
+client 8 ([DEMO]uk) requests a speed factor of 10.
+client 8 ([DEMO]uk) requests a speed factor of 10.
+client 6 (XxAdolphxX) requests a speed factor of 20.
+client 8 ([DEMO]uk) requests a speed factor of 20.
+client 8 ([DEMO]uk) requests a speed factor of 20.
+client 8 ([DEMO]uk) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 9 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 12 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_15_19.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+Host : c2 packets received.
+Host : client 11 ([Joining...]) signs the current scores.
+Host : c2 packets received.
+client 6 (XxAdolphxX) went out of sync.
+Host : [private] You have fallen out of sync with the other players.
+client 6 (XxAdolphxX) : gg
+client 8 ([DEMO]uk) : does it work?
+client 8 ([DEMO]uk) : gg
+client 8 ([DEMO]uk) : kezza
+client 6 (XxAdolphxX) disconnected.
+client 6 (XxAdolphxX) is back in sync.
+client 8 ([DEMO]uk) : yes
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+client 8 (fake LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 452 (0x1c4)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (Colimin) requests a speed factor of 20.
+client 8 (fake LadenBinKezza) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_16_15.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (Colimin) disconnected.
+client 8 (fake LadenBinKezza) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+client 8 (fake LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 157 (0x9d)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (Colimin) requests a speed factor of 20.
+client 8 (fake LadenBinKezza) requests a speed factor of 20.
+Record = demo_recordings/game_2024_08_26_16_29.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : fake LadenBinKezza
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : Colimin
+client 8 (Colimin) is ready to play.
+client 6 (fake LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (Colimin), keyID = 2935630
+Team 0 : client 6 (fake LadenBinKezza), keyID = 13207847
+Random seed: 103 (0x67)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (fake LadenBinKezza) requests a speed factor of 20.
+client 6 (fake LadenBinKezza) requests a speed factor of 20.
+client 8 (Colimin) requests a speed factor of 20.
+Login request from 182.164.127.29:5011, version="1.62 STEAM", keyID=13207750 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : AshSoftpaws
+client 9 (AshSoftpaws) disconnected.
+Host : c2 packets received.
+Host : client 6 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Host : client 8 (Colimin) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_16_37.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 8 (Colimin) disconnected.
+client 6 (fake LadenBinKezza) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : fake LadenBinKezza
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : Colimin
+client 8 (Colimin) is ready to play.
+client 6 (fake LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (Colimin), keyID = 2935630
+Team 0 : client 6 (fake LadenBinKezza), keyID = 13207847
+Random seed: 465 (0x1d1)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (fake LadenBinKezza) requests a speed factor of 20.
+client 8 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 6 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Host : client 8 (Colimin) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_18_09.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (fake LadenBinKezza) disconnected.
+client 8 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : fake LadenBinKezza
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : Colimin
+client 8 (Colimin) is ready to play.
+client 6 (fake LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (Colimin), keyID = 2935630
+Team 0 : client 6 (fake LadenBinKezza), keyID = 13207847
+Random seed: 211 (0xd3)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (fake LadenBinKezza) requests a speed factor of 20.
+client 8 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_18_16.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 8 (Colimin) disconnected.
+client 6 (fake LadenBinKezza) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+client 8 (fake LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 496 (0x1f0)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (fake LadenBinKezza) requests a speed factor of 20.
+client 6 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_18_43.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (Colimin) disconnected.
+client 8 (fake LadenBinKezza) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+client 6 is ready to play.
+Countdown started.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Game started. Players:
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 162 (0xa2)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, denied, ghosting attempt.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, denied, ghosting attempt.
+client 6 (Colimin) requests a speed factor of 20.
+Record = demo_recordings/game_2024_08_26_18_55.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (Colimin) disconnected.
+OutFile = server_output.logOutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+client 8 (fake LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 430 (0x1ae)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (fake LadenBinKezza) requests a speed factor of 20.
+client 6 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_19_03.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (Colimin) disconnected.
+client 8 (fake LadenBinKezza) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+client 8 (fake LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 113 (0x71)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (fake LadenBinKezza) requests a speed factor of 20.
+client 6 (Colimin) requests a speed factor of 20.
+Login request from 88.130.218.147:20212, version="1.42 linux", keyID=12723821 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : Rad
+client 8 (fake LadenBinKezza) : hello
+client 8 (fake LadenBinKezza) : testing the log files again lol
+client 8 (fake LadenBinKezza) : almost got it working
+client 9 (Rad) disconnected.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 8 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_19_23.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 8 (fake LadenBinKezza) disconnected.
+client 6 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+client 8 (fake LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 280 (0x118)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (fake LadenBinKezza) requests a speed factor of 20.
+client 6 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_19_33.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+client 8 (fake LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 147 (0x93)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (fake LadenBinKezza) requests a speed factor of 20.
+client 6 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 8 (fake LadenBinKezza) signs the current scores.
+Record = demo_recordings/game_2024_08_26_19_44.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (Colimin) disconnected.
+client 8 (fake LadenBinKezza) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+client 8 (fake LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 118 (0x76)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (fake LadenBinKezza) requests a speed factor of 20.
+client 6 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 8 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_19_53.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 8 (fake LadenBinKezza) disconnected.
+client 6 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+client 8 (fake LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 128 (0x80)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (Colimin) requests a speed factor of 20.
+client 8 (fake LadenBinKezza) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_20_01.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 8 (fake LadenBinKezza) disconnected.
+client 6 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+client 8 (fake LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 414 (0x19e)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (fake LadenBinKezza) requests a speed factor of 20.
+client 6 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 8 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_20_13.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : fake LadenBinKezza
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : Colimin
+client 8 (Colimin) is ready to play.
+client 6 (fake LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (Colimin), keyID = 2935630
+Team 0 : client 6 (fake LadenBinKezza), keyID = 13207847
+Random seed: 374 (0x176)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (fake LadenBinKezza) requests a speed factor of 20.
+client 8 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_20_29.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (fake LadenBinKezza) disconnected.
+client 8 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : fake LadenBinKezza
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : Colimin
+client 8 (Colimin) is ready to play.
+client 6 (fake LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (Colimin), keyID = 2935630
+Team 0 : client 6 (fake LadenBinKezza), keyID = 13207847
+Random seed: 282 (0x11a)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (fake LadenBinKezza) requests a speed factor of 20.
+client 8 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_20_41.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (fake LadenBinKezza) disconnected.
+client 8 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : fake LadenBinKezza
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : Colimin
+client 8 (Colimin) is ready to play.
+client 6 (fake LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (Colimin), keyID = 2935630
+Team 0 : client 6 (fake LadenBinKezza), keyID = 13207847
+Random seed: 318 (0x13e)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (fake LadenBinKezza) requests a speed factor of 20.
+client 8 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_20_59.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (fake LadenBinKezza) disconnected.
+client 8 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 2935630.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 194 (0xc2)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (Colimin) requests a speed factor of 20.
+Record = demo_recordings/game_2024_08_26_21_08.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 2935630.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : fake LadenBinKezza
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : Colimin
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 (fake LadenBinKezza) received.
+client 9 (fake LadenBinKezza) is ready to play.
+client 8 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 9 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 8 (Colimin), keyID = 2935630
+Random seed: 418 (0x1a2)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 9 (fake LadenBinKezza) requests a speed factor of 20.
+client 8 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 9 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_21_16.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 8 (Colimin) disconnected.
+client 9 (fake LadenBinKezza) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5012.
+ServerPort = 5012
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5012
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : fake LadenBinKezza
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : Colimin
+client 8 (Colimin) is ready to play.
+client 6 (fake LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (Colimin), keyID = 2935630
+Team 0 : client 6 (fake LadenBinKezza), keyID = 13207847
+Random seed: 166 (0xa6)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (fake LadenBinKezza) requests a speed factor of 20.
+client 8 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (fake LadenBinKezza) signs the current scores.
+Record = demo_recordings/game_2024_08_26_21_36.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (fake LadenBinKezza) disconnected.
+client 8 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 2935630.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 14 (0xe)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (Colimin) requests a speed factor of 20.
+Record = demo_recordings/game_2024_08_26_21_47.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5012.
+ServerPort = 5012
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5012
+Server key authentication succeeded, key id = 2935630.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 4 (0x4)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (Colimin) requests a speed factor of 20.
+Record = demo_recordings/game_2024_08_26_22_00.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+client 8 (fake LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (fake LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 250 (0xfa)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (fake LadenBinKezza) requests a speed factor of 20.
+client 6 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (Colimin) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_22_04.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 8 (fake LadenBinKezza) disconnected.
+client 6 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 2935630.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : fake LadenBinKezza
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : Colimin
+client 8 (Colimin) is ready to play.
+client 6 (fake LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (Colimin), keyID = 2935630
+Team 0 : client 6 (fake LadenBinKezza), keyID = 13207847
+Random seed: 206 (0xce)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 6 (fake LadenBinKezza) requests a speed factor of 20.
+client 8 (Colimin) requests a speed factor of 20.
+Host : c2 packets received.
+Host : client 8 (Colimin) signs the current scores.
+Host : c2 packets received.
+Host : client 6 (fake LadenBinKezza) signs the current scores.
+Host : c2 packets received.
+Record = demo_recordings/game_2024_08_26_22_28.dcrec
+AdvertiseOnInternet = 0
+Host : Game Over !
+Host : Restart in 30 Seconds!
+client 6 (fake LadenBinKezza) disconnected.
+client 8 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : fake LadenBinKezza
+New name for client 8 (fake LadenBinKezza) : LadenBinKezza
+client 8 (LadenBinKezza) disconnected.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 (LadenBinKezza) received.
+client 9 (LadenBinKezza) is ready to play.
+client 6 (Colimin) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 9 (LadenBinKezza), keyID = 13207847
+Team 0 : client 6 (Colimin), keyID = 2935630
+Random seed: 115 (0x73)
+Host : Warning: slowdown budget 20 min.
+Host : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 9 (LadenBinKezza) : /login
+Host : client 9 (LadenBinKezza) has been logged in as owner.
+client 9 (LadenBinKezza) : /speed 100
+Host : [private] client 9 (LadenBinKezza) : requested = 5, budget = 1200
+Host : [private] client 6 (Colimin) : requested = 5, budget = 1200
+client 9 (LadenBinKezza) : /speed 1
+Host : [private] client 9 (LadenBinKezza) : requested = 5, budget = 1200
+Host : [private] client 6 (Colimin) : requested = 5, budget = 1200
+client 9 (LadenBinKezza) : /close
+Host : [private] Unknown chat command /close.
+client 9 (LadenBinKezza) : /
+Host : [private] Unknown chat command /.
+client 9 (LadenBinKezza) requests a speed factor of 1.
+client 6 (Colimin) disconnected.
+client 9 (LadenBinKezza) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+Login request from 26.102.130.209:52982, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 6.
+Team creation request from client 6 received.
+New name for client 6 : Colimin
+Host : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Host : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 1
+ReadyVoteDelay = 90
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 2935630.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 2935630.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 2935630.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpanded.com
+client 7 (LadenBinKezza) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Colimin
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpanded.com
+client 7 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Colimin
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+client 7 (Colimin) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 13207847.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Colimin
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+New name for client 7 (Colimin) : LadenBInKezza
+client 7 (LadenBInKezza) : /login
+Kezza's Test Server : [private] Access denied, wrong password.
+client 7 (LadenBInKezza) : /login dancefloor
+Kezza's Test Server : client 7 (LadenBInKezza) has been logged in as owner.
+client 7 (LadenBInKezza) left to spectator mode.
+Team creation request from client 7 (LadenBInKezza) received.
+New name for client 7 (LadenBInKezza) : EqualKid
+client 7 (EqualKid) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 13207847.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 13207847.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : EqualKid
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Kezza's Test Server : [private] Not enough players online yet. 2 are required.
+Kezza's Test Server : [private] Not enough players online yet. 2 are required.
+client 7 (EqualKid) disconnected.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 (EqualKid) received.
+Login request from 89.104.245.222:5011, version="1.62 STEAM", keyID=13208019 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : MohammedBinNexus
+New name for client 9 (MohammedBinNexus) : MommyMuncher69
+client 8 (EqualKid) disconnected.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 (EqualKid) received.
+New name for client 9 (MommyMuncher69) : MohammedBinNexus
+client 9 (MohammedBinNexus) : /login dancefloor
+Kezza's Test Server : client 9 (MohammedBinNexus) has been logged in as owner.
+Login request from 198.52.48.243:5011, version="1.6", keyID=2935630 : denied, duplicate key.
+client 9 (MohammedBinNexus) : /help
+Kezza's Test Server : [private] Available commands: /help, /ignore, /kick, /login, /me, /name, /ping, /ranked, /score, /setscore, /setscoreid, /signscore, /speed, /unignore, /unranked, /version
+Kezza's Test Server : [private] Admin commands: /demote, /deop, /fullinfo, /include, /info, /logout, /op, /promote, /remove, /say, /set
+Kezza's Test Server : [private] Get more help with, for example, "/help /ping".
+client 10 (EqualKid) is ready to play.
+client 10 (EqualKid) is no longer ready to play.
+Login request from 198.52.48.243:5011, version="1.6", keyID=DEMO : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 ([DEMO]) received.
+New name for client 11 ([DEMO]) : Analyzers
+client 10 (EqualKid) : hello
+client 10 (EqualKid) : 1v1v1?
+client 11 ([DEMO]Analyzers) : hi, I heard about this game over on youtube
+client 11 ([DEMO]Analyzers) : seems fun
+client 9 (MohammedBinNexus) is ready to play.
+client 10 (EqualKid) : yea bro its fun u will see 
+client 10 (EqualKid) : u want to be on nexus team tho?
+client 11 ([DEMO]Analyzers) is ready to play.
+client 9 (MohammedBinNexus) : you new?
+client 10 (EqualKid) : if you are new having a teammate will be very helpful
+All players unreadied.
+client 10 (EqualKid) is ready to play.
+client 11 ([DEMO]Analyzers) : I dont mind getting obliterated haha
+client 11 ([DEMO]Analyzers) : but sure
+client 10 (EqualKid) is no longer ready to play.
+client 9 (MohammedBinNexus) is ready to play.
+client 10 (EqualKid) : ready up
+client 11 ([DEMO]Analyzers) is ready to play.
+client 9 (MohammedBinNexus) is no longer ready to play.
+client 9 (MohammedBinNexus) is ready to play.
+Game started. Players:
+Team 2 : client 11 ([DEMO]Analyzers), keyID = DEMO
+Team 0 : client 10 (EqualKid), keyID = 2935630
+Team 1 : client 9 (MohammedBinNexus), keyID = 13208019
+Random seed: 62 (0x3e)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 10 (EqualKid) requests a speed factor of 1.
+Login request from 146.70.112.172:5011, version="1.62 STEAM", keyID=13208004 : naval blacklists apply, accepted, ID = 12.
+client 11 ([DEMO]Analyzers) requests a speed factor of 5.
+client 11 ([DEMO]Analyzers) requests a speed factor of 5.
+Team creation request from client 12 received.
+New name for client 12 : Gyarados
+client 12 (Gyarados) disconnected.
+client 11 ([DEMO]Analyzers) requests a speed factor of 1.
+client 11 ([DEMO]Analyzers) requests a speed factor of 5.
+client 11 ([DEMO]Analyzers) requests a speed factor of 5.
+client 10 (EqualKid) requests a speed factor of 5.
+client 9 (MohammedBinNexus) requests a speed factor of 1.
+client 10 (EqualKid) : you are inside my fleet lol
+client 9 (MohammedBinNexus) requests a speed factor of 5.
+client 11 ([DEMO]Analyzers) : you spawned there 
+client 11 ([DEMO]Analyzers) requests a speed factor of 1.
+client 11 ([DEMO]Analyzers) requests a speed factor of 5.
+client 9 (MohammedBinNexus) requests a speed factor of 1.
+client 11 ([DEMO]Analyzers) requests a speed factor of 5.
+client 11 ([DEMO]Analyzers) requests a speed factor of 10.
+client 11 ([DEMO]Analyzers) requests a speed factor of 5.
+client 11 ([DEMO]Analyzers) requests a speed factor of 5.
+client 9 (MohammedBinNexus) requests a speed factor of 5.
+Login request from 88.130.218.147:20134, version="1.42 linux", keyID=12723821 : naval blacklists apply, accepted, ID = 13.
+Team creation request from client 13 received.
+New name for client 13 : Rad
+client 10 (EqualKid) : well that was an interesting game lol
+client 10 (EqualKid) : you spawned inside my fleet america
+client 10 (EqualKid) : that was insane
+client 11 ([DEMO]Analyzers) : you're very experienced at this
+client 10 (EqualKid) : no i am not lol
+client 10 (EqualKid) : if tier 7 is worst and tier 1 is best im tier 5 for sure
+client 11 ([DEMO]Analyzers) : even after that exchange at first you still kept a lot of firepower at sea
+client 10 (EqualKid) : bombers are really important
+client 10 (EqualKid) : my bombers saved my fleet
+client 10 (EqualKid) requests a speed factor of 20.
+client 9 (MohammedBinNexus) requests a speed factor of 20.
+client 10 (EqualKid) : go max speed
+client 11 ([DEMO]Analyzers) requests a speed factor of 20.
+client 10 (EqualKid) : gg boys
+client 11 ([DEMO]Analyzers) : good game
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 10 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 9 (MohammedBinNexus) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 11 ([DEMO]Analyzers) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024_08_27_00_05.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+client 10 (EqualKid) : ggs
+client 11 ([DEMO]Analyzers) disconnected.
+client 10 (EqualKid) disconnected.
+client 9 (MohammedBinNexus) disconnected.
+client 13 (Rad) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : EqualKid
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : LadenBinKezza
+client 8 (LadenBinKezza) is ready to play.
+client 7 (EqualKid) disconnected.
+All players unreadied.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : EqualKid
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+client 7 (EqualKid) disconnected.
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 (EqualKid) received.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+client 9 (LadenBinKezza) is ready to play.
+client 8 (EqualKid) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 9 (LadenBinKezza), keyID = 13207847
+Team 0 : client 8 (EqualKid), keyID = 2935630
+Random seed: 220 (0xdc)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (EqualKid) requests a speed factor of 20.
+client 9 (LadenBinKezza) requests a speed factor of 20.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 9 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024_08_27_01_52.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 13207847.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : EqualKid
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : LadenBinKezza
+client 8 (LadenBinKezza) is ready to play.
+client 7 (EqualKid) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (LadenBinKezza), keyID = 13207847
+Team 0 : client 7 (EqualKid), keyID = 2935630
+Random seed: 29 (0x1d)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (LadenBinKezza) requests a speed factor of 20.
+client 7 (EqualKid) requests a speed factor of 20.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024_08_27_02_29.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+client 8 (LadenBinKezza) disconnected.
+client 7 (EqualKid) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : EqualKid
+client 7 (LadenBinKezza) is ready to play.
+client 8 (EqualKid) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (EqualKid), keyID = 2935630
+Team 0 : client 7 (LadenBinKezza), keyID = 13207847
+Random seed: 422 (0x1a6)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 8 (EqualKid) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-27T02-58-20.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+client 7 (LadenBinKezza) disconnected.
+client 8 (EqualKid) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : EqualKid
+client 8 (EqualKid) is ready to play.
+client 7 (LadenBinKezza) is ready to play.
+Countdown started.
+client 7 (LadenBinKezza) is no longer ready to play.
+Countdown aborted.
+client 7 (LadenBinKezza) is ready to play.
+Countdown started.
+client 8 (EqualKid) is no longer ready to play.
+Countdown aborted.
+Game started. Players:
+Team 1 : client 8 (EqualKid), keyID = 2935630
+Team 0 : client 7 (LadenBinKezza), keyID = 13207847
+Random seed: 158 (0x9e)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 8 (EqualKid) requests a speed factor of 20.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-27T03-11-46.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+client 7 (LadenBinKezza) disconnected.
+client 8 (EqualKid) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : EqualKid
+client 7 (LadenBinKezza) is ready to play.
+client 8 (EqualKid) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (EqualKid), keyID = 2935630
+Team 0 : client 7 (LadenBinKezza), keyID = 13207847
+Random seed: 233 (0xe9)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 8 (EqualKid) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : Generating unique game ID...
+Kezza's Test Server : Game ID: %s
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+client 7 (LadenBinKezza) disconnected.
+client 8 (EqualKid) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : EqualKid
+client 8 (EqualKid) is ready to play.
+client 8 (EqualKid) is no longer ready to play.
+client 7 (LadenBinKezza) is ready to play.
+Game started. Players:
+Team 1 : client 8 (EqualKid), keyID = 2935630
+Team 0 : client 7 (LadenBinKezza), keyID = 13207847
+Random seed: 445 (0x1bd)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 8 (EqualKid) requests a speed factor of 20.
+Login request from 68.148.189.103:5011, version="1.62 STEAM", keyID=13207920 : naval blacklists apply, accepted, ID = 9.
+client 9 disconnected.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-27-04-06.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+client 7 (LadenBinKezza) disconnected.
+client 8 (EqualKid) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 13207847.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 13207847.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : EqualKid
+client 7 (LadenBinKezza) is ready to play.
+client 8 (EqualKid) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (EqualKid), keyID = 2935630
+Team 0 : client 7 (LadenBinKezza), keyID = 13207847
+Random seed: 210 (0xd2)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 8 (EqualKid) requests a speed factor of 20.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-27-04-43.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+client 7 (LadenBinKezza) disconnected.
+client 8 (EqualKid) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 13207847.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+Login request from 26.102.130.209:56558, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 ([DEMO]) received.
+New name for client 7 ([DEMO]) : EqualKid
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+New name for client 7 ([DEMO]EqualKid) : WelcomeBack
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : LadenBinKezza
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : EqualKid
+Login request from 182.164.127.29:5011, version="1.62 STEAM", keyID=13208129 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : NewPlayer
+client 10 (NewPlayer) : can i join ?
+client 9 (EqualKid) : doing a test game bro :(
+client 9 (EqualKid) : all these are my accounts
+client 10 (NewPlayer) : aha ok
+client 9 (EqualKid) : :)
+client 10 (NewPlayer) left to spectator mode.
+client 10 (NewPlayer) disconnected.
+client 9 (EqualKid) is ready to play.
+client 8 (LadenBinKezza) is ready to play.
+client 9 (EqualKid) is no longer ready to play.
+client 9 (EqualKid) is ready to play.
+client 7 ([DEMO]WelcomeBack) is ready to play.
+Countdown started.
+Game started. Players:
+Team 2 : client 9 (EqualKid), keyID = 2935630
+Team 1 : client 8 (LadenBinKezza), keyID = 13207847
+Team 0 : client 7 ([DEMO]WelcomeBack), keyID = DEMO
+Random seed: 290 (0x122)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (LadenBinKezza) requests a speed factor of 20.
+client 7 ([DEMO]WelcomeBack) requests a speed factor of 20.
+client 8 (LadenBinKezza) requests a speed factor of 20.
+client 8 (LadenBinKezza) requests a speed factor of 20.
+client 7 ([DEMO]WelcomeBack) requests a speed factor of 20.
+client 8 (LadenBinKezza) requests a speed factor of 20.
+client 9 (EqualKid) requests a speed factor of 20.
+Login request from 87.123.243.153:16856, version="1.42 linux", keyID=12723821 : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 received.
+New name for client 11 : Rad
+client 8 (LadenBinKezza) : just a test game bro lol
+client 8 (LadenBinKezza) : testing if i can get alliances to work for the website
+client 8 (LadenBinKezza) : need to check if equalkid and ladenbinkezza are on the same team on the website when the game is done
+client 11 (Rad) disconnected.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 9 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 ([DEMO]WelcomeBack) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-27-16-20.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+client 7 ([DEMO]WelcomeBack) disconnected.
+client 9 (EqualKid) disconnected.
+client 8 (LadenBinKezza) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5012.
+ServerPort = 5012
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5012
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 13207847.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : EqualKid
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : LadenBinKezza
+Login request from 26.102.130.209:56558, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : WelcomeBack
+client 7 (EqualKid) is ready to play.
+client 9 ([DEMO]WelcomeBack) is ready to play.
+client 8 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 2 : client 9 ([DEMO]WelcomeBack), keyID = DEMO
+Team 1 : client 8 (LadenBinKezza), keyID = 13207847
+Team 0 : client 7 (EqualKid), keyID = 2935630
+Random seed: 419 (0x1a3)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (LadenBinKezza) requests a speed factor of 20.
+client 7 (EqualKid) requests a speed factor of 20.
+client 8 (LadenBinKezza) requests a speed factor of 20.
+client 9 ([DEMO]WelcomeBack) requests a speed factor of 20.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 9 ([DEMO]WelcomeBack) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-27-16-57.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+Login request from 26.102.130.209:59620, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 ([DEMO]) received.
+New name for client 7 ([DEMO]) : WelcomeBack
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:56558, version="1.62 STEAM", keyID=DEMO : denied, duplicate key.
+Login request from 81.220.16.107:50469, version="1.62 STEAM", keyID=13208203 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : BillMurray
+Login request from 26.102.130.209:56558, version="1.62 STEAM", keyID=DEMO : denied, duplicate key.
+client 8 (BillMurray) : hey
+client 7 ([DEMO]WelcomeBack) : hey
+client 7 ([DEMO]WelcomeBack) : testing some things out btw
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+client 9 (LadenBinKezza) : these are all my accounts joining
+client 9 (LadenBinKezza) : im testing my websites dedcon  implementation
+client 9 (LadenBinKezza) : so its not a real game just a test game :(
+Login request from 26.102.130.209:56558, version="1.62 STEAM", keyID=DEMO : denied, duplicate key.
+Login request from 26.102.130.209:64050, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 ([DEMO]) received.
+New name for client 10 ([DEMO]) : WelcomeBack_2
+Login request from 120.245.126.74:14956, version="1.62 STEAM", keyID=13208126 : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 received.
+New name for client 11 : Ghidorah
+client 9 (LadenBinKezza) : im testing if alliances work on my website
+client 9 (LadenBinKezza) : for assigning colors to different players
+client 9 (LadenBinKezza) : so if u wamma play it will be silo only :)
+client 11 (Ghidorah) : billmurray is your account too?
+client 9 (LadenBinKezza) : nah he just joined
+client 9 (LadenBinKezza) : and isnt replying lol
+client 9 (LadenBinKezza) : /login dancefloor
+Kezza's Test Server : client 9 (LadenBinKezza) has been logged in as owner.
+client 9 (LadenBinKezza) : /kick billmurray
+Kezza's Test Server : [private] No client with name containing billmurray found, check for typos or use /kick  id instead.
+client 11 (Ghidorah) disconnected.
+client 9 (LadenBinKezza) : /kick 8
+Kezza's Test Server : [private] No client with name containing 8 found, check for typos or use /kick  id instead.
+client 9 (LadenBinKezza) : /kick id 8
+Kezza's Test Server : [private] No client with name containing id 8 found, check for typos or use /kick  id instead.
+client 9 (LadenBinKezza) : /kick id billmurray
+Kezza's Test Server : [private] No client with name containing id billmurray found, check for typos or use /kick  id instead.
+client 8 (BillMurray) is ready to play.
+client 8 (BillMurray) is no longer ready to play.
+client 8 (BillMurray) is ready to play.
+client 10 ([DEMO]WelcomeBack_2) is ready to play.
+client 7 ([DEMO]WelcomeBack) is ready to play.
+client 8 (BillMurray) : i'm here
+client 9 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 3 : client 10 ([DEMO]WelcomeBack_2), keyID = DEMO
+Team 2 : client 9 (LadenBinKezza), keyID = 13207847
+Team 1 : client 8 (BillMurray), keyID = 13208203
+Team 0 : client 7 ([DEMO]WelcomeBack), keyID = DEMO
+Random seed: 44 (0x2c)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 9 (LadenBinKezza) : silo only
+client 9 (LadenBinKezza) : just for testing
+client 8 (BillMurray) requests a speed factor of 1.
+client 9 (LadenBinKezza) : testing 3 teams
+client 9 (LadenBinKezza) : as two teams works on my website
+client 9 (LadenBinKezza) : but making sure 3 teams works
+client 9 (LadenBinKezza) : so just place silos and thats it
+client 9 (LadenBinKezza) : to test score 
+client 9 (LadenBinKezza) requests a speed factor of 20.
+client 7 ([DEMO]WelcomeBack) requests a speed factor of 20.
+client 10 ([DEMO]WelcomeBack_2) requests a speed factor of 20.
+client 10 ([DEMO]WelcomeBack_2) : go max speed :)
+client 8 (BillMurray) requests a speed factor of 20.
+client 10 ([DEMO]WelcomeBack_2) : im just testing if team colors work on my website bro are you on the defcon discord?
+client 10 ([DEMO]WelcomeBack_2) : ill send u the link to the game when its done
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 5.
+client 8 (BillMurray) requests a speed factor of 5.
+client 8 (BillMurray) requests a speed factor of 20.
+client 8 (BillMurray) requests a speed factor of 20.
+client 8 (BillMurray) requests a speed factor of 20.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 10.
+client 8 (BillMurray) requests a speed factor of 20.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 5.
+client 8 (BillMurray) requests a speed factor of 10.
+client 9 (LadenBinKezza) : :)
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 10.
+client 8 (BillMurray) requests a speed factor of 20.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 20.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 5.
+client 8 (BillMurray) requests a speed factor of 5.
+client 8 (BillMurray) requests a speed factor of 10.
+client 8 (BillMurray) requests a speed factor of 10.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 1.
+client 9 (LadenBinKezza) : the red team has no silos b tw
+client 9 (LadenBinKezza) : just us two lol
+client 8 (BillMurray) requests a speed factor of 10.
+client 8 (BillMurray) requests a speed factor of 10.
+client 8 (BillMurray) requests a speed factor of 20.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 10.
+client 8 (BillMurray) requests a speed factor of 20.
+client 8 (BillMurray) requests a speed factor of 20.
+client 9 (LadenBinKezza) : dam that score was close hahhaha
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 1.
+client 8 (BillMurray) requests a speed factor of 5.
+client 8 (BillMurray) requests a speed factor of 20.
+client 8 (BillMurray) requests a speed factor of 20.
+client 8 (BillMurray) requests a speed factor of 20.
+client 9 (LadenBinKezza) : gg thanks for helping me test :)
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 ([DEMO]WelcomeBack) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 10 ([DEMO]WelcomeBack_2) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 9 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (BillMurray) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-27-18-07.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+client 9 (LadenBinKezza) disconnected.
+client 8 (BillMurray) disconnected.
+client 10 ([DEMO]WelcomeBack_2) disconnected.
+client 7 ([DEMO]WelcomeBack) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 13207847.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 4
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 4
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 4390981.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : EqualKid
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:52741, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 ([DEMO]) received.
+New name for client 8 ([DEMO]) : ProKerro100
+Login request from 26.102.130.209:54975, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : ProKerro2
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : LadenBinKezza
+Login request from 26.102.130.209:64050, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 ([DEMO]) received.
+New name for client 11 ([DEMO]) : ProKerro3
+Login request from 26.102.130.209:59620, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 12.
+Team creation request from client 12 ([DEMO]) received.
+New name for client 12 ([DEMO]) : WelcomeBack
+New name for client 9 ([DEMO]ProKerro2) : EKBiceps
+New name for client 11 ([DEMO]ProKerro3) : KezzaMcFezza
+client 7 (EqualKid) is ready to play.
+client 11 ([DEMO]KezzaMcFezza) is ready to play.
+client 9 ([DEMO]EKBiceps) is ready to play.
+client 7 (EqualKid) is no longer ready to play.
+client 7 (EqualKid) is ready to play.
+client 10 (LadenBinKezza) is ready to play.
+client 12 ([DEMO]WelcomeBack) is ready to play.
+client 8 ([DEMO]ProKerro100) is ready to play.
+Countdown started.
+Game started. Players:
+Team 5 : client 12 ([DEMO]WelcomeBack), keyID = DEMO
+Team 4 : client 11 ([DEMO]KezzaMcFezza), keyID = DEMO
+Team 3 : client 10 (LadenBinKezza), keyID = 13207847
+Team 2 : client 9 ([DEMO]EKBiceps), keyID = DEMO
+Team 1 : client 8 ([DEMO]ProKerro100), keyID = DEMO
+Team 0 : client 7 (EqualKid), keyID = 2935630
+Random seed: 374 (0x176)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 12 ([DEMO]WelcomeBack) dropped.
+client 12 ([DEMO]WelcomeBack) set to a speed factor of 1.
+client 11 ([DEMO]KezzaMcFezza) set to a speed factor of 1.
+client 10 (LadenBinKezza) set to a speed factor of 1.
+client 9 ([DEMO]EKBiceps) set to a speed factor of 1.
+client 8 ([DEMO]ProKerro100) set to a speed factor of 1.
+client 7 (EqualKid) set to a speed factor of 1.
+Kezza's Test Server : A player has technical problems, slowing everyone down.
+client 11 ([DEMO]KezzaMcFezza) dropped.
+client 11 ([DEMO]KezzaMcFezza) set to a speed factor of 1.
+client 10 (LadenBinKezza) set to a speed factor of 1.
+client 9 ([DEMO]EKBiceps) set to a speed factor of 1.
+client 8 ([DEMO]ProKerro100) set to a speed factor of 1.
+client 7 (EqualKid) set to a speed factor of 1.
+Kezza's Test Server : A player has technical problems, slowing everyone down.
+client 10 (LadenBinKezza) requests a speed factor of 20.
+client 7 (EqualKid) requests a speed factor of 20.
+client 9 ([DEMO]EKBiceps) requests a speed factor of 20.
+client 8 ([DEMO]ProKerro100) requests a speed factor of 20.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 10 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 ([DEMO]ProKerro100) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 9 ([DEMO]EKBiceps) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-27-20-27.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : EqualKid
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : LadenBinKezza
+Login request from 26.102.130.209:54975, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : EKBiceps
+Login request from 26.102.130.209:52741, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 ([DEMO]) received.
+New name for client 10 ([DEMO]) : ProKerro100
+client 8 (LadenBinKezza) is ready to play.
+client 7 (EqualKid) is ready to play.
+client 10 ([DEMO]ProKerro100) is ready to play.
+client 9 ([DEMO]EKBiceps) is ready to play.
+Countdown started.
+Game started. Players:
+Team 3 : client 10 ([DEMO]ProKerro100), keyID = DEMO
+Team 2 : client 9 ([DEMO]EKBiceps), keyID = DEMO
+Team 1 : client 8 (LadenBinKezza), keyID = 13207847
+Team 0 : client 7 (EqualKid), keyID = 2935630
+Random seed: 519 (0x207)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 9 ([DEMO]EKBiceps) requests a speed factor of 20.
+client 10 ([DEMO]ProKerro100) requests a speed factor of 20.
+client 8 (LadenBinKezza) requests a speed factor of 20.
+client 7 (EqualKid) requests a speed factor of 20.
+Login request from 93.44.159.30:5011, version="1.62 STEAM", keyID=13083098 : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 received.
+New name for client 11 : LOLLOX
+client 7 (EqualKid) : just a test game bro
+client 7 (EqualKid) : nothing serious lol
+client 7 (EqualKid) : these are my accounts
+client 11 (LOLLOX) disconnected.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 10 ([DEMO]ProKerro100) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 9 ([DEMO]EKBiceps) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-27-20-39.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Server key authentication succeeded, key id = 4390981.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : EqualKid
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:54975, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 ([DEMO]) received.
+New name for client 8 ([DEMO]) : EKBiceps
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+Login request from 26.102.130.209:52741, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 ([DEMO]) received.
+New name for client 10 ([DEMO]) : ProKerro100
+client 9 (LadenBinKezza) is ready to play.
+client 8 ([DEMO]EKBiceps) is ready to play.
+client 7 (EqualKid) is ready to play.
+client 10 ([DEMO]ProKerro100) is ready to play.
+Countdown started.
+Game started. Players:
+Team 3 : client 10 ([DEMO]ProKerro100), keyID = DEMO
+Team 2 : client 9 (LadenBinKezza), keyID = 13207847
+Team 1 : client 8 ([DEMO]EKBiceps), keyID = DEMO
+Team 0 : client 7 (EqualKid), keyID = 2935630
+Random seed: 387 (0x183)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 9 (LadenBinKezza) requests a speed factor of 20.
+client 7 (EqualKid) requests a speed factor of 20.
+client 8 ([DEMO]EKBiceps) requests a speed factor of 20.
+client 8 ([DEMO]EKBiceps) requests a speed factor of 20.
+client 7 (EqualKid) requests a speed factor of 20.
+client 9 (LadenBinKezza) requests a speed factor of 20.
+client 10 ([DEMO]ProKerro100) requests a speed factor of 20.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 9 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 ([DEMO]EKBiceps) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 10 ([DEMO]ProKerro100) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-27-21-19.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+Login request from 87.123.243.153:16861, version="1.42 linux", keyID=12723821 : naval blacklists apply, accepted, ID = 11.
+client 7 (EqualKid) disconnected.
+client 10 ([DEMO]ProKerro100) disconnected.
+client 8 ([DEMO]EKBiceps) disconnected.
+client 9 (LadenBinKezza) disconnected.
+client 11 disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : EqualKid
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : LadenBinKezza
+Login request from 26.102.130.209:54975, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : EKBiceps
+Login request from 26.102.130.209:52741, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 ([DEMO]) received.
+New name for client 10 ([DEMO]) : ProKerro100
+client 9 ([DEMO]EKBiceps) is ready to play.
+client 8 (LadenBinKezza) is ready to play.
+client 10 ([DEMO]ProKerro100) is ready to play.
+client 10 ([DEMO]ProKerro100) is no longer ready to play.
+client 10 ([DEMO]ProKerro100) is ready to play.
+client 7 (EqualKid) is ready to play.
+Countdown started.
+Game started. Players:
+Team 3 : client 10 ([DEMO]ProKerro100), keyID = DEMO
+Team 2 : client 9 ([DEMO]EKBiceps), keyID = DEMO
+Team 1 : client 8 (LadenBinKezza), keyID = 13207847
+Team 0 : client 7 (EqualKid), keyID = 2935630
+Random seed: 908 (0x38c)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 7 (EqualKid) requests a speed factor of 20.
+client 8 (LadenBinKezza) requests a speed factor of 20.
+client 9 ([DEMO]EKBiceps) requests a speed factor of 20.
+client 7 (EqualKid) requests a speed factor of 20.
+client 7 (EqualKid) requests a speed factor of 20.
+client 9 ([DEMO]EKBiceps) requests a speed factor of 20.
+client 8 (LadenBinKezza) requests a speed factor of 20.
+client 10 ([DEMO]ProKerro100) requests a speed factor of 20.
+Login request from 94.13.231.212:5011, version="1.62 STEAM", keyID=13204270 : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 received.
+New name for client 11 : hoov
+client 7 (EqualKid) : just a test game bro
+client 11 (hoov) disconnected.
+client 7 (EqualKid) : nothing special lol
+Record = demo_recordings/game_2024-08-27-21-44.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+client 7 (EqualKid) disconnected.
+client 8 (LadenBinKezza) disconnected.
+client 10 ([DEMO]ProKerro100) disconnected.
+client 9 ([DEMO]EKBiceps) disconnected.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+Login request from 26.102.130.209:54100, version="1.62 STEAM", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : EqualKid
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:54975, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 ([DEMO]) received.
+New name for client 8 ([DEMO]) : EKBiceps
+Login request from 26.102.130.209:52741, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : ProKerro100
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13207847 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : LadenBinKezza
+client 7 (EqualKid) is ready to play.
+client 8 ([DEMO]EKBiceps) is ready to play.
+client 9 ([DEMO]ProKerro100) is ready to play.
+client 10 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 3 : client 10 (LadenBinKezza), keyID = 13207847
+Team 2 : client 9 ([DEMO]ProKerro100), keyID = DEMO
+Team 1 : client 8 ([DEMO]EKBiceps), keyID = DEMO
+Team 0 : client 7 (EqualKid), keyID = 2935630
+Random seed: 417 (0x1a1)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 10 (LadenBinKezza) requests a speed factor of 20.
+client 8 ([DEMO]EKBiceps) requests a speed factor of 20.
+client 9 ([DEMO]ProKerro100) requests a speed factor of 20.
+client 7 (EqualKid) requests a speed factor of 20.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 ([DEMO]EKBiceps) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 (EqualKid) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 9 ([DEMO]ProKerro100) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 10 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-27-22-03.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+OutFile = server_output.log
+PlayerLog = player_scores.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.

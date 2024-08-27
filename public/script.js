@@ -20,7 +20,7 @@ function setActiveNavItem() {
 const discordEvent = {
     title: "Community Game Night",
     date: "Sunday, Aug 18th",
-    time: "3PM PM EST"
+    time: "3PM EST"
   };
   
   function updateDiscordWidget() {

@@ -1,0 +1,6 @@
+# put your authkey into the following line, then remove the #.
+#ServerKey LJZYEO-AUALPD-VBEDLL-FOCWPA-EWJ
+#ServerKey STEAME-ABISIA-KKUQHH-PGXVLJ-EGV
+ServerKey QWQZZJ-TKMLPP-PQOXVH-NPKTUT-SDQ
+# Alternatively, just give the location of the file the authkey is stored in:
+#ServerKeyFile <put your key file location here>

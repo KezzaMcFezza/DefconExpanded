@@ -2,27 +2,27 @@
 <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://defconexpanded.com/</loc>
-    <lastmod>2024-08-15</lastmod>
+    <lastmod>2024-08-18</lastmod>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://defconexpanded.com/news</loc>
-    <lastmod>2024-08-15</lastmod>
+    <loc>https://defconexpanded.com/articles-and-events</loc>
+    <lastmod>2024-08-18</lastmod>
     <priority>0.2</priority>
   </url>
     <url>
     <loc>https://defconexpanded.com/media</loc>
-    <lastmod>2024-08-15</lastmod>
+    <lastmod>2024-08-18</lastmod>
     <priority>0.2</priority>
   </url>
   <url>
     <loc>https://defconexpanded.com/about</loc>
-    <lastmod>2024-08-15</lastmod>
+    <lastmod>2024-08-18</lastmod>
     <priority>0.2</priority>
   </url>
   <url>
     <loc>https://defconexpanded.com/resources</loc>
-    <lastmod>2024-08-15</lastmod>
+    <lastmod>2024-08-18</lastmod>
     <priority>0.4</priority>
   </url>
 </urlset>

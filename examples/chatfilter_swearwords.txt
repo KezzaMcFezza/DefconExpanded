@@ -1,0 +1,30 @@
+# some classic chat filters
+# suggestions by:
+# mvpe
+
+# generic swearwords
+ChatFilter scat
+ChatFilter fuck
+ChatFilter fcuk
+ChatFilter frig
+ChatFilter crap
+ChatFilterWord shit
+ChatFilterReplace Generic_Swearword
+
+ChatFilterWord f..king
+ChatFilterReplace Generic_Swearword_ing
+
+# generic insults
+ChatFilterWord c..ks.*er
+ChatFilterWord stupid ass
+ChatFilterWord asshole
+ChatFilterWord homo
+ChatFilterWord tramp
+ChatFilterWord fucker
+ChatFilterWord ass *fucker
+ChatFilterWord mother *fucker
+ChatFilterWord f..ktard
+ChatFilterWord f..ktwat
+ChatFilterWord retard
+ChatFilterWord tard
+ChatFilterReplace Generic_Insult

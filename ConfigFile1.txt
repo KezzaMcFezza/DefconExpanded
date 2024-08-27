@@ -1,0 +1,92 @@
+Include authkey
+Include ConfigVersion-1.43-beta1
+ServerName Kezza's Test Server | 1v1 | 2v2 | FFA |
+MaxTeams 2
+GameMode 0
+ServerPort 5010
+AdvertiseOnInternet 1
+AdvertiseOnLAN 1
+TotalBandwidth 75000
+PlayerBandwidth 10000
+LogLevel 2
+EventFile game_events.log
+OutFile server_output.log
+PlayerLog player_scores.log
+
+#ADMIN
+Admin Laika~~0~dancefloor
+Admin LadenBinKezza~~0~dancefloor
+Admin Wan May~~0~dancefloor
+Admin Sievert~~0~dancefloor
+Admin MohammedBinNexus~~0~dancefloor
+
+HostName Kezza's Test Server
+
+AcceptC2 1
+
+AdvertisePlayers 6
+MaxSpectators 15 
+
+GhostProtection 2
+MaxResyncAttempts 3
+
+
+MaxIdleRunTime 1800
+MinRunTime 900
+
+DropCourtesy -1
+
+#SPEED BUDGET
+IdleTime 300
+IdleTimeGlobal 600
+
+SlowBudgetStart 1200
+SlowBudgetMax 1200
+
+SlowBudgetUsePause 0
+SlowBudgetUseRealtime 0
+SlowBudgetUse5x 0
+SlowBudgetUse10x 0
+
+
+
+
+#KICK VOTES 
+KickVoteMin 2
+KickVoteMinPlayers 0
+KicksToBan 3
+
+#GAME OPTIONS 
+MinTeams 2
+MaxTeams 6
+ReadyVoteDelay 90
+ReadyVoteMaxRemove 1
+
+
+GameMode 0
+
+
+RandomTerritories 0
+CityPopulations 0
+CitiesPerTerritory 30
+PopulationPerTerritory  150
+
+SpectatorChatChannel 1
+GameSpeed 0
+SlowestSpeed 1
+
+ 
+
+WaitClient
+Say This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Say When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Say So feel free to play as many games as you want the game results and the demo will be available at....
+Say www.defconexpandedlocal.ddns.net
+
+WaitStart
+
+Say Warning: Slowdown budget 20 min.
+Say Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel 0
+
+

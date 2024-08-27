@@ -1,0 +1,52 @@
+{
+  "start_time": "2024-08-27T00:18:04.245720",
+  "end_time": "2024-08-27T00:58:47.047945",
+  "duration": "0:40:42.802225",
+  "gameType": "1v1",
+  "players": [
+    {
+      "team": 1,
+      "territory": "Europe",
+      "client_id": 8,
+      "name": "uk",
+      "score": 164
+    },
+    {
+      "team": 0,
+      "territory": "South America",
+      "client_id": 6,
+      "name": "XxAdolphxX",
+      "score": -50
+    }
+  ],
+  "notes": [
+    "TEAM_ALLIANCE 0 0",
+    "TEAM_ALLIANCE 1 1",
+    "TEAM_ALLIANCE 1 3",
+    "TEAM_READY 1 1",
+    "TEAM_READY 1 0",
+    "TEAM_READY 0 1",
+    "TEAM_READY 1 1",
+    "TEAM_SPEED 0 1",
+    "TEAM_SPEED 0 1",
+    "TEAM_SPEED 1 1",
+    "TEAM_SPEED 1 1",
+    "TEAM_SPEED 1 5",
+    "TEAM_SPEED 1 5",
+    "TEAM_SPEED 0 5",
+    "TEAM_SPEED 0 10",
+    "TEAM_SPEED 1 10",
+    "TEAM_SPEED 1 5",
+    "TEAM_SPEED 1 5",
+    "TEAM_SPEED 1 5",
+    "TEAM_SPEED 1 5",
+    "TEAM_SPEED 1 10",
+    "TEAM_SPEED 1 10",
+    "TEAM_SPEED 1 10",
+    "TEAM_SPEED 1 10",
+    "TEAM_SPEED 0 20",
+    "TEAM_SPEED 1 20",
+    "TEAM_SPEED 1 20",
+    "TEAM_SPEED 1 20"
+  ]
+}
