@@ -58,7 +58,7 @@ function createDemoCard(demo) {
     demoCard.className = 'demo-card';
     demoCard.innerHTML = `
         <div class="demo-content">
-            <h3 class="game-type">${demo.name} - ${demo.game_type || 'Unknown'}</h3>
+            <h3 class="game-type">${demo.game_type || 'Unknown'}</h3>
             <p class="time-info">
                 <span class="time-ago">${getTimeAgo(demo.date)}</span><br>
                 <span class="game-added">Game Added - ${demoDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span><br>

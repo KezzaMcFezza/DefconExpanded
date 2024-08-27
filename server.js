@@ -62,10 +62,10 @@ demoWatcher
     console.log(`New demo detected: ${demoPath}`);
     const demoFileName = path.basename(demoPath);
     
-    // Check if the demo already exists in the database
+    // Check if the demo already exists in the database or pending list
     const exists = await demoExistsInDatabase(demoFileName);
-    if (exists) {
-      console.log(`Demo ${demoFileName} already exists in the database. Skipping.`);
+    if (exists || pendingDemoFiles.has(demoFileName)) {
+      console.log(`Demo ${demoFileName} already exists in the database or pending list. Skipping.`);
       return;
     }
 
@@ -219,12 +219,22 @@ async function demoExistsInDatabase(demoFileName) {
 async function processDemoFile(demoFileName, fileSize, logData) {
   console.log(`Processing demo file: ${demoFileName}`);
 
+  // Check if the demo is still in the pending list
+  if (!pendingDemoFiles.has(demoFileName)) {
+    console.log(`Demo ${demoFileName} is no longer in the pending list. Skipping processing.`);
+    return;
+  }
+
   try {
+    // Use a transaction to ensure atomicity
+    await pool.query('START TRANSACTION');
+
     // Check if the demo already exists in the database
-    const [existingDemo] = await pool.query('SELECT * FROM demos WHERE name = ?', [demoFileName]);
+    const [existingDemo] = await pool.query('SELECT * FROM demos WHERE name = ? FOR UPDATE', [demoFileName]);
     
     if (existingDemo.length > 0) {
       console.log(`Demo ${demoFileName} already exists in the database. Skipping upload.`);
+      await pool.query('COMMIT');
       return;
     }
 
@@ -236,13 +246,11 @@ async function processDemoFile(demoFileName, fileSize, logData) {
     const playerData = {};
 
     // Create a map of team alliances
-    const teamAlliances = {};
     let lastAlliance = null;
     if (logData.notes) {
       logData.notes.forEach(note => {
         const match = note.match(/TEAM_ALLIANCE (\d+) (\d+)/);
         if (match) {
-          teamAlliances[match[1]] = match[2];
           lastAlliance = [match[1], match[2]];
         }
       });
@@ -263,13 +271,12 @@ async function processDemoFile(demoFileName, fileSize, logData) {
     const columns = [
       'name', 'size', 'date', 'game_type', 'duration', 'players', 
       ...Object.keys(playerData), 
-      'alliances', 'last_alliance'
+      'last_alliance'
     ];
     const values = [
       demoFileName, fileSize, new Date(logData.start_time), gameType, duration, 
       JSON.stringify(participatingPlayers), 
       ...Object.values(playerData),
-      JSON.stringify(teamAlliances),
       JSON.stringify(lastAlliance)
     ];
 
@@ -278,10 +285,16 @@ async function processDemoFile(demoFileName, fileSize, logData) {
 
     const [result] = await pool.query(query, values);
 
+    await pool.query('COMMIT');
+
     console.log(`Demo ${demoFileName} processed and added to database with player data`);
     console.log(`Inserted row ID: ${result.insertId}`);
   } catch (error) {
+    await pool.query('ROLLBACK');
     console.error(`Error processing demo ${demoFileName}:`, error);
+  } finally {
+    // Remove the processed file from the pending list
+    pendingDemoFiles.delete(demoFileName);
   }
 }
 
@@ -290,7 +303,7 @@ async function checkExistingDemos() {
   for (const file of files) {
     if (file.endsWith('.dcrec')) {
       const exists = await demoExistsInDatabase(file);
-      if (!exists) {
+      if (!exists && !pendingDemoFiles.has(file)) {
         const demoStats = await fs.promises.stat(path.join(demoDir, file));
         pendingDemoFiles.set(file, demoStats);
         console.log(`Existing demo ${file} added to pending list.`);

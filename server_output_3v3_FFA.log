@@ -1,0 +1,225 @@
+OutFile = server_output_3v3_FFA.log
+PlayerLog = player_scores_3v3_FFA.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 3
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5013.
+ServerPort = 5013
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5013
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output_3v3_FFA.log
+PlayerLog = player_scores_3v3_FFA.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 3
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5013.
+ServerPort = 5013
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5013
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output_3v3_FFA.log
+PlayerLog = player_scores_3v3_FFA.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 3
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5013.
+ServerPort = 5013
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5013
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 13207847.
+OutFile = server_output_3v3_FFA.log
+PlayerLog = player_scores_3v3_FFA.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 3
+MaxTeams = 6
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5013.
+ServerPort = 5013
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5013
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output_3v3_FFA.log
+PlayerLog = player_scores_3v3_FFA.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 3
+MaxTeams = 6
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+Kezza's Test Server : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5013.
+ServerPort = 5013
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5013
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output_3v3_FFA.log
+PlayerLog = player_scores_3v3_FFA.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 3
+MaxTeams = 6
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+Kezza's Test Server : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5013.
+ServerPort = 5013
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5013
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output_3v3_FFA.log
+PlayerLog = player_scores_3v3_FFA.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 3
+MaxTeams = 6
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+Kezza's Test Server : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5013.
+ServerPort = 5013
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5013
+Server key authentication succeeded, key id = 2935630.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output_3v3_FFA.log
+PlayerLog = player_scores_3v3_FFA.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 3
+MaxTeams = 6
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+Kezza's Test Server : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5013.
+ServerPort = 5013
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5013
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output_3v3_FFA.log
+PlayerLog = player_scores_3v3_FFA.log
+AdvertisePlayers = 6
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MinTeams = 3
+MaxTeams = 6
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+Kezza's Test Server : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5013.
+ServerPort = 5013
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5013
+Server key authentication succeeded, key id = 2935630.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.

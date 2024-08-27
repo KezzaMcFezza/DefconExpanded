@@ -1,0 +1,34 @@
+{
+  "start_time": "2024-08-27T23:32:35.489702",
+  "game_id": null,
+  "end_time": "2024-08-27T23:38:00.598607",
+  "duration": "0:05:25.108905",
+  "gameType": "1v1",
+  "players": [
+    {
+      "team": 0,
+      "territory": "South America",
+      "client_id": 7,
+      "name": "ProKerro100",
+      "score": 65
+    },
+    {
+      "team": 1,
+      "territory": "Africa",
+      "client_id": 8,
+      "name": "LadenBinKezza",
+      "score": -32
+    }
+  ],
+  "notes": [
+    "TEAM_READY 1 1",
+    "TEAM_READY 0 1",
+    "TEAM_SPEED 0 20",
+    "TEAM_SPEED 0 20",
+    "TEAM_SPEED 1 20"
+  ],
+  "last_alliance": [
+    "1",
+    "1"
+  ]
+}

@@ -1,0 +1,348 @@
+OutFile = server_output_1v1.log
+PlayerLog = player_scores_1v1.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+OutFile = server_output_1v1.log
+PlayerLog = player_scores_1v1.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+OutFile = server_output_1v1.log
+PlayerLog = player_scores_1v1.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+ReadyVoteDelay = 90
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13208303 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Kezza's Test Server : [private] Not enough players online yet. 2 are required.
+client 7 (LadenBinKezza) disconnected.
+OutFile = server_output_1v1.log
+PlayerLog = player_scores_1v1.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+Kezza's Test Server : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+Login request from 26.102.130.209:63433, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 ([DEMO]) received.
+New name for client 7 ([DEMO]) : ProKerro100
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13208303 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : LadenBinKezza
+client 8 (LadenBinKezza) is ready to play.
+client 7 ([DEMO]ProKerro100) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (LadenBinKezza), keyID = 13208303
+Team 0 : client 7 ([DEMO]ProKerro100), keyID = DEMO
+Random seed: 324 (0x144)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 7 ([DEMO]ProKerro100) requests a speed factor of 20.
+client 7 ([DEMO]ProKerro100) requests a speed factor of 20.
+client 8 (LadenBinKezza) requests a speed factor of 20.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 ([DEMO]ProKerro100) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-27-23-29.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+OutFile = server_output_1v1.log
+PlayerLog = player_scores_1v1.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+Kezza's Test Server : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+OutFile = server_output_1v1.log
+PlayerLog = player_scores_1v1.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+Kezza's Test Server : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+OutFile = server_output_1v1.log
+PlayerLog = player_scores_1v1.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+Kezza's Test Server : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+OutFile = server_output_1v1.log
+PlayerLog = player_scores_1v1.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+Kezza's Test Server : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13208303 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13208303 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : LadenBinKezza
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:63433, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : ProKerro100
+client 9 ([DEMO]ProKerro100) is ready to play.
+client 8 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 9 ([DEMO]ProKerro100), keyID = DEMO
+Team 0 : client 8 (LadenBinKezza), keyID = 13208303
+Random seed: 272 (0x110)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 8 (LadenBinKezza) requests a speed factor of 20.
+client 9 ([DEMO]ProKerro100) requests a speed factor of 20.
+Login request from 90.19.238.69:5011, version="1.62 STEAM", keyID=5861869 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : Bulk
+client 8 (LadenBinKezza) : just a test game bro
+client 8 (LadenBinKezza) : nothing serious lol
+client 10 (Bulk) disconnected.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 9 ([DEMO]ProKerro100) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-28-00-16.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!
+client 8 (LadenBinKezza) disconnected.
+client 9 ([DEMO]ProKerro100) disconnected.
+OutFile = server_output_1v1.log
+PlayerLog = player_scores_1v1.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+Kezza's Test Server : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+OutFile = server_output_1v1.log
+PlayerLog = player_scores_1v1.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+MaxIdleRunTime = 1800
+MinRunTime = 900
+DropCourtesy = -1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+Kezza's Test Server : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 81.79.248.91:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 4390981.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13208303 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+Kezza's Test Server : This is my test server as I am trying to get player scores to be signed correctly for the upcoming 8 player mod servers.
+Kezza's Test Server : When I have collected enough data I should be able to deploy this for the 8 player mod :)
+Kezza's Test Server : So feel free to play as many games as you want the game results and the demo will be available at....
+Kezza's Test Server : www.defconexpandedlocal.ddns.net
+Login request from 26.102.130.209:63433, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 ([DEMO]) received.
+New name for client 8 ([DEMO]) : ProKerro100
+client 8 ([DEMO]ProKerro100) is ready to play.
+client 7 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 ([DEMO]ProKerro100), keyID = DEMO
+Team 0 : client 7 (LadenBinKezza), keyID = 13208303
+Random seed: 397 (0x18d)
+Kezza's Test Server : Warning: Slowdown budget 20 min.
+Kezza's Test Server : Slow refill on 5x, medium on 10x, fast on 20x
+SpectatorChatChannel = 0
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 8 ([DEMO]ProKerro100) requests a speed factor of 20.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 8 ([DEMO]ProKerro100) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Kezza's Test Server : client 7 (LadenBinKezza) signs the current scores.
+Kezza's Test Server : c2 packets received.
+Record = demo_recordings/game_2024-08-28-00-26.dcrec
+AdvertiseOnInternet = 0
+Kezza's Test Server : Game Over !
+Kezza's Test Server : Restart in 30 Seconds!

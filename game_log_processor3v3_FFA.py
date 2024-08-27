@@ -6,7 +6,7 @@ import json
 import time
 
 def process_game_logs(server_output_file, game_events_file, output_directory):
-    print(f"Starting game log processor")
+    print(f"Starting game log processor for 3v3 FFA")
     print(f"Server output file: {server_output_file}")
     print(f"Game events file: {game_events_file}")
     print(f"Output directory: {output_directory}")
@@ -113,7 +113,7 @@ def process_player_scores(input_file, output_directory, game_data):
                 final_players.append(player)
 
     if final_players:
-        game_data['gameType'] = 'Multiplayer' if len(final_players) > 2 else '1v1'
+        game_data['gameType'] = 'DefconExpanded | 3v3 | FFA | Totally Random' if len(final_players) > 2 else 'DefconExpanded | 3v3 | FFA | Totally Random'
         game_data['players'] = final_players
         game_data['notes'] = game_notes
         game_data['last_alliance'] = last_alliance  # Add the last alliance to the game data
@@ -140,7 +140,7 @@ def get_territory_name(territory_id):
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        print("Usage: python game_log_processor.py <server_output_file> <game_events_file> <output_directory>")
+        print("Usage: python game_log_processor3v3_FFA.py <server_output_file> <game_events_file> <output_directory>")
         sys.exit(1)
     server_output_file = sys.argv[1]
     game_events_file = sys.argv[2]

@@ -1,6 +1,6 @@
 Include ConfigVersion-1.43-beta1
-ServerName Kezza's Test Server | 3v3 | FFA | Totally Random
-ServerKey LJZYEO-AUALPD-VBEDLL-FOCWPA-EWJ
+ServerName Kezza's Test Server | 1v1 | Totally Random
+ServerKey QWQZZJ-TKMLPP-PQOXVH-NPKTUT-SDQ
 GameMode 0
 ServerPort 5010
 AdvertiseOnInternet 1
@@ -8,9 +8,9 @@ AdvertiseOnLAN 1
 TotalBandwidth 75000
 PlayerBandwidth 10000
 LogLevel 2
-EventFile game_events_3v3_FFA.log
-OutFile server_output_3v3_FFA.log
-PlayerLog player_scores_3v3_FFA.log
+EventFile game_events_1v1.log
+OutFile server_output_1v1.log
+PlayerLog player_scores_1v1.log
 
 #ADMIN
 Admin Laika~~0~dancefloor
@@ -23,7 +23,7 @@ HostName Kezza's Test Server
 
 AcceptC2 1
 
-AdvertisePlayers 6
+AdvertisePlayers 2
 MaxSpectators 15 
 
 GhostProtection 2
@@ -56,8 +56,8 @@ KickVoteMinPlayers 0
 KicksToBan 3
 
 #GAME OPTIONS 
-MinTeams 3
-MaxTeams 6
+MinTeams 2
+MaxTeams 2
 ReadyVoteDelay 90
 ReadyVoteMaxRemove 1
 

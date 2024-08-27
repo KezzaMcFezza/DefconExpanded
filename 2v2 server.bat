@@ -2,14 +2,14 @@
 setlocal enabledelayedexpansion
 
 REM Start the game log processor in a new window
-start "Game Log Processor" cmd /k python game_log_processor.py "server_output.log" "game_events.log" "game_logs"
+start "Game Log Processor 2v2" cmd /k python game_log_processor2v2.py "server_output_2v2.log" "game_events_2v2.log" "game_logs"
 
 :server_loop
 set "game_start_time=%date:~10,4%-%date:~4,2%-%date:~7,2%T%time:~0,2%-%time:~3,2%-%time:~6,2%"
 set "game_start_time=!game_start_time: =0!"
 
-echo Starting Dedcon server...
-dedcon.exe ConfigFile1.txt endgame.txt
+echo Starting Dedcon server for 2v2...
+dedcon.exe ConfigFile2.txt endgame.txt
 
 echo Server closed. Processing game logs...
 
