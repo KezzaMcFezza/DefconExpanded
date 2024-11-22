@@ -1,0 +1,97 @@
+OutFile = server_output_8playervault.log
+PlayerLog = player_scores_8playervault.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 8
+ReadyVoteDelay = 90
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+SlowestSpeed = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Server key authentication succeeded, key id = 376110.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Note: Demo limits have been overridden to allow 8 players.
+OutFile = server_output_8playervault.log
+PlayerLog = player_scores_8playervault.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 8
+ReadyVoteDelay = 90
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+SlowestSpeed = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Server key authentication succeeded, key id = 376110.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Note: Demo limits have been overridden to allow 8 players.
+OutFile = server_output_8playervault.log
+PlayerLog = player_scores_8playervault.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 8
+ReadyVoteDelay = 90
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+SlowestSpeed = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Note: Demo limits have been overridden to allow 8 players.
+Server key authentication succeeded, key id = 376110.
+Login request from 26.102.130.209:56483, version="1.60.1.5 MINICOM", keyID=13189777 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+DefconExpanded : Welcome to Vault Tec's 2x blitz server! here anything goes but you cannot use 1x speed to make things more interesting ;)
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+client 9 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 9 (LadenBinKezza), keyID = 13189777
+Random seed: 56 (0x38)
+DefconExpanded : Warning: Minimum speed is set to 5x, you cannot go any lower.
+SpectatorChatChannel = 0
+client 9 (LadenBinKezza) disconnected.
+OutFile = server_output_8playervault.log
+PlayerLog = player_scores_8playervault.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 8
+ReadyVoteDelay = 90
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+SlowestSpeed = 2
+Listening on port 5016.
+ServerPort = 5016
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5016
+Server key authentication succeeded, key id = 750290.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Note: Demo limits have been overridden to allow 8 players.

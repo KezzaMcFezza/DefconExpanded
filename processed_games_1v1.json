@@ -1,0 +1,84 @@
+{
+  "players": [
+    {
+      "client_id": 7,
+      "key_id": "DEMO",
+      "ip": "26.102.130.209",
+      "version": "1.62",
+      "platform": "STEAM",
+      "team": 0,
+      "name": "EKBiceps",
+      "territory": "Russia",
+      "score": 28
+    },
+    {
+      "client_id": 8,
+      "key_id": "13210788",
+      "ip": "26.102.130.209",
+      "version": "1.62",
+      "platform": "STEAM",
+      "team": 1,
+      "name": "LadenBinKezza",
+      "territory": "South America",
+      "score": -14
+    }
+  ],
+  "notes": [
+    "TEAM_READY 1 1",
+    "TEAM_READY 1 0",
+    "TEAM_READY 1 1",
+    "TEAM_READY 0 1",
+    "TEAM_SPEED 0 20",
+    "TEAM_SPEED 0 20",
+    "TEAM_SPEED 0 20",
+    "TEAM_SPEED 1 20"
+  ],
+  "settings": {
+    "MaxIdleRunTime": "1800",
+    "MinRunTime": "900",
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "26.102.130.209",
+    "MaxSpectators": "15",
+    "SpectatorChatChannel": "0",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "1",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "0",
+    "RandomTerritories": "1",
+    "CityPopulations": "3",
+    "PopulationPerTerritory": "150",
+    "CitiesPerTerritory": "30",
+    "TerritoriesPerTeam": "1",
+    "MaxTeams": "2",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "Kezza's Test Server",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "ReadyVoteDelay": "90",
+    "IdleTimeGlobal": "600",
+    "AdvertisePlayers": "2",
+    "Record": "demo_recordings/game_2024-09-06-09-30.dcrec"
+  },
+  "game_id": null,
+  "start_time": "2024-09-06T09:31:40.908587",
+  "end_time": "2024-09-06T09:37:56.063299",
+  "duration": "0:06:15.154712",
+  "gameType": "DefconExpanded | 1v1 | Totally Random",
+  "last_alliance": [
+    "1",
+    "1"
+  ]
+}
+
