@@ -1,0 +1,39 @@
+User-agent: *
+
+# Allow HTTPS version of pages without www
+Allow: https://defconexpanded.com/
+Allow: https://defconexpanded.com/about
+Allow: https://defconexpanded.com/leaderboard
+Allow: https://defconexpanded.com/patchnotes
+Allow: https://defconexpanded.com/resources
+Allow: https://defconexpanded.com/laikasdefcon
+Allow: https://defconexpanded.com/modlist
+Allow: https://defconexpanded.com/modlist/maps
+Allow: https://defconexpanded.com/modlist/graphics
+Allow: https://defconexpanded.com/modlist/ai
+Allow: https://defconexpanded.com/modlist/moddingtools
+Allow: https://defconexpanded.com/privacypolicy
+Allow: https://defconexpanded.com/guides
+Allow: https://defconexpanded.com/sitemap.xml
+Allow: https://defconexpanded.com/site.webmanifest
+Allow: https://defconexpanded.com/browserconfig.xml
+
+# Disallow all variations with www and http
+Disallow: http://defconexpanded.com/
+Disallow: http://www.defconexpanded.com/
+Disallow: https://www.defconexpanded.com/
+
+# Existing disallow rules
+Disallow: /demos/
+Disallow: /public/uploads/
+Disallow: /server.js
+Disallow: /package.json
+Disallow: /package-lock.json
+Disallow: /main.js
+Disallow: /renderer.js
+Disallow: /serverlaunch.bat
+
+Sitemap: https://defconexpanded.com/sitemap.xml
+
+# Preferred host
+Host: https://defconexpanded.com

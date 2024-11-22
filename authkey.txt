@@ -1,0 +1,16 @@
+These are the auth keys that are being used for the dedcon servers just incase we fuck shit up and lose them here they are
+
+#ServerKey LJZYEO-AUALPD-VBEDLL-FOCWPA-EWJ - pirated key from steamunlocked
+#ServerKey STEAME-ABISIA-KKUQHH-PGXVLJ-EGV - my steam auth key
+
+
+#ServerKey QWQZZJ-TKMLPP-PQOXVH-NPKTUT-SDQ - the one you got from vsj/hawhaw - used
+#ServerKey AQZDTB-TSUWOD-CQTZLB-LTANZT-WBE - got off vsj/hawhaw - used
+#ServerKey YKKHOR-MWLEOK-FNBXWL-NEEIXL-MDU - from ebay - used
+#ServerKey ASPSMY-YJCHTN-IOPAVU-FHJWAU-QQU - from ebay - used
+#ServerKey XSZOLI-HWSSRH-GXMBGU-LNRFPA-ELS - from ebay - used
+#ServerKey HRPICY-SDPMDQ-WZBNUY-VDEGWO-EEJ - from ebay - used
+#ServerKey FCMVWF-CPPWYY-XCSFHD-RKOLYH-INR - from ebay - used
+#ServerKey XBAKOL-UWUXZN-ZLEMTH-VNRPMA-KYG - from ebay - used
+#ServerKey NXKWJG-QDLZUN-ZFAIAG-NDDEAP-DRL - from ebay - used
+

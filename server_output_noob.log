@@ -1,0 +1,2272 @@
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5019.
+ServerPort = 5019
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5019
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 203.220.234.103:5011, version="1.62 STEAM", keyID=13225049 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5016.
+ServerPort = 5016
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5016
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 195.136.16.19:47187, version="1.62 STEAM", keyID=13225058 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5016.
+ServerPort = 5016
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5016
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 195.136.16.19:47187, version="1.62 STEAM", keyID=13225058 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5013.
+ServerPort = 5013
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5013
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 115.70.254.106:38871, version="1.62 STEAM", keyID=13225104 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NATO
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (NATO) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5013.
+ServerPort = 5013
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5013
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5010
+Server key authentication succeeded, key id = 750290.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 212.3.196.4:5011, version="1.62 STEAM", keyID=13220935 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 164.70.142.41:5011, version="1.62 STEAM", keyID=13225636 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 94.63.184.238:6113, version="1.62 STEAM", keyID=13226452 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 94.63.184.238:6113, version="1.62 STEAM", keyID=13226452 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 79.132.17.0:5011, version="1.62 STEAM", keyID=13226589 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Kolinski
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (Kolinski) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 88.100.142.40:50495, version="1.62 STEAM", keyID=13226583 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : BURGUND
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (BURGUND) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 84.68.88.54:5011, version="1.62 STEAM", keyID=13226788 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 97.70.141.2:5011, version="1.62 STEAM", keyID=13226829 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 97.70.141.2:5011, version="1.62 STEAM", keyID=13226829 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 86.1.105.81:5011, version="1.62 STEAM", keyID=13226832 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+Login request from 84.64.73.56:5011, version="1.62 STEAM", keyID=13226772 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : LadenBinKezza
+client 8 (LadenBinKezza) : hello
+client 8 (LadenBinKezza) : :)
+client 8 (LadenBinKezza) is ready to play.
+client 8 (LadenBinKezza) is no longer ready to play.
+client 8 (LadenBinKezza) is ready to play.
+client 8 (LadenBinKezza) is no longer ready to play.
+client 8 (LadenBinKezza) is ready to play.
+client 8 (LadenBinKezza) is no longer ready to play.
+client 8 (LadenBinKezza) is ready to play.
+client 8 (LadenBinKezza) is no longer ready to play.
+client 8 (LadenBinKezza) is ready to play.
+client 8 (LadenBinKezza) is no longer ready to play.
+client 7 (NewPlayer) : hi
+client 7 (NewPlayer) disconnected.
+client 8 (LadenBinKezza) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 86.1.105.81:5011, version="1.62 STEAM", keyID=13226832 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+Login request from 84.64.73.56:5011, version="1.62 STEAM", keyID=13226772 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : LadenBinKezza
+client 8 (LadenBinKezza) : hello
+client 8 (LadenBinKezza) : you the same guy as before?
+client 8 (LadenBinKezza) disconnected.
+Login request from 93.44.159.30:5011, version="1.62 STEAM", keyID=13083098 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : pao bao
+client 7 (NewPlayer) is ready to play.
+client 9 (pao bao) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 9 (pao bao), keyID = 13083098
+Team 0 : client 7 (NewPlayer), keyID = 13226832
+Random seed: 264 (0x108)
+DefconExpanded : Have fun!
+client 9 (pao bao) requests a speed factor of 1.
+client 9 (pao bao) requests a speed factor of 5.
+client 9 (pao bao) requests a speed factor of 5.
+client 9 (pao bao) requests a speed factor of 1.
+client 9 (pao bao) requests a speed factor of 1.
+client 9 (pao bao) requests a speed factor of 5.
+client 9 (pao bao) requests a speed factor of 5.
+DefconExpanded : Speeding up NewPlayer who seems to have left the computer.
+client 7 (NewPlayer) set to a speed factor of 20.
+client 9 (pao bao) requests a speed factor of 10.
+client 9 (pao bao) requests a speed factor of 10.
+client 9 (pao bao) requests a speed factor of 5.
+client 9 (pao bao) requests a speed factor of 10.
+client 9 (pao bao) requests a speed factor of 20.
+Login request from 84.64.73.56:5011, version="1.62 STEAM", keyID=13226772 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 (LadenBinKezza) received.
+client 9 (pao bao) : NICE SUT UP
+client 9 (pao bao) : SET
+client 9 (pao bao) disconnected.
+DefconExpanded : client 10 (LadenBinKezza) signs the current scores.
+client 7 (NewPlayer) went out of sync.
+DefconExpanded : [private] You have fallen out of sync with the other players.
+client 10 (LadenBinKezza) went out of sync.
+DefconExpanded : [private] You have fallen out of sync with the other players.
+client 10 (LadenBinKezza) is back in sync.
+client 10 (LadenBinKezza) disconnected.
+client 7 (NewPlayer) is back in sync.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 68.148.100.124:5011, version="1.62 STEAM", keyID=13226955 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 79.136.166.130:5011, version="1.62 STEAM", keyID=13013716 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : karton.
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (karton.) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 86.140.184.37:5011, version="1.62 STEAM", keyID=13227317 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 5.202.109.227:5011, version="1.6", keyID=2935630 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 97.130.163.94:60832, version="1.62 STEAM", keyID=13227696 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 173.66.184.46:5011, version="1.62 STEAM", keyID=13228456 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Server key authentication succeeded, key id = 750290.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Server key authentication succeeded, key id = 750290.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 178.70.134.42:5011, version="1.62 STEAM", keyID=8102348 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : raizer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+Login request from 66.177.11.5:5011, version="1.62 STEAM", keyID=13228620 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : Corporation
+client 8 (Corporation) : Raizer
+client 7 (raizer) : hi
+client 8 (Corporation) : Come to the 2v2
+client 7 (raizer) : no....
+client 8 (Corporation) : We need two more
+client 7 (raizer) : רü טפג
+client 7 (raizer) : im bad
+client 7 (raizer) : 2vs2
+client 8 (Corporation) dropped.
+client 7 (raizer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 178.70.134.42:5011, version="1.62 STEAM", keyID=8102348 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : raizer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+Login request from 89.247.174.245:10058, version="1.64 STEAM", keyID=13228190 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : K2
+client 7 (raizer) : hi
+client 8 (K2) : hi
+client 8 (K2) is ready to play.
+client 8 (K2) is ready to play.
+All players unreadied.
+client 8 (K2) is ready to play.
+client 7 (raizer) : russia vs usa?
+client 8 (K2) : ok
+client 7 (raizer) : russia vs EU
+client 8 (K2) : ok
+client 8 (K2) is no longer ready to play.
+client 8 (K2) is ready to play.
+All players unreadied.
+client 8 (K2) is ready to play.
+client 7 (raizer) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (K2), keyID = 13228190
+Team 0 : client 7 (raizer), keyID = 8102348
+Random seed: 5 (0x5)
+DefconExpanded : Have fun!
+client 7 (raizer) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 20.
+client 7 (raizer) : gg you won
+client 8 (K2) : gg
+client 8 (K2) requests a speed factor of 10.
+client 8 (K2) requests a speed factor of 10.
+client 7 (raizer) requests a speed factor of 20.
+client 8 (K2) requests a speed factor of 20.
+client 7 (raizer) :  wher is timer
+client 8 (K2) : 10 more nukes
+client 7 (raizer) : oh
+client 7 (raizer) : rem rusia vs usa?
+client 8 (K2) : sure
+client 7 (raizer) : end this
+client 7 (raizer) : you name k2?
+client 8 (K2) : maybe not
+DefconExpanded : client 8 (K2) signs the current scores.
+DefconExpanded : client 7 (raizer) signs the current scores.
+Record = demo_recordings/game_2024-11-07-21-47.dcrec
+AdvertiseOnInternet = 0
+DefconExpanded : Game Over !
+DefconExpanded : Game is available on defconexpanded.com
+DefconExpanded : Restart in 60 Seconds!
+client 7 (raizer) disconnected.
+client 8 (K2) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 178.70.134.42:5011, version="1.62 STEAM", keyID=8102348 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : raizer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+Login request from 89.247.174.245:10058, version="1.64 STEAM", keyID=13228190 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : K2
+client 7 (raizer) : ru or usa?
+client 8 (K2) : you pick
+client 7 (raizer) : you pleas )
+client 8 (K2) is ready to play.
+client 8 (K2) is ready to play.
+All players unreadied.
+client 8 (K2) is ready to play.
+client 7 (raizer) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (K2), keyID = 13228190
+Team 0 : client 7 (raizer), keyID = 8102348
+Random seed: 308 (0x134)
+DefconExpanded : Have fun!
+client 7 (raizer) requests a speed factor of 1.
+Login request from 79.175.76.172:5011, version="1.62 STEAM", keyID=13228672 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : Charlie
+client 9 (Charlie) disconnected.
+client 8 (K2) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 8 (K2) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+New name for client 8 (K2) : beni
+client 7 (raizer) disconnected.
+Login request from 178.70.134.42:5011, version="1.62 STEAM", keyID=8102348 : reconnect, naval blacklists apply, accepted, ID = 7.
+client 7 (raizer) set to a speed factor of 1.
+client 8 (beni) set to a speed factor of 1.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 8 (beni) requests a speed factor of 1.
+client 8 (beni) : you back?
+client 8 (beni) requests a speed factor of 5.
+client 8 (beni) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) : yes
+client 8 (beni) requests a speed factor of 5.
+client 8 (beni) requests a speed factor of 1.
+client 7 (raizer) : conecting problem...
+client 7 (raizer) : hi ben!!!!!!!!!!!!!!!!!!
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 10.
+client 8 (beni) : hi
+client 8 (beni) : :)
+client 8 (beni) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 1.
+client 7 (raizer) requests a speed factor of 5.
+client 7 (raizer) requests a speed factor of 10.
+client 7 (raizer) requests a speed factor of 20.
+client 8 (beni) requests a speed factor of 10.
+client 8 (beni) requests a speed factor of 10.
+client 8 (beni) requests a speed factor of 10.
+client 8 (beni) requests a speed factor of 20.
+client 8 (beni) requests a speed factor of 20.
+client 8 (beni) requests a speed factor of 20.
+client 8 (beni) requests a speed factor of 5.
+client 8 (beni) requests a speed factor of 20.
+client 7 (raizer) : )))))))  hehehe..... you win agen
+client 8 (beni) : :)
+client 8 (beni) : im a big russia fan in real life
+client 8 (beni) : they will allways win against the horrible west
+client 7 (raizer) requests a speed factor of 1.
+Login request from 47.204.201.161:5011, version="1.62 STEAM", keyID=13228722 : naval blacklists apply, accepted, ID = 10.
+client 7 (raizer) requests a speed factor of 20.
+client 10 disconnected.
+client 8 (beni) : still negtive :D
+client 7 (raizer) :  add me in dickord
+client 8 (beni) : add me
+DefconExpanded : client 8 (beni) signs the current scores.
+DefconExpanded : client 7 (raizer) signs the current scores.
+Record = demo_recordings/game_2024-11-07-22-42.dcrec
+AdvertiseOnInternet = 0
+DefconExpanded : Game Over !
+DefconExpanded : Game is available on defconexpanded.com
+DefconExpanded : Restart in 60 Seconds!
+client 8 (beni) : i dont know how its working
+client 8 (beni) : ggs
+client 8 (beni) : cu
+client 8 (beni) disconnected.
+client 7 (raizer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 84.68.77.251:51300, version="1.62 STEAM", keyID=DEMO : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 ([DEMO]) received.
+New name for client 7 ([DEMO]) : LadenBinKezza_2
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+Login request from 84.68.77.251:5011, version="1.62 STEAM", keyID=13228528 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : LadenBinKezza
+client 8 (LadenBinKezza) is ready to play.
+client 7 ([DEMO]LadenBinKezza_2) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 8 (LadenBinKezza), keyID = 13228528
+Team 0 : client 7 ([DEMO]LadenBinKezza_2), keyID = DEMO
+Random seed: 65 (0x41)
+DefconExpanded : Have fun!
+client 7 ([DEMO]LadenBinKezza_2) requests a speed factor of 20.
+client 8 (LadenBinKezza) requests a speed factor of 20.
+client 8 (LadenBinKezza) disconnected.
+Login request from 84.68.77.251:5011, version="1.62 STEAM", keyID=13228528 : reconnect, naval blacklists apply, accepted, ID = 8.
+client 8 (LadenBinKezza) set to a speed factor of 1.
+client 7 ([DEMO]LadenBinKezza_2) set to a speed factor of 1.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 8 (LadenBinKezza) disconnected.
+Login request from 84.68.77.251:5011, version="1.62 STEAM", keyID=13228528 : reconnect, naval blacklists apply, accepted, ID = 8.
+client 8 set to a speed factor of 1.
+client 7 ([DEMO]LadenBinKezza_2) set to a speed factor of 1.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 8 requests a speed factor of 20.
+client 7 ([DEMO]LadenBinKezza_2) requests a speed factor of 20.
+client 7 ([DEMO]LadenBinKezza_2) disconnected.
+Login request from 84.68.77.251:51300, version="1.62 STEAM", keyID=DEMO : reconnect, naval blacklists apply, accepted, ID = 7.
+client 7 ([DEMO]LadenBinKezza_2) set to a speed factor of 1.
+client 8 set to a speed factor of 1.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 7 ([DEMO]LadenBinKezza_2) disconnected.
+Login request from 84.68.77.251:51300, version="1.62 STEAM", keyID=DEMO : reconnect, naval blacklists apply, accepted, ID = 7.
+client 7 ([DEMO]) set to a speed factor of 1.
+client 8 set to a speed factor of 1.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 7 ([DEMO]) requests a speed factor of 20.
+client 8 requests a speed factor of 20.
+client 8 : fuck me in the ass
+client 8 : i lost
+client 8 : :(
+client 8 : or did i
+client 8 : perfectly calculated :)
+DefconExpanded : client 7 ([DEMO]) signs the current scores.
+DefconExpanded : client 8 signs the current scores.
+Record = demo_recordings/game_2024-11-08-04-45.dcrec
+AdvertiseOnInternet = 0
+DefconExpanded : Game Over !
+DefconExpanded : Game is available on defconexpanded.com
+DefconExpanded : Restart in 60 Seconds!
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 119.17.157.169:5011, version="1.62 STEAM", keyID=13228813 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 192.24.239.20:5011, version="1.62 STEAM", keyID=13229101 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer_2
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+New name for client 7 (NewPlayer_2) : Livvie
+Login request from 71.47.166.217:5011, version="1.6", keyID=DEMO : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 ([DEMO]) received.
+New name for client 8 ([DEMO]) : NewPlayer
+client 8 ([DEMO]NewPlayer) is ready to play.
+client 7 (Livvie) is ready to play.
+Countdown started.
+client 8 ([DEMO]NewPlayer) : hello
+Game started. Players:
+Team 1 : client 8 ([DEMO]NewPlayer), keyID = DEMO
+Team 0 : client 7 (Livvie), keyID = 13229101
+Random seed: 33 (0x21)
+DefconExpanded : Have fun!
+client 8 ([DEMO]NewPlayer) requests a speed factor of 1.
+client 7 (Livvie) : Hey!
+client 8 ([DEMO]NewPlayer) requests a speed factor of 5.
+client 8 ([DEMO]NewPlayer) requests a speed factor of 1.
+client 8 ([DEMO]NewPlayer) requests a speed factor of 5.
+Login request from 84.68.77.251:5011, version="1.62 STEAM", keyID=13229104 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+client 7 (Livvie) requests a speed factor of 10.
+client 7 (Livvie) requests a speed factor of 10.
+client 7 (Livvie) requests a speed factor of 10.
+client 7 (Livvie) requests a speed factor of 10.
+client 7 (Livvie) requests a speed factor of 10.
+client 7 (Livvie) requests a speed factor of 10.
+client 7 (Livvie) requests a speed factor of 10.
+client 7 (Livvie) requests a speed factor of 10.
+client 7 (Livvie) requests a speed factor of 20.
+client 7 (Livvie) requests a speed factor of 20.
+client 7 (Livvie) disconnected.
+client 8 ([DEMO]NewPlayer) requests a speed factor of 20.
+client 8 ([DEMO]NewPlayer) : guess that new play wasnt welcome any more...lol
+client 8 ([DEMO]NewPlayer) disconnected.
+Record = demo_recordings/game_2024-11-08-08-52.dcrec
+AdvertiseOnInternet = 0
+DefconExpanded : Game Over !
+DefconExpanded : Game is available on defconexpanded.com
+DefconExpanded : Restart in 60 Seconds!
+DefconExpanded : client 9 (LadenBinKezza) signs the current scores.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 213.109.66.144:5011, version="1.51 ru rtl", keyID=DEMO : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 ([DEMO]) received.
+New name for client 7 ([DEMO]) : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 ([DEMO]NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 81.205.83.121:5011, version="1.64 STEAM", keyID=13229162 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Ben
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (Ben) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 81.205.83.121:5011, version="1.64 STEAM", keyID=13229162 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Ben
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (Ben) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 77.8.63.60:5011, version="1.62 STEAM", keyID=13229176 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+Login request from 82.78.21.78:5011, version="1.62 STEAM", keyID=13229169 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : NewPlayer_2
+client 7 (NewPlayer) is ready to play.
+client 8 (NewPlayer_2) disconnected.
+All players unreadied.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 84.68.77.251:51057, version="1.62 STEAM", keyID=13229104 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (LadenBinKezza) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 69.174.145.67:22753, version="1.62 STEAM", keyID=13229330 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 84.68.77.251:5011, version="1.62 STEAM", keyID=13229104 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (LadenBinKezza) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 186.224.129.150:24338, version="1.62 STEAM", keyID=13116759 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : UnaTsarbomber
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (UnaTsarbomber) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 206.83.123.178:65034, version="1.62 STEAM", keyID=13229414 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 99.36.23.87:5011, version="1.62 STEAM", keyID=13217291 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 79.139.255.192:1704, version="1.62 STEAM", keyID=13229326 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 79.139.255.192:1704, version="1.62 STEAM", keyID=13229326 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 67.191.97.64:5011, version="1.62 STEAM", keyID=13230009 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Corporation
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (Corporation) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 217.46.118.214:5011, version="1.62 STEAM", keyID=13229711 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+Login request from 98.122.186.54:5011, version="1.6", keyID=425333 : naval blacklists apply, accepted, ID = 8.
+Team creation request from client 8 received.
+New name for client 8 : Lord Haw Haw 
+Login request from 71.198.137.202:5011, version="1.62 STEAM", keyID=13230007 : naval blacklists apply, accepted, ID = 9.
+client 8 (Lord Haw Haw ) left to spectator mode.
+Team creation request from client 9 received.
+New name for client 9 : Keaor
+client 7 (LadenBinKezza) is ready to play.
+client 9 (Keaor) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 9 (Keaor), keyID = 13230007
+Team 0 : client 7 (LadenBinKezza), keyID = 13229711
+Random seed: 331 (0x14b)
+DefconExpanded : Have fun!
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 20.
+client 9 (Keaor) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 10.
+client 9 (Keaor) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 10.
+client 8 (Lord Haw Haw ) disconnected.
+client 7 (LadenBinKezza) requests a speed factor of 10.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 10.
+client 9 (Keaor) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 20.
+client 9 (Keaor) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 20.
+client 9 (Keaor) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 9 (Keaor) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 9 (Keaor) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 20.
+client 9 (Keaor) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 9 (Keaor) requests a speed factor of 5.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 9 (Keaor) requests a speed factor of 5.
+client 9 (Keaor) requests a speed factor of 20.
+client 9 (Keaor) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 9 (Keaor) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 7 (LadenBinKezza) requests a speed factor of 1.
+client 7 (LadenBinKezza) requests a speed factor of 20.
+client 9 (Keaor) : gg
+client 7 (LadenBinKezza) : gg
+DefconExpanded : client 7 (LadenBinKezza) signs the current scores.
+DefconExpanded : client 9 (Keaor) signs the current scores.
+Record = demo_recordings/game_2024-11-12-06-36.dcrec
+AdvertiseOnInternet = 0
+DefconExpanded : Game Over !
+DefconExpanded : Game is available on defconexpanded.com
+DefconExpanded : Restart in 60 Seconds!
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 156.218.141.161:5011, version="1.43", keyID=DEMO : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 ([DEMO]) received.
+New name for client 7 ([DEMO]) : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 ([DEMO]NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5014.
+ServerPort = 5014
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5014
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 109.252.64.80:2164, version="1.62 STEAM", keyID=13230105 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Russia
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (Russia) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5014.
+ServerPort = 5014
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5014
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 109.252.64.80:2164, version="1.62 STEAM", keyID=13230105 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Russia
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (Russia) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5014.
+ServerPort = 5014
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5014
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 177.82.174.119:5011, version="1.62 STEAM", keyID=13230434 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Bernard
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (Bernard) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5014.
+ServerPort = 5014
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5014
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 177.82.174.119:5011, version="1.62 STEAM", keyID=13230434 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Bernard
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (Bernard) : Hey
+client 7 (Bernard) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5014.
+ServerPort = 5014
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5014
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 68.57.137.2:5011, version="1.62 STEAM", keyID=12883736 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : ahhhhhh
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (ahhhhhh) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5014.
+ServerPort = 5014
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5014
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 89.64.110.154:54223, version="1.62 STEAM", keyID=13230436 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5014.
+ServerPort = 5014
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5014
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 99.242.210.16:5011, version="1.62 STEAM", keyID=13230613 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5014.
+ServerPort = 5014
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5014
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 71.164.90.231:5011, version="1.62 STEAM", keyID=13230647 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Phantom545
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (Phantom545) : Is anyone else here?
+client 7 (Phantom545) : ;(
+client 7 (Phantom545) : I think I'm gonna leave bye
+client 7 (Phantom545) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5014.
+ServerPort = 5014
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5014
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 71.164.90.231:5011, version="1.62 STEAM", keyID=13230647 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : Phantom545
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (Phantom545) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5014.
+ServerPort = 5014
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5014
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 68.224.91.144:5011, version="1.62 STEAM", keyID=13230706 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5014.
+ServerPort = 5014
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5014
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 91.127.130.52:5011, version="1.62 STEAM", keyID=13230753 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+DefconExpanded : [private] Not enough players online yet. 2 are required.
+client 7 (NewPlayer) disconnected.
+OutFile = server_output_noob.log
+PlayerLog = player_scores_noob.log
+AdvertisePlayers = 2
+MaxSpectators = 15
+GhostProtection = 1
+DropCourtesy = -1
+KickVoteMin = 2
+MaxTeams = 2
+ReadyVoteDelay = 90
+PermitDefection = 0
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 750290.
+Login request from 94.16.149.86:5011, version="1.62 STEAM", keyID=13231169 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : NewPlayer
+DefconExpanded : Welcome to the server for all players that are new to Defcon!
+DefconExpanded : Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+DefconExpanded : This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+DefconExpanded : The games will be available for viewing on...
+DefconExpanded : www.defconexpanded.com
+client 7 (NewPlayer) : hi
+client 7 (NewPlayer) disconnected.

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en" class="hide-scrollbar">
+<head>
+    <script src="/script.js" defer></script>
+    <script src="/settings.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>(usernames) settings</title>
+    <link rel="stylesheet" type="text/css" href="/newmain.css" />
+    <link rel="stylesheet" type="text/css" href="/scaling.css" />
+    <link rel="stylesheet" type="text/css" href="/admin.css" />
+    <link rel="stylesheet" type="text/css" href="/modlist.css" />
+    <link rel="stylesheet" type="text/css" href="/profile.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      .fa-user {
+        margin-right: 5px;
+      }
+
+      .fa-cog {
+        margin-right: 5px;
+      }
+    .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        margin-top: 2rem;
+    }
+
+    .pending-request {
+        background-color: #1c1c2e17;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 1rem;
+        color: #b8b8b8;
+        max-width: fit-content;
+    }
+
+    #user-pending-requests-container {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .request-card {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .request-type {
+        color: #ffcc00;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+    
+    .request-status.approved {
+        color: #4caf50;
+        font-weight: 500;
+    }
+    
+    .request-status.pending {
+        color: #ff9800;
+    }
+    
+    .request-status.rejected {
+        color: #f44336;
+    }
+    
+    .admin-info {
+        color: #03a9f4;
+        font-size: 0.9em;
+    }
+    
+    .card {
+        background-color: #1c1c2e17;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .card-title {
+        color: #4da6ff;
+        font-size: 1.3rem;
+        margin-top: 0;
+        text-align: center;
+        margin-bottom: 1rem;
+        font-family: 'Orbitron', sans-serif;
+    }
+    
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    input[type="password"],
+    input[type="email"],
+    input[type="text"] {
+        background-color: #1c1c2e;
+        border: 1px solid #333;
+        color: #fff;
+        padding: 0.75rem;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    
+    .btn-download:hover {
+        background-color: #3a8ad6;
+    }
+    
+    #request-delete-account {
+        background-color: #830000;
+    }
+    
+    #request-delete-account:hover {
+        background-color: #a30000;
+    }
+    .btn-download {
+        width: fit-content;
+        margin-top: 10px;
+    }
+    .card {
+        display: flex;
+        flex-direction: column;
+        max-width: 80%;
+    }
+    .card-actions {
+        display: flex;
+        width: fit-content;
+        flex-direction: column;
+        margin-left: auto;
+        background-color: #1c1c2e17;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        opacity: 1;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    @media (max-width: 430px) {
+        .card {
+            max-width: 100% !important; 
+        }
+    }
+    </style>
+</head>
+<body class="hide-scrollbar">
+    <div id="sidebar">
+        <div class="title">DEFCON Expanded</div>
+        <ul class="list-items">
+            <li><a href="/" id="nav-game-recordings"><img src="/images/recording.png" alt="Game Recordings" class="steam-logo" style="margin-right: 10px; width: 19px; height: 12px;">Game Recordings</a></li>
+            <li><a href="/about" id="nav-about"><img src="/images/abouticon.png" alt="About" class="steam-logo" style="margin-right: 10px; width: 19px;">About</a></li>
+            <li><a href="/resources" id="nav-resources"><img src="/images/favicon.png" alt="Expanded Builds" class="steam-logo" style="margin-right: 10px; width: 19px;">Expanded Builds</a></li>
+            <li><a href="/dedcon-builds" id="nav-dedcon-builds"><img src="/images/dedcon.png" alt="Steam" class="steam-logo" style="margin-right: 10px; width: 19px;">Dedcon</a></li>
+            <!-- <li><a href="/guides" id="nav-articles"><i class="fas fa-newspaper"></i>Guides</a></li> -->
+            <li><a href="/leaderboard" id="nav-leaderboard"><img src="/images/leaderboard.png" alt="Leaderboard" class="steam-logo" style="margin-right: 10px; width: 19px; height: 20px;">Leaderboard</a></li>
+            <!-- <li><a href="/laikasdefcon" id="nav-laikasdefcon"><i class="fas fa-dog"></i>Laika's Defcon</a></li> -->
+            <li><a href="/modlist" id="nav-modlist"><img src="/images/icon3.png" alt="Modlist" class="steam-logo" style="margin-right: 10px; width: 19px;">Defcon Modlist</a></li>
+            <div id="discord-widget"></div>
+            <header class="mobile-header">
+                <nav class="header-content">
+                    <div class="account-container">
+                        <div class="user-actions">
+                            <div class="logged-out-actions">
+                                <a href="/login" class="login-signup" target="_blank">Login</a>
+                                <a href="/signup" class="login-signup" target="_blank">Sign up</a>
+                            </div>
+        
+                            <div class="logged-in-actions" style="display: none;">
+                                <div class="user-dropdown">
+                                    <button class="dropbtn">
+                                      <span id="logged-in-username">Logged-in User</span>
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                    <div class="dropdown-content-page">
+                                        <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a> 
+                                        <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
+                                    </div>
+                                </div>
+                                <button class="signout">Logout</button>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+        </ul>
+        <div class="icons">
+            <a href="mailto:keiron.mcphee1@gmail.com" target="_blank" class="mail-icon">
+                <img src="/images/mail-icon.png" alt="E-Mail" class="steam-logo">
+            </a>
+            <a href="https://www.youtube.com/@KezzaMacFezza" target="_blank" class="youtube-icon">
+                <img src="/images/youtube-icon.png" alt="Youtube" class="steam-logo">
+            </a>
+            <a href="https://store.steampowered.com/app/1520/DEFCON/" class="steam-icon" target="_blank">
+                <img src="/images/steam-logo.png" alt="Steam" class="steam-logo">
+            </a>
+            <a href="/privacypolicy" class="privacy-icon" target="_blank">
+                <img src="/images/privacy-policy.png" alt="Steam" class="steam-logo">
+            </a>
+        </div>
+    </div>
+    <main>
+        <header>
+            <nav class="header-content">
+                <div class="account-container">
+                    <div class="user-actions">
+                        <div class="logged-out-actions">
+                            <a href="/login" class="login-signup" target="_blank">Login</a>
+                            <a href="/signup" class="login-signup" target="_blank">Sign up</a>
+                        </div>
+
+                        <div class="logged-in-actions" style="display: none;">
+                            <div class="user-dropdown">
+                                <button class="dropbtn">
+                                  <span id="logged-in-username">Logged-in User</span>
+                                    <i class="fa fa-caret-down"></i>
+                                </button>
+                                <div class="dropdown-content-page">
+                                    <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a> 
+                                    <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
+                                </div>
+                            </div>
+                            <button class="signout">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        <div class="modlist-main-container">
+            <label style="font-size: 55px;">Account Managment</label>
+            <br>
+            <br>
+            <div class="modlistcontainer">
+                <p class="pabout2" style="text-align: left; margin: 0;">Welcome to your account managment page</p>
+                <br>
+                <p class="pabout2" style="text-align: left; margin: 0;">Everything on this page apart from changing your password is on a request basis,
+                                                                        meaning that admins and moderators will have to accept or decline whatever you submit.
+                                                                        However account deletion is non negotiable if you request your account to be deleted, we
+                                                                        will not question it due to user rights.
+                </p>
+                <br>
+                <p class="pabout2" style="text-align: left; margin: 0;">There are more features planned for the future as the website grows, such as moderator application forums,
+                                                                        and chatting to admins through a message portal if you need something other than is provided on this page.
+                </p>
+            </div>
+        <div class="account-settings-container">
+            <div class="settings-grid">
+                <div class="email-password">
+                <div class="card">
+                    <h2 class="card-title">Change Password</h2>
+                    <form id="request-password-change-form">
+                        <input type="email" id="email" placeholder="Confirm your email" required>
+                        <button type="submit" class="btn-download">Request Password Change</button>
+                    </form>
+                    
+                    <form id="change-password-form" style="display: none;">
+                        <input type="password" id="new-password" placeholder="New Password" required>
+                        <input type="password" id="confirm-password" placeholder="Confirm New Password" required>
+                        <button type="submit" class="btn-download">Change Password</button>
+                    </form>
+                </div>
+        
+                <div class="card">
+                    <h2 class="card-title">Change Email</h2>
+                    <form id="change-email-form">
+                        <input type="email" id="new-email" placeholder="New Email" required>
+                        <button type="submit" class="btn-download">Change Email</button>
+                    </form>
+                </div>
+            </div>
+            <div class="username-leaderboard">
+                <div class="card">
+                    <h2 class="card-title">Change Username</h2>
+                    <form id="change-username-form">
+                        <input type="text" id="new-username" placeholder="New Username" required>
+                        <button type="submit" class="btn-download">Change Username</button>
+                    </form>
+                </div>
+        
+                <div class="card">
+                    <h2 class="card-title">Leaderboard Requests</h2>
+                    <form id="leaderboard-name-change-form">
+                        <input type="text" id="new-leaderboard-name" placeholder="New Leaderboard Name" required>
+                        <button type="submit" class="btn-download">Request Leaderboard Name Change</button>
+                    </form>
+                </div>
+                <div class="actions-container-mobile">
+                    <div class="card-actions">
+                        <h2 class="card-title">Account Actions</h2>
+                        <div class="profile-buttons-mobile">
+                        <button id="request-delete-account" class="btn-download">Request Account Deletion</button>
+                        <button id="request-blacklist" class="btn-download">Request to be Blacklisted</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class="actions-container">
+                <div class="card-actions">
+                    <h2 class="card-title">Account Actions</h2>
+                    <button id="request-delete-account" class="btn-download">Request Account Deletion</button>
+                    <button id="request-blacklist" class="btn-download">Request to be Blacklisted</button>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h2 class="card-title">Your Pending Requests</h2>
+            <div id="user-pending-requests-container">
+            </div>
+        </div>
+        
+    </div>
+</div>
+</main>
+</body>
+</html>

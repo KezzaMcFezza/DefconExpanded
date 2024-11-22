@@ -1,0 +1,389 @@
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 8
+ReadyVoteDelay = 90
+GameMode = 0
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Note: Demo limits have been overridden to allow 8 players.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 8
+ReadyVoteDelay = 90
+GameMode = 0
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Note: Demo limits have been overridden to allow 8 players.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 8
+ReadyVoteDelay = 90
+GameMode = 0
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Note: Demo limits have been overridden to allow 8 players.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 8
+ReadyVoteDelay = 90
+GameMode = 0
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5012.
+ServerPort = 5012
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5012
+Server key authentication succeeded, key id = 2935630.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Note: Demo limits have been overridden to allow 8 players.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 8
+ReadyVoteDelay = 90
+GameMode = 0
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Note: Demo limits have been overridden to allow 8 players.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 8
+ReadyVoteDelay = 90
+GameMode = 0
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Note: Demo limits have been overridden to allow 8 players.
+Server key authentication succeeded, key id = 2935630.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 8
+ReadyVoteDelay = 90
+GameMode = 0
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Note: Demo limits have been overridden to allow 8 players.
+Server key authentication succeeded, key id = 376110.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 8
+ReadyVoteDelay = 90
+GameMode = 0
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Server key authentication succeeded, key id = 376110.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Note: Demo limits have been overridden to allow 8 players.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 10
+ReadyVoteDelay = 90
+GameMode = 0
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Demo limits received. MaxGameSize = 10, MaxDemoPlayers = 10, AllowServers = yes.
+Note: Demo limits have been overridden to allow 10 players.
+Server key authentication succeeded, key id = 376110.
+Login request from 173.79.123.62:5011, version="1.60.1.5 MINICOM", keyID=13206788 : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 received.
+New name for client 11 : Sievert
+DefconExpanded : This is the Official test server for Defcon Expanded, which will soon be integrated into the 8-16 player mod!.
+DefconExpanded : The games will be available on www.defconexpanded.com, and this server has a leaderboard that you can also view on the website.
+DefconExpanded : www.defconexpanded.com
+client 11 (Sievert) disconnected.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 10
+ReadyVoteDelay = 90
+GameMode = 0
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5012.
+ServerPort = 5012
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5012
+Demo limits received. MaxGameSize = 10, MaxDemoPlayers = 10, AllowServers = yes.
+Note: Demo limits have been overridden to allow 10 players.
+Server key authentication succeeded, key id = 376110.
+Login request from 26.102.130.209:58839, version="1.60.1.5 MINICOM", keyID=13190908 : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 received.
+New name for client 11 : LadenBinKezza
+DefconExpanded : This is the Official test server for Defcon Expanded, which will soon be integrated into the 8-16 player mod!.
+DefconExpanded : The games will be available on www.defconexpanded.com, and this server has a leaderboard that you can also view on the website.
+DefconExpanded : www.defconexpanded.com
+client 11 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 11 (LadenBinKezza), keyID = 13190908
+Random seed: 153 (0x99)
+DefconExpanded : Attention there will be a stringent slowdown budget. You can recharge it by setting your speed to x10 or x20
+DefconExpanded : Team Defection will be disabled at DEFCON 3
+SpectatorChatChannel = 0
+client 11 (LadenBinKezza) disconnected.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 10
+ReadyVoteDelay = 90
+GameMode = 0
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+Listening on port 5012.
+ServerPort = 5012
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5012
+Demo limits received. MaxGameSize = 10, MaxDemoPlayers = 10, AllowServers = yes.
+Note: Demo limits have been overridden to allow 10 players.
+Server key authentication succeeded, key id = 376110.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 5
+MaxTeams = 10
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+ScoreMode = 1
+Reverting: PermitDefection = 1
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Demo limits received. MaxGameSize = 10, MaxDemoPlayers = 10, AllowServers = yes.
+Note: Demo limits have been overridden to allow 10 players.
+Server key authentication succeeded, key id = 749325.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 5
+MaxTeams = 10
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+ScoreMode = 1
+Reverting: PermitDefection = 1
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Demo limits received. MaxGameSize = 10, MaxDemoPlayers = 10, AllowServers = yes.
+Note: Demo limits have been overridden to allow 10 players.
+Server key authentication succeeded, key id = 750290.
+OutFile = server_output_10player.log
+PlayerLog = player_scores_10player.log
+AdvertisePlayers = 10
+MaxSpectators = 15
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 5
+MaxTeams = 10
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+PermitDefection = 0
+ScoreMode = 1
+Reverting: PermitDefection = 1
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.223.214:5010
+Demo limits received. MaxGameSize = 10, MaxDemoPlayers = 10, AllowServers = yes.
+Note: Demo limits have been overridden to allow 10 players.
+Server key authentication succeeded, key id = 750290.

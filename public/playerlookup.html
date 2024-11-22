@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" class="hide-scrollbar">
+<head> 
+    <script src="/admin.js"></script>
+    <script src="/script.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEFCON Expanded: A DEFCON Modding Community</title>
+    <meta name="robots" content="noindex">
+    <link rel="stylesheet" type="text/css" href="/newmain.css">
+    <link rel="stylesheet" type="text/css" href="/scaling.css">
+    <link rel="stylesheet" type="text/css" href="/admin.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&amp;display=swap" rel="stylesheet">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userRole = window.userRole;
+            document.querySelectorAll('[data-min-role]').forEach(element => {
+                const minRole = parseInt(element.dataset.minRole);
+                if (userRole <= minRole) {
+                    element.style.display = '';
+                }
+            });
+        });
+    </script>
+</head>
+<style>
+
+    [data-min-role] {
+        display: none;
+        }
+
+    @media (max-width: 768px) {
+        #sidebar .title::after {
+            cursor: pointer;
+            padding: 0;
+            display: block;
+        }
+    }
+    #sidebar .list-items li a i {
+        margin-right: 0.7rem !important;
+    }
+
+    .dropdown-header {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        margin-left: 45px;
+        max-height: 40px;
+      }
+      
+      .dropdown-arrow {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0 10px;
+        margin-left: 10px;
+      }
+      
+      .arrow {
+        border: solid #fff;
+        border-width: 0 3px 3px 0;
+        display: inline-block;
+        padding: 4px;
+        transform: rotate(45deg);
+        transition: transform 0.3s ease;
+      }
+      
+      .arrow.up {
+        transform: rotate(-135deg);
+      }
+      
+      .dropdown-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+        padding: 0 20px;
+      }
+      
+      .dropdown-content.show {
+        max-height: 500px;
+        margin-left: 25px;
+        transition: max-height 0.3s ease-in;
+      }
+</style>
+<body class="hide-scrollbar">
+    <div class="container">
+        <div id="sidebar">
+            <div class="title">DEFCON Expanded</div>
+            <ul class="list-items">
+                <li><a href="/" id="nav-home"><i class="fas fa-home"></i>Back to Homepage</a></li>
+                <li data-min-role="5"><a href="/adminpanel" id="nav-whitelist"><i class="fab fa-windows"></i>Admin Panel</a></li>
+                <li data-min-role="5"><a href="/leaderboardblacklistmanage" id="nav-blaclist" data-min-role="5"><i class="fas fa-ban"></i>Blacklist Managment</a></li>
+                <li data-min-role="5"><a href="/demomanage" id="nav-demomanage" data-min-role="5"><i class="fas fa-video"></i>Demo Managment</a></li>
+                <li data-min-role="2"><a href="/playerlookup" id="nav-playerlookup" data-min-role="2"><i class="fa-solid fa-magnifying-glass"></i>Player Search</a></li>
+                <li data-min-role="5"><a href="/leaderboardmanage" id="nav-leaderboardmanage" data-min-role="5"><i class="fas fa-trophy"></i>Leaderboard Managment</a></li>
+                <li data-min-role="3"><a href="/dedconmanagment" id="nav-dedconmanagment" data-min-role="2"><i class="fas fa-radiation"></i>Dedcon Managment</a></li>
+                <li data-min-role="3"><a href="/resourcemanage" id="nav-resourcemanage" data-min-role="3"><i class="fas fa-download"></i>Resource Managment</a></li>
+                <li data-min-role="5"><a href="/modlistmanage" id="nav-modmanage" data-min-role="5"><i class="fas fa-list"></i>Modlist Managment</a></li>
+                <li data-min-role="2"><a href="/accountmanage" id="nav-accountmanage" data-min-role="2"><i class="fas fa-user"></i>User Account Managment</a></li>
+                <li data-min-role="1"><a href="/serverconsole" id="nav-console" data-min-role="1"><i class="fas fa-laptop-code"></i>Website Console</a></li>
+                <li data-min-role="1"><a href="/defconservers" id="nav-defconservers" data-min-role="1"><i class="fa-solid fa-server"></i>Dedcon Servers</a></li>
+          </ul>
+        </div>
+        <main>
+            <p class="pabout2" style="text-align: left; font-size: 17px; margin-left: 45px;">
+                <label style="font-size: 40px;">Player Search System</label>
+                </p>
+                <p class="pabout2" style="text-align: left; font-size: 17px; margin-left: 45px;">
+                    Use this system to track down smurfs or wanna be smurfs, once a player has smurfed once an infraction will be on their record permanantly.
+                    <br>
+                    <mark style="border-radius: 3px; width: 20px; background-color: rgb(0 183 255); font-weight: bold;">Do NOT share IP's and KeyIDs with anybody else but the admins of SFCON, Group6 and DefconExpanded.</mark>
+                    <div class="installation-section">
+                        <div class="dropdown-header">
+                          <h2 style="color: #4da6ff; margin: 0;">Read More</h2>
+                          <button class="dropdown-arrow" aria-label="Toggle instructions">
+                            <i class="arrow down"></i>
+                          </button>
+                        </div>
+                        <div class="dropdown-content">
+                        <p class="pabout2" style="text-align: left; font-size: 17px; margin: 0; padding: 0;">
+                            <br>
+                            However not all infractions are equally bad so i have included some extra information such as the raw information from the database so you can be the judge
+                            if the infraction upon that player is valid. The algorithm that DefconExpanded uses is purely a match based system. So its safe to assume that if an infraction
+                            has occured then its most likely legit.
+                            <br>
+                            <br>
+                            I also included a very simple rating system, mainly because i was bored and everyone loves numbers.
+                            <br>
+                            Every player starts at a rating of 50, this means highest trust/rating which indicates they have no infractions on their record. Every infraction removes 7 points off your record
+                            which is shown in colors since everyone loves colors, and yellow basically means who cares probably just happened once. Orange means that a player in question has done this more than
+                            once and means they might regularly smurf. And red basically means full on drum and bass smurf.
+                            <br>
+                            <br>
+                            Now i think i have mentioned this before but smurfing is not bannable on DefconExpanded however i (KezzaMcFezza) come from a competitive shooter background where smurfs are
+                            extremely frowned upon and were banable in some of the games i played. So the most you can do with this information is flame the person for smurfing since its cringe.
+                            <br>
+                            Now if somebody has so many infractions that their rating hits 0 that means there is a possibility of banning them on the New Player server since they are a known offender.
+                            <br>
+                            <br>
+                        </p>
+                        </div>
+                      </div>
+                </p>
+            <div id="admin-content" style="margin-top: 0;">
+                <div class="player-lookup-container" style="display: flex; gap: 20px; justify-content: space-between;">
+                    <div class="search-section">
+                        <h2 style="margin-left: 1.5rem;">Advanced Player Lookup</h2>
+                        <div class="search-controls">
+                            <input type="text" id="player-search" style="width: 400px;" placeholder="Search by name, IP, or Key ID...">
+                            <button onclick="searchPlayers()">Search</button>
+                        </div>
+                        <div id="search-results" class="search-results"></div>
+                    </div>
+                    
+                    <div class="json-data-container">
+                        <h2 style="margin: 0;">JSON Data from Database</h2>
+                        <div id="json-data-content"></div>
+                    </div>
+
+                    <div id="top-players-container" style="min-width: 400px; max-width: 500px;"></div>
+                </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,2595 @@
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+ServerKey = <secret>
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+MaxSpectators = 3
+Reverting: CitiesPerTerritory = 25
+Reverting: PopulationPerTerritory = 100
+Reverting: CityPopulations = 0
+Reverting: RandomTerritories = 0
+Reverting: CityBuffer = 0
+Reverting: UnitBuffer = 1
+Reverting: FirstStrikeBonus = 0
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+ServerKey = <secret>
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+ServerKey = <secret>
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+MaxSpectators = 3
+Reverting: CitiesPerTerritory = 25
+Reverting: PopulationPerTerritory = 100
+Reverting: CityPopulations = 0
+Reverting: RandomTerritories = 0
+Reverting: CityBuffer = 0
+Reverting: UnitBuffer = 1
+Reverting: FirstStrikeBonus = 0
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+Login request from 84.64.73.56:61179, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+Login request from 108.66.2.73:5011, version="1.60.1.5 MINICOM", keyID=13199506 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : LawlietAmbiance
+client 10 (LawlietAmbiance) left to spectator mode.
+Login request from 78.96.143.126:5011, version="1.60.1.5 MINICOM", keyID=13227621 : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 received.
+New name for client 11 : Mojo
+client 11 (Mojo) : We play diplomacy?
+client 11 (Mojo) : I am curious how was territories divided
+Login request from 108.66.2.73:2761, version="1.60.1.5 MINICOM", keyID=13197076 : naval blacklists apply, accepted, ID = 12.
+Team creation request from client 12 received.
+New name for client 12 : FasterThanRaito
+client 9 (LadenBinKezza) : mojo
+client 9 (LadenBinKezza) : come vc
+client 9 (LadenBinKezza) : now
+client 9 (LadenBinKezza) : we can play diplo yes
+client 11 (Mojo) : vc?
+client 9 (LadenBinKezza) : voice chat
+client 9 (LadenBinKezza) : :)
+client 11 (Mojo) : nah
+client 9 (LadenBinKezza) : why
+client 9 (LadenBinKezza) : you making me sad
+client 11 (Mojo) : not have a mic connected
+client 11 (Mojo) : and i am listening music atm
+client 12 (FasterThanRaito) : /help
+DefconExpanded : [private] Available commands: /help, /ignore, /kick, /login, /me, /name, /ping, /ranked, /score, /setscore, /setscoreid, /signscore, /speed, /unignore, /unranked, /version
+DefconExpanded : [private] Get more help with, for example, "/help /ping".
+client 12 (FasterThanRaito) : /login
+DefconExpanded : [private] Access denied, not registered.
+client 12 (FasterThanRaito) : /login dancefloor
+DefconExpanded : [private] Access denied, not registered.
+client 12 (FasterThanRaito) : /login FasterThanRaito
+DefconExpanded : [private] Access denied, not registered.
+client 12 (FasterThanRaito) : /admin
+DefconExpanded : [private] Unknown chat command /admin.
+client 9 (LadenBinKezza) : :(
+client 9 (LadenBinKezza) : but come vc
+client 9 (LadenBinKezza) : listen to the boys
+Login request from 98.122.186.54:5011, version="1.60.1.5 MINICOM", keyID=425333 : naval blacklists apply, accepted, ID = 13.
+client 11 (Mojo) : another time :)
+Team creation request from client 13 received.
+New name for client 13 : Lord Haw Haw 
+client 12 (FasterThanRaito) : /login dancefloor
+DefconExpanded : [private] Access denied, not registered.
+client 13 (Lord Haw Haw ) : /ping
+DefconExpanded : [private] client 13 (Lord Haw Haw ) : 126, pl = 1
+DefconExpanded : [private] client 12 (FasterThanRaito) : 187, pl = 0
+DefconExpanded : [private] client 11 (Mojo) : 48, pl = 0
+DefconExpanded : [private] client 10 (LawlietAmbiance) : 161, pl = 1
+DefconExpanded : [private] client 9 (LadenBinKezza) : 49, pl = 0
+client 9 (LadenBinKezza) : /login dancefloor
+DefconExpanded : client 9 (LadenBinKezza) has been logged in as owner.
+client 9 (LadenBinKezza) : /set alliancesize 1
+AllianceSize = 1
+client 13 (Lord Haw Haw ) : /login TangoFoxtrot39
+DefconExpanded : [private] Access denied, wrong password.
+client 13 (Lord Haw Haw ) : /login TangoFoxtrot39
+DefconExpanded : [private] Access denied, wrong password.
+client 13 (Lord Haw Haw ) : /login TangoFoxtrot39
+DefconExpanded : [private] Access denied, wrong password.
+client 9 (LadenBinKezza) : we have corp  coming
+client 9 (LadenBinKezza) : and jack
+client 9 (LadenBinKezza) : and sievert
+client 9 (LadenBinKezza) : and someone else
+Login request from 73.53.118.155:5011, version="1.60.1.5 MINICOM", keyID=13224985 : naval blacklists apply, accepted, ID = 14.
+Team creation request from client 14 received.
+New name for client 14 : Gen. Turgidson
+client 13 (Lord Haw Haw ) : /ping
+DefconExpanded : [private] client 14 (Gen. Turgidson) : 160, pl = 0
+DefconExpanded : [private] client 13 (Lord Haw Haw ) : 139, pl = 1
+DefconExpanded : [private] client 12 (FasterThanRaito) : 186, pl = 0
+DefconExpanded : [private] client 11 (Mojo) : 47, pl = 0
+DefconExpanded : [private] client 10 (LawlietAmbiance) : 158, pl = 2
+DefconExpanded : [private] client 9 (LadenBinKezza) : 48, pl = 0
+client 14 (Gen. Turgidson) disconnected.
+Login request from 86.179.21.58:5011, version="1.60.1.5 MINICOM", keyID=13196164 : naval blacklists apply, accepted, ID = 15.
+Team creation request from client 15 received.
+New name for client 15 : Jackolite
+Login request from 173.79.170.129:5011, version="1.60.1.5 MINICOM", keyID=13210377 : naval blacklists apply, accepted, ID = 16.
+Team creation request from client 16 received.
+New name for client 16 : Sievert
+Login request from 73.53.118.155:5011, version="1.60.1.5 MINICOM", keyID=13224985 : naval blacklists apply, accepted, ID = 17.
+Team creation request from client 17 (Gen. Turgidson) received.
+client 11 (Mojo) is ready to play.
+client 11 (Mojo) is no longer ready to play.
+client 9 (LadenBinKezza) : so lets vote
+client 12 (FasterThanRaito) : dip
+client 15 (Jackolite) : hitler
+client 17 (Gen. Turgidson) : yes
+client 16 (Sievert) : 4v4
+Login request from 66.177.225.237:5011, version="1.60.1.5 MINICOM", keyID=13215723 : naval blacklists apply, accepted, ID = 18.
+client 9 (LadenBinKezza) : vote 1 for diplo vote 2 for 4v4
+client 16 (Sievert) : 2
+client 17 (Gen. Turgidson) : 4v4
+client 12 (FasterThanRaito) : 1
+client 15 (Jackolite) : 3
+client 9 (LadenBinKezza) : 1
+client 11 (Mojo) : 2
+client 17 (Gen. Turgidson) : 2
+Team creation request from client 18 received.
+New name for client 18 : Corporation
+client 9 (LadenBinKezza) : jack is sus
+client 15 (Jackolite) : 2
+client 13 (Lord Haw Haw ) : 2
+client 18 (Corporation) : 1
+client 9 (LadenBinKezza) : guess the votes are in
+client 15 (Jackolite) : voting is cringe
+client 15 (Jackolite) : declare yourself emperor
+client 9 (LadenBinKezza) : /set vitctorymode 2
+DefconExpanded : [private] config option vitctorymode invalid.
+client 11 (Mojo) : :))
+client 9 (LadenBinKezza) : /set gamemode 7
+GameMode = 7
+client 11 (Mojo) : what is unit/city buffers?
+client 16 (Sievert) : u know how you cant put units too close to each other?
+client 13 (Lord Haw Haw ) : unit buffer allow to place units closer 
+client 11 (Mojo) : ok
+client 16 (Sievert) : and u know how cities wont generate too close to each other
+client 16 (Sievert) : you can change that now
+client 9 (LadenBinKezza) : /set ghostprotection 0
+GhostProtection = 0
+client 15 (Jackolite) : kezza you spaztic set vic mode to team
+client 9 (LadenBinKezza) : /set victorymode 1
+VictoryMode = 1
+client 9 (LadenBinKezza) : /set firststrikebonus 0
+FirstStrikeBonus = 0
+client 11 (Mojo) : no ghost protection? :P
+client 15 (Jackolite) is ready to play.
+client 9 (LadenBinKezza) : cus raito needs to spec
+client 9 (LadenBinKezza) : and record for youtube
+client 18 (Corporation) is ready to play.
+client 16 (Sievert) is ready to play.
+client 18 (Corporation) : Very irresponsible
+client 11 (Mojo) is ready to play.
+client 16 (Sievert) : womp womp
+client 12 (FasterThanRaito) is ready to play.
+client 13 (Lord Haw Haw ) is ready to play.
+client 18 (Corporation) is no longer ready to play.
+client 18 (Corporation) is ready to play.
+client 9 (LadenBinKezza) is ready to play.
+client 17 (Gen. Turgidson) is ready to play.
+Countdown started.
+Game started. Players:
+Team 7 : client 18 (Corporation), keyID = 13215723
+Team 6 : client 17 (Gen. Turgidson), keyID = 13224985
+Team 5 : client 16 (Sievert), keyID = 13210377
+Team 4 : client 15 (Jackolite), keyID = 13196164
+Team 3 : client 13 (Lord Haw Haw ), keyID = 425333
+Team 2 : client 12 (FasterThanRaito), keyID = 13197076
+Team 1 : client 11 (Mojo), keyID = 13227621
+Team 0 : client 9 (LadenBinKezza), keyID = 13213071
+Random seed: 243 (0xf3)
+DefconExpanded : Attention there will be a stringent slowdown budget. You can recharge it by setting your speed to x10 or x20
+DefconExpanded : Team Defection will be Disabled at DEFCON 3
+SpectatorChatChannel = 0
+client 9 (LadenBinKezza) requests a speed factor of 1.
+client 15 (Jackolite) requests a speed factor of 1.
+client 18 (Corporation) requests a speed factor of 1.
+client 17 (Gen. Turgidson) requests a speed factor of 1.
+client 13 (Lord Haw Haw ) : join gree
+client 13 (Lord Haw Haw ) : green
+client 13 (Lord Haw Haw ) : pause the damn game 
+client 9 (LadenBinKezza) : /set slowestspeed 0
+SlowestSpeed = 0
+client 9 (LadenBinKezza) : /set say why
+DefconExpanded : why
+client 18 (Corporation) : We need Raito in our vc
+client 13 (Lord Haw Haw ) : we dont have evryone on vc 
+client 18 (Corporation) : We cant coordinate
+client 13 (Lord Haw Haw ) : i cant see red 
+client 9 (LadenBinKezza) : well then dont join a channel
+client 16 (Sievert) : switch to pink then
+client 9 (LadenBinKezza) : that had 3 player limit
+client 17 (Gen. Turgidson) requests a speed factor of 5.
+client 12 (FasterThanRaito) requests a speed factor of 1.
+client 17 (Gen. Turgidson) requests a speed factor of 5.
+client 17 (Gen. Turgidson) requests a speed factor of 5.
+client 15 (Jackolite) requests a speed factor of 1.
+client 9 (LadenBinKezza) : HELLO HAW HAW
+client 9 (LadenBinKezza) : YOU COME TO DIE?
+client 13 (Lord Haw Haw ) : did you give us the pause button?
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 9 (LadenBinKezza) : YES
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 15 (Jackolite) requests a speed factor of 5.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 11 (Mojo) requests a speed factor of 20.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 11 (Mojo) requests a speed factor of 1.
+client 11 (Mojo) requests a speed factor of 20.
+client 15 (Jackolite) : y pause?
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 9 (LadenBinKezza) : Y PAUSE
+client 13 (Lord Haw Haw ) : it wont relase 
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 12 (FasterThanRaito) requests a speed factor of 5.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 12 (FasterThanRaito) requests a speed factor of 5.
+client 13 (Lord Haw Haw ) requests a speed factor of 0.
+client 12 (FasterThanRaito) requests a speed factor of 5.
+client 17 (Gen. Turgidson) : lol
+client 12 (FasterThanRaito) requests a speed factor of 10.
+client 12 (FasterThanRaito) requests a speed factor of 10.
+client 12 (FasterThanRaito) requests a speed factor of 10.
+client 15 (Jackolite) requests a speed factor of 1.
+client 12 (FasterThanRaito) requests a speed factor of 10.
+client 12 (FasterThanRaito) requests a speed factor of 10.
+client 9 (LadenBinKezza) : /set slowestspeed 1
+SlowestSpeed = 1
+client 13 (Lord Haw Haw ) set to a speed factor of 1.
+client 17 (Gen. Turgidson) : SHOWTIME
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+client 13 (Lord Haw Haw ) : we need a restart 
+client 18 (Corporation) : I could not place down all my units, they wouldnt get on the board
+client 13 (Lord Haw Haw ) : did you get that ?
+client 9 (LadenBinKezza) : oh
+client 9 (LadenBinKezza) : well
+client 9 (LadenBinKezza) : time to re
+client 9 (LadenBinKezza) : /set quit
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5012.
+ServerPort = 5012
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5012
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+Login request from 108.66.2.73:5011, version="1.60.1.5 MINICOM", keyID=13199506 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LawlietAmbiance
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+Login request from 78.96.143.126:5011, version="1.60.1.5 MINICOM", keyID=13227621 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : Mojo
+Login request from 108.66.2.73:2761, version="1.60.1.5 MINICOM", keyID=13197076 : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 received.
+New name for client 11 : FasterThanRaito
+client 9 (LawlietAmbiance) left to spectator mode.
+Login request from 98.122.186.54:5011, version="1.60.1.5 MINICOM", keyID=425333 : naval blacklists apply, accepted, ID = 12.
+Team creation request from client 12 received.
+New name for client 12 : Lord Haw Haw 
+client 10 (Mojo) : what happened?
+client 11 (FasterThanRaito) : corp lost navy due to lagging out
+client 10 (Mojo) : server crashed?
+Login request from 84.64.73.56:5011, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 13.
+Team creation request from client 13 received.
+New name for client 13 : LadenBinKezza
+client 11 (FasterThanRaito) : didn't place all units
+client 11 (FasterThanRaito) : so we re
+Login request from 66.177.225.237:5011, version="1.60.1.5 MINICOM", keyID=13215723 : naval blacklists apply, accepted, ID = 14.
+Login request from 86.179.21.58:5011, version="1.60.1.5 MINICOM", keyID=13196164 : naval blacklists apply, accepted, ID = 15.
+Team creation request from client 14 received.
+New name for client 14 : Corporation
+Team creation request from client 15 received.
+New name for client 15 : Jackolite
+client 13 (LadenBinKezza) : /login dancefloor
+DefconExpanded : client 13 (LadenBinKezza) has been logged in as owner.
+Login request from 88.90.186.172:55698, version="1.60.1.5 MINICOM", keyID=13205476 : naval blacklists apply, accepted, ID = 16.
+client 11 (FasterThanRaito) : /login dancefloor
+DefconExpanded : client 11 (FasterThanRaito) has been logged in as admin.
+client 13 (LadenBinKezza) : /set victorymode 1
+VictoryMode = 1
+client 13 (LadenBinKezza) : /set alliancesize 1
+AllianceSize = 1
+client 13 (LadenBinKezza) : /set firststrikebonus 0
+FirstStrikeBonus = 0
+client 11 (FasterThanRaito) : /set ghostprotection 0
+GhostProtection = 0
+client 13 (LadenBinKezza) : /set ghostprotection 0
+client 13 (LadenBinKezza) : /set slowestspeed 0
+SlowestSpeed = 0
+client 16 dropped.
+Login request from 173.79.170.129:5011, version="1.60.1.5 MINICOM", keyID=13210377 : naval blacklists apply, accepted, ID = 17.
+Team creation request from client 17 received.
+New name for client 17 : Sievert
+Login request from 73.53.118.155:5011, version="1.60.1.5 MINICOM", keyID=13224985 : naval blacklists apply, accepted, ID = 18.
+Team creation request from client 18 received.
+New name for client 18 : Gen. Turgidson
+client 15 (Jackolite) is ready to play.
+client 17 (Sievert) is ready to play.
+client 11 (FasterThanRaito) is ready to play.
+client 10 (Mojo) : lets set same territories?
+client 13 (LadenBinKezza) : /set say yes
+DefconExpanded : yes
+client 13 (LadenBinKezza) : /set randomterritories 0
+RandomTerritories = 0
+All players unreadied.
+client 10 (Mojo) : also old culors
+client 10 (Mojo) : colors
+client 10 (Mojo) : Laden, you was green :P
+Login request from 88.90.186.172:56452, version="1.60.1.5 MINICOM", keyID=13205476 : naval blacklists apply, accepted, ID = 19.
+client 10 (Mojo) : Lord you was whatever you picked up
+client 19 dropped.
+client 14 (Corporation) is ready to play.
+All players unreadied.
+client 14 (Corporation) is ready to play.
+client 14 (Corporation) is no longer ready to play.
+client 14 (Corporation) is ready to play.
+client 13 (LadenBinKezza) : /set alliancesize 1
+client 10 (Mojo) is ready to play.
+client 15 (Jackolite) is ready to play.
+client 11 (FasterThanRaito) is ready to play.
+All players unreadied.
+client 10 (Mojo) is ready to play.
+All players unreadied.
+client 15 (Jackolite) is ready to play.
+client 15 (Jackolite) is no longer ready to play.
+client 11 (FasterThanRaito) is ready to play.
+All players unreadied.
+client 11 (FasterThanRaito) is ready to play.
+All players unreadied.
+client 13 (LadenBinKezza) : /set alliancesize 0
+AllianceSize = 0
+client 11 (FasterThanRaito) : just ready up
+client 11 (FasterThanRaito) is ready to play.
+client 18 (Gen. Turgidson) is ready to play.
+All players unreadied.
+client 14 (Corporation) is ready to play.
+client 15 (Jackolite) is ready to play.
+client 17 (Sievert) is ready to play.
+All players unreadied.
+client 11 (FasterThanRaito) is ready to play.
+All players unreadied.
+client 17 (Sievert) is ready to play.
+client 10 (Mojo) is ready to play.
+client 15 (Jackolite) is ready to play.
+client 11 (FasterThanRaito) : STOP
+client 11 (FasterThanRaito) : CHAING COLOR
+All players unreadied.
+client 11 (FasterThanRaito) is ready to play.
+client 14 (Corporation) is ready to play.
+client 13 (LadenBinKezza) : why
+All players unreadied.
+client 13 (LadenBinKezza) is ready to play.
+client 10 (Mojo) is ready to play.
+client 11 (FasterThanRaito) is ready to play.
+client 15 (Jackolite) : yall need glasses
+client 17 (Sievert) : you guys are retards
+client 18 (Gen. Turgidson) is ready to play.
+client 17 (Sievert) is ready to play.
+client 15 (Jackolite) is ready to play.
+client 14 (Corporation) is ready to play.
+client 12 (Lord Haw Haw ) is ready to play.
+Countdown started.
+Game started. Players:
+Team 7 : client 18 (Gen. Turgidson), keyID = 13224985
+Team 6 : client 17 (Sievert), keyID = 13210377
+Team 5 : client 15 (Jackolite), keyID = 13196164
+Team 4 : client 14 (Corporation), keyID = 13215723
+Team 3 : client 13 (LadenBinKezza), keyID = 13213071
+Team 0 : client 12 (Lord Haw Haw ), keyID = 425333
+Team 2 : client 11 (FasterThanRaito), keyID = 13197076
+Team 1 : client 10 (Mojo), keyID = 13227621
+Random seed: 1972 (0x7b4)
+DefconExpanded : Attention there will be a stringent slowdown budget. You can recharge it by setting your speed to x10 or x20
+DefconExpanded : Team Defection will be Disabled at DEFCON 3
+SpectatorChatChannel = 0
+client 15 (Jackolite) requests a speed factor of 1.
+client 15 (Jackolite) requests a speed factor of 1.
+client 13 (LadenBinKezza) requests a speed factor of 1.
+client 14 (Corporation) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 12 (Lord Haw Haw ) requests a speed factor of 0.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 17 (Sievert) : why pause
+client 13 (LadenBinKezza) : /set say unpause now or ban
+DefconExpanded : unpause now or ban
+client 12 (Lord Haw Haw ) : qlitch
+client 12 (Lord Haw Haw ) : stand by 
+client 17 (Sievert) : what do you MEAN bro
+client 17 (Sievert) : tell us what you mean
+client 12 (Lord Haw Haw ) requests a speed factor of 1.
+client 17 (Sievert) : i need to know if theres something wron gwith the game
+client 12 (Lord Haw Haw ) : visual glitch 
+client 14 (Corporation) : we good
+Login request from 176.249.99.151:5011, version="1.60.1.5 MINICOM", keyID=13204270 : naval blacklists apply, accepted, ID = 20.
+client 20 dropped.
+Login request from 176.249.99.151:5011, version="1.60.1.5 MINICOM", keyID=13204270 : naval blacklists apply, accepted, ID = 21.
+client 21 dropped.
+client 13 (LadenBinKezza) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 15 (Jackolite) requests a speed factor of 5.
+Login request from 88.90.186.172:61067, version="1.60.1.5 MINICOM", keyID=13205476 : naval blacklists apply, accepted, ID = 22.
+client 22 disconnected.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 20.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 13 (LadenBinKezza) : can i role a pre defcon 3 cigarette?
+client 13 (LadenBinKezza) : can we pause for 1 min?
+client 15 (Jackolite) requests a speed factor of 0.
+client 13 (LadenBinKezza) requests a speed factor of 0.
+client 18 (Gen. Turgidson) : buy camels next time
+client 12 (Lord Haw Haw ) requests a speed factor of 0.
+client 10 (Mojo) : remove that fucking pause
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 10 (Mojo) : is not rocket science, set min speed 1
+client 15 (Jackolite) : kezza is rolling a cig
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 10 (Mojo) : omg
+client 12 (Lord Haw Haw ) : then we can do bathroom breaks 
+client 15 (Jackolite) requests a speed factor of 5.
+client 17 (Sievert) : i mean i took a shit earlier at d3 
+client 18 (Gen. Turgidson) : what is it a 5 minute ritural?
+client 14 (Corporation) : Now Playing: Bass Boosted Nightcore Montage
+client 10 (Mojo) : i go to jerk off
+client 14 (Corporation) requests a speed factor of 0.
+client 17 (Sievert) : turn on camera mojo
+client 18 (Gen. Turgidson) : I wrote my disertation at D3
+client 10 (Mojo) : pervert
+client 17 (Sievert) : :3
+client 13 (LadenBinKezza) requests a speed factor of 1.
+client 13 (LadenBinKezza) : /set say go
+DefconExpanded : go
+client 13 (LadenBinKezza) : /set say start or ban 
+DefconExpanded : start or ban 
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 17 (Sievert) : bruh did they go for a shit
+client 14 (Corporation) requests a speed factor of 1.
+client 14 (Corporation) : Yes
+client 17 (Sievert) : hahaha
+client 10 (Mojo) requests a speed factor of 1.
+client 10 (Mojo) requests a speed factor of 5.
+client 10 (Mojo) requests a speed factor of 20.
+client 14 (Corporation) : I also just went for a piss, everyone was paused, might as well have
+client 12 (Lord Haw Haw ) requests a speed factor of 1.
+client 10 (Mojo) : Laden, that was pause abuse
+client 13 (LadenBinKezza) : ?
+client 17 (Sievert) : not a serious game so who cares
+client 13 (LadenBinKezza) : i was paused for 1 minute
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+client 18 (Gen. Turgidson) : SHOWTIME
+client 13 (LadenBinKezza) requests a speed factor of 5.
+client 15 (Jackolite) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 13 (LadenBinKezza) : haw haw why running
+client 13 (LadenBinKezza) : hmmmm
+client 13 (LadenBinKezza) : undefended bombers
+client 13 (LadenBinKezza) : :)
+client 15 (Jackolite) requests a speed factor of 1.
+client 15 (Jackolite) requests a speed factor of 1.
+client 15 (Jackolite) requests a speed factor of 1.
+client 17 (Sievert) : nice bombers raito
+client 11 (FasterThanRaito) : thank you I baked them myself
+client 11 (FasterThanRaito) requests a speed factor of 5.
+client 15 (Jackolite) requests a speed factor of 5.
+client 15 (Jackolite) requests a speed factor of 5.
+client 13 (LadenBinKezza) : there are no prisoners in hydra
+client 13 (LadenBinKezza) : you are not escaping into pac
+client 11 (FasterThanRaito) requests a speed factor of 5.
+client 11 (FasterThanRaito) requests a speed factor of 1.
+client 11 (FasterThanRaito) requests a speed factor of 1.
+client 12 (Lord Haw Haw ) requests a speed factor of 20.
+client 17 (Sievert) : NICE BOMBERS RAITO
+client 15 (Jackolite) : mojo
+client 10 (Mojo) requests a speed factor of 20.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 11 (FasterThanRaito) requests a speed factor of 5.
+client 11 (FasterThanRaito) requests a speed factor of 5.
+client 14 (Corporation) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 14 (Corporation) requests a speed factor of 5.
+client 11 (FasterThanRaito) : sieverty BTW your install has a /data folder then extra data.zip with another /data inside
+client 11 (FasterThanRaito) : doesn't seem intentional
+client 17 (Sievert) : heck
+client 11 (FasterThanRaito) requests a speed factor of 10.
+client 11 (FasterThanRaito) requests a speed factor of 10.
+client 10 (Mojo) : speed?
+client 15 (Jackolite) requests a speed factor of 5.
+client 15 (Jackolite) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 11 (FasterThanRaito) requests a speed factor of 10.
+client 11 (FasterThanRaito) requests a speed factor of 10.
+client 11 (FasterThanRaito) requests a speed factor of 10.
+client 15 (Jackolite) requests a speed factor of 5.
+client 15 (Jackolite) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 17 (Sievert) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 13 (LadenBinKezza) : who is coast hugging
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 13 (LadenBinKezza) : deduct 10 points for coast hugging
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 10.
+client 17 (Sievert) requests a speed factor of 1.
+client 14 (Corporation) requests a speed factor of 5.
+client 17 (Sievert) requests a speed factor of 20.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 10.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 15 (Jackolite) requests a speed factor of 10.
+client 15 (Jackolite) requests a speed factor of 10.
+client 14 (Corporation) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 11 (FasterThanRaito) requests a speed factor of 10.
+client 11 (FasterThanRaito) requests a speed factor of 10.
+client 11 (FasterThanRaito) requests a speed factor of 10.
+client 18 (Gen. Turgidson) requests a speed factor of 10.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 1.
+client 15 (Jackolite) requests a speed factor of 5.
+client 15 (Jackolite) requests a speed factor of 5.
+client 11 (FasterThanRaito) requests a speed factor of 20.
+client 11 (FasterThanRaito) requests a speed factor of 20.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 14 (Corporation) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 10 (Mojo) requests a speed factor of 20.
+client 14 (Corporation) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 14 (Corporation) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 5.
+client 14 (Corporation) requests a speed factor of 5.
+client 14 (Corporation) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 1.
+client 15 (Jackolite) requests a speed factor of 5.
+client 15 (Jackolite) requests a speed factor of 5.
+client 18 (Gen. Turgidson) requests a speed factor of 10.
+client 11 (FasterThanRaito) requests a speed factor of 20.
+client 11 (FasterThanRaito) requests a speed factor of 20.
+client 14 (Corporation) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 20.
+client 14 (Corporation) requests a speed factor of 20.
+client 14 (Corporation) requests a speed factor of 20.
+client 14 (Corporation) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 1.
+client 17 (Sievert) requests a speed factor of 20.
+client 14 (Corporation) : gg, have to go
+client 18 (Gen. Turgidson) requests a speed factor of 10.
+client 18 (Gen. Turgidson) requests a speed factor of 10.
+client 11 (FasterThanRaito) requests a speed factor of 20.
+client 14 (Corporation) disconnected.
+client 17 (Sievert) : ragequit?
+client 11 (FasterThanRaito) : no
+client 11 (FasterThanRaito) : he just had real life stuff come up
+client 18 (Gen. Turgidson) requests a speed factor of 10.
+client 18 (Gen. Turgidson) requests a speed factor of 20.
+client 18 (Gen. Turgidson) requests a speed factor of 10.
+client 11 (FasterThanRaito) : not sure if he left the team by accident or if it's a lobby bug when i left the game
+client 17 (Sievert) : think its a dedcon issue
+client 18 (Gen. Turgidson) requests a speed factor of 20.
+client 15 (Jackolite) requests a speed factor of 10.
+client 15 (Jackolite) requests a speed factor of 10.
+client 18 (Gen. Turgidson) requests a speed factor of 20.
+client 15 (Jackolite) requests a speed factor of 20.
+client 15 (Jackolite) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 20.
+client 13 (LadenBinKezza) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 0.
+client 17 (Sievert) requests a speed factor of 1.
+client 15 (Jackolite) requests a speed factor of 20.
+client 15 (Jackolite) requests a speed factor of 20.
+client 18 (Gen. Turgidson) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 1.
+client 17 (Sievert) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 1.
+client 17 (Sievert) requests a speed factor of 20.
+client 13 (LadenBinKezza) requests a speed factor of 1.
+client 13 (LadenBinKezza) requests a speed factor of 5.
+client 13 (LadenBinKezza) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 10.
+client 17 (Sievert) requests a speed factor of 20.
+client 15 (Jackolite) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 10.
+client 15 (Jackolite) requests a speed factor of 20.
+client 15 (Jackolite) requests a speed factor of 20.
+client 15 (Jackolite) requests a speed factor of 20.
+client 18 (Gen. Turgidson) requests a speed factor of 20.
+client 15 (Jackolite) requests a speed factor of 1.
+client 15 (Jackolite) requests a speed factor of 1.
+client 15 (Jackolite) requests a speed factor of 5.
+client 15 (Jackolite) requests a speed factor of 5.
+client 15 (Jackolite) requests a speed factor of 5.
+client 15 (Jackolite) requests a speed factor of 10.
+client 15 (Jackolite) requests a speed factor of 10.
+client 15 (Jackolite) requests a speed factor of 10.
+client 15 (Jackolite) requests a speed factor of 20.
+client 15 (Jackolite) requests a speed factor of 20.
+client 15 (Jackolite) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 1.
+client 15 (Jackolite) : gg
+client 15 (Jackolite) : freaking massacre
+client 18 (Gen. Turgidson) : ow
+client 12 (Lord Haw Haw ) : green is on slow 
+client 10 (Mojo) requests a speed factor of 20.
+client 11 (FasterThanRaito) : JEEE JEEE
+client 17 (Sievert) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 1.
+client 18 (Gen. Turgidson) requests a speed factor of 20.
+client 17 (Sievert) requests a speed factor of 20.
+client 17 (Sievert) : gg
+DefconExpanded : client 13 (LadenBinKezza) signs the current scores.
+DefconExpanded : client 10 (Mojo) signs the curreOutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5012.
+ServerPort = 5012
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5012
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Server key authentication succeeded, key id = 369211.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+Login request from 108.66.2.73:5011, version="1.60.1.5 MINICOM", keyID=13197076 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : FasterThanRaito
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+Login request from 108.66.2.73:28289, version="1.60.1.5 MINICOM", keyID=13199506 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : LawlietAmbiance
+client 10 (LawlietAmbiance) left to spectator mode.
+client 9 (FasterThanRaito) : login dancefloor
+client 9 (FasterThanRaito) : /login dancefloor
+DefconExpanded : client 9 (FasterThanRaito) has been logged in as admin.
+client 9 (FasterThanRaito) : /ghostprotection 0
+DefconExpanded : [private] Unknown chat command /ghostprotection.
+Login request from 98.122.186.54:5011, version="1.60.1.5 MINICOM", keyID=425333 : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 received.
+New name for client 11 : Lord Haw Haw 
+client 9 (FasterThanRaito) : /GhostProtection 0
+DefconExpanded : [private] Unknown chat command /GhostProtection.
+Login request from 66.177.11.5:5011, version="1.60.1.5 MINICOM", keyID=13215723 : naval blacklists apply, accepted, ID = 12.
+Team creation request from client 12 received.
+New name for client 12 : Corporation
+client 9 (FasterThanRaito) : /ghostprotection 0
+DefconExpanded : [private] Unknown chat command /ghostprotection.
+Login request from 84.68.77.251:5011, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 13.
+Team creation request from client 13 received.
+New name for client 13 : LadenBinKezza
+client 9 (FasterThanRaito) : /set ghostprotection 0
+GhostProtection = 0
+client 9 (FasterThanRaito) : /ghostprotection set 0
+DefconExpanded : [private] Unknown chat command /ghostprotection.
+client 9 (FasterThanRaito) : /setghostprotection 0
+DefconExpanded : [private] Unknown chat command /setghostprotection.
+Login request from 162.155.4.171:5011, version="1.60.1.5 MINICOM", keyID=13183470 : naval blacklists apply, accepted, ID = 14.
+Team creation request from client 14 received.
+New name for client 14 : Vault Tec
+client 14 (Vault Tec) : hi guys
+client 14 (Vault Tec) : im new and have never played before
+client 11 (Lord Haw Haw ) : yop
+client 13 (LadenBinKezza) : /login dancefloor
+DefconExpanded : client 13 (LadenBinKezza) has been logged in as owner.
+client 9 (FasterThanRaito) : /set ghostprotection 0
+client 13 (LadenBinKezza) : /set ghostprotection 1
+GhostProtection = 1
+Login request from 173.79.170.129:5011, version="1.60.1.5 MINICOM", keyID=13210377 : naval blacklists apply, accepted, ID = 15.
+Team creation request from client 15 received.
+New name for client 15 : Sievert
+Login request from 86.179.84.2:5011, version="1.60.1.5 MINICOM", keyID=13196164 : naval blacklists apply, accepted, ID = 16.
+Team creation request from client 16 received.
+New name for client 16 : Jackolite
+client 9 (FasterThanRaito) : /set gamemode 6
+GameMode = 6
+Reverting: CitiesPerTerritory = 25
+Reverting: PopulationPerTerritory = 100
+Reverting: CityPopulations = 0
+SpectatorChatChannel = 0
+client 9 (FasterThanRaito) : /set gamemode 7
+GameMode = 7
+client 9 (FasterThanRaito) : /set slowestspeed 0
+SlowestSpeed = 0
+Login request from 71.198.137.202:5011, version="1.60.1.5 MINICOM", keyID=13229427 : naval blacklists apply, accepted, ID = 17.
+Team creation request from client 17 received.
+New name for client 17 : Eurasia
+New name for client 17 (Eurasia) : Keaor
+client 14 (Vault Tec) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is ready to play.
+All players unreadied.
+client 13 (LadenBinKezza) : /set alliancesize 0
+AllianceSize = 0
+client 13 (LadenBinKezza) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 17 (Keaor) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 17 (Keaor) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 17 (Keaor) is ready to play.
+client 12 (Corporation) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 17 (Keaor) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 17 (Keaor) is ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 12 (Corporation) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 13 (LadenBinKezza) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 17 (Keaor) is ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 17 (Keaor) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 12 (Corporation) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 17 (Keaor) is ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is ready to play.
+client 17 (Keaor) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 17 (Keaor) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 12 (Corporation) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 17 (Keaor) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 17 (Keaor) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 17 (Keaor) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 17 (Keaor) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 17 (Keaor) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 17 (Keaor) is ready to play.
+client 14 (Vault Tec) is no longer ready to play.
+client 12 (Corporation) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 12 (Corporation) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 12 (Corporation) is ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 14 (Vault Tec) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 17 (Keaor) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 16 (Jackolite) is ready to play.
+client 16 (Jackolite) is no longer ready to play.
+client 11 (Lord Haw Haw ) : /ping
+DefconExpanded : [private] client 17 (Keaor) : 187, pl = 11
+DefconExpanded : [private] client 16 (Jackolite) : 50, pl = 9
+DefconExpanded : [private] client 15 (Sievert) : 110, pl = 8
+DefconExpanded : [private] client 14 (Vault Tec) : 134, pl = 6
+DefconExpanded : [private] client 13 (LadenBinKezza) : 46, pl = 3
+DefconExpanded : [private] client 12 (Corporation) : 147, pl = 2
+DefconExpanded : [private] client 11 (Lord Haw Haw ) : 125, pl = 6
+DefconExpanded : [private] client 10 (LawlietAmbiance) : 172, pl = 3
+DefconExpanded : [private] client 9 (FasterThanRaito) : 169, pl = 9
+All players unreadied.
+client 9 (FasterThanRaito) : i
+client 9 (FasterThanRaito) : /set score mode 3
+DefconExpanded : [private] client 9 (FasterThanRaito) : no score entered.
+DefconExpanded : [private] client 11 (Lord Haw Haw ) : no score entered.
+DefconExpanded : [private] client 12 (Corporation) : no score entered.
+DefconExpanded : [private] client 13 (LadenBinKezza) : no score entered.
+DefconExpanded : [private] client 14 (Vault Tec) : no score entered.
+DefconExpanded : [private] client 15 (Sievert) : no score entered.
+DefconExpanded : [private] client 16 (Jackolite) : no score entered.
+DefconExpanded : [private] client 17 (Keaor) : no score entered.
+client 13 (LadenBinKezza) : /set scoremode 2
+ScoreMode = 2
+client 13 (LadenBinKezza) : /set scoremode 1
+ScoreMode = 1
+client 13 (LadenBinKezza) : /set firststrikebonus 15
+client 15 (Sievert) is ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) : /set gayboys 2
+DefconExpanded : [private] config option gayboys invalid.
+client 9 (FasterThanRaito) is ready to play.
+client 9 (FasterThanRaito) is no longer ready to play.
+client 9 (FasterThanRaito) is ready to play.
+client 9 (FasterThanRaito) is no longer ready to play.
+All players unreadied.
+client 9 (FasterThanRaito) is ready to play.
+client 14 (Vault Tec) is ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 15 (Sievert) is ready to play.
+client 12 (Corporation) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 11 (Lord Haw Haw ) is ready to play.
+Countdown started.
+All players unreadied.
+Countdown aborted.
+client 14 (Vault Tec) is ready to play.
+client 15 (Sievert) is ready to play.
+client 16 (Jackolite) is ready to play.
+client 9 (FasterThanRaito) is ready to play.
+client 11 (Lord Haw Haw ) is ready to play.
+client 13 (LadenBinKezza) is ready to play.
+client 12 (Corporation) is ready to play.
+client 17 (Keaor) is ready to play.
+Countdown started.
+Game started. Players:
+Team 7 : client 17 (Keaor), keyID = 13229427
+Team 6 : client 16 (Jackolite), keyID = 13196164
+Team 5 : client 15 (Sievert), keyID = 13210377
+Team 4 : client 14 (Vault Tec), keyID = 13183470
+Team 3 : client 13 (LadenBinKezza), keyID = 13213071
+Team 2 : client 12 (Corporation), keyID = 13215723
+Team 1 : client 11 (Lord Haw Haw ), keyID = 425333
+Team 0 : client 9 (FasterThanRaito), keyID = 13197076
+DefconExpanded : Warning: player client 9 (FasterThanRaito) and spectator client 10 (LawlietAmbiance) are connected from the same IP, it is likely that the spectator is gathering intel for the player.
+Random seed: 263 (0x107)
+DefconExpanded : Attention there will be a stringent slowdown budget. You can recharge it by setting your speed to x10 or x20
+DefconExpanded : Team Defection will be Disabled at DEFCON 3
+client 13 (LadenBinKezza) requests a speed factor of 1.
+client 12 (Corporation) requests a speed factor of 5.
+client 12 (Corporation) requests a speed factor of 1.
+client 17 (Keaor) requests a speed factor of 1.
+client 14 (Vault Tec) : rip raito
+client 13 (LadenBinKezza) requests a speed factor of 0.
+client 16 (Jackolite) requests a speed factor of 0.
+client 9 (FasterThanRaito) disconnected.
+client 17 (Keaor) requests a speed factor of 0.
+client 14 (Vault Tec) disconnected.
+Login request from 162.155.4.171:5011, version="1.60.1.5 MINICOM", keyID=13183470 : reconnect, naval blacklists apply, accepted, ID = 14.
+client 14 (Vault Tec) set to a speed factor of 0.
+client 17 (Keaor) set to a speed factor of 0.
+client 16 (Jackolite) set to a speed factor of 0.
+client 15 (Sievert) set to a speed factor of 0.
+client 13 (LadenBinKezza) set to a speed factor of 0.
+client 12 (Corporation) set to a speed factor of 0.
+client 11 (Lord Haw Haw ) set to a speed factor of 0.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 11 (Lord Haw Haw ) : /ping
+DefconExpanded : [private] client 14 (Vault Tec) : 119, pl = 1
+DefconExpanded : [private] client 17 (Keaor) : 209, pl = 0
+DefconExpanded : [private] client 16 (Jackolite) : 63, pl = 0
+DefconExpanded : [private] client 15 (Sievert) : 125, pl = 0
+DefconExpanded : [private] client 13 (LadenBinKezza) : 47, pl = 0
+DefconExpanded : [private] client 12 (Corporation) : 156, pl = 3
+DefconExpanded : [private] client 11 (Lord Haw Haw ) : 137, pl = 0
+DefconExpanded : [private] client 10 (LawlietAmbiance) : 189, pl = 0
+client 14 (Vault Tec) requests a speed factor of 20.
+Login request from 108.66.2.73:5011, version="1.60.1.5 MINICOM", keyID=13197076 : reconnect, naval blacklists apply, accepted, ID = 9.
+client 9 (FasterThanRaito) set to a speed factor of 0.
+client 14 (Vault Tec) set to a speed factor of 0.
+client 17 (Keaor) set to a speed factor of 0.
+client 16 (Jackolite) set to a speed factor of 0.
+client 15 (Sievert) set to a speed factor of 0.
+client 13 (LadenBinKezza) set to a speed factor of 0.
+client 12 (Corporation) set to a speed factor of 0.
+client 11 (Lord Haw Haw ) set to a speed factor of 0.
+DefconExpanded : A player has technical problems, slowing everyone down.
+Login request from 108.66.2.73:5011, version="1.60.1.5 MINICOM", keyID=13197076 : ignored, already logged in.
+Login request from 108.66.2.73:5011, version="1.60.1.5 MINICOM", keyID=13197076 : ignored, already logged in.
+Login request from 108.66.2.73:5011, version="1.60.1.5 MINICOM", keyID=13197076 : ignored, already logged in.
+client 14 (Vault Tec) : raito sucks fr
+client 12 (Corporation) requests a speed factor of 1.
+client 14 (Vault Tec) requests a speed factor of 20.
+client 15 (Sievert) requests a speed factor of 0.
+client 15 (Sievert) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 13 (LadenBinKezza) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 5.
+client 16 (Jackolite) requests a speed factor of 1.
+client 16 (Jackolite) requests a speed factor of 1.
+client 16 (Jackolite) requests a speed factor of 1.
+client 11 (Lord Haw Haw ) requests a speed factor of 1.
+client 11 (Lord Haw Haw ) requests a speed factor of 20.
+client 13 (LadenBinKezza) requests a speed factor of 1.
+client 17 (Keaor) requests a speed factor of 1.
+client 14 (Vault Tec) went out of sync.
+DefconExpanded : [private] You have fallen out of sync with the other players.
+client 9 (FasterThanRaito) set to a speed factor of 0.
+client 14 (Vault Tec) set to a speed factor of 0.
+client 17 (Keaor) set to a speed factor of 0.
+client 16 (Jackolite) set to a speed factor of 0.
+client 15 (Sievert) set to a speed factor of 0.
+client 13 (LadenBinKezza) set to a speed factor of 0.
+client 12 (Corporation) set to a speed factor of 0.
+client 11 (Lord Haw Haw ) set to a speed factor of 0.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 14 (Vault Tec) is back in sync.
+client 16 (Jackolite) requests a speed factor of 5.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 13 (LadenBinKezza) requests a speed factor of 1.
+client 14 (Vault Tec) requests a speed factor of 0.
+client 14 (Vault Tec) went out of sync.
+DefconExpanded : [private] You have fallen out of sync with the other players.
+client 9 (FasterThanRaito) set to a speed factor of 0.
+client 14 (Vault Tec) set to a speed factor of 0.
+client 17 (Keaor) set to a speed factor of 0.
+client 16 (Jackolite) set to a speed factor of 0.
+client 15 (Sievert) set to a speed factor of 0.
+client 13 (LadenBinKezza) set to a speed factor of 0.
+client 12 (Corporation) set to a speed factor of 0.
+client 11 (Lord Haw Haw ) set to a speed factor of 0.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 14 (Vault Tec) is back in sync.
+client 17 (Keaor) requests a speed factor of 0.
+client 11 (Lord Haw Haw ) requests a speed factor of 1.
+client 9 (FasterThanRaito) requests a speed factor of 1.
+client 14 (Vault Tec) went out of sync.
+DefconExpanded : [private] You have fallen out of sync with the other players.
+client 14 (Vault Tec) disconnected.
+client 14 (Vault Tec) is back in sync.
+client 11 (Lord Haw Haw ) : /ping
+DefconExpanded : [private] client 9 (FasterThanRaito) : 182, pl = 0
+DefconExpanded : [private] client 17 (Keaor) : 211, pl = 0
+DefconExpanded : [private] client 16 (Jackolite) : 62, pl = 0
+DefconExpanded : [private] client 15 (Sievert) : 123, pl = 0
+DefconExpanded : [private] client 13 (LadenBinKezza) : 48, pl = 0
+DefconExpanded : [private] client 12 (Corporation) : 165, pl = 4
+DefconExpanded : [private] client 11 (Lord Haw Haw ) : 136, pl = 0
+DefconExpanded : [private] client 10 (LawlietAmbiance) : 189, pl = 0
+Login request from 162.155.4.171:5011, version="1.60.1.5 MINICOM", keyID=13183470 : reconnect, naval blacklists apply, accepted, ID = 14.
+client 14 set to a speed factor of 0.
+client 9 (FasterThanRaito) set to a speed factor of 0.
+client 17 (Keaor) set to a speed factor of 0.
+client 16 (Jackolite) set to a speed factor of 0.
+client 15 (Sievert) set to a speed factor of 0.
+client 13 (LadenBinKezza) set to a speed factor of 0.
+client 12 (Corporation) set to a speed factor of 0.
+client 11 (Lord Haw Haw ) set to a speed factor of 0.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 14 went out of sync.
+DefconExpanded : [private] You have fallen out of sync with the other players.
+client 13 (LadenBinKezza) requests a speed factor of 1.
+client 13 (LadenBinKezza) : /set slowestspeed 1
+SlowestSpeed = 1
+client 14 set to a speed factor of 1.
+client 9 (FasterThanRaito) set to a speed factor of 1.
+client 17 (Keaor) set to a speed factor of 1.
+client 16 (Jackolite) set to a speed factor of 1.
+client 15 (Sievert) set to a speed factor of 1.
+client 12 (Corporation) set to a speed factor of 1.
+client 11 (Lord Haw Haw ) set to a speed factor of 1.
+client 15 (Sievert) disconnected.
+client 16 (Jackolite) disconnected.
+client 14 is back in sync.
+client 11 (Lord Haw Haw ) disconnected.
+client 13 (LadenBinKezza) : /set quit
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+Login request from 84.68.77.251:5011, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+Login request from 86.179.84.2:5011, version="1.60.1.5 MINICOM", keyID=13196164 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : Jackolite
+client 9 (LadenBinKezza) : /login dancefloor
+DefconExpanded : client 9 (LadenBinKezza) has been logged in as owner.
+Login request from 98.122.186.54:5011, version="1.60.1.5 MINICOM", keyID=425333 : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 received.
+New name for client 11 : Lord Haw Haw 
+client 9 (LadenBinKezza) : /set ghostprotection 0
+GhostProtection = 0
+client 9 (LadenBinKezza) : /set gamemode 7
+GameMode = 7
+Login request from 66.177.11.5:5011, version="1.60.1.5 MINICOM", keyID=13215723 : naval blacklists apply, accepted, ID = 12.
+client 9 (LadenBinKezza) : /set firststrikebonus 15
+client 10 (Jackolite) : set pp to maximum
+Team creation request from client 12 received.
+New name for client 12 : Corporation
+client 9 (LadenBinKezza) : /set alliancesize 0
+AllianceSize = 0
+Login request from 173.79.170.129:5011, version="1.60.1.5 MINICOM", keyID=13210377 : naval blacklists apply, accepted, ID = 13.
+Team creation request from client 13 received.
+New name for client 13 : Sievert
+client 10 (Jackolite) : brb 2min
+Login request from 108.66.2.73:28289, version="1.60.1.5 MINICOM", keyID=13199506 : naval blacklists apply, accepted, ID = 14.
+Team creation request from client 14 received.
+New name for client 14 : LawlietAmbiance
+client 14 (LawlietAmbiance) left to spectator mode.
+Login request from 108.66.2.73:5011, version="1.60.1.5 MINICOM", keyID=13197076 : naval blacklists apply, accepted, ID = 15.
+Team creation request from client 15 received.
+New name for client 15 : FasterThanRaito
+Login request from 162.155.4.171:5011, version="1.60.1.5 MINICOM", keyID=13183470 : naval blacklists apply, accepted, ID = 16.
+Team creation request from client 16 received.
+client 15 (FasterThanRaito) : /login dancefloor
+DefconExpanded : client 15 (FasterThanRaito) has been logged in as admin.
+New name for client 16 : Vault Tec
+client 15 (FasterThanRaito) : /set gamemode 7
+client 16 (Vault Tec) is ready to play.
+client 15 (FasterThanRaito) : /set slowestspeed 0
+SlowestSpeed = 0
+All players unreadied.
+client 15 (FasterThanRaito) : /set ghostprotection 0
+Login request from 71.198.137.202:5011, version="1.60.1.5 MINICOM", keyID=13229427 : naval blacklists apply, accepted, ID = 17.
+Team creation request from client 17 received.
+New name for client 17 : Keaor
+client 10 (Jackolite) is ready to play.
+All players unreadied.
+client 16 (Vault Tec) is ready to play.
+client 13 (Sievert) is ready to play.
+client 17 (Keaor) is ready to play.
+client 11 (Lord Haw Haw ) is ready to play.
+client 12 (Corporation) is ready to play.
+client 9 (LadenBinKezza) is ready to play.
+client 9 (LadenBinKezza) is no longer ready to play.
+client 15 (FasterThanRaito) : /set scoremode 2
+ScoreMode = 2
+All players unreadied.
+client 9 (LadenBinKezza) : /set scoremode 
+DefconExpanded : [private] config option format error.
+client 16 (Vault Tec) is ready to play.
+client 15 (FasterThanRaito) : /set scoremode 1
+ScoreMode = 1
+All players unreadied.
+client 13 (Sievert) is ready to play.
+client 15 (FasterThanRaito) is ready to play.
+client 9 (LadenBinKezza) is ready to play.
+client 10 (Jackolite) is ready to play.
+client 12 (Corporation) is ready to play.
+client 11 (Lord Haw Haw ) is ready to play.
+client 17 (Keaor) is ready to play.
+client 16 (Vault Tec) is ready to play.
+Countdown started.
+Game started. Players:
+Team 7 : client 17 (Keaor), keyID = 13229427
+Team 6 : client 16 (Vault Tec), keyID = 13183470
+Team 5 : client 15 (FasterThanRaito), keyID = 13197076
+Team 4 : client 13 (Sievert), keyID = 13210377
+Team 3 : client 12 (Corporation), keyID = 13215723
+Team 2 : client 11 (Lord Haw Haw ), keyID = 425333
+Team 1 : client 10 (Jackolite), keyID = 13196164
+Team 0 : client 9 (LadenBinKezza), keyID = 13213071
+Random seed: 37 (0x25)
+DefconExpanded : Attention there will be a stringent slowdown budget. You can recharge it by setting your speed to x10 or x20
+DefconExpanded : Team Defection will be Disabled at DEFCON 3
+SpectatorChatChannel = 0
+client 16 (Vault Tec) went out of sync.
+DefconExpanded : [private] You have fallen out of sync with the other players.
+client 16 (Vault Tec) disconnected.
+client 16 (Vault Tec) is back in sync.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 0.
+client 17 (Keaor) requests a speed factor of 1.
+client 15 (FasterThanRaito) disconnected.
+client 10 (Jackolite) disconnected.
+client 12 (Corporation) disconnected.
+client 17 (Keaor) disconnected.
+client 9 (LadenBinKezza) : /set quit
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Server key authentication succeeded, key id = 369211.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Login request from 173.79.170.129:5011, version="1.60.1.5 MINICOM", keyID=13210377 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : Sievert
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+Login request from 98.122.186.54:5011, version="1.60.1.5 MINICOM", keyID=425333 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : Lord Haw Haw 
+Login request from 84.68.77.251:5011, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 received.
+New name for client 11 : LadenBinKezza
+Login request from 71.198.137.202:5011, version="1.60.1.5 MINICOM", keyID=13229427 : naval blacklists apply, accepted, ID = 12.
+Team creation request from client 12 received.
+New name for client 12 : Keaor
+client 11 (LadenBinKezza) : /login dancefloor
+DefconExpanded : client 11 (LadenBinKezza) has been logged in as owner.
+Login request from 108.66.2.73:28289, version="1.60.1.5 MINICOM", keyID=13199506 : naval blacklists apply, accepted, ID = 13.
+Team creation request from client 13 received.
+New name for client 13 : LawlietAmbiance
+client 13 (LawlietAmbiance) left to spectator mode.
+Login request from 86.179.84.2:5011, version="1.60.1.5 MINICOM", keyID=13196164 : naval blacklists apply, accepted, ID = 14.
+Team creation request from client 14 received.
+New name for client 14 : Jackolite
+Login request from 108.66.2.73:5011, version="1.60.1.5 MINICOM", keyID=13197076 : naval blacklists apply, accepted, ID = 15.
+Team creation request from client 15 received.
+New name for client 15 : FasterThanRaito
+client 15 (FasterThanRaito) : /login dancefloor
+DefconExpanded : client 15 (FasterThanRaito) has been logged in as admin.
+Login request from 66.177.11.5:5011, version="1.60.1.5 MINICOM", keyID=13215723 : naval blacklists apply, accepted, ID = 16.
+Team creation request from client 16 received.
+New name for client 16 : Corporation
+client 15 (FasterThanRaito) : /set gamemode 7
+GameMode = 7
+client 15 (FasterThanRaito) : /set scoremode 1
+ScoreMode = 1
+client 15 (FasterThanRaito) : /set ghostprotection 1
+client 15 (FasterThanRaito) : /set slowestspeed 0
+SlowestSpeed = 0
+client 12 (Keaor) is ready to play.
+All players unreadied.
+client 11 (LadenBinKezza) : /set alliancesize 0
+AllianceSize = 0
+client 14 (Jackolite) is ready to play.
+All players unreadied.
+client 11 (LadenBinKezza) is ready to play.
+client 11 (LadenBinKezza) is no longer ready to play.
+client 11 (LadenBinKezza) is ready to play.
+client 11 (LadenBinKezza) is no longer ready to play.
+client 11 (LadenBinKezza) is ready to play.
+client 11 (LadenBinKezza) is no longer ready to play.
+client 14 (Jackolite) is ready to play.
+client 9 (Sievert) is ready to play.
+client 15 (FasterThanRaito) is ready to play.
+client 11 (LadenBinKezza) is ready to play.
+client 10 (Lord Haw Haw ) is ready to play.
+DefconExpanded : [private] Corporation : Please ready up or leave, the other players want to start.
+client 16 (Corporation) is ready to play.
+client 12 (Keaor) is ready to play.
+Countdown started.
+Game started. Players:
+Team 6 : client 16 (Corporation), keyID = 13215723
+Team 5 : client 15 (FasterThanRaito), keyID = 13197076
+Team 4 : client 14 (Jackolite), keyID = 13196164
+Team 3 : client 12 (Keaor), keyID = 13229427
+Team 2 : client 11 (LadenBinKezza), keyID = 13213071
+Team 1 : client 10 (Lord Haw Haw ), keyID = 425333
+Team 0 : client 9 (Sievert), keyID = 13210377
+DefconExpanded : Warning: player client 15 (FasterThanRaito) and spectator client 13 (LawlietAmbiance) are connected from the same IP, it is likely that the spectator is gathering intel for the player.
+Random seed: 713 (0x2c9)
+DefconExpanded : Attention there will be a stringent slowdown budget. You can recharge it by setting your speed to x10 or x20
+DefconExpanded : Team Defection will be Disabled at DEFCON 3
+SpectatorChatChannel = 0
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 16 (Corporation) requests a speed factor of 1.
+client 16 (Corporation) requests a speed factor of 5.
+client 11 (LadenBinKezza) requests a speed factor of 5.
+client 11 (LadenBinKezza) requests a speed factor of 5.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 9 (Sievert) requests a speed factor of 1.
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+client 11 (LadenBinKezza) : /set radarsharing 2
+RadarSharing = 2
+client 11 (LadenBinKezza) : /set radarsharing 1
+RadarSharing = 1
+client 11 (LadenBinKezza) : /set radarsharing 0
+RadarSharing = 0
+client 11 (LadenBinKezza) : /set radarsharing 3
+RadarSharing = 3
+client 15 (FasterThanRaito) : /set radarsharing 1
+RadarSharing = 1
+client 15 (FasterThanRaito) : /set radarsharing 2
+RadarSharing = 2
+client 11 (LadenBinKezza) : /set ceasefire 1
+DefconExpanded : [private] config option ceasefire invalid.
+client 11 (LadenBinKezza) : /set ceasefire
+DefconExpanded : [private] config option ceasefire invalid.
+client 15 (FasterThanRaito) : /set defection 1
+DefconExpanded : [private] config option defection invalid.
+client 15 (FasterThanRaito) : /set defectionenabled 1
+DefconExpanded : [private] config option defectionenabled invalid.
+client 11 (LadenBinKezza) : /set permitdefection 1
+PermitDefection = 1
+DefconExpanded : Warning: Defection enabled again.
+client 16 (Corporation) requests a speed factor of 5.
+client 12 (Keaor) requests a speed factor of 5.
+client 12 (Keaor) requests a speed factor of 5.
+client 11 (LadenBinKezza) requests a speed factor of 5.
+client 12 (Keaor) requests a speed factor of 5.
+client 12 (Keaor) requests a speed factor of 5.
+client 12 (Keaor) requests a speed factor of 10.
+client 12 (Keaor) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 12 (Keaor) requests a speed factor of 5.
+client 9 (Sievert) requests a speed factor of 5.
+client 10 (Lord Haw Haw ) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 5.
+Login request from 78.96.143.126:5011, version="1.60.1.5 MINICOM", keyID=13227621 : naval blacklists apply, accepted, ID = 17.
+client 10 (Lord Haw Haw ) requests a speed factor of 5.
+Team creation request from client 17 received.
+New name for client 17 : Mojo
+client 11 (LadenBinKezza) : :)
+client 10 (Lord Haw Haw ) requests a speed factor of 1.
+client 11 (LadenBinKezza) requests a speed factor of 5.
+client 10 (Lord Haw Haw ) requests a speed factor of 20.
+client 16 (Corporation) requests a speed factor of 1.
+client 12 (Keaor) went out of sync.
+DefconExpanded : [private] You have fallen out of sync with the other players.
+client 16 (Corporation) set to a speed factor of 0.
+client 15 (FasterThanRaito) set to a speed factor of 0.
+client 14 (Jackolite) set to a speed factor of 0.
+client 12 (Keaor) set to a speed factor of 0.
+client 11 (LadenBinKezza) set to a speed factor of 0.
+client 10 (Lord Haw Haw ) set to a speed factor of 0.
+client 9 (Sievert) set to a speed factor of 0.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 12 (Keaor) is back in sync.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 1.
+client 14 (Jackolite) requests a speed factor of 10.
+client 9 (Sievert) requests a speed factor of 20.
+client 12 (Keaor) went out of sync.
+DefconExpanded : [private] You have fallen out of sync with the other players.
+client 12 (Keaor) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 20.
+client 11 (LadenBinKezza) requests a speed factor of 1.
+client 16 (Corporation) requests a speed factor of 1.
+client 12 (Keaor) requests a speed factor of 1.
+client 10 (Lord Haw Haw ) requests a speed factor of 1.
+client 11 (LadenBinKezza) requests a speed factor of 5.
+client 9 (Sievert) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 16 (Corporation) requests a speed factor of 5.
+client 12 (Keaor) requests a speed factor of 5.
+client 9 (Sievert) requests a speed factor of 20.
+client 10 (Lord Haw Haw ) requests a speed factor of 5.
+client 16 (Corporation) requests a speed factor of 1.
+client 16 (Corporation) requests a speed factor of 5.
+client 16 (Corporation) requests a speed factor of 1.
+client 16 (Corporation) requests a speed factor of 5.
+client 14 (Jackolite) requests a speed factor of 1.
+client 14 (Jackolite) requests a speed factor of 1.
+client 16 (Corporation) requests a speed factor of 5.
+client 16 (Corporation) requests a speed factor of 5.
+client 11 (LadenBinKezza) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 14 (Jackolite) requests a speed factor of 5.
+client 14 (Jackolite) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 14 (Jackolite) requests a speed factor of 1.
+client 14 (Jackolite) requests a speed factor of 1.
+client 14 (Jackolite) requests a speed factor of 5.
+client 14 (Jackolite) requests a speed factor of 5.
+client 14 (Jackolite) requests a speed factor of 5.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 11 (LadenBinKezza) requests a speed factor of 20.
+client 16 (Corporation) requests a speed factor of 10.
+client 9 (Sievert) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 20.
+client 9 (Sievert) requests a speed factor of 1.
+client 10 (Lord Haw Haw ) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 20.
+client 9 (Sievert) requests a speed factor of 20.
+client 10 (Lord Haw Haw ) requests a speed factor of 5.
+client 14 (Jackolite) requests a speed factor of 1.
+client 14 (Jackolite) requests a speed factor of 1.
+DefconExpanded : Possible cheat: Object ID 1317 used by both client 16 (Corporation) and client 12 (Keaor).
+client 16 (Corporation) requests a speed factor of 5.
+DefconExpanded : Possible cheat: Object ID 1316 used by both client 16 (Corporation) and client 12 (Keaor).
+client 14 (Jackolite) requests a speed factor of 5.
+client 14 (Jackolite) requests a speed factor of 5.
+client 10 (Lord Haw Haw ) requests a speed factor of 1.
+client 11 (LadenBinKezza) requests a speed factor of 5.
+client 11 (LadenBinKezza) requests a speed factor of 20.
+client 9 (Sievert) requests a speed factor of 20.
+client 10 (Lord Haw Haw ) requests a speed factor of 5.
+client 9 (Sievert) requests a speed factor of 5.
+client 9 (Sievert) requests a speed factor of 1.
+DefconExpanded : Possible cheat: Object ID 1337 used by both client 14 (Jackolite) and client 12 (Keaor).
+client 14 (Jackolite) requests a speed factor of 5.
+client 14 (Jackolite) requests a speed factor of 5.
+client 10 (Lord Haw Haw ) requests a speed factor of 5.
+client 9 (Sievert) requests a speed factor of 20.
+Login request from 66.131.223.214:5011, version="1.60.1.5 MINICOM", keyID=13195997 : naval blacklists apply, accepted, ID = 18.
+client 9 (Sievert) requests a speed factor of 1.
+client 18 dropped.
+client 9 (Sievert) requests a speed factor of 20.
+client 10 (Lord Haw Haw ) requests a speed factor of 1.
+client 10 (Lord Haw Haw ) requests a speed factor of 5.
+client 10 (Lord Haw Haw ) requests a speed factor of 1.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 10 (Lord Haw Haw ) requests a speed factor of 5.
+client 14 (Jackolite) requests a speed factor of 1.
+client 10 (Lord Haw Haw ) requests a speed factor of 1.
+DefconExpanded : Possible cheat: Object ID 1334 used by both client 16 (Corporation) and client 12 (Keaor).
+DefconExpanded : Possible cheat: Object ID 1332 used by both client 14 (Jackolite) and client 12 (Keaor).
+client 14 (Jackolite) requests a speed factor of 5.
+client 14 (Jackolite) requests a speed factor of 5.
+client 14 (Jackolite) requests a speed factor of 5.
+client 10 (Lord Haw Haw ) requests a speed factor of 5.
+DefconExpanded : Possible cheat: Object ID 1443 used by both client 12 (Keaor) and client 9 (Sievert).
+client 15 (FasterThanRaito) requests a speed factor of 1.
+Login request from 66.131.223.214:5011, version="1.60.1.5 MINICOM", keyID=13195997 : naval blacklists apply, accepted, ID = 19.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+DefconExpanded : Possible cheat: Object ID 1343 used by both client 15 (FasterThanRaito) and client 12 (Keaor).
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 11 (LadenBinKezza) : server shitting itself cus of kaor out of sync lol
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+DefconExpanded : Possible cheat: Object ID 1521 used by both client 16 (Corporation) and client 12 (Keaor).
+DefconExpanded : Possible cheat: Object ID 1519 used by both client 14 (Jackolite) and client 12 (Keaor).
+client 16 (Corporation) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+DefconExpanded : Possible cheat: Object ID 1523 used by both client 14 (Jackolite) and client 12 (Keaor).
+Team creation request from client 19 received.
+New name for client 19 : Gyarados
+client 11 (LadenBinKezza) : :)
+client 12 (Keaor) requests a speed factor of 1.
+client 19 (Gyarados) disconnected.
+client 14 (Jackolite) requests a speed factor of 20.
+DefconExpanded : Possible cheat: Object ID 1646 used by both client 9 (Sievert) and client 12 (Keaor).
+DefconExpanded : Possible cheat: Object ID 1627 used by both client 16 (Corporation) and client 12 (Keaor).
+client 17 (Mojo) disconnected.
+DefconExpanded : Possible cheat: Object ID 1642 used by both client 9 (Sievert) and client 12 (Keaor).
+DefconExpanded : Possible cheat: Object ID 1631 used by both client 9 (Sievert) and client 12 (Keaor).
+client 10 (Lord Haw Haw ) requests a speed factor of 20.
+client 16 (Corporation) requests a speed factor of 5.
+client 16 (Corporation) requests a speed factor of 20.
+client 9 (Sievert) requests a speed factor of 20.
+client 11 (LadenBinKezza) requests a speed factor of 20.
+client 12 (Keaor) requests a speed factor of 5.
+client 12 (Keaor) requests a speed factor of 10.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 9 (Sievert) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+DefconExpanded : Possible cheat: Object ID 1719 used by both client 9 (Sievert) and client 12 (Keaor).
+DefconExpanded : Possible cheat: Object ID 1702 used by both client 9 (Sievert) and client 12 (Keaor).
+DefconExpanded : Possible cheat: Object ID 1741 used by both client 14 (Jackolite) and client 12 (Keaor).
+DefconExpanded : Possible cheat: Object ID 1674 used by both client 14 (Jackolite) and client 12 (Keaor).
+DefconExpanded : Possible cheat: Object ID 1779 used by both client 14 (Jackolite) and client 12 (Keaor).
+DefconExpanded : Possible cheat: Object ID 1782 used by both client 15 (FasterThanRaito) and client 12 (Keaor).
+client 14 (Jackolite) requests a speed factor of 20.
+client 10 (Lord Haw Haw ) requests a speed factor of 20.
+client 9 (Sievert) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 9 (Sievert) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 9 (Sievert) requests a speed factor of 20.
+DefconExpanded : Possible cheat: Object ID 1839 used by both client 14 (Jackolite) and client 12 (Keaor).
+client 9 (Sievert) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 20.
+DefconExpanded : Possible cheat: Object ID 1789 used by both client 14 (Jackolite) and client 12 (Keaor).
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 9 (Sievert) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 20.
+client 9 (Sievert) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 20.
+client 9 (Sievert) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 12 (Keaor) requests a speed factor of 10.
+client 12 (Keaor) requests a speed factor of 5.
+client 12 (Keaor) requests a speed factor of 10.
+client 12 (Keaor) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 14 (Jackolite) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 11 (LadenBinKezza) requests a speed factor of 20.
+client 16 (Corporation) dropped.
+client 16 (Corporation) set to a speed factor of 0.
+client 15 (FasterThanRaito) set to a speed factor of 0.
+client 14 (Jackolite) set to a speed factor of 0.
+client 12 (Keaor) set to a speed factor of 0.
+client 11 (LadenBinKezza) set to a speed factor of 0.
+client 10 (Lord Haw Haw ) set to a speed factor of 0.
+client 9 (Sievert) set to a speed factor of 0.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 11 (LadenBinKezza) requests a speed factor of 1.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 10 (Lord Haw Haw ) requests a speed factor of 1.
+client 9 (Sievert) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 12 (Keaor) requests a speed factor of 10.
+client 10 (Lord Haw Haw ) requests a speed factor of 20.
+client 11 (LadenBinKezza) : /set slowestspeed 1
+SlowestSpeed = 1
+client 12 (Keaor) requests a speed factor of 20.
+client 11 (LadenBinKezza) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 10.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 1.
+client 15 (FasterThanRaito) requests a speed factor of 5.
+client 12 (Keaor) requests a speed factor of 20.
+client 12 (Keaor) requests a speed factor of 20.
+client 10 (Lord Haw Haw ) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 20.
+Login request from 66.177.11.5:5011, version="1.60.1.5 MINICOM", keyID=13215723 : reconnect, naval blacklists apply, accepted, ID = 16.
+client 16 (Corporation) set to a speed factor of 1.
+client 16 (Corporation) set to a speed factor of 1.
+client 15 (FasterThanRaito) set to a speed factor of 1.
+client 14 (Jackolite) set to a speed factor of 1.
+client 12 (Keaor) set to a speed factor of 1.
+client 11 (LadenBinKezza) set to a speed factor of 1.
+client 10 (Lord Haw Haw ) set to a speed factor of 1.
+client 9 (Sievert) set to a speed factor of 1.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 11 (LadenBinKezza) requests a speed factor of 20.
+client 10 (Lord Haw Haw ) requests a speed factor of 20.
+client 9 (Sievert) requests a speed factor of 20.
+DefconExpanded : Possible cheat: Object ID 2276 used by both client 9 (Sievert) and client 12 (Keaor).
+client 16 (Corporation) requests a speed factor of 5.
+client 15 (FasterThanRaito) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 20.
+client 11 (LadenBinKezza) : /kickid corporation
+DefconExpanded : Kicking a player while you are playing yourself is not possible. /op an spectator to do the kick.
+client 11 (LadenBinKezza) : /op lawlietambiance
+DefconExpanded : [private] No client with name containing lawlietambiance found, check for typos or use /op  id instead.
+client 14 (Jackolite) : /kickid corporation
+DefconExpanded : [private] Kick votes are illegal against active players.
+client 11 (LadenBinKezza) : /op lawliet
+DefconExpanded : [private] No client with name containing lawliet found, check for typos or use /op  id instead.
+client 11 (LadenBinKezza) : op id lawliet
+client 11 (LadenBinKezza) : /op id lawliet
+DefconExpanded : [private] No client with name containing id lawliet found, check for typos or use /op  id instead.
+client 15 (FasterThanRaito) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 20.
+client 11 (LadenBinKezza) requests a speed factor of 20.
+client 11 (LadenBinKezza) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 20.
+client 15 (FasterThanRaito) requests a speed factor of 20.
+client 11 (LadenBinKezza) requests a speed factor of 20.
+client 12 (Keaor) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 11 (LadenBinKezza) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 14 (Jackolite) requests a speed factor of 20.
+client 11 (LadenBinKezza) : /set slowestspeed 4
+SlowestSpeed = 4
+client 16 (Corporation) set to a speed factor of 20.
+DefconExpanded : Possible cheat: Object ID 2173 used by both client 10 (Lord Haw Haw ) and client 12 (Keaor).
+DefconExpanded : client 11 (LadenBinKezza) signs the current scores.
+DefconExpanded : client 14 (Jackolite) signs the current scores.
+DefconExpanded : client 9 (Sievert) signs the current scores.
+DefconExpanded : client 10 (Lord Haw Haw ) signs the current scores.
+DefconExpanded : client 13 (LawlietAmbiance) signs the current scores.
+DefconExpanded : client 15 (FasterThanRaito) signs the current scores.
+Record = demo_recordings/game8p_2024-11-10-20-06.d8crec
+AdvertiseOnInternet = 0
+DefconExpanded : Game Over !
+DefconExpanded : Game is available on defconexpanded.com
+DefconExpanded : Restart in 30 Seconds!
+client 15 (FasterThanRaito) : tgg
+client 14 (Jackolite) disconnected.
+client 12 (Keaor) is back in sync.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Server key authentication succeeded, key id = 369211.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Login request from 84.68.77.251:63102, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+client 9 disconnected.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5012.
+ServerPort = 5012
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.250.167.19:5012
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 16
+MaxSpectators = 30
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 16
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.250.167.19:5010
+Demo limits received. MaxGameSize = 16, MaxDemoPlayers = 1, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 16
+MaxSpectators = 30
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 16
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Demo limits received. MaxGameSize = 16, MaxDemoPlayers = 1, AllowServers = yes.
+Public server info: 90.250.167.19:5010
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 16
+MaxSpectators = 30
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 16
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.250.167.19:5010
+Demo limits received. MaxGameSize = 16, MaxDemoPlayers = 1, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+Login request from 26.102.130.209:50132, version="1.60.1.5 MINICOM", keyID=13194428 : naval blacklists apply, accepted, ID = 17.
+Team creation request from client 17 received.
+New name for client 17 : LadenBinKezza
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+client 17 (LadenBinKezza) : /login dancefloor
+DefconExpanded : client 17 (LadenBinKezza) has been logged in as owner.
+client 17 (LadenBinKezza) : /set addcpu Stalin
+client 17 (LadenBinKezza) : /set removecpus
+All players unreadied.
+client 17 (LadenBinKezza) : /set fillcpus
+DefconExpanded : [private] config option fillcpus invalid.
+client 17 (LadenBinKezza) : /set fillcpu
+DefconExpanded : [private] config option fillcpu invalid.
+client 17 (LadenBinKezza) : /set fillwithcpus
+All players unreadied.
+client 17 (LadenBinKezza) left to spectator mode.
+client 17 (LadenBinKezza) : /set addcpu Him
+client 17 (LadenBinKezza) : /set readyup
+DefconExpanded : [private] config option readyup invalid.
+client 17 (LadenBinKezza) : /set removecpus
+client 17 (LadenBinKezza) : /set fillwithcpus
+client 17 (LadenBinKezza) : /set removecpus
+Team creation request from client 17 (LadenBinKezza) received.
+client 17 (LadenBinKezza) : /set fillwithcpus
+client 17 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 17 (LadenBinKezza), keyID = 13194428
+Random seed: 314 (0x13a)
+DefconExpanded : Attention there will be a stringent slowdown budget. You can recharge it by setting your speed to x10 or x20
+DefconExpanded : Team Defection will be Disabled at DEFCON 3
+SpectatorChatChannel = 0
+client 17 (LadenBinKezza) requests a speed factor of 20.
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+client 17 (LadenBinKezza) requests a speed factor of 1.
+client 17 (LadenBinKezza) requests a speed factor of 20.
+client 17 (LadenBinKezza) requests a speed factor of 1.
+client 17 (LadenBinKezza) requests a speed factor of 20.
+DefconExpanded : client 17 (LadenBinKezza) signs the current scores.
+Record = demo_recordings/game8p_2024-11-18-10-46.d8crec
+AdvertiseOnInternet = 0
+DefconExpanded : Game Over !
+DefconExpanded : Game is available on defconexpanded.com
+DefconExpanded : Restart in 30 Seconds!
+client 17 (LadenBinKezza) disconnected.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 16
+MaxSpectators = 30
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 16
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.250.167.19:5010
+Demo limits received. MaxGameSize = 16, MaxDemoPlayers = 1, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
