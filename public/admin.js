@@ -179,7 +179,6 @@ async function checkUserRoleAndInitialize() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-
     document.getElementById('upload-windows-dedcon').addEventListener('submit', uploadDedconBuild);
     document.getElementById('upload-linux-dedcon').addEventListener('submit', uploadDedconBuild);
     document.getElementById('upload-macos-intel-dedcon').addEventListener('submit', uploadDedconBuild);
@@ -309,7 +308,19 @@ const serverConfigs = [
         filename: "6playerffaconfig.txt"
     },
     {
-        name: "DefconExpanded | 4v4 | Diplomacy | Totally Random",
+        name: "509 CG | 1v1 | Totally Random",
+        filename: "hawhaw1v1config.txt"
+    },
+    {
+        name: "509 CG | 2v2 | Totally Random",
+        filename: "hawhaw2v2config.txt"
+    },
+    {
+        name: "MURICON | 1v1 Default",
+        filename: "1v1muricon.txt"
+    },
+    {
+        name: "DefconExpanded | 4v4 | Totally Random",
         filename: "4v4config.txt"
     },
     {
@@ -2270,7 +2281,8 @@ async function uploadResource(event) {
         return;
     }
     const formData = new FormData(event.target);
-    const platform = event.target.id === 'upload-windows-resource' ? 'windows' : 'linux';
+    
+    const platform = event.target.id.replace('upload-', '').replace('-resource', '');
     formData.append('platform', platform);
 
     try {
@@ -2296,7 +2308,9 @@ function displayResourcesManagement(resources) {
     const tbody = document.querySelector('#resource-table tbody');
     tbody.innerHTML = ''; 
   
-    resources.forEach(resource => {
+    const sortedResources = resources.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    sortedResources.forEach(resource => {
         const row = tbody.insertRow();
         let actionsHtml = '';
         
@@ -2306,13 +2320,32 @@ function displayResourcesManagement(resources) {
         if (currentUserRole === 1) {
             actionsHtml += `<button onclick="deleteResource(${resource.id})">Delete</button>`;
         }
+
+        let platformDisplay = resource.platform;
+        if (!platformDisplay || platformDisplay === 'NULL') {
+            platformDisplay = '<span style="color: #ff4444;">Not Set</span>';
+        } else {
+            switch(resource.platform) {
+                case 'macos-intel':
+                    platformDisplay = 'MacOS Intel';
+                    break;
+                case 'macos-arm64':
+                    platformDisplay = 'MacOS ARM64';
+                    break;
+                case 'macos':
+                    platformDisplay = 'MacOS';
+                    break;
+                default:
+                    platformDisplay = resource.platform.charAt(0).toUpperCase() + resource.platform.slice(1);
+            }
+        }
         
         row.innerHTML = `
             <td>${resource.name}</td>
-            <td>${resource.version}</td>
-            <td>${new Date(resource.date).toLocaleDateString()}</td>
+            <td>${resource.version || '<span style="color: #ff4444;">Not Set</span>'}</td>
+            <td>${resource.date ? new Date(resource.date).toLocaleDateString() : '<span style="color: #ff4444;">Not Set</span>'}</td>
             <td>${formatBytes(resource.size)}</td>
-            <td>${resource.platform}</td>
+            <td>${platformDisplay}</td>
             <td>${actionsHtml}</td>
         `;
     });
@@ -2351,6 +2384,7 @@ async function saveEditResource(event) {
         date: document.getElementById('edit-resource-date').value,
         platform: document.getElementById('edit-resource-platform').value
     };
+    
     try {
         const response = await fetch(`/api/resource/${resourceId}`, {
             method: 'PUT',

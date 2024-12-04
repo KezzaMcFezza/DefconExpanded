@@ -822,7 +822,13 @@ li {
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
     gap: 1.5rem;
     padding: 2rem;
+    width: 50%;
     opacity: 0.95;
+}
+
+.main-resources-container {
+    display: flex;
+    flex-direction: row-reverse;
 }
 
 .linux-label {
@@ -853,7 +859,7 @@ li {
 }
 
 .recording-information-container {
-    max-width: 600px;
+    max-width: 520px;
 }
 
 .installation-information-container {

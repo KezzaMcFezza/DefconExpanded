@@ -1,5 +1,25 @@
 let soundVolume = 0.1;
-window.isAdmin = false; 
+window.isAdmin = false;
+
+window.initializeUserRole = async function() {
+  try {
+      const response = await fetch('/api/current-user');
+      const data = await response.json();
+      if (data.user) {
+          window.userRole = data.user.role;
+      }
+  } catch (error) {
+      console.error('Error setting user role:', error);
+  }
+};
+
+document.addEventListener('DOMContentLoaded', async function() {
+  await initializeUserRole(); 
+  
+  if (typeof initializeDemos === 'function') {
+      initializeDemos();
+  }
+});
 
 function isUserLoggedIn() {
   return !!localStorage.getItem('token');
@@ -145,22 +165,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-
-
   function getNextSunday() {
     const today = new Date();
     const nextSunday = new Date(today);
     const daysUntilSunday = 7 - today.getDay();
     
-    // If today is Sunday and it's before 3 PM EST, use today
     if (today.getDay() === 0) {
-        const estHour = today.getUTCHours() - 5; // Convert UTC to EST
-        if (estHour < 15) { // Before 3 PM EST
+        const estHour = today.getUTCHours() - 5; 
+        if (estHour < 15) { 
             return today;
         }
     }
     
-    // Add days until next Sunday
     nextSunday.setDate(today.getDate() + (daysUntilSunday % 7));
     return nextSunday;
 }
@@ -170,7 +186,6 @@ function formatDateForEvent(date) {
     const day = date.getDate();
     const month = months[date.getMonth()];
     
-    // Function to add ordinal suffix
     function getOrdinalSuffix(n) {
         const s = ['th', 'st', 'nd', 'rd'];
         const v = n % 100;
@@ -180,7 +195,6 @@ function formatDateForEvent(date) {
     return `${month} ${getOrdinalSuffix(day)}`;
 }
 
-// Replace the static discordEvent object with a function
 function getDiscordEvent() {
     const nextSunday = getNextSunday();
     return {
@@ -197,7 +211,6 @@ function updateDiscordWidget() {
             const widgetContainer = document.getElementById('discord-widget');
             if (!widgetContainer) return;
 
-            // Get the current event details
             const discordEvent = getDiscordEvent();
 
             let html = `
@@ -212,7 +225,7 @@ function updateDiscordWidget() {
                         <p class="event-date">${discordEvent.date}</p>
                         <div class="event-time-div">
                             <p class="event-time">${discordEvent.time}</p>
-                            <a href="${data.instant_invite}" target="_blank" rel="noopener noreferrer" class="discord-join-button">Join Discord</a>
+                            <a href="https://discord.gg/rexZfJ5dMn" target="_blank" rel="noopener noreferrer" class="discord-join-button">Join Discord</a>
                         </div>
                     </div>
                 </div>
@@ -407,25 +420,78 @@ async function loadResources() {
   }
 
   function displayResourcesMain(resources) {
-    const windowsSection = document.querySelector('.download-section-windows');
-    const linuxSection = document.querySelector('.download-section-linux');
+    const buildContainer = document.querySelector('.resources-container');
+    if (!buildContainer) return;
 
-    if (!windowsSection || !linuxSection) {
-        return;
-    }
+    buildContainer.innerHTML = `
+        <div class="tutorial-download-container">
+            <table class="version-history-table">
+                <thead>
+                    <tr>
+                        <th>Platform</th>
+                        <th>Version</th>
+                        <th>Build Type</th>
+                        <th>Release Date</th>
+                        <th>Download</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    `;
 
-    windowsSection.innerHTML = '<div class="resource-label-div" style="display: flex; justify-content: center;"><label style="font-size: 35px;">Windows Builds<label></div>';
-    linuxSection.innerHTML = '<div class="resource-label-div" style="display: flex; justify-content: center;"><label style="font-size: 35px;">Linux Builds</label></div>';
+    const tableBody = buildContainer.querySelector('tbody');
+    const platformDisplayNames = {
+        'windows': 'Windows',
+        'linux': 'Linux',
+        'macos-intel': 'MacOS Intel',
+        'macos-arm64': 'MacOS ARM64',
+        'macos': 'MacOS' 
+    };
 
-    const groupedResources = groupResourcesByPlayerCount(resources);
+    const sortedResources = resources.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    for (const [playerCount, builds] of Object.entries(groupedResources)) {
-        const windowsBuildHtml = createBuildTable(playerCount, builds.filter(b => b.platform === 'windows'), 'windows');
-        windowsSection.innerHTML += windowsBuildHtml;
+    const completeResources = sortedResources.filter(resource => 
+        resource.platform && 
+        resource.platform !== 'NULL' && 
+        resource.player_count && 
+        resource.player_count !== 'NULL'
+    );
 
-        const linuxBuildHtml = createBuildTable(playerCount, builds.filter(b => b.platform === 'linux'), 'linux');
-        linuxSection.innerHTML += linuxBuildHtml;
-    }
+    completeResources.forEach((resource, index) => {
+        const platformName = platformDisplayNames[resource.platform] || 'Unknown';
+        
+        const isLatest = index === 0 || 
+            (resource.platform !== completeResources[index - 1].platform) ||
+            (resource.player_count !== completeResources[index - 1].player_count);
+
+        const row = document.createElement('tr');
+        row.className = isLatest ? 'latest-version' : '';
+        
+        row.innerHTML = `
+            <td>
+                <div class="platform-cell">
+                    <img src="/images/${resource.platform}-icon.png" alt="${platformName}" class="steam-logo" style="width: 16px;" />
+                    ${platformName}
+                </div>
+            </td>
+            <td class="td2">${resource.version}</td>
+            <td>${resource.player_count} Player</td>
+            <td>${isLatest ? 
+                `<span class="latest-tag"></span> ${new Date(resource.date).toLocaleDateString()}` : 
+                new Date(resource.date).toLocaleDateString()
+            }</td>
+            <td>
+                <a href="/api/download-resource/${encodeURIComponent(resource.name)}" 
+                   class="btn-download foo">
+                   Download
+                </a>
+            </td>
+        `;
+
+        tableBody.appendChild(row);
+    });
 }
 
 function groupResourcesByPlayerCount(resources) {
@@ -525,7 +591,6 @@ async function displayDedconBuilds() {
           return;
       }
 
-      // Clear existing content
       buildContainer.innerHTML = `
           <div class="tutorial-download-container">
               <table class="version-history-table">
@@ -544,13 +609,8 @@ async function displayDedconBuilds() {
           </div>
       `;
 
-      // Sort all builds by release date (newest first)
       const sortedBuilds = builds.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
-
-      // Get table body
       const tableBody = buildContainer.querySelector('tbody');
-
-      // Map platform names to more user-friendly display names
       const platformDisplayNames = {
           'windows': 'Windows',
           'linux': 'Linux',
@@ -558,14 +618,12 @@ async function displayDedconBuilds() {
           'macos-arm64': 'MacOS ARM64'
       };
 
-      // Map player counts to display names
       const playerCountDisplayNames = {
           '': 'Vanilla',
           '8': '8 Player',
           '10': '10 Player'
       };
 
-      // Create rows for each build
       sortedBuilds.forEach((build, index) => {
           const platformName = platformDisplayNames[build.platform] || build.platform;
           const buildType = playerCountDisplayNames[build.player_count] || 'Vanilla';

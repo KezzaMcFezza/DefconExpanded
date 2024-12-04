@@ -1,0 +1,1472 @@
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.179.9:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:62872, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+client 9 (LadenBinKezza) disconnected.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 84.69.179.9:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+client 9 (LadenBinKezza) : /login dancefloor
+ServerBot : client 9 (LadenBinKezza) has been logged in as owner.
+client 9 (LadenBinKezza) : /set minteams 1
+MinTeams = 1
+client 9 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 9 (LadenBinKezza), keyID = 13213071
+Random seed: 19 (0x13)
+ServerBot : Warning: Each player has 30 minutes of 1x slowdown budget
+ServerBot : Each player also has 5 minutes of pause time that will affect their main slowndown budget
+SpectatorChatChannel = 0
+client 9 (LadenBinKezza) disconnected.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+client 9 (LadenBinKezza) dropped.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+client 9 (LadenBinKezza) : /login dancefloor
+ServerBot : client 9 (LadenBinKezza) has been logged in as owner.
+client 9 (LadenBinKezza) : /set minteams 1
+MinTeams = 1
+client 9 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 9 (LadenBinKezza), keyID = 13213071
+Random seed: 42 (0x2a)
+ServerBot : Warning: Each player has 30 minutes of 1x slowdown budget
+ServerBot : Each player also has 5 minutes of pause time that will affect their main slowndown budget
+SpectatorChatChannel = 0
+client 9 (LadenBinKezza) disconnected.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Server key authentication succeeded, key id = 4656629.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_REQUEST_TEAM  PLAYER_HUMAN=1 SEQID_LAST=8 >
+Team creation request from client 9 received.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_RENAME PLAYER_TEAM_ID=0x9 PLAYER_NAME="LadenBinKezza" PLAYER_SPECTATOR=1 SEQID_LAST=8 >
+New name for client 9 : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_RENAME PLAYER_TEAM_ID=0x0 PLAYER_NAME="LadenBinKezza" SEQID_LAST=11 >
+<- 26.102.130.209:5011	<TAG TAG_TYPE=CHAT PLAYER_TEAM_ID=0x0 CHAT_CHANNEL=0x64 CHAT_STRING="/login dancefloor" CHAT_SEQ=0 SEQID_LAST=31 >
+client 9 (LadenBinKezza) : /login dancefloor
+ServerBot : client 9 (LadenBinKezza) has been logged in as owner.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=CHAT PLAYER_TEAM_ID=0x0 CHAT_CHANNEL=0x64 CHAT_STRING="/set unitbuffer 1" CHAT_SEQ=1 SEQID_LAST=44 >
+client 9 (LadenBinKezza) : /set unitbuffer 1
+UnitBuffer = 1
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_READY PLAYER_TEAM_ID=0x0 RANDOM_SEED=0x2a SEQID_LAST=136 >
+ServerBot : [private] Not enough players online yet. 2 are required.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=CHAT PLAYER_TEAM_ID=0x0 CHAT_CHANNEL=0x64 CHAT_STRING="/set minteams 1" CHAT_SEQ=2 SEQID_LAST=142 >
+client 9 (LadenBinKezza) : /set minteams 1
+MinTeams = 1
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_READY PLAYER_TEAM_ID=0x0 RANDOM_SEED=0x30 SEQID_LAST=146 >
+client 9 (LadenBinKezza) is ready to play.
+Countdown started.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=TEAM_TERRITORY_CHANGE PLAYER_TEAM_ID=0x0 TEAM_TERRITORY=0x1 PLAYER_NAME=-1 SEQID_LAST=161 >
+Game started. Players:
+Team 0 : client 9 (LadenBinKezza), keyID = 13213071
+Random seed: 48 (0x30)
+ServerBot : Warning: Each player has 30 minutes of 1x slowdown budget
+ServerBot : Each player also has 5 minutes of pause time that will affect their main slowndown budget
+SpectatorChatChannel = 0
+<- 26.102.130.209:5011	<TAG TAG_TYPE=SPEED PLAYER_TEAM_ID=0x0 SPEED_FACTOR=0x1 SEQID_LAST=647 >
+client 9 (LadenBinKezza) requests a speed factor of 1.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=CHAT PLAYER_TEAM_ID=0x0 CHAT_CHANNEL=0x64 CHAT_STRING="/set ghostprotection 0" CHAT_SEQ=3 SEQID_LAST=836 >
+client 9 (LadenBinKezza) : /set ghostprotection 0
+GhostProtection = 0
+Login request from 26.102.130.209:50683, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 10.
+client 9 (LadenBinKezza) went out of sync.
+ServerBot : [private] You have fallen out of sync with the other players.
+client 10 went out of sync.
+ServerBot : [private] You have fallen out of sync with the other players.
+<- 26.102.130.209:50683	<TAG TAG_TYPE=PLAYER_REQUEST_TEAM  PLAYER_HUMAN=1 SEQID_LAST=892 >
+Team creation request from client 10 received.
+<- 26.102.130.209:50683	<TAG TAG_TYPE=PLAYER_RENAME PLAYER_TEAM_ID=0xa PLAYER_NAME="LadenBinKezza" PLAYER_SPECTATOR=1 SEQID_LAST=932 >
+New name for client 10 : LadenBinKezza_2
+<- 26.102.130.209:50683	<TAG TAG_TYPE=LOGOUT SEQID_LAST=1834 >
+client 10 (LadenBinKezza_2) disconnected.
+client 10 (LadenBinKezza_2) is back in sync.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=LOGOUT SEQID_LAST=1892 >
+client 9 (LadenBinKezza) disconnected.
+client 9 (LadenBinKezza) is back in sync.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5012.
+ServerPort = 5012
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5012
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_REQUEST_TEAM  PLAYER_HUMAN=1 SEQID_LAST=7 >
+Team creation request from client 9 received.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_RENAME PLAYER_TEAM_ID=0x0 PLAYER_NAME="LadenBinKezza" SEQID_LAST=9 >
+New name for client 9 : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+<- 26.102.130.209:5011	<TAG TAG_TYPE=CHAT PLAYER_TEAM_ID=0x0 CHAT_CHANNEL=0x64 CHAT_STRING="/login dancefloor" CHAT_SEQ=0 SEQID_LAST=42 >
+client 9 (LadenBinKezza) : /login dancefloor
+ServerBot : client 9 (LadenBinKezza) has been logged in as owner.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_READY PLAYER_TEAM_ID=0x0 RANDOM_SEED=0x81 SEQID_LAST=64 >
+ServerBot : [private] Not enough players online yet. 2 are required.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=CHAT PLAYER_TEAM_ID=0x0 CHAT_CHANNEL=0x64 CHAT_STRING="/set minteams 1" CHAT_SEQ=1 SEQID_LAST=71 >
+client 9 (LadenBinKezza) : /set minteams 1
+MinTeams = 1
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_READY PLAYER_TEAM_ID=0x0 RANDOM_SEED=0x88 SEQID_LAST=75 >
+client 9 (LadenBinKezza) is ready to play.
+Countdown started.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=TEAM_TERRITORY_CHANGE PLAYER_TEAM_ID=0x0 TEAM_TERRITORY=0x5 PLAYER_NAME=-1 SEQID_LAST=92 >
+Game started. Players:
+Team 0 : client 9 (LadenBinKezza), keyID = 13213071
+Random seed: 136 (0x88)
+ServerBot : Warning: Each player has 30 minutes of 1x slowdown budget
+ServerBot : Each player also has 5 minutes of pause time that will affect their main slowndown budget
+SpectatorChatChannel = 0
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_REQUEST_TEAM  PLAYER_HUMAN=1 SEQID_LAST=7 >
+Team creation request from client 9 received.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_RENAME PLAYER_TEAM_ID=0x0 PLAYER_NAME="LadenBinKezza" SEQID_LAST=9 >
+New name for client 9 : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+<- 26.102.130.209:5011	<TAG TAG_TYPE=CHAT PLAYER_TEAM_ID=0x0 CHAT_CHANNEL=0x64 CHAT_STRING="/login dancefloor" CHAT_SEQ=0 SEQID_LAST=20 >
+client 9 (LadenBinKezza) : /login dancefloor
+ServerBot : client 9 (LadenBinKezza) has been logged in as owner.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=CHAT PLAYER_TEAM_ID=0x0 CHAT_CHANNEL=0x64 CHAT_STRING="/set minteams 1" CHAT_SEQ=1 SEQID_LAST=26 >
+client 9 (LadenBinKezza) : /set minteams 1
+MinTeams = 1
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_READY PLAYER_TEAM_ID=0x0 RANDOM_SEED=0xb SEQID_LAST=30 >
+client 9 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 9 (LadenBinKezza), keyID = 13213071
+Random seed: 11 (0xb)
+ServerBot : Warning: Each player has 30 minutes of 1x slowdown budget
+ServerBot : Each player also has 5 minutes of pause time that will affect their main slowndown budget
+SpectatorChatChannel = 0
+<- 26.102.130.209:5011	<TAG TAG_TYPE=LOGOUT SEQID_LAST=126 >
+client 9 (LadenBinKezza) disconnected.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Server key authentication succeeded, key id = 4656629.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_REQUEST_TEAM  PLAYER_HUMAN=1 SEQID_LAST=7 >
+Team creation request from client 9 ([DEMO]) received.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_RENAME PLAYER_TEAM_ID=0x0 PLAYER_NAME="LadenBinKezza_2" SEQID_LAST=9 >
+New name for client 9 ([DEMO]) : LadenBinKezza_2
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+Login request from 26.102.130.209:52853, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 10.
+<- 26.102.130.209:52853	<TAG TAG_TYPE=PLAYER_REQUEST_TEAM  PLAYER_HUMAN=1 SEQID_LAST=34 >
+Team creation request from client 10 ([DEMO]) received.
+<- 26.102.130.209:52853	<TAG TAG_TYPE=PLAYER_RENAME PLAYER_TEAM_ID=0x1 PLAYER_NAME="LadenBinKezza_2" SEQID_LAST=36 >
+New name for client 10 ([DEMO]) : LadenBinKezza_3
+<- 26.102.130.209:52853	<TAG TAG_TYPE=PLAYER_READY PLAYER_TEAM_ID=0x1 RANDOM_SEED=0xd9 SEQID_LAST=38 >
+client 10 ([DEMO]LadenBinKezza_3) is ready to play.
+<- 26.102.130.209:52853	<TAG TAG_TYPE=PLAYER_READY PLAYER_TEAM_ID=0x1 RANDOM_SEED=0xdc SEQID_LAST=42 >
+client 10 ([DEMO]LadenBinKezza_3) is no longer ready to play.
+<- 26.102.130.209:52853	<TAG TAG_TYPE=PLAYER_READY PLAYER_TEAM_ID=0x1 RANDOM_SEED=0xdd SEQID_LAST=44 >
+client 10 ([DEMO]LadenBinKezza_3) is ready to play.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_READY PLAYER_TEAM_ID=0x0 RANDOM_SEED=0xde SEQID_LAST=48 >
+client 9 ([DEMO]LadenBinKezza_2) is ready to play.
+Countdown started.
+Game started. Players:
+Team 1 : client 10 ([DEMO]LadenBinKezza_3), keyID = DEMO
+Team 0 : client 9 ([DEMO]LadenBinKezza_2), keyID = DEMO
+Random seed: 443 (0x1bb)
+ServerBot : Warning: Each player has 30 minutes of 1x slowdown budget
+ServerBot : Each player also has 5 minutes of pause time that will affect their main slowndown budget
+SpectatorChatChannel = 0
+<- 26.102.130.209:5011	<TAG TAG_TYPE=LOGOUT SEQID_LAST=237 >
+client 9 ([DEMO]LadenBinKezza_2) disconnected.
+<- 26.102.130.209:52853	<TAG TAG_TYPE=LOGOUT SEQID_LAST=265 >
+client 10 ([DEMO]LadenBinKezza_3) disconnected.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_REQUEST_TEAM  PLAYER_HUMAN=1 SEQID_LAST=8 >
+Team creation request from client 9 ([DEMO]) received.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_RENAME PLAYER_TEAM_ID=0x9 PLAYER_NAME="LadenBinKezza_3" PLAYER_SPECTATOR=1 SEQID_LAST=8 >
+New name for client 9 ([DEMO]) : LadenBinKezza_3
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_RENAME PLAYER_TEAM_ID=0x0 PLAYER_NAME="LadenBinKezza_3" SEQID_LAST=12 >
+<- 26.102.130.209:5011	<TAG TAG_TYPE=CHAT PLAYER_TEAM_ID=0x0 CHAT_CHANNEL=0x64 CHAT_STRING="/login dancefloor" CHAT_SEQ=0 SEQID_LAST=20 >
+client 9 ([DEMO]LadenBinKezza_3) : /login dancefloor
+ServerBot : [private] Access denied, not registered.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_RENAME PLAYER_TEAM_ID=0x0 PLAYER_NAME="LadenBinKezza" SEQID_LAST=31 >
+New name for client 9 ([DEMO]LadenBinKezza_3) : LadenBinKezza
+<- 26.102.130.209:5011	<TAG TAG_TYPE=CHAT PLAYER_TEAM_ID=0x0 CHAT_CHANNEL=0x64 CHAT_STRING="/login dancefloor" CHAT_SEQ=1 SEQID_LAST=35 >
+client 9 ([DEMO]LadenBinKezza) : /login dancefloor
+ServerBot : client 9 ([DEMO]LadenBinKezza) has been logged in as owner.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=CHAT PLAYER_TEAM_ID=0x0 CHAT_CHANNEL=0x64 CHAT_STRING="/set minteams 1" CHAT_SEQ=2 SEQID_LAST=40 >
+client 9 ([DEMO]LadenBinKezza) : /set minteams 1
+MinTeams = 1
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_READY PLAYER_TEAM_ID=0x0 RANDOM_SEED=0x5 SEQID_LAST=44 >
+client 9 ([DEMO]LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 9 ([DEMO]LadenBinKezza), keyID = DEMO
+Random seed: 5 (0x5)
+ServerBot : Warning: Each player has 30 minutes of 1x slowdown budget
+ServerBot : Each player also has 5 minutes of pause time that will affect their main slowndown budget
+SpectatorChatChannel = 0
+<- 26.102.130.209:5011	<TAG TAG_TYPE=LOGOUT SEQID_LAST=250 >
+client 9 ([DEMO]LadenBinKezza) disconnected.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_REQUEST_TEAM  PLAYER_HUMAN=1 SEQID_LAST=8 >
+Team creation request from client 9 ([DEMO]) received.
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_RENAME PLAYER_TEAM_ID=0x9 PLAYER_NAME="LadenBinKezza" PLAYER_SPECTATOR=1 SEQID_LAST=8 >
+New name for client 9 ([DEMO]) : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+<- 26.102.130.209:5011	<TAG TAG_TYPE=PLAYER_RENAME PLAYER_TEAM_ID=0x0 PLAYER_NAME="LadenBinKezza" SEQID_LAST=11 >
+<- 26.102.130.209:5011	<TAG TAG_TYPE=CHAT PLAYER_TEAM_ID=0x0 CHAT_CHANNEL=0x64 CHAT_STRING="/login dancefloor" CHAT_SEQ=0 SEQID_LAST=16 >
+client 9 ([DEMO]LadenBinKezza) : /login dancefloor
+ServerBot : client 9 ([DEMO]LadenBinKezza) has been logged in as owner.
+client 9 ([DEMO]LadenBinKezza) dropped.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+client 9 ([DEMO]LadenBinKezza) : /login dancefloor
+ServerBot : client 9 ([DEMO]LadenBinKezza) has been logged in as owner.
+client 9 ([DEMO]LadenBinKezza) : /set minteams 1
+MinTeams = 1
+client 9 ([DEMO]LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 9 ([DEMO]LadenBinKezza), keyID = DEMO
+Random seed: 27 (0x1b)
+ServerBot : Warning: Each player has 30 minutes of 1x slowdown budget
+ServerBot : Each player also has 5 minutes of pause time that will affect their main slowndown budget
+SpectatorChatChannel = 0
+client 9 ([DEMO]LadenBinKezza) disconnected.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+client 9 ([DEMO]) dropped.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:59820, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+client 9 dropped.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+client 9 ([DEMO]) dropped.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Server key authentication succeeded, key id = 4656629.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+client 9 ([DEMO]) dropped.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+client 9 ([DEMO]) dropped.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Server key authentication succeeded, key id = 4656629.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+client 9 ([DEMO]) dropped.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+client 9 ([DEMO]) dropped.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+client 9 ([DEMO]) dropped.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+client 9 ([DEMO]) dropped.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+client 9 ([DEMO]) disconnected.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+client 9 ([DEMO]LadenBinKezza) : /login dancefloor
+ServerBot : client 9 ([DEMO]LadenBinKezza) has been logged in as owner.
+client 9 ([DEMO]LadenBinKezza) : /set minteams 1
+MinTeams = 1
+client 9 ([DEMO]LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 9 ([DEMO]LadenBinKezza), keyID = DEMO
+Random seed: 107 (0x6b)
+ServerBot : Warning: Each player has 30 minutes of 1x slowdown budget
+ServerBot : Each player also has 5 minutes of pause time that will affect their main slowndown budget
+SpectatorChatChannel = 0
+client 9 ([DEMO]LadenBinKezza) disconnected.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.242.198.73:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+ServerBot : [private] Not enough players online yet. 2 are required.
+client 9 ([DEMO]LadenBinKezza) : /login dancefloor
+ServerBot : client 9 ([DEMO]LadenBinKezza) has been logged in as owner.
+client 9 ([DEMO]LadenBinKezza) : /set minteams 1
+MinTeams = 1
+client 9 ([DEMO]LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 9 ([DEMO]LadenBinKezza), keyID = DEMO
+Random seed: 214 (0xd6)
+ServerBot : Warning: Each player has 30 minutes of 1x slowdown budget
+ServerBot : Each player also has 5 minutes of pause time that will affect their main slowndown budget
+SpectatorChatChannel = 0
+client 9 ([DEMO]LadenBinKezza) disconnected.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.240.156.240:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+client 9 ([DEMO]LadenBinKezza) dropped.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.240.156.240:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.240.156.240:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
+client 9 ([DEMO]LadenBinKezza) : /login dancefloor
+ServerBot : client 9 ([DEMO]LadenBinKezza) has been logged in as owner.
+client 9 ([DEMO]LadenBinKezza) : /set minteams 1
+MinTeams = 1
+client 9 ([DEMO]LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 9 ([DEMO]LadenBinKezza), keyID = DEMO
+Random seed: 126 (0x7e)
+ServerBot : Warning: Each player has 30 minutes of 1x slowdown budget
+ServerBot : Each player also has 5 minutes of pause time that will affect their main slowndown budget
+SpectatorChatChannel = 0
+client 9 ([DEMO]LadenBinKezza) disconnected.
+OutFile = server_output_509cg1v1.log
+PlayerLog = player_scores_509cg1v1.log
+KickVoteMin = 2
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUsePause = 300
+SlowBudgetUseRealtime = 100
+AdvertisePlayers = 2
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MaxTeams = 2
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 26.102.130.209
+Public server info: 90.240.156.240:5010
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 4656629.
+Login request from 26.102.130.209:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : LadenBinKezza
+ServerBot : The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+ServerBot : All our Defcon traditions continue here. Have a gg. -LHH
+ServerBot : The games will be available on...
+ServerBot : www.defconexpanded.com
