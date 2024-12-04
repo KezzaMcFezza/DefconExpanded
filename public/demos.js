@@ -359,12 +359,15 @@ function createDemoCard(demo) {
     }
 
     demoCardHtml += `
-            <div class="demo-actions">
-                <a href="/api/download/${demo.name}" class="download-btn-demo"><i class="fas fa-cloud-arrow-down"></i> Download</a>
-                <button class="btn-report" onclick="showReportOptions(${demo.id}, event)">Report</button>
-                <span class="downloads-count"><i class="fas fa-download"></i> ${demo.download_count || 0}</span>
-            </div>
-        </div>`;
+    <div class="demo-actions">
+        <a href="/api/download/${demo.name}" class="download-btn-demo"><i class="fas fa-cloud-arrow-down"></i> Download</a>
+        <button class="btn-report" onclick="showReportOptions(${demo.id}, event)">Report</button>
+        ${window.userRole !== undefined && window.userRole <= 5 ? `
+            <span style="color: #888888b0; text-shadow: unset; text-shadow: 0px 0px 0px currentColor; margin-left: auto;">Demo ID: ${demo.id}</span>
+        ` : ''}
+        <span class="downloads-count"><i class="fas fa-download"></i> ${demo.download_count || 0}</span>
+    </div>
+  </div>`;
 
     demoCard.innerHTML = demoCardHtml;
     return demoCard;

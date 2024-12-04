@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const mysql = require('mysql2/promise');
 const queryTimeout = 5000; 
@@ -143,6 +143,9 @@ const configFiles = [
   '6playerffaconfig.txt',
   'noobfriendly.txt',
   '3v3ffaconfig.txt',
+  'hawhaw1v1config.txt',
+  'hawhaw2v2config.txt',
+  '1v1muricon.txt',
   '4v4config.txt',
   '5v5config.txt',
   '8playerdiplo.txt',
@@ -154,9 +157,9 @@ const configFiles = [
 const DISCORD_CONFIG = {
   token: 'MTMwNTQxNTU1NzM2NTEwNDY4MA.G6fE2Q.YywmUxfaA368tePVwCysMI_WAPC4p9OTD69f10',
   channelIds: [
-    '1117301291652227163'
-    //'1305455377508470804',     
-    //'1305580168810725447'     
+    '1117301291652227163',
+    '1305455377508470804',     
+    '1305580168810725447'     
   ]
 };
 

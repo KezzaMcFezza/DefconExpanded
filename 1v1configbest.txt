@@ -11,9 +11,20 @@ TotalBandwidth 75000
 PlayerBandwidth 10000
 CaseSensitive 0
 LogLevel 2
+HostName DefconExpanded
+AcceptC2 1
+MaxIdleRunTime 1800
+MinRunTime 900
 EventFile game_events_1v1best.log
 OutFile server_output_1v1best.log
 PlayerLog player_scores_1v1best.log
+
+# Whatever you do, DO NOT change these lines....
+# EventFile
+# OutFile
+# PlayerLog
+# Record
+# Rotate
 
 #ADMIN
 Admin Laika~~1~dancefloor
@@ -21,31 +32,18 @@ Admin LadenBinKezza~~0~dancefloor
 Admin Sievert~~1~dancefloor
 Admin MohammedBinNexus~~1~dancefloor
 Admin Vault Tec~~1~dancefloor
+Admin Haakon~~1~Kezzaiscool
 Admin Lord Haw Haw~~1~Reddashhawhaw
 
-HostName DefconExpanded
-
-AcceptC2 1
-
-AdvertisePlayers 2
-MaxSpectators 15 
-
+#ANTI-CHEAT
 GhostProtection 2
 MaxResyncAttempts 3
-
-
-MaxIdleRunTime 1800
-MinRunTime 900
-
-DropCourtesy -1
 
 #SPEED BUDGET
 IdleTime 300
 IdleTimeGlobal 600
-
 SlowBudgetStart 1800
 SlowBudgetMax 1800
-
 SlowBudgetRefill 0
 SlowBudgetRedistributeUsed 100
 SlowBudgetRedistributeUnused 0
@@ -62,20 +60,22 @@ KickVoteMinPlayers 0
 KicksToBan 3
 
 #GAME OPTIONS 
+AdvertisePlayers 2
+MaxSpectators 15 
 MinTeams 2
 MaxTeams 2
 ReadyVoteDelay 90
 ReadyVoteMaxRemove 1
-
 RandomTerritories 1
 CityPopulations 3
 CitiesPerTerritory 30
+DropCourtesy -1
 PopulationPerTerritory  150
-
-SpectatorChatChannel 1
 GameSpeed 0
 PermitDefection 0
+SpectatorChatChannel 1
 
+#TERRITORY SETS
 RBegin pair1
 Territory1 AF
 Territory2 NA
@@ -141,10 +141,9 @@ Territory1 AF
 Territory2 AS
 REnd
 
-Rotate rotation_log.txt
+Rotate rotation_log1.txt
 
 WaitClient
-
 Say Welcome to Defcon Expanded, This is a 1v1 server with only the best setups!
 Say Africa vs North America
 Say Africa vs South America
@@ -155,7 +154,6 @@ Say Europe vs Russia
 Say This server also has a leaderboard and game recordings on www.defconexpanded.com.
 
 WaitStart
-
 Say Warning: Each player has 30 minutes of 1x slowdown budget
 Say Budget regenerates at 1 minute per minute of 5x used, and 2 minutes per 10x used
 Say Each player also has 5 minutes of pause time that will affect their slowdown budget
@@ -163,13 +161,14 @@ Say Use /speed to check your remaining budgets
 SpectatorChatChannel 0
 
 WaitEnd
-
 Record demo_recordings/game_%Y-%m-%d-%H-%M.dcrec
+SpectatorChatChannel 1
 AdvertiseOnInternet 0
 Say Game Over !
 Say Game is available on defconexpanded.com
 Say Restart in 60 Seconds!
 WaitSeconds 60
 Quit
+
 
 

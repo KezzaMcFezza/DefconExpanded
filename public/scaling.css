@@ -803,4 +803,8 @@ body {
         width: auto;
     }
 
+    .main-resources-container {
+        flex-direction: column !important;
+    }
+
 }
