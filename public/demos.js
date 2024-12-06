@@ -115,7 +115,9 @@ function createDemoCard(demo) {
     const isExpandedGame = (demo.game_type && (
         demo.game_type.includes('8 Player') || demo.game_type.includes('4v4') ||
         demo.game_type.includes('10 Player') || demo.game_type.includes('5v5') ||
-        demo.game_type.includes('16 Player') || demo.game_type.includes('8v8')
+        demo.game_type.includes('16 Player') || demo.game_type.includes('8v8') ||
+        demo.game_type.includes('509') || demo.game_type.includes('CG') ||
+        demo.game_type.includes('MURICON') 
     ));
 
     const teamColors = {

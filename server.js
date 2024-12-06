@@ -140,6 +140,7 @@ const configFiles = [
   '1v1configdefault.txt',
   '1v1configtest.txt',
   '2v2config.txt',
+  '2v2tournament.txt',
   '6playerffaconfig.txt',
   'noobfriendly.txt',
   '3v3ffaconfig.txt',
@@ -235,11 +236,15 @@ async function sendDemoToDiscord(demo, logData) {
               };
 
               const isExpandedServer = (logData.players && logData.players.length > 6) || 
-                  demo.game_type?.includes('4v4') || 
-                  demo.game_type?.includes('5v5') || 
-                  demo.game_type?.includes('8 Player') || 
-                  demo.game_type?.includes('10 Player') || 
-                  demo.game_type?.includes('16 Player');
+                  demo.game_type.includes('8 Player') || 
+                  demo.game_type.includes('4v4') ||
+                  demo.game_type.includes('10 Player') || 
+                  demo.game_type.includes('5v5') ||
+                  demo.game_type.includes('16 Player') || 
+                  demo.game_type.includes('8v8') ||
+                  demo.game_type.includes('509') || 
+                  demo.game_type.includes('CG') ||
+                  demo.game_type.includes('MURICON');
           
               const allianceColors = isExpandedServer ? expandedAllianceColors : vanillaAllianceColors;
 
@@ -336,14 +341,17 @@ async function sendDemoToDiscord(demo, logData) {
               }
 
               const spectatorsText = logData.spectators && logData.spectators.length > 0
-                  ? logData.spectators.map(s => s.name).join(', ')
-                  : 'No spectators';
-
-              embed.addFields({
-                  name: 'Spectators',
-                  value: spectatorsText,
-                  inline: true
-              });
+              ? logData.spectators
+                  .filter(s => s.name) 
+                  .map(s => s.name)
+                  .join(', ') || 'No spectators'
+              : 'No spectators';
+          
+          embed.addFields({
+              name: 'Spectators',
+              value: spectatorsText,
+              inline: true
+          });
 
               try {
                   const mapBuffer = await createTerritoryMap(logData.players, territoryImages, false, allianceColors, allianceColors);
@@ -702,13 +710,14 @@ demoWatcher
   .on('error', error => console.error(`JSON watcher error: ${error}`));
 
 async function checkForMatch() {
-  // this checks the record setting in the json file
+  const processedPairs = new Set(); // Track processed demo-json pairs
+  
+  // First check all JSON files
   for (const [jsonFileName, jsonInfo] of pendingJsons) {
     try {
       const jsonContent = await fs.promises.readFile(jsonInfo.path, 'utf8');
       const logData = JSON.parse(jsonContent);
 
-      // if sucessful proceed if not throw error
       const recordSetting = logData.settings && logData.settings.Record;
       if (!recordSetting) {
         console.log(`No Record setting found in JSON file: ${jsonFileName}`);
@@ -718,30 +727,57 @@ async function checkForMatch() {
       const dcrecFileName = path.basename(recordSetting);
       const demoInfo = pendingDemos.get(dcrecFileName);
 
-      // matching file found, proceed to uploading the data to the database
-      if (demoInfo) {
-        console.log(`Matching files found: ${dcrecFileName} and ${jsonFileName}`);
-        await processDemoFile(dcrecFileName, demoInfo.stats.size, logData, jsonFileName);
-        
-        console.log(`Successfully processed and linked ${dcrecFileName} with ${jsonFileName}`);
-    
-        pendingDemos.delete(dcrecFileName);
-        pendingJsons.delete(jsonFileName);
-        processedJsons.add(jsonFileName);
+      // Check if this pair has already been processed
+      const pairKey = `${dcrecFileName}-${jsonFileName}`;
+      if (processedPairs.has(pairKey)) {
+        continue;
+      }
 
-        // makes sure the leaderboard does not process duplicates since the system processes the game twice
-        if (logData.gameType && logData.gameType.toLowerCase().includes('1v1')) {
-          await updateLeaderboard(logData);
+      if (demoInfo) {
+        console.log('Processing game data:', {
+          fileName: jsonFileName,
+          gameType: logData.gameType,
+          isTournament: logData.gameType?.toLowerCase().includes('tournament'),
+          is1v1: logData.gameType?.toLowerCase().includes('1v1'),
+          playerCount: logData.players?.length
+        });
+
+        console.log(`Matching files found: ${dcrecFileName} and ${jsonFileName}`);
+        
+        try {
+          await pool.query('START TRANSACTION');
+          
+          await processDemoFile(dcrecFileName, demoInfo.stats.size, logData, jsonFileName);
+          
+          processedPairs.add(pairKey);
+          pendingDemos.delete(dcrecFileName);
+          pendingJsons.delete(jsonFileName);
+          processedJsons.add(jsonFileName);
+
+          console.log(`Successfully processed and linked ${dcrecFileName} with ${jsonFileName}`);
+
+          // Only process tournament or 1v1 games for leaderboard
+          if (logData.gameType && (
+              logData.gameType.toLowerCase().includes('tournament') || 
+              logData.gameType.toLowerCase().includes('1v1')
+          )) {
+            console.log(`Detected ${logData.gameType.toLowerCase().includes('tournament') ? 'tournament' : '1v1'} game, updating leaderboard`);
+            await updateLeaderboard(logData);
+          }
+
+          await pool.query('COMMIT');
+        } catch (error) {
+          await pool.query('ROLLBACK');
+          console.error(`Error processing demo/json pair: ${error}`);
+          continue;
         }
-      } else {
-        console.log(`Corresponding .dcrec, .d8crec, or .d10crec file not found for JSON file: ${jsonFileName}`);
       }
     } catch (error) {
       console.error(`Error processing JSON file ${jsonFileName}:`, error);
     }
   }
 
-  // this functionality reduces overhead, i have named the vanilla and the modded builds dcrec and json files with a prefix for future functionality
+  // Then check for demos looking for matching jsons with specific prefixes
   for (const [demoFileName, demoInfo] of pendingDemos) {
     let expectedJsonPrefix;
     if (demoFileName.endsWith('.d8crec')) {
@@ -754,21 +790,46 @@ async function checkForMatch() {
 
     for (const [jsonFileName, jsonInfo] of pendingJsons) {
       if (!jsonFileName.startsWith(expectedJsonPrefix)) continue;
+
+      const pairKey = `${demoFileName}-${jsonFileName}`;
+      if (processedPairs.has(pairKey)) {
+        continue;
+      }
+
       try {
         const jsonContent = await fs.promises.readFile(jsonInfo.path, 'utf8');
         const logData = JSON.parse(jsonContent);
 
         const recordSetting = logData.settings && logData.settings.Record;
         if (recordSetting && path.basename(recordSetting) === demoFileName) {
-          console.log(`Matching files found: ${demoFileName} and ${jsonFileName}`);
-          await processDemoFile(demoFileName, demoInfo.stats.size, logData, jsonFileName);
-          
-          console.log(`Successfully processed and linked ${demoFileName} with ${jsonFileName}`);
+          try {
+            await pool.query('START TRANSACTION');
 
-          pendingDemos.delete(demoFileName);
-          pendingJsons.delete(jsonFileName);
-          processedJsons.add(jsonFileName);
-          break;
+            console.log(`Matching files found: ${demoFileName} and ${jsonFileName}`);
+            await processDemoFile(demoFileName, demoInfo.stats.size, logData, jsonFileName);
+            
+            processedPairs.add(pairKey);
+            pendingDemos.delete(demoFileName);
+            pendingJsons.delete(jsonFileName);
+            processedJsons.add(jsonFileName);
+            
+            console.log(`Successfully processed and linked ${demoFileName} with ${jsonFileName}`);
+
+            if (logData.gameType && (
+                logData.gameType.toLowerCase().includes('tournament') || 
+                logData.gameType.toLowerCase().includes('1v1')
+            )) {
+              console.log(`Detected ${logData.gameType.toLowerCase().includes('tournament') ? 'tournament' : '1v1'} game, updating leaderboard`);
+              await updateLeaderboard(logData);
+            }
+
+            await pool.query('COMMIT');
+            break;
+          } catch (error) {
+            await pool.query('ROLLBACK');
+            console.error(`Error processing demo/json pair: ${error}`);
+            continue;
+          }
         }
       } catch (error) {
         console.error(`Error processing JSON file ${jsonFileName}:`, error);
@@ -799,32 +860,111 @@ function cleanupOldPendingFiles() {
 setInterval(cleanupOldPendingFiles, 60 * 60 * 1000);
 
 async function updateLeaderboard(gameData) {
-  console.log('Checking game type:', gameData.gameType);  // Debug log
+  console.log('Checking game type:', gameData.gameType);
 
-  if (gameData.gameType && gameData.gameType.toLowerCase().includes('1v1')) {
-      console.log('1v1 game detected, processing for leaderboard');
+  const isTournament = gameData.gameType && gameData.gameType.toLowerCase().includes('tournament');
+  const is1v1 = gameData.gameType && gameData.gameType.toLowerCase().includes('1v1');
+
+  if (!isTournament && !is1v1) {
+    console.log('Not a tracked game type:', gameData.gameType);
+    return;
+  }
+
+  try {
+    await pool.query('START TRANSACTION');
+
+    let players;
+    if (gameData.players && Array.isArray(gameData.players)) {
+      players = gameData.players;
+    } else if (typeof gameData.players === 'object' && gameData.players.players) {
+      players = gameData.players.players;
+    } else {
+      console.log('Invalid player data structure:', gameData);
+      await pool.query('ROLLBACK');
+      return;
+    }
+
+    if (isTournament) {
+      console.log('Tournament game detected, processing for tournament leaderboard');
       
-      // Get the players data from the correct structure
-      let players;
-      if (gameData.players && Array.isArray(gameData.players)) {
-          players = gameData.players;
-      } else if (typeof gameData.players === 'object' && gameData.players.players) {
-          players = gameData.players.players;
-      } else {
-          console.log('Invalid player data structure:', gameData);
-          return;
-      }
+      // Group players by alliance for tournament games
+      const allianceGroups = {};
+      players.forEach(player => {
+        if (!allianceGroups[player.alliance]) {
+          allianceGroups[player.alliance] = [];
+        }
+        allianceGroups[player.alliance].push(player);
+      });
 
+      // Calculate total score for each alliance
+      const allianceScores = Object.entries(allianceGroups).map(([alliance, alliancePlayers]) => ({
+        alliance: parseInt(alliance),
+        players: alliancePlayers,
+        totalScore: alliancePlayers.reduce((sum, player) => sum + (player.score || 0), 0)
+      }));
+
+      // Sort by total score to determine winning alliance
+      const sortedAlliances = allianceScores.sort((a, b) => b.totalScore - a.totalScore);
+      const winningAlliance = sortedAlliances[0].alliance;
+
+      console.log('Alliance scores:', sortedAlliances.map(a => 
+        `Alliance ${a.alliance}: ${a.totalScore} (${a.players.map(p => p.name).join(', ')})`
+      ));
+      console.log(`Winning alliance: ${winningAlliance} with score ${sortedAlliances[0].totalScore}`);
+
+      // Process each player
+      for (const player of players) {
+        const isWinner = player.alliance === winningAlliance;
+        try {
+          // Check for existing player
+          const [existingPlayerByName] = await pool.query(
+            'SELECT * FROM tournament_leaderboard WHERE player_name = ?', 
+            [player.name]
+          );
+
+          if (existingPlayerByName.length > 0) {
+            // Update existing player
+            await pool.query(`
+              UPDATE tournament_leaderboard 
+              SET games_played = games_played + 1,
+                  wins = wins + ?,
+                  losses = losses + ?
+              WHERE player_name = ?
+            `, [
+              isWinner ? 1 : 0,
+              isWinner ? 0 : 1,
+              player.name
+            ]);
+            console.log(`Updated tournament data for ${player.name} (Alliance ${player.alliance}). Added ${isWinner ? 'win' : 'loss'}.`);
+          } else {
+            // Add new player
+            await pool.query(`
+              INSERT INTO tournament_leaderboard (player_name, key_id, games_played, wins, losses)
+              VALUES (?, ?, 1, ?, ?)
+            `, [
+              player.name,
+              player.key_id || 'DEMO',
+              isWinner ? 1 : 0,
+              isWinner ? 0 : 1
+            ]);
+            console.log(`New player ${player.name} added to tournament leaderboard with initial ${isWinner ? 'win' : 'loss'}.`);
+          }
+          console.log(`Tournament leaderboard update completed for player ${player.name} (Key ID: ${player.key_id})`);
+        } catch (error) {
+          console.error(`Error updating tournament leaderboard for player ${player.name}:`, error);
+          throw error;
+        }
+      }
+    } else if (is1v1) {
       if (players.length !== 2) {
-          console.log(`Invalid player count for 1v1: ${players.length}`);
-          return;
+        console.log(`Invalid player count for 1v1: ${players.length}`);
+        await pool.query('ROLLBACK');
+        return;
       }
 
-      // Get the whitelist/blacklist
       const [whitelist] = await pool.query('SELECT player_name FROM leaderboard_whitelist');
       const whitelistedPlayers = new Set(whitelist.map(entry => entry.player_name.toLowerCase()));
 
-      // Determine winner and loser
       const winner = players.reduce((a, b) => a.score > b.score ? a : b);
       const loser = players.find(p => p !== winner);
 
@@ -832,97 +972,95 @@ async function updateLeaderboard(gameData) {
       console.log(`Loser: ${loser.name} (Score: ${loser.score})`);
 
       for (const player of players) {
-          // Check if player is blacklisted
-          if (whitelistedPlayers.has(player.name.toLowerCase())) {
-              console.log(`Player ${player.name} is whitelisted. Skipping leaderboard update.`);
-              continue;
+        if (whitelistedPlayers.has(player.name.toLowerCase())) {
+          console.log(`Player ${player.name} is whitelisted. Skipping leaderboard update.`);
+          continue;
+        }
+
+        const isWinner = player === winner;
+        const scoreToAdd = player.score > 0 ? player.score : 0;
+
+        try {
+          const [existingPlayerByName] = await pool.query('SELECT * FROM leaderboard WHERE player_name = ?', [player.name]);
+          let existingPlayerByKeyId = [];
+
+          if (player.key_id !== 'DEMO') {
+            [existingPlayerByKeyId] = await pool.query('SELECT * FROM leaderboard WHERE key_id = ?', [player.key_id]);
           }
 
-          const isWinner = player === winner;
-          const scoreToAdd = player.score > 0 ? player.score : 0;
-
-          try {
-              const [existingPlayerByName] = await pool.query('SELECT * FROM leaderboard WHERE player_name = ?', [player.name]);
-
-              // Check all non demo users keyid to attempt to match them if the username is different
-              let existingPlayerByKeyId = [];
-              if (player.key_id !== 'DEMO') {
-                  [existingPlayerByKeyId] = await pool.query('SELECT * FROM leaderboard WHERE key_id = ?', [player.key_id]);
-              }
-
-              if (existingPlayerByName.length > 0) {
-                  // Handle existing player logic
-                  if (player.key_id === 'DEMO') {
-                      if (existingPlayerByName[0].key_id !== 'DEMO') {
-                          console.log(`Looks like ${player.name} has lost their authentication key :( Adding player data to the leaderboard assuming they will find their authentication key at some point.`);
-                      } else {
-                          console.log(`Demo player detected: ${player.name}. Ignoring key ID matching and using player name instead.`);
-                      }
-                  } else if (existingPlayerByName[0].key_id === 'DEMO' && player.key_id !== 'DEMO') {
-                      console.log(`Demo player ${player.name} has now bought the game! Replacing DEMO key ID with ${player.key_id}`);
-                      await pool.query('UPDATE leaderboard SET key_id = ? WHERE player_name = ?', [player.key_id, player.name]);
-                  } else if (existingPlayerByName[0].key_id !== player.key_id) {
-                      console.log(`${player.name} appears to have a new key ID. Replacing existing key ID ${existingPlayerByName[0].key_id} with new key ID ${player.key_id} in the database.`);
-                      await pool.query('UPDATE leaderboard SET key_id = ? WHERE player_name = ?', [player.key_id, player.name]);
-                  }
-
-                  // Update the stats
-                  await pool.query(`
-                      UPDATE leaderboard 
-                      SET games_played = games_played + 1,
-                          wins = wins + ?,
-                          losses = losses + ?,
-                          total_score = total_score + ?
-                      WHERE player_name = ?
-                  `, [
-                      isWinner ? 1 : 0,
-                      isWinner ? 0 : 1,
-                      scoreToAdd,
-                      player.name
-                  ]);
-                  console.log(`Updated player data for ${player.name} (Key ID: ${player.key_id}). Added ${isWinner ? 'win' : 'loss'} and ${scoreToAdd} to total score.`);
-              } else if (existingPlayerByKeyId.length > 0) {
-                  // Handle player with matching key_id but different name
-                  const existingName = existingPlayerByKeyId[0].player_name;
-                  console.log(`Key ID ${player.key_id} matches existing player ${existingName}, but current name is ${player.name}. Updating stats for ${existingName}.`);
-
-                  await pool.query(`
-                      UPDATE leaderboard 
-                      SET games_played = games_played + 1,
-                          wins = wins + ?,
-                          losses = losses + ?,
-                          total_score = total_score + ?
-                      WHERE key_id = ?
-                  `, [
-                      isWinner ? 1 : 0,
-                      isWinner ? 0 : 1,
-                      scoreToAdd,
-                      player.key_id
-                  ]);
-                  console.log(`Updated player data for ${existingName} (Key ID: ${player.key_id}). Added ${isWinner ? 'win' : 'loss'} and ${scoreToAdd} to total score.`);
+          if (existingPlayerByName.length > 0) {
+            if (player.key_id === 'DEMO') {
+              if (existingPlayerByName[0].key_id !== 'DEMO') {
+                console.log(`Looks like ${player.name} has lost their authentication key :( Adding player data to the leaderboard assuming they will find their authentication key at some point.`);
               } else {
-                  // Handle new player
-                  console.log(`Adding new player ${player.name} with Key ID ${player.key_id} to the leaderboard.`);
-                  await pool.query(`
-                      INSERT INTO leaderboard (player_name, key_id, games_played, wins, losses, total_score)
-                      VALUES (?, ?, 1, ?, ?, ?)
-                  `, [
-                      player.name,
-                      player.key_id,
-                      isWinner ? 1 : 0,
-                      isWinner ? 0 : 1,
-                      scoreToAdd
-                  ]);
-                  console.log(`New player ${player.name} added to leaderboard with initial ${isWinner ? 'win' : 'loss'} and score of ${scoreToAdd}.`);
+                console.log(`Demo player detected: ${player.name}. Ignoring key ID matching and using player name instead.`);
               }
+            } else if (existingPlayerByName[0].key_id === 'DEMO' && player.key_id !== 'DEMO') {
+              console.log(`Demo player ${player.name} has now bought the game! Replacing DEMO key ID with ${player.key_id}`);
+              await pool.query('UPDATE leaderboard SET key_id = ? WHERE player_name = ?', [player.key_id, player.name]);
+            } else if (existingPlayerByName[0].key_id !== player.key_id) {
+              console.log(`${player.name} appears to have a new key ID. Replacing existing key ID ${existingPlayerByName[0].key_id} with new key ID ${player.key_id} in the database.`);
+              await pool.query('UPDATE leaderboard SET key_id = ? WHERE player_name = ?', [player.key_id, player.name]);
+            }
 
-              console.log(`Leaderboard update completed for player ${player.name} (Key ID: ${player.key_id})`);
-          } catch (error) {
-              console.error(`Error updating leaderboard for player ${player.name}:`, error);
+            await pool.query(`
+              UPDATE leaderboard 
+              SET games_played = games_played + 1,
+                  wins = wins + ?,
+                  losses = losses + ?,
+                  total_score = total_score + ?
+              WHERE player_name = ?
+            `, [
+              isWinner ? 1 : 0,
+              isWinner ? 0 : 1,
+              scoreToAdd,
+              player.name
+            ]);
+            console.log(`Updated player data for ${player.name} (Key ID: ${player.key_id}). Added ${isWinner ? 'win' : 'loss'} and ${scoreToAdd} to total score.`);
+          } else if (existingPlayerByKeyId.length > 0) {
+            const existingName = existingPlayerByKeyId[0].player_name;
+            console.log(`Key ID ${player.key_id} matches existing player ${existingName}, but current name is ${player.name}. Updating stats for ${existingName}.`);
+
+            await pool.query(`
+              UPDATE leaderboard 
+              SET games_played = games_played + 1,
+                  wins = wins + ?,
+                  losses = losses + ?,
+                  total_score = total_score + ?
+              WHERE key_id = ?
+            `, [
+              isWinner ? 1 : 0,
+              isWinner ? 0 : 1,
+              scoreToAdd,
+              player.key_id
+            ]);
+            console.log(`Updated player data for ${existingName} (Key ID: ${player.key_id}). Added ${isWinner ? 'win' : 'loss'} and ${scoreToAdd} to total score.`);
+          } else {
+            console.log(`Adding new player ${player.name} with Key ID ${player.key_id} to the leaderboard.`);
+            await pool.query(`
+              INSERT INTO leaderboard (player_name, key_id, games_played, wins, losses, total_score)
+              VALUES (?, ?, 1, ?, ?, ?)
+            `, [
+              player.name,
+              player.key_id,
+              isWinner ? 1 : 0,
+              isWinner ? 0 : 1,
+              scoreToAdd
+            ]);
+            console.log(`New player ${player.name} added to leaderboard with initial ${isWinner ? 'win' : 'loss'} and score of ${scoreToAdd}.`);
           }
+          console.log(`Leaderboard update completed for player ${player.name} (Key ID: ${player.key_id})`);
+        } catch (error) {
+          console.error(`Error updating leaderboard for player ${player.name}:`, error);
+          throw error;
+        }
       }
-  } else {
-      console.log('Not a 1v1 game:', gameData.gameType);
+    }
+
+    await pool.query('COMMIT');
+  } catch (error) {
+    await pool.query('ROLLBACK');
+    console.error('Error updating leaderboard:', error);
   }
 }
 
@@ -1438,6 +1576,22 @@ app.put('/api/demo/:demoId', authenticateToken, checkRole(5), async (req, res) =
   }
 });
 
+// fetches the most active players from top 1 to top 5 in the tournament leaderboard
+app.get('/api/most-active-tournament-players', async (req, res) => {
+  try {
+      const [rows] = await pool.query(`
+          SELECT player_name, games_played
+          FROM tournament_leaderboard
+          ORDER BY games_played DESC
+          LIMIT 5 
+      `);
+      res.json(rows);
+  } catch (error) {
+      console.error('Error fetching most active tournament players:', error);
+      res.status(500).json({ error: 'Unable to fetch most active tournament players', details: error.message });
+  }
+});
+
 // fetches the top 5 players who are the most active on the servers
 app.get('/api/most-active-players', async (req, res) => {
   try {
@@ -1451,6 +1605,67 @@ app.get('/api/most-active-players', async (req, res) => {
   } catch (error) {
       console.error('Error fetching most active players:', error);
       res.status(500).json({ error: 'Unable to fetch most active players', details: error.message });
+  }
+});
+
+//loads the tournament only leaderboard (temporary until i can be assed implementing automatic seasons)
+app.get('/api/tournament-leaderboard', async (req, res) => {
+  const { sortBy = 'weightedScore' } = req.query;
+  
+  try {
+    let orderBy;
+    switch (sortBy) {
+      case 'wins':
+        orderBy = 'wins DESC, weighted_score DESC, player_name ASC';
+        break;
+      case 'gamesPlayed':
+        orderBy = 'games_played DESC, weighted_score DESC';
+        break;
+      case 'weightedScore':
+      default:
+        orderBy = 'weighted_score DESC, wins DESC';
+    }
+
+    const query = `
+      SELECT 
+        l.*,
+        r.absolute_rank,
+        (wins * (wins/NULLIF(games_played, 0))) AS weighted_score
+      FROM 
+        tournament_leaderboard l
+      JOIN (
+        SELECT 
+          id, 
+          ROW_NUMBER() OVER (ORDER BY (wins * (wins/NULLIF(games_played, 0))) DESC, wins DESC) as absolute_rank
+        FROM 
+          tournament_leaderboard
+      ) r ON l.id = r.id
+      ORDER BY ${orderBy}
+    `;
+
+    const [rows] = await pool.query(query);
+
+    // Add profile URLs just like in regular leaderboard
+    const updatedLeaderboard = await Promise.all(rows.map(async (player) => {
+      if (player.player_name) {
+        const [userProfile] = await pool.query(`
+          SELECT u.username 
+          FROM user_profiles up
+          JOIN users u ON up.user_id = u.id
+          WHERE up.defcon_username = ?
+        `, [player.player_name]);
+
+        if (userProfile.length > 0) {
+          player.profileUrl = `/profile/${userProfile[0].username}`;
+        }
+      }
+      return player;
+    }));
+
+    res.json(updatedLeaderboard);
+  } catch (error) {
+    console.error('Error fetching tournament leaderboard:', error);
+    res.status(500).json({ error: 'Unable to fetch tournament leaderboard' });
   }
 });
 
@@ -2653,7 +2868,6 @@ app.get('/api/current-user', checkAuthToken, (req, res) => {
   if (req.user) {
     res.json({ user: { id: req.user.id, username: req.user.username, role: req.user.role } });
   } else {
-    console.log('No authenticated user found');
     res.status(401).json({ error: 'Not authenticated' });
   }
 });
@@ -3715,17 +3929,6 @@ process.on('SIGINT', async () => {
     process.exit(0);
   });
 });
-
-// server health check
-setInterval(() => {
-  const usedMemory = process.memoryUsage().heapUsed / 1024 / 1024;
-  const totalMemory = process.memoryUsage().heapTotal / 1024 / 1024;
-  console.log(`Server health check:
-    Uptime: ${(Date.now() - startTime) / 1000} seconds
-    Memory usage: ${usedMemory.toFixed(2)} MB / ${totalMemory.toFixed(2)} MB
-    Active connections: ${io.engine.clientsCount}
-  `);
-}, 1800000); 
 
 app.use(errorHandler);
 

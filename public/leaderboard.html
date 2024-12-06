@@ -100,6 +100,45 @@
                 display: none;
             }
         }
+
+        .leaderboard-type-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+        }
+        
+        .leaderboard-type-selector button {
+            padding: 8px 16px;
+            border: none;
+            font-size: 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #2c2c2c;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+        
+        .leaderboard-type-selector button.active {
+            background-color: #4a4a4a;
+        }
+        
+        .leaderboard-type-selector button:hover {
+            background-color: #3a3a3a;
+        }
+        
+        .win-ratio-cell {
+            color: #00ff00;
+        }
+
+        #tournamentLeaderboard {
+            background-color: #b35300;
+        }
+
+        #regularLeaderboard {
+            background-color: #970000;
+        }
   
       </style>
 </head>
@@ -188,9 +227,9 @@
             <h2 class="headerresources2"></h2>
             <div class="leaderboard-container">
                 <div class="main-leaderboard">
-                    <div class="leaderboard-header">Defcon Expanded 1v1 Leaderboard</div>
+                    <div class="leaderboard-header"></div>
                     <div class="sort-container">
-                        <label class="qualifylabel">To qualify you need to play 1 game</label>
+                        <label class="qualifylabel"></label>
                         <label for="sort-select">Sort by:</label>
                         <select id="sort-select">
                             <option value="wins">Wins</option>
@@ -221,20 +260,16 @@
                     <ul id="active-players-list">
                     </ul>
                 </div>
-                <br>
+                <div class="leaderboard-type-selector">
+                    <button id="regularLeaderboard" class="active">1v1 Leaderboard</button>
+                    <button id="tournamentLeaderboard">2v2 Tournament</button>
+                </div>
                 <div class="active-players">
                     <div class="active-players-header">
                         Leaderboard Information
                     </div>
                     <ul style="padding-left: 10px;">
-                        <label>The way the leaderboard ranking system works is based on who has the most wins
-                               <br>
-                               <br> 
-                               However if two of the same people have the same wins it will display the person
-                               with the most total score as a higher rank
-                               <br>
-                               <br>
-                        </label>
+                        <label></label>
                     </ul>
                 </div>
             </div>

@@ -300,6 +300,10 @@ const serverConfigs = [
         filename: "2v2config.txt"
     },
     {
+        name: "2v2 Tournament",
+        filename: "2v2tournament.txt"
+    },
+    {
         name: "DefconExpanded | 3v3 | Totally Random",
         filename: "3v3ffaconfig.txt"
     },
@@ -1030,7 +1034,9 @@ function displayReportedDemo(demo) {
     const isExpandedGame = (demo.game_type && (
         demo.game_type.includes('8 Player') || demo.game_type.includes('4v4') ||
         demo.game_type.includes('10 Player') || demo.game_type.includes('5v5') ||
-        demo.game_type.includes('16 Player') || demo.game_type.includes('8v8')
+        demo.game_type.includes('16 Player') || demo.game_type.includes('8v8') ||
+        demo.game_type.includes('509') || demo.game_type.includes('CG') ||
+        demo.game_type.includes('MURICON') 
     ));
 
     const teamColors = {
@@ -1066,7 +1072,13 @@ function displayReportedDemo(demo) {
         6: { color: '#4c4c4c', name: 'Black' },    
         7: { color: '#ffa700', name: 'Orange' },   
         8: { color: '#28660a', name: 'Olive' },    
-        9: { color: '#660011', name: 'Scarlet' }
+        9: { color: '#660011', name: 'Scarlet' },  
+        10: { color: '#2a00ff', name: 'Indigo' },  
+        11: { color: '#4c4c00', name: 'Gold' },    
+        12: { color: '#004c3e', name: 'Teal' },    
+        13: { color: '#6a007f', name: 'Purple' },  
+        14: { color: '#e5e5e5', name: 'White' },   
+        15: { color: '#964B00', name: 'Brown' }    
     };
 
     let parsedPlayers = [];
@@ -1940,43 +1952,83 @@ function editDemo(demoId) {
                     const usingAlliances = playersData.some(player => player.alliance !== undefined);
                     console.log('Using alliances:', usingAlliances);
 
+                    // Determine if it's an expanded game based on game type
+                    const isExpandedGame = (demo.game_type && (
+                        demo.game_type.includes('8 Player') || 
+                        demo.game_type.includes('4v4') ||
+                        demo.game_type.includes('10 Player') || 
+                        demo.game_type.includes('5v5') ||
+                        demo.game_type.includes('16 Player') || 
+                        demo.game_type.includes('8v8') ||
+                        demo.game_type.includes('509') || 
+                        demo.game_type.includes('CG') ||
+                        demo.game_type.includes('MURICON')
+                    ));
+
                     playersData.forEach((player, index) => {
                         console.log(`Processing player ${index}:`, player);
 
-                        const colorOptions = usingAlliances ? `
-                            <div class="alliance-section">
-                                <label>Alliance (Group Color):</label>
-                                <select id="edit-player${index+1}-alliance" class="alliance-select">
-                                    <option value="0" ${player.alliance === 0 ? 'selected' : ''}>Red</option>
-                                    <option value="1" ${player.alliance === 1 ? 'selected' : ''}>Green</option>
-                                    <option value="2" ${player.alliance === 2 ? 'selected' : ''}>Blue</option>
-                                    <option value="3" ${player.alliance === 3 ? 'selected' : ''}>Yellow</option>
-                                    <option value="4" ${player.alliance === 4 ? 'selected' : ''}>Orange</option>
-                                    <option value="5" ${player.alliance === 5 ? 'selected' : ''}>Turq</option>
-                                    <option value="6" ${player.alliance === 6 ? 'selected' : ''}>Brown</option>
-                                    <option value="7" ${player.alliance === 7 ? 'selected' : ''}>Light Blue</option>
-                                    <option value="8" ${player.alliance === 8 ? 'selected' : ''}>Pink</option>
-                                    <option value="9" ${player.alliance === 9 ? 'selected' : ''}>White</option>
-                                    <option value="10" ${player.alliance === 10 ? 'selected' : ''}>Teal</option>
-                                </select>
-                            </div>
-                        ` : `
-                            <div class="team-section">
-                                <label>Team Color:</label>
-                                <select id="edit-player${index+1}-team" class="team-select">
-                                    <option value="0" ${player.team === 0 ? 'selected' : ''}>Red</option>
-                                    <option value="1" ${player.team === 1 ? 'selected' : ''}>Green</option>
-                                    <option value="2" ${player.team === 2 ? 'selected' : ''}>Light Blue</option>
-                                    <option value="3" ${player.team === 3 ? 'selected' : ''}>Orange</option>
-                                    <option value="4" ${player.team === 4 ? 'selected' : ''}>Dark Blue</option>
-                                    <option value="5" ${player.team === 5 ? 'selected' : ''}>Yellow</option>
-                                    <option value="6" ${player.team === 6 ? 'selected' : ''}>Turq</option>
-                                    <option value="7" ${player.team === 7 ? 'selected' : ''}>Pink</option>
-                                    <option value="8" ${player.team === 8 ? 'selected' : ''}>White</option>
-                                    <option value="9" ${player.team === 9 ? 'selected' : ''}>Mint Green</option>
-                                </select>
-                            </div>
-                        `;
+                        let colorOptions;
+                        if (usingAlliances) {
+                            if (isExpandedGame) {
+                                // Expanded alliance colors
+                                colorOptions = `
+                                    <div class="alliance-section">
+                                        <label>Alliance (Group Color):</label>
+                                        <select id="edit-player${index+1}-alliance" class="alliance-select">
+                                            <option value="0" ${player.alliance === 0 ? 'selected' : ''}>Green</option>
+                                            <option value="1" ${player.alliance === 1 ? 'selected' : ''}>Red</option>
+                                            <option value="2" ${player.alliance === 2 ? 'selected' : ''}>Blue</option>
+                                            <option value="3" ${player.alliance === 3 ? 'selected' : ''}>Yellow</option>
+                                            <option value="4" ${player.alliance === 4 ? 'selected' : ''}>Turq</option>
+                                            <option value="5" ${player.alliance === 5 ? 'selected' : ''}>Pink</option>
+                                            <option value="6" ${player.alliance === 6 ? 'selected' : ''}>Black</option>
+                                            <option value="7" ${player.alliance === 7 ? 'selected' : ''}>Orange</option>
+                                            <option value="8" ${player.alliance === 8 ? 'selected' : ''}>Olive</option>
+                                            <option value="9" ${player.alliance === 9 ? 'selected' : ''}>Scarlet</option>
+                                            <option value="10" ${player.alliance === 10 ? 'selected' : ''}>Indigo</option>
+                                            <option value="11" ${player.alliance === 11 ? 'selected' : ''}>Gold</option>
+                                            <option value="12" ${player.alliance === 12 ? 'selected' : ''}>Teal</option>
+                                            <option value="13" ${player.alliance === 13 ? 'selected' : ''}>Purple</option>
+                                            <option value="14" ${player.alliance === 14 ? 'selected' : ''}>White</option>
+                                            <option value="15" ${player.alliance === 15 ? 'selected' : ''}>Brown</option>
+                                        </select>
+                                    </div>`;
+                            } else {
+                                // Vanilla alliance colors
+                                colorOptions = `
+                                    <div class="alliance-section">
+                                        <label>Alliance (Group Color):</label>
+                                        <select id="edit-player${index+1}-alliance" class="alliance-select">
+                                            <option value="0" ${player.alliance === 0 ? 'selected' : ''}>Red</option>
+                                            <option value="1" ${player.alliance === 1 ? 'selected' : ''}>Green</option>
+                                            <option value="2" ${player.alliance === 2 ? 'selected' : ''}>Blue</option>
+                                            <option value="3" ${player.alliance === 3 ? 'selected' : ''}>Yellow</option>
+                                            <option value="4" ${player.alliance === 4 ? 'selected' : ''}>Orange</option>
+                                            <option value="5" ${player.alliance === 5 ? 'selected' : ''}>Turq</option>
+                                        </select>
+                                    </div>`;
+                            }
+                        } else {
+                            // Team colors (non-alliance)
+                            colorOptions = `
+                                <div class="team-section">
+                                    <label>Team Color:</label>
+                                    <select id="edit-player${index+1}-team" class="team-select">
+                                        <option value="0" ${player.team === 0 ? 'selected' : ''}>Green</option>
+                                        <option value="1" ${player.team === 1 ? 'selected' : ''}>Red</option>
+                                        <option value="2" ${player.team === 2 ? 'selected' : ''}>Green</option>
+                                        <option value="3" ${player.team === 3 ? 'selected' : ''}>Light Blue</option>
+                                        <option value="4" ${player.team === 4 ? 'selected' : ''}>Orange</option>
+                                        <option value="5" ${player.team === 5 ? 'selected' : ''}>Blue</option>
+                                        <option value="6" ${player.team === 6 ? 'selected' : ''}>Yellow</option>
+                                        <option value="7" ${player.team === 7 ? 'selected' : ''}>Turq</option>
+                                        <option value="8" ${player.team === 8 ? 'selected' : ''}>Pink</option>
+                                        <option value="9" ${player.team === 9 ? 'selected' : ''}>White</option>
+                                        <option value="10" ${player.team === 10 ? 'selected' : ''}>Teal</option>
+                                    </select>
+                                </div>`;
+                        }
 
                         playersDiv.innerHTML += `
                             <div class="player-edit-row">
