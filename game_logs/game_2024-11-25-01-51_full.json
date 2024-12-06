@@ -25,7 +25,16 @@
       "alliance": 1
     }
   ],
-  "spectators": [],
+  "spectators": [
+    {
+      "client_id": 10,
+      "key_id": "8102348",
+      "ip": "178.70.141.8",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": ""
+    }
+  ],
   "notes": [],
   "settings": {
     "CaseSensitive": "0",

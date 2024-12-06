@@ -1,0 +1,125 @@
+OutFile = server_output_tournament.log
+PlayerLog = player_scores_tournament.log
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUseRealtime = 100
+KickVoteMin = 2
+AdvertisePlayers = 6
+MaxSpectators = 15
+MinTeams = 4
+MaxTeams = 4
+ReadyVoteDelay = 90
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.240.156.240:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 377000.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13238990 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+DefconExpanded : Welcome to the 2v2 Christmas Tournament hosted by DefconExpanded! Tournament organisers are KezzaMcFezza and Vault Tec.
+DefconExpanded : Team balancing is also a rule, after December 26th the top 8 people will compete in the semi finals and the finals!
+DefconExpanded : Infinite pause is enabled for this server alongside the Tournament leaderboard and recordings.
+DefconExpanded : Which will be available for viewing and download on...
+DefconExpanded : www.defconexpanded.com
+client 7 (LadenBinKezza) disconnected.
+OutFile = server_output_tournament.log
+PlayerLog = player_scores_tournament.log
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUseRealtime = 100
+KickVoteMin = 2
+AdvertisePlayers = 6
+MaxSpectators = 15
+MinTeams = 4
+MaxTeams = 4
+ReadyVoteDelay = 90
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.240.156.240:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 377000.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13238990 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+DefconExpanded : Welcome to the 2v2 Christmas Tournament hosted by DefconExpanded! Tournament organisers are KezzaMcFezza and Vault Tec.
+DefconExpanded : Team balancing is also a rule, after December 26th the top 8 people will compete in the semi finals and the finals! Infinite pause is enabled for this server alongside the Tournament leaderboard and recordings.
+DefconExpanded : Which will be available for viewing and download on...
+DefconExpanded : www.defconexpanded.com
+client 7 (LadenBinKezza) disconnected.
+OutFile = server_output_tournament.log
+PlayerLog = player_scores_tournament.log
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUseRealtime = 100
+KickVoteMin = 2
+AdvertisePlayers = 6
+MaxSpectators = 15
+MinTeams = 4
+MaxTeams = 4
+ReadyVoteDelay = 90
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.240.156.240:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 377000.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13238990 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+DefconExpanded : Welcome to the 2v2 Christmas Tournament hosted by DefconExpanded! Tournament organisers are KezzaMcFezza and Vault Tec.
+DefconExpanded : Team balancing is also a rule, after December 26th the top 8 people will compete in the semi finals and the finals! Infinite pause is enabled for this server alongside the Tournament leaderboard and recordings.
+DefconExpanded : Which will be available for viewing and download on...
+DefconExpanded : www.defconexpanded.com
+client 7 (LadenBinKezza) disconnected.
+OutFile = server_output_tournament.log
+PlayerLog = player_scores_tournament.log
+IdleTimeGlobal = 600
+SlowBudgetStart = 1800
+SlowBudgetMax = 1800
+SlowBudgetRefill = 0
+SlowBudgetUseRealtime = 100
+KickVoteMin = 2
+AdvertisePlayers = 6
+MaxSpectators = 15
+MinTeams = 4
+MaxTeams = 4
+ReadyVoteDelay = 90
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 26.102.130.209
+Public server info: 90.240.156.240:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 377000.
+Login request from 26.102.130.209:5011, version="1.62 STEAM", keyID=13238990 : naval blacklists apply, accepted, ID = 7.
+Team creation request from client 7 received.
+New name for client 7 : LadenBinKezza
+DefconExpanded : Welcome to the 2v2 Christmas Tournament hosted by DefconExpanded! Tournament organisers are KezzaMcFezza and Vault Tec.
+DefconExpanded : After December 26th the top 8 people will compete in the semi finals and the finals! Infinite pause is enabled for this server.
+DefconExpanded : Which will be available for viewing and download on...
+DefconExpanded : www.defconexpanded.com
+client 7 (LadenBinKezza) disconnected.
