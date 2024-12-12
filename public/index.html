@@ -2,11 +2,13 @@
 <html lang="en" class="hide-scrollbar">
 <head>
     <link rel="stylesheet" type="text/css" href="/newmain.css" />
+    <link rel="stylesheet" type="text/css" href="/games-page.css"/>
     <link rel="stylesheet" type="text/css" href="/scaling.css" />
     <link rel="stylesheet" type="text/css" href="/modlist.css" />
     <link rel="stylesheet" type="text/css" href="/admin.css" />
     <script src="/script.js" defer></script>
     <script src="/demos.js" defer></script>
+    <script src="/sortingsystem.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DEFCON Expanded</title>
@@ -80,63 +82,6 @@
       .fa-cog {
         margin-right: 5px;
       }
-      .territory-map-container {
-        position: relative;
-        width: 100%; /* Adjust based on your demo card width */
-        height: auto;
-    }
-    
-    .base-map {
-        width: 100%; /* Ensure the base map fits in the container */
-        position: relative;
-        z-index: 1;
-        border-radius: 10px;
-    }
-    
-    .territory-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%; /* Match the size of the base map */
-        z-index: 2;
-        opacity: 0.7; /* Optional: make the overlay slightly transparent */
-    }
-
-    .filter-container {
-      display: flex;
-      align-items: center;
-  }
-  
-  #sort-select {
-    margin: 0px !important;
-    padding: 0.35rem !important;
-  }
-  .server-select {
-    background-color: #0067b8;
-    color: #fff;
-    border: none;
-    padding: 0.35rem;
-    border-radius: 5px;
-    font-family: 'Orbitron', sans-serif;
-    cursor: pointer;
-    width: 30%;
-  }
-
-  .demo-heading {
-    display: flex;
-    justify-content: center;
-  }
-
-  .sorting-main-div {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 20px;
-  }
-
-  .sort-container {
-    margin-bottom: 0px !important;
-  }
 
     </style>
 </head>
@@ -223,67 +168,221 @@
             </div>
         </nav>
     </header>
-            <section class="recent-games">
-              <div class="demo-heading">
-              <label class="demo-label">Demos and Match History</label>
-              </div>
-                <div class="games-played" id="games-played">Total Games Played: 0</div>
-                <br>
-                <br class="mobile-break">
-                <div class="tired-of-divs">
-                <div class="demo-content-container">
-                  <div class="filter-container">
+    <div class="main-demo-page-content">
+    <div class="demo-page-content">
+      <div class="demo-heading">
+        <label class="demo-label">Defcon Recordings</label>
+      </div>
+      <div class="games-played" id="games-played">Total Games Played: 0</div>
+      <br>
+      <div class="sort-search-system">
+        <div class="top-filter-bar">
+          <div class="primary-filters">
+            <div class="normal-sort-options">
+              <div class="server-and-latestdownload">
+            <div class="sort-container">
+              <select id="sort-select">
+                <option value="latest" selected>Latest</option>
+                <option value="most-downloaded">Most Downloaded</option>
+              </select>
+            </div>
 
-                    <div class="search-container2">
-                      <input type="text" id="player-search-input" placeholder="Search players...">
-                      <button id="search-button2">Search</button>
-                    </div>
-                    <div class="sorting-main-div">
-                    <select id="server-filter" class="server-select">
-                      <option value="">All Servers</option>
-                      <option value="New Player Server">New Player Server</option>
-                      <option value="New Player Server - Training Game">New Player Server - Training Game</option>
-                      <option value="DefconExpanded | 1v1 | Totally Random">DefconExpanded | 1v1 | Totally Random</option>
-                      <option value="DefconExpanded | 1V1 | Best Setups Only!">DefconExpanded | 1V1 | Best Setups Only!</option>
-                      <option value="DefconExpanded | 1v1 | AF vs AS | Totally Random">DefconExpanded | 1v1 | AF vs AS | Totally Random</option>
-                      <option value="DefconExpanded | 1v1 | EU vs SA | Totally Random">DefconExpanded | 1v1 | EU vs SA | Totally Random</option>
-                      <option value="DefconExpanded | 1v1 | Default">DefconExpanded | 1v1 | Default</option>
-                      <option value="DefconExpanded | 2v2 | Totally Random">DefconExpanded | 2v2 | Totally Random</option>
-                      <option value="DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random">DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random</option>
-                      <option value="Mojo's 2v2 Arena - Quick Victory">Mojo's 2v2 Arena - Quick Victory</option>
-                      <option value="DefconExpanded | 3v3 | Totally Random">DefconExpanded | 3v3 | Totally Random</option>
-                      <option value="509 CG | 1v1 | Totally Random | 2.8.14.1">509 CG | 1v1 | Totally Random</option>
-                      <option value="509 CG | 2v2 | Totally Random | 2.8.14.1">509 CG | 2v2 | Totally Random</option>
-                      <option value="DefconExpanded | Free For All | Random Cities">DefconExpanded | Free For All | Random Cities</option>
-                      <option value="DefconExpanded | 8 Player | Diplomacy">DefconExpanded | 8 Player | Diplomacy</option>
-                      <option value="DefconExpanded | 4V4 | Totally Random">DefconExpanded | 4V4 | Totally Random</option>
-                      <option value="DefconExpanded | 10 Player | Diplomacy">DefconExpanded | 10 Player | Diplomacy</option>
-                      <option value="DefconExpanded | 16 Player | Test Server">DefconExpanded | 16 Player | Test Server</option>
-                  </select>
-                
-                    <div class="sort-container">
-                      <select id="sort-select">
-                        <option value="latest" selected>Latest</option>
-                        <option value="most-downloaded">Most Downloaded</option>
-                      </select>
-                    </div>
+            <select id="server-filter" class="server-select">
+              <option value="">All Servers</option>
+              <option value="New Player Server">New Player Server</option>
+              <option value="New Player Server - Training Game">New Player Server - Training Game</option>
+              <option value="DefconExpanded | 1v1 | Totally Random">DefconExpanded | 1v1 | Totally Random</option>
+              <option value="DefconExpanded | 1V1 | Best Setups Only!">DefconExpanded | 1V1 | Best Setups Only!</option>
+              <option value="DefconExpanded | 1v1 | AF vs AS | Totally Random">DefconExpanded | 1v1 | AF vs AS | Totally Random</option>
+              <option value="DefconExpanded | 1v1 | EU vs SA | Totally Random">DefconExpanded | 1v1 | EU vs SA | Totally Random</option>
+              <option value="DefconExpanded | 1v1 | Default">DefconExpanded | 1v1 | Default</option>
+              <option value="DefconExpanded | 2v2 | Totally Random">DefconExpanded | 2v2 | Totally Random</option>
+              <option value="2v2 Tournament">2v2 Tournament</option>
+              <option value="DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random">DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random</option>
+              <option value="Mojo's 2v2 Arena - Quick Victory">Mojo's 2v2 Arena - Quick Victory</option>
+              <option value="Sony and Hoov's Hideout">Sony and Hoov's Hideout</option>
+              <option value="DefconExpanded | 3v3 | Totally Random">DefconExpanded | 3v3 | Totally Random</option>
+              <option value="MURICON | 1v1 Default | 2.8.15">MURICON | 1v1 | Default</option>
+              <optgroup label="509 CG | 1v1, 2v2 | Totally Random">
+                <option value="509 CG | 2v2 | Totally Random | 2.8.15">509 CG | 2v2 | Totally Random | 2.8.15</option>
+                <option value="509 CG | 2v2 | Totally Random | 2.8.14.1">509 CG | 2v2 | Totally Random | 2.8.14.1</option>
+                <option value="509 CG | 1v1 | Totally Random | 2.8.15">509 CG | 1v1 | Totally Random | 2.8.15</option>
+                <option value="509 CG | 1v1 | Totally Random | 2.8.14.1">509 CG | 1v1 | Totally Random | 2.8.14.1</option>
+              </optgroup>
+              <option value="DefconExpanded | Free For All | Random Cities">DefconExpanded | Free For All | Random Cities</option>
+              <option value="DefconExpanded | 8 Player | Diplomacy">DefconExpanded | 8 Player | Diplomacy</option>
+              <option value="DefconExpanded | 4V4 | Totally Random">DefconExpanded | 4V4 | Totally Random</option>
+              <option value="DefconExpanded | 10 Player | Diplomacy">DefconExpanded | 10 Player | Diplomacy</option>
+              <option value="DefconExpanded | 16 Player | Test Server">DefconExpanded | 16 Player | Test Server</option>
+            </select>
+          </div>
+
+            <div class="advanced-filters-div">
+              <button class="advanced-filters-toggle" id="advancedFiltersToggle">
+                <span class="toggle-text">Advanced Filters</span>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+              </button>
+            </div>
+           </div>
+          </div>
+         </div>
+      
+        <div class="advanced-filters" id="advancedFilters">
+          <div class="filter-section territory-filter">
+            <div class="territory-main">
+            <h3 class="filter-title">Territory Filter</h3>
+            <div class="territory-item">
+              <input type="checkbox" id="combine" class="combine-territory-checkbox">
+              <label for="combine">Combine Territories</label>
+            </div>
+            <div class="territory-split">
+            <div class="territory-grid">
+              <div class="territory-item">
+                <input type="checkbox" id="na" class="territory-checkbox">
+                <label for="na">North America</label>
+              </div>
+              <div class="territory-item">
+                <input type="checkbox" id="sa" class="territory-checkbox">
+                <label for="sa">South America</label>
+              </div>
+              <div class="territory-item">
+                <input type="checkbox" id="eu" class="territory-checkbox">
+                <label for="eu">Europe</label>
+              </div>
+              <div class="territory-item">
+                <input type="checkbox" id="ru" class="territory-checkbox">
+                <label for="ru">Russia</label>
+              </div>
+              <div class="territory-item">
+                <input type="checkbox" id="af" class="territory-checkbox">
+                <label for="af">Africa</label>
+              </div>
+              <div class="territory-item">
+                <input type="checkbox" id="as" class="territory-checkbox">
+                <label for="as">Asia</label>
+              </div>
+            </div>
+            <div class="territory-grid" style="margin-left: 20px;">
+              <div class="territory-item">
+                <input type="checkbox" id="au" class="territory-checkbox">
+                <label for="au">Australia</label>
+              </div>
+              <div class="territory-item">
+                <input type="checkbox" id="we" class="territory-checkbox">
+                <label for="we">West Asia</label>
+              </div>
+              <div class="territory-item">
+                <input type="checkbox" id="ea" class="territory-checkbox">
+                <label for="ea">East Asia</label>
+              </div>
+              <div class="territory-item">
+                <input type="checkbox" id="ant" class="territory-checkbox">
+                <label for="ant">Antartica</label>
+              </div>
+              <div class="territory-item">
+                <input type="checkbox" id="naf" class="territory-checkbox">
+                <label for="naf">North Africa</label>
+              </div>
+              <div class="territory-item">
+                <input type="checkbox" id="saf" class="territory-checkbox">
+                <label for="saf">South Africa</label>
+              </div>
+            </div>
+          </div>
+        </div>
+            <div class="time-filter" style="margin-left: 20px;">
+              <h3 class="filter-title">Date Range</h3>
+              <div class="time-filter-container">
+                <div class="duration-filter">
+                </div>
+                <div class="date-filter">
+                  <div class="date-range">
+                    <input type="date" class="date-input" placeholder="Start Date">
+                    <span class="date-separator">to</span>
+                    <input type="date" class="date-input" placeholder="End Date">
                   </div>
                 </div>
-              </div>
-                
-                <div id="demo-container" class="demo-container">
-                </div>
-                
-                <div class="pagination" id="pagination">
-                </div>
-            </section>
-        </main>
+          </div>
+          <div class="extra-filters">
+            <h3 class="filter-title">Extra Filters</h3>
+            <select class="score-filter" style="margin-bottom: 5px;">
+              <option value="">Score Filter</option>
+              <option value="highest">Highest Scores</option>
+              <option value="lowest">Lowest Scores</option>
+            </select>
+            <select class="duration-select" style="margin-bottom: 5px;">
+              <option value="">Game Duration</option>
+              <option value="longest">Longest Games</option>
+              <option value="shortest">Shortest Games</option>
+            </select>
+            <div class="score-div">
+            <select class="score-difference-select" style="margin-bottom: 5px;">
+              <option value="">Score Difference</option>
+              <option value="largest">Largest Differences</option>
+              <option value="smallest">Smallest Differences</option>
+            </select>
+            </div>
+          </div>
+        </div>
+        <div class="anotherdivagain">
+        <div class="player-filter">
+          <h3 class="filter-title">Player Combination Search</h3>
+          <div class="player-search-container">
+            <input type="text" placeholder="Player 1" class="player-input">
+            <input type="text" placeholder="Player 2" class="player-input">
+          </div>
+        </div>
+        <h3 class="filter-title">Player Search</h3>
+        <div class="search-container2">
+          <input type="text" id="player-search-input" placeholder="Search players...">
+          <button id="search-button2">Search</button>
+        </div>
+      </div>
+      <div class="active-players-sort">
+        <h3 class="filter-title">Games played</h3>
+        <p class="pabout2" style="margin: 0; text-align: left;">Filter by how many games <br class="mobile-break">a player has played</p>
+        <select class="games-played-filter" style="margin-top: 10px;">
+          <option value="">Games Played</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+          <option value="25">25</option>
+          <option value="30">30</option>
+          <option value="40">40</option>
+          <option value="50">50</option>
+        </select>
     </div>
   </div>
-<br>
-<br>
-    <script>
+  <div class="filter-buttons">
+    <button class="apply-filters-btn">Apply Filters</button>
+    <button class="reset-filters-btn">Reset Filters</button>
+  </div>
+ </div>
+</div>
+    <div id="demo-container" class="demo-container"></div>
+      
+    <div class="pagination" id="pagination"></div>
 
+     </div>
+    </div>
+   </main>
+  </div>
+ </div>
+<br>
+<br>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const toggleButton = document.getElementById('advancedFiltersToggle');
+      const advancedFilters = document.getElementById('advancedFilters');
+      const toggleText = toggleButton.querySelector('.toggle-text');
+      
+      toggleButton.addEventListener('click', function() {
+          advancedFilters.classList.toggle('show');
+          toggleButton.classList.toggle('active');
+          
+      });
+  });
   </script>
 </body>
 </html>

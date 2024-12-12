@@ -1,7 +1,6 @@
 ﻿const express = require('express');
 const router = express.Router();
 const mysql = require('mysql2/promise');
-const queryTimeout = 5000; 
 const path = require('path');
 const fs = require('fs');
 const fsPromises = require('fs').promises;
@@ -1878,9 +1877,23 @@ app.get('/api/all-demos', authenticateToken, checkRole(5), async (req, res) => {
   }
 });
 
-// this is for the demo search function, grabs the players from the database from the query
+// this is the api that makes it happen, half of this stuff i have no idea how it works i got chatgpt to help me out heaps with the mysql queries
 app.get('/api/demos', async (req, res) => {
-  const { page = 1, sortBy = 'latest', playerName, serverName } = req.query;
+  const { 
+    page = 1, 
+    sortBy = 'latest',
+    playerName,
+    serverName,
+    territories,
+    players,
+    scoreFilter,
+    gameDuration,
+    scoreDifference,
+    startDate,
+    endDate,
+    gamesPlayed
+  } = req.query;
+
   const limit = 9;
   const offset = (page - 1) * limit;
 
@@ -1898,13 +1911,90 @@ app.get('/api/demos', async (req, res) => {
     }
 
     if (serverName) {
-      if (params.length > 0) {
-        conditions.push('LOWER(game_type) = LOWER(?)');
-        params.push(serverName);
+      conditions.push('LOWER(game_type) = LOWER(?)');
+      params.push(serverName);
+    }
+
+    if (territories) {
+      const territoryList = territories.split(',');
+      const combineMode = req.query.combineMode === 'true';
+      
+      if (combineMode) {
+          const territoryChecks = territoryList.map(territory => 
+              `players LIKE ?`
+          ).join(' AND ');
+          
+          conditions.push(`(
+              (${territoryChecks})
+              AND
+              JSON_LENGTH(JSON_EXTRACT(players, '$.players')) = ?
+          )`);
+          
+          territoryList.forEach(territory => {
+              params.push(`%"territory":"${territory}"%`);
+          });
+          
+          params.push(territoryList.length);
       } else {
-        conditions.push('LOWER(game_type) = LOWER(?)');
-        params = [serverName];
+          const territoryConditions = territoryList.map(() => 
+              `players LIKE ?`
+          );
+          conditions.push(`(${territoryConditions.join(' OR ')})`);
+          territoryList.forEach(territory => {
+              params.push(`%"territory":"${territory}"%`);
+          });
       }
+    }
+
+    if (players) {
+      const playerList = players.split(',').filter(p => p.trim());
+      if (playerList.length > 0) {
+        playerList.forEach(player => {
+          conditions.push(
+            `(player1_name LIKE ? OR player2_name LIKE ? OR player3_name LIKE ? OR player4_name LIKE ?
+              OR player5_name LIKE ? OR player6_name LIKE ? OR player7_name LIKE ? OR player8_name LIKE ?
+              OR player9_name LIKE ? OR player10_name LIKE ?)`
+          );
+          params.push(...Array(10).fill(`%${player}%`));
+        });
+      }
+    }
+
+    if (gamesPlayed) {
+      const minGames = parseInt(gamesPlayed);
+      const playerColumns = ['player1_name', 'player2_name', 'player3_name', 'player4_name',
+                           'player5_name', 'player6_name', 'player7_name', 'player8_name',
+                           'player9_name', 'player10_name'];
+      
+      const gameCountSubqueries = playerColumns.map(col => `
+        AND (${col} IS NULL OR ${col} IN (
+          SELECT player_name 
+          FROM (
+            SELECT COALESCE(player1_name, player2_name, player3_name, 
+                          player4_name, player5_name, player6_name,
+                          player7_name, player8_name, player9_name, 
+                          player10_name) as player_name,
+                   COUNT(*) as game_count
+            FROM demos
+            GROUP BY player_name
+            HAVING game_count >= ?
+          ) as frequent_players
+        ))
+      `);
+      
+      conditions.push(`1=1 ${gameCountSubqueries.join(' ')}`);
+      params.push(...Array(playerColumns.length).fill(minGames));
+    }
+
+    if (startDate && endDate) {
+      conditions.push('date BETWEEN ? AND ?');
+      params.push(startDate, endDate);
+    } else if (startDate) {
+      conditions.push('date >= ?');
+      params.push(startDate);
+    } else if (endDate) {
+      conditions.push('date <= ?');
+      params.push(endDate);
     }
 
     if (conditions.length > 0) {
@@ -1912,19 +2002,87 @@ app.get('/api/demos', async (req, res) => {
       countQuery += ' WHERE ' + conditions.join(' AND ');
     }
 
-    if (sortBy === 'most-downloaded') {
-      query += ' ORDER BY download_count DESC';
+    let demos;
+    let totalDemos;
+    let totalPages;
+
+    if (scoreDifference) {
+      const [allDemosWithDiffs] = await pool.query(query + ' ORDER BY date DESC', params);
+      const processedDemos = allDemosWithDiffs.map(demo => {
+        let groupScores = {};
+        
+        try {
+          let parsedPlayers = [];
+          if (demo.players) {
+            const playerData = JSON.parse(demo.players);
+            parsedPlayers = playerData.players || playerData;
+            
+            const usingAlliances = parsedPlayers.some(player => player.alliance !== undefined);
+            
+            parsedPlayers.forEach(player => {
+              const groupId = usingAlliances ? player.alliance : player.team;
+              if (!groupScores[groupId]) {
+                groupScores[groupId] = 0;
+              }
+              groupScores[groupId] += player.score || 0;
+            });
+          }
+          
+          const scores = Object.values(groupScores);
+          const scoreDiff = scores.length >= 2 ? 
+            Math.abs(Math.max(...scores) - Math.min(...scores)) : 0;
+            
+          return {
+            ...demo,
+            scoreDiff
+          };
+          
+        } catch (error) {
+          console.error('Error calculating score difference:', error);
+          return {
+            ...demo,
+            scoreDiff: 0
+          };
+        }
+      });
+      
+      processedDemos.sort((a, b) => {
+        return scoreDifference === 'largest' ? 
+          b.scoreDiff - a.scoreDiff : 
+          a.scoreDiff - b.scoreDiff;
+      });
+      
+      const start = offset;
+      const end = offset + limit;
+      demos = processedDemos.slice(start, end);
+      totalDemos = processedDemos.length;
+      totalPages = Math.ceil(totalDemos / limit);
+      
     } else {
-      query += ' ORDER BY date DESC';
+      if (scoreFilter) {
+        query += ` ORDER BY GREATEST(
+          COALESCE(player1_score, 0), COALESCE(player2_score, 0),
+          COALESCE(player3_score, 0), COALESCE(player4_score, 0),
+          COALESCE(player5_score, 0), COALESCE(player6_score, 0),
+          COALESCE(player7_score, 0), COALESCE(player8_score, 0),
+          COALESCE(player9_score, 0), COALESCE(player10_score, 0)
+        ) ${scoreFilter === 'highest' ? 'DESC' : 'ASC'}`;
+      } else if (gameDuration) {
+        query += ` ORDER BY TIME_TO_SEC(duration) ${gameDuration === 'longest' ? 'DESC' : 'ASC'}`;
+      } else {
+        query += ` ORDER BY ${sortBy === 'most-downloaded' ? 'download_count DESC' : 'date DESC'}`;
+      }
+
+      query += ' LIMIT ? OFFSET ?';
+      params.push(limit, offset);
+
+      const [fetchedDemos] = await pool.query(query, params);
+      const [countResult] = await pool.query(countQuery, params.slice(0, -2));
+      
+      demos = fetchedDemos;
+      totalDemos = countResult[0].total;
+      totalPages = Math.ceil(totalDemos / limit);
     }
-
-    query += ' LIMIT ? OFFSET ?';
-    params.push(limit, offset);
-
-    const [demos] = await pool.query(query, params);
-    const [countResult] = await pool.query(countQuery, params.slice(0, -2));
-    const totalDemos = countResult[0].total;
-    const totalPages = Math.ceil(totalDemos / limit);
 
     const updatedDemos = await Promise.all(demos.map(async (demo) => {
       let gameData = { players: [], spectators: [] };
@@ -1947,7 +2105,6 @@ app.get('/api/demos', async (req, res) => {
         gameData = { players: [], spectators: [] };
       }
 
-      // Add profile URLs for players
       const players = ['player1_name', 'player2_name', 'player3_name', 'player4_name', 
                       'player5_name', 'player6_name', 'player7_name', 'player8_name', 
                       'player9_name', 'player10_name'];
@@ -1974,7 +2131,7 @@ app.get('/api/demos', async (req, res) => {
       };
     }));
 
-    res.json({
+    res.json({ 
       demos: updatedDemos,
       currentPage: parseInt(page),
       totalPages,

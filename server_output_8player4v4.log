@@ -2434,143 +2434,586 @@ RandomTerritories = 1
 CityPopulations = 3
 CitiesPerTerritory = 30
 PopulationPerTerritory = 150
-Listening on port 5012.
-ServerPort = 5012
+Listening on port 5017.
+ServerPort = 5017
 Metaserver IP: 34.197.189.80
-ServerLANIP = 26.102.130.209
-Public server info: 90.250.167.19:5012
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
 Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
 Server key authentication succeeded, key id = 369211.
-OutFile = server_output_8player4v4.log
-PlayerLog = player_scores_8player4v4.log
-AdvertisePlayers = 16
-MaxSpectators = 30
-UnitBuffer = 5
-CityBuffer = 2
-FirstStrikeBonus = 15
-GhostProtection = 1
-IdleTimeGlobal = 600
-SlowBudgetStart = 1200
-SlowBudgetMax = 1200
-DropCourtesy = -1
-KickVoteMin = 2
-MinTeams = 1
-MaxTeams = 16
-ReadyVoteDelay = 90
-RandomTerritories = 1
-CityPopulations = 3
-CitiesPerTerritory = 30
-PopulationPerTerritory = 150
-Listening on port 5010.
-Metaserver IP: 34.197.189.80
-ServerLANIP = 26.102.130.209
-Public server info: 90.250.167.19:5010
-Demo limits received. MaxGameSize = 16, MaxDemoPlayers = 1, AllowServers = yes.
-Server key authentication succeeded, key id = 369211.
-OutFile = server_output_8player4v4.log
-PlayerLog = player_scores_8player4v4.log
-AdvertisePlayers = 16
-MaxSpectators = 30
-UnitBuffer = 5
-CityBuffer = 2
-FirstStrikeBonus = 15
-GhostProtection = 1
-IdleTimeGlobal = 600
-SlowBudgetStart = 1200
-SlowBudgetMax = 1200
-DropCourtesy = -1
-KickVoteMin = 2
-MinTeams = 1
-MaxTeams = 16
-ReadyVoteDelay = 90
-RandomTerritories = 1
-CityPopulations = 3
-CitiesPerTerritory = 30
-PopulationPerTerritory = 150
-Listening on port 5010.
-Metaserver IP: 34.197.189.80
-ServerLANIP = 26.102.130.209
-Demo limits received. MaxGameSize = 16, MaxDemoPlayers = 1, AllowServers = yes.
-Public server info: 90.250.167.19:5010
-Server key authentication succeeded, key id = 369211.
-OutFile = server_output_8player4v4.log
-PlayerLog = player_scores_8player4v4.log
-AdvertisePlayers = 16
-MaxSpectators = 30
-UnitBuffer = 5
-CityBuffer = 2
-FirstStrikeBonus = 15
-GhostProtection = 1
-IdleTimeGlobal = 600
-SlowBudgetStart = 1200
-SlowBudgetMax = 1200
-DropCourtesy = -1
-KickVoteMin = 2
-MinTeams = 1
-MaxTeams = 16
-ReadyVoteDelay = 90
-RandomTerritories = 1
-CityPopulations = 3
-CitiesPerTerritory = 30
-PopulationPerTerritory = 150
-Listening on port 5010.
-Metaserver IP: 34.197.189.80
-ServerLANIP = 26.102.130.209
-Public server info: 90.250.167.19:5010
-Demo limits received. MaxGameSize = 16, MaxDemoPlayers = 1, AllowServers = yes.
-Server key authentication succeeded, key id = 369211.
-Login request from 26.102.130.209:50132, version="1.60.1.5 MINICOM", keyID=13194428 : naval blacklists apply, accepted, ID = 17.
-Team creation request from client 17 received.
-New name for client 17 : LadenBinKezza
+Login request from 78.96.143.126:5011, version="1.60.1.5 MINICOM", keyID=13227621 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : Mojo
 DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
 DefconExpanded : The games will be available on...
 DefconExpanded : www.defconexpanded.com
-client 17 (LadenBinKezza) : /login dancefloor
-DefconExpanded : client 17 (LadenBinKezza) has been logged in as owner.
-client 17 (LadenBinKezza) : /set addcpu Stalin
-client 17 (LadenBinKezza) : /set removecpus
+client 9 (Mojo) disconnected.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+Login request from 78.96.143.126:5011, version="1.60.1.5 MINICOM", keyID=13227621 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : Locutus
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+Login request from 98.122.186.54:5011, version="1.60.1.5 MINICOM", keyID=425333 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : NewPlayer
+New name for client 10 (NewPlayer) : Luke Streetwalker
+client 10 (Luke Streetwalker) : hi
+client 10 (Luke Streetwalker) : may the farce be with you 
+DefconExpanded : [private] Not enough players online yet. 6 are required.
+client 9 (Locutus) : hey
+client 9 (Locutus) : what farce?
+client 9 (Locutus) : I'm Locutus of Borg
+client 10 (Luke Streetwalker) : The borg never heard of you 
+client 10 (Luke Streetwalker) : these are not the droids you are looking for 
+Login request from 173.79.170.129:5011, version="1.60.1.5 MINICOM", keyID=13210377 : naval blacklists apply, accepted, ID = 11.
+Team creation request from client 11 received.
+New name for client 11 : Sievert
+Login request from 86.179.84.2:5011, version="1.60.1.5 MINICOM", keyID=13196164 : naval blacklists apply, accepted, ID = 12.
+Team creation request from client 12 received.
+New name for client 12 : Jackolite
+Login request from 67.191.97.64:5011, version="1.60.1.5 MINICOM", keyID=13215723 : naval blacklists apply, accepted, ID = 13.
+Team creation request from client 13 received.
+New name for client 13 : Corporation
+Login request from 90.250.167.19:5011, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 14.
+Team creation request from client 14 received.
+New name for client 14 : LadenBinKezza
+client 14 (LadenBinKezza) : /login dancefloor
+DefconExpanded : client 14 (LadenBinKezza) has been logged in as owner.
+Login request from 88.90.186.172:54421, version="1.60.1.5 MINICOM", keyID=13213071 : denied, duplicate key.
+client 14 (LadenBinKezza) : /set say hello bellends
+DefconExpanded : hello bellends
+Login request from 88.90.186.172:54421, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 15.
+Team creation request from client 15 ([DEMO]) received.
+New name for client 15 ([DEMO]) : LadenBinKezza_2
+client 15 ([DEMO]LadenBinKezza_2) : im haakon why is my name laden
+client 15 ([DEMO]LadenBinKezza_2) : LMAO
+client 14 (LadenBinKezza) : cus i sent you my whole defcon folder
+client 14 (LadenBinKezza) : to save boomer moments
+client 15 ([DEMO]LadenBinKezza_2) : okay
+client 15 ([DEMO]LadenBinKezza_2) : im demo though is that okay
+client 11 (Sievert) : you need to copy your preferences and authkey in
+client 11 (Sievert) : but for now its fine
+client 11 (Sievert) : just rename yourself
+New name for client 15 ([DEMO]LadenBinKezza_2) : Haakon
+client 15 ([DEMO]Haakon) : This is diplo or 4v4?
+client 14 (LadenBinKezza) : /kickid haakon
+client 9 (Locutus) kicked.
+Login request from 78.96.143.126:5011, version="1.60.1.5 MINICOM", keyID=13227621 : naval blacklists apply, accepted, ID = 16.
+client 11 (Sievert) : heck
+client 11 (Sievert) : he left
+Team creation request from client 16 (Locutus) received.
+client 12 (Jackolite) : 4v4 i hope
+client 11 (Sievert) : oh hes back
+client 14 (LadenBinKezza) : yes
+client 16 (Locutus) : Why kick?
+client 11 (Sievert) : who are u locutus
+client 14 (LadenBinKezza) : i done kickid haakon lol
+client 16 (Locutus) : The one who will assimilate you
+client 14 (LadenBinKezza) : and for some reason it kicked you
+client 11 (Sievert) : are u in the defcon discord
+client 11 (Sievert) : you gotta be to get the game aler lol
+client 16 (Locutus) : Yes
+client 11 (Sievert) : kk
+New name for client 16 (Locutus) : Mojo
+client 14 (LadenBinKezza) : right
+client 14 (LadenBinKezza) : thats it
+client 14 (LadenBinKezza) : time to get perma banned
+client 14 (LadenBinKezza) : :)
+client 11 (Sievert) : kek
+client 14 (LadenBinKezza) : /op mojo
+DefconExpanded : [private] No client with name containing mojo found, check for typos or use /op  id instead.
+client 14 (LadenBinKezza) : /set victorymode 1
+VictoryMode = 1
+client 16 (Mojo) : What mode de we play?
+client 14 (LadenBinKezza) : 4v4
+client 16 (Mojo) : k
+client 16 (Mojo) : I watched last diplomacy game
+client 16 (Mojo) : you got kicked first :))
+client 14 (LadenBinKezza) : :D
+client 14 (LadenBinKezza) : was funny
+client 16 (Mojo) : Hmm
+Login request from 108.66.2.73:5011, version="1.60.1.5 MINICOM", keyID=13197076 : naval blacklists apply, accepted, ID = 17.
+client 16 (Mojo) : Who won?
+Login request from 108.66.2.73:24796, version="1.60.1.5 MINICOM", keyID=13199506 : naval blacklists apply, accepted, ID = 18.
+Team creation request from client 17 received.
+New name for client 17 : FasterThanRaito
+Team creation request from client 18 received.
+New name for client 18 : LawlietAmbiance
+client 12 (Jackolite) is ready to play.
+client 14 (LadenBinKezza) : /set alliancesize 0
+AllianceSize = 0
 All players unreadied.
-client 17 (LadenBinKezza) : /set fillcpus
-DefconExpanded : [private] config option fillcpus invalid.
-client 17 (LadenBinKezza) : /set fillcpu
-DefconExpanded : [private] config option fillcpu invalid.
-client 17 (LadenBinKezza) : /set fillwithcpus
-All players unreadied.
-client 17 (LadenBinKezza) left to spectator mode.
-client 17 (LadenBinKezza) : /set addcpu Him
-client 17 (LadenBinKezza) : /set readyup
-DefconExpanded : [private] config option readyup invalid.
-client 17 (LadenBinKezza) : /set removecpus
-client 17 (LadenBinKezza) : /set fillwithcpus
-client 17 (LadenBinKezza) : /set removecpus
-Team creation request from client 17 (LadenBinKezza) received.
-client 17 (LadenBinKezza) : /set fillwithcpus
-client 17 (LadenBinKezza) is ready to play.
+client 12 (Jackolite) is ready to play.
+client 12 (Jackolite) is no longer ready to play.
+client 17 (FasterThanRaito) : /login dancefloor
+DefconExpanded : client 17 (FasterThanRaito) has been logged in as admin.
+client 11 (Sievert) is ready to play.
+client 11 (Sievert) is no longer ready to play.
+client 17 (FasterThanRaito) : /set ghostprotection 0
+GhostProtection = 0
+client 16 (Mojo) : Why is Haakon demo account?
+client 17 (FasterThanRaito) : /set slowestspeed 0
+SlowestSpeed = 0
+client 14 (LadenBinKezza) : dont worry about it
+client 11 (Sievert) : he copied kezza's folder and so he used his authkey
+client 12 (Jackolite) is ready to play.
+client 11 (Sievert) is ready to play.
+client 16 (Mojo) is ready to play.
+client 14 (LadenBinKezza) is ready to play.
+client 15 ([DEMO]Haakon) is ready to play.
+client 17 (FasterThanRaito) is ready to play.
+client 10 (Luke Streetwalker) is ready to play.
+client 14 (LadenBinKezza) is no longer ready to play.
+client 11 (Sievert) is no longer ready to play.
+client 14 (LadenBinKezza) is ready to play.
+client 13 (Corporation) is ready to play.
+client 11 (Sievert) is ready to play.
 Countdown started.
 Game started. Players:
-Team 0 : client 17 (LadenBinKezza), keyID = 13194428
-Random seed: 314 (0x13a)
+Team 7 : client 17 (FasterThanRaito), keyID = 13197076
+Team 0 : client 16 (Mojo), keyID = 13227621
+Team 6 : client 15 ([DEMO]Haakon), keyID = DEMO
+Team 5 : client 14 (LadenBinKezza), keyID = 13213071
+Team 4 : client 13 (Corporation), keyID = 13215723
+Team 3 : client 12 (Jackolite), keyID = 13196164
+Team 2 : client 11 (Sievert), keyID = 13210377
+Team 1 : client 10 (Luke Streetwalker), keyID = 425333
+Random seed: 1107 (0x453)
 DefconExpanded : Attention there will be a stringent slowdown budget. You can recharge it by setting your speed to x10 or x20
 DefconExpanded : Team Defection will be Disabled at DEFCON 3
 SpectatorChatChannel = 0
-client 17 (LadenBinKezza) requests a speed factor of 20.
+client 14 (LadenBinKezza) requests a speed factor of 1.
+client 12 (Jackolite) requests a speed factor of 1.
+client 12 (Jackolite) requests a speed factor of 1.
+client 14 (LadenBinKezza) requests a speed factor of 0.
+client 12 (Jackolite) requests a speed factor of 5.
+client 12 (Jackolite) requests a speed factor of 5.
+client 14 (LadenBinKezza) requests a speed factor of 1.
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 14 (LadenBinKezza) requests a speed factor of 1.
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 11 (Sievert) requests a speed factor of 1.
+client 17 (FasterThanRaito) requests a speed factor of 1.
+client 14 (LadenBinKezza) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 17 (FasterThanRaito) requests a speed factor of 1.
+client 16 (Mojo) went out of sync.
+DefconExpanded : [private] You have fallen out of sync with the other players.
+client 17 (FasterThanRaito) set to a speed factor of 0.
+client 16 (Mojo) set to a speed factor of 0.
+client 15 ([DEMO]Haakon) set to a speed factor of 0.
+client 14 (LadenBinKezza) set to a speed factor of 0.
+client 13 (Corporation) set to a speed factor of 0.
+client 12 (Jackolite) set to a speed factor of 0.
+client 11 (Sievert) set to a speed factor of 0.
+client 10 (Luke Streetwalker) set to a speed factor of 0.
+DefconExpanded : A player has technical problems, slowing everyone down.
+client 16 (Mojo) is back in sync.
+client 16 (Mojo) : /me saved a screenshot
+client 10 (Luke Streetwalker) : /ping
+DefconExpanded : [private] client 18 (LawlietAmbiance) : 187, pl = 0
+DefconExpanded : [private] client 17 (FasterThanRaito) : 182, pl = 1
+DefconExpanded : [private] client 16 (Mojo) : 34, pl = 0
+DefconExpanded : [private] client 15 ([DEMO]Haakon) : 51, pl = 0
+DefconExpanded : [private] client 14 (LadenBinKezza) : 47, pl = 0
+DefconExpanded : [private] client 13 (Corporation) : 126, pl = 0
+DefconExpanded : [private] client 12 (Jackolite) : 62, pl = 0
+DefconExpanded : [private] client 11 (Sievert) : 129, pl = 0
+DefconExpanded : [private] client 10 (Luke Streetwalker) : 137, pl = 0
+client 12 (Jackolite) requests a speed factor of 5.
+client 12 (Jackolite) requests a speed factor of 5.
+client 10 (Luke Streetwalker) requests a speed factor of 1.
+client 17 (FasterThanRaito) requests a speed factor of 5.
+client 17 (FasterThanRaito) requests a speed factor of 5.
+client 11 (Sievert) requests a speed factor of 1.
+client 17 (FasterThanRaito) : unpause?
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 14 (LadenBinKezza) : who is having issues
+client 14 (LadenBinKezza) requests a speed factor of 1.
+client 12 (Jackolite) : mental?
+client 16 (Mojo) : epic crap
+client 11 (Sievert) : mojo i think he desynced briefly
+client 12 (Jackolite) : ye that me
+client 16 (Mojo) : rejoined
+client 16 (Mojo) requests a speed factor of 1.
+client 11 (Sievert) requests a speed factor of 1.
+client 11 (Sievert) requests a speed factor of 5.
+client 14 (LadenBinKezza) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 13 (Corporation) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
 PermitDefection = 0
 DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
-client 17 (LadenBinKezza) requests a speed factor of 1.
-client 17 (LadenBinKezza) requests a speed factor of 20.
-client 17 (LadenBinKezza) requests a speed factor of 1.
-client 17 (LadenBinKezza) requests a speed factor of 20.
-DefconExpanded : client 17 (LadenBinKezza) signs the current scores.
-Record = demo_recordings/game8p_2024-11-18-10-46.d8crec
+client 14 (LadenBinKezza) : nice fleet jack
+client 17 (FasterThanRaito) requests a speed factor of 5.
+client 17 (FasterThanRaito) requests a speed factor of 5.
+client 17 (FasterThanRaito) requests a speed factor of 5.
+client 14 (LadenBinKezza) : would be a shame if
+client 14 (LadenBinKezza) : it didnt exist soon
+client 16 (Mojo) requests a speed factor of 20.
+client 12 (Jackolite) requests a speed factor of 5.
+client 12 (Jackolite) requests a speed factor of 5.
+client 12 (Jackolite) requests a speed factor of 1.
+client 12 (Jackolite) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 16 (Mojo) requests a speed factor of 20.
+client 11 (Sievert) : yummy bombers raito
+client 12 (Jackolite) requests a speed factor of 1.
+client 12 (Jackolite) requests a speed factor of 1.
+client 14 (LadenBinKezza) : hmmmm
+client 14 (LadenBinKezza) : yummu bombers jack
+client 12 (Jackolite) :  yes
+client 12 (Jackolite) : not having tight turn is cringe
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 12 (Jackolite) requests a speed factor of 5.
+client 12 (Jackolite) requests a speed factor of 5.
+client 12 (Jackolite) requests a speed factor of 5.
+client 12 (Jackolite) : bruh why did you leave first strike on
+client 11 (Sievert) : just subtract 15 after the game
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 12 (Jackolite) requests a speed factor of 1.
+client 12 (Jackolite) requests a speed factor of 1.
+client 12 (Jackolite) requests a speed factor of 1.
+client 12 (Jackolite) requests a speed factor of 5.
+client 12 (Jackolite) requests a speed factor of 5.
+client 10 (Luke Streetwalker) requests a speed factor of 5.
+client 13 (Corporation) requests a speed factor of 5.
+client 10 (Luke Streetwalker) requests a speed factor of 1.
+client 17 (FasterThanRaito) : /set defectionenabled 0
+DefconExpanded : [private] config option defectionenabled invalid.
+client 14 (LadenBinKezza) : /set say no fucking way
+DefconExpanded : no fucking way
+client 17 (FasterThanRaito) : /set defectionpermitted 0
+DefconExpanded : [private] config option defectionpermitted invalid.
+client 17 (FasterThanRaito) : just making sure defection was turned off
+client 14 (LadenBinKezza) : YES
+client 14 (LadenBinKezza) : FUCK YES
+client 11 (Sievert) : RAITO
+client 11 (Sievert) : HAHAHHAA
+client 17 (FasterThanRaito) : OUCH
+client 11 (Sievert) : RIP 
+client 14 (LadenBinKezza) : YESSHSHSHS
+client 14 (LadenBinKezza) : re?
+client 12 (Jackolite) : nah
+client 12 (Jackolite) : we man it out
+client 11 (Sievert) : goodbye raito
+client 11 (Sievert) : revenge for papua new guinea
+client 12 (Jackolite) : mojo why you launching af
+client 11 (Sievert) : aaaaa nice spoil
+client 11 (Sievert) : hehehe
+client 12 (Jackolite) : at this point im salty tbh
+client 12 (Jackolite) : cuz of miscommunication
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 11 (Sievert) : COME HERE RAITO
+client 11 (Sievert) : YOU PUSSY
+client 11 (Sievert) : WHY ARE YOU RUNNING
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 14 (LadenBinKezza) : speed
+client 14 (LadenBinKezza) : pls
+client 12 (Jackolite) requests a speed factor of 5.
+client 12 (Jackolite) requests a speed factor of 5.
+client 10 (Luke Streetwalker) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 12 (Jackolite) : mojo
+client 12 (Jackolite) : are you trolling
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 11 (Sievert) requests a speed factor of 20.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 17 (FasterThanRaito) requests a speed factor of 1.
+client 17 (FasterThanRaito) requests a speed factor of 1.
+client 17 (FasterThanRaito) requests a speed factor of 1.
+client 17 (FasterThanRaito) requests a speed factor of 1.
+client 12 (Jackolite) requests a speed factor of 20.
+client 12 (Jackolite) requests a speed factor of 20.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 17 (FasterThanRaito) requests a speed factor of 20.
+client 17 (FasterThanRaito) requests a speed factor of 10.
+client 17 (FasterThanRaito) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 17 (FasterThanRaito) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 17 (FasterThanRaito) requests a speed factor of 10.
+client 17 (FasterThanRaito) requests a speed factor of 5.
+client 17 (FasterThanRaito) requests a speed factor of 5.
+client 17 (FasterThanRaito) requests a speed factor of 10.
+client 17 (FasterThanRaito) requests a speed factor of 10.
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 12 (Jackolite) requests a speed factor of 20.
+client 12 (Jackolite) requests a speed factor of 20.
+client 12 (Jackolite) requests a speed factor of 20.
+client 12 (Jackolite) requests a speed factor of 20.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 13 (Corporation) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 10 (Luke Streetwalker) : speed noobs 
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 14 (LadenBinKezza) : speed pls
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 13 (Corporation) requests a speed factor of 5.
+client 13 (Corporation) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 10.
+client 11 (Sievert) requests a speed factor of 1.
+client 11 (Sievert) requests a speed factor of 20.
+client 14 (LadenBinKezza) : we call this
+client 14 (LadenBinKezza) : coast hugging
+client 13 (Corporation) requests a speed factor of 1.
+client 14 (LadenBinKezza) : when people are too scared to rush
+client 14 (LadenBinKezza) : and only naval nuke for defence
+client 12 (Jackolite) : well i aint throwing myself into a lost cause
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 14 (LadenBinKezza) : nah bro not you
+client 14 (LadenBinKezza) : you gave a good fight
+client 14 (LadenBinKezza) : however
+client 12 (Jackolite) : i have an idea of who you are referring to
+client 12 (Jackolite) : and i agree, but more because im salty
+client 13 (Corporation) requests a speed factor of 5.
+client 11 (Sievert) requests a speed factor of 1.
+client 14 (LadenBinKezza) : !!!!!!!!!!
+client 11 (Sievert) requests a speed factor of 20.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 12 (Jackolite) requests a speed factor of 1.
+client 12 (Jackolite) requests a speed factor of 1.
+client 12 (Jackolite) requests a speed factor of 20.
+client 12 (Jackolite) requests a speed factor of 20.
+client 12 (Jackolite) requests a speed factor of 20.
+client 12 (Jackolite) requests a speed factor of 20.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+Login request from 47.153.232.136:5011, version="1.60.1.5 MINICOM", keyID=13220021 : naval blacklists apply, accepted, ID = 19.
+client 19 dropped.
+client 12 (Jackolite) requests a speed factor of 20.
+client 10 (Luke Streetwalker) requests a speed factor of 20.
+client 17 (FasterThanRaito) requests a speed factor of 10.
+client 11 (Sievert) requests a speed factor of 1.
+client 11 (Sievert) requests a speed factor of 5.
+client 13 (Corporation) requests a speed factor of 1.
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 16 (Mojo) requests a speed factor of 20.
+client 13 (Corporation) requests a speed factor of 0.
+client 14 (LadenBinKezza) : :(
+client 11 (Sievert) : bruh
+client 12 (Jackolite) requests a speed factor of 20.
+client 12 (Jackolite) requests a speed factor of 20.
+client 16 (Mojo) : remove that damn pause
+client 17 (FasterThanRaito) : whats going on?
+client 12 (Jackolite) : speed
+client 11 (Sievert) : someone at bens door
+client 12 (Jackolite) : baka
+client 16 (Mojo) : set min speed to x1
+client 17 (FasterThanRaito) : guve him a sec
+client 16 (Mojo) : useless admins
+client 11 (Sievert) : shut up bro
+client 16 (Mojo) : fuck off
+client 11 (Sievert) : you mad
+client 14 (LadenBinKezza) : mojo wdym useless
+client 16 (Mojo) : yeah, wasting time for what?
+client 14 (LadenBinKezza) : someone is at his door
+client 16 (Mojo) : i don't give a shit
+client 17 (FasterThanRaito) : mojo chill
+client 16 (Mojo) : pause just for disconection
+client 11 (Sievert) : ok well we're trying to win so suck a fat one
+client 11 (Sievert) : why you always such an asshat
+client 17 (FasterThanRaito) : it is disconnection but of the physical variety instead of internet connection
+client 16 (Mojo) : i go to take a shit then
+client 16 (Mojo) requests a speed factor of 0.
+client 12 (Jackolite) : anyone wanna bet its jehovahs witnesses?
+client 16 (Mojo) : guys, you may live another 100 years to afford losing time like this
+client 11 (Sievert) : ok well not our fault youre old
+client 16 (Mojo) : but life is to short to stare at a screen while someone chat at a door
+client 11 (Sievert) : listen dude we dont like it either but if we have the game going for 5 misn while our ally is away its gg
+client 11 (Sievert) : we could realisticlaly win but youre being impatient
+client 16 (Mojo) : you will not live another 100 years no matter how old are you :))
+client 11 (Sievert) : ok i dont care life is also too short to be an arsehole
+client 16 (Mojo) : Ok, you will not abuse my time
+client 11 (Sievert) : abuse your time lmao this isnt a fucking job interview
+client 16 (Mojo) disconnected.
+client 11 (Sievert) : hahahaha
+client 12 (Jackolite) : fun fact
+client 11 (Sievert) : so glad i didnt get stuck with him as an ally
+client 12 (Jackolite) : i told him not to launch on af
+client 12 (Jackolite) : as me and haw haw did a double launch
+client 14 (LadenBinKezza) : can you all understand now why i dont like mojo
+client 12 (Jackolite) : did it anyway
+client 12 (Jackolite) : and now indonesia is sitting there fat and juicy
+client 17 (FasterThanRaito) : these games take so long, why is he so mad over a short break?
+client 12 (Jackolite) : i personally believe he threw
+client 11 (Sievert) : threw and got mad that we're taking a break ok
+client 12 (Jackolite) : also wasted subs on cities that could easily be cleaned with bombers
+client 12 (Jackolite) : ill admit that our double launch wasnt the best tho
+client 12 (Jackolite) : but corp approaching made me teak
+client 12 (Jackolite) : *tweak
+client 12 (Jackolite) : and his subs disrupted my launch so it was doomed
+client 14 (LadenBinKezza) requests a speed factor of 1.
+DefconExpanded : Speeding up Corporation who seems to have left the computer.
+client 13 (Corporation) set to a speed factor of 20.
+client 10 (Luke Streetwalker) requests a speed factor of 20.
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 14 (LadenBinKezza) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 12 (Jackolite) : playing spider solitair rn
+client 12 (Jackolite) : *solitaire
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 11 (Sievert) : /me saved a screenshot
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+DefconExpanded : Speeding up FasterThanRaito who seems to have left the computer.
+client 17 (FasterThanRaito) set to a speed factor of 20.
+client 17 (FasterThanRaito) requests a speed factor of 20.
+client 11 (Sievert) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 13 (Corporation) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 10.
+client 11 (Sievert) requests a speed factor of 20.
+client 13 (Corporation) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 10.
+client 15 ([DEMO]Haakon) requests a speed factor of 10.
+client 15 ([DEMO]Haakon) requests a speed factor of 20.
+client 15 ([DEMO]Haakon) requests a speed factor of 20.
+client 13 (Corporation) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 14 (LadenBinKezza) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 20.
+client 10 (Luke Streetwalker) requests a speed factor of 20.
+client 15 ([DEMO]Haakon) requests a speed factor of 20.
+client 15 ([DEMO]Haakon) requests a speed factor of 20.
+client 15 ([DEMO]Haakon) requests a speed factor of 20.
+client 13 (Corporation) requests a speed factor of 5.
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 15 ([DEMO]Haakon) requests a speed factor of 5.
+client 15 ([DEMO]Haakon) requests a speed factor of 1.
+client 11 (Sievert) requests a speed factor of 20.
+client 15 ([DEMO]Haakon) requests a speed factor of 20.
+client 15 ([DEMO]Haakon) requests a speed factor of 20.
+client 15 ([DEMO]Haakon) requests a speed factor of 20.
+client 13 (Corporation) requests a speed factor of 20.
+client 13 (Corporation) requests a speed factor of 1.
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 14 (LadenBinKezza) requests a speed factor of 5.
+client 14 (LadenBinKezza) requests a speed factor of 20.
+client 14 (LadenBinKezza) requests a speed factor of 20.
+client 14 (LadenBinKezza) requests a speed factor of 20.
+client 14 (LadenBinKezza) requests a speed factor of 20.
+client 14 (LadenBinKezza) requests a speed factor of 20.
+client 14 (LadenBinKezza) requests a speed factor of 20.
+client 14 (LadenBinKezza) requests a speed factor of 20.
+client 13 (Corporation) requests a speed factor of 20.
+client 11 (Sievert) : lets fucking go
+client 17 (FasterThanRaito) : gg
+client 15 ([DEMO]Haakon) : WOOOOO
+client 14 (LadenBinKezza) : :3
+client 12 (Jackolite) : i still say mojo threw for not double launching with raito
+client 14 (LadenBinKezza) : also mojo just rage quit cus
+client 11 (Sievert) : i used my calculator for those cities btw
+client 14 (LadenBinKezza) : its mojo
+client 11 (Sievert) : and look how even those are
+client 11 (Sievert) : esxcept pachuca
+client 11 (Sievert) : i hit west coast
+client 13 (Corporation) : GG
+client 12 (Jackolite) : honestly dunno what else ive could have done
+client 12 (Jackolite) : maybe go pac?
+client 11 (Sievert) : gg guys
+client 15 ([DEMO]Haakon) : gg'
+client 12 (Jackolite) : cuz satl is a death trap without support
+DefconExpanded : client 14 (LadenBinKezza) signs the current scores.
+DefconExpanded : client 15 ([DEMO]Haakon) signs the current scores.
+DefconExpanded : client 12 (Jackolite) signs the current scores.
+DefconExpanded : client 11 (Sievert) signs the current scores.
+DefconExpanded : client 13 (Corporation) signs the current scores.
+DefconExpanded : client 10 (Luke Streetwalker) signs the current scores.
+DefconExpanded : client 18 (LawlietAmbiance) signs the current scores.
+DefconExpanded : client 17 (FasterThanRaito) signs the current scores.
+Record = demo_recordings/game8p_2024-11-17-19-05.d8crec
 AdvertiseOnInternet = 0
 DefconExpanded : Game Over !
 DefconExpanded : Game is available on defconexpanded.com
 DefconExpanded : Restart in 30 Seconds!
-client 17 (LadenBinKezza) disconnected.
+client 15 ([DEMO]Haakon) disconnected.
+client 17 (FasterThanRaito) disconnected.
+client 12 (Jackolite) disconnected.
+client 11 (Sievert) disconnected.
+client 18 (LawlietAmbiance) disconnected.
 OutFile = server_output_8player4v4.log
 PlayerLog = player_scores_8player4v4.log
-AdvertisePlayers = 16
-MaxSpectators = 30
+AdvertisePlayers = 8
+MaxSpectators = 15
 UnitBuffer = 5
 CityBuffer = 2
 FirstStrikeBonus = 15
@@ -2580,16 +3023,478 @@ SlowBudgetStart = 1200
 SlowBudgetMax = 1200
 DropCourtesy = -1
 KickVoteMin = 2
-MinTeams = 1
-MaxTeams = 16
+MinTeams = 6
+MaxTeams = 8
 ReadyVoteDelay = 90
 RandomTerritories = 1
 CityPopulations = 3
 CitiesPerTerritory = 30
 PopulationPerTerritory = 150
-Listening on port 5010.
+Listening on port 5018.
+ServerPort = 5018
 Metaserver IP: 34.197.189.80
-ServerLANIP = 26.102.130.209
-Public server info: 90.250.167.19:5010
-Demo limits received. MaxGameSize = 16, MaxDemoPlayers = 1, AllowServers = yes.
+ServerLANIP = 116.203.228.110
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Public server info: 116.203.228.110:5018
+Server key authentication succeeded, key id = 369211.
+Login request from 90.250.167.19:64165, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+client 9 (LadenBinKezza) : /login dancefloor
+DefconExpanded : client 9 (LadenBinKezza) has been logged in as owner.
+client 9 (LadenBinKezza) : /set randomterritories 0
+RandomTerritories = 0
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Server key authentication succeeded, key id = 369211.
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+Login request from 173.79.170.129:5011, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : Sievert
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+client 9 (Sievert) disconnected.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+GhostProtection = 0
+KickVoteMin = 2
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+GhostProtection = 0
+KickVoteMin = 2
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+Login request from 98.122.186.54:5011, version="1.60.1.5 MINICOM", keyID=425333 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : Lord Haw Haw 
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has recordings's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+client 9 (Lord Haw Haw ) left to spectator mode.
+client 9 (Lord Haw Haw ) disconnected.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+GhostProtection = 0
+KickVoteMin = 2
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5019.
+ServerPort = 5019
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5019
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+Login request from 84.69.179.9:51266, version="1.60.1.5 MINICOM", keyID=13213071 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : LadenBinKezza
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has recordings's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+Login request from 86.179.84.2:5011, version="1.60.1.5 MINICOM", keyID=13196164 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : Jackolite
+client 10 (Jackolite) : bingus
+client 10 (Jackolite) disconnected.
+Login request from 98.122.186.54:5011, version="1.60.1.5 MINICOM", keyID=425333 : naval blacklists apply, accepted, ID = 11.
+client 9 (LadenBinKezza) disconnected.
+Team creation request from client 11 received.
+New name for client 11 : Lord Haw Haw 
+client 11 (Lord Haw Haw ) disconnected.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+GhostProtection = 0
+KickVoteMin = 2
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5019.
+ServerPort = 5019
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5019
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+Login request from 98.122.186.54:5011, version="1.60.1.5 MINICOM", keyID=425333 : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 received.
+New name for client 9 : Lord Haw Haw 
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has recordings's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+Login request from 86.179.84.2:5011, version="1.60.1.5 MINICOM", keyID=13196164 : naval blacklists apply, accepted, ID = 10.
+Team creation request from client 10 received.
+New name for client 10 : Jackolite
+client 10 (Jackolite) disconnected.
+client 9 (Lord Haw Haw ) disconnected.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+GhostProtection = 0
+KickVoteMin = 2
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5019.
+ServerPort = 5019
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5019
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+GhostProtection = 0
+KickVoteMin = 2
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5019.
+ServerPort = 5019
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5019
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+GhostProtection = 0
+KickVoteMin = 2
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5019.
+ServerPort = 5019
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5019
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+Login request from 90.242.198.73:5011, version="1.60.1.5 MINICOM", keyID=DEMO : naval blacklists apply, accepted, ID = 9.
+Team creation request from client 9 ([DEMO]) received.
+New name for client 9 ([DEMO]) : LadenBinKezza
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has recordings's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+client 9 ([DEMO]LadenBinKezza) disconnected.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+GhostProtection = 0
+KickVoteMin = 2
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5019.
+ServerPort = 5019
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5019
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+GhostProtection = 0
+KickVoteMin = 2
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5020.
+ServerPort = 5020
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5020
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+GhostProtection = 0
+KickVoteMin = 2
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+DropCourtesy = -1
+SlowestSpeed = 0
+RadarSharing = 2
+Listening on port 5020.
+ServerPort = 5020
+Metaserver IP: 34.197.189.80
+Reverting: RadarSharing = 1
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5020
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
 Server key authentication succeeded, key id = 369211.

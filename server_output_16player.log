@@ -1,0 +1,349 @@
+OutFile = server_output_16player.log
+PlayerLog = player_scores_16player.log
+AdvertisePlayers = 16
+MaxSpectators = 30
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 16
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5022.
+ServerPort = 5022
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5022
+Server key authentication succeeded, key id = 369211.
+Demo limits received. MaxGameSize = 16, MaxDemoPlayers = 1, AllowServers = yes.
+Login request from 98.122.186.54:5011, version="1.60.1.5 MINICOM", keyID=425333 : naval blacklists apply, accepted, ID = 17.
+Team creation request from client 17 received.
+New name for client 17 : Lord Haw Haw 
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+Login request from 67.191.97.64:5011, version="1.60.1.5 MINICOM", keyID=13214032 : naval blacklists apply, accepted, ID = 18.
+Team creation request from client 18 received.
+New name for client 18 : Corporation
+OutFile = server_output_16player.log
+PlayerLog = player_scores_16player.log
+AdvertisePlayers = 16
+MaxSpectators = 30
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 16
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5022.
+ServerPort = 5022
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5022
+Demo limits received. MaxGameSize = 16, MaxDemoPlayers = 1, AllowServers = yes.
+Server key authentication succeeded, key id = 2968288.
+Login request from 84.69.179.9:5011, version="1.60.1.5 MINICOM", keyID=13194428 : naval blacklists apply, accepted, ID = 17.
+Team creation request from client 17 received.
+New name for client 17 : LadenBinKezza
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+Login request from 98.122.186.54:5011, version="1.60.1.5 MINICOM", keyID=425333 : naval blacklists apply, accepted, ID = 18.
+Team creation request from client 18 received.
+New name for client 18 : Lord Haw Haw 
+Login request from 67.191.97.64:5011, version="1.60.1.5 MINICOM", keyID=13214032 : naval blacklists apply, accepted, ID = 19.
+Team creation request from client 19 received.
+New name for client 19 : Corporation
+Login request from 77.80.165.40:5011, version="1.60.1.5 MINICOM", keyID=13233792 : naval blacklists apply, accepted, ID = 20.
+Team creation request from client 20 received.
+New name for client 20 : ItsEK
+Login request from 173.79.170.129:5011, version="1.60.1.5 MINICOM", keyID=13210377 : naval blacklists apply, accepted, ID = 21.
+Team creation request from client 21 received.
+New name for client 21 : Sievert
+client 21 (Sievert) disconnected.
+Login request from 173.79.170.129:5011, version="1.60.1.5 MINICOM", keyID=13199557 : naval blacklists apply, accepted, ID = 22.
+Team creation request from client 22 received.
+New name for client 22 : Sievert
+client 17 (LadenBinKezza) : /login dancefloor
+DefconExpanded : client 17 (LadenBinKezza) has been logged in as owner.
+client 17 (LadenBinKezza) : /set fillwithcpus
+All players unreadied.
+All players unreadied.
+All players unreadied.
+All players unreadied.
+client 17 (LadenBinKezza) : /set randomterritories 0
+RandomTerritories = 0
+All players unreadied.
+All players unreadied.
+client 17 (LadenBinKezza) : /set alliancesize 0
+All players unreadied.
+All players unreadied.
+All players unreadied.
+All players unreadied.
+client 17 (LadenBinKezza) : /set cpualliance 0 1
+All players unreadied.
+client 17 (LadenBinKezza) : /set cpualliance 1 1
+All players unreadied.
+client 17 (LadenBinKezza) : /set cpualliance 2 1
+All players unreadied.
+client 17 (LadenBinKezza) : /set cpualliance 3 1
+All players unreadied.
+client 17 (LadenBinKezza) : /set cpualliance 4 1
+All players unreadied.
+client 17 (LadenBinKezza) : /set cpualliance 5 1
+All players unreadied.
+client 17 (LadenBinKezza) : /set cpualliance 6 1
+All players unreadied.
+client 17 (LadenBinKezza) : /set cpualliance 7 1
+All players unreadied.
+client 17 (LadenBinKezza) : /set cpualliance 8 1
+All players unreadied.
+client 17 (LadenBinKezza) : /set cpualliance 9 1
+All players unreadied.
+client 17 (LadenBinKezza) : /set cpualliance 10 1
+All players unreadied.
+client 18 (Lord Haw Haw ) is ready to play.
+client 17 (LadenBinKezza) is ready to play.
+client 22 (Sievert) is ready to play.
+client 20 (ItsEK) is ready to play.
+client 19 (Corporation) is ready to play.
+Countdown started.
+Game started. Players:
+Team 4 : client 22 (Sievert), keyID = 13199557
+Team 3 : client 20 (ItsEK), keyID = 13233792
+Team 2 : client 19 (Corporation), keyID = 13214032
+Team 1 : client 18 (Lord Haw Haw ), keyID = 425333
+Team 0 : client 17 (LadenBinKezza), keyID = 13194428
+Random seed: 1007 (0x3ef)
+DefconExpanded : Attention there will be a stringent slowdown budget. You can recharge it by setting your speed to x10 or x20
+DefconExpanded : Team Defection will be Disabled at DEFCON 3
+SpectatorChatChannel = 0
+client 17 (LadenBinKezza) requests a speed factor of 1.
+client 17 (LadenBinKezza) : /set slowestspeed 0
+SlowestSpeed = 0
+client 20 (ItsEK) requests a speed factor of 0.
+client 18 (Lord Haw Haw ) requests a speed factor of 0.
+client 20 (ItsEK) requests a speed factor of 0.
+client 22 (Sievert) requests a speed factor of 0.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 1.
+client 18 (Lord Haw Haw ) requests a speed factor of 1.
+client 18 (Lord Haw Haw ) requests a speed factor of 0.
+client 22 (Sievert) requests a speed factor of 1.
+client 19 (Corporation) requests a speed factor of 5.
+client 17 (LadenBinKezza) : /set slowestspeed 1
+SlowestSpeed = 1
+client 20 (ItsEK) set to a speed factor of 1.
+client 18 (Lord Haw Haw ) set to a speed factor of 1.
+client 19 (Corporation) requests a speed factor of 5.
+client 17 (LadenBinKezza) : /set radarsharing 3
+RadarSharing = 3
+Reverting: RadarSharing = 1
+client 17 (LadenBinKezza) : /set radarsharing 1
+client 17 (LadenBinKezza) : /set radarsharing 2
+RadarSharing = 2
+Reverting: RadarSharing = 1
+client 17 (LadenBinKezza) : /set permitdefection 0
+PermitDefection = 0
+DefconExpanded : Warning: defection has been turned off, you cannot make or break alliances after the game started.
+client 17 (LadenBinKezza) : /set slowestspeed 0
+SlowestSpeed = 0
+client 17 (LadenBinKezza) : /say press 9
+client 17 (LadenBinKezza) : /say press 0
+client 22 (Sievert) requests a speed factor of 0.
+client 22 (Sievert) requests a speed factor of 0.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 0.
+client 18 (Lord Haw Haw ) requests a speed factor of 1.
+DefconExpanded : Speeding up Sievert who seems to have left the computer.
+client 22 (Sievert) set to a speed factor of 20.
+DefconExpanded : Speeding up Corporation who seems to have left the computer.
+client 19 (Corporation) set to a speed factor of 20.
+DefconExpanded : Speeding up LadenBinKezza who seems to have left the computer.
+client 17 (LadenBinKezza) set to a speed factor of 20.
+client 18 (Lord Haw Haw ) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 1.
+client 19 (Corporation) requests a speed factor of 20.
+client 18 (Lord Haw Haw ) requests a speed factor of 5.
+client 22 (Sievert) requests a speed factor of 20.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 20 (ItsEK) requests a speed factor of 10.
+client 20 (ItsEK) requests a speed factor of 10.
+client 20 (ItsEK) requests a speed factor of 10.
+client 20 (ItsEK) requests a speed factor of 10.
+client 20 (ItsEK) requests a speed factor of 20.
+client 20 (ItsEK) requests a speed factor of 20.
+client 20 (ItsEK) requests a speed factor of 5.
+client 17 (LadenBinKezza) requests a speed factor of 1.
+client 19 (Corporation) requests a speed factor of 1.
+client 18 (Lord Haw Haw ) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 1.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 19 (Corporation) requests a speed factor of 5.
+client 20 (ItsEK) requests a speed factor of 5.
+client 18 (Lord Haw Haw ) requests a speed factor of 5.
+client 19 (Corporation) requests a speed factor of 1.
+client 19 (Corporation) requests a speed factor of 5.
+client 19 (Corporation) requests a speed factor of 1.
+client 19 (Corporation) requests a speed factor of 5.
+client 19 (Corporation) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 20.
+client 20 (ItsEK) requests a speed factor of 1.
+client 19 (Corporation) requests a speed factor of 5.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 18 (Lord Haw Haw ) requests a speed factor of 10.
+client 20 (ItsEK) requests a speed factor of 5.
+client 17 (LadenBinKezza) requests a speed factor of 1.
+client 18 (Lord Haw Haw ) requests a speed factor of 1.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 18 (Lord Haw Haw ) requests a speed factor of 5.
+client 18 (Lord Haw Haw ) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 5.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 22 (Sievert) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 20.
+client 20 (ItsEK) requests a speed factor of 20.
+client 20 (ItsEK) requests a speed factor of 10.
+client 20 (ItsEK) requests a speed factor of 5.
+client 20 (ItsEK) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 5.
+client 18 (Lord Haw Haw ) requests a speed factor of 10.
+client 22 (Sievert) requests a speed factor of 20.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 22 (Sievert) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 5.
+client 22 (Sievert) requests a speed factor of 10.
+client 18 (Lord Haw Haw ) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 5.
+client 18 (Lord Haw Haw ) requests a speed factor of 5.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 20.
+client 18 (Lord Haw Haw ) requests a speed factor of 1.
+client 18 (Lord Haw Haw ) requests a speed factor of 5.
+client 17 (LadenBinKezza) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 1.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 22 (Sievert) requests a speed factor of 20.
+client 18 (Lord Haw Haw ) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 5.
+client 20 (ItsEK) requests a speed factor of 5.
+client 18 (Lord Haw Haw ) requests a speed factor of 5.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 20.
+client 17 (LadenBinKezza) requests a speed factor of 1.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 22 (Sievert) requests a speed factor of 1.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 19 (Corporation) requests a speed factor of 5.
+client 22 (Sievert) requests a speed factor of 20.
+client 17 (LadenBinKezza) requests a speed factor of 1.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 18 (Lord Haw Haw ) requests a speed factor of 1.
+client 18 (Lord Haw Haw ) requests a speed factor of 5.
+client 18 (Lord Haw Haw ) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 5.
+client 20 (ItsEK) requests a speed factor of 10.
+client 20 (ItsEK) requests a speed factor of 5.
+client 18 (Lord Haw Haw ) requests a speed factor of 20.
+client 18 (Lord Haw Haw ) requests a speed factor of 1.
+client 18 (Lord Haw Haw ) requests a speed factor of 5.
+client 18 (Lord Haw Haw ) requests a speed factor of 20.
+client 19 (Corporation) disconnected.
+client 17 (LadenBinKezza) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 5.
+client 20 (ItsEK) requests a speed factor of 20.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 17 (LadenBinKezza) requests a speed factor of 1.
+client 18 (Lord Haw Haw ) requests a speed factor of 20.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 17 (LadenBinKezza) requests a speed factor of 1.
+client 17 (LadenBinKezza) requests a speed factor of 5.
+client 20 (ItsEK) requests a speed factor of 1.
+client 17 (LadenBinKezza) requests a speed factor of 1.
+client 20 (ItsEK) requests a speed factor of 20.
+client 20 (ItsEK) requests a speed factor of 10.
+client 20 (ItsEK) requests a speed factor of 20.
+client 22 (Sievert) requests a speed factor of 1.
+client 17 (LadenBinKezza) requests a speed factor of 20.
+client 22 (Sievert) requests a speed factor of 20.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 20.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 20.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 20.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 20.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 20.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 20.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 20.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 20.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 20.
+client 22 (Sievert) requests a speed factor of 1.
+client 22 (Sievert) requests a speed factor of 20.
+DefconExpanded : client 20 (ItsEK) signs the current scores.
+DefconExpanded : client 17 (LadenBinKezza) signs the current scores.
+DefconExpanded : client 22 (Sievert) signs the current scores.
+DefconExpanded : client 18 (Lord Haw Haw ) signs the current scores.
+Record = demo_recordings/game8p_2024-11-24-20-39.d8crec
+AdvertiseOnInternet = 0
+DefconExpanded : Game Over !
+DefconExpanded : Game is available on defconexpanded.com
+DefconExpanded : Restart in 30 Seconds!
+client 18 (Lord Haw Haw ) disconnected.
+client 20 (ItsEK) disconnected.
+client 17 (LadenBinKezza) disconnected.
+OutFile = server_output_16player.log
+PlayerLog = player_scores_16player.log
+AdvertisePlayers = 16
+MaxSpectators = 30
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 16
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Server key authentication succeeded, key id = 2968288.
+Demo limits received. MaxGameSize = 16, MaxDemoPlayers = 1, AllowServers = yes.
