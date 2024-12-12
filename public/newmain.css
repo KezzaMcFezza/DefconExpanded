@@ -464,7 +464,7 @@ main {
     background-image: url("images/demobackground.png");
     background-size: cover;
     background-position: center;
-    opacity: 0.05; 
+    opacity: 0.08; 
     border-radius: 20px;
     z-index: 0;
 }
@@ -726,32 +726,6 @@ li {
 
 .game-results td[style*="color: orange"] { 
     color: #bb7b3b; 
-}
-
-.search-container2 {
-    display: flex;
-    justify-content: center;
-    max-width: 387px;
-}
-
-.search-container2 input {
-    background-color: #1c1c2e;
-    border: 1px solid #333;
-    color: #fff;
-    height: 10px;
-    padding: 0.65rem;
-    width: 300px;
-    border-radius: 4px 0 0 4px;
-}
-
-.search-container2 button {
-    background-color: #0067b8;
-    color: #fff;
-    border: none;
-    padding: 0rem 1rem;
-    cursor: pointer;
-    border-radius: 0 4px 4px 0;
-    transition: background-color 0.3s;
 }
 
 .search-container button:hover {

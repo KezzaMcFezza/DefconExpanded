@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" class="hide-scrollbar">
+<head>
+    <link rel="stylesheet" type="text/css" href="/newmain.css" />
+    <link rel="stylesheet" type="text/css" href="/scaling.css" />
+    <link rel="stylesheet" type="text/css" href="/modlist.css" />
+    <link rel="stylesheet" type="text/css" href="/admin.css" />
+    <script src="/script.js" defer></script>
+    <script src="/demos.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEFCON Expanded</title>
+    <meta name="description" content="The Home for DEFCON Modding and Game Recordings">
+    <meta name="keywords" content="defcon, defcon demos, defcon Expanded, game recording, game recordings modding community, 
+                                   demo downloads, mods, defcon mods, defcon dcrec, defcon modlist, defcon resources, defcon news, 
+                                   8 Player, 10 Player, 16 Player, dedcon, dedcon server, defcon leaderboard, defcon stats, defcon statistics,
+                                   defcon old guard, defcon game, defcon gaming community ">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://defconexpanded.com" />
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://defconexpanded.com">
+    <meta property="og:title" content="DEFCON Expanded">
+    <meta property="og:description" content="The Home for DEFCON Modding and Game Recordings">
+    <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://defconexpanded.com">
+    <meta name="twitter:title" content="DEFCON Expanded">
+    <meta name="twitter:description" content="The Home for DEFCON Modding and Game Recordings">
+    <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
+    <link rel="icon" type="image/x-icon" href="https://defconexpanded.com/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://defconexpanded.com/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://defconexpanded.com/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="https://defconexpanded.com/favicon-96x96.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://defconexpanded.com/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="https://defconexpanded.com/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="https://defconexpanded.com/android-chrome-512x512.png">
+    <link rel="manifest" href="https://defconexpanded.com/site.webmanifest">
+    <link rel="mask-icon" href="https://defconexpanded.com/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+    <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "DEFCON Expanded",
+          "url": "https://defconexpanded.com/",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://defconexpanded.com/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          },
+          "mainEntity": [
+            {
+              "@type": "WebPage",
+              "name": "About",
+              "url": "https://defconexpanded.com/about"
+            },
+            {
+              "@type": "WebPage",
+              "name": "Expanded Builds",
+              "url": "https://defconexpanded.com/resources"
+            },
+            {
+              "@type": "WebPage",
+              "name": "Leaderboard",
+              "url": "https://defconexpanded.com/leaderboard"
+            }
+          ]
+        }
+    </script>
+    <style>
+
+      .fa-user {
+        margin-right: 5px;
+      }
+
+      .fa-cog {
+        margin-right: 5px;
+      }
+      .territory-map-container {
+        position: relative;
+        width: 100%; /* Adjust based on your demo card width */
+        height: auto;
+    }
+    
+    .base-map {
+        width: 100%; /* Ensure the base map fits in the container */
+        position: relative;
+        z-index: 1;
+        border-radius: 10px;
+    }
+    
+    .territory-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%; /* Match the size of the base map */
+        z-index: 2;
+        opacity: 0.7; /* Optional: make the overlay slightly transparent */
+    }
+
+    .filter-container {
+      display: flex;
+      align-items: center;
+  }
+  
+  #sort-select {
+    margin: 0px !important;
+    padding: 0.35rem !important;
+  }
+  .server-select {
+    background-color: #0067b8;
+    color: #fff;
+    border: none;
+    padding: 0.35rem;
+    border-radius: 5px;
+    font-family: 'Orbitron', sans-serif;
+    cursor: pointer;
+    width: 30%;
+  }
+
+  .demo-heading {
+    display: flex;
+    justify-content: center;
+  }
+
+  .sorting-main-div {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+  }
+
+  .sort-container {
+    margin-bottom: 0px !important;
+  }
+
+    </style>
+</head>
+<body class="hide-scrollbar">
+        <main>
+          <div id="sidebar">
+            <div class="title">DEFCON Expanded</div>
+            <ul class="list-items">
+              <li><a href="/" id="nav-game-recordings"><img src="/images/recording.png" alt="Game Recordings" class="steam-logo" style="margin-right: 10px; width: 19px; height: 12px;">Game Recordings</a></li>
+              <li><a href="/about" id="nav-about"><img src="/images/abouticon.png" alt="About" class="steam-logo" style="margin-right: 10px; width: 19px;">About</a></li>
+              <li><a href="/resources" id="nav-resources"><img src="/images/favicon.png" alt="Expanded Builds" class="steam-logo" style="margin-right: 10px; width: 19px;">Expanded Builds</a></li>
+              <li><a href="/dedcon-builds" id="nav-dedcon-builds"><img src="/images/dedcon.png" alt="Steam" class="steam-logo" style="margin-right: 10px; width: 19px;">Dedcon</a></li>
+              <!-- <li><a href="/guides" id="nav-articles"><i class="fas fa-newspaper"></i>Guides</a></li> -->
+              <li><a href="/leaderboard" id="nav-leaderboard"><img src="/images/leaderboard.png" alt="Leaderboard" class="steam-logo" style="margin-right: 10px; width: 19px; height: 20px;">Leaderboard</a></li>
+              <!-- <li><a href="/laikasdefcon" id="nav-laikasdefcon"><i class="fas fa-dog"></i>Laika's Defcon</a></li> -->
+              <li><a href="/modlist" id="nav-modlist"><img src="/images/icon3.png" alt="Modlist" class="steam-logo" style="margin-right: 10px; width: 19px;">Defcon Modlist</a></li>
+              <div id="discord-widget"></div>
+              <header class="mobile-header">
+                <nav class="header-content">
+                    <div class="account-container">
+                        <div class="user-actions">
+                            <div class="logged-out-actions">
+                                <a href="/login" class="login-signup" target="_blank">Login</a>
+                                <a href="/signup" class="login-signup" target="_blank">Sign up</a>
+                            </div>
+        
+                            <div class="logged-in-actions" style="display: none;">
+                                <div class="user-dropdown">
+                                    <button class="dropbtn">
+                                      <span id="logged-in-username">Logged-in User</span>
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                    <div class="dropdown-content-page">
+                                        <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a> 
+                                        <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
+                                    </div>
+                                </div>
+                                <button class="signout">Logout</button>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+          </ul>
+          <div class="icons">
+            <a href="mailto:keiron.mcphee1@gmail.com" target="_blank" class="mail-icon">
+              <img src="/images/mail-icon.png" alt="E-Mail" class="steam-logo">
+              </a>
+            <a href="https://www.youtube.com/@KezzaMacFezza" target="_blank" class="youtube-icon">
+              <img src="/images/youtube-icon.png" alt="Youtube" class="steam-logo">
+            </a>
+            <a href="https://store.steampowered.com/app/1520/DEFCON/" class="steam-icon" target="_blank">
+            <img src="/images/steam-logo.png" alt="Steam" class="steam-logo">
+            </a>
+            <a href="/privacypolicy" class="privacy-icon" target="_blank">
+            <img src="/images/privacy-policy.png" alt="Steam" class="steam-logo">
+            </a>
+          </div>
+        </div>
+      </div>
+      <header>
+        <nav class="header-content">
+            <div class="account-container">
+                <div class="user-actions">
+                    <div class="logged-out-actions">
+                        <a href="/login" class="login-signup" target="_blank">Login</a>
+                        <a href="/signup" class="login-signup" target="_blank">Sign up</a>
+                    </div>
+
+                    <div class="logged-in-actions" style="display: none;">
+                        <div class="user-dropdown">
+                            <button class="dropbtn">
+                              <span id="logged-in-username">Logged-in User</span>
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                            <div class="dropdown-content-page">
+                                <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a> 
+                                <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
+                            </div>
+                        </div>
+                        <button class="signout">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+            <section class="recent-games">
+              <div class="demo-heading">
+              <label class="demo-label">Demos and Match History</label>
+              </div>
+                <div class="games-played" id="games-played">Total Games Played: 0</div>
+                <br>
+                <br class="mobile-break">
+                <div class="tired-of-divs">
+                <div class="demo-content-container">
+                  <div class="filter-container">
+
+                    <div class="search-container2">
+                      <input type="text" id="player-search-input" placeholder="Search players...">
+                      <button id="search-button2">Search</button>
+                    </div>
+                    <div class="sorting-main-div">
+                    <select id="server-filter" class="server-select">
+                      <option value="">All Servers</option>
+                      <option value="New Player Server">New Player Server</option>
+                      <option value="New Player Server - Training Game">New Player Server - Training Game</option>
+                      <option value="DefconExpanded | 1v1 | Totally Random">DefconExpanded | 1v1 | Totally Random</option>
+                      <option value="DefconExpanded | 1V1 | Best Setups Only!">DefconExpanded | 1V1 | Best Setups Only!</option>
+                      <option value="DefconExpanded | 1v1 | AF vs AS | Totally Random">DefconExpanded | 1v1 | AF vs AS | Totally Random</option>
+                      <option value="DefconExpanded | 1v1 | EU vs SA | Totally Random">DefconExpanded | 1v1 | EU vs SA | Totally Random</option>
+                      <option value="DefconExpanded | 1v1 | Default">DefconExpanded | 1v1 | Default</option>
+                      <option value="DefconExpanded | 2v2 | Totally Random">DefconExpanded | 2v2 | Totally Random</option>
+                      <option value="2v2 Tournament">2v2 Tournament</option>
+                      <option value="DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random">DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random</option>
+                      <option value="Mojo's 2v2 Arena - Quick Victory">Mojo's 2v2 Arena - Quick Victory</option>
+                      <option value="Sony and Hoov's Hideout">Sony and Hoov's Hideout</option>
+                      <option value="DefconExpanded | 3v3 | Totally Random">DefconExpanded | 3v3 | Totally Random</option>
+                      <option value="MURICON | 1v1 Default | 2.8.15">MURICON | 1v1 | Default</option>
+                      <optgroup label="509 CG | 1v1, 2v2 | Totally Random">
+                        <option value="509 CG | 2v2 | Totally Random | 2.8.15">509 CG | 2v2 | Totally Random | 2.8.15</option>
+                        <option value="509 CG | 2v2 | Totally Random | 2.8.14.1">509 CG | 2v2 | Totally Random | 2.8.14.1</option>
+                        <option value="509 CG | 1v1 | Totally Random | 2.8.15">509 CG | 1v1 | Totally Random | 2.8.15</option>
+                        <option value="509 CG | 1v1 | Totally Random | 2.8.14.1">509 CG | 1v1 | Totally Random | 2.8.14.1</option>
+                      </optgroup>
+                      <option value="DefconExpanded | Free For All | Random Cities">DefconExpanded | Free For All | Random Cities</option>
+                      <option value="DefconExpanded | 8 Player | Diplomacy">DefconExpanded | 8 Player | Diplomacy</option>
+                      <option value="DefconExpanded | 4V4 | Totally Random">DefconExpanded | 4V4 | Totally Random</option>
+                      <option value="DefconExpanded | 10 Player | Diplomacy">DefconExpanded | 10 Player | Diplomacy</option>
+                      <option value="DefconExpanded | 16 Player | Test Server">DefconExpanded | 16 Player | Test Server</option>
+                  </select>
+                
+                    <div class="sort-container">
+                      <select id="sort-select">
+                        <option value="latest" selected>Latest</option>
+                        <option value="most-downloaded">Most Downloaded</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                
+                <div id="demo-container" class="demo-container">
+                </div>
+                
+                <div class="pagination" id="pagination">
+                </div>
+            </section>
+        </main>
+    </div>
+  </div>
+<br>
+<br>
+    <script>
+
+  </script>
+</body>
+</html>
