@@ -4336,6 +4336,10 @@ module.exports = router;
 
 // routes for each page in the frontend
 app.get('/about', checkAuthToken, (req, res) => sendHtml(res, 'about.html'));
+app.get('/about/combined-servers', checkAuthToken, (req, res) => sendHtml(res, 'combinedservers.html'));
+app.get('/about/hours-played', checkAuthToken, (req, res) => sendHtml(res, 'totalhoursgraph.html'));
+app.get('/about/popular-territories', checkAuthToken, (req, res) => sendHtml(res, 'popularterritories.html'));
+app.get('/about/1v1-setup-statistics', checkAuthToken, (req, res) => sendHtml(res, '1v1setupstatistics.html'));
 app.get('/guides', checkAuthToken, (req, res) => sendHtml(res, 'guides.html'));
 app.get('/resources', checkAuthToken, (req, res) => sendHtml(res, 'resources.html'));
 app.get('/laikasdefcon', checkAuthToken, (req, res) => sendHtml(res, 'laikasdefcon.html'));

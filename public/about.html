@@ -208,14 +208,18 @@
 
                             <div class="graph-search-container">
                                 <h3 class="filter-title">Filter by Name</h3>
-                                <input type="text" placeholder="Player name..." class="player-input" style="border-radius: 0;">
+                                <input type="text" placeholder="Player name..." class="player-input"
+                                    style="border-radius: 0;">
                             </div>
 
                             <div class="axis-controls">
                                 <div class="y-axis-control">
                                     <h3 class="filter-title">Y-Axis</h3>
-                                    <input type="number" class="yaxis-input" id="yAxisMax" min="1" value="16" step="1">
-                                    <select id="graph-filter" class="server-select" style="margin-left: 10px;">
+                                    <div class="yaxis-linear">
+                                        <input type="number" class="yaxis-input" id="yAxisMax" min="1" value="16"step="1">
+                                        <button id="toggleView" class="cumulative-toggle-btn">Show Linear View</button>
+                                    </div>
+                                    <select id="graph-filter" class="server-select">
                                         <option value="">Graph Type</option>
                                         <optgroup label="Servers">
                                             <option value="individualServers" selected>Individual Servers</option>
@@ -233,7 +237,7 @@
                             <div class="server-filters">
                                 <div class="filter-header">
                                     <h3 class="filter-title">Server Selection</h3>
-                                    <div class="reset-apply-servers" style="display: flex;">
+                                    <div class="reset-apply-servers">
                                         <button id="selectAllServers" class="apply-servers-btn">Select All</button>
                                         <button id="deselectAllServers" class="reset-servers-btn">Deselect All</button>
                                     </div>
