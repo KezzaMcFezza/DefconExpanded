@@ -51,7 +51,7 @@ const graphConfigs = {
             { key: "au", name: "Australasia", color: "#FFDC00" },
             { key: "we", name: "West Asia", color: "#39CCCC" },
             { key: "ea", name: "East Asia", color: "#F012BE" },
-            { key: "ant", name: "Antartica", color: "#85144b" },
+            { key: "ant", name: "Antarctica", color: "#85144b" },
             { key: "naf", name: "North Africa", color: "#3D9970" },
             { key: "saf", name: "South Africa", color: "#2ECC40" }
         ],
@@ -71,607 +71,998 @@ const graphConfigs = {
     }
 };
 
-function formatSetupLabel(setup) {
-    return setup.split('_vs_')
-        .map(territory => territoryAbbreviations[territory] || territory)
-        .join(' vs ');
-}
-
-function initializeGraphControls() {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setMonth(startDate.getMonth() - 6);
-
-    document.getElementById('startDate').valueAsDate = startDate;
-    document.getElementById('endDate').valueAsDate = endDate;
-
-    document.getElementById('selectAllServers').addEventListener('click', () => {
-        document.querySelectorAll('input[name="server"]').forEach(checkbox => checkbox.checked = true);
-    });
-
-    document.getElementById('deselectAllServers').addEventListener('click', () => {
-        document.querySelectorAll('input[name="server"]').forEach(checkbox => checkbox.checked = false);
-    });
-
-    document.getElementById('updateGraph').addEventListener('click', createGamesChart);
-
-    const yAxisControl = document.querySelector('.y-axis-control');
-    const toggleButton = document.createElement('button');
-    toggleButton.textContent = 'Show Linear View';
-    toggleButton.className = 'cumulative-toggle-btn';
-    toggleButton.addEventListener('click', () => {
-        isCumulativeView = !isCumulativeView;
-        toggleButton.textContent = isCumulativeView ? 'Show Individual View' : 'Show Linear View';
-        createGamesChart();
-    });
-    yAxisControl.appendChild(toggleButton);
-
-    document.getElementById('graph-filter').addEventListener('change', (e) => {
-        const selectedType = e.target.value;
-        updateGraphVisibility(selectedType);
-        createGamesChart();
-    });
-
-    createGamesChart();
-}
-
-function updateGraphVisibility(graphType) {
-    const serverFilters = document.querySelector('.server-filters');
-    const cumulativeButton = document.querySelector('.cumulative-toggle-btn');
-    const dateControls = document.querySelector('.date-controls');
-    const resetApplyButtons = document.querySelector('.reset-apply-servers');
-
-    if (cumulativeButton) {
-        cumulativeButton.style.display = graphType === '1v1setupStatistics' ? 'none' : 'block';
+class BaseGraph {
+    constructor() {
+        this.margin = { top: 5, right: 20, bottom: 55, left: 40 };
+        this.chartContainer = document.getElementById('gamesChart');
+        this.width = this.chartContainer.offsetWidth - this.margin.left - this.margin.right;
+        this.height = 350;
+        
+        this.initializeBaseControls();
+        this.initializeEventListeners();
     }
 
-    if (dateControls) {
-        dateControls.style.display = graphType === '1v1setupStatistics' ? 'none' : 'block';
-    }
-    
-    const yAxisInput = document.getElementById('yAxisMax');
-    if (graphType === '1v1setupStatistics') {
-        yAxisInput.value = 40;
+    initializeBaseControls() {
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 6);
 
-        if (!document.querySelector('.setup-checkboxes')) {
-            const checkboxContainer = document.createElement('div');
-            checkboxContainer.className = 'setup-checkboxes';
-            document.querySelector('.stats-controls').appendChild(checkboxContainer);
+        document.getElementById('startDate').valueAsDate = startDate;
+        document.getElementById('endDate').valueAsDate = endDate;
+    }
+
+    initializeEventListeners() {
+        window.addEventListener('resize', _.debounce(() => this.createChart(), 250));
+        
+        const updateButton = document.getElementById('updateGraph');
+        if (updateButton) {
+            updateButton.addEventListener('click', () => this.createChart());
         }
 
-        const setupCheckboxes = document.querySelector('.setup-checkboxes');
-        setupCheckboxes.style.display = 'block';
-        setupCheckboxes.innerHTML = ''; 
-
-        const selectAllButton = document.getElementById('selectAllServers');
-        const deselectAllButton = document.getElementById('deselectAllServers');
-        if (selectAllButton && deselectAllButton) {
-            selectAllButton.addEventListener('click', () => {
-                document.querySelectorAll('input[name="setup"]').forEach(checkbox => checkbox.checked = true);
-                createGamesChart();
-            });
-            
-            deselectAllButton.addEventListener('click', () => {
-                document.querySelectorAll('input[name="setup"]').forEach(checkbox => checkbox.checked = false);
-                createGamesChart();
+        const toggleButton = document.getElementById('toggleView');
+        if (toggleButton) {
+            toggleButton.addEventListener('click', () => {
+                isCumulativeView = !isCumulativeView;
+                toggleButton.textContent = isCumulativeView ? 'Show Individual View' : 'Show Linear View';
+                this.createChart();
             });
         }
-
-        const updateGraphButton = document.getElementById('updateGraph');
-        if (updateGraphButton) {
-            updateGraphButton.remove();
-        }
-
-        createGamesChart();
-    } else {
-        yAxisInput.value = 16;
-        const setupCheckboxes = document.querySelector('.setup-checkboxes');
-        if (setupCheckboxes) {
-            setupCheckboxes.style.display = 'none';
-        }
-
-        const selectAllButton = document.getElementById('selectAllServers');
-        const deselectAllButton = document.getElementById('deselectAllServers');
-        if (selectAllButton && deselectAllButton) {
-            selectAllButton.onclick = () => {
-                document.querySelectorAll('input[name="server"]').forEach(checkbox => checkbox.checked = true);
-            };
-            deselectAllButton.onclick = () => {
-                document.querySelectorAll('input[name="server"]').forEach(checkbox => checkbox.checked = false);
-            };
-        }
     }
 
-    if (graphType === 'individualServers') {
-        serverFilters.style.display = 'block';
-    } else {
-        serverFilters.style.display = 'none';
+    async fetchData(queryParams) {
+        try {
+            const response = await fetch(`/api/games-timeline?${queryParams}`);
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            return null;
+        }
     }
 }
 
-function createGamesChart() {
-    const margin = { top: 5, right: 20, bottom: 35, left: 40 };
-    const chartContainer = document.getElementById('gamesChart');
-    const width = chartContainer.offsetWidth - margin.left - margin.right;
-    const height = 350;
-    const startDate = document.getElementById('startDate').valueAsDate;
-    const endDate = document.getElementById('endDate').valueAsDate;
-    const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
-    const graphType = document.getElementById('graph-filter').value || 'individualServers';
-    const playerName = document.querySelector('.player-input')?.value || '';
-
-    d3.select("#gamesChart svg").remove();
-
-    const queryParams = new URLSearchParams({
-        graphType: graphType
-    });
-    
-    if (playerName) {
-        queryParams.append('playerName', playerName);
+class IndividualServersGraph extends BaseGraph {
+    constructor() {
+        super();
+        this.initializeServerControls();
+        this.createChart();
     }
 
-    fetch(`/api/games-timeline?${queryParams.toString()}`)
-        .then(response => response.json())
-        .then(data => {
-            let filteredData = data.filter(d => {
-                const date = new Date(d.date);
-                return date >= startDate && date <= endDate;
-            });
-
-            const svg = d3.select("#gamesChart")
-                .append("svg")
-                .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-                .attr("preserveAspectRatio", "xMidYMid meet")
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
-
-            if (graphType === '1v1setupStatistics') {
-                create1v1SetupChart(filteredData, svg, width, height, margin);
-            } else {
-                createRegularChart(filteredData, svg, width, height, margin, graphType, yAxisMax);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching games data:', error);
-            chartContainer.innerHTML = 'Error loading chart data';
+    initializeServerControls() {
+        document.getElementById('selectAllServers')?.addEventListener('click', () => {
+            document.querySelectorAll('input[name="server"]').forEach(checkbox => checkbox.checked = true);
+            this.createChart();
         });
-}
 
-function createRegularChart(filteredData, svg, width, height, margin, graphType, yAxisMax) {
-    let selectedServers;
-    if (graphType === 'individualServers') {
-        selectedServers = Array.from(document.querySelectorAll('input[name="server"]:checked'))
+        document.getElementById('deselectAllServers')?.addEventListener('click', () => {
+            document.querySelectorAll('input[name="server"]').forEach(checkbox => checkbox.checked = false);
+            this.createChart();
+        });
+    }
+
+    async createChart() {
+        const startDate = document.getElementById('startDate').valueAsDate;
+        const endDate = document.getElementById('endDate').valueAsDate;
+        const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
+        const playerName = document.querySelector('.player-input')?.value || '';
+
+        const selectedServers = Array.from(document.querySelectorAll('input[name="server"]:checked'))
             .map(checkbox => checkbox.value);
-    } else {
-        selectedServers = graphConfigs[graphType].serverTypes.map(type => type.key);
-    }
 
-    if (isCumulativeView) {
-        const cumulativeData = [];
-        const serverTotals = {};
+        if (selectedServers.length === 0) return;
 
-        filteredData.forEach((dayData) => {
-            const newDayData = { date: dayData.date };
-            selectedServers.forEach(server => {
-                serverTotals[server] = (serverTotals[server] || 0) + (dayData[server] || 0);
-                newDayData[server] = serverTotals[server];
-            });
-            cumulativeData.push(newDayData);
+        const queryParams = new URLSearchParams({
+            graphType: 'individualServers',
+            playerName
         });
 
-        filteredData = cumulativeData;
+        let data = await this.fetchData(queryParams);
+        if (!data) return;
+
+        data = data.filter(d => {
+            const date = new Date(d.date);
+            return date >= startDate && date <= endDate;
+        });
+
+        if (isCumulativeView) {
+            const serverTotals = {};
+            data = data.map(dayData => {
+                const newDayData = { date: dayData.date };
+                selectedServers.forEach(server => {
+                    serverTotals[server] = (serverTotals[server] || 0) + (dayData[server] || 0);
+                    newDayData[server] = serverTotals[server];
+                });
+                return newDayData;
+            });
+        }
+
+        const svg = d3.select("#gamesChart svg").remove();
+        const newSvg = d3.select("#gamesChart")
+            .append("svg")
+            .attr("viewBox", `0 0 ${this.width + this.margin.left + this.margin.right} ${this.height + this.margin.top + this.margin.bottom}`)
+            .append("g")
+            .attr("transform", `translate(${this.margin.left},${this.margin.top})`);
+
+        const x = d3.scaleTime()
+            .domain(d3.extent(data, d => new Date(d.date)))
+            .range([0, this.width]);
+
+        const y = d3.scaleLinear()
+            .domain([0, isCumulativeView ? 
+                d3.max(data, d => d3.max(selectedServers, server => d[server] || 0)) : 
+                yAxisMax
+            ])
+            .range([this.height, 0]);
+
+        newSvg.append("g")
+            .attr("class", "grid")
+            .attr("transform", `translate(0,${this.height})`)
+            .call(d3.axisBottom(x)
+                .tickSize(-this.height)
+                .tickFormat(""))
+            .style("color", "rgba(255, 255, 255, 0.1)");
+
+        newSvg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(y)
+                .tickSize(-this.width)
+                .tickFormat(""))
+            .style("color", "rgba(255, 255, 255, 0.1)");
+
+        newSvg.append("g")
+            .attr("transform", `translate(0,${this.height})`)
+            .call(d3.axisBottom(x))
+            .style("color", "#b8b8b8");
+
+        newSvg.append("g")
+            .call(d3.axisLeft(y)
+                .ticks(10)
+                .tickFormat(d3.format("d")))
+            .style("color", "#b8b8b8");
+
+        newSvg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -this.margin.left)
+            .attr("x", -this.height / 2)
+            .attr("dy", "0.8em")
+            .style("text-anchor", "middle")
+            .style("fill", "#b8b8b8")
+            .text(graphConfigs.individualServers.yAxisLabel);
+
+        selectedServers.forEach(server => {
+            const line = d3.line()
+                .x(d => x(new Date(d.date)))
+                .y(d => y(d[server] || 0))
+                .curve(d3.curveMonotoneX);
+
+            const serverConfig = graphConfigs.individualServers.serverTypes
+                .find(type => type.key === server);
+
+            newSvg.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", serverConfig.color)
+                .attr("stroke-width", 1.5)
+                .attr("d", line)
+                .style("opacity", 0.7)
+                .on("mouseover", function() {
+                    d3.select(this)
+                        .style("opacity", 1)
+                        .style("stroke-width", 2.5);
+                })
+                .on("mouseout", function() {
+                    d3.select(this)
+                        .style("opacity", 0.7)
+                        .style("stroke-width", 1.5);
+                });
+        });
+
+        this.addLegend(newSvg, selectedServers);
     }
 
-    const x = d3.scaleTime()
-        .domain(d3.extent(filteredData, d => new Date(d.date)))
-        .range([0, width]);
+    addLegend(svg, selectedServers) {
+        const selectedServerTypes = graphConfigs.individualServers.serverTypes
+            .filter(type => selectedServers.includes(type.key));
 
-    const yMax = isCumulativeView
-        ? d3.max(filteredData, d =>
-            d3.max(selectedServers, server => d[server] || 0))
-        : yAxisMax;
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(0,${this.height + 40})`);
 
-    const y = d3.scaleLinear()
-        .domain([0, yMax])
-        .range([height, 0]);
+        const desiredColumns = 5;
+        const legendItemWidth = this.width / desiredColumns;
+        const legendItemHeight = 20;
+        const itemsPerRow = desiredColumns;
 
-    svg.append("g")
-        .attr("class", "grid")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x)
-            .tickSize(-height)
-            .tickFormat(""))
-        .style("color", "rgba(255, 255, 255, 0.1)");
+        selectedServerTypes.forEach((serverType, i) => {
+            const row = Math.floor(i / itemsPerRow);
+            const col = i % itemsPerRow;
 
-    svg.append("g")
-        .attr("class", "grid")
-        .call(d3.axisLeft(y)
-            .tickSize(-width)
-            .tickFormat(""))
-        .style("color", "rgba(255, 255, 255, 0.1)");
+            const legendItem = legend.append("g")
+                .attr("transform", `translate(${col * legendItemWidth},${row * legendItemHeight})`);
 
-    svg.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x))
-        .style("color", "#b8b8b8");
+            legendItem.append("rect")
+                .attr("width", 15)
+                .attr("height", 15)
+                .attr("fill", serverType.color)
+                .style("opacity", 0.7);
 
-    svg.append("g")
-        .attr("class", "y-axis")
-        .call(d3.axisLeft(y)
-            .ticks(10)
-            .tickFormat(d3.format("d")))
-        .style("color", "#b8b8b8");
+            legendItem.append("text")
+                .attr("x", 24)
+                .attr("y", 12)
+                .text(serverType.name)
+                .style("fill", "#b8b8b8")
+                .style("font-size", "12px");
 
-    svg.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left)
-        .attr("x", -height / 2)
-        .attr("dy", "0.8em")
-        .style("text-anchor", "middle")
-        .style("fill", "#b8b8b8")
-        .text(graphConfigs[graphType].yAxisLabel);
+            legendItem
+                .style("cursor", "pointer")
+                .on("mouseover", function() {
+                    svg.selectAll("path")
+                        .style("opacity", 0.1);
+                    svg.selectAll("path")
+                        .filter(function() {
+                            return d3.select(this).attr("stroke") === serverType.color;
+                        })
+                        .style("opacity", 1)
+                        .style("stroke-width", 2.5);
 
-    const config = graphConfigs[graphType];
-    selectedServers.forEach(server => {
+                    d3.select(this).select("rect")
+                        .style("opacity", 1);
+                })
+                .on("mouseout", function() {
+                    svg.selectAll("path")
+                        .style("opacity", 0.7)
+                        .style("stroke-width", 1.5);
+
+                    d3.select(this).select("rect")
+                        .style("opacity", 0.7);
+                });
+        });
+
+        const legendRows = Math.ceil(selectedServerTypes.length / itemsPerRow);
+        const totalHeight = this.height + this.margin.top + this.margin.bottom + (legendRows * legendItemHeight);
+        d3.select("#gamesChart svg")
+            .attr("viewBox", `0 0 ${this.width + this.margin.left + this.margin.right} ${totalHeight}`);
+    }
+}
+
+class CombinedServersGraph extends BaseGraph {
+    constructor() {
+        super();
+        this.createChart();
+    }
+
+    async createChart() {
+        const startDate = document.getElementById('startDate').valueAsDate;
+        const endDate = document.getElementById('endDate').valueAsDate;
+        const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
+        const playerName = document.querySelector('.player-input')?.value || '';
+
+        const queryParams = new URLSearchParams({
+            graphType: 'combinedServers',
+            playerName
+        });
+
+        let data = await this.fetchData(queryParams);
+        if (!data) return;
+
+        data = data.filter(d => {
+            const date = new Date(d.date);
+            return date >= startDate && date <= endDate;
+        });
+
+        if (isCumulativeView) {
+            let total = 0;
+            data = data.map(d => ({
+                date: d.date,
+                allServers: (total += d.allServers)
+            }));
+        }
+
+        const svg = d3.select("#gamesChart svg").remove();
+        const newSvg = d3.select("#gamesChart")
+            .append("svg")
+            .attr("viewBox", `0 0 ${this.width + this.margin.left + this.margin.right} ${this.height + this.margin.top + this.margin.bottom}`)
+            .append("g")
+            .attr("transform", `translate(${this.margin.left},${this.margin.top})`);
+
+        const x = d3.scaleTime()
+            .domain(d3.extent(data, d => new Date(d.date)))
+            .range([0, this.width]);
+
+        const y = d3.scaleLinear()
+            .domain([0, isCumulativeView ? 
+                d3.max(data, d => d.allServers) : 
+                yAxisMax
+            ])
+            .range([this.height, 0]);
+
+        this.addGridAndAxes(newSvg, x, y);
+
         const line = d3.line()
             .x(d => x(new Date(d.date)))
-            .y(d => y(d[server] || 0))
+            .y(d => y(d.allServers))
             .curve(d3.curveMonotoneX);
 
-        const serverConfig = config.serverTypes.find(type => type.key === server);
-
-        svg.append("path")
-            .datum(filteredData)
+        newSvg.append("path")
+            .datum(data)
             .attr("fill", "none")
-            .attr("stroke", serverConfig.color)
-            .attr("stroke-width", 1.5)
+            .attr("stroke", graphConfigs.combinedServers.serverTypes[0].color)
+            .attr("stroke-width", 2)
             .attr("d", line)
-            .style("opacity", 0.7)
-            .on("mouseover", function () {
-                d3.select(this)
-                    .style("opacity", 1)
-                    .style("stroke-width", 2.5);
-            })
-            .on("mouseout", function () {
-                d3.select(this)
-                    .style("opacity", 0.7)
-                    .style("stroke-width", 1.5);
-            });
-    });
-
-    const selectedServerTypes = config.serverTypes.filter(type =>
-        selectedServers.includes(type.key)
-    );
-
-    const legend = svg.append("g")
-        .attr("class", "legend")
-        .attr("transform", `translate(0,${height + 40})`);
-
-    const desiredColumns = 5;
-    const legendItemWidth = width / desiredColumns;
-    const legendItemHeight = 20;
-    const itemsPerRow = desiredColumns;
-
-    selectedServerTypes.forEach((serverType, i) => {
-        const row = Math.floor(i / itemsPerRow);
-        const col = i % itemsPerRow;
-
-        const legendItem = legend.append("g")
-            .attr("transform", `translate(${col * legendItemWidth},${row * legendItemHeight})`);
-
-        legendItem.append("rect")
-            .attr("width", 15)
-            .attr("height", 15)
-            .attr("fill", serverType.color)
             .style("opacity", 0.7);
+    }
 
-        legendItem.append("text")
-            .attr("x", 24)
-            .attr("y", 12)
-            .text(serverType.name)
+    addGridAndAxes(svg, x, y) {
+        svg.append("g")
+            .attr("class", "grid")
+            .attr("transform", `translate(0,${this.height})`)
+            .call(d3.axisBottom(x)
+                .tickSize(-this.height)
+                .tickFormat(""))
+            .style("color", "rgba(255, 255, 255, 0.1)");
+
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(y)
+                .tickSize(-this.width)
+                .tickFormat(""))
+            .style("color", "rgba(255, 255, 255, 0.1)");
+
+        svg.append("g")
+            .attr("transform", `translate(0,${this.height})`)
+            .call(d3.axisBottom(x))
+            .style("color", "#b8b8b8");
+
+        svg.append("g")
+            .call(d3.axisLeft(y)
+                .ticks(10)
+                .tickFormat(d3.format("d")))
+            .style("color", "#b8b8b8");
+
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -this.margin.left)
+            .attr("x", -this.height / 2)
+            .attr("dy", "0.8em")
+            .style("text-anchor", "middle")
             .style("fill", "#b8b8b8")
-            .style("font-size", "12px");
-
-        legendItem
-            .style("cursor", "pointer")
-            .on("mouseover", function () {
-                svg.selectAll("path")
-                    .style("opacity", 0.1);
-                svg.selectAll("path")
-                    .filter(function () {
-                        return d3.select(this).attr("stroke") === serverType.color;
-                    })
-                    .style("opacity", 1)
-                    .style("stroke-width", 2.5);
-
-                d3.select(this).select("rect")
-                    .style("opacity", 1);
-            })
-            .on("mouseout", function () {
-                svg.selectAll("path")
-                    .style("opacity", 0.7)
-                    .style("stroke-width", 1.5);
-
-                d3.select(this).select("rect")
-                    .style("opacity", 0.7);
-            });
-    });
-
-    const legendRows = Math.ceil(selectedServerTypes.length / itemsPerRow);
-    const totalHeight = height + margin.top + margin.bottom + (legendRows * legendItemHeight);
-    d3.select("#gamesChart svg")
-        .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${totalHeight}`);
+            .text(graphConfigs.combinedServers.yAxisLabel);
+    }
 }
 
-function create1v1SetupChart(data, svg, width, height, margin) {
-    const config = graphConfigs['1v1setupStatistics'];
-    const barPadding = 0.3;
-    const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
+class TotalHoursGraph extends BaseGraph {
+    constructor() {
+        super();
+        this.createChart();
+    }
 
-    const mainTerritories = [
-        'Russia',
-        'Europe',
-        'Asia',
-        'Africa',
-        'South America',
-        'North America'
-    ];
+    async createChart() {
+        const startDate = document.getElementById('startDate').valueAsDate;
+        const endDate = document.getElementById('endDate').valueAsDate;
+        const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
+        const playerName = document.querySelector('.player-input')?.value || '';
+    
+        const queryParams = new URLSearchParams({
+            graphType: 'totalHoursPlayed',
+            playerName
+        });
+    
+        let data = await this.fetchData(queryParams);
+        if (!data) return;
+    
+        data = data.filter(d => {
+            const date = new Date(d.date);
+            return date >= startDate && date <= endDate;
+        });
+    
+        // Add cumulative calculation
+        if (isCumulativeView) {
+            let total = 0;
+            data = data.map(d => ({
+                date: d.date,
+                totalHours: (total += d.totalHours)
+            }));
+        }
 
-    const territoryAbbreviations = {
-        'North America': 'NA',
-        'South America': 'SA',
-        'Europe': 'EU',
-        'Russia': 'RU',
-        'Africa': 'AF',
-        'Asia': 'AS'
-    };
+        const svg = d3.select("#gamesChart svg").remove();
+        const newSvg = d3.select("#gamesChart")
+            .append("svg")
+            .attr("viewBox", `0 0 ${this.width + this.margin.left + this.margin.right} ${this.height + this.margin.top + this.margin.bottom}`)
+            .append("g")
+            .attr("transform", `translate(${this.margin.left},${this.margin.top})`);
 
-    const defaultSetups = [
-        'Africa_vs_Asia',
-        'Europe_vs_North America',
-        'Africa_vs_South America',
-        'Europe_vs_South America',
-        'North America_vs_Russia',
-        'Africa_vs_North America'
-    ];
+        const x = d3.scaleTime()
+            .domain(d3.extent(data, d => new Date(d.date)))
+            .range([0, this.width]);
 
-    function formatSetupLabel(setup) {
+        const y = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.totalHours)])
+            .range([this.height, 0]);
+
+        this.addGridAndAxes(newSvg, x, y);
+
+        const line = d3.line()
+            .x(d => x(new Date(d.date)))
+            .y(d => y(d.totalHours))
+            .curve(d3.curveMonotoneX);
+
+        newSvg.append("path")
+            .datum(data)
+            .attr("fill", "none")
+            .attr("stroke", graphConfigs.totalHoursPlayed.serverTypes[0].color)
+            .attr("stroke-width", 2)
+            .attr("d", line)
+            .style("opacity", 0.7);
+    }
+
+    addGridAndAxes(svg, x, y) {
+        svg.append("g")
+            .attr("class", "grid")
+            .attr("transform", `translate(0,${this.height})`)
+            .call(d3.axisBottom(x)
+                .tickSize(-this.height)
+                .tickFormat(""))
+            .style("color", "rgba(255, 255, 255, 0.1)");
+
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(y)
+                .tickSize(-this.width)
+                .tickFormat(""))
+            .style("color", "rgba(255, 255, 255, 0.1)");
+
+        svg.append("g")
+            .attr("transform", `translate(0,${this.height})`)
+            .call(d3.axisBottom(x))
+            .style("color", "#b8b8b8");
+
+        svg.append("g")
+            .call(d3.axisLeft(y)
+                .ticks(10)
+                .tickFormat(d3.format("d")))
+            .style("color", "#b8b8b8");
+
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -this.margin.left)
+            .attr("x", -this.height / 2)
+            .attr("dy", "0.8em")
+            .style("text-anchor", "middle")
+            .style("fill", "#b8b8b8")
+            .text(graphConfigs.combinedServers.yAxisLabel);
+    }
+}
+
+class PopularTerritoriesGraph extends BaseGraph {
+    constructor() {
+        super();
+        this.initializeTerritoryControls();
+        this.createChart();
+    }
+
+    initializeTerritoryControls() {
+        document.getElementById('selectAllTerritories')?.addEventListener('click', () => {
+            document.querySelectorAll('input[name="territory"]').forEach(checkbox => checkbox.checked = true);
+            this.createChart();
+        });
+
+        document.getElementById('deselectAllTerritories')?.addEventListener('click', () => {
+            document.querySelectorAll('input[name="territory"]').forEach(checkbox => checkbox.checked = false);
+            this.createChart();
+        });
+    }
+
+    async createChart() {
+        const startDate = document.getElementById('startDate').valueAsDate;
+        const endDate = document.getElementById('endDate').valueAsDate;
+        const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
+        const playerName = document.querySelector('.player-input')?.value || '';
+    
+        const selectedTerritories = Array.from(document.querySelectorAll('input[name="territory"]:checked'))
+            .map(checkbox => checkbox.value);
+    
+        if (selectedTerritories.length === 0) return;
+    
+        const queryParams = new URLSearchParams({
+            graphType: 'popularTerritories',
+            playerName
+        });
+    
+        let data = await this.fetchData(queryParams);
+        if (!data) return;
+    
+        data = data.filter(d => {
+            const date = new Date(d.date);
+            return date >= startDate && date <= endDate;
+        });
+    
+        // Add cumulative calculation
+        if (isCumulativeView) {
+            const territoryTotals = {};
+            data = data.map(dayData => {
+                const newDayData = { date: dayData.date };
+                selectedTerritories.forEach(territory => {
+                    territoryTotals[territory] = (territoryTotals[territory] || 0) + (dayData[territory] || 0);
+                    newDayData[territory] = territoryTotals[territory];
+                });
+                return newDayData;
+            });
+        }
+
+        const svg = d3.select("#gamesChart svg").remove();
+        const newSvg = d3.select("#gamesChart")
+            .append("svg")
+            .attr("viewBox", `0 0 ${this.width + this.margin.left + this.margin.right} ${this.height + this.margin.top + this.margin.bottom}`)
+            .append("g")
+            .attr("transform", `translate(${this.margin.left},${this.margin.top})`);
+
+        const x = d3.scaleTime()
+            .domain(d3.extent(data, d => new Date(d.date)))
+            .range([0, this.width]);
+
+            const y = d3.scaleLinear()
+            .domain([0, isCumulativeView ? 
+                d3.max(data, d => d3.max(selectedTerritories, territory => d[territory] || 0)) : 
+                yAxisMax
+            ])
+            .range([this.height, 0]);
+
+        this.addGridAndAxes(newSvg, x, y);
+
+        selectedTerritories.forEach(territory => {
+            const line = d3.line()
+                .x(d => x(new Date(d.date)))
+                .y(d => y(d[territory] || 0))
+                .curve(d3.curveMonotoneX);
+
+            const territoryConfig = graphConfigs.popularTerritories.serverTypes
+                .find(type => type.key === territory);
+
+            newSvg.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", territoryConfig.color)
+                .attr("stroke-width", 1.5)
+                .attr("d", line)
+                .style("opacity", 0.7)
+                .on("mouseover", function() {
+                    d3.select(this)
+                        .style("opacity", 1)
+                        .style("stroke-width", 2.5);
+                })
+                .on("mouseout", function() {
+                    d3.select(this)
+                        .style("opacity", 0.7)
+                        .style("stroke-width", 1.5);
+                });
+        });
+
+        this.addLegend(newSvg, selectedTerritories);
+    }
+
+    addGridAndAxes(svg, x, y) {
+        svg.append("g")
+            .attr("class", "grid")
+            .attr("transform", `translate(0,${this.height})`)
+            .call(d3.axisBottom(x)
+                .tickSize(-this.height)
+                .tickFormat(""))
+            .style("color", "rgba(255, 255, 255, 0.1)");
+
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(y)
+                .tickSize(-this.width)
+                .tickFormat(""))
+            .style("color", "rgba(255, 255, 255, 0.1)");
+
+        svg.append("g")
+            .attr("transform", `translate(0,${this.height})`)
+            .call(d3.axisBottom(x))
+            .style("color", "#b8b8b8");
+
+        svg.append("g")
+            .call(d3.axisLeft(y)
+                .ticks(10)
+                .tickFormat(d3.format("d")))
+            .style("color", "#b8b8b8");
+
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -this.margin.left)
+            .attr("x", -this.height / 2)
+            .attr("dy", "0.8em")
+            .style("text-anchor", "middle")
+            .style("fill", "#b8b8b8")
+            .text(graphConfigs.combinedServers.yAxisLabel);
+    }
+
+    addLegend(svg, selectedTerritories) {
+        const selectedTerritoryTypes = graphConfigs.popularTerritories.serverTypes
+            .filter(type => selectedTerritories.includes(type.key));
+    
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(0,${this.height + 40})`);
+    
+        const desiredColumns = 5;
+        const legendItemWidth = this.width / desiredColumns;
+        const legendItemHeight = 20;
+        const itemsPerRow = desiredColumns;
+    
+        selectedTerritoryTypes.forEach((territoryType, i) => {
+            const row = Math.floor(i / itemsPerRow);
+            const col = i % itemsPerRow;
+    
+            const legendItem = legend.append("g")
+                .attr("transform", `translate(${col * legendItemWidth},${row * legendItemHeight})`);
+    
+            legendItem.append("rect")
+                .attr("width", 15)
+                .attr("height", 15)
+                .attr("fill", territoryType.color)
+                .style("opacity", 0.7);
+    
+            legendItem.append("text")
+                .attr("x", 24)
+                .attr("y", 12)
+                .text(territoryType.name)
+                .style("fill", "#b8b8b8")
+                .style("font-size", "12px");
+    
+            legendItem
+                .style("cursor", "pointer")
+                .on("mouseover", function() {
+                    svg.selectAll("path")
+                        .style("opacity", 0.1);
+                    svg.selectAll("path")
+                        .filter(function() {
+                            return d3.select(this).attr("stroke") === territoryType.color;
+                        })
+                        .style("opacity", 1)
+                        .style("stroke-width", 2.5);
+    
+                    d3.select(this).select("rect")
+                        .style("opacity", 1);
+                })
+                .on("mouseout", function() {
+                    svg.selectAll("path")
+                        .style("opacity", 0.7)
+                        .style("stroke-width", 1.5);
+    
+                    d3.select(this).select("rect")
+                        .style("opacity", 0.7);
+                });
+        });
+    
+        const legendRows = Math.ceil(selectedTerritoryTypes.length / itemsPerRow);
+        const totalHeight = this.height + this.margin.top + this.margin.bottom + (legendRows * legendItemHeight);
+        d3.select("#gamesChart svg")
+            .attr("viewBox", `0 0 ${this.width + this.margin.left + this.margin.right} ${totalHeight}`);
+    }
+}
+
+class SetupStatisticsGraph extends BaseGraph {
+    constructor() {
+        super();
+        this.territoryAbbreviations = {
+            'North America': 'NA',
+            'South America': 'SA',
+            'Europe': 'EU',
+            'Russia': 'RU',
+            'Africa': 'AF',
+            'Asia': 'AS',
+            'East Asia': 'EA',
+            'Australasia': 'AU',
+            'West Asia': 'WA',
+            'Antartica': 'AN',
+            'North Africa': 'NAF',
+            'South Africa': 'SAF'
+        };
+        this.setupData = null;
+        this.initializeSetupControls();
+        this.createChart();
+    }
+
+    formatSetupLabel(setup) {
         return setup.split('_vs_')
-            .map(territory => territoryAbbreviations[territory] || territory)
+            .map(territory => this.territoryAbbreviations[territory] || territory)
             .join(' vs ');
     }
 
-    const validSetups = data.filter(setup => {
-        const [t1, t2] = setup.territories;
-        return mainTerritories.includes(t1) && mainTerritories.includes(t2);
-    });
-
-    const selectedSetups = Array.from(document.querySelectorAll('input[name="setup"]:checked'))
-        .map(checkbox => checkbox.value);
-
-    const topSetups = validSetups.filter(setup => selectedSetups.includes(setup.setup));
-
-    const chartContainer = document.getElementById('gamesChart');
-    chartContainer.innerHTML = '';
-
-    svg = d3.select("#gamesChart")
-        .append("svg")
-        .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-        .attr("preserveAspectRatio", "xMidYMid meet")
-        .style("width", "100%")
-        .style("height", "100%")
-        .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
-
-    const x0 = d3.scaleBand()
-        .domain(topSetups.map(d => d.setup))
-        .range([0, width])
-        .padding(barPadding);
-
-    const x1 = d3.scaleBand()
-        .domain([0, 1])
-        .range([0, x0.bandwidth()])
-        .padding(0.05);
-
-    const dataMax = d3.max(topSetups, d =>
-        Math.max(d[d.territories[0]], d[d.territories[1]])
-    );
-
-    const yMax = Math.max(dataMax, yAxisMax);
-
-    const y = d3.scaleLinear()
-        .domain([0, yMax])
-        .range([height, 0]);
-
-    const xAxis = d3.axisBottom(x0)
-        .tickFormat(d => formatSetupLabel(d));
-
-    svg.append("g")
-        .attr("class", "grid")
-        .call(d3.axisLeft(y)
-            .tickSize(-width)
-            .tickFormat(""))
-        .style("color", "rgba(255, 255, 255, 0.1)");
-
-    svg.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(xAxis)
-        .selectAll("text")
-        .style("text-anchor", "end")
-        .attr("dx", "1.75rem")
-        .attr("dy", ".15em")
-        .style("color", "#b8b8b8");
-
-    svg.append("g")
-        .call(d3.axisLeft(y)
-            .ticks(10)
-            .tickFormat(d3.format("d")))
-        .style("color", "#b8b8b8");
-
-    svg.append("text")
-        .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left)
-        .attr("x", -height / 2)
-        .attr("dy", "0.8em")
-        .style("text-anchor", "middle")
-        .style("fill", "#b8b8b8")
-        .text(config.yAxisLabel);
-
-    topSetups.forEach(setup => {
-        const setupGroup = svg.append("g")
-            .attr("transform", `translate(${x0(setup.setup)},0)`);
-
-        const wins1 = setup[setup.territories[0]];
-        const wins2 = setup[setup.territories[1]];
-        const setupColors = wins1 > wins2 ? ['#4CAF50', '#FF4444'] : ['#FF4444', '#4CAF50'];
-
-        setupGroup.append("rect")
-            .attr("x", x1(0))
-            .attr("y", y(setup[setup.territories[0]]))
-            .attr("width", x1.bandwidth())
-            .attr("height", height - y(setup[setup.territories[0]]))
-            .attr("fill", setupColors[0])
-            .style("opacity", 0.7)
-            .on("mouseover", function (event) {
-                d3.select(this)
-                    .style("opacity", 1);
-
-                const tooltip = d3.select("body").append("div")
-                    .attr("class", "tooltip")
-                    .style("position", "absolute")
-                    .style("background-color", "#333")
-                    .style("padding", "10px")
-                    .style("border-radius", "5px")
-                    .style("color", "#fff")
-                    .html(`
-                        <strong>${setup.territories[0]}</strong><br>
-                        Wins: ${setup[setup.territories[0]]}<br>
-                        Win Rate: ${((setup[setup.territories[0]] / setup.total_games) * 100).toFixed(1)}%<br>
-                        Total Games: ${setup.total_games}
-                    `);
-
-                tooltip.style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 10) + "px");
-            })
-            .on("mouseout", function () {
-                d3.select(this)
-                    .style("opacity", 0.7);
-                d3.select(".tooltip").remove();
+    initializeSetupControls() {
+        document.getElementById('selectAllSetups')?.addEventListener('click', () => {
+            document.querySelectorAll('input[name="setup"]').forEach(checkbox => {
+                checkbox.checked = true;
             });
-
-        setupGroup.append("rect")
-            .attr("x", x1(1))
-            .attr("y", y(setup[setup.territories[1]]))
-            .attr("width", x1.bandwidth())
-            .attr("height", height - y(setup[setup.territories[1]]))
-            .attr("fill", setupColors[1])
-            .style("opacity", 0.7)
-            .on("mouseover", function (event) {
-                d3.select(this)
-                    .style("opacity", 1);
-
-                const tooltip = d3.select("body").append("div")
-                    .attr("class", "tooltip")
-                    .style("position", "absolute")
-                    .style("background-color", "#333")
-                    .style("padding", "10px")
-                    .style("border-radius", "5px")
-                    .style("color", "#fff")
-                    .html(`
-                        <strong>${setup.territories[1]}</strong><br>
-                        Wins: ${setup[setup.territories[1]]}<br>
-                        Win Rate: ${((setup[setup.territories[1]] / setup.total_games) * 100).toFixed(1)}%<br>
-                        Total Games: ${setup.total_games}
-                    `);
-
-                tooltip.style("left", (event.pageX + 10) + "px")
-                    .style("top", (event.pageY - 10) + "px");
-            })
-            .on("mouseout", function () {
-                d3.select(this)
-                    .style("opacity", 0.7);
-                d3.select(".tooltip").remove();
-            });
-    });
-
-    const checkboxContainer = document.querySelector('.setup-checkboxes');
-    checkboxContainer.innerHTML = `
-        <div class="server-filters">
-            <div class="filter-header">
-                <h3 class="filter-title">Setup Selection</h3>
-                <div class="reset-apply-servers">
-                    <button id="selectAllServers" class="apply-servers-btn">Select All</button>
-                    <button id="deselectAllServers" class="reset-servers-btn">Deselect All</button>
-                </div>
-            </div>
-            <div class="server-checkboxes">
-                <div class="checkbox-column">
-                </div>
-                <div class="checkbox-column">
-                </div>
-            </div>
-        </div>
-        <button id="updateGraph" class="update-graph-btn">Update Graph</button>
-    `;
-
-    const updateGraphButton = document.getElementById('updateGraph');
-    if (updateGraphButton) {
-        updateGraphButton.addEventListener('click', createGamesChart);
-    }
-
-    const leftColumn = checkboxContainer.querySelector('.checkbox-column:first-child');
-    const rightColumn = checkboxContainer.querySelector('.checkbox-column:last-child');
-
-    const allCombinations = [];
-    for (let i = 0; i < mainTerritories.length; i++) {
-        for (let j = i + 1; j < mainTerritories.length; j++) {
-            const territories = [mainTerritories[i], mainTerritories[j]].sort();
-            allCombinations.push(`${territories[0]}_vs_${territories[1]}`);
-        }
-    }
-
-    allCombinations.forEach((setup, index) => {
-        const label = document.createElement('label');
-        label.style.display = 'block';
-        label.style.marginBottom = '5px';
-        label.style.color = '#b8b8b8';
-
-        const isChecked = selectedSetups.length > 0
-            ? selectedSetups.includes(setup)
-            : defaultSetups.includes(setup);
-
-        label.innerHTML = `
-            <input type="checkbox" name="setup" value="${setup}" 
-                   ${isChecked ? 'checked' : ''}>
-            ${formatSetupLabel(setup)}
-        `;
-        
-        (index % 2 === 0 ? leftColumn : rightColumn).appendChild(label);
-    });
-}
-
-function downloadAPIData() {
-    fetch(`/api/games-timeline?graphType=1v1setupStatistics`)
-        .then(response => response.json())
-        .then(data => {
-            const jsonString = JSON.stringify(data, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = '1v1_setup_data.json';
-
-            document.body.appendChild(a);
-            a.click();
-
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        })
-        .catch(error => {
-            console.error('Error downloading data:', error);
+            this.updateChart();
         });
+
+        document.getElementById('deselectAllSetups')?.addEventListener('click', () => {
+            document.querySelectorAll('input[name="setup"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            this.updateChart();
+        });
+
+        document.getElementById('updateGraph')?.addEventListener('click', () => {
+            this.updateChart();
+        });
+    }
+
+    async createChart() {
+        const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
+        const playerName = document.querySelector('.player-input')?.value || '';
+
+        const queryParams = new URLSearchParams({
+            graphType: '1v1setupStatistics',
+            playerName
+        });
+
+        if (!this.setupData) {
+            const data = await this.fetchData(queryParams);
+            if (!data) return;
+            this.setupData = data;
+
+            this.populateSetupCheckboxes(this.setupData);
+        }
+
+        this.updateChart();
+    }
+
+    updateChart() {
+        if (!this.setupData) return;
+
+        const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
+        const selectedSetups = Array.from(document.querySelectorAll('input[name="setup"]:checked'))
+            .map(checkbox => checkbox.value);
+
+        if (selectedSetups.length === 0) return;
+
+        const filteredData = this.setupData.filter(setup => selectedSetups.includes(setup.setup));
+        this.renderChart(filteredData, yAxisMax);
+    }
+
+    populateSetupCheckboxes(data) {
+        const checkboxContainer = document.querySelector('.setup-checkboxes');
+        if (!checkboxContainer) return;
+
+        checkboxContainer.innerHTML = '';
+
+        const leftColumn = document.createElement('div');
+        const rightColumn = document.createElement('div');
+        leftColumn.className = 'checkbox-column';
+        rightColumn.className = 'checkbox-column';
+        checkboxContainer.appendChild(leftColumn);
+        checkboxContainer.appendChild(rightColumn);
+
+        const sortedSetups = [...data].sort((a, b) => b.total_games - a.total_games);
+
+        sortedSetups.forEach((setup, index) => {
+            const label = document.createElement('label');
+            label.style.display = 'block';
+            label.style.marginBottom = '5px';
+            label.style.color = '#b8b8b8';
+            
+            label.innerHTML = `
+                <input type="checkbox" name="setup" value="${setup.setup}" checked>
+                ${this.formatSetupLabel(setup.setup)}
+            `;
+            
+            (index % 2 === 0 ? leftColumn : rightColumn).appendChild(label);
+        });
+    }
+
+    renderChart(data, yAxisMax) {
+        const svg = d3.select("#gamesChart svg").remove();
+        const newSvg = d3.select("#gamesChart")
+            .append("svg")
+            .attr("viewBox", `0 0 ${this.width + this.margin.left + this.margin.right} ${this.height + this.margin.top + this.margin.bottom}`)
+            .append("g")
+            .attr("transform", `translate(${this.margin.left},${this.margin.top})`);
+
+        const x0 = d3.scaleBand()
+            .domain(data.map(d => d.setup))
+            .range([0, this.width])
+            .padding(0.3);
+
+        const x1 = d3.scaleBand()
+            .domain([0, 1])
+            .range([0, x0.bandwidth()])
+            .padding(0.05);
+
+        const y = d3.scaleLinear()
+            .domain([0, yAxisMax])
+            .range([this.height, 0]);
+
+        this.addGridAndAxes(newSvg, x0, y);
+        this.addBars(newSvg, data, x0, x1, y);
+    }
+
+    addGridAndAxes(svg, x, y) {
+        // Grid
+        svg.append("g")
+            .attr("class", "grid")
+            .attr("transform", `translate(0,${this.height})`)
+            .call(d3.axisBottom(x)
+                .tickFormat(d => this.formatSetupLabel(d))
+                .tickSize(-this.height))
+            .style("color", "rgba(255, 255, 255, 0.1)")
+            .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", "rotate(-45)");
+
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(y)
+                .tickSize(-this.width)
+                .tickFormat(""))
+            .style("color", "rgba(255, 255, 255, 0.1)");
+
+        // Axes
+        svg.append("g")
+            .attr("transform", `translate(0,${this.height})`)
+            .call(d3.axisBottom(x).tickFormat(d => this.formatSetupLabel(d)))
+            .style("color", "#b8b8b8")
+            .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", "rotate(-45)");
+
+        svg.append("g")
+            .call(d3.axisLeft(y)
+                .ticks(10)
+                .tickFormat(d3.format("d")))
+            .style("color", "#b8b8b8");
+
+        // Y-axis label
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -this.margin.left)
+            .attr("x", -this.height / 2)
+            .attr("dy", "0.8em")
+            .style("text-anchor", "middle")
+            .style("fill", "#b8b8b8")
+            .text(graphConfigs["1v1setupStatistics"].yAxisLabel);
+    }
+
+    addBars(svg, data, x0, x1, y) {
+        data.forEach(setup => {
+            const setupGroup = svg.append("g")
+                .attr("transform", `translate(${x0(setup.setup)},0)`);
+    
+            const [t1, t2] = setup.territories;
+            const wins1 = setup[t1];
+            const wins2 = setup[t2];
+            const setupColors = wins1 > wins2 ? ['#4CAF50', '#FF4444'] : ['#FF4444', '#4CAF50'];
+
+            const createTooltip = (territory, wins, total_games) => {
+                d3.selectAll('.tooltip').remove();
+                return d3.select("body").append("div")
+                    .attr("class", "tooltip")
+                    .style("position", "absolute")
+                    .style("background-color", "#333")
+                    .style("padding", "10px")
+                    .style("border-radius", "5px")
+                    .style("color", "#fff")
+                    .style("pointer-events", "none")
+                    .html(`
+                        <strong>${territory}</strong><br>
+                        Wins: ${wins}<br>
+                        Win Rate: ${((wins / total_games) * 100).toFixed(1)}%<br>
+                        Total Games: ${total_games}
+                    `);
+            };
+    
+            // First territory bar
+            setupGroup.append("rect")
+                .attr("x", x1(0))
+                .attr("y", y(setup[t1]))
+                .attr("width", x1.bandwidth())
+                .attr("height", this.height - y(setup[t1]))
+                .attr("fill", setupColors[0])
+                .style("opacity", 0.7)
+                .on("mouseover", function(event) {
+                    d3.select(this).style("opacity", 1);
+                    const tooltip = createTooltip(t1, setup[t1], setup.total_games);
+                    tooltip.style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 10) + "px");
+                })
+                .on("mousemove", function(event) {
+                    d3.select('.tooltip')
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 10) + "px");
+                })
+                .on("mouseout", function() {
+                    d3.select(this).style("opacity", 0.7);
+                    d3.selectAll('.tooltip').remove();
+                });
+    
+            // Second territory bar
+            setupGroup.append("rect")
+                .attr("x", x1(1))
+                .attr("y", y(setup[t2]))
+                .attr("width", x1.bandwidth())
+                .attr("height", this.height - y(setup[t2]))
+                .attr("fill", setupColors[1])
+                .style("opacity", 0.7)
+                .on("mouseover", function(event) {
+                    d3.select(this).style("opacity", 1);
+                    const tooltip = createTooltip(t2, setup[t2], setup.total_games);
+                    tooltip.style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 10) + "px");
+                })
+                .on("mousemove", function(event) {
+                    d3.select('.tooltip')
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 10) + "px");
+                })
+                .on("mouseout", function() {
+                    d3.select(this).style("opacity", 0.7);
+                    d3.selectAll('.tooltip').remove();
+                });
+        });
+    }
 }
 
-document.addEventListener('DOMContentLoaded', initializeGraphControls);
+document.addEventListener('DOMContentLoaded', () => {
+    const graphSelect = document.getElementById('graph-filter');
+    if (graphSelect) {
+        graphSelect.addEventListener('change', (e) => {
+            const urlMap = {
+                'individualServers': '/about',
+                'combinedServers': '/about/combined-servers',
+                'totalHoursPlayed': '/about/hours-played',
+                'popularTerritories': '/about/popular-territories',
+                '1v1setupStatistics': '/about/1v1-setup-statistics'
+            };
 
-window.addEventListener('resize', _.debounce(createGamesChart, 250));
+            const newUrl = urlMap[e.target.value];
+            if (newUrl) {
+                window.location.href = newUrl;
+            }
+        });
+    }
+
+    const pathname = window.location.pathname;
+    switch (pathname) {
+        case '/about':
+            new IndividualServersGraph();
+            break;
+        case '/about/combined-servers':
+            new CombinedServersGraph();
+            break;
+        case '/about/hours-played':
+            new TotalHoursGraph();
+            break;
+        case '/about/popular-territories':
+            new PopularTerritoriesGraph();
+            break;
+        case '/about/1v1-setup-statistics':
+            new SetupStatisticsGraph();
+            break;
+    }
+});
+
+window.addEventListener('resize', _.debounce(() => {
+    const pathname = window.location.pathname;
+    switch (pathname) {
+        case '/about':
+            new IndividualServersGraph();
+            break;
+        case '/about/combined-servers':
+            new CombinedServersGraph();
+            break;
+        case '/about/hours-played':
+            new TotalHoursGraph();
+            break;
+        case '/about/popular-territories':
+            new PopularTerritoriesGraph();
+            break;
+        case '/about/1v1-setup-statistics':
+            new SetupStatisticsGraph();
+            break;
+    }
+}, 250));

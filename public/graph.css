@@ -74,12 +74,21 @@
     background-color: #4a4a4a;
     color: #b8b8b8;
     border: none;
-    margin-top: 10px;
     padding: 0.4rem;
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.2s;
+}
+
+#graph-filter {
+    margin-top: 15px;
+}
+
+.yaxis-linear {
+    display: flex;
+    gap: 15px;
+    flex-direction: row;
 }
 
 .setup-checkboxes {
@@ -106,15 +115,11 @@
     background-color: #ff00f2;
 }
 
-.filter-header {
-    margin-bottom: 10px;
+.setup-checkboxes {
+    display: flex;
+    gap: 5px;
 }
 
-.filter-title {
-    color: #4da6ff;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+.filter-header {
+    margin-bottom: 10px;
 }
