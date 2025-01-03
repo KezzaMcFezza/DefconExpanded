@@ -1,3 +1,17 @@
+/*!
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 18-12-2024 
+*/
+
 h1 {
     font-size: 2.5em;
     margin-bottom: 10px;
@@ -8,23 +22,30 @@ h1 {
     flex-direction: column;
     align-items: center;
 }
+
 .dashboard {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
 }
-.profile-card, .status-card, .achievements-card, .location-card {
+
+.profile-card,
+.status-card,
+.achievements-card,
+.location-card {
     padding: 1.5rem;
     opacity: 1;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     height: fit-content;
 }
+
 .profile-card {
     border-radius: 20px;
     background-position: center;
     background-repeat: no-repeat;
     flex: 1 1 300px;
 }
+
 .profile-card::before {
     content: '';
     position: absolute;
@@ -34,22 +55,29 @@ h1 {
     height: 100%;
     border-radius: 20px;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0) 150%);
-    pointer-events: none; 
+    pointer-events: none;
 }
-.status-card, .achievements-card, .location-card {
+
+.status-card,
+.achievements-card,
+.location-card {
     flex: 1 1 calc(50% - 20px);
 }
+
 .contributions-container {
     display: flex;
     justify-content: space-between;
 }
+
 .contribution-section {
     display: flex;
     flex-direction: column;
 }
+
 #guides-list {
     padding: 0;
 }
+
 #profile-picture {
     width: 120px;
     height: 120px;
@@ -59,14 +87,17 @@ h1 {
     background-repeat: no-repeat;
     background-position: 50% 50%;
 }
+
 .profile-name {
     font-size: 1.5em;
     text-align: left;
     margin-bottom: 20px;
 }
+
 .profile-info p {
     margin: 0;
 }
+
 .map-placeholder {
     background-color: #3a3a3a;
     height: 200px;
@@ -121,7 +152,7 @@ h1 {
     justify-content: center;
     gap: 1.5rem;
     padding: 1rem 0;
-    max-width: 1600px; 
+    max-width: 1600px;
     margin: 0 auto;
     columns: 20rem;
     column-gap: 1rem;
@@ -162,45 +193,55 @@ h1 {
     display: flex;
     flex-direction: column;
 }
+
 .contributor {
     margin-bottom: 10px;
     max-width: fit-content;
 }
+
 .stats-column {
     display: flex;
     flex-direction: column;
 }
+
 .guesswhatanotherdiv {
     display: flex;
     flex-direction: column-reverse;
 }
+
 .anotherdivfucking {
     background-color: #1c1c2e17;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     margin-top: 1.5rem;
 }
+
 .ihatemakingdivs {
     max-width: 480px;
 }
+
 .defcon-stats-right {
     padding: 4rem 1.5rem 1.5rem 1.5rem;
 }
+
 .mod-item {
     margin-bottom: 20px;
     margin-left: 20px;
 }
+
 .main-stats-container {
     border-radius: 10px;
     padding: 1.5rem;
     height: fit-content;
 }
+
 .main-social-container {
     background-color: #1c1c2e17;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     height: fit-content;
 }
+
 .main-contrib-container {
     background-color: #1c1c2e17;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -209,29 +250,42 @@ h1 {
     height: fit-content;
     flex: 1;
 }
+
 h2 {
     font-size: 1.2em;
     margin-bottom: 15px;
 }
+
 @media (max-width: 768px) {
-    .status-card, .achievements-card, .location-card {
+
+    .status-card,
+    .achievements-card,
+    .location-card {
         flex: 1 1 100%;
     }
-}h1 {
+}
+
+h1 {
     font-size: 2.5em;
     margin-bottom: 10px;
 }
+
 .dashboard {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
 }
-.profile-card, .status-card, .achievements-card, .location-card {
+
+.profile-card,
+.status-card,
+.achievements-card,
+.location-card {
     padding: 1.5rem;
     opacity: 1;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     height: fit-content;
 }
+
 .profile-card {
     border-radius: 20px;
     position: relative;
@@ -240,21 +294,27 @@ h2 {
     flex: 1 1 300px;
 }
 
-.status-card, .achievements-card, .location-card {
+.status-card,
+.achievements-card,
+.location-card {
     flex: 1 1 calc(50% - 20px);
 }
+
 .contributions-container {
     display: flex;
     justify-content: space-between;
 }
+
 .contribution-section {
     display: flex;
     flex-direction: column;
     width: 50%;
 }
+
 #guides-list {
     padding: 0;
 }
+
 .profile-picture {
     width: 120px;
     height: 120px;
@@ -265,14 +325,17 @@ h2 {
     background-position: 50% 50%;
     pointer-events: none;
 }
+
 .profile-name {
     font-size: 1.5em;
     text-align: left;
     margin-bottom: 20px;
 }
+
 .profile-info p {
     margin: 0;
 }
+
 .map-placeholder {
     background-color: #3a3a3a;
     height: 200px;
@@ -322,7 +385,7 @@ h2 {
     justify-content: center;
     gap: 1.5rem;
     padding: 1rem 0;
-    max-width: 1600px; 
+    max-width: 1600px;
     margin: 0 auto;
     columns: 20rem;
     column-gap: 1rem;
@@ -363,14 +426,17 @@ h2 {
     display: flex;
     flex-direction: column;
 }
+
 .contributor {
     margin-bottom: 10px;
     max-width: fit-content;
 }
+
 .stats-column {
     display: flex;
     flex-direction: column;
 }
+
 .absolute-fucking-final-div {
     display: flex;
     flex-direction: column;
@@ -379,13 +445,16 @@ h2 {
     gap: 1.5rem;
     border-radius: 10px;
 }
+
 .guesswhatanotherdiv {
     display: flex;
     flex-direction: column-reverse;
 }
+
 .demo-card {
     width: 362px;
 }
+
 .anotherdivfucking {
     background-color: #1c1c2e17;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -393,12 +462,14 @@ h2 {
     width: fit-content;
     margin-top: 1.5rem;
 }
+
 .ihatemakingdivs {
     max-width: 480px;
     background-color: #1c1c2e17;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
 }
+
 #recent-game-container {
     padding: 1.5rem;
     display: flex;
@@ -408,13 +479,16 @@ h2 {
     background-color: #1c1c2e17;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
+
 .defcon-stats-right {
     padding: 4rem 1.5rem 1.5rem 1.5rem;
 }
+
 .mod-item {
     margin-bottom: 20px;
     margin-left: 20px;
 }
+
 .main-stats-container {
     border-radius: 10px;
     padding: 1.5rem;
@@ -429,10 +503,12 @@ h2 {
     height: fit-content;
     flex: 1;
 }
+
 h2 {
     font-size: 1.2em;
     margin-bottom: 15px;
 }
+
 .editable {
     padding: 2px 5px;
     border-radius: 3px;
@@ -444,7 +520,8 @@ h2 {
     outline: none;
 }
 
-#profile-pic-upload, #banner-upload {
+#profile-pic-upload,
+#banner-upload {
     margin-top: 10px;
 }
 
@@ -510,19 +587,23 @@ h2 {
     background-color: #f44336;
 }
 
-.add-item-btn:hover, .delete-item-btn:hover {
+.add-item-btn:hover,
+.delete-item-btn:hover {
     opacity: 0.8;
 }
 
 .editable-list li {
     margin-bottom: 5px;
 }
-#main-contributions-list, #guides-and-mods-list {
+
+#main-contributions-list,
+#guides-and-mods-list {
     color: #b8b8b8;
     text-align: left;
     margin-top: 20px;
     max-width: 1200px;
 }
+
 .image-container {
     position: relative;
     overflow: hidden;
@@ -565,6 +646,7 @@ h2 {
     font-size: 16px;
     margin-top: 25%;
 }
+
 /*
 .edit-overlay-banner span {
     color: white;
@@ -604,11 +686,14 @@ h2 {
 
 .image-preview {
     position: relative;
-    width: 480px;  /* Match profile picture dimensions */
+    width: 480px;
+    /* Match profile picture dimensions */
     height: 480px;
     overflow: hidden;
-    border-radius: 50%;  /* For circular profile pictures */
+    border-radius: 50%;
+    /* For circular profile pictures */
 }
+
 #image-to-edit {
     position: absolute;
     max-width: none;
@@ -629,6 +714,7 @@ h2 {
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
     pointer-events: none;
 }
+
 .image-editor-controls {
     width: 100%;
 }
@@ -650,7 +736,8 @@ h2 {
     cursor: pointer;
 }
 
-#skip-edit, #cancel-edit {
+#skip-edit,
+#cancel-edit {
     background-color: #4f545c;
     color: #ffffff;
 }
@@ -683,7 +770,10 @@ h2 {
 }
 
 @media (max-width: 768px) {
-    .status-card, .achievements-card, .location-card {
+
+    .status-card,
+    .achievements-card,
+    .location-card {
         flex: 1 1 100%;
     }
 }

@@ -1,5 +1,20 @@
+<!--
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 18-12-2024 
+-->
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="robots" content="noindex">
@@ -10,6 +25,7 @@
 
     </style>
 </head>
+
 <body>
     <div class="login-container">
         <form id="loginForm" action="">
@@ -17,7 +33,7 @@
                 <h3>Sign in</h3>
                 <p>Sign in with your username and password</p>
             </div>
-    
+
             <div class="mainContainer">
                 <label for="username">Your username</label>
                 <input type="text" id="username" placeholder="Enter Username" name="username" required>
@@ -27,7 +43,7 @@
                 <input type="password" id="password" placeholder="Enter Password" name="password" required>
                 <div class="subcontainer">
                     <label>
-                      <input type="checkbox" name="remember"> Remember me
+                        <input type="checkbox" name="remember"> Remember me
                     </label>
                     <p class="forgot-password"> <a href="/forgotpassword">Forgot Password?</a></p>
                 </div>
@@ -38,8 +54,8 @@
     </div>
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function (e) {
-            e.preventDefault(); 
-            
+            e.preventDefault();
+
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const rememberMe = document.querySelector('input[name="remember"]').checked;
@@ -56,7 +72,7 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    window.location.href = '/homepage'; 
+                    window.location.href = '/homepage';
                 } else {
                     document.getElementById('error-message').style.display = 'block';
                     document.getElementById('error-message').textContent = data.error;
@@ -69,4 +85,5 @@
         });
     </script>
 </body>
+
 </html>

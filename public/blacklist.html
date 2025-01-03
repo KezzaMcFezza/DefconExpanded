@@ -1,6 +1,21 @@
+<!--
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 18-12-2024 
+-->
+
 <!DOCTYPE html>
 <html lang="en" class="hide-scrollbar">
-<head> 
+
+<head>
     <script src="/admin.js"></script>
     <script src="/script.js"></script>
     <meta charset="UTF-8">
@@ -14,7 +29,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&amp;display=swap" rel="stylesheet">
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const userRole = window.userRole;
             document.querySelectorAll('[data-min-role]').forEach(element => {
                 const minRole = parseInt(element.dataset.minRole);
@@ -26,10 +41,9 @@
     </script>
 </head>
 <style>
-
     [data-min-role] {
         display: none;
-        }
+    }
 
     @media (max-width: 768px) {
         #sidebar .title::after {
@@ -38,49 +52,65 @@
             display: block;
         }
     }
+
     #sidebar .list-items li a i {
         margin-right: 0.7rem !important;
     }
-
 </style>
+
 <body class="hide-scrollbar">
     <div class="container">
         <div id="sidebar">
             <div class="title">DEFCON Expanded</div>
             <ul class="list-items">
                 <li><a href="/" id="nav-home"><i class="fas fa-home"></i>Back to Homepage</a></li>
-                <li data-min-role="5"><a href="/adminpanel" id="nav-whitelist"><i class="fab fa-windows"></i>Admin Panel</a></li>
-                <li data-min-role="5"><a href="/leaderboardblacklistmanage" id="nav-blaclist" data-min-role="5"><i class="fas fa-ban"></i>Blacklist Managment</a></li>
-                <li data-min-role="5"><a href="/demomanage" id="nav-demomanage" data-min-role="5"><i class="fas fa-video"></i>Demo Managment</a></li>
-                <li data-min-role="2"><a href="/playerlookup" id="nav-playerlookup" data-min-role="2"><i class="fa-solid fa-magnifying-glass"></i>Player Search</a></li>
-                <li data-min-role="5"><a href="/leaderboardmanage" id="nav-leaderboardmanage" data-min-role="5"><i class="fas fa-trophy"></i>Leaderboard Managment</a></li>
-                <li data-min-role="3"><a href="/dedconmanagment" id="nav-dedconmanagment" data-min-role="2"><i class="fas fa-radiation"></i>Dedcon Managment</a></li>
-                <li data-min-role="3"><a href="/resourcemanage" id="nav-resourcemanage" data-min-role="3"><i class="fas fa-download"></i>Resource Managment</a></li>
-                <li data-min-role="5"><a href="/modlistmanage" id="nav-modmanage" data-min-role="5"><i class="fas fa-list"></i>Modlist Managment</a></li>
-                <li data-min-role="2"><a href="/accountmanage" id="nav-accountmanage" data-min-role="2"><i class="fas fa-user"></i>User Account Managment</a></li>
-                <li data-min-role="1"><a href="/serverconsole" id="nav-console" data-min-role="1"><i class="fas fa-laptop-code"></i>Website Console</a></li>
-                <li data-min-role="1"><a href="/defconservers" id="nav-defconservers" data-min-role="1"><i class="fa-solid fa-server"></i>Dedcon Servers</a></li>
-          </ul>
+                <li data-min-role="5"><a href="/adminpanel" id="nav-whitelist"><i class="fab fa-windows"></i>Admin
+                        Panel</a></li>
+                <li data-min-role="5"><a href="/leaderboardblacklistmanage" id="nav-blaclist" data-min-role="5"><i
+                            class="fas fa-ban"></i>Blacklist Managment</a></li>
+                <li data-min-role="5"><a href="/demomanage" id="nav-demomanage" data-min-role="5"><i
+                            class="fas fa-video"></i>Demo Managment</a></li>
+                <li data-min-role="2"><a href="/playerlookup" id="nav-playerlookup" data-min-role="2"><i
+                            class="fa-solid fa-magnifying-glass"></i>Player Search</a></li>
+                <li data-min-role="5"><a href="/leaderboardmanage" id="nav-leaderboardmanage" data-min-role="5"><i
+                            class="fas fa-trophy"></i>Leaderboard Managment</a></li>
+                <li data-min-role="3"><a href="/dedconmanagment" id="nav-dedconmanagment" data-min-role="2"><i
+                            class="fas fa-radiation"></i>Dedcon Managment</a></li>
+                <li data-min-role="3"><a href="/resourcemanage" id="nav-resourcemanage" data-min-role="3"><i
+                            class="fas fa-download"></i>Resource Managment</a></li>
+                <li data-min-role="5"><a href="/modlistmanage" id="nav-modmanage" data-min-role="5"><i
+                            class="fas fa-list"></i>Modlist Managment</a></li>
+                <li data-min-role="2"><a href="/accountmanage" id="nav-accountmanage" data-min-role="2"><i
+                            class="fas fa-user"></i>User Account Managment</a></li>
+                <li data-min-role="1"><a href="/serverconsole" id="nav-console" data-min-role="1"><i
+                            class="fas fa-laptop-code"></i>Website Console</a></li>
+                <li data-min-role="1"><a href="/defconservers" id="nav-defconservers" data-min-role="1"><i
+                            class="fa-solid fa-server"></i>Dedcon Servers</a></li>
+            </ul>
         </div>
         <main>
             <p class="pabout2" style="text-align: left; font-size: 17px; margin-left: 25px;">
                 <label style="font-size: 40px;">Instructions on how to use the leaderboard blacklist</label>
                 <br>
                 <br>
-                This is the leaderboard blacklist and what it does is prevent people from getting added to the leaderboard when their game gets uploaded to the website,
+                This is the leaderboard blacklist and what it does is prevent people from getting added to the
+                leaderboard when their game gets uploaded to the website,
                 and the only reason to use the blacklist are as follows...
                 <br>
                 <br>
-                If somebody submits a user request to get added to the leaderboard blacklist/to not be added to the leaderboard anymore,
+                If somebody submits a user request to get added to the leaderboard blacklist/to not be added to the
+                leaderboard anymore,
                 or if somebody just asks to be added to the blacklist
                 <br>
                 <br>
-                If somebody wants to be removed from the blacklist to have their name show up on the leaderboard through a user request or if somebody just asks generally
+                If somebody wants to be removed from the blacklist to have their name show up on the leaderboard through
+                a user request or if somebody just asks generally
                 through discord or game chat
                 <br>
                 <br>
                 If somebody wants to be added back to the leaderboard
-                and they want all their old game stats to be added to the leaderboard, goto the leaderboard managment and add these in manually      
+                and they want all their old game stats to be added to the leaderboard, goto the leaderboard managment
+                and add these in manually
             <div id="admin-content">
                 <section id="whitelist-management">
                     <h2>Leaderboard Blacklist Management</h2>
@@ -101,12 +131,12 @@
                         </tbody>
                     </table>
                 </section>
-    
+
                 <div id="edit-player" class="section" style="display: none;">
                     <h2>Edit Player</h2>
                     <form id="edit-player-form">
 
-                        
+
                     </form>
                 </div>
                 <div id="add-player" class="section">
@@ -119,4 +149,5 @@
     <script>
     </script>
 </body>
+
 </html>

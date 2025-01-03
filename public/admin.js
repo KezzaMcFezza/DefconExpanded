@@ -1,4 +1,17 @@
-let currentUserRole = 6; 
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 18-12-2024 
+
+
+let currentUserRole = 6;
 let serverStartTime;
 let allDemos = [];
 let selectedFile = null;
@@ -10,26 +23,26 @@ function setupMobileMenu() {
     const dropdowns = sidebar.querySelectorAll('.dropdown');
 
     if (title && listItems) {
-        title.addEventListener('click', function(e) {
+        title.addEventListener('click', function (e) {
             e.preventDefault();
             console.log('Title clicked');
             listItems.classList.toggle('show');
-            title.classList.toggle('menu-open'); 
+            title.classList.toggle('menu-open');
             console.log('Menu toggled, show class:', listItems.classList.contains('show'));
         });
 
-        listItems.addEventListener('click', function(e) {
+        listItems.addEventListener('click', function (e) {
             if (e.target.tagName === 'A' && !e.target.parentElement.classList.contains('dropdown')) {
                 console.log('Link clicked, closing menu');
                 listItems.classList.remove('show');
-                title.classList.remove('menu-open'); 
+                title.classList.remove('menu-open');
             }
         });
 
         dropdowns.forEach(dropdown => {
             const dropdownLink = dropdown.querySelector('a');
             const dropdownContent = dropdown.querySelector('.dropdown-content');
-            dropdownLink.addEventListener('click', function(e) {
+            dropdownLink.addEventListener('click', function (e) {
                 e.preventDefault();
                 dropdownContent.classList.toggle('show');
                 dropdowns.forEach(otherDropdown => {
@@ -104,49 +117,49 @@ function setupCustomDialog() {
 
     document.head.insertAdjacentHTML('beforeend', styles);
 
-    window.confirm = function(message) {
-      return new Promise((resolve) => {
-        const dialog = document.getElementById('custom-dialog');
-        const messageElement = document.getElementById('dialog-message');
-        const confirmButton = document.getElementById('dialog-confirm');
-        const cancelButton = document.getElementById('dialog-cancel');
+    window.confirm = function (message) {
+        return new Promise((resolve) => {
+            const dialog = document.getElementById('custom-dialog');
+            const messageElement = document.getElementById('dialog-message');
+            const confirmButton = document.getElementById('dialog-confirm');
+            const cancelButton = document.getElementById('dialog-cancel');
 
-        messageElement.textContent = message;
-        dialog.style.display = 'block';
-        cancelButton.style.display = 'inline-block';
+            messageElement.textContent = message;
+            dialog.style.display = 'block';
+            cancelButton.style.display = 'inline-block';
 
-        const closeDialog = (result) => {
-          dialog.style.display = 'none';
-          resolve(result);
-        };
+            const closeDialog = (result) => {
+                dialog.style.display = 'none';
+                resolve(result);
+            };
 
-        confirmButton.onclick = () => closeDialog(true);
-        cancelButton.onclick = () => closeDialog(false);
-      });
+            confirmButton.onclick = () => closeDialog(true);
+            cancelButton.onclick = () => closeDialog(false);
+        });
     };
 
-    window.alert = function(message) {
-      return new Promise((resolve) => {
-        const dialog = document.getElementById('custom-dialog');
-        const messageElement = document.getElementById('dialog-message');
-        const confirmButton = document.getElementById('dialog-confirm');
-        const cancelButton = document.getElementById('dialog-cancel');
+    window.alert = function (message) {
+        return new Promise((resolve) => {
+            const dialog = document.getElementById('custom-dialog');
+            const messageElement = document.getElementById('dialog-message');
+            const confirmButton = document.getElementById('dialog-confirm');
+            const cancelButton = document.getElementById('dialog-cancel');
 
-        messageElement.textContent = message;
-        dialog.style.display = 'block';
-        cancelButton.style.display = 'none';
+            messageElement.textContent = message;
+            dialog.style.display = 'block';
+            cancelButton.style.display = 'none';
 
-        const closeDialog = () => {
-          dialog.style.display = 'none';
-          resolve();
-        };
+            const closeDialog = () => {
+                dialog.style.display = 'none';
+                resolve();
+            };
 
-        confirmButton.onclick = closeDialog;
-      });
+            confirmButton.onclick = closeDialog;
+        });
     };
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     checkUserRoleAndInitialize();
 });
 
@@ -157,11 +170,11 @@ async function checkUserRoleAndInitialize() {
         if (data.user) {
             currentUserRole = data.user.role;
             console.log('Current user role:', currentUserRole);
-            if (currentUserRole <= 5) { 
-                setupCustomDialog(); 
+            if (currentUserRole <= 5) {
+                setupCustomDialog();
                 initializeAdminPanel();
                 setupMobileMenu();
-                refreshMonitoringData(); 
+                refreshMonitoringData();
                 loadMonitoringData();
                 setActiveNavItem();
             } else {
@@ -178,7 +191,7 @@ async function checkUserRoleAndInitialize() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('upload-windows-dedcon').addEventListener('submit', uploadDedconBuild);
     document.getElementById('upload-linux-dedcon').addEventListener('submit', uploadDedconBuild);
     document.getElementById('upload-macos-intel-dedcon').addEventListener('submit', uploadDedconBuild);
@@ -189,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('DOMContentLoaded', loadConfigFiles);
 document.addEventListener('DOMContentLoaded', populateServerList);
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const searchBtn = document.getElementById('demo-search-btn');
     const searchInput = document.getElementById('demo-search');
     const resetBtn = document.getElementById('demo-reset-btn');
@@ -199,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
+        searchInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 searchDemos();
             }
@@ -207,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (resetBtn) {
-        resetBtn.addEventListener('click', function() {
+        resetBtn.addEventListener('click', function () {
             document.getElementById('demo-search').value = '';
             displayFilteredDemos(allDemos);
             const resultsCount = document.querySelector('.results-count');
@@ -276,7 +289,7 @@ const serverConfigs = [
         filename: "1v1config.txt"
     },
     {
-        name: "DefconExpanded | 1v1 | Best Setups 1", 
+        name: "DefconExpanded | 1v1 | Best Setups 1",
         filename: "1v1configbest.txt"
     },
     {
@@ -285,7 +298,7 @@ const serverConfigs = [
     },
     {
         name: "DefconExpanded | 1v1 | Default",
-        filename: "1v1configdefault.txt" 
+        filename: "1v1configdefault.txt"
     },
     {
         name: "DefconExpanded Test Server",
@@ -328,7 +341,7 @@ const serverConfigs = [
         filename: "4v4config.txt"
     },
     {
-        name: "DefconExpanded | 5v5 | FFA | Totally Random", 
+        name: "DefconExpanded | 5v5 | FFA | Totally Random",
         filename: "5v5config.txt"
     },
     {
@@ -343,7 +356,7 @@ const serverConfigs = [
         name: "DefconExpanded | 16 Player | Test Server",
         filename: "16playerconfig.txt"
     }
- ];
+];
 
 async function loadConfigFiles() {
     try {
@@ -351,7 +364,7 @@ async function loadConfigFiles() {
         const files = await response.json();
         const fileList = document.getElementById('file-list');
         fileList.innerHTML = '';
-        
+
         files.forEach(file => {
             const div = document.createElement('div');
             div.className = 'file-item';
@@ -369,7 +382,7 @@ async function loadFileContent(filename) {
         const response = await fetch(`/api/config-files/${filename}`);
         const data = await response.json();
         selectedFile = filename;
-        
+
         document.getElementById('editor-content').value = data.content;
         document.getElementById('editor').style.display = 'block';
     } catch (error) {
@@ -380,7 +393,7 @@ async function loadFileContent(filename) {
 
 async function saveFileContent() {
     if (!selectedFile) return;
-    
+
     const content = document.getElementById('editor-content').value;
     try {
         const response = await fetch(`/api/config-files/${selectedFile}`, {
@@ -388,7 +401,7 @@ async function saveFileContent() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ content })
         });
-        
+
         if (response.ok) {
             alert('File saved successfully!');
         } else {
@@ -403,7 +416,7 @@ async function saveFileContent() {
 function populateServerList() {
     const serverList = document.getElementById('server-list');
     serverList.innerHTML = '';
- 
+
     serverConfigs.forEach(server => {
         const div = document.createElement('div');
         div.className = 'server-item';
@@ -422,7 +435,7 @@ function populateServerList() {
         };
         serverList.appendChild(div);
     });
- }
+}
 
 async function loadTopPlayers() {
     try {
@@ -431,15 +444,15 @@ async function loadTopPlayers() {
         const playerStats = new Map();
         const keyIdMap = new Map();
         const ipMap = new Map();
-        
+
         demos.forEach(demo => {
             try {
                 const parsedData = JSON.parse(demo.players);
                 const players = Array.isArray(parsedData) ? parsedData : (parsedData.players || []);
-                
+
                 players.forEach(player => {
                     if (!player.name) return;
-                    
+
                     if (!playerStats.has(player.name)) {
                         playerStats.set(player.name, {
                             gamesPlayed: 0,
@@ -452,11 +465,11 @@ async function loadTopPlayers() {
                             ratingReasons: []
                         });
                     }
-                    
+
                     const stats = playerStats.get(player.name);
                     stats.gamesPlayed++;
                     stats.games.add(demo.id);
-                    
+
                     if (player.ip && player.ip.trim() !== '') {
                         stats.ips.add(player.ip);
                         if (!ipMap.has(player.ip)) {
@@ -464,7 +477,7 @@ async function loadTopPlayers() {
                         }
                         ipMap.get(player.ip).add(player.name);
                     }
-                    
+
                     if (player.key_id && player.key_id.trim() !== '' && player.key_id !== 'DEMO') {
                         stats.keyIds.add(player.key_id);
                         if (!keyIdMap.has(player.key_id)) {
@@ -477,7 +490,7 @@ async function loadTopPlayers() {
                 console.error('Error processing demo:', error);
             }
         });
-        
+
         playerStats.forEach((stats, playerName) => {
             stats.keyIds.forEach(keyId => {
                 const relatedNames = keyIdMap.get(keyId);
@@ -510,7 +523,7 @@ async function loadTopPlayers() {
                     });
                 }
             });
-            
+
             stats.ips.forEach(ip => {
                 const relatedNames = ipMap.get(ip);
                 if (relatedNames) {
@@ -543,7 +556,7 @@ async function loadTopPlayers() {
                 }
             });
         });
-        
+
         const topPlayers = Array.from(playerStats.entries())
             .map(([name, stats]) => ({
                 name,
@@ -559,7 +572,7 @@ async function loadTopPlayers() {
             }))
             .sort((a, b) => b.gamesPlayed - a.gamesPlayed)
             .slice(0, 10);
-            
+
         displayTopPlayers(topPlayers);
     } catch (error) {
         console.error('Error loading top players:', error);
@@ -569,32 +582,32 @@ async function loadTopPlayers() {
 function displayTopPlayers(players) {
     const container = document.getElementById('top-players-container');
     if (!container) return;
-    
+
     container.innerHTML = `
         <h2 style="font-size: 24px; margin-bottom: 1rem;">Top 10 Active Players</h2>
         <div id="top-players-list"></div>
     `;
-    
+
     const listContainer = document.getElementById('top-players-list');
-    
+
     players.forEach((player, index) => {
         const playerCard = document.createElement('div');
         playerCard.className = 'player-card';
         playerCard.style.marginBottom = '0.5rem';
         playerCard.style.padding = '0.5rem';
         playerCard.style.borderRadius = '8px';
-        
+
         let nameColor;
         if (player.totalInfractions > 4) {
-            nameColor = '#ff0000'; 
+            nameColor = '#ff0000';
         } else if (player.totalInfractions >= 2) {
-            nameColor = '#ff8c00'; 
+            nameColor = '#ff8c00';
         } else if (player.totalInfractions >= 1) {
-            nameColor = '#ffdd00'; 
+            nameColor = '#ffdd00';
         } else {
-            nameColor = '#27ff00'; 
+            nameColor = '#27ff00';
         }
-        
+
         const headerHtml = `
             <div class="player-header" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;">
                 <div>
@@ -602,17 +615,17 @@ function displayTopPlayers(players) {
                     <span style="margin-left: 1rem; color: #b8b8b8;">${player.gamesPlayed} games</span>
                 </div>
                 <div style="display: flex; align-items: center;">
-                    ${player.totalInfractions > 0 ? 
-                        `<span style="color: ${nameColor}; margin-right: 1rem;">
+                    ${player.totalInfractions > 0 ?
+                `<span style="color: ${nameColor}; margin-right: 1rem;">
                             <i class="fas fa-exclamation-triangle"></i> ${player.totalInfractions}
                         </span>` : ''}
                     <i class="fas fa-chevron-down"></i>
                 </div>
             </div>
         `;
-        
+
         playerCard.innerHTML = headerHtml;
-        
+
         if (player.infractions.length > 0 || player.alternateNames.length > 0) {
             const infractionsList = document.createElement('div');
             infractionsList.className = 'infractions-list';
@@ -620,7 +633,7 @@ function displayTopPlayers(players) {
             infractionsList.style.marginTop = '1rem';
             infractionsList.style.paddingLeft = '1rem';
             infractionsList.style.borderLeft = '2px solid #333';
-            
+
             if (player.alternateNames.length > 0) {
                 infractionsList.innerHTML += `
                     <div style="margin-bottom: 1rem;">
@@ -631,7 +644,7 @@ function displayTopPlayers(players) {
                     </div>
                 `;
             }
-            
+
             player.infractions.forEach(infraction => {
                 const infractionHtml = `
                     <div style="margin-bottom: 1rem;">
@@ -645,25 +658,25 @@ function displayTopPlayers(players) {
                                     Demo ID: ${detail.demoId} - ${new Date(detail.date).toLocaleDateString()}
                                 </p>
                             `).join('')}
-                            ${infraction.details.length > 3 ? 
-                                `<p style="margin: 0.2rem 0;">+ ${infraction.details.length - 3} more occurrences</p>` : 
-                                ''}
+                            ${infraction.details.length > 3 ?
+                        `<p style="margin: 0.2rem 0;">+ ${infraction.details.length - 3} more occurrences</p>` :
+                        ''}
                         </div>
                     </div>
                 `;
                 infractionsList.innerHTML += infractionHtml;
             });
-            
+
             playerCard.appendChild(infractionsList);
-            
+
             playerCard.querySelector('.player-header').addEventListener('click', () => {
                 const isExpanded = infractionsList.style.display === 'block';
                 infractionsList.style.display = isExpanded ? 'none' : 'block';
-                playerCard.querySelector('.fa-chevron-down').style.transform = 
+                playerCard.querySelector('.fa-chevron-down').style.transform =
                     isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
             });
         }
-        
+
         listContainer.appendChild(playerCard);
     });
 }
@@ -675,7 +688,7 @@ async function searchPlayers() {
     try {
         const response = await fetch('/api/all-demos');
         const demos = await response.json();
-        
+
         const playerMap = new Map();
         const keyIdMap = new Map();
         const ipMap = new Map();
@@ -698,7 +711,7 @@ async function searchPlayers() {
                             spectatorNames: new Set(),
                             rating: 50,
                             ratingReasons: [],
-                            infractionDemos: new Map() 
+                            infractionDemos: new Map()
                         });
                     }
 
@@ -750,7 +763,7 @@ async function searchPlayers() {
                         if (relatedName !== playerName && playerMap.has(relatedName)) {
                             uniqueAlternateNames.add(relatedName);
                             data.alternateNames.add(relatedName);
-                            
+
                             demos.forEach(demo => {
                                 const parsedData = JSON.parse(demo.players);
                                 const players = Array.isArray(parsedData) ? parsedData : (parsedData.players || []);
@@ -758,11 +771,11 @@ async function searchPlayers() {
                                     data.infractionDemos.set(demo.id, {
                                         data: parsedData,
                                         reason: `Same KeyID (${keyId}) used by: ${relatedName}`,
-                                        game_type: demo.game_type 
+                                        game_type: demo.game_type
                                     });
                                 }
                             });
-                            
+
                             data.ratingReasons.push(`Same KeyID (${keyId}) used by: ${relatedName}`);
                         }
                     });
@@ -776,7 +789,7 @@ async function searchPlayers() {
                         if (relatedName !== playerName && playerMap.has(relatedName)) {
                             uniqueAlternateNames.add(relatedName);
                             data.alternateNames.add(relatedName);
-                            
+
                             demos.forEach(demo => {
                                 const parsedData = JSON.parse(demo.players);
                                 const players = Array.isArray(parsedData) ? parsedData : (parsedData.players || []);
@@ -784,11 +797,11 @@ async function searchPlayers() {
                                     data.infractionDemos.set(demo.id, {
                                         data: parsedData,
                                         reason: `Same IP (${ip}) used by: ${relatedName}`,
-                                        game_type: demo.game_type 
+                                        game_type: demo.game_type
                                     });
                                 }
                             });
-                            
+
                             data.ratingReasons.push(`Same IP (${ip}) used by: ${relatedName}`);
                         }
                     });
@@ -830,7 +843,7 @@ function displaySearchResults(matchingPlayers, playerMap) {
     const resultsDiv = document.getElementById('search-results');
     const jsonContainer = document.querySelector('.json-data-container');
     const jsonContent = document.getElementById('json-data-content');
-    
+
     jsonContainer.style.display = 'none';
     resultsDiv.innerHTML = '';
     jsonContent.innerHTML = '';
@@ -897,7 +910,7 @@ function displaySearchResults(matchingPlayers, playerMap) {
                 </div>
             `;
         });
-        
+
         if (jsonContentHtml) {
             jsonContent.innerHTML += jsonContentHtml;
         }
@@ -913,7 +926,7 @@ function displaySearchResults(matchingPlayers, playerMap) {
 function displayFilteredDemos(demos) {
     const tbody = document.querySelector('#demo-table tbody');
     tbody.innerHTML = '';
-    
+
     demos.forEach(demo => {
         const row = tbody.insertRow();
         let actionsHtml = '';
@@ -939,7 +952,7 @@ function displayFilteredDemos(demos) {
         if (existingCount) {
             existingCount.remove();
         }
-        
+
         const countElement = document.createElement('div');
         countElement.className = 'results-count';
         countElement.style.marginTop = '10px';
@@ -957,7 +970,7 @@ function searchDemos() {
     }
 
     const filteredDemos = allDemos.filter(demo => {
-        if (demo.id.toString().includes(searchTerm) || 
+        if (demo.id.toString().includes(searchTerm) ||
             demo.game_type.toLowerCase().includes(searchTerm) ||
             demo.name.toLowerCase().includes(searchTerm)) {
             return true;
@@ -966,22 +979,22 @@ function searchDemos() {
         try {
             const playersData = JSON.parse(demo.players);
             const players = Array.isArray(playersData) ? playersData : (playersData.players || []);
-            
+
             return players.some(player => {
                 if (!player) return false;
-                
+
                 if (player.name && player.name.toLowerCase().includes(searchTerm)) {
                     return true;
                 }
-                
+
                 if (player.key_id && player.key_id.toLowerCase().includes(searchTerm)) {
                     return true;
                 }
-                
+
                 if (player.ip && player.ip.toLowerCase().includes(searchTerm)) {
                     return true;
                 }
-                
+
                 return false;
             });
         } catch (error) {
@@ -1036,7 +1049,7 @@ function displayReportedDemo(demo) {
         demo.game_type.includes('10 Player') || demo.game_type.includes('5v5') ||
         demo.game_type.includes('16 Player') || demo.game_type.includes('8v8') ||
         demo.game_type.includes('509') || demo.game_type.includes('CG') ||
-        demo.game_type.includes('MURICON') 
+        demo.game_type.includes('MURICON')
     ));
 
     const teamColors = {
@@ -1063,22 +1076,22 @@ function displayReportedDemo(demo) {
     };
 
     const expandedAllianceColors = {
-        0: { color: '#00bf00', name: 'Green' },    
-        1: { color: '#ff4949', name: 'Red' },      
-        2: { color: '#3d5cff', name: 'Blue' },     
-        3: { color: '#e5cb00', name: 'Yellow' },   
-        4: { color: '#00e5ff', name: 'Turq' },     
-        5: { color: '#e72de0', name: 'Pink' },     
-        6: { color: '#4c4c4c', name: 'Black' },    
-        7: { color: '#ffa700', name: 'Orange' },   
-        8: { color: '#28660a', name: 'Olive' },    
-        9: { color: '#660011', name: 'Scarlet' },  
-        10: { color: '#2a00ff', name: 'Indigo' },  
-        11: { color: '#4c4c00', name: 'Gold' },    
-        12: { color: '#004c3e', name: 'Teal' },    
-        13: { color: '#6a007f', name: 'Purple' },  
-        14: { color: '#e5e5e5', name: 'White' },   
-        15: { color: '#964B00', name: 'Brown' }    
+        0: { color: '#00bf00', name: 'Green' },
+        1: { color: '#ff4949', name: 'Red' },
+        2: { color: '#3d5cff', name: 'Blue' },
+        3: { color: '#e5cb00', name: 'Yellow' },
+        4: { color: '#00e5ff', name: 'Turq' },
+        5: { color: '#e72de0', name: 'Pink' },
+        6: { color: '#4c4c4c', name: 'Black' },
+        7: { color: '#ffa700', name: 'Orange' },
+        8: { color: '#28660a', name: 'Olive' },
+        9: { color: '#660011', name: 'Scarlet' },
+        10: { color: '#2a00ff', name: 'Indigo' },
+        11: { color: '#4c4c00', name: 'Gold' },
+        12: { color: '#004c3e', name: 'Teal' },
+        13: { color: '#6a007f', name: 'Purple' },
+        14: { color: '#e5e5e5', name: 'White' },
+        15: { color: '#964B00', name: 'Brown' }
     };
 
     let parsedPlayers = [];
@@ -1089,24 +1102,24 @@ function displayReportedDemo(demo) {
     if (demo.players) {
         try {
             const playersData = typeof demo.players === 'string' ? JSON.parse(demo.players) : demo.players;
-            
+
             parsedPlayers = Array.isArray(playersData) ? playersData : (playersData.players || []);
-            
+
             usingAlliances = parsedPlayers.some(player => player.alliance !== undefined);
-            
-            const colorSystem = usingAlliances ? 
-                (isExpandedGame ? expandedAllianceColors : vanillaAllianceColors) : 
+
+            const colorSystem = usingAlliances ?
+                (isExpandedGame ? expandedAllianceColors : vanillaAllianceColors) :
                 teamColors;
 
             parsedPlayers.forEach((player, index) => {
                 const groupId = usingAlliances ? player.alliance : player.team;
-                
+
                 if (!groupScores[groupId]) {
                     groupScores[groupId] = 0;
                 }
-                
+
                 groupScores[groupId] += player.score || 0;
-                
+
                 if ((player.score || 0) > highestScore) {
                     highestScore = player.score;
                 }
@@ -1293,7 +1306,7 @@ async function loadPendingReports() {
         updateUserRequests(reports.length);
 
         const cleanUrl = `${window.location.origin}${window.location.pathname}`;
-        window.history.pushState({}, '', cleanUrl);  
+        window.history.pushState({}, '', cleanUrl);
 
     } catch (error) {
         console.error('Error loading pending reports:', error);
@@ -1307,9 +1320,9 @@ async function loadPendingRequests() {
 
         document.getElementById('pending-blacklist-section').innerHTML = '';
         document.getElementById('pending-leaderboard-name-change-section').innerHTML = '';
-        document.getElementById('pending-account-name-change-section').innerHTML = '';  
+        document.getElementById('pending-account-name-change-section').innerHTML = '';
         document.getElementById('pending-email-change-section').innerHTML = '';
-        document.getElementById('user-requests').innerHTML = '';  
+        document.getElementById('user-requests').innerHTML = '';
 
         requests.forEach(request => {
             const requestElement = document.createElement('div');
@@ -1319,8 +1332,8 @@ async function loadPendingRequests() {
                 <p class="pabout2" style="text-align: left; margin: 0;">Date: ${new Date(request.request_date).toLocaleString()}</p>
                 <p class="pabout2" style="text-align: left; margin: 0;">Type: ${request.type}</p>
             `;
-        
-            switch(request.type) {
+
+            switch (request.type) {
                 case 'leaderboard_name_change':
                     requestContent += `<p class="pabout2" style="text-align: left; margin: 0;">Requested Name: ${request.requested_name}</p>`;
                     document.getElementById('pending-leaderboard-name-change-section').appendChild(requestElement);
@@ -1335,16 +1348,16 @@ async function loadPendingRequests() {
                     break;
                 case 'username_change':
                     requestContent += `<p class="pabout2" style="text-align: left; margin: 0;">Requested Username: ${request.requested_username}</p>`;
-                    document.getElementById('pending-account-name-change-section').appendChild(requestElement);  
+                    document.getElementById('pending-account-name-change-section').appendChild(requestElement);
                     break;
                 case 'email_change':
                     requestContent += `<p class="pabout2" style="text-align: left; margin: 0;">Requested Email: ${request.requested_email}</p>`;
                     document.getElementById('pending-email-change-section').appendChild(requestElement);
                     break;
                 default:
-                    document.getElementById('user-requests').appendChild(requestElement);  
+                    document.getElementById('user-requests').appendChild(requestElement);
             }
-        
+
             requestContent += `
                 <button onclick="resolveRequest(${request.id}, '${request.type}', 'approved')" style="margin-top: 10px;">Approve</button>
                 <button onclick="resolveRequest(${request.id}, '${request.type}', 'rejected')" style="margin-top: 10px;">Reject</button>
@@ -1373,7 +1386,7 @@ function updateUserRequests(count) {
             userRequestsElement.classList.remove('sad-face');
         } else {
             userRequestsElement.textContent = count;
-            
+
             if (count === 1) {
                 userRequestsElement.style.color = 'orange';
                 userRequestsElement.classList.remove('sad-face');
@@ -1450,8 +1463,8 @@ function displayReportedMod(mod) {
     const modCard = document.createElement('div');
     modCard.className = 'reported-mod-card';
 
-    const headerImagePath = mod.preview_image_path 
-        ? '/' + mod.preview_image_path.split('/').slice(-2).join('/') 
+    const headerImagePath = mod.preview_image_path
+        ? '/' + mod.preview_image_path.split('/').slice(-2).join('/')
         : '/modpreviews/icon3.png';
 
     modCard.innerHTML = `
@@ -1556,7 +1569,7 @@ async function loadMonitoringData() {
                 userRequestsElement.classList.remove('sad-face');
             } else {
                 userRequestsElement.textContent = data.userRequests;
-                
+
                 if (data.userRequests === 1) {
                     userRequestsElement.style.color = 'orange';
                     userRequestsElement.classList.remove('sad-face');
@@ -1654,7 +1667,7 @@ async function editPlayer(playerId) {
     try {
         const response = await fetch(`/api/leaderboard/${playerId}`);
         const player = await response.json();
-        
+
         document.getElementById('edit-player-id').value = player.id;
         document.getElementById('edit-player-name').value = player.player_name;
         document.getElementById('edit-player-games').value = player.games_played;
@@ -1807,20 +1820,20 @@ async function addToWhitelist(event) {
     }
     const playerName = document.getElementById('player-name').value;
     const reason = document.getElementById('whitelist-reason').value;
-    
+
     try {
         const response = await fetch('/api/whitelist', {
             method: 'POST',
-            headers: { 
+            headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
             body: JSON.stringify({ playerName, reason }),
             credentials: 'include'
         });
-        
+
         const responseData = await response.json();
-        
+
         if (response.ok) {
             console.log('Successfully added to whitelist');
             loadWhitelist();
@@ -1857,13 +1870,13 @@ async function removeFromWhitelist(playerName) {
     }
 }
 
-async function loadDemos() { 
+async function loadDemos() {
     if (currentUserRole > 5) return;
     try {
         const response = await fetch('/api/all-demos');
         const demos = await response.json();
-        allDemos = demos; 
-        displayFilteredDemos(demos); 
+        allDemos = demos;
+        displayFilteredDemos(demos);
     } catch (error) {
         console.error('Error loading demos:', error);
     }
@@ -1940,27 +1953,26 @@ function editDemo(demoId) {
 
                 const playersDiv = document.getElementById('edit-players');
                 playersDiv.innerHTML = '';
-                
+
                 let playersData;
                 try {
                     const parsedData = JSON.parse(demo.players);
                     console.log('Parsed data:', parsedData);
-                    
+
                     playersData = Array.isArray(parsedData) ? parsedData : parsedData.players;
                     console.log('Players data:', playersData);
-                    
+
                     const usingAlliances = playersData.some(player => player.alliance !== undefined);
                     console.log('Using alliances:', usingAlliances);
 
-                    // Determine if it's an expanded game based on game type
                     const isExpandedGame = (demo.game_type && (
-                        demo.game_type.includes('8 Player') || 
+                        demo.game_type.includes('8 Player') ||
                         demo.game_type.includes('4v4') ||
-                        demo.game_type.includes('10 Player') || 
+                        demo.game_type.includes('10 Player') ||
                         demo.game_type.includes('5v5') ||
-                        demo.game_type.includes('16 Player') || 
+                        demo.game_type.includes('16 Player') ||
                         demo.game_type.includes('8v8') ||
-                        demo.game_type.includes('509') || 
+                        demo.game_type.includes('509') ||
                         demo.game_type.includes('CG') ||
                         demo.game_type.includes('MURICON')
                     ));
@@ -1971,11 +1983,10 @@ function editDemo(demoId) {
                         let colorOptions;
                         if (usingAlliances) {
                             if (isExpandedGame) {
-                                // Expanded alliance colors
                                 colorOptions = `
                                     <div class="alliance-section">
                                         <label>Alliance (Group Color):</label>
-                                        <select id="edit-player${index+1}-alliance" class="alliance-select">
+                                        <select id="edit-player${index + 1}-alliance" class="alliance-select">
                                             <option value="0" ${player.alliance === 0 ? 'selected' : ''}>Green</option>
                                             <option value="1" ${player.alliance === 1 ? 'selected' : ''}>Red</option>
                                             <option value="2" ${player.alliance === 2 ? 'selected' : ''}>Blue</option>
@@ -1995,11 +2006,10 @@ function editDemo(demoId) {
                                         </select>
                                     </div>`;
                             } else {
-                                // Vanilla alliance colors
                                 colorOptions = `
                                     <div class="alliance-section">
                                         <label>Alliance (Group Color):</label>
-                                        <select id="edit-player${index+1}-alliance" class="alliance-select">
+                                        <select id="edit-player${index + 1}-alliance" class="alliance-select">
                                             <option value="0" ${player.alliance === 0 ? 'selected' : ''}>Red</option>
                                             <option value="1" ${player.alliance === 1 ? 'selected' : ''}>Green</option>
                                             <option value="2" ${player.alliance === 2 ? 'selected' : ''}>Blue</option>
@@ -2010,11 +2020,10 @@ function editDemo(demoId) {
                                     </div>`;
                             }
                         } else {
-                            // Team colors (non-alliance)
                             colorOptions = `
                                 <div class="team-section">
                                     <label>Team Color:</label>
-                                    <select id="edit-player${index+1}-team" class="team-select">
+                                    <select id="edit-player${index + 1}-team" class="team-select">
                                         <option value="0" ${player.team === 0 ? 'selected' : ''}>Green</option>
                                         <option value="1" ${player.team === 1 ? 'selected' : ''}>Red</option>
                                         <option value="2" ${player.team === 2 ? 'selected' : ''}>Green</option>
@@ -2032,12 +2041,12 @@ function editDemo(demoId) {
 
                         playersDiv.innerHTML += `
                             <div class="player-edit-row">
-                                <input type="text" id="edit-player${index+1}-name" value="${player.name}" placeholder="Player Name">
-                                <input type="number" id="edit-player${index+1}-score" value="${player.score}" placeholder="Score">
-                                <input type="text" id="edit-player${index+1}-territory" value="${player.territory}" placeholder="Territory">
-                                <input type="text" id="edit-player${index+1}-key_id" value="${player.key_id}" placeholder="Key ID" readonly>
-                                <input type="text" id="edit-player${index+1}-version" value="${player.version}" placeholder="Version" readonly>
-                                <input type="text" id="edit-player${index+1}-platform" value="${player.platform}" placeholder="Platform" readonly>
+                                <input type="text" id="edit-player${index + 1}-name" value="${player.name}" placeholder="Player Name">
+                                <input type="number" id="edit-player${index + 1}-score" value="${player.score}" placeholder="Score">
+                                <input type="text" id="edit-player${index + 1}-territory" value="${player.territory}" placeholder="Territory">
+                                <input type="text" id="edit-player${index + 1}-key_id" value="${player.key_id}" placeholder="Key ID" readonly>
+                                <input type="text" id="edit-player${index + 1}-version" value="${player.version}" placeholder="Version" readonly>
+                                <input type="text" id="edit-player${index + 1}-platform" value="${player.platform}" placeholder="Platform" readonly>
                                 <div class="color-selection">
                                     ${colorOptions}
                                 </div>
@@ -2064,10 +2073,10 @@ async function saveEditDemo(event) {
         await confirm('You do not have permission to save demo edits');
         return;
     }
-    
+
     const demoId = document.getElementById('edit-demo-id').value;
     let originalData;
-    
+
     try {
         originalData = JSON.parse(document.getElementById('edit-players-json').value);
         console.log('Original data:', originalData);
@@ -2079,17 +2088,17 @@ async function saveEditDemo(event) {
 
     const playerRows = document.querySelectorAll('.player-edit-row');
     const updatedPlayers = Array.from(playerRows).map((row, index) => {
-        const nameInput = document.getElementById(`edit-player${index+1}-name`);
-        const scoreInput = document.getElementById(`edit-player${index+1}-score`);
-        const territoryInput = document.getElementById(`edit-player${index+1}-territory`);
-        const keyIdInput = document.getElementById(`edit-player${index+1}-key_id`);
-        const versionInput = document.getElementById(`edit-player${index+1}-version`);
-        const platformInput = document.getElementById(`edit-player${index+1}-platform`);
-        const allianceInput = document.getElementById(`edit-player${index+1}-alliance`);
-        const teamInput = document.getElementById(`edit-player${index+1}-team`);
+        const nameInput = document.getElementById(`edit-player${index + 1}-name`);
+        const scoreInput = document.getElementById(`edit-player${index + 1}-score`);
+        const territoryInput = document.getElementById(`edit-player${index + 1}-territory`);
+        const keyIdInput = document.getElementById(`edit-player${index + 1}-key_id`);
+        const versionInput = document.getElementById(`edit-player${index + 1}-version`);
+        const platformInput = document.getElementById(`edit-player${index + 1}-platform`);
+        const allianceInput = document.getElementById(`edit-player${index + 1}-alliance`);
+        const teamInput = document.getElementById(`edit-player${index + 1}-team`);
 
-        const basePlayer = Array.isArray(originalData) ? 
-            originalData[index] : 
+        const basePlayer = Array.isArray(originalData) ?
+            originalData[index] :
             originalData.players[index];
 
         const updatedPlayer = {
@@ -2112,8 +2121,8 @@ async function saveEditDemo(event) {
         return updatedPlayer;
     });
 
-    const updatedData = Array.isArray(originalData) ? 
-        updatedPlayers : 
+    const updatedData = Array.isArray(originalData) ?
+        updatedPlayers :
         {
             players: updatedPlayers,
             spectators: originalData.spectators || []
@@ -2135,7 +2144,7 @@ async function saveEditDemo(event) {
             body: JSON.stringify(updatedDemo),
             credentials: 'include'
         });
-        
+
         if (response.ok) {
             const result = await confirm('Demo updated successfully!');
             if (result) {
@@ -2175,14 +2184,14 @@ function displayDedconBuildsManagement(builds) {
     builds.forEach(build => {
         const row = tbody.insertRow();
         let actionsHtml = '';
-        
+
         if (currentUserRole <= 4) {
             actionsHtml += `<button onclick="editDedconBuild(${build.id})">Edit</button>`;
         }
         if (currentUserRole <= 2) {
             actionsHtml += `<button onclick="deleteDedconBuild(${build.id})">Delete</button>`;
         }
-        
+
         row.innerHTML = `
             <td>${build.name}</td>
             <td>${build.version}</td>
@@ -2234,13 +2243,13 @@ async function editDedconBuild(buildId) {
     try {
         const response = await fetch(`/api/dedcon-build/${buildId}`);
         const build = await response.json();
-        
+
         document.getElementById('edit-dedcon-resource-id').value = build.id;
         document.getElementById('edit-dedcon-resource-name').value = build.name;
         document.getElementById('edit-dedcon-resource-version').value = build.version;
         document.getElementById('edit-dedcon-resource-date').value = new Date(build.release_date).toISOString().split('T')[0];
         document.getElementById('edit-resource-platform').value = build.platform;
-        
+
         document.getElementById('dedcon-build-edit').style.display = 'block';
     } catch (error) {
         console.error('Error fetching build details:', error);
@@ -2333,7 +2342,7 @@ async function uploadResource(event) {
         return;
     }
     const formData = new FormData(event.target);
-    
+
     const platform = event.target.id.replace('upload-', '').replace('-resource', '');
     formData.append('platform', platform);
 
@@ -2358,14 +2367,14 @@ async function uploadResource(event) {
 
 function displayResourcesManagement(resources) {
     const tbody = document.querySelector('#resource-table tbody');
-    tbody.innerHTML = ''; 
-  
+    tbody.innerHTML = '';
+
     const sortedResources = resources.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     sortedResources.forEach(resource => {
         const row = tbody.insertRow();
         let actionsHtml = '';
-        
+
         if (currentUserRole <= 4) {
             actionsHtml += `<button onclick="editResource(${resource.id})">Edit</button>`;
         }
@@ -2377,7 +2386,7 @@ function displayResourcesManagement(resources) {
         if (!platformDisplay || platformDisplay === 'NULL') {
             platformDisplay = '<span style="color: #ff4444;">Not Set</span>';
         } else {
-            switch(resource.platform) {
+            switch (resource.platform) {
                 case 'macos-intel':
                     platformDisplay = 'MacOS Intel';
                     break;
@@ -2391,7 +2400,7 @@ function displayResourcesManagement(resources) {
                     platformDisplay = resource.platform.charAt(0).toUpperCase() + resource.platform.slice(1);
             }
         }
-        
+
         row.innerHTML = `
             <td>${resource.name}</td>
             <td>${resource.version || '<span style="color: #ff4444;">Not Set</span>'}</td>
@@ -2436,7 +2445,7 @@ async function saveEditResource(event) {
         date: document.getElementById('edit-resource-date').value,
         platform: document.getElementById('edit-resource-platform').value
     };
-    
+
     try {
         const response = await fetch(`/api/resource/${resourceId}`, {
             method: 'PUT',
@@ -2545,7 +2554,7 @@ async function loadMods(type = '', sort = '') {
         let url = '/api/mods';
         if (type) url += `?type=${encodeURIComponent(type)}`;
         if (sort) url += `${type ? '&' : '?'}sort=${encodeURIComponent(sort)}`;
-        
+
         const response = await fetch(url);
         const mods = await response.json();
         const tbody = document.querySelector('#mod-table tbody');
@@ -2575,13 +2584,13 @@ async function loadMods(type = '', sort = '') {
 function scrollToTop() {
     const pageContainer = document.getElementById('page-container');
     pageContainer.classList.add('scrolling');
-    
+
     setTimeout(() => {
         window.scrollTo({
             top: 0,
             behavior: 'instant'
         });
-        
+
         pageContainer.classList.remove('scrolling');
     }, 500);
 }
@@ -2824,7 +2833,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('Admin page loaded, setting up mobile menu');
     setupMobileMenu();
     setActiveNavItem();

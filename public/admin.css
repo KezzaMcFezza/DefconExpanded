@@ -1,3 +1,16 @@
+/*!
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 18-12-2024 
+*/
 
 #logout-container button {
     width: 35%;
@@ -161,10 +174,10 @@ mark {
     text-align: center;
     margin-bottom: 1rem;
 }
-  
-  #demoFile {
+
+#demoFile {
     display: none;
-  }
+}
 
 #upload-resource-form {
     gap: 10px;
@@ -268,7 +281,8 @@ mark {
     min-height: 50px;
 }
 
-#layout-controls, .row-controls {
+#layout-controls,
+.row-controls {
     margin-bottom: 20px;
 }
 
@@ -637,6 +651,7 @@ mark {
     flex-direction: column;
     margin-left: auto;
 }
+
 .panel-column-one {
     display: flex;
 }
@@ -656,9 +671,11 @@ mark {
 #account-deletion-request-section {
     padding: 1rem;
 }
+
 #account-name-change-section {
     padding: 1rem;
 }
+
 #email-change-section {
     padding: 1rem;
 }
@@ -700,8 +717,8 @@ mark {
     display: flex;
     align-items: baseline;
 }
-.blacklist-request
-#user-requests {
+
+.blacklist-request #user-requests {
     display: inline-block;
 }
 
@@ -714,7 +731,7 @@ mark {
     content: " 😞";
     display: inline-block;
     margin-left: 5px;
-}  
+}
 
 .player-result {
     padding: 1.5rem;
@@ -727,9 +744,11 @@ mark {
 .player-card {
     transition: all 0.3s ease;
 }
+
 .fa-chevron-down {
     transition: transform 0.3s ease;
 }
+
 .server-list-container {
     min-width: 300px;
     padding: 15px;
@@ -739,59 +758,59 @@ mark {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     opacity: 1;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
- }
- 
- .server-list-container h3 {
+}
+
+.server-list-container h3 {
     color: #4da6ff;
     margin-top: 0;
     padding-bottom: 10px;
     border-bottom: 1px solid #333;
- }
- 
- .server-item:hover {
+}
+
+.server-item:hover {
     background: #2a2a2a;
- }
- 
- .server-item.active {
+}
+
+.server-item.active {
     background: #ab080078;
- }
- 
- .server-name {
+}
+
+.server-name {
     color: #fff;
     font-weight: 500;
     margin-bottom: 4px;
- }
- 
- .server-details {
+}
+
+.server-details {
     height: 0;
     overflow: hidden;
     transition: height 0.3s;
- }
- 
- .server-item.active .server-details {
+}
+
+.server-item.active .server-details {
     height: auto;
     margin-top: 8px;
     padding-top: 8px;
     border-top: 1px solid #333;
- }
- 
- .server-meta {
+}
+
+.server-meta {
     font-size: 0.9em;
     color: #666;
- }
- 
- .config-filename {
+}
+
+.config-filename {
     color: #b8b8b8;
     font-family: monospace;
- }
- 
- .last-edited {
+}
+
+.last-edited {
     color: #666;
     font-size: 0.85em;
     margin-top: 4px;
- }     
- 
- .server-list-container {
+}
+
+.server-list-container {
     min-width: 300px;
     padding: 15px;
     background-color: #1c1c2e17;
@@ -800,100 +819,100 @@ mark {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     opacity: 1;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
- }
- 
- .server-list-container h3 {
+}
+
+.server-list-container h3 {
     color: #4da6ff;
     margin-top: 0;
     padding-bottom: 10px;
     border-bottom: 1px solid #333;
- }
- 
- .server-item {
+}
+
+.server-item {
     padding: 12px;
     cursor: pointer;
     border-radius: 10px;
     margin-bottom: 5px;
     transition: all 0.2s;
- }
- 
- .server-item:hover {
+}
+
+.server-item:hover {
     background: #2a2a2a;
- }
- 
- .server-item.active {
+}
+
+.server-item.active {
     background: #ab080078;
- }
- 
- .server-name {
+}
+
+.server-name {
     color: #fff;
     font-weight: 500;
     margin-bottom: 4px;
- }
- 
- .server-details {
+}
+
+.server-details {
     height: 0;
     overflow: hidden;
     transition: height 0.3s;
- }
- 
- .server-item.active .server-details {
+}
+
+.server-item.active .server-details {
     height: auto;
     margin-top: 8px;
     padding-top: 8px;
     border-top: 1px solid #ffffff;
- }
- 
- .server-meta {
+}
+
+.server-meta {
     font-size: 0.9em;
     color: #666;
- }
- 
- .config-filename {
+}
+
+.config-filename {
     color: #b8b8b8;
     font-family: monospace;
- }
- 
- .last-edited {
+}
+
+.last-edited {
     color: #666;
     font-size: 0.85em;
     margin-top: 4px;
- }
+}
 
- /* Editor content scrollbar */
+/* Editor content scrollbar */
 #editor-content::-webkit-scrollbar {
     width: 8px;
- }
- 
- #editor-content::-webkit-scrollbar-track {
+}
+
+#editor-content::-webkit-scrollbar-track {
     background: #1a1a1a;
     border-radius: 4px;
- }
- 
- #editor-content::-webkit-scrollbar-thumb {
+}
+
+#editor-content::-webkit-scrollbar-thumb {
     background: #333;
     border-radius: 4px;
- }
- 
- #editor-content::-webkit-scrollbar-thumb:hover {
+}
+
+#editor-content::-webkit-scrollbar-thumb:hover {
     background: #444;
- }
- 
- /* Server list scrollbar */
- .server-list-container::-webkit-scrollbar {
+}
+
+/* Server list scrollbar */
+.server-list-container::-webkit-scrollbar {
     width: 8px;
- }
- 
- .server-list-container::-webkit-scrollbar-track {
+}
+
+.server-list-container::-webkit-scrollbar-track {
     background: #1a1a1a;
     border-radius: 4px;
- }
- 
- .server-list-container::-webkit-scrollbar-thumb {
+}
+
+.server-list-container::-webkit-scrollbar-thumb {
     background: #333;
     border-radius: 4px;
- }
- 
- .server-list-container::-webkit-scrollbar-thumb:hover {
+}
+
+.server-list-container::-webkit-scrollbar-thumb:hover {
     background: #444;
- }
+}

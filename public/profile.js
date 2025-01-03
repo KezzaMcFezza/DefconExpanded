@@ -1,3 +1,15 @@
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 18-12-2024 
+
 document.addEventListener('DOMContentLoaded', async () => {
     const pathArray = window.location.pathname.split('/');
     const username = pathArray[pathArray.length - 1];
@@ -35,7 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         'Antartica': 'antartica',
     };
 
-    let currentTerritories = vanillaTerritories; 
+    let currentTerritories = vanillaTerritories;
 
     async function fetchProfileData(username, mode = 'vanilla') {
         const response = await fetch(`/api/profile/${username}?mode=${mode}`);
@@ -66,17 +78,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const profilePictureElement = document.getElementById('profile-picture');
         if (profilePictureElement) {
-            const profilePicture = userProfile.profile_picture 
+            const profilePicture = userProfile.profile_picture
                 ? `https://defconexpanded.com${userProfile.profile_picture}`
-                : '/images/icon3.png';  
+                : '/images/icon3.png';
             profilePictureElement.src = profilePicture;
         }
 
         const profileCard = document.querySelector('.profile-card');
         if (profileCard) {
-            const profileBanner = userProfile.banner_image 
+            const profileBanner = userProfile.banner_image
                 ? `https://defconexpanded.com${userProfile.banner_image}`
-                : '/images/backgroundprofile.png';  
+                : '/images/backgroundprofile.png';
             profileCard.style.backgroundImage = `url('${profileBanner}')`;
         }
 
@@ -94,10 +106,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const steamInfoMobile = document.getElementById('steam-info-mobile');
         const discordInfoDesktop = document.getElementById('discord-info');
         const steamInfoDesktop = document.getElementById('steam-info');
-        
+
         if (discordInfoMobile) discordInfoMobile.textContent = userProfile.discord_username || 'N/A';
         if (steamInfoMobile) steamInfoMobile.textContent = userProfile.steam_id || 'N/A';
-        
+
         if (discordInfoDesktop) discordInfoDesktop.textContent = userProfile.discord_username || 'N/A';
         if (steamInfoDesktop) steamInfoDesktop.textContent = userProfile.steam_id || 'N/A';
 
@@ -115,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const mainContributionsContainer = document.getElementById('main-contributions-list');
         if (mainContributionsContainer) {
-            mainContributionsContainer.innerHTML = '';  
+            mainContributionsContainer.innerHTML = '';
             if (userProfile.main_contributions && userProfile.main_contributions.length > 0) {
                 userProfile.main_contributions.forEach(contribution => {
                     const listItem = document.createElement('li');
@@ -129,7 +141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const guidesAndModsContainer = document.getElementById('guides-and-mods-list');
         if (guidesAndModsContainer) {
-            guidesAndModsContainer.innerHTML = '';  
+            guidesAndModsContainer.innerHTML = '';
             if (userProfile.guides_and_mods && userProfile.guides_and_mods.length > 0) {
                 userProfile.guides_and_mods.forEach(guide => {
                     const listItem = document.createElement('li');
@@ -143,7 +155,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const favModsContainer = document.getElementById('favouriteModsContainer');
         if (favModsContainer) {
-            favModsContainer.innerHTML = ''; 
+            favModsContainer.innerHTML = '';
 
             if (userProfile.favoriteMods && userProfile.favoriteMods.length > 0) {
                 userProfile.favoriteMods.forEach(mod => {
@@ -182,7 +194,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 function updateTerritoryStats(userProfile, territories) {
     const bestTerritoryElement = document.getElementById('best-territory-username');
     const worstTerritoryElement = document.getElementById('worst-territory-username');
-    
+
     if (bestTerritoryElement) {
         bestTerritoryElement.textContent = `${userProfile.username}'s best territory is: ${userProfile.territoryStats.bestTerritory || 'N/A'}`;
     }
@@ -256,22 +268,22 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         imageToEdit.src = `${imageUrl}?t=${new Date().getTime()}`;
     }
-    
+
     function centerImage() {
         const containerWidth = imageToEdit.parentElement.offsetWidth;
         const containerHeight = imageToEdit.parentElement.offsetHeight;
         const imgWidth = imageToEdit.naturalWidth * scale;
         const imgHeight = imageToEdit.naturalHeight * scale;
-    
+
         translateX = (containerWidth - imgWidth) / 2;
         translateY = (containerHeight - imgHeight) / 2;
-        
+
         applyTransform();
     }
 
     imageToEdit.addEventListener('wheel', (e) => {
         e.preventDefault();
-        const delta = e.deltaY > 0 ? -0.1 : 0.1; 
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
         const newZoom = Math.min(Math.max(zoomControl.value + delta * 100, zoomControl.min), zoomControl.max);
         zoomControl.value = newZoom;
         applyZoom();
@@ -288,18 +300,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyZoom() {
         const newScale = zoomControl.value / 100;
         const deltaScale = newScale - scale;
-        
+
         const containerWidth = imageToEdit.parentElement.offsetWidth;
         const containerHeight = imageToEdit.parentElement.offsetHeight;
         translateX -= (containerWidth / 2 - translateX) * deltaScale / newScale;
         translateY -= (containerHeight / 2 - translateY) * deltaScale / newScale;
-        
+
         scale = newScale;
         applyTransform();
     }
 
     function updateCropOverlay() {
-        const profilePictureDimensions = 480; 
+        const profilePictureDimensions = 480;
         if (isProfilePicture) {
             cropOverlay.style.borderRadius = '50%';
             cropOverlay.style.width = `${profilePictureDimensions}px`;
@@ -307,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             cropOverlay.style.borderRadius = '0';
             cropOverlay.style.width = '100%';
-            cropOverlay.style.height = '33.33%'; 
+            cropOverlay.style.height = '33.33%';
         }
     }
 
@@ -353,35 +365,35 @@ document.addEventListener('DOMContentLoaded', () => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         let containerWidth, containerHeight;
-        
+
         if (isProfilePicture) {
-            containerWidth = containerHeight = 480; 
+            containerWidth = containerHeight = 480;
         } else {
             containerWidth = imageToEdit.parentElement.offsetWidth;
-            containerHeight = imageToEdit.parentElement.offsetHeight / 3; 
+            containerHeight = imageToEdit.parentElement.offsetHeight / 3;
         }
-        
+
         canvas.width = containerWidth;
         canvas.height = containerHeight;
-    
+
         const scale = zoomControl.value / 100;
         const imgWidth = imageToEdit.naturalWidth * scale;
         const imgHeight = imageToEdit.naturalHeight * scale;
-    
+
         const sx = (imgWidth - containerWidth) / 2 / scale;
         const sy = (imgHeight - containerHeight) / 2 / scale;
-    
+
         ctx.drawImage(
             imageToEdit,
             sx, sy, containerWidth / scale, containerHeight / scale,
             0, 0, containerWidth, containerHeight
         );
-    
+
         canvas.toBlob(async (blob) => {
             const formData = new FormData();
             formData.append('image', blob, isProfilePicture ? 'profile_image.png' : 'banner_image.png');
             formData.append('type', isProfilePicture ? 'profile' : 'banner');
-    
+
             try {
                 const response = await fetch('/api/upload-profile-image', {
                     method: 'POST',
@@ -389,13 +401,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 const result = await response.json();
                 if (result.success) {
-                    const newImageUrl = result.imageUrl + '?t=' + new Date().getTime(); 
+                    const newImageUrl = result.imageUrl + '?t=' + new Date().getTime();
                     if (isProfilePicture) {
                         currentEditingElement.src = newImageUrl;
                     } else {
                         currentEditingElement.style.backgroundImage = `url(${newImageUrl})`;
                     }
-                    imageEditorModal.style.display = 'none'; 
+                    imageEditorModal.style.display = 'none';
                 } else {
                     alert('Failed to upload image. Please try again.');
                 }
@@ -432,7 +444,7 @@ function createDemoCard(demo) {
         demo.game_type.includes('10 Player') || demo.game_type.includes('5v5') ||
         demo.game_type.includes('16 Player') || demo.game_type.includes('8v8') ||
         demo.game_type.includes('509') || demo.game_type.includes('CG') ||
-        demo.game_type.includes('MURICON') 
+        demo.game_type.includes('MURICON')
     ));
 
     const teamColors = {
@@ -459,22 +471,22 @@ function createDemoCard(demo) {
     };
 
     const expandedAllianceColors = {
-        0: { color: '#00bf00', name: 'Green' },    
-        1: { color: '#ff4949', name: 'Red' },      
-        2: { color: '#3d5cff', name: 'Blue' },     
-        3: { color: '#e5cb00', name: 'Yellow' },   
-        4: { color: '#00e5ff', name: 'Turq' },     
-        5: { color: '#e72de0', name: 'Pink' },     
-        6: { color: '#4c4c4c', name: 'Black' },    
-        7: { color: '#ffa700', name: 'Orange' },   
-        8: { color: '#28660a', name: 'Olive' },    
-        9: { color: '#660011', name: 'Scarlet' },  
-        10: { color: '#2a00ff', name: 'Indigo' },  
-        11: { color: '#4c4c00', name: 'Gold' },    
-        12: { color: '#004c3e', name: 'Teal' },    
-        13: { color: '#6a007f', name: 'Purple' },  
-        14: { color: '#e5e5e5', name: 'White' },   
-        15: { color: '#964B00', name: 'Brown' }    
+        0: { color: '#00bf00', name: 'Green' },
+        1: { color: '#ff4949', name: 'Red' },
+        2: { color: '#3d5cff', name: 'Blue' },
+        3: { color: '#e5cb00', name: 'Yellow' },
+        4: { color: '#00e5ff', name: 'Turq' },
+        5: { color: '#e72de0', name: 'Pink' },
+        6: { color: '#4c4c4c', name: 'Black' },
+        7: { color: '#ffa700', name: 'Orange' },
+        8: { color: '#28660a', name: 'Olive' },
+        9: { color: '#660011', name: 'Scarlet' },
+        10: { color: '#2a00ff', name: 'Indigo' },
+        11: { color: '#4c4c00', name: 'Gold' },
+        12: { color: '#004c3e', name: 'Teal' },
+        13: { color: '#6a007f', name: 'Purple' },
+        14: { color: '#e5e5e5', name: 'White' },
+        15: { color: '#964B00', name: 'Brown' }
     };
 
     let parsedPlayers = [];
@@ -486,23 +498,23 @@ function createDemoCard(demo) {
         try {
             parsedPlayers = JSON.parse(demo.players);
             usingAlliances = parsedPlayers.some(player => player.alliance !== undefined);
-            
+
             const allianceColors = isExpandedGame ? expandedAllianceColors : vanillaAllianceColors;
             const colorSystem = usingAlliances ? allianceColors : teamColors;
 
             parsedPlayers.forEach((player, index) => {
                 const groupId = usingAlliances ? player.alliance : player.team;
-                
+
                 if (!groupScores[groupId]) {
                     groupScores[groupId] = 0;
                 }
-                
+
                 groupScores[groupId] += player.score;
-                
+
                 if (player.score > highestScore) {
                     highestScore = player.score;
                 }
-                
+
                 player.profileUrl = demo[`player${index + 1}_name_profileUrl`] || null;
             });
         } catch (e) {
@@ -520,7 +532,7 @@ function createDemoCard(demo) {
             const groupId = usingAlliances ? player.alliance : player.team;
             playersPerGroup[groupId] = (playersPerGroup[groupId] || 0) + 1;
         });
-        
+
         const uniqueGroups = Object.keys(playersPerGroup).length;
         const isAllSoloPlayers = Object.values(playersPerGroup).every(count => count === 1);
 
@@ -551,7 +563,7 @@ function createDemoCard(demo) {
             const [winningGroupId, winningScore] = sortedGroups[0];
             const winningGroupName = colorSystem[winningGroupId]?.name || `Team ${winningGroupId}`;
             const winningGroupColor = colorSystem[winningGroupId]?.color || '#b8b8b8';
-            
+
             if (uniqueGroups >= 3) {
                 winningMessage = `<span style="color: ${winningGroupColor}">${winningGroupName}</span> won with ${winningScore} points.`;
             }
@@ -693,9 +705,9 @@ function createDemoCard(demo) {
 function toggleSpectators(button) {
     const spectatorsList = button.nextElementSibling;
     const isHidden = !spectatorsList.classList.contains('show');
-    
+
     spectatorsList.classList.toggle('show', isHidden);
-    button.innerHTML = isHidden ? 
+    button.innerHTML = isHidden ?
         `<i class="fas fa-eye-slash"></i> Hide Spectators` :
         `<i class="fas fa-eye"></i> Show Spectators`;
 }
@@ -734,12 +746,12 @@ async function loadRecentGame(defconUsername) {
             throw new Error('Failed to fetch recent games');
         }
 
-        const { demos } = await response.json(); 
+        const { demos } = await response.json();
         const recentGameContainer = document.getElementById('recent-game-container');
 
         if (recentGameContainer) {
             if (demos && demos.length > 0) {
-                const demoCard = createDemoCard(demos[0]); 
+                const demoCard = createDemoCard(demos[0]);
                 recentGameContainer.innerHTML = '<h2 class="headerresources2" style="text-align: center; font-weight: 1; margin-bottom: 10px;">Most Recent Game</h2>' + demoCard.outerHTML;
             } else {
                 recentGameContainer.innerHTML = '<p>No recent games available.</p>';
@@ -755,8 +767,8 @@ async function loadRecentGame(defconUsername) {
 }
 
 function createModCard(mod) {
-    const headerImagePath = mod.preview_image_path 
-        ? '/' + mod.preview_image_path.split('/').slice(-2).join('/') 
+    const headerImagePath = mod.preview_image_path
+        ? '/' + mod.preview_image_path.split('/').slice(-2).join('/')
         : '/modpreviews/icon3.png';
 
     return `
@@ -871,7 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!currentUserData.user || currentUserData.user.username !== profileUsername) {
             alert('You are not authorized to edit this profile.');
-            location.reload(); 
+            location.reload();
             return;
         }
 

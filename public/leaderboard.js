@@ -1,3 +1,15 @@
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 18-12-2024 
+
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const leaderboardType = urlParams.get('type') || 'regular';
@@ -14,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const leaderboardHeader = document.querySelector('.leaderboard-header');
     const infoLabel = document.querySelector('.active-players ul label');
     const qualifyLabel = document.querySelector('.sort-container label')
-    
+
     if (leaderboardType === 'tournament') {
         leaderboardHeader.textContent = 'DEFCON EXPANDED 2V2 TOURNAMENT';
         infoLabel.innerHTML = `
@@ -100,7 +112,7 @@ function displayLeaderboard(data, type) {
     const lastHeader = headers[headers.length - 1];
     if (type === 'tournament') {
         lastHeader.textContent = 'WIN RATIO';
-        lastHeader.style.display = ''; 
+        lastHeader.style.display = '';
     } else {
         lastHeader.textContent = 'TOTAL SCORE';
         lastHeader.style.display = '';
@@ -117,7 +129,7 @@ function displayLeaderboard(data, type) {
             const row = document.createElement('tr');
             let rankClass = '';
             let medalIcon = '';
-            
+
             if (player.absolute_rank === 1) {
                 rankClass = 'gold-rank';
                 medalIcon = '🥇';
@@ -130,17 +142,17 @@ function displayLeaderboard(data, type) {
             }
 
             const winRatio = ((player.wins / player.games_played) * 100 || 0).toFixed(2);
-            const profileLinkIcon = player.profileUrl 
+            const profileLinkIcon = player.profileUrl
                 ? `<a href="${player.profileUrl}" target="_blank" class="player-link-icon"><i class="fas fa-square-up-right"></i></a> `
                 : '';
-            
+
             row.innerHTML = `
                 <td class="rank-cell">${index + 1}</td>
                 <td class="player-cell ${rankClass}">${profileLinkIcon}${player.player_name}<span class="medal-icon">${medalIcon}</span></td>
                 <td class="stats-cell">${player.wins}</td>
                 <td class="stats-cell">${player.losses}</td>
                 <td class="stats-cell">${player.games_played}</td>
-                ${type === 'tournament' 
+                ${type === 'tournament'
                     ? `<td class="win-ratio-cell">${winRatio}%</td>`
                     : `<td class="total-score-cell">${player.total_score}</td>`
                 }
