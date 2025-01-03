@@ -1,3 +1,15 @@
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 18-12-2024 
+
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         const currentUserResponse = await fetch('/api/current-user');
@@ -6,11 +18,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (currentUserData && currentUserData.user && currentUserData.user.username) {
             document.title = `${currentUserData.user.username}'s Settings - DEFCON Expanded`;
         } else {
-            document.title = 'Settings - DEFCON Expanded'; 
+            document.title = 'Settings - DEFCON Expanded';
         }
     } catch (error) {
         console.error('Error fetching current user:', error);
-        document.title = 'Settings - DEFCON Expanded'; 
+        document.title = 'Settings - DEFCON Expanded';
     }
 
     const changePasswordForm = document.getElementById('change-password-form');
@@ -24,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('request-password-change-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('email').value;
-    
+
         try {
             const response = await fetch('/api/request-password-change', {
                 method: 'POST',
@@ -33,9 +45,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
                 body: JSON.stringify({ email })
             });
-    
+
             const data = await response.json();
-    
+
             if (response.ok) {
                 alert(data.message);
             } else {
@@ -46,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert('An error occurred while requesting password change');
         }
     });
-    
+
     function handlePasswordChangeToken() {
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
@@ -55,31 +67,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('change-password-form').style.display = 'flex';
         }
     }
-    
+
     document.getElementById('change-password-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const newPassword = document.getElementById('new-password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
-    
+
         if (newPassword !== confirmPassword) {
             alert('New passwords do not match');
             return;
         }
-    
+
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
-    
+
         try {
             const response = await fetch(`/api/change-password?token=${token}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ newPassword, confirmPassword }) 
+                body: JSON.stringify({ newPassword, confirmPassword })
             });
-    
+
             const data = await response.json();
-    
+
             if (response.ok) {
                 alert(data.message);
             } else {
@@ -159,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const confirmed = await new Promise(resolve => {
             resolve(confirm('Are you sure you want to request to be blacklisted from the leaderboard?'));
         });
-    
+
         if (confirmed) {
             try {
                 const response = await fetch('/api/request-blacklist', {
@@ -178,7 +190,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const confirmed = await new Promise(resolve => {
             resolve(confirm('Are you sure you want to request account deletion? This action cannot be undone.'));
         });
-    
+
         if (confirmed) {
             try {
                 const response = await fetch('/api/request-account-deletion', {
@@ -220,7 +232,7 @@ function getRequestDetails(request) {
         case 'email_change':
             return `New email: ${request.requested_email}`;
         default:
-            return ''; 
+            return '';
     }
 }
 
@@ -241,7 +253,7 @@ async function loadUserPendingRequests() {
 
                 const statusClass = request.status === 'pending' ? 'pending' : request.status === 'approved' ? 'approved' : 'rejected';
                 const friendlyType = getFriendlyRequestType(request.type);
-                const requestDetails = getRequestDetails(request); 
+                const requestDetails = getRequestDetails(request);
 
                 requestElement.innerHTML = `
                     <div class="request-card">

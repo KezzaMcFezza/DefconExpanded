@@ -1,3 +1,15 @@
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 18-12-2024 
+
 let allDemos = [];
 let currentPage = 1;
 let totalPages = 1;
@@ -11,6 +23,7 @@ const filterState = {
     combineMode: false,
     scoreFilter: '',
     durationFilter: '',
+    excludeNewPlayers: true,
     scoreDifferenceFilter: '',
     dateRange: {
         start: null,
@@ -21,7 +34,7 @@ const filterState = {
 
 const territoryMapping = {
     'na': 'North America',
-    'sa': 'South America', 
+    'sa': 'South America',
     'eu': 'Europe',
     'ru': 'Russia',
     'af': 'Africa',
@@ -39,7 +52,7 @@ function initializeDemos() {
     currentPage = parseInt(urlParams.get('page') || '1');
     currentSort = urlParams.get('sort') || 'latest';
     currentServerFilter = urlParams.get('server') || '';
-    
+
     const serverFilter = document.getElementById('server-filter');
     if (serverFilter && currentServerFilter) {
         serverFilter.value = currentServerFilter;
@@ -156,11 +169,11 @@ function initializeDemos() {
 function updateDemoList(playerName = '') {
     const timestamp = new Date().getTime();
     const serverFilter = currentServerFilter;
-
     const queryParams = new URLSearchParams();
+
     queryParams.set('page', currentPage);
     queryParams.set('sortBy', currentSort);
-    
+
     if (playerName) {
         queryParams.set('playerName', playerName);
     }
@@ -189,6 +202,7 @@ function updateDemoList(playerName = '') {
     if (filterState.gamesPlayed) queryParams.set('gamesPlayed', filterState.gamesPlayed);
 
     queryParams.set('t', timestamp);
+    queryParams.set('includeNewPlayers', filterState.includeNewPlayers);
 
     fetch(`/api/demos?${queryParams.toString()}`)
         .then(response => {
@@ -224,7 +238,7 @@ function displayDemos(demos) {
         return;
     }
 
-    demoContainer.innerHTML = ''; 
+    demoContainer.innerHTML = '';
 
     let columnCount;
     if (window.innerWidth < 500) {
@@ -263,7 +277,7 @@ function createDemoCard(demo) {
         demo.game_type.includes('10 Player') || demo.game_type.includes('5v5') ||
         demo.game_type.includes('16 Player') || demo.game_type.includes('8v8') ||
         demo.game_type.includes('509') || demo.game_type.includes('CG') ||
-        demo.game_type.includes('MURICON') 
+        demo.game_type.includes('MURICON')
     ));
 
     const teamColors = {
@@ -290,22 +304,22 @@ function createDemoCard(demo) {
     };
 
     const expandedAllianceColors = {
-        0: { color: '#00bf00', name: 'Green' },    
-        1: { color: '#ff4949', name: 'Red' },      
-        2: { color: '#3d5cff', name: 'Blue' },     
-        3: { color: '#e5cb00', name: 'Yellow' },   
-        4: { color: '#00e5ff', name: 'Turq' },     
-        5: { color: '#e72de0', name: 'Pink' },     
-        6: { color: '#4c4c4c', name: 'Black' },    
-        7: { color: '#ffa700', name: 'Orange' },   
-        8: { color: '#28660a', name: 'Olive' },    
-        9: { color: '#660011', name: 'Scarlet' },  
-        10: { color: '#2a00ff', name: 'Indigo' },  
-        11: { color: '#4c4c00', name: 'Gold' },    
-        12: { color: '#004c3e', name: 'Teal' },    
-        13: { color: '#6a007f', name: 'Purple' },  
-        14: { color: '#e5e5e5', name: 'White' },   
-        15: { color: '#964B00', name: 'Brown' }    
+        0: { color: '#00bf00', name: 'Green' },
+        1: { color: '#ff4949', name: 'Red' },
+        2: { color: '#3d5cff', name: 'Blue' },
+        3: { color: '#e5cb00', name: 'Yellow' },
+        4: { color: '#00e5ff', name: 'Turq' },
+        5: { color: '#e72de0', name: 'Pink' },
+        6: { color: '#4c4c4c', name: 'Black' },
+        7: { color: '#ffa700', name: 'Orange' },
+        8: { color: '#28660a', name: 'Olive' },
+        9: { color: '#660011', name: 'Scarlet' },
+        10: { color: '#2a00ff', name: 'Indigo' },
+        11: { color: '#4c4c00', name: 'Gold' },
+        12: { color: '#004c3e', name: 'Teal' },
+        13: { color: '#6a007f', name: 'Purple' },
+        14: { color: '#e5e5e5', name: 'White' },
+        15: { color: '#964B00', name: 'Brown' }
     };
 
     let parsedPlayers = [];
@@ -317,23 +331,23 @@ function createDemoCard(demo) {
         try {
             parsedPlayers = JSON.parse(demo.players);
             usingAlliances = parsedPlayers.some(player => player.alliance !== undefined);
-            
+
             const allianceColors = isExpandedGame ? expandedAllianceColors : vanillaAllianceColors;
             const colorSystem = usingAlliances ? allianceColors : teamColors;
 
             parsedPlayers.forEach((player, index) => {
                 const groupId = usingAlliances ? player.alliance : player.team;
-                
+
                 if (!groupScores[groupId]) {
                     groupScores[groupId] = 0;
                 }
-                
+
                 groupScores[groupId] += player.score;
-                
+
                 if (player.score > highestScore) {
                     highestScore = player.score;
                 }
-                
+
                 player.profileUrl = demo[`player${index + 1}_name_profileUrl`] || null;
             });
         } catch (e) {
@@ -351,7 +365,7 @@ function createDemoCard(demo) {
             const groupId = usingAlliances ? player.alliance : player.team;
             playersPerGroup[groupId] = (playersPerGroup[groupId] || 0) + 1;
         });
-        
+
         const uniqueGroups = Object.keys(playersPerGroup).length;
         const isAllSoloPlayers = Object.values(playersPerGroup).every(count => count === 1);
 
@@ -382,7 +396,7 @@ function createDemoCard(demo) {
             const [winningGroupId, winningScore] = sortedGroups[0];
             const winningGroupName = colorSystem[winningGroupId]?.name || `Team ${winningGroupId}`;
             const winningGroupColor = colorSystem[winningGroupId]?.color || '#b8b8b8';
-            
+
             if (uniqueGroups >= 3) {
                 winningMessage = `<span style="color: ${winningGroupColor}">${winningGroupName}</span> won with ${winningScore} points.`;
             }
@@ -524,9 +538,9 @@ function createDemoCard(demo) {
 function toggleSpectators(button) {
     const spectatorsList = button.nextElementSibling;
     const isHidden = !spectatorsList.classList.contains('show');
-    
+
     spectatorsList.classList.toggle('show', isHidden);
-    button.innerHTML = isHidden ? 
+    button.innerHTML = isHidden ?
         `<i class="fas fa-eye-slash"></i> Hide Spectators` :
         `<i class="fas fa-eye"></i> Show Spectators`;
 }
@@ -543,7 +557,7 @@ function updatePagination() {
 
     let startPage = Math.max(1, currentPage - 4);
     let endPage = Math.min(totalPages, startPage + 8);
-    
+
     if (totalPages > 9 && endPage - startPage < 8) {
         startPage = Math.max(1, endPage - 8);
     }
@@ -587,14 +601,14 @@ function updatePagination() {
     if (totalPages > 9) {
         const customPageContainer = document.createElement('div');
         customPageContainer.className = 'custom-page-container';
-        
+
         const customPageInput = document.createElement('input');
         customPageInput.type = 'number';
         customPageInput.min = 1;
         customPageInput.max = totalPages;
         customPageInput.placeholder = 'Go to page...';
         customPageInput.className = 'custom-page-input';
-        
+
         const goButton = document.createElement('button');
         goButton.textContent = 'Go';
         goButton.className = 'custom-page-go';
@@ -644,7 +658,7 @@ function updateURL() {
     const url = new URL(window.location);
     url.searchParams.set('page', currentPage);
     url.searchParams.set('sort', currentSort);
-    
+
     if (currentServerFilter) {
         url.searchParams.set('server', currentServerFilter);
     } else {
@@ -675,13 +689,13 @@ function performPlayerSearch() {
 
     const playerName = playerSearchInput.value.trim();
     const url = new URL(window.location);
-    
+
     if (playerName) {
         url.searchParams.set('playerName', playerName);
     } else {
         url.searchParams.delete('playerName');
     }
-    
+
     url.searchParams.set('page', '1');
     window.location.href = url.toString();
 }
@@ -691,7 +705,7 @@ function resetFilters() {
     const hasAppliedFilters = [
         'territories', 'players', 'combineMode', 'scoreFilter',
         'gameDuration', 'scoreDifference', 'startDate', 'endDate',
-        'gamesPlayed', 'playerName'
+        'gamesPlayed', 'playerName', 'includeNewPlayers'
     ].some(param => url.searchParams.has(param));
 
     document.querySelectorAll('.territory-checkbox').forEach(checkbox => {
@@ -748,6 +762,12 @@ function resetFilters() {
         playerSearchInput.value = '';
     }
 
+    const newPlayerCheckbox = document.querySelector('.newplayer-checkbox');
+    if (newPlayerCheckbox instanceof HTMLInputElement) {
+        newPlayerCheckbox.checked = true;
+        filterState.includeNewPlayers = true;
+    }
+
     if (hasAppliedFilters) {
         const newUrl = new URL(window.location);
         for (const param of newUrl.searchParams.keys()) {
@@ -781,13 +801,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const newPlayerSwitch = document.getElementById('newplayer');
+    if (newPlayerSwitch) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const includeNewPlayers = urlParams.get('includeNewPlayers') !== 'false';
+        newPlayerSwitch.checked = includeNewPlayers;
+        filterState.includeNewPlayers = includeNewPlayers;
+
+        newPlayerSwitch.addEventListener('change', (e) => {
+            filterState.includeNewPlayers = e.target.checked;
+        });
+    }
+
     const sortSelect = document.querySelector('.sort-container select');
     if (sortSelect) {
         sortSelect.addEventListener('change', (e) => {
             const url = new URL(window.location);
             url.searchParams.set('sort', e.target.value);
             url.searchParams.set('page', '1');
-            window.location.href = url.toString(); 
+            window.location.href = url.toString();
         });
     }
 
@@ -801,7 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 url.searchParams.delete('server');
             }
             url.searchParams.set('page', '1');
-            window.location.href = url.toString(); 
+            window.location.href = url.toString();
         });
     }
 
@@ -871,7 +903,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelector('.apply-filters-btn')?.addEventListener('click', () => {
         const url = new URL(window.location);
-        
+
         url.searchParams.set('page', '1');
 
         const validPlayers = filterState.players.filter(player => player && player.trim());
@@ -880,7 +912,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             url.searchParams.delete('players');
         }
-        
+
+        if (!filterState.includeNewPlayers) {
+            url.searchParams.set('includeNewPlayers', 'false');
+        } else {
+            url.searchParams.delete('includeNewPlayers');
+        }
+
         if (filterState.territories.size > 0) {
             const territoryNames = Array.from(filterState.territories)
                 .map(id => territoryMapping[id])

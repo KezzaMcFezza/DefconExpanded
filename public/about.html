@@ -1,4 +1,21 @@
-<!DOCTYPE html><html lang="en" class="hide-scrollbar"><head>
+<!--
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 18-12-2024 
+-->
+
+<!DOCTYPE html>
+<html lang="en" class="hide-scrollbar">
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DEFCON Expanded</title>
@@ -33,7 +50,12 @@
     <link rel="stylesheet" type="text/css" href="/newmain.css">
     <link rel="stylesheet" type="text/css" href="/scaling.css">
     <link rel="stylesheet" type="text/css" href="/admin.css">
+    <link rel="stylesheet" type="text/css" href="/about.css">
+    <link rel="stylesheet" type="text/css" href="/graph.css">
+    <script src="/graph.js" defer=""></script>
     <script src="/script.js" defer=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&amp;display=swap" rel="stylesheet">
@@ -56,74 +78,73 @@
         }
     </script>
     <style>
-
-        .fa-user {
-          margin-right: 5px;
-        }
-  
-        .fa-cog {
-          margin-right: 5px;
-        }
-  
-      </style>
+    </style>
 </head>
+
 <body class="hide-scrollbar">
-            <div id="sidebar">
-                <div class="title">DEFCON Expanded</div>
-                <ul class="list-items">
-                    <li><a href="/" id="nav-game-recordings"><img src="/images/recording.png" alt="Game Recordings" class="steam-logo" style="margin-right: 10px; width: 19px; height: 12px;">Game Recordings</a></li>
-                    <li><a href="/about" id="nav-about"><img src="/images/abouticon.png" alt="About" class="steam-logo" style="margin-right: 10px; width: 19px;">About</a></li>
-                    <li><a href="/resources" id="nav-resources"><img src="/images/favicon.png" alt="Expanded Builds" class="steam-logo" style="margin-right: 10px; width: 19px;">Expanded Builds</a></li>
-                    <li><a href="/dedcon-builds" id="nav-dedcon-builds"><img src="/images/dedcon.png" alt="Steam" class="steam-logo" style="margin-right: 10px; width: 19px;">Dedcon</a></li>
-                    <!-- <li><a href="/guides" id="nav-articles"><i class="fas fa-newspaper"></i>Guides</a></li> -->
-                    <li><a href="/leaderboard" id="nav-leaderboard"><img src="/images/leaderboard.png" alt="Leaderboard" class="steam-logo" style="margin-right: 10px; width: 19px; height: 20px;">Leaderboard</a></li>
-                    <!-- <li><a href="/laikasdefcon" id="nav-laikasdefcon"><i class="fas fa-dog"></i>Laika's Defcon</a></li> -->
-                    <li><a href="/modlist" id="nav-modlist"><img src="/images/icon3.png" alt="Modlist" class="steam-logo" style="margin-right: 10px; width: 19px;">Defcon Modlist</a></li>
-                    <div id="discord-widget"></div>
-                    <header class="mobile-header">
-                        <nav class="header-content">
-                            <div class="account-container">
-                                <div class="user-actions">
-                                    <div class="logged-out-actions">
-                                        <a href="/login" class="login-signup" target="_blank">Login</a>
-                                        <a href="/signup" class="login-signup" target="_blank">Sign up</a>
-                                    </div>
-                
-                                    <div class="logged-in-actions" style="display: none;">
-                                        <div class="user-dropdown">
-                                            <button class="dropbtn">
-                                              <span id="logged-in-username">Logged-in User</span>
-                                                <i class="fa fa-caret-down"></i>
-                                            </button>
-                                            <div class="dropdown-content-page">
-                                                <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a> 
-                                                <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
-                                            </div>
-                                        </div>
-                                        <button class="signout">Logout</button>
+    <div id="sidebar">
+        <div class="title">DEFCON Expanded</div>
+        <ul class="list-items">
+            <li><a href="/" id="nav-game-recordings"><img src="/images/recording.png" alt="Game Recordings"
+                        class="steam-logo" style="margin-right: 10px; width: 19px; height: 12px;">Game Recordings</a>
+            </li>
+            <li><a href="/about" id="nav-about"><img src="/images/abouticon.png" alt="About" class="steam-logo"
+                        style="margin-right: 10px; width: 19px;">About</a></li>
+            <li><a href="/resources" id="nav-resources"><img src="/images/favicon.png" alt="Expanded Builds"
+                        class="steam-logo" style="margin-right: 10px; width: 19px;">Expanded Builds</a></li>
+            <li><a href="/dedcon-builds" id="nav-dedcon-builds"><img src="/images/dedcon.png" alt="Steam"
+                        class="steam-logo" style="margin-right: 10px; width: 19px;">Dedcon</a></li>
+            <!-- <li><a href="/guides" id="nav-articles"><i class="fas fa-newspaper"></i>Guides</a></li> -->
+            <li><a href="/leaderboard" id="nav-leaderboard"><img src="/images/leaderboard.png" alt="Leaderboard"
+                        class="steam-logo" style="margin-right: 10px; width: 19px; height: 20px;">Leaderboard</a></li>
+            <!-- <li><a href="/laikasdefcon" id="nav-laikasdefcon"><i class="fas fa-dog"></i>Laika's Defcon</a></li> -->
+            <li><a href="/modlist" id="nav-modlist"><img src="/images/icon3.png" alt="Modlist" class="steam-logo"
+                        style="margin-right: 10px; width: 19px;">Defcon Modlist</a></li>
+            <div id="discord-widget"></div>
+            <header class="mobile-header">
+                <nav class="header-content">
+                    <div class="account-container">
+                        <div class="user-actions">
+                            <div class="logged-out-actions">
+                                <a href="/login" class="login-signup" target="_blank">Login</a>
+                                <a href="/signup" class="login-signup" target="_blank">Sign up</a>
+                            </div>
+
+                            <div class="logged-in-actions" style="display: none;">
+                                <div class="user-dropdown">
+                                    <button class="dropbtn">
+                                        <span id="logged-in-username">Logged-in User</span>
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                    <div class="dropdown-content-page">
+                                        <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a>
+                                        <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
                                     </div>
                                 </div>
+                                <button class="signout">Logout</button>
                             </div>
-                        </nav>
-                    </header>
-                </ul>
-                <div class="icons">
-                    <a href="mailto:keiron.mcphee1@gmail.com" target="_blank" class="mail-icon">
-                        <img src="/images/mail-icon.png" alt="E-Mail" class="steam-logo">
-                        </a>
-                      <a href="https://www.youtube.com/@KezzaMacFezza" target="_blank" class="youtube-icon">
-                        <img src="/images/youtube-icon.png" alt="Youtube" class="steam-logo">
-                      </a>
-                      <a href="https://store.steampowered.com/app/1520/DEFCON/" class="steam-icon" target="_blank">
-                      <img src="/images/steam-logo.png" alt="Steam" class="steam-logo">
-                      </a>
-                      <a href="/privacypolicy" class="privacy-icon" target="_blank">
-                      <img src="/images/privacy-policy.png" alt="Steam" class="steam-logo">
-                      </a>
-                </div>
-            </div>
-        <main>
-          <header>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+        </ul>
+        <div class="icons">
+            <a href="mailto:keiron.mcphee1@gmail.com" target="_blank" class="mail-icon">
+                <img src="/images/mail-icon.png" alt="E-Mail" class="steam-logo">
+            </a>
+            <a href="https://www.youtube.com/@KezzaMacFezza" target="_blank" class="youtube-icon">
+                <img src="/images/youtube-icon.png" alt="Youtube" class="steam-logo">
+            </a>
+            <a href="https://store.steampowered.com/app/1520/DEFCON/" class="steam-icon" target="_blank">
+                <img src="/images/steam-logo.png" alt="Steam" class="steam-logo">
+            </a>
+            <a href="/privacypolicy" class="privacy-icon" target="_blank">
+                <img src="/images/privacy-policy.png" alt="Steam" class="steam-logo">
+            </a>
+        </div>
+    </div>
+    <main>
+        <header>
             <nav class="header-content">
                 <div class="account-container">
                     <div class="user-actions">
@@ -131,15 +152,15 @@
                             <a href="/login" class="login-signup" target="_blank">Login</a>
                             <a href="/signup" class="login-signup" target="_blank">Sign up</a>
                         </div>
-    
+
                         <div class="logged-in-actions" style="display: none;">
                             <div class="user-dropdown">
                                 <button class="dropbtn">
-                                  <span id="logged-in-username">Logged-in User</span>
+                                    <span id="logged-in-username">Logged-in User</span>
                                     <i class="fa fa-caret-down"></i>
                                 </button>
                                 <div class="dropdown-content-page">
-                                    <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a> 
+                                    <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a>
                                     <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
                                 </div>
                             </div>
@@ -149,101 +170,215 @@
                 </div>
             </nav>
         </header>
-        <div class="about-container-main">
-            <div class="about-container">
-                <div class="cardcredits"><h2 class="card-title">Welcome to DEFCON Expanded</h2>
-                    <p>Welcome to the Official Website for DEFCON Expanded, the 8-16 player mod for DEFCON. For decades DEFCON has only supported 6 player lobbies which was fine when the game was released in the early 2000s, however we decided that it's time for a change! The mod is months in the making and wouldn't have been possible without some talented people who are passionate about the game.<br> 
-                    <br>Our biggest project is adding the ability to download and watch the demos of these games using the Dedcon client, examples of this functionality for vanilla DEFCON is Group6 and SFCON which are linked if you want to check them out. Adding this functionality into our mod will make the mod feel more integrated and a lot more official. This project is still in its infancy however and we do recommend you report any bugs that you find 
-                    <a href="/bug-report" class="alinks">here</a>.
-                    <br></p>
-                    <p>This website is also currently still in development, so don't be concerned if you see any issues or broken elements. I am currently making live changes so things might change quickly from one day to another, i hope everyone understands :)</p>
+        <div class="about-page-container">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h1 class="hero-title">Welcome to DefconExpanded</h1>
+                    <p class="hero-text">
+                        Welcome to the Official Website for DefconExpanded, where you can view recordings, download
+                        Defcon resources and track player statistics.
+                        <br>
+                        <br>
+                        We have implemented numerous quality of life improvements for the Vanilla and modding
+                        playerbase, including
+                        Discord integration, advanced game tracking, and comprehensive statistical analysis.
+                        <br>
+                        <br>
+                        Our modded Defcon and Dedcon clients support 8-16 players and have been ported to MacOS and
+                        Linux, making the
+                        game more accessible than ever. With seasonal tournaments, advanced filtering systems, and a
+                        rich modding community, we're dedicated to enhancing the DEFCON experience.
+                    </p>
+                    <div class="hero-links">
+                        <a href="http://group6.info/" class="hero-link">Group6 →</a>
+                        <a href="http://sfcon.demoszenen.de/" class="hero-link">SFCON →</a>
+                    </div>
                 </div>
-                <div class="about-container">
-                <div class="card">
-                    <h2 class="card-title">New Gameplay Features</h2>
-                    <h3>Bomber Launch (Empty)</h3>
-                    <p>The new empty bomber launch mode allows you to launch a bomber without arming a nuke, allowing you to use the bomber to pick up a warhead at the base of your choosing. This provides more strategic flexibility in managing your nuclear arsenal.</p>
-                    <h3>Color Picker</h3>
-                    <p>On opening the Alliance toolbar tab, you will see a new window that lists all of the team colors. You can now choose your team color, adding a new level of customization to your gameplay experience.</p>
-                    <h2 class="card-title">New Graphical Features</h2>
-                    <h3>16 Available Team Colors</h3>
-                    <p>We've expanded the color palette from the original 6 colors to 16, giving players more options to distinguish their teams. The new colors include Green, Red, Blue, Yellow, Cyan, Pink, Black, Orange, Olive, Scarlet, Indigo, Gold, Dark Teal, Purple, White, and Brown.</p>
-                    <h3>Unit Outlines</h3>
-                    <p>To improve visibility, especially for darker colors and units over the ocean, we've added a thin white highlight around every unit.</p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stats-controls">
+                            <div class="date-controls">
+                                <h3 class="filter-title">Date Range</h3>
+                                <div class="date-inputs">
+                                    <input type="date" class="date-input" id="startDate" name="startDate">
+                                    <span>to</span>
+                                    <input type="date" class="date-input" id="endDate" name="endDate">
+                                </div>
+                            </div>
+
+                            <div class="graph-search-container">
+                                <h3 class="filter-title">Filter by Name</h3>
+                                <input type="text" placeholder="Player name..." class="player-input" style="border-radius: 0;">
+                            </div>
+
+                            <div class="axis-controls">
+                                <div class="y-axis-control">
+                                    <h3 class="filter-title">Y-Axis</h3>
+                                    <input type="number" class="yaxis-input" id="yAxisMax" min="1" value="16" step="1">
+                                    <select id="graph-filter" class="server-select" style="margin-left: 10px;">
+                                        <option value="">Graph Type</option>
+                                        <optgroup label="Servers">
+                                            <option value="individualServers" selected>Individual Servers</option>
+                                            <option value="combinedServers">Combined servers</option>
+                                        </optgroup>
+                                        <optgroup label="In-Game statistics">
+                                            <option value="totalHoursPlayed">Total Hours Played</option>
+                                            <option value="popularTerritories">Popular Territories</option>
+                                            <option value="1v1setupStatistics">1v1 Setup Statistics</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="server-filters">
+                                <div class="filter-header">
+                                    <h3 class="filter-title">Server Selection</h3>
+                                    <div class="reset-apply-servers" style="display: flex;">
+                                        <button id="selectAllServers" class="apply-servers-btn">Select All</button>
+                                        <button id="deselectAllServers" class="reset-servers-btn">Deselect All</button>
+                                    </div>
+                                </div>
+                                <div class="server-checkboxes">
+                                    <div class="checkbox-column">
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="new_player" checked> New Player Server</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="training" checked> Training Game</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="defcon_random" checked> 1v1 Random</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="defcon_best" checked> 1v1 Best Setups</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="defcon_afas" checked> AF vs AS</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="defcon_eusa" checked> EU vs SA</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="defcon_3v3" checked> 3v3 Random</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="defcon_4v4" checked> 4v4 Random</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="muricon" checked> MURICON</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="cg_2v2_2815" checked> CG | 2v2 2.8.15</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="cg_2v2_28141" checked> CG | 2v2 2.8.14.1</label>
+                                    </div>
+                                    <div class="checkbox-column">
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="defcon_default" checked> 1v1 Default</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="defcon_2v2" checked> 2v2 Random</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="tournament_2v2" checked> 2v2 Tournament</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="defcon_2v2_special" checked> 2v2 EU-AF-NA-SA</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="mojo_2v2" checked> Mojo's 2v2</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="sony_hoov" checked> Sony & Hoov's</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="defcon_ffa" checked> FFA Random</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="cg_1v1_2815" checked> CG | 1v1 2.8.15</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="cg_1v1_28141" checked> CG | 1v1 2.8.14.1</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="defcon_8p_diplo" checked> 8P Diplomacy</label>
+                                        <label style="font-size: 15px"><input type="checkbox" name="server"
+                                                value="defcon_10p_diplo" checked> 10P Diplomacy</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button id="updateGraph" class="update-graph-btn">Update Graph</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="gamesChart"></div>
             </div>
-        </div>
-            <div class="about-container">
-                <div class="cardproject">
-                            <h2 class="h2project">Project Contributors</h2>
-                            
-                            <div class="contributor-category">
-                                <h3>Website Development</h3>
-                                <div class="contributor-list">
-                                    <span class="contributor">KezzaMcFezza</span>
-                                    <span class="contributor">Devil</span>
-                                    <span class="contributor">Nexustini</span>
-                                </div>
-                            </div>
-                            
-                            <div class="contributor-category">
-                                <h3>Mod Development</h3>
-                                <div class="contributor-list">
-                                    <span class="contributor">Sievert</span>
-                                    <span class="contributor">FasterThanRaito</span>
-                                    <span class="contributor">Wan May</span>
-                                    <span class="contributor">KezzaMcFezza</span>
-                                    <span class="contributor">bert_the_turtle</span>
-                                </div>
-                            </div>
 
-                            <div class="contributor-category">
-                              <h3>Porting</h3>
-                              <div class="contributor-list">
-                                  <span class="contributor">Rad</span>
-                                  <span class="contributor">KezzaMcFezza</span>
-                              </div>
-                          </div>
-
-                            <div class="contributor-category">
-                                <h3>Artwork</h3>
-                                <div class="contributor-list">
-                                    <span class="contributor">Mars</span>
-                                </div>
+            <!-- <div class="project-info">
+            </div>
+            <div class="contributors-section">
+                <h2>Project Contributors</h2>
+                <div class="contributors-grid">
+                    <div class="contributor-category">
+                        <h3>Website Development</h3>
+                        <div class="contributor-cards">
+                            <div class="contributor-card">
+                                <span class="contributor-name">KezzaMcFezza</span>
+                                <span class="contributor-role">Lead Developer</span>
                             </div>
-                            
-                            <div class="contributor-category">
-                                <h3>Game Testers</h3>
-                                <div class="contributor-list">
-                                    <span class="contributor">KezzaMcFezza</span>
-                                    <span class="contributor">Sievert</span>
-                                    <span class="contributor">FasterThanRaito</span>
-                                    <span class="contributor">Demo</span>
-                                    <span class="contributor">Nicole</span>
-                                    <span class="contributor">Ben_Herr</span>
-                                    <span class="contributor">Meme Warrior</span>
-                                    <span class="contributor">Erronous</span>
-                                    <span class="contributor">Gyarados</span>
-                                    <span class="contributor">Idealist</span>
-                                    <span class="contributor">Jackolite</span>
-                                    <span class="contributor">Laika</span>
-                                    <span class="contributor">Vault_tec</span>
-                                    <span class="contributor">Very Fine Art</span>
-                                    <span class="contributor">Lævateinn</span>
-                                
-                                </div>
+                            <div class="contributor-card">
+                                <span class="contributor-name">Devil</span>
+                                <span class="contributor-role">Inspiration</span>
+                            </div>
+                            <div class="contributor-card">
+                                <span class="contributor-name">Nexustini</span>
+                                <span class="contributor-role">Server Management</span>
                             </div>
                         </div>
-                <div class="cardcredits">
-                        <h1 class="card-title-credits">Relevant Links</h1>
-                        <p class="pabout2"><a class="alinksabout" href="https://imgur.com/gallery/defcon-setups-4-through-16-fasterthanraito-proposal-july-2024-wPOjunD" target="_blank">https://imgur.com/gallery/defcon-expanded-territories</a></p>
-                        <p class="pabout2"><a class="alinksabout" href="http://group6.info/" target="_blank">http://group6.info/</a></p>
-                        <p class="pabout2"><a class="alinksabout" href="http://sfcon.demoszenen.de/" target="_blank">http://sfcon.demoszenen.de/</a></p>
-                        <p class="pabout2"><a class="alinksabout" href="https://docs.google.com/spreadsheets/d/1vV0bRWCzmZNDEWWZDi8EwscL85NsQlEkRA3wX1fHwJw/edit?gid=1117798429#gid=1117798429" target="_blank">https://docs.google.com/spreadsheets/sieverts-mod-list</a></p>
-                        <p class="pabout2"><a class="alinksabout" href="https://www.introversion.co.uk/" target="_blank">https://www.introversion.co.uk</a></p>
                     </div>
-                </div> 
-            </div>                   
-        </main>
+
+                    <div class="contributor-category">
+                        <h3>Mod Development</h3>
+                        <div class="contributor-cards">
+                            <div class="contributor-card">
+                                <span class="contributor-name">Sievert</span>
+                                <span class="contributor-role">Lead Developer</span>
+                            </div>
+                            <div class="contributor-card">
+                                <span class="contributor-name">FasterThanRaito</span>
+                                <span class="contributor-role">Lead Developer</span>
+                            </div>
+                            <div class="contributor-card">
+                                <span class="contributor-name">Wan May</span>
+                                <span class="contributor-role">Developer</span>
+                            </div>
+                            <div class="contributor-card">
+                                <span class="contributor-name">Bert_the_turtle</span>
+                                <span class="contributor-role">Developer</span>
+                            </div>
+                            <div class="contributor-card">
+                                <span class="contributor-name">KezzaMcFezza</span>
+                                <span class="contributor-role">Build Pipelines</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contributor-category">
+                        <h3>Porting</h3>
+                        <div class="contributor-cards">
+                            <div class="contributor-card">
+                                <span class="contributor-name">Rad</span>
+                                <span class="contributor-role">Linux Testing</span>
+                            </div>
+                            <div class="contributor-card">
+                                <span class="contributor-name">KezzaMcFezza</span>
+                                <span class="contributor-role">Ported Dedcon to MacOS</span>
+                            </div>
+                            <div class="contributor-card">
+                                <span class="contributor-name">Bert_the_turtle</span>
+                                <span class="contributor-role">Ported DefconExpanded to MacOS and Linux</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contributor-category">
+                        <h3>Artwork</h3>
+                        <div class="contributor-cards">
+                            <div class="contributor-card">
+                                <span class="contributor-name">Mars</span>
+                                <span class="contributor-role">Modlist and Game Cards</span>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+        </div>
+        </div>
+        </div>
+    </main>
     </div>
 </body>
+
 </html>

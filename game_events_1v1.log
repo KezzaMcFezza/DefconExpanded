@@ -24394,3 +24394,146 @@ CLIENT_NEW 7 13240518 26.102.130.209 1.62 STEAM
 TEAM_ENTER 0 7
 TEAM_ALLIANCE 0 0 SWITCH
 CLIENT_NAME 7 LadenBinKezza
+SERVER_START Dedcon 1.6.0
+CHARSET latin1
+CLIENT_NEW 7 13241950 26.102.130.209 1.62 STEAM
+TEAM_ENTER 0 7
+TEAM_ALLIANCE 0 0
+CLIENT_NAME 7 LadenBinKezza
+CLIENT_NEW 8 DEMO 26.102.130.209 1.62 STEAM
+TEAM_ENTER 1 8
+TEAM_ALLIANCE 1 1
+CLIENT_NAME 8 LadenBinKezza_2
+TEAM_READY 0 1
+TEAM_READY 1 1
+TEAM_TERRITORY 1 4
+TEAM_TERRITORY 0 0
+RANKED 1
+SETTING MaxIdleRunTime 1800
+SETTING MinRunTime 900
+SETTING CaseSensitive 0
+SETTING TotalBandwidth 5500000
+SETTING SpectatorBandwidth 2500000
+SETTING PlayerBandwidth 2500000
+SETTING ServerLANIP 26.102.130.209
+SETTING MaxSpectators 15
+SETTING SpectatorChatChannel 1
+SETTING TeamSwitching 0
+SETTING WorldScale 100
+SETTING VariableUnitCounts 0
+SETTING MaxGameRealTime 0
+SETTING VictoryTimer 45
+SETTING VictoryTrigger 20
+SETTING ScoreMode 0
+SETTING SlowestSpeed 0
+SETTING GameSpeed 0
+SETTING RadarSharing 1
+SETTING PermitDefection 1
+SETTING RandomTerritories 1
+SETTING CityPopulations 3
+SETTING PopulationPerTerritory 150
+SETTING CitiesPerTerritory 30
+SETTING TerritoriesPerTeam 1
+SETTING MinTeams 1
+SETTING MaxTeams 2
+SETTING GameMode 0
+SETTING AdvertiseOnLAN 1
+SETTING AdvertiseOnInternet 1
+SETTING ServerName DefconExpanded Test Server
+SETTING KickVoteMin 2
+SETTING DropCourtesy -1
+SETTING SlowBudgetUseRealtime 100
+SETTING SlowBudgetUsePause 300
+SETTING SlowBudgetRefill 0
+SETTING SlowBudgetMax 1800
+SETTING SlowBudgetStart 1800
+SETTING ReadyVoteDelay 90
+SETTING IdleTimeGlobal 600
+SETTING AdvertisePlayers 2
+GAME_START
+CLIENT_QUIT 8 2
+TEAM_ABANDON 1
+CLIENT_QUIT 7 2
+TEAM_ABANDON 0
+GAME_END
+SCORE_BEGIN
+SCORE_TEAM 0 0 7 LadenBinKezza
+SCORE_TEAM 1 0 8 LadenBinKezza_2
+SCORE_END
+SERVER_QUIT
+SERVER_START Dedcon 1.6.0
+CHARSET latin1
+CLIENT_NEW 7 13241950 26.102.130.209 1.62 STEAM
+TEAM_ENTER 0 7
+TEAM_ALLIANCE 0 0
+CLIENT_NEW 8 DEMO 26.102.130.209 1.62 STEAM
+TEAM_ENTER 1 8
+TEAM_ALLIANCE 1 1
+CLIENT_NAME 7 LadenBinKezza
+CLIENT_NAME 8 LadenBinKezza_2
+TEAM_READY 1 1
+TEAM_READY 0 1
+TEAM_TERRITORY 1 5
+TEAM_TERRITORY 0 1
+RANKED 1
+SETTING MaxIdleRunTime 1800
+SETTING MinRunTime 900
+SETTING CaseSensitive 0
+SETTING TotalBandwidth 5500000
+SETTING SpectatorBandwidth 2500000
+SETTING PlayerBandwidth 2500000
+SETTING ServerLANIP 26.102.130.209
+SETTING MaxSpectators 15
+SETTING SpectatorChatChannel 1
+SETTING TeamSwitching 0
+SETTING WorldScale 100
+SETTING VariableUnitCounts 0
+SETTING MaxGameRealTime 0
+SETTING VictoryTimer 45
+SETTING VictoryTrigger 20
+SETTING ScoreMode 0
+SETTING SlowestSpeed 0
+SETTING GameSpeed 0
+SETTING RadarSharing 1
+SETTING PermitDefection 1
+SETTING RandomTerritories 1
+SETTING CityPopulations 3
+SETTING PopulationPerTerritory 150
+SETTING CitiesPerTerritory 30
+SETTING TerritoriesPerTeam 1
+SETTING MinTeams 1
+SETTING MaxTeams 2
+SETTING GameMode 0
+SETTING AdvertiseOnLAN 1
+SETTING AdvertiseOnInternet 1
+SETTING ServerName DefconExpanded Test Server
+SETTING KickVoteMin 2
+SETTING DropCourtesy -1
+SETTING SlowBudgetUseRealtime 100
+SETTING SlowBudgetUsePause 300
+SETTING SlowBudgetRefill 0
+SETTING SlowBudgetMax 1800
+SETTING SlowBudgetStart 1800
+SETTING ReadyVoteDelay 90
+SETTING IdleTimeGlobal 600
+SETTING AdvertisePlayers 2
+GAME_START
+SETTING PermitDefection 0
+SETTING SpectatorChatChannel 0
+SETTING RadarSharing 1
+SETTING GameSpeed 0
+SETTING VariableUnitCounts 0
+SETTING WorldScale 100
+SETTING TeamSwitching 0
+GAME_END
+SETTING Record demo_recordings/game_2024-12-20-02-59.dcrec
+SETTING AdvertiseOnInternet 0
+SETTING RadarSharing 1
+SETTING GameSpeed 0
+SETTING VariableUnitCounts 0
+SETTING WorldScale 100
+SETTING TeamSwitching 0
+CLIENT_QUIT 8 0
+TEAM_ABANDON 1
+CLIENT_QUIT 7 0
+TEAM_ABANDON 0

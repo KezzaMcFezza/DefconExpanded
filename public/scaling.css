@@ -1,23 +1,17 @@
-/* Base styles */
-html {
-    font-size: 16px;
-}
+/*!
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 18-12-2024 
+*/
 
-body {
-    font-size: 1rem;
-    line-height: 1.5;
-    background: #121212;
-    background-color: #121212;
-}
-
-/* Container styles */
-.container {
-    width: 100%;
-    margin: 0 auto;
-    padding: 0 0;
-}
-
-/* Accessibility improvements */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation: none !important;
@@ -25,9 +19,10 @@ body {
     }
 }
 
-/* Responsive styles for screens up to 768px (including 1366x768) */
 @media (max-width: 1366px) {
-    body, html {
+
+    body,
+    html {
         font-family: 'Roboto', Arial, sans-serif;
         margin: 0;
         padding: 0;
@@ -36,9 +31,11 @@ body {
         line-height: 1.6;
         overflow: hidden;
     }
+
     .profile-container {
         padding: 0 !important;
     }
+
     body::before {
         content: "";
         position: fixed;
@@ -46,11 +43,10 @@ body {
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url("images/pxfuel.jpg");
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center;
-        opacity: 0.08;
+        opacity: 0.05;
         z-index: -1;
     }
 
@@ -82,21 +78,26 @@ body {
         padding: 0px 10px 40px 0px;
         display: block;
     }
+
     .game-tile {
         width: 231px;
     }
+
     .mod-item {
         max-width: 403px !important;
         min-width: 403px !important;
     }
+
     .mod-meta {
         flex-wrap: nowrap !important;
     }
+
     .download-btn {
         margin-left: auto !important;
         padding: 4px 10px !important;
         margin-right: unset !important;
-    }   
+    }
+
     .mod-title {
         max-width: 290px;
     }
@@ -141,7 +142,6 @@ body {
         font-size: 1rem;
     }
 
-    /* Main content adjustments */
     main {
         margin-left: 0;
         padding: 89px 15px 0;
@@ -161,8 +161,8 @@ body {
         opacity: 0.8;
     }
 
-    /* Login and logout container styles */
-    #login-container, #logout-container {
+    #login-container,
+    #logout-container {
         padding: 10px;
         margin-top: 20px;
         display: none;
@@ -183,7 +183,8 @@ body {
         width: fit-content;
     }
 
-    #login-form button, #logout-container button {
+    #login-form button,
+    #logout-container button {
         width: 30%;
         margin-top: 5px;
         background-color: #0067b8;
@@ -195,7 +196,8 @@ body {
         display: none;
     }
 
-    #login-form button:hover, #logout-container button:hover {
+    #login-form button:hover,
+    #logout-container button:hover {
         background-color: #3a8ad6;
         display: none;
     }
@@ -205,14 +207,16 @@ body {
         background-color: unset;
         width: 370px;
     }
+
     .discord-event {
         background-color: unset;
     }
 }
 
-/* Responsive styles for screens up to 768px (including 1366x768) */
 @media (max-width: 1280px) {
-    body, html {
+
+    body,
+    html {
         font-family: 'Roboto', Arial, sans-serif;
         margin: 0;
         padding: 0;
@@ -221,7 +225,7 @@ body {
         line-height: 1.6;
         overflow: hidden;
     }
-    
+
     body::before {
         content: "";
         position: fixed;
@@ -229,11 +233,10 @@ body {
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url("images/pxfuel.jpg");
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center;
-        opacity: 0.08;
+        opacity: 0.05;
         z-index: -1;
     }
 
@@ -261,22 +264,28 @@ body {
         padding: 0px 10px 40px 0px;
         display: block;
     }
+
     .game-tile {
         width: 214px;
     }
+
     .mod-item {
         max-width: 578px !important;
         min-width: 578px !important;
     }
+
     .profile-container {
         padding: 0 !important;
     }
+
     .mod-meta {
         flex-wrap: nowrap !important;
     }
+
     .btn-report {
         margin: 0 !important;
     }
+
     .mod-title {
         max-width: 290px;
     }
@@ -320,7 +329,6 @@ body {
         font-size: 1rem;
     }
 
-    /* Main content adjustments */
     main {
         margin-left: 0;
         padding: 89px 15px 0;
@@ -340,8 +348,8 @@ body {
         opacity: 0.8;
     }
 
-    /* Login and logout container styles */
-    #login-container, #logout-container {
+    #login-container,
+    #logout-container {
         padding: 10px;
         margin-top: 20px;
         display: none;
@@ -366,7 +374,8 @@ body {
         padding: 0.4rem;
     }
 
-    #login-form button, #logout-container button {
+    #login-form button,
+    #logout-container button {
         width: 30%;
         margin-top: 5px;
         background-color: #0067b8;
@@ -378,7 +387,8 @@ body {
         display: none;
     }
 
-    #login-form button:hover, #logout-container button:hover {
+    #login-form button:hover,
+    #logout-container button:hover {
         background-color: #3a8ad6;
         display: none;
     }
@@ -388,13 +398,16 @@ body {
         background-color: unset;
         width: 370px;
     }
+
     .discord-event {
         background-color: unset;
     }
 }
 
 @media (max-width: 430px) {
-    body, html {
+
+    body,
+    html {
         font-family: 'Roboto', Arial, sans-serif;
         margin: 0;
         padding: 0;
@@ -403,9 +416,11 @@ body {
         line-height: 1.6;
         overflow: hidden;
     }
+
     .profile-container {
         padding: 0 !important;
     }
+
     body::before {
         content: "";
         position: fixed;
@@ -413,11 +428,10 @@ body {
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url("images/pxfuel.jpg");
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center;
-        opacity: 0.08;
+        opacity: 0.05;
         z-index: -1;
     }
 
@@ -449,71 +463,90 @@ body {
         padding: 0px 10px 40px 0px;
         display: block;
     }
+
     .game-tile {
         width: 371px;
         height: 430px;
     }
+
     .section-cards-container {
         display: flex;
         justify-content: center !important;
         padding: 0 !important;
     }
+
     .search-container input {
         padding: 0.35rem;
     }
+
     .search-container {
         width: 385px !important;
     }
+
     .somanydivs {
         display: flex !important;
         flex-direction: column-reverse !important;
         align-items: flex-start !important;
     }
+
     .main-social-container {
         display: none !important;
     }
+
     .main-social-container-mobile {
         display: block !important;
     }
+
     #profile-picture-container {
         margin: 0;
         gap: 30px;
     }
+
     .profile-demomod-container {
         display: flex !important;
         flex-direction: column !important;
     }
+
     .headerresources2 {
         font-size: 25px !important;
     }
+
     .right-profile-meta {
         margin-left: auto !important;
     }
+
     .image-container {
         width: fit-content !important;
         display: flex;
     }
+
     #profile-username-label {
         font-size: 40px !important;
     }
+
     .contributions-container {
         flex-direction: column !important;
     }
+
     .contribution-section {
         width: 100% !important;
     }
+
     .mod-item {
         max-width: 385px !important;
         min-width: 385px !important;
     }
+
     .mod-meta {
         flex-wrap: nowrap !important;
     }
+
     .download-btn {
         margin-left: auto !important;
         padding: 4px 10px !important;
         margin-right: unset !important;
-    }   
+    }
+
     .mod-title {
         max-width: 290px;
     }
@@ -558,7 +591,6 @@ body {
         font-size: 1rem;
     }
 
-    /* Main content adjustments */
     main {
         margin-left: 0;
         padding: 109px 15px 0;
@@ -569,12 +601,15 @@ body {
         width: 100% !important;
         padding: 1.5rem 0rem 1.5rem 0rem !important;
     }
+
     .actions-container {
         display: none !important;
     }
+
     .actions-container-mobile {
         display: block !important;
     }
+
     .profile-buttons-mobile {
         display: flex;
     }
@@ -593,6 +628,7 @@ body {
         display: flex;
         justify-content: flex-start;
     }
+
     #discord-widget {
         display: flex;
     }
@@ -611,8 +647,8 @@ body {
         opacity: 0.8;
     }
 
-    /* Login and logout container styles */
-    #login-container, #logout-container {
+    #login-container,
+    #logout-container {
         padding: 10px;
         margin-top: 20px;
         display: none;
@@ -632,8 +668,9 @@ body {
     .demo-card {
         width: 342px !important;
         padding: 1.2rem !important;
-        
+
     }
+
     .settings-grid {
         display: flex !important;
         flex-direction: column !important;
@@ -661,7 +698,8 @@ body {
         flex-direction: column !important;
     }
 
-    #login-form button, #logout-container button {
+    #login-form button,
+    #logout-container button {
         width: 30%;
         margin-top: 5px;
         background-color: #0067b8;
@@ -673,7 +711,8 @@ body {
         display: none;
     }
 
-    #login-form button:hover, #logout-container button:hover {
+    #login-form button:hover,
+    #logout-container button:hover {
         background-color: #3a8ad6;
         display: none;
     }
@@ -685,6 +724,7 @@ body {
         flex: 1;
         padding: 10px 10px 0px 10px !important;
     }
+
     .discord-event {
         background-color: unset;
         margin-bottom: 0 !important;
@@ -713,7 +753,8 @@ body {
         margin: 0 !important;
     }
 
-    #request-blacklist, #request-delete-account {
+    #request-blacklist,
+    #request-delete-account {
         margin: 1.5rem !important;
     }
 
@@ -729,7 +770,6 @@ body {
         padding: 0 !important;
     }
 
-    /* Leaderboard table adjustments */
     .leaderboard-container {
         padding: 0;
         overflow-x: auto;
@@ -746,21 +786,35 @@ body {
         letter-spacing: 0px !important;
     }
 
-    .rank-cell { width: 10%; }
-    .player-cell { width: 30%; }
-    .wins-cell { width: 10%; }
-    .total-score-cell { width: 20%; }
+    .rank-cell {
+        width: 10%;
+    }
+
+    .player-cell {
+        width: 30%;
+    }
+
+    .wins-cell {
+        width: 10%;
+    }
+
+    .total-score-cell {
+        width: 20%;
+    }
 
     .leaderboard-header {
         font-size: 1.2rem;
         padding: 10px 0px;
     }
+
     .dropdown-content-page {
         top: -310% !important;
     }
+
     .content-bar {
         width: fit-content !important;
     }
+
     .filter-container {
         display: flex;
         flex-direction: column !important;
@@ -785,7 +839,7 @@ body {
         margin: 0px !important;
     }
 
-    
+
     .dedcon-container-main {
         padding: 0 !important;
     }
@@ -805,6 +859,139 @@ body {
 
     .main-resources-container {
         flex-direction: column !important;
+    }
+
+    .main-demo-page-content {
+        padding: 10px;
+    }
+
+    .normal-sort-options {
+        flex-direction: column;
+    }
+
+    .active-players-sort {
+        margin-left: 0 !important;
+    }
+
+    .sort-search-system {
+        padding: 0.25rem;
+    }
+
+    .advanced-filters {
+        padding: 0 10px;
+    }
+
+    .filter-section {
+        flex-direction: column;
+    }
+
+    .territory-split {
+        flex-direction: column;
+    }
+
+    .territory-grid {
+        margin-left: 0 !important;
+    }
+
+    .time-filter {
+        margin-left: 0 !important;
+        border-top: 2px solid #333333;
+        margin-top: 20px;
+    }
+
+    .extra-filters {
+        border-top: 2px solid #333333;
+        margin-top: 20px;
+        border-bottom: 2px solid #333333;
+        padding-bottom: 20px;
+    }
+
+    .player-input {
+        width: 50%;
+        margin-bottom: 10px;
+    }
+
+    .date-input {
+        width: 38%;
+    }
+
+    .search-container2 input {
+        width: 100%;
+    }
+
+    .filter-buttons {
+        margin-top: 20px;
+        border-top: 2px solid #333333;
+        justify-content: space-around;
+    }
+
+    .territory-main {
+        border-top: 2px solid #333333;
+        margin-top: 20px;
+    }
+
+    .active-players-sort {
+        border-top: 2px solid #333333;
+        margin-top: 20px;
+    }
+
+    .apply-filters-btn,
+    .reset-filters-btn {
+        margin-top: 20px;
+        width: fit-content;
+        margin-top: 20px;
+    }
+
+    .player-filter {
+        border-bottom: 2px solid #333333;
+        margin-top: 20px;
+        padding-bottom: 20px;
+    }
+
+    .server-and-latestdownload {
+        display: flex;
+        gap: 10px;
+    }
+
+    .duration-select {
+        width: 56%;
+    }
+
+    .advanced-filters-toggle {
+        padding: 0.2rem;
+    }
+
+    .advanced-filters-div {
+        display: flex;
+        justify-content: center;
+    }
+
+    .anotherdivagain {
+        margin-left: 0 !important;
+    }
+
+    #sort-select {
+        margin-bottom: 10px;
+    }
+
+    .server-select {
+        width: 60%;
+        max-width: none;
+    }
+
+    .advanced-filters.show {
+        max-height: 1500px !important;
+    }
+
+    .sorting-main-div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .top-filter-bar {
+        flex-direction: column;
+        align-items: flex-start;
     }
 
 }

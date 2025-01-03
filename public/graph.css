@@ -1,0 +1,120 @@
+.yaxis-input {
+    background-color: #1c1c2e;
+    border: 1px solid #333;
+    color: #fff;
+    height: 10px;
+    width: 30px;
+    padding: 0.65rem;
+    border-radius: 4px 0 0 4px;
+}
+
+.apply-servers-btn {
+    display: flex;
+    padding: 0.4rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    background-color: #1d9300;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+    transition: background-color 0.2s;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.apply-servers-btn:hover {
+    background-color: #09ff00;
+}
+
+.reset-apply-servers {
+    display: flex;
+    gap: 10px;
+}
+
+.reset-servers-btn {
+    display: flex;
+    padding: 0.4rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    background-color: #830000;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+    transition: background-color 0.2s;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.reset-servers-btn:hover {
+    background-color: #d60000;
+}
+
+.update-graph-btn {
+    display: flex;
+    padding: 0.4rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    background-color: #6200ffcf;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+    transition: background-color 0.2s;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.cumulative-toggle-btn {
+    background-color: #4a4a4a;
+    color: #b8b8b8;
+    border: none;
+    margin-top: 10px;
+    padding: 0.4rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.setup-checkboxes {
+    margin-top: 10px;
+    flex-direction: row;
+}
+
+.setup-checkbox-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.cumulative-toggle-btn:hover {
+    background-color: #5a5a5a;
+}
+
+.date-inputs {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.update-graph-btn:hover {
+    background-color: #ff00f2;
+}
+
+.filter-header {
+    margin-bottom: 10px;
+}
+
+.filter-title {
+    color: #4da6ff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}

@@ -1,23 +1,35 @@
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 18-12-2024 
+
 let soundVolume = 0.1;
 window.isAdmin = false;
 
-window.initializeUserRole = async function() {
+window.initializeUserRole = async function () {
   try {
-      const response = await fetch('/api/current-user');
-      const data = await response.json();
-      if (data.user) {
-          window.userRole = data.user.role;
-      }
+    const response = await fetch('/api/current-user');
+    const data = await response.json();
+    if (data.user) {
+      window.userRole = data.user.role;
+    }
   } catch (error) {
-      console.error('Error setting user role:', error);
+    console.error('Error setting user role:', error);
   }
 };
 
-document.addEventListener('DOMContentLoaded', async function() {
-  await initializeUserRole(); 
-  
+document.addEventListener('DOMContentLoaded', async function () {
+  await initializeUserRole();
+
   if (typeof initializeDemos === 'function') {
-      initializeDemos();
+    initializeDemos();
   }
 });
 
@@ -26,44 +38,44 @@ function isUserLoggedIn() {
 }
 
 function setActiveNavItem() {
-    const currentPath = window.location.pathname;
-    const navItems = document.querySelectorAll('#sidebar .list-items li');
-    
-    navItems.forEach(item => {
-        const link = item.querySelector('a');
-        item.classList.remove('active');
-        if (currentPath === link.getAttribute('href') || currentPath.startsWith(link.getAttribute('href') + '/')) {
-            item.classList.add('active');
-            if (item.classList.contains('dropdown')) {
-                item.querySelector('.dropdown-content').classList.add('show');
-            }
-        }
-    });
+  const currentPath = window.location.pathname;
+  const navItems = document.querySelectorAll('#sidebar .list-items li');
+
+  navItems.forEach(item => {
+    const link = item.querySelector('a');
+    item.classList.remove('active');
+    if (currentPath === link.getAttribute('href') || currentPath.startsWith(link.getAttribute('href') + '/')) {
+      item.classList.add('active');
+      if (item.classList.contains('dropdown')) {
+        item.querySelector('.dropdown-content').classList.add('show');
+      }
+    }
+  });
 }
 
 async function likeMod(modId) {
   if (!isUserLoggedIn()) {
-      alert('You need to be logged in to like mods.');
-      return { ok: false };
+    alert('You need to be logged in to like mods.');
+    return { ok: false };
   }
-  return fetch(`/api/mods/${modId}/like`, { 
-      method: 'POST',
-      headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+  return fetch(`/api/mods/${modId}/like`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
   });
 }
 
 async function favoriteMod(modId) {
   if (!isUserLoggedIn()) {
-      alert('You need to be logged in to favorite mods.');
-      return { ok: false };
+    alert('You need to be logged in to favorite mods.');
+    return { ok: false };
   }
-  return fetch(`/api/mods/${modId}/favorite`, { 
-      method: 'POST',
-      headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+  return fetch(`/api/mods/${modId}/favorite`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${localStorage.getItem('token')}`
+    }
   });
 }
 
@@ -75,9 +87,9 @@ function updateFavoriteButton(button) {
   button.classList.toggle('favorited');
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const profileLinks = document.querySelectorAll('.profile-link');
-  
+
   profileLinks.forEach(profileLink => {
     fetch('/api/current-user')
       .then(response => {
@@ -90,14 +102,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.user && data.user.username) {
           profileLink.href = `/profile/${data.user.username}`;
         } else {
-          profileLink.href = '#'; 
+          profileLink.href = '#';
         }
       })
       .catch(error => {
         console.error(error);
       });
 
-    profileLink.addEventListener('click', function(e) {
+    profileLink.addEventListener('click', function (e) {
       if (!profileLink.href || profileLink.href === '#') {
         e.preventDefault();
       } else {
@@ -107,113 +119,113 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-  const loggedInUsername = document.getElementById('logged-in-username');
-  if (loggedInUsername) {
-    fetch('/api/current-user')
-      .then(response => response.json())
-      .then(data => {
-        if (data.user && data.user.username) {
-          loggedInUsername.textContent = data.user.username;
-        }
-      })
+const loggedInUsername = document.getElementById('logged-in-username');
+if (loggedInUsername) {
+  fetch('/api/current-user')
+    .then(response => response.json())
+    .then(data => {
+      if (data.user && data.user.username) {
+        loggedInUsername.textContent = data.user.username;
+      }
+    })
+}
+
+
+document.addEventListener('DOMContentLoaded', async function () {
+  const loggedOutActions = document.querySelectorAll('.logged-out-actions');
+  const loggedInActions = document.querySelectorAll('.logged-in-actions');
+  const loggedInUsernameSpan = document.querySelectorAll('#logged-in-username');
+  const signoutButtons = document.querySelectorAll('.signout');
+
+  function updateUIForLoginState(isLoggedIn, loggedInUsername) {
+    if (isLoggedIn) {
+      loggedOutActions.forEach(action => action.style.display = 'none');
+      loggedInActions.forEach(action => action.style.display = 'flex');
+      loggedInUsernameSpan.forEach(span => span.textContent = loggedInUsername);
+    } else {
+      loggedOutActions.forEach(action => action.style.display = 'flex');
+      loggedInActions.forEach(action => action.style.display = 'none');
+    }
   }
 
+  fetch('/api/checkAuth')
+    .then(response => response.json())
+    .then(data => {
+      if (data.isLoggedIn) {
+        localStorage.setItem('token', data.token);
+      }
+      updateUIForLoginState(data.isLoggedIn, data.username);
+    });
 
-  document.addEventListener('DOMContentLoaded', async function() {
-    const loggedOutActions = document.querySelectorAll('.logged-out-actions');
-    const loggedInActions = document.querySelectorAll('.logged-in-actions');
-    const loggedInUsernameSpan = document.querySelectorAll('#logged-in-username');
-    const signoutButtons = document.querySelectorAll('.signout'); 
-  
-    function updateUIForLoginState(isLoggedIn, loggedInUsername) {
-        if (isLoggedIn) {
-            loggedOutActions.forEach(action => action.style.display = 'none');
-            loggedInActions.forEach(action => action.style.display = 'flex');
-            loggedInUsernameSpan.forEach(span => span.textContent = loggedInUsername);
-        } else {
-            loggedOutActions.forEach(action => action.style.display = 'flex');
-            loggedInActions.forEach(action => action.style.display = 'none');
-        }
-    }
-  
-    fetch('/api/checkAuth')
-        .then(response => response.json())
-        .then(data => {
-            if (data.isLoggedIn) {
-                localStorage.setItem('token', data.token);
-            }
-            updateUIForLoginState(data.isLoggedIn, data.username);
-        });
-  
-    if (signoutButtons.length > 0) {
-        signoutButtons.forEach(signoutButton => {
-            signoutButton.addEventListener('click', async function(event) {
-                event.preventDefault();
-                const confirmLogout = await confirm("Are you sure you want to log out?");
-                if (confirmLogout) {
-                    fetch('/api/logout', { method: 'POST' })
-                        .then(response => response.json())
-                        .then(async data => {
-                            if (data.message === 'Logged out successfully') {
-                                updateUIForLoginState(false);
-                                await alert("You have been successfully logged out.");
-                            }
-                        });
-                }
+  if (signoutButtons.length > 0) {
+    signoutButtons.forEach(signoutButton => {
+      signoutButton.addEventListener('click', async function (event) {
+        event.preventDefault();
+        const confirmLogout = await confirm("Are you sure you want to log out?");
+        if (confirmLogout) {
+          fetch('/api/logout', { method: 'POST' })
+            .then(response => response.json())
+            .then(async data => {
+              if (data.message === 'Logged out successfully') {
+                updateUIForLoginState(false);
+                await alert("You have been successfully logged out.");
+              }
             });
-        });
-    }
-  });
-  
-  function getNextSunday() {
-    const today = new Date();
-    const nextSunday = new Date(today);
-    const daysUntilSunday = 7 - today.getDay();
-    
-    if (today.getDay() === 0) {
-        const estHour = today.getUTCHours() - 5; 
-        if (estHour < 15) { 
-            return today;
         }
+      });
+    });
+  }
+});
+
+function getNextSunday() {
+  const today = new Date();
+  const nextSunday = new Date(today);
+  const daysUntilSunday = 7 - today.getDay();
+
+  if (today.getDay() === 0) {
+    const estHour = today.getUTCHours() - 5;
+    if (estHour < 15) {
+      return today;
     }
-    
-    nextSunday.setDate(today.getDate() + (daysUntilSunday % 7));
-    return nextSunday;
+  }
+
+  nextSunday.setDate(today.getDate() + (daysUntilSunday % 7));
+  return nextSunday;
 }
 
 function formatDateForEvent(date) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const day = date.getDate();
-    const month = months[date.getMonth()];
-    
-    function getOrdinalSuffix(n) {
-        const s = ['th', 'st', 'nd', 'rd'];
-        const v = n % 100;
-        return n + (s[(v - 20) % 10] || s[v] || s[0]);
-    }
-    
-    return `${month} ${getOrdinalSuffix(day)}`;
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const day = date.getDate();
+  const month = months[date.getMonth()];
+
+  function getOrdinalSuffix(n) {
+    const s = ['th', 'st', 'nd', 'rd'];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  return `${month} ${getOrdinalSuffix(day)}`;
 }
 
 function getDiscordEvent() {
-    const nextSunday = getNextSunday();
-    return {
-        title: "Community Game Night",
-        date: `Sunday, ${formatDateForEvent(nextSunday)}`,
-        time: "3PM EST"
-    };
+  const nextSunday = getNextSunday();
+  return {
+    title: "Community Game Night",
+    date: `Sunday, ${formatDateForEvent(nextSunday)}`,
+    time: "3PM EST"
+  };
 }
 
 function updateDiscordWidget() {
-    fetch('/api/discord-widget')
-        .then(response => response.json())
-        .then(data => {
-            const widgetContainer = document.getElementById('discord-widget');
-            if (!widgetContainer) return;
+  fetch('/api/discord-widget')
+    .then(response => response.json())
+    .then(data => {
+      const widgetContainer = document.getElementById('discord-widget');
+      if (!widgetContainer) return;
 
-            const discordEvent = getDiscordEvent();
+      const discordEvent = getDiscordEvent();
 
-            let html = `
+      let html = `
                 <div class="discord-widget">
                     <div class="discord-header">
                         <img src="/images/discord-logo.png" alt="Discord" class="discord-logo">
@@ -231,199 +243,199 @@ function updateDiscordWidget() {
                 </div>
             `;
 
-            widgetContainer.innerHTML = html;
-        });
+      widgetContainer.innerHTML = html;
+    });
 }
 
 updateDiscordWidget();
 setInterval(updateDiscordWidget, 5 * 60 * 1000);
 
 function setupMobileMenu() {
-    const sidebar = document.getElementById('sidebar');
-    const title = sidebar.querySelector('.title');
-    const listItems = sidebar.querySelector('.list-items');
-    const dropdowns = sidebar.querySelectorAll('.dropdown');
+  const sidebar = document.getElementById('sidebar');
+  const title = sidebar.querySelector('.title');
+  const listItems = sidebar.querySelector('.list-items');
+  const dropdowns = sidebar.querySelectorAll('.dropdown');
 
-    if (title && listItems) {
-        title.addEventListener('click', function(e) {
-            e.preventDefault();
-            listItems.classList.toggle('show');
-            title.classList.toggle('menu-open'); 
-        });
+  if (title && listItems) {
+    title.addEventListener('click', function (e) {
+      e.preventDefault();
+      listItems.classList.toggle('show');
+      title.classList.toggle('menu-open');
+    });
 
-        listItems.addEventListener('click', function(e) {
-            if (e.target.tagName === 'A' && !e.target.parentElement.classList.contains('dropdown')) {
-                listItems.classList.remove('show');
-                title.classList.remove('menu-open'); 
-            }
-        });
+    listItems.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A' && !e.target.parentElement.classList.contains('dropdown')) {
+        listItems.classList.remove('show');
+        title.classList.remove('menu-open');
+      }
+    });
 
-        dropdowns.forEach(dropdown => {
-            const dropdownLink = dropdown.querySelector('a');
-            const dropdownContent = dropdown.querySelector('.dropdown-content');
-            dropdownLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                dropdownContent.classList.toggle('show');
-                dropdowns.forEach(otherDropdown => {
-                    if (otherDropdown !== dropdown) {
-                        otherDropdown.querySelector('.dropdown-content').classList.remove('show');
-                    }
-                });
-            });
+    dropdowns.forEach(dropdown => {
+      const dropdownLink = dropdown.querySelector('a');
+      const dropdownContent = dropdown.querySelector('.dropdown-content');
+      dropdownLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        dropdownContent.classList.toggle('show');
+        dropdowns.forEach(otherDropdown => {
+          if (otherDropdown !== dropdown) {
+            otherDropdown.querySelector('.dropdown-content').classList.remove('show');
+          }
         });
-    } else {
-    }
+      });
+    });
+  } else {
+  }
 }
 
 function togglePatchNotes(button) {
-    const details = button.closest('.patchnote-content').querySelector('.patchnote-details');
-    if (details.style.display === 'none') {
-      details.style.display = 'block';
-      button.textContent = 'Hide patch notes';
-    } else {
-      details.style.display = 'none';
-      button.textContent = 'View patch notes';
+  const details = button.closest('.patchnote-content').querySelector('.patchnote-details');
+  if (details.style.display === 'none') {
+    details.style.display = 'block';
+    button.textContent = 'Hide patch notes';
+  } else {
+    details.style.display = 'none';
+    button.textContent = 'View patch notes';
+  }
+}
+
+function getPageName() {
+  const path = window.location.pathname;
+  const pages = ['index.html', 'about.html', 'resources.html', 'news.html', 'laikasdefcon.html', '404.html', 'media.html', 'matchroom.html'];
+  let pageName = pages.find(page => path.endsWith(page));
+
+  if (!pageName) {
+    pageName = path === '/' ? 'index.html' : path.split('/').pop() + '.html';
+  }
+
+  return pageName;
+}
+
+document.addEventListener('DOMContentLoaded', async function () {
+
+  setActiveNavItem();
+  setupMobileMenu();
+
+  const modListContainer = document.getElementById('mod-list');
+  if (modListContainer) {
+    const modType = modListContainer.dataset.modType;
+    if (modType) {
+      setupModFilters(modType);
     }
   }
 
-function getPageName() {
-    const path = window.location.pathname;
-    const pages = ['index.html', 'about.html', 'resources.html', 'news.html', 'laikasdefcon.html', '404.html', 'media.html', 'matchroom.html'];
-    let pageName = pages.find(page => path.endsWith(page));
-    
-    if (!pageName) {
-        pageName = path === '/' ? 'index.html' : path.split('/').pop() + '.html';
-    }
-    
-    return pageName;
-}
+  const searchButton2 = document.getElementById('search-button2');
+  const searchInput2 = document.getElementById('search-input2');
 
-document.addEventListener('DOMContentLoaded', async function() {
+  if (searchButton2 && searchInput2) {
+    searchButton2.addEventListener('click', performGameSearch);
+    searchInput2.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        performGameSearch();
+      }
+    });
+  }
 
-    setActiveNavItem();
-    setupMobileMenu();
-
-    const modListContainer = document.getElementById('mod-list');
-    if (modListContainer) {
-        const modType = modListContainer.dataset.modType;
-        if (modType) {
-            setupModFilters(modType);
-        }
-    }
-
-    const searchButton2 = document.getElementById('search-button2');
-    const searchInput2 = document.getElementById('search-input2');
-
-    if (searchButton2 && searchInput2) {
-        searchButton2.addEventListener('click', performGameSearch);
-        searchInput2.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                performGameSearch();
-            }
-        });
-    }
-
-    const bugReportForm = document.getElementById('bug-report-form');
-    if (bugReportForm) {
-        bugReportForm.addEventListener('submit', submitBugReport);
-    }
+  const bugReportForm = document.getElementById('bug-report-form');
+  if (bugReportForm) {
+    bugReportForm.addEventListener('submit', submitBugReport);
+  }
 });
 
 function smoothScroll(target) {
-    const element = document.querySelector(target);
-    if (element) {
-        window.scrollTo({
-            top: element.offsetTop,
-            behavior: 'smooth'
-        });
-    }
+  const element = document.querySelector(target);
+  if (element) {
+    window.scrollTo({
+      top: element.offsetTop,
+      behavior: 'smooth'
+    });
+  }
 }
 
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        smoothScroll(this.getAttribute('href'));
-    });
+  anchor.addEventListener('click', function (e) {
+    e.preventDefault();
+    smoothScroll(this.getAttribute('href'));
+  });
 });
 
 window.smoothScroll = smoothScroll;
 window.setupMobileMenu = setupMobileMenu;
 window.setActiveNavItem = setActiveNavItem;
 
-window.addEventListener('load', function() {
-    setupMobileMenu();
-    setActiveNavItem();
+window.addEventListener('load', function () {
+  setupMobileMenu();
+  setActiveNavItem();
 });
 
-window.addEventListener('resize', function() {
-    if (window.innerWidth <= 768) {
-        setupMobileMenu();
-    }
+window.addEventListener('resize', function () {
+  if (window.innerWidth <= 768) {
+    setupMobileMenu();
+  }
 });
 
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setupMobileMenu();
-    setActiveNavItem();
+  setupMobileMenu();
+  setActiveNavItem();
 }
 
 async function submitBugReport(event) {
-    event.preventDefault();
+  event.preventDefault();
 
-    const bugTitle = document.querySelector('input[name="bug-title"]').value;
-    const bugDescription = document.querySelector('textarea[name="bug-description"]').value;
+  const bugTitle = document.querySelector('input[name="bug-title"]').value;
+  const bugDescription = document.querySelector('textarea[name="bug-description"]').value;
 
-    try {
-        const response = await fetch('/api/report-bug', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ bugTitle, bugDescription }),
-        });
+  try {
+    const response = await fetch('/api/report-bug', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bugTitle, bugDescription }),
+    });
 
-        if (response.ok) {
-            const data = await response.json();
-            alert(data.message);
-            event.target.reset(); 
-        } else {
-            const data = await response.json();
-            alert(data.error || 'Failed to submit bug report');
-        }
-    } catch (error) {
-        alert('An error occurred while submitting the bug report');
+    if (response.ok) {
+      const data = await response.json();
+      alert(data.message);
+      event.target.reset();
+    } else {
+      const data = await response.json();
+      alert(data.error || 'Failed to submit bug report');
     }
+  } catch (error) {
+    alert('An error occurred while submitting the bug report');
+  }
 }
 
 let allResources = [];
 
 function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
 async function loadResources() {
-    try {
-      const response = await fetch('/api/resources');
-      const resources = await response.json();
-  
-      if (window.location.pathname.includes('/resourcemanage')) {
-        displayResourcesManagement(resources);  
-      } else {
-        displayResourcesMain(resources);  
-      }
-    } catch (error) {
+  try {
+    const response = await fetch('/api/resources');
+    const resources = await response.json();
+
+    if (window.location.pathname.includes('/resourcemanage')) {
+      displayResourcesManagement(resources);
+    } else {
+      displayResourcesMain(resources);
     }
+  } catch (error) {
   }
+}
 
-  function displayResourcesMain(resources) {
-    const buildContainer = document.querySelector('.resources-container');
-    if (!buildContainer) return;
+function displayResourcesMain(resources) {
+  const buildContainer = document.querySelector('.resources-container');
+  if (!buildContainer) return;
 
-    buildContainer.innerHTML = `
+  buildContainer.innerHTML = `
         <div class="tutorial-download-container">
             <table class="version-history-table">
                 <thead>
@@ -441,35 +453,35 @@ async function loadResources() {
         </div>
     `;
 
-    const tableBody = buildContainer.querySelector('tbody');
-    const platformDisplayNames = {
-        'windows': 'Windows',
-        'linux': 'Linux',
-        'macos-intel': 'MacOS Intel',
-        'macos-arm64': 'MacOS ARM64',
-        'macos': 'MacOS' 
-    };
+  const tableBody = buildContainer.querySelector('tbody');
+  const platformDisplayNames = {
+    'windows': 'Windows',
+    'linux': 'Linux',
+    'macos-intel': 'MacOS Intel',
+    'macos-arm64': 'MacOS ARM64',
+    'macos': 'MacOS'
+  };
 
-    const sortedResources = resources.sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sortedResources = resources.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    const completeResources = sortedResources.filter(resource => 
-        resource.platform && 
-        resource.platform !== 'NULL' && 
-        resource.player_count && 
-        resource.player_count !== 'NULL'
-    );
+  const completeResources = sortedResources.filter(resource =>
+    resource.platform &&
+    resource.platform !== 'NULL' &&
+    resource.player_count &&
+    resource.player_count !== 'NULL'
+  );
 
-    completeResources.forEach((resource, index) => {
-        const platformName = platformDisplayNames[resource.platform] || 'Unknown';
-        
-        const isLatest = index === 0 || 
-            (resource.platform !== completeResources[index - 1].platform) ||
-            (resource.player_count !== completeResources[index - 1].player_count);
+  completeResources.forEach((resource, index) => {
+    const platformName = platformDisplayNames[resource.platform] || 'Unknown';
 
-        const row = document.createElement('tr');
-        row.className = isLatest ? 'latest-version' : '';
-        
-        row.innerHTML = `
+    const isLatest = index === 0 ||
+      (resource.platform !== completeResources[index - 1].platform) ||
+      (resource.player_count !== completeResources[index - 1].player_count);
+
+    const row = document.createElement('tr');
+    row.className = isLatest ? 'latest-version' : '';
+
+    row.innerHTML = `
             <td>
                 <div class="platform-cell">
                     <img src="/images/${resource.platform}-icon.png" alt="${platformName}" class="steam-logo" style="width: 16px;" />
@@ -478,10 +490,10 @@ async function loadResources() {
             </td>
             <td class="td2">${resource.version}</td>
             <td>${resource.player_count} Player</td>
-            <td>${isLatest ? 
-                `<span class="latest-tag"></span> ${new Date(resource.date).toLocaleDateString()}` : 
-                new Date(resource.date).toLocaleDateString()
-            }</td>
+            <td>${isLatest ?
+        `<span class="latest-tag"></span> ${new Date(resource.date).toLocaleDateString()}` :
+        new Date(resource.date).toLocaleDateString()
+      }</td>
             <td>
                 <a href="/api/download-resource/${encodeURIComponent(resource.name)}" 
                    class="btn-download foo">
@@ -490,34 +502,34 @@ async function loadResources() {
             </td>
         `;
 
-        tableBody.appendChild(row);
-    });
+    tableBody.appendChild(row);
+  });
 }
 
 function groupResourcesByPlayerCount(resources) {
-    const grouped = {
-        '8 Player Build': [],
-        '10 Player Build': [],
-        '16 Player Build': []
-    };
+  const grouped = {
+    '8 Player Build': [],
+    '10 Player Build': [],
+    '16 Player Build': []
+  };
 
-    resources.forEach(resource => {
-        if (resource.name.includes('8 Players')) {
-            grouped['8 Player Build'].push(resource);
-        } else if (resource.name.includes('10 Players')) {
-            grouped['10 Player Build'].push(resource);
-        } else if (resource.name.includes('16 Players')) {
-            grouped['16 Player Build'].push(resource);
-        }
-    });
+  resources.forEach(resource => {
+    if (resource.name.includes('8 Players')) {
+      grouped['8 Player Build'].push(resource);
+    } else if (resource.name.includes('10 Players')) {
+      grouped['10 Player Build'].push(resource);
+    } else if (resource.name.includes('16 Players')) {
+      grouped['16 Player Build'].push(resource);
+    }
+  });
 
-    return grouped;
+  return grouped;
 }
 
 function createBuildTable(playerCount, builds, platform) {
-    if (builds.length === 0) return '';
+  if (builds.length === 0) return '';
 
-    let html = `
+  let html = `
         <h3 class="card-title-download">${playerCount}</h3>
         <div class="tutorial-download-container">
             <table class="version-history-table">
@@ -531,24 +543,24 @@ function createBuildTable(playerCount, builds, platform) {
             <tbody>
     `;
 
-    builds.forEach((build, index) => {
-        const isLatest = index === 0;
-        html += `
+  builds.forEach((build, index) => {
+    const isLatest = index === 0;
+    html += `
             <tr>
                 <td class="td2">${build.version}</td>
                 <td>${isLatest ? `Latest Version - ${new Date(build.date).toLocaleDateString()}` : new Date(build.date).toLocaleDateString()}</td>
                 <td><a href="/api/download-resource/${encodeURIComponent(build.name)}" class="btn-download foo">Download</a></td>
             </tr>
         `;
-    });
+  });
 
-    html += `
+  html += `
                 </tbody>
             </table>
         </div>
     `;
 
-    return html;
+  return html;
 }
 
 function formatBytes(bytes, decimals = 2) {
@@ -562,19 +574,19 @@ function formatBytes(bytes, decimals = 2) {
 
 function groupDedconBuildsByPlayerCount(builds) {
   const grouped = {
-      'DEDCON': [],
-      'DEDCON 8P': [],
-      'DEDCON 10P': []
+    'DEDCON': [],
+    'DEDCON 8P': [],
+    'DEDCON 10P': []
   };
 
   builds.forEach(build => {
-      if (build.player_count === '8') {
-          grouped['DEDCON 8P'].push(build);
-      } else if (build.player_count === '10') {
-          grouped['DEDCON 10P'].push(build);
-      } else {
-          grouped['DEDCON'].push(build);
-      }
+    if (build.player_count === '8') {
+      grouped['DEDCON 8P'].push(build);
+    } else if (build.player_count === '10') {
+      grouped['DEDCON 10P'].push(build);
+    } else {
+      grouped['DEDCON'].push(build);
+    }
   });
 
   return grouped;
@@ -582,16 +594,16 @@ function groupDedconBuildsByPlayerCount(builds) {
 
 async function displayDedconBuilds() {
   try {
-      const response = await fetch('/api/dedcon-builds');
-      const builds = await response.json();
+    const response = await fetch('/api/dedcon-builds');
+    const builds = await response.json();
 
-      const buildContainer = document.querySelector('.dedcon-build-container');
-      if (!buildContainer) {
-          console.error('Build container not found');
-          return;
-      }
+    const buildContainer = document.querySelector('.dedcon-build-container');
+    if (!buildContainer) {
+      console.error('Build container not found');
+      return;
+    }
 
-      buildContainer.innerHTML = `
+    buildContainer.innerHTML = `
           <div class="tutorial-download-container">
               <table class="version-history-table">
                   <thead>
@@ -609,30 +621,30 @@ async function displayDedconBuilds() {
           </div>
       `;
 
-      const sortedBuilds = builds.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
-      const tableBody = buildContainer.querySelector('tbody');
-      const platformDisplayNames = {
-          'windows': 'Windows',
-          'linux': 'Linux',
-          'macos-intel': 'MacOS Intel',
-          'macos-arm64': 'MacOS ARM64'
-      };
+    const sortedBuilds = builds.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
+    const tableBody = buildContainer.querySelector('tbody');
+    const platformDisplayNames = {
+      'windows': 'Windows',
+      'linux': 'Linux',
+      'macos-intel': 'MacOS Intel',
+      'macos-arm64': 'MacOS ARM64'
+    };
 
-      const playerCountDisplayNames = {
-          '': 'Vanilla',
-          '8': '8 Player',
-          '10': '10 Player'
-      };
+    const playerCountDisplayNames = {
+      '': 'Vanilla',
+      '8': '8 Player',
+      '10': '10 Player'
+    };
 
-      sortedBuilds.forEach((build, index) => {
-          const platformName = platformDisplayNames[build.platform] || build.platform;
-          const buildType = playerCountDisplayNames[build.player_count] || 'Vanilla';
-          const isLatest = index === 0 || (build.platform !== sortedBuilds[index - 1].platform);
+    sortedBuilds.forEach((build, index) => {
+      const platformName = platformDisplayNames[build.platform] || build.platform;
+      const buildType = playerCountDisplayNames[build.player_count] || 'Vanilla';
+      const isLatest = index === 0 || (build.platform !== sortedBuilds[index - 1].platform);
 
-          const row = document.createElement('tr');
-          row.className = isLatest ? 'latest-version' : '';
-          
-          row.innerHTML = `
+      const row = document.createElement('tr');
+      row.className = isLatest ? 'latest-version' : '';
+
+      row.innerHTML = `
               <td>
                   <div class="platform-cell">
                       <img src="/images/${build.platform}-icon.png" alt="${platformName}" class="steam-logo" style="width: 16px;" />
@@ -641,10 +653,10 @@ async function displayDedconBuilds() {
               </td>
               <td class="td2">${build.version}</td>
               <td>${buildType}</td>
-              <td>${isLatest ? 
-                  `<span class="latest-tag"></span> ${new Date(build.release_date).toLocaleDateString()}` : 
-                  new Date(build.release_date).toLocaleDateString()
-              }</td>
+              <td>${isLatest ?
+          `<span class="latest-tag"></span> ${new Date(build.release_date).toLocaleDateString()}` :
+          new Date(build.release_date).toLocaleDateString()
+        }</td>
               <td>
                   <a href="/api/download-dedcon-build/${encodeURIComponent(build.name)}" 
                      class="btn-download foo">
@@ -653,34 +665,34 @@ async function displayDedconBuilds() {
               </td>
           `;
 
-          tableBody.appendChild(row);
-      });
+      tableBody.appendChild(row);
+    });
 
   } catch (error) {
-      console.error('Error loading dedcon builds:', error);
+    console.error('Error loading dedcon builds:', error);
   }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const dedconContainer = document.querySelector('.dedcon-build-container');
   if (dedconContainer) {
-      displayDedconBuilds();
+    displayDedconBuilds();
   }
 });
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const sections = document.querySelectorAll('.installation-section');
-  
+
   sections.forEach(section => {
     const header = section.querySelector('.dropdown-header');
     const content = section.querySelector('.dropdown-content');
     const arrow = section.querySelector('.arrow');
-    
+
     header.addEventListener('click', () => {
       arrow.classList.toggle('up');
-      
+
       content.classList.toggle('show');
-      
+
       sections.forEach(otherSection => {
         if (otherSection !== section) {
           otherSection.querySelector('.arrow').classList.remove('up');
@@ -693,36 +705,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadModsByType(type, searchTerm = '', sortBy = 'latest') {
   try {
-      let url = `/api/mods?type=${encodeURIComponent(type)}`;
-      if (searchTerm) {
-          url += `&search=${encodeURIComponent(searchTerm)}`;
-      }
-      url += `&sort=${encodeURIComponent(sortBy)}`;
-      
-      const response = await fetch(url);
-      const mods = await response.json();
-      displayMods(mods);
+    let url = `/api/mods?type=${encodeURIComponent(type)}`;
+    if (searchTerm) {
+      url += `&search=${encodeURIComponent(searchTerm)}`;
+    }
+    url += `&sort=${encodeURIComponent(sortBy)}`;
+
+    const response = await fetch(url);
+    const mods = await response.json();
+    displayMods(mods);
   } catch (error) {
   }
 }
 
 function displayMods(mods) {
-    const modList = document.getElementById('mod-list');
-    modList.innerHTML = '';
+  const modList = document.getElementById('mod-list');
+  modList.innerHTML = '';
 
-    const uniqueMods = Array.from(new Set(mods.map(mod => mod.id)))
-        .map(id => mods.find(mod => mod.id === id));
+  const uniqueMods = Array.from(new Set(mods.map(mod => mod.id)))
+    .map(id => mods.find(mod => mod.id === id));
 
-    uniqueMods.forEach(mod => {
-        const modItem = document.createElement('div');
-        modItem.className = 'mod-item';
-        modItem.dataset.modId = mod.id;
+  uniqueMods.forEach(mod => {
+    const modItem = document.createElement('div');
+    modItem.className = 'mod-item';
+    modItem.dataset.modId = mod.id;
 
-        const headerImagePath = mod.preview_image_path
-            ? '/' + mod.preview_image_path.split('/').slice(-2).join('/')
-            : '/modpreviews/icon3.png';
+    const headerImagePath = mod.preview_image_path
+      ? '/' + mod.preview_image_path.split('/').slice(-2).join('/')
+      : '/modpreviews/icon3.png';
 
-        modItem.innerHTML = `
+    modItem.innerHTML = `
             <div class="mod-header">
                 <div class="mod-header-background" style="background-image: url('${headerImagePath}')"></div>
                 <div class="mod-header-overlay"></div>
@@ -754,120 +766,120 @@ function displayMods(mods) {
             </div>
         `;
 
-        modList.appendChild(modItem);
+    modList.appendChild(modItem);
 
-        const likeButton = modItem.querySelector('.like-button');
-        const favoriteButton = modItem.querySelector('.favorite-button');
+    const likeButton = modItem.querySelector('.like-button');
+    const favoriteButton = modItem.querySelector('.favorite-button');
 
-        likeButton.addEventListener('click', async function () {
-          const response = await likeMod(mod.id);
-          if (response.ok) {
-              this.classList.toggle('liked');
-              mod.isLiked = !mod.isLiked;
-              const likeCount = this.querySelector('.like-count');
-              let count = parseInt(likeCount.textContent);
-              likeCount.textContent = mod.isLiked ? count + 1 : Math.max(0, count - 1);
-          }
-      });
-      
-      favoriteButton.addEventListener('click', async function () {
-          const response = await favoriteMod(mod.id);
-          if (response.ok) {
-              this.classList.toggle('favorited');
-              mod.isFavorited = !mod.isFavorited;
-              const favoriteCount = this.querySelector('.favorite-count');
-              let count = parseInt(favoriteCount.textContent);
-              favoriteCount.textContent = mod.isFavorited ? count + 1 : Math.max(0, count - 1);
-          }
-      });
-
-      modList.appendChild(modItem);
-
-      const reportButton = modItem.querySelector('.btn-report');
-      if (reportButton) {
-          reportButton.addEventListener('click', function(event) {
-              showModReportOptions(mod.id, event);
-          });
+    likeButton.addEventListener('click', async function () {
+      const response = await likeMod(mod.id);
+      if (response.ok) {
+        this.classList.toggle('liked');
+        mod.isLiked = !mod.isLiked;
+        const likeCount = this.querySelector('.like-count');
+        let count = parseInt(likeCount.textContent);
+        likeCount.textContent = mod.isLiked ? count + 1 : Math.max(0, count - 1);
       }
     });
+
+    favoriteButton.addEventListener('click', async function () {
+      const response = await favoriteMod(mod.id);
+      if (response.ok) {
+        this.classList.toggle('favorited');
+        mod.isFavorited = !mod.isFavorited;
+        const favoriteCount = this.querySelector('.favorite-count');
+        let count = parseInt(favoriteCount.textContent);
+        favoriteCount.textContent = mod.isFavorited ? count + 1 : Math.max(0, count - 1);
+      }
+    });
+
+    modList.appendChild(modItem);
+
+    const reportButton = modItem.querySelector('.btn-report');
+    if (reportButton) {
+      reportButton.addEventListener('click', function (event) {
+        showModReportOptions(mod.id, event);
+      });
+    }
+  });
 }
 
 async function getUserLikes() {
   try {
-      const response = await fetch('/api/user/likes');
-      const data = await response.json();
-      return data.likes || [];  
+    const response = await fetch('/api/user/likes');
+    const data = await response.json();
+    return data.likes || [];
   } catch (error) {
-      return [];  
+    return [];
   }
 }
 
 async function getUserFavorites() {
   try {
-      const response = await fetch('/api/user/favorites');
-      const data = await response.json();
-      return data.favorites || [];  
+    const response = await fetch('/api/user/favorites');
+    const data = await response.json();
+    return data.favorites || [];
   } catch (error) {
-      return [];  
+    return [];
   }
 }
 
 async function likeMod(modId) {
   if (!isUserLoggedIn()) {
-      await alert('You need to be logged in to like mods.');
-      return { ok: false };
+    await alert('You need to be logged in to like mods.');
+    return { ok: false };
   }
   try {
-      const response = await fetch(`/api/mods/${modId}/like`, { 
-          method: 'POST',
-          headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-      });
-      if (!response.ok) {
-          if (response.status === 401) {
-              await alert('You need to be logged in to like mods.');
-          } else {
-              const errorData = await response.json();
-              await alert(errorData.error || 'An error occurred while liking the mod.');
-          }
-          return { ok: false };
+    const response = await fetch(`/api/mods/${modId}/like`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
-      return { ok: true };
-  } catch (error) {
-      await alert('An error occurred while liking the mod.');
+    });
+    if (!response.ok) {
+      if (response.status === 401) {
+        await alert('You need to be logged in to like mods.');
+      } else {
+        const errorData = await response.json();
+        await alert(errorData.error || 'An error occurred while liking the mod.');
+      }
       return { ok: false };
+    }
+    return { ok: true };
+  } catch (error) {
+    await alert('An error occurred while liking the mod.');
+    return { ok: false };
   }
 }
 
 async function favoriteMod(modId) {
   if (!isUserLoggedIn()) {
-      await alert('You need to be logged in to favorite mods.');
-      return { ok: false };
+    await alert('You need to be logged in to favorite mods.');
+    return { ok: false };
   }
   try {
-      const response = await fetch(`/api/mods/${modId}/favorite`, { 
-          method: 'POST',
-          headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-      });
-      if (!response.ok) {
-          if (response.status === 401) {
-              await alert('You need to be logged in to favorite mods.');
-          } else {
-              const errorData = await response.json();
-              await alert(errorData.error || 'An error occurred while favoriting the mod.');
-          }
-          return { ok: false };
+    const response = await fetch(`/api/mods/${modId}/favorite`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
-      return { ok: true };
-  } catch (error) {
-      await alert('An error occurred while favoriting the mod.');
+    });
+    if (!response.ok) {
+      if (response.status === 401) {
+        await alert('You need to be logged in to favorite mods.');
+      } else {
+        const errorData = await response.json();
+        await alert(errorData.error || 'An error occurred while favoriting the mod.');
+      }
       return { ok: false };
+    }
+    return { ok: true };
+  } catch (error) {
+    await alert('An error occurred while favoriting the mod.');
+    return { ok: false };
   }
 }
-  
+
 
 function showModReportOptions(modId, event) {
   event.preventDefault();
@@ -883,7 +895,7 @@ function showModReportOptions(modId, event) {
 
   const dropdown = document.createElement('div');
   dropdown.className = 'report-dropdown';
-  
+
   options.forEach(option => {
     const button = document.createElement('button');
     button.textContent = option;
@@ -1000,7 +1012,7 @@ const styles = `
 
 document.head.insertAdjacentHTML('beforeend', styles);
 
-window.confirm = function(message) {
+window.confirm = function (message) {
   return new Promise((resolve) => {
     const dialog = document.getElementById('custom-dialog');
     const messageElement = document.getElementById('dialog-message');
@@ -1021,7 +1033,7 @@ window.confirm = function(message) {
   });
 };
 
-window.alert = function(message) {
+window.alert = function (message) {
   return new Promise((resolve) => {
     const dialog = document.getElementById('custom-dialog');
     const messageElement = document.getElementById('dialog-message');
@@ -1040,53 +1052,53 @@ window.alert = function(message) {
     confirmButton.onclick = closeDialog;
   });
 };
-  
-  document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('mod-search');
-    const searchButton = document.getElementById('search-button');
-    const sortSelect = document.getElementById('sort-select');
-    const modListContainer = document.getElementById('mod-list');
-  
-    if (modListContainer) {
-      const modType = modListContainer.dataset.modType;
-      
-      if (searchButton) {
-        searchButton.addEventListener('click', () => {
-          const searchTerm = searchInput.value.trim();
-          const sortBy = sortSelect ? sortSelect.value : '';
-          loadModsByType(modType, searchTerm, sortBy);
-        });
-      }
-  
-      if (sortSelect) {
-        sortSelect.addEventListener('change', () => {
-          const searchTerm = searchInput ? searchInput.value.trim() : '';
-          loadModsByType(modType, searchTerm, sortSelect.value);
-        });
-      }
-  
-      loadModsByType(modType);
+
+document.addEventListener('DOMContentLoaded', function () {
+  const searchInput = document.getElementById('mod-search');
+  const searchButton = document.getElementById('search-button');
+  const sortSelect = document.getElementById('sort-select');
+  const modListContainer = document.getElementById('mod-list');
+
+  if (modListContainer) {
+    const modType = modListContainer.dataset.modType;
+
+    if (searchButton) {
+      searchButton.addEventListener('click', () => {
+        const searchTerm = searchInput.value.trim();
+        const sortBy = sortSelect ? sortSelect.value : '';
+        loadModsByType(modType, searchTerm, sortBy);
+      });
     }
+
+    if (sortSelect) {
+      sortSelect.addEventListener('change', () => {
+        const searchTerm = searchInput ? searchInput.value.trim() : '';
+        loadModsByType(modType, searchTerm, sortSelect.value);
+      });
+    }
+
+    loadModsByType(modType);
+  }
+});
+
+function setupModFilters(modType) {
+  const searchInput = document.getElementById('mod-search');
+  const searchButton = document.getElementById('search-button');
+  const sortSelect = document.getElementById('sort-select');
+
+  searchButton.addEventListener('click', () => {
+    const searchTerm = searchInput.value.trim();
+    loadModsByType(modType, searchTerm, sortSelect.value);
   });
 
-  function setupModFilters(modType) {
-    const searchInput = document.getElementById('mod-search');
-    const searchButton = document.getElementById('search-button');
-    const sortSelect = document.getElementById('sort-select');
+  sortSelect.addEventListener('change', () => {
+    loadModsByType(modType, searchInput.value.trim(), sortSelect.value);
+  });
 
-    searchButton.addEventListener('click', () => {
-        const searchTerm = searchInput.value.trim();
-        loadModsByType(modType, searchTerm, sortSelect.value);
-    });
-
-    sortSelect.addEventListener('change', () => {
-        loadModsByType(modType, searchInput.value.trim(), sortSelect.value);
-    });
-
-    sortSelect.value = 'latest';
-    loadModsByType(modType, '', 'latest');
+  sortSelect.value = 'latest';
+  loadModsByType(modType, '', 'latest');
 }
-  
+
 document.addEventListener('DOMContentLoaded', loadResources);
 
 
