@@ -404,6 +404,47 @@
     }
 }
 
+@media (min-width: 1024px) {
+    .hero-section {
+        flex-direction: row;
+    }
+
+    .hero-content {
+        width: 50%;
+    }
+
+    .stats-grid {
+        width: 50%;
+    }
+}
+
+@media (max-width: 768px) {
+    #gamesChart {
+        height: 300px;
+    }
+    
+    .legend-container {
+        font-size: 10px;
+    }
+    
+    .hero-section {
+        flex-direction: column;
+    }
+
+    .hero-content,
+    .stats-grid {
+        width: 100%;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .contributors-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 430px) {
 
     body,
@@ -433,6 +474,22 @@
         background-position: center;
         opacity: 0.05;
         z-index: -1;
+    }
+
+    .about-page-container {
+        padding: 0 !important;
+    }
+
+    .hero-section {
+        flex-direction: column !important;
+    }
+
+    .stats-grid {
+        flex-direction: column;
+    }
+
+    #gamesChart {
+        height: 250px;
     }
 
     .modlist-main-container {

@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024 
+* Last Edited 03-01-2025
 -->
 
 <!DOCTYPE html>
@@ -50,7 +50,6 @@
     <link rel="stylesheet" type="text/css" href="/newmain.css">
     <link rel="stylesheet" type="text/css" href="/scaling.css">
     <link rel="stylesheet" type="text/css" href="/admin.css">
-    <link rel="stylesheet" type="text/css" href="/about.css">
     <link rel="stylesheet" type="text/css" href="/graph.css">
     <script src="/graph.js" defer=""></script>
     <script src="/script.js" defer=""></script>
@@ -196,112 +195,114 @@
                 </div>
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stats-controls">
-                            <div class="date-controls">
-                                <h3 class="filter-title">Date Range</h3>
-                                <div class="date-inputs">
-                                    <input type="date" class="date-input" id="startDate" name="startDate">
-                                    <span>to</span>
-                                    <input type="date" class="date-input" id="endDate" name="endDate">
-                                </div>
+                        <div class="date-controls">
+                            <h3 class="filter-title">Date Range</h3>
+                            <div class="date-inputs">
+                                <input type="date" class="date-input" id="startDate" name="startDate">
+                                <span>to</span>
+                                <input type="date" class="date-input" id="endDate" name="endDate">
                             </div>
+                        </div>
 
-                            <div class="graph-search-container">
-                                <h3 class="filter-title">Filter by Name</h3>
-                                <input type="text" placeholder="Player name..." class="player-input"
-                                    style="border-radius: 0;">
-                            </div>
+                        <div class="graph-search-container">
+                            <h3 class="filter-title">Filter by Name</h3>
+                            <input type="text" placeholder="Player name..." class="player-input"
+                                style="border-radius: 0;">
+                        </div>
 
-                            <div class="axis-controls">
-                                <div class="y-axis-control">
-                                    <h3 class="filter-title">Y-Axis</h3>
-                                    <div class="yaxis-linear">
-                                        <input type="number" class="yaxis-input" id="yAxisMax" min="1" value="16"step="1">
-                                        <button id="toggleView" class="cumulative-toggle-btn">Show Linear View</button>
-                                    </div>
-                                    <select id="graph-filter" class="server-select">
-                                        <option value="">Graph Type</option>
-                                        <optgroup label="Servers">
-                                            <option value="individualServers" selected>Individual Servers</option>
-                                            <option value="combinedServers">Combined servers</option>
-                                        </optgroup>
-                                        <optgroup label="In-Game statistics">
-                                            <option value="totalHoursPlayed">Total Hours Played</option>
-                                            <option value="popularTerritories">Popular Territories</option>
-                                            <option value="1v1setupStatistics">1v1 Setup Statistics</option>
-                                        </optgroup>
-                                    </select>
+                        <div class="axis-controls">
+                            <div class="y-axis-control">
+                                <h3 class="filter-title">Y-Axis</h3>
+                                <div class="yaxis-linear">
+                                    <input type="number" class="yaxis-input" id="yAxisMax" min="1" value="16" step="1">
+                                    <button id="toggleView" class="cumulative-toggle-btn">Show Linear View</button>
                                 </div>
+                                <select id="graph-filter" class="server-select">
+                                    <option value="">Graph Type</option>
+                                    <optgroup label="Servers">
+                                        <option value="individualServers" selected>Individual Servers</option>
+                                        <option value="combinedServers">Combined servers</option>
+                                    </optgroup>
+                                    <optgroup label="In-Game statistics">
+                                        <option value="totalHoursPlayed">Total Hours Played</option>
+                                        <option value="popularTerritories">Popular Territories</option>
+                                        <option value="1v1setupStatistics">1v1 Setup Statistics</option>
+                                    </optgroup>
+                                </select>
                             </div>
-
-                            <div class="server-filters">
-                                <div class="filter-header">
-                                    <h3 class="filter-title">Server Selection</h3>
-                                    <div class="reset-apply-servers">
-                                        <button id="selectAllServers" class="apply-servers-btn">Select All</button>
-                                        <button id="deselectAllServers" class="reset-servers-btn">Deselect All</button>
-                                    </div>
-                                </div>
-                                <div class="server-checkboxes">
-                                    <div class="checkbox-column">
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="new_player" checked> New Player Server</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="training" checked> Training Game</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="defcon_random" checked> 1v1 Random</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="defcon_best" checked> 1v1 Best Setups</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="defcon_afas" checked> AF vs AS</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="defcon_eusa" checked> EU vs SA</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="defcon_3v3" checked> 3v3 Random</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="defcon_4v4" checked> 4v4 Random</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="muricon" checked> MURICON</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="cg_2v2_2815" checked> CG | 2v2 2.8.15</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="cg_2v2_28141" checked> CG | 2v2 2.8.14.1</label>
-                                    </div>
-                                    <div class="checkbox-column">
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="defcon_default" checked> 1v1 Default</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="defcon_2v2" checked> 2v2 Random</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="tournament_2v2" checked> 2v2 Tournament</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="defcon_2v2_special" checked> 2v2 EU-AF-NA-SA</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="mojo_2v2" checked> Mojo's 2v2</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="sony_hoov" checked> Sony & Hoov's</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="defcon_ffa" checked> FFA Random</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="cg_1v1_2815" checked> CG | 1v1 2.8.15</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="cg_1v1_28141" checked> CG | 1v1 2.8.14.1</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="defcon_8p_diplo" checked> 8P Diplomacy</label>
-                                        <label style="font-size: 15px"><input type="checkbox" name="server"
-                                                value="defcon_10p_diplo" checked> 10P Diplomacy</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button id="updateGraph" class="update-graph-btn">Update Graph</button>
+                            <button id="exportData" class="btn-download">Export Raw Data</button>
                         </div>
                     </div>
-                </div>
-                <div id="gamesChart"></div>
-            </div>
+                    <div class="stats-controls">
 
-            <!-- <div class="project-info">
+                        <div class="server-filters">
+                            <div class="filter-header">
+                                <h3 class="filter-title">Server Selection</h3>
+                                <div class="reset-apply-servers">
+                                    <button id="selectAllServers" class="apply-servers-btn">Select All</button>
+                                    <button id="deselectAllServers" class="reset-servers-btn">Deselect All</button>
+                                </div>
+                            </div>
+                            <div class="server-checkboxes">
+                                <div class="checkbox-column">
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="new_player" checked> New Player Server</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server" value="training"
+                                            checked> Training Game</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="defcon_random" checked> 1v1 Random</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="defcon_best" checked> 1v1 Best Setups</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="defcon_afas" checked> AF vs AS</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="defcon_eusa" checked> EU vs SA</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="defcon_3v3" checked> 3v3 Random</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="defcon_4v4" checked> 4v4 Random</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server" value="muricon"
+                                            checked> MURICON</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="cg_2v2_2815" checked> CG | 2v2 2.8.15</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="cg_2v2_28141" checked> CG | 2v2 2.8.14.1</label>
+                                </div>
+                                <div class="checkbox-column">
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="defcon_default" checked> 1v1 Default</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="defcon_2v2" checked> 2v2 Random</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="tournament_2v2" checked> 2v2 Tournament</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="defcon_2v2_special" checked> 2v2 EU-AF-NA-SA</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server" value="mojo_2v2"
+                                            checked> Mojo's 2v2</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="sony_hoov" checked> Sony & Hoov's</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="defcon_ffa" checked> FFA Random</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="cg_1v1_2815" checked> CG | 1v1 2.8.15</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="cg_1v1_28141" checked> CG | 1v1 2.8.14.1</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="defcon_8p_diplo" checked> 8P Diplomacy</label>
+                                    <label style="font-size: 15px"><input type="checkbox" name="server"
+                                            value="defcon_10p_diplo" checked> 10P Diplomacy</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="updateGraph" class="update-graph-btn">Update Graph</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="gamesChart"></div>
+
+        <!-- <div class="project-info">
             </div>
             <div class="contributors-section">
                 <h2>Project Contributors</h2>

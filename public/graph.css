@@ -1,3 +1,17 @@
+/*!
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 03-01-2025
+*/
+
 .yaxis-input {
     background-color: #1c1c2e;
     border: 1px solid #333;
@@ -26,11 +40,6 @@
 
 .apply-servers-btn:hover {
     background-color: #09ff00;
-}
-
-.reset-apply-servers {
-    display: flex;
-    gap: 10px;
 }
 
 .reset-servers-btn {
@@ -70,6 +79,10 @@
     margin-top: 10px;
 }
 
+.update-graph-btn:hover {
+    background-color: #ff00f2;
+}
+
 .cumulative-toggle-btn {
     background-color: #4a4a4a;
     color: #b8b8b8;
@@ -81,28 +94,13 @@
     transition: background-color 0.2s;
 }
 
-#graph-filter {
-    margin-top: 15px;
-}
-
-.yaxis-linear {
-    display: flex;
-    gap: 15px;
-    flex-direction: row;
-}
-
-.setup-checkboxes {
-    margin-top: 10px;
-    flex-direction: row;
-}
-
-.setup-checkbox-column {
-    display: flex;
-    flex-direction: column;
-}
-
 .cumulative-toggle-btn:hover {
     background-color: #5a5a5a;
+}
+
+.reset-apply-servers {
+    display: flex;
+    gap: 10px;
 }
 
 .date-inputs {
@@ -111,15 +109,243 @@
     gap: 20px;
 }
 
-.update-graph-btn:hover {
-    background-color: #ff00f2;
+.setup-checkboxes {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
 }
 
-.setup-checkboxes {
+.setup-checkbox-column,
+.checkbox-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.yaxis-linear {
+    display: flex;
+    gap: 15px;
+    flex-direction: row;
+}
+
+.server-checkboxes {
     display: flex;
     gap: 5px;
 }
 
+#graph-filter {
+    margin-top: 15px;
+}
+
 .filter-header {
     margin-bottom: 10px;
+}
+
+#gamesChart {
+    width: 100%;
+    height: 420px;
+    margin: 1.5rem 0;
+}
+
+.hero-section {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+    color: #4da6ff;
+}
+
+.hero-text {
+    font-size: 1.125rem;
+    color: #b8b8b8;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.hero-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.hero-link {
+    color: #4da6ff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s ease;
+}
+
+.hero-link:hover {
+    color: #3a8ad6;
+}
+
+.about-page-container {
+    padding: 0rem 1.5rem 1.5rem 1.5rem;
+}
+
+.h2project {
+    color: #4da6ff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+#exportData {
+    background-color: #0c0c0c;
+    border: 1px solid #cccccc;
+    color: #cccccc;
+    cursor: pointer;
+    max-width: 150px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 14px;
+    margin-top: 15px;
+    padding: 5px 10px;
+}
+
+#exportData:hover {
+    background-color: #cccccc;
+    color: #0c0c0c;
+}
+
+.stats-grid {
+    gap: 1rem;
+    display: flex;
+}
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.stat-header i {
+    color: #4da6ff;
+    margin-right: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.stat-header h3 {
+    font-size: 1.75rem;
+    margin: 0;
+    font-weight: 600;
+    color: #4da6ff;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+    color: #b8b8b8;
+}
+
+.stat-subtitle {
+    font-size: 0.875rem;
+    margin: 0;
+    color: #888;
+}
+
+.server-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: #b8b8b8;
+    font-size: 0.875rem;
+}
+
+.server-list li {
+    margin-bottom: 0.25rem;
+}
+
+.project-info {
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.project-info h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4da6ff;
+    margin-bottom: 1rem;
+}
+
+.project-info p {
+    color: #b8b8b8;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.contributors-section {
+    border-radius: 0.5rem;
+}
+
+.contributors-section h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4da6ff;
+    margin-bottom: 1.5rem;
+}
+
+.contributors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.contributor {
+    background: linear-gradient(135deg, rgba(26, 26, 38, 0.8), rgba(26, 26, 38, 0.4));
+    border-radius: 8px;
+    color: #b8b8b8;
+    font-size: 0.95rem;
+    align-items: center;
+}
+
+.contributor-category h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #ff8400;
+    margin-bottom: 1rem;
+}
+
+.contributor-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.contributor-card {
+    background-color: rgba(128, 128, 128, 0.2);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+}
+
+.contributor-name {
+    color: #b8b8b8;
+    display: block;
+}
+
+.contributor-role {
+    font-size: 0.875rem;
+    color: #4da6ff;
+    display: block;
+}
+
+.role {
+    color: #4da6ff;
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+.fa-user {
+    margin-right: 5px;
+}
+
+.fa-cog {
+    margin-right: 5px;
 }

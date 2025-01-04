@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024 
+* Last Edited 03-01-2025
 -->
 
 <!DOCTYPE html>
@@ -50,7 +50,6 @@
     <link rel="stylesheet" type="text/css" href="/newmain.css">
     <link rel="stylesheet" type="text/css" href="/scaling.css">
     <link rel="stylesheet" type="text/css" href="/admin.css">
-    <link rel="stylesheet" type="text/css" href="/about.css">
     <link rel="stylesheet" type="text/css" href="/graph.css">
     <script src="/graph.js" defer=""></script>
     <script src="/script.js" defer=""></script>
@@ -196,79 +195,87 @@
                 </div>
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stats-controls">
-                            <div class="date-controls">
-                                <h3 class="filter-title">Date Range</h3>
-                                <div class="date-inputs">
-                                    <input type="date" class="date-input" id="startDate" name="startDate">
-                                    <span>to</span>
-                                    <input type="date" class="date-input" id="endDate" name="endDate">
-                                </div>
+                        <div class="date-controls">
+                            <h3 class="filter-title">Date Range</h3>
+                            <div class="date-inputs">
+                                <input type="date" class="date-input" id="startDate" name="startDate">
+                                <span>to</span>
+                                <input type="date" class="date-input" id="endDate" name="endDate">
                             </div>
-            
-                            <div class="graph-search-container">
-                                <h3 class="filter-title">Filter by Name</h3>
-                                <input type="text" placeholder="Player name..." class="player-input">
-                            </div>
-            
-                            <div class="axis-controls">
-                                <div class="y-axis-control">
-                                    <h3 class="filter-title">Y-Axis</h3>
-                                    <div class="yaxis-linear">
-                                        <input type="number" class="yaxis-input" id="yAxisMax" min="1" value="16"step="1">
-                                        <button id="toggleView" class="cumulative-toggle-btn">Show Linear View</button>
-                                    </div>
-                                    <select id="graph-filter" class="server-select">
-                                        <option value="">Graph Type</option>
-                                        <optgroup label="Servers">
-                                            <option value="individualServers">Individual Servers</option>
-                                            <option value="combinedServers">Combined servers</option>
-                                        </optgroup>
-                                        <optgroup label="In-Game statistics">
-                                            <option value="totalHoursPlayed">Total Hours Played</option>
-                                            <option value="popularTerritories" selected>Popular Territories</option>
-                                            <option value="1v1setupStatistics">1v1 Setup Statistics</option>
-                                        </optgroup>
-                                    </select>
+                        </div>
+
+                        <div class="graph-search-container">
+                            <h3 class="filter-title">Filter by Name</h3>
+                            <input type="text" placeholder="Player name..." class="player-input">
+                        </div>
+
+                        <div class="axis-controls">
+                            <div class="y-axis-control">
+                                <h3 class="filter-title">Y-Axis</h3>
+                                <div class="yaxis-linear">
+                                    <input type="number" class="yaxis-input" id="yAxisMax" min="1" value="14" step="1">
+                                    <button id="toggleView" class="cumulative-toggle-btn">Show Linear View</button>
                                 </div>
+                                <select id="graph-filter" class="server-select">
+                                    <option value="">Graph Type</option>
+                                    <optgroup label="Servers">
+                                        <option value="individualServers">Individual Servers</option>
+                                        <option value="combinedServers">Combined servers</option>
+                                    </optgroup>
+                                    <optgroup label="In-Game statistics">
+                                        <option value="totalHoursPlayed">Total Hours Played</option>
+                                        <option value="popularTerritories" selected>Popular Territories</option>
+                                        <option value="1v1setupStatistics">1v1 Setup Statistics</option>
+                                    </optgroup>
+                                </select>
                             </div>
-                            
-                            <div class="territory-filters">
-                                <div class="filter-header">
-                                    <h3 class="filter-title">Territory Selection</h3>
-                                    <div class="reset-apply-servers">
-                                        <button id="selectAllTerritories" class="apply-servers-btn">Select All</button>
-                                        <button id="deselectAllTerritories" class="reset-servers-btn">Deselect All</button>
-                                    </div>
-                                </div>
-                                <div class="server-checkboxes">
-                                    <div class="checkbox-column">
-                                        <label><input type="checkbox" name="territory" value="na" checked> North America</label>
-                                        <label><input type="checkbox" name="territory" value="sa" checked> South America</label>
-                                        <label><input type="checkbox" name="territory" value="eu" checked> Europe</label>
-                                        <label><input type="checkbox" name="territory" value="ru" checked> Russia</label>
-                                        <label><input type="checkbox" name="territory" value="af" checked> Africa</label>
-                                        <label><input type="checkbox" name="territory" value="as" checked> Asia</label>
-                                    </div>
-                                    <div class="checkbox-column">
-                                        <label><input type="checkbox" name="territory" value="au" checked> Australasia</label>
-                                        <label><input type="checkbox" name="territory" value="we" checked> West Asia</label>
-                                        <label><input type="checkbox" name="territory" value="ea" checked> East Asia</label>
-                                        <label><input type="checkbox" name="territory" value="ant" checked> Antarctica</label>
-                                        <label><input type="checkbox" name="territory" value="naf" checked> North Africa</label>
-                                        <label><input type="checkbox" name="territory" value="saf" checked> South Africa</label>
-                                    </div>
-                                </div>
-                            </div>
-            
-                            <button id="updateGraph" class="update-graph-btn">Update Graph</button>
+                            <button id="exportData" class="btn-download">Export Raw Data</button>
                         </div>
                     </div>
-                </div>
-                <div id="gamesChart"></div>
-            </div>
+                    <div class="stats-controls">
 
-            <!-- <div class="project-info">
+                        <div class="territory-filters">
+                            <div class="filter-header">
+                                <h3 class="filter-title">Territory Selection</h3>
+                                <div class="reset-apply-servers">
+                                    <button id="selectAllTerritories" class="apply-servers-btn">Select All</button>
+                                    <button id="deselectAllTerritories" class="reset-servers-btn">Deselect All</button>
+                                </div>
+                            </div>
+                            <div class="server-checkboxes">
+                                <div class="checkbox-column">
+                                    <label><input type="checkbox" name="territory" value="na" checked> North
+                                        America</label>
+                                    <label><input type="checkbox" name="territory" value="sa" checked> South
+                                        America</label>
+                                    <label><input type="checkbox" name="territory" value="eu" checked> Europe</label>
+                                    <label><input type="checkbox" name="territory" value="ru" checked> Russia</label>
+                                    <label><input type="checkbox" name="territory" value="af" checked> Africa</label>
+                                    <label><input type="checkbox" name="territory" value="as" checked> Asia</label>
+                                </div>
+                                <div class="checkbox-column">
+                                    <label><input type="checkbox" name="territory" value="au" checked>
+                                        Australasia</label>
+                                    <label><input type="checkbox" name="territory" value="we" checked> West Asia</label>
+                                    <label><input type="checkbox" name="territory" value="ea" checked> East Asia</label>
+                                    <label><input type="checkbox" name="territory" value="ant" checked>
+                                        Antarctica</label>
+                                    <label><input type="checkbox" name="territory" value="naf" checked> North
+                                        Africa</label>
+                                    <label><input type="checkbox" name="territory" value="saf" checked> South
+                                        Africa</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="updateGraph" class="update-graph-btn">Update Graph</button>
+                    </div>
+                </div>
+            </div>
+            <div id="gamesChart"></div>
+        </div>
+
+        <!-- <div class="project-info">
             </div>
             <div class="contributors-section">
                 <h2>Project Contributors</h2>

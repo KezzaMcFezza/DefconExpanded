@@ -1,3 +1,15 @@
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 03-01-2025
+
 let isCumulativeView = false;
 
 const graphConfigs = {
@@ -73,13 +85,17 @@ const graphConfigs = {
 
 class BaseGraph {
     constructor() {
-        this.margin = { top: 5, right: 20, bottom: 55, left: 40 };
+        this.margin = { top: 5, right: 30, bottom: 55, left: 50 };
         this.chartContainer = document.getElementById('gamesChart');
         this.width = this.chartContainer.offsetWidth - this.margin.left - this.margin.right;
         this.height = 350;
-        
+
         this.initializeBaseControls();
         this.initializeEventListeners();
+    }
+
+    getPlayerName() {
+        return document.querySelector('.player-input')?.value || '';
     }
 
     initializeBaseControls() {
@@ -93,10 +109,15 @@ class BaseGraph {
 
     initializeEventListeners() {
         window.addEventListener('resize', _.debounce(() => this.createChart(), 250));
-        
+
         const updateButton = document.getElementById('updateGraph');
         if (updateButton) {
             updateButton.addEventListener('click', () => this.createChart());
+        }
+
+        const exportButton = document.getElementById('exportData');
+        if (exportButton) {
+            exportButton.addEventListener('click', () => this.exportData());
         }
 
         const toggleButton = document.getElementById('toggleView');
@@ -117,6 +138,88 @@ class BaseGraph {
             console.error('Error fetching data:', error);
             return null;
         }
+    }
+
+    async exportData() {
+        const graphTypes = ['individualServers', 'combinedServers', 'totalHoursPlayed', 'popularTerritories', '1v1setupStatistics'];
+        const data = {};
+
+        for (const graphType of graphTypes) {
+            const queryParams = new URLSearchParams({ graphType });
+            const response = await this.fetchData(queryParams);
+            data[graphType] = response;
+        }
+
+        let csvContent = '';
+
+        if (data.individualServers?.length > 0) {
+            csvContent += 'Individual Servers Data\n';
+            csvContent += 'Date,' + Object.keys(data.individualServers[0])
+                .filter(key => key !== 'date')
+                .join(',') + '\n';
+
+            data.individualServers.forEach(row => {
+                csvContent += `${new Date(row.date).toISOString().split('T')[0]},`;
+                csvContent += Object.keys(row)
+                    .filter(key => key !== 'date')
+                    .map(key => row[key] || '0')
+                    .join(',') + '\n';
+            });
+            csvContent += '\n\n';
+        }
+
+        if (data.combinedServers?.length > 0) {
+            csvContent += 'Combined Servers Data\n';
+            csvContent += 'Date,Total Games\n';
+            data.combinedServers.forEach(row => {
+                csvContent += `${new Date(row.date).toISOString().split('T')[0]},${row.allServers}\n`;
+            });
+            csvContent += '\n\n';
+        }
+
+        if (data.totalHoursPlayed?.length > 0) {
+            csvContent += 'Total Hours Played Data\n';
+            csvContent += 'Date,Hours\n';
+            data.totalHoursPlayed.forEach(row => {
+                csvContent += `${new Date(row.date).toISOString().split('T')[0]},${row.totalHours.toFixed(2)}\n`;
+            });
+            csvContent += '\n\n';
+        }
+
+        if (data.popularTerritories?.length > 0) {
+            csvContent += 'Territory Popularity Data\n';
+            csvContent += 'Date,' + Object.keys(data.popularTerritories[0])
+                .filter(key => key !== 'date')
+                .join(',') + '\n';
+
+            data.popularTerritories.forEach(row => {
+                csvContent += `${new Date(row.date).toISOString().split('T')[0]},`;
+                csvContent += Object.keys(row)
+                    .filter(key => key !== 'date')
+                    .map(key => row[key] || '0')
+                    .join(',') + '\n';
+            });
+            csvContent += '\n\n';
+        }
+
+        if (data['1v1setupStatistics']?.length > 0) {
+            csvContent += '1v1 Setup Statistics\n';
+            csvContent += 'Setup,Total Games,Territory 1,Territory 2,Territory 1 Wins,Territory 2 Wins\n';
+            data['1v1setupStatistics'].forEach(row => {
+                const [t1, t2] = row.territories;
+                csvContent += `${row.setup},${row.total_games},${t1},${t2},${row[t1]},${row[t2]}\n`;
+            });
+        }
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `DefconExpanded_Statistics${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 }
 
@@ -143,7 +246,7 @@ class IndividualServersGraph extends BaseGraph {
         const startDate = document.getElementById('startDate').valueAsDate;
         const endDate = document.getElementById('endDate').valueAsDate;
         const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
-        const playerName = document.querySelector('.player-input')?.value || '';
+        const playerName = this.getPlayerName();
 
         const selectedServers = Array.from(document.querySelectorAll('input[name="server"]:checked'))
             .map(checkbox => checkbox.value);
@@ -187,8 +290,8 @@ class IndividualServersGraph extends BaseGraph {
             .range([0, this.width]);
 
         const y = d3.scaleLinear()
-            .domain([0, isCumulativeView ? 
-                d3.max(data, d => d3.max(selectedServers, server => d[server] || 0)) : 
+            .domain([0, isCumulativeView ?
+                d3.max(data, d => d3.max(selectedServers, server => d[server] || 0)) :
                 yAxisMax
             ])
             .range([this.height, 0]);
@@ -223,7 +326,7 @@ class IndividualServersGraph extends BaseGraph {
             .attr("transform", "rotate(-90)")
             .attr("y", -this.margin.left)
             .attr("x", -this.height / 2)
-            .attr("dy", "0.8em")
+            .attr("dy", "1.5em")
             .style("text-anchor", "middle")
             .style("fill", "#b8b8b8")
             .text(graphConfigs.individualServers.yAxisLabel);
@@ -244,12 +347,12 @@ class IndividualServersGraph extends BaseGraph {
                 .attr("stroke-width", 1.5)
                 .attr("d", line)
                 .style("opacity", 0.7)
-                .on("mouseover", function() {
+                .on("mouseover", function () {
                     d3.select(this)
                         .style("opacity", 1)
                         .style("stroke-width", 2.5);
                 })
-                .on("mouseout", function() {
+                .on("mouseout", function () {
                     d3.select(this)
                         .style("opacity", 0.7)
                         .style("stroke-width", 1.5);
@@ -294,11 +397,11 @@ class IndividualServersGraph extends BaseGraph {
 
             legendItem
                 .style("cursor", "pointer")
-                .on("mouseover", function() {
+                .on("mouseover", function () {
                     svg.selectAll("path")
                         .style("opacity", 0.1);
                     svg.selectAll("path")
-                        .filter(function() {
+                        .filter(function () {
                             return d3.select(this).attr("stroke") === serverType.color;
                         })
                         .style("opacity", 1)
@@ -307,7 +410,7 @@ class IndividualServersGraph extends BaseGraph {
                     d3.select(this).select("rect")
                         .style("opacity", 1);
                 })
-                .on("mouseout", function() {
+                .on("mouseout", function () {
                     svg.selectAll("path")
                         .style("opacity", 0.7)
                         .style("stroke-width", 1.5);
@@ -334,7 +437,7 @@ class CombinedServersGraph extends BaseGraph {
         const startDate = document.getElementById('startDate').valueAsDate;
         const endDate = document.getElementById('endDate').valueAsDate;
         const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
-        const playerName = document.querySelector('.player-input')?.value || '';
+        const playerName = this.getPlayerName();
 
         const queryParams = new URLSearchParams({
             graphType: 'combinedServers',
@@ -369,8 +472,8 @@ class CombinedServersGraph extends BaseGraph {
             .range([0, this.width]);
 
         const y = d3.scaleLinear()
-            .domain([0, isCumulativeView ? 
-                d3.max(data, d => d.allServers) : 
+            .domain([0, isCumulativeView ?
+                d3.max(data, d => d.allServers) :
                 yAxisMax
             ])
             .range([this.height, 0]);
@@ -439,22 +542,21 @@ class TotalHoursGraph extends BaseGraph {
         const startDate = document.getElementById('startDate').valueAsDate;
         const endDate = document.getElementById('endDate').valueAsDate;
         const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
-        const playerName = document.querySelector('.player-input')?.value || '';
-    
+        const playerName = this.getPlayerName();
+
         const queryParams = new URLSearchParams({
             graphType: 'totalHoursPlayed',
             playerName
         });
-    
+
         let data = await this.fetchData(queryParams);
         if (!data) return;
-    
+
         data = data.filter(d => {
             const date = new Date(d.date);
             return date >= startDate && date <= endDate;
         });
-    
-        // Add cumulative calculation
+
         if (isCumulativeView) {
             let total = 0;
             data = data.map(d => ({
@@ -555,27 +657,26 @@ class PopularTerritoriesGraph extends BaseGraph {
         const startDate = document.getElementById('startDate').valueAsDate;
         const endDate = document.getElementById('endDate').valueAsDate;
         const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
-        const playerName = document.querySelector('.player-input')?.value || '';
-    
+        const playerName = this.getPlayerName();
+
         const selectedTerritories = Array.from(document.querySelectorAll('input[name="territory"]:checked'))
             .map(checkbox => checkbox.value);
-    
+
         if (selectedTerritories.length === 0) return;
-    
+
         const queryParams = new URLSearchParams({
             graphType: 'popularTerritories',
             playerName
         });
-    
+
         let data = await this.fetchData(queryParams);
         if (!data) return;
-    
+
         data = data.filter(d => {
             const date = new Date(d.date);
             return date >= startDate && date <= endDate;
         });
-    
-        // Add cumulative calculation
+
         if (isCumulativeView) {
             const territoryTotals = {};
             data = data.map(dayData => {
@@ -599,9 +700,9 @@ class PopularTerritoriesGraph extends BaseGraph {
             .domain(d3.extent(data, d => new Date(d.date)))
             .range([0, this.width]);
 
-            const y = d3.scaleLinear()
-            .domain([0, isCumulativeView ? 
-                d3.max(data, d => d3.max(selectedTerritories, territory => d[territory] || 0)) : 
+        const y = d3.scaleLinear()
+            .domain([0, isCumulativeView ?
+                d3.max(data, d => d3.max(selectedTerritories, territory => d[territory] || 0)) :
                 yAxisMax
             ])
             .range([this.height, 0]);
@@ -624,12 +725,12 @@ class PopularTerritoriesGraph extends BaseGraph {
                 .attr("stroke-width", 1.5)
                 .attr("d", line)
                 .style("opacity", 0.7)
-                .on("mouseover", function() {
+                .on("mouseover", function () {
                     d3.select(this)
                         .style("opacity", 1)
                         .style("stroke-width", 2.5);
                 })
-                .on("mouseout", function() {
+                .on("mouseout", function () {
                     d3.select(this)
                         .style("opacity", 0.7)
                         .style("stroke-width", 1.5);
@@ -679,61 +780,61 @@ class PopularTerritoriesGraph extends BaseGraph {
     addLegend(svg, selectedTerritories) {
         const selectedTerritoryTypes = graphConfigs.popularTerritories.serverTypes
             .filter(type => selectedTerritories.includes(type.key));
-    
+
         const legend = svg.append("g")
             .attr("class", "legend")
             .attr("transform", `translate(0,${this.height + 40})`);
-    
+
         const desiredColumns = 5;
         const legendItemWidth = this.width / desiredColumns;
         const legendItemHeight = 20;
         const itemsPerRow = desiredColumns;
-    
+
         selectedTerritoryTypes.forEach((territoryType, i) => {
             const row = Math.floor(i / itemsPerRow);
             const col = i % itemsPerRow;
-    
+
             const legendItem = legend.append("g")
                 .attr("transform", `translate(${col * legendItemWidth},${row * legendItemHeight})`);
-    
+
             legendItem.append("rect")
                 .attr("width", 15)
                 .attr("height", 15)
                 .attr("fill", territoryType.color)
                 .style("opacity", 0.7);
-    
+
             legendItem.append("text")
                 .attr("x", 24)
                 .attr("y", 12)
                 .text(territoryType.name)
                 .style("fill", "#b8b8b8")
                 .style("font-size", "12px");
-    
+
             legendItem
                 .style("cursor", "pointer")
-                .on("mouseover", function() {
+                .on("mouseover", function () {
                     svg.selectAll("path")
                         .style("opacity", 0.1);
                     svg.selectAll("path")
-                        .filter(function() {
+                        .filter(function () {
                             return d3.select(this).attr("stroke") === territoryType.color;
                         })
                         .style("opacity", 1)
                         .style("stroke-width", 2.5);
-    
+
                     d3.select(this).select("rect")
                         .style("opacity", 1);
                 })
-                .on("mouseout", function() {
+                .on("mouseout", function () {
                     svg.selectAll("path")
                         .style("opacity", 0.7)
                         .style("stroke-width", 1.5);
-    
+
                     d3.select(this).select("rect")
                         .style("opacity", 0.7);
                 });
         });
-    
+
         const legendRows = Math.ceil(selectedTerritoryTypes.length / itemsPerRow);
         const totalHeight = this.height + this.margin.top + this.margin.bottom + (legendRows * legendItemHeight);
         d3.select("#gamesChart svg")
@@ -791,7 +892,7 @@ class SetupStatisticsGraph extends BaseGraph {
 
     async createChart() {
         const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
-        const playerName = document.querySelector('.player-input')?.value || '';
+        const playerName = this.getPlayerName();
 
         const queryParams = new URLSearchParams({
             graphType: '1v1setupStatistics',
@@ -809,10 +910,21 @@ class SetupStatisticsGraph extends BaseGraph {
         this.updateChart();
     }
 
-    updateChart() {
-        if (!this.setupData) return;
-
+    async updateChart() {
         const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
+        const playerName = this.getPlayerName();
+
+        const queryParams = new URLSearchParams({
+            graphType: '1v1setupStatistics',
+            playerName
+        });
+
+        const data = await this.fetchData(queryParams);
+        if (!data) return;
+        this.setupData = data;
+
+        this.populateSetupCheckboxes(this.setupData);
+
         const selectedSetups = Array.from(document.querySelectorAll('input[name="setup"]:checked'))
             .map(checkbox => checkbox.value);
 
@@ -826,28 +938,41 @@ class SetupStatisticsGraph extends BaseGraph {
         const checkboxContainer = document.querySelector('.setup-checkboxes');
         if (!checkboxContainer) return;
 
-        checkboxContainer.innerHTML = '';
+        const currentStates = new Map();
+        document.querySelectorAll('input[name="setup"]').forEach(checkbox => {
+            currentStates.set(checkbox.value, checkbox.checked);
+        });
 
-        const leftColumn = document.createElement('div');
-        const rightColumn = document.createElement('div');
-        leftColumn.className = 'checkbox-column';
-        rightColumn.className = 'checkbox-column';
-        checkboxContainer.appendChild(leftColumn);
-        checkboxContainer.appendChild(rightColumn);
+        checkboxContainer.innerHTML = `
+            <div class="server-filters">
+                <div class="server-checkboxes">
+                    <div class="checkbox-column"></div>
+                    <div class="checkbox-column"></div>
+                </div>
+            </div>
+        `;
+
+        const leftColumn = checkboxContainer.querySelector('.checkbox-column:first-child');
+        const rightColumn = checkboxContainer.querySelector('.checkbox-column:last-child');
 
         const sortedSetups = [...data].sort((a, b) => b.total_games - a.total_games);
 
         sortedSetups.forEach((setup, index) => {
             const label = document.createElement('label');
+            label.style.fontSize = '15px';
             label.style.display = 'block';
             label.style.marginBottom = '5px';
             label.style.color = '#b8b8b8';
-            
+
+            const isChecked = currentStates.has(setup.setup) ?
+                currentStates.get(setup.setup) :
+                true;
+
             label.innerHTML = `
-                <input type="checkbox" name="setup" value="${setup.setup}" checked>
+                <input type="checkbox" name="setup" value="${setup.setup}" ${isChecked ? 'checked' : ''}>
                 ${this.formatSetupLabel(setup.setup)}
             `;
-            
+
             (index % 2 === 0 ? leftColumn : rightColumn).appendChild(label);
         });
     }
@@ -879,7 +1004,6 @@ class SetupStatisticsGraph extends BaseGraph {
     }
 
     addGridAndAxes(svg, x, y) {
-        // Grid
         svg.append("g")
             .attr("class", "grid")
             .attr("transform", `translate(0,${this.height})`)
@@ -900,7 +1024,6 @@ class SetupStatisticsGraph extends BaseGraph {
                 .tickFormat(""))
             .style("color", "rgba(255, 255, 255, 0.1)");
 
-        // Axes
         svg.append("g")
             .attr("transform", `translate(0,${this.height})`)
             .call(d3.axisBottom(x).tickFormat(d => this.formatSetupLabel(d)))
@@ -917,7 +1040,6 @@ class SetupStatisticsGraph extends BaseGraph {
                 .tickFormat(d3.format("d")))
             .style("color", "#b8b8b8");
 
-        // Y-axis label
         svg.append("text")
             .attr("transform", "rotate(-90)")
             .attr("y", -this.margin.left)
@@ -932,7 +1054,7 @@ class SetupStatisticsGraph extends BaseGraph {
         data.forEach(setup => {
             const setupGroup = svg.append("g")
                 .attr("transform", `translate(${x0(setup.setup)},0)`);
-    
+
             const [t1, t2] = setup.territories;
             const wins1 = setup[t1];
             const wins2 = setup[t2];
@@ -955,8 +1077,7 @@ class SetupStatisticsGraph extends BaseGraph {
                         Total Games: ${total_games}
                     `);
             };
-    
-            // First territory bar
+
             setupGroup.append("rect")
                 .attr("x", x1(0))
                 .attr("y", y(setup[t1]))
@@ -964,23 +1085,22 @@ class SetupStatisticsGraph extends BaseGraph {
                 .attr("height", this.height - y(setup[t1]))
                 .attr("fill", setupColors[0])
                 .style("opacity", 0.7)
-                .on("mouseover", function(event) {
+                .on("mouseover", function (event) {
                     d3.select(this).style("opacity", 1);
                     const tooltip = createTooltip(t1, setup[t1], setup.total_games);
                     tooltip.style("left", (event.pageX + 10) + "px")
                         .style("top", (event.pageY - 10) + "px");
                 })
-                .on("mousemove", function(event) {
+                .on("mousemove", function (event) {
                     d3.select('.tooltip')
                         .style("left", (event.pageX + 10) + "px")
                         .style("top", (event.pageY - 10) + "px");
                 })
-                .on("mouseout", function() {
+                .on("mouseout", function () {
                     d3.select(this).style("opacity", 0.7);
                     d3.selectAll('.tooltip').remove();
                 });
-    
-            // Second territory bar
+
             setupGroup.append("rect")
                 .attr("x", x1(1))
                 .attr("y", y(setup[t2]))
@@ -988,18 +1108,18 @@ class SetupStatisticsGraph extends BaseGraph {
                 .attr("height", this.height - y(setup[t2]))
                 .attr("fill", setupColors[1])
                 .style("opacity", 0.7)
-                .on("mouseover", function(event) {
+                .on("mouseover", function (event) {
                     d3.select(this).style("opacity", 1);
                     const tooltip = createTooltip(t2, setup[t2], setup.total_games);
                     tooltip.style("left", (event.pageX + 10) + "px")
                         .style("top", (event.pageY - 10) + "px");
                 })
-                .on("mousemove", function(event) {
+                .on("mousemove", function (event) {
                     d3.select('.tooltip')
                         .style("left", (event.pageX + 10) + "px")
                         .style("top", (event.pageY - 10) + "px");
                 })
-                .on("mouseout", function() {
+                .on("mouseout", function () {
                     d3.select(this).style("opacity", 0.7);
                     d3.selectAll('.tooltip').remove();
                 });
