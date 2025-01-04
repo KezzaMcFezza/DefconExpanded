@@ -157,9 +157,9 @@ const configFiles = [
 const DISCORD_CONFIG = {
   token: 'MTMwNTQxNTU1NzM2NTEwNDY4MA.G6fE2Q.YywmUxfaA368tePVwCysMI_WAPC4p9OTD69f10',
   channelIds: [
-    '1117301291652227163'
-    //'1305455377508470804',     
-    //'1305580168810725447'     
+    '1117301291652227163',
+    '1305455377508470804',     
+    '1305580168810725447'     
   ]
 };
 
@@ -1915,7 +1915,6 @@ app.get('/api/all-demos', authenticateToken, checkRole(5), async (req, res) => {
   }
 });
 
-// API endpoint in server.js
 app.get('/api/games-timeline', async (req, res) => {
   try {
     const { graphType = 'individualServers', playerName } = req.query;
@@ -2091,67 +2090,85 @@ function process1v1SetupData(rows) {
   const setupStats = {};
 
   rows.forEach(row => {
-    try {
-      // First check if players data exists
-      if (!row.players) {
-        return; // Skip this row if no players data
-      }
-
-      // Then try to parse it
-      let players;
+      let gameData = { players: [], spectators: [] };
       try {
-        const parsedPlayers = JSON.parse(row.players);
-        players = Array.isArray(parsedPlayers) ? parsedPlayers : 
-                 (parsedPlayers.players ? parsedPlayers.players : null);
-      } catch (parseError) {
-        console.log('Invalid players JSON for game:', row);
-        return; // Skip this row if JSON is invalid
+          if (!row.players) return;
+          
+          const parsedData = JSON.parse(row.players);
+          if (typeof parsedData === 'object') {
+              if (parsedData.players && Array.isArray(parsedData.players)) {
+                  gameData.players = parsedData.players;
+              } else if (Array.isArray(parsedData)) {
+                  gameData.players = parsedData;
+              } else {
+                  return;
+              }
+          }
+
+          // Make sure it's a valid 1v1 game
+          if (gameData.players.length !== 2) return;
+
+          const [player1, player2] = gameData.players;
+          if (!player1?.territory || !player2?.territory || 
+              player1.score === undefined || player2.score === undefined) {
+              return;
+          }
+
+          // Create setup key (territories alphabetically ordered)
+          const territories = [player1.territory, player2.territory].sort();
+          const setupKey = territories.join('_vs_');
+
+          if (!setupStats[setupKey]) {
+              setupStats[setupKey] = {
+                  date: new Date(row.date).toISOString().split('T')[0],
+                  total_games: 0,
+                  territories: territories,
+                  [territories[0]]: 0,
+                  [territories[1]]: 0,
+                  total_duration: 0,
+                  average_score_diff: 0,
+                  games_with_score: 0
+              };
+          }
+
+          setupStats[setupKey].total_games++;
+
+          // Track winner
+          const winner = player1.score > player2.score ? player1 : player2;
+          setupStats[setupKey][winner.territory]++;
+
+          // Track duration if available
+          if (row.duration) {
+              const [hours, minutes, seconds] = row.duration.split(':');
+              const durationInMinutes = (parseFloat(hours) * 60) + parseFloat(minutes) + (parseFloat(seconds) / 60);
+              setupStats[setupKey].total_duration += durationInMinutes;
+          }
+
+          // Track score differences
+          const scoreDiff = Math.abs(player1.score - player2.score);
+          setupStats[setupKey].average_score_diff = 
+              ((setupStats[setupKey].average_score_diff * setupStats[setupKey].games_with_score) + scoreDiff) / 
+              (setupStats[setupKey].games_with_score + 1);
+          setupStats[setupKey].games_with_score++;
+
+      } catch (error) {
+          console.error('Error processing 1v1 game:', error);
+          console.log('Problematic row:', row);
       }
-
-      // Check if we have valid players data
-      if (!players || !Array.isArray(players) || players.length !== 2) {
-        return; // Skip if not exactly 2 players
-      }
-
-      // Make sure both players have territories and scores
-      if (!players[0].territory || !players[1].territory || 
-          players[0].score === undefined || players[1].score === undefined) {
-        return; // Skip if missing required data
-      }
-
-      const winner = players.reduce((a, b) => a.score > b.score ? a : b);
-      const loser = players.find(p => p !== winner);
-
-      // Create setup key (always alphabetically ordered for consistency)
-      const territories = [winner.territory, loser.territory].sort();
-      const setupKey = territories.join('_vs_');
-
-      if (!setupStats[setupKey]) {
-        setupStats[setupKey] = {
-          date: new Date(row.date).toISOString().split('T')[0],
-          total_games: 0,
-          territories: territories,
-          [territories[0]]: 0,
-          [territories[1]]: 0
-        };
-      }
-
-      setupStats[setupKey].total_games++;
-      setupStats[setupKey][winner.territory]++;
-
-    } catch (error) {
-      console.error('Error processing 1v1 game:', error);
-      console.log('Problematic row:', row);
-    }
   });
 
-  // Convert to array and sort by total games
+  // Convert to array and calculate final stats
   const sortedSetups = Object.entries(setupStats)
-    .map(([key, stats]) => ({
-      setup: key,
-      ...stats
-    }))
-    .sort((a, b) => b.total_games - a.total_games);
+      .map(([key, stats]) => ({
+          setup: key,
+          ...stats,
+          average_duration: stats.total_duration / stats.total_games,
+          win_rate: {
+              [stats.territories[0]]: ((stats[stats.territories[0]] / stats.total_games) * 100).toFixed(2) + '%',
+              [stats.territories[1]]: ((stats[stats.territories[1]] / stats.total_games) * 100).toFixed(2) + '%'
+          }
+      }))
+      .sort((a, b) => b.total_games - a.total_games);
 
   return sortedSetups;
 }
