@@ -37,6 +37,81 @@ function isUserLoggedIn() {
   return !!localStorage.getItem('token');
 }
 
+function showReportOptions(demoId, event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  const options = [
+    'Broken download',
+    'Incorrect information',
+    'Demo file corrupted',
+    'Missing player data',
+    'Wrong game type'
+  ];
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'report-dropdown';
+
+  options.forEach(option => {
+    const button = document.createElement('button');
+    button.textContent = option;
+    button.onclick = () => confirmDemoReport(demoId, option);
+    dropdown.appendChild(button);
+  });
+
+  const existingDropdown = document.querySelector('.report-dropdown');
+  if (existingDropdown) {
+    existingDropdown.remove();
+  }
+
+  const reportButton = event.target;
+  const demoCard = reportButton.closest('.demo-card');
+  if (demoCard) {
+    const demoActions = reportButton.closest('.demo-actions');
+    demoActions.style.position = 'relative';
+    demoActions.appendChild(dropdown);
+
+    document.addEventListener('click', closeDemoDropdown);
+  }
+}
+
+function closeDemoDropdown(event) {
+  if (!event.target.matches('.btn-report')) {
+    const dropdowns = document.getElementsByClassName('report-dropdown');
+    for (let i = 0; i < dropdowns.length; i++) {
+      dropdowns[i].remove();
+    }
+    document.removeEventListener('click', closeDemoDropdown);
+  }
+}
+
+async function confirmDemoReport(demoId, reportType) {
+  const confirmed = await confirm(`Are you sure you want to report this demo for ${reportType}?`);
+  if (confirmed) {
+    submitDemoReport(demoId, reportType);
+  }
+}
+
+async function submitDemoReport(demoId, reportType) {
+  try {
+    const response = await fetch('/api/report-demo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ demoId, reportType }),
+    });
+
+    if (response.ok) {
+      alert('Demo report successfully sent to the team!');
+    } else {
+      throw new Error('You need to be logged in to report demos.');
+    }
+  } catch (error) {
+    alert('You need to be logged in to report demos.');
+  }
+}
+
 function setActiveNavItem() {
   const currentPath = window.location.pathname;
   const navItems = document.querySelectorAll('#sidebar .list-items li');
