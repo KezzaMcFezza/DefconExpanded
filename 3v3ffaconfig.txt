@@ -5,14 +5,25 @@ GameMode 0
 ServerPort 5010
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
-TotalBandwidth 75000
-PlayerBandwidth 10000
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 2000000
 LogLevel 2
 CaseSensitive 0
 SlowestSpeed 0
+HostName DefconExpanded
+AcceptC2 1
+MaxIdleRunTime 2500
+MinRunTime 900
 EventFile game_events_3v3_FFA.log
 OutFile server_output_3v3_FFA.log
 PlayerLog player_scores_3v3_FFA.log
+
+# Whatever you do, DO NOT change these lines....
+# EventFile
+# OutFile
+# PlayerLog
+# Record
 
 #ADMIN
 Admin Laika~~1~dancefloor
@@ -20,31 +31,18 @@ Admin LadenBinKezza~~0~dancefloor
 Admin Sievert~~1~dancefloor
 Admin MohammedBinNexus~~1~dancefloor
 Admin Vault Tec~~1~dancefloor
+Admin Haakon~~1~Kezzaiscool
 Admin Lord Haw Haw~~1~Reddashhawhaw
 
-HostName DefconExpanded
-
-AcceptC2 1
-
-AdvertisePlayers 6
-MaxSpectators 15 
-
+#ANTI-CHEAT
 GhostProtection 2
 MaxResyncAttempts 3
-
-
-MaxIdleRunTime 1800
-MinRunTime 900
-
-DropCourtesy -1
 
 #SPEED BUDGET
 IdleTime 300
 IdleTimeGlobal 600
-
 SlowBudgetStart 1800
 SlowBudgetMax 1800
-
 SlowBudgetRefill 0
 SlowBudgetRedistributeUsed 100
 SlowBudgetRedistributeUnused 0
@@ -61,28 +59,29 @@ KickVoteMinPlayers 0
 KicksToBan 3
 
 #GAME OPTIONS 
+AdvertisePlayers 6
+MaxSpectators 15 
 MinTeams 3
 MaxTeams 6
 ReadyVoteDelay 90
 ReadyVoteMaxRemove 1
-
 RandomTerritories 1
 CityPopulations 3
 CitiesPerTerritory 30
 PopulationPerTerritory  150
-
-SpectatorChatChannel 1
+DropCourtesy -1
 GameSpeed 0
 PermitDefection 1
 RadarSharing 1
+SpectatorChatChannel 1
 
 WaitClient
-Say Welcome to Defcon Expanded, This is a 3v3/FFA server so you can play which ever you like. We have 8 and 10 player servers ready for play if you want to check them out :).
+Say Welcome to Defcon Expanded, This is a 3v3 server. We have 8 and 10 player servers ready for play if you want to check them out :).
 Say The games will be available for viewing and download on...
+Say Type /gamealert *custom message* to notify people on discord to come play!
 Say www.defconexpanded.com
 
 WaitStart
-
 Say Warning: Each player has 30 minutes of 1x slowdown budget
 Say Budget regenerates at 1 minute per minute of 5x used, and 2 minutes per 10x used
 Say Each player also has 5 minutes of pause time that will affect their slowdown budget
@@ -90,13 +89,13 @@ Say Use /speed to check your remaining budgets
 SpectatorChatChannel 0
 
 #ACTIVATE DEFCON 3
-
 WaitDefcon 3
 PermitDefection 0
 
 WaitEnd
 Record demo_recordings/game_%Y-%m-%d-%H-%M.dcrec
 AdvertiseOnInternet 0
+SpectatorChatChannel 1
 Say Game Over !
 Say Game is available on defconexpanded.com
 Say Restart in 60 Seconds!

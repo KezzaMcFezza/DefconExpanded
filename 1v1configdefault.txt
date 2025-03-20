@@ -7,13 +7,24 @@ AdvertiseOnInternet 1
 AdvertiseOnLAN 1
 AllianceSize 1
 SlowestSpeed 0
-TotalBandwidth 75000
-PlayerBandwidth 10000
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 2000000
 LogLevel 2
+HostName DefconExpanded
+AcceptC2 1
+MaxIdleRunTime 2500
+MinRunTime 900
 CaseSensitive 0
 EventFile game_events_1v1default.log
 OutFile server_output_1v1default.log
 PlayerLog player_scores_1v1default.log
+
+# Whatever you do, DO NOT change these lines....
+# EventFile
+# OutFile
+# PlayerLog
+# Record
 
 #ADMIN
 Admin Laika~~1~dancefloor
@@ -21,31 +32,18 @@ Admin LadenBinKezza~~0~dancefloor
 Admin Sievert~~1~dancefloor
 Admin MohammedBinNexus~~1~dancefloor
 Admin Vault Tec~~1~dancefloor
+Admin Haakon~~1~Kezzaiscool
 Admin Lord Haw Haw~~1~Reddashhawhaw
 
-HostName DefconExpanded
-
-AcceptC2 1
-
-AdvertisePlayers 2
-MaxSpectators 15 
-
+#ANTI-CHEAT
 GhostProtection 2
 MaxResyncAttempts 3
-
-
-MaxIdleRunTime 1800
-MinRunTime 900
-
-DropCourtesy -1
 
 #SPEED BUDGET
 IdleTime 300
 IdleTimeGlobal 600
-
 SlowBudgetStart 1800
 SlowBudgetMax 1800
-
 SlowBudgetRefill 0
 SlowBudgetRedistributeUsed 100
 SlowBudgetRedistributeUnused 0
@@ -62,37 +60,36 @@ KickVoteMinPlayers 0
 KicksToBan 3
 
 #GAME OPTIONS 
+AdvertisePlayers 2
+MaxSpectators 15 
 MinTeams 2
 MaxTeams 2
 ReadyVoteDelay 90
 ReadyVoteMaxRemove 1
-
+DropCourtesy -1
 RandomTerritories 0
 CityPopulations 3
 CitiesPerTerritory 30
 PopulationPerTerritory  150
-
-SpectatorChatChannel 1
 GameSpeed 0
 PermitDefection 0
+SpectatorChatChannel 1
 
 WaitClient
 Say Welcome to Defcon Expanded, This is a 1v1 server only with totally random cites and population and you are able to choose territories if you want. 
 Say This server also has a leaderboard and game recordings on the DefconExpanded website.
-Say Which is available for viewing on...
+Say Type /gamealert *custom message* to notify people on discord to come play!
 Say www.defconexpanded.com
 
 WaitStart
-
-Say Warning: Each player has 30 minutes of 1x slowdown budget
-Say Budget regenerates at 1 minute per minute of 5x used, and 2 minutes per 10x used
-Say Each player also has 5 minutes of pause time that will affect their slowdown budget
-Say Use /speed to check your remaining budget
+Say Each player also has 5 minutes of pause time that will affect their main pause budget
+Say Use /speed to check your remaining pause budget
 SpectatorChatChannel 0
 
 WaitEnd
 Record demo_recordings/game_%Y-%m-%d-%H-%M.dcrec
 AdvertiseOnInternet 0
+SpectatorChatChannel 1
 Say Game Over !
 Say Game is available on defconexpanded.com
 Say Restart in 60 Seconds!

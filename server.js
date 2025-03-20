@@ -122,7 +122,6 @@ const adminPages = [
   'admin-panel.html',
   'blacklist.html',
   'demo-manage.html',
-  'leaderboard-manage.html',
   'account-manage.html',
   'modmanagment.html',
   'resourcemanagment.html',
@@ -158,8 +157,8 @@ const DISCORD_CONFIG = {
   token: 'MTMwNTQxNTU1NzM2NTEwNDY4MA.G6fE2Q.YywmUxfaA368tePVwCysMI_WAPC4p9OTD69f10',
   channelIds: [
     '1117301291652227163',
-    '1305455377508470804',     
-    '1305580168810725447'     
+    '1305455377508470804',
+    '1305580168810725447'
   ]
 };
 
@@ -782,15 +781,6 @@ async function checkForMatch() {
 
           console.log(`Successfully processed and linked ${dcrecFileName} with ${jsonFileName}`);
 
-          // Only process tournament or 1v1 games for leaderboard
-          if (logData.gameType && (
-            logData.gameType.toLowerCase().includes('tournament') ||
-            logData.gameType.toLowerCase().includes('1v1')
-          )) {
-            console.log(`Detected ${logData.gameType.toLowerCase().includes('tournament') ? 'tournament' : '1v1'} game, updating leaderboard`);
-            await updateLeaderboard(logData);
-          }
-
           await pool.query('COMMIT');
         } catch (error) {
           await pool.query('ROLLBACK');
@@ -852,14 +842,6 @@ async function checkForMatch() {
 
             console.log(`Successfully processed and linked ${demoFileName} with ${jsonFileName}`);
 
-            if (logData.gameType && (
-              logData.gameType.toLowerCase().includes('tournament') ||
-              logData.gameType.toLowerCase().includes('1v1')
-            )) {
-              console.log(`Detected ${logData.gameType.toLowerCase().includes('tournament') ? 'tournament' : '1v1'} game, updating leaderboard`);
-              await updateLeaderboard(logData);
-            }
-
             await pool.query('COMMIT');
             break;
           } catch (error) {
@@ -895,211 +877,6 @@ function cleanupOldPendingFiles() {
 }
 
 setInterval(cleanupOldPendingFiles, 60 * 60 * 1000);
-
-async function updateLeaderboard(gameData) {
-  console.log('Checking game type:', gameData.gameType);
-
-  const isTournament = gameData.gameType && gameData.gameType.toLowerCase().includes('tournament');
-  const is1v1 = gameData.gameType && gameData.gameType.toLowerCase().includes('1v1');
-
-  if (!isTournament && !is1v1) {
-    console.log('Not a tracked game type:', gameData.gameType);
-    return;
-  }
-
-  try {
-    await pool.query('START TRANSACTION');
-
-    let players;
-    if (gameData.players && Array.isArray(gameData.players)) {
-      players = gameData.players;
-    } else if (typeof gameData.players === 'object' && gameData.players.players) {
-      players = gameData.players.players;
-    } else {
-      console.log('Invalid player data structure:', gameData);
-      await pool.query('ROLLBACK');
-      return;
-    }
-
-    if (isTournament) {
-      console.log('Tournament game detected, processing for tournament leaderboard');
-
-      // Group players by alliance for tournament games
-      const allianceGroups = {};
-      players.forEach(player => {
-        if (!allianceGroups[player.alliance]) {
-          allianceGroups[player.alliance] = [];
-        }
-        allianceGroups[player.alliance].push(player);
-      });
-
-      // Calculate total score for each alliance
-      const allianceScores = Object.entries(allianceGroups).map(([alliance, alliancePlayers]) => ({
-        alliance: parseInt(alliance),
-        players: alliancePlayers,
-        totalScore: alliancePlayers.reduce((sum, player) => sum + (player.score || 0), 0)
-      }));
-
-      // Sort by total score to determine winning alliance
-      const sortedAlliances = allianceScores.sort((a, b) => b.totalScore - a.totalScore);
-      const winningAlliance = sortedAlliances[0].alliance;
-
-      console.log('Alliance scores:', sortedAlliances.map(a =>
-        `Alliance ${a.alliance}: ${a.totalScore} (${a.players.map(p => p.name).join(', ')})`
-      ));
-      console.log(`Winning alliance: ${winningAlliance} with score ${sortedAlliances[0].totalScore}`);
-
-      // Process each player
-      for (const player of players) {
-        const isWinner = player.alliance === winningAlliance;
-        try {
-          // Check for existing player
-          const [existingPlayerByName] = await pool.query(
-            'SELECT * FROM tournament_leaderboard WHERE player_name = ?',
-            [player.name]
-          );
-
-          if (existingPlayerByName.length > 0) {
-            // Update existing player
-            await pool.query(`
-              UPDATE tournament_leaderboard 
-              SET games_played = games_played + 1,
-                  wins = wins + ?,
-                  losses = losses + ?
-              WHERE player_name = ?
-            `, [
-              isWinner ? 1 : 0,
-              isWinner ? 0 : 1,
-              player.name
-            ]);
-            console.log(`Updated tournament data for ${player.name} (Alliance ${player.alliance}). Added ${isWinner ? 'win' : 'loss'}.`);
-          } else {
-            // Add new player
-            await pool.query(`
-              INSERT INTO tournament_leaderboard (player_name, key_id, games_played, wins, losses)
-              VALUES (?, ?, 1, ?, ?)
-            `, [
-              player.name,
-              player.key_id || 'DEMO',
-              isWinner ? 1 : 0,
-              isWinner ? 0 : 1
-            ]);
-            console.log(`New player ${player.name} added to tournament leaderboard with initial ${isWinner ? 'win' : 'loss'}.`);
-          }
-          console.log(`Tournament leaderboard update completed for player ${player.name} (Key ID: ${player.key_id})`);
-        } catch (error) {
-          console.error(`Error updating tournament leaderboard for player ${player.name}:`, error);
-          throw error;
-        }
-      }
-    } else if (is1v1) {
-      if (players.length !== 2) {
-        console.log(`Invalid player count for 1v1: ${players.length}`);
-        await pool.query('ROLLBACK');
-        return;
-      }
-
-      const [whitelist] = await pool.query('SELECT player_name FROM leaderboard_whitelist');
-      const whitelistedPlayers = new Set(whitelist.map(entry => entry.player_name.toLowerCase()));
-
-      const winner = players.reduce((a, b) => a.score > b.score ? a : b);
-      const loser = players.find(p => p !== winner);
-
-      console.log(`Winner: ${winner.name} (Score: ${winner.score})`);
-      console.log(`Loser: ${loser.name} (Score: ${loser.score})`);
-
-      for (const player of players) {
-        if (whitelistedPlayers.has(player.name.toLowerCase())) {
-          console.log(`Player ${player.name} is whitelisted. Skipping leaderboard update.`);
-          continue;
-        }
-
-        const isWinner = player === winner;
-        const scoreToAdd = player.score > 0 ? player.score : 0;
-
-        try {
-          const [existingPlayerByName] = await pool.query('SELECT * FROM leaderboard WHERE player_name = ?', [player.name]);
-          let existingPlayerByKeyId = [];
-
-          if (player.key_id !== 'DEMO') {
-            [existingPlayerByKeyId] = await pool.query('SELECT * FROM leaderboard WHERE key_id = ?', [player.key_id]);
-          }
-
-          if (existingPlayerByName.length > 0) {
-            if (player.key_id === 'DEMO') {
-              if (existingPlayerByName[0].key_id !== 'DEMO') {
-                console.log(`Looks like ${player.name} has lost their authentication key :( Adding player data to the leaderboard assuming they will find their authentication key at some point.`);
-              } else {
-                console.log(`Demo player detected: ${player.name}. Ignoring key ID matching and using player name instead.`);
-              }
-            } else if (existingPlayerByName[0].key_id === 'DEMO' && player.key_id !== 'DEMO') {
-              console.log(`Demo player ${player.name} has now bought the game! Replacing DEMO key ID with ${player.key_id}`);
-              await pool.query('UPDATE leaderboard SET key_id = ? WHERE player_name = ?', [player.key_id, player.name]);
-            } else if (existingPlayerByName[0].key_id !== player.key_id) {
-              console.log(`${player.name} appears to have a new key ID. Replacing existing key ID ${existingPlayerByName[0].key_id} with new key ID ${player.key_id} in the database.`);
-              await pool.query('UPDATE leaderboard SET key_id = ? WHERE player_name = ?', [player.key_id, player.name]);
-            }
-
-            await pool.query(`
-              UPDATE leaderboard 
-              SET games_played = games_played + 1,
-                  wins = wins + ?,
-                  losses = losses + ?,
-                  total_score = total_score + ?
-              WHERE player_name = ?
-            `, [
-              isWinner ? 1 : 0,
-              isWinner ? 0 : 1,
-              scoreToAdd,
-              player.name
-            ]);
-            console.log(`Updated player data for ${player.name} (Key ID: ${player.key_id}). Added ${isWinner ? 'win' : 'loss'} and ${scoreToAdd} to total score.`);
-          } else if (existingPlayerByKeyId.length > 0) {
-            const existingName = existingPlayerByKeyId[0].player_name;
-            console.log(`Key ID ${player.key_id} matches existing player ${existingName}, but current name is ${player.name}. Updating stats for ${existingName}.`);
-
-            await pool.query(`
-              UPDATE leaderboard 
-              SET games_played = games_played + 1,
-                  wins = wins + ?,
-                  losses = losses + ?,
-                  total_score = total_score + ?
-              WHERE key_id = ?
-            `, [
-              isWinner ? 1 : 0,
-              isWinner ? 0 : 1,
-              scoreToAdd,
-              player.key_id
-            ]);
-            console.log(`Updated player data for ${existingName} (Key ID: ${player.key_id}). Added ${isWinner ? 'win' : 'loss'} and ${scoreToAdd} to total score.`);
-          } else {
-            console.log(`Adding new player ${player.name} with Key ID ${player.key_id} to the leaderboard.`);
-            await pool.query(`
-              INSERT INTO leaderboard (player_name, key_id, games_played, wins, losses, total_score)
-              VALUES (?, ?, 1, ?, ?, ?)
-            `, [
-              player.name,
-              player.key_id,
-              isWinner ? 1 : 0,
-              isWinner ? 0 : 1,
-              scoreToAdd
-            ]);
-            console.log(`New player ${player.name} added to leaderboard with initial ${isWinner ? 'win' : 'loss'} and score of ${scoreToAdd}.`);
-          }
-          console.log(`Leaderboard update completed for player ${player.name} (Key ID: ${player.key_id})`);
-        } catch (error) {
-          console.error(`Error updating leaderboard for player ${player.name}:`, error);
-          throw error;
-        }
-      }
-    }
-
-    await pool.query('COMMIT');
-  } catch (error) {
-    await pool.query('ROLLBACK');
-    console.error('Error updating leaderboard:', error);
-  }
-}
 
 
 // checks if a demo already exists in the database, if not proceed to processing
@@ -1614,76 +1391,107 @@ app.put('/api/demo/:demoId', authenticateToken, checkRole(5), async (req, res) =
 });
 
 // fetches the most active players from top 1 to top 5 in the tournament leaderboard
-app.get('/api/most-active-tournament-players', async (req, res) => {
-  try {
-    const [rows] = await pool.query(`
-          SELECT player_name, games_played
-          FROM tournament_leaderboard
-          ORDER BY games_played DESC
-          LIMIT 5 
-      `);
-    res.json(rows);
-  } catch (error) {
-    console.error('Error fetching most active tournament players:', error);
-    res.status(500).json({ error: 'Unable to fetch most active tournament players', details: error.message });
-  }
-});
-
-// fetches the top 5 players who are the most active on the servers
 app.get('/api/most-active-players', async (req, res) => {
   try {
-    const [rows] = await pool.query(`
-          SELECT player_name, games_played
-          FROM leaderboard
-          ORDER BY games_played DESC
-          LIMIT 5 
-      `);
-    res.json(rows);
-  } catch (error) {
-    console.error('Error fetching most active players:', error);
-    res.status(500).json({ error: 'Unable to fetch most active players', details: error.message });
-  }
-});
+    const { serverName, serverList, startDate, endDate, excludeNames = '', limit = 10 } = req.query;
 
-//loads the tournament only leaderboard (temporary until i can be assed implementing automatic seasons)
-app.get('/api/tournament-leaderboard', async (req, res) => {
-  const { sortBy = 'weightedScore' } = req.query;
+    // Parse excluded names
+    const namesToExclude = excludeNames ? excludeNames.split(',') : [];
 
-  try {
-    let orderBy;
-    switch (sortBy) {
-      case 'wins':
-        orderBy = 'wins DESC, weighted_score DESC, player_name ASC';
-        break;
-      case 'gamesPlayed':
-        orderBy = 'games_played DESC, weighted_score DESC';
-        break;
-      case 'weightedScore':
-      default:
-        orderBy = 'weighted_score DESC, wins DESC';
+    // Build query conditions
+    let conditions = [];
+    let params = [];
+
+    // Server filter - handling both single server and server lists
+    if (serverList) {
+      // Split server list and create an OR condition
+      const servers = serverList.split(',');
+      const serverConditions = servers.map(() => 'game_type LIKE ?');
+      conditions.push(`(${serverConditions.join(' OR ')})`);
+      servers.forEach(server => {
+        params.push(`%${server}%`);
+      });
+    } else if (serverName) {
+      // Single server filter
+      conditions.push('game_type LIKE ?');
+      params.push(`%${serverName}%`);
     }
 
-    const query = `
-      SELECT 
-        l.*,
-        r.absolute_rank,
-        (wins * (wins/NULLIF(games_played, 0))) AS weighted_score
-      FROM 
-        tournament_leaderboard l
-      JOIN (
-        SELECT 
-          id, 
-          ROW_NUMBER() OVER (ORDER BY (wins * (wins/NULLIF(games_played, 0))) DESC, wins DESC) as absolute_rank
-        FROM 
-          tournament_leaderboard
-      ) r ON l.id = r.id
-      ORDER BY ${orderBy}
-    `;
+    // Date range filter
+    if (startDate && endDate) {
+      conditions.push('date BETWEEN ? AND ?');
+      params.push(startDate, endDate);
+    } else if (startDate) {
+      conditions.push('date >= ?');
+      params.push(startDate);
+    } else if (endDate) {
+      conditions.push('date <= ?');
+      params.push(endDate);
+    }
 
-    const [rows] = await pool.query(query);
+    // Build the query
+    let query = 'SELECT * FROM demos';
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+    query += ' ORDER BY date DESC';
 
-    // Add profile URLs just like in regular leaderboard
-    const updatedLeaderboard = await Promise.all(rows.map(async (player) => {
+    const [demos] = await pool.query(query, params);
+
+    // Get blacklisted players
+    const [blacklist] = await pool.query('SELECT player_name FROM leaderboard_whitelist');
+    const blacklistedPlayers = new Set(blacklist.map(entry => entry.player_name.toLowerCase()));
+
+    // Process player game counts
+    const playerGameCounts = {};
+
+    for (const demo of demos) {
+      try {
+        let playersData = [];
+        if (demo.players) {
+          const parsedData = JSON.parse(demo.players);
+          if (typeof parsedData === 'object') {
+            if (Array.isArray(parsedData.players)) {
+              playersData = parsedData.players;
+            } else if (Array.isArray(parsedData)) {
+              playersData = parsedData;
+            }
+          }
+        }
+
+        // Count each player's games
+        for (const player of playersData) {
+          if (!player.name) continue;
+          if (blacklistedPlayers.has(player.name.toLowerCase())) continue;
+          if (namesToExclude.includes(player.name)) continue;
+
+          if (!playerGameCounts[player.name]) {
+            playerGameCounts[player.name] = {
+              player_name: player.name,
+              games_played: 0,
+              last_game_date: null
+            };
+          }
+
+          playerGameCounts[player.name].games_played++;
+
+          // Track the most recent game
+          const gameDate = new Date(demo.date);
+          if (!playerGameCounts[player.name].last_game_date ||
+            gameDate > new Date(playerGameCounts[player.name].last_game_date)) {
+            playerGameCounts[player.name].last_game_date = demo.date;
+          }
+        }
+      } catch (error) {
+        console.error('Error processing player game counts:', error);
+      }
+    }
+
+    // Convert to array and add profile URLs
+    let activePlayers = Object.values(playerGameCounts);
+
+    // Add profile URLs
+    activePlayers = await Promise.all(activePlayers.map(async (player) => {
       if (player.player_name) {
         const [userProfile] = await pool.query(`
           SELECT u.username 
@@ -1699,53 +1507,388 @@ app.get('/api/tournament-leaderboard', async (req, res) => {
       return player;
     }));
 
-    res.json(updatedLeaderboard);
+    // Sort by number of games played (descending)
+    activePlayers.sort((a, b) => b.games_played - a.games_played);
+
+    // Return only the top N most active players
+    const limitedResults = activePlayers.slice(0, parseInt(limit));
+
+    res.json(limitedResults);
   } catch (error) {
-    console.error('Error fetching tournament leaderboard:', error);
-    res.status(500).json({ error: 'Unable to fetch tournament leaderboard' });
+    console.error('Error fetching most active players:', error);
+    res.status(500).json({ error: 'Unable to fetch active players' });
+  }
+});
+
+app.get('/api/earliest-game-date', async (req, res) => {
+  try {
+    // Query to get the earliest game date from the demos table
+    const [rows] = await pool.query('SELECT MIN(date) as earliestDate FROM demos');
+
+    if (rows.length > 0 && rows[0].earliestDate) {
+      res.json({ earliestDate: rows[0].earliestDate });
+    } else {
+      res.json({ earliestDate: null });
+    }
+  } catch (error) {
+    console.error('Error fetching earliest game date:', error);
+    res.status(500).json({ error: 'Unable to fetch earliest game date' });
   }
 });
 
 // loads the leaderboard data from the database and inserts it into the webpage
 app.get('/api/leaderboard', async (req, res) => {
-  const { sortBy = 'wins' } = req.query;
-
   try {
-    let orderBy;
-    switch (sortBy) {
-      case 'wins':
-        orderBy = 'wins DESC, total_score DESC, player_name ASC';
-        break;
-      case 'gamesPlayed':
-        orderBy = 'games_played DESC, wins DESC, total_score DESC, player_name ASC';
-        break;
-      case 'totalScore':
-        orderBy = 'total_score DESC, wins DESC, player_name ASC';
-        break;
-      default:
-        orderBy = 'wins DESC, total_score DESC, player_name ASC';
+    const {
+      serverName,
+      serverList,
+      playerName,
+      sortBy = 'wins',
+      startDate,
+      endDate,
+      territories,
+      combineMode,
+      scoreFilter,
+      gameDuration,
+      scoreDifference,
+      gamesPlayed,
+      minGames = 1,
+      excludeNames = '',
+      includeDetailedStats = 'false',
+      limit
+    } = req.query;
+
+    const namesToExclude = excludeNames ? excludeNames.split(',') : [];
+    let query = 'SELECT * FROM demos';
+    let params = [];
+    let conditions = [];
+
+    // Server filter
+    if (serverList) {
+      // Split server list and create an OR condition
+      const servers = serverList.split(',');
+      const serverConditions = servers.map(() => 'game_type LIKE ?');
+      conditions.push(`(${serverConditions.join(' OR ')})`);
+      servers.forEach(server => {
+        params.push(`%${server}%`);
+      });
+    } else if (serverName) {
+      conditions.push('game_type LIKE ?');
+      params.push(`%${serverName}%`);
     }
 
-    const query = `
-      SELECT 
-        l.*,
-        r.absolute_rank
-      FROM 
-        leaderboard l
-      JOIN (
-        SELECT 
-          id, 
-          ROW_NUMBER() OVER (ORDER BY wins DESC, total_score DESC, player_name ASC) as absolute_rank
-        FROM 
-          leaderboard
-      ) r ON l.id = r.id
-      ORDER BY ${orderBy}
-    `;
+    // Player name filter
+    if (playerName) {
+      conditions.push(`(player1_name LIKE ? OR player2_name LIKE ? OR player3_name LIKE ? OR player4_name LIKE ?
+                     OR player5_name LIKE ? OR player6_name LIKE ? OR player7_name LIKE ? OR player8_name LIKE ?
+                     OR player9_name LIKE ? OR player10_name LIKE ?)`);
+      params = [...params, ...Array(10).fill(`%${playerName}%`)];
+    }
 
-    const [rows] = await pool.query(query);
+    // Territory filter
+    if (territories) {
+      const territoryList = territories.split(',');
 
-    // Adding profile URLs for players only if their profile exists
-    const updatedLeaderboard = await Promise.all(rows.map(async (player) => {
+      if (combineMode === 'true') {
+        const territoryChecks = territoryList.map(() => 'players LIKE ?').join(' AND ');
+        conditions.push(`(${territoryChecks}) AND JSON_LENGTH(JSON_EXTRACT(players, '$.players')) = ?`);
+        territoryList.forEach(territory => {
+          params.push(`%"territory":"${territory}"%`);
+        });
+        params.push(territoryList.length);
+      } else {
+        const territoryConditions = territoryList.map(() => 'players LIKE ?');
+        conditions.push(`(${territoryConditions.join(' OR ')})`);
+        territoryList.forEach(territory => {
+          params.push(`%"territory":"${territory}"%`);
+        });
+      }
+    }
+
+    // Date range filter
+    if (startDate && endDate) {
+      conditions.push('date BETWEEN ? AND ?');
+      params.push(startDate, endDate);
+    } else if (startDate) {
+      conditions.push('date >= ?');
+      params.push(startDate);
+    } else if (endDate) {
+      conditions.push('date <= ?');
+      params.push(endDate);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' ORDER BY date ASC';
+
+    // Execute the query
+    const [demos] = await pool.query(query, params);
+    const [blacklist] = await pool.query('SELECT player_name FROM leaderboard_whitelist');
+    const blacklistedPlayers = new Set(blacklist.map(entry => entry.player_name.toLowerCase()));
+    const playerStats = {};
+    const alliances = {};
+    const playerNemesis = {};
+
+    // Process each demo to calculate player statistics
+    for (const demo of demos) {
+      try {
+        let playersData = [];
+        if (demo.players) {
+          const parsedData = JSON.parse(demo.players);
+          if (typeof parsedData === 'object') {
+            // Handle different structures
+            if (Array.isArray(parsedData.players)) {
+              playersData = parsedData.players;
+            } else if (Array.isArray(parsedData)) {
+              playersData = parsedData;
+            }
+          }
+        }
+
+        if (playersData.length < 2) continue;
+
+        // Check if using alliances
+        const usingAlliances = playersData.some(player => player.alliance !== undefined);
+
+        // Calculate team/alliance scores
+        const groupScores = {};
+        playersData.forEach(player => {
+          const groupId = usingAlliances ? player.alliance : player.team;
+          if (groupId === undefined) return;
+
+          if (!groupScores[groupId]) {
+            groupScores[groupId] = 0;
+          }
+          groupScores[groupId] += player.score || 0;
+        });
+
+        // Find the winning team/alliance
+        const sortedGroups = Object.entries(groupScores)
+          .sort((a, b) => b[1] - a[1]);
+
+        const isTie = sortedGroups.length >= 2 && sortedGroups[0][1] === sortedGroups[1][1];
+        const winningGroupId = isTie ? null : Number(sortedGroups[0][0]);
+
+        for (const player of playersData) {
+          if (!player.name) continue;
+
+          if (blacklistedPlayers.has(player.name.toLowerCase())) continue;
+
+          const groupId = usingAlliances ? player.alliance : player.team;
+          if (groupId === undefined) continue;
+
+          // Determine if the player is on the winning team
+          const isWinner = !isTie && groupId === winningGroupId;
+          const isTieGame = isTie;
+
+          // Create player entry if it doesn't exist
+          if (!playerStats[player.name]) {
+            playerStats[player.name] = {
+              player_name: player.name,
+              key_id: player.key_id || 'DEMO',
+              games_played: 0,
+              wins: 0,
+              losses: 0,
+              ties: 0,
+              total_score: 0,
+              highest_score: 0,
+              avg_score: 0,
+              games_by_server: {},
+              territories: {},
+              last_game_date: null,
+              nemesis_data: {}
+            };
+          }
+
+          const stats = playerStats[player.name];
+          stats.games_played++;
+
+          if (isTieGame) {
+            stats.ties++;
+          } else if (isWinner) {
+            stats.wins++;
+          } else {
+            stats.losses++;
+
+            // Track nemesis data - who beat this player
+            if (!isTie && groupId !== winningGroupId) {
+              const winningPlayers = playersData.filter(p => {
+                const pGroupId = usingAlliances ? p.alliance : p.team;
+                return pGroupId === winningGroupId;
+              });
+
+              // Record loss against each winning player
+              winningPlayers.forEach(winner => {
+                if (!winner.name || winner.name === player.name) return;
+
+                if (!stats.nemesis_data[winner.name]) {
+                  stats.nemesis_data[winner.name] = 0;
+                }
+                stats.nemesis_data[winner.name]++;
+              });
+            }
+          }
+
+          stats.total_score += player.score || 0;
+          stats.highest_score = Math.max(stats.highest_score, player.score || 0);
+          stats.avg_score = stats.total_score / stats.games_played;
+
+          const serverType = demo.game_type || 'Unknown';
+          stats.games_by_server[serverType] = (stats.games_by_server[serverType] || 0) + 1;
+
+          if (player.territory) {
+            if (!stats.territories[player.territory]) {
+              stats.territories[player.territory] = {
+                games: 0,
+                wins: 0,
+                losses: 0,
+                ties: 0,
+                score: 0
+              };
+            }
+
+            const terrStats = stats.territories[player.territory];
+            terrStats.games++;
+            terrStats.score += player.score || 0;
+
+            if (isTieGame) {
+              terrStats.ties++;
+            } else if (isWinner) {
+              terrStats.wins++;
+            } else {
+              terrStats.losses++;
+            }
+          }
+
+          // Track most recent game
+          const gameDate = new Date(demo.date);
+          if (!stats.last_game_date || gameDate > new Date(stats.last_game_date)) {
+            stats.last_game_date = demo.date;
+          }
+
+          // Track alliance information
+          if (usingAlliances) {
+            if (!alliances[groupId]) {
+              alliances[groupId] = {
+                id: groupId,
+                total_games: 0,
+                total_wins: 0,
+                players: new Set()
+              };
+            }
+
+            alliances[groupId].players.add(player.name);
+            alliances[groupId].total_games++;
+
+            if (isWinner) {
+              alliances[groupId].total_wins++;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error processing demo data for leaderboard:', error);
+      }
+    }
+
+    // Calculate additional stats
+    Object.values(playerStats).forEach(player => {
+      player.win_ratio = (player.wins / player.games_played) * 100 || 0;
+      player.weighted_score = player.wins * (player.wins / (player.games_played || 1));
+
+      if (Object.keys(player.territories).length > 0) {
+        let bestTerritoryRatio = -1;
+        let worstTerritoryRatio = 101;
+        let bestTerritory = null;
+        let worstTerritory = null;
+
+        Object.entries(player.territories).forEach(([territory, stats]) => {
+          if (stats.games >= 3) {
+            const winRatio = (stats.wins / stats.games) * 100;
+
+            if (winRatio > bestTerritoryRatio) {
+              bestTerritoryRatio = winRatio;
+              bestTerritory = territory;
+            }
+
+            if (winRatio < worstTerritoryRatio) {
+              worstTerritoryRatio = winRatio;
+              worstTerritory = territory;
+            }
+          }
+        });
+
+        player.best_territory = bestTerritory;
+        player.worst_territory = worstTerritory;
+      }
+
+      if (Object.keys(player.nemesis_data).length > 0) {
+        let maxLosses = 0;
+        let archNemesis = null;
+
+        Object.entries(player.nemesis_data).forEach(([opponent, losses]) => {
+          if (losses > maxLosses) {
+            maxLosses = losses;
+            archNemesis = opponent;
+          }
+        });
+
+        player.arch_nemesis = archNemesis;
+        player.nemesis_losses = maxLosses;
+      }
+    });
+
+    let leaderboardData = Object.values(playerStats);
+
+    // Filter by minimum games played
+    if (minGames > 1) {
+      leaderboardData = leaderboardData.filter(player => player.games_played >= minGames);
+    }
+
+    if (scoreFilter) {
+      leaderboardData.sort((a, b) => scoreFilter === 'highest'
+        ? b.highest_score - a.highest_score
+        : a.highest_score - b.highest_score);
+    } else if (gameDuration) {
+      // This would need more logic to track game durations per player
+      console.log('Game duration filter not implemented for leaderboard');
+    } else {
+      switch (sortBy) {
+        case 'wins':
+          leaderboardData.sort((a, b) => b.wins - a.wins || b.total_score - a.total_score || a.player_name.localeCompare(b.player_name));
+          break;
+        case 'gamesPlayed':
+          leaderboardData.sort((a, b) => b.games_played - a.games_played || b.wins - a.wins || a.player_name.localeCompare(b.player_name));
+          break;
+        case 'totalScore':
+          leaderboardData.sort((a, b) => b.total_score - a.total_score || b.wins - a.wins || a.player_name.localeCompare(b.player_name));
+          break;
+        case 'highestScore':
+          leaderboardData.sort((a, b) => b.highest_score - a.highest_score || a.player_name.localeCompare(b.player_name));
+          break;
+        case 'avgScore':
+          leaderboardData.sort((a, b) => b.avg_score - a.avg_score || a.player_name.localeCompare(b.player_name));
+          break;
+        case 'winRatio':
+          leaderboardData.sort((a, b) => b.win_ratio - a.win_ratio || a.player_name.localeCompare(b.player_name));
+          break;
+        case 'weightedScore':
+          leaderboardData.sort((a, b) => b.weighted_score - a.weighted_score || a.player_name.localeCompare(b.player_name));
+          break;
+        case 'recent':
+          leaderboardData.sort((a, b) => new Date(b.last_game_date) - new Date(a.last_game_date));
+          break;
+        default:
+          leaderboardData.sort((a, b) => b.wins - a.wins || b.total_score - a.total_score || a.player_name.localeCompare(b.player_name));
+      }
+    }
+
+    leaderboardData.forEach((player, index) => {
+      player.absolute_rank = index + 1;
+    });
+
+    const rankedLeaderboard = await Promise.all(leaderboardData.map(async (player) => {
       if (player.player_name) {
         const [userProfile] = await pool.query(`
           SELECT u.username 
@@ -1761,89 +1904,166 @@ app.get('/api/leaderboard', async (req, res) => {
       return player;
     }));
 
-    res.json(updatedLeaderboard);
-  } catch (error) {
-    console.error('Error fetching leaderboard:', error);
-    res.status(500).json({ error: 'Unable to fetch leaderboard' });
-  }
-});
-
-// updating a players data on the admin page for the leaderboard
-app.put('/api/leaderboard/:playerId', authenticateToken, checkRole(5), async (req, res) => {
-  const { playerId } = req.params;
-  const { player_name, games_played, wins, losses, total_score } = req.body;
-
-  try {
-    const [oldData] = await pool.query('SELECT * FROM leaderboard WHERE id = ?', [playerId]);
-    const [result] = await pool.query('UPDATE leaderboard SET player_name = ?, games_played = ?, wins = ?, losses = ?, total_score = ? WHERE id = ?',
-      [player_name, games_played, wins, losses, total_score, playerId]);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Player not found' });
+    // Filter out excluded names before returning
+    if (namesToExclude.length > 0) {
+      leaderboardData = leaderboardData.filter(player =>
+        !namesToExclude.includes(player.player_name)
+      );
     }
 
-    console.log(`${req.user.username} edited leaderboard entry:
-      Player ID: ${playerId}
-      Old data: ${JSON.stringify(oldData[0], null, 2)}
-      New data: ${JSON.stringify({ player_name, games_played, wins, losses, total_score }, null, 2)}`);
-
-    res.json({ message: 'Player data updated successfully' });
-  } catch (error) {
-    console.error('Error updating player data:', error.message);
-    res.status(500).json({ error: 'Unable to update player data' });
-  }
-});
-
-// fetches players from the database for the leaderboard page and admin panel
-app.get('/api/leaderboard/:playerId', async (req, res) => {
-  const { playerId } = req.params;
-
-  try {
-    const [rows] = await pool.query('SELECT * FROM leaderboard WHERE id = ?', [playerId]);
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'Player not found' });
+    // Apply limit if specified
+    if (limit && !isNaN(parseInt(limit))) {
+      leaderboardData = leaderboardData.slice(0, parseInt(limit));
     }
-    res.json(rows[0]);
+
+    // If not requesting detailed stats, remove nemesis data to reduce payload size
+    if (includeDetailedStats !== 'true') {
+      leaderboardData.forEach(player => {
+        delete player.nemesis_data;
+      });
+    }
+
+    // Return the filtered data
+    res.json({
+      leaderboard: leaderboardData,
+      totalPlayers: leaderboardData.length,
+      filters: {
+        serverName,
+        serverList,
+        playerName,
+        territories,
+        startDate,
+        endDate,
+        minGames
+      }
+    });
   } catch (error) {
-    console.error('Error fetching player data:', error);
-    res.status(500).json({ error: 'Unable to fetch player data' });
+    console.error('Error generating leaderboard from demos:', error);
+    res.status(500).json({ error: 'Unable to generate leaderboard' });
   }
 });
 
-// route to remove a player from the leaderboard from the admin panel
-app.delete('/api/leaderboard/:playerId', authenticateToken, checkRole(1), async (req, res) => {
-  const { playerId } = req.params;
-
+app.get('/api/player-nemesis', async (req, res) => {
   try {
-    const [playerData] = await pool.query('SELECT player_name FROM leaderboard WHERE id = ?', [playerId]);
-    await pool.query('DELETE FROM leaderboard WHERE id = ?', [playerId]);
-    console.log(`${req.user.username} removed player from leaderboard: ${playerData[0].player_name} (ID: ${playerId})`);
-    res.json({ message: 'Player removed from leaderboard successfully' });
+    const { playerName, startDate, endDate } = req.query;
+
+    if (!playerName) {
+      return res.status(400).json({ error: 'Player name is required' });
+    }
+
+    // Build query conditions
+    let conditions = ['(player1_name = ? OR player2_name = ? OR player3_name = ? OR player4_name = ? OR ' +
+      'player5_name = ? OR player6_name = ? OR player7_name = ? OR player8_name = ? OR ' +
+      'player9_name = ? OR player10_name = ?)'];
+    let params = Array(10).fill(playerName);
+
+    // Add date filters if provided
+    if (startDate && endDate) {
+      conditions.push('date BETWEEN ? AND ?');
+      params.push(startDate, endDate);
+    } else if (startDate) {
+      conditions.push('date >= ?');
+      params.push(startDate);
+    } else if (endDate) {
+      conditions.push('date <= ?');
+      params.push(endDate);
+    }
+
+    // Get all games the player participated in
+    const query = `SELECT * FROM demos WHERE ${conditions.join(' AND ')}`;
+    const [demos] = await pool.query(query, params);
+
+    // Process demos to find nemesis
+    const opponentLosses = {};
+
+    for (const demo of demos) {
+      try {
+        // Parse player data
+        let playersData = [];
+        if (demo.players) {
+          const parsedData = JSON.parse(demo.players);
+          if (typeof parsedData === 'object') {
+            // Handle different structures
+            if (Array.isArray(parsedData.players)) {
+              playersData = parsedData.players;
+            } else if (Array.isArray(parsedData)) {
+              playersData = parsedData;
+            }
+          }
+        }
+
+        if (playersData.length < 2) continue; // Skip invalid data
+
+        // Find the player and their team/alliance
+        const playerInfo = playersData.find(p => p.name === playerName);
+        if (!playerInfo) continue;
+
+        const usingAlliances = playersData.some(player => player.alliance !== undefined);
+        const playerGroupId = usingAlliances ? playerInfo.alliance : playerInfo.team;
+
+        // Calculate team/alliance scores
+        const groupScores = {};
+        playersData.forEach(player => {
+          const groupId = usingAlliances ? player.alliance : player.team;
+          if (groupId === undefined) return;
+
+          if (!groupScores[groupId]) {
+            groupScores[groupId] = 0;
+          }
+          groupScores[groupId] += player.score || 0;
+        });
+
+        // Find the winning team/alliance
+        const sortedGroups = Object.entries(groupScores)
+          .sort((a, b) => b[1] - a[1]);
+
+        const isTie = sortedGroups.length >= 2 && sortedGroups[0][1] === sortedGroups[1][1];
+        const winningGroupId = isTie ? null : Number(sortedGroups[0][0]);
+
+        // Did the player lose?
+        if (!isTie && playerGroupId !== winningGroupId) {
+          // Find players on the winning team
+          const winningPlayers = playersData.filter(p => {
+            const pGroupId = usingAlliances ? p.alliance : p.team;
+            return pGroupId === winningGroupId;
+          });
+
+          // Record loss against each winning player
+          winningPlayers.forEach(winner => {
+            if (!winner.name || winner.name === playerName) return;
+
+            if (!opponentLosses[winner.name]) {
+              opponentLosses[winner.name] = 0;
+            }
+            opponentLosses[winner.name]++;
+          });
+        }
+      } catch (error) {
+        console.error('Error processing demo for nemesis:', error);
+      }
+    }
+
+    // Find the nemesis (opponent with most wins against the player)
+    let nemesis = null;
+    let maxLosses = 0;
+
+    Object.entries(opponentLosses).forEach(([opponent, losses]) => {
+      if (losses > maxLosses) {
+        nemesis = opponent;
+        maxLosses = losses;
+      }
+    });
+
+    res.json({
+      playerName,
+      nemesis: nemesis || 'None',
+      lossCount: maxLosses,
+      allOpponents: opponentLosses
+    });
+
   } catch (error) {
-    console.error('Error removing player from leaderboard:', error);
-    res.status(500).json({ error: 'Unable to remove player from leaderboard' });
-  }
-});
-
-// adding a new player to the leaderboard from the admin panel
-app.post('/api/leaderboard', authenticateToken, checkRole(5), async (req, res) => {
-  const { player_name, games_played, wins, losses, total_score } = req.body;
-
-  if (!player_name || games_played == null || wins == null || losses == null || total_score == null) {
-    return res.status(400).json({ error: 'All fields are required' });
-  }
-
-  try {
-    const [result] = await pool.query(
-      'INSERT INTO leaderboard (player_name, games_played, wins, losses, total_score) VALUES (?, ?, ?, ?, ?)',
-      [player_name, games_played, wins, losses, total_score]
-    );
-    console.log(`${req.user.username} added player to leaderboard:
-      ${JSON.stringify({ player_name, games_played, wins, losses, total_score }, null, 2)}`);
-    res.json({ message: 'Player added to leaderboard successfully', id: result.insertId });
-  } catch (error) {
-    console.error('Error adding player to leaderboard:', error.message);
-    res.status(500).json({ error: 'Unable to add player to leaderboard' });
+    console.error('Error fetching player nemesis:', error);
+    res.status(500).json({ error: 'Unable to fetch nemesis data' });
   }
 });
 
@@ -1917,10 +2137,13 @@ app.get('/api/all-demos', authenticateToken, checkRole(5), async (req, res) => {
 
 app.get('/api/games-timeline', async (req, res) => {
   try {
-    const { graphType = 'individualServers', playerName } = req.query;
+    const { graphType = 'individualServers', playerName, startDate, endDate } = req.query;
+    
+    // Log all parameters to help with debugging
+    console.log('API Parameters:', { graphType, playerName, startDate, endDate });
 
     // Base query for all types
-    let query = `SELECT date, game_type, duration, players`; 
+    let query = `SELECT date, game_type, duration, players`;
 
     // Add territory columns for territory stats
     for (let i = 1; i <= 10; i++) {
@@ -1928,6 +2151,7 @@ app.get('/api/games-timeline', async (req, res) => {
     }
 
     let queryParams = [];
+    let conditions = [];
 
     let baseQuery = ` FROM demos WHERE game_type IN (
       'New Player Server',
@@ -1955,19 +2179,41 @@ app.get('/api/games-timeline', async (req, res) => {
     )`;
 
     query += baseQuery;
-
+    
     // Add player name filter if provided
     if (playerName) {
-      query += ` AND (player1_name LIKE ? OR player2_name LIKE ? OR player3_name LIKE ? 
+      conditions.push(`(player1_name LIKE ? OR player2_name LIKE ? OR player3_name LIKE ? 
                      OR player4_name LIKE ? OR player5_name LIKE ? OR player6_name LIKE ? 
                      OR player7_name LIKE ? OR player8_name LIKE ? OR player9_name LIKE ? 
-                     OR player10_name LIKE ?)`;
-      queryParams = Array(10).fill(`%${playerName}%`);
+                     OR player10_name LIKE ?)`);
+      for (let i = 0; i < 10; i++) {
+        queryParams.push(`%${playerName}%`);
+      }
+    }
+    
+    // Add date range filters if provided
+    if (startDate) {
+      conditions.push('date >= ?');
+      queryParams.push(startDate);
+    }
+    
+    if (endDate) {
+      conditions.push('date <= ?');
+      queryParams.push(endDate);
+    }
+    
+    // Add conditions to query
+    if (conditions.length > 0) {
+      query += ` AND ${conditions.join(' AND ')}`;
     }
 
     query += ` ORDER BY date ASC`;
+    
+    console.log('Generated SQL Query:', query);
+    console.log('Query Parameters:', queryParams);
 
     const [rows] = await pool.query(query, queryParams);
+    console.log(`Found ${rows.length} rows matching criteria`);
 
     // Process data based on graph type
     let chartData;
@@ -1990,7 +2236,8 @@ app.get('/api/games-timeline', async (req, res) => {
         break;
 
       case '1v1setupStatistics':
-        chartData = process1v1SetupData(rows);
+        // Pass date parameters to the processing function
+        chartData = process1v1SetupData(rows, { startDate, endDate });
         break;
     }
 
@@ -2022,23 +2269,121 @@ function processCombinedServersData(rows) {
 
 function processTotalHoursData(rows) {
   const gamesByDate = {};
+  const serverTypeMapping = {
+    'New Player Server': 'new_player',
+    'New Player Server - Training Game': 'training',
+    'DefconExpanded | 1v1 | Totally Random': 'defcon_random',
+    'DefconExpanded | 1V1 | Best Setups Only!': 'defcon_best',
+    'DefconExpanded | 1v1 | AF vs AS | Totally Random': 'defcon_afas',
+    'DefconExpanded | 1v1 | EU vs SA | Totally Random': 'defcon_eusa',
+    'DefconExpanded | 1v1 | Default': 'defcon_default',
+    'DefconExpanded | 2v2 | Totally Random': 'defcon_2v2',
+    '2v2 Tournament': 'tournament_2v2',
+    'DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random': 'defcon_2v2_special',
+    'Mojo\'s 2v2 Arena - Quick Victory': 'mojo_2v2',
+    'Sony and Hoov\'s Hideout': 'sony_hoov',
+    'DefconExpanded | 3v3 | Totally Random': 'defcon_3v3',
+    'MURICON | 1v1 Default | 2.8.15': 'muricon',
+    '509 CG | 2v2 | Totally Random | 2.8.15': 'cg_2v2_2815',
+    '509 CG | 2v2 | Totally Random | 2.8.14.1': 'cg_2v2_28141',
+    '509 CG | 1v1 | Totally Random | 2.8.15': 'cg_1v1_2815',
+    '509 CG | 1v1 | Totally Random | 2.8.14.1': 'cg_1v1_28141',
+    'DefconExpanded | Free For All | Random Cities': 'defcon_ffa',
+    'DefconExpanded | 8 Player | Diplomacy': 'defcon_8p_diplo',
+    'DefconExpanded | 8 Player | Diplomacy ': 'defcon_8p_diplo', 
+    'DefconExpanded | 4V4 | Totally Random': 'defcon_4v4',
+    'DefconExpanded | 10 Player | Diplomacy': 'defcon_10p_diplo'
+  };
+
+  // Diagnostic counters
+  const diagnostics = {
+    totalGames: rows.length,
+    gamesByType: {},
+    gamesWithDuration: 0,
+    gamesWithoutDuration: 0,
+    unknownGameTypes: [],
+    totalHoursByType: {}
+  };
+
+  // Initialize counters for each game type
+  Object.keys(serverTypeMapping).forEach(type => {
+    diagnostics.gamesByType[type] = 0;
+    diagnostics.totalHoursByType[type] = 0;
+  });
+
+  // Create a case-insensitive lookup
+  const caseInsensitiveMapping = {};
+  Object.keys(serverTypeMapping).forEach(key => {
+    caseInsensitiveMapping[key.toLowerCase()] = {
+      originalKey: key,
+      serverKey: serverTypeMapping[key]
+    };
+  });
 
   rows.forEach(row => {
     const date = new Date(row.date).toISOString().split('T')[0];
+
+    // Find the game type using case-insensitive matching
+    let serverKey = 'unknown';
+    let originalGameType = '';
+
+    if (row.game_type) {
+      const lookup = caseInsensitiveMapping[row.game_type.toLowerCase()];
+      if (lookup) {
+        serverKey = lookup.serverKey;
+        originalGameType = lookup.originalKey;
+        diagnostics.gamesByType[originalGameType]++;
+      } else {
+        // Unknown game type
+        diagnostics.unknownGameTypes.push(row.game_type);
+        console.warn(`Unknown game type: "${row.game_type}"`);
+      }
+    }
 
     if (!gamesByDate[date]) {
       gamesByDate[date] = {
         date,
         totalHours: 0
       };
+
+      // Initialize all server types with 0 hours
+      Object.values(serverTypeMapping).forEach(key => {
+        gamesByDate[date][key] = 0;
+      });
     }
 
     if (row.duration) {
-      const [hours, minutes, seconds] = row.duration.split(':');
-      const totalHours = parseFloat(hours) + parseFloat(minutes) / 60 + parseFloat(seconds.split('.')[0]) / 3600;
-      gamesByDate[date].totalHours += totalHours;
+      diagnostics.gamesWithDuration++;
+      try {
+        // Make sure to handle potential bad duration formats
+        const [hours, minutes, seconds] = row.duration.split(':');
+        const h = parseFloat(hours) || 0;
+        const m = parseFloat(minutes) || 0;
+        const s = parseFloat((seconds || '0').split('.')[0]) || 0;
+
+        const totalHours = h + m / 60 + s / 3600;
+
+        // Add to both total and server-specific hours
+        gamesByDate[date].totalHours += totalHours;
+        gamesByDate[date][serverKey] += totalHours;
+
+        // Track total hours by game type for diagnostics
+        if (originalGameType) {
+          diagnostics.totalHoursByType[originalGameType] += totalHours;
+        }
+      } catch (error) {
+        console.error('Error parsing duration:', row.duration, error);
+      }
+    } else {
+      diagnostics.gamesWithoutDuration++;
     }
   });
+
+  // Count unique unknown game types
+  const uniqueUnknown = [...new Set(diagnostics.unknownGameTypes)];
+  if (uniqueUnknown.length > 0) {
+    console.log('Unknown game types:', uniqueUnknown);
+  }
 
   return Object.values(gamesByDate);
 }
@@ -2086,89 +2431,100 @@ function processTerritoriesData(rows) {
   return Object.values(gamesByDate);
 }
 
-function process1v1SetupData(rows) {
+function process1v1SetupData(rows, options = {}) {
+  const { startDate, endDate } = options;
   const setupStats = {};
 
+  // Parse date range if provided
+  const parsedStartDate = startDate ? new Date(startDate) : null;
+  const parsedEndDate = endDate ? new Date(endDate) : null;
+
   rows.forEach(row => {
-      let gameData = { players: [], spectators: [] };
-      try {
-          if (!row.players) return;
-          
-          const parsedData = JSON.parse(row.players);
-          if (typeof parsedData === 'object') {
-              if (parsedData.players && Array.isArray(parsedData.players)) {
-                  gameData.players = parsedData.players;
-              } else if (Array.isArray(parsedData)) {
-                  gameData.players = parsedData;
-              } else {
-                  return;
-              }
-          }
+    const rowDate = new Date(row.date);
 
-          // Make sure it's a valid 1v1 game
-          if (gameData.players.length !== 2) return;
+    // Date range filtering
+    if (parsedStartDate && rowDate < parsedStartDate) return;
+    if (parsedEndDate && rowDate > parsedEndDate) return;
 
-          const [player1, player2] = gameData.players;
-          if (!player1?.territory || !player2?.territory || 
-              player1.score === undefined || player2.score === undefined) {
-              return;
-          }
+    let gameData = { players: [], spectators: [] };
+    try {
+      if (!row.players) return;
 
-          // Create setup key (territories alphabetically ordered)
-          const territories = [player1.territory, player2.territory].sort();
-          const setupKey = territories.join('_vs_');
-
-          if (!setupStats[setupKey]) {
-              setupStats[setupKey] = {
-                  date: new Date(row.date).toISOString().split('T')[0],
-                  total_games: 0,
-                  territories: territories,
-                  [territories[0]]: 0,
-                  [territories[1]]: 0,
-                  total_duration: 0,
-                  average_score_diff: 0,
-                  games_with_score: 0
-              };
-          }
-
-          setupStats[setupKey].total_games++;
-
-          // Track winner
-          const winner = player1.score > player2.score ? player1 : player2;
-          setupStats[setupKey][winner.territory]++;
-
-          // Track duration if available
-          if (row.duration) {
-              const [hours, minutes, seconds] = row.duration.split(':');
-              const durationInMinutes = (parseFloat(hours) * 60) + parseFloat(minutes) + (parseFloat(seconds) / 60);
-              setupStats[setupKey].total_duration += durationInMinutes;
-          }
-
-          // Track score differences
-          const scoreDiff = Math.abs(player1.score - player2.score);
-          setupStats[setupKey].average_score_diff = 
-              ((setupStats[setupKey].average_score_diff * setupStats[setupKey].games_with_score) + scoreDiff) / 
-              (setupStats[setupKey].games_with_score + 1);
-          setupStats[setupKey].games_with_score++;
-
-      } catch (error) {
-          console.error('Error processing 1v1 game:', error);
-          console.log('Problematic row:', row);
+      const parsedData = JSON.parse(row.players);
+      if (typeof parsedData === 'object') {
+        if (parsedData.players && Array.isArray(parsedData.players)) {
+          gameData.players = parsedData.players;
+        } else if (Array.isArray(parsedData)) {
+          gameData.players = parsedData;
+        } else {
+          return;
+        }
       }
+
+      // Make sure it's a valid 1v1 game
+      if (gameData.players.length !== 2) return;
+
+      const [player1, player2] = gameData.players;
+      if (!player1?.territory || !player2?.territory ||
+        player1.score === undefined || player2.score === undefined) {
+        return;
+      }
+
+      // Create setup key (territories alphabetically ordered)
+      const territories = [player1.territory, player2.territory].sort();
+      const setupKey = territories.join('_vs_');
+
+      if (!setupStats[setupKey]) {
+        setupStats[setupKey] = {
+          date: new Date(row.date).toISOString().split('T')[0],
+          total_games: 0,
+          territories: territories,
+          [territories[0]]: 0,
+          [territories[1]]: 0,
+          total_duration: 0,
+          average_score_diff: 0,
+          games_with_score: 0
+        };
+      }
+
+      setupStats[setupKey].total_games++;
+
+      // Track winner
+      const winner = player1.score > player2.score ? player1 : player2;
+      setupStats[setupKey][winner.territory]++;
+
+      // Track duration if available
+      if (row.duration) {
+        const [hours, minutes, seconds] = row.duration.split(':');
+        const durationInMinutes = (parseFloat(hours) * 60) + parseFloat(minutes) + (parseFloat(seconds) / 60);
+        setupStats[setupKey].total_duration += durationInMinutes;
+      }
+
+      // Track score differences
+      const scoreDiff = Math.abs(player1.score - player2.score);
+      setupStats[setupKey].average_score_diff =
+        ((setupStats[setupKey].average_score_diff * setupStats[setupKey].games_with_score) + scoreDiff) /
+        (setupStats[setupKey].games_with_score + 1);
+      setupStats[setupKey].games_with_score++;
+
+    } catch (error) {
+      console.error('Error processing 1v1 game:', error);
+      console.log('Problematic row:', row);
+    }
   });
 
   // Convert to array and calculate final stats
   const sortedSetups = Object.entries(setupStats)
-      .map(([key, stats]) => ({
-          setup: key,
-          ...stats,
-          average_duration: stats.total_duration / stats.total_games,
-          win_rate: {
-              [stats.territories[0]]: ((stats[stats.territories[0]] / stats.total_games) * 100).toFixed(2) + '%',
-              [stats.territories[1]]: ((stats[stats.territories[1]] / stats.total_games) * 100).toFixed(2) + '%'
-          }
-      }))
-      .sort((a, b) => b.total_games - a.total_games);
+    .map(([key, stats]) => ({
+      setup: key,
+      ...stats,
+      average_duration: stats.total_duration / stats.total_games,
+      win_rate: {
+        [stats.territories[0]]: ((stats[stats.territories[0]] / stats.total_games) * 100).toFixed(2) + '%',
+        [stats.territories[1]]: ((stats[stats.territories[1]] / stats.total_games) * 100).toFixed(2) + '%'
+      }
+    }))
+    .sort((a, b) => b.total_games - a.total_games);
 
   return sortedSetups;
 }
@@ -2611,40 +2967,6 @@ app.delete('/api/demo/:demoId', authenticateToken, checkRole(1), async (req, res
       return res.status(404).json({ error: 'Demo not found' });
     }
 
-    if (demoData[0].game_type && demoData[0].game_type.toLowerCase().includes('1v1')) {
-      try {
-        const playersData = JSON.parse(demoData[0].players);
-        const players = Array.isArray(playersData) ? playersData : (playersData.players || []);
-
-        if (players.length === 2) {
-          const winner = players.reduce((a, b) => (a.score > b.score ? a : b));
-          const loser = players.find(p => p !== winner);
-
-          if (winner && loser) {
-            await pool.query(`
-              UPDATE leaderboard 
-              SET games_played = games_played - 1,
-                  wins = GREATEST(0, wins - 1),
-                  total_score = GREATEST(0, total_score - ?)
-              WHERE player_name = ?
-            `, [winner.score > 0 ? winner.score : 0, winner.name]);
-
-            await pool.query(`
-              UPDATE leaderboard 
-              SET games_played = games_played - 1,
-                  losses = GREATEST(0, losses - 1),
-                  total_score = GREATEST(0, total_score - ?)
-              WHERE player_name = ?
-            `, [loser.score > 0 ? loser.score : 0, loser.name]);
-
-            console.log(`Leaderboard entries updated for ${winner.name} and ${loser.name}`);
-          }
-        }
-      } catch (error) {
-        console.error('Error processing players data for leaderboard update:', error);
-      }
-    }
-
     await pool.query(
       'INSERT INTO deleted_demos (demo_name, deleted_by) VALUES (?, ?)',
       [demoData[0].name, req.user.id]
@@ -2658,10 +2980,6 @@ app.delete('/api/demo/:demoId', authenticateToken, checkRole(1), async (req, res
 
     console.log(`Demo successfully deleted by ${req.user.username} from IP ${clientIp}:`);
     console.log(JSON.stringify(demoData[0], null, 2));
-
-    if (demoData[0].game_type && demoData[0].game_type.toLowerCase().includes('1v1')) {
-      console.log(`Leaderboard entries have been adjusted for demo deletion (ID: ${req.params.demoId})`);
-    }
 
     res.json({ message: 'Demo and associated data deleted successfully' });
   } catch (error) {
@@ -3845,11 +4163,15 @@ app.get('/api/profile/:username', async (req, res) => {
     };
 
     if (userProfile.defcon_username) {
-      const gamesQuery = `SELECT players FROM demos WHERE players LIKE ?`;
+      const gamesQuery = `SELECT players, duration FROM demos WHERE players LIKE ?`;
       const [games] = await pool.query(gamesQuery, [`%${userProfile.defcon_username}%`]);
 
       let territoryStats = {};
       let highestScore = userProfile.record_score || 0;
+
+      // Calculate average game duration
+      let totalDuration = 0;
+      let gamesWithDuration = 0;
 
       games.forEach(game => {
         try {
@@ -3858,6 +4180,14 @@ app.get('/api/profile/:username', async (req, res) => {
           const playersArray = Array.isArray(parsedData) ? parsedData : (parsedData.players || []);
 
           const userPlayer = playersArray.find(p => p.name === userProfile.defcon_username);
+
+          // Calculate duration for average
+          if (game.duration) {
+            const [hours, minutes] = game.duration.split(':').map(Number);
+            const durationInMinutes = (hours * 60) + minutes;
+            totalDuration += durationInMinutes;
+            gamesWithDuration++;
+          }
 
           if (userPlayer && validTerritories.includes(userPlayer.territory)) {
             const usingAlliances = userPlayer.alliance !== undefined;
@@ -3892,6 +4222,9 @@ app.get('/api/profile/:username', async (req, res) => {
           console.error('Error processing game data:', err);
         }
       });
+
+      // Add average game duration to response
+      responseData.avgGameDuration = gamesWithDuration > 0 ? totalDuration / gamesWithDuration : 0;
 
       // Calculate win/loss ratio
       if (responseData.totalGames > 0) {
@@ -3950,6 +4283,180 @@ app.get('/api/profile/:username', async (req, res) => {
   }
 });
 
+app.get('/api/profile-arch-nemesis', async (req, res) => {
+  try {
+    const { playerName } = req.query;
+
+    if (!playerName) {
+      return res.status(400).json({ error: 'Player name is required' });
+    }
+
+    // Fetch all games involving this player
+    const [demos] = await pool.query(
+      `SELECT * FROM demos 
+       WHERE player1_name = ? OR player2_name = ? OR player3_name = ? OR player4_name = ? OR 
+             player5_name = ? OR player6_name = ? OR player7_name = ? OR player8_name = ? OR 
+             player9_name = ? OR player10_name = ?
+       ORDER BY date DESC`,
+      Array(10).fill(playerName)
+    );
+
+    // Track all interactions with other players
+    const playerInteractions = {};
+
+    // Process each demo
+    for (const demo of demos) {
+      try {
+        // Parse players data
+        let playersData = [];
+
+        if (demo.players) {
+          let parsedData;
+
+          try {
+            parsedData = JSON.parse(demo.players);
+          } catch (parseError) {
+            console.error('JSON parse error:', parseError);
+            continue;
+          }
+
+          if (parsedData && typeof parsedData === 'object') {
+            // Handle different data structures
+            if (Array.isArray(parsedData.players)) {
+              playersData = parsedData.players;
+            } else if (Array.isArray(parsedData)) {
+              playersData = parsedData;
+            }
+          }
+        }
+
+        if (playersData.length < 2) continue;
+
+        // Find the player in this game
+        const userPlayer = playersData.find(p => p.name === playerName);
+        if (!userPlayer) continue;
+
+        // Determine if alliances are being used
+        const usingAlliances = playersData.some(p => p.alliance !== undefined);
+        const userGroupId = usingAlliances ? userPlayer.alliance : userPlayer.team;
+
+        if (userGroupId === undefined) continue; // Skip if player has no team/alliance
+
+        // Calculate team scores
+        const groupScores = {};
+        playersData.forEach(player => {
+          const groupId = usingAlliances ? player.alliance : player.team;
+          if (groupId === undefined) return;
+
+          if (!groupScores[groupId]) {
+            groupScores[groupId] = 0;
+          }
+          groupScores[groupId] += player.score || 0;
+        });
+
+        // Sort teams by score
+        const sortedGroups = Object.entries(groupScores).sort((a, b) => b[1] - a[1]);
+        const isTie = sortedGroups.length >= 2 && sortedGroups[0][1] === sortedGroups[1][1];
+
+        // Determine winning team
+        let winningGroupId = null;
+        if (!isTie && sortedGroups.length > 0) {
+          winningGroupId = Number(sortedGroups[0][0]);
+        }
+
+        // Determine if user's team won
+        const userTeamWon = winningGroupId !== null && userGroupId === winningGroupId;
+
+        // Process each opponent
+        playersData.forEach(opponent => {
+          if (opponent.name === playerName) return; // Skip self
+
+          const opponentGroupId = usingAlliances ? opponent.alliance : opponent.team;
+          if (opponentGroupId === undefined) return; // Skip if opponent has no team/alliance
+
+          // Initialize opponent record if needed
+          if (!playerInteractions[opponent.name]) {
+            playerInteractions[opponent.name] = {
+              games: 0,
+              wins: 0,
+              losses: 0,
+              sameTeam: 0,
+              ties: 0,
+              otherOutcomes: 0
+            };
+          }
+
+          // Always increment games played
+          playerInteractions[opponent.name].games++;
+
+          // Determine relationship and outcome
+          if (opponentGroupId === userGroupId) {
+            // On same team
+            playerInteractions[opponent.name].sameTeam++;
+          } else if (isTie) {
+            // Game was a tie
+            playerInteractions[opponent.name].ties++;
+          } else if (userTeamWon) {
+            // User's team won - count as win against this opponent
+            playerInteractions[opponent.name].wins++;
+          } else if (opponentGroupId === winningGroupId) {
+            // Opponent's team won - count as loss to this opponent
+            playerInteractions[opponent.name].losses++;
+          } else {
+            // Neither player's team won (3rd team won)
+            playerInteractions[opponent.name].otherOutcomes++;
+          }
+        });
+
+      } catch (error) {
+        console.error('Error processing demo for arch nemesis:', error);
+      }
+    }
+
+    // Determine the arch nemesis (player with most games against the user)
+    let archNemesis = null;
+    let maxGames = 0;
+    let nemesisWins = 0;
+    let nemesisLosses = 0;
+    let totalGames = 0;
+    let sameTeamGames = 0;
+    let tieGames = 0;
+    let otherOutcomes = 0;
+
+    Object.entries(playerInteractions).forEach(([opponent, record]) => {
+      // Only consider if they have at least 3 games together
+      if (record.games >= 3 && record.games > maxGames) {
+        archNemesis = opponent;
+        maxGames = record.games;
+        nemesisWins = record.wins;
+        nemesisLosses = record.losses;
+        totalGames = record.games;
+        sameTeamGames = record.sameTeam;
+        tieGames = record.ties;
+        otherOutcomes = record.otherOutcomes;
+      }
+    });
+
+    res.json({
+      playerName,
+      archNemesis: archNemesis || 'None yet',
+      gamesPlayed: totalGames,
+      userWins: nemesisWins,
+      userLosses: nemesisLosses,
+      sameTeamGames,
+      tieGames,
+      otherOutcomes,
+      debug: {
+        recordedGames: demos.length,
+        trackedInteractions: Object.keys(playerInteractions).length
+      }
+    });
+
+  } catch (error) {
+    console.error('Error calculating arch nemesis:', error);
+    res.status(500).json({ error: 'Unable to calculate arch nemesis', details: error.message });
+  }
+});
 
 app.get('/api/recent-game/:username', async (req, res) => {
   const { username } = req.params;
@@ -4064,8 +4571,8 @@ router.post('/api/request-password-change', async (req, res) => {
     const changeToken = crypto.randomBytes(32).toString('hex');
     const changeTokenExpiry = Date.now() + 3600000; // Token expires in 1 hour
 
-    // Store the token and its expiry in the user's record
-    await pool.query('UPDATE users SET change_password_token = ?, change_password_token_expiry = ? WHERE id = ?', [changeToken, changeTokenExpiry, user.id]);
+    await pool.query('UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?',
+      [changeToken, changeTokenExpiry, user.id]);
 
     // Generate password change link
     const changeLink = `https://defconexpanded.com/change-password?token=${changeToken}`;
@@ -4094,8 +4601,8 @@ router.post('/api/change-password', async (req, res) => {
   }
 
   try {
-    // Check if the token is valid and not expired
-    const [users] = await pool.query('SELECT * FROM users WHERE change_password_token = ? AND change_password_token_expiry > ?', [token, Date.now()]);
+    const [users] = await pool.query('SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > ?',
+      [token, Date.now()]);
 
     if (users.length === 0) {
       return res.status(400).json({ error: 'Invalid or expired token.' });
@@ -4107,27 +4614,13 @@ router.post('/api/change-password', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    // Update the password and clear the token
-    await pool.query('UPDATE users SET password = ?, change_password_token = NULL, change_password_token_expiry = NULL WHERE id = ?', [hashedPassword, user.id]);
+    await pool.query('UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?',
+      [hashedPassword, user.id]);
 
     res.json({ message: 'Password changed successfully.' });
   } catch (error) {
     console.error('Error changing password:', error);
     res.status(500).json({ error: 'Failed to change password.' });
-  }
-});
-
-app.post('/api/request-leaderboard-name-change', authenticateToken, async (req, res) => {
-  const { newName } = req.body;
-  const userId = req.user.id;
-
-  try {
-    await pool.query('INSERT INTO leaderboard_name_change_requests (user_id, requested_name) VALUES (?, ?)',
-      [userId, newName]);
-    res.json({ message: 'Leaderboard name change request submitted successfully' });
-  } catch (error) {
-    console.error('Error submitting leaderboard name change request:', error);
-    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -4186,12 +4679,6 @@ app.post('/api/request-email-change', authenticateToken, async (req, res) => {
 
 app.get('/api/pending-requests', authenticateToken, checkRole(5), async (req, res) => {
   try {
-    const [nameChangeRequests] = await pool.query(`
-          SELECT lnc.*, u.username
-          FROM leaderboard_name_change_requests lnc
-          JOIN users u ON u.id = lnc.user_id
-          WHERE lnc.status = "pending"
-      `);
 
     const [blacklistRequests] = await pool.query(`
           SELECT bl.*, u.username
@@ -4222,7 +4709,6 @@ app.get('/api/pending-requests', authenticateToken, checkRole(5), async (req, re
       `);
 
     const allRequests = [
-      ...nameChangeRequests.map(r => ({ ...r, type: 'leaderboard_name_change' })),
       ...blacklistRequests.map(r => ({ ...r, type: 'blacklist' })),
       ...deletionRequests.map(r => ({ ...r, type: 'account_deletion' })),
       ...usernameChangeRequests.map(r => ({ ...r, type: 'username_change' })),
@@ -4239,13 +4725,6 @@ app.get('/api/pending-requests', authenticateToken, checkRole(5), async (req, re
 app.get('/api/user-pending-requests', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id; // Retrieve the user's ID from the token
-
-    const [nameChangeRequests] = await pool.query(`
-      SELECT lnc.*, u.username
-      FROM leaderboard_name_change_requests lnc
-      JOIN users u ON u.id = lnc.user_id
-      WHERE lnc.user_id = ?
-    `, [userId]);
 
     const [blacklistRequests] = await pool.query(`
       SELECT bl.*, u.username
@@ -4276,7 +4755,6 @@ app.get('/api/user-pending-requests', authenticateToken, async (req, res) => {
     `, [userId]);
 
     const userRequests = [
-      ...nameChangeRequests.map(r => ({ ...r, type: 'leaderboard_name_change' })),
       ...blacklistRequests.map(r => ({ ...r, type: 'blacklist' })),
       ...deletionRequests.map(r => ({ ...r, type: 'account_deletion' })),
       ...usernameChangeRequests.map(r => ({ ...r, type: 'username_change' })),
@@ -4298,9 +4776,6 @@ app.put('/api/resolve-request/:requestId/:requestType', authenticateToken, check
   try {
     let tableName;
     switch (requestType) {
-      case 'leaderboard_name_change':
-        tableName = 'leaderboard_name_change_requests';
-        break;
       case 'blacklist':
         tableName = 'blacklist_requests';
         break;
@@ -4321,9 +4796,6 @@ app.put('/api/resolve-request/:requestId/:requestType', authenticateToken, check
 
     if (status === 'approved') {
       switch (requestType) {
-        case 'leaderboard_name_change':
-          console.log('Leaderboard name change request approved. Admin needs to manually update the leaderboard name.');
-          break;
         case 'blacklist':
           console.log('Blacklist request approved. Admin needs to manually blacklist the user.');
           break;
@@ -4382,7 +4854,6 @@ app.get('/leaderboardblacklistmanage', authenticateToken, checkRole(5), serveAdm
 app.get('/demomanage', authenticateToken, checkRole(5), serveAdminPage('demo-manage', 5));
 app.get('/playerlookup', authenticateToken, checkRole(2), serveAdminPage('playerlookup', 2));
 app.get('/defconservers', authenticateToken, checkRole(1), serveAdminPage('servermanagment', 1));
-app.get('/leaderboardmanage', authenticateToken, checkRole(5), serveAdminPage('leaderboard-manage', 5));
 app.get('/accountmanage', authenticateToken, checkRole(2), serveAdminPage('account-manage', 2));
 app.get('/modlistmanage', authenticateToken, checkRole(5), serveAdminPage('modmanagment', 5));
 app.get('/dedconmanagment', authenticateToken, checkRole(2), serveAdminPage('dedconmanagment', 2));

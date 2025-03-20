@@ -1,13 +1,14 @@
 Include ConfigVersion-1.43-beta1
 ServerName DefconExpanded | 16 Player | Test Server
-ServerKey ASPSMY-YJCHTN-IOPAVU-FHJWAU-QQU
+ServerKey NMPURK-TJPVWZ-AZMULB-YMLVVB-KQR
 GameMode 0
 ServerPort 5010
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
 AllianceSize 0
-TotalBandwidth 75000
-PlayerBandwidth 10000
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 2500000
 ServerVersion 1.60.1.5 MINICOM
 LogLevel 2
 CaseSensitive 0

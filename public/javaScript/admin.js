@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-12-2024 
+//Last Edited 03-03-2025
 
 
 let currentUserRole = 6;
@@ -269,7 +269,6 @@ function initializeAdminPanel() {
         document.getElementById('player-search-btn').addEventListener('click', searchPlayers);
     }
 
-    loadLeaderboard();
     loadWhitelist();
     loadDemos();
     loadResources();
@@ -1318,51 +1317,63 @@ async function loadPendingRequests() {
         const response = await fetch('/api/pending-requests');
         const requests = await response.json();
 
+
         document.getElementById('pending-blacklist-section').innerHTML = '';
-        document.getElementById('pending-leaderboard-name-change-section').innerHTML = '';
+        document.getElementById('pending-account-deletion-section').innerHTML = '';
         document.getElementById('pending-account-name-change-section').innerHTML = '';
         document.getElementById('pending-email-change-section').innerHTML = '';
-        document.getElementById('user-requests').innerHTML = '';
 
         requests.forEach(request => {
             const requestElement = document.createElement('div');
             requestElement.className = 'request-card';
             let requestContent = `
-                <p class="pabout2" style="text-align: left; margin: 0;">Requested by: ${request.username}</p> <!-- Use request.username -->
+                <p class="pabout2" style="text-align: left; margin: 0;">Requested by: ${request.username}</p> 
                 <p class="pabout2" style="text-align: left; margin: 0;">Date: ${new Date(request.request_date).toLocaleString()}</p>
                 <p class="pabout2" style="text-align: left; margin: 0;">Type: ${request.type}</p>
             `;
 
             switch (request.type) {
-                case 'leaderboard_name_change':
-                    requestContent += `<p class="pabout2" style="text-align: left; margin: 0;">Requested Name: ${request.requested_name}</p>`;
-                    document.getElementById('pending-leaderboard-name-change-section').appendChild(requestElement);
-                    break;
                 case 'blacklist':
                     requestContent += `<p class="pabout2" style="text-align: left; margin: 0;">User requests to be blacklisted from leaderboard</p>`;
-                    document.getElementById('pending-blacklist-section').appendChild(requestElement);
                     break;
                 case 'account_deletion':
                     requestContent += `<p class="pabout2" style="text-align: left; margin: 0;">User requests account deletion</p>`;
-                    document.getElementById('pending-account-deletion-section').appendChild(requestElement);
                     break;
                 case 'username_change':
                     requestContent += `<p class="pabout2" style="text-align: left; margin: 0;">Requested Username: ${request.requested_username}</p>`;
-                    document.getElementById('pending-account-name-change-section').appendChild(requestElement);
                     break;
                 case 'email_change':
                     requestContent += `<p class="pabout2" style="text-align: left; margin: 0;">Requested Email: ${request.requested_email}</p>`;
-                    document.getElementById('pending-email-change-section').appendChild(requestElement);
                     break;
                 default:
-                    document.getElementById('user-requests').appendChild(requestElement);
+                    break;
             }
 
             requestContent += `
                 <button onclick="resolveRequest(${request.id}, '${request.type}', 'approved')" style="margin-top: 10px;">Approve</button>
                 <button onclick="resolveRequest(${request.id}, '${request.type}', 'rejected')" style="margin-top: 10px;">Reject</button>
             `;
+
+
             requestElement.innerHTML = requestContent;
+
+
+            switch (request.type) {
+                case 'blacklist':
+                    document.getElementById('pending-blacklist-section').appendChild(requestElement);
+                    break;
+                case 'account_deletion':
+                    document.getElementById('pending-account-deletion-section').appendChild(requestElement);
+                    break;
+                case 'username_change':
+                    document.getElementById('pending-account-name-change-section').appendChild(requestElement);
+                    break;
+                case 'email_change':
+                    document.getElementById('pending-email-change-section').appendChild(requestElement);
+                    break;
+                default:
+                    document.getElementById('user-requests').appendChild(requestElement);
+            }
         });
 
     } catch (error) {
@@ -1628,165 +1639,6 @@ function refreshMonitoringData() {
 }
 
 setInterval(updateUptimeClock, 1000);
-
-async function loadLeaderboard() {
-    if (currentUserRole > 5) return;
-    try {
-        const response = await fetch('/api/leaderboard');
-        const leaderboard = await response.json();
-        const tbody = document.querySelector('#leaderboard-table tbody');
-        tbody.innerHTML = '';
-        leaderboard.forEach(player => {
-            const row = tbody.insertRow();
-            let actionsHtml = '';
-            if (currentUserRole <= 5) {
-                actionsHtml += `<button onclick="editPlayer(${player.id})">Edit</button>`;
-            }
-            if (currentUserRole <= 2) {
-                actionsHtml += `<button onclick="removePlayer(${player.id})">Remove</button>`;
-            }
-            row.innerHTML = `
-                <td>${player.player_name}</td>
-                <td>${player.games_played}</td>
-                <td>${player.wins}</td>
-                <td>${player.losses}</td>
-                <td>${player.total_score}</td>
-                <td>${actionsHtml}</td>
-            `;
-        });
-    } catch (error) {
-        console.error('Error loading leaderboard:', error);
-    }
-}
-
-async function editPlayer(playerId) {
-    if (currentUserRole > 5) {
-        alert('You do not have permission to edit players');
-        return;
-    }
-    try {
-        const response = await fetch(`/api/leaderboard/${playerId}`);
-        const player = await response.json();
-
-        document.getElementById('edit-player-id').value = player.id;
-        document.getElementById('edit-player-name').value = player.player_name;
-        document.getElementById('edit-player-games').value = player.games_played;
-        document.getElementById('edit-player-wins').value = player.wins;
-        document.getElementById('edit-player-losses').value = player.losses;
-        document.getElementById('edit-player-score').value = player.total_score;
-
-        document.getElementById('edit-player').style.display = 'block';
-    } catch (error) {
-        console.error('Error fetching player details:', error);
-        alert('Error fetching player details: ' + error.message);
-    }
-}
-
-async function saveEditPlayer(event) {
-    event.preventDefault();
-    if (currentUserRole > 5) {
-        alert('You do not have permission to save player edits');
-        return;
-    }
-    const playerId = document.getElementById('edit-player-id').value;
-    const updatedPlayer = {
-        player_name: document.getElementById('edit-player-name').value,
-        games_played: parseInt(document.getElementById('edit-player-games').value),
-        wins: parseInt(document.getElementById('edit-player-wins').value),
-        losses: parseInt(document.getElementById('edit-player-losses').value),
-        total_score: parseInt(document.getElementById('edit-player-score').value)
-    };
-
-    try {
-        const response = await fetch(`/api/leaderboard/${playerId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedPlayer),
-            credentials: 'include'
-        });
-        if (response.ok) {
-            loadLeaderboard();
-            document.getElementById('edit-player').style.display = 'none';
-        } else {
-            const error = await response.json();
-            console.error('Failed to update player:', error);
-            alert('Failed to update player: ' + (error.error || 'Unknown error'));
-        }
-    } catch (error) {
-        console.error('Error updating player:', error);
-        alert('Error updating player: ' + error.message);
-    }
-}
-
-async function removePlayer(playerId) {
-    if (currentUserRole > 2) {
-        await alert('You do not have permission to remove players');
-        return;
-    }
-    const confirmed = await confirm('Are you sure you want to remove this player from the leaderboard?');
-    if (confirmed) {
-        try {
-            const response = await fetch(`/api/leaderboard/${playerId}`, {
-                method: 'DELETE',
-                credentials: 'include'
-            });
-            if (response.ok) {
-                loadLeaderboard();
-            } else {
-                await alert('Failed to remove player from leaderboard');
-            }
-        } catch (error) {
-            console.error('Error removing player from leaderboard:', error);
-        }
-    }
-}
-
-async function addPlayer(event) {
-    event.preventDefault();
-    if (currentUserRole > 5) {
-        await alert('You do not have permission to add players');
-        return;
-    }
-    const playerName = document.getElementById('add-player-name').value;
-    const gamesPlayed = parseInt(document.getElementById('add-player-games').value);
-    const wins = parseInt(document.getElementById('add-player-wins').value);
-    const losses = parseInt(document.getElementById('add-player-losses').value);
-    const totalScore = parseInt(document.getElementById('add-player-score').value);
-
-    if (!playerName || isNaN(gamesPlayed) || isNaN(wins) || isNaN(losses) || isNaN(totalScore)) {
-        alert('Please fill in all fields with valid values');
-        return;
-    }
-
-    const playerData = {
-        player_name: playerName,
-        games_played: gamesPlayed,
-        wins: wins,
-        losses: losses,
-        total_score: totalScore
-    };
-
-    try {
-        const response = await fetch('/api/leaderboard', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(playerData),
-            credentials: 'include'
-        });
-        const result = await response.json();
-        if (response.ok) {
-            console.log('Player added successfully:', result);
-            loadLeaderboard();
-            event.target.reset();
-        } else {
-            console.error('Failed to add player:', result.error);
-            alert('Failed to add player: ' + (result.error || 'Unknown error'));
-        }
-    } catch (error) {
-        console.error('Error adding player:', error);
-        alert('Error adding player: ' + error.message);
-    }
-}
 
 async function loadWhitelist() {
     if (currentUserRole > 5) return;

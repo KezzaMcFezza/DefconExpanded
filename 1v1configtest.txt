@@ -9,7 +9,7 @@ AdvertiseOnLAN 1
 SlowestSpeed 0
 TotalBandwidth 5500000
 PlayerBandwidth 2500000
-SpectatorBandwidth 2500000
+SpectatorBandwidth 2000000
 LogLevel 2
 HostName DefconExpanded
 AcceptC2 1
@@ -36,7 +36,7 @@ Admin Haakon~~1~Kezzaiscool
 Admin Lord Haw Haw~~1~Reddashhawhaw
 
 #ANTI-CHEAT
-GhostProtection 2
+GhostProtection 0
 MaxResyncAttempts 3
 
 #SPEED BUDGET

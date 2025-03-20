@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 03-01-2025
+* Last Edited 03-03-2025
 */
 
 html {
@@ -810,13 +810,6 @@ li {
     color: #4da6ff;
     font-family: 'Orbitron', sans-serif;
     font-size: 45px;
-}
-
-.about-container {
-    display: flex;
-    gap: 1.5rem;
-    padding: 0 0 1rem;
-    opacity: 0.95;
 }
 
 .about-container-main {
@@ -1652,9 +1645,8 @@ li {
 #sort-select {
     background-color: #0067b8;
     color: #fff;
-    margin: 16px 10px 0px 10px;
     border: none;
-    padding: 0.5rem;
+    padding: 0.35rem 0.75rem;
     border-radius: 5px;
     font-family: 'Orbitron', sans-serif;
     cursor: pointer;

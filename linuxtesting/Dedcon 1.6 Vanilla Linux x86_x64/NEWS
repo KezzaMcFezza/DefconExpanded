@@ -1,0 +1,310 @@
+- Dedcon: understands in-game alliance changes now and logs them
+- Multiwinia encryption support removed, will only work with community versions now
+- false game end detections no longer prevent you from continuing to play
+- fixed file permissions on Windows install so regular users can edit the configuration
+- more functionality if the metaserver is unreachable
+- clients sending invalid acks are dropped
+- ownership issues of objects get detected and published, they are likely to be cheats
+- spectator login spam protection
+- clients are now required to send sync values by default
+- resetting all readiness states on territory selection, prevents fake starts
+- territory change messages after game start are ignored
+- new setting: ConnectionTimeout determines how long it takes for clients
+  to be considered dropped
+- Resyncs now work more reliably
+- Dedcon: fixing automatic score recording if one of them is 0
+- potentially harmful commands without TeamID 
+  from out of sync clients are rejected
+- Dedcon: score messages from isolated clients no longer end the game
+- Dedcon: disabling JoinAs during recording for steam clients
+- Fixed parsing of empty password Admin lines.
+- Dedcon: added AdminLevelPlay to allow only logged in players of a 
+  certain level to play.
+- Line after a REnd is now actually read and processed
+- Removed expiration date for lack of authentication circumventing exploits.
+- Allowing to host replays even when only a DEMO key is available
+- Dedwinia: Filtering out pause commands
+- Dedwinia: Bumped version to 1.3.0
+- Dedwinia: Fixed selection of Engineers/Harvesters via direct click
+- ServerIP now correctly affects the communication with the metaserver
+- Dedwinia: Implemented game event logging
+- Dedcon: Fixed broken playback and removed sync error message
+  that should be specific to Multiwinia
+- Dedcon: added ForbidCeaseFire
+- Dedcon: Taking charge of random territory selection, configurable
+  for specific setups via Territory1 to Territory6.
+- Dedcon: Added AllianceSize
+- added -v/--version command line argument
+- added /fullinfo chat command to give complete client info, including
+  disconnected clients
+- Added Anonymise setting to allow completely anonymous tournaments
+- Dedwinia: Map database no longer case sensitive
+- Dedwinia: Added .wmw support and automatic downloads
+- Added MinRating and MaxRating to make newbie and expert servers
+- Dedwinia: Added ForbidDirectControl to disable direct MW control
+- Dedwinia: Added Quarantine setting that blocks spreading of 
+  Master Player
+- Added RankedDefault setting so server admins can mark games as not
+  ranked by default
+- Dedwinia: added WaitGameSecondsAbsolute
+- Dedwinia: fixed winner score, it's now always bigger than the scores
+  of all other players
+- Dedwinia: fixed CPUs getting wrong colour names
+- added LogPing to log pings into the event log
+- fixed quit reason on client drops
+- unified parsing of event logs, it is now done by parser.py
+- disabled reconnecting in Multiwinia
+- reenabled platform dependant IP ranges
+- fixed connection errors in Multiwinia, the login packet must not be
+  received twice.
+- added WaitSecondsFromStart to make scripts robust against reloading
+- added Reload command that reloads the whole configuration
+- added chat filtering system
+- added /report chat command to report griefers
+- added CaseSensitive and DryRun settings
+- socket resets are less noisy
+- added /version chat command
+- DOS/Windows style configuration files now work quirklessly on Unix
+- recordings are now LZMA compressed, no need to zip them any more
+- added optional argument (player count) to WaitClient command
+- added MakeDir command to create directories
+- log prefix now also applied to recording file
+- timestamps of log filenames now go after the program start time
+- added /team chat command for private team chat and improvised /me command
+- added event log messages CLIENT_ACHIEVEMENTS, RANKED and ENCODING
+- added /leave and /join for hacked spectator mode
+- adaptions to Multiwinia, of course
+- a bit less zealous banning of people from playing for stalling the game
+- added client lag (unprocessed simulation time on the clients) to ping output
+- added /say admin chat command to bypass chat filters without the cumbersome
+  "/set Say <name>: <chat>" construct
+- added ForceName and Silence
+- rating.py: added support for alias keys
+- griefdatabase.py: griefer database now contains everyone who plays and 
+  veterans get a small benefit of the doubt over unknown griefers
+- added AllStarMinRating
+- All Star Games are never advertised as full while in the lobby
+- added CPUIze
+- rating.py now can give players who have not played many games (recently)
+  a lower weight
+- kick votes against players in the lobby are converted to removals
+- added DropCourtesy to be nice to players who drop or reconnect
+- added RatingFluctuation to mask player identities in the server browser
+  by randomly disturbing their ratings
+- added all star mode where higher ranked players are preferred
+- added import function for player ratings that will be displayed in the server
+  browser
+- refactored ban and message system, they now use a common user info framework.
+  This makes it easier to add new features.
+
+1.43:
+
+- Adapted to partial metaserver outages
+
+1.43_beta4:
+
+- Added PortForwarding setting for odd port forwarding scenarios
+- Added public server information to log
+- Network packages are sent with low latency priority
+- Switching to or from spectator mode no longer counts towars name change spam
+- Fixed spamming bot bug when a player ignored by someone would switch
+  to or from spectator mode
+- clients that have been detected to be out of sync get a marginally less
+  significant vote on the correct sync value than clients that are in sync
+- added RequireMetaServer config option that makes the server quit if
+  the metaserver can't be reached
+- Quit console command no longer prevents recording from getting saved
+- added support for c2 packets from clients
+- requested game speed is now handled correctly on reconnects
+- worked around clients sending illegal commands in some circumstances, scores
+  are not revoked on commands that come from out of sync/reconnecting clients
+- reconnects from players are not falsely identified as ghosting attempts any more
+
+1.43_beta3:
+
+- fixed problems with windows timer when the game was running while the magical 
+  49.something days mark of computer runtime (2^32 milliseconds) was passed
+- secret information no longer written into recordings
+
+1.43_beta2:
+
+- Fixed freezer/memory eater/crash when a player left to spectator mode
+  while the game start countdown was running and almost finished.
+- IP range bans for Windows demo players now also affect Steam users
+- playbacks are now advertised as not yet started, that way, 
+  demo players can share a playback over the internet.
+- fixed score signature revocation bug
+- more diagnostic output on Hyperion's IP-change-duplicate key problem
+- name collision avoidance code no loger produces hideous names like
+  NewPlayer_2_2, it just goes for NewPlayer_3
+- clients are no longer sped up due to inactivity after the game is over
+- fixed CPUAlliance and CPUTerritory
+
+1.43_beta1:
+
+- reserved nicknames are now enforced, impostors get renamed to "fake <bla>"
+- added EarlyQuitMinutes
+- added AllowDuplicateNames
+- better handling of CPU lag, the game slows down to allow everyone to catch up
+- reconnections are no longer prevented when the server is full.
+- rating.py no longer needs the score:error parameter, it figures it out
+  automatically.
+- rating.py now understands (and ignores) CPU players.
+- fixed RemoveCPUs, it did nothing...
+- banned demo players now no loger get the "kicked by the server" message, they
+  get the "server is demo restricted, go buy the game" message.
+- fixed late random territory bug: when random territories are activated after
+  players have already selected a territory, they could not be unselected any more.
+- finer range bans: it is now possible to distinguish between the different
+  problematic versions where KeyID bans are ineffective
+- fixed bug where whiteboard painting would revoke score signatures;
+  alliance change messages, radar sharing and cease fire changes have been removed
+  from the list of events causing revocation, too.
+- fixed amnesy bug with nested Fork commands
+- stricter anti-ghosting protection: it is already ghosting to
+  connect to a server from an IP if a player WAS active from the same IP (the player
+  may rejoin later)
+- fixed problems with score entering and reconnecting players
+- preventing players from blocking score entering by setting quirky names, then leaving
+
+0.9.1:
+- alliances displayed in the server browser are now at least correct 
+  for the pre-game selections
+- fixed negative prescale usage in rating.ini for suicide game modes
+- finer grained demo restrictions
+- removing a player to spectator mode now unreadies everyone
+
+0.9:
+- log files get flushed now after every write to make realtime analysis possible
+- fixed (non-security-critical) crash when faced with forged recordings
+- added LogEvent for custom event log entries
+- fixed another false game start prediction bug triggered by the
+  countdown abort grief prevention mechanism.
+- added Kick and KickID console commands.
+- added error checking to rarely used log files (whoops).
+- server refuses to accept score signatures if scores are missing.
+- added AdvertisePlayers to include player names in server name.
+- added two python scripts that operate on the event logs:
+  grieferdatabase.py logs griefers and generates banfiles,
+  rating.py logs game results and generates player ranking tables.
+- added TEAM_ALLIANCE event log message
+- added (Public)MessageIP to send players without fixed KeyID messages.
+- Added log file prefix.
+
+0.8:
+- Limited number of times a player can abort the start countdown.
+- Limited the number of resync attempts. More and you get kicked.
+- CPUs and player entered scores now appear in server browser detail window
+- Added manual score management
+- Added JoinAt to rejoin a recorded game at an arbitrary time.
+- Odd characters ('(', ')', '\', ''', '"') in player names are now 
+  escaped in the log files.
+- Added machine readable event log
+- More info on early quitters (ping, packet loss, whether they were
+  out of sync or behind in the simulation.)
+- Logging of attempts of [unknown] chat spam.
+- Unified the various grief logs to one.
+- Added /remove and /removeid to remove players from the game as a
+  final warning before a kick; same admin level as for kicks is required.
+- Added /ignoreid, /unignoreid, /opid, /deopid, /promoteid and /demoteid.
+- Added CPU territory and alliance selection
+- Added JoinAs to make new clients take over control of a specified team.
+- Added log for spammers.
+- Added messages for players.
+- Input from the console is accepted and treated like configuration
+  file input.
+- The active players are logged.
+- Online list of configuration commands added.
+
+0.7:
+- Added keyIDs and IPs of players to the recordings.
+- Added packet loss rate measurement.
+- Added MaxPacketLoss, keeping players with too much packet
+  loss out of the game.
+- Packet loss compensation resends take the packet loss rate into
+  account when deciding what to do. The higher the packet loss rate,
+  the more aggressive the resending.
+- Added binding to a specific IP.
+- Added IP range banning.
+- Naval blacklists can be restricted to specific versions.
+- Added kick votes.
+- Spectators can't change their name any more if spectator chat is private.
+- Added a system to combat game blocking by not readying up.
+
+0.6:
+- ServerLANIP is no longer required in most situations
+- Added more example configurations
+- Game recording and playback
+- More game start misprediction bugfixes: alliance changes and territory
+  selections trigger a countdown abort
+- Fetching the server key from a steam installation really works now
+  (a wrong path was appended)
+- Added timestamps to logs (optionally)
+- added MaxPing: maximum ping a player can have
+- Added slowdown budget
+- Added Forbid<UnitType> to forbid placing selected types of units.
+
+0.5:
+- Fixed oversized message bug, including large files producing tons of errors no longer
+  crashes the server
+- Added IP and key bans.
+- Added special OWNER key in admin accounts to make it easier for steam users
+  to reserve their own nickname.
+- NAT piercing really works now.
+- Added extended logging options
+- Added MaxIdleRunTime and MinRunTime for better run loop customization
+- Added CPU player support.
+- Fixed private chat filter, some stuff got logged while it shouldn't.
+- Fixed huge performance bug caused by wrong arguments to select().
+- Added ServerKeyFile setting.
+- Fixed a game start misprediction bug, turns out all players unready themselves
+  even when a spectator leaves.
+
+0.4:
+- Added /info to give admins extended info about players
+- Added /include to directly include files without /set Include
+- Added admin levels to configuration options, added Sudo
+- Added admin levels and more secure login methods
+- Added chat spam protection
+- The server now runs without a config file, and you can give
+  configuration options over the commandline.
+- Fixed fleet formation chaos bug
+- Added wait commands that are based on game time, not real time
+- Added Include and Fork configuration file commands
+- Added IP-based anti-ghosting mechanism
+- Added global timeout to combat problem of players locking the server by
+  starting a game, then going AFK.
+- The server now takes complete control over the clients' readyness status,
+  so it can determine precisely when the game starts.
+- Added naval blacklists
+- After a certain idle time, players can be automatically kicked to
+  spectator mode (while in the lobby) or made to speed up (when in game)
+- Server is now aware of client speed changes and can intercept bogus requests
+- Better ping calculation, faster packet loss compensation
+- Better Mac compatibility: authkey found, bug with metaserver communication fixed
+- Better handling of acks from the clients
+
+0.3:
+- added /help
+- added /ignore and /unignore
+- made /ping available for everyone, it's now sent secretly
+- Compatibility with 1.0-1.3 resp. 1.4
+- Fixed problems with stray messages from clients that are not logged in
+- Players can no longer kick players
+- Added /op and /deop commands
+
+0.2:
+- Rejoining implemented
+- NAT piercing implemented
+- Filtered out chat from connecting players
+- Performance improvements with joining spectators
+- Kick system improved, it now creates bans for the session
+- Config file scripting: you can wait for events or just for some time
+  before executing the next command
+- Added version compatibility interval 
+- Code is now Windows and Mac-compatible
+- Many bugfixes, of course
+
+0.1: Initial Test Release
+- Basic functionality
+- Metaserver communication

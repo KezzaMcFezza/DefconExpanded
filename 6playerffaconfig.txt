@@ -5,15 +5,16 @@ GameMode 0
 ServerPort 5010
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
-TotalBandwidth 75000
-PlayerBandwidth 10000
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 2000000
 LogLevel 2
 CaseSensitive 0
 SlowestSpeed 0
 AllianceSize 1
 HostName DefconExpanded
 AcceptC2 1
-MaxIdleRunTime 1800
+MaxIdleRunTime 2500
 MinRunTime 900
 EventFile game_events_6playerffa.log
 OutFile server_output_6playerffa.log
@@ -77,7 +78,7 @@ SpectatorChatChannel 1
 
 WaitClient
 Say Welcome to Defcon Expanded, This is a classic free for all server with random cities for everyone who wants to play the classic defcon experience :).
-Say The games will be available for viewing and download on...
+Say Type /gamealert *custom message* to notify people on discord to come play!
 Say www.defconexpanded.com
 
 WaitStart

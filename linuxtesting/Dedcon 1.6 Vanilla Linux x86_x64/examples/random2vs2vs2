@@ -1,0 +1,48 @@
+# random scenario with two territories for each team
+
+# Of course, this config file goes best with either
+#MaxTeams 6
+#AllianceSize 2
+# or
+#MaxTeams 3
+#TerritoriesPerTeam 2
+
+# There are too many possibilities here to list them all,
+# so let's just go by guidelines.
+
+# NA and SA should be on different teams
+Territory1 NorthAmerica
+Territory3 SouthAmerica
+
+# and Africa and Asia, too, but not correlated to the Americas.
+RBegin
+Territory2 Asia
+Territory4 Africa
+REnd
+
+RBegin
+Territory4 Asia
+Territory2 Africa
+REnd
+
+RBegin
+Territory5 Asia
+Territory2 Africa
+REnd
+
+RBegin
+Territory4 Asia
+Territory5 Africa
+REnd
+
+RBegin
+Territory5 Asia
+Territory4 Africa
+REnd
+
+RBegin
+Territory2 Asia
+Territory5 Africa
+REnd
+
+Randomise

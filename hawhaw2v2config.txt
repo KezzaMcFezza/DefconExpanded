@@ -1,16 +1,17 @@
 Include ConfigVersion-1.43-beta1
-ServerName 509 CG | 2v2 | Totally Random | 2.8.14.1
+ServerName 509 CG | 2v2 | Totally Random | 2.8.15
 ServerKey EXKUCW-VMMUQN-QKXDAZ-KLSXPD-GOM
 GameMode 0
 ServerPort 5010
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
-TotalBandwidth 75000
-PlayerBandwidth 10000
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 2500000
 ServerVersion 1.60.1.5 MINICOM
 LogLevel 2
 IdleTime 300
-HostName ServerBot
+HostName Server Bot
 AcceptC2 1
 CaseSensitive 0
 EventFile game_events_509cg2v2.log
@@ -60,6 +61,7 @@ CityBuffer 2
 FirstStrikeBonus 15
 MinTeams 4
 MaxTeams 4
+EmptyBomberLaunch 0
 ReadyVoteDelay 90
 ReadyVoteMaxRemove 1
 RandomTerritories 1
@@ -76,13 +78,12 @@ RadarSharing 2
 WaitClient
 Say The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
 Say All our Defcon traditions continue here. Have a gg. -LHH
-Say The games will be available on...
+Say Type /gamealert *custom message* to notify people on discord to come play!
 Say www.defconexpanded.com
 
 WaitStart
 Say Warning: Each player has 30 minutes of 1x slowdown budget
-Say Budget regenerates at 1 minute per minute of 5x used, and 2 minutes per 10x used
-Say Each player also has 5 minutes of pause time that will affect their slowdown budget
+Say Each player also has 5 minutes of pause time that will affect their main slowdown budget
 Say Use /speed to check your remaining budgets
 SpectatorChatChannel 0
 

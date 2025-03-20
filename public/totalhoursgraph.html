@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 03-01-2025
+* Last Edited 20-03-2025
 -->
 
 <!DOCTYPE html>
@@ -18,23 +18,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEFCON Expanded</title>
+    <title>DEFCON Expanded - Total Hours Graph</title>
     <meta name="description" content="Learn about DEFCON Expanded">
     <meta name="keywords" content="defcon, defcon demos, defcon Expanded, game recording, game recordings modding community, 
                                    demo downloads, mods, defcon mods, defcon dcrec, defcon modlist, defcon resources, defcon news, 
                                    8 Player, 10 Player, 16 Player, dedcon, dedcon server, defcon leaderboard, defcon stats, defcon statistics,
                                    defcon old guard, defcon game, defcon gaming community ">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://defconexpanded.com/about">
+    <link rel="canonical" href="https://defconexpanded.com/about/hours-played">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://defconexpanded.com/about">
-    <meta property="og:title" content="DEFCON Expanded">
-    <meta property="og:description" content="Learn about DEFCON Expanded">
+    <meta property="og:url" content="https://defconexpanded.com/about/hours-played">
+    <meta property="og:title" content="DEFCON Expanded - Total Hours Graph">
+    <meta property="og:description" content="View total hours played statistics for DEFCON Expanded">
     <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://defconexpanded.com/about">
-    <meta name="twitter:title" content="DEFCON Expanded">
-    <meta name="twitter:description" content="Learn about DEFCON Expanded">
+    <meta name="twitter:url" content="https://defconexpanded.com/about/hours-played">
+    <meta name="twitter:title" content="DEFCON Expanded - Total Hours Graph">
+    <meta name="twitter:description" content="View total hours played statistics for DEFCON Expanded">
     <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
     <link rel="icon" type="image/x-icon" href="https://defconexpanded.com/favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="https://defconexpanded.com/favicon-16x16.png">
@@ -51,9 +51,13 @@
     <link rel="stylesheet" type="text/css" href="/CSS/scaling.css">
     <link rel="stylesheet" type="text/css" href="/CSS/admin.css">
     <link rel="stylesheet" type="text/css" href="/CSS/graph.css">
+    <link rel="stylesheet" type="text/css" href="/CSS/profile.css">
+    <link rel="stylesheet" type="text/css" href="/CSS/about.css">
+    <link rel="stylesheet" type="text/css" href="/CSS/checkboxes.css">
     <script src="/javaScript/graph.js" defer=""></script>
+    <script src="/javaScript/serverselection.js" defer=""></script>
     <script src="/javaScript/script.js" defer=""></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.42.0/apexcharts.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -62,22 +66,20 @@
         {
           "@context": "https://schema.org",
           "@type": "WebPage",
-          "name": "About DEFCON Expanded",
-          "url": "https://defconexpanded.com/about",
+          "name": "DEFCON Expanded - Total Hours Graph",
+          "url": "https://defconexpanded.com/about/hours-played",
           "isPartOf": {
             "@type": "WebSite",
             "name": "DEFCON Expanded",
             "url": "https://defconexpanded.com/"
           },
-          "description": "Learn about DEFCON Expanded, a modding community for DEFCON.",
+          "description": "View total hours played statistics for DEFCON Expanded.",
           "mainContentOfPage": {
             "@type": "WebPageElement",
             "cssSelector": ".about-container"
           }
         }
     </script>
-    <style>
-    </style>
 </head>
 
 <body class="hide-scrollbar">
@@ -169,159 +171,384 @@
                 </div>
             </nav>
         </header>
-        <div class="about-page-container">
-            <div class="hero-section">
-                <div class="hero-content">
-                    <h1 class="hero-title">Welcome to DefconExpanded</h1>
-                    <p class="hero-text">
-                        Welcome to the Official Website for DefconExpanded, where you can view recordings, download
-                        Defcon resources and track player statistics.
-                        <br>
-                        <br>
-                        We have implemented numerous quality of life improvements for the Vanilla and modding
-                        playerbase, including
-                        Discord integration, advanced game tracking, and comprehensive statistical analysis.
-                        <br>
-                        <br>
-                        Our modded Defcon and Dedcon clients support 8-16 players and have been ported to MacOS and
-                        Linux, making the
-                        game more accessible than ever. With seasonal tournaments, advanced filtering systems, and a
-                        rich modding community, we're dedicated to enhancing the DEFCON experience.
-                    </p>
-                    <div class="hero-links">
-                        <a href="http://group6.info/" class="hero-link">Group6 →</a>
-                        <a href="http://sfcon.demoszenen.de/" class="hero-link">SFCON →</a>
+
+        <div class="about-container hoursgraph">
+            <div class="contributors-about">
+                <div class="about-header">
+                    <div class="about-banner">
+                        <div class="about-banner-overlay"></div>
+                    </div>
+                    <div class="about-info-bar">
+                        <h1 class="about-title">Welcome to DefconExpanded</h1>
+                        <p class="about-description">
+                            Welcome to the Official Website for DefconExpanded, where you can view recordings, download
+                            Defcon resources and track player statistics. We have implemented numerous quality of life
+                            improvements for the Vanilla and modding
+                            playerbase, including Discord integration, advanced game tracking, and comprehensive
+                            statistical
+                            analysis.
+                            Our modded Defcon and Dedcon clients support 8-16 players and have been ported to MacOS and
+                            Linux, making the game more accessible than ever. With seasonal tournaments, advanced
+                            filtering
+                            systems, and a
+                            rich modding community, we're dedicated to enhancing the DEFCON experience.
+                        </p>
+                        <div class="about-links">
+                            <a href="http://group6.info/" class="about-link">Group6 <i
+                                    class="fas fa-external-link-alt"></i></a>
+                            <a href="http://sfcon.demoszenen.de/" class="about-link">SFCON <i
+                                    class="fas fa-external-link-alt"></i></a>
+                        </div>
                     </div>
                 </div>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="date-controls">
-                            <h3 class="filter-title">Date Range</h3>
-                            <div class="date-inputs">
-                                <input type="date" class="date-input" id="startDate" name="startDate">
-                                <span>to</span>
-                                <input type="date" class="date-input" id="endDate" name="endDate">
-                            </div>
-                        </div>
 
-                        <div class="graph-search-container">
-                            <h3 class="filter-title">Filter by Name</h3>
-                            <input type="text" placeholder="Player name..." class="player-input">
-                        </div>
+                <div class="graph-container contributors-container">
+                    <div class="graph-header">
+                        <i class="fas fa-users"></i>
+                        <h2 class="graph-title">Project Contributors</h2>
+                    </div>
 
-                        <div class="axis-controls">
-                            <div class="y-axis-control">
-                                <h3 class="filter-title">Y-Axis</h3>
-                                <div class="yaxis-linear">
-                                    <input type="number" class="yaxis-input" id="yAxisMax" min="1" value="16" step="1">
-                                    <button id="toggleView" class="cumulative-toggle-btn">Show Linear View</button>
+                    <div class="contributors-grid">
+                        <div class="contributor-column">
+                            <h3 class="contributor-category-title">Website Development</h3>
+                            <div class="contributor-list">
+                                <div class="contributor-item">
+                                    <span class="contributor-name">KezzaMcFezza</span>
+                                    <span class="contributor-role">Lead Developer</span>
                                 </div>
-                                <select id="graph-filter" class="server-select">
-                                    <option value="">Graph Type</option>
-                                    <optgroup label="Servers">
-                                        <option value="individualServers">Individual Servers</option>
-                                        <option value="combinedServers">Combined servers</option>
-                                    </optgroup>
-                                    <optgroup label="In-Game statistics">
-                                        <option value="totalHoursPlayed" selected>Total Hours Played</option>
-                                        <option value="popularTerritories">Popular Territories</option>
-                                        <option value="1v1setupStatistics">1v1 Setup Statistics</option>
-                                    </optgroup>
-                                </select>
+                                <div class="contributor-item">
+                                    <span class="contributor-name">Devil</span>
+                                    <span class="contributor-role">Inspiration</span>
+                                </div>
+                                <div class="contributor-item">
+                                    <span class="contributor-name">Nexustini</span>
+                                    <span class="contributor-role">Server Management</span>
+                                </div>
                             </div>
                         </div>
-                        <button id="exportData" class="btn-download">Export Raw Data</button>
-                        <button id="updateGraph" class="update-graph-btn">Update Graph</button>
-                    </div>
-                    <div class="stats-controls">
+
+                        <div class="contributor-column">
+                            <h3 class="contributor-category-title">Mod Development</h3>
+                            <div class="contributor-list">
+                                <div class="contributor-item">
+                                    <span class="contributor-name">Sievert</span>
+                                    <span class="contributor-role">Lead Developer</span>
+                                </div>
+                                <div class="contributor-item">
+                                    <span class="contributor-name">FasterThanRaito</span>
+                                    <span class="contributor-role">Lead Developer</span>
+                                </div>
+                                <div class="contributor-item">
+                                    <span class="contributor-name">Wan May</span>
+                                    <span class="contributor-role">Developer</span>
+                                </div>
+                                <div class="contributor-item">
+                                    <span class="contributor-name">Bert_the_turtle</span>
+                                    <span class="contributor-role">Developer</span>
+                                </div>
+                                <div class="contributor-item">
+                                    <span class="contributor-name">KezzaMcFezza</span>
+                                    <span class="contributor-role">Build Pipelines</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="contributor-column">
+                            <h3 class="contributor-category-title">Game Porting</h3>
+                            <div class="contributor-list">
+                                <div class="contributor-item">
+                                    <span class="contributor-name">Rad</span>
+                                    <span class="contributor-role">Linux Testing</span>
+                                </div>
+                                <div class="contributor-item">
+                                    <span class="contributor-name">KezzaMcFezza</span>
+                                    <span class="contributor-role">Ported Dedcon to MacOS</span>
+                                </div>
+                                <div class="contributor-item">
+                                    <span class="contributor-name">Bert_the_turtle</span>
+                                    <span class="contributor-role">Ported to MacOS and Linux</span>
+                                </div>
+                            </div>
+
+                            <h3 class="contributor-category-title artwork-title">Artwork</h3>
+                            <div class="contributor-list">
+                                <div class="contributor-item">
+                                    <span class="contributor-name">Mars</span>
+                                    <span class="contributor-role">Modlist and Game Cards</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div id="gamesChart"></div>
-        </div>
 
-        <!-- <div class="project-info">
+            <div class="about-content">
+                <div class="graph-container">
+                    <div class="graph-header">
+                        <i class="fas fa-chart-line"></i>
+                        <h2 class="graph-title">Game Statistics</h2>
+                    </div>
+
+                    <div class="graph-content">
+                        <div class="graph-controls">
+                            <div class="graph-controls-card">
+                                <div class="control-group">
+                                    <h3 class="control-title">Date Range</h3>
+                                    <div class="control-content">
+                                        <div class="control-row">
+                                            <input type="date" class="date-input" id="startDate" name="startDate">
+                                        </div>
+                                        <div class="control-row">
+                                            <input type="date" class="date-input" id="endDate" name="endDate">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="control-group">
+                                    <h3 class="control-title">Player Filter</h3>
+                                    <div class="control-content">
+                                        <input type="text" placeholder="Player name..." class="player-input">
+                                    </div>
+                                </div>
+
+                                <div class="control-group">
+                                    <h3 class="control-title">Y-Axis Maximum</h3>
+                                    <div class="control-content">
+                                        <div class="control-row">
+                                            <input type="number" class="yaxis-input" id="yAxisMax" min="1" value="16"
+                                                step="1">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="control-group">
+                                    <h3 class="control-title">Graph Type</h3>
+                                    <div class="control-content">
+                                        <select id="graph-filter" class="server-select">
+                                            <option value="">Graph Type</option>
+                                            <optgroup label="Servers">
+                                                <option value="individualServers">Individual Servers</option>
+                                                <option value="combinedServers">Combined servers</option>
+                                            </optgroup>
+                                            <optgroup label="In-Game statistics">
+                                                <option value="totalHoursPlayed" selected>Total Hours Played</option>
+                                                <option value="popularTerritories">Popular Territories</option>
+                                                <option value="1v1setupStatistics">1v1 Setup Statistics</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="control-group">
+                                    <button id="toggleView" class="cumulative-toggle-btn">Toggle View</button>
+                                </div>
+                                <button id="exportData" class="btn-download">Export Raw Data</button>
+                            </div>
+
+                            <div class="graph-controls-card">
+                                <div class="control-group">
+                                    <div class="filter-header">
+                                        <h3 class="control-title">Server Selection</h3>
+                                        <div class="reset-apply-servers">
+                                            <button id="selectAllServers" class="apply-servers-btn">Select All</button>
+                                            <button id="deselectAllServers" class="reset-servers-btn">Deselect All</button>
+                                            <button id="resetGraphQueries" class="reset-queries-btn">Reset Graph</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="checkbox-container">
+                                    <div class="server-checkboxes server-checkboxes-three-column">
+                                        <div class="checkbox-column">
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'new_player')">
+                                                <input type="checkbox" name="server" value="new_player" checked
+                                                    style="display: none;">
+                                                <span class="server-name">New Player Server</span>
+                                                <span class="game-count" id="hours-count-new_player">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'training')">
+                                                <input type="checkbox" name="server" value="training" checked
+                                                    style="display: none;">
+                                                <span class="server-name">Training Game</span>
+                                                <span class="game-count" id="hours-count-training">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_random')">
+                                                <input type="checkbox" name="server" value="defcon_random" checked
+                                                    style="display: none;">
+                                                <span class="server-name">1v1 Random</span>
+                                                <span class="game-count" id="hours-count-defcon_random">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_best')">
+                                                <input type="checkbox" name="server" value="defcon_best" checked
+                                                    style="display: none;">
+                                                <span class="server-name">1v1 Best Setups</span>
+                                                <span class="game-count" id="hours-count-defcon_best">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_afas')">
+                                                <input type="checkbox" name="server" value="defcon_afas" checked
+                                                    style="display: none;">
+                                                <span class="server-name">AF vs AS</span>
+                                                <span class="game-count" id="hours-count-defcon_afas">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_eusa')">
+                                                <input type="checkbox" name="server" value="defcon_eusa" checked
+                                                    style="display: none;">
+                                                <span class="server-name">EU vs SA</span>
+                                                <span class="game-count" id="hours-count-defcon_eusa">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_default')">
+                                                <input type="checkbox" name="server" value="defcon_default" checked
+                                                    style="display: none;">
+                                                <span class="server-name">1v1 Default</span>
+                                                <span class="game-count" id="hours-count-defcon_default">0 hours</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="checkbox-column">
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_2v2')">
+                                                <input type="checkbox" name="server" value="defcon_2v2" checked
+                                                    style="display: none;">
+                                                <span class="server-name">2v2 Random</span>
+                                                <span class="game-count" id="hours-count-defcon_2v2">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'tournament_2v2')">
+                                                <input type="checkbox" name="server" value="tournament_2v2" checked
+                                                    style="display: none;">
+                                                <span class="server-name">2v2 Tournament</span>
+                                                <span class="game-count" id="hours-count-tournament_2v2">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_2v2_special')">
+                                                <input type="checkbox" name="server" value="defcon_2v2_special" checked
+                                                    style="display: none;">
+                                                <span class="server-name">2v2 EU-AF-NA-SA</span>
+                                                <span class="game-count" id="hours-count-defcon_2v2_special">0
+                                                    hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'mojo_2v2')">
+                                                <input type="checkbox" name="server" value="mojo_2v2" checked
+                                                    style="display: none;">
+                                                <span class="server-name">Mojo's 2v2</span>
+                                                <span class="game-count" id="hours-count-mojo_2v2">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'sony_hoov')">
+                                                <input type="checkbox" name="server" value="sony_hoov" checked
+                                                    style="display: none;">
+                                                <span class="server-name">Sony & Hoov's</span>
+                                                <span class="game-count" id="hours-count-sony_hoov">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_3v3')">
+                                                <input type="checkbox" name="server" value="defcon_3v3" checked
+                                                    style="display: none;">
+                                                <span class="server-name">3v3 Random</span>
+                                                <span class="game-count" id="hours-count-defcon_3v3">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_4v4')">
+                                                <input type="checkbox" name="server" value="defcon_4v4" checked
+                                                    style="display: none;">
+                                                <span class="server-name">4v4 Random</span>
+                                                <span class="game-count" id="hours-count-defcon_4v4">0 hours</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="checkbox-column">
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'muricon')">
+                                                <input type="checkbox" name="server" value="muricon" checked
+                                                    style="display: none;">
+                                                <span class="server-name">MURICON</span>
+                                                <span class="game-count" id="hours-count-muricon">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'cg_2v2_2815')">
+                                                <input type="checkbox" name="server" value="cg_2v2_2815" checked
+                                                    style="display: none;">
+                                                <span class="server-name">CG | 2v2 2.8.15</span>
+                                                <span class="game-count" id="hours-count-cg_2v2_2815">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'cg_2v2_28141')">
+                                                <input type="checkbox" name="server" value="cg_2v2_28141" checked
+                                                    style="display: none;">
+                                                <span class="server-name">CG | 2v2 2.8.14.1</span>
+                                                <span class="game-count" id="hours-count-cg_2v2_28141">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'cg_1v1_2815')">
+                                                <input type="checkbox" name="server" value="cg_1v1_2815" checked
+                                                    style="display: none;">
+                                                <span class="server-name">CG | 1v1 2.8.15</span>
+                                                <span class="game-count" id="hours-count-cg_1v1_2815">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'cg_1v1_28141')">
+                                                <input type="checkbox" name="server" value="cg_1v1_28141" checked
+                                                    style="display: none;">
+                                                <span class="server-name">CG | 1v1 2.8.14.1</span>
+                                                <span class="game-count" id="hours-count-cg_1v1_28141">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_8p_diplo')">
+                                                <input type="checkbox" name="server" value="defcon_8p_diplo" checked
+                                                    style="display: none;">
+                                                <span class="server-name">8P Diplomacy</span>
+                                                <span class="game-count" id="hours-count-defcon_8p_diplo">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_10p_diplo')">
+                                                <input type="checkbox" name="server" value="defcon_10p_diplo" checked
+                                                    style="display: none;">
+                                                <span class="server-name">10P Diplomacy</span>
+                                                <span class="game-count" id="hours-count-defcon_10p_diplo">0
+                                                    hours</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="control-group" style="margin-top: 1rem;">
+                                    <button id="updateGraph" class="update-graph-btn">Update Graph</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="gamesChart" style="width: 100%; height: 450px;"></div>
+                    </div>
+                </div>
             </div>
-            <div class="contributors-section">
-                <h2>Project Contributors</h2>
-                <div class="contributors-grid">
-                    <div class="contributor-category">
-                        <h3>Website Development</h3>
-                        <div class="contributor-cards">
-                            <div class="contributor-card">
-                                <span class="contributor-name">KezzaMcFezza</span>
-                                <span class="contributor-role">Lead Developer</span>
-                            </div>
-                            <div class="contributor-card">
-                                <span class="contributor-name">Devil</span>
-                                <span class="contributor-role">Inspiration</span>
-                            </div>
-                            <div class="contributor-card">
-                                <span class="contributor-name">Nexustini</span>
-                                <span class="contributor-role">Server Management</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="contributor-category">
-                        <h3>Mod Development</h3>
-                        <div class="contributor-cards">
-                            <div class="contributor-card">
-                                <span class="contributor-name">Sievert</span>
-                                <span class="contributor-role">Lead Developer</span>
-                            </div>
-                            <div class="contributor-card">
-                                <span class="contributor-name">FasterThanRaito</span>
-                                <span class="contributor-role">Lead Developer</span>
-                            </div>
-                            <div class="contributor-card">
-                                <span class="contributor-name">Wan May</span>
-                                <span class="contributor-role">Developer</span>
-                            </div>
-                            <div class="contributor-card">
-                                <span class="contributor-name">Bert_the_turtle</span>
-                                <span class="contributor-role">Developer</span>
-                            </div>
-                            <div class="contributor-card">
-                                <span class="contributor-name">KezzaMcFezza</span>
-                                <span class="contributor-role">Build Pipelines</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="contributor-category">
-                        <h3>Porting</h3>
-                        <div class="contributor-cards">
-                            <div class="contributor-card">
-                                <span class="contributor-name">Rad</span>
-                                <span class="contributor-role">Linux Testing</span>
-                            </div>
-                            <div class="contributor-card">
-                                <span class="contributor-name">KezzaMcFezza</span>
-                                <span class="contributor-role">Ported Dedcon to MacOS</span>
-                            </div>
-                            <div class="contributor-card">
-                                <span class="contributor-name">Bert_the_turtle</span>
-                                <span class="contributor-role">Ported DefconExpanded to MacOS and Linux</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="contributor-category">
-                        <h3>Artwork</h3>
-                        <div class="contributor-cards">
-                            <div class="contributor-card">
-                                <span class="contributor-name">Mars</span>
-                                <span class="contributor-role">Modlist and Game Cards</span>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
-        </div>
-        </div>
         </div>
     </main>
-    </div>
 </body>
 
 </html>

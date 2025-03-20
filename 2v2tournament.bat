@@ -16,7 +16,7 @@ dedcon.exe 2v2tournament.txt
 
 echo Server closed. Processing game logs...
 
-echo Done processing. Restarting server in 10 seconds...
-timeout /t 10
+echo Done processing. Restarting server in 3 seconds...
+timeout /t 3
 
 goto server_loop

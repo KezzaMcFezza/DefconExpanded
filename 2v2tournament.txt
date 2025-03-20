@@ -1,19 +1,19 @@
 Include ConfigVersion-1.43-beta1
-ServerName 2v2 Tournament
+ServerName 2v2 Tournament | Semi Finals
 ServerKey NXKWJG-QDLZUN-ZFAIAG-NDDEAP-DRL
 GameMode 0
 ServerPort 5010
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
-TotalBandwidth 2500000
-PlayerBandwidth 1000000
-SpectatorBandwidth 1000000
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 2000000
 LogLevel 2
 CaseSensitive 0
 SlowestSpeed 0
 HostName DefconExpanded
 AcceptC2 1
-MaxIdleRunTime 1800
+MaxIdleRunTime 2500
 MinRunTime 900
 EventFile game_events_tournament.log
 OutFile server_output_tournament.log
@@ -24,6 +24,9 @@ PlayerLog player_scores_tournament.log
 # OutFile
 # PlayerLog
 # Record
+
+#BANS
+Ban 207.237.230.121
 
 #ADMIN
 Admin Laika~~1~dancefloor
@@ -76,10 +79,11 @@ RadarSharing 1
 SpectatorChatChannel 1
 
 WaitClient
-Say Welcome to the 2v2 Christmas Tournament hosted by DefconExpanded! Tournament organisers are KezzaMcFezza and Vault Tec.
-Say After December 26th the top 8 people will compete in the semi finals and the finals! Infinite pause is enabled for this server.
-Say Which will be available for viewing and download on...
-Say www.defconexpanded.com
+Say People who are allowed to play on this server...
+Say Beni, hoov, Mojo, Vader
+Say Corporation, Gyarados, Haakon, zad
+Say Type /gamealert *custom message* to notify people on discord to come play!
+Say defconexpanded.com/leaderboard
 
 WaitStart
 Say Warning: Each player has 30 minutes of 1x slowdown budget
