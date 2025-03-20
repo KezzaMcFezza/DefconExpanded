@@ -2139,9 +2139,6 @@ app.get('/api/games-timeline', async (req, res) => {
   try {
     const { graphType = 'individualServers', playerName, startDate, endDate } = req.query;
     
-    // Log all parameters to help with debugging
-    console.log('API Parameters:', { graphType, playerName, startDate, endDate });
-
     // Base query for all types
     let query = `SELECT date, game_type, duration, players`;
 
@@ -2208,12 +2205,8 @@ app.get('/api/games-timeline', async (req, res) => {
     }
 
     query += ` ORDER BY date ASC`;
-    
-    console.log('Generated SQL Query:', query);
-    console.log('Query Parameters:', queryParams);
 
     const [rows] = await pool.query(query, queryParams);
-    console.log(`Found ${rows.length} rows matching criteria`);
 
     // Process data based on graph type
     let chartData;
@@ -2509,7 +2502,6 @@ function process1v1SetupData(rows, options = {}) {
 
     } catch (error) {
       console.error('Error processing 1v1 game:', error);
-      console.log('Problematic row:', row);
     }
   });
 
