@@ -1,0 +1,46 @@
+# Include file to pretent to be running 1.43 beta1.
+
+# the server version
+ServerVersion 1.42 dedicated
+
+# the range of versions to connect. The upper range is open because later clients
+# are supposed to know by themselves whether they can connect to this or not.
+MinVersion 1.42 beta4
+MaxVersion
+
+# Naval blacklist for all the mystery spots that send ships over land:
+
+# Mediterranean Sea and surroundings
+NavalBlacklist -10 50 28 50
+
+# North Sea
+NavalBlacklist 1 10 54 59
+
+# Hudson Bay
+NavalBlacklist -95 -74 51 69
+NavalBlacklist -74 -71 75 76
+
+# Carribean
+NavalBlacklist -97 -81 17 29
+NavalBlacklist -87 -73.4 9 19
+
+# Japan
+NavalBlacklist 132 138 34 42
+
+# Korea
+NavalBlacklist 123 126 32 35
+
+# Some bit just east of Scandinavia, it's a really strange spot, probably not
+# well reachable from the navigation nodes
+NavalBlacklist 38 46 65 72
+
+# and the Bering Strait itself. Passing it is possible, but directly sitting there not.
+NavalBlacklist 188 195 60 72
+
+# only version 1.42 is vulnerable to the ship exploit, and only for that version those
+# blacklist needs to be applied.
+NavalBlacklistMaxVersion 1.42
+
+# exceptions: 1.42 on linux already includes the fix.
+NavalBlacklistExcludeVersions 1.42 linux;
+

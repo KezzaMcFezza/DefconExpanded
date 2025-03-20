@@ -372,33 +372,50 @@ function createDemoCard(demo) {
         if (uniqueGroups === 2) {
             const [winningGroupId, winningScore] = sortedGroups[0];
             const [secondGroupId, secondScore] = sortedGroups[1];
-            const scoreDifference = winningScore - secondScore;
-            const winningGroupName = colorSystem[winningGroupId]?.name || `Team ${winningGroupId}`;
-            const secondGroupName = colorSystem[secondGroupId]?.name || `Team ${secondGroupId}`;
-            const winningGroupColor = colorSystem[winningGroupId]?.color || '#b8b8b8';
-            const secondGroupColor = colorSystem[secondGroupId]?.color || '#b8b8b8';
 
-            winningMessage = `<span style="color: ${winningGroupColor}">${winningGroupName}</span> won against <span style="color: ${secondGroupColor}">${secondGroupName}</span> by ${scoreDifference} points.`;
+            if (winningScore === secondScore) {
+                winningMessage = 'The game is a tie, nobody wins or loses!';
+            } else {
+                const scoreDifference = winningScore - secondScore;
+                const winningGroupName = colorSystem[winningGroupId]?.name || `Team ${winningGroupId}`;
+                const secondGroupName = colorSystem[secondGroupId]?.name || `Team ${secondGroupId}`;
+                const winningGroupColor = colorSystem[winningGroupId]?.color || '#b8b8b8';
+                const secondGroupColor = colorSystem[secondGroupId]?.color || '#b8b8b8';
+                winningMessage = `<span style="color: ${winningGroupColor}">${winningGroupName}</span> won against <span style="color: ${secondGroupColor}">${secondGroupName}</span> by ${scoreDifference} points.`;
+            }
         }
         else if (isAllSoloPlayers) {
             const sortedPlayers = [...parsedPlayers].sort((a, b) => b.score - a.score);
             const winner = sortedPlayers[0];
             const secondPlace = sortedPlayers[1];
-            const scoreDifference = winner.score - secondPlace.score;
-            const winnerGroupId = usingAlliances ? winner.alliance : winner.team;
-            const secondPlaceGroupId = usingAlliances ? secondPlace.alliance : secondPlace.team;
-            const winnerColor = colorSystem[winnerGroupId]?.color || '#b8b8b8';
-            const secondPlaceColor = colorSystem[secondPlaceGroupId]?.color || '#b8b8b8';
 
-            winningMessage = `<span style="color: ${winnerColor}">${winner.name}</span> won with ${scoreDifference} more points than <span style="color: ${secondPlaceColor}">${secondPlace.name}</span>.`;
+            if (winner.score === secondPlace.score) {
+                winningMessage = 'The game is a tie, nobody wins or loses!';
+            } else {
+                const scoreDifference = winner.score - secondPlace.score;
+                const winnerGroupId = usingAlliances ? winner.alliance : winner.team;
+                const secondPlaceGroupId = usingAlliances ? secondPlace.alliance : secondPlace.team;
+                const winnerColor = colorSystem[winnerGroupId]?.color || '#b8b8b8';
+                const secondPlaceColor = colorSystem[secondPlaceGroupId]?.color || '#b8b8b8';
+                winningMessage = `<span style="color: ${winnerColor}">${winner.name}</span> won with ${scoreDifference} more points than <span style="color: ${secondPlaceColor}">${secondPlace.name}</span>.`;
+            }
         }
         else {
             const [winningGroupId, winningScore] = sortedGroups[0];
-            const winningGroupName = colorSystem[winningGroupId]?.name || `Team ${winningGroupId}`;
-            const winningGroupColor = colorSystem[winningGroupId]?.color || '#b8b8b8';
 
-            if (uniqueGroups >= 3) {
-                winningMessage = `<span style="color: ${winningGroupColor}">${winningGroupName}</span> won with ${winningScore} points.`;
+            const isTie = sortedGroups.some(([groupId, score], index) => 
+                index > 0 && score === winningScore
+            );
+
+            if (isTie) {
+                winningMessage = 'The game is a tie, nobody wins or loses!';
+            } else {
+                const winningGroupName = colorSystem[winningGroupId]?.name || `Team ${winningGroupId}`;
+                const winningGroupColor = colorSystem[winningGroupId]?.color || '#b8b8b8';
+
+                if (uniqueGroups >= 3) {
+                    winningMessage = `<span style="color: ${winningGroupColor}">${winningGroupName}</span> won with ${winningScore} points.`;
+                }
             }
         }
     }

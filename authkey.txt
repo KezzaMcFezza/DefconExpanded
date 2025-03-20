@@ -13,5 +13,4 @@ These are the auth keys that are being used for the dedcon servers just incase w
 #ServerKey FCMVWF-CPPWYY-XCSFHD-RKOLYH-INR - from ebay - used
 #ServerKey XBAKOL-UWUXZN-ZLEMTH-VNRPMA-KYG - from ebay - used
 #ServerKey NXKWJG-QDLZUN-ZFAIAG-NDDEAP-DRL - from ebay - used
-#ServerKey NMPURK-TJPVWZ-AZMULB-YMLVVB-KQR
 

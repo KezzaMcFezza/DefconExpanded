@@ -1,0 +1,36 @@
+# random duel scenario with two territories for each team
+
+# Of course, this config file goes best with either
+#MaxTeams 4
+#AllianceSize 2
+# or
+#MaxTeams 2
+#TerritoriesPerTeam 2
+
+# There are too many possibilities here to list them all,
+# so let's just go by guidelines. Pick Territory1 as a southern
+# territory and avoid making its direct northern neighbour an enemy.
+# Do so my making it randomly an ally or empty.
+
+RBegin
+Territory1 SouthAmerica
+RSet Territory2 NorthAmerica
+RSet Territory6 NorthAmerica
+Randomise
+REnd
+
+RBegin
+Territory1 Africa
+RSet Territory2 Europe
+RSet Territory6 Europe
+Randomise
+REnd
+
+RBegin
+Territory1 Asia
+RSet Territory2 Russia
+RSet Territory6 Russia
+Randomise
+REnd
+
+Randomise

@@ -21,6 +21,7 @@ Admin LadenBinKezza~~0~dancefloor
 Admin Sievert~~1~dancefloor
 Admin MohammedBinNexus~~1~dancefloor
 Admin Vault Tec~~1~dancefloor
+Admin Haakon~~1~Kezzaiscool
 Admin Lord Haw Haw~~1~Reddashhawhaw
 
 HostName DefconExpanded

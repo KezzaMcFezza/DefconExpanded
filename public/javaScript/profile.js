@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-12-2024 
+//Last Edited 03-03-2025
 
 document.addEventListener('DOMContentLoaded', async () => {
     const pathArray = window.location.pathname.split('/');
@@ -49,13 +49,171 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let currentTerritories = vanillaTerritories;
 
-    async function fetchProfileData(username, mode = 'vanilla') {
-        const response = await fetch(`/api/profile/${username}?mode=${mode}`);
-        if (!response.ok) {
-            throw new Error('Profile not found');
+    function formatDuration(minutes) {
+        if (!minutes || isNaN(minutes)) return '0 min';
+
+        if (minutes < 60) {
+            return `${Math.round(minutes)} min`;
+        } else {
+            const hours = Math.floor(minutes / 60);
+            const remainingMinutes = Math.round(minutes % 60);
+            return `${hours} hr ${remainingMinutes} min`;
         }
-        return await response.json();
     }
+
+    function formatGameDuration(duration) {
+        if (!duration) return 'Unknown';
+        const [hours, minutes] = duration.split(':').map(Number);
+        if (hours === 0) {
+            return `${minutes} min`;
+        } else {
+            return `${hours} hr ${minutes} min`;
+        }
+    }
+
+    async function fetchNemesisData(defconUsername) {
+        try {
+            const response = await fetch(`/api/profile-arch-nemesis?playerName=${defconUsername}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch arch nemesis data');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching arch nemesis data:', error);
+            return {
+                archNemesis: 'None yet',
+                gamesPlayed: 0,
+                userWins: 0,
+                userLosses: 0,
+                sameTeamGames: 0,
+                tieGames: 0,
+                otherOutcomes: 0
+            };
+        }
+    }
+
+    async function calculateNemesisData(defconUsername) {
+        try {
+            const response = await fetch(`/api/demo-profile-panel?playerName=${defconUsername}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch games for nemesis calculation');
+            }
+
+            const { demos } = await response.json();
+            const playerInteractions = {};
+
+            demos.forEach(demo => {
+                try {
+                    let playersData = [];
+
+                    if (demo.players) {
+                        const parsedData = JSON.parse(demo.players);
+                        playersData = Array.isArray(parsedData.players) ? parsedData.players :
+                            (Array.isArray(parsedData) ? parsedData : []);
+                    }
+
+                    if (playersData.length < 2) return;
+                    const userPlayer = playersData.find(p => p.name === defconUsername);
+                    if (!userPlayer) return;
+
+                    const usingAlliances = playersData.some(p => p.alliance !== undefined);
+                    const userGroupId = usingAlliances ? userPlayer.alliance : userPlayer.team;
+
+                    const groupScores = {};
+                    playersData.forEach(player => {
+                        const groupId = usingAlliances ? player.alliance : player.team;
+                        if (groupId === undefined) return;
+
+                        if (!groupScores[groupId]) {
+                            groupScores[groupId] = 0;
+                        }
+                        groupScores[groupId] += player.score || 0;
+                    });
+
+                    const sortedGroups = Object.entries(groupScores).sort((a, b) => b[1] - a[1]);
+                    const isTie = sortedGroups.length >= 2 && sortedGroups[0][1] === sortedGroups[1][1];
+
+                    if (isTie) return;
+
+                    const winningGroupId = Number(sortedGroups[0][0]);
+                    const didUserWin = userGroupId === winningGroupId;
+
+                    playersData.forEach(opponent => {
+                        if (opponent.name === defconUsername) return;
+
+                        const opponentGroupId = usingAlliances ? opponent.alliance : opponent.team;
+                        if (opponentGroupId === undefined) return;
+
+                        if (!playerInteractions[opponent.name]) {
+                            playerInteractions[opponent.name] = { wins: 0, losses: 0 };
+                        }
+
+                        if (didUserWin && opponentGroupId !== userGroupId) {
+                            playerInteractions[opponent.name].wins++;
+                        } else if (!didUserWin && opponentGroupId === winningGroupId) {
+                            playerInteractions[opponent.name].losses++;
+                        }
+                    });
+
+                } catch (error) {
+                    console.error('Error processing demo for nemesis:', error);
+                }
+            });
+
+            let nemesis = null;
+            let maxLosses = 0;
+            let nemesisWins = 0;
+
+            Object.entries(playerInteractions).forEach(([opponent, record]) => {
+                const totalGames = record.wins + record.losses;
+                if (totalGames >= 3 && record.losses > maxLosses) {
+                    nemesis = opponent;
+                    maxLosses = record.losses;
+                    nemesisWins = record.wins;
+                }
+            });
+
+            return {
+                nemesis: nemesis || 'None yet',
+                nemesisWins: nemesisWins,
+                nemesisLosses: maxLosses,
+                allOpponents: playerInteractions
+            };
+
+        } catch (error) {
+            console.error('Error calculating nemesis data:', error);
+            return {
+                nemesis: 'None yet',
+                nemesisWins: 0,
+                nemesisLosses: 0,
+                allOpponents: {}
+            };
+        }
+    }
+
+    async function fetchProfileData(username, mode = 'vanilla') {
+        try {
+            const response = await fetch(`/api/profile/${username}?mode=${mode}`);
+            if (!response.ok) {
+                throw new Error('Profile not found');
+            }
+            const userProfile = await response.json();
+
+            if (userProfile.defcon_username) {
+                const nemesisData = await fetchNemesisData(userProfile.defcon_username);
+                userProfile.archNemesis = nemesisData.archNemesis;
+                userProfile.nemesisWins = nemesisData.userWins;
+                userProfile.nemesisLosses = nemesisData.userLosses;
+                userProfile.nemesisGames = nemesisData.gamesPlayed;
+            }
+
+            return userProfile;
+        } catch (error) {
+            console.error('Error fetching profile data:', error);
+            throw error;
+        }
+    }
+
 
     try {
         let userProfile = await fetchProfileData(username);
@@ -84,14 +242,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             profilePictureElement.src = profilePicture;
         }
 
-        const profileCard = document.querySelector('.profile-card');
-        if (profileCard) {
-            const profileBanner = userProfile.banner_image
-                ? `https://defconexpanded.com${userProfile.banner_image}`
-                : '/images/backgroundprofile.png';
-            profileCard.style.backgroundImage = `url('${profileBanner}')`;
-        }
-
         const usernameLabel = document.getElementById('profile-username-label');
         if (usernameLabel) {
             usernameLabel.textContent = userProfile.username || 'N/A';
@@ -118,12 +268,55 @@ document.addEventListener('DOMContentLoaded', async () => {
         const winLossRatio = document.getElementById('win-loss-ratio');
         const totalGames = document.getElementById('total-games');
         const recordScore = document.getElementById('record-score');
+        const averageGameDuration = document.getElementById('average-game-duration');
+        const archNemesisName = document.getElementById('arch-nemesis-name');
 
         if (defconUsername) defconUsername.textContent = userProfile.defcon_username || 'N/A';
         if (yearsOfService) yearsOfService.textContent = userProfile.years_played || '0';
         if (winLossRatio) winLossRatio.textContent = userProfile.winLossRatio || 'Not enough data';
         if (totalGames) totalGames.textContent = userProfile.totalGames || '0';
         if (recordScore) recordScore.textContent = userProfile.record_score || '0';
+
+        if (averageGameDuration) {
+            const avgDuration = userProfile.avgGameDuration || 0;
+            averageGameDuration.textContent = formatDuration(avgDuration);
+        }
+
+        if (archNemesisName) {
+            archNemesisName.textContent = userProfile.archNemesis || 'None yet';
+        }
+
+        const totalNemesisGames = document.getElementById('total-nemesis-games');
+        const nemesisWinsElement = document.getElementById('nemesis-wins');
+        const nemesisLossesElement = document.getElementById('nemesis-losses');
+
+        if (totalNemesisGames) {
+            const competitiveGames = (userProfile.nemesisWins || 0) + (userProfile.nemesisLosses || 0);
+            totalNemesisGames.textContent = `Games: ${competitiveGames}`;
+        }
+
+        if (nemesisWinsElement) {
+            nemesisWinsElement.textContent = `W: ${userProfile.nemesisWins || 0}`;
+        }
+
+        if (nemesisLossesElement) {
+            nemesisLossesElement.textContent = `L: ${userProfile.nemesisLosses || 0}`;
+        }
+
+        const nemesisContainer = document.querySelector('.nemesis-container');
+        if (nemesisContainer && userProfile.nemesisGames > 0) {
+            const sameTeam = userProfile.sameTeamGames || 0;
+            const ties = userProfile.tieGames || 0;
+            const other = userProfile.otherOutcomes || 0;
+
+            nemesisContainer.title =
+                `Games vs ${userProfile.archNemesis}: ${userProfile.nemesisGames}\n` +
+                `Wins: ${userProfile.nemesisWins}\n` +
+                `Losses: ${userProfile.nemesisLosses}\n` +
+                `Same Team: ${sameTeam}\n` +
+                `Ties: ${ties}\n` +
+                `Other outcomes: ${other}`;
+        }
 
         const mainContributionsContainer = document.getElementById('main-contributions-list');
         if (mainContributionsContainer) {
@@ -135,7 +328,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     mainContributionsContainer.appendChild(listItem);
                 });
             } else {
-                mainContributionsContainer.textContent = 'No main contributions yet.';
+                const listItem = document.createElement('li');
+                listItem.textContent = 'No main contributions yet.';
+                mainContributionsContainer.appendChild(listItem);
             }
         }
 
@@ -149,7 +344,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     guidesAndModsContainer.appendChild(listItem);
                 });
             } else {
-                guidesAndModsContainer.textContent = 'No guides or mods yet.';
+                const listItem = document.createElement('li');
+                listItem.textContent = 'No guides or mods yet.';
+                guidesAndModsContainer.appendChild(listItem);
             }
         }
 
@@ -166,19 +363,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const dropdown = document.getElementById('game-mode-dropdown');
-        dropdown.addEventListener('change', async (event) => {
-            const selectedMode = event.target.value;
-            let currentTerritories = vanillaTerritories;
-            if (selectedMode === '8player') {
-                currentTerritories = eightPlayerTerritories;
-            } else if (selectedMode === '10player') {
-                currentTerritories = tenPlayerTerritories;
-            }
+        if (dropdown) {
+            dropdown.addEventListener('change', async (event) => {
+                const selectedMode = event.target.value;
+                let currentTerritories = vanillaTerritories;
+                if (selectedMode === '8player') {
+                    currentTerritories = eightPlayerTerritories;
+                } else if (selectedMode === '10player') {
+                    currentTerritories = tenPlayerTerritories;
+                }
 
-            userProfile = await fetchProfileData(username, selectedMode);
+                userProfile = await fetchProfileData(username, selectedMode);
 
-            updateTerritoryStats(userProfile, currentTerritories);
-        });
+                updateTerritoryStats(userProfile, currentTerritories);
+            });
+        }
 
         updateTerritoryStats(userProfile, currentTerritories);
 
@@ -187,6 +386,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
     } catch (error) {
+        console.error('Error loading profile:', error);
         document.title = 'Profile Not Found - DEFCON Expanded';
     }
 });
@@ -242,19 +442,36 @@ document.addEventListener('DOMContentLoaded', () => {
     let translateX = 0;
     let translateY = 0;
 
-    profileBannerOverlay.style.display = 'none';
-    profilePictureOverlay.style.display = 'none';
+    if (profileBannerOverlay && profilePictureOverlay) {
+        profileBannerOverlay.style.display = 'none';
+        profilePictureOverlay.style.display = 'none';
+    }
 
-    editButton.addEventListener('click', () => {
-        isEditing = !isEditing;
-        editButton.textContent = isEditing ? 'Save Changes' : 'Edit Profile';
-        editButtonMobile.textContent = isEditing ? 'Save Changes' : 'Edit Profile';
-        toggleEditMode();
-    });
+    if (editButton) {
+        editButton.addEventListener('click', () => {
+            isEditing = !isEditing;
+            if (editButton) {
+                editButton.textContent = isEditing ? 'Save Changes' : 'Edit Profile';
+                editButton.innerHTML = isEditing ?
+                    '<i class="fas fa-save"></i> Save Changes' :
+                    '<i class="fas fa-pencil-alt"></i> Edit Profile';
+            }
+            if (editButtonMobile) {
+                editButtonMobile.textContent = isEditing ? 'Save Changes' : 'Edit Profile';
+                editButtonMobile.innerHTML = isEditing ?
+                    '<i class="fas fa-save"></i> Save Changes' :
+                    '<i class="fas fa-pencil-alt"></i> Edit Profile';
+            }
+            toggleEditMode();
+        });
+    }
 
     function toggleEditMode() {
-        profileBannerOverlay.style.display = isEditing ? 'flex' : 'none';
-        profilePictureOverlay.style.display = isEditing ? 'flex' : 'none';
+        document.body.classList.toggle('editing');
+        if (editButton) editButton.classList.toggle('editing');
+
+        if (profileBannerOverlay) profileBannerOverlay.style.display = isEditing ? 'flex' : 'none';
+        if (profilePictureOverlay) profilePictureOverlay.style.display = isEditing ? 'flex' : 'none';
     }
 
     function showImageEditor(imageElement, isProfile) {
@@ -281,17 +498,19 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTransform();
     }
 
-    imageToEdit.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        const delta = e.deltaY > 0 ? -0.1 : 0.1;
-        const newZoom = Math.min(Math.max(zoomControl.value + delta * 100, zoomControl.min), zoomControl.max);
-        zoomControl.value = newZoom;
-        applyZoom();
-    });
+    if (imageToEdit) {
+        imageToEdit.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            const newZoom = Math.min(Math.max(zoomControl.value + delta * 100, zoomControl.min), zoomControl.max);
+            zoomControl.value = newZoom;
+            applyZoom();
+        });
+    }
 
     function resetZoom() {
         scale = 1;
-        zoomControl.value = 100;
+        if (zoomControl) zoomControl.value = 100;
         translateX = 0;
         translateY = 0;
         applyTransform();
@@ -311,6 +530,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateCropOverlay() {
+        if (!cropOverlay) return;
+
         const profilePictureDimensions = 480;
         if (isProfilePicture) {
             cropOverlay.style.borderRadius = '50%';
@@ -323,99 +544,111 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    profilePictureContainer.addEventListener('click', (e) => {
-        if (isEditing && e.target.closest('.edit-overlay')) {
-            currentEditingElement = document.getElementById('profile-picture');
-            isProfilePicture = true;
-            imageUpload.click();
-        }
-    });
+    if (profilePictureContainer) {
+        profilePictureContainer.addEventListener('click', (e) => {
+            if (isEditing && e.target.closest('.edit-overlay')) {
+                currentEditingElement = document.getElementById('profile-picture');
+                isProfilePicture = true;
+                imageUpload.click();
+            }
+        });
+    }
 
-    imageUpload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imageToEdit.src = e.target.result;
-                showImageEditor(currentEditingElement, isProfilePicture);
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    if (imageUpload) {
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imageToEdit.src = e.target.result;
+                    showImageEditor(currentEditingElement, isProfilePicture);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 
-    zoomControl.max = 400;
-
-    zoomControl.addEventListener('input', applyZoom);
+    if (zoomControl) {
+        zoomControl.max = 400;
+        zoomControl.addEventListener('input', applyZoom);
+    }
 
     function applyTransform() {
+        if (!imageToEdit) return;
         imageToEdit.style.transform = `translate(-50%, -50%) scale(${scale})`;
         imageToEdit.style.left = '50%';
         imageToEdit.style.top = '50%';
     }
 
-    skipEditBtn.addEventListener('click', () => {
-        imageEditorModal.style.display = 'none';
-    });
+    if (skipEditBtn) {
+        skipEditBtn.addEventListener('click', () => {
+            if (imageEditorModal) imageEditorModal.style.display = 'none';
+        });
+    }
 
-    cancelEditBtn.addEventListener('click', () => {
-        imageEditorModal.style.display = 'none';
-    });
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', () => {
+            if (imageEditorModal) imageEditorModal.style.display = 'none';
+        });
+    }
 
-    applyEditBtn.addEventListener('click', () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        let containerWidth, containerHeight;
+    if (applyEditBtn) {
+        applyEditBtn.addEventListener('click', () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            let containerWidth, containerHeight;
 
-        if (isProfilePicture) {
-            containerWidth = containerHeight = 480;
-        } else {
-            containerWidth = imageToEdit.parentElement.offsetWidth;
-            containerHeight = imageToEdit.parentElement.offsetHeight / 3;
-        }
-
-        canvas.width = containerWidth;
-        canvas.height = containerHeight;
-
-        const scale = zoomControl.value / 100;
-        const imgWidth = imageToEdit.naturalWidth * scale;
-        const imgHeight = imageToEdit.naturalHeight * scale;
-
-        const sx = (imgWidth - containerWidth) / 2 / scale;
-        const sy = (imgHeight - containerHeight) / 2 / scale;
-
-        ctx.drawImage(
-            imageToEdit,
-            sx, sy, containerWidth / scale, containerHeight / scale,
-            0, 0, containerWidth, containerHeight
-        );
-
-        canvas.toBlob(async (blob) => {
-            const formData = new FormData();
-            formData.append('image', blob, isProfilePicture ? 'profile_image.png' : 'banner_image.png');
-            formData.append('type', isProfilePicture ? 'profile' : 'banner');
-
-            try {
-                const response = await fetch('/api/upload-profile-image', {
-                    method: 'POST',
-                    body: formData
-                });
-                const result = await response.json();
-                if (result.success) {
-                    const newImageUrl = result.imageUrl + '?t=' + new Date().getTime();
-                    if (isProfilePicture) {
-                        currentEditingElement.src = newImageUrl;
-                    } else {
-                        currentEditingElement.style.backgroundImage = `url(${newImageUrl})`;
-                    }
-                    imageEditorModal.style.display = 'none';
-                } else {
-                    alert('Failed to upload image. Please try again.');
-                }
-            } catch (error) {
-                alert('An error occurred while uploading the image.');
+            if (isProfilePicture) {
+                containerWidth = containerHeight = 480;
+            } else {
+                containerWidth = imageToEdit.parentElement.offsetWidth;
+                containerHeight = imageToEdit.parentElement.offsetHeight / 3;
             }
-        }, 'image/png');
-    });
+
+            canvas.width = containerWidth;
+            canvas.height = containerHeight;
+
+            const scale = zoomControl.value / 100;
+            const imgWidth = imageToEdit.naturalWidth * scale;
+            const imgHeight = imageToEdit.naturalHeight * scale;
+
+            const sx = (imgWidth - containerWidth) / 2 / scale;
+            const sy = (imgHeight - containerHeight) / 2 / scale;
+
+            ctx.drawImage(
+                imageToEdit,
+                sx, sy, containerWidth / scale, containerHeight / scale,
+                0, 0, containerWidth, containerHeight
+            );
+
+            canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('image', blob, isProfilePicture ? 'profile_image.png' : 'banner_image.png');
+                formData.append('type', isProfilePicture ? 'profile' : 'banner');
+
+                try {
+                    const response = await fetch('/api/upload-profile-image', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        const newImageUrl = result.imageUrl + '?t=' + new Date().getTime();
+                        if (isProfilePicture) {
+                            currentEditingElement.src = newImageUrl;
+                        } else {
+                            currentEditingElement.style.backgroundImage = `url(${newImageUrl})`;
+                        }
+                        imageEditorModal.style.display = 'none';
+                    } else {
+                        alert('Failed to upload image. Please try again.');
+                    }
+                } catch (error) {
+                    alert('An error occurred while uploading the image.');
+                }
+            }, 'image/png');
+        });
+    }
 });
 
 function getTimeAgo(date) {
@@ -462,31 +695,31 @@ function createDemoCard(demo) {
     };
 
     const vanillaAllianceColors = {
-        0: { color: '#ff4949', name: 'Red' },
-        1: { color: '#00bf00', name: 'Green' },
-        2: { color: '#3d5cff', name: 'Blue' },
-        3: { color: '#e5cb00', name: 'Yellow' },
-        4: { color: '#ffa700', name: 'Orange' },
-        5: { color: '#00e5ff', name: 'Turq' }
+        0: { color: '#ff4949', name: 'Red', emoji: '🔴' },
+        1: { color: '#00bf00', name: 'Green', emoji: '🟢' },
+        2: { color: '#3d5cff', name: 'Blue', emoji: '🔵' },
+        3: { color: '#e5cb00', name: 'Yellow', emoji: '🟡' },
+        4: { color: '#ffa700', name: 'Orange', emoji: '🟠' },
+        5: { color: '#00e5ff', name: 'Turq', emoji: '🔷' }
     };
 
     const expandedAllianceColors = {
-        0: { color: '#00bf00', name: 'Green' },
-        1: { color: '#ff4949', name: 'Red' },
-        2: { color: '#3d5cff', name: 'Blue' },
-        3: { color: '#e5cb00', name: 'Yellow' },
-        4: { color: '#00e5ff', name: 'Turq' },
-        5: { color: '#e72de0', name: 'Pink' },
-        6: { color: '#4c4c4c', name: 'Black' },
-        7: { color: '#ffa700', name: 'Orange' },
-        8: { color: '#28660a', name: 'Olive' },
-        9: { color: '#660011', name: 'Scarlet' },
-        10: { color: '#2a00ff', name: 'Indigo' },
-        11: { color: '#4c4c00', name: 'Gold' },
-        12: { color: '#004c3e', name: 'Teal' },
-        13: { color: '#6a007f', name: 'Purple' },
-        14: { color: '#e5e5e5', name: 'White' },
-        15: { color: '#964B00', name: 'Brown' }
+        0: { color: '#00bf00', name: 'Green', emoji: '🟢' },
+        1: { color: '#ff4949', name: 'Red', emoji: '🔴' },
+        2: { color: '#3d5cff', name: 'Blue', emoji: '🔵' },
+        3: { color: '#e5cb00', name: 'Yellow', emoji: '🟡' },
+        4: { color: '#00e5ff', name: 'Turq', emoji: '🔷' },
+        5: { color: '#e72de0', name: 'Pink', emoji: '🟣' },
+        6: { color: '#4c4c4c', name: 'Black', emoji: '⚫' },
+        7: { color: '#ffa700', name: 'Orange', emoji: '🟠' },
+        8: { color: '#28660a', name: 'Olive', emoji: '🟢' },
+        9: { color: '#660011', name: 'Scarlet', emoji: '🔴' },
+        10: { color: '#2a00ff', name: 'Indigo', emoji: '🔵' },
+        11: { color: '#4c4c00', name: 'Gold', emoji: '🟡' },
+        12: { color: '#004c3e', name: 'Teal', emoji: '🔷' },
+        13: { color: '#6a007f', name: 'Purple', emoji: '🟣' },
+        14: { color: '#e5e5e5', name: 'White', emoji: '⚪' },
+        15: { color: '#964B00', name: 'Brown', emoji: '🟤' }
     };
 
     let parsedPlayers = [];
@@ -548,7 +781,7 @@ function createDemoCard(demo) {
             winningMessage = `<span style="color: ${winningGroupColor}">${winningGroupName}</span> won against <span style="color: ${secondGroupColor}">${secondGroupName}</span> by ${scoreDifference} points.`;
         }
         else if (isAllSoloPlayers) {
-            const sortedPlayers = [...parsedPlayers].sort((a, b) => b.score - a.score);
+            const sortedPlayers = [...parsedPlayers].sort((a, b) => (b.score || 0) - (a.score || 0));
             const winner = sortedPlayers[0];
             const secondPlace = sortedPlayers[1];
             const scoreDifference = winner.score - secondPlace.score;
@@ -716,27 +949,25 @@ window.toggleSpectators = toggleSpectators;
 
 function formatDuration(duration) {
     if (!duration) return 'Unknown';
-    const [hours, minutes] = duration.split(':').map(Number);
-    if (hours === 0) {
-        return `${minutes} min`;
-    } else {
-        return `${hours} hr ${minutes} min`;
-    }
-}
 
-function getTimeAgo(date) {
-    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-    let interval = seconds / 31536000;
-    if (interval > 1) return Math.floor(interval) + " years ago";
-    interval = seconds / 2592000;
-    if (interval > 1) return Math.floor(interval) + " months ago";
-    interval = seconds / 86400;
-    if (interval > 1) return Math.floor(interval) + " days ago";
-    interval = seconds / 3600;
-    if (interval > 1) return Math.floor(interval) + " hours ago";
-    interval = seconds / 60;
-    if (interval > 1) return Math.floor(interval) + " minutes ago";
-    return Math.floor(seconds) + " seconds ago";
+    if (typeof duration === 'string') {
+        const [hours, minutes] = duration.split(':').map(Number);
+        if (hours === 0) {
+            return `${minutes} min`;
+        } else {
+            return `${hours} hr ${minutes} min`;
+        }
+    } else if (typeof duration === 'number') {
+        if (duration < 60) {
+            return `${Math.round(duration)} min`;
+        } else {
+            const hours = Math.floor(duration / 60);
+            const remainingMinutes = Math.round(duration % 60);
+            return `${hours} hr ${remainingMinutes} min`;
+        }
+    }
+
+    return 'Unknown';
 }
 
 async function loadRecentGame(defconUsername) {
@@ -752,7 +983,7 @@ async function loadRecentGame(defconUsername) {
         if (recentGameContainer) {
             if (demos && demos.length > 0) {
                 const demoCard = createDemoCard(demos[0]);
-                recentGameContainer.innerHTML = '<h2 class="headerresources2" style="text-align: center; font-weight: 1; margin-bottom: 10px;">Most Recent Game</h2>' + demoCard.outerHTML;
+                recentGameContainer.innerHTML = '' + demoCard.outerHTML;
             } else {
                 recentGameContainer.innerHTML = '<p>No recent games available.</p>';
             }
@@ -824,11 +1055,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function toggleEdit() {
         isEditing = !isEditing;
+        document.body.classList.toggle('editing');
+
         if (editButton) {
-            editButton.textContent = isEditing ? 'Save Changes' : 'Edit Profile';
+            editButton.classList.toggle('editing');
+            editButton.innerHTML = isEditing ?
+                '<i class="fas fa-save"></i> Save Changes' :
+                '<i class="fas fa-pencil-alt"></i> Edit Profile';
         }
+
         if (editButtonMobile) {
-            editButtonMobile.textContent = isEditing ? 'Save Changes' : 'Edit Profile';
+            editButtonMobile.classList.toggle('editing');
+            editButtonMobile.innerHTML = isEditing ?
+                '<i class="fas fa-save"></i> Save Changes' :
+                '<i class="fas fa-pencil-alt"></i> Edit Profile';
         }
 
         if (isEditing) {
@@ -870,34 +1110,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function addDeleteButton(item) {
         const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'X';
+        deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
         deleteBtn.classList.add('delete-item-btn');
         deleteBtn.addEventListener('click', () => item.remove());
         item.appendChild(deleteBtn);
     }
 
     async function saveChanges() {
-        const currentUserResponse = await fetch('/api/current-user');
-        const currentUserData = await currentUserResponse.json();
-        const profileUsername = document.getElementById('profile-username-label').textContent;
-
-        if (!currentUserData.user || currentUserData.user.username !== profileUsername) {
-            alert('You are not authorized to edit this profile.');
-            location.reload();
-            return;
-        }
-
-        const profileData = {
-            discord_username: document.getElementById('discord-info').textContent,
-            steam_id: document.getElementById('steam-info').textContent,
-            bio: document.getElementById('bio-text').textContent,
-            defcon_username: document.getElementById('defcon-username').textContent,
-            years_played: document.getElementById('years-of-service').textContent,
-            main_contributions: Array.from(document.getElementById('main-contributions-list').children).map(li => li.textContent.replace('X', '').trim()),
-            guides_and_mods: Array.from(document.getElementById('guides-and-mods-list').children).map(li => li.textContent.replace('X', '').trim())
-        };
-
         try {
+            const currentUserResponse = await fetch('/api/current-user');
+            const currentUserData = await currentUserResponse.json();
+            const profileUsername = document.getElementById('profile-username-label').textContent;
+
+            if (!currentUserData.user || currentUserData.user.username !== profileUsername) {
+                alert('You are not authorized to edit this profile.');
+                location.reload();
+                return;
+            }
+
+            const profileData = {
+                discord_username: document.getElementById('discord-info').textContent,
+                steam_id: document.getElementById('steam-info').textContent,
+                bio: document.getElementById('bio-text').textContent,
+                defcon_username: document.getElementById('defcon-username').textContent,
+                years_played: document.getElementById('years-of-service').textContent,
+                main_contributions: Array.from(document.getElementById('main-contributions-list').children).map(li => li.textContent.replace('X', '').trim()),
+                guides_and_mods: Array.from(document.getElementById('guides-and-mods-list').children).map(li => li.textContent.replace('X', '').trim())
+            };
+
             const response = await fetch('/api/update-profile', {
                 method: 'POST',
                 headers: {
@@ -914,6 +1154,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('Failed to update profile. Please try again.');
             }
         } catch (error) {
+            console.error('Error updating profile:', error);
             alert('An error occurred while updating the profile.');
         }
 
@@ -923,7 +1164,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         editableLists.forEach(list => {
-            list.parentNode.querySelector('.add-item-btn').remove();
+            const addItemBtn = list.parentNode.querySelector('.add-item-btn');
+            if (addItemBtn) addItemBtn.remove();
             list.querySelectorAll('.delete-item-btn').forEach(btn => btn.remove());
         });
     }

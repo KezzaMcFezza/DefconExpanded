@@ -53,16 +53,12 @@
   position: absolute;
   background-color: #1a1a1a;
   min-width: 100%;
-  /* Changed from fixed width to 100% */
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
   z-index: 1;
   border-radius: 10px;
   top: 100%;
-  /* Position it right below the button */
   left: 0;
-  /* Align it with the left edge of the button */
   white-space: nowrap;
-  /* Prevent wrapping of text */
 }
 
 .dropdown-content-page a {

@@ -1,0 +1,63 @@
+# Radar defense mode. Essentials: two players, three terrritories each.
+
+MaxTeams 2
+MinTeams 2
+TerritoriesPerTeam 3
+RandomTerritories 1
+
+# Custom game mode, big world.
+GameMode 6
+WorldScale 200
+
+# Cities are irrelevant, so we turn them down as low as we can.
+CheckLimits 0
+CitiesPerTerritory 1
+PopulationPerTerritory 1
+
+# Victory timer, start at 51% so nobody can stall the game by not firing anything.
+VictoryTrigger 51
+VictoryTimer 120
+
+# No navy, no air force.
+ForbidSubmarine 1
+ForbidCarrier 1
+ForbidBattleship 1
+ForbidAirbase 1
+
+# Start up with the players only able to place radars and radar sharing on.
+ForbidSilo 1
+RadarSharing 3
+
+# Talk about the rules.
+WaitClient
+WaitSeconds 2
+Say Hi there. This is Radar Defense (invented by RC, I think). Rules:
+WaitSeconds 5
+Say Everyone gets three territorie, world scale will be 200% for LOTS of units.
+WaitSeconds 5
+Say During Defcon 5, you can only place radars. Your will see each other's placements.
+WaitSeconds 5
+Say During Decon 4, you can only place silos. Their placements will be secret.
+WaitSeconds 5
+Say The goal then is to have more radars surviving than your enemy. The displayed scores are irrelevant.
+WaitSeconds 5
+Say The proper settings will be applied once both players ready up.
+
+WaitStart
+Say You now can place only radars. Good Luck!
+
+# At defcon 4, we disable radar sharing and allow only silo placment.
+WaitDefcon 4
+ForbidSilo 0
+ForbidRadar 1
+RadarSharing 0
+Say You now can place only silos.
+
+# At defcon 3, we fast forward to shortly before defcon 1, nothing can happen there anyway.
+WaitDefcon 3
+GameSpeed 4
+WaitDefcon 2
+WaitGameSeconds 590
+GameSpeed 0
+WaitDefcon 1
+Say Get those radars down!

@@ -746,7 +746,7 @@ const checkAuthToken = (req, res, next) => {
 
 // Helper function to send HTML file
 function sendHtml(res, fileName) {
-  res.sendFile(path.join(__dirname, 'public', fileName), (err) => {
+  res.sendFile(path.join(__dirname, '..', 'public', fileName), (err) => {
     if (err) {
       res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
     }
@@ -827,7 +827,7 @@ app.get('/api/discord-widget', async (req, res) => {
 // Admin panel route
 app.get('/admin-panel', authenticateToken, (req, res) => {
   if (req.user) {
-      res.sendFile(path.join(__dirname, 'public', 'admin-panel.html'));
+      res.sendFile(path.join(__dirname, '..', 'public', 'admin-panel.html'));
   } else {
       res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
   }
@@ -1874,10 +1874,10 @@ router.get('/verify', async (req, res) => {
     pendingVerifications.delete(email);
 
     // Serve the success page
-    res.sendFile(path.join(__dirname, 'public', 'verificationsuccess.html'));
+    res.sendFile(path.join(__dirname, '..', 'public', 'verificationsuccess.html'));
   } catch (error) {
     console.error('Verification error:', error);
-    res.sendFile(path.join(__dirname, 'public', 'verificationerror.html'));
+    res.sendFile(path.join(__dirname, '..', 'public', 'verificationerror.html'));
   }
 });
 
@@ -2044,27 +2044,27 @@ ${bugDescription}`,
 });
 
 // Serve additional HTML pages
-app.get('/about', checkAuthToken, (req, res) => sendHtml(res, 'about.html'));
-app.get('/guides', checkAuthToken, (req, res) => sendHtml(res, 'guides.html'));
-app.get('/media', checkAuthToken, (req, res) => sendHtml(res, 'media.html'));
-app.get('/resources', checkAuthToken, (req, res) => sendHtml(res, 'resources.html'));
-app.get('/laikasdefcon', checkAuthToken, (req, res) => sendHtml(res, 'laikasdefcon.html'));
-app.get('/homepage/matchroom', checkAuthToken, (req, res) => sendHtml(res, 'matchroom.html'));
-app.get('/homepage', checkAuthToken, (req, res) => sendHtml(res, 'index.html'));
-app.get('/patchnotes', checkAuthToken, (req, res) => sendHtml(res, 'patchnotes.html'));
-app.get('/issue-report', checkAuthToken, (req, res) => sendHtml(res, 'bugreport.html'));
-app.get('/phpmyadmin', checkAuthToken, (req, res) => sendHtml(res, 'idiot.html'));
-app.get('/leaderboard', checkAuthToken, (req, res) => sendHtml(res, 'leaderboard.html'));
-app.get('/modlist', checkAuthToken, (req, res) => sendHtml(res, 'modlist.html'));
-app.get('/privacypolicy', checkAuthToken, (req, res) => sendHtml(res, 'privacypolicy.html'));
-app.get('/modlist/maps', checkAuthToken, (req, res) => sendHtml(res, 'mapmods.html'));
-app.get('/modlist/graphics', checkAuthToken, (req, res) => sendHtml(res, 'graphicmods.html'));
-app.get('/modlist/overhauls', checkAuthToken, (req, res) => sendHtml(res, 'overhaulmods.html'));
-app.get('/modlist/moddingtools', checkAuthToken, (req, res) => sendHtml(res, 'moddingtools.html'));
-app.get('/modlist/ai', checkAuthToken, (req, res) => sendHtml(res, 'aimods.html'));
-app.get('/signup', checkAuthToken, (req, res) => sendHtml(res, 'signuppage.html'));
-app.get('/forgotpassword', checkAuthToken, (req, res) => sendHtml(res, 'forgotpasswordfor816788487.html'));
-app.get('/changepassword', checkAuthToken, (req, res) => sendHtml(res, 'changepassword248723424.html'));
+app.get('/about', checkAuthToken, (res) => sendHtml(res, 'about.html'));
+app.get('/guides', checkAuthToken, (res) => sendHtml(res, 'guides.html'));
+app.get('/media', checkAuthToken, (res) => sendHtml(res, 'media.html'));
+app.get('/resources', checkAuthToken, (res) => sendHtml(res, 'resources.html'));
+app.get('/laikasdefcon', checkAuthToken, (res) => sendHtml(res, 'laikasdefcon.html'));
+app.get('/homepage/matchroom', checkAuthToken, (res) => sendHtml(res, 'matchroom.html'));
+app.get('/homepage', checkAuthToken, (res) => sendHtml(res, 'index.html'));
+app.get('/patchnotes', checkAuthToken, (res) => sendHtml(res, 'patchnotes.html'));
+app.get('/issue-report', checkAuthToken, (res) => sendHtml(res, 'bugreport.html'));
+app.get('/phpmyadmin', checkAuthToken, (res) => sendHtml(res, 'idiot.html'));
+app.get('/leaderboard', checkAuthToken, (res) => sendHtml(res, 'leaderboard.html'));
+app.get('/modlist', checkAuthToken, (res) => sendHtml(res, 'modlist.html'));
+app.get('/privacypolicy', checkAuthToken, (res) => sendHtml(res, 'privacypolicy.html'));
+app.get('/modlist/maps', checkAuthToken, (res) => sendHtml(res, 'mapmods.html'));
+app.get('/modlist/graphics', checkAuthToken, (res) => sendHtml(res, 'graphicmods.html'));
+app.get('/modlist/overhauls', checkAuthToken, (res) => sendHtml(res, 'overhaulmods.html'));
+app.get('/modlist/moddingtools', checkAuthToken, (res) => sendHtml(res, 'moddingtools.html'));
+app.get('/modlist/ai', checkAuthToken, (res) => sendHtml(res, 'aimods.html'));
+app.get('/signup', checkAuthToken, (res) => sendHtml(res, 'signuppage.html'));
+app.get('/forgotpassword', checkAuthToken, (res) => sendHtml(res, 'forgotpasswordfor816788487.html'));
+app.get('/changepassword', checkAuthToken, (res) => sendHtml(res, 'changepassword248723424.html'));
 app.get('/adminpanel', authenticateToken, checkRole(5), serveAdminPage('admin-panel', 5));
 app.get('/leaderboardblacklistmanage', authenticateToken, checkRole(5), serveAdminPage('blacklist', 5));
 app.get('/demomanage', authenticateToken, checkRole(5), serveAdminPage('demo-manage', 5));
@@ -2076,23 +2076,23 @@ app.get('/serverconsole', authenticateToken, checkRole(2), serveAdminPage('serve
 
 // Serve special files
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 app.get('/sitemap', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'sitemap.xml'));
 });
 
 app.get('/site.webmanifest', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'site.webmanifest'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'site.webmanifest'));
 });
 
 app.get('/browserconfig.xml', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'browserconfig.xml'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'browserconfig.xml'));
 });
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'loginpage.html'));
+  res.sendFile(path.join(__dirname, '..', 'public', 'loginpage.html'));
 });
 
 // 404 handler (this should be placed after all other routes)

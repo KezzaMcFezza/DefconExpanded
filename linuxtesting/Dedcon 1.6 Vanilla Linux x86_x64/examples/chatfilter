@@ -1,0 +1,49 @@
+# some classic chat filters
+# suggestions by:
+# mvpe
+
+# no good way to replace those, as they
+# can refer to a person or.. not
+ChatFilterWord ass
+ChatFilterReplace ***
+
+ChatFilterWord butt
+ChatFilter cunt
+ChatFilter dick
+ChatFilterWord dong
+ChatFilterReplace ****
+
+ChatFilter pussy
+ChatFilterReplace *****
+
+# :)
+ChatFilterWord dildo
+ChatFilterReplace toy
+
+ChatFilterWord cock
+ChatFilterReplace rooster
+
+ChatFilterWord bitch
+ChatFilterWord slut
+ChatFilterWord whore
+ChatFilterReplace lady
+
+ChatFilterWord nub
+ChatFilterWord noob
+ChatFilterReplace beginner
+
+ChatFilterWord gay
+ChatFilterWord ghey
+ChatFilterReplace happy
+
+ChatFilterWord stfu
+ChatFilterReplace Stop talking, please
+
+ChatFilterWord god
+ChatFilterReplace Flying Spaghetti Monster
+
+# crusade against typoes
+ChatFilterWord teh
+ChatFilterReplace the
+
+

@@ -1,0 +1,11 @@
+# Include file to pretent to be running 1.42.
+
+# The default settings pretend to be running 1.42 and all versions from 1.42 on are
+# allowed to connect:
+
+ServerVersion 1.42 dedicated
+MinVersion 1.42 beta4
+MaxVersion
+
+# this version is not officially supported for lack of the naval bugfix
+AdvertiseOnInternet 0

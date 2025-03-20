@@ -5,12 +5,13 @@ GameMode 0
 ServerPort 5010
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
-TotalBandwidth 75000
-PlayerBandwidth 10000
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 2500000
 ServerVersion 1.60.1.5 MINICOM
 LogLevel 2
 IdleTime 300
-HostName ServerBot
+HostName Server Bot
 AcceptC2 1
 CaseSensitive 0
 EventFile game_events_1v1muricon.log
@@ -77,7 +78,7 @@ RadarSharing 2
 WaitClient
 Say The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
 Say All our Defcon traditions continue here. Have a gg. -LHH
-Say The games will be available on...
+Say Type /gamealert *custom message* to notify people on discord to come play!
 Say www.defconexpanded.com
 
 WaitStart

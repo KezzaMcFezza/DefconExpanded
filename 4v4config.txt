@@ -5,8 +5,9 @@ GameMode 0
 ServerPort 5010
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
-TotalBandwidth 75000
-PlayerBandwidth 10000
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 2500000
 ServerVersion 1.60.1.5 MINICOM
 LogLevel 2
 IdleTime 300
@@ -65,7 +66,7 @@ RadarSharing 2
 
 WaitClient
 Say This is the Official test server for Defcon Expanded 8 Player, which now has recordings's and game stats you can view and download online!
-Say The games will be available on...
+Say Type /gamealert *custom message* to notify people on discord to come play!
 Say www.defconexpanded.com
 
 WaitStart

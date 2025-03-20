@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024 
+* Last Edited 03-03-2025
 -->
 
 <!DOCTYPE html>
@@ -37,27 +37,6 @@
 
         .fa-cog {
             margin-right: 5px;
-        }
-
-        @media (max-width: 1366px) {
-            .mod-item {
-                max-width: 395px !important;
-                min-width: 395px !important;
-            }
-        }
-
-        @media (max-width: 1280px) {
-            .mod-item {
-                max-width: 352px !important;
-                min-width: 352px !important;
-            }
-        }
-
-        @media (max-width: 430px) {
-            .mod-item {
-                margin: 10px !important;
-                max-width: 380px !important;
-            }
         }
 
         .heatmap {
@@ -117,8 +96,6 @@
                             </div>
 
                             <div class="logged-in-actions" style="display: none;">
-                                <button id="edit-profile-btn-mobile" class="edit-profile-btn-mobile">Edit
-                                    Profile</button>
                                 <div class="user-dropdown">
                                     <button class="dropbtn">
                                         <span id="logged-in-username">Logged-in User</span>
@@ -162,7 +139,6 @@
                         </div>
 
                         <div class="logged-in-actions" style="display: none;">
-                            <button id="edit-profile-btn" class="edit-profile-btn">Edit Profile</button>
                             <div class="user-dropdown">
                                 <button class="dropbtn">
                                     <span id="logged-in-username">Logged-in User</span>
@@ -181,120 +157,167 @@
         </header>
 
         <div class="profile-container">
-            <section class="profile-card" id="profile-banner-container">
-                <div id="profile-banner-overlay" class="edit-overlay-banner">
-                    <span><i></i></span>
-                </div>
-                <div class="somanydivs">
-                    <div class="left-profile-meta">
-                        <div id="profile-picture-container" class="image-container">
-                            <img id="profile-picture" src="/images/icon3.png" alt="Profile Picture">
-                            <div id="profile-picture-overlay" class="edit-overlay">
-                                <span><i class="fas fa-pencil-alt"></i> Change Profile Picture</span>
-                            </div>
-                            <div class="main-social-container-mobile">
-                                <h2 class="headerresources2"
-                                    style="text-align: left; font-weight: 1; margin-bottom: 10px;">Social</h2>
-                                <p class="pabout2" style="text-align: left; margin: 0;">Discord: <span
-                                        id="discord-info-mobile" class="editable">N/A</span></p>
-                                <p class="pabout2" style="text-align: left; margin: 0;">Steam: <span
-                                        id="steam-info-mobile" class="editable">N/A</span></p>
-                            </div>
-                        </div>
-                        <div class="username-bio-container">
-                            <label id="profile-username-label" style="font-size: 45px;"></label>
-                            <div class="profile-bio">
-                                <p class="pabout2" style="text-align: left; margin: 0;"><span id="bio-text"
-                                        class="editable">No bio.</span></p>
-                            </div>
-                        </div>
-                    </div>
-                    <button id="editProfileBtn" style="display: none;">Edit Profile</button>
-                    <div class="right-profile-meta">
-                        <div class="main-social-container">
-                            <h2 class="headerresources2" style="text-align: left; font-weight: 1; margin-bottom: 10px;">
-                                Social</h2>
-                            <p class="pabout2" style="text-align: left; margin: 0;">Discord: <span id="discord-info"
-                                    class="editable">N/A</span></p>
-                            <p class="pabout2" style="text-align: left; margin: 0;">Steam: <span id="steam-info"
-                                    class="editable">0</span></p>
-                        </div>
+            <div class="profile-header">
+                <div class="profile-banner" id="profile-banner">
+                    <div class="banner-overlay"></div>
+                    <div class="profile-banner-edit" id="profile-banner-edit">
+                        <i class="fas fa-pencil-alt"></i>
                     </div>
                 </div>
-            </section>
+                <div class="profile-info-bar">
+                    <div class="profile-picture-wrapper">
+                        <img id="profile-picture" src="/images/icon3.png" alt="Profile Picture" class="profile-picture">
+                        <div class="profile-picture-edit" id="profile-picture-edit">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <h1 id="profile-username-label" class="profile-username">Username</h1>
+                        <p class="profile-bio"><span id="bio-text" class="editable">No bio available.</span></p>
+                    </div>
+                    <div class="profile-actions">
+                        <button id="edit-profile-btn" class="edit-profile-btn">
+                            <i class="fas fa-pencil-alt"></i> Edit Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-            <section class="profile-demomod-container">
-                <div class="absolute-fucking-final-div">
-                    <div class="ihatemakingdivs">
-                        <div class="main-stats-container">
-                            <h2 class="headerresources2" style="text-align: left; font-weight: 1; margin-bottom: 10px;">
-                                Defcon Statistics</h2>
-                            <p class="pabout2" style="text-align: left; margin: 0;">Defcon Username: <span
-                                    id="defcon-username" class="editable">N/A</span></p>
-                            <p class="pabout2" style="text-align: left; margin: 0;">Years of Service: <span
-                                    id="years-of-service" class="editable">0</span></p>
-                            <span class="pabout2" style="text-align: left; margin: 0;">Win/Loss Ratio: <span
-                                    id="win-loss-ratio">Not enough data</span></span>
-                            <br>
-                            <span class="pabout2" style="text-align: left; margin: 0;">Total Games: <span
-                                    id="total-games">0</span></span>
-                            <br>
-                            <span class="pabout2" style="text-align: left; margin: 0;">Record Score: <span
-                                    id="record-score">0</span></span>
-                            <br>
-                            <br>
-                            <div class="dropdown-territory">
-                                <label style="font-size: 23px;">Territory Statistics</label>
-                                <select id="game-mode-dropdown" class="dropdown" style="margin-left: 5px;">
+            <div class="profile-content">
+                <div class="profile-main-content">
+                    <div class="stats-container">
+                        <div class="profile-card defcon-stats-card">
+                            <div class="profile-card-header">
+                                <i class="fas fa-chess-king"></i>
+                                <h2 class="profile-card-title">Defcon Statistics</h2>
+                            </div>
+                            <div class="defcon-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Defcon Username</span>
+                                    <span id="defcon-username" class="stat-value editable">N/A</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Years of Service</span>
+                                    <span id="years-of-service" class="stat-value editable">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Win/Loss Ratio</span>
+                                    <span id="win-loss-ratio" class="stat-value highlight-stat">Not enough data</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Total Games</span>
+                                    <span id="total-games" class="stat-value">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Record Score</span>
+                                    <span id="record-score" class="stat-value highlight-stat">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Average Game Duration</span>
+                                    <span id="average-game-duration" class="stat-value">0 min</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Arch Nemesis</span>
+                                    <div class="nemesis-container">
+                                        <span id="arch-nemesis-name" class="stat-value highlight-stat">None yet</span>
+                                        <div class="nemesis-record">
+                                            <span id="total-nemesis-games">Games: 0</span> | <span id="nemesis-wins">W:
+                                                0</span> | <span id="nemesis-losses">L: 0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="profile-card territory-stats-card">
+                            <div class="profile-card-header">
+                                <i class="fas fa-globe-americas"></i>
+                                <h2 class="profile-card-title">Territory Statistics</h2>
+                            </div>
+                            <div class="territory-select-wrapper">
+                                <span class="territory-select-label">Game Mode:</span>
+                                <select id="game-mode-dropdown" class="dropdown">
                                     <option value="vanilla">Vanilla</option>
                                     <option value="8player">8 Player</option>
                                     <option value="10player">10 Player</option>
                                 </select>
                             </div>
-                            <p class="pabout2" style="text-align: left; margin: 0; margin-top: 10px;"><span
-                                    id="best-territory-username"></span></p>
-                            <p class="pabout2" style="text-align: left; margin: 0;"><span
-                                    id="worst-territory-username"></span></p>
-                            <br>
+                            <div class="territory-results">
+                                <p id="best-territory-username" class="territory-result territory-best"></p>
+                                <p id="worst-territory-username" class="territory-result territory-worst"></p>
+                            </div>
                             <div class="heatmap">
-
-                            </div>
-                        </div>
-                    </div>
-                    <div id="recent-game-container">
-
-                    </div>
-                </div>
-
-                <div class="divv2">
-                    <div class="guesswhatdivfucking">
-                        <div class="main-contrib-container">
-                            <h2 class="headerresources2" style="text-align: left; font-weight: 1; margin-bottom: 10px;">
-                                Contributions</h2>
-                            <div class="contributions-container">
-                                <div class="contribution-section">
-                                    <label style="font-size: 23px;">Main Contributions</label>
-                                    <ul id="main-contributions-list" class="editable-list"></ul>
-                                    </ul>
-                                </div>
-                                <div class="contribution-section">
-                                    <label style="font-size: 23px;">Guides and mods</label>
-                                    <ul id="guides-and-mods-list" class="editable-list"></ul>
-                                    </ul>
-                                </div>
                             </div>
                         </div>
                     </div>
 
+                    <div class="profile-card contributions-card">
+                        <div class="profile-card-header">
+                            <i class="fas fa-code-branch"></i>
+                            <h2 class="profile-card-title">Contributions</h2>
+                        </div>
+                        <div class="contributions-container">
+                            <div class="contribution-section">
+                                <h3 class="contribution-section-title">Main Contributions</h3>
+                                <ul id="main-contributions-list" class="contribution-list editable-list">
+                                    <li>No contributions yet.</li>
+                                </ul>
+                            </div>
+                            <div class="contribution-section">
+                                <h3 class="contribution-section-title">Guides and Mods</h3>
+                                <ul id="guides-and-mods-list" class="contribution-list editable-list">
+                                    <li>No guides or mods yet.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
 
-                    <div class="anotherdivfucking">
-                        <h2 class="headerresources2" style="text-align: left; font-weight: 1; padding: 1.5rem;">
-                            Favourite Mods</h2>
-                        <div id="favouriteModsContainer"></div>
+                    <div class="profile-card favorite-mods-card">
+                        <div class="profile-card-header">
+                            <i class="fas fa-star"></i>
+                            <h2 class="profile-card-title">Favorite Mods</h2>
+                        </div>
+                        <div id="favouriteModsContainer" class="favorite-mods-grid">
+                        </div>
                     </div>
                 </div>
-            </section>
+
+                <div class="profile-sidebar">
+                    <div class="profile-card social-links-card">
+                        <div class="profile-card-header">
+                            <i class="fas fa-share-nodes"></i>
+                            <h2 class="profile-card-title">Social</h2>
+                        </div>
+                        <div class="social-links">
+                            <div class="social-item">
+                                <i class="fab fa-discord"></i>
+                                <span class="social-label">Discord:</span>
+                                <span id="discord-info" class="social-value editable">N/A</span>
+                            </div>
+                            <div class="social-item">
+                                <i class="fab fa-steam"></i>
+                                <span class="social-label">Steam:</span>
+                                <span id="steam-info" class="social-value editable">N/A</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-card recent-game-card">
+                        <div class="profile-card-header">
+                            <i class="fas fa-gamepad"></i>
+                            <h2 class="profile-card-title">Most Recent Game</h2>
+                        </div>
+                        <div id="recent-game-container" class="recent-game-container">
+                            <div class="loading-state" style="display: flex; align-items: center; gap: 10px;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading recent game data...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
         <div id="image-editor-modal" class="modal">
             <div class="modal-content">
                 <h2>Edit Image</h2>
@@ -304,7 +327,7 @@
                         <div id="crop-overlay" class="crop-overlay"></div>
                     </div>
                     <div class="image-editor-controls">
-                        <input type="range" id="zoom-control" min="100" max="200" value="100">
+                        <input type="range" id="zoom-control" min="100" max="400" value="100">
                         <div class="button-container">
                             <button id="skip-edit">Skip</button>
                             <button id="cancel-edit">Cancel</button>
@@ -317,6 +340,53 @@
 
         <input type="file" id="image-upload" accept="image/*" style="display: none;">
     </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.loading-state').forEach(state => {
+                state.style.display = 'flex';
+            });
+
+            const editBtn = document.getElementById('edit-profile-btn');
+            if (editBtn) {
+                editBtn.addEventListener('click', () => {
+                    document.body.classList.toggle('editing');
+                    editBtn.classList.toggle('editing');
+
+                    if (editBtn.classList.contains('editing')) {
+                        editBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                    } else {
+                        editBtn.innerHTML = '<i class="fas fa-pencil-alt"></i> Edit Profile';
+                    }
+                });
+            }
+
+            const profileBanner = document.getElementById('profile-banner');
+            if (profileBanner) {
+                profileBanner.style.backgroundImage = 'url("/images/backgroundprofile.png")';
+            }
+
+            const profilePictureEdit = document.getElementById('profile-picture-edit');
+            const profileBannerEdit = document.getElementById('profile-banner-edit');
+            const imageUpload = document.getElementById('image-upload');
+
+            if (profilePictureEdit && imageUpload) {
+                profilePictureEdit.addEventListener('click', () => {
+                    if (document.body.classList.contains('editing')) {
+                        imageUpload.click();
+                    }
+                });
+            }
+
+            if (profileBannerEdit && imageUpload) {
+                profileBannerEdit.addEventListener('click', () => {
+                    if (document.body.classList.contains('editing')) {
+                        imageUpload.click();
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

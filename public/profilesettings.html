@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024 
+* Last Edited 03-03-2025
 -->
 
 <!DOCTYPE html>
@@ -25,7 +25,7 @@
     <link rel="stylesheet" type="text/css" href="/CSS/scaling.css" />
     <link rel="stylesheet" type="text/css" href="/CSS/admin.css" />
     <link rel="stylesheet" type="text/css" href="/CSS/modlist.css" />
-    <link rel="stylesheet" type="text/css" href="/CSS/profile.css" />
+    <link rel="stylesheet" type="text/css" href="/CSS/profile-settings.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
@@ -36,132 +36,6 @@
 
         .fa-cog {
             margin-right: 5px;
-        }
-
-        .settings-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            margin-top: 2rem;
-        }
-
-        .pending-request {
-            background-color: #1c1c2e17;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 1rem;
-            color: #b8b8b8;
-            max-width: fit-content;
-        }
-
-        #user-pending-requests-container {
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .request-card {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .request-type {
-            color: #ffcc00;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .request-status.approved {
-            color: #4caf50;
-            font-weight: 500;
-        }
-
-        .request-status.pending {
-            color: #ff9800;
-        }
-
-        .request-status.rejected {
-            color: #f44336;
-        }
-
-        .admin-info {
-            color: #03a9f4;
-            font-size: 0.9em;
-        }
-
-        .card {
-            background-color: #1c1c2e17;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .card-title {
-            color: #4da6ff;
-            font-size: 1.3rem;
-            margin-top: 0;
-            text-align: center;
-            margin-bottom: 1rem;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        input[type="password"],
-        input[type="email"],
-        input[type="text"] {
-            background-color: #1c1c2e;
-            border: 1px solid #333;
-            color: #fff;
-            padding: 0.75rem;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-
-        .btn-download:hover {
-            background-color: #3a8ad6;
-        }
-
-        #request-delete-account {
-            background-color: #830000;
-        }
-
-        #request-delete-account:hover {
-            background-color: #a30000;
-        }
-
-        .btn-download {
-            width: fit-content;
-            margin-top: 10px;
-        }
-
-        .card {
-            display: flex;
-            flex-direction: column;
-            max-width: 80%;
-        }
-
-        .card-actions {
-            display: flex;
-            width: fit-content;
-            flex-direction: column;
-            margin-left: auto;
-            background-color: #1c1c2e17;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            opacity: 1;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        @media (max-width: 430px) {
-            .card {
-                max-width: 100% !important;
-            }
         }
     </style>
 </head>
@@ -255,95 +129,97 @@
                 </div>
             </nav>
         </header>
-        <div class="modlist-main-container">
-            <label style="font-size: 55px;">Account Managment</label>
-            <br>
-            <br>
-            <div class="modlistcontainer">
-                <p class="pabout2" style="text-align: left; margin: 0;">Welcome to your account managment page</p>
-                <br>
-                <p class="pabout2" style="text-align: left; margin: 0;">Everything on this page apart from changing your
-                    password is on a request basis,
-                    meaning that admins and moderators will have to accept or decline whatever you submit.
-                    However account deletion is non negotiable if you request your account to be deleted, we
-                    will not question it due to user rights.
-                </p>
-                <br>
-                <p class="pabout2" style="text-align: left; margin: 0;">There are more features planned for the future
-                    as the website grows, such as moderator application forums,
-                    and chatting to admins through a message portal if you need something other than is provided on this
-                    page.
-                </p>
+        <div class="settings-container">
+            <div class="settings-header">
+                <i class="fas fa-user-shield"></i>
+                <h1>Account Settings</h1>
             </div>
-            <div class="account-settings-container">
-                <div class="settings-grid">
-                    <div class="email-password">
-                        <div class="card">
-                            <h2 class="card-title">Change Password</h2>
-                            <form id="request-password-change-form">
-                                <input type="email" id="email" placeholder="Confirm your email" required>
-                                <button type="submit" class="btn-download">Request Password Change</button>
-                            </form>
 
-                            <form id="change-password-form" style="display: none;">
-                                <input type="password" id="new-password" placeholder="New Password" required>
-                                <input type="password" id="confirm-password" placeholder="Confirm New Password"
-                                    required>
-                                <button type="submit" class="btn-download">Change Password</button>
-                            </form>
-                        </div>
+            <div class="settings-info">
+                <p>Welcome to your account management page. Here you can update your account information and manage your
+                    preferences.</p>
+                <p>Please note that most changes (except password) require admin approval. Once submitted, your request
+                    will be reviewed by our team. </p>
+                <p>By team i mean (KezzaMcFezza) </p>
+            </div>
 
-                        <div class="card">
-                            <h2 class="card-title">Change Email</h2>
-                            <form id="change-email-form">
-                                <input type="email" id="new-email" placeholder="New Email" required>
-                                <button type="submit" class="btn-download">Change Email</button>
-                            </form>
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h2><i class="fas fa-lock"></i> Change Password</h2>
+                    <form id="request-password-change-form" class="settings-form">
+                        <div class="form-group">
+                            <label for="email">Confirm Your Email</label>
+                            <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
                         </div>
-                    </div>
-                    <div class="username-leaderboard">
-                        <div class="card">
-                            <h2 class="card-title">Change Username</h2>
-                            <form id="change-username-form">
-                                <input type="text" id="new-username" placeholder="New Username" required>
-                                <button type="submit" class="btn-download">Change Username</button>
-                            </form>
-                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Request Password Change
+                        </button>
+                    </form>
 
-                        <div class="card">
-                            <h2 class="card-title">Leaderboard Requests</h2>
-                            <form id="leaderboard-name-change-form">
-                                <input type="text" id="new-leaderboard-name" placeholder="New Leaderboard Name"
-                                    required>
-                                <button type="submit" class="btn-download">Request Leaderboard Name Change</button>
-                            </form>
+                    <form id="change-password-form" class="settings-form" style="display: none;">
+                        <div class="form-group">
+                            <label for="new-password">New Password</label>
+                            <input type="password" id="new-password" class="form-control"
+                                placeholder="Enter new password" required>
                         </div>
-                        <div class="actions-container-mobile">
-                            <div class="card-actions">
-                                <h2 class="card-title">Account Actions</h2>
-                                <div class="profile-buttons-mobile">
-                                    <button id="request-delete-account" class="btn-download">Request Account
-                                        Deletion</button>
-                                    <button id="request-blacklist" class="btn-download">Request to be
-                                        Blacklisted</button>
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm Password</label>
+                            <input type="password" id="confirm-password" class="form-control"
+                                placeholder="Confirm new password" required>
                         </div>
-                    </div>
-                    <div class="actions-container">
-                        <div class="card-actions">
-                            <h2 class="card-title">Account Actions</h2>
-                            <button id="request-delete-account" class="btn-download">Request Account Deletion</button>
-                            <button id="request-blacklist" class="btn-download">Request to be Blacklisted</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card">
-                    <h2 class="card-title">Your Pending Requests</h2>
-                    <div id="user-pending-requests-container">
-                    </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-key"></i> Change Password
+                        </button>
+                    </form>
                 </div>
 
+                <div class="settings-card">
+                    <h2><i class="fas fa-envelope"></i> Change Email</h2>
+                    <form id="change-email-form" class="settings-form">
+                        <div class="form-group">
+                            <label for="new-email">New Email Address</label>
+                            <input type="email" id="new-email" class="form-control" placeholder="Enter new email"
+                                required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-envelope-open-text"></i> Request Email Change
+                        </button>
+                    </form>
+                </div>
+
+                <div class="settings-card">
+                    <h2><i class="fas fa-user-edit"></i> Change Username</h2>
+                    <form id="change-username-form" class="settings-form">
+                        <div class="form-group">
+                            <label for="new-username">New Username</label>
+                            <input type="text" id="new-username" class="form-control" placeholder="Enter new username"
+                                required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-user-edit"></i> Request Username Change
+                        </button>
+                    </form>
+                </div>
+
+                <div class="account-actions">
+                    <h2><i class="fas fa-shield-alt"></i> Account Actions</h2>
+                    <button id="request-blacklist" class="btn btn-warning">
+                        <i class="fas fa-user-shield"></i> Request to be Blacklisted
+                    </button>
+                    <button id="request-delete-account" class="btn btn-danger">
+                        <i class="fas fa-user-times"></i> Request Account Deletion
+                    </button>
+                </div>
+            </div>
+
+            <div class="pending-requests-card">
+                <h2><i class="fas fa-clipboard-list"></i> Your Pending Requests</h2>
+                <div id="user-pending-requests-container" class="pending-requests-container">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>You don't have any pending requests</p>
+                    </div>
+                </div>
             </div>
         </div>
     </main>

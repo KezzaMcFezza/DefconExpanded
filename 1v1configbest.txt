@@ -7,13 +7,14 @@ AdvertiseOnInternet 1
 AdvertiseOnLAN 1
 SlowestSpeed 0
 AllianceSize 1
-TotalBandwidth 75000
-PlayerBandwidth 10000
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 2000000
 CaseSensitive 0
 LogLevel 2
 HostName DefconExpanded
 AcceptC2 1
-MaxIdleRunTime 1800
+MaxIdleRunTime 2500
 MinRunTime 900
 EventFile game_events_1v1best.log
 OutFile server_output_1v1best.log
@@ -50,7 +51,7 @@ SlowBudgetRedistributeUnused 0
 
 #PAUSE
 SlowBudgetUsePause 300
-SlowBudgetUseRealtime 100
+SlowBudgetUseRealtime 0
 SlowBudgetUse5x 0
 SlowBudgetUse10x 0
 
@@ -113,7 +114,7 @@ REnd
 
 RBegin pair8
 Territory1 AF
-Territory2 SA
+Territory2 AS
 REnd
 
 RBegin pair9
@@ -132,13 +133,13 @@ Territory2 AS
 REnd
 
 RBegin pair12
-Territory1 AF
+Territory1 EU
 Territory2 SA
 REnd
 
 RBegin pair13
-Territory1 AF
-Territory2 AS
+Territory1 EU
+Territory2 NA
 REnd
 
 Rotate rotation_log1.txt
@@ -152,12 +153,11 @@ Say North America vs Europe
 Say Europe vs South America
 Say Europe vs Russia
 Say This server also has a leaderboard and game recordings on www.defconexpanded.com.
+Say Type /gamealert *custom message* to notify people on discord to come play!
 
 WaitStart
-Say Warning: Each player has 30 minutes of 1x slowdown budget
-Say Budget regenerates at 1 minute per minute of 5x used, and 2 minutes per 10x used
-Say Each player also has 5 minutes of pause time that will affect their slowdown budget
-Say Use /speed to check your remaining budgets
+Say Each player also has 5 minutes of pause time that will affect their main pause budget
+Say Use /speed to check your remaining pause budget
 SpectatorChatChannel 0
 
 WaitEnd
