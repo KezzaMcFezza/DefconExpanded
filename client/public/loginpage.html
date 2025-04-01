@@ -1,0 +1,89 @@
+<!--
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 18-12-2024 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/CSS/useraccounts.css">
+    <title>Login Page</title>
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <form id="loginForm" action="">
+            <div class="headingsContainer">
+                <h3>Sign in</h3>
+                <p>Sign in with your username and password</p>
+            </div>
+
+            <div class="mainContainer">
+                <label for="username">Your username</label>
+                <input type="text" id="username" placeholder="Enter Username" name="username" required>
+                <br>
+                <br>
+                <label for="password">Your password</label>
+                <input type="password" id="password" placeholder="Enter Password" name="password" required>
+                <div class="subcontainer">
+                    <label>
+                        <input type="checkbox" name="remember"> Remember me
+                    </label>
+                    <p class="forgot-password"> <a href="/forgotpassword">Forgot Password?</a></p>
+                </div>
+                <button type="submit">Login</button>
+                <p class="error-message" id="error-message" style="display: none;">Invalid login credentials</p>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.querySelector('input[name="remember"]').checked;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password, rememberMe })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    window.location.href = '/homepage';
+                } else {
+                    document.getElementById('error-message').style.display = 'block';
+                    document.getElementById('error-message').textContent = data.error;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                message.style.color = 'red';
+                message.textContent = 'An error occurred. Please try again.';
+            }
+        });
+    </script>
+</body>
+
+</html>

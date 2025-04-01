@@ -1,4 +1,5 @@
 Include ConfigVersion-1.43-beta1
+Include admins
 ServerName DefconExpanded | 8 Player | Diplomacy
 ServerKey NMPURK-TJPVWZ-AZMULB-YMLVVB-KQR
 GameMode 3
@@ -16,15 +17,6 @@ IdleTime 300
 EventFile game_events_8playerdiplo.log
 OutFile server_output_8playerdiplo.log
 PlayerLog player_scores_8playerdiplo.log
-
-#ADMIN
-Admin Laika~~1~dancefloor
-Admin LadenBinKezza~~0~dancefloor
-Admin Sievert~~1~dancefloor
-Admin MohammedBinNexus~~1~dancefloor
-Admin Vault Tec~~1~dancefloor
-Admin Haakon~~1~Kezzaiscool
-Admin Lord Haw Haw~~1~Reddashhawhaw
 
 #ANTI-CHEAT
 GhostProtection 1

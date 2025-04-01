@@ -1,4 +1,5 @@
 Include ConfigVersion-1.43-beta1
+Include admins
 ServerName DefconExpanded Test Server
 ServerKey HRPICY-SDPMDQ-WZBNUY-VDEGWO-EEJ # Same key as 1v1 random
 GameMode 0
@@ -26,17 +27,8 @@ PlayerLog player_scores_1v1.log
 # PlayerLog
 # Record
 
-#ADMIN
-Admin Laika~~1~dancefloor
-Admin LadenBinKezza~~0~dancefloor
-Admin Sievert~~1~dancefloor
-Admin MohammedBinNexus~~1~dancefloor
-Admin Vault Tec~~1~dancefloor
-Admin Haakon~~1~Kezzaiscool
-Admin Lord Haw Haw~~1~Reddashhawhaw
-
 #ANTI-CHEAT
-GhostProtection 0
+GhostProtection 2
 MaxResyncAttempts 3
 
 #SPEED BUDGET

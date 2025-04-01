@@ -16,7 +16,7 @@
 <html lang="en" class="hide-scrollbar">
 
 <head>
-  <script src="/javaScript/admin.js"></script>
+  <script type="module" src="/javaScript/admin/admin-main.js"></script>
   <script src="/javaScript/script.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,15 +31,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&amp;display=swap" rel="stylesheet">
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const userRole = window.userRole;
-      document.querySelectorAll('[data-min-role]').forEach(element => {
-        const minRole = parseInt(element.dataset.minRole);
-        if (userRole <= minRole) {
-          element.style.display = '';
-        }
-      });
-    });
+
   </script>
 </head>
 <style>
@@ -150,45 +142,11 @@
         <li data-min-role="1"><a href="/defconservers" id="nav-defconservers" data-min-role="1"><i
               class="fa-solid fa-server"></i>Dedcon Servers</a></li>
       </ul>
-      <button id="downloadButton" onclick="downloadLogs()">Download Logs</button>
+      <button id="downloadButton" onclick="AdminApp.downloadLogs()">Download Logs</button>
     </div>
     <main>
       <div id="output"></div>
       <script>
-
-        const socket = io();
-        const outputDiv = document.getElementById('output');
-
-        socket.on('console_output', (message) => {
-          const logEntry = document.createElement('div');
-          logEntry.className = 'log-entry';
-
-          const timestampRegex = /^(\d{4}-\d{2}-\d{2}-\d{2}:\d{2}:\d{2}\.\d{2})/;
-          const match = message.match(timestampRegex);
-
-          if (match) {
-            const timestamp = match[1];
-            const timestampSpan = document.createElement('span');
-            timestampSpan.className = 'timestamp';
-            timestampSpan.textContent = timestamp + ' ';
-            logEntry.appendChild(timestampSpan);
-
-            const messageContent = message.substring(timestamp.length + 1);
-            const messageSpan = document.createElement('span');
-            messageSpan.className = 'message';
-            messageSpan.textContent = messageContent;
-            logEntry.appendChild(messageSpan);
-          } else {
-            logEntry.textContent = message;
-          }
-
-          outputDiv.appendChild(logEntry);
-          outputDiv.scrollTop = outputDiv.scrollHeight;
-        });
-
-        function downloadLogs() {
-          window.location.href = '/download-logs';
-        }
 
       </script>
     </main>

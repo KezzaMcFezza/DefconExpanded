@@ -1,4 +1,5 @@
 Include ConfigVersion-1.43-beta1
+Include admins
 ServerName DefconExpanded | 5v5 | FFA | Totally Random
 #ServerKey XSZOLI-HWSSRH-GXMBGU-LNRFPA-ELS
 GameMode 0
@@ -13,15 +14,6 @@ LogLevel 2
 EventFile game_events_10player5v5.log
 OutFile server_output_10player5v5.log
 PlayerLog player_scores_10player5v5.log
-
-#ADMIN
-Admin Laika~~1~dancefloor
-Admin LadenBinKezza~~0~dancefloor
-Admin Sievert~~1~dancefloor
-Admin MohammedBinNexus~~1~dancefloor
-Admin Vault Tec~~1~dancefloor
-Admin Haakon~~1~Kezzaiscool
-Admin Lord Haw Haw~~1~Reddashhawhaw
 
 HostName DefconExpanded
 

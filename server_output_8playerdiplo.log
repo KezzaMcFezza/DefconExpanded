@@ -268,3 +268,30 @@ ServerLANIP = 116.203.228.110
 Public server info: 116.203.228.110:5021
 Server key authentication succeeded, key id = 2968288.
 Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+OutFile = server_output_8playerdiplo.log
+PlayerLog = player_scores_8playerdiplo.log
+GhostProtection = 1
+KickVoteMin = 2
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+RadarSharing = 2
+SlowestSpeed = 0
+PermitDefection = 0
+AdvertisePlayers = 8
+MaxSpectators = 15
+DropCourtesy = -1
+Listening on port 5021.
+ServerPort = 5021
+Metaserver IP: 34.197.189.80
+ScoreMode = 1
+Reverting: RadarSharing = 1
+Reverting: PermitDefection = 1
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5021
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 2968288.

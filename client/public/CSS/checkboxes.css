@@ -1,0 +1,229 @@
+/*!
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 20-03-2025
+*/
+
+.server-checkbox {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(40, 40, 58, 0.3);
+    border-radius: 6px;
+    opacity: 0.5;
+    padding: 8px 10px;
+    transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.server-checkboxes-three-column {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+}
+
+.server-checkboxes-three-column .checkbox-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.server-checkbox.selected {
+    background-color: rgba(40, 40, 58, 0.5);
+    opacity: 1;
+    animation: pulse-border 2s infinite;
+}
+
+.server-name {
+    color: #b8b8b8;
+}
+
+.game-count {
+    color: #4da6ff;
+}
+
+.setup-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.setup-grid .checkbox-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.setup-checkbox::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: transparent;
+}
+
+.server-checkboxes-two-column {
+    display: flex;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.server-checkboxes-two-column .checkbox-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.setup-checkboxes {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.territory-checkbox {
+    position: relative;
+}
+
+.setup-checkbox-column,
+.checkbox-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.server-checkboxes {
+    display: flex;
+    gap: 5px;
+}
+
+
+#count-na, #count-sa, #count-eu, #count-ru, #count-af, #count-as, 
+#count-au, #count-we, #count-ea, #count-ant, #count-naf, #count-saf {
+    color: #4da6ff;
+    transition: color 0.3s;
+}
+
+.server-checkbox[onclick*="new_player"] {
+    border-left: 3px solid #8884d8;
+}
+.server-checkbox[onclick*="training"] {
+    border-left: 3px solid #82ca9d;
+}
+.server-checkbox[onclick*="defcon_random"] {
+    border-left: 3px solid #ffc658;
+}
+.server-checkbox[onclick*="defcon_best"] {
+    border-left: 3px solid #ff8042;
+}
+.server-checkbox[onclick*="defcon_afas"] {
+    border-left: 3px solid #0088fe;
+}
+.server-checkbox[onclick*="defcon_eusa"] {
+    border-left: 3px solid #00C49F;
+}
+.server-checkbox[onclick*="defcon_default"] {
+    border-left: 3px solid #FFBB28;
+}
+.server-checkbox[onclick*="defcon_2v2"] {
+    border-left: 3px solid #FF8042;
+}
+.server-checkbox[onclick*="tournament_2v2"] {
+    border-left: 3px solid #c71585;
+}
+.server-checkbox[onclick*="defcon_2v2_special"] {
+    border-left: 3px solid #ba55d3;
+}
+.server-checkbox[onclick*="mojo_2v2"] {
+    border-left: 3px solid #4b0082;
+}
+.server-checkbox[onclick*="sony_hoov"] {
+    border-left: 3px solid #00ced1;
+}
+.server-checkbox[onclick*="defcon_3v3"] {
+    border-left: 3px solid #98fb98;
+}
+.server-checkbox[onclick*="muricon"] {
+    border-left: 3px solid #f0e68c;
+}
+.server-checkbox[onclick*="cg_2v2_2815"] {
+    border-left: 3px solid #dda0dd;
+}
+.server-checkbox[onclick*="cg_2v2_28141"] {
+    border-left: 3px solid #ff69b4;
+}
+.server-checkbox[onclick*="cg_1v1_2815"] {
+    border-left: 3px solid #cd853f;
+}
+.server-checkbox[onclick*="cg_1v1_28141"] {
+    border-left: 3px solid #8b4513;
+}
+.server-checkbox[onclick*="defcon_ffa"] {
+    border-left: 3px solid #556b2f;
+}
+.server-checkbox[onclick*="defcon_8p_diplo"] {
+    border-left: 3px solid #483d8b;
+}
+.server-checkbox[onclick*="defcon_4v4"] {
+    border-left: 3px solid #008b8b;
+}
+.server-checkbox[onclick*="defcon_10p_diplo"] {
+    border-left: 3px solid #8b008b;
+}
+
+.popularterritories .server-checkbox[onclick*="na"],
+div[onclick*="toggleTerritory"][onclick*="na"] {
+    border-left: 3px solid #FF4136;
+}
+.popularterritories .server-checkbox[onclick*="sa"],
+div[onclick*="toggleTerritory"][onclick*="sa"] {
+    border-left: 3px solid #FF851B;
+}
+.popularterritories .server-checkbox[onclick*="eu"],
+div[onclick*="toggleTerritory"][onclick*="eu"] {
+    border-left: 3px solid #0074D9;
+}
+.popularterritories .server-checkbox[onclick*="ru"],
+div[onclick*="toggleTerritory"][onclick*="ru"] {
+    border-left: 3px solid #7FDBFF;
+}
+.popularterritories .server-checkbox[onclick*="af"],
+div[onclick*="toggleTerritory"][onclick*="af"] {
+    border-left: 3px solid #B10DC9;
+}
+.popularterritories .server-checkbox[onclick*="as"],
+div[onclick*="toggleTerritory"][onclick*="as"] {
+    border-left: 3px solid #01FF70;
+}
+.popularterritories .server-checkbox[onclick*="au"],
+div[onclick*="toggleTerritory"][onclick*="au"] {
+    border-left: 3px solid #FFDC00;
+}
+.popularterritories .server-checkbox[onclick*="we"],
+div[onclick*="toggleTerritory"][onclick*="we"] {
+    border-left: 3px solid #39CCCC;
+}
+.popularterritories .server-checkbox[onclick*="ea"],
+div[onclick*="toggleTerritory"][onclick*="ea"] {
+    border-left: 3px solid #F012BE;
+}
+.popularterritories .server-checkbox[onclick*="ant"],
+div[onclick*="toggleTerritory"][onclick*="ant"] {
+    border-left: 3px solid #85144b;
+}
+.popularterritories .server-checkbox[onclick*="naf"],
+div[onclick*="toggleTerritory"][onclick*="naf"] {
+    border-left: 3px solid #3D9970;
+}
+.popularterritories .server-checkbox[onclick*="saf"],
+div[onclick*="toggleTerritory"][onclick*="saf"] {
+    border-left: 3px solid #2ECC40;
+}

@@ -1,0 +1,420 @@
+/*!
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 20-03-2025
+*/
+
+.yaxis-input {
+    background-color: #1c1c2e;
+    border: 1px solid #333;
+    color: #fff;
+    height: 10px;
+    width: 30px;
+    padding: 0.65rem;
+    border-radius: 4px 0 0 4px;
+}
+
+.apply-servers-btn {
+    display: flex;
+    padding: 0.4rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    background-color: #1d9300;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+    transition: background-color 0.2s;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.reset-queries-btn {
+    display: flex;
+    padding: 0.4rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    background-color: #0067b8;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+    transition: background-color 0.2s;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.apply-servers-btn:hover {
+    background-color: #09ff00;
+}
+
+.reset-servers-btn {
+    display: flex;
+    padding: 0.4rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    background-color: #830000;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+    transition: background-color 0.2s;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.reset-servers-btn:hover {
+    background-color: #d60000;
+}
+
+.update-graph-btn {
+    display: flex;
+    padding: 0.4rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    background-color: #6200ffcf;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+    transition: background-color 0.2s;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.update-graph-btn:hover {
+    background-color: #ff00f2;
+}
+
+.cumulative-toggle-btn {
+    background-color: #4a4a4a;
+    color: #b8b8b8;
+    border: none;
+    padding: 0.4rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.cumulative-toggle-btn:hover {
+    background-color: #5a5a5a;
+}
+
+.reset-apply-servers {
+    display: flex;
+    gap: 10px;
+}
+
+.date-inputs {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.yaxis-linear {
+    display: flex;
+    gap: 15px;
+    flex-direction: row;
+}
+
+.filter-header {
+    margin-bottom: 10px;
+}
+
+#gamesChart {
+    width: 100%;
+    height: 420px;
+    margin: 1.5rem 0;
+    background-color: transparent;
+}
+
+.apexcharts-tooltip {
+    background-color: rgba(28, 28, 46, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 6px;
+    font-family: inherit;
+}
+
+.apexcharts-tooltip-title {
+    background-color: rgba(75, 75, 95, 0.6) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 8px 12px !important;
+    font-family: 'Orbitron', sans-serif;
+    color: #4da6ff !important;
+}
+
+.apexcharts-tooltip-y-group {
+    padding: 6px 12px !important;
+}
+
+.apexcharts-xaxistooltip {
+    background-color: rgba(28, 28, 46, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 4px;
+    color: #b8b8b8 !important;
+}
+
+.apexcharts-xaxistooltip:before, 
+.apexcharts-xaxistooltip:after {
+    border-bottom-color: rgba(28, 28, 46, 0.9) !important;
+}
+
+.apexcharts-legend-text {
+    color: #b8b8b8 !important;
+    font-size: 0.9rem !important;
+}
+
+.apexcharts-legend-marker {
+    margin-right: 5px !important;
+}
+
+.apexcharts-gridline {
+    stroke: rgba(255, 255, 255, 0.1) !important;
+}
+
+.apexcharts-yaxis-label, 
+.apexcharts-xaxis-label {
+    fill: #b8b8b8 !important;
+}
+
+.apexcharts-toolbar {
+    background-color: transparent !important;
+}
+
+.apexcharts-menu {
+    background-color: rgba(28, 28, 46, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    padding: 5px !important;
+}
+
+.apexcharts-menu-item {
+    color: #b8b8b8 !important;
+    padding: 6px 10px !important;
+}
+
+.apexcharts-menu-item:hover {
+    background-color: rgba(77, 166, 255, 0.2) !important;
+}
+
+.hero-section {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+    color: #4da6ff;
+}
+
+.hero-text {
+    font-size: 1.125rem;
+    color: #b8b8b8;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.hero-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.hero-link {
+    color: #4da6ff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s ease;
+}
+
+.hero-link:hover {
+    color: #3a8ad6;
+}
+
+.about-page-container {
+    padding: 0rem 1.5rem 1.5rem 1.5rem;
+}
+
+.h2project {
+    color: #4da6ff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+#exportData {
+    background-color: #0c0c0c;
+    border: 1px solid #cccccc;
+    color: #cccccc;
+    cursor: pointer;
+    max-width: 150px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 14px;
+    margin-top: 15px;
+    padding: 5px 10px;
+}
+
+#exportData:hover {
+    background-color: #cccccc;
+    color: #0c0c0c;
+}
+
+.stats-grid {
+    gap: 1rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.stat-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.stat-header i {
+    color: #4da6ff;
+    margin-right: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.stat-header h3 {
+    font-size: 1.75rem;
+    margin: 0;
+    font-weight: 600;
+    color: #4da6ff;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+    color: #b8b8b8;
+}
+
+.stat-subtitle {
+    font-size: 0.875rem;
+    margin: 0;
+    color: #888;
+}
+
+.server-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: #b8b8b8;
+    font-size: 0.875rem;
+}
+
+.server-list li {
+    margin-bottom: 0.25rem;
+}
+
+.project-info {
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.project-info h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4da6ff;
+    margin-bottom: 1rem;
+}
+
+.project-info p {
+    color: #b8b8b8;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.fa-user {
+    margin-right: 5px;
+}
+
+.fa-cog {
+    margin-right: 5px;
+}
+
+.chart-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #4da6ff;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.chart-loading i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    animation: spin 1.5s linear infinite;
+}
+
+#selectAllTerritories,
+#deselectAllTerritories {
+    display: flex;
+    padding: 0.4rem;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+    transition: background-color 0.2s;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+#selectAllTerritories {
+    background-color: #1d9300;
+}
+
+#selectAllTerritories:hover {
+    background-color: #09ff00;
+}
+
+#deselectAllTerritories {
+    background-color: #830000;
+}
+
+#deselectAllTerritories:hover {
+    background-color: #d60000;
+}
+
+
+@media (max-width: 768px) {
+    #gamesChart {
+        height: 300px;
+    }
+    
+    .apexcharts-legend {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .server-checkboxes-two-column {
+        grid-template-columns: 1fr;
+    }
+}
