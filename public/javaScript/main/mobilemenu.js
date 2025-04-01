@@ -1,6 +1,16 @@
-// Mobile menu and navigation functionality
 
-// Set active navigation item based on current URL
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 01-04-2025
+
 function setActiveNavItem() {
     const currentPath = window.location.pathname;
     const navItems = document.querySelectorAll('#sidebar .list-items li');
@@ -17,7 +27,6 @@ function setActiveNavItem() {
     });
   }
   
-  // Setup mobile menu functionality
   function setupMobileMenu() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
@@ -56,7 +65,6 @@ function setActiveNavItem() {
     }
   }
   
-  // Toggle patch notes visibility
   function togglePatchNotes(button) {
     const details = button.closest('.patchnote-content').querySelector('.patchnote-details');
     if (details.style.display === 'none') {
@@ -68,7 +76,6 @@ function setActiveNavItem() {
     }
   }
   
-  // Get current page name
   function getPageName() {
     const path = window.location.pathname;
     const pages = ['index.html', 'about.html', 'resources.html', 'news.html', 'laikasdefcon.html', '404.html', 'media.html', 'matchroom.html'];
@@ -81,7 +88,6 @@ function setActiveNavItem() {
     return pageName;
   }
   
-  // Setup dropdown sections (used in installation guidelines)
   function setupDropdownSections() {
     const sections = document.querySelectorAll('.installation-section');
   
@@ -106,7 +112,6 @@ function setActiveNavItem() {
     });
   }
   
-  // Smooth scroll to element
   function smoothScroll(target) {
     const element = document.querySelector(target);
     if (element) {
@@ -117,13 +122,11 @@ function setActiveNavItem() {
     }
   }
   
-  // Initialize navigation functionality
   function initializeNavigation() {
     setupMobileMenu();
     setActiveNavItem();
     setupDropdownSections();
     
-    // Setup smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
         e.preventDefault();
