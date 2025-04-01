@@ -1,0 +1,90 @@
+<!--
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 18-12-2024 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="robots" content="noindex">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" type="text/css" href="/CSS/useraccounts.css">
+  <title>Sign up page</title>
+  <style>
+
+  </style>
+</head>
+
+<body>
+  <div class="login-container">
+    <form id="signupForm" action="">
+      <div class="headingsContainer">
+        <h3>Sign up</h3>
+        <p>Sign up to manage your leaderboard profile, report issues on the page, request mod uploads on the mod-list
+          and even request to upload your defcon demo!</p>
+      </div>
+
+      <div class="mainContainer">
+        <form id="signupForm">
+          <div class="user-alias">
+            <input type="text" id="username" placeholder="Enter Username" name="username"
+              style="margin: 0px 10px 0px 0px;" required>
+          </div>
+          <br>
+          <br>
+          <label for="pswrd">Your password</label>
+          <input type="password" id="password" placeholder="Enter Password" name="pswrd" required>
+          <br>
+          <br>
+          <label for="email">Email address</label>
+          <input type="text" id="email" placeholder="Enter Email" name="email" required>
+          <br>
+          <p class="forgot-password"> <a href="/privacypolicy" target="_blank">Read our privacy policy</a></p>
+          <br>
+          <button type="submit">Sign up</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('/api/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert(data.message);
+        } else {
+          alert(data.error);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred during signup');
+      }
+    });
+  </script>
+</body>
+
+</html>

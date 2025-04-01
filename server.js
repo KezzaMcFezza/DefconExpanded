@@ -1794,7 +1794,15 @@ app.get('/api/leaderboard', async (req, res) => {
 
     // Calculate additional stats
     Object.values(playerStats).forEach(player => {
+      // Basic win ratio calculation (percentage)
       player.win_ratio = (player.wins / player.games_played) * 100 || 0;
+      
+      // Add a weighted win ratio that considers games played
+      // This formula prioritizes players with more games while maintaining the actual win percentage
+      // The more games played, the closer the weighted ratio gets to the actual win percentage
+      player.weighted_win_ratio = (player.win_ratio / 100) * (1 - (1 / (player.games_played + 1)));
+      
+      // Keep the existing weighted score calculation
       player.weighted_score = player.wins * (player.wins / (player.games_played || 1));
 
       if (Object.keys(player.territories).length > 0) {
@@ -1871,7 +1879,28 @@ app.get('/api/leaderboard', async (req, res) => {
           leaderboardData.sort((a, b) => b.avg_score - a.avg_score || a.player_name.localeCompare(b.player_name));
           break;
         case 'winRatio':
-          leaderboardData.sort((a, b) => b.win_ratio - a.win_ratio || a.player_name.localeCompare(b.player_name));
+          leaderboardData.sort((a, b) => {
+            // First sort by the weighted win ratio (which considers games played)
+            const weightedRatioDiff = b.weighted_win_ratio - a.weighted_win_ratio;
+            if (Math.abs(weightedRatioDiff) > 0.001) { // Using a small epsilon for floating point comparison
+              return weightedRatioDiff;
+            }
+            
+            // If weighted ratios are very close, look at actual win ratio
+            const ratioDiff = b.win_ratio - a.win_ratio;
+            if (Math.abs(ratioDiff) > 0.001) {
+              return ratioDiff;
+            }
+            
+            // If still tied, sort by number of games played
+            const gamesDiff = b.games_played - a.games_played;
+            if (gamesDiff !== 0) {
+              return gamesDiff;
+            }
+            
+            // Final tiebreaker is alphabetical by player name
+            return a.player_name.localeCompare(b.player_name);
+          });
           break;
         case 'weightedScore':
           leaderboardData.sort((a, b) => b.weighted_score - a.weighted_score || a.player_name.localeCompare(b.player_name));

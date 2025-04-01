@@ -1,4 +1,5 @@
 Include ConfigVersion-1.43-beta1
+Include admins
 ServerName DefconExpanded | 16 Player | Test Server
 ServerKey NMPURK-TJPVWZ-AZMULB-YMLVVB-KQR
 GameMode 0
@@ -15,15 +16,6 @@ CaseSensitive 0
 EventFile game_events_16player.log
 OutFile server_output_16player.log
 PlayerLog player_scores_16player.log
-
-#ADMIN
-Admin Laika~~1~dancefloor
-Admin LadenBinKezza~~0~dancefloor
-Admin Sievert~~1~dancefloor
-Admin MohammedBinNexus~~1~dancefloor
-Admin Vault Tec~~1~dancefloor
-Admin FasterThanRaito~~1~dancefloor
-Admin Lord Haw Haw~~1~Reddashhawhaw
 
 HostName DefconExpanded
 

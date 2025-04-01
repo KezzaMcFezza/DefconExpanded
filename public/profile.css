@@ -1,473 +1,662 @@
-/* Global Profile Styles */
+/*!
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 18-12-2024 
+*/
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
 .profile-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 1rem;
+    padding: 1.5rem;
+    flex-direction: column;
+    align-items: center;
 }
 
-/* Profile Header Section */
-.profile-header {
-    position: relative;
-    border-radius: 15px;
-    overflow: hidden;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+.dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
-.profile-banner {
-    position: relative;
-    height: 200px;
+.profile-card,
+.status-card,
+.achievements-card,
+.location-card {
+    padding: 1.5rem;
+    opacity: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: fit-content;
+}
+
+.profile-card {
+    border-radius: 20px;
     background-position: center;
-    background-size: cover;
-    background-color: rgba(28, 28, 46, 0.5);
+    background-repeat: no-repeat;
+    flex: 1 1 300px;
 }
 
-.banner-overlay {
+.profile-card::before {
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to bottom, transparent 50%, rgba(15, 15, 25, 0.8) 100%);
+    border-radius: 20px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0) 150%);
+    pointer-events: none;
 }
 
-.profile-banner-edit {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
+.status-card,
+.achievements-card,
+.location-card {
+    flex: 1 1 calc(50% - 20px);
+}
+
+.contributions-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.contribution-section {
+    display: flex;
+    flex-direction: column;
+}
+
+#guides-list {
+    padding: 0;
+}
+
+#profile-picture {
+    width: 120px;
+    height: 120px;
+    display: block;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    object-fit: cover;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+
+.profile-name {
+    font-size: 1.5em;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.profile-info p {
+    margin: 0;
+}
+
+.map-placeholder {
+    background-color: #3a3a3a;
+    height: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    z-index: 10;
+    border-radius: 5px;
 }
 
-.editing .profile-banner:hover .profile-banner-edit {
-    opacity: 1;
-}
-
-.profile-info-bar {
-    padding: 1.25rem 1.5rem;
+.somanydivs {
     display: flex;
+    justify-content: space-between;
     align-items: flex-end;
     position: relative;
-    background-color: rgba(28, 28, 46, 0.3);
-    border-bottom-left-radius: 15px;
-    border-bottom-right-radius: 15px;
 }
 
-.profile-picture-wrapper {
+.bio {
+    max-width: 300px;
+    background-color: #1c1c2edb;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 6px 7px 15px rgb(77 166 255 / 15%);
+}
+
+.profile-text {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.right-profile-meta {
+    display: flex;
+    height: 210px;
+    z-index: 3;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+}
+
+.left-profile-meta {
+    z-index: 3;
+}
+
+#recentGamesContainer {
+    padding: 1.5rem;
+}
+
+#favouriteModsContainer {
+    display: flex;
+    color: #b8b8b8;
+}
+
+#recentGamesList {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    max-width: 1600px;
+    margin: 0 auto;
+    columns: 20rem;
+    column-gap: 1rem;
+}
+
+.profile-demomod-container {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.divv2 {
+    flex: 1 1;
+}
+
+.stats-and-mods {
+    display: flex;
+    flex-direction: row;
+    padding: 1.5rem 1.5rem 0rem 1.5rem;
+
+}
+
+.guesswhatdivfucking {
+    display: flex;
+    justify-content: space-between;
+}
+
+.heatmap {
+    background-image: url(/images/heatmaptemplate.png);
+    background-position: center;
+    height: 250px;
+    width: auto;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.defcon-stats {
+    display: flex;
+    flex-direction: column;
+}
+
+.contributor {
+    margin-bottom: 10px;
+    max-width: fit-content;
+}
+
+.stats-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.guesswhatanotherdiv {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.anotherdivfucking {
+    background-color: #1c1c2e17;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    margin-top: 1.5rem;
+}
+
+.ihatemakingdivs {
+    max-width: 480px;
+}
+
+.defcon-stats-right {
+    padding: 4rem 1.5rem 1.5rem 1.5rem;
+}
+
+.mod-item {
+    margin-bottom: 20px;
+    margin-left: 20px;
+}
+
+.main-stats-container {
+    border-radius: 10px;
+    padding: 1.5rem;
+    height: fit-content;
+}
+
+.main-social-container {
+    background-color: #1c1c2e17;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    height: fit-content;
+}
+
+.main-contrib-container {
+    background-color: #1c1c2e17;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 1.5rem;
+    height: fit-content;
+    flex: 1;
+}
+
+h2 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+}
+
+@media (max-width: 768px) {
+
+    .status-card,
+    .achievements-card,
+    .location-card {
+        flex: 1 1 100%;
+    }
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.profile-card,
+.status-card,
+.achievements-card,
+.location-card {
+    padding: 1.5rem;
+    opacity: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: fit-content;
+}
+
+.profile-card {
+    border-radius: 20px;
     position: relative;
-    margin-right: 1.5rem;
-    margin-top: -75px;
-    z-index: 5;
+    background-image: url("/images/backgroundprofile.png");
+    background-position: center;
+    flex: 1 1 300px;
+}
+
+.status-card,
+.achievements-card,
+.location-card {
+    flex: 1 1 calc(50% - 20px);
+}
+
+.contributions-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.contribution-section {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+}
+
+#guides-list {
+    padding: 0;
 }
 
 .profile-picture {
     width: 120px;
     height: 120px;
+    display: block;
     border-radius: 50%;
-    border: 4px solid rgba(28, 28, 46, 0.8);
-    background-color: #1a1a1a;
     object-fit: cover;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    pointer-events: none;
 }
 
-.profile-picture-edit {
-    position: absolute;
-    bottom: 5px;
-    right: 5px;
-    background-color: #4da6ff;
-    color: white;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
+.profile-name {
+    font-size: 1.5em;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.profile-info p {
+    margin: 0;
+}
+
+.map-placeholder {
+    background-color: #3a3a3a;
+    height: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    z-index: 5;
-}
-
-.editing .profile-picture-wrapper:hover .profile-picture-edit {
-    opacity: 1;
-}
-
-.profile-details {
-    flex-grow: 1;
-    margin-left: 0.5rem;
-}
-
-.profile-username {
-    color: #5eff00;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 2rem;
-    margin: 0;
-    line-height: 1.2;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.profile-bio {
-    color: #b8b8b8;
-    margin: 0.5rem 0 0;
-    max-width: 600px;
-    font-size: 0.95rem;
-    line-height: 1.4;
-}
-
-.profile-actions {
-    margin-left: auto;
-    align-self: center;
-}
-
-.edit-profile-btn {
-    background-color: #0067b8;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
     border-radius: 5px;
-    font-size: 0.9rem;
-    cursor: pointer;
+}
+
+.somanydivs {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: background-color 0.3s;
+    justify-content: space-between;
+    align-items: flex-end;
 }
 
-.edit-profile-btn:hover {
-    background-color: #0078d4;
-}
-
-.edit-profile-btn.editing {
-    background-color: #5eff00;
-    color: #121212;
-}
-
-/* Main Content Grids */
-
-
-/* Card styling */
-.profile-card {
-    background-color: rgba(28, 28, 46, 0.2);
+.bio {
+    max-width: 300px;
+    background-color: #1c1c2edb;
     border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 1rem;
+    box-shadow: 6px 7px 15px rgb(77 166 255 / 15%);
+}
+
+.profile-text {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.right-profile-meta {
+    display: flex;
     height: fit-content;
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 1.75rem;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+    text-align: right;
 }
 
-.profile-card::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(to right, #4da6ff, #5eff00);
-    opacity: 0.7;
+#recentGamesContainer {
+    padding: 1.5rem;
 }
 
-.profile-card-header {
+#favouriteModsContainer {
     display: flex;
-    align-items: center;
-    margin-bottom: 1.25rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-wrap: wrap;
 }
 
-.profile-card-header i {
-    color: #4da6ff;
-    font-size: 1.5rem;
-    margin-right: 0.75rem;
-}
-
-.profile-card-title {
-    color: #4da6ff;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.3rem;
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-/* Specific cards styling */
-.social-links-card::before {
-    background: linear-gradient(to right, #7289da, #4da6ff);
-}
-
-.defcon-stats-card::before {
-    background: linear-gradient(to right, #ff8400, #ffcc00);
-}
-
-.territory-stats-card::before {
-    background: linear-gradient(to right, #5eff00, #00e5ff);
-}
-
-.recent-game-card::before {
-    background: linear-gradient(to right, #ff4949, #ff8400);
-}
-
-.contributions-card::before {
-    background: linear-gradient(to right, #e72de0, #ff4949);
-}
-
-.favorite-mods-card::before {
-    background: linear-gradient(to right, #00e5ff, #3d5cff);
-}
-
-/* Social links */
-.social-links {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.social-item {
-    display: flex;
-    align-items: center;
-}
-
-.social-item i {
-    width: 30px;
-    font-size: 1.2rem;
-    color: #4da6ff;
-}
-
-.social-label {
-    width: 80px;
-    color: #b8b8b8;
-}
-
-.social-value {
-    color: #fff;
-    font-weight: 500;
-}
-
-/* Defcon stats */
-.defcon-stats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-label {
-    color: #b8b8b8;
-    font-size: 0.9rem;
-    margin-bottom: 0.25rem;
-}
-
-.stat-value {
-    color: #fff;
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
-.highlight-stat {
-    color: #5eff00;
-}
-
-.mod-item {
-    max-width: 300px !important;
-}
-
-/* Nemesis styling */
-.nemesis-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.nemesis-record {
-    font-size: 0.85rem;
-    color: #b8b8b8;
-    margin-top: 0.25rem;
+#recentGamesList {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    max-width: 1600px;
+    margin: 0 auto;
+    columns: 20rem;
+    column-gap: 1rem;
 }
 
-#nemesis-wins {
-    color: #5eff00; /* Green for wins */
-}
-
-#nemesis-losses {
-    color: #ff4949; /* Red for losses */
-}
-
-#total-nemesis-games {
-    color: #4da6ff; /* Blue for total games */
-}
-
-/* Territory map */
-.territory-select-wrapper {
+.profile-demomod-container {
     display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
 }
 
-.territory-select-label {
-    color: #4da6ff;
-    margin-right: 0.75rem;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1rem;
+.divv2 {
+    flex: 1 1;
 }
 
-#game-mode-dropdown {
-    background-color: rgba(28, 28, 46, 0.5);
-    color: #fff;
-    border: 1px solid #4da6ff;
-    padding: 0.35rem 0.75rem;
-    border-radius: 5px;
-    cursor: pointer;
+.stats-and-mods {
+    display: flex;
+    flex-direction: row;
+    padding: 1.5rem 1.5rem 0rem 1.5rem;
+
 }
 
-.territory-results {
-    margin-bottom: 1rem;
-}
-
-.territory-result {
-    color: #b8b8b8;
-    margin: 0.5rem 0;
-    font-size: 0.95rem;
-}
-
-.territory-best {
-    color: #5eff00;
-    font-weight: 500;
-}
-
-.territory-worst {
-    color: #ff4949;
-    font-weight: 500;
+.guesswhatdivfucking {
+    display: flex;
+    justify-content: space-between;
 }
 
 .heatmap {
-    position: relative;
-    width: 100%;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    background-image: url(/images/heatmaptemplate.png);
+    background-position: center;
+    height: 250px;
+    width: auto;
+    background-size: contain;
+    background-repeat: no-repeat;
 }
 
-/* Contributions */
-.contributions-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-}
-
-.contribution-section {
-    margin-bottom: 1rem;
-}
-
-.contribution-section-title {
-    color: #4da6ff;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1rem;
-    margin: 0 0 0.75rem;
-}
-
-.contribution-list {
-    list-style-type: none;
-    padding-left: 0;
-    margin: 0;
-}
-
-.contribution-list li {
-    color: #b8b8b8;
-    padding: 0.5rem;
-    margin-bottom: 0.5rem;
-    background-color: rgba(28, 28, 46, 0.4);
-    border-radius: 5px;
-    position: relative;
-    transition: background-color 0.2s ease;
-}
-
-.contribution-list li:hover {
-    background-color: rgba(28, 28, 46, 0.6);
-}
-
-.editing .contribution-list li {
-    padding-right: 2.5rem;
-}
-
-.delete-item-btn {
-    position: absolute;
-    right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(255, 73, 73, 0.7);
-    color: white;
-    border: none;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
+.defcon-stats {
     display: flex;
+    flex-direction: column;
+}
+
+.contributor {
+    margin-bottom: 10px;
+    max-width: fit-content;
+}
+
+.stats-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.absolute-fucking-final-div {
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    height: fit-content;
+    gap: 1.5rem;
+    border-radius: 10px;
+}
+
+.guesswhatanotherdiv {
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.demo-card {
+    width: 362px;
+}
+
+.anotherdivfucking {
+    background-color: #1c1c2e17;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    width: fit-content;
+    margin-top: 1.5rem;
+}
+
+.ihatemakingdivs {
+    max-width: 480px;
+    background-color: #1c1c2e17;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+#recent-game-container {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    font-size: 0.8rem;
+    border-radius: 10px;
+    background-color: #1c1c2e17;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.defcon-stats-right {
+    padding: 4rem 1.5rem 1.5rem 1.5rem;
+}
+
+.mod-item {
+    margin-bottom: 20px;
+    margin-left: 20px;
+}
+
+.main-stats-container {
+    border-radius: 10px;
+    padding: 1.5rem;
+    height: fit-content;
+}
+
+.main-contrib-container {
+    background-color: #1c1c2e17;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 1.5rem;
+    height: fit-content;
+    flex: 1;
+}
+
+h2 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+}
+
+.editable {
+    padding: 2px 5px;
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
+}
+
+.editable.editing {
+    background-color: rgba(255, 255, 255, 0.1);
+    outline: none;
+}
+
+#profile-pic-upload,
+#banner-upload {
+    margin-top: 10px;
+}
+
+#edit-profile-btn {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    text-decoration: none;
+    border: 0;
     cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s ease, background-color 0.2s ease;
+    transition: all 0.3s ease;
+    text-align: center;
+    justify-content: center;
+    font-weight: bold;
+    background-color: #0067b8;
+    color: #fff;
+    margin-right: 10px;
 }
 
-.delete-item-btn:hover {
-    background-color: rgba(255, 73, 73, 1);
+#edit-profile-btn-mobile {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    text-decoration: none;
+    border: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    justify-content: center;
+    font-weight: bold;
+    background-color: #0067b8;
+    color: #fff;
+    margin-right: 10px;
 }
 
-.editing .contribution-list li:hover .delete-item-btn {
-    opacity: 1;
+.edit-profile-btn:hover {
+    background-color: #1882d3;
 }
 
 .add-item-btn {
-    background-color: rgba(94, 255, 0, 0.3);
-    color: #5eff00;
-    border: 1px dashed #5eff00;
-    border-radius: 5px;
-    padding: 0.5rem;
-    width: 100%;
-    text-align: center;
+    padding: 5px 10px;
+    margin-left: 5px;
+    background-color: #0067b8;
+    color: white;
+    border: none;
+    border-radius: 3px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
-    margin-top: 0.5rem;
-    font-size: 0.9rem;
+    width: fit-content;
+    font-size: 0.8em;
 }
 
-.add-item-btn:hover {
-    background-color: rgba(94, 255, 0, 0.4);
+.delete-item-btn {
+    padding: 2px 5px;
+    margin-left: 5px;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.8em;
 }
 
-/* Recent game */
-.recent-game-container {
-    margin-top: 1rem;
+.delete-item-btn {
+    background-color: #f44336;
 }
 
-/* Favorite mods */
-.favorite-mods-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
+.add-item-btn:hover,
+.delete-item-btn:hover {
+    opacity: 0.8;
 }
 
-/* Image editor modal */
+.editable-list li {
+    margin-bottom: 5px;
+}
+
+#main-contributions-list,
+#guides-and-mods-list {
+    color: #b8b8b8;
+    text-align: left;
+    margin-top: 20px;
+    max-width: 1200px;
+}
+
+.image-container {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.edit-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 120px;
+    border-radius: 50%;
+    height: 120px;
+    background-color: rgb(0 0 0 / 50%);
+    display: flex;
+    opacity: 0;
+    text-align: center;
+    transition: opacity 0.3s;
+    cursor: pointer;
+}
+
+/* Same as the banner height 
+.edit-overlay-banner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 300px;  
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    cursor: pointer;
+}
+*/
+.edit-overlay span {
+    color: white;
+    font-size: 16px;
+    margin-top: 25%;
+}
+
+/*
+.edit-overlay-banner span {
+    color: white;
+    font-size: 16px;
+}
+*/
+.image-container:hover .edit-overlay {
+    opacity: 1;
+}
+
 .modal {
     display: none;
     position: fixed;
@@ -476,212 +665,115 @@
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85);
-    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.7);
 }
 
 .modal-content {
-    background-color: rgba(28, 28, 46, 0.95);
+    background-color: #36393f;
     margin: 5% auto;
-    padding: 2rem;
-    border-radius: 10px;
-    max-width: 800px;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
-    position: relative;
-}
-
-.modal-content h2 {
-    color: #4da6ff;
-    font-family: 'Orbitron', sans-serif;
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 1.5rem;
+    padding: 20px;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 900px;
+    color: #ffffff;
 }
 
 .image-editor-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
 }
 
 .image-preview {
     position: relative;
-    width: 100%;
-    height: 400px;
+    width: 480px;
+    /* Match profile picture dimensions */
+    height: 480px;
     overflow: hidden;
-    border-radius: 8px;
-    background-color: #12121a;
+    border-radius: 50%;
+    /* For circular profile pictures */
 }
 
 #image-to-edit {
     position: absolute;
     max-width: none;
-    transform-origin: center;
+    max-height: none;
+}
+
+#crop-overlay {
+    width: 480px;
+    height: 480px;
 }
 
 .crop-overlay {
     position: absolute;
-    border: 2px dashed #4da6ff;
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
     pointer-events: none;
-    z-index: 2;
 }
 
 .image-editor-controls {
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
 }
 
 #zoom-control {
     width: 100%;
-    margin: 0;
+    margin-bottom: 20px;
 }
 
 .button-container {
     display: flex;
     justify-content: space-between;
-    gap: 1rem;
 }
 
 .button-container button {
-    flex: 1;
-    padding: 0.75rem;
+    padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 3px;
     cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
 }
 
-#skip-edit {
-    background-color: #333;
-    color: white;
-}
-
+#skip-edit,
 #cancel-edit {
-    background-color: #ff4949;
-    color: white;
+    background-color: #4f545c;
+    color: #ffffff;
 }
 
 #apply-edit {
-    background-color: #5eff00;
-    color: #121212;
+    background-color: #7289da;
+    color: #ffffff;
 }
 
-/* Editable elements */
-.editable {
-    position: relative;
-    border-radius: 4px;
-    transition: background-color 0.2s ease;
-}
-
-.editing .editable {
-    background-color: rgba(77, 166, 255, 0.1);
-    outline: 1px dashed rgba(77, 166, 255, 0.5);
-    cursor: text;
-}
-
-.editing .editable:hover,
-.editing .editable:focus {
-    background-color: rgba(77, 166, 255, 0.2);
-    outline: 1px dashed rgba(77, 166, 255, 0.8);
-}
-
-.editing .editable::after {
-    content: '\f044';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
+/* The edit overlay for the banner 
+#profile-banner-overlay {
     position: absolute;
-    right: 0.25rem;
-    bottom: 0.25rem;
-    font-size: 0.8rem;
-    color: #4da6ff;
-    opacity: 0.7;
-}
-
-/* Loading state */
-.loading-state {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); 
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
-    padding: 2rem;
-    color: #b8b8b8;
-    gap: 1rem;
+    align-items: center;
+    opacity: 0; 
+    transition: opacity 0.3s;
+    z-index: 2; 
+    cursor: pointer;
 }
+*/
 
-.loading-state i {
-    font-size: 2rem;
-    color: #4da6ff;
-}
-
-/* Responsive adjustments */
-@media (max-width: 1024px) {
-    .profile-content {
-        grid-template-columns: 1fr;
-    }
+.profile-card:hover {
+    opacity: 1;
 }
 
 @media (max-width: 768px) {
-    .profile-info-bar {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding-top: 0;
-    }
 
-    .profile-picture-wrapper {
-        margin-right: 0;
-    }
-
-    .profile-details {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .profile-bio {
-        text-align: center;
-    }
-
-    .profile-actions {
-        margin-left: 0;
-        margin-top: 1rem;
-    }
-
-    .defcon-stats {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.25rem;
-    }
-    
-    .stat-item {
-        padding: 0.5rem;
-    }
-
-    .contributions-container {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .profile-username {
-        font-size: 1.5rem;
-    }
-
-    .profile-card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-
-    .favorite-mods-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .defcon-stats {
-        grid-template-columns: 1fr;
+    .status-card,
+    .achievements-card,
+    .location-card {
+        flex: 1 1 100%;
     }
 }

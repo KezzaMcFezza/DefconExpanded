@@ -16,7 +16,7 @@
 <html lang="en" class="hide-scrollbar">
 
 <head>
-    <script src="/javaScript/admin.js"></script>
+    <script type="module" src="/javaScript/admin/admin-main.js"></script>
     <script src="/javaScript/script.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,15 +29,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&amp;display=swap" rel="stylesheet">
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const userRole = window.userRole;
-            document.querySelectorAll('[data-min-role]').forEach(element => {
-                const minRole = parseInt(element.dataset.minRole);
-                if (userRole <= minRole) {
-                    element.style.display = '';
-                }
-            });
-        });
+
     </script>
 </head>
 <style>
@@ -279,7 +271,7 @@
                                 <input type="file" name="modFile" accept=".zip">
                                 <input type="file" id="edit-mod-preview-image" name="previewImage" accept="image/*">
                                 <button type="submit">Save Changes</button>
-                                <button type="button" onclick="cancelEditMod()">Cancel</button>
+                                <button type="button" onclick="AdminApp.cancelEditMod()">Cancel</button>
                             </form>
                         </div>
                         <p class="pabout2"
@@ -294,30 +286,7 @@
         </main>
     </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const modTypeFilter = document.getElementById('mod-type-filter');
-            const modSort = document.getElementById('mod-sort');
 
-            if (modTypeFilter && modSort) {
-                modTypeFilter.addEventListener('change', updateModList);
-                modSort.addEventListener('change', updateModList);
-                loadMods();
-            }
-            const addModForm = document.getElementById('add-mod-form');
-            if (addModForm) {
-                addModForm.addEventListener('submit', addMod);
-            }
-
-            const editModForm = document.getElementById('edit-mod-form');
-            if (editModForm) {
-                editModForm.addEventListener('submit', saveEditMod);
-            }
-            function updateModList() {
-                const type = document.getElementById('mod-type-filter').value;
-                const sort = document.getElementById('mod-sort').value;
-                loadMods(type, sort);
-            }
-        });
     </script>
 </body>
 
