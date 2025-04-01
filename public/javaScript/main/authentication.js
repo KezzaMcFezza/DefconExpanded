@@ -1,7 +1,17 @@
-// Authentication and user management functionality
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 01-04-2025
+
 window.isAdmin = false;
 
-// Initialize user role from the server
 window.initializeUserRole = async function () {
   try {
     const response = await fetch('/api/current-user');
@@ -14,12 +24,10 @@ window.initializeUserRole = async function () {
   }
 };
 
-// Check if user is logged in
 function isUserLoggedIn() {
   return !!localStorage.getItem('token');
 }
 
-// Update UI based on login state
 function updateUIForLoginState(isLoggedIn, loggedInUsername) {
   const loggedOutActions = document.querySelectorAll('.logged-out-actions');
   const loggedInActions = document.querySelectorAll('.logged-in-actions');
@@ -35,7 +43,6 @@ function updateUIForLoginState(isLoggedIn, loggedInUsername) {
   }
 }
 
-// Setup user profile links
 function setupProfileLinks() {
   const profileLinks = document.querySelectorAll('.profile-link');
 
@@ -79,7 +86,6 @@ function setupProfileLinks() {
   }
 }
 
-// Setup signout functionality
 function setupSignout() {
   const signoutButtons = document.querySelectorAll('.signout');
   
@@ -105,7 +111,6 @@ function setupSignout() {
   }
 }
 
-// Check authentication status from server
 async function checkAuthStatus() {
   try {
     const response = await fetch('/api/checkAuth');
@@ -123,7 +128,6 @@ async function checkAuthStatus() {
   }
 }
 
-// Initialize authentication related functionality
 async function initializeAuthentication() {
   await window.initializeUserRole();
   await checkAuthStatus();

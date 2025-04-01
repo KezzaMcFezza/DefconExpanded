@@ -1,8 +1,18 @@
-// Mods functionality - loading, displaying, interacting with mods
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 01-04-2025
+
 import { isUserLoggedIn } from './authentication.js';
 import { formatBytes } from './main.js';
 
-// Load mods by type, with optional search and sorting
 async function loadModsByType(type, searchTerm = '', sortBy = 'latest') {
   try {
     let url = `/api/mods?type=${encodeURIComponent(type)}`;
@@ -19,7 +29,6 @@ async function loadModsByType(type, searchTerm = '', sortBy = 'latest') {
   }
 }
 
-// Display mods in the UI
 function displayMods(mods) {
   const modList = document.getElementById('mod-list');
   if (!modList) return;
@@ -99,7 +108,6 @@ function displayMods(mods) {
   });
 }
 
-// Like a mod
 async function likeMod(modId) {
   if (!isUserLoggedIn()) {
     await window.alert('You need to be logged in to like mods.');
@@ -131,7 +139,6 @@ async function likeMod(modId) {
   }
 }
 
-// Favorite a mod
 async function favoriteMod(modId) {
   if (!isUserLoggedIn()) {
     await window.alert('You need to be logged in to favorite mods.');
@@ -163,7 +170,6 @@ async function favoriteMod(modId) {
   }
 }
 
-// Get user likes
 async function getUserLikes() {
   try {
     const response = await fetch('/api/user/likes');
@@ -175,7 +181,6 @@ async function getUserLikes() {
   }
 }
 
-// Get user favorites
 async function getUserFavorites() {
   try {
     const response = await fetch('/api/user/favorites');
@@ -187,7 +192,6 @@ async function getUserFavorites() {
   }
 }
 
-// Setup mod filters and sorting
 function setupModFilters(modType) {
   const searchInput = document.getElementById('mod-search');
   const searchButton = document.getElementById('search-button');
@@ -204,12 +208,11 @@ function setupModFilters(modType) {
     loadModsByType(modType, searchInput.value.trim(), sortSelect.value);
   });
 
-  // Initialize with default values
+  
   sortSelect.value = 'latest';
   loadModsByType(modType, '', 'latest');
 }
 
-// Initialize mod system
 function initializeMods() {
   const modListContainer = document.getElementById('mod-list');
   if (modListContainer) {

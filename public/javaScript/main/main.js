@@ -1,4 +1,15 @@
-// Main application file - connects all modules and provides utility functions
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 01-04-2025
+
 import { initializeDiscordWidget } from './discord.js';
 import { initializeReportHandlers } from './reporting.js';
 import { initializeAuthentication } from './authentication.js';
@@ -6,11 +17,8 @@ import { initializeNavigation } from './mobilemenu.js';
 import { initializeMods } from './mods.js';
 import { initializePopupSystem } from './popup.js';
 
-// Global variables
 let soundVolume = 0.1;
 
-// Utility Functions
-// Format bytes to human-readable form
 function formatBytes(bytes, decimals = 2) {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
@@ -20,7 +28,195 @@ function formatBytes(bytes, decimals = 2) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
-// Perform game search
+function getTimeAgo(date) {
+  const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+  let interval = seconds / 31536000;
+  if (interval > 1) return Math.floor(interval) + " years ago";
+  interval = seconds / 2592000;
+  if (interval > 1) return Math.floor(interval) + " months ago";
+  interval = seconds / 86400;
+  if (interval > 1) return Math.floor(interval) + " days ago";
+  interval = seconds / 3600;
+  if (interval > 1) return Math.floor(interval) + " hours ago";
+  interval = seconds / 60;
+  if (interval > 1) return Math.floor(interval) + " minutes ago";
+  return Math.floor(seconds) + " seconds ago";
+}
+
+function formatDuration(duration) {
+  if (!duration) return 'Unknown';
+  const [hours, minutes] = duration.split(':').map(Number);
+  if (hours === 0) {
+    return `${minutes} min`;
+  } else {
+    return `${hours} hr ${minutes} min`;
+  }
+}
+
+
+function formatDurationProfile(duration) {
+  if (!duration) return 'Unknown';
+
+  if (typeof duration === 'string') {
+      const [hours, minutes] = duration.split(':').map(Number);
+      if (hours === 0) {
+          return `${minutes} min`;
+      } else {
+          return `${hours} hr ${minutes} min`;
+      }
+  } else if (typeof duration === 'number') {
+      if (duration < 60) {
+          return `${Math.round(duration)} min`;
+      } else {
+          const hours = Math.floor(duration / 60);
+          const remainingMinutes = Math.round(duration % 60);
+          return `${hours} hr ${remainingMinutes} min`;
+      }
+  }
+
+  return 'Unknown';
+}
+
+function updatePagination(currentPage, totalPages) {
+  const paginationContainer = document.getElementById('pagination');
+  if (!paginationContainer) return;
+  paginationContainer.innerHTML = '';
+
+  if (currentPage > 1) {
+    const prevButton = createPaginationButton('Prev', currentPage - 1);
+    paginationContainer.appendChild(prevButton);
+  }
+
+  let startPage = Math.max(1, currentPage - 4);
+  let endPage = Math.min(totalPages, startPage + 8);
+
+  if (totalPages > 9 && endPage - startPage < 8) {
+    startPage = Math.max(1, endPage - 8);
+  }
+
+  if (startPage > 1) {
+    const firstButton = createPaginationButton('1', 1);
+    paginationContainer.appendChild(firstButton);
+    if (startPage > 2) {
+      const ellipsis = document.createElement('span');
+      ellipsis.textContent = '...';
+      ellipsis.className = 'pagination-ellipsis';
+      paginationContainer.appendChild(ellipsis);
+    }
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    const pageButton = createPaginationButton(i.toString(), i);
+    if (i === currentPage) {
+      pageButton.classList.add('active');
+      pageButton.disabled = true;
+    }
+    paginationContainer.appendChild(pageButton);
+  }
+
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      const ellipsis = document.createElement('span');
+      ellipsis.textContent = '...';
+      ellipsis.className = 'pagination-ellipsis';
+      paginationContainer.appendChild(ellipsis);
+    }
+    const lastButton = createPaginationButton(totalPages.toString(), totalPages);
+    paginationContainer.appendChild(lastButton);
+  }
+
+  if (currentPage < totalPages) {
+    const nextButton = createPaginationButton('Next', currentPage + 1);
+    paginationContainer.appendChild(nextButton);
+  }
+
+  if (totalPages > 9) {
+    const customPageContainer = document.createElement('div');
+    customPageContainer.className = 'custom-page-container';
+
+    const customPageInput = document.createElement('input');
+    customPageInput.type = 'number';
+    customPageInput.min = 1;
+    customPageInput.max = totalPages;
+    customPageInput.placeholder = 'Go to page...';
+    customPageInput.className = 'custom-page-input';
+
+    const goButton = document.createElement('button');
+    goButton.textContent = 'Go';
+    goButton.className = 'custom-page-go';
+    goButton.onclick = () => {
+      const pageNum = parseInt(customPageInput.value);
+      if (pageNum >= 1 && pageNum <= totalPages) {
+        const url = new URL(window.location);
+        url.searchParams.set('page', pageNum);
+        window.location.href = url.toString();
+      } else {
+        alert(`Please enter a page number between 1 and ${totalPages}`);
+      }
+    };
+
+    customPageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        goButton.click();
+      }
+    });
+
+    customPageContainer.appendChild(customPageInput);
+    customPageContainer.appendChild(goButton);
+    paginationContainer.appendChild(customPageContainer);
+  }
+}
+
+function createPaginationButton(text, page) {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.addEventListener('click', () => {
+    const url = new URL(window.location);
+    url.searchParams.set('page', page);
+    window.location.href = url.toString();
+  });
+  return button;
+}
+
+function changePage(newPage, totalPages) {
+  if (newPage >= 1 && newPage <= totalPages) {
+    const url = new URL(window.location);
+    url.searchParams.set('page', newPage);
+    window.location.href = url.toString();
+  }
+}
+
+function updateURL(currentPage, currentSort, currentServerFilter, filterState) {
+  const url = new URL(window.location);
+  url.searchParams.set('page', currentPage);
+  url.searchParams.set('sort', currentSort);
+
+  if (currentServerFilter) {
+    url.searchParams.set('server', currentServerFilter);
+  } else {
+    url.searchParams.delete('server');
+  }
+
+  if (filterState && filterState.territories && filterState.territories.size > 0) {
+    const territoryNames = Array.from(filterState.territories)
+      .map(id => filterState.territoryMapping ? filterState.territoryMapping[id] : null)
+      .filter(Boolean);
+    url.searchParams.set('territories', territoryNames.join(','));
+    url.searchParams.set('combineMode', filterState.combineMode);
+  }
+
+  if (filterState) {
+    if (filterState.scoreFilter) url.searchParams.set('scoreFilter', filterState.scoreFilter);
+    if (filterState.durationFilter) url.searchParams.set('gameDuration', filterState.durationFilter);
+    if (filterState.scoreDifferenceFilter) url.searchParams.set('scoreDifference', filterState.scoreDifferenceFilter);
+    if (filterState.dateRange && filterState.dateRange.start) url.searchParams.set('startDate', filterState.dateRange.start);
+    if (filterState.dateRange && filterState.dateRange.end) url.searchParams.set('endDate', filterState.dateRange.end);
+    if (filterState.gamesPlayed) url.searchParams.set('gamesPlayed', filterState.gamesPlayed);
+  }
+
+  window.history.pushState({}, '', url);
+}
+
 function performGameSearch() {
   const searchInput = document.getElementById('search-input2');
   if (searchInput) {
@@ -31,7 +227,6 @@ function performGameSearch() {
   }
 }
 
-// Load resources from server
 async function loadResources() {
   try {
     const response = await fetch('/api/resources');
@@ -47,7 +242,6 @@ async function loadResources() {
   }
 }
 
-// Display resources in main view
 function displayResourcesMain(resources) {
   const buildContainer = document.querySelector('.resources-container');
   if (!buildContainer) return;
@@ -123,7 +317,6 @@ function displayResourcesMain(resources) {
   });
 }
 
-// Display DEDCON builds
 async function displayDedconBuilds() {
   try {
     const response = await fetch('/api/dedcon-builds');
@@ -205,9 +398,8 @@ async function displayDedconBuilds() {
   }
 }
 
-// Main initialization function
 function initializeApplication() {
-  // Set up core functionality
+  
   initializePopupSystem();
   initializeAuthentication();
   initializeNavigation();
@@ -215,7 +407,7 @@ function initializeApplication() {
   initializeReportHandlers();
   initializeMods();
   
-  // Set up search functionality
+  
   const searchButton2 = document.getElementById('search-button2');
   const searchInput2 = document.getElementById('search-input2');
 
@@ -228,24 +420,19 @@ function initializeApplication() {
     });
   }
   
-  // Load resources if on the resources page
+  
   const resourcesContainer = document.querySelector('.resources-container');
   if (resourcesContainer) {
     loadResources();
   }
   
-  // Load DEDCON builds if on the DEDCON page
+  
   const dedconContainer = document.querySelector('.dedcon-build-container');
   if (dedconContainer) {
     displayDedconBuilds();
   }
   
-  // Check for demos initialization function
-  if (typeof window.initializeDemos === 'function') {
-    window.initializeDemos();
-  }
   
-  // Handle window resize for mobile menu
   window.addEventListener('resize', function () {
     if (window.innerWidth <= 768) {
       initializeNavigation();
@@ -253,12 +440,17 @@ function initializeApplication() {
   });
 }
 
-// Initialize on DOM content loaded
 document.addEventListener('DOMContentLoaded', initializeApplication);
 
-// Export utility functions and initialization
 export {
   formatBytes,
+  getTimeAgo,
+  formatDuration,
+  formatDurationProfile,
+  updatePagination,
+  createPaginationButton,
+  changePage,
+  updateURL,
   performGameSearch,
   loadResources,
   displayResourcesMain,
@@ -266,7 +458,9 @@ export {
   initializeApplication
 };
 
-// Make some functions available globally
 window.formatBytes = formatBytes;
+window.getTimeAgo = getTimeAgo;
+window.formatDuration = formatDuration;
+window.formatDurationProfile = formatDurationProfile;
 window.performGameSearch = performGameSearch;
 window.soundVolume = soundVolume;

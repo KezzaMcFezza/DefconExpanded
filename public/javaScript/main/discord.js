@@ -1,7 +1,17 @@
-// Discord integration functionality
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 01-04-2025
+
 let discordWidget = null;
 
-// Get the next Sunday date for the community game event
 function getNextSunday() {
   const today = new Date();
   const nextSunday = new Date(today);
@@ -18,7 +28,6 @@ function getNextSunday() {
   return nextSunday;
 }
 
-// Format date for displaying in the event widget
 function formatDateForEvent(date) {
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const day = date.getDate();
@@ -33,7 +42,6 @@ function formatDateForEvent(date) {
   return `${month} ${getOrdinalSuffix(day)}`;
 }
 
-// Get Discord event information
 function getDiscordEvent() {
   const nextSunday = getNextSunday();
   return {
@@ -43,7 +51,6 @@ function getDiscordEvent() {
   };
 }
 
-// Update Discord widget with current information
 function updateDiscordWidget() {
   fetch('/api/discord-widget')
     .then(response => response.json())
@@ -65,7 +72,7 @@ function updateDiscordWidget() {
                 <p class="event-date">${discordEvent.date}</p>
                 <div class="event-time-div">
                     <p class="event-time">${discordEvent.time}</p>
-                    <a href="https://discord.gg/rexZfJ5dMn" target="_blank" rel="noopener noreferrer" class="discord-join-button">Join Discord</a>
+                    <a href="https:
                 </div>
             </div>
         </div>
@@ -75,10 +82,9 @@ function updateDiscordWidget() {
     });
 }
 
-// Initialize Discord widget and set refresh interval
 function initializeDiscordWidget() {
   updateDiscordWidget();
-  setInterval(updateDiscordWidget, 5 * 60 * 1000); // Refresh every 5 minutes
+  setInterval(updateDiscordWidget, 5 * 60 * 1000); 
 }
 
 export {

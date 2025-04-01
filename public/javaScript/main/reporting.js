@@ -1,7 +1,17 @@
-// Reporting functionality for demos, mods, and bugs
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 01-04-2025
+
 import { isUserLoggedIn } from './authentication.js';
 
-// Demo reporting functions
 function showReportOptions(demoId, event) {
   event.preventDefault();
   event.stopPropagation();
@@ -77,7 +87,6 @@ async function submitDemoReport(demoId, reportType) {
   }
 }
 
-// Mod reporting functions
 function showModReportOptions(modId, event) {
   event.preventDefault();
   event.stopPropagation();
@@ -150,7 +159,6 @@ async function submitModReport(modId, reportType) {
   }
 }
 
-// Bug reporting functions
 async function submitBugReport(event) {
   event.preventDefault();
 
@@ -179,14 +187,12 @@ async function submitBugReport(event) {
   }
 }
 
-// Initialize report functionality
 function initializeReportHandlers() {
   const bugReportForm = document.getElementById('bug-report-form');
   if (bugReportForm) {
     bugReportForm.addEventListener('submit', submitBugReport);
   }
 
-  // Attach report buttons to demo/mod items (added dynamically)
   document.addEventListener('click', function(event) {
     if (event.target.classList.contains('btn-report')) {
       const demoCard = event.target.closest('.demo-card');

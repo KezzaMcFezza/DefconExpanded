@@ -1,6 +1,16 @@
-// Custom dialog/popup functionality
 
-// Create the dialog HTML structure
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 01-04-2025
+
 function createDialogElements() {
     const dialogHTML = `
       <div id="custom-dialog" class="custom-dialog">
@@ -57,14 +67,13 @@ function createDialogElements() {
       </style>
     `;
   
-    // Add dialog HTML to the document
+    
     if (!document.getElementById('custom-dialog')) {
       document.body.insertAdjacentHTML('beforeend', dialogHTML);
       document.head.insertAdjacentHTML('beforeend', styles);
     }
   }
   
-  // Custom confirm dialog
   function customConfirm(message) {
     return new Promise((resolve) => {
       const dialog = document.getElementById('custom-dialog');
@@ -86,7 +95,6 @@ function createDialogElements() {
     });
   }
   
-  // Custom alert dialog
   function customAlert(message) {
     return new Promise((resolve) => {
       const dialog = document.getElementById('custom-dialog');
@@ -107,11 +115,10 @@ function createDialogElements() {
     });
   }
   
-  // Initialize popup system
   function initializePopupSystem() {
     createDialogElements();
     
-    // Override default window methods
+    
     window.confirm = customConfirm;
     window.alert = customAlert;
   }
