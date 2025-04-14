@@ -12,7 +12,6 @@
 
 import { customAlert, customConfirm } from '../main/popup.js';
 
-// Shared state variable
 let isEditingProfile = false;
 let hasChangedData = false;
 let eventListenersInitialized = false;
@@ -32,22 +31,19 @@ function initializeProfileEditing() {
     }
 
     function toggleEdit() {
-        // If we're currently editing and clicking to save
         if (isEditingProfile) {
             const shouldSave = hasChangedData ? 
                 confirm('Save your changes?') : 
-                true; // If no changes, just exit edit mode without prompt
+                true; 
             
             if (shouldSave) {
                 saveChanges();
             } else {
-                // If user cancels saving, just revert to non-editing state without saving
                 exitEditMode(false);
                 return;
             }
         }
 
-        // Toggle the editing state
         isEditingProfile = !isEditingProfile;
         hasChangedData = false;
         
@@ -67,7 +63,6 @@ function initializeProfileEditing() {
                 '<i class="fas fa-pencil-alt"></i> Edit Profile';
         }
 
-        // Update overlay visibility immediately
         const profileBannerOverlay = document.getElementById('profile-banner-overlay');
         const profilePictureOverlay = document.getElementById('profile-picture-overlay');
         
@@ -100,14 +95,12 @@ function initializeProfileEditing() {
             void field.offsetHeight; 
             field.classList.remove('temp-class');
             
-            // Track changes to know if we should prompt for saving
             field.addEventListener('input', () => {
                 hasChangedData = true;
             });
         });
 
         editableLists.forEach(list => {
-            // Remove any existing add item buttons before adding new ones
             const existingBtn = list.parentNode.querySelector('.add-item-btn');
             if (existingBtn) existingBtn.remove();
             
@@ -122,7 +115,6 @@ function initializeProfileEditing() {
             list.parentNode.insertBefore(addItemBtn, list.nextSibling);
 
             list.querySelectorAll('li').forEach(item => {
-                // Remove existing delete buttons before adding new ones
                 const existingDeleteBtn = item.querySelector('.delete-item-btn');
                 if (existingDeleteBtn) existingDeleteBtn.remove();
                 addDeleteButton(item);
@@ -158,7 +150,6 @@ function initializeProfileEditing() {
         isEditingProfile = false;
         hasChangedData = false;
         
-        // Update UI state
         document.body.classList.remove('editing');
         
         if (editButton) {
@@ -171,7 +162,6 @@ function initializeProfileEditing() {
             editButtonMobile.innerHTML = '<i class="fas fa-pencil-alt"></i> Edit Profile';
         }
 
-        // Update overlay visibility
         const profileBannerOverlay = document.getElementById('profile-banner-overlay');
         const profilePictureOverlay = document.getElementById('profile-picture-overlay');
         
@@ -183,13 +173,11 @@ function initializeProfileEditing() {
             profilePictureOverlay.style.display = 'none';
         }
 
-        // Disable editing for all fields
         editableFields.forEach(field => {
             field.contentEditable = false;
             field.removeAttribute('data-editing');
         });
 
-        // Clean up edit mode UI elements
         editableLists.forEach(list => {
             const addItemBtn = list.parentNode.querySelector('.add-item-btn');
             if (addItemBtn) addItemBtn.remove();
@@ -219,7 +207,6 @@ function initializeProfileEditing() {
                 guides_and_mods: Array.from(document.getElementById('guides-and-mods-list').children).map(li => li.textContent.replace('X', '').trim())
             };
 
-            // Show loading indicator
             const loadingIndicator = document.createElement('div');
             loadingIndicator.classList.add('loading-overlay');
             loadingIndicator.innerHTML = '<div class="spinner"><i class="fas fa-circle-notch fa-spin"></i></div>';
@@ -235,7 +222,6 @@ function initializeProfileEditing() {
 
             const result = await response.json();
 
-            // Remove loading indicator
             if (document.body.contains(loadingIndicator)) {
                 document.body.removeChild(loadingIndicator);
             }
@@ -245,21 +231,18 @@ function initializeProfileEditing() {
             } else {
                 await customAlert('Failed to update profile. Please try again.');
             }
-            
-            // Exit edit mode
-            exitEditMode(false); // Don't call saveChanges again
+
+            exitEditMode(false); 
         } catch (error) {
             console.error('Error updating profile:', error);
             
-            // Remove loading indicator if it exists
             const loadingIndicator = document.querySelector('.loading-overlay');
             if (loadingIndicator && document.body.contains(loadingIndicator)) {
                 document.body.removeChild(loadingIndicator);
             }
             
             await customAlert('An error occurred while updating the profile.');
-            
-            // Exit edit mode
+
             exitEditMode(false);
         }
     }
@@ -278,11 +261,9 @@ function formatDurationProfile(minutes) {
 }
 
 function initializeProfileImageEditing() {
-    // Check if we've already initialized the listeners to prevent duplicates
     if (eventListenersInitialized) return;
     eventListenersInitialized = true;
     
-    // Check if Cropper.js is loaded, if not, load it
     if (!window.Cropper) {
         loadCropperJS();
     }
@@ -293,13 +274,10 @@ function initializeProfileImageEditing() {
     const profileBanner = document.getElementById('profile-banner');
     const imageUpload = document.getElementById('image-upload');
     
-    let currentEditType = null; // 'profile' or 'banner'
+    let currentEditType = null; 
     let cropper = null;
-
-    // Use the cropper modal element already in HTML
     let cropperModal = document.getElementById('cropper-modal');
     
-    // Initialize profile picture click handler
     if (profilePictureOverlay) {
         profilePictureOverlay.addEventListener('click', function(e) {
             e.preventDefault();
@@ -311,7 +289,6 @@ function initializeProfileImageEditing() {
         });
     }
 
-    // Initialize banner click handler
     if (profileBannerOverlay) {
         profileBannerOverlay.addEventListener('click', function(e) {
             e.preventDefault();
@@ -323,7 +300,6 @@ function initializeProfileImageEditing() {
         });
     }
 
-    // Handle image upload - only bind this once
     if (imageUpload) {
         imageUpload.addEventListener('change', function(e) {
             if (!e.target.files || !e.target.files[0]) return;
@@ -334,19 +310,14 @@ function initializeProfileImageEditing() {
             reader.onload = function(event) {
                 const cropperImage = document.getElementById('cropper-image');
                 cropperImage.src = event.target.result;
-                
-                // Open the modal
                 cropperModal.style.display = 'flex';
                 
-                // Initialize Cropper.js
                 if (cropper) {
                     cropper.destroy();
                 }
                 
-                // Set different aspect ratio based on edit type
                 const aspectRatio = currentEditType === 'profile' ? 1 : 3;
                 
-                // Wait for the image to load before initializing cropper
                 cropperImage.onload = function() {
                     cropper = new Cropper(cropperImage, {
                         aspectRatio: aspectRatio,
@@ -363,7 +334,6 @@ function initializeProfileImageEditing() {
                         minContainerWidth: 200,
                         minContainerHeight: 200,
                         ready() {
-                            // Set up circular crop for profile pictures
                             if (currentEditType === 'profile') {
                                 const containerData = cropper.getContainerData();
                                 const cropBoxData = cropper.getCropBoxData();
@@ -376,7 +346,6 @@ function initializeProfileImageEditing() {
                                     height: size
                                 });
                                 
-                                // Add circular mask for profile pictures
                                 const cropBox = document.querySelector('.cropper-view-box');
                                 if (cropBox) {
                                     cropBox.style.borderRadius = '50%';
@@ -393,17 +362,14 @@ function initializeProfileImageEditing() {
             
             reader.readAsDataURL(file);
             
-            // Reset file input to allow selecting the same file again
             e.target.value = '';
         });
     }
-    
-    // Add event listeners to close and save buttons
+
     document.querySelector('.cropper-close-btn').addEventListener('click', closeCropperModal);
     document.getElementById('cropper-cancel-btn').addEventListener('click', closeCropperModal);
     document.getElementById('cropper-save-btn').addEventListener('click', saveCroppedImage);
 
-    // Close modal function
     function closeCropperModal() {
         if (cropperModal) {
             cropperModal.style.display = 'none';
@@ -414,11 +380,9 @@ function initializeProfileImageEditing() {
         }
     }
 
-    // Save cropped image function
     function saveCroppedImage() {
         if (!cropper) return;
 
-        // Get canvas with cropped image
         const canvas = cropper.getCroppedCanvas({
             width: currentEditType === 'profile' ? 480 : 1200,
             height: currentEditType === 'profile' ? 480 : 400,
@@ -427,15 +391,12 @@ function initializeProfileImageEditing() {
             imageSmoothingQuality: 'high',
         });
         
-        // Convert canvas to blob
         canvas.toBlob(async (blob) => {
             try {
-                // Create form data for upload
                 const formData = new FormData();
                 formData.append('image', blob, `${currentEditType}.png`);
                 formData.append('type', currentEditType);
                 
-                // Upload image
                 const response = await fetch('/api/upload-profile-image', {
                     method: 'POST',
                     body: formData
@@ -444,10 +405,8 @@ function initializeProfileImageEditing() {
                 const result = await response.json();
                 
                 if (result.success) {
-                    // Cache-bust the URL to force reload
                     const cacheBustedUrl = `${result.imageUrl}?t=${new Date().getTime()}`;
                     
-                    // Update UI with new image
                     if (currentEditType === 'profile') {
                         const profilePicture = document.getElementById('profile-picture');
                         if (profilePicture) {
@@ -459,24 +418,20 @@ function initializeProfileImageEditing() {
                             profileBanner.style.backgroundImage = `url(${cacheBustedUrl})`;
                         }
                     }
-                    
-                    // Close the modal on success
+
                     closeCropperModal();
                     
                     await customAlert(`${currentEditType === 'profile' ? 'Profile picture' : 'Banner'} updated successfully!`);
                 } else {
                     await customAlert(`Failed to update ${currentEditType === 'profile' ? 'profile picture' : 'banner'}. Please try again.`);
-                    // Close the modal on failure too
                     closeCropperModal();
                 }
             } catch (error) {
                 console.error('Error saving image:', error);
                 await customAlert(`An error occurred while saving your ${currentEditType === 'profile' ? 'profile picture' : 'banner'}.`);
                 
-                // Always close the modal
                 closeCropperModal();
-                
-                // Ensure any other hanging loading overlays are removed
+
                 document.querySelectorAll('.loading-overlay').forEach(overlay => {
                     if (overlay.parentNode) {
                         overlay.parentNode.removeChild(overlay);
@@ -487,15 +442,13 @@ function initializeProfileImageEditing() {
     }
 }
 
-// Load Cropper.js dynamically
+
 function loadCropperJS() {
-    // Load CSS
     const cropperCss = document.createElement('link');
     cropperCss.rel = 'stylesheet';
     cropperCss.href = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css';
     document.head.appendChild(cropperCss);
     
-    // Load JS
     const cropperScript = document.createElement('script');
     cropperScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js';
     document.head.appendChild(cropperScript);
