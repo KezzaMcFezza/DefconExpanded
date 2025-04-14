@@ -104,7 +104,6 @@ const ModsModule = (() => {
             document.getElementById('edit-mod-name')?.focus();
         } catch (error) {
             console.error('Error fetching mod details:', error);
-            console.log('Response:', error.response);
             await UI.showAlert('Error fetching mod details: ' + error.message);
         }
     }

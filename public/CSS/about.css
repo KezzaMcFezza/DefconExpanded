@@ -276,9 +276,8 @@
     border-radius: 6px;
     transition: all 0.2s ease;
     position: relative;
-    padding: 0.3rem;
+    padding: 0.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-left: 3px solid rgba(77, 166, 255, 0.4);
 }
 
 .contributor-name {
@@ -305,19 +304,6 @@
 
 .contributor-column:nth-child(3) .contributor-category-title {
     border-bottom-color: rgba(255, 180, 77, 0.5);
-}
-
-/* Match the left border colors to the category */
-.contributor-column:nth-child(1) .contributor-item {
-    border-left-color: rgba(77, 166, 255, 0.5);
-}
-
-.contributor-column:nth-child(2) .contributor-item {
-    border-left-color: rgba(120, 210, 120, 0.5);
-}
-
-.contributor-column:nth-child(3) .contributor-item {
-    border-left-color: rgba(255, 180, 77, 0.5);
 }
 
 @media (max-width: 992px) {

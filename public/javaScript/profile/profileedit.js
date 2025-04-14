@@ -8,14 +8,20 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 14-04-2025
+
+import { customAlert, customConfirm } from '../main/popup.js';
+
+// Shared state variable
+let isEditingProfile = false;
+let hasChangedData = false;
+let eventListenersInitialized = false;
 
 function initializeProfileEditing() {
     const editButton = document.getElementById('edit-profile-btn');
     const editButtonMobile = document.getElementById('edit-profile-btn-mobile');
     const editableFields = document.querySelectorAll('.editable');
     const editableLists = document.querySelectorAll('.editable-list');
-    let isEditing = false;
 
     if (editButton) {
         editButton.addEventListener('click', toggleEdit);
@@ -26,35 +32,59 @@ function initializeProfileEditing() {
     }
 
     function toggleEdit() {
-        isEditing = !isEditing;
+        // If we're currently editing and clicking to save
+        if (isEditingProfile) {
+            const shouldSave = hasChangedData ? 
+                confirm('Save your changes?') : 
+                true; // If no changes, just exit edit mode without prompt
+            
+            if (shouldSave) {
+                saveChanges();
+            } else {
+                // If user cancels saving, just revert to non-editing state without saving
+                exitEditMode(false);
+                return;
+            }
+        }
+
+        // Toggle the editing state
+        isEditingProfile = !isEditingProfile;
+        hasChangedData = false;
         
         document.body.classList.toggle('editing');
         
-        void document.body.offsetHeight;
-        
         if (editButton) {
             editButton.classList.toggle('editing');
-            editButton.innerHTML = isEditing ?
+            editButton.innerHTML = isEditingProfile ?
                 '<i class="fas fa-save"></i> Save Changes' :
                 '<i class="fas fa-pencil-alt"></i> Edit Profile';
         }
 
         if (editButtonMobile) {
             editButtonMobile.classList.toggle('editing');
-            editButtonMobile.innerHTML = isEditing ?
+            editButtonMobile.innerHTML = isEditingProfile ?
                 '<i class="fas fa-save"></i> Save Changes' :
                 '<i class="fas fa-pencil-alt"></i> Edit Profile';
         }
 
-        if (isEditing) {
-            
+        // Update overlay visibility immediately
+        const profileBannerOverlay = document.getElementById('profile-banner-overlay');
+        const profilePictureOverlay = document.getElementById('profile-picture-overlay');
+        
+        if (profileBannerOverlay) {
+            profileBannerOverlay.style.display = isEditingProfile ? 'flex' : 'none';
+        }
+        
+        if (profilePictureOverlay) {
+            profilePictureOverlay.style.display = isEditingProfile ? 'flex' : 'none';
+        }
+
+        if (isEditingProfile) {
             setTimeout(enableEditing, 0);
-        } else {
-            saveChanges();
         }
         
         editableFields.forEach(field => {
-            if (isEditing) {
+            if (isEditingProfile) {
                 field.setAttribute('data-editing', 'true');
             } else {
                 field.removeAttribute('data-editing');
@@ -69,38 +99,35 @@ function initializeProfileEditing() {
             field.classList.add('temp-class');
             void field.offsetHeight; 
             field.classList.remove('temp-class');
+            
+            // Track changes to know if we should prompt for saving
+            field.addEventListener('input', () => {
+                hasChangedData = true;
+            });
         });
 
         editableLists.forEach(list => {
+            // Remove any existing add item buttons before adding new ones
+            const existingBtn = list.parentNode.querySelector('.add-item-btn');
+            if (existingBtn) existingBtn.remove();
+            
             const addItemBtn = document.createElement('button');
             addItemBtn.textContent = 'Add Item';
             addItemBtn.classList.add('add-item-btn');
             addItemBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 addListItem(list);
+                hasChangedData = true;
             });
             list.parentNode.insertBefore(addItemBtn, list.nextSibling);
 
-            list.querySelectorAll('li').forEach(item => addDeleteButton(item));
+            list.querySelectorAll('li').forEach(item => {
+                // Remove existing delete buttons before adding new ones
+                const existingDeleteBtn = item.querySelector('.delete-item-btn');
+                if (existingDeleteBtn) existingDeleteBtn.remove();
+                addDeleteButton(item);
+            });
         });
-        
-        if (!document.getElementById('edit-mode-styles')) {
-            const style = document.createElement('style');
-            style.id = 'edit-mode-styles';
-            style.textContent = `
-                body.editing .editable {
-                    background-color: rgba(77, 166, 255, 0.1) !important;
-                    outline: 1px dashed rgba(77, 166, 255, 0.5) !important;
-                    cursor: text !important;
-                }
-                [data-editing="true"] {
-                    background-color: rgba(77, 166, 255, 0.1) !important;
-                    outline: 1px dashed rgba(77, 166, 255, 0.5) !important;
-                    cursor: text !important;
-                }
-            `;
-            document.head.appendChild(style);
-        }
     }
 
     function addListItem(list) {
@@ -108,6 +135,9 @@ function initializeProfileEditing() {
         const textSpan = document.createElement('span');
         textSpan.contentEditable = true;
         textSpan.textContent = 'New item';
+        textSpan.addEventListener('input', () => {
+            hasChangedData = true;
+        });
         newItem.appendChild(textSpan);
         addDeleteButton(newItem);
         list.appendChild(newItem);
@@ -117,8 +147,54 @@ function initializeProfileEditing() {
         const deleteBtn = document.createElement('button');
         deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
         deleteBtn.classList.add('delete-item-btn');
-        deleteBtn.addEventListener('click', () => item.remove());
+        deleteBtn.addEventListener('click', () => {
+            item.remove();
+            hasChangedData = true;
+        });
         item.appendChild(deleteBtn);
+    }
+
+    function exitEditMode(saveChangesMode = true) {
+        isEditingProfile = false;
+        hasChangedData = false;
+        
+        // Update UI state
+        document.body.classList.remove('editing');
+        
+        if (editButton) {
+            editButton.classList.remove('editing');
+            editButton.innerHTML = '<i class="fas fa-pencil-alt"></i> Edit Profile';
+        }
+
+        if (editButtonMobile) {
+            editButtonMobile.classList.remove('editing');
+            editButtonMobile.innerHTML = '<i class="fas fa-pencil-alt"></i> Edit Profile';
+        }
+
+        // Update overlay visibility
+        const profileBannerOverlay = document.getElementById('profile-banner-overlay');
+        const profilePictureOverlay = document.getElementById('profile-picture-overlay');
+        
+        if (profileBannerOverlay) {
+            profileBannerOverlay.style.display = 'none';
+        }
+        
+        if (profilePictureOverlay) {
+            profilePictureOverlay.style.display = 'none';
+        }
+
+        // Disable editing for all fields
+        editableFields.forEach(field => {
+            field.contentEditable = false;
+            field.removeAttribute('data-editing');
+        });
+
+        // Clean up edit mode UI elements
+        editableLists.forEach(list => {
+            const addItemBtn = list.parentNode.querySelector('.add-item-btn');
+            if (addItemBtn) addItemBtn.remove();
+            list.querySelectorAll('.delete-item-btn').forEach(btn => btn.remove());
+        });
     }
 
     async function saveChanges() {
@@ -128,7 +204,7 @@ function initializeProfileEditing() {
             const profileUsername = document.getElementById('profile-username-label').textContent;
 
             if (!currentUserData.user || currentUserData.user.username !== profileUsername) {
-                alert('You are not authorized to edit this profile.');
+                await customAlert('You are not authorized to edit this profile.');
                 location.reload();
                 return;
             }
@@ -143,6 +219,12 @@ function initializeProfileEditing() {
                 guides_and_mods: Array.from(document.getElementById('guides-and-mods-list').children).map(li => li.textContent.replace('X', '').trim())
             };
 
+            // Show loading indicator
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.classList.add('loading-overlay');
+            loadingIndicator.innerHTML = '<div class="spinner"><i class="fas fa-circle-notch fa-spin"></i></div>';
+            document.body.appendChild(loadingIndicator);
+
             const response = await fetch('/api/update-profile', {
                 method: 'POST',
                 headers: {
@@ -153,27 +235,33 @@ function initializeProfileEditing() {
 
             const result = await response.json();
 
-            if (result.success) {
-                alert('Profile updated successfully!');
-            } else {
-                alert('Failed to update profile. Please try again.');
+            // Remove loading indicator
+            if (document.body.contains(loadingIndicator)) {
+                document.body.removeChild(loadingIndicator);
             }
+
+            if (result.success) {
+                await customAlert('Profile updated successfully!');
+            } else {
+                await customAlert('Failed to update profile. Please try again.');
+            }
+            
+            // Exit edit mode
+            exitEditMode(false); // Don't call saveChanges again
         } catch (error) {
             console.error('Error updating profile:', error);
-            alert('An error occurred while updating the profile.');
-        }
-
-        editableFields.forEach(field => {
-            field.contentEditable = false;
             
-            field.removeAttribute('data-editing');
-        });
-
-        editableLists.forEach(list => {
-            const addItemBtn = list.parentNode.querySelector('.add-item-btn');
-            if (addItemBtn) addItemBtn.remove();
-            list.querySelectorAll('.delete-item-btn').forEach(btn => btn.remove());
-        });
+            // Remove loading indicator if it exists
+            const loadingIndicator = document.querySelector('.loading-overlay');
+            if (loadingIndicator && document.body.contains(loadingIndicator)) {
+                document.body.removeChild(loadingIndicator);
+            }
+            
+            await customAlert('An error occurred while updating the profile.');
+            
+            // Exit edit mode
+            exitEditMode(false);
+        }
     }
 }
 
@@ -190,253 +278,236 @@ function formatDurationProfile(minutes) {
 }
 
 function initializeProfileImageEditing() {
+    // Check if we've already initialized the listeners to prevent duplicates
+    if (eventListenersInitialized) return;
+    eventListenersInitialized = true;
+    
+    // Check if Cropper.js is loaded, if not, load it
+    if (!window.Cropper) {
+        loadCropperJS();
+    }
+
     const profilePictureContainer = document.getElementById('profile-picture-container');
     const profileBannerOverlay = document.getElementById('profile-banner-overlay');
     const profilePictureOverlay = document.getElementById('profile-picture-overlay');
-    const imageEditorModal = document.getElementById('image-editor-modal');
-    const cropOverlay = document.getElementById('crop-overlay');
-    const zoomControl = document.getElementById('zoom-control');
-    const skipEditBtn = document.getElementById('skip-edit');
-    const cancelEditBtn = document.getElementById('cancel-edit');
+    const profileBanner = document.getElementById('profile-banner');
     const imageUpload = document.getElementById('image-upload');
-    const imageToEdit = document.getElementById('image-to-edit');
-    const applyEditBtn = document.getElementById('apply-edit');
+    
+    let currentEditType = null; // 'profile' or 'banner'
+    let cropper = null;
 
-    let currentEditingElement = null;
-    let isProfilePicture = false;
-    let scale = 1;
-    let translateX = 0;
-    let translateY = 0;
-    let imageUrl = ''; 
-
-    if (profileBannerOverlay && profilePictureOverlay) {
-        profileBannerOverlay.style.display = 'none';
-        profilePictureOverlay.style.display = 'none';
-    }
-
-    function toggleEditMode() {
-        const isEditing = document.body.classList.contains('editing');
-        if (profileBannerOverlay) profileBannerOverlay.style.display = isEditing ? 'flex' : 'none';
-        if (profilePictureOverlay) profilePictureOverlay.style.display = isEditing ? 'flex' : 'none';
-    }
-
-    function showImageEditor(imageElement, isProfile, url) {
-        currentEditingElement = imageElement;
-        isProfilePicture = isProfile;
-        imageUrl = url || imageElement.src || ''; 
-        
-        imageToEdit.onload = () => {
-            imageEditorModal.style.display = 'block';
-            resetZoom();
-            updateCropOverlay();
-            centerImage();
-        };
-        
-        if (imageUrl) {
-            imageToEdit.src = `${imageUrl}?t=${new Date().getTime()}`;
-        }
-    }
-
-    function centerImage() {
-        if (!imageToEdit || !imageToEdit.parentElement) return;
-        
-        const containerWidth = imageToEdit.parentElement.offsetWidth;
-        const containerHeight = imageToEdit.parentElement.offsetHeight;
-        const imgWidth = imageToEdit.naturalWidth * scale;
-        const imgHeight = imageToEdit.naturalHeight * scale;
-
-        translateX = (containerWidth - imgWidth) / 2;
-        translateY = (containerHeight - imgHeight) / 2;
-
-        applyTransform();
-    }
-
-    if (imageToEdit) {
-        imageToEdit.addEventListener('wheel', (e) => {
+    // Use the cropper modal element already in HTML
+    let cropperModal = document.getElementById('cropper-modal');
+    
+    // Initialize profile picture click handler
+    if (profilePictureOverlay) {
+        profilePictureOverlay.addEventListener('click', function(e) {
             e.preventDefault();
-            if (!zoomControl) return;
-            
-            const delta = e.deltaY > 0 ? -0.1 : 0.1;
-            const newZoom = Math.min(Math.max(parseFloat(zoomControl.value) + delta * 100, zoomControl.min), zoomControl.max);
-            zoomControl.value = newZoom;
-            applyZoom();
-        });
-    }
-
-    function resetZoom() {
-        scale = 1;
-        if (zoomControl && zoomControl instanceof HTMLInputElement) {
-            zoomControl.value = '100';
-        }
-        translateX = 0;
-        translateY = 0;
-        applyTransform();
-    }
-
-    function applyZoom() {
-        if (!zoomControl || !imageToEdit || !imageToEdit.parentElement) return;
-        
-        const newScale = parseFloat(zoomControl.value) / 100;
-        const deltaScale = newScale - scale;
-
-        const containerWidth = imageToEdit.parentElement.offsetWidth;
-        const containerHeight = imageToEdit.parentElement.offsetHeight;
-        translateX -= (containerWidth / 2 - translateX) * deltaScale / newScale;
-        translateY -= (containerHeight / 2 - translateY) * deltaScale / newScale;
-
-        scale = newScale;
-        applyTransform();
-    }
-
-    function updateCropOverlay() {
-        if (!cropOverlay) return;
-
-        const profilePictureDimensions = 480;
-        if (isProfilePicture) {
-            cropOverlay.style.borderRadius = '50%';
-            cropOverlay.style.width = `${profilePictureDimensions}px`;
-            cropOverlay.style.height = `${profilePictureDimensions}px`;
-        } else {
-            cropOverlay.style.borderRadius = '0';
-            cropOverlay.style.width = '100%';
-            cropOverlay.style.height = '33.33%';
-        }
-    }
-
-    if (profilePictureContainer) {
-        profilePictureContainer.addEventListener('click', (e) => {
-            if (document.body.classList.contains('editing') && e.target.closest('.edit-overlay')) {
-                currentEditingElement = document.getElementById('profile-picture');
-                isProfilePicture = true;
-                if (imageUpload) {
-                    imageUpload.click();
-                }
+            e.stopPropagation();
+            if (document.body.classList.contains('editing')) {
+                currentEditType = 'profile';
+                if (imageUpload) imageUpload.click();
             }
         });
     }
 
+    // Initialize banner click handler
+    if (profileBannerOverlay) {
+        profileBannerOverlay.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (document.body.classList.contains('editing')) {
+                currentEditType = 'banner';
+                if (imageUpload) imageUpload.click();
+            }
+        });
+    }
+
+    // Handle image upload - only bind this once
     if (imageUpload) {
-        imageUpload.addEventListener('change', (e) => {
-            const fileInput = e.target;
-            if (!(fileInput instanceof HTMLInputElement) || !fileInput.files || fileInput.files.length === 0) return;
+        imageUpload.addEventListener('change', function(e) {
+            if (!e.target.files || !e.target.files[0]) return;
             
-            const file = fileInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    if (e.target && e.target.result && imageToEdit) {
-                        imageToEdit.src = e.target.result.toString();
-                        showImageEditor(currentEditingElement, isProfilePicture, e.target.result.toString());
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    if (zoomControl) {
-        zoomControl.max = '400';
-        zoomControl.addEventListener('input', applyZoom);
-    }
-
-    function applyTransform() {
-        if (!imageToEdit) return;
-        imageToEdit.style.transform = `translate(-50%, -50%) scale(${scale})`;
-        imageToEdit.style.left = '50%';
-        imageToEdit.style.top = '50%';
-    }
-
-    if (skipEditBtn) {
-        skipEditBtn.addEventListener('click', () => {
-            if (imageEditorModal) imageEditorModal.style.display = 'none';
-        });
-    }
-
-    if (cancelEditBtn) {
-        cancelEditBtn.addEventListener('click', () => {
-            if (imageEditorModal) imageEditorModal.style.display = 'none';
-        });
-    }
-
-    if (applyEditBtn) {
-        applyEditBtn.addEventListener('click', () => {
-            if (!imageToEdit || !zoomControl) return;
+            const file = e.target.files[0];
+            const reader = new FileReader();
             
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            if (!ctx) return;
-            
-            let containerWidth, containerHeight;
-
-            if (isProfilePicture) {
-                containerWidth = containerHeight = 480;
-            } else {
-                if (!imageToEdit.parentElement) return;
-                containerWidth = imageToEdit.parentElement.offsetWidth;
-                containerHeight = imageToEdit.parentElement.offsetHeight / 3;
-            }
-
-            canvas.width = containerWidth;
-            canvas.height = containerHeight;
-
-            const scale = parseFloat(zoomControl.value) / 100;
-            const imgWidth = imageToEdit.naturalWidth * scale;
-            const imgHeight = imageToEdit.naturalHeight * scale;
-            const sx = (imgWidth - containerWidth) / 2 / scale;
-            const sy = (imgHeight - containerHeight) / 2 / scale;
-
-            ctx.drawImage(
-                imageToEdit,
-                sx, sy, containerWidth / scale, containerHeight / scale,
-                0, 0, containerWidth, containerHeight
-            );
-
-            canvas.toBlob(async (blob) => {
-                if (!blob) return;
+            reader.onload = function(event) {
+                const cropperImage = document.getElementById('cropper-image');
+                cropperImage.src = event.target.result;
                 
-                const formData = new FormData();
-                formData.append('image', blob, isProfilePicture ? 'profile_image.png' : 'banner_image.png');
-                formData.append('type', isProfilePicture ? 'profile' : 'banner');
-
-                try {
-                    const response = await fetch('/api/upload-profile-image', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const result = await response.json();
-                    if (result.success && currentEditingElement && imageEditorModal) {
-                        const newImageUrl = result.imageUrl + '?t=' + new Date().getTime();
-                        if (isProfilePicture) {
-                            currentEditingElement.src = newImageUrl;
-                        } else {
-                            currentEditingElement.style.backgroundImage = `url(${newImageUrl})`;
-                        }
-                        imageEditorModal.style.display = 'none';
-                    } else {
-                        alert('Failed to upload image. Please try again.');
-                    }
-                } catch (error) {
-                    alert('An error occurred while uploading the image.');
+                // Open the modal
+                cropperModal.style.display = 'flex';
+                
+                // Initialize Cropper.js
+                if (cropper) {
+                    cropper.destroy();
                 }
-            }, 'image/png');
+                
+                // Set different aspect ratio based on edit type
+                const aspectRatio = currentEditType === 'profile' ? 1 : 3;
+                
+                // Wait for the image to load before initializing cropper
+                cropperImage.onload = function() {
+                    cropper = new Cropper(cropperImage, {
+                        aspectRatio: aspectRatio,
+                        viewMode: 1,
+                        dragMode: 'move',
+                        autoCropArea: 1,
+                        restore: false,
+                        modal: true,
+                        guides: true,
+                        highlight: true,
+                        cropBoxMovable: true,
+                        cropBoxResizable: true,
+                        toggleDragModeOnDblclick: false,
+                        minContainerWidth: 200,
+                        minContainerHeight: 200,
+                        ready() {
+                            // Set up circular crop for profile pictures
+                            if (currentEditType === 'profile') {
+                                const containerData = cropper.getContainerData();
+                                const cropBoxData = cropper.getCropBoxData();
+                                const size = Math.min(containerData.width, containerData.height) * 0.8;
+                                
+                                cropper.setCropBoxData({
+                                    left: (containerData.width - size) / 2,
+                                    top: (containerData.height - size) / 2,
+                                    width: size,
+                                    height: size
+                                });
+                                
+                                // Add circular mask for profile pictures
+                                const cropBox = document.querySelector('.cropper-view-box');
+                                if (cropBox) {
+                                    cropBox.style.borderRadius = '50%';
+                                    const face = document.querySelector('.cropper-face');
+                                    if (face) {
+                                        face.style.borderRadius = '50%';
+                                    }
+                                }
+                            }
+                        }
+                    });
+                };
+            };
+            
+            reader.readAsDataURL(file);
+            
+            // Reset file input to allow selecting the same file again
+            e.target.value = '';
         });
     }
     
-    const observer = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-            if (mutation.attributeName === 'class') {
-                toggleEditMode();
-            }
+    // Add event listeners to close and save buttons
+    document.querySelector('.cropper-close-btn').addEventListener('click', closeCropperModal);
+    document.getElementById('cropper-cancel-btn').addEventListener('click', closeCropperModal);
+    document.getElementById('cropper-save-btn').addEventListener('click', saveCroppedImage);
+
+    // Close modal function
+    function closeCropperModal() {
+        if (cropperModal) {
+            cropperModal.style.display = 'none';
+        }
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+    }
+
+    // Save cropped image function
+    function saveCroppedImage() {
+        if (!cropper) return;
+
+        // Get canvas with cropped image
+        const canvas = cropper.getCroppedCanvas({
+            width: currentEditType === 'profile' ? 480 : 1200,
+            height: currentEditType === 'profile' ? 480 : 400,
+            fillColor: '#000',
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
         });
-    });
+        
+        // Convert canvas to blob
+        canvas.toBlob(async (blob) => {
+            try {
+                // Create form data for upload
+                const formData = new FormData();
+                formData.append('image', blob, `${currentEditType}.png`);
+                formData.append('type', currentEditType);
+                
+                // Upload image
+                const response = await fetch('/api/upload-profile-image', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Cache-bust the URL to force reload
+                    const cacheBustedUrl = `${result.imageUrl}?t=${new Date().getTime()}`;
+                    
+                    // Update UI with new image
+                    if (currentEditType === 'profile') {
+                        const profilePicture = document.getElementById('profile-picture');
+                        if (profilePicture) {
+                            profilePicture.src = cacheBustedUrl;
+                        }
+                    } else if (currentEditType === 'banner') {
+                        const profileBanner = document.getElementById('profile-banner');
+                        if (profileBanner) {
+                            profileBanner.style.backgroundImage = `url(${cacheBustedUrl})`;
+                        }
+                    }
+                    
+                    // Close the modal on success
+                    closeCropperModal();
+                    
+                    await customAlert(`${currentEditType === 'profile' ? 'Profile picture' : 'Banner'} updated successfully!`);
+                } else {
+                    await customAlert(`Failed to update ${currentEditType === 'profile' ? 'profile picture' : 'banner'}. Please try again.`);
+                    // Close the modal on failure too
+                    closeCropperModal();
+                }
+            } catch (error) {
+                console.error('Error saving image:', error);
+                await customAlert(`An error occurred while saving your ${currentEditType === 'profile' ? 'profile picture' : 'banner'}.`);
+                
+                // Always close the modal
+                closeCropperModal();
+                
+                // Ensure any other hanging loading overlays are removed
+                document.querySelectorAll('.loading-overlay').forEach(overlay => {
+                    if (overlay.parentNode) {
+                        overlay.parentNode.removeChild(overlay);
+                    }
+                });
+            }
+        }, 'image/png');
+    }
+}
+
+// Load Cropper.js dynamically
+function loadCropperJS() {
+    // Load CSS
+    const cropperCss = document.createElement('link');
+    cropperCss.rel = 'stylesheet';
+    cropperCss.href = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css';
+    document.head.appendChild(cropperCss);
     
-    observer.observe(document.body, { attributes: true });
+    // Load JS
+    const cropperScript = document.createElement('script');
+    cropperScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js';
+    document.head.appendChild(cropperScript);
     
-    toggleEditMode();
+    cropperScript.onerror = () => {
+        console.error('Failed to load Cropper.js');
+        customAlert('Failed to load image editor. Please try again later.');
+    };
 }
 
 export { 
     initializeProfileEditing, 
     initializeProfileImageEditing, 
-    formatDurationProfile 
+    formatDurationProfile
 };

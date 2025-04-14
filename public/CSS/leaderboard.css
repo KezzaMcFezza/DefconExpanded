@@ -707,11 +707,6 @@ tr:nth-child(3) .rank-cell::before {
     animation: neonFlow 4s linear infinite;
 }
 
-.nemesis-tip {
-    position: relative;
-    cursor: help;
-}
-
 .nemesis-tip:hover::after {
     content: "Player you've lost to most frequently";
     position: absolute;

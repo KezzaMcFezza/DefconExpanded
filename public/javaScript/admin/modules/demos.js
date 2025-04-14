@@ -128,12 +128,10 @@ const DemosModule = (() => {
 
         if (!Auth.requirePermission(4, 'upload demos')) return;
 
-        console.log('Upload demo function called');
         const formData = new FormData(event.target);
 
         try {
             await API.post('/api/upload-demo', formData, true);
-            console.log('Demo uploaded successfully');
             loadDemos();
             event.target.reset();
             await UI.showAlert('Demo uploaded successfully!');
@@ -146,11 +144,9 @@ const DemosModule = (() => {
     async function editDemo(demoId) {
         if (!Auth.requirePermission(5, 'edit demos')) return;
 
-        console.log('Edit demo function called for demo ID:', demoId);
 
         try {
             const demo = await API.get(`/api/demo/${demoId}`);
-            console.log('Raw demo data:', demo);
 
             document.getElementById('edit-demo-id').value = demo.id;
             document.getElementById('edit-demo-name').value = demo.name;
@@ -166,14 +162,10 @@ const DemosModule = (() => {
             let playersData;
             try {
                 const parsedData = JSON.parse(demo.players);
-                console.log('Parsed data:', parsedData);
 
                 playersData = Array.isArray(parsedData) ? parsedData : parsedData.players;
-                console.log('Players data:', playersData);
 
                 const usingAlliances = playersData.some(player => player.alliance !== undefined);
-                console.log('Using alliances:', usingAlliances);
-
                 const isExpandedGame = (demo.game_type && (
                     demo.game_type.includes('8 Player') ||
                     demo.game_type.includes('4v4') ||
@@ -187,7 +179,6 @@ const DemosModule = (() => {
                 ));
 
                 playersData.forEach((player, index) => {
-                    console.log(`Processing player ${index}:`, player);
 
                     let colorOptions;
                     if (usingAlliances) {
@@ -286,7 +277,6 @@ const DemosModule = (() => {
 
         try {
             originalData = JSON.parse(document.getElementById('edit-players-json')?.value);
-            console.log('Original data:', originalData);
         } catch (error) {
             console.error('Error parsing original data:', error);
             await UI.showAlert('Error parsing game data');
@@ -341,8 +331,6 @@ const DemosModule = (() => {
             duration: document.getElementById('edit-duration').value,
             players: JSON.stringify(updatedData)
         };
-
-        console.log('Sending update:', updatedDemo);
 
         try {
             const response = await fetch(`/api/demo/${demoId}`, {

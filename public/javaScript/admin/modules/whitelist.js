@@ -62,7 +62,6 @@ const WhitelistModule = (() => {
         try {
             await API.post('/api/whitelist', { playerName, reason });
             
-            console.log('Successfully added to whitelist');
             loadWhitelist();
             document.getElementById('add-to-whitelist')?.reset();
             await UI.showAlert('Player added to whitelist successfully');

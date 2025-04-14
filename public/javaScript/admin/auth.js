@@ -22,16 +22,13 @@ const Auth = (() => {
             const data = await response.json();
             if (data.user) {
                 currentUserRole = data.user.role;
-                console.log('Current user role:', currentUserRole);
                 if (currentUserRole <= 5) {
                     UI.setupCustomDialog();
                     if (callback) callback();
                 } else {
-                    console.log('Insufficient permissions. Redirecting to login.');
                     window.location.href = '/login';
                 }
             } else {
-                console.log('No user data. Redirecting to login.');
                 window.location.href = '/login';
             }
         } catch (error) {

@@ -20,8 +20,6 @@ const MonitoringModule = (() => {
     async function loadMonitoringData() {
         try {
             const response = await API.get('/api/monitoring-data');
-            console.log('Monitoring data fetched:', response);
-
             const uptimeElement = document.getElementById('server-uptime');
             const totalDemosElement = document.getElementById('total-demos');
             const userRequestsElement = document.getElementById('user-requests');

@@ -23,15 +23,12 @@ const UI = (() => {
         if (title && listItems) {
             title.addEventListener('click', function(e) {
                 e.preventDefault();
-                console.log('Title clicked');
                 listItems.classList.toggle('show');
                 title.classList.toggle('menu-open');
-                console.log('Menu toggled, show class:', listItems.classList.contains('show'));
             });
 
             listItems.addEventListener('click', function(e) {
                 if (e.target.tagName === 'A' && !e.target.parentElement.classList.contains('dropdown')) {
-                    console.log('Link clicked, closing menu');
                     listItems.classList.remove('show');
                     title.classList.remove('menu-open');
                 }
