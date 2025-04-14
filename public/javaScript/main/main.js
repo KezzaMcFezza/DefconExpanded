@@ -16,6 +16,7 @@ import { initializeAuthentication } from './authentication.js';
 import { initializeNavigation } from './mobilemenu.js';
 import { initializeMods } from './mods.js';
 import { initializePopupSystem } from './popup.js';
+import { initializeLeaderboard } from '../leaderboard/leaderboard.js';
 
 let soundVolume = 0.1;
 
@@ -407,6 +408,9 @@ function initializeApplication() {
   initializeReportHandlers();
   initializeMods();
   
+  if (window.location.pathname.includes('/leaderboard')) {
+    initializeLeaderboard();
+  }
   
   const searchButton2 = document.getElementById('search-button2');
   const searchInput2 = document.getElementById('search-input2');
@@ -420,18 +424,15 @@ function initializeApplication() {
     });
   }
   
-  
   const resourcesContainer = document.querySelector('.resources-container');
   if (resourcesContainer) {
     loadResources();
   }
   
-  
   const dedconContainer = document.querySelector('.dedcon-build-container');
   if (dedconContainer) {
     displayDedconBuilds();
   }
-  
   
   window.addEventListener('resize', function () {
     if (window.innerWidth <= 768) {
