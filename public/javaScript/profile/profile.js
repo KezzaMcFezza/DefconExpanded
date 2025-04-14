@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 14-04-2025
 
 import { formatDurationProfile } from '../main/main.js';
 import { vanillaTerritories, eightPlayerTerritories, tenPlayerTerritories, territoryImages } from './constants.js';
@@ -46,22 +46,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             editButtonMobile.style.display = isOwnProfile ? 'block' : 'none';
         }
 
-        // Fixed profile picture loading
         const profilePictureElement = document.getElementById('profile-picture');
         if (profilePictureElement) {
             const profilePicture = userProfile.profile_picture
-                ? `${userProfile.profile_picture}`  // No domain prefixing
+                ? `${userProfile.profile_picture}`  
                 : '/images/icon3.png';
             
             profilePictureElement.src = profilePicture;
         }
 
-        // Fixed banner image loading
         const profileBanner = document.getElementById('profile-banner');
         if (profileBanner && userProfile.banner_image) {
             profileBanner.style.backgroundImage = `url("${userProfile.banner_image}")`;
         } else if (profileBanner) {
-            // Default banner only if no custom banner exists
             profileBanner.style.backgroundImage = 'url("/images/backgroundprofile.png")';
         }
 
