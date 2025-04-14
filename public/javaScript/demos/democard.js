@@ -314,18 +314,33 @@ function displayDemos(demos) {
   const columns = Array.from({ length: columnCount }, () => document.createElement('div'));
   columns.forEach(column => column.className = 'demo-column');
 
-  demos.forEach((demo, index) => {
-    const columnIndex = index % columnCount;
-
-    try {
-      const demoCard = createDemoCard(demo);
-      columns[columnIndex].appendChild(demoCard);
-    } catch (error) {
-      console.error(`Error creating demo card for demo ID ${demo.id}:`, error);
+  const ensureUserRole = async () => {
+    if (window.userRole === undefined) {
+      try {
+        const response = await fetch('/api/current-user');
+        const data = await response.json();
+        if (data.user) {
+          window.userRole = data.user.role;
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
     }
-  });
 
-  columns.forEach(column => demoContainer.appendChild(column));
+    demos.forEach((demo, index) => {
+      const columnIndex = index % columnCount;
+      try {
+        const demoCard = createDemoCard(demo);
+        columns[columnIndex].appendChild(demoCard);
+      } catch (error) {
+        console.error(`Error creating demo card for demo ID ${demo.id}:`, error);
+      }
+    });
+
+    columns.forEach(column => demoContainer.appendChild(column));
+  };
+
+  ensureUserRole();
 }
 
 export { 
