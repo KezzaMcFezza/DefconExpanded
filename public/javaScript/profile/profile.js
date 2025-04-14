@@ -46,12 +46,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             editButtonMobile.style.display = isOwnProfile ? 'block' : 'none';
         }
 
+        // Fixed profile picture loading
         const profilePictureElement = document.getElementById('profile-picture');
         if (profilePictureElement) {
             const profilePicture = userProfile.profile_picture
-                ? `https://defconexpanded.com${userProfile.profile_picture}`
+                ? `${userProfile.profile_picture}`  // No domain prefixing
                 : '/images/icon3.png';
+            
             profilePictureElement.src = profilePicture;
+        }
+
+        // Fixed banner image loading
+        const profileBanner = document.getElementById('profile-banner');
+        if (profileBanner && userProfile.banner_image) {
+            profileBanner.style.backgroundImage = `url("${userProfile.banner_image}")`;
+        } else if (profileBanner) {
+            // Default banner only if no custom banner exists
+            profileBanner.style.backgroundImage = 'url("/images/backgroundprofile.png")';
         }
 
         const usernameLabel = document.getElementById('profile-username-label');

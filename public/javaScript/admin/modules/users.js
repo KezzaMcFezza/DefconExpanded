@@ -22,8 +22,6 @@ const UsersModule = (() => {
 
         try {
             const users = await API.get('/api/users');
-            console.log('Loaded users:', users.length);
-
             const tbody = document.querySelector('#user-table tbody');
             if (!tbody) return;
 

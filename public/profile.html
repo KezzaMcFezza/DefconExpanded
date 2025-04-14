@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 03-03-2025
+* Last Edited 14-04-2025
 -->
 
 <!DOCTYPE html>
@@ -27,6 +27,8 @@
     <link rel="stylesheet" type="text/css" href="/CSS/admin.css" />
     <link rel="stylesheet" type="text/css" href="/CSS/modlist.css" />
     <link rel="stylesheet" type="text/css" href="/CSS/profile.css" />
+    <!-- Ensure Cropper.js CSS is loaded before the JS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
@@ -46,24 +48,9 @@
             height: auto;
             overflow: hidden;
         }
-
-        .base-map {
-            width: 100%;
-            height: auto;
-            display: block;
-            position: relative;
-            z-index: 1;
-        }
-
-        .territory-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: auto;
-            z-index: 2;
-        }
     </style>
+    <!-- Load Cropper.js after the CSS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 
 <body class="hide-scrollbar">
@@ -163,12 +150,21 @@
                     <div class="profile-banner-edit" id="profile-banner-edit">
                         <i class="fas fa-pencil-alt"></i>
                     </div>
+                    <div id="profile-banner-overlay" class="profile-banner-overlay" style="display: none;">
+                        <i class="fas fa-camera"></i>
+                        <span>Change Banner</span>
+                    </div>
                 </div>
                 <div class="profile-info-bar">
-                    <div class="profile-picture-wrapper">
+                    <div class="profile-picture-wrapper" id="profile-picture-container">
                         <img id="profile-picture" src="/images/icon3.png" alt="Profile Picture" class="profile-picture">
                         <div class="profile-picture-edit" id="profile-picture-edit">
                             <i class="fas fa-camera"></i>
+                        </div>
+                        <!-- Add the missing profile picture overlay -->
+                        <div id="profile-picture-overlay" class="profile-picture-overlay" style="display: none;">
+                            <i class="fas fa-camera"></i>
+                            <span style="font-size: 1rem;">Change Photo</span>
                         </div>
                     </div>
                     <div class="profile-details">
@@ -188,7 +184,6 @@
                     <div class="stats-container">
                         <div class="profile-card defcon-stats-card">
                             <div class="profile-card-header">
-                                <i class="fas fa-chess-king"></i>
                                 <h2 class="profile-card-title">Defcon Statistics</h2>
                             </div>
                             <div class="defcon-stats">
@@ -231,7 +226,6 @@
 
                         <div class="profile-card territory-stats-card">
                             <div class="profile-card-header">
-                                <i class="fas fa-globe-americas"></i>
                                 <h2 class="profile-card-title">Territory Statistics</h2>
                             </div>
                             <div class="territory-select-wrapper">
@@ -253,7 +247,6 @@
 
                     <div class="profile-card contributions-card">
                         <div class="profile-card-header">
-                            <i class="fas fa-code-branch"></i>
                             <h2 class="profile-card-title">Contributions</h2>
                         </div>
                         <div class="contributions-container">
@@ -274,7 +267,6 @@
 
                     <div class="profile-card favorite-mods-card">
                         <div class="profile-card-header">
-                            <i class="fas fa-star"></i>
                             <h2 class="profile-card-title">Favorite Mods</h2>
                         </div>
                         <div id="favouriteModsContainer" class="favorite-mods-grid">
@@ -285,7 +277,6 @@
                 <div class="profile-sidebar">
                     <div class="profile-card social-links-card">
                         <div class="profile-card-header">
-                            <i class="fas fa-share-nodes"></i>
                             <h2 class="profile-card-title">Social</h2>
                         </div>
                         <div class="social-links">
@@ -304,7 +295,6 @@
 
                     <div class="profile-card recent-game-card">
                         <div class="profile-card-header">
-                            <i class="fas fa-gamepad"></i>
                             <h2 class="profile-card-title">Most Recent Game</h2>
                         </div>
                         <div id="recent-game-container" class="recent-game-container">
@@ -318,75 +308,25 @@
             </div>
         </div>
 
-        <div id="image-editor-modal" class="modal">
-            <div class="modal-content">
-                <h2>Edit Image</h2>
-                <div class="image-editor-container">
-                    <div class="image-preview">
-                        <img id="image-to-edit" src="" alt="Image to edit">
-                        <div id="crop-overlay" class="crop-overlay"></div>
-                    </div>
-                    <div class="image-editor-controls">
-                        <input type="range" id="zoom-control" min="100" max="400" value="100">
-                        <div class="button-container">
-                            <button id="skip-edit">Skip</button>
-                            <button id="cancel-edit">Cancel</button>
-                            <button id="apply-edit">Apply</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <input type="file" id="image-upload" accept="image/*" style="display: none;">
+        
     </main>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.loading-state').forEach(state => {
-                state.style.display = 'flex';
-            });
-
-            const editBtn = document.getElementById('edit-profile-btn');
-            if (editBtn) {
-                editBtn.addEventListener('click', () => {
-                    document.body.classList.toggle('editing');
-                    editBtn.classList.toggle('editing');
-
-                    if (editBtn.classList.contains('editing')) {
-                        editBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
-                    } else {
-                        editBtn.innerHTML = '<i class="fas fa-pencil-alt"></i> Edit Profile';
-                    }
-                });
-            }
-
-            const profileBanner = document.getElementById('profile-banner');
-            if (profileBanner) {
-                profileBanner.style.backgroundImage = 'url("/images/backgroundprofile.png")';
-            }
-
-            const profilePictureEdit = document.getElementById('profile-picture-edit');
-            const profileBannerEdit = document.getElementById('profile-banner-edit');
-            const imageUpload = document.getElementById('image-upload');
-
-            if (profilePictureEdit && imageUpload) {
-                profilePictureEdit.addEventListener('click', () => {
-                    if (document.body.classList.contains('editing')) {
-                        imageUpload.click();
-                    }
-                });
-            }
-
-            if (profileBannerEdit && imageUpload) {
-                profileBannerEdit.addEventListener('click', () => {
-                    if (document.body.classList.contains('editing')) {
-                        imageUpload.click();
-                    }
-                });
-            }
-        });
-    </script>
+    <div id="cropper-modal" class="cropper-modal">
+        <div class="cropper-modal-content">
+            <div class="cropper-modal-header">
+                <h3>Crop Image</h3>
+                <button class="cropper-close-btn">&times;</button>
+            </div>
+            <div class="cropper-container">
+                <img id="cropper-image" src="">
+            </div>
+            <div class="cropper-modal-footer">
+                <button id="cropper-cancel-btn">Cancel</button>
+                <button id="cropper-save-btn">Save</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

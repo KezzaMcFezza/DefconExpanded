@@ -56,7 +56,6 @@ const ModuleLoader = {
 
 
 async function initializeAdminPanel() {
-    console.log('Initializing admin panel for page:', getCurrentPage());
 
     document.querySelectorAll('[data-min-role]').forEach(element => {
         const minRole = parseInt(element.dataset.minRole);
