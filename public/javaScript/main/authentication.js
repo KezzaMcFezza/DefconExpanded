@@ -50,7 +50,6 @@ function setupProfileLinks() {
     fetch('/api/current-user')
       .then(response => {
         if (!response.ok) {
-          throw new Error('Not authenticated');
         }
         return response.json();
       })

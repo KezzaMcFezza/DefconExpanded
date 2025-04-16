@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 20-04-2025
 
 import { initializeDiscordWidget } from './discord.js';
 import { initializeReportHandlers } from './reporting.js';
@@ -17,6 +17,7 @@ import { initializeNavigation } from './mobilemenu.js';
 import { initializeMods } from './mods.js';
 import { initializePopupSystem } from './popup.js';
 import { initializeLeaderboard } from '../leaderboard/leaderboard.js';
+import { initializeGraphs } from '../graph/graph.js';
 
 let soundVolume = 0.1;
 
@@ -59,20 +60,20 @@ function formatDurationProfile(duration) {
   if (!duration) return 'Unknown';
 
   if (typeof duration === 'string') {
-      const [hours, minutes] = duration.split(':').map(Number);
-      if (hours === 0) {
-          return `${minutes} min`;
-      } else {
-          return `${hours} hr ${minutes} min`;
-      }
+    const [hours, minutes] = duration.split(':').map(Number);
+    if (hours === 0) {
+      return `${minutes} min`;
+    } else {
+      return `${hours} hr ${minutes} min`;
+    }
   } else if (typeof duration === 'number') {
-      if (duration < 60) {
-          return `${Math.round(duration)} min`;
-      } else {
-          const hours = Math.floor(duration / 60);
-          const remainingMinutes = Math.round(duration % 60);
-          return `${hours} hr ${remainingMinutes} min`;
-      }
+    if (duration < 60) {
+      return `${Math.round(duration)} min`;
+    } else {
+      const hours = Math.floor(duration / 60);
+      const remainingMinutes = Math.round(duration % 60);
+      return `${hours} hr ${remainingMinutes} min`;
+    }
   }
 
   return 'Unknown';
@@ -330,22 +331,22 @@ async function displayDedconBuilds() {
     }
 
     buildContainer.innerHTML = `
-      <div class="tutorial-download-container">
-        <table class="version-history-table">
-          <thead>
-            <tr>
-              <th>Platform</th>
-              <th>Version</th>
-              <th>Build Type</th>
-              <th>Release Date</th>
-              <th>Download</th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
-      </div>
-    `;
+    <div class="tutorial-download-container">
+      <table class="version-history-table">
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>Version</th>
+            <th>Build Type</th>
+            <th>Release Date</th>
+            <th>Download</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  `;
 
     const sortedBuilds = builds.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
     const tableBody = buildContainer.querySelector('tbody');
@@ -371,25 +372,25 @@ async function displayDedconBuilds() {
       row.className = isLatest ? 'latest-version' : '';
 
       row.innerHTML = `
-        <td>
-          <div class="platform-cell">
-            <img src="/images/${build.platform}-icon.png" alt="${platformName}" class="steam-logo" style="width: 16px;" />
-            ${platformName}
-          </div>
-        </td>
-        <td class="td2">${build.version}</td>
-        <td>${buildType}</td>
-        <td>${isLatest ?
+      <td>
+        <div class="platform-cell">
+          <img src="/images/${build.platform}-icon.png" alt="${platformName}" class="steam-logo" style="width: 16px;" />
+          ${platformName}
+        </div>
+      </td>
+      <td class="td2">${build.version}</td>
+      <td>${buildType}</td>
+      <td>${isLatest ?
           `<span class="latest-tag"></span> ${new Date(build.release_date).toLocaleDateString()}` :
           new Date(build.release_date).toLocaleDateString()
         }</td>
-        <td>
-          <a href="/api/download-dedcon-build/${encodeURIComponent(build.name)}" 
-             class="btn-download foo">
-             Download
-          </a>
-        </td>
-      `;
+      <td>
+        <a href="/api/download-dedcon-build/${encodeURIComponent(build.name)}" 
+           class="btn-download foo">
+           Download
+        </a>
+      </td>
+    `;
 
       tableBody.appendChild(row);
     });
@@ -399,19 +400,30 @@ async function displayDedconBuilds() {
   }
 }
 
+/**
+* Initialize the application with all required components
+*/
 function initializeApplication() {
-  
+  // Initialize core systems
   initializePopupSystem();
   initializeAuthentication();
   initializeNavigation();
   initializeDiscordWidget();
   initializeReportHandlers();
   initializeMods();
-  
+
+  // Initialize graphs if we're on a graph page
+  const isGraphPage = window.location.pathname.startsWith('/about');
+  if (isGraphPage) {
+    initializeGraphs();
+  }
+
+  // Initialize leaderboard if on leaderboard page
   if (window.location.pathname.includes('/leaderboard')) {
     initializeLeaderboard();
   }
-  
+
+  // Initialize search functionality
   const searchButton2 = document.getElementById('search-button2');
   const searchInput2 = document.getElementById('search-input2');
 
@@ -423,17 +435,20 @@ function initializeApplication() {
       }
     });
   }
-  
+
+  // Initialize resources if on resources page
   const resourcesContainer = document.querySelector('.resources-container');
   if (resourcesContainer) {
     loadResources();
   }
-  
+
+  // Initialize dedcon builds if on dedcon builds page
   const dedconContainer = document.querySelector('.dedcon-build-container');
   if (dedconContainer) {
     displayDedconBuilds();
   }
-  
+
+  // Handle window resizing
   window.addEventListener('resize', function () {
     if (window.innerWidth <= 768) {
       initializeNavigation();
@@ -441,8 +456,10 @@ function initializeApplication() {
   });
 }
 
+// Initialize the application when the DOM is loaded
 document.addEventListener('DOMContentLoaded', initializeApplication);
 
+// Export utilities and functions for other modules
 export {
   formatBytes,
   getTimeAgo,
@@ -459,6 +476,7 @@ export {
   initializeApplication
 };
 
+// Make core functions available globally
 window.formatBytes = formatBytes;
 window.getTimeAgo = getTimeAgo;
 window.formatDuration = formatDuration;
