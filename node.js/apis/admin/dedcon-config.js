@@ -1,7 +1,20 @@
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 18-04-2025
+
 const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
+
 const {
     configFiles,
     rootDir
@@ -55,7 +68,7 @@ router.put('/api/config-files/:filename', authenticateToken, checkRole(2), async
         if (!configFiles.includes(req.params.filename)) {
             return res.status(403).json({ error: 'Invalid file' });
         }
-        const filePath = path.join(__dirname, req.params.filename);
+        const filePath = path.join(rootDir, req.params.filename);
         await fs.promises.writeFile(filePath, req.body.content);
         res.json({ message: 'File updated successfully' });
     } catch (error) {

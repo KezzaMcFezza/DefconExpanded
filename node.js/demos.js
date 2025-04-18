@@ -1,3 +1,15 @@
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 18-04-2025
+
 const path = require('path');
 const fs = require('fs');
 const pendingDemos = new Map();
@@ -188,11 +200,11 @@ async function demoExistsInDatabase(demoFileName) {
 }
 
 async function processDemoFile(demoFileName, fileSize, logData, jsonFileName) {
-    if (!discordState.isReady) {  // Check the object property
+    if (!discordState.isReady) { 
         console.log('Discord bot not ready, waiting...');
         await new Promise((resolve) => {
             const checkInterval = setInterval(() => {
-                if (discordState.isReady) {  // Check the object property
+                if (discordState.isReady) { 
                     clearInterval(checkInterval);
                     resolve();
                 }
