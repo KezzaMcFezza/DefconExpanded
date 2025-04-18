@@ -1,7 +1,20 @@
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 18-04-2025
+
 const express = require('express');
 const router = express.Router();
 const path = require('path');
 const fs = require('fs');
+
 const {
     pool,
     demoDir
@@ -272,7 +285,6 @@ router.get('/api/demos', async (req, res) => {
   }
 });
 
-// then use the following route to get the demo details
 router.get('/api/search-players', async (req, res) => {
   const { playerName } = req.query;
 
@@ -297,7 +309,6 @@ router.get('/api/search-players', async (req, res) => {
   }
 });
 
-// api for downloading demo files, really should fix this since it directly exposes the api name
 router.get('/api/download/:demoName', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM demos WHERE name = ?', [req.params.demoName]);
@@ -310,10 +321,8 @@ router.get('/api/download/:demoName', async (req, res) => {
       return res.status(404).send('Demo file not found');
     }
 
-    // Update the download count on the database for the frontend to display
     await pool.query('UPDATE demos SET download_count = download_count + 1 WHERE name = ?', [req.params.demoName]);
 
-    // Initiate file download
     res.download(demoPath, (err) => {
       const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
@@ -323,7 +332,6 @@ router.get('/api/download/:demoName', async (req, res) => {
         } else {
           console.error('Error during demo download:', err);
 
-          // Check if the headers are already sent before trying to send a new response
           if (!res.headersSent) {
             return res.status(500).send('Error downloading demo');
           }
@@ -336,7 +344,6 @@ router.get('/api/download/:demoName', async (req, res) => {
   } catch (error) {
     console.error('Error downloading demo:', error);
 
-    // Ensure no duplicate response is sent
     if (!res.headersSent) {
       res.status(500).send('Error downloading demo');
     }

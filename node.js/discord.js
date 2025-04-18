@@ -1,5 +1,20 @@
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 18-04-2025
+
 const path = require('path');
-const discordState = { isReady: false };
+const discordState = { isReady: false }; 
+// turns out booleans in javascript are passed on by value not reference so i had to get creative
+// to allow the whole node app to have a shared constant such as the discord bot, we need to add a constant that can actually be used across the whole app and be exported.
+// exporting it like this... const discordState = False will not work here.
 
 const { 
     Client, 
@@ -24,7 +39,7 @@ const discordBot = new Client({
 
 discordBot.once('ready', () => {
     console.log(`Discord bot logged in as ${discordBot.user.tag}`);
-    discordState.isReady = true;  // Update the object property
+    discordState.isReady = true; 
     if (pendingInitialization) {
         console.log('Discord bot ready, proceeding with pending initialization...');
         completePendingInitialization();

@@ -1,3 +1,15 @@
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 18-04-2025
+
 require('dotenv').config();
 
 // first lets check if our env file was deleted
@@ -24,7 +36,7 @@ console.log("Environment variables loaded:", {
 // the deed
 process.env.DB_PASSWORD ? console.log("Hell yea") : console.log("We are fucked");
 
-// server constants
+// server constants to be used
 const express = require('express');
 const router = express.Router();
 const path = require('path');
@@ -258,7 +270,7 @@ async function initializeServer() {
     console.log("Starting server initialization...");
 
     const initializationPromise = new Promise((resolve, reject) => {
-        if (discordState.isReady) {  // Check the object property
+        if (discordState.isReady) { 
             resolve();
         } else {
             console.log('Waiting for Discord bot to be ready...');
@@ -341,15 +353,12 @@ pool.getConnection((err, connection) => {
     }
 });
 
-// pretty sure claude added this since it looks the same as the other error handler
 app.use((err, req, res, next) => {
     console.error('Error details:', err);
     res.status(500).json({ error: 'Internal server error', details: err.message });
 });
 
-
-
-// http headers 0__0
+// http headers 
 app.use((err, req, res, next) => {
     console.error('Unhandled error:', err);
     console.error('Stack trace:', err.stack);
@@ -375,7 +384,7 @@ setInterval(() => {
             pendingVerifications.delete(email);
         }
     }
-}, 3600000); // cleans up the map every hour
+}, 3600000); // cleans up every hour
 
 
 module.exports = router;
@@ -418,7 +427,7 @@ app.get('/resourcemanage', authenticateToken, checkRole(3), serveAdminPage('reso
 app.get('/serverconsole', authenticateToken, checkRole(1), serveAdminPage('server-console', 2));
 
 
-// special routes to be handled
+// homepage handler
 app.get('/', (req, res) => {
   res.sendFile(path.join(publicDir,  'index.html'));
 });
@@ -466,9 +475,10 @@ app.get('*', (req, res) => {
   }
 });
 
+// if you ever see this then something is broken
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Something broke!');
+  res.status(500).send('You fucked up');
 });
 
 // route for the server console output
@@ -492,7 +502,7 @@ console.log = function () {
 //Shut down properly so she dont shit herself
 process.on('SIGINT', async () => {
     console.log('Shutting down...');
-    discordState.isReady = false;  // Use the object property
+    discordState.isReady = false; 
     pendingInitialization = null;
     completePendingInitialization = null;
 
