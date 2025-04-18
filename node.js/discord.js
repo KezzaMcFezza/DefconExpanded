@@ -198,7 +198,7 @@ async function sendDemoToDiscord(demo, logData) {
                 if (demo.name) {
                     embed.addFields({
                         name: 'Download',
-                        value: `[Click to download](https://defconexpanded.com/api/download/${demo.name})`,
+                        value: `[Click to download](${process.env.BASE_URL}/api/download/${demo.name})`,
                         inline: true
                     });
                 }

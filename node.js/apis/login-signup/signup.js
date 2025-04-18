@@ -13,10 +13,15 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = process.env.JWT_SECRET;
+const bcrypt = require('bcrypt');
+const pendingVerifications = new Map();
 
 const {
     pool,
-    transporter
+    transporter,
+    publicDir
 } = require('../../constants');
 
 router.post('/api/signup', async (req, res) => {

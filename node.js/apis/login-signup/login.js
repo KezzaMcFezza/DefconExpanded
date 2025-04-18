@@ -13,8 +13,8 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 const JWT_SECRET = process.env.JWT_SECRET;
+const bcrypt = require('bcrypt');
 
 const {
     pool
