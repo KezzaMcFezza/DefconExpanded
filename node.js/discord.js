@@ -1,19 +1,19 @@
-const express = require('express');
 const path = require('path');
-const axios = require('axios');
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-let discordBotReady = false;
+const discordState = { isReady: false };
+
+const { 
+    Client, 
+    GatewayIntentBits, 
+    EmbedBuilder 
+} = require('discord.js');
+
+const {
+    DISCORD_CONFIG,
+    publicDir
+} = require('./constants');
+
 let pendingInitialization = null;
 let completePendingInitialization = null;
-
-discordBot.once('ready', () => {
-    console.log(`Discord bot logged in as ${discordBot.user.tag}`);
-    discordBotReady = true;
-    if (pendingInitialization) {
-        console.log('Discord bot ready, proceeding with pending initialization...');
-        completePendingInitialization();
-    }
-});
 
 const discordBot = new Client({
     intents: [
@@ -22,14 +22,23 @@ const discordBot = new Client({
     ]
 });
 
+discordBot.once('ready', () => {
+    console.log(`Discord bot logged in as ${discordBot.user.tag}`);
+    discordState.isReady = true;  // Update the object property
+    if (pendingInitialization) {
+        console.log('Discord bot ready, proceeding with pending initialization...');
+        completePendingInitialization();
+    }
+});
+
 discordBot.login(DISCORD_CONFIG.token);
 
 async function sendDemoToDiscord(demo, logData) {
-    if (!discordBotReady) {
+    if (!discordState.isReady) {
         console.log('Discord bot not ready, waiting...');
         await new Promise((resolve) => {
             const checkInterval = setInterval(() => {
-                if (discordBotReady) {
+                if (!discordState.isReady) {
                     clearInterval(checkInterval);
                     resolve();
                 }
@@ -261,5 +270,6 @@ async function createTerritoryMap(players, territoryImages, usingAlliances, team
 module.exports = {
     discordBot,
     sendDemoToDiscord,
-    createTerritoryMap
+    createTerritoryMap,
+    discordState
 };
