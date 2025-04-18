@@ -59,7 +59,7 @@ router.post('/api/login', async (req, res) => {
         const token = jwt.sign(
             tokenPayload,
             JWT_SECRET,
-            { expiresIn: rememberMe ? '30d' : '1d' }
+            { expiresIn: rememberMe ? '7d' : '8h' }
         );
 
         console.log('Login successful. Token created.');

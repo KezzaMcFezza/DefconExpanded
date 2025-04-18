@@ -108,7 +108,8 @@ router.put('/api/demo/:demoId', authenticateToken, checkRole(5), async (req, res
     } catch (error) {
         console.error('Error updating demo:', error.message);
         await pool.query('ROLLBACK');
-        res.status(500).json({ error: 'Unable to update demo', details: error.message });
+        console.error('Error updating demo:', error);
+        res.status(500).json({ error: 'An internal server error occurred' });
     }
 });
 
