@@ -85,7 +85,10 @@ function serveAdminPage(pageName, minRole) {
                 console.error('Error reading file:', err);
                 return res.status(500).send('Error loading page');
             }
-            const modifiedHtml = data.replace('</head>', `<script>window.userRole = ${req.user.role};</script></head>`);
+            
+            const safeRole = JSON.stringify(req.user.role);
+            const modifiedHtml = data.replace('</head>', `<script>window.userRole = ${safeRole};</script></head>`);
+            
             res.send(modifiedHtml);
         });
     };
