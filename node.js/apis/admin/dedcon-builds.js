@@ -18,7 +18,8 @@ const fs = require('fs');
 const {
     pool,
     dedconBuildsDir,
-    upload
+    upload,
+    getClientIp
 } = require('../../constants');
 
 const {

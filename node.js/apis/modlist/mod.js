@@ -22,7 +22,8 @@ const {
 
 const {
     removeTimeout,
-    getUserLikesAndFavorites
+    getUserLikesAndFavorites,
+    fuzzyMatch
 }   = require('../../shared-functions')
 
 router.get('/api/mods', async (req, res) => {

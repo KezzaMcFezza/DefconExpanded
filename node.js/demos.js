@@ -200,7 +200,7 @@ async function demoExistsInDatabase(demoFileName) {
 }
 
 async function processDemoFile(demoFileName, fileSize, logData, jsonFileName) {
-    if (!discordState.isReady) { 
+    if (!discordState.isReady) {
         console.log('Discord bot not ready, waiting...');
         await new Promise((resolve) => {
             const checkInterval = setInterval(() => {

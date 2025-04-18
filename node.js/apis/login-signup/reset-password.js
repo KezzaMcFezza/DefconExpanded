@@ -12,6 +12,8 @@
 
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 const {
     pool,
@@ -88,7 +90,7 @@ router.post('/api/request-password-change', async (req, res) => {
         await pool.query('UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?',
             [changeToken, changeTokenExpiry, user.id]);
 
-        const changeLink = `https://defconexpanded.com/change-password?token=${changeToken}`;
+        const changeLink = `${process.env.BASE_URL}/change-password?token=${changeToken}`;
 
         await transporter.sendMail({
             from: '"Defcon Expanded" <keiron.mcphee1@gmail.com>',
