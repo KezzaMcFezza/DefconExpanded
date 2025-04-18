@@ -24,54 +24,56 @@ console.log("Environment variables loaded:", {
 // the deed
 process.env.DB_PASSWORD ? console.log("Hell yea") : console.log("We are fucked");
 
+// server constants
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql2/promise');
 const path = require('path');
 const fs = require('fs');
-const fsPromises = require('fs').promises;
 const chokidar = require('chokidar');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const { JSDOM } = require('jsdom');
-const nodemailer = require('nodemailer');
-const axios = require('axios');
 const session = require('express-session');
 const timeout = require('connect-timeout');
-const startTime = Date.now();
-const crypto = require('crypto');
 const app = express();
 const port = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const logStream = fs.createWriteStream(path.join(__dirname, 'server.log'), { flags: 'a' });
-const bcrypt = require('bcrypt');
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const pendingDemos = new Map();
-const pendingJsons = new Map();
-const processedJsons = new Set();
 const pendingVerifications = new Map();
-const rootDir = path.join(__dirname, '..');
-const publicDir = path.join(rootDir, 'public');
-const demoDir = path.join(rootDir, 'demo_recordings');
-const resourcesDir = path.join(publicDir, 'Files');
-const dedconBuildsDir = path.join(publicDir, 'Files');
-const uploadDir = publicDir;
-const gameLogsDir = path.join(rootDir, 'game_logs');
-const modlistDir = path.join(publicDir, 'modlist');
-const modPreviewsDir = path.join(publicDir, 'modpreviews');
 
+// functions to be imported from the modules
 const {
     pool,
+    demoDir,
     adminPages,
+    publicDir,
+    gameLogsDir
 } = require('./constants');
 
 const {
     authenticateToken,
     checkAuthToken,
-    checkRole
+    checkRole,
+    serveAdminPage
 }   = require('./authentication')
+
+const {
+    formatTimestamp,
+    delay
+}   = require('./shared-functions')
+
+const {
+    checkForMatch,
+    demoExistsInDatabase,
+    pendingDemos,
+    pendingJsons,
+    processedJsons 
+}   = require('./demos')
+
+const {
+    discordState
+} = require('./discord')
 
 // api modules to import
 const adminPanelRoutes = require('./apis/admin/admin-panel');
@@ -108,6 +110,7 @@ const errorHandler = (err, req, res, next) => {
     res.status(500).json({ error: 'Internal server error', details: err.message });
 };
 
+// authentication middleware
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -164,8 +167,7 @@ app.use(dedconRoutes);
 app.use(resourcesRoutes);
 app.use(requestRoutes);
 
-
-// i forgot what this does, most likely setting public as the static directory for multer and html pages to be served
+// static file serving
 app.use(express.static(publicDir, {
     setHeaders: (res, path, stat) => {
         if (path.endsWith('.html') && adminPages.includes(path.split('/').pop())) {
@@ -174,7 +176,6 @@ app.use(express.static(publicDir, {
     }
 }));
 
-// site manifest for google console
 app.use((req, res, next) => {
     if (req.url.endsWith('.webmanifest')) {
         res.setHeader('Content-Type', 'application/manifest+json');
@@ -182,7 +183,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// https enforcement
 app.use((req, res, next) => {
     if (req.headers['x-forwarded-proto'] === 'https') {
         res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
@@ -190,105 +190,75 @@ app.use((req, res, next) => {
     next();
 });
 
-
-// should fix the mod download issues!
 app.use(timeout('1h'));
 
 app.use((req, res, next) => {
     if (!req.timedout) next();
 });
 
-// claude made me a search algorithm and to be honest it makes my balls jingle looking at it
-const levenshteinDistance = (a, b) => {
-    if (a.length === 0) return b.length;
-    if (b.length === 0) return a.length;
+// watches the demo directory for new dcrec files
+console.log(`Watching demo directory: ${demoDir}`);
+const demoWatcher = chokidar.watch(`${demoDir}/*.{dcrec,d8crec,d10crec}`, {
+    ignored: /(^|[\/\\])\../,
+    persistent: true
+});
 
-    const matrix = [];
+// watches the log file directory for new json files
+console.log(`Watching log file directory: ${gameLogsDir}`);
+const jsonWatcher = chokidar.watch(`${gameLogsDir}/{game_*.json,game8p_*.json,game10p_*.json}`, {
+    ignored: /(^|[\/\\])\../,
+    persistent: true
+});
 
-    for (let i = 0; i <= b.length; i++) {
-        matrix[i] = [i];
-    }
-
-    for (let j = 0; j <= a.length; j++) {
-        matrix[0][j] = j;
-    }
-
-    for (let i = 1; i <= b.length; i++) {
-        for (let j = 1; j <= a.length; j++) {
-            if (b.charAt(i - 1) === a.charAt(j - 1)) {
-                matrix[i][j] = matrix[i - 1][j - 1];
-            } else {
-                matrix[i][j] = Math.min(
-                    matrix[i - 1][j - 1] + 1,
-                    Math.min(
-                        matrix[i][j - 1] + 1,
-                        matrix[i - 1][j] + 1
-                    )
-                );
-            }
+demoWatcher
+    .on('add', async (demoPath) => {
+        console.log(`New demo detected: ${demoPath}`);
+        const demoFileName = path.basename(demoPath);
+        const exists = await demoExistsInDatabase(demoFileName);
+        if (exists) {
+            console.log(`Demo ${demoFileName} already exists in the database. Skipping.`);
+            return;
         }
-    }
 
-    return matrix[b.length][a.length];
-};
-
-// search algorithm for fetching data from the database
-const fuzzyMatch = (needle, haystack, threshold = 0.3) => {
-    const needleLower = needle.toLowerCase();
-    const haystackLower = haystack.toLowerCase();
-
-    if (haystackLower.includes(needleLower)) return true;
-
-    const distance = levenshteinDistance(needleLower, haystackLower);
-    const maxLength = Math.max(needleLower.length, haystackLower.length);
-    return distance / maxLength <= threshold;
-};
-
-// function to check if we are on an admin page.
-function serveAdminPage(pageName, minRole) {
-    return (req, res) => {
-        console.log(`Accessing /${pageName}. User:`, JSON.stringify(req.user, null, 2));
-        fs.readFile(path.join(publicDir, `${pageName}.html`), 'utf8', (err, data) => {
-            if (err) {
-                console.error('Error reading file:', err);
-                return res.status(500).send('Error loading page');
-            }
-            const modifiedHtml = data.replace('</head>', `<script>window.userRole = ${req.user.role};</script></head>`);
-            res.send(modifiedHtml);
+        const demoStats = await fs.promises.stat(demoPath);
+        pendingDemos.set(demoFileName, {
+            stats: demoStats,
+            path: demoPath,
+            addedTime: Date.now()
         });
-    };
-}
+        console.log(`Demo ${demoFileName} added to pending list.`);
+        
+        await checkForMatch();
+    })
+    .on('error', error => console.error(`Demo watcher error: ${error}`));
 
-// general function for dates on the modlist and games
-function formatTimestamp(date) {
-    const pad = (num) => (num < 10 ? '0' + num : num);
+jsonWatcher
+    .on('add', async (jsonPath) => {
+        console.log(`New JSON log file detected: ${jsonPath}`);
+        console.log("Waiting 10 seconds before processing the file...");
+        await delay(10000);
 
-    const year = date.getFullYear();
-    const month = pad(date.getMonth() + 1);
-    const day = pad(date.getDate());
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
-    const seconds = pad(date.getSeconds());
-    const milliseconds = pad(Math.floor(date.getMilliseconds() / 10));
+        const jsonFileName = path.basename(jsonPath);
 
-    return `${year}-${month}-${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
-}
+        if (!processedJsons.has(jsonFileName)) {
+            pendingJsons.set(jsonFileName, {
+                path: jsonPath,
+                addedTime: Date.now()
+            });
+            console.log(`JSON ${jsonFileName} added to pending list.`);
 
-// this is meant to filter games with 0 score from being uploaded
-function allPlayersHaveZeroScore(logData) {
-    if (!logData.players || !Array.isArray(logData.players) || logData.players.length === 0) {
-        return false;
-    }
-
-    return logData.players.every(player => player.score === 0);
-}
+            await checkForMatch();
+        } else {
+            console.log(`JSON ${jsonFileName} has already been processed. Skipping.`);
+        }
+    })
+    .on('error', error => console.error(`JSON watcher error: ${error}`));
 
 async function initializeServer() {
     console.log("Starting server initialization...");
 
-    // creates a promise that resolves when everything is ready
     const initializationPromise = new Promise((resolve, reject) => {
-        if (discordBotReady) {
+        if (discordState.isReady) {  // Check the object property
             resolve();
         } else {
             console.log('Waiting for Discord bot to be ready...');
@@ -297,9 +267,7 @@ async function initializeServer() {
         }
     });
 
-    // wait for Discord bot to be ready
     await initializationPromise;
-
     console.log("Discord bot is ready, proceeding with demo processing...");
 
     pendingDemos.clear();
@@ -308,10 +276,8 @@ async function initializeServer() {
 
     const demoFiles = await fs.promises.readdir(demoDir);
     console.log(`Found ${demoFiles.length} demo files in the directory.`);
-
     const jsonFiles = await fs.promises.readdir(gameLogsDir);
     console.log(`Found ${jsonFiles.length} JSON files in the directory.`);
-
     const [rows] = await pool.query('SELECT name, log_file FROM demos');
     const existingDemos = new Map(rows.map(row => [row.name, row.log_file]));
     const existingJsonFiles = new Set(rows.map(row => row.log_file));
@@ -347,398 +313,6 @@ async function initializeServer() {
     await checkForMatch();
 
 }
-
-// oldest part of the code is here
-console.log(`Watching demo directory: ${demoDir}`);
-const demoWatcher = chokidar.watch(`${demoDir}/*.{dcrec,d8crec,d10crec}`, {
-    ignored: /(^|[\/\\])\../,
-    persistent: true
-});
-
-// here too
-console.log(`Watching log file directory: ${gameLogsDir}`);
-const jsonWatcher = chokidar.watch(`${gameLogsDir}/{game_*.json,game8p_*.json,game10p_*.json}`, {
-    ignored: /(^|[\/\\])\../,
-    persistent: true
-});
-
-demoWatcher
-    .on('add', async (demoPath) => {
-        console.log(`New demo detected: ${demoPath}`);
-        const demoFileName = path.basename(demoPath);
-
-        // checks if the dcrec already exists in the database to prevent duplicates
-        const exists = await demoExistsInDatabase(demoFileName);
-        if (exists) {
-            console.log(`Demo ${demoFileName} already exists in the database. Skipping.`);
-            return;
-        }
-
-        const demoStats = await fs.promises.stat(demoPath);
-        pendingDemos.set(demoFileName, {
-            stats: demoStats,
-            path: demoPath,
-            addedTime: Date.now()
-        });
-        console.log(`Demo ${demoFileName} added to pending list.`);
-
-        // checks the json file for the record setting that matches the demo file name
-        await checkForMatch();
-    })
-    .on('error', error => console.error(`Demo watcher error: ${error}`));
-
-jsonWatcher
-    .on('add', async (jsonPath) => {
-        console.log(`New JSON log file detected: ${jsonPath}`);
-
-        // timeout since sometimes json files can be written to while being processed which can cause incomplete demo processing
-        console.log("Waiting 10 seconds before processing the file...");
-        await delay(10000);
-
-        const jsonFileName = path.basename(jsonPath);
-
-        if (!processedJsons.has(jsonFileName)) {
-            pendingJsons.set(jsonFileName, {
-                path: jsonPath,
-                addedTime: Date.now()
-            });
-            console.log(`JSON ${jsonFileName} added to pending list.`);
-
-            await checkForMatch();
-        } else {
-            console.log(`JSON ${jsonFileName} has already been processed. Skipping.`);
-        }
-    })
-    .on('error', error => console.error(`JSON watcher error: ${error}`));
-
-async function checkForMatch() {
-    const processedPairs = new Set(); // Track processed demo-json pairs
-
-    // Helper function to check for zero scores
-    function allPlayersHaveZeroScore(logData) {
-        if (!logData.players || !Array.isArray(logData.players) || logData.players.length === 0) {
-            return false;
-        }
-        return logData.players.every(player => player.score === 0);
-    }
-
-    // First check all JSON files
-    for (const [jsonFileName, jsonInfo] of pendingJsons) {
-        try {
-            const jsonContent = await fs.promises.readFile(jsonInfo.path, 'utf8');
-            const logData = JSON.parse(jsonContent);
-
-            const recordSetting = logData.settings && logData.settings.Record;
-            if (!recordSetting) {
-                console.log(`No Record setting found in JSON file: ${jsonFileName}`);
-                continue;
-            }
-
-            const dcrecFileName = path.basename(recordSetting);
-            const demoInfo = pendingDemos.get(dcrecFileName);
-
-            // Check if this pair has already been processed
-            const pairKey = `${dcrecFileName}-${jsonFileName}`;
-            if (processedPairs.has(pairKey)) {
-                continue;
-            }
-
-            if (demoInfo) {
-                console.log('Processing game data:', {
-                    fileName: jsonFileName,
-                    gameType: logData.gameType,
-                    isTournament: logData.gameType?.toLowerCase().includes('tournament'),
-                    is1v1: logData.gameType?.toLowerCase().includes('1v1'),
-                    playerCount: logData.players?.length
-                });
-
-                console.log(`Matching files found: ${dcrecFileName} and ${jsonFileName}`);
-
-                try {
-                    await pool.query('START TRANSACTION');
-
-                    // Check if all players have zero score
-                    if (allPlayersHaveZeroScore(logData)) {
-                        console.log(`Skipping game ${dcrecFileName} - all players have score 0, likely an incomplete game`);
-                        processedPairs.add(pairKey);
-                        pendingDemos.delete(dcrecFileName);
-                        pendingJsons.delete(jsonFileName);
-                        processedJsons.add(jsonFileName);
-                        await pool.query('COMMIT');
-                        continue;
-                    }
-
-                    await processDemoFile(dcrecFileName, demoInfo.stats.size, logData, jsonFileName);
-
-                    processedPairs.add(pairKey);
-                    pendingDemos.delete(dcrecFileName);
-                    pendingJsons.delete(jsonFileName);
-                    processedJsons.add(jsonFileName);
-
-                    console.log(`Successfully processed and linked ${dcrecFileName} with ${jsonFileName}`);
-
-                    await pool.query('COMMIT');
-                } catch (error) {
-                    await pool.query('ROLLBACK');
-                    console.error(`Error processing demo/json pair: ${error}`);
-                    continue;
-                }
-            }
-        } catch (error) {
-            console.error(`Error processing JSON file ${jsonFileName}:`, error);
-        }
-    }
-
-    // Then check for demos looking for matching jsons with specific prefixes
-    for (const [demoFileName, demoInfo] of pendingDemos) {
-        let expectedJsonPrefix;
-        if (demoFileName.endsWith('.d8crec')) {
-            expectedJsonPrefix = 'game8p_';
-        } else if (demoFileName.endsWith('.d10crec')) {
-            expectedJsonPrefix = 'game10p_';
-        } else {
-            expectedJsonPrefix = 'game_';
-        }
-
-        for (const [jsonFileName, jsonInfo] of pendingJsons) {
-            if (!jsonFileName.startsWith(expectedJsonPrefix)) continue;
-
-            const pairKey = `${demoFileName}-${jsonFileName}`;
-            if (processedPairs.has(pairKey)) {
-                continue;
-            }
-
-            try {
-                const jsonContent = await fs.promises.readFile(jsonInfo.path, 'utf8');
-                const logData = JSON.parse(jsonContent);
-
-                const recordSetting = logData.settings && logData.settings.Record;
-                if (recordSetting && path.basename(recordSetting) === demoFileName) {
-                    try {
-                        await pool.query('START TRANSACTION');
-
-                        // Check if all players have zero score
-                        if (allPlayersHaveZeroScore(logData)) {
-                            console.log(`Skipping game ${demoFileName} - all players have score 0, likely an incomplete game`);
-                            processedPairs.add(pairKey);
-                            pendingDemos.delete(demoFileName);
-                            pendingJsons.delete(jsonFileName);
-                            processedJsons.add(jsonFileName);
-                            await pool.query('COMMIT');
-                            continue;
-                        }
-
-                        console.log(`Matching files found: ${demoFileName} and ${jsonFileName}`);
-                        await processDemoFile(demoFileName, demoInfo.stats.size, logData, jsonFileName);
-
-                        processedPairs.add(pairKey);
-                        pendingDemos.delete(demoFileName);
-                        pendingJsons.delete(jsonFileName);
-                        processedJsons.add(jsonFileName);
-
-                        console.log(`Successfully processed and linked ${demoFileName} with ${jsonFileName}`);
-
-                        await pool.query('COMMIT');
-                        break;
-                    } catch (error) {
-                        await pool.query('ROLLBACK');
-                        console.error(`Error processing demo/json pair: ${error}`);
-                        continue;
-                    }
-                }
-            } catch (error) {
-                console.error(`Error processing JSON file ${jsonFileName}:`, error);
-            }
-        }
-    }
-}
-
-// if i have deleted a demo from the database the website will remove the game from the pending list until i manually delte it
-function cleanupOldPendingFiles() {
-    const oneHourAgo = Date.now() - 60 * 60 * 1000; // 1 hour in milliseconds
-
-    for (const [fileName, fileInfo] of pendingDemos) {
-        if (fileInfo.addedTime < oneHourAgo) {
-            pendingDemos.delete(fileName);
-            console.log(`Removed old pending demo file: ${fileName}`);
-        }
-    }
-
-    for (const [fileName, fileInfo] of pendingJsons) {
-        if (fileInfo.addedTime < oneHourAgo) {
-            pendingJsons.delete(fileName);
-            console.log(`Removed old pending JSON file: ${fileName}`);
-        }
-    }
-}
-
-setInterval(cleanupOldPendingFiles, 60 * 60 * 1000);
-
-
-// checks if a demo already exists in the database, if not proceed to processing
-async function demoExistsInDatabase(demoFileName) {
-    try {
-        const [rows] = await pool.query(
-            'SELECT COUNT(*) as count FROM (SELECT name FROM demos WHERE name = ? UNION SELECT demo_name FROM deleted_demos WHERE demo_name = ?) as combined',
-            [demoFileName, demoFileName]
-        );
-        return rows[0].count > 0;
-    } catch (error) {
-        console.error(`Error checking if demo exists in database: ${error}`);
-        return false;
-    }
-}
-
-async function processDemoFile(demoFileName, fileSize, logData, jsonFileName) {
-    if (!discordBotReady) {
-        console.log('Waiting for Discord bot to be ready before processing demo...');
-        return;
-    }
-
-    console.log(`Processing demo file: ${demoFileName}`);
-
-    try {
-        await pool.query('START TRANSACTION');
-
-        const [existingDemo] = await pool.query('SELECT * FROM demos WHERE name = ? FOR UPDATE', [demoFileName]);
-
-        if (existingDemo.length > 0) {
-            console.log(`Demo ${demoFileName} already exists in the database. Skipping upload.`);
-            await pool.query('COMMIT');
-            return;
-        }
-
-        const playerCount = logData.players ? logData.players.length : 0;
-        const gameType = logData.gameType || `DefconExpanded ${playerCount} Player`;
-        const duration = logData.duration || null;
-
-        // Create an alliance mapping from alliance_history data
-        const allianceMapping = new Map();
-
-        if (logData.alliance_history) {
-            // Process all alliance events to get final state
-            logData.alliance_history.forEach(event => {
-                if (event.action === 'JOIN') {
-                    allianceMapping.set(event.team, event.alliance);
-                }
-            });
-        }
-
-        // Update player objects with alliance info if not already present
-        const processedPlayers = logData.players.map(player => {
-            // If player already has alliance info, keep it
-            if (player.alliance !== undefined) {
-                return { ...player };
-            }
-
-            // If we have alliance info from alliance_history, use it
-            if (allianceMapping.has(player.team)) {
-                return {
-                    ...player,
-                    alliance: allianceMapping.get(player.team)
-                };
-            }
-
-            // Fallback to using team as alliance
-            return {
-                ...player,
-                alliance: player.team
-            };
-        });
-
-        // Process spectators if they exist
-        const processedSpectators = logData.spectators ? logData.spectators.map(spectator => ({
-            name: spectator.name,
-            version: spectator.version,
-            platform: spectator.platform,
-            key_id: spectator.key_id
-        })) : [];
-
-        // Combine players and spectators for JSON storage
-        const fullGameData = {
-            players: processedPlayers,
-            spectators: processedSpectators
-        };
-
-        // Process player data for individual columns
-        const playerData = {};
-        const playerColumns = ['player1', 'player2', 'player3', 'player4', 'player5', 'player6', 'player7', 'player8', 'player9', 'player10'];
-        processedPlayers.forEach((player, index) => {
-            if (index < 10) {
-                const prefix = playerColumns[index];
-                playerData[`${prefix}_name`] = player.name || null;
-                playerData[`${prefix}_team`] = player.team !== undefined ? player.team : null;
-                playerData[`${prefix}_score`] = player.score !== undefined ? player.score : null;
-                playerData[`${prefix}_territory`] = player.territory || null;
-                playerData[`${prefix}_key_id`] = player.key_id || null;
-            }
-        });
-
-        // Fill remaining player slots with null
-        for (let i = playerCount; i < 10; i++) {
-            const prefix = playerColumns[i];
-            playerData[`${prefix}_name`] = null;
-            playerData[`${prefix}_team`] = null;
-            playerData[`${prefix}_score`] = null;
-            playerData[`${prefix}_territory`] = null;
-            playerData[`${prefix}_key_id`] = null;
-        }
-
-        const columns = [
-            'name',
-            'size',
-            'date',
-            'game_type',
-            'duration',
-            'players',
-            ...Object.keys(playerData),
-            'log_file'
-        ];
-
-        const values = [
-            demoFileName,
-            fileSize,
-            new Date(logData.start_time),
-            gameType,
-            duration,
-            JSON.stringify(fullGameData), // Store both players and spectators in the players column
-            ...Object.values(playerData),
-            jsonFileName
-        ];
-
-        const placeholders = columns.map(() => '?').join(', ');
-        const query = `INSERT INTO demos (${columns.join(', ')}) VALUES (${placeholders})`;
-
-        const [result] = await pool.query(query, values);
-
-        await pool.query('COMMIT');
-
-        console.log(`Demo ${demoFileName} processed and added to database with player and spectator data`);
-        console.log(`Inserted row ID: ${result.insertId}`);
-
-        // Log the processed data for verification
-        console.log('Processed game data:', JSON.stringify(fullGameData, null, 2));
-
-        // Send to Discord after successful database insertion
-        try {
-            const [newDemo] = await pool.query('SELECT * FROM demos WHERE id = ?', [result.insertId]);
-            if (newDemo.length > 0) {
-                await sendDemoToDiscord(newDemo[0], logData);
-                console.log(`Demo ${demoFileName} successfully posted to Discord`);
-            }
-        } catch (discordError) {
-            console.error(`Error posting demo ${demoFileName} to Discord:`, discordError);
-            // Don't throw here - we want to keep the demo even if Discord posting fails
-        }
-
-    } catch (error) {
-        await pool.query('ROLLBACK');
-        console.error(`Error processing demo ${demoFileName}:`, error);
-        throw error;
-    }
-}
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // 404 handler
 function sendHtml(res, fileName) {
@@ -917,15 +491,15 @@ console.log = function () {
 
 //Shut down properly so she dont shit herself
 process.on('SIGINT', async () => {
-  console.log('Shutting down...');
-  discordBotReady = false;
-  pendingInitialization = null;
-  completePendingInitialization = null;
+    console.log('Shutting down...');
+    discordState.isReady = false;  // Use the object property
+    pendingInitialization = null;
+    completePendingInitialization = null;
 
-  logStream.end(() => {
-    console.log('Log file stream closed.');
-    process.exit(0);
-  });
+    logStream.end(() => {
+        console.log('Log file stream closed.');
+        process.exit(0);
+    });
 });
 
 app.use(errorHandler);

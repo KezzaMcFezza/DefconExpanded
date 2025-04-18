@@ -1,20 +1,3 @@
-const express = require('express');
-const router = express.Router();
-const mysql = require('mysql2/promise');
-const path = require('path');
-const fs = require('fs');
-const multer = require('multer');
-const crypto = require('crypto'); 
-const nodemailer = require('nodemailer');
-const rootDir = path.join(__dirname, '..');
-const publicDir = path.join(rootDir, 'public');
-const demoDir = path.join(rootDir, 'demo_recordings');
-const resourcesDir = path.join(publicDir, 'Files');
-const dedconBuildsDir = path.join(publicDir, 'Files');
-const uploadDir = publicDir;
-const gameLogsDir = path.join(rootDir, 'game_logs');
-const modlistDir = path.join(publicDir, 'modlist');
-const modPreviewsDir = path.join(publicDir, 'modpreviews');
 
 function processCombinedServersData(rows) {
     const gamesByDate = {};

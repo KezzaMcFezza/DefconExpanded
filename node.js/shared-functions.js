@@ -1,4 +1,6 @@
-const { pool } = require('./constants');
+const { 
+    pool 
+} = require('./constants');
 
 const removeTimeout = (req, res, next) => {
     req.setTimeout(0);
@@ -88,11 +90,14 @@ function formatTimestamp(date) {
     return `${year}-${month}-${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
 }
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 module.exports = {
     removeTimeout,
     getUserLikesAndFavorites,
     getClientIp,
     fuzzyMatch,
     levenshteinDistance,
-    formatTimestamp
+    formatTimestamp,
+    delay
 };

@@ -1,7 +1,12 @@
-// authentication.js - Revised
+const path = require('path');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
 const JWT_SECRET = process.env.JWT_SECRET;
-const { pool } = require('./constants');
+const { 
+    pool,
+    publicDir
+ } = require('./constants');
+
 
 const authenticateToken = async (req, res, next) => {
     const token = req.cookies.token;
@@ -59,8 +64,23 @@ const checkRole = (requiredRole) => {
     };
 };
 
+function serveAdminPage(pageName, minRole) {
+    return (req, res) => {
+        console.log(`Accessing /${pageName}. User:`, JSON.stringify(req.user, null, 2));
+        fs.readFile(path.join(publicDir, `${pageName}.html`), 'utf8', (err, data) => {
+            if (err) {
+                console.error('Error reading file:', err);
+                return res.status(500).send('Error loading page');
+            }
+            const modifiedHtml = data.replace('</head>', `<script>window.userRole = ${req.user.role};</script></head>`);
+            res.send(modifiedHtml);
+        });
+    };
+}
+
 module.exports = {
     authenticateToken,
     checkAuthToken,
-    checkRole
+    checkRole,
+    serveAdminPage
 };

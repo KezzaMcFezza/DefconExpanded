@@ -134,5 +134,7 @@ module.exports = {
     DISCORD_CONFIG,
     storage,
     upload,
-    rootDir
+    rootDir,
+    publicDir,
+    gameLogsDir
 };
