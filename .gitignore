@@ -2,6 +2,8 @@
 *.mkv
 *.crt
 *.key
+*.env
+*.log
 **/ca_bundle.crt
 **/certificate.crt
 **/private.key
