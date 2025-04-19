@@ -77,7 +77,7 @@ router.get('/api/checkAuth', (req, res) => {
 });
 
 router.get('/download-logs', checkAuthToken, (req, res) => {
-    const logPath = path.join(rootDir, 'server.log');
+    const logPath = path.join('server.log');
     res.download(logPath, 'server.log', (err) => {
         if (err) {
             console.error('Error downloading log file:', err);
