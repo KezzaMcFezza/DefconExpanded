@@ -10,7 +10,8 @@
 // 
 //Last Edited 18-04-2025
 
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 // first lets check if our env file was deleted
 console.log("Environment variables loaded:", {
@@ -39,7 +40,6 @@ process.env.DB_PASSWORD ? console.log("Hell yea") : console.log("We are fucked")
 // server constants to be used
 const express = require('express');
 const router = express.Router();
-const path = require('path');
 const fs = require('fs');
 const chokidar = require('chokidar');
 const jwt = require('jsonwebtoken');

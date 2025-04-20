@@ -5,6 +5,7 @@ start "Defcon Status Bot" cmd /k python DefconServerTracker.py ^
 game_events_1v1.log:"1v1 Random" server_output_1v1.log ^
 game_events_1v1best.log:"1v1 Best Setups" server_output_1v1best.log ^
 game_events_1v1best2.log:"1v1 Best Setups" server_output_1v1best2.log ^
+game_events_1v1cursed.log:"1v1 Cursed Setups" server_output_1v1cursed.log ^
 game_events_1v1default.log:"1v1 Default" server_output_1v1default.log ^
 game_events_noob.log:"New Player Server" server_output_noob.log ^
 game_events_2v2.log:"2v2 Random" server_output_2v2.log ^

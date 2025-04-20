@@ -12,8 +12,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DISCORD_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
-ALERT_CHANNEL_ID = int(os.getenv('DISCORD_CHANNEL_IDS').split(',')[0])
-ALERT_ROLE_ID = int(os.getenv('DISCORD_ALERT_ROLE_ID', '688701291832017047'))
+ALERT_CHANNEL_ID = int(os.getenv('ALERT_CHANNEL_ID').split(',')[0])
+ALERT_ROLE_ID = int(os.getenv('DISCORD_ALERT_ROLE_ID'))
 UPDATE_COOLDOWN = float(os.getenv('UPDATE_COOLDOWN', '0.5'))
 TIMEOUT_MINUTES = int(os.getenv('TIMEOUT_MINUTES', '5'))
 TIMEOUT_DURATION = timedelta(minutes=TIMEOUT_MINUTES)
