@@ -17,7 +17,8 @@ const fs = require('fs');
 
 const {
     pool,
-    upload
+    upload,
+    rootDir
 } = require('../../constants');
 
 const {
@@ -419,7 +420,7 @@ router.post('/api/upload-profile-image', upload.single('image'), async (req, res
     try {
         const fileExtension = path.extname(req.file.originalname);
         const newFileName = `${userId}_${imageType}${fileExtension}`;
-        const newFilePath = path.join('public', 'uploads', newFileName);
+        const newFilePath = path.join(rootDir, 'public', 'uploads', newFileName);
 
         fs.renameSync(req.file.path, newFilePath);
 

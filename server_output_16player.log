@@ -347,3 +347,82 @@ ServerLANIP = 116.203.228.110
 Public server info: 116.203.228.110:5018
 Server key authentication succeeded, key id = 2968288.
 Demo limits received. MaxGameSize = 16, MaxDemoPlayers = 1, AllowServers = yes.
+OutFile = server_output_16player.log
+PlayerLog = player_scores_16player.log
+AdvertisePlayers = 16
+MaxSpectators = 30
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 16
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 10.5.0.2
+Public server info: 195.213.46.71:5010
+Server key authentication succeeded, key id = 2968288.
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Login request from 10.5.0.2:5011, version="1.64 STEAM", keyID=13279346 : naval blacklists apply, accepted, ID = 17.
+Login request from 10.5.0.2:5011, version="1.64 STEAM", keyID=13279346 : ignored, already logged in.
+Team creation request from client 17 received.
+New name for client 17 : LadenBinKezza
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+client 17 (LadenBinKezza) disconnected.
+OutFile = server_output_16player.log
+PlayerLog = player_scores_16player.log
+AdvertisePlayers = 16
+MaxSpectators = 30
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 1
+MaxTeams = 16
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5010.
+Metaserver IP: 34.197.189.80
+ServerLANIP = 10.5.0.2
+Public server info: 195.213.46.71:5010
+Demo limits received. MaxGameSize = 6, MaxDemoPlayers = 6, AllowServers = yes.
+Server key authentication succeeded, key id = 2968288.
+Login request from 10.5.0.2:5011, version="1.64 STEAM", keyID=13279346 : naval blacklists apply, accepted, ID = 17.
+Team creation request from client 17 received.
+New name for client 17 : LadenBinKezza
+DefconExpanded : This is the Official test server for Defcon Expanded 8 Player, which now has demo's and game stats you can view and download online!
+DefconExpanded : The games will be available on...
+DefconExpanded : www.defconexpanded.com
+client 17 (LadenBinKezza) : /login dancefloor
+DefconExpanded : client 17 (LadenBinKezza) has been logged in as owner.
+client 17 (LadenBinKezza) : /set fillwithcpus
+client 17 (LadenBinKezza) : /set minteams 12
+MinTeams = 12
+All players unreadied.
+client 17 (LadenBinKezza) : /set minteams 1
+MinTeams = 1
+client 17 (LadenBinKezza) is ready to play.
+Countdown started.
+Game started. Players:
+Team 0 : client 17 (LadenBinKezza), keyID = 13279346
+Random seed: 222 (0xde)
+DefconExpanded : Attention there will be a stringent slowdown budget. You can recharge it by setting your speed to x10 or x20
+DefconExpanded : Team Defection will be Disabled at DEFCON 3
+SpectatorChatChannel = 0
+client 17 (LadenBinKezza) dropped.
+client 17 (LadenBinKezza) set to a speed factor of 1.
+DefconExpanded : A player has technical problems, slowing everyone down.

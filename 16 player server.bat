@@ -12,7 +12,7 @@ set "game_start_time=%date:~10,4%-%date:~4,2%-%date:~7,2%T%time:~0,2%-%time:~3,2
 set "game_start_time=!game_start_time: =0!"
 
 echo Starting Dedcon server for 16 player server...
-dedcon16p.exe 16playerconfig.txt endgame8p.txt
+dedcon.exe 16playerconfig.txt endgame8p.txt
 
 echo Server closed. Processing game logs...
 
