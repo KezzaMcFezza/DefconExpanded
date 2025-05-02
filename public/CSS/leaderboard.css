@@ -107,7 +107,6 @@
     align-items: center;
     justify-content: center;
     max-width: 1400px;
-    margin: 1.5rem auto;
     border-left: 4px solid #fff;
     animation: glowBorder 2s infinite;
 }
@@ -731,6 +730,7 @@ tr:nth-child(3) .rank-cell::before {
 
 #previous-winners-list li:first-child {
     border-left-color: #ffd700;
+    margin: 10px 0 10px 0;
 }
 
 #previous-winners-list li:first-child .season-name {

@@ -21,6 +21,8 @@ TIMEOUT_DURATION = timedelta(minutes=TIMEOUT_MINUTES)
 SERVER_NAME_MAPPING = {
     "1V1": "1v1 Random",
     "1V1BEST": "1v1 Best Setups",
+    "1V1CURSED": "1v1 Cursed Setups",
+    "1V1RAIZER": "1v1 Raizer's Server",
     "1V1BEST2": "1v1 Best Setups",
     "1V1DEFAULT": "1v1 Default",
     "NOOB": "New Player Server",

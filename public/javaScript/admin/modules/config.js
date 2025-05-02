@@ -20,6 +20,7 @@ const ConfigModule = (() => {
     
     const serverConfigs = [
         { name: "DefconExpanded | 1v1 | Totally Random", filename: "1v1config.txt" },
+        { name: "Raizer's Russia vs USA | Totally Random", filename: "1v1configraizer.txt" },
         { name: "DefconExpanded | 1v1 | Best Setups 1", filename: "1v1configbest.txt" },
         { name: "DefconExpanded | 1v1 | Best Setups 2", filename: "1v1configbest2.txt" },
         { name: "DefconExpanded | 1v1 | Default", filename: "1v1configdefault.txt" },

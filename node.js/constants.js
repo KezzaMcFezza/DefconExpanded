@@ -70,7 +70,7 @@ const storage = multer.diskStorage({
         } else if (file.fieldname === 'previewImage') {
             cb(null, modPreviewsDir);
         } else if (file.fieldname === 'image') {
-            cb(null, path.join(__dirname, 'public', 'uploads'));
+            cb(null, path.join(rootDir, 'public', 'uploads'));
         } else {
             cb(new Error('Invalid file type'));
         }
@@ -105,6 +105,7 @@ const adminPages = [
 
 const configFiles = [
     '1v1config.txt',
+    '1v1configraizer.txt',
     '1v1configbest2.txt',
     '1v1configbest.txt',
     '1v1configdefault.txt',
