@@ -12,7 +12,7 @@ game_events_noob.log:"New Player Server" server_output_noob.log ^
 game_events_2v2.log:"2v2 Random" server_output_2v2.log ^
 game_events_6playerffa.log:"FFA Server" server_output_6playerffa.log ^
 game_events_3v3_FFA.log:"3v3 Random" server_output_3v3_FFA.log ^
-game_events_509cg1v1.log:"509 CG 1v1" server_output_509cg1v1.log ^
+game_events_1v1muriconrandom.log:"Muricon 1v1 Random" server_output_1v1muriconrandom.log ^
 game_events_509cg2v2.log:"509 CG 2v2" server_output_509cg2v2.log ^
 game_events_1v1muricon.log:"Muricon 1v1" server_output_1v1muricon.log ^
 game_events_8player4v4.log:"8 Player 4v4" server_output_8player4v4.log ^

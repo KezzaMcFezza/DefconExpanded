@@ -30,7 +30,7 @@ SERVER_NAME_MAPPING = {
     "2V2": "2v2 Random",
     "6PLAYERFFA": "FFA Server",
     "3V3_FFA": "3v3 Random",
-    "509CG1V1": "509 CG 1v1",
+    "1V1MURICONRANDOM": "Muricon 1v1 Random",
     "509CG2V2": "509 CG 2v2",
     "1V1MURICON": "Muricon 1v1",
     "8PLAYER4V4": "8 Player 4v4",

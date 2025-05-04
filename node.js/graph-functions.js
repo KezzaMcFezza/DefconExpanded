@@ -34,7 +34,9 @@ function processTotalHoursData(rows) {
         'New Player Server': 'new_player',
         'New Player Server - Training Game': 'training',
         'DefconExpanded | 1v1 | Totally Random': 'defcon_random',
-        'DefconExpanded | 1V1 | Best Setups Only!': 'defcon_best',
+        'DefconExpanded | 1v1 | Best Setups Only!': 'defcon_best',
+        'DefconExpanded | 1v1 | Cursed Setups Only!': 'defcon_cursed',
+        'Raizer\'s Russia vs USA | Totally Random': 'defcon_raizer',
         'DefconExpanded | 1v1 | AF vs AS | Totally Random': 'defcon_afas',
         'DefconExpanded | 1v1 | EU vs SA | Totally Random': 'defcon_eusa',
         'DefconExpanded | 1v1 | Default': 'defcon_default',
@@ -45,6 +47,7 @@ function processTotalHoursData(rows) {
         'Sony and Hoov\'s Hideout': 'sony_hoov',
         'DefconExpanded | 3v3 | Totally Random': 'defcon_3v3',
         'MURICON | 1v1 Default | 2.8.15': 'muricon',
+        'MURICON | 1V1 | Totally Random | 2.8.15': 'muricon_random',
         '509 CG | 2v2 | Totally Random | 2.8.15': 'cg_2v2_2815',
         '509 CG | 2v2 | Totally Random | 2.8.14.1': 'cg_2v2_28141',
         '509 CG | 1v1 | Totally Random | 2.8.15': 'cg_1v1_2815',
@@ -91,7 +94,7 @@ function processTotalHoursData(rows) {
                 originalGameType = lookup.originalKey;
                 diagnostics.gamesByType[originalGameType]++;
             } else {
-                
+
                 diagnostics.unknownGameTypes.push(row.game_type);
                 console.warn(`Unknown game type: "${row.game_type}"`);
             }
@@ -111,7 +114,7 @@ function processTotalHoursData(rows) {
         if (row.duration) {
             diagnostics.gamesWithDuration++;
             try {
-                
+
                 const [hours, minutes, seconds] = row.duration.split(':');
                 const h = parseFloat(hours) || 0;
                 const m = parseFloat(minutes) || 0;
@@ -243,7 +246,7 @@ function process1v1SetupData(rows, options = {}) {
                 const durationInMinutes = (parseFloat(hours) * 60) + parseFloat(minutes) + (parseFloat(seconds) / 60);
                 setupStats[setupKey].total_duration += durationInMinutes;
             }
-            
+
             const scoreDiff = Math.abs(player1.score - player2.score);
             setupStats[setupKey].average_score_diff =
                 ((setupStats[setupKey].average_score_diff * setupStats[setupKey].games_with_score) + scoreDiff) /
@@ -283,6 +286,8 @@ function processIndividualServersData(rows) {
                 training: 0,
                 defcon_random: 0,
                 defcon_best: 0,
+                defcon_cursed: 0,
+                defcon_raizer: 0,
                 defcon_default: 0,
                 defcon_afas: 0,
                 defcon_eusa: 0,
@@ -293,6 +298,7 @@ function processIndividualServersData(rows) {
                 sony_hoov: 0,
                 defcon_3v3: 0,
                 muricon: 0,
+                muricon_random: 0,
                 cg_2v2_2815: 0,
                 cg_2v2_28141: 0,
                 cg_1v1_2815: 0,
@@ -312,6 +318,10 @@ function processIndividualServersData(rows) {
             gamesByDate[date].defcon_random++;
         } else if (row.game_type.toLowerCase() === 'defconexpanded | 1v1 | best setups only!'.toLowerCase()) {
             gamesByDate[date].defcon_best++;
+        } else if (row.game_type.toLowerCase() === 'defconexpanded | 1v1 | cursed setups only!'.toLowerCase()) {
+            gamesByDate[date].defcon_cursed++;
+        } else if (row.game_type.toLowerCase() === 'raizer\'s russia vs usa | totally random'.toLowerCase()) {
+            gamesByDate[date].defcon_raizer++;
         } else if (row.game_type.toLowerCase() === 'defconexpanded | 1v1 | af vs as | totally random'.toLowerCase()) {
             gamesByDate[date].defcon_afas++;
         } else if (row.game_type.toLowerCase() === 'defconexpanded | 1v1 | eu vs sa | totally random'.toLowerCase()) {
@@ -332,6 +342,8 @@ function processIndividualServersData(rows) {
             gamesByDate[date].defcon_3v3++;
         } else if (row.game_type.toLowerCase() === 'muricon | 1v1 default | 2.8.15'.toLowerCase()) {
             gamesByDate[date].muricon++;
+        } else if (row.game_type.toLowerCase() === 'muricon | 1V1 | totally random | 2.8.15'.toLowerCase()) {
+            gamesByDate[date].muricon_random++;
         } else if (row.game_type.toLowerCase() === '509 cg | 2v2 | totally random | 2.8.15'.toLowerCase()) {
             gamesByDate[date].cg_2v2_2815++;
         } else if (row.game_type.toLowerCase() === '509 cg | 2v2 | totally random | 2.8.14.1'.toLowerCase()) {

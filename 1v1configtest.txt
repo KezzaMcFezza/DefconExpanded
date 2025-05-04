@@ -17,9 +17,12 @@ AcceptC2 1
 MaxIdleRunTime 1800
 MinRunTime 900
 CaseSensitive 0
-EventFile game_events_1v1.log
-OutFile server_output_1v1.log
-PlayerLog player_scores_1v1.log
+RCONEnabled 1
+RCONPassword D3vilsAdvocat3
+RCONPort 8801
+EventFile game_events_1v1test.log
+OutFile server_output_1v1test.log
+PlayerLog player_scores_1v1test.log
 
 # Whatever you do, DO NOT change these lines....
 # EventFile

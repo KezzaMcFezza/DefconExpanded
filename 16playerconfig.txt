@@ -10,6 +10,7 @@ AllianceSize 0
 TotalBandwidth 6000000
 PlayerBandwidth 2750000
 SpectatorBandwidth 2500000
+ServerVersion 1.60.1.5 MINICOM
 LogLevel 2
 CaseSensitive 0
 EventFile game_events_16player.log

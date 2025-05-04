@@ -97,6 +97,7 @@ const modlistAdminRoutes = require('./apis/admin/modlist');
 const reportingAdminRoutes = require('./apis/admin/reporting');
 const resourcesAdminRoutes = require('./apis/admin/resources');
 const usersAdminRoutes = require('./apis/admin/users');
+const rconRoutes = require('./apis/admin/rcon');
 const demosRoutes = require('./apis/demos/demos');
 const demoFiltersRoutes = require('./apis/demos/filters');
 const demoReportingRoutes = require('./apis/demos/reporting');
@@ -160,6 +161,7 @@ app.use(modlistAdminRoutes);
 app.use(reportingAdminRoutes);
 app.use(resourcesAdminRoutes);
 app.use(usersAdminRoutes);
+app.use(rconRoutes);
 app.use(demosRoutes);
 app.use(demoFiltersRoutes);
 app.use(demoReportingRoutes);
@@ -425,6 +427,7 @@ app.get('/modlistmanage', authenticateToken, checkRole(5), serveAdminPage('modma
 app.get('/dedconmanagment', authenticateToken, checkRole(2), serveAdminPage('dedconmanagment', 2));
 app.get('/resourcemanage', authenticateToken, checkRole(3), serveAdminPage('resourcemanagment', 3));
 app.get('/serverconsole', authenticateToken, checkRole(1), serveAdminPage('server-console', 2));
+app.get('/rconconsole', authenticateToken, checkRole(1), serveAdminPage('rcon-console', 2));
 
 
 // homepage handler

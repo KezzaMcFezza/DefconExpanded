@@ -100,14 +100,17 @@ const adminPages = [
     'server-console.html',
     'playerlookup.html',
     'dedconmanagment.html',
-    'servermanagment.html'
+    'servermanagment.html',
+    'rcon-console.html'
 ];
 
 const configFiles = [
     '1v1config.txt',
+    '1v1configcursed.txt',
     '1v1configraizer.txt',
     '1v1configbest2.txt',
     '1v1configbest.txt',
+    '1v1configcursed.txt',
     '1v1configdefault.txt',
     '1v1configtest.txt',
     '2v2config.txt',
@@ -115,7 +118,7 @@ const configFiles = [
     '6playerffaconfig.txt',
     'noobfriendly.txt',
     '3v3ffaconfig.txt',
-    'hawhaw1v1config.txt',
+    '1v1muriconrandom.txt',
     'hawhaw2v2config.txt',
     '1v1muricon.txt',
     '4v4config.txt',
