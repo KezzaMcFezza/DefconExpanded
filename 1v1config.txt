@@ -26,7 +26,6 @@ PlayerLog player_scores_1v1.log
 # OutFile
 # PlayerLog
 # Record
-# does this work
 
 #ANTI-CHEAT
 GhostProtection 2

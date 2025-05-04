@@ -1,0 +1,19 @@
+{
+    "name": "dedcon-rcon-framework",
+    "version": "1.0.0",
+    "description": "A simple framework for Dedcon RCON communication",
+    "main": "Server.js",
+    "scripts": {
+        "start": "node Server.js",
+        "dev": "nodemon Server.js"
+    },
+    "author": "DefconExpanded",
+    "license": "MIT",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.18.2"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.22"
+    }
+}

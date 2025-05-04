@@ -124,6 +124,12 @@
 .server-checkbox[onclick*="defcon_best"] {
     border-left: 3px solid #ff8042;
 }
+.server-checkbox[onclick*="defcon_cursed"] {
+    border-left: 3px solid #42ff62;
+}
+.server-checkbox[onclick*="defcon_raizer"] {
+    border-left: 3px solid #dc2dff;
+}
 .server-checkbox[onclick*="defcon_afas"] {
     border-left: 3px solid #0088fe;
 }
@@ -153,6 +159,9 @@
 }
 .server-checkbox[onclick*="muricon"] {
     border-left: 3px solid #f0e68c;
+}
+.server-checkbox[onclick*="muricon_random"] {
+    border-left: 3px solid #9e68f5;
 }
 .server-checkbox[onclick*="cg_2v2_2815"] {
     border-left: 3px solid #dda0dd;

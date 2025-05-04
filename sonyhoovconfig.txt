@@ -28,7 +28,7 @@ PlayerLog player_scores_sonyhoov.log
 
 #ADMIN
 Admin LadenBinKezza~~0~dancefloor
-Admin Nop~~1~nopnopnop
+Admin Uu~~1~nopnopnop
 Admin hoov~~1~nopnopnop
 
 #ANTI-CHEAT

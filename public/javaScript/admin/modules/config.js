@@ -20,6 +20,7 @@ const ConfigModule = (() => {
     
     const serverConfigs = [
         { name: "DefconExpanded | 1v1 | Totally Random", filename: "1v1config.txt" },
+        { name: "DefconExpanded | 1v1 | Cursed Setups Only!", filename: "1v1configcursed.txt" },
         { name: "Raizer's Russia vs USA | Totally Random", filename: "1v1configraizer.txt" },
         { name: "DefconExpanded | 1v1 | Best Setups 1", filename: "1v1configbest.txt" },
         { name: "DefconExpanded | 1v1 | Best Setups 2", filename: "1v1configbest2.txt" },
@@ -30,7 +31,7 @@ const ConfigModule = (() => {
         { name: "2v2 Tournament", filename: "2v2tournament.txt" },
         { name: "DefconExpanded | 3v3 | Totally Random", filename: "3v3ffaconfig.txt" },
         { name: "DefconExpanded | Free For All | Random Cities", filename: "6playerffaconfig.txt" },
-        { name: "509 CG | 1v1 | Totally Random", filename: "hawhaw1v1config.txt" },
+        { name: "MURICON | 1V1 | Totally Random", filename: "1v1muriconrandom.txt" },
         { name: "509 CG | 2v2 | Totally Random", filename: "hawhaw2v2config.txt" },
         { name: "MURICON | 1v1 Default", filename: "1v1muricon.txt" },
         { name: "DefconExpanded | 4v4 | Totally Random", filename: "4v4config.txt" },

@@ -45,7 +45,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -353,8 +353,10 @@
                                         <h3 class="control-title">Server Selection</h3>
                                         <div class="reset-apply-servers">
                                             <button id="selectAllServers" class="apply-servers-btn">Select All</button>
-                                            <button id="deselectAllServers" class="reset-servers-btn">Deselect All</button>
-                                            <button id="resetGraphQueries" class="reset-queries-btn">Reset Graph</button>
+                                            <button id="deselectAllServers" class="reset-servers-btn">Deselect
+                                                All</button>
+                                            <button id="resetGraphQueries" class="reset-queries-btn">Reset
+                                                Graph</button>
                                         </div>
                                     </div>
                                 </div>
@@ -392,6 +394,22 @@
                                                     style="display: none;">
                                                 <span class="server-name">1v1 Best Setups</span>
                                                 <span class="game-count" id="hours-count-defcon_best">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_cursed')">
+                                                <input type="checkbox" name="server" value="defcon_cursed" checked
+                                                    style="display: none;">
+                                                <span class="server-name">1v1 Cursed Setups</span>
+                                                <span class="game-count" id="hours-count-defcon_cursed">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'defcon_raizer')">
+                                                <input type="checkbox" name="server" value="defcon_raizer" checked
+                                                    style="display: none;">
+                                                <span class="server-name">1v1 Raizer</span>
+                                                <span class="game-count" id="hours-count-defcon_raizer">0 hours</span>
                                             </div>
 
                                             <div class="server-checkbox selected"
@@ -485,6 +503,14 @@
                                                     style="display: none;">
                                                 <span class="server-name">MURICON</span>
                                                 <span class="game-count" id="hours-count-muricon">0 hours</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleCheckbox(this, 'muricon_random')">
+                                                <input type="checkbox" name="server" value="muricon_random" checked
+                                                    style="display: none;">
+                                                <span class="server-name">MURICON Random</span>
+                                                <span class="game-count" id="hours-count-muricon_random">0 hours</span>
                                             </div>
 
                                             <div class="server-checkbox selected"

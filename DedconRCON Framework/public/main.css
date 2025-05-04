@@ -1,0 +1,214 @@
+ /**
+ * DefconExpanded, Created by...
+ * KezzaMcFezza - Main Developer
+ * Nexustini - Server Managment
+ *
+ * Notable Mentions...
+ * Rad - For helping with python scripts.
+ * Bert_the_turtle - Doing everthing with c++
+ * 
+ * Inspired by Sievert and Wan May
+ * 
+ * Last Edited 03-05-2025 
+*/
+
+/* Global Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #cccccc;
+    background-color: #111111;
+    padding: 1rem;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+header {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+h1 {
+    color: #ff9900;
+    margin-bottom: 0.5rem;
+}
+
+h2 {
+    color: #cccccc;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+footer {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #888888;
+}
+
+/* RCON Console Styles */
+#rcon-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 75vh;
+}
+
+#connection-panel {
+    background-color: #1a1a1a;
+    border: 1px solid #3a3a3a;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+}
+
+.form-row {
+    display: flex;
+    margin-bottom: 0.5rem;
+    align-items: center;
+}
+
+.form-row label {
+    width: 100px;
+    color: #cccccc;
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+.form-row input {
+    flex: 1;
+    background-color: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    color: #ffffff;
+    padding: 8px 10px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    border-radius: 2px;
+}
+
+.form-row button {
+    margin-left: 10px;
+    background-color: #0c0c0c;
+    border: 1px solid #3a3a3a;
+    color: #cccccc;
+    cursor: pointer;
+    font-family: 'Consolas', 'Courier New', monospace;
+    padding: 8px 16px;
+    border-radius: 2px;
+    transition: all 0.2s ease;
+}
+
+.form-row button:hover:not(:disabled) {
+    background-color: #3a3a3a;
+    color: #ffffff;
+}
+
+.form-row button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Console Output */
+#console-output {
+    flex: 1;
+    background-color: #0c0c0c;
+    border: 1px solid #3a3a3a;
+    padding: 1rem;
+    overflow-y: auto;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #cccccc;
+    margin-bottom: 1rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    height: 300px;
+    border-radius: 4px;
+}
+
+/* Command Input */
+#command-input {
+    display: flex;
+    margin-bottom: 1rem;
+}
+
+#command-input input {
+    flex: 1;
+    background-color: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    color: #ffffff;
+    padding: 8px 10px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    border-radius: 2px;
+}
+
+#command-input button {
+    margin-left: 10px;
+    background-color: #0c0c0c;
+    border: 1px solid #3a3a3a;
+    color: #cccccc;
+    cursor: pointer;
+    font-family: 'Consolas', 'Courier New', monospace;
+    padding: 8px 16px;
+    border-radius: 2px;
+}
+
+#command-input button:hover:not(:disabled) {
+    background-color: #3a3a3a;
+    color: #ffffff;
+}
+
+/* Status Colors */
+.status-connected {
+    color: #4cd964;
+    font-weight: bold;
+}
+
+.status-disconnected {
+    color: #ff3b30;
+    font-weight: bold;
+}
+
+/* Message Types */
+.error-message {
+    color: #ff3b30;
+}
+
+.success-message {
+    color: #4cd964;
+}
+
+.system-message {
+    color: #ffcc00;
+}
+
+.console-prompt {
+    color: #4cd964;
+}
+
+.console-response {
+    color: #cccccc;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    .form-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-row label {
+        margin-bottom: 0.5rem;
+    }
+
+    .form-row button {
+        margin-left: 0;
+        margin-top: 0.5rem;
+        width: 100%;
+    }
+}

@@ -11,10 +11,10 @@
 //Last Edited 16-04-2025
 
 export const SERVER_TYPES = [
-    'new_player', 'training', 'defcon_random', 'defcon_best', 'defcon_afas',
+    'new_player', 'training', 'defcon_random', 'defcon_best', 'defcon_cursed', 'defcon_raizer', 'defcon_afas',
     'defcon_eusa', 'defcon_default', 'defcon_2v2', 'tournament_2v2',
     'defcon_2v2_special', 'mojo_2v2', 'sony_hoov', 'defcon_3v3', 'defcon_4v4',
-    'muricon', 'cg_2v2_2815', 'cg_2v2_28141', 'cg_1v1_2815', 'cg_1v1_28141',
+    'muricon', 'muricon_random', 'cg_2v2_2815', 'cg_2v2_28141', 'cg_1v1_2815', 'cg_1v1_28141',
     'defcon_8p_diplo', 'defcon_10p_diplo'
 ];
 
@@ -30,6 +30,8 @@ export const GRAPH_CONFIGS = {
             { key: "training", name: "Training Game", color: "#82ca9d" },
             { key: "defcon_random", name: "1v1 Random", color: "#ffc658" },
             { key: "defcon_best", name: "1v1 Best Setups", color: "#ff8042" },
+            { key: "defcon_cursed", name: "1v1 Cursed Setups", color: "#42ff62" },
+            { key: "defcon_raizer", name: "1v1 Raizer", color: "#dc2dff" },
             { key: "defcon_afas", name: "AF vs AS", color: "#0088fe" },
             { key: "defcon_eusa", name: "EU vs SA", color: "#00C49F" },
             { key: "defcon_default", name: "1v1 Default", color: "#FFBB28" },
@@ -40,6 +42,7 @@ export const GRAPH_CONFIGS = {
             { key: "sony_hoov", name: "Sony & Hoov's", color: "#00ced1" },
             { key: "defcon_3v3", name: "3v3 Random", color: "#98fb98" },
             { key: "muricon", name: "MURICON", color: "#f0e68c" },
+            { key: "muricon_random", name: "MURICON Random", color: "#9e68f5" },
             { key: "cg_2v2_2815", name: "CG | 2v2 2.8.15", color: "#dda0dd" },
             { key: "cg_2v2_28141", name: "CG | 2v2 2.8.14.1", color: "#ff69b4" },
             { key: "cg_1v1_2815", name: "CG | 1v1 2.8.15", color: "#cd853f" },
