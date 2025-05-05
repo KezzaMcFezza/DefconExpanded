@@ -354,11 +354,6 @@
     background-color: transparent;
 }
 
-.dedcon-build-container .version-history-table tr:hover td,
-.dedcon-beta-container .version-history-table tr:hover td {
-    background-color: rgba(77, 166, 255, 0.1);
-}
-
 .dedcon-build-container .version-history-table .platform-cell,
 .dedcon-beta-container .version-history-table .platform-cell {
     display: flex;
@@ -392,16 +387,6 @@
     background-color: #1a86d4;
 }
 
-.dedcon-build-container .latest-tag,
-.dedcon-beta-container .latest-tag {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background-color: #52e000;
-    border-radius: 50%;
-    margin-right: 6px;
-}
-
 .dedcon-beta-container .version-history-table td.td2 {
     color: #ff8400;
 }
@@ -412,10 +397,6 @@
 
 .dedcon-beta-container .btn-download:hover {
     background-color: #ff9a2f;
-}
-
-.dedcon-beta-container .latest-tag {
-    background-color: #ff8400;
 }
 
 @media (max-width: 1024px) {
