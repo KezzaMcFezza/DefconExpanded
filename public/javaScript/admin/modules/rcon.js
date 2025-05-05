@@ -1,8 +1,16 @@
-// RCON Console Module for DefconExpanded
-// This module handles RCON communication with Dedcon servers
+//DefconExpanded, Created by...
+//KezzaMcFezza - Main Developer
+//Nexustini - Server Managment
+//
+//Notable Mentions...
+//Rad - For helping with python scripts.
+//Bert_the_turtle - Doing everthing with c++
+//
+//Inspired by Sievert and Wan May
+// 
+//Last Edited 05-05-2025
 
 document.addEventListener('DOMContentLoaded', () => {
-    // RCON Elements
     const serverInput = document.getElementById('server');
     const portInput = document.getElementById('port');
     const passwordInput = document.getElementById('password');
@@ -14,8 +22,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn = document.getElementById('send-btn');
     const serverList = document.getElementById('server-list');
     const connectionForm = document.getElementById('connection-form');
-
-    // Get the log stream elements or create dummy elements if they don't exist
     const streamGameEvents = document.getElementById('stream-game-events') || { checked: false, disabled: false };
     const streamServerLog = document.getElementById('stream-server-log') || { checked: false, disabled: false };
 
@@ -27,10 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentlyActiveServer = null;
     let isManualMode = false;
 
-    // Default RCON password for all servers
     const DEFAULT_RCON_PASSWORD = "D3vilsAdvocat3";
 
-    // Server configurations
     const serverConfigurations = [
         { name: 'Manual Connection', port: null, manual: true },
         { name: 'New Player Server', port: 8800 },
@@ -53,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'DefconExpanded | 10 Player | Diplomacy', port: 8817 }
     ];
 
-    // Initialize server list
     function initializeServerList() {
         serverList.innerHTML = '';
         
@@ -71,27 +74,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Select a server from the list
     async function selectServer(index) {
-        // If already connected to a server, disconnect first
         if (currentSessionId) {
             await disconnectFromServer();
         }
 
         const config = serverConfigurations[index];
         
-        // Update UI to show which server is selected
         document.querySelectorAll('#server-list li').forEach(item => {
             item.classList.remove('active');
         });
         document.querySelector(`#server-list li[data-index="${index}"]`).classList.add('active');
         
-        // Handle manual connection mode
         if (config.manual) {
             isManualMode = true;
             connectionForm.style.display = 'block';
-            
-            // Pre-fill with last used values or defaults
+
             const savedServer = localStorage.getItem('rcon_server') || 'localhost';
             const savedPort = localStorage.getItem('rcon_port') || '';
             const savedPassword = localStorage.getItem('rcon_password') || '';
@@ -99,8 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
             serverInput.value = savedServer;
             portInput.value = savedPort;
             passwordInput.value = savedPassword;
-            
-            // Enable the form fields
             serverInput.disabled = false;
             portInput.disabled = false;
             passwordInput.disabled = false;
@@ -109,18 +105,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Handle predefined server
         isManualMode = false;
         connectionForm.style.display = 'none';
-        
-        // Fill in the form with the server details (these will be hidden but still used for connection)
         serverInput.value = 'localhost';
         portInput.value = config.port;
         passwordInput.value = DEFAULT_RCON_PASSWORD;
         currentlyActiveServer = index;
     }
 
-    // Load saved server and port from localStorage if available
     const loadSavedServerInfo = () => {
         const savedServer = localStorage.getItem('rcon_server');
         const savedPort = localStorage.getItem('rcon_port');
@@ -139,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Save server and port to localStorage
     const saveServerInfo = (server, port, password) => {
         localStorage.setItem('rcon_server', server);
         localStorage.setItem('rcon_port', port);
@@ -148,14 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Load saved values on page load
     loadSavedServerInfo();
     initializeServerList();
-    
-    // By default select the Manual Connection option
     selectServer(0);
 
-    // Function to add a message to the console output
     function addConsoleMessage(message, className = '') {
         const messageElement = document.createElement('div');
         messageElement.className = className;
@@ -164,18 +151,15 @@ document.addEventListener('DOMContentLoaded', () => {
         consoleOutput.scrollTop = consoleOutput.scrollHeight;
     }
 
-    // Clear console output
     function clearConsole() {
         consoleOutput.innerHTML = '';
     }
 
-    // Function to parse and format RCON response
     function formatResponse(response) {
         const lines = response.split('\n');
         let formattedResponse = '';
 
         for (const line of lines) {
-            // Handle log stream responses
             if (line.startsWith('LOG GAMEEVENT ')) {
                 addConsoleMessage(line.substring(13), 'log-event');
                 continue;
@@ -184,9 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 continue;
             }
 
-            // Handle standard responses
             if (line.startsWith('STATUS ')) {
-                continue; // Skip status lines
+                continue; 
             } else if (line.startsWith('MESSAGE ')) {
                 formattedResponse += line.substring(8) + '\n';
             } else {
@@ -197,23 +180,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return formattedResponse.trim();
     }
 
-    // Connect to RCON server
     async function connectToServer() {
-        // Don't try to connect if no server is selected
         if (!isManualMode && currentlyActiveServer === null) {
             addConsoleMessage('Please select a server configuration first', 'error-message');
             return;
         }
-        
-        // Validate form in manual mode
+
         if (isManualMode) {
             if (!serverInput.value || !portInput.value || !passwordInput.value) {
                 addConsoleMessage('Error: Server address, port, and password are required', 'error-message');
                 return;
             }
         }
-        
-        // Disable UI during connection
+
         connectBtn.disabled = true;
         streamGameEvents.disabled = true;
         streamServerLog.disabled = true;
@@ -251,16 +230,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                // Update UI for connected state
                 connectionStatus.textContent = 'Connected';
                 connectionStatus.className = 'status-connected';
                 currentSessionId = data.sessionId;
-
-                // Enable command input
                 commandInput.disabled = false;
                 sendBtn.disabled = false;
-                
-                // Don't clear password for predefined servers
+
                 if (isManualMode) {
                     passwordInput.value = '';
                 }
@@ -269,27 +244,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 addConsoleMessage(`Connected to: ${serverConfigurations[currentlyActiveServer]?.name || server}`, 'success-message');
                 addConsoleMessage('Type "help" for available commands', 'system-message');
 
-                // Enable disconnect
                 disconnectBtn.disabled = false;
-
-                // Set focus to command input
                 commandInput.focus();
 
-                // Save server and port to localStorage
                 saveServerInfo(server, port, password);
 
-                // Set state for log streams
                 isGameEventsActive = enableGameEvents;
                 isServerLogActive = enableServerLog;
 
-                // Start log streams if requested
                 if (enableGameEvents || enableServerLog) {
-                    // Start polling immediately after connection
                     startLogPolling();
 
                     if (enableGameEvents) {
                         addConsoleMessage('Enabling game events stream...', 'system-message');
-                        // Send the command to start game events
                         const streamResponse = await fetch('/apis/admin/rcon/execute', {
                             method: 'POST',
                             headers: {
@@ -311,7 +278,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (enableServerLog) {
                         addConsoleMessage('Enabling server log stream...', 'system-message');
-                        // Send the command to start server log
                         const streamResponse = await fetch('/apis/admin/rcon/execute', {
                             method: 'POST',
                             headers: {
@@ -332,10 +298,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             } else {
-                // Show error message
                 addConsoleMessage(`Error: ${data.message}`, 'error-message');
 
-                // Re-enable inputs
                 connectBtn.disabled = false;
                 streamGameEvents.disabled = false;
                 streamServerLog.disabled = false;
@@ -349,7 +313,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             addConsoleMessage(`Connection error: ${error.message}`, 'error-message');
 
-            // Re-enable inputs
             connectBtn.disabled = false;
             streamGameEvents.disabled = false;
             streamServerLog.disabled = false;
@@ -365,17 +328,16 @@ document.addEventListener('DOMContentLoaded', () => {
     function startLogPolling() {
         if (!currentSessionId) return;
 
-        const pollInterval = 1000; // Poll every second
+        const pollInterval = 1000; 
 
         const poll = async () => {
-            if (!currentSessionId) return; // Stop if disconnected
+            if (!currentSessionId) return; 
 
             try {
                 const response = await fetch(`/apis/admin/rcon/logs/${currentSessionId}`);
                 const data = await response.json();
 
                 if (data.success && data.logs && data.logs.length > 0) {
-                    // Process each log message
                     data.logs.forEach(logMsg => {
                         if (logMsg.startsWith('LOG GAMEEVENT ')) {
                             addConsoleMessage(logMsg.substring(13), 'log-event');
@@ -388,15 +350,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Log polling error:', error);
             }
 
-            // Continue polling
             setTimeout(poll, pollInterval);
         };
 
-        // Start polling
         setTimeout(poll, pollInterval);
     }
 
-    // Start game event log stream
     async function startGameEventStream() {
         if (!currentSessionId || isGameEventsActive) {
             return;
@@ -420,7 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 isGameEventsActive = true;
                 addConsoleMessage('Game event log stream started', 'success-message');
 
-                // Start polling if not already running
                 if (!window.logPollingInterval) {
                     startLogPolling();
                 }
@@ -432,7 +390,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Start server log stream
     async function startServerLogStream() {
         if (!currentSessionId || isServerLogActive) {
             return;
@@ -456,7 +413,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 isServerLogActive = true;
                 addConsoleMessage('Server log stream started', 'success-message');
 
-                // Start polling if not already running
                 if (!window.logPollingInterval) {
                     startLogPolling();
                 }
@@ -468,16 +424,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Stop game event log stream
     function startLogPolling() {
         if (!currentSessionId) return;
 
-        // Clear any existing interval
         if (window.logPollingInterval) {
             clearInterval(window.logPollingInterval);
         }
 
-        const pollInterval = 100; // Poll every 100ms for more responsive logs
+        const pollInterval = 100; 
 
         window.logPollingInterval = setInterval(async () => {
             if (!currentSessionId) {
@@ -491,7 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.json();
 
                 if (data.success && data.logs && data.logs.length > 0) {
-                    // Process each log message
                     data.logs.forEach(logMsg => {
                         if (logMsg.startsWith('LOG GAMEEVENT ')) {
                             addConsoleMessage(logMsg.substring(14), 'log-event');
@@ -506,7 +459,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, pollInterval);
     }
 
-    // Stop server log stream
     async function stopServerLogStream() {
         if (!currentSessionId || !isServerLogActive) {
             return;
@@ -537,7 +489,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Stop game event log stream
     async function stopGameEventStream() {
         if (!currentSessionId || !isGameEventsActive) {
             return;
@@ -568,7 +519,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Stop server log stream
     async function stopServerLogStream() {
         if (!currentSessionId || !isServerLogActive) {
             return;
@@ -599,19 +549,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Disconnect from RCON server
     async function disconnectFromServer() {
         if (!currentSessionId) {
             return;
         }
-    
-        // Stop polling
+
         if (window.logPollingInterval) {
             clearInterval(window.logPollingInterval);
             window.logPollingInterval = null;
         }
-    
-        // Stop any active log streams first (with error handling)
+
         try {
             if (isGameEventsActive) {
                 await stopGameEventStream();
@@ -637,16 +584,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     
             const data = await response.json();
-            
-            // Update UI for disconnected state
+
             connectionStatus.textContent = 'Disconnected';
             connectionStatus.className = 'status-disconnected';
-            
-            // Disable command input
             commandInput.disabled = true;
             sendBtn.disabled = true;
-            
-            // Enable connection inputs
             connectBtn.disabled = false;
             disconnectBtn.disabled = true;
             streamGameEvents.disabled = false;
@@ -663,14 +605,13 @@ document.addEventListener('DOMContentLoaded', () => {
             isServerLogActive = false;
             
             addConsoleMessage(data.message, 'system-message');
-            return true; // Successfully disconnected
+            return true; 
         } catch (error) {
             addConsoleMessage(`Disconnect error: ${error.message}`, 'error-message');
-            return false; // Failed to disconnect
+            return false; 
         }
     }
 
-    // Send RCON command
     async function sendCommand() {
         if (!currentSessionId) {
             addConsoleMessage('Error: Not connected to any server', 'error-message');
@@ -682,7 +623,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Handle log stream commands
         if (command === 'logstream-gameevents') {
             commandInput.value = '';
             addConsoleMessage('> logstream-gameevents', 'console-prompt');
@@ -717,14 +657,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Add command to history
         commandHistory.push(command);
         historyIndex = commandHistory.length;
 
-        // Display command in console
         addConsoleMessage(`> ${command}`, 'console-prompt');
 
-        // Clear input
         commandInput.value = '';
 
         try {
@@ -742,11 +679,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (data.success) {
-                // Display formatted response
                 const formattedResponse = formatResponse(data.response);
                 addConsoleMessage(formattedResponse, 'console-response');
             } else {
-                // Check if we need to reconnect
                 if (data.needsReauth) {
                     addConsoleMessage('Session expired. Please reconnect.', 'error-message');
                     disconnectFromServer();
@@ -759,7 +694,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Handle command history navigation
     function handleCommandHistory(direction) {
         if (commandHistory.length === 0) {
             return;
@@ -778,14 +712,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event Listeners
     connectBtn.addEventListener('click', connectToServer);
     disconnectBtn.addEventListener('click', disconnectFromServer);
-
-    // Send command when button clicked
     sendBtn.addEventListener('click', sendCommand);
-
-    // Send command when Enter key is pressed
     commandInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             sendCommand();
@@ -798,7 +727,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Add RCON command helper
     const commonCommands = [
         { cmd: 'ServerName <name>', desc: 'Change the server name' },
         { cmd: 'MaxTeams <number>', desc: 'Set max player slots' },
@@ -814,7 +742,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { cmd: 'help', desc: 'Show this help message' }
     ];
 
-    // Add help command handler
     commandInput.addEventListener('input', (e) => {
         if (e.target.value.trim().toLowerCase() === 'help') {
             e.target.dataset.willShowHelp = 'true';
@@ -828,7 +755,6 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             delete e.target.dataset.willShowHelp;
 
-            // Display help in console
             addConsoleMessage('> help', 'console-prompt');
             addConsoleMessage('Common Dedcon Commands:', 'system-message');
 
@@ -842,6 +768,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initial setup
     disconnectBtn.disabled = true;
 });

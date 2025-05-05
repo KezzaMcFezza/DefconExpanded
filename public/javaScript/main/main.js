@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 20-04-2025
+//Last Edited 05-05-2025
 
 import { initializeDiscordWidget } from './discord.js';
 import { initializeReportHandlers } from './reporting.js';
@@ -348,7 +348,8 @@ async function displayDedconBuilds() {
     </div>
   `;
 
-    const sortedBuilds = builds.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
+    const stableBuilds = builds.filter(build => build.beta !== 1);
+    const sortedBuilds = stableBuilds.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
     const tableBody = buildContainer.querySelector('tbody');
     const platformDisplayNames = {
       'windows': 'Windows',
@@ -359,6 +360,7 @@ async function displayDedconBuilds() {
 
     const playerCountDisplayNames = {
       '': 'Vanilla',
+      '6': 'Vanilla',
       '8': '8 Player',
       '10': '10 Player'
     };
@@ -400,11 +402,101 @@ async function displayDedconBuilds() {
   }
 }
 
-/**
-* Initialize the application with all required components
-*/
+async function displayDedconBetaBuilds() {
+  try {
+    const response = await fetch('/api/dedcon-builds');
+    const builds = await response.json();
+
+    const betaContainer = document.querySelector('.dedcon-beta-container');
+    if (!betaContainer) {
+      console.error('Beta container not found');
+      return;
+    }
+
+    betaContainer.innerHTML = `
+    <div class="tutorial-download-container">
+      <table class="version-history-table">
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>Version</th>
+            <th>Build Type</th>
+            <th>Release Date</th>
+            <th>Download</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+    const betaBuilds = builds.filter(build => build.beta === 1);
+    const sortedBuilds = betaBuilds.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
+    const tableBody = betaContainer.querySelector('tbody');
+    const platformDisplayNames = {
+      'windows': 'Windows',
+      'linux': 'Linux',
+      'macos-intel': 'MacOS Intel',
+      'macos-arm64': 'MacOS ARM64'
+    };
+
+    const playerCountDisplayNames = {
+      '': 'Vanilla',
+      '6': 'Vanilla',
+      '8': '8 Player',
+      '10': '10 Player'
+    };
+
+    if (sortedBuilds.length === 0) {
+      const emptyRow = document.createElement('tr');
+      emptyRow.innerHTML = `
+        <td colspan="5" style="text-align: center; padding: 20px;">
+          No beta builds available at this time
+        </td>
+      `;
+      tableBody.appendChild(emptyRow);
+      return;
+    }
+
+    sortedBuilds.forEach((build, index) => {
+      const platformName = platformDisplayNames[build.platform] || build.platform;
+      const buildType = playerCountDisplayNames[build.player_count] || 'Vanilla';
+      const isLatest = index === 0 || (build.platform !== sortedBuilds[index - 1].platform);
+
+      const row = document.createElement('tr');
+      row.className = isLatest ? 'latest-version' : '';
+
+      row.innerHTML = `
+      <td>
+        <div class="platform-cell">
+          <img src="/images/${build.platform}-icon.png" alt="${platformName}" class="steam-logo" style="width: 16px;" />
+          ${platformName}
+        </div>
+      </td>
+      <td class="td2">${build.version}</td>
+      <td>${buildType}</td>
+      <td>${isLatest ?
+          `<span class="latest-tag"></span> ${new Date(build.release_date).toLocaleDateString()}` :
+          new Date(build.release_date).toLocaleDateString()
+        }</td>
+      <td>
+        <a href="/api/download-dedcon-build/${encodeURIComponent(build.name)}" 
+           class="btn-download foo">
+           Download
+        </a>
+      </td>
+    `;
+
+      tableBody.appendChild(row);
+    });
+
+  } catch (error) {
+    console.error('Error loading dedcon beta builds:', error);
+  }
+}
+
 function initializeApplication() {
-  // Initialize core systems
   initializePopupSystem();
   initializeAuthentication();
   initializeNavigation();
@@ -412,18 +504,15 @@ function initializeApplication() {
   initializeReportHandlers();
   initializeMods();
 
-  // Initialize graphs if we're on a graph page
   const isGraphPage = window.location.pathname.startsWith('/about');
   if (isGraphPage) {
     initializeGraphs();
   }
 
-  // Initialize leaderboard if on leaderboard page
   if (window.location.pathname.includes('/leaderboard')) {
     initializeLeaderboard();
   }
 
-  // Initialize search functionality
   const searchButton2 = document.getElementById('search-button2');
   const searchInput2 = document.getElementById('search-input2');
 
@@ -436,19 +525,21 @@ function initializeApplication() {
     });
   }
 
-  // Initialize resources if on resources page
   const resourcesContainer = document.querySelector('.resources-container');
   if (resourcesContainer) {
     loadResources();
   }
 
-  // Initialize dedcon builds if on dedcon builds page
   const dedconContainer = document.querySelector('.dedcon-build-container');
   if (dedconContainer) {
     displayDedconBuilds();
   }
 
-  // Handle window resizing
+  const dedconBetaContainer = document.querySelector('.dedcon-beta-container');
+  if (dedconBetaContainer) {
+    displayDedconBetaBuilds();
+  }
+
   window.addEventListener('resize', function () {
     if (window.innerWidth <= 768) {
       initializeNavigation();
@@ -456,10 +547,8 @@ function initializeApplication() {
   });
 }
 
-// Initialize the application when the DOM is loaded
 document.addEventListener('DOMContentLoaded', initializeApplication);
 
-// Export utilities and functions for other modules
 export {
   formatBytes,
   getTimeAgo,
@@ -473,10 +562,10 @@ export {
   loadResources,
   displayResourcesMain,
   displayDedconBuilds,
+  displayDedconBetaBuilds,
   initializeApplication
 };
 
-// Make core functions available globally
 window.formatBytes = formatBytes;
 window.getTimeAgo = getTimeAgo;
 window.formatDuration = formatDuration;

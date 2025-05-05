@@ -1,4 +1,3 @@
-
 //DefconExpanded, Created by...
 //KezzaMcFezza - Main Developer
 //Nexustini - Server Managment
@@ -9,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 05-05-2025
 
 
 import API from '../api.js';
@@ -56,6 +55,7 @@ const DedconBuildsModule = (() => {
                 <td>${new Date(build.release_date).toLocaleDateString()}</td>
                 <td>${Utils.formatBytes(build.size)}</td>
                 <td>${build.platform}</td>
+                <td>${build.beta === 1 ? '<span style="color: #ff8400; font-weight: bold;">Beta</span>' : '<span style="color: #52e000; font-weight: bold;">Stable</span>'}</td>
                 <td>${actionsHtml}</td>
             `;
         });
@@ -96,12 +96,14 @@ const DedconBuildsModule = (() => {
             const versionField = document.getElementById('edit-dedcon-resource-version');
             const dateField = document.getElementById('edit-dedcon-resource-date');
             const platformField = document.getElementById('edit-resource-platform');
+            const betaField = document.getElementById('edit-resource-beta');
             
             if (idField) idField.value = build.id;
             if (nameField) nameField.value = build.name;
             if (versionField) versionField.value = build.version;
             if (dateField) dateField.value = new Date(build.release_date).toISOString().split('T')[0];
             if (platformField) platformField.value = build.platform;
+            if (betaField) betaField.checked = build.beta === 1;
             
             UI.showElement('dedcon-build-edit');
         } catch (error) {
@@ -116,11 +118,15 @@ const DedconBuildsModule = (() => {
         if (!Auth.requirePermission(2, 'save build edits')) return;
         
         const buildId = document.getElementById('edit-dedcon-resource-id')?.value;
+        const betaField = document.getElementById('edit-resource-beta');
+        
         const updatedBuild = {
             name: document.getElementById('edit-dedcon-resource-name')?.value,
             version: document.getElementById('edit-dedcon-resource-version')?.value,
             release_date: document.getElementById('edit-dedcon-resource-date')?.value,
-            platform: document.getElementById('edit-resource-platform')?.value
+            platform: document.getElementById('edit-resource-platform')?.value,
+            player_count: '6', 
+            beta: betaField?.checked ? 1 : 0
         };
 
         try {

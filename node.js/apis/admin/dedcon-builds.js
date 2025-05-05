@@ -47,7 +47,7 @@ router.post('/api/upload-dedcon-build', authenticateToken, upload.single('dedcon
     }
 
     try {
-        const { version, releaseDate, platform, playerCount } = req.body;
+        const { version, releaseDate, platform, playerCount, beta } = req.body;
         const originalName = req.file.originalname;
 
         const filePath = path.join(dedconBuildsDir, originalName);
@@ -58,16 +58,17 @@ router.post('/api/upload-dedcon-build', authenticateToken, upload.single('dedcon
         }
 
         console.log(`Processing build upload by ${req.user.username} from IP ${clientIp}:`,
-            JSON.stringify({ name: originalName, version, releaseDate, platform, playerCount }, null, 2));
+            JSON.stringify({ name: originalName, version, releaseDate, platform, playerCount, beta }, null, 2));
 
 
         fs.renameSync(req.file.path, filePath);
         const stats = fs.statSync(filePath);
         const uploadDate = releaseDate ? new Date(releaseDate) : new Date();
+        const isBeta = beta ? 1 : 0;
 
         const [result] = await pool.query(
-            'INSERT INTO dedcon_builds (name, size, release_date, version, platform, player_count, file_path) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [originalName, stats.size, uploadDate, version, platform, playerCount, filePath]
+            'INSERT INTO dedcon_builds (name, size, release_date, version, platform, player_count, file_path, beta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [originalName, stats.size, uploadDate, version, platform, playerCount, filePath, isBeta]
         );
 
         console.log(`Build successfully uploaded by ${req.user.username} from IP ${clientIp}`);
@@ -76,7 +77,8 @@ router.post('/api/upload-dedcon-build', authenticateToken, upload.single('dedcon
             buildName: originalName,
             version: version,
             platform: platform,
-            playerCount: playerCount
+            playerCount: playerCount,
+            beta: isBeta
         });
     } catch (error) {
         console.error(`Error uploading build by ${req.user.username} from IP ${clientIp}:`, error.message);
@@ -131,16 +133,17 @@ router.get('/api/dedcon-build/:buildId', authenticateToken, async (req, res) => 
 router.put('/api/dedcon-build/:buildId', authenticateToken, checkRole(2), async (req, res) => {
     const clientIp = getClientIp(req);
     const { buildId } = req.params;
-    const { name, version, release_date, platform, player_count } = req.body;
+    const { name, version, release_date, platform, player_count, beta } = req.body;
+    const isBeta = beta ? 1 : 0;
 
     console.log(`Admin action initiated: Build edit by ${req.user.username} from IP ${clientIp}`);
-    console.log(`Editing build ID ${buildId}:`, JSON.stringify({ name, version, release_date, platform, player_count }, null, 2));
+    console.log(`Editing build ID ${buildId}:`, JSON.stringify({ name, version, release_date, platform, player_count, beta }, null, 2));
 
     try {
         const [oldData] = await pool.query('SELECT * FROM dedcon_builds WHERE id = ?', [buildId]);
         const [result] = await pool.query(
-            'UPDATE dedcon_builds SET name = ?, version = ?, release_date = ?, platform = ?, player_count = ? WHERE id = ?',
-            [name, version, new Date(release_date), platform, player_count, buildId]
+            'UPDATE dedcon_builds SET name = ?, version = ?, release_date = ?, platform = ?, player_count = ?, beta = ? WHERE id = ?',
+            [name, version, new Date(release_date), platform, player_count, isBeta, buildId]
         );
 
         if (result.affectedRows === 0) {
@@ -149,7 +152,7 @@ router.put('/api/dedcon-build/:buildId', authenticateToken, checkRole(2), async 
         } else {
             console.log(`Build successfully edited by ${req.user.username} from IP ${clientIp}:`);
             console.log(`Old data:`, JSON.stringify(oldData[0], null, 2));
-            console.log(`New data:`, JSON.stringify({ name, version, release_date, platform, player_count }, null, 2));
+            console.log(`New data:`, JSON.stringify({ name, version, release_date, platform, player_count, beta: isBeta }, null, 2));
             res.json({ message: 'Build updated successfully' });
         }
     } catch (error) {

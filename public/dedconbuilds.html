@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024 
+* Last Edited 05-05-2025
 -->
 
 <!DOCTYPE html>
@@ -45,7 +45,7 @@
   <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
   <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-  <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -56,74 +56,12 @@
   <link rel="stylesheet" type="text/css" href="/CSS/newmain.css" />
   <link rel="stylesheet" type="text/css" href="/CSS/scaling.css" />
   <link rel="stylesheet" type="text/css" href="/CSS/admin.css" />
+  <link rel="stylesheet" type="text/css" href="/CSS/dedcon-builds.css" />
   <script type="module" src="/javaScript/main/main.js" defer></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<style>
-  .fa-user {
-    margin-right: 5px;
-  }
-
-  .fa-cog {
-    margin-right: 5px;
-  }
-
-  @media (max-width: 430px) {
-    .pabout2 {
-      margin-left: 0 !important;
-    }
-
-    .version-history-table {
-      width: 50%;
-    }
-
-    .version-history-table th {
-      padding: 0.24rem;
-      font-size: 1.1rem;
-    }
-  }
-
-  .dropdown-header {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-  }
-
-  .dropdown-arrow {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0 10px;
-    margin-left: 10px;
-  }
-
-  .arrow {
-    border: solid #fff;
-    border-width: 0 3px 3px 0;
-    display: inline-block;
-    padding: 4px;
-    transform: rotate(45deg);
-    transition: transform 0.3s ease;
-  }
-
-  .arrow.up {
-    transform: rotate(-135deg);
-  }
-
-  .dropdown-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-    padding: 0 20px;
-  }
-
-  .dropdown-content.show {
-    max-height: 500px;
-    transition: max-height 0.3s ease-in;
-  }
-</style>
 
 <body class="hide-scrollbar">
   <div id="sidebar">
@@ -213,138 +151,145 @@
         </div>
       </nav>
     </header>
-    <div class="dedcon-container-main">
-      <p class="pabout2" style="text-align: left; font-size: 17px; margin: 0;">
-        <label style="font-size: 50px;">About Dedcon</label>
-        <br>
-        <br>
-        Dedcon is a program created by (bert_the_turtle) so all of the credit for the functionality and the bug fixes
-        goes towards him, I (KezzaMcFezza) merely
-        <br>
-        collaborated with bert_the_turtle to modernize Dedcon to the best of our ability. Update frequency will be slow
-        but new features are on the horizon so keep
-        <br>
-        checking this page for any relevant updates if you are a server hoster or just someone who watches recordings.
-        <br>
-        <br>
-        To learn more about Dedcon and what it does and its history check out bert's website <a
-          href="https://dedcon.simamo.de/" class="alinks">here</a>
-        <br>
-        <br>
-      <div class="content">
-        <div class="dedcon-container">
-          <div class="dedcon-build-container">
+
+    <div class="dedcon-container">
+      <div class="dedcon-header">
+        <div class="dedcon-banner">
+          <div class="dedcon-banner-overlay"></div>
+        </div>
+        <div class="dedcon-info-bar">
+          <h1 class="dedcon-title">Dedcon Software</h1>
+          <p class="dedcon-description">
+            So if you are new to Defcon you might be wondering... 
+            <br>
+            what the hell is Dedcon?
+            <br>
+            <br>
+            Dedcon is a powerful dedicated server tool created by bert_the_turtle for hosting DEFCON games, Recording
+            them and the ability to watch them back.
+            All while using the same program!
+            <br>
+            <br>
+            All of the credit for the functionality and the bug fixes goes towards him, I (KezzaMcFezza) merely
+            collaborated with bert_the_turtle to modernize Dedcon to the best of our ability.
+            <br>
+            <br>
+            Update frequency will be slow but new features are on the horizon so keep
+            checking this page for any relevant updates if you are a server hoster or just someone who watches
+            recordings.
+            <br>
+            <br>
+            To learn more about Dedcon and what it does and its history check out bert's website below
+          </p>
+          <div class="dedcon-links">
+            <a href="https://dedcon.simamo.de/" class="dedcon-link">Official Dedcon Website <i
+                class="fas fa-external-link-alt"></i></a>
           </div>
-          <div class="recording-information-container">
-            <label style="font-size: 35px;">How to watch recordings?</label>
-            <div class="installation-section">
-              <div class="dropdown-header">
-                <img src="/images/windows.png" class="windows-label" alt="Windows">
-                <button class="dropdown-arrow" aria-label="Toggle instructions">
-                  <i class="arrow down"></i>
-                </button>
-              </div>
-              <div class="dropdown-content">
-                <p class="pabout2" style="text-align: left; font-size: 17px;">
-                  To watch recordings just click on the recording file and it will launch a LAN server for you to join!
-                </p>
-              </div>
+        </div>
+        <div class="dedcon-card recording-card">
+          <div class="dedcon-card-header">
+            <h2 class="dedcon-card-title">Watching Recordings</h2>
+          </div>
+
+          <h3 class="recording-sections-title">Windows 10 and 11</h3>
+          <p class="pabout2" style="text-align: left; font-size: 0.95rem;">To watch recordings just click on the recording
+            file and it will launch a LAN server for you to join!</p>
+          <h3 class="recording-sections-title">Linux and MacOS</h3>
+          <p class="pabout2" style="text-align: left; font-size: 0.95rem;">Download the .tar and extract it anywhere
+            it doesnt matter the location,<br>
+            then to watch recordings open the terminal and CD into the directory where the dedcon binary
+            lives.<br>
+            You can invoke dedcon to load a recording by typing...
+            <br>
+            <br>
+            <mark style="border-radius: 3px; width: 20px; background-color: rgb(255, 196, 0); font-weight: bold;">./dedcon -l exampledrecording.dcrec</mark>
+            <br>
+            <br>
+            And the recording should show up in the lan browser!
+            Remember for 8 and 10 player recordings you will need to invoke dedcon with...<br><br>
+            <mark
+              style="border-radius: 3px; width: 20px; background-color: rgb(0 183 255); font-weight: bold;">./dedcon8p</mark>
+            and use the
+            <mark
+              style="border-radius: 3px; width: 20px; background-color: rgb(0 183 255); font-weight: bold;">.d8crec</mark>
+            extension.
+            <br>
+            <mark style="border-radius: 3px; width: 20px; background-color: rgb(0 183 255); font-weight: bold;">
+              ./dedcon10p</mark> and use the
+            <mark
+              style="border-radius: 3px; width: 20px; background-color: rgb(0 183 255); font-weight: bold;">.d10crec</mark>
+            extension.
+          </p>
+        </div>
+      </div>
+
+      <div class="dedcon-content">
+        <div class="dedcon-main-content">
+          <div class="dedcon-card downloads-card">
+            <div class="dedcon-card-header">
+              <h2 class="dedcon-card-title">Stable Releases</h2>
+            </div>
+            <div class="dedcon-build-container">
+            </div>
+          </div>
+
+          <div class="dedcon-card beta-card">
+            <div class="dedcon-card-header">
+              <h2 class="dedcon-card-title">Beta Releases</h2>
+            </div>
+            <div class="dedcon-beta-container">
+            </div>
+          </div>
+
+          <div class="dedcon-card instructions-card">
+            <div class="dedcon-card-header">
+              <h2 class="dedcon-card-title">Installation Guide</h2>
             </div>
 
             <div class="installation-section">
-              <div class="dropdown-header">
-                <img src="/images/linux-logo-new.png" class="linux-label" alt="Linux">
-                <button class="dropdown-arrow" aria-label="Toggle instructions">
-                  <i class="arrow down"></i>
-                </button>
-              </div>
-              <div class="dropdown-content">
-                <p class="pabout2" style="text-align: left; font-size: 17px;">Download the .tar and extract it anywhere
-                  it doesnt matter the location,<br>
-                  then to watch recordings open the terminal and CD into the directory where the dedcon binary
-                  lives.<br>
-                  You can invoke dedcon to load a recording by typing...<br>
-                  <mark
-                    style="border-radius: 3px; width: 20px; background-color: rgb(255, 196, 0); font-weight: bold;">./dedcon
-                    -l exampledrecording.dcrec</mark><br>
-                  and the recording should show up in the lan browser!<br><br>
-                  Remember for 8 and 10 player recordings you will need to invoke dedcon with...<br><br>
-                  <mark
-                    style="border-radius: 3px; width: 20px; background-color: rgb(0 183 255); font-weight: bold;">./dedcon8p</mark>
-                  and use the
-                  <mark
-                    style="border-radius: 3px; width: 20px; background-color: rgb(0 183 255); font-weight: bold;">.d8crec</mark>
-                  extension.
-                  <br>
-                  <mark style="border-radius: 3px; width: 20px; background-color: rgb(0 183 255); font-weight: bold;">
-                    ./dedcon10p</mark> and use the
-                  <mark
-                    style="border-radius: 3px; width: 20px; background-color: rgb(0 183 255); font-weight: bold;">.d10crec</mark>
-                  extension.
-                </p>
-              </div>
-            </div>
-
-            <div class="installation-section">
-              <div class="dropdown-header">
-                <img src="/images/macos-new.png" class="macos-label" alt="MacOS">
-                <button class="dropdown-arrow" aria-label="Toggle instructions">
-                  <i class="arrow down"></i>
-                </button>
-              </div>
-              <div class="dropdown-content">
-                <p class="pabout2" style="text-align: left; font-size: 17px;">Since MacOS supports Unix commands the
-                  instructions for watching recordings are the same as Linux.</p>
-              </div>
-            </div>
-            <div class="installation-information-container">
-              <label style="font-size: 35px;">Installation Guide</label>
-              <div class="installation-section">
-                <div class="dropdown-header">
-                  <img src="/images/windows.png" class="windows-label" alt="Windows">
-                  <button class="dropdown-arrow" aria-label="Toggle instructions">
-                    <i class="arrow down"></i>
-                  </button>
+              <div class="dedcon-accordion">
+                <div class="dedcon-accordion-header">
+                  <h3>Windows Installation</h3>
+                  <span class="dedcon-toggle-icon">+</span>
                 </div>
-                <div class="dropdown-content">
+                <div class="dedcon-accordion-content">
                   <p class="pabout2" style="text-align: left; font-size: 17px;">Really simple just run the installer and
                     away you go!
                     <br>
-                    If you want to host servers on windows remember to uninstall the old dedcon completely as the new
-                    installer comes with updated
                     <br>
-                    scripts.
+                    If you want to host servers on windows remember to uninstall the old dedcon completely as the new
+                    installer comes with updated scripts.
                   </p>
                 </div>
               </div>
+            </div>
 
-              <div class="installation-section">
-                <div class="dropdown-header">
-                  <img src="/images/linux-logo-new.png" class="linux-label" alt="Linux">
-                  <button class="dropdown-arrow" aria-label="Toggle instructions">
-                    <i class="arrow down"></i>
-                  </button>
+            <div class="installation-section">
+              <div class="dedcon-accordion">
+                <div class="dedcon-accordion-header">
+                  <h3>Linux Installation</h3>
+                  <span class="dedcon-toggle-icon">+</span>
                 </div>
-                <div class="dropdown-content">
+                <div class="dedcon-accordion-content">
                   <p class="pabout2" style="text-align: left; font-size: 17px;">You can download the .tar and extract
-                    the folder anywhere, dedcon does not care
-                    where it lives.
+                    the folder anywhere, dedcon does not care where it lives.
                     <br>
                     And after that you should be good to go! as a linux user you will figure it out im sure :)
                   </p>
                 </div>
               </div>
+            </div>
 
-              <div class="installation-section">
-                <div class="dropdown-header">
-                  <img src="/images/macos-new.png" class="macos-label" alt="MacOS">
-                  <button class="dropdown-arrow" aria-label="Toggle instructions">
-                    <i class="arrow down"></i>
-                  </button>
+            <div class="installation-section">
+              <div class="dedcon-accordion">
+                <div class="dedcon-accordion-header">
+                  <h3>MacOS Installation</h3>
+                  <span class="dedcon-toggle-icon">+</span>
                 </div>
-                <div class="dropdown-content">
-                  <p class="pabout2" style="text-align: left; font-size: 17px;">Installing Dedcon for MacOS is the same
-                    as Linux, just download the .tar and place it anywhere that you want to.</p>
+                <div class="dedcon-accordion-content">
+                  <p class="pabout2" style="text-align: left; font-size: 17px;">Installing Dedcon for MacOS is the same as Linux. 
+                    <br>
+                    Just download the .tar and place it anywhere that you want to.</p>
                 </div>
               </div>
             </div>
@@ -353,7 +298,27 @@
       </div>
     </div>
   </main>
+
   <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const accordions = document.querySelectorAll('.dedcon-accordion-header');
+
+      accordions.forEach(accordion => {
+        accordion.addEventListener('click', function () {
+          this.classList.toggle('active');
+
+          const icon = this.querySelector('.dedcon-toggle-icon');
+          icon.textContent = icon.textContent === '+' ? '−' : '+';
+
+          const content = this.nextElementSibling;
+          if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+          } else {
+            content.style.maxHeight = content.scrollHeight + "px";
+          }
+        });
+      });
+    });
   </script>
 </body>
 
