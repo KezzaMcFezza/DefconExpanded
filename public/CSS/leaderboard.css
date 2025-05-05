@@ -528,9 +528,7 @@ tr:nth-child(3) .rank-cell::before {
 }
 
 .sidebar-card {
-    background-color: var(--card-bg);
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     transition: all var(--transition-speed);
     height: fit-content;
@@ -622,6 +620,22 @@ tr:nth-child(3) .rank-cell::before {
     border-radius: 8px;
     border-left: 3px solid var(--orange);
     transition: all 0.3s ease;
+    margin-bottom: 10px;
+    background-color: rgba(28, 28, 46, 0.3);
+}
+
+#previous-winners-list li:first-child {
+    border-left-color: #ffd700;
+    margin: 0 0 10px 0;
+    background-color: rgba(28, 28, 46, 0.5);
+}
+
+#previous-winners-list li:first-child .season-name {
+    color: #ffd700;
+}
+
+#previous-winners-list li:last-child {
+    margin-bottom: 10px;
 }
 
 .season-name {
@@ -726,15 +740,6 @@ tr:nth-child(3) .rank-cell::before {
     margin-right: 0.5rem;
     color: #ffd700;
     transform: translateY(2px);
-}
-
-#previous-winners-list li:first-child {
-    border-left-color: #ffd700;
-    margin: 10px 0 10px 0;
-}
-
-#previous-winners-list li:first-child .season-name {
-    color: #ffd700;
 }
 
 #previous-winners-list li:hover .stat-value {
