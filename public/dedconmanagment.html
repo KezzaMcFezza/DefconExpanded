@@ -180,6 +180,10 @@
                             <option value="8">8 Players</option>
                             <option value="10">10 Players</option>
                         </select>
+                        <div style="display: flex; align-items: center; margin: 10px 0;">
+                            <input type="checkbox" id="windows-beta" name="beta" value="1" style="width: auto; margin-right: 8px;">
+                            <label for="windows-beta">Mark as Beta Release</label>
+                        </div>
                         <button type="submit">Upload Windows Resource</button>
                     </form>
 
@@ -193,6 +197,10 @@
                             <option value="8">8 Players</option>
                             <option value="10">10 Players</option>
                         </select>
+                        <div style="display: flex; align-items: center; margin: 10px 0;">
+                            <input type="checkbox" id="linux-beta" name="beta" value="1" style="width: auto; margin-right: 8px;">
+                            <label for="linux-beta">Mark as Beta Release</label>
+                        </div>
                         <button type="submit">Upload Linux Resource</button>
                     </form>
 
@@ -206,6 +214,10 @@
                             <option value="8">8 Players</option>
                             <option value="10">10 Players</option>
                         </select>
+                        <div style="display: flex; align-items: center; margin: 10px 0;">
+                            <input type="checkbox" id="macos-intel-beta" name="beta" value="1" style="width: auto; margin-right: 8px;">
+                            <label for="macos-intel-beta">Mark as Beta Release</label>
+                        </div>
                         <button type="submit">Upload MacOS Intel Resource</button>
                     </form>
 
@@ -219,6 +231,10 @@
                             <option value="8">8 Players</option>
                             <option value="10">10 Players</option>
                         </select>
+                        <div style="display: flex; align-items: center; margin: 10px 0;">
+                            <input type="checkbox" id="macos-arm64-beta" name="beta" value="1" style="width: auto; margin-right: 8px;">
+                            <label for="macos-arm64-beta">Mark as Beta Release</label>
+                        </div>
                         <button type="submit">Upload MacOS Arm64 Resource</button>
                     </form>
 
@@ -231,6 +247,7 @@
                                 <th>Release Date</th>
                                 <th>Size</th>
                                 <th>Platform</th>
+                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -252,6 +269,10 @@
                             <option value="macos-intel">MacOS Intel</option>
                             <option value="macos-arm64">MacOS Arm64</option>
                         </select>
+                        <div style="display: flex; align-items: center; margin: 10px 0;">
+                            <input type="checkbox" id="edit-resource-beta" name="beta" value="1" style="width: auto; margin-right: 8px;">
+                            <label for="edit-resource-beta">Mark as Beta Release</label>
+                        </div>
                         <button type="submit">Save Changes</button>
                         <button type="button" id="cancel-edit">Cancel</button>
                     </form>
