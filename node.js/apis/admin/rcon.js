@@ -1,9 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const dgram = require('dgram');
+const crypto = require('crypto');
 const { authenticateToken, checkRole } = require('../../authentication');
 const activeSessions = new Map();
 const logBuffer = new Map();
+
+// RCON Encryption Constants
+const RCON_MAGIC = 0x52434F4E; // "RCON" in hex
+const NONCE_SIZE = 12;
+const TAG_SIZE = 16;
 
 // Session cleanup interval (5 minutes)
 const CLEANUP_INTERVAL = 5 * 60 * 1000;
@@ -19,6 +25,77 @@ setInterval(() => {
     }
 }, CLEANUP_INTERVAL);
 
+// Helper functions for RCON encryption
+function generateKey(password) {
+    // Generate SHA-256 hash of the password (matches the C++ implementation)
+    return crypto.createHash('sha256').update(password).digest();
+}
+
+function isEncryptedPacket(data) {
+    if (data.length < 4) return false;
+    
+    // Check if the packet starts with the RCON magic number
+    const magic = data.readUInt32LE(0);
+    return magic === RCON_MAGIC;
+}
+
+function encryptRconPacket(plaintext, key) {
+    // Generate a random nonce
+    const nonce = crypto.randomBytes(NONCE_SIZE);
+    
+    // Create cipher
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, nonce);
+    
+    // Encrypt the data
+    const encrypted = Buffer.concat([
+        cipher.update(plaintext, 'utf8'),
+        cipher.final()
+    ]);
+    
+    // Get the authentication tag
+    const tag = cipher.getAuthTag();
+    
+    // Create the complete packet: magic + nonce + tag + ciphertext
+    const magicBuffer = Buffer.alloc(4);
+    magicBuffer.writeUInt32LE(RCON_MAGIC, 0);
+    
+    return Buffer.concat([
+        magicBuffer,     // 4 bytes
+        nonce,           // 12 bytes
+        tag,             // 16 bytes
+        encrypted        // Variable length
+    ]);
+}
+
+function decryptRconPacket(data, key) {
+    if (!isEncryptedPacket(data)) {
+        // Not an encrypted packet, return as plain text
+        return data.toString('utf8');
+    }
+    
+    try {
+        // Extract packet components
+        const nonce = data.slice(4, 4 + NONCE_SIZE);
+        const tag = data.slice(4 + NONCE_SIZE, 4 + NONCE_SIZE + TAG_SIZE);
+        const ciphertext = data.slice(4 + NONCE_SIZE + TAG_SIZE);
+        
+        // Create decipher
+        const decipher = crypto.createDecipheriv('aes-256-gcm', key, nonce);
+        decipher.setAuthTag(tag);
+        
+        // Decrypt the data
+        const decrypted = Buffer.concat([
+            decipher.update(ciphertext),
+            decipher.final()
+        ]);
+        
+        return decrypted.toString('utf8');
+    } catch (error) {
+        console.error('Error decrypting packet:', error);
+        return null;
+    }
+}
+
 function storeLogMessage(sessionId, message) {
     if (!logBuffer.has(sessionId)) {
         logBuffer.set(sessionId, []);
@@ -32,14 +109,31 @@ function storeLogMessage(sessionId, message) {
     }
 }
 
-function setupLogListener(sessionId, socket, serverAddr) {
+function setupLogListener(sessionId, socket, serverAddr, key) {
     // Set up message handler for log messages
     socket.on('message', (message) => {
-        const response = message.toString('utf8');
-        
-        // Store log messages
-        if (response.startsWith('LOG ')) {
-            storeLogMessage(sessionId, response);
+        let response;
+        try {
+            // Try to decrypt if it's an encrypted packet
+            if (isEncryptedPacket(message)) {
+                response = decryptRconPacket(message, key);
+            } else {
+                // Fallback to plain text
+                response = message.toString('utf8');
+            }
+            
+            // Handle null response (decryption failed)
+            if (response === null) {
+                console.error('Failed to decrypt message');
+                return;
+            }
+            
+            // Store log messages
+            if (response.startsWith('LOG ')) {
+                storeLogMessage(sessionId, response);
+            }
+        } catch (error) {
+            console.error('Error processing message:', error);
         }
     });
 }
@@ -67,6 +161,9 @@ router.post('/apis/admin/rcon/connect', authenticateToken, checkRole(1), async (
             activeSessions.delete(sessionId);
         }
         
+        // Generate encryption key from password
+        const encryptionKey = generateKey(password);
+        
         // Create a new UDP socket
         const socket = dgram.createSocket('udp4');
         
@@ -78,7 +175,18 @@ router.post('/apis/admin/rcon/connect', authenticateToken, checkRole(1), async (
             }, 5000);
             
             socket.on('message', (message) => {
-                const response = message.toString('utf8');
+                let response;
+                
+                // Try to decrypt the message if it's encrypted
+                if (isEncryptedPacket(message)) {
+                    response = decryptRconPacket(message, encryptionKey);
+                    if (response === null) {
+                        return; // Decryption failed, ignore this message
+                    }
+                } else {
+                    // Fallback to plain text
+                    response = message.toString('utf8');
+                }
                 
                 // Parse RCON response format (STATUS xxx\nMESSAGE yyy)
                 const statusMatch = response.match(/STATUS (\d+)/);
@@ -102,7 +210,8 @@ router.post('/apis/admin/rcon/connect', authenticateToken, checkRole(1), async (
         
         // Send authentication packet
         const authCommand = `AUTH ${password}`;
-        socket.send(authCommand, 0, authCommand.length, port, server);
+        const encryptedAuthCommand = encryptRconPacket(authCommand, encryptionKey);
+        socket.send(encryptedAuthCommand, 0, encryptedAuthCommand.length, port, server);
         
         // Wait for authentication response
         const authResponse = await authPromise;
@@ -112,12 +221,13 @@ router.post('/apis/admin/rcon/connect', authenticateToken, checkRole(1), async (
             socket: socket,
             server: server,
             port: port,
+            encryptionKey: encryptionKey,
             lastActivity: Date.now(),
             authenticated: true
         });
         
         // Set up log listener after successful authentication
-        setupLogListener(sessionId, socket, { address: server, port: port });
+        setupLogListener(sessionId, socket, { address: server, port: port }, encryptionKey);
         
         res.json({ 
             success: true, 
@@ -186,7 +296,18 @@ router.post('/apis/admin/rcon/execute', authenticateToken, checkRole(1), async (
             }, 10000);
             
             const messageHandler = (message) => {
-                const response = message.toString('utf8');
+                let response;
+                
+                // Try to decrypt the message if it's encrypted
+                if (isEncryptedPacket(message)) {
+                    response = decryptRconPacket(message, session.encryptionKey);
+                    if (response === null) {
+                        return; // Decryption failed, ignore this message
+                    }
+                } else {
+                    // Fallback to plain text
+                    response = message.toString('utf8');
+                }
                 
                 // Check if this is a log message
                 if (response.startsWith('LOG ')) {
@@ -237,7 +358,9 @@ router.post('/apis/admin/rcon/execute', authenticateToken, checkRole(1), async (
             rconCommand = `EXEC ${command}`;
         }
         
-        session.socket.send(rconCommand, 0, rconCommand.length, session.port, session.server);
+        // Encrypt the command
+        const encryptedCommand = encryptRconPacket(rconCommand, session.encryptionKey);
+        session.socket.send(encryptedCommand, 0, encryptedCommand.length, session.port, session.server);
         
         // Wait for command response
         const commandResponse = await commandPromise;
