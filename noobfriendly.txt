@@ -1,6 +1,12 @@
 Include ConfigVersion-1.43-beta1
+Include admins
 ServerName New Players Welcome | Come and play!
 ServerKey XBAKOL-UWUXZN-ZLEMTH-VNRPMA-KYG
+RCONEnabled 1
+RCONTimeoutWindow 0
+RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
+RCONPort 8813
+RCONEncryption 1
 GameMode 0
 ServerPort 5010
 AdvertiseOnInternet 1
@@ -25,15 +31,6 @@ PlayerLog player_scores_noob.log
 # OutFile
 # PlayerLog
 # Record
-
-#ADMIN
-Admin Laika~~1~dancefloor
-Admin LadenBinKezza~~0~dancefloor
-Admin Sievert~~1~dancefloor
-Admin MohammedBinNexus~~1~dancefloor
-Admin Vault Tec~~1~dancefloor
-Admin Haakon~~1~Kezzaiscool
-Admin Lord Haw Haw~~1~Reddashhawhaw
 
 #ANTI-CHEAT
 GhostProtection 1

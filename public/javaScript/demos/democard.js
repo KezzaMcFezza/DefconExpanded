@@ -182,9 +182,13 @@ function createDemoCard(demo) {
         </p>
       </div>`;
 
+  const parsedGameData = typeof demo.players === 'string' ? JSON.parse(demo.players) : demo.players;
+  const isUKMod = parsedGameData?.mapMod === 'UK' || 
+                 (demo.game_type && demo.game_type.includes('UK and Ireland'));
+
   demoCardHtml += `
     <div class="territory-map-container" style="position: relative;">
-      <img src="/images/base_map.png" class="base-map" alt="Base Map" style="width: 100%; position: relative; z-index: 1;">`;
+      <img src="/images/${isUKMod ? 'basemapuk.png' : 'base_map.png'}" class="base-map" alt="Base Map" style="width: 100%; position: relative; z-index: 1;">`;
 
   parsedPlayers.forEach((player, index) => {
     if (territoryMapping[player.territory]) {

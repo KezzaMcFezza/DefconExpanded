@@ -2,6 +2,11 @@ Include ConfigVersion-1.43-beta1
 Include admins
 ServerName DefconExpanded | 2v2 | Totally Random
 ServerKey AQZDTB-TSUWOD-CQTZLB-LTANZT-WBE
+RCONEnabled 1
+RCONTimeoutWindow 0
+RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
+RCONPort 8810
+RCONEncryption 1
 GameMode 0
 ServerPort 5010
 AllianceSize 0

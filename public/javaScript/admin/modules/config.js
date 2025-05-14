@@ -19,14 +19,20 @@ const ConfigModule = (() => {
     let selectedFile = null;
     
     const serverConfigs = [
+        { name: "DefconExpanded Test Server", filename: "1v1configtest.txt" },
         { name: "DefconExpanded | 1v1 | Totally Random", filename: "1v1config.txt" },
         { name: "DefconExpanded | 1v1 | Cursed Setups Only!", filename: "1v1configcursed.txt" },
-        { name: "Raizer's Russia vs USA | Totally Random", filename: "1v1configraizer.txt" },
         { name: "DefconExpanded | 1v1 | Best Setups 1", filename: "1v1configbest.txt" },
         { name: "DefconExpanded | 1v1 | Best Setups 2", filename: "1v1configbest2.txt" },
         { name: "DefconExpanded | 1v1 | Default", filename: "1v1configdefault.txt" },
-        { name: "DefconExpanded Test Server", filename: "1v1configtest.txt" },
+        { name: "DefconExpanded | 1v1 | Lots of units!", filename: "1v1configvariable.txt" },
+        { name: "DefconExpanded | 1v1 | UK and Ireland", filename: "1v1configukbalanced.txt" },
+        { name: "Raizer's Russia vs USA | Totally Random", filename: "1v1configraizer.txt" },
         { name: "New Player Server", filename: "noobfriendly.txt" },
+        { name: "DefconExpanded | 2v2 | UK and Ireland", filename: "2v2configukbalanced.txt" },
+        { name: "DefconExpanded | Diplomacy | UK and Ireland", filename: "ukmoddiplo.txt" },
+        { name: "Muricon | UK Mod", filename: "muriconukmod.txt" },
+        { name: "Sony and Hoov's", filename: "sonyhoovconfig.txt" },
         { name: "DefconExpanded | 2v2 | Totally Random", filename: "2v2config.txt" },
         { name: "2v2 Tournament", filename: "2v2tournament.txt" },
         { name: "DefconExpanded | 3v3 | Totally Random", filename: "3v3ffaconfig.txt" },

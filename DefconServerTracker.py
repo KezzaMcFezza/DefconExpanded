@@ -20,11 +20,16 @@ TIMEOUT_DURATION = timedelta(minutes=TIMEOUT_MINUTES)
 
 SERVER_NAME_MAPPING = {
     "1V1": "1v1 Random",
+    "1V1VARIABLE": "1v1 Lots of Units",
     "1V1BEST": "1v1 Best Setups",
     "1V1CURSED": "1v1 Cursed Setups",
     "1V1RAIZER": "1v1 Raizer's Server",
     "1V1BEST2": "1v1 Best Setups",
     "1V1DEFAULT": "1v1 Default",
+    "1V1UKBALANCED": "1v1 UK and Ireland",
+    "2V2UKBALANCED": "2v2 UK and Ireland",
+    "DIPLOUK": "Diplomacy UK Mod",
+    "MURICONUK": "Muricon UK Mod",
     "NOOB": "New Player Server",
     "TOURNAMENT": "2v2 Tournament",
     "2V2": "2v2 Random",
