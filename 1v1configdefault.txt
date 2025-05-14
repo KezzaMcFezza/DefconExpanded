@@ -2,6 +2,11 @@ Include ConfigVersion-1.43-beta1
 Include admins
 ServerName DefconExpanded | 1v1 | Default
 ServerKey FCMVWF-CPPWYY-XCSFHD-RKOLYH-INR
+RCONEnabled 1
+RCONTimeoutWindow 0
+RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
+RCONPort 8802
+RCONEncryption 1
 GameMode 0
 ServerPort 5010
 AdvertiseOnInternet 1

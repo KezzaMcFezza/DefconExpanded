@@ -33,28 +33,32 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentlyActiveServer = null;
     let isManualMode = false;
 
-    const DEFAULT_RCON_PASSWORD = "D3vilsAdvocat3";
-
     const serverConfigurations = [
         { name: 'Manual Connection', port: null, manual: true },
-        { name: 'New Player Server', port: 8800 },
-        { name: 'DefconExpanded Test Server', port: 8801 },
-        { name: 'DefconExpanded | 1v1 | Totally Random', port: 8802 },
-        { name: 'DefconExpanded | 1V1 | Best Setups Only!', port: 8803 },
-        { name: 'DefconExpanded | 1v1 | Cursed Setups Only!', port: 8804 },
-        { name: 'Raizer\'s Russia vs USA | Totally Random', port: 8805 },
-        { name: 'DefconExpanded | 1v1 | Default', port: 8806 },
-        { name: 'DefconExpanded | 2v2 | Totally Random', port: 8807 },
-        { name: '2v2 Tournament', port: 8808 },
-        { name: 'Sony and Hoov\'s Hideout', port: 8809 },
-        { name: 'DefconExpanded | 3v3 | Totally Random', port: 8810 },
-        { name: 'MURICON | 1v1 Default | 2.8.15', port: 8811 },
-        { name: 'MURICON | 1V1 | Totally Random | 2.8.15', port: 8812 },
-        { name: '509 CG | 1v1 | Totally Random | 2.8.15', port: 8813 },
-        { name: 'DefconExpanded | Free For All | Random Cities', port: 8814 },
-        { name: 'DefconExpanded | 8 Player | Diplomacy', port: 8815 },
-        { name: 'DefconExpanded | 4V4 | Totally Random', port: 8816 },
-        { name: 'DefconExpanded | 10 Player | Diplomacy', port: 8817 }
+        { name: 'DefconExpanded Test Server', port: 8800 },
+        { name: 'DefconExpanded | 1v1 | Totally Random', port: 8801 },
+        { name: 'DefconExpanded | 1v1 | Default', port: 8802 },
+        { name: 'DefconExpanded | 1v1 | Best Setups Only!', port: 8803 },
+        { name: 'DefconExpanded | 1V1 | Best Setups Only!', port: 8804 },
+        { name: 'DefconExpanded | 1v1 | Cursed Setups Only!', port: 8805 },
+        { name: 'DefconExpanded | 1v1 | Lots of Units!', port: 8806 },
+        { name: 'DefconExpanded | 1v1 | UK and Ireland', port: 8807 },
+        { name: 'Muricon | UK Mod', port: 8808 },
+        { name: 'DefconExpanded | 2v2 | UK and Ireland', port: 8809 },
+        { name: 'DefconExpanded | 2v2 | Totally Random', port: 8810 },
+        { name: 'DefconExpanded | Diplomacy | UK and Ireland', port: 8811 },
+        { name: 'Raizer\'s Russia vs USA | Totally Random', port: 8812 },
+        { name: 'New Player Server', port: 8813 },
+        { name: '2v2 Tournament', port: 8814 },
+        { name: 'Sony and Hoov\'s Hideout', port: 8815 },
+        { name: 'DefconExpanded | 3v3 | Totally Random', port: 8816 },
+        { name: 'MURICON | 1v1 Default | 2.8.15', port: 8817 },
+        { name: 'MURICON | 1V1 | Totally Random | 2.8.15', port: 8818 },
+        { name: '509 CG | 1v1 | Totally Random | 2.8.15', port: 8819 },
+        { name: 'DefconExpanded | Free For All | Random Cities', port: 8820 },
+        { name: 'DefconExpanded | 8 Player | Diplomacy', port: 8821 },
+        { name: 'DefconExpanded | 4V4 | Totally Random', port: 8822 },
+        { name: 'DefconExpanded | 10 Player | Diplomacy', port: 8823 }
     ];
 
     function initializeServerList() {
@@ -109,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         connectionForm.style.display = 'none';
         serverInput.value = 'localhost';
         portInput.value = config.port;
-        passwordInput.value = DEFAULT_RCON_PASSWORD;
+        passwordInput.value = ''; 
         currentlyActiveServer = index;
     }
 
@@ -247,7 +251,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 disconnectBtn.disabled = false;
                 commandInput.focus();
 
-                saveServerInfo(server, port, password);
+                if (isManualMode) {
+                    saveServerInfo(server, port, password);
+                } else {
+                    saveServerInfo(server, port, '');
+                }
 
                 isGameEventsActive = enableGameEvents;
                 isServerLogActive = enableServerLog;

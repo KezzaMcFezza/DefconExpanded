@@ -20,6 +20,7 @@ const logBuffer = new Map();
 const RCON_MAGIC = 0x52434F4E; 
 const NONCE_SIZE = 12;
 const TAG_SIZE = 16;
+const DEFAULT_RCON_PASSWORD = "3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g";
 
 const CLEANUP_INTERVAL = 5 * 60 * 1000;
 setInterval(() => {
@@ -130,10 +131,21 @@ router.post('/apis/admin/rcon/connect', authenticateToken, checkRole(1), async (
     try {
         const { server, port, password } = req.body;
         
-        if (!server || !port || !password) {
+        if (!server || !port) {
             return res.status(400).json({ 
                 success: false, 
-                message: 'Server address, port, and password are required' 
+                message: 'Server address and port are required' 
+            });
+        }
+
+        // Use default password for localhost connections if password is empty
+        let connectionPassword = password;
+        if (!connectionPassword && server === 'localhost') {
+            connectionPassword = DEFAULT_RCON_PASSWORD;
+        } else if (!connectionPassword) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Password is required' 
             });
         }
 
@@ -147,7 +159,7 @@ router.post('/apis/admin/rcon/connect', authenticateToken, checkRole(1), async (
             activeSessions.delete(sessionId);
         }
         
-        const encryptionKey = generateKey(password);
+        const encryptionKey = generateKey(connectionPassword);
         const socket = dgram.createSocket('udp4');
         const authPromise = new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
@@ -186,7 +198,7 @@ router.post('/apis/admin/rcon/connect', authenticateToken, checkRole(1), async (
             });
         });
         
-        const authCommand = `AUTH ${password}`;
+        const authCommand = `AUTH ${connectionPassword}`;
         const encryptedAuthCommand = encryptRconPacket(authCommand, encryptionKey);
         socket.send(encryptedAuthCommand, 0, encryptedAuthCommand.length, port, server);
         

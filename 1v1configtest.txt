@@ -2,6 +2,11 @@ Include ConfigVersion-1.43-beta1
 Include admins
 ServerName DefconExpanded Test Server
 ServerKey HRPICY-SDPMDQ-WZBNUY-VDEGWO-EEJ # Same key as 1v1 random
+RCONEnabled 1
+RCONTimeoutWindow 0
+RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
+RCONPort 8800
+RCONEncryption 1
 GameMode 0
 ServerPort 5010
 AllianceSize 0
@@ -17,9 +22,6 @@ AcceptC2 1
 MaxIdleRunTime 1800
 MinRunTime 900
 CaseSensitive 0
-RCONEnabled 1
-RCONPassword D3vilsAdvocat3
-RCONPort 8801
 EventFile game_events_1v1test.log
 OutFile server_output_1v1test.log
 PlayerLog player_scores_1v1test.log

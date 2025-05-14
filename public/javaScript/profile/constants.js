@@ -19,6 +19,19 @@ export const vanillaTerritories = {
     'Russia': 'russia',
 };
 
+export const ukTerritories = {
+    'Northern Ireland': 'northernireland',
+    'Southern Ireland': 'southernireland',
+    'South West England': 'southwestengland',
+    'South East England': 'southeastengland',
+    'Midlands': 'midlands',
+    'Scotland': 'scotland',
+    'Ireland': 'ireland',
+    'N. Ireland': 'northireland',
+    'Wales': 'wales',
+    'South England': 'southengland',
+};
+
 export const eightPlayerTerritories = {
     'North America': 'northamerica',
     'South America': 'southamerica',
@@ -98,5 +111,15 @@ export const territoryImages = {
     'West Asia': 'westasia',
     'South Asia': 'southasia',
     'Australasia': 'australasia',
-    'Antartica': 'antartica'
+    'Antartica': 'antartica',
+    'Northern Ireland': 'northernireland',
+    'Southern Ireland': 'southernireland',
+    'South West England': 'southwestengland',
+    'South East England': 'southeastengland',
+    'Midlands': 'midlands',
+    'Scotland': 'scotland',
+    'Ireland': 'ireland',
+    'Wales': 'wales',
+    'South England': 'southengland',
+    'N. Ireland': 'northireland'
 };

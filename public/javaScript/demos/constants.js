@@ -23,7 +23,17 @@ const territoryMapping = {
     'West Asia': 'westasia',
     'South Asia': 'southasia',
     'Australasia': 'australasia',
-    'Antartica': 'antartica'
+    'Antartica': 'antartica',
+    'Northern Ireland': 'northernireland',
+    'Southern Ireland': 'southernireland',
+    'South West England': 'southwestengland',
+    'South East England': 'southeastengland',
+    'Midlands': 'midlands',
+    'Scotland': 'scotland',
+    'Ireland': 'ireland',
+    'Wales': 'wales',
+    'South England': 'southengland',
+    'N. Ireland': 'northireland'
 };
 
 const filterState = {
@@ -53,7 +63,17 @@ const territoryMappingUI = {
     'ea': 'East Asia',
     'ant': 'Antartica',
     'naf': 'North Africa',
-    'saf': 'South Africa'
+    'saf': 'South Africa',
+    'ni': 'Northern Ireland',
+    'si': 'Southern Ireland',
+    'swe': 'South West England',
+    'see': 'South East England',
+    'mid': 'Midlands',
+    'sco': 'Scotland',
+    'ire': 'Ireland',
+    'wa': 'Wales',
+    'se': 'South England',
+    'nir': 'N. Ireland'
 };
 
 export {

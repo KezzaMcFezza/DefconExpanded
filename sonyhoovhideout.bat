@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 REM Start the game log processor in a new window
-start "Game Log Processor Sony and Hoovs Hideout" cmd /k python game_log_processorsonyhoov.py "game_events_sonyhoov.log" "game_logs"
+start "Game Log Processor Sony and Hoovs Hideout" cmd /k python LogProcessorVanilla.py "game_events_sonyhoov.log" "game_logs"
 
 :server_loop
 set "game_start_time=%date:~10,4%-%date:~4,2%-%date:~7,2%T%time:~0,2%-%time:~3,2%-%time:~6,2%"

@@ -124,7 +124,17 @@ async function sendDemoToDiscord(demo, logData) {
                     'West Asia': 'westasia',
                     'South Asia': 'southasia',
                     'Australasia': 'australasia',
-                    'Antartica': 'antartica'
+                    'Antartica': 'antartica',
+                    'Northern Ireland': 'northernireland',
+                    'Southern Ireland': 'southernireland',
+                    'South West England': 'southwestengland',
+                    'South East England': 'southeastengland',
+                    'Midlands': 'midlands',
+                    'Scotland': 'scotland',
+                    'Ireland': 'ireland',
+                    'Wales': 'wales',
+                    'South England': 'southengland',
+                    'N. Ireland': 'northireland'
                 };
 
                 const embed = new EmbedBuilder()
@@ -251,7 +261,13 @@ async function createTerritoryMap(players, territoryImages, usingAlliances, team
         const canvas = createCanvas(800, 400);
         const ctx = canvas.getContext('2d');
 
-        const baseMap = await loadImage(path.join(publicDir, 'images', 'base_map.png'));
+        const isUKMod = players.some(player => {
+            return ['Northern Ireland', 'Southern Ireland', 'South West England', 
+                   'South East England', 'Midlands', 'Scotland', 'Ireland', 'Wales', 'South England', 'N. Ireland'].includes(player.territory);
+        });
+
+        const baseMapFile = isUKMod ? 'basemapuk.png' : 'base_map.png';
+        const baseMap = await loadImage(path.join(publicDir, 'images', baseMapFile));
         ctx.drawImage(baseMap, 0, 0, 800, 400);
 
         ctx.globalAlpha = 0.7;
