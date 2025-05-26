@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 25-05-2025
 
 const territoryMapping = {
     'North America': 'northamerica',

@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
 const router = express.Router();
@@ -19,11 +19,16 @@ const {
 
 const {
     authenticateToken,
-    checkRole
-}   = require('../../authentication')
+    checkPermission
+} = require('../../authentication')
+
+const permissions = require('../../permission-index');
 
 
-router.get('/api/pending-mod-reports', authenticateToken, checkRole(5), async (req, res) => {
+const debug = require('../../debug-helpers');
+
+
+router.get('/api/pending-mod-reports', authenticateToken, checkPermission(permissions.ADMIN_VIEW_REPORTS), async (req, res) => {
     try {
         const [reports] = await pool.query(`
           SELECT mr.*, m.name as mod_name, u.username 
@@ -39,7 +44,7 @@ router.get('/api/pending-mod-reports', authenticateToken, checkRole(5), async (r
     }
 });
 
-router.put('/api/resolve-mod-report/:reportId', authenticateToken, checkRole(5), async (req, res) => {
+router.put('/api/resolve-mod-report/:reportId', authenticateToken, checkPermission(permissions.ADMIN_VIEW_REPORTS), async (req, res) => {
     const { reportId } = req.params;
     try {
         await pool.query('UPDATE mod_reports SET status = "resolved" WHERE id = ?', [reportId]);

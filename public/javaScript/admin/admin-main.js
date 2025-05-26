@@ -8,14 +8,11 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 25-05-2025
 
 
 import Auth from './auth.js';
 import UI from './ui.js';
-import Utils from './utils.js';
-import API from './api.js';
-
 
 function getCurrentPage() {
     const path = window.location.pathname;
@@ -30,7 +27,7 @@ function getCurrentPage() {
     if (path.includes('accountmanage')) return 'accounts';
     if (path.includes('serverconsole')) return 'console';
     if (path.includes('defconservers')) return 'server-config';
-
+    if (path.includes('rconconsole')) return 'rcon-console';
 
     return 'unknown';
 }
@@ -56,10 +53,9 @@ const ModuleLoader = {
 
 
 async function initializeAdminPanel() {
-
-    document.querySelectorAll('[data-min-role]').forEach(element => {
-        const minRole = parseInt(element.dataset.minRole);
-        if (Auth.hasPermission(minRole)) {
+    document.querySelectorAll('[data-permission]').forEach(element => {
+        const requiredPermission = element.dataset.permission;
+        if (Auth.hasPermission(requiredPermission)) {
             element.style.display = 'block';
         } else {
             element.style.display = 'none';
@@ -100,12 +96,14 @@ async function initializeAdminPanel() {
         case 'server-config':
             modulesToLoad.push('config');
             break;
+        case 'rcon-console':
+            modulesToLoad.push('rcon');
+            break;
         default:
 
             modulesToLoad.push('monitoring');
             break;
     }
-
 
     for (const moduleName of modulesToLoad) {
         const module = await ModuleLoader.loadModule(moduleName);
@@ -113,7 +111,6 @@ async function initializeAdminPanel() {
             module.setupEventListeners();
         }
     }
-
 
     if (currentPage === 'admin-panel') {
         const ReportsModule = await ModuleLoader.loadModule('reports');
@@ -167,8 +164,12 @@ async function initializeAdminPanel() {
     } else if (currentPage === 'server-config') {
         const ConfigModule = await ModuleLoader.loadModule('config');
         if (ConfigModule) {
-            ConfigModule.loadConfigFiles();
-            ConfigModule.populateServerList();
+            ConfigModule.init();
+        }
+    } else if (currentPage === 'rcon-console') {
+        const RconModule = await ModuleLoader.loadModule('rcon');
+        if (RconModule) {
+            RconModule.init();
         }
     }
 }
@@ -209,6 +210,7 @@ AdminApp.editUser = async (...args) => (await getModuleFunction('users', 'editUs
 AdminApp.deleteUser = async (...args) => (await getModuleFunction('users', 'deleteUser'))(...args);
 AdminApp.saveEditUser = async (...args) => (await getModuleFunction('users', 'saveEditUser'))(...args);
 AdminApp.cancelEditUser = async (...args) => (await getModuleFunction('users', 'cancelEditUser'))(...args);
+AdminApp.applyPermissionPreset = async (...args) => (await getModuleFunction('users', 'applyPermissionPreset'))(...args);
 AdminApp.searchPlayers = async (...args) => (await getModuleFunction('users', 'searchPlayers'))(...args);
 AdminApp.addMod = async (...args) => (await getModuleFunction('mods', 'addMod'))(...args);
 AdminApp.editMod = async (...args) => (await getModuleFunction('mods', 'editMod'))(...args);
@@ -232,7 +234,7 @@ AdminApp.toggleSpectators = (...args) => UI.toggleSpectators(...args);
 
 
 document.addEventListener('DOMContentLoaded', function () {
-    Auth.checkUserRoleAndInitialize(initializeAdminPanel);
+    Auth.checkUserPermissionsAndInitialize(initializeAdminPanel);
     UI.setupMobileMenu();
     UI.setActiveNavItem();
 });

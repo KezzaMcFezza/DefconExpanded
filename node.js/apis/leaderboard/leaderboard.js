@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
 const router = express.Router();
@@ -17,44 +17,47 @@ const {
     pool
 } = require('../../constants');
 
+
+const debug = require('../../debug-helpers');
+
 router.get('/api/most-active-players', async (req, res) => {
+    const startTime = debug.enter('getMostActivePlayers', [req.query], 1);
     try {
         const { serverName, serverList, startDate, endDate, excludeNames = '', limit = 10 } = req.query;
-
+        debug.level2('Active players query parameters:', { serverName, serverList, startDate, endDate, excludeNames, limit });
 
         const namesToExclude = excludeNames ? excludeNames.split(',') : [];
-
 
         let conditions = [];
         let params = [];
 
-
         if (serverList) {
-
             const servers = serverList.split(',');
             const serverConditions = servers.map(() => 'game_type LIKE ?');
             conditions.push(`(${serverConditions.join(' OR ')})`);
             servers.forEach(server => {
                 params.push(`%${server}%`);
             });
+            debug.level3('Server list filter applied:', servers);
         } else if (serverName) {
-
             conditions.push('game_type LIKE ?');
             params.push(`%${serverName}%`);
+            debug.level3('Single server filter applied:', serverName);
         }
-
 
         if (startDate && endDate) {
             conditions.push('date BETWEEN ? AND ?');
             params.push(startDate, endDate);
+            debug.level3('Date range filter applied:', { startDate, endDate });
         } else if (startDate) {
             conditions.push('date >= ?');
             params.push(startDate);
+            debug.level3('Start date filter applied:', startDate);
         } else if (endDate) {
             conditions.push('date <= ?');
             params.push(endDate);
+            debug.level3('End date filter applied:', endDate);
         }
-
 
         let query = 'SELECT * FROM demos';
         if (conditions.length > 0) {
@@ -62,15 +65,18 @@ router.get('/api/most-active-players', async (req, res) => {
         }
         query += ' ORDER BY date DESC';
 
+        debug.dbQuery(query, params, 2);
         const [demos] = await pool.query(query, params);
+        debug.dbResult(demos, 2);
 
-
+        debug.level2('Fetching blacklisted players');
         const [blacklist] = await pool.query('SELECT player_name FROM leaderboard_whitelist');
         const blacklistedPlayers = new Set(blacklist.map(entry => entry.player_name.toLowerCase()));
-
+        debug.level3('Blacklisted players count:', blacklistedPlayers.size);
 
         const playerGameCounts = {};
 
+        debug.level2('Processing demo data for player counts');
         for (const demo of demos) {
             try {
                 let playersData = [];
@@ -84,7 +90,6 @@ router.get('/api/most-active-players', async (req, res) => {
                         }
                     }
                 }
-
 
                 for (const player of playersData) {
                     if (!player.name) continue;
@@ -101,7 +106,6 @@ router.get('/api/most-active-players', async (req, res) => {
 
                     playerGameCounts[player.name].games_played++;
 
-
                     const gameDate = new Date(demo.date);
                     if (!playerGameCounts[player.name].last_game_date ||
                         gameDate > new Date(playerGameCounts[player.name].last_game_date)) {
@@ -109,14 +113,14 @@ router.get('/api/most-active-players', async (req, res) => {
                     }
                 }
             } catch (error) {
-                console.error('Error processing player game counts:', error);
+                debug.error('getMostActivePlayers', error, 1);
             }
         }
 
-
         let activePlayers = Object.values(playerGameCounts);
+        debug.level2('Found unique players:', activePlayers.length);
 
-
+        debug.level2('Adding profile URLs for players');
         activePlayers = await Promise.all(activePlayers.map(async (player) => {
             if (player.player_name) {
                 const [userProfile] = await pool.query(`
@@ -133,21 +137,22 @@ router.get('/api/most-active-players', async (req, res) => {
             return player;
         }));
 
-
         activePlayers.sort((a, b) => b.games_played - a.games_played);
-
-
         const limitedResults = activePlayers.slice(0, parseInt(limit));
 
+        debug.level2('Returning active players:', limitedResults.length);
+        debug.exit('getMostActivePlayers', startTime, { count: limitedResults.length }, 1);
         res.json(limitedResults);
     } catch (error) {
-        console.error('Error fetching most active players:', error);
+        debug.error('getMostActivePlayers', error, 1);
+        debug.exit('getMostActivePlayers', startTime, 'error', 1);
         res.status(500).json({ error: 'Unable to fetch active players' });
     }
 });
 
 
 router.get('/api/leaderboard', async (req, res) => {
+    const startTime = debug.enter('getLeaderboard', [req.query], 1);
     try {
         const {
             serverName,
@@ -168,6 +173,12 @@ router.get('/api/leaderboard', async (req, res) => {
             limit
         } = req.query;
 
+        debug.level2('Leaderboard query parameters:', { 
+            serverName, serverList, playerName, sortBy, startDate, endDate, 
+            territories, combineMode, scoreFilter, gameDuration, scoreDifference, 
+            gamesPlayed, minGames, excludeNames, includeDetailedStats, limit 
+        });
+
         const namesToExclude = excludeNames ? excludeNames.split(',') : [];
         let query = 'SELECT * FROM demos';
         let params = [];
@@ -183,6 +194,7 @@ router.get('/api/leaderboard', async (req, res) => {
                 params.push(`%${server}%`);
             });
         } else if (serverName) {
+
             conditions.push('game_type LIKE ?');
             params.push(`%${serverName}%`);
         }
@@ -563,6 +575,8 @@ router.get('/api/leaderboard', async (req, res) => {
         }
 
 
+        debug.level2('Returning leaderboard data:', { totalPlayers: leaderboardData.length });
+        debug.exit('getLeaderboard', startTime, { totalPlayers: leaderboardData.length }, 1);
         res.json({
             leaderboard: leaderboardData,
             totalPlayers: leaderboardData.length,
@@ -577,16 +591,21 @@ router.get('/api/leaderboard', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error generating leaderboard from demos:', error);
+        debug.error('getLeaderboard', error, 1);
+        debug.exit('getLeaderboard', startTime, 'error', 1);
         res.status(500).json({ error: 'Unable to generate leaderboard' });
     }
 });
 
 router.get('/api/player-nemesis', async (req, res) => {
+    const startTime = debug.enter('getPlayerNemesis', [req.query], 1);
     try {
         const { playerName, startDate, endDate } = req.query;
+        debug.level2('Player nemesis query:', { playerName, startDate, endDate });
 
         if (!playerName) {
+            debug.level1('Player nemesis request missing player name');
+            debug.exit('getPlayerNemesis', startTime, 'missing_player_name', 1);
             return res.status(400).json({ error: 'Player name is required' });
         }
 
@@ -678,10 +697,9 @@ router.get('/api/player-nemesis', async (req, res) => {
                     });
                 }
             } catch (error) {
-                console.error('Error processing demo for nemesis:', error);
+                debug.error('getPlayerNemesis', error, 1);
             }
         }
-
 
         let nemesis = null;
         let maxLosses = 0;
@@ -693,6 +711,8 @@ router.get('/api/player-nemesis', async (req, res) => {
             }
         });
 
+        debug.level2('Nemesis calculation complete:', { nemesis, maxLosses });
+        debug.exit('getPlayerNemesis', startTime, { nemesis, maxLosses }, 1);
         res.json({
             playerName,
             nemesis: nemesis || 'None',
@@ -701,7 +721,8 @@ router.get('/api/player-nemesis', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching player nemesis:', error);
+        debug.error('getPlayerNemesis', error, 1);
+        debug.exit('getPlayerNemesis', startTime, 'error', 1);
         res.status(500).json({ error: 'Unable to fetch nemesis data' });
     }
 });

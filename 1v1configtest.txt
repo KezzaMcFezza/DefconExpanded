@@ -26,7 +26,7 @@ EventFile game_events_1v1test.log
 OutFile server_output_1v1test.log
 PlayerLog player_scores_1v1test.log
 
-# Whatever you do, DO NOT change these lines....
+# Whatever you do, DO NOT change these lines.....
 # EventFile
 # OutFile
 # PlayerLog

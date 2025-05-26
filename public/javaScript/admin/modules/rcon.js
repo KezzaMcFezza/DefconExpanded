@@ -8,23 +8,15 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 05-05-2025
+//Last Edited 25-05-2025
 
-document.addEventListener('DOMContentLoaded', () => {
-    const serverInput = document.getElementById('server');
-    const portInput = document.getElementById('port');
-    const passwordInput = document.getElementById('password');
-    const connectBtn = document.getElementById('connect-btn');
-    const disconnectBtn = document.getElementById('disconnect-btn');
-    const connectionStatus = document.getElementById('connection-status');
-    const consoleOutput = document.getElementById('console-output');
-    const commandInput = document.getElementById('command');
-    const sendBtn = document.getElementById('send-btn');
-    const serverList = document.getElementById('server-list');
-    const connectionForm = document.getElementById('connection-form');
-    const streamGameEvents = document.getElementById('stream-game-events') || { checked: false, disabled: false };
-    const streamServerLog = document.getElementById('stream-server-log') || { checked: false, disabled: false };
+import Auth from '../auth.js';
+import PERMISSIONS from '../permission-index.js';
 
+const RconModule = (() => {
+    let serverInput, portInput, passwordInput, connectBtn, disconnectBtn;
+    let connectionStatus, consoleOutput, commandInput, sendBtn, serverList;
+    let connectionForm, streamGameEvents, streamServerLog;
     let currentSessionId = null;
     let commandHistory = [];
     let historyIndex = -1;
@@ -34,46 +26,62 @@ document.addEventListener('DOMContentLoaded', () => {
     let isManualMode = false;
 
     const serverConfigurations = [
-        { name: 'Manual Connection', port: null, manual: true },
-        { name: 'DefconExpanded Test Server', port: 8800 },
-        { name: 'DefconExpanded | 1v1 | Totally Random', port: 8801 },
-        { name: 'DefconExpanded | 1v1 | Default', port: 8802 },
-        { name: 'DefconExpanded | 1v1 | Best Setups Only!', port: 8803 },
-        { name: 'DefconExpanded | 1V1 | Best Setups Only!', port: 8804 },
-        { name: 'DefconExpanded | 1v1 | Cursed Setups Only!', port: 8805 },
-        { name: 'DefconExpanded | 1v1 | Lots of Units!', port: 8806 },
-        { name: 'DefconExpanded | 1v1 | UK and Ireland', port: 8807 },
-        { name: 'Muricon | UK Mod', port: 8808 },
-        { name: 'DefconExpanded | 2v2 | UK and Ireland', port: 8809 },
-        { name: 'DefconExpanded | 2v2 | Totally Random', port: 8810 },
-        { name: 'DefconExpanded | Diplomacy | UK and Ireland', port: 8811 },
-        { name: 'Raizer\'s Russia vs USA | Totally Random', port: 8812 },
-        { name: 'New Player Server', port: 8813 },
-        { name: '2v2 Tournament', port: 8814 },
-        { name: 'Sony and Hoov\'s Hideout', port: 8815 },
-        { name: 'DefconExpanded | 3v3 | Totally Random', port: 8816 },
-        { name: 'MURICON | 1v1 Default | 2.8.15', port: 8817 },
-        { name: 'MURICON | 1V1 | Totally Random | 2.8.15', port: 8818 },
-        { name: '509 CG | 1v1 | Totally Random | 2.8.15', port: 8819 },
-        { name: 'DefconExpanded | Free For All | Random Cities', port: 8820 },
-        { name: 'DefconExpanded | 8 Player | Diplomacy', port: 8821 },
-        { name: 'DefconExpanded | 4V4 | Totally Random', port: 8822 },
-        { name: 'DefconExpanded | 10 Player | Diplomacy', port: 8823 }
+        { name: 'Manual Connection', port: null, manual: true, permission: PERMISSIONS.RCON_MANUAL_CONNECTION },
+        { name: 'DefconExpanded Test Server', port: 8800, permission: PERMISSIONS.RCON_TEST_SERVER },
+        { name: 'DefconExpanded | 1v1 | Totally Random', port: 8801, permission: PERMISSIONS.RCON_1V1_RANDOM },
+        { name: 'DefconExpanded | 1v1 | Default', port: 8802, permission: PERMISSIONS.RCON_1V1_DEFAULT },
+        { name: 'DefconExpanded | 1v1 | Best Setups Only!', port: 8803, permission: PERMISSIONS.RCON_1V1_BEST_SETUPS_1 },
+        { name: 'DefconExpanded | 1V1 | Best Setups Only!', port: 8804, permission: PERMISSIONS.RCON_1V1_BEST_SETUPS_2 },
+        { name: 'DefconExpanded | 1v1 | Cursed Setups Only!', port: 8805, permission: PERMISSIONS.RCON_1V1_CURSED },
+        { name: 'DefconExpanded | 1v1 | Lots of Units!', port: 8806, permission: PERMISSIONS.RCON_1V1_LOTS_UNITS },
+        { name: 'DefconExpanded | 1v1 | UK and Ireland', port: 8807, permission: PERMISSIONS.RCON_1V1_UK_IRELAND },
+        { name: 'Muricon | UK Mod', port: 8808, permission: PERMISSIONS.RCON_MURICON_UK },
+        { name: 'DefconExpanded | 2v2 | UK and Ireland', port: 8809, permission: PERMISSIONS.RCON_2V2_UK_IRELAND },
+        { name: 'DefconExpanded | 2v2 | Totally Random', port: 8810, permission: PERMISSIONS.RCON_2V2_RANDOM },
+        { name: 'DefconExpanded | Diplomacy | UK and Ireland', port: 8811, permission: PERMISSIONS.RCON_DIPLOMACY_UK },
+        { name: 'Raizer\'s Russia vs USA | Totally Random', port: 8812, permission: PERMISSIONS.RCON_RAIZER_RUSSIA_USA },
+        { name: 'New Player Server', port: 8813, permission: PERMISSIONS.RCON_NEW_PLAYER },
+        { name: '2v2 Tournament', port: 8814, permission: PERMISSIONS.RCON_2V2_TOURNAMENT },
+        { name: 'Sony and Hoov\'s Hideout', port: 8815, permission: PERMISSIONS.RCON_SONY_HOOV },
+        { name: 'DefconExpanded | 3v3 | Totally Random', port: 8816, permission: PERMISSIONS.RCON_3V3_RANDOM },
+        { name: 'MURICON | 1v1 Default | 2.8.15', port: 8817, permission: PERMISSIONS.RCON_MURICON_DEFAULT },
+        { name: 'MURICON | 1V1 | Totally Random | 2.8.15', port: 8818, permission: PERMISSIONS.RCON_MURICON_RANDOM },
+        { name: '509 CG | 1v1 | Totally Random | 2.8.15', port: 8819, permission: PERMISSIONS.RCON_509CG_1V1 },
+        { name: 'DefconExpanded | Free For All | Random Cities', port: 8820, permission: PERMISSIONS.RCON_FFA_RANDOM },
+        { name: 'DefconExpanded | 8 Player | Diplomacy', port: 8821, permission: PERMISSIONS.RCON_8PLAYER_DIPLOMACY },
+        { name: 'DefconExpanded | 4V4 | Totally Random', port: 8822, permission: PERMISSIONS.RCON_4V4_RANDOM },
+        { name: 'DefconExpanded | 10 Player | Diplomacy', port: 8823, permission: PERMISSIONS.RCON_10PLAYER_DIPLOMACY }
     ];
 
     function initializeServerList() {
         serverList.innerHTML = '';
+
+        const allowedServers = serverConfigurations.filter(config => {
+            return Auth.hasPermission(config.permission);
+        });
         
-        serverConfigurations.forEach((config, index) => {
+        if (allowedServers.length === 0) {
+            const noAccessItem = document.createElement('li');
+            noAccessItem.textContent = 'No RCON servers available - insufficient permissions';
+            noAccessItem.classList.add('no-access');
+            noAccessItem.style.color = '#ff6666';
+            noAccessItem.style.fontStyle = 'italic';
+            serverList.appendChild(noAccessItem);
+            return;
+        }
+        
+        allowedServers.forEach((config, displayIndex) => {
             const listItem = document.createElement('li');
             listItem.textContent = config.name;
-            listItem.dataset.index = index;
+
+            const originalIndex = serverConfigurations.indexOf(config);
+            listItem.dataset.index = originalIndex;
             
             if (config.manual) {
                 listItem.classList.add('manual-connection');
             }
             
-            listItem.addEventListener('click', () => selectServer(index));
+            listItem.addEventListener('click', () => selectServer(originalIndex));
             serverList.appendChild(listItem);
         });
     }
@@ -143,9 +151,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    loadSavedServerInfo();
-    initializeServerList();
-    selectServer(0);
+    function initializeElements() {
+        serverInput = document.getElementById('server');
+        portInput = document.getElementById('port');
+        passwordInput = document.getElementById('password');
+        connectBtn = document.getElementById('connect-btn');
+        disconnectBtn = document.getElementById('disconnect-btn');
+        connectionStatus = document.getElementById('connection-status');
+        consoleOutput = document.getElementById('console-output');
+        commandInput = document.getElementById('command');
+        sendBtn = document.getElementById('send-btn');
+        serverList = document.getElementById('server-list');
+        connectionForm = document.getElementById('connection-form');
+        streamGameEvents = document.getElementById('stream-game-events') || { checked: false, disabled: false };
+        streamServerLog = document.getElementById('stream-server-log') || { checked: false, disabled: false };
+    }
+
+    function init() {
+        initializeElements();
+        setupEventListeners();
+        loadSavedServerInfo();
+        initializeServerList();
+        
+        const allowedServers = serverConfigurations.filter(config => {
+            return Auth.hasPermission(config.permission);
+        });
+        
+        
+        if (allowedServers.length > 0) {
+            const firstAllowedIndex = serverConfigurations.indexOf(allowedServers[0]);
+            selectServer(firstAllowedIndex);
+        }
+
+    }
 
     function addConsoleMessage(message, className = '') {
         const messageElement = document.createElement('div');
@@ -185,6 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function connectToServer() {
+        
         if (!isManualMode && currentlyActiveServer === null) {
             addConsoleMessage('Please select a server configuration first', 'error-message');
             return;
@@ -333,36 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function startLogPolling() {
-        if (!currentSessionId) return;
 
-        const pollInterval = 1000; 
-
-        const poll = async () => {
-            if (!currentSessionId) return; 
-
-            try {
-                const response = await fetch(`/apis/admin/rcon/logs/${currentSessionId}`);
-                const data = await response.json();
-
-                if (data.success && data.logs && data.logs.length > 0) {
-                    data.logs.forEach(logMsg => {
-                        if (logMsg.startsWith('LOG GAMEEVENT ')) {
-                            addConsoleMessage(logMsg.substring(13), 'log-event');
-                        } else if (logMsg.startsWith('LOG SERVERLOG ')) {
-                            addConsoleMessage(logMsg.substring(13), 'log-server');
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error('Log polling error:', error);
-            }
-
-            setTimeout(poll, pollInterval);
-        };
-
-        setTimeout(poll, pollInterval);
-    }
 
     async function startGameEventStream() {
         if (!currentSessionId || isGameEventsActive) {
@@ -524,36 +534,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             addConsoleMessage(`Game event stream error: ${error.message}`, 'error-message');
-        }
-    }
-
-    async function stopServerLogStream() {
-        if (!currentSessionId || !isServerLogActive) {
-            return;
-        }
-
-        try {
-            const response = await fetch('/apis/admin/rcon/execute', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    sessionId: currentSessionId,
-                    command: 'STOPSERVERLOG'
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                isServerLogActive = false;
-                addConsoleMessage('Server log stream stopped', 'success-message');
-            } else {
-                addConsoleMessage(`Failed to stop server log stream: ${data.message}`, 'error-message');
-            }
-        } catch (error) {
-            addConsoleMessage(`Server log stream error: ${error.message}`, 'error-message');
         }
     }
 
@@ -720,61 +700,79 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    connectBtn.addEventListener('click', connectToServer);
-    disconnectBtn.addEventListener('click', disconnectFromServer);
-    sendBtn.addEventListener('click', sendCommand);
-    commandInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            sendCommand();
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            handleCommandHistory('up');
-        } else if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            handleCommandHistory('down');
+    function setupEventListeners() {
+        if (!connectBtn) {
+            return; 
         }
-    });
+        
+        connectBtn.addEventListener('click', connectToServer);
+        disconnectBtn.addEventListener('click', disconnectFromServer);
+        sendBtn.addEventListener('click', sendCommand);
+        commandInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendCommand();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                handleCommandHistory('up');
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                handleCommandHistory('down');
+            }
+        });
 
-    const commonCommands = [
-        { cmd: 'ServerName <name>', desc: 'Change the server name' },
-        { cmd: 'MaxTeams <number>', desc: 'Set max player slots' },
-        { cmd: 'MinTeams <number>', desc: 'Set min players to start' },
-        { cmd: 'ServerPassword <password>', desc: 'Set server password' },
-        { cmd: 'quit', desc: 'Restart the server' },
-        { cmd: 'logstream-gameevents', desc: 'Start game event logging' },
-        { cmd: 'logstream-serverlog', desc: 'Start server logging' },
-        { cmd: 'logstream-all', desc: 'Start all log streams' },
-        { cmd: '!logstream-gameevents', desc: 'Stop game event logging' },
-        { cmd: '!logstream-serverlog', desc: 'Stop server logging' },
-        { cmd: '!logstream-all', desc: 'Stop all log streams' },
-        { cmd: 'help', desc: 'Show this help message' }
-    ];
+        const commonCommands = [
+            { cmd: 'ServerName <name>', desc: 'Change the server name' },
+            { cmd: 'MaxTeams <number>', desc: 'Set max player slots' },
+            { cmd: 'MinTeams <number>', desc: 'Set min players to start' },
+            { cmd: 'ServerPassword <password>', desc: 'Set server password' },
+            { cmd: 'quit', desc: 'Restart the server' },
+            { cmd: 'logstream-gameevents', desc: 'Start game event logging' },
+            { cmd: 'logstream-serverlog', desc: 'Start server logging' },
+            { cmd: 'logstream-all', desc: 'Start all log streams' },
+            { cmd: '!logstream-gameevents', desc: 'Stop game event logging' },
+            { cmd: '!logstream-serverlog', desc: 'Stop server logging' },
+            { cmd: '!logstream-all', desc: 'Stop all log streams' },
+            { cmd: 'help', desc: 'Show this help message' }
+        ];
 
-    commandInput.addEventListener('input', (e) => {
-        if (e.target.value.trim().toLowerCase() === 'help') {
-            e.target.dataset.willShowHelp = 'true';
-        } else {
-            delete e.target.dataset.willShowHelp;
+        commandInput.addEventListener('input', (e) => {
+            if (e.target.value.trim().toLowerCase() === 'help') {
+                e.target.dataset.willShowHelp = 'true';
+            } else {
+                delete e.target.dataset.willShowHelp;
+            }
+        });
+
+        commandInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.dataset.willShowHelp === 'true') {
+                e.preventDefault();
+                delete e.target.dataset.willShowHelp;
+
+                addConsoleMessage('> help', 'console-prompt');
+                addConsoleMessage('Common Dedcon Commands:', 'system-message');
+
+                let helpText = '';
+                commonCommands.forEach(cmd => {
+                    helpText += `${cmd.cmd.padEnd(25)} - ${cmd.desc}\n`;
+                });
+
+                addConsoleMessage(helpText, 'console-response');
+                commandInput.value = '';
+            }
+        });
+
+        if (disconnectBtn) {
+            disconnectBtn.disabled = true;
         }
-    });
+    }
 
-    commandInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && e.target.dataset.willShowHelp === 'true') {
-            e.preventDefault();
-            delete e.target.dataset.willShowHelp;
+    return {
+        init,
+        setupEventListeners,
+        connectToServer,
+        disconnectFromServer,
+        sendCommand
+    };
+})();
 
-            addConsoleMessage('> help', 'console-prompt');
-            addConsoleMessage('Common Dedcon Commands:', 'system-message');
-
-            let helpText = '';
-            commonCommands.forEach(cmd => {
-                helpText += `${cmd.cmd.padEnd(25)} - ${cmd.desc}\n`;
-            });
-
-            addConsoleMessage(helpText, 'console-response');
-            commandInput.value = '';
-        }
-    });
-
-    disconnectBtn.disabled = true;
-});
+export default RconModule;

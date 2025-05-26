@@ -8,19 +8,83 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 05-05-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
 const router = express.Router();
 const dgram = require('dgram');
 const crypto = require('crypto');
-const { authenticateToken, checkRole } = require('../../authentication');
+const permissions = require('../../permission-index');
 const activeSessions = new Map();
 const logBuffer = new Map();
 const RCON_MAGIC = 0x52434F4E; 
 const NONCE_SIZE = 12;
 const TAG_SIZE = 16;
 const DEFAULT_RCON_PASSWORD = "3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g";
+
+const { 
+    authenticateToken, 
+    checkPermission 
+} = require('../../authentication');
+
+const serverConfigurations = [
+    { name: 'Manual Connection', port: null, manual: true, permission: permissions.RCON_MANUAL_CONNECTION },
+    { name: 'DefconExpanded Test Server', port: 8800, permission: permissions.RCON_TEST_SERVER },
+    { name: 'DefconExpanded | 1v1 | Totally Random', port: 8801, permission: permissions.RCON_1V1_RANDOM },
+    { name: 'DefconExpanded | 1v1 | Default', port: 8802, permission: permissions.RCON_1V1_DEFAULT },
+    { name: 'DefconExpanded | 1v1 | Best Setups Only!', port: 8803, permission: permissions.RCON_1V1_BEST_SETUPS_1 },
+    { name: 'DefconExpanded | 1V1 | Best Setups Only!', port: 8804, permission: permissions.RCON_1V1_BEST_SETUPS_2 },
+    { name: 'DefconExpanded | 1v1 | Cursed Setups Only!', port: 8805, permission: permissions.RCON_1V1_CURSED },
+    { name: 'DefconExpanded | 1v1 | Lots of Units!', port: 8806, permission: permissions.RCON_1V1_LOTS_UNITS },
+    { name: 'DefconExpanded | 1v1 | UK and Ireland', port: 8807, permission: permissions.RCON_1V1_UK_IRELAND },
+    { name: 'Muricon | UK Mod', port: 8808, permission: permissions.RCON_MURICON_UK },
+    { name: 'DefconExpanded | 2v2 | UK and Ireland', port: 8809, permission: permissions.RCON_2V2_UK_IRELAND },
+    { name: 'DefconExpanded | 2v2 | Totally Random', port: 8810, permission: permissions.RCON_2V2_RANDOM },
+    { name: 'DefconExpanded | Diplomacy | UK and Ireland', port: 8811, permission: permissions.RCON_DIPLOMACY_UK },
+    { name: 'Raizer\'s Russia vs USA | Totally Random', port: 8812, permission: permissions.RCON_RAIZER_RUSSIA_USA },
+    { name: 'New Player Server', port: 8813, permission: permissions.RCON_NEW_PLAYER },
+    { name: '2v2 Tournament', port: 8814, permission: permissions.RCON_2V2_TOURNAMENT },
+    { name: 'Sony and Hoov\'s Hideout', port: 8815, permission: permissions.RCON_SONY_HOOV },
+    { name: 'DefconExpanded | 3v3 | Totally Random', port: 8816, permission: permissions.RCON_3V3_RANDOM },
+    { name: 'MURICON | 1v1 Default | 2.8.15', port: 8817, permission: permissions.RCON_MURICON_DEFAULT },
+    { name: 'MURICON | 1V1 | Totally Random | 2.8.15', port: 8818, permission: permissions.RCON_MURICON_RANDOM },
+    { name: '509 CG | 1v1 | Totally Random | 2.8.15', port: 8819, permission: permissions.RCON_509CG_1V1 },
+    { name: 'DefconExpanded | Free For All | Random Cities', port: 8820, permission: permissions.RCON_FFA_RANDOM },
+    { name: 'DefconExpanded | 8 Player | Diplomacy', port: 8821, permission: permissions.RCON_8PLAYER_DIPLOMACY },
+    { name: 'DefconExpanded | 4V4 | Totally Random', port: 8822, permission: permissions.RCON_4V4_RANDOM },
+    { name: 'DefconExpanded | 10 Player | Diplomacy', port: 8823, permission: permissions.RCON_10PLAYER_DIPLOMACY }
+];
+
+function hasServerPermission(userPermissions, serverPort) {
+    if (!serverPort) {
+        return userPermissions.includes(permissions.RCON_MANUAL_CONNECTION);
+    }
+
+    const serverConfig = serverConfigurations.find(config => config.port === parseInt(serverPort));
+    if (!serverConfig) {
+        return false;
+    }
+
+    return userPermissions.includes(serverConfig.permission);
+}
+
+const checkServerPermission = (req, res, next) => {
+    if (!req.user || !req.user.permissions) {
+        return res.status(401).json({ error: 'Not authenticated' });
+    }
+    
+    const { port } = req.body;
+    
+    if (!req.user.permissions.includes(permissions.PAGE_RCON_CONSOLE)) {
+        return res.status(403).json({ error: 'Insufficient permissions to access RCON console' });
+    }
+    
+    if (hasServerPermission(req.user.permissions, port)) {
+        next();
+    } else {
+        return res.status(403).json({ error: 'Insufficient permissions for this server' });
+    }
+};
 
 const CLEANUP_INTERVAL = 5 * 60 * 1000;
 setInterval(() => {
@@ -31,6 +95,9 @@ setInterval(() => {
                 session.socket.close();
             }
             activeSessions.delete(key);
+            if (logBuffer.has(key)) {
+                logBuffer.delete(key);
+            }
         }
     }
 }, CLEANUP_INTERVAL);
@@ -127,7 +194,7 @@ function setupLogListener(sessionId, socket, serverAddr, key) {
     });
 }
 
-router.post('/apis/admin/rcon/connect', authenticateToken, checkRole(1), async (req, res) => {
+router.post('/apis/admin/rcon/connect', authenticateToken, checkServerPermission, async (req, res) => {
     try {
         const { server, port, password } = req.body;
         
@@ -138,7 +205,6 @@ router.post('/apis/admin/rcon/connect', authenticateToken, checkRole(1), async (
             });
         }
 
-        // Use default password for localhost connections if password is empty
         let connectionPassword = password;
         if (!connectionPassword && server === 'localhost') {
             connectionPassword = DEFAULT_RCON_PASSWORD;
@@ -157,6 +223,9 @@ router.post('/apis/admin/rcon/connect', authenticateToken, checkRole(1), async (
                 existingSession.socket.close();
             }
             activeSessions.delete(sessionId);
+            if (logBuffer.has(sessionId)) {
+                logBuffer.delete(sessionId);
+            }
         }
         
         const encryptionKey = generateKey(connectionPassword);
@@ -229,27 +298,20 @@ router.post('/apis/admin/rcon/connect', authenticateToken, checkRole(1), async (
     }
 });
 
-router.get('/apis/admin/rcon/logs/:sessionId', authenticateToken, checkRole(1), (req, res) => {
+router.get('/apis/admin/rcon/logs/:sessionId', authenticateToken, checkPermission(permissions.PAGE_RCON_CONSOLE), (req, res) => {
     const { sessionId } = req.params;
     
-    if (!activeSessions.has(sessionId)) {
-        return res.status(404).json({ 
-            success: false, 
-            message: 'Session not found or expired' 
-        });
+    const [userId] = sessionId.split('-');
+    if (userId !== req.user.id.toString()) {
+        return res.status(403).json({ success: false, message: 'Unauthorized access to session logs' });
     }
     
     const logs = logBuffer.get(sessionId) || [];
-    
     logBuffer.set(sessionId, []);
-    
-    res.json({ 
-        success: true, 
-        logs: logs 
-    });
+    res.json({ success: true, logs });
 });
 
-router.post('/apis/admin/rcon/execute', authenticateToken, checkRole(1), async (req, res) => {
+router.post('/apis/admin/rcon/execute', authenticateToken, checkPermission(permissions.PAGE_RCON_CONSOLE), async (req, res) => {
     try {
         const { sessionId, command } = req.body;
         
@@ -359,7 +421,7 @@ router.post('/apis/admin/rcon/execute', authenticateToken, checkRole(1), async (
     }
 });
 
-router.post('/apis/admin/rcon/disconnect', authenticateToken, checkRole(1), (req, res) => {
+router.post('/apis/admin/rcon/disconnect', authenticateToken, checkPermission(permissions.PAGE_RCON_CONSOLE), (req, res) => {
     const { sessionId } = req.body;
     
     if (!sessionId) {
@@ -375,6 +437,10 @@ router.post('/apis/admin/rcon/disconnect', authenticateToken, checkRole(1), (req
             session.socket.close();
         }
         activeSessions.delete(sessionId);
+    }
+    
+    if (logBuffer.has(sessionId)) {
+        logBuffer.delete(sessionId);
     }
     
     res.json({ 

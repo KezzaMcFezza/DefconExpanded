@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 25-05-2025
 
 import {
     initializeDemos,
@@ -18,8 +18,14 @@ import {
     currentPage,
     totalPages
 } from './filters.js';
-import { toggleSpectators } from './democard.js';
-import { showReportOptions } from '../main/reporting.js';
+
+import { 
+    toggleSpectators 
+} from './democard.js';
+
+import { 
+    showReportOptions 
+} from '../main/reporting.js';
 
 window.toggleSpectators = toggleSpectators;
 window.showReportOptions = showReportOptions;

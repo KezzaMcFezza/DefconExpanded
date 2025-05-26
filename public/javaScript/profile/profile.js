@@ -400,7 +400,7 @@ async function loadRecentGame(defconUsername) {
 
         if (recentGameContainer) {
             if (demos && demos.length > 0) {
-                const demoCard = createDemoCard(demos[0]);
+                const demoCard = await createDemoCard(demos[0]);
                 recentGameContainer.innerHTML = demoCard.outerHTML;
             } else {
                 recentGameContainer.innerHTML = '<p>No recent games available.</p>';

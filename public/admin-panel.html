@@ -34,7 +34,7 @@
     </script>
 </head>
 <style>
-    [data-min-role] {
+    [data-permission] {
         display: none;
     }
 
@@ -113,27 +113,27 @@
             <div class="title">DEFCON Expanded</div>
             <ul class="list-items">
                 <li><a href="/" id="nav-home"><i class="fas fa-home"></i>Back to Homepage</a></li>
-                <li data-min-role="5"><a href="/adminpanel" id="nav-whitelist"><i class="fab fa-windows"></i>Admin
+                <li data-permission="PAGE_ADMIN_PANEL"><a href="/adminpanel" id="nav-whitelist"><i class="fab fa-windows"></i>Admin
                         Panel</a></li>
-                <li data-min-role="5"><a href="/leaderboardblacklistmanage" id="nav-blaclist" data-min-role="5"><i
+                <li data-permission="PAGE_BLACKLIST_MANAGE"><a href="/leaderboardblacklistmanage" id="nav-blaclist"><i
                             class="fas fa-ban"></i>Blacklist Managment</a></li>
-                <li data-min-role="5"><a href="/demomanage" id="nav-demomanage" data-min-role="5"><i
+                <li data-permission="PAGE_DEMO_MANAGE"><a href="/demomanage" id="nav-demomanage"><i
                             class="fas fa-video"></i>Demo Managment</a></li>
-                <li data-min-role="2"><a href="/playerlookup" id="nav-playerlookup" data-min-role="2"><i
+                <li data-permission="PAGE_PLAYER_LOOKUP"><a href="/playerlookup" id="nav-playerlookup"><i
                             class="fa-solid fa-magnifying-glass"></i>Player Search</a></li>
-                <li data-min-role="3"><a href="/dedconmanagment" id="nav-dedconmanagment" data-min-role="2"><i
+                <li data-permission="PAGE_DEDCON_MANAGEMENT"><a href="/dedconmanagment" id="nav-dedconmanagment"><i
                             class="fas fa-radiation"></i>Dedcon Managment</a></li>
-                <li data-min-role="3"><a href="/resourcemanage" id="nav-resourcemanage" data-min-role="3"><i
+                <li data-permission="PAGE_RESOURCE_MANAGE"><a href="/resourcemanage" id="nav-resourcemanage"><i
                             class="fas fa-download"></i>Resource Managment</a></li>
-                <li data-min-role="5"><a href="/modlistmanage" id="nav-modmanage" data-min-role="5"><i
+                <li data-permission="PAGE_MODLIST_MANAGE"><a href="/modlistmanage" id="nav-modmanage"><i
                             class="fas fa-list"></i>Modlist Managment</a></li>
-                <li data-min-role="2"><a href="/accountmanage" id="nav-accountmanage" data-min-role="2"><i
+                <li data-permission="PAGE_ACCOUNT_MANAGE"><a href="/accountmanage" id="nav-accountmanage"><i
                             class="fas fa-user"></i>User Account Managment</a></li>
-                <li data-min-role="1"><a href="/serverconsole" id="nav-console" data-min-role="1"><i
+                <li data-permission="PAGE_SERVER_CONSOLE"><a href="/serverconsole" id="nav-console"><i
                             class="fas fa-laptop-code"></i>Website Console</a></li>
-                <li data-min-role="1"><a href="/defconservers" id="nav-defconservers" data-min-role="1"><i
+                <li data-permission="PAGE_DEFCON_SERVERS"><a href="/defconservers" id="nav-defconservers"><i
                             class="fa-solid fa-server"></i>Dedcon Servers</a></li>
-                <li data-min-role="1"><a href="/rconconsole" id="nav-rcon" data-min-role="1"><i
+                <li data-permission="PAGE_RCON_CONSOLE"><a href="/rconconsole" id="nav-rcon"><i
                             class="fa-solid fa-terminal"></i>RCON Console</a></li>
             </ul>
         </div>

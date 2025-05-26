@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
 const router = express.Router();
@@ -21,15 +21,23 @@ const {
 
 const {
     authenticateToken,
-    checkRole
-}   = require('../../authentication')
+    checkPermission
+} = require('../../authentication');
+
+const permissions = require('../../permission-index');
+
+const {
+    getClientIp
+} = require('../../shared-functions');
+
+const debug = require('../../debug-helpers');
 
 router.post('/api/upload-demo', authenticateToken, upload.fields([
     { name: 'demoFile', maxCount: 1 },
     { name: 'jsonFile', maxCount: 1 }
-]), checkRole(4), async (req, res) => {
+]), checkPermission(permissions.DEMO_UPLOAD), async (req, res) => {
     const clientIp = getClientIp(req);
-    console.log(`Admin action initiated: Demo upload by ${req.user.username} from IP ${clientIp}`);
+    console.log(`Demo upload by ${req.user.username} from IP ${clientIp}`);
 
     if (!req.files || !req.files.demoFile || !req.files.jsonFile) {
         console.log(`Failed demo upload attempt by ${req.user.username} from IP ${clientIp}: Missing required files`);
@@ -61,7 +69,7 @@ router.post('/api/upload-demo', authenticateToken, upload.fields([
     }
 });
 
-router.get('/api/demo/:demoId', authenticateToken, async (req, res) => {
+router.get('/api/demo/:demoId', authenticateToken, checkPermission(permissions.DEMO_VIEW), async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM demos WHERE id = ?', [req.params.demoId]);
         if (rows.length === 0) {
@@ -75,7 +83,7 @@ router.get('/api/demo/:demoId', authenticateToken, async (req, res) => {
     }
 });
 
-router.put('/api/demo/:demoId', authenticateToken, checkRole(5), async (req, res) => {
+router.put('/api/demo/:demoId', authenticateToken, checkPermission(permissions.DEMO_EDIT), async (req, res) => {
     const { demoId } = req.params;
     const { name, game_type, duration, players } = req.body;
 
@@ -171,7 +179,7 @@ router.get('/api/demo-profile-panel', async (req, res) => {
     }
 });
 
-router.get('/api/all-demos', authenticateToken, checkRole(5), async (req, res) => {
+router.get('/api/all-demos', authenticateToken, checkPermission(permissions.DEMO_VIEW), async (req, res) => {
     try {
         const [demos] = await pool.query('SELECT * FROM demos ORDER BY date DESC');
         res.json(demos);
@@ -181,9 +189,9 @@ router.get('/api/all-demos', authenticateToken, checkRole(5), async (req, res) =
     }
 });
 
-router.delete('/api/demo/:demoId', authenticateToken, checkRole(1), async (req, res) => {
+router.delete('/api/demo/:demoId', authenticateToken, checkPermission(permissions.DEMO_DELETE), async (req, res) => {
     const clientIp = getClientIp(req);
-    console.log(`Admin action initiated: Demo deletion by ${req.user.username} from IP ${clientIp}`);
+    console.log(`Demo deletion by ${req.user.username} from IP ${clientIp}`);
 
     try {
         await pool.query('START TRANSACTION');

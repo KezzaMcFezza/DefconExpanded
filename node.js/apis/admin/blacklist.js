@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
 const router = express.Router();
@@ -19,44 +19,71 @@ const {
 
 const {
     authenticateToken,
-    checkRole
-}   = require('../../authentication')
+    checkPermission
+} = require('../../authentication')
 
-router.get('/api/whitelist', authenticateToken, async (req, res) => {
+const permissions = require('../../permission-index');
+
+const debug = require('../../debug-helpers');
+
+router.get('/api/whitelist', authenticateToken, checkPermission(permissions.BLACKLIST_VIEW), async (req, res) => {
+    const startTime = debug.enter('getWhitelist', [req.user.username], 1);
+    debug.level2('Whitelist request by:', req.user.username);
+    
     try {
+        debug.dbQuery('SELECT * FROM leaderboard_whitelist', [], 2);
         const [rows] = await pool.query('SELECT * FROM leaderboard_whitelist');
+        debug.dbResult(rows, 2);
+        
+        debug.level2('Returning whitelist entries:', rows.length);
+        debug.exit('getWhitelist', startTime, { entriesCount: rows.length }, 1);
         res.json(rows);
     } catch (error) {
-        console.error('Error fetching whitelist:', error);
+        debug.error('getWhitelist', error, 1);
+        debug.exit('getWhitelist', startTime, 'error', 1);
         res.status(500).json({ error: 'Unable to fetch whitelist' });
     }
 });
 
-router.post('/api/whitelist', authenticateToken, checkRole(5), async (req, res) => {
+router.post('/api/whitelist', authenticateToken, checkPermission(permissions.BLACKLIST_ADD), async (req, res) => {
+    const startTime = debug.enter('addToWhitelist', [req.body.playerName, req.user.username], 1);
     const { playerName, reason } = req.body;
 
+    debug.level2('Adding player to whitelist:', { playerName, reason, by: req.user.username });
+
     try {
+        debug.dbQuery('INSERT INTO leaderboard_whitelist', [playerName, reason], 2);
         const [result] = await pool.query(
             'INSERT INTO leaderboard_whitelist (player_name, reason) VALUES (?, ?)',
             [playerName, reason]
         );
-        console.log(`${req.user.username} added player to whitelist: ${JSON.stringify({ playerName, reason }, null, 2)}`);
+        
+        debug.level2(`${req.user.username} added player to whitelist: ${JSON.stringify({ playerName, reason }, null, 2)}`);
+        debug.exit('addToWhitelist', startTime, 'success', 1);
         res.json({ message: 'Player added to whitelist', id: result.insertId });
     } catch (error) {
-        console.error('Error adding player to whitelist:', error.message);
+        debug.error('addToWhitelist', error, 1);
+        debug.exit('addToWhitelist', startTime, 'error', 1);
         res.status(500).json({ error: 'Unable to add player to whitelist', details: error.message });
     }
 });
 
-
-router.delete('/api/whitelist/:playerName', authenticateToken, checkRole(5), async (req, res) => {
+router.delete('/api/whitelist/:playerName', authenticateToken, checkPermission(permissions.BLACKLIST_REMOVE), async (req, res) => {
+    const startTime = debug.enter('removeFromWhitelist', [req.params.playerName, req.user.username], 1);
     const { playerName } = req.params;
+    
+    debug.level2('Removing player from whitelist:', { playerName, by: req.user.username });
+    
     try {
+        debug.dbQuery('DELETE FROM leaderboard_whitelist WHERE player_name = ?', [playerName], 2);
         await pool.query('DELETE FROM leaderboard_whitelist WHERE player_name = ?', [playerName]);
-        console.log(`${req.user.username} removed player from whitelist: ${playerName}`);
+        
+        debug.level2(`${req.user.username} removed player from whitelist: ${playerName}`);
+        debug.exit('removeFromWhitelist', startTime, 'success', 1);
         res.json({ message: 'Player removed from whitelist' });
     } catch (error) {
-        console.error('Error removing player from whitelist:', error);
+        debug.error('removeFromWhitelist', error, 1);
+        debug.exit('removeFromWhitelist', startTime, 'error', 1);
         res.status(500).json({ error: 'Unable to remove player from whitelist' });
     }
 });

@@ -8,21 +8,53 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 25-05-2025
 
 
 import UI from './ui.js';
 
 const Auth = (() => {
-    let currentUserRole = 6; 
+    let userPermissions = [];
+    let permissionManifest = {};
+    let isInitialized = false;
     
-    async function checkUserRoleAndInitialize(callback) {
+    async function init() {
+        if (isInitialized) return true;
+        
+        try {
+            const response = await fetch('/api/permissions/manifest');
+            const data = await response.json();
+            
+            if (data.manifest && data.userPermissions) {
+                permissionManifest = data.manifest;
+                userPermissions = data.userPermissions;
+                isInitialized = true;
+                return true;
+            } else {
+                throw new Error('Invalid permission data received');
+            }
+        } catch (error) {
+            console.error('Error initializing permissions:', error);
+            return false;
+        }
+    }
+    
+    async function checkUserPermissionsAndInitialize(callback) {
         try {
             const response = await fetch('/api/current-user');
             const data = await response.json();
-            if (data.user) {
-                currentUserRole = data.user.role;
-                if (currentUserRole <= 5) {
+            
+            if (data.user && data.user.permissions) {
+                userPermissions = data.user.permissions;
+
+                const initSuccess = await init();
+                if (!initSuccess) {
+                    throw new Error('Failed to initialize permission system');
+                }
+
+                const hasAdminAccess = hasPermission('PAGE_ADMIN_PANEL');
+                
+                if (hasAdminAccess) {
                     UI.setupCustomDialog();
                     if (callback) callback();
                 } else {
@@ -32,45 +64,55 @@ const Auth = (() => {
                 window.location.href = '/login';
             }
         } catch (error) {
-            console.error('Error checking user role:', error);
+            console.error('Error checking user permissions:', error);
             window.location.href = '/login';
         }
     }
     
-    function hasPermission(requiredRole) {
-        return currentUserRole <= requiredRole;
+    function hasPermission(permissionName) {
+        
+        if (!isInitialized) {
+            return false;
+        }
+        
+        const permissionId = permissionManifest[permissionName];
+        
+        if (permissionId === undefined) {
+            return false;
+        }
+        
+        const hasAccess = userPermissions.includes(permissionId);
+        return hasAccess;
     }
     
-    function requirePermission(requiredRole, actionDescription) {
-        if (!hasPermission(requiredRole)) {
+    function hasAnyPermission(permissionNames) {
+        return permissionNames.some(permissionName => hasPermission(permissionName));
+    }
+    
+    function requirePermission(permissionName, actionDescription) {
+        if (!hasPermission(permissionName)) {
             UI.showAlert(`You don't have permission to ${actionDescription || 'do this action'}`);
             return false;
         }
         return true;
     }
     
-    function getCurrentRole() {
-        return currentUserRole;
+    function getAllPermissions() {
+        return [...userPermissions];
     }
     
-    function getUserRoleName(roleNumber) {
-        const roles = {
-            1: 'Super Admin',
-            2: 'Admin',
-            3: 'Super Mod',
-            4: 'Moderator',
-            5: 'Helper',
-            6: 'User'
-        };
-        return roles[roleNumber] || 'Unknown';
+    function getPermissionManifest() {
+        return { ...permissionManifest };
     }
     
     return {
-        checkUserRoleAndInitialize,
+        init,
+        checkUserPermissionsAndInitialize,
         hasPermission,
+        hasAnyPermission,
         requirePermission,
-        getCurrentRole,
-        getUserRoleName
+        getAllPermissions,
+        getPermissionManifest,
     };
 })();
 

@@ -8,11 +8,21 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 25-05-2025
 
-import { displayDemos } from './democard.js';
-import { updatePagination, updateURL } from '../main/main.js';
-import { territoryMappingUI, filterState } from './constants.js';
+import { 
+  displayDemos 
+} from './democard.js';
+
+import { 
+  updatePagination, 
+  updateURL 
+} from '../main/main.js';
+
+import { 
+  territoryMappingUI, 
+  filterState 
+} from './constants.js';
 
 let allDemos = [];
 let currentPage = 1;
@@ -184,7 +194,7 @@ function updateDemoList(playerName = '') {
       }
       return response.json();
     })
-    .then(data => {
+    .then(async data => {
       allDemos = data.demos;
       totalPages = data.totalPages;
       currentPage = data.currentPage;
@@ -194,7 +204,7 @@ function updateDemoList(playerName = '') {
         gamesPlayed.textContent = `Total Games Played: ${data.totalDemos}`;
       }
 
-      displayDemos(allDemos);
+      await displayDemos(allDemos);
       updatePagination(currentPage, totalPages);
       updateURL(currentPage, currentSort, currentServerFilter, filterState);
     })

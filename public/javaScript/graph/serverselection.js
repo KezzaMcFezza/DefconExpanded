@@ -11,7 +11,7 @@
 //Last Edited 16-04-2025
 
 import { SERVER_TYPES, TERRITORY_TYPES } from './constants.js';
-import { getCurrentPage, getFiltersFromURL, isCumulativeView, setCumulativeView, buildFilterURL, isRedirecting, showChartLoading, hideChartLoading } from './utilities.js';
+import { getCurrentPage, getFiltersFromURL, isCumulativeView, setCumulativeView, buildFilterURL, isRedirecting, showChartLoading, hideChartLoading } from './utils.js';
 import { fetchServerCounts, fetchServerHourCounts, fetchTerritoryCounts } from './api.js';
 import { 
     IndividualServersGraph, 

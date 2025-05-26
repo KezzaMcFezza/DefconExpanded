@@ -33,7 +33,7 @@
     </script>
 </head>
 <style>
-    [data-min-role] {
+    [data-permission] {
         display: none;
     }
 
@@ -56,27 +56,27 @@
             <div class="title">DEFCON Expanded</div>
             <ul class="list-items">
                 <li><a href="/" id="nav-home"><i class="fas fa-home"></i>Back to Homepage</a></li>
-                <li data-min-role="5"><a href="/adminpanel" id="nav-whitelist"><i class="fab fa-windows"></i>Admin
+                <li data-permission="PAGE_ADMIN_PANEL"><a href="/adminpanel" id="nav-whitelist"><i class="fab fa-windows"></i>Admin
                         Panel</a></li>
-                <li data-min-role="5"><a href="/leaderboardblacklistmanage" id="nav-blaclist" data-min-role="5"><i
+                <li data-permission="PAGE_BLACKLIST_MANAGE"><a href="/leaderboardblacklistmanage" id="nav-blaclist"><i
                             class="fas fa-ban"></i>Blacklist Managment</a></li>
-                <li data-min-role="5"><a href="/demomanage" id="nav-demomanage" data-min-role="5"><i
+                <li data-permission="PAGE_DEMO_MANAGE"><a href="/demomanage" id="nav-demomanage"><i
                             class="fas fa-video"></i>Demo Managment</a></li>
-                <li data-min-role="2"><a href="/playerlookup" id="nav-playerlookup" data-min-role="2"><i
+                <li data-permission="PAGE_PLAYER_LOOKUP"><a href="/playerlookup" id="nav-playerlookup"><i
                             class="fa-solid fa-magnifying-glass"></i>Player Search</a></li>
-                <li data-min-role="3"><a href="/dedconmanagment" id="nav-dedconmanagment" data-min-role="2"><i
+                <li data-permission="PAGE_DEDCON_MANAGEMENT"><a href="/dedconmanagment" id="nav-dedconmanagment"><i
                             class="fas fa-radiation"></i>Dedcon Managment</a></li>
-                <li data-min-role="3"><a href="/resourcemanage" id="nav-resourcemanage" data-min-role="3"><i
+                <li data-permission="PAGE_RESOURCE_MANAGE"><a href="/resourcemanage" id="nav-resourcemanage"><i
                             class="fas fa-download"></i>Resource Managment</a></li>
-                <li data-min-role="5"><a href="/modlistmanage" id="nav-modmanage" data-min-role="5"><i
+                <li data-permission="PAGE_MODLIST_MANAGE"><a href="/modlistmanage" id="nav-modmanage"><i
                             class="fas fa-list"></i>Modlist Managment</a></li>
-                <li data-min-role="2"><a href="/accountmanage" id="nav-accountmanage" data-min-role="2"><i
+                <li data-permission="PAGE_ACCOUNT_MANAGE"><a href="/accountmanage" id="nav-accountmanage"><i
                             class="fas fa-user"></i>User Account Managment</a></li>
-                <li data-min-role="1"><a href="/serverconsole" id="nav-console" data-min-role="1"><i
+                <li data-permission="PAGE_SERVER_CONSOLE"><a href="/serverconsole" id="nav-console"><i
                             class="fas fa-laptop-code"></i>Website Console</a></li>
-                <li data-min-role="1"><a href="/defconservers" id="nav-defconservers" data-min-role="1"><i
+                <li data-permission="PAGE_DEFCON_SERVERS"><a href="/defconservers" id="nav-defconservers"><i
                             class="fa-solid fa-server"></i>Dedcon Servers</a></li>
-                <li data-min-role="1"><a href="/rconconsole" id="nav-rcon" data-min-role="1"><i
+                <li data-permission="PAGE_RCON_CONSOLE"><a href="/rconconsole" id="nav-rcon"><i
                             class="fa-solid fa-terminal"></i>RCON Console</a></li>
             </ul>
         </div>
@@ -85,19 +85,12 @@
                 <label style="font-size: 40px;">Instructions on managing users</label>
                 <br>
                 <br>
-                You should only really use this page for email changes or if someone wants to be promoted to a higher
-                rank
+                Use this page to manage user accounts and permissions. You can edit basic user information like username and email,
+                as well as assign specific permissions to control what users can access and do on the website.
                 <br>
                 <br>
-                You can also demote people if they are misbehaving or they just arent active and lazy
-                <br>
-                <br>
-                <mark style="border-radius: 3px; width: 20px; background-color: rgb(0 183 255); font-weight: bold;">If
-                    you are admin you are not allowed to promote people to super admin or yourself to superadmin
-                    :)</mark>
-                <br>
-                <br>
-                In the near future you will be able to modify user profiles that i am still working on as we speak
+                The permission system is organized into categories: Page Access, User Management, Demo Management, 
+                Blacklist Management, Mod Management, Resource Management, Server Console, RCON Console, and Admin Actions.
                 <br>
                 <br>
             </p>
@@ -109,7 +102,7 @@
                             <tr>
                                 <th>Username</th>
                                 <th>Email</th>
-                                <th>Role</th>
+                                <th>Permissions</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -122,21 +115,502 @@
                     <h2>Edit User</h2>
                     <form id="edit-user-form">
                         <input type="hidden" id="edit-user-id">
+                        
+                        <!-- Basic Information Section -->
+                        <div class="form-section">
+                            <h3>Basic Information</h3>
+                            <div class="form-row">
                         <label for="edit-user-username">Username:</label>
                         <input type="text" id="edit-user-username" required>
+                            </div>
+                            <div class="form-row">
                         <label for="edit-user-email">Email:</label>
                         <input type="email" id="edit-user-email" required>
-                        <label for="edit-user-role">Role:</label>
-                        <select id="edit-user-role" required>
-                            <option value="1">Super Admin</option>
-                            <option value="2">Admin</option>
-                            <option value="3">Super Mod</option>
-                            <option value="4">Moderator</option>
-                            <option value="5">Helper</option>
-                            <option value="6">User</option>
-                        </select>
-                        <button type="submit">Save Changes</button>
-                        <button type="button" onclick="AdminApp.cancelEditUser()">Cancel</button>
+                            </div>
+                        </div>
+
+                        <!-- Permissions Section -->
+                        <div class="form-section" data-permission="USER_EDIT_PERMISSIONS">
+                            <h3>Permissions</h3>
+                            <div class="permissions-container">
+                                
+                                <!-- Page Access Permissions -->
+                                <div class="permission-category">
+                                    <h4><i class="fas fa-globe"></i> Page Access Permissions</h4>
+                                    <div class="permission-grid">
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="PAGE_ADMIN_PANEL">
+                                            <span>Admin Panel Access</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="PAGE_BLACKLIST_MANAGE">
+                                            <span>Blacklist Management</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="PAGE_DEMO_MANAGE">
+                                            <span>Demo Management</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="PAGE_PLAYER_LOOKUP">
+                                            <span>Player Lookup</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="PAGE_DEFCON_SERVERS">
+                                            <span>Dedcon Servers</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="PAGE_ACCOUNT_MANAGE">
+                                            <span>Account Management</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="PAGE_MODLIST_MANAGE">
+                                            <span>Modlist Management</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="PAGE_DEDCON_MANAGEMENT">
+                                            <span>Dedcon Management</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="PAGE_RESOURCE_MANAGE">
+                                            <span>Resource Management</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="PAGE_SERVER_CONSOLE">
+                                            <span>Server Console</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="PAGE_RCON_CONSOLE">
+                                            <span>RCON Console</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- User Management Permissions -->
+                                <div class="permission-category">
+                                    <h4><i class="fas fa-users"></i> User Management</h4>
+                                    <div class="permission-grid">
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="USER_VIEW_LIST">
+                                            <span>View User List</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="USER_VIEW_DETAILS">
+                                            <span>View User Details</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="USER_EDIT_BASIC">
+                                            <span>Edit Username and Email</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="USER_EDIT_PERMISSIONS">
+                                            <span>Edit Permissions</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="USER_DELETE">
+                                            <span>Delete Users</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="USER_APPROVE_REQUESTS">
+                                            <span>Approve Requests</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Demo Management Permissions -->
+                                <div class="permission-category">
+                                    <h4><i class="fas fa-video"></i> Demo Management</h4>
+                                    <div class="permission-grid">
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="DEMO_VIEW">
+                                            <span>View Demos <br>(also allows user to use player lookup)</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="DEMO_UPLOAD">
+                                            <span>Upload Demos</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="DEMO_EDIT">
+                                            <span>Edit Demos</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="DEMO_DELETE">
+                                            <span>Delete Demos</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="DEMO_VIEW_ID">
+                                            <span>View Demo IDs</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Blacklist Management Permissions -->
+                                <div class="permission-category">
+                                    <h4><i class="fas fa-ban"></i> Blacklist Management</h4>
+                                    <div class="permission-grid">
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="BLACKLIST_VIEW">
+                                            <span>View Blacklist</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="BLACKLIST_ADD">
+                                            <span>Add to Blacklist</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="BLACKLIST_REMOVE">
+                                            <span>Remove from Blacklist</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="BLACKLIST_APPROVE_REQUESTS">
+                                            <span>Approve Blacklist Requests</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Mod Management Permissions -->
+                                <div class="permission-category">
+                                    <h4><i class="fas fa-puzzle-piece"></i> Mod Management</h4>
+                                    <div class="permission-grid">
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="MOD_VIEW">
+                                            <span>View Mods</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="MOD_ADD">
+                                            <span>Add Mods</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="MOD_EDIT">
+                                            <span>Edit Mods</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="MOD_DELETE">
+                                            <span>Delete Mods</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Resource Management Permissions -->
+                                <div class="permission-category">
+                                    <h4><i class="fas fa-download"></i> Resource Management</h4>
+                                    <div class="permission-grid">
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RESOURCE_VIEW">
+                                            <span>View Resources</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RESOURCE_ADD">
+                                            <span>Add Resources</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RESOURCE_EDIT">
+                                            <span>Edit Resources</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RESOURCE_DELETE">
+                                            <span>Delete Resources</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Dedcon Management Permissions -->
+                                <div class="permission-category">
+                                    <h4><i class="fas fa-radiation"></i> Dedcon Management</h4>
+                                    <div class="permission-grid">
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="DEDCON_VIEW">
+                                            <span>View Dedcon Builds</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="DEDCON_ADD">
+                                            <span>Add Dedcon Builds</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="DEDCON_EDIT">
+                                            <span>Edit Dedcon Builds</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="DEDCON_DELETE">
+                                            <span>Delete Dedcon Builds</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Server Console Permissions -->
+                                <div class="permission-category">
+                                    <h4><i class="fas fa-terminal"></i> Server Console</h4>
+                                    <div class="permission-grid">
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="SERVER_CONSOLE_VIEW">
+                                            <span>View Website Server Logs</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="SERVER_CONSOLE_EXECUTE">
+                                            <span>Execute Website Server Commands</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- RCON Console Permissions -->
+                                <div class="permission-category">
+                                    <h4><i class="fas fa-server"></i> RCON Console</h4>
+                                    <div class="permission-grid">
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_MANUAL_CONNECTION">
+                                            <span>Manual Connection</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_TEST_SERVER">
+                                            <span>Test Server</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_1V1_RANDOM">
+                                            <span>1v1 Random</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_1V1_DEFAULT">
+                                            <span>1v1 Default</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_1V1_BEST_SETUPS_1">
+                                            <span>1v1 Best Setups 1</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_1V1_BEST_SETUPS_2">
+                                            <span>1v1 Best Setups 2</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_1V1_CURSED">
+                                            <span>1v1 Cursed</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_1V1_LOTS_UNITS">
+                                            <span>1v1 Lots Units</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_1V1_UK_IRELAND">
+                                            <span>1v1 UK Ireland</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_MURICON_UK">
+                                            <span>Muricon UK</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_2V2_UK_IRELAND">
+                                            <span>2v2 UK Ireland</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_2V2_RANDOM">
+                                            <span>2v2 Random</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_DIPLOMACY_UK">
+                                            <span>Diplomacy UK</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_RAIZER_RUSSIA_USA">
+                                            <span>Raizer Russia USA</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_NEW_PLAYER">
+                                            <span>New Player</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_2V2_TOURNAMENT">
+                                            <span>2v2 Tournament</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_SONY_HOOV">
+                                            <span>Sony Hoov</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_3V3_RANDOM">
+                                            <span>3v3 Random</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_MURICON_DEFAULT">
+                                            <span>Muricon Default</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_MURICON_RANDOM">
+                                            <span>Muricon Random</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_509CG_1V1">
+                                            <span>509CG 1v1</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_FFA_RANDOM">
+                                            <span>FFA Random</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_8PLAYER_DIPLOMACY">
+                                            <span>8 Player Diplomacy</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_4V4_RANDOM">
+                                            <span>4v4 Random</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="RCON_10PLAYER_DIPLOMACY">
+                                            <span>10 Player Diplomacy</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Server Configuration Permissions -->
+                                <div class="permission-category">
+                                    <h4><i class="fas fa-file-alt"></i> Server Configuration Files</h4>
+                                    <div class="permission-grid">
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_1V1_RANDOM">
+                                            <span>1v1 Random Config</span>
+                                        </label>                                       
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_1V1_DEFAULT">
+                                            <span>1v1 Default Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_1V1_CURSED">
+                                            <span>1v1 Cursed Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_1V1_RAIZER">
+                                            <span>1v1 Raizer Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_1V1_BEST_SETUPS_1">
+                                            <span>1v1 Best Setups 1 Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_1V1_BEST_SETUPS_2">
+                                            <span>1v1 Best Setups 2 Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_1V1_TEST">
+                                            <span>1v1 Test Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_1V1_VARIABLE">
+                                            <span>1v1 Variable Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_1V1_UK_BALANCED">
+                                            <span>1v1 UK Balanced Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_2V2_DEFAULT">
+                                            <span>2v2 Default Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_2V2_UK_BALANCED">
+                                            <span>2v2 UK Balanced Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_2V2_TOURNAMENT">
+                                            <span>2v2 Tournament Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_6PLAYER_FFA">
+                                            <span>6 Player FFA Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_3V3_FFA">
+                                            <span>3v3 FFA Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_4V4_DEFAULT">
+                                            <span>4v4 Default Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_5V5_DEFAULT">
+                                            <span>5v5 Default Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_8PLAYER_DIPLO">
+                                            <span>8 Player Diplomacy Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_10PLAYER_DIPLO">
+                                            <span>10 Player Diplomacy Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_16PLAYER_DEFAULT">
+                                            <span>16 Player Default Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_UK_MOD_DIPLO">
+                                            <span>UK Mod Diplomacy Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_MURICON_UK_MOD">
+                                            <span>Muricon UK Mod Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_SONY_HOOV">
+                                            <span>Sony Hoov Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_NOOB_FRIENDLY">
+                                            <span>Noob Friendly Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_MURICON_RANDOM">
+                                            <span>Muricon Random Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_MURICON_DEFAULT">
+                                            <span>Muricon Default Config</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="CONFIG_HAWHAW_2V2">
+                                            <span>Hawhaw 2v2 Config</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Admin Panel Special Actions -->
+                                <div class="permission-category">
+                                    <h4><i class="fas fa-cog"></i> Admin Actions</h4>
+                                    <div class="permission-grid">
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="ADMIN_VIEW_REPORTS">
+                                            <span>View Reports</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="ADMIN_VIEW_STATISTICS">
+                                            <span>View Statistics</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="ADMIN_SYSTEM_MAINTENANCE">
+                                            <span>System Maintenance (Future)</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="ADMIN_CONFIGURE_WEBSITE">
+                                            <span>Edit Dedcon Config Files</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                            </div>
+                            
+                            <!-- Permission Presets -->
+                            <div class="permission-presets">
+                                <h4>Quick Permission Presets</h4>
+                                <div class="preset-buttons">
+                                    <button type="button" class="preset-btn" onclick="AdminApp.applyPermissionPreset('none')">Clear All</button>
+                                    <button type="button" class="preset-btn" onclick="AdminApp.applyPermissionPreset('basic')">Basic User</button>
+                                    <button type="button" class="preset-btn" onclick="AdminApp.applyPermissionPreset('moderator')">Moderator</button>
+                                    <button type="button" class="preset-btn" onclick="AdminApp.applyPermissionPreset('admin')">Admin</button>
+                                    <button type="button" class="preset-btn" onclick="AdminApp.applyPermissionPreset('superadmin')">Super Admin</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="submit" class="save-button">Save Changes</button>
+                            <button type="button" class="cancel-button" onclick="AdminApp.cancelEditUser()">Cancel</button>
+                        </div>
                     </form>
                 </div>
             </div>

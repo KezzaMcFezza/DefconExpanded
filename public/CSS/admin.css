@@ -749,137 +749,6 @@ mark {
     transition: transform 0.3s ease;
 }
 
-.server-list-container {
-    min-width: 300px;
-    padding: 15px;
-    background-color: #1c1c2e17;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    opacity: 1;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.server-list-container h3 {
-    color: #4da6ff;
-    margin-top: 0;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #333;
-}
-
-.server-item:hover {
-    background: #2a2a2a;
-}
-
-.server-item.active {
-    background: #ab080078;
-}
-
-.server-name {
-    color: #fff;
-    font-weight: 500;
-    margin-bottom: 4px;
-}
-
-.server-details {
-    height: 0;
-    overflow: hidden;
-    transition: height 0.3s;
-}
-
-.server-item.active .server-details {
-    height: auto;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid #333;
-}
-
-.server-meta {
-    font-size: 0.9em;
-    color: #666;
-}
-
-.config-filename {
-    color: #b8b8b8;
-    font-family: monospace;
-}
-
-.last-edited {
-    color: #666;
-    font-size: 0.85em;
-    margin-top: 4px;
-}
-
-.server-list-container {
-    min-width: 300px;
-    padding: 15px;
-    background-color: #1c1c2e17;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    opacity: 1;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.server-list-container h3 {
-    color: #4da6ff;
-    margin-top: 0;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #333;
-}
-
-.server-item {
-    padding: 12px;
-    cursor: pointer;
-    border-radius: 10px;
-    margin-bottom: 5px;
-    transition: all 0.2s;
-}
-
-.server-item:hover {
-    background: #2a2a2a;
-}
-
-.server-item.active {
-    background: #ab080078;
-}
-
-.server-name {
-    color: #fff;
-    font-weight: 500;
-    margin-bottom: 4px;
-}
-
-.server-details {
-    height: 0;
-    overflow: hidden;
-    transition: height 0.3s;
-}
-
-.server-item.active .server-details {
-    height: auto;
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px solid #ffffff;
-}
-
-.server-meta {
-    font-size: 0.9em;
-    color: #666;
-}
-
-.config-filename {
-    color: #b8b8b8;
-    font-family: monospace;
-}
-
-.last-edited {
-    color: #666;
-    font-size: 0.85em;
-    margin-top: 4px;
-}
-
-/* Editor content scrollbar */
 #editor-content::-webkit-scrollbar {
     width: 8px;
 }
@@ -898,21 +767,202 @@ mark {
     background: #444;
 }
 
-/* Server list scrollbar */
-.server-list-container::-webkit-scrollbar {
+.form-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background-color: #1c1c2e17;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.form-section h3 {
+    color: #4da6ff;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+}
+
+.form-row {
+    margin-bottom: 1rem;
+}
+
+.form-row label {
+    display: block;
+    color: #b8b8b8;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-row input[type="text"],
+.form-row input[type="email"] {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.75rem;
+    background-color: #1c1c2e;
+    border: 1px solid #333;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.form-row input[type="text"]:focus,
+.form-row input[type="email"]:focus {
+    outline: none;
+    border-color: #4da6ff;
+    box-shadow: 0 0 0 2px rgba(77, 166, 255, 0.2);
+}
+
+.permissions-container {
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.permissions-container::-webkit-scrollbar {
     width: 8px;
 }
 
-.server-list-container::-webkit-scrollbar-track {
+.permissions-container::-webkit-scrollbar-track {
     background: #1a1a1a;
     border-radius: 4px;
 }
 
-.server-list-container::-webkit-scrollbar-thumb {
+.permissions-container::-webkit-scrollbar-thumb {
     background: #333;
     border-radius: 4px;
 }
 
-.server-list-container::-webkit-scrollbar-thumb:hover {
+.permissions-container::-webkit-scrollbar-thumb:hover {
     background: #444;
+}
+
+.permission-category {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    border-left: 3px solid #4da6ff;
+}
+
+.permission-category h4 {
+    color: #4da6ff;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.permission-category h4 i {
+    font-size: 1rem;
+}
+
+.permission-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 0.75rem;
+}
+
+.permission-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.permission-item:hover {
+    background-color: rgba(77, 166, 255, 0.1);
+    border-color: rgba(77, 166, 255, 0.3);
+}
+
+.permission-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #4da6ff;
+    cursor: pointer;
+}
+
+.permission-item span {
+    color: #b8b8b8;
+    font-size: 0.9rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.permission-item input[type="checkbox"]:checked + span {
+    color: #4da6ff;
+    font-weight: 500;
+}
+
+.permission-presets {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #333;
+}
+
+.permission-presets h4 {
+    color: #4da6ff;
+    margin-bottom: 1rem;
+}
+
+.preset-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.preset-btn {
+    padding: 0.5rem 1rem;
+    background-color: #0067b8;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s;
+}
+
+.preset-btn:hover {
+    background-color: #3a8ad6;
+}
+
+.preset-btn:first-child {
+    background-color: #ff4444;
+}
+
+.preset-btn:first-child:hover {
+    background-color: #ff6666;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #333;
+}
+
+@media (max-width: 768px) {
+    .permission-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .preset-buttons {
+        flex-direction: column;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .permissions-container {
+        max-height: 400px;
+    }
 }

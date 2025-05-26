@@ -8,13 +8,22 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
+
 const router = express.Router();
 
+
+const debug = require('../../debug-helpers');
+
 router.post('/api/logout', (req, res) => {
+    const startTime = debug.enter('userLogout', [], 1);
+    debug.level2('User logout request');
+    
     res.clearCookie('token');
+    debug.level2('Token cookie cleared');
+    debug.exit('userLogout', startTime, 'success', 1);
     res.json({ message: 'Logged out successfully' });
 });
 

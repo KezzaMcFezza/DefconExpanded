@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
 const router = express.Router();
@@ -20,44 +20,84 @@ const {
 const {
     authenticateToken,
     checkAuthToken,
-    checkRole
+    checkPermission
 } = require('../../authentication');
 
+const permissions = require('../../permission-index');
+
+
+const debug = require('../../debug-helpers');
+
 router.get('/api/current-user', checkAuthToken, (req, res) => {
+    debug.apiRequest('GET', '/api/current-user', req.user);
+    const startTime = debug.enter('getCurrentUser', [req.user?.username], 1);
+    
     if (req.user) {
+        debug.level2('Returning authenticated user data:', req.user.username);
+        debug.exit('getCurrentUser', startTime, 'authenticated_user', 1);
         res.json({ 
             user: { 
                 id: req.user.id, 
                 username: req.user.username, 
-                role: req.user.role 
+                permissions: req.user.permissions || []
             } 
         });
     } else if (res.locals.user) {
+        debug.level2('Returning local user data:', res.locals.user.username);
+        debug.exit('getCurrentUser', startTime, 'local_user', 1);
         res.json({ 
             user: res.locals.user 
         });
     } else {
+        debug.level2('No authenticated user found');
+        debug.exit('getCurrentUser', startTime, 'not_authenticated', 1);
         res.status(401).json({ error: 'Not authenticated' });
     }
 });
 
-router.get('/api/users', authenticateToken, checkRole(2), async (req, res) => {
+router.get('/api/permissions/manifest', authenticateToken, checkPermission(permissions.PAGE_ADMIN_PANEL), (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT id, username, email, role FROM users');
-        res.json(rows);
+        const manifest = {};
+        
+        Object.entries(permissions).forEach(([key, value]) => {
+            manifest[key] = value;
+        });
+        
+        res.json({
+            manifest: manifest,
+            userPermissions: req.user.permissions || []
+        });
+    } catch (error) {
+        console.error('Error creating permission manifest:', error);
+        res.status(500).json({ error: 'Unable to create permission manifest' });
+    }
+});
+
+router.get('/api/users', authenticateToken, checkPermission(permissions.USER_VIEW_LIST), async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT id, username, email, perms FROM users');
+        
+        const formattedRows = rows.map(user => ({
+            ...user,
+            permissions: user.perms ? user.perms.split(',').map(p => parseInt(p.trim())) : []
+        }));
+        
+        res.json(formattedRows);
     } catch (error) {
         console.error('Error fetching users:', error);
         res.status(500).json({ error: 'Unable to fetch users' });
     }
 });
 
-router.get('/api/users/:userId', authenticateToken, checkRole(2), async (req, res) => {
+router.get('/api/users/:userId', authenticateToken, checkPermission(permissions.USER_VIEW_DETAILS), async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT id, username, email, role FROM users WHERE id = ?', [req.params.userId]);
+        const [rows] = await pool.query('SELECT id, username, email, perms FROM users WHERE id = ?', [req.params.userId]);
         if (rows.length === 0) {
             res.status(404).json({ error: 'User not found' });
         } else {
-            res.json(rows[0]);
+            const user = rows[0];
+            user.permissions = user.perms ? user.perms.split(',').map(p => parseInt(p.trim())) : [];
+            res.json(user);
         }
     } catch (error) {
         console.error('Error fetching user details:', error);
@@ -65,33 +105,47 @@ router.get('/api/users/:userId', authenticateToken, checkRole(2), async (req, re
     }
 });
 
-router.put('/api/users/:userId', authenticateToken, checkRole(2), async (req, res) => {
+router.put('/api/users/:userId', authenticateToken, checkPermission(permissions.USER_EDIT_BASIC), async (req, res) => {
     const { userId } = req.params;
-    const { username, email, role } = req.body;
-
-
-    if (req.user.role !== 1 && role !== undefined) {
-        return res.status(403).json({ error: 'Only super admins can change user roles' });
-    }
+    const { username, email, permissions: newPermissions } = req.body;
 
     try {
-        const [result] = await pool.query(
-            'UPDATE users SET username = ?, email = ?, role = ? WHERE id = ?',
-            [username, email, role, userId]
-        );
-
-        if (result.affectedRows === 0) {
-            res.status(404).json({ error: 'User not found' });
-        } else {
-            res.json({ message: 'User updated successfully' });
+        if (username || email) {
+            const updateFields = [];
+            const updateValues = [];
+            
+            if (username) {
+                updateFields.push('username = ?');
+                updateValues.push(username);
+            }
+            
+            if (email) {
+                updateFields.push('email = ?');
+                updateValues.push(email);
+            }
+            
+            if (updateFields.length > 0) {
+                const query = `UPDATE users SET ${updateFields.join(', ')} WHERE id = ?`;
+                updateValues.push(userId);
+                await pool.query(query, updateValues);
+            }
         }
+        
+        if (newPermissions && req.user.permissions.includes(permissions.USER_EDIT_PERMISSIONS)) {
+            const permissionsString = newPermissions.join(',');
+            await pool.query('UPDATE users SET perms = ? WHERE id = ?', [permissionsString, userId]);
+        } else if (newPermissions && !req.user.permissions.includes(permissions.USER_EDIT_PERMISSIONS)) {
+            return res.status(403).json({ error: 'You do not have permission to edit user permissions' });
+        }
+        
+        res.json({ message: 'User updated successfully' });
     } catch (error) {
         console.error('Error updating user:', error);
         res.status(500).json({ error: 'Unable to update user' });
     }
 });
 
-router.delete('/api/users/:userId', authenticateToken, checkRole(1), async (req, res) => {
+router.delete('/api/users/:userId', authenticateToken, checkPermission(permissions.USER_DELETE), async (req, res) => {
     const { userId } = req.params;
 
     try {
@@ -107,9 +161,8 @@ router.delete('/api/users/:userId', authenticateToken, checkRole(1), async (req,
     }
 });
 
-router.get('/api/pending-requests', authenticateToken, checkRole(5), async (req, res) => {
+router.get('/api/pending-requests', authenticateToken, checkPermission(permissions.USER_APPROVE_REQUESTS), async (req, res) => {
     try {
-
         const [blacklistRequests] = await pool.query(`
           SELECT bl.*, u.username
           FROM blacklist_requests bl
@@ -152,7 +205,7 @@ router.get('/api/pending-requests', authenticateToken, checkRole(5), async (req,
     }
 });
 
-router.put('/api/resolve-request/:requestId/:requestType', authenticateToken, checkRole(5), async (req, res) => {
+router.put('/api/resolve-request/:requestId/:requestType', authenticateToken, checkPermission(permissions.USER_APPROVE_REQUESTS), async (req, res) => {
     const { requestId, requestType } = req.params;
     const { status } = req.body;
 

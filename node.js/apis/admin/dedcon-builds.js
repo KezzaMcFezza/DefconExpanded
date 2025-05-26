@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
 const router = express.Router();
@@ -18,16 +18,23 @@ const fs = require('fs');
 const {
     pool,
     dedconBuildsDir,
-    upload,
-    getClientIp
+    upload
 } = require('../../constants');
 
 const {
     authenticateToken,
-    checkRole
-}   = require('../../authentication')
+    checkPermission
+} = require('../../authentication')
 
-router.get('/api/admin/dedcon-builds', authenticateToken, checkRole(2), async (req, res) => {
+const permissions = require('../../permission-index');
+
+const {
+    getClientIp
+} = require('../../shared-functions');
+
+const debug = require('../../debug-helpers');
+
+router.get('/api/admin/dedcon-builds', authenticateToken, checkPermission(permissions.DEDCON_VIEW), async (req, res) => {
     try {
         const [builds] = await pool.query('SELECT * FROM dedcon_builds ORDER BY release_date DESC');
         res.json(builds);
@@ -37,9 +44,9 @@ router.get('/api/admin/dedcon-builds', authenticateToken, checkRole(2), async (r
     }
 });
 
-router.post('/api/upload-dedcon-build', authenticateToken, upload.single('dedconBuildsFile'), checkRole(2), async (req, res) => {
+router.post('/api/upload-dedcon-build', authenticateToken, upload.single('dedconBuildsFile'), checkPermission(permissions.DEDCON_ADD), async (req, res) => {
     const clientIp = getClientIp(req);
-    console.log(`Admin action initiated: Build upload by ${req.user.username} from IP ${clientIp}`);
+    console.log(`Build upload by ${req.user.username} from IP ${clientIp}`);
 
     if (!req.file) {
         console.log(`Failed build upload attempt by ${req.user.username} from IP ${clientIp}: No file uploaded`);
@@ -95,9 +102,9 @@ router.post('/api/upload-dedcon-build', authenticateToken, upload.single('dedcon
     }
 });
 
-router.delete('/api/dedcon-build/:buildId', authenticateToken, checkRole(2), async (req, res) => {
+router.delete('/api/dedcon-build/:buildId', authenticateToken, checkPermission(permissions.DEDCON_DELETE), async (req, res) => {
     const clientIp = getClientIp(req);
-    console.log(`Admin action initiated: Build deletion by ${req.user.username} from IP ${clientIp}`);
+    console.log(`Build deletion by ${req.user.username} from IP ${clientIp}`);
 
     try {
         const [buildData] = await pool.query('SELECT * FROM dedcon_builds WHERE id = ?', [req.params.buildId]);
@@ -116,7 +123,7 @@ router.delete('/api/dedcon-build/:buildId', authenticateToken, checkRole(2), asy
     }
 });
 
-router.get('/api/dedcon-build/:buildId', authenticateToken, async (req, res) => {
+router.get('/api/dedcon-build/:buildId', authenticateToken, checkPermission(permissions.DEDCON_VIEW), async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM dedcon_builds WHERE id = ?', [req.params.buildId]);
         if (rows.length === 0) {
@@ -130,13 +137,13 @@ router.get('/api/dedcon-build/:buildId', authenticateToken, async (req, res) => 
     }
 });
 
-router.put('/api/dedcon-build/:buildId', authenticateToken, checkRole(2), async (req, res) => {
+router.put('/api/dedcon-build/:buildId', authenticateToken, checkPermission(permissions.DEDCON_EDIT), async (req, res) => {
     const clientIp = getClientIp(req);
     const { buildId } = req.params;
     const { name, version, release_date, platform, player_count, beta } = req.body;
     const isBeta = beta ? 1 : 0;
 
-    console.log(`Admin action initiated: Build edit by ${req.user.username} from IP ${clientIp}`);
+    console.log(`Build edit by ${req.user.username} from IP ${clientIp}`);
     console.log(`Editing build ID ${buildId}:`, JSON.stringify({ name, version, release_date, platform, player_count, beta }, null, 2));
 
     try {

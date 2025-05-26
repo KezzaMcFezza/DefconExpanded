@@ -85,7 +85,6 @@
     aspect-ratio: 16 / 9;
 }
 
-/* Responsive design for smaller screens */
 @media (max-width: 768px) {
     .media-layout {
         flex-direction: column;
@@ -100,7 +99,6 @@
     }
 }
 
-/* Additional styles to match your site's theme */
 .headerresources2 {
     color: #5eff00;
     font-size: 2rem;
@@ -124,12 +122,10 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Ensure text is readable on darker backgrounds */
 .video-title, .video-description {
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-/* Style for the close button in the modal */
 .close:hover,
 .close:focus {
     color: #bbb;
@@ -137,7 +133,6 @@
     cursor: pointer;
 }
 
-/* Additional responsive adjustments */
 @media (max-width: 480px) {
     .headerresources2 {
         font-size: 1.5rem;

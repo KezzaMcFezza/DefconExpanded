@@ -8,13 +8,14 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 05-05-2025
+//Last Edited 25-05-2025
 
 
 import API from '../api.js';
 import Auth from '../auth.js';
 import UI from '../ui.js';
 import Utils from '../utils.js';
+import PERMISSIONS from '../permission-index.js';
 
 const DedconBuildsModule = (() => {
     async function loadDedconBuilds() {
@@ -41,11 +42,11 @@ const DedconBuildsModule = (() => {
             const row = tbody.insertRow();
             let actionsHtml = '';
 
-            if (Auth.hasPermission(4)) {
+            if (Auth.hasPermission(PERMISSIONS.DEDCON_EDIT)) {
                 actionsHtml += `<button onclick="AdminApp.editDedconBuild(${build.id})">Edit</button>`;
             }
             
-            if (Auth.hasPermission(2)) {
+            if (Auth.hasPermission(PERMISSIONS.DEDCON_DELETE)) {
                 actionsHtml += `<button onclick="AdminApp.deleteDedconBuild(${build.id})">Delete</button>`;
             }
 
@@ -68,7 +69,7 @@ const DedconBuildsModule = (() => {
     async function uploadDedconBuild(event) {
         event.preventDefault();
         
-        if (!Auth.requirePermission(2, 'upload builds')) return;
+        if (!Auth.requirePermission(PERMISSIONS.DEDCON_ADD, 'upload builds')) return;
 
         const formData = new FormData(event.target);
         const platform = event.target.id.replace('upload-', '').replace('-dedcon', '');
@@ -86,7 +87,7 @@ const DedconBuildsModule = (() => {
     }
 
     async function editDedconBuild(buildId) {
-        if (!Auth.requirePermission(2, 'edit builds')) return;
+        if (!Auth.requirePermission(PERMISSIONS.DEDCON_EDIT, 'edit builds')) return;
         
         try {
             const build = await API.get(`/api/dedcon-build/${buildId}`);
@@ -115,7 +116,7 @@ const DedconBuildsModule = (() => {
     async function saveEditDedconBuild(event) {
         event.preventDefault();
         
-        if (!Auth.requirePermission(2, 'save build edits')) return;
+        if (!Auth.requirePermission(PERMISSIONS.DEDCON_EDIT, 'save build edits')) return;
         
         const buildId = document.getElementById('edit-dedcon-resource-id')?.value;
         const betaField = document.getElementById('edit-resource-beta');
@@ -141,7 +142,7 @@ const DedconBuildsModule = (() => {
     }
 
     async function deleteDedconBuild(buildId) {
-        if (!Auth.requirePermission(2, 'delete builds')) return;
+        if (!Auth.requirePermission(PERMISSIONS.DEDCON_DELETE, 'delete builds')) return;
         
         const confirmed = await UI.showConfirm('Are you sure you want to delete this build?');
         if (confirmed) {

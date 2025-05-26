@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
 const router = express.Router();
@@ -23,17 +23,22 @@ const {
 
 const {
     authenticateToken,
-    checkRole
-}   = require('../../authentication')
+    checkPermission
+} = require('../../authentication')
+
+const permissions = require('../../permission-index');
 
 const {
     getClientIp
-}   = require('../../shared-functions')
+} = require('../../shared-functions')
 
-router.post('/api/upload-resource', authenticateToken, upload.single('resourceFile'), checkRole(2), async (req, res) => {
+
+const debug = require('../../debug-helpers');
+
+router.post('/api/upload-resource', authenticateToken, upload.single('resourceFile'), checkPermission(permissions.RESOURCE_ADD), async (req, res) => {
     const clientIp = getClientIp(req);
 
-    console.log(`Admin action initiated: Resource upload by ${req.user.username} from IP ${clientIp}`);
+    console.log(`Resource upload by ${req.user.username} from IP ${clientIp}`);
 
     if (!req.file) {
         console.log(`Failed resource upload attempt by ${req.user.username} from IP ${clientIp}: No file uploaded`);
@@ -83,9 +88,9 @@ router.post('/api/upload-resource', authenticateToken, upload.single('resourceFi
 });
 
 
-router.delete('/api/resource/:resourceId', authenticateToken, checkRole(1), async (req, res) => {
+router.delete('/api/resource/:resourceId', authenticateToken, checkPermission(permissions.RESOURCE_DELETE), async (req, res) => {
     const clientIp = getClientIp(req);
-    console.log(`Admin action initiated: Resource deletion by ${req.user.username} from IP ${clientIp}`);
+    console.log(`Resource deletion by ${req.user.username} from IP ${clientIp}`);
 
     try {
         const [resourceData] = await pool.query('SELECT name, version FROM resources WHERE id = ?', [req.params.resourceId]);
@@ -105,13 +110,13 @@ router.delete('/api/resource/:resourceId', authenticateToken, checkRole(1), asyn
 });
 
 
-router.put('/api/resource/:resourceId', authenticateToken, checkRole(2), async (req, res) => {
+router.put('/api/resource/:resourceId', authenticateToken, checkPermission(permissions.RESOURCE_EDIT), async (req, res) => {
     const clientIp = getClientIp(req);
     const { resourceId } = req.params;
     const { name, version, date, platform, playerCount } = req.body;
 
 
-    console.log(`Admin action initiated: Resource edit by ${req.user.username} from IP ${clientIp}`);
+    console.log(`Resource edit by ${req.user.username} from IP ${clientIp}`);
     console.log(`Editing resource ID ${resourceId}:`, JSON.stringify({ name, version, date, platform, playerCount }, null, 2));
 
     try {
@@ -136,7 +141,7 @@ router.put('/api/resource/:resourceId', authenticateToken, checkRole(2), async (
     }
 });
 
-router.get('/api/resource/:resourceId', authenticateToken, async (req, res) => {
+router.get('/api/resource/:resourceId', authenticateToken, checkPermission(permissions.RESOURCE_VIEW), async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM resources WHERE id = ?', [req.params.resourceId]);
         if (rows.length === 0) {
