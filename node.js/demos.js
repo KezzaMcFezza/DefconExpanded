@@ -28,13 +28,6 @@ const {
 async function checkForMatch() {
     const processedPairs = new Set(); 
 
-    function allPlayersHaveZeroScore(logData) {
-        if (!logData.players || !Array.isArray(logData.players) || logData.players.length === 0) {
-            return false;
-        }
-        return logData.players.every(player => player.score === 0);
-    }
-
     for (const [jsonFileName, jsonInfo] of pendingJsons) {
         try {
             const jsonContent = await fs.promises.readFile(jsonInfo.path, 'utf8');
@@ -49,7 +42,6 @@ async function checkForMatch() {
             const dcrecFileName = path.basename(recordSetting);
             const demoInfo = pendingDemos.get(dcrecFileName);
 
-            
             const pairKey = `${dcrecFileName}-${jsonFileName}`;
             if (processedPairs.has(pairKey)) {
                 continue;
@@ -69,7 +61,6 @@ async function checkForMatch() {
                 try {
                     await pool.query('START TRANSACTION');
 
-                    
                     if (allPlayersHaveZeroScore(logData)) {
                         console.log(`Skipping game ${dcrecFileName} - all players have score 0, likely an incomplete game`);
                         processedPairs.add(pairKey);
@@ -101,7 +92,6 @@ async function checkForMatch() {
         }
     }
 
-    
     for (const [demoFileName, demoInfo] of pendingDemos) {
         let expectedJsonPrefix;
         if (demoFileName.endsWith('.d8crec')) {
@@ -129,7 +119,6 @@ async function checkForMatch() {
                     try {
                         await pool.query('START TRANSACTION');
 
-                        
                         if (allPlayersHaveZeroScore(logData)) {
                             console.log(`Skipping game ${demoFileName} - all players have score 0, likely an incomplete game`);
                             processedPairs.add(pairKey);
@@ -165,22 +154,25 @@ async function checkForMatch() {
     }
 }
 
-
 function cleanupOldPendingFiles() {
-    const oneHourAgo = Date.now() - 60 * 60 * 1000; 
+    try {
+        const oneHourAgo = Date.now() - 60 * 60 * 1000; 
 
-    for (const [fileName, fileInfo] of pendingDemos) {
-        if (fileInfo.addedTime < oneHourAgo) {
-            pendingDemos.delete(fileName);
-            console.log(`Removed old pending demo file: ${fileName}`);
+        for (const [fileName, fileInfo] of pendingDemos) {
+            if (fileInfo.addedTime < oneHourAgo) {
+                pendingDemos.delete(fileName);
+                console.log(`Removed old pending demo file: ${fileName}`);
+            }
         }
-    }
 
-    for (const [fileName, fileInfo] of pendingJsons) {
-        if (fileInfo.addedTime < oneHourAgo) {
-            pendingJsons.delete(fileName);
-            console.log(`Removed old pending JSON file: ${fileName}`);
+        for (const [fileName, fileInfo] of pendingJsons) {
+            if (fileInfo.addedTime < oneHourAgo) {
+                pendingJsons.delete(fileName);
+                console.log(`Removed old pending JSON file: ${fileName}`);
+            }
         }
+    } catch (error) {
+        console.error('Error cleaning up old pending files:', error);
     }
 }
 
@@ -245,7 +237,6 @@ async function processDemoFile(demoFileName, fileSize, logData, jsonFileName) {
                 return { ...player };
             }
 
-            
             if (allianceMapping.has(player.team)) {
                 return {
                     ...player,
@@ -325,7 +316,6 @@ async function processDemoFile(demoFileName, fileSize, logData, jsonFileName) {
         console.log(`Inserted row ID: ${result.insertId}`);
         console.log('Processed game data:', JSON.stringify(fullGameData, null, 2));
 
-        
         try {
             const [newDemo] = await pool.query('SELECT * FROM demos WHERE id = ?', [result.insertId]);
             if (newDemo.length > 0) {
@@ -345,11 +335,15 @@ async function processDemoFile(demoFileName, fileSize, logData, jsonFileName) {
 }
 
 function allPlayersHaveZeroScore(logData) {
-    if (!logData.players || !Array.isArray(logData.players) || logData.players.length === 0) {
+    try {
+        if (!logData.players || !Array.isArray(logData.players) || logData.players.length === 0) {
+            return false;
+        }
+        return logData.players.every(player => player.score === 0);
+    } catch (error) {
+        console.error('Error checking player scores:', error);
         return false;
     }
-
-    return logData.players.every(player => player.score === 0);
 }
 
 module.exports = {

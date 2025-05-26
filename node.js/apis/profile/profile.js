@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
 const router = express.Router();
@@ -25,9 +25,15 @@ const {
     authenticateToken,
 }   = require('../../authentication')
 
+
+const debug = require('../../debug-helpers');
+
 router.get('/api/profile/:username', async (req, res) => {
+    const startTime = debug.enter('getProfile', [req.params.username, req.query.mode], 1);
     const username = req.params.username;
     const mode = req.query.mode || 'vanilla';
+
+    debug.level2('Profile request:', { username, mode });
 
     try {
         const query = `
@@ -37,13 +43,18 @@ router.get('/api/profile/:username', async (req, res) => {
             WHERE users.username = ?
         `;
 
+        debug.dbQuery(query, [username], 2);
         const [rows] = await pool.query(query, [username]);
+        debug.dbResult(rows, 2);
 
         if (rows.length === 0) {
+            debug.level1('Profile not found for username:', username);
+            debug.exit('getProfile', startTime, 'not_found', 1);
             return res.status(404).json({ error: 'Profile not found' });
         }
 
         const userProfile = rows[0];
+        debug.level3('Found user profile:', userProfile.username);
         const territories = {
             vanilla: ['North America', 'South America', 'Europe', 'Africa', 'Asia', 'Russia'],
             '8player': ['North America', 'South America', 'Europe', 'Africa', 'East Asia', 'West Asia', 'Russia', 'Australasia'],
@@ -160,6 +171,7 @@ router.get('/api/profile/:username', async (req, res) => {
         if (userProfile.favorites) {
             const favoriteModIds = userProfile.favorites.split(',').filter(id => id);
             if (favoriteModIds.length > 0) {
+                debug.level3('Fetching favorite mods:', favoriteModIds.length);
                 const [mods] = await pool.query(
                     'SELECT * FROM modlist WHERE id IN (?)',
                     [favoriteModIds]
@@ -168,19 +180,30 @@ router.get('/api/profile/:username', async (req, res) => {
             }
         }
 
+        debug.level2('Profile data compiled:', { 
+            totalGames: responseData.totalGames, 
+            wins: responseData.wins, 
+            losses: responseData.losses 
+        });
+        debug.exit('getProfile', startTime, { totalGames: responseData.totalGames }, 1);
         res.json(responseData);
 
     } catch (error) {
-        console.error('Error fetching profile:', error);
+        debug.error('getProfile', error, 1);
+        debug.exit('getProfile', startTime, 'error', 1);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
 router.get('/api/profile-arch-nemesis', async (req, res) => {
+    const startTime = debug.enter('getArchNemesis', [req.query.playerName], 1);
     try {
         const { playerName } = req.query;
+        debug.level2('Arch nemesis request for player:', playerName);
 
         if (!playerName) {
+            debug.level1('Arch nemesis request missing player name');
+            debug.exit('getArchNemesis', startTime, 'missing_player_name', 1);
             return res.status(400).json({ error: 'Player name is required' });
         }
 
@@ -257,7 +280,6 @@ router.get('/api/profile-arch-nemesis', async (req, res) => {
                     const opponentGroupId = usingAlliances ? opponent.alliance : opponent.team;
                     if (opponentGroupId === undefined) return;
 
-
                     if (!playerInteractions[opponent.name]) {
                         playerInteractions[opponent.name] = {
                             games: 0,
@@ -317,6 +339,8 @@ router.get('/api/profile-arch-nemesis', async (req, res) => {
             }
         });
 
+        debug.level2('Arch nemesis calculation complete:', { archNemesis, totalGames });
+        debug.exit('getArchNemesis', startTime, { archNemesis, totalGames }, 1);
         res.json({
             playerName,
             archNemesis: archNemesis || 'None yet',
@@ -333,7 +357,8 @@ router.get('/api/profile-arch-nemesis', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error calculating arch nemesis:', error);
+        debug.error('getArchNemesis', error, 1);
+        debug.exit('getArchNemesis', startTime, 'error', 1);
         res.status(500).json({ error: 'Unable to calculate arch nemesis', details: error.message });
     }
 });
@@ -362,8 +387,6 @@ router.get('/api/recent-game/:username', async (req, res) => {
         res.status(500).json({ error: 'Unable to fetch recent game' });
     }
 });
-
-
 
 router.post('/api/update-profile', authenticateToken, async (req, res) => {
     const userId = req.user.id;
@@ -405,8 +428,6 @@ router.post('/api/update-profile', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to update profile' });
     }
 });
-
-
 
 router.post('/api/upload-profile-image', upload.single('image'), async (req, res) => {
     if (!req.file) {

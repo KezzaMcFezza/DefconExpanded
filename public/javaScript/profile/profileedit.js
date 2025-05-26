@@ -308,7 +308,6 @@ function initializeProfileImageEditing() {
             const reader = new FileReader();
             
             reader.onload = function(event) {
-                // Create a temporary image to get the natural dimensions
                 const tempImg = new Image();
                 tempImg.src = event.target.result;
                 
@@ -316,17 +315,13 @@ function initializeProfileImageEditing() {
                     const cropperImage = document.getElementById('cropper-image');
                     cropperImage.src = event.target.result;
                     
-                    // Adjust modal content size based on image dimensions
                     const modalContent = document.querySelector('.cropper-modal-content');
                     const cropperContainer = document.querySelector('.cropper-container');
-                    
-                    // Calculate optimal dimensions for the modal
                     const maxWidth = window.innerWidth * 0.9;
                     const maxHeight = window.innerHeight * 0.8;
                     
                     let modalWidth, modalHeight;
                     
-                    // Calculate scaled dimensions that maintain aspect ratio
                     if (tempImg.width > maxWidth || tempImg.height > maxHeight) {
                         const widthRatio = maxWidth / tempImg.width;
                         const heightRatio = maxHeight / tempImg.height;
@@ -338,19 +333,15 @@ function initializeProfileImageEditing() {
                         modalWidth = tempImg.width;
                         modalHeight = tempImg.height;
                     }
-                    
-                    // Ensure minimum size for the modal
+
                     modalWidth = Math.max(modalWidth, 400);
                     modalHeight = Math.max(modalHeight, 300);
-                    
-                    // Set container padding to 0 to maximize image space
+
                     cropperContainer.style.padding = '0';
-                    
-                    // Adjust modal content width
+
                     modalContent.style.width = 'auto';
-                    modalContent.style.maxWidth = `${modalWidth + 40}px`; // Add padding
+                    modalContent.style.maxWidth = `${modalWidth + 40}px`; 
                     
-                    // Show modal after dimensions are set
                     cropperModal.style.display = 'flex';
                     
                     if (cropper) {
@@ -359,18 +350,17 @@ function initializeProfileImageEditing() {
                     
                     const aspectRatio = currentEditType === 'profile' ? 1 : 3;
                     
-                    // Configure Cropper.js with improved settings
                     cropper = new Cropper(cropperImage, {
                         aspectRatio: aspectRatio,
-                        viewMode: 2, // Restrict the crop box to not exceed the size of the canvas
+                        viewMode: 2, 
                         dragMode: 'move',
-                        background: false, // Don't show the grid background outside the crop box
-                        autoCropArea: 0.9, // Define crop box size (90% of the image)
+                        background: false, 
+                        autoCropArea: 0.9, 
                         responsive: true,
                         restore: false,
-                        modal: true, // Show black modal background
+                        modal: true, 
                         guides: true,
-                        center: true, // Show center indicator
+                        center: true, 
                         highlight: true,
                         cropBoxMovable: true,
                         cropBoxResizable: true,
@@ -378,33 +368,28 @@ function initializeProfileImageEditing() {
                         minContainerWidth: 300,
                         minContainerHeight: 200,
                         ready() {
-                            // After cropper is ready, adjust styling
                             const cropperCanvas = document.querySelector('.cropper-canvas');
                             if (cropperCanvas) {
                                 cropperCanvas.style.backgroundImage = 'none';
-                                // Add solid background behind the image to hide transparency
                                 cropperCanvas.style.backgroundColor = '#1c1c2e'; 
                             }
                             
                             if (currentEditType === 'profile') {
                                 const containerData = cropper.getContainerData();
                                 
-                                // Properly size the crop box for profile pictures
                                 const size = Math.min(
                                     tempImg.width, 
                                     tempImg.height, 
                                     Math.min(containerData.width, containerData.height) * 0.9
                                 );
                                 
-                                // Center the crop box
                                 cropper.setCropBoxData({
                                     left: (containerData.width - size) / 2,
                                     top: (containerData.height - size) / 2,
                                     width: size,
                                     height: size
                                 });
-                                
-                                // Apply circular mask for profile pictures
+
                                 const cropBox = document.querySelector('.cropper-view-box');
                                 if (cropBox) {
                                     cropBox.style.borderRadius = '50%';
@@ -414,15 +399,11 @@ function initializeProfileImageEditing() {
                                     }
                                 }
                             } else {
-                                // For banner, ensure crop box fits the image properly
                                 const imageData = cropper.getImageData();
                                 const containerData = cropper.getContainerData();
-                                
-                                // Calculate optimal crop box size for the banner
                                 const width = Math.min(imageData.width, containerData.width * 0.9);
                                 const height = width / aspectRatio;
                                 
-                                // Center the crop box
                                 cropper.setCropBoxData({
                                     left: (containerData.width - width) / 2,
                                     top: (containerData.height - height) / 2,

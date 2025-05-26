@@ -11,9 +11,6 @@
 // 
 //Last Edited 01-04-2025
 
-
-import UI from './ui.js';
-
 const API = (() => {
     async function fetchWithErrorHandling(url, options = {}) {
         try {

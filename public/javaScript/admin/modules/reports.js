@@ -8,13 +8,14 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 25-05-2025
 
 
 import API from '../api.js';
 import Auth from '../auth.js';
 import UI from '../ui.js';
 import Utils from '../utils.js';
+import PERMISSIONS from '../permission-index.js';
 
 const ReportsModule = (() => {
     async function loadPendingReports() {

@@ -10,7 +10,6 @@
 // 
 // Last Edited 14-04-2025
 
-// Default filters used for the leaderboard
 export const leaderboardFilters = {
     serverName: '',
     sortBy: 'wins',
@@ -20,7 +19,6 @@ export const leaderboardFilters = {
     playlist: ''
 };
 
-// Server playlists for grouping
 export const serverPlaylists = {
     all: { name: "All Servers", servers: [] },
     oneVsOne: {
@@ -73,7 +71,6 @@ export const serverPlaylists = {
     }
 };
 
-// First season information
 export const firstSeason = {
     name: 'The Beginning',
     displayName: 'The Beginning Y1S1',
@@ -83,7 +80,6 @@ export const firstSeason = {
     season: 1
 };
 
-// Season boundary definitions
 export const seasonBoundaries = [
     { startMonth: 2, startDay: 27, endMonth: 4, endDay: 26 },
     { startMonth: 4, startDay: 27, endMonth: 8, endDay: 31 },
@@ -91,7 +87,6 @@ export const seasonBoundaries = [
     { startMonth: 1, startDay: 1, endMonth: 2, endDay: 26 }
 ];
 
-// Default player names to exclude from leaderboards
 export const defaultNames = [
     'NewPlayer',
     'NewPlayer_1',

@@ -8,17 +8,17 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 25-05-2025
 
 
 import API from '../api.js';
 import Auth from '../auth.js';
 import UI from '../ui.js';
-import Utils from '../utils.js';
+import PERMISSIONS from '../permission-index.js';
 
 const ModsModule = (() => {
     async function loadMods(type = '', sort = '') {
-        if (!Auth.hasPermission(5)) return;
+        if (!Auth.hasPermission(PERMISSIONS.MOD_VIEW)) return;
         
         try {
             let url = '/api/mods';
@@ -35,11 +35,11 @@ const ModsModule = (() => {
                 const row = tbody.insertRow();
                 let actionsHtml = '';
                 
-                if (Auth.hasPermission(5)) {
+                if (Auth.hasPermission(PERMISSIONS.MOD_EDIT)) {
                     actionsHtml += `<button onclick="AdminApp.editMod(${mod.id})">Edit</button>`;
                 }
                 
-                if (Auth.hasPermission(1)) {
+                if (Auth.hasPermission(PERMISSIONS.MOD_DELETE)) {
                     actionsHtml += `<button onclick="AdminApp.deleteMod(${mod.id})">Delete</button>`;
                 }
                 
@@ -60,7 +60,7 @@ const ModsModule = (() => {
     async function addMod(event) {
         event.preventDefault();
         
-        if (!Auth.requirePermission(5, 'add mods')) return;
+        if (!Auth.requirePermission(PERMISSIONS.MOD_ADD, 'add mods')) return;
         
         const formData = new FormData(event.target);
         
@@ -76,7 +76,7 @@ const ModsModule = (() => {
     }
 
     async function editMod(modId) {
-        if (!Auth.requirePermission(5, 'edit mods')) return;
+        if (!Auth.requirePermission(PERMISSIONS.MOD_EDIT, 'edit mods')) return;
         
         try {
             const mod = await API.get(`/api/mods/${modId}`);
@@ -111,7 +111,7 @@ const ModsModule = (() => {
     async function saveEditMod(event) {
         event.preventDefault();
         
-        if (!Auth.requirePermission(5, 'save mod edits')) return;
+        if (!Auth.requirePermission(PERMISSIONS.MOD_EDIT, 'save mod edits')) return;
         
         const modId = document.getElementById('edit-mod-id')?.value;
         const formData = new FormData(event.target);
@@ -128,7 +128,7 @@ const ModsModule = (() => {
     }
 
     async function deleteMod(modId) {
-        if (!Auth.requirePermission(2, 'delete mods')) return;
+        if (!Auth.requirePermission(PERMISSIONS.MOD_DELETE, 'delete mods')) return;
         
         const confirmed = await UI.showConfirm('Are you sure you want to delete this mod?');
         if (confirmed) {

@@ -8,12 +8,55 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 25-05-2025
 
-import { formatDuration, getTimeAgo } from '../main/main.js';
-import { territoryMapping } from './constants.js';
+import { 
+  formatDuration,
+  getTimeAgo 
+} from '../main/main.js';
 
-function createDemoCard(demo) {
+import { 
+  territoryMapping 
+} from './constants.js';
+
+let demoIdPermissionCache = null;
+let permissionCacheTime = 0;
+const CACHE_DURATION = 5 * 60 * 1000; 
+
+async function canViewDemoId() {
+  const now = Date.now();
+  
+  if (demoIdPermissionCache !== null && (now - permissionCacheTime) < CACHE_DURATION) {
+    return demoIdPermissionCache;
+  }
+  
+  try {
+    const response = await fetch('/api/current-user', { credentials: 'include' });
+    if (!response.ok) {
+      demoIdPermissionCache = false;
+      permissionCacheTime = now;
+      return false;
+    }
+    
+    const data = await response.json();
+    if (!data.user || !data.user.permissions) {
+      demoIdPermissionCache = false;
+      permissionCacheTime = now;
+      return false;
+    }
+    
+    const hasPermission = data.user.permissions.includes(204);
+    demoIdPermissionCache = hasPermission;
+    permissionCacheTime = now;
+    return hasPermission;
+  } catch (error) {
+    demoIdPermissionCache = false;
+    permissionCacheTime = now;
+    return false;
+  }
+}
+
+async function createDemoCard(demo) {
   const demoDate = new Date(demo.date);
   const demoCard = document.createElement('div');
   demoCard.className = 'demo-card';
@@ -276,9 +319,7 @@ function createDemoCard(demo) {
     <div class="demo-actions">
       <a href="/api/download/${demo.name}" class="download-btn-demo"><i class="fas fa-cloud-arrow-down"></i> Download</a>
       <button class="btn-report" onclick="showReportOptions(${demo.id}, event)">Report</button>
-      ${window.userRole !== undefined && window.userRole <= 5 ? `
-        <span style="color: #888888b0; text-shadow: unset; text-shadow: 0px 0px 0px currentColor; margin-left: auto;">Demo ID: ${demo.id}</span>
-      ` : ''}
+      ${await canViewDemoId() ? `<span style="color: #888888b0; text-shadow: unset; text-shadow: 0px 0px 0px currentColor; margin-left: auto;">Demo ID: ${demo.id}</span>` : ''}
       <span class="downloads-count"><i class="fas fa-download"></i> ${demo.download_count || 0}</span>
     </div>
   </div>`;
@@ -297,7 +338,7 @@ function toggleSpectators(button) {
     `<i class="fas fa-eye"></i> Show Spectators`;
 }
 
-function displayDemos(demos) {
+async function displayDemos(demos) {
   const demoContainer = document.getElementById('demo-container');
   if (!demoContainer) {
     console.error('Demo container not found.');
@@ -318,33 +359,26 @@ function displayDemos(demos) {
   const columns = Array.from({ length: columnCount }, () => document.createElement('div'));
   columns.forEach(column => column.className = 'demo-column');
 
-  const ensureUserRole = async () => {
-    if (window.userRole === undefined) {
-      try {
-        const response = await fetch('/api/current-user');
-        const data = await response.json();
-        if (data.user) {
-          window.userRole = data.user.role;
-        }
-      } catch (error) {
-        console.error('Error fetching user role:', error);
-      }
+  const demoCardPromises = demos.map(async (demo, index) => {
+    const columnIndex = index % columnCount;
+    try {
+      const demoCard = await createDemoCard(demo);
+      return { demoCard, columnIndex };
+    } catch (error) {
+      console.error(`Error creating demo card for demo ID ${demo.id}:`, error);
+      return null;
     }
+  });
 
-    demos.forEach((demo, index) => {
-      const columnIndex = index % columnCount;
-      try {
-        const demoCard = createDemoCard(demo);
-        columns[columnIndex].appendChild(demoCard);
-      } catch (error) {
-        console.error(`Error creating demo card for demo ID ${demo.id}:`, error);
-      }
-    });
+  const demoCardResults = await Promise.all(demoCardPromises);
+  
+  demoCardResults.forEach(result => {
+    if (result) {
+      columns[result.columnIndex].appendChild(result.demoCard);
+    }
+  });
 
-    columns.forEach(column => demoContainer.appendChild(column));
-  };
-
-  ensureUserRole();
+  columns.forEach(column => demoContainer.appendChild(column));
 }
 
 export { 

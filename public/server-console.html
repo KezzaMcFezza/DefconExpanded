@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024 
+* Last Edited 25-05-2025 
 -->
 
 <!DOCTYPE html>
@@ -20,7 +20,7 @@
   <script type="module" src="/javaScript/main/main.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DEFCON Expanded: A DEFCON Modding Community</title>
+  <title>DEFCON Expanded: Server Console</title>
   <meta name="robots" content="noindex">
   <link rel="stylesheet" type="text/css" href="/CSS/newmain.css">
   <link rel="stylesheet" type="text/css" href="/CSS/scaling.css">
@@ -30,12 +30,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&amp;display=swap" rel="stylesheet">
-  <script>
-
-  </script>
 </head>
 <style>
-  [data-min-role] {
+  [data-permission] {
     display: none;
   }
 
@@ -47,18 +44,137 @@
     padding: 0;
   }
 
-  #output {
+  #console-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 100px);
     padding: 1rem;
+    gap: 1rem;
+  }
+
+  #console-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #console-header {
+    background-color: rgba(28, 28, 46, 0.2);
+    border: 1px solid #3a3a3a;
+    padding: 1rem;
+    overflow: auto;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+  }
+
+  #console-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(to right, #ff8400, #ffcc00);
+    opacity: 0.7;
+  }
+
+  #console-title {
+    color: #4da6ff;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  #console-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .log-streams-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .log-streams-container label {
+    color: #b8b8b8;
+    font-family: 'Roboto', Arial, sans-serif;
+    margin: 0;
+  }
+
+  .log-streams-container input[type="checkbox"] {
+    margin: 0 5px 0 10px;
+  }
+
+  #download-logs-btn {
+    background-color: #0067b8;
     border: none;
-    height: calc(100vh - 80px);
+    color: #ffffff;
+    cursor: pointer;
+    font-family: 'Roboto', Arial, sans-serif;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+  }
+
+  #download-logs-btn:hover {
+    background-color: #3a8ad6;
+  }
+
+  #console-output {
+    flex: 1;
+    background-color: #0c0c0c;
+    border: 1px solid #3a3a3a;
+    padding: 1rem;
     overflow-y: auto;
-    white-space: pre-wrap;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #b8b8b8;
+    margin-bottom: 1rem;
     word-wrap: break-word;
+    border-radius: 5px;
+  }
+
+  #command-input {
+    display: flex;
+  }
+
+  #command-input input {
+    flex: 1;
+    background-color: rgba(28, 28, 46, 0.6);
+    border: 1px solid #3a3a3a;
+    color: #ffffff;
+    padding: 8px 10px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    border-radius: 4px 0 0 4px;
+  }
+
+  #command-input button {
+    margin-left: 0;
+    background-color: #0067b8;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    font-family: 'Roboto', Arial, sans-serif;
+    padding: 8px 15px;
+    border-radius: 0 4px 4px 0;
+    transition: background-color 0.3s;
+  }
+
+  #command-input button:hover {
+    background-color: #3a8ad6;
   }
 
   .log-entry {
     font-family: 'Consolas', 'Courier New', monospace;
     margin-bottom: 2px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }
 
   .timestamp {
@@ -69,37 +185,56 @@
     color: #cccccc;
   }
 
-  #downloadButton {
-    background-color: #0c0c0c;
-    border: 1px solid #cccccc;
-    color: #cccccc;
-    cursor: pointer;
-    max-width: 150px;
-    font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 14px;
-    margin: 1.5rem auto;
-    padding: 5px 10px;
+  .error-message {
+    color: #ff6b6b;
   }
 
-  #downloadButton:hover {
-    background-color: #cccccc;
-    color: #0c0c0c;
+  .success-message {
+    color: #5eff00;
+  }
+
+  .system-message {
+    color: #ffcc00;
+  }
+
+  .console-prompt {
+    color: #4da6ff;
+  }
+
+  .console-response {
+    color: #b8b8b8;
+  }
+
+  .debug-message {
+    color: #ff8400;
+  }
+
+  .server-log {
+    border-left: 3px solid #00aaff;
+    padding-left: 8px;
+  }
+
+  .debug-log {
+    border-left: 3px solid #ff8400;
+    padding-left: 8px;
   }
 
   ::-webkit-scrollbar {
-    width: 12px;
+    width: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #0c0c0c;
+    background: #1a1a1a;
+    border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #888;
+    background: #333;
+    border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    background: #444;
   }
 
   @media (max-width: 768px) {
@@ -107,6 +242,10 @@
       cursor: pointer;
       padding: 0px 0px 65px 0px;
       display: block;
+    }
+    
+    #console-container {
+      padding: 0.5rem;
     }
   }
 
@@ -121,34 +260,138 @@
       <div class="title">DEFCON Expanded</div>
       <ul class="list-items">
         <li><a href="/" id="nav-home"><i class="fas fa-home"></i>Back to Homepage</a></li>
-        <li data-min-role="5"><a href="/adminpanel" id="nav-whitelist"><i class="fab fa-windows"></i>Admin Panel</a>
+        <li data-permission="PAGE_ADMIN_PANEL"><a href="/adminpanel" id="nav-whitelist"><i class="fab fa-windows"></i>Admin Panel</a>
         </li>
-        <li data-min-role="5"><a href="/leaderboardblacklistmanage" id="nav-blaclist" data-min-role="5"><i
+        <li data-permission="PAGE_BLACKLIST_MANAGE"><a href="/leaderboardblacklistmanage" id="nav-blaclist"><i
               class="fas fa-ban"></i>Blacklist Managment</a></li>
-        <li data-min-role="5"><a href="/demomanage" id="nav-demomanage" data-min-role="5"><i
+        <li data-permission="PAGE_DEMO_MANAGE"><a href="/demomanage" id="nav-demomanage"><i
               class="fas fa-video"></i>Demo Managment</a></li>
-        <li data-min-role="2"><a href="/playerlookup" id="nav-playerlookup" data-min-role="2"><i
+        <li data-permission="PAGE_PLAYER_LOOKUP"><a href="/playerlookup" id="nav-playerlookup"><i
               class="fa-solid fa-magnifying-glass"></i>Player Search</a></li>
-        <li data-min-role="3"><a href="/dedconmanagment" id="nav-dedconmanagment" data-min-role="2"><i
+        <li data-permission="PAGE_DEDCON_MANAGEMENT"><a href="/dedconmanagment" id="nav-dedconmanagment"><i
               class="fas fa-radiation"></i>Dedcon Managment</a></li>
-        <li data-min-role="3"><a href="/resourcemanage" id="nav-resourcemanage" data-min-role="3"><i
+        <li data-permission="PAGE_RESOURCE_MANAGE"><a href="/resourcemanage" id="nav-resourcemanage"><i
               class="fas fa-download"></i>Resource Managment</a></li>
-        <li data-min-role="5"><a href="/modlistmanage" id="nav-modmanage" data-min-role="5"><i
+        <li data-permission="PAGE_MODLIST_MANAGE"><a href="/modlistmanage" id="nav-modmanage"><i
               class="fas fa-list"></i>Modlist Managment</a></li>
-        <li data-min-role="2"><a href="/accountmanage" id="nav-accountmanage" data-min-role="2"><i
+        <li data-permission="PAGE_ACCOUNT_MANAGE"><a href="/accountmanage" id="nav-accountmanage"><i
               class="fas fa-user"></i>User Account Managment</a></li>
-        <li data-min-role="2"><a href="/serverconsole" id="nav-console" data-min-role="2"><i
+        <li data-permission="PAGE_SERVER_CONSOLE"><a href="/serverconsole" id="nav-console"><i
               class="fas fa-laptop-code"></i>Website Console</a></li>
-        <li data-min-role="1"><a href="/defconservers" id="nav-defconservers" data-min-role="1"><i
+        <li data-permission="PAGE_DEFCON_SERVERS"><a href="/defconservers" id="nav-defconservers"><i
               class="fa-solid fa-server"></i>Dedcon Servers</a></li>
-        <li data-min-role="1"><a href="/rconconsole" id="nav-rcon" data-min-role="1"><i
+        <li data-permission="PAGE_RCON_CONSOLE"><a href="/rconconsole" id="nav-rcon"><i
               class="fa-solid fa-terminal"></i>RCON Console</a></li>
       </ul>
-      <button id="downloadButton" onclick="AdminApp.downloadLogs()">Download Logs</button>
     </div>
     <main>
-      <div id="output"></div>
-      <script>
+      <div id="console-container">
+        <div id="console-panel">
+          <div id="console-header">
+            <div id="console-title">Server Console</div>
+            <div id="console-controls">
+              <button id="download-logs-btn" onclick="AdminApp.downloadLogs()">
+                <i class="fas fa-download"></i> Download Logs (ZIP)
+              </button>
+              <div class="log-streams-container">
+                <label>Log Streams:</label>
+                <input type="checkbox" id="stream-server-log" name="stream-server-log">
+                <label for="stream-server-log">Server Log</label>
+                <input type="checkbox" id="stream-debug-log" name="stream-debug-log" style="margin-left: 10px;">
+                <label for="stream-debug-log">Debug Log</label>
+              </div>
+            </div>
+          </div>
 
-      </script>
+          <div id="console-output">
+            <!-- Console output will be populated here -->
+          </div>
+
+          <div id="command-input">
+            <input type="text" id="command" placeholder="Enter console command...">
+            <button id="send-btn">Send</button>
+          </div>
+        </div>
+      </div>
     </main>
+  </div>
+
+  <script>
+    // Console functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const commandInput = document.getElementById('command');
+      const sendBtn = document.getElementById('send-btn');
+      const consoleOutput = document.getElementById('console-output');
+
+      // Function to add message to console
+      function addToConsole(message, className = '') {
+        const timestamp = new Date().toISOString();
+        const logEntry = document.createElement('div');
+        logEntry.className = `log-entry ${className}`;
+        
+        // Create timestamp span
+        const timestampSpan = document.createElement('span');
+        timestampSpan.className = 'timestamp';
+        timestampSpan.textContent = `[${timestamp}]`;
+        
+        // Create message span and preserve line breaks
+        const messageSpan = document.createElement('span');
+        messageSpan.className = 'message';
+        messageSpan.style.whiteSpace = 'pre-wrap'; // Preserve whitespace and line breaks
+        messageSpan.textContent = ` ${message}`;
+        
+        logEntry.appendChild(timestampSpan);
+        logEntry.appendChild(messageSpan);
+        consoleOutput.appendChild(logEntry);
+        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+      }
+
+      // Function to send command
+      function sendCommand() {
+        const command = commandInput.value.trim();
+        if (!command) return;
+
+        // Display the command in console
+        addToConsole(`> ${command}`, 'console-prompt');
+        
+        // Clear input
+        commandInput.value = '';
+
+        // Send command to server
+        fetch('/api/console/execute', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ command: command })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            addToConsole(data.output || 'Command executed successfully', 'success-message');
+          } else {
+            addToConsole(data.error || 'Command failed', 'error-message');
+          }
+        })
+        .catch(error => {
+          addToConsole(`Error: ${error.message}`, 'error-message');
+        });
+      }
+
+      // Event listeners
+      sendBtn.addEventListener('click', sendCommand);
+      commandInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          sendCommand();
+        }
+      });
+
+      // Initial message
+      addToConsole('Server console ready. Type commands below.', 'system-message');
+      addToConsole('Use the checkboxes above to enable log streams.', 'system-message');
+      addToConsole('Type /help for available commands', 'system-message');
+    });
+  </script>
+</body>
+
+</html>

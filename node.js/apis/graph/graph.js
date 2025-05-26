@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
 const router = express.Router();
@@ -25,14 +25,17 @@ const {
     processTotalHoursData,
 } = require('../../graph-functions')
 
+
+const debug = require('../../debug-helpers');
+
 router.get('/api/games-timeline', async (req, res) => {
+    const startTime = debug.enter('getGamesTimeline', [req.query], 1);
     try {
         const { graphType = 'individualServers', playerName, startDate, endDate } = req.query;
+        debug.level2('Games timeline request:', { graphType, playerName, startDate, endDate });
 
-        
         let query = `SELECT date, game_type, duration, players`;
 
-        
         for (let i = 1; i <= 10; i++) {
             query += `, player${i}_territory`;
         }
@@ -70,8 +73,8 @@ router.get('/api/games-timeline', async (req, res) => {
 
         query += baseQuery;
 
-        
         if (playerName) {
+            debug.level3('Adding player name filter:', playerName);
             conditions.push(`(player1_name LIKE ? OR player2_name LIKE ? OR player3_name LIKE ? 
                        OR player4_name LIKE ? OR player5_name LIKE ? OR player6_name LIKE ? 
                        OR player7_name LIKE ? OR player8_name LIKE ? OR player9_name LIKE ? 
@@ -81,55 +84,64 @@ router.get('/api/games-timeline', async (req, res) => {
             }
         }
 
-        
         if (startDate) {
+            debug.level3('Adding start date filter:', startDate);
             conditions.push('date >= ?');
             queryParams.push(startDate);
         }
 
         if (endDate) {
+            debug.level3('Adding end date filter:', endDate);
             conditions.push('date <= ?');
             queryParams.push(endDate);
         }
 
-        
         if (conditions.length > 0) {
             query += ` AND ${conditions.join(' AND ')}`;
         }
 
         query += ` ORDER BY date ASC`;
 
+        debug.dbQuery(query, queryParams, 2);
         const [rows] = await pool.query(query, queryParams);
+        debug.dbResult(rows, 2);
 
-        
+        debug.level2('Processing data with graph type:', graphType);
         let chartData;
         switch (graphType) {
             case 'combinedServers':
+                debug.level3('Processing combined servers data');
                 chartData = processCombinedServersData(rows);
                 break;
 
             case 'totalHoursPlayed':
+                debug.level3('Processing total hours data');
                 chartData = processTotalHoursData(rows);
                 break;
 
             case 'popularTerritories':
+                debug.level3('Processing territories data');
                 chartData = processTerritoriesData(rows);
                 break;
 
             case 'individualServers':
             default:
+                debug.level3('Processing individual servers data');
                 chartData = processIndividualServersData(rows);
                 break;
 
             case '1v1setupStatistics':
-                
+                debug.level3('Processing 1v1 setup statistics');
                 chartData = process1v1SetupData(rows, { startDate, endDate });
                 break;
         }
 
+        debug.level2('Returning chart data for graph type:', graphType);
+        debug.exit('getGamesTimeline', startTime, { graphType, dataPoints: chartData?.datasets?.[0]?.data?.length || 0 }, 1);
         res.json(chartData);
     } catch (error) {
-        console.error('Error fetching games timeline data:', error);
+        debug.error('getGamesTimeline', error, 1);
+        debug.exit('getGamesTimeline', startTime, 'error', 1);
         res.status(500).json({ error: 'Unable to fetch games timeline data' });
     }
 });

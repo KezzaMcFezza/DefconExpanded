@@ -80,7 +80,6 @@ export function getCurrentSeason() {
         }
     }
 
-    // If no current season is found, return the most recent one
     const sortedSeasons = Object.entries(seasons)
         .sort((a, b) => new Date(b[1].endDate) - new Date(a[1].endDate));
 

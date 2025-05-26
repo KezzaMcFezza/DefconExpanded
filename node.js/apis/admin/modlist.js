@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
 const router = express.Router();
@@ -21,14 +21,19 @@ const {
 } = require('../../constants');
 
 const {
-    checkRole
-}   = require('../../authentication')
+    authenticateToken,
+    checkPermission
+} = require('../../authentication')
+
+const permissions = require('../../permission-index');
 
 const {
     getClientIp
-}   = require('../../shared-functions')
+} = require('../../shared-functions')
 
-router.get('/api/mods/:id', async (req, res) => {
+const debug = require('../../debug-helpers');
+
+router.get('/api/mods/:id', authenticateToken, checkPermission(permissions.MOD_VIEW), async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM modlist WHERE id = ?', [req.params.id]);
         if (rows.length === 0) {
@@ -46,7 +51,7 @@ router.get('/api/mods/:id', async (req, res) => {
 router.post('/api/mods', upload.fields([
     { name: 'modFile', maxCount: 1 },
     { name: 'previewImage', maxCount: 1 }
-]), checkRole(5), async (req, res) => {
+]), authenticateToken, checkPermission(permissions.MOD_ADD), async (req, res) => {
     try {
         const { name, type, creator, releaseDate, description, compatibility, version } = req.body;
         const modFile = req.files['modFile'] ? req.files['modFile'][0] : null;
@@ -72,12 +77,12 @@ router.post('/api/mods', upload.fields([
 router.put('/api/mods/:id', upload.fields([
     { name: 'modFile', maxCount: 1 },
     { name: 'previewImage', maxCount: 1 }
-]), checkRole(5), async (req, res) => {
+]), authenticateToken, checkPermission(permissions.MOD_EDIT), async (req, res) => {
     const { id } = req.params;
     const { name, type, creator, releaseDate, description, compatibility, version } = req.body;
     const clientIp = getClientIp(req);
 
-    console.log(`Admin action initiated: Mod update by ${req.user.username} from IP ${clientIp}`);
+    console.log(`Mod update by ${req.user.username} from IP ${clientIp}`);
 
     try {
         
@@ -137,14 +142,24 @@ router.put('/api/mods/:id', upload.fields([
 });
 
 
-router.delete('/api/mods/:id', checkRole(1), async (req, res) => {
+router.delete('/api/mods/:id', authenticateToken, checkPermission(permissions.MOD_DELETE), async (req, res) => {
     const { id } = req.params;
+    const clientIp = getClientIp(req);
+    
+    console.log(`Mod deletion by ${req.user.username} from IP ${clientIp}`);
 
     try {
+        const [modData] = await pool.query('SELECT * FROM modlist WHERE id = ?', [id]);
+        if (modData.length === 0) {
+            console.log(`Failed mod deletion attempt by ${req.user.username} from IP ${clientIp}: Mod not found (ID: ${id})`);
+            return res.status(404).json({ error: 'Mod not found' });
+        }
+        
         await pool.query('DELETE FROM modlist WHERE id = ?', [id]);
+        console.log(`Mod successfully deleted by ${req.user.username} from IP ${clientIp}:`, JSON.stringify(modData[0], null, 2));
         res.json({ message: 'Mod deleted successfully' });
     } catch (error) {
-        console.error('Error deleting mod:', error);
+        console.error(`Error deleting mod by ${req.user.username} from IP ${clientIp}:`, error);
         res.status(500).json({ error: 'Unable to delete mod' });
     }
 });

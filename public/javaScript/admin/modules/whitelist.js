@@ -9,16 +9,17 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 25-05-2025
 
 
 import API from '../api.js';
 import Auth from '../auth.js';
 import UI from '../ui.js';
+import PERMISSIONS from '../permission-index.js';
 
 const WhitelistModule = (() => {
     async function loadWhitelist() {
-        if (!Auth.hasPermission(5)) return;
+        if (!Auth.hasPermission(PERMISSIONS.BLACKLIST_VIEW)) return;
         
         try {
             const whitelist = await API.get('/api/whitelist');
@@ -30,7 +31,7 @@ const WhitelistModule = (() => {
                 const row = tbody.insertRow();
                 let actionsHtml = '';
                 
-                if (Auth.hasPermission(5)) {
+                if (Auth.hasPermission(PERMISSIONS.BLACKLIST_REMOVE)) {
                     actionsHtml = `<button onclick="AdminApp.removeFromWhitelist('${player.player_name}')">Remove</button>`;
                 }
                 
@@ -49,7 +50,7 @@ const WhitelistModule = (() => {
     async function addToWhitelist(event) {
         event.preventDefault();
         
-        if (!Auth.requirePermission(5, 'add to the whitelist')) return;
+        if (!Auth.requirePermission(PERMISSIONS.BLACKLIST_ADD, 'add to the whitelist')) return;
         
         const playerName = document.getElementById('player-name')?.value;
         const reason = document.getElementById('whitelist-reason')?.value;
@@ -72,7 +73,7 @@ const WhitelistModule = (() => {
     }
 
     async function removeFromWhitelist(playerName) {
-        if (!Auth.requirePermission(5, 'remove from the whitelist')) return;
+        if (!Auth.requirePermission(PERMISSIONS.BLACKLIST_REMOVE, 'remove from the whitelist')) return;
         
         const confirmed = await UI.showConfirm(`Are you sure you want to remove ${playerName} from the whitelist?`);
         if (confirmed) {

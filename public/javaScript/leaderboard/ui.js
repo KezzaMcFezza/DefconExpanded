@@ -101,40 +101,43 @@ export function updateColumnHeaders(sortBy) {
 
 export function updateLeaderboardMetadata(data) {
     const leaderboardHeader = document.querySelector('.leaderboard-header');
-    if (leaderboardHeader) {
-        let headerText = 'DEFCON EXPANDED LEADERBOARD';
+    let headerText = 'DEFCON EXPANDED LEADERBOARD';
+    let shouldWaitForAsyncOperation = false;
 
-        if (leaderboardFilters.serverName) {
-            headerText = `${leaderboardFilters.serverName} LEADERBOARD`;
-        } else if (leaderboardFilters.playlist && serverPlaylists[leaderboardFilters.playlist]) {
-            headerText = `${serverPlaylists[leaderboardFilters.playlist].name.toUpperCase()} LEADERBOARD`;
-        }
+    if (leaderboardFilters.serverName) {
+        headerText = `${leaderboardFilters.serverName} LEADERBOARD`;
+    } else if (leaderboardFilters.playlist && serverPlaylists[leaderboardFilters.playlist]) {
+        headerText = `${serverPlaylists[leaderboardFilters.playlist].name.toUpperCase()} LEADERBOARD`;
+    }
 
-        const seasonSelect = document.getElementById('season-select');
-        if (seasonSelect) {
-            const selectedValue = seasonSelect.value;
+    const seasonSelect = document.getElementById('season-select');
+    if (seasonSelect) {
+        const selectedValue = seasonSelect.value;
 
-            if (selectedValue === 'current') {
-                const currentSeason = document.getElementById('current-season');
-                if (currentSeason) {
-                    headerText += ` - ${currentSeason.textContent}`;
-                }
-            } else if (selectedValue === 'all') {
-                headerText += ' - ALL TIME';
-            } else if (selectedValue === 'custom') {
-                headerText += ' - CUSTOM PERIOD';
-            } else {
-                import('./seasons.js').then(module => {
-                    const seasons = module.getAllSeasons();
-                    if (seasons[selectedValue]) {
-                        headerText += ` - ${seasons[selectedValue].displayName}`;
+        if (selectedValue === 'current') {
+            const currentSeason = document.getElementById('current-season');
+            if (currentSeason) {
+                headerText += ` - ${currentSeason.textContent}`;
+            }
+        } else if (selectedValue === 'all') {
+            headerText += ' - ALL TIME';
+        } else if (selectedValue === 'custom') {
+            headerText += ' - CUSTOM PERIOD';
+        } else {
+            shouldWaitForAsyncOperation = true;
+            import('./seasons.js').then(module => {
+                const seasons = module.getAllSeasons();
+                if (seasons[selectedValue]) {
+                    headerText += ` - ${seasons[selectedValue].displayName}`;
+                    if (leaderboardHeader) {
                         leaderboardHeader.textContent = headerText;
                     }
-                });
-                return; 
-            }
+                }
+            });
         }
+    }
 
+    if (!shouldWaitForAsyncOperation && leaderboardHeader) {
         leaderboardHeader.textContent = headerText;
     }
 

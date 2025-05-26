@@ -33,7 +33,7 @@
     </script>
 </head>
 <style>
-    [data-min-role] {
+    [data-permission] {
         display: none;
     }
 
@@ -56,27 +56,27 @@
             <div class="title">DEFCON Expanded</div>
             <ul class="list-items">
                 <li><a href="/" id="nav-home"><i class="fas fa-home"></i>Back to Homepage</a></li>
-                <li data-min-role="5"><a href="/adminpanel" id="nav-whitelist"><i class="fab fa-windows"></i>Admin
+                <li data-permission="PAGE_ADMIN_PANEL"><a href="/adminpanel" id="nav-whitelist"><i class="fab fa-windows"></i>Admin
                         Panel</a></li>
-                <li data-min-role="5"><a href="/leaderboardblacklistmanage" id="nav-blaclist"><i
+                <li data-permission="PAGE_BLACKLIST_MANAGE"><a href="/leaderboardblacklistmanage" id="nav-blaclist"><i
                             class="fas fa-ban"></i>Blacklist Managment</a></li>
-                <li data-min-role="5"><a href="/demomanage" id="nav-demomanage"><i class="fas fa-video"></i>Demo
+                <li data-permission="PAGE_DEMO_MANAGE"><a href="/demomanage" id="nav-demomanage"><i class="fas fa-video"></i>Demo
                         Managment</a></li>
-                <li data-min-role="2"><a href="/playerlookup" id="nav-playerlookup"><i
+                <li data-permission="PAGE_PLAYER_LOOKUP"><a href="/playerlookup" id="nav-playerlookup"><i
                             class="fa-solid fa-magnifying-glass"></i>Player Search</a></li>
-                <li data-min-role="3"><a href="/dedconmanagment" id="nav-dedconmanagment"><i
+                <li data-permission="PAGE_DEDCON_MANAGEMENT"><a href="/dedconmanagment" id="nav-dedconmanagment"><i
                             class="fas fa-radiation"></i>Dedcon Managment</a></li>
-                <li data-min-role="3"><a href="/resourcemanage" id="nav-resourcemanage"><i
+                <li data-permission="PAGE_RESOURCE_MANAGE"><a href="/resourcemanage" id="nav-resourcemanage"><i
                             class="fas fa-download"></i>Resource Managment</a></li>
-                <li data-min-role="5"><a href="/modlistmanage" id="nav-modmanage"><i class="fas fa-list"></i>Modlist
+                <li data-permission="PAGE_MODLIST_MANAGE"><a href="/modlistmanage" id="nav-modmanage"><i class="fas fa-list"></i>Modlist
                         Managment</a></li>
-                <li data-min-role="2"><a href="/accountmanage" id="nav-accountmanage"><i class="fas fa-user"></i>User
+                <li data-permission="PAGE_ACCOUNT_MANAGE"><a href="/accountmanage" id="nav-accountmanage"><i class="fas fa-user"></i>User
                         Account Managment</a></li>
-                <li data-min-role="1"><a href="/serverconsole" id="nav-console"><i
+                <li data-permission="PAGE_SERVER_CONSOLE"><a href="/serverconsole" id="nav-console"><i
                             class="fas fa-laptop-code"></i>Website Console</a></li>
-                <li data-min-role="1"><a href="/defconservers" id="nav-defconservers"><i
+                <li data-permission="PAGE_DEFCON_SERVERS"><a href="/defconservers" id="nav-defconservers"><i
                             class="fa-solid fa-server"></i>Dedcon Servers</a></li>
-                <li data-min-role="1"><a href="/rconconsole" id="nav-rcon" data-min-role="1"><i
+                <li data-permission="PAGE_RCON_CONSOLE"><a href="/rconconsole" id="nav-rcon"><i
                             class="fa-solid fa-terminal"></i>RCON Console</a></li>
             </ul>
         </div>
@@ -98,8 +98,8 @@
 
             <div id="admin-content">
                 <div id="resource-management" class="section">
-                    <h2 data-min-role="2">Windows Builds</h2>
-                    <form id="upload-windows-resource" enctype="multipart/form-data" data-min-role="2">
+                    <h2 data-permission="RESOURCE_ADD">Windows Builds</h2>
+                    <form id="upload-windows-resource" enctype="multipart/form-data" data-permission="RESOURCE_ADD">
                         <input type="file" name="resourceFile" accept=".zip" required>
                         <input type="text" name="version" placeholder="Version" required>
                         <input type="date" name="releaseDate" required>
@@ -111,8 +111,8 @@
                         <button type="submit">Upload Windows Resource</button>
                     </form>
 
-                    <h2 data-min-role="2">Linux Builds</h2>
-                    <form id="upload-linux-resource" enctype="multipart/form-data" data-min-role="2">
+                    <h2 data-permission="RESOURCE_ADD">Linux Builds</h2>
+                    <form id="upload-linux-resource" enctype="multipart/form-data" data-permission="RESOURCE_ADD">
                         <input type="file" name="resourceFile" accept=".zip" required>
                         <input type="text" name="version" placeholder="Version" required>
                         <input type="date" name="releaseDate" required>
@@ -124,8 +124,8 @@
                         <button type="submit">Upload Linux Resource</button>
                     </form>
 
-                    <h2 data-min-role="2">MacOS Intel Builds</h2>
-                    <form id="upload-macos-intel-resource" enctype="multipart/form-data" data-min-role="2">
+                    <h2 data-permission="RESOURCE_ADD">MacOS Intel Builds</h2>
+                    <form id="upload-macos-intel-resource" enctype="multipart/form-data" data-permission="RESOURCE_ADD">
                         <input type="file" name="resourceFile" accept=".zip" required>
                         <input type="text" name="version" placeholder="Version" required>
                         <input type="date" name="releaseDate" required>
@@ -137,8 +137,8 @@
                         <button type="submit">Upload MacOS Intel Resource</button>
                     </form>
 
-                    <h2 data-min-role="2">MacOS ARM64 Builds</h2>
-                    <form id="upload-macos-arm64-resource" enctype="multipart/form-data" data-min-role="2">
+                    <h2 data-permission="RESOURCE_ADD">MacOS ARM64 Builds</h2>
+                    <form id="upload-macos-arm64-resource" enctype="multipart/form-data" data-permission="RESOURCE_ADD">
                         <input type="file" name="resourceFile" accept=".zip" required>
                         <input type="text" name="version" placeholder="Version" required>
                         <input type="date" name="releaseDate" required>

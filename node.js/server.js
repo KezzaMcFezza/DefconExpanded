@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
@@ -66,7 +66,7 @@ const {
 const {
     authenticateToken,
     checkAuthToken,
-    checkRole,
+    checkPermission,
     serveAdminPage
 }   = require('./authentication')
 
@@ -87,6 +87,11 @@ const {
     discordState
 } = require('./discord')
 
+const permissions = require('./permission-index');
+
+
+const debugUtils = require('./debug-utils');
+
 // api modules to import
 const adminPanelRoutes = require('./apis/admin/admin-panel');
 const blacklistRoutes = require('./apis/admin/blacklist');
@@ -98,6 +103,7 @@ const reportingAdminRoutes = require('./apis/admin/reporting');
 const resourcesAdminRoutes = require('./apis/admin/resources');
 const usersAdminRoutes = require('./apis/admin/users');
 const rconRoutes = require('./apis/admin/rcon');
+const consoleRoutes = require('./apis/admin/console');
 const demosRoutes = require('./apis/demos/demos');
 const demoFiltersRoutes = require('./apis/demos/filters');
 const demoReportingRoutes = require('./apis/demos/reporting');
@@ -119,8 +125,11 @@ const requestRoutes = require('./apis/users/request');
 
 // error handler for everything past this point
 const errorHandler = (err, req, res, next) => {
+    const startTime = debugUtils.debugFunctionEntry('errorHandler', [err.message], 1);
     console.error('Unhandled error:', err);
+    console.debug(2, 'Error details:', err.stack);
     res.status(500).json({ error: 'Internal server error', details: err.message });
+    debugUtils.debugFunctionExit('errorHandler', startTime, null, 1);
 };
 
 // authentication middleware
@@ -162,6 +171,7 @@ app.use(reportingAdminRoutes);
 app.use(resourcesAdminRoutes);
 app.use(usersAdminRoutes);
 app.use(rconRoutes);
+app.use(consoleRoutes);
 app.use(demosRoutes);
 app.use(demoFiltersRoutes);
 app.use(demoReportingRoutes);
@@ -269,70 +279,104 @@ jsonWatcher
     .on('error', error => console.error(`JSON watcher error: ${error}`));
 
 async function initializeServer() {
+    const startTime = debugUtils.debugFunctionEntry('initializeServer', [], 1);
     console.log("Starting server initialization...");
+    console.debug(2, 'Initializing server components...');
 
-    const initializationPromise = new Promise((resolve, reject) => {
-        if (discordState.isReady) { 
-            resolve();
-        } else {
-            console.log('Waiting for Discord bot to be ready...');
-            pendingInitialization = true;
-            completePendingInitialization = resolve;
-        }
-    });
-
-    await initializationPromise;
-    console.log("Discord bot is ready, proceeding with demo processing...");
-
-    pendingDemos.clear();
-    pendingJsons.clear();
-    processedJsons.clear();
-
-    const demoFiles = await fs.promises.readdir(demoDir);
-    console.log(`Found ${demoFiles.length} demo files in the directory.`);
-    const jsonFiles = await fs.promises.readdir(gameLogsDir);
-    console.log(`Found ${jsonFiles.length} JSON files in the directory.`);
-    const [rows] = await pool.query('SELECT name, log_file FROM demos');
-    const existingDemos = new Map(rows.map(row => [row.name, row.log_file]));
-    const existingJsonFiles = new Set(rows.map(row => row.log_file));
-
-    for (const demoFile of demoFiles) {
-        if (demoFile.endsWith('.dcrec')) {
-            if (!existingDemos.has(demoFile)) {
-                const demoStats = await fs.promises.stat(path.join(demoDir, demoFile));
-                pendingDemos.set(demoFile, { stats: demoStats, addedTime: Date.now() });
-                console.log(`Existing demo ${demoFile} added to pending list.`);
+    try {
+        const initializationPromise = new Promise((resolve, reject) => {
+            if (discordState.isReady) { 
+                console.debug(2, 'Discord bot already ready');
+                resolve();
             } else {
-                console.log(`Demo ${demoFile} already exists in the database. Skipping.`);
+                console.log('Waiting for Discord bot to be ready...');
+                console.debug(2, 'Discord bot not ready, setting up pending initialization');
+                pendingInitialization = true;
+                completePendingInitialization = resolve;
+            }
+        });
+
+        await initializationPromise;
+        console.log("Discord bot is ready, proceeding with demo processing...");
+        console.debug(2, 'Discord initialization complete, proceeding with demo processing');
+
+        pendingDemos.clear();
+        pendingJsons.clear();
+        processedJsons.clear();
+        console.debug(2, 'Cleared pending collections');
+
+        const demoFiles = await fs.promises.readdir(demoDir);
+        console.log(`Found ${demoFiles.length} demo files in the directory.`);
+        console.debug(2, `Demo directory scan complete: ${demoFiles.length} files`);
+        
+        const jsonFiles = await fs.promises.readdir(gameLogsDir);
+        console.log(`Found ${jsonFiles.length} JSON files in the directory.`);
+        console.debug(2, `JSON directory scan complete: ${jsonFiles.length} files`);
+        
+        const [rows] = await pool.query('SELECT name, log_file FROM demos');
+        console.debug(2, `Database query complete: ${rows.length} existing demos`);
+        
+        const existingDemos = new Map(rows.map(row => [row.name, row.log_file]));
+        const existingJsonFiles = new Set(rows.map(row => row.log_file));
+
+        for (const demoFile of demoFiles) {
+            if (demoFile.endsWith('.dcrec')) {
+                if (!existingDemos.has(demoFile)) {
+                    const demoStats = await fs.promises.stat(path.join(demoDir, demoFile));
+                    pendingDemos.set(demoFile, { stats: demoStats, addedTime: Date.now() });
+                    console.log(`Existing demo ${demoFile} added to pending list.`);
+                    console.debug(3, `Demo file stats for ${demoFile}:`, demoStats);
+                } else {
+                    console.log(`Demo ${demoFile} already exists in the database. Skipping.`);
+                    console.debug(3, `Skipping existing demo: ${demoFile}`);
+                }
             }
         }
-    }
 
-    for (const jsonFile of jsonFiles) {
-        if (jsonFile.endsWith('_full.json')) {
-            if (!existingJsonFiles.has(jsonFile)) {
-                pendingJsons.set(jsonFile, { path: path.join(gameLogsDir, jsonFile), addedTime: Date.now() });
-                console.log(`Existing JSON ${jsonFile} added to pending list.`);
-            } else {
-                processedJsons.add(jsonFile);
-                console.log(`JSON ${jsonFile} is already linked to a demo in the database. Skipping.`);
+        for (const jsonFile of jsonFiles) {
+            if (jsonFile.endsWith('_full.json')) {
+                if (!existingJsonFiles.has(jsonFile)) {
+                    pendingJsons.set(jsonFile, { path: path.join(gameLogsDir, jsonFile), addedTime: Date.now() });
+                    console.log(`Existing JSON ${jsonFile} added to pending list.`);
+                    console.debug(3, `Added JSON to pending: ${jsonFile}`);
+                } else {
+                    processedJsons.add(jsonFile);
+                    console.log(`JSON ${jsonFile} is already linked to a demo in the database. Skipping.`);
+                    console.debug(3, `Skipping processed JSON: ${jsonFile}`);
+                }
             }
         }
+
+        console.log(`Loaded ${pendingDemos.size} pending demo files.`);
+        console.log(`Loaded ${pendingJsons.size} pending JSON files.`);
+        console.log(`${existingDemos.size} demos already exist in the database.`);
+        console.debug(2, `Initialization summary - Pending demos: ${pendingDemos.size}, Pending JSONs: ${pendingJsons.size}, Existing: ${existingDemos.size}`);
+
+        await checkForMatch();
+        console.debug(2, 'Initial demo matching check completed');
+
+        debugUtils.debugFunctionExit('initializeServer', startTime, 'success', 1);
+    } catch (error) {
+        console.error('Error during server initialization:', error);
+        console.debug(1, 'Server initialization failed:', error.message);
+        debugUtils.debugFunctionExit('initializeServer', startTime, 'error', 1);
+        throw error;
     }
-
-    console.log(`Loaded ${pendingDemos.size} pending demo files.`);
-    console.log(`Loaded ${pendingJsons.size} pending JSON files.`);
-    console.log(`${existingDemos.size} demos already exist in the database.`);
-
-    await checkForMatch();
-
 }
 
 // 404 handler
 function sendHtml(res, fileName) {
+    const startTime = debugUtils.debugFunctionEntry('sendHtml', [fileName], 2);
+    console.debug(2, `Serving HTML file: ${fileName}`);
+    
     res.sendFile(path.join(publicDir, fileName), (err) => {
         if (err) {
+            console.debug(1, `File not found: ${fileName}, serving 404`);
             res.status(404).sendFile(path.join(publicDir, '404.html'));
+            debugUtils.debugFunctionExit('sendHtml', startTime, '404', 2);
+        } else {
+            console.debug(2, `Successfully served: ${fileName}`);
+            debugUtils.debugFunctionExit('sendHtml', startTime, 'success', 2);
         }
     });
 }
@@ -417,18 +461,17 @@ app.get('/modlist/ai', checkAuthToken, (req, res) => sendHtml(res, 'aimods.html'
 app.get('/signup', checkAuthToken, (req, res) => sendHtml(res, 'signuppage.html'));
 app.get('/forgotpassword', checkAuthToken, (req, res) => sendHtml(res, 'forgotpasswordfor816788487.html'));
 app.get('/changepassword', checkAuthToken, (req, res) => sendHtml(res, 'changepassword248723424.html'));
-app.get('/adminpanel', authenticateToken, checkRole(5), serveAdminPage('admin-panel', 5));
-app.get('/leaderboardblacklistmanage', authenticateToken, checkRole(5), serveAdminPage('blacklist', 5));
-app.get('/demomanage', authenticateToken, checkRole(5), serveAdminPage('demo-manage', 5));
-app.get('/playerlookup', authenticateToken, checkRole(2), serveAdminPage('playerlookup', 2));
-app.get('/defconservers', authenticateToken, checkRole(1), serveAdminPage('servermanagment', 1));
-app.get('/accountmanage', authenticateToken, checkRole(2), serveAdminPage('account-manage', 2));
-app.get('/modlistmanage', authenticateToken, checkRole(5), serveAdminPage('modmanagment', 5));
-app.get('/dedconmanagment', authenticateToken, checkRole(2), serveAdminPage('dedconmanagment', 2));
-app.get('/resourcemanage', authenticateToken, checkRole(3), serveAdminPage('resourcemanagment', 3));
-app.get('/serverconsole', authenticateToken, checkRole(1), serveAdminPage('server-console', 2));
-app.get('/rconconsole', authenticateToken, checkRole(1), serveAdminPage('rcon-console', 2));
-
+app.get('/adminpanel', authenticateToken, checkPermission(permissions.PAGE_ADMIN_PANEL), serveAdminPage('admin-panel', permissions.PAGE_ADMIN_PANEL));
+app.get('/leaderboardblacklistmanage', authenticateToken, checkPermission(permissions.PAGE_BLACKLIST_MANAGE), serveAdminPage('blacklist', permissions.PAGE_BLACKLIST_MANAGE));
+app.get('/demomanage', authenticateToken, checkPermission(permissions.PAGE_DEMO_MANAGE), serveAdminPage('demo-manage', permissions.PAGE_DEMO_MANAGE));
+app.get('/playerlookup', authenticateToken, checkPermission(permissions.PAGE_PLAYER_LOOKUP), serveAdminPage('playerlookup', permissions.PAGE_PLAYER_LOOKUP));
+app.get('/defconservers', authenticateToken, checkPermission(permissions.PAGE_DEFCON_SERVERS), serveAdminPage('servermanagment', permissions.PAGE_DEFCON_SERVERS));
+app.get('/accountmanage', authenticateToken, checkPermission(permissions.PAGE_ACCOUNT_MANAGE), serveAdminPage('account-manage', permissions.PAGE_ACCOUNT_MANAGE));
+app.get('/modlistmanage', authenticateToken, checkPermission(permissions.PAGE_MODLIST_MANAGE), serveAdminPage('modmanagment', permissions.PAGE_MODLIST_MANAGE));
+app.get('/dedconmanagment', authenticateToken, checkPermission(permissions.PAGE_DEDCON_MANAGEMENT), serveAdminPage('dedconmanagment', permissions.PAGE_DEDCON_MANAGEMENT));
+app.get('/resourcemanage', authenticateToken, checkPermission(permissions.PAGE_RESOURCE_MANAGE), serveAdminPage('resourcemanagment', permissions.PAGE_RESOURCE_MANAGE));
+app.get('/serverconsole', authenticateToken, checkPermission(permissions.PAGE_SERVER_CONSOLE), serveAdminPage('server-console', permissions.PAGE_SERVER_CONSOLE));
+app.get('/rconconsole', authenticateToken, checkPermission(permissions.PAGE_RCON_CONSOLE), serveAdminPage('rcon-console', permissions.PAGE_RCON_CONSOLE));
 
 // homepage handler
 app.get('/', (req, res) => {
@@ -484,9 +527,132 @@ app.use((err, req, res, next) => {
   res.status(500).send('You fucked up');
 });
 
+const debugLogWatchers = new Map();
+
+function startDebugLogTail(socket) {
+  if (debugLogWatchers.has(socket.id)) {
+    return; 
+  }
+  
+  const debugFilePath = path.join(__dirname, 'debug.txt');
+  
+  // check if debug file exists
+  if (!fs.existsSync(debugFilePath)) {
+    socket.emit('debug_output', 'Debug file not found. Debug messages will appear here when debug level > 0.');
+    return;
+  }
+  
+  try {
+    // watch for changes to debug file
+    const watcher = chokidar.watch(debugFilePath, {
+      persistent: true,
+      usePolling: true,
+      interval: 1000
+    });
+    
+    let lastSize = 0;
+    
+    try {
+      const stats = fs.statSync(debugFilePath);
+      lastSize = stats.size;
+    } catch (err) {
+      console.error('Error getting debug file stats:', err);
+    }
+    
+    watcher.on('change', () => {
+      try {
+        const stats = fs.statSync(debugFilePath);
+        if (stats.size > lastSize) {
+          // file has grown, read new content
+          const stream = fs.createReadStream(debugFilePath, {
+            start: lastSize,
+            end: stats.size - 1
+          });
+          
+          let newContent = '';
+          stream.on('data', (chunk) => {
+            newContent += chunk.toString();
+          });
+          
+          stream.on('end', () => {
+            const lines = newContent.split('\n').filter(line => line.trim());
+            lines.forEach(line => {
+              if (socket.debugLogStream) {
+                socket.emit('debug_output', line);
+              }
+            });
+          });
+          
+          lastSize = stats.size;
+        }
+      } catch (err) {
+        console.error('Error reading debug file changes:', err);
+      }
+    });
+    
+    debugLogWatchers.set(socket.id, watcher);
+    
+    // send last few lines of debug file
+    try {
+      const content = fs.readFileSync(debugFilePath, 'utf8');
+      const lines = content.split('\n').filter(line => line.trim());
+      const recentLines = lines.slice(-10); // Last 10 lines
+      recentLines.forEach(line => {
+        if (socket.debugLogStream) {
+          socket.emit('debug_output', line);
+        }
+      });
+    } catch (err) {
+      console.error('Error reading initial debug file content:', err);
+    }
+    
+  } catch (err) {
+    console.error('Error setting up debug log watcher:', err);
+    socket.emit('debug_output', 'Error setting up debug log monitoring.');
+  }
+}
+
+function stopDebugLogTail(socket) {
+  const watcher = debugLogWatchers.get(socket.id);
+  if (watcher) {
+    watcher.close();
+    debugLogWatchers.delete(socket.id);
+  }
+}
+
 // route for the server console output
 io.on('connection', (socket) => {
   console.log('A user connected to console output');
+  
+  // handle logstream controls
+  socket.on('start_server_log_stream', () => {
+    socket.serverLogStream = true;
+    console.log('Server log stream started for client');
+  });
+  
+  socket.on('stop_server_log_stream', () => {
+    socket.serverLogStream = false;
+    console.log('Server log stream stopped for client');
+  });
+  
+  socket.on('start_debug_log_stream', () => {
+    socket.debugLogStream = true;
+    console.log('Debug log stream started for client');
+    // start tailing debug file
+    startDebugLogTail(socket);
+  });
+  
+  socket.on('stop_debug_log_stream', () => {
+    socket.debugLogStream = false;
+    console.log('Debug log stream stopped for client');
+    // stop tailing debug file
+    stopDebugLogTail(socket);
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('Client disconnected from console output');
+    stopDebugLogTail(socket);
+  });
 });
 
 const originalLog = console.log;
@@ -497,7 +663,12 @@ console.log = function () {
 
   logStream.write(message + '\n');
 
-  io.emit('console_output', message);
+  // Only emit to clients with server log stream enabled
+  io.sockets.sockets.forEach((socket) => {
+    if (socket.serverLogStream) {
+      socket.emit('console_output', message);
+    }
+  });
 
   originalLog.apply(console, [timestamp, ...args]);
 };
@@ -518,12 +689,16 @@ process.on('SIGINT', async () => {
 app.use(errorHandler);
 
 // node.js server proxy
-http.listen(port, async () => {
+const server = http.listen(port, async () => {
   console.log(`Defcon Expanded Demo and File Server Listening at http://localhost:${port}`);
   console.log(`Server started at: ${new Date().toISOString()}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`Node.js version: ${process.version}`);
   console.log(`Platform: ${process.platform}`);
+  
+  // set server instance for debug utilities
+  debugUtils.setServerInstance(server);
+  
   try {
     await initializeServer();
     console.log("Server initialization completed successfully.");

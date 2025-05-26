@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-04-2025
+//Last Edited 25-05-2025
 
 const express = require('express');
 const router = express.Router();
@@ -20,21 +20,30 @@ const {
     demoDir
 } = require('../../constants');
 
+
+const debug = require('../../debug-helpers');
+
 router.get('/api/demos', async (req, res) => {
-  const {
-    page = 1,
-    sortBy = 'latest',
-    playerName,
-    serverName,
-    territories,
-    players,
-    scoreFilter,
-    gameDuration,
-    scoreDifference,
-    startDate,
-    endDate,
-    gamesPlayed
-  } = req.query;
+    const startTime = debug.enter('getDemos', [req.query], 1);
+    const {
+      page = 1,
+      sortBy = 'latest',
+      playerName,
+      serverName,
+      territories,
+      players,
+      scoreFilter,
+      gameDuration,
+      scoreDifference,
+      startDate,
+      endDate,
+      gamesPlayed
+    } = req.query;
+
+    debug.level2('Demo query parameters:', {
+      page, sortBy, playerName, serverName, territories, players,
+      scoreFilter, gameDuration, scoreDifference, startDate, endDate, gamesPlayed
+    });
 
   const limit = 9;
   const offset = (page - 1) * limit;
@@ -273,6 +282,9 @@ router.get('/api/demos', async (req, res) => {
       };
     }));
 
+    debug.level2(`Returning ${updatedDemos.length} demos, page ${page}/${totalPages}`);
+    debug.exit('getDemos', startTime, { demosCount: updatedDemos.length, totalPages }, 1);
+    
     res.json({
       demos: updatedDemos,
       currentPage: parseInt(page),
@@ -280,15 +292,21 @@ router.get('/api/demos', async (req, res) => {
       totalDemos
     });
   } catch (error) {
-    console.error('Error fetching demos:', error);
+    debug.error('getDemos', error, 1);
+    debug.exit('getDemos', startTime, 'error', 1);
     res.status(500).json({ error: 'Unable to fetch demos' });
   }
 });
 
 router.get('/api/search-players', async (req, res) => {
+  const startTime = debug.enter('searchPlayers', [req.query.playerName], 1);
   const { playerName } = req.query;
 
+  debug.level2('Player search request:', { playerName });
+
   if (!playerName) {
+    debug.level1('Player search missing player name');
+    debug.exit('searchPlayers', startTime, 'missing_player_name', 1);
     return res.status(400).json({ error: 'Player name is required' });
   }
 
@@ -300,49 +318,69 @@ router.get('/api/search-players', async (req, res) => {
       OR player9_name LIKE ? OR player10_name LIKE ? ORDER BY date DESC
     `;
     const searchPattern = `%${playerName}%`;
+    debug.dbQuery(query, [searchPattern], 2);
     const [demos] = await pool.query(query, Array(10).fill(searchPattern));
+    debug.dbResult(demos, 2);
 
+    debug.level2('Player search complete:', { demosFound: demos.length });
+    debug.exit('searchPlayers', startTime, { demosFound: demos.length }, 1);
     res.json(demos);
   } catch (error) {
-    console.error('Error searching for players:', error);
+    debug.error('searchPlayers', error, 1);
+    debug.exit('searchPlayers', startTime, 'error', 1);
     res.status(500).json({ error: 'Unable to search for players' });
   }
 });
 
 router.get('/api/download/:demoName', async (req, res) => {
+  const startTime = debug.enter('downloadDemo', [req.params.demoName], 1);
+  debug.level2('Demo download request:', { demoName: req.params.demoName });
+
   try {
+    debug.dbQuery('SELECT * FROM demos WHERE name = ?', [req.params.demoName], 2);
     const [rows] = await pool.query('SELECT * FROM demos WHERE name = ?', [req.params.demoName]);
+    debug.dbResult(rows, 2);
+
     if (rows.length === 0) {
+      debug.level1('Demo not found in database:', req.params.demoName);
+      debug.exit('downloadDemo', startTime, 'not_found', 1);
       return res.status(404).send('Demo not found');
     }
 
     const demoPath = path.join(demoDir, rows[0].name);
+    debug.fileOp('check', demoPath, 3);
     if (!fs.existsSync(demoPath)) {
+      debug.level1('Demo file not found on disk:', demoPath);
+      debug.exit('downloadDemo', startTime, 'file_not_found', 1);
       return res.status(404).send('Demo file not found');
     }
 
+    debug.level3('Incrementing download count for demo:', req.params.demoName);
     await pool.query('UPDATE demos SET download_count = download_count + 1 WHERE name = ?', [req.params.demoName]);
 
+    debug.level2('Starting demo download:', req.params.demoName);
     res.download(demoPath, (err) => {
       const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
       if (err) {
         if (err.code === 'ECONNABORTED') {
-          console.log(`Demo download aborted by client with IP: ${clientIp}`);
+          debug.level2(`Demo download aborted by client with IP: ${clientIp}`);
         } else {
-          console.error('Error during demo download:', err);
+          debug.error('downloadDemo', err, 1);
 
           if (!res.headersSent) {
             return res.status(500).send('Error downloading demo');
           }
         }
       } else {
-        console.log(`Demo downloaded successfully by client with IP: ${clientIp}`);
+        debug.level2(`Demo downloaded successfully by client with IP: ${clientIp}`);
+        debug.exit('downloadDemo', startTime, 'success', 1);
       }
     });
 
   } catch (error) {
-    console.error('Error downloading demo:', error);
+    debug.error('downloadDemo', error, 1);
+    debug.exit('downloadDemo', startTime, 'error', 1);
 
     if (!res.headersSent) {
       res.status(500).send('Error downloading demo');

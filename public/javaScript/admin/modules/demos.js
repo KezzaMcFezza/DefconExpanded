@@ -9,19 +9,20 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 25-05-2025
 
 
 import API from '../api.js';
 import Auth from '../auth.js';
 import UI from '../ui.js';
 import Utils from '../utils.js';
+import PERMISSIONS from '../permission-index.js';
 
 const DemosModule = (() => {
     let allDemos = [];
 
     async function loadDemos() {
-        if (!Auth.hasPermission(5)) return;
+        if (!Auth.hasPermission(PERMISSIONS.DEMO_VIEW)) return;
 
         try {
             const demos = await API.get('/api/all-demos');
@@ -43,11 +44,11 @@ const DemosModule = (() => {
             const row = tbody.insertRow();
             let actionsHtml = '';
 
-            if (Auth.hasPermission(5)) {
+            if (Auth.hasPermission(PERMISSIONS.DEMO_EDIT)) {
                 actionsHtml += `<button onclick="AdminApp.editDemo(${demo.id})">Edit</button>`;
             }
 
-            if (Auth.hasPermission(2)) {
+            if (Auth.hasPermission(PERMISSIONS.DEMO_DELETE)) {
                 actionsHtml += `<button onclick="AdminApp.deleteDemo(${demo.id})">Delete</button>`;
             }
 
@@ -126,7 +127,7 @@ const DemosModule = (() => {
     async function uploadDemo(event) {
         event.preventDefault();
 
-        if (!Auth.requirePermission(4, 'upload demos')) return;
+        if (!Auth.requirePermission(PERMISSIONS.DEMO_UPLOAD, 'upload demos')) return;
 
         const formData = new FormData(event.target);
 
@@ -142,7 +143,7 @@ const DemosModule = (() => {
     }
 
     async function editDemo(demoId) {
-        if (!Auth.requirePermission(5, 'edit demos')) return;
+        if (!Auth.requirePermission(PERMISSIONS.DEMO_EDIT, 'edit demos')) return;
 
 
         try {
@@ -270,7 +271,7 @@ const DemosModule = (() => {
     async function saveEditDemo(event) {
         event.preventDefault();
 
-        if (!Auth.requirePermission(5, 'save demo edits')) return;
+        if (!Auth.requirePermission(PERMISSIONS.DEMO_EDIT, 'save demo edits')) return;
 
         const demoId = document.getElementById('edit-demo-id')?.value;
         let originalData;
@@ -356,7 +357,7 @@ const DemosModule = (() => {
     }
 
     async function deleteDemo(demoId) {
-        if (!Auth.requirePermission(2, 'delete demos')) return;
+        if (!Auth.requirePermission(PERMISSIONS.DEMO_DELETE, 'delete demos')) return;
 
         const confirmed = await UI.showConfirm('Are you sure you want to delete this demo?');
         if (confirmed) {

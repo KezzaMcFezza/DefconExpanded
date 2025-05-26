@@ -45,7 +45,6 @@ export async function fetchData(graphType, options = {}) {
         const data = await response.json();
 
         if (!data || data.length === 0) {
-            console.warn(`No data returned for query: ${queryParams.toString()}`);
             return null;
         }
 

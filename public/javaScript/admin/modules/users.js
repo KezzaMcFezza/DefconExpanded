@@ -8,42 +8,212 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 25-05-2025
 
-
-import API from '../api.js';
 import Auth from '../auth.js';
 import UI from '../ui.js';
-import Utils from '../utils.js';
+import API from '../api.js';
+import PERMISSIONS from '../permission-index.js';
 
 const UsersModule = (() => {
+    let permissionManifest = {};
+    
+    const PERMISSION_PRESETS = {
+        none: [],
+        basic: [
+            
+            'PAGE_ADMIN_PANEL'
+        ],
+        moderator: [
+            
+            'PAGE_ADMIN_PANEL',
+            'PAGE_DEMO_MANAGE', 
+            'PAGE_PLAYER_LOOKUP',
+            'DEMO_VIEW', 
+            'DEMO_EDIT', 
+            'DEMO_VIEW_ID',
+            'BLACKLIST_VIEW',
+            'ADMIN_VIEW_REPORTS'
+        ],
+        admin: [
+            'PAGE_ADMIN_PANEL', 
+            'PAGE_BLACKLIST_MANAGE', 
+            'PAGE_DEMO_MANAGE', 
+            'PAGE_PLAYER_LOOKUP', 
+            'PAGE_ACCOUNT_MANAGE', 
+            'PAGE_MODLIST_MANAGE',
+            'PAGE_RESOURCE_MANAGE', 
+            'PAGE_DEDCON_MANAGEMENT',
+            'USER_VIEW_LIST', 
+            'USER_VIEW_DETAILS', 
+            'USER_EDIT_BASIC', 
+            'USER_APPROVE_REQUESTS',
+            'DEMO_VIEW', 
+            'DEMO_UPLOAD', 
+            'DEMO_EDIT', 
+            'DEMO_DELETE', 
+            'DEMO_VIEW_ID',
+            'BLACKLIST_VIEW', 
+            'BLACKLIST_ADD', 
+            'BLACKLIST_REMOVE',
+            'BLACKLIST_APPROVE_REQUESTS',
+            'MOD_VIEW', 
+            'MOD_ADD', 
+            'MOD_EDIT', 
+            'MOD_DELETE',
+            'RESOURCE_VIEW', 
+            'RESOURCE_ADD', 
+            'RESOURCE_EDIT', 
+            'RESOURCE_DELETE',
+            'DEDCON_VIEW', 
+            'DEDCON_ADD', 
+            'DEDCON_EDIT', 
+            'DEDCON_DELETE',
+            'ADMIN_VIEW_REPORTS',
+            'ADMIN_VIEW_STATISTICS'
+        ],
+        superadmin: [
+            'PAGE_ADMIN_PANEL', 
+            'PAGE_BLACKLIST_MANAGE', 
+            'PAGE_DEMO_MANAGE', 
+            'PAGE_PLAYER_LOOKUP', 
+            'PAGE_DEFCON_SERVERS', 
+            'PAGE_ACCOUNT_MANAGE', 
+            'PAGE_MODLIST_MANAGE', 
+            'PAGE_DEDCON_MANAGEMENT', 
+            'PAGE_RESOURCE_MANAGE', 
+            'PAGE_SERVER_CONSOLE', 
+            'PAGE_RCON_CONSOLE',
+            'USER_VIEW_LIST', 
+            'USER_VIEW_DETAILS', 
+            'USER_EDIT_BASIC', 
+            'USER_EDIT_PERMISSIONS', 
+            'USER_DELETE', 
+            'USER_APPROVE_REQUESTS',
+            'DEMO_VIEW', 
+            'DEMO_UPLOAD', 
+            'DEMO_EDIT', 
+            'DEMO_DELETE', 
+            'DEMO_VIEW_ID',
+            'BLACKLIST_VIEW', 
+            'BLACKLIST_ADD', 
+            'BLACKLIST_REMOVE',
+            'BLACKLIST_APPROVE_REQUESTS',
+            'MOD_VIEW', 
+            'MOD_ADD', 
+            'MOD_EDIT', 
+            'MOD_DELETE',
+            'RESOURCE_VIEW', 
+            'RESOURCE_ADD', 
+            'RESOURCE_EDIT', 
+            'RESOURCE_DELETE',
+            'DEDCON_VIEW', 
+            'DEDCON_ADD', 
+            'DEDCON_EDIT', 
+            'DEDCON_DELETE',
+            'SERVER_CONSOLE_VIEW', 
+            'SERVER_CONSOLE_EXECUTE',
+            'RCON_MANUAL_CONNECTION', 
+            'RCON_TEST_SERVER', 
+            'RCON_1V1_RANDOM',
+            'RCON_1V1_DEFAULT', 
+            'RCON_1V1_BEST_SETUPS_1', 
+            'RCON_1V1_BEST_SETUPS_2',
+            'RCON_1V1_CURSED', 
+            'RCON_1V1_LOTS_UNITS', 
+            'RCON_1V1_UK_IRELAND',
+            'RCON_MURICON_UK', 
+            'RCON_2V2_UK_IRELAND', 
+            'RCON_2V2_RANDOM',
+            'RCON_DIPLOMACY_UK', 
+            'RCON_RAIZER_RUSSIA_USA', 
+            'RCON_NEW_PLAYER',
+            'RCON_2V2_TOURNAMENT', 
+            'RCON_SONY_HOOV', 
+            'RCON_3V3_RANDOM',
+            'RCON_MURICON_DEFAULT', 
+            'RCON_MURICON_RANDOM', 
+            'RCON_509CG_1V1',
+            'RCON_FFA_RANDOM', 
+            'RCON_8PLAYER_DIPLOMACY', 
+            'RCON_4V4_RANDOM',
+            'RCON_10PLAYER_DIPLOMACY',
+            'CONFIG_1V1_RANDOM',
+            'CONFIG_1V1_DEFAULT',
+            'CONFIG_1V1_CURSED',
+            'CONFIG_1V1_RAIZER',
+            'CONFIG_1V1_BEST_SETUPS_1',
+            'CONFIG_1V1_BEST_SETUPS_2',
+            'CONFIG_1V1_TEST',
+            'CONFIG_1V1_VARIABLE',
+            'CONFIG_1V1_UK_BALANCED',
+            'CONFIG_2V2_DEFAULT',
+            'CONFIG_2V2_UK_BALANCED',
+            'CONFIG_2V2_TOURNAMENT',
+            'CONFIG_6PLAYER_FFA',
+            'CONFIG_3V3_FFA',
+            'CONFIG_4V4_DEFAULT',
+            'CONFIG_5V5_DEFAULT',
+            'CONFIG_8PLAYER_DIPLO',
+            'CONFIG_10PLAYER_DIPLO',
+            'CONFIG_16PLAYER_DEFAULT',
+            'CONFIG_UK_MOD_DIPLO',
+            'CONFIG_MURICON_UK_MOD',
+            'CONFIG_SONY_HOOV',
+            'CONFIG_NOOB_FRIENDLY',
+            'CONFIG_MURICON_RANDOM',
+            'CONFIG_MURICON_DEFAULT',
+            'CONFIG_HAWHAW_2V2',
+            'ADMIN_VIEW_REPORTS',
+            'ADMIN_VIEW_STATISTICS',
+            'ADMIN_SYSTEM_MAINTENANCE',
+            'ADMIN_CONFIGURE_WEBSITE'
+        ]
+    };
+
     async function loadUsers() {
-        if (!Auth.hasPermission(2)) return;
+        if (!Auth.requirePermission(PERMISSIONS.USER_VIEW_LIST, 'view users')) return;
 
         try {
+            
+            const manifestResponse = await API.get('/api/permissions/manifest');
+            permissionManifest = manifestResponse.manifest;
+            
             const users = await API.get('/api/users');
-            const tbody = document.querySelector('#user-table tbody');
-            if (!tbody) return;
-
-            tbody.innerHTML = '';
+            const userTableBody = document.querySelector('#user-table tbody');
+            
+            if (!userTableBody) return;
+            
+            userTableBody.innerHTML = '';
+            
             users.forEach(user => {
-                const row = tbody.insertRow();
+                const row = document.createElement('tr');
+                const permissionCount = user.permissions ? user.permissions.length : 0;
+                const permissionSummary = permissionCount > 0 
+                    ? `${permissionCount} permission${permissionCount !== 1 ? 's' : ''}`
+                    : 'No permissions';
+                
+                
                 let actionsHtml = '';
-
-                if (Auth.hasPermission(2)) {
-                    actionsHtml += `<button onclick="AdminApp.editUser(${user.id})">Edit</button>`;
+                if (Auth.hasPermission(PERMISSIONS.USER_EDIT_BASIC)) {
+                    actionsHtml += `<button class="edit-button" onclick="AdminApp.editUser(${user.id})">Edit</button>`;
                 }
-
-                if (Auth.hasPermission(1)) {
-                    actionsHtml += `<button onclick="AdminApp.deleteUser(${user.id})">Delete</button>`;
+                if (Auth.hasPermission(PERMISSIONS.USER_DELETE)) {
+                    actionsHtml += `<button class="cancel-button" onclick="AdminApp.deleteUser(${user.id})">Delete</button>`;
                 }
-
+                
                 row.innerHTML = `
                     <td>${user.username}</td>
                     <td>${user.email}</td>
-                    <td>${Auth.getUserRoleName(user.role)}</td>
+                    <td>
+                        <div class="permissions-summary" title="${getPermissionTooltip(user.permissions)}">
+                            ${permissionSummary}
+                        </div>
+                    </td>
                     <td>${actionsHtml}</td>
                 `;
+                
+                userTableBody.appendChild(row);
             });
         } catch (error) {
             console.error('Error loading users:', error);
@@ -51,21 +221,43 @@ const UsersModule = (() => {
         }
     }
 
+    function getPermissionTooltip(userPermissions) {
+        if (!userPermissions || userPermissions.length === 0) {
+            return 'No permissions assigned';
+        }
+        
+        const permissionNames = userPermissions.map(permId => {
+            const permName = Object.keys(permissionManifest).find(name => 
+                permissionManifest[name] === permId
+            );
+            return permName || `Unknown (${permId})`;
+        });
+        
+        return permissionNames.join(', ');
+    }
+
     async function editUser(userId) {
-        if (!Auth.requirePermission(2, 'edit users')) return;
+        if (!Auth.requirePermission(PERMISSIONS.USER_EDIT_BASIC, 'edit users')) return;
 
         try {
             const user = await API.get(`/api/users/${userId}`);
-
             const idField = document.getElementById('edit-user-id');
             const usernameField = document.getElementById('edit-user-username');
             const emailField = document.getElementById('edit-user-email');
-            const roleField = document.getElementById('edit-user-role');
 
             if (idField) idField.value = user.id;
             if (usernameField) usernameField.value = user.username;
             if (emailField) emailField.value = user.email;
-            if (roleField) roleField.value = user.role;
+
+            const permissionsSection = document.querySelector('[data-permission="USER_EDIT_PERMISSIONS"]');
+            if (permissionsSection) {
+                if (Auth.hasPermission(PERMISSIONS.USER_EDIT_PERMISSIONS)) {
+                    permissionsSection.style.display = 'block';
+                    loadUserPermissions(user.permissions || []);
+                } else {
+                    permissionsSection.style.display = 'none';
+                }
+            }
 
             UI.showElement('edit-user');
         } catch (error) {
@@ -74,26 +266,60 @@ const UsersModule = (() => {
         }
     }
 
+    function loadUserPermissions(userPermissions) {
+        const checkboxes = document.querySelectorAll('input[name="permission"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        userPermissions.forEach(permissionId => {
+            
+            const permissionName = Object.keys(permissionManifest).find(name => 
+                permissionManifest[name] === permissionId
+            );
+            
+            if (permissionName) {
+                const checkbox = document.querySelector(`input[name="permission"][value="${permissionName}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            }
+        });
+    }
+
     async function saveEditUser(event) {
         event.preventDefault();
 
-        if (!Auth.requirePermission(2, 'save user edits')) return;
+        if (!Auth.requirePermission(PERMISSIONS.USER_EDIT_BASIC, 'save user edits')) return;
 
         const userId = document.getElementById('edit-user-id')?.value;
         const username = document.getElementById('edit-user-username')?.value;
         const email = document.getElementById('edit-user-email')?.value;
-        const role = document.getElementById('edit-user-role')?.value;
 
-        if (!userId || !username || !email || !role) {
-            await UI.showAlert('All fields are required');
+        if (!userId || !username || !email) {
+            await UI.showAlert('Username and email are required');
             return;
         }
 
         const updatedUser = {
             username,
-            email,
-            role: parseInt(role)
+            email
         };
+
+        if (Auth.hasPermission(PERMISSIONS.USER_EDIT_PERMISSIONS)) {
+            const selectedPermissions = [];
+            const checkboxes = document.querySelectorAll('input[name="permission"]:checked');
+            
+            checkboxes.forEach(checkbox => {
+                const permissionName = checkbox.value;
+                const permissionId = permissionManifest[permissionName];
+                if (permissionId !== undefined) {
+                    selectedPermissions.push(permissionId);
+                }
+            });
+            
+            updatedUser.permissions = selectedPermissions;
+        }
 
         try {
             await API.put(`/api/users/${userId}`, updatedUser);
@@ -107,7 +333,7 @@ const UsersModule = (() => {
     }
 
     async function deleteUser(userId) {
-        if (!Auth.requirePermission(1, 'delete users')) return;
+        if (!Auth.requirePermission(PERMISSIONS.USER_DELETE, 'delete users')) return;
 
         const confirmed = await UI.showConfirm('Are you sure you want to delete this user? This action cannot be undone.');
         if (confirmed) {
@@ -125,6 +351,42 @@ const UsersModule = (() => {
     function cancelEditUser() {
         UI.hideElement('edit-user');
         document.getElementById('edit-user-form')?.reset();
+        
+        const checkboxes = document.querySelectorAll('input[name="permission"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+    }
+
+    function applyPermissionPreset(presetName) {
+        if (!Auth.hasPermission(PERMISSIONS.USER_EDIT_PERMISSIONS)) {
+            UI.showAlert('You do not have permission to edit user permissions');
+            return;
+        }
+
+        const permissions = PERMISSION_PRESETS[presetName] || [];
+        const checkboxes = document.querySelectorAll('input[name="permission"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+
+        
+        permissions.forEach(permissionName => {
+            const checkbox = document.querySelector(`input[name="permission"][value="${permissionName}"]`);
+            if (checkbox) {
+                checkbox.checked = true;
+            }
+        });
+
+        const presetNames = {
+            none: 'All permissions cleared',
+            basic: 'Basic user permissions applied',
+            moderator: 'Moderator permissions applied',
+            admin: 'Admin permissions applied',
+            superadmin: 'Super Admin permissions applied'
+        };
+        
+        UI.showAlert(presetNames[presetName] || 'Permissions applied');
     }
 
     async function loadTopPlayers() {
@@ -619,19 +881,14 @@ const UsersModule = (() => {
             editUserForm.addEventListener('submit', saveEditUser);
         }
 
-        const cancelEditButton = document.getElementById('cancel-edit-user');
-        if (cancelEditButton) {
-            cancelEditButton.addEventListener('click', cancelEditUser);
-        }
-
-        const playerSearchBtn = document.getElementById('player-search-btn');
-        if (playerSearchBtn) {
-            playerSearchBtn.addEventListener('click', searchPlayers);
+        const playerSearchButton = document.getElementById('search-players-btn');
+        if (playerSearchButton) {
+            playerSearchButton.addEventListener('click', searchPlayers);
         }
 
         const playerSearchInput = document.getElementById('player-search');
         if (playerSearchInput) {
-            playerSearchInput.addEventListener('keypress', function (e) {
+            playerSearchInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     searchPlayers();
                 }
@@ -641,11 +898,12 @@ const UsersModule = (() => {
 
     return {
         loadUsers,
-        loadTopPlayers,
         editUser,
         saveEditUser,
         deleteUser,
         cancelEditUser,
+        applyPermissionPreset,
+        loadTopPlayers,
         searchPlayers,
         setupEventListeners
     };

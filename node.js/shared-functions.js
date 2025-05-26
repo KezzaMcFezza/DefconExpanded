@@ -21,11 +21,16 @@ const removeTimeout = (req, res, next) => {
 };
 
 function getClientIp(req) {
-    const forwardedFor = req.headers['x-forwarded-for'];
-    if (forwardedFor) {
-        return forwardedFor.split(',')[0].trim();
+    try {
+        const forwardedFor = req.headers['x-forwarded-for'];
+        if (forwardedFor) {
+            return forwardedFor.split(',')[0].trim();
+        }
+        return (req.ip || req.connection.remoteAddress).replace(/^::ffff:/, '');
+    } catch (error) {
+        console.error('Error getting client IP:', error);
+        return 'unknown';
     }
-    return (req.ip || req.connection.remoteAddress).replace(/^::ffff:/, '');
 }
 
 async function getUserLikesAndFavorites(userId) {
@@ -89,17 +94,22 @@ const fuzzyMatch = (needle, haystack, threshold = 0.3) => {
 };
 
 function formatTimestamp(date) {
-    const pad = (num) => (num < 10 ? '0' + num : num);
+    try {
+        const pad = (num) => (num < 10 ? '0' + num : num);
 
-    const year = date.getFullYear();
-    const month = pad(date.getMonth() + 1);
-    const day = pad(date.getDate());
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
-    const seconds = pad(date.getSeconds());
-    const milliseconds = pad(Math.floor(date.getMilliseconds() / 10));
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        const seconds = pad(date.getSeconds());
+        const milliseconds = pad(Math.floor(date.getMilliseconds() / 10));
 
-    return `${year}-${month}-${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
+        return `${year}-${month}-${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
+    } catch (error) {
+        console.error('Error formatting timestamp:', error);
+        return new Date().toISOString();
+    }
 }
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));

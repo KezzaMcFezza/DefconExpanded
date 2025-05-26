@@ -9,17 +9,18 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
+//Last Edited 21-05-2025
 
 
 import API from '../api.js';
 import Auth from '../auth.js';
 import UI from '../ui.js';
 import Utils from '../utils.js';
+import PERMISSIONS from '../permission-index.js';
 
 const ResourcesModule = (() => {
     async function loadResources() {
-        if (!Auth.hasPermission(5)) return;
+        if (!Auth.hasPermission(PERMISSIONS.RESOURCE_VIEW)) return;
         
         try {
             const resources = await API.get('/api/resources');
@@ -42,11 +43,11 @@ const ResourcesModule = (() => {
             const row = tbody.insertRow();
             let actionsHtml = '';
 
-            if (Auth.hasPermission(4)) {
+            if (Auth.hasPermission(PERMISSIONS.RESOURCE_EDIT)) {
                 actionsHtml += `<button onclick="AdminApp.editResource(${resource.id})">Edit</button>`;
             }
             
-            if (Auth.hasPermission(1)) {
+            if (Auth.hasPermission(PERMISSIONS.RESOURCE_DELETE)) {
                 actionsHtml += `<button onclick="AdminApp.deleteResource(${resource.id})">Delete</button>`;
             }
 
@@ -83,7 +84,7 @@ const ResourcesModule = (() => {
     async function uploadResource(event) {
         event.preventDefault();
         
-        if (!Auth.requirePermission(3, 'upload resources')) return;
+        if (!Auth.requirePermission(PERMISSIONS.RESOURCE_ADD, 'upload resources')) return;
         
         const formData = new FormData(event.target);
         const platform = event.target.id.replace('upload-', '').replace('-resource', '');
@@ -101,7 +102,7 @@ const ResourcesModule = (() => {
     }
 
     async function editResource(resourceId) {
-        if (!Auth.requirePermission(3, 'edit resources')) return;
+        if (!Auth.requirePermission(PERMISSIONS.RESOURCE_EDIT, 'edit resources')) return;
         
         try {
             const resource = await API.get(`/api/resource/${resourceId}`);
@@ -128,7 +129,7 @@ const ResourcesModule = (() => {
     async function saveEditResource(event) {
         event.preventDefault();
         
-        if (!Auth.requirePermission(3, 'save resource edits')) return;
+        if (!Auth.requirePermission(PERMISSIONS.RESOURCE_EDIT, 'save resource edits')) return;
         
         const resourceId = document.getElementById('edit-resource-id')?.value;
         const name = document.getElementById('edit-resource-name')?.value;
@@ -160,7 +161,7 @@ const ResourcesModule = (() => {
     }
 
     async function deleteResource(resourceId) {
-        if (!Auth.requirePermission(1, 'delete resources')) return;
+        if (!Auth.requirePermission(PERMISSIONS.RESOURCE_DELETE, 'delete resources')) return;
         
         const confirmed = await UI.showConfirm('Are you sure you want to delete this resource?');
         if (confirmed) {

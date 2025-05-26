@@ -8,21 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 01-04-2025
-
-window.isAdmin = false;
-
-window.initializeUserRole = async function () {
-  try {
-    const response = await fetch('/api/current-user');
-    const data = await response.json();
-    if (data.user) {
-      window.userRole = data.user.role;
-    }
-  } catch (error) {
-    console.error('Error setting user role:', error);
-  }
-};
+//Last Edited 25-05-2025
 
 function isUserLoggedIn() {
   return !!localStorage.getItem('token');
@@ -128,7 +114,6 @@ async function checkAuthStatus() {
 }
 
 async function initializeAuthentication() {
-  await window.initializeUserRole();
   await checkAuthStatus();
   setupProfileLinks();
   setupSignout();
