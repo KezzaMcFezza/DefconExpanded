@@ -55,7 +55,6 @@ const ReportsModule = (() => {
 
         } catch (error) {
             console.error('Error loading pending reports:', error);
-            await UI.showAlert('Failed to load pending reports: ' + error.message);
         }
     }
 
@@ -90,7 +89,6 @@ const ReportsModule = (() => {
             });
         } catch (error) {
             console.error('Error loading pending mod reports:', error);
-            await UI.showAlert('Failed to load pending mod reports: ' + error.message);
         }
     }
 
@@ -155,7 +153,6 @@ const ReportsModule = (() => {
             });
         } catch (error) {
             console.error('Error loading pending requests:', error);
-            await UI.showAlert('Failed to load pending requests: ' + error.message);
         }
     }
 

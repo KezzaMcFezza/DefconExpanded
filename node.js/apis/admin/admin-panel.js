@@ -14,7 +14,7 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 const jwt = require('jsonwebtoken');
-const startTime = Date.now();
+const serverStartTime = Date.now();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const {
@@ -48,10 +48,10 @@ router.get('/admin-panel', authenticateToken, (req, res) => {
 });
 
 router.get('/api/monitoring-data', authenticateToken, async (req, res) => {
-    const startTime = debug.enter('getMonitoringData', [req.user?.username], 1);
+    const debugStartTime = debug.enter('getMonitoringData', [req.user?.username], 1);
     try {
         debug.level2('Fetching monitoring data for admin panel');
-        const uptime = Math.floor((Date.now() - startTime) / 1000);
+        const uptime = Math.floor((Date.now() - serverStartTime) / 1000);
 
         debug.level3('Querying total demos count');
         debug.dbQuery('SELECT COUNT(*) as count FROM demos', [], 2);
@@ -71,7 +71,7 @@ router.get('/api/monitoring-data', authenticateToken, async (req, res) => {
         debug.dbResult(pendingRequestsResult, 2);
 
         debug.level2(`Monitoring data: uptime=${uptime}s, demos=${totalDemos}, requests=${userRequests}`);
-        debug.exit('getMonitoringData', startTime, { uptime, totalDemos, userRequests }, 1);
+        debug.exit('getMonitoringData', debugStartTime, { uptime, totalDemos, userRequests }, 1);
 
         res.json({
             uptime,
@@ -80,7 +80,7 @@ router.get('/api/monitoring-data', authenticateToken, async (req, res) => {
         });
     } catch (error) {
         debug.error('getMonitoringData', error, 1);
-        debug.exit('getMonitoringData', startTime, 'error', 1);
+        debug.exit('getMonitoringData', debugStartTime, 'error', 1);
         res.status(500).json({ error: 'Unable to fetch monitoring data' });
     }
 });
