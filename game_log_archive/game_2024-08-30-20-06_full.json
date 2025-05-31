@@ -1,0 +1,32 @@
+{
+  "start_time": "2024-08-30T20:06:57.720640",
+  "game_id": null,
+  "end_time": "2024-08-30T20:09:43.925880",
+  "duration": "0:02:46.205240",
+  "gameType": "DefconExpanded | 1v1 | Totally Random",
+  "players": [
+    {
+      "team": 0,
+      "territory": "Europe",
+      "client_id": 8,
+      "score": 0,
+      "name": "Mr MAGA"
+    },
+    {
+      "team": 1,
+      "territory": "Russia",
+      "client_id": 9,
+      "name": "Lord Haw Haw ",
+      "score": 0
+    }
+  ],
+  "notes": [
+    "TEAM_READY 1 1",
+    "TEAM_READY 0 1",
+    "TEAM_SPEED 1 1"
+  ],
+  "last_alliance": [
+    "1",
+    "1"
+  ]
+}

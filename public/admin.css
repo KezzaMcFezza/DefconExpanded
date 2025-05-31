@@ -10,6 +10,17 @@
     cursor: pointer;
 }
 
+#pending-reports-section {
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.report-card {
+    background-color: #1c1c2e17;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
 
 .btn-choose-file {
     padding: 0.5rem 0.7rem;
@@ -156,14 +167,7 @@ mark {
   }
 
 #upload-resource-form {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     gap: 10px;
-}
-
-#upload-resource-form input[type="file"] {
-    display: none;
 }
 
 #upload-resource-form label.choose-file {
@@ -192,6 +196,14 @@ mark {
 }
 
 #upload-resource-form input[type="date"] {
+    background-color: #1c1c2e;
+    border: 1px solid #333;
+    color: #797979;
+    padding: 0.44rem;
+    border-radius: 5px;
+}
+
+#edit-resource-form input[type="date"] {
     background-color: #1c1c2e;
     border: 1px solid #333;
     color: #797979;
@@ -387,4 +399,111 @@ mark {
 
 .remove-card-button:hover {
     background-color: #cc0000;
+}
+
+#admin-content {
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+.leaderboardeditandadd {
+    display: flex;
+}
+
+#add-player {
+    margin: 10px;
+}
+
+#add-player-form {
+    display: flex;
+    flex-direction: column;
+}
+
+#edit-player {
+    margin: 10px;
+}
+
+#edit-player-form {
+    display: flex;
+    flex-direction: column;
+}
+
+#admin-content h2 {
+    color: #4da6ff;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+#admin-content form {
+    margin-bottom: 20px;
+}
+
+#admin-content input[type="text"],
+#admin-content input[type="file"],
+#admin-content input[type="number"] {
+    background-color: #1c1c2e;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 0.5rem;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+
+#admin-content button {
+    background-color: #0067b8;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin: 0px 10px 0px 0px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#admin-content button:hover {
+    background-color: #3a8ad6;
+}
+
+#admin-content table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 5px;
+}
+
+#admin-content th,
+#admin-content td {
+    padding: 10px;
+    text-align: left;
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+#admin-content th {
+    background-color: rgba(77, 166, 255, 0.1);
+    color: #4da6ff;
+}
+
+#edit-demo-form {
+    background-color: #1c1c2e30;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+#edit-players {
+    margin-top: 10px;
+}
+
+#edit-players div {
+    margin-bottom: 10px;
+}
+
+#cancel-edit {
+    background-color: #ff4444;
+}
+
+#cancel-edit:hover {
+    background-color: #ff6666;
 }

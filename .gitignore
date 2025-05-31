@@ -2,6 +2,7 @@
 *.mkv
 *.crt
 *.key
+gimp-2.10.38-setup.zip
 **/ca_bundle.crt
 **/certificate.crt
 **/private.key

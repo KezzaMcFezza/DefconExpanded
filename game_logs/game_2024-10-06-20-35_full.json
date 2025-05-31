@@ -1,0 +1,123 @@
+{
+  "players": [
+    {
+      "client_id": 10,
+      "key_id": "13220074",
+      "ip": "68.148.189.103",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "somanynames",
+      "team": 3,
+      "territory": "Asia",
+      "score": 201
+    },
+    {
+      "client_id": 12,
+      "key_id": "13220132",
+      "ip": "83.221.16.43",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "Laika",
+      "team": 5,
+      "territory": "Russia",
+      "score": 186
+    },
+    {
+      "client_id": 9,
+      "key_id": "13220105",
+      "ip": "108.66.2.73",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "FasterThanRaito",
+      "team": 2,
+      "territory": "Europe",
+      "score": 137
+    },
+    {
+      "client_id": 13,
+      "key_id": "13197768",
+      "ip": "162.155.4.171",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "Vault Tec",
+      "team": 4,
+      "territory": "South America",
+      "score": 115
+    },
+    {
+      "client_id": 7,
+      "key_id": "13220131",
+      "ip": "173.79.170.129",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "Sievert",
+      "team": 0,
+      "territory": "Africa",
+      "score": 89
+    },
+    {
+      "client_id": 8,
+      "key_id": "13220133",
+      "ip": "90.240.78.139",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "LadenBinKezza",
+      "team": 1,
+      "territory": "North America",
+      "score": 17
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "MaxIdleRunTime": "1800",
+    "MinRunTime": "900",
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "ServerPort": "5011",
+    "MaxSpectators": "15",
+    "SpectatorChatChannel": "0",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "4",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "0",
+    "RandomTerritories": "1",
+    "CityPopulations": "3",
+    "PopulationPerTerritory": "150",
+    "CitiesPerTerritory": "30",
+    "TerritoriesPerTeam": "1",
+    "MinTeams": "3",
+    "MaxTeams": "6",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "DefconExpanded | 3v3 | FFA | Totally Random",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "ReadyVoteDelay": "90",
+    "IdleTimeGlobal": "600",
+    "AdvertisePlayers": "6",
+    "Record": "demo_recordings/game_2024-10-06-20-27.dcrec"
+  },
+  "game_id": null,
+  "start_time": "2024-10-06T20:35:07.887079",
+  "end_time": "2024-10-06T22:28:13.740313",
+  "duration": "1:53:05.853234",
+  "gameType": "DefconExpanded | 3V3 | FFA | Totally Random",
+  "last_alliance": [
+    "4",
+    "2"
+  ]
+}

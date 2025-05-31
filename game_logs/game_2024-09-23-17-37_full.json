@@ -1,0 +1,79 @@
+{
+  "players": [
+    {
+      "client_id": 7,
+      "key_id": "2968018",
+      "ip": "92.31.136.132",
+      "version": "1.63",
+      "platform": "MAC",
+      "name": "Fight in WarRoom",
+      "team": 0,
+      "territory": "Russia",
+      "score": 165
+    },
+    {
+      "client_id": 8,
+      "key_id": "13216157",
+      "ip": "80.26.187.240",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "Messiah",
+      "team": 1,
+      "territory": "Europe",
+      "score": 55
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "MaxIdleRunTime": "1800",
+    "MinRunTime": "900",
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "ServerPort": "5011",
+    "MaxSpectators": "15",
+    "SpectatorChatChannel": "0",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "1",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "0",
+    "RandomTerritories": "1",
+    "CityPopulations": "3",
+    "PopulationPerTerritory": "150",
+    "CitiesPerTerritory": "30",
+    "TerritoriesPerTeam": "1",
+    "MaxTeams": "2",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "DefconExpanded | 1v1 | Totally Random",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "AllianceSize": "1",
+    "ReadyVoteDelay": "90",
+    "IdleTimeGlobal": "600",
+    "AdvertisePlayers": "2",
+    "Record": "demo_recordings/game_2024-09-23-17-20.dcrec"
+  },
+  "game_id": null,
+  "start_time": "2024-09-23T17:37:32.307680",
+  "end_time": "2024-09-23T18:17:29.907416",
+  "duration": "0:39:57.599736",
+  "gameType": "DefconExpanded | 1V1 | Totally Random",
+  "last_alliance": [
+    "1",
+    "1"
+  ]
+}

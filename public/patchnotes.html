@@ -1,20 +1,23 @@
 <!DOCTYPE html><html lang="en" class="hide-scrollbar"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEFCON Expanded: Contact Us</title>
-    <meta name="description" content="DEFCON Expanded: Contact us about bugs or features">
-    <meta name="keywords" content="Defcon, game demos, Defcon Expanded, modding community, demo downloads, Defcon news, 8 Player, 10 Player, 16 Player, Dedcon, Octocon">
+    <title>DEFCON Expanded</title>
+    <meta name="description" content="Recent and historical patch notes for our 8-16 builds">
+    <meta name="keywords" content="defcon, defcon demos, defcon Expanded, game recording, game recordings modding community, 
+                                   demo downloads, mods, defcon mods, defcon dcrec, defcon modlist, defcon resources, defcon news, 
+                                   8 Player, 10 Player, 16 Player, dedcon, dedcon server, defcon leaderboard, defcon stats, defcon statistics,
+                                   defcon old guard, defcon game, defcon gaming community ">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://defconexpanded.com/about">
+    <link rel="canonical" href="https://defconexpanded.com/patchnotes">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://defconexpanded.com/about">
-    <meta property="og:title" content="DEFCON Expanded: Contact Us">
-    <meta property="og:description" content="DEFCON Expanded: Contact us about bugs or features">
+    <meta property="og:url" content="https://defconexpanded.com/patchnotes">
+    <meta property="og:title" content="DEFCON Expanded">
+    <meta property="og:description" content="Recent and historical patch notes for our 8-16 builds">
     <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://defconexpanded.com/about">
-    <meta name="twitter:title" content="DEFCON Expanded: About Us">
-    <meta name="twitter:description" content="DEFCON Expanded: Contact us about bugs or features">
+    <meta name="twitter:url" content="https://defconexpanded.com/patchnotes">
+    <meta name="twitter:title" content="DEFCON Expanded">
+    <meta name="twitter:description" content="Recent and historical patch notes for our 8-16 builds">
     <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
     <link rel="icon" type="image/x-icon" href="https://defconexpanded.com/favicon.ico">
     <link rel="icon" type="image/png" sizes="16x16" href="https://defconexpanded.com/favicon-16x16.png">
@@ -38,46 +41,178 @@
             padding: 5rem 13rem 0rem;
             justify-content: center;
         }
+            .fa-user {
+              margin-right: 5px;
+            }
+      
+            .fa-cog {
+              margin-right: 5px;
+            }
+            @media (max-width: 1366px) {
+                header {
+                    padding: 84px 15px 0;
+                }
+            }
     </style>
 </head>
 <body class="hide-scrollbar">
-    <div class="container">
-        <div class="container">
             <div id="sidebar">
                 <div class="title">DEFCON Expanded</div>
                 <ul class="list-items">
-                  <li><a href="/" id="nav-home"><i class="fas fa-home"></i>Homepage</a></li>
-                  <li><a href="/about" id="nav-about"><i class="fas fa-info-circle"></i>About</a></li>
-                  <li><a href="/resources" id="nav-resources"><i class="fas fa-download"></i>Downloads</a></li>
-                  <li class="dropdown">
-                      <a href="#" id="nav-news"><i class="fas fa-newspaper"></i>Articles and Information</a>
-                      <ul class="dropdown-content">
-                          <li><a href="/articles-and-events" id="nav-articles"><i class="fas fa-file-alt"></i>Articles</a></li>
-                          <li><a href="/patchnotes" id="nav-patch"><i class="fas fa-cog"></i>Patch Notes</a></li>
-                      </ul>
-                  </li>
-                  <li><a href="/media" id="nav-media"><i class="fas fa-photo-video"></i>Media</a></li>
-                  <li><a href="/laikasdefcon" id="nav-laikasdefcon"><i class="fas fa-radiation"></i>Laika's Defcon</a></li>
-                  <li><a href="/bug-report" id="nav-report"><i class="fas fa-bug"></i>Report a bug</a></li>
-              </ul>
-              <div id="discord-widget"></div>
+                    <li><a href="/" id="nav-home"><i class="fas fa-home"></i>Homepage</a></li>
+                    <li><a href="/about" id="nav-about"><i class="fas fa-info-circle"></i>About</a></li>
+                    <li><a href="/resources" id="nav-resources"><i class="fas fa-download"></i>Expanded Builds</a></li>
+                    <!-- <li><a href="/guides" id="nav-articles"><i class="fas fa-newspaper"></i>Guides</a></li> -->
+                    <li><a href="/leaderboard" id="nav-leaderboard"><i class="fas fa-trophy"></i>Leaderboard</a></li>
+                    <!-- <li><a href="/laikasdefcon" id="nav-laikasdefcon"><i class="fas fa-dog"></i>Laika's Defcon</a></li> -->
+                    <li><a href="/modlist" id="nav-modlist"><i class="fas fa-radiation"></i>Defcon Modlist</a></li>
+                    <div id="discord-widget"></div>
+                    <header class="mobile-header">
+                        <nav class="header-content">
+                            <div class="account-container">
+                                <div class="user-actions">
+                                    <div class="logged-out-actions">
+                                        <a href="/login" class="login-signup" target="_blank">Login</a>
+                                        <a href="/signup" class="login-signup" target="_blank">Sign up</a>
+                                    </div>
+                
+                                    <div class="logged-in-actions" style="display: none;">
+                                        <div class="user-dropdown">
+                                            <button class="dropbtn">
+                                              <span id="logged-in-username">Logged-in User</span>
+                                                <i class="fa fa-caret-down"></i>
+                                            </button>
+                                            <div class="dropdown-content-page">
+                                                <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a> 
+                                                <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
+                                            </div>
+                                        </div>
+                                        <button class="signout">Logout</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </nav>
+                    </header>
+                </ul>
                 <div class="icons">
                     <a href="mailto:keiron.mcphee1@gmail.com" target="_blank" class="mail-icon">
-                      <img src="/images/mail-icon.png" alt="E-Mail" class="steam-logo">
+                        <img src="/images/mail-icon.png" alt="E-Mail" class="steam-logo">
+                        </a>
+                      <a href="https://www.youtube.com/@KezzaMacFezza" target="_blank" class="youtube-icon">
+                        <img src="/images/youtube-icon.png" alt="Youtube" class="steam-logo">
                       </a>
-                    <a href="https://www.youtube.com/@KezzaMacFezza" target="_blank" class="youtube-icon">
-                      <img src="/images/youtube-icon.png" alt="Youtube" class="steam-logo">
-                    </a>
-                    <a href="https://store.steampowered.com/app/1520/DEFCON/" class="steam-icon" target="_blank">
-                    <img src="/images/steam-logo.png" alt="Steam" class="steam-logo">
-                    </a>
+                      <a href="https://store.steampowered.com/app/1520/DEFCON/" class="steam-icon" target="_blank">
+                      <img src="/images/steam-logo.png" alt="Steam" class="steam-logo">
+                      </a>
+                      <a href="/privacypolicy" class="privacy-icon" target="_blank">
+                      <img src="/images/privacy-policy.png" alt="Steam" class="steam-logo">
+                      </a>
                 </div>
             </div>
+            <header>
+                <nav class="header-content">
+                    <div class="account-container">
+                        <div class="user-actions">
+                            <div class="logged-out-actions">
+                                <a href="/login" class="login-signup" target="_blank">Login</a>
+                                <a href="/signup" class="login-signup" target="_blank">Sign up</a>
+                            </div>
+        
+                            <div class="logged-in-actions" style="display: none;">
+                                <div class="user-dropdown">
+                                    <button class="dropbtn">
+                                      <span id="logged-in-username">Logged-in User</span>
+                                        <i class="fa fa-caret-down"></i>
+                                    </button>
+                                    <div class="dropdown-content-page">
+                                        <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a> 
+                                        <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
+                                    </div>
+                                </div>
+                                <button class="signout">Logout</button>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            </header>
                 <div class="patchcontainer">
                     <h2 class="headerresources2">Patch notes for each version</h2>
                     <h6>Written by FasterThanRaito</h6>
                     
                     <div class="patchnotes-container">
+                        <div class="patchnote-item">
+                            <div class="patchnote-content">
+                                <h2>Version 2.x.11.2 Release</h2>
+                                <div class="patchnote-meta">
+                                    <button class="view-patchnotes-btn">View patch notes</button>
+                                    <span class="release-date">September 9, 2024</span>
+                                </div>
+                                <div class="patchnote-details" style="display: none;">
+                                    <ul>
+                                        <li>Increased player slots to 10 to differentiate servers</li>
+                                        <li>Added Linux compatibility</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="patchnote-image">
+                                <img src="images/favicon.png" alt="Version 2.x.11.2 update">
+                            </div>
+                            <div class="patchnote-image">
+                                <img src="images/10P.ico" alt="Version 2.x.11.2 update">
+                            </div>
+                        </div>
+                        <div class="patchnote-item">
+                            <div class="patchnote-content">
+                                <h2>Version 2.x.11 Release</h2>
+                                <div class="patchnote-meta">
+                                    <button class="view-patchnotes-btn">View patch notes</button>
+                                    <span class="release-date">August 31, 2024</span>
+                                </div>
+                                <div class="patchnote-details" style="display: none;">
+                                    <ul>
+                                        <li>Fixed broken main menu crawl text showing apostraphes and dashes as garbage data for the English localization</li>
+                                        <li>Adjusted territories of NA/SA/Africa/Middle East to get coastal/border cities to appear properly</li>
+                                        <li>Slight population readjustment</li>
+                                        <li>Fixed Nouakchott and Vancouver not appearing</li>
+                                        <li>Added companion mods for setups with 4-7 players</li>
+                                </div>
+                            </div>
+                            <div class="patchnote-image">
+                                <img src="images/favicon.png" alt="Version 2.x.11 update">
+                            </div>
+                            <div class="patchnote-image">
+                                <img src="images/10P.ico" alt="Version 2.x.11 update">
+                            </div>
+                            <div class="patchnote-image">
+                                <img src="images/16P.ico" alt="Version 2.x.11 update">
+                            </div>
+                        </div>
+                        <div class="patchnote-item">
+                            <div class="patchnote-content">
+                                <h2>Version 2.x.10 Release</h2>
+                                <div class="patchnote-meta">
+                                    <button class="view-patchnotes-btn">View patch notes</button>
+                                    <span class="release-date">August 18, 2024</span>
+                                </div>
+                                <div class="patchnote-details" style="display: none;">
+                                    <ul>
+                                        <li>Fixed ghosted silos having their state changes immediately visible even without radar coverage</li>
+                                        <li>Added AI markers to the Antarctic coast</li>
+                                        <li>Made the Denmark Strait, Torres Strait, Tsugaru Strait, Tsushima Strait, Vilkitsky Strait, and Kara Strait traversible. The Sea of Japan and Kara Sea are accessible again</li>
+                                        <li>Fix crashes involving attempting team switching to nonexistent player slots</li>
+                                        <li>Character limit for chat is now 1000 characters</li>
+                                </div>
+                            </div>
+                            <div class="patchnote-image">
+                                <img src="images/favicon.png" alt="Version 2.x.10 update">
+                            </div>
+                            <div class="patchnote-image">
+                                <img src="images/10P.ico" alt="Version 2.x.10 update">
+                            </div>
+                            <div class="patchnote-image">
+                                <img src="images/16P.ico" alt="Version 2.x.10 update">
+                            </div>
+                        </div>
                         <div class="patchnote-item">
                             <div class="patchnote-content">
                                 <h2>Version 2.x.9 Release</h2>

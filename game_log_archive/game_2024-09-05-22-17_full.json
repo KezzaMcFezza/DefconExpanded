@@ -1,0 +1,62 @@
+{
+  "start_time": "2024-09-05T20:30:57.941825", 
+  "game_id": null, 
+  "end_time": "2024-09-05T22:13:40.058594", 
+  "duration": "01:31:42.116769", 
+  "gameType": "DefconExpanded | 3v3 | Totally Random", 
+  "players": [
+    {
+      "team": 0, 
+      "territory": "Africa", 
+      "client_id": 8, 
+      "name": "ItsEK", 
+      "score": -51 
+    },
+    {
+      "team": 1, 
+      "territory": "Europe", 
+      "client_id": 7, 
+      "name": "Sievert", 
+      "score": 21
+    },
+    {
+      "team": 2, 
+      "territory": "Asia", 
+      "client_id": 8, 
+      "name": "LadenBinKezza", 
+      "score": 97
+    },
+    {
+      "team": 3, 
+      "territory": "Russia", 
+      "client_id": 8, 
+      "name": "Mojo", 
+      "score": 9
+    },
+    {
+      "team": 4, 
+      "territory": "South America", 
+      "client_id": 8, 
+      "name": "Baton", 
+      "score": 218
+    },
+    {
+      "team": 5, 
+      "territory": "North America", 
+      "client_id": 8, 
+      "name": "Rad", 
+      "score": 182
+    }
+  ],
+  "notes": [ 
+    "TEAM_READY 1 1",
+    "TEAM_READY 0 1",
+    "TEAM_SPEED 1 20",
+    "TEAM_SPEED 0 20"
+  ],
+  "last_alliance": [ 
+    "1",             
+    "2"              
+  ]
+}
+

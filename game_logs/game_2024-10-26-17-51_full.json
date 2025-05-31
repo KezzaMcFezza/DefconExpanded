@@ -1,0 +1,80 @@
+{
+  "players": [
+    {
+      "client_id": 7,
+      "key_id": "13225456",
+      "ip": "178.167.87.177",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "HAN SOLO",
+      "team": 0,
+      "territory": "South America",
+      "score": 71
+    },
+    {
+      "client_id": 8,
+      "key_id": "13220638",
+      "ip": "151.249.150.15",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "dartvader77",
+      "team": 1,
+      "territory": "Africa",
+      "score": -10
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "MaxIdleRunTime": "1800",
+    "MinRunTime": "900",
+    "CaseSensitive": "0",
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "ServerPort": "5012",
+    "MaxSpectators": "15",
+    "SpectatorChatChannel": "0",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "1",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "0",
+    "RandomTerritories": "0",
+    "CityPopulations": "0",
+    "PopulationPerTerritory": "100",
+    "CitiesPerTerritory": "25",
+    "TerritoriesPerTeam": "1",
+    "MaxTeams": "2",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "DefconExpanded | 1v1 | Default",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "AllianceSize": "1",
+    "ReadyVoteDelay": "90",
+    "IdleTimeGlobal": "600",
+    "AdvertisePlayers": "2",
+    "Record": "demo_recordings/game_2024-10-26-17-40.dcrec"
+  },
+  "game_id": null,
+  "start_time": "2024-10-26T17:51:03.050050",
+  "end_time": "2024-10-26T18:28:09.702332",
+  "duration": "0:37:06.652282",
+  "gameType": "DefconExpanded | 1V1 | Default",
+  "last_alliance": [
+    "1",
+    "1"
+  ]
+}

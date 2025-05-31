@@ -1,0 +1,82 @@
+{
+  "players": [
+    {
+      "client_id": 7,
+      "key_id": "12726403",
+      "ip": "87.123.243.150",
+      "version": "1.42",
+      "platform": "linux",
+      "name": "Rad",
+      "team": 0,
+      "territory": "South America",
+      "score": 145
+    },
+    {
+      "client_id": 8,
+      "key_id": "2968018",
+      "ip": "92.31.141.160",
+      "version": "1.63",
+      "platform": "MAC",
+      "name": "Fight in WarRoom",
+      "team": 1,
+      "territory": "Europe",
+      "score": 26
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "MaxIdleRunTime": "1800",
+    "MinRunTime": "900",
+    "CaseSensitive": "0",
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "ServerPort": "5012",
+    "MaxSpectators": "15",
+    "SpectatorChatChannel": "0",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "1",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "0",
+    "RandomTerritories": "1",
+    "CityPopulations": "3",
+    "PopulationPerTerritory": "150",
+    "CitiesPerTerritory": "30",
+    "TerritoriesPerTeam": "1",
+    "MaxTeams": "2",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "DefconExpanded | 1v1 | EU vs SA | Totally Random",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "Territory2": "1",
+    "Territory1": "2",
+    "AllianceSize": "1",
+    "ReadyVoteDelay": "90",
+    "IdleTimeGlobal": "600",
+    "AdvertisePlayers": "2",
+    "Record": "demo_recordings/game_2024-10-22-17-59.dcrec"
+  },
+  "game_id": null,
+  "start_time": "2024-10-22T18:12:03.219497",
+  "end_time": "2024-10-22T19:14:09.873330",
+  "duration": "1:02:06.653833",
+  "gameType": "DefconExpanded | 1V1 | EU vs SA | Totally Random",
+  "last_alliance": [
+    "1",
+    "0"
+  ]
+}

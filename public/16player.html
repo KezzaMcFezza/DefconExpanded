@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defcon Expanded: A Defcon Modding Community</title>
+    <meta name="description" content="DEFCON Expanded - The Home for DEFCON Mods and Demos">
+    <meta name="keywords" content="Defcon, game demos, Defcon Expanded, modding community, demo downloads, Defcon news, 8 Player, 10 Player, Dedcon, Octocon">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://defconexpanded.com">
+    <meta property="og:title" content="DEFCON Expanded - A DEFCON Modding Community">
+    <meta property="og:description" content="The Home for DEFCON Mods and Demos">
+    <meta property="og:image" content="https://defconexpanded.com/images/socialmedianew.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://defconexpanded.com">
+    <meta name="twitter:title" content="DEFCON Expanded - A DEFCON Modding Community">
+    <meta name="twitter:description" content="The Home for DEFCON Mods and Demos">
+    <meta name="twitter:image" content="https://defconexpanded.com/images/socialmedianew.png">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/style.css" />
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+    <link rel="stylesheet" type="text/css" href="/media.css" />
+    <link rel="stylesheet" type="text/css" href="/btnnav.css" />
+    <link rel="stylesheet" type="text/css" href="/scaling.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+
+    </style>
+</head>
+<body class="hide-scrollbar">
+    <header>
+        <div class="bannerdivclass">
+            <div class="logodivclass"></div>
+        </div>
+    </header>
+    <nav>
+        <a class="btn-third foo" href="/">Homepage</a>
+        <a class="btn-third foo" href="/about">About</a>
+        <a class="btn-third foo" href="/news">News</a>
+        <a class="btn-third foo" href="/media">Media</a>
+        <a class="btn-third foo" href="/resources">Downloads</a>
+        <a class="btn-third foo" href="/experimental">Experimental</a>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search...">
+            <button id="search-button">Search</button>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="center-column">
+            <h1 class="headerresources" id="8-player">16 PlayER BUild REsoURcEs</h1>
+            <p class="pabout2">If you get a virus detected popup and your browser refuses
+                              to let you download and of these files, turn off windows defender or any other 
+                              anti virus software as these modded builds arent signed.</p>
+            <div class="tutorial-download-container">
+                <div class="tutorial">
+                    <h1 class="headerresources">INstallatioN TUtoRial...</h1>
+                    <div class="media-grid">
+                        <div class="media-item-resources">
+                            <video 
+                            src="/videos/Installation Guide.mp4" 
+                            poster="/images/installation.png"
+                            controls
+                            onclick="openModal('/videos/Installation Guide.mp4', 'video', 'Installation Guide.mp4')">
+                            Your browser does not support the video tag. Please download the video to view it.
+                            </video>
+                        </div>                    
+                    </div>
+                    <p class="pabout">If you are still struggling with the install just ask one of us on the Discord.</p>    
+                </div>
+                <div class="download-links">
+                    <table class="version-history-table">
+                        <thead>
+                            <tr>
+                                <th>Version</th>
+                                <th>Release Date</th>
+                                <th>Download</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2.16.4</td>
+                                <td>Latest Version - 
+                                    27/07/2024
+                                </td>
+                                <td><a href="/files/DEFCON 16 Players Alpha v2.16.4.zip" class="download-link">Download</a></td>
+                            </tr>
+                            <tr>
+                                <td>2.16.3</td>
+                                <td>26/07/2024</td>
+                                <td><a href="/files/DEFCON 10 Players Alpha v2.16.3.zip" class="download-link">Download</a></td>
+                            </tr>
+                            <tr>
+                                <td>2.16.0</td>
+                                <td>First Release - 
+                                    25/07/2024
+                                </td>
+                                <td><a href="/files/DEFCON 16 Players Prerelease v2.16.0.zip" class="download-link">Download</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImg">
+        <video class="modal-content" id="modalVideo" controls></video>
+    </div>
+
+    <script>
+        function openModal(src, type, title) {
+            const modal = document.getElementById("myModal");
+            const modalImg = document.getElementById("modalImg");
+            const modalVideo = document.getElementById("modalVideo");
+
+            modal.style.display = "flex";
+            if (type === 'img') {
+                modalImg.style.display = "block";
+                modalVideo.style.display = "none";
+                modalImg.src = src;
+            } else {
+                modalImg.style.display = "none";
+                modalVideo.style.display = "block";
+                modalVideo.src = src;
+            }
+
+            modalImg.alt = title;
+            modalVideo.title = title;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById("myModal");
+            modal.style.display = "none";
+            document.getElementById("modalVideo").pause();
+        }
+
+        function performSearch() {
+            const searchTerm = document.getElementById('search-input').value;
+            if (searchTerm.trim() === '') return;
+            window.location.href = `/searchresults.html?q=${encodeURIComponent(searchTerm)}`;
+        }
+
+        document.getElementById('search-button').addEventListener('click', performSearch);
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    </script>
+</body>
+</html>

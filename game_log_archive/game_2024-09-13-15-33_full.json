@@ -1,0 +1,78 @@
+{
+  "players": [
+    {
+      "client_id": 9,
+      "key_id": "13213071",
+      "ip": "90.242.223.214",
+      "version": "1.62",
+      "platform": "STEAM",
+      "team": 0,
+      "territory": "Russia",
+      "name": "KezzaMcFezza",
+      "score": 247
+    },
+    {
+      "client_id": 10,
+      "key_id": "13213108",
+      "ip": "143.110.96.2",
+      "version": "1.62",
+      "platform": "STEAM",
+      "team": 1,
+      "territory": "South America",
+      "name": "ItsEK",
+      "score": -123
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "MaxIdleRunTime": "1800",
+    "MinRunTime": "900",
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "MaxSpectators": "15",
+    "SpectatorChatChannel": "0",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "1",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "0",
+    "RandomTerritories": "1",
+    "CityPopulations": "3",
+    "PopulationPerTerritory": "150",
+    "CitiesPerTerritory": "30",
+    "TerritoriesPerTeam": "1",
+    "MaxTeams": "2",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "DefconExpanded | 1v1 | Totally Random",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "AllianceSize": "1",
+    "ReadyVoteDelay": "90",
+    "IdleTimeGlobal": "600",
+    "AdvertisePlayers": "2",
+    "Record": "demo_recordings/game_2024-09-13-15-30.dcrec"
+  },
+  "game_id": null,
+  "start_time": "2024-09-13T15:33:43.716550",
+  "end_time": "2024-09-13T16:25:20.907696",
+  "duration": "0:51:37.191146",
+  "gameType": "DefconExpanded | 1V1 | Totally Random",
+  "last_alliance": [
+    "1",
+    "1"
+  ]
+}

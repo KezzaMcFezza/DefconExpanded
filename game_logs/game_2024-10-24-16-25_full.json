@@ -1,0 +1,80 @@
+{
+  "players": [
+    {
+      "client_id": 7,
+      "key_id": "13224848",
+      "ip": "90.247.134.248",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "LadenBinKezza",
+      "team": 0,
+      "territory": "South America",
+      "score": 29
+    },
+    {
+      "client_id": 8,
+      "key_id": "13224849",
+      "ip": "89.104.245.222",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "MohammedBinNexus",
+      "team": 1,
+      "territory": "Africa",
+      "score": 18
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "MaxIdleRunTime": "1800",
+    "MinRunTime": "900",
+    "CaseSensitive": "0",
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "ServerPort": "5016",
+    "MaxSpectators": "3",
+    "SpectatorChatChannel": "1",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "1",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "1",
+    "RandomTerritories": "0",
+    "CityPopulations": "0",
+    "PopulationPerTerritory": "100",
+    "CitiesPerTerritory": "25",
+    "TerritoriesPerTeam": "1",
+    "MaxTeams": "2",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "DefconExpanded Test Server",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "AllianceSize": "1",
+    "ReadyVoteDelay": "90",
+    "IdleTimeGlobal": "600",
+    "AdvertisePlayers": "2",
+    "Record": "demo_recordings/game_2024-10-24-16-22.dcrec"
+  },
+  "game_id": null,
+  "start_time": "2024-10-24T16:25:03.059096",
+  "end_time": "2024-10-24T16:30:30.291624",
+  "duration": "0:05:27.232528",
+  "gameType": "DefconExpanded | 1V1 | Totally Random",
+  "last_alliance": [
+    "1",
+    "1"
+  ]
+}

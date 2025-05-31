@@ -1,0 +1,35 @@
+{
+  "start_time": "2024-08-29T21:51:41.078636",
+  "game_id": null,
+  "end_time": "2024-08-29T22:06:27.022394",
+  "duration": "0:14:45.943758",
+  "gameType": "DefconExpanded | 1v1 | Totally Random",
+  "players": [
+    {
+      "team": 1,
+      "territory": "Asia",
+      "client_id": 8,
+      "name": "KezzaMcFezza",
+      "score": 284
+    },
+    {
+      "team": 0,
+      "territory": "Russia",
+      "client_id": 7,
+      "name": "LadenBinKezza",
+      "score": -142
+    }
+  ],
+  "notes": [
+    "TEAM_READY 1 1",
+    "TEAM_READY 0 1",
+    "TEAM_SPEED 0 20",
+    "TEAM_SPEED 1 5",
+    "TEAM_SPEED 1 20",
+    "TEAM_SPEED 0 20"
+  ],
+  "last_alliance": [
+    "1",
+    "2"
+  ]
+}

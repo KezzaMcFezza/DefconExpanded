@@ -1,0 +1,101 @@
+{
+  "players": [
+    {
+      "client_id": 7,
+      "key_id": "13221780",
+      "ip": "104.137.39.166",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "ALABAMA HAMMER",
+      "team": 0,
+      "territory": "Russia",
+      "score": 213
+    },
+    {
+      "client_id": 8,
+      "key_id": "13221580",
+      "ip": "185.187.168.157",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "Vader",
+      "team": 1,
+      "territory": "Asia",
+      "score": 154
+    },
+    {
+      "client_id": 10,
+      "key_id": "12726403",
+      "ip": "87.123.243.139",
+      "version": "1.42",
+      "platform": "linux",
+      "name": "Rad",
+      "team": 3,
+      "territory": "Europe",
+      "score": 127
+    },
+    {
+      "client_id": 9,
+      "key_id": "13221796",
+      "ip": "66.177.225.237",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "Shadowbound",
+      "team": 2,
+      "territory": "South America",
+      "score": -4
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "MaxIdleRunTime": "1800",
+    "MinRunTime": "900",
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "ServerPort": "5011",
+    "MaxSpectators": "15",
+    "SpectatorChatChannel": "0",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "1",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "0",
+    "RandomTerritories": "1",
+    "CityPopulations": "3",
+    "PopulationPerTerritory": "150",
+    "CitiesPerTerritory": "30",
+    "TerritoriesPerTeam": "1",
+    "MinTeams": "4",
+    "MaxTeams": "4",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "DefconExpanded | 2v2 | Totally Random",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "ReadyVoteDelay": "90",
+    "IdleTimeGlobal": "600",
+    "AdvertisePlayers": "4",
+    "Record": "demo_recordings/game_2024-10-12-21-29.dcrec"
+  },
+  "game_id": null,
+  "start_time": "2024-10-12T21:34:04.006297",
+  "end_time": "2024-10-12T22:36:40.530130",
+  "duration": "1:02:36.523833",
+  "gameType": "DefconExpanded | 2V2 | Totally Random",
+  "last_alliance": [
+    "2",
+    "4"
+  ]
+}

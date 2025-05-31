@@ -1,0 +1,72 @@
+OutFile = server_output_8playerdiplo.log
+PlayerLog = player_scores_8playerdiplo.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+PermitDefection = 0
+ScoreMode = 1
+Reverting: PermitDefection = 1
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 375264.
+OutFile = server_output_8playerdiplo.log
+PlayerLog = player_scores_8playerdiplo.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+PermitDefection = 0
+ScoreMode = 1
+Reverting: PermitDefection = 1
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Public server info: 116.203.228.110:5018
+Server key authentication succeeded, key id = 375264.
+OutFile = server_output_8playerdiplo.log
+PlayerLog = player_scores_8playerdiplo.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 5
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+PermitDefection = 0
+ScoreMode = 1
+Reverting: PermitDefection = 1
+Listening on port 5018.
+ServerPort = 5018
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5018
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 375264.

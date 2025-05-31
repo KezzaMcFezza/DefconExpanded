@@ -1,0 +1,8 @@
+WaitEnd
+Record demo_recordings/game8p_%Y-%m-%d-%H-%M.d8crec
+AdvertiseOnInternet 0
+Say Game Over !
+Say Game is available on defconexpanded.com
+Say Restart in 30 Seconds!
+WaitSeconds 30
+Quit

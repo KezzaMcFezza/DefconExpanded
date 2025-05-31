@@ -6,142 +6,54 @@ html {
 body {
     font-size: 1rem;
     line-height: 1.5;
+    background: #121212;
+    background-color: #121212;
 }
 
-/* Container adjustments */
+/* Container styles */
 .container {
     width: 100%;
     margin: 0 auto;
-    padding: 0 15px;
+    padding: 0 0;
 }
-@media (max-width: 768px) {
-    body, html {
-        font-family: 'Roboto', Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        color: #fff;
-        height: 100%;
-        line-height: 1.6;
-        overflow: hidden;
-    }
-    
-    body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url("images/pxfuel.jpg");
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-        opacity: 0.08; /* Adjust the opacity value as needed (0.0 - 1.0) */
-        z-index: -1;
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
     }
 }
 
-@media (max-width: 480px) {
-    body, html {
-        font-family: 'Roboto', Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        color: #fff;
-        height: 100%;
-        line-height: 1.6;
-        overflow: hidden;
-    }
-    
-    body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url("images/pxfuel.jpg");
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-        opacity: 0.08; /* Adjust the opacity value as needed (0.0 - 1.0) */
-        z-index: -1;
-    }
-}
-
-/* Sidebar adjustments for larger screens */
-@media (max-width: 1024px) {
-    #sidebar {
-        width: 220px;
-    }
-
-    main {
-        margin-left: 220px;
-    }
-}
-
-/* Responsive styles for screens up to 1366px */
+/* Responsive styles for screens up to 768px (including 1366x768) */
 @media (max-width: 1366px) {
-    .container {
-        padding: 0 10px;
+    body, html {
+        font-family: 'Roboto', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #fff;
+        height: 100%;
+        line-height: 1.6;
+        overflow: hidden;
+    }
+    .profile-container {
+        padding: 0 !important;
+    }
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("images/pxfuel.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        opacity: 0.08;
+        z-index: -1;
     }
 
-    /* Adjust table layout for smaller screens */
-    .version-history-table {
-        font-size: 0.9rem;
-    }
-
-    .version-history-table th,
-    .version-history-table td {
-        padding: 8px 5px;
-    }
-
-    /* Shrink download tables */
-    .resources-container {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-    }
-
-    .resource-item {
-        padding: 0.8rem;
-    }
-
-    .resource-item h5 {
-        font-size: 1.2em;
-    }
-}
-
-@media (max-width: 768px) {
-    .pabout2 {
-        text-align: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .pabout2 {
-        text-align: center;
-    }
-}
-
-/* Responsive styles for screens up to 768px */
-@media (max-width: 768px) {
-    /* Responsive typography */
-    html {
-        font-size: 14px;
-    }
-
-    h1 {
-        font-size: 1.8rem;
-    }
-
-    h2 {
-        font-size: 1.5rem;
-    }
-
-    h3 {
-        font-size: 1.3rem;
-    }
-
-    /* Responsive navigation */
     #sidebar {
         width: 100%;
         height: auto;
@@ -166,11 +78,222 @@ body {
         padding: 0px 10px 40px 0px;
         display: block;
     }
+    .game-tile {
+        width: 231px;
+    }
+    .mod-item {
+        max-width: 403px !important;
+        min-width: 403px !important;
+    }
+    .mod-meta {
+        flex-wrap: nowrap !important;
+    }
+    .download-btn {
+        margin-left: auto !important;
+        padding: 4px 10px !important;
+        margin-right: unset !important;
+    }   
+    .mod-title {
+        max-width: 290px;
+    }
+
+    #sidebar .title::after {
+        content: '\2630';
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    #sidebar .title::after {
+        cursor: pointer;
+        padding: 0px 10px 40px 0px;
+        display: block;
+    }
 
     #sidebar .title.menu-open::after {
         display: none;
     }
 
+    #sidebar .list-items {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    #sidebar .list-items.show {
+        display: block;
+        background-color: #1a1a1a;
+    }
+
+    #sidebar .list-items li {
+        text-align: left;
+        border-bottom: 1px solid #333;
+    }
+
+    #sidebar .list-items li a {
+        padding: 10px 15px;
+        display: block;
+        font-size: 1rem;
+    }
+
+    /* Main content adjustments */
+    main {
+        margin-left: 0;
+        padding: 89px 15px 0;
+    }
+
+    .header-content {
+        padding: 0;
+    }
+
+    .icons {
+        display: flex;
+        justify-content: space-evenly;
+        margin-top: auto;
+        background-color: #1a1b1b;
+        padding: 6px 0;
+        border-top: 1px solid #333;
+        opacity: 0.8;
+    }
+
+    /* Login and logout container styles */
+    #login-container, #logout-container {
+        padding: 10px;
+        margin-top: 20px;
+        display: none;
+    }
+
+    #login-form input {
+        background-color: #1c1c2e;
+        border: 1px solid #333;
+        color: #fff;
+        padding: 0.50rem;
+        margin-top: 5px;
+        width: 200px;
+        border-radius: 4px 0 0 4px;
+        display: none;
+    }
+
+    .demo-card {
+        width: fit-content;
+    }
+
+    #login-form button, #logout-container button {
+        width: 30%;
+        margin-top: 5px;
+        background-color: #0067b8;
+        padding: 5px;
+        border-radius: 4px;
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: none;
+    }
+
+    #login-form button:hover, #logout-container button:hover {
+        background-color: #3a8ad6;
+        display: none;
+    }
+
+    .discord-widget {
+        margin: 0;
+        background-color: unset;
+        width: 370px;
+    }
+    .discord-event {
+        background-color: unset;
+    }
+}
+
+/* Responsive styles for screens up to 768px (including 1366x768) */
+@media (max-width: 1280px) {
+    body, html {
+        font-family: 'Roboto', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #fff;
+        height: 100%;
+        line-height: 1.6;
+        overflow: hidden;
+    }
+    
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("images/pxfuel.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        opacity: 0.08;
+        z-index: -1;
+    }
+
+    #sidebar {
+        width: 100%;
+        height: auto;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        background-color: #1c1c2e;
+    }
+
+    #sidebar .title {
+        display: flex;
+        line-height: 50px;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 15px;
+        font-size: 1.5rem;
+    }
+
+    #sidebar .title::after {
+        cursor: pointer;
+        padding: 0px 10px 40px 0px;
+        display: block;
+    }
+    .game-tile {
+        width: 214px;
+    }
+    .mod-item {
+        max-width: 578px !important;
+        min-width: 578px !important;
+    }
+    .profile-container {
+        padding: 0 !important;
+    }
+    .mod-meta {
+        flex-wrap: nowrap !important;
+    }
+    .btn-report {
+        margin: 0 !important;
+    }
+    .mod-title {
+        max-width: 290px;
+    }
+
+    #sidebar .title::after {
+        content: '\2630';
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    #sidebar .title::after {
+        cursor: pointer;
+        padding: 0px 10px 40px 0px;
+        display: block;
+    }
+
+    #sidebar .title.menu-open::after {
+        display: none;
+    }
 
     #sidebar .list-items {
         display: none;
@@ -196,367 +319,460 @@ body {
     /* Main content adjustments */
     main {
         margin-left: 0;
-        padding: 60px 15px 0;
+        padding: 89px 15px 0;
     }
 
-    .container {
-        flex-direction: column;
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    .rightmainabout {
-        flex-grow: 1;
-        padding: 0rem 1rem 2rem 1rem;
-        margin: 0;
-    }
-
-    /* Adjust other elements to account for the top navigation */
-    .bannerdivclass,
-    .logodivclass {
-        margin-top: 60px;
-        background-size: 90% auto;
-    }
-
-    /* Responsive grid and element adjustments */
-    .video-section,
-    .featured-video,
-    .video-item,
-    .card,
-    .cardcredits,
-    .resource-item,
-    .resource-item-new,
-    .event,
-    .announcement,
-    .announcementnew,
-    .media-grid,
-    .about-container,
-    .resources-container,
-    .demo-container {
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-
-    .about-container,
-    .resources-container,
-    .demo-container,
-    .media-grid {
-        grid-template-columns: 1fr;
-    }
-
-    /* Card and element padding adjustments */
-    .card,
-    .cardcredits,
-    .resource-item,
-    .resource-item-new,
-    .event,
-    .announcement,
-    .announcementnew {
-        padding: 1rem;
-    }
-
-    /* Video section specific adjustments */
-    .video-section {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .video-thumbnail {
-        width: 100%;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .media-layout {
+    .header-content {
         padding: 0;
     }
 
-    .video-thumbnail img,
-    .video-thumbnail video {
-        position: absolute;
+    .icons {
+        display: flex;
+        justify-content: space-evenly;
+        margin-top: auto;
+        background-color: #1a1b1b;
+        padding: 6px 0;
+        border-top: 1px solid #333;
+        opacity: 0.8;
+    }
+
+    /* Login and logout container styles */
+    #login-container, #logout-container {
+        padding: 10px;
+        margin-top: 20px;
+        display: none;
+    }
+
+    #login-form input {
+        background-color: #1c1c2e;
+        border: 1px solid #333;
+        color: #fff;
+        padding: 0.50rem;
+        margin-top: 5px;
+        width: 200px;
+        border-radius: 4px 0 0 4px;
+        display: none;
+    }
+
+    .demo-card {
+        width: fit-content;
+    }
+
+    .demo-card td {
+        padding: 0.4rem;
+    }
+
+    #login-form button, #logout-container button {
+        width: 30%;
+        margin-top: 5px;
+        background-color: #0067b8;
+        padding: 5px;
+        border-radius: 4px;
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: none;
+    }
+
+    #login-form button:hover, #logout-container button:hover {
+        background-color: #3a8ad6;
+        display: none;
+    }
+
+    .discord-widget {
+        margin: 0;
+        background-color: unset;
+        width: 370px;
+    }
+    .discord-event {
+        background-color: unset;
+    }
+}
+
+@media (max-width: 430px) {
+    body, html {
+        font-family: 'Roboto', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #fff;
+        height: 100%;
+        line-height: 1.6;
+        overflow: hidden;
+    }
+    .profile-container {
+        padding: 0 !important;
+    }
+    body::before {
+        content: "";
+        position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        background-image: url("images/pxfuel.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        opacity: 0.08;
+        z-index: -1;
     }
 
-    /* Table adjustments */
-    .version-history-table {
-        font-size: 0.8rem;
-    }
-
-    .version-history-table td,
-    .version-history-table th {
-        padding: 8px 4px;
-    }
-
-    /* Search container adjustments */
-    .search-container2 input {
-        width: 200px;
-    }
-
-    /* Modal adjustments */
-    .modal-content {
-        width: 90%;
-    }
-
-    /* Terminal adjustments */
-    #terminal {
-        font-size: 14px;
-    }
-
-    .file-list {
-        flex-direction: column;
-    }
-
-    .file-column {
-        width: 100%;
-    }
-
-    /* Button adjustments */
-    .btn-download,
-    .btn-matchroom {
-        font-size: 0.9rem;
-        padding: 8px 12px;
-    }
-
-    /* Further shrink download tables for mobile */
-    .resources-container {
-        grid-template-columns: 1fr;
-    }
-
-    .resource-item h5 {
-        font-size: 1.1em;
-    }
-}
-
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation: none !important;
-        transition: none !important;
-    }
-}
-
-    body {
-        background: #121212;
-    }
-
-
-/* Dark mode support */
-
-    body {
-        background-color: #121212;
-    }
-
-    .card,
-    .cardcredits,
-    #sidebar {
-        margin: 0.0001rem;
-
-    }
-
-
-@media (max-width: 768px) {
-    main {
-        margin-left: 0;
-        padding: 1rem;
+    .modlist-main-container {
+        padding: 0 !important;
     }
 
     #sidebar {
         width: 100%;
         height: auto;
-        position: relative;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        background-color: #1c1c2e;
     }
 
-    .container {
+    #sidebar .title {
+        display: flex;
+        line-height: 50px;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 15px;
+        font-size: 1.5rem;
+    }
+
+    #sidebar .title::after {
+        cursor: pointer;
+        padding: 0px 10px 40px 0px;
+        display: block;
+    }
+    .game-tile {
+        width: 371px;
+        height: 430px;
+    }
+    .section-cards-container {
+        display: flex;
+        justify-content: center !important;
+        padding: 0 !important;
+    }
+    .search-container input {
+        padding: 0.35rem;
+    }
+    .search-container {
+        width: 385px !important;
+    }
+    .somanydivs {
+        display: flex !important;
+        flex-direction: column-reverse !important;
+        align-items: flex-start !important;
+    }
+    .main-social-container {
+        display: none !important;
+    }
+    .main-social-container-mobile {
+        display: block !important;
+    }
+    #profile-picture-container {
+        margin: 0;
+        gap: 30px;
+    }
+    .profile-demomod-container {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    .headerresources2 {
+        font-size: 25px !important;
+    }
+    .right-profile-meta {
+        margin-left: auto !important;
+    }
+    .image-container {
+        width: fit-content !important;
+        display: flex;
+    }
+    #profile-username-label {
+        font-size: 40px !important;
+    }
+    .contributions-container {
+        flex-direction: column !important;
+    }
+    .contribution-section {
+        width: 100% !important;
+    }
+    .mod-item {
+        max-width: 385px !important;
+        min-width: 385px !important;
+    }
+    .mod-meta {
+        flex-wrap: nowrap !important;
+    }
+    .download-btn {
+        margin-left: auto !important;
+        padding: 4px 10px !important;
+        margin-right: unset !important;
+    }   
+    .mod-title {
+        max-width: 290px;
+    }
+
+    #sidebar .title::after {
+        content: '\2630';
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    #sidebar .title::after {
+        cursor: pointer;
+        padding: 0px 10px 40px 0px;
+        display: block;
+    }
+
+    #sidebar .title.menu-open::after {
+        display: none;
+    }
+
+    #sidebar .list-items {
+        display: none;
         flex-direction: column;
+        width: 100%;
     }
 
-    .video-section {
-        grid-template-columns: 1fr;
+    #sidebar .list-items.show {
+        display: block;
+        background-color: #1a1a1a;
     }
 
-    .featured-video {
-        grid-column: auto;
-        grid-row: auto;
+    #sidebar .list-items li {
+        text-align: left;
+        border-bottom: 1px solid #333;
     }
 
-    .search-container2 input {
-        width: 60%;
+    #sidebar .list-items li a {
+        padding: 10px 15px;
+        display: block;
+        font-size: 1rem;
     }
 
-    .btn-download, .btn-matchroom {
-        padding: 0.5rem;
-        font-size: 0.8rem;
+    /* Main content adjustments */
+    main {
+        margin-left: 0;
+        padding: 109px 15px 0;
     }
-}
 
-@media (max-width: 768px) {
+    .card-actions {
+        margin: 0 !important;
+        width: 100% !important;
+        padding: 1.5rem 0rem 1.5rem 0rem !important;
+    }
+    .actions-container {
+        display: none !important;
+    }
+    .actions-container-mobile {
+        display: block !important;
+    }
+    .profile-buttons-mobile {
+        display: flex;
+    }
+
+    .games-played {
+        margin: 0 !important;
+    }
+
+    .mobile-break {
+        display: none !important;
+    }
+
+
+    .header-content {
+        padding: 12px !important;
+        display: flex;
+        justify-content: flex-start;
+    }
+    #discord-widget {
+        display: flex;
+    }
+
+    .search-container2 {
+        margin-bottom: 1rem !important;
+    }
+
     .icons {
         display: flex;
         justify-content: space-evenly;
         margin-top: auto;
-        padding: 2px 0;
+        background-color: #1a1b1b;
+        padding: 6px 0;
+        border-top: 1px solid #333;
         opacity: 0.8;
     }
 
-    .card-title {
-        text-align: center;
+    /* Login and logout container styles */
+    #login-container, #logout-container {
+        padding: 10px;
+        margin-top: 20px;
+        display: none;
     }
 
-    .card p {
-        text-align: center;
+    #login-form input {
+        background-color: #1c1c2e;
+        border: 1px solid #333;
+        color: #fff;
+        padding: 0.50rem;
+        margin-top: 5px;
+        width: 200px;
+        border-radius: 4px 0 0 4px;
+        display: none;
     }
 
-    .h2project {
-        text-align: center;
+    .demo-card {
+        width: 342px !important;
+        padding: 1.2rem !important;
+        
+    }
+    .settings-grid {
+        display: flex !important;
+        flex-direction: column !important;
     }
 
-    .contributor-list {
+    header {
+        display: none !important;
+    }
+
+    .mobile-header {
+        display: flex !important;
+        height: 56px;
+        margin: auto;
+        align-items: center;
+    }
+
+    .demo-content-container {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0 !important;
+    }
+
+    #login-form button, #logout-container button {
+        width: 30%;
+        margin-top: 5px;
+        background-color: #0067b8;
+        padding: 5px;
+        border-radius: 4px;
+        color: white;
+        border: none;
+        cursor: pointer;
+        display: none;
+    }
+
+    #login-form button:hover, #logout-container button:hover {
+        background-color: #3a8ad6;
+        display: none;
+    }
+
+    .discord-widget {
+        margin: 0;
+        background-color: unset;
+        width: 370px;
+        flex: 1;
+        padding: 10px 10px 0px 10px !important;
+    }
+    .discord-event {
+        background-color: unset;
+        margin-bottom: 0 !important;
+        padding: 10px 10px 0px 10px !important;
+    }
+
+    .activeplayersleaderboard {
+        display: none;
+    }
+
+    .main-leaderboard {
         display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        justify-content: center;
-    }
-
-    .contributor-category {
-        margin-top: 1.5rem;
-        display: flex;
-        align-items: baseline;
+        margin: 0;
         flex-direction: column;
     }
 
-    h3, h5 {
+    .leaderboard-container::before {
+        display: none;
+    }
+
+    .about-container-main {
+        padding: 0 !important;
+    }
+
+    .cardcredits {
+        margin: 0 !important;
+    }
+
+    #request-blacklist, #request-delete-account {
+        margin: 1.5rem !important;
+    }
+
+    #pending-request {
+        margin: 0 !important;
+    }
+
+    .card {
+        margin: 0 !important;
+    }
+
+    .resources-container {
+        padding: 0 !important;
+    }
+
+    /* Leaderboard table adjustments */
+    .leaderboard-container {
+        padding: 0;
+        overflow-x: auto;
+    }
+
+    #leaderboard-table {
+        font-size: 0.8rem;
+        width: 100%;
+    }
+
+    #leaderboard-table th,
+    #leaderboard-table td {
+        padding: 5px 1px;
+        letter-spacing: 0px !important;
+    }
+
+    .rank-cell { width: 10%; }
+    .player-cell { width: 30%; }
+    .wins-cell { width: 10%; }
+    .total-score-cell { width: 20%; }
+
+    .leaderboard-header {
+        font-size: 1.2rem;
+        padding: 10px 0px;
+    }
+    .dropdown-content-page {
+        top: -310% !important;
+    }
+    .content-bar {
+        width: fit-content !important;
+    }
+    .filter-container {
+        display: flex;
+        flex-direction: column !important;
+        gap: 20px !important;
+    }
+
+    .sorting-main-div {
+        display: flex;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 20px;
+    }
+
+    .demo-label {
+        color: #4da6ff;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 45px !important;
         text-align: center;
     }
 
-    .alinksabout {
-        text-align: left;
-        display: flex;
-    }
-
-}
-
-@media (max-width: 480px) {
-    .cardcredits {
-        max-height: 730px;
+    .recent-games {
+        margin: 0px !important;
     }
 }
-
-@media (max-width: 768px) {
-
-#login-container, #logout-container {
-    padding: 10px;
-    margin-top: 20px;
-    display: none;
-}
-
-#login-form input {
-    background-color: #1c1c2e;
-    border: 1px solid #333;
-    color: #fff;
-    padding: 0.50rem;
-    margin-top: 5px;
-    width: 200px;
-    border-radius: 4px 0 0 4px;
-    display: none;
-}
-
-#login-form button, #logout-container button {
-    width: 30%;
-    margin-top: 5px;
-    background-color: #0067b8;
-    padding: 5px;
-    border-radius: 4px;
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: none;
-}
-
-#login-form button:hover, #logout-container button:hover {
-    background-color: #3a8ad6;
-    display: none;
-}
-}
-
-/* Mobile-friendly styles for patch notes page */
-@media (max-width: 768px) {
-  .patchnotes-container {
-    padding: 10px;
-  }
-
-  .patchnote-item {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .patchnote-content {
-    padding: 15px;
-  }
-
-  .patchnote-content h2 {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-  }
-
-  .patchnote-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  .patchcontainer {
-    margin: 0;
-  }
-
-  .patchnote-meta .release-date {
-    font-size: 0.9rem;
-  }
-
-  .patchnote-meta button {
-    font-size: 0.9rem;
-    padding: 5px 10px;
-    background-color: #0067b8;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .patchnote-details {
-    font-size: 0.9rem;
-  }
-
-  .patchnote-details ul {
-    padding-left: 20px;
-  }
-
-  .patchnote-image {
-    display: flex;
-    display: none;
-    justify-content: center;
-    padding: 10px;
-    background-color: #161622;
-  }
-
-  .patchnote-image img {
-    max-width: 40px;
-    height: auto;
-    margin: 0 5px;
-  }
-}
-
-@media (max-width: 768px) {
-    .discord-widget {
-      display: none; 
-    }
-  }

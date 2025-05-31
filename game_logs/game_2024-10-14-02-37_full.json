@@ -1,0 +1,77 @@
+{
+  "players": [
+    {
+      "client_id": 8,
+      "key_id": "13222189",
+      "ip": "207.237.230.121",
+      "version": "1.64",
+      "platform": "STEAM",
+      "name": "DaFoe",
+      "team": 1,
+      "territory": "Europe",
+      "score": 168
+    },
+    {
+      "client_id": 7,
+      "key_id": "13222166",
+      "ip": "80.26.198.137",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "Messiah",
+      "team": 0,
+      "territory": "South America",
+      "score": -2
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "MaxIdleRunTime": "1800",
+    "MinRunTime": "900",
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "MaxSpectators": "15",
+    "SpectatorChatChannel": "0",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "1",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "0",
+    "RandomTerritories": "1",
+    "CityPopulations": "3",
+    "PopulationPerTerritory": "150",
+    "CitiesPerTerritory": "30",
+    "TerritoriesPerTeam": "1",
+    "MaxTeams": "2",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "DefconExpanded | 1v1 | Totally Random",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "ReadyVoteDelay": "90",
+    "IdleTimeGlobal": "600",
+    "AdvertisePlayers": "2",
+    "Record": "demo_recordings/game_2024-10-14-02-30.dcrec"
+  },
+  "game_id": null,
+  "start_time": "2024-10-14T02:37:03.103486",
+  "end_time": "2024-10-14T03:14:27.637925",
+  "duration": "0:37:24.534439",
+  "gameType": "DefconExpanded | 1V1 | Totally Random",
+  "last_alliance": [
+    "1",
+    "4"
+  ]
+}

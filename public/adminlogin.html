@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
     <style>
@@ -102,7 +103,11 @@
                 const data = await response.json();
                 if (response.ok) {
                     alert('Logged in successfully');
-                    window.location.href = '/'; // Redirect to home page after successful login
+                    if (data.redirectTo) {
+                        window.location.href = data.redirectTo; // Redirect to the intended page
+                    } else {
+                        window.location.href = '/adminpanel'; // Default redirect if no specific page was requested
+                    }
                 } else {
                     alert(data.error || 'Login failed');
                 }

@@ -1,5 +1,7 @@
 const express = require('express');
+const router = express.Router();
 const mysql = require('mysql2/promise');
+const queryTimeout = 5000; 
 const path = require('path');
 const fs = require('fs');
 const fsPromises = require('fs').promises;
@@ -10,49 +12,341 @@ const { JSDOM } = require('jsdom');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
-
+const session = require('express-session');
+const timeout = require('connect-timeout');
+const startTime = Date.now();
+const crypto = require('crypto');
 const app = express();
 const port = 3000;
+const JWT_SECRET = 'a8001708554bfcb4bf707fece608fcce49c3ce0d88f5126b137d82b3c7aeab65';
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
+const logStream = fs.createWriteStream(path.join(__dirname, 'server.log'), { flags: 'a' });
+const bcrypt = require('bcrypt');
+const pendingDemos = new Map();
+const pendingJsons = new Map();
+const processedJsons = new Set();
+const pendingVerifications = new Map();
 
-const dbConfig = {
+// database connection, do not remove or dox it!
+const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: 'cca3d38e2b',
-  database: 'defcon_demos'
-};
+  database: 'defcon_demos',
+  connectionLimit: 20,
+  queueLimit: 0,
+  waitForConnections: true,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
+  connectTimeout: 10000,
+});
 
+// nodemailer setup, also do not dox it!
+  let transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false, 
+    auth: {
+      user: "keiron.mcphee1@gmail.com",
+      pass: "ueiz tkqy uqwj lwht"
+    }
+  });
+
+//really should move these but its fine
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(router);
+app.use('/uploads', express.static('uploads'));
+
+// directory setup for multer
 const demoDir = path.join(__dirname, 'demo_recordings');
 const resourcesDir = path.join(__dirname, 'public', 'Files');
 const uploadDir = path.join(__dirname, 'public');
 const gameLogsDir = path.join(__dirname, 'game_logs');
+const modlistDir = path.join(__dirname, 'public', 'modlist');
+const modPreviewsDir = path.join(__dirname, 'public', 'modpreviews');
 
-// Ensure directories exist
-[demoDir, resourcesDir, uploadDir, gameLogsDir].forEach(dir => {
+// error handler for everything past this point
+const errorHandler = (err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Internal server error', details: err.message });
+};
+
+// make sure the specified folders exist and create them if they don't
+[demoDir, resourcesDir, uploadDir, gameLogsDir, modlistDir, modPreviewsDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 });
 
-// Configure multer for handling file uploads
+// multer configuration 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, demoDir);
+    if (file.fieldname === 'demoFile') {
+      cb(null, demoDir);
+    } else if (file.fieldname === 'jsonFile') {
+      cb(null, gameLogsDir);
+    } else if (file.fieldname === 'resourceFile') {
+      cb(null, resourcesDir);
+    } else if (file.fieldname === 'modFile') {
+      cb(null, modlistDir);
+    } else if (file.fieldname === 'previewImage') {
+      cb(null, modPreviewsDir);
+    } else if (file.fieldname === 'image') {
+      cb(null, path.join(__dirname, 'public', 'uploads'));
+    } else {
+      cb(new Error('Invalid file type'));
+    }
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    if (file.fieldname === 'image') {
+      const userId = req.user ? req.user.id : 'unknown';
+      const fileExtension = path.extname(file.originalname);
+      const randomString = crypto.randomBytes(8).toString('hex');
+      const newFilename = `${userId}_${randomString}${fileExtension}`;
+      cb(null, newFilename);
+    } else {
+      cb(null, file.originalname);
+    }
   }
 });
 
+// this is is for preventing the .html extension from being abused to bypass server checks
+
+const adminPages = [
+  'admin-panel.html',
+  'blacklist.html',
+  'demo-manage.html',
+  'leaderboard-manage.html',
+  'account-manage.html',
+  'modmanagment.html',
+  'resourcemanagment.html',
+  'server-console.html'
+];
+
+// middleware, i really need to move all this stuff all into one place
+app.use((req, res, next) => {
+  const requestedFile = path.basename(req.url);
+  if (adminPages.includes(requestedFile)) {
+    return res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+  }
+  next();
+});
+
+
+// first line of defence for checking user roles
+const checkRole = (requiredRole) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+    if (req.user.role <= requiredRole) {
+      next();
+    } else {
+      return res.status(403).json({ error: 'Insufficient permissions' });
+    }
+  };
+};
+
+// i forgot what this does, most likely setting public as the static directory for multer and html pages to be served
+
+app.use(express.static('public', {
+  setHeaders: (res, path, stat) => {
+    if (path.endsWith('.html') && adminPages.includes(path.split('/').pop())) {
+      res.set('Content-Type', 'text/plain');
+    }
+  }
+}));
+app.use(session({
+  secret: 'a8001708554bfcb4bf707fece608fcce49c3ce0d88f5126b137d82b3c7aeab65', // do not dox!
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: process.env.NODE_ENV === 'true' }
+}));
+
+// site manifest for google console
+app.use((req, res, next) => {
+  if (req.url.endsWith('.webmanifest')) {
+    res.setHeader('Content-Type', 'application/manifest+json');
+  }
+  next();
+});
+
+// https enforcement
+app.use((req, res, next) => {
+  if (req.headers['x-forwarded-proto'] === 'https') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+  next();
+});
+
+
+// session token logic
+app.use((req, res, next) => {
+  if (req.cookies.token) {
+    try {
+      const decoded = jwt.verify(req.cookies.token, JWT_SECRET);
+      req.user = decoded;
+      if (!req.session.loginTime) {
+        req.session.loginTime = Date.now();
+      }
+    } catch (err) {
+      // clears the cookie when a user is logged out or their session has expired
+      res.clearCookie('token');
+    }
+  }
+  next();
+});
+
+// should fix the mod download issues!
+app.use(timeout('1h')); 
+
+// remove timeout for specific routes
+const removeTimeout = (req, res, next) => {
+  req.setTimeout(0);
+  res.setTimeout(0);
+  next();
+};
+
+app.use((req, res, next) => {
+  if (!req.timedout) next();
+});
+
+const levenshteinDistance = (a, b) => {
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+
+  const matrix = [];
+
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, 
+          Math.min(
+            matrix[i][j - 1] + 1, 
+            matrix[i - 1][j] + 1 
+          )
+        );
+      }
+    }
+  }
+
+  return matrix[b.length][a.length];
+};
+
+const fuzzyMatch = (needle, haystack, threshold = 0.3) => {
+  const needleLower = needle.toLowerCase();
+  const haystackLower = haystack.toLowerCase();
+  
+  if (haystackLower.includes(needleLower)) return true;
+  
+  const distance = levenshteinDistance(needleLower, haystackLower);
+  const maxLength = Math.max(needleLower.length, haystackLower.length);
+  return distance / maxLength <= threshold;
+};
+
+function serveAdminPage(pageName, minRole) {
+  return (req, res) => {
+      console.log(`Accessing /${pageName}. User:`, JSON.stringify(req.user, null, 2));
+      fs.readFile(path.join(__dirname, 'public', `${pageName}.html`), 'utf8', (err, data) => {
+          if (err) {
+              console.error('Error reading file:', err);
+              return res.status(500).send('Error loading page');
+          }
+          const modifiedHtml = data.replace('</head>', `<script>window.userRole = ${req.user.role};</script></head>`);
+          res.send(modifiedHtml);
+      });
+  };
+}
+
 const upload = multer({ storage: storage });
 
-// Database connection pool
-const pool = mysql.createPool(dbConfig);
+function formatTimestamp(date) {
+  const pad = (num) => (num < 10 ? '0' + num : num);
+  
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+  const milliseconds = pad(Math.floor(date.getMilliseconds() / 10));
 
-const pendingDemoFiles = new Map();
+  return `${year}-${month}-${day}-${hours}:${minutes}:${seconds}.${milliseconds}`;
+}
 
-// Watch for new demo files
+async function initializeServer() {
+  console.log("Initializing server...");
+  
+  // clears the server of forever pending files
+  pendingDemos.clear();
+  pendingJsons.clear();
+  processedJsons.clear();
+
+  const demoFiles = await fs.promises.readdir(demoDir);
+  console.log(`Found ${demoFiles.length} demo files in the directory.`);
+
+  const jsonFiles = await fs.promises.readdir(gameLogsDir);
+  console.log(`Found ${jsonFiles.length} JSON files in the directory.`);
+
+  const [rows] = await pool.query('SELECT name, log_file FROM demos');
+  const existingDemos = new Map(rows.map(row => [row.name, row.log_file]));
+  const existingJsonFiles = new Set(rows.map(row => row.log_file));
+
+  for (const demoFile of demoFiles) {
+    if (demoFile.endsWith('.dcrec')) {
+      if (!existingDemos.has(demoFile)) {
+        const demoStats = await fs.promises.stat(path.join(demoDir, demoFile));
+        pendingDemos.set(demoFile, { stats: demoStats, addedTime: Date.now() });
+        console.log(`Existing demo ${demoFile} added to pending list.`);
+      } else {
+        console.log(`Demo ${demoFile} already exists in the database. Skipping.`);
+      }
+    }
+  }
+
+  for (const jsonFile of jsonFiles) {
+    if (jsonFile.endsWith('_full.json')) {
+      if (!existingJsonFiles.has(jsonFile)) {
+        pendingJsons.set(jsonFile, { path: path.join(gameLogsDir, jsonFile), addedTime: Date.now() });
+        console.log(`Existing JSON ${jsonFile} added to pending list.`);
+      } else {
+        processedJsons.add(jsonFile);
+        console.log(`JSON ${jsonFile} is already linked to a demo in the database. Skipping.`);
+      }
+    }
+  }
+
+  console.log(`Loaded ${pendingDemos.size} pending demo files.`);
+  console.log(`Loaded ${pendingJsons.size} pending JSON files.`);
+  console.log(`${existingDemos.size} demos already exist in the database.`);
+
+  await checkForMatch();
+}
+
+// oldest part of the code is here
 console.log(`Watching demo directory: ${demoDir}`);
-const demoWatcher = chokidar.watch(`${demoDir}/*.dcrec`, {
+const demoWatcher = chokidar.watch(`${demoDir}/*.{dcrec,d8crec,d10crec}`, {
+  ignored: /(^|[\/\\])\../,
+  persistent: true
+});
+
+// here too
+console.log(`Watching log file directory: ${gameLogsDir}`);
+const jsonWatcher = chokidar.watch(`${gameLogsDir}/{game_*.json,game8p_*.json,game10p_*.json}`, {
   ignored: /(^|[\/\\])\../,
   persistent: true
 });
@@ -62,174 +356,273 @@ demoWatcher
     console.log(`New demo detected: ${demoPath}`);
     const demoFileName = path.basename(demoPath);
     
-    // Check if the demo already exists in the database or pending list
+    // checks if the dcrec already exists in the database to prevent duplicates
     const exists = await demoExistsInDatabase(demoFileName);
-    if (exists || pendingDemoFiles.has(demoFileName)) {
-      console.log(`Demo ${demoFileName} already exists in the database or pending list. Skipping.`);
+    if (exists) {
+      console.log(`Demo ${demoFileName} already exists in the database. Skipping.`);
       return;
     }
 
     const demoStats = await fs.promises.stat(demoPath);
-    pendingDemoFiles.set(demoFileName, demoStats);
+    pendingDemos.set(demoFileName, { 
+      stats: demoStats, 
+      path: demoPath,
+      addedTime: Date.now()
+    });
     console.log(`Demo ${demoFileName} added to pending list.`);
+    
+    // checks the json file for the record setting that matches the demo file name
+    await checkForMatch();
   })
   .on('error', error => console.error(`Demo watcher error: ${error}`));
 
-// Watch for new log files
-console.log(`Watching JSON logs directory: ${gameLogsDir}`);
-const jsonWatcher = chokidar.watch(`${gameLogsDir}/*.json`, {
-  ignored: /(^|[\/\\])\../,
-  persistent: true
-});
-
-const TEN_MINUTES = 10 * 60 * 1000; // 10 minutes in milliseconds
-
-jsonWatcher
+  jsonWatcher
   .on('add', async (jsonPath) => {
     console.log(`New JSON log file detected: ${jsonPath}`);
     
-    // Wait for 10 seconds
+    // timeout since sometimes json files can be written to while being processed which can cause incomplete demo processing
     console.log("Waiting 10 seconds before processing the file...");
     await delay(10000);
 
-    const logFileName = path.basename(jsonPath);
-    const logTimestamp = logFileName.match(/game_(\d{4}-\d{2}-\d{2}-\d{2}-\d{2})_full\.json/);
+    const jsonFileName = path.basename(jsonPath);
     
-    if (!logTimestamp) {
-      console.log(`Unable to extract timestamp from log file: ${logFileName}`);
-      return;
-    }
-
-    const logTime = new Date(logTimestamp[1].replace(/-/g, ':'));
-    
-    let matchingDemoFile = null;
-    let smallestTimeDifference = Infinity;
-
-    for (const [demoFileName, demoStats] of pendingDemoFiles.entries()) {
-      const demoTimestamp = demoFileName.match(/game_(\d{4}-\d{2}-\d{2}-\d{2}-\d{2})\.dcrec/);
-      if (demoTimestamp) {
-        const demoTime = new Date(demoTimestamp[1].replace(/-/g, ':'));
-        const timeDifference = Math.abs(logTime - demoTime);
-        if (timeDifference <= TEN_MINUTES && timeDifference < smallestTimeDifference) {
-          matchingDemoFile = demoFileName;
-          smallestTimeDifference = timeDifference;
-        }
-      }
-    }
-
-    if (matchingDemoFile) {
-      // Check if the demo already exists in the database
-      const exists = await demoExistsInDatabase(matchingDemoFile);
-      if (exists) {
-        console.log(`Demo ${matchingDemoFile} already exists in the database. Skipping processing.`);
-        pendingDemoFiles.delete(matchingDemoFile);
-        return;
-      }
-
-      try {
-        const logContent = await fs.promises.readFile(jsonPath, 'utf8');
-        let logData;
-        try {
-          logData = JSON.parse(logContent);
-        } catch (parseError) {
-          console.error(`Error parsing JSON file ${jsonPath}:`, parseError);
-          console.log('JSON content:', logContent);
-          return; // Skip processing this file
-        }
-        const demoStats = pendingDemoFiles.get(matchingDemoFile);
-
-        console.log(`Corresponding log file found for demo: ${matchingDemoFile}`);
-        await processDemoFile(matchingDemoFile, demoStats.size, logData);
-        pendingDemoFiles.delete(matchingDemoFile);
-      } catch (error) {
-        console.error(`Error processing log file ${jsonPath}:`, error);
-      }
+    if (!processedJsons.has(jsonFileName)) {
+      pendingJsons.set(jsonFileName, { 
+        path: jsonPath,
+        addedTime: Date.now()
+      });
+      console.log(`JSON ${jsonFileName} added to pending list.`);
+      
+      await checkForMatch();
     } else {
-      console.log(`No matching demo file found for log file: ${logFileName}`);
+      console.log(`JSON ${jsonFileName} has already been processed. Skipping.`);
     }
   })
   .on('error', error => console.error(`JSON watcher error: ${error}`));
 
-// Watch for new resource files
-console.log(`Watching resources directory: ${resourcesDir}`);
-const resourceWatcher = chokidar.watch(`${resourcesDir}/*.zip`, {
-  ignored: /(^|[\/\\])\../,
-  persistent: true
-});
-
-resourceWatcher
-  .on('add', async (path) => {
-    console.log(`New resource detected: ${path}`);
-    const fileName = path.split('\\').pop();
-    const stats = fs.statSync(path);
-    
+async function checkForMatch() {
+  // this checks the record setting in the json file
+  for (const [jsonFileName, jsonInfo] of pendingJsons) {
     try {
-      // Check if a resource with the same name already exists
-      const [rows] = await pool.query('SELECT * FROM resources WHERE name = ?', [fileName]);
-      if (rows.length > 0) {
-        console.log(`Resource ${fileName} already exists in the database. Skipping upload.`);
-        return;
+      const jsonContent = await fs.promises.readFile(jsonInfo.path, 'utf8');
+      const logData = JSON.parse(jsonContent);
+
+      // if sucessful proceed if not throw error
+      const recordSetting = logData.settings && logData.settings.Record;
+      if (!recordSetting) {
+        console.log(`No Record setting found in JSON file: ${jsonFileName}`);
+        continue;
       }
 
-      // If the resource doesn't exist, insert it into the database
-      const [result] = await pool.query(
-        'INSERT INTO resources (name, size, date, version) VALUES (?, ?, ?, ?)',
-        [fileName, stats.size, new Date(), '1.0.0'] // Default version
-      );
-      console.log(`Resource ${fileName} added to database`);
+      const dcrecFileName = path.basename(recordSetting);
+      const demoInfo = pendingDemos.get(dcrecFileName);
+
+      // matching file found, proceed to uploading the data to the database
+      if (demoInfo) {
+        console.log(`Matching files found: ${dcrecFileName} and ${jsonFileName}`);
+        await processDemoFile(dcrecFileName, demoInfo.stats.size, logData, jsonFileName);
+        
+        console.log(`Successfully processed and linked ${dcrecFileName} with ${jsonFileName}`);
+    
+        pendingDemos.delete(dcrecFileName);
+        pendingJsons.delete(jsonFileName);
+        processedJsons.add(jsonFileName);
+
+        // makes sure the leaderboard does not process duplicates since the system processes the game twice
+        if (logData.gameType && logData.gameType.toLowerCase().includes('1v1')) {
+          await updateLeaderboard(logData);
+        }
+      } else {
+        console.log(`Corresponding .dcrec, .d8crec, or .d10crec file not found for JSON file: ${jsonFileName}`);
+      }
     } catch (error) {
-      console.error(`Error adding resource to database: ${error}`);
+      console.error(`Error processing JSON file ${jsonFileName}:`, error);
     }
-  })
-  .on('error', error => console.error(`Resource watcher error: ${error}`));
-
-console.log('File watchers set up.');
-
-// Middleware
-app.use(express.static('public'));
-app.use(express.json());
-app.use(cookieParser());
-
-// Set the correct MIME type for .webmanifest files
-app.use((req, res, next) => {
-  if (req.url.endsWith('.webmanifest')) {
-    res.setHeader('Content-Type', 'application/manifest+json');
   }
-  next();
-});
 
-app.use((req, res, next) => {
-  if (req.headers['x-forwarded-proto'] === 'https') {
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  // this functionality reduces overhead, i have named the vanilla and the modded builds dcrec and json files with a prefix for future functionality
+  for (const [demoFileName, demoInfo] of pendingDemos) {
+    let expectedJsonPrefix;
+    if (demoFileName.endsWith('.d8crec')) {
+      expectedJsonPrefix = 'game8p_';
+    } else if (demoFileName.endsWith('.d10crec')) {
+      expectedJsonPrefix = 'game10p_';
+    } else {
+      expectedJsonPrefix = 'game_';
+    }
+
+    for (const [jsonFileName, jsonInfo] of pendingJsons) {
+      if (!jsonFileName.startsWith(expectedJsonPrefix)) continue;
+      try {
+        const jsonContent = await fs.promises.readFile(jsonInfo.path, 'utf8');
+        const logData = JSON.parse(jsonContent);
+
+        const recordSetting = logData.settings && logData.settings.Record;
+        if (recordSetting && path.basename(recordSetting) === demoFileName) {
+          console.log(`Matching files found: ${demoFileName} and ${jsonFileName}`);
+          await processDemoFile(demoFileName, demoInfo.stats.size, logData, jsonFileName);
+          
+          console.log(`Successfully processed and linked ${demoFileName} with ${jsonFileName}`);
+
+          pendingDemos.delete(demoFileName);
+          pendingJsons.delete(jsonFileName);
+          processedJsons.add(jsonFileName);
+          break;
+        }
+      } catch (error) {
+        console.error(`Error processing JSON file ${jsonFileName}:`, error);
+      }
+    }
   }
-  next();
-});
+}
+  
+// if i have deleted a demo from the database the website will remove the game from the pending list until i manually delte it
+function cleanupOldPendingFiles() {
+  const oneHourAgo = Date.now() - 60 * 60 * 1000; // 1 hour in milliseconds
 
-// Helper functions
+  for (const [fileName, fileInfo] of pendingDemos) {
+    if (fileInfo.addedTime < oneHourAgo) {
+      pendingDemos.delete(fileName);
+      console.log(`Removed old pending demo file: ${fileName}`);
+    }
+  }
+
+  for (const [fileName, fileInfo] of pendingJsons) {
+    if (fileInfo.addedTime < oneHourAgo) {
+      pendingJsons.delete(fileName);
+      console.log(`Removed old pending JSON file: ${fileName}`);
+    }
+  }
+}
+
+setInterval(cleanupOldPendingFiles, 60 * 60 * 1000);
+
+async function updateLeaderboard(gameData) {
+  if (gameData.gameType.includes('1V1')) {
+    const players = gameData.players;
+    if (players.length !== 2) return; // ensures its a 1v1 game that gets processed and nothing else
+
+    // first grab the blacklist/whitelist since i changed the naming scheme after a bit
+    const [whitelist] = await pool.query('SELECT player_name FROM leaderboard_whitelist');
+    const whitelistedPlayers = new Set(whitelist.map(entry => entry.player_name.toLowerCase()));
+
+    // really important so both players dont just get added with 1 win
+    const winner = players.reduce((a, b) => a.score > b.score ? a : b);
+    const loser = players.find(p => p !== winner);
+
+    for (const player of players) {
+      // proceeding to checking if the player is blacklisted
+      if (whitelistedPlayers.has(player.name.toLowerCase())) {
+        console.log(`Player ${player.name} is whitelisted. Skipping leaderboard update.`);
+        continue; // if yes continue to the next player
+      }
+
+      const isWinner = player === winner;
+      const scoreToAdd = player.score > 0 ? player.score : 0; // only add positive scores to the leaderboard so we dont subtract scores
+
+      try {
+        const [existingPlayerByName] = await pool.query('SELECT * FROM leaderboard WHERE player_name = ?', [player.name]);
+
+        // checks all non demo users keyid to attempt to match them if the username is different
+        let existingPlayerByKeyId = [];
+        if (player.key_id !== 'DEMO') {
+          [existingPlayerByKeyId] = await pool.query('SELECT * FROM leaderboard WHERE key_id = ?', [player.key_id]);
+        }
+
+        if (existingPlayerByName.length > 0) {
+          // if not time to do some complicated shit
+          if (player.key_id === 'DEMO') {
+            if (existingPlayerByName[0].key_id !== 'DEMO') {
+              console.log(`Looks like ${player.name} has lost their authentication key :( Adding player data to the leaderboard assuming they will find their authentication key at some point.`);
+            } else {
+              console.log(`Demo player detected: ${player.name}. Ignoring key ID matching and using player name instead.`);
+            }
+          } else if (existingPlayerByName[0].key_id === 'DEMO' && player.key_id !== 'DEMO') {
+            console.log(`Demo player ${player.name} has now bought the game! Replacing DEMO key ID with ${player.key_id}`);
+            await pool.query('UPDATE leaderboard SET key_id = ? WHERE player_name = ?', [player.key_id, player.name]);
+          } else if (existingPlayerByName[0].key_id !== player.key_id) {
+            console.log(`${player.name} appears to have a new key ID. Replacing existing key ID ${existingPlayerByName[0].key_id} with new key ID ${player.key_id} in the database.`);
+            await pool.query('UPDATE leaderboard SET key_id = ? WHERE player_name = ?', [player.key_id, player.name]);
+          }
+          
+          // now time to update the database
+          await pool.query(`
+            UPDATE leaderboard 
+            SET games_played = games_played + 1,
+                wins = wins + ?,
+                losses = losses + ?,
+                total_score = total_score + ?
+            WHERE player_name = ?
+          `, [
+            isWinner ? 1 : 0,
+            isWinner ? 0 : 1,
+            scoreToAdd,
+            player.name
+          ]);
+          console.log(`Updated player data for ${player.name} (Key ID: ${player.key_id}). Added ${isWinner ? 'win' : 'loss'} and ${scoreToAdd} to total score.`);
+        } else if (existingPlayerByKeyId.length > 0) {
+          // if the keyid matches a player but thier name is different assume they are the same player, update their keyid 
+          // on the database and update their leaderboard name
+          const existingName = existingPlayerByKeyId[0].player_name;
+          console.log(`Key ID ${player.key_id} matches existing player ${existingName}, but current name is ${player.name}. Updating stats for ${existingName}.`);
+          
+          await pool.query(`
+            UPDATE leaderboard 
+            SET games_played = games_played + 1,
+                wins = wins + ?,
+                losses = losses + ?,
+                total_score = total_score + ?
+            WHERE key_id = ?
+          `, [
+            isWinner ? 1 : 0,
+            isWinner ? 0 : 1,
+            scoreToAdd,
+            player.key_id
+          ]);
+          console.log(`Updated player data for ${existingName} (Key ID: ${player.key_id}). Added ${isWinner ? 'win' : 'loss'} and ${scoreToAdd} to total score.`);
+        } else {
+          // if no matches are found treat them as a new player
+          console.log(`Adding new player ${player.name} with Key ID ${player.key_id} to the leaderboard.`);
+          await pool.query(`
+            INSERT INTO leaderboard (player_name, key_id, games_played, wins, losses, total_score)
+            VALUES (?, ?, 1, ?, ?, ?)
+          `, [
+            player.name,
+            player.key_id,
+            isWinner ? 1 : 0,
+            isWinner ? 0 : 1,
+            scoreToAdd
+          ]);
+          console.log(`New player ${player.name} added to leaderboard with initial ${isWinner ? 'win' : 'loss'} and score of ${scoreToAdd}.`);
+        }
+
+        console.log(`Leaderboard update completed for player ${player.name} (Key ID: ${player.key_id})`);
+      } catch (error) {
+        console.error(`Error updating leaderboard for player ${player.name}:`, error);
+      }
+    }
+  }
+}
+
+
+// checks if a demo already exists in the database, if not proceed to processing
 async function demoExistsInDatabase(demoFileName) {
   try {
-    const [rows] = await pool.query('SELECT * FROM demos WHERE name = ?', [demoFileName]);
-    return rows.length > 0;
+    const [rows] = await pool.query('SELECT COUNT(*) as count FROM demos WHERE name = ?', [demoFileName]);
+    return rows[0].count > 0;
   } catch (error) {
     console.error(`Error checking if demo exists in database: ${error}`);
     return false;
   }
 }
 
-async function processDemoFile(demoFileName, fileSize, logData) {
+// logic that handles inserting the game onto the database
+async function processDemoFile(demoFileName, fileSize, logData, jsonFileName) {
   console.log(`Processing demo file: ${demoFileName}`);
 
-  // Check if the demo is still in the pending list
-  if (!pendingDemoFiles.has(demoFileName)) {
-    console.log(`Demo ${demoFileName} is no longer in the pending list. Skipping processing.`);
-    return;
-  }
-
   try {
-    // Use a transaction to ensure atomicity
     await pool.query('START TRANSACTION');
 
-    // Check if the demo already exists in the database
     const [existingDemo] = await pool.query('SELECT * FROM demos WHERE name = ? FOR UPDATE', [demoFileName]);
     
     if (existingDemo.length > 0) {
@@ -238,46 +631,49 @@ async function processDemoFile(demoFileName, fileSize, logData) {
       return;
     }
 
-    const playerCount = logData.players ? logData.players.filter(p => p.score !== undefined).length : 0;
-    const gameType = logData.gameType || `${playerCount} Players`;
+    const playerCount = logData.players ? logData.players.length : 0;
+    const gameType = logData.gameType || `DefconExpanded ${playerCount} Player`;
     const duration = logData.duration || null;
 
-    const playerColumns = ['player1', 'player2', 'player3', 'player4', 'player5', 'player6', 'player7', 'player8'];
+    // will most likely add 16 players at some point
     const playerData = {};
-
-    // Create a map of team alliances
-    let lastAlliance = null;
-    if (logData.notes) {
-      logData.notes.forEach(note => {
-        const match = note.match(/TEAM_ALLIANCE (\d+) (\d+)/);
-        if (match) {
-          lastAlliance = [match[1], match[2]];
-        }
-      });
-    }
-
-    // Filter and process players
-    const participatingPlayers = logData.players.filter(p => p.score !== undefined);
-    participatingPlayers.forEach((player, index) => {
-      if (index < 8) {
+    const playerColumns = ['player1', 'player2', 'player3', 'player4', 'player5', 'player6', 'player7', 'player8', 'player9', 'player10'];
+    logData.players.forEach((player, index) => {
+      if (index < 10) {
         const prefix = playerColumns[index];
         playerData[`${prefix}_name`] = player.name || null;
-        playerData[`${prefix}_team`] = player.team;
-        playerData[`${prefix}_score`] = player.score || null;
+        playerData[`${prefix}_team`] = player.team !== undefined ? player.team : null;
+        playerData[`${prefix}_score`] = player.score !== undefined ? player.score : null;
         playerData[`${prefix}_territory`] = player.territory || null;
+        playerData[`${prefix}_key_id`] = player.key_id || null;
       }
     });
+
+    // to prevent database fuckery, fill the other columns with null values
+    for (let i = playerCount; i < 10; i++) {
+      const prefix = playerColumns[i];
+      playerData[`${prefix}_name`] = null;
+      playerData[`${prefix}_team`] = null;
+      playerData[`${prefix}_score`] = null;
+      playerData[`${prefix}_territory`] = null;
+      playerData[`${prefix}_key_id`] = null;
+    }
 
     const columns = [
       'name', 'size', 'date', 'game_type', 'duration', 'players', 
       ...Object.keys(playerData), 
-      'last_alliance'
+      'log_file'
     ];
+
     const values = [
-      demoFileName, fileSize, new Date(logData.start_time), gameType, duration, 
-      JSON.stringify(participatingPlayers), 
+      demoFileName, 
+      fileSize, 
+      new Date(logData.start_time), 
+      gameType, 
+      duration, 
+      JSON.stringify(logData.players), 
       ...Object.values(playerData),
-      JSON.stringify(lastAlliance)
+      jsonFileName
     ];
 
     const placeholders = columns.map(() => '?').join(', ');
@@ -289,47 +685,43 @@ async function processDemoFile(demoFileName, fileSize, logData) {
 
     console.log(`Demo ${demoFileName} processed and added to database with player data`);
     console.log(`Inserted row ID: ${result.insertId}`);
+
   } catch (error) {
     await pool.query('ROLLBACK');
     console.error(`Error processing demo ${demoFileName}:`, error);
-  } finally {
-    // Remove the processed file from the pending list
-    pendingDemoFiles.delete(demoFileName);
-  }
-}
-
-async function checkExistingDemos() {
-  const files = await fs.promises.readdir(demoDir);
-  for (const file of files) {
-    if (file.endsWith('.dcrec')) {
-      const exists = await demoExistsInDatabase(file);
-      if (!exists && !pendingDemoFiles.has(file)) {
-        const demoStats = await fs.promises.stat(path.join(demoDir, file));
-        pendingDemoFiles.set(file, demoStats);
-        console.log(`Existing demo ${file} added to pending list.`);
-      }
-    }
   }
 }
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// JWT secret key (change this to a secure random string in production!)
-const JWT_SECRET = 'your-secret-key';
-
-// Middleware to verify JWT token
-const authenticateToken = (req, res, next) => {
+// authentication middleware to validate session tokens
+const authenticateToken = async (req, res, next) => {
   const token = req.cookies.token;
-  if (token == null) return res.sendStatus(401);
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    req.user = user;
+  if (!token) {
+    console.log('No token found');
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    // Check the database for the user
+    const [users] = await pool.query('SELECT id, username, role FROM users WHERE id = ?', [decoded.id]);
+    if (users.length === 0) {
+      console.log('Authentication failed: User not found in database');
+      return res.status(403).json({ error: 'Invalid token' });
+    }
+    
+    req.user = users[0];
     next();
-  });
+  } catch (err) {
+    console.log('Authentication failed: Invalid token', err);
+    return res.status(403).json({ error: 'Invalid token' });
+  }
 };
 
-// Middleware to check for the presence of a valid token in the cookie on each request
+// checks the validity of each request sent by the user
 const checkAuthToken = (req, res, next) => {
   const token = req.cookies.token;
   if (token) {
@@ -337,7 +729,7 @@ const checkAuthToken = (req, res, next) => {
       if (err) {
         res.locals.user = null;
       } else {
-        res.locals.user = user;
+        res.locals.user = { id: user.id, username: user.username };
       }
       next();
     });
@@ -347,7 +739,7 @@ const checkAuthToken = (req, res, next) => {
   }
 };
 
-// Helper function to send HTML file
+// 404 handler
 function sendHtml(res, fileName) {
   res.sendFile(path.join(__dirname, 'public', fileName), (err) => {
     if (err) {
@@ -356,61 +748,72 @@ function sendHtml(res, fileName) {
   });
 }
 
-// Routes
-
-// Home page
-app.get('/', checkAuthToken, (req, res) => {
-  sendHtml(res, 'index.html');
-});
-
-// Login route
-app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
+// admin panel monitoring data
+app.get('/api/monitoring-data', authenticateToken, async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM admin_users WHERE username = ?', [username]);
-    if (rows.length > 0) {
-      const user = rows[0];
-      if (password === user.password) {
-        const token = jwt.sign({ username: user.username }, JWT_SECRET, { expiresIn: '1d' });
-        res.cookie('token', token, { httpOnly: true, maxAge: 86400000 });
-        res.json({ message: 'Logged in successfully' });
-      } else {
-        res.status(400).json({ error: 'Invalid credentials' });
-      }
-    } else {
-      res.status(400).json({ error: 'User not found' });
-    }
+    const uptime = Math.floor((Date.now() - startTime) / 1000);
+    
+    const [totalDemosResult] = await pool.query('SELECT COUNT(*) as count FROM demos');
+    const totalDemos = totalDemosResult[0].count;
+
+    const [pendingRequestsResult] = await pool.query(`
+      SELECT 
+        (SELECT COUNT(*) FROM demo_reports WHERE status = 'pending') +
+        (SELECT COUNT(*) FROM mod_reports WHERE status = 'pending') as total_pending
+    `);
+    const userRequests = pendingRequestsResult[0].total_pending;
+    
+    res.json({
+      uptime,
+      totalDemos,
+      userRequests,
+    });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error fetching monitoring data:', error);
+    res.status(500).json({ error: 'Unable to fetch monitoring data' });
   }
 });
 
-// Logout route
-app.post('/api/logout', (req, res) => {
-  res.clearCookie('token');
-  res.json({ message: 'Logged out successfully' });
-});
+// logs the ip from the user who uses the admin panel
+function getClientIp(req) {
+  const forwardedFor = req.headers['x-forwarded-for'];
+  if (forwardedFor) {
+    return forwardedFor.split(',')[0].trim();
+  }
+  return (req.ip || req.connection.remoteAddress).replace(/^::ffff:/, '');
+}
 
-// Check authentication status
+// extra check for the admin pages, basically the same as the other middlewares
 app.get('/api/checkAuth', (req, res) => {
   const token = req.cookies.token;
   if (token) {
     jwt.verify(token, JWT_SECRET, (err, user) => {
       if (err) {
-        res.json({ isAdmin: false });
+        res.json({ isLoggedIn: false });
       } else {
-        res.json({ isAdmin: true });
+        res.json({ isLoggedIn: true, username: user.username });
       }
     });
   } else {
-    res.json({ isAdmin: false });
+    res.json({ isLoggedIn: false });
   }
 });
 
+// route for downloading server logs
+app.get('/download-logs', checkAuthToken, (req, res) => {
+  const logPath = path.join(__dirname, 'server.log');
+  res.download(logPath, 'server.log', (err) => {
+    if (err) {
+      console.error('Error downloading log file:', err);
+      res.status(500).send('Error downloading log file');
+    }
+  });
+});
+
+// discord widget route
 app.get('/api/discord-widget', async (req, res) => {
   try {
-    const discordResponse = await axios.get('https://discord.com/api/guilds/1256842522215579668/widget.json');
+    const discordResponse = await axios.get('https://discord.com/api/guilds/244276153517342720/widget.json');
     res.json(discordResponse.data);
   } catch (error) {
     console.error('Error fetching Discord widget:', error);
@@ -418,218 +821,590 @@ app.get('/api/discord-widget', async (req, res) => {
   }
 });
 
-// List all demos with associated users
-app.get('/api/demos', async (req, res) => {
+// outdated probably will remove in the future
+app.get('/admin-panel', authenticateToken, (req, res) => {
+  if (req.user) {
+      res.sendFile(path.join(__dirname, 'public', 'admin-panel.html'));
+  } else {
+      res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+  }
+});
+
+// CORS middleware for all routes
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  next();
+});
+
+// fetch the blacklist/whitelist
+app.get('/api/whitelist', authenticateToken, async (req, res) => {
+  try {
+      const [rows] = await pool.query('SELECT * FROM leaderboard_whitelist');
+      res.json(rows);
+  } catch (error) {
+      console.error('Error fetching whitelist:', error);
+      res.status(500).json({ error: 'Unable to fetch whitelist' });
+  }
+});
+
+// add a new player to the whitelist/blacklist
+app.post('/api/whitelist', authenticateToken, checkRole(5), async (req, res) => {
+  const { playerName, reason } = req.body;
+  
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO leaderboard_whitelist (player_name, reason) VALUES (?, ?)',
+      [playerName, reason]
+    );
+    console.log(`${req.user.username} added player to whitelist: ${JSON.stringify({ playerName, reason }, null, 2)}`);
+    res.json({ message: 'Player added to whitelist', id: result.insertId });
+  } catch (error) {
+    console.error('Error adding player to whitelist:', error.message);
+    res.status(500).json({ error: 'Unable to add player to whitelist', details: error.message });
+  }
+});
+
+// remove a player from the whitelist/blacklist
+app.delete('/api/whitelist/:playerName', authenticateToken, checkRole(5), async (req, res) => {
+  const { playerName } = req.params;
+  try {
+    await pool.query('DELETE FROM leaderboard_whitelist WHERE player_name = ?', [playerName]);
+    console.log(`${req.user.username} removed player from whitelist: ${playerName}`);
+    res.json({ message: 'Player removed from whitelist' });
+  } catch (error) {
+    console.error('Error removing player from whitelist:', error);
+    res.status(500).json({ error: 'Unable to remove player from whitelist' });
+  }
+});
+
+// my comfort function after the website used to randomly hang for no reason
+pool.getConnection((err, connection) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+  } else {
+    console.log('Successfully connected to the database');
+    connection.release();
+  }
+});
+
+// pretty sure claude added this since it looks the same as the other error handler
+app.use((err, req, res, next) => {
+  console.error('Error details:', err);
+  res.status(500).json({ error: 'Internal server error', details: err.message });
+});
+
+// uploading a game to the server through the admin panel
+app.post('/api/upload-demo', authenticateToken, upload.fields([
+  { name: 'demoFile', maxCount: 1 },
+  { name: 'jsonFile', maxCount: 1 }
+]), checkRole(4), async (req, res) => {
+  const clientIp = getClientIp(req);
+  console.log(`Admin action initiated: Demo upload by ${req.user.username} from IP ${clientIp}`);
+  
+  if (!req.files || !req.files.demoFile || !req.files.jsonFile) {
+    console.log(`Failed demo upload attempt by ${req.user.username} from IP ${clientIp}: Missing required files`);
+    return res.status(400).json({ error: 'Both demo and JSON files are required' });
+  }
+
+  const demoFile = req.files.demoFile[0];
+  const jsonFile = req.files.jsonFile[0];
+
+  console.log(`Received files for upload by ${req.user.username} from IP ${clientIp}:`, 
+              JSON.stringify({ demo: demoFile.originalname, json: jsonFile.originalname }, null, 2));
+  // checks if the demo already exists in the database
+  try {
+    const [existingDemos] = await pool.query('SELECT * FROM demos WHERE name = ?', [demoFile.originalname]);
+    if (existingDemos.length > 0) {
+      console.log('Demo already exists:', demoFile.originalname);
+      return res.status(400).json({ error: 'A demo with this name already exists' });
+    }
+
+    const jsonContent = await fs.promises.readFile(jsonFile.path, 'utf8');
+    const logData = JSON.parse(jsonContent);
+
+    await processDemoFile(demoFile.originalname, demoFile.size, logData, jsonFile.originalname);
+
+    console.log(`Demo successfully uploaded and processed by ${req.user.username} from IP ${clientIp}: ${demoFile.originalname}`);
+    res.json({ message: 'Demo uploaded and processed successfully' });
+  } catch (error) {
+    console.error(`Error processing uploaded demo by ${req.user.username} from IP ${clientIp}:`, error);
+    res.status(500).json({ error: 'Unable to process uploaded demo', details: error.message });
+  }
+});
+
+// fetching demo information from the database for both the homepage and the admin panel
+app.get('/api/demo/:demoId', authenticateToken, async (req, res) => {
+  try {
+      const [rows] = await pool.query('SELECT * FROM demos WHERE id = ?', [req.params.demoId]);
+      if (rows.length === 0) {
+          res.status(404).json({ error: 'Demo not found' });
+      } else {
+          res.json(rows[0]);
+      }
+  } catch (error) {
+      console.error('Error fetching demo details:', error);
+      res.status(500).json({ error: 'Unable to fetch demo details' });
+  }
+});
+
+// updating a demo in the database
+app.put('/api/demo/:demoId', authenticateToken, checkRole(5), async (req, res) => {
+  const { demoId } = req.params;
+  const { name, game_type, duration, players } = req.body;
+
+  try {
+    console.log('Starting database transaction');
+    await pool.query('START TRANSACTION');
+
+    const [oldData] = await pool.query('SELECT * FROM demos WHERE id = ?', [demoId]);
+    console.log('Executing update query');
+    const [updateResult] = await pool.query(
+      'UPDATE demos SET name = ?, game_type = ?, duration = ?, players = ? WHERE id = ?', 
+      [name, game_type, duration, players, demoId]
+    );
+
+    console.log('Update result:', JSON.stringify(updateResult, null, 2));
+
+    if (updateResult.affectedRows === 0) {
+      console.log('No rows affected. Rolling back transaction.');
+      await pool.query('ROLLBACK');
+      return res.status(404).json({ error: 'Demo not found or no changes made' });
+    }
+    
+    // sends a stringified message into the console for easier reading
+    console.log('Committing transaction');
+    await pool.query('COMMIT');
+    console.log(`${req.user.username} updated demo:
+      Demo ID: ${demoId}
+      Old data: ${JSON.stringify(oldData[0], null, 2)}
+      New data: ${JSON.stringify({ name, game_type, duration, players }, null, 2)}`);
+    res.json({ message: 'Demo updated successfully' });
+  } catch (error) {
+    console.error('Error updating demo:', error.message);
+    await pool.query('ROLLBACK');
+    res.status(500).json({ error: 'Unable to update demo', details: error.message });
+  }
+});
+
+// fetches the top 5 players who are the most active on the servers
+app.get('/api/most-active-players', async (req, res) => {
+  try {
+      const [rows] = await pool.query(`
+          SELECT player_name, games_played
+          FROM leaderboard
+          ORDER BY games_played DESC
+          LIMIT 5 
+      `);
+      res.json(rows);
+  } catch (error) {
+      console.error('Error fetching most active players:', error);
+      res.status(500).json({ error: 'Unable to fetch most active players', details: error.message });
+  }
+});
+
+// loads the leaderboard data from the database and inserts it into the webpage
+app.get('/api/leaderboard', async (req, res) => {
+  const { sortBy = 'wins' } = req.query;
+  
+  try {
+    let orderBy;
+    switch (sortBy) {
+      case 'wins':
+        orderBy = 'wins DESC, total_score DESC, player_name ASC';
+        break;
+      case 'gamesPlayed':
+        orderBy = 'games_played DESC, wins DESC, total_score DESC, player_name ASC';
+        break;
+      case 'totalScore':
+        orderBy = 'total_score DESC, wins DESC, player_name ASC';
+        break;
+      default:
+        orderBy = 'wins DESC, total_score DESC, player_name ASC';
+    }
+
+    const query = `
+      SELECT 
+        l.*,
+        r.absolute_rank
+      FROM 
+        leaderboard l
+      JOIN (
+        SELECT 
+          id, 
+          ROW_NUMBER() OVER (ORDER BY wins DESC, total_score DESC, player_name ASC) as absolute_rank
+        FROM 
+          leaderboard
+      ) r ON l.id = r.id
+      ORDER BY ${orderBy}
+    `;
+
+    const [rows] = await pool.query(query);
+
+    // Adding profile URLs for players only if their profile exists
+    const updatedLeaderboard = await Promise.all(rows.map(async (player) => {
+      if (player.player_name) {
+        const [userProfile] = await pool.query(`
+          SELECT u.username 
+          FROM user_profiles up
+          JOIN users u ON up.user_id = u.id
+          WHERE up.defcon_username = ?
+        `, [player.player_name]);
+
+        if (userProfile.length > 0) {
+          player.profileUrl = `/profile/${userProfile[0].username}`;
+        }
+      }
+      return player;
+    }));
+
+    res.json(updatedLeaderboard);
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    res.status(500).json({ error: 'Unable to fetch leaderboard' });
+  }
+});
+
+// updating a players data on the admin page for the leaderboard
+app.put('/api/leaderboard/:playerId', authenticateToken, checkRole(5), async (req, res) => {
+  const { playerId } = req.params;
+  const { player_name, games_played, wins, losses, total_score } = req.body;
+
+  try {
+    const [oldData] = await pool.query('SELECT * FROM leaderboard WHERE id = ?', [playerId]);
+    const [result] = await pool.query('UPDATE leaderboard SET player_name = ?, games_played = ?, wins = ?, losses = ?, total_score = ? WHERE id = ?',
+      [player_name, games_played, wins, losses, total_score, playerId]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+    
+    console.log(`${req.user.username} edited leaderboard entry:
+      Player ID: ${playerId}
+      Old data: ${JSON.stringify(oldData[0], null, 2)}
+      New data: ${JSON.stringify({ player_name, games_played, wins, losses, total_score }, null, 2)}`);
+    
+    res.json({ message: 'Player data updated successfully' });
+  } catch (error) {
+    console.error('Error updating player data:', error.message);
+    res.status(500).json({ error: 'Unable to update player data' });
+  }
+});
+
+// fetches players from the database for the leaderboard page and admin panel
+app.get('/api/leaderboard/:playerId', async (req, res) => {
+  const { playerId } = req.params;
+
+  try {
+      const [rows] = await pool.query('SELECT * FROM leaderboard WHERE id = ?', [playerId]);
+      if (rows.length === 0) {
+          return res.status(404).json({ error: 'Player not found' });
+      }
+      res.json(rows[0]);
+  } catch (error) {
+      console.error('Error fetching player data:', error);
+      res.status(500).json({ error: 'Unable to fetch player data' });
+  }
+});
+
+// route to remove a player from the leaderboard from the admin panel
+app.delete('/api/leaderboard/:playerId', authenticateToken, checkRole(1), async (req, res) => {
+  const { playerId } = req.params;
+
+  try {
+    const [playerData] = await pool.query('SELECT player_name FROM leaderboard WHERE id = ?', [playerId]);
+    await pool.query('DELETE FROM leaderboard WHERE id = ?', [playerId]);
+    console.log(`${req.user.username} removed player from leaderboard: ${playerData[0].player_name} (ID: ${playerId})`);
+    res.json({ message: 'Player removed from leaderboard successfully' });
+  } catch (error) {
+    console.error('Error removing player from leaderboard:', error);
+    res.status(500).json({ error: 'Unable to remove player from leaderboard' });
+  }
+});
+
+// adding a new player to the leaderboard from the admin panel
+app.post('/api/leaderboard', authenticateToken, checkRole(5), async (req, res) => {
+  const { player_name, games_played, wins, losses, total_score } = req.body;
+
+  if (!player_name || games_played == null || wins == null || losses == null || total_score == null) {
+    return res.status(400).json({ error: 'All fields are required' });
+  }
+
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO leaderboard (player_name, games_played, wins, losses, total_score) VALUES (?, ?, ?, ?, ?)',
+      [player_name, games_played, wins, losses, total_score]
+    );
+    console.log(`${req.user.username} added player to leaderboard:
+      ${JSON.stringify({ player_name, games_played, wins, losses, total_score }, null, 2)}`);
+    res.json({ message: 'Player added to leaderboard successfully', id: result.insertId });
+  } catch (error) {
+    console.error('Error adding player to leaderboard:', error.message);
+    res.status(500).json({ error: 'Unable to add player to leaderboard' });
+  }
+});
+
+app.get('/api/demo-profile-panel', async (req, res) => {
+  const { playerName } = req.query; 
+  
+  try {
+    let query = 'SELECT * FROM demos';
+    let params = [];
+    let conditions = [];
+
+    if (playerName) {
+      conditions.push(`(player1_name LIKE ? OR player2_name LIKE ? OR player3_name LIKE ? OR player4_name LIKE ?
+                       OR player5_name LIKE ? OR player6_name LIKE ? OR player7_name LIKE ? OR player8_name LIKE ?
+                       OR player9_name LIKE ? OR player10_name LIKE ?)`); 
+      params = Array(10).fill(`%${playerName}%`);  
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' ORDER BY date DESC'; 
+
+    const [demos] = await pool.query(query, params);
+
+    // Add profile URLs for each player based on defcon_username
+    const updatedDemos = await Promise.all(demos.map(async (demo) => {
+      const players = ['player1_name', 'player2_name', 'player3_name', 'player4_name', 'player5_name', 'player6_name', 'player7_name', 'player8_name', 'player9_name', 'player10_name'];
+      
+      for (const playerKey of players) {
+        if (demo[playerKey]) {
+          const [userProfile] = await pool.query(`
+            SELECT u.username 
+            FROM user_profiles up
+            JOIN users u ON up.user_id = u.id
+            WHERE up.defcon_username = ?
+          `, [demo[playerKey]]);
+          
+          if (userProfile.length > 0) {
+            demo[playerKey + '_profileUrl'] = `/profile/${userProfile[0].username}`;
+          }
+        }
+      }
+
+      return demo;
+    }));
+
+    res.json({ demos: updatedDemos });
+    
+  } catch (error) {
+    console.error('Error fetching demos for profile/admin panel:', error);
+    res.status(500).json({ error: 'Unable to fetch demos for profile/admin panel' });
+  }
+});
+
+app.get('/api/all-demos', authenticateToken, checkRole(5), async (req, res) => {
   try {
     const [demos] = await pool.query('SELECT * FROM demos ORDER BY date DESC');
     res.json(demos);
+  } catch (error) {
+    console.error('Error fetching all demos:', error);
+    res.status(500).json({ error: 'Unable to fetch all demos' });
+  }
+});
+
+// this is for the demo search function, grabs the players from the database from the query
+app.get('/api/demos', async (req, res) => {
+  const { page = 1, sortBy = 'latest', playerName, serverName } = req.query;
+  const limit = 9;
+  const offset = (page - 1) * limit;
+
+  try {
+    let query = 'SELECT * FROM demos';
+    let countQuery = 'SELECT COUNT(*) as total FROM demos';
+    let params = [];
+    let conditions = [];
+
+    if (playerName) {
+      conditions.push(`(player1_name LIKE ? OR player2_name LIKE ? OR player3_name LIKE ? OR player4_name LIKE ?
+                       OR player5_name LIKE ? OR player6_name LIKE ? OR player7_name LIKE ? OR player8_name LIKE ?
+                       OR player9_name LIKE ? OR player10_name LIKE ?)`);
+      params = Array(10).fill(`%${playerName}%`);
+    }
+
+    if (serverName) {
+      if (params.length > 0) {
+        conditions.push('LOWER(game_type) = LOWER(?)');
+        params.push(serverName);
+      } else {
+        conditions.push('LOWER(game_type) = LOWER(?)');
+        params = [serverName];
+      }
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+      countQuery += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    if (sortBy === 'most-downloaded') {
+      query += ' ORDER BY download_count DESC';
+    } else {
+      query += ' ORDER BY date DESC';
+    }
+
+    query += ' LIMIT ? OFFSET ?';
+    params.push(limit, offset);
+
+    const [demos] = await pool.query(query, params);
+    const [countResult] = await pool.query(countQuery, params.slice(0, -2));
+    const totalDemos = countResult[0].total;
+    const totalPages = Math.ceil(totalDemos / limit);
+
+    // Adding profile URLs for players
+    const updatedDemos = await Promise.all(demos.map(async (demo) => {
+      const players = ['player1_name', 'player2_name', 'player3_name', 'player4_name', 
+                      'player5_name', 'player6_name', 'player7_name', 'player8_name', 
+                      'player9_name', 'player10_name'];
+      
+      for (const playerKey of players) {
+        if (demo[playerKey]) {
+          const [userProfile] = await pool.query(`
+            SELECT u.username 
+            FROM user_profiles up
+            JOIN users u ON up.user_id = u.id
+            WHERE up.defcon_username = ?
+          `, [demo[playerKey]]);
+          
+          if (userProfile.length > 0) {
+            demo[playerKey + '_profileUrl'] = `/profile/${userProfile[0].username}`;
+          }
+        }
+      }
+      return demo;
+    }));
+
+    res.json({
+      demos: updatedDemos,
+      currentPage: parseInt(page),
+      totalPages,
+      totalDemos
+    });
   } catch (error) {
     console.error('Error fetching demos:', error);
     res.status(500).json({ error: 'Unable to fetch demos' });
   }
 });
 
-// Download a demo
+// then use the following route to get the demo details
+app.get('/api/search-players', async (req, res) => {
+  const { playerName } = req.query;
+  
+  if (!playerName) {
+    return res.status(400).json({ error: 'Player name is required' });
+  }
+
+  try {
+    const query = `
+      SELECT * FROM demos
+      WHERE player1_name LIKE ? OR player2_name LIKE ? OR player3_name LIKE ? OR player4_name LIKE ?
+      OR player5_name LIKE ? OR player6_name LIKE ? OR player7_name LIKE ? OR player8_name LIKE ?
+      OR player9_name LIKE ? OR player10_name LIKE ? ORDER BY date DESC
+    `;
+    const searchPattern = `%${playerName}%`;
+    const [demos] = await pool.query(query, Array(10).fill(searchPattern));
+
+    res.json(demos);
+  } catch (error) {
+    console.error('Error searching for players:', error);
+    res.status(500).json({ error: 'Unable to search for players' });
+  }
+});
+
+// api for downloading demo files, really should fix this since it directly exposes the api name
 app.get('/api/download/:demoName', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM demos WHERE name = ?', [req.params.demoName]);
-    if (rows.length === 0) {
-      res.status(404).send('Demo not found');
-    } else {
+      const [rows] = await pool.query('SELECT * FROM demos WHERE name = ?', [req.params.demoName]);
+      if (rows.length === 0) {
+          return res.status(404).send('Demo not found');
+      }
+
       const demoPath = path.join(demoDir, rows[0].name);
+      if (!fs.existsSync(demoPath)) {
+          return res.status(404).send('Demo file not found');
+      }
+
+      // Update the download count on the database for the frontend to display
+      await pool.query('UPDATE demos SET download_count = download_count + 1 WHERE name = ?', [req.params.demoName]);
+
+      // Initiate file download
       res.download(demoPath, (err) => {
+        const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    
         if (err) {
-          res.status(404).send('Demo file not found');
+            if (err.code === 'ECONNABORTED') {
+                console.log(`Demo download aborted by client with IP: ${clientIp}`);
+            } else {
+                console.error('Error during demo download:', err);
+    
+                // Check if the headers are already sent before trying to send a new response
+                if (!res.headersSent) {
+                    return res.status(500).send('Error downloading demo');
+                }
+            }
+        } else {
+            console.log(`Demo downloaded successfully by client with IP: ${clientIp}`);
         }
-      });
-    }
+    });
+
   } catch (error) {
-    console.error('Error downloading demo:', error);
-    res.status(500).send('Error downloading demo');
+      console.error('Error downloading demo:', error);
+
+      // Ensure no duplicate response is sent
+      if (!res.headersSent) {
+          res.status(500).send('Error downloading demo');
+      }
   }
 });
 
-// Upload a demo (protected route)
-app.post('/api/upload', authenticateToken, upload.single('demoFile'), async (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
+// route to delete a demo from the database and associated reports, this does not delete the actual file itself
+app.delete('/api/demo/:demoId', authenticateToken, checkRole(1), async (req, res) => {
+  const clientIp = getClientIp(req);
+  console.log(`Admin action initiated: Demo deletion by ${req.user.username} from IP ${clientIp}`);
+  
   try {
-    const demoFile = req.file;
-    const logFileName = path.parse(demoFile.originalname).name + '_full.json';
-    const logFilePath = path.join(gameLogsDir, logFileName);
-
-    // Check if log file exists
-    if (await fs.promises.access(logFilePath).then(() => true).catch(() => false)) {
-      const logContent = await fs.promises.readFile(logFilePath, 'utf8');
-      const logData = JSON.parse(logContent);
-      await processDemoFile(demoFile.originalname, demoFile.size, logData);
-      res.json({ 
-        message: 'Demo uploaded and processed successfully', 
-        demoName: demoFile.originalname
-      });
-    } else {
-      res.status(400).json({ error: 'Corresponding log file not found' });
-      // Delete the uploaded demo file if there was an error
-      await fs.promises.unlink(req.file.path).catch(console.error);
-    }
-  } catch (error) {
-    console.error('Upload error:', error);
-    res.status(500).json({ error: 'Failed to process upload' });
-    // Delete the uploaded demo file if there was an error
-    await fs.promises.unlink(req.file.path).catch(console.error);
-  }
-});
-
-// Delete a demo (protected route)
-app.delete('/api/demo/:demoId', authenticateToken, async (req, res) => {
-  try {
+    // attempt to delete demo reports associated with the demoid
+    await pool.query('DELETE FROM demo_reports WHERE demo_id = ?', [req.params.demoId]);
+    
+    // if no forign key constraints, delete the demo 
+    const [demoData] = await pool.query('SELECT * FROM demos WHERE id = ?', [req.params.demoId]);
     const [result] = await pool.query('DELETE FROM demos WHERE id = ?', [req.params.demoId]);
+    
     if (result.affectedRows === 0) {
+      console.log(`Failed demo deletion attempt by ${req.user.username} from IP ${clientIp}: Demo not found (ID: ${req.params.demoId})`);
       res.status(404).json({ error: 'Demo not found' });
     } else {
+      console.log(`Demo successfully deleted by ${req.user.username} from IP ${clientIp}:`);
+      console.log(JSON.stringify(demoData[0], null, 2));
       res.json({ message: 'Demo deleted successfully' });
     }
   } catch (error) {
-    console.error('Error deleting demo:', error);
+    console.error(`Error deleting demo by ${req.user.username} from IP ${clientIp}:`, error.message);
     res.status(500).json({ error: 'Unable to delete demo' });
   }
 });
 
-// Update layout route (protected)
-app.post('/api/updateLayout', authenticateToken, async (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  try {
-    const { layout, pageName } = req.body;
-    const filePath = path.join(__dirname, 'public', pageName);
-
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'Page not found' });
-    }
-
-    let pageContent = await fs.promises.readFile(filePath, 'utf8');
-    const dom = new JSDOM(pageContent);
-    const document = dom.window.document;
-
-    // Find or create the main content container
-    let mainContent = document.querySelector('main');
-    if (!mainContent) {
-      mainContent = document.createElement('main');
-      document.body.appendChild(mainContent);
-    }
-
-    // Clear existing content in main
-    mainContent.innerHTML = '';
-
-    // Recreate the layout
-    layout.forEach(rowData => {
-      const row = document.createElement('div');
-      row.className = 'grid-row';
-      
-      rowData.columns.forEach(columnData => {
-        const column = document.createElement('div');
-        column.className = 'grid-column';
-        
-        columnData.cards.forEach(cardData => {
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.innerHTML = cardData.content;
-          card.style.width = cardData.style.width;
-          card.style.height = cardData.style.height;
-          column.appendChild(card);
-        });
-        
-        row.appendChild(column);
-      });
-      
-      mainContent.appendChild(row);
-    });
-
-    // Serialize the updated DOM back to HTML
-    pageContent = dom.serialize();
-
-    // Write the updated content back to the file
-    await fs.promises.writeFile(filePath, pageContent, 'utf8');
-    res.json({ message: 'Layout updated successfully' });
-  } catch (error) {
-    console.error('Error updating layout:', error);
-    res.status(500).json({ error: 'Unable to update layout' });
-  }
+// http headers 0__0
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  console.error('Stack trace:', err.stack);
+  console.error('Request details:', {
+    method: req.method,
+    url: req.url,
+    headers: req.headers,
+    body: req.body,
+    query: req.query,
+    params: req.params
+  });
+  res.status(500).json({ error: 'Internal server error', details: err.message });
 });
 
-// Update content (protected route)
-app.post('/api/updateContent', authenticateToken, async (req, res) => {
-  if (!req.user) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  try {
-    const { cardIndex, content, pageName } = req.body;
-    const filePath = path.join(__dirname, 'public', pageName);
-
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'Page not found' });
-    }
-
-    let pageContent = await fs.promises.readFile(filePath, 'utf8');
-    const dom = new JSDOM(pageContent);
-    const document = dom.window.document;
-
-    const cards = document.querySelectorAll('.card, .cardcredits, .cardproject');
-    if (cardIndex < cards.length) {
-      const card = cards[cardIndex];
-
-      // Preserve media block if it exists
-      const existingMediaBlock = card.querySelector('.media-block');
-
-      // Clear existing content except media block
-      Array.from(card.childNodes).forEach(child => {
-        if (!child.classList || !child.classList.contains('media-block')) {
-          child.remove();
-        }
-      });
-
-      // Add new content
-      Object.entries(content).forEach(([key, value]) => {
-        if (key === 'media_block' && existingMediaBlock) {
-          // Keep existing media block
-          return;
-        }
-        const tempDiv = document.createElement('div');
-        if (value.isHTML || value.isLink) {
-          tempDiv.innerHTML = value.outerHTML;
-        } else {
-          tempDiv.textContent = value.text;
-        }
-        const newElement = tempDiv.firstChild;
-        if (value.isLink && value.href) {
-          newElement.setAttribute('href', value.href);
-        }
-        card.appendChild(newElement);
-      });
-
-      // Ensure media block is at the end of the card
-      if (existingMediaBlock) {
-        card.appendChild(existingMediaBlock);
-      }
-
-      pageContent = dom.serialize();
-      await fs.promises.writeFile(filePath, pageContent, 'utf8');
-      res.json({ message: 'Content updated successfully' });
-    } else {
-      res.status(400).json({ error: 'Card not found' });
-    }
-  } catch (error) {
-    console.error('Error updating content:', error);
-    res.status(500).json({ error: 'Unable to update content' });
-  }
-});
-
-// New routes for resources
+// fetch the expanded builds from the database
 app.get('/api/resources', async (req, res) => {
   try {
     const [resources] = await pool.query('SELECT * FROM resources ORDER BY date DESC');
@@ -640,122 +1415,1526 @@ app.get('/api/resources', async (req, res) => {
   }
 });
 
-app.post('/api/upload-resource', authenticateToken, upload.single('resourceFile'), async (req, res) => {
+// route to upload a new resource to the website
+app.post('/api/upload-resource', authenticateToken, upload.single('resourceFile'), checkRole(2), async (req, res) => {
+  const clientIp = getClientIp(req);
+  // let me know who uploaded the resource
+  console.log(`Admin action initiated: Resource upload by ${req.user.username} from IP ${clientIp}`);
+
   if (!req.file) {
+    console.log(`Failed resource upload attempt by ${req.user.username} from IP ${clientIp}: No file uploaded`);
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
   try {
     const originalName = req.file.originalname;
     const filePath = path.join(resourcesDir, originalName);
-    const { version, releaseDate } = req.body;
+    const { version, releaseDate, platform, playerCount } = req.body;
 
-    // Move the uploaded file to the resources directory
+    if (!version || !platform || !playerCount) {
+      console.log(`Failed resource upload attempt by ${req.user.username} from IP ${clientIp}: Missing required fields`);
+      return res.status(400).json({ error: 'Version, platform, and player count are required' });
+    }
+
+    console.log(`Processing resource upload by ${req.user.username} from IP ${clientIp}:`, 
+                JSON.stringify({ name: originalName, version, releaseDate, platform, playerCount }, null, 2));
+
+    // now we can move the file to the files directory
     fs.renameSync(req.file.path, filePath);
 
     const stats = fs.statSync(filePath);
 
+    const uploadDate = releaseDate ? new Date(releaseDate) : new Date();
+
     const [result] = await pool.query(
-      'INSERT INTO resources (name, size, date, version) VALUES (?, ?, ?, ?)',
-      [originalName, stats.size, releaseDate || new Date(), version || '1.0.0']
+      'INSERT INTO resources (name, size, date, version, platform, player_count) VALUES (?, ?, ?, ?, ?, ?)',
+      [originalName, stats.size, uploadDate, version, platform, playerCount]
     );
 
-    res.json({ message: 'Resource uploaded successfully', resourceName: originalName });
+    console.log(`Resource successfully uploaded by ${req.user.username} from IP ${clientIp}: ${originalName} (Version: ${version}, Platform: ${platform}, Player Count: ${playerCount})`);
+    res.json({ message: 'Resource uploaded successfully', resourceName: originalName, version: version, platform: platform, playerCount: playerCount });
   } catch (error) {
-    console.error('Error uploading resource:', error);
-    res.status(500).json({ error: 'Unable to upload resource' });
+    console.error(`Error uploading resource by ${req.user.username} from IP ${clientIp}:`, error.message);
+    
+    if (req.file && req.file.path) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (unlinkError) {
+        console.error('Error deleting uploaded file:', unlinkError.message);
+      }
+    }
+    
+    res.status(500).json({ error: 'Unable to upload resource', details: error.message });
   }
 });
 
-app.delete('/api/resource/:resourceId', authenticateToken, async (req, res) => {
+// deleting a resource using the admin panel, this does not delete the actual file itself
+app.delete('/api/resource/:resourceId', authenticateToken, checkRole(1), async (req, res) => {
+  const clientIp = getClientIp(req);
+  console.log(`Admin action initiated: Resource deletion by ${req.user.username} from IP ${clientIp}`);
+
   try {
+    const [resourceData] = await pool.query('SELECT name, version FROM resources WHERE id = ?', [req.params.resourceId]);
     const [result] = await pool.query('DELETE FROM resources WHERE id = ?', [req.params.resourceId]);
     if (result.affectedRows === 0) {
+      // lets me know if someone is doing some tom foolery
+      console.log(`Failed resource deletion attempt by ${req.user.username} from IP ${clientIp}: Resource not found (ID: ${req.params.resourceId})`);
       res.status(404).json({ error: 'Resource not found' });
     } else {
+      console.log(`Resource successfully deleted by ${req.user.username} from IP ${clientIp}: ${resourceData[0].name} (Version: ${resourceData[0].version}, ID: ${req.params.resourceId})`);
       res.json({ message: 'Resource deleted successfully' });
     }
   } catch (error) {
-    console.error('Error deleting resource:', error);
+    console.error(`Error deleting resource by ${req.user.username} from IP ${clientIp}:`, error);
     res.status(500).json({ error: 'Unable to delete resource' });
   }
 });
 
-// Download a resource
+// resource update route using the admin panel
+app.put('/api/resource/:resourceId', authenticateToken, checkRole(2), async (req, res) => {
+  const clientIp = getClientIp(req);
+  const { resourceId } = req.params;
+  const { name, version, date, platform, playerCount } = req.body;
+
+  // let me know who is editing the resource
+  console.log(`Admin action initiated: Resource edit by ${req.user.username} from IP ${clientIp}`);
+  console.log(`Editing resource ID ${resourceId}:`, JSON.stringify({ name, version, date, platform, playerCount }, null, 2));
+
+  try {
+    const [oldData] = await pool.query('SELECT * FROM resources WHERE id = ?', [resourceId]);
+    const [result] = await pool.query(
+      'UPDATE resources SET name = ?, version = ?, date = ?, platform = ?, player_count = ? WHERE id = ?',
+      [name, version, new Date(date), platform, playerCount, resourceId]
+    );
+
+    if (result.affectedRows === 0) {
+      console.log(`Failed resource edit attempt by ${req.user.username} from IP ${clientIp}: Resource not found (ID: ${resourceId})`);
+      res.status(404).json({ error: 'Resource not found' });
+    } else {
+      console.log(`Resource successfully edited by ${req.user.username} from IP ${clientIp}:`);
+      console.log(`Old data:`, JSON.stringify(oldData[0], null, 2));
+      console.log(`New data:`, JSON.stringify({ name, version, date, platform, playerCount }, null, 2));
+      res.json({ message: 'Resource updated successfully' });
+    }
+  } catch (error) {
+    console.error(`Error updating resource by ${req.user.username} from IP ${clientIp}:`, error.message);
+    res.status(500).json({ error: 'Unable to update resource' });
+  }
+});
+
+// route to download a build from the expanded builds page
 app.get('/api/download-resource/:resourceName', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM resources WHERE name = ?', [req.params.resourceName]);
     if (rows.length === 0) {
-      res.status(404).send('Resource not found');
-    } else {
-      const resourcePath = path.join(resourcesDir, rows[0].name);
-      res.download(resourcePath, (err) => {
-        if (err) {
-          res.status(404).send('Resource file not found');
-        }
-      });
+      return res.status(404).send('Resource not found');
     }
+
+    const resourcePath = path.join(resourcesDir, rows[0].name);
+    
+    // make sure the file exists
+    if (!fs.existsSync(resourcePath)) {
+      return res.status(404).send('Resource file not found');
+    }
+
+    res.download(resourcePath, (err) => {
+      const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  
+      if (err) {
+          if (err.code === 'ECONNABORTED') {
+              console.log(`Resource download aborted by client with IP: ${clientIp}`);
+          } else {
+              console.error('Error during resource download:', err);
+              
+              if (!res.headersSent) {
+                  return res.status(500).send('Error downloading resource');
+              }
+          }
+      } else {
+          console.log(`Resource downloaded successfully by client with IP: ${clientIp}`);
+      }
+  });
   } catch (error) {
     console.error('Error downloading resource:', error);
     res.status(500).send('Error downloading resource');
   }
 });
 
-// New route for handling bug reports
-app.post('/api/report-bug', async (req, res) => {
-  const { bugTitle, bugDescription } = req.body;
-
-  // Create a transporter using SMTP
-  let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // Use TLS
-    auth: {
-      user: "keiron.mcphee1@gmail.com",
-      pass: "ueiz tkqy uqwj lwht"
-    }
-  });
-
-  // Email options
-  let mailOptions = {
-    from: '"DEFCON Expanded" <keiron.mcphee1@gmail.com>',
-    to: "keiron.mcphee1@gmail.com", // You can change this if you want to send to a different email
-    subject: `New Bug Report: ${bugTitle}`,
-    text: `A new bug has been reported:
-
-Title: ${bugTitle}
-
-Description:
-${bugDescription}`,
-    html: `<h2>A new bug has been reported:</h2>
-<p><strong>Title:</strong> ${bugTitle}</p>
-<p><strong>Description:</strong></p>
-<p>${bugDescription}</p>`
-  };
-
+// fetches the resource data from the database
+app.get('/api/resource/:resourceId', authenticateToken, async (req, res) => {
   try {
-    // Send the email
-    let info = await transporter.sendMail(mailOptions);
-    console.log("Bug report email sent: %s", info.messageId);
-    res.json({ message: 'Bug report submitted successfully' });
+    const [rows] = await pool.query('SELECT * FROM resources WHERE id = ?', [req.params.resourceId]);
+    if (rows.length === 0) {
+      res.status(404).json({ error: 'Resource not found' });
+    } else {
+      res.json(rows[0]);
+    }
   } catch (error) {
-    console.error('Error sending bug report email:', error);
-    res.status(500).json({ error: 'Failed to submit bug report' });
+    console.error('Error fetching resource details:', error);
+    res.status(500).json({ error: 'Unable to fetch resource details' });
   }
 });
 
-// Serve additional HTML pages
+// route that serves the modlist page, fetches the data from the database
+app.get('/api/mods', async (req, res) => {
+  try {
+    const { type, sort, search } = req.query;
+    
+    let query = `
+      SELECT m.*, 
+             m.download_count, 
+             COUNT(DISTINCT ml.user_id) as likes_count, 
+             COUNT(DISTINCT mf.user_id) as favorites_count
+    `;
+    const params = [];
+    const conditions = [];
+
+    if (type) {
+      conditions.push('m.type = ?');
+      params.push(type);
+    }
+
+    query += ' FROM modlist m';
+    query += ' LEFT JOIN mod_likes ml ON m.id = ml.mod_id';
+    query += ' LEFT JOIN mod_favorites mf ON m.id = mf.mod_id';
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' GROUP BY m.id';
+
+    // Updated sorting logic
+    switch (sort) {
+      case 'most-downloaded':
+        query += ' ORDER BY m.download_count DESC';
+        break;
+      case 'latest':
+        query += ' ORDER BY m.release_date DESC';
+        break;
+      case 'most-liked':
+        query += ' ORDER BY likes_count DESC';
+        break;
+      case 'most-favorited':
+        query += ' ORDER BY favorites_count DESC';
+        break;
+      default:
+        query += ' ORDER BY m.download_count DESC';  // Default to most-downloaded
+    }
+
+    const [rows] = await pool.query(query, params);
+
+    // If a user is logged in, fetch their likes and favorites
+    let userLikesAndFavorites = { likes: [], favorites: [] };
+    if (req.user) {
+      userLikesAndFavorites = await getUserLikesAndFavorites(req.user.id);
+    }
+
+    // Fuzzy search logic
+    let results;
+    if (search) {
+      const searchTerms = search.toLowerCase().split(' ');
+      results = rows.filter(mod => 
+        searchTerms.every(term => 
+          fuzzyMatch(term, mod.name || '') || 
+          fuzzyMatch(term, mod.creator || '') || 
+          fuzzyMatch(term, mod.description || '')
+        )
+      );
+      console.log('Number of fuzzy results:', results.length);
+    } else {
+      results = rows;
+    }
+
+    const modsWithUserInfo = results.map(mod => ({
+      ...mod,
+      isLiked: userLikesAndFavorites.likes.includes(mod.id),
+      isFavorited: userLikesAndFavorites.favorites.includes(mod.id)
+    }));
+
+    res.json(modsWithUserInfo);
+  } catch (error) {
+    console.error('Error fetching mods:', error);
+    res.status(500).json({ error: 'Unable to fetch mods', details: error.message });
+  }
+});
+
+// fetches the likes and favorites for a specific user, then displays them as colored in icons on the modlist
+async function getUserLikesAndFavorites(userId) {
+  try {
+    const [likes] = await pool.query('SELECT mod_id FROM mod_likes WHERE user_id = ?', [userId]);
+    const [favorites] = await pool.query('SELECT mod_id FROM mod_favorites WHERE user_id = ?', [userId]);
+    
+    return {
+      likes: likes.map(like => like.mod_id),
+      favorites: favorites.map(favorite => favorite.mod_id)
+    };
+  } catch (error) {
+    console.error('Error fetching user likes and favorites:', error);
+    return { likes: [], favorites: [] };
+  }
+}
+
+// route for users liking a mod
+app.post('/api/mods/:id/like', authenticateToken, async (req, res) => {
+  const modId = req.params.id;
+  const userId = req.user.id;
+
+  try {
+      // first check if the user has already liked the mod
+      const [existingLike] = await pool.query('SELECT * FROM mod_likes WHERE mod_id = ? AND user_id = ?', [modId, userId]);
+      if (existingLike.length > 0) {
+          return res.status(400).json({ error: 'User has already liked this mod.' });
+      }
+      // if not continue
+      await pool.query('INSERT INTO mod_likes (mod_id, user_id) VALUES (?, ?)', [modId, userId]);
+
+      // update the likes count in the modlist table
+      await pool.query('UPDATE modlist SET likes_count = likes_count + 1 WHERE id = ?', [modId]);
+
+      // let the server know that a user liked a mod
+      console.log(`User ${req.user.username} (ID: ${userId}) liked mod ${modId}`);
+
+      res.status(200).json({ message: 'Mod liked!' });
+  } catch (error) {
+      console.error('Error liking mod:', error);
+      res.status(500).json({ error: 'Unable to like mod' });
+  }
+});
+
+// route for users favoriting a mod
+app.post('/api/mods/:id/favorite', authenticateToken, async (req, res) => {
+  const modId = req.params.id;
+  const userId = req.user.id;
+
+  try {
+      // first check if the user has already favorited the mod
+      const [existingFavorite] = await pool.query('SELECT * FROM mod_favorites WHERE mod_id = ? AND user_id = ?', [modId, userId]);
+      if (existingFavorite.length > 0) {
+          return res.status(400).json({ error: 'User has already favorited this mod.' });
+      }
+
+      // if they have not, continue
+      await pool.query('INSERT INTO mod_favorites (mod_id, user_id) VALUES (?, ?)', [modId, userId]);
+
+      // update the favorites count in the modlist table
+      await pool.query('UPDATE modlist SET favorites_count = favorites_count + 1 WHERE id = ?', [modId]);
+
+      // fetches the users favourite mods from the database, then displays them on their user profile page
+      const [userProfile] = await pool.query('SELECT favorites FROM user_profiles WHERE user_id = ?', [userId]);
+      let currentFavorites = userProfile[0].favorites ? userProfile[0].favorites.split(',') : [];
+      
+      currentFavorites.push(modId);
+
+      await pool.query('UPDATE user_profiles SET favorites = ? WHERE user_id = ?', [currentFavorites.join(','), userId]);
+      console.log(`User ${req.user.username} (ID: ${userId}) favorited mod ${modId}`);
+
+      res.status(200).json({ message: 'Mod favorited and user profile updated!' });
+  } catch (error) {
+      console.error('Error favoriting mod:', error);
+      res.status(500).json({ error: 'Unable to favorite mod' });
+  }
+});
+
+// route to download a mod from the modlist
+app.get('/api/download-mod/:id', removeTimeout, async (req, res) => {
+  try {
+    const [mod] = await pool.query('SELECT * FROM modlist WHERE id = ?', [req.params.id]);
+    if (mod.length === 0) {
+      console.log(`Mod not found: ID ${req.params.id}`);
+      return res.status(404).json({ error: 'Mod not found' });
+    }
+
+    const modPath = path.join(__dirname, mod[0].file_path);
+    console.log(`Attempting to download mod: ${modPath}`);
+
+    if (!fs.existsSync(modPath)) {
+      console.error(`Mod file not found: ${modPath}`);
+      return res.status(404).json({ error: 'Mod file not found' });
+    }
+
+    // update the download count in the modlist table
+    await pool.query('UPDATE modlist SET download_count = download_count + 1 WHERE id = ?', [req.params.id]);
+
+    // preserve the original file name on download
+    const downloadFilename = path.basename(mod[0].file_path);
+
+    res.download(modPath, downloadFilename, (err) => {
+      const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  
+      if (err) {
+          if (err.code === 'ECONNABORTED') {
+              console.log(`Mod download aborted by client with IP: ${clientIp}`);
+          } else {
+              console.error(`Error downloading mod: ${err.message}`);
+              
+              if (!res.headersSent) {
+                  return res.status(500).send('Error downloading mod');
+              }
+          }
+      } else {
+          console.log(`Mod downloaded successfully (${downloadFilename}) by client with IP: ${clientIp}`);
+      }
+  });
+  
+  } catch (error) {
+    console.error('Error in download-mod route:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// fetches the mod from the database, then displays it on the admin panel
+app.get('/api/mods/:id', async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM modlist WHERE id = ?', [req.params.id]);
+    if (rows.length === 0) {
+      res.status(404).json({ error: 'Mod not found' });
+    } else {
+      res.json(rows[0]);
+    }
+  } catch (error) {
+    console.error('Error fetching mod details:', error);
+    res.status(500).json({ error: 'Unable to fetch mod details' });
+  }
+});
+
+// route to upload a new mod from the admin panel
+app.post('/api/mods', upload.fields([
+  { name: 'modFile', maxCount: 1 },
+  { name: 'previewImage', maxCount: 1 }
+]), checkRole(5), async (req, res) => {
+  try {
+    const { name, type, creator, releaseDate, description, compatibility, version } = req.body;
+    const modFile = req.files['modFile'] ? req.files['modFile'][0] : null;
+    const previewImage = req.files['previewImage'] ? req.files['previewImage'][0] : null;
+    const modFilePath = modFile ? path.join('public', 'modlist', modFile.originalname).replace(/\\/g, '/') : null;
+    const previewImagePath = previewImage ? path.join('public', 'modpreviews', previewImage.originalname).replace(/\\/g, '/') : null;
+    const fileSize = modFile ? modFile.size : 0;
+
+    // now insert the mod into the database with the provided information from the admin
+    const [result] = await pool.query(
+      'INSERT INTO modlist (name, type, creator, release_date, description, file_path, preview_image_path, compatibility, version, size) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [name, type, creator, releaseDate, description, modFilePath, previewImagePath, compatibility, version, fileSize]
+    );
+
+    res.json({ id: result.insertId, message: 'Mod added successfully' });
+  } catch (error) {
+    console.error('Error adding mod:', error);
+    res.status(500).json({ error: 'Unable to add mod', details: error.message });
+  }
+});
+
+// route to update a mod from the admin panel
+app.put('/api/mods/:id', upload.fields([
+  { name: 'modFile', maxCount: 1 },
+  { name: 'previewImage', maxCount: 1 }
+]), checkRole(5), async (req, res) => {
+  const { id } = req.params;
+  const { name, type, creator, releaseDate, description, compatibility, version } = req.body;
+  const clientIp = getClientIp(req);
+
+  console.log(`Admin action initiated: Mod update by ${req.user.username} from IP ${clientIp}`);
+
+  try {
+    // fetch the old data of the mod before updating
+    const [oldData] = await pool.query('SELECT * FROM modlist WHERE id = ?', [id]);
+    if (oldData.length === 0) {
+      console.log(`Failed mod update attempt by ${req.user.username} from IP ${clientIp}: Mod not found (ID: ${id})`);
+      return res.status(404).json({ error: 'Mod not found' });
+    }
+
+    let query = 'UPDATE modlist SET name = ?, type = ?, creator = ?, release_date = ?, description = ?, compatibility = ?, version = ?';
+    let params = [name, type, creator, releaseDate, description, compatibility, version];
+    let newFilePath = oldData[0].file_path;
+    let newFileSize = oldData[0].size;
+    let newPreviewPath = oldData[0].preview_image_path;
+
+    if (req.files['modFile']) {
+      const modFile = req.files['modFile'][0];
+      newFilePath = path.join('public', 'modlist', modFile.originalname).replace(/\\/g, '/');
+      newFileSize = modFile.size;
+      query += ', file_path = ?, size = ?';
+      params.push(newFilePath, newFileSize);
+    }
+
+    if (req.files['previewImage']) {
+      const previewImage = req.files['previewImage'][0];
+      newPreviewPath = path.join('public', 'modpreviews', previewImage.originalname).replace(/\\/g, '/');
+      query += ', preview_image_path = ?';
+      params.push(newPreviewPath);
+    }
+
+    query += ' WHERE id = ?';
+    params.push(id);
+
+    const [result] = await pool.query(query, params);
+
+    if (result.affectedRows === 0) {
+      console.log(`Failed mod update attempt by ${req.user.username} from IP ${clientIp}: No changes made (ID: ${id})`);
+      return res.status(404).json({ error: 'Mod not found or no changes made' });
+    }
+
+    // if all these checks pass proceed to inserting the new information to the database
+    console.log(`Mod successfully updated by ${req.user.username} from IP ${clientIp}:`);
+    console.log(`Mod ID: ${id}`);
+    console.log('Old data:', JSON.stringify(oldData[0], null, 2));
+    console.log('New data:', JSON.stringify({
+      name, type, creator, release_date: releaseDate, description, compatibility, version,
+      file_path: newFilePath,
+      size: newFileSize,
+      preview_image_path: newPreviewPath
+    }, null, 2));
+
+    res.json({ message: 'Mod updated successfully' });
+  } catch (error) {
+    console.error(`Error updating mod by ${req.user.username} from IP ${clientIp}:`, error);
+    res.status(500).json({ error: 'Unable to update mod', details: error.message });
+  }
+});
+
+// route to delete a mod, this does not delete the file, only the information on the database
+app.delete('/api/mods/:id', checkRole(1), async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await pool.query('DELETE FROM modlist WHERE id = ?', [id]);
+    res.json({ message: 'Mod deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting mod:', error);
+    res.status(500).json({ error: 'Unable to delete mod' });
+  }
+});
+
+// api for searching mods
+app.get('/api/search-mods', async (req, res) => {
+  const searchTerm = req.query.term;
+  try {
+    const [rows] = await pool.query('SELECT * FROM modlist WHERE name LIKE ? OR description LIKE ?', [`%${searchTerm}%`, `%${searchTerm}%`]);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error searching mods:', error);
+    res.status(500).json({ error: 'Unable to search mods' });
+  }
+});
+
+// route for sorting the mods, will be updated soon to include most liked and most favourited
+app.get('/api/sort-mods', async (req, res) => {
+  const sortType = req.query.type;
+  let query = 'SELECT * FROM modlist';
+  
+  if (sortType === 'most-downloaded') {
+    query += ' ORDER BY download_count DESC';
+  } else if (sortType === 'latest') {
+    query += ' ORDER BY release_date DESC';
+  }
+
+  try {
+    const [rows] = await pool.query(query);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error sorting mods:', error);
+    res.status(500).json({ error: 'Unable to sort mods' });
+  }
+});
+
+// main route for sending a console log of any given user request
+app.get('/api/current-user', checkAuthToken, (req, res) => {
+  if (req.user) {
+    res.json({ user: { id: req.user.id, username: req.user.username, role: req.user.role } });
+  } else {
+    console.log('No authenticated user found');
+    res.status(401).json({ error: 'Not authenticated' });
+  }
+});
+
+// route for admins to fetch users from the admin panel, really important that only admins have access!
+app.get('/api/users', authenticateToken, checkRole(2), async (req, res) => {
+  console.log('Fetching users. Authenticated user:', JSON.stringify(req.user, null, 2));
+  try {
+      const [rows] = await pool.query('SELECT id, username, email, role FROM users');
+      console.log('Fetched users:', rows.length);
+      res.json(rows);
+  } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ error: 'Unable to fetch users' });
+  }
+});
+
+// route to display a single user
+app.get('/api/users/:userId', authenticateToken, checkRole(2), async (req, res) => {
+  try {
+      const [rows] = await pool.query('SELECT id, username, email, role FROM users WHERE id = ?', [req.params.userId]);
+      if (rows.length === 0) {
+          res.status(404).json({ error: 'User not found' });
+      } else {
+          res.json(rows[0]);
+      }
+  } catch (error) {
+      console.error('Error fetching user details:', error);
+      res.status(500).json({ error: 'Unable to fetch user details' });
+  }
+});
+
+// route to update user role, name and email
+app.put('/api/users/:userId', authenticateToken, checkRole(2), async (req, res) => {
+  const { userId } = req.params;
+  const { username, email, role } = req.body;
+
+  // only allow super admins to change user roles
+  if (req.user.role !== 1 && role !== undefined) {
+      return res.status(403).json({ error: 'Only super admins can change user roles' });
+  }
+
+  try {
+      const [result] = await pool.query(
+          'UPDATE users SET username = ?, email = ?, role = ? WHERE id = ?',
+          [username, email, role, userId]
+      );
+      
+      if (result.affectedRows === 0) {
+          res.status(404).json({ error: 'User not found' });
+      } else {
+          res.json({ message: 'User updated successfully' });
+      }
+  } catch (error) {
+      console.error('Error updating user:', error);
+      res.status(500).json({ error: 'Unable to update user' });
+  }
+});
+
+// route for deleting a user, this is last resort nobody is going to use this
+app.delete('/api/users/:userId', authenticateToken, checkRole(1), async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+      const [result] = await pool.query('DELETE FROM users WHERE id = ?', [userId]);
+      if (result.affectedRows === 0) {
+          res.status(404).json({ error: 'User not found' });
+      } else {
+          res.json({ message: 'User deleted successfully' });
+      }
+  } catch (error) {
+      console.error('Error deleting user:', error);
+      res.status(500).json({ error: 'Unable to delete user' });
+  }
+});
+
+// route for logged in users to submit a demo report for admins to review
+app.post('/api/report-demo', authenticateToken, async (req, res) => {
+  const { demoId, reportType } = req.body;
+  const userId = req.user.id;
+
+  try {
+      await pool.query(
+          'INSERT INTO demo_reports (demo_id, user_id, report_type, report_date) VALUES (?, ?, ?, NOW())',
+          [demoId, userId, reportType]
+      );
+      res.json({ message: 'Report submitted successfully' });
+  } catch (error) {
+      console.error('Error submitting report:', error);
+      res.status(500).json({ error: 'Failed to submit report' });
+  }
+});
+
+// route for the admin panel to fetch all pending demo reports, which will update the user report count
+app.get('/api/pending-reports', authenticateToken, checkRole(5), async (req, res) => {
+  try {
+      const [reports] = await pool.query(`
+          SELECT dr.*, d.game_type, d.players, u.username 
+          FROM demo_reports dr 
+          JOIN demos d ON dr.demo_id = d.id 
+          JOIN users u ON dr.user_id = u.id 
+          WHERE dr.status = 'pending'
+      `);
+      res.json(reports);
+  } catch (error) {
+      console.error('Error fetching pending reports:', error);
+      res.status(500).json({ error: 'Failed to fetch pending reports' });
+  }
+});
+
+// route for elevated users to resolve a specific report
+app.put('/api/resolve-report/:reportId', authenticateToken, checkRole(5), async (req, res) => {
+  const { reportId } = req.params;
+  try {
+      await pool.query('UPDATE demo_reports SET status = "resolved" WHERE id = ?', [reportId]);
+      res.json({ message: 'Report resolved successfully' });
+  } catch (error) {
+      console.error('Error resolving report:', error);
+      res.status(500).json({ error: 'Failed to resolve report' });
+  }
+});
+
+// display the total pending user reports on the monitoring data for the admin panel page
+app.get('/api/pending-reports-count', authenticateToken, async (req, res) => {
+  try {
+      const [result] = await pool.query('SELECT COUNT(*) as count FROM demo_reports WHERE status = "pending"');
+      console.log('Pending reports count from database:', result[0].count);
+      res.json({ count: result[0].count });
+  } catch (error) {
+      console.error('Error fetching pending reports count:', error);
+      res.status(500).json({ error: 'Failed to fetch pending reports count' });
+  }
+});
+
+// route for logged in users to report a mod to admins for review
+app.post('/api/report-mod', authenticateToken, async (req, res) => {
+  const { modId, reportType } = req.body;
+  const userId = req.user.id;
+
+  try {
+      await pool.query(
+          'INSERT INTO mod_reports (mod_id, user_id, report_type, report_date) VALUES (?, ?, ?, NOW())',
+          [modId, userId, reportType]
+      );
+      res.json({ message: 'Mod report submitted successfully' });
+  } catch (error) {
+      console.error('Error submitting mod report:', error);
+      res.status(500).json({ error: 'Failed to submit mod report' });
+  }
+});
+
+// route for elevated users to view current pending mod reports, which will update the user report count
+app.get('/api/pending-mod-reports', authenticateToken, checkRole(5), async (req, res) => {
+  try {
+      const [reports] = await pool.query(`
+          SELECT mr.*, m.name as mod_name, u.username 
+          FROM mod_reports mr 
+          JOIN modlist m ON mr.mod_id = m.id 
+          JOIN users u ON mr.user_id = u.id 
+          WHERE mr.status = 'pending'
+      `);
+      res.json(reports);
+  } catch (error) {
+      console.error('Error fetching pending mod reports:', error);
+      res.status(500).json({ error: 'Failed to fetch pending mod reports' });
+  }
+});
+
+// route for elevated users to resolve a specific mod report
+app.put('/api/resolve-mod-report/:reportId', authenticateToken, checkRole(5), async (req, res) => {
+  const { reportId } = req.params;
+  try {
+      await pool.query('UPDATE mod_reports SET status = "resolved" WHERE id = ?', [reportId]);
+      res.json({ message: 'Mod report resolved successfully' });
+  } catch (error) {
+      console.error('Error resolving mod report:', error);
+      res.status(500).json({ error: 'Failed to resolve mod report' });
+  }
+});
+
+// route to handle user signup
+router.post('/api/signup', async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    if (!username || !email || !password) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // first check if the username or email already exists in the database
+    const [existingUser] = await pool.query('SELECT * FROM users WHERE email = ? OR username = ?', [email, username]);
+    if (existingUser.length > 0) {
+      return res.status(400).json({ error: 'User with this email or username already exists.' });
+    }
+
+    // if not continue to hash and salt their password using bcrpyt
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // after submitting a signup request, send them a verification email
+    const verificationToken = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1d' });
+
+    // store the user details temorarily to prevent them not being able to sign up if their verification fails
+    pendingVerifications.set(email, {
+      username,
+      email,
+      password: hashedPassword,
+      verificationToken,
+    });
+
+    // now send the verification email
+    const verificationLink = `https://defconexpanded.com/verify?token=${verificationToken}`;
+    await transporter.sendMail({
+      from: '"Defcon Expanded" <keiron.mcphee1@gmail.com>',
+      to: email,
+      subject: 'Verify Your Email',
+      html: `Please click this link to verify your email: <a href="${verificationLink}">${verificationLink}</a>`,
+    });
+
+    res.status(200).json({ message: 'Please check your email to verify your account.' });
+  } catch (error) {
+    console.error('Signup error:', error);
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+// after the signup process, continue to verification
+router.get('/verify', async (req, res) => {
+  try {
+    const { token } = req.query;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const email = decoded.email;
+
+    // now check if the users information exists in the pending map
+    if (!pendingVerifications.has(email)) {
+      return res.sendFile(path.join(__dirname, 'public', 'verificationerror.html'));
+    }
+
+    // fetch this data
+    const userDetails = pendingVerifications.get(email);
+
+    // now insert the user into the users table and create a user profile
+    await pool.query('INSERT INTO users (username, email, password, is_verified) VALUES (?, ?, ?, 1)', 
+      [userDetails.username, userDetails.email, userDetails.password]);
+    await pool.query('INSERT INTO user_profiles (user_id) VALUES (LAST_INSERT_ID())');
+
+    // creates a profile url for the user that has signed up
+    const profileUrl = `/profile/${userDetails.username}`;
+    await pool.query('UPDATE users SET profile_url = ? WHERE email = ?', [profileUrl, email]);
+    pendingVerifications.delete(email);
+
+    // finally send the user to the verification success page
+    res.sendFile(path.join(__dirname, 'public', 'verificationsuccess.html'));
+  } catch (error) {
+    console.error('Verification error:', error);
+    res.sendFile(path.join(__dirname, 'public', 'verificationerror.html'));
+  }
+});
+
+// interval to prevent pending verification tokens from forever being alone
+setInterval(() => {
+  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+  
+  for (let [email, { verificationToken }] of pendingVerifications) {
+    try {
+      const decoded = jwt.verify(verificationToken, JWT_SECRET);
+    } catch (error) {
+      pendingVerifications.delete(email);
+    }
+  }
+}, 3600000); // cleans up the map every hour
+
+// route that handles user login
+router.post('/api/login', async (req, res) => {
+  const { username, password, rememberMe } = req.body;
+
+  // first check if the username exists in the database
+  try {
+    const [users] = await pool.query('SELECT * FROM users WHERE username = ?', [username]);
+    if (users.length === 0) {
+      console.log('Login failed: User not found');
+      return res.status(400).json({ error: 'Invalid username or password' });
+    }
+
+    const user = users[0];
+    
+    // checks if the password matches the hashed password stored in the database
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      console.log('Login failed: Invalid password');
+      return res.status(400).json({ error: 'Invalid username or password' });
+    }
+
+    // now check if the user has been verified before allowing them to log in
+    if (!user.is_verified) {
+      console.log('Login failed: User not verified');
+      return res.status(400).json({ error: 'Please verify your email before logging in' });
+    }
+
+    // now assign a session token the user
+    const token = jwt.sign(
+      { id: user.id, username: user.username, role: user.role },
+      JWT_SECRET,
+      { expiresIn: rememberMe ? '30d' : '1d' }
+    );
+
+    console.log('Login successful. Token:', token);
+    console.log('User:', { id: user.id, username: user.username, role: user.role });
+
+    // even the remember me session will expire after a certain period
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', 
+      maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000,
+    });
+
+    res.locals.user = { id: user.id, username: user.username, role: user.role };
+
+    res.json({ message: 'Login successful', username: user.username, role: user.role });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// route for users to loge out
+router.post('/api/logout', (req, res) => {
+  // clear the session token
+  res.clearCookie('token');
+  res.json({ message: 'Logged out successfully' });
+});
+
+// route for users to attempt to retreive their password
+router.post('/api/forgot-password', async (req, res) => {
+  const { username, email } = req.body;
+
+  // first check if the username exists in the database and the email matches the one provided
+  try {
+      const [users] = await pool.query('SELECT * FROM users WHERE username = ? AND email = ?', [username, email]);
+      if (users.length === 0) {
+          return res.status(400).json({ error: 'No user found with that username and email.' });
+      }
+
+      // if yes continue to send them a reset email
+      const user = users[0];
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const resetTokenExpiry = Date.now() + 3600000; 
+
+      await pool.query('UPDATE users SET reset_token = ?, reset_token_expiry = ? WHERE id = ?', [resetToken, resetTokenExpiry, user.id]);
+
+      const resetLink = `https://defconexpanded.com/changepassword?token=${resetToken}`; // change this to https://defconexpanded.com/
+      await transporter.sendMail({
+          from: '"Defcon Expanded" <keiron.mcphee1@gmail.com>',
+          to: email,
+          subject: 'Password Reset',
+          html: `Please click this link to reset your password: <a href="${resetLink}">${resetLink}</a>`
+      });
+
+      res.json({ message: 'Password reset link sent to your email.' });
+  } catch (error) {
+      console.error('Forgot password error:', error);
+      res.status(500).json({ error: 'Server error. Please try again later.' });
+  }
+});
+
+// route for users to change their password
+router.post('/api/reset-password', async (req, res) => {
+  const { token } = req.query;
+  const { password } = req.body;
+
+  // first try to fetch the reset token from the users table
+  try {
+      const [users] = await pool.query('SELECT * FROM users WHERE reset_token = ? AND reset_token_expiry > ?', [token, Date.now()]);
+      if (users.length === 0) {
+          return res.status(400).json({ error: 'Invalid or expired password reset token.' });
+      }
+      // if yes continue to change their password
+
+      const user = users[0];
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      await pool.query('UPDATE users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?', [hashedPassword, user.id]);
+
+      res.json({ message: 'Password changed successfully.' });
+  } catch (error) {
+      console.error('Reset password error:', error);
+      res.status(500).json({ error: 'Server error. Please try again later.' });
+  }
+});
+
+// route for fetching a users profile using the url inside their profile on the database
+app.get('/api/profile/:username', async (req, res) => {
+  const username = req.params.username;
+  const mode = req.query.mode || 'vanilla';  // Get the game mode from query, default to 'vanilla'
+
+  try {
+      const query = `
+          SELECT users.username, user_profiles.bio, user_profiles.discord_username, 
+                 user_profiles.steam_id, user_profiles.defcon_username, 
+                 user_profiles.years_played, user_profiles.contributions, 
+                 user_profiles.main_contributions, user_profiles.guides_and_mods, 
+                 user_profiles.favorites, user_profiles.profile_picture,
+                 user_profiles.record_score, user_profiles.user_id, user_profiles.banner_image
+          FROM users
+          JOIN user_profiles ON users.id = user_profiles.user_id
+          WHERE users.username = ?
+      `;
+      
+      const [rows] = await pool.query(query, [username]);
+
+      if (rows.length === 0) {
+          return res.status(404).json({ error: 'Profile not found' });
+      }
+
+      const userProfile = rows[0];
+      const defconUsername = userProfile.defcon_username;
+
+      // Define territory sets for each mode
+      const vanillaTerritories = ['North America', 'South America', 'Europe', 'Africa', 'Asia', 'Russia'];
+      const eightPlayerTerritories = ['North America', 'South America', 'Europe', 'Africa', 'East Asia', 'West Asia', 'Russia', 'Australasia'];
+      const tenPlayerTerritories = ['North America', 'South America', 'Europe', 'North Africa', 'South Africa', 'Russia', 'East Asia', 'South Asia', 'Australasia', 'Antartica'];
+
+      // Determine which territories to use based on the mode
+      let validTerritories = [];
+      if (mode === 'vanilla') {
+          validTerritories = vanillaTerritories;
+      } else if (mode === '8player') {
+          validTerritories = eightPlayerTerritories;
+      } else if (mode === '10player') {
+          validTerritories = tenPlayerTerritories;
+      }
+
+      // Fetch games played by the user
+      const gamesQuery = `SELECT players FROM demos WHERE players LIKE ?`;
+      const [games] = await pool.query(gamesQuery, [`%${defconUsername}%`]);
+
+      let wins = 0, losses = 0, totalGames = 0;
+      let territoryStats = {};  // For tracking territory wins and losses
+
+      games.forEach(game => {
+          const playersData = JSON.parse(game.players);
+          const userPlayer = playersData.find(p => p.name === defconUsername);
+
+          if (userPlayer && validTerritories.includes(userPlayer.territory)) {
+              const userTeam = userPlayer.team;
+              const territory = userPlayer.territory || 'Unknown';
+              const userTeamScore = playersData
+                  .filter(p => p.team === userTeam)
+                  .reduce((total, player) => total + player.score, 0);
+
+              const otherTeams = playersData.reduce((acc, player) => {
+                  if (!acc[player.team]) {
+                      acc[player.team] = { score: 0 };
+                  }
+                  acc[player.team].score += player.score;
+                  return acc;
+              }, {});
+
+              const userTeamIsWinner = Object.values(otherTeams)
+                  .every(team => userTeamScore >= team.score);
+
+              if (!territoryStats[territory]) territoryStats[territory] = { wins: 0, losses: 0 };
+
+              if (userTeamIsWinner) {
+                  wins++;
+                  territoryStats[territory].wins += 1;
+              } else {
+                  losses++;
+                  territoryStats[territory].losses += 1;
+              }
+
+              totalGames++;
+          }
+      });
+
+      let winLossRatio = 'Not enough data';
+      if (wins + losses > 0) {
+          winLossRatio = (wins / (wins + losses)).toFixed(2);
+      }
+
+      // Determine best and worst territory
+      let bestTerritory = 'N/A';
+      let worstTerritory = 'N/A';
+
+      Object.entries(territoryStats).forEach(([territory, stats]) => {
+          const winRatio = stats.wins / (stats.wins + stats.losses);
+          if (winRatio > 0.5 && (bestTerritory === 'N/A' || winRatio > (territoryStats[bestTerritory]?.wins || 0) / ((territoryStats[bestTerritory]?.wins || 0) + (territoryStats[bestTerritory]?.losses || 0)))) {
+              bestTerritory = territory;
+          }
+          if (winRatio < 0.5 && (worstTerritory === 'N/A' || winRatio < (territoryStats[worstTerritory]?.wins || 0) / ((territoryStats[worstTerritory]?.wins || 0) + (territoryStats[worstTerritory]?.losses || 0)))) {
+              worstTerritory = territory;
+          }
+      });
+
+      // Fetch user's favorite mods
+      const favoriteModIds = userProfile.favorites ? userProfile.favorites.split(',') : [];
+      let favoriteMods = [];
+      if (favoriteModIds.length > 0) {
+          const [mods] = await pool.query(`SELECT * FROM modlist WHERE id IN (?)`, [favoriteModIds]);
+          favoriteMods = mods;  
+      }
+
+      // Update highest score if necessary
+      let highestScore = 0;
+      games.forEach(game => {
+          const playersData = JSON.parse(game.players);
+          const matchingPlayer = playersData.find(player => player.name === defconUsername);
+          if (matchingPlayer && matchingPlayer.score > highestScore) {
+              highestScore = matchingPlayer.score;
+          }
+      });
+
+      if (highestScore > userProfile.record_score) {
+          await pool.query('UPDATE user_profiles SET record_score = ? WHERE user_id = ?', [highestScore, userProfile.user_id]);
+          userProfile.record_score = highestScore;  
+      }
+
+      // Respond with user profile data and additional stats
+      const responseData = {
+          ...userProfile,
+          winLossRatio,
+          totalGames,
+          wins,
+          losses,
+          favoriteMods,
+          main_contributions: userProfile.main_contributions ? userProfile.main_contributions.split(',') : [],
+          guides_and_mods: userProfile.guides_and_mods ? userProfile.guides_and_mods.split(',') : [],
+          record_score: userProfile.record_score,
+          territoryStats: {
+              bestTerritory,
+              worstTerritory
+          }
+      };
+
+      res.json(responseData);
+  } catch (error) {
+      console.error('Error fetching profile:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+app.get('/api/recent-game/:username', async (req, res) => {
+  const { username } = req.params;
+  
+  try {
+    const query = `
+      SELECT * FROM demos
+      WHERE player1_name = ? OR player2_name = ? OR player3_name = ? OR player4_name = ?
+            OR player5_name = ? OR player6_name = ? OR player7_name = ? OR player8_name = ?
+            OR player9_name = ? OR player10_name = ?
+      ORDER BY date DESC
+      LIMIT 1
+    `;
+    const [recentGame] = await pool.query(query, Array(10).fill(username));
+
+    if (recentGame.length === 0) {
+      return res.status(404).json({ error: 'No recent games found' });
+    }
+
+    res.json(recentGame[0]);
+  } catch (error) {
+    console.error('Error fetching recent game:', error);
+    res.status(500).json({ error: 'Unable to fetch recent game' });
+  }
+});
+
+
+// route for users to update their profile
+app.post('/api/update-profile', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  const {
+      discord_username,
+      steam_id,
+      bio,
+      defcon_username,
+      years_played,
+      main_contributions,
+      guides_and_mods
+  } = req.body;
+
+  try {
+      await pool.query(`
+          UPDATE user_profiles 
+          SET discord_username = ?, 
+              steam_id = ?,
+              bio = ?,
+              defcon_username = ?, 
+              years_played = ?,
+              main_contributions = ?,
+              guides_and_mods = ?
+          WHERE user_id = ?
+      `, [
+          discord_username,
+          steam_id,
+          bio,
+          defcon_username,
+          years_played,
+          main_contributions.join(','),
+          guides_and_mods.join(','),
+          userId
+      ]);
+
+      res.json({ success: true, message: 'Profile updated successfully' });
+  } catch (error) {
+      console.error('Error updating profile:', error);
+      res.status(500).json({ success: false, message: 'Failed to update profile' });
+  }
+});
+
+
+// route for uploading profile pictures and banners
+app.post('/api/upload-profile-image', upload.single('image'), async (req, res) => {
+  if (!req.file) {
+      console.error('No file uploaded');
+      return res.status(400).json({ success: false, error: 'No file uploaded' });
+  }
+
+  const userId = req.user.id; 
+  const imageType = req.body.type; 
+
+  try {
+      const fileExtension = path.extname(req.file.originalname);
+      const newFileName = `${userId}_${imageType}${fileExtension}`;
+      const newFilePath = path.join('public', 'uploads', newFileName);
+
+      fs.renameSync(req.file.path, newFilePath);
+
+      const imageUrl = `/uploads/${newFileName}`;
+
+      const updateField = imageType === 'profile' ? 'profile_picture' : 'banner_image';
+      await pool.query(`UPDATE user_profiles SET ${updateField} = ? WHERE user_id = ?`, [imageUrl, userId]);
+
+      console.log(`Image uploaded and database updated for user ${userId}, type: ${imageType}`);
+      res.json({ success: true, imageUrl: imageUrl });
+  } catch (error) {
+      console.error('Error updating profile image:', error);
+      res.status(500).json({ success: false, error: 'Failed to update profile image' });
+  }
+});
+
+router.post('/api/request-password-change', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // Check if the user exists with the provided email
+    const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (users.length === 0) {
+      return res.status(400).json({ error: 'No user found with that email.' });
+    }
+
+    const user = users[0];
+    const changeToken = crypto.randomBytes(32).toString('hex');
+    const changeTokenExpiry = Date.now() + 3600000; // Token expires in 1 hour
+
+    // Store the token and its expiry in the user's record
+    await pool.query('UPDATE users SET change_password_token = ?, change_password_token_expiry = ? WHERE id = ?', [changeToken, changeTokenExpiry, user.id]);
+
+    // Generate password change link
+    const changeLink = `https://defconexpanded.com/change-password?token=${changeToken}`;
+    
+    // Send email with password change link
+    await transporter.sendMail({
+      from: '"Defcon Expanded" <keiron.mcphee1@gmail.com>',
+      to: email,
+      subject: 'Password Change Request',
+      html: `Please click this link to change your password: <a href="${changeLink}">${changeLink}</a>`
+    });
+
+    res.json({ message: 'Password change link sent to your email.' });
+  } catch (error) {
+    console.error('Password change request error:', error);
+    res.status(500).json({ error: 'Server error. Please try again later.' });
+  }
+});
+
+router.post('/api/change-password', async (req, res) => {
+  const { token } = req.query;
+  const { newPassword, confirmPassword } = req.body;
+
+  if (!token || !newPassword || newPassword !== confirmPassword) {
+    return res.status(400).json({ error: 'Invalid request or passwords do not match.' });
+  }
+
+  try {
+    // Check if the token is valid and not expired
+    const [users] = await pool.query('SELECT * FROM users WHERE change_password_token = ? AND change_password_token_expiry > ?', [token, Date.now()]);
+    
+    if (users.length === 0) {
+      return res.status(400).json({ error: 'Invalid or expired token.' });
+    }
+
+    const user = users[0];
+
+    // Encrypt the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update the password and clear the token
+    await pool.query('UPDATE users SET password = ?, change_password_token = NULL, change_password_token_expiry = NULL WHERE id = ?', [hashedPassword, user.id]);
+
+    res.json({ message: 'Password changed successfully.' });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).json({ error: 'Failed to change password.' });
+  }
+});
+
+app.post('/api/request-leaderboard-name-change', authenticateToken, async (req, res) => {
+  const { newName } = req.body;
+  const userId = req.user.id;
+
+  try {
+      await pool.query('INSERT INTO leaderboard_name_change_requests (user_id, requested_name) VALUES (?, ?)', 
+          [userId, newName]);
+      res.json({ message: 'Leaderboard name change request submitted successfully' });
+  } catch (error) {
+      console.error('Error submitting leaderboard name change request:', error);
+      res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/request-blacklist', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+      await pool.query('INSERT INTO blacklist_requests (user_id) VALUES (?)', [userId]);
+      res.json({ message: 'Blacklist request submitted successfully' });
+  } catch (error) {
+      console.error('Error submitting blacklist request:', error);
+      res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/request-account-deletion', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+      await pool.query('INSERT INTO account_deletion_requests (user_id) VALUES (?)', [userId]);
+      res.json({ message: 'Account deletion request submitted successfully' });
+  } catch (error) {
+      console.error('Error submitting account deletion request:', error);
+      res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/request-username-change', authenticateToken, async (req, res) => {
+  const { newUsername } = req.body;
+  const userId = req.user.id;
+
+  try {
+      await pool.query('INSERT INTO username_change_requests (user_id, requested_username) VALUES (?, ?)', 
+          [userId, newUsername]);
+      res.json({ message: 'Username change request submitted successfully' });
+  } catch (error) {
+      console.error('Error submitting username change request:', error);
+      res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Email change request
+app.post('/api/request-email-change', authenticateToken, async (req, res) => {
+  const { newEmail } = req.body;
+  const userId = req.user.id;
+
+  try {
+      await pool.query('INSERT INTO email_change_requests (user_id, requested_email) VALUES (?, ?)', 
+          [userId, newEmail]);
+      res.json({ message: 'Email change request submitted successfully' });
+  } catch (error) {
+      console.error('Error submitting email change request:', error);
+      res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/pending-requests', authenticateToken, checkRole(5), async (req, res) => {
+  try {
+      const [nameChangeRequests] = await pool.query(`
+          SELECT lnc.*, u.username
+          FROM leaderboard_name_change_requests lnc
+          JOIN users u ON u.id = lnc.user_id
+          WHERE lnc.status = "pending"
+      `);
+
+      const [blacklistRequests] = await pool.query(`
+          SELECT bl.*, u.username
+          FROM blacklist_requests bl
+          JOIN users u ON u.id = bl.user_id
+          WHERE bl.status = "pending"
+      `);
+
+      const [deletionRequests] = await pool.query(`
+          SELECT ad.*, u.username
+          FROM account_deletion_requests ad
+          JOIN users u ON u.id = ad.user_id
+          WHERE ad.status = "pending"
+      `);
+
+      const [usernameChangeRequests] = await pool.query(`
+          SELECT uc.*, u.username
+          FROM username_change_requests uc
+          JOIN users u ON u.id = uc.user_id
+          WHERE uc.status = "pending"
+      `);
+
+      const [emailChangeRequests] = await pool.query(`
+          SELECT ec.*, u.username
+          FROM email_change_requests ec
+          JOIN users u ON u.id = ec.user_id
+          WHERE ec.status = "pending"
+      `);
+
+      const allRequests = [
+          ...nameChangeRequests.map(r => ({ ...r, type: 'leaderboard_name_change' })),
+          ...blacklistRequests.map(r => ({ ...r, type: 'blacklist' })),
+          ...deletionRequests.map(r => ({ ...r, type: 'account_deletion' })),
+          ...usernameChangeRequests.map(r => ({ ...r, type: 'username_change' })),
+          ...emailChangeRequests.map(r => ({ ...r, type: 'email_change' }))
+      ];
+
+      res.json(allRequests);
+  } catch (error) {
+      console.error('Error fetching pending requests:', error);
+      res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.get('/api/user-pending-requests', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id; // Retrieve the user's ID from the token
+
+    const [nameChangeRequests] = await pool.query(`
+      SELECT lnc.*, u.username
+      FROM leaderboard_name_change_requests lnc
+      JOIN users u ON u.id = lnc.user_id
+      WHERE lnc.user_id = ?
+    `, [userId]);
+
+    const [blacklistRequests] = await pool.query(`
+      SELECT bl.*, u.username
+      FROM blacklist_requests bl
+      JOIN users u ON u.id = bl.user_id
+      WHERE bl.user_id = ?
+    `, [userId]);
+
+    const [deletionRequests] = await pool.query(`
+      SELECT ad.*, u.username
+      FROM account_deletion_requests ad
+      JOIN users u ON u.id = ad.user_id
+      WHERE ad.user_id = ?
+    `, [userId]);
+
+    const [usernameChangeRequests] = await pool.query(`
+      SELECT uc.*, u.username
+      FROM username_change_requests uc
+      JOIN users u ON u.id = uc.user_id
+      WHERE uc.user_id = ?
+    `, [userId]);
+
+    const [emailChangeRequests] = await pool.query(`
+      SELECT ec.*, u.username
+      FROM email_change_requests ec
+      JOIN users u ON u.id = ec.user_id
+      WHERE ec.user_id = ?
+    `, [userId]);
+
+    const userRequests = [
+      ...nameChangeRequests.map(r => ({ ...r, type: 'leaderboard_name_change' })),
+      ...blacklistRequests.map(r => ({ ...r, type: 'blacklist' })),
+      ...deletionRequests.map(r => ({ ...r, type: 'account_deletion' })),
+      ...usernameChangeRequests.map(r => ({ ...r, type: 'username_change' })),
+      ...emailChangeRequests.map(r => ({ ...r, type: 'email_change' }))
+    ];
+
+    res.json(userRequests);
+  } catch (error) {
+    console.error('Error fetching user-specific pending requests:', error);
+    res.status(500).json({ error: 'Unable to fetch user requests' });
+  }
+});
+
+
+app.put('/api/resolve-request/:requestId/:requestType', authenticateToken, checkRole(5), async (req, res) => {
+  const { requestId, requestType } = req.params;
+  const { status } = req.body; 
+
+  try {
+      let tableName;
+      switch (requestType) {
+          case 'leaderboard_name_change':
+              tableName = 'leaderboard_name_change_requests';
+              break;
+          case 'blacklist':
+              tableName = 'blacklist_requests';
+              break;
+          case 'account_deletion':
+              tableName = 'account_deletion_requests';
+              break;
+          case 'username_change':
+              tableName = 'username_change_requests';
+              break;
+          case 'email_change':
+              tableName = 'email_change_requests';
+              break;
+          default:
+              return res.status(400).json({ error: 'Invalid request type' });
+      }
+
+      await pool.query(`UPDATE ${tableName} SET status = ? WHERE id = ?`, [status, requestId]);
+
+      if (status === 'approved') {
+          switch (requestType) {
+              case 'leaderboard_name_change':
+                  console.log('Leaderboard name change request approved. Admin needs to manually update the leaderboard name.');
+                  break;
+              case 'blacklist':
+                  console.log('Blacklist request approved. Admin needs to manually blacklist the user.');
+                  break;
+              case 'account_deletion':
+                  console.log('Account deletion request approved. Admin needs to manually delete the user account.');
+                  break;
+              case 'username_change':
+                  console.log('Username change request approved. Admin needs to manually update the username.');
+                  break;
+              case 'email_change':
+                  console.log('Email change request approved. Admin needs to manually update the email.');
+                  break;
+              default:
+                  console.log('Unknown request type approved.');
+          }
+      }
+
+      res.json({ message: 'Request resolved successfully' });
+  } catch (error) {
+      console.error('Error resolving request:', error);
+      res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+module.exports = router;
+
+// routes for each page in the frontend
 app.get('/about', checkAuthToken, (req, res) => sendHtml(res, 'about.html'));
-app.get('/articles-and-events', checkAuthToken, (req, res) => sendHtml(res, 'news.html'));
-app.get('/media', checkAuthToken, (req, res) => sendHtml(res, 'media.html'));
+app.get('/guides', checkAuthToken, (req, res) => sendHtml(res, 'guides.html'));
 app.get('/resources', checkAuthToken, (req, res) => sendHtml(res, 'resources.html'));
 app.get('/laikasdefcon', checkAuthToken, (req, res) => sendHtml(res, 'laikasdefcon.html'));
 app.get('/homepage/matchroom', checkAuthToken, (req, res) => sendHtml(res, 'matchroom.html'));
 app.get('/homepage', checkAuthToken, (req, res) => sendHtml(res, 'index.html'));
 app.get('/patchnotes', checkAuthToken, (req, res) => sendHtml(res, 'patchnotes.html'));
-app.get('/bug-report', checkAuthToken, (req, res) => sendHtml(res, 'bugreport.html'));
+app.get('/issue-report', checkAuthToken, (req, res) => sendHtml(res, 'bugreport.html'));
+app.get('/phpmyadmin', checkAuthToken, (req, res) => sendHtml(res, 'idiot.html')); // for the memes
+app.get('/leaderboard', checkAuthToken, (req, res) => sendHtml(res, 'leaderboard.html'));
+app.get('/modlist', checkAuthToken, (req, res) => sendHtml(res, 'modlist.html'));
+app.get('/privacypolicy', checkAuthToken, (req, res) => sendHtml(res, 'privacypolicy.html'));
+app.get('/modlist/maps', checkAuthToken, (req, res) => sendHtml(res, 'mapmods.html'));
+app.get('/modlist/graphics', checkAuthToken, (req, res) => sendHtml(res, 'graphicmods.html'));
+app.get('/modlist/overhauls', checkAuthToken, (req, res) => sendHtml(res, 'overhaulmods.html'));
+app.get('/modlist/moddingtools', checkAuthToken, (req, res) => sendHtml(res, 'moddingtools.html'));
+app.get('/modlist/ai', checkAuthToken, (req, res) => sendHtml(res, 'aimods.html'));
+app.get('/signup', checkAuthToken, (req, res) => sendHtml(res, 'signuppage.html'));
+app.get('/forgotpassword', checkAuthToken, (req, res) => sendHtml(res, 'forgotpasswordfor816788487.html'));
+app.get('/changepassword', checkAuthToken, (req, res) => sendHtml(res, 'changepassword248723424.html'));
+app.get('/adminpanel', authenticateToken, checkRole(5), serveAdminPage('admin-panel', 5));
+app.get('/leaderboardblacklistmanage', authenticateToken, checkRole(5), serveAdminPage('blacklist', 5));
+app.get('/demomanage', authenticateToken, checkRole(5), serveAdminPage('demo-manage', 5));
+app.get('/leaderboardmanage', authenticateToken, checkRole(5), serveAdminPage('leaderboard-manage', 5));
+app.get('/accountmanage', authenticateToken, checkRole(2), serveAdminPage('account-manage', 2));
+app.get('/modlistmanage', authenticateToken, checkRole(5), serveAdminPage('modmanagment', 5));
+app.get('/resourcemanage', authenticateToken, checkRole(3), serveAdminPage('resourcemanagment', 3));
+app.get('/serverconsole', authenticateToken, checkRole(2), serveAdminPage('server-console', 2));
 
-// Serve special files
+
+// special routes to be handled
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// route for demos page numbers
+app.get('/demos/page/:pageNumber', checkAuthToken, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/account-settings', authenticateToken, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'profilesettings.html'));
+});
+
+app.get('/change-password', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'profilesettings.html'));
+});
+
 app.get('/sitemap', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
 });
@@ -768,23 +2947,79 @@ app.get('/browserconfig.xml', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'browserconfig.xml'));
 });
 
-app.get('/adminlogin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'adminlogin.html'));
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'loginpage.html'));
 });
 
-// 404 handler (this should be placed after all other routes)
-app.use((req, res, next) => {
-  res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+app.get('/profile/:username', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'profile.html'));
 });
 
-// Error handling middleware
+// 404 route handler
+app.get('*', (req, res) => {
+  const requestedPath = path.join(__dirname, 'public', req.path);
+  if (fs.existsSync(requestedPath) && fs.statSync(requestedPath).isFile()) {
+    res.sendFile(requestedPath);
+  } else {
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+  }
+});
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
 });
 
-// Start the server
-app.listen(port, async () => {
+// route for the server console output
+io.on('connection', (socket) => {
+  console.log('A user connected to console output');
+});
+
+const originalLog = console.log;
+console.log = function() {
+  const timestamp = formatTimestamp(new Date());
+  const args = Array.from(arguments);
+  const message = `[${timestamp}] ${args.join(' ')}`;
+  
+  logStream.write(message + '\n');
+  
+  io.emit('console_output', message);
+  
+  originalLog.apply(console, [timestamp, ...args]);
+};
+
+//Shut down properly so she dont shit herself
+process.on('SIGINT', () => {
+  logStream.end(() => {
+    console.log('Log file stream closed.');
+    process.exit(0);
+  });
+});
+
+// server health check
+setInterval(() => {
+  const usedMemory = process.memoryUsage().heapUsed / 1024 / 1024;
+  const totalMemory = process.memoryUsage().heapTotal / 1024 / 1024;
+  console.log(`Server health check:
+    Uptime: ${(Date.now() - startTime) / 1000} seconds
+    Memory usage: ${usedMemory.toFixed(2)} MB / ${totalMemory.toFixed(2)} MB
+    Active connections: ${io.engine.clientsCount}
+  `);
+}, 1800000); 
+
+app.use(errorHandler);
+
+// node.js server proxy
+http.listen(port, async () => {
   console.log(`Defcon Expanded Demo and File Server Listening at http://localhost:${port}`);
-  await checkExistingDemos();
+  console.log(`Server started at: ${new Date().toISOString()}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Node.js version: ${process.version}`);
+  console.log(`Platform: ${process.platform}`);
+  try {
+    await initializeServer();
+    console.log("Server initialization completed successfully.");
+  } catch (error) {
+    console.error("Error during server initialization:", error);
+  }
 });

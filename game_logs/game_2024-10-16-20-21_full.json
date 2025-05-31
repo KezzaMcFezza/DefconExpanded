@@ -1,0 +1,78 @@
+{
+  "players": [
+    {
+      "client_id": 7,
+      "key_id": "13222826",
+      "ip": "90.247.153.5",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "LadenBinKezza",
+      "team": 0,
+      "territory": "North America",
+      "score": 0
+    },
+    {
+      "client_id": 8,
+      "key_id": "DEMO",
+      "ip": "90.247.153.5",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "WelcomeBack",
+      "team": 1,
+      "territory": "Russia",
+      "score": 0
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "MaxIdleRunTime": "1800",
+    "MinRunTime": "900",
+    "CaseSensitive": "0",
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "MaxSpectators": "3",
+    "SpectatorChatChannel": "1",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "1",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "1",
+    "RandomTerritories": "0",
+    "CityPopulations": "0",
+    "PopulationPerTerritory": "100",
+    "CitiesPerTerritory": "25",
+    "TerritoriesPerTeam": "1",
+    "MaxTeams": "2",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "1",
+    "ServerName": "DefconExpanded Test Server",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "AllianceSize": "1",
+    "ReadyVoteDelay": "90",
+    "IdleTimeGlobal": "600",
+    "AdvertisePlayers": "2"
+  },
+  "game_id": null,
+  "start_time": "2024-10-16T20:21:47.319230",
+  "end_time": "2024-10-16T20:27:20.549866",
+  "duration": "0:05:33.230636",
+  "gameType": "DefconExpanded | 1V1 | Totally Random",
+  "last_alliance": [
+    "0",
+    "3"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "start_time": "2024-08-29T01:11:37.369608",
+  "game_id": null,
+  "end_time": "2024-08-29T01:17:11.859969",
+  "duration": "0:05:34.490361",
+  "gameType": "DefconExpanded | 1v1 | Totally Random",
+  "players": [
+    {
+      "team": 0,
+      "territory": "Asia",
+      "client_id": 7,
+      "name": "WelcomeBack",
+      "score": 75
+    },
+    {
+      "team": 1,
+      "territory": "Africa",
+      "client_id": 8,
+      "name": "LadenBinKezza",
+      "score": -37
+    }
+  ],
+  "notes": [
+    "TEAM_READY 1 1",
+    "TEAM_READY 0 1",
+    "TEAM_SPEED 0 20",
+    "TEAM_SPEED 1 20"
+  ],
+  "last_alliance": [
+    "1",
+    "1"
+  ]
+}

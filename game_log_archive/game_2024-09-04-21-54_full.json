@@ -1,0 +1,23 @@
+{
+  "start_time": "2024-09-04T21:54:11.753788",
+  "game_id": null,
+  "end_time": "2024-09-04T21:54:11.753788",
+  "duration": "0:00:00",
+  "gameType": "Advertisement Server",
+  "players": [
+    {
+      "team": 0,
+      "territory": "North America",
+      "client_id": 9,
+      "name": "Sievert",
+      "score": 0
+    }
+  ],
+  "notes": [
+    "TEAM_READY 0 1"
+  ],
+  "last_alliance": [
+    "0",
+    "0"
+  ]
+}

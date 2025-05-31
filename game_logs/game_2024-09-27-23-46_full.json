@@ -1,0 +1,73 @@
+{
+  "players": [
+    {
+      "client_id": 8,
+      "key_id": "13217111",
+      "ip": "81.79.207.92",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "LadenBinKezza",
+      "team": 1,
+      "territory": "Asia",
+      "score": 139
+    },
+    {
+      "client_id": 7,
+      "key_id": "13180987",
+      "ip": "85.80.227.189",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "Cock dragon",
+      "team": 0,
+      "score": -6
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "ServerPort": "5014",
+    "MaxSpectators": "15",
+    "SpectatorChatChannel": "0",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "1",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "0",
+    "RandomTerritories": "0",
+    "CityPopulations": "0",
+    "PopulationPerTerritory": "100",
+    "CitiesPerTerritory": "25",
+    "TerritoriesPerTeam": "1",
+    "MaxTeams": "2",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "New Players Welcome | Come and play!",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "ReadyVoteDelay": "90",
+    "GhostProtection": "1",
+    "AdvertisePlayers": "2",
+    "Record": "demo_recordings/game_2024-09-27-22-31.dcrec"
+  },
+  "game_id": null,
+  "start_time": "2024-09-27T23:46:06.572670",
+  "end_time": "2024-09-28T00:37:21.627265",
+  "duration": "0:51:15.054595",
+  "gameType": "New Player Server",
+  "last_alliance": [
+    "0",
+    "1"
+  ]
+}

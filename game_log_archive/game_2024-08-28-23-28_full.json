@@ -1,0 +1,33 @@
+{
+    "start_time": "2024-08-28 23:51:59.337042",
+    "game_id": null,
+    "end_time": "2024-08-29 00:27:02.767710",
+    "duration": "0:35:03.430668",
+    "gameType": "DefconExpanded | 1v1 | Totally Random",
+    "players": [
+      {
+        "team": 0,
+        "territory": "Europe",
+        "client_id": 7,
+        "name": "LadenBinKezza",
+        "score": 163
+      },
+      {
+        "team": 1,
+        "territory": "Russia",
+        "client_id": 8,
+        "name": "sacoYa",
+        "score": 46
+      }
+    ],
+    "notes": [
+      "TEAM_READY 1 1",
+      "TEAM_READY 0 1",
+      "TEAM_SPEED 0 20",
+      "TEAM_SPEED 1 20"
+    ],
+    "last_alliance": [
+      "1",
+      "1"
+    ]
+  }

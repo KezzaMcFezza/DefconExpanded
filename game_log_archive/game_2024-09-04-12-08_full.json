@@ -1,0 +1,83 @@
+{
+  "start_time": "2024-09-04T12:08:46.991222",
+  "game_id": null,
+  "end_time": "2024-09-04T12:17:14.287586",
+  "duration": "0:08:27.296364",
+  "gameType": "Advertisement Server",
+  "players": [
+    {
+      "team": 0,
+      "territory": "Asia",
+      "client_id": 9,
+      "name": "MohammedBinNexus",
+      "score": 543
+    },
+    {
+      "team": 5,
+      "territory": "Europe",
+      "client_id": 14,
+      "name": "LadenBinKezza_5",
+      "score": 461
+    },
+    {
+      "team": 2,
+      "territory": "North America",
+      "client_id": 11,
+      "name": "LadenBinKezza_2",
+      "score": -56
+    },
+    {
+      "team": 4,
+      "territory": "South America",
+      "client_id": 13,
+      "name": "LadenBinKezza_4",
+      "score": -76
+    },
+    {
+      "team": 1,
+      "territory": "Russia",
+      "client_id": 10,
+      "name": "LadenBinKezza",
+      "score": -77
+    },
+    {
+      "team": 3,
+      "territory": "Unknown",
+      "client_id": 12,
+      "name": "LadenBinKezza_3",
+      "score": -109
+    }
+  ],
+  "notes": [
+    "TEAM_READY 0 1",
+    "TEAM_READY 7 1",
+    "TEAM_READY 6 1",
+    "TEAM_READY 5 1",
+    "TEAM_READY 4 1",
+    "TEAM_READY 3 1",
+    "TEAM_READY 2 1",
+    "TEAM_READY 1 1",
+    "TEAM_SPEED 1 20",
+    "TEAM_SPEED 4 20",
+    "TEAM_SPEED 6 20",
+    "TEAM_SPEED 1 20",
+    "TEAM_SPEED 2 20",
+    "TEAM_SPEED 3 20",
+    "TEAM_SPEED 7 20",
+    "TEAM_SPEED 4 20",
+    "TEAM_SPEED 6 20",
+    "TEAM_SPEED 6 20",
+    "TEAM_SPEED 4 20",
+    "TEAM_SPEED 7 20",
+    "TEAM_SPEED 6 20",
+    "TEAM_SPEED 4 20",
+    "TEAM_SPEED 3 20",
+    "TEAM_SPEED 2 20",
+    "TEAM_SPEED 0 20",
+    "TEAM_SPEED 5 20"
+  ],
+  "last_alliance": [
+    "7",
+    "0"
+  ]
+}

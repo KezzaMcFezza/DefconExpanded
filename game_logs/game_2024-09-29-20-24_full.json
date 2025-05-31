@@ -1,0 +1,143 @@
+{
+  "players": [
+    {
+      "client_id": 9,
+      "key_id": "13216168",
+      "ip": "86.179.21.220",
+      "version": "1.60.1.5",
+      "platform": "MINICOM",
+      "name": "Jackolite",
+      "team": 0,
+      "score": 0
+    },
+    {
+      "client_id": 17,
+      "key_id": "13213071",
+      "ip": "81.79.207.92",
+      "version": "1.60.1.5",
+      "platform": "MINICOM",
+      "name": "LadenBinKezza",
+      "team": 1,
+      "score": 0
+    },
+    {
+      "client_id": 18,
+      "key_id": "13216239",
+      "ip": "67.244.96.12",
+      "version": "1.60.1.5",
+      "platform": "MINICOM",
+      "name": "",
+      "team": 2,
+      "score": 0
+    },
+    {
+      "client_id": 15,
+      "key_id": "13215227",
+      "ip": "173.79.170.129",
+      "version": "1.60.1.5",
+      "platform": "MINICOM",
+      "name": "Sievert",
+      "team": 3,
+      "territory": "East Asia",
+      "score": 0
+    },
+    {
+      "client_id": 13,
+      "key_id": "13197076",
+      "ip": "108.66.2.73",
+      "version": "1.60.1.5",
+      "platform": "MINICOM",
+      "name": "FasterThanRaito",
+      "team": 4,
+      "territory": "North America",
+      "score": 0
+    },
+    {
+      "client_id": 21,
+      "key_id": "13180987",
+      "ip": "85.80.227.189",
+      "version": "1.60.1.5",
+      "platform": "MINICOM",
+      "name": "Cock dragon",
+      "team": 5,
+      "territory": "East Asia",
+      "score": 0
+    },
+    {
+      "client_id": 26,
+      "key_id": "13183470",
+      "ip": "162.155.4.171",
+      "version": "1.60.1.5",
+      "platform": "MINICOM",
+      "name": "",
+      "team": 6,
+      "score": 0
+    },
+    {
+      "client_id": 28,
+      "key_id": "13143796",
+      "ip": "73.216.51.96",
+      "version": "1.60.1.5",
+      "platform": "MINICOM",
+      "name": "Meme Warrior",
+      "team": 7,
+      "territory": "South America",
+      "score": 0
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "MaxSpectators": "15",
+    "SpectatorChatChannel": "0",
+    "TeamSwitching": "0",
+    "EmptyBomberLaunch": "1",
+    "WorldUnitScale": "100",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "VictoryMode": "1",
+    "ScoreMode": "0",
+    "SlowestSpeed": "0",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "1",
+    "RandomTerritories": "1",
+    "CityPopulations": "3",
+    "PopulationPerTerritory": "150",
+    "CitiesPerTerritory": "30",
+    "TerritoriesPerTeam": "1",
+    "MinTeams": "6",
+    "MaxTeams": "8",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "DefconExpanded | 4v4 | FFA | Totally Random",
+    "AdvertisePlayers": "8",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "AllianceSize": "3",
+    "ReadyVoteDelay": "90",
+    "GhostProtection": "1",
+    "IdleTimeGlobal": "600",
+    "Record": "demo_recordings/game8p_2024-09-29-20-03.d8crec"
+  },
+  "game_id": null,
+  "start_time": "2024-09-29T20:24:15.554156",
+  "end_time": "2024-09-29T20:27:28.705077",
+  "duration": "0:03:13.150921",
+  "gameType": "DefconExpanded | 4V4 | FFA | Diplomacy",
+  "last_alliance": [
+    "6",
+    "2"
+  ]
+}

@@ -1,0 +1,86 @@
+Include ConfigVersion-1.43-beta1
+ServerName New Players Welcome | Come and play!
+ServerKey XBAKOL-UWUXZN-ZLEMTH-VNRPMA-KYG
+GameMode 0
+ServerPort 5010
+AdvertiseOnInternet 1
+AdvertiseOnLAN 1
+TotalBandwidth 75000
+PlayerBandwidth 10000
+LogLevel 2
+CaseSensitive 0
+EventFile game_events_noob.log
+OutFile server_output_noob.log
+PlayerLog player_scores_noob.log
+
+#ADMIN
+Admin Laika~~0~dancefloor
+Admin LadenBinKezza~~0~dancefloor
+Admin Wan May~~0~dancefloor
+Admin Sievert~~0~dancefloor
+Admin MohammedBinNexus~~0~dancefloor
+Admin FasterThanRaito~~0~dancefloor
+Admin Vault Tec~~0~dancefloor
+Admin Mojo~~0~dancefloor
+
+HostName DefconExpanded
+
+AcceptC2 1
+
+AdvertisePlayers 2
+MaxSpectators 15 
+
+GhostProtection 1
+MaxResyncAttempts 3
+
+# Every time someone drops, the game automatically goes to slowest speed
+DropCourtesy -1
+
+# Players who don't do anything for 5 minutes will be sped up automatically
+IdleTime 300
+
+#KICK VOTES 
+KickVoteMin 2
+KickVoteMinPlayers 0
+KicksToBan 3
+
+#GAME OPTIONS 
+MinTeams 2
+MaxTeams 2
+ReadyVoteDelay 90
+ReadyVoteMaxRemove 1
+
+RandomTerritories 0
+CityPopulations 0
+CitiesPerTerritory 25
+PopulationPerTerritory  100
+
+SpectatorChatChannel 1
+SlowestSpeed 1
+PermitDefection 0
+RadarSharing 1
+
+
+WaitClient
+Say Welcome to the server for all players that are new to Defcon!
+Say Do you want to play against someone your own skill level? Well this is the server for you, you can practice basic strategies and build confidence as maybe one day you will want to play against someone better!
+Say This server is moderated to prevent smurfs or pro players from ruining games, and I must warn that anyone that tries to farm new players will be perma banned from all DefconExpanded servers.
+Say The games will be available for viewing on...
+Say www.defconexpanded.com
+
+WaitStart
+
+Say Have fun!
+SpectatorChatChannel 1
+
+WaitEnd
+Record demo_recordings/game_%Y-%m-%d-%H-%M.dcrec
+AdvertiseOnInternet 0
+Say Game Over !
+Say Game is available on defconexpanded.com
+Say Restart in 60 Seconds!
+WaitSeconds 60
+Quit
+
+
+

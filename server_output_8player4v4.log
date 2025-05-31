@@ -1,0 +1,108 @@
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.
+OutFile = server_output_8player4v4.log
+PlayerLog = player_scores_8player4v4.log
+AdvertisePlayers = 8
+MaxSpectators = 15
+UnitBuffer = 5
+CityBuffer = 2
+FirstStrikeBonus = 15
+GhostProtection = 1
+IdleTimeGlobal = 600
+SlowBudgetStart = 1200
+SlowBudgetMax = 1200
+DropCourtesy = -1
+KickVoteMin = 2
+MinTeams = 6
+MaxTeams = 8
+ReadyVoteDelay = 90
+RandomTerritories = 1
+CityPopulations = 3
+CitiesPerTerritory = 30
+PopulationPerTerritory = 150
+Listening on port 5017.
+ServerPort = 5017
+Metaserver IP: 34.197.189.80
+ServerLANIP = 116.203.228.110
+Public server info: 116.203.228.110:5017
+Demo limits received. MaxGameSize = 8, MaxDemoPlayers = 8, AllowServers = yes.
+Server key authentication succeeded, key id = 369211.

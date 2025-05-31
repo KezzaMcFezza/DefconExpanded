@@ -1,0 +1,123 @@
+{
+  "players": [
+    {
+      "client_id": 10,
+      "key_id": "13222088",
+      "ip": "104.137.39.166",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "ALABAMA HAMMER",
+      "team": 3,
+      "territory": "Africa",
+      "score": 266
+    },
+    {
+      "client_id": 7,
+      "key_id": "13221972",
+      "ip": "90.242.248.27",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "LadenBinKezza",
+      "team": 0,
+      "territory": "Russia",
+      "score": 214
+    },
+    {
+      "client_id": 13,
+      "key_id": "425333",
+      "ip": "98.122.186.54",
+      "version": "1.6",
+      "platform": "undefined",
+      "name": "Lord Haw Haw ",
+      "team": 5,
+      "territory": "South America",
+      "score": 139
+    },
+    {
+      "client_id": 8,
+      "key_id": "13197768",
+      "ip": "162.155.4.171",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "Vault Tec",
+      "team": 1,
+      "territory": "Europe",
+      "score": 129
+    },
+    {
+      "client_id": 11,
+      "key_id": "13222117",
+      "ip": "173.79.170.129",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "Sievert",
+      "team": 2,
+      "territory": "Asia",
+      "score": -26
+    },
+    {
+      "client_id": 12,
+      "key_id": "13222013",
+      "ip": "100.36.44.103",
+      "version": "1.62",
+      "platform": "STEAM",
+      "name": "Mostly Peaceful",
+      "team": 4,
+      "territory": "North America",
+      "score": -36
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "MaxIdleRunTime": "1800",
+    "MinRunTime": "900",
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "ServerPort": "5015",
+    "MaxSpectators": "15",
+    "SpectatorChatChannel": "0",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "1",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "0",
+    "RandomTerritories": "1",
+    "CityPopulations": "3",
+    "PopulationPerTerritory": "150",
+    "CitiesPerTerritory": "30",
+    "TerritoriesPerTeam": "1",
+    "MinTeams": "3",
+    "MaxTeams": "6",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "DefconExpanded | 3v3 | Totally Random",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "ReadyVoteDelay": "90",
+    "IdleTimeGlobal": "600",
+    "AdvertisePlayers": "6",
+    "Record": "demo_recordings/game_2024-10-14-01-42.dcrec"
+  },
+  "game_id": null,
+  "start_time": "2024-10-14T01:54:53.630379",
+  "end_time": "2024-10-14T03:08:36.628970",
+  "duration": "1:13:42.998591",
+  "gameType": "DefconExpanded | 3V3 | Totally Random",
+  "last_alliance": [
+    "5",
+    "4"
+  ]
+}

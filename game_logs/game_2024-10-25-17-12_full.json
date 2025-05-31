@@ -1,0 +1,80 @@
+{
+  "players": [
+    {
+      "client_id": 8,
+      "key_id": "12726403",
+      "ip": "88.130.218.142",
+      "version": "1.42",
+      "platform": "linux",
+      "name": "Rad",
+      "team": 1,
+      "territory": "Asia",
+      "score": 117
+    },
+    {
+      "client_id": 7,
+      "key_id": "2968018",
+      "ip": "92.31.141.160",
+      "version": "1.63",
+      "platform": "MAC",
+      "name": "Fight in WarRoom",
+      "team": 0,
+      "territory": "Africa",
+      "score": 4
+    }
+  ],
+  "notes": [
+    "GAME_START",
+    "GAME_END"
+  ],
+  "settings": {
+    "MaxIdleRunTime": "1800",
+    "MinRunTime": "900",
+    "CaseSensitive": "0",
+    "TotalBandwidth": "75000",
+    "PlayerBandwidth": "10000",
+    "ServerLANIP": "116.203.228.110",
+    "ServerPort": "5012",
+    "MaxSpectators": "15",
+    "SpectatorChatChannel": "0",
+    "TeamSwitching": "0",
+    "WorldScale": "100",
+    "VariableUnitCounts": "0",
+    "MaxGameRealTime": "0",
+    "VictoryTimer": "45",
+    "VictoryTrigger": "20",
+    "ScoreMode": "0",
+    "SlowestSpeed": "1",
+    "GameSpeed": "0",
+    "RadarSharing": "1",
+    "PermitDefection": "0",
+    "RandomTerritories": "0",
+    "CityPopulations": "0",
+    "PopulationPerTerritory": "100",
+    "CitiesPerTerritory": "25",
+    "TerritoriesPerTeam": "1",
+    "MaxTeams": "2",
+    "GameMode": "0",
+    "AdvertiseOnLAN": "1",
+    "AdvertiseOnInternet": "0",
+    "ServerName": "DefconExpanded | 1v1 | Default",
+    "KickVoteMin": "2",
+    "DropCourtesy": "-1",
+    "SlowBudgetMax": "1200",
+    "SlowBudgetStart": "1200",
+    "AllianceSize": "1",
+    "ReadyVoteDelay": "90",
+    "IdleTimeGlobal": "600",
+    "AdvertisePlayers": "2",
+    "Record": "demo_recordings/game_2024-10-25-17-11.dcrec"
+  },
+  "game_id": null,
+  "start_time": "2024-10-25T17:12:08.931045",
+  "end_time": "2024-10-25T18:16:59.685059",
+  "duration": "1:04:50.754014",
+  "gameType": "DefconExpanded | 1V1 | Default",
+  "last_alliance": [
+    "1",
+    "1"
+  ]
+}

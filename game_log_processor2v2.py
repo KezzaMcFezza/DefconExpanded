@@ -5,127 +5,175 @@ from datetime import datetime
 import json
 import time
 
-def process_game_logs(server_output_file, game_events_file, output_directory):
-    print(f"Starting game log processor for 2v2")
-    print(f"Server output file: {server_output_file}")
+def create_new_game_data():
+    return {
+        'players': [],
+        'notes': [],
+        'settings': {},
+        'game_id': None,
+        'start_time': None,
+        'end_time': None,
+        'duration': None,
+        'gameType': 'DefconExpanded | 2V2 | Totally Random',
+        'last_alliance': None
+    }
+
+def process_game_logs(game_events_file, output_directory):
+    print(f"Starting game log processor for 2V2 player server")
     print(f"Game events file: {game_events_file}")
     print(f"Output directory: {output_directory}")
 
-    os.makedirs(output_directory, exist_ok=True)
-
     game_start_time = None
     game_end_time = None
-    current_game_data = {}
-    game_id = None
+    current_game_data = create_new_game_data()
+    player_info = {}  # Tracks all players
+    final_players = {}  # Only players with SCORE_TEAM entries
+    processing_game = False
 
-    with open(server_output_file, 'r') as f:
+    with open(game_events_file, 'r') as f:
         f.seek(0, os.SEEK_END)
         while True:
             line = f.readline()
             if not line:
-                time.sleep(1)  # Wait for a short interval before checking for new lines
+                time.sleep(1)
+                f.seek(0, os.SEEK_CUR)
                 continue
 
-            if 'Game ID:' in line:
-                game_id = line.split('Game ID:')[1].strip()
-                print(f"Detected Game ID: {game_id}")
-                current_game_data['game_id'] = game_id
-
-            if 'Game started. Players:' in line and game_start_time is None:
-                game_start_time = datetime.now()
-                current_game_data['start_time'] = game_start_time.isoformat()
-                current_game_data['game_id'] = game_id
-                print(f"Game started at: {game_start_time}")
-
-            elif 'Game Over !' in line and game_start_time is not None:
-                game_end_time = datetime.now()
-                current_game_data['end_time'] = game_end_time.isoformat()
-                print(f"Game ended at: {game_end_time}")
-
-                duration = game_end_time - game_start_time
-                current_game_data['duration'] = str(duration)
-                print(f"Game duration: {duration}")
-
-                # Process player scores
-                process_player_scores(game_events_file, output_directory, current_game_data)
-
-                # Reset game start and end times for the next game
+            if 'SERVER_START' in line:
+                if processing_game:
+                    write_game_report(current_game_data, output_directory)
+                current_game_data = create_new_game_data()
+                player_info = {}
+                final_players = {}
                 game_start_time = None
                 game_end_time = None
-                current_game_data = {}
-                game_id = None
+                processing_game = False
+                print("Server started. Resetting game data.")
+                continue
 
-def process_player_scores(input_file, output_directory, game_data):
-    with open(input_file, 'r') as f:
-        content = f.read()
+            if 'SERVER_QUIT' in line:
+                if processing_game:
+                    write_game_report(current_game_data, output_directory)
+                processing_game = False
+                print("Server quit. Finalizing current game data.")
+                continue
 
-    game_sections = content.split('SERVER_START')[1:]  # Split into game sections
+            if 'GAME_START' in line:
+                processing_game = True
+                game_start_time = datetime.now()
+                current_game_data['start_time'] = game_start_time.isoformat()
+                print(f"Game started at: {game_start_time}")
 
-    for game in game_sections:
-        players = {}
-        game_notes = []
-        final_scores = {}
-        last_alliance = None
+            elif 'GAME_END' in line:
+                if game_start_time is not None:
+                    game_end_time = datetime.now()
+                    current_game_data['end_time'] = game_end_time.isoformat()
+                    print(f"Game ended at: {game_end_time}")
 
-        lines = game.split('\n')
-        in_score_block = False
-        for line in lines:
-            if 'TEAM_ENTER' in line:
-                match = re.search(r'TEAM_ENTER (\d+) (\d+)', line)
-                if match:
-                    team, client_id = match.groups()
-                    players[client_id] = {'team': int(team), 'territory': 'Unknown', 'client_id': int(client_id)}
-            elif 'TEAM_ALLIANCE' in line:
-                match = re.search(r'TEAM_ALLIANCE (\d+) (\d+)', line)
-                if match:
-                    last_alliance = match.groups()
-            elif 'TEAM_TERRITORY' in line:
-                match = re.search(r'TEAM_TERRITORY (\d+) (\d+)', line)
-                if match:
-                    team, territory = match.groups()
-                    for player in players.values():
-                        if player['team'] == int(team):
-                            player['territory'] = get_territory_name(int(territory))
-            elif 'CLIENT_NAME' in line:
-                match = re.search(r'CLIENT_NAME (\d+) (.*)', line)
-                if match:
-                    client_id, name = match.groups()
-                    if client_id in players:
-                        players[client_id]['name'] = name
-            elif 'SCORE_BEGIN' in line:
-                in_score_block = True
+                    duration = game_end_time - game_start_time
+                    current_game_data['duration'] = str(duration)
+                    print(f"Game duration: {duration}")
+
             elif 'SCORE_END' in line:
-                in_score_block = False
-            elif in_score_block and 'SCORE_TEAM' in line:
-                match = re.search(r'SCORE_TEAM (\d+) (-?\d+) (\d+) (.*)', line)
-                if match:
-                    team, score, client_id, player_name = match.groups()
-                    final_scores[client_id] = {'team': int(team), 'score': int(score), 'name': player_name}
-            elif any(event in line for event in ['TEAM_READY', 'TEAM_ALLIANCE', 'TEAM_SPEED']):
-                game_notes.append(line.strip())
+                if game_start_time is not None and game_end_time is not None:
+                    update_final_player_data(current_game_data, final_players)
+                    write_game_report(current_game_data, output_directory)
+                    
+                    current_game_data = create_new_game_data()
+                    player_info = {}
+                    final_players = {}
+                    game_start_time = None
+                    game_end_time = None
+                    processing_game = False
+                else:
+                    print("Encountered SCORE_END without a complete game. Ignoring.")
 
-        # Update player information with final scores
-        final_players = []
-        for client_id, score_data in final_scores.items():
-            if client_id in players:
-                player = players[client_id]
-                player.update(score_data)
-                final_players.append(player)
+            process_line(line, current_game_data, player_info, final_players)
 
-    if final_players:
-        game_data['gameType'] = 'DefconExpanded | 2v2 | Totally Random' if len(final_players) > 2 else 'DefconExpanded | 2v2 | Totally Random'
-        game_data['players'] = final_players
-        game_data['notes'] = game_notes
-        game_data['last_alliance'] = last_alliance  # Add the last alliance to the game data
+def process_line(line, game_data, player_info, final_players):
+    if 'CLIENT_NEW' in line:
+        # match = re.search(r'CLIENT_NEW (\d+) (\w+) ([\d.]+) ([\d.]+ (\w+))', line)
+        match = re.search(r'CLIENT_NEW (\d+) (\w+) ([\d.]+) ([\d.]+) ?(\w+)?', line)
+        if match:
+            client_id, key_id, ip, version, platform = match.groups()
+            client_id = int(client_id)
+            if platform is None:
+                platform = 'undefined'
+            player_info[client_id] = {
+                'client_id': client_id,
+                'key_id': key_id,
+                'ip': ip,
+                'version': version,
+                'platform': platform,
+                'name': ''
+            }
 
-        # Use the same naming convention as the demo file
+    elif 'CLIENT_NAME' in line:
+        match = re.search(r'CLIENT_NAME (\d+) (.*)', line)
+        if match:
+            client_id, name = match.groups()
+            client_id = int(client_id)
+            if client_id in player_info:
+                player_info[client_id]['name'] = name
+
+    elif 'TEAM_ENTER' in line:
+        match = re.search(r'TEAM_ENTER (\d+) (\d+)', line)
+        if match:
+            team, client_id = match.groups()
+            client_id = int(client_id)
+            if client_id in player_info:
+                player_info[client_id]['team'] = int(team)
+
+    elif 'TEAM_TERRITORY' in line:
+        match = re.search(r'TEAM_TERRITORY (\d+) (\d+)', line)
+        if match:
+            team, territory = match.groups()
+            team = int(team)
+            for player in player_info.values():
+                if player.get('team') == team:
+                    player['territory'] = get_territory_name(int(territory))
+
+    elif 'SCORE_TEAM' in line:
+        match = re.search(r'SCORE_TEAM (\d+) (-?\d+) (\d+) (.*)', line)
+        if match:
+            team, score, client_id, player_name = match.groups()
+            client_id = int(client_id)
+            if client_id in player_info:
+                final_players[client_id] = player_info[client_id].copy()
+                final_players[client_id].update({
+                    'team': int(team),
+                    'score': int(score),
+                    'name': player_name or final_players[client_id]['name']
+                })
+
+    elif 'SETTING' in line:
+        match = re.search(r'SETTING (\w+) (.*)', line)
+        if match:
+            setting, value = match.groups()
+            game_data['settings'][setting] = value
+
+    elif 'TEAM_ALLIANCE' in line:
+        match = re.search(r'TEAM_ALLIANCE (\d+) (\d+)', line)
+        if match:
+            game_data['last_alliance'] = match.groups()
+
+    elif any(event in line for event in ['GAME_START', 'GAME_END', 'SERVER_START', 'SERVER_QUIT']):
+        game_data['notes'].append(line.strip())
+
+def update_final_player_data(game_data, final_players):
+    game_data['players'] = list(final_players.values())
+
+def write_game_report(game_data, output_directory):
+    if game_data['start_time'] and game_data['end_time']:
         start_time = datetime.fromisoformat(game_data['start_time'])
-        output_filename = f"game_{start_time.strftime('%Y-%m-%d-%H-%M')}_full.json"
-        output_file = os.path.join(output_directory, output_filename)
+        filename = f"game_{start_time.strftime('%Y-%m-%d-%H-%M')}_full.json"
+        output_file = os.path.join(output_directory, filename)
         
         with open(output_file, 'w') as f:
             json.dump(game_data, f, indent=2)
         print(f"Game report written to {output_file}")
+    else:
+        print("Incomplete game data. Skipping game report creation.")
 
 def get_territory_name(territory_id):
     territories = {
@@ -139,10 +187,9 @@ def get_territory_name(territory_id):
     return territories.get(territory_id, "Unknown")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        print("Usage: python game_log_processor2v2.py <server_output_file> <game_events_file> <output_directory>")
+    if len(sys.argv) < 3:
+        print("Usage: python game_log_processor2v2.py <game_events_file> <output_directory>")
         sys.exit(1)
-    server_output_file = sys.argv[1]
-    game_events_file = sys.argv[2]
-    output_directory = sys.argv[3]
-    process_game_logs(server_output_file, game_events_file, output_directory)
+    game_events_file = sys.argv[1]
+    output_directory = sys.argv[2]
+    process_game_logs(game_events_file, output_directory)

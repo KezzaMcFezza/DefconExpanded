@@ -14,14 +14,18 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.4",
+    "bcrpyt": "^2.0.0",
+    "bcrypt": "^5.1.1",
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.11.0",
     "chart.js": "^4.4.3",
     "chokidar": "^3.6.0",
+    "connect-timeout": "^1.9.0",
     "cookie-parser": "^1.4.6",
     "electron": "^31.2.1",
     "eslint": "^9.9.0",
     "express": "^4.19.2",
+    "express-session": "^1.18.0",
     "greenlock-express": "^4.0.3",
     "greenlock-store-fs": "^3.2.2",
     "http-proxy-middleware": "^3.0.0",
@@ -30,6 +34,7 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.11.0",
     "nodemailer": "^6.9.14",
+    "socket.io": "^4.7.5",
     "systeminformation": "^5.22.11"
   },
   "devDependencies": {
