@@ -122,6 +122,7 @@ const profileRoutes = require('./apis/profile/profile');
 const dedconRoutes = require('./apis/resources/dedcon');
 const resourcesRoutes = require('./apis/resources/resources');
 const requestRoutes = require('./apis/users/request');
+const smurfCheckerRoutes = require('./apis/smurfchecker/smurf-checker');
 
 // error handler for everything past this point
 const errorHandler = (err, req, res, next) => {
@@ -190,6 +191,7 @@ app.use(profileRoutes);
 app.use(dedconRoutes);
 app.use(resourcesRoutes);
 app.use(requestRoutes);
+app.use(smurfCheckerRoutes);
 
 // static file serving
 app.use(express.static(publicDir, {
@@ -441,14 +443,15 @@ app.get('/about/combined-servers', checkAuthToken, (req, res) => sendHtml(res, '
 app.get('/about/hours-played', checkAuthToken, (req, res) => sendHtml(res, 'totalhoursgraph.html'));
 app.get('/about/popular-territories', checkAuthToken, (req, res) => sendHtml(res, 'popularterritories.html'));
 app.get('/about/1v1-setup-statistics', checkAuthToken, (req, res) => sendHtml(res, '1v1setupstatistics.html'));
-app.get('/guides', checkAuthToken, (req, res) => sendHtml(res, 'guides.html'));
+app.get('/smurfchecker', checkAuthToken, (req, res) => sendHtml(res, 'smurfchecker.html'));
+//app.get('/guides', checkAuthToken, (req, res) => sendHtml(res, 'guides.html'));
 app.get('/resources', checkAuthToken, (req, res) => sendHtml(res, 'resources.html'));
-app.get('/laikasdefcon', checkAuthToken, (req, res) => sendHtml(res, 'laikasdefcon.html'));
-app.get('/homepage/matchroom', checkAuthToken, (req, res) => sendHtml(res, 'matchroom.html'));
+//app.get('/laikasdefcon', checkAuthToken, (req, res) => sendHtml(res, 'laikasdefcon.html'));
+//app.get('/homepage/matchroom', checkAuthToken, (req, res) => sendHtml(res, 'matchroom.html'));
 app.get('/homepage', checkAuthToken, (req, res) => sendHtml(res, 'index.html'));
 app.get('/dedcon-builds', checkAuthToken, (req, res) => sendHtml(res, 'dedconbuilds.html'));
-app.get('/patchnotes', checkAuthToken, (req, res) => sendHtml(res, 'patchnotes.html'));
-app.get('/issue-report', checkAuthToken, (req, res) => sendHtml(res, 'bugreport.html'));
+//app.get('/patchnotes', checkAuthToken, (req, res) => sendHtml(res, 'patchnotes.html'));
+//app.get('/issue-report', checkAuthToken, (req, res) => sendHtml(res, 'bugreport.html'));
 app.get('/phpmyadmin', checkAuthToken, (req, res) => sendHtml(res, 'idiot.html')); // for the memes
 app.get('/leaderboard', checkAuthToken, (req, res) => sendHtml(res, 'leaderboard.html'));
 app.get('/modlist', checkAuthToken, (req, res) => sendHtml(res, 'modlist.html'));

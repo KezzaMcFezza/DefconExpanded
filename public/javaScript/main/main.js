@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 05-05-2025
+//Last Edited 05-06-2025
 
 import { initializeDiscordWidget } from './discord.js';
 import { initializeReportHandlers } from './reporting.js';
@@ -18,6 +18,7 @@ import { initializeMods } from './mods.js';
 import { initializePopupSystem } from './popup.js';
 import { initializeLeaderboard } from '../leaderboard/leaderboard.js';
 import { initializeGraphs } from '../graph/graph.js';
+import { initializeSmurfChecker } from '../smurfchecker/smurf-checker.js';
 
 let soundVolume = 0.1;
 
@@ -511,6 +512,10 @@ function initializeApplication() {
 
   if (window.location.pathname.includes('/leaderboard')) {
     initializeLeaderboard();
+  }
+
+  if (window.location.pathname.includes('/smurfchecker')) {
+    initializeSmurfChecker();
   }
 
   const searchButton2 = document.getElementById('search-button2');
