@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024 
+* Last Edited 05-06-2025
 -->
 
 <!DOCTYPE html>
@@ -18,23 +18,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEFCON Expanded</title>
-    <meta name="description" content="The entire modlist for DEFCON">
-    <meta name="keywords" content="defcon, defcon demos, defcon Expanded, game recording, game recordings modding community, 
-                                   demo downloads, mods, defcon mods, defcon dcrec, defcon modlist, defcon resources, defcon news, 
-                                   8 Player, 10 Player, 16 Player, dedcon, dedcon server, defcon leaderboard, defcon stats, defcon statistics,
-                                   defcon old guard, defcon game, defcon gaming community ">
+    <title>DEFCON Expanded: Smurf Checker</title>
+    <meta name="description" content="Check if a DEFCON player name has been used by multiple people. Privacy-safe smurf detection tool for the DEFCON community.">
+    <meta name="keywords" content="defcon, defcon smurf checker, defcon player lookup, defcon smurfs, defcon player search, 
+                                   defcon expanded, defcon community, defcon player verification, defcon alt accounts">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://defconexpanded.com/modlist">
+    <link rel="canonical" href="https://defconexpanded.com/smurfchecker">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://defconexpanded.com/modlist">
-    <meta property="og:title" content="DEFCON Expanded">
-    <meta property="og:description" content="The entire modlist for DEFCON">
+    <meta property="og:url" content="https://defconexpanded.com/smurfchecker">
+    <meta property="og:title" content="DEFCON Expanded: Smurf Checker">
+    <meta property="og:description" content="Check if a DEFCON player name has been used by multiple people. Privacy-safe smurf detection tool.">
     <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://defconexpanded.com/modlist">
-    <meta name="twitter:title" content="DEFCON Expanded">
-    <meta name="twitter:description" content="The entire modlist for DEFCON">
+    <meta name="twitter:url" content="https://defconexpanded.com/smurfchecker">
+    <meta name="twitter:title" content="DEFCON Expanded: Smurf Checker">
+    <meta name="twitter:description" content="Check if a DEFCON player name has been used by multiple people. Privacy-safe smurf detection tool.">
     <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
@@ -45,7 +43,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -55,39 +53,37 @@
     <meta name="theme-color" content="#ffffff">
     <link rel="stylesheet" type="text/css" href="/CSS/newmain.css">
     <link rel="stylesheet" type="text/css" href="/CSS/scaling.css">
-    <link rel="stylesheet" type="text/css" href="/CSS/admin.css" />
+    <link rel="stylesheet" type="text/css" href="/CSS/admin.css">
+    <link rel="stylesheet" type="text/css" href="/CSS/graph.css">
+    <link rel="stylesheet" type="text/css" href="/CSS/profile.css">
+    <link rel="stylesheet" type="text/css" href="/CSS/about.css">
+    <link rel="stylesheet" type="text/css" href="/CSS/checkboxes.css">
+    <link rel="stylesheet" type="text/css" href="/CSS/smurf-checker.css">
     <script type="module" src="/javaScript/main/main.js" defer=""></script>
+    <script type="module" src="/javaScript/smurfchecker/smurf-checker.js" defer=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/apexcharts/3.42.0/apexcharts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&amp;display=swap" rel="stylesheet">
-    <style>
-        .game-tile h3 {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: #4da6ff;
-            margin: 0;
-            padding: 10px;
-            text-align: center;
-            font-size: 1rem;
+    <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "DEFCON Smurf Checker",
+          "url": "https://defconexpanded.com/smurfchecker",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "DEFCON Expanded",
+            "url": "https://defconexpanded.com/"
+          },
+          "description": "Check if a DEFCON player name has been used by multiple people. Privacy-safe smurf detection tool.",
+          "mainContentOfPage": {
+            "@type": "WebPageElement",
+            "cssSelector": ".about-container"
+          }
         }
-
-        .fa-user {
-            margin-right: 5px;
-        }
-
-        .fa-cog {
-            margin-right: 5px;
-        }
-
-        @media (max-width: 430px) {
-            .btn-download {
-                margin-bottom: 10px;
-            }
-        }
-    </style>
+    </script>
 </head>
 
 <body class="hide-scrollbar">
@@ -180,78 +176,95 @@
                 </div>
             </nav>
         </header>
-        <div class="modlist-main-container">
-            <label style="font-size: 55px;">Welcome to the DEFCON Modlist</label>
-            <br>
-            <br>
-            <div class="modlistcontainer">
-                <p class="pabout2" style="text-align: left; margin: 0;">This mod-list is maintained and updated by <mark
-                        style="border-radius: 3px; width: 20px; background-color: rgb(0 183 255); font-weight: bold;">Sievert
-                        (Discord: megasievert)</mark> and <mark
-                        style="border-radius: 3px; width: 20px; background-color: rgb(255, 196, 0); font-weight: bold;">KezzaMcFezza
-                        (discord: kezzamcfezza)</mark></p>
-                <br>
-                <p class="pabout2" style="text-align: left; margin: 0;">Here you will find a download link of every mod
-                    that is known of for DEFCON.
-                    All the mods on inside this mod-list are stored on the website and we will make it our mission to
-                    make sure these mods are always available to download!</p>
-                <br>
-                <p class="pabout2" style="text-align: left; margin: 0;">If you have a mod that is not in our list for
-                    some reason...
-                    <br>
-                    We have a list of currently lost or missing mods for you to take a look at if you have any of these
-                    let us know!
-                </p>
-                <br>
-                <p class="pabout2" style="text-align: left; margin: 0;">
-                    You have permission to reupload and re-archive the mod-list in the unlikely event that maintenance
-                    by us is discontinued.</p>
-                <br>
-                <p class="pabout2" style="text-align: left; margin: 0;">Special thanks to GuavaMoment for finding
-                    previously lost mods!
-                    <br>
-                    And huge thanks for Sievert for helping this mod-list
-                    become a reality, without his work this wouldnt have been possible :)
-                </p>
-                <br>
-                <a href="https://docs.google.com/spreadsheets/d/1vV0bRWCzmZNDEWWZDi8EwscL85NsQlEkRA3wX1fHwJw/edit?gid=1458336092#gid=1458336092"
-                    target="_blank" class="btn-download">Lost or missing mods</a>
-                <a href="https://www.youtube.com/watch?v=5bF9Zf3XIAw" target="_blank" class="btn-download">Comprehensive
-                    DEFCON Map Modding Tutorial</a>
-                <br>
-                <br>
+
+        <div class="about-container servergraph">
+            <div class="contributors-about">
+                <div class="about-header">
+                    <div class="about-banner">
+                        <div class="about-banner-overlay"></div>
+                    </div>
+                    <div class="about-info-bar">
+                        <h1 class="about-title" style="margin-bottom: 10px;">Smurf Checker</h1>
+                        <p class="about-description">
+                            The DefconExpanded smurf detection tool helps identify players who may be using multiple accounts or names to evade recognition. 
+                            Using our already existing game data, we use an algorithm/system that can draw conclusions about if a player is smurfing or not.
+                            <br><br>
+                            <strong>How it works:</strong> The system compares two key data points...</p>
+                            <ul>
+                              <li>KeyID's (readable through the netcode) </li>
+                              <li>IP Addresses (also readable in the netcode)</li>
+                            </ul>
+                            <p class="about-description">
+                            The algorithm then parses through all known entries in those two data points in the entire database for the player in question.
+                            <br><br>
+                            <strong>Privacy & Security:</strong> In the interest of player security and general morality, we do not share any of these data points to you, we only use them to produce a result everyone can read and use.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="graph-container contributors-container">
+                    <div class="graph-header">
+                        <h2 class="graph-title">Something Wrong?</h2>
+                    </div>
+
+                    <div class="contributors-grid">
+                        <div class="contributor-column" style="grid-column: 1 / -1;">
+                            <p style="color: #b8b8b8; margin-bottom: 1.5rem; line-height: 1.6;">
+                                If you think there is a mistake about the result or have concerns about the smurf detection system, 
+                                please submit a report below. And we will investigate any potential issues 
+                                with the detection algorithm.
+                            </p>
+                            
+                            <form id="report-form" class="report-form">
+                                <div class="form-group">
+                                    <label for="report-player-name" style="color: #4da6ff; margin-bottom: 0.5rem; display: block;">Player Name in Question</label>
+                                    <input type="text" id="report-player-name" name="playerName" placeholder="Name of concern..." required>
+                                </div>
+                                
+                                <div class="form-group" style="margin-top: 1rem;">
+                                    <label for="report-description" style="color: #4da6ff; margin-bottom: 0.5rem; display: block;">Description of the Issue</label>
+                                    <textarea id="report-description" name="description" rows="4" required></textarea>
+                                </div>
+                                
+                                <button type="submit" id="submit-report-btn" class="update-graph-btn">
+                                    <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i>Submit Report
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="section-cards-container">
-                <a href="/modlist/maps" class="game-tile" target="_blank">
-                    <div class="art">
-                        <img src="/images/mapmods.png" alt="Defcon Map Mods" loading="lazy" decoding="async">
+            <div class="about-content">
+                <div class="graph-container">
+                    <div class="graph-header">
+                        <h2 class="graph-title">Player Search</h2>
                     </div>
-                </a>
-                <a href="/modlist/graphics" class="game-tile" target="_blank">
-                    <div class="art">
-                        <img src="/images/graphicsmods.png" alt="Defcon Graphics Mods" loading="lazy" decoding="async">
+
+                    <div class="graph-content">
+                        <div class="search-section" style="background: transparent; box-shadow: none; padding: 0; margin: 0;">
+                            <p style="color: #b8b8b8; margin: 0 0 1rem 0;">Enter a player name to check for smurfing</p>
+                            
+                            <div class="search-input-container">
+                                <input type="text" id="player-search-input" class="search-input" 
+                                       placeholder="Enter player name..." maxlength="50">
+                                <button id="search-btn" class="search-btn">Search</button>
+                            </div>
+                        </div>
+
+                        <div id="results-container" class="results-container" style="display: none;">
+                            <div class="smurf-card">
+                                <div class="smurf-card-header">
+                                    <h2 id="results-title" class="smurf-card-title"></h2>
+                                </div>
+                                <div id="results-content"></div>
+                            </div>
+                        </div>
                     </div>
-                </a>
-                <a href="/modlist/overhauls" class="game-tile" target="_blank">
-                    <div class="art">
-                        <img src="/images/overhaulmods.png" alt="Defcon Overhaul Mods" loading="lazy" decoding="async">
-                    </div>
-                </a>
-                <a href="/modlist/ai" class="game-tile" target="_blank">
-                    <div class="art">
-                        <img src="/images/botmods.png" alt="Defcon AI/Bot Mods" loading="lazy" decoding="async">
-                    </div>
-                </a>
-                <a href="/modlist/moddingtools" class="game-tile" target="_blank">
-                    <div class="art">
-                        <img src="/images/moddingtools.png" alt="Defcon Modding Tools" loading="lazy" decoding="async">
-                    </div>
-                </a>
+                </div>
             </div>
         </div>
     </main>
-    </div>
 </body>
 
 </html>
