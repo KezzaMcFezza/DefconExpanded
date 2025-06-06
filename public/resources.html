@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024 
+* Last Edited 06-06-2025 
 -->
 
 <!DOCTYPE html>
@@ -54,6 +54,7 @@
   <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
   <meta name="theme-color" content="#ffffff">
   <link rel="stylesheet" type="text/css" href="/CSS/newmain.css" />
+  <link rel="stylesheet" type="text/css" href="/CSS/dedcon-builds.css" />
   <link rel="stylesheet" type="text/css" href="/CSS/scaling.css" />
   <link rel="stylesheet" type="text/css" href="/CSS/admin.css" />
   <script type="module" src="/javaScript/main/main.js" defer></script>
@@ -186,52 +187,182 @@
         </div>
       </nav>
     </header>
-    <div class="resource-label-div" style="display: flex; justify-content: center;"><label
-        style="font-size: 50px;">Modded Defcon Builds</label></div>
-    <div class="content">
-      <p class="pabout">If you get a virus detected popup and your browser refuses to let you download any of these
-        files, turn off Windows Defender or any other
-        anti-virus software as
-        <br>
-        <mark style="border-radius: 3px; width: 20px; background-color: rgb(255, 196, 0); font-weight: bold;">these
-          windows builds aren't signed so they will flag up as a virus.</mark>
-        Also check out the <a href="https://youtu.be/jkreFpXcx7w" class="alinks">Installation Tutorial</a> and the
-        recent and historical <a href="/patchnotes" class="alinks">Patch Notes</a>
-      </p>
-      <div class="main-resources-container">
-        <p class="pabout2" style="text-align: left; font-size: 17px; margin: 0; margin-top: 2rem; flex: 1;">
-          Special thanks to (bert_the_turtle) for helping with the MacOS and Linux bundles, without his help none of
-          this could of been possible :)
+
+    <div class="dedcon-container">
+      <div class="dedcon-header">
+        <div class="dedcon-banner">
+          <div class="dedcon-banner-overlay"></div>
+        </div>
+        <div class="dedcon-info-bar">
+          <h1 class="dedcon-title">DefconExpanded Builds</h1>
+          <p class="dedcon-description">
+            Welcome to our collection of modded DEFCON builds! Here you can download these versions of DEFCON that support 8, 10, and 16 player matches.
+            <br>
+            <br>
+            These Builds are closely based off <a href="http://minicom.simamo.de/" target="_blank" class="alinks" style="font-size: unset !important;">MINICOM</a>, a community fixed and expanded upon version of DEFCON created by Bert_the_turtle. These builds include the following features:
+            <ul>
+              <li>16 Player limit, instead of the original 6</li>
+              <li>Includes map mods that contain 7-16 player configurations</li>
+              <li>Better modding support</li>
+              <li>A ton of new game options to play around with</li>
+              <li>Empty bomber launch feature</li>
+            </ul>
+            </p>
+          <p class="dedcon-description">
+            The most recent releases support MacOS and Linux!
+            <br>
+            <br>
+            Special thanks to bert_the_turtle for helping with the cross-platform development, 
+            making it possible for everyone to enjoy these modded builds regardless of their platform.
+            <br>
+            <br>
+            If you get a virus warning on Windows builds, temporarily disable Windows Defender as these builds aren't digitally signed.
+            Check out our installation guide below if you are struggling.
+            <br>
+            <br>
+            These modded builds also support Dedcon so you can host your own servers!
+          </p>
+          <div class="dedcon-links">
+            <a href="https://youtu.be/jkreFpXcx7w" class="dedcon-link" target="_blank">Installation Tutorial <i class="fas fa-external-link-alt"></i></a>
+          </div>
+        </div>
+        <div class="dedcon-card recording-card">
+          <div class="dedcon-card-header">
+            <h2 class="dedcon-card-title">Important Information</h2>
+          </div>
+
+          <h3 class="recording-sections-title">Windows Users</h3>
+          <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
+            If you get a virus warning, temporarily disable Windows Defender. These builds aren't digitally signed so they may trigger false positives.
+            Use the installer for easiest setup, or extract manually to your DEFCON directory.
+            <br><br>
+            <a href="/DEFCONExpandedInstaller.exe" class="btn-download">
+              Download Windows Installer
+            </a>
+          </p>
           <br>
-          <br>
-          The linux build has been updated into a cross-distro bundle that will work no matter what version of linux you
-          are running.
-          Alongside the new addition of the MacOS bundles this means that everyone can play these modded builds
-          regardless of your platform!
-          <br>
-          <br>
-          Arm64 Builds are coming very soon, but using rossetta on MacOS currently works for the x86 bundles. So you can
-          still play if you are using a new mac!
-          <br>
-          <br>
-          Feel free to check the MacOS builds out and report any bugs or issues that you might encounter since its fresh
-          out of development.
-          <br>
-          <br>
-          But for everyone else try out the windows installer if you are struggling with the manual install!
-          <br>
-          <br>
-          <a href="/DEFCONExpandedInstaller.exe" class="btn-download-windows foo">DefconExpandedInstaller.exe</a>
-        </p>
-        <div class="resources-container">
+          
+          <h3 class="recording-sections-title">Linux & MacOS Users</h3>
+          <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
+            Download the appropriate .tar file and extract it anywhere you prefer. The builds are cross-platform compatible.
+            For MacOS ARM users, the Intel builds work through <a href="https://support.apple.com/en-gb/102527" class="alinks" target="_blank" style="font-size: unset !important;">Rosetta translation</a>
+            <br><br>
+            <mark style="border-radius: 3px; background-color: rgb(255, 196, 0); font-weight: bold; padding: 2px 4px;">
+              Make sure to backup your original DEFCON installation before installing modded builds.
+            </mark>
+          </p>
+        </div>
+      </div>
+
+      <div class="dedcon-content">
+        <div class="dedcon-main-content">
+          <div class="dedcon-card downloads-card">
+            <div class="dedcon-card-header">
+              <h2 class="dedcon-card-title">Recent Releases</h2>
+            </div>
+            <div class="dedcon-build-container">
+            </div>
+          </div>
+
+          <div class="dedcon-card beta-card">
+            <div class="dedcon-card-header">
+              <h2 class="dedcon-card-title">Version History</h2>
+            </div>
+            <div class="dedcon-beta-container">
+            </div>
+          </div>
+
+          <div class="dedcon-card instructions-card">
+            <div class="dedcon-card-header">
+              <h2 class="dedcon-card-title">Installation Guide</h2>
+            </div>
+
+            <div class="installation-section">
+              <div class="dedcon-accordion">
+                <div class="dedcon-accordion-header">
+                  <h3>Windows Installation</h3>
+                  <span class="dedcon-toggle-icon">+</span>
+                </div>
+                <div class="dedcon-accordion-content">
+                  <p class="pabout2" style="text-align: left; font-size: 17px;">
+                    <strong>Method 1 - Installer (Recommended):</strong><br>
+                    Download and run the .exe installer. It will automatically install the modded build and replace your original DEFCON installation.
+                    <br><br>
+                    <strong>Method 2 - Manual Installation:</strong><br>
+                    1. Download the .zip file<br>
+                    2. Extract to your DEFCON installation directory (usually in C:/Steam/steamapps/common/DEFCON/)<br>
+                    3. Overwrite existing files when prompted<br>
+                    <br>
+                    <strong>Note:</strong> You may need to temporarily disable Windows Defender to avoid false virus warnings.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="installation-section">
+              <div class="dedcon-accordion">
+                <div class="dedcon-accordion-header">
+                  <h3>Linux Installation</h3>
+                  <span class="dedcon-toggle-icon">+</span>
+                </div>
+                <div class="dedcon-accordion-content">
+                  <p class="pabout2" style="text-align: left; font-size: 17px;">
+                    1. Download the archive<br>
+                    2. Extract the archive: <code>tar -xf defcon-expanded-linux.tar</code><br>
+                    3. Copy the files to your DEFCON installation directory<br>
+                    4. Make sure the executable has proper permissions: <code>chmod +x defcon</code><br>
+                    <br>
+                    The Linux builds are cross-distro compatible and should work on most modern distributions.
+                    Built on the oldest Ubuntu version github actions would allow us to use.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="installation-section">
+              <div class="dedcon-accordion">
+                <div class="dedcon-accordion-header">
+                  <h3>MacOS Installation</h3>
+                  <span class="dedcon-toggle-icon">+</span>
+                </div>
+                <div class="dedcon-accordion-content">
+                  <p class="pabout2" style="text-align: left; font-size: 17px;">
+                    1. Download the archive<br>
+                    2. Extract the archive by double-clicking or using Terminal<br>
+                    3. Copy the files to your DEFCON installation directory<br>
+                    4. On first run, you may need to right-click and select "Open" to bypass <a href="https://support.apple.com/en-gb/guide/security/sec5599b66df/web" class="alinks" target="_blank" style="font-size: unset !important;">Gatekeeper</a><br>
+                    <br>
+                    <strong>ARM64 Mac users:</strong> Intel builds work through Rosetta 2 translation if native ARM64 builds aren't available.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </main>
+
   <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const accordions = document.querySelectorAll('.dedcon-accordion-header');
 
+      accordions.forEach(accordion => {
+        accordion.addEventListener('click', function () {
+          this.classList.toggle('active');
 
+          const icon = this.querySelector('.dedcon-toggle-icon');
+          icon.textContent = icon.textContent === '+' ? '−' : '+';
 
+          const content = this.nextElementSibling;
+          if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+          } else {
+            content.style.maxHeight = content.scrollHeight + "px";
+          }
+        });
+      });
+    });
   </script>
 </body>
 

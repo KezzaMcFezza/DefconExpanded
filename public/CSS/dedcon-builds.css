@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024
+* Last Edited 06-06-2025
 */
 
 .dedcon-container {
@@ -201,8 +201,8 @@
 }
 
 .os-icon {
-    width: 24px;
-    height: 24px;
+    width: 16px;
+    height: auto;
     object-fit: contain;
 }
 
@@ -359,6 +359,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-top: 11px;
 }
 
 .dedcon-build-container .version-history-table .td2,
@@ -397,6 +398,29 @@
 
 .dedcon-beta-container .btn-download:hover {
     background-color: #ff9a2f;
+}
+
+.dedcon-beta-container.scrollable {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.dedcon-beta-container.scrollable::-webkit-scrollbar {
+    width: 8px;
+}
+
+.dedcon-beta-container.scrollable::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.dedcon-beta-container.scrollable::-webkit-scrollbar-thumb {
+    background: rgba(77, 166, 255, 0.5);
+    border-radius: 4px;
+}
+
+.dedcon-beta-container.scrollable::-webkit-scrollbar-thumb:hover {
+    background: rgba(77, 166, 255, 0.7);
 }
 
 @media (max-width: 1024px) {
