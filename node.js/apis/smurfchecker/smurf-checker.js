@@ -19,7 +19,6 @@ const {
 } = require('../../constants');
 
 const debug = require('../../debug-helpers');
-
 const { authenticateToken } = require('../../authentication');
 
 router.get('/api/smurf-check', async (req, res) => {
@@ -35,16 +34,14 @@ router.get('/api/smurf-check', async (req, res) => {
   }
 
   try {
-    
-    const [demos] = await pool.query('SELECT id, name, players, game_type, date, duration, download_count FROM demos ORDER BY date DESC');
-    const playerMap = new Map();
-    const keyIdMap = new Map();
-    const ipMap = new Map();
-
+    const [demos] = await pool.query('SELECT id, name, players, game_type, date FROM demos ORDER BY date DESC');
+    const playerStats = new Map(); 
+    const keyIdToNames = new Map(); 
+    const ipToNames = new Map(); 
+    const parsedDemos = new Map(); 
     
     demos.forEach(demo => {
       try {
-        
         if (!demo.players || demo.players === 'null' || demo.players === '') {
           return;
         }
@@ -55,35 +52,34 @@ router.get('/api/smurf-check', async (req, res) => {
         }
         
         const players = Array.isArray(parsedData) ? parsedData : (parsedData.players || []);
-
+        
+        parsedDemos.set(demo.id, { demo, players });
+        
         players.forEach(player => {
           if (!player.name) return;
 
-          if (!playerMap.has(player.name)) {
-            playerMap.set(player.name, {
+          if (!playerStats.has(player.name)) {
+            playerStats.set(player.name, {
               gamesPlayed: 0,
-              alternateNames: new Set(),
-              rating: 50,
-              infractionCount: 0
+              alternateNames: new Map(),
+              infractionDemos: []
             });
           }
-
-          const playerData = playerMap.get(player.name);
-          playerData.gamesPlayed++;
-
           
-          if (player.ip && player.ip.trim() !== '') {
-            if (!ipMap.has(player.ip)) {
-              ipMap.set(player.ip, new Set());
-            }
-            ipMap.get(player.ip).add(player.name);
-          }
+          playerStats.get(player.name).gamesPlayed++;
 
           if (player.key_id && player.key_id.trim() !== '' && player.key_id !== 'DEMO') {
-            if (!keyIdMap.has(player.key_id)) {
-              keyIdMap.set(player.key_id, new Set());
+            if (!keyIdToNames.has(player.key_id)) {
+              keyIdToNames.set(player.key_id, new Set());
             }
-            keyIdMap.get(player.key_id).add(player.name);
+            keyIdToNames.get(player.key_id).add(player.name);
+          }
+
+          if (player.ip && player.ip.trim() !== '') {
+            if (!ipToNames.has(player.ip)) {
+              ipToNames.set(player.ip, new Set());
+            }
+            ipToNames.get(player.ip).add(player.name);
           }
         });
       } catch (error) {
@@ -91,168 +87,142 @@ router.get('/api/smurf-check', async (req, res) => {
       }
     });
 
-    playerMap.forEach((data, name) => {
-      const alternateNamesSet = new Set(); 
-      const infractionDemos = new Map(); 
-  
-      keyIdMap.forEach((names, keyId) => {
-        if (names.has(name) && names.size > 1) {
-          names.forEach(relatedName => {
-            if (relatedName !== name) {
-              alternateNamesSet.add(relatedName);
-  
-              demos.forEach(demo => {
-                try {
-                  
-                  if (!demo.players || demo.players === 'null' || demo.players === '') {
-                    return;
-                  }
-                  
-                  const parsedData = JSON.parse(demo.players);
-                  if (!parsedData) {
-                    return;
-                  }
-                  
-                  const players = Array.isArray(parsedData) ? parsedData : (parsedData.players || []);
-                  const hasRelatedPlayerWithKeyId = players.some(p => p.name === relatedName && p.key_id === keyId);
-                  
-                  if (hasRelatedPlayerWithKeyId) {
-                    
-                    if (!infractionDemos.has(demo.id)) {
-                      infractionDemos.set(demo.id, {
-                        id: demo.id,
-                        name: demo.name,
-                        game_type: demo.game_type,
-                        date: demo.date,
-                        duration: demo.duration,
-                        players: demo.players,
-                        spectators: demo.spectators,
-                        download_count: demo.download_count,
-                        reason: `Alternate name detected: ${relatedName}`,
-                        detectionType: 'authentication'
-                      });
-                    }
-                  }
-                } catch (error) {
-                  console.error('Error processing demo for keyID infraction:', error);
-                }
-              });
-            }
-          });
-        }
-      });
-      
-      ipMap.forEach((names, ip) => {
-        if (names.has(name) && names.size > 1) {
-          names.forEach(relatedName => {
-            if (relatedName !== name) {
-              alternateNamesSet.add(relatedName);
-              
-              demos.forEach(demo => {
-                try {
-                  
-                  if (!demo.players || demo.players === 'null' || demo.players === '') {
-                    return;
-                  }
-                  
-                  const parsedData = JSON.parse(demo.players);
-                  if (!parsedData) {
-                    return;
-                  }
-                  
-                  const players = Array.isArray(parsedData) ? parsedData : (parsedData.players || []);
-                  const hasRelatedPlayerWithIp = players.some(p => p.name === relatedName && p.ip === ip);
-                  
-                  if (hasRelatedPlayerWithIp) {
-                    
-                    if (!infractionDemos.has(demo.id)) {
-                      infractionDemos.set(demo.id, {
-                        id: demo.id,
-                        name: demo.name,
-                        game_type: demo.game_type,
-                        date: demo.date,
-                        duration: demo.duration,
-                        players: demo.players,
-                        spectators: demo.spectators,
-                        download_count: demo.download_count,
-                        reason: `Alternate name detected: ${relatedName}`,
-                        detectionType: 'network'
-                      });
-                    }
-                  }
-                } catch (error) {
-                  console.error('Error processing demo for IP infraction:', error);
-                }
-              });
-            }
-          });
-        }
-      });
-
-      const alternateNamesMap = new Map();
-      alternateNamesSet.forEach(alternateName => {
-        let totalOccurrences = 0;
-        
-        demos.forEach(demo => {
-          try {
-            
-            if (!demo.players || demo.players === 'null' || demo.players === '') {
-              return;
-            }
-            
-            const parsedData = JSON.parse(demo.players);
-            if (!parsedData) {
-              return;
-            }
-            
-            const players = Array.isArray(parsedData) ? parsedData : (parsedData.players || []);
-            const appearsInDemo = players.some(p => p.name === alternateName);
-            if (appearsInDemo) {
-              totalOccurrences++;
-            }
-          } catch (error) {
-            console.error('Error counting occurrences for alternate name:', error);
+    const nameToAlternates = new Map(); 
+    const nameToInfractionDemos = new Map();
+    
+    for (const [keyId, names] of keyIdToNames) {
+      if (names.size > 1) {
+        const nameArray = Array.from(names);
+        for (const name of nameArray) {
+          if (!nameToAlternates.has(name)) {
+            nameToAlternates.set(name, new Set());
           }
-        });
-        
-        alternateNamesMap.set(alternateName, totalOccurrences);
-      });
+          if (!nameToInfractionDemos.has(name)) {
+            nameToInfractionDemos.set(name, new Map());
+          }
+          
+          for (const alternateName of nameArray) {
+            if (alternateName !== name) {
+              nameToAlternates.get(name).add(alternateName);
+            }
+          }
+          
+          for (const alternateName of nameArray) {
+            if (alternateName !== name) {
+              for (const [demoId, demoData] of parsedDemos) {
+                const hasAlternateWithKeyId = demoData.players.some(p => p.name === alternateName && p.key_id === keyId);
+                if (hasAlternateWithKeyId) {
+                  nameToInfractionDemos.get(name).set(demoId, {
+                    id: demoData.demo.id,
+                    name: demoData.demo.name,
+                    game_type: demoData.demo.game_type,
+                    date: demoData.demo.date,
+                    duration: demoData.demo.duration,
+                    players: demoData.demo.players,
+                    spectators: demoData.demo.spectators,
+                    download_count: demoData.demo.download_count,
+                    reason: `Alternate name detected: ${alternateName}`,
+                    detectionType: 'authentication'
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    for (const [ip, names] of ipToNames) {
+      if (names.size > 1) {
+        const nameArray = Array.from(names);
+        for (const name of nameArray) {
+          if (!nameToAlternates.has(name)) {
+            nameToAlternates.set(name, new Set());
+          }
+          if (!nameToInfractionDemos.has(name)) {
+            nameToInfractionDemos.set(name, new Map());
+          }
+          
+          for (const alternateName of nameArray) {
+            if (alternateName !== name) {
+              nameToAlternates.get(name).add(alternateName);
+            }
+          }
+          
+          for (const alternateName of nameArray) {
+            if (alternateName !== name) {
+              for (const [demoId, demoData] of parsedDemos) {
+                const hasAlternateWithIp = demoData.players.some(p => p.name === alternateName && p.ip === ip);
+                if (hasAlternateWithIp) {
+                  nameToInfractionDemos.get(name).set(demoId, {
+                    id: demoData.demo.id,
+                    name: demoData.demo.name,
+                    game_type: demoData.demo.game_type,
+                    date: demoData.demo.date,
+                    duration: demoData.demo.duration,
+                    players: demoData.demo.players,
+                    spectators: demoData.demo.spectators,
+                    download_count: demoData.demo.download_count,
+                    reason: `Alternate name detected: ${alternateName}`,
+                    detectionType: 'network'
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    }
 
-      data.alternateNames = alternateNamesMap;
-      data.infractionCount = alternateNamesMap.size;
-      data.rating = Math.max(0, 50 - (alternateNamesMap.size * 7));
+    for (const [name, alternateNames] of nameToAlternates) {
+      const playerData = playerStats.get(name);
+      if (!playerData) continue;
       
-      const sortedInfractionDemos = Array.from(infractionDemos.values())
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 100);
+      for (const alternateName of alternateNames) {
+        let count = 0;
+        for (const [demoId, demoData] of parsedDemos) {
+          if (demoData.players.some(p => p.name === alternateName)) {
+            count++;
+          }
+        }
+        playerData.alternateNames.set(alternateName, count);
+      }
       
-      data.infractionDemos = sortedInfractionDemos;
-    });
+      const infractionDemoMap = nameToInfractionDemos.get(name);
+      if (infractionDemoMap) {
+        playerData.infractionDemos = Array.from(infractionDemoMap.values())
+          .sort((a, b) => new Date(b.date) - new Date(a.date))
+          .slice(0, 100);
+      }
+    }
 
     const searchTerm = playerName.toLowerCase();
     const matches = [];
 
-    playerMap.forEach((data, name) => {
+    for (const [name, data] of playerStats) {
       if (name.toLowerCase().includes(searchTerm)) {
         const alternateNamesWithCounts = [];
         data.alternateNames.forEach((count, name) => {
           alternateNamesWithCounts.push({ name: name, count: count });
         });
 
+        const infractionCount = data.alternateNames.size;
+        const rating = Math.max(0, 50 - (infractionCount * 7));
+
         matches.push({
           name: name,
           gamesPlayed: data.gamesPlayed,
           alternateNames: Array.from(data.alternateNames.keys()),
           alternateNamesWithCounts: alternateNamesWithCounts,
-          rating: data.rating,
-          infractionCount: data.infractionCount,
-          isSmurf: data.infractionCount > 0,
-          smurfLevel: data.rating === 50 ? 'clean' : 
-                     data.rating >= 36 ? 'possible' : 'likely',
+          rating: rating,
+          infractionCount: infractionCount,
+          isSmurf: infractionCount > 0,
+          smurfLevel: rating === 50 ? 'clean' : 
+                     rating >= 36 ? 'possible' : 'likely',
           infractionDemos: data.infractionDemos || []
         });
       }
-    });
+    }
 
     matches.sort((a, b) => b.gamesPlayed - a.gamesPlayed);
 
