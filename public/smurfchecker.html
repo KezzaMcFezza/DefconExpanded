@@ -19,7 +19,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DEFCON Expanded: Smurf Checker</title>
-    <meta name="description" content="Check if a DEFCON player name has been used by multiple people. Privacy-safe smurf detection tool for the DEFCON community.">
+    <meta name="description" content="Check if a DEFCON player name has been used by different people, or the same person.">
     <meta name="keywords" content="defcon, defcon smurf checker, defcon player lookup, defcon smurfs, defcon player search, 
                                    defcon expanded, defcon community, defcon player verification, defcon alt accounts">
     <meta name="robots" content="index, follow">
@@ -27,12 +27,12 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://defconexpanded.com/smurfchecker">
     <meta property="og:title" content="DEFCON Expanded: Smurf Checker">
-    <meta property="og:description" content="Check if a DEFCON player name has been used by multiple people. Privacy-safe smurf detection tool.">
+    <meta property="og:description" content="Official tool for detecting smurfs on DefconExpanded servers">
     <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://defconexpanded.com/smurfchecker">
     <meta name="twitter:title" content="DEFCON Expanded: Smurf Checker">
-    <meta name="twitter:description" content="Check if a DEFCON player name has been used by multiple people. Privacy-safe smurf detection tool.">
+    <meta name="twitter:description" content="Official tool for detecting smurfs on DefconExpanded servers">
     <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
@@ -77,7 +77,7 @@
             "name": "DEFCON Expanded",
             "url": "https://defconexpanded.com/"
           },
-          "description": "Check if a DEFCON player name has been used by multiple people. Privacy-safe smurf detection tool.",
+          "description": "Official Tool for detecting smurfs on DefconExpanded servers",
           "mainContentOfPage": {
             "@type": "WebPageElement",
             "cssSelector": ".about-container"
@@ -186,18 +186,21 @@
                     <div class="about-info-bar">
                         <h1 class="about-title" style="margin-bottom: 10px;">Smurf Checker</h1>
                         <p class="about-description">
-                            The DefconExpanded smurf detection tool helps identify players who may be using multiple accounts or names to evade recognition. 
-                            Using our already existing game data, we use an algorithm/system that can draw conclusions about if a player is smurfing or not.
-                            <br><br>
-                            <strong>How it works:</strong> The system compares two key data points...</p>
+                            The DefconExpanded smurf detection tool helps identify players who may be using multiple names to evade recognition, known as <a href="https://www.urbandictionary.com/define.php?term=smurfing" class="alinks" style="font-size: unset !important">Smurfing</a>.
+                            <br>
+                            <br>
+                            Using our already existing game data, we use an algorithm/system that can draw conclusions about whether a player is smurfing or not.
+                            <br>
+                            <br>
+                            <strong>How it works:</strong><br><br> The system compares two key data points:</p>
                             <ul>
                               <li>KeyID's (readable through the netcode) </li>
                               <li>IP Addresses (also readable in the netcode)</li>
                             </ul>
                             <p class="about-description">
-                            The algorithm then parses through all known entries in those two data points in the entire database for the player in question.
+                            The algorithm then parses through all known entries in the database from those two point data points of the player in question.
                             <br><br>
-                            <strong>Privacy & Security:</strong> In the interest of player security and general morality, we do not share any of these data points to you, we only use them to produce a result everyone can read and use.
+                            <strong>Privacy & Security:</strong><br><br> In the interest of player security and general morality, we do not share any of these data points to you, we only use them to produce a result everyone can read and use.
                         </p>
                     </div>
                 </div>
@@ -211,7 +214,7 @@
                         <div class="contributor-column" style="grid-column: 1 / -1;">
                             <p style="color: #b8b8b8; margin-bottom: 1.5rem; line-height: 1.6;">
                                 If you think there is a mistake about the result or have concerns about the smurf detection system, 
-                                please submit a report below. And we will investigate any potential issues 
+                                please submit a report below. We will investigate any potential issues 
                                 with the detection algorithm.
                             </p>
                             
