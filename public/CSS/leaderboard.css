@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 03-03-2025
+* Last Edited 06-06-2025
 */
 
 :root {
@@ -24,17 +24,7 @@
     --transition-speed: 0.3s;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
 @keyframes pulse {
 
@@ -91,7 +81,6 @@
     max-width: 1400px;
     margin: 1.5rem auto;
     padding: 0 2rem 2rem;
-    animation: fadeIn 0.5s ease-out;
 }
 
 .season-banner {

@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 05-06-2025
+//Last Edited 06-06-2025
 
 import { initializeDiscordWidget } from './discord.js';
 import { initializeReportHandlers } from './reporting.js';
@@ -320,6 +320,135 @@ function displayResourcesMain(resources) {
   });
 }
 
+async function displayResourcesRecentReleases() {
+  try {
+    const response = await fetch('/api/resources');
+    const resources = await response.json();
+
+    const container = document.querySelector('.dedcon-build-container');
+    if (!container) return;
+
+    const recentResources = resources
+      .filter(resource => resource.platform && resource.platform !== 'NULL')
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 9);
+
+    if (recentResources.length === 0) {
+      container.innerHTML = '<p style="color: #b8b8b8; text-align: center; padding: 2rem;">No recent releases available.</p>';
+      return;
+    }
+
+    container.innerHTML = createResourceTable(recentResources);
+  } catch (error) {
+    console.error('Error loading resources:', error);
+  }
+}
+
+async function displayResourcesVersionHistory() {
+  try {
+    const response = await fetch('/api/resources');
+    const resources = await response.json();
+
+    const container = document.querySelector('.dedcon-beta-container');
+    if (!container) return;
+
+    const allResources = resources
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (allResources.length === 0) {
+      container.innerHTML = '<p style="color: #b8b8b8; text-align: center; padding: 2rem;">No resources available.</p>';
+      return;
+    }
+
+    if (allResources.length > 9) {
+      container.classList.add('scrollable');
+    } else {
+      container.classList.remove('scrollable');
+    }
+
+    container.innerHTML = createResourceTable(allResources);
+  } catch (error) {
+    console.error('Error loading resources:', error);
+  }
+}
+
+function createResourceTable(resources) {
+  const platformIcons = {
+    'windows': '/images/windows-icon.png',
+    'linux': '/images/linux-icon.png',
+    'macos': '/images/macOS-Logo.png',
+    'macos-intel': '/images/macos-intel-icon.png',
+    'macos-arm64': '/images/macos-arm64-icon.png'
+  };
+
+  let tableHTML = `
+    <table class="version-history-table">
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Version</th>
+          <th>Release Date</th>
+          <th>File Size</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  resources.forEach(resource => {
+    const platformDisplay = getResourcePlatformDisplay(resource.platform);
+    const platformIcon = platformIcons[resource.platform] || '';
+    const version = resource.version || 'Unknown';
+    const date = resource.date ? new Date(resource.date).toLocaleDateString() : 'Unknown';
+    const size = formatBytes(resource.size || 0);
+
+    tableHTML += `
+      <tr>
+        <td class="platform-cell">
+          ${platformIcon ? `<img src="${platformIcon}" alt="${platformDisplay}" class="os-icon">` : ''}
+          ${platformDisplay}
+        </td>
+        <td class="td2">${version}</td>
+        <td>${date}</td>
+        <td>${size}</td>
+        <td>
+          <a href="/api/download-resource/${encodeURIComponent(resource.name)}" class="btn-download">
+            Download
+          </a>
+        </td>
+      </tr>
+    `;
+  });
+
+  tableHTML += `
+      </tbody>
+    </table>
+  `;
+
+  return tableHTML;
+}
+
+function getResourcePlatformDisplay(platform) {
+  if (!platform || platform === 'NULL') {
+    return 'Unknown Platform';
+  }
+  
+  switch (platform) {
+    case 'windows':
+      return 'Windows';
+    case 'linux':
+      return 'Linux';
+    case 'macos':
+      return 'MacOS';
+    case 'macos-intel':
+      return 'MacOS Intel';
+    case 'macos-arm64':
+      return 'MacOS ARM64';
+    default:
+      return platform.charAt(0).toUpperCase() + platform.slice(1);
+  }
+}
+
 async function displayDedconBuilds() {
   try {
     const response = await fetch('/api/dedcon-builds');
@@ -537,12 +666,20 @@ function initializeApplication() {
 
   const dedconContainer = document.querySelector('.dedcon-build-container');
   if (dedconContainer) {
-    displayDedconBuilds();
+    if (window.location.pathname.includes('/resources')) {
+      displayResourcesRecentReleases();
+    } else {
+      displayDedconBuilds();
+    }
   }
 
   const dedconBetaContainer = document.querySelector('.dedcon-beta-container');
   if (dedconBetaContainer) {
-    displayDedconBetaBuilds();
+    if (window.location.pathname.includes('/resources')) {
+      displayResourcesVersionHistory();
+    } else {
+      displayDedconBetaBuilds();
+    }
   }
 
   window.addEventListener('resize', function () {
@@ -566,6 +703,10 @@ export {
   performGameSearch,
   loadResources,
   displayResourcesMain,
+  displayResourcesRecentReleases,
+  displayResourcesVersionHistory,
+  createResourceTable,
+  getResourcePlatformDisplay,
   displayDedconBuilds,
   displayDedconBetaBuilds,
   initializeApplication
