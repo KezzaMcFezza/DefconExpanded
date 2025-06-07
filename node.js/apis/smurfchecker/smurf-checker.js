@@ -174,27 +174,43 @@ router.get('/api/smurf-check', async (req, res) => {
       }
     }
 
-    for (const [name, alternateNames] of nameToAlternates) {
-      const playerData = playerStats.get(name);
-      if (!playerData) continue;
-      
-      for (const alternateName of alternateNames) {
-        let count = 0;
-        for (const [demoId, demoData] of parsedDemos) {
-          if (demoData.players.some(p => p.name === alternateName)) {
-            count++;
-          }
-        }
-        playerData.alternateNames.set(alternateName, count);
-      }
-      
-      const infractionDemoMap = nameToInfractionDemos.get(name);
-      if (infractionDemoMap) {
-        playerData.infractionDemos = Array.from(infractionDemoMap.values())
-          .sort((a, b) => new Date(b.date) - new Date(a.date))
-          .slice(0, 100);
-      }
-    }
+         for (const [name, alternateNames] of nameToAlternates) {
+       const playerData = playerStats.get(name);
+       if (!playerData) continue;
+       
+       const allInfractionDemos = new Map();
+       let totalExpectedEvidenceGames = 0;
+       
+       for (const alternateName of alternateNames) {
+         let count = 0;
+         for (const [demoId, demoData] of parsedDemos) {
+           if (demoData.players.some(p => p.name === alternateName)) {
+             count++;
+             totalExpectedEvidenceGames++;
+             
+             if (!allInfractionDemos.has(demoId)) {
+               allInfractionDemos.set(demoId, {
+                 id: demoData.demo.id,
+                 name: demoData.demo.name,
+                 game_type: demoData.demo.game_type,
+                 date: demoData.demo.date,
+                 duration: demoData.demo.duration,
+                 players: demoData.demo.players,
+                 spectators: demoData.demo.spectators,
+                 download_count: demoData.demo.download_count,
+                 reason: `Alternate name detected: ${alternateName}`,
+                 detectionType: 'occurrence'
+               });
+             }
+           }
+         }
+         playerData.alternateNames.set(alternateName, count);
+       }
+       
+       playerData.infractionDemos = Array.from(allInfractionDemos.values())
+         .sort((a, b) => new Date(b.date) - new Date(a.date))
+         .slice(0, 100);
+     }
 
     const searchTerm = playerName.toLowerCase();
     const matches = [];
@@ -202,12 +218,25 @@ router.get('/api/smurf-check', async (req, res) => {
     for (const [name, data] of playerStats) {
       if (name.toLowerCase().includes(searchTerm)) {
         const alternateNamesWithCounts = [];
+        let totalOccurrences = 0;
+        
         data.alternateNames.forEach((count, name) => {
           alternateNamesWithCounts.push({ name: name, count: count });
+          totalOccurrences += count;
         });
 
         const infractionCount = data.alternateNames.size;
         const rating = Math.max(0, 50 - (infractionCount * 7));
+        const evidenceGameCount = (data.infractionDemos || []).length;
+
+        debug.level3(`Search result for "${name}": ${infractionCount} alternate names, ${totalOccurrences} total occurrences, ${evidenceGameCount} evidence games shown`);
+        
+        if (alternateNamesWithCounts.length > 0) {
+          debug.level3(`  Alternate names breakdown:`);
+          alternateNamesWithCounts.forEach(item => {
+            debug.level3(`    - ${item.name}: appears in ${item.count} games`);
+          });
+        }
 
         matches.push({
           name: name,
