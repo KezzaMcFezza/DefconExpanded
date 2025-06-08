@@ -1,13 +1,12 @@
 Include ConfigVersion-1.43-beta1
-Include admins
-ServerName DefconExpanded Test Server
-ServerKey HRPICY-SDPMDQ-WZBNUY-VDEGWO-EEJ # Same key as 1v1 random
+ServerName Sony and Hoov's Hideout
+GameMode 0
+ServerKey NMPURK-TJPVWZ-AZMULB-YMLVVB-KQR
 RCONEnabled 1
 RCONTimeoutWindow 0
 RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
-RCONPort 8800
+RCONPort 8815
 RCONEncryption 1
-GameMode 0
 ServerPort 5010
 AllianceSize 0
 AdvertiseOnInternet 1
@@ -15,22 +14,27 @@ AdvertiseOnLAN 1
 SlowestSpeed 0
 TotalBandwidth 5500000
 PlayerBandwidth 2500000
-SpectatorBandwidth 2000000
+SpectatorBandwidth 2500000
 LogLevel 2
-HostName DefconExpanded
+HostName SonyHoovBot
 AcceptC2 1
-MaxIdleRunTime 1800
+MaxIdleRunTime 2500
 MinRunTime 900
 CaseSensitive 0
-EventFile game_events_1v1test.log
-OutFile server_output_1v1test.log
-PlayerLog player_scores_1v1test.log
+EventFile game_events_sonyhoov.log
+OutFile server_output_sonyhoov.log
+PlayerLog player_scores_sonyhoov.log
 
 # Whatever you do, DO NOT change these lines....
 # EventFile
 # OutFile
 # PlayerLog
 # Record
+
+#ADMIN
+Admin LadenBinKezza~~0~dancefloor
+Admin Uu~~1~nopnopnop
+Admin hoov~~1~nopnopnop
 
 #ANTI-CHEAT
 GhostProtection 2
@@ -39,14 +43,14 @@ MaxResyncAttempts 3
 #SPEED BUDGET
 IdleTime 300
 IdleTimeGlobal 600
-SlowBudgetStart 1800
-SlowBudgetMax 1800
+SlowBudgetStart 1200
+SlowBudgetMax 1200
 SlowBudgetRefill 0
 SlowBudgetRedistributeUsed 100
 SlowBudgetRedistributeUnused 0
 
 #PAUSE
-SlowBudgetUsePause 300
+SlowBudgetUsePause 175
 SlowBudgetUseRealtime 100
 SlowBudgetUse5x 0
 SlowBudgetUse10x 0
@@ -57,42 +61,50 @@ KickVoteMinPlayers 0
 KicksToBan 3
 
 #GAME OPTIONS 
-AdvertisePlayers 2
+AdvertisePlayers 4
 MaxSpectators 15 
-MinTeams 1
-MaxTeams 2
+MinTeams 4
+MaxTeams 4
 ReadyVoteDelay 90
+VictoryTrigger 25
 ReadyVoteMaxRemove 1
 RandomTerritories 1
 CityPopulations 3
 CitiesPerTerritory 30
 PopulationPerTerritory  150
-SpectatorChatChannel 1
 GameSpeed 0
 DropCourtesy -1
 PermitDefection 1
 RadarSharing 1
+SpectatorChatChannel 1
+
+WaitClient
+Say Welcome to sony and hoovs hideout!
+Say Victory Trigger has been set higher so victory timer will start with more nukes
+Say This server has recordings and will be available at...
+Say defconexpanded.com
+
+WaitStart
+Say Warning: Each player has 20 minutes of 1x slowdown budget
+Say Each player also has 5 minutes of pause time that will affect their main slowdown budget
+Say Use /speed to check your remaining budgets
+SpectatorChatChannel 0
 
 #ACTIVATE DEFCON 3
 WaitDefcon 3
 PermitDefection 0
 
-WaitClient
-Say This is the test server for DefconExpanded, if you joined here by accident you should probably leave :)
-
-WaitStart
-Say Warning: Each player has 30 minutes of 1x slowdown budget
-Say Budget regenerates at 1 minute per minute of 5x used, and 2 minutes per 10x used
-Say Each player also has 5 minutes of pause time that will affect their slowdown budget
-Say Use /speed to check your remaining budgets
-SpectatorChatChannel 0
-
 WaitEnd
 Record demo_recordings/game_%Y-%m-%d-%H-%M.dcrec
 AdvertiseOnInternet 0
+SpectatorChatChannel 1
 Say Game Over !
 Say Game is available on defconexpanded.com
-Say Restart in 60 Seconds!
-WaitSeconds 60
+Say Restart in 30 Seconds!
+WaitSeconds 30
 Quit
+
+
+
+
 

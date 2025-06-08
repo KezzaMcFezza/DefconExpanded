@@ -1,30 +1,27 @@
 Include ConfigVersion-1.43-beta1
-Include admins
-ServerName DefconExpanded Test Server
-ServerKey HRPICY-SDPMDQ-WZBNUY-VDEGWO-EEJ # Same key as 1v1 random
+ServerName MURICON | 1V1 | Totally Random | 2.8.15
+ServerKey HUBPPJ-IIDJZI-RPGPNZ-SDXCNH-UOF
 RCONEnabled 1
 RCONTimeoutWindow 0
 RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
-RCONPort 8800
+RCONPort 8818
 RCONEncryption 1
 GameMode 0
 ServerPort 5010
-AllianceSize 0
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
-SlowestSpeed 0
-TotalBandwidth 5500000
-PlayerBandwidth 2500000
-SpectatorBandwidth 2000000
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 2500000
+ServerVersion 1.60.1.5 MINICOM
 LogLevel 2
-HostName DefconExpanded
+IdleTime 300
+HostName Server Bot
 AcceptC2 1
-MaxIdleRunTime 1800
-MinRunTime 900
 CaseSensitive 0
-EventFile game_events_1v1test.log
-OutFile server_output_1v1test.log
-PlayerLog player_scores_1v1test.log
+EventFile game_events_1v1muriconrandom.log
+OutFile server_output_1v1muriconrandom.log
+PlayerLog player_scores_1v1muriconrandom.log
 
 # Whatever you do, DO NOT change these lines....
 # EventFile
@@ -32,9 +29,19 @@ PlayerLog player_scores_1v1test.log
 # PlayerLog
 # Record
 
+#ADMIN
+Admin LadenBinKezza~~0~dancefloor
+Admin Sievert~~1~dancefloor
+Admin Lord Haw Haw~~1~TangoFoxtrot39
+
 #ANTI-CHEAT
 GhostProtection 2
 MaxResyncAttempts 3
+
+#KICK VOTES 
+KickVoteMin 2
+KickVoteMinPlayers 0
+KicksToBan 3
 
 #SPEED BUDGET
 IdleTime 300
@@ -51,16 +58,15 @@ SlowBudgetUseRealtime 100
 SlowBudgetUse5x 0
 SlowBudgetUse10x 0
 
-#KICK VOTES 
-KickVoteMin 2
-KickVoteMinPlayers 0
-KicksToBan 3
-
 #GAME OPTIONS 
 AdvertisePlayers 2
-MaxSpectators 15 
-MinTeams 1
+MaxSpectators 15
+UnitBuffer 5
+CityBuffer 2
+FirstStrikeBonus 15
+MinTeams 2
 MaxTeams 2
+EmptyBomberLaunch 0
 ReadyVoteDelay 90
 ReadyVoteMaxRemove 1
 RandomTerritories 1
@@ -70,29 +76,31 @@ PopulationPerTerritory  150
 SpectatorChatChannel 1
 GameSpeed 0
 DropCourtesy -1
+SlowestSpeed 0
 PermitDefection 1
-RadarSharing 1
-
-#ACTIVATE DEFCON 3
-WaitDefcon 3
-PermitDefection 0
+RadarSharing 2
 
 WaitClient
-Say This is the test server for DefconExpanded, if you joined here by accident you should probably leave :)
+Say The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+Say All our Defcon traditions continue here. Have a gg. -LHH
+Say Type /gamealert *custom message* to notify people on discord to come play!
+Say www.defconexpanded.com
 
 WaitStart
 Say Warning: Each player has 30 minutes of 1x slowdown budget
-Say Budget regenerates at 1 minute per minute of 5x used, and 2 minutes per 10x used
-Say Each player also has 5 minutes of pause time that will affect their slowdown budget
+Say Each player also has 5 minutes of pause time that will affect their main slowndown budget
 Say Use /speed to check your remaining budgets
 SpectatorChatChannel 0
 
 WaitEnd
-Record demo_recordings/game_%Y-%m-%d-%H-%M.dcrec
+Record demo_recordings/game8p_%Y-%m-%d-%H-%M.d8crec
 AdvertiseOnInternet 0
+SpectatorChatChannel 1
 Say Game Over !
 Say Game is available on defconexpanded.com
-Say Restart in 60 Seconds!
-WaitSeconds 60
+Say Restart in 30 Seconds!
+WaitSeconds 30
 Quit
+
+
 

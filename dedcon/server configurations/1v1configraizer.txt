@@ -1,11 +1,11 @@
 Include ConfigVersion-1.43-beta1
 Include admins
-ServerName DefconExpanded | 1v1 | Totally Random
-ServerKey HRPICY-SDPMDQ-WZBNUY-VDEGWO-EEJ
+ServerName Raizer's Russia vs USA | Totally Random
+ServerKey NXKWJG-QDLZUN-ZFAIAG-NDDEAP-DRL
 RCONEnabled 1
 RCONTimeoutWindow 0
 RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
-RCONPort 8801
+RCONPort 8812
 RCONEncryption 1
 GameMode 0
 ServerPort 5010
@@ -18,19 +18,21 @@ CaseSensitive 0
 SlowestSpeed 0
 AllianceSize 1
 LogLevel 2
-HostName DefconExpanded
+HostName RaizerBot
 AcceptC2 1
 MaxIdleRunTime 2500
 MinRunTime 900
-EventFile game_events_1v1.log
-OutFile server_output_1v1.log
-PlayerLog player_scores_1v1.log
+EventFile game_events_1v1raizer.log
+OutFile server_output_1v1raizer.log
+PlayerLog player_scores_1v1raizer.log
 
 # Whatever you do, DO NOT change these lines....
 # EventFile
 # OutFile
 # PlayerLog
 # Record
+
+Admin Raizer~~1~dancefloor
 
 #ANTI-CHEAT
 GhostProtection 2
@@ -50,6 +52,16 @@ SlowBudgetUsePause 300
 SlowBudgetUseRealtime 0
 SlowBudgetUse5x 0
 SlowBudgetUse10x 0
+
+# allowed territories
+Territory1 NA
+Territory2 RU
+
+# excluded territories
+Territory3 None
+Territory4 None
+Territory5 None
+Territory6 None
 
 #KICK VOTES 
 KickVoteMin 2
@@ -73,7 +85,7 @@ PermitDefection 0
 SpectatorChatChannel 1
 
 WaitClient
-Say Welcome to Defcon Expanded, This is a 1v1 server with random territories, and totally random cities and population. 
+Say Welcome to Defcon Expanded, This is a 1v1 server with Russia and USA only!, with totally random cities and population. 
 Say This server also has a leaderboard and game recordings on the DefconExpanded website.
 Say Type /gamealert *custom message* to notify people on discord to come play!
 Say www.defconexpanded.com

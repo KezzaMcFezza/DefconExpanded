@@ -1,11 +1,12 @@
 Include ConfigVersion-1.43-beta1
 Include admins
-ServerName DefconExpanded | 1v1 | Totally Random
-ServerKey HRPICY-SDPMDQ-WZBNUY-VDEGWO-EEJ
+ServerName DefconExpanded | 1v1 | UK and Ireland
+ServerKey OOVIEI-URFNMU-UFEUUE-DPZQLP-AFF
+ServerMods UK and Ireland (6 Players + Rebalanced);v1.1;
 RCONEnabled 1
 RCONTimeoutWindow 0
 RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
-RCONPort 8801
+RCONPort 8807
 RCONEncryption 1
 GameMode 0
 ServerPort 5010
@@ -22,9 +23,9 @@ HostName DefconExpanded
 AcceptC2 1
 MaxIdleRunTime 2500
 MinRunTime 900
-EventFile game_events_1v1.log
-OutFile server_output_1v1.log
-PlayerLog player_scores_1v1.log
+EventFile game_events_1v1ukbalanced.log
+OutFile server_output_1v1ukbalanced.log
+PlayerLog player_scores_1v1ukbalanced.log
 
 # Whatever you do, DO NOT change these lines....
 # EventFile
@@ -73,7 +74,8 @@ PermitDefection 0
 SpectatorChatChannel 1
 
 WaitClient
-Say Welcome to Defcon Expanded, This is a 1v1 server with random territories, and totally random cities and population. 
+Say Welcome to Defcon Expanded, This is a 1v1 server with the UK and Ireland mod!
+Say Using the balanced setups configuration, general rules apply such as random cities, population and territories
 Say This server also has a leaderboard and game recordings on the DefconExpanded website.
 Say Type /gamealert *custom message* to notify people on discord to come play!
 Say www.defconexpanded.com

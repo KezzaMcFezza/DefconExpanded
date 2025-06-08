@@ -1,36 +1,37 @@
 Include ConfigVersion-1.43-beta1
 Include admins
-ServerName DefconExpanded | 1v1 | Totally Random
-ServerKey HRPICY-SDPMDQ-WZBNUY-VDEGWO-EEJ
+ServerName DefconExpanded | 1v1 | Cursed Setups Only!
+ServerKey ASPSMY-YJCHTN-IOPAVU-FHJWAU-QQU
 RCONEnabled 1
 RCONTimeoutWindow 0
 RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
-RCONPort 8801
+RCONPort 8805
 RCONEncryption 1
 GameMode 0
 ServerPort 5010
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
+SlowestSpeed 0
+AllianceSize 1
 TotalBandwidth 6000000
 PlayerBandwidth 2750000
 SpectatorBandwidth 2000000
 CaseSensitive 0
-SlowestSpeed 0
-AllianceSize 1
 LogLevel 2
 HostName DefconExpanded
 AcceptC2 1
 MaxIdleRunTime 2500
 MinRunTime 900
-EventFile game_events_1v1.log
-OutFile server_output_1v1.log
-PlayerLog player_scores_1v1.log
+EventFile game_events_1v1cursed.log
+OutFile server_output_1v1cursed.log
+PlayerLog player_scores_1v1cursed.log
 
 # Whatever you do, DO NOT change these lines....
 # EventFile
 # OutFile
 # PlayerLog
 # Record
+# Rotate
 
 #ANTI-CHEAT
 GhostProtection 2
@@ -57,6 +58,8 @@ KickVoteMinPlayers 0
 KicksToBan 3
 
 #GAME OPTIONS 
+AdvertisePlayers 2
+MaxSpectators 15 
 MinTeams 2
 MaxTeams 2
 ReadyVoteDelay 90
@@ -64,19 +67,68 @@ ReadyVoteMaxRemove 1
 RandomTerritories 1
 CityPopulations 3
 CitiesPerTerritory 30
-PopulationPerTerritory  150
-AdvertisePlayers 2
 DropCourtesy -1
-MaxSpectators 15 
+PopulationPerTerritory  150
 GameSpeed 0
 PermitDefection 0
 SpectatorChatChannel 1
 
+#TERRITORY SETS
+RBegin pair1
+Territory1 AF
+Territory2 EU
+REnd
+
+RBegin pair2
+Territory1 AF
+Territory2 RU
+REnd
+
+RBegin pair3
+Territory1 AS
+Territory2 RU
+REnd
+
+RBegin pair4
+Territory1 NA
+Territory2 SA
+REnd
+
+RBegin pair5
+Territory1 AF
+Territory2 RU
+REnd
+
+RBegin pair6
+Territory1 EU
+Territory2 AF
+REnd
+
+RBegin pair7
+Territory1 SA
+Territory2 NA
+REnd
+
+RBegin pair8
+Territory1 AS
+Territory2 RU
+REnd
+
+RBegin pair9
+Territory1 NA
+Territory2 SA
+REnd
+
+Rotate rotation_log_cursed.txt
+
 WaitClient
-Say Welcome to Defcon Expanded, This is a 1v1 server with random territories, and totally random cities and population. 
-Say This server also has a leaderboard and game recordings on the DefconExpanded website.
+Say Welcome to Defcon Expanded, This is a 1v1 server with only the cursed setups!
+Say Africa vs Europe
+Say Africa vs Russia
+Say South America vs North America
+Say Asia vs Eussia
+Say This server also has a leaderboard and game recordings on www.defconexpanded.com.
 Say Type /gamealert *custom message* to notify people on discord to come play!
-Say www.defconexpanded.com
 
 WaitStart
 Say Each player also has 5 minutes of pause time that will affect their main pause budget
@@ -85,12 +137,13 @@ SpectatorChatChannel 0
 
 WaitEnd
 Record demo_recordings/game_%Y-%m-%d-%H-%M.dcrec
-AdvertiseOnInternet 0
 SpectatorChatChannel 1
+AdvertiseOnInternet 0
 Say Game Over !
 Say Game is available on defconexpanded.com
 Say Restart in 60 Seconds!
 WaitSeconds 60
 Quit
+
 
 
