@@ -1,11 +1,11 @@
 Include ConfigVersion-1.43-beta1
 Include admins
-ServerName DefconExpanded | 1v1 | Totally Random
-ServerKey HRPICY-SDPMDQ-WZBNUY-VDEGWO-EEJ
+ServerName 2v2 Tournament | Semi Finals
+ServerKey NXKWJG-QDLZUN-ZFAIAG-NDDEAP-DRL
 RCONEnabled 1
 RCONTimeoutWindow 0
 RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
-RCONPort 8801
+RCONPort 8814
 RCONEncryption 1
 GameMode 0
 ServerPort 5010
@@ -14,23 +14,25 @@ AdvertiseOnLAN 1
 TotalBandwidth 6000000
 PlayerBandwidth 2750000
 SpectatorBandwidth 2000000
+LogLevel 2
 CaseSensitive 0
 SlowestSpeed 0
-AllianceSize 1
-LogLevel 2
 HostName DefconExpanded
 AcceptC2 1
 MaxIdleRunTime 2500
 MinRunTime 900
-EventFile game_events_1v1.log
-OutFile server_output_1v1.log
-PlayerLog player_scores_1v1.log
+EventFile game_events_tournament.log
+OutFile server_output_tournament.log
+PlayerLog player_scores_tournament.log
 
 # Whatever you do, DO NOT change these lines....
 # EventFile
 # OutFile
 # PlayerLog
 # Record
+
+#BANS
+Ban 207.237.230.121
 
 #ANTI-CHEAT
 GhostProtection 2
@@ -45,9 +47,9 @@ SlowBudgetRefill 0
 SlowBudgetRedistributeUsed 100
 SlowBudgetRedistributeUnused 0
 
-#PAUSE
-SlowBudgetUsePause 300
-SlowBudgetUseRealtime 0
+#PAUSE BUDGET
+SlowBudgetUsePause 0
+SlowBudgetUseRealtime 100
 SlowBudgetUse5x 0
 SlowBudgetUse10x 0
 
@@ -57,30 +59,33 @@ KickVoteMinPlayers 0
 KicksToBan 3
 
 #GAME OPTIONS 
-MinTeams 2
-MaxTeams 2
+AdvertisePlayers 6
+MaxSpectators 15 
+MinTeams 4
+MaxTeams 4
 ReadyVoteDelay 90
 ReadyVoteMaxRemove 1
-RandomTerritories 1
+RandomTerritories 0
 CityPopulations 3
 CitiesPerTerritory 30
 PopulationPerTerritory  150
-AdvertisePlayers 2
-DropCourtesy -1
-MaxSpectators 15 
 GameSpeed 0
-PermitDefection 0
+DropCourtesy -1
+PermitDefection 1
+RadarSharing 1
 SpectatorChatChannel 1
 
 WaitClient
-Say Welcome to Defcon Expanded, This is a 1v1 server with random territories, and totally random cities and population. 
-Say This server also has a leaderboard and game recordings on the DefconExpanded website.
+Say People who are allowed to play on this server...
+Say Beni, hoov, Mojo, Vader
+Say Corporation, Gyarados, Haakon, zad
 Say Type /gamealert *custom message* to notify people on discord to come play!
-Say www.defconexpanded.com
+Say defconexpanded.com/leaderboard
 
 WaitStart
-Say Each player also has 5 minutes of pause time that will affect their main pause budget
-Say Use /speed to check your remaining pause budget
+Say Warning: Each player has 30 minutes of 1x slowdown budget
+Say Each player also has infinite pause but pause abuse is not allowed :)
+Say Use /speed to check your remaining budgets
 SpectatorChatChannel 0
 
 WaitEnd
@@ -89,8 +94,11 @@ AdvertiseOnInternet 0
 SpectatorChatChannel 1
 Say Game Over !
 Say Game is available on defconexpanded.com
+Say Tournament rankings are also available at www.defconexpanded.com/leaderboard
 Say Restart in 60 Seconds!
 WaitSeconds 60
 Quit
+
+
 
 

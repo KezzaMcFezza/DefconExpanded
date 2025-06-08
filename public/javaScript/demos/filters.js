@@ -201,7 +201,7 @@ function updateDemoList(playerName = '') {
 
       const gamesPlayed = document.getElementById('games-played');
       if (gamesPlayed) {
-        gamesPlayed.textContent = `Total Games Played: ${data.totalDemos}`;
+        gamesPlayed.textContent = `Total Games Played: ${data.totalDemos.toLocaleString('en-US')}`;
       }
 
       await displayDemos(allDemos);

@@ -62,7 +62,7 @@ MinTeams 4
 MaxTeams 6
 ReadyVoteDelay 90
 ReadyVoteMaxRemove 1
-RandomTerritories 1
+RandomTerritories 0
 CityPopulations 3
 CitiesPerTerritory 30
 PopulationPerTerritory  150

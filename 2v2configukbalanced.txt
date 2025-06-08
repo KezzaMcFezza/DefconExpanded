@@ -70,7 +70,7 @@ AdvertisePlayers 2
 DropCourtesy -1
 MaxSpectators 15 
 GameSpeed 0
-PermitDefection 0
+PermitDefection 1
 SpectatorChatChannel 1
 
 WaitClient
