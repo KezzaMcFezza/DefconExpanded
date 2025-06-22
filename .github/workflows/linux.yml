@@ -1,0 +1,72 @@
+name: Kezza and Bert's Linux workflow
+
+on:
+  workflow_dispatch:
+
+# Linux workflow
+jobs:
+  build-linux:
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+        
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libgl1-mesa-dev \
+          libglu1-mesa-dev \
+          libsdl1.2-dev \
+          libsdl2-dev \
+          pkg-config \
+          libvorbis-dev \
+          libogg-dev \
+          mesa-common-dev
+          
+    - name: Install modern CMake
+      run: |
+        wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+        sudo apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main"
+        sudo apt-get update
+        sudo apt-get install -y cmake
+        cmake --version
+
+    # added this part since the workflow had no perms to access the bash script
+    - name: Set execute permissions
+      run: chmod +x targets/linux/bundle_sdl.sh
+        
+    - name: Configure CMake for Release
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. \
+          -DCMAKE_BUILD_TYPE="Release" \
+          -DCMAKE_CXX_STANDARD=14 \
+          -DCMAKE_CXX_FLAGS="-w" \
+          -DCMAKE_C_FLAGS="-w"
+
+    - name: Build Release
+      working-directory: build
+      run: |
+        cmake --build . --parallel $(nproc) --config "Release"
+
+    - name: Upload Binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: defcon-linux-Release
+        path: build/result/Release/*
+
+    - name: Upload to Web
+      if: github.event_name != 'pull_request' && vars.SSH_TARGET != ''
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SSH_TARGET: ${{ vars.SSH_TARGET }}
+        REF_NAME: ${{ github.ref_name }}
+      run: |
+        TARBALL_NAME=defcon-git`git rev-list --count HEAD`-linux-Release.tar.bz2
+        cd build/result; tar -cjf ../"${TARBALL_NAME}" "Release"; cd ../../
+        targets/macosx/upload.sh build/"${TARBALL_NAME}"

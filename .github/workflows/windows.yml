@@ -1,0 +1,90 @@
+name: Kezza and Bert's Windows workflow
+
+on:
+  workflow_dispatch:
+
+# Windows workflow
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+    
+    - name: Setup CMake
+      uses: lukka/get-cmake@latest
+    
+    - name: Set up Visual Studio shell
+      uses: egor-tensin/vs-shell@v2
+      with:
+        arch: x86
+    
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake .. `
+          -G "Visual Studio 17 2022" `
+          -A Win32 `
+          -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_CXX_STANDARD=14 `
+          -DCMAKE_CXX_FLAGS="/w" `
+          -DCMAKE_C_FLAGS="/w"
+    
+    - name: Build with CMake
+      run: |
+        cd build
+        cmake --build . --config Release --parallel
+    
+    - name: Create Bundle
+      run: |
+        # Make script executable even on Windows
+        $scriptContent = Get-Content targets/msvc/bundle.bat -Raw
+        $scriptContent -replace "`r`n", "`n" | Set-Content targets/msvc/bundle.bat -NoNewline
+        
+        # Run the bundle script
+        targets/msvc/bundle.bat "build\bin\Release" "build\result\Release"
+    
+    - name: Upload Binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: defcon-windows-Release
+        path: build/result/Release/**
+    
+    - name: Create ZIP for distribution
+      if: github.event_name != 'pull_request' && vars.SSH_TARGET != ''
+      run: |
+        $gitCount = git rev-list --count HEAD
+        $zipName = "build/defcon-git$gitCount-windows-Release.zip"
+        
+        # Create ZIP file
+        Compress-Archive -Path "build/result/Release/*" -DestinationPath $zipName -Force
+    
+    - name: Upload to Web
+      if: github.event_name != 'pull_request' && vars.SSH_TARGET != ''
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SSH_TARGET: ${{ vars.SSH_TARGET }}
+        REF_NAME: ${{ github.ref_name }}
+      shell: bash
+      run: |
+        # Save SSH key
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa_upload
+        chmod 600 ~/.ssh/id_rsa_upload
+        REMOTE_HOST=$(echo ${SSH_TARGET} | sed -e s/.*@// -e s/:.*//);
+        ssh-keyscan -H ${REMOTE_HOST} >> ~/.ssh/known_hosts
+        
+        # Upload with scp
+        gitCount=$(git rev-list --count HEAD)
+        ZIP_NAME="build/defcon-git${gitCount}-windows-Release.zip"
+        scp -i ~/.ssh/id_rsa_upload -o StrictHostKeyChecking=no "$ZIP_NAME" ${SSH_TARGET}${REF_NAME}/
+        
+        # Clean up
+        rm ~/.ssh/id_rsa_upload

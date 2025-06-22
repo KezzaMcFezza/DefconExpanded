@@ -1,10 +1,21 @@
-*.mp4
-*.mkv
-*.crt
-*.key
-*.env
-*.log
-**/ca_bundle.crt
-**/certificate.crt
-**/private.key
-node_modules
+# Visual Studio user files
+/targets/msvc/.vs/
+/targets/msvc/Win32
+# macOS metadata
+.DS_Store
+
+# CMake generated files
+/CMakeCache.txt
+CMakeFiles
+Makefile
+
+# be more careful with these this time ;)
+cmake_install.cmake
+CTestTestfile.cmake
+*Targets.cmake
+CPack*.cmake
+
+# Build directories
+/result
+/build
+/lib

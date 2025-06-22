@@ -1,0 +1,18 @@
+#!/bin/bash -ex
+make clean
+
+CFLAGS="-fno-finite-math-only -I $PWD/../install64/include" \
+    LDFLAGS="-L$PWD/../install64/lib" \
+    ./configure --prefix=$PWD/../install64
+
+make
+make install
+make clean
+
+CFLAGS="-fno-finite-math-only -I $PWD/../install/include -m32" \
+    LDFLAGS="-L$PWD/../install/lib -m32 " \
+    i386 ./configure --prefix=$PWD/../install
+
+i386 make
+i386 make install
+

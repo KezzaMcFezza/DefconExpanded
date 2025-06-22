@@ -1,0 +1,85 @@
+name: Kezza and Bert's MacOS Arm64 workflow
+
+on:
+  workflow_dispatch:
+
+# MacOS Arm64 workflow
+jobs:
+  build-macos-arm64:
+    runs-on: macos-14
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+        
+    - name: Install Dependencies
+      run: |
+        brew update
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install sdl12-compat sdl2 dylibbundler
+    
+    - name: Install modern CMake
+      run: |
+        brew update
+        brew install cmake
+        cmake --version
+        
+    - name: Set execute permissions
+      run: |
+        chmod +x targets/macosx/bundle_sdl.sh
+        chmod +x targets/macosx/sign_bundle.sh
+        chmod +x targets/macosx/notarize_bundle.sh
+        chmod +x targets/macosx/upload.sh
+        
+    - name: Configure CMake for Release
+      run: |
+          mkdir -p build
+          cd build
+          cmake .. \
+            -DCMAKE_BUILD_TYPE="Release" \
+            -DCMAKE_CXX_STANDARD=14 \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_CXX_FLAGS="-w" \
+            -DCMAKE_C_FLAGS="-w" \
+            -DMACOS_FRAMEWORKS_DIR="${GITHUB_WORKSPACE}/contrib/systemIV/contrib/macosx/Frameworks"
+
+    - name: Build Release
+      working-directory: build
+      run: |
+        cmake --build . --parallel $(nproc) --config "Release"
+
+    # signing and notarizing from https://federicoterzi.com/blog/automatic-code-signing-and-notarization-for-macos-apps-using-github-actions/
+    - name: Sign Bundle
+      env:
+        MACOS_CERTIFICATE: ${{ secrets.PROD_MACOS_CERTIFICATE }}
+        MACOS_CERTIFICATE_PWD: ${{ secrets.PROD_MACOS_CERTIFICATE_PWD }}
+        MACOS_CERTIFICATE_NAME: ${{ secrets.PROD_MACOS_CERTIFICATE_NAME }}
+        MACOS_CI_KEYCHAIN_PWD: ${{ secrets.PROD_MACOS_CI_KEYCHAIN_PWD }}
+      run: |
+        targets/macosx/sign_bundle.sh "build/result/Release"
+
+    - name: Notarize Bundle
+      env:
+        MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_APPLE_ID }}
+        MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
+        MACOS_NOTARIZATION_PWD: ${{ secrets.PROD_MACOS_NOTARIZATION_PWD }}
+      run: |
+        targets/macosx/notarize_bundle.sh "build/result/Release"
+
+    - name: Upload Binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: defcon-macos-arm64-Release
+        path: build/result/Release/*
+
+    - name: Upload to Web
+      if: github.event_name != 'pull_request' && vars.SSH_TARGET != ''
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SSH_TARGET: ${{ vars.SSH_TARGET }}
+        REF_NAME: ${{ github.ref_name }}
+      run: |
+        ZIP_NAME=build/defcon-git`git rev-list --count HEAD`-macos-arm64-Release.zip
+        ditto -c -k --keepParent "build/result/Release"/*.app "${ZIP_NAME}" || exit $?
+        targets/macosx/upload.sh "${ZIP_NAME}"

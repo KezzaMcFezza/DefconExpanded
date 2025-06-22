@@ -1,0 +1,78 @@
+// ****************************************************************************
+//  Top level include file for NetLib
+//
+//  NetLib - A very thin portable UDP network library
+// ****************************************************************************
+
+#ifndef INCLUDED_NET_LIB_H
+#define INCLUDED_NET_LIB_H
+
+
+#ifdef __APPLE__
+ #include "net_lib_apple.h"
+#endif
+
+#ifdef WIN32
+ #include "net_lib_win32.h"
+#endif
+
+#if (defined __linux__) && !defined(TARGET_EMSCRIPTEN)
+ #include "net_lib_linux.h"
+#endif
+
+#ifdef TARGET_EMSCRIPTEN
+ #include "net_lib_wasm.h"
+#endif
+
+#if (!defined MIN)
+#define MIN(a,b) ((a < b) ? a : b)
+#endif
+
+
+
+#define MAX_HOSTNAME_LEN   	256
+#define MAX_PACKET_SIZE  	10240
+
+
+#ifdef TARGET_EMSCRIPTEN
+typedef struct wasm_sockaddr_in NetIpAddress;
+#else
+typedef struct sockaddr_in NetIpAddress;
+#endif
+
+
+enum NetRetCode
+{
+   NetFailed = -1,
+   NetOk,
+   NetTimedout,
+   NetBadArgs,
+   NetMoreData,
+   NetClientDisconnect,
+   NetNotSupported
+};
+
+
+#include "net_mutex.h"
+#include "net_socket.h"
+#include "net_socket_listener.h"
+#include "net_socket_session.h"
+#include "net_thread.h"
+#include "net_udp_packet.h"
+
+
+class NetLib
+{
+public:
+	NetLib();
+	~NetLib();
+
+	bool Initialise(); // Returns false on failure
+};
+
+
+int GetLocalHost        ();
+void GetLocalHostIP     ( char *str, int len );
+void IpAddressToStr     ( const NetIpAddress &address, char *str);
+
+#endif

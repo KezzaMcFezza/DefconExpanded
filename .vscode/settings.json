@@ -1,0 +1,108 @@
+{
+    "cmake.configureSettings": {
+        "CMAKE_CONFIGURATION_TYPES": "Release Defcon, Debug Defcon",
+        "CMAKE_GENERATOR_TOOLSET": "v143",
+        "CMAKE_CXX_FLAGS": "/MP /Zm2000 /Zf",
+        "CMAKE_GENERATOR_PLATFORM": "Win32",
+        "CMAKE_UNITY_BUILD": "OFF",
+        "CMAKE_UNITY_BUILD_BATCH_SIZE": "16"
+    },
+    "cmake.buildDirectory": "${workspaceFolder}/build/${buildType}",
+    "cmake.configureOnOpen": true,
+    "cmake.configureArgs": [
+        "-DCMAKE_BUILD_TYPE=${buildType}",
+        "-DCMAKE_CXX_FLAGS=/MP /Zm2000 /Zf"
+    ],
+    "cmake.generator": "Visual Studio 17 2022",
+    "cmake.preferredGenerators": [
+        "Visual Studio 17 2022",
+        "Visual Studio 16 2019",
+        "Visual Studio 15 2017",
+        "Ninja"
+    ],
+    "cmake.defaultVariants": {
+        "buildType": {
+            "default": "Debug",
+            "description": "The build type.",
+            "choices": {
+                "debug release": {
+                    "short": "Debug",
+                    "long": "Debug Defcon",
+                    "buildType": "Debug"
+                },
+                "release": {
+                    "short": "Release",
+                    "long": "Release Defcon",
+                    "buildType": "Release"
+                }
+            }
+        }
+    },
+    "cmake.configureOnEdit": true,
+    "cmake.skipConfigureIfCachePresent": false,
+    "cmake.buildBeforeRun": true,
+    "cmake.parallelJobs": 0,
+    "cmake.useCMakePresets": "never",
+    "cmake.sourceDirectory": "C:/DefconNewSource",
+    "files.associations": {
+        "fstream": "cpp",
+        "algorithm": "cpp",
+        "atomic": "cpp",
+        "bit": "cpp",
+        "cctype": "cpp",
+        "charconv": "cpp",
+        "clocale": "cpp",
+        "cmath": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "cstdarg": "cpp",
+        "cstddef": "cpp",
+        "cstdint": "cpp",
+        "cstdio": "cpp",
+        "cstdlib": "cpp",
+        "cstring": "cpp",
+        "ctime": "cpp",
+        "cwchar": "cpp",
+        "deque": "cpp",
+        "exception": "cpp",
+        "format": "cpp",
+        "initializer_list": "cpp",
+        "ios": "cpp",
+        "iosfwd": "cpp",
+        "iostream": "cpp",
+        "istream": "cpp",
+        "iterator": "cpp",
+        "limits": "cpp",
+        "locale": "cpp",
+        "map": "cpp",
+        "memory": "cpp",
+        "new": "cpp",
+        "optional": "cpp",
+        "ostream": "cpp",
+        "queue": "cpp",
+        "sstream": "cpp",
+        "stdexcept": "cpp",
+        "streambuf": "cpp",
+        "string": "cpp",
+        "system_error": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "typeinfo": "cpp",
+        "utility": "cpp",
+        "vector": "cpp",
+        "xfacet": "cpp",
+        "xiosbase": "cpp",
+        "xlocale": "cpp",
+        "xlocbuf": "cpp",
+        "xlocinfo": "cpp",
+        "xlocmes": "cpp",
+        "xlocmon": "cpp",
+        "xlocnum": "cpp",
+        "xloctime": "cpp",
+        "xmemory": "cpp",
+        "xstring": "cpp",
+        "xtr1common": "cpp",
+        "xtree": "cpp",
+        "xutility": "cpp"
+    }
+}
