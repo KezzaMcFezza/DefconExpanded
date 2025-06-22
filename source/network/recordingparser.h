@@ -1,0 +1,33 @@
+#include <iostream>
+#include <string>
+#include <fstream>  // NEW: Required for std::ifstream
+
+// added the preprocessor for visual studio, this means we can have the parsing files included in the configuration but will only get used if we define RECORDING_PARSING
+#if RECORDING_PARSING
+
+class Directory;
+class Server;
+
+class RecordingParser
+{
+public:
+    RecordingParser           ( std::istream &in, const std::string &filename, Server *server );
+    RecordingParser           ( const std::string &filename, Server *server );  // NEW: Direct file loading
+    ~RecordingParser          ();
+
+    bool ParseToHistory       ();  // Load into server history for playback
+    bool ReadHeaderPacket     ( Directory &matchHeader );  // Made public for header parsing
+
+private:
+    std::istream               *m_in;      // Changed to pointer for optional ownership
+    std::ifstream              m_fileStream; // NEW: Own file stream when loading directly
+    std::string                m_filename;
+    Server                     *m_server;
+    bool                       m_ownStream; // NEW: Track if we own the stream
+
+    bool ReadPacket            ( Directory &dir, bool &zeroMarker );
+    void AddToHistory          ( Directory *dir );
+    int  ExtractGameStartFromHeader  ();  // NEW: Extract game start from DCGR header
+};
+
+#endif

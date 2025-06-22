@@ -1,0 +1,1722 @@
+# =============================================================================
+# DEFCON LANGUAGE FILE
+#
+# Format:
+# stringId                  translation
+#
+#
+# A hash at the start of a line indicates a comment
+# StringIDs MUST be left untouched during translation
+#
+# =============================================================================
+
+
+# =============================================================================
+# Name of the language in the language
+# =============================================================================
+
+lang			Fran�ais
+
+
+# =============================================================================
+# Interfaces and dialogs
+# =============================================================================
+
+website_main                        http://www.everybody-dies.com
+website_main_retail                 http://www.defconthegame.com
+website_main_retail_uk              http://www.defconvideogame.com
+website_main_retail_multi_language  http://www.everybody-dies.com
+website_buy                         http://store.introversion.co.uk
+website_buy_steam                   steam://store/1520
+website_buy_retail                  http://www.defconthegame.com
+website_buy_retail_uk               http://www.defconvideogame.com
+website_buy_retail_multi_language   http://www.everybody-dies.com
+website_buy_macosx                  http://secure.ambrosiasw.com/add.php?action=add&item=3600
+website_support                     http://www.everybody-dies.com/support/
+website_support_retail              http://www.defconthegame.com/support/
+website_support_retail_uk           http://www.defconvideogame.com/support/
+website_support_retail_multi_language http://www.everybody-dies.com/support/
+website_support_macosx              http://www.ambrosiasw.com/support/
+website_mods                        http://www.everybody-dies.com/mods/
+website_mods_retail                 http://www.defconthegame.com/mods/
+website_mods_retail_uk              http://www.defconvideogame.com/mods/
+website_mods_retail_multi_language  http://www.everybody-dies.com/mods/
+
+dialog_mainmenu			Menu principal
+dialog_newgame			Nouvelle partie
+dialog_joingame			Rejoindre partie
+dialog_leavegame			Quitter partie
+dialog_manual                       Manuel d'utilisateur
+dialog_exit			Quitter Defcon
+dialog_confirm_exit			Confirmation
+dialog_preparing			Pr�paration�
+dialog_game_starting			D�part de la partie�
+dialog_tutorial_starting			D�part du didacticiel�
+dialog_exit_defcon			Quitter Defcon ?
+dialog_leave_this_game			Quitter cette partie ?
+dialog_chapter			Chapitre *C
+# C = Chapter
+dialog_tutorial			Didacticiel *T
+# T = Tutorial
+dialog_rolling_demo			D�mo tournante
+dialog_tools			Outils
+dialog_otheroptions			Autres options
+
+dialog_options			Options
+dialog_high			Maximum
+dialog_medium			M�dium
+dialog_low			Minimum
+dialog_enabled			Activ�
+dialog_disabled			D�sactiv�
+
+dialog_apply			Appliquer
+dialog_close			Fermer
+dialog_yes			Oui
+dialog_yes_l			oui
+dialog_no			Non
+dialog_no_l			non
+dialog_ok			OK
+dialog_cancel			Annuler
+dialog_save			Sauvegarder
+dialog_abort			Abandonner
+dialog_restore_default			R�tablir par d�faut
+dialog_load			Charger
+
+dialog_increase			Augmenter
+dialog_decrease			Diminuer
+
+dialog_time_am			(matin)
+dialog_time_pm			(a-m)
+
+dialog_playername			Nom du joueur
+dialog_teamname			Nom de l'�quipe
+dialog_setplayername			Entrer nom du joueur
+dialog_setteamname			Entrer nom de l'�quipe
+
+dialog_graphicsoptions			Graphismes
+
+dialog_borders			Fronti�res
+dialog_citynames			Nom des villes
+dialog_countrynames			Nom des pays
+dialog_messages			Messages
+dialog_water			Eau
+dialog_radiation			Radiation
+dialog_lowdetailworld			Monde peu d�taill�
+dialog_objecttrails			Trace des objets
+dialog_lobbyeffects			Effets au lobby
+
+dialog_waternormal			Normale
+dialog_watershaded			Nuanc�e
+
+dialog_soundoptions			Sons
+dialog_unavailable			non disponible
+dialog_soundlibrary			Biblioth�que sonore
+dialog_directsound			DirectSound
+dialog_softwaresound			Software Sound
+dialog_mixfrequency			Fr�quence de mixage
+dialog_11khz			11 kHz Basse qualit�
+dialog_22khz			22 kHz Qualit� moyenne
+dialog_44khz			44 kHz Haute qualit�
+dialog_numchannels			Canaux
+dialog_8channels			8 canaux
+dialog_16channels			16 canaux
+dialog_32channels			32 canaux
+dialog_64channels			64 canaux
+dialog_memoryusage			Utilisation m�moire
+dialog_swapstereo			St�r�o invers�e
+dialog_hw3dsound			Sons Hardware3d
+dialog_realtimeeffects			Effets en temps r�el
+dialog_mastervolume			Volume global
+dialog_cpuusage			Utilisation ordinateur
+dialog_cpuusageunknown			Utilisation ordinateur inconnue
+
+dialog_screenoptions			�cran
+dialog_refreshrate			Rafra�chir le taux
+dialog_windowed			Fen�tr�
+dialog_windowedmode			(mode fen�tr�)
+dialog_fullscreen			Plein �cran
+dialog_resolution			R�solution
+dialog_colourdepth			Couleurs
+dialog_colourdepth_16			16 bits
+dialog_colourdepth_24			24 bits
+dialog_colourdepth_32			32 bits
+dialog_colourdepth_X			*C bits
+# C = Color Depth
+dialog_zbufferdepth			Z buffer
+dialog_refreshrate_X			*R Hz
+# R = Refresh Rate
+dialog_resolution_W_H			*W x *H
+# W = Screen Width, H = Screen Height
+dialog_antialias			Anti-aliasing
+
+dialog_networkoptions			R�seau
+dialog_networkclientport			Port du client
+dialog_networkserverport			Port du serveur
+dialog_networkmetaserverport			Port du m�taserveur
+dialog_networkuseportforwarding			Redirection de ports
+dialog_networktracksync			Traque d'erreurs de synchronisation
+dialog_networktracksynctooltip			Activez cette option pour consigner de nombreuses informations � chaque frame pour aider � traquer les erreurs de synchronisation.\nLes performances seront grandement affect�es.
+dialog_networkportforwardtooltip			Activez cette option si vous avez des probl�mes pour h�berger des parties ou vous connecter � des parties.\nVous devez activer manuellement la redirection de port des donn�es UDP entrantes sur les ports sup�rieurs sur votre NAT.
+dialog_networkfailed			�chec
+dialog_networkfailedgamerunning			Vous ne pouvez pas modifier vos\nparam�tres r�seau en cours de jeu.
+dialog_networksuccess			R�ussite
+dialog_networksuccessfull			Vos param�tres r�seau\nont �t� mis � jour.
+dialog_networkporttooltip			Num�ro du port � utiliser pour les communications. Les num�ros de port valides sont sup�rieurs � 1024 et inf�rieurs � 65535.\nSp�cifiez le port 0 pour laisser le syst�me choisir un port libre pour vous.
+dialog_troubleshooting			Des probl�mes ? Cliquez ici...
+dialog_troubleshooting_tooltip			Cliquez ici pour visiter notre site Internet de d�pannage, ils vous aidera � r�soudre tout probl�me de r�seau.
+dialog_no_change_while_in_game_1			Vous ne pouvez pas modifier vos param�tres r�seau
+dialog_no_change_while_in_game_2			en cours de jeu
+
+dialog_authoptions			Authentification
+dialog_paste			Copier
+dialog_paste_tooltip			Copiez la clef depuis le bloc-notes
+dialog_auth_failed			�CHEC de l'authentification
+dialog_bad_key_title			�CHEC DE L'AUTHENTIFICATION
+dialog_authkey_not_found			clef non trouv�e
+dialog_meta_server_details			\n\nVeuillez visiter cette adresse pour activer votre clef :\nMETASERVER.INTROVERSION.CO.UK
+dialog_not_permitted_start_game			Vous n'avez pas la permission de commencer une nouvelle partie\ncar votre clef n'a pas �t� authentifi�e.\n\n\nCLEF  : *K\nERREUR : *E\n*M
+# K = Auth Key, E = Error Message, M = Message
+dialog_not_permitted_join_game			Vous n'avez pas la permission de rejoindre une partie\ncar votre clef n'a pas �t� authentifi�e.\n\n\nCLEF  : *K\nERREUR : *E\n*M
+# K = Auth Key, E = Error Message
+dialog_auth_error			Erreur d'authentification\n*E\n\nClef : *K\n
+# K = Auth Key, E = Error Message
+dialog_type_authkey_or_demo_1			Veuillez entrer votre clef d'authentification
+dialog_type_authkey_or_demo_2			ou cliquer sur Jouer � la d�mo
+dialog_auth_status			STATUT D'AUTHENTIFICATION
+dialog_auth_status_unknown			INCONNU
+dialog_auth_status_checking			V�RIFICATION EN COURS
+dialog_auth_status_demo_user			UTILISATEUR D�MO
+dialog_may_play_as_demo_user			Vous pouvez jouer en tant qu'UTILISATEUR D�MO si vous le souhaitez.
+dialog_cannot_use_mac_key_on_pc     Vous ne pouvez pas utiliser de clef Mac sur une version PC
+dialog_cannot_use_pc_key_on_mac     Vous ne pouvez pas utiliser de clef PC sur une version Mac
+
+dialog_auth_wrong_platform          Mauvaise plate-forme
+dialog_auth_key_dead                Clef morte
+dialog_auth_version_not_found			Version non trouv�e
+dialog_auth_key_inactive			Clef inactive
+dialog_auth_version_revoked			Version r�voqu�e
+dialog_auth_key_not_found			clef non trouv�e
+dialog_auth_key_revoked			Clef r�voqu�e
+dialog_auth_key_banned			Clef bannie
+dialog_auth_key_invalid			Clef non valide
+dialog_auth_unknown			Inconnu
+dialog_auth_accepted			Accept�
+
+dialog_controloptions			Autre
+dialog_sidescrolling			D�filement souris
+dialog_zoomspeed			Vitesse du zoom
+dialog_camdragging			Glissement cam�ra
+dialog_tooltips			Afficher aide
+dialog_popupscale			�chelle
+dialog_panickey			Touche panique
+dialog_language			Langue
+dialog_restart_required_language			Veuillez red�marrer Defcon pour que\nle changement prenne effet.
+dialog_keyboardlayout			Disposition clavier
+
+dialog_zoomnormal			Normale
+dialog_zoomslow			Lente
+
+dialog_lobby			LOBBY
+dialog_lobby_team_options			Options d'�quipe
+dialog_lobby_advanced_options			Options pouss�es
+dialog_rename			Renommer
+dialog_territories			Territoires
+dialog_alliance			Alliance
+dialog_requestai			Ajouter joueur IA
+dialog_chat			Chat
+dialog_ready			Pr�t
+dialog_gamestart			D�but dans *X secondes
+# X = Countdown in secondes before the game start
+dialog_gamestart_whenready			Tous les joueurs, cliquez 'PR�T' pour commencer
+dialog_gamestart_youready			Cliquez 'PR�T' pour commencer
+dialog_kick			Exclure
+dialog_spectate			Regarder (spectateur)
+dialog_join_alliance			Rejoindre *A
+# A = Alliance Name
+dialog_closed			ferm�
+dialog_demo_user			UTILISATEUR D�MO
+dialog_number_players_max			*N joueurs max
+# N = Number Players Max
+dialog_click_to_open			Cliquez pour ouvrir
+dialog_click_to_close			Cliquez pour fermer
+dialog_awaiting_player			en attente...
+dialog_cpu_team_name			[ORDI] *T
+# T = Team Name
+dialog_joining			[Connexion en cours...]
+dialog_demo_team_name			[D�MO] *T
+# T = Team Name
+dialog_demo_too_many_players			Votre partie ne peut pas comprendre tant de joueurs\ncar vous jouez � la D�MO.\n\nSi vous voulez participer � une folie � 6 joueurs, vous devez d'abord acheter la version compl�te.\n\nJoueurs max en d�mo = *N joueurs
+# N = Max Demo Game Size
+dialog_edited			�dit�
+dialog_locked			verrouill�
+dialog_click_select_territory			CHOISIR VOTRE TERRITOIRE (*T/*M)
+# T = Number of Territories, M = Maximum number of Territories
+dialog_random_territories			TERRITOIRES AL�ATOIRES
+dialog_option_locked_demo_1			Cette option est VERROUILL�E
+dialog_option_locked_demo_2			(Joueur D�MO)
+dialog_option_locked_game_mode_1			Cette option est VERROUILL�E
+dialog_option_locked_game_mode_2			de par le mode de jeu en cours
+dialog_spectators_number			SPECTATEURS     (*N MAX)
+# N = Maximum number of Spectators
+dialog_awaiting_spectators			en attente de spectateurs�
+dialog_internet_identity			Identit� Internet:
+dialog_internet_identity_details			*I : *P
+# I = Ip Address, P = port
+dialog_lan_identity			Identit� de LAN:
+dialog_server_identity			Identit� du serveur:
+dialog_lobby_defcon			DEFCOn
+dialog_created_by_introversion      CR��  PAR  INTROVERSION  SOFTWARE
+dialog_lobby_version			VERSION :
+dialog_lobby_have_latest_version			Vous disposez de la derni�re version.
+dialog_lobby_newer_version			Une version plus r�cente est disponible : *V
+# V = Newer Version
+dialog_lobby_click_to_download			Cliquez ici pour la t�l�charger
+dialog_lobby_demo_limitations			LIMITATIONS DE LA D�MO
+dialog_lobby_max_demo_game_size			Taille maxi de la partie en d�mo
+dialog_lobby_max_demo_players			Nbr maxi de joueurs en d�mo
+dialog_lobby_demo_servers_permitted			Serveurs permis en d�mo
+dialog_lobby_number_players			*P joueurs
+# P = Number of Players
+dialog_lobby_metaserver_time			HEURE DU M�TASERVEUR
+dialog_lobby_time_gmt			*H:*M*A (GMT)
+# H = Hours, M = Minutes, A = am/pm
+dialog_lobby_test_hours_start_at			VOS HEURES DE TEST COMMENCENT �
+dialog_lobby_scheduled_test_hour			HEURE DE TEST PROGRAMM�E
+dialog_lobby_occurring_now			A LIEU MAINTENANT
+dialog_lobby_next_test_hour_begins			L'HEURE DE TEST SUIVANTE COMMENCE DANS
+dialog_lobby_minutes			*M MINUTES
+# M = Minutes
+dialog_lobby_hours_minutes			*H HEURES *M MINUTES
+# H = Hours, M = Minutes
+dialog_lobby_authentication			AUTHENTIFICATION : *A
+# A = Authentication Status
+dialog_lobby_client_ident			IDENTIT� DU CLIENT : *I:*P
+# I = Ip Address, P = port
+dialog_lobby_client_ident_unknown			IDENTIT� DU CLIENT : INCONNUE
+dialog_lobby_server_ident			IDENTIT� DU SERVEUR : *I:*P
+# I = Ip Address, P = port
+dialog_lobby_server_ident_unknown			IDENTIT� DU SERVEUR : INCONNUE
+
+dialog_alliance_0			Rouge
+dialog_alliance_1			Verte
+dialog_alliance_2			Bleue
+dialog_alliance_3			Jaune
+dialog_alliance_4			Orange
+dialog_alliance_5			Turq
+
+dialog_alliances			Alliances
+dialog_declarewar			Mettre un terme au cessez-le-feu avec *T ?
+dialog_ceasefire			Cesser le feu contre *T ?
+dialog_ceasefire_title			Cessez-le-feu
+dialog_shareradar			Partager radar
+dialog_alliance_leave			Quitter votre alliance
+dialog_alliance_kick			Exclure ce joueur de votre alliance
+dialog_alliance_join			Demander � rejoindre cette alliance
+dialog_shareradarbegin			Partager votre radar avec *T ?
+dialog_shareradarend			Cesser de partager le radar avec *T ?
+dialog_vote			Voter
+dialog_abstain			S'abstenir
+dialog_you_requested_alliance_1			Vous avez demand� �
+dialog_you_requested_alliance_2			rejoindre l'alliance *A
+# A = Alliance
+dialog_requested_alliance_1			*T a demand� �
+# T = Team Name
+dialog_requested_alliance_2			rejoindre votre alliance
+dialog_you_requested_kick_1			Vous avez demand� �
+dialog_you_requested_kick_2			exclure *T
+# T = Team Name
+dialog_requested_kick_1			*T a demand� �
+# T = Team Name
+dialog_requested_kick_2			exclure *T
+# T = Team Name
+dialog_vote_yes			OUI
+dialog_vote_no			NON
+dialog_vote_abstain			S'ABSTENIR
+dialog_vote_seconds_to_vote			*S secondes pour voter
+# S = Seconds to vote
+dialog_vote_number_votes_required			*V votes n�cessaires
+# V = Number of Vote Required
+dialog_vote_succeeded			R�USSITE
+dialog_vote_failed			�CHEC
+dialog_alliance_player			Joueur
+dialog_alliance_receiving			Re�oit
+dialog_alliance_radar			Radar
+dialog_alliance_sending			Envoie
+dialog_alliance_cease			Cessez-le-
+dialog_alliance_fire			feu
+
+dialog_placeunit			Placer unit�
+dialog_createfleet			Cr�er flotte
+
+dialog_credits_1			Cr�dits
+dialog_credits_2			de la ville *C
+dialog_fleets			Flottes
+dialog_units			Unit�s
+dialog_place_fleet			Placer flotte
+
+dialog_paused			PAUSE
+dialog_gameover			GAME OVER
+dialog_saved_screenshot			/me a sauvegard� une capture d'�cran
+# /me will be replaced by the Team Name
+dialog_steam_authentication_failed			�CHEC de l'authentification par Steam\n\n
+dialog_steam_logged_in_elsewhere			Pour r�soudre ce probl�me vous devez vous connecter � nouveau � Steam.\nQuittez Defcon, cliquez sur le menu File de Steam, puis sur 'Change User'.\nSaisissez votre nom d'utilisateur et votre mot de passe pour vous reconnecter.\n\n
+dialog_steam_error			Erreur Steam
+dialog_synchronisation_error			ERREUR DE SYNCHRONISATION
+dialog_connection_problem_seconds			PROBL�ME DE CONNEXION (*S SECS)
+# S = Seconds of Estimated Latency
+dialog_high_latency			Latence importante
+dialog_high_packet_loss			Pertes de donn�es importantes
+dialog_defcon_x_in_x_time			DEFCON *D DANS *M:*S
+# D = Defcon level, M = Minutes, S = Seconds
+dialog_time_remaining			*M:*S RESTANTES
+# M = Minutes, S = Seconds
+dialog_autocam			CAM�RA AUTOMATIQUE
+dialog_non_playable_demo			D�MO NON JOUABLE
+dialog_tracking_synchronisation			SYNCHRONISATION DE TRACAGE
+
+dialog_steam_authentication			Authentification par Steam
+dialog_steam_play_defcon			Jouer � Defcon
+dialog_steam_auth_status			STATUT D'AUTHENTIFICATION PAR STEAM
+dialog_steam_welcome_to_defcon			Bienvenue dans Defcon !
+dialog_steam_may_play_demo			Vous pouvez jouer � la D�MO de Defcon
+dialog_steam_unable_to_auth			Nous n'avons pas pu vous authentifier.
+dialog_steam_auth_progress			Authentification par Steam : *P
+# P = Steam Authentication Progress
+
+dialog_steam_error_edenysteamvalidationstalled			Erreur de v�rification de l'identit� de l'utilisateur par STEAM (le serveur n'a pas pu contacter le serveur d'authentification).\n
+dialog_steam_error_edenynotloggedon			Connexion � Steam non valide
+dialog_steam_error_edenyloggedinelsewhere			Il a �t� acc�d� � ce compte depuis un autre endroit
+dialog_steam_error_edenynolicense			Ce compte Steam ne poss�de pas ce jeu. \nVeuillez vous connecter avec le compte Steam correct.
+dialog_steam_error_edenyinvalidversion			Version du client incompatible avec le serveur. \nVeuillez quitter et red�marrer
+dialog_steam_error_edenycheater			Ce compte est banni
+dialog_steam_error_edenyunknowntext			Client abandonn� par le serveur
+dialog_steam_error_edenyincompatibleanticheat			Vous faites fonctionner un outil externe non compatible avec les serveurs s�curis�s.
+dialog_steam_error_edenymemorycorruption			Corruption de la m�moire d�tect�e.
+dialog_steam_error_edenyincompatiblesoftware			Vous faites fonctionner un logiciel non compatible avec les serveurs s�curis�s.
+dialog_steam_error_edenygeneric			Client abandonn� par le serveur
+dialog_steam_error_unknown			Inconnu
+
+dialog_steam_progress_not_started			Non commenc�
+dialog_steam_progress_started			Commenc�
+dialog_steam_progress_starting_steam			D�marrage de Steam
+dialog_steam_progress_starting_steam_api			D�marrage de Steam API
+dialog_steam_progress_logging_on_to_steam			Connexion � Steam
+dialog_steam_progress_getting_steam_id			Obtention de l'identit� Steam
+dialog_steam_progress_getting_encryption_details			Obtention des informations de cryptage
+dialog_steam_progress_getting_steam2_auth			Obtention de Steam2 Auth
+dialog_steam_progress_getting_steam3_auth			Obtention de Steam3 Auth
+dialog_steam_progress_requesting_authentication			Demande d'authentification
+dialog_steam_progress_success			R�ussite
+dialog_steam_progress_success_demo			R�ussite (d�mo)
+dialog_steam_progress_failed			�chec
+
+dialog_warning			Attention
+
+dialog_enterpassword			Entrez le mot de passe du serveur
+dialog_setpassword			D�cidez du mot de passe du serveur (laisser vide pour une absence de mot de passe)
+
+dialog_resync_title			Synchronisation
+dialog_resync_button			Synchroniser
+dialog_resync_caption			Votre partie n'est plus synchronis�e � celles des autres joueurs.\n\nCliquez sur le bouton Synchroniser pour essayer de r�parer cette erreur.\n\nCela peut prendre plusieurs minutes.
+
+team_unassigned			Non assign�
+team_ai			Joueur IA
+team_local			Joueur local
+team_remote			Joueur externe
+
+team_name_not_set			[nom-non-entr�]
+
+dialog_metaserver_failedtitle			�CHEC DE CONNEXION AU M�TASERVEUR
+dialog_metaserver_failedconnect			Defcon n'a pas pu se connecter au m�taserveur.\nCela signifie que vous ne pourrez pas retrouver les listes\nde serveurs, ou ajouter le v�tre.\nV�rifiez votre connexion Internet et essayez de d�sactiver\ntout firewall et autres outils r�seau lanc�s.\n\nDefcon doit acc�der aux ports suivants :\n5009 UDP (sortie)\n5009 UDP (entr�e)\n\nConsultez notre guide de d�pannage pour davantage d'aide :\nhttp://www.everybody-dies.com/support/
+
+dialog_client_failedtitle			ERREUR R�SEAU
+dialog_client_failedconnect			Defcon n'a pas pu ouvrir de network listener pour le client.\nVous ne pourrez pas participer � des parties,\nou cr�er la v�tre.\n\nD�sactivez tout firewall et outil r�seau lanc�.\n\nConsultez notre guide de d�pannage pour davantage d'aide :\n
+
+dialog_server_failedtitle			�CHEC DE D�MARRAGE DU SERVEUR
+dialog_server_failedconnect			Defcon n'a pas pu d�marrer de serveur.\nLes connexions r�seau n�cessaires ne sont pas disponibles.\n\nD�sactivez tout firewall et outil r�seau lanc�.\n\nConsultez notre guide de d�pannage pour davantage d'aide :\n
+
+dialog_ambxsupport			Support amBX
+dialog_ambxsupport_tooltip			Activez cette option si vous avez install� le mat�riel AMBX. Pour plus de renseignements, visiter www.ambx.com.
+
+dialog_screen_error_title			Erreur �cran
+dialog_screen_error_caption			�chec du passage � la r�solution demand�e\n*W x *H, *C couleurs, *S.\n\nRetour aux param�tres\n*w x *h, *c couleurs, *s.
+# W = Screen Width, H = Screen Height, C = Color Depth (ie: 24 bit), S = Windowed/Fullscreen
+# The four other are the safe version of their capitalized counterparts (ie: w, h ,c ,s)
+
+dialog_restart_required_title			Red�marrage n�cessaire
+dialog_restart_required_caption			Veuillez red�marrer Defcon pour que\nles param�tres �cran prennent effet.
+
+dialog_connection_status			Statut de la connexion
+dialog_abort_current_connection			Abandon de la tentative en cours de connexion
+dialog_state_disconnected			D�CONNECT�
+dialog_state_connecting			CONNEXION EN COURS�
+dialog_state_connected			CONNECT�
+dialog_state_attempts			TENTATIVES : *A
+# A = Number of Connection Attempts
+dialog_state_receiving			R�CEPTION EN COURS
+dialog_state_received			RE�U
+dialog_state_synchronising			SYNCHRONISATION EN COURS�
+dialog_state_synchronised			SYNCHRONIS�
+dialog_state_time_remaining			TEMPS RESTANT : *M.*S
+# M = Minutes, S = Seconds
+
+dialog_toolbar_units			unit�s
+dialog_toolbar_allies			alli�s
+dialog_toolbar_comms			comms
+dialog_toolbar_scores			scores
+dialog_toolbar_radar			radar
+dialog_toolbar_people			populations
+dialog_toolbar_orders			ordres
+dialog_toolbar_territory			territoires
+dialog_toolbar_nukes			bombes
+dialog_toolbar_white_board			tableau
+dialog_toolbar_info			infos
+
+dialog_mod			Mods
+dialog_mod_commit_title			CHARGEMENT DE MODS
+dialog_mod_commit_mod_path			Param�trage du MOD...\n
+dialog_mod_commit_activating_mod			Activation du mod '*N *V'\n
+# N = MOD name, V = version
+dialog_mod_commit_all_mods_off			Tous les MODs d�sactiv�s
+dialog_mod_error			ERREUR
+dialog_mod_no_arrangement_change			Vous ne pouvez pas changer l'arrangement\nde mods CRITIQUES en cours de jeu.
+dialog_mod_not_installed			(NON INSTALL�)
+dialog_mod_active			actif
+dialog_mod_clear_all			Effacer Tous
+dialog_mod_deactivate			D�sactiver
+dialog_mod_activate			Activer
+dialog_mod_click_download_mods			Cliquez ici pour t�l�charger plus de mods
+dialog_mod_click_here			Cliquez ici
+dialog_mod_move_up			D�placer vers le haut
+dialog_mod_move_down			D�placer vers le bas
+dialog_mod_no_mod_selected			Aucun mod s�lectionn�
+dialog_mod_screenshot_not_found			Capture d'�cran non trouv�e
+dialog_mod_install_dir			Dossier d'installation
+dialog_mod_author			Auteur
+dialog_mod_website			Site Internet
+dialog_mod_required_all_players			Demand� par TOUS LES JOUEURS
+dialog_error_mod_path_title			Erreur de MOD
+dialog_error_mod_path_caption			Erreur de MOD.\nCe serveur utilise un MOD que vous n'avez pas.\n\nCe serveur utilise les mods suivants :\n
+
+dialog_demo			D�mo
+dialog_welcome_to_demo			BIENVENUE DANS LA D�MO
+dialog_play_demo			Jouer � la d�mo
+dialog_buy_now			Acheter
+dialog_buy_now_caps			ACHETER
+dialog_exit_game_time			QUITTER (*T)
+# T = Remaining time
+dialog_exit_game			QUITTER
+dialog_welcome_to_demo_defcon			Bienvenue dans la D�MO de Defcon
+dialog_demo_player_limited			Vous pouvez cr�er une partie multijoueur\nayant un nombre max de joueurs de *P.\nLa VERSION COMPL�TE permet 6 joueurs.\n\n
+# P = Number of Players
+dialog_demo_player_join_limited			Vous pouvez rejoindre une partie multijoueur existante\nmais seulement s'il y a moins de *P joueurs\nd�j� connect�s.
+# P = Number of Players
+dialog_demo_spectate_any_game			\n\nVous pouvez assister � toutes les parties.
+
+dialog_server_browser			Navigateur du serveur
+dialog_server_password			Mot de passe du serveur
+dialog_enter_ip_manually			Entr�e manuelle de l'IP
+dialog_filters			Filtres
+dialog_server_details			Serveur  *I : *P
+# I = Ip Address, P = port
+dialog_server_version_mismatch			Connexion impossible.\n\nVersion diff�rente de la v�tre\net non compatible.\n\n\nVotre version  : *V\nVersion du serveur : *T
+# V = Your version, T = Their version
+dialog_cannot_join_server			Impossible de rejoindre le serveur
+dialog_no_join_mods_not_installed			Connexion impossible.\n\nIls utilisent des MODS que vous n'avez pas.\nCes MODs sont requis :\n\n*R\n\nAdresse de t�l�chargement\n
+# R = Reason
+dialog_no_join_own_game			Connexion impossible.\n\nC'est votre propre serveur et vous\ny �tes d�j� connect�.
+dialog_requesting			Demande en cours�
+dialog_refresh_number_server			Rafra�chir (*S)
+# S = Number of Servers
+dialog_server_demo_restricted			Ce serveur est LIMIT� � LA D�MO.\n\nIl y a trop de joueurs d�mo connect�s � la partie ou la partie a lieu en mode de jeu avanc�.\n\nSi vous souhaitez participer � des parties de cette taille, vous devez acheter la version compl�te du jeu.\n\nNombre max de joueurs d�mo par partie : *N
+# N = Max Demo Game Size
+dialog_number_server_found			*N serveur(s) trouv�(s)
+# N = Number Server Found
+dialog_retrieving_server_list			R�cup�ration de la liste des serveurs...
+dialog_net_location_lan			*I:*P [LAN]
+# I = Ip Address, P = port
+dialog_game_ended			(termin�)
+dialog_demo_game_mode			d�mo
+dialog_mod_base_number_more			*M (*N de plus)
+# M = Mod base, N = Number of Remaining Mods
+dialog_server_name_incompatible			*S [INCOMPATIBLE]
+# S = Server Name
+dialog_server_name_mods_required			*S [MODS REQUIS]
+# S = Server Name
+dialog_server_name_your_server			*S [VOTRE SERVEUR]
+# S = Server Name
+dialog_server_name_demo_restricted			*S [D�MO SEULEMENT]
+# S = Server Name
+dialog_server_name_full			*S [PLEIN]
+# S = Server Name
+dialog_server_name_not_responding			*S  [NE R�POND PAS]
+# S = Server Name
+dialog_connected_recently			(Connect�(s) r�cemment)
+dialog_server_browser_teams			�quipes
+dialog_server_browser_specs			Specs
+dialog_server_browser_time			Temps
+dialog_server_browser_mods			MODs
+dialog_server_browser_game_mode			Mode de jeu
+dialog_server_browser_server_name			Nom du serveur
+dialog_server_browser_list			Liste
+dialog_filter_all_games			Toutes les parties
+dialog_filter_games_in_lobby			Parties du lobby
+dialog_filter_games_in_progress			Parties en cours
+dialog_filter_recent_servers			Serveurs r�cents
+dialog_filter_lan_games			Parties en LAN
+dialog_filter_enter_ip_manually			Entrer IP manuellement
+dialog_join			Rejoindre
+dialog_enter_ip			[entr�e ip]
+dialog_connect			Connecter
+dialog_server_ip			IP du serveur
+dialog_server_port			Port du serveur
+dialog_single_player_games			Parties un joueur
+dialog_demo_games			Parties d�mo
+dialog_default_named_servers			Serveurs nomm�s par d�faut
+dialog_show_single_player_games			Parties un joueur
+dialog_show_demo_games			Parties d�mo
+dialog_show_default_named_games			Noms de parties par d�faut
+dialog_server_name			Nom
+dialog_server_identity_address			Identit�
+dialog_server_game_name			Partie
+dialog_server_game_mode			Mode de jeu
+dialog_server_score_mode			Mode de points
+dialog_server_started			[commenc�]
+dialog_server_ended			[termin�]
+dialog_server_not_yet_started			[pas commenc�]
+dialog_spectators			Spectateurs
+dialog_server_game_time			Temps de jeu
+dialog_server_scores			Scores
+dialog_retrieving_scores			R�cup�ration des scores
+
+dialog_disconnected			D�connect�
+dialog_disconnect_client_leave			Vous avez quitt� la partie
+dialog_disconnect_server_shutdown			Le serveur s'est �teint
+dialog_disconnect_invalid_key			Vous utilisez une clef non valide
+dialog_disconnect_duplicate_key			Vous utilisez une clef dupliqu�e
+dialog_disconnect_key_auth_failed			�chec de l'authentification
+dialog_disconnect_bad_password			Mot de passe non valide
+dialog_disconnect_game_full			La partie est d�j� pleine
+dialog_disconnect_kicked_from_game			Exclu par le serveur
+dialog_disconnect_demo_full			Trop de joueurs d�mo d�j�
+dialog_disconnect_unknown			Inconnu
+
+dialog_chat_public			Publique
+dialog_chat_alliance			Alliance
+dialog_chat_spectators			Spectateurs
+dialog_chat_channel_public			[publique]
+dialog_chat_channel_alliance			[alliance]
+dialog_chat_channel_spectators			[spectateurs]
+dialog_chat_channel_private			[priv�]
+dialog_chat_channel_to_team_name			[� *T]
+# T = Team Name
+
+dialog_white_board_draw_erase			dessiner
+dialog_white_board_clear_all			effacer tout
+dialog_white_board_show_all			afficher tout
+
+dialog_worldstatus_defcon			DEFCON
+dialog_worldstatus_defcon_x			DEFCON *D
+# D = Defcon level
+dialog_worldstatus_time_remain_hms			Temps restant : *Hh *Mm *Ss
+# H = Hours, M = Minutes, S = Seconds
+dialog_worldstatus_time_remain_ms			Temps restant : *Mm *Ss
+# M = Minutes, S = Seconds
+dialog_worldstatus_show_stats			Afficher stats
+dialog_worldstatus_scoremode			Mode de points
+dialog_worldstatus_cpu_team_name			[ORDI]*T
+# T = Team Name
+dialog_worldstatus_left_team_name			[GAUCHE]*T
+# T = Team Name
+dialog_worldstatus_demo_team_name			[D�MO]*T
+# T = Team Name
+dialog_worldstatus_out_of_sync			D�synchronisation
+dialog_worldstatus_out_of_sync_2			D�synchronisation
+dialog_worldstatus_spectator_join			Spectateur (connexion�)
+dialog_worldstatus_superpower			Joueur
+dialog_worldstatus_kills			Victimes
+dialog_worldstatus_deaths			Morts
+dialog_worldstatus_survivors			Survivants
+dialog_worldstatus_collateral			Collat�raux
+dialog_worldstatus_nukes			Missiles
+dialog_worldstatus_score			SCORE
+dialog_worldstatus_points_value			Valeur en points :
+dialog_worldstatus_pop_in_millions			*P m
+# P = Population in millions
+dialog_worldstatus_classified			[classifi�]
+dialog_stats			Stats
+
+dialog_casualties_city			Ville
+dialog_casualties_strikes			Frappes
+dialog_casualties_deaths			Morts
+dialog_casualties_in_million			*C millions
+# C = Casualties in Million
+
+dialog_network_title                R�seau
+dialog_network_server_seqid			SeqID Server       *S
+# S = Server sequence
+dialog_network_server_send			Envoi serveur        *R Ko/sec
+# R = Send Rate
+dialog_network_server_receive			R�cep serveur     *R Ko/sec
+# R = Receive Rate
+dialog_network_id			ID
+dialog_network_ip_port			IP:Port
+dialog_network_seqid			SeqID
+dialog_network_seqid_number			SeqID *S
+# S = Sequence Id
+dialog_network_name			Nom
+dialog_network_status			Statut
+dialog_network_lost_con			Conx perdue�*Ss
+# S = Number of seconds since the connection was lost
+dialog_network_synching			Synching...*P
+# P = Percentage done Synching
+dialog_network_ping			Ping *Pms
+# M = Ping time in miniseconds
+dialog_network_spec			(sp�c)
+dialog_network_empty			Vide
+dialog_network_sequence_msg_queue			Messages s�quentiels en attente. L'id�al est 0 ou 1 rempli sans espace
+dialog_network_svr_known_seqid			Seqip connue du serveur   *S
+# S = Sequence Id
+dialog_network_svr_estimated_seqid			Seqid estim�e du serveur   *S
+# S = Sequence Id
+dialog_network_estimated_latency			Latence estim�e : *L secs
+# L = Estimated Latency
+dialog_network_client_seqid			SEQID client       *S
+# S = Sequence Id
+dialog_network_client_send			Envoi client        *R Ko/sec
+# R = Send Rate
+dialog_network_client_receive			R�cep client     *R Ko/sec
+# R = Receive Rate
+
+dialog_profile_title                Profileur
+dialog_profile_toggle_glfinish			Activer glFinish
+dialog_profile_reset_history			R�initialiser histoire
+dialog_profile_min			Min
+dialog_profile_avg			Moy
+dialog_profile_max			Max
+
+dialog_c2s_team_renamed			*T renomm� en *N
+# T = Team Name Old, N = Team Name New
+dialog_c2s_team_joined_game			*T a rejoint la partie
+# T = Team Name
+dialog_c2s_default_name_spectator   Spectateur
+dialog_c2s_default_name_player      Joueur *T
+# T = Team Id
+
+dialog_world_new_spec_connecting			Un nouveau spectateur se connecte
+dialog_world_team_left_game			*T a quitt� la partie
+# T = Team Name
+dialog_world_spec_left_game			Le spectateur *T a quitt� la partie
+# T = Team Name
+dialog_world_rejoined			*T A REJOINT
+# T = Team Name
+dialog_world_disconnected			*T EST D�CONNECT�
+# T = Team Name
+dialog_world_dropped			*T ABANDONN�
+# T = Team Name
+dialog_world_kicked			*T EST EXCLU
+# T = Team Name
+
+dialog_mapr_fps			*Ffps
+# F = Frame per seconds (fps)
+dialog_mapr_city_population			POPULATION : *P MILLIONS
+# P = City Population
+dialog_mapr_city_dead			MORTS       : *D MILLIONS
+# D = City Dead Population
+dialog_mapr_mode			MODE *M 
+# M = Current State
+dialog_mapr_secs			*S SECS
+# S = Seconds
+dialog_mapr_empty			VIDE
+dialog_mapr_cancel_all_orders			ANNULER TOUS LES ORDRES
+dialog_mapr_not_before_defcon_x			PAS AVANT DEFCON *D
+# D = Defcon level
+dialog_mapr_defcon_x_required			DEFCON *D REQUIS
+# D = Defcon level
+dialog_mapr_out_of_range			HORS DE PORT�E
+dialog_mapr_combat_range			PORT�E DE COMBAT
+dialog_mapr_fuel_range			PORT�E EN CARBURANT
+dialog_mapr_nukes_in_queue			*N EN ATTENTE
+# N = Number of Nukes
+dialog_mapr_nukes_in_flight			*N EN VOL
+# N = Number of Nukes
+
+dialog_style			Style
+dialog_style_editor			�diteur de style
+dialog_style_primary			Principal
+dialog_style_secondary			Secondaire
+dialog_style_red			Rouge
+dialog_style_green			Vert
+dialog_style_blue			Bleu
+dialog_style_alpha			Alpha
+dialog_style_colour_editor			�diteur de couleur
+# I = Real Index, P = Primary (0/1)
+dialog_style_failed_load_style			�chec de chargement de style\n
+dialog_style_style_saved			Style sauvegard� dans\n
+dialog_style_failed_save_style			�chec de sauvegarde de style dans\n
+dialog_style_col_primary			Principal
+dialog_style_col_secondary			Secondaire
+dialog_style_col_horiz			Horiz
+dialog_style_col_ngtive			Ngtive
+dialog_style_col_caps			Maj
+dialog_style_col_size			Taille
+dialog_style_col_font			Fonte
+
+
+# =============================================================================
+# Tooltips
+# =============================================================================
+
+tooltip_timeaccel0			Mettre le jeu en pause
+tooltip_timeaccel1			Jouer en temps r�el
+tooltip_timeaccel2			Acc�l�rer le temps\n(Temps r�el x 5)
+tooltip_timeaccel3			Acc�l�rer le temps\n(Temps r�el x 10)
+tooltip_timeaccel4			Acc�l�rer le temps\n(Temps r�el x 20)
+
+tooltip_worldstatus_x_faster_realtime			*Sx temps r�el
+# S = Number of time the game speed is faster than Realtime
+tooltip_worldstatus_key_shortcut_0			\nRaccourci clavier : 0\n
+tooltip_worldstatus_key_shortcut_1			\nRaccourci clavier : 1\n
+tooltip_worldstatus_key_shortcut_2			\nRaccourci clavier : 2\n
+tooltip_worldstatus_key_shortcut_3			\nRaccourci clavier : 3\n
+tooltip_worldstatus_key_shortcut_4			\nRaccourci clavier : 4\n
+tooltip_worldstatus_players_request_speed			Joueurs demandant la vitesse :
+tooltip_worldstatus_no_team_request_speed			\nAucun
+tooltip_worldstatus_cannot_request_speed			Vous ne pouvez pas demander cette vitesse de jeu
+
+tooltip_defcon5			DEFCON 5\nAucune action hostile n'est permise\nLes unit�s ennemies sont invisibles sur le radar
+tooltip_defcon4			DEFCON 4\nLes unit�s ennemis deviennent visibles sur le radar
+tooltip_defcon3			DEFCON 3\nLe combat naval est autoris�\nLe combat a�rien est autoris�
+tooltip_defcon2			DEFCON 2
+tooltip_defcon1			DEFCON 1\nLe combat nucl�aire est autoris�
+
+tooltip_toolbar_whiteboard			Affiche le tableau
+tooltip_toolbar_whiteboard_disabled			Le tableau est d�sactiv� de par la version plus ancienne de l'h�te
+tooltip_toolbar_radar			Couverture radar on/off
+tooltip_toolbar_pop			Densit� de la population on/off
+tooltip_toolbar_alliances			Afficher fen�tre d'alliances
+tooltip_toolbar_units			Afficher panneau d'unit�s
+tooltip_toolbar_score			Afficher fen�tre de scores
+tooltip_toolbar_comms			Afficher fen�tre de communications
+tooltip_toolbar_orders			Ordres on/off
+tooltip_toolbar_info			Afficher fen�tre de renseignements
+tooltip_toolbar_territory			Territoires on/off
+tooltip_toolbar_nukes			Afficher unit�s avec missile nucl�aire
+
+tooltip_whiteboard_planning			Active ou d�sactive le dessin sur le tableau. Clic gauche pour dessiner, clic droit pour effacer.
+tooltip_whiteboard_eraseall			Efface tout ce qui est pr�sent sur le tableau.
+tooltip_whiteboard_showall			Affiche tous les tableaux d'alliance, ou juste le v�tre.
+
+tooltip_gameoption_servername			Veuillez saisir le nom de votre serveur de jeu que vous voulez montrer aux autres joueurs
+tooltip_gameoption_advertiseoninternet			Si elle est activ�e, votre partie sera annonc�e sur le m�taserveur et les autres joueurs sur Internet pourront la rejoindre.
+tooltip_gameoption_advertiseonlan			Si elle est activ�e, les autres joueurs pourront voir votre partie sur le m�me r�seau local (LAN).
+tooltip_gameoption_maxteams			Le nombre maximum de joueurs pouvant participer � votre partie.
+tooltip_gameoption_territoriesperteam			Le nombre de territoires que chaque joueur poss�dera en cours de partie.
+tooltip_gameoption_citiesperterritory			Le nombre de villes g�n�r�es par territoire poss�d�.
+tooltip_gameoption_populationperterritory			La population (en millions) dans chaque territoire.\nLes populations par ville seront divis�es selon ce chiffre.
+tooltip_gameoption_citypopulations			Contr�le la r�partition de votre population dans vos villes.\n\n- Par d�faut : les populations correspondent � celles du monde r�el\n\n- �gale : toutes les villes d'un territoire ont la m�me population\n\n- Al�atoire : chaque ville a une population al�atoire, mais les villes standard sont toujours pr�sentes et vos villes seront toujours au m�me endroit � chaque partie\n\n- Totalement al�atoire : chaque ville a une population al�atoire, et des villes al�atoires seront choisies dans une base de donn�es, la position de vos villes sera donc �galement al�atoire.
+tooltip_gameoption_randomterritories			Si cette option est activ�e, les territoires seront attribu�s de mani�re al�atoire aux joueurs.\n\nPratique pour �viter les disputes sur qui obtient l'Europe.
+tooltip_gameoption_maxspectators			Nombre maximum de spectateurs.\nAttention : chaque spectateur utilise de la largeur de bande du serveur.\n\n0=aucun\n100=illimit�.
+tooltip_gameoption_spectatorchatchannel			Contr�le si les joueurs peuvent lire les messages des spectateurs. Vous pouvez d�cider de rendre priv� le canal des spectateurs pour �viter qu'ils aident les joueurs.\n\n- Publique : tous les joueurs pourront conna�tre ce que disent les spectateurs. (par d�faut)\n\n- Priv� : seuls les spectateurs pourront lire les messages du canal de spectateurs. Ce mode emp�che toute communication entre un spectateur et un joueur.
+tooltip_gameoption_teamswitching			Si cette option est activ�e, les joueurs pourront changer d'�quipe en cours de partie avec les touches num�riques.\n\nNon recommand� pour les parties s�rieuses.
+tooltip_gameoption_permitdefection			Si cette option est activ�e, les joueurs pourront modifier les alliances en cours de partie.
+tooltip_gameoption_radarsharing			Contr�le lorsque les joueurs peuvent partager leur couverture radar avec les autres.\n\n- Toujours d�sactiv� : le partage d'une couverture radar n'est pas autoris�.\n\n- Alliance : les alli�s partagent la m�me couverture radar. (par d�faut)\n\n- S�lectif : chaque joueur peut d�cider de qui, alli� ou non, partage sa couverture radar.\n\n- Toujours activ� : la couverture radar est partag�e par tout le monde. C'est un mode 'D�butants' pratique puisque vous pouvez voir constamment toutes les unit�s de vos adversaires.
+tooltip_gameoption_gamespeed			La vitesse de jeu de cette partie.\nPlus basse requise choisit la vitesse la plus basse choisie par n'importe quel joueur.
+tooltip_gameoption_slowestspeed             La vitesse la plus lente � laquelle peut tourner la partie. Si Pause est choisi, tout joueur peut mettre la partie en pause avec la barre de vitesse.
+tooltip_gameoption_enableworldevents			Si cette option est activ�e, des �v�nements al�atoires surviendront en cours de partie.
+tooltip_gameoption_gamemode			Contr�le les r�gles gouvernant la partie.
+tooltip_gameoption_scoremode			Contr�le l'importance en points des tu�s, des morts et des armes nucl�aires restantes.
+tooltip_gameoption_victorytrigger			D�termine quand le minuteur de victoire se d�clenche. Cette valeur repr�sente le pourcentage sous lequel le nombre d'armes nucl�aires au monde doit tomber pour que le minuteur de victoire d�marre.\n\nPar exemple, si cette valeur est de 20 (par d�faut) le nombre total d'armes nucl�aires doit tomber sous les 20% du nombre initial pour qu'il se d�clenche.
+tooltip_gameoption_victorytimer			Une fois que le minuteur de victoire s'est d�clench�, ce nombre de minutes s'�coulera avant que la partie ne prenne compl�tement fin.
+tooltip_gameoption_maxgamerealtime			Le temps du monde r�el maximum de la partie en minutes.\n\n0 = temps du monde r�el disponible illimit� - la partie ne prendra pas fin avant que le minuteur de victoire n'arrive � son terme.
+tooltip_gameoption_variableunitcounts			Active le mode Cr�dits.\nChaque joueur re�oit un nombre de cr�dits � d�penser sur ses unit�s, et peut param�trer ses forces comme il l'entend.
+tooltip_gameoption_worldscale			NOTE : Exp�rimental.\n\nCette variable agrandit la taille du monde, les parties durent ainsi plus longtemps.\n\n� 100, l'�chelle du monde est normale.\n\n� la plus haute valeur (200) chaque �quipe a deux fois plus d'unit�s, mais la port�e d'attaque et radar de chaque unit� est divis�e par deux.\n\nHautement exp�rimental.\nN�cessite un ordinateur puissant.\nNous recommandons de d�sactiver le rendu de traces pour une meilleure vue.
+tooltip_gameoption_permitpausing			Si cette option est activ�e, un joueur peut mettre la partie en pause en cours de jeu.
+tooltip_gameoption_serverpassword			D�cidez de n'accorder l'acc�s qu'� ceux connaissant le mot de passe.\n\nLaisser vide pour une absence de mot de passe.
+
+tooltip_gamemode_default			Marquez des points en d�truisant � l'arme nucl�aire les villes de vos adversaires.\nDefcon fonctionnera � la vitesse la plus basse requise.
+tooltip_gamemode_office_mode			Defcon fonctionnera dans une fen�tre sans son, et pas plus de 6 heures en temps r�el.\nSi le patron arrive, appuyez deux fois sur �chap pour cacher la fen�tre.
+tooltip_gamemode_speed_defcon			Defcon fonctionnera � pleine vitesse et ne durera pas plus de 15 minutes. Il est impossible de mettre en pause. Instinctif et brutal.
+tooltip_gamemode_diplomacy			Tous les joueurs commenceront en tant que\nmembre de l'alliance verte, le partage de la couverture radar �tant activ�. Combien de temps va durer l'alliance ? Trois joueurs humains ou plus recommand�s.
+tooltip_gamemode_bigworld			Le monde est deux fois plus grand ! Chaque joueur a deux fois plus d'unit�s, mais leur taille, leur vitesse, leur port�e radar et d'armes sont r�duites de moiti�.\nPour ceux qui aiment les longues parties.
+tooltip_gamemode_tournament			Les r�gles par d�faut sont de rigueur, sauf que les spectateurs ne peuvent pas communiquer avec les joueurs, et que les territoires sont assign�s de mani�re al�atoire.
+tooltip_gamemode_custom			Aucune r�gle sp�cifique n'est de rigueur. Tout est possible.
+
+tooltip_scoremode_default			Marquez 2 points pour chaque ennemi tu�.\nPerdez 1 point pour chacun que vous ne parvenez pas � prot�ger.
+tooltip_scoremode_survivor			Marquez 1 point pour chaque survivant sur votre territoire. Toutes les �quipes commencent avec\n100 point et ce score ne peut que descendre.
+tooltip_scoremode_genocide			Marquez 1 point pour chaque ennemi tu�. Horrible, mais simple.
+
+tooltip_defection_no			Toute d�fection est interdite. Les alliances seront conserv�es pour toute la partie.\n\nVous �tes automatiquement en �tat de cessez-le-feu avec vos alli�s.
+tooltip_defection_yes			Les d�fections sont permises. Vous ou tout autre joueur �tes autoris�s � changer d'alliance n'importe quand.\n\nVous pouvez activer ou d�sactiver l'�tat de cessez-le-feu avec vos alli�s � volont�.
+
+tooltip_radarsharing_alwaysoff			Le partage radar est interdit. Vous ne pourrez voir que votre propre couverture radar.
+tooltip_radarsharing_alliance			Le partage radar est activ� entre les membres d'une alliance. Cela signifie que vous partagerez automatiquement votre couverture radar avec tous vos alli�s.\n\nNote : les sous-marins alli�s ne seront pas visibles � moins de faire surface.
+tooltip_radarsharing_selective			Le partage radar est s�lectif. Vous pouvez choisir de partager votre couverture radar (ou non) avec qui vous voulez.
+tooltip_radarsharing_alwayson			Le partage radar est activ� pour tout le monde. Vous pouvez voir toutes les unit�s du jeu.\n\nNote : vous ne pourrez PAS voir les sous-marins ennemis � moins qu'ils ne fassent surface.
+
+tooltip_ceasefire_enable			Vos unit�s militaires cesseront automatiquement de faire feu sur cette �quipe.\nToute arme nucl�aire ayant pour cible cette �quipe se d�sarmera d'elle m�me.
+tooltip_ceasefire_disable			Vos unit�s militaires consid�reront cette �quipe en tant qu'ennemie, et fera feu dessus automatiquement.
+tooltip_radarshare_enable			Votre couverture radar sera envoy�e � cette �quipe, et elle verra tout ce que vous voyez.\nNote : vos sous-marins resteront dissimul�s tant qu'ils ne feront pas surface
+tooltip_radarshare_disable			Vous cesserez d'envoyer votre couverture radar � cette �quipe. Elle ne pourra plus voir ce que vous voyez.
+
+tooltip_place_silo			Placer silo
+tooltip_place_radar			Placer centre radar
+tooltip_place_airbase			Placer base a�rienne
+tooltip_place_battleship			Ajouter navire de guerre � la flotte
+tooltip_place_sub			Ajouter sous-marin � la flotte
+tooltip_place_carrier			Ajouter porte-avions � la flotte
+tooltip_place_unit			Placer unit� ici
+tooltip_place_fleet			Placer flotte ici
+tooltip_fleet_button			Construire une flotte
+tooltip_fleet_remove			Enlever cette unit� de la flotte
+tooltip_fleet_place			Placer cette flotte
+
+tooltip_territory_northamerica			Am�rique du Nord
+tooltip_territory_southamerica			Am�rique du Sud
+tooltip_territory_europe			Europe
+tooltip_territory_russia			Russie
+tooltip_territory_southasia			Asie du Sud
+tooltip_territory_africa			Afrique
+
+tooltip_lobby_teamname			Saisir un nom pour votre �quipe
+tooltip_lobby_territories			S�lectionner le territoire de votre �quipe
+tooltip_lobby_alliance			S�lectionner l'alliance que vous souhaitez rejoindre
+tooltip_lobby_requestteam			Cr�er une �quipe � incarner
+tooltip_lobby_requestai			Cr�er une �quipe contr�l�e par l'ordinateur
+tooltip_lobby_ready			Pr�t � jouer. La partie commencera lorsque tous les joueurs sont pr�ts
+tooltip_lobby_ready_disable			Nom de partie non valide
+tooltip_lobby_chat			Ouvrir la fen�tre de chat
+tooltip_lobby_aggression			Modifie le niveau d'agression de l'IA, 10 �tant le niveau maximum\n0 fournit � l'�quipe un niveau d'agression al�atoire
+tooltip_lobby_demo_max_player			Vous jouez une d�mo. Vous ne pouvez pas avoir tant de joueurs dans votre partie.
+tooltip_lobby_click_open_slot			Cliquez pour ouvrir cet emplacement � d'autres joueurs
+tooltip_lobby_click_close_slot			Cliquez pour fermer cet emplacement aux autres joueurs
+tooltip_lobby_address_port			IP : *I\nPORT :*P
+# I = IP address, P = Port
+
+tooltip_chat_public			Canal publique. Tous les joueurs peuvent y voir les messages
+tooltip_chat_alliance			Canal de l'alliance. Seuls les membres de votre alliance peuvent y lire les messages
+tooltip_chat_spectators			Canal de spectateurs. Les spectateurs ne peuvent intervenir qu'ici
+
+tooltip_alliance_join			Envoyer une requ�te pour rejoindre cette alliance
+tooltip_alliance_leave			Quitter mon alliance
+tooltip_alliance_kick			Commencer un vote pour exclure ce membre de l'alliance
+
+tooltip_vote_yes			Voter oui
+tooltip_vote_no			Voter non
+tooltip_vote_abstain			S'abstenir
+
+tooltip_lmb			[BGS]
+tooltip_rmb			[BDS]
+
+tooltip_placeobject			[BGS] PLACER UNIT�
+tooltip_placefleet			[BGS] PLACER FLOTTE
+tooltip_invalidplacement			PLACEMENT NON VALIDE
+tooltip_spacetocancel			APPUYER SUR ESPACE POUR ANNULER
+
+tooltip_selectobject			[BGS] S�LECTIONNER UNIT�
+tooltip_selectfleet			[BGS] S�LECTIONNER FLOTTE
+tooltip_setobjectstate			[BDS] CHANGER �TAT DE L'UNIT�
+tooltip_enemyunit			(UNIT� ENNEMIE)
+tooltip_attack			[BGS] ATTAQUER CETTE UNIT�
+tooltip_moveobject			[BDS] D�PLACER UNIT� ICI
+tooltip_movefleet			[BDS] D�PLACER FLOTTE ICI
+tooltip_cantmovehere			MOUVEMENT IMPOSSIBLE
+tooltip_spawnfighter			[BGS] LANCER CHASSEUR ICI
+tooltip_spawnbomber			[BGS] LANCER BOMBARDIER ICI
+tooltip_spawnnuke			[BGS] LANCER MISSILE NUCL�AIRE ICI
+tooltip_spacetodeselect			APPUYER SUR ESPACE POUR D�S�LECTIONNER
+tooltip_landobject			[BGS] FAIRE ATTERRIR AVION ICI
+
+tooltip_controls_sidescrolling			Vous pouvez d�placer la cam�ra avec la souris sur les bords de l'�cran
+tooltip_controls_zoomspeed			Ajuste la sensibilit� de la souris et du zoom
+tooltip_controls_camdragging			Vous pouvez d�placer la cam�ra en maintenant le bouton central de la souris enfonc�
+tooltip_controls_keyboardlayout			Vous laisse modifier votre type de contr�le
+
+tooltip_close_window			Fermer la fen�tre
+
+tooltip_demo_exit_the_game			Quitter
+
+tooltip_server_browser_game_time			Temps de jeu :
+tooltip_server_browser_game_has_ended			\nLa partie est termin�e
+tooltip_server_browser_game_started			Commenc�e
+tooltip_server_browser_not_yet_started			Non encore commenc�e
+tooltip_server_browser_teams			\n�quipes  :
+tooltip_server_browser_spectator			\nSpectateurs :
+tooltip_server_browser_game_mode			\nMode de jeu :
+tooltip_server_browser_score_mode			\nMode de points :
+tooltip_server_browser_mod			\nMOD :
+tooltip_server_browser_right_click_details			\n(Clic droit pour infos)
+
+
+# =============================================================================
+# Game Options
+# =============================================================================
+
+gameoption_PlayerName               Joueur
+
+gameoption_ServerName			Nom du serveur
+gameoption_New_Game_Server			Nouveau serveur
+gameoption_AdvertiseOnInternet			Montrer sur Internet
+gameoption_Disabled			D�sactiv�
+gameoption_Enabled			Activ�
+gameoption_AdvertiseOnLAN			Montrer sur LAN
+gameoption_GameMode			Mode de jeu
+gameoption_Default			Par d�faut
+gameoption_Office_Mode			Bureau
+gameoption_Speed_Defcon			PGV
+gameoption_Diplomacy			Diplomatie
+gameoption_BigWorld			Vaste monde
+gameoption_Tournament			Tournoi
+gameoption_Custom			Param�tr�e
+gameoption_MaxTeams			�quipes max.
+gameoption_TerritoriesPerTeam			Territoires par �quipe
+gameoption_CitiesPerTerritory			Villes par �quipe
+gameoption_PopulationPerTerritory			Population par territoire
+gameoption_CityPopulations          Populations des villes
+gameoption_Equalised                �galis�es
+gameoption_Random                   Al�atoires
+gameoption_TotallyRandom            Totallement al�atoires
+gameoption_RandomTerritories			Territoires al�atoires
+gameoption_PermitDefection			Permettre d�fection
+gameoption_No			Non
+gameoption_Yes			Oui
+gameoption_RadarSharing			Partage radar
+gameoption_AlwaysOff			Toujours d�sactiv�
+gameoption_Alliance			Alliance
+gameoption_Selective			S�lective
+gameoption_AlwaysOn			Toujours activ�e
+gameoption_GameSpeed			Vitesse de jeu
+gameoption_Slowest_Requested			Plus basse requise
+gameoption_Pause			Pause
+gameoption_Real_Time			Temps r�el
+gameoption_5x_Real_Time			5x temps r�el
+gameoption_10x_Real_Time			10x temps r�el
+gameoption_20x_Real_Time			20x temps r�el
+gameoption_SlowestSpeed			Vitesse la plus basse
+gameoption_ScoreMode			Mode de points
+gameoption_Survivor			Survivant
+gameoption_Genocide			G�nocide
+gameoption_VictoryTrigger			D�clencheur de victoire
+gameoption_VictoryTimer			Minuteur de victoire
+gameoption_MaxGameRealTime			Temps r�el max. de la partie
+gameoption_VariableUnitCounts			Compte de la variable unit�s
+gameoption_WorldScale			�chelle
+gameoption_MaxSpectators			Nbr. max. de spectateurs
+gameoption_SpectatorChatChannel			Canal vocal des spectateurs
+gameoption_Private			Priv�
+gameoption_Public			Publique
+gameoption_TeamSwitching			Changement d'�quipe
+gameoption_ServerPassword			Mot de passe du serveur
+
+
+# =============================================================================
+# Styles
+# =============================================================================
+
+style_WindowBackground			Fond de fen�tre
+style_WindowTitleBar			Barre de titre de fen�tre
+style_WindowOuterBorder			Bord exterieur de fen�tre
+style_WindowInnerBorder			Bord int�rieur de fen�tre
+style_ButtonBackground			Fond de bouton
+style_ButtonHighlighted			Bouton mis en �vidence
+style_ButtonClicked			Bouton cliqu�
+style_ButtonBorder			Bord de bouton
+style_BoxBackground			Fond de bo�te
+style_BoxBorder			Bord de bo�te
+style_InputBackground			Fond d'entr�e
+style_InputBorder			Bord d'entr�e
+style_FontWindowTitle			Fonte titre de fen�tre
+style_FontButton			Fonte bouton
+style_WorldCoastlines			lignes c�ti�res mondiales
+style_WorldBorders			Bord mondial
+style_WorldWater			Eau mondiale
+style_WorldLand			Terre mondiale
+style_TooltipBackground			Font d'outil d'astuce
+style_TooltipBorder			Bord d'outil d'astuce
+style_FontTooltip			Fonte outil d'astuce
+style_PopupBackground			Fond de popup
+style_PopupTitleBar			Barre de titre de popup
+style_PopupBorder			Bord de popup
+style_PopupHighlight			Mise en �vidence de popup
+style_PopupSelection			Choix de popup
+style_FontPopupTitle			Fonte titre de popup
+style_FontPopup			Fonte popup
+
+
+# =============================================================================
+# Unit names
+# =============================================================================
+
+unit_silo			silo
+unit_nuke			arme nucl�aire
+unit_city			ville
+unit_sub			sous-marin
+unit_radar			radar
+unit_battleship			navire de guerre
+unit_airbase			base a�rienne
+unit_fighter			chasseur
+unit_bomber			bombardier
+unit_carrier			porte-avions
+unit_tornado			tornade
+unit_saucer			vaisseau extraterrestre
+unit_explosion			explosion
+
+
+# =============================================================================
+# Unit States
+# =============================================================================
+
+state_preparing			PR�PARATION :
+state_prepare			PR�PARATION :
+state_ready			PR�T :
+state_fighterlaunch			D�PLOIEMENT DE CHASSEUR
+state_bomberlaunch			D�PLOIEMENT DE BOMBARDIER
+state_attack			ATTAQUE
+state_flight			VOL
+state_bombernuke			D�PLOIEMENT SRBM
+state_airtoseamissile			COMBAT NAVAL
+state_antisub			ANTI SOUS-MARINS
+state_ontarget			SUR CIBLE
+state_disarm			D�SARMEMENT
+state_radar			BALAYAGE
+state_silonuke			D�PLOIEMENT ICBM
+state_airdefense			D�FENSE A�RIENNE
+state_passivesonar			SONAR PASSIF
+state_activesonar			SONAR ACTIF
+state_subnuke			D�PLOIEMENT MRBM
+
+
+# =============================================================================
+# Game messages
+# =============================================================================
+
+message_fuel			Plus de carburant
+message_tornadodeath			Tornade dissip�e
+message_nukelaunch			D�ploiement nucl�aire d�tect�
+message_multilaunch			D�ploiements nucl�aires d�tect�s
+message_firstlaunch			D�ploiement nucl�aire par *T d�tect�
+message_incursion			Incursions en territoire ennemi interdites
+message_destroyed			*U d�truit(e)
+# V = victim team, U = destroyed unit, T = attacking team, A = attacking unit
+
+message_directhit			*C touch�(e), *D morts
+message_fallout			Retomb�es sur *C, *D morts
+# C = city name, D = number of deaths
+
+details_fuel			CARBURANT
+
+message_victory			*T L'EMPORTE
+message_stalemate			PAS DE VAINQUEUR DISTINCT
+message_spectators_chat_players			Les spectateurs peuvent maintenant parler aux joueurs
+message_placeunits			VOUS DEVEZ PLACER TOUTES LES UNIT�S AVANT DEFCON 3
+
+message_fleet_move			La flotte ne peut pas se d�placer ici
+message_disarmed			Missile d�sarm�
+
+message_alliance_join			*P rejoint l'alliance *N
+message_alliance_kicked			L'alliance *N exclut *P
+message_alliance_leave			*P quitte l'alliance *N
+# P = player name, N = alliance name
+
+message_invalid_action			PAS AVANT DEFCON *D
+# D = Defcon level
+
+message_ten_minute_warning			ALERTE DIX MINUTES
+message_victory_timer			MINUTEUR DE VICTOIRE D�CLECNCH�
+
+tray_icon_caption			DEFCON
+tray_icon_ten_minute_warning			Alerte dix minutes
+tray_icon_victory_timer			Minuteur de victoire d�clench�
+tray_icon_nuke_launches_detected			Armes nucl�aires lanc�es
+tray_icon_enemy_subs_detected			Sous-marins ennemis d�tect�s
+
+
+# =============================================================================
+# Combat Attack Odds
+# =============================================================================
+
+odds_zero			probabilit� d'attaque : aucune
+odds_vlow			probabilit�s d'attaque : tr�s basses
+odds_low			probabilit�s d'attaque : basses
+odds_med			probabilit�s d'attaque : moyennes
+odds_high			probabilit�s d'attaque : �lev�es
+odds_vhigh			probabilit�s d'attaque : tr�s �lev�es
+
+
+# =============================================================================
+# Misc
+# =============================================================================
+
+unknown			Inconnu
+
+officemode_1			Le mode bureau aura priorit� sur la vitesse s�lectionn�e
+officemode_2			param�tres et options �cran.
+
+alien_attack			*C d�truit(e) par une attaque extraterrestre
+alien_invasion			INVASION EXTRATERRESTRE !
+tornado_warning			ALERTE � LA TORNADE
+
+
+# =============================================================================
+# Tutorial
+# =============================================================================
+
+tutorial			Didacticiel
+levelselect			S�lection du niveau
+tutorial_clicknext			Cliquez sur Suivant
+tutorial_restart_mission			Recommencer mission
+tutorial_missioncomplete			MISSION ACCOMPLIE
+tutorial_missionfailed			MISSION RAT�E
+tutorial_mission			MISSION *X
+# X = mission number
+tutorial_team_name_cpu			ORDI ennemi
+tutorial_team_name_player			Joueur
+
+tutorial_restart			Red�marrer
+tutorial_next			Suivant
+tutorial_chapter_desc			CHAPITRE *C/7   -   *N
+# C = Chapter Number, N = Chapter Name
+tutorial_level			Niveau *L
+# L = Level Number
+
+tutorial_levelname_1			D�ploiement d'armes nucl�aires
+tutorial_levelname_2			D�fense a�rienne
+tutorial_levelname_3			Couverture radar
+tutorial_levelname_4			Reconnaissance et bombardement
+tutorial_levelname_5			Flottes navales
+tutorial_levelname_6			Sous-marins
+tutorial_levelname_7			Guerre thermonucl�aire globale
+
+tutorial_popup			Message didacticiel
+tutorial_clicknext_popup			Cliquez sur SUIVANT pour continuer.
+
+# ==== MISSION 1 =====
+
+tutorial_start			Bienvenue dans le didacticiel de Defcon.\n\nVous y apprendrez tout ce que vous avez besoin de savoir pour commander vos forces correctement.\n\nCliquez sur Suivant pour continuer.
+tutorial_movecamera			Avant de commencer, vous devez apprendre comment contr�ler votre point de vue.\n\nD�placez-le en bougeant le curseur de la souris au bord de l'�cran, dans la direction vers laquelle vous voulez le faire �voluer.\n\nOu vous pouvez aussi utiliser les touches Z, Q, S et D.
+tutorial_zoomcamera			La molette de la souris sert � effectuer des zooms avants ou arri�res.\n\nLes touches A et E occupent �galement ces fonctions.
+tutorial_movecamera2			Vous pouvez aussi maintenir enfonc� le bouton central de la souris puis faire glisser le point de vue.\n\nCliquez sur Suivant une fois les contr�les de point de vue acquis, et nous rentrerons dans le vif du sujet.
+tutorial_silofocus			Cet objet mis en �vidence est un silo � missiles. Il dispose de deux modes :\n - En mode de lancement ICBM, il peut lancer des armes nucl�aires sur des cibles ennemies.\n - En mode de d�fense a�rienne, il s'occupera des armes nucl�aires et des forces a�riennes ennemies.\n\nNous devons placer le silo en mode de lancement ICBM pour d�truire les centres radars proches.\nEffectuez un clic droit sur le silo et changez-le en mode de lancement ICBM.
+macosx_tutorial_silofocus			Cet objet mis en �vidence est un silo � missiles. Il dispose de deux modes :\n - En mode de lancement ICBM, il peut lancer des armes nucl�aires sur des cibles ennemies.\n - En mode de d�fense a�rienne, il s'occupera des armes nucl�aires et des forces a�riennes ennemies.\n\nNous devons placer le silo en mode de lancement ICBM pour d�truire les centres radars proches.\nEffectuez un clic droit sur le silo et changez-le en mode de lancement ICBM. (Ctrl-clic si vous avez une souris � un bouton)
+tutorial_mission1destroyradar			Remarquez que l'ic�ne du silo � missiles se transforme en triangle lorsqu'il se pr�pare � lancer des armes nucl�aires.\n\nUtilisez votre silo � missiles pour d�truire les centres radars ennemis.
+
+tutorial_mission1end			Mission 1 accomplie.\n\nCliquez sur Suivant pour passer � la mission 2.
+tutorial_mission1failed			Vous avez utilis� toutes vos armes nucl�aires sans d�truire les cibles, et avez �chou�.\n\nCliquez sur Recommencer pour r�essayer.
+
+tutorial_silofocus_popup1			Effectuez un clic droit sur ce silo et r�glez-le en mode de lancement ICBM.
+macosx_tutorial_silofocus_popup1			Effectuez un clic droit sur ce silo et r�glez-le en mode de lancement ICBM.\n(Ctrl-clic si vous avez une souris � un bouton)
+tutorial_silofocus_selectpopup			Effectuez un clic gauche sur ce silo pour le s�lectionner.
+tutorial_mission1destroyradar_popup			Effectuez un clic gauche sur ce centre radar ennemi pour y lancer un missile nucl�aire.
+#tutorial_mission1deselect_popup			Appuyez sur ESPACE pour d�s�lectionner cette unit�.
+tutorial_mission1deselect_popup			ESPACE d�s�lectionne cette unit�.
+
+# ==== MISSION 2 =====
+
+tutorial_mission2start			Votre premier objectif consistera toujours � d�ployer toutes vos unit�s.\n\nOuvrez le panneau d'unit�s pour commencer leur d�ploiement.
+tutorial_m2selectsilo			Vous pouvez � partir de ce panneau d�ployer toutes vos unit�s disponibles. Pour cette mission, vous n'avez que des silos.\n\nVous devez d�ployer toutes vos unit�s AVANT Defcon 3.\n\nCliquez sur l'ic�ne de silo pour commencer leur d�ploiement.
+tutorial_m2placesilos			La r�gion verte repr�sente votre territoire.\n\nVous ne pouvez d�ployer des unit�s que sur votre territoire, et les unit�s terrestres ne peuvent plus �tre d�plac�es une fois d�ploy�es.\n\nLes unit�s terrestres ne peuvent pas �tre trop proches l'une de l'autre.\n\nD�ployez vos silos pr�s de vos villes afin de les d�fendre.
+tutorial_m2destroynukes			Des sous-marins ennemis ont lanc� des missiles nucl�aires sur vos villes !\n\nVos silos sont d�j� en mode de d�fense a�rienne et vont d�truire les t�tes nucl�aires en approche.\n\nLes silos en mode de d�fense a�rienne sont tr�s efficaces contre les t�tes nucl�aires.
+
+tutorial_m2end			Mission 2 accomplie.\n\nCliquez sur Suivant pour passer � la mission 3.
+tutorial_mission2failed			Un missile nucl�aire a frapp� l'une de vos villes !\n\nEssayez de d�ployer vos silos pr�s des villes la prochaine fois, afin qu'ils aient plus de temps pour d�truire les t�tes nucl�aires en approche.\n\nCliquez sur Recommencer pour r�essayer.
+
+tutorial_unitpanel_popup			Cliquez sur ce bouton pour ouvrir le panneau d'unit�s.
+tutorial_silo_popup			Cliquez sur cette ic�ne pour commencer � d�ployer vos silos.
+tutorial_silo_place			Effectuez un clic gauche sur cette r�gion pour d�ployer vos silos pr�s de vos villes principales.
+
+# ==== MISSION 3 =====
+
+tutorial_mission3start			Dans Defcon, chaque unit� dispose d'une port�e radar, et vous ne pouvez voir une unit� ennemie que si elle se trouve dans votre couverture radar.\n\nLa Russie renferme plusieurs unit�s ennemies devant �tre d�voil�es.\n\nD�ployez vos centres radars pour d�voiler les unit�s ennemies.
+tutorial_m3radarplacement			D�ployez vos centres radars aussi pr�s que possible de la Russie.\n\n� mesure que vous d�ployez chaque station radar, votre visibilit� de la r�gion augmente. Les unit�s ennemies seront ainsi �tre d�voil�es.
+tutorial_m3siloplacement			Vous pouvez maintenant voir les unit�s ennemies.\n\nD�ployez des silos sur votre territoire pour d�truire l'adversaire.
+tutorial_m3gamespeed			Il nous faut des armes nucl�aires pour d�truire les b�timents ennemis, mais nous ne pouvons pas nous en servir avant Defcon 1.\n\nPour atteindre Defcon 1, nous devons acc�l�rer le temps. Cliquez sur les boutons de contr�le de la vitesse pour ce faire, jusqu'� ce que Defcon 1 soit d�clar�.
+tutorial_m3defcon1			De nombreuses unit�s ne peuvent pas prendre part aux combats avant qu'un certain niveau de Defcon n'ait �t� atteint.\n\nLe combat naval et a�rien ne peut avoir lieu avant Defcon 3.\n\nLES ARMES NUCL�AIRES NE PEUVENT �TRE UTILIS�ES QUE LORSQUE DEFCON 1 EST ATTEINT.\n\nAcc�l�rez le temps jusqu'� ce que Defcon 1 survienne.
+tutorial_m3destroyenemy			Vous pouvez � pr�sent utiliser vos silos pour d�truire � l'arme nucl�aire les b�timents ennemis.\n\nL'adversaire dispose aussi d'un silo, r�gl� en mode de d�fense a�rienne, qui d�truira nombre de vos missiles. De plus, le silo ennemi est renforc� contre les frappes nucl�aires et peut supporter trois frappes directes.\n\nVous devez tirer sur le silo ennemi avec tous les v�tres simultan�ment pour vous assurer la victoire.
+tutorial_m3silostaketime			Un certain temps est n�cessaire pour que les silos passent du mode de d�fense a�rienne au mode ICBM. Passez la souris sur un silo pour voir le temps que vous aurez � attendre.\n\nN'h�sitez pas � acc�l�rer le temps si n�cessaire.\n\nContinuez � lancer toutes vos armes nucl�aires sur les b�timents ennemis jusqu'� ce qu'ils soient d�truits.
+
+tutorial_m3end			Mission 3 accomplie.\n\nCliquez sur Suivant pour passer � la mission 4.
+tutorial_mission3failed1			Vous avez d�ploy� tous vos centres radars mais n'avez pas d�voil� toutes les unit�s ennemies.\n\nVous avez �chou�.\n\nCliquez sur Recommencer pour r�essayer.
+tutorial_mission3failed2			Vous n'avez plus de missile nucl�aire, et n'avez pas r�ussi � d�truire les b�timents ennemis.\n\nCliquez sur Recommencer pour r�essayer.
+
+tutorial_radar_popup			Cliquez sur cette ic�ne pour commencer � d�ployer vos centres radars.
+tutorial_radar_place			Effectuez un clic gauche sur cette r�gion pour d�ployer vos centres radars pr�s du territoire ennemi.
+tutorial_acceltime_popup			Cliquez sur les boutons de contr�le de la vitesse pour acc�l�rer le temps jusqu'� Defcon 1.
+tutorial_silosnuke_popup			Effectuez un clic droit sur ce silo et passez-le en mode de lancement ICBM.
+macosx_tutorial_silosnuke_popup			Effectuez un clic droit sur ce silo et passez-le en mode de lancement ICBM.\n(Ctrl-clic si vous avez une souris � un bouton)
+tutorial_nukenemeysilo_popup			Effectuez plusieurs clics gauches sur ce silo pour programmer plusieurs attaques � la suite dessus. Il d�truira beaucoup de vos missiles et peut supporter 3 frappes directes.
+tutorial_nukeenemyairbase_popup			Lancez quelques missiles nucl�aires sur cette base a�rienne ennemie.
+tutorial_nukenemeycities_popup			N'h�sitez pas � utiliser vos missiles nucl�aires restants sur la population civile ennemie.
+
+# ==== MISSION 4 =====
+
+tutorial_mission4start			Les unit�s ennemies seront souvent en dehors de votre couverture radar. Afin de les d�voiler, vous devrez envoyer des avions en reconnaissance au dessus du territoire ennemi.\n\nPlacez quelques bases a�riennes sur votre territoire.
+tutorial_m4launchfighters			Les bases a�riennes peuvent d�p�cher deux types d'appareils :\n-Chasseurs : avions de combat � faible port�e/reconnaissance\n-Bombardiers : appareil � longue port�e disposant d'une seule arme nucl�aire\n\nLes chasseurs sont des appareils rapides de combat rapproch�. Ils sont efficaces lorsqu'il s'agit d'abattre d'autres appareils et de reconna�tre le territoire ennemi.\n\nLancez vos chasseurs chez l'ennemi pour rechercher des cibles.
+tutorial_m4radar			Chaque chasseur dispose d'un radar de faible port�e qui d�voilera les b�timents ennemis s'il passe assez pr�s.\n\nActivez votre vue radar pour prendre connaissance de votre couverture radar.
+tutorial_m4launchbombers			Vos chasseurs ont d�couvert tous les b�timents ennemis.\n\nVous remarquerez qu'un b�timent ennemi devient gris lorsqu'il sort de votre couverture radar : cela s'appelle un fant�me radar.\n\nNous allons � pr�sent d�p�cher des bombardiers pour l�cher des armes nucl�aires sur ces cibles.\n\nOrdonnez � vos bases a�riennes de lancer des bombardiers sur les b�timents ennemis.
+tutorial_m4bomberinfo			Un bombardier peut parcourir une tr�s longue distance, mais doit beaucoup s'approcher de sa cible. Il ne transporte qu'une seule arme nucl�aire de faible port�e.\n\nUn bombardier lance automatiquement son arme lorsqu'il est port�e de sa cible.
+tutorial_m4nukeslaunched			Une fois son arme nucl�aire lanc�e, il retourne automatiquement se poser � la base a�rienne la plus proche.\n\nApr�s avoir atterri, il re�oit une nouvelle arme nucl�aire, bien que les bases a�riennes n'en aient qu'un nombre limit� pour r�armer les bombardiers.\n\nSi vous mettez en �vidence une base a�rienne (en passant la souris dessus) vous verrez le nombre d'appareils et d'armes nucl�aires disponibles.
+
+tutorial_m4end			Mission 4 accomplie.\n\nCliquez sur Suivant pour passer � la mission 5.
+tutorial_mission4failed			Vous n'avez plus d'arme nucl�aire et n'avez pas d�truit l'ennemi. Vous avez �chou�.\n\nCliquez sur Recommencer pour r�essayer.
+
+tutorial_selectairbase_popup			Cliquez sur cette ic�ne pour commencer � d�ployer vos bases a�riennes.
+tutorial_placeairbase_popup			Effectuez un clic gauche sur cette r�gion pour d�ployer vos bases a�riennes.
+tutorial_clickairbase_popup			Effectuez un clic gauche sur cette base a�rienne pour commencer � lancer vos chasseurs.
+tutorial_scouthere_popup			Effectuez plusieurs clics gauches sur cette r�gion pour programmer plusieurs lancements de chasseurs � la suite.
+tutorial_radartoolbar_popup			Mettez en �vidence ce bouton pour afficher votre couverture radar.
+tutorial_switchtobombers_popup			Effectuez un clic droit sur cette base a�rienne pour passer en mode bombardiers.
+macosx_tutorial_switchtobombers_popup       			Effectuez un clic droit sur cette base a�rienne pour passer en mode bombardiers.\n(Ctrl-clic si vous avez une souris � un bouton)
+tutorial_clickairbasebomber_popup			Effectuez un clic gauche sur cette base a�rienne pour commencer � lancer vos bombardiers.
+tutorial_nukebuilding_popup			Lancez deux bombardiers sur ce b�timent ennemi.
+
+# ==== MISSION 5 =====
+
+tutorial_mission5start			Nombre de vos forces mobiles seront des forces maritimes, regroup�es en flottes.\n\nUne flotte est constitu�e d'un nombre d'�l�ments pouvant aller jusqu'� six. Elle se d�place et combat comme une unit� unique.\n\nOuvrez le panneau d'unit�s et cliquez sur le bouton Flottes pour commencer � d�ployer une flotte.
+tutorial_m5createfleet			C'est le constructeur de flottes. Vous y ajouterez des �l�ments en cliquant sur les boutons d'unit�s.\n-Les navires de guerre sont efficaces contre de nombreuses unit�s ennemies, mais restent vuln�rables aux sous-marins.\n-Les porte-avions sont des bases a�riennes mobiles et vous permettent de lancer des chasseurs et des bombardiers. Ils peuvent aussi l�cher des charges sur les sous-marins.\n-Les sous-marins sont invisibles aux radars conventionnels et transportent des armes nucl�aires de moyenne port�e.\nConstruisez une flotte de six �l�ments, trois navires de guerre et trois porte-avions.
+tutorial_m5battleshipinfo			Vous contr�lez les flottes comme une seule unit�. Si vous demandez � une flotte de se d�placer, tous ses �l�ments progresseront ensemble. Si vous lui ordonnez d'attaquer une flotte ennemie, ses �l�ments l'attaqueront en groupe, au mieux de ses possibilit�s.\n\nS�lectionnez l'une de vos flottes en cliquant avec le bouton gauche sur n'importe lequel de ses �l�ments.\n\nPuis d�placez la flotte vers le sud en cliquant avec le bouton droit sur sa destination.
+macosx_tutorial_m5battleshipinfo			Vous contr�lez les flottes comme une seule unit�. Si vous demandez � une flotte de se d�placer, tous ses �l�ments progresseront ensemble. Si vous lui ordonnez d'attaquer une flotte ennemie, ses �l�ments l'attaqueront en groupe, au mieux de ses possibilit�s.\n\nS�lectionnez l'une de vos flottes en cliquant avec le bouton gauche sur n'importe lequel de ses �l�ments.\n\nPuis d�placez la flotte vers le sud en cliquant avec le bouton droit (ou ctrl-clic) sur sa destination.
+tutorial_m5destroyenemy			Il y a deux flottes ennemies dissimul�es dans l'Atlantique. Utilisez vos flottes pour les d�couvrir et les d�truire.\n\n- Cliquez avec le bouton gauche sur n'importe lequel de ses �l�ments pour s�lectionner la flotte enti�re.\n- Cliquez avec le bouton droit pour indiquer une destination � la flotte s�lectionn�e.\n\nAcc�l�rez le temps si n�cessaire.
+macosx_tutorial_m5destroyenemy			Il y a deux flottes ennemies dissimul�es dans l'Atlantique. Utilisez vos flottes pour les d�couvrir et les d�truire.\n\n- Cliquez avec le bouton gauche sur n'importe lequel de ses �l�ments pour s�lectionner la flotte enti�re.\n- Cliquez avec le bouton droit (ou ctrl-clic) pour indiquer une destination � la flotte s�lectionn�e.\n\nAcc�l�rez le temps si n�cessaire.
+tutorial_m5destroyenemy2			Vos flottes engageront automatiquement le combat avec celles ennemies une fois � port�e. Les navires de guerre ouvriront le feu et les porte-avions lanceront des chasseurs si n�cessaire.\n\nVous pouvez contr�ler manuellement les batailles si vous voulez. Cliquez par exemple avec le bouton gauche sur l'un de vos porte-avions pour le s�lectionner, puis cliquez avec le bouton gauche sur un �l�ment ennemi pour lui indiquer sur qui envoyer des chasseurs.\nMettez en �vidence le bouton Ordres pour voir les ordres d'attaque en cours.
+
+tutorial_m5end			Mission 5 accomplie.\n\nCliquez sur Suivant pour passer � la mission 6.
+tutorial_mission5failed			Vous avez perdu toutes vos forces maritimes sans d�truire l'ennemi. Vous avez �chou�.\n\nCliquez sur Recommencer pour r�essayer.
+
+tutorial_selectfleet_popup			Cliquez sur cette ic�ne pour commencer � d�ployer vos flottes.
+tutorial_addbattleship_popup			Cliquez sur cette ic�ne pour ajouter un navire de guerre � votre flotte.
+tutorial_addcarrier_popup			Cliquez sur cette ic�ne pour ajouter un porte-avions � votre flotte.
+tutorial_deployfleet_popup			Effectuez un clic gauche pour d�ployer votre flotte dans ce secteur.
+tutorial_selectdeployedfleet_popup			Effectuez un clic gauche sur n'importe quel �l�ment pour s�lectionner la flotte enti�re.
+tutorial_movefleet_popup			Effectuez un clic droit pour d�placer toute votre flotte s�lectionn�e ici.
+macosx_tutorial_movefleet_popup			Effectuez un clic droit pour d�placer toute votre flotte s�lectionn�e ici.\n(Ctrl-clic si vous avez une souris � un bouton)
+tutorial_destroyfleet_popup			D�truisez la flotte ennemie de ce secteur.
+tutorial_orderstoolbar_popup			Mettez en �vidence ce bouton pour afficher vos ordres.
+
+# ==== MISSION 6 =====
+
+tutorial_mission6start			Nous avons jusqu'alors op�r� en dehors de l'Europe, l'Union sovi�tique �tant l'ennemie. Ce ne sera pas toujours le cas cependant.\n\nPour cette mission, votre territoire est l'Am�rique du Nord et l'ennemi est l'Asie du Sud.\n\nMettez en �vidence le bouton territoires pour voir qui contr�le quelles parties de la carte.
+tutorial_mission6subintro			Dans cette situation, le Pacifique est un champ de bataille crucial. L'ennemi a positionn� plusieurs sous-marins nucl�aires pr�s de la c�te ouest de l'Am�rique. Ils pourront � partir de cette position d�truire nombre de nos villes principales.\n\nLa meilleure arme contre les sous-marins ennemis est le porte-avions. Il dispose d'un sonar pour d�tecter les sous-marins en plong�e, et peut l�cher des charges pour les couler.\n\nD�ployez une flotte de porte-avions pr�s de la c�te ouest.
+tutorial_mission6placesubs			En repr�sailles, nous allons �galement utiliser nos propres sous-marins pour d�truire l'est de la Chine.\n\nCr�ez une flotte de sous-marins et placez-la aussi pr�s que possible de l'est de la Chine.
+tutorial_m6subinfo			Les sous-marins transportent de nombreuses armes nucl�aires de moyenne port�e.\n\nFait extr�mement important, ils n'apparaissent pas sur les radars ennemis avant de faire surface, ce qui les rend invisibles et � l'abri des armes standard.\n\nD�placez vos sous-marins aussi pr�s que possible de la c�te ennemie et infligeons quelques millions de morts.
+tutorial_m6destroysubs			Deux flottes de sous-marins ennemis sont dissimul�s pr�s de la c�te ouest de l'Am�rique.\n\nPassez certains de vos porte-avions en mode anti sous-marin et faites-les couler avec des charges.\n\nVos porte-avions en ont un stock illimit�.\nAcc�l�rez le temps si n�cessaire.
+tutorial_m6movesubs			Les sous-marins peuvent avoir un effet d�vastateur car ils peuvent progresser jusqu'aux c�tes ennemies et frapper sans presque se faire rep�rer.\n\nD�placez vos sous-marins � port�e de tir de l'est de la Chine.
+tutorial_m6enemylaunch			L'ennemi a commenc� � lancer des armes nucl�aires sur nos villes depuis ses silos terrestres !\n\nNous allons nous servir de nos sous-marins proches pour d�truire leurs silos avant qu'ils n'infligent trop de dommages.\n\nPassez vos sous-marins en mode de lancement MRBM et d�truisez les silos ennemis !
+tutorial_m6launchexplanation			Bien que nous n'ayons pas de couverture radar de la r�gion, nous pouvons toujours voir les silos ennemis.\n\nLes silos trahissent en effet leurs positions � tout le monde lorsqu'ils lancent leurs armes nucl�aires.\n\nLes silos en mode de lancement sont incapables de se d�fendre seuls, aussi est-ce l'occasion parfaite de frapper.\n\nUne fois leurs silos d�truits, ils seront sans d�fense. Prenez donc pour cibles leurs villes et infligez de s�rieux dommages !
+tutorial_m6end			Mission 6 accomplie.\n\nCliquez sur Suivant pour passer � votre derni�re mission d'entra�nement.
+
+tutorial_territorytoolbar_popup			Mettez en �vidence ce bouton pour afficher le territoire de chaque joueur.
+tutorial_addsub_popup			Cliquez sur cette ic�ne pour ajouter un sous-marin � votre flotte.
+tutorial_movesubs_popup			Effectuez un clic droit ici pour d�placer vos sous-marins � port�e de tir de l'est de la Chine.
+macosx_tutorial_movesubs_popup			Effectuez un clic droit ici pour d�placer vos sous-marins � port�e de tir de l'est de la Chine.\n(Ctrl-clic si vous avez une souris � un bouton)
+tutorial_switchtodepth_popup			Effectuez un clic droit sur ce porte-avions et passez-le en mode anti sous-marin.
+macosx_tutorial_switchtodepth_popup			Effectuez un clic droit sur ce porte-avions et passez-le en mode anti sous-marin.\n(Ctrl-clic si vous avez une souris � un bouton)
+tutorial_destroysubs_popup			D�placez vos porte-avions ici et d�truisez les sous-marins ennemis du secteur.
+tutorial_substonuke_popup			Effectuez un clic droit sur ce sous-marin et passez-le en mode de lancement MRBM.
+macosx_tutorial_substonuke_popup			Effectuez un clic droit sur ce sous-marin et passez-le en mode de lancement MRBM.\n(Ctrl-clic si vous avez une souris � un bouton)
+tutorial_nukesilo_popup			Effectuez plusieurs clics gauches sur ce silo pour y lancer plusieurs armes nucl�aires depuis vos sous-marins.
+
+
+# ==== MISSION 7 =====
+
+tutorial_mission7start			C'est votre derni�re mission d'entra�nement. Vous allez devoir mettre en pratique tout ce que vous avez appris pour remporter une vraie bataille contre un adversaire contr�l� par l'ordinateur.\n\nVous devez marquer plus de points que l'ennemi en d�truisant ses villes. Vous marquerez 2 points pour chaque ennemi tu�, mais perdrez 1 point pour chaque civil tu� dans vos rangs.\n\nPour cette partie, votre territoire est l'Am�rique du Nord et l'adversaire contr�le l'Asie du Sud.
+tutorial_mission7enemyattack			L'ennemi vous lance ses missiles !\n\nSi vous disposez de sous-marins ou de porte-avions pr�s de la c�te chinoise, servez-vous-en pour d�truire les silos ennemis tandis qu'ils sont sans d�fense.\n\nConservez vos silos terrestres en mode de d�fense a�rienne et d�truisez les armes nucl�aires en approche.
+tutorial_mission7retaliate			L'ennemi a maintenant tir� la plupart de ses missiles.\n\nServez-vous de vos silos terrestres et de vos armes nucl�aires restantes pour lancer de grandes repr�sailles sur les villes ennemies en Chine !
+tutorial_m7victory			F�licitations ! Vous avez r�ussi � battre l'adversaire contr�l� par l'ordinateur et avec termin� le didacticiel de Defcon !
+tutorial_mission7failed			L'intelligence artificielle vous a battu et vous avez �chou�.\n\nConseils :\n-Essayez de faire progresser vos sous-marins jusqu'aux c�tes ennemies pour d�truire ses silos avant qu'ils ne lancent trop d'armes nucl�aires.\nUtilisez vos porte-avions pour trouver et d�truire les sous-marins ennemis avant qu'ils n'attaquent.\n\nCliquez sur Recommencer pour r�essayer.
+
+tutorial_showterritory_popup			Mettez en �vidence ce bouton pour afficher l'emplacement de vos ennemis.
+tutorial_m7placeradar_popup			L'ennemi viendra de la c�te est chinoise. D�ployez vos radars le long de la c�te ouest pour une couverture maximum.
+tutorial_m7placesilos_popup			D�ployez vos silos pour couvrir vos principales villes. Ce seront les cibles principales de l'ennemi.
+tutorial_m7placeairbases_popup			D�ployez vos bases a�riennes le long de la c�te ouest de l'Am�rique. Elles serviront � engager et � d�truire les forces maritimes ennemies l'atteignant.
+tutorial_placefleetspacific_popup			L'ennemi enverra des forces maritimes dans le Pacifique pour nous attaquer. Vous devriez y d�ployer la majeure partie de vos flottes pour les intercepter.
+tutorial_m7fleettarget_popup			Essayez de faire progresser vos flottes jusqu'� la c�te est chinoise afin de frapper l'ennemi de pr�s.\nEffectuez un clic GAUCHE pour s�lectionner une flotte enti�re.\nEffectuez un clic DROIT pour d�placer une flotte enti�re.
+macosx_tutorial_m7fleettarget_popup			Essayez de faire progresser vos flottes jusqu'� la c�te est chinoise afin de frapper l'ennemi de pr�s.\nEffectuez un clic GAUCHE pour s�lectionner une flotte enti�re.\nEffectuez un clic DROIT (ou ctrl-clic) pour d�placer une flotte enti�re.
+tutorial_m7scoutchina_popuup			Lancez des chasseurs de vos porte-avions proches, afin qu'ils reconnaissent les bases terrestres de l'ennemi.
+tutorial_m7enemysubs_popup			Les sous-marins ennemis lancent des missiles nucl�aires sur vos villes ! Lancez des chasseurs et des bombardiers proches pour les d�truire ! 
+
+
+# =============================================================================
+# Unit Info
+# =============================================================================
+
+unitinfo_title			INFORMATIONS UNIT�
+unitinfo_title2			(aucune unit� s�lectionn�e)
+
+unitinfo_fighter			Appareil rapide de combat rapproch�.\n+ Efficace contre les bombardiers\n+ Bon outil de reconnaissance\n- Facilement d�truit par les navires de guerre et les silos
+unitinfo_silo			Plate-forme nucl�aire et antia�rienne.\n+ Grand nombre de missiles nucl�aires � longue port�e\n+ armes antia�riennes efficaces\n+ Renforc� contre les frappes nucl�aires\n- Le lancement d'un missile nucl�aire r�v�le son emplacement � tous\n- Lent changement de mode
+unitinfo_radar			Fournit une couverture radar sur votre territoire.\n+ Plus importante port�e radar disponible\n- Facilement d�truit par une frappe nucl�aire
+unitinfo_bomber			Appareil � longue port�e polyvalent.\n+ Transporte une seule arme nucl�aire de courte port�e\n+ Le lancement de l'arme nucl�aire ne s'affiche pas sur le radar ennemi\n+ Efficace contre les navires\n- Proie facile des chasseurs\n- D�placement lent
+unitinfo_battleship			Puissant bateau arm� aux armes efficaces.\n+ Capable de combattre plusieurs cibles\n- Vuln�rable aux sous-marins et aux bombardiers
+unitinfo_sub			Puissante unit� furtive et nucl�aire.\n+ Invisible aux radars conventionnels\n+ Grand nombre d'armes nucl�aires\n- Tr�s vuln�rable en surface\n- Le lancement d'un missile nucl�aire r�v�le son emplacement � tous\n- Vuln�rable aux charges\n- Aucune port�e radar
+unitinfo_carrier			Unit� mobile de transport d'avions.\n+ Peut lancer des chasseurs et des bombardiers\n+ Peut l�cher des charges contre les sous-marins\n- Incapable de se d�fendre directement
+unitinfo_nuke			T�te nucl�aire.\n+ Puissance de destruction incroyable\n- Vuln�rable aux armes antia�riennes
+unitinfo_airbase			Point de lancement de chasseurs et de bombardiers.\n+ Nombre important de bombardiers\n+ Reconstruit des chasseurs avec le temps\n- Facilement d�truit par une frappe nucl�aire
+
+
+# =============================================================================
+# Demo screen
+# =============================================================================
+
+demo_top1                           Achetez le jeu maintenant pour en profiter pleinement
+demo_middle1                        Plus de limitation au nombre de joueurs : g�nocide � 6 garanti !
+demo_middle2                        Modes de jeu alternatifs dont :
+demo_middle3                        Mode bureau : jouez Defcon en temps r�el sur toute une journ�e
+demo_middle4                        PGV : tout est fini en 15 minutes, brutal et instinctif
+demo_middle5                        Diplomatie : tous les joueurs commencent dans la m�me alliance
+demo_middle6                        Vaste monde : le monde est deux fois plus grand
+demo_bottom1                        Activation imm�diate pour
+demo_bottom2                        �10     $17.50      �14
+
+demo_bottom1_steam                  Activation imm�diate pour 
+demo_bottom2_steam                  $14.95 seulement
+
+demo_bottom1_retail                 ACHETEZ LA VERSION COMPL�TE DE DEFCON D�S AUJOURD'HUI
+demo_bottom2_retail                 DEMANDEZ � VOTRE VENDEUR DE JEUX HABITUEL
+
+demo_bottom1_retail_uk              ACHETEZ LA VERSION COMPL�TE DE DEFCON D�S AUJOURD'HUI
+demo_bottom2_retail_uk              DEMANDEZ � VOTRE VENDEUR DE JEUX HABITUEL
+
+demo_bottom1_macosx                 Activation imm�diate pour
+demo_bottom2_macosx                 $25.00 seulement
+
+
+# =============================================================================
+# Lobby Overlays
+# =============================================================================
+
+overlay_0_1			--------------------------
+overlay_0_2			-       D E F C O N
+overlay_0_3			--------------------------
+overlay_0_4			-CR�� PAR
+overlay_0_5			CHRIS DELAY
+overlay_0_6			GARY CHAMBERS\n
+overlay_0_7			-DESIGN SONORE
+overlay_0_8			-ET PRODUCTION
+overlay_0_9			ALISTAIR LINDSAY
+overlay_0_10			MICHAEL MAIDMENT\n
+overlay_0_11			-PRODUIT PAR
+overlay_0_12			-INTROVERSION SOFTWARE
+overlay_0_13			MARK MORRIS
+overlay_0_14			THOMAS ARUNDEL
+overlay_0_15			CHRIS DELAY
+overlay_0_16			JOHN KNOTTENBELT\n
+overlay_0_17			-RP ET MARKETING
+overlay_0_18			VICTORIA ARUNDEL\n
+overlay_0_19			-DESIGN GRAPHIQUE ADDITIONNEL
+overlay_0_20			MORTEN ELGAARD PEDERSEN\n
+overlay_0_21			-EXP�DITION
+overlay_0_22			WILL MORRIS\n
+overlay_0_23			 -D�VELOPPEMENT ADDITIONNEL
+overlay_0_24			FRANCOIS GAGNE
+
+overlay_1_1			------------------------------------------
+overlay_1_2			-I N T R O V E R S I O N   S O F T W A R E
+overlay_1_3			------------------------------------------\n
+overlay_1_4			MARK MORRIS                      DIRECTEUR
+overlay_1_5			THOMAS ARUNDEL                   DIRECTEUR
+overlay_1_6			CHRIS DELAY                      DIRECTEUR
+overlay_1_7			JOHN KNOTTENBELT                 DIRECTEUR\n
+overlay_1_8			GARY CHAMBERS                    D�VELOPPEMENT
+overlay_1_9			VICTORIA ARUNDEL                 RP ET MARKETING
+overlay_1_10			WILL MORRIS                      EXP�DITION
+
+overlay_2_1			-------------------------
+overlay_2_2			-SIMULATIONS DISPONIBLES-
+overlay_2_3			-------------------------\n
+overlay_2_4			FALKEN'S MAZE
+overlay_2_5			BLACK-JACK
+overlay_2_6			GIN RUMMY
+overlay_2_7			COEUR
+overlay_2_8			BRIDGE
+overlay_2_9			DAMES
+overlay_2_10			�CHECS
+overlay_2_11			POKER
+overlay_2_12			COMBAT A�RIEN
+overlay_2_13			GU�RILLA
+overlay_2_14			GUERRE DU D�SERT
+overlay_2_15			BOMBARDEMENTS
+overlay_2_16			GUERRE TACTIQUE MONDIALE
+overlay_2_17			GUERRE BIOLOGIQUE ET CHIMIQUE MONDIALE\n
+overlay_2_18			CONFLIT GLOBAL THERMONUCL�AIRE
+
+overlay_3_1			---------------------------------------
+overlay_3_2			- CIBLES CIVILES EN MILLIONS DE MORTS -
+overlay_3_3			---------------------------------------\n
+overlay_3_4			LOS ANGELES                    3,3
+overlay_3_5			NEW YORK                       7,3
+overlay_3_6			CHICAGO                        3,0
+overlay_3_7			WASHINGTON DC                  4,0
+overlay_3_8			DALLAS                         1,0
+overlay_3_9			DETROIT                        1,1
+overlay_3_10			PARIS                          2,2
+overlay_3_11			BERLIN                         1,9
+overlay_3_12			LONDRES                        7,7
+overlay_3_13			LENINGRAD                      4,9
+overlay_3_14			MOSCOU                         8,7
+overlay_3_15			ROME                           2,8
+overlay_3_16			TOKYO                          8,4
+overlay_3_17			SINGAPOURE                     2,6
+overlay_3_18			BANGKOK                        4,7
+overlay_3_19			BOMBAY                         8,2
+overlay_3_20			MEXICO                         8,8
+overlay_3_21			RIO DE JANEIRO                 5,6
+overlay_3_22			LE CAIRE                       6,1
+overlay_3_23			ISTANBUL                       5,5
+overlay_3_24			BEIJING                        5,5
+overlay_3_25			SHANGHAI                       6,3
+overlay_3_26			DELHI                          4,9
+
+overlay_4_1			---------------------------------------------------
+overlay_4_2			-   PROJECTION DES PERTES DE L'US AIR FORCE (%)  -
+overlay_4_3			---------------------------------------------------\n
+overlay_4_4			CENTRE DE D�FENSE A�ROSPATIALE               23
+overlay_4_5			CENTRE DE COMBAT A�RIEN                      76
+overlay_4_6			CENTRE D'�DUCATION ET ENTRA�NEMENT           24
+overlay_4_7			CENTRE DES COMMUNICATIONS DE L'AIR FORCE     68
+overlay_4_8			CENTRE DES RENSEIGNEMENTS DE L'AIR FORCE     58
+overlay_4_9			CENTRE DE LOGISTIQUE DE L'AIR FORCE          78
+overlay_4_10			CENTRE DE R�SERVE DE L'AIR FORCE             14
+overlay_4_11			CENTRE SPATIAL DE L'AIR FORCE                12
+overlay_4_12			CENTRE DES FORCES SP�CIALES DE L'AIR FORCE   56
+overlay_4_13			CENTRE DES SYST�MES DE L'AIR FORCE           86
+overlay_4_14			CENTRE DE MOBILIT� A�RIENNE                  87
+overlay_4_15			CENTRE A�RIEN DE L'ALASKA                    92
+overlay_4_16			QUARTIERS G�N�RAUX, USAF                     85
+overlay_4_17			CENTRE A�RIEN DU NORD-EST                    75
+overlay_4_18			CENTRE A�RIEN DU PACIFIQUE                   91
+overlay_4_19			FORCES A�RIENNES DU PACIFIQUE                85
+overlay_4_20			CENTRE DES ARMES SP�CIALES                   67
+overlay_4_21			CENTRE DE LA STRAT�GIE                       85
+overlay_4_22			CENTRE DE LA TACTIQUE                        91
+overlay_4_23			DIVISION A�RIENNE 3D                         75
+overlay_4_24			FORCES DE L'AIR FORCE EN EUROPE              79
+overlay_4_25			FORCES DE L'AIR FORCE DU SUD                 65
+
+overlay_5_1			-----------------------------------------------------------------
+overlay_5_2			   EFFETS DES RADIATIONS SUR LA PHYSIOLOGIE HUMAINE        
+overlay_5_3			-----------------------------------------------------------------\n
+overlay_5_4			MOINS DE 1 SV (5O-1OO REM)
+overlay_5_5			MALADIE DES RADIATIONS AVEC MAUX DE T�TE ET RISQUE 
+overlay_5_6			SUP�RIEUR D'INFECTION DE PAR LA PERTURBATION DES 
+overlay_5_7			CELLULES IMMUNITAIRES. ST�RILIT� MASCULINE TEMPORAIRE \nPOSSIBLE.
+overlay_5_8			1-2 SV (1OO-2OO REM) (L�G�RES) 1O% DE MORTS - 30 JOURS
+overlay_5_9			2-3 SV (2OO-3OO REM) (MOD�R�E) 35% DE MORTS - 30 JOURS
+overlay_5_10			3-4 SV (3OO-4OO REM)(IMPORTANTE)5O% DE MORTS - 30 JOURS
+overlay_5_11			4-6 SV (4OO-6OO REM)(S�V�RE) 6O% DE MORTS - 30 JOURS
+overlay_5_12			1O-5O SV (1 OOO-5 OOO REM)(S�V�RE)1OO% DE MORTS - 7 JOURS\n
+overlay_5_13			5O-8O SV (5 OOO-8 OOO REM)
+overlay_5_14			D�SORIENTATION IMM�DIATE ET COMA EN QUELQUES SECONDES
+overlay_5_15			OU MINUTES. LA MORT SURVIENT EN QUELQUES HEURES PAR\nEFFONDREMENT TOTAL DU SYST�ME NERVEUX.
+overlay_5_16			PLUS DE 8O SV (> 8 OOO REM)         MORT IMM�DIATE.
+
+overlay_6_1			--------------------------------------------------
+overlay_6_2			BOMBES NUCL�AIRES AM�RICAINES - PUISSANCE ET POIDS
+overlay_6_3			--------------------------------------------------\n
+overlay_6_4			MK-1      5      15-16KT           8 900 LBS
+overlay_6_5			MK-3    120      18-49KT          10 300 LBS
+overlay_6_6			MK-4    550       1-32KT   10 800-10 900 LBS
+overlay_6_7			MK-5    140      6-120KT     3 025-3 125 LBS
+overlay_6_8			MK-6   1100      8-160KT     7 600-8 500 LBS
+overlay_6_9			MK-7   1800       8-61KT     1 645-1 700 LBS
+overlay_6_10			MK-8     40      25-30KT     3 230-3 280 LBS
+overlay_6_11			MK-11    40      25-30KT     3 210-3 500 LBS
+overlay_6_12			MK-12   250      12-14KT     1 000-1 200 LBS
+overlay_6_13			MK-14     5        5-7MT   28 954-31 000 LBS
+overlay_6_14			MK-15  1500    1,6-3,9MT           7 600 LBS
+overlay_6_15			MK-16     5        6-8MT   39 000-42 000 LBS
+overlay_6_16			MK-17   200      10-15MT   41 400-42 000 LBS
+overlay_6_17			MK-18    90        500KT           8 600 LBS
+overlay_6_18			MK-21   275        4-5MT   15 000-17 700 LBS
+overlay_6_19			MK-24   105      10-15MT   41 400-42 000 LBS
+overlay_6_20			MK-28  4500   70KT-1,1MT     1 700-2 320 LBS
+overlay_6_21			MK-36   940      9-10 MT   17 500-17 700 LBS
+overlay_6_22			MK-39   700       3-4 MT     6 650-6 750 LBS
+overlay_6_23			MK-41   500        25 MT   10 500-10 670 LBS
+overlay_6_24			MK-43  1000     70KT-1MT     2 060-2 125 LBS
+overlay_6_25			MK-53   350         9 MT     8 850-8 900 LBS
+overlay_6_26			MK-57  3100      5-20 KT         490-510 LBS
+overlay_6_27			MK-61  3150    80-340 KT         695-716 LBS
+overlay_6_28			MK-83   650     J-� 1,2KT        2 400 LBS
+
+overlay_7_1			-----------------------------------------------------
+overlay_7_2			- MALADIES LI�ES AU RADIATION : EFFETS ET SYMPTOMES -
+overlay_7_3			-----------------------------------------------------\n
+overlay_7_4			NAUS�E ET VOMISSEMENT
+overlay_7_5			DIARRH�E
+overlay_7_6			PEAU BR�L�E (ROUGEURS, CLOQUES)
+overlay_7_7			FAIBLESSE, FATIGUE, �PUISEMENT, �VANOUISSEMENT
+overlay_7_8			D�SHYDRATATION
+overlay_7_9			INFLAMMATION DES PARTIES EXPOS�ES
+overlay_7_10			PERTE DE CHEVEUX
+overlay_7_11			ULC�RATION DE LA MUQUEUSE BUCCALE
+overlay_7_12			ULC�RATION DE L'OESOPHAGE
+overlay_7_13			ULC�RATION DE L'ESTOMAC
+overlay_7_14			ULC�RATION DES INTESTINS
+overlay_7_15			VOMISSEMENT DE SANG
+overlay_7_16			SELLES SANGLANTES
+overlay_7_17			SAIGNEMENT DU NEZ, DE LA BOUCHE, DES GENCIVES ET DU RECTUM
+overlay_7_18			BLEUS
+overlay_7_19			PERTE DE PEAU
+overlay_7_20			PLAIES OUVERTES SUR LA PEAU
+
+overlay_8_1			----------------------------------------------------------------------
+overlay_8_2			ISOTOPE  NA         DEMI-VIE (ANS)      DM     DE(MEV)     DP
+overlay_8_3			----------------------------------------------------------------------\n
+overlay_8_4			PU-238  SYNTH�TIQUE            88       SF       -        -
+overlay_8_5			PU-239  SYNTH�TIQUE        24 110       SF       -        -
+overlay_8_6			U-232   SYNTH�TIQUE          68,9     a + SF    5,414   TH-228
+overlay_8_7			U-233   SYNTH�TIQUE       159 200     SF + a    4,909   TH-229
+overlay_8_8			U-234       0.0058%       245 500     SF + a    4,859   TH-230
+overlay_8_9			U-235         0.72%   703 800 000     SF + a    4,679   TH-231
+overlay_8_10		U-236   SYNTH�TIQUE    23 420 000     SF + a    4,572   TH-232
+overlay_8_11		U-238       99.275% 4 468 000 000     SF + a    4,270   TH-234
+
+overlay_9_1			QUE DIRIEZ-VOUS D'UNE BONNE PARTIE D'�CHECS ?
+
+overlay_10_1			---------------------------------------------------
+overlay_10_2			-              CIBLES STRAT�GIQUES                -
+overlay_10_3			---------------------------------------------------\n
+overlay_10_4			Norad           38 44' 39.68" N   104 50' 48.18" O
+overlay_10_5			Keflavik        63 59' 07.71" N    22 36' 20.06" O
+overlay_10_6			Bruxelles       50 50' 54.79" N     4 21' 36.66" E
+overlay_10_7			Naples          40 51' 14.64" N    14 17' 21.84" E
+overlay_10_8			Mons (BLG)      50 26' 32.55" N     3 57' 28.44" E
+overlay_10_9			Norfolk         36 56' 59.84" N    76 19' 48.57" O
+overlay_10_10			Pearl Harbour   21 21' 48.77" N   157 57' 39.31" O
+overlay_10_11			Ramstein        49 26' 13.33" N     7 35' 54.11" E
+overlay_10_12			Kadena (OKW)    26 21' 28.86" N   127 46' 13.53" E
+overlay_10_13			Rota (ESP)      36 38' 15.33" N       21' 11.90" O
+overlay_10_14			Vladivostok     43 06' 41.86" N   131 53' 23.22" E
+overlay_10_15			S�bastopol      44 36' 56.88" N    33 34' 46.83" E
+overlay_10_16			Leningrad       59 57' 39.60" N    30 18' 41.85" E
+overlay_10_17			Murmansk        68 58' 14,59" N    33 01' 11.20" E
+overlay_10_18			Tatishchevo     51 40' 37.79" N    45 36' 46.89" E
+overlay_10_19			Barnaul         53 19' 39.80" N    83 45' 35.86" E
+
+overlay_11_1			---------------------------------------------------
+overlay_11_2			-        D�TONATIONS NUCL�AIRES IMPORTANTES       -
+overlay_11_3			---------------------------------------------------
+overlay_11_4			DATE           NOM        PUISSANCE (KT)   PAYS\n
+overlay_11_5			16/07/1945     TRINITY         19          USA
+overlay_11_6			06/08/1945     LITTLE BOY      15          USA
+overlay_11_7			09/08/1945     FAT MAN         21          USA
+overlay_11_8			29/08/1949     JOE 1           22          URSS
+overlay_11_9			03/10/1952     HURRICANE       25          RU
+overlay_11_10			01/11/1952     IVY MIKE        10 200      USA
+overlay_11_11			12/08/1953     JOE 4           400         URSS
+overlay_11_12			01/03/1954     CASTLE BRAVO    15 000      USA
+overlay_11_13			22/11/1955     RDS-37          1 600       URSS
+overlay_11_14			08/11/1957     GRAPPLE X       1 800       RU
+overlay_11_15			13/02/1960     GERBOISE BLEUE  60          FRANCE
+overlay_11_16			31/10/1961     TSAR BOMBA      50 000      URSS
+overlay_11_17			16/10/1964     596             22          CHINE
+overlay_11_18			17/06/1967     TEST NO. 6      3 300       CHINE
+overlay_11_19			24/08/1968     CANOPUS         2 600       FRANCE
+overlay_11_20			18/05/1974     SMILING BUDDHA  12          INDE
+overlay_11_21			11/05/1998     SHAKTI I        43          INDE
+overlay_11_22			13/05/1998     SHAKTI II       12          INDE
+overlay_11_23			28/05/1998     CHAGAI-I        9           PAKISTAN
+
+overlay_12_1			-----------------------------------------
+overlay_12_2			-       B�TA-TESTEURS (PAGE 1 SUR 2)
+overlay_12_3			-----------------------------------------\n
+overlay_12_4			ASHLEY 'NEOTHERMIC' PINNER
+overlay_12_5			ALESSANDRO 'FIRESHIP4' PEDRINA MCCARTHY
+overlay_12_6			BILL 'BIPP5' RASTELLO
+overlay_12_7			BRODY 'LEONAKEN' BROOKS
+overlay_12_8			CHARLES BROWN
+overlay_12_9			CHRIS BROWN
+overlay_12_10			CHRIS 'SUVIR' BOYD
+overlay_12_11			CHRISTOPH KOEHLER
+overlay_12_12			CORPORATESPECTRE
+overlay_12_13			DAMJAN 'VIRUSEX' BELAVIC
+overlay_12_14			DANIEL 'DK' KARLING
+overlay_12_15			DEREK 'PUNISHER BASS' SCHOTT
+overlay_12_16			FURRIES
+overlay_12_17			HENNING HORN
+overlay_12_18			HEWAT KENNEDY
+overlay_12_19			JASON 'JAYSC' TIEN
+overlay_12_20			JENS WIECHERS
+overlay_12_21			JO STANSFIELD
+overlay_12_22			JOHAN 'ZARKOW' MUNKESTAM
+overlay_12_23			JOSHUA 'MIAH' CLAYTON
+overlay_12_24			JUSTIN 'ATELOPHOBIA' GOTTULA
+overlay_12_25			J�RGEN 'DIRTY HARRY POTTER' BERTHELSEN
+overlay_12_26			KASPER 'AAARGH' MEERTS
+overlay_12_27			LEANDER 'ELDIABLO' HAMBLEY
+overlay_12_28			LUKE HOSCHKE
+overlay_12_29			MARIUSZ 'MANDI^ATO' DANILEWICZ
+
+overlay_13_1			-----------------------------------------
+overlay_13_2			-       B�TA-TESTEURS (PAGE 2 SUR 2)
+overlay_13_3			-----------------------------------------\n
+overlay_13_4			MARK 'LLAMABOY' VINE
+overlay_13_5			MICHAEL NICHOLLS
+overlay_13_6			MORTEN 'NUTTER' PEDERSEN
+overlay_13_7			MR. VIOLATOR
+overlay_13_8			NEIL ROSS
+overlay_13_9			NIGEL 'MOUSE' MORSE
+overlay_13_10			OLIVER 'AGENTX 24' GRUBIN
+overlay_13_11			PHYDAUX
+overlay_13_12			PIOTR 'THEPIACHU' PIASECKI
+overlay_13_13			PITBEAST
+overlay_13_14			PROZAK
+overlay_13_15			RICHARD 'FALSE' LA CHARIT� III
+overlay_13_16			SAM 'MAS' NORRIS
+overlay_13_17			SHAWN 'TRICKFRED' MACIVER
+overlay_13_18			SIMON 'N3O77' SPARKS
+overlay_13_19			STEVEN NOONAN
+overlay_13_20			SWIL232
+overlay_13_21			THE GOLDFISH
+overlay_13_22			THIERRY 'BOLKA' MARTIN
+overlay_13_23			TIM BAVERSTOCK
+overlay_13_24			TOBY 'THE TUBSTAR' INNOCENT
+overlay_13_25			TOUMAZ
+overlay_13_26			VIRGINIJUS 'LEGIO' PAMPIKAS
+overlay_13_27			WILL 'MIZER' NEW
+overlay_13_28			WOLFLORD
+overlay_13_29			ZACHARY 'XYZYXX' PARKER
+
+overlay_14_1			-----------------------------------------
+overlay_14_2			 -            B�TA TESTEURS MAC
+overlay_14_3			-----------------------------------------\n
+overlay_14_4            ALASTAIR �PROPHILE� LYNN
+overlay_14_5            ALEC �HAMSTER� INGULSRUD
+overlay_14_6            ANDREW �ANDCARNE� CARNE
+overlay_14_7            BOLKO �KRAUTI� MAASS
+overlay_14_8            BRIAN DICK
+overlay_14_9            BRYCE �ZOMBAT� HOMICK
+overlay_14_10           CIAR�N �MONTYPHY� EATON
+overlay_14_11           DOMINIC �REFRIDGERON� WHITE
+overlay_14_12           JACK �DASH RANTIC� CARLSON
+overlay_14_13           JAMES �CONSUL BOB� GOOCH
+overlay_14_14           JAMES �LASTOF� TITMUSS
+overlay_14_15           JONAS �FREQ245� MIRWALD
+overlay_14_16           KIRK �KAUTHOR� STALEY
+overlay_14_17           MARK �MRXAK� PETCAVAGE
+overlay_14_18           MIKE ASH
+overlay_14_19           NATHANIEL �MACKILROY� PORTER
+overlay_14_20           NICK �NFREADER� FARLEY
+overlay_14_21           OWEN �MR ED209� BILLCLIFFE
+overlay_14_22           PER �PV2B� VON ZWEIGBERGK
+overlay_14_23           SOLRA BIZNA
+overlay_14_24           XANDER HENDERSON
+
+overlay_15_1			----------------------------------------
+overlay_15_2			 -  PORTAGE MAC PAR AMBROSIA SOFTWARE
+overlay_15_3			----------------------------------------\n
+overlay_15_4			MIKE BLAGUSZEWSKI                PORTAGE
+overlay_15_5			MARCUS CONGE            IC�NE APPLICATION
+overlay_15_6			DAVID DUNHAM                     TEST
+overlay_15_7			EVAN 'SULTAN' SMITH              TEST
+overlay_15_8			 -PORTAGE ADDITIONNEL PAR
+overlay_15_9			JOSHUA 'MIAH' CLAYTON
+overlay_15_10			STEVEN NOONAN
+overlay_15_11           ----------------------------------------
+overlay_15_12           -            PORTAGE LINUX
+overlay_15_13           ----------------------------------------\n
+overlay_15_14           STEVEN NOONAN
+overlay_15_15           JOHN KNOTTENBELT
+overlay_15_16           JOSHUA �MIAH� CLAYTON
+overlay_15_17           ----------------------------------------\n
+overlay_15_18           Traductions fournies par Game Localization Network Ltd.
