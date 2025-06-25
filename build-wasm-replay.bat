@@ -28,7 +28,7 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo Building...
-python %EMSDK%/upstream/emscripten/emmake.py ninja defcon 2>&1 | findstr /V "warning:"
+python %EMSDK%/upstream/emscripten/emmake.py ninja 2>&1 | findstr /V "warning:"
 set BUILD_RESULT=%ERRORLEVEL%
 
 cd /d %ORIGINAL_DIR%
@@ -46,18 +46,36 @@ echo.
 echo Copying WebAssembly files to demo_recordings folder...
 if not exist "%ORIGINAL_DIR%\website\demo_recordings" mkdir "%ORIGINAL_DIR%\website\demo_recordings"
 
-copy /Y "%ORIGINAL_DIR%\build\wasm-replay-release\result\Release\defcon.html" "%ORIGINAL_DIR%\website\demo_recordings\"
-copy /Y "%ORIGINAL_DIR%\build\wasm-replay-release\result\Release\defcon.js" "%ORIGINAL_DIR%\website\demo_recordings\"
-copy /Y "%ORIGINAL_DIR%\build\wasm-replay-release\result\Release\defcon.wasm" "%ORIGINAL_DIR%\website\demo_recordings\"
-copy /Y "%ORIGINAL_DIR%\build\wasm-replay-release\result\Release\defcon.data" "%ORIGINAL_DIR%\website\demo_recordings\" 2>nul
+for %%f in ("%ORIGINAL_DIR%\website\demo_recordings\replay_viewer_*.js") do del "%%f" 2>nul
+for %%f in ("%ORIGINAL_DIR%\website\demo_recordings\replay_viewer_*.wasm") do del "%%f" 2>nul
+for %%f in ("%ORIGINAL_DIR%\website\demo_recordings\replay_viewer_*.data") do del "%%f" 2>nul
+
+copy /Y "%ORIGINAL_DIR%\build\wasm-replay-release\result\Release\replay_viewer_*.js" "%ORIGINAL_DIR%\website\demo_recordings\" 2>nul
+copy /Y "%ORIGINAL_DIR%\build\wasm-replay-release\result\Release\replay_viewer_*.wasm" "%ORIGINAL_DIR%\website\demo_recordings\" 2>nul
+copy /Y "%ORIGINAL_DIR%\build\wasm-replay-release\result\Release\replay_viewer_*.data" "%ORIGINAL_DIR%\website\demo_recordings\" 2>nul
 
 if %ERRORLEVEL% equ 0 (
-    echo WebAssembly files copied successfully to website\demo_recordings\
+    echo WebAssembly .js, .wasm, and .data files copied successfully
 ) else (
-    echo Warning: Some files may not have been copied. This is normal if defcon.data doesn't exist.
+    echo Warning: Some files may not have been copied. This is normal if replay_viewer_*.data doesn't exist.
 )
 
 echo.
-echo REPLAY VIEWER MODE: This build will skip the main menu and show only recording playback options.
-echo Files are now available at: website\demo_recordings\defcon.html
+echo Updating HTML file versions automatically...
+python "%ORIGINAL_DIR%\tools\update-replay-viewer-version.py"
+
+if %ERRORLEVEL% equ 0 (
+    echo HTML version update completed successfully!
+) else (
+    echo ERROR: HTML version update failed. You may need to update manually.
+    echo Manual steps:
+    echo 1. Rename replay_viewer_*.html to match the new version
+    echo 2. Update the script tag inside the HTML file
+    pause
+    exit /b 1
+)
+
+echo.
+echo === BUILD COMPLETE ===
+echo Double check it works first before you upload to the live server
 pause 

@@ -75,9 +75,9 @@ void DepthCharge::Impact()
     }
     int expId = g_app->GetWorld()->m_explosions.PutData( explosion );
     explosion->m_objectId = expId;
-
+#ifdef EMSCRIPTEN_SOUND
     g_soundSystem->TriggerEvent( "Object_carrier", "DepthCharge", Vector3<Fixed>(m_longitude, m_latitude,0) );
-
+#endif
     for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
     {
         if( g_app->GetWorld()->m_objects.ValidIndex(i) )

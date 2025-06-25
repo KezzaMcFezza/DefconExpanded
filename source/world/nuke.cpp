@@ -164,7 +164,9 @@ bool Nuke::Update()
         m_targetLatitude = 0;
         m_vel.Zero();
         g_app->GetWorld()->CreateExplosion( m_teamId, m_longitude, m_latitude, 100 );
+#ifdef EMSCRIPTEN_SOUND
         g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "Detonate" );
+#endif
         return true;
     }
     else

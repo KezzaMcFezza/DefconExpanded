@@ -689,6 +689,7 @@ void ModSystem::Commit()
 
 		// We need to make sure the sound callback isn't running while
 		// we do this, so we don't swap out sounds that it's playing
+#ifdef EMSCRIPTEN_SOUND
 		g_soundSystem->EnableCallback(false);
         g_soundSystem->m_blueprints.ClearAll();
         g_soundSystem->m_blueprints.LoadEffects();
@@ -696,6 +697,7 @@ void ModSystem::Commit()
         g_soundSampleBank->EmptyCache();
         g_soundSystem->PropagateBlueprints(true);
 		g_soundSystem->EnableCallback(true);
+#endif
 
         g_styleTable->Load( "default.txt" );
         g_styleTable->Load( g_preferences->GetString(PREFS_INTERFACE_STYLE) );        

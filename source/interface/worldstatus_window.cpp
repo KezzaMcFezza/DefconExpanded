@@ -309,7 +309,9 @@ void WorldStatusWindow::Render( bool hasFocus )
 
         if( defCon < 5 )
         {
+#ifdef EMSCRIPTEN_SOUND
             g_soundSystem->TriggerEvent( "Interface", "DefconChange" );
+#endif
         }
     }
 

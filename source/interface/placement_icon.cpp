@@ -159,7 +159,9 @@ void PlacementIconButton::MouseUp()
     }
     else
     {
+#ifdef EMSCRIPTEN_SOUND
         g_soundSystem->TriggerEvent( "Interface", "Error" );
+#endif
     }
 }
 

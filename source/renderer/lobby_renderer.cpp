@@ -328,7 +328,9 @@ void LobbyRenderer::RenderOverlay()
     if( lastLineChars != -1 &&
         fabs(float(s_previousMaxChars - maxChars)) > 4 )
     {
+#ifdef EMSCRIPTEN_SOUND
         g_soundSystem->TriggerEvent( "Interface", "Text" );
+#endif
         s_previousMaxChars = maxChars;
     }
 

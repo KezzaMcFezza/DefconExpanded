@@ -6,7 +6,7 @@
 
 #define APP_NAME        "Alpha"
 
-#define	APP_VERSION		"1.0"
+#define	APP_VERSION		"1.04"
 
 // #define ENABLE_SANTA_EASTEREGG
 

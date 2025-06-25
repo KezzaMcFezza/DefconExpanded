@@ -1,16 +1,4 @@
-#!/usr/bin/env node
-
-/**
- * Domain Hash Generator for DEFCON WebAssembly Protection
- * 
- * This script generates the domain hashes that need to be added to both:
- * 1. source/lib/domain_protection.cpp (AUTHORIZED_HASHES array)
- * 2. website/node.js/apis/security/domain-validation.js (AUTHORIZED_DOMAIN_HASHES array)
- * 
- * Usage: node tools/generate-domain-hashes.js your-domain.com www.your-domain.com
- */
-
-const XOR_KEY = 0xD10ADAE2; // Must match your C++ and Node.js code
+const XOR_KEY = 0xD10ADAE2; 
 
 function hashString(str) {
     if (!str) return 0;
@@ -19,7 +7,7 @@ function hashString(str) {
     for (let i = 0; i < str.length; i++) {
         hash = ((hash << 5) + hash) + str.charCodeAt(i);
     }
-    return (hash ^ XOR_KEY) >>> 0; // Ensure unsigned 32-bit
+    return (hash ^ XOR_KEY) >>> 0; 
 }
 
 function formatHexHash(hash) {
@@ -42,7 +30,6 @@ if (domains.length === 0) {
     process.exit(1);
 }
 
-// Always include localhost for development
 const allDomains = ['localhost', '127.0.0.1', ...domains];
 
 console.log('Generating hashes for domains:');
@@ -66,6 +53,7 @@ allDomains.forEach(domain => {
 
 console.log();
 console.log('='.repeat(60));
+
 console.log('COPY THE FOLLOWING TO YOUR SOURCE FILES:');
 console.log('='.repeat(60));
 console.log();
@@ -97,6 +85,7 @@ console.log();
 console.log('='.repeat(60));
 console.log('SECURITY NOTES:');
 console.log('='.repeat(60));
+
 console.log('1. Change the XOR_KEY in both C++ and Node.js files to a unique value');
 console.log('2. Test thoroughly with your actual domains before deployment');
 console.log('3. The game will only work on the domains listed above');
@@ -104,7 +93,6 @@ console.log('4. Keep this generator script private - don\'t include it in public
 console.log('5. Consider additional obfuscation for production builds');
 console.log();
 
-// Generate a suggested new XOR key
 const newXorKey = '0x' + Math.floor(Math.random() * 0xFFFFFFFF).toString(16).toUpperCase().padStart(8, '0');
 console.log(`Suggested new XOR_KEY: ${newXorKey}`);
 console.log('(Change this in domain_protection.cpp and domain-validation.js)');
