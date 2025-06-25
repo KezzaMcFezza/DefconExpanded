@@ -2,32 +2,50 @@ cmake_minimum_required(VERSION 3.16)
 project(Defcon VERSION 1.0)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# Find PkgConfig early since it's used for cross-platform library detection
-find_package(PkgConfig QUIET)
+set(ROOT_PATH ".")
+set(SYSTEMIV_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV" CACHE PATH "Location of the SystemIV base")
+set(GLEW_PATH "${CMAKE_SOURCE_DIR}/contrib/glew")
+set(RESOURCES_DIR "${ROOT_PATH}/resources")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/result/Debug")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/result/Release")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-SET(ROOT_PATH ".")
-SET(SYSTEMIV_PATH
-    "${CMAKE_SOURCE_DIR}/contrib/systemIV"
-    CACHE PATH "Location of the SystemIV base"
-)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_TESTS "${CMAKE_BINARY_DIR}/tests")
+set(TEST_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
+set(CMAKE_CONFIGURATION_TYPES "Release" "Debug" CACHE STRING "" FORCE)
 
-set(CMAKE_CONFIGURATION_TYPES 
-    "Release"
-    "Debug"
-    CACHE STRING "" FORCE
-)
+find_package(PkgConfig QUIET)
 
-# new and improved system for including the recording parsing code without needing to uncomment it
+if(MSVC)
+    set(GLEW_LIBRARY "${GLEW_PATH}/lib/Release/Win32/glew32s.lib")
+elseif(APPLE)
+    find_library(GLEW_LIBRARY NAMES GLEW glew libglew.a
+        PATHS ${GLEW_PATH}/lib/Release/macOS /usr/local/lib /opt/homebrew/lib
+        NO_DEFAULT_PATH)
+    if(NOT GLEW_LIBRARY)
+        set(GLEW_LIBRARY "${GLEW_PATH}/lib/Release/macOS/libglew.a")
+    endif()
+else()
+    if(PKG_CONFIG_FOUND)
+        pkg_check_modules(GLEW glew)
+        if(GLEW_FOUND)
+            set(GLEW_LIBRARY ${GLEW_LIBRARIES})
+        endif()
+    endif()
+    if(NOT GLEW_FOUND)
+        find_library(GLEW_LIBRARY NAMES GLEW glew
+            PATHS /usr/lib/x86_64-linux-gnu /usr/local/lib /usr/lib
+            NO_DEFAULT_PATH)
+        if(NOT GLEW_LIBRARY)
+            set(GLEW_LIBRARY "${GLEW_PATH}/lib/Release/Linux/libglew.a")
+        endif()
+    endif()
+endif()
+
+set(REPLAY_VIEWER_VERSION "A1.04" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 option(ENABLE_RECORDING_PARSING "Enable recording parsing functionality" ON)
-
-# Emscripten Replay Viewer option - shows only recording playback interface
 option(ENABLE_EMSCRIPTEN_REPLAY_VIEWER "Enable Emscripten Replay Viewer mode (recording playback only)" ON)
 
-# is the recording parsing option enabled?
 if(ENABLE_RECORDING_PARSING)
     add_definitions(-DRECORDING_PARSING=1)
     message(STATUS "Recording parsing enabled")
@@ -36,9 +54,7 @@ else()
     message(STATUS "Recording parsing disabled")
 endif()
 
-# is the replay viewer option enabled?
 if(ENABLE_EMSCRIPTEN_REPLAY_VIEWER)
-    # Replay viewer requires recording parsing, so force it on
     set(ENABLE_RECORDING_PARSING ON CACHE BOOL "Enable recording parsing functionality" FORCE)
     add_definitions(-DRECORDING_PARSING=1)
     add_definitions(-DEMSCRIPTEN_REPLAY_VIEWER=1)
@@ -48,47 +64,6 @@ else()
     message(STATUS "Emscripten Replay Viewer mode disabled")
 endif()
 
-# GLEW Configuration
-set(GLEW_PATH "${CMAKE_SOURCE_DIR}/contrib/glew")
-
-# Platform-specific GLEW library paths
-if(MSVC)
-    set(GLEW_LIBRARY "${GLEW_PATH}/lib/Release/Win32/glew32s.lib")
-elseif(APPLE)
-    # On macOS, try to find system GLEW first, fallback to our version
-    find_library(GLEW_LIBRARY NAMES GLEW glew libglew.a
-        PATHS ${GLEW_PATH}/lib/Release/macOS /usr/local/lib /opt/homebrew/lib
-        NO_DEFAULT_PATH)
-    if(NOT GLEW_LIBRARY)
-        set(GLEW_LIBRARY "${GLEW_PATH}/lib/Release/macOS/libglew.a")
-    endif()
-else()
-    # On Linux, try multiple approaches to find GLEW
-    # First try pkg-config if available
-    if(PKG_CONFIG_FOUND)
-        pkg_check_modules(GLEW glew)
-        if(GLEW_FOUND)
-            set(GLEW_LIBRARY ${GLEW_LIBRARIES})
-            message(STATUS "Found GLEW via pkg-config: ${GLEW_LIBRARY}")
-        endif()
-    endif()
-    
-    if(NOT GLEW_FOUND)
-        # Try to find system GLEW manually
-        find_library(GLEW_LIBRARY NAMES GLEW glew
-            PATHS /usr/lib/x86_64-linux-gnu /usr/local/lib /usr/lib
-            NO_DEFAULT_PATH)
-        if(NOT GLEW_LIBRARY)
-            # Fallback to our bundled version
-            set(GLEW_LIBRARY "${GLEW_PATH}/lib/Release/Linux/libglew.a")
-            message(STATUS "Using bundled GLEW library: ${GLEW_LIBRARY}")
-        else()
-            message(STATUS "Found system GLEW library: ${GLEW_LIBRARY}")
-        endif()
-    endif()
-endif()
-
-# Include directories
 include_directories(
     ${ROOT_PATH}/source
     ${ROOT_PATH}/source/app
@@ -103,7 +78,6 @@ include_directories(
     ${GLEW_PATH}/include
 )
 
-set(RESOURCES_DIR "${ROOT_PATH}/resources")
 set(RESOURCE_FILES
     "${RESOURCES_DIR}/appicon.ico"
     "${RESOURCES_DIR}/nuke.ico"
@@ -114,132 +88,65 @@ set(RESOURCE_FILES
     "${RESOURCES_DIR}/Script1.rc"
 )
 
-# WebAssembly/Emscripten specific configuration
+# EMSCRIPTEN (WebAssembly)
 if(EMSCRIPTEN)
     message(STATUS "Configuring for WebAssembly/Emscripten build")
     
-    # Force enable recording parsing for WebAssembly builds
     set(ENABLE_RECORDING_PARSING ON CACHE BOOL "Enable recording parsing functionality" FORCE)
     add_definitions(-DRECORDING_PARSING=1)
-    
-    # WebAssembly-specific definitions
-    add_definitions(-DTARGET_EMSCRIPTEN -DWASM_BUILD)
-    add_definitions(-DTARGET_OS_LINUX -DENABLE_BINRELOC)
+    add_definitions(-DTARGET_EMSCRIPTEN -DWASM_BUILD -DTARGET_OS_LINUX -DENABLE_BINRELOC)
     add_definitions(-DSDL_MAIN_HANDLED -DGUI -DSILENT -DGLEW_STATIC)
     
-    # WebAssembly debug output control (only enabled for Debug builds)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
-        #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
-        #add_definitions(-DEMSCRIPTEN_SOUND_TESTBED)
-        #add_definitions(-DEMSCRIPTEN_PLAYBACK_TESTBED)
-        #add_definitions(-DEMSCRIPTEN_DEBUG)
-    endif()
-
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_definitions(-DEMSCRIPTEN_NO_SOUND)
-    #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
-    #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
-    #add_definitions(-DEMSCRIPTEN_SOUND_TESTBED)
-    #add_definitions(-DEMSCRIPTEN_PLAYBACK_TESTBED)
-    #add_definitions(-DEMSCRIPTEN_DEBUG)
-endif()
+        add_definitions(-DEMSCRIPTEN_NO_SOUND)
+    endif()
     
-    # Core Emscripten settings
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_WEBGL2=1")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s FULL_ES3=1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_WEBGL2=1 -s FULL_ES3=1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s FILESYSTEM=1 -s FORCE_FILESYSTEM=1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_VORBIS=1 -s USE_OGG=1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s STACK_SIZE=8MB -msimd128")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -fpermissive")
     
-    # SIMD Vectorization (2-30x performance boost for math operations)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msimd128")
-    
-    # Advanced Memory Management (significant performance improvement)
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        # Fixed memory size for maximum performance (no growth overhead)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s INITIAL_MEMORY=512MB")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ALLOW_MEMORY_GROWTH=0")
-        # Use mimalloc for better multithreaded performance
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s INITIAL_MEMORY=512MB -s ALLOW_MEMORY_GROWTH=0")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s MALLOC=mimalloc")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s PTHREAD_POOL_SIZE_STRICT=0 -s SHARED_MEMORY=1")
     else()
-        # Keep memory growth for debug builds
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=1024MB")
     endif()
     
-    # Advanced Compiler Optimizations
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        # Graphics and math-specific optimizations (safe for recording parsing)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffast-math")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rounding-math")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-signaling-nans")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-trapping-math")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -ffast-math -fno-rounding-math")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-signaling-nans -fno-trapping-math")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ENVIRONMENT=web,worker")
-        # Disable ALL aggressive optimizations that might affect parsing
-        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s AGGRESSIVE_VARIABLE_ELIMINATION=1")
-        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ELIMINATE_DUPLICATE_FUNCTIONS=1")
-        # Keep loop optimizations disabled to be safe
-        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funroll-loops")
-        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvectorize")
-        # Enable exception handling for debugging
-        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_EXCEPTION_CATCHING=1")
-        # Keep debug output enabled
-        #add_definitions(-DNO_DEBUG_OUTPUT)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s AGGRESSIVE_VARIABLE_ELIMINATION=1")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ELIMINATE_DUPLICATE_FUNCTIONS=1")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -funroll-loops -fvectorize")
     endif()
     
-    if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_PTHREADS=1")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s PTHREAD_POOL_SIZE=4")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s PTHREAD_POOL_SIZE_STRICT=0")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s SHARED_MEMORY=1")
-    endif()
-    
-    # WebGL Performance Optimizations
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_ENABLE_GET_PROC_ADDRESS=1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_SUPPORT_SIMPLE_ENABLE_EXTENSIONS=1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_POOL_TEMP_BUFFERS=1")
-    
-    # GPU-Specific Performance Optimizations (safe for recording parsing)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_PREINITIALIZED_CONTEXT=1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_EXPLICIT_UNIFORM_LOCATION=1")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_EXPLICIT_UNIFORM_BINDING=1")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_TRACK_ERRORS=0")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_UNSAFE_OPTS=1")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s LEGACY_GL_EMULATION=0")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_FFP_ONLY=0")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_EMULATE_GLES_VERSION_STRING_FORMAT=0")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s FULL_ES2=1")
-    # Enable WebGL-specific optimizations for better GPU utilization
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s MIN_WEBGL_VERSION=2")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s MAX_WEBGL_VERSION=2")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_TRACK_ERRORS=0 -s GL_UNSAFE_OPTS=1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s LEGACY_GL_EMULATION=0 -s GL_FFP_ONLY=0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s WEBGL2_BACKWARDS_COMPATIBILITY_EMULATION=0")
-    # Graphics-specific compiler optimizations (don't affect I/O or parsing)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s PRECISE_F32=0")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s TEXTDECODER=0")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s PRECISE_F32=0 -s TEXTDECODER=0")
     
-    # Audio Performance
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_VORBIS=1 -s USE_OGG=1")
-    
-    # Stack size optimization
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s STACK_SIZE=8MB")
-    
-    # Debug-specific settings
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ASSERTIONS=2 -s SAFE_HEAP=1")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s STACK_OVERFLOW_CHECK=2")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_ASSERTIONS=1")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_DEBUG=1")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_ASSERTIONS=1 -s GL_DEBUG=1")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g4 --source-map-base http://localhost:8000/")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s EXCEPTION_DEBUG=1")
-        # Remove optimization for better debugging
         string(REPLACE "-O3" "-O0" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
         string(REPLACE "-DNDEBUG" "-D_DEBUG" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
     endif()
     
-    # Platform-specific files for WebAssembly
     set(PLATFORM_SPECIFIC_FILES
         ${ROOT_PATH}/source/lib/spawn.cpp
         ${SYSTEMIV_PATH}/lib/gucci/input_sdl.cpp
@@ -261,9 +168,7 @@ endif()
     
     set(EXE_TYPE)
     
-    # Files to exclude for WebAssembly (mainly networking and platform-specific)
     set(FILES_TO_EXCLUDE
-        # Windows-specific files
         ${ROOT_PATH}/source/app/trayicon.cpp
         ${SYSTEMIV_PATH}/lib/gucci/input_win32.cpp
         ${SYSTEMIV_PATH}/lib/gucci/win32library.cpp
@@ -273,42 +178,34 @@ endif()
         ${SYSTEMIV_PATH}/lib/netlib/condition_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_winxp.cpp
         ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_dsound.cpp
-        
-        # macOS-specific files
         ${ROOT_PATH}/source/app/macutil.cpp
         ${ROOT_PATH}/source/app/dockicon.mm
-        
-        # Linux-specific files that don't apply to WebAssembly
         ${ROOT_PATH}/source/lib/debug_utils_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
-        
-        # Original networking files that don't work in WebAssembly
         ${SYSTEMIV_PATH}/lib/netlib/net_lib.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_socket.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_socket_listener.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_socket_session.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_udp_packet.cpp
-        
-        # Debug utils uses execinfo.h which doesn't exist in WebAssembly
         ${SYSTEMIV_PATH}/lib/debug_utils.cpp
-        
-        # Condition variables use pthread which don't work properly in WebAssembly
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
-        
-        # Desktop sound systems not needed for WebAssembly (we have our own WebAssembly implementation)
         ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_software.cpp
     )
 
 elseif(MSVC)
     set(CMAKE_GENERATOR_PLATFORM Win32)
-    add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
+    set(CMAKE_GENERATOR_TOOLSET "v143")
     enable_language(RC)
+    
     add_definitions(-D_WIN32 -DWIN32 -DTARGET_MSVC -DGLEW_STATIC)
-    set(CMAKE_GENERATOR_TOOLSET "v143")  # Updated to match your VS version
+    add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
+    
     set(CMAKE_RC_FLAGS "${CMAKE_RC_FLAGS} /I\"${RESOURCES_DIR}\"")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /EHsc /Zm2000 /Zf /D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS /NODEFAULTLIB:LIBCMT")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4530 /wd4018 /wd4267 /wd4244 /wd4305 /wd4101 /wd4099 /wd26495 /wd4005 /wd4006 /wd4996 /wd4800 /wd4251")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /EHsc /Zm2000 /Zf")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS /NODEFAULTLIB:LIBCMT")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4530 /wd4018 /wd4267 /wd4244 /wd4305 /wd4101")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4099 /wd26495 /wd4005 /wd4006 /wd4996 /wd4800 /wd4251")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4244 /wd4305 /wd4005 /wd4996")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /IGNORE:4006")
     set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} /IGNORE:4006")
@@ -341,23 +238,9 @@ elseif(MSVC)
     )
     
 elseif(APPLE) 
-    # macOS configurations
     set(CMAKE_MACOSX_RPATH 1)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS deployment version")
     set(MACOS_FRAMEWORKS_DIR "${SYSTEMIV_PATH}/contrib/macosx/Frameworks")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F${MACOS_FRAMEWORKS_DIR}")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -F${MACOS_FRAMEWORKS_DIR}")
-
-    include_directories(
-        ${MACOS_FRAMEWORKS_DIR}
-        ${MACOS_FRAMEWORKS_DIR}/SDL2.framework
-        ${MACOS_FRAMEWORKS_DIR}/SDL2.framework/Headers
-        ${MACOS_FRAMEWORKS_DIR}/Ogg.framework/Headers
-        ${MACOS_FRAMEWORKS_DIR}/Vorbis.framework/Headers
-    )
-
-    add_definitions(-DSDL_MAIN_HANDLED)
-    add_definitions(-D_DARWIN -DMACOS -DTARGET_OS_MACOSX -DGUI -DSILENT -DGLEW_STATIC)
     
     if(NOT CMAKE_OSX_ARCHITECTURES)
         if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
@@ -376,7 +259,21 @@ elseif(APPLE)
         endif()
     endif()
     
+    add_definitions(-DSDL_MAIN_HANDLED)
+    add_definitions(-D_DARWIN -DMACOS -DTARGET_OS_MACOSX -DGUI -DSILENT -DGLEW_STATIC)
+    
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F${MACOS_FRAMEWORKS_DIR}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -F${MACOS_FRAMEWORKS_DIR}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-deprecated-declarations -Wno-error=format-security -fpermissive")
+    
+    include_directories(
+        ${MACOS_FRAMEWORKS_DIR}
+        ${MACOS_FRAMEWORKS_DIR}/SDL2.framework
+        ${MACOS_FRAMEWORKS_DIR}/SDL2.framework/Headers
+        ${MACOS_FRAMEWORKS_DIR}/Ogg.framework/Headers
+        ${MACOS_FRAMEWORKS_DIR}/Vorbis.framework/Headers
+    )
+    
     set(PLATFORM_SPECIFIC_FILES
         ${ROOT_PATH}/source/lib/spawn.cpp
         ${ROOT_PATH}/source/app/macutil.cpp
@@ -396,6 +293,7 @@ elseif(APPLE)
     set_source_files_properties(${MACOS_SPECIFIC_SOURCES} PROPERTIES COMPILE_FLAGS "-x objective-c++")
     
     set(EXE_TYPE MACOSX_BUNDLE)
+    
     set(FILES_TO_EXCLUDE
         ${ROOT_PATH}/source/lib/debug_utils_linux.cpp
         ${ROOT_PATH}/source/app/trayicon.cpp
@@ -413,7 +311,6 @@ else()
     find_package(SDL2 REQUIRED) 
     find_package(OpenGL REQUIRED)
     
-    # Use desktop OpenGL with GLEW instead of OpenGL ES
     if(PKG_CONFIG_FOUND)
         pkg_check_modules(VORBIS REQUIRED vorbisfile vorbis ogg)
     else()
@@ -423,6 +320,10 @@ else()
     add_definitions(-DTARGET_OS_LINUX -DENABLE_BINRELOC -DGUI -DSILENT -DGLEW_STATIC)
     
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-deprecated-declarations -Wno-error=format-security -fpermissive")
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
+    
     set(PLATFORM_SPECIFIC_FILES
         ${ROOT_PATH}/source/lib/debug_utils_linux.cpp
         ${ROOT_PATH}/source/lib/spawn.cpp
@@ -437,6 +338,7 @@ else()
     )
     
     set(EXE_TYPE)
+    
     set(FILES_TO_EXCLUDE
         ${ROOT_PATH}/source/app/trayicon.cpp
         ${SYSTEMIV_PATH}/lib/gucci/input_win32.cpp
@@ -450,10 +352,6 @@ else()
         ${ROOT_PATH}/source/app/macutil.cpp
         ${ROOT_PATH}/source/app/dockicon.mm
     )
-    
-    set(CMAKE_INSTALL_RPATH "$ORIGIN")
-    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
 endif()
 
 foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
@@ -461,7 +359,7 @@ foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
 
     if(MSVC)
         set(CMAKE_CXX_FLAGS_${CONFIG_UPPER} "${CMAKE_CXX_FLAGS_${CONFIG_UPPER}} /MP")
-    
+        
         if(${CONFIG} MATCHES "Debug")
             string(APPEND CMAKE_CXX_FLAGS_${CONFIG_UPPER} " /Od /Zi /MDd /RTC1 /GS /EHsc /FC /analyze /Z7")
             set(CMAKE_C_FLAGS_${CONFIG_UPPER} "${CMAKE_C_FLAGS_${CONFIG_UPPER}} /MDd -D_DEBUG -DTARGET_MSVC")
@@ -482,24 +380,13 @@ foreach(CONFIG ${CMAKE_CONFIGURATION_TYPES})
     endif()
 endforeach()
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_TESTS "${CMAKE_BINARY_DIR}/tests")
-set(TEST_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
-
 if(MSVC)
     set(MAIN_EXE_OUTPUT_DIR "${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
-elseif(APPLE)
-    set(MAIN_EXE_OUTPUT_DIR "${CMAKE_BINARY_DIR}/result/$<CONFIG>")
 else()
     set(MAIN_EXE_OUTPUT_DIR "${CMAKE_BINARY_DIR}/result/$<CONFIG>")
 endif()
 
-if(MSVC)
-    set(DATA_SOURCE_DIR "${CMAKE_SOURCE_DIR}/localisation")
-elseif(APPLE)
-    set(DATA_SOURCE_DIR "${CMAKE_SOURCE_DIR}/localisation")
-else()
-    set(DATA_SOURCE_DIR "${CMAKE_SOURCE_DIR}/localisation")
-endif()
+set(DATA_SOURCE_DIR "${CMAKE_SOURCE_DIR}/localisation")
 
 set(DEFCON_SOURCE
     ${ROOT_PATH}/source/defcon.cpp
@@ -581,10 +468,8 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/interface/placement_icon.cpp
 )
 
-# include the recording parsing files if we are enabled
 if(ENABLE_RECORDING_PARSING)
     list(APPEND DEFCON_SOURCE
-        #${ROOT_PATH}/source/app/synctestrecordings.cpp
         ${ROOT_PATH}/source/network/recordingparser.cpp
         ${ROOT_PATH}/source/interface/recording_selection.cpp
     )
@@ -713,132 +598,96 @@ endforeach()
 
 set(ALL_SOURCES ${DEFCON_SOURCE} ${SYSTEMIV_SOURCE} ${UNRAR_SOURCE} ${PLATFORM_SPECIFIC_FILES} ${RESOURCE_FILES})
 
-add_executable(defcon ${EXE_TYPE} ${ALL_SOURCES})
+if(EMSCRIPTEN AND ENABLE_EMSCRIPTEN_REPLAY_VIEWER)
+    set(EXECUTABLE_NAME "replay_viewer_${REPLAY_VIEWER_VERSION}")
+    message(STATUS "Building WebAssembly replay viewer with version: ${REPLAY_VIEWER_VERSION}")
+else()
+    set(EXECUTABLE_NAME "defcon")
+endif()
+
+add_executable(${EXECUTABLE_NAME} ${EXE_TYPE} ${ALL_SOURCES})
 
 if(EMSCRIPTEN)
-    set_target_properties(defcon PROPERTIES
+    set_target_properties(${EXECUTABLE_NAME} PROPERTIES
         WIN32_EXECUTABLE FALSE
         RUNTIME_OUTPUT_DIRECTORY "${MAIN_EXE_OUTPUT_DIR}"
         SUFFIX ".html"
     )
     
-    # === LINKER OPTIMIZATION FLAGS ===
-    
-    # Core settings
-    set(EMSCRIPTEN_LINK_FLAGS "-s USE_SDL=2")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s USE_WEBGL2=1")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s FULL_ES3=1")
+    set(EMSCRIPTEN_LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGL2=1 -s FULL_ES3=1")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s FILESYSTEM=1 -s FORCE_FILESYSTEM=1")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s USE_VORBIS=1 -s USE_OGG=1")
-    
-    # SIMD and performance optimizations
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -msimd128")
-    
-    # Memory optimization (release vs debug)
+    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -msimd128 -s STACK_SIZE=8MB")
+
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s INITIAL_MEMORY=512MB")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s ALLOW_MEMORY_GROWTH=0")
-        # Threading enabled for better performance
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s INITIAL_MEMORY=512MB -s ALLOW_MEMORY_GROWTH=0")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s MALLOC=mimalloc")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s USE_PTHREADS=1")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s PTHREAD_POOL_SIZE=4")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s PTHREAD_POOL_SIZE_STRICT=0")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s SHARED_MEMORY=1")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s PTHREAD_POOL_SIZE_STRICT=0 -s SHARED_MEMORY=1")
     else()
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=1024MB")
     endif()
-    
-    # WebGL performance optimizations
+
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_ENABLE_GET_PROC_ADDRESS=1")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS=1")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_POOL_TEMP_BUFFERS=1")
-    
-    # GPU-Specific Performance Optimizations (safe for recording parsing)
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_PREINITIALIZED_CONTEXT=1")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_EXPLICIT_UNIFORM_LOCATION=1")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_EXPLICIT_UNIFORM_BINDING=1")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_TRACK_ERRORS=0")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_UNSAFE_OPTS=1")
+    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_TRACK_ERRORS=0 -s GL_UNSAFE_OPTS=1")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s LEGACY_GL_EMULATION=0")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_FFP_ONLY=0")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_EMULATE_GLES_VERSION_STRING_FORMAT=0")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s FULL_ES2=1")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s MIN_WEBGL_VERSION=2")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s MAX_WEBGL_VERSION=2")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s WEBGL2_BACKWARDS_COMPATIBILITY_EMULATION=0")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s PRECISE_F32=0")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s TEXTDECODER=0")
-    
-    # Stack size optimization
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s STACK_SIZE=8MB")
+    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2")
+    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s PRECISE_F32=0 -s TEXTDECODER=0")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_FUNCTIONS=['_main','_malloc','_free','_jsCreateDspChain','_jsUpdateDspFilter','_jsRemoveDspChain','_jsConnectDspChain','_jsRequestAudioDataForProcessor','_jsFreeAudioData']")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/data@data")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/preferences.txt@preferences.txt")
-    # Also include mods if they exist
+
     if(EXISTS "${CMAKE_SOURCE_DIR}/localisation/mods")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/mods@mods")
     endif()
+
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -w")
     
-    # Build-type specific optimizations
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        # Graphics-specific optimizations that don't affect recording parsing
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -O2")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s ENVIRONMENT=web,worker")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s MODULARIZE=0")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORT_ES6=0")
-        
-        # Code obfuscation and protection (production only)
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s MINIFY_HTML=1")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s SINGLE_FILE=0")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s DEMANGLE_SUPPORT=0")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -fno-rtti")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -fvisibility=hidden")
-        # Disable ALL aggressive optimizations that might affect parsing
-        #set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s AGGRESSIVE_VARIABLE_ELIMINATION=1")
-        #set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s ELIMINATE_DUPLICATE_FUNCTIONS=1")
-        # Enable exception handling for debugging
-        #set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s DISABLE_EXCEPTION_CATCHING=1")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -O2 -s ENVIRONMENT=web,worker")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s MODULARIZE=0 -s EXPORT_ES6=0")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s MINIFY_HTML=1 -s SINGLE_FILE=0")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s DEMANGLE_SUPPORT=0 -fno-rtti -fvisibility=hidden")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s AGGRESSIVE_VARIABLE_ELIMINATION=1")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s ELIMINATE_DUPLICATE_FUNCTIONS=1")
     else()
-        # Debug-specific flags
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s ASSERTIONS=2 -s SAFE_HEAP=1")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s STACK_OVERFLOW_CHECK=2")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_ASSERTIONS=1")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_DEBUG=1")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_ASSERTIONS=1 -s GL_DEBUG=1")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXCEPTION_DEBUG=1")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -g4 --source-map-base http://localhost:8000/")
-        # Remove optimization for better debugging
         string(REPLACE "-O3" "-O0" EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS}")
     endif()
     
-    set_target_properties(defcon PROPERTIES LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS}")
-    
-    # No additional libraries needed for Emscripten (SDL2, OpenGL, Vorbis provided by flags)
-    
+    set_target_properties(${EXECUTABLE_NAME} PROPERTIES LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS}")
+ 
 elseif(MSVC)
-    set_target_properties(defcon PROPERTIES
+    set_target_properties(${EXECUTABLE_NAME} PROPERTIES
         WIN32_EXECUTABLE TRUE
         LINK_FLAGS "/SUBSYSTEM:WINDOWS /IGNORE:4006"
         RUNTIME_OUTPUT_DIRECTORY "${MAIN_EXE_OUTPUT_DIR}"
     )
     
-    target_link_libraries(defcon PRIVATE 
-            "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis/lib/vs2022/ogg.lib"
-            "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis/lib/vs2022/vorbis.lib"
-            "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis/lib/vs2022/vorbisfile.lib"
-            "${GLEW_LIBRARY}"
-        wsock32 opengl32 glu32 dsound dxguid dbghelp winmm Ws2_32
-    )
-    
-    target_include_directories(defcon PRIVATE
+    target_include_directories(${EXECUTABLE_NAME} PRIVATE
         ${ROOT_PATH}/contrib/systemIV/contrib/oggvorbis/include/
         ${ROOT_PATH}/contrib/ambx1.1/inc
     )
     
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE 
+        "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis/lib/vs2022/ogg.lib"
+        "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis/lib/vs2022/vorbis.lib"
+        "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis/lib/vs2022/vorbisfile.lib"
+        "${GLEW_LIBRARY}"
+        wsock32 opengl32 glu32 dsound dxguid dbghelp winmm Ws2_32
+    )
+    
 elseif(APPLE)
-    set_target_properties(defcon PROPERTIES
+    set_target_properties(${EXECUTABLE_NAME} PROPERTIES
         WIN32_EXECUTABLE FALSE
         MACOSX_BUNDLE TRUE
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/targets/macosx/Info_cmake.plist"
@@ -851,13 +700,10 @@ elseif(APPLE)
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
         INSTALL_RPATH "@executable_path/../Frameworks"
         BUILD_WITH_INSTALL_RPATH TRUE
-    )
-
-    set_target_properties(defcon PROPERTIES
         LINK_FLAGS "-F${MACOS_FRAMEWORKS_DIR}"
     )
 
-    target_link_libraries(defcon PRIVATE 
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE 
         "-framework SDL2" 
         "-framework Ogg" 
         "-framework Vorbis" 
@@ -868,18 +714,19 @@ elseif(APPLE)
         "${GLEW_LIBRARY}"
         "-liconv"
     )
-    
+
 else()
-    set_target_properties(defcon PROPERTIES
+    set_target_properties(${EXECUTABLE_NAME} PROPERTIES
         WIN32_EXECUTABLE FALSE
         RUNTIME_OUTPUT_DIRECTORY "${MAIN_EXE_OUTPUT_DIR}"
     )
     
-    target_include_directories(defcon PUBLIC 
+    target_include_directories(${EXECUTABLE_NAME} PUBLIC 
         ${SDL2_INCLUDE_DIRS}
         ${OPENGL_INCLUDE_DIRS}
     )
-    target_link_libraries(defcon PRIVATE 
+    
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE 
         SDL2main
         ${SDL2_LIBRARIES}
         ${OPENGL_LIBRARIES}
@@ -890,7 +737,7 @@ else()
     )
 endif()
 
-target_include_directories(defcon PUBLIC
+target_include_directories(${EXECUTABLE_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/resources
     ${ROOT_PATH}/source
     ${SYSTEMIV_PATH}
@@ -898,45 +745,46 @@ target_include_directories(defcon PUBLIC
 )
 
 add_library(systemIV INTERFACE)
-target_link_libraries(defcon PUBLIC systemIV)
+target_link_libraries(${EXECUTABLE_NAME} PUBLIC systemIV)
 
 if(NOT APPLE)
-    target_precompile_headers(defcon PRIVATE
+    target_precompile_headers(${EXECUTABLE_NAME} PRIVATE
         ${ROOT_PATH}/source/lib/universal_include.h
     )
 endif()
 
-if(MSVC) # it is very much non-caanon to copy executables into the source directory...
-  add_custom_command(TARGET defcon POST_BUILD 
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "$<TARGET_FILE:defcon>"
-    "${MAIN_EXE_OUTPUT_DIR}/$<TARGET_FILE_NAME:defcon>"
-)
-elseif(LINUX)
-    # copy data into build directory
-    add_custom_command(TARGET defcon PRE_BUILD 
+if(MSVC)
+    add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "$<TARGET_FILE:${EXECUTABLE_NAME}>"
+        "${MAIN_EXE_OUTPUT_DIR}/$<TARGET_FILE_NAME:${EXECUTABLE_NAME}>"
+    )
+
+elseif(UNIX AND NOT APPLE)
+    add_custom_command(TARGET ${EXECUTABLE_NAME} PRE_BUILD 
         COMMAND ${CMAKE_COMMAND} -E make_directory "${MAIN_EXE_OUTPUT_DIR}"
     )
-    add_custom_command(TARGET defcon POST_BUILD 
+    add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/data" "${MAIN_EXE_OUTPUT_DIR}/data"
         COMMAND ${CMAKE_COMMAND} -E rm -rf "${MAIN_EXE_OUTPUT_DIR}/data/sounds"
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/mods" "${MAIN_EXE_OUTPUT_DIR}/mods"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/*.dat" "${MAIN_EXE_OUTPUT_DIR}/"
+        #COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/*.dat" "${MAIN_EXE_OUTPUT_DIR}/"
         COMMAND ${CMAKE_SOURCE_DIR}/targets/linux/bundle_sdl.sh ${MAIN_EXE_OUTPUT_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/targets/linux/launch_cmake.sh ${MAIN_EXE_OUTPUT_DIR}/launch.sh
     )
+
 elseif(APPLE)
-    add_custom_command(TARGET defcon PRE_BUILD 
+    add_custom_command(TARGET ${EXECUTABLE_NAME} PRE_BUILD 
         COMMAND ${CMAKE_COMMAND} -E make_directory "${MAIN_EXE_OUTPUT_DIR}"
     )
-    set(BUNDLE_DIR ${MAIN_EXE_OUTPUT_DIR}/defcon.app/Contents)
+    set(BUNDLE_DIR ${MAIN_EXE_OUTPUT_DIR}/${EXECUTABLE_NAME}.app/Contents)
     set(DATA_TARGET_DIR ${BUNDLE_DIR}/Resources/)
-    add_custom_command(TARGET defcon POST_BUILD 
+    add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/data" "${DATA_TARGET_DIR}/data"
         COMMAND ${CMAKE_COMMAND} -E rm -rf "${DATA_TARGET_DIR}/data/sounds"
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/mods" "${DATA_TARGET_DIR}/mods"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/resources/macosx/*" "${DATA_TARGET_DIR}/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/*.dat" "${DATA_TARGET_DIR}/"
+        #COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/*.dat" "${DATA_TARGET_DIR}/"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/targets/macosx/Info_cmake.plist" "${BUNDLE_DIR}/Info.plist"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/targets/macosx/Base.lproj/SDLMain.nib" "${DATA_TARGET_DIR}/SDLMain.nib"
         COMMAND ${CMAKE_SOURCE_DIR}/targets/macosx/bundle_sdl.sh ${BUNDLE_DIR}

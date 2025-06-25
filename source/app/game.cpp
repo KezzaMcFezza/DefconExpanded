@@ -525,7 +525,9 @@ void Game::Update()
                     if( m_victoryTimer > 0 )
                     {
                         g_app->GetInterface()->ShowMessage( 0, 0, -1, LANGUAGEPHRASE("message_victory_timer"), true );
+#ifdef EMSCRIPTEN_SOUND
                         g_soundSystem->TriggerEvent( "Interface", "DefconChange" );
+#endif
 
                         if( g_app->m_hidden )
                         {
@@ -590,9 +592,11 @@ void Game::Update()
                     EclRegisterWindow( new StatsWindow()  );
                 }
 
+#ifdef EMSCRIPTEN_SOUND
                 g_soundSystem->StopAllSounds( SoundObjectId(), "StartMusic StartMusic" );
                 g_soundSystem->TriggerEvent( "Interface", "GameOver" );
-
+#endif
+       
                 int specVisible = g_app->GetGame()->GetOptionValue("SpectatorChatChannel");
                 if( specVisible == 0 &&
                     g_app->GetWorld()->m_spectators.Size() )

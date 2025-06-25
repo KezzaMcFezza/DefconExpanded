@@ -1,0 +1,319 @@
+# DEFCON UNIT BATCHING SYSTEM RESEARCH
+# ====================================
+# Research on how to safely batch all world objects while preserving rendering states
+
+## CURRENT RENDERING ARCHITECTURE
+
+### Base WorldObject System
+- All units inherit from WorldObject base class
+- WorldObject::Render() handles base sprite rendering + selection highlights
+- WorldObject::RenderBatched() exists for sprite batching (BlitSprite)
+- Each unit overrides Render() to add additional sprites on top
+
+### Current Rendering Flow
+1. MapRenderer::RenderObjects() loops through all world objects
+2. Each object calls wobj->Render() individually 
+3. Render() calls WorldObject::Render() for base sprite
+4. Then renders additional sprites (aircraft counts, nuke indicators, etc.)
+
+### Battleship Batching Success
+- Battleships only render base sprite (no additional sprites)
+- Successfully moved to RenderBatched() -> BlitSprite() 
+- Gained 20 FPS because all battleships batched into single draw call
+- Simple case: just base sprite, no complex state-dependent rendering
+
+## COMPLEX UNIT RENDERING ANALYSIS
+
+### 1. AIRBASES - FIGHTER/BOMBER DISPLAY
+**Location**: `source/world/airbase.cpp:521-572`
+**Complexity**: HIGH
+```cpp
+void AirBase::Render() {
+    WorldObject::Render();  // Base sprite
+    
+    // Render aircraft count based on current state
+    int numInStore = m_states[m_currentState]->m_numTimesPermitted;
+    int numInQueue = m_actionQueue.Size();
+    
+    // Different sprites based on state
+    Image *bmpImage = g_resource->GetImage("graphics/smallbomber.bmp");
+    if( m_currentState == 0 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp");
+    
+    // Multiple sprites arranged in formation
+    for( int i = 0; i < numInStore; ++i ) {
+        // Queued aircraft appear dimmed
+        if( i >= (numInStore-numInQueue) ) {
+            colour.Set( 128,128,128,100 );
+        }
+        g_renderer->Blit( bmpImage, x, y, size*0.9f, -size, colour );
+        x += dx;  // Position increment
+    }
+}
+```
+
+**Batching Challenges**:
+- State-dependent sprite selection (fighter vs bomber images)
+- Dynamic count rendering (0-10+ aircraft sprites)  
+- Position calculations for sprite layout
+- Color changes for queued vs available aircraft
+- Team territory affects sprite direction
+
+### 2. CARRIERS - AIRCRAFT + ANTI-SUB MODE
+**Location**: `source/world/carrier.cpp:722-777`
+**Complexity**: HIGH
+```cpp
+void Carrier::Render() {
+    MovingObject::Render();  // Base sprite + movement prediction
+    
+    // Similar to airbase but with moving prediction
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
+    float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
+    
+    // State-dependent aircraft display
+    Image *bmpImage = g_resource->GetImage("graphics/smallbomber.bmp");
+    if( m_currentState == 0 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp");
+    
+    // Anti-submarine mode (state 2) - NO aircraft sprites rendered!
+    // Only states 0,1 render aircraft
+}
+```
+
+**Batching Challenges**:
+- All airbase challenges PLUS:
+- Movement prediction affects sprite positions
+- Anti-submarine mode completely removes aircraft sprites
+- State switching dynamically changes what's rendered
+
+### 3. SUBMARINES - NUKE COUNT + SURFACE MODE
+**Location**: `source/world/sub.cpp:194-240`
+**Complexity**: MEDIUM
+```cpp
+void Sub::Render() {
+    MovingObject::Render();  // Base sprite (surface vs submerged image)
+    
+    // Nuke count display
+    int numNukesInStore = m_states[2]->m_numTimesPermitted;
+    int numNukesInQueue = m_actionQueue.Size();
+    
+    Image *bmpImage = g_resource->GetImage("graphics/smallnuke.bmp");
+    for( int i = 0; i < numNukesInStore; ++i ) {
+        // Queued nukes appear dimmed
+        if( i >= (numNukesInStore-numNukesInQueue) ) {
+            colour.Set( 128,128,128,100 );
+        }
+        g_renderer->Blit( bmpImage, x, y, nukeSize, -nukeSize, colour );
+        x -= dx;  // Position increment
+    }
+}
+```
+
+**Batching Challenges**:
+- Base sprite changes based on surfaced state
+- Dynamic nuke count (0-6+ nuke sprites)
+- Color changes for queued vs available nukes
+- Movement prediction affects positions
+
+### 4. SILOS - NUKE COUNT
+**Location**: `source/world/silo.cpp:163-198`
+**Complexity**: MEDIUM
+```cpp
+void Silo::Render() {
+    WorldObject::Render();  // Base sprite
+    
+    // Nuke count display
+    int numNukesInStore = m_states[0]->m_numTimesPermitted;
+    int numNukesInQueue = m_actionQueue.Size();
+    
+    Image *bmpImage = g_resource->GetImage("graphics/smallnuke.bmp");
+    for( int i = 0; i < numNukesInStore; ++i ) {
+        // Queued nukes appear dimmed
+        if( i >= (numNukesInStore-numNukesInQueue) ) {
+            colour.Set( 128,128,128,100 );
+        }
+        g_renderer->Blit( bmpImage, x+i*nukeSize*0.5f, y, nukeSize, -nukeSize, colour );
+    }
+}
+```
+
+**Batching Challenges**:
+- Dynamic nuke count (0-30+ nuke sprites)
+- Color changes for queued vs available nukes
+- Fixed positioning (easier than moving units)
+
+## BATCHING IMPLEMENTATION STRATEGIES
+
+### STRATEGY 1: HYBRID BATCHING (RECOMMENDED)
+**Concept**: Separate batching passes for different sprite types
+
+```cpp
+void MapRenderer::RenderObjects() {
+    // Pass 1: Batch all base unit sprites
+    for( WorldObject *wobj : allObjects ) {
+        if( shouldBatchUnit(wobj) ) {
+            wobj->RenderBaseBatched();  // Only base sprite
+        }
+    }
+    g_renderer->FlushSpriteBuffer();  // Single draw call for all units
+    
+    // Pass 2: Batch all small aircraft sprites
+    for( WorldObject *wobj : allObjects ) {
+        if( wobj->HasAircraftSprites() ) {
+            wobj->RenderAircraftBatched();
+        }
+    }
+    g_renderer->FlushSpriteBuffer();  // Single draw call for all aircraft
+    
+    // Pass 3: Batch all nuke indicator sprites  
+    for( WorldObject *wobj : allObjects ) {
+        if( wobj->HasNukeSprites() ) {
+            wobj->RenderNukesBatched();
+        }
+    }
+    g_renderer->FlushSpriteBuffer();  // Single draw call for all nukes
+    
+    // Pass 4: Selection highlights (different blend mode)
+    RenderSelectionHighlights();
+}
+```
+
+**Advantages**:
+- Preserves all existing rendering logic
+- Achieves batching for each sprite type
+- 3-4 draw calls instead of 100+ individual calls
+- No risk of breaking unit states
+
+### STRATEGY 2: MULTI-PASS RENDERING
+**Concept**: Render units in multiple passes, batching compatible sprites
+
+```cpp
+// Phase 1: All base unit sprites (same shader/blend mode)
+void RenderBaseSprites() {
+    for( WorldObject *wobj : allObjects ) {
+        wobj->RenderBaseSpriteBatched();
+    }
+    g_renderer->FlushSpriteBuffer();
+}
+
+// Phase 2: All aircraft indicators (same texture)
+void RenderAircraftIndicators() {
+    for( WorldObject *wobj : allObjects ) {
+        if( wobj->m_type == TypeAirBase || wobj->m_type == TypeCarrier ) {
+            wobj->RenderAircraftIndicatorsBatched();
+        }
+    }
+    g_renderer->FlushSpriteBuffer();
+}
+
+// Phase 3: All nuke indicators (same texture)
+void RenderNukeIndicators() {
+    for( WorldObject *wobj : allObjects ) {
+        if( wobj->m_type == TypeSilo || wobj->m_type == TypeSub ) {
+            wobj->RenderNukeIndicatorsBatched();
+        }
+    }
+    g_renderer->FlushSpriteBuffer();
+}
+```
+
+### STRATEGY 3: SMART STATE CACHING (ADVANCED)
+**Concept**: Pre-calculate sprite lists and batch render
+
+```cpp
+class UnitRenderCache {
+    struct CachedSprite {
+        Image* texture;
+        float x, y, w, h;
+        Colour color;
+        int renderPass;  // 0=base, 1=aircraft, 2=nukes
+    };
+    
+    LList<CachedSprite> m_cachedSprites[3];  // 3 render passes
+    bool m_dirty;
+    
+    void UpdateCache(WorldObject* unit) {
+        if( unit->m_lastUpdateTime > m_cacheTime ) {
+            RebuildSpriteCache(unit);
+            m_dirty = true;
+        }
+    }
+    
+    void RenderCachedSprites(int pass) {
+        for( CachedSprite& sprite : m_cachedSprites[pass] ) {
+            g_renderer->BlitSprite(sprite.texture, sprite.x, sprite.y, 
+                                 sprite.w, sprite.h, sprite.color);
+        }
+        g_renderer->FlushSpriteBuffer();
+    }
+};
+```
+
+## IMPLEMENTATION PHASES
+
+### PHASE 1: BASE SPRITE BATCHING (SAFE)
+1. Create `WorldObject::RenderBaseBatched()` method
+2. Move all units to batched base sprite rendering
+3. Keep existing `Render()` for additional sprites
+4. Expected gain: 50-70% reduction in draw calls
+
+### PHASE 2: INDICATOR SPRITE BATCHING (MODERATE RISK)
+1. Create separate batching methods for aircraft/nukes
+2. Implement hybrid rendering system
+3. Extensive testing of state transitions
+4. Expected gain: 80-90% reduction in draw calls
+
+### PHASE 3: FULL INTEGRATION (HIGH RISK)
+1. Complete batching system integration
+2. State-aware caching system
+3. Performance monitoring
+4. Expected gain: 95%+ reduction in draw calls
+
+## RISK MITIGATION
+
+### Critical Preservation Requirements
+1. **State-dependent rendering**: Aircraft vs bomber sprites
+2. **Dynamic counts**: Variable numbers of indicator sprites  
+3. **Color changes**: Queued vs available indicators
+4. **Position calculations**: Formation layouts for indicators
+5. **Prediction**: Moving unit sprite positions
+6. **Selection highlights**: Different blend modes
+
+### Testing Strategy
+1. **Unit Tests**: Each unit type rendering in all states
+2. **State Transition Tests**: Verify sprite changes during state switches
+3. **Performance Tests**: Frame rate monitoring
+4. **Visual Tests**: Screenshot comparison system
+
+### Rollback Plan
+- Keep original `Render()` methods as fallback
+- Runtime batching toggle: `g_renderer->SetBatchingEnabled(false)`
+- Per-unit batching override for problematic units
+
+## PERFORMANCE EXPECTATIONS
+
+### Current Rendering (Worst Case)
+- 100 units on screen
+- Each unit: 1-10 sprite draws
+- Total: 500-1000 draw calls per frame
+- GPU bottleneck on sprite switching
+
+### After Full Batching
+- Base sprites: 1 draw call (all units)
+- Aircraft indicators: 1 draw call (airbases/carriers)
+- Nuke indicators: 1 draw call (silos/subs)  
+- Selection highlights: 1 draw call
+- Total: 4 draw calls per frame
+- Expected FPS gain: 100-200% improvement
+
+## CONCLUSION
+
+The unit batching system is feasible but requires careful implementation to preserve the complex state-dependent rendering logic. The hybrid batching approach offers the best balance of performance gains while minimizing the risk of breaking existing functionality.
+
+**Recommended Implementation Order**:
+1. Base sprite batching (immediate 20+ FPS gain)
+2. Aircraft indicator batching (airbase/carrier sprites)
+3. Nuke indicator batching (silo/sub sprites)
+4. Selection highlight batching
+5. Advanced caching optimizations
+
+Each phase should be thoroughly tested before proceeding to ensure no rendering states are corrupted during the transition to batched rendering. 

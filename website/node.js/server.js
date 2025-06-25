@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 21-06-2025
+//Last Edited 25-06-2025
 
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
@@ -17,18 +17,19 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 console.log("Environment variables loaded:", {
     DB_HOST: process.env.DB_HOST,
     DB_USER: process.env.DB_USER,
-    DB_PASSWORD: process.env.DB_PASSWORD ? "********" + process.env.DB_PASSWORD.slice(-4) : "NOT SET",
+    DB_PASSWORD: process.env.DB_PASSWORD ? "SET" : "NOT SET",
     DB_NAME: process.env.DB_NAME,
     DB_PORT: process.env.DB_PORT,
     PORT: process.env.PORT,
     NODE_ENV: process.env.NODE_ENV,
-    JWT_SECRET: process.env.JWT_SECRET ? "********" + process.env.JWT_SECRET.slice(-4) : "NOT SET",
+    CORS_ORIGIN: process.env.FRONTEND_URL ? "SET" : "NOT SET",
+    JWT_SECRET: process.env.JWT_SECRET ? "SET" : "NOT SET",
     EMAIL_HOST: process.env.EMAIL_HOST,
     EMAIL_PORT: process.env.EMAIL_PORT,
     EMAIL_USER: process.env.EMAIL_USER,
-    EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? "********" : "NOT SET",
+    EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? "SET" : "NOT SET",
     EMAIL_FROM: process.env.EMAIL_FROM,
-    DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN ? "********" + process.env.DISCORD_BOT_TOKEN.slice(-4) : "NOT SET",
+    DISCORD_BOT_TOKEN: process.env.DISCORD_BOT_TOKEN ? "SET" : "NOT SET",
     DISCORD_CHANNEL_IDS: process.env.DISCORD_CHANNEL_IDS,
     BASE_URL: process.env.BASE_URL,
     ENV_FILE_LOADED: process.env.DB_PASSWORD ? "YES" : "NO"
@@ -90,8 +91,6 @@ const {
 } = require('./discord')
 
 const permissions = require('./permission-index');
-
-
 const debugUtils = require('./debug-utils');
 
 // api modules to import
@@ -128,20 +127,83 @@ const smurfCheckerRoutes = require('./apis/smurfchecker/smurf-checker');
 const replayViewerRoutes = require('./apis/replay-viewer/replay-viewer');
 const domainValidationRoutes = require('./apis/security/domain-validation');
 
-// error handler for everything past this point
+// global error handler, created properly for the first time
 const errorHandler = (err, req, res, next) => {
     const startTime = debugUtils.debugFunctionEntry('errorHandler', [err.message], 1);
+    
+    // build the error stack
     console.error('Unhandled error:', err);
     console.debug(2, 'Error details:', err.stack);
-    res.status(500).json({ error: 'Internal server error', details: err.message });
-    debugUtils.debugFunctionExit('errorHandler', startTime, null, 1);
+    console.debug(2, 'Request details:', {
+        method: req.method,
+        url: req.url,
+        headers: req.headers,
+        user: req.user?.username || 'anonymous'
+    });
+    
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
+    const response = {
+        error: 'Internal server error',
+        timestamp: new Date().toISOString(),
+        // include enhanced errors in development
+        ...(isDevelopment && { details: err.message })
+    };
+    
+    if (res.headersSent) {
+        console.error('Cannot send error response - headers already sent');
+        debugUtils.debugFunctionExit('errorHandler', startTime, 'headers_sent', 1);
+        return next(err);
+    }
+    
+    res.status(500).json(response);
+    debugUtils.debugFunctionExit('errorHandler', startTime, 'error_handled', 1);
 };
 
-// authentication middleware
+app.use(timeout('30s')); 
+
+app.use((req, res, next) => {
+    if (!req.timedout) next();
+});
+
+// i actually finally added proper CORS, i never worried about security until the replay viewer was added
+app.use((req, res, next) => {
+    const allowedOrigin = process.env.FRONTEND_URL;
+    res.header('Access-Control-Allow-Origin', allowedOrigin);
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+});
+
+app.use((req, res, next) => {
+    res.set('Cross-Origin-Opener-Policy', 'same-origin');
+    res.set('Cross-Origin-Embedder-Policy', 'require-corp');
+    
+    // static resources we also set resource policy
+    if (req.url.includes('/replay-viewer/') || 
+        req.url.endsWith('.wasm') || 
+        req.url.endsWith('.js') || 
+        req.url.endsWith('.data') || 
+        req.url.endsWith('.worker.js')) {
+        res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+    }
+    
+    next();
+});
+
+app.use((req, res, next) => {
+    if (req.headers['x-forwarded-proto'] === 'https') {
+        res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    }
+    next();
+});
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(publicDir, 'uploads')));
+
+// session middleware
 app.use(session({
     secret: JWT_SECRET,
     resave: false,
@@ -160,12 +222,18 @@ app.use((req, res, next) => {
         } catch (err) {
             res.clearCookie('token');
         }
-    } else {
     }
     next();
 });
 
-// register the api modules for use
+app.use((req, res, next) => {
+    if (req.url.endsWith('.webmanifest')) {
+        res.setHeader('Content-Type', 'application/manifest+json');
+    }
+    next();
+});
+
+// register all api routes
 app.use(adminPanelRoutes);
 app.use(blacklistRoutes);
 app.use(dedconBuildsRoutes);
@@ -199,23 +267,175 @@ app.use(smurfCheckerRoutes);
 app.use(replayViewerRoutes);
 app.use(domainValidationRoutes);
 
-// static file serving
+app.use('/uploads', express.static(path.join(publicDir, 'uploads')));
+
+// serve all static files
 app.use(express.static(publicDir, {
     setHeaders: (res, path, stat) => {
         if (path.endsWith('.html') && adminPages.includes(path.split('/').pop())) {
             res.set('Content-Type', 'text/plain');
         }
         
-        // Apply SharedArrayBuffer headers to WebAssembly-related files
+        // apply SharedArrayBuffer headers to web assembly related files
         if (path.endsWith('.wasm') || path.endsWith('.js') || path.endsWith('.data') || path.endsWith('.worker.js')) {
             res.set('Cross-Origin-Resource-Policy', 'cross-origin');
         }
     }
 }));
 
-// Comprehensive SharedArrayBuffer support middleware
+// 404 handler function
+function sendHtml(res, fileName) {
+    const startTime = debugUtils.debugFunctionEntry('sendHtml', [fileName], 2);
+    console.debug(2, `Serving HTML file: ${fileName}`);
+    
+    res.sendFile(path.join(publicDir, fileName), (err) => {
+        if (err) {
+            console.debug(1, `File not found: ${fileName}, serving 404`);
+            res.status(404).sendFile(path.join(publicDir, '404.html'));
+            debugUtils.debugFunctionExit('sendHtml', startTime, '404', 2);
+        } else {
+            console.debug(2, `Successfully served: ${fileName}`);
+            debugUtils.debugFunctionExit('sendHtml', startTime, 'success', 2);
+        }
+    });
+}
+
+// main page route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
+
+// public routes
+app.get('/about', checkAuthToken, (req, res) => sendHtml(res, 'about.html'));
+app.get('/about/combined-servers', checkAuthToken, (req, res) => sendHtml(res, 'combinedservers.html'));
+app.get('/about/hours-played', checkAuthToken, (req, res) => sendHtml(res, 'totalhoursgraph.html'));
+app.get('/about/popular-territories', checkAuthToken, (req, res) => sendHtml(res, 'popularterritories.html'));
+app.get('/about/1v1-setup-statistics', checkAuthToken, (req, res) => sendHtml(res, '1v1setupstatistics.html'));
+app.get('/smurfchecker', checkAuthToken, (req, res) => sendHtml(res, 'smurfchecker.html'));
+app.get('/resources', checkAuthToken, (req, res) => sendHtml(res, 'resources.html'));
+app.get('/homepage', checkAuthToken, (req, res) => sendHtml(res, 'index.html'));
+app.get('/dedcon-builds', checkAuthToken, (req, res) => sendHtml(res, 'dedconbuilds.html'));
+app.get('/phpmyadmin', checkAuthToken, (req, res) => sendHtml(res, 'idiot.html')); // for the memes
+//app.get('/patchnotes', checkAuthToken, (req, res) => sendHtml(res, 'patchnotes.html'));
+//app.get('/issue-report', checkAuthToken, (req, res) => sendHtml(res, 'bugreport.html'));
+//app.get('/laikasdefcon', checkAuthToken, (req, res) => sendHtml(res, 'laikasdefcon.html'));
+//app.get('/homepage/matchroom', checkAuthToken, (req, res) => sendHtml(res, 'matchroom.html'));
+//app.get('/guides', checkAuthToken, (req, res) => sendHtml(res, 'guides.html'));
+app.get('/leaderboard', checkAuthToken, (req, res) => sendHtml(res, 'leaderboard.html'));
+app.get('/modlist', checkAuthToken, (req, res) => sendHtml(res, 'modlist.html'));
+app.get('/privacypolicy', checkAuthToken, (req, res) => sendHtml(res, 'privacypolicy.html'));
+app.get('/modlist/maps', checkAuthToken, (req, res) => sendHtml(res, 'mapmods.html'));
+app.get('/modlist/graphics', checkAuthToken, (req, res) => sendHtml(res, 'graphicmods.html'));
+app.get('/modlist/overhauls', checkAuthToken, (req, res) => sendHtml(res, 'overhaulmods.html'));
+app.get('/modlist/moddingtools', checkAuthToken, (req, res) => sendHtml(res, 'moddingtools.html'));
+app.get('/modlist/ai', checkAuthToken, (req, res) => sendHtml(res, 'aimods.html'));
+app.get('/signup', checkAuthToken, (req, res) => sendHtml(res, 'signuppage.html'));
+app.get('/forgotpassword', checkAuthToken, (req, res) => sendHtml(res, 'forgotpasswordfor816788487.html'));
+app.get('/changepassword', checkAuthToken, (req, res) => sendHtml(res, 'changepassword248723424.html'));
+
+// admin routes
+app.get('/adminpanel', authenticateToken, checkPermission(permissions.PAGE_ADMIN_PANEL), serveAdminPage('admin-panel', permissions.PAGE_ADMIN_PANEL));
+app.get('/leaderboardblacklistmanage', authenticateToken, checkPermission(permissions.PAGE_BLACKLIST_MANAGE), serveAdminPage('blacklist', permissions.PAGE_BLACKLIST_MANAGE));
+app.get('/demomanage', authenticateToken, checkPermission(permissions.PAGE_DEMO_MANAGE), serveAdminPage('demo-manage', permissions.PAGE_DEMO_MANAGE));
+app.get('/playerlookup', authenticateToken, checkPermission(permissions.PAGE_PLAYER_LOOKUP), serveAdminPage('playerlookup', permissions.PAGE_PLAYER_LOOKUP));
+app.get('/defconservers', authenticateToken, checkPermission(permissions.PAGE_DEFCON_SERVERS), serveAdminPage('servermanagment', permissions.PAGE_DEFCON_SERVERS));
+app.get('/accountmanage', authenticateToken, checkPermission(permissions.PAGE_ACCOUNT_MANAGE), serveAdminPage('account-manage', permissions.PAGE_ACCOUNT_MANAGE));
+app.get('/modlistmanage', authenticateToken, checkPermission(permissions.PAGE_MODLIST_MANAGE), serveAdminPage('modmanagment', permissions.PAGE_MODLIST_MANAGE));
+app.get('/dedconmanagment', authenticateToken, checkPermission(permissions.PAGE_DEDCON_MANAGEMENT), serveAdminPage('dedconmanagment', permissions.PAGE_DEDCON_MANAGEMENT));
+app.get('/resourcemanage', authenticateToken, checkPermission(permissions.PAGE_RESOURCE_MANAGE), serveAdminPage('resourcemanagment', permissions.PAGE_RESOURCE_MANAGE));
+app.get('/serverconsole', authenticateToken, checkPermission(permissions.PAGE_SERVER_CONSOLE), serveAdminPage('server-console', permissions.PAGE_SERVER_CONSOLE));
+app.get('/rconconsole', authenticateToken, checkPermission(permissions.PAGE_RCON_CONSOLE), serveAdminPage('rcon-console', permissions.PAGE_RCON_CONSOLE));
+
+// User routes
+app.get('/demos/page/:pageNumber', checkAuthToken, (req, res) => {
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
+
+app.get('/account-settings', authenticateToken, (req, res) => {
+  res.sendFile(path.join(publicDir, 'profilesettings.html'));
+});
+
+app.get('/change-password', (req, res) => {
+  res.sendFile(path.join(publicDir, 'profilesettings.html'));
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(publicDir, 'loginpage.html'));
+});
+
+app.get('/profile/:username', (req, res) => {
+  res.sendFile(path.join(publicDir, 'profile.html'));
+});
+
+// Static file routes
+app.get('/sitemap', (req, res) => {
+  res.sendFile(path.join(publicDir, 'sitemap.xml'));
+});
+
+app.get('/site.webmanifest', (req, res) => {
+  res.sendFile(path.join(publicDir, 'site.webmanifest'));
+});
+
+app.get('/browserconfig.xml', (req, res) => {
+  res.sendFile(path.join(publicDir, 'browserconfig.xml'));
+});
+
+// function to find the current replay viewer files
+function findReplayViewerFiles() {
+    const startTime = debugUtils.debugFunctionEntry('findReplayViewerFiles', [], 2);
+    
+    try {
+        const files = fs.readdirSync(demoDir);
+        const replayFiles = {
+            html: null,
+            js: null,
+            wasm: null,
+            data: null,
+            version: null
+        };
+        
+        // looks for replay_viewer_*.* files with this regex pattern
+        const replayPattern = /^replay_viewer_(.+)\.(.+)$/;
+        
+        for (const file of files) {
+            const match = file.match(replayPattern);
+            if (match) {
+                const version = match[1];
+                const extension = match[2];
+                
+                if (!replayFiles.version) {
+                    replayFiles.version = version;
+                }
+                
+                switch (extension) {
+                    case 'html':
+                        replayFiles.html = file;
+                        break;
+                    case 'js':
+                        replayFiles.js = file;
+                        break;
+                    case 'wasm':
+                        replayFiles.wasm = file;
+                        break;
+                    case 'data':
+                        replayFiles.data = file;
+                        break;
+                }
+            }
+        }
+        
+        debugUtils.debugFunctionExit('findReplayViewerFiles', startTime, replayFiles, 2);
+        return replayFiles;
+        
+    } catch (error) {
+        console.error('Error, some files could not be found', error);
+        debugUtils.debugFunctionExit('findReplayViewerFiles', startTime, 'error', 2);
+        return { html: null, js: null, wasm: null, data: null, version: null };
+    }
+}
+
+// apply the shared array buffer headers to all files used by the replay viewer
 function setSharedArrayBufferHeaders(res, path, stat) {
-    // Essential headers for SharedArrayBuffer support
     res.set('Cross-Origin-Opener-Policy', 'same-origin');
     res.set('Cross-Origin-Embedder-Policy', 'require-corp');
     res.set('Cross-Origin-Resource-Policy', 'cross-origin');
@@ -251,28 +471,203 @@ app.use('/replay-viewer', (req, res, next) => {
   }
   
   express.static(demoDir, {
-      setHeaders: setSharedArrayBufferHeaders
+      setHeaders: (res, path, stat) => {
+          setSharedArrayBufferHeaders(res, path, stat);
+          
+          // 1 year cache duration, in the event that no new updates are made
+          if (path.endsWith('.wasm') || path.endsWith('.js') || path.endsWith('.data')) {
+              res.set('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year
+              res.set('ETag', `"${stat.mtime.getTime()}-${stat.size}"`);
+          } 
+          // cache html files for 1 day
+          else if (path.endsWith('.html')) {
+              res.set('Cache-Control', 'public, max-age=86400'); // 1 day
+              res.set('ETag', `"${stat.mtime.getTime()}-${stat.size}"`);
+          }
+          // cache service worker for short time to allow updates
+          else if (path.endsWith('replay-viewer-service-worker.js')) {
+              res.set('Cache-Control', 'public, max-age=3600'); // 1 hour
+              res.set('ETag', `"${stat.mtime.getTime()}-${stat.size}"`);
+          }
+      }
   })(req, res, next);
 });
 
-app.use((req, res, next) => {
-    if (req.url.endsWith('.webmanifest')) {
-        res.setHeader('Content-Type', 'application/manifest+json');
+// serve the .dcrec files directly for the replay viewer
+app.get('/replay-viewer/files/*.dcrec', checkAuthToken, async (req, res) => {
+    const startTime = debug.enter('serveDcrecFile', [req.path], 2);
+    const filename = path.basename(req.path);
+    
+    debug.apiRequest('GET', req.originalUrl, req.user, 2);
+    debug.level2('Serving .dcrec file:', filename);
+    
+    const dcrecPath = path.join(demoDir, filename);
+    debug.fileOp('serve', dcrecPath, 3);
+    
+    try {
+        await fs.promises.access(dcrecPath);
+        debug.level2('File found, serving .dcrec file:', filename);
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+        res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+        res.sendFile(dcrecPath);
+        debug.exit('serveDcrecFile', startTime, 'success', 2);
+    } catch (error) {
+        debug.level2('Demo file not found on disk:', dcrecPath);
+        debug.apiResponse(404, 'Demo file not found', 2);
+        debug.exit('serveDcrecFile', startTime, 'not_found', 2);
+        res.status(404).send('Demo file not found.');
     }
-    next();
 });
 
-app.use((req, res, next) => {
-    if (req.headers['x-forwarded-proto'] === 'https') {
-        res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+// serve the replay viewer html file
+app.get('/replay-viewer/:filename', checkAuthToken, async (req, res) => {
+    const startTime = debug.enter('serveReplayViewer', [req.params.filename], 1);
+    const filename = req.params.filename;
+    
+    debug.apiRequest('GET', req.originalUrl, req.user, 1);
+    debug.level2('Requested replay viewer for:', filename);
+    
+    const replayFiles = findReplayViewerFiles();
+    debug.level2('Found replay viewer files:', replayFiles);
+    
+    let replayViewerPath;
+    let jsFileName = 'defcon.js'; // mostly for development, we would never use this on the live server
+    
+    if (replayFiles.html) {
+        replayViewerPath = path.join(demoDir, replayFiles.html);
+        jsFileName = replayFiles.js || 'defcon.js';
+    } else {
+        debug.level2('No replay viewer HTML found');
+        debug.apiResponse(404, 'Replay viewer not found', 2);
+        debug.exit('serveReplayViewer', startTime, 'html_not_found', 1);
+        return res.status(404).send('Replay viewer not found. Please build the WebAssembly replay viewer first.');
     }
-    next();
+    
+    debug.fileOp('check', replayViewerPath, 3);
+    
+    try {
+        await fs.promises.access(replayViewerPath);
+        const dcrecPath = path.join(demoDir, filename);
+        debug.fileOp('check', dcrecPath, 2);
+        
+        try {
+            await fs.promises.access(dcrecPath);
+            debug.level3('Demo file exists: true');
+        } catch (error) {
+            debug.level2('Demo file not found:', dcrecPath);
+            debug.apiResponse(404, 'Demo file not found', 2);
+            debug.exit('serveReplayViewer', startTime, 'demo_not_found', 1);
+            return res.status(404).send('Demo file not found.');
+        }
+      
+        // read the html file and inject the command line arguments + file loading logic
+        debug.fileOp('read', replayViewerPath, 2);
+        
+        try {
+            const data = await fs.promises.readFile(replayViewerPath, 'utf8');
+            
+            debug.level2('HTML file read successfully, length:', data.length);
+            debug.level2('Injecting file loading logic for:', filename);
+            debug.level2('Using JS file:', jsFileName);
+          
+            // inject file loading logic and command line arguments into the html file
+            const scriptPattern = new RegExp(`<script[^>]*src="${jsFileName.replace('.', '\\.')}"[^>]*><\\/script>`);
+            const beforeMatch = data.match(scriptPattern);
+            debug.level3('Script injection pattern:', scriptPattern.toString());
+            debug.level3('Found script tag:', beforeMatch ? beforeMatch[0] : 'NOT FOUND');
+            
+            // this is mostly for development, we would never use this on the live server
+            const fallbackPattern = /<script[^>]*src="defcon\.js"[^>]*><\/script>/;
+            const actualPattern = beforeMatch ? scriptPattern : fallbackPattern;
+          
+            const modifiedHtml = data.replace(
+                actualPattern,
+                `<script>
+                    window.Module = window.Module || {};
+                    window.Module.arguments = ['-l', '${filename}'];
+                    window.Module.print = function(text) {
+                    };
+                    window.Module.printErr = function(text) {
+                        console.error('[WASM Error]:', text);
+                    };
+                    
+                    window.Module.preRun = window.Module.preRun || [];
+                    window.Module.preRun.push(async function() {
+                        
+                        try {
+                            const response = await fetch('/replay-viewer/files/${filename}');
+                            
+                            if (!response.ok) {
+                                throw new Error(\`HTTP error! status: \${response.status}\`);
+                            }
+
+                            const arrayBuffer = await response.arrayBuffer();
+                            const uint8Array = new Uint8Array(arrayBuffer);
+
+                            FS.writeFile('${filename}', uint8Array);
+                            
+                            if (FS.analyzePath('${filename}').exists) {
+                                const stats = FS.stat('${filename}');
+                            } else {
+                            }
+                        } catch (error) {
+                        }
+                    });
+                  
+                </script>
+                <script async type="text/javascript" src="${jsFileName}"></script>`
+            );
+          
+            // now time to see if the replacement worked
+            const afterMatch = modifiedHtml.match(actualPattern);
+            debug.level3('Script tag after replacement:', afterMatch ? 'STILL FOUND (ERROR)' : 'REPLACED SUCCESSFULLY');
+            debug.level3('Module.preRun injected:', modifiedHtml.includes('Module.preRun'));
+            debug.level2('File loading logic injected, sending HTML response');
+            debug.apiResponse(200, 'HTML with injected WebAssembly logic', 2);
+            debug.exit('serveReplayViewer', startTime, 'success', 1);
+            
+            // set CORS headers for SharedArrayBuffer support (required for web assembly threading)
+            res.set('Cross-Origin-Opener-Policy', 'same-origin');
+            res.set('Cross-Origin-Embedder-Policy', 'require-corp');
+            res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+            res.set('Content-Type', 'text/html');
+            
+            res.send(modifiedHtml);
+            
+        } catch (error) {
+            debug.error('serveReplayViewer', error, 1);
+            debug.apiResponse(500, 'Error reading replay viewer file', 1);
+            debug.exit('serveReplayViewer', startTime, 'file_read_error', 1);
+            return res.status(500).send('Error reading replay viewer file.');
+        }
+        
+    } catch (error) {
+        // darth vader noises
+        debug.level2('Replay viewer HTML not found:', replayViewerPath);
+        debug.apiResponse(404, 'Replay viewer not found', 2);
+        debug.exit('serveReplayViewer', startTime, 'html_not_found', 1);
+        res.status(404).send('Replay viewer not found. Please build the WebAssembly replay viewer first.');
+    }
 });
 
-app.use(timeout('1h'));
-
-app.use((req, res, next) => {
-    if (!req.timedout) next();
+app.get('*', (req, res) => {
+  const requestedPath = path.join(publicDir, req.path);
+  
+  // use async instead, should be faster
+  fs.promises.access(requestedPath)
+    .then(async () => {
+      const stats = await fs.promises.stat(requestedPath);
+      if (stats.isFile()) {
+        res.sendFile(requestedPath);
+      } else {
+        res.status(404).sendFile(path.join(publicDir, '404.html'));
+      }
+    })
+    .catch(() => {
+      res.status(404).sendFile(path.join(publicDir, '404.html'));
+    });
 });
 
 // watches the demo directory for new dcrec files
@@ -346,8 +741,8 @@ async function initializeServer() {
             } else {
                 console.log('Waiting for Discord bot to be ready...');
                 console.debug(2, 'Discord bot not ready, setting up pending initialization');
-                pendingInitialization = true;
-                completePendingInitialization = resolve;
+                global.pendingInitialization = true;
+                global.completePendingInitialization = resolve;
             }
         });
 
@@ -419,322 +814,6 @@ async function initializeServer() {
     }
 }
 
-// 404 handler
-function sendHtml(res, fileName) {
-    const startTime = debugUtils.debugFunctionEntry('sendHtml', [fileName], 2);
-    console.debug(2, `Serving HTML file: ${fileName}`);
-    
-    res.sendFile(path.join(publicDir, fileName), (err) => {
-        if (err) {
-            console.debug(1, `File not found: ${fileName}, serving 404`);
-            res.status(404).sendFile(path.join(publicDir, '404.html'));
-            debugUtils.debugFunctionExit('sendHtml', startTime, '404', 2);
-        } else {
-            console.debug(2, `Successfully served: ${fileName}`);
-            debugUtils.debugFunctionExit('sendHtml', startTime, 'success', 2);
-        }
-    });
-}
-
-// CORS middleware for all routes
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    next();
-});
-
-// Global SharedArrayBuffer support middleware for WebAssembly threading
-app.use((req, res, next) => {
-    // Apply these headers to ALL responses to enable SharedArrayBuffer globally
-    res.set('Cross-Origin-Opener-Policy', 'same-origin');
-    res.set('Cross-Origin-Embedder-Policy', 'require-corp');
-    
-    // For static resources, also set resource policy
-    if (req.url.includes('/replay-viewer/') || 
-        req.url.endsWith('.wasm') || 
-        req.url.endsWith('.js') || 
-        req.url.endsWith('.data') || 
-        req.url.endsWith('.worker.js')) {
-        res.set('Cross-Origin-Resource-Policy', 'cross-origin');
-    }
-    
-    next();
-});
-
-// my comfort function after the website used to randomly hang for no reason
-pool.getConnection((err, connection) => {
-    if (err) {
-        console.error('Error connecting to the database:', err);
-    } else {
-        console.log('Successfully connected to the database');
-        connection.release();
-    }
-});
-
-app.use((err, req, res, next) => {
-    console.error('Error details:', err);
-    res.status(500).json({ error: 'Internal server error', details: err.message });
-});
-
-// http headers 
-app.use((err, req, res, next) => {
-    console.error('Unhandled error:', err);
-    console.error('Stack trace:', err.stack);
-    console.error('Request details:', {
-        method: req.method,
-        url: req.url,
-        headers: req.headers,
-        body: req.body,
-        query: req.query,
-        params: req.params
-    });
-    res.status(500).json({ error: 'Internal server error', details: err.message });
-});
-
-// interval to prevent pending verification tokens from forever being alone
-setInterval(() => {
-    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-
-    for (let [email, { verificationToken }] of pendingVerifications) {
-        try {
-            const decoded = jwt.verify(verificationToken, JWT_SECRET);
-        } catch (error) {
-            pendingVerifications.delete(email);
-        }
-    }
-}, 3600000); // cleans up every hour
-
-
-module.exports = router;
-
-// routes for each page in the frontend
-app.get('/about', checkAuthToken, (req, res) => sendHtml(res, 'about.html'));
-app.get('/about/combined-servers', checkAuthToken, (req, res) => sendHtml(res, 'combinedservers.html'));
-app.get('/about/hours-played', checkAuthToken, (req, res) => sendHtml(res, 'totalhoursgraph.html'));
-app.get('/about/popular-territories', checkAuthToken, (req, res) => sendHtml(res, 'popularterritories.html'));
-app.get('/about/1v1-setup-statistics', checkAuthToken, (req, res) => sendHtml(res, '1v1setupstatistics.html'));
-app.get('/smurfchecker', checkAuthToken, (req, res) => sendHtml(res, 'smurfchecker.html'));
-//app.get('/guides', checkAuthToken, (req, res) => sendHtml(res, 'guides.html'));
-app.get('/resources', checkAuthToken, (req, res) => sendHtml(res, 'resources.html'));
-//app.get('/laikasdefcon', checkAuthToken, (req, res) => sendHtml(res, 'laikasdefcon.html'));
-//app.get('/homepage/matchroom', checkAuthToken, (req, res) => sendHtml(res, 'matchroom.html'));
-app.get('/homepage', checkAuthToken, (req, res) => sendHtml(res, 'index.html'));
-app.get('/dedcon-builds', checkAuthToken, (req, res) => sendHtml(res, 'dedconbuilds.html'));
-//app.get('/patchnotes', checkAuthToken, (req, res) => sendHtml(res, 'patchnotes.html'));
-//app.get('/issue-report', checkAuthToken, (req, res) => sendHtml(res, 'bugreport.html'));
-app.get('/phpmyadmin', checkAuthToken, (req, res) => sendHtml(res, 'idiot.html')); // for the memes
-app.get('/leaderboard', checkAuthToken, (req, res) => sendHtml(res, 'leaderboard.html'));
-app.get('/modlist', checkAuthToken, (req, res) => sendHtml(res, 'modlist.html'));
-app.get('/privacypolicy', checkAuthToken, (req, res) => sendHtml(res, 'privacypolicy.html'));
-app.get('/modlist/maps', checkAuthToken, (req, res) => sendHtml(res, 'mapmods.html'));
-app.get('/modlist/graphics', checkAuthToken, (req, res) => sendHtml(res, 'graphicmods.html'));
-app.get('/modlist/overhauls', checkAuthToken, (req, res) => sendHtml(res, 'overhaulmods.html'));
-app.get('/modlist/moddingtools', checkAuthToken, (req, res) => sendHtml(res, 'moddingtools.html'));
-app.get('/modlist/ai', checkAuthToken, (req, res) => sendHtml(res, 'aimods.html'));
-app.get('/signup', checkAuthToken, (req, res) => sendHtml(res, 'signuppage.html'));
-app.get('/forgotpassword', checkAuthToken, (req, res) => sendHtml(res, 'forgotpasswordfor816788487.html'));
-app.get('/changepassword', checkAuthToken, (req, res) => sendHtml(res, 'changepassword248723424.html'));
-app.get('/adminpanel', authenticateToken, checkPermission(permissions.PAGE_ADMIN_PANEL), serveAdminPage('admin-panel', permissions.PAGE_ADMIN_PANEL));
-app.get('/leaderboardblacklistmanage', authenticateToken, checkPermission(permissions.PAGE_BLACKLIST_MANAGE), serveAdminPage('blacklist', permissions.PAGE_BLACKLIST_MANAGE));
-app.get('/demomanage', authenticateToken, checkPermission(permissions.PAGE_DEMO_MANAGE), serveAdminPage('demo-manage', permissions.PAGE_DEMO_MANAGE));
-app.get('/playerlookup', authenticateToken, checkPermission(permissions.PAGE_PLAYER_LOOKUP), serveAdminPage('playerlookup', permissions.PAGE_PLAYER_LOOKUP));
-app.get('/defconservers', authenticateToken, checkPermission(permissions.PAGE_DEFCON_SERVERS), serveAdminPage('servermanagment', permissions.PAGE_DEFCON_SERVERS));
-app.get('/accountmanage', authenticateToken, checkPermission(permissions.PAGE_ACCOUNT_MANAGE), serveAdminPage('account-manage', permissions.PAGE_ACCOUNT_MANAGE));
-app.get('/modlistmanage', authenticateToken, checkPermission(permissions.PAGE_MODLIST_MANAGE), serveAdminPage('modmanagment', permissions.PAGE_MODLIST_MANAGE));
-app.get('/dedconmanagment', authenticateToken, checkPermission(permissions.PAGE_DEDCON_MANAGEMENT), serveAdminPage('dedconmanagment', permissions.PAGE_DEDCON_MANAGEMENT));
-app.get('/resourcemanage', authenticateToken, checkPermission(permissions.PAGE_RESOURCE_MANAGE), serveAdminPage('resourcemanagment', permissions.PAGE_RESOURCE_MANAGE));
-app.get('/serverconsole', authenticateToken, checkPermission(permissions.PAGE_SERVER_CONSOLE), serveAdminPage('server-console', permissions.PAGE_SERVER_CONSOLE));
-app.get('/rconconsole', authenticateToken, checkPermission(permissions.PAGE_RCON_CONSOLE), serveAdminPage('rcon-console', permissions.PAGE_RCON_CONSOLE));
-
-// homepage handler
-app.get('/', (req, res) => {
-  res.sendFile(path.join(publicDir,  'index.html'));
-});
-
-// route for demos page numbers
-app.get('/demos/page/:pageNumber', checkAuthToken, (req, res) => {
-  res.sendFile(path.join(publicDir,  'index.html'));
-});
-
-app.get('/account-settings', authenticateToken, (req, res) => {
-  res.sendFile(path.join(publicDir,  'profilesettings.html'));
-});
-
-app.get('/change-password', (req, res) => {
-  res.sendFile(path.join(publicDir,  'profilesettings.html'));
-});
-
-app.get('/sitemap', (req, res) => {
-  res.sendFile(path.join(publicDir,  'sitemap.xml'));
-});
-
-app.get('/site.webmanifest', (req, res) => {
-  res.sendFile(path.join(publicDir,  'site.webmanifest'));
-});
-
-app.get('/browserconfig.xml', (req, res) => {
-  res.sendFile(path.join(publicDir,  'browserconfig.xml'));
-});
-
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(publicDir, 'loginpage.html'));
-});
-
-app.get('/profile/:username', (req, res) => {
-  res.sendFile(path.join(publicDir,  'profile.html'));
-});
-
-// now we serve the .dcrec files directly for the replay viewer
-app.get('/replay-viewer/files/*.dcrec', checkAuthToken, (req, res) => {
-    const startTime = debug.enter('serveDcrecFile', [req.path], 2);
-    const filename = path.basename(req.path);
-    
-    debug.apiRequest('GET', req.originalUrl, req.user, 2);
-    debug.level2('Serving .dcrec file:', filename);
-    
-    const dcrecPath = path.join(demoDir, filename);
-    debug.fileOp('serve', dcrecPath, 3);
-    
-    if (fs.existsSync(dcrecPath)) {
-        debug.level2('File found, serving .dcrec file:', filename);
-        res.setHeader('Content-Type', 'application/octet-stream');
-        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-        res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
-        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-        res.sendFile(dcrecPath);
-        debug.exit('serveDcrecFile', startTime, 'success', 2);
-    } else {
-        debug.level2('Demo file not found on disk:', dcrecPath);
-        debug.apiResponse(404, 'Demo file not found', 2);
-        debug.exit('serveDcrecFile', startTime, 'not_found', 2);
-        res.status(404).send('Demo file not found.');
-    }
-});
-
-// now we serve the replay viewer html file
-app.get('/replay-viewer/:filename', checkAuthToken, (req, res) => {
-    const startTime = debug.enter('serveReplayViewer', [req.params.filename], 1);
-    const filename = req.params.filename;
-    
-    debug.apiRequest('GET', req.originalUrl, req.user, 1);
-    debug.level2('Requested replay viewer for:', filename);
-    
-    const replayViewerPath = path.join(demoDir, 'replay-viewer.html');
-    debug.fileOp('check', replayViewerPath, 3);
-    
-    if (fs.existsSync(replayViewerPath)) {
-        const dcrecPath = path.join(demoDir, filename);
-        debug.fileOp('check', dcrecPath, 2);
-        debug.level3('Demo file exists:', fs.existsSync(dcrecPath));
-        
-        if (!fs.existsSync(dcrecPath)) {
-            debug.level2('Demo file not found:', dcrecPath);
-            debug.apiResponse(404, 'Demo file not found', 2);
-            debug.exit('serveReplayViewer', startTime, 'demo_not_found', 1);
-            return res.status(404).send('Demo file not found.');
-        }
-      
-        // read the html file and inject the command line arguments + file loading logic
-        debug.fileOp('read', replayViewerPath, 2);
-        fs.readFile(replayViewerPath, 'utf8', (err, data) => {
-            if (err) {
-                debug.error('serveReplayViewer', err, 1);
-                debug.apiResponse(500, 'Error reading replay viewer file', 1);
-                debug.exit('serveReplayViewer', startTime, 'file_read_error', 1);
-                return res.status(500).send('Error reading replay viewer file.');
-            }
-            
-            debug.level2('HTML file read successfully, length:', data.length);
-            debug.level2('Injecting file loading logic for:', filename);
-          
-            // inject file loading logic and command line arguments into the html file
-            const scriptPattern = /<script[^>]*src="defcon\.js"[^>]*><\/script>/;
-            const beforeMatch = data.match(scriptPattern);
-            debug.level3('Script injection pattern:', scriptPattern.toString());
-            debug.level3('Found script tag:', beforeMatch ? beforeMatch[0] : 'NOT FOUND');
-          
-          const modifiedHtml = data.replace(
-              scriptPattern,
-              `<script>
-                  // Set up Module before WebAssembly loads
-                  window.Module = window.Module || {};
-                  window.Module.arguments = ['-l', '${filename}'];
-                  window.Module.print = function(text) {
-                  };
-                  window.Module.printErr = function(text) {
-                      console.error('[WASM Error]:', text);
-                  };
-                  
-                  // Pre-run function to load the .dcrec file into WebAssembly's virtual file system
-                  window.Module.preRun = window.Module.preRun || [];
-                  window.Module.preRun.push(async function() {
-                      
-                      try {
-                          const response = await fetch('/replay-viewer/files/${filename}');
-                          
-                          if (!response.ok) {
-                              throw new Error(\`HTTP error! status: \${response.status}\`);
-                          }
-
-                          const arrayBuffer = await response.arrayBuffer();
-                          const uint8Array = new Uint8Array(arrayBuffer);
-
-                          FS.writeFile('${filename}', uint8Array);
-                          
-                          if (FS.analyzePath('${filename}').exists) {
-                              const stats = FS.stat('${filename}');
-                          } else {
-                          }
-                      } catch (error) {
-                      }
-                  });
-                
-              </script>
-              <script async type="text/javascript" src="defcon.js"></script>`
-          );
-          
-            // now time to see if the replacement worked
-            const afterMatch = modifiedHtml.match(scriptPattern);
-            debug.level3('Script tag after replacement:', afterMatch ? 'STILL FOUND (ERROR)' : 'REPLACED SUCCESSFULLY');
-            debug.level3('Module.preRun injected:', modifiedHtml.includes('Module.preRun'));
-            debug.level2('File loading logic injected, sending HTML response');
-            debug.apiResponse(200, 'HTML with injected WebAssembly logic', 2);
-            debug.exit('serveReplayViewer', startTime, 'success', 1);
-            
-            // Set CORS headers for SharedArrayBuffer support (required for WebAssembly threading)
-            res.set('Cross-Origin-Opener-Policy', 'same-origin');
-            res.set('Cross-Origin-Embedder-Policy', 'require-corp');
-            res.set('Cross-Origin-Resource-Policy', 'cross-origin');
-            res.set('Content-Type', 'text/html');
-            
-            res.send(modifiedHtml);
-        });
-    } else {
-        // darth vader noises
-        debug.level2('Replay viewer HTML not found:', replayViewerPath);
-        debug.apiResponse(404, 'Replay viewer not found', 2);
-        debug.exit('serveReplayViewer', startTime, 'html_not_found', 1);
-        res.status(404).send('Replay viewer not found. Please build the WebAssembly replay viewer first.');
-    }
-});
-
-// 404 route handler
-app.get('*', (req, res) => {
-  const requestedPath = path.join(publicDir,  req.path);
-  if (fs.existsSync(requestedPath) && fs.statSync(requestedPath).isFile()) {
-    res.sendFile(requestedPath);
-  } else {
-    res.status(404).sendFile(path.join(publicDir,  '404.html'));
-  }
-});
-
-// if you ever see this then something is broken
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('You fucked up');
-});
-
 const debugLogWatchers = new Map();
 
 function startDebugLogTail(socket) {
@@ -804,7 +883,7 @@ function startDebugLogTail(socket) {
     try {
       const content = fs.readFileSync(debugFilePath, 'utf8');
       const lines = content.split('\n').filter(line => line.trim());
-      const recentLines = lines.slice(-10); // Last 10 lines
+      const recentLines = lines.slice(-10);
       recentLines.forEach(line => {
         if (socket.debugLogStream) {
           socket.emit('debug_output', line);
@@ -863,6 +942,7 @@ io.on('connection', (socket) => {
   });
 });
 
+// override console.log for logging
 const originalLog = console.log;
 console.log = function () {
   const timestamp = formatTimestamp(new Date());
@@ -871,7 +951,7 @@ console.log = function () {
 
   logStream.write(message + '\n');
 
-  // Only emit to clients with server log stream enabled
+  // only enable for the admin panel log stream
   io.sockets.sockets.forEach((socket) => {
     if (socket.serverLogStream) {
       socket.emit('console_output', message);
@@ -881,12 +961,33 @@ console.log = function () {
   originalLog.apply(console, [timestamp, ...args]);
 };
 
-//Shut down properly so she dont shit herself
+// check if we have lost connection to the database
+pool.getConnection((err, connection) => {
+    if (err) {
+        console.error('Error connecting to the database:', err);
+    } else {
+        console.log('Successfully connected to the database');
+        connection.release();
+    }
+});
+
+// interval to prevent pending verification tokens from forever being alone
+setInterval(() => {
+    for (let [email, { verificationToken }] of pendingVerifications) {
+        try {
+            jwt.verify(verificationToken, JWT_SECRET);
+        } catch (error) {
+            pendingVerifications.delete(email);
+        }
+    }
+}, 3600000); // cleans up every hour
+
+// shutdown handler
 process.on('SIGINT', async () => {
     console.log('Shutting down...');
     discordState.isReady = false; 
-    pendingInitialization = null;
-    completePendingInitialization = null;
+    global.pendingInitialization = null;
+    global.completePendingInitialization = null;
 
     logStream.end(() => {
         console.log('Log file stream closed.');
@@ -894,9 +995,10 @@ process.on('SIGINT', async () => {
     });
 });
 
+module.exports = router;
+
 app.use(errorHandler);
 
-// node.js server proxy
 const server = http.listen(port, async () => {
   console.log(`Defcon Expanded Demo and File Server Listening at http://localhost:${port}`);
   console.log(`Server started at: ${new Date().toISOString()}`);

@@ -995,9 +995,11 @@ void MovingObject::Ping()
         g_app->GetMapRenderer()->m_renderEverything ||
         g_app->GetWorld()->IsVisible( m_longitude, m_latitude, g_app->GetWorld()->m_myTeamId) )
     {
+#ifdef EMSCRIPTEN_SOUND
         g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "SonarPing" );
+#endif
     }
-    
+
 
     Fleet *fleet = g_app->GetWorld()->GetTeam( m_teamId )->GetFleet( m_fleetId );
     if( fleet == NULL ||

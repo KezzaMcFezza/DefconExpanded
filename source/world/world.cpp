@@ -1145,7 +1145,9 @@ void World::LaunchNuke( int teamId, int objId, Fixed longitude, Fixed latitude, 
                 LPREPLACESTRINGFLAG('T', GetTeam(teamId)->GetTeamName(), msg );
                 strupr(msg);
                 g_app->GetInterface()->ShowMessage( 0, 0, teamId, msg, true );
+#ifdef EMSCRIPTEN_SOUND
                 g_soundSystem->TriggerEvent( "Interface", "FirstLaunch" );
+#endif
 
             }
         }
@@ -3166,12 +3168,16 @@ void World::AddChatMessage( int teamId, int channel, const char *_msg, int msgId
     if( msg->m_visible )
     {
         if( teamId == m_myTeamId )
-        {
+        {   
+#ifdef EMSCRIPTEN_SOUND
             g_soundSystem->TriggerEvent( "Interface", "SendChatMessage" );            
+#endif
         }
         else
         {
+#ifdef EMSCRIPTEN_SOUND
             g_soundSystem->TriggerEvent( "Interface", "ReceiveChatMessage" );
+#endif
         }
     }
 }

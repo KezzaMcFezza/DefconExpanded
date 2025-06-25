@@ -35,7 +35,9 @@ class ResynchronisedButton : public InterfaceButton
 
         g_app->GetClientToServer()->Resynchronise();
 
+#ifdef EMSCRIPTEN_SOUND
         g_soundSystem->StopAllSounds( SoundObjectId(), "StartMusic StartMusic" );
+#endif
 
         ConnectingWindow *connectWindow = new ConnectingWindow();
         connectWindow->m_popupLobbyAtEnd = false;
