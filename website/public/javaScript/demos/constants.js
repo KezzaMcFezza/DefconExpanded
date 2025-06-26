@@ -198,9 +198,11 @@ const DEMO_CARD_TEMPLATE = {
         <div class="demo-actions">
             <a href="/api/download/{{DEMO_NAME}}" class="download-btn-demo"><i class="fas fa-cloud-arrow-down"></i> Download</a>
             <button class="download-btn-demo" style="border: none; max-width: 150px; min-height: 30.39px;" onclick="launchReplayViewer('{{DEMO_NAME}}')"><i class="fas fa-play"></i> Watch Online</button>
-            <button class="btn-report" onclick="showReportOptions({{DEMO_ID}}, event)">Report</button>
             {{DEMO_ID_DISPLAY}}
-            <span class="downloads-count"><i class="fas fa-download"></i> {{DOWNLOAD_COUNT}}</span>
+            <div class="demo-stats">
+                <span class="downloads-count"><i class="fas fa-download"></i> {{DOWNLOAD_COUNT}}</span>
+                <span class="watch-count"><i class="fas fa-eye"></i> {{WATCH_COUNT}}</span>
+            </div>
         </div>
     `
 };

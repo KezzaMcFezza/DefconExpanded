@@ -1052,6 +1052,13 @@ li {
     margin-left: auto;
 }
 
+.demo-stats {
+    display: flex;
+    gap: 15px;
+    margin-left: auto;
+    align-items: center;
+}
+
 .download-btn-demo {
     display: flex;
     padding: 4px 16px;
