@@ -208,8 +208,8 @@ async function sendDemoToDiscord(demo, logData) {
 
                     if (demo.name) {
                         embed.addFields({
-                            name: 'Download',
-                            value: `[Click to download](${process.env.BASE_URL}/api/download/${demo.name})`,
+                            name: 'Links',
+                            value: `[Download](${process.env.BASE_URL}/api/download/${demo.name}) | [Watch Online](${process.env.BASE_URL}/replay-viewer/${demo.name})`,
                             inline: true
                         });
                     }

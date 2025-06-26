@@ -152,7 +152,8 @@ function generateDemoActions(demo, canViewId) {
     .replace(/\{\{DEMO_NAME\}\}/g, demo.name)  
     .replace('{{DEMO_ID}}', demo.id)
     .replace('{{DEMO_ID_DISPLAY}}', demoIdDisplay)
-    .replace('{{DOWNLOAD_COUNT}}', demo.download_count || 0);
+    .replace('{{DOWNLOAD_COUNT}}', demo.download_count || 0)
+    .replace('{{WATCH_COUNT}}', demo.watch_count || 0);
   
   
   return result;
@@ -218,6 +219,15 @@ async function launchReplayViewer(demoName) {
   }
   
   try {
+    try {
+      await fetch(`/api/watch/${demoName}`, {
+        method: 'POST',
+        credentials: 'include'
+      });
+    } catch (watchError) {
+      console.warn('Failed to increment watch count:', watchError);
+    }
+
     const apiUrl = `/api/replay-viewer/launch/${demoName}`;
   
     const response = await fetch(apiUrl, {

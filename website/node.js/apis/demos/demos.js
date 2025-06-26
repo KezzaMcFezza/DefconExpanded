@@ -221,7 +221,7 @@ router.get('/api/demos', async (req, res) => {
       } else if (gameDuration) {
         query += ` ORDER BY TIME_TO_SEC(duration) ${gameDuration === 'longest' ? 'DESC' : 'ASC'}`;
       } else {
-        query += ` ORDER BY ${sortBy === 'most-downloaded' ? 'download_count DESC' : 'date DESC'}`;
+        query += ` ORDER BY ${sortBy === 'most-downloaded' ? 'download_count DESC' : sortBy === 'most-watched' ? 'watch_count DESC' : 'date DESC'}`;
       }
 
       query += ' LIMIT ? OFFSET ?';
@@ -385,6 +385,36 @@ router.get('/api/download/:demoName', async (req, res) => {
     if (!res.headersSent) {
       res.status(500).send('Error downloading demo');
     }
+  }
+});
+
+router.post('/api/watch/:demoName', async (req, res) => {
+  const startTime = debug.enter('watchDemo', [req.params.demoName], 1);
+  debug.level2('Demo watch request:', { demoName: req.params.demoName });
+
+  try {
+    debug.dbQuery('SELECT * FROM demos WHERE name = ?', [req.params.demoName], 2);
+    const [rows] = await pool.query('SELECT * FROM demos WHERE name = ?', [req.params.demoName]);
+    debug.dbResult(rows, 2);
+
+    if (rows.length === 0) {
+      debug.level1('Demo not found in database:', req.params.demoName);
+      debug.exit('watchDemo', startTime, 'not_found', 1);
+      return res.status(404).json({ error: 'Demo not found' });
+    }
+
+    debug.level3('Incrementing watch count for demo:', req.params.demoName);
+    await pool.query('UPDATE demos SET watch_count = watch_count + 1 WHERE name = ?', [req.params.demoName]);
+
+    debug.level2('Watch count incremented successfully for demo:', req.params.demoName);
+    debug.exit('watchDemo', startTime, 'success', 1);
+    
+    res.json({ success: true, message: 'Watch count incremented' });
+
+  } catch (error) {
+    debug.error('watchDemo', error, 1);
+    debug.exit('watchDemo', startTime, 'error', 1);
+    res.status(500).json({ error: 'Unable to increment watch count' });
   }
 });
 
