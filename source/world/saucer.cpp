@@ -162,23 +162,29 @@ void Saucer::Render()
     m_angle += 0.01f;
 
     Image *bmpImage = g_resource->GetImage( bmpImageFilename );
+    // BATCHING FIX: Use rotating buffer for saucer sprite (has rotation)
+    g_renderer->BeginUnitRotatingBatch();
     if( m_currentState == 0 )
     {  
-        g_renderer->Blit( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 2,
-						  predictedLatitude + m_vel.y.DoubleValue() * 2, size/2, size/2, colour, m_angle );
+        g_renderer->UnitRotating( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 2,
+						          predictedLatitude + m_vel.y.DoubleValue() * 2, size/2, size/2, colour, m_angle );
     }
     else
     {
-        g_renderer->Blit( bmpImage, m_longitude.DoubleValue(), m_latitude.DoubleValue(), size/2, size/2, colour, m_angle );
+        g_renderer->UnitRotating( bmpImage, m_longitude.DoubleValue(), m_latitude.DoubleValue(), size/2, size/2, colour, m_angle );
     }
+    g_renderer->EndUnitRotatingBatch();
     
     if( m_currentState == 1 )
     {
         Image *explosion = g_resource->GetImage( "graphics/explosion.bmp" );
 		float explosionSize = m_explosionSize.DoubleValue();
 		Colour fire = Colour (200, 100, 100, 255 );
-        g_renderer->Blit( explosion, m_longitude.DoubleValue() - explosionSize/4,
-						  m_latitude.DoubleValue() - explosionSize/4, explosionSize/2, explosionSize/2, fire);
+        // BATCHING FIX: Use effects sprite batching for explosion effect (no rotation)
+        g_renderer->BeginEffectsSpriteBatch();
+        g_renderer->EffectsSprite( explosion, m_longitude.DoubleValue() - explosionSize/4,
+						           m_latitude.DoubleValue() - explosionSize/4, explosionSize/2, explosionSize/2, fire);
+        g_renderer->EndEffectsSpriteBatch();
     }
 
 

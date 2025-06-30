@@ -31,7 +31,7 @@
 #include "lobby_renderer.h"
 #include "map_renderer.h"
 
-#include "lib/render/renderer3d.h"
+#include "lib/render/renderer_3d.h"
 
 
 LobbyRenderer::LobbyRenderer()

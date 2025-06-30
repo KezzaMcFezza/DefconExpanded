@@ -760,6 +760,9 @@ void Carrier::Render()
                 dx *= -1;
             }       
 
+            // BATCHING FIX: Begin unit state icon batch for aircraft indicators
+            g_renderer->BeginUnitStateBatch();
+
             for( int i = 0; i < numInStore; ++i )
             {
                 if( i >= (numInStore-numInQueue) )
@@ -767,9 +770,12 @@ void Carrier::Render()
                     colour.Set( 128,128,128,100 );
                 }
                 
-                g_renderer->Blit( bmpImage, x, y, size*0.9f, -size, colour );
+                g_renderer->UnitStateIcon( bmpImage, x, y, size*0.9f, -size, colour );
                 x += dx;
             }
+            
+            // BATCHING FIX: End unit state icon batch - flush all aircraft indicators efficiently
+            g_renderer->EndUnitStateBatch();
         }
     }        
 }

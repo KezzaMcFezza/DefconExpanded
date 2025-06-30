@@ -1,4 +1,3 @@
-
 #ifndef _included_maprenderer_h
 #define _included_maprenderer_h
 
@@ -8,6 +7,7 @@
 class Image;
 class WorldObject;
 class AnimatedIcon;
+class RendererDebugMenu;
 
 #define    CLEARQUEUE_STATEID  255
 
@@ -104,6 +104,7 @@ protected:
     int     m_framesPerSecond;
     float   m_frameCountTimer;
     bool    m_showFps;    
+    bool    m_showDebugMenu;  // Separate control for debug menu (F2)
     float   m_tooltipTimer;
 
 	bool    m_showWhiteBoard;			// Used to show the white board(s) without editing the player white board
@@ -150,6 +151,8 @@ public:
     LList   <const char *>     *m_tooltip;
 
     float   m_mouseIdleTime;
+    
+    RendererDebugMenu* m_debugMenu;
 
 public:
     MapRenderer();
@@ -261,6 +264,9 @@ public:
 	bool	GetShowAllWhiteBoards() const;
 	void	SetShowAllWhiteBoards( bool showAllWhiteBoards );
 	void    RenderWhiteBoard();
+	
+	// Debug menu functionality
+	RendererDebugMenu* GetDebugMenu() const { return m_debugMenu; }
 };
 
 

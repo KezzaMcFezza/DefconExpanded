@@ -1,0 +1,6 @@
+# intermediate build files
+*.pc
+*.tcl
+
+# CMake files
+/CMakeCache.txt

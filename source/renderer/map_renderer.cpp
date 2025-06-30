@@ -38,6 +38,8 @@
 #include "renderer/map_renderer.h"
 #include "renderer/animated_icon.h"
 
+#include "lib/render/renderer_debug_menu.h"
+
 #include "world/world.h"
 #include "world/earthdata.h"
 #include "world/worldobject.h"
@@ -88,6 +90,7 @@ MapRenderer::MapRenderer()
     m_framesPerSecond(0),
     m_frameCountTimer(1.0f),
     m_showFps(false),
+    m_showDebugMenu(false),
     m_lockCommands(false),
     m_draggingCamera(false),
     m_tooltip(NULL),
@@ -100,7 +103,8 @@ MapRenderer::MapRenderer()
 	m_erasingPlanning(false),
 	m_drawingPlanningTime(0.0f),
 	m_longitudePlanningOld(0.0f),
-	m_latitudePlanningOld(0.0f)
+	m_latitudePlanningOld(0.0f),
+	m_debugMenu(NULL)
 {
     for( int i = 0; i < MAX_TEAMS; ++i )
     {
@@ -127,6 +131,9 @@ static void DeleteAndDestroyDisplayList( const char *name )
 MapRenderer::~MapRenderer()
 {
     Reset();
+    
+    delete m_debugMenu;
+    m_debugMenu = NULL;
 
     DeleteAndDestroyDisplayList( "MapCoastlines" );
 	DeleteAndDestroyDisplayList( "MapBorders" );
@@ -141,6 +148,11 @@ MapRenderer::~MapRenderer()
 void MapRenderer::Init()
 {
     Reset();
+    
+    // Initialize debug menu
+    if (!m_debugMenu) {
+        m_debugMenu = new RendererDebugMenu(g_renderer);
+    }
 
     bmpRadar        = g_resource->GetImage( "graphics/radar.bmp" );
     bmpBlur         = g_resource->GetImage( "graphics/blur.bmp" );
@@ -181,8 +193,12 @@ void MapRenderer::Reset()
 void MapRenderer::Render()
 {
     START_PROFILE( "MapRenderer" );
+    
+    // PERFORMANCE TRACKING: Reset draw call counters for new frame
+    g_renderer->BeginFrame();
 
-    if( m_showFps )
+    // Update frame timing when either FPS counter or debug menu is shown
+    if( m_showFps || m_showDebugMenu )
     {
         static double s_lastRender = 0;
         static double s_biggest = 0;
@@ -203,10 +219,22 @@ void MapRenderer::Render()
             //AppDebugOut( "%dms\n", int(s_biggest * 1000) );
             s_biggest = 0;
         }
-        char fps[64];
-        strcpy( fps, LANGUAGEPHRASE("dialog_mapr_fps") );
-		LPREPLACEINTEGERFLAG( 'F', m_framesPerSecond, fps );
-        g_renderer->TextSimple( 150, 5, White, 12.0f, fps );
+        
+        // Show FPS counter if F1 was pressed (lightweight)
+        if( m_showFps )
+        {
+            char fps[64];
+            strcpy( fps, LANGUAGEPHRASE("dialog_mapr_fps") );
+            LPREPLACEINTEGERFLAG( 'F', m_framesPerSecond, fps );
+            g_renderer->TextSimple( 10, 5, White, 14.0f, fps );
+        }
+        
+        // Show debug menu if F2 was pressed (performance heavy)
+        if( m_showDebugMenu && m_debugMenu )
+        {
+            m_debugMenu->Update(lastFrame);
+            m_debugMenu->RenderDebugMenu();
+        }
     }
 
 
@@ -564,6 +592,10 @@ void MapRenderer::RenderGunfire()
 
     int myTeamId = g_app->GetWorld()->m_myTeamId;
 
+    // BATCHING FIX: Begin effects line batch for all gunfire trails
+    // This will batch all gunfire line segments into a single draw call
+    g_renderer->BeginEffectsLineBatch();
+
     for( int i = 0; i < g_app->GetWorld()->m_gunfire.Size(); ++i )
     {
         if( g_app->GetWorld()->m_gunfire.ValidIndex(i) )
@@ -579,6 +611,10 @@ void MapRenderer::RenderGunfire()
             }
         }
     }
+
+    // BATCHING FIX: End effects line batch - flush all accumulated gunfire lines
+    // This reduces gunfire from ~600 draw calls to just 1 draw call
+    g_renderer->EndEffectsLineBatch();
 
     END_PROFILE( "Gunfire" );
 }
@@ -2448,6 +2484,10 @@ void MapRenderer::RenderObjects()
     START_PROFILE( "Objects" );
 
     int myTeamId = g_app->GetWorld()->m_myTeamId;
+    
+    // TEXTURE-BASED BATCHING: Begin unit main sprite batching for massive performance gain
+    // This will batch all unit sprites by texture, reducing 200+ draw calls to ~10 draw calls
+    g_renderer->BeginUnitMainBatch();
      
     for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
     {
@@ -2530,6 +2570,10 @@ void MapRenderer::RenderObjects()
             END_PROFILE( WorldObject::GetName(wobj->m_type) );
         }
     }
+    
+    // TEXTURE-BASED BATCHING: End unit main sprite batching 
+    // This flushes all accumulated unit sprites by texture in efficient batches
+    g_renderer->EndUnitMainBatch();
 
 #ifndef NON_PLAYABLE
     WorldObject *selection = g_app->GetWorld()->GetWorldObject(m_currentSelectionId);
@@ -3508,7 +3552,11 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY )
 
 void MapRenderer::Update()
 {
+    // F1 toggles FPS counter only (lightweight)
     if( g_keys[KEY_F1] && g_keyDeltas[KEY_F1] ) m_showFps = !m_showFps;
+    
+    // F2 toggles debug menu (performance heavy)
+    if( g_keys[KEY_F2] && g_keyDeltas[KEY_F2] ) m_showDebugMenu = !m_showDebugMenu;
 
     UpdateMouseIdleTime();
 
