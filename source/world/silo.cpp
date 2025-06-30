@@ -188,6 +188,9 @@ void Silo::Render()
             float nukeSize = GetSize().DoubleValue() * 0.35f;
             x -= GetSize().DoubleValue()*0.95f;
 
+            // BATCHING FIX: Begin unit nuke icon batch for nuke indicators
+            g_renderer->BeginUnitNukeBatch();
+
             for( int i = 0; i < numNukesInStore; ++i )
             {
                 if( i >= (numNukesInStore-numNukesInQueue) )
@@ -195,8 +198,11 @@ void Silo::Render()
                     colour.Set( 128,128,128,100 );
                 }
                 
-                g_renderer->Blit( bmpImage, x+i*nukeSize*0.5f, y, nukeSize, -nukeSize, colour );
+                g_renderer->UnitNukeIcon( x+i*nukeSize*0.5f, y, nukeSize, -nukeSize, colour );
             }
+            
+            // BATCHING FIX: End unit nuke icon batch - flush all nuke indicators efficiently
+            g_renderer->EndUnitNukeBatch();
         }
     }
 }

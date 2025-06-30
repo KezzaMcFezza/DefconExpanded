@@ -21,7 +21,7 @@
 
 
 #include "renderer.h"
-#include "renderer3d.h"
+#include "renderer_3d.h"
 #include "colour.h"
 
 Renderer *g_renderer = NULL;
@@ -121,14 +121,41 @@ Renderer::Renderer()
     m_textureShaderProgram(0),
     m_VAO(0),
     m_VBO(0),
-    m_vertexCount(0),
+    m_triangleVertexCount(0),
+    m_lineVertexCount(0),
     m_lineStripActive(false),
     m_cachedLineStripActive(false),
     m_currentCacheKey(NULL),
     m_megaVBOActive(false),
     m_currentMegaVBOKey(NULL),
     m_megaVertices(NULL),
-    m_megaVertexCount(0)
+    m_megaVertexCount(0),
+    m_frameCounter(0),
+    m_lastFlushTime(GetHighResTime()),  // Initialize with current time
+    // PERFORMANCE FIX: Initialize new specialized buffer systems
+    m_uiTriangleVertexCount(0),
+    m_uiLineVertexCount(0),
+    m_textVertexCount(0),
+    m_currentTextTexture(0),
+    m_spriteVertexCount(0),
+    m_currentSpriteTexture(0),
+    // Unit rendering specialized buffer initialization
+    m_unitTrailVertexCount(0),
+    m_unitMainVertexCount(0),
+    m_currentUnitMainTexture(0),
+    m_unitHighlightVertexCount(0),
+    m_currentUnitHighlightTexture(0),
+    m_unitStateVertexCount(0),
+    m_currentUnitStateTexture(0),
+    m_unitCounterVertexCount(0),
+    m_currentUnitCounterTexture(0),
+    m_unitNukeVertexCount(0),
+    m_currentUnitNukeTexture(0),
+    // Effect rendering specialized buffer initialization
+    m_effectsLineVertexCount(0),
+    m_effectsSpriteVertexCount(0),
+    m_currentEffectsSpriteTexture(0),
+    m_allowImmedateFlush(true)  // Keep immediate flushing enabled for now
 {
     // Initialize modern OpenGL components
     InitializeShaders();
@@ -139,6 +166,44 @@ Renderer::Renderer()
     
     // Initialize 3D renderer
     g_renderer3d = new Renderer3D(this);
+
+    // PERFORMANCE TRACKING: Initialize draw call counters
+    // Initialize both current and previous frame counters to 0
+    m_drawCallsPerFrame = 0;
+    m_legacyTriangleCalls = 0;
+    m_legacyLineCalls = 0;
+    m_uiTriangleCalls = 0;
+    m_uiLineCalls = 0;
+    m_textCalls = 0;
+    m_spriteCalls = 0;
+    // Unit rendering performance counters
+    m_unitTrailCalls = 0;
+    m_unitMainSpriteCalls = 0;
+    m_unitHighlightCalls = 0;
+    m_unitStateIconCalls = 0;
+    m_unitCounterCalls = 0;
+    m_unitNukeIconCalls = 0;
+    // Effect rendering performance counters
+    m_effectsLineCalls = 0;
+    m_effectsSpriteCalls = 0;
+    // Previous frame data
+    m_prevDrawCallsPerFrame = 0;
+    m_prevLegacyTriangleCalls = 0;
+    m_prevLegacyLineCalls = 0;
+    m_prevUiTriangleCalls = 0;
+    m_prevUiLineCalls = 0;
+    m_prevTextCalls = 0;
+    m_prevSpriteCalls = 0;
+    // Unit rendering previous frame data
+    m_prevUnitTrailCalls = 0;
+    m_prevUnitMainSpriteCalls = 0;
+    m_prevUnitHighlightCalls = 0;
+    m_prevUnitStateIconCalls = 0;
+    m_prevUnitCounterCalls = 0;
+    m_prevUnitNukeIconCalls = 0;
+    // Effect rendering previous frame data
+    m_prevEffectsLineCalls = 0;
+    m_prevEffectsSpriteCalls = 0;
 }
 
 
@@ -585,8 +650,8 @@ float Renderer::TextWidth ( const char *text, unsigned int textLen, float size, 
 void Renderer::Rect ( float x, float y, float w, float h, Colour const &col, float lineWidth )
 {
     // Convert to modern OpenGL using vertex buffer
-    if (m_vertexCount + 8 > MAX_VERTICES) {
-        FlushVertices(GL_LINES, false);
+    if (m_lineVertexCount + 8 > MAX_VERTICES) {
+        FlushLines();
     }
     
     // Convert color to float
@@ -594,54 +659,54 @@ void Renderer::Rect ( float x, float y, float w, float h, Colour const &col, flo
     
     // Create 4 lines to form rectangle outline
     // Top line: (x, y) to (x + w, y)
-    m_vertices[m_vertexCount].x = x; m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x; m_lineVertices[m_lineVertexCount].y = y;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g; m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w; m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x + w; m_lineVertices[m_lineVertexCount].y = y;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g; m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
     
     // Right line: (x + w, y) to (x + w, y + h)
-    m_vertices[m_vertexCount].x = x + w; m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x + w; m_lineVertices[m_lineVertexCount].y = y;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g; m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w; m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x + w; m_lineVertices[m_lineVertexCount].y = y + h;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g; m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
     
     // Bottom line: (x + w, y + h) to (x, y + h)
-    m_vertices[m_vertexCount].x = x + w; m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x + w; m_lineVertices[m_lineVertexCount].y = y + h;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g; m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
     
-    m_vertices[m_vertexCount].x = x; m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x; m_lineVertices[m_lineVertexCount].y = y + h;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g; m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
     
     // Left line: (x, y + h) to (x, y)
-    m_vertices[m_vertexCount].x = x; m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x; m_lineVertices[m_lineVertexCount].y = y + h;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g; m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
     
-    m_vertices[m_vertexCount].x = x; m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x; m_lineVertices[m_lineVertexCount].y = y;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g; m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
     
     // Note: lineWidth handling would need glLineWidth equivalent in modern OpenGL
     // For now, we'll ignore lineWidth as it's deprecated in core profile
     
-    // Flush immediately to maintain immediate-mode behavior
-    FlushVertices(GL_LINES, false);
+    // FIXED: Immediate flush with separated buffers for performance + correctness
+    FlushLines();
 }
 
 
@@ -667,8 +732,8 @@ void Renderer::RectFill( float x, float y, float w, float h, Colour const &col1,
 void Renderer::RectFill( float x, float y, float w, float h, Colour const &colTL, Colour const &colTR, Colour const &colBR, Colour const &colBL )
 {
     // Convert to modern OpenGL using vertex buffer
-    if (m_vertexCount + 6 > MAX_VERTICES) {
-        FlushVertices(GL_TRIANGLES, false);
+    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
+        FlushTriangles(false);
     }
     
     // Convert colors to floats
@@ -678,82 +743,82 @@ void Renderer::RectFill( float x, float y, float w, float h, Colour const &colTL
     float rBL = colBL.m_r / 255.0f, gBL = colBL.m_g / 255.0f, bBL = colBL.m_b / 255.0f, aBL = colBL.m_a / 255.0f;
     
     // First triangle: TL, TR, BR
-    m_vertices[m_vertexCount].x = x;      m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = rTL;    m_vertices[m_vertexCount].g = gTL;
-    m_vertices[m_vertexCount].b = bTL;    m_vertices[m_vertexCount].a = aTL;
-    m_vertices[m_vertexCount].u = 0.0f;   m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x;      m_triangleVertices[m_triangleVertexCount].y = y;
+    m_triangleVertices[m_triangleVertexCount].r = rTL;    m_triangleVertices[m_triangleVertexCount].g = gTL;
+    m_triangleVertices[m_triangleVertexCount].b = bTL;    m_triangleVertices[m_triangleVertexCount].a = aTL;
+    m_triangleVertices[m_triangleVertexCount].u = 0.0f;   m_triangleVertices[m_triangleVertexCount].v = 0.0f;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w;  m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = rTR;    m_vertices[m_vertexCount].g = gTR;
-    m_vertices[m_vertexCount].b = bTR;    m_vertices[m_vertexCount].a = aTR;
-    m_vertices[m_vertexCount].u = 1.0f;   m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x + w;  m_triangleVertices[m_triangleVertexCount].y = y;
+    m_triangleVertices[m_triangleVertexCount].r = rTR;    m_triangleVertices[m_triangleVertexCount].g = gTR;
+    m_triangleVertices[m_triangleVertexCount].b = bTR;    m_triangleVertices[m_triangleVertexCount].a = aTR;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f;   m_triangleVertices[m_triangleVertexCount].v = 0.0f;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w;  m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = rBR;    m_vertices[m_vertexCount].g = gBR;
-    m_vertices[m_vertexCount].b = bBR;    m_vertices[m_vertexCount].a = aBR;
-    m_vertices[m_vertexCount].u = 1.0f;   m_vertices[m_vertexCount].v = 1.0f;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x + w;  m_triangleVertices[m_triangleVertexCount].y = y + h;
+    m_triangleVertices[m_triangleVertexCount].r = rBR;    m_triangleVertices[m_triangleVertexCount].g = gBR;
+    m_triangleVertices[m_triangleVertexCount].b = bBR;    m_triangleVertices[m_triangleVertexCount].a = aBR;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f;   m_triangleVertices[m_triangleVertexCount].v = 1.0f;
+    m_triangleVertexCount++;
     
     // Second triangle: TL, BR, BL
-    m_vertices[m_vertexCount].x = x;      m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = rTL;    m_vertices[m_vertexCount].g = gTL;
-    m_vertices[m_vertexCount].b = bTL;    m_vertices[m_vertexCount].a = aTL;
-    m_vertices[m_vertexCount].u = 0.0f;   m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x;      m_triangleVertices[m_triangleVertexCount].y = y;
+    m_triangleVertices[m_triangleVertexCount].r = rTL;    m_triangleVertices[m_triangleVertexCount].g = gTL;
+    m_triangleVertices[m_triangleVertexCount].b = bTL;    m_triangleVertices[m_triangleVertexCount].a = aTL;
+    m_triangleVertices[m_triangleVertexCount].u = 0.0f;   m_triangleVertices[m_triangleVertexCount].v = 0.0f;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w;  m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = rBR;    m_vertices[m_vertexCount].g = gBR;
-    m_vertices[m_vertexCount].b = bBR;    m_vertices[m_vertexCount].a = aBR;
-    m_vertices[m_vertexCount].u = 1.0f;   m_vertices[m_vertexCount].v = 1.0f;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x + w;  m_triangleVertices[m_triangleVertexCount].y = y + h;
+    m_triangleVertices[m_triangleVertexCount].r = rBR;    m_triangleVertices[m_triangleVertexCount].g = gBR;
+    m_triangleVertices[m_triangleVertexCount].b = bBR;    m_triangleVertices[m_triangleVertexCount].a = aBR;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f;   m_triangleVertices[m_triangleVertexCount].v = 1.0f;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x;      m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = rBL;    m_vertices[m_vertexCount].g = gBL;
-    m_vertices[m_vertexCount].b = bBL;    m_vertices[m_vertexCount].a = aBL;
-    m_vertices[m_vertexCount].u = 0.0f;   m_vertices[m_vertexCount].v = 1.0f;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x;      m_triangleVertices[m_triangleVertexCount].y = y + h;
+    m_triangleVertices[m_triangleVertexCount].r = rBL;    m_triangleVertices[m_triangleVertexCount].g = gBL;
+    m_triangleVertices[m_triangleVertexCount].b = bBL;    m_triangleVertices[m_triangleVertexCount].a = aBL;
+    m_triangleVertices[m_triangleVertexCount].u = 0.0f;   m_triangleVertices[m_triangleVertexCount].v = 1.0f;
+    m_triangleVertexCount++;
     
-    // Flush immediately to maintain immediate-mode behavior for now
-    FlushVertices(GL_TRIANGLES, false);
+    // FIXED: Immediate flush with separated buffers for performance + correctness
+    FlushTriangles(false);
 }
 
 
 void Renderer::Line ( float x1, float y1, float x2, float y2, Colour const &col, float lineWidth )
 {
     // Convert to modern OpenGL using vertex buffer
-    if (m_vertexCount + 2 > MAX_VERTICES) {
-        FlushVertices(GL_LINES, false);
+    if (m_lineVertexCount + 2 > MAX_VERTICES) {
+        FlushLines();
     }
     
     // Convert color to float
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
     
     // Add line vertices
-    m_vertices[m_vertexCount].x = x1; m_vertices[m_vertexCount].y = y1;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x1; m_lineVertices[m_lineVertexCount].y = y1;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g; m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
     
-    m_vertices[m_vertexCount].x = x2; m_vertices[m_vertexCount].y = y2;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x2; m_lineVertices[m_lineVertexCount].y = y2;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g; m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
     
     // Note: lineWidth handling would need geometry shader or thick line implementation
     // For now, we'll ignore lineWidth as it's deprecated in core profile
     
-    // Flush immediately to maintain immediate-mode behavior
-    FlushVertices(GL_LINES, false);
+    // FIXED: Immediate flush with separated buffers for performance + correctness
+    FlushLines();
 }
 
 void Renderer::Circle( float x, float y, float radius, int numPoints, Colour const &col, float lineWidth )
 {
     // Convert to modern OpenGL using vertex buffer
     // We need numPoints * 2 vertices for GL_LINES (each line segment needs 2 vertices)
-    if (m_vertexCount + numPoints * 2 > MAX_VERTICES) {
-        FlushVertices(GL_LINES, false);
+    if (m_lineVertexCount + numPoints * 2 > MAX_VERTICES) {
+        FlushLines();
     }
     
     // Convert color to float
@@ -771,30 +836,30 @@ void Renderer::Circle( float x, float y, float radius, int numPoints, Colour con
         float y2 = y + sinf(angle2) * radius;
         
         // Add line segment from point i to point i+1
-        m_vertices[m_vertexCount].x = x1; m_vertices[m_vertexCount].y = y1;
-        m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-        m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-        m_vertexCount++;
+        m_lineVertices[m_lineVertexCount].x = x1; m_lineVertices[m_lineVertexCount].y = y1;
+        m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g; m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+        m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+        m_lineVertexCount++;
         
-        m_vertices[m_vertexCount].x = x2; m_vertices[m_vertexCount].y = y2;
-        m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-        m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-        m_vertexCount++;
+        m_lineVertices[m_lineVertexCount].x = x2; m_lineVertices[m_lineVertexCount].y = y2;
+        m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g; m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+        m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+        m_lineVertexCount++;
     }
     
     // Note: lineWidth handling would need geometry shader or thick line implementation
     // For now, we'll ignore lineWidth as it's deprecated in core profile
     
-    // Flush immediately to maintain immediate-mode behavior
-    FlushVertices(GL_LINES, false);
+    // FIXED: Immediate flush with separated buffers for performance + correctness
+    FlushLines();
 }
 
 void Renderer::CircleFill ( float x, float y, float radius, int numPoints, Colour const &col )
 {
     // Convert to modern OpenGL using vertex buffer
     // We need numPoints * 3 vertices for triangles (triangle fan converted to individual triangles)
-    if (m_vertexCount + numPoints * 3 > MAX_VERTICES) {
-        FlushVertices(GL_TRIANGLES, false);
+    if (m_triangleVertexCount + numPoints * 3 > MAX_VERTICES) {
+        FlushTriangles(false);
     }
     
     // Convert color to float
@@ -813,59 +878,59 @@ void Renderer::CircleFill ( float x, float y, float radius, int numPoints, Colou
         
         // Triangle: center, point i, point i+1
         // Center vertex
-        m_vertices[m_vertexCount].x = x; m_vertices[m_vertexCount].y = y;
-        m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-        m_vertices[m_vertexCount].u = 0.5f; m_vertices[m_vertexCount].v = 0.5f;
-        m_vertexCount++;
+        m_triangleVertices[m_triangleVertexCount].x = x; m_triangleVertices[m_triangleVertexCount].y = y;
+        m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+        m_triangleVertices[m_triangleVertexCount].u = 0.5f; m_triangleVertices[m_triangleVertexCount].v = 0.5f;
+        m_triangleVertexCount++;
         
         // Point i
-        m_vertices[m_vertexCount].x = x1; m_vertices[m_vertexCount].y = y1;
-        m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-        m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-        m_vertexCount++;
+        m_triangleVertices[m_triangleVertexCount].x = x1; m_triangleVertices[m_triangleVertexCount].y = y1;
+        m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+        m_triangleVertices[m_triangleVertexCount].u = 0.0f; m_triangleVertices[m_triangleVertexCount].v = 0.0f;
+        m_triangleVertexCount++;
         
         // Point i+1
-        m_vertices[m_vertexCount].x = x2; m_vertices[m_vertexCount].y = y2;
-        m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-        m_vertices[m_vertexCount].u = 1.0f; m_vertices[m_vertexCount].v = 0.0f;
-        m_vertexCount++;
+        m_triangleVertices[m_triangleVertexCount].x = x2; m_triangleVertices[m_triangleVertexCount].y = y2;
+        m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+        m_triangleVertices[m_triangleVertexCount].u = 1.0f; m_triangleVertices[m_triangleVertexCount].v = 0.0f;
+        m_triangleVertexCount++;
     }
     
-    // Flush immediately to maintain immediate-mode behavior
-    FlushVertices(GL_TRIANGLES, false);
+    // FIXED: Immediate flush with separated buffers for performance + correctness
+    FlushTriangles(false);
 }
 
 void Renderer::TriangleFill( float x1, float y1, float x2, float y2, float x3, float y3, Colour const &col )
 {
     // Convert to modern OpenGL using vertex buffer  
-    if (m_vertexCount + 3 > MAX_VERTICES) {
-        FlushVertices(GL_TRIANGLES, false);
+    if (m_triangleVertexCount + 3 > MAX_VERTICES) {
+        FlushTriangles(false);
     }
     
     // Convert color to float
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
     
     // Create one triangle with the three vertices
-    m_vertices[m_vertexCount].x = x1; m_vertices[m_vertexCount].y = y1;
-    m_vertices[m_vertexCount].r = r;  m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;  m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x1; m_triangleVertices[m_triangleVertexCount].y = y1;
+    m_triangleVertices[m_triangleVertexCount].r = r;  m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;  m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 0.0f; m_triangleVertices[m_triangleVertexCount].v = 0.0f;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x2; m_vertices[m_vertexCount].y = y2;
-    m_vertices[m_vertexCount].r = r;  m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;  m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x2; m_triangleVertices[m_triangleVertexCount].y = y2;
+    m_triangleVertices[m_triangleVertexCount].r = r;  m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;  m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 0.0f; m_triangleVertices[m_triangleVertexCount].v = 0.0f;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x3; m_vertices[m_vertexCount].y = y3;
-    m_vertices[m_vertexCount].r = r;  m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;  m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x3; m_triangleVertices[m_triangleVertexCount].y = y3;
+    m_triangleVertices[m_triangleVertexCount].r = r;  m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;  m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 0.0f; m_triangleVertices[m_triangleVertexCount].v = 0.0f;
+    m_triangleVertexCount++;
     
-    // Flush immediately to maintain immediate-mode behavior
-    FlushVertices(GL_TRIANGLES, false);
+    // FIXED: Immediate flush with separated buffers for performance + correctness
+    FlushTriangles(false);
 }
 
 void Renderer::BeginLines ( Colour const &col, float lineWidth )
@@ -884,10 +949,10 @@ void Renderer::Line( float x, float y )
 {
     // Add a single vertex to the current line strip
     // We'll connect these with lines when EndLines() is called
-    if (m_vertexCount + 1 > MAX_VERTICES) {
+    if (m_lineVertexCount + 1 > MAX_VERTICES) {
         // If we're running out of space, we need to handle this carefully
         // For now, just flush what we have (this breaks the line strip but prevents overflow)
-        FlushVertices(GL_LINES, false);
+        FlushLines();
     }
     
     // Convert color to float
@@ -895,51 +960,51 @@ void Renderer::Line( float x, float y )
     float b = m_currentLineColor.m_b / 255.0f, a = m_currentLineColor.m_a / 255.0f;
     
     // Add vertex to our line buffer
-    m_vertices[m_vertexCount].x = x; m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x; m_lineVertices[m_lineVertexCount].y = y;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g;
+    m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
 }
 
 void Renderer::EndLines()
 {
     // Convert the accumulated vertices to GL_LINES format
     // We need to convert from line strip to individual line segments
-    if (m_vertexCount < 2) {
+    if (m_lineVertexCount < 2) {
         // Not enough vertices for lines, just clear
-        m_vertexCount = 0;
+        m_lineVertexCount = 0;
         return;
     }
     
     // Create a temporary buffer for line segments
-    // We need (m_vertexCount - 1) * 2 vertices for GL_LINES from a line strip
-    int lineVertexCount = (m_vertexCount - 1) * 2;
-    Vertex2D* lineVertices = new Vertex2D[lineVertexCount];
+    // We need (m_lineVertexCount - 1) * 2 vertices for GL_LINES from a line strip
+    int tempLineVertexCount = (m_lineVertexCount - 1) * 2;
+    Vertex2D* tempLineVertices = new Vertex2D[tempLineVertexCount];
     
     int lineIndex = 0;
-    for (int i = 0; i < m_vertexCount - 1; i++) {
+    for (int i = 0; i < m_lineVertexCount - 1; i++) {
         // Line from vertex i to vertex i+1
-        lineVertices[lineIndex++] = m_vertices[i];
-        lineVertices[lineIndex++] = m_vertices[i + 1];
+        tempLineVertices[lineIndex++] = m_lineVertices[i];
+        tempLineVertices[lineIndex++] = m_lineVertices[i + 1];
     }
     
     // Clear our current vertex buffer and add the line segments
-    m_vertexCount = 0;
+    m_lineVertexCount = 0;
     
     // Add all line segments to our vertex buffer
-    for (int i = 0; i < lineVertexCount; i++) {
-        if (m_vertexCount >= MAX_VERTICES) {
-            FlushVertices(GL_LINES, false);
+    for (int i = 0; i < tempLineVertexCount; i++) {
+        if (m_lineVertexCount >= MAX_VERTICES) {
+            FlushLines();
         }
-        m_vertices[m_vertexCount++] = lineVertices[i];
+        m_lineVertices[m_lineVertexCount++] = tempLineVertices[i];
     }
     
     // Clean up temporary buffer
-    delete[] lineVertices;
+    delete[] tempLineVertices;
     
     // Flush the lines
-    FlushVertices(GL_LINES, false);
+    FlushLines();
 }
 
 // Line strip rendering functions for continuous lines (replaces GL_LINE_STRIP)
@@ -951,7 +1016,7 @@ void Renderer::BeginLineStrip2D(Colour const &col, float lineWidth)
     m_lineStripWidth = lineWidth;
     
     // Clear vertex buffer for new line strip
-    m_vertexCount = 0;
+    m_lineVertexCount = 0;
 }
 
 void Renderer::LineStripVertex2D(float x, float y)
@@ -959,7 +1024,7 @@ void Renderer::LineStripVertex2D(float x, float y)
     if (!m_lineStripActive) return;
     
     // Check if we need to flush due to buffer overflow
-    if (m_vertexCount >= MAX_VERTICES) {
+    if (m_lineVertexCount >= MAX_VERTICES) {
         // Convert current vertices to line segments and flush
         EndLineStrip2D();
         BeginLineStrip2D(m_lineStripColor, m_lineStripWidth);
@@ -970,11 +1035,11 @@ void Renderer::LineStripVertex2D(float x, float y)
     float b = m_lineStripColor.m_b / 255.0f, a = m_lineStripColor.m_a / 255.0f;
     
     // Add vertex to our line strip buffer
-    m_vertices[m_vertexCount].x = x; m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x; m_lineVertices[m_lineVertexCount].y = y;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g;
+    m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
 }
 
 void Renderer::EndLineStrip2D()
@@ -982,41 +1047,41 @@ void Renderer::EndLineStrip2D()
     if (!m_lineStripActive) return;
     
     // Convert the accumulated vertices to GL_LINES format
-    if (m_vertexCount < 2) {
+    if (m_lineVertexCount < 2) {
         // Not enough vertices for lines, just clear
-        m_vertexCount = 0;
+        m_lineVertexCount = 0;
         m_lineStripActive = false;
         return;
     }
     
     // Create a temporary buffer for line segments
-    // We need (m_vertexCount - 1) * 2 vertices for GL_LINES from a line strip
-    int lineVertexCount = (m_vertexCount - 1) * 2;
-    Vertex2D* lineVertices = new Vertex2D[lineVertexCount];
+    // We need (m_lineVertexCount - 1) * 2 vertices for GL_LINES from a line strip
+    int tempVertexCount = (m_lineVertexCount - 1) * 2;
+    Vertex2D* tempVertices = new Vertex2D[tempVertexCount];
     
     int lineIndex = 0;
-    for (int i = 0; i < m_vertexCount - 1; i++) {
+    for (int i = 0; i < m_lineVertexCount - 1; i++) {
         // Line from vertex i to vertex i+1
-        lineVertices[lineIndex++] = m_vertices[i];
-        lineVertices[lineIndex++] = m_vertices[i + 1];
+        tempVertices[lineIndex++] = m_lineVertices[i];
+        tempVertices[lineIndex++] = m_lineVertices[i + 1];
     }
     
     // Clear our current vertex buffer and add the line segments
-    m_vertexCount = 0;
+    m_lineVertexCount = 0;
     
     // Add all line segments to our vertex buffer
-    for (int i = 0; i < lineVertexCount; i++) {
-        if (m_vertexCount >= MAX_VERTICES) {
-            FlushVertices(GL_LINES, false);
+    for (int i = 0; i < tempVertexCount; i++) {
+        if (m_lineVertexCount >= MAX_VERTICES) {
+            FlushLines();
         }
-        m_vertices[m_vertexCount++] = lineVertices[i];
+        m_lineVertices[m_lineVertexCount++] = tempVertices[i];
     }
     
     // Clean up temporary buffer
-    delete[] lineVertices;
+    delete[] tempVertices;
     
     // Flush the lines
-    FlushVertices(GL_LINES, false);
+    FlushLines();
     
     // Reset line strip state
     m_lineStripActive = false;
@@ -1052,7 +1117,7 @@ void Renderer::BeginCachedLineStrip(const char* cacheKey, Colour const &col, flo
     m_cachedLineStripWidth = lineWidth;
     
     // Clear vertex buffer for new cached line strip
-    m_vertexCount = 0;
+    m_lineVertexCount = 0;
 }
 
 void Renderer::CachedLineStripVertex(float x, float y)
@@ -1060,7 +1125,7 @@ void Renderer::CachedLineStripVertex(float x, float y)
     if (!m_cachedLineStripActive) return;
     
     // Check if we need to flush due to buffer overflow
-    if (m_vertexCount >= MAX_VERTICES) {
+    if (m_lineVertexCount >= MAX_VERTICES) {
         // For cached VBOs, we need to handle this differently
         // For now, just ignore extra vertices (this shouldn't happen for coastlines)
         AppDebugOut("Warning: Cached line strip exceeded vertex buffer size\n");
@@ -1072,11 +1137,11 @@ void Renderer::CachedLineStripVertex(float x, float y)
     float b = m_cachedLineStripColor.m_b / 255.0f, a = m_cachedLineStripColor.m_a / 255.0f;
     
     // Add vertex to our cached line strip buffer
-    m_vertices[m_vertexCount].x = x; m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 0.0f; m_vertices[m_vertexCount].v = 0.0f;
-    m_vertexCount++;
+    m_lineVertices[m_lineVertexCount].x = x; m_lineVertices[m_lineVertexCount].y = y;
+    m_lineVertices[m_lineVertexCount].r = r; m_lineVertices[m_lineVertexCount].g = g;
+    m_lineVertices[m_lineVertexCount].b = b; m_lineVertices[m_lineVertexCount].a = a;
+    m_lineVertices[m_lineVertexCount].u = 0.0f; m_lineVertices[m_lineVertexCount].v = 0.0f;
+    m_lineVertexCount++;
 }
 
 void Renderer::EndCachedLineStrip()
@@ -1084,7 +1149,7 @@ void Renderer::EndCachedLineStrip()
     if (!m_cachedLineStripActive || !m_currentCacheKey) return;
     
     // Convert the accumulated vertices to GL_LINES format and store in VBO
-    if (m_vertexCount < 2) {
+    if (m_lineVertexCount < 2) {
         // Not enough vertices for lines
         m_cachedLineStripActive = false;
         return;
@@ -1105,14 +1170,14 @@ void Renderer::EndCachedLineStrip()
     }
     
     // Create line segments from line strip
-    int lineVertexCount = (m_vertexCount - 1) * 2;
+    int lineVertexCount = (m_lineVertexCount - 1) * 2;
     Vertex2D* lineVertices = new Vertex2D[lineVertexCount];
     
     int lineIndex = 0;
-    for (int i = 0; i < m_vertexCount - 1; i++) {
+    for (int i = 0; i < m_lineVertexCount - 1; i++) {
         // Line from vertex i to vertex i+1
-        lineVertices[lineIndex++] = m_vertices[i];
-        lineVertices[lineIndex++] = m_vertices[i + 1];
+        lineVertices[lineIndex++] = m_lineVertices[i];
+        lineVertices[lineIndex++] = m_lineVertices[i + 1];
     }
     
     // Create VBO if it doesn't exist
@@ -1145,7 +1210,7 @@ void Renderer::EndCachedLineStrip()
     
     // Clean up
     delete[] lineVertices;
-    m_vertexCount = 0;
+    m_lineVertexCount = 0;
     m_cachedLineStripActive = false;
 }
 
@@ -1361,8 +1426,8 @@ void Renderer::ResetClip()
 
 void Renderer::Blit( Image *src, float x, float y, float w, float h, Colour const &col )
 {    
-    if (m_vertexCount + 6 > MAX_VERTICES) {
-        FlushVertices(GL_TRIANGLES, true);
+    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
+        FlushTriangles(true);
     }
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
@@ -1380,44 +1445,44 @@ void Renderer::Blit( Image *src, float x, float y, float w, float h, Colour cons
     float onePixelW = 1.0f / (float) src->Width();
     float onePixelH = 1.0f / (float) src->Height();
     
-    m_vertices[m_vertexCount].x = x;      m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = onePixelW; m_vertices[m_vertexCount].v = 1.0f - onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x;      m_triangleVertices[m_triangleVertexCount].y = y;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = onePixelW; m_triangleVertices[m_triangleVertexCount].v = 1.0f - onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w;  m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 1.0f - onePixelW; m_vertices[m_vertexCount].v = 1.0f - onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x + w;  m_triangleVertices[m_triangleVertexCount].y = y;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f - onePixelW; m_triangleVertices[m_triangleVertexCount].v = 1.0f - onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w;  m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 1.0f - onePixelW; m_vertices[m_vertexCount].v = onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x + w;  m_triangleVertices[m_triangleVertexCount].y = y + h;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f - onePixelW; m_triangleVertices[m_triangleVertexCount].v = onePixelH;
+    m_triangleVertexCount++;
     
     // Second triangle: TL, BR, BL
-    m_vertices[m_vertexCount].x = x;      m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = onePixelW; m_vertices[m_vertexCount].v = 1.0f - onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x;      m_triangleVertices[m_triangleVertexCount].y = y;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = onePixelW; m_triangleVertices[m_triangleVertexCount].v = 1.0f - onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w;  m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 1.0f - onePixelW; m_vertices[m_vertexCount].v = onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x + w;  m_triangleVertices[m_triangleVertexCount].y = y + h;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f - onePixelW; m_triangleVertices[m_triangleVertexCount].v = onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x;      m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = onePixelW; m_vertices[m_vertexCount].v = onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x;      m_triangleVertices[m_triangleVertexCount].y = y + h;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = onePixelW; m_triangleVertices[m_triangleVertexCount].v = onePixelH;
+    m_triangleVertexCount++;
     
-    FlushVertices(GL_TRIANGLES, true);
+    FlushTriangles(true);
 }
 
 void Renderer::Blit( Image *image, float x, float y, Colour const &col )
@@ -1432,8 +1497,8 @@ void Renderer::Blit( Image *image, float x, float y, Colour const &col )
 void Renderer::Blit ( Image *src, float x, float y, float w, float h, Colour const &col, float angle)
 {    
     // Convert to modern OpenGL using vertex buffer
-    if (m_vertexCount + 6 > MAX_VERTICES) {
-        FlushVertices(GL_TRIANGLES, true);
+    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
+        FlushTriangles(true);
     }
     
     // Calculate rotated vertices (preserving original math)
@@ -1471,47 +1536,47 @@ void Renderer::Blit ( Image *src, float x, float y, float w, float h, Colour con
     
     // Create two triangles for the rotated quad
     // First triangle: vert1, vert2, vert3
-    m_vertices[m_vertexCount].x = vert1.x; m_vertices[m_vertexCount].y = vert1.y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = onePixelW; m_vertices[m_vertexCount].v = 1.0f - onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = vert1.x; m_triangleVertices[m_triangleVertexCount].y = vert1.y;
+    m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = onePixelW; m_triangleVertices[m_triangleVertexCount].v = 1.0f - onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = vert2.x; m_vertices[m_vertexCount].y = vert2.y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 1.0f - onePixelW; m_vertices[m_vertexCount].v = 1.0f - onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = vert2.x; m_triangleVertices[m_triangleVertexCount].y = vert2.y;
+    m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f - onePixelW; m_triangleVertices[m_triangleVertexCount].v = 1.0f - onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = vert3.x; m_vertices[m_vertexCount].y = vert3.y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 1.0f - onePixelW; m_vertices[m_vertexCount].v = onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = vert3.x; m_triangleVertices[m_triangleVertexCount].y = vert3.y;
+    m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f - onePixelW; m_triangleVertices[m_triangleVertexCount].v = onePixelH;
+    m_triangleVertexCount++;
     
     // Second triangle: vert1, vert3, vert4
-    m_vertices[m_vertexCount].x = vert1.x; m_vertices[m_vertexCount].y = vert1.y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = onePixelW; m_vertices[m_vertexCount].v = 1.0f - onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = vert1.x; m_triangleVertices[m_triangleVertexCount].y = vert1.y;
+    m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = onePixelW; m_triangleVertices[m_triangleVertexCount].v = 1.0f - onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = vert3.x; m_vertices[m_vertexCount].y = vert3.y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 1.0f - onePixelW; m_vertices[m_vertexCount].v = onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = vert3.x; m_triangleVertices[m_triangleVertexCount].y = vert3.y;
+    m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f - onePixelW; m_triangleVertices[m_triangleVertexCount].v = onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = vert4.x; m_vertices[m_vertexCount].y = vert4.y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = onePixelW; m_vertices[m_vertexCount].v = onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = vert4.x; m_triangleVertices[m_triangleVertexCount].y = vert4.y;
+    m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = onePixelW; m_triangleVertices[m_triangleVertexCount].v = onePixelH;
+    m_triangleVertexCount++;
     
     // PHASE 6.1 ROLLBACK: Restore immediate flush to fix render order issues
-    FlushVertices(GL_TRIANGLES, true);
+    FlushTriangles(true);
 }
 
 void Renderer::BlitChar( unsigned int textureID, float x, float y, float w, float h, 
                           float texX, float texY, float texW, float texH, Colour const &col)
 {
     // Convert to modern OpenGL using vertex buffer  
-    if (m_vertexCount + 6 > MAX_VERTICES) {
-        FlushVertices(GL_TRIANGLES, true);
+    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
+        FlushTriangles(true);
     }
     
     // Convert color to float
@@ -1534,42 +1599,42 @@ void Renderer::BlitChar( unsigned int textureID, float x, float y, float w, floa
     
     // Create two triangles for the quad
     // First triangle: TL, TR, BR
-    m_vertices[m_vertexCount].x = x;      m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = u1;     m_vertices[m_vertexCount].v = v2;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x;      m_triangleVertices[m_triangleVertexCount].y = y;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = u1;     m_triangleVertices[m_triangleVertexCount].v = v2;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w;  m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = u2;     m_vertices[m_vertexCount].v = v2;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x + w;  m_triangleVertices[m_triangleVertexCount].y = y;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = u2;     m_triangleVertices[m_triangleVertexCount].v = v2;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w;  m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = u2;     m_vertices[m_vertexCount].v = v1;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x + w;  m_triangleVertices[m_triangleVertexCount].y = y + h;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = u2;     m_triangleVertices[m_triangleVertexCount].v = v1;
+    m_triangleVertexCount++;
     
     // Second triangle: TL, BR, BL
-    m_vertices[m_vertexCount].x = x;      m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = u1;     m_vertices[m_vertexCount].v = v2;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x;      m_triangleVertices[m_triangleVertexCount].y = y;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = u1;     m_triangleVertices[m_triangleVertexCount].v = v2;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w;  m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = u2;     m_vertices[m_vertexCount].v = v1;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x + w;  m_triangleVertices[m_triangleVertexCount].y = y + h;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = u2;     m_triangleVertices[m_triangleVertexCount].v = v1;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x;      m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = u1;     m_vertices[m_vertexCount].v = v1;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x;      m_triangleVertices[m_triangleVertexCount].y = y + h;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = u1;     m_triangleVertices[m_triangleVertexCount].v = v1;
+    m_triangleVertexCount++;
     
     // PERFORMANCE OPTIMIZATION: No immediate flush - let batching system handle it
     // Characters with same texture will now be batched together for massive performance gain
@@ -1589,8 +1654,8 @@ void Renderer::BlitBatched( Image *image, float x, float y, Colour const &col )
 void Renderer::BlitBatched( Image *src, float x, float y, float w, float h, Colour const &col )
 {    
     // Convert to modern OpenGL using vertex buffer
-    if (m_vertexCount + 6 > MAX_VERTICES) {
-        FlushVertices(GL_TRIANGLES, true);
+    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
+        FlushTriangles(true);
     }
     
     // Convert color to float
@@ -1615,42 +1680,42 @@ void Renderer::BlitBatched( Image *src, float x, float y, float w, float h, Colo
     
     // Create two triangles for the quad
     // First triangle: TL, TR, BR
-    m_vertices[m_vertexCount].x = x;      m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = onePixelW; m_vertices[m_vertexCount].v = 1.0f - onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x;      m_triangleVertices[m_triangleVertexCount].y = y;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = onePixelW; m_triangleVertices[m_triangleVertexCount].v = 1.0f - onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w;  m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 1.0f - onePixelW; m_vertices[m_vertexCount].v = 1.0f - onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x + w;  m_triangleVertices[m_triangleVertexCount].y = y;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f - onePixelW; m_triangleVertices[m_triangleVertexCount].v = 1.0f - onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w;  m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 1.0f - onePixelW; m_vertices[m_vertexCount].v = onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x + w;  m_triangleVertices[m_triangleVertexCount].y = y + h;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f - onePixelW; m_triangleVertices[m_triangleVertexCount].v = onePixelH;
+    m_triangleVertexCount++;
     
     // Second triangle: TL, BR, BL
-    m_vertices[m_vertexCount].x = x;      m_vertices[m_vertexCount].y = y;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = onePixelW; m_vertices[m_vertexCount].v = 1.0f - onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x;      m_triangleVertices[m_triangleVertexCount].y = y;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = onePixelW; m_triangleVertices[m_triangleVertexCount].v = 1.0f - onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x + w;  m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 1.0f - onePixelW; m_vertices[m_vertexCount].v = onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x + w;  m_triangleVertices[m_triangleVertexCount].y = y + h;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f - onePixelW; m_triangleVertices[m_triangleVertexCount].v = onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = x;      m_vertices[m_vertexCount].y = y + h;
-    m_vertices[m_vertexCount].r = r;      m_vertices[m_vertexCount].g = g;
-    m_vertices[m_vertexCount].b = b;      m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = onePixelW; m_vertices[m_vertexCount].v = onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = x;      m_triangleVertices[m_triangleVertexCount].y = y + h;
+    m_triangleVertices[m_triangleVertexCount].r = r;      m_triangleVertices[m_triangleVertexCount].g = g;
+    m_triangleVertices[m_triangleVertexCount].b = b;      m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = onePixelW; m_triangleVertices[m_triangleVertexCount].v = onePixelH;
+    m_triangleVertexCount++;
     
     // PHASE 6.1.1 OPTIMIZATION: No immediate flush - let batching system handle it
     // Objects with same texture will now be batched together for safe performance gain
@@ -1659,8 +1724,8 @@ void Renderer::BlitBatched( Image *src, float x, float y, float w, float h, Colo
 void Renderer::BlitBatched( Image *src, float x, float y, float w, float h, Colour const &col, float angle)
 {    
     // Convert to modern OpenGL using vertex buffer
-    if (m_vertexCount + 6 > MAX_VERTICES) {
-        FlushVertices(GL_TRIANGLES, true);
+    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
+        FlushTriangles(true);
     }
     
     // Calculate rotated vertices (preserving original math)
@@ -1701,36 +1766,36 @@ void Renderer::BlitBatched( Image *src, float x, float y, float w, float h, Colo
     
     // Create two triangles for the rotated quad
     // First triangle: vert1, vert2, vert3
-    m_vertices[m_vertexCount].x = vert1.x; m_vertices[m_vertexCount].y = vert1.y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = onePixelW; m_vertices[m_vertexCount].v = 1.0f - onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = vert1.x; m_triangleVertices[m_triangleVertexCount].y = vert1.y;
+    m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = onePixelW; m_triangleVertices[m_triangleVertexCount].v = 1.0f - onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = vert2.x; m_vertices[m_vertexCount].y = vert2.y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 1.0f - onePixelW; m_vertices[m_vertexCount].v = 1.0f - onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = vert2.x; m_triangleVertices[m_triangleVertexCount].y = vert2.y;
+    m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f - onePixelW; m_triangleVertices[m_triangleVertexCount].v = 1.0f - onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = vert3.x; m_vertices[m_vertexCount].y = vert3.y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 1.0f - onePixelW; m_vertices[m_vertexCount].v = onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = vert3.x; m_triangleVertices[m_triangleVertexCount].y = vert3.y;
+    m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f - onePixelW; m_triangleVertices[m_triangleVertexCount].v = onePixelH;
+    m_triangleVertexCount++;
     
     // Second triangle: vert1, vert3, vert4
-    m_vertices[m_vertexCount].x = vert1.x; m_vertices[m_vertexCount].y = vert1.y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = onePixelW; m_vertices[m_vertexCount].v = 1.0f - onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = vert1.x; m_triangleVertices[m_triangleVertexCount].y = vert1.y;
+    m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = onePixelW; m_triangleVertices[m_triangleVertexCount].v = 1.0f - onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = vert3.x; m_vertices[m_vertexCount].y = vert3.y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = 1.0f - onePixelW; m_vertices[m_vertexCount].v = onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = vert3.x; m_triangleVertices[m_triangleVertexCount].y = vert3.y;
+    m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = 1.0f - onePixelW; m_triangleVertices[m_triangleVertexCount].v = onePixelH;
+    m_triangleVertexCount++;
     
-    m_vertices[m_vertexCount].x = vert4.x; m_vertices[m_vertexCount].y = vert4.y;
-    m_vertices[m_vertexCount].r = r; m_vertices[m_vertexCount].g = g; m_vertices[m_vertexCount].b = b; m_vertices[m_vertexCount].a = a;
-    m_vertices[m_vertexCount].u = onePixelW; m_vertices[m_vertexCount].v = onePixelH;
-    m_vertexCount++;
+    m_triangleVertices[m_triangleVertexCount].x = vert4.x; m_triangleVertices[m_triangleVertexCount].y = vert4.y;
+    m_triangleVertices[m_triangleVertexCount].r = r; m_triangleVertices[m_triangleVertexCount].g = g; m_triangleVertices[m_triangleVertexCount].b = b; m_triangleVertices[m_triangleVertexCount].a = a;
+    m_triangleVertices[m_triangleVertexCount].u = onePixelW; m_triangleVertices[m_triangleVertexCount].v = onePixelH;
+    m_triangleVertexCount++;
     
     // PHASE 6.1.1 OPTIMIZATION: No immediate flush - let batching system handle it
     // Objects with same texture will now be batched together for safe performance gain
@@ -1992,13 +2057,13 @@ void Renderer::SetupVertexArrays() {
 void Renderer::FlushIfTextureChanged(unsigned int newTextureID, bool useTexture) {
     // If batching is disabled, always flush (preserves old behavior)
     if (!m_batchingTextures) {
-        FlushVertices(GL_TRIANGLES, useTexture);
+        FlushTriangles(useTexture);
         return;
     }
     
     // If texture is changing and we have vertices to render, flush first
-    if (m_vertexCount > 0 && m_currentBoundTexture != newTextureID) {
-        FlushVertices(GL_TRIANGLES, useTexture);
+    if (m_triangleVertexCount > 0 && m_currentBoundTexture != newTextureID) {
+        FlushTriangles(useTexture);
     }
     
     // Update current texture state
@@ -2006,7 +2071,18 @@ void Renderer::FlushIfTextureChanged(unsigned int newTextureID, bool useTexture)
 }
 
 void Renderer::FlushVertices(unsigned int primitiveType, bool useTexture) {
-    if (m_vertexCount == 0) return;
+    if (primitiveType == GL_TRIANGLES) {
+        FlushTriangles(useTexture);
+    } else if (primitiveType == GL_LINES) {
+        FlushLines();
+    }
+}
+
+void Renderer::FlushTriangles(bool useTexture) {
+    if (m_triangleVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count legacy triangle draw call
+    IncrementDrawCall("legacy_triangles");
     
     // Choose appropriate shader
     unsigned int shaderToUse = useTexture ? m_textureShaderProgram : m_colorShaderProgram;
@@ -2028,15 +2104,1689 @@ void Renderer::FlushVertices(unsigned int primitiveType, bool useTexture) {
     // Upload vertex data
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertexCount * sizeof(Vertex2D), m_vertices);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_triangleVertexCount * sizeof(Vertex2D), m_triangleVertices);
     
     // Draw
-    glDrawArrays(primitiveType, 0, m_vertexCount);
+    glDrawArrays(GL_TRIANGLES, 0, m_triangleVertexCount);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     glUseProgram(0);
     
     // Reset vertex count
-    m_vertexCount = 0;
+    m_triangleVertexCount = 0;
 }
+
+void Renderer::FlushLines() {
+    if (m_lineVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count legacy line draw call
+    IncrementDrawCall("legacy_lines");
+    
+    // Lines always use color shader (no textures)
+    glUseProgram(m_colorShaderProgram);
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    
+    // Upload vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_lineVertexCount * sizeof(Vertex2D), m_lineVertices);
+    
+    // Draw
+    glDrawArrays(GL_LINES, 0, m_lineVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_lineVertexCount = 0;
+}
+
+void Renderer::FlushAllBuffers() {
+    FlushTriangles(false);  // Flush color triangles
+    FlushLines();           // Flush lines
+}
+
+// Helper function for time-based flushing experiment
+bool Renderer::ShouldFlushThisFrame() {
+    // Always flush if either buffer is getting full (safety)
+    if (m_triangleVertexCount >= MAX_VERTICES - 100 || m_lineVertexCount >= MAX_VERTICES - 100) {
+        return true;
+    }
+    
+    // ULTIMATE TEST: Only flush once per second using high-res time!
+    float currentTime = GetHighResTime();
+    if (currentTime - m_lastFlushTime >= 1.0f) {
+        m_lastFlushTime = currentTime;
+        return true;
+    }
+    
+    return false;
+}
+
+// PERFORMANCE FIX: Specialized flush methods for new buffer systems
+
+void Renderer::FlushUITriangles() {
+    if (m_uiTriangleVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count UI triangle draw call
+    IncrementDrawCall("ui_triangles");
+    
+    // UI triangles always use color shader (no textures)
+    glUseProgram(m_colorShaderProgram);
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    
+    // Upload UI triangle vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_uiTriangleVertexCount * sizeof(Vertex2D), m_uiTriangleVertices);
+    
+    // Draw
+    glDrawArrays(GL_TRIANGLES, 0, m_uiTriangleVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_uiTriangleVertexCount = 0;
+}
+
+void Renderer::FlushUILines() {
+    if (m_uiLineVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count UI line draw call
+    IncrementDrawCall("ui_lines");
+    
+    // UI lines always use color shader (no textures)
+    glUseProgram(m_colorShaderProgram);
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    
+    // Upload UI line vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_uiLineVertexCount * sizeof(Vertex2D), m_uiLineVertices);
+    
+    // Draw
+    glDrawArrays(GL_LINES, 0, m_uiLineVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_uiLineVertexCount = 0;
+}
+
+void Renderer::FlushTextBuffer() {
+    if (m_textVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count text draw call
+    IncrementDrawCall("text");
+    
+    // Text always uses texture shader
+    glUseProgram(m_textureShaderProgram);
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
+    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    glUniform1i(texLoc, 0); // Use texture unit 0
+    
+    // Upload text vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_textVertexCount * sizeof(Vertex2D), m_textVertices);
+    
+    // Draw
+    glDrawArrays(GL_TRIANGLES, 0, m_textVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Renderer::FlushSpriteBuffer() {
+    if (m_spriteVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count sprite draw call
+    IncrementDrawCall("sprites");
+    
+    // Sprites always use texture shader
+    glUseProgram(m_textureShaderProgram);
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
+    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    glUniform1i(texLoc, 0); // Use texture unit 0
+    
+    // Upload sprite vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_spriteVertexCount * sizeof(Vertex2D), m_spriteVertices);
+    
+    // Draw
+    glDrawArrays(GL_TRIANGLES, 0, m_spriteVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_spriteVertexCount = 0;
+}
+
+void Renderer::FlushSpriteContext() {
+    FlushSpriteBuffer();
+}
+
+// PERFORMANCE FIX: Example optimized drawing methods using specialized buffers
+// These demonstrate the new buffer system while keeping immediate flushing for testing
+
+void Renderer::RectOptimized(float x, float y, float w, float h, Colour const &col, float lineWidth) {
+    // Use UI line buffer instead of legacy buffer
+    FlushIfBufferFull(BUFFER_UI_LINES, 8);
+    
+    // Convert color to float
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    // Create 4 lines to form rectangle outline (same logic as original Rect)
+    // Top line
+    m_uiLineVertices[m_uiLineVertexCount].x = x; m_uiLineVertices[m_uiLineVertexCount].y = y;
+    m_uiLineVertices[m_uiLineVertexCount].r = r; m_uiLineVertices[m_uiLineVertexCount].g = g; 
+    m_uiLineVertices[m_uiLineVertexCount].b = b; m_uiLineVertices[m_uiLineVertexCount].a = a;
+    m_uiLineVertices[m_uiLineVertexCount].u = 0.0f; m_uiLineVertices[m_uiLineVertexCount].v = 0.0f;
+    m_uiLineVertexCount++;
+    
+    m_uiLineVertices[m_uiLineVertexCount].x = x + w; m_uiLineVertices[m_uiLineVertexCount].y = y;
+    m_uiLineVertices[m_uiLineVertexCount].r = r; m_uiLineVertices[m_uiLineVertexCount].g = g; 
+    m_uiLineVertices[m_uiLineVertexCount].b = b; m_uiLineVertices[m_uiLineVertexCount].a = a;
+    m_uiLineVertices[m_uiLineVertexCount].u = 0.0f; m_uiLineVertices[m_uiLineVertexCount].v = 0.0f;
+    m_uiLineVertexCount++;
+    
+    // Right line
+    m_uiLineVertices[m_uiLineVertexCount].x = x + w; m_uiLineVertices[m_uiLineVertexCount].y = y;
+    m_uiLineVertices[m_uiLineVertexCount].r = r; m_uiLineVertices[m_uiLineVertexCount].g = g; 
+    m_uiLineVertices[m_uiLineVertexCount].b = b; m_uiLineVertices[m_uiLineVertexCount].a = a;
+    m_uiLineVertices[m_uiLineVertexCount].u = 0.0f; m_uiLineVertices[m_uiLineVertexCount].v = 0.0f;
+    m_uiLineVertexCount++;
+    
+    m_uiLineVertices[m_uiLineVertexCount].x = x + w; m_uiLineVertices[m_uiLineVertexCount].y = y + h;
+    m_uiLineVertices[m_uiLineVertexCount].r = r; m_uiLineVertices[m_uiLineVertexCount].g = g; 
+    m_uiLineVertices[m_uiLineVertexCount].b = b; m_uiLineVertices[m_uiLineVertexCount].a = a;
+    m_uiLineVertices[m_uiLineVertexCount].u = 0.0f; m_uiLineVertices[m_uiLineVertexCount].v = 0.0f;
+    m_uiLineVertexCount++;
+    
+    // Bottom line
+    m_uiLineVertices[m_uiLineVertexCount].x = x + w; m_uiLineVertices[m_uiLineVertexCount].y = y + h;
+    m_uiLineVertices[m_uiLineVertexCount].r = r; m_uiLineVertices[m_uiLineVertexCount].g = g; 
+    m_uiLineVertices[m_uiLineVertexCount].b = b; m_uiLineVertices[m_uiLineVertexCount].a = a;
+    m_uiLineVertices[m_uiLineVertexCount].u = 0.0f; m_uiLineVertices[m_uiLineVertexCount].v = 0.0f;
+    m_uiLineVertexCount++;
+    
+    m_uiLineVertices[m_uiLineVertexCount].x = x; m_uiLineVertices[m_uiLineVertexCount].y = y + h;
+    m_uiLineVertices[m_uiLineVertexCount].r = r; m_uiLineVertices[m_uiLineVertexCount].g = g; 
+    m_uiLineVertices[m_uiLineVertexCount].b = b; m_uiLineVertices[m_uiLineVertexCount].a = a;
+    m_uiLineVertices[m_uiLineVertexCount].u = 0.0f; m_uiLineVertices[m_uiLineVertexCount].v = 0.0f;
+    m_uiLineVertexCount++;
+    
+    // Left line
+    m_uiLineVertices[m_uiLineVertexCount].x = x; m_uiLineVertices[m_uiLineVertexCount].y = y + h;
+    m_uiLineVertices[m_uiLineVertexCount].r = r; m_uiLineVertices[m_uiLineVertexCount].g = g; 
+    m_uiLineVertices[m_uiLineVertexCount].b = b; m_uiLineVertices[m_uiLineVertexCount].a = a;
+    m_uiLineVertices[m_uiLineVertexCount].u = 0.0f; m_uiLineVertices[m_uiLineVertexCount].v = 0.0f;
+    m_uiLineVertexCount++;
+    
+    m_uiLineVertices[m_uiLineVertexCount].x = x; m_uiLineVertices[m_uiLineVertexCount].y = y;
+    m_uiLineVertices[m_uiLineVertexCount].r = r; m_uiLineVertices[m_uiLineVertexCount].g = g; 
+    m_uiLineVertices[m_uiLineVertexCount].b = b; m_uiLineVertices[m_uiLineVertexCount].a = a;
+    m_uiLineVertices[m_uiLineVertexCount].u = 0.0f; m_uiLineVertices[m_uiLineVertexCount].v = 0.0f;
+    m_uiLineVertexCount++;
+    
+    // For testing: keep immediate flushing
+    if (m_allowImmedateFlush) {
+        FlushUILines();
+    }
+}
+
+void Renderer::RectFillOptimized(float x, float y, float w, float h, Colour const &col) {
+    // Use UI triangle buffer instead of legacy buffer
+    FlushIfBufferFull(BUFFER_UI_TRIANGLES, 6);
+    
+    // Convert color to float
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    // Create two triangles for the quad (same logic as original RectFill)
+    // First triangle: TL, TR, BR
+    m_uiTriangleVertices[m_uiTriangleVertexCount].x = x; m_uiTriangleVertices[m_uiTriangleVertexCount].y = y;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].r = r; m_uiTriangleVertices[m_uiTriangleVertexCount].g = g;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].b = b; m_uiTriangleVertices[m_uiTriangleVertexCount].a = a;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].u = 0.0f; m_uiTriangleVertices[m_uiTriangleVertexCount].v = 0.0f;
+    m_uiTriangleVertexCount++;
+    
+    m_uiTriangleVertices[m_uiTriangleVertexCount].x = x + w; m_uiTriangleVertices[m_uiTriangleVertexCount].y = y;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].r = r; m_uiTriangleVertices[m_uiTriangleVertexCount].g = g;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].b = b; m_uiTriangleVertices[m_uiTriangleVertexCount].a = a;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].u = 1.0f; m_uiTriangleVertices[m_uiTriangleVertexCount].v = 0.0f;
+    m_uiTriangleVertexCount++;
+    
+    m_uiTriangleVertices[m_uiTriangleVertexCount].x = x + w; m_uiTriangleVertices[m_uiTriangleVertexCount].y = y + h;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].r = r; m_uiTriangleVertices[m_uiTriangleVertexCount].g = g;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].b = b; m_uiTriangleVertices[m_uiTriangleVertexCount].a = a;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].u = 1.0f; m_uiTriangleVertices[m_uiTriangleVertexCount].v = 1.0f;
+    m_uiTriangleVertexCount++;
+    
+    // Second triangle: TL, BR, BL
+    m_uiTriangleVertices[m_uiTriangleVertexCount].x = x; m_uiTriangleVertices[m_uiTriangleVertexCount].y = y;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].r = r; m_uiTriangleVertices[m_uiTriangleVertexCount].g = g;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].b = b; m_uiTriangleVertices[m_uiTriangleVertexCount].a = a;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].u = 0.0f; m_uiTriangleVertices[m_uiTriangleVertexCount].v = 0.0f;
+    m_uiTriangleVertexCount++;
+    
+    m_uiTriangleVertices[m_uiTriangleVertexCount].x = x + w; m_uiTriangleVertices[m_uiTriangleVertexCount].y = y + h;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].r = r; m_uiTriangleVertices[m_uiTriangleVertexCount].g = g;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].b = b; m_uiTriangleVertices[m_uiTriangleVertexCount].a = a;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].u = 1.0f; m_uiTriangleVertices[m_uiTriangleVertexCount].v = 1.0f;
+    m_uiTriangleVertexCount++;
+    
+    m_uiTriangleVertices[m_uiTriangleVertexCount].x = x; m_uiTriangleVertices[m_uiTriangleVertexCount].y = y + h;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].r = r; m_uiTriangleVertices[m_uiTriangleVertexCount].g = g;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].b = b; m_uiTriangleVertices[m_uiTriangleVertexCount].a = a;
+    m_uiTriangleVertices[m_uiTriangleVertexCount].u = 0.0f; m_uiTriangleVertices[m_uiTriangleVertexCount].v = 1.0f;
+    m_uiTriangleVertexCount++;
+    
+    // For testing: keep immediate flushing
+    if (m_allowImmedateFlush) {
+        FlushUITriangles();
+    }
+}
+
+void Renderer::LineOptimized(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth) {
+    // Use UI line buffer instead of legacy buffer
+    FlushIfBufferFull(BUFFER_UI_LINES, 2);
+    
+    // Convert color to float
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    // Add line vertices (same logic as original Line)
+    m_uiLineVertices[m_uiLineVertexCount].x = x1; m_uiLineVertices[m_uiLineVertexCount].y = y1;
+    m_uiLineVertices[m_uiLineVertexCount].r = r; m_uiLineVertices[m_uiLineVertexCount].g = g; 
+    m_uiLineVertices[m_uiLineVertexCount].b = b; m_uiLineVertices[m_uiLineVertexCount].a = a;
+    m_uiLineVertices[m_uiLineVertexCount].u = 0.0f; m_uiLineVertices[m_uiLineVertexCount].v = 0.0f;
+    m_uiLineVertexCount++;
+    
+    m_uiLineVertices[m_uiLineVertexCount].x = x2; m_uiLineVertices[m_uiLineVertexCount].y = y2;
+    m_uiLineVertices[m_uiLineVertexCount].r = r; m_uiLineVertices[m_uiLineVertexCount].g = g; 
+    m_uiLineVertices[m_uiLineVertexCount].b = b; m_uiLineVertices[m_uiLineVertexCount].a = a;
+    m_uiLineVertices[m_uiLineVertexCount].u = 0.0f; m_uiLineVertices[m_uiLineVertexCount].v = 0.0f;
+    m_uiLineVertexCount++;
+    
+    // For testing: keep immediate flushing
+    if (m_allowImmedateFlush) {
+        FlushUILines();
+    }
+}
+
+// Batch management functions for testing
+
+void Renderer::BeginUIBatch() {
+    // Disable immediate flushing for UI operations
+    m_allowImmedateFlush = false;
+}
+
+void Renderer::EndUIBatch() {
+    // Flush UI buffers and re-enable immediate flushing
+    FlushUIContext();
+    m_allowImmedateFlush = true;
+}
+
+void Renderer::BeginTextBatch() {
+    // Disable immediate flushing for text operations  
+    m_allowImmedateFlush = false;
+}
+
+void Renderer::EndTextBatch() {
+    // Flush text buffer and re-enable immediate flushing
+    FlushTextContext();
+    m_allowImmedateFlush = true;
+}
+
+void Renderer::BeginSpriteBatch() {
+    // Disable immediate flushing for sprite operations
+    m_allowImmedateFlush = false;
+}
+
+void Renderer::EndSpriteBatch() {
+    // Flush sprite buffer and re-enable immediate flushing
+    FlushSpriteContext();
+    m_allowImmedateFlush = true;
+}
+
+// PERFORMANCE TRACKING: Draw call counter implementations
+
+void Renderer::ResetFrameCounters() {
+    // Store previous frame's data for display
+    m_prevDrawCallsPerFrame = m_drawCallsPerFrame;
+    m_prevLegacyTriangleCalls = m_legacyTriangleCalls;
+    m_prevLegacyLineCalls = m_legacyLineCalls;
+    m_prevUiTriangleCalls = m_uiTriangleCalls;
+    m_prevUiLineCalls = m_uiLineCalls;
+    m_prevTextCalls = m_textCalls;
+    m_prevSpriteCalls = m_spriteCalls;
+    // Unit rendering previous frame data
+    m_prevUnitTrailCalls = m_unitTrailCalls;
+    m_prevUnitMainSpriteCalls = m_unitMainSpriteCalls;
+    m_prevUnitHighlightCalls = m_unitHighlightCalls;
+    m_prevUnitStateIconCalls = m_unitStateIconCalls;
+    m_prevUnitCounterCalls = m_unitCounterCalls;
+    m_prevUnitNukeIconCalls = m_unitNukeIconCalls;
+    // Effect rendering previous frame data
+    m_prevEffectsLineCalls = m_effectsLineCalls;
+    m_prevEffectsSpriteCalls = m_effectsSpriteCalls;
+    
+    // Reset current frame counters
+    m_drawCallsPerFrame = 0;
+    m_legacyTriangleCalls = 0;
+    m_legacyLineCalls = 0;
+    m_uiTriangleCalls = 0;
+    m_uiLineCalls = 0;
+    m_textCalls = 0;
+    m_spriteCalls = 0;
+    // Unit rendering current frame counters
+    m_unitTrailCalls = 0;
+    m_unitMainSpriteCalls = 0;
+    m_unitHighlightCalls = 0;
+    m_unitStateIconCalls = 0;
+    m_unitCounterCalls = 0;
+    m_unitNukeIconCalls = 0;
+    // Effect rendering current frame counters
+    m_effectsLineCalls = 0;
+    m_effectsSpriteCalls = 0;
+}
+
+void Renderer::IncrementDrawCall(const char* bufferType) {
+    m_drawCallsPerFrame++;
+    
+    // Legacy buffer types
+    if (strcmp(bufferType, "legacy_triangles") == 0) {
+        m_legacyTriangleCalls++;
+    } else if (strcmp(bufferType, "legacy_lines") == 0) {
+        m_legacyLineCalls++;
+    // Core buffer types
+    } else if (strcmp(bufferType, "ui_triangles") == 0) {
+        m_uiTriangleCalls++;
+    } else if (strcmp(bufferType, "ui_lines") == 0) {
+        m_uiLineCalls++;
+    } else if (strcmp(bufferType, "text") == 0) {
+        m_textCalls++;
+    } else if (strcmp(bufferType, "sprites") == 0) {
+        m_spriteCalls++;
+    // Unit rendering buffer types
+    } else if (strcmp(bufferType, "unit_trails") == 0) {
+        m_unitTrailCalls++;
+    } else if (strcmp(bufferType, "unit_main_sprites") == 0) {
+        m_unitMainSpriteCalls++;
+    } else if (strcmp(bufferType, "unit_highlights") == 0) {
+        m_unitHighlightCalls++;
+    } else if (strcmp(bufferType, "unit_state_icons") == 0) {
+        m_unitStateIconCalls++;
+    } else if (strcmp(bufferType, "unit_counters") == 0) {
+        m_unitCounterCalls++;
+    } else if (strcmp(bufferType, "unit_nuke_icons") == 0) {
+        m_unitNukeIconCalls++;
+    // Effect rendering buffer types
+    } else if (strcmp(bufferType, "effects_lines") == 0) {
+        m_effectsLineCalls++;
+    } else if (strcmp(bufferType, "effects_sprites") == 0) {
+        m_effectsSpriteCalls++;
+    }
+}
+
+void Renderer::BeginFrame() {
+    ResetFrameCounters();
+    // Reset any frame-specific state here
+}
+
+void Renderer::FlushAllSpecializedBuffers() {
+    // Core specialized buffers
+    FlushUITriangles();
+    FlushUILines();
+    FlushTextBuffer();
+    FlushSpriteBuffer();
+    
+    // Unit rendering specialized buffers
+    FlushUnitTrails();
+    FlushUnitMainSprites();
+    FlushUnitHighlights();
+    FlushUnitStateIcons();
+    FlushUnitCounters();
+    FlushUnitNukeIcons();
+    
+    // Effect rendering specialized buffers
+    FlushEffectsLines();
+    FlushEffectsSprites();
+}
+
+void Renderer::EndFrame() {
+    // Flush all remaining buffers
+    FlushAllSpecializedBuffers();
+}
+
+// UNIT RENDERING SPECIALIZED FLUSH METHODS
+
+void Renderer::FlushUnitTrails() {
+    if (m_unitTrailVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count unit trail draw call
+    IncrementDrawCall("unit_trails");
+    
+    // Unit trails always use color shader (no textures)
+    glUseProgram(m_colorShaderProgram);
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    
+    // Upload unit trail vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitTrailVertexCount * sizeof(Vertex2D), m_unitTrailVertices);
+    
+    // Draw
+    glDrawArrays(GL_LINES, 0, m_unitTrailVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_unitTrailVertexCount = 0;
+}
+
+void Renderer::FlushUnitMainSprites() {
+    if (m_unitMainVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count unit main sprite draw call
+    IncrementDrawCall("unit_main_sprites");
+    
+    // Unit main sprites always use texture shader
+    glUseProgram(m_textureShaderProgram);
+    
+    // BUGFIX: Texture binding is now handled in UnitMainSprite() for immediate consistency
+    // The texture should already be bound, but we ensure it's still bound here
+    if (m_currentUnitMainTexture != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_currentUnitMainTexture);
+    }
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
+    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    glUniform1i(texLoc, 0); // Use texture unit 0
+    
+    // Upload unit main sprite vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitMainVertexCount * sizeof(Vertex2D), m_unitMainVertices);
+    
+    // Draw
+    glDrawArrays(GL_TRIANGLES, 0, m_unitMainVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_unitMainVertexCount = 0;
+}
+
+void Renderer::FlushUnitHighlights() {
+    if (m_unitHighlightVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count unit highlight draw call
+    IncrementDrawCall("unit_highlights");
+    
+    // Unit highlights always use texture shader (blur textures)
+    glUseProgram(m_textureShaderProgram);
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
+    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    glUniform1i(texLoc, 0); // Use texture unit 0
+    
+    // Upload unit highlight vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitHighlightVertexCount * sizeof(Vertex2D), m_unitHighlightVertices);
+    
+    // Draw
+    glDrawArrays(GL_TRIANGLES, 0, m_unitHighlightVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_unitHighlightVertexCount = 0;
+}
+
+void Renderer::FlushUnitStateIcons() {
+    if (m_unitStateVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count unit state icon draw call
+    IncrementDrawCall("unit_state_icons");
+    
+    // Unit state icons always use texture shader
+    glUseProgram(m_textureShaderProgram);
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
+    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    glUniform1i(texLoc, 0); // Use texture unit 0
+    
+    // Upload unit state icon vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitStateVertexCount * sizeof(Vertex2D), m_unitStateVertices);
+    
+    // Draw
+    glDrawArrays(GL_TRIANGLES, 0, m_unitStateVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_unitStateVertexCount = 0;
+}
+
+void Renderer::FlushUnitCounters() {
+    if (m_unitCounterVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count unit counter draw call
+    IncrementDrawCall("unit_counters");
+    
+    // Unit counters always use texture shader (font texture)
+    glUseProgram(m_textureShaderProgram);
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
+    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    glUniform1i(texLoc, 0); // Use texture unit 0
+    
+    // Upload unit counter vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitCounterVertexCount * sizeof(Vertex2D), m_unitCounterVertices);
+    
+    // Draw
+    glDrawArrays(GL_TRIANGLES, 0, m_unitCounterVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_unitCounterVertexCount = 0;
+}
+
+void Renderer::FlushUnitNukeIcons() {
+    if (m_unitNukeVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count unit nuke icon draw call
+    IncrementDrawCall("unit_nuke_icons");
+    
+    // Unit nuke icons always use texture shader (smallnuke.bmp)
+    glUseProgram(m_textureShaderProgram);
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
+    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    glUniform1i(texLoc, 0); // Use texture unit 0
+    
+    // Upload unit nuke icon vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitNukeVertexCount * sizeof(Vertex2D), m_unitNukeVertices);
+    
+    // Draw
+    glDrawArrays(GL_TRIANGLES, 0, m_unitNukeVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_unitNukeVertexCount = 0;
+}
+
+// EFFECTS RENDERING SPECIALIZED FLUSH METHODS
+
+void Renderer::FlushEffectsLines() {
+    if (m_effectsLineVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count effects line draw call
+    IncrementDrawCall("effects_lines");
+    
+    // Effects lines always use color shader (no textures)
+    glUseProgram(m_colorShaderProgram);
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    
+    // Upload effects line vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsLineVertexCount * sizeof(Vertex2D), m_effectsLineVertices);
+    
+    // Draw
+    glDrawArrays(GL_LINES, 0, m_effectsLineVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_effectsLineVertexCount = 0;
+}
+
+void Renderer::FlushEffectsSprites() {
+    if (m_effectsSpriteVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count effects sprite draw call
+    IncrementDrawCall("effects_sprites");
+    
+    // Effects sprites always use texture shader
+    glUseProgram(m_textureShaderProgram);
+    
+    // BUGFIX: Texture binding is now handled in EffectsSprite() for immediate consistency
+    // The texture should already be bound, but we ensure it's still bound here
+    if (m_currentEffectsSpriteTexture != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_currentEffectsSpriteTexture);
+    }
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
+    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    glUniform1i(texLoc, 0); // Use texture unit 0
+    
+    // Upload effects sprite vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsSpriteVertexCount * sizeof(Vertex2D), m_effectsSpriteVertices);
+    
+    // Draw
+    glDrawArrays(GL_TRIANGLES, 0, m_effectsSpriteVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_effectsSpriteVertexCount = 0;
+}
+
+// COMPLETE BUFFER SYSTEM FLUSH METHODS
+
+void Renderer::FlushAllUnitBuffers() {
+    FlushUnitTrails();
+    FlushUnitMainSprites();
+    FlushUnitHighlights();
+    FlushUnitStateIcons();
+    FlushUnitCounters();
+    FlushUnitNukeIcons();
+}
+
+void Renderer::FlushAllEffectBuffers() {
+    FlushEffectsLines();
+    FlushEffectsSprites();
+}
+
+// NEW: Unit trail optimized rendering methods (batched trail system)
+
+void Renderer::UnitTrailLine(float x1, float y1, float x2, float y2, Colour const &col) {
+    // Check if we need to flush due to buffer overflow
+    FlushUnitTrailsIfFull(2); // Need 2 vertices for one line segment
+    
+    // Convert color to float
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    // Add line segment to unit trail buffer
+    m_unitTrailVertices[m_unitTrailVertexCount].x = x1; 
+    m_unitTrailVertices[m_unitTrailVertexCount].y = y1;
+    m_unitTrailVertices[m_unitTrailVertexCount].r = r; 
+    m_unitTrailVertices[m_unitTrailVertexCount].g = g; 
+    m_unitTrailVertices[m_unitTrailVertexCount].b = b; 
+    m_unitTrailVertices[m_unitTrailVertexCount].a = a;
+    m_unitTrailVertices[m_unitTrailVertexCount].u = 0.0f; 
+    m_unitTrailVertices[m_unitTrailVertexCount].v = 0.0f;
+    m_unitTrailVertexCount++;
+    
+    m_unitTrailVertices[m_unitTrailVertexCount].x = x2; 
+    m_unitTrailVertices[m_unitTrailVertexCount].y = y2;
+    m_unitTrailVertices[m_unitTrailVertexCount].r = r; 
+    m_unitTrailVertices[m_unitTrailVertexCount].g = g; 
+    m_unitTrailVertices[m_unitTrailVertexCount].b = b; 
+    m_unitTrailVertices[m_unitTrailVertexCount].a = a;
+    m_unitTrailVertices[m_unitTrailVertexCount].u = 0.0f; 
+    m_unitTrailVertices[m_unitTrailVertexCount].v = 0.0f;
+    m_unitTrailVertexCount++;
+}
+
+void Renderer::BeginUnitTrailBatch() {
+    // Disable immediate flushing for trail operations
+    // Trail segments will be batched until EndUnitTrailBatch()
+    // Note: We don't reset the buffer here in case it has existing segments
+}
+
+void Renderer::EndUnitTrailBatch() {
+    // Flush all accumulated trail segments in one draw call
+    FlushUnitTrails();
+}
+
+void Renderer::FlushUnitTrailsIfFull(int segmentsNeeded) {
+    // Check if adding the requested segments would overflow the buffer
+    if (m_unitTrailVertexCount + segmentsNeeded > MAX_UNIT_TRAIL_VERTICES) {
+        FlushUnitTrails();
+    }
+}
+
+// NEW: Effects line optimized rendering methods (batched effects system)
+
+void Renderer::EffectsLine(float x1, float y1, float x2, float y2, Colour const &col) {
+    // Check if we need to flush due to buffer overflow
+    FlushEffectsLinesIfFull(2); // Need 2 vertices for one line segment
+    
+    // Convert color to float
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    // Add line segment to effects line buffer
+    m_effectsLineVertices[m_effectsLineVertexCount].x = x1; 
+    m_effectsLineVertices[m_effectsLineVertexCount].y = y1;
+    m_effectsLineVertices[m_effectsLineVertexCount].r = r; 
+    m_effectsLineVertices[m_effectsLineVertexCount].g = g; 
+    m_effectsLineVertices[m_effectsLineVertexCount].b = b; 
+    m_effectsLineVertices[m_effectsLineVertexCount].a = a;
+    m_effectsLineVertices[m_effectsLineVertexCount].u = 0.0f; 
+    m_effectsLineVertices[m_effectsLineVertexCount].v = 0.0f;
+    m_effectsLineVertexCount++;
+    
+    m_effectsLineVertices[m_effectsLineVertexCount].x = x2; 
+    m_effectsLineVertices[m_effectsLineVertexCount].y = y2;
+    m_effectsLineVertices[m_effectsLineVertexCount].r = r; 
+    m_effectsLineVertices[m_effectsLineVertexCount].g = g; 
+    m_effectsLineVertices[m_effectsLineVertexCount].b = b; 
+    m_effectsLineVertices[m_effectsLineVertexCount].a = a;
+    m_effectsLineVertices[m_effectsLineVertexCount].u = 0.0f; 
+    m_effectsLineVertices[m_effectsLineVertexCount].v = 0.0f;
+    m_effectsLineVertexCount++;
+    
+    // BATCHING FIX: Remove immediate flush to allow proper batching
+    // Effects lines will now be batched until EndEffectsLineBatch() is called
+    // This mirrors the working unit trail system approach
+}
+
+void Renderer::BeginEffectsLineBatch() {
+    // Disable immediate flushing for effects line operations
+    // Effects line segments will be batched until EndEffectsLineBatch()
+    // Note: We don't reset the buffer here in case it has existing segments
+}
+
+void Renderer::EndEffectsLineBatch() {
+    // Flush all accumulated effects line segments in one draw call
+    FlushEffectsLines();
+}
+
+void Renderer::FlushEffectsLinesIfFull(int segmentsNeeded) {
+    // Check if adding the requested segments would overflow the buffer
+    if (m_effectsLineVertexCount + segmentsNeeded > MAX_EFFECTS_LINE_VERTICES) {
+        FlushEffectsLines();
+    }
+}
+
+// NEW: Unit main sprite optimized rendering methods (batched sprite system)
+
+void Renderer::UnitMainSprite(Image *src, float x, float y, float w, float h, Colour const &col) {
+    // Check if we need to flush due to buffer overflow (6 vertices per sprite)
+    FlushUnitMainSpritesIfFull(6);
+    
+    // TEXTURE-BASED BATCHING: Smart flush only when texture changes
+    // This automatically batches all units with the same texture together
+    if (m_unitMainVertexCount > 0 && m_currentUnitMainTexture != src->m_textureID) {
+        FlushUnitMainSprites(); // Flush previous texture group
+    }
+    
+    // Bind new texture for this batch
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, src->m_textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    if (src->m_mipmapping) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    
+    // Update current texture state for batching
+    m_currentUnitMainTexture = src->m_textureID;
+    
+    // Convert color to float
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    // Calculate texture coordinates
+    float onePixelW = 1.0f / (float) src->Width();
+    float onePixelH = 1.0f / (float) src->Height();
+    
+    // First triangle: TL, TR, BR
+    m_unitMainVertices[m_unitMainVertexCount].x = x;      
+    m_unitMainVertices[m_unitMainVertexCount].y = y;
+    m_unitMainVertices[m_unitMainVertexCount].r = r;      
+    m_unitMainVertices[m_unitMainVertexCount].g = g;
+    m_unitMainVertices[m_unitMainVertexCount].b = b;      
+    m_unitMainVertices[m_unitMainVertexCount].a = a;
+    m_unitMainVertices[m_unitMainVertexCount].u = onePixelW; 
+    m_unitMainVertices[m_unitMainVertexCount].v = 1.0f - onePixelH;
+    m_unitMainVertexCount++;
+    
+    m_unitMainVertices[m_unitMainVertexCount].x = x + w;  
+    m_unitMainVertices[m_unitMainVertexCount].y = y;
+    m_unitMainVertices[m_unitMainVertexCount].r = r;      
+    m_unitMainVertices[m_unitMainVertexCount].g = g;
+    m_unitMainVertices[m_unitMainVertexCount].b = b;      
+    m_unitMainVertices[m_unitMainVertexCount].a = a;
+    m_unitMainVertices[m_unitMainVertexCount].u = 1.0f - onePixelW; 
+    m_unitMainVertices[m_unitMainVertexCount].v = 1.0f - onePixelH;
+    m_unitMainVertexCount++;
+    
+    m_unitMainVertices[m_unitMainVertexCount].x = x + w;  
+    m_unitMainVertices[m_unitMainVertexCount].y = y + h;
+    m_unitMainVertices[m_unitMainVertexCount].r = r;      
+    m_unitMainVertices[m_unitMainVertexCount].g = g;
+    m_unitMainVertices[m_unitMainVertexCount].b = b;      
+    m_unitMainVertices[m_unitMainVertexCount].a = a;
+    m_unitMainVertices[m_unitMainVertexCount].u = 1.0f - onePixelW; 
+    m_unitMainVertices[m_unitMainVertexCount].v = onePixelH;
+    m_unitMainVertexCount++;
+    
+    // Second triangle: TL, BR, BL
+    m_unitMainVertices[m_unitMainVertexCount].x = x;      
+    m_unitMainVertices[m_unitMainVertexCount].y = y;
+    m_unitMainVertices[m_unitMainVertexCount].r = r;      
+    m_unitMainVertices[m_unitMainVertexCount].g = g;
+    m_unitMainVertices[m_unitMainVertexCount].b = b;      
+    m_unitMainVertices[m_unitMainVertexCount].a = a;
+    m_unitMainVertices[m_unitMainVertexCount].u = onePixelW; 
+    m_unitMainVertices[m_unitMainVertexCount].v = 1.0f - onePixelH;
+    m_unitMainVertexCount++;
+    
+    m_unitMainVertices[m_unitMainVertexCount].x = x + w;  
+    m_unitMainVertices[m_unitMainVertexCount].y = y + h;
+    m_unitMainVertices[m_unitMainVertexCount].r = r;      
+    m_unitMainVertices[m_unitMainVertexCount].g = g;
+    m_unitMainVertices[m_unitMainVertexCount].b = b;      
+    m_unitMainVertices[m_unitMainVertexCount].a = a;
+    m_unitMainVertices[m_unitMainVertexCount].u = 1.0f - onePixelW; 
+    m_unitMainVertices[m_unitMainVertexCount].v = onePixelH;
+    m_unitMainVertexCount++;
+    
+    m_unitMainVertices[m_unitMainVertexCount].x = x;      
+    m_unitMainVertices[m_unitMainVertexCount].y = y + h;
+    m_unitMainVertices[m_unitMainVertexCount].r = r;      
+    m_unitMainVertices[m_unitMainVertexCount].g = g;
+    m_unitMainVertices[m_unitMainVertexCount].b = b;      
+    m_unitMainVertices[m_unitMainVertexCount].a = a;
+    m_unitMainVertices[m_unitMainVertexCount].u = onePixelW; 
+    m_unitMainVertices[m_unitMainVertexCount].v = onePixelH;
+    m_unitMainVertexCount++;
+    
+    // BATCHING FIX: Remove immediate flush to enable texture-based batching
+    // Units with same texture will now be batched together for massive performance gain
+    // FlushUnitMainSprites(); // REMOVED - now batched by texture automatically
+}
+
+void Renderer::FlushUnitMainSpritesIfFull(int verticesNeeded) {
+    // Check if adding the requested vertices would overflow the buffer
+    if (m_unitMainVertexCount + verticesNeeded > MAX_UNIT_MAIN_VERTICES) {
+        FlushUnitMainSprites();
+    }
+}
+
+void Renderer::FlushUnitRotatingIfFull(int verticesNeeded) {
+    // Check if adding the requested vertices would overflow the rotating buffer
+    if (m_unitRotatingVertexCount + verticesNeeded > MAX_UNIT_ROTATING_VERTICES) {
+        FlushUnitRotating();
+    }
+}
+
+// TEXTURE-BASED BATCHING: Unit main sprite batch management
+void Renderer::BeginUnitMainBatch() {
+    // Clear any existing vertices from previous batch
+    m_unitMainVertexCount = 0;
+    m_currentUnitMainTexture = 0;
+    
+    // Unit main sprites will now be accumulated by texture until EndUnitMainBatch()
+    // This enables automatic texture-based batching for massive performance gains
+}
+
+void Renderer::EndUnitMainBatch() {
+    // Flush any remaining unit main sprites
+    if (m_unitMainVertexCount > 0) {
+        FlushUnitMainSprites();
+    }
+}
+
+// ROTATING BATCHING SYSTEM: Separate buffer for rotating sprites (aircraft/nukes)
+void Renderer::BeginUnitRotatingBatch() {
+    // Clear any existing vertices from previous batch
+    m_unitRotatingVertexCount = 0;
+    m_currentUnitRotatingTexture = 0;
+    
+    // Rotating sprites will now be accumulated by texture until EndUnitRotatingBatch()
+    // This enables automatic texture-based batching for massive performance gains
+}
+
+void Renderer::EndUnitRotatingBatch() {
+    // Flush any remaining rotating sprites
+    if (m_unitRotatingVertexCount > 0) {
+        FlushUnitRotating();
+    }
+}
+
+// NEW: Unit state icon optimized rendering methods (batched state icon system)
+
+void Renderer::UnitStateIcon(Image *stateSrc, float x, float y, float w, float h, Colour const &col) {
+    // Check if we need to flush due to buffer overflow (6 vertices per sprite)
+    FlushUnitStateIconsIfFull(6);
+    
+    // TEXTURE-BASED BATCHING: Smart flush only when texture changes
+    // This automatically batches all state icons with the same texture together
+    if (m_unitStateVertexCount > 0 && m_currentUnitStateTexture != stateSrc->m_textureID) {
+        FlushUnitStateIcons(); // Flush previous texture group
+    }
+    
+    // Bind new texture for this batch
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, stateSrc->m_textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    if (stateSrc->m_mipmapping) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    
+    // Update current texture state for batching
+    m_currentUnitStateTexture = stateSrc->m_textureID;
+    
+    // Convert color to float
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    // Calculate texture coordinates
+    float onePixelW = 1.0f / (float) stateSrc->Width();
+    float onePixelH = 1.0f / (float) stateSrc->Height();
+    
+    // First triangle: TL, TR, BR
+    m_unitStateVertices[m_unitStateVertexCount].x = x;      
+    m_unitStateVertices[m_unitStateVertexCount].y = y;
+    m_unitStateVertices[m_unitStateVertexCount].r = r;
+    m_unitStateVertices[m_unitStateVertexCount].g = g;
+    m_unitStateVertices[m_unitStateVertexCount].b = b;      
+    m_unitStateVertices[m_unitStateVertexCount].a = a;
+    m_unitStateVertices[m_unitStateVertexCount].u = onePixelW; 
+    m_unitStateVertices[m_unitStateVertexCount].v = 1.0f - onePixelH;
+    m_unitStateVertexCount++;
+    
+    m_unitStateVertices[m_unitStateVertexCount].x = x + w;  
+    m_unitStateVertices[m_unitStateVertexCount].y = y;
+    m_unitStateVertices[m_unitStateVertexCount].r = r;      
+    m_unitStateVertices[m_unitStateVertexCount].g = g;
+    m_unitStateVertices[m_unitStateVertexCount].b = b;      
+    m_unitStateVertices[m_unitStateVertexCount].a = a;
+    m_unitStateVertices[m_unitStateVertexCount].u = 1.0f - onePixelW; 
+    m_unitStateVertices[m_unitStateVertexCount].v = 1.0f - onePixelH;
+    m_unitStateVertexCount++;
+    
+    m_unitStateVertices[m_unitStateVertexCount].x = x + w;  
+    m_unitStateVertices[m_unitStateVertexCount].y = y + h;
+    m_unitStateVertices[m_unitStateVertexCount].r = r;      
+    m_unitStateVertices[m_unitStateVertexCount].g = g;
+    m_unitStateVertices[m_unitStateVertexCount].b = b;      
+    m_unitStateVertices[m_unitStateVertexCount].a = a;
+    m_unitStateVertices[m_unitStateVertexCount].u = 1.0f - onePixelW; 
+    m_unitStateVertices[m_unitStateVertexCount].v = onePixelH;
+    m_unitStateVertexCount++;
+    
+    // Second triangle: TL, BR, BL
+    m_unitStateVertices[m_unitStateVertexCount].x = x;      
+    m_unitStateVertices[m_unitStateVertexCount].y = y;
+    m_unitStateVertices[m_unitStateVertexCount].r = r;      
+    m_unitStateVertices[m_unitStateVertexCount].g = g;
+    m_unitStateVertices[m_unitStateVertexCount].b = b;      
+    m_unitStateVertices[m_unitStateVertexCount].a = a;
+    m_unitStateVertices[m_unitStateVertexCount].u = onePixelW; 
+    m_unitStateVertices[m_unitStateVertexCount].v = 1.0f - onePixelH;
+    m_unitStateVertexCount++;
+    
+    m_unitStateVertices[m_unitStateVertexCount].x = x + w;  
+    m_unitStateVertices[m_unitStateVertexCount].y = y + h;
+    m_unitStateVertices[m_unitStateVertexCount].r = r;      
+    m_unitStateVertices[m_unitStateVertexCount].g = g;
+    m_unitStateVertices[m_unitStateVertexCount].b = b;      
+    m_unitStateVertices[m_unitStateVertexCount].a = a;
+    m_unitStateVertices[m_unitStateVertexCount].u = 1.0f - onePixelW; 
+    m_unitStateVertices[m_unitStateVertexCount].v = onePixelH;
+    m_unitStateVertexCount++;
+    
+    m_unitStateVertices[m_unitStateVertexCount].x = x;      
+    m_unitStateVertices[m_unitStateVertexCount].y = y + h;
+    m_unitStateVertices[m_unitStateVertexCount].r = r;      
+    m_unitStateVertices[m_unitStateVertexCount].g = g;
+    m_unitStateVertices[m_unitStateVertexCount].b = b;      
+    m_unitStateVertices[m_unitStateVertexCount].a = a;
+    m_unitStateVertices[m_unitStateVertexCount].u = onePixelW; 
+    m_unitStateVertices[m_unitStateVertexCount].v = onePixelH;
+    m_unitStateVertexCount++;
+    
+    // BATCHING FIX: Remove immediate flush to enable texture-based batching
+    // State icons with same texture will now be batched together for massive performance gain
+}
+
+void Renderer::FlushUnitStateIconsIfFull(int verticesNeeded) {
+    // Check if adding the requested vertices would overflow the buffer
+    if (m_unitStateVertexCount + verticesNeeded > MAX_UNIT_STATE_VERTICES) {
+        FlushUnitStateIcons();
+    }
+}
+
+// TEXTURE-BASED BATCHING: Unit state icon batch management
+void Renderer::BeginUnitStateBatch() {
+    // Clear any existing vertices from previous batch
+    m_unitStateVertexCount = 0;
+    m_currentUnitStateTexture = 0;
+    
+    // Unit state icons will now be accumulated by texture until EndUnitStateBatch()
+    // This enables automatic texture-based batching for massive performance gains
+}
+
+void Renderer::EndUnitStateBatch() {
+    // Flush any remaining unit state icons
+    if (m_unitStateVertexCount > 0) {
+        FlushUnitStateIcons();
+    }
+}
+
+// NEW: Unit nuke icon optimized rendering methods (batched nuke icon system)
+
+void Renderer::UnitNukeIcon(float x, float y, float w, float h, Colour const &col) {
+    // Check if we need to flush due to buffer overflow (6 vertices per sprite)
+    FlushUnitNukeIconsIfFull(6);
+    
+    // Nuke icons use a fixed texture (smallnuke.bmp)
+    // Load the default nuke icon texture
+    Image *nukeBmp = g_resource->GetImage("graphics/smallnuke.bmp");
+    if (!nukeBmp) return; // No nuke texture available
+    
+    // TEXTURE-BASED BATCHING: Smart flush only when texture changes
+    if (m_unitNukeVertexCount > 0 && m_currentUnitNukeTexture != nukeBmp->m_textureID) {
+        FlushUnitNukeIcons(); // Flush previous texture group
+    }
+    
+    // Bind nuke texture for this batch
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, nukeBmp->m_textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    if (nukeBmp->m_mipmapping) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    
+    // Update current texture state for batching
+    m_currentUnitNukeTexture = nukeBmp->m_textureID;
+    
+    // Convert color to float
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    // Calculate texture coordinates
+    float onePixelW = 1.0f / (float) nukeBmp->Width();
+    float onePixelH = 1.0f / (float) nukeBmp->Height();
+    
+    // First triangle: TL, TR, BR
+    m_unitNukeVertices[m_unitNukeVertexCount].x = x;      
+    m_unitNukeVertices[m_unitNukeVertexCount].y = y;
+    m_unitNukeVertices[m_unitNukeVertexCount].r = r;
+    m_unitNukeVertices[m_unitNukeVertexCount].g = g;
+    m_unitNukeVertices[m_unitNukeVertexCount].b = b;      
+    m_unitNukeVertices[m_unitNukeVertexCount].a = a;
+    m_unitNukeVertices[m_unitNukeVertexCount].u = onePixelW; 
+    m_unitNukeVertices[m_unitNukeVertexCount].v = 1.0f - onePixelH;
+    m_unitNukeVertexCount++;
+    
+    m_unitNukeVertices[m_unitNukeVertexCount].x = x + w;  
+    m_unitNukeVertices[m_unitNukeVertexCount].y = y;
+    m_unitNukeVertices[m_unitNukeVertexCount].r = r;      
+    m_unitNukeVertices[m_unitNukeVertexCount].g = g;
+    m_unitNukeVertices[m_unitNukeVertexCount].b = b;      
+    m_unitNukeVertices[m_unitNukeVertexCount].a = a;
+    m_unitNukeVertices[m_unitNukeVertexCount].u = 1.0f - onePixelW; 
+    m_unitNukeVertices[m_unitNukeVertexCount].v = 1.0f - onePixelH;
+    m_unitNukeVertexCount++;
+    
+    m_unitNukeVertices[m_unitNukeVertexCount].x = x + w;  
+    m_unitNukeVertices[m_unitNukeVertexCount].y = y + h;
+    m_unitNukeVertices[m_unitNukeVertexCount].r = r;      
+    m_unitNukeVertices[m_unitNukeVertexCount].g = g;
+    m_unitNukeVertices[m_unitNukeVertexCount].b = b;      
+    m_unitNukeVertices[m_unitNukeVertexCount].a = a;
+    m_unitNukeVertices[m_unitNukeVertexCount].u = 1.0f - onePixelW; 
+    m_unitNukeVertices[m_unitNukeVertexCount].v = onePixelH;
+    m_unitNukeVertexCount++;
+    
+    // Second triangle: TL, BR, BL
+    m_unitNukeVertices[m_unitNukeVertexCount].x = x;      
+    m_unitNukeVertices[m_unitNukeVertexCount].y = y;
+    m_unitNukeVertices[m_unitNukeVertexCount].r = r;      
+    m_unitNukeVertices[m_unitNukeVertexCount].g = g;
+    m_unitNukeVertices[m_unitNukeVertexCount].b = b;      
+    m_unitNukeVertices[m_unitNukeVertexCount].a = a;
+    m_unitNukeVertices[m_unitNukeVertexCount].u = onePixelW; 
+    m_unitNukeVertices[m_unitNukeVertexCount].v = 1.0f - onePixelH;
+    m_unitNukeVertexCount++;
+    
+    m_unitNukeVertices[m_unitNukeVertexCount].x = x + w;  
+    m_unitNukeVertices[m_unitNukeVertexCount].y = y + h;
+    m_unitNukeVertices[m_unitNukeVertexCount].r = r;      
+    m_unitNukeVertices[m_unitNukeVertexCount].g = g;
+    m_unitNukeVertices[m_unitNukeVertexCount].b = b;      
+    m_unitNukeVertices[m_unitNukeVertexCount].a = a;
+    m_unitNukeVertices[m_unitNukeVertexCount].u = 1.0f - onePixelW; 
+    m_unitNukeVertices[m_unitNukeVertexCount].v = onePixelH;
+    m_unitNukeVertexCount++;
+    
+    m_unitNukeVertices[m_unitNukeVertexCount].x = x;      
+    m_unitNukeVertices[m_unitNukeVertexCount].y = y + h;
+    m_unitNukeVertices[m_unitNukeVertexCount].r = r;      
+    m_unitNukeVertices[m_unitNukeVertexCount].g = g;
+    m_unitNukeVertices[m_unitNukeVertexCount].b = b;      
+    m_unitNukeVertices[m_unitNukeVertexCount].a = a;
+    m_unitNukeVertices[m_unitNukeVertexCount].u = onePixelW; 
+    m_unitNukeVertices[m_unitNukeVertexCount].v = onePixelH;
+    m_unitNukeVertexCount++;
+    
+    // BATCHING FIX: Remove immediate flush to enable texture-based batching
+    // Nuke icons will now be batched together for massive performance gain
+}
+
+void Renderer::FlushUnitNukeIconsIfFull(int verticesNeeded) {
+    // Check if adding the requested vertices would overflow the buffer
+    if (m_unitNukeVertexCount + verticesNeeded > MAX_UNIT_NUKE_VERTICES) {
+        FlushUnitNukeIcons();
+    }
+}
+
+// TEXTURE-BASED BATCHING: Unit nuke icon batch management
+void Renderer::BeginUnitNukeBatch() {
+    // Clear any existing vertices from previous batch
+    m_unitNukeVertexCount = 0;
+    m_currentUnitNukeTexture = 0;
+    
+    // Unit nuke icons will now be accumulated by texture until EndUnitNukeBatch()
+    // This enables automatic texture-based batching for massive performance gains
+}
+
+void Renderer::EndUnitNukeBatch() {
+    // Flush any remaining unit nuke icons
+    if (m_unitNukeVertexCount > 0) {
+        FlushUnitNukeIcons();
+    }
+}
+
+// ROTATING RENDERING: Dedicated method for rotating sprites (aircraft/nukes) with rotation (separate buffer)
+void Renderer::UnitRotating(Image *src, float x, float y, float w, float h, Colour const &col, float angle) {
+    // Check if we need to flush due to buffer overflow (6 vertices per sprite)
+    FlushUnitRotatingIfFull(6);
+    
+    // TEXTURE-BASED BATCHING: Smart flush only when texture changes
+    // This automatically batches all rotating sprites with the same texture together
+    if (m_unitRotatingVertexCount > 0 && m_currentUnitRotatingTexture != src->m_textureID) {
+        FlushUnitRotating(); // Flush previous texture group
+    }
+    
+    // Bind new texture for this batch
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, src->m_textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    if (src->m_mipmapping) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    
+    // Update current texture state for batching
+    m_currentUnitRotatingTexture = src->m_textureID;
+    
+    // ROTATION MATH: Calculate rotated vertices (same as original Blit with angle)
+    Vector3<float> vert1( -w, +h, 0 );
+    Vector3<float> vert2( +w, +h, 0 );
+    Vector3<float> vert3( +w, -h, 0 );
+    Vector3<float> vert4( -w, -h, 0 );
+
+    vert1.RotateAroundZ(angle);
+    vert2.RotateAroundZ(angle);
+    vert3.RotateAroundZ(angle);
+    vert4.RotateAroundZ(angle);
+
+    vert1 += Vector3<float>( x, y, 0 );
+    vert2 += Vector3<float>( x, y, 0 );
+    vert3 += Vector3<float>( x, y, 0 );
+    vert4 += Vector3<float>( x, y, 0 );
+    
+    // Convert color to float
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    // Calculate texture coordinates
+    float onePixelW = 1.0f / (float) src->Width();
+    float onePixelH = 1.0f / (float) src->Height();
+    
+    // ROTATED QUAD: Create two triangles for the rotated sprite
+    // First triangle: vert1, vert2, vert3
+    m_unitRotatingVertices[m_unitRotatingVertexCount].x = vert1.x;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].y = vert1.y;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].r = r;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].g = g;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].b = b;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].a = a;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].u = onePixelW; 
+    m_unitRotatingVertices[m_unitRotatingVertexCount].v = 1.0f - onePixelH;
+    m_unitRotatingVertexCount++;
+    
+    m_unitRotatingVertices[m_unitRotatingVertexCount].x = vert2.x;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].y = vert2.y;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].r = r;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].g = g;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].b = b;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].a = a;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].u = 1.0f - onePixelW; 
+    m_unitRotatingVertices[m_unitRotatingVertexCount].v = 1.0f - onePixelH;
+    m_unitRotatingVertexCount++;
+    
+    m_unitRotatingVertices[m_unitRotatingVertexCount].x = vert3.x;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].y = vert3.y;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].r = r;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].g = g;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].b = b;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].a = a;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].u = 1.0f - onePixelW; 
+    m_unitRotatingVertices[m_unitRotatingVertexCount].v = onePixelH;
+    m_unitRotatingVertexCount++;
+    
+    // Second triangle: vert1, vert3, vert4
+    m_unitRotatingVertices[m_unitRotatingVertexCount].x = vert1.x;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].y = vert1.y;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].r = r;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].g = g;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].b = b;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].a = a;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].u = onePixelW; 
+    m_unitRotatingVertices[m_unitRotatingVertexCount].v = 1.0f - onePixelH;
+    m_unitRotatingVertexCount++;
+    
+    m_unitRotatingVertices[m_unitRotatingVertexCount].x = vert3.x;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].y = vert3.y;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].r = r;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].g = g;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].b = b;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].a = a;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].u = 1.0f - onePixelW; 
+    m_unitRotatingVertices[m_unitRotatingVertexCount].v = onePixelH;
+    m_unitRotatingVertexCount++;
+    
+    m_unitRotatingVertices[m_unitRotatingVertexCount].x = vert4.x;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].y = vert4.y;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].r = r;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].g = g;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].b = b;      
+    m_unitRotatingVertices[m_unitRotatingVertexCount].a = a;
+    m_unitRotatingVertices[m_unitRotatingVertexCount].u = onePixelW; 
+    m_unitRotatingVertices[m_unitRotatingVertexCount].v = onePixelH;
+    m_unitRotatingVertexCount++;
+    
+    // BATCHING FIX: Remove immediate flush to enable texture-based batching
+    // Rotating sprites with same texture will now be batched together in separate buffer
+}
+
+// NEW: Rotated unit nuke icon rendering (for bomber nuke symbols that need rotation)
+void Renderer::UnitNukeIcon(float x, float y, float w, float h, Colour const &col, float angle) {
+    // Check if we need to flush due to buffer overflow (6 vertices per sprite)
+    FlushUnitNukeIconsIfFull(6);
+    
+    // Nuke icons use a fixed texture (smallnuke.bmp)
+    // Load the default nuke icon texture
+    Image *nukeBmp = g_resource->GetImage("graphics/smallnuke.bmp");
+    if (!nukeBmp) return; // No nuke texture available
+    
+    // TEXTURE-BASED BATCHING: Smart flush only when texture changes
+    if (m_unitNukeVertexCount > 0 && m_currentUnitNukeTexture != nukeBmp->m_textureID) {
+        FlushUnitNukeIcons(); // Flush previous texture group
+    }
+    
+    // Bind nuke texture for this batch
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, nukeBmp->m_textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    if (nukeBmp->m_mipmapping) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    
+    // Update current texture state for batching
+    m_currentUnitNukeTexture = nukeBmp->m_textureID;
+    
+    // ROTATION MATH: Calculate rotated vertices (same as original Blit with angle)
+    Vector3<float> vert1( -w, +h, 0 );
+    Vector3<float> vert2( +w, +h, 0 );
+    Vector3<float> vert3( +w, -h, 0 );
+    Vector3<float> vert4( -w, -h, 0 );
+
+    vert1.RotateAroundZ(angle);
+    vert2.RotateAroundZ(angle);
+    vert3.RotateAroundZ(angle);
+    vert4.RotateAroundZ(angle);
+
+    vert1 += Vector3<float>( x, y, 0 );
+    vert2 += Vector3<float>( x, y, 0 );
+    vert3 += Vector3<float>( x, y, 0 );
+    vert4 += Vector3<float>( x, y, 0 );
+    
+    // Convert color to float
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    // Calculate texture coordinates
+    float onePixelW = 1.0f / (float) nukeBmp->Width();
+    float onePixelH = 1.0f / (float) nukeBmp->Height();
+    
+    // ROTATED QUAD: Create two triangles for the rotated nuke symbol
+    // First triangle: vert1, vert2, vert3
+    m_unitNukeVertices[m_unitNukeVertexCount].x = vert1.x;      
+    m_unitNukeVertices[m_unitNukeVertexCount].y = vert1.y;
+    m_unitNukeVertices[m_unitNukeVertexCount].r = r;      
+    m_unitNukeVertices[m_unitNukeVertexCount].g = g;
+    m_unitNukeVertices[m_unitNukeVertexCount].b = b;      
+    m_unitNukeVertices[m_unitNukeVertexCount].a = a;
+    m_unitNukeVertices[m_unitNukeVertexCount].u = onePixelW; 
+    m_unitNukeVertices[m_unitNukeVertexCount].v = 1.0f - onePixelH;
+    m_unitNukeVertexCount++;
+    
+    m_unitNukeVertices[m_unitNukeVertexCount].x = vert2.x;      
+    m_unitNukeVertices[m_unitNukeVertexCount].y = vert2.y;
+    m_unitNukeVertices[m_unitNukeVertexCount].r = r;      
+    m_unitNukeVertices[m_unitNukeVertexCount].g = g;
+    m_unitNukeVertices[m_unitNukeVertexCount].b = b;      
+    m_unitNukeVertices[m_unitNukeVertexCount].a = a;
+    m_unitNukeVertices[m_unitNukeVertexCount].u = 1.0f - onePixelW; 
+    m_unitNukeVertices[m_unitNukeVertexCount].v = 1.0f - onePixelH;
+    m_unitNukeVertexCount++;
+    
+    m_unitNukeVertices[m_unitNukeVertexCount].x = vert3.x;      
+    m_unitNukeVertices[m_unitNukeVertexCount].y = vert3.y;
+    m_unitNukeVertices[m_unitNukeVertexCount].r = r;      
+    m_unitNukeVertices[m_unitNukeVertexCount].g = g;
+    m_unitNukeVertices[m_unitNukeVertexCount].b = b;      
+    m_unitNukeVertices[m_unitNukeVertexCount].a = a;
+    m_unitNukeVertices[m_unitNukeVertexCount].u = 1.0f - onePixelW; 
+    m_unitNukeVertices[m_unitNukeVertexCount].v = onePixelH;
+    m_unitNukeVertexCount++;
+    
+    // Second triangle: vert1, vert3, vert4
+    m_unitNukeVertices[m_unitNukeVertexCount].x = vert1.x;      
+    m_unitNukeVertices[m_unitNukeVertexCount].y = vert1.y;
+    m_unitNukeVertices[m_unitNukeVertexCount].r = r;      
+    m_unitNukeVertices[m_unitNukeVertexCount].g = g;
+    m_unitNukeVertices[m_unitNukeVertexCount].b = b;      
+    m_unitNukeVertices[m_unitNukeVertexCount].a = a;
+    m_unitNukeVertices[m_unitNukeVertexCount].u = onePixelW; 
+    m_unitNukeVertices[m_unitNukeVertexCount].v = 1.0f - onePixelH;
+    m_unitNukeVertexCount++;
+    
+    m_unitNukeVertices[m_unitNukeVertexCount].x = vert3.x;      
+    m_unitNukeVertices[m_unitNukeVertexCount].y = vert3.y;
+    m_unitNukeVertices[m_unitNukeVertexCount].r = r;      
+    m_unitNukeVertices[m_unitNukeVertexCount].g = g;
+    m_unitNukeVertices[m_unitNukeVertexCount].b = b;      
+    m_unitNukeVertices[m_unitNukeVertexCount].a = a;
+    m_unitNukeVertices[m_unitNukeVertexCount].u = 1.0f - onePixelW; 
+    m_unitNukeVertices[m_unitNukeVertexCount].v = onePixelH;
+    m_unitNukeVertexCount++;
+    
+    m_unitNukeVertices[m_unitNukeVertexCount].x = vert4.x;      
+    m_unitNukeVertices[m_unitNukeVertexCount].y = vert4.y;
+    m_unitNukeVertices[m_unitNukeVertexCount].r = r;      
+    m_unitNukeVertices[m_unitNukeVertexCount].g = g;
+    m_unitNukeVertices[m_unitNukeVertexCount].b = b;      
+    m_unitNukeVertices[m_unitNukeVertexCount].a = a;
+    m_unitNukeVertices[m_unitNukeVertexCount].u = onePixelW; 
+    m_unitNukeVertices[m_unitNukeVertexCount].v = onePixelH;
+    m_unitNukeVertexCount++;
+    
+    // BATCHING FIX: Remove immediate flush to enable texture-based batching
+    // Rotated nuke symbols with same texture will now be batched together
+}
+
+void Renderer::FlushUnitRotating() {
+    if (m_unitRotatingVertexCount == 0) return;
+    
+    // PERFORMANCE TRACKING: Count rotating sprite draw call
+    IncrementDrawCall("unit_rotating");
+    
+    // Rotating sprites always use texture shader
+    glUseProgram(m_textureShaderProgram);
+    
+    // BUGFIX: Texture binding is now handled in UnitRotating() for immediate consistency
+    // The texture should already be bound, but we ensure it's still bound here
+    if (m_currentUnitRotatingTexture != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_currentUnitRotatingTexture);
+    }
+    
+    // Set uniforms
+    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
+    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    glUniform1i(texLoc, 0); // Use texture unit 0
+    
+    // Upload rotating sprite vertex data
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitRotatingVertexCount * sizeof(Vertex2D), m_unitRotatingVertices);
+    
+    // Draw
+    glDrawArrays(GL_TRIANGLES, 0, m_unitRotatingVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_unitRotatingVertexCount = 0;
+}
+
+// EFFECTS SPRITE BATCHING SYSTEM: For explosions, particles, and other effects
+
+void Renderer::BeginEffectsSpriteBatch() {
+    // Clear any existing vertices from previous batch
+    m_effectsSpriteVertexCount = 0;
+    m_currentEffectsSpriteTexture = 0;
+    
+    // Effects sprites will now be accumulated by texture until EndEffectsSpriteBatch()
+    // This enables automatic texture-based batching for massive performance gains
+}
+
+void Renderer::EndEffectsSpriteBatch() {
+    // Flush any remaining effects sprites
+    if (m_effectsSpriteVertexCount > 0) {
+        FlushEffectsSprites();
+    }
+}
+
+void Renderer::EffectsSprite(Image *src, float x, float y, float w, float h, Colour const &col) {
+    // Check if we need to flush due to buffer overflow (6 vertices per sprite)
+    if (m_effectsSpriteVertexCount + 6 > MAX_EFFECTS_SPRITE_VERTICES) {
+        FlushEffectsSprites();
+    }
+    
+    // TEXTURE-BASED BATCHING: Smart flush only when texture changes
+    // This automatically batches all effects sprites with the same texture together
+    if (m_effectsSpriteVertexCount > 0 && m_currentEffectsSpriteTexture != src->m_textureID) {
+        FlushEffectsSprites(); // Flush previous texture group
+    }
+    
+    // Bind new texture for this batch
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, src->m_textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    if (src->m_mipmapping) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    
+    // Update current texture state for batching
+    m_currentEffectsSpriteTexture = src->m_textureID;
+    
+    // Convert color to float
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    // Calculate texture coordinates
+    float onePixelW = 1.0f / (float) src->Width();
+    float onePixelH = 1.0f / (float) src->Height();
+    
+    // First triangle: TL, TR, BR
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].x = x;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].y = y;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].r = r;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].g = g;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].b = b;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].a = a;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].u = onePixelW; 
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].v = 1.0f - onePixelH;
+    m_effectsSpriteVertexCount++;
+    
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].x = x + w;  
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].y = y;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].r = r;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].g = g;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].b = b;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].a = a;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].u = 1.0f - onePixelW; 
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].v = 1.0f - onePixelH;
+    m_effectsSpriteVertexCount++;
+    
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].x = x + w;  
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].y = y + h;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].r = r;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].g = g;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].b = b;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].a = a;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].u = 1.0f - onePixelW; 
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].v = onePixelH;
+    m_effectsSpriteVertexCount++;
+    
+    // Second triangle: TL, BR, BL
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].x = x;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].y = y;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].r = r;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].g = g;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].b = b;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].a = a;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].u = onePixelW; 
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].v = 1.0f - onePixelH;
+    m_effectsSpriteVertexCount++;
+    
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].x = x + w;  
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].y = y + h;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].r = r;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].g = g;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].b = b;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].a = a;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].u = 1.0f - onePixelW; 
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].v = onePixelH;
+    m_effectsSpriteVertexCount++;
+    
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].x = x;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].y = y + h;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].r = r;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].g = g;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].b = b;      
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].a = a;
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].u = onePixelW; 
+    m_effectsSpriteVertices[m_effectsSpriteVertexCount].v = onePixelH;
+    m_effectsSpriteVertexCount++;
+    
+    // BATCHING FIX: Remove immediate flush to enable texture-based batching
+    // Effects sprites with same texture will now be batched together for massive performance gain
+}
+

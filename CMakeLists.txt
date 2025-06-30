@@ -42,7 +42,7 @@ else()
     endif()
 endif()
 
-set(REPLAY_VIEWER_VERSION "A1.04" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "A3.23" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 option(ENABLE_RECORDING_PARSING "Enable recording parsing functionality" ON)
 option(ENABLE_EMSCRIPTEN_REPLAY_VIEWER "Enable Emscripten Replay Viewer mode (recording playback only)" ON)
 
@@ -97,9 +97,26 @@ if(EMSCRIPTEN)
     add_definitions(-DTARGET_EMSCRIPTEN -DWASM_BUILD -DTARGET_OS_LINUX -DENABLE_BINRELOC)
     add_definitions(-DSDL_MAIN_HANDLED -DGUI -DSILENT -DGLEW_STATIC)
     
-    if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        add_definitions(-DEMSCRIPTEN_NO_SOUND)
+    # WebAssembly debug output control (only enabled for Debug builds)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
+        #add_definitions(-DNO_DEBUG_OUTPUT)
+        #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
+        #add_definitions(-DEMSCRIPTEN_SOUND_TESTBED)
+        #add_definitions(-DEMSCRIPTEN_PLAYBACK_TESTBED)
+        #add_definitions(-DEMSCRIPTEN_DEBUG)
     endif()
+
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    #add_definitions(-DEMSCRIPTEN_NO_SOUND)
+    #add_definitions(-DNO_DEBUG_OUTPUT)
+    #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
+    #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
+    #add_definitions(-DEMSCRIPTEN_SOUND_TESTBED)
+    #add_definitions(-DEMSCRIPTEN_PLAYBACK_TESTBED)
+    #add_definitions(-DEMSCRIPTEN_DEBUG)
+    endif()
+
     
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_WEBGL2=1 -s FULL_ES3=1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s FILESYSTEM=1 -s FORCE_FILESYSTEM=1")
@@ -139,7 +156,7 @@ if(EMSCRIPTEN)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ASSERTIONS=2 -s SAFE_HEAP=1")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s STACK_OVERFLOW_CHECK=2")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_ASSERTIONS=1 -s GL_DEBUG=1")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_ASSERTIONS=1")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g4 --source-map-base http://localhost:8000/")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s EXCEPTION_DEBUG=1")
@@ -517,7 +534,8 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/netlib/thread_controller.cpp
     ${SYSTEMIV_PATH}/lib/render/colour.cpp
     ${SYSTEMIV_PATH}/lib/render/renderer.cpp
-    ${SYSTEMIV_PATH}/lib/render/renderer3d.cpp
+    ${SYSTEMIV_PATH}/lib/render/renderer_debug_menu.cpp
+    ${SYSTEMIV_PATH}/lib/render/renderer_3d.cpp
     ${SYSTEMIV_PATH}/lib/render/styletable.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmap.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmapfont.cpp
@@ -657,7 +675,7 @@ if(EMSCRIPTEN)
     else()
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s ASSERTIONS=2 -s SAFE_HEAP=1")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s STACK_OVERFLOW_CHECK=2")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_ASSERTIONS=1 -s GL_DEBUG=1")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_ASSERTIONS=1")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXCEPTION_DEBUG=1")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -g4 --source-map-base http://localhost:8000/")
