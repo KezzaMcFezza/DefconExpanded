@@ -1,0 +1,32 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/source",
+                "${workspaceFolder}/source/app",
+                "${workspaceFolder}/contrib",
+                "${workspaceFolder}/contrib/systemIV",
+                "${workspaceFolder}/contrib/systemIV/contrib/unrar",
+                "${workspaceFolder}/contrib/systemIV/contrib/binreloc",
+                "${workspaceFolder}/contrib/linux/include",
+                "${workspaceFolder}/contrib/systemIV/lib/gucci",
+                "${workspaceFolder}/contrib/systemIV/lib/netlib",
+                "${workspaceFolder}/contrib/systemIV/lib/eclipse"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.26100.0",
+            "compilerPath": "cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}
