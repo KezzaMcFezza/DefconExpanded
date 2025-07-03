@@ -9,6 +9,7 @@
 
 #include "interface/playback_control_window.h"
 #include "interface/components/message_dialog.h"
+#include "interface/connecting_window.h"
 
 #include "app/app.h"
 #include "world/world.h"
@@ -30,7 +31,7 @@ PlaybackControlWindow::PlaybackControlWindow()
 {
     // Position at bottom center of screen
     int windowWidth = 400;
-    int windowHeight = 95;  // Increased from 80 to 95 for proper spacing
+    int windowHeight = 120;  // Increased from 95 to 120 for seek bar
     
     SetSize(windowWidth, windowHeight);
     
@@ -39,8 +40,12 @@ PlaybackControlWindow::PlaybackControlWindow()
     
     SetPosition(x, y);
     
-    // Make it non-movable
-    SetMovable(false);
+    // Allow the window to be moved - users may want to position it differently
+    // Removed SetMovable(false) which was causing weird drag behavior with top-right snapping to cursor
+    
+    // Prevent resizing by setting min/max size to current size
+    m_minW = windowWidth;
+    m_minH = windowHeight;
     
     // Initialize cached progress text
     strcpy(m_cachedProgressText, "0.0%");
@@ -52,13 +57,18 @@ void PlaybackControlWindow::Create()
     
     // Play/Pause button
     PlayPauseButton *playPause = new PlayPauseButton();
-    playPause->SetProperties("PlayPause", 10, 55, 50, 25, "PLAY", "Toggle pause/play", false, true);
+    playPause->SetProperties("PlayPause", 10, 80, 50, 25, "PLAY", "Toggle pause/play", false, true);
     RegisterButton(playPause);
     
-    // Speed slider (longer since we removed the speed display)
+    // Speed slider
     SpeedSlider *speedSlider = new SpeedSlider();
-    speedSlider->SetProperties("SpeedSlider", 80, 60, 300, 15, "", "Adjust playback speed", false, false);
+    speedSlider->SetProperties("SpeedSlider", 80, 85, 300, 15, "", "Adjust playback speed", false, false);
     RegisterButton(speedSlider);
+    
+    // NEW: Seek bar
+    SeekBar *seekBar = new SeekBar();
+    seekBar->SetProperties("SeekBar", 10, 50, m_w - 20, 15, "", "Click and drag to seek to different position in recording", false, false);
+    RegisterButton(seekBar);
 }
 
 void PlaybackControlWindow::Render(bool _hasFocus)
@@ -67,11 +77,11 @@ void PlaybackControlWindow::Render(bool _hasFocus)
     
     InterfaceWindow::Render(_hasFocus);
     
-    // Render progress bar
+    // Render progress bar (now smaller since we have seek bar)
     float progressX = m_x + 10;
-    float progressY = m_y + 25;  // Moved down to 25 for even better spacing
+    float progressY = m_y + 25;
     float progressW = m_w - 20;
-    float progressH = 8;
+    float progressH = 6;  // Smaller than before
     
     // Background
     g_renderer->RectFill(progressX, progressY, progressW, progressH, Colour(50, 50, 50, 200));
@@ -86,6 +96,9 @@ void PlaybackControlWindow::Render(bool _hasFocus)
     
     // Progress text (cached for performance)
     g_renderer->TextCentreSimple(m_x + m_w/2, progressY - 3, Colour(200, 200, 200, 255), 10.0f, m_cachedProgressText);
+    
+    // NEW: Seek bar label
+    g_renderer->TextSimple(m_x + 10, m_y + 40, Colour(180, 180, 180, 255), 8.0f, "Seek:");
 }
 
 void PlaybackControlWindow::Update()
@@ -144,6 +157,19 @@ void PlaybackControlWindow::Update()
                 speedSlider->SetValueFromSpeed(m_currentSpeed);
             }
         }
+        
+        // NEW: Update seek bar
+        SeekBar *seekBar = (SeekBar*)GetButton("SeekBar");
+        if (seekBar) {
+            seekBar->Update(); // Call Update to handle mouse interaction
+            if (!seekBar->m_dragging && !seekBar->IsSeeking()) {
+                // Update seek position when not dragging and not currently seeking
+                if (m_totalSeqIds > 0) {
+                    float progress = (float)m_currentSeqId / (float)m_totalSeqIds;
+                    seekBar->SetProgress(progress);
+                }
+            }
+        }
     }
     
     InterfaceWindow::Update();
@@ -170,9 +196,70 @@ void PlaybackControlWindow::UpdateProgress(int currentSeq, int totalSeq)
     m_totalSeqIds = totalSeq;
 }
 
+// NEW: Seek to a specific position in the recording
+void PlaybackControlWindow::SeekToPosition(float position)
+{
+    if (!g_app->GetServer() || !g_app->GetServer()->IsRecordingPlaybackMode()) return;
+    
+    // Clamp position to valid range
+    position = max(0.0f, min(1.0f, position));
+    
+    // Calculate target sequence ID
+    int targetSeqId = (int)(position * m_totalSeqIds);
+    targetSeqId = max(0, min(targetSeqId, m_totalSeqIds));
+    
+    int currentSeqId = g_app->GetServer()->m_recordingCurrentSeqId;
+    
+    // If seeking backwards or to current position, we need to restart the recording
+    // since we can't go backwards in time
+    if (targetSeqId <= currentSeqId + 10) { // Small tolerance for "current" position
+        if (targetSeqId < currentSeqId - 10) { // Only restart if significantly backwards
+            // TODO: Implement recording restart + fast-forward
+            // For now, just show a message
+            MessageDialog *msg = new MessageDialog("SEEK NOT SUPPORTED", 
+                                                  "Rewinding is coming soon!", 
+                                                  false, "dialog_seek_backwards", true);
+            EclRegisterWindow(msg);
+            return;
+        }
+        else {
+            // Close enough to current position, don't seek
+            return;
+        }
+    }
+    
+    // Seeking forward - use fast-forward mechanism
+    if (targetSeqId > currentSeqId) {
+        // Mark seek bar as seeking
+        SeekBar *seekBar = (SeekBar*)GetButton("SeekBar");
+        if (seekBar) {
+            seekBar->SetSeeking(true);
+        }
+        
+        // Enable fast-forward to target position at maximum speed for fastest seeking
+        g_app->GetServer()->EnableFastForward(targetSeqId, 1000.0f);
+        
+        // Show connecting window for progress feedback
+        if (!EclGetWindow("Connection Status")) {
+            ConnectingWindow *connectingWindow = new ConnectingWindow();
+            connectingWindow->m_popupLobbyAtEnd = false; // Don't popup lobby when done
+            connectingWindow->SetFastForwardMode(true, targetSeqId, true); // true = isSeekMode
+            EclRegisterWindow(connectingWindow);
+        }
+        
+#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+        AppDebugOut("Seeking from sequence %d to %d (%.1f%% to %.1f%%)\n", 
+                   currentSeqId, targetSeqId, 
+                   (float)currentSeqId / m_totalSeqIds * 100.0f,
+                   (float)targetSeqId / m_totalSeqIds * 100.0f);
+#endif
+    }
+}
+
 bool PlaybackControlWindow::ShouldRender()
 {
-    // Only show during recording playback
+    // Show during recording playback - both lobby and game phases
+    // This allows seeking and speed control even during lobby phase of recordings
     return g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
 }
 
@@ -287,4 +374,97 @@ void SpeedSlider::SetValueFromSpeed(float speed)
         m_value = sqrt(normalizedSpeed);
         m_value = max(0.0f, min(1.0f, m_value));
     }
+}
+
+// ============================================================================
+// NEW: Seek Bar
+
+SeekBar::SeekBar()
+:   m_value(0.0f),
+    m_dragging(false),
+    m_seeking(false)
+{
+}
+
+void SeekBar::MouseDown()
+{
+    m_dragging = true;
+    
+    // Immediately update the value when clicked (adjusted for thinner thumb)
+    float relativeX = g_inputManager->m_mouseX - (m_x + m_parent->m_x);
+    m_value = relativeX / (float)m_w;
+    m_value = max(0.0f, min(1.0f, m_value)); // Clamp to 0-1
+}
+
+void SeekBar::MouseUp()
+{
+    if (m_dragging) {
+        m_dragging = false;
+        
+        // Trigger seeking when mouse is released
+        PlaybackControlWindow *parent = (PlaybackControlWindow*)m_parent;
+        if (parent) {
+            parent->SeekToPosition(m_value);
+        }
+    }
+}
+
+void SeekBar::Render(int realX, int realY, bool highlighted, bool clicked)
+{
+    // Seek bar track
+    Colour trackCol = Colour(60, 60, 60, 255);
+    Colour thumbCol;
+    
+    if (m_seeking) {
+        // Different color when seeking
+        thumbCol = Colour(255, 150, 0, 255); // Orange for seeking
+    } else if (highlighted || m_dragging) {
+        thumbCol = Colour(150, 255, 150, 255); // Green when highlighted
+    } else {
+        thumbCol = Colour(120, 200, 120, 255); // Normal green
+    }
+    
+    g_renderer->RectFill(realX, realY + m_h/2 - 3, m_w, 6, trackCol);
+    g_renderer->Rect(realX, realY + m_h/2 - 3, m_w, 6, Colour(120, 120, 120, 255));
+    
+    // Seek thumb (thinner for precise clicking)
+    float thumbX = realX + (m_value * (m_w - 6));
+    g_renderer->RectFill(thumbX, realY, 6, m_h, thumbCol);
+    g_renderer->Rect(thumbX, realY, 6, m_h, Colour(200, 200, 200, 255));
+    
+}
+
+void SeekBar::Update()
+{
+    if (m_dragging) {
+        // Update value based on mouse position (for thinner thumb)
+        float relativeX = g_inputManager->m_mouseX - (m_x + m_parent->m_x);
+        m_value = relativeX / (float)m_w;
+        m_value = max(0.0f, min(1.0f, m_value)); // Clamp to 0-1
+    }
+    
+    // Check for mouse release to stop dragging
+    if (m_dragging && !g_inputManager->m_lmb) {
+        MouseUp(); // This will trigger the seek
+    }
+    
+    // Check if seeking is complete
+    if (m_seeking) {
+        // Check if fast-forward mode is disabled (meaning seek completed)
+        if (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) {
+            if (!g_app->GetServer()->IsRecordingFastForwardMode()) {
+                m_seeking = false;
+            }
+        }
+    }
+}
+
+void SeekBar::SetProgress(float progress)
+{
+    m_value = max(0.0f, min(1.0f, progress));
+}
+
+float SeekBar::GetSeekPosition()
+{
+    return m_value;
 } 

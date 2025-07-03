@@ -26,7 +26,7 @@ GunFire::GunFire( Fixed range )
     m_distanceToTarget(0)
 {
     m_range = range;
-    m_speed = Fixed::Hundredths(48);
+    m_speed = Fixed::Hundredths(50);
     m_turnRate = Fixed::Hundredths(80);
     m_maxHistorySize = -1;
     m_movementType = MovementTypeAir;
@@ -169,7 +169,7 @@ bool GunFire::MoveToWaypoint()
     }
 
     if( newDistance <= distToTarget && 
-        newDistance < Fixed::Hundredths(48) &&
+        newDistance < Fixed::Hundredths(50) &&
         m_targetLongitudeAcrossSeam == 0 )
     {
         ClearWaypoints();
@@ -195,7 +195,7 @@ void GunFire::CalculateNewPosition( Fixed *newLongitude, Fixed *newLatitude, Fix
     
     Fixed distance = (Vector3<Fixed>( m_targetLongitude, m_targetLatitude, 0 ) -
                       Vector3<Fixed>( m_longitude, m_latitude, 0 )).Mag();
-    m_speed = distance / 48;
+    m_speed = distance / 50;
 
     Fixed minSpeed = Fixed::Hundredths(40) / g_app->GetWorld()->GetGameScale();
     Fixed maxSpeed = 2 / g_app->GetWorld()->GetGameScale();

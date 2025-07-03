@@ -158,6 +158,7 @@ void MapRenderer::Init()
     bmpBlur         = g_resource->GetImage( "graphics/blur.bmp" );
     bmpWater        = g_resource->GetImage( "graphics/water.bmp" );
     bmpExplosion    = g_resource->GetImage( "graphics/explosion.bmp" );
+    bmpPopulation    = g_resource->GetImage( "graphics/population.bmp" );
     
     m_territories[World::TerritoryNorthAmerica] = g_resource->GetImage( "earth/northamerica.bmp" );
     m_territories[World::TerritoryRussia]       = g_resource->GetImage( "earth/russia.bmp" );
@@ -450,6 +451,10 @@ void MapRenderer::RenderExplosions()
     START_PROFILE( "Explosions" );
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
+    // BATCHING FIX: Begin effects sprite batch for all explosions
+    // This will batch all explosion sprites into texture-based batches
+    g_renderer->BeginEffectsSpriteBatch();
+    
     for( int i = 0; i < g_app->GetWorld()->m_explosions.Size(); ++i )
     {
         if( g_app->GetWorld()->m_explosions.ValidIndex(i) )
@@ -466,12 +471,22 @@ void MapRenderer::RenderExplosions()
             }
         }
     }
+    
+    // BATCHING FIX: End effects sprite batch - flush all explosion sprites
+    // This reduces explosions from N draw calls to 1-2 draw calls (by texture)
+    g_renderer->EndEffectsSpriteBatch();
+    
     END_PROFILE( "Explosions" );
 }
 
 
 void MapRenderer::RenderAnimations()
 {
+    // BATCHING FIX: Begin effects batching for all animations
+    // Line effects for sonar pings, sprite effects for action markers/nuke pointers
+    g_renderer->BeginEffectsLineBatch();
+    g_renderer->BeginEffectsSpriteBatch();
+    
     for( int i = 0; i < m_animations.Size(); ++i )
     {
         if( m_animations.ValidIndex(i) )
@@ -484,6 +499,11 @@ void MapRenderer::RenderAnimations()
             }
         }
     }
+    
+    // BATCHING FIX: End effects batching - flush all animated effects
+    // This reduces animations from N draw calls to 2 draw calls (lines + sprites)
+    g_renderer->EndEffectsSpriteBatch();
+    g_renderer->EndEffectsLineBatch();
 }
 
 
@@ -2011,9 +2031,10 @@ void MapRenderer::RenderActionLine( float fromLong, float fromLat, float toLong,
         }
     }
 
-    g_renderer->Line( fromLong, fromLat, toLong, toLat, col, width );
-    g_renderer->Line( fromLong+GetLongitudeMod(), fromLat, toLong+GetLongitudeMod(), toLat, col, width );
-
+    // MASSIVE PERFORMANCE FIX: Use batched EffectsLine instead of immediate mode Line
+    // This allows thousands of waypoint lines to be drawn in a single draw call
+    g_renderer->EffectsLine( fromLong, fromLat, toLong, toLat, col );
+    g_renderer->EffectsLine( fromLong+GetLongitudeMod(), fromLat, toLong+GetLongitudeMod(), toLat, col );
 
     if( animate )
     {
@@ -2025,12 +2046,9 @@ void MapRenderer::RenderActionLine( float fromLong, float fromLat, float toLong,
         Vector3<float> fromVector = Vector3<float>(fromLong,fromLat,0) + lineVector * factor1;
         Vector3<float> toVector =  Vector3<float>(fromLong,fromLat,0) + lineVector * factor2;
 
-        g_renderer->Line( fromVector.x, fromVector.y, toVector.x, toVector.y, col, width*2 );
+        // Use batched EffectsLine for animated waypoint segments too
+        g_renderer->EffectsLine( fromVector.x, fromVector.y, toVector.x, toVector.y, col );
     }
-
-
-
-
 
 #endif
 }
@@ -2123,14 +2141,11 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
             float actionCursorSize = 2.0f;
             float actionCursorAngle = g_gameTime * -1.0f;
 
-            g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-
+            // Use rotating sprite system with proper rotation and sizing
             Image *img = g_resource->GetImage( "graphics/cursor_target.bmp" );
-            g_renderer->Blit( img, TpredictedLongitude, TpredictedLatitude, 
+            g_renderer->UnitRotating( img, TpredictedLongitude, TpredictedLatitude, 
                                 actionCursorSize, actionCursorSize, 
                                 actionCursorCol, actionCursorAngle );
-
-            g_renderer->SetBlendMode( Renderer::BlendModeNormal );            
 
             RenderActionLine( predictedLongitude, predictedLatitude, 
                               TpredictedLongitude, TpredictedLatitude, 
@@ -2166,8 +2181,6 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 float actionCursorSize = 2.0f;
                 float actionCursorAngle = 0;
 
-                g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-
                 if( mobj->m_type == WorldObject::TypeNuke )
                 {
                     actionCursorCol.Set( 255,0,0,150 );
@@ -2179,12 +2192,11 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     actionCursorCol.Set( 255,0,0,150 );
                 }
 
+                // Use rotating sprite system with proper rotation and sizing
                 Image *img = g_resource->GetImage( "graphics/cursor_target.bmp" );
-                g_renderer->Blit( img, actionCursorLongitude, actionCursorLatitude, 
+                g_renderer->UnitRotating( img, actionCursorLongitude, actionCursorLatitude, 
                                     actionCursorSize, actionCursorSize, 
                                     actionCursorCol, actionCursorAngle );
-
-                g_renderer->SetBlendMode( Renderer::BlendModeNormal );            
 
                 RenderActionLine( predictedLongitude, predictedLatitude, 
                                   actionCursorLongitude, actionCursorLatitude, 
@@ -2244,9 +2256,8 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     float angle = atan( -lineX / lineY );
                     if( lineY < 0.0f ) angle += M_PI;
                 
-                    g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                    g_renderer->Blit( img, targetLongitude, targetLatitude, size, size, col, angle );
-                    g_renderer->SetBlendMode( Renderer::BlendModeNormal );
+                    // Use rotating sprite system with proper rotation and sizing
+                    g_renderer->UnitRotating( img, targetLongitude, targetLatitude, size, size, col, angle );
                     RenderActionLine( predictedLongitude, predictedLatitude,
                                       targetLongitude, targetLatitude,
                                       col, 0.5f );
@@ -2485,9 +2496,12 @@ void MapRenderer::RenderObjects()
 
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
-    // TEXTURE-BASED BATCHING: Begin unit main sprite batching for massive performance gain
+    // TEXTURE-BASED BATCHING: Begin all unit batching systems for massive performance gain
     // This will batch all unit sprites by texture, reducing 200+ draw calls to ~10 draw calls
     g_renderer->BeginUnitMainBatch();
+    g_renderer->BeginUnitRotatingBatch();  // Aircraft, nukes, and rotated sprites (including cursor targets)
+    g_renderer->BeginUnitTrailBatch();     // Unit movement history trails
+    g_renderer->BeginEffectsLineBatch();   // Waypoint lines - reduces 6000+ draw calls to 1!
      
     for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
     {
@@ -2571,9 +2585,12 @@ void MapRenderer::RenderObjects()
         }
     }
     
-    // TEXTURE-BASED BATCHING: End unit main sprite batching 
-    // This flushes all accumulated unit sprites by texture in efficient batches
-    g_renderer->EndUnitMainBatch();
+    // TEXTURE-BASED BATCHING: End all unit batching systems
+    // This flushes all accumulated unit data by texture in efficient batches
+    g_renderer->EndUnitTrailBatch();      // Flush all unit trails in one draw call
+    g_renderer->EndUnitRotatingBatch();   // Flush all rotating sprites in texture batches (including cursor targets)
+    g_renderer->EndUnitMainBatch();       // Flush all main unit sprites in texture batches
+    g_renderer->EndEffectsLineBatch();    // Flush all waypoint lines in one draw call (6000+ lines → 1 call!)
 
 #ifndef NON_PLAYABLE
     WorldObject *selection = g_app->GetWorld()->GetWorldObject(m_currentSelectionId);
@@ -2806,7 +2823,7 @@ void MapRenderer::RenderPopulationDensity()
                 Colour col = g_app->GetWorld()->GetTeam(city->m_teamId)->GetTeamColour();
                 col.m_a = 255.0f * min( 1.0f, city->m_population / 10000000.0f );
                                     
-                g_renderer->BlitBatched( g_resource->GetImage( "graphics/explosion.bmp" ),
+                g_renderer->Blit( g_resource->GetImage( "graphics/population.bmp" ),
                                             city->m_longitude.DoubleValue()-size/2, city->m_latitude.DoubleValue()-size/2,
                                             size, size, col );
             }

@@ -29,6 +29,7 @@ public:
     void TogglePause();
     void SetSpeed( float speed );
     void UpdateProgress( int currentSeq, int totalSeq );
+    void SeekToPosition( float position );  // NEW: Seek to position (0.0 to 1.0)
     
     // Should only show during recording playback
     bool ShouldRender();
@@ -60,6 +61,28 @@ public:
     
     float GetSpeedFromValue(); // Convert slider value to actual speed multiplier
     void SetValueFromSpeed( float speed ); // Convert speed to slider position
+};
+
+// NEW: Seek bar for navigating through recording
+class SeekBar : public InterfaceButton
+{
+public:
+    float m_value;      // 0.0 to 1.0, represents position in recording
+    bool m_dragging;
+    bool m_seeking;     // True when actively seeking (fast-forwarding)
+    
+public:
+    SeekBar();
+    
+    void MouseDown();
+    void MouseUp();
+    void Render( int realX, int realY, bool highlighted, bool clicked );
+    void Update();
+    
+    void SetProgress( float progress );     // Set current progress (0.0 to 1.0)
+    float GetSeekPosition();                // Get desired seek position
+    bool IsSeeking() const { return m_seeking; }
+    void SetSeeking( bool seeking ) { m_seeking = seeking; }
 };
 
 #endif 

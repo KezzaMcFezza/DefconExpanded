@@ -50,7 +50,6 @@ private:
     // Page rendering methods
     void RenderBufferStatistics(float& yPos);
     void RenderSystemInformation(float& yPos);
-    void RenderDetailedBufferInfo(float& yPos);
     
     // Analysis methods
     size_t GetMemoryUsage();

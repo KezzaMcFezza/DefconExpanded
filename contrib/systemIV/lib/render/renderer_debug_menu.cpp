@@ -70,7 +70,6 @@ void RendererDebugMenu::RenderDebugMenu()
     yPos += 5.0f; // Add some spacing between sections
     RenderSystemInformation(yPos);
     yPos += 5.0f;
-    RenderDetailedBufferInfo(yPos);
 }
 
 void RendererDebugMenu::RenderBufferStatistics(float& yPos)
@@ -81,7 +80,7 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     float indentLarge = 200.0f;
     
     // Header
-    m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 13.0f, "BUFFER PERFORMANCE STATISTICS");
+    m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 13.0f, "Advanced Buffer Statistics");
     yPos += lineHeight;
     
     // Total draw calls header
@@ -90,15 +89,15 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     yPos += lineHeight;
     
     // Legacy immediate mode buffers (RED - performance issues)
-    m_renderer->TextSimple(10, yPos, Colour(255, 100, 100, 255), 11.0f, "Legacy Immediate Mode:");
+    m_renderer->TextSimple(10, yPos, Colour(255, 100, 100, 255), 11.0f, "Immediate Mode:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Triangles: %d  Lines: %d", 
              m_renderer->GetLegacyTriangleCalls(), m_renderer->GetLegacyLineCalls());
     m_renderer->TextSimple(indentLarge, yPos, Colour(255, 100, 100, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
     // Core UI buffers (GREEN - optimized)
-    m_renderer->TextSimple(10, yPos, Colour(100, 255, 100, 255), 11.0f, "Core UI Buffers:");
-    snprintf(statsBuffer, sizeof(statsBuffer), "UI-Tri: %d  UI-Lines: %d  Text: %d  Sprites: %d", 
+    m_renderer->TextSimple(10, yPos, Colour(100, 255, 100, 255), 11.0f, "UI Buffers:");
+    snprintf(statsBuffer, sizeof(statsBuffer), "Triangles: %d  Lines: %d  Text: %d  Textures: %d", 
              m_renderer->GetUITriangleCalls(), m_renderer->GetUILineCalls(),
              m_renderer->GetTextCalls(), m_renderer->GetSpriteCalls());
     m_renderer->TextSimple(150, yPos, Colour(100, 255, 100, 255), 11.0f, statsBuffer);
@@ -112,13 +111,13 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     yPos += lineHeight;
     
     // Unit buffer details (indented)
-    snprintf(statsBuffer, sizeof(statsBuffer), "  Trails: %d  Main: %d  Rotating: %d  Highlights: %d", 
+    snprintf(statsBuffer, sizeof(statsBuffer), "  Trails: %d  Static: %d  Rotating: %d  Highlights: %d", 
              m_renderer->GetUnitTrailCalls(), m_renderer->GetUnitMainSpriteCalls(), 
              m_renderer->GetUnitRotatingCalls(), m_renderer->GetUnitHighlightCalls());
     m_renderer->TextSimple(indentSmall, yPos, Colour(120, 170, 255, 255), 10.0f, statsBuffer);
     yPos += 14.0f;
     
-    snprintf(statsBuffer, sizeof(statsBuffer), "  States: %d  Counters: %d  Nukes: %d", 
+    snprintf(statsBuffer, sizeof(statsBuffer), "  UnitIcons: %d  Counters: %d  Nukes: %d", 
              m_renderer->GetUnitStateIconCalls(), m_renderer->GetUnitCounterCalls(), 
              m_renderer->GetUnitNukeIconCalls());
     m_renderer->TextSimple(indentSmall, yPos, Colour(120, 170, 255, 255), 10.0f, statsBuffer);
@@ -135,25 +134,12 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     // Performance summary (CYAN - analysis)
     int totalSpecialized = m_renderer->GetTotalSpecializedCalls();
     int legacyTotal = m_renderer->GetLegacyTriangleCalls() + m_renderer->GetLegacyLineCalls();
-    m_renderer->TextSimple(10, yPos, Colour(100, 255, 255, 255), 11.0f, "Performance Summary:");
-    snprintf(statsBuffer, sizeof(statsBuffer), "Specialized: %d  Legacy: %d", 
+    m_renderer->TextSimple(10, yPos, Colour(100, 255, 255, 255), 11.0f, "Conclusion:");
+    snprintf(statsBuffer, sizeof(statsBuffer), "Batched: %d  Legacy: %d", 
              totalSpecialized, legacyTotal);
     m_renderer->TextSimple(indentLarge, yPos, Colour(100, 255, 255, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Performance analysis
-    float optimizationRatio = legacyTotal > 0 ? (float)totalSpecialized / (float)legacyTotal : 0.0f;
-    Colour perfColor = optimizationRatio > 2.0f ? Colour(100, 255, 100, 255) : 
-                      optimizationRatio > 1.0f ? Colour(255, 255, 100, 255) : 
-                      Colour(255, 100, 100, 255);
-    
-    snprintf(statsBuffer, sizeof(statsBuffer), "Optimization Ratio: %.2fx", optimizationRatio);
-    m_renderer->TextSimple(10, yPos, perfColor, 10.0f, statsBuffer);
-    
-    const char* perfStatus = optimizationRatio > 2.0f ? "EXCELLENT" :
-                            optimizationRatio > 1.0f ? "GOOD" : "NEEDS WORK";
-    m_renderer->TextSimple(200, yPos, perfColor, 10.0f, perfStatus);
-    yPos += lineHeight;
 }
 
 void RendererDebugMenu::RenderSystemInformation(float& yPos)
@@ -162,12 +148,12 @@ void RendererDebugMenu::RenderSystemInformation(float& yPos)
     float lineHeight = 18.0f;
     
     // Header
-    m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 13.0f, "SYSTEM INFORMATION");
+    m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 13.0f, "General Information");
     yPos += lineHeight;
     
     // Frame timing information
     if (m_showFrameTiming) {
-        m_renderer->TextSimple(10, yPos, Colour(255, 200, 100, 255), 12.0f, "Frame Timing:");
+        m_renderer->TextSimple(10, yPos, Colour(255, 200, 100, 255), 12.0f, "Frame Times:");
         yPos += lineHeight;
         
         snprintf(infoBuffer, sizeof(infoBuffer), "  Average Frame Time: %.2f ms", m_averageFrameTime * 1000.0);
@@ -200,88 +186,6 @@ void RendererDebugMenu::RenderSystemInformation(float& yPos)
         m_renderer->TextSimple(20, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
         yPos += lineHeight;
     }
-    
-    // OpenGL information
-    if (m_showOpenGLInfo) {
-        m_renderer->TextSimple(10, yPos, Colour(255, 150, 255, 255), 12.0f, "OpenGL Status:");
-        yPos += lineHeight;
-        
-        // Check for OpenGL errors
-        GLenum error = glGetError();
-        if (error == GL_NO_ERROR) {
-            m_renderer->TextSimple(20, yPos, Colour(100, 255, 100, 255), 11.0f, "  GL Status: OK");
-        } else {
-            snprintf(infoBuffer, sizeof(infoBuffer), "  GL Error: 0x%04X", error);
-            m_renderer->TextSimple(20, yPos, Colour(255, 100, 100, 255), 11.0f, infoBuffer);
-        }
-        yPos += 14.0f;
-        
-        // Blend mode info
-        snprintf(infoBuffer, sizeof(infoBuffer), "  Blend Mode: %d", m_renderer->m_blendMode);
-        m_renderer->TextSimple(20, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
-        yPos += 14.0f;
-        
-        // Viewport info
-        GLint viewport[4];
-        glGetIntegerv(GL_VIEWPORT, viewport);
-        snprintf(infoBuffer, sizeof(infoBuffer), "  Viewport: %dx%d at (%d,%d)", 
-                 viewport[2], viewport[3], viewport[0], viewport[1]);
-        m_renderer->TextSimple(20, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
-        yPos += lineHeight;
-    }
-}
-
-void RendererDebugMenu::RenderDetailedBufferInfo(float& yPos)
-{
-    char detailBuffer[256];
-    float lineHeight = 18.0f;
-    
-    // Header
-    m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 13.0f, "DETAILED BUFFER ANALYSIS");
-    yPos += lineHeight;
-    
-    // Buffer efficiency analysis
-    m_renderer->TextSimple(10, yPos, Colour(255, 200, 100, 255), 12.0f, "Buffer Efficiency:");
-    yPos += lineHeight;
-    
-    int totalCalls = m_renderer->GetTotalDrawCalls();
-    if (totalCalls > 0) {
-        // Calculate batching efficiency
-        float avgVerticesPerCall = EstimateBufferVertexCount() / (float)totalCalls;
-        snprintf(detailBuffer, sizeof(detailBuffer), "  Avg Vertices/Call: %.1f", avgVerticesPerCall);
-        
-        Colour efficiencyColor = avgVerticesPerCall > 50.0f ? Colour(100, 255, 100, 255) :
-                                avgVerticesPerCall > 20.0f ? Colour(255, 255, 100, 255) :
-                                Colour(255, 100, 100, 255);
-        
-        m_renderer->TextSimple(20, yPos, efficiencyColor, 11.0f, detailBuffer);
-        yPos += 14.0f;
-        
-        // Texture switching analysis
-        snprintf(detailBuffer, sizeof(detailBuffer), "  Estimated Texture Switches: %d", 
-                 EstimateTextureSwitches());
-        m_renderer->TextSimple(20, yPos, Colour(200, 200, 200, 255), 11.0f, detailBuffer);
-        yPos += lineHeight;
-    }
-    
-    // Buffer type breakdown
-    yPos += 5.0f;
-    m_renderer->TextSimple(10, yPos, Colour(100, 255, 255, 255), 12.0f, "Buffer Type Analysis:");
-    yPos += lineHeight;
-    
-    // Categorize by rendering type
-    int colorOnlyCalls = m_renderer->GetLegacyLineCalls() + m_renderer->GetUILineCalls() + 
-                        m_renderer->GetUnitTrailCalls() + m_renderer->GetEffectsLineCalls();
-    int texturedCalls = m_renderer->GetSpriteCalls() + m_renderer->GetTextCalls() + 
-                       m_renderer->GetUnitMainSpriteCalls() + m_renderer->GetUnitRotatingCalls() + 
-                       m_renderer->GetUnitStateIconCalls();
-    
-    snprintf(detailBuffer, sizeof(detailBuffer), "  Color-only Calls: %d", colorOnlyCalls);
-    m_renderer->TextSimple(20, yPos, Colour(255, 200, 100, 255), 11.0f, detailBuffer);
-    yPos += 14.0f;
-    
-    snprintf(detailBuffer, sizeof(detailBuffer), "  Textured Calls: %d", texturedCalls);
-    m_renderer->TextSimple(20, yPos, Colour(100, 200, 255, 255), 11.0f, detailBuffer);
 }
 
 

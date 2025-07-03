@@ -531,15 +531,13 @@ void MovingObject::Render()
         Image *bmpImage = g_resource->GetImage( bmpImageFilename );
         
         // BATCHING FIX: Use dedicated rotating buffer with rotation support for aircraft/nukes
-        g_renderer->BeginUnitRotatingBatch();
         g_renderer->UnitRotating( bmpImage, 
-                                  predictedLongitude + m_vel.x.DoubleValue() * 2, 
-                                  predictedLatitude + m_vel.y.DoubleValue() * 2, 
-                                  size/2, 
-                                  size/2, 
-                                  colour, 
-                                  angle );
-        g_renderer->EndUnitRotatingBatch();
+                          predictedLongitude + m_vel.x.DoubleValue() * 2, 
+                          predictedLatitude + m_vel.y.DoubleValue() * 2, 
+                          size/2, 
+                          size/2, 
+                          colour, 
+                          angle );
 
 
         //
@@ -560,15 +558,13 @@ void MovingObject::Render()
             {
                 bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
                 // BATCHING FIX: Use rotating buffer for rotated selection highlights
-                g_renderer->BeginUnitRotatingBatch();
                 g_renderer->UnitRotating( bmpImage, 
-                                         predictedLongitude + m_vel.x.DoubleValue() * 2, 
-                                         predictedLatitude + m_vel.y.DoubleValue() * 2, 
-                                         size/2, 
-                                         size/2, 
-                                         colour, 
-                                         angle );
-                g_renderer->EndUnitRotatingBatch();
+                                predictedLongitude + m_vel.x.DoubleValue() * 2, 
+                                predictedLatitude + m_vel.y.DoubleValue() * 2, 
+                                size/2, 
+                                size/2, 
+                                colour, 
+                                angle );
             }
             colour.m_a *= 0.5f;
         }
@@ -641,8 +637,6 @@ void MovingObject::RenderHistory()
         Vector3<float> lastPos( predictedLongitude, predictedLatitude, 0 );
 
         // PERFORMANCE OPTIMIZATION: Use batched unit trail rendering instead of immediate mode
-        g_renderer->BeginUnitTrailBatch();
-        
         for( int i = 0; i < maxSize; ++i )
         {
             Vector3<float> historyPos, thisPos;
@@ -659,9 +653,6 @@ void MovingObject::RenderHistory()
             g_renderer->UnitTrailLine( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );        
             lastPos = historyPos;
         }
-        
-        // PERFORMANCE OPTIMIZATION: Flush all trail segments in one efficient draw call
-        g_renderer->EndUnitTrailBatch();
     }
 }
 
@@ -718,9 +709,7 @@ void MovingObject::RenderGhost( int teamId )
 
             Image *bmpImage = g_resource->GetImage( bmpImageFilename );
             // BATCHING FIX: Use rotating buffer for rotated ghost sprites
-            g_renderer->BeginUnitRotatingBatch();
             g_renderer->UnitRotating( bmpImage, predictedLongitude, predictedLatitude, thisSize, size, col, angle);
-            g_renderer->EndUnitRotatingBatch();
         }
         else
         {

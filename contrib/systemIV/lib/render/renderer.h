@@ -68,23 +68,23 @@ private:
     };
     
     // Buffer size constants (WebAssembly optimized)
-    static const int MAX_VERTICES = 10000;        // Legacy buffer size
-    static const int MAX_UI_VERTICES = 50000;     // UI elements (existing)
-    static const int MAX_TEXT_VERTICES = 30000;   // Text rendering (existing)
-    static const int MAX_SPRITE_VERTICES = 20000; // General sprites (existing)
+    static const int MAX_VERTICES = 100000;        // Legacy buffer size
+    static const int MAX_UI_VERTICES = 500000;     // UI elements (existing)
+    static const int MAX_TEXT_VERTICES = 300000;   // Text rendering (existing)
+    static const int MAX_SPRITE_VERTICES = 200000; // General sprites (existing)
     
     // Unit rendering buffer sizes (calculated from worst-case scenarios)
-    static const int MAX_UNIT_TRAIL_VERTICES = 25000;      // 100 units × 80 trail segments × 2 verts = 16K + safety
-    static const int MAX_UNIT_MAIN_VERTICES = 5000;        // 400 ground/sea units × 6 vertices × 2 passes = 4.8K + safety  
-    static const int MAX_UNIT_ROTATING_VERTICES = 3000;    // 50 rotating sprites × 6 vertices × 10 rotations = 3K + safety
-    static const int MAX_UNIT_HIGHLIGHT_VERTICES = 2000;   // 100 selected units × 6 vertices × 2 passes = 1.2K + safety
-    static const int MAX_UNIT_STATE_VERTICES = 4000;       // 200 units × 3 states × 6 vertices = 3.6K + safety
-    static const int MAX_UNIT_COUNTER_VERTICES = 35000;    // 200 text renders × 20 chars × 6 vertices = 24K + safety  
-    static const int MAX_UNIT_NUKE_VERTICES = 2000;        // 100 units × 6 vertices × 2 icons = 1.2K + safety
+    static const int MAX_UNIT_TRAIL_VERTICES = 250000;      // 100 units × 80 trail segments × 2 verts = 16K + safety
+    static const int MAX_UNIT_MAIN_VERTICES = 50000;        // 400 ground/sea units × 6 vertices × 2 passes = 4.8K + safety  
+    static const int MAX_UNIT_ROTATING_VERTICES = 30000;    // 50 rotating sprites × 6 vertices × 10 rotations = 3K + safety
+    static const int MAX_UNIT_HIGHLIGHT_VERTICES = 20000;   // 100 selected units × 6 vertices × 2 passes = 1.2K + safety
+    static const int MAX_UNIT_STATE_VERTICES = 40000;       // 200 units × 3 states × 6 vertices = 3.6K + safety
+    static const int MAX_UNIT_COUNTER_VERTICES = 350000;    // 200 text renders × 20 chars × 6 vertices = 24K + safety  
+    static const int MAX_UNIT_NUKE_VERTICES = 20000;        // 100 units × 6 vertices × 2 icons = 1.2K + safety
     
     // Effect rendering buffer sizes
-    static const int MAX_EFFECTS_LINE_VERTICES = 15000;    // Gunfire trails, radar sweeps
-    static const int MAX_EFFECTS_SPRITE_VERTICES = 10000;  // Explosions, particles
+    static const int MAX_EFFECTS_LINE_VERTICES = 150000;    // Gunfire trails, radar sweeps
+    static const int MAX_EFFECTS_SPRITE_VERTICES = 100000;  // Explosions, particles
 
 protected:
     char    *m_defaultFontName;

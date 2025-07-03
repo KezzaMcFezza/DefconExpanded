@@ -10,6 +10,7 @@
 
 #include "interface/lobby_window.h"
 #include "interface/chat_window.h"
+#include "interface/playback_control_window.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -45,14 +46,15 @@ ConnectingWindow::ConnectingWindow()
     m_maxLagRemaining(0),
     m_popupLobbyAtEnd(false),
     m_stage(0),
-    m_stageStartTime(-1.0f),
+    m_stageStartTime(0.0f),
     m_fastForwardMode(false),
     m_fastForwardTarget(0),
-    m_fastForwardCurrent(0)
+    m_fastForwardCurrent(0),
+    m_isSeekMode(false)
 {
-    SetSize( 300, 280 );
-    SetPosition( g_windowManager->WindowW()/2-m_w/2, 
-                 g_windowManager->WindowH()/2-m_h/2 );
+    SetSize( 350, 200 );
+    SetPosition( g_windowManager->WindowW()/2 - m_w/2, 
+                 g_windowManager->WindowH()/2 - m_h/2 );
 
     g_app->GetClientToServer()->m_synchronising = true;
 }
@@ -76,7 +78,7 @@ void ConnectingWindow::Create()
     RegisterButton( box );
 
     AbortButton *abort = new AbortButton();
-    abort->SetProperties( "Abort", m_w/2-50, m_h-30, 100, 20, "dialog_abort", "dialog_abort_current_connection", true, true );
+    abort->SetProperties( "Abort", 10, m_h-30, 80, 20, LANGUAGEPHRASE("dialog_cancel"), LANGUAGEPHRASE("tooltip_abort"), false, true );
     RegisterButton( abort );
 }
 
@@ -151,7 +153,8 @@ void ConnectingWindow::Render( bool _hasFocus )
     
     if( m_fastForwardMode )
     {
-        g_renderer->TextCentreSimple( m_x+m_w/2, yPos, White, 16, "Fast FoRWaRdiNg to gamE staRt..." );
+        const char* fastForwardText = m_isSeekMode ? "I'm goiNg as Fast as I caN!" : "Fast FoRWaRdiNg to gamE staRt...";
+        g_renderer->TextCentreSimple( m_x+m_w/2, yPos, White, 16, fastForwardText );
         yPos += 20;
         
         if( m_fastForwardTarget > 0 )
@@ -288,6 +291,14 @@ void ConnectingWindow::Render( bool _hasFocus )
                     lobbyY = std::max( lobbyY, 0.0f );
                     lobby->SetPosition(lobbyX, lobbyY);
                     EclRegisterWindow( lobby );
+                    
+                    // NEW: If we're in recording playback mode, also register the playback control window
+                    // This allows seeking and speed control during lobby phase of recordings
+                    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() && 
+                        !EclGetWindow( "Playback Controls" ) )
+                    {
+                        EclRegisterWindow( new PlaybackControlWindow() );
+                    }
                 }
             }
 
@@ -344,16 +355,18 @@ void ConnectingWindow::RenderTimeRemaining( float _fractionDone )
 }
 
 // NEW: Fast-forward recording methods
-void ConnectingWindow::SetFastForwardMode( bool enabled, int target )
+void ConnectingWindow::SetFastForwardMode( bool enabled, int target, bool isSeekMode )
 {
     m_fastForwardMode = enabled;
     m_fastForwardTarget = target;
     m_fastForwardCurrent = 0;
+    m_isSeekMode = isSeekMode;
     
     if( enabled )
     {
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut("ConnectingWindow: Fast-forward mode enabled, target: %d\n", target);
+        const char* modeType = isSeekMode ? "seek" : "game start";
+        AppDebugOut("ConnectingWindow: Fast-forward mode enabled (%s), target: %d\n", modeType, target);
 #endif
     }
     else

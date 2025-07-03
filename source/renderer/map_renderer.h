@@ -74,6 +74,7 @@ protected:
     Image   *bmpBlur;    
     Image   *bmpWater;
     Image   *bmpExplosion;
+    Image   *bmpPopulation;
 
     Image   *bmpTravelNodes;
     Image   *bmpSailableWater;

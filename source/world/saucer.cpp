@@ -163,17 +163,15 @@ void Saucer::Render()
 
     Image *bmpImage = g_resource->GetImage( bmpImageFilename );
     // BATCHING FIX: Use rotating buffer for saucer sprite (has rotation)
-    g_renderer->BeginUnitRotatingBatch();
     if( m_currentState == 0 )
     {  
         g_renderer->UnitRotating( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 2,
-						          predictedLatitude + m_vel.y.DoubleValue() * 2, size/2, size/2, colour, m_angle );
+						  predictedLatitude + m_vel.y.DoubleValue() * 2, size/2, size/2, colour, m_angle );
     }
     else
     {
         g_renderer->UnitRotating( bmpImage, m_longitude.DoubleValue(), m_latitude.DoubleValue(), size/2, size/2, colour, m_angle );
     }
-    g_renderer->EndUnitRotatingBatch();
     
     if( m_currentState == 1 )
     {
@@ -183,7 +181,7 @@ void Saucer::Render()
         // BATCHING FIX: Use effects sprite batching for explosion effect (no rotation)
         g_renderer->BeginEffectsSpriteBatch();
         g_renderer->EffectsSprite( explosion, m_longitude.DoubleValue() - explosionSize/4,
-						           m_latitude.DoubleValue() - explosionSize/4, explosionSize/2, explosionSize/2, fire);
+						  m_latitude.DoubleValue() - explosionSize/4, explosionSize/2, explosionSize/2, fire);
         g_renderer->EndEffectsSpriteBatch();
     }
 
