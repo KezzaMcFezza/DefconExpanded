@@ -142,6 +142,7 @@ public:
     void                EnableFastForward( int targetSeqId, float speedMultiplier = 500.0f );
     void                CheckDisableFastForward();
     float               GetRecordingAdvanceSpeedMultiplier();
+    bool                IsRecordingFastForwardMode() const { return m_recordingFastForwardMode; }
     
     // NEW: Pause and speed control
     void                SetRecordingPaused( bool paused );

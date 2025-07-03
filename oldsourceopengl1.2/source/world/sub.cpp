@@ -168,7 +168,7 @@ bool Sub::Update()
             m_targetObjectId = -1;
             if( g_app->GetWorld()->GetDefcon() < 4 )
             {
-                m_retargetTimer = 4 + syncfrand(11);
+                m_retargetTimer = 5 + syncfrand(10);
                 WorldObject *obj = FindTarget();
                 if( obj )
                 {

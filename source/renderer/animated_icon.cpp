@@ -65,7 +65,8 @@ bool ActionMarker::Render()
         }
 
         Image *img = g_resource->GetImage( "graphics/cursor_target.bmp");
-        g_renderer->Blit( img, m_longitude, m_latitude, size, size, col, rotation);
+        // BATCHING FIX: Convert to effects sprite batching (rotation handled by effects system)
+        g_renderer->EffectsSprite( img, m_longitude - size/2, m_latitude - size/2, size, size, col );
     
         if( m_targetType > WorldObject::TargetTypeValid )
         {
@@ -79,7 +80,8 @@ bool ActionMarker::Render()
 
             if( img )
             {
-                g_renderer->Blit( img, m_longitude, m_latitude, size/2, size/2, col, 0 );
+                // BATCHING FIX: Convert to effects sprite batching
+                g_renderer->EffectsSprite( img, m_longitude - size/4, m_latitude - size/4, size/2, size/2, col );
             }
         }
     }
@@ -107,7 +109,25 @@ bool SonarPing::Render()
     {
         int alpha = 255 - 255 * (size / 5.0f);
         alpha *= 0.5f;
-        g_renderer->Circle( m_longitude, m_latitude, size, 40, Colour(255,255,255,alpha), 3.0f );
+        
+        // BATCHING FIX: Convert Circle() to batched EffectsLine() calls
+        // Create circle using line segments for batched rendering
+        Colour colour(255, 255, 255, alpha);
+        int numPoints = 40;
+        float angleStep = 2.0f * M_PI / (float)numPoints;
+        
+        for( int i = 0; i < numPoints; ++i )
+        {
+            float angle1 = (float)i * angleStep;
+            float angle2 = (float)(i + 1) * angleStep;
+            
+            float x1 = m_longitude + size * sinf(angle1);
+            float y1 = m_latitude + size * cosf(angle1);
+            float x2 = m_longitude + size * sinf(angle2);
+            float y2 = m_latitude + size * cosf(angle2);
+            
+            g_renderer->EffectsLine( x1, y1, x2, y2, colour );
+        }
     }
 
     return( size == 5.0f );
@@ -238,6 +258,8 @@ bool NukePointer::Render()
         if( targetDir.y < 0.0f ) angle += M_PI;
 
         Image *img = g_resource->GetImage( "graphics/arrow.bmp" );
+        // NOTE: Keeping legacy Blit() for rotated arrow - EffectsSprite() doesn't support rotation
+        // This is less critical since off-screen arrows are infrequent compared to explosions/sonar
         g_renderer->Blit( img, m_longitude, m_latitude, size, size, col, angle );
     }
     

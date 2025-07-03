@@ -60,6 +60,8 @@ dialog_rolling_demo                 Rolling Demo
 dialog_tools                        Tools
 dialog_otheroptions                 Other Options
 
+dialog_seek_backwards               Sorry :(
+
 dialog_options                      Options
 dialog_high                         High
 dialog_medium                       Medium

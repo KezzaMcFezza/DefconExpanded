@@ -79,9 +79,7 @@ void Explosion::Render()
         float predictedLatitude = m_latitude.DoubleValue();
 
         // BATCHING FIX: Use effects sprite batching for explosion rendering
-        g_renderer->BeginEffectsSpriteBatch();
         g_renderer->EffectsSprite( bmpImage, predictedLongitude-size, predictedLatitude-size,
-                                   size*2, size*2, colour );
-        g_renderer->EndEffectsSpriteBatch();
+                                    size*2, size*2, colour );
     }      
 }
