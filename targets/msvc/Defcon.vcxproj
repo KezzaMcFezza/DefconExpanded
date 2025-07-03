@@ -86,7 +86,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;EMSCRIPTEN_SOUND; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
@@ -134,7 +134,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE; _CRT_NONSTDC_NO_DEPRECATER;RECORDING_PARSING;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;EMSCRIPTEN_SOUND; _CRT_NONSTDC_NO_DEPRECATER;RECORDING_PARSING;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
@@ -185,7 +185,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;EMSCRIPTEN_SOUND; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -496,7 +496,8 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\profiler.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\colour.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\renderer.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\render\renderer3d.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_3d.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\styletable.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmap.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.cpp" />
@@ -545,7 +546,9 @@
     <ClCompile Include="..\..\source\interface\mod_window.cpp" />
     <ClCompile Include="..\..\source\interface\network_window.cpp" />
     <ClCompile Include="..\..\source\interface\placement_icon.cpp" />
+    <ClCompile Include="..\..\source\interface\playback_control_window.cpp" />
     <ClCompile Include="..\..\source\interface\profile_window.cpp" />
+    <ClCompile Include="..\..\source\interface\recording_selection.cpp" />
     <ClCompile Include="..\..\source\interface\resynchronise_window.cpp" />
     <ClCompile Include="..\..\source\interface\serverbrowser_window.cpp" />
     <ClCompile Include="..\..\source\interface\serverdetails_window.cpp" />
@@ -656,6 +659,8 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\colour.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\renderer.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\renderer3d.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_3d.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\styletable.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmap.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.h" />
@@ -711,7 +716,9 @@
     <ClInclude Include="..\..\source\interface\mod_window.h" />
     <ClInclude Include="..\..\source\interface\network_window.h" />
     <ClInclude Include="..\..\source\interface\placement_icon.h" />
+    <ClInclude Include="..\..\source\interface\playback_control_window.h" />
     <ClInclude Include="..\..\source\interface\profile_window.h" />
+    <ClInclude Include="..\..\source\interface\recording_selection.h" />
     <ClInclude Include="..\..\source\interface\resynchronise_window.h" />
     <ClInclude Include="..\..\source\interface\serverbrowser_window.h" />
     <ClInclude Include="..\..\source\interface\serverdetails_window.h" />
