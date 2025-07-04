@@ -2553,7 +2553,7 @@ void MapRenderer::RenderObjects()
                     if( wobj->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer->BlitBatched( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
+                    g_renderer->Blit( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
 
                     g_renderer->SetFont( "kremlin", true );
 
@@ -2711,7 +2711,7 @@ void MapRenderer::RenderCities()
                 }                            
                 col.m_a = 200.0f * ( 1.0f - min(0.8f, m_zoomFactor) );
                             
-                g_renderer->BlitBatched( cityImg,
+                g_renderer->Blit( cityImg,
                                   city->m_longitude.DoubleValue()-size/2, 
                                   city->m_latitude.DoubleValue()-size/2,
                                   size, size, col );
@@ -2730,7 +2730,7 @@ void MapRenderer::RenderCities()
                     if( city->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer->BlitBatched( img, city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
+                    g_renderer->Blit( img, city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
 
                     float yPos = city->m_latitude.DoubleValue()+1.6f;
                     if( city->m_numNukesInQueue )

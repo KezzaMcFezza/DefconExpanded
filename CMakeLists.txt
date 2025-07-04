@@ -42,7 +42,7 @@ else()
     endif()
 endif()
 
-set(REPLAY_VIEWER_VERSION "A6.90" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "A7.21" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 option(ENABLE_RECORDING_PARSING "Enable recording parsing functionality" ON)
 option(ENABLE_EMSCRIPTEN_REPLAY_VIEWER "Enable Emscripten Replay Viewer mode (recording playback only)" ON)
 
@@ -534,6 +534,8 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/netlib/thread_controller.cpp
     ${SYSTEMIV_PATH}/lib/render/colour.cpp
     ${SYSTEMIV_PATH}/lib/render/renderer.cpp
+    ${SYSTEMIV_PATH}/lib/render/renderer_buffers.cpp
+    ${SYSTEMIV_PATH}/lib/render/renderer_vbo.cpp
     ${SYSTEMIV_PATH}/lib/render/renderer_debug_menu.cpp
     ${SYSTEMIV_PATH}/lib/render/renderer_3d.cpp
     ${SYSTEMIV_PATH}/lib/render/styletable.cpp
