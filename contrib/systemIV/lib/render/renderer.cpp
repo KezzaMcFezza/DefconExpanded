@@ -429,9 +429,7 @@ BitmapFont *Renderer::GetBitmapFont() {
     return font;
 }
 
-// ============================================================================
-// TEXT RENDERING
-// ============================================================================
+// text rendering functions, most original and just been converted to opengl 3.3 core
 
 void Renderer::Text(float x, float y, Colour const &col, float size, const char *text, ...) {   
     char buf[1024];
@@ -518,9 +516,8 @@ float Renderer::TextWidth(const char *text, unsigned int textLen, float size, Bi
     return bitmapFont->GetTextWidth(text, textLen, size);
 }
 
-// ============================================================================
-// PRIMITIVE RENDERING - RECTANGLES
-// ============================================================================
+// primitive rendering functions, includes all the original immediate mode rendering functions
+// contains some attempted batching methods but most are flushing to quickly
 
 void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float lineWidth) {
     if (m_lineVertexCount + 8 > MAX_VERTICES) {
@@ -529,17 +526,17 @@ void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
     
-    // Create 4 lines to form rectangle outline
-    // Top line
+    // create 4 lines to form rectangle outline
+    // top line
     m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
     m_lineVertices[m_lineVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
-    // Right line
+    // right line
     m_lineVertices[m_lineVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
     m_lineVertices[m_lineVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
-    // Bottom line
+    // bottom line
     m_lineVertices[m_lineVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
     m_lineVertices[m_lineVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
-    // Left line
+    // left line
     m_lineVertices[m_lineVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
     m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
     
@@ -569,22 +566,18 @@ void Renderer::RectFill(float x, float y, float w, float h, Colour const &colTL,
     float rBR = colBR.m_r / 255.0f, gBR = colBR.m_g / 255.0f, bBR = colBR.m_b / 255.0f, aBR = colBR.m_a / 255.0f;
     float rBL = colBL.m_r / 255.0f, gBL = colBL.m_g / 255.0f, bBL = colBL.m_b / 255.0f, aBL = colBL.m_a / 255.0f;
     
-    // First triangle: TL, TR, BR
+    // first triangle: TL, TR, BR
     m_triangleVertices[m_triangleVertexCount++] = {x, y, rTL, gTL, bTL, aTL, 0.0f, 0.0f};
     m_triangleVertices[m_triangleVertexCount++] = {x + w, y, rTR, gTR, bTR, aTR, 1.0f, 0.0f};
     m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, rBR, gBR, bBR, aBR, 1.0f, 1.0f};
     
-    // Second triangle: TL, BR, BL
+    // second triangle: TL, BR, BL
     m_triangleVertices[m_triangleVertexCount++] = {x, y, rTL, gTL, bTL, aTL, 0.0f, 0.0f};
     m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, rBR, gBR, bBR, aBR, 1.0f, 1.0f};
     m_triangleVertices[m_triangleVertexCount++] = {x, y + h, rBL, gBL, bBL, aBL, 0.0f, 1.0f};
     
     FlushTriangles(false);
 }
-
-// ============================================================================
-// PRIMITIVE RENDERING - LINES & CIRCLES
-// ============================================================================
 
 void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth) {
     if (m_lineVertexCount + 2 > MAX_VERTICES) {
@@ -638,7 +631,7 @@ void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour 
         float x2 = x + cosf(angle2) * radius;
         float y2 = y + sinf(angle2) * radius;
         
-        // Triangle: center, point i, point i+1
+        // triangle: center, point i, point i+1
         m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, 0.5f, 0.5f};
         m_triangleVertices[m_triangleVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
         m_triangleVertices[m_triangleVertexCount++] = {x2, y2, r, g, b, a, 1.0f, 0.0f};
@@ -661,10 +654,6 @@ void Renderer::TriangleFill(float x1, float y1, float x2, float y2, float x3, fl
     FlushTriangles(false);
 }
 
-// ============================================================================
-// LINE STRIP RENDERING
-// ============================================================================
-
 void Renderer::BeginLines(Colour const &col, float lineWidth) {
     m_currentLineColor = col;
 }
@@ -686,7 +675,7 @@ void Renderer::EndLines() {
         return;
     }
     
-    // Convert line strip to individual line segments
+    // convert line strip to individual line segments
     int tempLineVertexCount = (m_lineVertexCount - 1) * 2;
     Vertex2D* tempLineVertices = new Vertex2D[tempLineVertexCount];
     
@@ -739,7 +728,7 @@ void Renderer::EndLineStrip2D() {
         return;
     }
     
-    // Convert to line segments
+    // convert to line segments
     int tempVertexCount = (m_lineVertexCount - 1) * 2;
     Vertex2D* tempVertices = new Vertex2D[tempVertexCount];
     
@@ -763,10 +752,6 @@ void Renderer::EndLineStrip2D() {
     m_lineStripActive = false;
 }
 
-// ============================================================================
-// CLIPPING
-// ============================================================================
-
 void Renderer::SetClip(int x, int y, int w, int h) {
     float scaleX = g_windowManager->GetHighDPIScaleX();
     float scaleY = g_windowManager->GetHighDPIScaleY();
@@ -779,10 +764,10 @@ void Renderer::ResetClip() {
     glDisable(GL_SCISSOR_TEST);
 }
 
-// ============================================================================
-// IMAGE BLITTING
-// ============================================================================
 
+// opengl 3.3 core converted blit functions, which in the original opengl 1.2 method
+// it was immediate mode rendering and immediately flushed after each draw call
+// the codebase heavily uses blit so the slow conversion process is still underway
 void Renderer::Blit(Image *src, float x, float y, Colour const &col) {
     float w = src->Width();
     float h = src->Height();
@@ -827,7 +812,7 @@ void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const
         FlushTriangles(true);
     }
     
-    // Calculate rotated vertices
+    // calculate rotated vertices
     Vector3<float> vert1(-w, +h, 0);
     Vector3<float> vert2(+w, +h, 0);
     Vector3<float> vert3(+w, -h, 0);
@@ -858,12 +843,12 @@ void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const
     float onePixelW = 1.0f / (float) src->Width();
     float onePixelH = 1.0f / (float) src->Height();
     
-    // First triangle: vert1, vert2, vert3
+    // first triangle: vert1, vert2, vert3
     m_triangleVertices[m_triangleVertexCount++] = {vert1.x, vert1.y, r, g, b, a, onePixelW, 1.0f - onePixelH};
     m_triangleVertices[m_triangleVertexCount++] = {vert2.x, vert2.y, r, g, b, a, 1.0f - onePixelW, 1.0f - onePixelH};
     m_triangleVertices[m_triangleVertexCount++] = {vert3.x, vert3.y, r, g, b, a, 1.0f - onePixelW, onePixelH};
     
-    // Second triangle: vert1, vert3, vert4
+    // second triangle: vert1, vert3, vert4
     m_triangleVertices[m_triangleVertexCount++] = {vert1.x, vert1.y, r, g, b, a, onePixelW, 1.0f - onePixelH};
     m_triangleVertices[m_triangleVertexCount++] = {vert3.x, vert3.y, r, g, b, a, 1.0f - onePixelW, onePixelH};
     m_triangleVertices[m_triangleVertexCount++] = {vert4.x, vert4.y, r, g, b, a, onePixelW, onePixelH};
@@ -871,6 +856,7 @@ void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const
     FlushTriangles(true);
 }
 
+// batched font rendering function that works extremely well
 void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float h, 
                         float texX, float texY, float texW, float texH, Colour const &col) {
     if (m_triangleVertexCount + 6 > MAX_VERTICES) {
@@ -898,10 +884,6 @@ void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float
     m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
     m_triangleVertices[m_triangleVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
 }
-
-// ============================================================================
-// SCREENSHOTS
-// ============================================================================
 
 void Renderer::SaveScreenshot() {
     float timeNow = GetHighResTime();
@@ -955,12 +937,12 @@ char *Renderer::ScreenshotsDirectory() {
     return newStr(".");
 }
 
-// ============================================================================
-// OPENGL SHADER & BUFFER MANAGEMENT
-// ============================================================================
+//
+// shader and buffer managment
+//
 
 unsigned int Renderer::CreateShader(const char* vertexSource, const char* fragmentSource) {
-    // Create vertex shader
+    // create vertex shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexSource, NULL);
     glCompileShader(vertexShader);
@@ -973,7 +955,7 @@ unsigned int Renderer::CreateShader(const char* vertexSource, const char* fragme
         AppDebugOut("Vertex shader compilation failed: %s\n", infoLog);
     }
     
-    // Create fragment shader
+    // create fragment shader
     unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
     glCompileShader(fragmentShader);
@@ -984,7 +966,7 @@ unsigned int Renderer::CreateShader(const char* vertexSource, const char* fragme
         AppDebugOut("Fragment shader compilation failed: %s\n", infoLog);
     }
     
-    // Create shader program
+    // create shader program
     unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
@@ -1002,6 +984,11 @@ unsigned int Renderer::CreateShader(const char* vertexSource, const char* fragme
     return shaderProgram;
 }
 
+// here we create different shaders for the emscripten build and the desktop build
+// this is because emscripten does not support the core profile, but the core profile
+// is the closest to WebGL 2.0.
+//
+// we have to use ES3.0 for emscripten which this function handles
 void Renderer::InitializeShaders() {
 #ifdef TARGET_EMSCRIPTEN
     // WebGL 2.0 shaders
@@ -1100,10 +1087,10 @@ void Renderer::SetupVertexArrays() {
     glBindVertexArray(0);
 }
 
-// ============================================================================
-// BUFFER FLUSHING
-// ============================================================================
+//
+// buffer flush methods
 
+// this function is problematic but necessary without a texture atlas
 void Renderer::FlushIfTextureChanged(unsigned int newTextureID, bool useTexture) {
     if (!m_batchingTextures) {
         FlushTriangles(useTexture);

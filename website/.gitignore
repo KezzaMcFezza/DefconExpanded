@@ -8,3 +8,4 @@
 **/certificate.crt
 **/private.key
 node_modules
+node.js/server.log
