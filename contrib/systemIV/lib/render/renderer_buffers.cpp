@@ -16,10 +16,6 @@
 // External globals
 extern Renderer *g_renderer;
 
-// ============================================================================
-// SPECIALIZED BUFFER FLUSH METHODS - UI RENDERING
-// ============================================================================
-
 void Renderer::FlushUITriangles() {
     if (m_uiTriangleVertexCount == 0) return;
     
@@ -86,10 +82,6 @@ void Renderer::FlushUIContext() {
     FlushUILines();
 }
 
-// ============================================================================
-// SPECIALIZED BUFFER FLUSH METHODS - TEXT RENDERING
-// ============================================================================
-
 void Renderer::FlushTextBuffer() {
     if (m_textVertexCount == 0) return;
     
@@ -130,10 +122,6 @@ void Renderer::EndTextBatch() {
 void Renderer::FlushTextContext() {
     FlushTextBuffer();
 }
-
-// ============================================================================
-// SPECIALIZED BUFFER FLUSH METHODS - SPRITE RENDERING
-// ============================================================================
 
 void Renderer::FlushSpriteBuffer() {
     if (m_spriteVertexCount == 0) return;
@@ -176,10 +164,6 @@ void Renderer::FlushSpriteContext() {
     FlushSpriteBuffer();
 }
 
-// ============================================================================
-// UNIT RENDERING SYSTEM - TRAIL RENDERING
-// ============================================================================
-
 void Renderer::UnitTrailLine(float x1, float y1, float x2, float y2, Colour const &col) {
     FlushUnitTrailsIfFull(2);
     
@@ -190,7 +174,7 @@ void Renderer::UnitTrailLine(float x1, float y1, float x2, float y2, Colour cons
 }
 
 void Renderer::BeginUnitTrailBatch() {
-    // Trail segments will be batched until EndUnitTrailBatch()
+    // trail segments will be batched until EndUnitTrailBatch()
 }
 
 void Renderer::EndUnitTrailBatch() {
