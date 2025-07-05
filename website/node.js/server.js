@@ -163,10 +163,22 @@ const errorHandler = (err, req, res, next) => {
     debugUtils.debugFunctionExit('errorHandler', startTime, 'error_handled', 1);
 };
 
-app.use(timeout('30s')); 
-
-app.use((req, res, next) => {
-    if (!req.timedout) next();
+// quick bug fix, it seems like discords api likes to take fucking donkeys. and we used to have a 30 second timeout here
+// the issue is that we would timmeout the request, but then discord would try to send a response causing the infamous
+// "headers already sent" error.
+app.use((err, req, res, next) => {
+    if (req.timedout) {
+        console.log('Request timed out:', req.originalUrl);
+        // Don't try to send response if headers already sent
+        if (!res.headersSent) {
+            res.status(408).json({ 
+                error: 'Request timeout',
+                message: 'The request took too long to process'
+            });
+        }
+        return;
+    }
+    next(err);
 });
 
 // i actually finally added proper CORS, i never worried about security until the replay viewer was added
@@ -437,25 +449,6 @@ function findReplayViewerFiles() {
     }
 }
 
-// ===============================================
-// DATABASE BACKUP SYSTEM
-// ===============================================
-// This system provides automated MySQL database backups with the following features:
-// - Creates backups on server startup 
-// - Schedules daily backups at 3:00 AM UTC
-// - Uses mysqldump to create SQL dumps of the defcon_demos database
-// - Compresses backups into password-protected 7z archives
-// - Automatically cleans up backups older than 30 days
-// - Stores backups in database-backups directory inside the node.js folder
-// - Follows naming convention: defcon_demos05-07-2025.7z (DD-MM-YYYY format)
-// - Password for archives is stored in DUMPDATABASE_SECRET environment variable
-// 
-// Required dependencies:
-// - mysqldump: npm install mysqldump
-// - node-cron: npm install node-cron
-// - 7-Zip system binary (installed at C:\Program Files\7-Zip\7z.exe)
-// ===============================================
-
 // function to create a password-protected 7z file from an sql file
 async function createProtectedZipFile(sqlFilePath, zipFilePath, password) {
     const startTime = debugUtils.debugFunctionEntry('createProtectedZipFile', [sqlFilePath, zipFilePath], 2);
@@ -480,10 +473,10 @@ async function createProtectedZipFile(sqlFilePath, zipFilePath, password) {
         // build the 7z command arguments
         // 7z a -t7z -p{password} archive.7z file.sql
         const args = [
-            'a',                    // add to archive
+            'a',                   // add to archive
             '-t7z',                // archive type: 7z
             `-p${password}`,       // password
-            '-mx9',                // maximum compression
+            '-mx0',                // why compress and waste cpu resources? mx0 = no compression
             '-mhe=on',             // encrypt file names 
             zipFilePath,           // output archive path
             sqlFilePath            // input file path
@@ -1217,13 +1210,14 @@ const server = http.listen(port, async () => {
     
     // create sql dump soon as the server starts
     console.log("Creating sql dump...");
-    try {
-      await createDatabaseBackup();
-      console.log("SQL dump created! scheduled to be used for archive");
-    } catch (error) {
-      console.error("Error creating SQL dump:", error);
-      // don't fail the entire initialization if backup fails
-    }
+    // lets create a promise to prevent blocking the server initialisation
+    createDatabaseBackup()
+        .then(() => {
+            console.log("SQL dump created! scheduled to be used for archive");
+        })
+        .catch((error) => {
+            console.error("Error creating SQL dump:", error);
+        });
     
     // set server instance for debug utilities
     debugUtils.setServerInstance(server);
@@ -1235,3 +1229,4 @@ const server = http.listen(port, async () => {
       console.error("Assuming you broke something? - ", error);
     }
   });
+  
