@@ -6,6 +6,7 @@
 #include "lib/gucci/input.h"
 #include "lib/hi_res_time.h"
 #include "lib/math/math_utils.h"
+#include "lib/eclipse/eclipse.h"
 
 #include "interface/playback_control_window.h"
 #include "interface/components/message_dialog.h"
@@ -13,8 +14,12 @@
 
 #include "app/app.h"
 #include "world/world.h"
+#include "world/team.h"
 #include "app/globals.h"
 #include "network/Server.h"
+
+// global variable for team perspective switching
+int g_desiredPerspectiveTeamId = -1;
 
 // ============================================================================
 // Playback Control Window
@@ -27,11 +32,13 @@ PlaybackControlWindow::PlaybackControlWindow()
     m_totalSeqIds(0),
     m_lastRenderedSeqId(-1),
     m_lastRenderedTotalSeqIds(-1),
-    m_updateTimer(0.0f)
+    m_updateTimer(0.0f),
+    m_activePlayerCount(0),
+    m_currentPerspective(-1),
+    m_playersInitialized(false)
 {
-    // Position at bottom center of screen
     int windowWidth = 400;
-    int windowHeight = 120;  // Increased from 95 to 120 for seek bar
+    int windowHeight = 190;
     
     SetSize(windowWidth, windowHeight);
     
@@ -49,26 +56,223 @@ PlaybackControlWindow::PlaybackControlWindow()
     
     // Initialize cached progress text
     strcpy(m_cachedProgressText, "0.0%");
+    
+    // initialize player data
+    for( int i = 0; i < 6; i++ )
+    {
+        m_players[i].teamId = -1;
+        m_players[i].playerId = -1;
+        m_players[i].playerName[0] = '\0';
+        m_players[i].truncatedName[0] = '\0';
+        m_players[i].teamColour = Colour(100, 100, 100, 255);
+        m_players[i].isActive = false;
+    }
 }
 
 void PlaybackControlWindow::Create()
 {
     InterfaceWindow::Create();
     
-    // Play/Pause button
     PlayPauseButton *playPause = new PlayPauseButton();
     playPause->SetProperties("PlayPause", 10, 80, 50, 25, "PLAY", "Toggle pause/play", false, true);
     RegisterButton(playPause);
     
-    // Speed slider
     SpeedSlider *speedSlider = new SpeedSlider();
     speedSlider->SetProperties("SpeedSlider", 80, 85, 300, 15, "", "Adjust playback speed", false, false);
     RegisterButton(speedSlider);
     
-    // NEW: Seek bar
     SeekBar *seekBar = new SeekBar();
     seekBar->SetProperties("SeekBar", 10, 50, m_w - 20, 15, "", "Click and drag to seek to different position in recording", false, false);
     RegisterButton(seekBar);
+    
+    // initialize it
+    InitializePlayers();
+    
+    // create the buttons below the seek bar and play button
+    int spectatorButtonY = 130;      // top row for spectator button
+    int playerButtonY = 155;         // second row for player buttons
+    int buttonWidth = 60;
+    int buttonHeight = 20;
+    int buttonSpacing = 65;
+    int startX = 10;
+    
+    // make sure to always create the spectator button first
+    PlayerPerspectiveButton *spectatorBtn = new PlayerPerspectiveButton();
+    spectatorBtn->SetProperties("Player_Spectator", startX, spectatorButtonY, buttonWidth, buttonHeight, 
+                               "Spectator", "View all teams (spectator perspective)", false, true);
+    spectatorBtn->SetPlayer(-1, -1, Colour(150, 150, 150, 255)); // grey
+    spectatorBtn->SetSelected(m_currentPerspective == -1);
+    RegisterButton(spectatorBtn);
+    
+    // create the buttons for the players in the game
+    int buttonIndex = 0; 
+    for( int i = 0; i < 6 && buttonIndex < 6; i++ ) // limit to 6 total buttons, in future for eight, ten and sixteen player we can make this higher
+    {
+        if( m_players[i].isActive )
+        {
+            char buttonId[32];
+            sprintf(buttonId, "Player_%d", i);
+            
+            PlayerPerspectiveButton *playerBtn = new PlayerPerspectiveButton();
+            playerBtn->SetProperties(buttonId, startX + (buttonIndex * buttonSpacing), playerButtonY, 
+                                   buttonWidth, buttonHeight, m_players[i].truncatedName, 
+                                   m_players[i].playerName, false, true);
+            playerBtn->SetPlayer(i, m_players[i].teamId, m_players[i].teamColour);
+            playerBtn->SetSelected(m_currentPerspective == i);
+            RegisterButton(playerBtn);
+            
+            buttonIndex++;
+        }
+    }
+}
+
+void PlaybackControlWindow::InitializePlayers()
+{
+    if( !g_app->GetWorld() || m_playersInitialized )
+        return;
+    
+    // reset player data
+    m_activePlayerCount = 0;
+    for( int i = 0; i < 6; i++ )
+    {
+        m_players[i].teamId = -1;
+        m_players[i].playerId = -1;
+        m_players[i].playerName[0] = '\0';
+        m_players[i].truncatedName[0] = '\0';
+        m_players[i].isActive = false;
+    }
+    
+    // scan all teams and collect player info
+    int playerIndex = 0;
+    for( int t = 0; t < g_app->GetWorld()->m_teams.Size() && playerIndex < 6; t++ )
+    {
+        Team *team = g_app->GetWorld()->m_teams[t];
+        if( team )
+        {
+            m_players[playerIndex].teamId = team->m_teamId;
+            m_players[playerIndex].playerId = team->m_teamId; // Use team ID as player ID for now
+            strncpy(m_players[playerIndex].playerName, team->m_name, sizeof(m_players[playerIndex].playerName) - 1);
+            m_players[playerIndex].playerName[sizeof(m_players[playerIndex].playerName) - 1] = '\0';
+            
+            // truncate name if its too long for the button
+            TruncatePlayerName(m_players[playerIndex].playerName, m_players[playerIndex].truncatedName, 50);
+            
+            m_players[playerIndex].teamColour = team->GetTeamColour();
+            m_players[playerIndex].isActive = true;
+            
+            playerIndex++;
+            m_activePlayerCount++;
+        }
+    }
+    
+    m_playersInitialized = true;
+}
+
+void PlaybackControlWindow::TruncatePlayerName( const char* fullName, char* truncatedName, int maxWidth )
+{
+    if( !fullName || !truncatedName )
+        return;
+    
+    // simple truncation, not the best way to do it
+    int maxChars = 8; // approximate max chars that fit in button width
+    int nameLen = strlen(fullName);
+    
+    if( nameLen <= maxChars )
+    {
+        strcpy(truncatedName, fullName);
+    }
+    else
+    {
+        strncpy(truncatedName, fullName, maxChars - 3);
+        truncatedName[maxChars - 3] = '\0';
+        strcat(truncatedName, "...");
+    }
+}
+
+void PlaybackControlWindow::SetPlayerPerspective( int playerIndex )
+{
+    if( playerIndex >= 0 && playerIndex < 6 && m_players[playerIndex].isActive )
+    {
+        m_currentPerspective = playerIndex;
+        
+        g_desiredPerspectiveTeamId = m_players[playerIndex].teamId;
+        g_app->GetWorld()->m_myTeamId = m_players[playerIndex].teamId;
+        g_app->GetWorld()->UpdateRadar(); // refresh
+        
+        RefreshPlayerButtons();
+    }
+}
+
+void PlaybackControlWindow::SetSpectatorPerspective()
+{
+    m_currentPerspective = -1;
+    g_desiredPerspectiveTeamId = -1;
+    g_app->GetWorld()->m_myTeamId = -1;
+    g_app->GetWorld()->UpdateRadar(); // refresh
+    RefreshPlayerButtons();
+}
+
+void PlaybackControlWindow::RefreshPlayerButtons()
+{
+    // update the spectator button selected state
+    PlayerPerspectiveButton *spectatorBtn = (PlayerPerspectiveButton*)GetButton("Player_Spectator");
+    if( spectatorBtn )
+    {
+        spectatorBtn->SetSelected(m_currentPerspective == -1);
+    }
+    
+    // now update the player buttons selected state
+    for( int i = 0; i < 6; i++ )
+    {
+        if( m_players[i].isActive )
+        {
+            char buttonId[32];
+            sprintf(buttonId, "Player_%d", i);
+            PlayerPerspectiveButton *playerBtn = (PlayerPerspectiveButton*)GetButton(buttonId);
+            if( playerBtn )
+            {
+                playerBtn->SetSelected(m_currentPerspective == i);
+            }
+        }
+    }
+}
+
+void PlaybackControlWindow::RefreshPlayerColors()
+{
+    // only refresh if players are initialized and we have world data!
+    if( !m_playersInitialized || !g_app->GetWorld() )
+        return;
+    
+    // update colors for all active players
+    for( int i = 0; i < 6; i++ )
+    {
+        if( m_players[i].isActive )
+        {
+            // find the team and get its current color
+            Team *team = g_app->GetWorld()->GetTeam(m_players[i].teamId);
+            if( team )
+            {
+                Colour newColour = team->GetTeamColour();
+                
+                // only update if color has changed
+                if( m_players[i].teamColour.m_r != newColour.m_r || 
+                    m_players[i].teamColour.m_g != newColour.m_g || 
+                    m_players[i].teamColour.m_b != newColour.m_b )
+                {
+                    m_players[i].teamColour = newColour;
+                    
+                    // now update the buttons color
+                    char buttonId[32];
+                    sprintf(buttonId, "Player_%d", i);
+                    PlayerPerspectiveButton *playerBtn = (PlayerPerspectiveButton*)GetButton(buttonId);
+                    if( playerBtn )
+                    {
+                        playerBtn->SetPlayer(i, m_players[i].teamId, newColour);
+                    }
+                }
+            }
+        }
+    }
 }
 
 void PlaybackControlWindow::Render(bool _hasFocus)
@@ -77,11 +281,21 @@ void PlaybackControlWindow::Render(bool _hasFocus)
     
     InterfaceWindow::Render(_hasFocus);
     
-    // Render progress bar (now smaller since we have seek bar)
+    // reinitialize players if not done yet, in case teams loaded after window creation
+    if( !m_playersInitialized && g_app->GetWorld() && g_app->GetWorld()->m_teams.Size() > 0 )
+    {
+        InitializePlayers();
+        // recreate window to add player buttons
+        Remove();
+        PlaybackControlWindow *newWindow = new PlaybackControlWindow();
+        EclRegisterWindow(newWindow);
+        return;
+    }
+    
     float progressX = m_x + 10;
     float progressY = m_y + 25;
     float progressW = m_w - 20;
-    float progressH = 6;  // Smaller than before
+    float progressH = 6;  
     
     // Background
     g_renderer->RectFill(progressX, progressY, progressW, progressH, Colour(50, 50, 50, 200));
@@ -97,8 +311,23 @@ void PlaybackControlWindow::Render(bool _hasFocus)
     // Progress text (cached for performance)
     g_renderer->TextCentreSimple(m_x + m_w/2, progressY - 3, Colour(200, 200, 200, 255), 10.0f, m_cachedProgressText);
     
-    // NEW: Seek bar label
     g_renderer->TextSimple(m_x + 10, m_y + 40, Colour(180, 180, 180, 255), 8.0f, "Seek:");
+    
+    // radar perspective label
+    char perspectiveText[64];
+    if( m_currentPerspective == -1 )
+    {
+        sprintf(perspectiveText, "Radar Perspective: Spectator View");
+    }
+    else if( m_currentPerspective >= 0 && m_currentPerspective < 6 && m_players[m_currentPerspective].isActive )
+    {
+        sprintf(perspectiveText, "Radar Perspective: %s", m_players[m_currentPerspective].playerName);
+    }
+    else
+    {
+        sprintf(perspectiveText, "Radar Perspective: Unknown");
+    }
+    g_renderer->TextSimple(m_x + 10, m_y + 115, Colour(180, 180, 180, 255), 8.0f, perspectiveText);
 }
 
 void PlaybackControlWindow::Update()
@@ -132,6 +361,8 @@ void PlaybackControlWindow::Update()
             m_lastRenderedTotalSeqIds = m_totalSeqIds;
         }
         
+        RefreshPlayerColors();
+        
         // Update pause state
         m_isPaused = g_app->GetServer()->IsRecordingPaused();
         
@@ -158,7 +389,6 @@ void PlaybackControlWindow::Update()
             }
         }
         
-        // NEW: Update seek bar
         SeekBar *seekBar = (SeekBar*)GetButton("SeekBar");
         if (seekBar) {
             seekBar->Update(); // Call Update to handle mouse interaction
@@ -196,7 +426,6 @@ void PlaybackControlWindow::UpdateProgress(int currentSeq, int totalSeq)
     m_totalSeqIds = totalSeq;
 }
 
-// NEW: Seek to a specific position in the recording
 void PlaybackControlWindow::SeekToPosition(float position)
 {
     if (!g_app->GetServer() || !g_app->GetServer()->IsRecordingPlaybackMode()) return;
@@ -246,7 +475,7 @@ void PlaybackControlWindow::SeekToPosition(float position)
             connectingWindow->SetFastForwardMode(true, targetSeqId, true); // true = isSeekMode
             EclRegisterWindow(connectingWindow);
         }
-        
+
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
         AppDebugOut("Seeking from sequence %d to %d (%.1f%% to %.1f%%)\n", 
                    currentSeqId, targetSeqId, 
@@ -325,9 +554,8 @@ void SpeedSlider::Render(int realX, int realY, bool highlighted, bool clicked)
     g_renderer->RectFill(thumbX, realY, 10, m_h, thumbCol);
     g_renderer->Rect(thumbX, realY, 10, m_h, Colour(200, 200, 200, 255));
     
-    // Static speed markers (rendered every frame but these are simple)
     g_renderer->TextSimple(realX, realY - 12, Colour(180, 180, 180, 255), 8.0f, "1x");
-    g_renderer->TextSimple(realX + m_w - 20, realY - 12, Colour(180, 180, 180, 255), 8.0f, "10x");
+    g_renderer->TextSimple(realX + m_w - 20, realY - 12, Colour(180, 180, 180, 255), 8.0f, "100x");
 }
 
 void SpeedSlider::Update()
@@ -358,8 +586,6 @@ float SpeedSlider::GetSpeedFromValue()
         return 1.0f; // Left side = 1x speed
     }
     
-    // Exponential curve for better control
-    // 0.0 -> 1x, 0.5 -> ~25x, 1.0 -> 10x
     float normalizedValue = m_value;
     return 1.0f + (99.0f * normalizedValue * normalizedValue);
 }
@@ -369,7 +595,6 @@ void SpeedSlider::SetValueFromSpeed(float speed)
     if (speed <= 1.0f) {
         m_value = 0.0f;
     } else {
-        // Inverse of GetSpeedFromValue calculation
         float normalizedSpeed = (speed - 1.0f) / 99.0f;
         m_value = sqrt(normalizedSpeed);
         m_value = max(0.0f, min(1.0f, m_value));
@@ -377,7 +602,7 @@ void SpeedSlider::SetValueFromSpeed(float speed)
 }
 
 // ============================================================================
-// NEW: Seek Bar
+// Seek Bar
 
 SeekBar::SeekBar()
 :   m_value(0.0f),
@@ -411,7 +636,6 @@ void SeekBar::MouseUp()
 
 void SeekBar::Render(int realX, int realY, bool highlighted, bool clicked)
 {
-    // Seek bar track
     Colour trackCol = Colour(60, 60, 60, 255);
     Colour thumbCol;
     
@@ -431,7 +655,6 @@ void SeekBar::Render(int realX, int realY, bool highlighted, bool clicked)
     float thumbX = realX + (m_value * (m_w - 6));
     g_renderer->RectFill(thumbX, realY, 6, m_h, thumbCol);
     g_renderer->Rect(thumbX, realY, 6, m_h, Colour(200, 200, 200, 255));
-    
 }
 
 void SeekBar::Update()
@@ -467,4 +690,74 @@ void SeekBar::SetProgress(float progress)
 float SeekBar::GetSeekPosition()
 {
     return m_value;
-} 
+}
+
+// ============================================================================
+// Player Perspective Button
+
+PlayerPerspectiveButton::PlayerPerspectiveButton()
+:   m_playerIndex(-1),
+    m_teamId(-1),
+    m_teamColour(Colour(150, 150, 150, 255)),
+    m_isSelected(false)
+{
+}
+
+void PlayerPerspectiveButton::SetPlayer( int playerIndex, int teamId, Colour teamColour )
+{
+    m_playerIndex = playerIndex;
+    m_teamId = teamId;
+    m_teamColour = teamColour;
+}
+
+void PlayerPerspectiveButton::SetSelected( bool selected )
+{
+    m_isSelected = selected;
+}
+
+void PlayerPerspectiveButton::MouseUp()
+{
+    PlaybackControlWindow *parent = (PlaybackControlWindow*)m_parent;
+    if( parent )
+    {
+        if( m_playerIndex == -1 )
+        {
+            parent->SetSpectatorPerspective();
+        }
+        else
+        {
+            parent->SetPlayerPerspective(m_playerIndex);
+        }
+    }
+}
+
+void PlayerPerspectiveButton::Render( int realX, int realY, bool highlighted, bool clicked )
+{
+    Colour buttonCol = m_teamColour;
+    
+    if( m_isSelected )
+    {
+        // selected button is brighter
+        buttonCol.m_a = 255;
+        g_renderer->RectFill(realX, realY, m_w, m_h, buttonCol);
+        g_renderer->Rect(realX, realY, m_w, m_h, Colour(255, 255, 255, 255), 2);
+    }
+    else if( highlighted || clicked )
+    {
+        // highlighted button
+        buttonCol.m_a = 200;
+        g_renderer->RectFill(realX, realY, m_w, m_h, buttonCol);
+        g_renderer->Rect(realX, realY, m_w, m_h, Colour(200, 200, 200, 255));
+    }
+    else
+    {
+        // normal button
+        buttonCol.m_a = 150;
+        g_renderer->RectFill(realX, realY, m_w, m_h, buttonCol);
+        g_renderer->Rect(realX, realY, m_w, m_h, Colour(120, 120, 120, 255));
+    }
+    
+    // button text
+    Colour textCol = m_isSelected ? Colour(255, 255, 255, 255) : Colour(220, 220, 220, 255);
+    g_renderer->TextCentreSimple(realX + m_w/2, realY + m_h/2 - 6, textCol, 8.0f, m_caption);
+}

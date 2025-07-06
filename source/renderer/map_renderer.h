@@ -265,6 +265,7 @@ public:
 	bool	GetShowAllWhiteBoards() const;
 	void	SetShowAllWhiteBoards( bool showAllWhiteBoards );
 	void    RenderWhiteBoard();
+	Team*   GetEffectiveWhiteBoardTeam();  // getter for perspective based whiteboard viewing
 	
 	// Debug menu functionality
 	RendererDebugMenu* GetDebugMenu() const { return m_debugMenu; }

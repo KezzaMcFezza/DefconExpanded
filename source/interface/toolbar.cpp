@@ -405,17 +405,33 @@ public:
 			ToggleBoolButton::MouseUp();
 
 			g_app->GetMapRenderer()->SetShowWhiteBoard ( m_toggleValue );
-			g_app->GetMapRenderer()->SetEditWhiteBoard ( !g_app->GetMapRenderer()->GetEditWhiteBoard() );
-
-			if ( g_app->GetMapRenderer()->GetEditWhiteBoard() )
+			
+			// disable editing during replay mode, its important its read only because
+            // that would be stupid if it wasnt
+			bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
+			if( !isReplayMode )
 			{
-				if( !EclGetWindow( "WhiteBoardPanel" ) )
+				g_app->GetMapRenderer()->SetEditWhiteBoard ( !g_app->GetMapRenderer()->GetEditWhiteBoard() );
+
+				if ( g_app->GetMapRenderer()->GetEditWhiteBoard() )
 				{
-					EclRegisterWindow( new WhiteBoardPanel( m_w, m_w * 1.2f ) );
+					if( !EclGetWindow( "WhiteBoardPanel" ) )
+					{
+						EclRegisterWindow( new WhiteBoardPanel( m_w, m_w * 1.2f ) );
+					}
+				}
+				else
+				{
+					if( EclGetWindow( "WhiteBoardPanel" ) )
+					{
+						EclRemoveWindow( "WhiteBoardPanel" );
+					}
 				}
 			}
 			else
 			{
+				// during replay, just toggle showing the whiteboard without enabling editing
+				g_app->GetMapRenderer()->SetEditWhiteBoard( false );
 				if( EclGetWindow( "WhiteBoardPanel" ) )
 				{
 					EclRemoveWindow( "WhiteBoardPanel" );
@@ -551,13 +567,22 @@ void Toolbar::Create()
     RegisterButton( nukes );
 
 #ifndef NON_PLAYABLE
-    if( isSpectator == -1 )
+    // enable whiteboard for non spectators in live games OR during replay mode
+    bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
+    if( isSpectator == -1 || isReplayMode )
     {
         bool supportWhiteBoard = VersionManager::DoesSupportWhiteBoard( g_app->GetClientToServer()->m_serverVersion );
         WhiteBoardButton *whiteBoard = new WhiteBoardButton();
         if ( supportWhiteBoard )
         {
-            whiteBoard->SetProperties( "WhiteBoard", x+=gap, y, iconSize, iconSize, "dialog_toolbar_white_board", "tooltip_toolbar_whiteboard", true, true );
+            if( isReplayMode )
+            {
+                whiteBoard->SetProperties( "WhiteBoard", x+=gap, y, iconSize, iconSize, "dialog_toolbar_white_board", "tooltip_toolbar_whiteboard_replay", true, true );
+            }
+            else
+            {
+                whiteBoard->SetProperties( "WhiteBoard", x+=gap, y, iconSize, iconSize, "dialog_toolbar_white_board", "tooltip_toolbar_whiteboard", true, true );
+            }
         }
         else
         {
