@@ -41,7 +41,7 @@ InterfaceZoomSpeed = 1.00
 InterfaceTextLanguage = english
  
 PlayerName = ReplayClient
-ServerName1 = New Game Server
+ServerName1 = 
 ServerName2 = 
 ServerName3 = 
 ServerName4 = 
@@ -54,7 +54,3 @@ ScreenAntiAliasing = 4
 ModPath = 
 InterfaceKeyboard = -1
 ShowFPS = 1
-WindowUnitCreation = 0.100.100.400
-WindowScores = 2390.0.170.178
-WindowToolbar = 1923.1375.637.65
-WindowWorldStatus = 1070.0.420.25
