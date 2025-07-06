@@ -915,7 +915,7 @@ void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float
     m_triangleVertices[m_triangleVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
 }
 
-// batched text rendering function, accumulates to text buffer instead of immediate flush
+// batched text rendering function - accumulates to text buffer instead of immediate flush
 void Renderer::BatchBlitChar(unsigned int textureID, float x, float y, float w, float h, 
                              float texX, float texY, float texW, float texH, Colour const &col) {
     // check if we need to flush due to texture change
@@ -1252,7 +1252,7 @@ bool Renderer::ShouldFlushThisFrame() {
     //    return true;
     //}
     
-    //return false;
+    return false; // return false so msvc does not shit itself, emscriptens compiler does not care about functions not returning values
 }
 
 void Renderer::ResetFrameCounters() {

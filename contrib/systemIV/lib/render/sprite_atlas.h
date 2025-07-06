@@ -5,6 +5,12 @@
 #define ATLAS_TEXTURE_WIDTH  412.0f
 #define ATLAS_TEXTURE_HEIGHT 1518.0f
 
+// undefine windows macro, since the atlas texture is defined as ERROR,
+// emscripten does not care about this as its not using windows headers
+#ifdef ERROR
+#undef ERROR
+#endif
+
 // Atlas coordinate structure
 struct AtlasCoord {
     float u1, v1, u2, v2;  // UV coordinates, normalized 0.0 - 1.0
