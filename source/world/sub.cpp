@@ -229,9 +229,6 @@ void Sub::Render()
                 dx *= -1;
             }       
 
-            // BATCHING FIX: Begin unit nuke icon batch for nuke indicators
-            g_renderer->BeginUnitNukeBatch();
-
             for( int i = 0; i < numNukesInStore; ++i )
             {
                 if( i >= (numNukesInStore-numNukesInQueue) )
@@ -242,9 +239,6 @@ void Sub::Render()
                 g_renderer->UnitNukeIcon( x, y, nukeSize, -nukeSize, colour );
                 x -= dx;
             }
-            
-            // BATCHING FIX: End unit nuke icon batch - flush all nuke indicators efficiently
-            g_renderer->EndUnitNukeBatch();
         }
     }
 }

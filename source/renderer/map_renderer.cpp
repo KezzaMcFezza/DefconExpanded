@@ -312,18 +312,56 @@ void MapRenderer::Render()
     {
         g_renderer->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
 
-        if( m_showPopulation )          RenderPopulationDensity();
+        //
+        // master scene batching, end all batching systems and flush
+        //
+
+        g_renderer->BeginUnitMainBatch();       // Main unit sprites + city icons
+        g_renderer->BeginUnitRotatingBatch();   // Rotating sprites (aircraft, nukes)
+        g_renderer->BeginUnitTrailBatch();      // Unit movement trails
+        g_renderer->BeginUnitStateBatch();      // Unit state icons (fighters/bombers on units)
+        g_renderer->BeginUnitNukeBatch();       // Small nuke icons on units
+        g_renderer->BeginUnitHighlightBatch();  // Unit selection highlights
+        g_renderer->BeginEffectsLineBatch();    // All line effects (waypoints, radar, etc.)
+        g_renderer->BeginEffectsSpriteBatch();  // All sprite effects (explosions, nukesymbols, population, radiation, etc.)
+
+        if( m_showPopulation )          
+        {
+            g_renderer->EndUnitStateBatch();
+            g_renderer->EndUnitNukeBatch();
+            g_renderer->EndUnitHighlightBatch();
+            
+            RenderPopulationDensity();
+            
+            g_renderer->BeginUnitStateBatch();
+            g_renderer->BeginUnitNukeBatch();
+            g_renderer->BeginUnitHighlightBatch();
+        }
         if( m_showNukeUnits )           RenderNukeUnits();
         
         RenderObjects();
         RenderGunfire();    
+        
+        g_renderer->EndUnitStateBatch();
+        g_renderer->EndUnitNukeBatch();
+        g_renderer->EndUnitHighlightBatch();
+        
         RenderCities(); 
+        
+        g_renderer->BeginUnitStateBatch();
+        g_renderer->BeginUnitNukeBatch();
+        g_renderer->BeginUnitHighlightBatch();
+        
         RenderBlips();        
         RenderWorldMessages();
 		RenderSanta();
 
         if( m_showRadar )               RenderRadar();
         RenderNodes();
+
+        g_renderer->EndUnitStateBatch();
+        g_renderer->EndUnitNukeBatch();
+        g_renderer->EndUnitHighlightBatch();
 
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
@@ -333,6 +371,7 @@ void MapRenderer::Render()
         bool showRadiation  = g_preferences->GetInt( PREFS_GRAPHICS_RADIATION );
         if( showRadiation )
         {
+            
             Image *boom = g_resource->GetImage( "graphics/population.bmp" );
             for( int i = 0; i < g_app->GetWorld()->m_radiation.Size(); ++i )
             {
@@ -341,11 +380,13 @@ void MapRenderer::Render()
                                     40+cosf(g_gameTime+i*1.5)*30,
                                     20+sinf(g_gameTime+i*1.1)*5);
                 Vector3<Fixed> *pos = (Vector3<Fixed> *)g_app->GetWorld()->m_radiation[i];
-                float angle = (g_gameTime+i) * 0.01f;
-                angle = 0;
-                g_renderer->Blit( boom, pos->x.DoubleValue(), pos->y.DoubleValue(), 15.0f, 15.0f, col, angle );
+                g_renderer->EffectsSprite( boom, pos->x.DoubleValue(), pos->y.DoubleValue(), 15.0f, 15.0f, col );
             }
         }
+        
+        g_renderer->BeginUnitStateBatch();
+        g_renderer->BeginUnitNukeBatch();
+        g_renderer->BeginUnitHighlightBatch();
 
         if( m_highlightUnit != -1 )
         {
@@ -353,6 +394,19 @@ void MapRenderer::Render()
         }
 
         RenderWhiteBoard();
+
+        //
+        // master scene batching, end all batching systems and flush
+        //
+
+        g_renderer->EndUnitTrailBatch();        // Flush all unit trails
+        g_renderer->EndEffectsSpriteBatch();    // Flush all sprite effects (explosions, cities, nukesymbols, population, radiation)
+        g_renderer->EndEffectsLineBatch();      // Flush all line effects (waypoints, radar)
+        g_renderer->EndUnitHighlightBatch();    // Flush all unit selection highlights (restarted after radiation)
+        g_renderer->EndUnitNukeBatch();         // Flush all small nuke icons (restarted after radiation)
+        g_renderer->EndUnitStateBatch();        // Flush all unit state icons (restarted after radiation)
+        g_renderer->EndUnitRotatingBatch();     // Flush all rotating sprites (atlas batching!)
+        g_renderer->EndUnitMainBatch();         // Flush all main unit sprites + city icons (atlas batching!)
 
         left += GetLongitudeMod();
         right += GetLongitudeMod();
@@ -363,6 +417,12 @@ void MapRenderer::Render()
     for( int x = 0; x < 2; ++x )
     {
         g_renderer->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
+        
+        // begin batching for cursor targets and mouse UI
+        // this fixes the blend issue with the cursor target sprite
+        g_renderer->BeginUnitRotatingBatch(); 
+        g_renderer->BeginEffectsSpriteBatch();   
+        
         if( IsMouseInMapRenderer() )
         {
             RenderMouse();
@@ -375,11 +435,16 @@ void MapRenderer::Render()
                 RenderPlacementDetails();
             }
         }
+        
+        g_renderer->SetBlendMode( Renderer::BlendModeAdditive );  // ensure correct blend mode for cursor targets
+        g_renderer->EndEffectsSpriteBatch(); 
+        g_renderer->EndUnitRotatingBatch();      
+        g_renderer->SetBlendMode( Renderer::BlendModeNormal );    // reset blend mode after flush
+        
         left += GetLongitudeMod();
         right += GetLongitudeMod();
     }
 
-    // PHASE 6.1.1 OPTIMIZATION: Flush any remaining batched images at end of frame
     g_renderer->FlushVertices(GL_TRIANGLES, true);
 
     END_PROFILE( "MapRenderer" );
@@ -451,10 +516,6 @@ void MapRenderer::RenderExplosions()
     START_PROFILE( "Explosions" );
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
-    // BATCHING FIX: Begin effects sprite batch for all explosions
-    // This will batch all explosion sprites into texture-based batches
-    g_renderer->BeginEffectsSpriteBatch();
-    
     for( int i = 0; i < g_app->GetWorld()->m_explosions.Size(); ++i )
     {
         if( g_app->GetWorld()->m_explosions.ValidIndex(i) )
@@ -472,9 +533,6 @@ void MapRenderer::RenderExplosions()
         }
     }
     
-    // BATCHING FIX: End effects sprite batch - flush all explosion sprites
-    // This reduces explosions from N draw calls to 1-2 draw calls (by texture)
-    g_renderer->EndEffectsSpriteBatch();
     
     END_PROFILE( "Explosions" );
 }
@@ -482,10 +540,6 @@ void MapRenderer::RenderExplosions()
 
 void MapRenderer::RenderAnimations()
 {
-    // BATCHING FIX: Begin effects batching for all animations
-    // Line effects for sonar pings, sprite effects for action markers/nuke pointers
-    g_renderer->BeginEffectsLineBatch();
-    g_renderer->BeginEffectsSpriteBatch();
     
     for( int i = 0; i < m_animations.Size(); ++i )
     {
@@ -500,10 +554,6 @@ void MapRenderer::RenderAnimations()
         }
     }
     
-    // BATCHING FIX: End effects batching - flush all animated effects
-    // This reduces animations from N draw calls to 2 draw calls (lines + sprites)
-    g_renderer->EndEffectsSpriteBatch();
-    g_renderer->EndEffectsLineBatch();
 }
 
 
@@ -568,7 +618,7 @@ void MapRenderer::RenderCountryControl()
                     strupr(teamName);
 
                     g_renderer->SetFont( "kremlin", true );
-                    g_renderer->TextCentreSimple( populationCentre.x, populationCentre.y, White, 7, teamName );
+                    g_renderer->TextCentreSimpleBatch( populationCentre.x, populationCentre.y, White, 7, teamName );
                     g_renderer->SetFont();
                 }              
             }
@@ -612,9 +662,6 @@ void MapRenderer::RenderGunfire()
 
     int myTeamId = g_app->GetWorld()->m_myTeamId;
 
-    // BATCHING FIX: Begin effects line batch for all gunfire trails
-    // This will batch all gunfire line segments into a single draw call
-    g_renderer->BeginEffectsLineBatch();
 
     for( int i = 0; i < g_app->GetWorld()->m_gunfire.Size(); ++i )
     {
@@ -632,9 +679,6 @@ void MapRenderer::RenderGunfire()
         }
     }
 
-    // BATCHING FIX: End effects line batch - flush all accumulated gunfire lines
-    // This reduces gunfire from ~600 draw calls to just 1 draw call
-    g_renderer->EndEffectsLineBatch();
 
     END_PROFILE( "Gunfire" );
 }
@@ -1616,9 +1660,9 @@ void MapRenderer::RenderMouse()
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
         Image *img = g_resource->GetImage( "graphics/cursor_target.bmp" );
-        g_renderer->Blit( img, actionCursorLongitude, actionCursorLatitude, 
-                            actionCursorSize, actionCursorSize, 
-                            actionCursorCol, actionCursorAngle );
+        g_renderer->UnitRotating( img, actionCursorLongitude, actionCursorLatitude, 
+                                 actionCursorSize, actionCursorSize, 
+                                 actionCursorCol, actionCursorAngle );
 
         //
         // Render problem messages with target
@@ -1637,16 +1681,16 @@ void MapRenderer::RenderMouse()
 					char caption[128];
                     strcpy( caption, LANGUAGEPHRASE("dialog_mapr_defcon_x_required") );
 					LPREPLACEINTEGERFLAG( 'D', defconRequired, caption );
-                    g_renderer->TextCentreSimple( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, caption );
+                    g_renderer->TextCentreSimpleBatch( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, caption );
                     break;
                 }
 
                 case WorldObject::TargetTypeOutOfRange:
-                    g_renderer->TextCentreSimple( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, LANGUAGEPHRASE("dialog_mapr_out_of_range") );
+                    g_renderer->TextCentreSimpleBatch( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, LANGUAGEPHRASE("dialog_mapr_out_of_range") );
                     break;
 
                 case WorldObject::TargetTypeOutOfStock:
-                    g_renderer->TextCentreSimple( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, LANGUAGEPHRASE("dialog_mapr_empty") );
+                    g_renderer->TextCentreSimpleBatch( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, LANGUAGEPHRASE("dialog_mapr_empty") );
                     break;
             }
             g_renderer->SetFont();
@@ -1685,9 +1729,9 @@ void MapRenderer::RenderMouse()
             if( lineY < 0.0f ) angle += M_PI;
 
             g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-            g_renderer->Blit( img, actionCursorLongitude, actionCursorLatitude, 
-                              spawnUnitSize/2.0f, spawnUnitSize/2.0f, 
-                              spawnUnitCol, angle );           
+            g_renderer->UnitRotating( img, actionCursorLongitude, actionCursorLatitude, 
+                                     spawnUnitSize/2.0f, spawnUnitSize/2.0f, 
+                                     spawnUnitCol, angle );           
         }
 
 
@@ -2093,7 +2137,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 if( renderTooltip )
                 {
                     g_renderer->SetFont( "kremlin", true );
-                    g_renderer->TextCentreSimple( predictedLongitude, predictedLatitude+range, col, 1, LANGUAGEPHRASE("dialog_mapr_combat_range") );
+                                            g_renderer->TextCentreSimpleBatch( predictedLongitude, predictedLatitude+range, col, 1, LANGUAGEPHRASE("dialog_mapr_combat_range") );
                     g_renderer->SetFont();
                 }
             }
@@ -2115,7 +2159,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     if( renderTooltip )
                     {
                         g_renderer->SetFont( "kremlin", true );
-                        g_renderer->TextCentreSimple( predictedLongitude, predictedLatitude+predictedRange, col, 1, LANGUAGEPHRASE("dialog_mapr_fuel_range") );
+                        g_renderer->TextCentreSimpleBatch( predictedLongitude, predictedLatitude+predictedRange, col, 1, LANGUAGEPHRASE("dialog_mapr_fuel_range") );
                         g_renderer->SetFont();
                     }
                 }
@@ -2496,12 +2540,6 @@ void MapRenderer::RenderObjects()
 
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
-    // TEXTURE-BASED BATCHING: Begin all unit batching systems for massive performance gain
-    // This will batch all unit sprites by texture, reducing 200+ draw calls to ~10 draw calls
-    g_renderer->BeginUnitMainBatch();
-    g_renderer->BeginUnitRotatingBatch();  // Aircraft, nukes, and rotated sprites (including cursor targets)
-    g_renderer->BeginUnitTrailBatch();     // Unit movement history trails
-    g_renderer->BeginEffectsLineBatch();   // Waypoint lines - reduces 6000+ draw calls to 1!
      
     for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
     {
@@ -2564,7 +2602,7 @@ void MapRenderer::RenderObjects()
 						char caption[128];
                         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_queue") );
 						LPREPLACEINTEGERFLAG( 'N', wobj->m_numNukesInQueue, caption );
-                        g_renderer->TextCentreSimple( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
+                        g_renderer->TextCentreSimpleBatch( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
                         yPos += 0.5f;
                     }
 
@@ -2574,7 +2612,7 @@ void MapRenderer::RenderObjects()
 						char caption[128];
                         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_flight") );
 						LPREPLACEINTEGERFLAG( 'N', wobj->m_numNukesInFlight, caption );
-                        g_renderer->TextCentreSimple( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
+                        g_renderer->TextCentreSimpleBatch( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
                     }
 
                     g_renderer->SetFont();                
@@ -2585,12 +2623,6 @@ void MapRenderer::RenderObjects()
         }
     }
     
-    // TEXTURE-BASED BATCHING: End all unit batching systems
-    // This flushes all accumulated unit data by texture in efficient batches
-    g_renderer->EndUnitTrailBatch();      // Flush all unit trails in one draw call
-    g_renderer->EndUnitRotatingBatch();   // Flush all rotating sprites in texture batches (including cursor targets)
-    g_renderer->EndUnitMainBatch();       // Flush all main unit sprites in texture batches
-    g_renderer->EndEffectsLineBatch();    // Flush all waypoint lines in one draw call (6000+ lines → 1 call!)
 
 #ifndef NON_PLAYABLE
     WorldObject *selection = g_app->GetWorld()->GetWorldObject(m_currentSelectionId);
@@ -2711,10 +2743,10 @@ void MapRenderer::RenderCities()
                 }                            
                 col.m_a = 200.0f * ( 1.0f - min(0.8f, m_zoomFactor) );
                             
-                g_renderer->Blit( cityImg,
-                                  city->m_longitude.DoubleValue()-size/2, 
-                                  city->m_latitude.DoubleValue()-size/2,
-                                  size, size, col );
+                g_renderer->UnitMainSprite( cityImg,
+                                           city->m_longitude.DoubleValue()-size/2, 
+                                           city->m_latitude.DoubleValue()-size/2,
+                                           size, size, col );
 
             
                 //
@@ -2730,7 +2762,7 @@ void MapRenderer::RenderCities()
                     if( city->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer->Blit( img, city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
+                    g_renderer->EffectsSprite( img, city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue(), iconSize, iconSize, col );
 
                     float yPos = city->m_latitude.DoubleValue()+1.6f;
                     if( city->m_numNukesInQueue )
@@ -2739,7 +2771,7 @@ void MapRenderer::RenderCities()
 						char caption[128];
                         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_queue") );
 						LPREPLACEINTEGERFLAG( 'N', city->m_numNukesInQueue, caption );
-                        g_renderer->TextCentreSimple( city->m_longitude.DoubleValue(), yPos, col, textSize, caption );
+                        g_renderer->TextCentreSimpleBatch( city->m_longitude.DoubleValue(), yPos, col, textSize, caption );
                         yPos += 0.5f;
                     }
 
@@ -2749,7 +2781,7 @@ void MapRenderer::RenderCities()
 						char caption[128];
 						strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_flight") );
 						LPREPLACEINTEGERFLAG( 'N', city->m_numNukesInFlight, caption );
-                        g_renderer->TextCentreSimple( city->m_longitude.DoubleValue(), yPos, col, textSize, caption );
+                        g_renderer->TextCentreSimpleBatch( city->m_longitude.DoubleValue(), yPos, col, textSize, caption );
                     }
                 }
             }            
@@ -2771,6 +2803,9 @@ void MapRenderer::RenderCities()
         cityColour.m_a      = 200.0f * (1.0f - sqrtf(m_zoomFactor));
         countryColour.m_a   = 200.0f * (1.0f - sqrtf(m_zoomFactor));
 
+        // begin text batching as this was the main culprit for immediate draw calls
+        g_renderer->BeginMapTextBatch();
+
         for( int i = 0; i < g_app->GetWorld()->m_cities.Size(); ++i )
         {
             City *city = g_app->GetWorld()->m_cities.GetData(i);
@@ -2786,17 +2821,20 @@ void MapRenderer::RenderCities()
                         textSize *= textSize * 0.5;
                         textSize *= sqrtf( sqrtf( m_zoomFactor ) ) * 0.8f;
 
-                        g_renderer->TextCentreSimple( city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue(), cityColour, textSize, LANGUAGEPHRASEADDITIONAL(city->m_name) );
+                        g_renderer->TextCentreSimpleBatch( city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue(), cityColour, textSize, LANGUAGEPHRASEADDITIONAL(city->m_name) );
                     }                
 
                     if( showCountryNames && city->m_capital )
                     {
                         float countrySize = textSize;
-                        g_renderer->TextCentreSimple( city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue()-textSize, countryColour, countrySize, LANGUAGEPHRASEADDITIONAL(city->m_country) );
+                        g_renderer->TextCentreSimpleBatch( city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue()-textSize, countryColour, countrySize, LANGUAGEPHRASEADDITIONAL(city->m_country) );
                     }
                 }
             }
         }
+
+        // end it
+        g_renderer->EndMapTextBatch();
     }
 
 	g_renderer->SetFont();
@@ -2823,9 +2861,9 @@ void MapRenderer::RenderPopulationDensity()
                 Colour col = g_app->GetWorld()->GetTeam(city->m_teamId)->GetTeamColour();
                 col.m_a = 255.0f * min( 1.0f, city->m_population / 10000000.0f );
                                     
-                g_renderer->Blit( g_resource->GetImage( "graphics/population.bmp" ),
-                                            city->m_longitude.DoubleValue()-size/2, city->m_latitude.DoubleValue()-size/2,
-                                            size, size, col );
+                g_renderer->EffectsSprite( g_resource->GetImage( "graphics/population.bmp" ),
+                                                  city->m_longitude.DoubleValue()-size/2, city->m_latitude.DoubleValue()-size/2,
+                                                  size, size, col );
             }
         }
     }

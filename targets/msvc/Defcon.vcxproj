@@ -497,7 +497,10 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\colour.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\renderer.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_3d.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_buffers.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_vbo.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\sprite_atlas.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\styletable.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmap.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.cpp" />
@@ -661,6 +664,7 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\renderer3d.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_3d.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\sprite_atlas.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\styletable.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmap.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.h" />

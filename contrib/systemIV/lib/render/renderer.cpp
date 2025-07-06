@@ -131,8 +131,6 @@ Renderer::Renderer()
       m_currentMegaVBOKey(NULL),
       m_megaVertices(NULL),
       m_megaVertexCount(0),
-      m_frameCounter(0),
-      m_lastFlushTime(GetHighResTime()),
       m_allowImmedateFlush(true) {
     
     // Initialize specialized buffer counters
@@ -493,6 +491,36 @@ void Renderer::TextSimple(float x, float y, Colour const &col, float size, const
     }
 }
 
+void Renderer::TextSimpleBatch(float x, float y, Colour const &col, float size, const char *text) {
+    BitmapFont *font = g_resource->GetBitmapFont(m_currentFontFilename);
+    if (font) {
+        font->SetSpacing(GetFontSpacing(m_currentFontName));
+    } else {
+        font = g_resource->GetBitmapFont(m_defaultFontFilename);
+        if (font) {
+            font->SetSpacing(GetFontSpacing(m_defaultFontName));
+        }
+    }
+
+    if (font) {    
+        font->SetHoriztonalFlip(m_horizFlip);
+        font->SetFixedWidth(m_fixedWidth);
+        
+        // blend mode is handled in FlushTextBuffer, just accumulate text
+        font->DrawText2DSimpleBatch(x, y, size, text, col);
+    }
+}
+
+void Renderer::TextCentreSimpleBatch(float x, float y, Colour const &col, float size, const char *text) {
+    float actualX = x - TextWidth(text, size) / 2.0f;
+    TextSimpleBatch(actualX, y, col, size, text);
+}
+
+void Renderer::TextRightSimpleBatch(float x, float y, Colour const &col, float size, const char *text) {
+    float actualX = x - TextWidth(text, size);
+    TextSimpleBatch(actualX, y, col, size, text);
+}
+
 float Renderer::TextWidth(const char *text, float size) {
     BitmapFont *font = g_resource->GetBitmapFont(m_currentFontFilename);
     if (font) {
@@ -791,18 +819,19 @@ void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     
-    float onePixelW = 1.0f / (float) src->Width();
-    float onePixelH = 1.0f / (float) src->Height();
+    // Get UV coordinates - atlas sprites use specific regions, others use full texture
+    float u1, v1, u2, v2;
+    GetImageUVCoords(src, u1, v1, u2, v2);
     
     // First triangle: TL, TR, BR
-    m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, onePixelW, 1.0f - onePixelH};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y, r, g, b, a, 1.0f - onePixelW, 1.0f - onePixelH};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, 1.0f - onePixelW, onePixelH};
+    m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, u1, v2};
+    m_triangleVertices[m_triangleVertexCount++] = {x + w, y, r, g, b, a, u2, v2};
+    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
     
     // Second triangle: TL, BR, BL
-    m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, onePixelW, 1.0f - onePixelH};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, 1.0f - onePixelW, onePixelH};
-    m_triangleVertices[m_triangleVertexCount++] = {x, y + h, r, g, b, a, onePixelW, onePixelH};
+    m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, u1, v2};
+    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
+    m_triangleVertices[m_triangleVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
     
     FlushTriangles(true);
 }
@@ -840,18 +869,19 @@ void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     
-    float onePixelW = 1.0f / (float) src->Width();
-    float onePixelH = 1.0f / (float) src->Height();
+    // get UV coordinates, atlas sprites use specific regions, others use full texture
+    float u1, v1, u2, v2;
+    GetImageUVCoords(src, u1, v1, u2, v2);
     
     // first triangle: vert1, vert2, vert3
-    m_triangleVertices[m_triangleVertexCount++] = {vert1.x, vert1.y, r, g, b, a, onePixelW, 1.0f - onePixelH};
-    m_triangleVertices[m_triangleVertexCount++] = {vert2.x, vert2.y, r, g, b, a, 1.0f - onePixelW, 1.0f - onePixelH};
-    m_triangleVertices[m_triangleVertexCount++] = {vert3.x, vert3.y, r, g, b, a, 1.0f - onePixelW, onePixelH};
+    m_triangleVertices[m_triangleVertexCount++] = {vert1.x, vert1.y, r, g, b, a, u1, v2};
+    m_triangleVertices[m_triangleVertexCount++] = {vert2.x, vert2.y, r, g, b, a, u2, v2};
+    m_triangleVertices[m_triangleVertexCount++] = {vert3.x, vert3.y, r, g, b, a, u2, v1};
     
     // second triangle: vert1, vert3, vert4
-    m_triangleVertices[m_triangleVertexCount++] = {vert1.x, vert1.y, r, g, b, a, onePixelW, 1.0f - onePixelH};
-    m_triangleVertices[m_triangleVertexCount++] = {vert3.x, vert3.y, r, g, b, a, 1.0f - onePixelW, onePixelH};
-    m_triangleVertices[m_triangleVertexCount++] = {vert4.x, vert4.y, r, g, b, a, onePixelW, onePixelH};
+    m_triangleVertices[m_triangleVertexCount++] = {vert1.x, vert1.y, r, g, b, a, u1, v2};
+    m_triangleVertices[m_triangleVertexCount++] = {vert3.x, vert3.y, r, g, b, a, u2, v1};
+    m_triangleVertices[m_triangleVertexCount++] = {vert4.x, vert4.y, r, g, b, a, u1, v1};
     
     FlushTriangles(true);
 }
@@ -883,6 +913,37 @@ void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float
     m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, u1, v2};
     m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
     m_triangleVertices[m_triangleVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
+}
+
+// batched text rendering function, accumulates to text buffer instead of immediate flush
+void Renderer::BatchBlitChar(unsigned int textureID, float x, float y, float w, float h, 
+                             float texX, float texY, float texW, float texH, Colour const &col) {
+    // check if we need to flush due to texture change
+    if (m_currentTextTexture != 0 && m_currentTextTexture != textureID) {
+        FlushTextBuffer();
+    }
+    
+    // check if we need to flush due to buffer full
+    if (m_textVertexCount + 6 > MAX_TEXT_VERTICES) {
+        FlushTextBuffer();
+    }
+    
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    // set current texture for batching
+    m_currentTextTexture = textureID;
+    
+    float u1 = texX, v1 = texY, u2 = texX + texW, v2 = texY + texH;
+    
+    // first triangle: TL, TR, BR
+    m_textVertices[m_textVertexCount++] = {x, y, r, g, b, a, u1, v2};
+    m_textVertices[m_textVertexCount++] = {x + w, y, r, g, b, a, u2, v2};
+    m_textVertices[m_textVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
+    
+    // second triangle: TL, BR, BL
+    m_textVertices[m_textVertexCount++] = {x, y, r, g, b, a, u1, v2};
+    m_textVertices[m_textVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
+    m_textVertices[m_textVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
 }
 
 void Renderer::SaveScreenshot() {

@@ -6,6 +6,7 @@
 #include "lib/filesys/file_system.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/binary_stream_readers.h"
+#include "lib/render/sprite_atlas.h"
 
 #include "bitmap.h"
 #include "image.h"
@@ -83,4 +84,83 @@ void Image::MakeTexture( bool mipmapping, bool masked )
 Colour Image::GetColour( int pixelX, int pixelY )
 {
     return m_bitmap->GetPixelClipped( pixelX, pixelY );
+}
+
+
+// static members for shared atlas texture
+Image* AtlasImage::s_atlasTexture = NULL;
+int AtlasImage::s_atlasRefCount = 0;
+
+AtlasImage::AtlasImage(const AtlasCoord* atlasCoord)
+:   Image((Bitmap*)NULL),  // dont load individual bitmap
+    m_atlasCoord(atlasCoord)
+{
+    // only initialize shared atlas texture if needed
+    if (s_atlasTexture == NULL) {
+        InitializeAtlasTexture();
+    }
+    s_atlasRefCount++;
+    
+    // copy atlas texture ID to this instance
+    m_textureID = s_atlasTexture->m_textureID;
+    m_mipmapping = s_atlasTexture->m_mipmapping;
+    
+    // dont create individual bitmap, we use the shared atlas
+    m_bitmap = NULL;
+}
+
+AtlasImage::~AtlasImage()
+{
+    m_textureID = -1;
+    
+    s_atlasRefCount--;
+    if (s_atlasRefCount <= 0) {
+        CleanupAtlasTexture();
+    }
+}
+
+int AtlasImage::Width()
+{
+    if (m_atlasCoord) {
+        return m_atlasCoord->width;
+    }
+    return 0;
+}
+
+int AtlasImage::Height()
+{
+    if (m_atlasCoord) {
+        return m_atlasCoord->height;
+    }
+    return 0;
+}
+
+unsigned int AtlasImage::GetAtlasTextureID() const
+{
+    return s_atlasTexture ? s_atlasTexture->m_textureID : 0;
+}
+
+void AtlasImage::InitializeAtlasTexture()
+{
+    if (s_atlasTexture != NULL) {
+        return; 
+    }
+    
+    // load the atlas texture using the standard image loading
+    char atlasPath[256];
+    strcpy(atlasPath, "data/");
+    strcat(atlasPath, SpriteAtlas::GetAtlasTexturePath());
+    
+    s_atlasTexture = new Image(atlasPath);
+    s_atlasTexture->MakeTexture(true, true);
+    s_atlasRefCount = 0;
+}
+
+void AtlasImage::CleanupAtlasTexture()
+{
+    if (s_atlasTexture != NULL && s_atlasRefCount <= 0) {
+        delete s_atlasTexture;
+        s_atlasTexture = NULL;
+        s_atlasRefCount = 0;
+    }
 }

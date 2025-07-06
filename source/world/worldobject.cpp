@@ -449,9 +449,7 @@ void WorldObject::RenderCounter( int counter )
         g_renderer->Text( predictedLongitude + ( size / 5 ) - xModifier, predictedLatitude + ( size ), 
                 White, size, num );
 
-        g_renderer->BeginUnitNukeBatch();
         g_renderer->UnitNukeIcon( predictedLongitude - textWidth, predictedLatitude + ( size * 1.75f), size * 0.75f, size * -0.75f, White );
-        g_renderer->EndUnitNukeBatch();
     }
 
    // g_app->GetRenderer()->Text( m_longitude + ( size / 5 ) +  + g_app->GetRenderer()->GetMapRenderer()->GetLongitudeMod(), m_latitude + ( size / 5 ), 

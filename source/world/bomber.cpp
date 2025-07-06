@@ -498,15 +498,12 @@ void Bomber::Render()
 
         float size = GetSize().DoubleValue() * 0.4f;
         
-        // BATCHING FIX: Use batched rotated nuke icon rendering instead of legacy Blit
-        g_renderer->BeginUnitNukeBatch();
         g_renderer->UnitNukeIcon( predictedLongitude + m_vel.x.DoubleValue() * 4, 
                                   predictedLatitude + m_vel.y.DoubleValue() * 4,
                                   size/2, 
                                   size/2, 
                                   colour, 
                                   angle );
-        g_renderer->EndUnitNukeBatch();
     }
 }
 

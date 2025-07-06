@@ -798,7 +798,12 @@ void App::Render()
 
     g_renderer->ClearScreen( true, false );
     g_renderer->BeginScene();
-    
+
+    //
+    // Scene level text batching if we have the batched text functions in the scene
+    //
+
+    g_renderer->BeginFrameTextBatch();
     
     //
     // World map
@@ -855,6 +860,11 @@ void App::Render()
     RenderOwner(); 
 #endif
 
+    //
+    // End the text batching
+    //
+
+    g_renderer->EndFrameTextBatch();
 
     //
     // Flip

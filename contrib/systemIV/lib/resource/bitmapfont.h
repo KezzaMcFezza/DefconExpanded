@@ -38,6 +38,7 @@ public:
 
     void DrawText2DSimple( float _x, float _y, float _size, char const *_text );
     void DrawText2DSimple( float _x, float _y, float _size, char const *_text, class Colour const &_col );
+    void DrawText2DSimpleBatch( float _x, float _y, float _size, char const *_text, class Colour const &_col );
     void DrawText2D      ( float _x, float _y, float _size, char const *_text, ... );	// Like simple but with variable args
     void DrawText2DRight ( float _x, float _y, float _size, char const *_text, ... );	// Like above but with right justify
     void DrawText2DCentre( float _x, float _y, float _size, char const *_text, ... );	// Like above but with centre justify
