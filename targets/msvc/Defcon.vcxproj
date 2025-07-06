@@ -603,6 +603,7 @@
     <ClCompile Include="..\..\source\world\whiteboard.cpp" />
     <ClCompile Include="..\..\source\world\world.cpp" />
     <ClCompile Include="..\..\source\world\worldobject.cpp" />
+    <ClCompile Include="..\..\source\world\worldsnapshot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\contrib\SystemIV\interface\components\checkbox.h" />
@@ -772,6 +773,7 @@
     <ClInclude Include="..\..\source\world\whiteboard.h" />
     <ClInclude Include="..\..\source\world\world.h" />
     <ClInclude Include="..\..\source\world\worldobject.h" />
+    <ClInclude Include="..\..\source\world\worldsnapshot.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\data\effects.txt" />

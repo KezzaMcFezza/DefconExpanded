@@ -4,6 +4,9 @@
 #include "interface/components/core.h"
 #include "world/world.h"
 
+// global variable for team perspective switching
+extern int g_desiredPerspectiveTeamId;
+
 class PlaybackControlWindow : public InterfaceWindow
 {
 private:
@@ -18,6 +21,22 @@ private:
     int m_lastRenderedTotalSeqIds;      // Track when progress text needs updating
     float m_updateTimer;                // Throttle update frequency
     
+    // Player perspective system
+    struct PlayerInfo
+    {
+        int teamId;
+        int playerId;
+        char playerName[64];             // Player name for button display
+        char truncatedName[32];          // Truncated name for button (with ... if needed)
+        Colour teamColour;
+        bool isActive;
+    };
+    
+    PlayerInfo m_players[6];             // Max 6 players in DEFCON
+    int m_activePlayerCount;             // Number of active players
+    int m_currentPerspective;            // -1 = spectator view, 0-5 = player index
+    bool m_playersInitialized;           // Whether player data has been scanned
+    
 public:
     PlaybackControlWindow();
     
@@ -29,7 +48,15 @@ public:
     void TogglePause();
     void SetSpeed( float speed );
     void UpdateProgress( int currentSeq, int totalSeq );
-    void SeekToPosition( float position );  // NEW: Seek to position (0.0 to 1.0)
+    void SeekToPosition( float position );  // Seek to position (0.0 to 1.0)
+    
+    // Player perspective methods
+    void InitializePlayers();            // Scan teams and detect players
+    void SetPlayerPerspective( int playerIndex );  // Switch to player view
+    void SetSpectatorPerspective();      // Switch to spectator view (see all)
+    void RefreshPlayerButtons();         // Update button states after perspective change
+    void RefreshPlayerColors();          // Update player colors when alliances change
+    void TruncatePlayerName( const char* fullName, char* truncatedName, int maxWidth );
     
     // Should only show during recording playback
     bool ShouldRender();
@@ -48,7 +75,7 @@ public:
 class SpeedSlider : public InterfaceButton
 {
 public:
-    float m_value;  // 0.0 to 1.0, where 0.0 = 1x speed, 1.0 = 500x speed
+    float m_value;  
     bool m_dragging;
     
 public:
@@ -63,7 +90,6 @@ public:
     void SetValueFromSpeed( float speed ); // Convert speed to slider position
 };
 
-// NEW: Seek bar for navigating through recording
 class SeekBar : public InterfaceButton
 {
 public:
@@ -85,4 +111,22 @@ public:
     void SetSeeking( bool seeking ) { m_seeking = seeking; }
 };
 
-#endif 
+// player perspective button for switching radar views
+class PlayerPerspectiveButton : public InterfaceButton
+{
+public:
+    int m_playerIndex;       // -1 = spectator view, 0-5 = player index
+    int m_teamId;            // actual team ID for this player
+    Colour m_teamColour;     // color of this players team
+    bool m_isSelected;       // whether this perspective is currently active
+    
+public:
+    PlayerPerspectiveButton();
+    
+    void SetPlayer( int playerIndex, int teamId, Colour teamColour );
+    void SetSelected( bool selected );
+    void MouseUp();
+    void Render( int realX, int realY, bool highlighted, bool clicked );
+};
+
+#endif

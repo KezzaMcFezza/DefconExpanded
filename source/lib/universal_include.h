@@ -4,9 +4,13 @@
 // REMOVE ME
 //#define TRACK_SYNC_RAND
 
+#if TARGET_EMSCRIPTEN
 #define APP_NAME        "Beta"
-
-#define	APP_VERSION		"1.00"
+#define	APP_VERSION		"1.38"
+#else
+#define APP_NAME        "Defcon"
+#define	APP_VERSION		"1.64 STEAM"
+#endif
 
 // #define ENABLE_SANTA_EASTEREGG
 

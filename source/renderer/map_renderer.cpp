@@ -4924,8 +4924,9 @@ void MapRenderer::RenderWhiteBoard()
 		return;
 	}
 
-	Team *myTeam = g_app->GetWorld()->GetMyTeam();
-	if( !myTeam )
+	// Get effective team for whiteboard viewing - use perspective team if set, otherwise myTeam
+	Team *effectiveTeam = GetEffectiveWhiteBoardTeam();
+	if( !effectiveTeam )
 	{
 		return;
 	}
@@ -4937,8 +4938,8 @@ void MapRenderer::RenderWhiteBoard()
     {
         Team *team = g_app->GetWorld()->m_teams[ i ];
 
-		if ( ( m_showAllWhiteBoards && g_app->GetWorld()->IsFriend ( myTeam->m_teamId, team->m_teamId ) ) || 
-		     myTeam->m_teamId == team->m_teamId )
+		if ( ( m_showAllWhiteBoards && g_app->GetWorld()->IsFriend ( effectiveTeam->m_teamId, team->m_teamId ) ) || 
+		     effectiveTeam->m_teamId == team->m_teamId )
 		{
 			WhiteBoard *whiteBoard = &g_app->GetWorld()->m_whiteBoards[ team->m_teamId ];
 			char whiteboardname[32];
@@ -4988,6 +4989,28 @@ void MapRenderer::RenderWhiteBoard()
 	}
 
 	END_PROFILE( "WhiteBoard" );
+}
+
+Team* MapRenderer::GetEffectiveWhiteBoardTeam()
+{
+	// during replay mode use selected perspective team if available
+	if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
+	{
+		// lets grab the global variable from playback control window
+		extern int g_desiredPerspectiveTeamId;
+		
+		if( g_desiredPerspectiveTeamId != -1 )
+		{
+			Team *perspectiveTeam = g_app->GetWorld()->GetTeam(g_desiredPerspectiveTeamId);
+			if( perspectiveTeam )
+			{
+				return perspectiveTeam;
+			}
+		}
+	}
+	
+	// fall back to normal behavior, use myTeam
+	return g_app->GetWorld()->GetMyTeam();
 }
 
 void MapRenderer::RenderSanta()

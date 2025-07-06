@@ -52,6 +52,7 @@
 #include "interface/connecting_window.h"
 #include "interface/interface.h"
 #include "interface/badkey_window.h"
+#include "interface/playback_control_window.h"
 
 #ifdef TARGET_OS_MACOSX
 #include "lib/netlib/net_mutex.h"
@@ -431,13 +432,22 @@ bool ProcessServerLetters( Directory *letter )
         int clientId = letter->GetDataInt(NET_DEFCON_CLIENTID);        
         int teamId   = letter->GetDataInt(NET_DEFCON_TEAMID);
         int teamType = letter->GetDataInt(NET_DEFCON_TEAMTYPE);
-
+    
+        // override teamId if we are in replay mode, this way we can manipulate it to see other teams radar perspective
+        if( g_app->GetServer() && g_app->GetServer()->m_recordingPlaybackMode )
+        {
+            if( g_desiredPerspectiveTeamId != -1 )
+            {
+                teamId = g_desiredPerspectiveTeamId;
+            }
+        }
+    
         if( teamType != Team::TypeAI &&
             clientId != g_app->GetClientToServer()->m_clientId )
         {
             teamType = Team::TypeRemotePlayer;
         }
-
+    
         g_app->GetWorld()->InitialiseTeam(teamId, teamType, clientId );
         return true;
     }
