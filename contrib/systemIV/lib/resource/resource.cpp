@@ -8,6 +8,7 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/bitmapfont.h"
 #include "lib/resource/image.h"
+#include "lib/render/sprite_atlas.h"
 
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/filesys/file_system.h"
@@ -85,6 +86,19 @@ Image *Resource::GetImage( const char *filename )
     }
     else
     {
+        // check if this is an atlas sprite first
+        if( SpriteAtlas::IsAtlasSprite(filename) )
+        {
+            const AtlasCoord* coord = SpriteAtlas::GetSpriteCoord(filename);
+            if( coord )
+            {
+                image = new AtlasImage(coord);
+                m_imageCache.PutData( fullFilename, image );
+                return image;
+            }
+        }
+        
+        // not an atlas sprite, load normally
         image = new Image( fullFilename );
         m_imageCache.PutData( fullFilename, image );
         image->MakeTexture( true, true );

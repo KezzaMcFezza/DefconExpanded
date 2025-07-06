@@ -323,6 +323,10 @@ void ChatWindow::RenderTeams()
 
         //
         // Players
+        //
+        // Begin text batching for all team and spectator names
+        //
+        g_renderer->BeginTextBatch();
 
         for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
         {
@@ -369,7 +373,7 @@ void ChatWindow::RenderTeams()
 					strcpy ( &name[8], "..." );
 				}
 				
-                g_renderer->TextSimple( x, y, col, 14.0f, name );
+                g_renderer->TextSimpleBatch( x, y, col, 14.0f, name );
 
                 if( !g_app->GetWorld()->IsChatMessageVisible( team->m_teamId, m_channel, false ) )
                 {
@@ -387,7 +391,7 @@ void ChatWindow::RenderTeams()
         if( g_app->GetWorld()->m_spectators.Size() > 0 )
         {
             y += 15;
-            g_renderer->Text( x, y, Colour(255,255,255,255*m_alpha), 12, LANGUAGEPHRASE("dialog_chat_spectators") );
+            g_renderer->TextSimpleBatch( x, y, Colour(255,255,255,255*m_alpha), 12, LANGUAGEPHRASE("dialog_chat_spectators") );
             y += 13;
 
             for( int i = 0; i < g_app->GetWorld()->m_spectators.Size(); ++i )
@@ -401,7 +405,7 @@ void ChatWindow::RenderTeams()
                 col.m_a *= m_alpha;
 
                 Spectator *spec = g_app->GetWorld()->m_spectators[i];
-                g_renderer->TextSimple( x, y, col, 10, spec->m_name );
+                g_renderer->TextSimpleBatch( x, y, col, 10, spec->m_name );
 
                 if( m_channel < CHATCHANNEL_PUBLIC )
                 {
@@ -411,6 +415,9 @@ void ChatWindow::RenderTeams()
                 y += 11;
             }
         }
+        
+        // end it
+        g_renderer->EndTextBatch();
     }
 }
 
@@ -451,6 +458,9 @@ void ChatWindow::RenderMessages()
     }
     
     int extraLines = 0;
+
+    // text batching for all chat messages, channel names, and player names
+    g_renderer->BeginTextBatch();
 
     for( int i = 0; i <= g_app->GetWorld()->m_chat.Size(); i++ )
     {
@@ -528,7 +538,7 @@ void ChatWindow::RenderMessages()
                 
                 if( y >= 0 && y <= g_windowManager->WindowH() )
                 {
-                    g_renderer->TextSimple( xPos, y, teamCol, 12, wrapped[w] );
+                    g_renderer->TextSimpleBatch( xPos, y, teamCol, 12, wrapped[w] );
                 }
                 if( w>0) y -= h;
             }
@@ -539,15 +549,14 @@ void ChatWindow::RenderMessages()
             {                
                 if( channelName[0] != '\x0' )
                 {
-                    g_renderer->TextSimple( x, y, White, 12, channelName );
+                    g_renderer->TextSimpleBatch( x, y, White, 12, channelName );
                     textX += channelNameTextWidth;
                     textX += 5;
                 }
 
                 if( !action )
                 {
-                    g_renderer->Text( textX, y, teamCol, 12, "%s:", chatMsg->m_playerName );
-                    g_renderer->Text( textX, y, teamCol, 12, "%s:", chatMsg->m_playerName );                
+                    g_renderer->TextSimpleBatch( textX, y, teamCol, 12, chatMsg->m_playerName );                
                 }
             
                 y -=h;
@@ -555,6 +564,8 @@ void ChatWindow::RenderMessages()
         }
     }
 
+    // end it
+    g_renderer->EndTextBatch();
     g_renderer->ResetClip();
     
     if( g_keys[KEY_ENTER] && g_keyDeltas[KEY_ENTER])
@@ -629,10 +640,12 @@ void ChatWindow::Render( bool _hasFocus )
     if( strlen(m_message) < 1 )
     {
         EclButton *input = GetButton("Msg");
-        g_renderer->Text( m_x + input->m_x + 5, 
-                          m_y + input->m_y + 3 ,
-                          Colour(255,255,255,50),
-                          14, GetChannelName(m_channel,true) );
+        g_renderer->BeginTextBatch();
+        g_renderer->TextSimpleBatch( m_x + input->m_x + 5, 
+                                    m_y + input->m_y + 3 ,
+                                    Colour(255,255,255,50),
+                                    14, GetChannelName(m_channel,true) );
+        g_renderer->EndTextBatch();
     }
 }
 

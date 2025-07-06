@@ -4,9 +4,9 @@
 // REMOVE ME
 //#define TRACK_SYNC_RAND
 
-#define APP_NAME        "Alpha"
+#define APP_NAME        "Beta"
 
-#define	APP_VERSION		"1.83"
+#define	APP_VERSION		"1.00"
 
 // #define ENABLE_SANTA_EASTEREGG
 

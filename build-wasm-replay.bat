@@ -4,6 +4,7 @@ echo Building Defcon WebAssembly Release (Replay Viewer Mode)...
 call C:\emsdk\emsdk_env.bat > nul 2>&1
 
 set ORIGINAL_DIR=%CD%
+set NINJA_PATH=%ORIGINAL_DIR%\tools\ninja.exe
 if not exist build\wasm-replay-release mkdir build\wasm-replay-release
 cd /d %ORIGINAL_DIR%\build\wasm-replay-release
 
@@ -17,6 +18,7 @@ python %EMSDK%/upstream/emscripten/emcmake.py cmake ^
     -DCMAKE_CXX_FLAGS_RELEASE="-O3 -flto -ffast-math -funroll-loops -fvectorize -DNDEBUG" ^
     -DCMAKE_C_FLAGS_RELEASE="-O3 -flto -ffast-math -funroll-loops -fvectorize -DNDEBUG" ^
     -DENABLE_EMSCRIPTEN_REPLAY_VIEWER=ON ^
+    -DCMAKE_MAKE_PROGRAM="%NINJA_PATH%" ^
     -G "Ninja" ^
     "%ORIGINAL_DIR%" > nul
 
@@ -28,7 +30,7 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo Building...
-python %EMSDK%/upstream/emscripten/emmake.py ninja 2>&1 | findstr /V "warning:"
+python %EMSDK%/upstream/emscripten/emmake.py "%NINJA_PATH%" 2>&1 | findstr /V "warning:"
 set BUILD_RESULT=%ERRORLEVEL%
 
 cd /d %ORIGINAL_DIR%

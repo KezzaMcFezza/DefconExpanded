@@ -241,17 +241,20 @@
  
  public:
      // shader creation for 3D renderer
-     unsigned int CreateShader   ( const char* vertexSource, const char* fragmentSource );
-     
-     // flush method for font batching optimization
-     void FlushVertices          ( unsigned int primitiveType, bool useTexture = false );
+         unsigned int CreateShader   ( const char* vertexSource, const char* fragmentSource );
+    
+    // atlas sprite support helpers
+    void GetImageUVCoords       ( Image* image, float& u1, float& v1, float& u2, float& v2 );
+    unsigned int GetEffectiveTextureID( Image* image );
+    
+    // flush method for font batching optimization
+    void FlushVertices          ( unsigned int primitiveType, bool useTexture = false );
      
      // batching system controls
      void SetTextureBatching     ( bool enabled ) { m_batchingTextures = enabled; }
      bool IsTextureBatchingEnabled() const { return m_batchingTextures; }
      
      // Frame management
-     void IncrementFrame() { m_frameCounter++; }
      void SetImmediateFlush      ( bool enabled ) { m_allowImmedateFlush = enabled; }
      bool IsImmediateFlushEnabled() const { return m_allowImmedateFlush; }
      void BeginFrame();
@@ -385,6 +388,9 @@
      void    TextSimple          ( float x, float y, Colour const &col, float size, const char *text );
      void    TextCentreSimple    ( float x, float y, Colour const &col, float size, const char *text );
      void    TextRightSimple     ( float x, float y, Colour const &col, float size, const char *text );
+     void    TextSimpleBatch     ( float x, float y, Colour const &col, float size, const char *text );
+     void    TextCentreSimpleBatch( float x, float y, Colour const &col, float size, const char *text );
+     void    TextRightSimpleBatch ( float x, float y, Colour const &col, float size, const char *text );
      
      float   TextWidth           ( const char *text, float size );
      float   TextWidth           ( const char *text, unsigned int textLen, float size, BitmapFont *bitmapFont );
@@ -430,6 +436,8 @@
      void    Blit                ( Image *src, float x, float y, float w, float h, Colour const &col, float angle );
      void    BlitChar            ( unsigned int textureID, float x, float y, float w, float h, 
                                    float texX, float texY, float texW, float texH, Colour const &col );
+     void    BatchBlitChar       ( unsigned int textureID, float x, float y, float w, float h, 
+                                   float texX, float texY, float texW, float texH, Colour const &col );
  
      void    BeginUIBatch        ();
      void    EndUIBatch          ();
@@ -437,6 +445,14 @@
      void    EndTextBatch        ();
      void    BeginSpriteBatch    ();
      void    EndSpriteBatch      ();
+     
+     // map-specific text batching methods
+     void    BeginMapTextBatch   ();
+     void    EndMapTextBatch     ();
+     
+     // frame-level text batching for entire scene
+     void    BeginFrameTextBatch ();
+     void    EndFrameTextBatch   ();
      
      // unit trail/movement history rendering
      void    BeginUnitTrailBatch ();
