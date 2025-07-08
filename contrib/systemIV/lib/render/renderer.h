@@ -39,6 +39,11 @@
  {
  private:
      // micro batching system - allows the debug menu to track the number of draw calls per frame
+     // this system could be abolished, but realistically to maintain mod compatiblity its bet we keep it
+     // as mods do not contain texture atlases for the units. this ensures backwards compatibility
+     // without using the old blit system. to be honest claude done a good job with the micro
+     // batching system so i see no reason to optimise it anymore.
+     
      enum BufferType {
          BUFFER_UI_TRIANGLES,           // UI rectangles, buttons, panels, not yet implemented with batching
          BUFFER_UI_LINES,               // UI borders, grids, wireframes, not yet implemented with batching
@@ -69,6 +74,7 @@
      static const int MAX_UNIT_NUKE_VERTICES = 20000;
      static const int MAX_EFFECTS_LINE_VERTICES = 150000;
      static const int MAX_EFFECTS_SPRITE_VERTICES = 100000;
+     static const int MAX_HEALTH_BAR_VERTICES = 50000;
  
  protected:
      char    *m_defaultFontName;
@@ -155,6 +161,10 @@
      int m_effectsSpriteVertexCount;
      unsigned int m_currentEffectsSpriteTexture;
      
+     // health bar rendering buffer
+     Vertex2D m_healthBarVertices[MAX_HEALTH_BAR_VERTICES];
+     int m_healthBarVertexCount;
+     
      // flush control, more of a global way to disable batching
      bool m_allowImmedateFlush;
      
@@ -225,6 +235,7 @@
      // effect rendering flush methods
      void FlushEffectsLines();
      void FlushEffectsSprites();
+     void FlushHealthBars();
      void FlushEffectsLinesIfFull( int segmentsNeeded );
      
      // buffer overflow management
@@ -282,6 +293,7 @@
      int m_unitNukeIconCalls;
      int m_effectsLineCalls;
      int m_effectsSpriteCalls;
+     int m_healthBarCalls;
      int m_prevDrawCallsPerFrame;
      int m_prevLegacyTriangleCalls;
      int m_prevLegacyLineCalls;
@@ -298,6 +310,7 @@
      int m_prevUnitNukeIconCalls;
      int m_prevEffectsLineCalls;
      int m_prevEffectsSpriteCalls;
+     int m_prevHealthBarCalls;
      
      // start over
      void ResetFrameCounters();
@@ -320,11 +333,12 @@
      int GetUnitNukeIconCalls() const { return m_prevUnitNukeIconCalls; }
      int GetEffectsLineCalls() const { return m_prevEffectsLineCalls; }
      int GetEffectsSpriteCalls() const { return m_prevEffectsSpriteCalls; }
+     int GetHealthBarCalls() const { return m_prevHealthBarCalls; }
      
      // combined draw call counters
      int GetTotalUnitCalls() const { 
          return m_prevUnitTrailCalls + m_prevUnitMainSpriteCalls + m_prevUnitRotatingCalls + m_prevUnitHighlightCalls + 
-                m_prevUnitStateIconCalls + m_prevUnitCounterCalls + m_prevUnitNukeIconCalls; 
+                m_prevUnitStateIconCalls + m_prevUnitCounterCalls + m_prevUnitNukeIconCalls + m_prevHealthBarCalls; 
      }
      int GetTotalEffectCalls() const { 
          return m_prevEffectsLineCalls + m_prevEffectsSpriteCalls; 
@@ -501,6 +515,11 @@
      void    BeginEffectsSpriteBatch();
      void    EffectsSprite       ( Image *src, float x, float y, float w, float h, Colour const &col );
      void    EndEffectsSpriteBatch();
+     
+     // health bar rendering
+     void    BeginHealthBarBatch ();
+     void    HealthBarRect       ( float x, float y, float w, float h, Colour const &col );
+     void    EndHealthBarBatch   ();
  
  protected:
  };

@@ -33,6 +33,7 @@ BattleShip::BattleShip()
     m_range = Fixed::MAX;
     m_movementType = MovementTypeSea;    
     m_life = 3;
+    m_maxLife = 3; // new variable for the health bar system
 
     m_ghostFadeTime = 150;
 

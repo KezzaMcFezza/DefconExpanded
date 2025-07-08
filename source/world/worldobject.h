@@ -1,4 +1,3 @@
-
 #ifndef _included_worldobject_h
 #define _included_worldobject_h
 
@@ -52,6 +51,7 @@ public:
     Fixed   m_longitude;
     Fixed   m_latitude;
     int     m_life;                                     // Cities population, or 1/0 for sea units, or 0-30 for ground units
+    int     m_maxLife;                                  // Maximum life value for health bar calculations
 	int		m_lastHitByTeamId;
     bool    m_selectable;
     
@@ -122,6 +122,7 @@ public:
 
     virtual bool        Update          ();
     virtual void        Render          ();
+    virtual void        RenderHealthBar ();
     
 	virtual void		RunAI			();
 

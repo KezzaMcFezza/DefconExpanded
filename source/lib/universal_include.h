@@ -6,8 +6,11 @@
 
 #if TARGET_EMSCRIPTEN
 #define APP_NAME        "Beta"
-#define	APP_VERSION		"1.38"
+#define	APP_VERSION		"1.45"
 #else
+// its worth noting that using this version string alongside the gunfire and
+// retarget patch violates the license agreement! what ever you do, do not try
+// to connect to a steam lobby when building the desktop client!
 #define APP_NAME        "Defcon"
 #define	APP_VERSION		"1.64 STEAM"
 #endif

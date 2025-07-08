@@ -161,6 +161,9 @@ Renderer::Renderer()
     m_effectsSpriteVertexCount = 0;
     m_currentEffectsSpriteTexture = 0;
     
+    // Health bar rendering buffer
+    m_healthBarVertexCount = 0;
+    
     // Initialize performance counters
     m_drawCallsPerFrame = 0;
     m_legacyTriangleCalls = 0;
@@ -178,6 +181,7 @@ Renderer::Renderer()
     m_unitNukeIconCalls = 0;
     m_effectsLineCalls = 0;
     m_effectsSpriteCalls = 0;
+    m_healthBarCalls = 0;
     
     // Initialize previous frame counters
     m_prevDrawCallsPerFrame = 0;
@@ -196,6 +200,7 @@ Renderer::Renderer()
     m_prevUnitNukeIconCalls = 0;
     m_prevEffectsLineCalls = 0;
     m_prevEffectsSpriteCalls = 0;
+    m_prevHealthBarCalls = 0;
     
     // Initialize OpenGL components
     InitializeShaders();
@@ -1273,6 +1278,7 @@ void Renderer::ResetFrameCounters() {
     m_prevUnitNukeIconCalls = m_unitNukeIconCalls;
     m_prevEffectsLineCalls = m_effectsLineCalls;
     m_prevEffectsSpriteCalls = m_effectsSpriteCalls;
+    m_prevHealthBarCalls = m_healthBarCalls;
     
     // reset current frame counters
     m_drawCallsPerFrame = 0;
@@ -1291,6 +1297,7 @@ void Renderer::ResetFrameCounters() {
     m_unitNukeIconCalls = 0;
     m_effectsLineCalls = 0;
     m_effectsSpriteCalls = 0;
+    m_healthBarCalls = 0;
 }
 
 // i know the infamous if else block, shut up
@@ -1327,6 +1334,8 @@ void Renderer::IncrementDrawCall(const char* bufferType) {
         m_effectsLineCalls++;
     } else if (strcmp(bufferType, "effects_sprites") == 0) {
         m_effectsSpriteCalls++;
+    } else if (strcmp(bufferType, "health_bars") == 0) {
+        m_healthBarCalls++;
     }
 }
 

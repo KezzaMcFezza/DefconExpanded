@@ -44,6 +44,7 @@ WorldObject::WorldObject()
     m_type(TypeInvalid),
     m_radarRange(0),
     m_life(1),
+    m_maxLife(1),
 	m_lastHitByTeamId( -1 ),
     m_selectable(false),
     m_currentState(0),
@@ -417,6 +418,86 @@ void WorldObject::Render ()
             }
         }
         colour.m_a /= 2;
+    }
+    
+    RenderHealthBar();
+}
+
+void WorldObject::RenderHealthBar()
+{
+    // only render if the user has enabled the health bars
+    extern bool g_healthBarsEnabled;
+    if( !g_healthBarsEnabled )
+    {
+        return;
+    }
+    
+    // Only render health bar if the unit is alive and has an m_maxLife value, and its m_life is greater than 1
+    if( m_life <= 0 || m_type == TypeCity || m_maxLife <= 1 )
+    {
+        return;
+    }
+
+    // calculate health percentage
+    float healthPercentage = (float)m_life / (float)m_maxLife;
+    if( healthPercentage > 1.0f ) healthPercentage = 1.0f;
+
+    // get unit position and size
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
+    float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
+    float unitSize = GetSize().DoubleValue();
+
+    // health bar positioned below the unit
+    float barWidth = unitSize * 1.5f;
+    float barHeight = unitSize * 0.15f; 
+    float barX = predictedLongitude - barWidth * 0.5f;
+    float barY = predictedLatitude - unitSize * 0.8f; 
+    
+    // adjust positioning for specific unit types
+    if( m_type == TypeBattleShip )
+    {
+        barY -= 0.1f; // slightly lower for battleships
+    }
+    else if( m_type == TypeSilo )
+    {
+        barY -= 1.3f; // much lower for silos
+    }
+    else if( m_type == TypeCarrier )
+    {
+        barY -= 0.25f; // a bit lower for carriers
+    }
+    else if ( m_type == TypeAirBase )
+    {
+        barY -= 0.4f; // proper spacing for airbases
+    }
+    
+    Colour bgColour(0, 0, 0, 180);
+    g_renderer->HealthBarRect(barX, barY, barWidth, barHeight, bgColour);
+    
+    float damagePercentage = 1.0f - healthPercentage;
+    if( damagePercentage > 0 )
+    {
+        float damageBarWidth = barWidth * damagePercentage;
+        Colour damageColour(255, 0, 0, 200); // red for damage
+        g_renderer->HealthBarRect(barX + barWidth - damageBarWidth, barY, damageBarWidth, barHeight, damageColour);
+    }
+    
+    if( healthPercentage > 0 )
+    {
+        float healthBarWidth = barWidth * healthPercentage;
+        Colour healthColour(0, 255, 0, 200); // green for health
+        
+        if( healthPercentage < 0.3f )
+        {
+            healthColour.Set(255, 128, 0, 200); // orange for low health
+        }
+        else if( healthPercentage < 0.6f )
+        {
+            healthColour.Set(255, 255, 0, 200); // yellow for if the health is not 100 percent
+        }
+        
+        g_renderer->HealthBarRect(barX, barY, healthBarWidth, barHeight, healthColour);
     }
 }
 
