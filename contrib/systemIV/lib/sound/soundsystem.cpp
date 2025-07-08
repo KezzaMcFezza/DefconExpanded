@@ -22,10 +22,6 @@
 #include "sound_library_3d_software.h"
 #endif
 
-#ifdef TARGET_EMSCRIPTEN
-#include "sound_library_webassembly.h"
-#endif
-
 #define SOUNDSYSTEM_UPDATEPERIOD    0.05f
 
 //#define SOUNDSYSTEM_VERIFY                        // Define this to make the sound system
@@ -60,7 +56,7 @@ SoundSystem::~SoundSystem()
 
     delete g_soundLibrary3d;
     g_soundLibrary3d = NULL;
-#if !defined(TARGET_MSVC) && !defined(TARGET_EMSCRIPTEN)
+#ifndef TARGET_MSVC
 	delete g_soundLibrary2d;
 	g_soundLibrary2d = NULL;
 #endif
@@ -93,7 +89,7 @@ void SoundSystem::RestartSoundLibrary()
 	delete [] m_channels;
 	delete g_soundLibrary3d;
 	g_soundLibrary3d = NULL;
-#if !defined(TARGET_MSVC) && !defined(TARGET_EMSCRIPTEN)
+#ifndef TARGET_MSVC
 	delete g_soundLibrary2d;
 	g_soundLibrary2d = NULL;
 #endif
@@ -108,14 +104,7 @@ void SoundSystem::RestartSoundLibrary()
     int hw3d            = g_preferences->GetInt("SoundHW3D", 0);
     const char *libName       = g_preferences->GetString("SoundLibrary", "dsound");
 
-#ifdef TARGET_EMSCRIPTEN
-    // WebAssembly sound system - Web Audio API replaces SDL
-    #ifdef EMSCRIPTEN_SOUND_TESTBED
-        AppDebugOut("SoundSystem: Using WebAssembly sound system (Web Audio API)\n");
-#endif
-    g_soundLibrary2d = nullptr;  // Not needed - Web Audio API handles 2D/3D
-    g_soundLibrary3d = new SoundLibraryWebAssembly();
-#elif defined(TARGET_MSVC)
+#ifdef TARGET_MSVC
 	g_soundLibrary3d = new SoundLibrary3dDirectSound();
 #else
 	g_soundLibrary2d = new SoundLibrary2dSDL();

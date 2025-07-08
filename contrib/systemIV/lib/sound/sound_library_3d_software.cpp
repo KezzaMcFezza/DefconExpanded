@@ -285,32 +285,31 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
 
 
 void SoundLibrary3dSoftware::MixStereo(signed short *_inBuf, unsigned int _numSamples,
-                                        float _volLeft, float _volRight, float _relativeFreq, unsigned int _bufSize )
+                                       float _volLeft, float _volRight, float _relativeFreq )
 {
     float *left = m_left;
     float *right = m_right;
     int nearestSample;
-    
+
     for (int j = 0; j < _numSamples; ++j)
     {
         nearestSample = (int)(j * 2 * _relativeFreq);
         if( nearestSample % 2 == 1 ) nearestSample += 1;
-        
+
         *left += (float)_inBuf[nearestSample] * _volLeft;
-        *right += (float)_inBuf[nearestSample + 1] * _volRight;
-        
-        left++; right++;
+        *right += (float)_inBuf[nearestSample+1] * _volRight;
+        left++;	right++;
     }
 }
 
 
 void SoundLibrary3dSoftware::MixSameFreqFixedVol(signed short *_inBuf, unsigned int _numSamples,
-											 	 float _volLeft, float _volRight, unsigned int _bufSize)
+											 	 float _volLeft, float _volRight)
 {
+	float *finalLeft = &m_left[_numSamples - 1];
 	float *left = m_left;
 	float *right = m_right;
-
-	for (int j = 0; j < _numSamples; ++j)
+	while (left <= finalLeft)
 	{
 		*left += (float)*_inBuf * _volLeft;
 		*right += (float)*_inBuf * _volRight;
@@ -320,7 +319,7 @@ void SoundLibrary3dSoftware::MixSameFreqFixedVol(signed short *_inBuf, unsigned 
 
 
 void SoundLibrary3dSoftware::MixDiffFreqFixedVol(signed short *_inBuf, unsigned int _numSamples, 
-												 float _volLeft, float _volRight, float _relativeFreq, unsigned int _bufSize)
+												 float _volLeft, float _volRight, float _relativeFreq)
 {
 	float *left = m_left;
 	float *right = m_right;
@@ -337,7 +336,7 @@ void SoundLibrary3dSoftware::MixDiffFreqFixedVol(signed short *_inBuf, unsigned 
 
 
 void SoundLibrary3dSoftware::MixSameFreqRampVol(signed short *_inBuf, unsigned int _numSamples, 
-												float _volL1, float _volR1, float _volL2, float _volR2, unsigned int _bufSize)
+												float _volL1, float _volR1, float _volL2, float _volR2)
 {
 	float volLeft = _volL1;
 	float volRight = _volR1;
@@ -346,7 +345,6 @@ void SoundLibrary3dSoftware::MixSameFreqRampVol(signed short *_inBuf, unsigned i
 	float *finalLeft = &m_left[_numSamples - 1];
 	float *left = m_left;
 	float *right = m_right;
-	
 	while (left <= finalLeft)
 	{
 		*left += (float)*_inBuf * volLeft;
@@ -360,7 +358,7 @@ void SoundLibrary3dSoftware::MixSameFreqRampVol(signed short *_inBuf, unsigned i
 
 void SoundLibrary3dSoftware::MixDiffFreqRampVol(signed short *_inBuf, unsigned int _numSamples,
 												float _volL1, float _volR1, float _volL2, float _volR2, 
-												float _relativeFreq, unsigned int _bufSize)
+												float _relativeFreq)
 {
 	float volLeft = _volL1;
 	float volRight = _volR1;
@@ -372,14 +370,8 @@ void SoundLibrary3dSoftware::MixDiffFreqRampVol(signed short *_inBuf, unsigned i
 	for (int j = 0; j < _numSamples; ++j)
 	{
 		nearestSample = (int)(j * _relativeFreq);	// Was using Round()
-		
-		// Bounds check to prevent buffer overflow - critical for Emscripten/WebGL
-		if (nearestSample >= 0 && nearestSample < (int)_bufSize) {
-			*left += (float)_inBuf[nearestSample] * volLeft;
-			*right += (float)_inBuf[nearestSample] * volRight;
-		}
-		// If out of bounds, we simply skip adding to the output (effectively silence)
-		
+		*left += (float)_inBuf[nearestSample] * volLeft;
+		*right += (float)_inBuf[nearestSample] * volRight;
 		left++;	right++;
 		volLeft += volLeftInc;
 		volRight += volRightInc;
@@ -432,17 +424,17 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 			// Determine which mixer function to use - some are faster than others
 			if( i >= m_numChannels - m_numMusicChannels )
             {
-                MixStereo(inBuf, _numSamples, volLeft, volRight, relativeFreq, m_channels[i].m_samplesInBuffer );
+                MixStereo(inBuf, _numSamples, volLeft, volRight, relativeFreq );
             }
             else if (fabsf(deltaVolLeft) < maxDelta && fabsf(deltaVolRight) < maxDelta)
 			{
 				if (NearlyEquals(relativeFreq, 1.0f))
 				{
-					MixSameFreqFixedVol(inBuf, _numSamples, volLeft, volRight, m_channels[i].m_samplesInBuffer );
+					MixSameFreqFixedVol(inBuf, _numSamples, volLeft, volRight);
 				}
 				else
 				{
-					MixDiffFreqFixedVol(inBuf, _numSamples, volLeft, volRight, relativeFreq, m_channels[i].m_samplesInBuffer );
+					MixDiffFreqFixedVol(inBuf, _numSamples, volLeft, volRight, relativeFreq);
 				}
 			}
 			else
@@ -451,13 +443,13 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 				{
 					MixSameFreqRampVol(inBuf, _numSamples, 
 									   m_channels[i].m_oldVolLeft, m_channels[i].m_oldVolRight,
-									   volLeft, volRight, m_channels[i].m_samplesInBuffer );
+									   volLeft, volRight);
 				}
 				else
 				{
 					MixDiffFreqRampVol(inBuf, _numSamples, 
 									   m_channels[i].m_oldVolLeft, m_channels[i].m_oldVolRight,
-									   volLeft, volRight, relativeFreq, m_channels[i].m_samplesInBuffer );
+									   volLeft, volRight, relativeFreq);
 				}
 			}
 		}

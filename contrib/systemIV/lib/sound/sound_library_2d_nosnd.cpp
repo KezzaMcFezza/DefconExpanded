@@ -2,8 +2,9 @@
 
 #include "lib/debug_utils.h"
 #include "lib/preferences.h"
+#include "lib/system_info.h"
 
-#include "sound_library_2d.h"
+#include "sound/sound_library_2d.h"
 
 /*
 static HWAVEOUT	s_device;
@@ -21,7 +22,7 @@ SoundLibrary2d *g_soundLibrary2d = NULL;
 
 //FILE *out = NULL;
 #include "app.h"
-#include "soundsystem.h"
+#include "sound/soundsystem.h"
 #include "lib/hi_res_time.h"
 
 /*
