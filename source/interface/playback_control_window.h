@@ -7,6 +7,9 @@
 // global variable for team perspective switching
 extern int g_desiredPerspectiveTeamId;
 
+// global variable for health bar visibility
+extern bool g_healthBarsEnabled;
+
 class PlaybackControlWindow : public InterfaceWindow
 {
 private:
@@ -20,6 +23,9 @@ private:
     int m_lastRenderedSeqId;            // Track when progress text needs updating
     int m_lastRenderedTotalSeqIds;      // Track when progress text needs updating
     float m_updateTimer;                // Throttle update frequency
+    
+    // Health bar toggle state
+    bool m_healthBarsEnabled;
     
     // Player perspective system
     struct PlayerInfo
@@ -50,6 +56,9 @@ public:
     void UpdateProgress( int currentSeq, int totalSeq );
     void SeekToPosition( float position );  // Seek to position (0.0 to 1.0)
     
+    // Health bar toggle
+    void ToggleHealthBars();
+    
     // Player perspective methods
     void InitializePlayers();            // Scan teams and detect players
     void SetPlayerPerspective( int playerIndex );  // Switch to player view
@@ -66,6 +75,13 @@ public:
 // Control buttons
 
 class PlayPauseButton : public InterfaceButton
+{
+public:
+    void MouseUp();
+    void Render( int realX, int realY, bool highlighted, bool clicked );
+};
+
+class HealthToggleButton : public InterfaceButton
 {
 public:
     void MouseUp();

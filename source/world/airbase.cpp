@@ -33,6 +33,7 @@ AirBase::AirBase()
     m_selectable = false;  
 
     m_life = 15;
+    m_maxLife = 15; // new variable for the health bar system
     m_nukeSupply = 10;
 
     m_maxFighters = 10;

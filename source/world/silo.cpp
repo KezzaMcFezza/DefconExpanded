@@ -34,6 +34,7 @@ Silo::Silo()
 
     m_currentState = 1;
     m_life = 25;
+    m_maxLife = 25; // new variable for the health bar system
 
     m_nukeSupply = 10;
 

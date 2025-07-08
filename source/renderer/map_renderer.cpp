@@ -313,7 +313,7 @@ void MapRenderer::Render()
         g_renderer->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
 
         //
-        // master scene batching, end all batching systems and flush
+        // master scene batching, wrap the entire map rendering loop inside the buffers
         //
 
         g_renderer->BeginUnitMainBatch();       // Main unit sprites + city icons
@@ -322,6 +322,7 @@ void MapRenderer::Render()
         g_renderer->BeginUnitStateBatch();      // Unit state icons (fighters/bombers on units)
         g_renderer->BeginUnitNukeBatch();       // Small nuke icons on units
         g_renderer->BeginUnitHighlightBatch();  // Unit selection highlights
+        g_renderer->BeginHealthBarBatch();      // Unit health bars
         g_renderer->BeginEffectsLineBatch();    // All line effects (waypoints, radar, etc.)
         g_renderer->BeginEffectsSpriteBatch();  // All sprite effects (explosions, nukesymbols, population, radiation, etc.)
 
@@ -330,12 +331,14 @@ void MapRenderer::Render()
             g_renderer->EndUnitStateBatch();
             g_renderer->EndUnitNukeBatch();
             g_renderer->EndUnitHighlightBatch();
+            g_renderer->EndHealthBarBatch();
             
             RenderPopulationDensity();
             
             g_renderer->BeginUnitStateBatch();
             g_renderer->BeginUnitNukeBatch();
             g_renderer->BeginUnitHighlightBatch();
+            g_renderer->BeginHealthBarBatch();
         }
         if( m_showNukeUnits )           RenderNukeUnits();
         
@@ -345,12 +348,14 @@ void MapRenderer::Render()
         g_renderer->EndUnitStateBatch();
         g_renderer->EndUnitNukeBatch();
         g_renderer->EndUnitHighlightBatch();
+        g_renderer->EndHealthBarBatch();
         
         RenderCities(); 
         
         g_renderer->BeginUnitStateBatch();
         g_renderer->BeginUnitNukeBatch();
         g_renderer->BeginUnitHighlightBatch();
+        g_renderer->BeginHealthBarBatch();
         
         RenderBlips();        
         RenderWorldMessages();
@@ -362,6 +367,7 @@ void MapRenderer::Render()
         g_renderer->EndUnitStateBatch();
         g_renderer->EndUnitNukeBatch();
         g_renderer->EndUnitHighlightBatch();
+        g_renderer->EndHealthBarBatch();
 
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
@@ -387,6 +393,7 @@ void MapRenderer::Render()
         g_renderer->BeginUnitStateBatch();
         g_renderer->BeginUnitNukeBatch();
         g_renderer->BeginUnitHighlightBatch();
+        g_renderer->BeginHealthBarBatch();
 
         if( m_highlightUnit != -1 )
         {
@@ -405,6 +412,7 @@ void MapRenderer::Render()
         g_renderer->EndUnitHighlightBatch();    // Flush all unit selection highlights (restarted after radiation)
         g_renderer->EndUnitNukeBatch();         // Flush all small nuke icons (restarted after radiation)
         g_renderer->EndUnitStateBatch();        // Flush all unit state icons (restarted after radiation)
+        g_renderer->EndHealthBarBatch();        // Flush all unit health bars
         g_renderer->EndUnitRotatingBatch();     // Flush all rotating sprites (atlas batching!)
         g_renderer->EndUnitMainBatch();         // Flush all main unit sprites + city icons (atlas batching!)
 

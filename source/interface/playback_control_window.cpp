@@ -18,8 +18,8 @@
 #include "app/globals.h"
 #include "network/Server.h"
 
-// global variable for team perspective switching
-int g_desiredPerspectiveTeamId = -1;
+int g_desiredPerspectiveTeamId = -1;        // global variable for team perspective switching
+bool g_healthBarsEnabled = false;           // global variable for health bar visibility 
 
 // ============================================================================
 // Playback Control Window
@@ -35,7 +35,8 @@ PlaybackControlWindow::PlaybackControlWindow()
     m_updateTimer(0.0f),
     m_activePlayerCount(0),
     m_currentPerspective(-1),
-    m_playersInitialized(false)
+    m_playersInitialized(false),
+    m_healthBarsEnabled(false)
 {
     int windowWidth = 400;
     int windowHeight = 190;
@@ -74,11 +75,15 @@ void PlaybackControlWindow::Create()
     InterfaceWindow::Create();
     
     PlayPauseButton *playPause = new PlayPauseButton();
-    playPause->SetProperties("PlayPause", 10, 80, 50, 25, "PLAY", "Toggle pause/play", false, true);
+    playPause->SetProperties("PlayPause", 10, 80, 61, 25, "PLAY", "Toggle pause/play", false, true);
     RegisterButton(playPause);
     
+    HealthToggleButton *healthToggle = new HealthToggleButton();
+    healthToggle->SetProperties("HealthToggle", 75, 80, 60, 25, "HEALTH", "Toggle health bars on/off", false, true);
+    RegisterButton(healthToggle);
+    
     SpeedSlider *speedSlider = new SpeedSlider();
-    speedSlider->SetProperties("SpeedSlider", 80, 85, 300, 15, "", "Adjust playback speed", false, false);
+    speedSlider->SetProperties("SpeedSlider", 140, 85, 250, 15, "", "Adjust playback speed", false, false);
     RegisterButton(speedSlider);
     
     SeekBar *seekBar = new SeekBar();
@@ -317,15 +322,15 @@ void PlaybackControlWindow::Render(bool _hasFocus)
     char perspectiveText[64];
     if( m_currentPerspective == -1 )
     {
-        sprintf(perspectiveText, "Radar Perspective: Spectator View");
+        sprintf(perspectiveText, "Player Perspective: Spectator View");
     }
     else if( m_currentPerspective >= 0 && m_currentPerspective < 6 && m_players[m_currentPerspective].isActive )
     {
-        sprintf(perspectiveText, "Radar Perspective: %s", m_players[m_currentPerspective].playerName);
+        sprintf(perspectiveText, "Player Perspective: %s", m_players[m_currentPerspective].playerName);
     }
     else
     {
-        sprintf(perspectiveText, "Radar Perspective: Unknown");
+        sprintf(perspectiveText, "Player Perspective: Unknown");
     }
     g_renderer->TextSimple(m_x + 10, m_y + 115, Colour(180, 180, 180, 255), 8.0f, perspectiveText);
 }
@@ -379,6 +384,15 @@ void PlaybackControlWindow::Update()
             }
         }
         
+        // Update health toggle button caption (only when needed)
+        EclButton *healthToggleBtn = GetButton("HealthToggle");
+        if (healthToggleBtn) {
+            const char* expectedCaption = m_healthBarsEnabled ? "HEALTH" : "HEALTH";
+            if (strcmp(healthToggleBtn->m_caption, expectedCaption) != 0) {
+                healthToggleBtn->SetCaption(expectedCaption, false);
+            }
+        }
+        
         // Update speed slider
         SpeedSlider *speedSlider = (SpeedSlider*)GetButton("SpeedSlider");
         if (speedSlider) {
@@ -418,6 +432,19 @@ void PlaybackControlWindow::SetSpeed(float speed)
     if (!g_app->GetServer() || !g_app->GetServer()->IsRecordingPlaybackMode()) return;
     
     g_app->GetServer()->SetRecordingSpeed(speed);
+}
+
+void PlaybackControlWindow::ToggleHealthBars()
+{
+    m_healthBarsEnabled = !m_healthBarsEnabled;
+    g_healthBarsEnabled = m_healthBarsEnabled;
+    
+    // Update health toggle button caption
+    EclButton *healthToggleBtn = GetButton("HealthToggle");
+    if (healthToggleBtn) {
+        const char* expectedCaption = m_healthBarsEnabled ? "HEALTH*" : "HEALTH";
+        healthToggleBtn->SetCaption(expectedCaption, false);
+    }
 }
 
 void PlaybackControlWindow::UpdateProgress(int currentSeq, int totalSeq)
@@ -504,6 +531,23 @@ void PlayPauseButton::MouseUp()
 }
 
 void PlayPauseButton::Render(int realX, int realY, bool highlighted, bool clicked)
+{
+    // Use standard button rendering
+    InterfaceButton::Render(realX, realY, highlighted, clicked);
+}
+
+// ============================================================================
+// Health Toggle Button
+
+void HealthToggleButton::MouseUp()
+{
+    PlaybackControlWindow *parent = (PlaybackControlWindow*)m_parent;
+    if (parent) {
+        parent->ToggleHealthBars();
+    }
+}
+
+void HealthToggleButton::Render(int realX, int realY, bool highlighted, bool clicked)
 {
     // Use standard button rendering
     InterfaceButton::Render(realX, realY, highlighted, clicked);

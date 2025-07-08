@@ -568,6 +568,9 @@ void MovingObject::Render()
             }
             colour.m_a *= 0.5f;
         }
+        
+        // enable rendering for all the units
+        RenderHealthBar();
     }
     else
     {
