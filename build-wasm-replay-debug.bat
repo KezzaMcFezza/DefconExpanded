@@ -17,16 +17,17 @@ echo Activating Emscripten environment...
 call C:\emsdk\emsdk_env.bat
 
 set ORIGINAL_DIR=%CD%
+set NINJA_PATH=%ORIGINAL_DIR%\tools\ninja.exe
 
 if not exist build\wasm-replay-debug mkdir build\wasm-replay-debug
 
 cd /d %ORIGINAL_DIR%\build\wasm-replay-debug
 
 echo Configuring with Emscripten (DEBUG MODE - Replay Viewer)...
-python %EMSDK%/upstream/emscripten/emcmake.py cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_EMSCRIPTEN_REPLAY_VIEWER=ON -G "Ninja" "%ORIGINAL_DIR%"
+python %EMSDK%/upstream/emscripten/emcmake.py cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_EMSCRIPTEN_REPLAY_VIEWER=ON -DCMAKE_MAKE_PROGRAM="%NINJA_PATH%" -G "Ninja" "%ORIGINAL_DIR%"
 
 echo Building (DEBUG mode - showing all output)...
-python %EMSDK%/upstream/emscripten/emmake.py ninja
+python %EMSDK%/upstream/emscripten/emmake.py "%NINJA_PATH%"
 
 if %ERRORLEVEL% neq 0 (
     echo Build failed with error code %ERRORLEVEL%

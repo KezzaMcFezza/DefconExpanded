@@ -99,7 +99,7 @@ if(EMSCRIPTEN)
     
     # WebAssembly debug output control (only enabled for Debug builds)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        #add_definitions(-DEMSCRIPTEN_SOUND)
+        add_definitions(-DEMSCRIPTEN_SOUND)
         #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
         #add_definitions(-DNO_DEBUG_OUTPUT)
         #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
@@ -109,7 +109,7 @@ if(EMSCRIPTEN)
     endif()
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    #add_definitions(-DEMSCRIPTEN_SOUND)
+    add_definitions(-DEMSCRIPTEN_SOUND)
     #add_definitions(-DNO_DEBUG_OUTPUT)
     #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
     #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
@@ -170,7 +170,6 @@ if(EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/gucci/input_sdl.cpp
         ${SYSTEMIV_PATH}/lib/gucci/window_manager_sdl.cpp
         ${SYSTEMIV_PATH}/lib/sound/sound_library_2d_sdl.cpp
-        ${SYSTEMIV_PATH}/lib/sound/sound_library_webassembly.cpp
         ${SYSTEMIV_PATH}/lib/debug_utils_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_lib_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_wasm.cpp
@@ -195,7 +194,6 @@ if(EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_winxp.cpp
-        ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_dsound.cpp
         ${ROOT_PATH}/source/app/macutil.cpp
         ${ROOT_PATH}/source/app/dockicon.mm
         ${ROOT_PATH}/source/lib/debug_utils_linux.cpp
@@ -208,7 +206,6 @@ if(EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/netlib/net_udp_packet.cpp
         ${SYSTEMIV_PATH}/lib/debug_utils.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
-        ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_software.cpp
     )
 
 elseif(MSVC)
@@ -658,7 +655,7 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s LEGACY_GL_EMULATION=0")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s PRECISE_F32=0 -s TEXTDECODER=0")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_FUNCTIONS=['_main','_malloc','_free','_jsCreateDspChain','_jsUpdateDspFilter','_jsRemoveDspChain','_jsConnectDspChain','_jsRequestAudioDataForProcessor','_jsFreeAudioData']")
+    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_FUNCTIONS=['_main','_malloc','_free']")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/data@data")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/preferences.txt@preferences.txt")

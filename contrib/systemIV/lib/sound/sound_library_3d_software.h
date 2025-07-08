@@ -30,11 +30,11 @@ protected:
 	void GetChannelData		(float _duration);
 	void ApplyDspFX			(float _duration);
     
-    void MixStereo          (signed short *in, unsigned int numSamples, float volL, float volR, float relFreq, unsigned int bufSize);
-	void MixSameFreqFixedVol(signed short *in, unsigned int numSamples, float volL, float volR, unsigned int bufSize);
-	void MixDiffFreqFixedVol(signed short *in, unsigned int numSamples, float volL, float volR, float relFreq, unsigned int bufSize);
-	void MixSameFreqRampVol (signed short *in, unsigned int num, float volL1, float volR1, float volL2, float volR2, unsigned int bufSize);
-	void MixDiffFreqRampVol (signed short *in, unsigned int num, float volL1, float volR1, float volL2, float volR2, float relFreq, unsigned int bufSize);
+    void MixStereo          (signed short *in, unsigned int numSamples, float volL, float volR, float relFreq);
+	void MixSameFreqFixedVol(signed short *in, unsigned int numSamples, float volL, float volR);
+	void MixDiffFreqFixedVol(signed short *in, unsigned int numSamples, float volL, float volR, float relFreq);
+	void MixSameFreqRampVol (signed short *in, unsigned int num, float volL1, float volR1, float volL2, float volR2);
+	void MixDiffFreqRampVol (signed short *in, unsigned int num, float volL1, float volR1, float volL2, float volR2, float relFreq);
 	void CalcChannelVolumes	(int _channelIndex, float *_left, float *_right);
 
 public:
