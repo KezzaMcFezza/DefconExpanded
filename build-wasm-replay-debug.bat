@@ -37,7 +37,7 @@ if %ERRORLEVEL% neq 0 (
 
 echo Debug build complete!
 echo Output files should be in: %ORIGINAL_DIR%\build\wasm-replay-debug\result\Debug\
-echo Look for: replay_viewer_*.html, replay_viewer_*.js, replay_viewer_*.wasm
+echo Look for: replay_viewer_*.html, replay_viewer_*.js, replay_viewer_*.wasm, replay_viewer_*.wasm.map
 
 echo.
 echo Copying WebAssembly files to demo_recordings folder...
@@ -45,10 +45,12 @@ if not exist "%ORIGINAL_DIR%\website\demo_recordings" mkdir "%ORIGINAL_DIR%\webs
 
 for %%f in ("%ORIGINAL_DIR%\website\demo_recordings\replay_viewer_*.js") do del "%%f" 2>nul
 for %%f in ("%ORIGINAL_DIR%\website\demo_recordings\replay_viewer_*.wasm") do del "%%f" 2>nul
+for %%f in ("%ORIGINAL_DIR%\website\demo_recordings\replay_viewer_*.wasm.map") do del "%%f" 2>nul
 for %%f in ("%ORIGINAL_DIR%\website\demo_recordings\replay_viewer_*.data") do del "%%f" 2>nul
 
 copy /Y "%ORIGINAL_DIR%\build\wasm-replay-debug\result\Debug\replay_viewer_*.js" "%ORIGINAL_DIR%\website\demo_recordings\" 2>nul
 copy /Y "%ORIGINAL_DIR%\build\wasm-replay-debug\result\Debug\replay_viewer_*.wasm" "%ORIGINAL_DIR%\website\demo_recordings\" 2>nul
+copy /Y "%ORIGINAL_DIR%\build\wasm-replay-debug\result\Debug\replay_viewer_*.wasm.map" "%ORIGINAL_DIR%\website\demo_recordings\" 2>nul
 copy /Y "%ORIGINAL_DIR%\build\wasm-replay-debug\result\Debug\replay_viewer_*.data" "%ORIGINAL_DIR%\website\demo_recordings\" 2>nul
 
 if %ERRORLEVEL% equ 0 (

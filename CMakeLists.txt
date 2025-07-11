@@ -42,7 +42,7 @@ else()
     endif()
 endif()
 
-set(REPLAY_VIEWER_VERSION "B1.45" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "B1.80" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 option(ENABLE_RECORDING_PARSING "Enable recording parsing functionality" ON)
 option(ENABLE_EMSCRIPTEN_REPLAY_VIEWER "Enable Emscripten Replay Viewer mode (recording playback only)" ON)
 
@@ -96,21 +96,23 @@ if(EMSCRIPTEN)
     add_definitions(-DRECORDING_PARSING=1)
     add_definitions(-DTARGET_EMSCRIPTEN -DWASM_BUILD -DTARGET_OS_LINUX -DENABLE_BINRELOC)
     add_definitions(-DSDL_MAIN_HANDLED -DGUI -DSILENT -DGLEW_STATIC)
+    add_definitions(-D__EMSCRIPTEN_PTHREADS__)
+    add_definitions(-D_GNU_SOURCE)
     
     # WebAssembly debug output control (only enabled for Debug builds)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_definitions(-DEMSCRIPTEN_SOUND)
         #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
-        #add_definitions(-DNO_DEBUG_OUTPUT)
+        add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
         #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
         #add_definitions(-DEMSCRIPTEN_SOUND_TESTBED)
         #add_definitions(-DEMSCRIPTEN_PLAYBACK_TESTBED)
-        #add_definitions(-DEMSCRIPTEN_DEBUG)
+        add_definitions(-DEMSCRIPTEN_DEBUG)
     endif()
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_definitions(-DEMSCRIPTEN_SOUND)
-    #add_definitions(-DNO_DEBUG_OUTPUT)
+    #add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
     #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
     #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
     #add_definitions(-DEMSCRIPTEN_SOUND_TESTBED)
@@ -124,6 +126,9 @@ if(EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_VORBIS=1 -s USE_OGG=1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s STACK_SIZE=8MB -msimd128")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -fpermissive")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
     
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s INITIAL_MEMORY=512MB -s ALLOW_MEMORY_GROWTH=0")
@@ -132,6 +137,8 @@ if(EMSCRIPTEN)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s PTHREAD_POOL_SIZE_STRICT=0 -s SHARED_MEMORY=1")
     else()
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=1024MB")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s PTHREAD_POOL_SIZE_STRICT=0 -s SHARED_MEMORY=1")
     endif()
     
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -158,7 +165,7 @@ if(EMSCRIPTEN)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ASSERTIONS=2 -s SAFE_HEAP=1")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s STACK_OVERFLOW_CHECK=2")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s GL_ASSERTIONS=1")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g4 --source-map-base http://localhost:8000/")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g4 --source-map-base https://defconexpandedhost.ddns.net/replay-viewer/")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s EXCEPTION_DEBUG=1")
         string(REPLACE "-O3" "-O0" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
@@ -172,13 +179,13 @@ if(EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/sound/sound_library_2d_sdl.cpp
         ${SYSTEMIV_PATH}/lib/debug_utils_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_lib_wasm.cpp
-        ${SYSTEMIV_PATH}/lib/netlib/net_mutex_wasm.cpp
-        ${SYSTEMIV_PATH}/lib/netlib/net_thread_wasm.cpp
+        ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
+        ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_socket_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_socket_listener_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_socket_session_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_udp_packet_wasm.cpp
-        ${SYSTEMIV_PATH}/lib/netlib/condition_wasm.cpp
+        ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
         ${SYSTEMIV_PATH}/contrib/binreloc/binreloc.c
         ${SYSTEMIV_PATH}/contrib/unrar/log.cpp
     )
@@ -197,15 +204,12 @@ if(EMSCRIPTEN)
         ${ROOT_PATH}/source/app/macutil.cpp
         ${ROOT_PATH}/source/app/dockicon.mm
         ${ROOT_PATH}/source/lib/debug_utils_linux.cpp
-        ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
-        ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_lib.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_socket.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_socket_listener.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_socket_session.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_udp_packet.cpp
         ${SYSTEMIV_PATH}/lib/debug_utils.cpp
-        ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
     )
 
 elseif(MSVC)
@@ -643,8 +647,12 @@ if(EMSCRIPTEN)
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s MALLOC=mimalloc")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s PTHREAD_POOL_SIZE_STRICT=0 -s SHARED_MEMORY=1")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s ALLOW_BLOCKING_ON_MAIN_THREAD=0")
     else()
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=1024MB")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s PTHREAD_POOL_SIZE_STRICT=0 -s SHARED_MEMORY=1")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s ALLOW_BLOCKING_ON_MAIN_THREAD=0")
     endif()
 
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_ENABLE_GET_PROC_ADDRESS=1")
@@ -656,7 +664,7 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s PRECISE_F32=0 -s TEXTDECODER=0")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_FUNCTIONS=['_main','_malloc','_free']")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']")
+    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','print','printErr']")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/data@data")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/preferences.txt@preferences.txt")
 
@@ -679,7 +687,7 @@ if(EMSCRIPTEN)
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s GL_ASSERTIONS=1")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s DISABLE_EXCEPTION_CATCHING=0")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXCEPTION_DEBUG=1")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -g4 --source-map-base http://localhost:8000/")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -g4 --source-map-base https://defconexpandedhost.ddns.net/replay-viewer/")
         string(REPLACE "-O3" "-O0" EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS}")
     endif()
     

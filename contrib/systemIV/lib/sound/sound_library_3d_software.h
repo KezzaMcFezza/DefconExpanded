@@ -19,6 +19,7 @@ protected:
 	SoftwareChannel			*m_channels;	
 	float					*m_left;						// Temp buffers used by mixer
 	float					*m_right;						
+	unsigned int			m_allocatedSamples;				// Actual allocated buffer size
 
 	Vector3<float>			m_listenerFront;
 	Vector3<float>			m_listenerUp;

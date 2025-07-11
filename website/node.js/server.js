@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 25-06-2025
+//Last Edited 09-07-2025
 
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
@@ -50,6 +50,7 @@ const timeout = require('connect-timeout');
 const app = express();
 const port = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
+const httpModule = require('http'); // For making HTTP requests
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const logStream = fs.createWriteStream(path.join(__dirname, 'server.log'), { flags: 'a' });
@@ -183,8 +184,15 @@ app.use((err, req, res, next) => {
 
 // i actually finally added proper CORS, i never worried about security until the replay viewer was added
 app.use((req, res, next) => {
-    const allowedOrigin = process.env.FRONTEND_URL;
-    res.header('Access-Control-Allow-Origin', allowedOrigin);
+    const origin = req.headers.origin;
+    const allowedOrigins = [
+        process.env.FRONTEND_URL
+    ].filter(Boolean);
+    
+    if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    }
+    
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Credentials', 'true');
@@ -198,6 +206,7 @@ app.use((req, res, next) => {
     // static resources we also set resource policy
     if (req.url.includes('/replay-viewer/') || 
         req.url.endsWith('.wasm') || 
+        req.url.endsWith('.wasm.map') || 
         req.url.endsWith('.js') || 
         req.url.endsWith('.data') || 
         req.url.endsWith('.worker.js')) {
@@ -282,6 +291,11 @@ app.use(smurfCheckerRoutes);
 app.use(replayViewerRoutes);
 app.use(domainValidationRoutes);
 
+// added this here for when i need to verify my ssl certificate from zerossl 
+// as no-ip.com does not allow cname validation for some reason?
+app.use('/.well-known', express.static(path.join(__dirname, '.wellknown')));
+
+// profile picture and banner uploads location
 app.use('/uploads', express.static(path.join(publicDir, 'uploads')));
 
 // serve all static files
@@ -292,7 +306,7 @@ app.use(express.static(publicDir, {
         }
         
         // apply SharedArrayBuffer headers to web assembly related files
-        if (path.endsWith('.wasm') || path.endsWith('.js') || path.endsWith('.data') || path.endsWith('.worker.js')) {
+        if (path.endsWith('.wasm') || path.endsWith('.wasm.map') || path.endsWith('.js') || path.endsWith('.data') || path.endsWith('.worker.js')) {
             res.set('Cross-Origin-Resource-Policy', 'cross-origin');
         }
     }
@@ -405,6 +419,7 @@ function findReplayViewerFiles() {
             html: null,
             js: null,
             wasm: null,
+            wasmMap: null,
             data: null,
             version: null
         };
@@ -432,6 +447,9 @@ function findReplayViewerFiles() {
                     case 'wasm':
                         replayFiles.wasm = file;
                         break;
+                    case 'wasm.map':
+                        replayFiles.wasmMap = file;
+                        break;
                     case 'data':
                         replayFiles.data = file;
                         break;
@@ -445,7 +463,7 @@ function findReplayViewerFiles() {
     } catch (error) {
         console.error('Error, some files could not be found', error);
         debugUtils.debugFunctionExit('findReplayViewerFiles', startTime, 'error', 2);
-        return { html: null, js: null, wasm: null, data: null, version: null };
+        return { html: null, js: null, wasm: null, wasmMap: null, data: null, version: null };
     }
 }
 
@@ -631,6 +649,8 @@ function setSharedArrayBufferHeaders(res, path, stat) {
     // Set specific content types for WebAssembly files
     if (path.endsWith('.wasm')) {
         res.set('Content-Type', 'application/wasm');
+    } else if (path.endsWith('.wasm.map')) {
+        res.set('Content-Type', 'application/json');
     } else if (path.endsWith('.js')) {
         res.set('Content-Type', 'application/javascript');
     } else if (path.endsWith('.html')) {
@@ -663,7 +683,7 @@ app.use('/replay-viewer', (req, res, next) => {
           setSharedArrayBufferHeaders(res, path, stat);
           
           // 1 year cache duration, in the event that no new updates are made
-          if (path.endsWith('.wasm') || path.endsWith('.js') || path.endsWith('.data')) {
+          if (path.endsWith('.wasm') || path.endsWith('.wasm.map') || path.endsWith('.js') || path.endsWith('.data')) {
               res.set('Cache-Control', 'public, max-age=31536000, immutable'); // 1 year
               res.set('ETag', `"${stat.mtime.getTime()}-${stat.size}"`);
           } 
@@ -837,6 +857,95 @@ app.get('/replay-viewer/:filename', checkAuthToken, async (req, res) => {
         debug.apiResponse(404, 'Replay viewer not found', 2);
         debug.exit('serveReplayViewer', startTime, 'html_not_found', 1);
         res.status(404).send('Replay viewer not found. Please build the WebAssembly replay viewer first.');
+    }
+});
+
+// serve source files for WebAssembly debugging
+app.get('/contrib/*', (req, res) => {
+    const startTime = debug.enter('serveSourceFile', [req.path], 2);
+    
+    // only serve source files in development or when debugging
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const isDebugMode = req.headers['user-agent']?.includes('Chrome') && req.headers.referer?.includes('replay-viewer');
+    
+    if (!isDevelopment && !isDebugMode) {
+        debug.level2('Source file access denied - not in debug mode');
+        debug.apiResponse(403, 'Source files not available in production', 2);
+        debug.exit('serveSourceFile', startTime, 'access_denied', 2);
+        return res.status(403).send('Source files not available in production');
+    }
+    
+    debug.apiRequest('GET', req.originalUrl, req.user, 2);
+    debug.level2('Serving source file for debugging:', req.path);
+    
+    // construct the source file path from project root
+    const sourcePath = path.join(__dirname, '../..', req.path);
+    debug.fileOp('serve_source', sourcePath, 3);
+    
+    try {
+        // check if file exists
+        if (fs.existsSync(sourcePath)) {
+            debug.level2('Source file found, serving:', path.basename(sourcePath));
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+            res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+            res.sendFile(sourcePath);
+            debug.exit('serveSourceFile', startTime, 'success', 2);
+        } else {
+            debug.level2('Source file not found:', sourcePath);
+            debug.apiResponse(404, 'Source file not found', 2);
+            debug.exit('serveSourceFile', startTime, 'not_found', 2);
+            res.status(404).send('Source file not found');
+        }
+    } catch (error) {
+        debug.error('serveSourceFile', error, 1);
+        debug.apiResponse(500, 'Error serving source file', 1);
+        debug.exit('serveSourceFile', startTime, 'error', 1);
+        res.status(500).send('Error serving source file');
+    }
+});
+
+// serve source files from the source directory for WebAssembly debugging
+app.get('/source/*', (req, res) => {
+    const startTime = debug.enter('serveSourceDirectory', [req.path], 2);
+    
+    // only serve source files in development or when explicitly debugging
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const isDebugMode = req.headers['user-agent']?.includes('Chrome') && req.headers.referer?.includes('replay-viewer');
+    
+    if (!isDevelopment && !isDebugMode) {
+        debug.level2('Source file access denied - not in debug mode');
+        debug.apiResponse(403, 'Source files not available in production', 2);
+        debug.exit('serveSourceDirectory', startTime, 'access_denied', 2);
+        return res.status(403).send('Source files not available in production');
+    }
+    
+    debug.apiRequest('GET', req.originalUrl, req.user, 2);
+    debug.level2('Serving source file for debugging:', req.path);
+    
+    // strip /source prefix and construct path from project root
+    const relativePath = req.path.replace('/source/', '');
+    const sourcePath = path.join(__dirname, '../..', relativePath);
+    debug.fileOp('serve_source', sourcePath, 3);
+    
+    try {
+        // check if file exists
+        if (fs.existsSync(sourcePath)) {
+            debug.level2('Source file found, serving:', path.basename(sourcePath));
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+            res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+            res.sendFile(sourcePath);
+            debug.exit('serveSourceDirectory', startTime, 'success', 2);
+        } else {
+            debug.level2('Source file not found:', sourcePath);
+            debug.apiResponse(404, 'Source file not found', 2);
+            debug.exit('serveSourceDirectory', startTime, 'not_found', 2);
+            res.status(404).send('Source file not found');
+        }
+    } catch (error) {
+        debug.error('serveSourceDirectory', error, 1);
+        debug.apiResponse(500, 'Error serving source file', 1);
+        debug.exit('serveSourceDirectory', startTime, 'error', 1);
+        res.status(500).send('Error serving source file');
     }
 });
 

@@ -5,15 +5,11 @@ ScreenColourDepth = 0
 ScreenRefresh = 0
 ScreenZDepth = 24
 
-SoundLibrary = dsound
 SoundMixFreq = 44100
-SoundMasterVolume = 100
-SoundChannels = 32
-SoundMusicChannels = 8
+SoundMasterVolume = 250
 SoundHW3D = 0
 SoundSwapStereo = 0
 SoundMemoryUsage = 1
-SoundBufferSize = 512
 SoundDSP = 0
 
 RenderBorders = 1

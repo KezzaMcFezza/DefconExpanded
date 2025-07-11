@@ -6,6 +6,11 @@
 
 #include <stdint.h>
 
+#ifdef __EMSCRIPTEN_PTHREADS__
+#include <pthread.h>
+#include <sys/time.h>
+#endif
+
 // Forward declare a minimal sockaddr_in equivalent for WASM
 struct wasm_sockaddr_in {
     uint16_t sin_family;
@@ -26,14 +31,19 @@ typedef void * (*NetThreadFunc)(void *ptr);
 #define NetGetHostByName(a)             NULL
 #define NetSetSocketNonBlocking(a)      0
 
-// Define stub types for WASM
+// Define types for WASM - use pthread types when available
 #define NetSocketLenType                int
 #define NetSocketHandle                 int
 #define NetHostDetails                  void
+#ifdef __EMSCRIPTEN_PTHREADS__
+#define NetThreadHandle                 pthread_t
+#define NetMutexHandle                  pthread_mutex_t
+#else
 #define NetThreadHandle                 int
+#define NetMutexHandle                  int
+#endif
 #define NetCallBackRetType              void *
 #define NetPollObject                   int
-#define NetMutexHandle                  int
 
 // Define stub constants for WASM
 #define NET_SOCKET_ERROR                -1
