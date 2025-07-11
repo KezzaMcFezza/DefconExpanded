@@ -78,7 +78,11 @@ EM_JS(bool, check_referrer_validation, (), {
             'defconexpanded.com',
             'www.defconexpanded.com',
             'defconexpandedhost.ddns.net',
-            'www.defconexpandedhost.ddns.net'
+            'www.defconexpandedhost.ddns.net',
+            'group6.info',
+            'www.group6.info',
+            'sfcon.demoszenen.de',
+            'www.sfcon.demoszenen.de'
         ];
         
         return authorizedReferrers.some(domain => referrer.includes(domain));

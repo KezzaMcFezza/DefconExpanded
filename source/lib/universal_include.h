@@ -6,7 +6,7 @@
 
 #if TARGET_EMSCRIPTEN
 #define APP_NAME        "Beta"
-#define	APP_VERSION		"1.45"
+#define	APP_VERSION		"1.80"
 #else
 // its worth noting that using this version string alongside the gunfire and
 // retarget patch violates the license agreement! what ever you do, do not try
@@ -307,6 +307,12 @@
 #else
 #include <GLES3/gl3.h>
 #include <EGL/egl.h>
+#endif
+
+// Include pthread for Emscripten threading support
+#ifdef TARGET_EMSCRIPTEN
+#include <pthread.h>
+#include <sys/time.h>
 #endif
 
 

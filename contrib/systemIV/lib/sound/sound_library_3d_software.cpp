@@ -72,10 +72,16 @@ SoftwareChannel::SoftwareChannel()
 	m_pos(0,0,0),
 	m_3DMode(0)
 {
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+	AppDebugOut("SoftwareChannel::SoftwareChannel() - freq initialized to %u\n", m_freq);
+#endif
 }
 
 void SoftwareChannel::Initialise( bool _stereo )
 {
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+	AppDebugOut("SoftwareChannel::Initialise() begin - freq is %u, stereo=%s\n", m_freq, _stereo ? "true" : "false");
+#endif
 	// The 3 on the next line is there because we limit the frequency of a 
 	// channel to 3 times that of the mix frequency
 	m_samplesInBuffer = g_soundLibrary2d->GetSamplesPerBuffer() * 3;
@@ -87,6 +93,9 @@ void SoftwareChannel::Initialise( bool _stereo )
 	{
 		m_dspFX[i].m_userFilter = NULL;
 	}
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+	AppDebugOut("SoftwareChannel::Initialise() end - freq is %u, samplesInBuffer=%u\n", m_freq, m_samplesInBuffer);
+#endif
 }
 
 
@@ -107,6 +116,7 @@ void SoundLib3dSoftwareCallbackWrapper(StereoSample *_buf, unsigned int _numSamp
 SoundLibrary3dSoftware::SoundLibrary3dSoftware()
 :   SoundLibrary3d(),
 	m_channels(NULL),
+	m_allocatedSamples(0),
 	m_listenerFront(1,0,0),
 	m_listenerUp(0,1,0),
 	m_lastVolumeSet(GetMasterVolume())
@@ -115,8 +125,16 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
 	
 	EnableCallback(true);
 
-	m_left = new float[g_soundLibrary2d->GetSamplesPerBuffer()];
-	m_right = new float[g_soundLibrary2d->GetSamplesPerBuffer()];
+#ifdef TARGET_EMSCRIPTEN
+	// main fix!
+	unsigned int baseSize = g_soundLibrary2d->GetSamplesPerBuffer();
+	m_allocatedSamples = baseSize * 4; // lets allocate 4x more samples than we need for safety
+#else
+	m_allocatedSamples = g_soundLibrary2d->GetSamplesPerBuffer();
+#endif
+
+	m_left = new float[m_allocatedSamples];
+	m_right = new float[m_allocatedSamples];
 }
 
 
@@ -159,6 +177,9 @@ void SoundLibrary3dSoftware::SetMasterVolume( int _volume )
 
 void SoundLibrary3dSoftware::Advance()
 {
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+	AppDebugOut( "SoundLibrary3dSoftware::Advance begin: ch 0 freq: %u\n", m_channels[0].m_freq );
+#endif
 	//
 	// Mute everything when in background (the Windows DirectSound version seems to do this
 	// automatically)
@@ -174,6 +195,10 @@ void SoundLibrary3dSoftware::Advance()
 		SoundLibrary3d::SetMasterVolume(m_lastVolumeSet);
 		
 	g_soundLibrary2d->TopupBuffer();
+	
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+	AppDebugOut( "SoundLibrary3dSoftware::Advance end: ch 0 freq: %u\n", m_channels[0].m_freq );
+#endif
 }
 
 
@@ -235,6 +260,7 @@ void SoundLibrary3dSoftware::ApplyDspFX(float _duration)
 				{
 					samplesNeeded = ceil((double)m_channels[i].m_freq * _duration - 0.5f);
 				}
+				
 				m_channels[i].m_dspFX[j].m_userFilter->Process(m_channels[i].m_buffer, 
 																 samplesNeeded);
 			}
@@ -287,6 +313,11 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
 void SoundLibrary3dSoftware::MixStereo(signed short *_inBuf, unsigned int _numSamples,
                                        float _volLeft, float _volRight, float _relativeFreq )
 {
+    if( _relativeFreq <= 0.0f )
+    {
+        return;
+    }
+    
     float *left = m_left;
     float *right = m_right;
     int nearestSample;
@@ -321,9 +352,18 @@ void SoundLibrary3dSoftware::MixSameFreqFixedVol(signed short *_inBuf, unsigned 
 void SoundLibrary3dSoftware::MixDiffFreqFixedVol(signed short *_inBuf, unsigned int _numSamples, 
 												 float _volLeft, float _volRight, float _relativeFreq)
 {
+	if( _relativeFreq <= 0.0f )
+	{
+		return;
+	}
+	
 	float *left = m_left;
 	float *right = m_right;
 	int nearestSample;
+
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+	AppDebugOut("mixdifreq values! - %u %f \n", _numSamples, _relativeFreq);
+#endif
 
 	for (int j = 0; j < _numSamples; ++j)
 	{
@@ -360,6 +400,11 @@ void SoundLibrary3dSoftware::MixDiffFreqRampVol(signed short *_inBuf, unsigned i
 												float _volL1, float _volR1, float _volL2, float _volR2, 
 												float _relativeFreq)
 {
+	if( _relativeFreq <= 0.0f )
+	{
+		return;
+	}
+	
 	float volLeft = _volL1;
 	float volRight = _volR1;
 	float volLeftInc = (_volL2 - _volL1) / (float)_numSamples;
@@ -387,14 +432,50 @@ void SoundLibrary3dSoftware::EnableCallback(bool _enabled)
 
 void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSamples)
 {
-	if (!m_channels) return;
+	if (!m_channels) 
+	{
+		return;
+	}
+
+#ifdef TARGET_EMSCRIPTEN
+	// Fixes the frequency data loss, so now we store channel frequencies locally to prevent corruption in WebAssembly threading
+	static unsigned int channelFreqs[64]; // defcon supports upto 64 channels
+	for (int i = 0; i < m_numChannels && i < 64; ++i)
+	{
+		channelFreqs[i] = m_channels[i].m_freq;
+	}
+#endif
 
 	double duration = (double)_numSamples / (double)g_soundLibrary2d->GetFreq();
 
 	GetChannelData(duration);
 	ApplyDspFX(duration);
 
+#ifdef TARGET_EMSCRIPTEN
+	// restore channel frequencies after corruption
+	for (int i = 0; i < m_numChannels && i < 64; ++i)
+	{
+		if (m_channels[i].m_freq != channelFreqs[i])
+		{
+			m_channels[i].m_freq = channelFreqs[i];
+		}
+	}
+#endif
+
 	// START_PROFILE2(m_profiler, "Mix");
+	
+	// now its pretty important to ensure we dont overflow the mixing buffers
+	if (_numSamples > m_allocatedSamples)
+	{
+		_numSamples = m_allocatedSamples;
+	}
+	
+	// verify buffer pointers before memset, in the debug stack trace we saw that channel 0 was getting given garbage data
+	if (!m_left || !m_right)
+	{
+		return;
+	}
+	
 	memset(m_left, 0, sizeof(float) * _numSamples);
 	memset(m_right, 0, sizeof(float) * _numSamples);
 
@@ -403,6 +484,14 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 	// and modern Pentiums.
 	for (int i = 0; i < m_numChannels; ++i)
 	{
+#ifdef TARGET_EMSCRIPTEN
+		// re check frequency before each channel mix
+		if (m_channels[i].m_freq != channelFreqs[i])
+		{
+			m_channels[i].m_freq = channelFreqs[i];
+		}
+#endif
+		
 		float volLeft, volRight;
 		CalcChannelVolumes(i, &volLeft, &volRight);
 		float deltaVolLeft  = 0.0f;
@@ -418,8 +507,22 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 		// Skip this channel if it contains silence
 		if (!m_channels[i].m_containsSilence) 
 		{
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+			AppDebugOut("Channel: %d. freq = %u, 2dsoundfreq = %u\n", i, m_channels[i].m_freq, g_soundLibrary2d->GetFreq() );
+#endif
             float relativeFreq = (float)m_channels[i].m_freq / (float)g_soundLibrary2d->GetFreq();
+            
+            if (m_channels[i].m_freq == 0 || relativeFreq <= 0.0f || relativeFreq > 10.0f)
+            {
+            	continue;
+            }
+            
             signed short *inBuf = m_channels[i].m_buffer;
+            
+            if (!inBuf)
+            {
+            	continue;
+            }
 
 			// Determine which mixer function to use - some are faster than others
 			if( i >= m_numChannels - m_numMusicChannels )
@@ -456,6 +559,14 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 
 		m_channels[i].m_oldVolLeft = volLeft;
 		m_channels[i].m_oldVolRight = volRight;
+		
+#ifdef TARGET_EMSCRIPTEN
+		// verify frequency hasnt been corrupted after mixing operations
+		if (m_channels[i].m_freq != channelFreqs[i])
+		{
+			m_channels[i].m_freq = channelFreqs[i];
+		}
+#endif
 	}
 
 	// Scan the left and right floating point versions of the output buffer to
@@ -478,12 +589,16 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 	{
 		scale = 1.0f;
 	}
+	
+	// bounds check before final conversion
 	for (int i = 0; i < _numSamples; ++i)
 	{
-		_buf[i].m_left = Round(m_left[i] * scale);
-		_buf[i].m_right = Round(m_right[i] * scale);
+		if (_buf && i < _numSamples) 
+		{
+			_buf[i].m_left = Round(m_left[i] * scale);
+			_buf[i].m_right = Round(m_right[i] * scale);
+		}
 	}
-
 	// END_PROFILE2(m_profiler, "Mix");
 }
 
@@ -543,8 +658,27 @@ void SoundLibrary3dSoftware::SetChannelPosition( int _channel, Vector3<float> co
 
 void SoundLibrary3dSoftware::SetChannelFrequency( int _channel, int _frequency )
 {
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+	AppDebugOut("SetChannelFrequency %d %d \n", _channel, _frequency );
+#endif
 	AppAssert ( _channel >= 0 );
-	m_channels[_channel].m_freq = _frequency;
+	
+	if( _channel < m_numChannels )
+	{
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+		AppDebugOut("SetChannelFrequency: setting ch %d from %u to %d\n", _channel, m_channels[_channel].m_freq, _frequency );
+#endif
+		m_channels[_channel].m_freq = _frequency;
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+		AppDebugOut("SetChannelFrequency: confirmed ch %d now has freq %u\n", _channel, m_channels[_channel].m_freq );
+#endif
+	}
+	else
+	{
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+		AppDebugOut("SetChannelFrequency: WARNING - channel %d out of range (numChannels=%d)\n", _channel, m_numChannels );
+#endif
+	}
 }
 
 
@@ -575,7 +709,13 @@ void SoundLibrary3dSoftware::SetListenerPosition( Vector3<float> const &_pos,
 
 void SoundLibrary3dSoftware::ResetChannel( int _channel )
 {
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+	AppDebugOut("ResetChannel %d - freq was %u\n", _channel, m_channels[_channel].m_freq);
+#endif
 	m_channels[_channel].m_forceVolumeJump = true;
+#ifdef EMSCRIPTEN_SOUND_TESTBED	
+	AppDebugOut("ResetChannel %d - freq is now %u\n", _channel, m_channels[_channel].m_freq);
+#endif
 }
 
 

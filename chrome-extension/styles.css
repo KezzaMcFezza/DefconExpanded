@@ -1,0 +1,38 @@
+.group6-watch-online-btn {
+    display: block;
+    border-top: 1px solid #5e5e70;
+    border-left: 1px solid #5e5e70;
+    background: #202032 url(/img/buttonbg.png) repeat-x bottom left scroll;
+    min-height: 15px;
+    min-width: 30px;
+    margin: 5px;
+    padding: 5px;
+    text-align: center;
+    color: #bebebe;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.group6-watch-online-btn:hover {
+    color: #fff;
+}
+
+.group6-watch-online-btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+}
+
+.gameListItemInner .group6-watch-online-btn {
+    vertical-align: top !important;
+}
+
+.sfcon-watch-online-btn {
+    color: aqua;
+    text-decoration: underline;
+    margin-left: 10px;
+}
+
+.sfcon-watch-online-btn:hover {
+    color: white;
+    text-decoration: underline;
+}

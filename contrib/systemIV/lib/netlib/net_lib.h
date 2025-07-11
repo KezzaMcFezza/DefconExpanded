@@ -16,7 +16,7 @@
  #include "net_lib_win32.h"
 #endif
 
-#if (defined __linux__) && !defined(TARGET_EMSCRIPTEN)
+#if (defined __linux__) 
  #include "net_lib_linux.h"
 #endif
 

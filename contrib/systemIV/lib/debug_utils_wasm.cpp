@@ -8,7 +8,7 @@
 #include <time.h>
 #include <string.h>
 #include <string>
-
+#include <emscripten/console.h>
 #include "lib/debug_utils.h"
 
 // WebAssembly debug utilities stubs
@@ -18,7 +18,7 @@ static std::string s_debugOutRedirect;
 
 void AppDebugOutRedirect(const char *_filename)
 {
-#ifndef NO_DEBUG_OUTPUT
+#ifdef EMSCRIPTEN_DEBUG_OUTPUT
     // Simple implementation for WASM - just store the filename
     if( !_filename || strcmp( _filename, "" ) == 0 )
     {
@@ -31,20 +31,20 @@ void AppDebugOutRedirect(const char *_filename)
 
 void AppDebugOut(const char *_msg, ...)
 {
-#ifndef NO_DEBUG_OUTPUT
+#ifdef EMSCRIPTEN_DEBUG_OUTPUT
     char buf[512];
     va_list ap;
     va_start (ap, _msg);
     vsprintf(buf, _msg, ap);
     
     // For WebAssembly, just output to console
-    printf("%s", buf);
+    emscripten_console_log( buf );
 #endif
 }
 
 void AppDebugOutData(void *_data, int _dataLen)
 {
-#ifndef NO_DEBUG_OUTPUT
+#ifdef EMSCRIPTEN_DEBUG_OUTPUT
     for( int i = 0; i < _dataLen; ++i )
     {
         if( i % 16 == 0 )
@@ -76,7 +76,7 @@ void AppReleaseAssertFailed(char const *_msg, ...)
     vsprintf(buf, _msg, ap);
 
     // Output error message
-    printf("Fatal Error: %s\n", buf);
+    emscripten_console_log( buf );
 
 #ifndef _DEBUG
     AppGenerateBlackBox("blackbox.txt", buf);
