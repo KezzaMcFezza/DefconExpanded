@@ -122,10 +122,16 @@ void Matrix4f3D::Cross(float ax, float ay, float az, float bx, float by, float b
 Renderer3D::Renderer3D(Renderer* renderer)
 :   m_renderer(renderer),
     m_shader3DProgram(0),
+    m_shader3DTexturedProgram(0),
     m_VAO3D(0),
     m_VBO3D(0),
+    m_VAO3DTextured(0),
+    m_VBO3DTextured(0),
     m_vertex3DCount(0),
+    m_vertex3DTexturedCount(0),
     m_lineStrip3DActive(false),
+    m_texturedQuad3DActive(false),
+    m_currentTexture3D(0),
     m_megaVBO3DActive(false),
     m_currentMegaVBO3DKey(NULL),
     m_megaVertices3D(NULL),
@@ -133,6 +139,7 @@ Renderer3D::Renderer3D(Renderer* renderer)
 {
     // Initialize fog parameters
     m_fogEnabled = false;
+    m_fogOrientationBased = false;
     m_fogStart = 1.0f;
     m_fogEnd = 10.0f;
     m_fogDensity = 1.0f;
@@ -140,9 +147,13 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_fogColor[1] = 0.0f; // G
     m_fogColor[2] = 0.0f; // B
     m_fogColor[3] = 1.0f; // A
+    m_cameraPos[0] = 0.0f; // X
+    m_cameraPos[1] = 0.0f; // Y
+    m_cameraPos[2] = 0.0f; // Z
     
     Initialize3DShaders();
     Setup3DVertexArrays();
+    Setup3DTexturedVertexArrays();
     
     // Allocate mega vertex buffer for 3D
     m_megaVertices3D = new Vertex3D[MAX_MEGA_3D_VERTICES];
@@ -161,9 +172,21 @@ void Renderer3D::Shutdown() {
         glDeleteVertexArrays(1, &m_VAO3D);
         m_VAO3D = 0;
     }
+    if (m_VBO3DTextured) {
+        glDeleteBuffers(1, &m_VBO3DTextured);
+        m_VBO3DTextured = 0;
+    }
+    if (m_VAO3DTextured) {
+        glDeleteVertexArrays(1, &m_VAO3DTextured);
+        m_VAO3DTextured = 0;
+    }
     if (m_shader3DProgram) {
         glDeleteProgram(m_shader3DProgram);
         m_shader3DProgram = 0;
+    }
+    if (m_shader3DTexturedProgram) {
+        glDeleteProgram(m_shader3DTexturedProgram);
+        m_shader3DTexturedProgram = 0;
     }
     
     // Clean up mega vertex buffer
@@ -202,8 +225,11 @@ layout (location = 1) in vec4 aColor;
 
 uniform mat4 uProjection;
 uniform mat4 uModelView;
+uniform vec3 uCameraPos;
+uniform bool uFogOrientationBased;
 
 out vec4 vertexColor;
+out float fogFactor;
 out float fogDistance;
 
 void main() {
@@ -211,8 +237,16 @@ void main() {
     gl_Position = uProjection * viewPos;
     vertexColor = aColor;
     
-    // Calculate distance from camera for fog (negative Z in view space)
-    fogDistance = length(viewPos.xyz);
+    if (uFogOrientationBased) {
+        vec3 surfaceNormal = normalize(aPos);
+        vec3 cameraDir = normalize(uCameraPos - aPos);
+        float dotProduct = dot(surfaceNormal, cameraDir);
+        fogFactor = 1.0 - clamp(dotProduct, 0.0, 1.0);
+        fogDistance = 0.0; 
+    } else {
+        fogDistance = length(viewPos.xyz);
+        fogFactor = 0.0; 
+    }
 }
 )";
 
@@ -220,9 +254,11 @@ void main() {
 precision mediump float;
 
 in vec4 vertexColor;
+in float fogFactor;
 in float fogDistance;
 
 uniform bool uFogEnabled;
+uniform bool uFogOrientationBased;
 uniform float uFogStart;
 uniform float uFogEnd;
 uniform vec4 uFogColor;
@@ -233,14 +269,99 @@ void main() {
     vec4 finalColor = vertexColor;
     
     if (uFogEnabled) {
-        // Linear fog calculation matching OpenGL fixed-function fog
-        float fogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
-        finalColor = mix(uFogColor, vertexColor, fogFactor);
+        if (uFogOrientationBased) {
+            // Use pre-calculated fog factor from vertex shader
+            finalColor = mix(vertexColor, uFogColor, fogFactor);
+        } else {
+            // Linear distance-based fog calculation
+            float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
+            finalColor = mix(uFogColor, vertexColor, distanceFogFactor);
+        }
     }
     
     FragColor = finalColor;
 }
 )";
+
+    const char* textureFragmentShaderSource = R"(#version 300 es
+precision mediump float;
+
+in vec4 vertexColor;
+in vec2 texCoord;
+in float fogFactor;
+in float fogDistance;
+
+uniform sampler2D ourTexture;
+uniform bool uFogEnabled;
+uniform bool uFogOrientationBased;
+uniform float uFogStart;
+uniform float uFogEnd;
+uniform vec4 uFogColor;
+
+out vec4 FragColor;
+
+void main() {
+    vec4 texColor = texture(ourTexture, texCoord);
+    
+    if (texColor.a < 0.1 || (texColor.r < 0.1 && texColor.g < 0.1 && texColor.b < 0.1)) {
+        discard;
+    }
+    
+    vec4 finalColor = texColor * vertexColor;
+    
+    if (finalColor.a < 0.1) {
+        discard;
+    }
+    
+    if (uFogEnabled) {
+        if (uFogOrientationBased) {
+            finalColor.rgb = mix(finalColor.rgb, uFogColor.rgb, fogFactor);
+        } else {
+            float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
+            finalColor.rgb = mix(uFogColor.rgb, finalColor.rgb, distanceFogFactor);
+        }
+    }
+    
+    FragColor = finalColor;
+}
+)";
+
+    const char* vertex3DTexturedShaderSource = R"(#version 300 es
+precision highp float;
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec4 aColor;
+layout (location = 2) in vec2 aTexCoord;
+
+uniform mat4 uProjection;
+uniform mat4 uModelView;
+uniform vec3 uCameraPos;
+uniform bool uFogOrientationBased;
+
+out vec4 vertexColor;
+out vec2 texCoord;
+out float fogFactor;
+out float fogDistance;
+
+void main() {
+    vec4 viewPos = uModelView * vec4(aPos, 1.0);
+    gl_Position = uProjection * viewPos;
+    vertexColor = aColor;
+    texCoord = aTexCoord;
+    
+    if (uFogOrientationBased) {
+        vec3 surfaceNormal = normalize(aPos);
+        vec3 cameraDir = normalize(uCameraPos - aPos);
+        float dotProduct = dot(surfaceNormal, cameraDir);
+        fogFactor = 1.0 - clamp(dotProduct, 0.0, 1.0);
+        fogDistance = 0.0; 
+    } else {
+        fogDistance = length(viewPos.xyz);
+        fogFactor = 0.0; 
+    }
+}
+)";
+
 #else
     // Desktop OpenGL 3.3 Core 3D shaders
     const char* vertex3DShaderSource = R"(#version 330 core
@@ -250,8 +371,11 @@ layout (location = 1) in vec4 aColor;
 
 uniform mat4 uProjection;
 uniform mat4 uModelView;
+uniform vec3 uCameraPos;
+uniform bool uFogOrientationBased;
 
 out vec4 vertexColor;
+out float fogFactor;
 out float fogDistance;
 
 void main() {
@@ -259,17 +383,27 @@ void main() {
     gl_Position = uProjection * viewPos;
     vertexColor = aColor;
     
-    // Calculate distance from camera for fog (negative Z in view space)
-    fogDistance = length(viewPos.xyz);
+    if (uFogOrientationBased) {
+        vec3 surfaceNormal = normalize(aPos);
+        vec3 cameraDir = normalize(uCameraPos - aPos);
+        float dotProduct = dot(surfaceNormal, cameraDir);
+        fogFactor = 1.0 - clamp(dotProduct, 0.0, 1.0);
+        fogDistance = 0.0; 
+    } else {
+        fogDistance = length(viewPos.xyz);
+        fogFactor = 0.0; 
+    }
 }
 )";
 
     const char* fragment3DShaderSource = R"(#version 330 core
 
 in vec4 vertexColor;
+in float fogFactor;
 in float fogDistance;
 
 uniform bool uFogEnabled;
+uniform bool uFogOrientationBased;
 uniform float uFogStart;
 uniform float uFogEnd;
 uniform vec4 uFogColor;
@@ -280,12 +414,92 @@ void main() {
     vec4 finalColor = vertexColor;
     
     if (uFogEnabled) {
-        // Linear fog calculation matching OpenGL fixed-function fog
-        float fogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
-        finalColor = mix(uFogColor, vertexColor, fogFactor);
+        if (uFogOrientationBased) {
+            finalColor = mix(vertexColor, uFogColor, fogFactor);
+        } else {
+            float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
+            finalColor = mix(uFogColor, vertexColor, distanceFogFactor);
+        }
     }
     
     FragColor = finalColor;
+}
+)";
+
+    const char* textureFragmentShaderSource = R"(#version 330 core
+
+in vec4 vertexColor;
+in vec2 texCoord;
+in float fogFactor;
+in float fogDistance;
+
+uniform sampler2D ourTexture;
+uniform bool uFogEnabled;
+uniform bool uFogOrientationBased;
+uniform float uFogStart;
+uniform float uFogEnd;
+uniform vec4 uFogColor;
+
+out vec4 FragColor;
+
+void main() {
+    vec4 texColor = texture(ourTexture, texCoord);
+    
+    if (texColor.a < 0.1 || (texColor.r < 0.1 && texColor.g < 0.1 && texColor.b < 0.1)) {
+        discard;
+    }
+
+    vec4 finalColor = texColor * vertexColor;
+
+    if (finalColor.a < 0.1) {
+        discard;
+    }
+    
+    if (uFogEnabled) {
+        if (uFogOrientationBased) {
+            finalColor.rgb = mix(finalColor.rgb, uFogColor.rgb, fogFactor);
+        } else {
+            float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
+            finalColor.rgb = mix(uFogColor.rgb, finalColor.rgb, distanceFogFactor);
+        }
+    }
+    
+    FragColor = finalColor;
+}
+)";
+
+    const char* vertex3DTexturedShaderSource = R"(#version 330 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec4 aColor;
+layout (location = 2) in vec2 aTexCoord;
+
+uniform mat4 uProjection;
+uniform mat4 uModelView;
+uniform vec3 uCameraPos;
+uniform bool uFogOrientationBased;
+
+out vec4 vertexColor;
+out vec2 texCoord;
+out float fogFactor;
+out float fogDistance;
+
+void main() {
+    vec4 viewPos = uModelView * vec4(aPos, 1.0);
+    gl_Position = uProjection * viewPos;
+    vertexColor = aColor;
+    texCoord = aTexCoord;
+    
+    if (uFogOrientationBased) {
+        vec3 surfaceNormal = normalize(aPos);
+        vec3 cameraDir = normalize(uCameraPos - aPos);
+        float dotProduct = dot(surfaceNormal, cameraDir);
+        fogFactor = 1.0 - clamp(dotProduct, 0.0, 1.0);
+        fogDistance = 0.0; 
+    } else {
+        fogDistance = length(viewPos.xyz);
+        fogFactor = 0.0; 
+    }
 }
 )";
 #endif
@@ -295,6 +509,13 @@ void main() {
     
     if (m_shader3DProgram == 0) {
         AppDebugOut("Renderer3D: Failed to create 3D shader program\n");
+    }
+    
+    // Create textured 3D shader program
+    m_shader3DTexturedProgram = m_renderer->CreateShader(vertex3DTexturedShaderSource, textureFragmentShaderSource);
+    
+    if (m_shader3DTexturedProgram == 0) {
+        AppDebugOut("Renderer3D: Failed to create textured 3D shader program\n");
     }
 }
 
@@ -321,6 +542,35 @@ void Renderer3D::Setup3DVertexArrays() {
     glBindVertexArray(0);
     
     AppDebugOut("Renderer3D: 3D vertex arrays setup complete\n");
+}
+
+void Renderer3D::Setup3DTexturedVertexArrays() {
+    // Generate VAO and VBO for textured 3D rendering
+    glGenVertexArrays(1, &m_VAO3DTextured);
+    glGenBuffers(1, &m_VBO3DTextured);
+    
+    glBindVertexArray(m_VAO3DTextured);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
+    
+    // Allocate buffer for maximum textured 3D vertices
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * MAX_3D_TEXTURED_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    
+    // Position attribute (location 0) - 3 components
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    // Color attribute (location 1) - 4 components
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    
+    // Texture coordinate attribute (location 2) - 2 components
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(7 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    
+    AppDebugOut("Renderer3D: Textured 3D vertex arrays setup complete\n");
 }
 
 void Renderer3D::SetPerspective(float fovy, float aspect, float nearZ, float farZ) {
@@ -425,6 +675,127 @@ void Renderer3D::EndLineLoop3D() {
     EndLineStrip3D();
 }
 
+void Renderer3D::BeginTexturedQuad3D(unsigned int textureID, Colour const &col) {
+    m_texturedQuad3DActive = true;
+    m_texturedQuad3DColor = col;
+    m_currentTexture3D = textureID;
+    m_vertex3DTexturedCount = 0;
+}
+
+void Renderer3D::TexturedQuadVertex3D(float x, float y, float z, float u, float v) {
+    if (!m_texturedQuad3DActive) return;
+    
+    // Check buffer overflow
+    if (m_vertex3DTexturedCount >= MAX_3D_TEXTURED_VERTICES) {
+        AppDebugOut("Renderer3D: Textured 3D vertex buffer overflow\n");
+        return;
+    }
+    
+    // Convert color to float
+    float r = m_texturedQuad3DColor.m_r / 255.0f;
+    float g = m_texturedQuad3DColor.m_g / 255.0f;
+    float b = m_texturedQuad3DColor.m_b / 255.0f;
+    float a = m_texturedQuad3DColor.m_a / 255.0f;
+    
+    // Add vertex to buffer
+    m_vertices3DTextured[m_vertex3DTexturedCount] = Vertex3DTextured(x, y, z, r, g, b, a, u, v);
+    m_vertex3DTexturedCount++;
+}
+
+void Renderer3D::TexturedQuadVertex3D(const Vector3<float>& vertex, float u, float v) {
+    TexturedQuadVertex3D(vertex.x, vertex.y, vertex.z, u, v);
+}
+
+void Renderer3D::EndTexturedQuad3D() {
+    if (!m_texturedQuad3DActive || m_vertex3DTexturedCount < 4) {
+        m_texturedQuad3DActive = false;
+        m_vertex3DTexturedCount = 0;
+        return;
+    }
+    
+    // Render the textured quad (should have exactly 4 vertices)
+    Flush3DTexturedVertices();
+    
+    m_texturedQuad3DActive = false;
+}
+
+void Renderer3D::Flush3DTexturedVertices() {
+    if (m_vertex3DTexturedCount == 0) return;
+    
+    // Use textured 3D shader program
+    glUseProgram(m_shader3DTexturedProgram);
+    
+    // Set matrix uniforms
+    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
+    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
+    glUniform1i(texLoc, 0);
+    
+    // Set fog uniforms (both distance-based and orientation-based)
+    int fogEnabledLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogEnabled");
+    int fogOrientationLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogOrientationBased");
+    int fogStartLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogStart");
+    int fogEndLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogEnd");
+    int fogColorLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogColor");
+    int cameraPosLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uCameraPos");
+    
+    glUniform1i(fogEnabledLoc, m_fogEnabled ? 1 : 0);
+    glUniform1i(fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
+    glUniform1f(fogStartLoc, m_fogStart);
+    glUniform1f(fogEndLoc, m_fogEnd);
+    glUniform4f(fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
+    glUniform3f(cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
+    
+    // Bind texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_currentTexture3D);
+    
+    // Set proper texture parameters for clean rendering
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    // Upload vertex data
+    glBindVertexArray(m_VAO3DTextured);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertex3DTexturedCount * sizeof(Vertex3DTextured), m_vertices3DTextured);
+    
+    // Draw as triangles (convert quad to two triangles with proper winding)
+    if (m_vertex3DTexturedCount == 4) {
+        // Ensure counter-clockwise winding order for proper face culling
+        // Expected vertex order: 0=bottom-left, 1=bottom-right, 2=top-right, 3=top-left
+        Vertex3DTextured triangleVertices[6];
+        
+        // First triangle: bottom-left -> bottom-right -> top-right
+        triangleVertices[0] = m_vertices3DTextured[0]; // bottom-left
+        triangleVertices[1] = m_vertices3DTextured[1]; // bottom-right  
+        triangleVertices[2] = m_vertices3DTextured[2]; // top-right
+        
+        // Second triangle: bottom-left -> top-right -> top-left
+        triangleVertices[3] = m_vertices3DTextured[0]; // bottom-left
+        triangleVertices[4] = m_vertices3DTextured[2]; // top-right
+        triangleVertices[5] = m_vertices3DTextured[3]; // top-left
+        
+        // Upload triangle data
+        glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(Vertex3DTextured), triangleVertices);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+    } else {
+        // Draw as triangle fan for other polygon types
+        glDrawArrays(GL_TRIANGLE_FAN, 0, m_vertex3DTexturedCount);
+    }
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    // Reset vertex count
+    m_vertex3DTexturedCount = 0;
+}
+
 void Renderer3D::BeginCachedGeometry3D(const char* cacheKey, Colour const &col) {
     // Check if this VBO already exists and is valid
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
@@ -517,16 +888,20 @@ void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
     glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
     
-    // Set fog uniforms
+    // Set fog uniforms (both distance-based and orientation-based)
     int fogEnabledLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnabled");
+    int fogOrientationLoc = glGetUniformLocation(m_shader3DProgram, "uFogOrientationBased");
     int fogStartLoc = glGetUniformLocation(m_shader3DProgram, "uFogStart");
     int fogEndLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnd");
     int fogColorLoc = glGetUniformLocation(m_shader3DProgram, "uFogColor");
+    int cameraPosLoc = glGetUniformLocation(m_shader3DProgram, "uCameraPos");
     
     glUniform1i(fogEnabledLoc, m_fogEnabled ? 1 : 0);
+    glUniform1i(fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
     glUniform1f(fogStartLoc, m_fogStart);
     glUniform1f(fogEndLoc, m_fogEnd);
     glUniform4f(fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
+    glUniform3f(cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
     
     // Upload vertex data
     glBindVertexArray(m_VAO3D);
@@ -669,16 +1044,20 @@ void Renderer3D::RenderMegaVBO3D(const char* megaVBOKey) {
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
     glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
     
-    // Set fog uniforms
+    // Set fog uniforms (both distance-based and orientation-based)
     int fogEnabledLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnabled");
+    int fogOrientationLoc = glGetUniformLocation(m_shader3DProgram, "uFogOrientationBased");
     int fogStartLoc = glGetUniformLocation(m_shader3DProgram, "uFogStart");
     int fogEndLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnd");
     int fogColorLoc = glGetUniformLocation(m_shader3DProgram, "uFogColor");
+    int cameraPosLoc = glGetUniformLocation(m_shader3DProgram, "uCameraPos");
     
     glUniform1i(fogEnabledLoc, m_fogEnabled ? 1 : 0);
+    glUniform1i(fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
     glUniform1f(fogStartLoc, m_fogStart);
     glUniform1f(fogEndLoc, m_fogEnd);
     glUniform4f(fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
+    glUniform3f(cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
     
     // Render the mega-VBO with single draw call
     glBindVertexArray(cachedVBO->VAO);
@@ -692,8 +1071,9 @@ bool Renderer3D::IsMegaVBO3DValid(const char* megaVBOKey) {
     return (tree && tree->data && tree->data->isValid);
 }
 
-void Renderer3D::EnableFog(float start, float end, float density, float r, float g, float b, float a) {
+void Renderer3D::EnableDistanceFog(float start, float end, float density, float r, float g, float b, float a) {
     m_fogEnabled = true;
+    m_fogOrientationBased = false;
     m_fogStart = start;
     m_fogEnd = end;
     m_fogDensity = density;
@@ -701,6 +1081,18 @@ void Renderer3D::EnableFog(float start, float end, float density, float r, float
     m_fogColor[1] = g;
     m_fogColor[2] = b;
     m_fogColor[3] = a;
+}
+
+void Renderer3D::EnableOrientationFog(float r, float g, float b, float a, float camX, float camY, float camZ) {
+    m_fogEnabled = true;
+    m_fogOrientationBased = true;
+    m_fogColor[0] = r;
+    m_fogColor[1] = g;
+    m_fogColor[2] = b;
+    m_fogColor[3] = a;
+    m_cameraPos[0] = camX;
+    m_cameraPos[1] = camY;
+    m_cameraPos[2] = camZ;
 }
 
 void Renderer3D::DisableFog() {

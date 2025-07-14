@@ -137,7 +137,7 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	AppReleaseAssert(!g_soundLibrary2d, "SoundLibrary2dSDL already exists");
 
 	m_freq = g_preferences->GetInt("SoundMixFreq", 44100);
-	m_samplesPerBuffer = g_preferences->GetInt("SoundBufferSize", 2000);
+	m_samplesPerBuffer = g_preferences->GetInt("SoundBufferSize", 4000);
 
 	// Initialise the output device
 

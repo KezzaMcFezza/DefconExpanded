@@ -71,6 +71,9 @@ public:
     void            AutoLand        ();
     int             GetClosestLandingPad();
 
+    // public access to history for 3d trail rendering
+    LList<Vector3<Fixed> *>& GetHistory() { return m_history; }
+
     virtual int     IsValidMovementTarget( Fixed longitude, Fixed latitude );
 
     virtual void    Retaliate       ( int attackerId );

@@ -3,6 +3,7 @@
 
 #include "world/worldobject.h"
 #include "world/world.h"
+#include "world/nuke.h"
 
 class Image;
 class WorldObject;
@@ -117,6 +118,36 @@ protected:
 	double  m_drawingPlanningTime;
 	float   m_longitudePlanningOld;
 	float   m_latitudePlanningOld;
+
+    // 3D Globe mode state
+    bool m_3DGlobeMode;
+    
+    // 3D camera system
+    struct Globe3DCamera {
+        float m_cameraDistance;     // Distance from globe center
+        float m_cameraTheta;        // Horizontal rotation (longitude)
+        float m_cameraPhi;          // Vertical rotation (latitude) 
+        
+        Vector3<float> m_cameraPos;
+        Vector3<float> m_cameraTarget;
+        Vector3<float> m_cameraUp;
+        
+        // Mouse interaction
+        bool m_isDragging;
+        float m_lastMouseX, m_lastMouseY;
+        
+        Globe3DCamera() : 
+            m_cameraDistance(3.0f),
+            m_cameraTheta(0.0f),
+            m_cameraPhi(0.0f),
+            m_isDragging(false),
+            m_lastMouseX(0), m_lastMouseY(0) {
+            
+            m_cameraPos = Vector3<float>(0.0f, 0.5f, m_cameraDistance);
+            m_cameraTarget = Vector3<float>(0.0f, 0.0f, 0.0f);
+            m_cameraUp = Vector3<float>(0.0f, 1.0f, 0.0f);
+        }
+    } m_globe3DCamera;
 
 public:
     enum
@@ -266,6 +297,27 @@ public:
 	void	SetShowAllWhiteBoards( bool showAllWhiteBoards );
 	void    RenderWhiteBoard();
 	Team*   GetEffectiveWhiteBoardTeam();  // getter for perspective based whiteboard viewing
+	
+    // 3D globe mode functionality
+    void    Toggle3DGlobeMode();
+    bool    Is3DGlobeModeEnabled() const { return m_3DGlobeMode; }
+    void    Render3DGlobeView();
+    void    Update3DGlobeCamera();
+    void    Render3DGlobeCities();
+    void    Render3DUnits();          
+    void    Render3DUnitTrails();     
+    void    Render3DGunfire();       
+    void    Render3DExplosions();     
+    void    Render3DSonarPing();
+
+    void    Render3DSphere                              (const Vector3<float>& center, float radius, const Colour& color, int segments);
+    Vector3<float> Project3DToScreen                    (const Vector3<float>& worldPos);
+    Vector3<float> ConvertLongLatTo3DPosition           (float longitude, float latitude);
+    
+    float CalculateNuke3DHeight                         (Nuke* nuke);
+    Vector3<float> CalculateNuke3DPosition              (Nuke* nuke);
+    Vector3<float> CalculateHistoricalNuke3DPosition    (Nuke* nuke, const Vector3<Fixed>& historicalPos);
+    Vector3<float> CalculateGunfire3DPosition           (GunFire* gunfire);
 	
 	// Debug menu functionality
 	RendererDebugMenu* GetDebugMenu() const { return m_debugMenu; }

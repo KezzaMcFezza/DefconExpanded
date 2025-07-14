@@ -311,25 +311,43 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
 
 
 void SoundLibrary3dSoftware::MixStereo(signed short *_inBuf, unsigned int _numSamples,
-                                       float _volLeft, float _volRight, float _relativeFreq )
+                                       float _volLeft, float _volRight, float _relativeFreq)
 {
-    if( _relativeFreq <= 0.0f )
-    {
-        return;
-    }
-    
     float *left = m_left;
     float *right = m_right;
-    int nearestSample;
+    
+    // Stereo data is interleaved, so we need twice as many input samples
+    unsigned int maxInputSamples = (unsigned int)(_numSamples * _relativeFreq * 2.2f) + 4;
 
     for (int j = 0; j < _numSamples; ++j)
     {
-        nearestSample = (int)(j * 2 * _relativeFreq);
-        if( nearestSample % 2 == 1 ) nearestSample += 1;
+        float realPos = j * _relativeFreq;
+        int sampleLow = (int)realPos;
+        int sampleHigh = sampleLow + 1;
+        float fraction = realPos - (float)sampleLow;
+        
+        // Convert to stereo indices (interleaved L,R,L,R...)
+        int stereoLowL = sampleLow * 2;
+        int stereoLowR = stereoLowL + 1;
+        int stereoHighL = sampleHigh * 2;
+        int stereoHighR = stereoHighL + 1;
+        
+        // Bounds checking for stereo data
+        if (stereoHighR >= maxInputSamples) {
+            stereoHighL = stereoLowL;
+            stereoHighR = stereoLowR;
+            fraction = 0.0f;
+        }
+        
+        // Linear interpolation for left and right channels separately
+        float leftSample = (float)_inBuf[stereoLowL] * (1.0f - fraction) + 
+                          (float)_inBuf[stereoHighL] * fraction;
+        float rightSample = (float)_inBuf[stereoLowR] * (1.0f - fraction) + 
+                           (float)_inBuf[stereoHighR] * fraction;
 
-        *left += (float)_inBuf[nearestSample] * _volLeft;
-        *right += (float)_inBuf[nearestSample+1] * _volRight;
-        left++;	right++;
+        *left += leftSample * _volLeft;
+        *right += rightSample * _volRight;
+        left++; right++;
     }
 }
 
@@ -348,29 +366,39 @@ void SoundLibrary3dSoftware::MixSameFreqFixedVol(signed short *_inBuf, unsigned 
 	}
 }
 
-
 void SoundLibrary3dSoftware::MixDiffFreqFixedVol(signed short *_inBuf, unsigned int _numSamples, 
 												 float _volLeft, float _volRight, float _relativeFreq)
 {
-	if( _relativeFreq <= 0.0f )
-	{
-		return;
-	}
-	
 	float *left = m_left;
 	float *right = m_right;
-	int nearestSample;
 
 #ifdef EMSCRIPTEN_SOUND_TESTBED	
 	AppDebugOut("mixdifreq values! - %u %f \n", _numSamples, _relativeFreq);
 #endif
+	
+	// Estimate max safe buffer access (conservative)
+	unsigned int maxInputSamples = (unsigned int)(_numSamples * _relativeFreq * 1.1f) + 2;
 
 	for (int j = 0; j < _numSamples; ++j)
 	{
-		nearestSample = (int)(j * _relativeFreq); // Was using Round()  // TODO: Find a way to anti-alias
-		*left += (float)_inBuf[nearestSample] * _volLeft;
-		*right += (float)_inBuf[nearestSample] * _volRight;
-		left++;	right++;
+		float realPos = j * _relativeFreq;
+		int sampleLow = (int)realPos;
+		int sampleHigh = sampleLow + 1;
+		float fraction = realPos - (float)sampleLow;
+		
+		// Bounds checking to prevent buffer overrun
+		if (sampleHigh >= maxInputSamples) {
+			sampleHigh = sampleLow;
+			fraction = 0.0f;
+		}
+		
+		// Linear interpolation between two samples
+		float sample = (float)_inBuf[sampleLow] * (1.0f - fraction) + 
+					   (float)_inBuf[sampleHigh] * fraction;
+		
+		*left += sample * _volLeft;
+		*right += sample * _volRight;
+		left++; right++;
 	}
 }
 
@@ -400,24 +428,36 @@ void SoundLibrary3dSoftware::MixDiffFreqRampVol(signed short *_inBuf, unsigned i
 												float _volL1, float _volR1, float _volL2, float _volR2, 
 												float _relativeFreq)
 {
-	if( _relativeFreq <= 0.0f )
-	{
-		return;
-	}
-	
 	float volLeft = _volL1;
 	float volRight = _volR1;
 	float volLeftInc = (_volL2 - _volL1) / (float)_numSamples;
 	float volRightInc = (_volR2 - _volR1) / (float)_numSamples;
 	float *left = m_left;
 	float *right = m_right;
-	int nearestSample;
+	
+	// Estimate max safe buffer access (conservative)
+	unsigned int maxInputSamples = (unsigned int)(_numSamples * _relativeFreq * 1.1f) + 2;
+	
 	for (int j = 0; j < _numSamples; ++j)
 	{
-		nearestSample = (int)(j * _relativeFreq);	// Was using Round()
-		*left += (float)_inBuf[nearestSample] * volLeft;
-		*right += (float)_inBuf[nearestSample] * volRight;
-		left++;	right++;
+		float realPos = j * _relativeFreq;
+		int sampleLow = (int)realPos;
+		int sampleHigh = sampleLow + 1;
+		float fraction = realPos - (float)sampleLow;
+		
+		// Bounds checking to prevent buffer overrun
+		if (sampleHigh >= maxInputSamples) {
+			sampleHigh = sampleLow;
+			fraction = 0.0f;
+		}
+		
+		// Linear interpolation between two samples
+		float sample = (float)_inBuf[sampleLow] * (1.0f - fraction) + 
+					   (float)_inBuf[sampleHigh] * fraction;
+		
+		*left += sample * volLeft;
+		*right += sample * volRight;
+		left++; right++;
 		volLeft += volLeftInc;
 		volRight += volRightInc;
 	}

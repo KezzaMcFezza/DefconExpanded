@@ -10,7 +10,7 @@ SoundMasterVolume = 250
 SoundHW3D = 0
 SoundSwapStereo = 0
 SoundMemoryUsage = 1
-SoundDSP = 0
+SoundDSP = 1
 
 RenderBorders = 1
 RenderCityNames = 1

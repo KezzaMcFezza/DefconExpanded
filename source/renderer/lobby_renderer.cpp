@@ -476,9 +476,10 @@ void LobbyRenderer::SetupCamera3d()
     g_renderer->SetBlendFunc( GL_SRC_ALPHA, GL_ONE );
     glDisable( GL_DEPTH_TEST );
 
-    // MODERN OpenGL 3.3: Shader-based fog system (replaces deprecated OpenGL fog)
-    // Original settings: fog density 1.0f, start at camDist/2.0f, end at camDist*2.0f, black color
-    g_renderer3d->EnableFog(camDist/2.0f, camDist*2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+    // changed function name to enableDistanceFog, as now we have two fog modes
+    // this function remains unchanged but the name has changed for easier differentiation
+    // between fogFactor and fogDistance
+    g_renderer3d->EnableDistanceFog(camDist/2.0f, camDist*2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 

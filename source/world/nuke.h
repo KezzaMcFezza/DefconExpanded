@@ -8,7 +8,6 @@
 class Nuke : public MovingObject
 {
 protected:
-    Fixed   m_totalDistance;
     Fixed   m_curveDirection;
     Fixed   m_prevDistanceToTarget;
     
@@ -19,6 +18,11 @@ protected:
 
 public:
     Nuke();
+
+    // moved total distance to public section to be used by the 3d trail rendering
+    
+    Fixed   m_totalDistance;  
+    Fixed   GetTotalDistance() const { return m_totalDistance; } // 
 
     void    Action          ( int targetObjectId, Fixed longitude, Fixed latitude );
     bool    Update          ();

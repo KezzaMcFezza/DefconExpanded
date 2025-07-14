@@ -130,6 +130,7 @@ public:
     virtual void        RenderGhost     ( int teamId );
 
     virtual Fixed       GetSize         ();
+    virtual Fixed       GetSize3D       ();  // 3d globe rendering specific getsize function
     bool                CheckCurrentState();
     bool                IsMovingObject  ();
 
