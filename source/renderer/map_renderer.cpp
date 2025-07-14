@@ -8,6 +8,7 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/render/renderer.h"
+#include "lib/render/renderer_3d.h"
 #include "lib/render/colour.h"
 #include "lib/render/styletable.h"
 #include "lib/profiler.h"
@@ -104,7 +105,8 @@ MapRenderer::MapRenderer()
 	m_drawingPlanningTime(0.0f),
 	m_longitudePlanningOld(0.0f),
 	m_latitudePlanningOld(0.0f),
-	m_debugMenu(NULL)
+	m_debugMenu(NULL),
+	m_3DGlobeMode(false)
 {
     for( int i = 0; i < MAX_TEAMS; ++i )
     {
@@ -242,6 +244,15 @@ void MapRenderer::Render()
     //
     // Render it!
 
+    // for 3d globe mode we switch rendering contexts
+    // its amazing how quickly this happens
+    if (m_3DGlobeMode) {
+        Render3DGlobeView();
+        END_PROFILE( "MapRenderer" );
+        return;
+    }
+
+    // Standard 2D map rendering continues below
     float mapColourFader = 1.0f;
     Team *myTeam = g_app->GetWorld()->GetMyTeam();
     if( myTeam ) mapColourFader = myTeam->m_teamColourFader;
@@ -3620,6 +3631,17 @@ void MapRenderer::Update()
     
     // F2 toggles debug menu (performance heavy)
     if( g_keys[KEY_F2] && g_keyDeltas[KEY_F2] ) m_showDebugMenu = !m_showDebugMenu;
+    
+    // KEY_G toggles 3D globe mode
+    if( g_keys[KEY_G] && g_keyDeltas[KEY_G] && !g_app->GetInterface()->UsingChatWindow() ) {
+        Toggle3DGlobeMode();
+    }
+    
+    // Update 3D camera if in globe mode
+    if( m_3DGlobeMode ) {
+        Update3DGlobeCamera();
+        return;
+    }
 
     UpdateMouseIdleTime();
 

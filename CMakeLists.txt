@@ -42,7 +42,7 @@ else()
     endif()
 endif()
 
-set(REPLAY_VIEWER_VERSION "B1.80" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "B1.86" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 option(ENABLE_RECORDING_PARSING "Enable recording parsing functionality" ON)
 option(ENABLE_EMSCRIPTEN_REPLAY_VIEWER "Enable Emscripten Replay Viewer mode (recording playback only)" ON)
 
@@ -101,17 +101,17 @@ if(EMSCRIPTEN)
     
     # WebAssembly debug output control (only enabled for Debug builds)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_definitions(-DEMSCRIPTEN_SOUND)
+        #add_definitions(-DEMSCRIPTEN_SOUND)
         #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
         add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
         #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
-        #add_definitions(-DEMSCRIPTEN_SOUND_TESTBED)
+        add_definitions(-DEMSCRIPTEN_SOUND_TESTBED)
         #add_definitions(-DEMSCRIPTEN_PLAYBACK_TESTBED)
         add_definitions(-DEMSCRIPTEN_DEBUG)
     endif()
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_definitions(-DEMSCRIPTEN_SOUND)
+    #add_definitions(-DEMSCRIPTEN_SOUND)
     #add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
     #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
     #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
@@ -425,6 +425,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/lib/universal_include.cpp
     ${ROOT_PATH}/source/lib/domain_protection.cpp
     ${ROOT_PATH}/source/renderer/map_renderer.cpp
+    ${ROOT_PATH}/source/renderer/globe_renderer.cpp
     ${ROOT_PATH}/source/renderer/animated_icon.cpp
     ${ROOT_PATH}/source/renderer/lobby_renderer.cpp
     ${ROOT_PATH}/source/world/radarstation.cpp

@@ -559,6 +559,23 @@ Fixed WorldObject::GetSize()
     return size;
 }
 
+Fixed WorldObject::GetSize3D()
+{
+    // zoom scaling for the 3d globe looked strange so now we have 
+    // fixed sizes for all units regardless of zoom level
+    Fixed size = 2;
+
+    if( m_type == TypeFighter || 
+        m_type == TypeBomber )
+    {
+        size *= 1;
+    }
+
+    size /= g_app->GetWorld()->GetGameScale();
+
+    return size;
+}
+
 bool WorldObject::CheckCurrentState()
 {
     WorldObjectState *currentState = m_states[m_currentState];

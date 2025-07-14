@@ -27,6 +27,17 @@ struct Vertex3D {
         : x(px), y(py), z(pz), r(pr), g(pg), b(pb), a(pa) {}
 };
 
+// 3D textured vertex structure for sprites/quads on globe surface
+struct Vertex3DTextured {
+    float x, y, z;      // 3D position
+    float r, g, b, a;   // Color
+    float u, v;         // Texture coordinates
+    
+    Vertex3DTextured() : x(0), y(0), z(0), r(1), g(1), b(1), a(1), u(0), v(0) {}
+    Vertex3DTextured(float px, float py, float pz, float pr, float pg, float pb, float pa, float pu, float pv) 
+        : x(px), y(py), z(pz), r(pr), g(pg), b(pb), a(pa), u(pu), v(pv) {}
+};
+
 // Extended Matrix4f with 3D operations
 class Matrix4f3D {
 public:
@@ -54,8 +65,11 @@ private:
     
     // 3D-specific OpenGL objects
     unsigned int m_shader3DProgram;
+    unsigned int m_shader3DTexturedProgram;  // Textured shader for quads
     unsigned int m_VAO3D;
     unsigned int m_VBO3D;
+    unsigned int m_VAO3DTextured;            // VAO for textured quads
+    unsigned int m_VBO3DTextured;            // VBO for textured quads
     
     // 3D matrices
     Matrix4f3D m_projectionMatrix3D;
@@ -66,9 +80,19 @@ private:
     Vertex3D m_vertices3D[MAX_3D_VERTICES];
     int m_vertex3DCount;
     
+    // Dynamic vertex buffer for 3D textured rendering
+    static const int MAX_3D_TEXTURED_VERTICES = 10000;
+    Vertex3DTextured m_vertices3DTextured[MAX_3D_TEXTURED_VERTICES];
+    int m_vertex3DTexturedCount;
+    
     // 3D Line strip rendering state
     bool m_lineStrip3DActive;
     Colour m_lineStrip3DColor;
+    
+    // 3D Textured quad rendering state
+    bool m_texturedQuad3DActive;
+    Colour m_texturedQuad3DColor;
+    unsigned int m_currentTexture3D;
     
     // Mega-VBO state for 3D rendering (like 2D system)
     bool m_megaVBO3DActive;
@@ -91,15 +115,19 @@ private:
     
     // Fog parameters
     bool m_fogEnabled;
-    float m_fogStart;
-    float m_fogEnd;
-    float m_fogDensity;
-    float m_fogColor[4];  // R, G, B, A
+    bool m_fogOrientationBased;  // true = orientation-based, false = distance-based
+    float m_fogStart;           // Distance-based fog start
+    float m_fogEnd;             // Distance-based fog end
+    float m_fogDensity;         // Distance-based fog density
+    float m_fogColor[4];        // R, G, B, A
+    float m_cameraPos[3];       // X, Y, Z for orientation-based fog
     
     // Helper methods
     void Initialize3DShaders();
     void Setup3DVertexArrays();
+    void Setup3DTexturedVertexArrays();
     void Flush3DVertices(unsigned int primitiveType);
+    void Flush3DTexturedVertices();
 
 public:
     Renderer3D(Renderer* renderer);
@@ -124,6 +152,12 @@ public:
     void LineLoopVertex3D(const Vector3<float>& vertex);
     void EndLineLoop3D();
     
+    // 3D textured quad rendering (for city sprites on globe surface)
+    void BeginTexturedQuad3D(unsigned int textureID, Colour const &col);
+    void TexturedQuadVertex3D(float x, float y, float z, float u, float v);
+    void TexturedQuadVertex3D(const Vector3<float>& vertex, float u, float v);
+    void EndTexturedQuad3D();
+    
     // VBO caching system for 3D geometry (replaces display lists)
     void BeginCachedGeometry3D(const char* cacheKey, Colour const &col);
     void CachedLineStrip3D(const Vector3<float>* vertices, int vertexCount);
@@ -146,7 +180,8 @@ public:
     void Clear3DState();
     
     // Fog control
-    void EnableFog(float start, float end, float density, float r, float g, float b, float a);
+    void EnableDistanceFog(float start, float end, float density, float r, float g, float b, float a);
+    void EnableOrientationFog(float r, float g, float b, float a, float camX, float camY, float camZ);
     void DisableFog();
 };
 
