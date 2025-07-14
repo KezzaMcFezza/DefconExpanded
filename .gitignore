@@ -1,3 +1,8 @@
+#Binaries
+*.exe
+*.pdb
+*.map
+
 # Visual Studio user files
 /targets/msvc/.vs/
 /targets/msvc/Win32
