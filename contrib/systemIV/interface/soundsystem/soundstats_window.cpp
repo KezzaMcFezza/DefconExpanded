@@ -5,7 +5,7 @@
 #include "lib/gucci/window_manager.h"
 #include "lib/sound/sound_library_3d.h"
 #include "lib/sound/soundsystem.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 
 #include "interface/components/scrollbar.h"
 

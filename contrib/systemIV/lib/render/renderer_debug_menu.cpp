@@ -1,11 +1,13 @@
 #include "lib/universal_include.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
+#include "lib/render3d/renderer_3d.h"
 #include "lib/render/renderer_debug_menu.h"
 #include "lib/resource/resource.h"
 #include "lib/hi_res_time.h"
 #include "app/globals.h"
 #include "app/app.h"
 #include "interface/interface.h"
+#include "renderer/map_renderer.h"
 
 #ifdef TARGET_OS_WINDOWS
 #include <windows.h>
@@ -79,32 +81,88 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     float indentSmall = 20.0f;
     float indentLarge = 200.0f;
     
-    // Header
-    m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 13.0f, "Advanced Buffer Statistics");
+    //
+    // detect if we are in 3d mode
+
+    bool is3DMode = g_app->GetMapRenderer()->Is3DGlobeModeEnabled();
+    
+    if (is3DMode) {
+        m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 13.0f, "Advanced Buffer Statistics (3D Mode)");
+    } else {
+        m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 13.0f, "Advanced Buffer Statistics (2D Mode)");
+    }
     yPos += lineHeight;
     
+    int totalDrawCalls, legacyTriangleCalls, legacyLineCalls;
+    int uiTriangleCalls, uiLineCalls, textCalls, spriteCalls;
+    int unitTrailCalls, unitMainSpriteCalls, unitRotatingCalls, unitHighlightCalls;
+    int unitStateIconCalls, unitCounterCalls, unitNukeIconCalls;
+    int effectsLineCalls, effectsSpriteCalls;
+    int totalUnitCalls, totalEffectCalls, totalSpecializedCalls;
+    
+    if (is3DMode && g_renderer3d) {
+        totalDrawCalls = g_renderer3d->GetTotalDrawCalls() + m_renderer->GetTotalDrawCalls();
+        legacyTriangleCalls = g_renderer3d->GetLegacyTriangleCalls() + m_renderer->GetLegacyTriangleCalls();
+        legacyLineCalls = g_renderer3d->GetLegacyLineCalls() + m_renderer->GetLegacyLineCalls();
+        uiTriangleCalls = m_renderer->GetUITriangleCalls(); 
+        uiLineCalls = m_renderer->GetUILineCalls();
+        textCalls = g_renderer3d->GetTextCalls() + m_renderer->GetTextCalls();
+        spriteCalls = g_renderer3d->GetSpriteCalls() + m_renderer->GetSpriteCalls();
+        unitTrailCalls = g_renderer3d->GetUnitTrailCalls();
+        unitMainSpriteCalls = g_renderer3d->GetUnitMainSpriteCalls();
+        unitRotatingCalls = g_renderer3d->GetUnitRotatingCalls();
+        unitHighlightCalls = g_renderer3d->GetUnitHighlightCalls();
+        unitStateIconCalls = g_renderer3d->GetUnitStateIconCalls();
+        unitCounterCalls = g_renderer3d->GetUnitCounterCalls();
+        unitNukeIconCalls = g_renderer3d->GetUnitNukeIconCalls();
+        effectsLineCalls = g_renderer3d->GetEffectsLineCalls();
+        effectsSpriteCalls = g_renderer3d->GetEffectsSpriteCalls();
+        totalUnitCalls = g_renderer3d->GetTotalUnitCalls();
+        totalEffectCalls = g_renderer3d->GetTotalEffectCalls();
+        totalSpecializedCalls = g_renderer3d->GetTotalSpecializedCalls() + m_renderer->GetUITriangleCalls() + m_renderer->GetUILineCalls() + m_renderer->GetTextCalls() + m_renderer->GetSpriteCalls();
+    } else {
+        // 2d map renderer scene only
+        totalDrawCalls = m_renderer->GetTotalDrawCalls();
+        legacyTriangleCalls = m_renderer->GetLegacyTriangleCalls();
+        legacyLineCalls = m_renderer->GetLegacyLineCalls();
+        uiTriangleCalls = m_renderer->GetUITriangleCalls();
+        uiLineCalls = m_renderer->GetUILineCalls();
+        textCalls = m_renderer->GetTextCalls();
+        spriteCalls = m_renderer->GetSpriteCalls();
+        unitTrailCalls = m_renderer->GetUnitTrailCalls();
+        unitMainSpriteCalls = m_renderer->GetUnitMainSpriteCalls();
+        unitRotatingCalls = m_renderer->GetUnitRotatingCalls();
+        unitHighlightCalls = m_renderer->GetUnitHighlightCalls();
+        unitStateIconCalls = m_renderer->GetUnitStateIconCalls();
+        unitCounterCalls = m_renderer->GetUnitCounterCalls();
+        unitNukeIconCalls = m_renderer->GetUnitNukeIconCalls();
+        effectsLineCalls = m_renderer->GetEffectsLineCalls();
+        effectsSpriteCalls = m_renderer->GetEffectsSpriteCalls();
+        totalUnitCalls = m_renderer->GetTotalUnitCalls();
+        totalEffectCalls = m_renderer->GetTotalEffectCalls();
+        totalSpecializedCalls = m_renderer->GetTotalSpecializedCalls();
+    }
+    
     // Total draw calls header
-    snprintf(statsBuffer, sizeof(statsBuffer), "Total Draw Calls: %d", m_renderer->GetTotalDrawCalls());
+    snprintf(statsBuffer, sizeof(statsBuffer), "Total Draw Calls: %d", totalDrawCalls);
     m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 12.0f, statsBuffer);
     yPos += lineHeight;
     
     // Legacy immediate mode buffers (RED - performance issues)
     m_renderer->TextSimple(10, yPos, Colour(255, 100, 100, 255), 11.0f, "Immediate Mode:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Triangles: %d  Lines: %d", 
-             m_renderer->GetLegacyTriangleCalls(), m_renderer->GetLegacyLineCalls());
+             legacyTriangleCalls, legacyLineCalls);
     m_renderer->TextSimple(indentLarge, yPos, Colour(255, 100, 100, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Core UI buffers (GREEN - optimized)
+    // Core UI buffers (GREEN - optimized) - KEEP EXACT SAME LAYOUT
     m_renderer->TextSimple(10, yPos, Colour(100, 255, 100, 255), 11.0f, "UI Buffers:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Triangles: %d  Lines: %d  Text: %d  Textures: %d", 
-             m_renderer->GetUITriangleCalls(), m_renderer->GetUILineCalls(),
-             m_renderer->GetTextCalls(), m_renderer->GetSpriteCalls());
+             uiTriangleCalls, uiLineCalls, textCalls, spriteCalls);
     m_renderer->TextSimple(150, yPos, Colour(100, 255, 100, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
     // Unit rendering specialized buffers (BLUE - new system)
-    int totalUnitCalls = m_renderer->GetTotalUnitCalls();
     m_renderer->TextSimple(10, yPos, Colour(100, 150, 255, 255), 11.0f, "Unit Rendering Buffers:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Total: %d", totalUnitCalls);
     m_renderer->TextSimple(indentLarge, yPos, Colour(100, 150, 255, 255), 11.0f, statsBuffer);
@@ -112,31 +170,29 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     
     // Unit buffer details (indented)
     snprintf(statsBuffer, sizeof(statsBuffer), "  Trails: %d  Static: %d  Rotating: %d  Highlights: %d", 
-             m_renderer->GetUnitTrailCalls(), m_renderer->GetUnitMainSpriteCalls(), 
-             m_renderer->GetUnitRotatingCalls(), m_renderer->GetUnitHighlightCalls());
+             unitTrailCalls, unitMainSpriteCalls, 
+             unitRotatingCalls, unitHighlightCalls);
     m_renderer->TextSimple(indentSmall, yPos, Colour(120, 170, 255, 255), 10.0f, statsBuffer);
     yPos += 14.0f;
     
     snprintf(statsBuffer, sizeof(statsBuffer), "  UnitIcons: %d  Counters: %d  Nukes: %d", 
-             m_renderer->GetUnitStateIconCalls(), m_renderer->GetUnitCounterCalls(), 
-             m_renderer->GetUnitNukeIconCalls());
+             unitStateIconCalls, unitCounterCalls, 
+             unitNukeIconCalls);
     m_renderer->TextSimple(indentSmall, yPos, Colour(120, 170, 255, 255), 10.0f, statsBuffer);
     yPos += lineHeight;
     
     // Effects rendering specialized buffers (YELLOW - new system)
-    int totalEffectCalls = m_renderer->GetTotalEffectCalls();
     m_renderer->TextSimple(10, yPos, Colour(255, 255, 100, 255), 11.0f, "Effects Buffers:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Lines: %d  Sprites: %d  (Total: %d)", 
-             m_renderer->GetEffectsLineCalls(), m_renderer->GetEffectsSpriteCalls(), totalEffectCalls);
+             effectsLineCalls, effectsSpriteCalls, totalEffectCalls);
     m_renderer->TextSimple(140, yPos, Colour(255, 255, 100, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
     // Performance summary (CYAN - analysis)
-    int totalSpecialized = m_renderer->GetTotalSpecializedCalls();
-    int legacyTotal = m_renderer->GetLegacyTriangleCalls() + m_renderer->GetLegacyLineCalls();
+    int legacyTotal = legacyTriangleCalls + legacyLineCalls;
     m_renderer->TextSimple(10, yPos, Colour(100, 255, 255, 255), 11.0f, "Conclusion:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Batched: %d  Legacy: %d", 
-             totalSpecialized, legacyTotal);
+             totalSpecializedCalls, legacyTotal);
     m_renderer->TextSimple(indentLarge, yPos, Colour(100, 255, 255, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     

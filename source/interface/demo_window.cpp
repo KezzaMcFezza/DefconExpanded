@@ -1,7 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/hi_res_time.h"
 #include "lib/gucci/window_manager.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/preferences.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"

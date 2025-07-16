@@ -3,7 +3,7 @@
 #include "lib/tosser/directory.h"
 #include "lib/metaserver/metaserver.h"
 #include "lib/metaserver/metaserver_defines.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/language_table.h"
 
 #include "interface/serverbrowser_window.h"

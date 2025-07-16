@@ -11,7 +11,7 @@
 #include "lib/gucci/window_manager_win32.h"
 #include "lib/gucci/input.h"
 #include "lib/gucci/input_win32.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 
 
 void AppMain()

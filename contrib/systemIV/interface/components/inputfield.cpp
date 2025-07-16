@@ -9,7 +9,7 @@
 
 #include "lib/debug_utils.h"
 #include "lib/hi_res_time.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/render/styletable.h"
 #include "lib/gucci/input.h"
 #include "lib/string_utils.h"

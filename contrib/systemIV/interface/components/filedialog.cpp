@@ -4,7 +4,7 @@
 
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/file_system.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/gucci/input.h"
 #include "lib/resource/resource.h"
 #include "lib/eclipse/eclipse.h"

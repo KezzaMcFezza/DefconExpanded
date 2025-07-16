@@ -13,7 +13,7 @@
 #include "macutil.h"
 #include "app/globals.h"
 
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/bitmap.h"
 #include "lib/hi_res_time.h"

@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "lib/gucci/input.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/profiler.h"
 #include "lib/language_table.h"
 

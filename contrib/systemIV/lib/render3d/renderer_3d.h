@@ -1,0 +1,460 @@
+/*
+ * ===========
+ * RENDERER 3D
+ * ===========
+ *
+ * Modern OpenGL 3.3 Core Profile 3D rendering system
+ * Specifically designed for DEFCON's 3D globe rendering
+ */
+
+#ifndef _included_renderer3d_h
+#define _included_renderer3d_h
+
+#include "lib/tosser/btree.h"
+#include "lib/math/vector3.h"
+#include "lib/render/colour.h"
+
+// Forward declarations
+class Renderer;
+class Image;
+class BitmapFont;
+
+// Billboard modes for different sprite types
+enum BillboardMode3D {
+    BILLBOARD_SURFACE_ALIGNED,  // Lay flat on globe surface (units, cities)
+    BILLBOARD_CAMERA_FACING,    // Face camera (nukes, air units)  
+    BILLBOARD_NONE              // Use exact coordinates (lines, etc.)
+};
+
+// 3D vertex structure for modern OpenGL
+struct Vertex3D {
+    float x, y, z;      // 3D position
+    float r, g, b, a;   // Color
+    
+    Vertex3D() : x(0), y(0), z(0), r(1), g(1), b(1), a(1) {}
+    Vertex3D(float px, float py, float pz, float pr, float pg, float pb, float pa) 
+        : x(px), y(py), z(pz), r(pr), g(pg), b(pb), a(pa) {}
+};
+
+// 3D textured vertex structure for sprites/quads on globe surface
+struct Vertex3DTextured {
+    float x, y, z;      // 3D position
+    float r, g, b, a;   // Color
+    float u, v;         // Texture coordinates
+    
+    Vertex3DTextured() : x(0), y(0), z(0), r(1), g(1), b(1), a(1), u(0), v(0) {}
+    Vertex3DTextured(float px, float py, float pz, float pr, float pg, float pb, float pa, float pu, float pv) 
+        : x(px), y(py), z(pz), r(pr), g(pg), b(pb), a(pa), u(pu), v(pv) {}
+};
+
+// Extended Matrix4f with 3D operations
+class Matrix4f3D {
+public:
+    float m[16];
+    
+    Matrix4f3D();
+    void LoadIdentity();
+    void Perspective(float fovy, float aspect, float nearZ, float farZ);
+    void LookAt(float eyeX, float eyeY, float eyeZ,
+                float centerX, float centerY, float centerZ,
+                float upX, float upY, float upZ);
+    void Multiply(const Matrix4f3D& other);
+    void Copy(float* dest) const;
+    
+private:
+    void Normalize(float& x, float& y, float& z);
+    void Cross(float ax, float ay, float az, float bx, float by, float bz, float& cx, float& cy, float& cz);
+};
+
+class Renderer3D
+{
+private:
+    // Reference to main renderer for shader access
+    Renderer* m_renderer;
+    
+    // 3D-specific OpenGL objects
+    unsigned int m_shader3DProgram;
+    unsigned int m_shader3DTexturedProgram;  // Textured shader for quads
+    unsigned int m_VAO3D;
+    unsigned int m_VBO3D;
+    unsigned int m_VAO3DTextured;            // VAO for textured quads
+    unsigned int m_VBO3DTextured;            // VBO for textured quads
+    
+    // 3D matrices
+    Matrix4f3D m_projectionMatrix3D;
+    Matrix4f3D m_modelViewMatrix3D;
+    
+    // Dynamic vertex buffer for 3D rendering
+    static const int MAX_3D_VERTICES = 50000;
+    Vertex3D m_vertices3D[MAX_3D_VERTICES];
+    int m_vertex3DCount;
+    
+    // Dynamic vertex buffer for 3D textured rendering
+    static const int MAX_3D_TEXTURED_VERTICES = 10000;
+    Vertex3DTextured m_vertices3DTextured[MAX_3D_TEXTURED_VERTICES];
+    int m_vertex3DTexturedCount;
+    
+    // 3D Line strip rendering state
+    bool m_lineStrip3DActive;
+    Colour m_lineStrip3DColor;
+    
+    // 3D Textured quad rendering state
+    bool m_texturedQuad3DActive;
+    Colour m_texturedQuad3DColor;
+    unsigned int m_currentTexture3D;
+    
+    // Mega-VBO state for 3D rendering (like 2D system)
+    bool m_megaVBO3DActive;
+    char* m_currentMegaVBO3DKey;
+    Colour m_megaVBO3DColor;
+    static const int MAX_MEGA_3D_VERTICES = 200000;  // Large buffer for 3D globe
+    Vertex3D* m_megaVertices3D;
+    int m_megaVertex3DCount;
+    
+    // VBO caching system for 3D geometry (replaces display lists)
+    struct Cached3DVBO {
+        unsigned int VBO;
+        unsigned int VAO;
+        int vertexCount;
+        Colour color;
+        bool isValid;
+    };
+    
+    BTree<Cached3DVBO*> m_cached3DVBOs;
+    
+    // Fog parameters
+    bool m_fogEnabled;
+    bool m_fogOrientationBased;  // true = orientation-based, false = distance-based
+    float m_fogStart;           // Distance-based fog start
+    float m_fogEnd;             // Distance-based fog end
+    float m_fogDensity;         // Distance-based fog density
+    float m_fogColor[4];        // R, G, B, A
+    float m_cameraPos[3];       // X, Y, Z for orientation-based fog
+
+    // ============================================
+    // 3D BATCHING SYSTEM - Member Variables
+    // ============================================
+    
+    // Unit trail rendering buffers
+    static const int MAX_UNIT_TRAIL_VERTICES_3D = 20000;
+    Vertex3D m_unitTrailVertices3D[MAX_UNIT_TRAIL_VERTICES_3D];
+    int m_unitTrailVertexCount3D;
+    
+    // Unit main sprite rendering buffers
+    static const int MAX_UNIT_MAIN_VERTICES_3D = 30000;
+    Vertex3DTextured m_unitMainVertices3D[MAX_UNIT_MAIN_VERTICES_3D];
+    int m_unitMainVertexCount3D;
+    unsigned int m_currentUnitMainTexture3D;
+    
+    // Unit rotating sprite rendering buffers  
+    static const int MAX_UNIT_ROTATING_VERTICES_3D = 10000;
+    Vertex3DTextured m_unitRotatingVertices3D[MAX_UNIT_ROTATING_VERTICES_3D];
+    int m_unitRotatingVertexCount3D;
+    unsigned int m_currentUnitRotatingTexture3D;
+    
+    // Unit state icon rendering buffers
+    static const int MAX_UNIT_STATE_VERTICES_3D = 15000;
+    Vertex3DTextured m_unitStateVertices3D[MAX_UNIT_STATE_VERTICES_3D];
+    int m_unitStateVertexCount3D;
+    unsigned int m_currentUnitStateTexture3D;
+    
+    // Unit counter text rendering buffers
+    static const int MAX_UNIT_COUNTER_VERTICES_3D = 8000;
+    Vertex3DTextured m_unitCounterVertices3D[MAX_UNIT_COUNTER_VERTICES_3D];
+    int m_unitCounterVertexCount3D;
+    unsigned int m_currentUnitCounterTexture3D;
+    
+    // Unit nuke icon rendering buffers
+    static const int MAX_UNIT_NUKE_VERTICES_3D = 5000;
+    Vertex3DTextured m_unitNukeVertices3D[MAX_UNIT_NUKE_VERTICES_3D];
+    int m_unitNukeVertexCount3D;
+    unsigned int m_currentUnitNukeTexture3D;
+    
+    // Unit highlight rendering buffers
+    static const int MAX_UNIT_HIGHLIGHT_VERTICES_3D = 8000;
+    Vertex3DTextured m_unitHighlightVertices3D[MAX_UNIT_HIGHLIGHT_VERTICES_3D];
+    int m_unitHighlightVertexCount3D;
+    unsigned int m_currentUnitHighlightTexture3D;
+    
+    // Effects line rendering buffers
+    static const int MAX_EFFECTS_LINE_VERTICES_3D = 25000;
+    Vertex3D m_effectsLineVertices3D[MAX_EFFECTS_LINE_VERTICES_3D];
+    int m_effectsLineVertexCount3D;
+    
+    // Effects sprite rendering buffers
+    static const int MAX_EFFECTS_SPRITE_VERTICES_3D = 12000;
+    Vertex3DTextured m_effectsSpriteVertices3D[MAX_EFFECTS_SPRITE_VERTICES_3D];
+    int m_effectsSpriteVertexCount3D;
+    unsigned int m_currentEffectsSpriteTexture3D;
+    
+    // Health bar rendering buffers
+    static const int MAX_HEALTH_BAR_VERTICES_3D = 6000;
+    Vertex3DTextured m_healthBarVertices3D[MAX_HEALTH_BAR_VERTICES_3D];
+    int m_healthBarVertexCount3D;
+    
+    // Text rendering buffers
+    static const int MAX_TEXT_VERTICES_3D = 15000;
+    Vertex3DTextured m_textVertices3D[MAX_TEXT_VERTICES_3D];
+    int m_textVertexCount3D;
+    unsigned int m_currentTextTexture3D;
+    
+    // 3D Nuke model rendering buffers
+    static const int MAX_NUKE_3D_MODEL_VERTICES_3D = 20000;
+    Vertex3D m_nuke3DModelVertices3D[MAX_NUKE_3D_MODEL_VERTICES_3D];
+    int m_nuke3DModelVertexCount3D;
+    
+    //
+    // draw call tracking
+    
+    int m_drawCallsPerFrame3D;
+    int m_legacyVertexCalls3D;        
+    int m_legacyTriangleCalls3D;      
+    int m_unitTrailCalls3D;
+    int m_unitMainSpriteCalls3D;
+    int m_unitRotatingCalls3D;
+    int m_unitStateCalls3D;
+    int m_unitCounterCalls3D;
+    int m_unitNukeIconCalls3D;
+    int m_unitHighlightCalls3D;
+    int m_effectsLineCalls3D;
+    int m_effectsSpriteCalls3D;
+    int m_healthBarCalls3D;
+    int m_textCalls3D;
+    int m_megaVBOCalls3D;
+    int m_nuke3DModelCalls3D;
+    int m_prevDrawCallsPerFrame3D;
+    int m_prevLegacyVertexCalls3D;
+    int m_prevLegacyTriangleCalls3D;
+    int m_prevUnitTrailCalls3D;
+    int m_prevUnitMainSpriteCalls3D;
+    int m_prevUnitRotatingCalls3D;
+    int m_prevUnitStateCalls3D;
+    int m_prevUnitCounterCalls3D;
+    int m_prevUnitNukeIconCalls3D;
+    int m_prevUnitHighlightCalls3D;
+    int m_prevEffectsLineCalls3D;
+    int m_prevEffectsSpriteCalls3D;
+    int m_prevHealthBarCalls3D;
+    int m_prevTextCalls3D;
+    int m_prevMegaVBOCalls3D;
+    int m_prevNuke3DModelCalls3D;
+    
+    void IncrementDrawCall3D(const char* bufferType);
+    void ResetFrameCounters3D();
+    void Initialize3DShaders();
+    void Setup3DVertexArrays();
+    void Setup3DTexturedVertexArrays();
+    void Flush3DVertices(unsigned int primitiveType);
+    void Flush3DTexturedVertices();
+    void SetFogUniforms3D(unsigned int shaderProgram);
+    
+    // Billboard helper functions
+    void CreateSurfaceAlignedBillboard(const Vector3<float>& position, float width, float height, 
+                                     Vertex3DTextured* vertices, float u1, float v1, float u2, float v2, 
+                                     float r, float g, float b, float a, float rotation = 0.0f);
+    void CreateCameraFacingBillboard(const Vector3<float>& position, float width, float height,
+                                   Vertex3DTextured* vertices, float u1, float v1, float u2, float v2,
+                                   float r, float g, float b, float a, float rotation = 0.0f);
+    
+    // 3D Nuke model helper functions
+    void CreateNukeModel3D(const Vector3<float>& position, const Vector3<float>& direction, 
+                          float length, float radius, Colour const &col, Vertex3D* vertices, int& vertexCount);
+
+public:
+    Renderer3D(Renderer* renderer);
+    ~Renderer3D();
+    
+    void Shutdown();
+    
+    // 3D viewport and camera setup
+    void SetPerspective(float fovy, float aspect, float nearZ, float farZ);
+    void SetLookAt(float eyeX, float eyeY, float eyeZ,
+                   float centerX, float centerY, float centerZ,
+                   float upX, float upY, float upZ);
+    
+    // Camera position tracking for billboards
+    void SetCameraPosition(float x, float y, float z);
+    
+    // 3D immediate mode rendering replacements
+    void BeginLineStrip3D(Colour const &col);
+    void LineStripVertex3D(float x, float y, float z);
+    void LineStripVertex3D(const Vector3<float>& vertex);
+    void EndLineStrip3D();
+    
+    void BeginLineLoop3D(Colour const &col);
+    void LineLoopVertex3D(float x, float y, float z);
+    void LineLoopVertex3D(const Vector3<float>& vertex);
+    void EndLineLoop3D();
+    
+    // 3D textured quad rendering (for city sprites on globe surface)
+    void BeginTexturedQuad3D(unsigned int textureID, Colour const &col);
+    void TexturedQuadVertex3D(float x, float y, float z, float u, float v);
+    void TexturedQuadVertex3D(const Vector3<float>& vertex, float u, float v);
+    void EndTexturedQuad3D();
+    
+    // VBO caching system for 3D geometry (replaces display lists)
+    void BeginCachedGeometry3D(const char* cacheKey, Colour const &col);
+    void CachedLineStrip3D(const Vector3<float>* vertices, int vertexCount);
+    void EndCachedGeometry3D();
+    void RenderCachedGeometry3D(const char* cacheKey);
+    void InvalidateCached3DVBO(const char* cacheKey);
+    
+    // Check if cached geometry exists and is valid
+    bool IsCachedGeometry3DValid(const char* cacheKey);
+    
+    // Mega-VBO system for maximum performance (like 2D map renderer)
+    void BeginMegaVBO3D(const char* megaVBOKey, Colour const &col);
+    void AddLineStripToMegaVBO3D(const Vector3<float>* vertices, int vertexCount);
+    void EndMegaVBO3D();
+    void RenderMegaVBO3D(const char* megaVBOKey);
+    bool IsMegaVBO3DValid(const char* megaVBOKey);
+    
+    // Utility functions
+    void SetColor(const Colour& col);
+    void Clear3DState();
+    
+    // Fog control
+    void EnableDistanceFog(float start, float end, float density, float r, float g, float b, float a);
+    void EnableOrientationFog(float r, float g, float b, float a, float camX, float camY, float camZ);
+    void DisableFog();
+    
+    void BeginFrame3D();
+    void EndFrame3D();
+    
+    int GetTotalDrawCalls() const { return m_prevDrawCallsPerFrame3D; }
+    int GetLegacyTriangleCalls() const { return m_prevLegacyTriangleCalls3D; }
+    int GetLegacyLineCalls() const { return m_prevLegacyVertexCalls3D; }  
+    int GetUITriangleCalls() const { return 0; }    
+    int GetUILineCalls() const { return 0; }        
+    int GetTextCalls() const { return m_prevTextCalls3D; }
+    int GetSpriteCalls() const { return m_prevMegaVBOCalls3D; }  
+    int GetUnitTrailCalls() const { return m_prevUnitTrailCalls3D; }
+    int GetUnitMainSpriteCalls() const { return m_prevUnitMainSpriteCalls3D; }
+    int GetUnitRotatingCalls() const { return m_prevUnitRotatingCalls3D; }
+    int GetUnitHighlightCalls() const { return m_prevUnitHighlightCalls3D; }
+    int GetUnitStateIconCalls() const { return m_prevUnitStateCalls3D; }
+    int GetUnitCounterCalls() const { return m_prevUnitCounterCalls3D; }
+    int GetUnitNukeIconCalls() const { return m_prevUnitNukeIconCalls3D; }
+    int GetEffectsLineCalls() const { return m_prevEffectsLineCalls3D; }
+    int GetEffectsSpriteCalls() const { return m_prevEffectsSpriteCalls3D; }
+    int GetHealthBarCalls() const { return m_prevHealthBarCalls3D; }
+    int GetNuke3DModelCalls() const { return m_prevNuke3DModelCalls3D; }
+    
+    int GetTotalUnitCalls() const { 
+        return m_prevUnitTrailCalls3D + m_prevUnitMainSpriteCalls3D + m_prevUnitRotatingCalls3D + 
+               m_prevUnitHighlightCalls3D + m_prevUnitStateCalls3D + m_prevUnitCounterCalls3D + 
+               m_prevUnitNukeIconCalls3D + m_prevHealthBarCalls3D; 
+    }
+    int GetTotalEffectCalls() const { 
+        return m_prevEffectsLineCalls3D + m_prevEffectsSpriteCalls3D; 
+    }
+    int GetTotalSpecializedCalls() const {
+        return GetTotalUnitCalls() + GetTotalEffectCalls() + m_prevTextCalls3D + m_prevMegaVBOCalls3D;
+    }
+
+
+    void GetImageUVCoords(Image* image, float& u1, float& v1, float& u2, float& v2);
+    unsigned int GetEffectiveTextureID(Image* image);
+    
+    // Unit trail rendering
+    void UnitTrailLine3D(float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col);
+    void BeginUnitTrailBatch3D();
+    void EndUnitTrailBatch3D();
+    void FlushUnitTrails3D();
+    void FlushUnitTrails3DIfFull(int segmentsNeeded);
+    
+    // Unit main sprite rendering
+    void UnitMainSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col);
+    void UnitMainSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode);
+    void BeginUnitMainBatch3D();
+    void EndUnitMainBatch3D();
+    void FlushUnitMainSprites3D();
+    void FlushUnitMainSprites3DIfFull(int verticesNeeded);
+    
+    // Unit rotating sprite rendering
+    void UnitRotating3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle);
+    void UnitRotating3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode);
+    void BeginUnitRotatingBatch3D();
+    void EndUnitRotatingBatch3D();
+    void FlushUnitRotating3D();
+    void FlushUnitRotating3DIfFull(int verticesNeeded);
+    
+    // Unit state icon rendering
+    void UnitStateIcon3D(Image *stateSrc, float x, float y, float z, float w, float h, Colour const &col);
+    void UnitStateIcon3D(Image *stateSrc, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode);
+    void BeginUnitStateBatch3D();
+    void EndUnitStateBatch3D();
+    void FlushUnitStateIcons3D();
+    void FlushUnitStateIcons3DIfFull(int verticesNeeded);
+    
+    // Unit counter text rendering
+    void UnitCounterText3D(float x, float y, float z, Colour const &col, float size, const char *text);
+    void BeginUnitCounterBatch3D();
+    void EndUnitCounterBatch3D();
+    void FlushUnitCounters3D();
+    
+    // Unit nuke icon rendering
+    void UnitNukeIcon3D(float x, float y, float z, float w, float h, Colour const &col);
+    void UnitNukeIcon3D(float x, float y, float z, float w, float h, Colour const &col, float angle);
+    void UnitNukeIcon3D(float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode);
+    void UnitNukeIcon3D(float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode);
+    void BeginUnitNukeBatch3D();
+    void EndUnitNukeBatch3D();
+    void FlushUnitNukeIcons3D();
+    void FlushUnitNukeIcons3DIfFull(int verticesNeeded);
+    
+    // Unit highlight rendering
+    void UnitHighlight3D(Image *blurSrc, float x, float y, float z, float w, float h, Colour const &col);
+    void BeginUnitHighlightBatch3D();
+    void EndUnitHighlightBatch3D();
+    void FlushUnitHighlights3D();
+    
+    // Effects line rendering
+    void EffectsLine3D(float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col);
+    void BeginEffectsLineBatch3D();
+    void EndEffectsLineBatch3D();
+    void FlushEffectsLines3D();
+    void FlushEffectsLines3DIfFull(int segmentsNeeded);
+    
+    // Effects sprite rendering
+    void EffectsSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col);
+    void EffectsSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode);
+    void BeginEffectsSpriteBatch3D();
+    void EndEffectsSpriteBatch3D();
+    void FlushEffectsSprites3D();
+    
+    // Health bar rendering
+    void HealthBarRect3D(float x, float y, float z, float w, float h, Colour const &col);
+    void BeginHealthBarBatch3D();
+    void EndHealthBarBatch3D();
+    void FlushHealthBars3D();
+    
+    // Text batching convenience methods
+    void BeginMapTextBatch3D();
+    void EndMapTextBatch3D();
+    void BeginFrameTextBatch3D();
+    void EndFrameTextBatch3D();
+    void BeginTextBatch3D();
+    void EndTextBatch3D();
+    void FlushTextContext3D();
+    void FlushTextBuffer3D();
+    
+    // 3D Nuke model rendering
+    void Nuke3DModel(const Vector3<float>& position, const Vector3<float>& direction, 
+                     float length, float radius, Colour const &col);
+    void BeginNuke3DModelBatch3D();
+    void EndNuke3DModelBatch3D();
+    void FlushNuke3DModels3D();
+    void FlushNuke3DModels3DIfFull(int verticesNeeded);
+    void FlushAllNuke3DModelBuffers3D();
+    
+    // Buffer management
+    void FlushAllSpecializedBuffers3D();
+    void FlushAllUnitBuffers3D();
+    void FlushAllEffectBuffers3D();
+};
+
+// Global 3D renderer instance
+extern Renderer3D *g_renderer3d;
+
+#endif 

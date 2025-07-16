@@ -5,7 +5,7 @@
 #include "lib/sound/sound_library_3d.h"
 #include "lib/gucci/input.h"
 #include "lib/filesys/filesys_utils.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/debug_utils.h"
 
 #include "interface/components/drop_down_menu.h"

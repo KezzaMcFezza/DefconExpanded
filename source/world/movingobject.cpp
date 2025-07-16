@@ -67,15 +67,19 @@ void MovingObject::InitialiseTimers()
 
 bool MovingObject::Update()
 {
-    //
-    // Update history    
+    // we now use a much more frequent sampling rate for the unit trails
+    // this makes the game look more modern and realistic
+    float samplingRate = 0.5f; 
+    if (m_type == WorldObject::TypeNuke) {
+        samplingRate = 0.25f;  // even more frequent for nukes to remove those jagged lines
+    }
+    
     m_historyTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor() / 10;
     if( m_historyTimer <= 0 )
     {
         m_history.PutDataAtStart( new Vector3<Fixed>(m_longitude, m_latitude, 0) );
-        m_historyTimer = 2;
+        m_historyTimer = samplingRate; 
     }
-
     while( m_maxHistorySize != -1 && 
            m_history.ValidIndex(m_maxHistorySize) )
     {
@@ -595,6 +599,8 @@ void MovingObject::RenderHistory()
         {
             case TypeNuke:
                 sizeCap = 12 * g_app->GetMapRenderer()->GetZoomFactor();
+                // we need to account for the new sample rate, so we multiply by 8
+                sizeCap *= 8;
                 if( g_app->GetMapRenderer()->GetZoomFactor() < 0.25f )
                 {
                     return;
@@ -604,6 +610,8 @@ void MovingObject::RenderHistory()
             case TypeBattleShip:
             case TypeCarrier:
             case TypeSub:
+                // same here we multiply by 4
+                sizeCap *= 4;
                 break;
 
             default:
@@ -611,6 +619,17 @@ void MovingObject::RenderHistory()
         }
 
         if( sizeCap < 2 ) return;
+    }
+    else
+    {
+        if( m_type == TypeNuke )
+        {
+            sizeCap *= 8;
+        }
+        else
+        {
+            sizeCap *= 4;
+        }
     }
 
     maxSize = ( maxSize > sizeCap ? sizeCap : maxSize );
@@ -632,7 +651,8 @@ void MovingObject::RenderHistory()
         myTeamId < g_app->GetWorld()->m_teams.Size() &&
         g_app->GetWorld()->GetTeam(myTeamId)->m_type != Team::TypeUnassigned )
     {
-        maxSize = min( maxSize, 4 );
+        int enemyTrailLimit = (m_type == TypeNuke) ? 32 : 16;  // 4*8 for nukes, 4*4 for others
+        maxSize = min( maxSize, enemyTrailLimit );
     }
 
     if( m_history.Size() > 0 )

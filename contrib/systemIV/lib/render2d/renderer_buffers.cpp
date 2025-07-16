@@ -9,12 +9,11 @@
 #include "lib/math/vector3.h"
 #include "lib/math/math_utils.h"
 #include "lib/string_utils.h"
-#include "lib/render/sprite_atlas.h"
+#include "lib/resource/sprite_atlas.h"
+#include "lib/render/colour.h"
 
 #include "renderer.h"
-#include "colour.h"
 
-// External globals
 extern Renderer *g_renderer;
 
 // get UV coordinates for an image from the atlas

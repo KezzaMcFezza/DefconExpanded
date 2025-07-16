@@ -1,6 +1,6 @@
 #include "lib/universal_include.h"
 #include "lib/metaserver/authentication.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/render/styletable.h"
 #include "lib/hi_res_time.h"
 #include "lib/language_table.h"

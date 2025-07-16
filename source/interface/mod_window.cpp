@@ -1,5 +1,5 @@
 #include "lib/universal_include.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/resource/bitmap.h"

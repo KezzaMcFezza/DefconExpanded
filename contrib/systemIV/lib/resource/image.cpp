@@ -6,10 +6,10 @@
 #include "lib/filesys/file_system.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/binary_stream_readers.h"
-#include "lib/render/sprite_atlas.h"
 
 #include "bitmap.h"
 #include "image.h"
+#include "sprite_atlas.h"
 
 
 Image::Image( char *filename )

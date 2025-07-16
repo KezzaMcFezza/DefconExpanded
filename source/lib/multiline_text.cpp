@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/debug_utils.h"
 
 #include "app/globals.h"

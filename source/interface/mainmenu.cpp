@@ -6,7 +6,7 @@
 #include "lib/language_table.h"
 #include "lib/preferences.h"
 #include "lib/resource/resource.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/netlib/net_lib.h"
 #include "lib/math/random_number.h"
 #include "lib/hi_res_time.h"

@@ -5,7 +5,7 @@
 #include "lib/eclipse/eclipse.h"
 #include "lib/gucci/input.h"
 #include "lib/gucci/window_manager.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/render/styletable.h"
 #include "lib/language_table.h"
 #include "lib/hi_res_time.h"

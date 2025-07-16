@@ -11,7 +11,7 @@
 #endif
 #include "lib/gucci/input.h"
 #include "lib/resource/resource.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/render/styletable.h"
 #include "lib/debug_utils.h"
 #include "lib/profiler.h"

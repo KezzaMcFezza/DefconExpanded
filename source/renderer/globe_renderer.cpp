@@ -7,8 +7,8 @@
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
-#include "lib/render/renderer.h"
-#include "lib/render/renderer_3d.h"
+#include "lib/render2d/renderer.h"
+#include "lib/render3d/renderer_3d.h"
 #include "lib/render/colour.h"
 #include "lib/render/styletable.h"
 #include "lib/profiler.h"
@@ -86,11 +86,11 @@ void MapRenderer::Toggle3DGlobeMode()
 //
 // main rendering for the 3D globe
 
-// TODO: add batching for the 3d world objects, i need to preserve gl_blend as
-//       i have had issues in the past with blending and batching in map renderer
-
-void MapRenderer::Render3DGlobeView()
+void MapRenderer::Render3DGlobe()
 {
+    // begin draw call tracking
+    g_renderer3d->BeginFrame3D();
+    
     float aspect = (float)g_windowManager->WindowW() / (float)g_windowManager->WindowH();
     g_renderer3d->SetPerspective(60.0f, aspect, 0.1f, 100.0f);
     
@@ -101,15 +101,24 @@ void MapRenderer::Render3DGlobeView()
         m_globe3DCamera.m_cameraUp.x, m_globe3DCamera.m_cameraUp.y, m_globe3DCamera.m_cameraUp.z
     );
     
-    // Enable depth testing for 3D
+    // set camera position for billboard calculations
+    g_renderer3d->SetCameraPosition(m_globe3DCamera.m_cameraPos.x, 
+                                   m_globe3DCamera.m_cameraPos.y, 
+                                   m_globe3DCamera.m_cameraPos.z);
+    
+    // enable depth testing for 3D sprites
     glEnable(GL_DEPTH_TEST);
     glClear(GL_DEPTH_BUFFER_BIT);
+    
+    // use additive blending like 2D mode
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     
     // new fog mode is being used
     // distance fog is useless for globe mode as when you zoom in and out the coastlines
     // would dissapear and reappear, so we use orientation fog instead
     // this is a much better looking solution
-    g_renderer3d->EnableOrientationFog(0.02f, 0.02f, 0.05f, 1.0f, 
+    g_renderer3d->EnableOrientationFog(0.01f, 0.08f, 0.05f, 20.0f, 
                                       m_globe3DCamera.m_cameraPos.x,
                                       m_globe3DCamera.m_cameraPos.y,
                                       m_globe3DCamera.m_cameraPos.z);
@@ -121,8 +130,27 @@ void MapRenderer::Render3DGlobeView()
         g_renderer3d->RenderMegaVBO3D("GlobeBorders");
     }
     
-    // Disable fog after rendering coastlines and borders
+    // disable fog after rendering coastlines and borders
     g_renderer3d->DisableFog();
+
+    //
+    // master scene batching, pretty much identical to map renderer
+    // if it aint broke dont fix it, since im good at breaking shit
+    //
+    
+    //
+    // begin scene
+
+    g_renderer3d->BeginUnitMainBatch3D();       // Main unit sprites + city icons
+    g_renderer3d->BeginUnitRotatingBatch3D();   // Rotating sprites (aircraft, but not nukes anymore)
+    g_renderer3d->BeginUnitTrailBatch3D();      // Unit movement trails
+    g_renderer3d->BeginUnitStateBatch3D();      // Unit state icons (fighters/bombers on units)
+    g_renderer3d->BeginUnitNukeBatch3D();       // Small nuke icons on units
+    g_renderer3d->BeginNuke3DModelBatch3D();    // 3D nuke models (replaces flat nuke sprites)
+    g_renderer3d->BeginEffectsLineBatch3D();    // All line effects (gunfire trails, etc.)
+    g_renderer3d->BeginEffectsSpriteBatch3D();  // All sprite effects (explosions, sonar pings, etc.)
+
+    // render all 3d objects inside the scene
 
     Render3DGlobeCities();
     Render3DUnits();
@@ -130,15 +158,34 @@ void MapRenderer::Render3DGlobeView()
     Render3DGunfire();
     Render3DExplosions();
     Render3DSonarPing();
+    
+    //
+    // now end the scene and flush
+    
+    g_renderer3d->EndUnitTrailBatch3D();        // Flush all unit trails
+    g_renderer3d->EndEffectsSpriteBatch3D();    // Flush all sprite effects (explosions, sonar pings)
+    g_renderer3d->EndEffectsLineBatch3D();      // Flush all line effects (gunfire trails)
+    g_renderer3d->EndNuke3DModelBatch3D();      // Flush all 3D nuke models
+    g_renderer3d->EndUnitNukeBatch3D();         // Flush all small nuke icons
+    g_renderer3d->EndUnitStateBatch3D();        // Flush all unit state icons
+    g_renderer3d->EndUnitRotatingBatch3D();     // Flush all rotating sprites (atlas batching!)
+    g_renderer3d->EndUnitMainBatch3D();         // Flush all main unit sprites + city icons (atlas batching!)
+
     glDisable(GL_DEPTH_TEST);
+    
+    // restore blending state to 2D default
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     // reset to 2d viewport
     g_renderer->Reset2DViewport();
+    
+    // end draw call tracking
+    g_renderer3d->EndFrame3D();
 }
 
 //
 // camera controls for the 3d globe, to preserve muscle memory
-// we use default defcon controls
+// we use default DEFCON controls
 
 void MapRenderer::Update3DGlobeCamera()
 {
@@ -244,6 +291,11 @@ void MapRenderer::Update3DGlobeCamera()
     }
 }
 
+//
+// this is the function that makes it all happen, we convert 2d coordinates to 3d coordinates
+// the only issue with this which is pretty unavoidable is that the closer we get to the poles
+// the units get squashed, its literally an unsolvable problem.
+
 Vector3<float> MapRenderer::ConvertLongLatTo3DPosition(float longitude, float latitude)
 {
     
@@ -259,6 +311,7 @@ Vector3<float> MapRenderer::ConvertLongLatTo3DPosition(float longitude, float la
     
     return pos;
 }
+
 //
 // create a simple sphere using triangles
 
@@ -400,16 +453,6 @@ void MapRenderer::Render3DGlobeCities()
     cityNameColor.m_a = 200.0f * (1.0f - sqrtf(zoomFactorEquivalent));
     countryNameColor.m_a = 200.0f * (1.0f - sqrtf(zoomFactorEquivalent));
     
-    // render city BMPs as 3D quads
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
-    glEnable(GL_BLEND);
-    
-    g_renderer->SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    
-    float uv_u1, uv_v1, uv_u2, uv_v2;
-    g_renderer->GetImageUVCoords(cityImg, uv_u1, uv_v1, uv_u2, uv_v2);
-    unsigned int textureID = g_renderer->GetEffectiveTextureID(cityImg);
     
     struct CityRenderInfo {
         City* city;
@@ -482,31 +525,9 @@ void MapRenderer::Render3DGlobeCities()
         
         Vector3<float> normal = cityPos;
         normal.Normalise();
-        
-        Vector3<float> up = Vector3<float>(0.0f, 1.0f, 0.0f);
-        if (fabsf(normal.y) > 0.9f) {
-            up = Vector3<float>(1.0f, 0.0f, 0.0f);
-        }
-        
-        Vector3<float> tangent1 = normal ^ up;
-        tangent1.Normalise();
-        Vector3<float> tangent2 = normal ^ tangent1;
-        tangent2.Normalise();
-        
-        // prevent z fighting with the globe vertices
         cityPos += normal * 0.002f;
         
-        Vector3<float> v1 = cityPos - tangent1 * size - tangent2 * size;
-        Vector3<float> v2 = cityPos + tangent1 * size - tangent2 * size;
-        Vector3<float> v3 = cityPos + tangent1 * size + tangent2 * size;
-        Vector3<float> v4 = cityPos - tangent1 * size + tangent2 * size;
-        
-        g_renderer3d->BeginTexturedQuad3D(textureID, col);
-        g_renderer3d->TexturedQuadVertex3D(v1.x, v1.y, v1.z, uv_u1, uv_v1);
-        g_renderer3d->TexturedQuadVertex3D(v2.x, v2.y, v2.z, uv_u2, uv_v1);
-        g_renderer3d->TexturedQuadVertex3D(v3.x, v3.y, v3.z, uv_u2, uv_v2);
-        g_renderer3d->TexturedQuadVertex3D(v4.x, v4.y, v4.z, uv_u1, uv_v2);
-        g_renderer3d->EndTexturedQuad3D();
+        g_renderer3d->UnitMainSprite3D(cityImg, cityPos.x, cityPos.y, cityPos.z, size * 2.0f, size * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
     }
     
     // currently not used, i had alot of issues with city names
@@ -541,8 +562,6 @@ void MapRenderer::Render3DGlobeCities()
             
         }
     }
-    
-    g_renderer->SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 //
@@ -555,7 +574,7 @@ void MapRenderer::Render3DUnits()
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
-    // Enhanced structure to handle different unit types
+    // handle different unit types
     struct UnitRenderInfo {
         WorldObject* unit;
         Vector3<float> worldPos;
@@ -576,7 +595,8 @@ void MapRenderer::Render3DUnits()
         if (g_app->GetWorld()->m_objects.ValidIndex(i)) {
             WorldObject *wobj = g_app->GetWorld()->m_objects[i];
             
-            // Check if unit should be rendered
+            // check what teamid we have set, then we can decide
+            // whether to render the unit or not
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
@@ -587,12 +607,10 @@ void MapRenderer::Render3DUnits()
             Vector3<float> unitPos;
             bool isNuke = (wobj->m_type == WorldObject::TypeNuke);
             
-            // SPECIAL HANDLING FOR NUKES: Use 3D arc position
             if (isNuke) {
                 Nuke* nuke = (Nuke*)wobj;
                 unitPos = CalculateNuke3DPosition(nuke);
                 
-                // More lenient viewport culling for nukes (they can be high above surface)
                 Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
                 globeToCamera.Normalise();
                 Vector3<float> nukeToCameraDir = unitPos;
@@ -610,22 +628,21 @@ void MapRenderer::Render3DUnits()
                     predictedLatitude.DoubleValue()
                 );
                 
-                // Enhanced viewport culling for surface units - only render visible hemisphere
+                // viewport culling,only render visible hemisphere however the issue is that
+                // the logic is pretty flawed as it does not take into account the zoom level
                 Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
                 globeToCamera.Normalise();
                 float dotProduct = unitPos * globeToCamera;
                 if (dotProduct < 0.0f) continue;
             }
             
-            // Get unit image (use GetBmpImage with current state for state-dependent textures like silos)
             Image *unitImg = wobj->GetBmpImage(wobj->m_currentState);
             if (!unitImg) continue;
             
-            // Enhanced size calculation based on unit type
+            // pass the image to the size multiplier
             float baseSize = wobj->GetSize3D().DoubleValue();
             float size;
             
-            // FIXED: Different size multipliers for different unit categories
             bool isMovingObject = wobj->IsMovingObject();
             bool isAirUnit = false;
             
@@ -634,45 +651,37 @@ void MapRenderer::Render3DUnits()
                 isAirUnit = (mobj->m_movementType == MovingObject::MovementTypeAir);
                 
                 if (isAirUnit) {
-                    // Air units: 25% smaller
                     size = baseSize * 0.0075f * 0.75f;
                 } else if (mobj->m_movementType == MovingObject::MovementTypeSea) {
-                    // Sea units: 25% bigger
                     size = baseSize * 0.0075f * 1.25f;
                 } else {
-                    // Moving land units: normal size
                     size = baseSize * 0.0075f;
                 }
             } else {
-                // Static land units (silos, airbases, radar): DOUBLE size
                 size = baseSize * 0.0075f * 2.0f;
             }
             
-            // Special size scaling for nukes in 3D space
             if (isNuke) {
-                size = baseSize * 0.008f; // Slightly larger for visibility at high altitude
+                size = baseSize * 0.008f; 
             }
             
-            size = fmax(size, 0.002f);  // Minimum size
-            size = fmin(size, 0.04f);   // Maximum size
+            size = fmax(size, 0.002f);  
+            size = fmin(size, 0.04f);   
             
-            // Get unit color (team color or default)
             Colour unitColor = White;
             Team *team = g_app->GetWorld()->GetTeam(wobj->m_teamId);
             if (team) {
                 unitColor = team->GetTeamColour();
             }
-            unitColor.m_a = 255; // Full opacity for units
             
-            // Calculate rotation angle for air units (same as 2D system)
+            // make sure to pass the rotation angle for the unit icons
             float rotationAngle = 0.0f;
             if (isAirUnit || isNuke) {
-                // Use same angle calculation as 2D system
                 rotationAngle = atan(-wobj->m_vel.x.DoubleValue() / wobj->m_vel.y.DoubleValue());
                 if (wobj->m_vel.y < 0) rotationAngle += M_PI;
             }
             
-            // Calculate distance to camera for sorting
+            // calculate distance to the camera for sorting
             Vector3<float> cameraToUnit = unitPos - m_globe3DCamera.m_cameraPos;
             float distance = cameraToUnit.Mag();
             
@@ -703,115 +712,100 @@ void MapRenderer::Render3DUnits()
         }
     }
     
-    // Set up OpenGL state for rendering
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
-    glEnable(GL_BLEND);
-    g_renderer->SetBlendFunc(GL_SRC_ALPHA, GL_ONE); // Additive blending like cities
     
-    // Second pass: render unit sprites
+    // Second pass: render unit sprites using 3D batching
     for (int i = 0; i < visibleUnits.Size(); i++) {
         UnitRenderInfo& info = visibleUnits[i];
         Vector3<float> unitPos = info.worldPos;
         float size = info.size;
         Colour color = info.color;
         Image *unitImg = info.image;
+        WorldObject* wobj = info.unit;
         
-        // Get UV coordinates and texture ID for sprite atlas
-        float uv_u1, uv_v1, uv_u2, uv_v2;
-        g_renderer->GetImageUVCoords(unitImg, uv_u1, uv_v1, uv_u2, uv_v2);
-        unsigned int textureID = g_renderer->GetEffectiveTextureID(unitImg);
+        //
+        // elevation system, now air units render higher than other units
+        // and every other unit lays flat on the globe
         
-        // Create proper "upward-facing" billboard that doesn't flip based on hemisphere
-        Vector3<float> normal;
+        Vector3<float> normal = unitPos;
+        normal.Normalise();
+        
+        float elevation = 0.0f; 
         
         if (info.isNuke) {
-            // For nukes in 3D space, create billboard facing camera
-            Vector3<float> cameraDir = m_globe3DCamera.m_cameraPos - unitPos;
-            cameraDir.Normalise();
-            
-            // Create billboard facing camera
-            Vector3<float> up = Vector3<float>(0.0f, 1.0f, 0.0f);
-            Vector3<float> right = up ^ cameraDir;
-            right.Normalise();
-            up = cameraDir ^ right;
-            up.Normalise();
-            
-            // Apply rotation for nuke orientation
-            if (info.rotationAngle != 0.0f) {
-                float cosRot = cosf(info.rotationAngle);
-                float sinRot = sinf(info.rotationAngle);
-                Vector3<float> rotatedRight = right * cosRot + up * sinRot;
-                Vector3<float> rotatedUp = -right * sinRot + up * cosRot;
-                right = rotatedRight;
-                up = rotatedUp;
-            }
-            
-            // Create quad vertices for camera-facing billboard
-            Vector3<float> v1 = unitPos - right * size + up * size;
-            Vector3<float> v2 = unitPos + right * size + up * size;
-            Vector3<float> v3 = unitPos + right * size - up * size;
-            Vector3<float> v4 = unitPos - right * size - up * size;
-            
-            // Render nuke sprite
-            g_renderer3d->BeginTexturedQuad3D(textureID, color);
-            g_renderer3d->TexturedQuadVertex3D(v1.x, v1.y, v1.z, uv_u1, uv_v2);
-            g_renderer3d->TexturedQuadVertex3D(v2.x, v2.y, v2.z, uv_u2, uv_v2);
-            g_renderer3d->TexturedQuadVertex3D(v3.x, v3.y, v3.z, uv_u2, uv_v1);
-            g_renderer3d->TexturedQuadVertex3D(v4.x, v4.y, v4.z, uv_u1, uv_v1);
-            g_renderer3d->EndTexturedQuad3D();
+            elevation = 0.0f; // nukes are already positioned with proper height by CalculateNuke3DPosition
+        } else if (info.isAirUnit) {
+            elevation = 0.015f;  // 2.5x higher 
         } else {
-            // Surface units use globe-surface billboards
-            normal = unitPos;
-            normal.Normalise();
+            bool isSurfaceUnit = false;
             
-            // Create consistent "up" direction relative to globe north pole
-            Vector3<float> globeUp = Vector3<float>(0.0f, 1.0f, 0.0f);
-            
-            // For units right at poles, use a stable tangent
-            Vector3<float> tangent1;
-            if (fabsf(normal.y) > 0.98f) {
-                // At poles, use east direction
-                tangent1 = Vector3<float>(1.0f, 0.0f, 0.0f);
+            if (info.isMovingObject) {
+                MovingObject* mobj = (MovingObject*)wobj;
+                if (mobj->m_movementType == MovingObject::MovementTypeSea) {
+                    isSurfaceUnit = true;
+                }
             } else {
-                // Create tangent pointing "east" (perpendicular to north and surface normal)
-                tangent1 = globeUp ^ normal;
-                tangent1.Normalise();
+                if (wobj->m_type == WorldObject::TypeAirBase ||
+                    wobj->m_type == WorldObject::TypeSilo ||
+                    wobj->m_type == WorldObject::TypeRadarStation) {
+                    isSurfaceUnit = true;
+                }
             }
             
-            // Create tangent pointing "north" (always toward globe north pole)
-            Vector3<float> tangent2 = normal ^ tangent1;
-            tangent2.Normalise();
+            if (isSurfaceUnit) {
+                elevation = 0.001f;  
+            } else {
+                elevation = 0.006f;  
+            }
+        }
+        
+        unitPos += normal * elevation;
+        
+        //
+        // for nukes in 3D space, use the new 3D nuke model that faces forward
+
+        if (info.isNuke) {
+            Nuke* nuke = (Nuke*)wobj;
             
-            // For air units, apply rotation to the tangent vectors
-            if (info.isAirUnit) {
-                // Rotate tangent vectors by the unit's heading angle
-                Vector3<float> rotatedTangent1 = tangent1 * cosf(info.rotationAngle) + tangent2 * sinf(info.rotationAngle);
-                Vector3<float> rotatedTangent2 = tangent2 * cosf(info.rotationAngle) - tangent1 * sinf(info.rotationAngle);
-                tangent1 = rotatedTangent1;
-                tangent2 = rotatedTangent2;
+            //
+            // this is claudes attempt at getting the nuke to face forward along its trajectory
+            // the issue that im having is that the nuke only faces the right direction when
+            // we hit the half way point in the arc, or the highest point in the arc, i will
+            // continue to work on this but for now this is what we get
+
+            Vector3<float> direction(0, 0, 1);  // Default forward direction
+            if (nuke->m_vel.x != 0 || nuke->m_vel.y != 0) {
+                // Calculate current position
+                Vector3<float> currentPos = CalculateNuke3DPosition(nuke);
+                
+                // Calculate where nuke will be next frame (same as trail logic)
+                Fixed predictionTime = Fixed::FromDouble(g_predictionTime + 0.1) * g_app->GetWorld()->GetTimeScaleFactor();
+                float nextLongitude = (nuke->m_longitude + nuke->m_vel.x * predictionTime).DoubleValue();
+                float nextLatitude = (nuke->m_latitude + nuke->m_vel.y * predictionTime).DoubleValue();
+                
+                // Calculate next 3D position with proper height
+                Vector3<float> nextSurfacePos = ConvertLongLatTo3DPosition(nextLongitude, nextLatitude);
+                float nextHeight = CalculateNuke3DHeight(nuke);  // Use same height calculation
+                Vector3<float> nextNormal = nextSurfacePos;
+                nextNormal.Normalise();
+                Vector3<float> nextPos = nextSurfacePos + nextNormal * nextHeight;
+                
+                // Direction = where we're going minus where we are
+                direction = nextPos - currentPos;
+                direction.Normalise();
             }
             
-            // Offset slightly above surface (higher than cities to avoid z-fighting)
-            unitPos += normal * 0.006f;
-            
-            // Create quad vertices with FIXED orientation (always upward-facing)
-            Vector3<float> v1 = unitPos - tangent1 * size + tangent2 * size;  // Top-left
-            Vector3<float> v2 = unitPos + tangent1 * size + tangent2 * size;  // Top-right  
-            Vector3<float> v3 = unitPos + tangent1 * size - tangent2 * size;  // Bottom-right
-            Vector3<float> v4 = unitPos - tangent1 * size - tangent2 * size;  // Bottom-left
-            
-            // Render unit sprite with proper UV mapping (no flipping)
-            g_renderer3d->BeginTexturedQuad3D(textureID, color);
-            g_renderer3d->TexturedQuadVertex3D(v1.x, v1.y, v1.z, uv_u1, uv_v2);  // Top-left
-            g_renderer3d->TexturedQuadVertex3D(v2.x, v2.y, v2.z, uv_u2, uv_v2);  // Top-right
-            g_renderer3d->TexturedQuadVertex3D(v3.x, v3.y, v3.z, uv_u2, uv_v1);  // Bottom-right
-            g_renderer3d->TexturedQuadVertex3D(v4.x, v4.y, v4.z, uv_u1, uv_v1);  // Bottom-left
-            g_renderer3d->EndTexturedQuad3D();
+            float nukeLength = size * 1.2f;  
+            float nukeRadius = size * 0.24f;  
+            g_renderer3d->Nuke3DModel(unitPos, direction, nukeLength, nukeRadius, color);
+        } else if (info.isAirUnit) {
+            g_renderer3d->UnitRotating3D(unitImg, unitPos.x, unitPos.y, unitPos.z, 
+                                        size * 2.0f, size * 2.0f, color, info.rotationAngle, BILLBOARD_SURFACE_ALIGNED);
+        } else {
+            g_renderer3d->UnitMainSprite3D(unitImg, unitPos.x, unitPos.y, unitPos.z, 
+                                          size * 2.0f, size * 2.0f, color, BILLBOARD_SURFACE_ALIGNED);
         }
     }
     
-    // PART 3: Render small unit capacity icons (fighters, bombers, nukes on units)
     for (int i = 0; i < visibleUnits.Size(); i++) {
         UnitRenderInfo& info = visibleUnits[i];
         WorldObject* wobj = info.unit;
@@ -819,10 +813,10 @@ void MapRenderer::Render3DUnits()
         float unitSize = info.size;
         Colour teamColor = info.color;
         
-        // Skip capacity icons for nukes (they don't carry anything)
+        // nukes dont cary nukes
         if (info.isNuke) continue;
         
-        // Check if we should render capacity indicators for this team
+        // check teamid to see if we should render the capacity indicators
         int myTeamId = g_app->GetWorld()->m_myTeamId;
         bool shouldRenderCapacity = (myTeamId == -1 || 
                                    wobj->m_teamId == myTeamId || 
@@ -833,24 +827,34 @@ void MapRenderer::Render3DUnits()
         Vector3<float> normal = unitPos;
         normal.Normalise();
         
-        // FIX: Use the same reference frame as main unit sprites
-        unitPos += normal * 0.006f;
+        float elevation = 0.0f; 
         
-        // Create consistent tangent vectors for icon positioning
-        Vector3<float> globeUp = Vector3<float>(0.0f, 1.0f, 0.0f);
-        Vector3<float> tangent1;
-        if (fabsf(normal.y) > 0.98f) {
-            tangent1 = Vector3<float>(1.0f, 0.0f, 0.0f);
+        if (info.isAirUnit) {
+            elevation = 0.015f; 
         } else {
-            tangent1 = globeUp ^ normal;
-            tangent1.Normalise();
+            bool isSurfaceUnit = false;
+            
+            if (info.isMovingObject) {
+                MovingObject* mobj = (MovingObject*)wobj;
+                if (mobj->m_movementType == MovingObject::MovementTypeSea) {
+                    isSurfaceUnit = true;
+                }
+            } else {
+                if (wobj->m_type == WorldObject::TypeAirBase ||
+                    wobj->m_type == WorldObject::TypeSilo ||
+                    wobj->m_type == WorldObject::TypeRadarStation) {
+                    isSurfaceUnit = true;
+                }
+            }
+            
+            if (isSurfaceUnit) {
+                elevation = 0.001f;  
+            } else {
+                elevation = 0.006f;  
+            }
         }
-        Vector3<float> tangent2 = normal ^ tangent1;
-        tangent2.Normalise();
         
-        // Manual positioning offsets to fix visual alignment
-        Vector3<float> rightOffset = tangent1 * (unitSize * 0.16f);   // Move slightly right
-        Vector3<float> downOffset = -tangent2 * (unitSize * 0.11f);    // Move slightly down
+        unitPos += normal * elevation;
         
         // SILOS: Render small nuke capacity icons
         if (wobj->m_type == WorldObject::TypeSilo) {
@@ -858,45 +862,42 @@ void MapRenderer::Render3DUnits()
             int numNukesInQueue = wobj->m_actionQueue.Size();
             
             if (numNukesInStore > 0) {
-                Image *smallNukeImg = g_resource->GetImage("graphics/smallnuke.bmp");
-                if (smallNukeImg) {
-                    float nukeIconSize = unitSize * 0.35f;
-                    float spacing = nukeIconSize * 0.5f;
+                float nukeIconSize = unitSize * 0.35f;
+                float spacing = nukeIconSize * 0.5f;
+                
+                Vector3<float> normal = unitPos;
+                normal.Normalise();
+                
+                Vector3<float> globeUp = Vector3<float>(0.0f, 1.0f, 0.0f);
+                Vector3<float> tangent1;
+                if (fabsf(normal.y) > 0.98f) {
+                    tangent1 = Vector3<float>(1.0f, 0.0f, 0.0f);
+                } else {
+                    tangent1 = globeUp ^ normal;
+                    tangent1.Normalise();
+                }
+                Vector3<float> tangent2 = normal ^ tangent1;
+                tangent2.Normalise();
+                
+                Vector3<float> rightOffset = tangent1 * (unitSize * 0.16f);   
+                Vector3<float> downOffset = -tangent2 * (unitSize * 0.15f);    
+                
+                Vector3<float> startPos = unitPos - tangent2 * (unitSize * 0.9f);
+                startPos -= tangent1 * (unitSize * 0.95f);
+                startPos += rightOffset + downOffset;  
+                
+                for (int j = 0; j < numNukesInStore; ++j) {
+                    Colour iconColor = teamColor;
+                    iconColor.m_a = 150;
                     
-                    // Position icons below the unit with manual alignment offsets
-                    Vector3<float> startPos = unitPos - tangent2 * (unitSize * 0.9f);
-                    startPos -= tangent1 * (unitSize * 0.95f);
-                    startPos += rightOffset + downOffset;  // Apply manual offsets
-                    
-                    // Get UV coordinates and texture ID
-                    float uv_u1, uv_v1, uv_u2, uv_v2;
-                    g_renderer->GetImageUVCoords(smallNukeImg, uv_u1, uv_v1, uv_u2, uv_v2);
-                    unsigned int textureID = g_renderer->GetEffectiveTextureID(smallNukeImg);
-                    
-                    for (int j = 0; j < numNukesInStore; ++j) {
-                        Colour iconColor = teamColor;
-                        iconColor.m_a = 150;
-                        
-                        // Dim queued nukes
-                        if (j >= (numNukesInStore - numNukesInQueue)) {
-                            iconColor.Set(128, 128, 128, 100);
-                        }
-                        
-                        Vector3<float> iconPos = startPos + tangent1 * (j * spacing);
-                        
-                        // Create small quad for nuke icon
-                        Vector3<float> v1 = iconPos - tangent1 * nukeIconSize/2 + tangent2 * nukeIconSize/2;
-                        Vector3<float> v2 = iconPos + tangent1 * nukeIconSize/2 + tangent2 * nukeIconSize/2;
-                        Vector3<float> v3 = iconPos + tangent1 * nukeIconSize/2 - tangent2 * nukeIconSize/2;
-                        Vector3<float> v4 = iconPos - tangent1 * nukeIconSize/2 - tangent2 * nukeIconSize/2;
-                        
-                        g_renderer3d->BeginTexturedQuad3D(textureID, iconColor);
-                        g_renderer3d->TexturedQuadVertex3D(v1.x, v1.y, v1.z, uv_u1, uv_v2);
-                        g_renderer3d->TexturedQuadVertex3D(v2.x, v2.y, v2.z, uv_u2, uv_v2);
-                        g_renderer3d->TexturedQuadVertex3D(v3.x, v3.y, v3.z, uv_u2, uv_v1);
-                        g_renderer3d->TexturedQuadVertex3D(v4.x, v4.y, v4.z, uv_u1, uv_v1);
-                        g_renderer3d->EndTexturedQuad3D();
+                    if (j >= (numNukesInStore - numNukesInQueue)) {
+                        iconColor.Set(128, 128, 128, 100);
                     }
+                    
+                    Vector3<float> iconPos = startPos + tangent1 * (j * spacing);
+                    
+                    g_renderer3d->UnitNukeIcon3D(iconPos.x, iconPos.y, iconPos.z,
+                                                nukeIconSize, nukeIconSize, iconColor, BILLBOARD_SURFACE_ALIGNED);
                 }
             }
         }
@@ -907,96 +908,63 @@ void MapRenderer::Render3DUnits()
             int numNukesInQueue = wobj->m_actionQueue.Size();
             
             if (numNukesInStore > 0) {
-                Image *smallNukeImg = g_resource->GetImage("graphics/smallnuke.bmp");
-                if (smallNukeImg) {
-                    float nukeIconSize = unitSize * 0.35f;
-                    float spacing = nukeIconSize * 0.5f;
+                float nukeIconSize = unitSize * 0.35f;
+                float spacing = nukeIconSize * 0.5f;
+                
+                Vector3<float> normal = unitPos;
+                normal.Normalise();
+                
+                Vector3<float> globeUp = Vector3<float>(0.0f, 1.0f, 0.0f);
+                Vector3<float> tangent1;
+                if (fabsf(normal.y) > 0.98f) {
+                    tangent1 = Vector3<float>(1.0f, 0.0f, 0.0f);
+                } else {
+                    tangent1 = globeUp ^ normal;
+                    tangent1.Normalise();
+                }
+                Vector3<float> tangent2 = normal ^ tangent1;
+                tangent2.Normalise();
+                
+                Vector3<float> rightOffset = tangent1 * (unitSize * 0.16f);   
+                Vector3<float> downOffset = -tangent2 * (unitSize * 0.15f);    
+                
+                Vector3<float> startPos = unitPos - tangent1 * (unitSize * 0.2f);
+                startPos += rightOffset + downOffset; 
+                
+                for (int j = 0; j < numNukesInStore; ++j) {
+                    Colour iconColor = teamColor;
+                    iconColor.m_a = 150;
                     
-                    // Position icons next to the unit with manual alignment offsets
-                    Vector3<float> startPos = unitPos - tangent1 * (unitSize * 0.2f);
-                    startPos += rightOffset + downOffset;  // Apply manual offsets
-                    
-                    // Get UV coordinates and texture ID
-                    float uv_u1, uv_v1, uv_u2, uv_v2;
-                    g_renderer->GetImageUVCoords(smallNukeImg, uv_u1, uv_v1, uv_u2, uv_v2);
-                    unsigned int textureID = g_renderer->GetEffectiveTextureID(smallNukeImg);
-                    
-                    for (int j = 0; j < numNukesInStore; ++j) {
-                        Colour iconColor = teamColor;
-                        iconColor.m_a = 150;
-                        
-                        // Dim queued nukes
-                        if (j >= (numNukesInStore - numNukesInQueue)) {
-                            iconColor.Set(128, 128, 128, 100);
-                        }
-                        
-                        Vector3<float> iconPos = startPos - tangent1 * (j * spacing);
-                        
-                        // Create small quad for nuke icon
-                        Vector3<float> v1 = iconPos - tangent1 * nukeIconSize/2 + tangent2 * nukeIconSize/2;
-                        Vector3<float> v2 = iconPos + tangent1 * nukeIconSize/2 + tangent2 * nukeIconSize/2;
-                        Vector3<float> v3 = iconPos + tangent1 * nukeIconSize/2 - tangent2 * nukeIconSize/2;
-                        Vector3<float> v4 = iconPos - tangent1 * nukeIconSize/2 - tangent2 * nukeIconSize/2;
-                        
-                        g_renderer3d->BeginTexturedQuad3D(textureID, iconColor);
-                        g_renderer3d->TexturedQuadVertex3D(v1.x, v1.y, v1.z, uv_u1, uv_v2);
-                        g_renderer3d->TexturedQuadVertex3D(v2.x, v2.y, v2.z, uv_u2, uv_v2);
-                        g_renderer3d->TexturedQuadVertex3D(v3.x, v3.y, v3.z, uv_u2, uv_v1);
-                        g_renderer3d->TexturedQuadVertex3D(v4.x, v4.y, v4.z, uv_u1, uv_v1);
-                        g_renderer3d->EndTexturedQuad3D();
+                    if (j >= (numNukesInStore - numNukesInQueue)) {
+                        iconColor.Set(128, 128, 128, 100);
                     }
+                    
+                    Vector3<float> iconPos = startPos - tangent1 * (j * spacing);
+                    
+                    g_renderer3d->UnitNukeIcon3D(iconPos.x, iconPos.y, iconPos.z,
+                                                nukeIconSize, nukeIconSize, iconColor, BILLBOARD_SURFACE_ALIGNED);
                 }
             }
         }
         
         // BOMBERS: Render single nuke icon if carrying nuke
         else if (wobj->m_type == WorldObject::TypeBomber && wobj->m_states[1]->m_numTimesPermitted > 0) {
-            Image *smallNukeImg = g_resource->GetImage("graphics/smallnuke.bmp");
-            if (smallNukeImg) {
-                float nukeIconSize = unitSize * 0.8f;  // Make bomber nuke icon bigger
-                
-                // Position icon directly at bomber center (perfectly centered)
-                Vector3<float> iconPos = unitPos;  // Perfectly centered
-                
-                // Apply rotation to match bomber orientation
-                float rotationAngle = info.rotationAngle;
-                Vector3<float> rotatedTangent1 = tangent1;
-                Vector3<float> rotatedTangent2 = tangent2;
-                
-                if (rotationAngle != 0.0f) {
-                    // Rotate tangent vectors around the normal axis
-                    float cosRot = cosf(rotationAngle);
-                    float sinRot = sinf(rotationAngle);
-                    
-                    rotatedTangent1 = tangent1 * cosRot + tangent2 * sinRot;
-                    rotatedTangent2 = -tangent1 * sinRot + tangent2 * cosRot;
-                    
-                    // Keep icon centered even when rotated
-                    iconPos = unitPos;
+            float nukeIconSize = unitSize * 0.8f;  
+            
+            Colour iconColor = teamColor;
+            iconColor.m_a = 150;
+            
+            float bomberRotation = 0.0f;
+            
+            for (int k = 0; k < visibleUnits.Size(); k++) {
+                if (visibleUnits[k].unit == wobj) {
+                    bomberRotation = visibleUnits[k].rotationAngle;
+                    break;
                 }
-                
-                Colour iconColor = teamColor;
-                iconColor.m_a = 150;
-                
-                // Get UV coordinates and texture ID
-                float uv_u1, uv_v1, uv_u2, uv_v2;
-                g_renderer->GetImageUVCoords(smallNukeImg, uv_u1, uv_v1, uv_u2, uv_v2);
-                unsigned int textureID = g_renderer->GetEffectiveTextureID(smallNukeImg);
-                
-                // Create quad vertices using rotated tangent vectors (same size as other units)
-                Vector3<float> v1 = iconPos - rotatedTangent1 * nukeIconSize/2 + rotatedTangent2 * nukeIconSize/2;
-                Vector3<float> v2 = iconPos + rotatedTangent1 * nukeIconSize/2 + rotatedTangent2 * nukeIconSize/2;
-                Vector3<float> v3 = iconPos + rotatedTangent1 * nukeIconSize/2 - rotatedTangent2 * nukeIconSize/2;
-                Vector3<float> v4 = iconPos - rotatedTangent1 * nukeIconSize/2 - rotatedTangent2 * nukeIconSize/2;
-                
-                // Render textured quad (same method as other units)
-                g_renderer3d->BeginTexturedQuad3D(textureID, iconColor);
-                g_renderer3d->TexturedQuadVertex3D(v1.x, v1.y, v1.z, uv_u1, uv_v2);
-                g_renderer3d->TexturedQuadVertex3D(v2.x, v2.y, v2.z, uv_u2, uv_v2);
-                g_renderer3d->TexturedQuadVertex3D(v3.x, v3.y, v3.z, uv_u2, uv_v1);
-                g_renderer3d->TexturedQuadVertex3D(v4.x, v4.y, v4.z, uv_u1, uv_v1);
-                g_renderer3d->EndTexturedQuad3D();
             }
+            
+            g_renderer3d->UnitNukeIcon3D(unitPos.x, unitPos.y, unitPos.z,
+                                        nukeIconSize, nukeIconSize, iconColor, bomberRotation, BILLBOARD_SURFACE_ALIGNED);
         }
         
         // AIRBASES & CARRIERS: Render fighter/bomber capacity icons
@@ -1017,9 +985,25 @@ void MapRenderer::Render3DUnits()
                     float iconSize = unitSize * 0.35f;
                     float spacing = iconSize * 0.9f;
                     
-                    // Position icons next to the unit with manual alignment offsets
+                    Vector3<float> normal = unitPos;
+                    normal.Normalise();
+                    
+                    Vector3<float> globeUp = Vector3<float>(0.0f, 1.0f, 0.0f);
+                    Vector3<float> tangent1;
+                    if (fabsf(normal.y) > 0.98f) {
+                        tangent1 = Vector3<float>(1.0f, 0.0f, 0.0f);
+                    } else {
+                        tangent1 = globeUp ^ normal;
+                        tangent1.Normalise();
+                    }
+                    Vector3<float> tangent2 = normal ^ tangent1;
+                    tangent2.Normalise();
+                    
+                    Vector3<float> rightOffset = tangent1 * (unitSize * 0.16f); 
+                    Vector3<float> downOffset = -tangent2 * (unitSize * 0.15f);   
+                    
                     Vector3<float> startPos = unitPos - tangent2 * (unitSize * 0.3f);
-                    startPos += rightOffset + downOffset;  // Apply manual offsets
+                    startPos += rightOffset + downOffset; 
                     
                     // For carriers, offset for predicted position
                     if (wobj->m_type == WorldObject::TypeCarrier) {
@@ -1028,42 +1012,23 @@ void MapRenderer::Render3DUnits()
                         startPos -= tangent1 * (unitSize * 0.5f);
                     }
                     
-                    // Get UV coordinates and texture ID
-                    float uv_u1, uv_v1, uv_u2, uv_v2;
-                    g_renderer->GetImageUVCoords(iconImg, uv_u1, uv_v1, uv_u2, uv_v2);
-                    unsigned int textureID = g_renderer->GetEffectiveTextureID(iconImg);
-                    
                     for (int j = 0; j < numInStore; ++j) {
                         Colour iconColor = teamColor;
                         iconColor.m_a = 150;
                         
-                        // Dim queued units
                         if (j >= (numInStore - numInQueue)) {
                             iconColor.Set(128, 128, 128, 100);
                         }
                         
                         Vector3<float> iconPos = startPos + tangent1 * (j * spacing);
                         
-                        // Create small quad for unit icon
-                        Vector3<float> v1 = iconPos - tangent1 * iconSize/2 + tangent2 * iconSize/2;
-                        Vector3<float> v2 = iconPos + tangent1 * iconSize/2 + tangent2 * iconSize/2;
-                        Vector3<float> v3 = iconPos + tangent1 * iconSize/2 - tangent2 * iconSize/2;
-                        Vector3<float> v4 = iconPos - tangent1 * iconSize/2 - tangent2 * iconSize/2;
-                        
-                        g_renderer3d->BeginTexturedQuad3D(textureID, iconColor);
-                        g_renderer3d->TexturedQuadVertex3D(v1.x, v1.y, v1.z, uv_u1, uv_v2);
-                        g_renderer3d->TexturedQuadVertex3D(v2.x, v2.y, v2.z, uv_u2, uv_v2);
-                        g_renderer3d->TexturedQuadVertex3D(v3.x, v3.y, v3.z, uv_u2, uv_v1);
-                        g_renderer3d->TexturedQuadVertex3D(v4.x, v4.y, v4.z, uv_u1, uv_v1);
-                        g_renderer3d->EndTexturedQuad3D();
+                        g_renderer3d->UnitStateIcon3D(iconImg, iconPos.x, iconPos.y, iconPos.z,
+                                                     iconSize, iconSize, iconColor, BILLBOARD_SURFACE_ALIGNED);
                     }
                 }
             }
         }
     }
-    
-    // Reset OpenGL state
-    g_renderer->SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 //
@@ -1101,47 +1066,6 @@ void MapRenderer::Render3DUnitTrails()
             LList<Vector3<Fixed> *>& history = mobj->GetHistory();
             if (history.Size() == 0) continue;
             
-            Vector3<float> currentPos;
-            
-            //
-            // special handling for nuke trails
-
-            if (isNuke) {
-                Nuke* nuke = (Nuke*)wobj;
-                currentPos = CalculateNuke3DPosition(nuke);
-                
-                // viewport culling
-                Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
-                globeToCamera.Normalise();
-                Vector3<float> nukeToCameraDir = currentPos;
-                nukeToCameraDir.Normalise();
-                float dotProduct = nukeToCameraDir * globeToCamera;
-                if (dotProduct < -0.3f) continue; // needs to be fine tuned
-            } else {
-
-                //
-                // regular surface trails for the rest of the units
-
-                Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
-                float predictedLongitude = (mobj->m_longitude + mobj->m_vel.x * predictionTime).DoubleValue();
-                float predictedLatitude = (mobj->m_latitude + mobj->m_vel.y * predictionTime).DoubleValue();
-                
-                currentPos = ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
-                
-                // only render trails on visible hemisphere
-                Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
-                globeToCamera.Normalise();
-                float dotProduct = currentPos * globeToCamera;
-                if (dotProduct < 0.0f) continue; 
-            }
-            
-            // calculate trail length based on zoom 
-            int maxSize = history.Size();
-            int sizeCap = (int)(80 * 0.5f); 
-            sizeCap /= World::GetGameScale().DoubleValue();
-            
-            maxSize = (maxSize > sizeCap ? sizeCap : maxSize);
-            
             Team *team = g_app->GetWorld()->GetTeam(mobj->m_teamId);
             Colour colour;
             if (team) {
@@ -1150,41 +1074,185 @@ void MapRenderer::Render3DUnitTrails()
                 colour = COLOUR_SPECIALOBJECTS;
             }
             
+            // calculate trail length based on zoom 
+            int maxSize = history.Size();
+            int sizeCap = (int)(80 * 0.5f); 
+            
+            // account for increased sampling rate to maintain trail length
+            if (isNuke) {
+                sizeCap *= 8;
+            } else {
+                sizeCap *= 4;
+            }
+            
+            sizeCap /= World::GetGameScale().DoubleValue();
+            maxSize = (maxSize > sizeCap ? sizeCap : maxSize);
+            
             // reduce the trail length for enemy units
             if (mobj->m_teamId != myTeamId &&
                 myTeamId != -1 &&
                 myTeamId < g_app->GetWorld()->m_teams.Size() &&
                 g_app->GetWorld()->GetTeam(myTeamId)->m_type != Team::TypeUnassigned) {
-                maxSize = min(maxSize, 4);
+                int enemyTrailLimit = isNuke ? 32 : 16;  // 4*8 for nukes, 4*4 for others
+                maxSize = min(maxSize, enemyTrailLimit);
             }
             
             if (maxSize <= 0) continue;
             
-            g_renderer3d->BeginLineStrip3D(colour);
-            g_renderer3d->LineStripVertex3D(currentPos.x, currentPos.y, currentPos.z);
-            
-            // save history positions
-            for (int j = 0; j < maxSize; ++j) {
-                Vector3<Fixed> *historyPos = history[j];
+            //
+            // nuke trails, added segmented lines instead of one big line
+            // it looks okay but might need some fine tuning
+
+            if (isNuke) {
                 
-                Vector3<float> pos3D;
+                Nuke* nuke = (Nuke*)wobj;
+                Vector3<float> currentPos = CalculateNuke3DPosition(nuke);
+                
+                // viewport culling
+                Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
+                globeToCamera.Normalise();
+                Vector3<float> nukeToCameraDir = currentPos;
+                nukeToCameraDir.Normalise();
+                float dotProduct = nukeToCameraDir * globeToCamera;
+                if (dotProduct < -0.3f) continue;
+                
+                // create line segments for nukes with dashed effect
+                Vector3<float> prevPos = currentPos;
+                
+                // track dash position across all segments to avoid gaps
+                float dashLength = 0.012f;      
+                float gapLength = 0.006f;       
+                float totalDashUnit = dashLength + gapLength;
+                float currentDashPosition = 0.0f;  
+                bool inDash = true;  
+                
+                for (int j = 0; j < maxSize; ++j) {
+                    Vector3<Fixed> *historyPos = history[j];
+                    Vector3<float> pos3D = CalculateHistoricalNuke3DPosition(nuke, *historyPos);
+                    
+                    Colour segmentColour = colour;
+                    segmentColour.m_a = 255 - 255 * (float)j / (float)maxSize;
+                    
+                    // create multiple smaller interpolated segments
+                    Vector3<float> segmentDir = pos3D - prevPos;
+                    float segmentLength = segmentDir.Mag();
+                    
+                    if (segmentLength > 0.001f) {  // only process if segment is long enough
+
+                        //
+                        // calculate number of interpolation steps based on segment length
+                        // more steps for longer segments to keep them smooth
+
+                        int interpolationSteps = (int)(segmentLength * 50.0f) + 1;      // adaptive subdivision
+                        interpolationSteps = fmax(1, fmin(interpolationSteps, 20));     // clamp between 1-20 steps
+                        
+                        Vector3<float> stepVector = segmentDir / (float)interpolationSteps;
+                        
+                        //
+                        // create smooth interpolated line segments
+
+                        for (int step = 0; step < interpolationSteps; ++step) {
+                            Vector3<float> interpolatedStart = prevPos + stepVector * (float)step;
+                            Vector3<float> interpolatedEnd = prevPos + stepVector * (float)(step + 1);
+                            Vector3<float> interpolatedDir = interpolatedEnd - interpolatedStart;
+                            float interpolatedLength = interpolatedDir.Mag();
+                            
+                            if (interpolatedLength > 0.001f) {
+                                interpolatedDir.Normalise();
+                                
+                                Vector3<float> interpolatedSegmentStart = interpolatedStart;
+                                float remainingInterpolatedLength = interpolatedLength;
+                                
+                                while (remainingInterpolatedLength > 0.001f) {
+                                    float distanceToNextTransition;
+                                    
+                                    // Currently in a dash - how far until we need to start a gap?
+                                    if (inDash) {
+                                        distanceToNextTransition = dashLength - currentDashPosition;
+                                    } else {
+                                        distanceToNextTransition = gapLength - currentDashPosition;
+                                    }
+                                    
+                                    // Take the minimum of remaining segment length and distance to next transition
+                                    float actualStepDistance = fmin(remainingInterpolatedLength, distanceToNextTransition);
+                                    Vector3<float> interpolatedSegmentEnd = interpolatedSegmentStart + interpolatedDir * actualStepDistance;
+                                    
+                                    // only draw if were currently in a dash and not a gap
+                                    if (inDash) {
+                                        g_renderer3d->EffectsLine3D(interpolatedSegmentStart.x, interpolatedSegmentStart.y, interpolatedSegmentStart.z,
+                                                                   interpolatedSegmentEnd.x, interpolatedSegmentEnd.y, interpolatedSegmentEnd.z, segmentColour);
+                                    }
+                                    
+                                    currentDashPosition += actualStepDistance;
+                                    remainingInterpolatedLength -= actualStepDistance;
+                                    interpolatedSegmentStart = interpolatedSegmentEnd;
+                                    
+                                    //
+                                    // check if we need to transition between dash and gap
+
+                                    if (inDash && currentDashPosition >= dashLength) {
+                                        inDash = false;
+                                        currentDashPosition = 0.0f;
+                                    } else if (!inDash && currentDashPosition >= gapLength) {
+                                        inDash = true;
+                                        currentDashPosition = 0.0f;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    prevPos = pos3D;
+                }
+            } else {
 
                 //
-                // save nuke history positions
+                // everything else uses normal 2d unit trails that are similiar
+                // to the 2d trails, i need to add the proper segmentation
                 
-                if (isNuke) {
-                    Nuke* nuke = (Nuke*)wobj;
-                    pos3D = CalculateHistoricalNuke3DPosition(nuke, *historyPos);
+                Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+                float predictedLongitude = (mobj->m_longitude + mobj->m_vel.x * predictionTime).DoubleValue();
+                float predictedLatitude = (mobj->m_latitude + mobj->m_vel.y * predictionTime).DoubleValue();
+                
+                Vector3<float> currentPos = ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
+                
+                // only render trails on visible hemisphere
+                Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
+                globeToCamera.Normalise();
+                float dotProduct = currentPos * globeToCamera;
+                if (dotProduct < 0.0f) continue;
+                
+                Vector3<float> normal = currentPos;
+                normal.Normalise();
+                
+                float elevation = 0.0f; 
+                
+                bool isMovingObject = wobj->IsMovingObject();
+                bool isAirUnit = false;
+                
+                if (isMovingObject) {
+                    MovingObject* movingObj = (MovingObject*)wobj;
+                    isAirUnit = (movingObj->m_movementType == MovingObject::MovementTypeAir);
+                    
+                    if (isAirUnit) {
+                        elevation = 0.015f;
+                    } else if (movingObj->m_movementType == MovingObject::MovementTypeSea) {
+                        elevation = 0.001f;
+                    } else {
+                        elevation = 0.006f;
+                    }
                 } else {
-
-                    //
-                    // save surface history positions
-
+                    elevation = 0.006f;
+                }
+                
+                currentPos += normal * elevation;
+                Vector3<float> prevPos = currentPos;
+                
+                for (int j = 0; j < maxSize; ++j) {
+                    Vector3<Fixed> *historyPos = history[j];
+                    
                     float thisLongitude = historyPos->x.DoubleValue();
                     float thisLatitude = historyPos->y.DoubleValue();
-                    
-                    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
-                    float predictedLongitude = (mobj->m_longitude + mobj->m_vel.x * predictionTime).DoubleValue();
                     
                     if (predictedLongitude < -170 && thisLongitude > 170) {
                         thisLongitude = -180 - (180 - thisLongitude);
@@ -1193,18 +1261,21 @@ void MapRenderer::Render3DUnitTrails()
                         thisLongitude = 180 + (180 - fabsf(thisLongitude));
                     }
                     
-                    pos3D = ConvertLongLatTo3DPosition(thisLongitude, thisLatitude);
+                    Vector3<float> pos3D = ConvertLongLatTo3DPosition(thisLongitude, thisLatitude);
                     
-                    // offset slightly above surface to avoid z fighting 
-                    Vector3<float> normal = pos3D;
-                    normal.Normalise();
-                    pos3D += normal * 0.008f; 
+                    Vector3<float> posNormal = pos3D;
+                    posNormal.Normalise();
+                    pos3D += posNormal * elevation;
+                    
+                    // apply 2D style alpha fading (newest = opaque, oldest = transparent)
+                    Colour segmentColour = colour;
+                    segmentColour.m_a = 255 - 255 * (float)j / (float)maxSize;
+                    
+                    g_renderer3d->EffectsLine3D(prevPos.x, prevPos.y, prevPos.z,
+                                               pos3D.x, pos3D.y, pos3D.z, segmentColour);
+                    prevPos = pos3D;
                 }
-                
-                g_renderer3d->LineStripVertex3D(pos3D.x, pos3D.y, pos3D.z);
             }
-            
-            g_renderer3d->EndLineStrip3D();
         }
     }
 }
@@ -1348,10 +1419,8 @@ void MapRenderer::Render3DGunfire()
                 Colour segmentColour = colour;
                 segmentColour.m_a = 255 - (255 * (float)j / maxHistorySize);
                 
-                g_renderer3d->BeginLineStrip3D(segmentColour);
-                g_renderer3d->LineStripVertex3D(lastPos3D.x, lastPos3D.y, lastPos3D.z);
-                g_renderer3d->LineStripVertex3D(thisPos3D.x, thisPos3D.y, thisPos3D.z);
-                g_renderer3d->EndLineStrip3D();
+                g_renderer3d->EffectsLine3D(lastPos3D.x, lastPos3D.y, lastPos3D.z,
+                                           thisPos3D.x, thisPos3D.y, thisPos3D.z, segmentColour);
             }
             
             if (maxSize > 0) {
@@ -1403,10 +1472,8 @@ void MapRenderer::Render3DGunfire()
                 Colour currentColour = colour;
                 currentColour.m_a = 255;
                 
-                g_renderer3d->BeginLineStrip3D(currentColour);
-                g_renderer3d->LineStripVertex3D(lastPos3D.x, lastPos3D.y, lastPos3D.z);
-                g_renderer3d->LineStripVertex3D(gunfirePos3D.x, gunfirePos3D.y, gunfirePos3D.z);
-                g_renderer3d->EndLineStrip3D();
+                g_renderer3d->EffectsLine3D(lastPos3D.x, lastPos3D.y, lastPos3D.z,
+                                           gunfirePos3D.x, gunfirePos3D.y, gunfirePos3D.z, currentColour);
             }
         }
     }
@@ -1478,123 +1545,28 @@ void MapRenderer::Render3DExplosions()
 
             if (explosionSize > 0.05f) {
                 
-                // calculate how many segments we need based on explosion size
-                int segments = (int)(explosionSize * 20.0f) + 4; // bigger? more segments
-                segments = fmax(segments, 4);
-                segments = fmin(segments, 16);
                 
                 Vector3<float> normal = explosionPos;
                 normal.Normalise();
                 
-                Vector3<float> globeUp = Vector3<float>(0.0f, 1.0f, 0.0f);
-                Vector3<float> tangent1;
-                if (fabsf(normal.y) > 0.98f) {
-                    tangent1 = Vector3<float>(1.0f, 0.0f, 0.0f);
-                } else {
-                    tangent1 = globeUp ^ normal;
-                    tangent1.Normalise();
-                }
-                Vector3<float> tangent2 = normal ^ tangent1;
-                tangent2.Normalise();
-                
-                float uv_u1, uv_v1, uv_u2, uv_v2;
-                g_renderer->GetImageUVCoords(explosionImg, uv_u1, uv_v1, uv_u2, uv_v2);
-                unsigned int textureID = g_renderer->GetEffectiveTextureID(explosionImg);
-                
-                // set up OpenGL state for curved rendering
-                glEnable(GL_DEPTH_TEST);
-                glDepthMask(GL_FALSE);
-                glEnable(GL_BLEND);
-                g_renderer->SetBlendFunc(GL_SRC_ALPHA, GL_ONE);  
-                
-                //
-                // create curved quads
+                // Offset slightly above surface
+                explosionPos += normal * 0.001f;
 
-                for (int row = 0; row < segments - 1; ++row) {
-                    for (int col = 0; col < segments - 1; ++col) {
-                        float u1 = (float)col / (float)(segments - 1);
-                        float v1 = (float)row / (float)(segments - 1);
-                        float u2 = (float)(col + 1) / (float)(segments - 1);
-                        float v2 = (float)(row + 1) / (float)(segments - 1);
-                        
-                        Vector3<float> p1, p2, p3, p4;
-                        
-                        float offset1X = (u1 - 0.5f) * explosionSize;
-                        float offset1Y = (v1 - 0.5f) * explosionSize;
-                        float offset2X = (u2 - 0.5f) * explosionSize;
-                        float offset2Y = (v2 - 0.5f) * explosionSize;
-                        
-                        // now project onto curved globe surface
-                        p1 = explosionPos + tangent1 * offset1X + tangent2 * offset1Y;
-                        p1.Normalise();
-                        p1 = p1 * 1.001f;
-                        
-                        p2 = explosionPos + tangent1 * offset2X + tangent2 * offset1Y;
-                        p2.Normalise();
-                        p2 = p2 * 1.001f;
-                        
-                        p3 = explosionPos + tangent1 * offset2X + tangent2 * offset2Y;
-                        p3.Normalise();
-                        p3 = p3 * 1.001f;
-                        
-                        p4 = explosionPos + tangent1 * offset1X + tangent2 * offset2Y;
-                        p4.Normalise();
-                        p4 = p4 * 1.001f;
-                        
-                        float tex_u1 = uv_u1 + (uv_u2 - uv_u1) * u1;
-                        float tex_v1 = uv_v1 + (uv_v2 - uv_v1) * v1;
-                        float tex_u2 = uv_u1 + (uv_u2 - uv_u1) * u2;
-                        float tex_v2 = uv_v1 + (uv_v2 - uv_v1) * v2;
-                        
-                        // render it
-                        g_renderer3d->BeginTexturedQuad3D(textureID, colour);
-                        g_renderer3d->TexturedQuadVertex3D(p1.x, p1.y, p1.z, tex_u1, tex_v1);
-                        g_renderer3d->TexturedQuadVertex3D(p2.x, p2.y, p2.z, tex_u2, tex_v1);
-                        g_renderer3d->TexturedQuadVertex3D(p3.x, p3.y, p3.z, tex_u2, tex_v2);
-                        g_renderer3d->TexturedQuadVertex3D(p4.x, p4.y, p4.z, tex_u1, tex_v2);
-                        g_renderer3d->EndTexturedQuad3D();
-                    }
-                }
+                g_renderer3d->EffectsSprite3D(explosionImg, explosionPos.x, explosionPos.y, explosionPos.z,
+                                             explosionSize * 2.0f, explosionSize * 2.0f, colour, BILLBOARD_SURFACE_ALIGNED);
                 
             } else {
 
                 //
                 // smaller explosions such as gunfire hits dont need to be curved
+
                 Vector3<float> normal = explosionPos;
                 normal.Normalise();
                 
-                Vector3<float> globeUp = Vector3<float>(0.0f, 1.0f, 0.0f);
-                Vector3<float> tangent1;
-                if (fabsf(normal.y) > 0.98f) {
-                    tangent1 = Vector3<float>(1.0f, 0.0f, 0.0f);
-                } else {
-                    tangent1 = globeUp ^ normal;
-                    tangent1.Normalise();
-                }
-                Vector3<float> tangent2 = normal ^ tangent1;
-                tangent2.Normalise();
-
-                float uv_u1, uv_v1, uv_u2, uv_v2;
-                g_renderer->GetImageUVCoords(explosionImg, uv_u1, uv_v1, uv_u2, uv_v2);
-                unsigned int textureID = g_renderer->GetEffectiveTextureID(explosionImg);
+                explosionPos += normal * 0.001f;
                 
-                glEnable(GL_DEPTH_TEST);
-                glDepthMask(GL_FALSE);
-                glEnable(GL_BLEND);
-                g_renderer->SetBlendFunc(GL_SRC_ALPHA, GL_ONE); 
-                
-                Vector3<float> v1 = explosionPos + normal * 0.002f - tangent1 * explosionSize - tangent2 * explosionSize;
-                Vector3<float> v2 = explosionPos + normal * 0.002f + tangent1 * explosionSize - tangent2 * explosionSize;
-                Vector3<float> v3 = explosionPos + normal * 0.002f + tangent1 * explosionSize + tangent2 * explosionSize;
-                Vector3<float> v4 = explosionPos + normal * 0.002f - tangent1 * explosionSize + tangent2 * explosionSize;
-                
-                // render it
-                g_renderer3d->BeginTexturedQuad3D(textureID, colour);
-                g_renderer3d->TexturedQuadVertex3D(v1.x, v1.y, v1.z, uv_u1, uv_v2);
-                g_renderer3d->TexturedQuadVertex3D(v2.x, v2.y, v2.z, uv_u2, uv_v2);
-                g_renderer3d->TexturedQuadVertex3D(v3.x, v3.y, v3.z, uv_u2, uv_v1);
-                g_renderer3d->TexturedQuadVertex3D(v4.x, v4.y, v4.z, uv_u1, uv_v1);
-                g_renderer3d->EndTexturedQuad3D();
+                g_renderer3d->EffectsSprite3D(explosionImg, explosionPos.x, explosionPos.y, explosionPos.z,
+                                             explosionSize * 2.0f, explosionSize * 2.0f, colour, BILLBOARD_SURFACE_ALIGNED);
             }
         }
     }
@@ -1675,37 +1647,40 @@ void MapRenderer::Render3DSonarPing()
                 float innerRadius = ping3DSize * 0.95f;
                 float outerRadius = ping3DSize * 1.05f;
                     
-                glEnable(GL_DEPTH_TEST);
-                glDepthMask(GL_FALSE);
-                glEnable(GL_BLEND);
-                g_renderer->SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
-                   
                 //
-                // render the two circles
-                    
-                // inner circle
-                g_renderer3d->BeginLineStrip3D(colour);
+                // render the two circles using 3D batching system
+                
+                // create inner circle using line segments
+                Vector3<float> prevInner;
                 for (int seg = 0; seg <= numSegments; ++seg) {
                     float angle = 2.0f * M_PI * seg / numSegments;
                     Vector3<float> offset = tangent1 * sinf(angle) + tangent2 * cosf(angle);
                     Vector3<float> inner = pingPos + offset * innerRadius;
                     inner.Normalise();
                     inner = inner * 1.001f;
-                    g_renderer3d->LineStripVertex3D(inner.x, inner.y, inner.z);
-                }
-                g_renderer3d->EndLineStrip3D();
                     
-                // outer circle
-                g_renderer3d->BeginLineStrip3D(colour);
+                    if (seg > 0) {
+                        g_renderer3d->EffectsLine3D(prevInner.x, prevInner.y, prevInner.z,
+                                                   inner.x, inner.y, inner.z, colour);
+                    }
+                    prevInner = inner;
+                }
+                    
+                // create outer circle using line segments
+                Vector3<float> prevOuter;
                 for (int seg = 0; seg <= numSegments; ++seg) {
                     float angle = 2.0f * M_PI * seg / numSegments;
                     Vector3<float> offset = tangent1 * sinf(angle) + tangent2 * cosf(angle);
                     Vector3<float> outer = pingPos + offset * outerRadius;
                     outer.Normalise();
                     outer = outer * 1.001f;
-                    g_renderer3d->LineStripVertex3D(outer.x, outer.y, outer.z);
-                }
-                g_renderer3d->EndLineStrip3D();                             
+                    
+                    if (seg > 0) {
+                        g_renderer3d->EffectsLine3D(prevOuter.x, prevOuter.y, prevOuter.z,
+                                                   outer.x, outer.y, outer.z, colour);
+                    }
+                    prevOuter = outer;
+                }                             
             }
         }
     }

@@ -3,7 +3,7 @@
 #define _included_team_h
 
 #include "lib/tosser/bounded_array.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 
 #include "world/worldobject.h"
 #include "world/fighter.h"

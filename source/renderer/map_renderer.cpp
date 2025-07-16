@@ -7,8 +7,8 @@
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
-#include "lib/render/renderer.h"
-#include "lib/render/renderer_3d.h"
+#include "lib/render2d/renderer.h"
+#include "lib/render3d/renderer_3d.h"
 #include "lib/render/colour.h"
 #include "lib/render/styletable.h"
 #include "lib/profiler.h"
@@ -247,7 +247,7 @@ void MapRenderer::Render()
     // for 3d globe mode we switch rendering contexts
     // its amazing how quickly this happens
     if (m_3DGlobeMode) {
-        Render3DGlobeView();
+        Render3DGlobe();
         END_PROFILE( "MapRenderer" );
         return;
     }

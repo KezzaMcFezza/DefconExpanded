@@ -4,7 +4,7 @@
 #include "lib/string_utils.h"
 #include "lib/hi_res_time.h"
 
-#include "renderer.h"
+#include "lib/render2d/renderer.h"
 
 // External globals  
 extern Renderer *g_renderer;
