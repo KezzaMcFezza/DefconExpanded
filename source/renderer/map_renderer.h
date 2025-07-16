@@ -318,6 +318,13 @@ public:
     Vector3<float> CalculateNuke3DPosition              (Nuke* nuke);
     Vector3<float> CalculateHistoricalNuke3DPosition    (Nuke* nuke, const Vector3<Fixed>& historicalPos);
     Vector3<float> CalculateGunfire3DPosition           (GunFire* gunfire);
+    
+    // 3D star field functionality
+    void    Generate3DStarField();
+    void    Cleanup3DStarField();
+    void    Regenerate3DStarField();
+    void    Render3DStarField();
+    void    Render3DGlobeSurface();
 	
 	// Debug menu functionality
 	RendererDebugMenu* GetDebugMenu() const { return m_debugMenu; }

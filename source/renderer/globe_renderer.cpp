@@ -60,6 +60,145 @@
 // ******************************************************************************************************************************
 
 //
+// star field data structure for background stars, i think in combination
+// with the black globe surface overlay this makes the globe look more realistic
+
+struct Star3D {
+    Vector3<float> position;
+    float size;
+    float brightness;
+};
+
+static DArray<Star3D> g_starField3D;
+static bool g_starField3DInitialized = false;
+
+//
+// generate random star field around the globe
+
+void MapRenderer::Generate3DStarField()
+{
+    if (g_starField3DInitialized) return;
+    
+    g_starField3D.Empty();
+    
+    // generate random stars on a large sphere around the globe
+    int numStars = 1200;                // adjust for desired star density 
+    float starSphereRadius = 20.0f;     // far from globe
+    
+    for (int i = 0; i < numStars; i++) {
+        Star3D star;
+        
+        // generate random position on sphere using spherical coordinates
+        float theta = frand(2.0f * M_PI); 
+        float phi = frand(M_PI) - M_PI/2.0f; 
+        
+        // convert to 3D position on star sphere
+        star.position.x = starSphereRadius * sin(theta) * cos(phi);
+        star.position.y = starSphereRadius * sin(phi);
+        star.position.z = starSphereRadius * cos(theta) * cos(phi);
+        
+        star.size = 0.020f + frand(0.025f); 
+        
+        // random brightness for realism
+        float brightnessFactor = frand();
+        if (brightnessFactor < 0.3f) {
+            star.brightness = 0.4f + brightnessFactor * 0.3f; 
+        } else {
+            star.brightness = 0.7f + (brightnessFactor - 0.3f) * 0.43f; 
+        }
+        
+        g_starField3D.PutData(star);
+    }
+    
+    g_starField3DInitialized = true;
+    AppDebugOut("3D Star Field: Generated %d stars\n", numStars);
+}
+
+//
+// clean up star field 
+
+void MapRenderer::Cleanup3DStarField()
+{
+    g_starField3D.Empty();
+    g_starField3DInitialized = false;
+    AppDebugOut("3D Star Field: Cleaned up star field\n");
+}
+
+void MapRenderer::Regenerate3DStarField()
+{
+    Cleanup3DStarField();
+    Generate3DStarField();
+    AppDebugOut("3D Star Field: Regenerated star field\n");
+}
+
+//
+// render the star field background
+
+void MapRenderer::Render3DStarField()
+{
+    if (!m_3DGlobeMode) return;
+    
+    if (!g_starField3DInitialized) {
+        Generate3DStarField();
+    }
+    
+    Image *cityImg = g_resource->GetImage("graphics/city.bmp");
+    if (!cityImg) return;
+    
+    // render stars as white sprites facing the camera
+    for (int i = 0; i < g_starField3D.Size(); i++) {
+        Star3D& star = g_starField3D[i];
+        
+        // Check if star is visible, basic frustum culling
+        Vector3<float> cameraToStar = star.position - m_globe3DCamera.m_cameraPos;
+        cameraToStar.Normalise();
+        Vector3<float> cameraForward = m_globe3DCamera.m_cameraTarget - m_globe3DCamera.m_cameraPos;
+        cameraForward.Normalise();
+        
+        // simple dot product check for if star is roughly in front of camera
+        float dotProduct = cameraToStar * cameraForward;
+        if (dotProduct < -0.3f) continue; // behind camera, skip
+        
+        // Calculate star color with variety
+        Colour starColor;
+        int alpha = (int)(255 * star.brightness);
+        
+        // create different star types for percieved realism and randomness
+        int starType = i % 13; 
+        if (starType < 8) {
+
+            //
+            // most stars are white/blue-white
+
+            starColor.Set(255, 255, 255, alpha);
+        } else if (starType < 10) {
+
+            //
+            // some blue stars
+
+            starColor.Set(180, 200, 255, alpha);
+        } else if (starType < 12) {
+
+            //
+            // some warm/yellow stars
+
+            starColor.Set(255, 230, 180, alpha);
+        } else {
+
+            //
+            // a few red stars
+
+            starColor.Set(255, 180, 150, alpha);
+        }
+        
+        g_renderer3d->StarFieldSprite3D(cityImg, 
+                                       star.position.x, star.position.y, star.position.z,
+                                       star.size, star.size, 
+                                       starColor);
+    }
+}
+
+//
 // handle globe initialisation
 
 void MapRenderer::Toggle3DGlobeMode()
@@ -79,6 +218,7 @@ void MapRenderer::Toggle3DGlobeMode()
         
         AppDebugOut("3D Globe Mode: ENABLED\n");
     } else {
+        Cleanup3DStarField();
         AppDebugOut("3D Globe Mode: DISABLED\n");
     }
 }
@@ -132,7 +272,7 @@ void MapRenderer::Render3DGlobe()
     
     // disable fog after rendering coastlines and borders
     g_renderer3d->DisableFog();
-
+  
     //
     // master scene batching, pretty much identical to map renderer
     // if it aint broke dont fix it, since im good at breaking shit
@@ -141,6 +281,8 @@ void MapRenderer::Render3DGlobe()
     //
     // begin scene
 
+    g_renderer3d->BeginStarFieldBatch3D();      // Star field batching
+    g_renderer3d->BeginGlobeSurfaceBatch3D();   // Globe surface batching
     g_renderer3d->BeginUnitMainBatch3D();       // Main unit sprites + city icons
     g_renderer3d->BeginUnitRotatingBatch3D();   // Rotating sprites (aircraft, but not nukes anymore)
     g_renderer3d->BeginUnitTrailBatch3D();      // Unit movement trails
@@ -152,6 +294,8 @@ void MapRenderer::Render3DGlobe()
 
     // render all 3d objects inside the scene
 
+    Render3DStarField();
+    Render3DGlobeSurface(); 
     Render3DGlobeCities();
     Render3DUnits();
     Render3DUnitTrails();
@@ -170,6 +314,8 @@ void MapRenderer::Render3DGlobe()
     g_renderer3d->EndUnitStateBatch3D();        // Flush all unit state icons
     g_renderer3d->EndUnitRotatingBatch3D();     // Flush all rotating sprites (atlas batching!)
     g_renderer3d->EndUnitMainBatch3D();         // Flush all main unit sprites + city icons (atlas batching!)
+    g_renderer3d->EndGlobeSurfaceBatch3D();     // Flush globe surface triangles
+    g_renderer3d->EndStarFieldBatch3D();        // Flush star sprites
 
     glDisable(GL_DEPTH_TEST);
     
@@ -219,7 +365,7 @@ void MapRenderer::Update3DGlobeCamera()
     
     // WASD camera rotation
     if (!ignoreKeys) {
-        float rotationSpeed = 2.0f * g_advanceTime;  // smooth rotation speed
+        float rotationSpeed = 1.5f * g_advanceTime;  // smooth rotation speed
         
         if (g_keys[KeyA] || g_keys[KEY_LEFT]) {
             m_globe3DCamera.m_cameraTheta -= rotationSpeed;
@@ -310,6 +456,64 @@ Vector3<float> MapRenderer::ConvertLongLatTo3DPosition(float longitude, float la
     pos.RotateAround(right * latRad);
     
     return pos;
+}
+
+//
+// render a filled semi transparent globe surface to occlude stars behind it
+
+void MapRenderer::Render3DGlobeSurface()
+{
+    if (!m_3DGlobeMode) return;
+
+    //
+    // This will occlude stars behind the globe while maintaining coastline visibility
+
+    Colour globeColor(0, 0, 0, 30);
+    
+    int segments = 64; 
+    float radius = 1.0f; 
+    Vector3<float> center(0.0f, 0.0f, 0.0f);
+    
+    //
+    // render filled sphere using triangle approach
+    // create triangular faces for the sphere
+
+    for (int lat = 0; lat < segments; ++lat) {
+        float theta1 = M_PI * lat / segments - M_PI/2; // -90 to +90 degrees
+        float theta2 = M_PI * (lat + 1) / segments - M_PI/2;
+        
+        for (int lon = 0; lon < segments; ++lon) {
+            float phi1 = 2.0f * M_PI * lon / segments;
+            float phi2 = 2.0f * M_PI * (lon + 1) / segments;
+            
+            // Calculate the 4 vertices of this quad
+            float x1 = radius * cosf(theta1) * cosf(phi1);
+            float y1 = radius * sinf(theta1);
+            float z1 = radius * cosf(theta1) * sinf(phi1);
+            
+            float x2 = radius * cosf(theta1) * cosf(phi2);
+            float y2 = radius * sinf(theta1);
+            float z2 = radius * cosf(theta1) * sinf(phi2);
+            
+            float x3 = radius * cosf(theta2) * cosf(phi2);
+            float y3 = radius * sinf(theta2);
+            float z3 = radius * cosf(theta2) * sinf(phi2);
+            
+            float x4 = radius * cosf(theta2) * cosf(phi1);
+            float y4 = radius * sinf(theta2);
+            float z4 = radius * cosf(theta2) * sinf(phi1);
+            
+            // First triangle: 1, 2, 3
+            g_renderer3d->GlobeSurfaceTriangle3D(center.x + x1, center.y + y1, center.z + z1,
+                                               center.x + x2, center.y + y2, center.z + z2,
+                                               center.x + x3, center.y + y3, center.z + z3, globeColor);
+            
+            // Second triangle: 1, 3, 4
+            g_renderer3d->GlobeSurfaceTriangle3D(center.x + x1, center.y + y1, center.z + z1,
+                                               center.x + x3, center.y + y3, center.z + z3,
+                                               center.x + x4, center.y + y4, center.z + z4, globeColor);
+        }
+    }
 }
 
 //
