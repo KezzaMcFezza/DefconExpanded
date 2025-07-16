@@ -42,7 +42,7 @@ else()
     endif()
 endif()
 
-set(REPLAY_VIEWER_VERSION "B1.86" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "B1.80" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 option(ENABLE_RECORDING_PARSING "Enable recording parsing functionality" ON)
 option(ENABLE_EMSCRIPTEN_REPLAY_VIEWER "Enable Emscripten Replay Viewer mode (recording playback only)" ON)
 
@@ -131,7 +131,7 @@ if(EMSCRIPTEN)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
     
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s INITIAL_MEMORY=512MB -s ALLOW_MEMORY_GROWTH=0")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s INITIAL_MEMORY=128MB -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=512MB")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s MALLOC=mimalloc")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s PTHREAD_POOL_SIZE_STRICT=0 -s SHARED_MEMORY=1")
@@ -536,17 +536,19 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/netlib/net_udp_packet.cpp
     ${SYSTEMIV_PATH}/lib/netlib/thread_controller.cpp
     ${SYSTEMIV_PATH}/lib/render/colour.cpp
-    ${SYSTEMIV_PATH}/lib/render/renderer.cpp
-    ${SYSTEMIV_PATH}/lib/render/sprite_atlas.cpp
-    ${SYSTEMIV_PATH}/lib/render/renderer_buffers.cpp
-    ${SYSTEMIV_PATH}/lib/render/renderer_vbo.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/renderer.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/renderer_buffers.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/renderer_3d.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_buffers.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/renderer_nuke.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/renderer_vbo.cpp
     ${SYSTEMIV_PATH}/lib/render/renderer_debug_menu.cpp
-    ${SYSTEMIV_PATH}/lib/render/renderer_3d.cpp
     ${SYSTEMIV_PATH}/lib/render/styletable.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmap.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmapfont.cpp
     ${SYSTEMIV_PATH}/lib/resource/image.cpp
     ${SYSTEMIV_PATH}/lib/resource/resource.cpp
+    ${SYSTEMIV_PATH}/lib/resource/sprite_atlas.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_blueprint_manager.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_filter.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_instance.cpp
@@ -644,7 +646,7 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -msimd128 -s STACK_SIZE=8MB")
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s INITIAL_MEMORY=512MB -s ALLOW_MEMORY_GROWTH=0")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s INITIAL_MEMORY=128MB -s ALLOW_MEMORY_GROWTH=1 -s MAXIMUM_MEMORY=512MB")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s MALLOC=mimalloc")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s USE_PTHREADS=1 -s PTHREAD_POOL_SIZE=4")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s PTHREAD_POOL_SIZE_STRICT=0 -s SHARED_MEMORY=1")

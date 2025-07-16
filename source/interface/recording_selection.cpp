@@ -1,6 +1,6 @@
 #include "lib/universal_include.h"
 #include "lib/gucci/window_manager.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/language_table.h"
 #include "lib/hi_res_time.h"
 #include "lib/netlib/net_lib.h"

@@ -1,6 +1,6 @@
 #include "lib/universal_include.h"
 #include "lib/gucci/input.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/sound/sound_parameter.h"
 #include "lib/sound/sound_instance.h"
 #include "lib/sound/soundsystem.h"

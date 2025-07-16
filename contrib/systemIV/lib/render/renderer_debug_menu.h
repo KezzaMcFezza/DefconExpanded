@@ -4,8 +4,8 @@
 #include "lib/render/colour.h"
 
 class Renderer;
-
 class RendererDebugMenu
+
 {
 public:
     static const int FRAME_TIME_HISTORY_SIZE = 60; // Track last 60 frames for smooth averages

@@ -9,7 +9,7 @@
  
  #include "lib/tosser/btree.h"
  #include "lib/math/vector3.h"
- #include "colour.h"
+ #include "lib/render/colour.h"
  
  class Image;
  class BitmapFont;

@@ -5,8 +5,8 @@
 
 #include "lib/debug_utils.h"
 #include "lib/string_utils.h"
+#include "lib/render2d/renderer.h"
 #include "renderer_3d.h"
-#include "renderer.h"
 
 Renderer3D *g_renderer3d = NULL;
 
@@ -135,7 +135,27 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_megaVBO3DActive(false),
     m_currentMegaVBO3DKey(NULL),
     m_megaVertices3D(NULL),
-    m_megaVertex3DCount(0)
+    m_megaVertex3DCount(0),
+    m_unitTrailVertexCount3D(0),
+    m_unitMainVertexCount3D(0),
+    m_currentUnitMainTexture3D(0),
+    m_unitRotatingVertexCount3D(0),
+    m_currentUnitRotatingTexture3D(0),
+    m_unitStateVertexCount3D(0),
+    m_currentUnitStateTexture3D(0),
+    m_unitCounterVertexCount3D(0),
+    m_currentUnitCounterTexture3D(0),
+    m_unitNukeVertexCount3D(0),
+    m_currentUnitNukeTexture3D(0),
+    m_unitHighlightVertexCount3D(0),
+    m_currentUnitHighlightTexture3D(0),
+    m_effectsLineVertexCount3D(0),
+    m_effectsSpriteVertexCount3D(0),
+    m_currentEffectsSpriteTexture3D(0),
+    m_healthBarVertexCount3D(0),
+    m_textVertexCount3D(0),
+    m_currentTextTexture3D(0),
+    m_nuke3DModelVertexCount3D(0)
 {
     // Initialize fog parameters
     m_fogEnabled = false;
@@ -150,6 +170,42 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_cameraPos[0] = 0.0f; // X
     m_cameraPos[1] = 0.0f; // Y
     m_cameraPos[2] = 0.0f; // Z
+    
+    // Initialize 3D draw call tracking counters (matching 2D system)
+    m_drawCallsPerFrame3D = 0;
+    m_legacyVertexCalls3D = 0;
+    m_legacyTriangleCalls3D = 0;
+    m_unitTrailCalls3D = 0;
+    m_unitMainSpriteCalls3D = 0;
+    m_unitRotatingCalls3D = 0;
+    m_unitStateCalls3D = 0;
+    m_unitCounterCalls3D = 0;
+    m_unitNukeIconCalls3D = 0;
+    m_unitHighlightCalls3D = 0;
+    m_effectsLineCalls3D = 0;
+    m_effectsSpriteCalls3D = 0;
+    m_healthBarCalls3D = 0;
+    m_textCalls3D = 0;
+    m_megaVBOCalls3D = 0;
+    m_nuke3DModelCalls3D = 0;
+    
+    // Initialize previous frame data
+    m_prevDrawCallsPerFrame3D = 0;
+    m_prevLegacyVertexCalls3D = 0;
+    m_prevLegacyTriangleCalls3D = 0;
+    m_prevUnitTrailCalls3D = 0;
+    m_prevUnitMainSpriteCalls3D = 0;
+    m_prevUnitRotatingCalls3D = 0;
+    m_prevUnitStateCalls3D = 0;
+    m_prevUnitCounterCalls3D = 0;
+    m_prevUnitNukeIconCalls3D = 0;
+    m_prevUnitHighlightCalls3D = 0;
+    m_prevEffectsLineCalls3D = 0;
+    m_prevEffectsSpriteCalls3D = 0;
+    m_prevHealthBarCalls3D = 0;
+    m_prevTextCalls3D = 0;
+    m_prevMegaVBOCalls3D = 0;
+    m_prevNuke3DModelCalls3D = 0;
     
     Initialize3DShaders();
     Setup3DVertexArrays();
@@ -303,15 +359,16 @@ out vec4 FragColor;
 void main() {
     vec4 texColor = texture(ourTexture, texCoord);
     
-    if (texColor.a < 0.1 || (texColor.r < 0.1 && texColor.g < 0.1 && texColor.b < 0.1)) {
+    // MUCH less aggressive alpha testing - only discard completely transparent pixels
+    // This preserves natural texture transparency like 2D mode
+    if (texColor.a < 0.01) {
         discard;
     }
     
     vec4 finalColor = texColor * vertexColor;
     
-    if (finalColor.a < 0.1) {
-        discard;
-    }
+    // Don't discard based on final alpha - let natural transparency work
+    // This prevents z-fighting and matches 2D behavior
     
     if (uFogEnabled) {
         if (uFogOrientationBased) {
@@ -445,15 +502,16 @@ out vec4 FragColor;
 void main() {
     vec4 texColor = texture(ourTexture, texCoord);
     
-    if (texColor.a < 0.1 || (texColor.r < 0.1 && texColor.g < 0.1 && texColor.b < 0.1)) {
+    // MUCH less aggressive alpha testing - only discard completely transparent pixels
+    // This preserves natural texture transparency like 2D mode
+    if (texColor.a < 0.01) {
         discard;
     }
 
     vec4 finalColor = texColor * vertexColor;
 
-    if (finalColor.a < 0.1) {
-        discard;
-    }
+    // Don't discard based on final alpha - let natural transparency work
+    // This prevents z-fighting and matches 2D behavior
     
     if (uFogEnabled) {
         if (uFogOrientationBased) {
@@ -722,6 +780,9 @@ void Renderer3D::EndTexturedQuad3D() {
 void Renderer3D::Flush3DTexturedVertices() {
     if (m_vertex3DTexturedCount == 0) return;
     
+    // Track legacy draw call for debug menu
+    IncrementDrawCall3D("legacy_triangles");
+    
     // Use textured 3D shader program
     glUseProgram(m_shader3DTexturedProgram);
     
@@ -878,6 +939,9 @@ void Renderer3D::Clear3DState() {
 void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
     if (m_vertex3DCount == 0) return;
     
+    // Track legacy draw call for debug menu
+    IncrementDrawCall3D("legacy_vertices");
+    
     // Use 3D shader program
     glUseProgram(m_shader3DProgram);
     
@@ -1032,6 +1096,9 @@ void Renderer3D::RenderMegaVBO3D(const char* megaVBOKey) {
         return; // Mega-VBO doesn't exist or is invalid
     }
     
+    // Track VBO draw call for debug menu
+    IncrementDrawCall3D("mega_vbo");
+    
     Cached3DVBO* cachedVBO = tree->data;
     
     // Use 3D shader
@@ -1097,4 +1164,209 @@ void Renderer3D::EnableOrientationFog(float r, float g, float b, float a, float 
 
 void Renderer3D::DisableFog() {
     m_fogEnabled = false;
+} 
+
+void Renderer3D::SetCameraPosition(float x, float y, float z) {
+    m_cameraPos[0] = x;
+    m_cameraPos[1] = y;
+    m_cameraPos[2] = z;
+}
+
+void Renderer3D::CreateSurfaceAlignedBillboard(const Vector3<float>& position, float width, float height, 
+                                               Vertex3DTextured* vertices, float u1, float v1, float u2, float v2, 
+                                               float r, float g, float b, float a, float rotation) {
+    // Create billboard that lays flat on the globe surface
+    Vector3<float> normal = position;
+    normal.Normalise();
+    
+    // Create consistent "up" direction relative to globe north pole
+    Vector3<float> globeUp = Vector3<float>(0.0f, 1.0f, 0.0f);
+    
+    // For positions right at poles, use a stable tangent
+    Vector3<float> tangent1;
+    if (fabsf(normal.y) > 0.98f) {
+        // At poles, use east direction
+        tangent1 = Vector3<float>(1.0f, 0.0f, 0.0f);
+    } else {
+        // Create tangent pointing "east" (perpendicular to north and surface normal)
+        tangent1 = globeUp ^ normal;
+        tangent1.Normalise();
+    }
+    
+    // Create tangent pointing "north" (always toward globe north pole)
+    Vector3<float> tangent2 = normal ^ tangent1;
+    tangent2.Normalise();
+    
+    // Apply rotation if specified
+    if (rotation != 0.0f) {
+        Vector3<float> rotatedTangent1 = tangent1 * cosf(rotation) + tangent2 * sinf(rotation);
+        Vector3<float> rotatedTangent2 = tangent2 * cosf(rotation) - tangent1 * sinf(rotation);
+        tangent1 = rotatedTangent1;
+        tangent2 = rotatedTangent2;
+    }
+    
+    // Create quad vertices with proper orientation
+    float halfWidth = width * 0.5f;
+    float halfHeight = height * 0.5f;
+    
+    // First triangle: TL, TR, BR
+    vertices[0] = {position.x - tangent1.x * halfWidth + tangent2.x * halfHeight,
+                   position.y - tangent1.y * halfWidth + tangent2.y * halfHeight,
+                   position.z - tangent1.z * halfWidth + tangent2.z * halfHeight,
+                   r, g, b, a, u1, v2};
+    vertices[1] = {position.x + tangent1.x * halfWidth + tangent2.x * halfHeight,
+                   position.y + tangent1.y * halfWidth + tangent2.y * halfHeight,
+                   position.z + tangent1.z * halfWidth + tangent2.z * halfHeight,
+                   r, g, b, a, u2, v2};
+    vertices[2] = {position.x + tangent1.x * halfWidth - tangent2.x * halfHeight,
+                   position.y + tangent1.y * halfWidth - tangent2.y * halfHeight,
+                   position.z + tangent1.z * halfWidth - tangent2.z * halfHeight,
+                   r, g, b, a, u2, v1};
+    
+    // Second triangle: TL, BR, BL
+    vertices[3] = vertices[0]; // TL
+    vertices[4] = vertices[2]; // BR
+    vertices[5] = {position.x - tangent1.x * halfWidth - tangent2.x * halfHeight,
+                   position.y - tangent1.y * halfWidth - tangent2.y * halfHeight,
+                   position.z - tangent1.z * halfWidth - tangent2.z * halfHeight,
+                   r, g, b, a, u1, v1};
+}
+
+void Renderer3D::CreateCameraFacingBillboard(const Vector3<float>& position, float width, float height,
+                                             Vertex3DTextured* vertices, float u1, float v1, float u2, float v2,
+                                             float r, float g, float b, float a, float rotation) {
+    // Create billboard that faces the camera
+    Vector3<float> cameraPos(m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
+    Vector3<float> cameraDir = cameraPos - position;
+    cameraDir.Normalise();
+    
+    // Create billboard facing camera
+    Vector3<float> up = Vector3<float>(0.0f, 1.0f, 0.0f);
+    Vector3<float> right = up ^ cameraDir;
+    right.Normalise();
+    up = cameraDir ^ right;
+    up.Normalise();
+    
+    // Apply rotation if specified
+    if (rotation != 0.0f) {
+        float cosRot = cosf(rotation);
+        float sinRot = sinf(rotation);
+        Vector3<float> rotatedRight = right * cosRot + up * sinRot;
+        Vector3<float> rotatedUp = -right * sinRot + up * cosRot;
+        right = rotatedRight;
+        up = rotatedUp;
+    }
+    
+    // Create quad vertices for camera-facing billboard
+    float halfWidth = width * 0.5f;
+    float halfHeight = height * 0.5f;
+    
+    // First triangle: TL, TR, BR
+    vertices[0] = {position.x - right.x * halfWidth + up.x * halfHeight,
+                   position.y - right.y * halfWidth + up.y * halfHeight,
+                   position.z - right.z * halfWidth + up.z * halfHeight,
+                   r, g, b, a, u1, v2};
+    vertices[1] = {position.x + right.x * halfWidth + up.x * halfHeight,
+                   position.y + right.y * halfWidth + up.y * halfHeight,
+                   position.z + right.z * halfWidth + up.z * halfHeight,
+                   r, g, b, a, u2, v2};
+    vertices[2] = {position.x + right.x * halfWidth - up.x * halfHeight,
+                   position.y + right.y * halfWidth - up.y * halfHeight,
+                   position.z + right.z * halfWidth - up.z * halfHeight,
+                   r, g, b, a, u2, v1};
+    
+    // Second triangle: TL, BR, BL
+    vertices[3] = vertices[0]; // TL
+    vertices[4] = vertices[2]; // BR
+    vertices[5] = {position.x - right.x * halfWidth - up.x * halfHeight,
+                   position.y - right.y * halfWidth - up.y * halfHeight,
+                   position.z - right.z * halfWidth - up.z * halfHeight,
+                   r, g, b, a, u1, v1};
+} 
+
+
+//
+// increment draw calls for the 3d globe mode, pretty much a copy and paste from 2d renderer
+
+void Renderer3D::IncrementDrawCall3D(const char* bufferType) {
+    m_drawCallsPerFrame3D++;
+    
+    if (strcmp(bufferType, "legacy_vertices") == 0) {
+        m_legacyVertexCalls3D++;
+    } else if (strcmp(bufferType, "legacy_triangles") == 0) {
+        m_legacyTriangleCalls3D++;
+    } else if (strcmp(bufferType, "text") == 0) {
+        m_textCalls3D++;
+    } else if (strcmp(bufferType, "mega_vbo") == 0) {
+        m_megaVBOCalls3D++;
+    } else if (strcmp(bufferType, "unit_trails") == 0) {
+        m_unitTrailCalls3D++;
+    } else if (strcmp(bufferType, "unit_main_sprites") == 0) {
+        m_unitMainSpriteCalls3D++;
+    } else if (strcmp(bufferType, "unit_rotating") == 0) {
+        m_unitRotatingCalls3D++;
+    } else if (strcmp(bufferType, "unit_highlights") == 0) {
+        m_unitHighlightCalls3D++;
+    } else if (strcmp(bufferType, "unit_state_icons") == 0) {
+        m_unitStateCalls3D++;
+    } else if (strcmp(bufferType, "unit_counters") == 0) {
+        m_unitCounterCalls3D++;
+    } else if (strcmp(bufferType, "unit_nuke_icons") == 0) {
+        m_unitNukeIconCalls3D++;
+    } else if (strcmp(bufferType, "effects_lines") == 0) {
+        m_effectsLineCalls3D++;
+    } else if (strcmp(bufferType, "effects_sprites") == 0) {
+        m_effectsSpriteCalls3D++;
+    } else if (strcmp(bufferType, "health_bars") == 0) {
+        m_healthBarCalls3D++;
+    } else if (strcmp(bufferType, "nuke_3d_models") == 0) {
+        m_nuke3DModelCalls3D++;
+    }
+}
+
+void Renderer3D::ResetFrameCounters3D() {
+    // store the previous frames data for debug menu 
+    m_prevDrawCallsPerFrame3D = m_drawCallsPerFrame3D;
+    m_prevLegacyVertexCalls3D = m_legacyVertexCalls3D;
+    m_prevLegacyTriangleCalls3D = m_legacyTriangleCalls3D;
+    m_prevUnitTrailCalls3D = m_unitTrailCalls3D;
+    m_prevUnitMainSpriteCalls3D = m_unitMainSpriteCalls3D;
+    m_prevUnitRotatingCalls3D = m_unitRotatingCalls3D;
+    m_prevUnitStateCalls3D = m_unitStateCalls3D;
+    m_prevUnitCounterCalls3D = m_unitCounterCalls3D;
+    m_prevUnitNukeIconCalls3D = m_unitNukeIconCalls3D;
+    m_prevUnitHighlightCalls3D = m_unitHighlightCalls3D;
+    m_prevEffectsLineCalls3D = m_effectsLineCalls3D;
+    m_prevEffectsSpriteCalls3D = m_effectsSpriteCalls3D;
+    m_prevHealthBarCalls3D = m_healthBarCalls3D;
+    m_prevTextCalls3D = m_textCalls3D;
+    m_prevMegaVBOCalls3D = m_megaVBOCalls3D;
+    m_prevNuke3DModelCalls3D = m_nuke3DModelCalls3D;
+    
+    // reset current frame counters
+    m_drawCallsPerFrame3D = 0;
+    m_legacyVertexCalls3D = 0;
+    m_legacyTriangleCalls3D = 0;
+    m_unitTrailCalls3D = 0;
+    m_unitMainSpriteCalls3D = 0;
+    m_unitRotatingCalls3D = 0;
+    m_unitStateCalls3D = 0;
+    m_unitCounterCalls3D = 0;
+    m_unitNukeIconCalls3D = 0;
+    m_unitHighlightCalls3D = 0;
+    m_effectsLineCalls3D = 0;
+    m_effectsSpriteCalls3D = 0;
+    m_healthBarCalls3D = 0;
+    m_textCalls3D = 0;
+    m_megaVBOCalls3D = 0;
+    m_nuke3DModelCalls3D = 0;
+}
+
+void Renderer3D::BeginFrame3D() {
+    ResetFrameCounters3D();
+}
+
+void Renderer3D::EndFrame3D() {
+    // Flush any remaining buffers if needed
+    FlushAllSpecializedBuffers3D();
 } 

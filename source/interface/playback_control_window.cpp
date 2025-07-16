@@ -1,6 +1,6 @@
 #include "lib/universal_include.h"
 #include "lib/language_table.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/render/styletable.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/input.h"
@@ -25,7 +25,7 @@ bool g_healthBarsEnabled = false;           // global variable for health bar vi
 // Playback Control Window
 
 PlaybackControlWindow::PlaybackControlWindow()
-:   InterfaceWindow("Playback Controls", "Playback Controls", false),
+:   FadingWindow("Playback Controls"),
     m_isPaused(false),
     m_currentSpeed(1.0f),
     m_currentSeqId(0),
@@ -72,7 +72,11 @@ PlaybackControlWindow::PlaybackControlWindow()
 
 void PlaybackControlWindow::Create()
 {
-    InterfaceWindow::Create();
+    //
+    // create a fading window instead of the normal interface window
+    // this matches the toolbar and chat window
+
+    FadingWindow::Create();
     
     PlayPauseButton *playPause = new PlayPauseButton();
     playPause->SetProperties("PlayPause", 10, 80, 61, 25, "PLAY", "Toggle pause/play", false, true);
@@ -284,7 +288,43 @@ void PlaybackControlWindow::Render(bool _hasFocus)
 {
     if (!ShouldRender()) return;
     
-    InterfaceWindow::Render(_hasFocus);
+    FadingWindow::Render(_hasFocus, false);
+    
+    EclButton *playPauseBtn = GetButton("PlayPause");
+    if (playPauseBtn) {
+        playPauseBtn->Render(m_x + playPauseBtn->m_x, m_y + playPauseBtn->m_y, false, false);
+    }
+    
+    EclButton *healthToggleBtn = GetButton("HealthToggle");
+    if (healthToggleBtn) {
+        healthToggleBtn->Render(m_x + healthToggleBtn->m_x, m_y + healthToggleBtn->m_y, false, false);
+    }
+    
+    EclButton *speedSlider = GetButton("SpeedSlider");
+    if (speedSlider) {
+        speedSlider->Render(m_x + speedSlider->m_x, m_y + speedSlider->m_y, false, false);
+    }
+    
+    EclButton *seekBar = GetButton("SeekBar");
+    if (seekBar) {
+        seekBar->Render(m_x + seekBar->m_x, m_y + seekBar->m_y, false, false);
+    }
+    
+    EclButton *spectatorBtn = GetButton("Player_Spectator");
+    if (spectatorBtn) {
+        spectatorBtn->Render(m_x + spectatorBtn->m_x, m_y + spectatorBtn->m_y, false, false);
+    }
+    
+    for (int i = 0; i < 6; i++) {
+        if (m_players[i].isActive) {
+            char buttonId[32];
+            sprintf(buttonId, "Player_%d", i);
+            EclButton *playerBtn = GetButton(buttonId);
+            if (playerBtn) {
+                playerBtn->Render(m_x + playerBtn->m_x, m_y + playerBtn->m_y, false, false);
+            }
+        }
+    }
     
     // reinitialize players if not done yet, in case teams loaded after window creation
     if( !m_playersInitialized && g_app->GetWorld() && g_app->GetWorld()->m_teams.Size() > 0 )
@@ -416,7 +456,7 @@ void PlaybackControlWindow::Update()
         }
     }
     
-    InterfaceWindow::Update();
+    FadingWindow::Update();
 }
 
 void PlaybackControlWindow::TogglePause()

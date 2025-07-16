@@ -10,7 +10,7 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/resource/bitmap.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/profiler.h"
 #include "lib/language_table.h"
 #include "lib/math/random_number.h"

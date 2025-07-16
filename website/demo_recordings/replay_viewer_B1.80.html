@@ -529,6 +529,33 @@ var DefconLoader = {
 
     if (this.overlay) {
       this.overlay.classList.add('hidden');
+      this.overlay.style.display = 'none'; // Extra insurance
+      
+      // Safeguard: ensure it stays hidden
+      setTimeout(() => {
+        if (this.overlay && !this.overlay.classList.contains('hidden')) {
+          console.log('Loading screen reappeared - forcing hide again');
+          this.overlay.classList.add('hidden');
+          this.overlay.style.display = 'none';
+        }
+      }, 2000);
+    }
+  },
+  
+  // Additional method to force hide if needed
+  forceHide: function() {
+    console.log('Force hiding loading screen');
+    this.hasEverLoaded = true;
+    this.errorOccurred = false;
+    
+    if (this.noProgressTimeout) {
+      clearTimeout(this.noProgressTimeout);
+      this.noProgressTimeout = null;
+    }
+    
+    if (this.overlay) {
+      this.overlay.classList.add('hidden');
+      this.overlay.style.display = 'none';
     }
   }
 };
@@ -543,6 +570,21 @@ var Module = {
   },
   
   totalDependencies: 0,
+  dataFileLoaded: false,
+  jsReady: false,
+  
+  checkIfFullyLoaded() {
+    if (this.jsReady && this.dataFileLoaded && DefconLoader) {
+      console.log('All assets loaded (JS + Data), hiding loading screen');
+      DefconLoader.setConnectionState(DefconLoader.STATE_CONNECTED);
+      DefconLoader.updateSecondaryProgress(100, '#00ff00', 'READY');
+      DefconLoader.infoElement.textContent = 'GAME READY - STARTING...';
+      
+      setTimeout(() => {
+        DefconLoader.hide();
+      }, 1500);
+    }
+  },
   
   monitorRunDependencies(left) {
     if (DefconLoader.hasEverLoaded) {
@@ -560,16 +602,15 @@ var Module = {
       DefconLoader.updateProgressBar(connectProgress, '#ffff00');
 
     } else {
-      // All assets loaded - hide immediately
-      DefconLoader.assetsLoaded = true;
+      // JS dependencies completed, but wait for .data file
+      console.log('JS dependencies completed, waiting for .data file...');
+      this.jsReady = true;
       DefconLoader.setConnectionState(DefconLoader.STATE_CONNECTED);
-      DefconLoader.updateSecondaryProgress(100, '#00ff00', 'SYNCHRONISED');
-      DefconLoader.infoElement.textContent = 'INITIALIZATION COMPLETE';
-
-      // Simple timeout before hiding - no complex validation needed
-      setTimeout(() => {
-        DefconLoader.hide();
-      }, 1500);
+      DefconLoader.updateProgressBar(100, '#00ff00');
+      DefconLoader.infoElement.textContent = 'WAITING FOR GAME DATA...';
+      
+      // Check if we can hide now
+      this.checkIfFullyLoaded();
     }
   },
   
@@ -626,6 +667,48 @@ if ('serviceWorker' in navigator) {
 // Initialize DefconLoader
 DefconLoader.init();
 
+// Track .data file downloads specifically
+const originalXHROpen = XMLHttpRequest.prototype.open;
+XMLHttpRequest.prototype.open = function(method, url, ...args) {
+  if (url.includes('.data')) {
+    console.log('Detected .data file request:', url);
+    
+    this.addEventListener('progress', (event) => {
+      if (event.lengthComputable && DefconLoader) {
+        const percent = (event.loaded / event.total) * 100;
+        console.log(`.data file progress: ${percent.toFixed(1)}%`);
+        
+        DefconLoader.updateSecondaryProgress(
+          percent, 
+          percent < 100 ? '#ffaa00' : '#00ff00',
+          percent < 100 ? 'LOADING ASSETS' : 'ASSETS LOADED'
+        );
+        DefconLoader.infoElement.textContent = 
+          `DOWNLOADING GAME DATA... (${Math.round(percent)}%)`;
+      }
+    });
+    
+    this.addEventListener('load', () => {
+      console.log('.data file download completed');
+      Module.dataFileLoaded = true;
+      if (DefconLoader) {
+        DefconLoader.updateSecondaryProgress(100, '#00ff00', 'ASSETS LOADED');
+        DefconLoader.infoElement.textContent = 'GAME DATA LOADED - CHECKING...';
+      }
+      Module.checkIfFullyLoaded();
+    });
+    
+    this.addEventListener('error', () => {
+      console.error('.data file failed to load');
+      if (DefconLoader) {
+        DefconLoader.showError('ASSET LOADING FAILED');
+      }
+    });
+  }
+  
+  return originalXHROpen.call(this, method, url, ...args);
+};
+
 // Force AudioContext to 44.1kHz and log results
 function testAudioContextSampleRate() {
   console.log('=== AUDIO CONTEXT SAMPLE RATE TEST ===');
@@ -636,22 +719,15 @@ function testAudioContextSampleRate() {
       sampleRate: 44100
     });
     
-    console.log('AudioContext created successfully');
-    console.log('Requested sample rate: 44100 Hz');
-    console.log('Actual sample rate:', audioContext.sampleRate, 'Hz');
-    console.log('Sample rate match:', audioContext.sampleRate === 44100 ? 'SUCCESS' : 'FAILED');
     
     // Create a buffer to test internal processing
     const buffer = audioContext.createBuffer(1, 1024, 44100);
-    console.log('Buffer sample rate:', buffer.sampleRate, 'Hz');
     
     // Test if we can get the output device sample rate
     if (audioContext.outputLatency !== undefined) {
-      console.log('Output latency:', audioContext.outputLatency, 'seconds');
     }
     
     if (audioContext.baseLatency !== undefined) {
-      console.log('Base latency:', audioContext.baseLatency, 'seconds');
     }
     
     // Store globally for SDL to potentially use
@@ -659,50 +735,39 @@ function testAudioContextSampleRate() {
     
     // Log final verdict
     if (audioContext.sampleRate === 44100) {
-      console.log('✅ AUDIO CONTEXT FORCED TO 44.1KHZ SUCCESSFULLY');
     } else {
-      console.log('❌ AUDIO CONTEXT FORCED TO', audioContext.sampleRate, 'HZ INSTEAD OF 44.1KHZ');
-      console.log('This may cause audio artifacts due to sample rate conversion');
     }
     
   } catch (error) {
-    console.error('❌ Failed to create AudioContext with 44.1kHz:', error);
+    console.error('Failed to create AudioContext with 44.1kHz:', error);
     
     // Fallback: try default AudioContext
     try {
       const fallbackContext = new (window.AudioContext || window.webkitAudioContext)();
-      console.log('Fallback AudioContext created');
-      console.log('Default sample rate:', fallbackContext.sampleRate, 'Hz');
       window.defconAudioContext = fallbackContext;
     } catch (fallbackError) {
-      console.error('❌ Failed to create fallback AudioContext:', fallbackError);
+      console.error('Failed to create fallback AudioContext:', fallbackError);
     }
   }
   
   // Test 2: Check if we can query hardware sample rate
   if (navigator.mediaDevices && navigator.mediaDevices.getSupportedConstraints) {
     const constraints = navigator.mediaDevices.getSupportedConstraints();
-    console.log('Supported audio constraints:', constraints);
     
     if (constraints.sampleRate) {
-      console.log('✅ Browser supports sampleRate constraints');
       
       // Try to get actual hardware capabilities
       navigator.mediaDevices.enumerateDevices().then(devices => {
         const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
-        console.log('Audio output devices:', audioOutputs.length);
         audioOutputs.forEach((device, index) => {
-          console.log(`Device ${index}:`, device.label || 'Unknown device');
         });
       }).catch(err => {
         console.warn('Could not enumerate audio devices:', err);
       });
     } else {
-      console.log('❌ Browser does not support sampleRate constraints');
     }
   }
   
-  console.log('=== END AUDIO CONTEXT TEST ===');
 }
 
 // Run the test immediately
@@ -747,8 +812,92 @@ setTimeout(() => {
     DefconLoader.infoElement.textContent = 'ESTABLISHING SECURE CONNECTION...';
   }
 }, 500);
+
+// Game initialization detector - checks if game is actually running
+let gameInitCheckInterval;
+let lastCanvasImageData = null;
+
+function startGameInitDetection() {
+  if (gameInitCheckInterval) return;
+  
+  console.log('Starting game initialization detection...');
+  gameInitCheckInterval = setInterval(() => {
+    // Skip if already loaded
+    if (DefconLoader.hasEverLoaded) {
+      clearInterval(gameInitCheckInterval);
+      return;
+    }
+    
+    try {
+      const canvas = document.getElementById('canvas');
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        return; // Canvas not ready
+      }
+      
+      // Check if canvas is rendering (has changed from black)
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        const imageData = ctx.getImageData(0, 0, Math.min(canvas.width, 100), Math.min(canvas.height, 100));
+        const currentData = imageData.data;
+        
+        // Check if canvas has non-black pixels
+        let hasNonBlackPixels = false;
+        for (let i = 0; i < currentData.length; i += 4) {
+          const r = currentData[i];
+          const g = currentData[i + 1];
+          const b = currentData[i + 2];
+          const a = currentData[i + 3];
+          
+          if (a > 0 && (r > 10 || g > 10 || b > 10)) { // Non-black pixel with alpha
+            hasNonBlackPixels = true;
+            break;
+          }
+        }
+        
+        if (hasNonBlackPixels) {
+          console.log('Game appears to be rendering - forcing loading screen to hide');
+          DefconLoader.forceHide();
+          clearInterval(gameInitCheckInterval);
+          return;
+        }
+      }
+      
+      // Also check if WebGL context exists and is rendering
+      const gl = canvas.getContext('webgl') || canvas.getContext('webgl2');
+      if (gl) {
+        // Check if anything has been drawn to WebGL context
+        const pixels = new Uint8Array(4);
+        gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+        
+        if (pixels[0] > 0 || pixels[1] > 0 || pixels[2] > 0 || pixels[3] > 0) {
+          console.log('WebGL rendering detected - forcing loading screen to hide');
+          DefconLoader.forceHide();
+          clearInterval(gameInitCheckInterval);
+          return;
+        }
+      }
+      
+    } catch (error) {
+      // Ignore canvas access errors
+    }
+  }, 1000);
+}
+
+// Start detection after a delay
+setTimeout(startGameInitDetection, 3000);
+
+// Also add keyboard shortcut to force hide loading screen (for debugging)
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'F9' && e.ctrlKey) {
+    console.log('Force hiding loading screen via Ctrl+F9');
+    DefconLoader.forceHide();
+    if (gameInitCheckInterval) {
+      clearInterval(gameInitCheckInterval);
+    }
+  }
+});
   </script>
-  <script async type="text/javascript" src="replay_viewer_B1.86.js"></script>
+  <script async type="text/javascript" src="replay_viewer_B1.80.js"></script>
 </body>
 
 </html>

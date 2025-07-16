@@ -8,10 +8,10 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/bitmapfont.h"
 #include "lib/resource/image.h"
-#include "lib/render/sprite_atlas.h"
-
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/filesys/file_system.h"
+
+#include "sprite_atlas.h"
 
 
 

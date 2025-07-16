@@ -2,7 +2,7 @@
 
 #include <float.h>
 
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/netlib/net_lib.h"
 
 #include "lib/metaserver/metaserver.h"

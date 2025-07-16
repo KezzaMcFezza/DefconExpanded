@@ -15,6 +15,7 @@
 #include "lib/metaserver/metaserver.h"
 #include "lib/metaserver/metaserver_defines.h"
 #include "lib/eclipse/eclipse.h"
+#include "lib/render3d/renderer_3d.h"
 
 #include "network/ClientToServer.h"
 #include "network/Server.h"
@@ -30,8 +31,6 @@
 
 #include "lobby_renderer.h"
 #include "map_renderer.h"
-
-#include "lib/render/renderer_3d.h"
 
 
 LobbyRenderer::LobbyRenderer()

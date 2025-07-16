@@ -3,7 +3,7 @@
 #include <time.h>
 
 #include "lib/resource/image.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/netlib/net_lib.h"
 #include "lib/debug_utils.h"
 #include "lib/hi_res_time.h"

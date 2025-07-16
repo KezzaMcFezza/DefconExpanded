@@ -4,7 +4,7 @@
 
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
-#include "lib/render/renderer.h"
+#include "lib/render2d/renderer.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
 #include "lib/math/math_utils.h"

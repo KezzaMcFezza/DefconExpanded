@@ -18,10 +18,10 @@
 #include "lib/string_utils.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/language_table.h"
+#include "lib/render3d/renderer_3d.h"
+#include "lib/render/colour.h"
 
 #include "renderer.h"
-#include "renderer_3d.h"
-#include "colour.h"
 
 Renderer *g_renderer = NULL;
 
@@ -132,79 +132,67 @@ Renderer::Renderer()
       m_megaVertices(NULL),
       m_megaVertexCount(0),
       m_allowImmedateFlush(true) {
-    
-    // Initialize specialized buffer counters
-    m_uiTriangleVertexCount = 0;
-    m_uiLineVertexCount = 0;
-    m_textVertexCount = 0;
-    m_currentTextTexture = 0;
-    m_spriteVertexCount = 0;
-    m_currentSpriteTexture = 0;
-    
-    // Unit rendering buffers
-    m_unitTrailVertexCount = 0;
-    m_unitMainVertexCount = 0;
-    m_currentUnitMainTexture = 0;
-    m_unitRotatingVertexCount = 0;
-    m_currentUnitRotatingTexture = 0;
-    m_unitHighlightVertexCount = 0;
-    m_currentUnitHighlightTexture = 0;
-    m_unitStateVertexCount = 0;
-    m_currentUnitStateTexture = 0;
-    m_unitCounterVertexCount = 0;
-    m_currentUnitCounterTexture = 0;
-    m_unitNukeVertexCount = 0;
-    m_currentUnitNukeTexture = 0;
-    
-    // Effects rendering buffers
-    m_effectsLineVertexCount = 0;
-    m_effectsSpriteVertexCount = 0;
-    m_currentEffectsSpriteTexture = 0;
-    
-    // Health bar rendering buffer
-    m_healthBarVertexCount = 0;
-    
-    // Initialize performance counters
-    m_drawCallsPerFrame = 0;
-    m_legacyTriangleCalls = 0;
-    m_legacyLineCalls = 0;
-    m_uiTriangleCalls = 0;
-    m_uiLineCalls = 0;
-    m_textCalls = 0;
-    m_spriteCalls = 0;
-    m_unitTrailCalls = 0;
-    m_unitMainSpriteCalls = 0;
-    m_unitRotatingCalls = 0;
-    m_unitHighlightCalls = 0;
-    m_unitStateIconCalls = 0;
-    m_unitCounterCalls = 0;
-    m_unitNukeIconCalls = 0;
-    m_effectsLineCalls = 0;
-    m_effectsSpriteCalls = 0;
-    m_healthBarCalls = 0;
-    
-    // Initialize previous frame counters
-    m_prevDrawCallsPerFrame = 0;
-    m_prevLegacyTriangleCalls = 0;
-    m_prevLegacyLineCalls = 0;
-    m_prevUiTriangleCalls = 0;
-    m_prevUiLineCalls = 0;
-    m_prevTextCalls = 0;
-    m_prevSpriteCalls = 0;
-    m_prevUnitTrailCalls = 0;
-    m_prevUnitMainSpriteCalls = 0;
-    m_prevUnitRotatingCalls = 0;
-    m_prevUnitHighlightCalls = 0;
-    m_prevUnitStateIconCalls = 0;
-    m_prevUnitCounterCalls = 0;
-    m_prevUnitNukeIconCalls = 0;
-    m_prevEffectsLineCalls = 0;
-    m_prevEffectsSpriteCalls = 0;
-    m_prevHealthBarCalls = 0;
+      m_uiTriangleVertexCount = 0;
+      m_uiLineVertexCount = 0;
+      m_textVertexCount = 0;
+      m_currentTextTexture = 0;
+      m_spriteVertexCount = 0;
+      m_currentSpriteTexture = 0;
+      m_unitTrailVertexCount = 0;
+      m_unitMainVertexCount = 0;
+      m_currentUnitMainTexture = 0;
+      m_unitRotatingVertexCount = 0;
+      m_currentUnitRotatingTexture = 0;
+      m_unitHighlightVertexCount = 0;
+      m_currentUnitHighlightTexture = 0;
+      m_unitStateVertexCount = 0;
+      m_currentUnitStateTexture = 0;
+      m_unitCounterVertexCount = 0;
+      m_currentUnitCounterTexture = 0;
+      m_unitNukeVertexCount = 0;
+      m_currentUnitNukeTexture = 0;
+      m_effectsLineVertexCount = 0;
+      m_effectsSpriteVertexCount = 0;
+      m_currentEffectsSpriteTexture = 0;
+      m_healthBarVertexCount = 0;
+      m_drawCallsPerFrame = 0;
+      m_legacyTriangleCalls = 0;
+      m_legacyLineCalls = 0;
+      m_uiTriangleCalls = 0;
+      m_uiLineCalls = 0;
+      m_textCalls = 0;
+      m_spriteCalls = 0;
+      m_unitTrailCalls = 0;
+      m_unitMainSpriteCalls = 0;
+      m_unitRotatingCalls = 0;
+      m_unitHighlightCalls = 0;
+      m_unitStateIconCalls = 0;
+      m_unitCounterCalls = 0;
+      m_unitNukeIconCalls = 0;
+      m_effectsLineCalls = 0;
+      m_effectsSpriteCalls = 0;
+      m_healthBarCalls = 0;
+      m_prevDrawCallsPerFrame = 0;
+      m_prevLegacyTriangleCalls = 0;
+      m_prevLegacyLineCalls = 0;
+      m_prevUiTriangleCalls = 0;
+      m_prevUiLineCalls = 0;
+      m_prevTextCalls = 0;
+      m_prevSpriteCalls = 0;
+      m_prevUnitTrailCalls = 0;
+      m_prevUnitMainSpriteCalls = 0;
+      m_prevUnitRotatingCalls = 0;
+      m_prevUnitHighlightCalls = 0;
+      m_prevUnitStateIconCalls = 0;
+      m_prevUnitCounterCalls = 0;
+      m_prevUnitNukeIconCalls = 0;
+      m_prevEffectsLineCalls = 0;
+      m_prevEffectsSpriteCalls = 0;
+      m_prevHealthBarCalls = 0;
     
     // Initialize OpenGL components
-    InitializeShaders();
-    SetupVertexArrays();
+      InitializeShaders();
+      SetupVertexArrays();
     
     m_megaVertices = new Vertex2D[MAX_MEGA_VERTICES];
     g_renderer3d = new Renderer3D(this);

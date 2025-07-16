@@ -301,7 +301,7 @@ public:
     // 3D globe mode functionality
     void    Toggle3DGlobeMode();
     bool    Is3DGlobeModeEnabled() const { return m_3DGlobeMode; }
-    void    Render3DGlobeView();
+    void    Render3DGlobe();
     void    Update3DGlobeCamera();
     void    Render3DGlobeCities();
     void    Render3DUnits();          

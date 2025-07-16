@@ -2,6 +2,7 @@
 #define _included_playback_control_window_h
 
 #include "interface/components/core.h"
+#include "interface/fading_window.h"
 #include "world/world.h"
 
 // global variable for team perspective switching
@@ -10,7 +11,7 @@ extern int g_desiredPerspectiveTeamId;
 // global variable for health bar visibility
 extern bool g_healthBarsEnabled;
 
-class PlaybackControlWindow : public InterfaceWindow
+class PlaybackControlWindow : public FadingWindow
 {
 private:
     bool m_isPaused;

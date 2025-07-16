@@ -6,7 +6,7 @@
 #include "lib/filesys/filesys_utils.h"
 
 #include "styletable.h"
-#include "renderer.h"
+#include "lib/render2d/renderer.h"
 
 
 StyleTable *g_styleTable = NULL;
