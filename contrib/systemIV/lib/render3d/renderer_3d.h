@@ -203,6 +203,17 @@ private:
     Vertex3D m_nuke3DModelVertices3D[MAX_NUKE_3D_MODEL_VERTICES_3D];
     int m_nuke3DModelVertexCount3D;
     
+    // Star field rendering buffers
+    static const int MAX_STAR_FIELD_VERTICES_3D = 7500; 
+    Vertex3DTextured m_starFieldVertices3D[MAX_STAR_FIELD_VERTICES_3D];
+    int m_starFieldVertexCount3D;
+    unsigned int m_currentStarFieldTexture3D;
+    
+    // Globe surface rendering buffers  
+    static const int MAX_GLOBE_SURFACE_VERTICES_3D = 25000; 
+    Vertex3D m_globeSurfaceVertices3D[MAX_GLOBE_SURFACE_VERTICES_3D];
+    int m_globeSurfaceVertexCount3D;
+    
     //
     // draw call tracking
     
@@ -222,6 +233,8 @@ private:
     int m_textCalls3D;
     int m_megaVBOCalls3D;
     int m_nuke3DModelCalls3D;
+    int m_starFieldCalls3D;
+    int m_globeSurfaceCalls3D;
     int m_prevDrawCallsPerFrame3D;
     int m_prevLegacyVertexCalls3D;
     int m_prevLegacyTriangleCalls3D;
@@ -238,6 +251,8 @@ private:
     int m_prevTextCalls3D;
     int m_prevMegaVBOCalls3D;
     int m_prevNuke3DModelCalls3D;
+    int m_prevStarFieldCalls3D;
+    int m_prevGlobeSurfaceCalls3D;
     
     void IncrementDrawCall3D(const char* bufferType);
     void ResetFrameCounters3D();
@@ -339,6 +354,8 @@ public:
     int GetEffectsSpriteCalls() const { return m_prevEffectsSpriteCalls3D; }
     int GetHealthBarCalls() const { return m_prevHealthBarCalls3D; }
     int GetNuke3DModelCalls() const { return m_prevNuke3DModelCalls3D; }
+    int GetStarFieldCalls() const { return m_prevStarFieldCalls3D; }
+    int GetGlobeSurfaceCalls() const { return m_prevGlobeSurfaceCalls3D; }
     
     int GetTotalUnitCalls() const { 
         return m_prevUnitTrailCalls3D + m_prevUnitMainSpriteCalls3D + m_prevUnitRotatingCalls3D + 
@@ -447,6 +464,20 @@ public:
     void FlushNuke3DModels3D();
     void FlushNuke3DModels3DIfFull(int verticesNeeded);
     void FlushAllNuke3DModelBuffers3D();
+    
+    // Star field rendering
+    void StarFieldSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col);
+    void BeginStarFieldBatch3D();
+    void EndStarFieldBatch3D();
+    void FlushStarField3D();
+    void FlushStarField3DIfFull(int verticesNeeded);
+    
+    // Globe surface rendering
+    void GlobeSurfaceTriangle3D(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, Colour const &col);
+    void BeginGlobeSurfaceBatch3D();
+    void EndGlobeSurfaceBatch3D();
+    void FlushGlobeSurface3D();
+    void FlushGlobeSurface3DIfFull(int verticesNeeded);
     
     // Buffer management
     void FlushAllSpecializedBuffers3D();

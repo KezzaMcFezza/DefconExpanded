@@ -851,6 +851,8 @@ void Renderer3D::SetFogUniforms3D(unsigned int shaderProgram) {
 }
 
 void Renderer3D::FlushAllSpecializedBuffers3D() {
+    FlushStarField3D();
+    FlushGlobeSurface3D();
     FlushUnitTrails3D();
     FlushUnitMainSprites3D();
     FlushUnitRotating3D();
@@ -1143,4 +1145,155 @@ void Renderer3D::FlushNuke3DModels3DIfFull(int verticesNeeded) {
 
 void Renderer3D::FlushAllNuke3DModelBuffers3D() {
     FlushNuke3DModels3D();
+}
+
+void Renderer3D::StarFieldSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col) {
+    FlushStarField3DIfFull(6);
+    
+    unsigned int effectiveTextureID = GetEffectiveTextureID(src);
+    
+    if (m_starFieldVertexCount3D > 0 && m_currentStarFieldTexture3D != effectiveTextureID) {
+        FlushStarField3D();
+    }
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    if (src->m_mipmapping) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    
+    m_currentStarFieldTexture3D = effectiveTextureID;
+    
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    float u1, v1, u2, v2;
+    GetImageUVCoords(src, u1, v1, u2, v2);
+    
+    // create camera facing billboard for star sprites
+    Vector3<float> position(x, y, z);
+    Vertex3DTextured billboardVertices[6];
+    CreateCameraFacingBillboard(position, w, h, billboardVertices, u1, v1, u2, v2, r, g, b, a);
+    
+    for (int i = 0; i < 6; i++) {
+        m_starFieldVertices3D[m_starFieldVertexCount3D++] = billboardVertices[i];
+    }
+}
+
+void Renderer3D::BeginStarFieldBatch3D() {
+    m_starFieldVertexCount3D = 0;
+    m_currentStarFieldTexture3D = 0;
+}
+
+void Renderer3D::EndStarFieldBatch3D() {
+    if (m_starFieldVertexCount3D > 0) {
+        FlushStarField3D();
+    }
+}
+
+void Renderer3D::FlushStarField3DIfFull(int verticesNeeded) {
+    if (m_starFieldVertexCount3D + verticesNeeded > MAX_STAR_FIELD_VERTICES_3D) {
+        FlushStarField3D();
+    }
+}
+
+void Renderer3D::FlushStarField3D() {
+    if (m_starFieldVertexCount3D == 0) return;
+    
+    IncrementDrawCall3D("star_field");
+    
+    glDepthMask(GL_FALSE);  // dont write to depth buffer for stars
+    
+    glUseProgram(m_shader3DTexturedProgram);
+    
+    if (m_currentStarFieldTexture3D != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_currentStarFieldTexture3D);
+    }
+    
+    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
+    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
+    glUniform1i(texLoc, 0);
+    
+    SetFogUniforms3D(m_shader3DTexturedProgram);
+    
+    glBindVertexArray(m_VAO3DTextured);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_starFieldVertexCount3D * sizeof(Vertex3DTextured), m_starFieldVertices3D);
+    
+    glDrawArrays(GL_TRIANGLES, 0, m_starFieldVertexCount3D);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    glDepthMask(GL_TRUE);
+    
+    m_starFieldVertexCount3D = 0;
+}
+
+void Renderer3D::GlobeSurfaceTriangle3D(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, Colour const &col) {
+    FlushGlobeSurface3DIfFull(3);
+    
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    m_globeSurfaceVertices3D[m_globeSurfaceVertexCount3D++] = {x1, y1, z1, r, g, b, a};
+    m_globeSurfaceVertices3D[m_globeSurfaceVertexCount3D++] = {x2, y2, z2, r, g, b, a};
+    m_globeSurfaceVertices3D[m_globeSurfaceVertexCount3D++] = {x3, y3, z3, r, g, b, a};
+}
+
+void Renderer3D::BeginGlobeSurfaceBatch3D() {
+    m_globeSurfaceVertexCount3D = 0;
+}
+
+void Renderer3D::EndGlobeSurfaceBatch3D() {
+    if (m_globeSurfaceVertexCount3D > 0) {
+        FlushGlobeSurface3D();
+    }
+}
+
+void Renderer3D::FlushGlobeSurface3DIfFull(int verticesNeeded) {
+    if (m_globeSurfaceVertexCount3D + verticesNeeded > MAX_GLOBE_SURFACE_VERTICES_3D) {
+        FlushGlobeSurface3D();
+    }
+}
+
+void Renderer3D::FlushGlobeSurface3D() {
+    if (m_globeSurfaceVertexCount3D == 0) return;
+    
+    IncrementDrawCall3D("globe_surface");
+    
+    glUseProgram(m_shader3DProgram);
+    
+    int projLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
+    
+    SetFogUniforms3D(m_shader3DProgram);
+    
+    glBindVertexArray(m_VAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3D);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_globeSurfaceVertexCount3D * sizeof(Vertex3D), m_globeSurfaceVertices3D);
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glDrawArrays(GL_TRIANGLES, 0, m_globeSurfaceVertexCount3D);
+    
+    glDisable(GL_BLEND);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    m_globeSurfaceVertexCount3D = 0;
 } 
