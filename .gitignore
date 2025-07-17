@@ -6,6 +6,8 @@
 # Visual Studio user files
 /targets/msvc/.vs/
 /targets/msvc/Win32
+/targets/msvc/Defcon Result
+
 # macOS metadata
 .DS_Store
 

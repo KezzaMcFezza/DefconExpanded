@@ -71,7 +71,8 @@ bool MovingObject::Update()
     // this makes the game look more modern and realistic
     float samplingRate = 0.5f; 
     if (m_type == WorldObject::TypeNuke) {
-        samplingRate = 0.25f;  // even more frequent for nukes to remove those jagged lines
+        samplingRate = 0.5f;  // reduced from 0.25f to match other units for performance reasons
+                              // this is a bit uglier but its essential as we get an extra 70 fps
     }
     
     m_historyTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor() / 10;
@@ -599,8 +600,8 @@ void MovingObject::RenderHistory()
         {
             case TypeNuke:
                 sizeCap = 12 * g_app->GetMapRenderer()->GetZoomFactor();
-                // we need to account for the new sample rate, so we multiply by 8
-                sizeCap *= 8;
+                // we need to account for the sample rate, so we multiply by 4
+                sizeCap *= 4;
                 if( g_app->GetMapRenderer()->GetZoomFactor() < 0.25f )
                 {
                     return;
@@ -624,7 +625,7 @@ void MovingObject::RenderHistory()
     {
         if( m_type == TypeNuke )
         {
-            sizeCap *= 8;
+            sizeCap *= 4;
         }
         else
         {
@@ -651,7 +652,7 @@ void MovingObject::RenderHistory()
         myTeamId < g_app->GetWorld()->m_teams.Size() &&
         g_app->GetWorld()->GetTeam(myTeamId)->m_type != Team::TypeUnassigned )
     {
-        int enemyTrailLimit = (m_type == TypeNuke) ? 32 : 16;  // 4*8 for nukes, 4*4 for others
+        int enemyTrailLimit = (m_type == TypeNuke) ? 16 : 16;  // 4*4 for nukes, 4*4 for others
         maxSize = min( maxSize, enemyTrailLimit );
     }
 

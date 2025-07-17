@@ -310,21 +310,22 @@ public:
     void    Render3DExplosions();     
     void    Render3DSonarPing();
 
-    void    Render3DSphere                              (const Vector3<float>& center, float radius, const Colour& color, int segments);
-    Vector3<float> Project3DToScreen                    (const Vector3<float>& worldPos);
-    Vector3<float> ConvertLongLatTo3DPosition           (float longitude, float latitude);
-    
-    float CalculateNuke3DHeight                         (Nuke* nuke);
-    Vector3<float> CalculateNuke3DPosition              (Nuke* nuke);
-    Vector3<float> CalculateHistoricalNuke3DPosition    (Nuke* nuke, const Vector3<Fixed>& historicalPos);
-    Vector3<float> CalculateGunfire3DPosition           (GunFire* gunfire);
+    void    Render3DSphere                                (const Vector3<float>& center, float radius, const Colour& color, int segments);
+    Vector3<float> Project3DToScreen                      (const Vector3<float>& worldPos);
+    Vector3<float> ConvertLongLatTo3DPosition             (float longitude, float latitude);
+    Vector3<float> CalculateGreatCirclePosition           (float startLon, float startLat, float endLon, float endLat, float progress);
+    Vector3<float> CalculateNuke3DPosition                (Nuke* nuke);
+    Vector3<float> CalculateHistoricalNuke3DPosition      (Nuke* nuke, const Vector3<Fixed>& historicalPos);
+    Vector3<float> CalculateHistoricalNuke3DPositionByAge (Nuke* nuke, const Vector3<Fixed>& historicalPos, float historicalProgress);
+    Vector3<float> CalculateGunfire3DPosition             (GunFire* gunfire);
+    float CalculateBallisticHeight                        (float totalDistanceRadians, float progress);
     
     // 3D star field functionality
-    void    Generate3DStarField();
-    void    Cleanup3DStarField();
-    void    Regenerate3DStarField();
-    void    Render3DStarField();
-    void    Render3DGlobeSurface();
+    void    Generate3DStarField    ();
+    void    Cleanup3DStarField     ();
+    void    Regenerate3DStarField  ();
+    void    Render3DStarField      ();
+    void    Render3DGlobeSurface   ();
 	
 	// Debug menu functionality
 	RendererDebugMenu* GetDebugMenu() const { return m_debugMenu; }

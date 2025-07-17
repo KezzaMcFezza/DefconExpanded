@@ -73,6 +73,12 @@
     <Filter Include="contrib\unrar">
       <UniqueIdentifier>{00ac9c80-fd49-41f6-b649-f16b45c5307a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\render2d">
+      <UniqueIdentifier>{d250ba42-f338-4ff3-997e-cd40accd41d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\render3d">
+      <UniqueIdentifier>{3341bb2c-4d0f-44be-b226-455c25df5fd9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\app\app.cpp">
@@ -148,9 +154,6 @@
       <Filter>lib\resource</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\colour.cpp">
-      <Filter>lib\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\render\renderer.cpp">
       <Filter>lib\render</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\styletable.cpp">
@@ -645,6 +648,38 @@
     <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unpack.cpp">
       <Filter>contrib\unrar</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_3d.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_buffers.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_vbo.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\sprite_atlas.cpp" />
+    <ClCompile Include="..\..\source\interface\playback_control_window.cpp" />
+    <ClCompile Include="..\..\source\interface\recording_selection.cpp" />
+    <ClCompile Include="..\..\source\world\worldsnapshot.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer.cpp">
+      <Filter>lib\render2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_buffers.cpp">
+      <Filter>lib\render2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp">
+      <Filter>lib\render3d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_buffers.cpp">
+      <Filter>lib\render3d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_nuke.cpp">
+      <Filter>lib\render3d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_vbo.cpp">
+      <Filter>lib\render3d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\resource\sprite_atlas.cpp">
+      <Filter>lib\resource</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\renderer\globe_renderer.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">
@@ -720,9 +755,6 @@
       <Filter>lib\resource</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\colour.h">
-      <Filter>lib\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\render\renderer.h">
       <Filter>lib\render</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\styletable.h">
@@ -1126,6 +1158,22 @@
     </ClInclude>
     <ClInclude Include="..\..\source\curves.h" />
     <ClInclude Include="..\..\source\random_object.h" />
+    <ClInclude Include="..\..\contrib\SystemIV\lib\render\renderer3d.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_3d.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\sprite_atlas.h" />
+    <ClInclude Include="..\..\source\interface\playback_control_window.h" />
+    <ClInclude Include="..\..\source\interface\recording_selection.h" />
+    <ClInclude Include="..\..\source\world\worldsnapshot.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\renderer.h">
+      <Filter>lib\render2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.h">
+      <Filter>lib\render3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\resource\sprite_atlas.h">
+      <Filter>lib\resource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\docs\ai specifications.txt">
@@ -1214,5 +1262,6 @@
     <Library Include="..\..\contrib\systemIV\contrib\oggvorbis\lib\vs2022\vorbisfile.lib">
       <Filter>contrib</Filter>
     </Library>
+    <Library Include="..\..\contrib\glew\lib\Release\Win32\glew32s.lib" />
   </ItemGroup>
 </Project>
