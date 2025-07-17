@@ -60,17 +60,17 @@
     <_ProjectFileVersion>17.0.33815.168</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>..\..\</OutDir>
+    <OutDir>Defcon Result\Debug</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Recording Parsing|Win32'">
-    <OutDir>..\..\</OutDir>
+    <OutDir>Defcon Result\DebugRecParse</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>..\..\</OutDir>
+    <OutDir>Defcon Result\Release</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
@@ -106,7 +106,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;../../contrib/glew/lib/Release/Win32/glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>../../Defcon.exe</OutputFile>
+      <OutputFile>Defcon Result\Debug\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -154,7 +154,7 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;../../contrib/glew/lib/Release/Win32/glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>../../Defcon.exe</OutputFile>
+      <OutputFile>Defcon Result\DebugRecParse\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -206,7 +206,7 @@
     <Link>
       <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/glew/lib/Release/Win32/glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>../../Defcon.exe</OutputFile>
+      <OutputFile>Defcon Result\Release\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
@@ -495,18 +495,20 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\netlib\thread_controller.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\preferences.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\profiler.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_buffers.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_buffers.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_nuke.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_vbo.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\colour.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\render\renderer.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_buffers.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_vbo.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\sprite_atlas.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\styletable.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmap.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\image.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\resource.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\resource\sprite_atlas.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\sound\soundsystem.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\sound\soundsystem_interface.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_blueprint_manager.cpp" />
@@ -574,6 +576,7 @@
     <ClCompile Include="..\..\source\network\ServerToClient.cpp" />
     <ClCompile Include="..\..\source\random_object.cpp" />
     <ClCompile Include="..\..\source\renderer\animated_icon.cpp" />
+    <ClCompile Include="..\..\source\renderer\globe_renderer.cpp" />
     <ClCompile Include="..\..\source\renderer\lobby_renderer.cpp" />
     <ClCompile Include="..\..\source\renderer\map_renderer.cpp" />
     <ClCompile Include="..\..\source\world\airbase.cpp" />
@@ -603,7 +606,6 @@
     <ClCompile Include="..\..\source\world\whiteboard.cpp" />
     <ClCompile Include="..\..\source\world\world.cpp" />
     <ClCompile Include="..\..\source\world\worldobject.cpp" />
-    <ClCompile Include="..\..\source\world\worldsnapshot.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\contrib\SystemIV\interface\components\checkbox.h" />
@@ -661,12 +663,10 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\netlib\thread_controller.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\preferences.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\profiler.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\renderer.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\colour.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\render\renderer.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\render\renderer3d.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_3d.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render\sprite_atlas.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\styletable.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmap.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.h" />

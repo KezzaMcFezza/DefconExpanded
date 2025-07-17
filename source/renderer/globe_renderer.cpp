@@ -971,31 +971,48 @@ void MapRenderer::Render3DUnits()
             Nuke* nuke = (Nuke*)wobj;
             
             //
-            // this is claudes attempt at getting the nuke to face forward along its trajectory
-            // the issue that im having is that the nuke only faces the right direction when
-            // we hit the half way point in the arc, or the highest point in the arc, i will
-            // continue to work on this but for now this is what we get
-
-            Vector3<float> direction(0, 0, 1);  // Default forward direction
-            if (nuke->m_vel.x != 0 || nuke->m_vel.y != 0) {
-                // Calculate current position
-                Vector3<float> currentPos = CalculateNuke3DPosition(nuke);
+            // use the proper direction along great circle trajectory
+            
+            Vector3<float> direction(0, 0, 1);  
+            
+            if (nuke->m_totalDistance > 0) {
+                Vector3<Fixed> target(nuke->m_targetLongitude, nuke->m_targetLatitude, 0);
+                Vector3<Fixed> pos(nuke->m_longitude, nuke->m_latitude, 0);
+                Fixed remainingDistance = (target - pos).Mag();
+                Fixed fractionDistance = 1 - remainingDistance / nuke->m_totalDistance;
+                float progress = 1.0f - fractionDistance.DoubleValue();
+                progress = fmaxf(0.0f, fminf(1.0f, progress));
                 
-                // Calculate where nuke will be next frame (same as trail logic)
-                Fixed predictionTime = Fixed::FromDouble(g_predictionTime + 0.1) * g_app->GetWorld()->GetTimeScaleFactor();
-                float nextLongitude = (nuke->m_longitude + nuke->m_vel.x * predictionTime).DoubleValue();
-                float nextLatitude = (nuke->m_latitude + nuke->m_vel.y * predictionTime).DoubleValue();
+                float lookAheadDistance = 0.01f; 
+                float futureProgress = fminf(1.0f, progress + lookAheadDistance);
                 
-                // Calculate next 3D position with proper height
-                Vector3<float> nextSurfacePos = ConvertLongLatTo3DPosition(nextLongitude, nextLatitude);
-                float nextHeight = CalculateNuke3DHeight(nuke);  // Use same height calculation
-                Vector3<float> nextNormal = nextSurfacePos;
-                nextNormal.Normalise();
-                Vector3<float> nextPos = nextSurfacePos + nextNormal * nextHeight;
+                float launchLon, launchLat;
+                if (nuke->GetHistory().Size() > 0) {
+                    int lastIndex = nuke->GetHistory().Size() - 1;
+                    Vector3<Fixed> *oldestPos = nuke->GetHistory()[lastIndex];
+                    launchLon = oldestPos->x.DoubleValue();
+                    launchLat = oldestPos->y.DoubleValue();
+                } else {
+                    launchLon = pos.x.DoubleValue();
+                    launchLat = pos.y.DoubleValue();
+                }
                 
-                // Direction = where we're going minus where we are
-                direction = nextPos - currentPos;
+                float targetLon = nuke->m_targetLongitude.DoubleValue();
+                float targetLat = nuke->m_targetLatitude.DoubleValue();
+                
+                // calculate current and future positions on great circle
+                Vector3<float> currentPos = CalculateGreatCirclePosition(launchLon, launchLat, targetLon, targetLat, progress);
+                Vector3<float> futurePos = CalculateGreatCirclePosition(launchLon, launchLat, targetLon, targetLat, futureProgress);
+                
+                // direction = where we are going
+                direction = futurePos - currentPos;
+                if (direction.Mag() > 0.001f) {
+                    direction.Normalise();
+                } else {
+                    Vector3<float> targetPos = ConvertLongLatTo3DPosition(targetLon, targetLat);
+                    direction = targetPos - currentPos;
                 direction.Normalise();
+                }
             }
             
             float nukeLength = size * 1.2f;  
@@ -1284,7 +1301,7 @@ void MapRenderer::Render3DUnitTrails()
             
             // account for increased sampling rate to maintain trail length
             if (isNuke) {
-                sizeCap *= 8;
+                sizeCap *= 4;
             } else {
                 sizeCap *= 4;
             }
@@ -1297,7 +1314,7 @@ void MapRenderer::Render3DUnitTrails()
                 myTeamId != -1 &&
                 myTeamId < g_app->GetWorld()->m_teams.Size() &&
                 g_app->GetWorld()->GetTeam(myTeamId)->m_type != Team::TypeUnassigned) {
-                int enemyTrailLimit = isNuke ? 32 : 16;  // 4*8 for nukes, 4*4 for others
+                int enemyTrailLimit = isNuke ? 16 : 16;  // 4*4 for nukes, 4*4 for others
                 maxSize = min(maxSize, enemyTrailLimit);
             }
             
@@ -1320,89 +1337,59 @@ void MapRenderer::Render3DUnitTrails()
                 float dotProduct = nukeToCameraDir * globeToCamera;
                 if (dotProduct < -0.3f) continue;
                 
+                //
                 // create line segments for nukes with dashed effect
+                // reduce trail detail based on distance to camera
+                // this almost doubles the fps when in a 3v3
+                
+                float distanceToCamera = (currentPos - m_globe3DCamera.m_cameraPos).Mag();
+                int lodLevel = (distanceToCamera > 3.0f) ? 4 : 2;  // lower detail when far away
+                int reducedMaxSize = maxSize / lodLevel;  // reduce number of trail segments
+                reducedMaxSize = fmax(4, fmin(reducedMaxSize, 32));  // clamp between 4-32 segments
+                
                 Vector3<float> prevPos = currentPos;
                 
-                // track dash position across all segments to avoid gaps
-                float dashLength = 0.012f;      
-                float gapLength = 0.006f;       
-                float totalDashUnit = dashLength + gapLength;
-                float currentDashPosition = 0.0f;  
-                bool inDash = true;  
-                
-                for (int j = 0; j < maxSize; ++j) {
-                    Vector3<Fixed> *historyPos = history[j];
-                    Vector3<float> pos3D = CalculateHistoricalNuke3DPosition(nuke, *historyPos);
+                for (int j = 0; j < reducedMaxSize; ++j) {
+                    int actualHistoryIndex = (j * maxSize) / reducedMaxSize;
+                    if (actualHistoryIndex >= history.Size()) break;
+                    
+                    Vector3<Fixed> *historyPos = history[actualHistoryIndex];
+                    
+                    // Calculate progress based on current nuke progress and history age
+                    Vector3<Fixed> target(nuke->m_targetLongitude, nuke->m_targetLatitude, 0);
+                    Vector3<Fixed> pos(nuke->m_longitude, nuke->m_latitude, 0);
+                    Fixed remainingDistance = (target - pos).Mag();
+                    Fixed fractionDistance = 1 - remainingDistance / nuke->m_totalDistance;
+                    float currentProgress = fractionDistance.DoubleValue();
+                    
+                    // work backwards: j=0 is newest, j=reducedMaxSize-1 is oldest
+                    float progressRange = currentProgress;
+                    float historicalProgress = currentProgress - (progressRange * (float)j / (float)(reducedMaxSize - 1));
+                    historicalProgress = fmaxf(0.0f, fminf(1.0f, historicalProgress));
+                    
+                    Vector3<float> pos3D = CalculateHistoricalNuke3DPositionByAge(nuke, *historyPos, historicalProgress);
                     
                     Colour segmentColour = colour;
-                    segmentColour.m_a = 255 - 255 * (float)j / (float)maxSize;
+                    segmentColour.m_a = 255 - 255 * (float)j / (float)reducedMaxSize;
                     
-                    // create multiple smaller interpolated segments
+                    // removed interpolation for now as it was a huge cpu bottleneck
                     Vector3<float> segmentDir = pos3D - prevPos;
                     float segmentLength = segmentDir.Mag();
                     
-                    if (segmentLength > 0.001f) {  // only process if segment is long enough
-
-                        //
-                        // calculate number of interpolation steps based on segment length
-                        // more steps for longer segments to keep them smooth
-
-                        int interpolationSteps = (int)(segmentLength * 50.0f) + 1;      // adaptive subdivision
-                        interpolationSteps = fmax(1, fmin(interpolationSteps, 20));     // clamp between 1-20 steps
+                    if (segmentLength > 0.001f) {
+                        // just create 2-3 dash segments per trail segment
+                        int numDashes = (segmentLength > 0.05f) ? 3 : 2;
+                        float dashSize = segmentLength / (numDashes * 2.0f);
                         
-                        Vector3<float> stepVector = segmentDir / (float)interpolationSteps;
-                        
-                        //
-                        // create smooth interpolated line segments
-
-                        for (int step = 0; step < interpolationSteps; ++step) {
-                            Vector3<float> interpolatedStart = prevPos + stepVector * (float)step;
-                            Vector3<float> interpolatedEnd = prevPos + stepVector * (float)(step + 1);
-                            Vector3<float> interpolatedDir = interpolatedEnd - interpolatedStart;
-                            float interpolatedLength = interpolatedDir.Mag();
+                        for (int dash = 0; dash < numDashes; dash++) {
+                            float startT = (dash * 2.0f) / (numDashes * 2.0f);
+                            float endT = (dash * 2.0f + 1.0f) / (numDashes * 2.0f);
                             
-                            if (interpolatedLength > 0.001f) {
-                                interpolatedDir.Normalise();
-                                
-                                Vector3<float> interpolatedSegmentStart = interpolatedStart;
-                                float remainingInterpolatedLength = interpolatedLength;
-                                
-                                while (remainingInterpolatedLength > 0.001f) {
-                                    float distanceToNextTransition;
-                                    
-                                    // Currently in a dash - how far until we need to start a gap?
-                                    if (inDash) {
-                                        distanceToNextTransition = dashLength - currentDashPosition;
-                                    } else {
-                                        distanceToNextTransition = gapLength - currentDashPosition;
-                                    }
-                                    
-                                    // Take the minimum of remaining segment length and distance to next transition
-                                    float actualStepDistance = fmin(remainingInterpolatedLength, distanceToNextTransition);
-                                    Vector3<float> interpolatedSegmentEnd = interpolatedSegmentStart + interpolatedDir * actualStepDistance;
-                                    
-                                    // only draw if were currently in a dash and not a gap
-                                    if (inDash) {
-                                        g_renderer3d->EffectsLine3D(interpolatedSegmentStart.x, interpolatedSegmentStart.y, interpolatedSegmentStart.z,
-                                                                   interpolatedSegmentEnd.x, interpolatedSegmentEnd.y, interpolatedSegmentEnd.z, segmentColour);
-                                    }
-                                    
-                                    currentDashPosition += actualStepDistance;
-                                    remainingInterpolatedLength -= actualStepDistance;
-                                    interpolatedSegmentStart = interpolatedSegmentEnd;
-                                    
-                                    //
-                                    // check if we need to transition between dash and gap
-
-                                    if (inDash && currentDashPosition >= dashLength) {
-                                        inDash = false;
-                                        currentDashPosition = 0.0f;
-                                    } else if (!inDash && currentDashPosition >= gapLength) {
-                                        inDash = true;
-                                        currentDashPosition = 0.0f;
-                                    }
-                                }
-                            }
+                            Vector3<float> dashStart = prevPos + segmentDir * startT;
+                            Vector3<float> dashEnd = prevPos + segmentDir * endT;
+                            
+                            g_renderer3d->EffectsLine3D(dashStart.x, dashStart.y, dashStart.z,
+                                                       dashEnd.x, dashEnd.y, dashEnd.z, segmentColour);
                         }
                     }
                     
@@ -1894,51 +1881,102 @@ void MapRenderer::Render3DSonarPing()
 //                                             3D nuke trajectory calculations
 // ******************************************************************************************************************************
 
-// we use the same trajectory calculation that nuke already does for the 2d curve
-// currently a bit buggy, but it looks great when the nukes dont cross the poles
-
-// wan may please fix this? :)
+// we now use great circle routes with ballistic arcs for realistic 3D trajectories
+// while maintaining the 2D timing for determinism, this also removed the longitude
+// flipping that was a huge issue with the 2d trajectory system
 
 // ******************************************************************************************************************************
 
 // 
-// try to create good looking height curves
+// calculate great circle route between two points on the sphere
 
-float MapRenderer::CalculateNuke3DHeight(Nuke* nuke)
+Vector3<float> MapRenderer::CalculateGreatCirclePosition(float startLon, float startLat, 
+                                                         float endLon, float endLat, 
+                                                         float progress)
 {
-    if (!m_3DGlobeMode || !nuke) return 0.0f;
+    // convert to radians
+    float lat1 = startLat * M_PI / 180.0f;
+    float lon1 = startLon * M_PI / 180.0f;
+    float lat2 = endLat * M_PI / 180.0f;
+    float lon2 = endLon * M_PI / 180.0f;
     
-    Vector3<Fixed> target(nuke->m_targetLongitude, nuke->m_targetLatitude, 0);
-    Vector3<Fixed> pos(nuke->m_longitude, nuke->m_latitude, 0);
+    // handle longitude wrapping for shortest path
+    float lonDiff = lon2 - lon1;
+    if (lonDiff > M_PI) {
+        lon2 -= 2.0f * M_PI;
+    } else if (lonDiff < -M_PI) {
+        lon2 += 2.0f * M_PI;
+    }
     
-    if (nuke->m_totalDistance <= 0) return 0.0f;
+    // calculate great circle distance
+    float deltaLon = lon2 - lon1;
+    float a = sinf(lat1) * sinf(lat2) + cosf(lat1) * cosf(lat2) * cosf(deltaLon);
+    a = fmaxf(-1.0f, fminf(1.0f, a));
+    float distance = acosf(a);
     
-    Fixed remainingDistance = (target - pos).Mag();
-    Fixed fractionDistance = 1 - remainingDistance / nuke->m_totalDistance;
+    if (distance < 0.001f) {
+        // points are very close, just interpolate directly
+        float lat = lat1 + (lat2 - lat1) * progress;
+        float lon = lon1 + (lon2 - lon1) * progress;
+        return ConvertLongLatTo3DPosition(lon * 180.0f / M_PI, lat * 180.0f / M_PI);
+    }
     
-    // convert fractionDistance (1->0) to trajectory progress (0->1)
-    float progress = 1.0f - fractionDistance.DoubleValue();
+    // interpolate along great circle using spherical interpolation
+    float A = sinf((1.0f - progress) * distance) / sinf(distance);
+    float B = sinf(progress * distance) / sinf(distance);
+    float x1 = cosf(lat1) * cosf(lon1);
+    float y1 = cosf(lat1) * sinf(lon1);
+    float z1 = sinf(lat1);
+    float x2 = cosf(lat2) * cosf(lon2);
+    float y2 = cosf(lat2) * sinf(lon2);
+    float z2 = sinf(lat2);
     
-    // parabolic arc: height = maxHeight * 4 * progress * (1 - progress)
-    // this peaks at progress = 0.5 (middle of trajectory)
+    // interpolated point
+    float x = A * x1 + B * x2;
+    float y = A * y1 + B * y2;
+    float z = A * z1 + B * z2;
+    
+    // now convert back to lat/lon
+    float lat = asinf(z);
+    float lon = atan2f(y, x);
+    
+    return ConvertLongLatTo3DPosition(lon * 180.0f / M_PI, lat * 180.0f / M_PI);
+}
+
+//
+// calculate realistic ballistic arc height based on distance and progress
+
+float MapRenderer::CalculateBallisticHeight(float totalDistanceRadians, float progress)
+{
+    // ballistic trajectory: height follows a parabolic arc
+    // height = maxHeight * 4 * progress * (1 - progress)
+    // this peaks at progress = 0.5 (midpoint)
+    
     float arcFactor = 4.0f * progress * (1.0f - progress);
-    float trajectoryDistance = nuke->m_totalDistance.DoubleValue();
-    float maxHeight = 0.0f;
     
-    // claudes attempt at realistic arc heights
-    if (trajectoryDistance > 100.0f) {
+    // scale max height based on total distance, longer shots go higher
+    float maxHeight = 0.0f;
+    float totalDistanceDegrees = totalDistanceRadians * 180.0f / M_PI;
+    
+    //
+    // adjustable nuke height arcs, right now they are pretty intense
+    // as it looks good. at some point i might make them more subtle
+
+    if (totalDistanceDegrees > 90.0f) {
+        maxHeight = 1.2f;
+    } else if (totalDistanceDegrees > 45.0f) {
         maxHeight = 0.8f;
-    } else if (trajectoryDistance > 50.0f) {
-        maxHeight = 0.4f;
+    } else if (totalDistanceDegrees > 20.0f) {
+        maxHeight = 0.5f;
     } else {
-        maxHeight = 0.2f;
+        maxHeight = 0.3f;
     }
     
     return maxHeight * arcFactor;
 }
 
 //
-// pretty much the same as 2d curve logic, but with 3d height curve
+// calculate 3D nuke position using great circle + ballistic arc
 
 Vector3<float> MapRenderer::CalculateNuke3DPosition(Nuke* nuke)
 {
@@ -1946,17 +1984,66 @@ Vector3<float> MapRenderer::CalculateNuke3DPosition(Nuke* nuke)
         return Vector3<float>(0, 0, 0);
     }
     
-    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
-    float predictedLongitude = (nuke->m_longitude + nuke->m_vel.x * predictionTime).DoubleValue();
-    float predictedLatitude = (nuke->m_latitude + nuke->m_vel.y * predictionTime).DoubleValue();
+    // use the 2D progress calculation for determinism
+    Vector3<Fixed> target(nuke->m_targetLongitude, nuke->m_targetLatitude, 0);
+    Vector3<Fixed> pos(nuke->m_longitude, nuke->m_latitude, 0);
     
-    // convert to 3D surface position
-    Vector3<float> surfacePos = ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
+    if (nuke->m_totalDistance <= 0) {
+        return ConvertLongLatTo3DPosition(pos.x.DoubleValue(), pos.y.DoubleValue());
+    }
     
-    // calculate height above surface
-    float height = CalculateNuke3DHeight(nuke);
+    Fixed remainingDistance = (target - pos).Mag();
+    Fixed fractionDistance = 1 - remainingDistance / nuke->m_totalDistance;
     
-    // move away from globe center
+    // fractionDistance is already 0 (launch) to 1 (impact)
+    float progress = fractionDistance.DoubleValue();
+    progress = fmaxf(0.0f, fminf(1.0f, progress));
+    
+    // get target position
+    float targetLon = nuke->m_targetLongitude.DoubleValue();
+    float targetLat = nuke->m_targetLatitude.DoubleValue();
+    float launchLon, launchLat;
+    float currentLon = pos.x.DoubleValue();
+    float currentLat = pos.y.DoubleValue();
+    
+    //
+    // a key insight: nuke history is unlimited (-1), so the oldest point IS the launch position
+    // the rendering truncation doesn't affect the actual stored history
+
+    if (nuke->GetHistory().Size() > 0) {
+        int lastIndex = nuke->GetHistory().Size() - 1;
+        Vector3<Fixed> *launchPos = nuke->GetHistory()[lastIndex];
+        launchLon = launchPos->x.DoubleValue();
+        launchLat = launchPos->y.DoubleValue();
+    } else {
+        // when no history exists yet
+        launchLon = currentLon;
+        launchLat = currentLat;
+    }
+    
+    //
+    // calculate great circle position
+
+    Vector3<float> surfacePos = CalculateGreatCirclePosition(launchLon, launchLat, targetLon, targetLat, progress);
+    
+    // calculate total distance in radians for height calculation
+    float lat1 = launchLat * M_PI / 180.0f;
+    float lon1 = launchLon * M_PI / 180.0f;
+    float lat2 = targetLat * M_PI / 180.0f;
+    float lon2 = targetLon * M_PI / 180.0f;
+    
+    float lonDiff = lon2 - lon1;
+    if (lonDiff > M_PI) lon2 -= 2.0f * M_PI;
+    else if (lonDiff < -M_PI) lon2 += 2.0f * M_PI;
+    
+    float deltaLon = lon2 - lon1;
+    float a = sinf(lat1) * sinf(lat2) + cosf(lat1) * cosf(lat2) * cosf(deltaLon);
+    a = fmaxf(-1.0f, fminf(1.0f, a));
+    float totalDistanceRadians = acosf(a);
+    
+    // calculate ballistic height
+    float height = CalculateBallisticHeight(totalDistanceRadians, progress);
+    
     Vector3<float> normal = surfacePos;
     normal.Normalise();
     
@@ -1964,7 +2051,7 @@ Vector3<float> MapRenderer::CalculateNuke3DPosition(Nuke* nuke)
 }
 
 //
-// same as above, but for the actual trajectory
+// calculate historical nuke position for trail rendering
 
 Vector3<float> MapRenderer::CalculateHistoricalNuke3DPosition(Nuke* nuke, const Vector3<Fixed>& historicalPos)
 {
@@ -1972,32 +2059,53 @@ Vector3<float> MapRenderer::CalculateHistoricalNuke3DPosition(Nuke* nuke, const 
         return Vector3<float>(0, 0, 0);
     }
     
-    Vector3<float> surfacePos = ConvertLongLatTo3DPosition(
-        historicalPos.x.DoubleValue(), 
-        historicalPos.y.DoubleValue()
-    );
+    if (nuke->m_totalDistance <= 0) {
+        return ConvertLongLatTo3DPosition(historicalPos.x.DoubleValue(), historicalPos.y.DoubleValue());
+    }
     
-    // now calculate what the arc height would have been at this point
-    if (nuke->m_totalDistance <= 0) return surfacePos;
-    
+    // calculate what the progress would have been at this historical point
     Vector3<Fixed> target(nuke->m_targetLongitude, nuke->m_targetLatitude, 0);
     Fixed distanceFromTarget = (target - historicalPos).Mag();
     Fixed fractionDistance = 1 - distanceFromTarget / nuke->m_totalDistance;
     
-    float progress = 1.0f - fractionDistance.DoubleValue();
-    float arcFactor = 4.0f * progress * (1.0f - progress);
-    float trajectoryDistance = nuke->m_totalDistance.DoubleValue();
-    float maxHeight = 0.0f;
+    float progress = fractionDistance.DoubleValue();
+    progress = fmaxf(0.0f, fminf(1.0f, progress));
+
+    float targetLon = nuke->m_targetLongitude.DoubleValue();
+    float targetLat = nuke->m_targetLatitude.DoubleValue();
     
-    if (trajectoryDistance > 100.0f) {
-        maxHeight = 0.8f;
-    } else if (trajectoryDistance > 50.0f) {
-        maxHeight = 0.4f;
+    //
+    // for historical positions, we need to find the launch position
+    // use the oldest available history point, or estimate
+
+    float launchLon, launchLat;
+    if (nuke->GetHistory().Size() > 0) {
+        int lastIndex = nuke->GetHistory().Size() - 1;
+        Vector3<Fixed> *oldestPos = nuke->GetHistory()[lastIndex];
+        launchLon = oldestPos->x.DoubleValue();
+        launchLat = oldestPos->y.DoubleValue();
     } else {
-        maxHeight = 0.2f;
+        launchLon = historicalPos.x.DoubleValue();
+        launchLat = historicalPos.y.DoubleValue();
     }
     
-    float height = maxHeight * arcFactor;
+    Vector3<float> surfacePos = CalculateGreatCirclePosition(launchLon, launchLat, targetLon, targetLat, progress);
+    
+    float lat1 = launchLat * M_PI / 180.0f;
+    float lon1 = launchLon * M_PI / 180.0f;
+    float lat2 = targetLat * M_PI / 180.0f;
+    float lon2 = targetLon * M_PI / 180.0f;
+    
+    float lonDiff = lon2 - lon1;
+    if (lonDiff > M_PI) lon2 -= 2.0f * M_PI;
+    else if (lonDiff < -M_PI) lon2 += 2.0f * M_PI;
+    
+    float deltaLon = lon2 - lon1;
+    float a = sinf(lat1) * sinf(lat2) + cosf(lat1) * cosf(lat2) * cosf(deltaLon);
+    a = fmaxf(-1.0f, fminf(1.0f, a));
+    float totalDistanceRadians = acosf(a);
+    
+    float height = CalculateBallisticHeight(totalDistanceRadians, progress);
     
     Vector3<float> normal = surfacePos;
     normal.Normalise();
@@ -2071,4 +2179,59 @@ Vector3<float> MapRenderer::CalculateGunfire3DPosition(GunFire* gunfire)
     Vector3<float> gunfirePos = launchPos + (targetPos - launchPos) * progress;
     
     return gunfirePos;
+}
+
+//
+// calculate historical nuke position using age-based progress
+// this solves the issue of the nuke trajectory becoming corrupted
+// and resetting to a vertical line half way through big arcs
+
+Vector3<float> MapRenderer::CalculateHistoricalNuke3DPositionByAge(Nuke* nuke, const Vector3<Fixed>& historicalPos, float historicalProgress)
+{
+    if (!m_3DGlobeMode || !nuke) {
+        return Vector3<float>(0, 0, 0);
+    }
+    
+    if (nuke->m_totalDistance <= 0) {
+        return ConvertLongLatTo3DPosition(historicalPos.x.DoubleValue(), historicalPos.y.DoubleValue());
+    }
+    
+    // get target position
+    float targetLon = nuke->m_targetLongitude.DoubleValue();
+    float targetLat = nuke->m_targetLatitude.DoubleValue();
+    
+    // get launch position from the oldest history point
+    float launchLon, launchLat;
+    if (nuke->GetHistory().Size() > 0) {
+        int lastIndex = nuke->GetHistory().Size() - 1;
+        Vector3<Fixed> *launchPos = nuke->GetHistory()[lastIndex];
+        launchLon = launchPos->x.DoubleValue();
+        launchLat = launchPos->y.DoubleValue();
+    } else {
+        launchLon = historicalPos.x.DoubleValue();
+        launchLat = historicalPos.y.DoubleValue();
+    }
+    
+    Vector3<float> surfacePos = CalculateGreatCirclePosition(launchLon, launchLat, targetLon, targetLat, historicalProgress);
+    
+    float lat1 = launchLat * M_PI / 180.0f;
+    float lon1 = launchLon * M_PI / 180.0f;
+    float lat2 = targetLat * M_PI / 180.0f;
+    float lon2 = targetLon * M_PI / 180.0f;
+    
+    float lonDiff = lon2 - lon1;
+    if (lonDiff > M_PI) lon2 -= 2.0f * M_PI;
+    else if (lonDiff < -M_PI) lon2 += 2.0f * M_PI;
+    
+    float deltaLon = lon2 - lon1;
+    float a = sinf(lat1) * sinf(lat2) + cosf(lat1) * cosf(lat2) * cosf(deltaLon);
+    a = fmaxf(-1.0f, fminf(1.0f, a));
+    float totalDistanceRadians = acosf(a);
+    
+    float height = CalculateBallisticHeight(totalDistanceRadians, historicalProgress);
+    
+    Vector3<float> normal = surfacePos;
+    normal.Normalise();
+    
+    return surfacePos + normal * height;
 }
