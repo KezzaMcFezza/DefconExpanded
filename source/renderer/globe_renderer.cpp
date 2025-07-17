@@ -968,51 +968,35 @@ void MapRenderer::Render3DUnits()
         // for nukes in 3D space, use the new 3D nuke model that faces forward
 
         if (info.isNuke) {
-            Nuke* nuke = (Nuke*)wobj;
             
             //
-            // use the proper direction along great circle trajectory
+            // now we use the nukes movement trail history for direction calculation
+            // this gives us the actual movement tangent, not the target direction
+            // we basically made the nuke dumb, it doesnt know where its target is
             
-            Vector3<float> direction(0, 0, 1);  
+            Vector3<float> direction(0, 0, 1);
             
-            if (nuke->m_totalDistance > 0) {
-                Vector3<Fixed> target(nuke->m_targetLongitude, nuke->m_targetLatitude, 0);
-                Vector3<Fixed> pos(nuke->m_longitude, nuke->m_latitude, 0);
-                Fixed remainingDistance = (target - pos).Mag();
-                Fixed fractionDistance = 1 - remainingDistance / nuke->m_totalDistance;
-                float progress = 1.0f - fractionDistance.DoubleValue();
-                progress = fmaxf(0.0f, fminf(1.0f, progress));
+            // get the nukes movement history (cast to MovingObject since that's where GetHistory() is defined)
+            MovingObject* movingObj = (MovingObject*)wobj;
+            LList<Vector3<Fixed> *>& history = movingObj->GetHistory();
+            
+            if (history.Size() > 1) {
+                Nuke* nuke = (Nuke*)wobj;
+                Vector3<float> currentPos = CalculateNuke3DPosition(nuke);
                 
-                float lookAheadDistance = 0.01f; 
-                float futureProgress = fminf(1.0f, progress + lookAheadDistance);
+                //
+                // Use history[1] instead of history[0] to avoid near-zero distance 
+                // when a new trail segment was just created
+                // this prevents the nuke from spazzing out when a new trail segment
+                // is created. just use the older position instead of the current zero
+                // history value
                 
-                float launchLon, launchLat;
-                if (nuke->GetHistory().Size() > 0) {
-                    int lastIndex = nuke->GetHistory().Size() - 1;
-                    Vector3<Fixed> *oldestPos = nuke->GetHistory()[lastIndex];
-                    launchLon = oldestPos->x.DoubleValue();
-                    launchLat = oldestPos->y.DoubleValue();
-                } else {
-                    launchLon = pos.x.DoubleValue();
-                    launchLat = pos.y.DoubleValue();
-                }
+                Vector3<Fixed>* olderHistoryPos = history[1];
+                Vector3<float> olderPos = CalculateHistoricalNuke3DPosition(nuke, *olderHistoryPos);
                 
-                float targetLon = nuke->m_targetLongitude.DoubleValue();
-                float targetLat = nuke->m_targetLatitude.DoubleValue();
-                
-                // calculate current and future positions on great circle
-                Vector3<float> currentPos = CalculateGreatCirclePosition(launchLon, launchLat, targetLon, targetLat, progress);
-                Vector3<float> futurePos = CalculateGreatCirclePosition(launchLon, launchLat, targetLon, targetLat, futureProgress);
-                
-                // direction = where we are going
-                direction = futurePos - currentPos;
-                if (direction.Mag() > 0.001f) {
-                    direction.Normalise();
-                } else {
-                    Vector3<float> targetPos = ConvertLongLatTo3DPosition(targetLon, targetLat);
-                    direction = targetPos - currentPos;
+                // direction = where we are MOVING not going
+                direction = currentPos - olderPos;
                 direction.Normalise();
-                }
             }
             
             float nukeLength = size * 1.2f;  
@@ -1388,8 +1372,8 @@ void MapRenderer::Render3DUnitTrails()
                             Vector3<float> dashStart = prevPos + segmentDir * startT;
                             Vector3<float> dashEnd = prevPos + segmentDir * endT;
                             
-                            g_renderer3d->EffectsLine3D(dashStart.x, dashStart.y, dashStart.z,
-                                                       dashEnd.x, dashEnd.y, dashEnd.z, segmentColour);
+                            g_renderer3d->UnitTrailLine3D(dashStart.x, dashStart.y, dashStart.z,
+                                                         dashEnd.x, dashEnd.y, dashEnd.z, segmentColour);
                         }
                     }
                     
@@ -1462,8 +1446,8 @@ void MapRenderer::Render3DUnitTrails()
                     Colour segmentColour = colour;
                     segmentColour.m_a = 255 - 255 * (float)j / (float)maxSize;
                     
-                    g_renderer3d->EffectsLine3D(prevPos.x, prevPos.y, prevPos.z,
-                                               pos3D.x, pos3D.y, pos3D.z, segmentColour);
+                    g_renderer3d->UnitTrailLine3D(prevPos.x, prevPos.y, prevPos.z,
+                                                 pos3D.x, pos3D.y, pos3D.z, segmentColour);
                     prevPos = pos3D;
                 }
             }
@@ -1963,13 +1947,13 @@ float MapRenderer::CalculateBallisticHeight(float totalDistanceRadians, float pr
     // as it looks good. at some point i might make them more subtle
 
     if (totalDistanceDegrees > 90.0f) {
-        maxHeight = 1.2f;
+        maxHeight = 0.7f;
     } else if (totalDistanceDegrees > 45.0f) {
-        maxHeight = 0.8f;
+        maxHeight = 0.4f;
     } else if (totalDistanceDegrees > 20.0f) {
-        maxHeight = 0.5f;
+        maxHeight = 0.2f;
     } else {
-        maxHeight = 0.3f;
+        maxHeight = 0.1f;
     }
     
     return maxHeight * arcFactor;
