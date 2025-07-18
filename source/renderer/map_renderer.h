@@ -119,8 +119,6 @@ protected:
 	float   m_longitudePlanningOld;
 	float   m_latitudePlanningOld;
 
-    // 3D Globe mode state
-    bool m_3DGlobeMode;
     
     // 3D camera system
     struct Globe3DCamera {
@@ -136,12 +134,15 @@ protected:
         bool m_isDragging;
         float m_lastMouseX, m_lastMouseY;
         
+        float m_dragVelocityX, m_dragVelocityY;
+        
         Globe3DCamera() : 
             m_cameraDistance(3.0f),
             m_cameraTheta(0.0f),
             m_cameraPhi(0.0f),
             m_isDragging(false),
-            m_lastMouseX(0), m_lastMouseY(0) {
+            m_lastMouseX(0), m_lastMouseY(0),
+            m_dragVelocityX(0.0f), m_dragVelocityY(0.0f) {
             
             m_cameraPos = Vector3<float>(0.0f, 0.5f, m_cameraDistance);
             m_cameraTarget = Vector3<float>(0.0f, 0.0f, 0.0f);
@@ -183,6 +184,8 @@ public:
     LList   <const char *>     *m_tooltip;
 
     float   m_mouseIdleTime;
+    
+    bool m_3DGlobeMode;
     
     RendererDebugMenu* m_debugMenu;
 

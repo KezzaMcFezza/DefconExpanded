@@ -365,7 +365,7 @@ void MapRenderer::Update3DGlobeCamera()
     
     // WASD camera rotation
     if (!ignoreKeys) {
-        float rotationSpeed = 1.5f * g_advanceTime;  // smooth rotation speed
+        float rotationSpeed = 0.75f * g_advanceTime;  // smooth rotation speed
         
         if (g_keys[KeyA] || g_keys[KEY_LEFT]) {
             m_globe3DCamera.m_cameraTheta -= rotationSpeed;
@@ -380,11 +380,11 @@ void MapRenderer::Update3DGlobeCamera()
             m_globe3DCamera.m_cameraPhi -= rotationSpeed;
         }
         
-        // Q and E for zoom
-        if (g_keys[KeyQ]) {
+        // Q and E for zoom, dont flip these next time :)
+        if (g_keys[KeyE]) {
             m_globe3DCamera.m_cameraDistance += 5.0f * g_advanceTime;
         }
-        if (g_keys[KeyE]) {
+        if (g_keys[KeyQ]) {
             m_globe3DCamera.m_cameraDistance -= 5.0f * g_advanceTime;
         }
         
@@ -404,14 +404,32 @@ void MapRenderer::Update3DGlobeCamera()
             m_globe3DCamera.m_isDragging = true;
             m_globe3DCamera.m_lastMouseX = g_inputManager->m_mouseX;
             m_globe3DCamera.m_lastMouseY = g_inputManager->m_mouseY;
+            m_globe3DCamera.m_dragVelocityX = 0.0f;
+            m_globe3DCamera.m_dragVelocityY = 0.0f;
         }
         
         float deltaX = g_inputManager->m_mouseX - m_globe3DCamera.m_lastMouseX;
         float deltaY = g_inputManager->m_mouseY - m_globe3DCamera.m_lastMouseY;
         
-        m_globe3DCamera.m_cameraTheta += deltaX * 0.01f;
-        m_globe3DCamera.m_cameraPhi += deltaY * 0.01f;
+        // apply frame time compensation for consistent movement speed
+        float frameTimeCompensation = g_advanceTime * 60.0f; // normalize to 60fps
+        frameTimeCompensation = fmax(0.1f, fmin(3.0f, frameTimeCompensation)); // clamp for extreme cases
         
+        // adaptive sensitivity based on zoom level - closer = more sensitive
+        float zoomSensitivity = 1.0f / (m_globe3DCamera.m_cameraDistance * 0.5f + 0.5f);
+        zoomSensitivity = fmax(0.3f, fmin(2.0f, zoomSensitivity)); // reasonable range
+        
+        // base sensitivity
+        float baseSensitivity = 0.016f * frameTimeCompensation * zoomSensitivity;
+        float targetVelX = deltaX * baseSensitivity;
+        float targetVelY = deltaY * baseSensitivity;
+        
+        // smooth velocity interpolation for less jittery movement
+        float smoothing = 0.3f; 
+        m_globe3DCamera.m_dragVelocityX = m_globe3DCamera.m_dragVelocityX * (1.0f - smoothing) + targetVelX * smoothing;
+        m_globe3DCamera.m_dragVelocityY = m_globe3DCamera.m_dragVelocityY * (1.0f - smoothing) + targetVelY * smoothing;
+        m_globe3DCamera.m_cameraTheta += m_globe3DCamera.m_dragVelocityX;
+        m_globe3DCamera.m_cameraPhi += m_globe3DCamera.m_dragVelocityY;
         m_globe3DCamera.m_cameraPhi = fmax(-M_PI/2.0f + 0.1f, fmin(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
         m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
         m_globe3DCamera.m_cameraPos.y = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraPhi);
@@ -420,10 +438,29 @@ void MapRenderer::Update3DGlobeCamera()
         m_globe3DCamera.m_lastMouseX = g_inputManager->m_mouseX;
         m_globe3DCamera.m_lastMouseY = g_inputManager->m_mouseY;
 
+    //
+    // Add slight momentum when stopping drag for smoother experience
+
     } else {
-
+        if (m_globe3DCamera.m_isDragging) {
+            float momentum = 0.92f; // how much momentum to preserve
+            m_globe3DCamera.m_dragVelocityX *= momentum;
+            m_globe3DCamera.m_dragVelocityY *= momentum;
+            
+            if (fabsf(m_globe3DCamera.m_dragVelocityX) > 0.001f || fabsf(m_globe3DCamera.m_dragVelocityY) > 0.001f) {
+                m_globe3DCamera.m_cameraTheta += m_globe3DCamera.m_dragVelocityX;
+                m_globe3DCamera.m_cameraPhi += m_globe3DCamera.m_dragVelocityY;
+                m_globe3DCamera.m_cameraPhi = fmax(-M_PI/2.0f + 0.1f, fmin(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
+                m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
+                m_globe3DCamera.m_cameraPos.y = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraPhi);
+                m_globe3DCamera.m_cameraPos.z = m_globe3DCamera.m_cameraDistance * cos(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
+            } else {
+                m_globe3DCamera.m_dragVelocityX = 0.0f;
+                m_globe3DCamera.m_dragVelocityY = 0.0f;
+            }
+        }
+        
         m_globe3DCamera.m_isDragging = false;
-
     }
     
     // mouse wheel zoom

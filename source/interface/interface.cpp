@@ -241,6 +241,15 @@ void Interface::Update()
         }
     }
 
+    //
+    // Hide UI toggle?
+
+    if( g_keyDeltas[KEY_H] && !UsingChatWindow() )
+    {
+        extern bool g_hideUI;
+        g_hideUI = !g_hideUI;
+    }
+
 
     //
     // Pop up main menu?

@@ -17,9 +17,50 @@
 #include "world/team.h"
 #include "app/globals.h"
 #include "network/Server.h"
+#include "renderer/map_renderer.h"
+
+class HideUIConfirmCloseButton : public InterfaceButton
+{
+public:
+    void MouseUp()
+    {
+        // hide the UI when this button is pressed
+        g_hideUI = true;
+        
+        EclRemoveWindow(m_parent->m_name);
+    }
+};
+
+class HideUIConfirmDialog : public MessageDialog
+{
+public:
+    HideUIConfirmDialog()
+    :   MessageDialog("Hide UI Confirmation", 
+                     "You can press H on the keyboard to unhide the UI", 
+                     false, 
+                     "HidE UI", 
+                     false)
+    {
+    }
+    
+    void Create()
+    {
+        MessageDialog::Create();
+        
+        EclButton *closeBtn = GetButton("Close");
+        if (closeBtn) {
+            RemoveButton("Close");
+        }
+        
+        HideUIConfirmCloseButton *confirmBtn = new HideUIConfirmCloseButton();
+        confirmBtn->SetProperties("Close", (m_w - 80)/2, m_h - 25, 80, 18, "dialog_ok", " ", true, false);
+        RegisterButton(confirmBtn);
+    }
+};
 
 int g_desiredPerspectiveTeamId = -1;        // global variable for team perspective switching
 bool g_healthBarsEnabled = false;           // global variable for health bar visibility 
+bool g_hideUI = false;                      // global variable for UI visibility toggle
 
 // ============================================================================
 // Playback Control Window
@@ -36,9 +77,10 @@ PlaybackControlWindow::PlaybackControlWindow()
     m_activePlayerCount(0),
     m_currentPerspective(-1),
     m_playersInitialized(false),
-    m_healthBarsEnabled(false)
+    m_healthBarsEnabled(false),
+    m_hideUI(false)
 {
-    int windowWidth = 400;
+    int windowWidth = 520;
     int windowHeight = 190;
     
     SetSize(windowWidth, windowHeight);
@@ -78,21 +120,48 @@ void PlaybackControlWindow::Create()
 
     FadingWindow::Create();
     
+    // buttons on the left side
+    int leftButtonsX = 10;
+    int buttonWidth = 70;
+    int buttonHeight = 25;
+    int buttonSpacing = 30; // vertical spacing between buttons
+    
+    // buttons aligned with progress bar Y level 
+    int buttonStartY = 25;
+    
+    // play/pause button
     PlayPauseButton *playPause = new PlayPauseButton();
-    playPause->SetProperties("PlayPause", 10, 80, 61, 25, "PLAY", "Toggle pause/play", false, true);
+    playPause->SetProperties("PlayPause", leftButtonsX, buttonStartY, buttonWidth, buttonHeight, "PLAY", "Toggle pause/play", false, true);
     RegisterButton(playPause);
     
+    // Health toggle button
     HealthToggleButton *healthToggle = new HealthToggleButton();
-    healthToggle->SetProperties("HealthToggle", 75, 80, 60, 25, "HEALTH", "Toggle health bars on/off", false, true);
+    healthToggle->SetProperties("HealthToggle", leftButtonsX, buttonStartY + buttonSpacing, buttonWidth, buttonHeight, "HEALTH", "Toggle health bars on/off", false, true);
     RegisterButton(healthToggle);
     
-    SpeedSlider *speedSlider = new SpeedSlider();
-    speedSlider->SetProperties("SpeedSlider", 140, 85, 250, 15, "", "Adjust playback speed", false, false);
-    RegisterButton(speedSlider);
+    // Globe toggle button 
+    GlobeToggleButton *globeToggle = new GlobeToggleButton();
+    globeToggle->SetProperties("GlobeToggle", leftButtonsX, buttonStartY + buttonSpacing * 2, buttonWidth, buttonHeight, "globe", "Toggle 3D globe mode", false, true);
+    RegisterButton(globeToggle);
     
+    // Hide UI button (below globe)
+    HideUIButton *hideUIButton = new HideUIButton();
+    hideUIButton->SetProperties("HideUI", leftButtonsX, buttonStartY + buttonSpacing * 3, buttonWidth, buttonHeight, "Hide UI", "Hide user interface", false, true);
+    RegisterButton(hideUIButton);
+    
+    // Controls area starts after the left buttons
+    int controlsStartX = leftButtonsX + buttonWidth + 15; // Start after the left buttons with some padding
+    int controlsWidth = m_w - controlsStartX - 10; // Full width minus left buttons and padding
+    
+    // Seek bar
     SeekBar *seekBar = new SeekBar();
-    seekBar->SetProperties("SeekBar", 10, 50, m_w - 20, 15, "", "Click and drag to seek to different position in recording", false, false);
+    seekBar->SetProperties("SeekBar", controlsStartX, 50, controlsWidth, 15, "", "Click and drag to seek to different position in recording", false, false);
     RegisterButton(seekBar);
+    
+    // Speed slider 
+    SpeedSlider *speedSlider = new SpeedSlider();
+    speedSlider->SetProperties("SpeedSlider", controlsStartX, 85, controlsWidth, 15, "", "Adjust playback speed", false, false);
+    RegisterButton(speedSlider);
     
     // initialize it
     InitializePlayers();
@@ -100,14 +169,14 @@ void PlaybackControlWindow::Create()
     // create the buttons below the seek bar and play button
     int spectatorButtonY = 130;      // top row for spectator button
     int playerButtonY = 155;         // second row for player buttons
-    int buttonWidth = 60;
-    int buttonHeight = 20;
-    int buttonSpacing = 65;
-    int startX = 10;
+    int perspectiveButtonWidth = 60;
+    int perspectiveButtonHeight = 20;
+    int perspectiveButtonSpacing = 65;
+    int perspectiveStartX = controlsStartX; 
     
     // make sure to always create the spectator button first
     PlayerPerspectiveButton *spectatorBtn = new PlayerPerspectiveButton();
-    spectatorBtn->SetProperties("Player_Spectator", startX, spectatorButtonY, buttonWidth, buttonHeight, 
+    spectatorBtn->SetProperties("Player_Spectator", perspectiveStartX, spectatorButtonY, perspectiveButtonWidth, perspectiveButtonHeight, 
                                "Spectator", "View all teams (spectator perspective)", false, true);
     spectatorBtn->SetPlayer(-1, -1, Colour(150, 150, 150, 255)); // grey
     spectatorBtn->SetSelected(m_currentPerspective == -1);
@@ -123,8 +192,8 @@ void PlaybackControlWindow::Create()
             sprintf(buttonId, "Player_%d", i);
             
             PlayerPerspectiveButton *playerBtn = new PlayerPerspectiveButton();
-            playerBtn->SetProperties(buttonId, startX + (buttonIndex * buttonSpacing), playerButtonY, 
-                                   buttonWidth, buttonHeight, m_players[i].truncatedName, 
+            playerBtn->SetProperties(buttonId, perspectiveStartX + (buttonIndex * perspectiveButtonSpacing), playerButtonY, 
+                                   perspectiveButtonWidth, perspectiveButtonHeight, m_players[i].truncatedName, 
                                    m_players[i].playerName, false, true);
             playerBtn->SetPlayer(i, m_players[i].teamId, m_players[i].teamColour);
             playerBtn->SetSelected(m_currentPerspective == i);
@@ -300,6 +369,16 @@ void PlaybackControlWindow::Render(bool _hasFocus)
         healthToggleBtn->Render(m_x + healthToggleBtn->m_x, m_y + healthToggleBtn->m_y, false, false);
     }
     
+    EclButton *globeToggleBtn = GetButton("GlobeToggle");
+    if (globeToggleBtn) {
+        globeToggleBtn->Render(m_x + globeToggleBtn->m_x, m_y + globeToggleBtn->m_y, false, false);
+    }
+    
+    EclButton *hideUIBtn = GetButton("HideUI");
+    if (hideUIBtn) {
+        hideUIBtn->Render(m_x + hideUIBtn->m_x, m_y + hideUIBtn->m_y, false, false);
+    }
+    
     EclButton *speedSlider = GetButton("SpeedSlider");
     if (speedSlider) {
         speedSlider->Render(m_x + speedSlider->m_x, m_y + speedSlider->m_y, false, false);
@@ -337,9 +416,9 @@ void PlaybackControlWindow::Render(bool _hasFocus)
         return;
     }
     
-    float progressX = m_x + 10;
+    float progressX = m_x + 95;
     float progressY = m_y + 25;
-    float progressW = m_w - 20;
+    float progressW = m_w - 105;
     float progressH = 6;  
     
     // Background
@@ -353,10 +432,10 @@ void PlaybackControlWindow::Render(bool _hasFocus)
         g_renderer->RectFill(progressX, progressY, fillW, progressH, Colour(100, 150, 255, 200));
     }
     
-    // Progress text (cached for performance)
-    g_renderer->TextCentreSimple(m_x + m_w/2, progressY - 3, Colour(200, 200, 200, 255), 10.0f, m_cachedProgressText);
+    // Progress text (cached for performance) - centered on the progress bar
+    float progressCenterX = progressX + progressW / 2;
+    g_renderer->TextCentreSimple(progressCenterX, progressY - 3, Colour(200, 200, 200, 255), 10.0f, m_cachedProgressText);
     
-    g_renderer->TextSimple(m_x + 10, m_y + 40, Colour(180, 180, 180, 255), 8.0f, "Seek:");
     
     // radar perspective label
     char perspectiveText[64];
@@ -372,7 +451,7 @@ void PlaybackControlWindow::Render(bool _hasFocus)
     {
         sprintf(perspectiveText, "Player Perspective: Unknown");
     }
-    g_renderer->TextSimple(m_x + 10, m_y + 115, Colour(180, 180, 180, 255), 8.0f, perspectiveText);
+    g_renderer->TextSimple(m_x + 95, m_y + 115, Colour(180, 180, 180, 255), 8.0f, perspectiveText);
 }
 
 void PlaybackControlWindow::Update()
@@ -487,6 +566,17 @@ void PlaybackControlWindow::ToggleHealthBars()
     }
 }
 
+void PlaybackControlWindow::ToggleGlobeMode()
+{
+    // call the same function that KEY_G does
+    g_app->GetMapRenderer()->Toggle3DGlobeMode();
+}
+
+void PlaybackControlWindow::ToggleHideUI()
+{
+    g_hideUI = !g_hideUI;
+}
+
 void PlaybackControlWindow::UpdateProgress(int currentSeq, int totalSeq)
 {
     m_currentSeqId = currentSeq;
@@ -554,6 +644,9 @@ void PlaybackControlWindow::SeekToPosition(float position)
 
 bool PlaybackControlWindow::ShouldRender()
 {
+    // dont render if UI is hidden
+    if( g_hideUI ) return false;
+    
     // Show during recording playback - both lobby and game phases
     // This allows seeking and speed control even during lobby phase of recordings
     return g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
@@ -844,4 +937,35 @@ void PlayerPerspectiveButton::Render( int realX, int realY, bool highlighted, bo
     // button text
     Colour textCol = m_isSelected ? Colour(255, 255, 255, 255) : Colour(220, 220, 220, 255);
     g_renderer->TextCentreSimple(realX + m_w/2, realY + m_h/2 - 6, textCol, 8.0f, m_caption);
+}
+
+// ============================================================================
+// Globe Toggle Button
+
+void GlobeToggleButton::MouseUp()
+{
+    PlaybackControlWindow *parent = (PlaybackControlWindow*)m_parent;
+    if (parent) {
+        parent->ToggleGlobeMode();
+    }
+}
+
+void GlobeToggleButton::Render(int realX, int realY, bool highlighted, bool clicked)
+{
+    InterfaceButton::Render(realX, realY, highlighted, clicked);
+}
+
+// ============================================================================
+// Hide UI Button
+
+void HideUIButton::MouseUp()
+{
+    // show confirmation dialog instead of directly hiding UI
+    HideUIConfirmDialog *dialog = new HideUIConfirmDialog();
+    EclRegisterWindow(dialog);
+}
+
+void HideUIButton::Render(int realX, int realY, bool highlighted, bool clicked)
+{
+    InterfaceButton::Render(realX, realY, highlighted, clicked);
 }
