@@ -47,6 +47,7 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const timeout = require('connect-timeout');
+const compression = require('compression');
 const app = express();
 const port = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -55,9 +56,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const logStream = fs.createWriteStream(path.join(__dirname, 'server.log'), { flags: 'a' });
 const pendingVerifications = new Map();
-const mysqldump = require('mysqldump');
 const { spawn } = require('child_process');
-const cron = require('node-cron');
 
 // functions to be imported from the modules
 const {
@@ -226,6 +225,17 @@ app.use((req, res, next) => {
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// enable gzip compression for all responses
+app.use(compression({
+    filter: (req, res) => {
+        return compression.filter(req, res);
+    },
+    threshold: 1024, // only compress files larger than 1kb
+    level: 6, // balanced compression level
+    // use higher compression for .data files 
+    chunkSize: 32 * 1024 
+}));
 
 // session middleware
 app.use(session({
@@ -464,179 +474,6 @@ function findReplayViewerFiles() {
         console.error('Error, some files could not be found', error);
         debugUtils.debugFunctionExit('findReplayViewerFiles', startTime, 'error', 2);
         return { html: null, js: null, wasm: null, wasmMap: null, data: null, version: null };
-    }
-}
-
-// function to create a password-protected 7z file from an sql file
-async function createProtectedZipFile(sqlFilePath, zipFilePath, password) {
-    const startTime = debugUtils.debugFunctionEntry('createProtectedZipFile', [sqlFilePath, zipFilePath], 2);
-    
-    try {
-        console.log(`Creating password-protected archive: ${zipFilePath}`);
-        console.debug(2, 'Archive creation parameters:', {
-            source: sqlFilePath,
-            destination: zipFilePath,
-            hasPassword: !!password
-        });
-        
-        // use 7z to create a password-protected archive
-        const sevenZipBinPath = 'C:\\Program Files\\7-Zip\\7z.exe'; // explicit Windows path to 7z
-        console.debug(2, 'Using 7z binary path:', sevenZipBinPath);
-        
-        // check if 7z exists at the specified path
-        if (!fs.existsSync(sevenZipBinPath)) {
-            throw new Error(`7-Zip not found at: ${sevenZipBinPath}. Please install 7-Zip or adjust the path.`);
-        }
-        
-        // build the 7z command arguments
-        // 7z a -t7z -p{password} archive.7z file.sql
-        const args = [
-            'a',                   // add to archive
-            '-t7z',                // archive type: 7z
-            `-p${password}`,       // password
-            '-mx0',                // why compress and waste cpu resources? mx0 = no compression
-            '-mhe=on',             // encrypt file names 
-            zipFilePath,           // output archive path
-            sqlFilePath            // input file path
-        ];
-        
-        console.debug(2, '7z command args:', args.map(arg => arg.startsWith('-p') ? '-p[HIDDEN]' : arg));
-        
-        return new Promise((resolve, reject) => {
-            const process = spawn(sevenZipBinPath, args, {
-                stdio: ['pipe', 'pipe', 'pipe'],
-                windowsHide: true
-            });
-            
-            let stdout = '';
-            let stderr = '';
-            
-            process.stdout.on('data', (data) => {
-                stdout += data.toString();
-            });
-            
-            process.stderr.on('data', (data) => {
-                stderr += data.toString();
-            });
-            
-            process.on('close', (code) => {
-                if (code === 0) {
-                    console.log(`Created protected archive successfully: ${zipFilePath}`);
-                    console.debug(2, '7z output:', stdout);
-                    debugUtils.debugFunctionExit('createProtectedZipFile', startTime, 'success', 2);
-                    resolve();
-                } else {
-                    const error = new Error(`7z process exited with code ${code}: ${stderr}`);
-                    console.error('7z command failed:', {
-                        code: code,
-                        stdout: stdout,
-                        stderr: stderr
-                    });
-                    debugUtils.debugFunctionExit('createProtectedZipFile', startTime, 'error', 2);
-                    reject(error);
-                }
-            });
-            
-            process.on('error', (err) => {
-                console.error('Error spawning 7z process:', err);
-                debugUtils.debugFunctionExit('createProtectedZipFile', startTime, 'error', 2);
-                reject(err);
-            });
-        });
-        
-    } catch (error) {
-        console.error('Error setting up protected archive creation:', error);
-        debugUtils.debugFunctionExit('createProtectedZipFile', startTime, 'error', 2);
-        throw error;
-    }
-}
-
-// function to generate a mysql dump of the defcon_demos database
-async function createDatabaseBackup() {
-    const startTime = debugUtils.debugFunctionEntry('createDatabaseBackup', [], 1);
-    
-    try {
-        // check if we have the required environment variables
-        if (!process.env.DUMPDATABASE_SECRET) {
-            console.error('DUMPDATABASE_SECRET not found in environment variables. Skipping database backup.');
-            debugUtils.debugFunctionExit('createDatabaseBackup', startTime, 'missing_password', 1);
-            return;
-        }
-        
-        // create the backups directory if it doesn't exist
-        const backupsDir = path.join(__dirname, 'database-backups');
-        if (!fs.existsSync(backupsDir)) {
-            fs.mkdirSync(backupsDir, { recursive: true });
-            console.log('Created database-backups directory at:', backupsDir);
-        }
-        
-        // generate the filename with current date in your format (DD-MM-YYYY)
-        const now = new Date();
-        const day = String(now.getDate()).padStart(2, '0');
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const year = now.getFullYear();
-        const dateString = `${day}-${month}-${year}`;
-        
-        const sqlFileName = `defcon_demos${dateString}.sql`;
-        const zipFileName = `defcon_demos${dateString}.7z`;
-        const sqlFilePath = path.join(backupsDir, sqlFileName);
-        const zipFilePath = path.join(backupsDir, zipFileName);
-        
-        console.log(`Creating database backup: ${sqlFileName}`);
-        console.debug(2, 'Database backup configuration:', {
-            host: process.env.DB_HOST,
-            user: process.env.DB_USER,
-            database: process.env.DB_NAME,
-            port: process.env.DB_PORT,
-            outputFile: sqlFilePath
-        });
-        
-        // create the mysql dump
-        const result = await mysqldump({
-            connection: {
-                host: process.env.DB_HOST,
-                user: process.env.DB_USER,
-                password: process.env.DB_PASSWORD,
-                database: process.env.DB_NAME,
-                port: process.env.DB_PORT || 3306
-            },
-            dumpToFile: sqlFilePath,
-            compressFile: false, // we'll compress it ourselves with password protection
-            dump: {
-                schema: {
-                    table: {
-                        ifNotExist: true,
-                        dropIfExist: true,
-                        charset: true
-                    }
-                },
-                data: {
-                    verbose: false,
-                    lockTables: false,
-                    includeViewData: true,
-                    maxRowsPerInsertStatement: 5000
-                }
-            }
-        });
-        
-        console.log('MySQL dump created successfully');
-        console.debug(2, 'MySQL dump result:', result);
-        
-        // create a password-protected 7z file
-        console.log('Creating password-protected 7z archive...');
-        await createProtectedZipFile(sqlFilePath, zipFilePath, process.env.DUMPDATABASE_SECRET);
-        
-        // delete the original sql file after archiving (keep only the protected 7z)
-        fs.unlinkSync(sqlFilePath);
-        console.log('Original SQL file deleted, backup secured in password-protected 7z archive');
-        
-        console.log(`Database backup completed successfully: ${zipFileName}`);
-        debugUtils.debugFunctionExit('createDatabaseBackup', startTime, 'success', 1);
-        
-    } catch (error) {
-        console.error('Error creating database backup:', error);
-        debugUtils.debugFunctionExit('createDatabaseBackup', startTime, 'error', 1);
-        throw error;
     }
 }
 
@@ -1294,21 +1131,6 @@ process.on('SIGINT', async () => {
 
 app.use(errorHandler);
 
-// setup daily backup cron job that runs at 3 AM every day
-// cron format: minute hour day month dayOfWeek
-// '0 3 * * *' = every day at 3:00 AM
-cron.schedule('0 3 * * *', async () => {
-    console.log('Its time to do a backup...');
-    try {
-        await createDatabaseBackup();
-        console.log('Database backup completed!');
-    } catch (error) {
-        console.error('Error, 3am backup failed:', error);
-    }
-}, {
-    scheduled: true,
-    timezone: "Europe/London" // because fuck utc
-});
 
 const server = http.listen(port, async () => {
     console.log(`Defcon Expanded Demo and File Server Listening at http://localhost:${port}`);
@@ -1316,17 +1138,6 @@ const server = http.listen(port, async () => {
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`Node.js version: ${process.version}`);
     console.log(`Platform: ${process.platform}`);
-    
-    // create sql dump soon as the server starts
-    console.log("Creating sql dump...");
-    // lets create a promise to prevent blocking the server initialisation
-    createDatabaseBackup()
-        .then(() => {
-            console.log("SQL dump created! scheduled to be used for archive");
-        })
-        .catch((error) => {
-            console.error("Error creating SQL dump:", error);
-        });
     
     // set server instance for debug utilities
     debugUtils.setServerInstance(server);

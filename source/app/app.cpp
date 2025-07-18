@@ -842,18 +842,31 @@ void App::Render()
     //
     // Eclipse buttons and windows
 
-    GetInterface()->Render();
+    // Check if UI should be hidden
+    extern bool g_hideUI;
+    if( !g_hideUI )
+    {
+        GetInterface()->Render();
+    }
 
     START_PROFILE( "Eclipse GUI" );
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-    EclRender();
+    
+    if( !g_hideUI )
+    {
+        EclRender();
+    }
+    
     END_PROFILE( "Eclipse GUI" );
     
     
     //
     // Mouse
 
-    GetInterface()->RenderMouse();
+    if( !g_hideUI )
+    {
+        GetInterface()->RenderMouse();
+    }
    
 
 #ifdef SHOW_OWNER

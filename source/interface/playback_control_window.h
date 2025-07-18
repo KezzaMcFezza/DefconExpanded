@@ -11,6 +11,9 @@ extern int g_desiredPerspectiveTeamId;
 // global variable for health bar visibility
 extern bool g_healthBarsEnabled;
 
+// global variable for UI visibility toggle
+extern bool g_hideUI;
+
 class PlaybackControlWindow : public FadingWindow
 {
 private:
@@ -27,6 +30,9 @@ private:
     
     // Health bar toggle state
     bool m_healthBarsEnabled;
+    
+    // UI visibility state
+    bool m_hideUI;
     
     // Player perspective system
     struct PlayerInfo
@@ -60,6 +66,12 @@ public:
     // Health bar toggle
     void ToggleHealthBars();
     
+    // UI visibility toggle
+    void ToggleHideUI();
+    
+    // Globe mode toggle
+    void ToggleGlobeMode();
+    
     // Player perspective methods
     void InitializePlayers();            // Scan teams and detect players
     void SetPlayerPerspective( int playerIndex );  // Switch to player view
@@ -83,6 +95,20 @@ public:
 };
 
 class HealthToggleButton : public InterfaceButton
+{
+public:
+    void MouseUp();
+    void Render( int realX, int realY, bool highlighted, bool clicked );
+};
+
+class GlobeToggleButton : public InterfaceButton
+{
+public:
+    void MouseUp();
+    void Render( int realX, int realY, bool highlighted, bool clicked );
+};
+
+class HideUIButton : public InterfaceButton
 {
 public:
     void MouseUp();

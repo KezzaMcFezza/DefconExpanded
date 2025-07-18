@@ -67,20 +67,33 @@ void MovingObject::InitialiseTimers()
 
 bool MovingObject::Update()
 {
-    // we now use a much more frequent sampling rate for the unit trails
-    // this makes the game look more modern and realistic
-    float samplingRate = 0.5f; 
-    if (m_type == WorldObject::TypeNuke) {
-        samplingRate = 0.5f;  // reduced from 0.25f to match other units for performance reasons
-                              // this is a bit uglier but its essential as we get an extra 70 fps
-    }
+    //
+    // Update history, but first check if we are in 3D globe mode
     
-    m_historyTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor() / 10;
-    if( m_historyTimer <= 0 )
-    {
-        m_history.PutDataAtStart( new Vector3<Fixed>(m_longitude, m_latitude, 0) );
-        m_historyTimer = samplingRate; 
+    bool is3DGlobeMode = g_app->GetMapRenderer()->Is3DGlobeModeEnabled();
+    
+    if (is3DGlobeMode) {
+        float samplingRate = 0.5f; 
+        if (m_type == WorldObject::TypeNuke) {
+            samplingRate = 0.5f;  // reduced from 0.25f to match other units for performance reasons
+                                  // this is a bit uglier but its essential as we get an extra 70 fps
+        }
+        
+        m_historyTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor() / 10;
+        if( m_historyTimer <= 0 )
+        {
+            m_history.PutDataAtStart( new Vector3<Fixed>(m_longitude, m_latitude, 0) );
+            m_historyTimer = samplingRate; 
+        }
+    } else {
+        m_historyTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor() / 10;
+        if( m_historyTimer <= 0 )
+        {
+            m_history.PutDataAtStart( new Vector3<Fixed>(m_longitude, m_latitude, 0) );
+            m_historyTimer = 2; 
+        }
     }
+
     while( m_maxHistorySize != -1 && 
            m_history.ValidIndex(m_maxHistorySize) )
     {
@@ -594,14 +607,17 @@ void MovingObject::RenderHistory()
     int sizeCap = (int)(80 * g_app->GetMapRenderer()->GetZoomFactor() );
     sizeCap /= World::GetGameScale().DoubleValue();
 
+    bool is3DGlobeMode = g_app->GetMapRenderer()->Is3DGlobeModeEnabled();
+
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
     {
         switch( m_type )
         {
             case TypeNuke:
                 sizeCap = 12 * g_app->GetMapRenderer()->GetZoomFactor();
-                // we need to account for the sample rate, so we multiply by 4
-                sizeCap *= 4;
+                if (is3DGlobeMode) {
+                    sizeCap *= 4;
+                }
                 if( g_app->GetMapRenderer()->GetZoomFactor() < 0.25f )
                 {
                     return;
@@ -611,8 +627,9 @@ void MovingObject::RenderHistory()
             case TypeBattleShip:
             case TypeCarrier:
             case TypeSub:
-                // same here we multiply by 4
-                sizeCap *= 4;
+                if (is3DGlobeMode) {
+                    sizeCap *= 4;
+                }
                 break;
 
             default:
@@ -623,13 +640,15 @@ void MovingObject::RenderHistory()
     }
     else
     {
-        if( m_type == TypeNuke )
-        {
-            sizeCap *= 4;
-        }
-        else
-        {
-            sizeCap *= 4;
+        if (is3DGlobeMode) {
+            if( m_type == TypeNuke )
+            {
+                sizeCap *= 4;
+            }
+            else
+            {
+                sizeCap *= 4;
+            }
         }
     }
 
@@ -652,15 +671,18 @@ void MovingObject::RenderHistory()
         myTeamId < g_app->GetWorld()->m_teams.Size() &&
         g_app->GetWorld()->GetTeam(myTeamId)->m_type != Team::TypeUnassigned )
     {
-        int enemyTrailLimit = (m_type == TypeNuke) ? 16 : 16;  // 4*4 for nukes, 4*4 for others
-        maxSize = min( maxSize, enemyTrailLimit );
+        if (is3DGlobeMode) {
+            int enemyTrailLimit = (m_type == TypeNuke) ? 16 : 16;  
+            maxSize = min( maxSize, enemyTrailLimit );
+        } else {
+            maxSize = min( maxSize, 4 );
+        }
     }
 
     if( m_history.Size() > 0 )
     {
         Vector3<float> lastPos( predictedLongitude, predictedLatitude, 0 );
 
-        // PERFORMANCE OPTIMIZATION: Use batched unit trail rendering instead of immediate mode
         for( int i = 0; i < maxSize; ++i )
         {
             Vector3<float> historyPos, thisPos;
@@ -673,8 +695,7 @@ void MovingObject::RenderHistory()
             lastPos += diff * 0.1f;
             colour.m_a = 255 - 255 * (float) i / (float) maxSize;
             
-            // PERFORMANCE FIX: Use specialized unit trail buffer instead of immediate mode
-            g_renderer->UnitTrailLine( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );        
+            g_renderer->UnitTrailLine( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
             lastPos = historyPos;
         }
     }
