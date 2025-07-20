@@ -226,17 +226,6 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// enable gzip compression for all responses
-app.use(compression({
-    filter: (req, res) => {
-        return compression.filter(req, res);
-    },
-    threshold: 1024, // only compress files larger than 1kb
-    level: 6, // balanced compression level
-    // use higher compression for .data files 
-    chunkSize: 32 * 1024 
-}));
-
 // session middleware
 app.use(session({
     secret: JWT_SECRET,
