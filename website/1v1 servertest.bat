@@ -12,7 +12,7 @@ set "game_start_time=%date:~10,4%-%date:~4,2%-%date:~7,2%T%time:~0,2%-%time:~3,2
 set "game_start_time=!game_start_time: =0!"
 
 echo Starting Dedcon server for 1v1...
-DedconTest.exe 1v1configtest.txt 
+Dedcon.exe 1v1configtest.txt 
 
 echo Server closed. Processing game logs...
 

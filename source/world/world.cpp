@@ -1855,10 +1855,6 @@ void World::Update()
             m_teams[i]->m_sharingRadar.SetAll( true );
         }
     }
-    
-    START_PROFILE( "Radar Coverage" );
-    UpdateRadar();
-    END_PROFILE( "Radar Coverage" );
 
 
     //
@@ -2008,6 +2004,10 @@ void World::Update()
         }
     }
     END_PROFILE( "GunFire" );
+
+    START_PROFILE( "Radar Coverage" );
+    UpdateRadar();
+    END_PROFILE( "Radar Coverage" );
 
     
     m_votingSystem.Update();
