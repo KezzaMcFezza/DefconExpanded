@@ -924,7 +924,7 @@ bool ClientToServer::ClientJoin( char *ip, int _serverPort )
     Directory *clientIdMsg = new Directory();
     clientIdMsg->SetName(NET_DEFCON_MESSAGE);
     clientIdMsg->CreateData(NET_DEFCON_COMMAND, NET_DEFCON_CLIENTID);
-    clientIdMsg->CreateData(NET_DEFCON_CLIENTID, 1);           // Assign client ID 1
+    clientIdMsg->CreateData(NET_DEFCON_CLIENTID, m_clientId);           // Assign client ID 1
     clientIdMsg->CreateData(NET_DEFCON_SEQID, -1);             // seqId -1 = processed immediately
     clientIdMsg->CreateData(NET_DEFCON_VERSION, APP_VERSION);  // Server version info
     
@@ -946,7 +946,7 @@ bool ClientToServer::ClientJoin( char *ip, int _serverPort )
     Directory *clientHelloMsg = new Directory();
     clientHelloMsg->SetName(NET_DEFCON_MESSAGE);
     clientHelloMsg->CreateData(NET_DEFCON_COMMAND, NET_DEFCON_CLIENTHELLO);
-    clientHelloMsg->CreateData(NET_DEFCON_CLIENTID, 1);
+    clientHelloMsg->CreateData(NET_DEFCON_CLIENTID, m_clientId);
     clientHelloMsg->CreateData(NET_DEFCON_SEQID, -1);  // seqId -1 = processed immediately
     
     m_inboxMutex->Lock();

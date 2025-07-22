@@ -69,7 +69,6 @@ void PlayFromLobbyButton::MouseUp()
 {
     RecordingSelectionWindow *parent = (RecordingSelectionWindow *)m_parent;
     
-    // NEW: Check if a file was specified
     if (strcmp(parent->m_recordingFilename, "NO FILE SPECIFIED") == 0)
     {
         MessageDialog *msg = new MessageDialog("NO FILE SPECIFIED",

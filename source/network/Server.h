@@ -91,9 +91,11 @@ public:
     
     int  GetClientId        ( char *_ip, int _port );
     int  RegisterNewClient  ( Directory *_client, int _clientId=-1 );
+    int RegisterNewClientPassive( Directory *_client, int _clientId = -1 );  // NEW: For recording playback isolation
     void RemoveClient       ( int _clientId, int _reason );
     void AuthenticateClient ( int _clientId );
     void SendClientId       ( int _clientId );
+    void SendClientIdPassive    ( int _clientId );                          // NEW: For recording playback isolation
     void RegisterNewTeam    ( int _clientId, int _teamType );    
     void RemoveAI           ( Directory *_message );
     void RegisterSpectator  ( int _clientId );
