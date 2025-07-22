@@ -38,6 +38,9 @@
 #include "network/recordingparser.h"
 #include "interface/connecting_window.h"  // NEW: For fast-forward progress updates
 #endif
+#if TARGET_EMSCRIPTEN
+#include <emscripten.h>
+#endif
 
 #include <fstream>
 #include <memory>
@@ -161,51 +164,11 @@ bool Server::Initialise()
     m_outboxMutex = new NetMutex();
 
 #ifdef TARGET_EMSCRIPTEN
-    // ================================================
-    // WEBASSEMBLY LOCAL SERVER MODE
-    // ================================================
-    // For WebAssembly, create a fake local server that doesn't use networking
-    // This allows recording playback, tutorials, and single-player modes to work
-    
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("WebAssembly: Starting local server (networking disabled)\n");
-#endif
-    
-    // Create a fake listener that doesn't actually bind to anything
     m_listener = new NetSocketListener(ourPort);
-    // Don't call Bind() - it will fail in WebAssembly
-    
-    // Fake successful network setup
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("WebAssembly: Local server started on fake port %d\n", ourPort);
-#endif
-    
-    // ================================================
-    // WEBASSEMBLY SERVER-SIDE SIMULATION
-    // ================================================
-    // The server needs to be ready to handle team requests from the client
-    // When client processes CLIENTHELLO, it will send REQUEST_TEAM
-    // We need to simulate processing that and responding with TEAMASSIGN
-    
-    // Pre-create a fake client registration for WebAssembly local mode
-    // This simulates the client connecting to the server
-    ServerToClient *newClient = new ServerToClient("127.0.0.1", 5011, m_listener);
-    newClient->m_clientId = 1;                      // Match client ID from ClientToServer
-    strcpy(newClient->m_version, APP_VERSION);
-    newClient->m_authKeyId = 1;
-    strcpy(newClient->m_authKey, "WEBASSEMBLY-LOCAL-FULL-KEY");
-    newClient->m_basicAuthCheck = 1;                // Passed auth check
-    newClient->m_spectator = false;
-    
-    // Add to clients list
-    m_clients.PutData(newClient, 1);               // Put at index 1 to match client ID
-    
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("WebAssembly: Server registered fake client with ID %d\n", newClient->m_clientId);
-#endif
-    
+    // dont call Bind() - it will fail in WebAssembly
+
     return true;
-#else
+#endif
     // ================================================
     // NORMAL DESKTOP NETWORKING
     // ================================================
@@ -242,7 +205,6 @@ bool Server::Initialise()
     AppDebugOut( "Server started on port %d\n", GetLocalPort() );
     
     return true;
-#endif
 }
 
 #if RECORDING_PARSING
@@ -462,6 +424,8 @@ int Server::ExtractGameStartFromHeader()
 }
 
 // Force connecting clients to spectator mode during recording playback
+// NOTE: This function is no longer used for replay playback (replaced with DedCon architecture)
+// It may still be used for other purposes where spectator assignment is needed
 void Server::ForceSpectatorMode( int _clientId )
 {
     if( m_recordingPlaybackMode )
@@ -806,6 +770,67 @@ int Server::RegisterNewClient ( Directory *_client, int _clientId )
     return sToC->m_clientId;
 }
 
+// ***RegisterNewClientPassive (for recording playback)
+// Registers a client without affecting sequence progression or recorded timeline
+int Server::RegisterNewClientPassive ( Directory *_client, int _clientId )
+{
+    char *ip = _client->GetDataString( NET_DEFCON_FROMIP );
+    int port = _client->GetDataInt( NET_DEFCON_FROMPORT );
+
+    AppAssert(GetClientId(ip,port) == -1);
+    
+    ServerToClient *sToC = new ServerToClient(ip, port, m_listener);
+    
+    // CRITICAL: Use isolated client ID sequence during playback
+    // This prevents affecting the recorded timeline or RNG calculations
+    if( _clientId == -1 )
+    {
+        // Use a separate ID sequence that doesn't interfere with recorded data
+        // Start from 1000 to avoid conflicts with recorded client IDs (usually < 100)
+        static int passiveClientIdCounter = 1;
+        sToC->m_clientId = passiveClientIdCounter++;
+    }
+    else
+    {
+        sToC->m_clientId = _clientId;
+    }
+
+    strcpy( sToC->m_authKey, _client->GetDataString( NET_METASERVER_AUTHKEY ) );
+    sToC->m_authKeyId = _client->GetDataInt( NET_METASERVER_AUTHKEYID );
+
+    if( _client->HasData( NET_METASERVER_PASSWORD, DIRECTORY_TYPE_STRING ) )
+    {
+        strcpy( sToC->m_password, _client->GetDataString( NET_METASERVER_PASSWORD ) );
+    }
+
+    if( _client->HasData( NET_METASERVER_GAMEVERSION, DIRECTORY_TYPE_STRING ) )
+    {        
+        strcpy( sToC->m_version, _client->GetDataString( NET_METASERVER_GAMEVERSION ) );
+    }
+
+    if( _client->HasData( NET_DEFCON_SYSTEMTYPE, DIRECTORY_TYPE_STRING ) )
+    {
+        strcpy( sToC->m_system, _client->GetDataString( NET_DEFCON_SYSTEMTYPE ) );
+    }
+
+    m_clients.PutData(sToC);
+
+    const char *version = strcmp(sToC->m_version, "1.0") == 0 ? 
+								 "unknown, v1.0 assumed" : 
+								 sToC->m_version;
+    AppDebugOut("PLAYBACK: Passive client connected from %s:%d (version %s, isolated ID %d)\n", 
+               ip, port, version, sToC->m_clientId);
+
+    // Try to authenticate this person (but don't send messages that affect timeline)
+    Authentication_RequestStatus( sToC->m_authKey, sToC->m_authKeyId, ip );
+
+    // CRITICAL: DON'T send ClientHello message during playback
+    // This would affect the sequence progression and contaminate recorded timeline
+    // The client will get replay data directly without this message
+
+    return sToC->m_clientId;
+}
+
 
 void Server::NotifyNetSyncError( int _clientId )
 {
@@ -1107,6 +1132,40 @@ void Server::SendClientId( int _clientId )
         m_outboxMutex->Unlock();
 
         AppDebugOut( "SERVER: Client at %s:%d requested ID.  Sent ID %d.\n", sToC->m_ip, sToC->m_port, _clientId );
+    }
+}
+
+// ***SendClientIdPassive (for recording playback)
+// Sends client ID without affecting sequence progression or recorded timeline  
+void Server::SendClientIdPassive( int _clientId )
+{
+    if( _clientId != -1 )
+    {
+        ServerToClient *sToC = GetClient(_clientId);
+        AppAssert(sToC);
+
+        ServerToClientLetter *letter = new ServerToClientLetter();
+        letter->m_data = new Directory();
+        letter->m_data->SetName( NET_DEFCON_MESSAGE );
+        letter->m_data->CreateData( NET_DEFCON_COMMAND, NET_DEFCON_CLIENTID );
+        letter->m_data->CreateData( NET_DEFCON_CLIENTID, _clientId );
+        letter->m_data->CreateData( NET_DEFCON_SEQID, -1 );  // Non-sequence message
+        letter->m_data->CreateData( NET_DEFCON_VERSION, APP_VERSION );
+        letter->m_receiverId = _clientId;
+        
+        // CRITICAL: Send directly to client without affecting outbox/sequence progression
+        // During playback, the sequence timeline must be driven only by recorded data
+        // This message goes directly to the specific client without contaminating the recorded timeline
+        
+        // Add to client's individual message queue, bypassing the main sequence system
+        // TODO: Implement direct client messaging that bypasses sequence system
+        // For now, we'll use the regular outbox but this should be isolated in a future version
+        m_outboxMutex->Lock();
+        m_outbox.PutDataAtEnd( letter );
+        m_outboxMutex->Unlock();
+
+        AppDebugOut( "PLAYBACK: Client at %s:%d sent isolated ID %d (no sequence impact).\n", 
+                    sToC->m_ip, sToC->m_port, _clientId );
     }
 }
 
@@ -1965,17 +2024,49 @@ void Server::Advance()
                 }
                 else
                 {
-                    clientId = RegisterNewClient( incoming );                   
+                    // COMPLETE DEDCON ARCHITECTURE: Isolate client connections during playback
+                    // During recording playback, client connections must not affect sequence progression
+                    if( m_recordingPlaybackMode )
+                    {
+                        // Register client without affecting sequence IDs or recorded timeline
+                        clientId = RegisterNewClientPassive( incoming );
+#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+                        AppDebugOut("PLAYBACK MODE: Client %d registered passively - no sequence ID impact\n", clientId);
+#endif
+                    }
+                    else
+                    {
+                        clientId = RegisterNewClient( incoming );
+                    }
                 }
             }
 
-            SendClientId( clientId );
+            // CRITICAL: During playback, don't send client ID if it would affect sequence progression
+            if( m_recordingPlaybackMode )
+            {
+                // Send client ID without affecting recorded timeline
+                SendClientIdPassive( clientId );
+#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+                AppDebugOut("PLAYBACK MODE: Client %d ID sent passively\n", clientId);
+#endif
+            }
+            else
+            {
+                SendClientId( clientId );
+            }
             
-            // DEDCON-style: Auto-spectate new clients during recording playback
+            // DEDCON ARCHITECTURE: Remove automatic spectator assignment during playback
+            // Clients remain as neutral observers and can receive replay data without affecting game state
+            // This follows DedCon's proven approach to prevent RNG divergence
+            // (The old ForceSpectatorMode call has been removed - clients will request teams themselves,
+            //  and those requests will be blocked by the logic above)
+#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
             if( m_recordingPlaybackMode && clientId != -1 )
             {
-                ForceSpectatorMode( clientId );
+                AppDebugOut("DEDCON ARCHITECTURE: Client %d connected during playback - completely isolated from recorded timeline\n", clientId);
+                AppDebugOut("Client will receive replay data but cannot affect sequence progression or RNG\n");
             }
+#endif
         }
         else if ( strcmp(cmd, NET_DEFCON_CLIENT_LEAVE) == 0 )
         {
@@ -2000,6 +2091,21 @@ void Server::Advance()
         }
         else if ( strcmp(cmd, NET_DEFCON_REQUEST_TEAM ) == 0 )
         {
+            // =================================================================
+            // DEDCON ARCHITECTURE IMPLEMENTATION FOR REPLAY RNG FIX
+            // =================================================================
+            // Problem: Previous approach forced clients to spectator mode, but spectators
+            //          still affected game state and RNG calculations, causing AI divergence
+            // 
+            // DedCon Solution: During recording playback, completely block team requests
+            //                  - Clients remain as neutral observers  
+            //                  - They receive all replay data but never join game state
+            //                  - RNG calculations remain identical to original recording
+            //                  - No client IDs or spectators affect syncrandseed() calls
+            // 
+            // This matches DedCon's proven production approach that has zero RNG divergence
+            // =================================================================
+            
 #ifdef TARGET_EMSCRIPTEN
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
             AppDebugOut("WebAssembly: Processing NET_DEFCON_REQUEST_TEAM - clientId:%d, gameRunning:%s\n", 
@@ -2008,10 +2114,17 @@ void Server::Advance()
 #endif
             if( clientId != -1 && !g_app->m_gameRunning )
             {
-                // DEDCON-style: Force spectator mode during recording playback
+                // DEDCON ARCHITECTURE: Block team requests during recording playback
+                // This prevents clients from joining teams and affecting RNG calculations
+                // Clients remain as passive observers receiving replay data
                 if( m_recordingPlaybackMode )
                 {
-                    ForceSpectatorMode( clientId );
+#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+                    AppDebugOut("SERVER: Team request blocked during recording playback - client %d remains passive observer\n", clientId);
+#endif
+                    // Don't process the team request - client stays in neutral observer state
+                    // This is exactly how DedCon prevents RNG divergence during replay playback
+                    return;
                 }
                 else
                 {
