@@ -787,7 +787,7 @@ int Server::RegisterNewClientPassive ( Directory *_client, int _clientId )
     {
         // Use a separate ID sequence that doesn't interfere with recorded data
         // Start from 1000 to avoid conflicts with recorded client IDs (usually < 100)
-        static int passiveClientIdCounter = 1;
+        static int passiveClientIdCounter = 1000;
         sToC->m_clientId = passiveClientIdCounter++;
     }
     else
@@ -2264,6 +2264,19 @@ void Server::Advance()
         }
     }
 #endif
+
+    if( m_sequenceId < 350 ) // Only log first 350 sequences to avoid spam
+    {
+        for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
+        {
+            Team *team = g_app->GetWorld()->m_teams[i];
+            if( team && team->m_type == Team::TypeAI )
+            {
+                AppDebugOut("m_aiActionTimer Seq: %d Team: %d Value: %.2f\n", 
+                           m_sequenceId, team->m_teamId, team->m_aiActionTimer.DoubleValue());
+            }
+        }
+    }
 
     // Always send letters through the normal path for proper sequence ID management
     // Recording playback now injects recorded data into the normal flow

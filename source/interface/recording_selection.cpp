@@ -99,17 +99,7 @@ void PlayFromLobbyButton::MouseUp()
     if( !g_app->GetClientToServer()->m_listener )
     {
         char msgtext[2048];
-#if defined(RETAIL_BRANDING_UK)
-        snprintf( msgtext, sizeof(msgtext), "%s%s", LANGUAGEPHRASE("dialog_client_failedconnect"), LANGUAGEPHRASE("website_support_retail_uk") );
-#elif defined(RETAIL_BRANDING)
-        snprintf( msgtext, sizeof(msgtext), "%s%s", LANGUAGEPHRASE("dialog_client_failedconnect"), LANGUAGEPHRASE("website_support_retail") );
-#elif defined(RETAIL_BRANDING_MULTI_LANGUAGE)
-        snprintf( msgtext, sizeof(msgtext), "%s%s", LANGUAGEPHRASE("dialog_client_failedconnect"), LANGUAGEPHRASE("website_support_retail_multi_language") );
-#elif defined(TARGET_OS_MACOSX)
-        snprintf( msgtext, sizeof(msgtext), "%s%s", LANGUAGEPHRASE("dialog_client_failedconnect"), LANGUAGEPHRASE("website_support_macosx") );
-#else
         snprintf( msgtext, sizeof(msgtext), "%s%s", LANGUAGEPHRASE("dialog_client_failedconnect"), LANGUAGEPHRASE("website_support") );
-#endif
         msgtext[sizeof(msgtext) - 1] = '\0';  // Ensure null termination
 
         MessageDialog *msg = new MessageDialog( "NETWORK ERROR",
@@ -136,8 +126,6 @@ void PlayFromLobbyButton::MouseUp()
         EclRemoveWindow( parent->m_name );
         
 #if RECORDING_PARSING
-        // Initialize world FIRST - required for recording system
-        g_app->InitWorld();
         
         // Start recording server using the copied filename
         bool recordingLoaded = g_app->GetServer()->StartRecordingPlaybackServer( recordingFilename );
@@ -149,6 +137,8 @@ void PlayFromLobbyButton::MouseUp()
 #endif
             int ourPort = g_app->GetServer()->GetLocalPort();
             g_app->GetClientToServer()->ClientJoin( ourIp, ourPort );
+
+            g_app->InitWorld();
             
             ConnectingWindow *connectingWindow = new ConnectingWindow();
             connectingWindow->m_popupLobbyAtEnd = true;
