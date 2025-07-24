@@ -806,9 +806,17 @@ void EmscriptenMainLoop()
                 
                 if( shouldAdvance )
                 {
+                    AppDebugOut("Server advance BEFORE: gameRunning=%s, seqId=%d, timeNow=%.2f\n", 
+                               g_app->m_gameRunning ? "true" : "false", 
+                               g_app->GetServer() ? g_app->GetServer()->m_sequenceId : -1,
+                               timeNow);
+                    
                     g_app->GetServer()->Advance();
                     float timeToAdd = SERVER_ADVANCE_PERIOD.DoubleValue();
                     if( !g_app->m_gameRunning ) timeToAdd *= 5.0f;
+                    
+                    AppDebugOut("Server advance AFTER: timeToAdd=%.2f, nextAdvanceTime will be %.2f\n", 
+                               timeToAdd, g_nextServerAdvanceTime + timeToAdd);
                     
                     // NEW: Apply recording fast-forward speed multiplier
                     if( g_app->GetServer()->IsRecordingPlaybackMode() )

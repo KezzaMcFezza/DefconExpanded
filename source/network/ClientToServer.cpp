@@ -1580,18 +1580,27 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
             AppAssert( update->HasData( NET_DEFCON_COMMAND, DIRECTORY_TYPE_STRING ) );
     
             char *cmd = update->GetDataString( NET_DEFCON_COMMAND );
-
+    
             if( strcmp( cmd, NET_DEFCON_START_GAME ) == 0 )
             {
                 int teamId = update->GetDataUChar(NET_DEFCON_TEAMID);
+                unsigned char recordedSeed = update->GetDataUChar(NET_DEFCON_RANDSEED);
+                
+                AppDebugOut("Processing StartGame for team %d, recorded seed = %d\n", teamId, recordedSeed);
+                
                 Team *team = g_app->GetWorld()->GetTeam( teamId );
                 if( team )
                 {
+                    AppDebugOut("Team found, old seed = %d, setting to %d\n", team->m_randSeed, recordedSeed);
                     team->m_readyToStart = !team->m_readyToStart;
-                    team->m_randSeed = update->GetDataUChar(NET_DEFCON_RANDSEED);
+                    team->m_randSeed = recordedSeed;
                 }
-
-				g_app->SaveGameName();
+                else
+                {
+                    AppDebugOut("Team %d NOT FOUND!\n", teamId);
+                }
+    
+                g_app->SaveGameName();
             }
             else if( strcmp( cmd, NET_DEFCON_OBJPLACEMENT ) == 0 )
             {
