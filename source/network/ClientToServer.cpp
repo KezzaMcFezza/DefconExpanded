@@ -924,7 +924,7 @@ bool ClientToServer::ClientJoin( char *ip, int _serverPort )
     Directory *clientIdMsg = new Directory();
     clientIdMsg->SetName(NET_DEFCON_MESSAGE);
     clientIdMsg->CreateData(NET_DEFCON_COMMAND, NET_DEFCON_CLIENTID);
-    clientIdMsg->CreateData(NET_DEFCON_CLIENTID, m_clientId);           // Assign client ID 1
+    clientIdMsg->CreateData(NET_DEFCON_CLIENTID, 1);           // Assign client ID 1
     clientIdMsg->CreateData(NET_DEFCON_SEQID, -1);             // seqId -1 = processed immediately
     clientIdMsg->CreateData(NET_DEFCON_VERSION, APP_VERSION);  // Server version info
     
@@ -946,7 +946,7 @@ bool ClientToServer::ClientJoin( char *ip, int _serverPort )
     Directory *clientHelloMsg = new Directory();
     clientHelloMsg->SetName(NET_DEFCON_MESSAGE);
     clientHelloMsg->CreateData(NET_DEFCON_COMMAND, NET_DEFCON_CLIENTHELLO);
-    clientHelloMsg->CreateData(NET_DEFCON_CLIENTID, m_clientId);
+    clientHelloMsg->CreateData(NET_DEFCON_CLIENTID, 1);
     clientHelloMsg->CreateData(NET_DEFCON_SEQID, -1);  // seqId -1 = processed immediately
     
     m_inboxMutex->Lock();
@@ -1580,27 +1580,18 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
             AppAssert( update->HasData( NET_DEFCON_COMMAND, DIRECTORY_TYPE_STRING ) );
     
             char *cmd = update->GetDataString( NET_DEFCON_COMMAND );
-    
+
             if( strcmp( cmd, NET_DEFCON_START_GAME ) == 0 )
             {
                 int teamId = update->GetDataUChar(NET_DEFCON_TEAMID);
-                unsigned char recordedSeed = update->GetDataUChar(NET_DEFCON_RANDSEED);
-                
-                AppDebugOut("Processing StartGame for team %d, recorded seed = %d\n", teamId, recordedSeed);
-                
                 Team *team = g_app->GetWorld()->GetTeam( teamId );
                 if( team )
                 {
-                    AppDebugOut("Team found, old seed = %d, setting to %d\n", team->m_randSeed, recordedSeed);
                     team->m_readyToStart = !team->m_readyToStart;
-                    team->m_randSeed = recordedSeed;
+                    team->m_randSeed = update->GetDataUChar(NET_DEFCON_RANDSEED);
                 }
-                else
-                {
-                    AppDebugOut("Team %d NOT FOUND!\n", teamId);
-                }
-    
-                g_app->SaveGameName();
+
+				g_app->SaveGameName();
             }
             else if( strcmp( cmd, NET_DEFCON_OBJPLACEMENT ) == 0 )
             {

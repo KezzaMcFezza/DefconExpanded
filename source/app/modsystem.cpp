@@ -6,6 +6,8 @@
 #include "lib/resource/resource.h"
 #include "lib/metaserver/authentication.h"
 #include "lib/render/styletable.h"
+#include "lib/render2d/renderer.h"
+#include "lib/render3d/renderer_3d.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/sound/sound_sample_bank.h"
 #include "lib/debug_utils.h"
@@ -679,6 +681,18 @@ void ModSystem::Commit()
 
         g_app->GetEarthData()->LoadCoastlines();
         g_app->GetEarthData()->LoadBorders();
+
+        // fixes the coastlines and borders from not applying when loading mods
+        // now the mega vbo system is rebuilt
+        if (g_renderer) {
+            g_renderer->InvalidateCachedVBO("all_coastlines");
+            g_renderer->InvalidateCachedVBO("all_borders");
+        }
+        if (g_renderer3d) {
+            g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
+            g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
+            g_renderer3d->InvalidateCached3DVBO("GlobeGridlines");
+        }
 
         if( !g_app->m_gameRunning )
         {

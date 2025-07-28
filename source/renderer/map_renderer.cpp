@@ -229,7 +229,7 @@ void MapRenderer::Render()
             char fps[64];
             strcpy( fps, LANGUAGEPHRASE("dialog_mapr_fps") );
             LPREPLACEINTEGERFLAG( 'F', m_framesPerSecond, fps );
-            g_renderer->TextSimple( 10, 5, White, 14.0f, fps );
+            g_renderer->TextSimple( 25, 25, White, 20.0f, fps );
         }
         
         // Show debug menu if F2 was pressed (performance heavy)

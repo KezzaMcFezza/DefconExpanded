@@ -2427,9 +2427,6 @@ Fixed World::GetTimeScaleFactor()
         return 0;
     }
 
-    AppDebugOut("GetTimeScaleFactor called: returning %d, gameRunning=%s\n", 
-               m_timeScaleFactor, g_app->m_gameRunning ? "true" : "false");
-
     return m_timeScaleFactor;
 }
 

@@ -326,6 +326,7 @@ bool RecordingParser::ParseToHistory()
         }
     }
 
+    m_server->m_nextClientId = maxClientId + 1;
     m_server->m_replayingRecording = true;
     m_server->m_lastRecordedSeqId = lastRecordedSeqId;
     

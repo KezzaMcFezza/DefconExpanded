@@ -648,14 +648,9 @@
     <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unpack.cpp">
       <Filter>contrib\unrar</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_buffers.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_vbo.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\sprite_atlas.cpp" />
     <ClCompile Include="..\..\source\interface\playback_control_window.cpp" />
     <ClCompile Include="..\..\source\interface\recording_selection.cpp" />
-    <ClCompile Include="..\..\source\world\worldsnapshot.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer.cpp">
       <Filter>lib\render2d</Filter>
     </ClCompile>
@@ -1158,10 +1153,7 @@
     </ClInclude>
     <ClInclude Include="..\..\source\curves.h" />
     <ClInclude Include="..\..\source\random_object.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\render\renderer3d.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_3d.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render\sprite_atlas.h" />
     <ClInclude Include="..\..\source\interface\playback_control_window.h" />
     <ClInclude Include="..\..\source\interface\recording_selection.h" />
     <ClInclude Include="..\..\source\world\worldsnapshot.h" />
@@ -1170,9 +1162,6 @@
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.h">
       <Filter>lib\render3d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\resource\sprite_atlas.h">
-      <Filter>lib\resource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

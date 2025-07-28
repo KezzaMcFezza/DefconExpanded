@@ -374,10 +374,6 @@ void Team::RunAI()
 
     m_aiActionTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor();
 
-    AppDebugOut("AI timer update: teamId=%d, timeScaleFactor=%.2f, gameRunning=%s, timer=%.2f\n",
-        m_teamId, g_app->GetWorld()->GetTimeScaleFactor().DoubleValue(), 
-        g_app->m_gameRunning ? "true" : "false", m_aiActionTimer.DoubleValue());
-
     if( m_aiActionTimer <= 0 )
     {
         m_aiActionTimer = m_aiActionSpeed;
