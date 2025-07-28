@@ -63,7 +63,7 @@ void RendererDebugMenu::RenderDebugMenu()
 {
     if (!m_renderer) return;
     
-    float baseY = 30.0f;  // Move debug menu down to avoid FPS overlap
+    float baseY = 55.0f;  // Move debug menu down to avoid FPS overlap
     float lineHeight = 15.0f;
     float yPos = baseY;
     
@@ -87,9 +87,9 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     bool is3DMode = g_app->GetMapRenderer()->Is3DGlobeModeEnabled();
     
     if (is3DMode) {
-        m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 13.0f, "Advanced Buffer Statistics (3D Mode)");
+        m_renderer->TextSimple(25, yPos, Colour(255, 255, 255, 255), 13.0f, "Advanced Buffer Statistics (3D Mode)");
     } else {
-        m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 13.0f, "Advanced Buffer Statistics (2D Mode)");
+        m_renderer->TextSimple(25, yPos, Colour(255, 255, 255, 255), 13.0f, "Advanced Buffer Statistics (2D Mode)");
     }
     yPos += lineHeight;
     
@@ -145,25 +145,25 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     
     // Total draw calls header
     snprintf(statsBuffer, sizeof(statsBuffer), "Total Draw Calls: %d", totalDrawCalls);
-    m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 12.0f, statsBuffer);
+    m_renderer->TextSimple(25, yPos, Colour(255, 255, 255, 255), 12.0f, statsBuffer);
     yPos += lineHeight;
     
     // Legacy immediate mode buffers (RED - performance issues)
-    m_renderer->TextSimple(10, yPos, Colour(255, 100, 100, 255), 11.0f, "Immediate Mode:");
+    m_renderer->TextSimple(25, yPos, Colour(255, 100, 100, 255), 11.0f, "Immediate Mode:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Triangles: %d  Lines: %d", 
              legacyTriangleCalls, legacyLineCalls);
     m_renderer->TextSimple(indentLarge, yPos, Colour(255, 100, 100, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
     // Core UI buffers (GREEN - optimized) - KEEP EXACT SAME LAYOUT
-    m_renderer->TextSimple(10, yPos, Colour(100, 255, 100, 255), 11.0f, "UI Buffers:");
+    m_renderer->TextSimple(25, yPos, Colour(100, 255, 100, 255), 11.0f, "UI Buffers:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Triangles: %d  Lines: %d  Text: %d  Textures: %d", 
              uiTriangleCalls, uiLineCalls, textCalls, spriteCalls);
-    m_renderer->TextSimple(150, yPos, Colour(100, 255, 100, 255), 11.0f, statsBuffer);
+    m_renderer->TextSimple(175, yPos, Colour(100, 255, 100, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
     // Unit rendering specialized buffers (BLUE - new system)
-    m_renderer->TextSimple(10, yPos, Colour(100, 150, 255, 255), 11.0f, "Unit Rendering Buffers:");
+    m_renderer->TextSimple(25, yPos, Colour(100, 150, 255, 255), 11.0f, "Unit Rendering Buffers:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Total: %d", totalUnitCalls);
     m_renderer->TextSimple(indentLarge, yPos, Colour(100, 150, 255, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
@@ -182,7 +182,7 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     yPos += lineHeight;
     
     // Effects rendering specialized buffers (YELLOW - new system)
-    m_renderer->TextSimple(10, yPos, Colour(255, 255, 100, 255), 11.0f, "Effects Buffers:");
+    m_renderer->TextSimple(25, yPos, Colour(255, 255, 100, 255), 11.0f, "Effects Buffers:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Lines: %d  Sprites: %d  (Total: %d)", 
              effectsLineCalls, effectsSpriteCalls, totalEffectCalls);
     m_renderer->TextSimple(140, yPos, Colour(255, 255, 100, 255), 11.0f, statsBuffer);
@@ -190,7 +190,7 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     
     // Performance summary (CYAN - analysis)
     int legacyTotal = legacyTriangleCalls + legacyLineCalls;
-    m_renderer->TextSimple(10, yPos, Colour(100, 255, 255, 255), 11.0f, "Conclusion:");
+    m_renderer->TextSimple(25, yPos, Colour(100, 255, 255, 255), 11.0f, "Conclusion:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Batched: %d  Legacy: %d", 
              totalSpecializedCalls, legacyTotal);
     m_renderer->TextSimple(indentLarge, yPos, Colour(100, 255, 255, 255), 11.0f, statsBuffer);
@@ -204,33 +204,33 @@ void RendererDebugMenu::RenderSystemInformation(float& yPos)
     float lineHeight = 18.0f;
     
     // Header
-    m_renderer->TextSimple(10, yPos, Colour(255, 255, 255, 255), 13.0f, "General Information");
+    m_renderer->TextSimple(25, yPos, Colour(255, 255, 255, 255), 13.0f, "General Information");
     yPos += lineHeight;
     
     // Frame timing information
     if (m_showFrameTiming) {
-        m_renderer->TextSimple(10, yPos, Colour(255, 200, 100, 255), 12.0f, "Frame Times:");
+        m_renderer->TextSimple(25, yPos, Colour(255, 200, 100, 255), 12.0f, "Frame Times:");
         yPos += lineHeight;
         
         snprintf(infoBuffer, sizeof(infoBuffer), "  Average Frame Time: %.2f ms", m_averageFrameTime * 1000.0);
-        m_renderer->TextSimple(20, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
+        m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
         yPos += 14.0f;
         
         double fps = m_averageFrameTime > 0.0 ? 1.0 / m_averageFrameTime : 0.0;
         snprintf(infoBuffer, sizeof(infoBuffer), "  Average FPS: %.1f", fps);
-        m_renderer->TextSimple(20, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
+        m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
         yPos += lineHeight;
     }
     
     // Memory information
     if (m_showMemoryInfo) {
-        m_renderer->TextSimple(10, yPos, Colour(100, 255, 200, 255), 12.0f, "Memory Usage:");
+        m_renderer->TextSimple(25, yPos, Colour(100, 255, 200, 255), 12.0f, "Memory Usage:");
         yPos += lineHeight;
         
         size_t memoryUsage = GetMemoryUsage();
         if (memoryUsage > 0) {
             snprintf(infoBuffer, sizeof(infoBuffer), "  Process Memory: %.1f MB", memoryUsage / (1024.0 * 1024.0));
-            m_renderer->TextSimple(20, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
+            m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
             yPos += 14.0f;
         }
         
@@ -239,7 +239,7 @@ void RendererDebugMenu::RenderSystemInformation(float& yPos)
         float bufferMemoryMB = (totalBufferVertices * sizeof(Vertex2D)) / (1024.0f * 1024.0f);
         snprintf(infoBuffer, sizeof(infoBuffer), "  Buffer Memory: ~%.2f MB (%d vertices)", 
                  bufferMemoryMB, totalBufferVertices);
-        m_renderer->TextSimple(20, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
+        m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
         yPos += lineHeight;
     }
 }

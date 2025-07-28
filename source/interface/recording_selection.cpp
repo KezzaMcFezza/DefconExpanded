@@ -17,6 +17,11 @@
 #include "network/Server.h"
 #include "network/ClientToServer.h"
 
+#ifdef _WIN32
+#include <windows.h>
+#include <commdlg.h>
+#endif
+
 // ============================================================================
 // Button implementations
 
@@ -323,7 +328,51 @@ void PlayFromGameStartButton::MouseUp()
     }
 }
 
-// NOTE: BrowseRecordingButton removed - dynamic file loading via command line only
+#if !(defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1))
+
+class BrowseRecordingButton : public InterfaceButton {
+public:
+    void MouseUp() override {
+        RecordingSelectionWindow *parent = (RecordingSelectionWindow *)m_parent;
+#ifdef _WIN32
+    RECT originalClipRect;
+    bool wasClipped = GetClipCursor(&originalClipRect);
+    
+    int cursorShowCount = ShowCursor(TRUE) - 1; 
+    ShowCursor(FALSE); 
+    ReleaseCapture();
+    ClipCursor(NULL);
+    
+    while (ShowCursor(TRUE) < 0); 
+    
+    // open file dialog
+    char filename[MAX_PATH] = "";
+    OPENFILENAME ofn = {0};
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = GetActiveWindow(); 
+    ofn.lpstrFilter = "Defcon Recordings (*.dcrec)\0*.dcrec\0All Files (*.*)\0*.*\0";
+    ofn.lpstrFile = filename;
+    ofn.nMaxFile = sizeof(filename);
+    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
+    ofn.lpstrTitle = "Select a Defcon Recording";
+    
+    BOOL result = GetOpenFileName(&ofn);
+    
+    while (ShowCursor(FALSE) >= cursorShowCount); 
+
+    if (wasClipped) {
+        ClipCursor(&originalClipRect);
+    }
+
+    if (result) {
+        strncpy(parent->m_recordingFilename, filename, sizeof(parent->m_recordingFilename) - 1);
+        parent->m_recordingFilename[sizeof(parent->m_recordingFilename) - 1] = '\0';
+        parent->SetTitle("Recording Playback (Selected)");
+    }
+#endif
+    }
+};
+#endif
 
 // ============================================================================
 // Recording Selection Window
@@ -421,15 +470,16 @@ void RecordingSelectionWindow::Create()
                           "Skip lobby and start from when the game begins", false, true);
     RegisterButton(gameBtn);
 
-    // NOTE: Browse button removed - files are now loaded dynamically via command line
-    // Use: ./defcon.html -l filename.dcrec or /replay-viewer/filename.dcrec
 #if !(defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1))
+    BrowseRecordingButton *browseBtn = new BrowseRecordingButton();
+    browseBtn->SetProperties("BrowseRecording", 50, 240, 100, 20, "Browse...", "Select a .dcrec file from your computer", false, true);
+    RegisterButton(browseBtn);
+
     // Close button - only show in normal mode, not in replay viewer mode
     CloseButton *close = new CloseButton();
     close->SetProperties("Close", m_w-120, m_h-40, 80, 20, "Cancel", "Close this window", false, true);
     RegisterButton(close);
 #endif
-
 }
 
 void RecordingSelectionWindow::Render(bool _hasFocus)

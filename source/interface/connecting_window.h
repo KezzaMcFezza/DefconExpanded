@@ -16,11 +16,11 @@ public:
     int     m_stage;
     float   m_stageStartTime;
     
-    // NEW: Fast-forward recording synchronization
+    // Fast-forward recording synchronization
     bool    m_fastForwardMode;
     int     m_fastForwardTarget;
     int     m_fastForwardCurrent;
-    bool    m_isSeekMode;  // NEW: Track if this is a seek operation vs regular fast-forward
+    bool    m_isSeekMode;  // Track if this is a seek operation vs regular fast-forward
 
 public:
     ConnectingWindow();
@@ -30,7 +30,8 @@ public:
     void Render( bool _hasFocus );
     void RenderTimeRemaining( float _fractionDone );
     
-    // NEW: Fast-forward recording methods
+    // Fast-forward recording methods
+    void UpdateWindowSize();
     void SetFastForwardMode( bool enabled, int target = 0, bool isSeekMode = false );
     void UpdateFastForwardProgress( int current );
 };

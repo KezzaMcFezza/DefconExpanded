@@ -46,15 +46,28 @@ ConnectingWindow::ConnectingWindow()
     m_maxLagRemaining(0),
     m_popupLobbyAtEnd(false),
     m_stage(0),
-    m_stageStartTime(0.0f),
+    m_stageStartTime(-1.0f),
     m_fastForwardMode(false),
     m_fastForwardTarget(0),
     m_fastForwardCurrent(0),
     m_isSeekMode(false)
 {
-    SetSize( 350, 200 );
-    SetPosition( g_windowManager->WindowW()/2 - m_w/2, 
-                 g_windowManager->WindowH()/2 - m_h/2 );
+    // Initial window sizing - check if we're in replay mode
+    bool isReplayMode = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode());
+    
+    if( isReplayMode )
+    {
+        // Smaller window for replay viewer mode
+        SetSize( 350, 200 );
+    }
+    else
+    {
+        // Original larger window for normal server connections
+        SetSize( 300, 280 );
+    }
+    
+    SetPosition( g_windowManager->WindowW()/2-m_w/2, 
+                 g_windowManager->WindowH()/2-m_h/2 );
 
     g_app->GetClientToServer()->m_synchronising = true;
 }
@@ -77,8 +90,21 @@ void ConnectingWindow::Create()
     box->SetProperties( "invert", 10, 30, m_w-20, m_h-70, " ", " ", false, false );
     RegisterButton( box );
 
+    // Adaptive button positioning based on window size
+    bool isReplayMode = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) || 
+                        m_fastForwardMode || m_isSeekMode;
+    
     AbortButton *abort = new AbortButton();
-    abort->SetProperties( "Abort", 10, m_h-30, 80, 20, LANGUAGEPHRASE("dialog_cancel"), LANGUAGEPHRASE("tooltip_abort"), false, true );
+    if( isReplayMode )
+    {
+        // Smaller window - use left-aligned button like new version
+        abort->SetProperties( "Abort", 10, m_h-30, 80, 20, LANGUAGEPHRASE("dialog_abort"), LANGUAGEPHRASE("dialog_abort_current_connection"), false, true );
+    }
+    else
+    {
+        // Larger window - use centered button like old version
+        abort->SetProperties( "Abort", m_w/2-50, m_h-30, 100, 20, "dialog_abort", "dialog_abort_current_connection", true, true );
+    }
     RegisterButton( abort );
 }
 
@@ -149,7 +175,7 @@ void ConnectingWindow::Render( bool _hasFocus )
     yPos += 40;
 
     //
-    // NEW: Fast-forward recording synchronization status
+    // Fast-forward recording synchronization status
     
     if( m_fastForwardMode )
     {
@@ -178,9 +204,9 @@ void ConnectingWindow::Render( bool _hasFocus )
     }
 
     //
-    // Normal sync status (when not in fast-forward mode)
+    // Normal sync status (original logic restored for non-replay connections)
     
-    if( !m_fastForwardMode && g_app->GetClientToServer()->m_connectionState == ClientToServer::StateConnected )
+    if( !m_fastForwardMode && g_app->GetClientToServer()->IsConnected() )
     {
         if( m_stage == 0 )
         {
@@ -292,7 +318,7 @@ void ConnectingWindow::Render( bool _hasFocus )
                     lobby->SetPosition(lobbyX, lobbyY);
                     EclRegisterWindow( lobby );
                     
-                    // NEW: If we're in recording playback mode, also register the playback control window
+                    // If we're in recording playback mode, also register the playback control window
                     // This allows seeking and speed control during lobby phase of recordings
                     if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() && 
                         !EclGetWindow( "Playback Controls" ) )
@@ -354,13 +380,36 @@ void ConnectingWindow::RenderTimeRemaining( float _fractionDone )
     }
 }
 
-// NEW: Fast-forward recording methods
+// Fast-forward recording methods
+void ConnectingWindow::UpdateWindowSize()
+{
+    bool isReplayMode = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) || 
+                        m_fastForwardMode || m_isSeekMode;
+    
+    if( isReplayMode )
+    {
+        // Smaller window for replay viewer mode
+        SetSize( 350, 200 );
+    }
+    else
+    {
+        // Original larger window for normal server connections
+        SetSize( 300, 280 );
+    }
+    
+    SetPosition( g_windowManager->WindowW()/2-m_w/2, 
+                 g_windowManager->WindowH()/2-m_h/2 );
+}
+
 void ConnectingWindow::SetFastForwardMode( bool enabled, int target, bool isSeekMode )
 {
     m_fastForwardMode = enabled;
     m_fastForwardTarget = target;
     m_fastForwardCurrent = 0;
     m_isSeekMode = isSeekMode;
+    
+    // Update window size based on new mode
+    UpdateWindowSize();
     
     if( enabled )
     {

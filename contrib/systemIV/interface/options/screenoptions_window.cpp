@@ -322,7 +322,7 @@ void ScreenOptionsWindow::Create()
     zDepth->AddOption( "dialog_colourdepth_24", 24, true );
     zDepth->RegisterInt( &m_zDepth );
     RegisterButton( zDepth );
-
+#ifdef TARGET_EMSCRIPTEN
     DropDownMenu *antiAlias = new DropDownMenu();
     antiAlias->SetProperties( LANGUAGEPHRASE("dialog_antialias"), x, y+=h, w, 20 );
     antiAlias->AddOption( "dialog_no", 0, true );
@@ -332,7 +332,8 @@ void ScreenOptionsWindow::Create()
     antiAlias->AddOption( "16x MSAA", 16, false );
     antiAlias->RegisterInt( &m_antiAlias );
     RegisterButton( antiAlias );
-	
+#endif
+
 	CloseButton *cancel = new CloseButton();
     cancel->SetProperties( "Close", 10, m_h - 30, m_w / 2 - 15, 20, "dialog_close", " ", true, false );
     RegisterButton( cancel );
@@ -359,5 +360,7 @@ void ScreenOptionsWindow::Render( bool _hasFocus )
 #endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_colourdepth") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_zbufferdepth") );
+#ifdef TARGET_EMSCRIPTEN
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_antialias") );
+#endif
 }

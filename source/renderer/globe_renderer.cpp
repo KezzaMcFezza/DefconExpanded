@@ -428,7 +428,7 @@ void MapRenderer::Update3DGlobeCamera()
         float smoothing = 0.3f; 
         m_globe3DCamera.m_dragVelocityX = m_globe3DCamera.m_dragVelocityX * (1.0f - smoothing) + targetVelX * smoothing;
         m_globe3DCamera.m_dragVelocityY = m_globe3DCamera.m_dragVelocityY * (1.0f - smoothing) + targetVelY * smoothing;
-        m_globe3DCamera.m_cameraTheta += m_globe3DCamera.m_dragVelocityX;
+        m_globe3DCamera.m_cameraTheta -= m_globe3DCamera.m_dragVelocityX;
         m_globe3DCamera.m_cameraPhi += m_globe3DCamera.m_dragVelocityY;
         m_globe3DCamera.m_cameraPhi = fmax(-M_PI/2.0f + 0.1f, fmin(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
         m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
@@ -448,7 +448,7 @@ void MapRenderer::Update3DGlobeCamera()
             m_globe3DCamera.m_dragVelocityY *= momentum;
             
             if (fabsf(m_globe3DCamera.m_dragVelocityX) > 0.001f || fabsf(m_globe3DCamera.m_dragVelocityY) > 0.001f) {
-                m_globe3DCamera.m_cameraTheta += m_globe3DCamera.m_dragVelocityX;
+                m_globe3DCamera.m_cameraTheta -= m_globe3DCamera.m_dragVelocityX;
                 m_globe3DCamera.m_cameraPhi += m_globe3DCamera.m_dragVelocityY;
                 m_globe3DCamera.m_cameraPhi = fmax(-M_PI/2.0f + 0.1f, fmin(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
                 m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);

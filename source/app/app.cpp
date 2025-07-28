@@ -61,7 +61,6 @@
 #include "network/Server.h"
 
 #include "world/world.h"
-#include "world/city.h"
 #include "world/earthdata.h"
 
 
@@ -1048,41 +1047,16 @@ void App::StartGame()
     
     if( connectingWindowOpen ) EclRegisterWindow( new ConnectingWindow() );
 
-    AppDebugOut("*** SEED CALC START ***\n");
     int randSeed = 0;
     for( int i = 0; i < m_world->m_teams.Size(); ++i )
     {
-        AppDebugOut("Team %d: m_randSeed = %d\n", i, m_world->m_teams[i]->m_randSeed);
         randSeed += m_world->m_teams[i]->m_randSeed;
     }
-    AppDebugOut("Final combined seed = %d\n", randSeed);
     syncrandseed( randSeed );
+    AppDebugOut( "App RandSeed = %d\n", randSeed );
 
     GetWorld()->LoadNodes();
     GetWorld()->AssignCities();
-
-    AppDebugOut("*** WORLD STATE DEBUG ***\n");
-    AppDebugOut("Total cities: %d\n", g_app->GetWorld()->m_cities.Size());
-    
-    // Log team territories
-    for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
-    {
-        Team *team = g_app->GetWorld()->m_teams[i];
-        AppDebugOut("Team %d territories: %d\n", i, team->m_territories.Size());
-        
-        // Log first few territory IDs
-        for( int j = 0; j < min(5, team->m_territories.Size()); ++j )
-        {
-            AppDebugOut("  Territory[%d] = %d\n", j, team->m_territories[j]);
-        }
-    }
-    
-    // Log first few cities and their team assignments
-    for( int i = 0; i < min(10, g_app->GetWorld()->m_cities.Size()); ++i )
-    {
-        City *city = g_app->GetWorld()->m_cities[i];
-        AppDebugOut("City[%d]: team=%d, pop=%d\n", i, city->m_teamId, city->m_population);
-    }
 
     if( GetGame()->GetOptionValue("GameMode") == GAMEMODE_OFFICEMODE )
     {

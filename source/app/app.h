@@ -13,11 +13,6 @@
 
 #include "network/server.h"
 
-extern char*    g_delayedConnectionIP;
-extern int      g_delayedConnectionPort;  
-extern double   g_delayedConnectionTimer;
-extern bool     g_delayedConnectionPending;
-
 class AchievementTracker;
 class ClientToServer;
 class EarthData;
