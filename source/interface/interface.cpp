@@ -47,7 +47,7 @@
 #include "interface/connecting_window.h"
 #include "interface/resynchronise_window.h"
 #include "interface/playback_control_window.h"
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
 #include "interface/recording_selection.h"
 #endif
 
@@ -278,7 +278,7 @@ void Interface::Update()
 		
 	if( g_keyDeltas[KEY_ESC] )
     {
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if TARGET_EMSCRIPTEN
         // REPLAY VIEWER MODE: Block escape key from opening main menu
         // Still allow panic key functionality (office mode)
         bool panicKeyEnabled = g_preferences->GetInt(PREFS_INTERFACE_PANICKEY);
@@ -329,7 +329,7 @@ void Interface::Update()
     if( !g_app->m_gameRunning &&
         EclGetWindows()->Size() == 0 )
     {
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
         // REPLAY VIEWER MODE: Open recording selection window instead of main menu
         OpenReplayViewerWindow();
 #else
@@ -755,7 +755,7 @@ void Interface::Shutdown()
 
 void Interface::OpenSetupWindows()
 {
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
     // In replay viewer mode, open recording selection window instead of main menu
     OpenReplayViewerWindow();
 #else
@@ -769,7 +769,7 @@ void Interface::OpenSetupWindows()
 
 void Interface::OpenReplayViewerWindow()
 {
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
     // Close any existing windows first
     if( EclGetWindow("Recording Playback") )
     {

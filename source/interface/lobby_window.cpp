@@ -24,7 +24,7 @@
 #include "app/game.h"
 #include "lib/multiline_text.h"
 
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
 #include "interface/interface.h"
 #endif
 
@@ -1111,7 +1111,7 @@ public:
 		g_app->SaveGameName();
         g_app->ShutdownCurrentGame();
         
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
         // In replay viewer mode, go back to recording selection window instead of main menu
         g_app->GetInterface()->OpenReplayViewerWindow();
 #endif

@@ -2641,7 +2641,6 @@ void Server::AuthenticateClient ( int _clientId )
                 RegisterSpectator( _clientId );
             }
         }
-
         if( g_modSystem->IsCriticalModRunning() )
         {
             AppDebugOut( "Cannot allow Demo users to join when MODs are running\n" );

@@ -66,7 +66,7 @@ void LobbyRenderer::Initialise()
 
 void LobbyRenderer::InitialiseLanguage()
 {
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if TARGET_EMSCRIPTEN
     // REPLAY VIEWER MODE: Skip overlay initialization for better performance
     // No overlays will be rendered, so no need to count them
     m_maxOverlays = 0;
@@ -141,24 +141,24 @@ void LobbyRenderer::Render()
     START_PROFILE( "VersionInfo" );
     RenderVersionInfo();
     END_PROFILE( "VersionInfo" );
-#if !(defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1))
+#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN)
     START_PROFILE( "AuthStatus" );
     RenderAuthStatus();
     END_PROFILE( "AuthStatus" );
-#endif
     START_PROFILE( "Motd" );
     RenderMotd();
     END_PROFILE( "Motd" );
     START_PROFILE( "DemoLimits" );
     RenderDemoLimits();
     END_PROFILE( "DemoLimits" );
+#endif
 
 
     //RenderNetworkIdentity();
 
     if( g_preferences->GetInt(PREFS_GRAPHICS_LOBBYEFFECTS) == 1 )
     {
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if TARGET_EMSCRIPTEN
         // REPLAY VIEWER MODE: Disable lobby overlays completely
         // No overlays are rendered in replay viewer mode to keep the interface clean
 #else
@@ -630,7 +630,11 @@ void LobbyRenderer::RenderGlobe()
 
 void LobbyRenderer::RenderVersionInfo()
 {
+#if defined(REPLAY_VIEWER_DESKTOP) || defined(TARGET_EMSCRIPTEN)
+    char currentVersion[256] = "BETA" "  " "1.90";
+#else
     char currentVersion[256] = APP_NAME "  " APP_VERSION;
+#endif
     strupr( currentVersion );
 
     float xPos = 50.0f;
@@ -641,7 +645,7 @@ void LobbyRenderer::RenderVersionInfo()
     g_renderer->SetFont( "kremlin" );
 
     g_renderer->TextSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_version") );
-#ifdef TARGET_EMSCRIPTEN
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER_DESKTOP)
     g_renderer->TextSimple( xPos + 160, yPos, fontNormal, 20, currentVersion );
 #else
     g_renderer->TextSimple( xPos + 100, yPos, fontNormal, 20, currentVersion );
@@ -719,7 +723,7 @@ void LobbyRenderer::RenderVersionInfo()
     }
 }
 
-#if !(defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1))
+#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN)
 void LobbyRenderer::RenderAuthStatus()
 {
     Colour fontBold( 0, 255, 0, 255 );

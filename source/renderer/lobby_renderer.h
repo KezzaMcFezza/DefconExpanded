@@ -30,7 +30,7 @@ protected:
     void RenderBorder();
     void RenderTestHours();
     void RenderVersionInfo();
-#if !(defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1))
+#if !(defined(TARGET_EMSCRIPTEN) && (REPLAY_VIEWER))
     void RenderAuthStatus();
 #endif
     void RenderMotd();
