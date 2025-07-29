@@ -50,7 +50,7 @@
 #include "interface/components/message_dialog.h"
 #include "interface/demo_window.h"
 
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
 #include "interface/recording_selection.h"
 #endif
 
@@ -420,7 +420,7 @@ void App::FinishInit()
     InitMetaServer();
     if (EclGetWindows()->Size() == 0)
     {
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
         // EMSCRIPTEN REPLAY VIEWER MODE: Skip main menu and open recording selection window directly
         // This creates a dedicated replay viewer interface for web browsers showing only recording playback options
         RecordingSelectionWindow *recordingWindow = new RecordingSelectionWindow();

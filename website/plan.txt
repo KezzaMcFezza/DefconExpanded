@@ -8,7 +8,7 @@ load .dcrec files specified via command line arguments and served through
 Node.js backend, enabling web-based replay viewing with flexible file selection.
 
 CURRENT STATE ANALYSIS:
-- Replay viewer mode works with EMSCRIPTEN_REPLAY_VIEWER=1 flag
+- Replay viewer mode works with REPLAY_VIEWER=1 flag
 - Files are preloaded into WebAssembly virtual file system via CMake
 - Hardcoded filename: "game_2024-10-14-20-44.dcrec" in RecordingSelectionWindow
 - RecordingParser loads .dcrec files from virtual file system

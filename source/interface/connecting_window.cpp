@@ -15,7 +15,7 @@
 #include "app/app.h"
 #include "app/globals.h"
 
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
 #include "interface/interface.h"
 #endif
 
@@ -32,7 +32,7 @@ class AbortButton : public InterfaceButton
         
         g_app->ShutdownCurrentGame();
         
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
         // In replay viewer mode, go back to recording selection window instead of main menu
         g_app->GetInterface()->OpenReplayViewerWindow();
 #endif

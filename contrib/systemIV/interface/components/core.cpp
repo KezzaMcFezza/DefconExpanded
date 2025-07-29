@@ -20,7 +20,7 @@ InterfaceWindow::InterfaceWindow( const char *name, const char *title, bool titl
 {
     m_creationTime = GetHighResTime();
 }
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#ifdef TARGET_EMSCRIPTEN
 void InterfaceWindow::Create()
 {
     // do nothing

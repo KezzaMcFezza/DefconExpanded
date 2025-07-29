@@ -207,7 +207,6 @@ public:
 };
 #endif
 
-
 class MainMenuJoinGameButton : public InterfaceButton
 {
     void MouseUp()
@@ -769,7 +768,7 @@ void AttemptQuitImmediately()
 MainMenu::MainMenu()
 :   InterfaceWindow( "Main Menu", "dialog_mainmenu", true )
 {
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if TARGET_EMSCRIPTEN
     // REPLAY VIEWER MODE: Block main menu creation completely
     // This should never happen, but just in case...
 #ifdef EMSCRIPTEN_DEBUG
@@ -793,7 +792,7 @@ MainMenu::MainMenu()
 
 void MainMenu::Create()
 {
-#if defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1)
+#if TARGET_EMSCRIPTEN
     // REPLAY VIEWER MODE: Don't create any buttons, just return immediately
 #ifdef EMSCRIPTEN_DEBUG
     AppDebugOut("WebAssembly Replay Viewer: MainMenu::Create() blocked - no buttons created\n");
@@ -815,19 +814,19 @@ void MainMenu::Create()
     
     //
     // New Game
-
+#ifndef REPLAY_VIEWER_DESKTOP
     if( !g_app->m_gameRunning )
     {
         button = new MainMenuNewGameButton();
         button->SetProperties( "New Game", 10, y+=h+g, m_w-20, h, "dialog_newgame", " ", true, false );
         RegisterButton( button );
     }
-
+#endif
 
 
     //
     // Play back recording.
-#if RECORDING_PARSING
+#if !defined(RECORDING_PARSING) || !defined(REPLAY_VIEWER_DESKTOP)
     button = new MainMenuPlaybackRecordingButton();
     button->SetProperties( "Playback Recording", 10, y+=h+g, m_w-20, h, "dialog_playbackrecording", " ", true, false );
     RegisterButton( button );
@@ -835,12 +834,13 @@ void MainMenu::Create()
 
     //
     // Join Game
-
+#ifndef REPLAY_VIEWER_DESKTOP
     button = new MainMenuJoinGameButton();
     button->SetProperties( "Join Game", 10, y+=h+g, m_w-20, h, "dialog_joingame", " ", true, false );
     RegisterButton( button );
 
     y+=h;
+#endif
 
 #ifdef TARGET_OS_MACOSX	
 	button = new UserManualButton();
@@ -851,7 +851,7 @@ void MainMenu::Create()
     //
     // Tutorial
     // Rolling Demo
-
+#ifndef REPLAY_VIEWER_DESKTOP
     if( !g_app->m_gameRunning )
     {
 #ifndef NON_PLAYABLE
@@ -859,7 +859,6 @@ void MainMenu::Create()
         button->SetProperties( "Tutorial", 10, y+=h+g, m_w-20, h, "tutorial", " ", true, false );
         RegisterButton( button );
 #endif
-
         DemoModeButton *demo = new DemoModeButton();
         demo->SetProperties( "Rolling Demo", 10, y+=h+g, m_w-20, h, "dialog_rolling_demo", " ", true, false );
         RegisterButton( demo );
@@ -868,7 +867,7 @@ void MainMenu::Create()
     {
         m_h -= h*3;
     }
-
+#endif
     //
     // Options
 
@@ -903,7 +902,7 @@ void MainMenu::Create()
 
     if( demoUser )
     {
-#if !defined(RETAIL)
+#if !defined(RETAIL) && !defined(REPLAY_VIEWER_DESKTOP)
         BuyNowButton *buyNow = new BuyNowButton();
         buyNow->SetProperties( "BUY NOW", 10, y+=h+g, m_w-20, h, "dialog_buy_now_caps", " ", true, false );
         buyNow->m_closeOnClick = false;
@@ -930,7 +929,7 @@ void MainMenu::Create()
     button->SetProperties( "Exit Defcon", 10, m_h-30, m_w-20, h, "dialog_exit", " ", true, false );
     RegisterButton( button );
 
-#endif // EMSCRIPTEN_REPLAY_VIEWER
+#endif // REPLAY_VIEWER
 }
 
 
@@ -1083,9 +1082,11 @@ void OptionsMenuWindow::Create()
     //other->SetProperties( "Other Options", 10, y+=h, m_w-20, h-3, "dialog_otheroptions", " ", true, false );
     //RegisterButton( other );
 
+#ifndef REPLAY_VIEWER_DESKTOP
     NetworkOptionsButton *network = new NetworkOptionsButton();
     network->SetProperties( "Network", 10, y+=h+g, m_w-20, h, "dialog_networkoptions", " ", true, false );
     RegisterButton( network );
+#endif
 
 #if !defined(RETAIL_DEMO)
     AuthOptionsButton *auth = new AuthOptionsButton();

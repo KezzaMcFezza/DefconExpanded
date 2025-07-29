@@ -77,9 +77,7 @@ void PlayFromLobbyButton::MouseUp()
     if (strcmp(parent->m_recordingFilename, "NO FILE SPECIFIED") == 0)
     {
         MessageDialog *msg = new MessageDialog("NO FILE SPECIFIED",
-                                              "Please specify a .dcrec file using command line arguments:\n\n"
-                                              "Example: ./defcon.html -l filename.dcrec\n"
-                                              "Or visit: /replay-viewer/filename.dcrec", 
+                                              "Please select a .dcrec file using the browse button:\n\n", 
                                               false, "dialog_no_file_specified", true);
         EclRegisterWindow(msg);
         return;
@@ -218,9 +216,7 @@ void PlayFromGameStartButton::MouseUp()
     if (strcmp(parent->m_recordingFilename, "NO FILE SPECIFIED") == 0)
     {
         MessageDialog *msg = new MessageDialog("NO FILE SPECIFIED",
-                                              "Please specify a .dcrec file using command line arguments:\n\n"
-                                              "Example: ./defcon.html -l filename.dcrec\n"
-                                              "Or visit: /replay-viewer/filename.dcrec", 
+                                              "Please select a .dcrec file using the browse button:\n\n", 
                                               false, "dialog_no_file_specified", true);
         EclRegisterWindow(msg);
         return;
@@ -328,7 +324,7 @@ void PlayFromGameStartButton::MouseUp()
     }
 }
 
-#if !(defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1))
+#if !(defined(TARGET_EMSCRIPTEN) && (REPLAY_VIEWER))
 
 class BrowseRecordingButton : public InterfaceButton {
 public:
@@ -470,7 +466,7 @@ void RecordingSelectionWindow::Create()
                           "Skip lobby and start from when the game begins", false, true);
     RegisterButton(gameBtn);
 
-#if !(defined(TARGET_EMSCRIPTEN) && (EMSCRIPTEN_REPLAY_VIEWER == 1))
+#if !(defined(TARGET_EMSCRIPTEN) && (REPLAY_VIEWER))
     BrowseRecordingButton *browseBtn = new BrowseRecordingButton();
     browseBtn->SetProperties("BrowseRecording", 50, 240, 100, 20, "Browse...", "Select a .dcrec file from your computer", false, true);
     RegisterButton(browseBtn);
