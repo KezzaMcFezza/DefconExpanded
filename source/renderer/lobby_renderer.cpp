@@ -141,7 +141,7 @@ void LobbyRenderer::Render()
     START_PROFILE( "VersionInfo" );
     RenderVersionInfo();
     END_PROFILE( "VersionInfo" );
-#if !defined(REPLAY_VIEWER_DESKTOP) || !defined(TARGET_EMSCRIPTEN)
+#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN)
     START_PROFILE( "AuthStatus" );
     RenderAuthStatus();
     END_PROFILE( "AuthStatus" );
@@ -723,7 +723,7 @@ void LobbyRenderer::RenderVersionInfo()
     }
 }
 
-#if !defined(REPLAY_VIEWER_DESKTOP) || !defined(TARGET_EMSCRIPTEN)
+#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN)
 void LobbyRenderer::RenderAuthStatus()
 {
     Colour fontBold( 0, 255, 0, 255 );
