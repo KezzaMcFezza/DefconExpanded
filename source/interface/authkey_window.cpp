@@ -21,10 +21,12 @@
 	// so we rename them using the preprocessor.
 	#define Style Style_Unused
 	#define StyleTable StyleTable_Unused
+    #define Fixed Fixed_Unused // i really hope this works
 	#include <CoreFoundation/CoreFoundation.h>
 	#include <ApplicationServices/ApplicationServices.h>
 	#undef Style
 	#undef StyleTable
+    #undef Fixed // i really hope this works
 #endif
 
 class ApplyKeyButton : public InterfaceButton
