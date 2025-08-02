@@ -72,14 +72,14 @@ SoftwareChannel::SoftwareChannel()
 	m_pos(0,0,0),
 	m_3DMode(0)
 {
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SoftwareChannel::SoftwareChannel() - freq initialized to %u\n", m_freq);
 #endif
 }
 
 void SoftwareChannel::Initialise( bool _stereo )
 {
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SoftwareChannel::Initialise() begin - freq is %u, stereo=%s\n", m_freq, _stereo ? "true" : "false");
 #endif
 	// The 3 on the next line is there because we limit the frequency of a 
@@ -93,7 +93,7 @@ void SoftwareChannel::Initialise( bool _stereo )
 	{
 		m_dspFX[i].m_userFilter = NULL;
 	}
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SoftwareChannel::Initialise() end - freq is %u, samplesInBuffer=%u\n", m_freq, m_samplesInBuffer);
 #endif
 }
@@ -177,7 +177,7 @@ void SoundLibrary3dSoftware::SetMasterVolume( int _volume )
 
 void SoundLibrary3dSoftware::Advance()
 {
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut( "SoundLibrary3dSoftware::Advance begin: ch 0 freq: %u\n", m_channels[0].m_freq );
 #endif
 	//
@@ -196,7 +196,7 @@ void SoundLibrary3dSoftware::Advance()
 		
 	g_soundLibrary2d->TopupBuffer();
 	
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut( "SoundLibrary3dSoftware::Advance end: ch 0 freq: %u\n", m_channels[0].m_freq );
 #endif
 }
@@ -372,7 +372,7 @@ void SoundLibrary3dSoftware::MixDiffFreqFixedVol(signed short *_inBuf, unsigned 
 	float *left = m_left;
 	float *right = m_right;
 
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("mixdifreq values! - %u %f \n", _numSamples, _relativeFreq);
 #endif
 	
@@ -547,7 +547,7 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 		// Skip this channel if it contains silence
 		if (!m_channels[i].m_containsSilence) 
 		{
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 			AppDebugOut("Channel: %d. freq = %u, 2dsoundfreq = %u\n", i, m_channels[i].m_freq, g_soundLibrary2d->GetFreq() );
 #endif
             float relativeFreq = (float)m_channels[i].m_freq / (float)g_soundLibrary2d->GetFreq();
@@ -698,24 +698,24 @@ void SoundLibrary3dSoftware::SetChannelPosition( int _channel, Vector3<float> co
 
 void SoundLibrary3dSoftware::SetChannelFrequency( int _channel, int _frequency )
 {
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SetChannelFrequency %d %d \n", _channel, _frequency );
 #endif
 	AppAssert ( _channel >= 0 );
 	
 	if( _channel < m_numChannels )
 	{
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 		AppDebugOut("SetChannelFrequency: setting ch %d from %u to %d\n", _channel, m_channels[_channel].m_freq, _frequency );
 #endif
 		m_channels[_channel].m_freq = _frequency;
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 		AppDebugOut("SetChannelFrequency: confirmed ch %d now has freq %u\n", _channel, m_channels[_channel].m_freq );
 #endif
 	}
 	else
 	{
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 		AppDebugOut("SetChannelFrequency: WARNING - channel %d out of range (numChannels=%d)\n", _channel, m_numChannels );
 #endif
 	}
@@ -749,11 +749,11 @@ void SoundLibrary3dSoftware::SetListenerPosition( Vector3<float> const &_pos,
 
 void SoundLibrary3dSoftware::ResetChannel( int _channel )
 {
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("ResetChannel %d - freq was %u\n", _channel, m_channels[_channel].m_freq);
 #endif
 	m_channels[_channel].m_forceVolumeJump = true;
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("ResetChannel %d - freq is now %u\n", _channel, m_channels[_channel].m_freq);
 #endif
 }

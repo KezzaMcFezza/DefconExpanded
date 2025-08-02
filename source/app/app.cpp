@@ -147,7 +147,7 @@ App::~App()
 	delete g_resource;
 	delete g_renderer;
 	delete g_windowManager;
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
 	delete g_soundSystem;
 #endif
 }
@@ -408,7 +408,7 @@ void App::FinishInit()
         AppDebugOut("WebGL: Skipping sounds.dat parsing - audio files preloaded by Emscripten\n");
 #endif
 #endif
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
 	g_soundSystem = new SoundSystem();
     g_soundSystem->Initialise( new DefconSoundInterface() );            
     g_soundSystem->TriggerEvent( "Bunker", "StartAmbience" );
@@ -1039,7 +1039,7 @@ void App::StartGame()
     
     EclRemoveAllWindows();
 
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
     g_soundSystem->TriggerEvent( "Music", "StartMusic" );
 #endif
 
@@ -1060,7 +1060,7 @@ void App::StartGame()
 
     if( GetGame()->GetOptionValue("GameMode") == GAMEMODE_OFFICEMODE )
     {
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
         g_soundLibrary3d->SetMasterVolume(0);
 #endif
         if( !g_windowManager->Windowed() )
@@ -1256,7 +1256,7 @@ void App::ShutdownCurrentGame()
     g_predictionTime = 0.0f;
     g_lastProcessedSequenceId = -2;                         // -2=not yet ready to begin. -1=ready for first update (id=0)
 
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
     g_soundSystem->StopAllSounds( SoundObjectId(), "StartMusic StartMusic" );
 #endif
 
@@ -1467,7 +1467,7 @@ void App::SaveGameName()
 
 void App::RestartAmbienceMusic()
 {
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
 	g_soundSystem->TriggerEvent( "Bunker", "StartAmbience" );
 	if( g_app->m_gameRunning )
 	{

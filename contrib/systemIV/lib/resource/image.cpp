@@ -90,6 +90,7 @@ Colour Image::GetColour( int pixelX, int pixelY )
 // static members for shared atlas texture
 Image* AtlasImage::s_atlasTexture = NULL;
 int AtlasImage::s_atlasRefCount = 0;
+bool AtlasImage::s_atlasLoadFailed = false; 
 
 AtlasImage::AtlasImage(const AtlasCoord* atlasCoord)
 :   Image((Bitmap*)NULL),  // dont load individual bitmap
@@ -146,14 +147,27 @@ void AtlasImage::InitializeAtlasTexture()
         return; 
     }
     
-    // load the atlas texture using the standard image loading
+    // Reset failure flag
+    s_atlasLoadFailed = false;
+    
+    // Load the atlas texture using the standard image loading
     char atlasPath[256];
     strcpy(atlasPath, "data/");
     strcat(atlasPath, SpriteAtlas::GetAtlasTexturePath());
     
     s_atlasTexture = new Image(atlasPath);
-    s_atlasTexture->MakeTexture(true, true);
-    s_atlasRefCount = 0;
+    
+    // Check if loading actually failed (Image constructor creates ERROR bitmap)
+    // We can detect this by checking if the bitmap is 32x32 (ERROR bitmap size)
+    if (s_atlasTexture->Width() == 32 && s_atlasTexture->Height() == 32) {
+        s_atlasLoadFailed = true;
+        AppDebugOut("Atlas texture loading failed: %s\n", atlasPath);
+    } else {
+        s_atlasTexture->MakeTexture(true, true);
+        s_atlasRefCount = 0;
+        AppDebugOut("Atlas texture loaded successfully: %s (%dx%d)\n", 
+                   atlasPath, s_atlasTexture->Width(), s_atlasTexture->Height());
+    }
 }
 
 void AtlasImage::CleanupAtlasTexture()
@@ -162,5 +176,6 @@ void AtlasImage::CleanupAtlasTexture()
         delete s_atlasTexture;
         s_atlasTexture = NULL;
         s_atlasRefCount = 0;
+        s_atlasLoadFailed = false;  // Reset failure flag
     }
 }

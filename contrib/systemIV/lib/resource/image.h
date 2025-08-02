@@ -46,6 +46,7 @@ private:
     const AtlasCoord* m_atlasCoord;
     static Image* s_atlasTexture;      // shared atlas texture instance
     static int s_atlasRefCount;        // reference counting for atlas texture
+    static bool s_atlasLoadFailed;
 
 public:
     AtlasImage(const AtlasCoord* atlasCoord);
@@ -64,6 +65,8 @@ public:
     // static methods for atlas texture management
     static void InitializeAtlasTexture();
     static void CleanupAtlasTexture();
+    static bool IsAtlasLoadFailed() { return s_atlasLoadFailed; }
+    static void ResetAtlasLoadFailed() { s_atlasLoadFailed = false; }
 };
 
 

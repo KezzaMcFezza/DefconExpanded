@@ -10,6 +10,7 @@
 #include "lib/resource/image.h"
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/filesys/file_system.h"
+#include "app/modsystem.h"
 
 #include "sprite_atlas.h"
 
@@ -86,19 +87,47 @@ Image *Resource::GetImage( const char *filename )
     }
     else
     {
-        // check if this is an atlas sprite first
-        if( SpriteAtlas::IsAtlasSprite(filename) )
+        // NEW: Check if this is a mod graphic first
+        bool isModGraphic = g_modSystem && g_modSystem->IsModGraphic(filename);
+        
+        // Check if this is an atlas sprite AND not a mod graphic
+        if( SpriteAtlas::IsAtlasSprite(filename) && !isModGraphic )
         {
             const AtlasCoord* coord = SpriteAtlas::GetSpriteCoord(filename);
             if( coord )
             {
-                image = new AtlasImage(coord);
+                // Attempt to create atlas image
+                AtlasImage* atlasImage = new AtlasImage(coord);
+                
+                // Check if atlas loading failed
+                if( AtlasImage::IsAtlasLoadFailed() )
+                {
+                    AppDebugOut("Atlas failed for %s, falling back to individual BMP\n", filename);
+                    
+                    // Clean up failed atlas image
+                    delete atlasImage;
+                    
+                    // FALLBACK: Load as individual BMP
+                    image = new Image( fullFilename );
+                    image->MakeTexture( true, true );
+                }
+                else
+                {
+                    // Atlas loading succeeded
+                    image = atlasImage;
+                }
+                
                 m_imageCache.PutData( fullFilename, image );
                 return image;
             }
         }
         
-        // not an atlas sprite, load normally
+        // Not an atlas sprite OR is a mod graphic - load as individual BMP
+        if (isModGraphic)
+        {
+            AppDebugOut("Loading mod graphic as individual BMP: %s\n", filename);
+        }
+        
         image = new Image( fullFilename );
         m_imageCache.PutData( fullFilename, image );
         image->MakeTexture( true, true );

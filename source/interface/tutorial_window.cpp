@@ -185,7 +185,7 @@ void TutorialWindow::Render( bool _hasFocus )
 
             if( fabs(float(s_previousMaxChars - maxChars)) > 2 )
             {
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
                 g_soundSystem->TriggerEvent( "Interface", "Text" );
 #endif
                 s_previousMaxChars = maxChars;
