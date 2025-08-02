@@ -19,12 +19,23 @@ find_package(PkgConfig QUIET)
 if(MSVC)
     set(GLEW_LIBRARY "${GLEW_PATH}/lib/Release/Win32/glew32s.lib")
 elseif(APPLE)
-    find_library(GLEW_LIBRARY NAMES GLEW glew libglew.a
-        PATHS ${GLEW_PATH}/lib/Release/macOS /usr/local/lib /opt/homebrew/lib
+    # Now we link GLEW via homebrew
+    find_library(GLEW_LIBRARY NAMES GLEW glew
+        PATHS /opt/homebrew/lib /usr/local/lib
         NO_DEFAULT_PATH)
+    
     if(NOT GLEW_LIBRARY)
-        set(GLEW_LIBRARY "${GLEW_PATH}/lib/Release/macOS/libglew.a")
+        message(FATAL_ERROR "GLEW not found. Install via Homebrew: brew install glew")
     endif()
+    
+    find_path(GLEW_INCLUDE_DIR GL/glew.h
+        PATHS /opt/homebrew/include /usr/local/include
+        NO_DEFAULT_PATH)
+        
+    if(GLEW_INCLUDE_DIR)
+        include_directories(${GLEW_INCLUDE_DIR})
+    endif()
+    
 else()
     if(PKG_CONFIG_FOUND)
         pkg_check_modules(GLEW glew)
