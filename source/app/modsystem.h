@@ -13,6 +13,8 @@ class ModSystem
 public:
     LList<InstalledMod *> m_mods;
     LList<char *> m_criticalFiles;
+    LList<char*> m_modGraphicsFiles;        
+    LList<char*> m_geographyAffectingMods;  
 	
 protected:
     char *m_modsDir;
@@ -24,13 +26,19 @@ public:
     void Initialise();        
     void LoadInstalledMods();
     
-    LList<char *>  *ParseModPath( char *_modPath );                             // _modPath is modified        
+    LList<char *>  *ParseModPath        ( char *_modPath );                             // _modPath is modified        
 
-    bool    CanSetModPath       ( char *_modPath );                             // Are all the mods installed?
-    void    SetModPath          ( const char *_modPath );
-    void    GetCriticalModPath  ( char *_modPath );
-    bool    IsCriticalModPathSet( char *_modPath );                             // Are these critical mods already running
-    bool    IsCriticalModRunning();
+    bool    CanSetModPath               ( char *_modPath );                             // Are all the mods installed?
+    void    SetModPath                  ( const char *_modPath );
+    void    GetCriticalModPath          ( char *_modPath );
+    bool    IsCriticalModPathSet        ( char *_modPath );                             // Are these critical mods already running
+    bool    IsCriticalModRunning        ();
+    void    ScanModGraphics             ();
+    bool    IsModGraphic                (const char* filename);
+    void    ClearModGraphicsCache       ();
+    bool    ModContainsGeographyData    (const char* modPath);
+    bool    RequiresVBORebuilding       ();
+    void    UpdateGeographyAffectingMods();
 
     void    LoadModData         ( InstalledMod *_mod, char *_path );
 

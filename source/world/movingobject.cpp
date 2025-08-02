@@ -1045,7 +1045,7 @@ void MovingObject::Ping()
         g_app->GetMapRenderer()->m_renderEverything ||
         g_app->GetWorld()->IsVisible( m_longitude, m_latitude, g_app->GetWorld()->m_myTeamId) )
     {
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
         g_soundSystem->TriggerEvent( SoundObjectId(m_objectId), "SonarPing" );
 #endif
     }

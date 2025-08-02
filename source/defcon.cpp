@@ -960,7 +960,7 @@ void EmscriptenMainLoop()
             //AppDebugOut("WebGL: Frame %d rendered successfully\n", frameCount);
         }
         
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
         g_soundSystem->Advance();
 #endif
         if( g_profiler ) g_profiler->Advance();

@@ -451,7 +451,7 @@ Implemented a tiered preprocessor system to control debug output:
 
 #### **New Preprocessor Definitions**:
 1. **`EMSCRIPTEN_NETWORK_TESTBED`** - Network-related debug output
-2. **`EMSCRIPTEN_SOUND_TESTBED`** - Sound system debug output  
+2. **`TOGGLE_SOUND_TESTBED`** - Sound system debug output  
 3. **`EMSCRIPTEN_DEBUG`** - General WebAssembly debug output
 
 #### **Debug Statements Wrapped**:
@@ -468,7 +468,7 @@ Implemented a tiered preprocessor system to control debug output:
 # WebAssembly debug output control (only enabled for Debug builds)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
-    add_definitions(-DEMSCRIPTEN_SOUND_TESTBED) 
+    add_definitions(-DTOGGLE_SOUND_TESTBED) 
     add_definitions(-DEMSCRIPTEN_DEBUG)
 endif()
 ```

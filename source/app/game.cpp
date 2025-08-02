@@ -525,7 +525,7 @@ void Game::Update()
                     if( m_victoryTimer > 0 )
                     {
                         g_app->GetInterface()->ShowMessage( 0, 0, -1, LANGUAGEPHRASE("message_victory_timer"), true );
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
                         g_soundSystem->TriggerEvent( "Interface", "DefconChange" );
 #endif
 
@@ -592,7 +592,7 @@ void Game::Update()
                     EclRegisterWindow( new StatsWindow()  );
                 }
 
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
                 g_soundSystem->StopAllSounds( SoundObjectId(), "StartMusic StartMusic" );
                 g_soundSystem->TriggerEvent( "Interface", "GameOver" );
 #endif

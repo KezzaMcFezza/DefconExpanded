@@ -187,11 +187,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#if !defined TARGET_MSVC && !defined TARGET_OS_MACOSX && !defined TARGET_OS_LINUX && !defined TARGET_EMSCRIPTEN
-#error Please make sure that one of TARGET_MSVC, TARGET_OS_MACOSX, TARGET_OS_LINUX is set in your project preprocessor options.
-// Please don't set it in this file.
-#endif
-
 #ifdef TARGET_MSVC
     #define APP_SYSTEM "PC"
 #endif

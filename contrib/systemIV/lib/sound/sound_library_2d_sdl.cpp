@@ -19,40 +19,40 @@ static int s_audioStarted = 0;
 
 static void sdlAudioCallback(void *userdata, Uint8 *stream, int len)
 {
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("sdlAudioCallback START: len=%d, started=%d, g_soundLibrary2d=%p\n", len, s_audioStarted, g_soundLibrary2d);
 #endif
 	
 	if (!s_audioStarted || !g_soundLibrary2d) 
 	{
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 		AppDebugOut("sdlAudioCallback: aborting - not started or no library\n");
 #endif
 		return;
 	}
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("sdlAudioCallback: calling AudioCallback with %d samples\n", len / sizeof(StereoSample));
 #endif
 	G_SL2D->AudioCallback( (StereoSample *) stream, len / sizeof(StereoSample) );
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("sdlAudioCallback END\n");
 #endif
 }
 
 void SoundLibrary2dSDL::AudioCallback(StereoSample *stream, unsigned numSamples)
 {
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SoundLibrary2dSDL::AudioCallback START: stream=%p, numSamples=%u\n", stream, numSamples);
 #endif
 	
 	m_callbackLock.Lock();
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SoundLibrary2dSDL::AudioCallback: lock acquired\n");
 #endif
 	
 	if (!m_callback)
 	{
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 		AppDebugOut("SoundLibrary2dSDL::AudioCallback: no callback set, unlocking and returning\n");
 #endif
 		m_callbackLock.Unlock();
@@ -60,12 +60,12 @@ void SoundLibrary2dSDL::AudioCallback(StereoSample *stream, unsigned numSamples)
 	}
 			
 #ifdef INVOKE_CALLBACK_FROM_SOUND_THREAD
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SoundLibrary2dSDL::AudioCallback: invoking callback directly (INVOKE_CALLBACK_FROM_SOUND_THREAD)\n");
 #endif
 	m_callback(stream, numSamples);
 #else
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SoundLibrary2dSDL::AudioCallback: buffering callback (not INVOKE_CALLBACK_FROM_SOUND_THREAD)\n");
 #endif
 	m_buffer[1] = m_buffer[0];
@@ -75,24 +75,24 @@ void SoundLibrary2dSDL::AudioCallback(StereoSample *stream, unsigned numSamples)
 	
 	if (m_bufferIsThirsty > 2)
 		m_bufferIsThirsty = 2;
-#ifdef EMSCRIPTEN_SOUND_TESTBED
+#ifdef TOGGLE_SOUND_TESTBED
 	AppDebugOut("SoundLibrary2dSDL::AudioCallback: bufferIsThirsty=%d\n", m_bufferIsThirsty);
 #endif
 #endif
 	m_callbackLock.Unlock();
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SoundLibrary2dSDL::AudioCallback END\n");
 #endif
 }
 
 void SoundLibrary2dSDL::TopupBuffer()
 {
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SoundLibrary2dSDL::TopupBuffer START\n");
 #endif
 	if (m_wavOutput)
 	{
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 		AppDebugOut("SoundLibrary2dSDL::TopupBuffer: handling WAV output\n");
 #endif
 		static double nextOutputTime = -1.0;
@@ -110,12 +110,12 @@ void SoundLibrary2dSDL::TopupBuffer()
 	}
 	else {
 #ifndef INVOKE_CALLBACK_FROM_SOUND_THREAD
-#ifdef EMSCRIPTEN_SOUND_TESTBED		
+#ifdef TOGGLE_SOUND_TESTBED		
 		AppDebugOut("SoundLibrary2dSDL::TopupBuffer: processing buffered callbacks, bufferIsThirsty=%d\n", m_bufferIsThirsty);
 #endif
 		SDL_LockAudio();
 		for (int i = 0; i < m_bufferIsThirsty; i++) {
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 			AppDebugOut("SoundLibrary2dSDL::TopupBuffer: invoking callback %d/%d with %d samples\n", i+1, m_bufferIsThirsty, m_buffer[i].len);
 #endif
 			m_callback( m_buffer[i].stream, m_buffer[i].len );
@@ -124,7 +124,7 @@ void SoundLibrary2dSDL::TopupBuffer()
 		SDL_UnlockAudio();
 #endif
 	}
-#ifdef EMSCRIPTEN_SOUND_TESTBED		
+#ifdef TOGGLE_SOUND_TESTBED		
 	AppDebugOut("SoundLibrary2dSDL::TopupBuffer END\n");
 #endif
 }
@@ -174,7 +174,7 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	}
 #endif
 
-#ifdef EMSCRIPTEN_SOUND_TESTBED	
+#ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("Frequency: %d\nFormat: %d\nChannels: %d\nSamples: %d\n", 
 		s_audioSpec.freq, s_audioSpec.format, s_audioSpec.channels, s_audioSpec.samples);
 	AppDebugOut("Size of Stereo Sample: %u\n", sizeof(StereoSample));

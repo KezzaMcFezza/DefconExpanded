@@ -1,0 +1,229 @@
+REPLAY VIEWER DEBUGGING
+this is using the replay viewer server
+the ai timer is different and there is rng divergence
+when we add this codeblock here
+
+void Team::RunAI()
+{
+    if( g_app->GetServer()->IsRecordingPlaybackMode() )
+    {
+        static bool s_timerAdjusted = false;
+        if( !s_timerAdjusted )
+        {
+            m_aiActionTimer = 4.56f; // SOMEHOW THIS WORKS
+            s_timerAdjusted = true;
+        }
+    }
+
+the rng divergence goes away and it matches dedcons game state
+this code was just for testing
+this proves that this is the actual source of the rng divergence
+but its not a fix
+
+the real fix is finding out why our ai timer is starting at a different point
+a command line dcrec parser that doesn't have this issue with ai timers
+its the same as dedcon
+
+
+
+replay_viewer_B1.86.js:7870 Seed Calculation Debugging
+
+replay_viewer_B1.86.js:7870 Team 0: m_randSeed = 184
+replay_viewer_B1.86.js:7870 Team 1: m_randSeed = 137
+replay_viewer_B1.86.js:7870 Final combined seed = 321
+replay_viewer_B1.86.js:7870 Parsing City data (2745 cities) : 117ms
+replay_viewer_B1.86.js:7870 Num nukes given to each team on start : 232
+replay_viewer_B1.86.js:7870 Population of Team #0 : 150.0 Million spread over 30 cities
+replay_viewer_B1.86.js:7870 Population of Team #1 : 150.0 Million spread over 30 cities
+
+replay_viewer_B1.86.js:7870 World State Debugging
+
+replay_viewer_B1.86.js:7870 Total cities: 60
+replay_viewer_B1.86.js:7870 Team 0 territories: 1
+replay_viewer_B1.86.js:7870   Territory[0] = 0
+replay_viewer_B1.86.js:7870 Team 1 territories: 1
+replay_viewer_B1.86.js:7870   Territory[0] = 2
+replay_viewer_B1.86.js:7870 City[0]: team=0, pop=13222573
+replay_viewer_B1.86.js:7870 City[1]: team=0, pop=968304
+replay_viewer_B1.86.js:7870 City[2]: team=0, pop=933014
+replay_viewer_B1.86.js:7870 City[3]: team=0, pop=3803456
+replay_viewer_B1.86.js:7870 City[4]: team=0, pop=1796654
+replay_viewer_B1.86.js:7870 City[5]: team=0, pop=7002014
+replay_viewer_B1.86.js:7870 City[6]: team=0, pop=5870778
+replay_viewer_B1.86.js:7870 City[7]: team=0, pop=7300573
+replay_viewer_B1.86.js:7870 City[8]: team=0, pop=8991072
+replay_viewer_B1.86.js:7870 City[9]: team=0, pop=1979408
+replay_viewer_B1.86.js:7870 Created mega-VBO 'all_coastlines' with 23306 vertices
+replay_viewer_B1.86.js:7870 Created mega-VBO 'all_borders' with 5632 vertices
+replay_viewer_B1.86.js:7870 AI[1] Call#0: RNG=336, State=0, Timer=2.17
+replay_viewer_B1.86.js:7870 AI[1] Call#1: RNG=442, State=0, Timer=1.67
+replay_viewer_B1.86.js:7870 AI[1] Call#2: RNG=422, State=0, Timer=1.17
+replay_viewer_B1.86.js:7870 AI[1] Call#3: RNG=14, State=0, Timer=0.67
+replay_viewer_B1.86.js:7870 AI[1] Call#4: RNG=38, State=0, Timer=0.17
+replay_viewer_B1.86.js:7870 AI[1] Call#5: RNG=128, State=0, Timer=5.00
+replay_viewer_B1.86.js:7870 AI[1] Call#6: RNG=81, State=0, Timer=4.50
+replay_viewer_B1.86.js:7870 AI[1] Call#7: RNG=795, State=0, Timer=4.00
+replay_viewer_B1.86.js:7870 AI[1] Call#8: RNG=47, State=0, Timer=3.50
+replay_viewer_B1.86.js:7870 AI[1] Call#9: RNG=768, State=0, Timer=3.00
+replay_viewer_B1.86.js:7870 AI[1] Call#10: RNG=561, State=0, Timer=2.50
+
+DESKTOP DEBUGGING
+this is using dedcon and not the replay viewer
+this ai timer value is correct and there is no rng divergence
+from what really happened in that game
+
+Seed Calculation Debugging
+
+Team 0: m_randSeed = 184
+Team 1: m_randSeed = 137
+Final combined seed = 321
+Parsing City data (2745 cities) : 19ms
+Num nukes given to each team on start : 232
+Population of Team #0 : 150.0 Million spread over 30 cities
+Population of Team #1 : 150.0 Million spread over 30 cities
+
+World State Debugging
+
+Total cities: 60
+Team 0 territories: 1
+  Territory[0] = 0
+Team 1 territories: 1
+  Territory[0] = 2
+City[0]: team=0, pop=13222573
+City[1]: team=0, pop=968304
+City[2]: team=0, pop=933014
+City[3]: team=0, pop=3803456
+City[4]: team=0, pop=1796654
+City[5]: team=0, pop=7002014
+City[6]: team=0, pop=5870778
+City[7]: team=0, pop=7300573
+City[8]: team=0, pop=8991072
+City[9]: team=0, pop=1979408
+AI[1] Call#0: RNG=336, State=0, Timer=4.56
+AI[1] Call#1: RNG=442, State=0, Timer=4.06
+CLIENT : Received HelloClient from Server
+AI[1] Call#2: RNG=422, State=0, Timer=3.56
+CLIENT: I am a spectator
+AI[1] Call#3: RNG=14, State=0, Timer=3.06
+AI[1] Call#4: RNG=38, State=0, Timer=2.56
+AI[1] Call#5: RNG=804, State=0, Timer=2.06
+AI[1] Call#6: RNG=918, State=0, Timer=1.56
+AI[1] Call#7: RNG=368, State=0, Timer=1.06
+AI[1] Call#8: RNG=690, State=0, Timer=0.56
+AI[1] Call#9: RNG=560, State=0, Timer=0.06
+AI[1] Call#10: RNG=128, State=0, Timer=5.00
+
+ANOTHER DISCOVERY
+
+defcon assigns aiactiontimer values in lobby phase, and then only when the game starts they update
+this further proves that the ai timers are being contaminated by the replay viewer client
+
+this is also the case for desktop defcon
+the ai timer is set at sequence id 63 at 4.56
+but we assign 2.17 in the replay viewer
+
+replay_viewer_B1.86.js:7870 *** REPLAY: Processing StartGame for team 1, recorded seed = 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Team found, old seed = 0, setting to 137
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 63 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 64 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 65 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 66 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 67 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 68 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 69 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 70 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 *** REPLAY: Processing StartGame for team 1, recorded seed = 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Team found, old seed = 137, setting to 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Processing StartGame for team 1, recorded seed = 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Team found, old seed = 137, setting to 137
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 71 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 72 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 73 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 74 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 75 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 76 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 77 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 78 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 79 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 80 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 *** REPLAY: Processing StartGame for team 1, recorded seed = 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Team found, old seed = 137, setting to 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Processing StartGame for team 1, recorded seed = 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Team found, old seed = 137, setting to 137
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 81 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 82 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 83 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 84 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 85 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 86 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 *** REPLAY: Processing StartGame for team 1, recorded seed = 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Team found, old seed = 137, setting to 137
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 87 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 *** REPLAY: Processing StartGame for team 1, recorded seed = 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Team found, old seed = 137, setting to 137
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 88 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 89 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 90 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 *** REPLAY: Processing StartGame for team 0, recorded seed = 184
+replay_viewer_B1.86.js:7870 *** REPLAY: Team found, old seed = 0, setting to 184
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 91 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 92 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 93 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 94 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 95 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 96 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 97 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 98 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 *** REPLAY: Processing StartGame for team 1, recorded seed = 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Team found, old seed = 137, setting to 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Processing StartGame for team 0, recorded seed = 184
+replay_viewer_B1.86.js:7870 *** REPLAY: Team found, old seed = 184, setting to 184
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 99 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 *** REPLAY: Processing StartGame for team 1, recorded seed = 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Team found, old seed = 137, setting to 137
+replay_viewer_B1.86.js:7870 *** REPLAY: Processing StartGame for team 0, recorded seed = 184
+replay_viewer_B1.86.js:7870 *** REPLAY: Team found, old seed = 184, setting to 184
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 100 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 101 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 102 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 103 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 104 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 105 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 106 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 107 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 *** SEED CALC START ***
+replay_viewer_B1.86.js:7870 Team 0: m_randSeed = 184
+replay_viewer_B1.86.js:7870 Team 1: m_randSeed = 137
+replay_viewer_B1.86.js:7870 Final combined seed = 321
+replay_viewer_B1.86.js:7870 Parsing City data (2745 cities) : 116ms
+replay_viewer_B1.86.js:7870 Num nukes given to each team on start : 232
+replay_viewer_B1.86.js:7870 Population of Team #0 : 150.0 Million spread over 30 cities
+replay_viewer_B1.86.js:7870 Population of Team #1 : 150.0 Million spread over 30 cities
+replay_viewer_B1.86.js:7870 *** WORLD STATE DEBUG ***
+replay_viewer_B1.86.js:7870 Total cities: 60
+replay_viewer_B1.86.js:7870 Team 0 territories: 1
+replay_viewer_B1.86.js:7870   Territory[0] = 0
+replay_viewer_B1.86.js:7870 Team 1 territories: 1
+replay_viewer_B1.86.js:7870   Territory[0] = 2
+replay_viewer_B1.86.js:7870 City[0]: team=0, pop=13222573
+replay_viewer_B1.86.js:7870 City[1]: team=0, pop=968304
+replay_viewer_B1.86.js:7870 City[2]: team=0, pop=933014
+replay_viewer_B1.86.js:7870 City[3]: team=0, pop=3803456
+replay_viewer_B1.86.js:7870 City[4]: team=0, pop=1796654
+replay_viewer_B1.86.js:7870 City[5]: team=0, pop=7002014
+replay_viewer_B1.86.js:7870 City[6]: team=0, pop=5870778
+replay_viewer_B1.86.js:7870 City[7]: team=0, pop=7300573
+replay_viewer_B1.86.js:7870 City[8]: team=0, pop=8991072
+replay_viewer_B1.86.js:7870 City[9]: team=0, pop=1979408
+replay_viewer_B1.86.js:7870 Created mega-VBO 'all_coastlines' with 23306 vertices
+replay_viewer_B1.86.js:7870 Created mega-VBO 'all_borders' with 5632 vertices
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 108 Team: 1 Value: 2.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 109 Team: 1 Value: 1.67
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 110 Team: 1 Value: 1.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 111 Team: 1 Value: 0.67
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 112 Team: 1 Value: 0.17
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 113 Team: 1 Value: 5.00
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 114 Team: 1 Value: 4.50
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 115 Team: 1 Value: 4.00
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 116 Team: 1 Value: 3.50
+replay_viewer_B1.86.js:7870 m_aiActionTimer Seq: 117 Team: 1 Value: 3.00

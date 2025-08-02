@@ -516,6 +516,11 @@ void Renderer::FlushUnitStateIcons() {
     IncrementDrawCall("unit_state_icons");
     
     glUseProgram(m_textureShaderProgram);
+
+    if (m_currentUnitStateTexture != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_currentUnitStateTexture);
+    }
     
     int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
     int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
@@ -741,6 +746,11 @@ void Renderer::FlushUnitNukeIcons() {
     IncrementDrawCall("unit_nuke_icons");
     
     glUseProgram(m_textureShaderProgram);
+
+    if (m_currentUnitNukeTexture != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_currentUnitNukeTexture);
+    }
     
     int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
     int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");

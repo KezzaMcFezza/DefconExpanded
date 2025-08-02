@@ -185,7 +185,7 @@ void FleetPlacementIconButton::MouseUp()
     }
     else
     {
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
         g_soundSystem->TriggerEvent( "Interface", "Error" );
 #endif
     }

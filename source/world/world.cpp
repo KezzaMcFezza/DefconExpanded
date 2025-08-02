@@ -1145,7 +1145,7 @@ void World::LaunchNuke( int teamId, int objId, Fixed longitude, Fixed latitude, 
                 LPREPLACESTRINGFLAG('T', GetTeam(teamId)->GetTeamName(), msg );
                 strupr(msg);
                 g_app->GetInterface()->ShowMessage( 0, 0, teamId, msg, true );
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
                 g_soundSystem->TriggerEvent( "Interface", "FirstLaunch" );
 #endif
 
@@ -3048,6 +3048,33 @@ bool World::IsChatMessageVisible( int teamId, int msgChannel, bool spectator )
     // msgChannel   : Channel the message is in
     // spectator    : If the viewer is a spectator
 
+    //
+    // In replay mode, we want different handling of chat messages
+    
+    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
+    {
+        // Block all private messages due to privacy issues
+        if( msgChannel < CHATCHANNEL_PUBLIC )
+        {
+            return false; 
+        }
+        
+        // In replay mode we alwats show these three channels
+        if( msgChannel == CHATCHANNEL_PUBLIC ||     // Public messages
+            msgChannel == CHATCHANNEL_ALLIANCE ||   // Alliance messages  
+            msgChannel == CHATCHANNEL_SPECTATORS )  // Spectator messages
+        {
+            return true; 
+        }
+        
+        // System messages?
+        if( teamId == -1 )
+        {
+            return true;
+        }
+        
+        return false;
+    }
 
     //
     // public channel, readable by all?
@@ -3169,13 +3196,13 @@ void World::AddChatMessage( int teamId, int channel, const char *_msg, int msgId
     {
         if( teamId == m_myTeamId )
         {   
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
             g_soundSystem->TriggerEvent( "Interface", "SendChatMessage" );            
 #endif
         }
         else
         {
-#ifdef EMSCRIPTEN_SOUND
+#ifdef TOGGLE_SOUND
             g_soundSystem->TriggerEvent( "Interface", "ReceiveChatMessage" );
 #endif
         }

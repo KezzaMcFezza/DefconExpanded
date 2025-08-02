@@ -4,6 +4,7 @@
 #include "lib/filesys/text_stream_readers.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/resource.h"
+#include "lib/resource/sprite_atlas.h"
 #include "lib/metaserver/authentication.h"
 #include "lib/render/styletable.h"
 #include "lib/render2d/renderer.h"
@@ -46,6 +47,9 @@ ModSystem::ModSystem()
 ModSystem::~ModSystem()
 {
 	delete[] m_modsDir;
+
+    ClearModGraphicsCache();
+    m_geographyAffectingMods.EmptyAndDelete();
 }
 
 
@@ -593,6 +597,129 @@ bool ModSystem::CommitRequired()
     return false;
 }
 
+void ModSystem::ScanModGraphics()
+{
+    // Clear existing mod graphics list
+    m_modGraphicsFiles.EmptyAndDelete();
+    
+    // Scan all active mods for graphics files
+    for (int i = 0; i < m_mods.Size(); ++i)
+    {
+        InstalledMod *mod = m_mods[i];
+        if (!mod->m_active) continue;
+        
+        // Build graphics directory path
+        char graphicsPath[512];
+        sprintf(graphicsPath, "%sdata/graphics/", mod->m_path);
+        
+        if (IsDirectory(graphicsPath))
+        {
+            // List all BMP files in mod's graphics directory
+            LList<char*> *bmpFiles = ListDirectory(graphicsPath, "*.bmp", false);
+            
+            for (int j = 0; j < bmpFiles->Size(); ++j)
+            {
+                char *filename = bmpFiles->GetData(j);
+                
+                // Store relative path (graphics/filename.bmp)
+                char relativePath[256];
+                sprintf(relativePath, "graphics/%s", filename);
+                
+                // Add to mod graphics list if not already present
+                bool alreadyExists = false;
+                for (int k = 0; k < m_modGraphicsFiles.Size(); ++k)
+                {
+                    if (strcmp(m_modGraphicsFiles[k], relativePath) == 0)
+                    {
+                        alreadyExists = true;
+                        break;
+                    }
+                }
+                
+                if (!alreadyExists)
+                {
+                    m_modGraphicsFiles.PutData(newStr(relativePath));
+                    AppDebugOut("Found mod graphic: %s\n", relativePath);
+                }
+            }
+            
+            bmpFiles->EmptyAndDelete();
+            delete bmpFiles;
+        }
+    }
+    
+    AppDebugOut("Scanned %d mod graphics files\n", m_modGraphicsFiles.Size());
+}
+
+bool ModSystem::IsModGraphic(const char* filename)
+{
+    if (!filename) return false;
+    
+    // Check if this filename is in our mod graphics list
+    for (int i = 0; i < m_modGraphicsFiles.Size(); ++i)
+    {
+        if (strcmp(m_modGraphicsFiles[i], filename) == 0)
+        {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+void ModSystem::ClearModGraphicsCache()
+{
+    m_modGraphicsFiles.EmptyAndDelete();
+}
+
+bool ModSystem::ModContainsGeographyData(const char* modPath)
+{
+    if (!modPath) return false;
+    
+    // Check for coastlines.dat
+    char coastlinesPath[512];
+    sprintf(coastlinesPath, "%sdata/earth/coastlines.dat", modPath);
+    if (DoesFileExist(coastlinesPath)) return true;
+    
+    // Check for international.dat  
+    char internationalPath[512];
+    sprintf(internationalPath, "%sdata/earth/international.dat", modPath);
+    if (DoesFileExist(internationalPath)) return true;
+    
+    return false;
+}
+
+bool ModSystem::RequiresVBORebuilding()
+{
+    // Check if any currently active mod contains geography data
+    for (int i = 0; i < m_mods.Size(); ++i)
+    {
+        InstalledMod *mod = m_mods[i];
+        if (mod->m_active && ModContainsGeographyData(mod->m_path))
+        {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+void ModSystem::UpdateGeographyAffectingMods()
+{
+    // Clear previous list
+    m_geographyAffectingMods.EmptyAndDelete();
+    
+    // Build new list of geography-affecting mods
+    for (int i = 0; i < m_mods.Size(); ++i)
+    {
+        InstalledMod *mod = m_mods[i];
+        if (mod->m_active && ModContainsGeographyData(mod->m_path))
+        {
+            m_geographyAffectingMods.PutData(newStr(mod->m_path));
+            AppDebugOut("Geography-affecting mod: %s\n", mod->m_name);
+        }
+    }
+}
 
 void ModSystem::Commit()
 {
@@ -601,6 +728,13 @@ void ModSystem::Commit()
     char authKey[256];
     Authentication_GetKey( authKey );
     bool demoUser = Authentication_IsDemoKey(authKey);
+
+    // NEW: Store previous geography-affecting mods for comparison
+    LList<char*> previousGeographyMods;
+    for (int i = 0; i < m_geographyAffectingMods.Size(); ++i)
+    {
+        previousGeographyMods.PutData(newStr(m_geographyAffectingMods[i]));
+    }
 
     g_fileSystem->ClearSearchPath();
 
@@ -666,32 +800,75 @@ void ModSystem::Commit()
         g_app->Render();
     }
 
-
     //
     // Restart everything
 
     if( g_resource )
     {
-		g_languageTable->LoadLanguages();
-		g_languageTable->LoadCurrentLanguage();
+        g_languageTable->LoadLanguages();
+        g_languageTable->LoadCurrentLanguage();
 
-		g_resource->Restart();
+        g_resource->Restart();
         g_app->InitFonts();
         g_app->GetMapRenderer()->Init();
 
-        g_app->GetEarthData()->LoadCoastlines();
-        g_app->GetEarthData()->LoadBorders();
+        // NEW: Update geography-affecting mods list
+        UpdateGeographyAffectingMods();
+        
+        // NEW: Scan for mod graphics (after resource restart)
+        ScanModGraphics();
 
-        // fixes the coastlines and borders from not applying when loading mods
-        // now the mega vbo system is rebuilt
-        if (g_renderer) {
-            g_renderer->InvalidateCachedVBO("all_coastlines");
-            g_renderer->InvalidateCachedVBO("all_borders");
+        // NEW: Smart VBO rebuilding - only if geography data changed
+        bool geographyChanged = false;
+        
+        // Check if the set of geography-affecting mods changed
+        if (previousGeographyMods.Size() != m_geographyAffectingMods.Size())
+        {
+            geographyChanged = true;
         }
-        if (g_renderer3d) {
-            g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
-            g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
-            g_renderer3d->InvalidateCached3DVBO("GlobeGridlines");
+        else
+        {
+            // Same count, check if contents are different
+            for (int i = 0; i < previousGeographyMods.Size(); ++i)
+            {
+                bool found = false;
+                for (int j = 0; j < m_geographyAffectingMods.Size(); ++j)
+                {
+                    if (strcmp(previousGeographyMods[i], m_geographyAffectingMods[j]) == 0)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    geographyChanged = true;
+                    break;
+                }
+            }
+        }
+
+        if (geographyChanged)
+        {
+            AppDebugOut("Geography data changed, rebuilding VBOs\n");
+            
+            g_app->GetEarthData()->LoadCoastlines();
+            g_app->GetEarthData()->LoadBorders();
+
+            // Invalidate and rebuild VBOs
+            if (g_renderer) {
+                g_renderer->InvalidateCachedVBO("all_coastlines");
+                g_renderer->InvalidateCachedVBO("all_borders");
+            }
+            if (g_renderer3d) {
+                g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
+                g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
+                g_renderer3d->InvalidateCached3DVBO("GlobeGridlines");
+            }
+        }
+        else
+        {
+            AppDebugOut("No geography data changes, keeping existing VBOs\n");
         }
 
         if( !g_app->m_gameRunning )
@@ -701,23 +878,24 @@ void ModSystem::Commit()
             g_app->GetEarthData()->LoadCities();
         }
 
-		// We need to make sure the sound callback isn't running while
-		// we do this, so we don't swap out sounds that it's playing
-#ifdef EMSCRIPTEN_SOUND
-		g_soundSystem->EnableCallback(false);
+        // ... rest of existing sound/style loading code ...
+#ifdef TOGGLE_SOUND
+        g_soundSystem->EnableCallback(false);
         g_soundSystem->m_blueprints.ClearAll();
         g_soundSystem->m_blueprints.LoadEffects();
         g_soundSystem->m_blueprints.LoadBlueprints();
         g_soundSampleBank->EmptyCache();
         g_soundSystem->PropagateBlueprints(true);
-		g_soundSystem->EnableCallback(true);
+        g_soundSystem->EnableCallback(true);
 #endif
 
         g_styleTable->Load( "default.txt" );
         g_styleTable->Load( g_preferences->GetString(PREFS_INTERFACE_STYLE) );        
     }    
-        
 
+    // Clean up comparison list
+    previousGeographyMods.EmptyAndDelete();
+        
     if( msgDialog )
     {
         EclRemoveWindow( msgDialog->m_name );
