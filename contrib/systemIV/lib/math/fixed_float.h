@@ -8,14 +8,6 @@
 // Numeric type definitions
 //
 
-//
-// Testing to see if this works
-#ifdef TARGET_OS_MACOSX
-    #ifndef __MACTYPES__
-        #define __MACTYPES__
-    #endif
-#endif
-
 #ifndef __MACTYPES__ // avoid clash with Mac OS X typedefs
 typedef unsigned long long UInt64;
 typedef signed long long SInt64;
@@ -53,6 +45,11 @@ inline double CLAMP(double _f)
 class Fixed
 {
 	private:
+
+	inline Fixed(double _f)
+	{
+		m_value = CLAMP(_f);
+	}
 	
 	public:
 		static const Fixed MAX;
@@ -69,11 +66,6 @@ class Fixed
 		Fixed(const Fixed& _f) // copy constructor
 		{
 			m_value = _f.m_value;
-		}
-
-		inline Fixed(double _f)
-		{
-			m_value = CLAMP(_f);
 		}
 		
 		static Fixed FromDouble(double _f)

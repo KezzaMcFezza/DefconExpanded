@@ -83,7 +83,7 @@ bool MovingObject::Update()
         if( m_historyTimer <= 0 )
         {
             m_history.PutDataAtStart( new Vector3<Fixed>(m_longitude, m_latitude, 0) );
-            m_historyTimer = samplingRate; 
+            m_historyTimer = Fixed::FromDouble(samplingRate); // proper fixed point math usage
         }
     } else {
         m_historyTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor() / 10;
