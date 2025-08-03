@@ -575,6 +575,7 @@ void LobbyRenderer::RenderGlobe()
         }
         
         g_renderer3d->EndMegaVBO3D();
+        AppDebugOut("Rebuilt globe coastlines VBO with %d islands\n", g_app->GetEarthData()->m_islands.Size());
         }
 
     // Build borders mega-VBO if not cached
@@ -612,6 +613,7 @@ void LobbyRenderer::RenderGlobe()
         }
 
             g_renderer3d->EndMegaVBO3D();
+            AppDebugOut("Rebuilt globe borders VBO with %d border segments\n", g_app->GetEarthData()->m_borders.Size());
     }
     }
 

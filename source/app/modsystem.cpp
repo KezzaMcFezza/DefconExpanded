@@ -13,7 +13,6 @@
 #include "lib/sound/sound_sample_bank.h"
 #include "lib/debug_utils.h"
 #include "lib/string_utils.h"
-#include "lib/filesys/filesys_utils.h"
 #include "lib/preferences.h"
 #include "lib/language_table.h"
 
@@ -93,6 +92,10 @@ void ModSystem::Initialise()
     if( !demoUser )
     {
         SetModPath( g_preferences->GetString( "ModPath" ) );
+        
+        // Scan mods  immediately after loading mods during game startup
+        ScanModGraphics();
+        AppDebugOut("ModSystem: Scanned mod graphics during initialization\n");
     }
 }
 
@@ -689,21 +692,6 @@ bool ModSystem::ModContainsGeographyData(const char* modPath)
     return false;
 }
 
-bool ModSystem::RequiresVBORebuilding()
-{
-    // Check if any currently active mod contains geography data
-    for (int i = 0; i < m_mods.Size(); ++i)
-    {
-        InstalledMod *mod = m_mods[i];
-        if (mod->m_active && ModContainsGeographyData(mod->m_path))
-        {
-            return true;
-        }
-    }
-    
-    return false;
-}
-
 void ModSystem::UpdateGeographyAffectingMods()
 {
     // Clear previous list
@@ -812,13 +800,13 @@ void ModSystem::Commit()
         g_app->InitFonts();
         g_app->GetMapRenderer()->Init();
 
-        // NEW: Update geography-affecting mods list
+        // Update geography-affecting mods list
         UpdateGeographyAffectingMods();
         
-        // NEW: Scan for mod graphics (after resource restart)
+        // Scan for mod graphics after resource restart
         ScanModGraphics();
 
-        // NEW: Smart VBO rebuilding - only if geography data changed
+        // VBO rebuilding, only if geography data changed
         bool geographyChanged = false;
         
         // Check if the set of geography-affecting mods changed
@@ -855,15 +843,17 @@ void ModSystem::Commit()
             g_app->GetEarthData()->LoadCoastlines();
             g_app->GetEarthData()->LoadBorders();
 
-            // Invalidate and rebuild VBOs
+            // Invalidate and rebuild VBOs for both 2D and 3D renderers
             if (g_renderer) {
                 g_renderer->InvalidateCachedVBO("all_coastlines");
                 g_renderer->InvalidateCachedVBO("all_borders");
+                AppDebugOut("Invalidated 2D coastlines and borders VBOs\n");
             }
             if (g_renderer3d) {
                 g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
                 g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
                 g_renderer3d->InvalidateCached3DVBO("GlobeGridlines");
+                AppDebugOut("Invalidated 3D globe VBOs\n");
             }
         }
         else
@@ -878,7 +868,6 @@ void ModSystem::Commit()
             g_app->GetEarthData()->LoadCities();
         }
 
-        // ... rest of existing sound/style loading code ...
 #ifdef TOGGLE_SOUND
         g_soundSystem->EnableCallback(false);
         g_soundSystem->m_blueprints.ClearAll();

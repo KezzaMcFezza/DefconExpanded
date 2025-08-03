@@ -37,7 +37,6 @@ public:
     bool    IsModGraphic                (const char* filename);
     void    ClearModGraphicsCache       ();
     bool    ModContainsGeographyData    (const char* modPath);
-    bool    RequiresVBORebuilding       ();
     void    UpdateGeographyAffectingMods();
 
     void    LoadModData         ( InstalledMod *_mod, char *_path );

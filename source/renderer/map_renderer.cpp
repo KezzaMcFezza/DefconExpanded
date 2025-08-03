@@ -2444,10 +2444,8 @@ void MapRenderer::RenderCoastlines()
 
     // Colors and line width now handled by mega-VBO system
 
-        // Use mega-VBO system for maximum performance coastline rendering (single draw call)
-    static bool coastlinesBuilt = false;
-    
-    if (!coastlinesBuilt) {
+    // Check if VBO exists and is valid, if not build it
+    if (!g_renderer->IsMegaVBOValid("all_coastlines")) {
         // Build ALL coastlines into single mega-VBO (once only, like display lists)
         LList<Island *> *list = &g_app->GetEarthData()->m_islands;
         if( g_preferences->GetInt(PREFS_GRAPHICS_LOWRESWORLD) == 1 )
@@ -2482,7 +2480,7 @@ void MapRenderer::RenderCoastlines()
         }
         
         g_renderer->EndMegaVBO();
-        coastlinesBuilt = true;
+        AppDebugOut("Rebuilt coastlines VBO with %d islands\n", list->Size());
     }
     
     // Render ALL coastlines with single draw call
@@ -2512,10 +2510,8 @@ void MapRenderer::RenderBorders()
 	
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     
-    // Use mega-VBO system for maximum performance border rendering (single draw call)
-    static bool bordersBuilt = false;
-    
-    if (!bordersBuilt) {
+    // Check if VBO exists and is valid, if not build it
+    if (!g_renderer->IsMegaVBOValid("all_borders")) {
         // Build ALL borders into single mega-VBO (once only, like display lists)
         
         // Begin mega-VBO for all borders
@@ -2544,7 +2540,7 @@ void MapRenderer::RenderBorders()
         }
         
         g_renderer->EndMegaVBO();
-        bordersBuilt = true;
+        AppDebugOut("Rebuilt borders VBO with %d border segments\n", g_app->GetEarthData()->m_borders.Size());
     }
     
     // Render ALL borders with single draw call
