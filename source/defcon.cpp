@@ -588,6 +588,14 @@ bool ProcessServerLetters( Directory *letter )
             {
                 g_modSystem->DeActivateAllCriticalMods();
                 g_modSystem->SetModPath( modPath );
+                
+                // Now when we connect to a server with a different mod path, we actually call commit()
+                if( g_modSystem->CommitRequired() )
+                {
+                    g_modSystem->Commit();
+                    g_app->RestartAmbienceMusic();
+                    AppDebugOut( "Mod path changed, and rebuilt VBOs\n" );
+                }
             }
             else
             {
