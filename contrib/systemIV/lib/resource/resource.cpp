@@ -10,6 +10,8 @@
 #include "lib/resource/image.h"
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/filesys/file_system.h"
+#include "lib/render2d/renderer.h"
+#include "lib/render3d/renderer_3d.h"
 #include "app/modsystem.h"
 
 #include "sprite_atlas.h"
@@ -27,6 +29,18 @@ Resource::Resource()
 void Resource::Restart()
 {
     Shutdown();
+    
+    // Invalidate VBOs when resources restart
+    extern Renderer *g_renderer;
+    extern Renderer3D *g_renderer3d;
+    if (g_renderer) {
+        g_renderer->InvalidateAllVBOs();
+        AppDebugOut("Resource restart: Invalidated all 2D VBOs for mod loading\n");
+    }
+    if (g_renderer3d) {
+        g_renderer3d->InvalidateAll3DVBOs();
+        AppDebugOut("Resource restart: Invalidated all 3D VBOs for mod loading\n");
+    }
 }
 
 void Resource::Shutdown()

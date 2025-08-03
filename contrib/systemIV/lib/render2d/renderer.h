@@ -440,8 +440,10 @@
      void    BeginMegaVBO        ( const char* megaVBOKey, Colour const &col, float lineWidth );
      void    AddLineStripToMegaVBO( float* vertices, int vertexCount );
      void    EndMegaVBO          ();
-     void    RenderMegaVBO       ( const char* megaVBOKey );
- 
+          void    RenderMegaVBO       ( const char* megaVBOKey );
+     bool    IsMegaVBOValid      ( const char* megaVBOKey );
+     void    InvalidateAllVBOs   ();
+
      void    SetClip             ( int x, int y, int w, int h );      
      void    ResetClip           ();
  

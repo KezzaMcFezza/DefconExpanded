@@ -323,6 +323,7 @@ public:
     void EndMegaVBO3D();
     void RenderMegaVBO3D(const char* megaVBOKey);
     bool IsMegaVBO3DValid(const char* megaVBOKey);
+    void InvalidateAll3DVBOs();
     
     // Utility functions
     void SetColor(const Colour& col);

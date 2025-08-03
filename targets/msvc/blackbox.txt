@@ -2,8 +2,8 @@
 =   BLACK BOX REPORT    =
 =========================
 
-Defcon 1.64 STEAM built Aug  1 2025
-Date 17:37, 1/8/2025
+Defcon 1.64 STEAM built Aug  2 2025
+Date 12:56, 2/8/2025
 
 ERROR : 'Couldn't find language 'english''
 
@@ -11,5 +11,5 @@ ERROR : 'Couldn't find language 'english''
 =      STACKTRACE       =
 =========================
 
-retAddress = 00421D6E
+retAddress = 00421D0E
 retAddress = 00687369

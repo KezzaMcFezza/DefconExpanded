@@ -310,3 +310,28 @@ void Renderer::RenderMegaVBO(const char* megaVBOKey) {
     glBindVertexArray(0);
     glUseProgram(0);
 }
+
+bool Renderer::IsMegaVBOValid(const char* megaVBOKey) {
+    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(megaVBOKey);
+    return (tree && tree->data && tree->data->isValid);
+}
+
+void Renderer::InvalidateAllVBOs() {
+    DArray<CachedVBO*> *allVBOs = m_cachedVBOs.ConvertToDArray();
+    for (int i = 0; i < allVBOs->Size(); ++i) {
+        CachedVBO* cachedVBO = allVBOs->GetData(i);
+        if (cachedVBO) {
+            cachedVBO->isValid = false;
+            if (cachedVBO->VBO != 0) {
+                glDeleteBuffers(1, &cachedVBO->VBO);
+                cachedVBO->VBO = 0;
+            }
+            if (cachedVBO->VAO != 0) {
+                glDeleteVertexArrays(1, &cachedVBO->VAO);
+                cachedVBO->VAO = 0;
+            }
+        }
+    }
+    delete allVBOs;
+    AppDebugOut("Invalidated all cached VBOs\n");
+}

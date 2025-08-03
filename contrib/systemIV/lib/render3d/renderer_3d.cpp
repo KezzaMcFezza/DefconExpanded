@@ -1138,6 +1138,26 @@ bool Renderer3D::IsMegaVBO3DValid(const char* megaVBOKey) {
     return (tree && tree->data && tree->data->isValid);
 }
 
+void Renderer3D::InvalidateAll3DVBOs() {
+    DArray<Cached3DVBO*> *allVBOs = m_cached3DVBOs.ConvertToDArray();
+    for (int i = 0; i < allVBOs->Size(); ++i) {
+        Cached3DVBO* cachedVBO = allVBOs->GetData(i);
+        if (cachedVBO) {
+            cachedVBO->isValid = false;
+            if (cachedVBO->VBO != 0) {
+                glDeleteBuffers(1, &cachedVBO->VBO);
+                cachedVBO->VBO = 0;
+            }
+            if (cachedVBO->VAO != 0) {
+                glDeleteVertexArrays(1, &cachedVBO->VAO);
+                cachedVBO->VAO = 0;
+            }
+        }
+    }
+    delete allVBOs;
+    AppDebugOut("Invalidated all cached 3D VBOs\n");
+}
+
 void Renderer3D::EnableDistanceFog(float start, float end, float density, float r, float g, float b, float a) {
     m_fogEnabled = true;
     m_fogOrientationBased = false;

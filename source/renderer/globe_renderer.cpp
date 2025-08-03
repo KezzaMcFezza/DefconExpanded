@@ -263,10 +263,86 @@ void MapRenderer::Render3DGlobe()
                                       m_globe3DCamera.m_cameraPos.y,
                                       m_globe3DCamera.m_cameraPos.z);
     
-    // use vbo system
+    //
+    // Check validity of coastlines and borders vbo
+
+    // Coastlines VBO
+    if (!g_renderer3d->IsMegaVBO3DValid("GlobeCoastlines")) {
+        g_renderer3d->BeginMegaVBO3D("GlobeCoastlines", Colour(0, 255, 0, 255));
+
+        for( int i = 0; i < g_app->GetEarthData()->m_islands.Size(); ++i )
+        {
+            Island *island = g_app->GetEarthData()->m_islands[i];
+            AppDebugAssert( island );
+
+            DArray<Vector3<float>> coastlineVertices;
+            for( int j = 0; j < island->m_points.Size(); j++ )
+            {
+                Vector3<float> *thePoint = island->m_points[j];
+
+                Vector3<float> thisPoint(0,0,1);
+                thisPoint.RotateAroundY( thePoint->x/180.0f * M_PI );
+                Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
+                right.Normalise();
+                thisPoint.RotateAround( right * thePoint->y/180.0f * M_PI );
+
+                coastlineVertices.PutData(thisPoint);
+            }
+            if (coastlineVertices.Size() > 0) {
+                Vector3<float>* vertexArray = new Vector3<float>[coastlineVertices.Size()];
+                for (int k = 0; k < coastlineVertices.Size(); k++) {
+                    vertexArray[k] = coastlineVertices.GetData(k);
+                }
+                g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, coastlineVertices.Size());
+                delete[] vertexArray;
+            }
+        }
+        
+        g_renderer3d->EndMegaVBO3D();
+        AppDebugOut("Rebuilt globe coastlines VBO during gameplay with %d islands\n", g_app->GetEarthData()->m_islands.Size());
+    }
+
+    // Build it
     g_renderer3d->RenderMegaVBO3D("GlobeCoastlines");
     
+    // Borders VBO
     if (g_preferences->GetInt(PREFS_GRAPHICS_BORDERS) == 1) {
+        if (!g_renderer3d->IsMegaVBO3DValid("GlobeBorders")) {
+            g_renderer3d->BeginMegaVBO3D("GlobeBorders", Colour(0, 255, 0, 77));
+
+            for( int i = 0; i < g_app->GetEarthData()->m_borders.Size(); ++i )
+            {
+                Island *island = g_app->GetEarthData()->m_borders[i];
+                AppDebugAssert( island );
+
+                DArray<Vector3<float>> borderVertices;
+                for( int j = 0; j < island->m_points.Size(); j++ )
+                {
+                    Vector3<float> *thePoint = island->m_points[j];
+
+                    Vector3<float> thisPoint(0,0,1);
+                    thisPoint.RotateAroundY( thePoint->x/180.0f * M_PI );
+                    Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
+                    right.Normalise();
+                    thisPoint.RotateAround( right * thePoint->y/180.0f * M_PI );
+
+                    borderVertices.PutData(thisPoint);
+                }
+                if (borderVertices.Size() > 0) {
+                    Vector3<float>* vertexArray = new Vector3<float>[borderVertices.Size()];
+                    for (int k = 0; k < borderVertices.Size(); k++) {
+                        vertexArray[k] = borderVertices.GetData(k);
+                    }
+                    g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, borderVertices.Size());
+                    delete[] vertexArray;
+                }
+            }
+
+            g_renderer3d->EndMegaVBO3D();
+            AppDebugOut("Rebuilt globe borders VBO during gameplay with %d border segments\n", g_app->GetEarthData()->m_borders.Size());
+        }
+        
+        // Build it
         g_renderer3d->RenderMegaVBO3D("GlobeBorders");
     }
     
