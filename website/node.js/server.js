@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 09-07-2025
+//Last Edited 04-08-2025
 
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
@@ -100,6 +100,7 @@ const debugUtils = require('./debug-utils');
 const adminPanelRoutes = require('./apis/admin/admin-panel');
 const blacklistRoutes = require('./apis/admin/blacklist');
 const dedconBuildsRoutes = require('./apis/admin/dedcon-builds');
+const replayBuildsRoutes = require('./apis/admin/replay-builds');
 const dedconConfigRoutes = require('./apis/admin/dedcon-config');
 const demoAdminRoutes = require('./apis/admin/demo');
 const modlistAdminRoutes = require('./apis/admin/modlist');
@@ -124,6 +125,7 @@ const modRoutes = require('./apis/modlist/mod');
 const modReportingRoutes = require('./apis/modlist/reporting');
 const profileRoutes = require('./apis/profile/profile');
 const dedconRoutes = require('./apis/resources/dedcon');
+const replayRoutes = require('./apis/resources/replay');
 const resourcesRoutes = require('./apis/resources/resources');
 const requestRoutes = require('./apis/users/request');
 const smurfCheckerRoutes = require('./apis/smurfchecker/smurf-checker');
@@ -260,6 +262,7 @@ app.use((req, res, next) => {
 app.use(adminPanelRoutes);
 app.use(blacklistRoutes);
 app.use(dedconBuildsRoutes);
+app.use(replayBuildsRoutes);
 app.use(dedconConfigRoutes);
 app.use(demoAdminRoutes);
 app.use(modlistAdminRoutes);
@@ -284,6 +287,7 @@ app.use(modRoutes);
 app.use(modReportingRoutes);
 app.use(profileRoutes);
 app.use(dedconRoutes);
+app.use(replayRoutes);
 app.use(resourcesRoutes);
 app.use(requestRoutes);
 app.use(smurfCheckerRoutes);
@@ -341,6 +345,7 @@ app.get('/about/popular-territories', checkAuthToken, (req, res) => sendHtml(res
 app.get('/about/1v1-setup-statistics', checkAuthToken, (req, res) => sendHtml(res, '1v1setupstatistics.html'));
 app.get('/smurfchecker', checkAuthToken, (req, res) => sendHtml(res, 'smurfchecker.html'));
 app.get('/resources', checkAuthToken, (req, res) => sendHtml(res, 'resources.html'));
+app.get('/replay-viewer', checkAuthToken, (req, res) => sendHtml(res, 'replay-viewer.html'));
 app.get('/homepage', checkAuthToken, (req, res) => sendHtml(res, 'index.html'));
 app.get('/dedcon-builds', checkAuthToken, (req, res) => sendHtml(res, 'dedconbuilds.html'));
 app.get('/phpmyadmin', checkAuthToken, (req, res) => sendHtml(res, 'idiot.html')); // for the memes
@@ -370,6 +375,7 @@ app.get('/defconservers', authenticateToken, checkPermission(permissions.PAGE_DE
 app.get('/accountmanage', authenticateToken, checkPermission(permissions.PAGE_ACCOUNT_MANAGE), serveAdminPage('account-manage', permissions.PAGE_ACCOUNT_MANAGE));
 app.get('/modlistmanage', authenticateToken, checkPermission(permissions.PAGE_MODLIST_MANAGE), serveAdminPage('modmanagment', permissions.PAGE_MODLIST_MANAGE));
 app.get('/dedconmanagment', authenticateToken, checkPermission(permissions.PAGE_DEDCON_MANAGEMENT), serveAdminPage('dedconmanagment', permissions.PAGE_DEDCON_MANAGEMENT));
+app.get('/replayviewermanagment', authenticateToken, checkPermission(permissions.PAGE_REPLAY_MANAGE), serveAdminPage('replayviewermanagment', permissions.PAGE_REPLAY_MANAGE));
 app.get('/resourcemanage', authenticateToken, checkPermission(permissions.PAGE_RESOURCE_MANAGE), serveAdminPage('resourcemanagment', permissions.PAGE_RESOURCE_MANAGE));
 app.get('/serverconsole', authenticateToken, checkPermission(permissions.PAGE_SERVER_CONSOLE), serveAdminPage('server-console', permissions.PAGE_SERVER_CONSOLE));
 app.get('/rconconsole', authenticateToken, checkPermission(permissions.PAGE_RCON_CONSOLE), serveAdminPage('rcon-console', permissions.PAGE_RCON_CONSOLE));

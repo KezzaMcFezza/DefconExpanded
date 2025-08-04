@@ -76,6 +76,8 @@ void RendererDebugMenu::RenderDebugMenu()
 
 void RendererDebugMenu::RenderBufferStatistics(float& yPos)
 {
+    if (!m_renderer) return;
+    
     char statsBuffer[512];
     float lineHeight = 18.0f;
     float indentSmall = 20.0f;
@@ -84,7 +86,10 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     //
     // detect if we are in 3d mode
 
-    bool is3DMode = g_app->GetMapRenderer()->Is3DGlobeModeEnabled();
+    bool is3DMode = false;
+    if (g_app && g_app->GetMapRenderer()) {
+        is3DMode = g_app->GetMapRenderer()->Is3DGlobeModeEnabled();
+    }
     
     if (is3DMode) {
         m_renderer->TextSimple(25, yPos, Colour(255, 255, 255, 255), 13.0f, "Advanced Buffer Statistics (3D Mode)");
@@ -200,6 +205,8 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
 
 void RendererDebugMenu::RenderSystemInformation(float& yPos)
 {
+    if (!m_renderer) return;
+    
     char infoBuffer[256];
     float lineHeight = 18.0f;
     
@@ -282,6 +289,8 @@ size_t RendererDebugMenu::GetMemoryUsage()
 
 int RendererDebugMenu::EstimateBufferVertexCount()
 {
+    if (!m_renderer) return 0;
+    
     // Rough estimation based on typical vertex counts per draw call type
     int estimate = 0;
     
@@ -310,6 +319,8 @@ int RendererDebugMenu::EstimateBufferVertexCount()
 
 int RendererDebugMenu::EstimateTextureSwitches()
 {
+    if (!m_renderer) return 0;
+    
     // Rough estimation based on different texture types
     int switches = 0;
     

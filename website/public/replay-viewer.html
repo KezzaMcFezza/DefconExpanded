@@ -1,0 +1,890 @@
+<!--
+* DefconExpanded, Created by...
+* KezzaMcFezza - Main Developer
+* Nexustini - Server Managment
+*
+* Notable Mentions...
+* Rad - For helping with python scripts.
+* Bert_the_turtle - Doing everthing with c++
+* 
+* Inspired by Sievert and Wan May
+* 
+* Last Edited 04-08-2025 
+-->
+
+<!DOCTYPE html>
+<html lang="en" class="hide-scrollbar">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEFCON Expanded</title>
+  <meta name="description" content="Offical web page for the DefconExpanded Replay Viewer">
+  <meta name="keywords" content="defcon, defcon demos, defcon Expanded, game recording, game recordings modding community, 
+                                   demo downloads, mods, defcon mods, defcon dcrec, defcon modlist, defcon resources, defcon news, 
+                                   8 Player, 10 Player, 16 Player, dedcon, dedcon server, defcon leaderboard, defcon stats, defcon statistics,
+                                   defcon old guard, defcon game, defcon gaming community ">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://defconexpanded.com/replay-viewer" />
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://defconexpanded.com/replay-viewer">
+  <meta property="og:title" content="DEFCON Expanded">
+  <meta property="og:description" content="Offical webpage for the DefconExpanded Replay Viewer">
+  <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://defconexpanded.com/replay-viewer">
+  <meta name="twitter:title" content="DEFCON Expanded">
+  <meta name="twitter:description" content="Offical webpage for the DefconExpanded Replay Viewer">
+  <meta name="twitter:image" content="https://defconexpanded.com/images/logo.png">
+  <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="msapplication-TileColor" content="#ffffff">
+  <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="stylesheet" type="text/css" href="/CSS/newmain.css" />
+  <link rel="stylesheet" type="text/css" href="/CSS/dedcon-builds.css" />
+  <link rel="stylesheet" type="text/css" href="/CSS/scaling.css" />
+  <link rel="stylesheet" type="text/css" href="/CSS/admin.css" />
+  <script type="module" src="/javaScript/main/main.js" defer></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+  <script type="application/ld+json">
+        {
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "DEFCON Expanded Replay Viewer",
+          "url": "https://defconexpanded.com/replay-viewer",
+          "isPartOf": {
+            "@type": "WebSite",
+            "name": "DEFCON Expanded",
+            "url": "https://defconexpanded.com/"
+          },
+          "description": "Offical webpage for the DefconExpanded Replay Viewer",
+          "mainContentOfPage": {
+            "@type": "WebPageElement",
+            "cssSelector": ".resources-container"
+          }
+        }
+    </script>
+</head>
+<style>
+  .fa-user {
+    margin-right: 5px;
+  }
+
+  .fa-cog {
+    margin-right: 5px;
+  }
+
+  @media (max-width: 430px) {
+    .pabout2 {
+      margin-left: 0 !important;
+    }
+  }
+
+  .replay-viewer-pagination-card {
+    overflow-y: auto;
+  }
+
+  .replay-viewer-pagination-card::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .replay-viewer-pagination-card::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  .replay-viewer-pagination-card::-webkit-scrollbar-thumb {
+    background: rgba(77, 166, 255, 0.5);
+    border-radius: 4px;
+  }
+
+  .replay-viewer-pagination-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(77, 166, 255, 0.7);
+  }
+
+  .replay-viewer-pagination-card {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(77, 166, 255, 0.5) rgba(255, 255, 255, 0.1);
+  }
+
+  .pagination-nav-btn {
+    background-color: #1c1c2e !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 0.5rem 1rem !important;
+    margin: 0.25rem 0.25rem !important;
+    cursor: pointer !important;
+    border-radius: 4px !important;
+    transition: background-color 0.3s ease !important;
+    font-size: 0.85rem !important;
+    display: flex !important;
+    align-items: center !important;
+    font-family: 'Orbitron', sans-serif !important;
+  }
+
+  .pagination-nav-btn:hover:not(:disabled) {
+    background-color: #3d3d3d !important;
+  }
+
+  .pagination-nav-btn:disabled {
+    background-color: #1c1c2e !important;
+    color: #666 !important;
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+  }
+
+  .pagination-nav-btn:active:not(:disabled) {
+    background-color: #2a2a3e !important;
+    transform: translateY(1px) !important;
+  }
+
+  .page-indicator {
+    font-family: 'Orbitron', sans-serif !important;
+    font-weight: 500 !important;
+  }
+</style>
+
+<body class="hide-scrollbar">
+  <div id="sidebar">
+    <div class="title">DEFCON Expanded</div>
+    <ul class="list-items">
+      <li><a href="/" id="nav-game-recordings"><img src="/images/recording.png" alt="Game Recordings" class="steam-logo"
+            style="margin-right: 10px; width: 19px; height: 12px;">Game Recordings</a>
+      </li>
+      <li><a href="/about" id="nav-about"><img src="/images/abouticon.png" alt="About" class="steam-logo"
+            style="margin-right: 10px; width: 19px;">About</a></li>
+      <li><a href="/resources" id="nav-resources"><img src="/images/favicon.png" alt="Expanded Builds"
+            class="steam-logo" style="margin-right: 10px; width: 19px;">Expanded Builds</a></li>
+      <li><a href="/replay-viewer" id="nav-replay-viewer"><img src="/images/icon3expanded.png" alt="Replay Viewer"
+            class="steam-logo" style="margin-right: 10px; width: 19px;">Replay Viewer</a></li>
+      <li><a href="/dedcon-builds" id="nav-dedcon-builds"><img src="/images/dedcon.png" alt="Steam" class="steam-logo"
+            style="margin-right: 10px; width: 19px;">Dedcon</a></li>
+      <!-- <li><a href="/guides" id="nav-articles"><i class="fas fa-newspaper"></i>Guides</a></li> -->
+      <li><a href="/leaderboard" id="nav-leaderboard"><img src="/images/leaderboard.png" alt="Leaderboard"
+            class="steam-logo" style="margin-right: 10px; width: 19px; height: 20px;">Leaderboard</a></li>
+      <li><a href="/smurfchecker" id="nav-smurfchecker"><i class="fas fa-search"
+            style="margin-right: 10px; width: 19px;"></i>Smurf Checker</a></li>
+      <!-- <li><a href="/laikasdefcon" id="nav-laikasdefcon"><i class="fas fa-dog"></i>Laika's Defcon</a></li> -->
+      <li><a href="/modlist" id="nav-modlist"><img src="/images/icon3.png" alt="Modlist" class="steam-logo"
+            style="margin-right: 10px; width: 19px;">Defcon Modlist</a></li>
+      <div id="discord-widget"></div>
+      <header class="mobile-header">
+        <nav class="header-content">
+          <div class="account-container">
+            <div class="user-actions">
+              <div class="logged-out-actions">
+                <a href="/login" class="login-signup" target="_blank">Login</a>
+                <a href="/signup" class="login-signup" target="_blank">Sign up</a>
+              </div>
+
+              <div class="logged-in-actions" style="display: none;">
+                <div class="user-dropdown">
+                  <button class="dropbtn">
+                    <span id="logged-in-username">Logged-in User</span>
+                    <i class="fa fa-caret-down"></i>
+                  </button>
+                  <div class="dropdown-content-page">
+                    <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a>
+                    <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
+                  </div>
+                </div>
+                <button class="signout">Logout</button>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </header>
+    </ul>
+    <div class="icons">
+      <a href="mailto:keiron.mcphee1@gmail.com" target="_blank" class="mail-icon">
+        <img src="/images/mail-icon.png" alt="E-Mail" class="steam-logo">
+      </a>
+      <a href="https://www.youtube.com/@KezzaMacFezza" target="_blank" class="youtube-icon">
+        <img src="/images/youtube-icon.png" alt="Youtube" class="steam-logo">
+      </a>
+      <a href="https://store.steampowered.com/app/1520/DEFCON/" class="steam-icon" target="_blank">
+        <img src="/images/steam-logo.png" alt="Steam" class="steam-logo">
+      </a>
+      <a href="/privacypolicy" class="privacy-icon" target="_blank">
+        <img src="/images/privacy-policy.png" alt="Steam" class="steam-logo">
+      </a>
+    </div>
+  </div>
+  <main>
+    <header>
+      <nav class="header-content">
+        <div class="account-container">
+          <div class="user-actions">
+            <div class="logged-out-actions">
+              <a href="/login" class="login-signup" target="_blank">Login</a>
+              <a href="/signup" class="login-signup" target="_blank">Sign up</a>
+            </div>
+
+            <div class="logged-in-actions" style="display: none;">
+              <div class="user-dropdown">
+                <button class="dropbtn">
+                  <span id="logged-in-username">Logged-in User</span>
+                  <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content-page">
+                  <a href="#" class="profile-link"><i class="fas fa-user"></i>Profile</a>
+                  <a href="/account-settings"><i class="fas fa-cog"></i>Settings</a>
+                </div>
+              </div>
+              <button class="signout">Logout</button>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="dedcon-container">
+      <div class="dedcon-header">
+        <div class="dedcon-banner">
+          <div class="dedcon-banner-overlay"></div>
+        </div>
+        <div class="dedcon-info-bar">
+          <h1 class="dedcon-title">DefconExpanded Replay Viewer</h1>
+          <p class="dedcon-description">
+            Welcome to the Offical webpage for the DefconExpanded Replay Viewer!
+            <br>
+            <br>
+            This project allows users to watch DEFCON replays directly inside the browser, or for the people that have
+            issues you can also use a dedicated client!
+          </p>
+          <p class="dedcon-description">
+            Currently only Windows is supported on the dedicated client. However <mark
+              style="border-radius: 3px; width: 20px; background-color: rgb(0 183 255); font-weight: bold;">Linux and
+              MacOS WILL be coming</mark> so dont worry!
+            <br>
+            <br>
+            Special thanks to John Knottenbelt and Wan May for helping me out with some of the head scratching issues
+            with the project,
+            without them its very possible this project could have died months ago.
+            <br>
+            <br>
+            Notable mentions are <a href="/profile/Sievert" class="alinks">Sievert</a> and <a href="/profile/zad"
+              class="alinks">Zad</a> who helped with bugs that i never caught during testing.
+            <br>
+            <br>
+          </p>
+        </div>
+        <div class="dedcon-card recording-card">
+          <div class="dedcon-card-header">
+            <h2 class="dedcon-card-title">Important Information</h2>
+          </div>
+
+          <h3 class="recording-sections-title">Windows Users</h3>
+          <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
+            If you get a virus warning, temporarily disable Windows Defender. These builds aren't digitally signed so
+            they may trigger false positives.
+            Use the installer for easiest setup, or extract manually to your DEFCON directory.
+            <br>
+            <br>
+          <h3 class="recording-sections-title">Browser Users</h3>
+          <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
+            Chromium based browsers such as Chrome, Edge, Opera, Brave, etc are supported well by the replay viewer.
+            <br>
+            <br>
+            However Firefox and Safari is not supported, and even with the most bleeding edge hardware firefox is a
+            terrible experience.
+            And safari on some systems gives a <strong>WEBGL CONTEXT LOST</strong> error
+            <br>
+            <br>
+            MacOS users on the browser have some major issues with performance, some users report as low as 9fps even
+            when using
+            Chromium based browsers, Your mileage may vary.
+            <br>
+            <br>
+          </p>
+          <!--
+          <h3 class="recording-sections-title">Linux & MacOS Users</h3>
+          <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
+            Download the appropriate .tar file and extract it anywhere you prefer. The builds are cross-platform compatible.
+            For MacOS ARM users, the Intel builds work through <a href="https://support.apple.com/en-gb/102527" class="alinks" target="_blank" style="font-size: unset !important;">Rosetta translation</a>
+            <br><br>
+            <mark style="border-radius: 3px; background-color: rgb(255, 196, 0); font-weight: bold; padding: 2px 4px;">
+              Make sure to backup your original DEFCON installation before installing modded builds.
+            </mark>
+          </p>
+        -->
+        </div>
+      </div>
+
+      <div class="dedcon-content">
+        <div class="dedcon-main-content">
+          <div class="dedcon-card downloads-card replay-viewer-pagination-card" style="max-width: 926px;">
+            <div class="dedcon-card-header" style="display: flex; justify-content: space-between; align-items: center;">
+              <h2 class="dedcon-card-title" id="page-title">Downloads</h2>
+              <div class="pagination-controls" style="display: flex; align-items: center; gap: 8px;">
+                <button id="prevPage" class="pagination-nav-btn" disabled>
+                  <i class="fas fa-chevron-left" style="margin-right: 5px;"></i>Previous
+                </button>
+                <div class="page-indicator"
+                  style="display: flex; align-items: center; gap: 5px; color: #cccccc; font-size: 0.85rem; margin: 0 10px;">
+                  <span id="currentPage">1</span> / <span id="totalPages">5</span>
+                </div>
+                <button id="nextPage" class="pagination-nav-btn">
+                  Next<i class="fas fa-chevron-right" style="margin-left: 5px;"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="pagination-page" id="page-1" style="display: block;">
+              <div class="project-section">
+
+                <div class="download-section" style="margin-top: 25px; box-shadow: unset; padding: 0;">
+                  <h4 class="recording-sections-title" style="color: rgb(0, 183, 255); margin-bottom: 15px;">
+                    <i class="fas fa-download" style="margin-right: 8px;"></i>Recent Releases
+                  </h4>
+                  <div class="dedcon-build-container">
+                  </div>
+                </div>
+
+                <div class="download-section" style="margin-top: 30px; box-shadow: unset; padding: 0;">
+                  <h4 class="recording-sections-title" style="color: rgb(255, 196, 0); margin-bottom: 15px;">
+                    <i class="fas fa-history" style="margin-right: 8px;"></i>Version History
+                  </h4>
+                  <div class="dedcon-beta-container">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pagination-page" id="page-2" style="display: none;">
+              <div class="project-section" style="margin-top: 20px;">
+                <h3 class="recording-sections-title">What is the Replay Viewer?</h3>
+                <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
+                  The DefconExpanded Replay Viewer is a project that aims to make watching DEFCON replays easier and more immersive.
+                  One of the main goals of this project is to integrate feature sets that are not available when watching a recording
+                  with Dedcon.
+                  <br>
+                  <br>
+                  <a href="/dedcon-builds" class="alinks">Dedcon</a> is a great tool for watching replays and without it DEFCON may have died a decade ago, but it has some limitations.
+                  The biggest limitation is that Dedcon had to work with the limitations of the DEFCON client.
+                  That is what this project aims to solve, by creating a modified DEFCON client that can load recordings, we can
+                  add new features that never existed before and make the entire replay watching experience more inline with community expectations.
+                  <br>
+                  <br>
+                  One of the biggest breakthroughs of this project is the ability to watch replays directly in the browser.
+                  <br>
+                   By pressing the <strong>Watch Online</strong> 
+                  button on any DefconExpanded replay overview card, you can quickly re-watch a recording without having to download it and view it with Dedcon!
+                  <br>
+                  <br>
+                </p>
+              </div>
+
+              <div class="project-section">
+                <h3 class="recording-sections-title">Main Features</h3>
+                <div class="features-grid"
+                  style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px;">
+                  <div class="feature-card">
+                    <h4 style="color: rgb(0, 183, 255); margin: 0 0 10px 0; font-size: 1.1rem;">Playback Controls</h4>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                      <li>YouTube-style seeking, only works forwards for now</li>
+                      <li>Fast forward up to 100x speed</li>
+                      <li>Health Bars for ships and ground units</li>
+                      <li>Ability to hide UI elements</li>
+                    </ul>
+                  </div>
+
+                  <div class="feature-card">
+                    <h4 style="color: rgb(255, 196, 0); margin: 0 0 10px 0; font-size: 1.1rem;">Recording Playback</h4>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem;">
+                      <li>Radar perspective view, view a recording from another players perspective</li>
+                      <li>Whiteboard viewing support for each team and player</li>
+                      <li>View the lobby phase of a recording</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="image-collage-container" style="margin-top: 25px; border-radius: 8px;">
+                  <div class="collage-header" style="text-align: center; margin-bottom: 15px;">
+                  </div>
+                  <div class="image-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                    <div class="globe-image-container"
+                      style="position: relative; border-radius: 6px; height: 180px; overflow: hidden;">
+                      <img src="/images/feature1.png"
+                        style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                    </div>
+                    <div class="globe-image-container"
+                      style="position: relative; border-radius: 6px; height: 180px; overflow: hidden;">
+                      <img src="/images/feature2.png"
+                        style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                    </div>
+                    <div class="globe-image-container"
+                      style="position: relative; border-radius: 6px; height: 180px; overflow: hidden;">
+                      <img src="/images/feature3.png"
+                        style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="project-section" style="margin-top: 20px;">
+                <h3 class="recording-sections-title">Chrome Extension</h3>
+                <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
+                  Utilising the same API that sends .dcrec files to the replay viewer, we can allow other platforms such as Group6 and SFCON to work with the web based replay viewer, i created a very simple chrome
+                  extension that adds a <strong>Watch Online</strong> button to the game cards on Group6 and SFCON.
+                  <br>
+                  <br>
+                  This means that the replay viewer is not just a DefconExpanded
+                  feature! which is the best for the community.
+                </p>
+                <p class="pabout2" style="text-align: left; font-size: 0.95rem; margin-top: 15px;">
+                  Get the extension from the <a
+                    href="https://chromewebstore.google.com/detail/mfgamncnheeeendlakejgmcobabadapg?utm_source=item-share-cb"
+                    class="alinks" target="_blank">Chrome Web Store</a> if you want to use the web based replay viewer for Group6 or SFCON!
+                  Every recording on Group6 and SFCON is fully supported.
+                </p>
+              </div>
+            </div>
+
+            <div class="pagination-page" id="page-3" style="display: none;">
+              <div class="project-section">
+                <h3 class="recording-sections-title">What is Globe Mode?</h3>
+                <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
+                  Inspired from DEFCON VR, globe mode is a whole new way to watch a recording. It works completely seperately from 2D mode
+                  and is mainly used as an art piece. It is <strong>NOT</strong> a feature that is used for gameplay, nor does it replace 2D mode.
+                  <br>
+                  It simply allows another perspective of the game which can be extremely mesmerising to watch with the right recording.
+                  <br>
+                  <br>
+                  <strong>3D Globe Features:</strong>
+                </p>
+                <ul class="pabout2" style="font-size: 0.95rem; text-align: left;">
+                  <li><strong>3D Nuke Trajectories!</strong></li>
+                  <li>Retro Sphere that uses existing Coastlines and Borders</li>
+                  <li>Dynamic star field background for depth and atmosphere</li>
+                  <li>Google Earth globe controls</li>
+                  <li>Complete game state is viewable on the globe surface</li>
+                </ul>
+
+                <div class="video-container" style="margin: 25px 0; text-align: center;">
+                  <div style="position: relative; width: 100%; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
+                    <video 
+                      controls 
+                      style="width: 100%; height: auto; border-radius: 8px; display: block;"
+                      poster="/images/globe1.png">
+                      <source src="/images/globemode.mp4" type="video/mp4">
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+                </div>
+
+                <div class="image-collage-container">
+                  <div class="collage-header" style="text-align: center; margin-bottom: 15px;">
+                  </div>
+                  <div class="image-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                    <div class="globe-image-container"
+                      style="position: relative; border-radius: 6px; height: 180px; overflow: hidden;">
+                      <img src="/images/globe1.png"
+                        style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                    </div>
+                    <div class="globe-image-container"
+                      style="position: relative; border-radius: 6px; height: 180px; overflow: hidden;">
+                      <img src="/images/globe2.png"
+                        style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                    </div>
+                    <div class="globe-image-container"
+                      style="position: relative; border-radius: 6px; height: 180px; overflow: hidden;">
+                      <img src="/images/globe3.png"
+                        style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pagination-page" id="page-4" style="display: none;">
+              <div class="project-section">
+                <h3 class="recording-sections-title">Development</h3>
+                <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
+                  The project has been a dream of mine for almost a year, but i never had the motivation or knowledge to pull it off. Until now.
+                  At first i tried a simple javascript port of DEFCON's game engine but you can imagine that failed before it even begun.
+                  <br>
+                  <br>
+                  So i took a step back and done some research on how games are ported to the browser, games like Minecraft
+                  have been ported to the browser without any serious drawbacks or issues. With that in mind i came across Emscripten, a compiler that allows you to compile C/C++ code to WebAssembly.
+                  <br>
+                  <br>
+                  I ran into immedate roadblocks with the compilation, the main one was that DEFCON uses OpenGL 1.2 which is not supported by WebGL 2.0.
+                  Some OpenGL 1.2 features are supported by WebGL 1.0 but you guessed it DEFCON used features that were not supported by WebGL 1.0.
+                  <br>
+                  <br>
+                  I then realised that i was about to undertake the biggest project of my life, completely rewriting DEFCON's rendering engine to use
+                  OpenGL 3.3 Core, which is practically identical to OpenGL ES 3.0 which WebGL 2.0 supports.
+                  <br>
+                  <br>
+                  This took about a month development, the key was to preserve the exact same look and feel of the original game.
+                  <div class="globe-image-container"
+                  style="position: relative; border-radius: 6px; height: 100%; width: 100%; overflow: hidden;">
+                  <img src="/images/development1.png"
+                    style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                  </div>
+                </p>
+              </div>
+
+              <div class="project-section">
+                <h3 class="recording-sections-title">Extended Development</h3>
+                <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
+                  Once i had the rendering engine working, i actually ran into a problem where we ran slower than the original game!
+                  The main reason behind this is that the original game used immediate mode rendering which was actually cleverly batched
+                  by the GPU driver due to to decades of driver optimisations for OpenGL 1.2
+                  <br>
+                  <br>
+                  After adding a simple debug menu the issue was clear...
+                  <div class="globe-image-container"
+                  style="position: relative; border-radius: 6px; height: 100%; width: 100%; overflow: hidden;">
+                  <img src="/images/development2.png"
+                    style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                  </div>
+                  <p class="pabout2" style="text-align: left; font-size: 0.95rem; margin-bottom: 0px;">
+                  For context on what you are looking at, a draw call is a request that the CPU makes to the GPU to render a specific object.
+                  <br>
+                  If you have too many you actually get a huge compuational bottleneck!
+                  Every single element that was being rendered was being flushed immediately which resulted in astonishingly bad performance.
+              </p>
+              </div>
+            </div>
+
+            <div class="pagination-page" id="page-5" style="display: none;">
+              <div class="project-section">
+                <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
+                I decided to research how modern games tackle this problem and came across the concept of a texture atlas and vertex buffers.
+                Original DEFCON used individual textures files for each unit, this means that we cannot easily batch them without some strange behaviour.
+                Primarily because the GPU cannot handle multiple texture IDs in the same buffer object.
+                <br>
+                <br>
+                A quick and dirty solution was to create a system known as micro batching, we create a buffer for each texture ID and then we can allow them
+                to accumulate in seperate buffers and only flush when the buffer is full.
+                <br>
+                <br>
+                After accomplishing this task and adding unit trails and other immediate line rendering to a vertex buffer, the result was incredible
+                <div class="globe-image-container spoiler-container-dev3"
+                style="position: relative; border-radius: 6px; height: 100%; width: 100%; overflow: hidden; cursor: pointer;">
+                <img src="/images/development3.png" class="spoiler-image-dev3"
+                  style="width: 100%; height: 100%; object-fit: cover; display: block; filter: blur(10px); transition: filter 0.3s ease;">
+                <div class="spoiler-overlay-dev3" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; transition: opacity 0.3s ease;">
+                  <div class="spoiler-text-dev3" style="color: #4da6ff; font-size: 1.5rem; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); font-family: 'Orbitron', sans-serif;">
+                    SPOILER!
+                  </div>
+                </div>
+                </div>
+                <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
+                But we are far from finished, the next step is to add the fabled texture atlas, which means we never have to worry
+                about texture IDs and seperate buffers for each texture.
+                <br>
+                <br>
+                The reason a texture atlas is so powerful is that we can use 1 image and 1 buffer for every single unit, 
+                so when we flush its only 1 draw call! to preserve mod compatiblity we keep the original micro batching system
+                and just set it to never flush unless the buffer is full.
+                <br>
+                <br>
+                This was suprisingly easy to implement, we just create an atlas with the coordinates of each texture and then feed this
+                into the existing resource managment system.
+                <br>
+                And if you thought that the last image was impressive, then this will blow your mind!
+                <div class="globe-image-container spoiler-container"
+                style="position: relative; border-radius: 6px; height: 100%; width: 100%; overflow: hidden; cursor: pointer;">
+                <img src="/images/development4.png" class="spoiler-image"
+                  style="width: 100%; height: 100%; object-fit: cover; display: block; filter: blur(10px); transition: filter 0.3s ease;">
+                <div class="spoiler-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; transition: opacity 0.3s ease;">
+                  <div class="spoiler-text" style="color: #4da6ff; font-size: 1.5rem; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8); font-family: 'Orbitron', sans-serif;">
+                    SPOILER!
+                  </div>
+                </p>
+                 </div>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+
+          <div class="dedcon-card instructions-card">
+            <div class="dedcon-card-header">
+              <h2 class="dedcon-card-title">Installation Guide</h2>
+            </div>
+
+            <div class="installation-section">
+              <div class="dedcon-accordion">
+                <div class="dedcon-accordion-header">
+                  <h3>Windows Installation</h3>
+                  <span class="dedcon-toggle-icon">+</span>
+                </div>
+                <div class="dedcon-accordion-content">
+                  <p class="pabout2" style="text-align: left; font-size: 17px;">
+                    <strong>Manual Installation:</strong><br>
+                    1. Download the .zip file<br>
+                    2. Extract anywhere, replay viewer does not care where it lives<br>
+                    3. If you want to watch replays with map mods, you must have your authentication key in the same
+                    folder as the replay viewer<br>
+                    <br>
+                    <strong>Note:</strong> You may need to temporarily disable Windows Defender to avoid false virus
+                    warnings.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <!--
+            <div class="installation-section">
+              <div class="dedcon-accordion">
+                <div class="dedcon-accordion-header">
+                  <h3>Linux Installation</h3>
+                  <span class="dedcon-toggle-icon">+</span>
+                </div>
+                <div class="dedcon-accordion-content">
+                  <p class="pabout2" style="text-align: left; font-size: 17px;">
+                    1. Download the archive<br>
+                    2. Extract the archive: <code>tar -xf defcon-expanded-linux.tar</code><br>
+                    3. Copy the files to your DEFCON installation directory<br>
+                    4. Make sure the executable has proper permissions: <code>chmod +x defcon</code><br>
+                    <br>
+                    The Linux builds are cross-distro compatible and should work on most modern distributions.
+                    Built on the oldest Ubuntu version github actions would allow us to use.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="installation-section">
+              <div class="dedcon-accordion">
+                <div class="dedcon-accordion-header">
+                  <h3>MacOS Installation</h3>
+                  <span class="dedcon-toggle-icon">+</span>
+                </div>
+                <div class="dedcon-accordion-content">
+                  <p class="pabout2" style="text-align: left; font-size: 17px;">
+                    1. Download the archive<br>
+                    2. Extract the archive by double-clicking or using Terminal<br>
+                    3. Copy the files to your DEFCON installation directory<br>
+                    4. On first run, you may need to right-click and select "Open" to bypass <a href="https://support.apple.com/en-gb/guide/security/sec5599b66df/web" class="alinks" target="_blank" style="font-size: unset !important;">Gatekeeper</a><br>
+                    <br>
+                    <strong>ARM64 Mac users:</strong> Intel builds work through Rosetta 2 translation if native ARM64 builds aren't available.
+                  </p>
+                </div>
+              </div>
+            </div>
+            -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const accordions = document.querySelectorAll('.dedcon-accordion-header');
+
+      accordions.forEach(accordion => {
+        accordion.addEventListener('click', function () {
+          this.classList.toggle('active');
+
+          const icon = this.querySelector('.dedcon-toggle-icon');
+          icon.textContent = icon.textContent === '+' ? '−' : '+';
+
+          const content = this.nextElementSibling;
+          if (content.style.maxHeight) {
+            content.style.maxHeight = null;
+          } else {
+            content.style.maxHeight = content.scrollHeight + "px";
+          }
+        });
+      });
+
+      let currentPage = 1;
+      const totalPages = 5;
+
+      const pageTitles = {
+        1: "Downloads",
+        2: "Overview", 
+        3: "Globe Mode",
+        4: "Development: Page 1",
+        5: "Development: Page 2"
+      };
+
+      const prevBtn = document.getElementById('prevPage');
+      const nextBtn = document.getElementById('nextPage');
+      const currentPageSpan = document.getElementById('currentPage');
+      const totalPagesSpan = document.getElementById('totalPages');
+
+      updatePagination();
+      showPage(currentPage);
+
+      prevBtn.addEventListener('click', function () {
+        if (currentPage > 1) {
+          currentPage--;
+          updatePagination();
+          showPage(currentPage);
+        }
+      });
+
+      nextBtn.addEventListener('click', function () {
+        if (currentPage < totalPages) {
+          currentPage++;
+          updatePagination();
+          showPage(currentPage);
+        }
+      });
+
+      function showPage(pageNum) {
+        for (let i = 1; i <= totalPages; i++) {
+          const page = document.getElementById(`page-${i}`);
+          if (page) {
+            page.style.display = 'none';
+            page.style.opacity = '0';
+          }
+        }
+
+        const currentPageElement = document.getElementById(`page-${pageNum}`);
+        if (currentPageElement) {
+          currentPageElement.style.display = 'block';
+          setTimeout(() => {
+            currentPageElement.style.transition = 'opacity 0.3s ease-in-out';
+            currentPageElement.style.opacity = '1';
+          }, 10);
+        }
+
+        const aboutCard = document.querySelector('.dedcon-card.downloads-card');
+        if (aboutCard) {
+          aboutCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+
+      function updatePagination() {
+        currentPageSpan.textContent = currentPage;
+        totalPagesSpan.textContent = totalPages;
+
+        const pageTitle = document.getElementById('page-title');
+        if (pageTitle && pageTitles[currentPage]) {
+          pageTitle.textContent = pageTitles[currentPage];
+        }
+
+        prevBtn.disabled = currentPage === 1;
+        nextBtn.disabled = currentPage === totalPages;
+      }
+
+      document.addEventListener('keydown', function (e) {
+        const focusedElement = document.activeElement;
+        const paginationArea = document.querySelector('.pagination-controls');
+
+        if (paginationArea && (paginationArea.contains(focusedElement) ||
+          focusedElement === prevBtn || focusedElement === nextBtn)) {
+
+          if (e.key === 'ArrowLeft' && currentPage > 1) {
+            e.preventDefault();
+            currentPage--;
+            updatePagination();
+            showPage(currentPage);
+          } else if (e.key === 'ArrowRight' && currentPage < totalPages) {
+            e.preventDefault();
+            currentPage++;
+            updatePagination();
+            showPage(currentPage);
+          }
+        }
+      });
+
+      const paginationBtns = document.querySelectorAll('.pagination-nav-btn');
+      paginationBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+          if (!this.disabled) {
+            this.style.transition = 'transform 0.1s ease';
+          }
+        });
+      });
+
+      const spoilerContainer = document.querySelector('.spoiler-container');
+      if (spoilerContainer) {
+        let isRevealed = false;
+        
+        spoilerContainer.addEventListener('click', function () {
+          if (!isRevealed) {
+            const spoilerImage = this.querySelector('.spoiler-image');
+            const spoilerOverlay = this.querySelector('.spoiler-overlay');
+            
+            spoilerImage.style.filter = 'blur(0px)';
+            spoilerOverlay.style.opacity = '0';
+            this.style.cursor = 'default';
+            
+            isRevealed = true;
+            
+            setTimeout(() => {
+              spoilerOverlay.style.display = 'none';
+            }, 300);
+          }
+        });
+        
+        spoilerContainer.addEventListener('mouseenter', function () {
+          if (!isRevealed) {
+            const spoilerOverlay = this.querySelector('.spoiler-overlay');
+            spoilerOverlay.style.background = 'rgba(0, 0, 0, 0.8)';
+          }
+        });
+        
+        spoilerContainer.addEventListener('mouseleave', function () {
+          if (!isRevealed) {
+            const spoilerOverlay = this.querySelector('.spoiler-overlay');
+            spoilerOverlay.style.background = 'rgba(0, 0, 0, 0.7)';
+          }
+        });
+      }
+
+      const spoilerContainerDev3 = document.querySelector('.spoiler-container-dev3');
+      if (spoilerContainerDev3) {
+        let isRevealedDev3 = false;
+        
+        spoilerContainerDev3.addEventListener('click', function () {
+          if (!isRevealedDev3) {
+            const spoilerImage = this.querySelector('.spoiler-image-dev3');
+            const spoilerOverlay = this.querySelector('.spoiler-overlay-dev3');
+            
+            spoilerImage.style.filter = 'blur(0px)';
+            spoilerOverlay.style.opacity = '0';
+            this.style.cursor = 'default';
+            
+            isRevealedDev3 = true;
+            
+            setTimeout(() => {
+              spoilerOverlay.style.display = 'none';
+            }, 300);
+          }
+        });
+        
+        spoilerContainerDev3.addEventListener('mouseenter', function () {
+          if (!isRevealedDev3) {
+            const spoilerOverlay = this.querySelector('.spoiler-overlay-dev3');
+            spoilerOverlay.style.background = 'rgba(0, 0, 0, 0.8)';
+          }
+        });
+        
+        spoilerContainerDev3.addEventListener('mouseleave', function () {
+          if (!isRevealedDev3) {
+            const spoilerOverlay = this.querySelector('.spoiler-overlay-dev3');
+            spoilerOverlay.style.background = 'rgba(0, 0, 0, 0.7)';
+          }
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>

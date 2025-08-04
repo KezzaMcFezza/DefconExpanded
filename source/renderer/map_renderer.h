@@ -17,7 +17,9 @@ class RendererDebugMenu;
 #define    PREFS_GRAPHICS_COUNTRYNAMES     "RenderCountryNames"
 #define    PREFS_GRAPHICS_WATER            "RenderWater"
 #define    PREFS_GRAPHICS_RADIATION        "RenderRadiation"
+#ifdef FUCKED // does not work and really we dont need this anymore
 #define    PREFS_GRAPHICS_LOWRESWORLD      "RenderLowDetailWorld"
+#endif
 #define    PREFS_GRAPHICS_TRAILS           "RenderObjectTrails"
 
 #define    STYLE_WORLD_COASTLINES          "WorldCoastlines"

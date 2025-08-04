@@ -1120,7 +1120,9 @@ class ApplyGraphicsButton : public InterfaceButton
         g_preferences->SetInt( PREFS_GRAPHICS_COUNTRYNAMES, gow->m_countryNames );
         g_preferences->SetInt( PREFS_GRAPHICS_WATER, gow->m_water );
         g_preferences->SetInt( PREFS_GRAPHICS_RADIATION, gow->m_radiation );
+#ifdef FUCKED // does not work and really we dont need this anymore
         g_preferences->SetInt( PREFS_GRAPHICS_LOWRESWORLD, gow->m_lowResWorld );
+#endif
         g_preferences->SetInt( PREFS_GRAPHICS_TRAILS, gow->m_trails );
         g_preferences->SetInt( PREFS_GRAPHICS_LOBBYEFFECTS, gow->m_lobbyEffects );
         
@@ -1145,7 +1147,9 @@ GraphicsOptionsWindow::GraphicsOptionsWindow()
     m_countryNames  = g_preferences->GetInt( PREFS_GRAPHICS_COUNTRYNAMES );
     m_water         = g_preferences->GetInt( PREFS_GRAPHICS_WATER );
     m_radiation     = g_preferences->GetInt( PREFS_GRAPHICS_RADIATION );
+#ifdef FUCKED // does not work and really we dont need this anymore
     m_lowResWorld   = g_preferences->GetInt( PREFS_GRAPHICS_LOWRESWORLD );
+#endif
     m_trails        = g_preferences->GetInt( PREFS_GRAPHICS_TRAILS );
     m_lobbyEffects  = g_preferences->GetInt( PREFS_GRAPHICS_LOBBYEFFECTS );
 }
@@ -1163,13 +1167,15 @@ void GraphicsOptionsWindow::Create()
     InvertedBox *box = new InvertedBox();
     box->SetProperties( "invert", 10, 50, m_w - 20, m_h - 110, " ", " ", false, false );        
     RegisterButton( box );
-
     DropDownMenu *dropDown = new DropDownMenu();
+
+#ifdef FUCKED // does not work and really we dont need this anymore
     dropDown->SetProperties( "Low-detail World", x, y+=h, w, 20, "dialog_lowdetailworld", " ", true, false );
     dropDown->AddOption( "dialog_enabled", 1, true );
     dropDown->AddOption( "dialog_disabled", 0, true );
     dropDown->RegisterInt( &m_lowResWorld );
     RegisterButton(dropDown);
+#endif
 
     dropDown = new DropDownMenu();
     dropDown->SetProperties( "Show Borders", x, y+=h, w, 20, "dialog_borders", " ", true, false );
@@ -1241,7 +1247,9 @@ void GraphicsOptionsWindow::Render( bool _hasFocus )
     int h = 30;
     int size = 13;
 
+#ifdef FUCKED // does not work and really we dont need this anymore
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_lowdetailworld") );
+#endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_borders") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_citynames") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_countrynames") );
