@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024 
+* Last Edited 04-08-2025 
 -->
 
 <!DOCTYPE html>
@@ -66,6 +66,8 @@
                             class="fa-solid fa-magnifying-glass"></i>Player Search</a></li>
                 <li data-permission="PAGE_DEDCON_MANAGEMENT"><a href="/dedconmanagment" id="nav-dedconmanagment"><i
                             class="fas fa-radiation"></i>Dedcon Managment</a></li>
+                <li data-permission="PAGE_REPLAY_MANAGE"><a href="/replayviewermanagment" id="nav-replaymanagment"><i
+                            class="fas fa-play-circle"></i>Replay Managment</a></li>
                 <li data-permission="PAGE_RESOURCE_MANAGE"><a href="/resourcemanage" id="nav-resourcemanage"><i
                             class="fas fa-download"></i>Resource Managment</a></li>
                 <li data-permission="PAGE_MODLIST_MANAGE"><a href="/modlistmanage" id="nav-modmanage"><i
@@ -90,7 +92,7 @@
                 <br>
                 <br>
                 The permission system is organized into categories: Page Access, User Management, Demo Management, 
-                Blacklist Management, Mod Management, Resource Management, Server Console, RCON Console, and Admin Actions.
+                Blacklist Management, Mod Management, Resource Management, Replay Viewer Management, Server Console, RCON Console, and Admin Actions.
                 <br>
                 <br>
             </p>
@@ -169,6 +171,10 @@
                                         <label class="permission-item">
                                             <input type="checkbox" name="permission" value="PAGE_DEDCON_MANAGEMENT">
                                             <span>Dedcon Management</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="PAGE_REPLAY_MANAGE">
+                                            <span>Replay Viewer Management</span>
                                         </label>
                                         <label class="permission-item">
                                             <input type="checkbox" name="permission" value="PAGE_RESOURCE_MANAGE">
@@ -308,6 +314,29 @@
                                         <label class="permission-item">
                                             <input type="checkbox" name="permission" value="RESOURCE_DELETE">
                                             <span>Delete Resources</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Replay Viewer Management Permissions -->
+                                <div class="permission-category">
+                                    <h4><i class="fas fa-play-circle"></i> Replay Viewer Management</h4>
+                                    <div class="permission-grid">
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="REPLAY_VIEW">
+                                            <span>View Replay Builds</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="REPLAY_ADD">
+                                            <span>Add Replay Builds</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="REPLAY_EDIT">
+                                            <span>Edit Replay Builds</span>
+                                        </label>
+                                        <label class="permission-item">
+                                            <input type="checkbox" name="permission" value="REPLAY_DELETE">
+                                            <span>Delete Replay Builds</span>
                                         </label>
                                     </div>
                                 </div>

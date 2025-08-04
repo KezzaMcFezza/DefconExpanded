@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 25-05-2025
+//Last Edited 04-08-2025
 
 const mysql = require('mysql2/promise');
 const path = require('path');
@@ -21,6 +21,7 @@ const publicDir = path.join(rootDir, 'public');
 const demoDir = path.join(rootDir, 'demo_recordings');
 const resourcesDir = path.join(publicDir, 'Files');
 const dedconBuildsDir = path.join(publicDir, 'Files');
+const replayBuildsDir = path.join(publicDir, 'Files');
 const uploadDir = publicDir;
 const gameLogsDir = path.join(rootDir, 'game_logs');
 const modlistDir = path.join(publicDir, 'modlist');
@@ -49,7 +50,7 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-[demoDir, resourcesDir, dedconBuildsDir, uploadDir, gameLogsDir, modlistDir, modPreviewsDir].forEach(dir => {
+[demoDir, resourcesDir, dedconBuildsDir, replayBuildsDir, uploadDir, gameLogsDir, modlistDir, modPreviewsDir].forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
@@ -65,6 +66,8 @@ const storage = multer.diskStorage({
             cb(null, dedconBuildsDir);
         } else if (file.fieldname === 'dedconBuildsFile') {
             cb(null, resourcesDir);
+        } else if (file.fieldname === 'replayBuildsFile') {
+            cb(null, replayBuildsDir);
         } else if (file.fieldname === 'modFile') {
             cb(null, modlistDir);
         } else if (file.fieldname === 'previewImage') {
@@ -100,6 +103,7 @@ const adminPages = [
     'server-console.html',
     'playerlookup.html',
     'dedconmanagment.html',
+    'replayviewermanagment.html',
     'servermanagment.html',
     'rcon-console.html'
 ];
@@ -145,6 +149,7 @@ module.exports = {
     demoDir,
     resourcesDir,
     dedconBuildsDir,
+    replayBuildsDir,
     uploadDir,
     gameLogsDir,
     modlistDir,

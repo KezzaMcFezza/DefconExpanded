@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 25-05-2025
+//Last Edited 04-08-2025
 
 module.exports = {
     PAGE_ADMIN_PANEL: 1,
@@ -22,6 +22,7 @@ module.exports = {
     PAGE_RESOURCE_MANAGE: 9,
     PAGE_SERVER_CONSOLE: 10,
     PAGE_RCON_CONSOLE: 11,
+    PAGE_REPLAY_MANAGE: 12,
     USER_VIEW_LIST: 100,
     USER_VIEW_DETAILS: 101,
     USER_EDIT_BASIC: 102, 
@@ -105,5 +106,9 @@ module.exports = {
     ADMIN_VIEW_REPORTS: 950,
     ADMIN_VIEW_STATISTICS: 951,
     ADMIN_SYSTEM_MAINTENANCE: 952,
-    ADMIN_CONFIGURE_WEBSITE: 953
+    ADMIN_CONFIGURE_WEBSITE: 953,
+    REPLAY_VIEW: 1100,
+    REPLAY_ADD: 1101,
+    REPLAY_EDIT: 1102,
+    REPLAY_DELETE: 1103
 }; 

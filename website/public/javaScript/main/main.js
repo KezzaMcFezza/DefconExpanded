@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 06-06-2025
+//Last Edited 04-08-2025
 
 import { initializeDiscordWidget } from './discord.js';
 import { initializeReportHandlers } from './reporting.js';
@@ -626,6 +626,188 @@ async function displayDedconBetaBuilds() {
   }
 }
 
+async function displayReplayBuilds() {
+  try {
+    const response = await fetch('/api/replay-builds');
+    const builds = await response.json();
+
+    const buildContainer = document.querySelector('.dedcon-build-container');
+    if (!buildContainer) {
+      console.error('Replay build container not found');
+      return;
+    }
+
+    buildContainer.innerHTML = `
+    <div class="tutorial-download-container">
+      <table class="version-history-table">
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>Version</th>
+            <th>Release Date</th>
+            <th>File Size</th>
+            <th>Download</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+    const recentBuilds = builds
+      .sort((a, b) => new Date(b.release_date) - new Date(a.release_date))
+      .slice(0, 4);
+
+    if (recentBuilds.length === 0) {
+      buildContainer.innerHTML = '<p style="color: #b8b8b8; text-align: center; padding: 2rem;">No recent releases available.</p>';
+      return;
+    }
+
+    const tableBody = buildContainer.querySelector('tbody');
+    const platformDisplayNames = {
+      'windows': 'Windows',
+      'linux': 'Linux',
+      'macos-intel': 'MacOS Intel',
+      'macos-arm64': 'MacOS ARM64'
+    };
+
+    recentBuilds.forEach((build, index) => {
+      const platformName = platformDisplayNames[build.platform];
+      const isLatest = index === 0 || (build.platform !== recentBuilds[index - 1].platform);
+
+      const row = document.createElement('tr');
+      row.className = isLatest ? 'latest-version' : '';
+
+      row.innerHTML = `
+      <td>
+        <div class="platform-cell">
+          <img src="/images/${build.platform}-icon.png" alt="${platformName}" class="steam-logo" style="width: 16px;" />
+          ${platformName}
+        </div>
+      </td>
+      <td class="td2">${build.version}</td>
+      <td>${isLatest ?
+          `<span class="latest-tag"></span> ${new Date(build.release_date).toLocaleDateString()}` :
+          new Date(build.release_date).toLocaleDateString()
+        }</td>
+      <td>${formatBytes(build.size || 0)}</td>
+      <td>
+        <a href="/api/download-replay-build/${encodeURIComponent(build.name)}" 
+           class="btn-download foo">
+           Download
+        </a>
+      </td>
+    `;
+
+      tableBody.appendChild(row);
+    });
+
+  } catch (error) {
+    console.error('Error loading replay builds:', error);
+  }
+}
+
+async function displayReplayVersionHistory() {
+  try {
+    const response = await fetch('/api/replay-builds');
+    const builds = await response.json();
+
+    const container = document.querySelector('.dedcon-beta-container');
+    if (!container) {
+      console.error('Replay version history container not found');
+      return;
+    }
+
+    const allBuilds = builds.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
+
+    if (allBuilds.length === 0) {
+      container.innerHTML = '<p style="color: #b8b8b8; text-align: center; padding: 2rem;">No replay builds available.</p>';
+      return;
+    }
+
+    if (allBuilds.length > 9) {
+      container.classList.add('scrollable');
+    } else {
+      container.classList.remove('scrollable');
+    }
+
+    container.innerHTML = createReplayBuildTable(allBuilds);
+  } catch (error) {
+    console.error('Error loading replay builds version history:', error);
+  }
+}
+
+function createReplayBuildTable(builds) {
+  const platformIcons = {
+    'windows': '/images/windows-icon.png',
+    'linux': '/images/linux-icon.png',
+    'macos-intel': '/images/macos-intel-icon.png',
+    'macos-arm64': '/images/macos-arm64-icon.png'
+  };
+
+  let tableHTML = `
+    <table class="version-history-table">
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Version</th>
+          <th>Release Date</th>
+          <th>File Size</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  builds.forEach(build => {
+    const platformDisplay = getReplayPlatformDisplay(build.platform);
+    const platformIcon = platformIcons[build.platform] || '';
+    const version = build.version || 'Unknown';
+    const date = build.release_date ? new Date(build.release_date).toLocaleDateString() : 'Unknown';
+    const size = formatBytes(build.size || 0);
+
+    tableHTML += `
+      <tr>
+        <td class="platform-cell">
+          ${platformIcon ? `<img src="${platformIcon}" alt="${platformDisplay}" class="os-icon">` : ''}
+          ${platformDisplay}
+        </td>
+        <td class="td2">${version}</td>
+        <td>${date}</td>
+        <td>${size}</td>
+        <td>
+          <a href="/api/download-replay-build/${encodeURIComponent(build.name)}" class="btn-download">
+            Download
+          </a>
+        </td>
+      </tr>
+    `;
+  });
+
+  tableHTML += `
+      </tbody>
+    </table>
+  `;
+
+  return tableHTML;
+}
+
+function getReplayPlatformDisplay(platform) {
+  if (!platform || platform === 'NULL') {
+    return 'Unknown Platform';
+  }
+
+  const platformMap = {
+    'windows': 'Windows',
+    'linux': 'Linux', 
+    'macos-intel': 'MacOS Intel',
+    'macos-arm64': 'MacOS ARM64'
+  };
+
+  return platformMap[platform] || platform;
+}
+
 function initializeApplication() {
   initializePopupSystem();
   initializeAuthentication();
@@ -668,6 +850,8 @@ function initializeApplication() {
   if (dedconContainer) {
     if (window.location.pathname.includes('/resources')) {
       displayResourcesRecentReleases();
+    } else if (window.location.pathname.includes('/replay-viewer')) {
+      displayReplayBuilds();
     } else {
       displayDedconBuilds();
     }
@@ -677,6 +861,8 @@ function initializeApplication() {
   if (dedconBetaContainer) {
     if (window.location.pathname.includes('/resources')) {
       displayResourcesVersionHistory();
+    } else if (window.location.pathname.includes('/replay-viewer')) {
+      displayReplayVersionHistory();
     } else {
       displayDedconBetaBuilds();
     }

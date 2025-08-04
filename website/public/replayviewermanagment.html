@@ -171,77 +171,41 @@
         </div>
         <main>
             <div id="admin-content">
-                <div id="dedcon-build-managment" class="section">
-                    <h2 data-permission="DEDCON_ADD">Windows Builds</h2>
-                    <form id="upload-windows-dedcon" enctype="multipart/form-data" data-permission="DEDCON_ADD">
-                        <input type="file" name="dedconBuildsFile" accept=".zip" required>
+                <div id="replay-build-managment" class="section">
+                    <h2 data-permission="REPLAY_ADD">Windows Builds</h2>
+                    <form id="upload-windows-replay" enctype="multipart/form-data" data-permission="REPLAY_ADD">
+                        <input type="file" name="replayBuildsFile" accept=".zip" required>
                         <input type="text" name="version" placeholder="Version" required>
                         <input type="date" name="releaseDate" required>
-                        <select name="playerCount" required>
-                            <option value="6">Vanilla</option>
-                            <option value="8">8 Players</option>
-                            <option value="10">10 Players</option>
-                        </select>
-                        <div style="display: flex; align-items: center; margin: 10px 0;">
-                            <input type="checkbox" id="windows-beta" name="beta" value="1" style="width: auto; margin-right: 8px;">
-                            <label for="windows-beta">Mark as Beta Release</label>
-                        </div>
-                        <button type="submit">Upload Windows Resource</button>
+                        <button type="submit">Upload Windows Build</button>
                     </form>
 
-                    <h2 data-permission="DEDCON_ADD">Linux Builds</h2>
-                    <form id="upload-linux-dedcon" enctype="multipart/form-data" data-permission="DEDCON_ADD">
-                        <input type="file" name="dedconBuildsFile">
+                    <h2 data-permission="REPLAY_ADD">Linux Builds</h2>
+                    <form id="upload-linux-replay" enctype="multipart/form-data" data-permission="REPLAY_ADD">
+                        <input type="file" name="replayBuildsFile">
                         <input type="text" name="version" placeholder="Version" required>
                         <input type="date" name="releaseDate" required>
-                        <select name="playerCount" required>
-                            <option value="6">Vanilla</option>
-                            <option value="8">8 Players</option>
-                            <option value="10">10 Players</option>
-                        </select>
-                        <div style="display: flex; align-items: center; margin: 10px 0;">
-                            <input type="checkbox" id="linux-beta" name="beta" value="1" style="width: auto; margin-right: 8px;">
-                            <label for="linux-beta">Mark as Beta Release</label>
-                        </div>
-                        <button type="submit">Upload Linux Resource</button>
+                        <button type="submit">Upload Linux Build</button>
                     </form>
 
-                    <h2 data-permission="DEDCON_ADD">MacOS Intel Builds</h2>
-                    <form id="upload-macos-intel-dedcon" enctype="multipart/form-data" data-permission="DEDCON_ADD">
-                        <input type="file" name="dedconBuildsFile">
+                    <h2 data-permission="REPLAY_ADD">MacOS Intel Builds</h2>
+                    <form id="upload-macos-intel-replay" enctype="multipart/form-data" data-permission="REPLAY_ADD">
+                        <input type="file" name="replayBuildsFile">
                         <input type="text" name="version" placeholder="Version" required>
                         <input type="date" name="releaseDate" required>
-                        <select name="playerCount" required>
-                            <option value="6">Vanilla</option>
-                            <option value="8">8 Players</option>
-                            <option value="10">10 Players</option>
-                        </select>
-                        <div style="display: flex; align-items: center; margin: 10px 0;">
-                            <input type="checkbox" id="macos-intel-beta" name="beta" value="1" style="width: auto; margin-right: 8px;">
-                            <label for="macos-intel-beta">Mark as Beta Release</label>
-                        </div>
-                        <button type="submit">Upload MacOS Intel Resource</button>
+                        <button type="submit">Upload MacOS Intel Build</button>
                     </form>
 
-                    <h2 data-permission="DEDCON_ADD">MacOS Arm64 Builds</h2>
-                    <form id="upload-macos-arm64-dedcon" enctype="multipart/form-data" data-permission="DEDCON_ADD">
-                        <input type="file" name="dedconBuildsFile">
+                    <h2 data-permission="REPLAY_ADD">MacOS Arm64 Builds</h2>
+                    <form id="upload-macos-arm64-replay" enctype="multipart/form-data" data-permission="REPLAY_ADD">
+                        <input type="file" name="replayBuildsFile">
                         <input type="text" name="version" placeholder="Version" required>
                         <input type="date" name="releaseDate" required>
-                        <select name="playerCount" required>
-                            <option value="6">Vanilla</option>
-                            <option value="8">8 Players</option>
-                            <option value="10">10 Players</option>
-                        </select>
-                        <div style="display: flex; align-items: center; margin: 10px 0;">
-                            <input type="checkbox" id="macos-arm64-beta" name="beta" value="1" style="width: auto; margin-right: 8px;">
-                            <label for="macos-arm64-beta">Mark as Beta Release</label>
-                        </div>
-                        <button type="submit">Upload MacOS Arm64 Resource</button>
+                        <button type="submit">Upload MacOS Arm64 Build</button>
                     </form>
 
                     <h2>Build List</h2>
-                    <table id="dedcon-table">
+                    <table id="replay-table">
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -258,25 +222,21 @@
                     </table>
                 </div>
 
-                <div id="dedcon-build-edit" class="section" style="display: none;">
+                <div id="replay-build-edit" class="section" style="display: none;">
                     <h2>Edit Build</h2>
-                    <form id="edit-dedcon-resource-form">
-                        <input type="hidden" id="edit-dedcon-resource-id">
-                        <input type="text" id="edit-dedcon-resource-name" placeholder="Name" required>
-                        <input type="text" id="edit-dedcon-resource-version" placeholder="Version" required>
-                        <input type="date" id="edit-dedcon-resource-date" required>
-                        <select id="edit-resource-platform" required>
+                    <form id="edit-replay-resource-form">
+                        <input type="hidden" id="edit-replay-resource-id">
+                        <input type="text" id="edit-replay-resource-name" placeholder="Name" required>
+                        <input type="text" id="edit-replay-resource-version" placeholder="Version" required>
+                        <input type="date" id="edit-replay-resource-date" required>
+                        <select id="edit-replay-resource-platform" required>
                             <option value="windows">Windows</option>
                             <option value="linux">Linux</option>
                             <option value="macos-intel">MacOS Intel</option>
                             <option value="macos-arm64">MacOS Arm64</option>
                         </select>
-                        <div style="display: flex; align-items: center; margin: 10px 0;">
-                            <input type="checkbox" id="edit-resource-beta" name="beta" value="1" style="width: auto; margin-right: 8px;">
-                            <label for="edit-resource-beta">Mark as Beta Release</label>
-                        </div>
                         <button type="submit">Save Changes</button>
-                        <button type="button" id="cancel-edit">Cancel</button>
+                        <button type="button" id="cancel-edit-replay">Cancel</button>
                     </form>
                 </div>
             </div>
