@@ -328,10 +328,21 @@ async function displayResourcesRecentReleases() {
     const container = document.querySelector('.dedcon-build-container');
     if (!container) return;
 
-    const recentResources = resources
+    const latestResourcesPerPlatform = [];
+    const seenPlatforms = new Set();
+    
+    const sortedResources = resources
       .filter(resource => resource.platform && resource.platform !== 'NULL')
-      .sort((a, b) => new Date(b.date) - new Date(a.date))
-      .slice(0, 9);
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    for (const resource of sortedResources) {
+      if (!seenPlatforms.has(resource.platform)) {
+        latestResourcesPerPlatform.push(resource);
+        seenPlatforms.add(resource.platform);
+      }
+    }
+    
+    const recentResources = latestResourcesPerPlatform;
 
     if (recentResources.length === 0) {
       container.innerHTML = '<p style="color: #b8b8b8; text-align: center; padding: 2rem;">No recent releases available.</p>';
@@ -655,9 +666,19 @@ async function displayReplayBuilds() {
     </div>
   `;
 
-    const recentBuilds = builds
-      .sort((a, b) => new Date(b.release_date) - new Date(a.release_date))
-      .slice(0, 4);
+    const latestBuildsPerPlatform = [];
+    const seenPlatforms = new Set();
+    
+    const sortedBuilds = builds.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
+    
+    for (const build of sortedBuilds) {
+      if (!seenPlatforms.has(build.platform)) {
+        latestBuildsPerPlatform.push(build);
+        seenPlatforms.add(build.platform);
+      }
+    }
+    
+    const recentBuilds = latestBuildsPerPlatform;
 
     if (recentBuilds.length === 0) {
       buildContainer.innerHTML = '<p style="color: #b8b8b8; text-align: center; padding: 2rem;">No recent releases available.</p>';
