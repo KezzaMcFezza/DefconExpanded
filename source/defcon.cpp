@@ -738,7 +738,37 @@ unsigned char GenerateSyncValue()
     //
     // Random value
     
-	Hash( c, syncfrand(255) );
+    //
+    // The hacky but somehow very effective fix for the replay viewers AI timer divergence.
+    // This change proves that we are generating  extra sequence ids that never existed in
+    // the dcrec. Bert has always told me "hey if it works, don't touch it"
+    //
+    // I also suspected that web assembly would have less new sequence ids than desktop since
+    // our fake networking only really creates a fake hello message and doesnt create a spectator
+    //
+    // I have tested this with other games with AI players involved and its the same result,
+    // the same deterministic result from the real game.
+
+    bool noRNG = false;
+    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
+
+    {
+#ifdef TARGET_EMSCRIPTEN
+        if( g_lastProcessedSequenceId == 0 ) // web assembly fake networking only creates a hello message
+#else
+        if( g_lastProcessedSequenceId <= 2 ) // desktop creates a spectator handshake which means
+                                             // we need to compensate for this
+#endif
+        {
+            noRNG = true;
+        }
+    }
+
+    if( !noRNG )
+    
+    {
+        Hash( c, syncfrand(255) );
+    }
 	
 	uint32 hashResult[5];
 	hash_final(&c, hashResult);

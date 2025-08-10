@@ -1,0 +1,19 @@
+Dedcon
+
+CALL_STACK_DEBUG: Processing server letter 'd' with seqId=8 before GenerateSyncValue
+CALL_STACK_DEBUG: About to call GenerateSyncValue from DefconMain, seqId=8, g_lastProcessedSequenceId=8
+CALL_STACK_DEBUG: GenerateSyncValue called - ReplayMode=NO, NumClients=0, GameRunning=NO, SeqId=8
+RNG[00000024]: _syncrand    = 1819583497.000000 @ random_number.cpp:442 [STACK: GenerateSyncValue]
+RNG[00000025]: _syncfrand   =     216.063946 @ random_number.cpp:455 [STACK: GenerateSyncValue]
+RNG[00000026]: syncfrand    =     216.063946 @ defcon.cpp:741 [STACK: GenerateSyncValue]
+RNG[00000027]: _syncrand    = 2678185683.000000 @ random_number.cpp:442 [STACK: World::InitialiseTeam]
+
+Replay Viewer
+
+replay_viewer_B1.85.js:7870 CALL_STACK_DEBUG: Processing server letter 'd' with seqId=10 before GenerateSyncValue
+replay_viewer_B1.85.js:7870 CALL_STACK_DEBUG: About to call GenerateSyncValue from EmscriptenMainLoop, seqId=10, g_lastProcessedSequenceId=10
+replay_viewer_B1.85.js:7870 CALL_STACK_DEBUG: GenerateSyncValue called - ReplayMode=YES, NumClients=1, GameRunning=NO, SeqId=10
+replay_viewer_B1.85.js:7870 RNG[00000030]: _syncrand    = 2774094101.000000 @ random_number.cpp:442 [STACK: EmscriptenMainLoop -> GenerateSyncValue]
+replay_viewer_B1.85.js:7870 RNG[00000031]: _syncfrand   =      74.405999 @ random_number.cpp:455 [STACK: EmscriptenMainLoop -> GenerateSyncValue]
+replay_viewer_B1.85.js:7870 RNG[00000032]: syncfrand    =      74.405999 @ defcon.cpp:741 [STACK: EmscriptenMainLoop -> GenerateSyncValue]
+replay_viewer_B1.85.js:7870 RNG[00000033]: _syncrand    = 1650906866.000000 @ random_number.cpp:442 [STACK: EmscriptenMainLoop -> World::InitialiseTeam]

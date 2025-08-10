@@ -633,7 +633,7 @@ void LobbyRenderer::RenderGlobe()
 void LobbyRenderer::RenderVersionInfo()
 {
 #if defined(REPLAY_VIEWER_DESKTOP) || defined(TARGET_EMSCRIPTEN)
-    char currentVersion[256] = "BETA" "  " "1.91";
+    char currentVersion[256] = "BETA" "  " "1.92";
 #else
     char currentVersion[256] = APP_NAME "  " APP_VERSION;
 #endif

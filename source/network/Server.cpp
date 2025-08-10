@@ -2741,5 +2741,3 @@ bool Server::TestBedReadyToContinue()
 
     return( numFailed <= 2 );
 }
-
-
