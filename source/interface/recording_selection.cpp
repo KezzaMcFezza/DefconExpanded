@@ -86,13 +86,6 @@ void PlayFromLobbyButton::MouseUp()
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
     AppDebugOut("User selected: Play from Lobby\n");
 #endif
-    
-    if( g_app->GetServer() )
-    {
-        // Game in progress. Dump the history
-        g_app->GetServer()->DebugDumpHistory();
-        return;
-    }
 
     g_app->ShutdownCurrentGame();
 
@@ -124,7 +117,7 @@ void PlayFromLobbyButton::MouseUp()
         strncpy( recordingFilename, parent->m_recordingFilename, sizeof(recordingFilename) - 1 );
         recordingFilename[sizeof(recordingFilename) - 1] = '\0';
         
-        // NEW: Close main menu and recording selection window BEFORE doing anything else
+        // Close main menu and recording selection window BEFORE doing anything else
         EclRemoveWindow( "Main Menu" );
         EclRemoveWindow( parent->m_name );
         
@@ -212,7 +205,7 @@ void PlayFromGameStartButton::MouseUp()
 {
     RecordingSelectionWindow *parent = (RecordingSelectionWindow *)m_parent;
     
-    // NEW: Check if a file was specified
+    // Check if a file was specified
     if (strcmp(parent->m_recordingFilename, "NO FILE SPECIFIED") == 0)
     {
         MessageDialog *msg = new MessageDialog("NO FILE SPECIFIED",
@@ -225,13 +218,6 @@ void PlayFromGameStartButton::MouseUp()
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
     AppDebugOut("User selected: Play from Game Start\n");
 #endif
-    
-    if( g_app->GetServer() )
-    {
-        // Game in progress. Dump the history
-        g_app->GetServer()->DebugDumpHistory();
-        return;
-    }
 
     g_app->ShutdownCurrentGame();
 
@@ -268,17 +254,14 @@ void PlayFromGameStartButton::MouseUp()
 
     if( success )
     {
-        // Copy filename to avoid corruption when window is destroyed
         char recordingFilename[512];
         strncpy( recordingFilename, parent->m_recordingFilename, sizeof(recordingFilename) - 1 );
         recordingFilename[sizeof(recordingFilename) - 1] = '\0';
         
-        // NEW: Close main menu and recording selection window BEFORE doing anything else
         EclRemoveWindow( "Main Menu" );
         EclRemoveWindow( parent->m_name );
         
 #if RECORDING_PARSING
-        // Initialize world FIRST - required for recording system
         g_app->InitWorld();
         
         // Start recording server using the copied filename
@@ -286,7 +269,7 @@ void PlayFromGameStartButton::MouseUp()
 
         if( recordingLoaded )
         {
-            // NEW: Enable fast-forward mode to skip to game start
+            // Skip to game start
             int gameStartSeqId = g_app->GetServer()->ExtractGameStartFromHeader();
             if( gameStartSeqId > 0 )
             {
@@ -300,8 +283,8 @@ void PlayFromGameStartButton::MouseUp()
             g_app->GetClientToServer()->ClientJoin( ourIp, ourPort );
             
             ConnectingWindow *connectingWindow = new ConnectingWindow();
-            connectingWindow->m_popupLobbyAtEnd = true;  // Skip lobby and go straight to game
-            connectingWindow->SetFastForwardMode( true, gameStartSeqId );  // NEW: Enable fast-forward display
+            connectingWindow->m_popupLobbyAtEnd = true;                         // Skip lobby and go straight to game
+            connectingWindow->SetFastForwardMode( true, gameStartSeqId );       // Enable fast-forward display
             EclRegisterWindow( connectingWindow );
             
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
@@ -376,7 +359,7 @@ public:
 RecordingSelectionWindow::RecordingSelectionWindow()
 :   InterfaceWindow("Recording Playback", "Recording Playback Options", false)
 {
-    // NEW: Check for command line replay filename first
+    // Check for command line replay filename first
     if( g_app && g_app->HasReplayFilename() )
     {
         strncpy(m_recordingFilename, g_app->GetReplayFilename(), sizeof(m_recordingFilename) - 1);
@@ -390,7 +373,6 @@ RecordingSelectionWindow::RecordingSelectionWindow()
     }
     else
     {
-        // NEW: No command line file - show error message instead of default
         strcpy(m_recordingFilename, "NO FILE SPECIFIED");
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
         AppDebugOut("RecordingSelectionWindow: No command line filename provided\n");
@@ -420,7 +402,6 @@ RecordingSelectionWindow::RecordingSelectionWindow(const char *recordingFilename
     }
     else if( g_app && g_app->HasReplayFilename() )
     {
-        // NEW: Check for command line replay filename if no explicit filename provided
         strncpy(m_recordingFilename, g_app->GetReplayFilename(), sizeof(m_recordingFilename) - 1);
         m_recordingFilename[sizeof(m_recordingFilename) - 1] = '\0';
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
@@ -432,7 +413,6 @@ RecordingSelectionWindow::RecordingSelectionWindow(const char *recordingFilename
     }
     else
     {
-        // NEW: No command line file - show error message instead of default
         strcpy(m_recordingFilename, "NO FILE SPECIFIED");
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
         AppDebugOut("RecordingSelectionWindow: No command line filename provided\n");
@@ -489,7 +469,7 @@ void RecordingSelectionWindow::Render(bool _hasFocus)
     // Current file display with source indicator
     g_renderer->TextSimple(m_x + 55, m_y + 195, Colour(180,180,180,255), 12.0f, "Current file:");
     
-    // NEW: Use different color for error state
+    // Use different color for error state
     Colour filenameColor = (strcmp(m_recordingFilename, "NO FILE SPECIFIED") == 0) ? 
                            Colour(255,100,100,255) : Colour(255,255,150,255);
     g_renderer->TextSimple(m_x + 55, m_y + 210, filenameColor, 12.0f, m_recordingFilename);

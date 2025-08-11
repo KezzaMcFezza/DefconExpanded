@@ -52,7 +52,7 @@ public:
     DArray          <unsigned char>    m_recordingSyncBytes;
     int             m_lastRecordedSeqId;
 
-    // Recording playback state (DEDCON-style)
+    // Recording playback state 
     bool            m_recordingPlaybackMode;
     double          m_recordingLastAdvanceTime;
     int             m_recordingCurrentSeqId;
@@ -61,13 +61,13 @@ public:
     LList           <ServerToClientLetter *> m_recordingHistory;
     bool            m_recordingStarted;
 
-    // NEW: Fast-forward playback variables
+    // Fast-forward playback variables
     bool            m_recordingFastForwardMode;
     int             m_recordingTargetSeqId;        // Sequence ID to fast-forward to
     float           m_recordingFastForwardSpeed;   // Multiplier for advance speed (e.g., 20.0f)
-    std::string     m_recordingFilename;       // Filename of current recording
+    std::string     m_recordingFilename;           // Filename of current recording
     
-    // NEW: Pause and variable speed control
+    // Pause and variable speed control
     bool            m_recordingPaused;             // True when playback is paused
     float           m_recordingSpeed;              // Current playback speed (0.0 = paused)
 
@@ -130,7 +130,7 @@ public:
     bool TestBedReadyToContinue();
     int  GetHistoryByteSize ();
 
-    // Recording playback methods (DEDCON-style)
+    // Recording playback methods 
     bool                StartRecordingPlaybackServer( const std::string &filename );
     bool                IsRecordingPlaybackMode() const { return m_recordingPlaybackMode; }
     void                ForceSpectatorMode( int _clientId );
@@ -138,13 +138,13 @@ public:
     bool                ShouldAllowServerControls() const { return !m_recordingPlaybackMode; }
     int                 ExtractGameStartFromHeader();
 
-    // NEW: Fast-forward functionality
+    // Fast-forward functionality
     void                EnableFastForward( int targetSeqId, float speedMultiplier = 500.0f );
     void                CheckDisableFastForward();
     float               GetRecordingAdvanceSpeedMultiplier();
     bool                IsRecordingFastForwardMode() const { return m_recordingFastForwardMode; }
     
-    // NEW: Pause and speed control
+    // Pause and speed control
     void                SetRecordingPaused( bool paused );
     void                SetRecordingSpeed( float speed );
     bool                IsRecordingPaused() const { return m_recordingPaused; }

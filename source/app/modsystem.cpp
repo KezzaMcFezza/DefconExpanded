@@ -717,7 +717,7 @@ void ModSystem::Commit()
     Authentication_GetKey( authKey );
     bool demoUser = Authentication_IsDemoKey(authKey);
 
-    // NEW: Store previous geography-affecting mods for comparison
+    // Store previous affecting mods for comparison
     LList<char*> previousGeographyMods;
     for (int i = 0; i < m_geographyAffectingMods.Size(); ++i)
     {

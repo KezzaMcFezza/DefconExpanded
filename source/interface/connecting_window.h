@@ -15,12 +15,14 @@ public:
     
     int     m_stage;
     float   m_stageStartTime;
-    
+
+    //
     // Fast-forward recording synchronization
+    
     bool    m_fastForwardMode;
     int     m_fastForwardTarget;
     int     m_fastForwardCurrent;
-    bool    m_isSeekMode;  // Track if this is a seek operation vs regular fast-forward
+    bool    m_isSeekMode;           // Track if this is a seek operation vs regular fast-forward
 
 public:
     ConnectingWindow();

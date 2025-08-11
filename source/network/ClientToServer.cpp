@@ -115,7 +115,7 @@ int ClientToServer::GetLocalPort()
     if( !m_listener ) return -1;
 
 #ifdef TARGET_EMSCRIPTEN
-    // WebAssembly: Return fake local port since we don't actually bind
+    // Return fake local port since we don't actually bind
     return g_preferences->GetInt( PREFS_NETWORKCLIENTPORT );
 #else
     return m_listener->GetPort();
@@ -130,30 +130,26 @@ void ClientToServer::OpenConnections()
     m_listener = NULL;
 
 #ifdef TARGET_EMSCRIPTEN
-    // ================================================
-    // WEBASSEMBLY LOCAL CLIENT MODE  
-    // ================================================
+
+    //
     // For WebAssembly, create a fake client listener that doesn't use networking
     // This allows connection to local servers and recording playback
     
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("WebAssembly: Starting local client (networking disabled)\n");
+    AppDebugOut("Starting local client\n");
 #endif
     
     int port = g_preferences->GetInt( PREFS_NETWORKCLIENTPORT );
     m_listener = new NetSocketListener( port );
-    // Don't call Bind() - it will fail in WebAssembly
+
+    // Don't call Bind() as it will fail in WebAssembly
     
-    // Fake successful network setup - no need to start listening thread
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("WebAssembly: Local client listening on fake port %d\n", port);
+    AppDebugOut("Local client listening on fake port %d\n", port);
 #endif
     
     return;
 #else
-    // ================================================
-    // NORMAL DESKTOP NETWORKING
-    // ================================================
 
     //
     // Try the requested port number
@@ -542,10 +538,8 @@ Directory *ClientToServer::GetNextLetter()
 #ifdef TARGET_EMSCRIPTEN
 void ClientToServer::RouteServerMessageToClient( Directory *serverMessage )
 {
-    // ================================================
-    // WEBASSEMBLY: Route server messages directly to client inbox
-    // ================================================
-    // This is the missing piece - server advance messages need to reach the client
+
+    // Server advance messages need to reach the client
     // so that g_lastServerAdvance gets updated properly
     
     if( !serverMessage || m_connectionState < StateHandshaking )
@@ -554,15 +548,10 @@ void ClientToServer::RouteServerMessageToClient( Directory *serverMessage )
         return;
     }
     
-    // Make sure the message has proper network message format
     serverMessage->SetName( NET_DEFCON_MESSAGE );
-    
-    // Add fake network metadata that would normally be added by the network layer
     serverMessage->CreateData( NET_DEFCON_FROMIP, "127.0.0.1" );
-    serverMessage->CreateData( NET_DEFCON_FROMPORT, 5010 );  // Server port
+    serverMessage->CreateData( NET_DEFCON_FROMPORT, 5010 ); 
     
-    // Process it exactly as if it came over the network
-    // This ensures all validation, sequencing, and timing logic works correctly
     ReceiveLetter( serverMessage );
     
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
@@ -571,7 +560,7 @@ void ClientToServer::RouteServerMessageToClient( Directory *serverMessage )
         int seqId = serverMessage->GetDataInt(NET_DEFCON_SEQID);
         if( seqId >= 0 )
         {
-            AppDebugOut("WebAssembly: Successfully routed server message (seqId=%d) to client - g_lastServerAdvance should update!\n", seqId);
+            AppDebugOut("Successfully routed server message (seqId=%d) to client - g_lastServerAdvance should update!\n", seqId);
         }
     }
 #endif
@@ -785,37 +774,27 @@ void ClientToServer::ReceiveLetter( Directory *_letter )
 void ClientToServer::SendLetter( Directory *letter )
 {
 #ifdef TARGET_EMSCRIPTEN
-    // ================================================
-    // WEBASSEMBLY LOCAL MESSAGE PASSING
-    // ================================================
+
+    //
     // In WebAssembly local mode, route client messages directly to the server's inbox
     // instead of trying to send them over the network
     
     if( m_connectionState >= StateHandshaking && g_app->GetServer() )
     {
-        // Add required networking metadata for server processing
         letter->CreateData( NET_DEFCON_FROMIP, "127.0.0.1" );
-        letter->CreateData( NET_DEFCON_FROMPORT, 5011 );  // Client listener port
-        
-        // Set message name required by server
+        letter->CreateData( NET_DEFCON_FROMPORT, 5011 ); 
         letter->SetName( NET_DEFCON_MESSAGE );
-        
-        // Route message directly to server's inbox
         g_app->GetServer()->ReceiveLetter( letter, "127.0.0.1", 5011 );
         
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-        AppDebugOut("WebAssembly: Routed client message (%s) directly to local server\n", 
+        AppDebugOut("CLIENT: Routed client message (%s) directly to local server\n", 
                    letter->GetDataString(NET_DEFCON_COMMAND));
 #endif
-        return;  // Don't add to outbox - message already processed
+        return;  
     }
     
-    // If not connected yet or no server, fall through to normal handling
 #endif
 
-    // ================================================
-    // NORMAL DESKTOP NETWORKING 
-    // ================================================
     if( letter )
     {
         AppAssert( letter->HasData(NET_DEFCON_COMMAND,DIRECTORY_TYPE_STRING) );
@@ -897,14 +876,13 @@ bool ClientToServer::ClientJoin( char *ip, int _serverPort )
     }
 
 #ifdef TARGET_EMSCRIPTEN
-    // ================================================
-    // WEBASSEMBLY LOCAL CONNECTION MODE
-    // ================================================
+
+    //
     // For WebAssembly, fake the entire client-server handshake locally
     // following the exact same message sequence as real DEFCON
     
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("WebAssembly: Faking local client-server connection\n");
+    AppDebugOut("CLIENT: Faking local client-server connection\n");
 #endif
     
     m_serverIp = newStr(ip);
@@ -912,58 +890,48 @@ bool ClientToServer::ClientJoin( char *ip, int _serverPort )
     m_lastValidSequenceIdFromServer = -1;
     m_serverSequenceId = -1;
     m_connectionAttempts = 0;
-    m_connectionState = StateConnecting;  // Start in connecting state - proper progression
-    m_clientId = -1;  // Start with no client ID - will be assigned by message processing
+    m_connectionState = StateConnecting;  
+    m_clientId = -1; 
     
-    // ================================================
-    // STEP 1: SIMULATE NET_DEFCON_CLIENTID MESSAGE
-    // ================================================
-    // This message assigns the client ID and transitions to StateHandshaking
-    // This MUST be processed first by ProcessServerLetters()
-    
+    //
+    // Simulate the client connection message
+
     Directory *clientIdMsg = new Directory();
     clientIdMsg->SetName(NET_DEFCON_MESSAGE);
     clientIdMsg->CreateData(NET_DEFCON_COMMAND, NET_DEFCON_CLIENTID);
-    clientIdMsg->CreateData(NET_DEFCON_CLIENTID, 1);           // Assign client ID 1
-    clientIdMsg->CreateData(NET_DEFCON_SEQID, -1);             // seqId -1 = processed immediately
-    clientIdMsg->CreateData(NET_DEFCON_VERSION, APP_VERSION);  // Server version info
+    clientIdMsg->CreateData(NET_DEFCON_CLIENTID, 1);           
+    clientIdMsg->CreateData(NET_DEFCON_SEQID, -1);             
+    clientIdMsg->CreateData(NET_DEFCON_VERSION, APP_VERSION);  
     
-    // Add to inbox for immediate processing by ProcessServerLetters()
     m_inboxMutex->Lock();
-    m_inbox.PutDataAtStart(clientIdMsg);  // Use PutDataAtStart for immediate processing
+    m_inbox.PutDataAtStart(clientIdMsg); 
     m_inboxMutex->Unlock();
     
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("WebAssembly: Queued fake NET_DEFCON_CLIENTID message (client ID 1)\n");
+    AppDebugOut("CLIENT: Queued fake NET_DEFCON_CLIENTID message\n");
 #endif
     
-    // ================================================
-    // STEP 2: SIMULATE NET_DEFCON_CLIENTHELLO MESSAGE  
-    // ================================================
-    // This message confirms the connection and transitions to StateConnected
-    // ProcessServerLetters() will call RequestTeam() after processing this
+    //
+    // Simulate the client hello message
     
     Directory *clientHelloMsg = new Directory();
     clientHelloMsg->SetName(NET_DEFCON_MESSAGE);
     clientHelloMsg->CreateData(NET_DEFCON_COMMAND, NET_DEFCON_CLIENTHELLO);
     clientHelloMsg->CreateData(NET_DEFCON_CLIENTID, 1);
-    clientHelloMsg->CreateData(NET_DEFCON_SEQID, -1);  // seqId -1 = processed immediately
+    clientHelloMsg->CreateData(NET_DEFCON_SEQID, -1);  
     
     m_inboxMutex->Lock();
-    m_inbox.PutDataAtEnd(clientHelloMsg);  // Process after CLIENTID
+    m_inbox.PutDataAtEnd(clientHelloMsg); 
     m_inboxMutex->Unlock();
     
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("WebAssembly: Queued fake NET_DEFCON_CLIENTHELLO message\n");
+    AppDebugOut("CLIENT: Queued fake NET_DEFCON_CLIENTHELLO message\n");
     
-    AppDebugOut("WebAssembly: Local connection established - messages queued for processing\n");
+    AppDebugOut("CLIENT: Local connection established - messages queued for processing\n");
 #endif
     
     return true;
 #else
-    // ================================================
-    // NORMAL DESKTOP NETWORKING
-    // ================================================
 
     m_serverIp = newStr(ip);
     m_serverPort = _serverPort;

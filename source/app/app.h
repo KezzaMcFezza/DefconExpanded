@@ -48,8 +48,7 @@ public:                 // STARTUP OPTIONS
     bool        m_debugPrintClientLetters;
     bool        m_renderingEnabled;
 
-    // NEW: Command line replay file support (-l argument)
-    char        m_replayFilename[512];
+    char        m_replayFilename[512];              // Command line replay file support, uses -l to match dedcons command line arguments
 
 private:
     MapRenderer         *m_mapRenderer;
@@ -126,11 +125,10 @@ public:
 
 	void    SaveGameName();
 	
-	// NEW: Replay file command line support
 	const char* GetReplayFilename() const;
 	bool HasReplayFilename() const;
 
-    // NEW: Check if client should have server privileges (excludes recording playback)
+    // prevents users in replay mode from playing with server settings
     bool                HasServerPrivileges()           { return m_server && m_server->ShouldAllowServerControls(); }
 };
 

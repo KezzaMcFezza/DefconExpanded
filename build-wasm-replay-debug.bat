@@ -1,22 +1,9 @@
 @echo off
 echo Building Defcon for WebAssembly (DEBUG MODE - Replay Viewer)...
 
-if not exist "C:\emsdk\emsdk_env.bat" (
-    echo Error: Emscripten SDK not found at C:\emsdk\
-    echo Please install EMSDK first. Run:
-    echo   cd C:\
-    echo   git clone https://github.com/emscripten-core/emsdk.git
-    echo   cd emsdk
-    echo   emsdk install latest
-    echo   emsdk activate latest
-    pause
-    exit /b 1
-)
-
-echo Activating Emscripten environment...
-call C:\emsdk\emsdk_env.bat
-
 set ORIGINAL_DIR=%CD%
+call "%ORIGINAL_DIR%\contrib\systemIV\contrib\emsdk\emsdk_env.bat" > nul 2>&1
+
 set NINJA_PATH=%ORIGINAL_DIR%\tools\ninja.exe
 
 if not exist build\wasm-replay-debug mkdir build\wasm-replay-debug
@@ -24,10 +11,10 @@ if not exist build\wasm-replay-debug mkdir build\wasm-replay-debug
 cd /d %ORIGINAL_DIR%\build\wasm-replay-debug
 
 echo Configuring with Emscripten (DEBUG MODE - Replay Viewer)...
-python %EMSDK%/upstream/emscripten/emcmake.py cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_REPLAY_VIEWER=ON -DCMAKE_MAKE_PROGRAM="%NINJA_PATH%" -G "Ninja" "%ORIGINAL_DIR%"
+python "%ORIGINAL_DIR%\contrib\systemIV\contrib\emsdk\upstream\emscripten\emcmake.py" cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_REPLAY_VIEWER=ON -DCMAKE_MAKE_PROGRAM="%NINJA_PATH%" -G "Ninja" "%ORIGINAL_DIR%"
 
 echo Building (DEBUG mode - showing all output)...
-python %EMSDK%/upstream/emscripten/emmake.py "%NINJA_PATH%"
+python "%ORIGINAL_DIR%\contrib\systemIV\contrib\emsdk\upstream\emscripten\emmake.py" "%NINJA_PATH%"
 
 if %ERRORLEVEL% neq 0 (
     echo Build failed with error code %ERRORLEVEL%

@@ -36,7 +36,7 @@
 #include "network/network_defines.h"
 #if RECORDING_PARSING
 #include "network/recordingparser.h"
-#include "interface/connecting_window.h"  // NEW: For fast-forward progress updates
+#include "interface/connecting_window.h" 
 #endif
 
 #include <fstream>
@@ -130,7 +130,7 @@ Server::Server()
 
 Server::~Server()
 {
-    // Clean up recording history (DEDCON-style)
+    // Clean up recording history
     for( int i = 0; i < m_recordingHistory.Size(); ++i )
     {
         if( m_recordingHistory.ValidIndex(i) )
@@ -161,25 +161,16 @@ bool Server::Initialise()
     m_outboxMutex = new NetMutex();
 
 #ifdef TARGET_EMSCRIPTEN
-    // ================================================
-    // WEBASSEMBLY LOCAL SERVER MODE
-    // ================================================
+
+    //
     // For WebAssembly, create a fake local server that doesn't use networking
-    // This allows recording playback, tutorials, and single-player modes to work
     
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("WebAssembly: Starting local server (networking disabled)\n");
-#endif
-    
-    // Create a fake listener that doesn't actually bind to anything
     m_listener = new NetSocketListener(ourPort);
-    // Don't call Bind() - it will fail in WebAssembly
+
+    // We dont call bind() here as it will fail in WASM
     
     return true;
 #else
-    // ================================================
-    // NORMAL DESKTOP NETWORKING
-    // ================================================
 
     m_listener = new NetSocketListener(ourPort);
     NetRetCode result = m_listener->Bind();
@@ -295,7 +286,7 @@ bool Server::RecordingFinishedPlaying()
 bool Server::StartRecordingPlaybackServer( const std::string &filename )
 {
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-    AppDebugOut( "Starting recording playback server from lobby\n" );
+    AppDebugOut( "SERVER: Starting recording playback server from lobby\n" );
 #endif
     
     // Load the recording into history instead of immediate playback
@@ -303,7 +294,7 @@ bool Server::StartRecordingPlaybackServer( const std::string &filename )
     if( !in )
     {
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut( "Failed to open recording file for reading\n" );
+        AppDebugOut( "SERVER: Failed to open recording file for reading\n" );
 #endif
         return false;
     }
@@ -312,7 +303,7 @@ bool Server::StartRecordingPlaybackServer( const std::string &filename )
     if( !parser.ParseToHistory() )
     {
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut( "Failed to parse recording file\n" );
+        AppDebugOut( "SERVER: Failed to parse recording file\n" );
 #endif
         return false;
     }
@@ -326,7 +317,7 @@ bool Server::StartRecordingPlaybackServer( const std::string &filename )
         if( !Initialise() )
         {
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-            AppDebugOut( "Failed to initialize server for recording playback\n" );
+            AppDebugOut( "SERVER: Failed to initialize server for recording playback\n" );
 #endif
             return false;
         }
@@ -344,27 +335,27 @@ bool Server::StartRecordingPlaybackServer( const std::string &filename )
     m_sequenceId = 0;
 
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-    AppDebugOut( "Recording playback server ready. Loaded %d packets (%d sequence IDs).\n", 
+    AppDebugOut( "SERVER: Recording playback server ready. Loaded %d packets (%d sequence IDs).\n", 
                  m_recordingHistory.Size(), m_lastRecordedSeqId );
-    AppDebugOut( "Connect DEFCON client to localhost to watch recording.\n" );
+    AppDebugOut( "SERVER: Connect DEFCON client to localhost to watch recording.\n" );
 #endif
     
     return true;
 }
 
-// NEW: Extract game start sequence ID from DCGR header
+// Extract game start sequence ID from DCGR header
 int Server::ExtractGameStartFromHeader()
 {
     if( m_recordingFilename.empty() )
     {
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut("No recording filename available for header parsing\n");
+        AppDebugOut("SERVER: No recording filename available for header parsing\n");
 #endif
         return 0;
     }
     
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-    AppDebugOut("Extracting game start sequence ID from DCGR header...\n");
+    AppDebugOut("SERVER: Extracting game start sequence ID from DCGR header...\n");
 #endif
     
     // Re-open the file to read the header again
@@ -372,7 +363,7 @@ int Server::ExtractGameStartFromHeader()
     if (!headerFile.good())
     {
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut("Could not re-open recording file for header parsing\n");
+        AppDebugOut("SERVER: Could not re-open recording file for header parsing\n");
 #endif
         return 0;
     }
@@ -382,7 +373,7 @@ int Server::ExtractGameStartFromHeader()
     if (!headerParser.ReadHeaderPacket(matchHeader))
     {
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut("Failed to read DCGR header\n");
+        AppDebugOut("SERVER: Failed to read DCGR header\n");
 #endif
         return 0;
     }
@@ -395,13 +386,13 @@ int Server::ExtractGameStartFromHeader()
     {
         seqIDStart = matchHeader.GetDataInt("ssid");
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut("Found 'ssid' in header: %d\n", seqIDStart);
+        AppDebugOut("SERVER: Found 'ssid' in header: %d\n", seqIDStart);
 #endif
     }
     else
     {
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut("No 'ssid' field found in header, using default 0\n");
+        AppDebugOut("SERVER: No 'ssid' field found in header, using default 0\n");
 #endif
     }
     
@@ -409,7 +400,7 @@ int Server::ExtractGameStartFromHeader()
     {
         int seqIDEnd = matchHeader.GetDataInt("esid");
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut("Found 'esid' in header: %d\n", seqIDEnd);
+        AppDebugOut("SERVER: Found 'esid' in header: %d\n", seqIDEnd);
 #endif
     }
     
@@ -417,7 +408,7 @@ int Server::ExtractGameStartFromHeader()
     {
         int clientID = matchHeader.GetDataInt("cid");
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut("Found 'cid' in header: %d\n", clientID);
+        AppDebugOut("SERVER: Found 'cid' in header: %d\n", clientID);
 #endif
     }
     
@@ -425,7 +416,7 @@ int Server::ExtractGameStartFromHeader()
     {
         const char* serverVersion = matchHeader.GetDataString("sv");
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut("Found 'sv' in header: %s\n", serverVersion);
+        AppDebugOut("SERVER: Found 'sv' in header: %s\n", serverVersion);
 #endif
     }
 
@@ -438,13 +429,10 @@ void Server::ForceSpectatorMode( int _clientId )
     if( m_recordingPlaybackMode )
     {
         RegisterSpectator( _clientId );
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut( "Client %d forced to spectator mode during recording playback\n", _clientId );
-#endif
     }
 }
 
-// NEW: Enable fast-forward mode to quickly reach a target sequence ID
+// Enable fast-forward mode to quickly reach a target sequence ID
 void Server::EnableFastForward( int targetSeqId, float speedMultiplier )
 {
     if( m_recordingPlaybackMode && targetSeqId > m_recordingCurrentSeqId )
@@ -454,22 +442,22 @@ void Server::EnableFastForward( int targetSeqId, float speedMultiplier )
         m_recordingFastForwardSpeed = speedMultiplier;
         
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut( "Fast-forward enabled: target seq %d at %gx speed\n", targetSeqId, speedMultiplier );
+        AppDebugOut( "SERVER: Fast-forward enabled: target seq %d at %gx speed\n", targetSeqId, speedMultiplier );
 #endif
     }
 }
 
-// NEW: Check if we should disable fast-forward (when target reached)
+// Check if we should disable fast-forward
 void Server::CheckDisableFastForward()
 {
     if( m_recordingFastForwardMode && m_recordingCurrentSeqId >= m_recordingTargetSeqId )
     {
         m_recordingFastForwardMode = false;
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut( "Fast-forward disabled: reached target seq %d, returning to normal speed\n", m_recordingTargetSeqId );
+        AppDebugOut( "SERVER: Fast-forward disabled: reached target seq %d, returning to normal speed\n", m_recordingTargetSeqId );
 #endif
         
-        // NEW: Notify connecting window that fast-forward is complete
+        // Notify connecting window that fast-forward is complete
         ConnectingWindow *connectingWindow = (ConnectingWindow*)EclGetWindow("Connection Status");
         if( connectingWindow )
         {
@@ -478,7 +466,7 @@ void Server::CheckDisableFastForward()
     }
 }
 
-// NEW: Get the current advance speed multiplier
+// Get the current advance speed multiplier
 float Server::GetRecordingAdvanceSpeedMultiplier()
 {
     if( !m_recordingPlaybackMode ) return 1.0f;
@@ -495,7 +483,7 @@ float Server::GetRecordingAdvanceSpeedMultiplier()
     return m_recordingSpeed;
 }
 
-// NEW: Set recording paused state
+// Set recording paused state
 void Server::SetRecordingPaused( bool paused )
 {
     if( !m_recordingPlaybackMode ) return;
@@ -503,11 +491,11 @@ void Server::SetRecordingPaused( bool paused )
     m_recordingPaused = paused;
     
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-    AppDebugOut( "Recording playback %s\n", paused ? "PAUSED" : "RESUMED" );
+    AppDebugOut( "SERVER: Recording playback %s\n", paused ? "PAUSED" : "RESUMED" );
 #endif
 }
 
-// NEW: Set recording speed
+// Set recording speed
 void Server::SetRecordingSpeed( float speed )
 {
     if( !m_recordingPlaybackMode ) return;
@@ -535,7 +523,7 @@ void Server::SetRecordingSpeed( float speed )
     }
     
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-    AppDebugOut( "Recording speed set to %.1fx (paused: %s)\n", speed, m_recordingPaused ? "true" : "false" );
+    AppDebugOut( "SERVER: Recording speed set to %.1fx (paused: %s)\n", speed, m_recordingPaused ? "true" : "false" );
 #endif
 }
 #endif
@@ -557,7 +545,7 @@ void Server::DebugDumpHistory()
 bool Server::IsRunning()
 {
 #ifdef TARGET_EMSCRIPTEN
-    // WebAssembly: Always return true for local mode since we don't use real threading
+    //  Always return true for local mode since we don't use real threading
     return true;
 #else
     return( m_listenerThread.IsRunning() );
@@ -570,7 +558,7 @@ int Server::GetLocalPort()
     if( !m_listener ) return -1;
 
 #ifdef TARGET_EMSCRIPTEN
-    // WebAssembly: Return fake local port since we don't actually bind
+    // Return fake local port since we don't actually bind
     return g_preferences->GetInt( PREFS_NETWORKSERVERPORT );
 #else
     return m_listener->GetPort();
@@ -587,6 +575,8 @@ void Server::Shutdown()
     // Send disconnect messages to all clients
     // Since we're shutting down now, just blast disconnect messages at
     // each client 3 times and hope for the best
+
+    // I love whoever wrote this code :)
 
     for( int j = 0; j < 3; ++j )
     {
@@ -648,12 +638,7 @@ void Server::Shutdown()
     m_outboxMutex = NULL;
 
 #ifdef TARGET_EMSCRIPTEN
-    // ================================================
-    // WEBASSEMBLY STATIC VARIABLE CLEANUP
-    // ================================================
-    // Reset static main loop variables to allow subsequent server instances to work
-    // These variables persist between server sessions in WebAssembly and must be reset
-    
+  
     extern void ResetWebAssemblyServerState();
     ResetWebAssemblyServerState();
 #endif
@@ -1103,12 +1088,12 @@ void Server::ReceiveLetter( Directory *update, char *fromIP, int _fromPort )
     update->CreateData( NET_DEFCON_FROMPORT, _fromPort );
 
 #ifdef TARGET_EMSCRIPTEN
-    // WebAssembly debug: Log incoming messages
+    // Log incoming messages
     if( update->HasData( NET_DEFCON_COMMAND, DIRECTORY_TYPE_STRING ) )
     {
         char *cmd = update->GetDataString( NET_DEFCON_COMMAND );
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-        AppDebugOut("WebAssembly: Server received message (%s) from %s:%d\n", cmd, fromIP, _fromPort);
+        AppDebugOut("SERVER: Received message (%s) from %s:%d\n", cmd, fromIP, _fromPort);
 #endif
     }
 #endif
@@ -1126,7 +1111,7 @@ void Server::ReceiveLetter( Directory *update, char *fromIP, int _fromPort )
         
 #ifdef TARGET_EMSCRIPTEN        
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-        AppDebugOut("WebAssembly: Server queued message in inbox (inbox size: %d)\n", m_inbox.Size());
+        AppDebugOut("SERVER: Queued message in inbox (inbox size: %d)\n", m_inbox.Size());
 #endif
 #endif
     }
@@ -1141,35 +1126,28 @@ void Server::SendLetter( ServerToClientLetter *letter )
         m_sequenceId++;
 
 #ifdef TARGET_EMSCRIPTEN
-        // ================================================
-        // WEBASSEMBLY LOCAL MESSAGE ROUTING
-        // ================================================
+
+        //
         // In WebAssembly local mode, route server messages directly to the client's inbox
         // instead of going through the network outbox/sender system
         
         if( g_app->GetClientToServer() && 
             g_app->GetClientToServer()->IsConnected() )
         {
-            // Create a copy of the message data for the client
             Directory *clientMessage = new Directory( *letter->m_data );
             
-            // Route message using proper client processing (handles validation, sequencing, etc.)
             g_app->GetClientToServer()->RouteServerMessageToClient( clientMessage );
                     
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-            AppDebugOut("WebAssembly: Routed server message (seqId=%d) to local client\n", 
+            AppDebugOut("SERVER: Routed server message (seqId=%d) to local client\n", 
                        letter->m_data->GetDataInt(NET_DEFCON_SEQID));
 #endif
                        
-            // Still add to history for tracking
             m_history.PutDataAtEnd( letter );
             return;
         }
 #endif
 
-        // ================================================
-        // NORMAL DESKTOP NETWORKING
-        // ================================================
         m_history.PutDataAtEnd( letter );
     }   
 }
@@ -1851,12 +1829,11 @@ void Server::Advance()
     START_PROFILE( "Server Main Loop" );
 
 #ifdef TARGET_EMSCRIPTEN
-    // WebAssembly debug: Log server advance calls
     static int s_advanceCount = 0;
-    if( s_advanceCount % 60 == 0 )  // Log every 60 calls (about 1 second)
+    if( s_advanceCount % 60 == 0 )  
     {
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-        AppDebugOut("WebAssembly: Server::Advance() call #%d (inbox size: %d)\n", s_advanceCount, m_inbox.Size());
+        AppDebugOut("SERVER: Advance() call #%d (inbox size: %d)\n", s_advanceCount, m_inbox.Size());
 #endif
     }
     s_advanceCount++;
@@ -1887,12 +1864,12 @@ void Server::Advance()
         if( !incoming ) break;
 
 #ifdef TARGET_EMSCRIPTEN
-        // WebAssembly debug: Log each message being processed
+        // Log each message being processed
         if( incoming->HasData( NET_DEFCON_COMMAND, DIRECTORY_TYPE_STRING ) )
         {
             char *cmd = incoming->GetDataString( NET_DEFCON_COMMAND );
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-            AppDebugOut("WebAssembly: Server processing message (%s)\n", cmd);
+            AppDebugOut("SERVER: Processing message (%s)\n", cmd);
 #endif
         }
 #endif
@@ -1916,7 +1893,7 @@ void Server::Advance()
 
 #ifdef TARGET_EMSCRIPTEN        
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-        AppDebugOut("WebAssembly: Message details - cmd:%s, from:%s:%d, clientId:%d\n", cmd, fromIp, fromPort, clientId);
+        AppDebugOut("SERVER: Message details - cmd:%s, from:%s:%d, clientId:%d\n", cmd, fromIp, fromPort, clientId);
 #endif
 #endif
         
@@ -1942,7 +1919,6 @@ void Server::Advance()
 
             SendClientId( clientId );
             
-            // DEDCON-style: Auto-spectate new clients during recording playback
             if( m_recordingPlaybackMode && clientId != -1 )
             {
                 ForceSpectatorMode( clientId );
@@ -1973,13 +1949,12 @@ void Server::Advance()
         {
 #ifdef TARGET_EMSCRIPTEN
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-            AppDebugOut("WebAssembly: Processing NET_DEFCON_REQUEST_TEAM - clientId:%d, gameRunning:%s\n", 
+            AppDebugOut("SERVER: Processing NET_DEFCON_REQUEST_TEAM - clientId:%d, gameRunning:%s\n", 
                        clientId, g_app->m_gameRunning ? "true" : "false");
 #endif
 #endif
             if( clientId != -1 && !g_app->m_gameRunning )
             {
-                // DEDCON-style: Force spectator mode during recording playback
                 if( m_recordingPlaybackMode )
                 {
                     ForceSpectatorMode( clientId );
@@ -1989,7 +1964,7 @@ void Server::Advance()
                     int teamType = incoming->GetDataInt(NET_DEFCON_TEAMTYPE);
 #ifdef TARGET_EMSCRIPTEN
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-                    AppDebugOut("WebAssembly: Calling RegisterNewTeam(clientId:%d, teamType:%d)\n", clientId, teamType);
+                    AppDebugOut("SERVER: Calling RegisterNewTeam(clientId:%d, teamType:%d)\n", clientId, teamType);
 #endif
 #endif
                     RegisterNewTeam(clientId, teamType );
@@ -1999,7 +1974,7 @@ void Server::Advance()
             else
             {
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-                AppDebugOut("WebAssembly: Skipping RegisterNewTeam - clientId:%d, gameRunning:%s\n", 
+                AppDebugOut("SERVER: Skipping RegisterNewTeam - clientId:%d, gameRunning:%s\n", 
                            clientId, g_app->m_gameRunning ? "true" : "false");
 #endif
             }
@@ -2084,13 +2059,11 @@ void Server::Advance()
     }
 
 #if RECORDING_PARSING
-    // RECORDING PLAYBACK: Inject recorded messages instead of processing live messages
+    // Inject recorded messages instead of processing live messages
     if( m_recordingPlaybackMode && m_recordingCurrentSeqId < m_recordingHistory.Size() )
     {
-        // Check if we should disable fast-forward mode
         CheckDisableFastForward();
         
-        // NEW: Update connecting window progress if in fast-forward mode
         if( m_recordingFastForwardMode )
         {
             ConnectingWindow *connectingWindow = (ConnectingWindow*)EclGetWindow("Connection Status");
@@ -2115,7 +2088,7 @@ void Server::Advance()
             m_recordingCurrentSeqId++;
             
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-            AppDebugOut("Recording playback: Sent recorded message %d/%d%s\n", 
+            AppDebugOut("SERVER: Recording playback: Sent recorded message %d/%d%s\n", 
                        m_recordingCurrentSeqId, m_recordingHistory.Size(),
                        m_recordingFastForwardMode ? " (FAST-FORWARD)" : "");
 #endif
@@ -2204,7 +2177,7 @@ void Server::Advertise()
     if( m_recordingPlaybackMode )
     {
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut("Skipping advertisement in recording playback mode\n");
+        AppDebugOut("SERVER: Skipping advertisement in recording playback mode\n");
 #endif
         return;
     }
