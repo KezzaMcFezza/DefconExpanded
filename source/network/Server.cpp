@@ -2200,6 +2200,15 @@ void Server::Advance()
 
 void Server::Advertise()
 {
+    // Dont advertise the server to prevent external clients from messing up the RNG state
+    if( m_recordingPlaybackMode )
+    {
+#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+        AppDebugOut("Skipping advertisement in recording playback mode\n");
+#endif
+        return;
+    }
+
     bool advertiseOnWan = g_app->GetGame()->GetOptionValue("AdvertiseOnInternet");
     bool advertiseOnLan = g_app->GetGame()->GetOptionValue("AdvertiseOnLAN");
 
