@@ -47,7 +47,7 @@ RecordingParser::RecordingParser( std::istream &in, const std::string &filename,
 {
 }
 
-// NEW: Constructor for direct file loading (WebAssembly-friendly)
+// Constructor for direct file loading for WebAssembly
 RecordingParser::RecordingParser( const std::string &filename, Server *server )
     : m_filename( filename ),
       m_server( server ),
@@ -93,7 +93,7 @@ typedef int int32_t;
 
 bool RecordingParser::ReadPacket( Directory &dir, bool &zeroMarker )
 {
-    if (!m_in) return false;  // NEW: Check for valid stream
+    if (!m_in) return false; 
     
     int32_t count = 0;
     while( count == 0 )
@@ -153,7 +153,7 @@ void RecordingParser::AddToHistory( Directory *dir )
     m_server->m_recordingHistory.PutDataAtEnd( letter );
 }
 
-// NEW: Function to extract game start sequence ID from DCGR header (like DedCon does)
+// Function to extract game start sequence ID from DCGR header like DedCon does
 int RecordingParser::ExtractGameStartFromHeader()
 {
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
@@ -224,7 +224,7 @@ bool RecordingParser::ParseToHistory()
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
         AppDebugOut("RecordingParser::ParseToHistory: No valid input stream\n");
 #endif
-        return false;  // NEW: Check for valid stream
+        return false; 
     }
     
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
@@ -337,7 +337,7 @@ bool RecordingParser::ParseToHistory()
     m_server->m_recordingEndSeqId = lastRecordedSeqId;
     m_server->m_recordingLastAdvanceTime = GetHighResTime();
 
-    // NEW: Find and report the game start sequence ID
+    // Find and report the game start sequence ID
     int gameStartSeqId = ExtractGameStartFromHeader();
 
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED

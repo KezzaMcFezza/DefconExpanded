@@ -37,6 +37,4 @@ public:
     void Render( int realX, int realY, bool highlighted, bool clicked );
 };
 
-// NOTE: BrowseRecordingButton removed - dynamic file loading via command line only
-
 #endif 

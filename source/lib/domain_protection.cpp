@@ -13,8 +13,7 @@ bool DomainProtection::s_validated = false;
 int DomainProtection::s_validationCount = 0;
 double DomainProtection::s_lastValidationTime = 0.0;
 
-// Obfuscated authorized domain hashes for DefconExpanded.com (Production + Testing)
-// These are hashes of your authorized domains to make reverse engineering harder
+// Obfuscated authorized domain hashes
 static const unsigned long AUTHORIZED_HASHES[] = {
     0xE704776CU,  // Hash of localhost
     0x8A5264F8U,  // Hash of 127.0.0.1
@@ -25,7 +24,7 @@ static const unsigned long AUTHORIZED_HASHES[] = {
     0x00000000U   // Terminator
 };
 
-// XOR key for obfuscation (unique for DefconExpanded)
+// XOR key for obfuscation unique for DefconExpanded
 static const unsigned long XOR_KEY = 0xD10ADAE2;
 
 unsigned long DomainProtection::HashString(const char* str) {

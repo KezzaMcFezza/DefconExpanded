@@ -162,21 +162,19 @@ void App::InitMetaServer()
 #endif
 
 #ifdef TARGET_EMSCRIPTEN
-    // ================================================
-    // WEBASSEMBLY LOCAL AUTHENTICATION MODE
-    // ================================================
+    //
     // For WebAssembly, fake successful authentication to enable all functionality
-    
+
 #ifdef EMSCRIPTEN_DEBUG
     AppDebugOut("WebAssembly: Faking authentication for local mode\n");
 #endif
     
     char authKey[256];
     // Use a fake full auth key for WebAssembly that passes validation
-    // Format: XXXXXX-XXXXXX-XXXXXX-XXXXXX-XC where C=checksum (total 31 chars + null)
     strcpy(authKey, "DEMOTE-OYMPOM-XRUHAT-TVSDNH-ZSR");
     Authentication_SetKey( authKey );
-    
+
+    //
     // Fake successful authentication result  
     Authentication_SetStatus( authKey, 1, AuthenticationAccepted );
     
@@ -185,13 +183,9 @@ void App::InitMetaServer()
 #endif
     
     // Skip real metaserver connection - it will fail anyway
-    // MetaServer_Initialise() and MetaServer_Connect() both depend on working UDP
     
     return;
 #else
-    // ================================================
-    // NORMAL DESKTOP AUTHENTICATION & METASERVER
-    // ================================================
 
     char authKey[256];
     Authentication_LoadKey( authKey, App::GetAuthKeyPath() );
@@ -421,12 +415,14 @@ void App::FinishInit()
     if (EclGetWindows()->Size() == 0)
     {
 #if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
-        // EMSCRIPTEN REPLAY VIEWER MODE: Skip main menu and open recording selection window directly
-        // This creates a dedicated replay viewer interface for web browsers showing only recording playback options
+
+        //
+        // Skip main menu and open recording selection window directly
+
         RecordingSelectionWindow *recordingWindow = new RecordingSelectionWindow();
         EclRegisterWindow(recordingWindow);
 #ifdef EMSCRIPTEN_DEBUG
-        AppDebugOut("WebAssembly Replay Viewer: Opened recording selection window directly (skipped main menu)\n");
+        AppDebugOut("Opened recording selection window directly and skipped main menu)\n");
 #endif
 #else
         m_interface->OpenSetupWindows();
@@ -445,20 +441,13 @@ void App::FinishInit()
 void App::NotifyStartupErrors()
 {
 #ifdef TARGET_EMSCRIPTEN
-    // ================================================
-    // WEBASSEMBLY - SKIP ERROR NOTIFICATIONS
-    // ================================================
+
+    //
     // In WebAssembly local mode, we're faking successful connections,
     // so don't show error dialogs about network issues
     
-#ifdef EMSCRIPTEN_DEBUG
-    AppDebugOut("WebAssembly: Skipping network error notifications (local mode)\n");
-#endif
     return;
 #else
-    // ================================================
-    // NORMAL DESKTOP ERROR CHECKING
-    // ================================================
 
     //
     // Inform the user of any Network difficulties
@@ -736,14 +725,15 @@ void App::ReinitialiseWindow()
 	g_windowManager->DestroyWin();
     g_resource->Restart();
 
-    // CRITICAL FIX: The old OpenGL context was destroyed, so we need to recreate 
-    // the Renderer with fresh OpenGL 3.3 resources (shaders, VAO, VBO) for the new context
+    //
+    // The old OpenGL context was destroyed, so we need to recreate 
+    // the Renderer with fresh shaders, VAO, VBO for the new context
+
     delete g_renderer;
     g_renderer = NULL;
 
     InitialiseWindow();
     
-    // Create new Renderer with fresh OpenGL 3.3 resources for the new context
     g_renderer = new Renderer();
     
     InitFonts();
@@ -1337,10 +1327,6 @@ Tutorial *App::GetTutorial()
 {
     return m_tutorial;
 }
-#if RECORDING_PARSING
-
-#endif
-
 
 const char *App::GetPrefsPath()
 {

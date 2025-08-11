@@ -22,7 +22,7 @@ CTestTestfile.cmake
 *Targets.cmake
 CPack*.cmake
 
-/dedconsource
+/other projects
 
 # Build directories
 /result

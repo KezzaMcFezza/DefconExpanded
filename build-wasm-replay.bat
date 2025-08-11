@@ -1,9 +1,8 @@
 @echo off
 echo Building Defcon WebAssembly Release (Replay Viewer Mode)...
 
-call C:\emsdk\emsdk_env.bat > nul 2>&1
-
 set ORIGINAL_DIR=%CD%
+call "%ORIGINAL_DIR%\contrib\systemIV\contrib\emsdk\emsdk_env.bat" > nul 2>&1
 set NINJA_PATH=%ORIGINAL_DIR%\tools\ninja.exe
 if not exist build\wasm-replay-release mkdir build\wasm-replay-release
 cd /d %ORIGINAL_DIR%\build\wasm-replay-release
@@ -13,7 +12,7 @@ set EMCC_CLOSURE=1
 set EMCC_WASM_BACKEND=1
 
 echo Configuring...
-python %EMSDK%/upstream/emscripten/emcmake.py cmake ^
+python "%ORIGINAL_DIR%\contrib\systemIV\contrib\emsdk\upstream\emscripten\emcmake.py" cmake ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DCMAKE_CXX_FLAGS_RELEASE="-O3 -flto -ffast-math -funroll-loops -fvectorize -DNDEBUG" ^
     -DCMAKE_C_FLAGS_RELEASE="-O3 -flto -ffast-math -funroll-loops -fvectorize -DNDEBUG" ^
@@ -30,7 +29,7 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo Building...
-python %EMSDK%/upstream/emscripten/emmake.py "%NINJA_PATH%" 2>&1 | findstr /V "warning:"
+python "%ORIGINAL_DIR%\contrib\systemIV\contrib\emsdk\upstream\emscripten\emmake.py" "%NINJA_PATH%" 2>&1 | findstr /V "warning:"
 set BUILD_RESULT=%ERRORLEVEL%
 
 cd /d %ORIGINAL_DIR%
