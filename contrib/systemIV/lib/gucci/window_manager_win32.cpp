@@ -424,6 +424,13 @@ int WINAPI WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance,
 {
 	g_hInstance = _hInstance;
 
+	//
+	// This prevents rendering issues when Windows scaling is set above 100%
+	// solves a real world problem that i had when i upgraded to a 4k display
+	// and my display scaling is set to 150%
+	
+	SetProcessDPIAware();
+
 #ifdef USE_CRASHREPORTING
     __try
 #endif

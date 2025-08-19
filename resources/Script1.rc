@@ -91,7 +91,7 @@ BEGIN
             VALUE "FileDescription", "Defcon"
             VALUE "FileVersion", "1, 0, 0, 1"
             VALUE "InternalName", "Defcon"
-            VALUE "LegalCopyright", "Copyright © 2006"
+            VALUE "LegalCopyright", "Copyright ï¿½ 2006"
             VALUE "OriginalFilename", "Defcon.exe"
             VALUE "ProductName", "Introversion Software Defcon"
             VALUE "ProductVersion", "1, 0, 0, 1"
