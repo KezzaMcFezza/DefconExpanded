@@ -176,7 +176,7 @@ void EarthData::LoadCoastlines()
         {
             float longitude, latitude;
             sscanf( line, "%f %f", &longitude, &latitude );
-            island->m_points.PutData( new Vector3<float>( longitude, latitude, 0.0f ) );            
+            island->m_points.PutData( new Vector3<float>( longitude, latitude, 0.0f ) );
         }
     }
 

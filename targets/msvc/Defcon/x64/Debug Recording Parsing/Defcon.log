@@ -1,0 +1,338 @@
+﻿  list.cpp
+  checkbox.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\components\checkbox.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  core.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\components\core.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  drop_down_menu.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\components\drop_down_menu.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  filedialog.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\components\filedialog.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  inputfield.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\components\inputfield.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  message_dialog.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\components\message_dialog.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  scrollbar.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\components\scrollbar.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  screenoptions_window.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\options\screenoptions_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  soundoptions_window.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\options\soundoptions_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  soundeditor_window.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\soundsystem\soundeditor_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  soundparameter_window.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\soundsystem\soundparameter_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  soundstats_window.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\soundsystem\soundstats_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  styleeditor_window.cpp
+C:\xampp\htdocs\contrib\SystemIV\interface\styleeditor_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  debug_utils.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\debug_utils.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  eclbutton.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\eclipse\eclbutton.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  eclipse.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\eclipse\eclipse.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  eclwindow.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\eclipse\eclwindow.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  binary_stream_readers.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\filesys\binary_stream_readers.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  filesys_utils.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\filesys\filesys_utils.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  Generating Code...
+  Compiling...
+  file_system.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\filesys\file_system.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  text_file_writer.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\filesys\text_file_writer.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  text_stream_readers.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\filesys\text_stream_readers.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  input.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\gucci\input.cpp(1,11): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  input_win32.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\gucci\input_win32.cpp(1,11): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  win32library.cpp
+C:\xampp\htdocs\contrib\systemIV\lib\gucci\win32library.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  window_manager.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\gucci\window_manager.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  window_manager_win32.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\gucci\window_manager_win32.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  hi_res_time.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\hi_res_time.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  language_table.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\language_table.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  fixed_64.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\math\fixed_64.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  fixed_float.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\math\fixed_float.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  hash.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\math\hash.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  math_utils.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\math\math_utils.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  random_number.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\math\random_number.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  vector3.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\math\vector3.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  memory_leak.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\memory_leak.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  authentication.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\metaserver\authentication.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  matchmaker.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\metaserver\matchmaker.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  metaserver.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\metaserver\metaserver.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  Generating Code...
+  Compiling...
+  condition_win32.cpp
+C:\xampp\htdocs\contrib\systemIV\lib\netlib\condition_win32.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  condition_winxp.cpp
+C:\xampp\htdocs\contrib\systemIV\lib\netlib\condition_winxp.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  net_lib.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\netlib\net_lib.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  net_mutex_win32.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\netlib\net_mutex_win32.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  net_socket.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\netlib\net_socket.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  net_socket_listener.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\netlib\net_socket_listener.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  net_socket_session.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\netlib\net_socket_session.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  net_thread_win32.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\netlib\net_thread_win32.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  net_udp_packet.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\netlib\net_udp_packet.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  thread_controller.cpp
+C:\xampp\htdocs\contrib\systemIV\lib\netlib\thread_controller.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  preferences.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\preferences.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  profiler.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\profiler.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  renderer.cpp
+C:\xampp\htdocs\contrib\systemIV\lib\render2d\renderer.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  renderer_buffers.cpp
+C:\xampp\htdocs\contrib\systemIV\lib\render2d\renderer_buffers.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  renderer_3d.cpp
+C:\xampp\htdocs\contrib\systemIV\lib\render3d\renderer_3d.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  renderer_3d_buffers.cpp
+C:\xampp\htdocs\contrib\systemIV\lib\render3d\renderer_3d_buffers.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  renderer_nuke.cpp
+C:\xampp\htdocs\contrib\systemIV\lib\render3d\renderer_nuke.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  renderer_vbo.cpp
+C:\xampp\htdocs\contrib\systemIV\lib\render3d\renderer_vbo.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  colour.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\render\colour.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  renderer_debug_menu.cpp
+C:\xampp\htdocs\contrib\systemIV\lib\render\renderer_debug_menu.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  Generating Code...
+  Compiling...
+  styletable.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\render\styletable.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  bitmap.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\resource\bitmap.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  bitmapfont.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\resource\bitmapfont.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  image.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\resource\image.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  resource.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\resource\resource.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  sprite_atlas.cpp
+C:\xampp\htdocs\contrib\systemIV\lib\resource\sprite_atlas.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  soundsystem.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\sound\soundsystem.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  soundsystem_interface.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\sound\soundsystem_interface.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  sound_blueprint_manager.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\sound\sound_blueprint_manager.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  sound_filter.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\sound\sound_filter.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  sound_instance.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\sound\sound_instance.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  sound_library_2d.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\sound\sound_library_2d.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  sound_library_3d.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\sound\sound_library_3d.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  sound_library_3d_dsound.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\sound\sound_library_3d_dsound.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  sound_parameter.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\sound\sound_parameter.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  sound_sample_bank.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\sound\sound_sample_bank.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  sound_sample_decoder.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\sound\sound_sample_decoder.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  string_utils.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\string_utils.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  directory.cpp
+C:\xampp\htdocs\contrib\SystemIV\lib\tosser\directory.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  app.cpp
+C:\xampp\htdocs\source\app\app.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  Generating Code...
+  Compiling...
+  defcon_soundinterface.cpp
+C:\xampp\htdocs\source\app\defcon_soundinterface.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  game.cpp
+C:\xampp\htdocs\source\app\game.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  game_history.cpp
+C:\xampp\htdocs\source\app\game_history.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  modsystem.cpp
+C:\xampp\htdocs\source\app\modsystem.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  statusicon.cpp
+C:\xampp\htdocs\source\app\statusicon.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  synctestrecordings.cpp
+C:\xampp\htdocs\source\app\synctestrecordings.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  trayicon.cpp
+C:\xampp\htdocs\source\app\trayicon.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  tutorial.cpp
+C:\xampp\htdocs\source\app\tutorial.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  tutorial_defcon.cpp
+C:\xampp\htdocs\source\app\tutorial_defcon.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  version_manager.cpp
+C:\xampp\htdocs\source\app\version_manager.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  curves.cpp
+C:\xampp\htdocs\source\lib\universal_include.h(295,10): error C1083: Cannot open include file: 'GLES3/gl3.h': No such file or directory
+  (compiling source file '../../source/curves.cpp')
+  
+  defcon.cpp
+C:\xampp\htdocs\source\lib\universal_include.h(295,10): error C1083: Cannot open include file: 'GLES3/gl3.h': No such file or directory
+  (compiling source file '../../source/defcon.cpp')
+  
+  alliances_window.cpp
+C:\xampp\htdocs\source\interface\alliances_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  authkey_window.cpp
+C:\xampp\htdocs\source\interface\authkey_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  badkey_window.cpp
+C:\xampp\htdocs\source\interface\badkey_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  casualties_window.cpp
+C:\xampp\htdocs\source\interface\casualties_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  chat_window.cpp
+C:\xampp\htdocs\source\interface\chat_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  connecting_window.cpp
+C:\xampp\htdocs\source\interface\connecting_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  debug_window.cpp
+C:\xampp\htdocs\source\interface\debug_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  demo_window.cpp
+C:\xampp\htdocs\source\interface\demo_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  Generating Code...
+  Compiling...
+  fading_window.cpp
+C:\xampp\htdocs\source\interface\fading_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  fleet_placement_icon.cpp
+C:\xampp\htdocs\source\interface\fleet_placement_icon.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  info_window.cpp
+C:\xampp\htdocs\source\interface\info_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  interface.cpp
+C:\xampp\htdocs\source\interface\interface.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  lobby_window.cpp
+C:\xampp\htdocs\source\interface\lobby_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  mainmenu.cpp
+C:\xampp\htdocs\source\interface\mainmenu.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  mod_window.cpp
+C:\xampp\htdocs\source\interface\mod_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  network_window.cpp
+C:\xampp\htdocs\source\interface\network_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  placement_icon.cpp
+C:\xampp\htdocs\source\interface\placement_icon.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  playback_control_window.cpp
+C:\xampp\htdocs\source\interface\playback_control_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  profile_window.cpp
+C:\xampp\htdocs\source\interface\profile_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  recording_selection.cpp
+C:\xampp\htdocs\source\interface\recording_selection.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  resynchronise_window.cpp
+C:\xampp\htdocs\source\interface\resynchronise_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  serverbrowser_window.cpp
+C:\xampp\htdocs\source\interface\serverbrowser_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  serverdetails_window.cpp
+C:\xampp\htdocs\source\interface\serverdetails_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  side_panel.cpp
+C:\xampp\htdocs\source\interface\side_panel.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  toolbar.cpp
+C:\xampp\htdocs\source\interface\toolbar.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  tutorial_window.cpp
+C:\xampp\htdocs\source\interface\tutorial_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  whiteboard_panel.cpp
+C:\xampp\htdocs\source\interface\whiteboard_panel.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  worldobject_window.cpp
+C:\xampp\htdocs\source\interface\worldobject_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  Generating Code...
+  Compiling...
+  worldstatus_window.cpp
+C:\xampp\htdocs\source\interface\worldstatus_window.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  multiline_text.cpp
+C:\xampp\htdocs\source\lib\multiline_text.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  universal_include.cpp
+C:\xampp\htdocs\source\lib\universal_include.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  ClientToServer.cpp
+C:\xampp\htdocs\source\network\ClientToServer.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  recordingparser.cpp
+C:\xampp\htdocs\source\network\recordingparser.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  Server.cpp
+C:\xampp\htdocs\source\network\Server.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  ServerToClient.cpp
+C:\xampp\htdocs\source\network\ServerToClient.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  random_object.cpp
+C:\xampp\htdocs\source\lib\universal_include.h(295,10): error C1083: Cannot open include file: 'GLES3/gl3.h': No such file or directory
+  (compiling source file '../../source/random_object.cpp')
+  
+  animated_icon.cpp
+C:\xampp\htdocs\source\renderer\animated_icon.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  globe_renderer.cpp
+C:\xampp\htdocs\source\renderer\globe_renderer.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  lobby_renderer.cpp
+C:\xampp\htdocs\source\renderer\lobby_renderer.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  map_renderer.cpp
+C:\xampp\htdocs\source\renderer\map_renderer.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  airbase.cpp
+C:\xampp\htdocs\source\world\airbase.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  battleship.cpp
+C:\xampp\htdocs\source\world\battleship.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  blip.cpp
+C:\xampp\htdocs\source\world\blip.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  bomber.cpp
+C:\xampp\htdocs\source\world\bomber.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  carrier.cpp
+C:\xampp\htdocs\source\world\carrier.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  city.cpp
+C:\xampp\htdocs\source\world\city.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  date.cpp
+C:\xampp\htdocs\source\world\date.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  depthcharge.cpp
+C:\xampp\htdocs\source\world\depthcharge.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  Generating Code...
+  Compiling...
+  earthdata.cpp
+C:\xampp\htdocs\source\world\earthdata.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  explosion.cpp
+C:\xampp\htdocs\source\world\explosion.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  fighter.cpp
+C:\xampp\htdocs\source\world\fighter.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  fleet.cpp
+C:\xampp\htdocs\source\world\fleet.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  gunfire.cpp
+C:\xampp\htdocs\source\world\gunfire.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  movingobject.cpp
+C:\xampp\htdocs\source\world\movingobject.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  node.cpp
+C:\xampp\htdocs\source\world\node.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  nuke.cpp
+C:\xampp\htdocs\source\world\nuke.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  radargrid.cpp
+C:\xampp\htdocs\source\world\radargrid.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  radarstation.cpp
+C:\xampp\htdocs\source\world\radarstation.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  saucer.cpp
+C:\xampp\htdocs\source\world\saucer.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  silo.cpp
+C:\xampp\htdocs\source\world\silo.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  sub.cpp
+C:\xampp\htdocs\source\world\sub.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  team.cpp
+C:\xampp\htdocs\source\world\team.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  tornado.cpp
+C:\xampp\htdocs\source\world\tornado.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  votingsystem.cpp
+C:\xampp\htdocs\source\world\votingsystem.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  whiteboard.cpp
+C:\xampp\htdocs\source\world\whiteboard.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  world.cpp
+C:\xampp\htdocs\source\world\world.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  worldobject.cpp
+C:\xampp\htdocs\source\world\worldobject.cpp(1,10): error C1083: Cannot open include file: 'lib/universal_include.h': No such file or directory
+  Generating Code...
