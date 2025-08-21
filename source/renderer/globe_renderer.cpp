@@ -2059,15 +2059,60 @@ float MapRenderer::CalculateBallisticHeight(float totalDistanceRadians, float pr
     // adjustable nuke height arcs, right now they are pretty intense
     // as it looks good. at some point i might make them more subtle
 
-    if (totalDistanceDegrees > 90.0f) {
-        maxHeight = 0.7f;
-    } else if (totalDistanceDegrees > 45.0f) {
-        maxHeight = 0.4f;
-    } else if (totalDistanceDegrees > 20.0f) {
-        maxHeight = 0.2f;
-    } else {
-        maxHeight = 0.1f;
-    }
+        if (totalDistanceDegrees > 90.0f) {
+            maxHeight = 0.2f;
+        }
+        else if (totalDistanceDegrees > 80.0f) {
+            maxHeight = 0.19f;
+        }
+        else if (totalDistanceDegrees > 75.0f) {
+            maxHeight = 0.18f;
+        }
+        else if (totalDistanceDegrees > 70.0f) {
+            maxHeight = 0.16f;
+        }
+        else if (totalDistanceDegrees > 65.0f) {
+            maxHeight = 0.15f;
+        }
+        else if (totalDistanceDegrees > 60.0f) {
+            maxHeight = 0.14f;
+        }
+        else if (totalDistanceDegrees > 55.0f) {
+            maxHeight = 0.13f;
+        }
+        else if (totalDistanceDegrees > 50.0f) {
+            maxHeight = 0.12f;
+        }
+        else if (totalDistanceDegrees > 45.0f) {
+            maxHeight = 0.11f;
+        }
+        else if (totalDistanceDegrees > 40.0f) {
+            maxHeight = 0.09f;
+        }
+        else if (totalDistanceDegrees > 35.0f) {
+            maxHeight = 0.08f;
+        }
+        else if (totalDistanceDegrees > 30.0f) {
+            maxHeight = 0.07f;
+        }
+        else if (totalDistanceDegrees > 25.0f) {
+            maxHeight = 0.06f;
+        }
+        else if (totalDistanceDegrees > 20.0f) {
+            maxHeight = 0.05f;
+        }
+        else if (totalDistanceDegrees > 15.0f) {
+            maxHeight = 0.045f;
+        }
+        else if (totalDistanceDegrees > 10.0f) {
+            maxHeight = 0.04f;
+        }
+        else if (totalDistanceDegrees > 5.0f) {
+            maxHeight = 0.035f;
+        }
+        else {
+            maxHeight = 0.03f;
+        }
     
     return maxHeight * arcFactor;
 }

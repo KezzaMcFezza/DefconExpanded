@@ -187,7 +187,7 @@
      char* m_currentMegaVBOKey;
      Colour m_megaVBOColor;
      float m_megaVBOWidth;
-     static const int MAX_MEGA_VERTICES = 500000;
+     static const int MAX_MEGA_VERTICES = 4200000; // any higher and she crashes
      Vertex2D* m_megaVertices;
      int m_megaVertexCount;
      

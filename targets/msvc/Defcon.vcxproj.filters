@@ -1251,6 +1251,6 @@
     <Library Include="..\..\contrib\systemIV\contrib\oggvorbis\lib\vs2022\vorbisfile.lib">
       <Filter>contrib</Filter>
     </Library>
-    <Library Include="..\..\contrib\glew\lib\Release\Win32\glew32s.lib" />
+    <Library Include="..\..\contrib\systemIV\contrib\glew\lib\Release\Win32\glew32s.lib" />
   </ItemGroup>
 </Project>

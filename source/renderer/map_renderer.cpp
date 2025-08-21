@@ -1558,7 +1558,7 @@ void MapRenderer::RenderMouse()
     {
         Image *move = g_resource->GetImage( "gui/move.bmp" );
         float size = 4.0f * m_drawScale;
-        g_renderer->Blit( move, longitude - size/2, latitude - size/2, size, size, White );
+        g_renderer->EffectsSprite( move, longitude - size/2, latitude - size/2, size, size, White );
     }
 
 
