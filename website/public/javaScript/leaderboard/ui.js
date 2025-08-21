@@ -148,7 +148,7 @@ export function updateLeaderboardMetadata(data) {
 
     const qualifyLabel = document.querySelector('.qualifylabel');
     if (qualifyLabel) {
-        qualifyLabel.textContent = `To qualify you need ${leaderboardFilters.minGames} game${leaderboardFilters.minGames > 1 ? 's' : ''} played`;
+        qualifyLabel.textContent = `You need ${leaderboardFilters.minGames} game${leaderboardFilters.minGames > 1 ? 's' : ''} played`;
     }
 }
 
