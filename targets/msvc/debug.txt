@@ -1,6 +1,0 @@
-Defcon 1.64 STEAM built Aug  2 2025
-WinSock started
-Parsing command line: 1 arguments
-  argv[0] = 'C:\xampp\htdocs\targets\msvc\Defcon Result\Release Replay Viewer\Defcon.exe'
-Command line parsing complete: No replay filename specified
-Parsing archive main.dat...NOT FOUND
