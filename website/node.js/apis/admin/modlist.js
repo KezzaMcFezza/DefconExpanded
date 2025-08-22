@@ -56,7 +56,7 @@ router.post('/api/mods', upload.fields([
         const { name, type, creator, releaseDate, description, compatibility, version } = req.body;
         const modFile = req.files['modFile'] ? req.files['modFile'][0] : null;
         const previewImage = req.files['previewImage'] ? req.files['previewImage'][0] : null;
-        const modFilePath = modFile ? path.join(publicDir, 'modlist', modFile.originalname).replace(/\\/g, '/') : null;
+        const modFilePath = modFile ? path.join('public', 'modlist', modFile.originalname).replace(/\\/g, '/') : null;
         const previewImagePath = previewImage ? path.join('public', 'modpreviews', previewImage.originalname).replace(/\\/g, '/') : null;
         const fileSize = modFile ? modFile.size : 0;
 

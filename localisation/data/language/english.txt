@@ -282,7 +282,7 @@ dialog_lan_identity                 LAN Identity
 dialog_server_identity              Server Identity
 dialog_lobby_defcon                 DEFCOn
 dialog_created_by_introversion      CREATED  BY  INTROVERSION  SOFTWARE
-dialog_lobby_version                VERSION:
+dialog_lobby_version                REPLAY VIEWER:
 dialog_lobby_have_latest_version    You have the latest version.
 dialog_lobby_newer_version          A newer version is available : *V
 # V = Newer Version
