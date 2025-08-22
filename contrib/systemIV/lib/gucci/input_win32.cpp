@@ -126,8 +126,16 @@ int InputManagerWin32::EventHandler(unsigned int message, long long wParam, int 
 		{
 			short newPosX = lParam & 0xFFFF;
 			short newPosY = short(lParam >> 16);
-			m_mouseX = newPosX;
-			m_mouseY = newPosY;
+			
+			//
+			// Convert physical coordinates to logical coordinates
+			// Physical mouse coordinates need to be scaled to match logical resolution
+
+			float scaleX = (float)g_windowManager->WindowW() / (float)g_windowManager->PhysicalWindowW();
+			float scaleY = (float)g_windowManager->WindowH() / (float)g_windowManager->PhysicalWindowH();
+			
+			m_mouseX = (int)(newPosX * scaleX);
+			m_mouseY = (int)(newPosY * scaleY);
 			logEvent = true;
 			break;
 		}

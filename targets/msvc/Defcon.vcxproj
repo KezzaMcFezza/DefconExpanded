@@ -149,6 +149,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Recording Parsing|x64'">
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>Defcon Result\DebugRecParse</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>Defcon Result\Release</OutDir>

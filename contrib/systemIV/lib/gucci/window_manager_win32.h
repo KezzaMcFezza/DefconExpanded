@@ -43,6 +43,9 @@ protected:
 	void        ListAllDisplayModes ();
 	void        EnableOpenGL        (int _colourDepth, int _zDepth);
 	void        DisableOpenGL       ();
+	
+private:
+	bool        m_dpiAwareness;
 };
 
 inline WindowManagerWin32 *GetWindowManagerWin32()

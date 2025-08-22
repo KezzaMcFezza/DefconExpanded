@@ -6,8 +6,11 @@
 
 #include "lib/eclipse/eclipse.h"
 #include "lib/gucci/window_manager.h"
-#ifdef TARGET_MSVC 
+#ifdef TARGET_MSVC
 #include "lib/gucci/window_manager_win32.h"
+#include <windows.h>
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
 #endif
 #include "lib/gucci/input.h"
 #include "lib/resource/resource.h"
@@ -130,6 +133,11 @@ App::~App()
 #if RECORDING_PARSING
 
 #endif
+
+#ifdef TARGET_MSVC
+    timeEndPeriod(1);
+#endif
+
     delete m_clientToServer;
 	delete m_game;
 	delete m_earthData;
@@ -870,9 +878,72 @@ void App::Render()
     g_renderer->EndFrameTextBatch();
 
     //
-    // Flip
+    // Flip with FPS limiting
 
     START_PROFILE( "GL Flip" );
+    
+#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
+    static double s_lastFlipTime = 0.0;
+    int fpsLimit = g_preferences->GetInt(PREFS_SCREEN_FPS_LIMIT, 0);
+    
+    if( fpsLimit == 69 )
+    {
+        // Use refresh rate from screen preferences, please dont flame me for this method 
+        fpsLimit = g_preferences->GetInt(PREFS_SCREEN_REFRESH, 60);
+    }
+    
+    if( fpsLimit > 0 )
+    {
+        double targetFrameTime = 1.0 / (double)fpsLimit;
+        
+        #ifdef TARGET_MSVC
+            // High resolution timer for better Sleep() precision
+            static bool s_timerResolutionSet = false;
+            if( !s_timerResolutionSet )
+            {
+                timeBeginPeriod(1); // 1ms timer resolution
+                s_timerResolutionSet = true;
+            }
+        #endif
+        
+        // Wait until target frame time has passed
+        double currentTime = GetHighResTime();
+        double timeSinceLastFlip = currentTime - s_lastFlipTime;
+        
+        if( timeSinceLastFlip < targetFrameTime )
+        {
+            double timeToWait = targetFrameTime - timeSinceLastFlip;
+            
+            #ifdef TARGET_MSVC
+                // Use Sleep() for most of the wait, then busy-wait for precision
+                if( timeToWait > 0.002 ) 
+                {
+                    double sleepTime = timeToWait - 0.001; // Leave 1ms for busy-wait
+                    Sleep( (DWORD)(sleepTime * 1000.0) );
+                }
+                
+                // Busy wait for the remaining time 
+                double endTime = s_lastFlipTime + targetFrameTime;
+                while( GetHighResTime() < endTime )
+                {
+                    // Hey guys its scarce here
+                }
+            #else
+                // On Unix we use nanosleep
+                if( timeToWait > 0.0001 )
+                {
+                    struct timespec ts;
+                    ts.tv_sec = (time_t)timeToWait;
+                    ts.tv_nsec = (long)((timeToWait - ts.tv_sec) * 1000000000.0);
+                    nanosleep(&ts, NULL);
+                }
+            #endif
+        }
+        
+        s_lastFlipTime = GetHighResTime();
+    }
+#endif
+    
     g_windowManager->Flip();
     END_PROFILE( "GL Flip" );   
     
