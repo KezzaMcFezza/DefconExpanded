@@ -141,14 +141,30 @@ dialog_colourdepth_16               16 bit
 dialog_colourdepth_24               24 bit
 dialog_colourdepth_32               32 bit
 dialog_colourdepth_X                *C bit
-# C = Color Depth
 dialog_zbufferdepth                 Z Buffer Depth
 dialog_refreshrate_X                *R Hz
-# R = Refresh Rate
 dialog_resolution_W_H               *W x *H
-# W = Screen Width, H = Screen Height
 dialog_antialias                    Use Anti-Aliasing
-
+dialog_antialias_2x		    2x MSAA
+dialog_antialias_4x                 4x MSAA
+dialog_antialias_8x                 8x MSAA
+dialog_antialias_16x                16x MSAA
+dialog_fpslimit                     FPS Limit
+dialog_fpslimit_no_limit            No Limit
+dialog_fpslimit_refresh_rate        Refresh Rate
+dialog_fpslimit_60fps               60 FPS
+dialog_fpslimit_144fps              144 FPS
+dialog_fpslimit_240fps              240 FPS
+dialog_fpslimit_480fps              480 FPS
+dialog_fpslimit_1000fps             1000 FPS
+dialog_windowscaling                Window Scaling
+dialog_windowscaling_50             50%
+dialog_windowscaling_75             75%
+dialog_windowscaling_100            100%
+dialog_windowscaling_110	    110%
+dialog_windowscaling_125	    125%
+dialog_windowscaling_133	    133%
+dialog_windowscaling_150            150%
 dialog_networkoptions               Network
 dialog_networkclientport            Client Port
 dialog_networkserverport            Server Port
@@ -266,9 +282,8 @@ dialog_lan_identity                 LAN Identity
 dialog_server_identity              Server Identity
 dialog_lobby_defcon                 DEFCOn
 dialog_created_by_introversion      CREATED  BY  INTROVERSION  SOFTWARE
-dialog_lobby_version                REPLAY VIEWER:
+dialog_lobby_version                VERSION:
 dialog_lobby_have_latest_version    You have the latest version.
-dialog_no_file_specified            Please select a file.
 dialog_lobby_newer_version          A newer version is available : *V
 # V = Newer Version
 dialog_lobby_click_to_download      Click here to download it
@@ -1327,7 +1342,7 @@ demo_middle4                        Speed Defcon: It's all over in 15 minutes - 
 demo_middle5                        Diplomacy: All players start on the same Alliance - how long will it last?
 demo_middle6                        Big World: The world is twice as large - for those who love a long game
 demo_bottom1                        Immediate Activation for just
-demo_bottom2                        �10     $17.50     �14
+demo_bottom2                         10     $17.50      14
 
 demo_bottom1_retail                 BUY THE FULL-VERSION OF DEFCON TODAY
 demo_bottom2_retail                 VISIT YOUR FAVORITE PC GAMES RETAILER
@@ -1454,16 +1469,16 @@ overlay_4_25                        UNITED STATES AIR FORCES SOUTHERN COMMAND   
 overlay_5_1						    -----------------------------------------------------------------
 overlay_5_2	                        -       EFFECTS OF RADIATION EXPOSURE ON HUMAN PHYSIOLOGY       -
 overlay_5_3	                        -----------------------------------------------------------------\n
-overlay_5_4                         -LESS THAN 1 SV (5O�1OO REM) 
+overlay_5_4                         -LESS THAN 1 SV (5O-1OO REM) 
 overlay_5_5                           MILD RADIATION SICKNESS WITH HEADACHE AND INCREASED RISK OF 
 overlay_5_6                           INFECTION DUE TO DISRUPTION OF IMMUNITY CELLS. TEMPORARY MALE
 overlay_5_7                           STERILITY IS POSSIBLE.\n
-overlay_5_8                         1�2 SV (1OO�2OO REM)       (LIGHT)      1O% FATALITY AFTER 30 DAYS
-overlay_5_9                         2�3 SV (2OO�3OO REM)       (MODERATE)   35% FATALITY AFTER 30 DAYS
-overlay_5_10                        3�4 SV (3OO�4OO REM)       (SEVERE)     5O% FATALITY AFTER 30 DAYS 
-overlay_5_11                        4�6 SV (4OO�6OO REM)       (ACUTE)      6O% FATALITY AFTER 30 DAYS 
-overlay_5_12                        1O�5O SV (1,OOO�5,OOO REM) (ACUTE)     1OO% FATALITY AFTER 7 DAYS\n
-overlay_5_13                        -5O�8O SV (5,OOO�8,OOO REM) 
+overlay_5_8                         1-2 SV (1OO-2OO REM)       (LIGHT)      1O% FATALITY AFTER 30 DAYS
+overlay_5_9                         2-3 SV (2OO-3OO REM)       (MODERATE)   35% FATALITY AFTER 30 DAYS
+overlay_5_10                        3-4 SV (3OO-4OO REM)       (SEVERE)     5O% FATALITY AFTER 30 DAYS 
+overlay_5_11                        4-6 SV (4OO-6OO REM)       (ACUTE)      6O% FATALITY AFTER 30 DAYS 
+overlay_5_12                        1O-5O SV (1,OOO-5,OOO REM) (ACUTE)     1OO% FATALITY AFTER 7 DAYS\n
+overlay_5_13                        5O-8O SV (5,OOO-8,OOO REM) 
 overlay_5_14                          IMMEDIATE DISORIENTATION AND COMA IN SECONDS OR MINUTES. 
 overlay_5_15                          DEATH OCCURS AFTER A FEW HOURS BY TOTAL COLLAPSE OF NERVOUS SYSTEM.\n 
 overlay_5_16                        - MORE THAN 8O SV (>8,OOO REM)         IMMEDIATE DEATH.
@@ -1579,85 +1594,85 @@ overlay_11_23                       MAY 28 1998     CHAGAI-I             9      
 overlay_12_1                        -----------------------------------------
 overlay_12_2                        -       BETA TESTERS (PAGE 1 OF 2)
 overlay_12_3                        -----------------------------------------\n
-overlay_12_4                        ASHLEY �NEOTHERMIC� PINNER
-overlay_12_5                        ALESSANDRO �FIRESHIP4� PEDRINA MCCARTHY
-overlay_12_6                        BILL �BIPP5� RASTELLO
-overlay_12_7                        BRODY �LEONAKEN� BROOKS
+overlay_12_4                        ASHLEY 'NEOTHERMIC' PINNER
+overlay_12_5                        ALESSANDRO 'FIRESHIP4' PEDRINA MCCARTHY
+overlay_12_6                        BILL 'BIPP5' RASTELLO
+overlay_12_7                        BRODY 'LEONAKEN' BROOKS
 overlay_12_8                        CHARLES BROWN
 overlay_12_9                        CHRIS BROWN
-overlay_12_10                        CHRIS �SUVIR� BOYD
+overlay_12_10                       CHRIS 'SUVIR' BOYD
 overlay_12_11                       CHRISTOPH KOEHLER
 overlay_12_12                       CORPORATESPECTRE
-overlay_12_13                       DAMJAN �VIRUSEX� BELAVIC
-overlay_12_14                       DANIEL �DK� KARLING
-overlay_12_15                       DEREK �PUNISHER BASS� SCHOTT
+overlay_12_13                       DAMJAN 'VIRUSEX' BELAVIC
+overlay_12_14                       DANIEL 'DK' KARLING
+overlay_12_15                       DEREK 'PUNISHER BASS' SCHOTT
 overlay_12_16                       FURRIES
 overlay_12_17                       HENNING HORN
 overlay_12_18                       HEWAT KENNEDY
-overlay_12_19                       JASON �JAYSC� TIEN
+overlay_12_19                       JASON 'JAYSC' TIEN
 overlay_12_20                       JENS WIECHERS
 overlay_12_21                       JO STANSFIELD
-overlay_12_22                       JOHAN �ZARKOW� MUNKESTAM
-overlay_12_23                       JOSHUA �MIAH� CLAYTON
-overlay_12_24                       JUSTIN �ATELOPHOBIA� GOTTULA
-overlay_12_25                       J�RGEN �DIRTY HARRY POTTER� BERTHELSEN
-overlay_12_26                       KASPER �AAARGH� MEERTS
-overlay_12_27                       LEANDER �ELDIABLO� HAMBLEY
+overlay_12_22                       JOHAN 'ZARKOW' MUNKESTAM
+overlay_12_23                       JOSHUA 'MIAH' CLAYTON
+overlay_12_24                       JUSTIN 'ATELOPHOBIA' GOTTULA
+overlay_12_25                       JORGEN 'DIRTY HARRY POTTER' BERTHELSEN
+overlay_12_26                       KASPER 'AAARGH' MEERTS
+overlay_12_27                       LEANDER 'ELDIABLO' HAMBLEY
 overlay_12_28                       LUKE HOSCHKE
-overlay_12_29                       MARIUSZ �MANDI^ATO� DANILEWICZ
+overlay_12_29                       MARIUSZ 'MANDI^ATO' DANILEWICZ
 
 overlay_13_1                        -----------------------------------------
 overlay_13_2                        -       BETA TESTERS (PAGE 2 OF 2)
 overlay_13_3                        -----------------------------------------\n
-overlay_13_4                        MARK �LLAMABOY� VINE
+overlay_13_4                        MARK 'LLAMABOY' VINE
 overlay_13_5                        MICHAEL NICHOLLS
-overlay_13_6                        MORTEN �NUTTER� PEDERSEN
+overlay_13_6                        MORTEN 'NUTTER' PEDERSEN
 overlay_13_7                        MR. VIOLATOR
 overlay_13_8                        NEIL ROSS
-overlay_13_9                        NIGEL �MOUSE� MORSE
-overlay_13_10                        OLIVER �AGENTX 24� GRUBIN
+overlay_13_9                        NIGEL 'MOUSE' MORSE
+overlay_13_10                       OLIVER 'AGENTX 24' GRUBIN
 overlay_13_11                       PHYDAUX
-overlay_13_12                       PIOTR �THEPIACHU� PIASECKI
+overlay_13_12                       PIOTR 'THEPIACHU' PIASECKI
 overlay_13_13                       PITBEAST
 overlay_13_14                       PROZAK
-overlay_13_15                       RICHARD �FALSE� LA CHARIT� III
-overlay_13_16                       SAM �MAS� NORRIS
-overlay_13_17                       SHAWN �TRICKFRED� MACIVER
-overlay_13_18                       SIMON �N3O77� SPARKS
+overlay_13_15                       RICHARD 'FALSE' LA CHARIT  III
+overlay_13_16                       SAM 'MAS' NORRIS
+overlay_13_17                       SHAWN 'TRICKFRED' MACIVER
+overlay_13_18                       SIMON 'N3O77' SPARKS
 overlay_13_19                       STEVEN NOONAN
 overlay_13_20                       SWIL232
 overlay_13_21                       THE GOLDFISH
-overlay_13_22                       THIERRY �BOLKA� MARTIN
+overlay_13_22                       THIERRY 'BOLKA' MARTIN
 overlay_13_23                       TIM BAVERSTOCK
-overlay_13_24                       TOBY �THE TUBSTAR� INNOCENT
+overlay_13_24                       TOBY 'THE TUBSTAR' INNOCENT
 overlay_13_25                       TOUMAZ
-overlay_13_26                       VIRGINIJUS �LEGIO� PAMPIKAS
-overlay_13_27                       WILL �MIZER� NEW
+overlay_13_26                       VIRGINIJUS 'LEGIO' PAMPIKAS
+overlay_13_27                       WILL 'MIZER' NEW
 overlay_13_28                       WOLFLORD
-overlay_13_29                       ZACHARY �XYZYXX� PARKER
+overlay_13_29                       ZACHARY 'XYZYXX' PARKER
 
 overlay_14_1                        -----------------------------------------
 overlay_14_2                        -            MAC BETA TESTERS
 overlay_14_3                        -----------------------------------------\n
-overlay_14_4                        ALASTAIR �PROPHILE� LYNN
-overlay_14_5                        ALEC �HAMSTER� INGULSRUD
-overlay_14_6                        ANDREW �ANDCARNE� CARNE
-overlay_14_7                        BOLKO �KRAUTI� MAASS
+overlay_14_4                        ALASTAIR 'PROPHILE' LYNN
+overlay_14_5                        ALEC 'HAMSTER' INGULSRUD
+overlay_14_6                        ANDREW 'ANDCARNE' CARNE
+overlay_14_7                        BOLKO 'KRAUTI' MAASS
 overlay_14_8                        BRIAN DICK
-overlay_14_9                        BRYCE �ZOMBAT� HOMICK
-overlay_14_10                       CIAR�N �MONTYPHY� EATON
-overlay_14_11                       DOMINIC �REFRIDGERON� WHITE
-overlay_14_12                       JACK �DASH RANTIC� CARLSON
-overlay_14_13                       JAMES �CONSUL BOB� GOOCH
-overlay_14_14                       JAMES �LASTOF� TITMUSS
-overlay_14_15                       JONAS �FREQ245� MIRWALD
-overlay_14_16                       KIRK �KAUTHOR� STALEY
-overlay_14_17                       MARK �MRXAK� PETCAVAGE
+overlay_14_9                        BRYCE 'ZOMBAT' HOMICK
+overlay_14_10                       CIAR N 'MONTYPHY' EATON
+overlay_14_11                       DOMINIC 'REFRIDGERON' WHITE
+overlay_14_12                       JACK 'DASH RANTIC' CARLSON
+overlay_14_13                       JAMES 'CONSUL BOB' GOOCH
+overlay_14_14                       JAMES 'LASTOF' TITMUSS
+overlay_14_15                       JONAS 'FREQ245' MIRWALD
+overlay_14_16                       KIRK 'KAUTHOR' STALEY
+overlay_14_17                       MARK 'MRXAK' PETCAVAGE
 overlay_14_18                       MIKE ASH
-overlay_14_19                       NATHANIEL �MACKILROY� PORTER
-overlay_14_20                       NICK �NFREADER� FARLEY
-overlay_14_21                       OWEN �MR ED209� BILLCLIFFE
-overlay_14_22                       PER �PV2B� VON ZWEIGBERGK
+overlay_14_19                       NATHANIEL 'MACKILROY' PORTER
+overlay_14_20                       NICK 'NFREADER' FARLEY
+overlay_14_21                       OWEN 'MR ED209' BILLCLIFFE
+overlay_14_22                       PER 'PV2B' VON ZWEIGBERGK
 overlay_14_23                       SOLRA BIZNA
 overlay_14_24                       XANDER HENDERSON
 
@@ -1667,15 +1682,16 @@ overlay_15_3                        ----------------------------------------\n
 overlay_15_4                        MIKE BLAGUSZEWSKI                PORTING
 overlay_15_5                        MARCUS CONGE            APPLICATION ICON
 overlay_15_6                        DAVID DUNHAM                     TESTING
-overlay_15_7                        EVAN �SULTAN� SMITH              TESTING
+overlay_15_7                        EVAN 'SULTAN' SMITH              TESTING
 overlay_15_8                        -ADDITIONAL PORTING BY
-overlay_15_9                        JOSHUA �MIAH� CLAYTON
+overlay_15_9                        JOSHUA 'MIAH' CLAYTON
 overlay_15_10                       STEVEN NOONAN\n
 overlay_15_11                       ----------------------------------------
 overlay_15_12                       -            LINUX PORT
 overlay_15_13                       ----------------------------------------\n
 overlay_15_14                       STEVEN NOONAN
 overlay_15_15                       JOHN KNOTTENBELT
-overlay_15_16                       JOSHUA �MIAH� CLAYTON\n\n
+overlay_15_16                       JOSHUA 'MIAH' CLAYTON\n\n
 overlay_15_17                       ----------------------------------------\n
 overlay_15_18                       Translation Services provided by Game Localization Network Ltd.
+

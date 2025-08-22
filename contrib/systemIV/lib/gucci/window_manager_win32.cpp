@@ -50,7 +50,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 WindowManagerWin32::WindowManagerWin32()
 :	m_hWnd(NULL),
 	m_hDC(NULL),
-	m_hRC(NULL)
+	m_hRC(NULL),
+	m_dpiAwareness(false)
 
 {
 	AppAssert(g_windowManager == NULL);
@@ -246,6 +247,33 @@ bool WindowManagerWin32::CreateWin(int _width, int _height, bool _windowed,
 	           				     int _colourDepth, int _refreshRate, int _zDepth,
                                  int antiAlias, const char *_title )
 {
+	if (!m_dpiAwareness) {
+		bool SetDPIAware = false;
+		
+		if (_windowed) {
+			// Always set DPI awareness for windowed mode
+			SetDPIAware = true;
+		} else {
+
+			//
+			// For fullscreen mode, only set DPI awareness if resolution is >= desktop resolution
+			//
+			// This still is buggy as SetProcessDPIAware cannot be changed during runtime so a
+			// restart is required right now until i can be assed making a proper fix
+			// and who the fuck wants to run at a lower resolution in fullscreen anyway
+
+			if (_width >= m_desktopScreenW && _height >= m_desktopScreenH) {
+				SetDPIAware = true;
+			}
+		}
+		
+		if (SetDPIAware) {
+			SetProcessDPIAware();
+		}
+		
+		m_dpiAwareness = true;
+	}
+
 	m_screenW = _width;
 	m_screenH = _height;
     m_windowed = _windowed;
@@ -373,7 +401,14 @@ void WindowManagerWin32::SetMousePos(int x, int y)
 		m_mouseOffsetY = rect1.top + m_borderWidth + m_titleHeight;
 	}
 
-	SetCursorPos(x + m_mouseOffsetX, y + m_mouseOffsetY);
+	// Convert logical coordinates to physical coordinates for cursor positioning
+	float scaleX = (float)PhysicalWindowW() / (float)WindowW();
+	float scaleY = (float)PhysicalWindowH() / (float)WindowH();
+	
+	int physicalX = (int)(x * scaleX);
+	int physicalY = (int)(y * scaleY);
+
+	SetCursorPos(physicalX + m_mouseOffsetX, physicalY + m_mouseOffsetY);
 }
 
 HINSTANCE WindowManagerWin32::GethInstance()
@@ -423,13 +458,6 @@ int WINAPI WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance,
 				   LPSTR _cmdLine, int _iCmdShow)
 {
 	g_hInstance = _hInstance;
-
-	//
-	// This prevents rendering issues when Windows scaling is set above 100%
-	// solves a real world problem that i had when i upgraded to a 4k display
-	// and my display scaling is set to 150%
-	
-	SetProcessDPIAware();
 
 #ifdef USE_CRASHREPORTING
     __try

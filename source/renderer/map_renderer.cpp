@@ -2608,7 +2608,7 @@ void MapRenderer::RenderObjects()
                     if( wobj->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer->Blit( img, wobj->m_longitude.DoubleValue() - iconSize/2, wobj->m_latitude.DoubleValue() - iconSize/2, iconSize, iconSize, col, 0 );
+                    g_renderer->Blit( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
 
                     g_renderer->SetFont( "kremlin", true );
 

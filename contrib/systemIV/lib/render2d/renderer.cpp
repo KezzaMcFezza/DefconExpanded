@@ -228,11 +228,25 @@ Renderer::~Renderer() {
 void Renderer::Set2DViewport(float l, float r, float b, float t, int x, int y, int w, int h) {
     m_modelViewMatrix.LoadIdentity();
     m_projectionMatrix.Ortho(l - 0.325f, r - 0.325f, b - 0.325f, t - 0.325f, -1.0f, 1.0f);
+
+#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)   
+    // Calculate scale factors between logical and physical resolution
+    float scaleX = (float)g_windowManager->PhysicalWindowW() / (float)g_windowManager->WindowW();
+    float scaleY = (float)g_windowManager->PhysicalWindowH() / (float)g_windowManager->WindowH();
     
+    // Apply scaling to convert logical coordinates to physical viewport coordinates
+    int physicalX = (int)(x * scaleX);
+    int physicalY = (int)((g_windowManager->WindowH() - h - y) * scaleY);
+    int physicalW = (int)(w * scaleX);
+    int physicalH = (int)(h * scaleY);
+
+    glViewport(physicalX, physicalY, physicalW, physicalH);
+#else
     float scaleX = g_windowManager->GetHighDPIScaleX();
     float scaleY = g_windowManager->GetHighDPIScaleY();
-    
+
     glViewport(scaleX * x, scaleY * (g_windowManager->WindowH() - h - y), scaleX * w, scaleY * h);
+#endif
 }
 
 void Renderer::Reset2DViewport() {
@@ -774,10 +788,25 @@ void Renderer::EndLineStrip2D() {
 }
 
 void Renderer::SetClip(int x, int y, int w, int h) {
+
+#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
+    // Calculate scale factors between logical and physical resolution
+    float scaleX = (float)g_windowManager->PhysicalWindowW() / (float)g_windowManager->WindowW();
+    float scaleY = (float)g_windowManager->PhysicalWindowH() / (float)g_windowManager->WindowH();
+    
+    // Apply scaling to convert logical coordinates to physical clipping coordinates  
+    int physicalX = (int)(x * scaleX);
+    int physicalY = (int)((g_windowManager->WindowH() - h - y) * scaleY);
+    int physicalW = (int)(w * scaleX);
+    int physicalH = (int)(h * scaleY);
+    
+    glScissor(physicalX, physicalY, physicalW, physicalH);
+#else
     float scaleX = g_windowManager->GetHighDPIScaleX();
     float scaleY = g_windowManager->GetHighDPIScaleY();
 
     glScissor(scaleX * x, scaleY * (g_windowManager->WindowH() - h - y), scaleX * w, scaleY * h);
+#endif
     glEnable(GL_SCISSOR_TEST);
 }
 
@@ -943,8 +972,14 @@ void Renderer::SaveScreenshot() {
     float timeNow = GetHighResTime();
     char *screenshotsDir = ScreenshotsDirectory();
 
+#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
+    // Screenshot should capture the actual physical resolution, not logical
+    int screenW = g_windowManager->PhysicalWindowW();
+    int screenH = g_windowManager->PhysicalWindowH();
+#else
     int screenW = g_windowManager->GetHighDPIScaleX() * g_windowManager->WindowW();
     int screenH = g_windowManager->GetHighDPIScaleY() * g_windowManager->WindowH();
+#endif
     
     unsigned char *screenBuffer = new unsigned char[screenW * screenH * 3];
     glReadPixels(0, 0, screenW, screenH, GL_RGB, GL_UNSIGNED_BYTE, screenBuffer);

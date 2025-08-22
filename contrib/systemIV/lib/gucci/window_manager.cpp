@@ -3,6 +3,7 @@
 #include <limits.h>
 
 #include "lib/debug_utils.h"
+#include "lib/preferences.h"
 
 #include "input.h"
 #include "window_manager.h"
@@ -101,6 +102,56 @@ SecondaryEventHandler WindowManager::GetSecondaryMessageHandler()
 {
     return m_secondaryMessageHandler;
 }
+
+#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
+//
+// New functions that set our logical resolution based on what the user has set in preferences
+//
+// this is used to set the logical internal resolution of the game to trick DEFCON into rendering
+// all the game elements at a specific scale, it works extremely well for larger displays
+
+int WindowManager::GetLogicalWidth()
+{
+    // Default to No Scaling, this is what most DEFCON players expect
+    int uiScale = g_preferences ? g_preferences->GetInt(PREFS_SCREEN_UI_SCALE, 100) : 100;
+    
+    float scaleFactor;
+    switch(uiScale) {
+        case 50:  scaleFactor = 1.5f;  break;     // Incase people want to?
+        case 75:  scaleFactor = 1.25f; break;     // I can see this looking okay on smaller displays
+        case 100: scaleFactor = 1.0f;  break;     // Use monitor resolution instead of logical resolution
+		case 110: scaleFactor = 0.90f;  break;    // Can be good for 1440p monitors
+        case 125: scaleFactor = 0.75f;  break;    // Sweetspot for 4k monitors
+		case 133: scaleFactor = 0.67f;  break;    // Looks good on 4k monitors but a tad big
+        case 150: scaleFactor = 0.50f; break;     // You might need an 8k monitor for this
+        default:  scaleFactor = 1.0f;  break;     
+    }
+    
+    return (int)(m_screenW * scaleFactor);
+}
+
+
+int WindowManager::GetLogicalHeight() 
+{
+
+    int uiScale = g_preferences ? g_preferences->GetInt(PREFS_SCREEN_UI_SCALE, 100) : 100;
+    
+    float scaleFactor;
+    switch(uiScale) {
+        case 0:   scaleFactor = 1.0f;  break;
+        case 50:  scaleFactor = 1.5f;  break;  
+        case 75:  scaleFactor = 1.25f; break;  
+        case 100: scaleFactor = 1.0f;  break;  
+		case 110: scaleFactor = 0.90f;  break;  
+        case 125: scaleFactor = 0.75f;  break;  
+		case 133: scaleFactor = 0.67f;  break;  
+        case 150: scaleFactor = 0.50f; break;  
+        default:  scaleFactor = 1.0f;  break;  
+    }
+    
+    return (int)(m_screenH * scaleFactor);
+}
+#endif
 
 class DeleteWindowManagerOnExit {
 	public:
