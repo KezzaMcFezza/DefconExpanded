@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 06-06-2025
+* Last Edited 23-08-2025
 */
 
 :root {
@@ -35,18 +35,6 @@
 
     50% {
         box-shadow: 0 4px 20px rgba(77, 166, 255, 0.4);
-    }
-}
-
-@keyframes glowBorder {
-
-    0%,
-    100% {
-        border-color: var(--dark-blue);
-    }
-
-    50% {
-        border-color: var(--primary-blue);
     }
 }
 
@@ -96,8 +84,6 @@
     align-items: center;
     justify-content: center;
     max-width: 1400px;
-    border-left: 4px solid #fff;
-    animation: glowBorder 2s infinite;
 }
 
 .season-banner i {
@@ -266,7 +252,6 @@ input {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease-out;
-    background-color: rgba(28, 28, 46, 0.2);
 }
 
 .advanced-filters.expanded {
@@ -357,12 +342,24 @@ input {
     background-color: #a30000;
 }
 
+.filter-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.filter-actions .apply-btn,
+.filter-actions .reset-btn {
+    flex: 1;
+    max-width: 150px;
+}
+
 .leaderboard-metadata {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 0.5rem 0rem 1rem;
 }
 
 .unique-players {
@@ -387,7 +384,6 @@ input {
 
 .leaderboard-table-container {
     overflow-x: auto;
-    padding: 0 0.5rem;
 }
 
 #leaderboard-table {
@@ -422,10 +418,6 @@ input {
 #leaderboard-table tbody tr {
     background-color: rgba(28, 28, 46, 0.3);
     transition: all var(--transition-speed);
-}
-
-#leaderboard-table tbody tr:nth-child(even) {
-    background-color: rgba(28, 28, 46, 0.5);
 }
 
 #leaderboard-table td {
@@ -557,6 +549,7 @@ tr:nth-child(3) .rank-cell::before {
 
 #active-players-list li {
     display: flex;
+    background-color: rgba(28, 28, 46, 0.3);
     align-items: center;
     padding: 0.75rem 1rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -606,26 +599,25 @@ tr:nth-child(3) .rank-cell::before {
 
 #previous-winners-list li {
     padding: 1rem;
-    border-radius: 8px;
-    border-left: 3px solid var(--orange);
+    border-bottom: 2px solid var(--primary-blue);
     transition: all 0.3s ease;
-    margin-bottom: 10px;
     background-color: rgba(28, 28, 46, 0.3);
 }
 
 #previous-winners-list li:first-child {
-    border-left-color: #ffd700;
-    margin: 0 0 10px 0;
-    background-color: rgba(28, 28, 46, 0.5);
+    border-bottom: 2px solid var(--primary-blue);
+
+}
+
+#previous-winners-list li:last-child {
+    border-bottom: 2px solid var(--primary-blue);
+    border-radius: 0 0 10px 10px;
 }
 
 #previous-winners-list li:first-child .season-name {
     color: #ffd700;
 }
 
-#previous-winners-list li:last-child {
-    margin-bottom: 10px;
-}
 
 .season-name {
     color: var(--orange);
@@ -688,6 +680,7 @@ tr:nth-child(3) .rank-cell::before {
 .info-content {
     padding: 1rem;
     color: #b8b8b8;
+    background-color: rgba(28, 28, 46, 0.3);
     font-size: 0.9rem;
     line-height: 1.6;
 }

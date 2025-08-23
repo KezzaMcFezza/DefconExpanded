@@ -8,7 +8,7 @@
 //
 // Inspired by Sievert and Wan May
 // 
-// Last Edited 14-04-2025
+// Last Edited 23-08-2025
 
 import { leaderboardFilters, defaultNames, serverPlaylists } from './constants.js';
 import { displayLeaderboard, updateLeaderboardMetadata, displayMostActivePlayers, displayPreviousSeasonWinners } from './ui.js';
@@ -87,10 +87,13 @@ export async function fetchPreviousSeasonWinners() {
         const seasonWinners = [];
 
         for (const season of pastSeasons) {
+            const isHistoricalSeason = season.key === 'beginning' || season.key === 'y2s1' || season.key === 'y2s2';
+            const sortMethod = isHistoricalSeason ? 'wins' : 'winRatio';
+            
             const queryParams = new URLSearchParams({
                 startDate: season.startDate,
                 endDate: season.endDate,
-                sortBy: 'wins',
+                sortBy: sortMethod,
                 limit: 1,
                 excludeNames: defaultNames.join(','),
                 includeDetailedStats: 'true'

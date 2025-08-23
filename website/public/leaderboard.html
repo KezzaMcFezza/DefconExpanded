@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 04-08-2025 
+* Last Edited 23-08-2025 
 -->
 
 <!DOCTYPE html>
@@ -234,12 +234,12 @@
                             <div class="filter-group">
                                 <label for="sort-select">Sort by:</label>
                                 <select id="sort-select">
+                                    <option value="winRatio">Win Ratio</option>
                                     <option value="wins">Wins</option>
                                     <option value="gamesPlayed">Games Played</option>
                                     <option value="totalScore">Total Score</option>
                                     <option value="highestScore">Highest Score</option>
                                     <option value="avgScore">Average Score</option>
-                                    <option value="winRatio">Win Ratio</option>
                                     <option value="recent">Most Recent</option>
                                 </select>
                             </div>
@@ -264,36 +264,52 @@
                         <div class="advanced-filters-row">
                             <div class="filter-group server-filter-group">
                                 <label for="server-filter">Server:</label>
-                                <select id="server-filter">
+                                <select id="server-filter" class="server-select">
                                     <option value="">All Servers</option>
                                     <option value="New Player Server">New Player Server</option>
-                                    <option value="New Player Server - Training Game">New Player Server - Training
+                                    <option value="New Player Server - Training Game">New Player Server - Training Game</option>
+                                    <option value="DefconExpanded | 1v1 | Totally Random">DefconExpanded | 1v1 | Totally Random</option>
+                                    <option value="DefconExpanded | 1V1 | Best Setups Only!">DefconExpanded | 1V1 | Best Setups Only!
                                     </option>
-                                    <option value="DefconExpanded | 1v1 | Totally Random">1v1 | Totally Random</option>
-                                    <option value="DefconExpanded | 1V1 | Best Setups Only!">1V1 | Best Setups Only!
-                                    </option>
-                                    <option value="DefconExpanded | 1v1 | Cursed Setups Only!">1V1 | Cursed Setups Only!
-                                    </option>
-                                    <option value="DefconExpanded | 1v1 | AF vs AS | Totally Random">1v1 | AF vs AS |
-                                        Random</option>
-                                    <option value="DefconExpanded | 1v1 | EU vs SA | Totally Random">1v1 | EU vs SA |
-                                        Random</option>
-                                    <option value="DefconExpanded | 1v1 | Default">1v1 | Default</option>
-                                    <option value="DefconExpanded | 2v2 | Totally Random">2v2 | Totally Random</option>
+                                    <option value="DefconExpanded | 1v1 | Cursed Setups Only!">DefconExpanded | 1v1 | Cursed Setups Only!</option>
+                                    <option value="Raizer's Russia vs USA | Totally Random">Raizer's Russia vs USA | Totally Random</option>
+                                    <option value="DefconExpanded | 1v1 | AF vs AS | Totally Random">DefconExpanded | 1v1 | AF vs AS |
+                                      Totally Random</option>
+                                    <option value="DefconExpanded | 1v1 | EU vs SA | Totally Random">DefconExpanded | 1v1 | EU vs SA |
+                                      Totally Random</option>
+                                    <option value="DefconExpanded | 1v1 | Default">DefconExpanded | 1v1 | Default</option>
+                                    <option value="DefconExpanded | 1v1 | UK and Ireland">DefconExpanded | 1v1 | UK and Ireland</option>
+                                    <option value="DefconExpanded | 2v2 | Totally Random">DefconExpanded | 2v2 | Totally Random</option>
+                                    <option value="DefconExpanded | 2v2 | UK and Ireland">DefconExpanded | 2v2 | UK and Ireland</option>
                                     <option value="2v2 Tournament">2v2 Tournament</option>
-                                    <option value="DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random">2v2 |
-                                        NA-SA-EU-AF | Random</option>
-                                    <option value="Mojo's 2v2 Arena - Quick Victory">Mojo's 2v2 Arena</option>
+                                    <option value="DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random">DefconExpanded | 2v2 |
+                                      NA-SA-EU-AF | Totally Random</option>
+                                    <option value="Mojo's 2v2 Arena - Quick Victory">Mojo's 2v2 Arena - Quick Victory</option>
                                     <option value="Sony and Hoov's Hideout">Sony and Hoov's Hideout</option>
-                                    <option value="DefconExpanded | 3v3 | Totally Random">3v3 | Totally Random</option>
+                                    <option value="DefconExpanded | 3v3 | Totally Random">DefconExpanded | 3v3 | Totally Random</option>
+                                    <option value="DefconExpanded | Diplomacy" >DefconExpanded | Diplomacy</option>
                                     <option value="MURICON | 1v1 Default | 2.8.15">MURICON | 1v1 | Default</option>
-                                    <option value="DefconExpanded | Free For All | Random Cities">Free For All | Random
-                                        Cities</option>
-                                    <option value="DefconExpanded | 8 Player | Diplomacy">8 Player | Diplomacy</option>
-                                    <option value="DefconExpanded | 4V4 | Totally Random">4V4 | Totally Random</option>
-                                    <option value="DefconExpanded | 10 Player | Diplomacy">10 Player | Diplomacy
+                                    <option value="MURICON | 1V1 | Totally Random | 2.8.15">MURICON | 1V1 | Totally Random | 2.8.15
                                     </option>
-                                </select>
+                                    <optgroup label="509 CG | 1v1, 2v2 | Totally Random">
+                                      <option value="509 CG | 2v2 | Totally Random | 2.8.15">509 CG | 2v2 | Totally Random | 2.8.15
+                                      </option>
+                                      <option value="509 CG | 2v2 | Totally Random | 2.8.14.1">509 CG | 2v2 | Totally Random | 2.8.14.1
+                                      </option>
+                                      <option value="509 CG | 1v1 | Totally Random | 2.8.15">509 CG | 1v1 | Totally Random | 2.8.15
+                                      </option>
+                                      <option value="509 CG | 1v1 | Totally Random | 2.8.14.1">509 CG | 1v1 | Totally Random | 2.8.14.1
+                                      </option>
+                                    </optgroup>
+                                    <option value="DefconExpanded | Free For All | Random Cities">DefconExpanded | Free For All | Random
+                                      Cities</option>
+                                    <option value="DefconExpanded | 8 Player | Diplomacy">DefconExpanded | 8 Player | Diplomacy</option>
+                                    <option value="DefconExpanded | 4V4 | Totally Random">DefconExpanded | 4V4 | Totally Random</option>
+                                    <option value="DefconExpanded | 10 Player | Diplomacy">DefconExpanded | 10 Player | Diplomacy
+                                    </option>
+                                    <option value="DefconExpanded | 16 Player | Test Server">DefconExpanded | 16 Player | Test Server
+                                    </option>
+                                  </select>
                             </div>
 
                             <div class="filter-group playlist-filter-group">
@@ -311,7 +327,6 @@
                             <div class="filter-group">
                                 <label for="min-games-filter">Min Games:</label>
                                 <select id="min-games-filter">
-                                    <option value="1">1</option>
                                     <option value="3">3</option>
                                     <option value="5">5</option>
                                     <option value="10">10</option>
@@ -328,21 +343,23 @@
                                     <input type="date" id="start-date" placeholder="Start Date">
                                     <span>to</span>
                                     <input type="date" id="end-date" placeholder="End Date">
-                                    <button id="apply-date-filter" class="apply-btn">Apply</button>
                                 </div>
                             </div>
 
-                            <button id="reset-filters" class="reset-btn">
-                                <i class="fas fa-undo-alt"></i> Reset Filters
-                            </button>
+                            <div class="filter-actions">
+                                <button id="apply-filters" class="apply-btn">
+                                    <i class="fas fa-check"></i> Apply Filters
+                                </button>
+                                <button id="reset-filters" class="reset-btn">
+                                    <i class="fas fa-undo-alt"></i> Reset Filters
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="leaderboard-metadata">
-                    <div id="unique-players" class="unique-players">
- Unique Players: 0
-                    </div>
+                    <div id="unique-players" class="unique-players">Unique Players: 0</div>
                     <div class="qualification-info">
                         <i class="fas fa-info-circle"></i> To qualify: <span class="qualifylabel">1 game played</span>
                     </div>
@@ -353,7 +370,7 @@
                         <thead>
                             <tr>
                                 <th>RANK</th>
-                                <th>PLAYER NAME</th>
+                                <th style="text-align: left;">PLAYER NAME</th>
                                 <th>WINS</th>
                                 <th>LOSSES</th>
                                 <th>GAMES PLAYED</th>
@@ -420,9 +437,15 @@
                         <i class="fas fa-info-circle"></i> Leaderboard Information
                     </div>
                     <div class="info-content">
-                        <p>The leaderboard ranking is based on <strong>total wins</strong>. If two players have equal
-                            wins, the player with higher <strong>total score</strong> will be ranked higher.</p>
-
+                        <strong>Weighted Win Ratio</strong>
+                        <br>
+                        <p>The default leaderboard ranking is based on the Wilson Score Confidence Interval, which basically works like this: 
+                            "The fewer games you've played, the less confident we are in your win rate". <br><br>Players with more games played are ranked higher.</p> 
+                        <p>
+                            • <strong>1 game: </strong> Penalty = (1÷10)² = 0.01<br>
+                            • <strong>5 games: </strong> Penalty = (5÷10)² = 0.25<br>
+                            • <strong>10 games: </strong> No extra penalty
+                        </p>
                         <p>The leaderboard is divided into seasons:</p>
                         <p>
                             • <strong>Season 1:</strong> January 1 - April 26<br>

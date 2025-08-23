@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 25-05-2025
+//Last Edited 23-08-2025
 
 const express = require('express');
 const router = express.Router();
@@ -416,16 +416,29 @@ router.get('/api/leaderboard', async (req, res) => {
 
 
         Object.values(playerStats).forEach(player => {
-
             player.win_ratio = (player.wins / player.games_played) * 100 || 0;
 
+            const gamesPlayed = player.games_played;
+            const wins = player.wins;
+            
+            if (gamesPlayed === 0) {
+                player.weighted_win_ratio = 0;
+            } else {
+                const n = gamesPlayed;
+                const p = wins / n; 
+                const z = 1.96; 
+                const wilsonScore = (p + (z * z) / (2 * n) - z * Math.sqrt((p * (1 - p) + (z * z) / (4 * n)) / n)) / (1 + (z * z) / n);
+                
+                player.weighted_win_ratio = Math.max(0, wilsonScore * 100);
+                
+                if (gamesPlayed < 10) {
+                    const lowGamePenalty = Math.pow(gamesPlayed / 10, 2);
+                    player.weighted_win_ratio *= lowGamePenalty;
+                }
+            }
 
-
-
-            player.weighted_win_ratio = (player.win_ratio / 100) * (1 - (1 / (player.games_played + 1)));
-
-
-            player.weighted_score = player.wins * (player.wins / (player.games_played || 1));
+            const volumeBonus = Math.log(player.games_played + 1) / Math.log(101); 
+            player.weighted_score = player.wins * (player.weighted_win_ratio / 100) * (1 + volumeBonus);
 
             if (Object.keys(player.territories).length > 0) {
                 let bestTerritoryRatio = -1;
