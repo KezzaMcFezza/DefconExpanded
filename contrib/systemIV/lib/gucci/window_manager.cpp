@@ -118,12 +118,14 @@ int WindowManager::GetLogicalWidth()
     float scaleFactor;
     switch(uiScale) {
         case 50:  scaleFactor = 1.5f;  break;     // Incase people want to?
+        case 25:  scaleFactor = 1.75f;  break;    // I mean sure but its a bit small
         case 75:  scaleFactor = 1.25f; break;     // I can see this looking okay on smaller displays
         case 100: scaleFactor = 1.0f;  break;     // Use monitor resolution instead of logical resolution
 		case 110: scaleFactor = 0.90f;  break;    // Can be good for 1440p monitors
         case 125: scaleFactor = 0.75f;  break;    // Sweetspot for 4k monitors
 		case 133: scaleFactor = 0.67f;  break;    // Looks good on 4k monitors but a tad big
         case 150: scaleFactor = 0.50f; break;     // You might need an 8k monitor for this
+        case 200: scaleFactor = 0.25f; break;     // Why?
         default:  scaleFactor = 1.0f;  break;     
     }
     
@@ -139,6 +141,7 @@ int WindowManager::GetLogicalHeight()
     float scaleFactor;
     switch(uiScale) {
         case 0:   scaleFactor = 1.0f;  break;
+        case 25:  scaleFactor = 1.75f;  break;
         case 50:  scaleFactor = 1.5f;  break;  
         case 75:  scaleFactor = 1.25f; break;  
         case 100: scaleFactor = 1.0f;  break;  
@@ -146,6 +149,7 @@ int WindowManager::GetLogicalHeight()
         case 125: scaleFactor = 0.75f;  break;  
 		case 133: scaleFactor = 0.67f;  break;  
         case 150: scaleFactor = 0.50f; break;  
+        case 200: scaleFactor = 0.25f; break;  
         default:  scaleFactor = 1.0f;  break;  
     }
     

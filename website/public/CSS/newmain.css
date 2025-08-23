@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 06-06-2025
+* Last Edited 23-08-2025
 */
 
 html {
@@ -1498,11 +1498,6 @@ li {
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1px;
-}
-
-#leaderboard-table tbody tr:nth-child(even),
-#active-players-list li:nth-child(even) {
-    background-color: rgba(28, 28, 46, 0.5);
 }
 
 #leaderboard-table tbody tr:hover,

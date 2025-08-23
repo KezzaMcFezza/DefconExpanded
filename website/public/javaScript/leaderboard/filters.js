@@ -8,7 +8,7 @@
 //
 // Inspired by Sievert and Wan May
 // 
-// Last Edited 14-04-2025
+// Last Edited 23-08-2025
 
 import { leaderboardFilters, serverPlaylists } from './constants.js';
 import { getCurrentSeason } from './seasons.js';
@@ -110,10 +110,10 @@ export function resetFilters() {
     const currentSeason = getCurrentSeason();
 
     leaderboardFilters.serverName = '';
-    leaderboardFilters.sortBy = 'wins';
+    leaderboardFilters.sortBy = 'winRatio';
     leaderboardFilters.startDate = currentSeason.startDate;
     leaderboardFilters.endDate = currentSeason.endDate;
-    leaderboardFilters.minGames = '1';
+    leaderboardFilters.minGames = '3';
     delete leaderboardFilters.playlist;
 
     const serverFilter = document.getElementById('server-filter');
@@ -123,10 +123,10 @@ export function resetFilters() {
     if (playlistFilter) playlistFilter.value = 'all';
 
     const sortSelect = document.getElementById('sort-select');
-    if (sortSelect) sortSelect.value = 'wins';
+    if (sortSelect) sortSelect.value = 'winRatio';
 
     const minGamesFilter = document.getElementById('min-games-filter');
-    if (minGamesFilter) minGamesFilter.value = '1';
+    if (minGamesFilter) minGamesFilter.value = '3';
 
     const seasonSelect = document.getElementById('season-select');
     if (seasonSelect) seasonSelect.value = 'current';

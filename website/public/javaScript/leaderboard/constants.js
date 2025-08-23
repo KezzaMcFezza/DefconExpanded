@@ -8,14 +8,14 @@
 //
 // Inspired by Sievert and Wan May
 // 
-// Last Edited 14-04-2025
+// Last Edited 23-08-2025
 
 export const leaderboardFilters = {
     serverName: '',
-    sortBy: 'wins',
+    sortBy: 'winRatio',
     startDate: '',
     endDate: '',
-    minGames: '1',
+    minGames: '3', // removes alot of one off accounts
     playlist: ''
 };
 

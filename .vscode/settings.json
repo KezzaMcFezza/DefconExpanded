@@ -104,5 +104,6 @@
         "xtr1common": "cpp",
         "xtree": "cpp",
         "xutility": "cpp"
-    }
+    },
+    "vscord.app.name": "Visual Studio Code"
 }

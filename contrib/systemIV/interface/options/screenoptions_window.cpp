@@ -359,6 +359,7 @@ void ScreenOptionsWindow::Create()
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     DropDownMenu *uiScale = new DropDownMenu();
     uiScale->SetProperties( "UI Scale", x, y+=h, w, 20, "dialog_windowscaling", " ", true, false );
+    uiScale->AddOption( "25%", 25, false );
     uiScale->AddOption( "50%", 50, false );
     uiScale->AddOption( "75%", 75, false );
     uiScale->AddOption( "No Scaling", 100, false );
@@ -366,6 +367,7 @@ void ScreenOptionsWindow::Create()
     uiScale->AddOption( "125%", 125, false );
     uiScale->AddOption( "133%", 133, false );
     uiScale->AddOption( "150%", 150, false );
+    uiScale->AddOption( "200%", 200, false );
     uiScale->RegisterInt( &m_uiScale );
     RegisterButton( uiScale );
 #endif

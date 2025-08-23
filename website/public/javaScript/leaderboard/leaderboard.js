@@ -8,11 +8,11 @@
 //
 // Inspired by Sievert and Wan May
 // 
-// Last Edited 14-04-2025
+// Last Edited 23-08-2025
 
 import { leaderboardFilters, serverPlaylists } from './constants.js';
 import { setupCurrentSeason, checkSeasonEndingSoon, applySeasonFilter, toggleCustomDateInputs } from './seasons.js';
-import { initializeFilterElements, initializePlaylistDropdown, applyUrlParameters, updateURL, resetFilters } from './filters.js';
+import { initializeFilterElements, initializePlaylistDropdown, applyUrlParameters, updateURL } from './filters.js';
 import { fetchLeaderboard, fetchAllTimeMostActivePlayers, fetchPreviousSeasonWinners } from './api.js';
 
 export function initializeLeaderboard() {
@@ -55,9 +55,6 @@ function setupEventListeners() {
                 playlistFilter.value = 'all';
             }
             delete leaderboardFilters.playlist;
-
-            updateURL();
-            fetchLeaderboard();
         });
     }
 
@@ -77,9 +74,6 @@ function setupEventListeners() {
                     serverFilter.value = '';
                 }
             }
-
-            updateURL();
-            fetchLeaderboard();
         });
     }
 
@@ -96,8 +90,6 @@ function setupEventListeners() {
     if (minGamesFilter) {
         minGamesFilter.addEventListener('change', () => {
             leaderboardFilters.minGames = minGamesFilter.value;
-            updateURL();
-            fetchLeaderboard();
         });
     }
 
@@ -128,9 +120,9 @@ function setupEventListeners() {
         });
     }
 
-    const applyDateBtn = document.getElementById('apply-date-filter');
-    if (applyDateBtn) {
-        applyDateBtn.addEventListener('click', () => {
+    const applyFiltersBtn = document.getElementById('apply-filters');
+    if (applyFiltersBtn) {
+        applyFiltersBtn.addEventListener('click', () => {
             updateURL();
             fetchLeaderboard();
         });
@@ -138,6 +130,8 @@ function setupEventListeners() {
 
     const resetFiltersBtn = document.getElementById('reset-filters');
     if (resetFiltersBtn) {
-        resetFiltersBtn.addEventListener('click', resetFilters);
+        resetFiltersBtn.addEventListener('click', () => {
+            window.location.href = '/leaderboard';
+        });
     }
 }

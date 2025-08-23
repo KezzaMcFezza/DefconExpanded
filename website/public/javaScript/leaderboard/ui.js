@@ -8,7 +8,7 @@
 //
 // Inspired by Sievert and Wan May
 // 
-// Last Edited 14-04-2025
+// Last Edited 28-08-2025
 
 import { leaderboardFilters, defaultNames, serverPlaylists } from './constants.js';
 
@@ -50,7 +50,10 @@ export function displayLeaderboard(data) {
             : '';
 
         let sixthColumnValue = '';
-        if (leaderboardFilters.sortBy === 'winRatio' || leaderboardFilters.sortBy === 'weightedScore') {
+        if (leaderboardFilters.sortBy === 'winRatio') {
+            const regularRatio = Math.max(0, player.win_ratio).toFixed(1);
+            sixthColumnValue = `${regularRatio}%`;
+        } else if (leaderboardFilters.sortBy === 'weightedScore') {
             sixthColumnValue = `${Math.max(0, player.win_ratio).toFixed(2)}%`;
         } else if (leaderboardFilters.sortBy === 'avgScore') {
             sixthColumnValue = Math.max(0, Math.round(player.avg_score));
@@ -85,6 +88,8 @@ export function updateColumnHeaders(sortBy) {
 
     switch (sortBy) {
         case 'winRatio':
+            lastHeader.textContent = 'WIN RATIO (WEIGHTED)';
+            break;
         case 'weightedScore':
             lastHeader.textContent = 'WIN RATIO';
             break;
