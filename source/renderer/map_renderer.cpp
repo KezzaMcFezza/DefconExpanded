@@ -2442,7 +2442,9 @@ void MapRenderer::RenderCoastlines()
     Colour desaturatedColour    = g_styleTable->GetSecondaryColour( STYLE_WORLD_COASTLINES );
     lineColour = lineColour * mapColourFader + desaturatedColour * (1-mapColourFader);
 
-    // Colors and line width now handled by mega-VBO system
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(1.5f);
+#endif
 
     // Check if VBO exists and is valid, if not build it
     if (!g_renderer->IsMegaVBOValid("all_coastlines")) {
@@ -2488,9 +2490,13 @@ void MapRenderer::RenderCoastlines()
     // Render ALL coastlines with single draw call
     g_renderer->RenderMegaVBO( "all_coastlines" );
 
+#ifndef TARGET_EMSCRIPTEN
+    // Reset line width after rendering
+    glLineWidth(1.0f);
+#endif
+
     END_PROFILE( "Coastlines" );
 }
-
 
 void MapRenderer::RenderBorders()
 {
@@ -2509,7 +2515,11 @@ void MapRenderer::RenderBorders()
 	// Reduce the intensity of the border colour to compensate
 	lineColour.m_a *= 0.5f;
 #endif
-	
+
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(0.5f);
+#endif
+    
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     
     // Check if VBO exists and is valid, if not build it
@@ -2547,6 +2557,10 @@ void MapRenderer::RenderBorders()
     
     // Render ALL borders with single draw call
     g_renderer->RenderMegaVBO( "all_borders" );
+
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(1.0f);
+#endif
 
     END_PROFILE( "Borders" );
 }
@@ -4974,6 +4988,9 @@ void MapRenderer::RenderWhiteBoard()
 			snprintf( whiteboardname, sizeof(whiteboardname), "WhiteBoard%d", team->m_teamId );
 
 			Colour colourBoard = team->GetTeamColour();
+#ifndef TARGET_EMSCRIPTEN
+            glLineWidth( 3.0f );
+#endif
 
 			// Render whiteboard using immediate mode (changes frequently, no caching needed)
 			const LList<WhiteBoardPoint *> *points = whiteBoard->GetListPoints();

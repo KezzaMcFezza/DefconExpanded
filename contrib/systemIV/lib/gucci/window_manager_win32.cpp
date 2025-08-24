@@ -151,7 +151,7 @@ void WindowManagerWin32::EnableOpenGL(int _colourDepth, int _zDepth)
 		int contextAttribs[] = {
 			WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
 			WGL_CONTEXT_MINOR_VERSION_ARB, 3,
-			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB, 
 			WGL_CONTEXT_FLAGS_ARB, 0, // Can add WGL_CONTEXT_DEBUG_BIT_ARB for debug builds
 			0 // Null terminator
 		};
