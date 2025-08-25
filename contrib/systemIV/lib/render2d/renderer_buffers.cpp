@@ -246,6 +246,12 @@ void Renderer::FlushUnitTrails() {
     
     IncrementDrawCall("unit_trails");
     
+// im not sure where the linewidth was defined before the 
+// refactor but here seems like a good place to set line width
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(1.5f); 
+#endif
+    
     glUseProgram(m_colorShaderProgram);
     
     int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
@@ -800,6 +806,12 @@ void Renderer::FlushEffectsLines() {
     if (m_effectsLineVertexCount == 0) return;
     
     IncrementDrawCall("effects_lines");
+
+// im not sure where the linewidth was defined before the 
+// refactor but here seems like a good place to set line width
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(1.5f);
+#endif
     
     glUseProgram(m_colorShaderProgram);
     

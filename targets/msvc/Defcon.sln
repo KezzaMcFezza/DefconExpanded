@@ -11,6 +11,8 @@ Global
 		Debug Recording Parsing|x64 = Debug Recording Parsing|x64
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
+		Release Endgame|Win32 = Release Endgame|Win32
+		Release Endgame|x64 = Release Endgame|x64
 		Release Replay Viewer|Win32 = Release Replay Viewer|Win32
 		Release Replay Viewer|x64 = Release Replay Viewer|x64
 		Release|Win32 = Release|Win32
@@ -25,6 +27,10 @@ Global
 		{58515771-3484-43F9-9D1B-4F800F7F0436}.Debug|Win32.Build.0 = Debug|Win32
 		{58515771-3484-43F9-9D1B-4F800F7F0436}.Debug|x64.ActiveCfg = Debug|x64
 		{58515771-3484-43F9-9D1B-4F800F7F0436}.Debug|x64.Build.0 = Debug|x64
+		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Endgame|Win32.ActiveCfg = Release Endgame|Win32
+		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Endgame|Win32.Build.0 = Release Endgame|Win32
+		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Endgame|x64.ActiveCfg = Release Endgame|x64
+		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Endgame|x64.Build.0 = Release Endgame|x64
 		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Replay Viewer|Win32.ActiveCfg = Release Replay Viewer|Win32
 		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Replay Viewer|Win32.Build.0 = Release Replay Viewer|Win32
 		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Replay Viewer|x64.ActiveCfg = Release Replay Viewer|x64

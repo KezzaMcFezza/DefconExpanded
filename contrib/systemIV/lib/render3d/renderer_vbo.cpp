@@ -174,7 +174,7 @@ void Renderer::InvalidateCachedVBO(const char* cacheKey) {
 // Maximum performance for rendering thousands of line strips in single draw call
 // ============================================================================
 
-void Renderer::BeginMegaVBO(const char* megaVBOKey, Colour const &col, float lineWidth) {
+void Renderer::BeginMegaVBO(const char* megaVBOKey, Colour const &col) {
     // Check if this mega-VBO already exists and is valid
     BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(megaVBOKey);
     if (tree && tree->data && tree->data->isValid) {
@@ -190,7 +190,6 @@ void Renderer::BeginMegaVBO(const char* megaVBOKey, Colour const &col, float lin
     // Store mega-VBO state
     m_megaVBOActive = true;
     m_megaVBOColor = col;
-    m_megaVBOWidth = lineWidth;
     
     // Clear mega vertex buffer
     m_megaVertexCount = 0;

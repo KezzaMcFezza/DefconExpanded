@@ -2459,7 +2459,7 @@ void MapRenderer::RenderCoastlines()
         Colour coastlineColor = g_styleTable->GetPrimaryColour( STYLE_WORLD_COASTLINES );
         
         // Begin mega-VBO for all coastlines (using 1.5f width like original OpenGL 1.2 system)
-        g_renderer->BeginMegaVBO( "all_coastlines", coastlineColor, 1.5f );
+        g_renderer->BeginMegaVBO( "all_coastlines", coastlineColor );
         
         for( int i = 0; i < list->Size(); ++i )
         {
@@ -2489,11 +2489,6 @@ void MapRenderer::RenderCoastlines()
     
     // Render ALL coastlines with single draw call
     g_renderer->RenderMegaVBO( "all_coastlines" );
-
-#ifndef TARGET_EMSCRIPTEN
-    // Reset line width after rendering
-    glLineWidth(1.0f);
-#endif
 
     END_PROFILE( "Coastlines" );
 }
@@ -2527,7 +2522,7 @@ void MapRenderer::RenderBorders()
         // Build ALL borders into single mega-VBO (once only, like display lists)
         
         // Begin mega-VBO for all borders
-        g_renderer->BeginMegaVBO( "all_borders", lineColour, 0.5f );
+        g_renderer->BeginMegaVBO( "all_borders", lineColour );
         
         for( int i = 0; i < g_app->GetEarthData()->m_borders.Size(); ++i )
         {
@@ -2557,10 +2552,6 @@ void MapRenderer::RenderBorders()
     
     // Render ALL borders with single draw call
     g_renderer->RenderMegaVBO( "all_borders" );
-
-#ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.0f);
-#endif
 
     END_PROFILE( "Borders" );
 }

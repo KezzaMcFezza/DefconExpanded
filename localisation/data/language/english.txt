@@ -94,7 +94,7 @@ dialog_setplayername                Set Player Name
 dialog_setteamname                  Set Team Name
 
 dialog_graphicsoptions              Graphics
-
+dialog_smoothlines                  Smooth Lines
 dialog_borders                      Show Borders
 dialog_citynames                    Show City Names
 dialog_countrynames                 Show Country Names
