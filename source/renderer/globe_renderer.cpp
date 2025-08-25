@@ -254,10 +254,12 @@ void MapRenderer::Render3DGlobe()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     
+    //
     // new fog mode is being used
     // distance fog is useless for globe mode as when you zoom in and out the coastlines
     // would dissapear and reappear, so we use orientation fog instead
     // this is a much better looking solution
+
     g_renderer3d->EnableOrientationFog(0.01f, 0.08f, 0.05f, 20.0f, 
                                       m_globe3DCamera.m_cameraPos.x,
                                       m_globe3DCamera.m_cameraPos.y,
@@ -266,46 +268,52 @@ void MapRenderer::Render3DGlobe()
     //
     // Check validity of coastlines and borders vbo
 
+    //
     // Coastlines VBO
-    if (!g_renderer3d->IsMegaVBO3DValid("GlobeCoastlines")) {
-        g_renderer3d->BeginMegaVBO3D("GlobeCoastlines", Colour(0, 255, 0, 255));
 
-        for( int i = 0; i < g_app->GetEarthData()->m_islands.Size(); ++i )
-        {
-            Island *island = g_app->GetEarthData()->m_islands[i];
-            AppDebugAssert( island );
+    if (g_preferences->GetInt(PREFS_GRAPHICS_COASTLINES) == 1) {
+        if (!g_renderer3d->IsMegaVBO3DValid("GlobeCoastlines")) {
+            g_renderer3d->BeginMegaVBO3D("GlobeCoastlines", Colour(0, 255, 0, 255));
 
-            DArray<Vector3<float>> coastlineVertices;
-            for( int j = 0; j < island->m_points.Size(); j++ )
+            for( int i = 0; i < g_app->GetEarthData()->m_islands.Size(); ++i )
             {
-                Vector3<float> *thePoint = island->m_points[j];
+                Island *island = g_app->GetEarthData()->m_islands[i];
+                AppDebugAssert( island );
 
-                Vector3<float> thisPoint(0,0,1);
-                thisPoint.RotateAroundY( thePoint->x/180.0f * M_PI );
-                Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
-                right.Normalise();
-                thisPoint.RotateAround( right * thePoint->y/180.0f * M_PI );
+                DArray<Vector3<float>> coastlineVertices;
+                for( int j = 0; j < island->m_points.Size(); j++ )
+                {
+                    Vector3<float> *thePoint = island->m_points[j];
 
-                coastlineVertices.PutData(thisPoint);
-            }
-            if (coastlineVertices.Size() > 0) {
-                Vector3<float>* vertexArray = new Vector3<float>[coastlineVertices.Size()];
-                for (int k = 0; k < coastlineVertices.Size(); k++) {
-                    vertexArray[k] = coastlineVertices.GetData(k);
+                    Vector3<float> thisPoint(0,0,1);
+                    thisPoint.RotateAroundY( thePoint->x/180.0f * M_PI );
+                    Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
+                    right.Normalise();
+                    thisPoint.RotateAround( right * thePoint->y/180.0f * M_PI );
+
+                    coastlineVertices.PutData(thisPoint);
                 }
-                g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, coastlineVertices.Size());
-                delete[] vertexArray;
+                if (coastlineVertices.Size() > 0) {
+                    Vector3<float>* vertexArray = new Vector3<float>[coastlineVertices.Size()];
+                    for (int k = 0; k < coastlineVertices.Size(); k++) {
+                        vertexArray[k] = coastlineVertices.GetData(k);
+                    }
+                    g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, coastlineVertices.Size());
+                    delete[] vertexArray;
+                }
             }
+            
+            g_renderer3d->EndMegaVBO3D();
+            AppDebugOut("Rebuilt globe coastlines VBO during gameplay with %d islands\n", g_app->GetEarthData()->m_islands.Size());
         }
-        
-        g_renderer3d->EndMegaVBO3D();
-        AppDebugOut("Rebuilt globe coastlines VBO during gameplay with %d islands\n", g_app->GetEarthData()->m_islands.Size());
     }
 
     // Build it
     g_renderer3d->RenderMegaVBO3D("GlobeCoastlines");
     
+    //
     // Borders VBO
+
     if (g_preferences->GetInt(PREFS_GRAPHICS_BORDERS) == 1) {
         if (!g_renderer3d->IsMegaVBO3DValid("GlobeBorders")) {
             g_renderer3d->BeginMegaVBO3D("GlobeBorders", Colour(0, 255, 0, 77));

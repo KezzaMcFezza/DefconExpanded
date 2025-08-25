@@ -1117,7 +1117,14 @@ class ApplyGraphicsButton : public InterfaceButton
 #ifndef TARGET_EMSCRIPTEN
         g_preferences->SetInt( PREFS_GRAPHICS_SMOOTHLINES, gow->m_smoothLines );
 #endif
+        g_preferences->SetInt( PREFS_GRAPHICS_COASTLINES, gow->m_coastlines );
+#ifndef TARGET_EMSCRIPTEN
+        g_preferences->SetFloat( PREFS_GRAPHICS_COASTLINE_THICKNESS, gow->m_coastlineThickness );
+#endif
         g_preferences->SetInt( PREFS_GRAPHICS_BORDERS, gow->m_borders );
+#ifndef TARGET_EMSCRIPTEN
+        g_preferences->SetFloat( PREFS_GRAPHICS_BORDER_THICKNESS, gow->m_borderThickness );
+#endif
         g_preferences->SetInt( PREFS_GRAPHICS_CITYNAMES, gow->m_cityNames );
         g_preferences->SetInt( PREFS_GRAPHICS_COUNTRYNAMES, gow->m_countryNames );
         g_preferences->SetInt( PREFS_GRAPHICS_WATER, gow->m_water );
@@ -1126,6 +1133,10 @@ class ApplyGraphicsButton : public InterfaceButton
         g_preferences->SetInt( PREFS_GRAPHICS_LOWRESWORLD, gow->m_lowResWorld );
 #endif
         g_preferences->SetInt( PREFS_GRAPHICS_TRAILS, gow->m_trails );
+#ifndef TARGET_EMSCRIPTEN
+        g_preferences->SetFloat( PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS, gow->m_unitTrailThickness );
+        g_preferences->SetFloat( PREFS_GRAPHICS_WHITEBOARD_THICKNESS, gow->m_whiteboardThickness );
+#endif
         g_preferences->SetInt( PREFS_GRAPHICS_LOBBYEFFECTS, gow->m_lobbyEffects );
         
         g_app->GetEarthData()->LoadCoastlines();
@@ -1141,20 +1152,31 @@ class ApplyGraphicsButton : public InterfaceButton
 GraphicsOptionsWindow::GraphicsOptionsWindow()
 :   InterfaceWindow( "Graphics", "dialog_graphicsoptions", true )
 {
-    SetSize( 390, 400 );
+    SetSize( 390, 530 );
     Centralise();
 #ifndef TARGET_EMSCRIPTEN
-    m_smoothLines   = g_preferences->GetInt( PREFS_GRAPHICS_SMOOTHLINES );
+    m_smoothLines        = g_preferences->GetInt( PREFS_GRAPHICS_SMOOTHLINES );
 #endif
-    m_borders       = g_preferences->GetInt( PREFS_GRAPHICS_BORDERS );
-    m_cityNames     = g_preferences->GetInt( PREFS_GRAPHICS_CITYNAMES );
-    m_countryNames  = g_preferences->GetInt( PREFS_GRAPHICS_COUNTRYNAMES );
-    m_water         = g_preferences->GetInt( PREFS_GRAPHICS_WATER );
-    m_radiation     = g_preferences->GetInt( PREFS_GRAPHICS_RADIATION );
+    m_coastlines         = g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES );
+#ifndef TARGET_EMSCRIPTEN
+    m_coastlineThickness = g_preferences->GetFloat( PREFS_GRAPHICS_COASTLINE_THICKNESS );
+#endif
+    m_borders            = g_preferences->GetInt( PREFS_GRAPHICS_BORDERS );
+#ifndef TARGET_EMSCRIPTEN
+    m_borderThickness    = g_preferences->GetFloat( PREFS_GRAPHICS_BORDER_THICKNESS );
+#endif
+    m_cityNames          = g_preferences->GetInt( PREFS_GRAPHICS_CITYNAMES );
+    m_countryNames       = g_preferences->GetInt( PREFS_GRAPHICS_COUNTRYNAMES );
+    m_water              = g_preferences->GetInt( PREFS_GRAPHICS_WATER );
+    m_radiation          = g_preferences->GetInt( PREFS_GRAPHICS_RADIATION );
 #ifdef FUCKED // does not work and really we dont need this anymore
-    m_lowResWorld   = g_preferences->GetInt( PREFS_GRAPHICS_LOWRESWORLD );
+    m_lowResWorld        = g_preferences->GetInt( PREFS_GRAPHICS_LOWRESWORLD );
 #endif
-    m_trails        = g_preferences->GetInt( PREFS_GRAPHICS_TRAILS );
+    m_trails             = g_preferences->GetInt( PREFS_GRAPHICS_TRAILS );
+#ifndef TARGET_EMSCRIPTEN
+    m_unitTrailThickness = g_preferences->GetFloat( PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS );
+    m_whiteboardThickness = g_preferences->GetFloat( PREFS_GRAPHICS_WHITEBOARD_THICKNESS );
+#endif
     m_lobbyEffects  = g_preferences->GetInt( PREFS_GRAPHICS_LOBBYEFFECTS );
 }
 
@@ -1188,6 +1210,18 @@ void GraphicsOptionsWindow::Create()
     dropDown->AddOption( "dialog_disabled", 0, true );
     dropDown->RegisterInt( &m_smoothLines );
     RegisterButton(dropDown);
+
+#endif
+
+    dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Show Coastlines", x, y+=h, w, 20, "dialog_coastlines", " ", true, false );
+    dropDown->AddOption( "dialog_enabled", 1, true );
+    dropDown->AddOption( "dialog_disabled", 0, true );
+    dropDown->RegisterInt( &m_coastlines );
+    RegisterButton(dropDown);
+
+#ifndef TARGET_EMSCRIPTEN
+    CreateValueControl( "Coastline Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_coastlineThickness, 0.1f, 0.1f, 9.0f, NULL, " ", false );
 #endif
 
     dropDown = new DropDownMenu();
@@ -1196,6 +1230,10 @@ void GraphicsOptionsWindow::Create()
     dropDown->AddOption( "dialog_disabled", 0, true );
     dropDown->RegisterInt( &m_borders );
     RegisterButton(dropDown);
+
+#ifndef TARGET_EMSCRIPTEN
+    CreateValueControl( "Border Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_borderThickness, 0.1f, 0.1f, 9.0f, NULL, " ", false );
+#endif
 
     dropDown = new DropDownMenu();
     dropDown->SetProperties( "Show City Names", x, y+=h, w, 20, "dialog_citynames", " ", true, false );
@@ -1233,6 +1271,11 @@ void GraphicsOptionsWindow::Create()
     dropDown->RegisterInt( &m_trails );
     RegisterButton(dropDown);
 
+#ifndef TARGET_EMSCRIPTEN
+    CreateValueControl( "Unit Trail Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_unitTrailThickness, 0.1f, 1.0f, 9.0f, NULL, " ", false );
+    CreateValueControl( "Whiteboard Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_whiteboardThickness, 0.1f, 0.1f, 9.0f, NULL, " ", false );
+#endif
+
     dropDown = new DropDownMenu();
     dropDown->SetProperties( "Lobby Effects", x, y+=h, w, 20, "dialog_lobbyeffects", " ", true, false );
     dropDown->AddOption( "dialog_enabled", 1, true );
@@ -1266,12 +1309,23 @@ void GraphicsOptionsWindow::Render( bool _hasFocus )
 #ifndef TARGET_EMSCRIPTEN
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_smoothlines") );
 #endif
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_coastlines") );
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_coastlinethickness") );
+#endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_borders") );
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_borderthickness") );
+#endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_citynames") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_countrynames") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_water") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_radiation") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_objecttrails") );
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_unittrailthickness") );
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_whiteboardthickness") );
+#endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_lobbyeffects") );
 }
 

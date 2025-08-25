@@ -306,12 +306,13 @@ void MapRenderer::Render()
            
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
-        RenderCoastlines();
         RenderCountryControl();
 
+        bool showCoastlines = g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES );
         bool showBorders    = g_preferences->GetInt( PREFS_GRAPHICS_BORDERS );
 
         if( showBorders ) RenderBorders();
+        if( showCoastlines ) RenderCoastlines();
 		
         left += GetLongitudeMod();
         right += GetLongitudeMod();
@@ -2443,7 +2444,7 @@ void MapRenderer::RenderCoastlines()
     lineColour = lineColour * mapColourFader + desaturatedColour * (1-mapColourFader);
 
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.5f);
+    glLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_COASTLINE_THICKNESS));
 #endif
 
     // Check if VBO exists and is valid, if not build it
@@ -2512,7 +2513,7 @@ void MapRenderer::RenderBorders()
 #endif
 
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(0.5f);
+    glLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_BORDER_THICKNESS));
 #endif
     
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
@@ -4979,9 +4980,6 @@ void MapRenderer::RenderWhiteBoard()
 			snprintf( whiteboardname, sizeof(whiteboardname), "WhiteBoard%d", team->m_teamId );
 
 			Colour colourBoard = team->GetTeamColour();
-#ifndef TARGET_EMSCRIPTEN
-            glLineWidth( 3.0f );
-#endif
 
 			// Render whiteboard using immediate mode (changes frequently, no caching needed)
 			const LList<WhiteBoardPoint *> *points = whiteBoard->GetListPoints();
@@ -4997,8 +4995,11 @@ void MapRenderer::RenderWhiteBoard()
 
 					if ( i == 0 )
 					{
-						// Convert deprecated GL_LINE_STRIP to modern LineStrip2D
-						g_renderer->BeginLineStrip2D( colourBoard, 3.0f );
+#ifndef TARGET_EMSCRIPTEN
+						g_renderer->BeginLineStrip2D( colourBoard, g_preferences->GetFloat(PREFS_GRAPHICS_WHITEBOARD_THICKNESS) );
+#else
+                        g_renderer->BeginLineStrip2D( colourBoard, 3.0f );
+#endif
 						lineStripActive = true;
 					}
 					else if ( pt->m_startPoint )
@@ -5008,7 +5009,11 @@ void MapRenderer::RenderWhiteBoard()
 						{
 							g_renderer->EndLineStrip2D();
 						}
-						g_renderer->BeginLineStrip2D( colourBoard, 3.0f );
+#ifndef TARGET_EMSCRIPTEN
+						g_renderer->BeginLineStrip2D( colourBoard, g_preferences->GetFloat(PREFS_GRAPHICS_WHITEBOARD_THICKNESS) );
+#else
+                        g_renderer->BeginLineStrip2D( colourBoard, 3.0f );
+#endif
 						lineStripActive = true;
 					}
 

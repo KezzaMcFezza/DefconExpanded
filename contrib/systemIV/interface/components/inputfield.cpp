@@ -377,8 +377,28 @@ void InputScroller::Render( int realX, int realY, bool highlighted, bool clicked
 		}
 		else if (m_inputField->m_type == InputField::TypeFloat)
 		{
-			change = change * timeDelta * 0.2f;
-            *m_inputField->m_float += change;
+			//
+            // use 0.10 increments for float values, same rate as integers
+            // this is an improvement to the unnatural logarithmic increments
+
+			if (timeDelta > INTEGER_INCREMENT_PERIOD)
+			{
+				// round to nearest 0.10 increment first
+				float currentValue = *m_inputField->m_float;
+				float roundedValue = roundf(currentValue * 10.0f) / 10.0f;
+				
+				// apply the change in 0.10 increments
+				if (change > 0)
+				{
+					*m_inputField->m_float = roundedValue + 0.1f;
+				}
+				else
+				{
+					*m_inputField->m_float = roundedValue - 0.1f;
+				}
+				
+				m_mouseDownStartTime += INTEGER_INCREMENT_PERIOD;
+			}
 		}
 
 		m_inputField->ClampToBounds();

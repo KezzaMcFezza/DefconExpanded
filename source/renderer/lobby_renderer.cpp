@@ -484,8 +484,7 @@ void LobbyRenderer::SetupCamera3d()
 
 void LobbyRenderer::RenderGlobe()
 {
-    // MODERN OpenGL 3.3: Replace display lists with mega-VBO caching system
-    
+
     // Build globe geometry if not cached
     if (!g_renderer3d->IsMegaVBO3DValid("GlobeGridlines")) {
         // Build gridlines mega-VBO
@@ -542,7 +541,11 @@ void LobbyRenderer::RenderGlobe()
         g_renderer3d->EndMegaVBO3D();
         }
 
+    //
     // Build coastlines mega-VBO if not cached
+
+    if( g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES ) == 1 )
+    {
     if (!g_renderer3d->IsMegaVBO3DValid("GlobeCoastlines")) {
         g_renderer3d->BeginMegaVBO3D("GlobeCoastlines", Colour(0, 255, 0, 255)); // 0.0f, 1.0f, 0.0f, 1.0f
 
@@ -573,12 +576,15 @@ void LobbyRenderer::RenderGlobe()
                 delete[] vertexArray;
             }
         }
+        }
         
         g_renderer3d->EndMegaVBO3D();
         AppDebugOut("Rebuilt globe coastlines VBO with %d islands\n", g_app->GetEarthData()->m_islands.Size());
         }
 
-    // Build borders mega-VBO if not cached
+        //
+        // Build borders mega-VBO if not cached
+
         if( g_preferences->GetInt( PREFS_GRAPHICS_BORDERS ) == 1 )
         {
         if (!g_renderer3d->IsMegaVBO3DValid("GlobeBorders")) {
@@ -617,9 +623,11 @@ void LobbyRenderer::RenderGlobe()
     }
     }
 
-    // MODERN OpenGL 3.3: Render with mega-VBOs (maximum performance!)
     g_renderer3d->RenderMegaVBO3D("GlobeGridlines");
-    g_renderer3d->RenderMegaVBO3D("GlobeCoastlines");
+    if( g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES ) == 1 )
+    {
+        g_renderer3d->RenderMegaVBO3D("GlobeCoastlines");
+    }
     if( g_preferences->GetInt( PREFS_GRAPHICS_BORDERS ) == 1 )
     {
         g_renderer3d->RenderMegaVBO3D("GlobeBorders");
