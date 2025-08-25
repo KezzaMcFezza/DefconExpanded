@@ -16,8 +16,13 @@ SoundMemoryUsage = 1
 SoundBufferSize = 512
 SoundDSP = 0
 
-
+RenderSmoothLines = 0
+RenderCoastlines = 1
 RenderBorders = 1
+RenderCoastlineThickness = 1.5
+RenderBorderThickness = 0.5
+RenderUnitTrailThickness = 1.5
+RenderWhiteboardThickness = 3.0
 RenderCityNames = 1
 RenderCountryNames = 0
 RenderWater = 2

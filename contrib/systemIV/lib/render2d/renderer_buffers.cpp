@@ -11,7 +11,9 @@
 #include "lib/string_utils.h"
 #include "lib/resource/sprite_atlas.h"
 #include "lib/render/colour.h"
+#include "lib/preferences.h"
 
+#include "renderer/map_renderer.h"
 #include "renderer.h"
 
 extern Renderer *g_renderer;
@@ -249,7 +251,7 @@ void Renderer::FlushUnitTrails() {
 // im not sure where the linewidth was defined before the 
 // refactor but here seems like a good place to set line width
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.5f); 
+    glLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS)); 
 #endif
     
     glUseProgram(m_colorShaderProgram);

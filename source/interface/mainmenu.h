@@ -34,7 +34,12 @@ class GraphicsOptionsWindow : public InterfaceWindow
 public:
 #ifndef TARGET_EMSCRIPTEN
     int     m_smoothLines;
+    float   m_coastlineThickness;
+    float   m_borderThickness;
+    float   m_unitTrailThickness;
+    float   m_whiteboardThickness;
 #endif  
+    int     m_coastlines;
     int     m_borders;
     int     m_cityNames;
     int     m_countryNames;

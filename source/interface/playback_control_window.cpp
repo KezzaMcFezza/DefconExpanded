@@ -117,8 +117,6 @@ void PlaybackControlWindow::Create()
     //
     // create a fading window instead of the normal interface window
     // this matches the toolbar and chat window
-
-    FadingWindow::Create();
     
     // buttons on the left side
     int leftButtonsX = 10;
