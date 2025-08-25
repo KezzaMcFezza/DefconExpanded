@@ -32,6 +32,9 @@ public:
 class GraphicsOptionsWindow : public InterfaceWindow
 {
 public:
+#ifndef TARGET_EMSCRIPTEN
+    int     m_smoothLines;
+#endif  
     int     m_borders;
     int     m_cityNames;
     int     m_countryNames;

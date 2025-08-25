@@ -18,7 +18,10 @@
  #define     Black           Colour(0,0,0)
  #define     LightGray       Colour(200,200,200)
  #define     DarkGray        Colour(100,100,100)
- 
+
+#ifndef TARGET_EMSCRIPTEN
+#define     PREFS_GRAPHICS_SMOOTHLINES          "RenderSmoothLines"
+#endif
  // modern OpenGL support structures
  struct Matrix4f {
      float m[16];
@@ -437,7 +440,7 @@
      void    InvalidateCachedVBO ( const char* cacheKey );
  
      // megavbo batching system that combines borders and coastlines into a single draw call
-     void    BeginMegaVBO        ( const char* megaVBOKey, Colour const &col, float lineWidth );
+     void    BeginMegaVBO        ( const char* megaVBOKey, Colour const &col);
      void    AddLineStripToMegaVBO( float* vertices, int vertexCount );
      void    EndMegaVBO          ();
           void    RenderMegaVBO       ( const char* megaVBOKey );

@@ -263,6 +263,25 @@ void Renderer::BeginScene() {
     // Line smoothing crashes some Mac OSX machines with Radeon graphics
     return;
 #endif
+
+#ifndef TARGET_EMSCRIPTEN
+    bool smoothLines = g_preferences->GetInt( PREFS_GRAPHICS_SMOOTHLINES );
+	
+    if( smoothLines )
+    {
+        glHint      ( GL_LINE_SMOOTH_HINT, GL_NICEST );
+        glHint      ( GL_POINT_SMOOTH_HINT, GL_NICEST );
+        glHint      ( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
+
+        glEnable    ( GL_LINE_SMOOTH );
+        glEnable    ( GL_POINT_SMOOTH );
+    }
+    else
+    {
+        glDisable   ( GL_LINE_SMOOTH );
+        glDisable   ( GL_POINT_SMOOTH );
+    }
+#endif
 }
 
 void Renderer::ClearScreen(bool _colour, bool _depth) {
@@ -555,6 +574,11 @@ float Renderer::TextWidth(const char *text, unsigned int textLen, float size, Bi
 // contains some attempted batching methods but most are flushing to quickly
 
 void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float lineWidth) {
+
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(lineWidth);
+#endif
+
     if (m_lineVertexCount + 8 > MAX_VERTICES) {
         FlushLines();
     }
@@ -615,6 +639,11 @@ void Renderer::RectFill(float x, float y, float w, float h, Colour const &colTL,
 }
 
 void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth) {
+    
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(lineWidth);
+#endif
+    
     if (m_lineVertexCount + 2 > MAX_VERTICES) {
         FlushLines();
     }
@@ -628,6 +657,11 @@ void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, f
 }
 
 void Renderer::Circle(float x, float y, float radius, int numPoints, Colour const &col, float lineWidth) {
+
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(lineWidth);
+#endif
+
     if (m_lineVertexCount + numPoints * 2 > MAX_VERTICES) {
         FlushLines();
     }
@@ -690,6 +724,11 @@ void Renderer::TriangleFill(float x1, float y1, float x2, float y2, float x3, fl
 }
 
 void Renderer::BeginLines(Colour const &col, float lineWidth) {
+
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(lineWidth);
+#endif
+
     m_currentLineColor = col;
 }
 
@@ -738,6 +777,10 @@ void Renderer::BeginLineStrip2D(Colour const &col, float lineWidth) {
     m_lineStripColor = col;
     m_lineStripWidth = lineWidth;
     m_lineVertexCount = 0;
+
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(lineWidth);
+#endif
 }
 
 void Renderer::LineStripVertex2D(float x, float y) {

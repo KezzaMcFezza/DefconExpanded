@@ -1114,7 +1114,9 @@ class ApplyGraphicsButton : public InterfaceButton
     void MouseUp()
     {
         GraphicsOptionsWindow *gow = (GraphicsOptionsWindow *) m_parent;
-
+#ifndef TARGET_EMSCRIPTEN
+        g_preferences->SetInt( PREFS_GRAPHICS_SMOOTHLINES, gow->m_smoothLines );
+#endif
         g_preferences->SetInt( PREFS_GRAPHICS_BORDERS, gow->m_borders );
         g_preferences->SetInt( PREFS_GRAPHICS_CITYNAMES, gow->m_cityNames );
         g_preferences->SetInt( PREFS_GRAPHICS_COUNTRYNAMES, gow->m_countryNames );
@@ -1141,7 +1143,9 @@ GraphicsOptionsWindow::GraphicsOptionsWindow()
 {
     SetSize( 390, 400 );
     Centralise();
-
+#ifndef TARGET_EMSCRIPTEN
+    m_smoothLines   = g_preferences->GetInt( PREFS_GRAPHICS_SMOOTHLINES );
+#endif
     m_borders       = g_preferences->GetInt( PREFS_GRAPHICS_BORDERS );
     m_cityNames     = g_preferences->GetInt( PREFS_GRAPHICS_CITYNAMES );
     m_countryNames  = g_preferences->GetInt( PREFS_GRAPHICS_COUNTRYNAMES );
@@ -1174,6 +1178,15 @@ void GraphicsOptionsWindow::Create()
     dropDown->AddOption( "dialog_enabled", 1, true );
     dropDown->AddOption( "dialog_disabled", 0, true );
     dropDown->RegisterInt( &m_lowResWorld );
+    RegisterButton(dropDown);
+#endif
+
+#ifndef TARGET_EMSCRIPTEN
+    dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Smooth Lines", x, y+=h, w, 20, "dialog_smoothlines", " ", true, false );
+    dropDown->AddOption( "dialog_enabled", 1, true );
+    dropDown->AddOption( "dialog_disabled", 0, true );
+    dropDown->RegisterInt( &m_smoothLines );
     RegisterButton(dropDown);
 #endif
 
@@ -1249,6 +1262,9 @@ void GraphicsOptionsWindow::Render( bool _hasFocus )
 
 #ifdef FUCKED // does not work and really we dont need this anymore
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_lowdetailworld") );
+#endif
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_smoothlines") );
 #endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_borders") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_citynames") );

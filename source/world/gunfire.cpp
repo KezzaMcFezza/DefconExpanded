@@ -26,7 +26,19 @@ GunFire::GunFire( Fixed range )
     m_distanceToTarget(0)
 {
     m_range = range;
+
+#ifdef ENDGAME
+    if ( g_app->GetServer()->IsRecordingPlaybackMode() )
+    {
+        m_speed = Fixed::Hundredths(50);
+    }
+    else
+    {
+        m_speed = Fixed::Hundredths(48);
+    }
+#else
     m_speed = Fixed::Hundredths(50);
+#endif
     m_turnRate = Fixed::Hundredths(80);
     m_maxHistorySize = -1;
     m_movementType = MovementTypeAir;
@@ -168,10 +180,29 @@ bool GunFire::MoveToWaypoint()
         CalculateNewPosition( &newLongitude, &newLatitude, &newDistance );
     }
 
+#ifdef ENDGAME
+    Fixed newNewDistance;
+
+    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
+    {
+        newNewDistance = Fixed::Hundredths(50);
+    }
+    else
+    {
+        newNewDistance = Fixed::Hundredths(48);
+    }
+
+    if( newDistance <= distToTarget && 
+        newDistance < newNewDistance &&
+        m_targetLongitudeAcrossSeam == 0 )
+    {
+#else
+
     if( newDistance <= distToTarget && 
         newDistance < Fixed::Hundredths(50) &&
         m_targetLongitudeAcrossSeam == 0 )
     {
+#endif
         ClearWaypoints();
         m_vel.Zero();
 
@@ -195,7 +226,23 @@ void GunFire::CalculateNewPosition( Fixed *newLongitude, Fixed *newLatitude, Fix
     
     Fixed distance = (Vector3<Fixed>( m_targetLongitude, m_targetLatitude, 0 ) -
                       Vector3<Fixed>( m_longitude, m_latitude, 0 )).Mag();
+
+#ifdef ENDGAME
+    Fixed newSpeed;
+
+    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
+    {
+        newSpeed = 50;
+    }
+    else
+    {
+        newSpeed = 48;
+    }
+
+    m_speed = distance / newSpeed;
+#else
     m_speed = distance / 50;
+#endif
 
     Fixed minSpeed = Fixed::Hundredths(40) / g_app->GetWorld()->GetGameScale();
     Fixed maxSpeed = 2 / g_app->GetWorld()->GetGameScale();
