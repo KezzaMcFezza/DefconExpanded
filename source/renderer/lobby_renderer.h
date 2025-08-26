@@ -2,6 +2,7 @@
 #define _included_lobbyrenderer_h
 
 class LobbyOverlay;
+class MapRenderer;
 
 #define PREFS_GRAPHICS_LOBBYEFFECTS         "RenderLobbyEffects"
 
@@ -20,13 +21,9 @@ protected:
     int     m_currentCity;
 
     char   *m_lastLanguage;
-
-    Vector3<float> m_camUp;
-    Vector3<float> m_camFront;
     
 protected:
-    void SetupCamera3d();
-    void RenderGlobe();
+    void Render3DScene();     
     void RenderBorder();
     void RenderTestHours();
     void RenderVersionInfo();

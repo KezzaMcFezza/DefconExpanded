@@ -1272,6 +1272,14 @@ void App::ShutdownCurrentGame()
 
     //
     // If there is a client, shut it down now
+    //
+    // be sure to toggle globe mode off first
+    // to prevent an m_world assertion :)
+
+    if( m_mapRenderer && m_mapRenderer->Is3DGlobeModeEnabled() )
+    {
+        m_mapRenderer->Toggle3DGlobeMode();
+    }
 
     if( m_world )
     {
