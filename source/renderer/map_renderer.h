@@ -113,7 +113,7 @@ protected:
     int     m_framesPerSecond;
     float   m_frameCountTimer;
     bool    m_showFps;    
-    bool    m_showDebugMenu;  // Separate control for debug menu (F2)
+    bool    m_showDebugMenu;            // Separate control for debug menu (F2)
     float   m_tooltipTimer;
 
 	bool    m_showWhiteBoard;			// Used to show the white board(s) without editing the player white board
@@ -184,6 +184,9 @@ public:
     float   m_middleX;
     float   m_middleY;
     float   m_zoomFactor;
+
+    Vector3  <float> m_camUp;
+    Vector3  <float> m_camFront;
 
 	char	m_imageFiles[WorldObject::NumObjectTypes][256];
 
@@ -311,7 +314,8 @@ public:
     // 3D globe mode functionality
     void    Toggle3DGlobeMode();
     bool    Is3DGlobeModeEnabled() const { return m_3DGlobeMode; }
-    void    Render3DGlobe();
+    void    Render3DGlobe(bool inLobbyMode = false);
+    void    SetupCamera3d();
     void    Update3DGlobeCamera();
     void    Render3DGlobeCities();
     void    Render3DUnits();          

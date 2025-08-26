@@ -136,11 +136,7 @@ void MapRenderer::Regenerate3DStarField()
 
 void MapRenderer::Render3DStarField()
 {
-    if (!m_3DGlobeMode) return;
-    
-    if (!g_starField3DInitialized) {
-        Generate3DStarField();
-    }
+    Generate3DStarField();
     
     Image *cityImg = g_resource->GetImage("graphics/city.bmp");
     if (!cityImg) return;
@@ -148,16 +144,6 @@ void MapRenderer::Render3DStarField()
     // render stars as white sprites facing the camera
     for (int i = 0; i < g_starField3D.Size(); i++) {
         Star3D& star = g_starField3D[i];
-        
-        // Check if star is visible, basic frustum culling
-        Vector3<float> cameraToStar = star.position - m_globe3DCamera.m_cameraPos;
-        cameraToStar.Normalise();
-        Vector3<float> cameraForward = m_globe3DCamera.m_cameraTarget - m_globe3DCamera.m_cameraPos;
-        cameraForward.Normalise();
-        
-        // simple dot product check for if star is roughly in front of camera
-        float dotProduct = cameraToStar * cameraForward;
-        if (dotProduct < -0.3f) continue; // behind camera, skip
         
         // Calculate star color with variety
         Colour starColor;
@@ -226,7 +212,7 @@ void MapRenderer::Toggle3DGlobeMode()
 //
 // main rendering for the 3D globe
 
-void MapRenderer::Render3DGlobe()
+void MapRenderer::Render3DGlobe(bool inLobbyMode)
 {
     // begin draw call tracking
     g_renderer3d->BeginFrame3D();
@@ -234,17 +220,18 @@ void MapRenderer::Render3DGlobe()
     float aspect = (float)g_windowManager->WindowW() / (float)g_windowManager->WindowH();
     g_renderer3d->SetPerspective(60.0f, aspect, 0.1f, 100.0f);
     
-    // set up 3D camera, reuse lobby camera logic
-    g_renderer3d->SetLookAt(
-        m_globe3DCamera.m_cameraPos.x, m_globe3DCamera.m_cameraPos.y, m_globe3DCamera.m_cameraPos.z,
-        m_globe3DCamera.m_cameraTarget.x, m_globe3DCamera.m_cameraTarget.y, m_globe3DCamera.m_cameraTarget.z,
-        m_globe3DCamera.m_cameraUp.x, m_globe3DCamera.m_cameraUp.y, m_globe3DCamera.m_cameraUp.z
-    );
-    
-    // set camera position for billboard calculations
-    g_renderer3d->SetCameraPosition(m_globe3DCamera.m_cameraPos.x, 
-                                   m_globe3DCamera.m_cameraPos.y, 
-                                   m_globe3DCamera.m_cameraPos.z);
+    if (!inLobbyMode) {
+        g_renderer3d->SetLookAt(
+            m_globe3DCamera.m_cameraPos.x, m_globe3DCamera.m_cameraPos.y, m_globe3DCamera.m_cameraPos.z,
+            m_globe3DCamera.m_cameraTarget.x, m_globe3DCamera.m_cameraTarget.y, m_globe3DCamera.m_cameraTarget.z,
+            m_globe3DCamera.m_cameraUp.x, m_globe3DCamera.m_cameraUp.y, m_globe3DCamera.m_cameraUp.z
+        );
+        
+        // set camera position for billboard calculations
+        g_renderer3d->SetCameraPosition(m_globe3DCamera.m_cameraPos.x, 
+                                       m_globe3DCamera.m_cameraPos.y, 
+                                       m_globe3DCamera.m_cameraPos.z);
+    }
     
     // enable depth testing for 3D sprites
     glEnable(GL_DEPTH_TEST);
@@ -254,19 +241,72 @@ void MapRenderer::Render3DGlobe()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     
-    //
-    // new fog mode is being used
-    // distance fog is useless for globe mode as when you zoom in and out the coastlines
-    // would dissapear and reappear, so we use orientation fog instead
-    // this is a much better looking solution
-
     g_renderer3d->EnableOrientationFog(0.01f, 0.08f, 0.05f, 20.0f, 
                                       m_globe3DCamera.m_cameraPos.x,
                                       m_globe3DCamera.m_cameraPos.y,
                                       m_globe3DCamera.m_cameraPos.z);
-    
+
     //
     // Check validity of coastlines and borders vbo
+
+    if (inLobbyMode) {
+    
+    // Build globe geometry if not cached
+    if (!g_renderer3d->IsMegaVBO3DValid("GlobeGridlines")) {
+        // Build gridlines mega-VBO
+        g_renderer3d->BeginMegaVBO3D("GlobeGridlines", Colour(77, 255, 77, 51)); // 0.15f, 0.25f, 0.15f, 0.2f
+        
+        // Longitudinal lines (meridians)
+        for( float x = -180; x < 180; x += 10 )
+        {
+            DArray<Vector3<float>> lineVertices;
+            for( float y = -90; y < 90; y += 10 )
+            {
+                Vector3<float> thisPoint(0,0,1);
+                thisPoint.RotateAroundY( x/180.0f * M_PI );
+                Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
+                right.Normalise();
+                thisPoint.RotateAround( right * y/180.0f * M_PI );
+
+                lineVertices.PutData(thisPoint);
+            }
+            if (lineVertices.Size() > 0) {
+                Vector3<float>* vertexArray = new Vector3<float>[lineVertices.Size()];
+                for (int i = 0; i < lineVertices.Size(); i++) {
+                    vertexArray[i] = lineVertices.GetData(i);
+            }
+                g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, lineVertices.Size());
+                delete[] vertexArray;
+        }
+        }
+
+        // Latitudinal lines (parallels)
+        for( float y = -90; y < 90; y += 10 )
+        {
+            DArray<Vector3<float>> lineVertices;
+            for( float x = -180; x <= 180; x += 10 )
+            {
+                Vector3<float> thisPoint(0,0,1);
+                thisPoint.RotateAroundY( x/180.0f * M_PI );
+                Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
+                right.Normalise();
+                thisPoint.RotateAround( right * y/180.0f * M_PI );
+
+                lineVertices.PutData(thisPoint);
+            }
+            if (lineVertices.Size() > 0) {
+                Vector3<float>* vertexArray = new Vector3<float>[lineVertices.Size()];
+                for (int i = 0; i < lineVertices.Size(); i++) {
+                    vertexArray[i] = lineVertices.GetData(i);
+                }
+                g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, lineVertices.Size());
+                delete[] vertexArray;
+            }
+        }
+        
+        g_renderer3d->EndMegaVBO3D();
+        }
+    }
 
     //
     // Coastlines VBO
@@ -316,7 +356,7 @@ void MapRenderer::Render3DGlobe()
 
     if (g_preferences->GetInt(PREFS_GRAPHICS_BORDERS) == 1) {
         if (!g_renderer3d->IsMegaVBO3DValid("GlobeBorders")) {
-            g_renderer3d->BeginMegaVBO3D("GlobeBorders", Colour(0, 255, 0, 77));
+            g_renderer3d->BeginMegaVBO3D("GlobeBorders", Colour(0, 255, 0, 71));
 
             for( int i = 0; i < g_app->GetEarthData()->m_borders.Size(); ++i )
             {
@@ -415,7 +455,54 @@ void MapRenderer::Render3DGlobe()
 
 //
 // camera controls for the 3d globe, to preserve muscle memory
-// we use default DEFCON controls
+// we use default DEFCON controls for globe mode
+// and for the lobby remains unchanged
+
+void MapRenderer::SetupCamera3d()
+{
+    float fov = 60.0f;
+    float nearPlane = 0.1f;
+    float farPlane = 10000.0f;
+    float screenW = g_windowManager->WindowW();
+    float screenH = g_windowManager->WindowH();
+
+    // replace deprecated matrix operations with 3D renderer
+    g_renderer3d->SetPerspective(fov, screenW / screenH, nearPlane, farPlane);
+
+    static float timeVal = 0.0f;
+    timeVal += g_advanceTime * 1;
+    float timeNow = timeVal;
+    float camDist = 1.7f;       //+sinf(timeNow*0.2f)*0.5f;
+    float camHeight = 0.5f + cosf(timeNow*0.2f) * 0.2f;
+    Vector3<float> pos(0.0f,camHeight, camDist);
+    pos.RotateAroundY( timeNow * -0.1f );
+	Vector3<float> requiredFront = pos * -1.0f;
+
+    static Vector3<float> front = Vector3<float>::ZeroVector();
+    float timeFactor = g_advanceTime * 0.3f;
+    front = requiredFront * timeFactor + front * (1-timeFactor);
+
+	Vector3<float> right = front ^ Vector3<float>::UpVector();
+    Vector3<float> up = right ^ front;
+    Vector3<float> forwards = pos + front * 100;
+
+    m_camFront = front;
+    m_camUp = up;
+
+    m_camFront.Normalise();
+    m_camUp.Normalise();
+
+    // replace gluLookAt with 3D renderer
+    g_renderer3d->SetLookAt(pos.x, pos.y, pos.z,
+              forwards.x, forwards.y, forwards.z,
+              up.x, up.y, up.z);
+
+    // OpenGL 3.3 state management
+    glDisable( GL_CULL_FACE );
+    glEnable( GL_BLEND );
+    g_renderer->SetBlendFunc( GL_SRC_ALPHA, GL_ONE );
+    glDisable( GL_DEPTH_TEST );
+}
 
 void MapRenderer::Update3DGlobeCamera()
 {
@@ -584,7 +671,6 @@ Vector3<float> MapRenderer::ConvertLongLatTo3DPosition(float longitude, float la
 
 void MapRenderer::Render3DGlobeSurface()
 {
-    if (!m_3DGlobeMode) return;
 
     //
     // This will occlude stars behind the globe while maintaining coastline visibility
@@ -643,7 +729,6 @@ void MapRenderer::Render3DGlobeSurface()
 void MapRenderer::Render3DSphere(const Vector3<float>& center, float radius, const Colour& color, int segments)
 {
     if (!m_3DGlobeMode) return;
-    
     
     float r = color.m_r / 255.0f;
     float g = color.m_g / 255.0f;

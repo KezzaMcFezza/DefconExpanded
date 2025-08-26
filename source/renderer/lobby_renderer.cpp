@@ -93,6 +93,46 @@ void LobbyRenderer::InitialiseLanguage()
     MetaServer_RemoveData( NET_METASERVER_DATA_MOTD );
 }
 
+//
+// Combines the starfield background and the globe rendering
+// which allows us to have a clean opengl state for ui and globe rendering
+
+void LobbyRenderer::Render3DScene()
+{
+    // Begin
+    g_renderer3d->BeginFrame3D();
+    
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+    g_app->GetMapRenderer()->Render3DStarField();
+    g_app->GetMapRenderer()->Render3DGlobe(true);
+    g_app->GetMapRenderer()->Render3DGlobeSurface();
+    
+    g_app->GetMapRenderer()->SetupCamera3d();
+
+    g_renderer3d->RenderMegaVBO3D("GlobeGridlines");
+
+    if( g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES ) == 1 )
+    {
+        g_renderer3d->RenderMegaVBO3D("GlobeCoastlines");
+    }
+
+    if( g_preferences->GetInt( PREFS_GRAPHICS_BORDERS ) == 1 )
+    {
+        g_renderer3d->RenderMegaVBO3D("GlobeBorders");
+    }
+    
+    glDisable(GL_DEPTH_TEST);
+    
+    // Restore blending state
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    // End
+    g_renderer3d->EndFrame3D();
+}
 
 void LobbyRenderer::Render()
 {
@@ -111,10 +151,9 @@ void LobbyRenderer::Render()
 
     if( g_preferences->GetInt(PREFS_GRAPHICS_LOBBYEFFECTS) == 1 )
     {
-        SetupCamera3d();
 
         START_PROFILE( "Globe" );
-        RenderGlobe();
+        Render3DScene();
         END_PROFILE( "Globe" );
 
         //START_PROFILE( "CityDetails" );
@@ -159,10 +198,8 @@ void LobbyRenderer::Render()
     if( g_preferences->GetInt(PREFS_GRAPHICS_LOBBYEFFECTS) == 1 )
     {
 #if TARGET_EMSCRIPTEN
-        // REPLAY VIEWER MODE: Disable lobby overlays completely
-        // No overlays are rendered in replay viewer mode to keep the interface clean
+        // Disable lobby overlays completely for replay mode
 #else
-        // NORMAL MODE: Render overlays as usual
         START_PROFILE( "Overlay" );
         RenderOverlay();
         END_PROFILE( "Overlay" );
@@ -428,215 +465,6 @@ void LobbyRenderer::RenderBorder()
     g_renderer->Line( borderSize, borderSize );
     g_renderer->EndLines();
 }
-
-
-void LobbyRenderer::SetupCamera3d()
-{
-    float fov = 60.0f;
-    float nearPlane = 0.1f;
-    float farPlane = 10000.0f;
-    float screenW = g_windowManager->WindowW();
-    float screenH = g_windowManager->WindowH();
-
-    // replace deprecated matrix operations with 3D renderer
-    g_renderer3d->SetPerspective(fov, screenW / screenH, nearPlane, farPlane);
-
-    static float timeVal = 0.0f;
-    timeVal += g_advanceTime * 1;
-    float timeNow = timeVal;
-    float camDist = 1.7f;       //+sinf(timeNow*0.2f)*0.5f;
-    float camHeight = 0.5f + cosf(timeNow*0.2f) * 0.2f;
-    Vector3<float> pos(0.0f,camHeight, camDist);
-    pos.RotateAroundY( timeNow * -0.1f );
-	Vector3<float> requiredFront = pos * -1.0f;
-
-    static Vector3<float> front = Vector3<float>::ZeroVector();
-    float timeFactor = g_advanceTime * 0.3f;
-    front = requiredFront * timeFactor + front * (1-timeFactor);
-
-	Vector3<float> right = front ^ Vector3<float>::UpVector();
-    Vector3<float> up = right ^ front;
-    Vector3<float> forwards = pos + front * 100;
-
-    m_camFront = front;
-    m_camUp = up;
-
-    m_camFront.Normalise();
-    m_camUp.Normalise();
-
-    // replace gluLookAt with 3D renderer
-    g_renderer3d->SetLookAt(pos.x, pos.y, pos.z,
-              forwards.x, forwards.y, forwards.z,
-              up.x, up.y, up.z);
-
-    // OpenGL 3.3 state management
-    glDisable( GL_CULL_FACE );
-    glEnable( GL_BLEND );
-    g_renderer->SetBlendFunc( GL_SRC_ALPHA, GL_ONE );
-    glDisable( GL_DEPTH_TEST );
-
-    // changed function name to enableDistanceFog, as now we have two fog modes
-    // this function remains unchanged but the name has changed for easier differentiation
-    // between fogFactor and fogDistance
-    g_renderer3d->EnableDistanceFog(camDist/2.0f, camDist*2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-}
-
-
-void LobbyRenderer::RenderGlobe()
-{
-
-    // Build globe geometry if not cached
-    if (!g_renderer3d->IsMegaVBO3DValid("GlobeGridlines")) {
-        // Build gridlines mega-VBO
-        g_renderer3d->BeginMegaVBO3D("GlobeGridlines", Colour(77, 255, 77, 51)); // 0.3f, 1.0f, 0.3f, 0.2f
-        
-        // Longitudinal lines (meridians)
-        for( float x = -180; x < 180; x += 10 )
-        {
-            DArray<Vector3<float>> lineVertices;
-            for( float y = -90; y < 90; y += 10 )
-            {
-                Vector3<float> thisPoint(0,0,1);
-                thisPoint.RotateAroundY( x/180.0f * M_PI );
-                Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
-                right.Normalise();
-                thisPoint.RotateAround( right * y/180.0f * M_PI );
-
-                lineVertices.PutData(thisPoint);
-            }
-            if (lineVertices.Size() > 0) {
-                Vector3<float>* vertexArray = new Vector3<float>[lineVertices.Size()];
-                for (int i = 0; i < lineVertices.Size(); i++) {
-                    vertexArray[i] = lineVertices.GetData(i);
-            }
-                g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, lineVertices.Size());
-                delete[] vertexArray;
-        }
-        }
-
-        // Latitudinal lines (parallels)
-        for( float y = -90; y < 90; y += 10 )
-        {
-            DArray<Vector3<float>> lineVertices;
-            for( float x = -180; x <= 180; x += 10 )
-            {
-                Vector3<float> thisPoint(0,0,1);
-                thisPoint.RotateAroundY( x/180.0f * M_PI );
-                Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
-                right.Normalise();
-                thisPoint.RotateAround( right * y/180.0f * M_PI );
-
-                lineVertices.PutData(thisPoint);
-            }
-            if (lineVertices.Size() > 0) {
-                Vector3<float>* vertexArray = new Vector3<float>[lineVertices.Size()];
-                for (int i = 0; i < lineVertices.Size(); i++) {
-                    vertexArray[i] = lineVertices.GetData(i);
-                }
-                g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, lineVertices.Size());
-                delete[] vertexArray;
-            }
-        }
-        
-        g_renderer3d->EndMegaVBO3D();
-        }
-
-    //
-    // Build coastlines mega-VBO if not cached
-
-    if( g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES ) == 1 )
-    {
-    if (!g_renderer3d->IsMegaVBO3DValid("GlobeCoastlines")) {
-        g_renderer3d->BeginMegaVBO3D("GlobeCoastlines", Colour(0, 255, 0, 255)); // 0.0f, 1.0f, 0.0f, 1.0f
-
-        for( int i = 0; i < g_app->GetEarthData()->m_islands.Size(); ++i )
-        {
-            Island *island = g_app->GetEarthData()->m_islands[i];
-            AppDebugAssert( island );
-
-            DArray<Vector3<float>> coastlineVertices;
-            for( int j = 0; j < island->m_points.Size(); j++ )
-            {
-                Vector3<float> *thePoint = island->m_points[j];
-
-                Vector3<float> thisPoint(0,0,1);
-                thisPoint.RotateAroundY( thePoint->x/180.0f * M_PI );
-                Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
-                right.Normalise();
-                thisPoint.RotateAround( right * thePoint->y/180.0f * M_PI );
-
-                coastlineVertices.PutData(thisPoint);
-            }
-            if (coastlineVertices.Size() > 0) {
-                Vector3<float>* vertexArray = new Vector3<float>[coastlineVertices.Size()];
-                for (int i = 0; i < coastlineVertices.Size(); i++) {
-                    vertexArray[i] = coastlineVertices.GetData(i);
-            }
-                g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, coastlineVertices.Size());
-                delete[] vertexArray;
-            }
-        }
-        }
-        
-        g_renderer3d->EndMegaVBO3D();
-        AppDebugOut("Rebuilt globe coastlines VBO with %d islands\n", g_app->GetEarthData()->m_islands.Size());
-        }
-
-        //
-        // Build borders mega-VBO if not cached
-
-        if( g_preferences->GetInt( PREFS_GRAPHICS_BORDERS ) == 1 )
-        {
-        if (!g_renderer3d->IsMegaVBO3DValid("GlobeBorders")) {
-            g_renderer3d->BeginMegaVBO3D("GlobeBorders", Colour(0, 255, 0, 77)); // 0.0f, 1.0f, 0.0f, 0.3f
-
-            for( int i = 0; i < g_app->GetEarthData()->m_borders.Size(); ++i )
-            {
-                Island *island = g_app->GetEarthData()->m_borders[i];
-                AppDebugAssert( island );
-
-                DArray<Vector3<float>> borderVertices;
-                for( int j = 0; j < island->m_points.Size(); j++ )
-                {
-                    Vector3<float> *thePoint = island->m_points[j];
-
-                    Vector3<float> thisPoint(0,0,1);
-                    thisPoint.RotateAroundY( thePoint->x/180.0f * M_PI );
-                    Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
-                    right.Normalise();
-                    thisPoint.RotateAround( right * thePoint->y/180.0f * M_PI );
-
-                    borderVertices.PutData(thisPoint);
-                }
-                if (borderVertices.Size() > 0) {
-                    Vector3<float>* vertexArray = new Vector3<float>[borderVertices.Size()];
-                    for (int i = 0; i < borderVertices.Size(); i++) {
-                        vertexArray[i] = borderVertices.GetData(i);
-                }
-                    g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, borderVertices.Size());
-                    delete[] vertexArray;
-            }
-        }
-
-            g_renderer3d->EndMegaVBO3D();
-            AppDebugOut("Rebuilt globe borders VBO with %d border segments\n", g_app->GetEarthData()->m_borders.Size());
-    }
-    }
-
-    g_renderer3d->RenderMegaVBO3D("GlobeGridlines");
-    if( g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES ) == 1 )
-    {
-        g_renderer3d->RenderMegaVBO3D("GlobeCoastlines");
-    }
-    if( g_preferences->GetInt( PREFS_GRAPHICS_BORDERS ) == 1 )
-    {
-        g_renderer3d->RenderMegaVBO3D("GlobeBorders");
-    }
-
-    // MODERN OpenGL 3.3: Disable fog after globe rendering (matches original)
-    g_renderer3d->DisableFog();
-}
-
 
 void LobbyRenderer::RenderVersionInfo()
 {
@@ -1008,12 +836,11 @@ void LobbyRenderer::RenderCityDetails()
     right.Normalise();
     thisPoint.RotateAround( right * city->m_latitude.DoubleValue()/180.0f * M_PI );
 
-    Vector3<float> camright = m_camUp ^ m_camFront;
-    Vector3<float> camup = m_camUp;
+    Vector3<float> camright = g_app->GetMapRenderer()->m_camUp ^ g_app->GetMapRenderer()->m_camFront;
+    Vector3<float> camup = g_app->GetMapRenderer()->m_camUp;
 
     float boxSize = 0.1f;
 
-    // MODERN OpenGL 3.3: Convert to 3D renderer
     g_renderer3d->BeginLineLoop3D(Colour(0, 255, 0, 255)); // 0.0f, 1.0f, 0.0f, 1.0f
     g_renderer3d->LineLoopVertex3D(thisPoint - camright*boxSize - camup*boxSize);
     g_renderer3d->LineLoopVertex3D(thisPoint + camright*boxSize - camup*boxSize);

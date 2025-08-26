@@ -247,7 +247,7 @@ void MapRenderer::Render()
     // for 3d globe mode we switch rendering contexts
     // its amazing how quickly this happens
     if (m_3DGlobeMode) {
-        Render3DGlobe();
+        Render3DGlobe(false);
         END_PROFILE( "MapRenderer" );
         return;
     }
