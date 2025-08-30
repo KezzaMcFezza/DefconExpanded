@@ -99,39 +99,8 @@ void LobbyRenderer::InitialiseLanguage()
 
 void LobbyRenderer::Render3DScene()
 {
-    // Begin
-    g_renderer3d->BeginFrame3D();
-    
-    glEnable(GL_DEPTH_TEST);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-    g_app->GetMapRenderer()->Render3DStarField();
     g_app->GetMapRenderer()->Render3DGlobe(true);
-    g_app->GetMapRenderer()->Render3DGlobeSurface();
-    
     g_app->GetMapRenderer()->SetupCamera3d();
-
-    g_renderer3d->RenderMegaVBO3D("GlobeGridlines");
-
-    if( g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES ) == 1 )
-    {
-        g_renderer3d->RenderMegaVBO3D("GlobeCoastlines");
-    }
-
-    if( g_preferences->GetInt( PREFS_GRAPHICS_BORDERS ) == 1 )
-    {
-        g_renderer3d->RenderMegaVBO3D("GlobeBorders");
-    }
-    
-    glDisable(GL_DEPTH_TEST);
-    
-    // Restore blending state
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-    // End
-    g_renderer3d->EndFrame3D();
 }
 
 void LobbyRenderer::Render()
