@@ -241,10 +241,12 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     
-    g_renderer3d->EnableOrientationFog(0.01f, 0.08f, 0.05f, 20.0f, 
+    if (!inLobbyMode) {
+    g_renderer3d->EnableOrientationFog(0.04f, 0.04f, 0.04f, 20.0f,
                                       m_globe3DCamera.m_cameraPos.x,
                                       m_globe3DCamera.m_cameraPos.y,
                                       m_globe3DCamera.m_cameraPos.z);
+    }
 
     //
     // Check validity of coastlines and borders vbo
@@ -260,7 +262,7 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
         for( float x = -180; x < 180; x += 10 )
         {
             DArray<Vector3<float>> lineVertices;
-            for( float y = -90; y < 90; y += 10 )
+            for( float y = -90; y < 90; y += 2.0f )
             {
                 Vector3<float> thisPoint(0,0,1);
                 thisPoint.RotateAroundY( x/180.0f * M_PI );
@@ -281,10 +283,10 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
         }
 
         // Latitudinal lines (parallels)
-        for( float y = -90; y < 90; y += 10 )
+        for( float y = -90; y <= 90; y += 10 )
         {
             DArray<Vector3<float>> lineVertices;
-            for( float x = -180; x <= 180; x += 10 )
+            for( float x = -180; x <= 180; x += 2.0f )
             {
                 Vector3<float> thisPoint(0,0,1);
                 thisPoint.RotateAroundY( x/180.0f * M_PI );
@@ -306,6 +308,9 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
         
         g_renderer3d->EndMegaVBO3D();
         }
+
+        // Build it
+        g_renderer3d->RenderMegaVBO3D("GlobeGridlines");
     }
 
     //
@@ -502,6 +507,11 @@ void MapRenderer::SetupCamera3d()
     glEnable( GL_BLEND );
     g_renderer->SetBlendFunc( GL_SRC_ALPHA, GL_ONE );
     glDisable( GL_DEPTH_TEST );
+
+    // changed function name to enableDistanceFog, as now we have two fog modes
+    // this function remains unchanged but the name has changed for easier differentiation
+    // between fogFactor and fogDistance
+    g_renderer3d->EnableDistanceFog(camDist/2.0f, camDist*2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.25f);
 }
 
 void MapRenderer::Update3DGlobeCamera()
@@ -1038,12 +1048,6 @@ void MapRenderer::Render3DUnits()
                     predictedLatitude.DoubleValue()
                 );
                 
-                // viewport culling,only render visible hemisphere however the issue is that
-                // the logic is pretty flawed as it does not take into account the zoom level
-                Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
-                globeToCamera.Normalise();
-                float dotProduct = unitPos * globeToCamera;
-                if (dotProduct < 0.0f) continue;
             }
             
             Image *unitImg = wobj->GetBmpImage(wobj->m_currentState);
@@ -1519,14 +1523,6 @@ void MapRenderer::Render3DUnitTrails()
                 Nuke* nuke = (Nuke*)wobj;
                 Vector3<float> currentPos = CalculateNuke3DPosition(nuke);
                 
-                // viewport culling
-                Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
-                globeToCamera.Normalise();
-                Vector3<float> nukeToCameraDir = currentPos;
-                nukeToCameraDir.Normalise();
-                float dotProduct = nukeToCameraDir * globeToCamera;
-                if (dotProduct < -0.3f) continue;
-                
                 //
                 // create line segments for nukes with dashed effect
                 // reduce trail detail based on distance to camera
@@ -1691,14 +1687,6 @@ void MapRenderer::Render3DGunfire()
             
             // calculate gunfires 3D position 
             Vector3<float> gunfirePos3D = CalculateGunfire3DPosition(gunfire);
-            
-            // viewport culling for gunfire
-            Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
-            globeToCamera.Normalise();
-            Vector3<float> gunfireToCameraDir = gunfirePos3D;
-            gunfireToCameraDir.Normalise();
-            float dotProduct = gunfireToCameraDir * globeToCamera;
-            if (dotProduct < -0.3f) continue; //
             
             Team *team = g_app->GetWorld()->GetTeam(gunfire->m_teamId);
             Colour colour;
@@ -1894,12 +1882,6 @@ void MapRenderer::Render3DExplosions()
                 explosion->m_latitude.DoubleValue()
             );
             
-            // viewport culling
-            Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
-            globeToCamera.Normalise();
-            float dotProduct = explosionPos * globeToCamera;
-            if (dotProduct < 0.0f) continue;
-            
             Image *explosionImg = g_resource->GetImage("graphics/explosion.bmp");
             if (!explosionImg) continue;
             
@@ -1991,12 +1973,6 @@ void MapRenderer::Render3DSonarPing()
                     ping->m_longitude, 
                     ping->m_latitude
                 );
-                
-                // viewport culling
-                Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
-                globeToCamera.Normalise();
-                float dotProduct = pingPos * globeToCamera;
-                if (dotProduct < 0.0f) continue;
                 
                 int alpha = 255 - 255 * (pingSize / 5.0f);
                 alpha *= 0.5f;

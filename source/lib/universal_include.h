@@ -291,6 +291,9 @@
 #elif defined(TARGET_MSVC)
 #include <GL/glew.h>
 #include <GL/gl.h>
+#elif defined(TARGET_OS_LINUX)
+#include <GL/glew.h>
+#include <GL/gl.h>
 #else
 #include <GLES3/gl3.h>
 #include <EGL/egl.h>
