@@ -893,12 +893,6 @@ void MapRenderer::Render3DGlobeCities()
                 city->m_latitude.DoubleValue()
             );
             
-            // buggy viewport culling, it works good enough for now
-            Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
-            globeToCamera.Normalise();
-            float dotProduct = cityPos * globeToCamera;
-            if (dotProduct < 0.0f) continue; 
-            
             float baseSize = sqrtf(sqrtf((float)city->m_population)) / 25.0f;
             
             float size = baseSize * 0.0075f;  // half of original 0.015f
@@ -1031,12 +1025,6 @@ void MapRenderer::Render3DUnits()
                 Nuke* nuke = (Nuke*)wobj;
                 unitPos = CalculateNuke3DPosition(nuke);
                 
-                Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
-                globeToCamera.Normalise();
-                Vector3<float> nukeToCameraDir = unitPos;
-                nukeToCameraDir.Normalise();
-                float dotProduct = nukeToCameraDir * globeToCamera;
-                if (dotProduct < -0.3f) continue; // More lenient culling for high-altitude nukes
             } else {
                 // Regular surface positioning for other units
                 Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
