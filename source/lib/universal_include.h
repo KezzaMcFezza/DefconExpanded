@@ -291,7 +291,7 @@
 #elif defined(TARGET_MSVC)
 #include <GL/glew.h>
 #include <GL/gl.h>
-#elif defined(TARGET_OS_LINUX)
+#elif defined(TARGET_OS_LINUX) && !defined(TARGET_EMSCRIPTEN)
 #include <GL/glew.h>
 #include <GL/gl.h>
 #else

@@ -311,6 +311,7 @@ public:
 	void    RenderWhiteBoard();
 	Team*   GetEffectiveWhiteBoardTeam();  // getter for perspective based whiteboard viewing
 	
+    //
     // 3D globe mode functionality
     void    Toggle3DGlobeMode();
     bool    Is3DGlobeModeEnabled() const { return m_3DGlobeMode; }
@@ -319,12 +320,19 @@ public:
     void    Update3DGlobeCamera();
     void    Render3DGlobeCities();
     void    Render3DUnits();          
-    void    Render3DUnitTrails();     
+    void    Render3DUnitTrails();
+    void    Render3DNukeTrajectories();
+    void    Render3DNuke();
     void    Render3DGunfire();       
     void    Render3DExplosions();     
-    void    Render3DSonarPing();
-
+    void    Render3DNukeSymbols();
+    void    Render3DWorldObjectTargets();
+    void    Render3DAnimations();
+    void    Render3DGlobeCulling();
     void    Render3DSphere                                (const Vector3<float>& center, float radius, const Colour& color, int segments);
+    void    Render3DActionLine                            (const Vector3<float>& fromPos, const Vector3<float>& toPos, const Colour& col, bool animate);
+    float   CalculateUnitElevation                        (WorldObject* wobj);
+    float   CalculateBallisticHeight                      (float totalDistanceRadians, float progress);
     Vector3<float> Project3DToScreen                      (const Vector3<float>& worldPos);
     Vector3<float> ConvertLongLatTo3DPosition             (float longitude, float latitude);
     Vector3<float> CalculateGreatCirclePosition           (float startLon, float startLat, float endLon, float endLat, float progress);
@@ -332,7 +340,6 @@ public:
     Vector3<float> CalculateHistoricalNuke3DPosition      (Nuke* nuke, const Vector3<Fixed>& historicalPos);
     Vector3<float> CalculateHistoricalNuke3DPositionByAge (Nuke* nuke, const Vector3<Fixed>& historicalPos, float historicalProgress);
     Vector3<float> CalculateGunfire3DPosition             (GunFire* gunfire);
-    float CalculateBallisticHeight                        (float totalDistanceRadians, float progress);
     
     // 3D star field functionality
     void    Generate3DStarField    ();

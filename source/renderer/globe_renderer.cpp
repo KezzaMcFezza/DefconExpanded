@@ -237,19 +237,16 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     glEnable(GL_DEPTH_TEST);
     glClear(GL_DEPTH_BUFFER_BIT);
     
-    // use additive blending like 2D mode
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    
+    // enable fog for the main scene
     if (!inLobbyMode) {
-    g_renderer3d->EnableOrientationFog(0.04f, 0.04f, 0.04f, 20.0f,
+    g_renderer3d->EnableOrientationFog(0.03f, 0.03f, 0.03f, 20.0f,
                                       m_globe3DCamera.m_cameraPos.x,
                                       m_globe3DCamera.m_cameraPos.y,
                                       m_globe3DCamera.m_cameraPos.z);
     }
 
     //
-    // Check validity of coastlines and borders vbo
+    // Check validity of coastlines, borders and gridlines vbo
 
     if (inLobbyMode) {
     
@@ -398,57 +395,78 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
         // Build it
         g_renderer3d->RenderMegaVBO3D("GlobeBorders");
     }
-    
-    // disable fog after rendering coastlines and borders
-    g_renderer3d->DisableFog();
   
     //
     // master scene batching, pretty much identical to map renderer
     // if it aint broke dont fix it, since im good at breaking shit
     //
-    
+
     //
-    // begin scene
+    // disable fog before rendering main scene
+
+    g_renderer3d->DisableFog();
+
+    //
+    // begin star field and globe surface scene
 
     g_renderer3d->BeginStarFieldBatch3D();      // Star field batching
     g_renderer3d->BeginGlobeSurfaceBatch3D();   // Globe surface batching
+    
+    Render3DGlobeCulling();
+    Render3DStarField();
+    Render3DGlobeSurface(); 
+
+    //
+    // end the globe surface scene
+
+    g_renderer3d->EndGlobeSurfaceBatch3D();     // Flush globe surface triangles
+    g_renderer3d->EndStarFieldBatch3D();        // Flush star sprites
+    
+    //
+    // begin scene main scene
+
+    g_renderer3d->BeginNuke3DModelBatch3D();    // 3D nuke models (replaces flat nuke sprites)
+    g_renderer3d->BeginUnitTrailBatch3D();      // Unit movement trails
     g_renderer3d->BeginUnitMainBatch3D();       // Main unit sprites + city icons
     g_renderer3d->BeginUnitRotatingBatch3D();   // Rotating sprites (aircraft, but not nukes anymore)
     g_renderer3d->BeginUnitTrailBatch3D();      // Unit movement trails
     g_renderer3d->BeginUnitStateBatch3D();      // Unit state icons (fighters/bombers on units)
     g_renderer3d->BeginUnitNukeBatch3D();       // Small nuke icons on units
-    g_renderer3d->BeginNuke3DModelBatch3D();    // 3D nuke models (replaces flat nuke sprites)
     g_renderer3d->BeginEffectsLineBatch3D();    // All line effects (gunfire trails, etc.)
     g_renderer3d->BeginEffectsSpriteBatch3D();  // All sprite effects (explosions, sonar pings, etc.)
 
-    // render all 3d objects inside the scene
+    //
+    // force additive blending after culling has been applied
 
-    Render3DStarField();
-    Render3DGlobeSurface(); 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
     Render3DGlobeCities();
     Render3DUnits();
     Render3DUnitTrails();
     Render3DGunfire();
     Render3DExplosions();
-    Render3DSonarPing();
+    Render3DNukeSymbols();
+    Render3DWorldObjectTargets();
+    Render3DAnimations();
+    Render3DNukeTrajectories();
+    Render3DNuke();
     
     //
-    // now end the scene and flush
+    // now end the main scene and flush
     
     g_renderer3d->EndUnitTrailBatch3D();        // Flush all unit trails
     g_renderer3d->EndEffectsSpriteBatch3D();    // Flush all sprite effects (explosions, sonar pings)
     g_renderer3d->EndEffectsLineBatch3D();      // Flush all line effects (gunfire trails)
-    g_renderer3d->EndNuke3DModelBatch3D();      // Flush all 3D nuke models
     g_renderer3d->EndUnitNukeBatch3D();         // Flush all small nuke icons
     g_renderer3d->EndUnitStateBatch3D();        // Flush all unit state icons
     g_renderer3d->EndUnitRotatingBatch3D();     // Flush all rotating sprites (atlas batching!)
     g_renderer3d->EndUnitMainBatch3D();         // Flush all main unit sprites + city icons (atlas batching!)
-    g_renderer3d->EndGlobeSurfaceBatch3D();     // Flush globe surface triangles
-    g_renderer3d->EndStarFieldBatch3D();        // Flush star sprites
+    g_renderer3d->EndUnitTrailBatch3D();        // Flush all unit trails
+    g_renderer3d->EndNuke3DModelBatch3D();      // Flush all 3D nuke models
+
 
     glDisable(GL_DEPTH_TEST);
-    
-    // restore blending state to 2D default
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     // reset to 2d viewport
@@ -571,7 +589,7 @@ void MapRenderer::Update3DGlobeCamera()
         
         // clamp vertical rotation and zoom distance
         m_globe3DCamera.m_cameraPhi = fmax(-M_PI/2.0f + 0.1f, fmin(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
-        m_globe3DCamera.m_cameraDistance = fmax(1.5f, fmin(10.0f, m_globe3DCamera.m_cameraDistance));
+        m_globe3DCamera.m_cameraDistance = fmax(1.5f, fmin(3.0f, m_globe3DCamera.m_cameraDistance));
         
         // update camera position
         m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
@@ -647,7 +665,7 @@ void MapRenderer::Update3DGlobeCamera()
     // mouse wheel zoom
     if (IsMouseInMapRenderer() && g_inputManager->m_mouseVelZ != 0) {
         m_globe3DCamera.m_cameraDistance += g_inputManager->m_mouseVelZ * -0.1f;
-        m_globe3DCamera.m_cameraDistance = fmax(1.5f, fmin(10.0f, m_globe3DCamera.m_cameraDistance));
+        m_globe3DCamera.m_cameraDistance = fmax(1.5f, fmin(3.0f, m_globe3DCamera.m_cameraDistance));
         
         m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
         m_globe3DCamera.m_cameraPos.y = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraPhi);
@@ -731,6 +749,65 @@ void MapRenderer::Render3DGlobeSurface()
                                                center.x + x4, center.y + y4, center.z + z4, globeColor);
         }
     }
+}
+
+//
+// simple culling writes depth values but no color, creating an invisible mask
+
+void MapRenderer::Render3DGlobeCulling()
+{
+    // disable color writing, we only want to write to depth buffer
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    glDepthMask(GL_TRUE);
+    
+    // use a transparent color 
+    Colour invisibleColor(0, 0, 0, 0);
+    
+    // render the same globe geometry as the visible surface
+    int segments = 32; 
+    float radius = 0.998f; // slightly smaller than visible surface
+    Vector3<float> center(0.0f, 0.0f, 0.0f);
+    
+    // render filled sphere using 3D renderer triangle system
+    for (int lat = 0; lat < segments; ++lat) {
+        float theta1 = M_PI * lat / segments - M_PI/2;
+        float theta2 = M_PI * (lat + 1) / segments - M_PI/2;
+        
+        for (int lon = 0; lon < segments; ++lon) {
+            float phi1 = 2.0f * M_PI * lon / segments;
+            float phi2 = 2.0f * M_PI * (lon + 1) / segments;
+            
+            // Calculate the 4 vertices of this quad
+            float x1 = radius * cosf(theta1) * cosf(phi1);
+            float y1 = radius * sinf(theta1);
+            float z1 = radius * cosf(theta1) * sinf(phi1);
+            
+            float x2 = radius * cosf(theta1) * cosf(phi2);
+            float y2 = radius * sinf(theta1);
+            float z2 = radius * cosf(theta1) * sinf(phi2);
+            
+            float x3 = radius * cosf(theta2) * cosf(phi2);
+            float y3 = radius * sinf(theta2);
+            float z3 = radius * cosf(theta2) * sinf(phi2);
+            
+            float x4 = radius * cosf(theta2) * cosf(phi1);
+            float y4 = radius * sinf(theta2);
+            float z4 = radius * cosf(theta2) * sinf(phi1);
+            
+            // First triangle: 1, 2, 3
+            g_renderer3d->GlobeSurfaceTriangle3D(center.x + x1, center.y + y1, center.z + z1,
+                                               center.x + x2, center.y + y2, center.z + z2,
+                                               center.x + x3, center.y + y3, center.z + z3, invisibleColor);
+            
+            // Second triangle: 1, 3, 4
+            g_renderer3d->GlobeSurfaceTriangle3D(center.x + x1, center.y + y1, center.z + z1,
+                                               center.x + x3, center.y + y3, center.z + z3,
+                                               center.x + x4, center.y + y4, center.z + z4, invisibleColor);
+        }
+    }
+    
+    // re-enable color writing
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 }
 
 //
@@ -939,7 +1016,6 @@ void MapRenderer::Render3DGlobeCities()
         
         Vector3<float> normal = cityPos;
         normal.Normalise();
-        cityPos += normal * 0.002f;
         
         g_renderer3d->UnitMainSprite3D(cityImg, cityPos.x, cityPos.y, cityPos.z, size * 2.0f, size * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
     }
@@ -998,16 +1074,18 @@ void MapRenderer::Render3DUnits()
         Image* image;
         bool isMovingObject;
         bool isAirUnit;
-        bool isNuke;
         float rotationAngle;
     };
     
     DArray<UnitRenderInfo> visibleUnits;
     
-    // First pass: collect visible units with enhanced categorization
+    // First pass: collect visible units with enhanced categorization (except nukes)
     for (int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i) {
         if (g_app->GetWorld()->m_objects.ValidIndex(i)) {
             WorldObject *wobj = g_app->GetWorld()->m_objects[i];
+            
+            // skip nukes
+            if (wobj->m_type == WorldObject::TypeNuke) continue;
             
             // check what teamid we have set, then we can decide
             // whether to render the unit or not
@@ -1016,17 +1094,53 @@ void MapRenderer::Render3DUnits()
                                wobj->m_visible[myTeamId] ||
                                m_renderEverything);
             
-            if (!shouldRender) continue;
+            bool renderAsGhost = false;
+            if (!shouldRender) {
+                // Render as ghost if our team has seen this unit before
+                if (myTeamId != -1 &&
+                    !m_renderEverything &&
+                    wobj->m_lastSeenTime[myTeamId] > 0)
+                {
+                    renderAsGhost = true;
+                }
+                
+                if (!renderAsGhost) {
+                    continue; // never seen so dont render
+                }
+            }
             
             Vector3<float> unitPos;
-            bool isNuke = (wobj->m_type == WorldObject::TypeNuke);
             
-            if (isNuke) {
-                Nuke* nuke = (Nuke*)wobj;
-                unitPos = CalculateNuke3DPosition(nuke);
-                
+            if (renderAsGhost) {
+                // ghost prediction logic
+                if (wobj->IsMovingObject()) {
+                    MovingObject* mobj = (MovingObject*)wobj;
+                    
+                    // predictive ghost movement for air/sea units only
+                    if (mobj->m_movementType == MovingObject::MovementTypeAir ||
+                        mobj->m_movementType == MovingObject::MovementTypeSea) {
+                        Fixed predictionTime = mobj->m_ghostFadeTime - mobj->m_lastSeenTime[myTeamId];
+                        predictionTime += Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+                        float predictedLongitude = (mobj->m_lastKnownPosition[myTeamId].x + mobj->m_lastKnownVelocity[myTeamId].x * predictionTime).DoubleValue();
+                        float predictedLatitude = (mobj->m_lastKnownPosition[myTeamId].y + mobj->m_lastKnownVelocity[myTeamId].y * predictionTime).DoubleValue();
+                        
+                        unitPos = ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
+                    } else {
+                        // land units use last known position without prediction
+                        float ghostLongitude = wobj->m_lastKnownPosition[myTeamId].x.DoubleValue();
+                        float ghostLatitude = wobj->m_lastKnownPosition[myTeamId].y.DoubleValue();
+                        
+                        unitPos = ConvertLongLatTo3DPosition(ghostLongitude, ghostLatitude);
+                    }
+                } else {
+                    // use last known position
+                    float ghostLongitude = wobj->m_lastKnownPosition[myTeamId].x.DoubleValue();
+                    float ghostLatitude = wobj->m_lastKnownPosition[myTeamId].y.DoubleValue();
+                    
+                    unitPos = ConvertLongLatTo3DPosition(ghostLongitude, ghostLatitude);
+                }
             } else {
-                // Regular surface positioning for other units
+                // Regular surface positioning for visible units
                 Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
                 Fixed predictedLongitude = wobj->m_longitude + wobj->m_vel.x * predictionTime;
                 Fixed predictedLatitude = wobj->m_latitude + wobj->m_vel.y * predictionTime;
@@ -1035,7 +1149,6 @@ void MapRenderer::Render3DUnits()
                     predictedLongitude.DoubleValue(), 
                     predictedLatitude.DoubleValue()
                 );
-                
             }
             
             Image *unitImg = wobj->GetBmpImage(wobj->m_currentState);
@@ -1053,18 +1166,14 @@ void MapRenderer::Render3DUnits()
                 isAirUnit = (mobj->m_movementType == MovingObject::MovementTypeAir);
                 
                 if (isAirUnit) {
-                    size = baseSize * 0.0075f * 0.75f;
+                    size = baseSize * 0.0075f * 1.0f;
                 } else if (mobj->m_movementType == MovingObject::MovementTypeSea) {
-                    size = baseSize * 0.0075f * 1.25f;
+                    size = baseSize * 0.0075f * 2.0f;
                 } else {
                     size = baseSize * 0.0075f;
                 }
             } else {
                 size = baseSize * 0.0075f * 2.0f;
-            }
-            
-            if (isNuke) {
-                size = baseSize * 0.008f; 
             }
             
             size = fmax(size, 0.002f);  
@@ -1076,11 +1185,25 @@ void MapRenderer::Render3DUnits()
                 unitColor = team->GetTeamColour();
             }
             
+            if (renderAsGhost) {
+                // calculate ghost transparency based on last seen time
+                int transparency = (int)(255 * (wobj->m_lastSeenTime[myTeamId] / wobj->m_ghostFadeTime).DoubleValue());
+                unitColor.Set(150, 150, 150, transparency);
+            }
+            
             // make sure to pass the rotation angle for the unit icons
             float rotationAngle = 0.0f;
-            if (isAirUnit || isNuke) {
-                rotationAngle = atan(-wobj->m_vel.x.DoubleValue() / wobj->m_vel.y.DoubleValue());
-                if (wobj->m_vel.y < 0) rotationAngle += M_PI;
+            if (isAirUnit) {
+                if (renderAsGhost && wobj->IsMovingObject()) {
+                    // use last known velocity for ghost rotation
+                    MovingObject* mobj = (MovingObject*)wobj;
+                    rotationAngle = atan(-mobj->m_lastKnownVelocity[myTeamId].x.DoubleValue() / mobj->m_lastKnownVelocity[myTeamId].y.DoubleValue());
+                    if (mobj->m_lastKnownVelocity[myTeamId].y < 0) rotationAngle += M_PI;
+                } else {
+                    // use current velocity for normal units
+                    rotationAngle = atan(-wobj->m_vel.x.DoubleValue() / wobj->m_vel.y.DoubleValue());
+                    if (wobj->m_vel.y < 0) rotationAngle += M_PI;
+                }
             }
             
             // calculate distance to the camera for sorting
@@ -1096,7 +1219,6 @@ void MapRenderer::Render3DUnits()
             info.image = unitImg;
             info.isMovingObject = isMovingObject;
             info.isAirUnit = isAirUnit;
-            info.isNuke = isNuke;
             info.rotationAngle = rotationAngle;
             
             visibleUnits.PutData(info);
@@ -1125,82 +1247,16 @@ void MapRenderer::Render3DUnits()
         WorldObject* wobj = info.unit;
         
         //
-        // elevation system, now air units render higher than other units
-        // and every other unit lays flat on the globe
+        // render on globe surface
         
         Vector3<float> normal = unitPos;
         normal.Normalise();
         
-        float elevation = 0.0f; 
-        
-        if (info.isNuke) {
-            elevation = 0.0f; // nukes are already positioned with proper height by CalculateNuke3DPosition
-        } else if (info.isAirUnit) {
-            elevation = 0.015f;  // 2.5x higher 
-        } else {
-            bool isSurfaceUnit = false;
-            
-            if (info.isMovingObject) {
-                MovingObject* mobj = (MovingObject*)wobj;
-                if (mobj->m_movementType == MovingObject::MovementTypeSea) {
-                    isSurfaceUnit = true;
-                }
-            } else {
-                if (wobj->m_type == WorldObject::TypeAirBase ||
-                    wobj->m_type == WorldObject::TypeSilo ||
-                    wobj->m_type == WorldObject::TypeRadarStation) {
-                    isSurfaceUnit = true;
-                }
-            }
-            
-            if (isSurfaceUnit) {
-                elevation = 0.001f;  
-            } else {
-                elevation = 0.006f;  
-            }
-        }
+        float elevation = 0.002f;
         
         unitPos += normal * elevation;
         
-        //
-        // for nukes in 3D space, use the new 3D nuke model that faces forward
-
-        if (info.isNuke) {
-            
-            //
-            // now we use the nukes movement trail history for direction calculation
-            // this gives us the actual movement tangent, not the target direction
-            // we basically made the nuke dumb, it doesnt know where its target is
-            
-            Vector3<float> direction(0, 0, 1);
-            
-            // get the nukes movement history (cast to MovingObject since that's where GetHistory() is defined)
-            MovingObject* movingObj = (MovingObject*)wobj;
-            LList<Vector3<Fixed> *>& history = movingObj->GetHistory();
-            
-            if (history.Size() > 1) {
-                Nuke* nuke = (Nuke*)wobj;
-                Vector3<float> currentPos = CalculateNuke3DPosition(nuke);
-                
-                //
-                // Use history[1] instead of history[0] to avoid near-zero distance 
-                // when a new trail segment was just created
-                // this prevents the nuke from spazzing out when a new trail segment
-                // is created. just use the older position instead of the current zero
-                // history value
-                
-                Vector3<Fixed>* olderHistoryPos = history[1];
-                Vector3<float> olderPos = CalculateHistoricalNuke3DPosition(nuke, *olderHistoryPos);
-                
-                // direction = where we are MOVING not going
-                direction = currentPos - olderPos;
-                direction.Normalise();
-            }
-            
-            float nukeLength = size * 1.2f;  
-            float nukeRadius = size * 0.24f;  
-            g_renderer3d->Nuke3DModel(unitPos, direction, nukeLength, nukeRadius, color);
-        } else if (info.isAirUnit) {
+        if (info.isAirUnit) {
             g_renderer3d->UnitRotating3D(unitImg, unitPos.x, unitPos.y, unitPos.z, 
                                         size * 2.0f, size * 2.0f, color, info.rotationAngle, BILLBOARD_SURFACE_ALIGNED);
         } else {
@@ -1216,9 +1272,6 @@ void MapRenderer::Render3DUnits()
         float unitSize = info.size;
         Colour teamColor = info.color;
         
-        // nukes dont cary nukes
-        if (info.isNuke) continue;
-        
         // check teamid to see if we should render the capacity indicators
         int myTeamId = g_app->GetWorld()->m_myTeamId;
         bool shouldRenderCapacity = (myTeamId == -1 || 
@@ -1230,32 +1283,7 @@ void MapRenderer::Render3DUnits()
         Vector3<float> normal = unitPos;
         normal.Normalise();
         
-        float elevation = 0.0f; 
-        
-        if (info.isAirUnit) {
-            elevation = 0.015f; 
-        } else {
-            bool isSurfaceUnit = false;
-            
-            if (info.isMovingObject) {
-                MovingObject* mobj = (MovingObject*)wobj;
-                if (mobj->m_movementType == MovingObject::MovementTypeSea) {
-                    isSurfaceUnit = true;
-                }
-            } else {
-                if (wobj->m_type == WorldObject::TypeAirBase ||
-                    wobj->m_type == WorldObject::TypeSilo ||
-                    wobj->m_type == WorldObject::TypeRadarStation) {
-                    isSurfaceUnit = true;
-                }
-            }
-            
-            if (isSurfaceUnit) {
-                elevation = 0.001f;  
-            } else {
-                elevation = 0.006f;  
-            }
-        }
+        float elevation = 0.002f;
         
         unitPos += normal * elevation;
         
@@ -1455,8 +1483,10 @@ void MapRenderer::Render3DUnitTrails()
             // not moving, skip
             if (!wobj->IsMovingObject()) continue;
             
+            // skip nukes
+            if (wobj->m_type == WorldObject::TypeNuke) continue;
+            
             MovingObject *mobj = (MovingObject*)wobj;
-            bool isNuke = (wobj->m_type == WorldObject::TypeNuke);
             
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
@@ -1482,11 +1512,7 @@ void MapRenderer::Render3DUnitTrails()
             int sizeCap = (int)(80 * 0.5f); 
             
             // account for increased sampling rate to maintain trail length
-            if (isNuke) {
-                sizeCap *= 4;
-            } else {
-                sizeCap *= 4;
-            }
+            sizeCap *= 4;
             
             sizeCap /= World::GetGameScale().DoubleValue();
             maxSize = (maxSize > sizeCap ? sizeCap : maxSize);
@@ -1496,7 +1522,245 @@ void MapRenderer::Render3DUnitTrails()
                 myTeamId != -1 &&
                 myTeamId < g_app->GetWorld()->m_teams.Size() &&
                 g_app->GetWorld()->GetTeam(myTeamId)->m_type != Team::TypeUnassigned) {
-                int enemyTrailLimit = isNuke ? 16 : 16;  // 4*4 for nukes, 4*4 for others
+                int enemyTrailLimit = 16;  // 4*4 for others
+                maxSize = min(maxSize, enemyTrailLimit);
+            }
+            
+            if (maxSize <= 0) continue;
+
+            
+            Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+            float predictedLongitude = (mobj->m_longitude + mobj->m_vel.x * predictionTime).DoubleValue();
+            float predictedLatitude = (mobj->m_latitude + mobj->m_vel.y * predictionTime).DoubleValue();
+            
+            Vector3<float> currentPos = ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
+            
+            Vector3<float> normal = currentPos;
+            normal.Normalise();
+            
+            // unit trails render slightly below units to prevent z-fighting
+            float elevation = 0.001f;
+            
+            currentPos += normal * elevation;
+            Vector3<float> prevPos = currentPos;
+            
+            for (int j = 0; j < maxSize; ++j) {
+                Vector3<Fixed> *historyPos = history[j];
+                
+                float thisLongitude = historyPos->x.DoubleValue();
+                float thisLatitude = historyPos->y.DoubleValue();
+                
+                if (predictedLongitude < -170 && thisLongitude > 170) {
+                    thisLongitude = -180 - (180 - thisLongitude);
+                }
+                if (predictedLongitude > 170 && thisLongitude < -170) {
+                    thisLongitude = 180 + (180 - fabsf(thisLongitude));
+                }
+                
+                Vector3<float> pos3D = ConvertLongLatTo3DPosition(thisLongitude, thisLatitude);
+                
+                Vector3<float> posNormal = pos3D;
+                posNormal.Normalise();
+                pos3D += posNormal * elevation;
+                
+                // apply 2D style alpha fading (newest = opaque, oldest = transparent)
+                Colour segmentColour = colour;
+                segmentColour.m_a = 255 - 255 * (float)j / (float)maxSize;
+                
+                g_renderer3d->UnitTrailLine3D(prevPos.x, prevPos.y, prevPos.z,
+                                             pos3D.x, pos3D.y, pos3D.z, segmentColour);
+                prevPos = pos3D;
+            }
+        }
+    }
+}
+
+//
+// render 3D nuke models 
+//
+// dedicated function for nuke 3D model rendering with proper direction calculation
+//
+void MapRenderer::Render3DNuke()
+{
+    if (!m_3DGlobeMode) return;
+    
+    int myTeamId = g_app->GetWorld()->m_myTeamId;
+    
+    // handle nuke model rendering
+    struct NukeRenderInfo {
+        WorldObject* unit;
+        Vector3<float> worldPos;
+        float distanceToCamera;
+        float size;
+        Colour color;
+        float rotationAngle;
+    };
+    
+    DArray<NukeRenderInfo> visibleNukes;
+    
+    // First pass: collect visible nukes
+    for (int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i) {
+        if (g_app->GetWorld()->m_objects.ValidIndex(i)) {
+            WorldObject *wobj = g_app->GetWorld()->m_objects[i];
+            
+            // only process nukes
+            if (wobj->m_type != WorldObject::TypeNuke) continue;
+            
+            // check what teamid we have set, then we can decide
+            // whether to render the unit or not
+            bool shouldRender = (myTeamId == -1 ||
+                               wobj->m_teamId == myTeamId ||
+                               wobj->m_visible[myTeamId] ||
+                               m_renderEverything);
+            
+            if (!shouldRender) continue;
+            
+            Nuke* nuke = (Nuke*)wobj;
+            Vector3<float> unitPos = CalculateNuke3DPosition(nuke);
+            
+            // pass the image to the size multiplier
+            float baseSize = wobj->GetSize3D().DoubleValue();
+            float size = baseSize * 0.008f;
+            
+            size = fmax(size, 0.002f);  
+            size = fmin(size, 0.04f);   
+            
+            Colour unitColor = White;
+            Team *team = g_app->GetWorld()->GetTeam(wobj->m_teamId);
+            if (team) {
+                unitColor = team->GetTeamColour();
+            }
+            
+            // calculate distance to the camera for sorting
+            Vector3<float> cameraToUnit = unitPos - m_globe3DCamera.m_cameraPos;
+            float distance = cameraToUnit.Mag();
+            
+            NukeRenderInfo info;
+            info.unit = wobj;
+            info.worldPos = unitPos;
+            info.distanceToCamera = distance;
+            info.size = size;
+            info.color = unitColor;
+            info.rotationAngle = 0.0f; // not used for nukes, but kept for consistency
+            
+            visibleNukes.PutData(info);
+        }
+    }
+    
+    // Sort nukes back to front for proper alpha blending
+    for (int i = 0; i < visibleNukes.Size() - 1; i++) {
+        for (int j = 0; j < visibleNukes.Size() - i - 1; j++) {
+            if (visibleNukes[j].distanceToCamera < visibleNukes[j + 1].distanceToCamera) {
+                NukeRenderInfo temp = visibleNukes[j];
+                visibleNukes[j] = visibleNukes[j + 1];
+                visibleNukes[j + 1] = temp;
+            }
+        }
+    }
+    
+    // Second pass: render nuke 3D models using 3D batching
+    for (int i = 0; i < visibleNukes.Size(); i++) {
+        NukeRenderInfo& info = visibleNukes[i];
+        Vector3<float> unitPos = info.worldPos;
+        float size = info.size;
+        Colour color = info.color;
+        WorldObject* wobj = info.unit;
+        
+        //
+        // for nukes in 3D space, use the new 3D nuke model that faces forward
+        // now we use the nukes movement trail history for direction calculation
+        // this gives us the actual movement tangent, not the target direction
+        // we basically made the nuke dumb, it doesnt know where its target is
+        
+        Vector3<float> direction(0, 0, 1);
+        
+        // get the nukes movement history (cast to MovingObject since that's where GetHistory() is defined)
+        MovingObject* movingObj = (MovingObject*)wobj;
+        LList<Vector3<Fixed> *>& history = movingObj->GetHistory();
+        
+        if (history.Size() > 1) {
+            Nuke* nuke = (Nuke*)wobj;
+            Vector3<float> currentPos = CalculateNuke3DPosition(nuke);
+            
+            //
+            // Use history[1] instead of history[0] to avoid near-zero distance 
+            // when a new trail segment was just created
+            // this prevents the nuke from spazzing out when a new trail segment
+            // is created. just use the older position instead of the current zero
+            // history value
+            
+            Vector3<Fixed>* olderHistoryPos = history[1];
+            Vector3<float> olderPos = CalculateHistoricalNuke3DPosition(nuke, *olderHistoryPos);
+            
+            // direction = where we are MOVING not going
+            direction = currentPos - olderPos;
+            direction.Normalise();
+        }
+        
+        float nukeLength = size * 1.2f;  
+        float nukeRadius = size * 0.24f;  
+        g_renderer3d->Nuke3DModel(unitPos, direction, nukeLength, nukeRadius, color);
+    }
+}
+
+//
+// render 3D nuke trajectories and trails
+
+void MapRenderer::Render3DNukeTrajectories()
+{
+    if (!m_3DGlobeMode) return;
+    
+    if (g_preferences->GetInt(PREFS_GRAPHICS_TRAILS) != 1) return;
+    
+    int myTeamId = g_app->GetWorld()->m_myTeamId;
+    
+    // render nuke trajectories for all nuke objects
+    for (int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i) {
+        if (g_app->GetWorld()->m_objects.ValidIndex(i)) {
+            WorldObject *wobj = g_app->GetWorld()->m_objects[i];
+            
+            // only process nukes
+            if (wobj->m_type != WorldObject::TypeNuke) continue;
+            if (!wobj->IsMovingObject()) continue;
+            
+            MovingObject *mobj = (MovingObject*)wobj;
+            Nuke* nuke = (Nuke*)wobj;
+            
+            bool shouldRender = (myTeamId == -1 ||
+                               wobj->m_teamId == myTeamId ||
+                               wobj->m_visible[myTeamId] ||
+                               m_renderEverything);
+            
+            if (!shouldRender) continue;
+            
+            // check if history exists
+            LList<Vector3<Fixed> *>& history = mobj->GetHistory();
+            if (history.Size() == 0) continue;
+            
+            Team *team = g_app->GetWorld()->GetTeam(mobj->m_teamId);
+            Colour colour;
+            if (team) {
+                colour = team->GetTeamColour();
+            } else {
+                colour = COLOUR_SPECIALOBJECTS;
+            }
+            
+            // calculate trail length based on zoom 
+            int maxSize = history.Size();
+            int sizeCap = (int)(80 * 0.5f); 
+            
+            // account for increased sampling rate to maintain trail length
+            sizeCap *= 4;
+            
+            sizeCap /= World::GetGameScale().DoubleValue();
+            maxSize = (maxSize > sizeCap ? sizeCap : maxSize);
+            
+            // reduce the trail length for enemy units
+            if (mobj->m_teamId != myTeamId &&
+                myTeamId != -1 &&
+                myTeamId < g_app->GetWorld()->m_teams.Size() &&
+                g_app->GetWorld()->GetTeam(myTeamId)->m_type != Team::TypeUnassigned) {
+                int enemyTrailLimit = 16;  // 4*4 for nukes
                 maxSize = min(maxSize, enemyTrailLimit);
             }
             
@@ -1506,140 +1770,63 @@ void MapRenderer::Render3DUnitTrails()
             // nuke trails, added segmented lines instead of one big line
             // it looks okay but might need some fine tuning
 
-            if (isNuke) {
+            Vector3<float> currentPos = CalculateNuke3DPosition(nuke);
+            
+            //
+            // create line segments for nukes with dashed effect
+            // reduce trail detail based on distance to camera
+            // this almost doubles the fps when in a 3v3
+            
+            int maxTrailLength = maxSize;  // Use full detail always
+            maxTrailLength = fmax(4, fmin(maxTrailLength, 32));
+            
+            Vector3<float> prevPos = currentPos;
+            
+            for (int j = 0; j < maxTrailLength; ++j) {
+                int actualHistoryIndex = (j * maxSize) / maxTrailLength;
+                if (actualHistoryIndex >= history.Size()) break;
                 
-                Nuke* nuke = (Nuke*)wobj;
-                Vector3<float> currentPos = CalculateNuke3DPosition(nuke);
+                Vector3<Fixed> *historyPos = history[actualHistoryIndex];
                 
-                //
-                // create line segments for nukes with dashed effect
-                // reduce trail detail based on distance to camera
-                // this almost doubles the fps when in a 3v3
+                // Calculate progress based on current nuke progress and history age
+                Vector3<Fixed> target(nuke->m_targetLongitude, nuke->m_targetLatitude, 0);
+                Vector3<Fixed> pos(nuke->m_longitude, nuke->m_latitude, 0);
+                Fixed remainingDistance = (target - pos).Mag();
+                Fixed fractionDistance = 1 - remainingDistance / nuke->m_totalDistance;
+                float currentProgress = fractionDistance.DoubleValue();
                 
-                float distanceToCamera = (currentPos - m_globe3DCamera.m_cameraPos).Mag();
-                int lodLevel = (distanceToCamera > 3.0f) ? 4 : 2;  // lower detail when far away
-                int reducedMaxSize = maxSize / lodLevel;  // reduce number of trail segments
-                reducedMaxSize = fmax(4, fmin(reducedMaxSize, 32));  // clamp between 4-32 segments
+                // work backwards: j=0 is newest, j=maxTrailLength-1 is oldest
+                float progressRange = currentProgress;
+                float historicalProgress = currentProgress - (progressRange * (float)j / (float)(maxTrailLength - 1));
+                historicalProgress = fmaxf(0.0f, fminf(1.0f, historicalProgress));
                 
-                Vector3<float> prevPos = currentPos;
+                Vector3<float> pos3D = CalculateHistoricalNuke3DPositionByAge(nuke, *historyPos, historicalProgress);
                 
-                for (int j = 0; j < reducedMaxSize; ++j) {
-                    int actualHistoryIndex = (j * maxSize) / reducedMaxSize;
-                    if (actualHistoryIndex >= history.Size()) break;
+                Colour segmentColour = colour;
+                segmentColour.m_a = 255 - 255 * (float)j / (float)maxTrailLength;
+                
+                // removed interpolation for now as it was a huge cpu bottleneck
+                Vector3<float> segmentDir = pos3D - prevPos;
+                float segmentLength = segmentDir.Mag();
+                
+                if (segmentLength > 0.001f) {
+                    // just create 2-3 dash segments per trail segment
+                    int numDashes = (segmentLength > 0.05f) ? 3 : 2;
+                    float dashSize = segmentLength / (numDashes * 2.0f);
                     
-                    Vector3<Fixed> *historyPos = history[actualHistoryIndex];
-                    
-                    // Calculate progress based on current nuke progress and history age
-                    Vector3<Fixed> target(nuke->m_targetLongitude, nuke->m_targetLatitude, 0);
-                    Vector3<Fixed> pos(nuke->m_longitude, nuke->m_latitude, 0);
-                    Fixed remainingDistance = (target - pos).Mag();
-                    Fixed fractionDistance = 1 - remainingDistance / nuke->m_totalDistance;
-                    float currentProgress = fractionDistance.DoubleValue();
-                    
-                    // work backwards: j=0 is newest, j=reducedMaxSize-1 is oldest
-                    float progressRange = currentProgress;
-                    float historicalProgress = currentProgress - (progressRange * (float)j / (float)(reducedMaxSize - 1));
-                    historicalProgress = fmaxf(0.0f, fminf(1.0f, historicalProgress));
-                    
-                    Vector3<float> pos3D = CalculateHistoricalNuke3DPositionByAge(nuke, *historyPos, historicalProgress);
-                    
-                    Colour segmentColour = colour;
-                    segmentColour.m_a = 255 - 255 * (float)j / (float)reducedMaxSize;
-                    
-                    // removed interpolation for now as it was a huge cpu bottleneck
-                    Vector3<float> segmentDir = pos3D - prevPos;
-                    float segmentLength = segmentDir.Mag();
-                    
-                    if (segmentLength > 0.001f) {
-                        // just create 2-3 dash segments per trail segment
-                        int numDashes = (segmentLength > 0.05f) ? 3 : 2;
-                        float dashSize = segmentLength / (numDashes * 2.0f);
+                    for (int dash = 0; dash < numDashes; dash++) {
+                        float startT = (dash * 2.0f) / (numDashes * 2.0f);
+                        float endT = (dash * 2.0f + 1.0f) / (numDashes * 2.0f);
                         
-                        for (int dash = 0; dash < numDashes; dash++) {
-                            float startT = (dash * 2.0f) / (numDashes * 2.0f);
-                            float endT = (dash * 2.0f + 1.0f) / (numDashes * 2.0f);
-                            
-                            Vector3<float> dashStart = prevPos + segmentDir * startT;
-                            Vector3<float> dashEnd = prevPos + segmentDir * endT;
-                            
-                            g_renderer3d->UnitTrailLine3D(dashStart.x, dashStart.y, dashStart.z,
-                                                         dashEnd.x, dashEnd.y, dashEnd.z, segmentColour);
-                        }
+                        Vector3<float> dashStart = prevPos + segmentDir * startT;
+                        Vector3<float> dashEnd = prevPos + segmentDir * endT;
+                        
+                        g_renderer3d->UnitTrailLine3D(dashStart.x, dashStart.y, dashStart.z,
+                                                     dashEnd.x, dashEnd.y, dashEnd.z, segmentColour);
                     }
-                    
-                    prevPos = pos3D;
-                }
-            } else {
-
-                //
-                // everything else uses normal 2d unit trails that are similiar
-                // to the 2d trails, i need to add the proper segmentation
-                
-                Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
-                float predictedLongitude = (mobj->m_longitude + mobj->m_vel.x * predictionTime).DoubleValue();
-                float predictedLatitude = (mobj->m_latitude + mobj->m_vel.y * predictionTime).DoubleValue();
-                
-                Vector3<float> currentPos = ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
-                
-                // only render trails on visible hemisphere
-                Vector3<float> globeToCamera = m_globe3DCamera.m_cameraPos;
-                globeToCamera.Normalise();
-                float dotProduct = currentPos * globeToCamera;
-                if (dotProduct < 0.0f) continue;
-                
-                Vector3<float> normal = currentPos;
-                normal.Normalise();
-                
-                float elevation = 0.0f; 
-                
-                bool isMovingObject = wobj->IsMovingObject();
-                bool isAirUnit = false;
-                
-                if (isMovingObject) {
-                    MovingObject* movingObj = (MovingObject*)wobj;
-                    isAirUnit = (movingObj->m_movementType == MovingObject::MovementTypeAir);
-                    
-                    if (isAirUnit) {
-                        elevation = 0.015f;
-                    } else if (movingObj->m_movementType == MovingObject::MovementTypeSea) {
-                        elevation = 0.001f;
-                    } else {
-                        elevation = 0.006f;
-                    }
-                } else {
-                    elevation = 0.006f;
                 }
                 
-                currentPos += normal * elevation;
-                Vector3<float> prevPos = currentPos;
-                
-                for (int j = 0; j < maxSize; ++j) {
-                    Vector3<Fixed> *historyPos = history[j];
-                    
-                    float thisLongitude = historyPos->x.DoubleValue();
-                    float thisLatitude = historyPos->y.DoubleValue();
-                    
-                    if (predictedLongitude < -170 && thisLongitude > 170) {
-                        thisLongitude = -180 - (180 - thisLongitude);
-                    }
-                    if (predictedLongitude > 170 && thisLongitude < -170) {
-                        thisLongitude = 180 + (180 - fabsf(thisLongitude));
-                    }
-                    
-                    Vector3<float> pos3D = ConvertLongLatTo3DPosition(thisLongitude, thisLatitude);
-                    
-                    Vector3<float> posNormal = pos3D;
-                    posNormal.Normalise();
-                    pos3D += posNormal * elevation;
-                    
-                    // apply 2D style alpha fading (newest = opaque, oldest = transparent)
-                    Colour segmentColour = colour;
-                    segmentColour.m_a = 255 - 255 * (float)j / (float)maxSize;
-                    
-                    g_renderer3d->UnitTrailLine3D(prevPos.x, prevPos.y, prevPos.z,
-                                                 pos3D.x, pos3D.y, pos3D.z, segmentColour);
-                    prevPos = pos3D;
-                }
+                prevPos = pos3D;
             }
         }
     }
@@ -1712,7 +1899,7 @@ void MapRenderer::Render3DGunfire()
                         );
                         Vector3<float> launchNormal = launchPos;
                         launchNormal.Normalise();
-                        launchPos += launchNormal * 0.01f;
+                        launchPos += launchNormal * 0.001f;
                     }
                     
                     Nuke* targetNuke = (Nuke*)targetObj;
@@ -1766,11 +1953,11 @@ void MapRenderer::Render3DGunfire()
                     
                     Vector3<float> lastNormal = lastPos3D;
                     lastNormal.Normalise();
-                    lastPos3D += lastNormal * 0.01f; 
+                    lastPos3D += lastNormal * 0.001f; 
                     
                     Vector3<float> thisNormal = thisPos3D;
                     thisNormal.Normalise();
-                    thisPos3D += thisNormal * 0.01f;
+                    thisPos3D += thisNormal * 0.001f;
                 }
                 
                 Colour segmentColour = colour;
@@ -1797,7 +1984,7 @@ void MapRenderer::Render3DGunfire()
                         );
                         Vector3<float> launchNormal = launchPos;
                         launchNormal.Normalise();
-                        launchPos += launchNormal * 0.01f;
+                        launchPos += launchNormal * 0.001f;
                     }
                     
                     Nuke* targetNuke = (Nuke*)targetObj;
@@ -1823,7 +2010,7 @@ void MapRenderer::Render3DGunfire()
                     );
                     Vector3<float> lastNormal = lastSurfacePos;
                     lastNormal.Normalise();
-                    lastPos3D = lastSurfacePos + lastNormal * 0.01f;
+                    lastPos3D = lastSurfacePos + lastNormal * 0.001f;
                 }
                 
                 Colour currentColour = colour;
@@ -1901,7 +2088,7 @@ void MapRenderer::Render3DExplosions()
                 normal.Normalise();
                 
                 // Offset slightly above surface
-                explosionPos += normal * 0.001f;
+                explosionPos += normal * 0.002f;
 
                 g_renderer3d->EffectsSprite3D(explosionImg, explosionPos.x, explosionPos.y, explosionPos.z,
                                              explosionSize * 2.0f, explosionSize * 2.0f, colour, BILLBOARD_SURFACE_ALIGNED);
@@ -1914,7 +2101,7 @@ void MapRenderer::Render3DExplosions()
                 Vector3<float> normal = explosionPos;
                 normal.Normalise();
                 
-                explosionPos += normal * 0.001f;
+                explosionPos += normal * 0.002f;
                 
                 g_renderer3d->EffectsSprite3D(explosionImg, explosionPos.x, explosionPos.y, explosionPos.z,
                                              explosionSize * 2.0f, explosionSize * 2.0f, colour, BILLBOARD_SURFACE_ALIGNED);
@@ -1924,26 +2111,378 @@ void MapRenderer::Render3DExplosions()
 }
 
 //
-// sonar ping rendering
+// nuke symbol rendering
+//
+// render nukesymbol.bmp for world objects and cities that have nukes in flight or queue
 
-// just like explosions, we curve the sonar ping texture to follow the globe surface
-// to prevent the texture from being stretched out in the x direction
-
-void MapRenderer::Render3DSonarPing()
+void MapRenderer::Render3DNukeSymbols()
 {
     if (!m_3DGlobeMode) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
-    // render all sonar pings
+    Image *nukeSymbolImg = g_resource->GetImage("graphics/nukesymbol.bmp");
+    if (!nukeSymbolImg) return;
+    
+    //
+    // render nuke symbols on world objects
+
+    for (int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i) {
+        if (g_app->GetWorld()->m_objects.ValidIndex(i)) {
+            WorldObject *wobj = g_app->GetWorld()->m_objects[i];
+            
+        // skip objects without nukes
+        if (!wobj->m_numNukesInFlight && !wobj->m_numNukesInQueue) continue;
+                        
+            // convert object position to 3D globe coordinates
+            Vector3<float> objectPos = ConvertLongLatTo3DPosition(
+                wobj->m_longitude.DoubleValue(), 
+                wobj->m_latitude.DoubleValue()
+            );
+            
+            //
+            // red with alpha based on nuke status
+
+            Colour col(255, 0, 0, 255);
+            if (!wobj->m_numNukesInFlight) col.m_a = 100; // dimmed for queued nukes
+            
+
+            float iconSize = 6.0f;
+            if (wobj->m_numNukesInFlight) {
+                iconSize += sinf(g_gameTime * 10) * 0.2f;
+            }
+            
+            // convert 2D size to 3D world scale
+            float nukeSymbolSize = iconSize * 0.0075f;
+            nukeSymbolSize = fmax(nukeSymbolSize, 0.005f);
+            nukeSymbolSize = fmin(nukeSymbolSize, 0.065f);
+            
+            Vector3<float> normal = objectPos;
+            normal.Normalise();
+            
+            g_renderer3d->EffectsSprite3D(nukeSymbolImg, objectPos.x, objectPos.y, objectPos.z,
+                                         nukeSymbolSize * 2.0f, nukeSymbolSize * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
+        }
+    }
+    
+    //
+    // render nuke symbols on cities
+
+    for (int i = 0; i < g_app->GetWorld()->m_cities.Size(); ++i) {
+        City *city = g_app->GetWorld()->m_cities.GetData(i);
+        
+        // skip cities without nukes
+        if (!city->m_numNukesInFlight && !city->m_numNukesInQueue) continue;
+        
+        // convert city position to 3D globe coordinates
+        Vector3<float> cityPos = ConvertLongLatTo3DPosition(
+            city->m_longitude.DoubleValue(), 
+            city->m_latitude.DoubleValue()
+        );
+        
+        Colour col(255, 0, 0, 255);
+        if (!city->m_numNukesInFlight) col.m_a = 100; 
+        
+        float iconSize = 3.0f;
+        if (city->m_numNukesInFlight) {
+            iconSize += sinf(g_gameTime * 10) * 0.2f; 
+        }
+        
+        float nukeSymbolSize = iconSize * 0.0075f;  
+        nukeSymbolSize = fmax(nukeSymbolSize, 0.005f);
+        nukeSymbolSize = fmin(nukeSymbolSize, 0.03f);
+        
+        Vector3<float> normal = cityPos;
+        normal.Normalise();
+        
+        g_renderer3d->EffectsSprite3D(nukeSymbolImg, cityPos.x, cityPos.y, cityPos.z,
+                                     nukeSymbolSize * 2.0f, nukeSymbolSize * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
+    }
+}
+
+//
+// orders overlay rendering
+//
+// render cursor_target.bmp at order destinations and curved order lines along globe surface
+// follows the same visibility and animation logic as 2D orders overlay
+
+void MapRenderer::Render3DWorldObjectTargets()
+{
+    if (!m_3DGlobeMode) return;
+    
+    // check if orders overlay is enabled
+    if (!m_showOrders) return;
+    
+    int myTeamId = g_app->GetWorld()->m_myTeamId;
+    
+    Image *targetImg = g_resource->GetImage("graphics/cursor_target.bmp");
+    if (!targetImg) return;
+    
+    //
+    // render targets and order lines for all world objects
+
+    for (int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i) {
+        if (g_app->GetWorld()->m_objects.ValidIndex(i)) {
+            WorldObject *wobj = g_app->GetWorld()->m_objects[i];
+            
+            // visibility check
+            if (!(wobj->m_teamId == myTeamId || myTeamId == -1)) continue;
+            
+            // calculate predicted unit position
+            Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+            Fixed predictedLongitude = wobj->m_longitude + wobj->m_vel.x * predictionTime;
+            Fixed predictedLatitude = wobj->m_latitude + wobj->m_vel.y * predictionTime;
+            
+            Vector3<float> unitPos = ConvertLongLatTo3DPosition(
+                predictedLongitude.DoubleValue(), 
+                predictedLatitude.DoubleValue()
+            );
+            
+            // add small elevation for visibility
+            Vector3<float> unitNormal = unitPos;
+            unitNormal.Normalise();
+            unitPos += unitNormal * 0.002f;
+            
+            //
+            // render combat target (red)
+
+            int targetObjectId = wobj->GetTargetObjectId();
+            WorldObject *targetObject = g_app->GetWorld()->GetWorldObject(targetObjectId);
+            if (targetObject) {
+                
+                // calculate predicted target position
+                Fixed targetPredictedLong = targetObject->m_longitude + targetObject->m_vel.x * predictionTime;
+                Fixed targetPredictedLat = targetObject->m_latitude + targetObject->m_vel.y * predictionTime;
+                
+                Vector3<float> targetPos = ConvertLongLatTo3DPosition(
+                    targetPredictedLong.DoubleValue(), 
+                    targetPredictedLat.DoubleValue()
+                );
+                
+                // position target icon at the correct elevation
+                Vector3<float> targetNormal = targetPos;
+                targetNormal.Normalise();
+                float targetElevation = CalculateUnitElevation(targetObject);
+                targetPos += targetNormal * targetElevation;
+                
+                // render animated target cursor (red)
+                Colour actionCursorCol(255, 0, 0, 150);
+                float actionCursorSize = 4.0f * 0.0075f; 
+                float actionCursorAngle = g_gameTime * -1.0f; 
+                
+                g_renderer3d->EffectsSprite3D(targetImg, targetPos.x, targetPos.y, targetPos.z,
+                                             actionCursorSize * 2.0f, actionCursorSize * 2.0f, actionCursorCol, BILLBOARD_SURFACE_ALIGNED);
+                
+                // render curved order line 
+                Render3DActionLine(unitPos, targetPos, actionCursorCol, true);
+            }
+            
+            //
+            // render movement target (blue)
+
+            if (!targetObject && wobj->IsMovingObject()) {
+                MovingObject *mobj = (MovingObject*)wobj;
+                float actionCursorLongitude = mobj->m_targetLongitude.DoubleValue();
+                float actionCursorLatitude = mobj->m_targetLatitude.DoubleValue();
+                
+                // handle fleet targets
+                if (mobj->m_fleetId != -1) {
+                    Fleet *fleet = g_app->GetWorld()->GetTeam(mobj->m_teamId)->GetFleet(mobj->m_fleetId);
+                    if (fleet && 
+                        fleet->m_targetLongitude != 0 && 
+                        fleet->m_targetLatitude != 0) {
+                        actionCursorLongitude = fleet->m_targetLongitude.DoubleValue();
+                        actionCursorLatitude = fleet->m_targetLatitude.DoubleValue();                    
+                    }
+                }
+                
+                if (actionCursorLongitude != 0.0f || actionCursorLatitude != 0.0f) {
+                    Vector3<float> targetPos = ConvertLongLatTo3DPosition(actionCursorLongitude, actionCursorLatitude);
+                    
+                    // position target icon on the globe surface 
+                    Vector3<float> targetNormal = targetPos;
+                    targetNormal.Normalise();
+                    targetPos += targetNormal * 0.002f;
+                    
+                    // determine color
+                    Colour actionCursorCol(0, 0, 255, 150);
+                    if (mobj->m_type == WorldObject::TypeNuke) {
+                        actionCursorCol.Set(255, 0, 0, 150);
+                    }
+                    if (mobj->m_type == WorldObject::TypeBomber && mobj->m_currentState == 1) {
+                        actionCursorCol.Set(255, 0, 0, 150);
+                    }
+                    
+                    float actionCursorSize = 4.0f * 0.0075f; 
+                    
+                    g_renderer3d->EffectsSprite3D(targetImg, targetPos.x, targetPos.y, targetPos.z,
+                                                 actionCursorSize * 2.0f, actionCursorSize * 2.0f, actionCursorCol, BILLBOARD_SURFACE_ALIGNED);
+                    
+                    // render curved order line, but not for nukes in flight as they look odd in 3D
+                    if (mobj->m_type != WorldObject::TypeNuke) {
+                        Render3DActionLine(unitPos, targetPos, actionCursorCol, true);
+                    }
+                }
+            }
+        }
+    }
+}
+
+//
+// render curved action line along globe surface with animation
+// uses same great circle math as nuke trajectories to avoid coordinate wrapping/pole issues
+
+void MapRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vector3<float>& toPos, const Colour& col, bool animate)
+{
+    if (!m_3DGlobeMode) return;
+    
+    // convert 3D positions back to longitude/latitude for proper great circle calculation
+    Vector3<float> fromNorm = fromPos;
+    fromNorm.Normalise();
+    Vector3<float> toNorm = toPos;  
+    toNorm.Normalise();
+    
+    // convert to longitude/latitude, reverse of ConvertLongLatTo3DPosition()
+    float fromLat = asinf(fromNorm.y) * 180.0f / M_PI;
+    float fromLon = atan2f(fromNorm.x, fromNorm.z) * 180.0f / M_PI;
+    float toLat = asinf(toNorm.y) * 180.0f / M_PI;
+    float toLon = atan2f(toNorm.x, toNorm.z) * 180.0f / M_PI;
+    
+    // calculate great circle distance for segment count
+    float latDiff = (toLat - fromLat) * M_PI / 180.0f;
+    float lonDiff = (toLon - fromLon) * M_PI / 180.0f;
+    
+    // handle longitude wrapping for shortest path
+    if (lonDiff > M_PI) {
+        toLon -= 360.0f;
+        lonDiff = (toLon - fromLon) * M_PI / 180.0f;
+    } else if (lonDiff < -M_PI) {
+        toLon += 360.0f;
+        lonDiff = (toLon - fromLon) * M_PI / 180.0f;
+    }
+    
+    float fromLatRad = fromLat * M_PI / 180.0f;
+    float toLatRad = toLat * M_PI / 180.0f;
+    float a = sinf(fromLatRad) * sinf(toLatRad) + cosf(fromLatRad) * cosf(toLatRad) * cosf(lonDiff);
+    a = fmaxf(-1.0f, fminf(1.0f, a));
+    float distance = acosf(a);
+    
+    if (distance < 0.001f) return; 
+    
+    // create segments using great circle interpolation
+    int numSegments = (int)(distance * 50.0f); 
+    numSegments = fmax(8, fmin(numSegments, 64)); 
+    
+    Vector3<float> prevPos = fromPos;
+    
+    for (int i = 1; i <= numSegments; ++i) {
+        float progress = (float)i / (float)numSegments;
+        
+        Vector3<float> currentPos = CalculateGreatCirclePosition(fromLon, fromLat, toLon, toLat, progress);
+        
+        // elevate below units to prevent z-fighting
+        Vector3<float> normal = currentPos;
+        normal.Normalise();
+        currentPos = normal * 1.001f;
+        
+        // render line segment
+        g_renderer3d->EffectsLine3D(prevPos.x, prevPos.y, prevPos.z,
+                                   currentPos.x, currentPos.y, currentPos.z, col);
+        
+        prevPos = currentPos;
+    }
+    
+    // render animated segments using same great circle math
+    if (animate) {
+        float factor1 = fmodf(GetHighResTime(), 1.0f);
+        float factor2 = fmodf(GetHighResTime(), 1.0f) + 0.2f;
+        factor1 = fmax(0.0f, fmin(1.0f, factor1));
+        factor2 = fmax(0.0f, fmin(1.0f, factor2));
+        
+        // calculate animated positions using great circle math
+        Vector3<float> animPos1 = CalculateGreatCirclePosition(fromLon, fromLat, toLon, toLat, factor1);
+        Vector3<float> animPos2 = CalculateGreatCirclePosition(fromLon, fromLat, toLon, toLat, factor2);
+        
+        Vector3<float> animNorm1 = animPos1;
+        animNorm1.Normalise();
+        animPos1 = animNorm1 * 1.001f;
+        
+        Vector3<float> animNorm2 = animPos2;
+        animNorm2.Normalise();
+        animPos2 = animNorm2 * 1.001f;
+        
+        // render bright animated segment
+        Colour brightCol = col;
+        brightCol.m_a = 255;
+        g_renderer3d->EffectsLine3D(animPos1.x, animPos1.y, animPos1.z,
+                                   animPos2.x, animPos2.y, animPos2.z, brightCol);
+    }
+}
+
+//
+// sonar ping rendering
+
+// just like explosions, we curve the sonar ping texture to follow the globe surface
+// to prevent the texture from being stretched out in the x direction
+
+void MapRenderer::Render3DAnimations()
+{
+    if (!m_3DGlobeMode) return;
+    
+    int myTeamId = g_app->GetWorld()->m_myTeamId;
+    
+    // render all animations
     for (int i = 0; i < m_animations.Size(); ++i) {
         if (m_animations.ValidIndex(i)) {
             AnimatedIcon *anim = m_animations[i];
+            
+            // check if animation should be removed
+            bool shouldRemove = false;
+            
+            if (anim->m_animationType == AnimationTypeNukePointer) {
+                NukePointer *nukePtr = (NukePointer*)anim;
+                WorldObject *targetObj = g_app->GetWorld()->GetWorldObject(nukePtr->m_targetId);
+                
+                if (!targetObj) {
+                    shouldRemove = true;
+                } else {
+                    // decrease lifetime when seen
+                    if (nukePtr->m_seen) {
+                        nukePtr->m_lifeTime -= g_advanceTime;
+                        nukePtr->m_lifeTime = max(nukePtr->m_lifeTime, 0.0f);
+                        
+                        if (nukePtr->m_lifeTime <= 0.0f) {
+                            shouldRemove = true;
+                        }
+                    }
+                    
+                    // mark as seen if on screen
+                    bool onScreen = g_app->GetMapRenderer()->IsOnScreen(targetObj->m_longitude.DoubleValue(), targetObj->m_latitude.DoubleValue());
+                    if (onScreen && !g_app->m_hidden) {
+                        nukePtr->m_seen = true;
+                    }
+                }
+            }
+            
+            // remove expired animations
+            if (shouldRemove) {
+                m_animations.RemoveData(i);
+                delete anim;
+                continue;
+            }
             
             bool shouldRender = true;
             if (anim->m_animationType == AnimationTypeSonarPing) {
                 SonarPing *ping = (SonarPing*)anim;
                 shouldRender = (myTeamId == -1 || ping->m_visible[myTeamId]);
+            } else if (anim->m_animationType == AnimationTypeNukePointer) {
+                NukePointer *nukePtr = (NukePointer*)anim;
+                WorldObject *targetObj = g_app->GetWorld()->GetWorldObject(nukePtr->m_targetId);
+                if (targetObj) {
+                    shouldRender = true;
+                } else {
+                    shouldRender = false;
+                }
             }
             
             if (!shouldRender) continue;
@@ -2026,6 +2565,41 @@ void MapRenderer::Render3DSonarPing()
                     }
                     prevOuter = outer;
                 }                             
+            } else if (anim->m_animationType == AnimationTypeNukePointer) {
+                
+                NukePointer *nukePtr = (NukePointer*)anim;
+                WorldObject *targetObj = g_app->GetWorld()->GetWorldObject(nukePtr->m_targetId);
+                
+                if (targetObj) {
+                    // render yellow static nukesymbol.bmp at target location
+                    Vector3<float> targetPos = ConvertLongLatTo3DPosition(
+                        targetObj->m_longitude.DoubleValue(), 
+                        targetObj->m_latitude.DoubleValue()
+                    );
+                    
+                    // position above surface like other effects
+                    Vector3<float> normal = targetPos;
+                    normal.Normalise();
+                    targetPos += normal * 0.002f; // same as other surface elements
+                    
+                    Image *nukeSymbolImg = g_resource->GetImage("graphics/nukesymbol.bmp");
+                    if (nukeSymbolImg) {
+                        int transparency = 255;
+                        
+                        // yellow color for launch detection
+                        Colour col(255, 255, 0, transparency);
+                        
+                        float iconSize = 6.0f;
+                        
+                        // convert 2D size to 3D world scale
+                        float nukeSymbolSize = iconSize * 0.0075f;  
+                        nukeSymbolSize = fmax(nukeSymbolSize, 0.005f);
+                        nukeSymbolSize = fmin(nukeSymbolSize, 0.065f);
+                        
+                        g_renderer3d->EffectsSprite3D(nukeSymbolImg, targetPos.x, targetPos.y, targetPos.z,
+                                                     nukeSymbolSize * 2.0f, nukeSymbolSize * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
+                    }
+                }
             }
         }
     }
@@ -2172,6 +2746,18 @@ float MapRenderer::CalculateBallisticHeight(float totalDistanceRadians, float pr
         }
     
     return maxHeight * arcFactor;
+}
+
+//
+// calculate the elevation offset for different unit types in 3D globe mode
+// right now it just returns the default but down the line i might add different
+// elevations for different units
+
+float MapRenderer::CalculateUnitElevation(WorldObject* wobj)
+{
+    if (!m_3DGlobeMode || !wobj) return 0.0f;
+    
+    return 0.002f;
 }
 
 //
@@ -2336,7 +2922,7 @@ Vector3<float> MapRenderer::CalculateGunfire3DPosition(GunFire* gunfire)
         Vector3<float> surfacePos = ConvertLongLatTo3DPosition(gunfireLongitude, gunfireLatitude);
         Vector3<float> normal = surfacePos;
         normal.Normalise();
-        return surfacePos + normal * 0.01f;
+        return surfacePos + normal * 0.001f;
     }
     
     // SPECIAL: Calculate 3D trajectory when targeting a nuke
@@ -2352,13 +2938,13 @@ Vector3<float> MapRenderer::CalculateGunfire3DPosition(GunFire* gunfire)
         );
         Vector3<float> launchNormal = launchPos;
         launchNormal.Normalise();
-        launchPos += launchNormal * 0.01f; // Slightly above surface
+        launchPos += launchNormal * 0.001f; 
     } else {
         // Fallback to surface position
         Vector3<float> surfacePos = ConvertLongLatTo3DPosition(gunfireLongitude, gunfireLatitude);
         Vector3<float> normal = surfacePos;
         normal.Normalise();
-        return surfacePos + normal * 0.01f;
+        return surfacePos + normal * 0.001f;
     }
     
     // Get target's current 3D position
