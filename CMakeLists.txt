@@ -88,7 +88,6 @@ include_directories(
     ${SYSTEMIV_PATH}/lib/eclipse
 )
 
-# Only include GLEW for non-Emscripten builds globally
 if(NOT EMSCRIPTEN)
     include_directories(${GLEW_PATH}/include)
 endif()
@@ -816,7 +815,6 @@ target_include_directories(${EXECUTABLE_NAME} PUBLIC
     ${SYSTEMIV_PATH}
 )
 
-# Only include GLEW for non-Emscripten builds
 if(NOT EMSCRIPTEN)
     target_include_directories(${EXECUTABLE_NAME} PUBLIC
         ${GLEW_PATH}/include

@@ -4,6 +4,7 @@
 *.key
 *.env
 *.log
+*.data
 **/ca_bundle.crt
 **/certificate.crt
 **/private.key

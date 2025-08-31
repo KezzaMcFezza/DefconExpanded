@@ -224,6 +224,32 @@ app.use((req, res, next) => {
     next();
 });
 
+// enable gzip compression for all server files
+app.use(compression({
+    // compress everything above 1kb
+    threshold: 1024,
+    level: 6,
+    // filter function to determine what to compress
+    filter: (req, res) => {
+        // dont compress if client doesnt support it
+        if (req.headers['x-no-compression']) {
+            return false;
+        }
+        
+        if (req.url.endsWith('.wasm') || 
+            req.url.endsWith('.js') || 
+            req.url.endsWith('.data') || 
+            req.url.endsWith('.html') || 
+            req.url.endsWith('.css') || 
+            req.url.endsWith('.json') || 
+            req.url.endsWith('.svg')) {
+            return true;
+        }
+        
+        return compression.filter(req, res);
+    }
+}));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
