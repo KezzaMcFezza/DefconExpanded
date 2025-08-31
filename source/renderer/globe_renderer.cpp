@@ -1151,7 +1151,12 @@ void MapRenderer::Render3DUnits()
                 );
             }
             
-            Image *unitImg = wobj->GetBmpImage(wobj->m_currentState);
+            //
+            // use last known state for ghosts to prevent cheating
+            // im so happy i caught this one before releasing to public
+
+            int stateToRender = renderAsGhost ? wobj->m_lastSeenState[myTeamId] : wobj->m_currentState;
+            Image *unitImg = wobj->GetBmpImage(stateToRender);
             if (!unitImg) continue;
             
             // pass the image to the size multiplier
