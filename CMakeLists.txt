@@ -53,7 +53,7 @@ else()
     endif()
 endif()
 
-set(REPLAY_VIEWER_VERSION "B1.95" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "B1.97" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 option(ENABLE_RECORDING_PARSING "Enable recording parsing functionality" ON)
 option(ENABLE_REPLAY_VIEWER "Enable Emscripten Replay Viewer mode (recording playback only)" ON)
 
@@ -86,8 +86,12 @@ include_directories(
     ${SYSTEMIV_PATH}/lib/gucci
     ${SYSTEMIV_PATH}/lib/netlib
     ${SYSTEMIV_PATH}/lib/eclipse
-    ${GLEW_PATH}/include
 )
+
+# Only include GLEW for non-Emscripten builds globally
+if(NOT EMSCRIPTEN)
+    include_directories(${GLEW_PATH}/include)
+endif()
 
 set(RESOURCE_FILES
     "${RESOURCES_DIR}/appicon.ico"
@@ -106,7 +110,7 @@ if(EMSCRIPTEN)
     set(ENABLE_RECORDING_PARSING ON CACHE BOOL "Enable recording parsing functionality" FORCE)
     add_definitions(-DRECORDING_PARSING=1)
     add_definitions(-DTARGET_EMSCRIPTEN -DWASM_BUILD -DTARGET_OS_LINUX -DENABLE_BINRELOC)
-    add_definitions(-DSDL_MAIN_HANDLED -DGUI -DSILENT -DGLEW_STATIC)
+    add_definitions(-DSDL_MAIN_HANDLED -DGUI -DSILENT)
     add_definitions(-D__EMSCRIPTEN_PTHREADS__)
     add_definitions(-D_GNU_SOURCE)
     
@@ -810,8 +814,14 @@ target_include_directories(${EXECUTABLE_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/resources
     ${ROOT_PATH}/source
     ${SYSTEMIV_PATH}
-    ${GLEW_PATH}/include
 )
+
+# Only include GLEW for non-Emscripten builds
+if(NOT EMSCRIPTEN)
+    target_include_directories(${EXECUTABLE_NAME} PUBLIC
+        ${GLEW_PATH}/include
+    )
+endif()
 
 add_library(systemIV INTERFACE)
 target_link_libraries(${EXECUTABLE_NAME} PUBLIC systemIV)

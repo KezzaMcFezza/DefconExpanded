@@ -1249,7 +1249,6 @@ bool App::InitServer()
     return true;
 }
 
-
 void App::ShutdownCurrentGame()
 {
     //
@@ -1276,9 +1275,9 @@ void App::ShutdownCurrentGame()
     // be sure to toggle globe mode off first
     // to prevent an m_world assertion :)
 
-    if( m_mapRenderer && m_mapRenderer->Is3DGlobeModeEnabled() )
+    if( m_mapRenderer->m_3DGlobeMode )
     {
-        m_mapRenderer->Toggle3DGlobeMode();
+        m_mapRenderer->m_3DGlobeMode = false;
     }
 
     if( m_world )

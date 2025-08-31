@@ -326,12 +326,10 @@ void main() {
     
     if (uFogEnabled) {
         if (uFogOrientationBased) {
-            // Use pre-calculated fog factor from vertex shader
-            finalColor = mix(vertexColor, uFogColor, fogFactor);
+            finalColor.rgb = mix(vertexColor.rgb, uFogColor.rgb, fogFactor);
         } else {
-            // Linear distance-based fog calculation
             float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
-            finalColor = mix(uFogColor, vertexColor, distanceFogFactor);
+            finalColor.rgb = mix(uFogColor.rgb, vertexColor.rgb, distanceFogFactor);
         }
     }
     
@@ -370,14 +368,17 @@ void main() {
     // Don't discard based on final alpha - let natural transparency work
     // This prevents z-fighting and matches 2D behavior
     
-    if (uFogEnabled) {
-        if (uFogOrientationBased) {
-            finalColor.rgb = mix(finalColor.rgb, uFogColor.rgb, fogFactor);
-        } else {
-            float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
-            finalColor.rgb = mix(uFogColor.rgb, finalColor.rgb, distanceFogFactor);
-        }
-    }
+         if (uFogEnabled) {
+         float pixelLuminance = (finalColor.r + finalColor.g + finalColor.b) / 3.0;
+         if (pixelLuminance > 0.05) {
+             if (uFogOrientationBased) {
+                 finalColor.rgb = mix(finalColor.rgb, uFogColor.rgb, fogFactor);
+             } else {
+                 float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
+                 finalColor.rgb = mix(uFogColor.rgb, finalColor.rgb, distanceFogFactor);
+             }
+         }
+     }
     
     FragColor = finalColor;
 }
@@ -472,10 +473,10 @@ void main() {
     
     if (uFogEnabled) {
         if (uFogOrientationBased) {
-            finalColor = mix(vertexColor, uFogColor, fogFactor);
+            finalColor.rgb = mix(vertexColor.rgb, uFogColor.rgb, fogFactor);
         } else {
             float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
-            finalColor = mix(uFogColor, vertexColor, distanceFogFactor);
+            finalColor.rgb = mix(uFogColor.rgb, vertexColor.rgb, distanceFogFactor);
         }
     }
     
@@ -513,14 +514,17 @@ void main() {
     // Don't discard based on final alpha - let natural transparency work
     // This prevents z-fighting and matches 2D behavior
     
-    if (uFogEnabled) {
-        if (uFogOrientationBased) {
-            finalColor.rgb = mix(finalColor.rgb, uFogColor.rgb, fogFactor);
-        } else {
-            float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
-            finalColor.rgb = mix(uFogColor.rgb, finalColor.rgb, distanceFogFactor);
-        }
-    }
+         if (uFogEnabled) {
+         float pixelLuminance = (finalColor.r + finalColor.g + finalColor.b) / 3.0;
+         if (pixelLuminance > 0.05) {
+             if (uFogOrientationBased) {
+                 finalColor.rgb = mix(finalColor.rgb, uFogColor.rgb, fogFactor);
+             } else {
+                 float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
+                 finalColor.rgb = mix(uFogColor.rgb, finalColor.rgb, distanceFogFactor);
+             }
+         }
+     }
     
     FragColor = finalColor;
 }
