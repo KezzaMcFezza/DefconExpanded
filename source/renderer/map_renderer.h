@@ -316,6 +316,7 @@ public:
     void    Toggle3DGlobeMode();
     bool    Is3DGlobeModeEnabled() const { return m_3DGlobeMode; }
     void    Render3DGlobe(bool inLobbyMode = false);
+    void    RenderGlobeMouse();
     void    SetupCamera3d();
     void    Update3DGlobeCamera();
     void    Render3DGlobeCities();
@@ -335,6 +336,7 @@ public:
     float   CalculateBallisticHeight                      (float totalDistanceRadians, float progress);
     Vector3<float> Project3DToScreen                      (const Vector3<float>& worldPos);
     Vector3<float> ConvertLongLatTo3DPosition             (float longitude, float latitude);
+    Vector3<float> ScreenToGlobePosition                  (int screenX, int screenY);
     Vector3<float> CalculateGreatCirclePosition           (float startLon, float startLat, float endLon, float endLat, float progress);
     Vector3<float> CalculateNuke3DPosition                (Nuke* nuke);
     Vector3<float> CalculateHistoricalNuke3DPosition      (Nuke* nuke, const Vector3<Fixed>& historicalPos);

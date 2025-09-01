@@ -72,6 +72,112 @@ struct Star3D {
 static DArray<Star3D> g_starField3D;
 static bool g_starField3DInitialized = false;
 
+// ******************************************************************************************************************************
+//                                              3D globe mouse rendering and calculations
+// ******************************************************************************************************************************
+
+//
+// render mouse cursor and UI elements for 3D globe mode
+
+void MapRenderer::RenderGlobeMouse()
+{
+    if (!m_3DGlobeMode) return;
+    
+    // get mouse screen position
+    int mouseScreenX = g_inputManager->m_mouseX;
+    int mouseScreenY = g_inputManager->m_mouseY;
+    
+    // convert screen coordinates to 3D world position on globe surface
+    // we need to intersect the mouse ray with the globe surface
+    Vector3<float> mouseWorldPos = ScreenToGlobePosition(mouseScreenX, mouseScreenY);
+    
+    // set up 2D rendering context for cursor sprites
+    g_renderer->Reset2DViewport();
+    g_renderer->SetBlendMode(Renderer::BlendModeNormal);
+    
+    // render move cursor when dragging camera
+    if (m_globe3DCamera.m_isDragging) {
+        Image *move = g_resource->GetImage("gui/move.bmp");
+        if (move) {
+            // same as map renderer static size that doesnt use preferences popupscale
+            float cursorSize = 48.0f;
+            
+            g_renderer->Blit(move, 
+                            mouseScreenX - cursorSize/2, 
+                            mouseScreenY - cursorSize/2, 
+                            cursorSize, cursorSize, White);
+        }
+    }
+}
+
+//
+// convert screen coordinates to globe surface position
+// simplified approach using basic raysphere intersection
+
+Vector3<float> MapRenderer::ScreenToGlobePosition(int screenX, int screenY)
+{
+    if (!m_3DGlobeMode) {
+        return Vector3<float>(0, 0, 0);
+    }
+    
+    // convert screen coordinates to normalized device coordinates
+    float screenW = (float)g_windowManager->WindowW();
+    float screenH = (float)g_windowManager->WindowH();
+    
+    float ndcX = (2.0f * screenX) / screenW - 1.0f;
+    float ndcY = 1.0f - (2.0f * screenY) / screenH;
+    
+    // approximate the ray direction
+    // this is less accurate but uses only available math functions
+    Vector3<float> rayStart = m_globe3DCamera.m_cameraPos;
+    Vector3<float> cameraForward = m_globe3DCamera.m_cameraTarget - m_globe3DCamera.m_cameraPos;
+    cameraForward.Normalise();
+    
+    // create right and up vectors for camera space
+    Vector3<float> right = cameraForward ^ Vector3<float>(0, 1, 0);
+    right.Normalise();
+    Vector3<float> up = right ^ cameraForward;
+    up.Normalise();
+    
+    // calculate approximate ray direction based on mouse offset from center
+    float fovRadians = 60.0f * M_PI / 180.0f;
+    float aspect = screenW / screenH;
+    float halfFovTan = tanf(fovRadians * 0.5f);
+    
+    Vector3<float> rayDir = cameraForward + 
+                           right * (ndcX * halfFovTan * aspect) + 
+                           up * (ndcY * halfFovTan);
+    rayDir.Normalise();
+    
+    // yea bro i did not write this
+    float a = rayDir * rayDir;
+    float b = 2.0f * (rayStart * rayDir);
+    float c = (rayStart * rayStart) - 1.0f;
+    
+    float discriminant = b * b - 4 * a * c;
+    
+    if (discriminant < 0) {
+        Vector3<float> forward = m_globe3DCamera.m_cameraTarget - m_globe3DCamera.m_cameraPos;
+        forward.Normalise();
+        return forward;
+    }
+    
+    // find nearest intersection point
+    float t1 = (-b - sqrtf(discriminant)) / (2 * a);
+    float t2 = (-b + sqrtf(discriminant)) / (2 * a);
+    
+    float t = (t1 > 0) ? t1 : t2; 
+    
+    Vector3<float> intersection = rayStart + rayDir * t;
+    intersection.Normalise();
+    
+    return intersection;
+}
+
+// ******************************************************************************************************************************
+//                                                    Star field rendering
+// ******************************************************************************************************************************
+
 //
 // generate random star field around the globe
 
@@ -208,6 +314,10 @@ void MapRenderer::Toggle3DGlobeMode()
         AppDebugOut("3D Globe Mode: DISABLED\n");
     }
 }
+
+// ******************************************************************************************************************************
+//                                              Main 3D globe rendering
+// ******************************************************************************************************************************
 
 //
 // main rendering for the 3D globe
@@ -472,6 +582,11 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     // reset to 2d viewport
     g_renderer->Reset2DViewport();
     
+    // render mouse cursor
+    if (IsMouseInMapRenderer()) {
+        RenderGlobeMouse();
+    }
+    
     // end draw call tracking
     g_renderer3d->EndFrame3D();
 }
@@ -588,8 +703,8 @@ void MapRenderer::Update3DGlobeCamera()
         }
         
         // clamp vertical rotation and zoom distance
-        m_globe3DCamera.m_cameraPhi = fmax(-M_PI/2.0f + 0.1f, fmin(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
-        m_globe3DCamera.m_cameraDistance = fmax(1.5f, fmin(3.0f, m_globe3DCamera.m_cameraDistance));
+        m_globe3DCamera.m_cameraPhi = fmaxf(-M_PI/2.0f + 0.1f, fminf(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
+        m_globe3DCamera.m_cameraDistance = fmaxf(1.5f, fminf(3.0f, m_globe3DCamera.m_cameraDistance));
         
         // update camera position
         m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
@@ -601,71 +716,38 @@ void MapRenderer::Update3DGlobeCamera()
     if (g_inputManager->m_mmb && IsMouseInMapRenderer()) {
         if (!m_globe3DCamera.m_isDragging) {
             m_globe3DCamera.m_isDragging = true;
-            m_globe3DCamera.m_lastMouseX = g_inputManager->m_mouseX;
-            m_globe3DCamera.m_lastMouseY = g_inputManager->m_mouseY;
-            m_globe3DCamera.m_dragVelocityX = 0.0f;
-            m_globe3DCamera.m_dragVelocityY = 0.0f;
+            g_app->SetMousePointerVisible(false);
         }
         
-        float deltaX = g_inputManager->m_mouseX - m_globe3DCamera.m_lastMouseX;
-        float deltaY = g_inputManager->m_mouseY - m_globe3DCamera.m_lastMouseY;
-        
-        // apply frame time compensation for consistent movement speed
-        float frameTimeCompensation = g_advanceTime * 60.0f; // normalize to 60fps
-        frameTimeCompensation = fmax(0.1f, fmin(3.0f, frameTimeCompensation)); // clamp for extreme cases
-        
+        // use same approach as 2D map renderer
         // adaptive sensitivity based on zoom level - closer = more sensitive
-        float zoomSensitivity = 1.0f / (m_globe3DCamera.m_cameraDistance * 0.5f + 0.5f);
-        zoomSensitivity = fmax(0.3f, fmin(2.0f, zoomSensitivity)); // reasonable range
+        float zoomSensitivity = 1.0f / (m_globe3DCamera.m_cameraDistance * 0.8f + 0.2f);
+        float baseSensitivity = 0.003f * zoomSensitivity;
         
-        // base sensitivity
-        float baseSensitivity = 0.016f * frameTimeCompensation * zoomSensitivity;
-        float targetVelX = deltaX * baseSensitivity;
-        float targetVelY = deltaY * baseSensitivity;
+        m_globe3DCamera.m_cameraTheta -= g_inputManager->m_mouseVelX * baseSensitivity;
+        m_globe3DCamera.m_cameraPhi += g_inputManager->m_mouseVelY * baseSensitivity;
         
-        // smooth velocity interpolation for less jittery movement
-        float smoothing = 0.3f; 
-        m_globe3DCamera.m_dragVelocityX = m_globe3DCamera.m_dragVelocityX * (1.0f - smoothing) + targetVelX * smoothing;
-        m_globe3DCamera.m_dragVelocityY = m_globe3DCamera.m_dragVelocityY * (1.0f - smoothing) + targetVelY * smoothing;
-        m_globe3DCamera.m_cameraTheta -= m_globe3DCamera.m_dragVelocityX;
-        m_globe3DCamera.m_cameraPhi += m_globe3DCamera.m_dragVelocityY;
-        m_globe3DCamera.m_cameraPhi = fmax(-M_PI/2.0f + 0.1f, fmin(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
-        m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
-        m_globe3DCamera.m_cameraPos.y = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraPhi);
-        m_globe3DCamera.m_cameraPos.z = m_globe3DCamera.m_cameraDistance * cos(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
+        // clamp vertical rotation
+        m_globe3DCamera.m_cameraPhi = fmaxf(-M_PI/2.0f + 0.1f, fminf(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
         
-        m_globe3DCamera.m_lastMouseX = g_inputManager->m_mouseX;
-        m_globe3DCamera.m_lastMouseY = g_inputManager->m_mouseY;
-
-    //
-    // Add slight momentum when stopping drag for smoother experience
-
+        // update camera position
+        m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sinf(m_globe3DCamera.m_cameraTheta) * cosf(m_globe3DCamera.m_cameraPhi);
+        m_globe3DCamera.m_cameraPos.y = m_globe3DCamera.m_cameraDistance * sinf(m_globe3DCamera.m_cameraPhi);
+        m_globe3DCamera.m_cameraPos.z = m_globe3DCamera.m_cameraDistance * cosf(m_globe3DCamera.m_cameraTheta) * cosf(m_globe3DCamera.m_cameraPhi);
     } else {
         if (m_globe3DCamera.m_isDragging) {
-            float momentum = 0.92f; // how much momentum to preserve
-            m_globe3DCamera.m_dragVelocityX *= momentum;
-            m_globe3DCamera.m_dragVelocityY *= momentum;
-            
-            if (fabsf(m_globe3DCamera.m_dragVelocityX) > 0.001f || fabsf(m_globe3DCamera.m_dragVelocityY) > 0.001f) {
-                m_globe3DCamera.m_cameraTheta -= m_globe3DCamera.m_dragVelocityX;
-                m_globe3DCamera.m_cameraPhi += m_globe3DCamera.m_dragVelocityY;
-                m_globe3DCamera.m_cameraPhi = fmax(-M_PI/2.0f + 0.1f, fmin(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
-                m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
-                m_globe3DCamera.m_cameraPos.y = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraPhi);
-                m_globe3DCamera.m_cameraPos.z = m_globe3DCamera.m_cameraDistance * cos(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
-            } else {
-                m_globe3DCamera.m_dragVelocityX = 0.0f;
-                m_globe3DCamera.m_dragVelocityY = 0.0f;
+            // show system mouse pointer again when dragging stops
+            if (!g_app->MousePointerIsVisible()) {
+                g_app->SetMousePointerVisible(true);
             }
         }
-        
         m_globe3DCamera.m_isDragging = false;
     }
     
     // mouse wheel zoom
     if (IsMouseInMapRenderer() && g_inputManager->m_mouseVelZ != 0) {
         m_globe3DCamera.m_cameraDistance += g_inputManager->m_mouseVelZ * -0.1f;
-        m_globe3DCamera.m_cameraDistance = fmax(1.5f, fmin(3.0f, m_globe3DCamera.m_cameraDistance));
+        m_globe3DCamera.m_cameraDistance = fmaxf(1.5f, fminf(3.0f, m_globe3DCamera.m_cameraDistance));
         
         m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
         m_globe3DCamera.m_cameraPos.y = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraPhi);
@@ -941,7 +1023,7 @@ void MapRenderer::Render3DGlobeCities()
     // zoom does not affect city size
     float normalizedDistance = (m_globe3DCamera.m_cameraDistance - 1.5f) / 8.5f;
     float equivalent2DZoom = 1.0f - normalizedDistance;
-    equivalent2DZoom = fmax(0.05f, fmin(1.0f, equivalent2DZoom));
+    equivalent2DZoom = fmaxf(0.05f, fminf(1.0f, equivalent2DZoom));
     
     // fade based on zoom 
     float zoomFactorEquivalent = 1.0f - equivalent2DZoom;
@@ -973,14 +1055,14 @@ void MapRenderer::Render3DGlobeCities()
             float baseSize = sqrtf(sqrtf((float)city->m_population)) / 25.0f;
             
             float size = baseSize * 0.0075f;  // half of original 0.015f
-            size = fmax(size, 0.004f);
-            size = fmin(size, 0.025f);  
+            size = fmaxf(size, 0.004f);
+            size = fminf(size, 0.025f);  
             
             // get city colour
             Colour col(100, 100, 100, 200);
             if (city->m_teamId > -1) {
                 col = g_app->GetWorld()->GetTeam(city->m_teamId)->GetTeamColour();
-                float alphaZoomFactor = fmin(0.8f, zoomFactorEquivalent);
+                float alphaZoomFactor = fminf(0.8f, zoomFactorEquivalent);
                 col.m_a = 200.0f * (1.0f - alphaZoomFactor);
             }
             
@@ -1026,7 +1108,7 @@ void MapRenderer::Render3DGlobeCities()
         if (equivalent2DZoom > 0.5f) {
             textSize = 12.0f + (equivalent2DZoom - 0.5f) * 16.0f;
         }
-        textSize = fmin(textSize, 24.0f);
+        textSize = fminf(textSize, 24.0f);
         
         float worldTextSize = textSize * 0.0008f;
         
@@ -1181,8 +1263,8 @@ void MapRenderer::Render3DUnits()
                 size = baseSize * 0.0075f * 2.0f;
             }
             
-            size = fmax(size, 0.002f);  
-            size = fmin(size, 0.04f);   
+            size = fmaxf(size, 0.002f);  
+            size = fminf(size, 0.04f);   
             
             Colour unitColor = White;
             Team *team = g_app->GetWorld()->GetTeam(wobj->m_teamId);
@@ -1627,8 +1709,8 @@ void MapRenderer::Render3DNuke()
             float baseSize = wobj->GetSize3D().DoubleValue();
             float size = baseSize * 0.008f;
             
-            size = fmax(size, 0.002f);  
-            size = fmin(size, 0.04f);   
+            size = fmaxf(size, 0.002f);  
+            size = fminf(size, 0.04f);   
             
             Colour unitColor = White;
             Team *team = g_app->GetWorld()->GetTeam(wobj->m_teamId);
@@ -1783,7 +1865,7 @@ void MapRenderer::Render3DNukeTrajectories()
             // this almost doubles the fps when in a 3v3
             
             int maxTrailLength = maxSize;  // Use full detail always
-            maxTrailLength = fmax(4, fmin(maxTrailLength, 32));
+            maxTrailLength = fmaxf(4, fminf(maxTrailLength, 32));
             
             Vector3<float> prevPos = currentPos;
             
@@ -1929,8 +2011,8 @@ void MapRenderer::Render3DGunfire()
                     float lastProgress = 1.0f - (lastDistanceToTarget / totalFlightDistance);
                     float thisProgress = 1.0f - (thisDistanceToTarget / totalFlightDistance);
                     
-                    lastProgress = fmax(0.0f, fmin(1.0f, lastProgress));
-                    thisProgress = fmax(0.0f, fmin(1.0f, thisProgress));
+                    lastProgress = fmaxf(0.0f, fminf(1.0f, lastProgress));
+                    thisProgress = fmaxf(0.0f, fminf(1.0f, thisProgress));
                     
                     lastPos3D = launchPos + (targetPos - launchPos) * lastProgress;
                     thisPos3D = launchPos + (targetPos - launchPos) * thisProgress;
@@ -2002,7 +2084,7 @@ void MapRenderer::Render3DGunfire()
                     float lastDistanceToTarget = (targetPos - lastSurfacePos).Mag();
                     float totalFlightDistance = (targetPos - launchPos).Mag();
                     float lastProgress = 1.0f - (lastDistanceToTarget / totalFlightDistance);
-                    lastProgress = fmax(0.0f, fmin(1.0f, lastProgress));
+                    lastProgress = fmaxf(0.0f, fminf(1.0f, lastProgress));
                     
                     lastPos3D = launchPos + (targetPos - launchPos) * lastProgress;
 
@@ -2080,8 +2162,8 @@ void MapRenderer::Render3DExplosions()
             
             // convert size to 3D world scale
             float explosionSize = size * 0.015f;  
-            explosionSize = fmax(explosionSize, 0.01f); 
-            explosionSize = fmin(explosionSize, 0.2f);    
+            explosionSize = fmaxf(explosionSize, 0.01f); 
+            explosionSize = fminf(explosionSize, 0.2f);    
             
             //
             // for large explosions, create curved geometry to follow globe surface
@@ -2159,8 +2241,8 @@ void MapRenderer::Render3DNukeSymbols()
             
             // convert 2D size to 3D world scale
             float nukeSymbolSize = iconSize * 0.0075f;
-            nukeSymbolSize = fmax(nukeSymbolSize, 0.005f);
-            nukeSymbolSize = fmin(nukeSymbolSize, 0.065f);
+            nukeSymbolSize = fmaxf(nukeSymbolSize, 0.005f);
+            nukeSymbolSize = fminf(nukeSymbolSize, 0.065f);
             
             Vector3<float> normal = objectPos;
             normal.Normalise();
@@ -2194,8 +2276,8 @@ void MapRenderer::Render3DNukeSymbols()
         }
         
         float nukeSymbolSize = iconSize * 0.0075f;  
-        nukeSymbolSize = fmax(nukeSymbolSize, 0.005f);
-        nukeSymbolSize = fmin(nukeSymbolSize, 0.03f);
+        nukeSymbolSize = fmaxf(nukeSymbolSize, 0.005f);
+        nukeSymbolSize = fminf(nukeSymbolSize, 0.03f);
         
         Vector3<float> normal = cityPos;
         normal.Normalise();
@@ -2376,7 +2458,7 @@ void MapRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vector
     
     // create segments using great circle interpolation
     int numSegments = (int)(distance * 50.0f); 
-    numSegments = fmax(8, fmin(numSegments, 64)); 
+    numSegments = fmaxf(8, fminf(numSegments, 64)); 
     
     Vector3<float> prevPos = fromPos;
     
@@ -2401,8 +2483,8 @@ void MapRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vector
     if (animate) {
         float factor1 = fmodf(GetHighResTime(), 1.0f);
         float factor2 = fmodf(GetHighResTime(), 1.0f) + 0.2f;
-        factor1 = fmax(0.0f, fmin(1.0f, factor1));
-        factor2 = fmax(0.0f, fmin(1.0f, factor2));
+        factor1 = fmaxf(0.0f, fminf(1.0f, factor1));
+        factor2 = fmaxf(0.0f, fminf(1.0f, factor2));
         
         // calculate animated positions using great circle math
         Vector3<float> animPos1 = CalculateGreatCirclePosition(fromLon, fromLat, toLon, toLat, factor1);
@@ -2532,43 +2614,24 @@ void MapRenderer::Render3DAnimations()
                     
                 int numSegments = 32; 
                     
-                // create inner and outer circles for thickness
-                float innerRadius = ping3DSize * 0.95f;
-                float outerRadius = ping3DSize * 1.05f;
-                    
                 //
-                // render the two circles using 3D batching system
-                
-                // create inner circle using line segments
-                Vector3<float> prevInner;
+                // render single circle instead of inner and outer
+                // it looked better with two circles when the fog
+                // was broken :)
+
+                Vector3<float> prevPoint;
                 for (int seg = 0; seg <= numSegments; ++seg) {
                     float angle = 2.0f * M_PI * seg / numSegments;
                     Vector3<float> offset = tangent1 * sinf(angle) + tangent2 * cosf(angle);
-                    Vector3<float> inner = pingPos + offset * innerRadius;
-                    inner.Normalise();
-                    inner = inner * 1.001f;
+                    Vector3<float> point = pingPos + offset * ping3DSize;
+                    point.Normalise();
+                    point = point * 1.001f;
                     
                     if (seg > 0) {
-                        g_renderer3d->EffectsLine3D(prevInner.x, prevInner.y, prevInner.z,
-                                                   inner.x, inner.y, inner.z, colour);
+                        g_renderer3d->EffectsLine3D(prevPoint.x, prevPoint.y, prevPoint.z,
+                                                   point.x, point.y, point.z, colour);
                     }
-                    prevInner = inner;
-                }
-                    
-                // create outer circle using line segments
-                Vector3<float> prevOuter;
-                for (int seg = 0; seg <= numSegments; ++seg) {
-                    float angle = 2.0f * M_PI * seg / numSegments;
-                    Vector3<float> offset = tangent1 * sinf(angle) + tangent2 * cosf(angle);
-                    Vector3<float> outer = pingPos + offset * outerRadius;
-                    outer.Normalise();
-                    outer = outer * 1.001f;
-                    
-                    if (seg > 0) {
-                        g_renderer3d->EffectsLine3D(prevOuter.x, prevOuter.y, prevOuter.z,
-                                                   outer.x, outer.y, outer.z, colour);
-                    }
-                    prevOuter = outer;
+                    prevPoint = point;
                 }                             
             } else if (anim->m_animationType == AnimationTypeNukePointer) {
                 
@@ -2598,8 +2661,8 @@ void MapRenderer::Render3DAnimations()
                         
                         // convert 2D size to 3D world scale
                         float nukeSymbolSize = iconSize * 0.0075f;  
-                        nukeSymbolSize = fmax(nukeSymbolSize, 0.005f);
-                        nukeSymbolSize = fmin(nukeSymbolSize, 0.065f);
+                        nukeSymbolSize = fmaxf(nukeSymbolSize, 0.005f);
+                        nukeSymbolSize = fminf(nukeSymbolSize, 0.065f);
                         
                         g_renderer3d->EffectsSprite3D(nukeSymbolImg, targetPos.x, targetPos.y, targetPos.z,
                                                      nukeSymbolSize * 2.0f, nukeSymbolSize * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
@@ -2963,7 +3026,7 @@ Vector3<float> MapRenderer::CalculateGunfire3DPosition(GunFire* gunfire)
     float distanceToTarget = (targetPos - currentSurfacePos).Mag();
     float totalFlightDistance = (targetPos - launchPos).Mag();
     float progress = 1.0f - (distanceToTarget / totalFlightDistance);
-    progress = fmax(0.0f, fmin(1.0f, progress)); // Clamp to [0,1]
+    progress = fmaxf(0.0f, fminf(1.0f, progress)); // Clamp to [0,1]
     
     // Interpolate along 3D trajectory from launch to target
     Vector3<float> gunfirePos = launchPos + (targetPos - launchPos) * progress;
