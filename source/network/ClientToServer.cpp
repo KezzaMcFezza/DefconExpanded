@@ -608,7 +608,7 @@ void ClientToServer::ReceiveLetter( Directory *_letter )
     //
     // Take ownership of the letter.
 
-    std::auto_ptr<Directory> letter( _letter );
+    std::unique_ptr<Directory> letter( _letter );
 
     //
     // Simulate network packet loss
