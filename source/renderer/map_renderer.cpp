@@ -1558,7 +1558,9 @@ void MapRenderer::RenderMouse()
     if( m_draggingCamera )
     {
         Image *move = g_resource->GetImage( "gui/move.bmp" );
-        float size = 4.0f * m_drawScale;
+        float screenW = (float)g_windowManager->WindowW();
+        float pixelsPerDegree = (screenW / 360.0f) / m_zoomFactor; // divide by zoom to keep screen size constant
+        float size = 48.0f / pixelsPerDegree; 
         g_renderer->EffectsSprite( move, longitude - size/2, latitude - size/2, size, size, White );
     }
 
