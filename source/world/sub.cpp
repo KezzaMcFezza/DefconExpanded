@@ -168,7 +168,7 @@ bool Sub::Update()
             m_targetObjectId = -1;
             if( g_app->GetWorld()->GetDefcon() < 4 )
             {
-#ifdef ENGAME
+#ifdef ENDGAME
                 if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
                 {
                     m_retargetTimer = 5 + syncfrand(10);

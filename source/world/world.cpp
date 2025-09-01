@@ -1857,7 +1857,7 @@ void World::Update()
 
 #ifdef ENDGAME
     START_PROFILE( "Radar Coverage" );
-    if ( !g_app->GetServer()->IsRecordingPlaybackMode() )
+    if ( g_app->GetServer() && !g_app->GetServer()->IsRecordingPlaybackMode() )
     {
         UpdateRadar();
     }
@@ -2014,7 +2014,7 @@ void World::Update()
 
     START_PROFILE( "Radar Coverage" );
 #ifdef ENDGAME
-    if ( g_app->GetServer()->IsRecordingPlaybackMode() )
+    if ( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
     {
         UpdateRadar();
     }

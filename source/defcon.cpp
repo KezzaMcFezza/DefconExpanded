@@ -150,11 +150,14 @@ bool TimeToRender(float _lastRenderTime)
 
 
     //
-    // REMOVED FPS LIMIT: Previously limited to 20fps/60fps during synchronisation,
-    // but for local fast-forward seeking we want maximum speed for best user experience.
-    // Modern systems can handle unlimited FPS during seeking operations.
+    // If we are connecting to a game
+    // Limit the frame rate to 20fps
+    // to ensure glFlip doesn't hog the CPU time
 
-    return true;  // Always render - no FPS limit during fast-forward seeking!
+    double timeNow = GetHighResTime();
+    double timeSinceLastRender = timeNow - _lastRenderTime;
+
+    return( timeSinceLastRender > 0.05f );   
 }
 
 
