@@ -29,7 +29,7 @@ public:
     int                      m_authResult;
     bool                     m_receivedWan;
     bool                     m_receivedLan;
-    std::auto_ptr<Directory> m_data;
+    std::unique_ptr<Directory> m_data;
 
 public:
     GameServer()
@@ -77,7 +77,7 @@ struct MetaServerData
 {
 public:
     char                     m_dataType[256];
-    std::auto_ptr<Directory> m_data;
+    std::unique_ptr<Directory> m_data;
     double                   m_timeOfExpire;                 // < 0 = never expires
     int                      m_retries;
 

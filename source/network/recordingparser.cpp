@@ -6,6 +6,8 @@
 #include "lib/hi_res_time.h"
 #include "network/network_defines.h"
 #include "network/Server.h"
+#include "app/app.h"
+#include "app/globals.h"
 
 #include <algorithm>
 #include <cstring>
@@ -150,7 +152,7 @@ void RecordingParser::AddToHistory( Directory *dir )
     ServerToClientLetter *letter = new ServerToClientLetter;
     letter->m_data = dir;
     
-    m_server->m_recordingHistory.PutDataAtEnd( letter );
+    g_app->GetServer()->m_recordingHistory.PutDataAtEnd( letter );
 }
 
 // Function to extract game start sequence ID from DCGR header like DedCon does
@@ -162,7 +164,7 @@ int RecordingParser::ExtractGameStartFromHeader()
     
     // Parse header using new direct file loading constructor
     Directory matchHeader;
-    RecordingParser headerParser(m_filename, m_server);
+    RecordingParser headerParser(m_filename, g_app->GetServer());
     if (!headerParser.ReadHeaderPacket(matchHeader))
     {
 #ifdef EMSCRIPTEN_PLAYBACK_TESTBED
@@ -248,7 +250,7 @@ bool RecordingParser::ParseToHistory()
     bool suppressUpdate = false;
     int lastRecordedSeqId = 0;
     int maxClientId = -1;
-    std::auto_ptr<Directory> gameUpdates;
+    std::unique_ptr<Directory> gameUpdates;
     int expectedGameCommandCount = 0;
 
     while( true )
@@ -326,16 +328,16 @@ bool RecordingParser::ParseToHistory()
         }
     }
 
-    m_server->m_nextClientId = maxClientId + 1;
-    m_server->m_replayingRecording = true;
-    m_server->m_lastRecordedSeqId = lastRecordedSeqId;
+    g_app->GetServer()->m_nextClientId = maxClientId + 1;
+    g_app->GetServer()->m_replayingRecording = true;
+    g_app->GetServer()->m_lastRecordedSeqId = lastRecordedSeqId;
     
     // Set up recording playback state
-    m_server->m_recordingPlaybackMode = true;
-    m_server->m_recordingCurrentSeqId = 0;
-    m_server->m_recordingStartSeqId = 0;
-    m_server->m_recordingEndSeqId = lastRecordedSeqId;
-    m_server->m_recordingLastAdvanceTime = GetHighResTime();
+    g_app->GetServer()->m_recordingPlaybackMode = true;
+    g_app->GetServer()->m_recordingCurrentSeqId = 0;
+    g_app->GetServer()->m_recordingStartSeqId = 0;
+    g_app->GetServer()->m_recordingEndSeqId = lastRecordedSeqId;
+    g_app->GetServer()->m_recordingLastAdvanceTime = GetHighResTime();
 
     // Find and report the game start sequence ID
     int gameStartSeqId = ExtractGameStartFromHeader();
