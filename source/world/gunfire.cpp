@@ -28,7 +28,7 @@ GunFire::GunFire( Fixed range )
     m_range = range;
 
 #ifdef ENDGAME
-    if ( g_app->GetServer()->IsRecordingPlaybackMode() )
+    if ( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
     {
         m_speed = Fixed::Hundredths(50);
     }

@@ -61,6 +61,7 @@ dialog_tools                        Tools
 dialog_otheroptions                 Other Options
 
 dialog_seek_backwards               Sorry :(
+dialog_no_file_specified            No File Specified
 
 dialog_options                      Options
 dialog_high                         High
