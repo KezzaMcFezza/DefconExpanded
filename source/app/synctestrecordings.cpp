@@ -16,6 +16,7 @@
 #include "network/Server.h"
 
 #include <string.h>
+#include <memory>
 
 // added the preprocessor for visual studio, this means we can have the parsing files included in the configuration but will only get used if we define RECORDING_PARSING
 #if RECORDING_PARSING
@@ -35,7 +36,7 @@ static void AddFileOrDirectory( const char *path, std::queue<std::string> &paths
 {
     if( IsDirectory( path ) )
     {
-        std::auto_ptr< LList<char *> > files( ListDirectory( path, "*.dcrec" ) );
+        std::unique_ptr< LList<char *> > files( ListDirectory( path, "*.dcrec" ) );
         if( files.get() )
         {
             while( files->Size() )
