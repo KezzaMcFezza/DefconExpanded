@@ -35,6 +35,7 @@
 #include "interface/components/core.h"
 #include "interface/interface.h"
 #include "interface/worldobject_window.h"
+#include "interface/toolbar.h"
 
 #include "renderer/map_renderer.h"
 #include "renderer/animated_icon.h"
@@ -313,6 +314,25 @@ void MapRenderer::Toggle3DGlobeMode()
         Cleanup3DStarField();
         AppDebugOut("3D Globe Mode: DISABLED\n");
     }
+    
+    //
+    // disable the radar and territory buttons in globe mode for now
+    // territory button most likely will be permanant but radar
+    // might be enabled if i can figure out how to get depth testing
+    // working for the radar circles
+
+    EclWindow *toolbar = EclGetWindow("Toolbar");
+    if (toolbar) {
+        ToolbarButton *radar = (ToolbarButton*)toolbar->GetButton("Radar");
+        if (radar) {
+            radar->m_disabled = m_3DGlobeMode;
+        }
+
+        ToolbarButton *territory = (ToolbarButton*)toolbar->GetButton("Territory");
+        if (territory) {
+            territory->m_disabled = m_3DGlobeMode;
+        }
+    }
 }
 
 // ******************************************************************************************************************************
@@ -558,6 +578,9 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     Render3DExplosions();
     Render3DNukeSymbols();
     Render3DWorldObjectTargets();
+    Render3DNukeHighlights();
+    Render3DWhiteBoard();
+    Render3DPopulationDensity();
     Render3DAnimations();
     Render3DNukeTrajectories();
     Render3DNuke();
@@ -2507,9 +2530,315 @@ void MapRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vector
 }
 
 //
-// sonar ping rendering
+// render whiteboard drawings on the 3D globe surface
+// follows same logic as 2D whiteboard but converts coordinates to 3D positions
 
-// just like explosions, we curve the sonar ping texture to follow the globe surface
+void MapRenderer::Render3DWhiteBoard()
+{
+    if (!m_3DGlobeMode) return;
+    
+    if (!m_showWhiteBoard && !m_editWhiteBoard) {
+        return;
+    }
+
+    // get team for whiteboard viewing, use perspective team if set. otherwise use myTeam
+    Team *effectiveTeam = GetEffectiveWhiteBoardTeam();
+    if (!effectiveTeam) {
+        return;
+    }
+
+    int sizeteams = g_app->GetWorld()->m_teams.Size();
+    for (int i = 0; i < sizeteams; ++i) {
+        Team *team = g_app->GetWorld()->m_teams[i];
+
+        if ((m_showAllWhiteBoards && g_app->GetWorld()->IsFriend(effectiveTeam->m_teamId, team->m_teamId)) || 
+            effectiveTeam->m_teamId == team->m_teamId) {
+            
+            WhiteBoard *whiteBoard = &g_app->GetWorld()->m_whiteBoards[team->m_teamId];
+            
+            Colour colourBoard = team->GetTeamColour();
+            
+            // create line strips
+            const LList<WhiteBoardPoint *> *points = whiteBoard->GetListPoints();
+            int sizePoints = points->Size();
+
+            if (sizePoints > 0) {
+                bool lineStripActive = false;
+                WhiteBoardPoint *prevPt = nullptr;
+                
+                for (int j = 0; j < sizePoints; j++) {
+                    WhiteBoardPoint *pt = points->GetData(j);
+
+                    if (j == 0 || pt->m_startPoint) {
+                        if (lineStripActive) {
+                            g_renderer3d->EndLineStrip3D();
+                        }
+                        
+                        // start new line strip
+                        g_renderer3d->BeginLineStrip3D(colourBoard);
+                        lineStripActive = true;
+                        
+                        // add the first point of the new line
+                        Vector3<float> pos3D = ConvertLongLatTo3DPosition(pt->m_longitude, pt->m_latitude);
+                        Vector3<float> normal = pos3D;
+                        normal.Normalise();
+                        pos3D += normal * 0.003f;  // raise whiteboard above globe surface
+                        
+                        g_renderer3d->LineStripVertex3D(pos3D.x, pos3D.y, pos3D.z);
+                        
+                    } else if (prevPt && lineStripActive) {
+                        // create smooth line segment between previous and current point
+                        float fromLon = prevPt->m_longitude;
+                        float fromLat = prevPt->m_latitude;
+                        float toLon = pt->m_longitude;
+                        float toLat = pt->m_latitude;
+                        
+                        // calculate distance and determine segment count
+                        float latDiff = (toLat - fromLat) * M_PI / 180.0f;
+                        float lonDiff = (toLon - fromLon) * M_PI / 180.0f;
+                        
+                        // handle longitude wrapping
+                        if (lonDiff > M_PI) {
+                            toLon -= 360.0f;
+                            lonDiff = (toLon - fromLon) * M_PI / 180.0f;
+                        } else if (lonDiff < -M_PI) {
+                            toLon += 360.0f;
+                            lonDiff = (toLon - fromLon) * M_PI / 180.0f;
+                        }
+                        
+                        float fromLatRad = fromLat * M_PI / 180.0f;
+                        float toLatRad = toLat * M_PI / 180.0f;
+                        float a = sinf(fromLatRad) * sinf(toLatRad) + cosf(fromLatRad) * cosf(toLatRad) * cosf(lonDiff);
+                        a = fmaxf(-1.0f, fminf(1.0f, a));
+                        float distance = acosf(a);
+                        
+                        // create segments for smooth lines
+                        int numSegments = (int)(distance * 40.0f);
+                        numSegments = fmaxf(2, fminf(numSegments, 32));  
+                        
+                        // add intermediate points using great circle interpolation
+                        for (int seg = 1; seg <= numSegments; ++seg) {
+                            float progress = (float)seg / (float)numSegments;
+                            Vector3<float> interpPos = CalculateGreatCirclePosition(fromLon, fromLat, toLon, toLat, progress);
+                            
+                            Vector3<float> normal = interpPos;
+                            normal.Normalise();
+                            interpPos += normal * 0.003f;
+                            
+                            g_renderer3d->LineStripVertex3D(interpPos.x, interpPos.y, interpPos.z);
+                        }
+                    }
+                    
+                    prevPt = pt;
+                }
+                
+                if (lineStripActive) {
+                    g_renderer3d->EndLineStrip3D();
+                }
+            }
+        }
+    }
+}
+
+//
+// render population density on the 3D globe surface
+// follows same logic as 2D population density but converts coordinates to 3D positions
+
+void MapRenderer::Render3DPopulationDensity()
+{
+    if (!m_3DGlobeMode) return;
+    
+    if (!m_showPopulation) return;
+    
+    Image *populationImg = g_resource->GetImage("graphics/population.bmp");
+    if (!populationImg) return;
+    
+    // render population density for all cities
+    for (int i = 0; i < g_app->GetWorld()->m_cities.Size(); ++i) {
+        if (g_app->GetWorld()->m_cities.ValidIndex(i)) {
+            City *city = g_app->GetWorld()->m_cities.GetData(i);
+
+            if (city->m_teamId != -1) {
+                // do the deed first
+                Vector3<float> cityPos = ConvertLongLatTo3DPosition(
+                    city->m_longitude.DoubleValue(), 
+                    city->m_latitude.DoubleValue()
+                );
+                
+                float size2D = sqrtf(sqrtf((float)city->m_population)) / 2.0f;
+                
+                // convert 2D world units (degrees) to 3D world units on globe surface
+                // 1 degree ≈ π/180 radians on a sphere with radius 1.0
+                float populationSize = size2D * (M_PI / 180.0f);
+                populationSize = fmaxf(populationSize, 0.008f);
+                populationSize = fminf(populationSize, 0.2f);
+                
+                Colour col = g_app->GetWorld()->GetTeam(city->m_teamId)->GetTeamColour();
+                col.m_a = 255.0f * fminf(1.0f, city->m_population / 10000000.0f);
+                
+                Vector3<float> normal = cityPos;
+                normal.Normalise();
+                cityPos += normal * 0.003f;
+                
+                g_renderer3d->EffectsSprite3D(populationImg, cityPos.x, cityPos.y, cityPos.z,
+                                            populationSize * 2.0f, populationSize * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
+            }
+        }
+    }
+}
+
+//
+// render nuke units overlay on the 3D globe
+// again the functionality is idential to 2d but converted to 3d coordinates
+
+void MapRenderer::Render3DNukeHighlights()
+{
+    if (!m_3DGlobeMode) return;
+    
+    if (!m_showNukeUnits) return;
+    
+    Team *team = g_app->GetWorld()->GetMyTeam();
+    if (!team) return;
+    
+    for (int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i) {
+        if (g_app->GetWorld()->m_objects.ValidIndex(i)) {
+            WorldObject *obj = g_app->GetWorld()->m_objects[i];
+            if (obj->m_teamId == team->m_teamId) {
+                int nukeCount = 0;
+
+                switch (obj->m_type) {
+                    case WorldObject::TypeSilo:
+                        nukeCount = obj->m_states[0]->m_numTimesPermitted;
+                        break;
+
+                    case WorldObject::TypeSub:
+                        nukeCount = obj->m_states[2]->m_numTimesPermitted;
+                        break;
+
+                    case WorldObject::TypeBomber:
+                        nukeCount = obj->m_states[1]->m_numTimesPermitted;
+                        break;
+
+                    case WorldObject::TypeAirBase:
+                    case WorldObject::TypeCarrier:
+                        if (obj->m_nukeSupply > 0) {
+                            nukeCount = obj->m_states[1]->m_numTimesPermitted;
+                        }
+                        break;
+                }
+
+                if (obj->UsingNukes()) {
+                    nukeCount -= obj->m_actionQueue.Size();
+                }
+
+                if (nukeCount > 0) {
+                    Render3DUnitHighlight(obj->m_objectId);
+                }
+            }
+        }
+    }
+}
+
+//
+// render 3D unit highlight
+// equivalent of the 2D RenderUnitHighlight but adapted for 3D globe
+
+void MapRenderer::Render3DUnitHighlight(int objectId)
+{
+    if (!m_3DGlobeMode) return;
+    
+    WorldObject *obj = g_app->GetWorld()->GetWorldObject(objectId);
+    if (!obj) return;
+    
+    // calculate predicted position, same as 2D version
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    Fixed predictedLongitude = obj->m_longitude + obj->m_vel.x * predictionTime;
+    Fixed predictedLatitude = obj->m_latitude + obj->m_vel.y * predictionTime;
+    
+    // perform the magic
+    Vector3<float> unitPos = ConvertLongLatTo3DPosition(
+        predictedLongitude.DoubleValue(), 
+        predictedLatitude.DoubleValue()
+    );
+    
+    // position above globe surface
+    Vector3<float> normal = unitPos;
+    normal.Normalise();
+    unitPos += normal * 0.001f;
+    
+    float size2D = 5.0f;
+    float size = size2D * (M_PI / 180.0f);
+    size = fmaxf(size, 0.01f); 
+    size = fminf(size, 0.2f); 
+    
+    // same color and animation as 2D version
+    Colour col = g_app->GetWorld()->GetTeam(obj->m_teamId)->GetTeamColour();
+    col.m_a = 255;
+    if (fmodf(g_gameTime * 2, 2.0f) < 1.0f) col.m_a = 100;
+    
+    Vector3<float> globeUp = Vector3<float>(0.0f, 1.0f, 0.0f);
+    Vector3<float> tangent1;
+    if (fabsf(normal.y) > 0.98f) {
+        tangent1 = Vector3<float>(1.0f, 0.0f, 0.0f);
+    } else {
+        tangent1 = globeUp ^ normal;
+        tangent1.Normalise();
+    }
+    Vector3<float> tangent2 = normal ^ tangent1;
+    tangent2.Normalise();
+    
+    float halfSize = size * 0.5f;
+    float extend = size * 0.5f;
+    
+    //
+    // render crosshair lines extending outward from center square
+
+    // left line
+    Vector3<float> leftStart = unitPos - tangent1 * (halfSize + extend);
+    Vector3<float> leftEnd = unitPos - tangent1 * halfSize;
+    g_renderer3d->EffectsLine3D(leftStart.x, leftStart.y, leftStart.z,
+                               leftEnd.x, leftEnd.y, leftEnd.z, col);
+    
+    // right line  
+    Vector3<float> rightStart = unitPos + tangent1 * (halfSize + extend);
+    Vector3<float> rightEnd = unitPos + tangent1 * halfSize;
+    g_renderer3d->EffectsLine3D(rightStart.x, rightStart.y, rightStart.z,
+                               rightEnd.x, rightEnd.y, rightEnd.z, col);
+    
+    // top line
+    Vector3<float> topStart = unitPos + tangent2 * (halfSize + extend);
+    Vector3<float> topEnd = unitPos + tangent2 * halfSize;
+    g_renderer3d->EffectsLine3D(topStart.x, topStart.y, topStart.z,
+                               topEnd.x, topEnd.y, topEnd.z, col);
+    
+    // bottom line
+    Vector3<float> bottomStart = unitPos - tangent2 * (halfSize + extend);
+    Vector3<float> bottomEnd = unitPos - tangent2 * halfSize;
+    g_renderer3d->EffectsLine3D(bottomStart.x, bottomStart.y, bottomStart.z,
+                               bottomEnd.x, bottomEnd.y, bottomEnd.z, col);
+    
+    // render central square using 4 line segments
+    Vector3<float> topLeft = unitPos - tangent1 * halfSize + tangent2 * halfSize;
+    Vector3<float> topRight = unitPos + tangent1 * halfSize + tangent2 * halfSize;
+    Vector3<float> bottomRight = unitPos + tangent1 * halfSize - tangent2 * halfSize;
+    Vector3<float> bottomLeft = unitPos - tangent1 * halfSize - tangent2 * halfSize;
+
+    // render it
+    
+    g_renderer3d->EffectsLine3D(topLeft.x, topLeft.y, topLeft.z,
+                               topRight.x, topRight.y, topRight.z, col);
+    g_renderer3d->EffectsLine3D(topRight.x, topRight.y, topRight.z,
+                               bottomRight.x, bottomRight.y, bottomRight.z, col);
+    g_renderer3d->EffectsLine3D(bottomRight.x, bottomRight.y, bottomRight.z,
+                               bottomLeft.x, bottomLeft.y, bottomLeft.z, col);
+    g_renderer3d->EffectsLine3D(bottomLeft.x, bottomLeft.y, bottomLeft.z,
+                               topLeft.x, topLeft.y, topLeft.z, col);
+}
+
+//
+// animated texture rendering
+
+// curve the textures to follow the globe surface
 // to prevent the texture from being stretched out in the x direction
 
 void MapRenderer::Render3DAnimations()
