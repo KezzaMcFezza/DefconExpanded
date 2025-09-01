@@ -1,0 +1,7 @@
+*.data
+*.wasm
+*.html
+*.wasm.map
+*.map
+*.json
+*.js

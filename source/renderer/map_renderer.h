@@ -143,13 +143,17 @@ protected:
         
         float m_dragVelocityX, m_dragVelocityY;
         
+        // track if the camera has been initialized
+        bool m_initialized;
+        
         Globe3DCamera() : 
             m_cameraDistance(3.0f),
             m_cameraTheta(0.0f),
             m_cameraPhi(0.0f),
             m_isDragging(false),
             m_lastMouseX(0), m_lastMouseY(0),
-            m_dragVelocityX(0.0f), m_dragVelocityY(0.0f) {
+            m_dragVelocityX(0.0f), m_dragVelocityY(0.0f),
+            m_initialized(false) {
             
             m_cameraPos = Vector3<float>(0.0f, 0.5f, m_cameraDistance);
             m_cameraTarget = Vector3<float>(0.0f, 0.0f, 0.0f);

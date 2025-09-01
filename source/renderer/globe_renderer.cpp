@@ -299,15 +299,21 @@ void MapRenderer::Toggle3DGlobeMode()
     m_3DGlobeMode = !m_3DGlobeMode;
     
     if (m_3DGlobeMode) {
-        // initialize 3D camera position
-        m_globe3DCamera.m_cameraDistance = 3.0f;
-        m_globe3DCamera.m_cameraTheta = 0.0f;
-        m_globe3DCamera.m_cameraPhi = 0.0f;
-        
-        // default camera position for the camera when we load up
-        m_globe3DCamera.m_cameraPos = Vector3<float>(0.0f, 0.5f, m_globe3DCamera.m_cameraDistance);
-        m_globe3DCamera.m_cameraTarget = Vector3<float>(0.0f, 0.0f, 0.0f);
-        m_globe3DCamera.m_cameraUp = Vector3<float>(0.0f, 1.0f, 0.0f);
+        // only initialize 3D camera position the first time its used
+        // this preserves camera position when switching between 2D and 3D modes
+        // we save the camera position during runtime just like the 2D map renderer
+        if (!m_globe3DCamera.m_initialized) {
+            m_globe3DCamera.m_cameraDistance = 3.0f;
+            m_globe3DCamera.m_cameraTheta = 0.0f;
+            m_globe3DCamera.m_cameraPhi = 0.0f;
+            
+            // default camera position for the camera when we load up
+            m_globe3DCamera.m_cameraPos = Vector3<float>(0.0f, 0.5f, m_globe3DCamera.m_cameraDistance);
+            m_globe3DCamera.m_cameraTarget = Vector3<float>(0.0f, 0.0f, 0.0f);
+            m_globe3DCamera.m_cameraUp = Vector3<float>(0.0f, 1.0f, 0.0f);
+            
+            m_globe3DCamera.m_initialized = true;
+        }
         
         AppDebugOut("3D Globe Mode: ENABLED\n");
     } else {
