@@ -41,7 +41,7 @@ void EarthData::LoadBorders()
     m_borders.EmptyAndDelete();
 
     int numIslands = 0;    
-    std::auto_ptr<Island> island;
+    std::unique_ptr<Island> island;
 
     TextReader *international = g_fileSystem->GetTextReader( "data/earth/international.dat" );
     AppAssert( international && international->IsOpen() );
@@ -158,7 +158,7 @@ void EarthData::LoadCoastlines()
 
     TextReader *coastlines = g_fileSystem->GetTextReader( coastFile );
     AppAssert( coastlines && coastlines->IsOpen() );
-    std::auto_ptr<Island> island;
+    std::unique_ptr<Island> island;
     
     while( coastlines->ReadLine() )
     {        
