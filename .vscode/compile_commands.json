@@ -1,0 +1,1214 @@
+[
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/defcon.cpp",
+    "output": "/mnt/data/build_msvc_release/defcon.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/defcon.obj /c source/defcon.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/curves.cpp",
+    "output": "/mnt/data/build_msvc_release/curves.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/curves.obj /c source/curves.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/random_object.cpp",
+    "output": "/mnt/data/build_msvc_release/random_object.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/random_object.obj /c source/random_object.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/app/tutorial.cpp",
+    "output": "/mnt/data/build_msvc_release/tutorial.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/tutorial.obj /c source/app/tutorial.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/app/tutorial_defcon.cpp",
+    "output": "/mnt/data/build_msvc_release/tutorial_defcon.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/tutorial_defcon.obj /c source/app/tutorial_defcon.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/app/modsystem.cpp",
+    "output": "/mnt/data/build_msvc_release/modsystem.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/modsystem.obj /c source/app/modsystem.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/app/defcon_soundinterface.cpp",
+    "output": "/mnt/data/build_msvc_release/defcon_soundinterface.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/defcon_soundinterface.obj /c source/app/defcon_soundinterface.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/app/version_manager.cpp",
+    "output": "/mnt/data/build_msvc_release/version_manager.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/version_manager.obj /c source/app/version_manager.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/app/app.cpp",
+    "output": "/mnt/data/build_msvc_release/app.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/app.obj /c source/app/app.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/app/game.cpp",
+    "output": "/mnt/data/build_msvc_release/game.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/game.obj /c source/app/game.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/app/statusicon.cpp",
+    "output": "/mnt/data/build_msvc_release/statusicon.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/statusicon.obj /c source/app/statusicon.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/app/x11icon.cpp",
+    "output": "/mnt/data/build_msvc_release/x11icon.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/x11icon.obj /c source/app/x11icon.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/app/game_history.cpp",
+    "output": "/mnt/data/build_msvc_release/game_history.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/game_history.obj /c source/app/game_history.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/lib/multiline_text.cpp",
+    "output": "/mnt/data/build_msvc_release/multiline_text.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/multiline_text.obj /c source/lib/multiline_text.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/lib/universal_include.cpp",
+    "output": "/mnt/data/build_msvc_release/universal_include.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/universal_include.obj /c source/lib/universal_include.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/lib/domain_protection.cpp",
+    "output": "/mnt/data/build_msvc_release/domain_protection.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/domain_protection.obj /c source/lib/domain_protection.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/renderer/map_renderer.cpp",
+    "output": "/mnt/data/build_msvc_release/map_renderer.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/map_renderer.obj /c source/renderer/map_renderer.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/renderer/globe_renderer.cpp",
+    "output": "/mnt/data/build_msvc_release/globe_renderer.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/globe_renderer.obj /c source/renderer/globe_renderer.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/renderer/animated_icon.cpp",
+    "output": "/mnt/data/build_msvc_release/animated_icon.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/animated_icon.obj /c source/renderer/animated_icon.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/renderer/lobby_renderer.cpp",
+    "output": "/mnt/data/build_msvc_release/lobby_renderer.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/lobby_renderer.obj /c source/renderer/lobby_renderer.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/radarstation.cpp",
+    "output": "/mnt/data/build_msvc_release/radarstation.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/radarstation.obj /c source/world/radarstation.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/movingobject.cpp",
+    "output": "/mnt/data/build_msvc_release/movingobject.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/movingobject.obj /c source/world/movingobject.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/team.cpp",
+    "output": "/mnt/data/build_msvc_release/team.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/team.obj /c source/world/team.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/date.cpp",
+    "output": "/mnt/data/build_msvc_release/date.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/date.obj /c source/world/date.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/explosion.cpp",
+    "output": "/mnt/data/build_msvc_release/explosion.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/explosion.obj /c source/world/explosion.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/fighter.cpp",
+    "output": "/mnt/data/build_msvc_release/fighter.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/fighter.obj /c source/world/fighter.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/battleship.cpp",
+    "output": "/mnt/data/build_msvc_release/battleship.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/battleship.obj /c source/world/battleship.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/silo.cpp",
+    "output": "/mnt/data/build_msvc_release/silo.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/silo.obj /c source/world/silo.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/gunfire.cpp",
+    "output": "/mnt/data/build_msvc_release/gunfire.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/gunfire.obj /c source/world/gunfire.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/saucer.cpp",
+    "output": "/mnt/data/build_msvc_release/saucer.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/saucer.obj /c source/world/saucer.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/whiteboard.cpp",
+    "output": "/mnt/data/build_msvc_release/whiteboard.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/whiteboard.obj /c source/world/whiteboard.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/world.cpp",
+    "output": "/mnt/data/build_msvc_release/world.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/world.obj /c source/world/world.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/worldobject.cpp",
+    "output": "/mnt/data/build_msvc_release/worldobject.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/worldobject.obj /c source/world/worldobject.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/blip.cpp",
+    "output": "/mnt/data/build_msvc_release/blip.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/blip.obj /c source/world/blip.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/sub.cpp",
+    "output": "/mnt/data/build_msvc_release/sub.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sub.obj /c source/world/sub.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/earthdata.cpp",
+    "output": "/mnt/data/build_msvc_release/earthdata.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/earthdata.obj /c source/world/earthdata.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/radargrid.cpp",
+    "output": "/mnt/data/build_msvc_release/radargrid.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/radargrid.obj /c source/world/radargrid.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/airbase.cpp",
+    "output": "/mnt/data/build_msvc_release/airbase.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/airbase.obj /c source/world/airbase.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/votingsystem.cpp",
+    "output": "/mnt/data/build_msvc_release/votingsystem.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/votingsystem.obj /c source/world/votingsystem.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/city.cpp",
+    "output": "/mnt/data/build_msvc_release/city.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/city.obj /c source/world/city.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/carrier.cpp",
+    "output": "/mnt/data/build_msvc_release/carrier.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/carrier.obj /c source/world/carrier.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/fleet.cpp",
+    "output": "/mnt/data/build_msvc_release/fleet.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/fleet.obj /c source/world/fleet.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/nuke.cpp",
+    "output": "/mnt/data/build_msvc_release/nuke.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/nuke.obj /c source/world/nuke.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/node.cpp",
+    "output": "/mnt/data/build_msvc_release/node.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/node.obj /c source/world/node.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/depthcharge.cpp",
+    "output": "/mnt/data/build_msvc_release/depthcharge.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/depthcharge.obj /c source/world/depthcharge.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/bomber.cpp",
+    "output": "/mnt/data/build_msvc_release/bomber.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/bomber.obj /c source/world/bomber.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/world/tornado.cpp",
+    "output": "/mnt/data/build_msvc_release/tornado.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/tornado.obj /c source/world/tornado.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/network/ClientToServer.cpp",
+    "output": "/mnt/data/build_msvc_release/ClientToServer.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/ClientToServer.obj /c source/network/ClientToServer.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/network/Server.cpp",
+    "output": "/mnt/data/build_msvc_release/Server.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/Server.obj /c source/network/Server.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/network/ServerToClient.cpp",
+    "output": "/mnt/data/build_msvc_release/ServerToClient.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/ServerToClient.obj /c source/network/ServerToClient.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/mod_window.cpp",
+    "output": "/mnt/data/build_msvc_release/mod_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/mod_window.obj /c source/interface/mod_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/badkey_window.cpp",
+    "output": "/mnt/data/build_msvc_release/badkey_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/badkey_window.obj /c source/interface/badkey_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/network_window.cpp",
+    "output": "/mnt/data/build_msvc_release/network_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/network_window.obj /c source/interface/network_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/connecting_window.cpp",
+    "output": "/mnt/data/build_msvc_release/connecting_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/connecting_window.obj /c source/interface/connecting_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/tutorial_window.cpp",
+    "output": "/mnt/data/build_msvc_release/tutorial_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/tutorial_window.obj /c source/interface/tutorial_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/fading_window.cpp",
+    "output": "/mnt/data/build_msvc_release/fading_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/fading_window.obj /c source/interface/fading_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/profile_window.cpp",
+    "output": "/mnt/data/build_msvc_release/profile_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/profile_window.obj /c source/interface/profile_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/chat_window.cpp",
+    "output": "/mnt/data/build_msvc_release/chat_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/chat_window.obj /c source/interface/chat_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/lobby_window.cpp",
+    "output": "/mnt/data/build_msvc_release/lobby_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/lobby_window.obj /c source/interface/lobby_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/interface.cpp",
+    "output": "/mnt/data/build_msvc_release/interface.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/interface.obj /c source/interface/interface.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/mainmenu.cpp",
+    "output": "/mnt/data/build_msvc_release/mainmenu.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/mainmenu.obj /c source/interface/mainmenu.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/playback_control_window.cpp",
+    "output": "/mnt/data/build_msvc_release/playback_control_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/playback_control_window.obj /c source/interface/playback_control_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/side_panel.cpp",
+    "output": "/mnt/data/build_msvc_release/side_panel.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/side_panel.obj /c source/interface/side_panel.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/toolbar.cpp",
+    "output": "/mnt/data/build_msvc_release/toolbar.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/toolbar.obj /c source/interface/toolbar.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/authkey_window.cpp",
+    "output": "/mnt/data/build_msvc_release/authkey_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/authkey_window.obj /c source/interface/authkey_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/alliances_window.cpp",
+    "output": "/mnt/data/build_msvc_release/alliances_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/alliances_window.obj /c source/interface/alliances_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/resynchronise_window.cpp",
+    "output": "/mnt/data/build_msvc_release/resynchronise_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/resynchronise_window.obj /c source/interface/resynchronise_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/fleet_placement_icon.cpp",
+    "output": "/mnt/data/build_msvc_release/fleet_placement_icon.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/fleet_placement_icon.obj /c source/interface/fleet_placement_icon.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/casualties_window.cpp",
+    "output": "/mnt/data/build_msvc_release/casualties_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/casualties_window.obj /c source/interface/casualties_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/serverbrowser_window.cpp",
+    "output": "/mnt/data/build_msvc_release/serverbrowser_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/serverbrowser_window.obj /c source/interface/serverbrowser_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/serverdetails_window.cpp",
+    "output": "/mnt/data/build_msvc_release/serverdetails_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/serverdetails_window.obj /c source/interface/serverdetails_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/debug_window.cpp",
+    "output": "/mnt/data/build_msvc_release/debug_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/debug_window.obj /c source/interface/debug_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/demo_window.cpp",
+    "output": "/mnt/data/build_msvc_release/demo_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/demo_window.obj /c source/interface/demo_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/whiteboard_panel.cpp",
+    "output": "/mnt/data/build_msvc_release/whiteboard_panel.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/whiteboard_panel.obj /c source/interface/whiteboard_panel.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/worldstatus_window.cpp",
+    "output": "/mnt/data/build_msvc_release/worldstatus_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/worldstatus_window.obj /c source/interface/worldstatus_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/worldobject_window.cpp",
+    "output": "/mnt/data/build_msvc_release/worldobject_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/worldobject_window.obj /c source/interface/worldobject_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/info_window.cpp",
+    "output": "/mnt/data/build_msvc_release/info_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/info_window.obj /c source/interface/info_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/interface/placement_icon.cpp",
+    "output": "/mnt/data/build_msvc_release/placement_icon.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/placement_icon.obj /c source/interface/placement_icon.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/components/checkbox.cpp",
+    "output": "/mnt/data/build_msvc_release/checkbox.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/checkbox.obj /c contrib/systemIV/interface/components/checkbox.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/components/core.cpp",
+    "output": "/mnt/data/build_msvc_release/core.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/core.obj /c contrib/systemIV/interface/components/core.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/components/drop_down_menu.cpp",
+    "output": "/mnt/data/build_msvc_release/drop_down_menu.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/drop_down_menu.obj /c contrib/systemIV/interface/components/drop_down_menu.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/components/filedialog.cpp",
+    "output": "/mnt/data/build_msvc_release/filedialog.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/filedialog.obj /c contrib/systemIV/interface/components/filedialog.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/components/inputfield.cpp",
+    "output": "/mnt/data/build_msvc_release/inputfield.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/inputfield.obj /c contrib/systemIV/interface/components/inputfield.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/components/message_dialog.cpp",
+    "output": "/mnt/data/build_msvc_release/message_dialog.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/message_dialog.obj /c contrib/systemIV/interface/components/message_dialog.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/components/scrollbar.cpp",
+    "output": "/mnt/data/build_msvc_release/scrollbar.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/scrollbar.obj /c contrib/systemIV/interface/components/scrollbar.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/options/screenoptions_window.cpp",
+    "output": "/mnt/data/build_msvc_release/screenoptions_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/screenoptions_window.obj /c contrib/systemIV/interface/options/screenoptions_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/options/soundoptions_window.cpp",
+    "output": "/mnt/data/build_msvc_release/soundoptions_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/soundoptions_window.obj /c contrib/systemIV/interface/options/soundoptions_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/soundsystem/soundeditor_window.cpp",
+    "output": "/mnt/data/build_msvc_release/soundeditor_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/soundeditor_window.obj /c contrib/systemIV/interface/soundsystem/soundeditor_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/soundsystem/soundstats_window.cpp",
+    "output": "/mnt/data/build_msvc_release/soundstats_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/soundstats_window.obj /c contrib/systemIV/interface/soundsystem/soundstats_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/soundsystem/soundparameter_window.cpp",
+    "output": "/mnt/data/build_msvc_release/soundparameter_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/soundparameter_window.obj /c contrib/systemIV/interface/soundsystem/soundparameter_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/interface/styleeditor_window.cpp",
+    "output": "/mnt/data/build_msvc_release/styleeditor_window.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/styleeditor_window.obj /c contrib/systemIV/interface/styleeditor_window.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/eclipse/eclbutton.cpp",
+    "output": "/mnt/data/build_msvc_release/eclbutton.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/eclbutton.obj /c contrib/systemIV/lib/eclipse/eclbutton.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/eclipse/eclwindow.cpp",
+    "output": "/mnt/data/build_msvc_release/eclwindow.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/eclwindow.obj /c contrib/systemIV/lib/eclipse/eclwindow.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/eclipse/eclipse.cpp",
+    "output": "/mnt/data/build_msvc_release/eclipse.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/eclipse.obj /c contrib/systemIV/lib/eclipse/eclipse.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/filesys/binary_stream_readers.cpp",
+    "output": "/mnt/data/build_msvc_release/binary_stream_readers.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/binary_stream_readers.obj /c contrib/systemIV/lib/filesys/binary_stream_readers.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/filesys/file_system.cpp",
+    "output": "/mnt/data/build_msvc_release/file_system.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/file_system.obj /c contrib/systemIV/lib/filesys/file_system.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/filesys/filesys_utils.cpp",
+    "output": "/mnt/data/build_msvc_release/filesys_utils.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/filesys_utils.obj /c contrib/systemIV/lib/filesys/filesys_utils.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/filesys/text_file_writer.cpp",
+    "output": "/mnt/data/build_msvc_release/text_file_writer.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/text_file_writer.obj /c contrib/systemIV/lib/filesys/text_file_writer.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/filesys/text_stream_readers.cpp",
+    "output": "/mnt/data/build_msvc_release/text_stream_readers.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/text_stream_readers.obj /c contrib/systemIV/lib/filesys/text_stream_readers.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/math/fixed_float.cpp",
+    "output": "/mnt/data/build_msvc_release/fixed_float.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/fixed_float.obj /c contrib/systemIV/lib/math/fixed_float.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/math/fixed_64.cpp",
+    "output": "/mnt/data/build_msvc_release/fixed_64.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/fixed_64.obj /c contrib/systemIV/lib/math/fixed_64.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/math/hash.cpp",
+    "output": "/mnt/data/build_msvc_release/hash.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/hash.obj /c contrib/systemIV/lib/math/hash.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/math/math_utils.cpp",
+    "output": "/mnt/data/build_msvc_release/math_utils.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/math_utils.obj /c contrib/systemIV/lib/math/math_utils.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/math/random_number.cpp",
+    "output": "/mnt/data/build_msvc_release/random_number.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/random_number.obj /c contrib/systemIV/lib/math/random_number.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/math/vector2.cpp",
+    "output": "/mnt/data/build_msvc_release/vector2.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/vector2.obj /c contrib/systemIV/lib/math/vector2.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/math/vector3.cpp",
+    "output": "/mnt/data/build_msvc_release/vector3.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/vector3.obj /c contrib/systemIV/lib/math/vector3.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/metaserver/authentication.cpp",
+    "output": "/mnt/data/build_msvc_release/authentication.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/authentication.obj /c contrib/systemIV/lib/metaserver/authentication.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/metaserver/matchmaker.cpp",
+    "output": "/mnt/data/build_msvc_release/matchmaker.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/matchmaker.obj /c contrib/systemIV/lib/metaserver/matchmaker.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/metaserver/metaserver.cpp",
+    "output": "/mnt/data/build_msvc_release/metaserver.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/metaserver.obj /c contrib/systemIV/lib/metaserver/metaserver.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/gucci/input.cpp",
+    "output": "/mnt/data/build_msvc_release/input.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/input.obj /c contrib/systemIV/lib/gucci/input.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/gucci/window_manager.cpp",
+    "output": "/mnt/data/build_msvc_release/window_manager.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/window_manager.obj /c contrib/systemIV/lib/gucci/window_manager.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/netlib/net_lib.cpp",
+    "output": "/mnt/data/build_msvc_release/net_lib.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/net_lib.obj /c contrib/systemIV/lib/netlib/net_lib.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/netlib/net_socket.cpp",
+    "output": "/mnt/data/build_msvc_release/net_socket.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/net_socket.obj /c contrib/systemIV/lib/netlib/net_socket.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/netlib/net_socket_listener.cpp",
+    "output": "/mnt/data/build_msvc_release/net_socket_listener.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/net_socket_listener.obj /c contrib/systemIV/lib/netlib/net_socket_listener.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/netlib/net_socket_session.cpp",
+    "output": "/mnt/data/build_msvc_release/net_socket_session.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/net_socket_session.obj /c contrib/systemIV/lib/netlib/net_socket_session.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/netlib/net_udp_packet.cpp",
+    "output": "/mnt/data/build_msvc_release/net_udp_packet.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/net_udp_packet.obj /c contrib/systemIV/lib/netlib/net_udp_packet.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/netlib/thread_controller.cpp",
+    "output": "/mnt/data/build_msvc_release/thread_controller.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/thread_controller.obj /c contrib/systemIV/lib/netlib/thread_controller.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/render/colour.cpp",
+    "output": "/mnt/data/build_msvc_release/colour.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/colour.obj /c contrib/systemIV/lib/render/colour.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/render2d/renderer.cpp",
+    "output": "/mnt/data/build_msvc_release/renderer.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/renderer.obj /c contrib/systemIV/lib/render2d/renderer.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/render2d/renderer_buffers.cpp",
+    "output": "/mnt/data/build_msvc_release/renderer_buffers.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/renderer_buffers.obj /c contrib/systemIV/lib/render2d/renderer_buffers.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/render3d/renderer_3d.cpp",
+    "output": "/mnt/data/build_msvc_release/renderer_3d.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/renderer_3d.obj /c contrib/systemIV/lib/render3d/renderer_3d.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/render3d/renderer_3d_buffers.cpp",
+    "output": "/mnt/data/build_msvc_release/renderer_3d_buffers.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/renderer_3d_buffers.obj /c contrib/systemIV/lib/render3d/renderer_3d_buffers.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/render3d/renderer_nuke.cpp",
+    "output": "/mnt/data/build_msvc_release/renderer_nuke.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/renderer_nuke.obj /c contrib/systemIV/lib/render3d/renderer_nuke.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/render3d/renderer_vbo.cpp",
+    "output": "/mnt/data/build_msvc_release/renderer_vbo.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/renderer_vbo.obj /c contrib/systemIV/lib/render3d/renderer_vbo.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/render/renderer_debug_menu.cpp",
+    "output": "/mnt/data/build_msvc_release/renderer_debug_menu.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/renderer_debug_menu.obj /c contrib/systemIV/lib/render/renderer_debug_menu.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/render/styletable.cpp",
+    "output": "/mnt/data/build_msvc_release/styletable.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/styletable.obj /c contrib/systemIV/lib/render/styletable.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/resource/bitmap.cpp",
+    "output": "/mnt/data/build_msvc_release/bitmap.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/bitmap.obj /c contrib/systemIV/lib/resource/bitmap.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/resource/bitmapfont.cpp",
+    "output": "/mnt/data/build_msvc_release/bitmapfont.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/bitmapfont.obj /c contrib/systemIV/lib/resource/bitmapfont.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/resource/image.cpp",
+    "output": "/mnt/data/build_msvc_release/image.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/image.obj /c contrib/systemIV/lib/resource/image.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/resource/resource.cpp",
+    "output": "/mnt/data/build_msvc_release/resource.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/resource.obj /c contrib/systemIV/lib/resource/resource.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/resource/sprite_atlas.cpp",
+    "output": "/mnt/data/build_msvc_release/sprite_atlas.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sprite_atlas.obj /c contrib/systemIV/lib/resource/sprite_atlas.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/sound/sound_blueprint_manager.cpp",
+    "output": "/mnt/data/build_msvc_release/sound_blueprint_manager.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sound_blueprint_manager.obj /c contrib/systemIV/lib/sound/sound_blueprint_manager.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/sound/sound_filter.cpp",
+    "output": "/mnt/data/build_msvc_release/sound_filter.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sound_filter.obj /c contrib/systemIV/lib/sound/sound_filter.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/sound/sound_instance.cpp",
+    "output": "/mnt/data/build_msvc_release/sound_instance.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sound_instance.obj /c contrib/systemIV/lib/sound/sound_instance.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/sound/sound_library_2d.cpp",
+    "output": "/mnt/data/build_msvc_release/sound_library_2d.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sound_library_2d.obj /c contrib/systemIV/lib/sound/sound_library_2d.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/sound/sound_library_3d.cpp",
+    "output": "/mnt/data/build_msvc_release/sound_library_3d.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sound_library_3d.obj /c contrib/systemIV/lib/sound/sound_library_3d.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/sound/sound_library_3d_software.cpp",
+    "output": "/mnt/data/build_msvc_release/sound_library_3d_software.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sound_library_3d_software.obj /c contrib/systemIV/lib/sound/sound_library_3d_software.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/sound/sound_parameter.cpp",
+    "output": "/mnt/data/build_msvc_release/sound_parameter.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sound_parameter.obj /c contrib/systemIV/lib/sound/sound_parameter.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/sound/sound_sample_bank.cpp",
+    "output": "/mnt/data/build_msvc_release/sound_sample_bank.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sound_sample_bank.obj /c contrib/systemIV/lib/sound/sound_sample_bank.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/sound/sound_sample_decoder.cpp",
+    "output": "/mnt/data/build_msvc_release/sound_sample_decoder.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sound_sample_decoder.obj /c contrib/systemIV/lib/sound/sound_sample_decoder.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/sound/soundsystem.cpp",
+    "output": "/mnt/data/build_msvc_release/soundsystem.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/soundsystem.obj /c contrib/systemIV/lib/sound/soundsystem.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/sound/soundsystem_interface.cpp",
+    "output": "/mnt/data/build_msvc_release/soundsystem_interface.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/soundsystem_interface.obj /c contrib/systemIV/lib/sound/soundsystem_interface.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/tosser/directory.cpp",
+    "output": "/mnt/data/build_msvc_release/directory.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/directory.obj /c contrib/systemIV/lib/tosser/directory.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/debug_utils.cpp",
+    "output": "/mnt/data/build_msvc_release/debug_utils.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/debug_utils.obj /c contrib/systemIV/lib/debug_utils.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/hi_res_time.cpp",
+    "output": "/mnt/data/build_msvc_release/hi_res_time.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/hi_res_time.obj /c contrib/systemIV/lib/hi_res_time.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/language_table.cpp",
+    "output": "/mnt/data/build_msvc_release/language_table.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/language_table.obj /c contrib/systemIV/lib/language_table.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/preferences.cpp",
+    "output": "/mnt/data/build_msvc_release/preferences.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/preferences.obj /c contrib/systemIV/lib/preferences.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/profiler.cpp",
+    "output": "/mnt/data/build_msvc_release/profiler.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/profiler.obj /c contrib/systemIV/lib/profiler.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/string_utils.cpp",
+    "output": "/mnt/data/build_msvc_release/string_utils.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/string_utils.obj /c contrib/systemIV/lib/string_utils.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/archive.cpp",
+    "output": "/mnt/data/build_msvc_release/archive.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/archive.obj /c contrib/systemIV/contrib/unrar/archive.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/arcread.cpp",
+    "output": "/mnt/data/build_msvc_release/arcread.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/arcread.obj /c contrib/systemIV/contrib/unrar/arcread.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/cmddata.cpp",
+    "output": "/mnt/data/build_msvc_release/cmddata.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/cmddata.obj /c contrib/systemIV/contrib/unrar/cmddata.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/consio.cpp",
+    "output": "/mnt/data/build_msvc_release/consio.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/consio.obj /c contrib/systemIV/contrib/unrar/consio.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/crc.cpp",
+    "output": "/mnt/data/build_msvc_release/crc.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/crc.obj /c contrib/systemIV/contrib/unrar/crc.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/crypt.cpp",
+    "output": "/mnt/data/build_msvc_release/crypt.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/crypt.obj /c contrib/systemIV/contrib/unrar/crypt.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/encname.cpp",
+    "output": "/mnt/data/build_msvc_release/encname.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/encname.obj /c contrib/systemIV/contrib/unrar/encname.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/errhnd.cpp",
+    "output": "/mnt/data/build_msvc_release/errhnd.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/errhnd.obj /c contrib/systemIV/contrib/unrar/errhnd.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/extinfo.cpp",
+    "output": "/mnt/data/build_msvc_release/extinfo.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/extinfo.obj /c contrib/systemIV/contrib/unrar/extinfo.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/extract.cpp",
+    "output": "/mnt/data/build_msvc_release/extract.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/extract.obj /c contrib/systemIV/contrib/unrar/extract.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/filcreat.cpp",
+    "output": "/mnt/data/build_msvc_release/filcreat.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/filcreat.obj /c contrib/systemIV/contrib/unrar/filcreat.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/file.cpp",
+    "output": "/mnt/data/build_msvc_release/file.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/file.obj /c contrib/systemIV/contrib/unrar/file.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/filefn.cpp",
+    "output": "/mnt/data/build_msvc_release/filefn.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/filefn.obj /c contrib/systemIV/contrib/unrar/filefn.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/filestr.cpp",
+    "output": "/mnt/data/build_msvc_release/filestr.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/filestr.obj /c contrib/systemIV/contrib/unrar/filestr.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/find.cpp",
+    "output": "/mnt/data/build_msvc_release/find.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/find.obj /c contrib/systemIV/contrib/unrar/find.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/getbits.cpp",
+    "output": "/mnt/data/build_msvc_release/getbits.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/getbits.obj /c contrib/systemIV/contrib/unrar/getbits.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/global.cpp",
+    "output": "/mnt/data/build_msvc_release/global.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/global.obj /c contrib/systemIV/contrib/unrar/global.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/int64.cpp",
+    "output": "/mnt/data/build_msvc_release/int64.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/int64.obj /c contrib/systemIV/contrib/unrar/int64.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/isnt.cpp",
+    "output": "/mnt/data/build_msvc_release/isnt.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/isnt.obj /c contrib/systemIV/contrib/unrar/isnt.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/list.cpp",
+    "output": "/mnt/data/build_msvc_release/list.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/list.obj /c contrib/systemIV/contrib/unrar/list.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/match.cpp",
+    "output": "/mnt/data/build_msvc_release/match.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/match.obj /c contrib/systemIV/contrib/unrar/match.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/options.cpp",
+    "output": "/mnt/data/build_msvc_release/options.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/options.obj /c contrib/systemIV/contrib/unrar/options.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/pathfn.cpp",
+    "output": "/mnt/data/build_msvc_release/pathfn.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/pathfn.obj /c contrib/systemIV/contrib/unrar/pathfn.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/rarresource.cpp",
+    "output": "/mnt/data/build_msvc_release/rarresource.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/rarresource.obj /c contrib/systemIV/contrib/unrar/rarresource.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/rarvm.cpp",
+    "output": "/mnt/data/build_msvc_release/rarvm.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/rarvm.obj /c contrib/systemIV/contrib/unrar/rarvm.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/rarvmtbl.cpp",
+    "output": "/mnt/data/build_msvc_release/rarvmtbl.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/rarvmtbl.obj /c contrib/systemIV/contrib/unrar/rarvmtbl.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/rawread.cpp",
+    "output": "/mnt/data/build_msvc_release/rawread.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/rawread.obj /c contrib/systemIV/contrib/unrar/rawread.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/rdwrfn.cpp",
+    "output": "/mnt/data/build_msvc_release/rdwrfn.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/rdwrfn.obj /c contrib/systemIV/contrib/unrar/rdwrfn.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/recvol.cpp",
+    "output": "/mnt/data/build_msvc_release/recvol.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/recvol.obj /c contrib/systemIV/contrib/unrar/recvol.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/rijndael.cpp",
+    "output": "/mnt/data/build_msvc_release/rijndael.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/rijndael.obj /c contrib/systemIV/contrib/unrar/rijndael.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/rs.cpp",
+    "output": "/mnt/data/build_msvc_release/rs.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/rs.obj /c contrib/systemIV/contrib/unrar/rs.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/savepos.cpp",
+    "output": "/mnt/data/build_msvc_release/savepos.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/savepos.obj /c contrib/systemIV/contrib/unrar/savepos.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/scantree.cpp",
+    "output": "/mnt/data/build_msvc_release/scantree.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/scantree.obj /c contrib/systemIV/contrib/unrar/scantree.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/sha1.cpp",
+    "output": "/mnt/data/build_msvc_release/sha1.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sha1.obj /c contrib/systemIV/contrib/unrar/sha1.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/smallfn.cpp",
+    "output": "/mnt/data/build_msvc_release/smallfn.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/smallfn.obj /c contrib/systemIV/contrib/unrar/smallfn.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/strfn.cpp",
+    "output": "/mnt/data/build_msvc_release/strfn.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/strfn.obj /c contrib/systemIV/contrib/unrar/strfn.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/strlist.cpp",
+    "output": "/mnt/data/build_msvc_release/strlist.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/strlist.obj /c contrib/systemIV/contrib/unrar/strlist.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/system.cpp",
+    "output": "/mnt/data/build_msvc_release/system.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/system.obj /c contrib/systemIV/contrib/unrar/system.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/timefn.cpp",
+    "output": "/mnt/data/build_msvc_release/timefn.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/timefn.obj /c contrib/systemIV/contrib/unrar/timefn.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/ulinks.cpp",
+    "output": "/mnt/data/build_msvc_release/ulinks.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/ulinks.obj /c contrib/systemIV/contrib/unrar/ulinks.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/unicode.cpp",
+    "output": "/mnt/data/build_msvc_release/unicode.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/unicode.obj /c contrib/systemIV/contrib/unrar/unicode.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/unpack.cpp",
+    "output": "/mnt/data/build_msvc_release/unpack.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/unpack.obj /c contrib/systemIV/contrib/unrar/unpack.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/unrar.cpp",
+    "output": "/mnt/data/build_msvc_release/unrar.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/unrar.obj /c contrib/systemIV/contrib/unrar/unrar.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/contrib/unrar/volume.cpp",
+    "output": "/mnt/data/build_msvc_release/volume.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/volume.obj /c contrib/systemIV/contrib/unrar/volume.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/source/app/trayicon.cpp",
+    "output": "/mnt/data/build_msvc_release/trayicon.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/trayicon.obj /c source/app/trayicon.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/gucci/input_win32.cpp",
+    "output": "/mnt/data/build_msvc_release/input_win32.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/input_win32.obj /c contrib/systemIV/lib/gucci/input_win32.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/gucci/win32library.cpp",
+    "output": "/mnt/data/build_msvc_release/win32library.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/win32library.obj /c contrib/systemIV/lib/gucci/win32library.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/gucci/window_manager_win32.cpp",
+    "output": "/mnt/data/build_msvc_release/window_manager_win32.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/window_manager_win32.obj /c contrib/systemIV/lib/gucci/window_manager_win32.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/netlib/net_mutex_win32.cpp",
+    "output": "/mnt/data/build_msvc_release/net_mutex_win32.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/net_mutex_win32.obj /c contrib/systemIV/lib/netlib/net_mutex_win32.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/netlib/net_thread_win32.cpp",
+    "output": "/mnt/data/build_msvc_release/net_thread_win32.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/net_thread_win32.obj /c contrib/systemIV/lib/netlib/net_thread_win32.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/netlib/condition_win32.cpp",
+    "output": "/mnt/data/build_msvc_release/condition_win32.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/condition_win32.obj /c contrib/systemIV/lib/netlib/condition_win32.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/netlib/condition_winxp.cpp",
+    "output": "/mnt/data/build_msvc_release/condition_winxp.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/condition_winxp.obj /c contrib/systemIV/lib/netlib/condition_winxp.cpp"
+  },
+  {
+    "directory": "/mnt/data",
+    "file": "/mnt/data/contrib/systemIV/lib/sound/sound_library_3d_dsound.cpp",
+    "output": "/mnt/data/build_msvc_release/sound_library_3d_dsound.obj",
+    "command": "cl.exe /nologo /std:c++14 /EHsc /MD /O2 /D_WIN32 /DWIN32 /DTARGET_MSVC /DGLEW_STATIC /D_WINSOCK_DEPRECATED_NO_WARNINGS /D_CRT_SECURE_NO_WARNINGS /DNDEBUG /Isource /Isource/app /Icontrib/systemIV /Icontrib/systemIV/contrib /Icontrib/systemIV/contrib/unrar /Icontrib/systemIV/contrib/binreloc /Icontrib/systemIV/linux/include /Icontrib/systemIV/lib/gucci /Icontrib/systemIV/lib/netlib /Icontrib/systemIV/lib/eclipse /Icontrib/systemIV/contrib/oggvorbis/include /Icontrib/ambx1.1/inc /Icontrib/systemIV/contrib/glew/include /Iresources /Fo/mnt/data/build_msvc_release/sound_library_3d_dsound.obj /c contrib/systemIV/lib/sound/sound_library_3d_dsound.cpp"
+  }
+]

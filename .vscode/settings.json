@@ -105,5 +105,43 @@
         "xtree": "cpp",
         "xutility": "cpp"
     },
-    "vscord.app.name": "Visual Studio Code"
+    "vscord.app.name": "Visual Studio Code",
+    
+    "clangd.arguments": [
+        "--header-insertion=never",
+        "--compile-commands-dir=${workspaceFolder}/.vscode",
+        "--clang-tidy",
+        "--completion-style=detailed",
+        "--pch-storage=memory",
+        "--background-index=true",
+        "--suggest-missing-includes"
+    ],
+    "clangd.fallbackFlags": [
+        "-std=c++14",
+        "-Wall",
+        "-I${workspaceFolder}/source",
+        "-I${workspaceFolder}/source/app",
+        "-I${workspaceFolder}/contrib/systemIV",
+        "-I${workspaceFolder}/contrib/systemIV/contrib",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/unrar",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/binreloc",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/oggvorbis/include",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/oggvorbis64/include",
+        "-I${workspaceFolder}/contrib/ambx1.1/inc",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/glew/include",
+        "-I${workspaceFolder}/contrib/systemIV/lib/gucci",
+        "-I${workspaceFolder}/contrib/systemIV/lib/netlib",
+        "-I${workspaceFolder}/contrib/systemIV/lib/eclipse",
+        "-I${workspaceFolder}/resources",
+        "-DWIN32",
+        "-D_WIN32",
+        "-DTARGET_MSVC",
+        "-DGLEW_STATIC",
+        "-D_WINSOCK_DEPRECATED_NO_WARNINGS",
+        "-D_CRT_SECURE_NO_WARNINGS"
+    ],
+    
+    "C_Cpp.intelliSenseEngine": "disabled",
+    "C_Cpp.autocomplete": "disabled",
+    "C_Cpp.errorSquiggles": "disabled"
 }
