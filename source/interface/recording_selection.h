@@ -3,6 +3,8 @@
 
 #include "interface/components/core.h"
 
+class RecordingFileDialog;
+
 // ============================================================================
 // Recording Selection Window
 // Shows options for starting recording playback from lobby or game start

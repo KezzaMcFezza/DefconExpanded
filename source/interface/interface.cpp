@@ -47,7 +47,7 @@
 #include "interface/connecting_window.h"
 #include "interface/resynchronise_window.h"
 #include "interface/playback_control_window.h"
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
 #include "interface/recording_selection.h"
 #endif
 
@@ -329,7 +329,7 @@ void Interface::Update()
     if( !g_app->m_gameRunning &&
         EclGetWindows()->Size() == 0 )
     {
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
         // REPLAY VIEWER MODE: Open recording selection window instead of main menu
         OpenReplayViewerWindow();
 #else
@@ -755,7 +755,7 @@ void Interface::Shutdown()
 
 void Interface::OpenSetupWindows()
 {
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
     // In replay viewer mode, open recording selection window instead of main menu
     OpenReplayViewerWindow();
 #else
@@ -769,7 +769,7 @@ void Interface::OpenSetupWindows()
 
 void Interface::OpenReplayViewerWindow()
 {
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
     // Close any existing windows first
     if( EclGetWindow("Recording Playback") )
     {

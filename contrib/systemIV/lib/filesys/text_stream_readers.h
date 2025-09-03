@@ -2,6 +2,8 @@
 #define INCLUDE_TEXT_STREAM_READERS_H
 
 #include <stdio.h>
+#include "lib/unicode/unicode_string.h"
+#include <string>
 
 
 //*****************************************************************************
@@ -11,16 +13,27 @@
 // This is an ABSTRACT BASE class. If you want to actually tokenise some text,
 // I recommend either TextFileReader or TextDataReader.
 
+#define NO_COPY(Class)					\
+private:								\
+	Class &operator = (const Class &);	\
+	Class( const Class &);				\
+
+
 class TextReader
 {
 protected:
 	char			m_seperatorChars[16];
-	char			m_filename[256];
+	std::string		m_filename;
 	int			    m_offsetIndex;
 	int			    m_fileEncrypted;	    // -1 means we don't know yet. 0 means no. 1 means yes.
+	bool			m_isunicode;
 
 	void		    DoubleMaxLineLen();
-	void		    CleanLine();			// Decrypt, strip comments and scan for conflict markers
+	virtual void	CleanLine();			// Decrypt, strip comments and scan for conflict markers
+
+	UnicodeString	m_unicodeline;
+	UnicodeString	m_restOfUnicodeLine;
+	UnicodeString	m_unicodeToken;
 
 public:
 	int				m_tokenIndex;
@@ -31,16 +44,24 @@ public:
 	TextReader		    ();
 	virtual ~TextReader ();
 
-    virtual bool IsOpen         () = 0;
+	operator bool() const;
+
+    virtual bool IsOpen			() const = 0;
 	virtual bool ReadLine		() = 0;	// Returns false on EOF, true otherwise
-	bool		 TokenAvailable	();
-	char		 *GetNextToken	();
-    char		 *GetRestOfLine ();
+	virtual bool TokenAvailable	();
+	bool		 IsUnicode		();
+	char *GetNextToken			();
+    char *GetRestOfLine			();
+
+	virtual const UnicodeString&	GetNextUnicodeToken		();
+    virtual const UnicodeString&	GetRestOfUnicodeLine	();
 
 	char const	*GetFilename	();
 
-	void SetSeperatorChars		(char const *_seperatorChars);
-	void SetDefaultSeperatorChars();
+	virtual	void SetSeperatorChars		(char const *_seperatorChars);
+	virtual	void SetDefaultSeperatorChars();
+
+	NO_COPY( TextReader )
 };
 
 
@@ -57,8 +78,10 @@ public:
 	TextFileReader				(char const *_filename);
 	~TextFileReader				();
 
-    bool IsOpen                 ();
+    bool IsOpen                 () const;
 	bool ReadLine				();
+
+	NO_COPY( TextFileReader )
 };
 
 
@@ -76,8 +99,10 @@ protected:
 public:
 	TextDataReader				(char const *_data, unsigned int _dataSize, char const *_filename);
 
-    bool IsOpen                 ();
+    bool IsOpen                 () const;
 	bool ReadLine				();
+
+	NO_COPY( TextDataReader )
 };
 
 

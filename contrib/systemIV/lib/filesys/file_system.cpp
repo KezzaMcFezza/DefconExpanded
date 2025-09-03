@@ -1,13 +1,16 @@
+//#define _CRT_SECURE_NO_DEPRECATE
 #include "lib/universal_include.h"
 #include "lib/string_utils.h"
 
-#include <unrar/unrar.h>
+#ifndef NO_UNRAR
+#include "unrar/unrar.h"
+#endif // NO_UNRAR
 
 #include "file_system.h"
 #include "filesys_utils.h"
 #include "text_stream_readers.h"
 #include "binary_stream_readers.h"
-#include "lib/string_utils.h"
+//#include "unicode/unicode_text_stream_reader.h"
 
 FileSystem *g_fileSystem = NULL;
 
@@ -20,7 +23,6 @@ FileSystem::FileSystem()
 FileSystem::~FileSystem()
 {
 }
-
 
 void FileSystem::ParseArchives( const char *_dir, const char *_filter )
 {
@@ -36,7 +38,7 @@ void FileSystem::ParseArchives( const char *_dir, const char *_filter )
     delete results;
 }
 
-
+#ifndef NO_UNRAR
 void FileSystem::ParseArchive( const char *_filename )
 {
 	UncompressedArchive	*mainData = NULL;
@@ -83,6 +85,7 @@ void FileSystem::ParseArchive( const char *_filename )
 
 	delete mainData;
 }
+#endif // NO_UNRAR
 
 
 TextReader *FileSystem::GetTextReader(const char *_filename)
@@ -92,23 +95,11 @@ TextReader *FileSystem::GetTextReader(const char *_filename)
     for( int i = 0; i < m_searchPath.Size(); ++i )
     {
         char fullFilename[512];
-        snprintf( fullFilename, sizeof(fullFilename), "%s%s", m_searchPath[i], _filename );
-        fullFilename[ sizeof(fullFilename) - 1 ] = '\0';
+        sprintf( fullFilename, "%s%s", m_searchPath[i], _filename );
         if( DoesFileExist(fullFilename) )
         {
             reader = new TextFileReader(fullFilename);
             break;
-        }
-    }
-
-    if( !reader )
-    {
-        char fullFilename[512];
-        snprintf( fullFilename, sizeof(fullFilename), "localisation/%s", _filename );
-        fullFilename[ sizeof(fullFilename) - 1 ] = '\0';
-        if (DoesFileExist(fullFilename)) 
-        {
-            reader = new TextFileReader(fullFilename);
         }
     }
 
@@ -120,11 +111,21 @@ TextReader *FileSystem::GetTextReader(const char *_filename)
         }
     }
 
+#ifndef NO_UNRAR
 	if( !reader )
 	{
 		MemMappedFile *mmfile = m_archiveFiles.GetData(_filename);
-		if (mmfile) reader = new TextDataReader((char*)mmfile->m_data, mmfile->m_size, _filename);		
+		if (mmfile) 
+		{
+			//reader = new UnicodeTextDataReader((char*)mmfile->m_data, mmfile->m_size, _filename);	
+			//if (reader && !reader->IsUnicode())
+			//{
+			//	delete reader;
+				reader = new TextDataReader((char*)mmfile->m_data, mmfile->m_size, _filename);
+			//}
+		}
 	}
+#endif // NO_UNRAR
 
 	return reader;
 }
@@ -137,23 +138,11 @@ BinaryReader *FileSystem::GetBinaryReader(const char *_filename)
     for( int i = 0; i < m_searchPath.Size(); ++i )
     {
         char fullFilename[512];
-        snprintf( fullFilename, sizeof(fullFilename), "%s%s", m_searchPath[i], _filename );
-        fullFilename[ sizeof(fullFilename) - 1 ] = '\0';
+        sprintf( fullFilename, "%s%s", m_searchPath[i], _filename );
         if( DoesFileExist(fullFilename) )
         {
             reader = new BinaryFileReader(fullFilename);
             break;
-        }
-    }
-
-    if( !reader )
-    {
-        char fullFilename[512];
-        snprintf( fullFilename, sizeof(fullFilename), "localisation/%s", _filename );
-        fullFilename[ sizeof(fullFilename) - 1 ] = '\0';
-        if (DoesFileExist(fullFilename)) 
-        {
-            reader = new BinaryFileReader(fullFilename);
         }
     }
 
@@ -165,11 +154,13 @@ BinaryReader *FileSystem::GetBinaryReader(const char *_filename)
         }
     }
 
+#ifndef NO_UNRAR
     if( !reader )
 	{
 		MemMappedFile *mmfile = m_archiveFiles.GetData(_filename);
 		if (mmfile) reader = new BinaryDataReader(mmfile->m_data, mmfile->m_size, _filename);		
 	}
+#endif // NO_UNRAR
 
 	return reader;
 }
@@ -178,8 +169,8 @@ BinaryReader *FileSystem::GetBinaryReader(const char *_filename)
 
 int WildCmp(char const *wild, char const *string) 
 {
-    char const *cp;
-    char const *mp;
+    char const *cp = NULL;
+    char const *mp = NULL;
 
     while ((*string) && (*wild != '*')) 
     {
@@ -226,7 +217,7 @@ int WildCmp(char const *wild, char const *string)
 // The string is copied and entered into llist
 // in correct alphabetical order.
 // The string wont be added if it is already present.
-void OrderedInsert( LList<char *> *_llist, char *_newString )
+void OrderedInsert( LList<char *> *_llist, const char *_newString )
 {
     bool added = false;
 
@@ -253,16 +244,6 @@ void OrderedInsert( LList<char *> *_llist, char *_newString )
 }
 
 
-static void ListArchiveFilterResults( LList<char *> *results, LList<char *> *results2 )
-{
-    for( int i = 0; i < results2->Size(); ++i )
-    {
-        char *filename = results2->GetData( i );
-        OrderedInsert( results, filename );
-    }
-}
-
-
 // Finds all the filenames in the specified directory that match the specified
 // filter. Directory should be like "textures" or "textures/".
 // Filter can be NULL or "" or "*.bmp" or "map_*" or "map_*.txt"
@@ -273,55 +254,12 @@ LList<char *> *FileSystem::ListArchive(char *_dir, char *_filter, bool fullFilen
     LList<char *> *results = NULL;
 
     //
-    // List the search directories
-
-    for( int i = 0; i < m_searchPath.Size(); ++i )
-    {
-        char searchPathFilename[512];
-        snprintf( searchPathFilename, sizeof(searchPathFilename), "%s%s", m_searchPath[i], _dir );
-        searchPathFilename[ sizeof(searchPathFilename) - 1 ] = '\x0';
-        LList<char *> *results2 = ListDirectory( searchPathFilename, _filter, fullFilename );
-        if( !results )
-        {
-            results = results2;
-        }
-        else
-        {
-            ListArchiveFilterResults( results, results2 );
-            results2->EmptyAndDeleteArray();
-            delete results2;
-        }
-    }
-
-
-    //
-    // List the localisation directory
-
-    char localisationFilename[512];
-    snprintf( localisationFilename, sizeof(localisationFilename), "localisation/%s", _dir );
-    localisationFilename[ sizeof(localisationFilename) - 1 ] = '\0';
-    LList<char *> *results3 = ListDirectory( localisationFilename, _filter, fullFilename );
-    if( !results )
-    {
-        results = results3;
-    }
-    else
-    {
-        ListArchiveFilterResults( results, results3 );
-        results3->EmptyAndDeleteArray();
-        delete results3;
-    }
-
-
-    //
     // List the base data directory
 
-    LList<char *> *results4 = ListDirectory( _dir, _filter, fullFilename );
-    ListArchiveFilterResults( results, results4 );
-    results4->EmptyAndDeleteArray();
-    delete results4;
+    results = ListDirectory(_dir, _filter, fullFilename);
 
 
+#ifndef NO_UNRAR
     //
     // List the pre-loaded resource files
 
@@ -334,7 +272,7 @@ LList<char *> *FileSystem::ListArchive(char *_dir, char *_filter, bool fullFilen
 
         DArray <char *> *unfilteredResults = m_archiveFiles.ConvertIndexToDArray();
 
-        for (int i = 0; i < unfilteredResults->Size(); ++i)
+        for (unsigned int i = 0; i < unfilteredResults->Size(); ++i)
         {
             if (!unfilteredResults->ValidIndex(i)) continue;
 
@@ -346,14 +284,14 @@ LList<char *> *FileSystem::ListArchive(char *_dir, char *_filter, bool fullFilen
                 int result = WildCmp(_filter, filePart);
                 if (result != 0)
                 {
-                    if( !fullFilename )  OrderedInsert(results, filePart);
-                    else                 OrderedInsert(results, fullname);
+                    if( fullname )      OrderedInsert(results, filePart);				
+                    else   			    OrderedInsert(results, fullname);				
                 }
             }
         }
-
         delete unfilteredResults;
     }
+#endif // NO_UNRAR
 
     return results;
 }

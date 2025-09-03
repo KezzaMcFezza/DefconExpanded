@@ -2,6 +2,7 @@
 #define INCLUDED_BINARY_STREAM_READERS_H
 
 #include <stdio.h>
+#include <string>
 
 
 //*****************************************************************************
@@ -12,13 +13,13 @@ class BinaryReader
 {
 public:
 	bool			m_eof;
-	char			m_filename[256];
+	std::string		m_filename;
 
 	BinaryReader		 ();
 	virtual ~BinaryReader();
 
     virtual bool			IsOpen  () = 0;
-	virtual char *			GetFileType() = 0;
+	virtual const char *	GetFileType();
 
 	virtual signed char		ReadS8	() = 0;
 	virtual short			ReadS16	() = 0;
@@ -29,6 +30,8 @@ public:
 
 	virtual int				Seek	(int _offset, int _origin) = 0;
 	virtual int				Tell	() = 0;
+
+	int                     GetSize ();
 };
 
 
@@ -46,7 +49,6 @@ public:
 	~BinaryFileReader			();
 
     bool			IsOpen		();
-	char *			GetFileType	();
 
 	signed char		ReadS8		();
 	short			ReadS16		();
@@ -78,7 +80,6 @@ public:
 	~BinaryDataReader			();
 
     bool			IsOpen		();
-	char *			GetFileType	();
 
 	signed char		ReadS8		();
 	short			ReadS16		();

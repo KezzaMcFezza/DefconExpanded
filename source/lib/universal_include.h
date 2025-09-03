@@ -284,7 +284,8 @@
 
 // Include OpenGL
 #ifdef TARGET_OS_MACOSX
-#include <OpenGL/gl3.h>
+#include <GL/glew.h>
+#include <GL/gl.h>
 #include <SDL2/SDL.h>
 #undef TARGET_OS_LINUX
 #undef TARGET_OS_WINDOWS

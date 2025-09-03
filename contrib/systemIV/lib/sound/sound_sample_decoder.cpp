@@ -25,7 +25,7 @@ SoundSampleDecoder::SoundSampleDecoder(BinaryReader *_in)
     m_vorbisFile(NULL),
     m_sampleCache(NULL)
 {
-	char *fileType = _in->GetFileType();
+	const char *fileType = _in->GetFileType();
 	if (stricmp(fileType, "wav") == 0)
 	{
 		m_fileType = TypeWav;
@@ -38,7 +38,7 @@ SoundSampleDecoder::SoundSampleDecoder(BinaryReader *_in)
 	}
 	else
 	{
-		AppReleaseAssert(0, "Unknown sound file format %s", m_in->m_filename);
+		AppReleaseAssert(0, "Unknown sound file format %s", m_in->m_filename.c_str());
 	}
 
 
@@ -183,12 +183,12 @@ void SoundSampleDecoder::ReadOggHeader()
 
 	m_vorbisFile = new OggVorbis_File();
 	int result = ov_open_callbacks(m_in, m_vorbisFile, NULL, 0, callbacks);
-	AppReleaseAssert(result == 0, "Ogg file corrupt %s (result = %d)", m_in->m_filename, result);
+	AppReleaseAssert(result == 0, "Ogg file corrupt %s (result = %d)", m_in->m_filename.c_str(), result);
 
 	vorbis_info *vi = ov_info(m_vorbisFile, -1);
 
 	m_numSamples = (unsigned int) ov_pcm_total(m_vorbisFile, -1);
-	AppReleaseAssert(m_numSamples > 0, "Ogg file contains no data %s", m_in->m_filename);
+	AppReleaseAssert(m_numSamples > 0, "Ogg file contains no data %s", m_in->m_filename.c_str());
 	m_freq = vi->rate;
 	m_numChannels = vi->channels;
 }
@@ -245,7 +245,7 @@ unsigned int SoundSampleDecoder::ReadOggData(signed short *_data, unsigned int _
 		int bytesRead = ov_read(m_vorbisFile, buf, numBytesToRead, IS_BIG_ENDIAN,
 								2 /*16 bit*/, 1 /*signed*/, &currentSection);
 		AppReleaseAssert(bytesRead != OV_HOLE && bytesRead != OV_EBADLINK,
-			"Ogg file corrupt %s", m_in->m_filename);
+			"Ogg file corrupt %s", m_in->m_filename.c_str());
 
 		if (bytesRead == 0)
 		{
@@ -270,7 +270,7 @@ unsigned int SoundSampleDecoder::ReadToCache(unsigned int _numSamples)
 
     switch( m_fileType )
     {
-	    case TypeUnknown:   AppReleaseAssert(0, "Unknown format of sound file %s", m_in->m_filename);
+	    case TypeUnknown:   AppReleaseAssert(0, "Unknown format of sound file %s", m_in->m_filename.c_str());
 	    case TypeWav:       samplesRead = ReadWavData(&m_sampleCache[m_amountCached], _numSamples);         break;
 	    case TypeOgg:       samplesRead = ReadOggData(&m_sampleCache[m_amountCached], _numSamples);         break;
     }

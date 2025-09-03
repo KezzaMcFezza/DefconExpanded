@@ -5,7 +5,7 @@
 #include "filesys_utils.h"
 
 #include <stdarg.h> 
-
+#include <sstream>
 
 static unsigned int s_offsets[] = {
 	31, 7, 9, 1, 
@@ -14,33 +14,67 @@ static unsigned int s_offsets[] = {
 	35, 22, 27, 2
 }; 
 
-
-TextFileWriter::TextFileWriter(const char *_filename, bool _encrypt)
-:	m_offsetIndex(0),
-	m_encrypt(_encrypt)
+// ===== TEXT WRITER BASE CLASS
+TextWriter::operator bool() const
 {
-	m_file = fopen(FindCaseInsensitive(_filename), "w");
-	
-	AppReleaseAssert(m_file, "Couldn't create file %s", _filename);
+    return false;
+}
+// =====
 
-	if (_encrypt)
+
+// TextFileWriter ==================================================================
+
+TextFileWriter::TextFileWriter(const char *_filename, bool _encrypt, bool _assertOnFail)
+:	TextWriter(),
+    m_offsetIndex(0),
+	m_encrypt(_encrypt),
+	m_canWrite(false),
+	m_assertOnFail(_assertOnFail)
+{
+	std::string filename = FindCaseInsensitive( _filename );
+	m_file = fopen( filename.c_str(), "w" );
+
+	if( m_file )
 	{
-		fprintf(m_file, "redshirt2");
+		m_canWrite = true;
+	}
+	else if( m_assertOnFail )
+	{
+		AppReleaseAssert(m_file, "Couldn't create file %s", _filename);
+	}
+	else
+	{
+		AppDebugOut("Couldn't create file %s\n", _filename);
+	}
+
+	if (m_canWrite && _encrypt)
+	{
+		fprintf( m_file, "redshirt2" );
 	}
 }
 
 
 TextFileWriter::~TextFileWriter()
 {
+	if( !m_canWrite )
+	{
+		return;
+	}
+
 	fclose(m_file);
 }
 
+TextFileWriter::operator bool() const
+{
+	return m_canWrite;
+}
 
-int TextFileWriter::printf(const char *_fmt, ...)
+int TextFileWriter::printf(char *_fmt, ...)
 {
 	char buf[10240];
     va_list ap;
     va_start (ap, _fmt);
+
     int len = vsprintf(buf, _fmt, ap);
 
 	if (m_encrypt)
@@ -57,5 +91,41 @@ int TextFileWriter::printf(const char *_fmt, ...)
 		}
 	}
 
-	return fprintf(m_file, "%s", buf);
+	if( !m_canWrite )
+	{
+		//AppDebugOut("Can't write at the moment - %s\n", buf);
+		return -1;
+	}
+
+	return fputs( buf, m_file );
+}
+
+// TextMemoryWriter ===============================================================
+
+TextMemoryWriter::TextMemoryWriter()
+:   TextWriter()
+{    
+}
+
+TextMemoryWriter::operator bool() const
+{
+    return m_stringStream.good();
+}
+
+int TextMemoryWriter::printf(char *_fmt, ...)
+{
+    char buf[10240];
+    va_list ap;
+    va_start (ap, _fmt);
+
+    int len = vsprintf(buf, _fmt, ap);
+
+    m_stringStream.write( buf, len );
+
+    return 1;
+}
+
+std::ostringstream *TextMemoryWriter::GetStream()
+{
+    return &m_stringStream;
 }

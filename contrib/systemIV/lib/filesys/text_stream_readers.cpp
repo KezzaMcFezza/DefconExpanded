@@ -8,7 +8,6 @@
 #include <string.h>
 
 #include "lib/debug_utils.h"
-#include "lib/string_utils.h"
 
 #include "text_stream_readers.h"
 #include "filesys_utils.h"
@@ -30,14 +29,16 @@ static unsigned int s_offsets[] = {
 
 
 TextReader::TextReader()
-:	m_offsetIndex(0),
+:	m_maxLineLen(INITIAL_LINE_LEN),
+	m_lineNum(0),
+	m_offsetIndex(0),
 	m_fileEncrypted(-1),
-	m_maxLineLen(INITIAL_LINE_LEN),
-	m_lineNum(0)
+	m_restOfUnicodeLine()
 {
 	m_filename[0] = '\0';
 	m_line = new char[INITIAL_LINE_LEN + 1];	// Don't forget space for the null terminator
 	strcpy(m_seperatorChars, DEFAULT_SEPERATOR_CHARS);
+	m_isunicode = false;
 }
 
 
@@ -46,6 +47,15 @@ TextReader::~TextReader()
 	delete [] m_line;
 }
 
+bool TextReader::IsUnicode()
+{
+	return m_isunicode;
+}
+
+TextReader::operator bool() const
+{
+	return IsOpen();
+}
 
 void TextReader::DoubleMaxLineLen()
 {
@@ -65,7 +75,7 @@ void TextReader::CleanLine()
 	
 	if (m_fileEncrypted != 0)
 	{
-		int len = (int) strlen(m_line);
+		size_t len = strlen(m_line);
 
 		// Check if file is encrypted
 		if (m_fileEncrypted == -1)
@@ -73,7 +83,7 @@ void TextReader::CleanLine()
 			if (strnicmp(m_line, "redshirt2", 9) == 0)
 			{
 				m_fileEncrypted = 1;
-				for (int i = 9; i < len; ++i)
+				for (size_t i = 9; i < len; ++i)
 				{
 					m_line[i - 9] = m_line[i]; 
 				}
@@ -88,7 +98,7 @@ void TextReader::CleanLine()
 		// Decrypt this line if necessary
 		if (m_fileEncrypted)
 		{
-			for (int i = 0; i < len; ++i)
+			for (size_t i = 0; i < len; ++i)
 			{
 				if (m_line[i] > 32) {
 					m_offsetIndex++;
@@ -125,6 +135,13 @@ void TextReader::CleanLine()
 		}
 		c++;
 	}
+
+	// Get rid of \n \r 
+	char* p = strchr(m_line,'\n');
+	if( p ) *p = '\0';
+
+	p = strchr(m_line,'\r');
+	if( p ) *p = '\0';
 }
 
 
@@ -160,9 +177,15 @@ bool TextReader::TokenAvailable()
 
 char const *TextReader::GetFilename()
 {
-	return m_filename;
+	return m_filename.c_str();
 }
 
+const UnicodeString& TextReader::GetNextUnicodeToken()
+{
+	char* token = GetNextToken();
+	m_unicodeline = token ? UnicodeString(token) : UnicodeString();
+	return m_unicodeline;
+}
 
 // Returns the next token on the current line. Strips all separator
 // characters from the start and end of the token, so "blah, wibble:7"
@@ -175,7 +198,6 @@ char *TextReader::GetNextToken()
 	// Make sure there is more input on the line
 	if (m_line[m_tokenIndex] == '\0')
 	{
-		AppDebugAssert(false);
 		return NULL;
 	}
 
@@ -190,7 +212,6 @@ char *TextReader::GetNextToken()
 	// Make sure that we haven't found an empty token
 	if (m_line[m_tokenStart] == '\0')
 	{
-		AppDebugAssert(false);
 		return NULL;
 	}
 
@@ -210,6 +231,12 @@ char *TextReader::GetNextToken()
 	return &m_line[m_tokenStart];
 }
 
+const UnicodeString& TextReader::GetRestOfUnicodeLine()
+{
+	char* restOfLine = GetRestOfLine();
+	m_restOfUnicodeLine = restOfLine ? UnicodeString(restOfLine) : UnicodeString();
+	return m_restOfUnicodeLine;
+}
 
 char *TextReader::GetRestOfLine()
 {
@@ -239,13 +266,8 @@ char *TextReader::GetRestOfLine()
 TextFileReader::TextFileReader(char const *_filename)
 :	TextReader()
 {
-	strncpy(m_filename, _filename, sizeof(m_filename) - 1);
-    const char *caseInsensitivePath = FindCaseInsensitive(m_filename);
-    if( caseInsensitivePath && caseInsensitivePath != m_filename )
-    {
-        strcpy(m_filename, caseInsensitivePath );
-    }
-	m_file = fopen(m_filename, "r");
+	m_filename = FindCaseInsensitive( _filename );
+	m_file = fopen(m_filename.c_str(), "r");
 }
 
 
@@ -254,8 +276,7 @@ TextFileReader::~TextFileReader()
 	if( m_file ) fclose(m_file);
 }
 
-
-bool TextFileReader::IsOpen()
+bool TextFileReader::IsOpen() const
 {
     return( m_file && m_line );
 }
@@ -278,7 +299,6 @@ bool TextFileReader::ReadLine()
 	{
 		eof = true;
 	}
-
 	
 	//
 	// Make sure we read a whole line
@@ -297,7 +317,9 @@ bool TextFileReader::ReadLine()
 			DoubleMaxLineLen();
 			if (fgets(&m_line[oldLineLen], oldLineLen + 1, m_file) == NULL)
 			{
-				eof = true;
+				// Got to the end of the line, but we've read some data
+				// so we shouldn't report eof (wait until next time)
+				found = true;
 			}
 		}
 	}
@@ -320,11 +342,11 @@ TextDataReader::TextDataReader(char const *_data, unsigned int _dataSize, char c
 	m_dataSize(_dataSize),
 	m_offset(0)
 {
-	strncpy(m_filename, _filename, sizeof(m_filename) - 1);
+	m_filename = _filename;
 }
 
 
-bool TextDataReader::IsOpen()
+bool TextDataReader::IsOpen() const
 {
     return true;
 }

@@ -1395,6 +1395,8 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_sample_decoder.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\string_utils.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\tosser\directory.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\unicode\unicode_string.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\unicode\unicode_text_stream_reader.cpp" />
     <ClCompile Include="..\..\source\app\app.cpp" />
     <ClCompile Include="..\..\source\app\defcon_soundinterface.cpp" />
     <ClCompile Include="..\..\source\app\game.cpp" />
@@ -1427,6 +1429,7 @@
     <ClCompile Include="..\..\source\interface\placement_icon.cpp" />
     <ClCompile Include="..\..\source\interface\playback_control_window.cpp" />
     <ClCompile Include="..\..\source\interface\profile_window.cpp" />
+    <ClCompile Include="..\..\source\interface\recording_file_dialog.cpp" />
     <ClCompile Include="..\..\source\interface\recording_selection.cpp" />
     <ClCompile Include="..\..\source\interface\resynchronise_window.cpp" />
     <ClCompile Include="..\..\source\interface\serverbrowser_window.cpp" />
@@ -1573,6 +1576,8 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\hash_table.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\llist.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\sorting_hash_table.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\unicode\unicode_string.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\unicode\unicode_text_stream_reader.h" />
     <ClInclude Include="..\..\source\app\app.h" />
     <ClInclude Include="..\..\source\app\defcon_soundinterface.h" />
     <ClInclude Include="..\..\source\app\game.h" />
@@ -1604,6 +1609,7 @@
     <ClInclude Include="..\..\source\interface\placement_icon.h" />
     <ClInclude Include="..\..\source\interface\playback_control_window.h" />
     <ClInclude Include="..\..\source\interface\profile_window.h" />
+    <ClInclude Include="..\..\source\interface\recording_file_dialog.h" />
     <ClInclude Include="..\..\source\interface\recording_selection.h" />
     <ClInclude Include="..\..\source\interface\resynchronise_window.h" />
     <ClInclude Include="..\..\source\interface\serverbrowser_window.h" />
