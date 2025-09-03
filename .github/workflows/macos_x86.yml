@@ -22,6 +22,7 @@ jobs:
     - name: Install modern CMake
       run: |
         brew update
+        brew uninstall cmake
         brew install cmake
         cmake --version
         
