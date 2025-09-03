@@ -3,6 +3,7 @@
 #include "unicode_string.h"
 #include <stdarg.h>
 #include "lib/string_utils.h"
+#include "lib/math/math_utils.h"
 #include <string.h>
 
 #ifdef TARGET_OS_MACOSX
