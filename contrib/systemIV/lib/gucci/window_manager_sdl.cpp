@@ -383,7 +383,7 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
         return false;
     }
     
-#if TARGET_OS_LINUX && !defined(TARGET_EMSCRIPTEN)
+#if defined(TARGET_OS_LINUX) || defined(TARGET_OS_MACOSX)
     // we need to initialise GLEW now that we are using compatibility profile
     // instead of OpenGL ES 3.0
     printf("Initializing GLEW...\n");
