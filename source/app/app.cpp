@@ -53,7 +53,7 @@
 #include "interface/components/message_dialog.h"
 #include "interface/demo_window.h"
 
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
 #include "interface/recording_selection.h"
 #endif
 
@@ -88,6 +88,7 @@ int mkdir(const char *pathname, mode_t mode) {
 
 #include "lib/resource/image.h"
 #include "lib/netlib/net_mutex.h"
+#include "interface/recording_file_dialog.h"
 
 #ifdef TARGET_OS_MACOSX
 #include <sys/stat.h>
@@ -422,7 +423,7 @@ void App::FinishInit()
     InitMetaServer();
     if (EclGetWindows()->Size() == 0)
     {
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER)
+#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
 
         //
         // Skip main menu and open recording selection window directly
@@ -1074,6 +1075,11 @@ void App::Shutdown()
     m_statusIcon = NULL;
 
     g_preferences->Save();
+
+    //
+    // save the last recording folder to preferences
+
+    RecordingFileDialog::SaveLastFolderToPreferences();
 
 #ifdef TRACK_MEMORY_LEAKS
     AppPrintMemoryLeaks( "memoryleaks.txt" );

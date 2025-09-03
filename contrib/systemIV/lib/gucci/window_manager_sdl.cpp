@@ -383,6 +383,28 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
         return false;
     }
     
+#if TARGET_OS_LINUX && !defined(TARGET_EMSCRIPTEN)
+    // we need to initialise GLEW now that we are using compatibility profile
+    // instead of OpenGL ES 3.0
+    printf("Initializing GLEW...\n");
+    fflush(stdout);
+    
+    GLenum glewResult = glewInit();
+    if (glewResult != GLEW_OK) {
+        printf("GLEW initialization failed: %s\n", glewGetErrorString(glewResult));
+        
+        SDL_GL_DeleteContext( m_glContext );
+        m_glContext = 0;
+        
+        SDL_DestroyWindow( m_window );
+        m_window = NULL;
+        
+        return false;
+    }
+    
+    printf("GLEW initialized successfully\n");
+#endif
+    
     m_windowDisplayIndex = displayIndex;
     
     CalculateHighDPIScaleFactors();

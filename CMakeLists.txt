@@ -297,8 +297,8 @@ elseif(APPLE)
 
     add_definitions(-DTOGGLE_SOUND) 
     add_definitions(-DRECORDING_PARSING) 
-    add_definitions(-DREPLAY_VIEWER) 
-    add_definitions(-DREPLAY_VIEWER_DESKTOP) 
+    #add_definitions(-DREPLAY_VIEWER) 
+    #add_definitions(-DREPLAY_VIEWER_DESKTOP) 
     #add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
     #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
     #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
@@ -354,7 +354,11 @@ elseif(APPLE)
         ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_dsound.cpp
     )
 
-    else()
+    elseif(UNIX AND NOT APPLE)
+
+    add_definitions(-UTARGET_EMSCRIPTEN)
+    add_definitions(-UREPLAY_VIEWER)
+    
     find_package(SDL2 REQUIRED) 
     find_package(OpenGL REQUIRED)
     
@@ -367,7 +371,6 @@ elseif(APPLE)
     add_definitions(-DTARGET_OS_LINUX -DENABLE_BINRELOC -DGUI -DSILENT -DGLEW_STATIC)
     add_definitions(-DTOGGLE_SOUND) 
     add_definitions(-DRECORDING_PARSING) 
-    add_definitions(-DREPLAY_VIEWER) 
     add_definitions(-DREPLAY_VIEWER_DESKTOP) 
     #add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
     #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
@@ -375,9 +378,6 @@ elseif(APPLE)
     #add_definitions(-DTOGGLE_SOUND_TESTBED)
     #add_definitions(-DEMSCRIPTEN_PLAYBACK_TESTBED)
     #add_definitions(-DEMSCRIPTEN_DEBUG)
-    
-    set(ENABLE_REPLAY_VIEWER OFF CACHE BOOL "" FORCE)
-    add_definitions(-DREPLAY_VIEWER=0)
     
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-deprecated-declarations -Wno-error=format-security -fpermissive")
     set(CMAKE_INSTALL_RPATH "$ORIGIN")
@@ -533,6 +533,7 @@ if(ENABLE_RECORDING_PARSING)
     list(APPEND DEFCON_SOURCE
         ${ROOT_PATH}/source/network/recordingparser.cpp
         ${ROOT_PATH}/source/interface/recording_selection.cpp
+        ${ROOT_PATH}/source/interface/recording_file_dialog.cpp
     )
 endif()
 
@@ -602,6 +603,8 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/sound/soundsystem.cpp
     ${SYSTEMIV_PATH}/lib/sound/soundsystem_interface.cpp
     ${SYSTEMIV_PATH}/lib/tosser/directory.cpp
+    ${SYSTEMIV_PATH}/lib/unicode/unicode_string.cpp
+    ${SYSTEMIV_PATH}/lib/unicode/unicode_text_stream_reader.cpp
     ${SYSTEMIV_PATH}/lib/debug_utils.cpp
     ${SYSTEMIV_PATH}/lib/hi_res_time.cpp
     ${SYSTEMIV_PATH}/lib/language_table.cpp
@@ -710,11 +713,11 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_FUNCTIONS=['_main','_malloc','_free']")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','print','printErr']")
     
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/data@data")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/preferences.txt@preferences.txt")
+    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/.emscripten/data@data")
+    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/.emscripten/preferences.txt@preferences.txt")
 
-    if(EXISTS "${CMAKE_SOURCE_DIR}/localisation/mods")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/mods@mods")
+    if(EXISTS "${CMAKE_SOURCE_DIR}/localisation/.emscripten/mods")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/.emscripten/mods@mods")
     endif()
 
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -w")
@@ -843,9 +846,8 @@ elseif(UNIX AND NOT APPLE)
     )
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/data" "${MAIN_EXE_OUTPUT_DIR}/data"
-        COMMAND ${CMAKE_COMMAND} -E rm -rf "${MAIN_EXE_OUTPUT_DIR}/data/sounds"
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/mods" "${MAIN_EXE_OUTPUT_DIR}/mods"
-        #COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/*.dat" "${MAIN_EXE_OUTPUT_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/*.dat" "${MAIN_EXE_OUTPUT_DIR}/"
         COMMAND ${CMAKE_SOURCE_DIR}/targets/linux/bundle_sdl.sh ${MAIN_EXE_OUTPUT_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/targets/linux/launch_cmake.sh ${MAIN_EXE_OUTPUT_DIR}/launch.sh
     )
@@ -858,10 +860,9 @@ elseif(APPLE)
     set(DATA_TARGET_DIR ${BUNDLE_DIR}/Resources/)
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/data" "${DATA_TARGET_DIR}/data"
-        COMMAND ${CMAKE_COMMAND} -E rm -rf "${DATA_TARGET_DIR}/data/sounds"
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/mods" "${DATA_TARGET_DIR}/mods"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/resources/macosx/*" "${DATA_TARGET_DIR}/"
-        #COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/*.dat" "${DATA_TARGET_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/*.dat" "${DATA_TARGET_DIR}/"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/targets/macosx/Info_cmake.plist" "${BUNDLE_DIR}/Info.plist"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/targets/macosx/Base.lproj/SDLMain.nib" "${DATA_TARGET_DIR}/SDLMain.nib"
         COMMAND ${CMAKE_SOURCE_DIR}/targets/macosx/bundle_sdl.sh ${BUNDLE_DIR}

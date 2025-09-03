@@ -1,5 +1,9 @@
 #include "lib/universal_include.h"
 
+// TODO: Consider changing the API so that Read*() functions return error codes
+// some other way, unless you are sure, for instance, that ReadU8() will never
+// read an actual byte with the value ((unsigned char) -1) == EOF
+
 #ifdef WIN32
 #include <io.h>
 #endif
@@ -26,7 +30,16 @@ BinaryReader::~BinaryReader()
 {
 }
 
+const char *BinaryReader::GetFileType()
+{
+	using std::string;
 
+	string::size_type dotIndex = m_filename.find_last_of( '.' );
+	if( dotIndex == string::npos )
+		return "";
+	else
+		return m_filename.c_str() + dotIndex + 1;
+}
 
 // ****************************************************************************
 // BinaryFileReader
@@ -37,9 +50,8 @@ BinaryFileReader::BinaryFileReader(char const *_filename)
 {
 	if (_filename)
 	{
-		strncpy(m_filename, _filename, sizeof(m_filename) - 1);
-		strcpy(m_filename, FindCaseInsensitive(m_filename));
-        m_file = fopen(m_filename, "rb");
+		m_filename = FindCaseInsensitive( _filename );
+        m_file = fopen(m_filename.c_str(), "rb");
 	}
 }
 
@@ -54,18 +66,6 @@ bool BinaryFileReader::IsOpen()
 {
 	if (m_file) return true;
 	return false;
-}
-
-
-char *BinaryFileReader::GetFileType()
-{
-	char *extension = strrchr(m_filename, '.');
-	if (extension)
-	{
-		return extension + 1;
-	}
-	
-	return &m_filename[strlen(m_filename)];
 }
 
 
@@ -123,13 +123,13 @@ int BinaryFileReader::ReadS32()
 
 unsigned int BinaryFileReader::ReadBytes(unsigned int _count, unsigned char *_buffer)
 {
-	unsigned int bytesRead = (unsigned) fread(_buffer, 1, _count, m_file);
+	size_t bytesRead = fread(_buffer, 1, _count, m_file);
 	if (bytesRead < _count)
 	{
 		m_eof = true;
 	}
 
-	return bytesRead;
+	return (unsigned int) bytesRead;
 }
 
 
@@ -156,7 +156,7 @@ BinaryDataReader::BinaryDataReader(unsigned char const *_data, unsigned int _dat
 	m_dataSize(_dataSize),
 	m_offset(0)
 {
-	strncpy(m_filename, _filename, sizeof(m_filename) - 1);
+	m_filename = _filename;
 }
 
 
@@ -168,18 +168,6 @@ BinaryDataReader::~BinaryDataReader()
 bool BinaryDataReader::IsOpen()
 {
 	return true;
-}
-
-
-char *BinaryDataReader::GetFileType()
-{
-	char *extension = strrchr(m_filename, '.');
-	if (extension)
-	{
-		return extension + 1;
-	}
-	
-	return &m_filename[strlen(m_filename)];
 }
 
 
@@ -296,4 +284,13 @@ int BinaryDataReader::Seek(int _offset, int _origin)
 int BinaryDataReader::Tell()
 {
 	return m_offset;
+}
+
+int BinaryReader::GetSize()
+{
+	int now = Tell();
+	Seek(0,SEEK_END);
+	int size = Tell();
+	Seek(now,SEEK_SET);
+	return size;
 }

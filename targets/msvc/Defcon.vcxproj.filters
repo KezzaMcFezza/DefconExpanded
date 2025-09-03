@@ -79,6 +79,9 @@
     <Filter Include="lib\render3d">
       <UniqueIdentifier>{3341bb2c-4d0f-44be-b226-455c25df5fd9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\unicode">
+      <UniqueIdentifier>{b9b21fe4-158c-47ac-88e4-dd0d932a7b4d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\app\app.cpp">
@@ -675,6 +678,15 @@
     <ClCompile Include="..\..\source\renderer\globe_renderer.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\unicode\unicode_string.cpp">
+      <Filter>lib\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\unicode\unicode_text_stream_reader.cpp">
+      <Filter>lib\unicode</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\recording_file_dialog.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">
@@ -1162,6 +1174,15 @@
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.h">
       <Filter>lib\render3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\unicode\unicode_string.h">
+      <Filter>lib\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\unicode\unicode_text_stream_reader.h">
+      <Filter>lib\unicode</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\interface\recording_file_dialog.h">
+      <Filter>interface</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

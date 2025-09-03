@@ -14,7 +14,9 @@
  *
  */
 
+#ifndef NO_UNRAR
 class MemMappedFile;
+#endif // NO_UNRAR
 class TextReader;
 class BinaryReader;
 
@@ -26,7 +28,9 @@ class BinaryReader;
 class FileSystem 
 {
 protected:
+#ifndef NO_UNRAR
 	BTree <MemMappedFile *>	m_archiveFiles;
+#endif // NO_UNRAR
     
 public:
     LList <char *> m_searchPath;                                                        // Use to set up mods
@@ -36,8 +40,10 @@ public:
     ~FileSystem();
 
 
+#ifndef NO_UNRAR
     void            ParseArchive		( const char *_filename );
     void            ParseArchives		( const char *_dir, const char *_filter );
+#endif // NO_UNRAR
 
 	TextReader		*GetTextReader	    ( const char *_filename );	                    // Caller must delete the TextReader when done
 	BinaryReader	*GetBinaryReader    ( const char *_filename );	                    // Caller must delete the BinaryReader when done

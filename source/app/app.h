@@ -11,7 +11,7 @@
 #ifndef _included_app_h
 #define _included_app_h
 
-#include "network/server.h"
+#include "network/Server.h"
 
 class AchievementTracker;
 class ClientToServer;
@@ -27,6 +27,7 @@ class SoundSystem;
 class StatusIcon;
 class Tutorial;
 class World;
+class RecordingFileDialog;
 
 class App
 {

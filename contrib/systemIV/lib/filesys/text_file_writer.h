@@ -1,5 +1,5 @@
-#ifndef _included_textfilewriter_h
-#define _included_textfilewriter_h
+#ifndef _included_textTextFileWriter_h
+#define _included_textTextFileWriter_h
 
 /*
  *	A thin wrapper for ordinary text file IO
@@ -9,20 +9,48 @@
  */
 
 #include <stdio.h>
+#include <sstream>
 
+class TextWriter
+{
+public:
+    TextWriter() 
+    {};
+    virtual ~TextWriter() {};
 
-class TextFileWriter
+    virtual operator bool() const;    
+    virtual int printf( char *fmt, ... ) = 0;
+};
+
+class TextFileWriter : public TextWriter
 {
 protected:
 	int		m_offsetIndex;
-	FILE	*m_file;
 	bool	m_encrypt;
+	bool	m_canWrite;
+	bool	m_assertOnFail;
+	FILE	*m_file;
 
 public:
-	TextFileWriter  (const char *_filename, bool _encrypt);
+	TextFileWriter  (const char *_filename, bool _encrypt, bool _assertOnFail = true);
 	~TextFileWriter ();
 
-	int printf  (const char *fmt, ...);
+	virtual operator bool() const;
+
+	virtual int printf  (char *fmt, ...);
+};
+
+class TextMemoryWriter : public TextWriter 
+{
+private:
+    std::ostringstream  m_stringStream;
+public:
+    TextMemoryWriter();
+
+    virtual operator bool() const;
+    virtual int printf( char *_fmt, ... );
+
+    std::ostringstream *GetStream();
 };
 
 

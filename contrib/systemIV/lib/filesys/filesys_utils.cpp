@@ -3,25 +3,28 @@
 #ifdef WIN32
 #include <io.h>
 #include <direct.h>
+#include <windows.h>
+
 #else
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #endif
 
-#include <sys/stat.h>
-
-#include <cstdio>
-#include <cstring>
+#include <stdio.h>
+#include <string.h>
 #include <stdlib.h>                     // needed for errno definition
-#include <cctype>
-#include <cstdarg>
-#include <string>
+#include <ctype.h>
+#include <stdarg.h>
 
 #include "lib/debug_utils.h"
 #include "lib/string_utils.h"
 #include "filesys_utils.h"
 
+#ifdef TARGET_MSVC
+#pragma warning( disable : 4996 )
+#endif
 
 //*****************************************************************************
 // Misc directory and filename functions
@@ -58,22 +61,6 @@ static bool FilterMatch( const char *_filename, const char *_filter )
     }
 }
 
-#ifdef WIN32
-static void AppendForwardSlashIfNecessary( std::string &path )
-{
-	if( path.empty() ) return;
-	switch( path[path.size() - 1] ) 
-	{
-		case '/':
-		case '\\':
-			return;
-
-		default:
-			path.append(1, '/');
-	}
-}
-#endif
-
 // Finds all the filenames in the specified directory that match the specified
 // filter. Directory should be like "data/textures" or "data/textures/".
 // Filter can be NULL or "" or "*.bmp" or "map_*" or "map_*.txt"
@@ -96,13 +83,14 @@ LList <char *> *ListDirectory( const char *_dir, const char *_filter, bool _full
 
     // Now add on all files found locally
 #ifdef WIN32
-	std::string dirWithSlash = _dir;
-	AppendForwardSlashIfNecessary( dirWithSlash );
-	
-	std::string searchstring = dirWithSlash + _filter;	
+    char searchstring [256];
+    AppAssert(strlen(_dir) + strlen(_filter) < sizeof(searchstring) - 1);
+
+	sprintf( searchstring, 
+		"%s%s", _dir, _filter );
 
     _finddata_t thisfile;
-    long fileindex = _findfirst( searchstring.c_str(), &thisfile );
+    long fileindex = _findfirst( searchstring, &thisfile );
 
     int exitmeplease = 0;
 
@@ -115,13 +103,13 @@ LList <char *> *ListDirectory( const char *_dir, const char *_filter, bool _full
             char *newname = NULL;
             if( _fullFilename ) 
             {
-                int len = (int) dirWithSlash.size() + (int) strlen(thisfile.name);
+                size_t len = strlen(_dir) + strlen(thisfile.name);
                 newname = new char [len + 1];
-                sprintf( newname, "%s%s", dirWithSlash.c_str(), thisfile.name );      
+                sprintf( newname, "%s%s", _dir, thisfile.name );      
             }
             else
             {
-                int len = (int) strlen(thisfile.name);
+                size_t len = strlen(thisfile.name);
                 newname = new char [len + 1];
                 sprintf( newname, "%s", thisfile.name );
             }
@@ -206,13 +194,11 @@ LList <char *> *ListSubDirectoryNames(const char *_dir)
     return result;
 }
 
-
 bool DoesFileExist(const char *_fullPath)
 {
 #ifndef WIN32
-    char *path = newStr(_fullPath);
-    FILE *f = fopen(FindCaseInsensitive(path), "r");
-    delete [] path;
+	std::string path = FindCaseInsensitive( _fullPath );
+	FILE *f = fopen( path.c_str(), "r" );
 #else
     FILE *f = fopen(_fullPath, "r");
 #endif
@@ -238,7 +224,7 @@ char *ConcatPaths(const char *_firstComponent, ...)
 	buffer = strdup(_firstComponent);
 	
 	va_start(components, _firstComponent);
-	while ((component = va_arg(components, const char *)))
+	while ((component = va_arg(components, const char *)) != 0)
 	{
 		buffer = (char *)realloc(buffer, strlen(buffer) + 1 + strlen(component) + 1);
 		strcat(buffer, "/");
@@ -280,6 +266,7 @@ char *GetFilenamePart(const char  *_fullFilePath)
 
 const char *GetExtensionPart(const char *_fullFilePath)
 {
+    if( !strrchr(_fullFilePath, '.') ) return NULL;
     return strrchr(_fullFilePath, '.') + 1;
 }
 
@@ -378,7 +365,7 @@ bool CreateDirectoryRecursively(const char *_directory)
 void DeleteThisFile(const char *_filename)
 {
 #ifdef WIN32
-    bool result = DeleteFile( _filename );
+    DeleteFile( _filename );
 #else
     unlink( _filename );
 #endif
@@ -387,13 +374,10 @@ void DeleteThisFile(const char *_filename)
 bool IsDirectory(const char *_fullPath)
 {
 #ifdef WIN32
-	std::string path = _fullPath;
-    if( !path.empty() && path[ path.size() - 1 ] == '/' )
-        path.resize( path.size() - 1 );
-    struct _stat status;
-    int rc = _stat( path.c_str(), &status );
-    if( rc != 0 ) return false;
-    return status.st_mode & S_IFDIR;
+	DWORD dwAtts = ::GetFileAttributes( _fullPath );
+	if ( dwAtts == INVALID_FILE_ATTRIBUTES )
+		return false;
+	return (dwAtts & FILE_ATTRIBUTE_DIRECTORY) != 0;
 #else
     struct stat s;
     int rc = stat(_fullPath, &s);
@@ -404,107 +388,47 @@ bool IsDirectory(const char *_fullPath)
 }
 
 #ifndef TARGET_OS_LINUX
-const char *FindCaseInsensitive ( const char *_fullPath )
+std::string FindCaseInsensitive ( const std::string &_fullPath )
 {
     return _fullPath;
 }
 #else
-#if 1
-const char *FindCaseInsensitive ( const char *_fullPath )
+std::string FindCaseInsensitive( const std::string &_fullPath )
 {
+	using std::string;
 
-    if ( !_fullPath )
-        return NULL;
-
-    static char retval[PATH_MAX];
-    char *dir = NULL, *file = NULL;
-
-    if ( (dir = GetDirectoryPart(_fullPath)) != NULL )
-    {
-        // Make our own copy of the result, since GetDirectoryPart
-        // and GetFilenamePart use the same variable for temp
-        // storage.
-        dir = newStr(dir);
-    }
-    if ( !dir )
-    {
-        // No directory provided. Assume working directory.
-        file = newStr(_fullPath);
-    } else {
-        // Kill the last slash
-        dir[strlen(dir) - 1] = '\0';
-        file = newStr(GetFilenamePart(_fullPath));
-    }
-    LList <char *> *files = ListDirectory(dir, file);
-
-    delete [] dir; delete [] file; dir = file = NULL;
-
-    // We shouldn't have found more than one match.
-    AppAssert(files->Size() <= 1);
-
-    // No results, so maybe the file does not exist.
-    if ( files->Size() == 0 )
-    {
-        delete files;
-        return _fullPath;
-    }
-
-    // Copy the corrected path back, and prepare to return it.
-    memset ( retval, 0, sizeof ( retval ) );
-    AppAssert ( strlen ( files->GetData(0) ) < PATH_MAX );
-    strcpy ( retval, files->GetData(0) );
-
-    // Negate the possibility of a memory access violation.
-    // This way, we can simply strcpy the result inline without
-    // worrying about a buffer overflow.
-    AppAssert(strlen(retval) == strlen(_fullPath));
-
-    files->EmptyAndDeleteArray();
-    delete files;
-
-    return retval;
-}
-#else
-const char *FindCaseInsensitive( char *_fullPath )
-{
-    AppAssert(strlen(_fullPath) < PATH_MAX);
-    
-    static char pathSoFar[PATH_MAX];
-    pathSoFar[0] = '\0';
+	string pathSoFar;
+	string::size_type componentIndex = 0;
     
     while (true) {
-        char *delimiter;
-        
-        // Skip to the next / or end-of-string
-        for (delimiter = (char *)_fullPath; *delimiter && *delimiter != '/'; delimiter++);
-        
-        char component[PATH_MAX];
-        AppAssert ( strlen(_fullPath) < PATH_MAX );
-        strcpy( component, _fullPath );
-        component[delimiter - _fullPath] = '\0';
-    
+		string::size_type delimiter = _fullPath.find( '/', componentIndex );
+       		
+		string component = 
+			delimiter == string::npos 
+				? _fullPath.substr( componentIndex )
+				: _fullPath.substr( componentIndex, delimiter - componentIndex );
+   
         // Search for a match
-        LList<char *> *matches = ListDirectory( pathSoFar, component, true );
+        LList<char *> *matches = ListDirectory( pathSoFar.c_str(), component.c_str(), true );
         bool found = false;
     
-        if (matches->Size() > 0) {
-            strcpy(pathSoFar, matches->GetData( 0 ));
+        if( matches->Size() > 0 ) 
+		{
+			pathSoFar = matches->GetData( 0 );
             found = true;
         }
     
         matches->EmptyAndDelete();
     
         // Failed to find a match, just return the original
-        if (!found)
+        if( !found )
             return _fullPath;
         
         // Got to the end of the path, return it
-        if (!*delimiter) 
+		if( delimiter == string::npos ) 
             return pathSoFar;
         
-        _fullPath = delimiter + 1;
+        componentIndex = delimiter + 1;
     }
 }
-#endif
-
 #endif

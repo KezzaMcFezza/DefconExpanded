@@ -2,7 +2,7 @@
 #define INCLUDED_FILESYS_UTILS
 
 #include "lib/tosser/llist.h"
-
+#include <string>
 
 
 LList<char *>   *ListDirectory             (const char *_dir, const char *_filter, bool fullFilename = true);
@@ -23,7 +23,7 @@ bool            CreateDirectory            (const char *_directory);
 bool			CreateDirectoryRecursively (const char *_directory);
 void            DeleteThisFile             (const char *_filename);
 
-const char      *FindCaseInsensitive       (const char *_fullPath);
+std::string     FindCaseInsensitive       (const std::string &_fullPath);
 
 
 #endif

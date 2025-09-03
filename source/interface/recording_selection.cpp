@@ -8,6 +8,7 @@
 #include "lib/gucci/window_manager.h"  // NEW: For EclGetWindow function
 
 #include "interface/recording_selection.h"
+#include "interface/recording_file_dialog.h"
 #include "interface/connecting_window.h"
 #include "interface/components/message_dialog.h"
 
@@ -17,10 +18,6 @@
 #include "network/Server.h"
 #include "network/ClientToServer.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#include <commdlg.h>
-#endif
 
 // ============================================================================
 // Button implementations
@@ -307,51 +304,23 @@ void PlayFromGameStartButton::MouseUp()
     }
 }
 
-#if !(defined(TARGET_EMSCRIPTEN) && (REPLAY_VIEWER))
+//
+// We now use the file dialog system from multiwinia for complete cross-platform
+// dcrec loading, its actually brilliant introversion created such a great system
 
-class BrowseRecordingButton : public InterfaceButton {
+class BrowseRecordingButton : public InterfaceButton 
+{
 public:
-    void MouseUp() override {
+    void MouseUp() override 
+    {
         RecordingSelectionWindow *parent = (RecordingSelectionWindow *)m_parent;
-#ifdef _WIN32
-    RECT originalClipRect;
-    bool wasClipped = GetClipCursor(&originalClipRect);
-    
-    int cursorShowCount = ShowCursor(TRUE) - 1; 
-    ShowCursor(FALSE); 
-    ReleaseCapture();
-    ClipCursor(NULL);
-    
-    while (ShowCursor(TRUE) < 0); 
-    
-    // open file dialog
-    char filename[MAX_PATH] = "";
-    OPENFILENAME ofn = {0};
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = GetActiveWindow(); 
-    ofn.lpstrFilter = "Defcon Recordings (*.dcrec)\0*.dcrec\0All Files (*.*)\0*.*\0";
-    ofn.lpstrFile = filename;
-    ofn.nMaxFile = sizeof(filename);
-    ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_NOCHANGEDIR;
-    ofn.lpstrTitle = "Select a Defcon Recording";
-    
-    BOOL result = GetOpenFileName(&ofn);
-    
-    while (ShowCursor(FALSE) >= cursorShowCount); 
-
-    if (wasClipped) {
-        ClipCursor(&originalClipRect);
-    }
-
-    if (result) {
-        strncpy(parent->m_recordingFilename, filename, sizeof(parent->m_recordingFilename) - 1);
-        parent->m_recordingFilename[sizeof(parent->m_recordingFilename) - 1] = '\0';
-        parent->SetTitle("Recording Playback (Selected)");
-    }
-#endif
+        
+        RecordingFileDialog *fileDialog = new RecordingFileDialog(parent);
+        EclRegisterWindow(fileDialog);
+        
+        AppDebugOut("BrowseRecordingButton: Opened file dialog\n");
     }
 };
-#endif
 
 // ============================================================================
 // Recording Selection Window
@@ -446,11 +415,14 @@ void RecordingSelectionWindow::Create()
                           "Skip lobby and start from when the game begins", false, true);
     RegisterButton(gameBtn);
 
-#if !(defined(TARGET_EMSCRIPTEN) && (REPLAY_VIEWER))
+#ifndef TARGET_EMSCRIPTEN
     BrowseRecordingButton *browseBtn = new BrowseRecordingButton();
-    browseBtn->SetProperties("BrowseRecording", 50, 240, 100, 20, "Browse...", "Select a .dcrec file from your computer", false, true);
+    browseBtn->SetProperties("BrowseRecording", 50, 240, 120, 20, "Browse Files...", 
+                            "Open file browser to select a .dcrec recording", false, true);
     RegisterButton(browseBtn);
+#endif
 
+#if !defined(TARGET_EMSCRIPTEN) && !defined(REPLAY_VIEWER_DESKTOP) && !defined(REPLAY_VIEWER)
     // Close button - only show in normal mode, not in replay viewer mode
     CloseButton *close = new CloseButton();
     close->SetProperties("Close", m_w-120, m_h-40, 80, 20, "Cancel", "Close this window", false, true);
