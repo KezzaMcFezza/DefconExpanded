@@ -1,3 +1,0 @@
-[submodule "contrib/systemIV/contrib/emsdk"]
-	path = contrib/systemIV/contrib/emsdk
-	url = https://github.com/emscripten-core/emsdk.git
