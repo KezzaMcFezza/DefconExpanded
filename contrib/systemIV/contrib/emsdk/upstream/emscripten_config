@@ -1,0 +1,5 @@
+import os
+ROOT_DIR = os.path.dirname(__file__)
+BINARYEN_ROOT = ROOT_DIR
+LLVM_ROOT = os.path.join(ROOT_DIR, 'bin')
+NODE_JS = 'C:/b/s/w/ir/cache/builder/emscripten-releases/node-v22.16.0-win-x64/bin/node.exe'
