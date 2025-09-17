@@ -58,8 +58,9 @@
 .dedcon-title {
     color: #5eff00;
     font-family: 'Orbitron', sans-serif;
-    font-size: 2rem;
+    font-size: 2.3rem;
     margin: 0;
+    margin-bottom: 15px;
     margin-bottom: 1rem;
     line-height: 1.2;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -145,7 +146,7 @@
 .dedcon-card-title {
     color: #4da6ff;
     font-family: 'Orbitron', sans-serif;
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     margin: 0;
     text-transform: uppercase;
     letter-spacing: 1px;
