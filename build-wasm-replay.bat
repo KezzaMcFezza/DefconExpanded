@@ -14,8 +14,8 @@ set EMCC_WASM_BACKEND=1
 echo Configuring...
 python "%ORIGINAL_DIR%\contrib\systemIV\contrib\emsdk\upstream\emscripten\emcmake.py" cmake ^
     -DCMAKE_BUILD_TYPE=Release ^
-    -DCMAKE_CXX_FLAGS_RELEASE="-O3 -flto -ffast-math -funroll-loops -fvectorize -DNDEBUG" ^
-    -DCMAKE_C_FLAGS_RELEASE="-O3 -flto -ffast-math -funroll-loops -fvectorize -DNDEBUG" ^
+    -DCMAKE_CXX_FLAGS_RELEASE="-O3 -flto -funroll-loops -fvectorize -DNDEBUG" ^
+    -DCMAKE_C_FLAGS_RELEASE="-O3 -flto -funroll-loops -fvectorize -DNDEBUG" ^
     -DENABLE_REPLAY_VIEWER=ON ^
     -DCMAKE_MAKE_PROGRAM="%NINJA_PATH%" ^
     -G "Ninja" ^
