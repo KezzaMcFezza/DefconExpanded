@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 14-04-2025
+//Last Edited 18-07-2025
 
 import { formatDurationProfile } from '../main/main.js';
 import { vanillaTerritories, eightPlayerTerritories, tenPlayerTerritories, territoryImages } from './constants.js';
@@ -137,6 +137,41 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `Ties: ${ties}\n` +
                 `Other outcomes: ${other}`;
         }
+        
+        const bestTeammateName = document.getElementById('best-teammate-name');
+        if (bestTeammateName) {
+            bestTeammateName.textContent = userProfile.bestTeammate || 'None yet';
+        }
+
+        const totalTeammateGames = document.getElementById('total-teammate-games');
+        const teammateWinsElement = document.getElementById('teammate-wins');
+        const teammateLossesElement = document.getElementById('teammate-losses');
+
+        if (totalTeammateGames) {
+            const competitiveGames = (userProfile.teammateWins || 0) + (userProfile.teammateLosses || 0);
+            totalTeammateGames.textContent = `Games: ${competitiveGames}`;
+        }
+
+        if (teammateWinsElement) {
+            teammateWinsElement.textContent = `W: ${userProfile.teammateWins || 0}`;
+        }
+
+        if (teammateLossesElement) {
+            teammateLossesElement.textContent = `L: ${userProfile.teammateLosses || 0}`;
+        }
+
+        const teammateContainer = document.querySelector('.teammate-container');
+        if (teammateContainer && userProfile.teammateGames > 0) {
+            const ties = userProfile.teammateTieGames || 0;
+            const other = userProfile.teammateOtherOutcomes || 0;
+
+            teammateContainer.title =
+                `Games with ${userProfile.bestTeammate}: ${userProfile.teammateGames}\n` +
+                `Wins Together: ${userProfile.teammateWins}\n` +
+                `Losses Together: ${userProfile.teammateLosses}\n` +
+                `Ties: ${ties}\n` +
+                `Other outcomes: ${other}`;
+        }
 
         const mainContributionsContainer = document.getElementById('main-contributions-list');
         if (mainContributionsContainer) {
@@ -259,6 +294,17 @@ async function fetchProfileData(username, mode = 'vanilla') {
             userProfile.nemesisWins = nemesisData.userWins;
             userProfile.nemesisLosses = nemesisData.userLosses;
             userProfile.nemesisGames = nemesisData.gamesPlayed;
+            userProfile.sameTeamGames = nemesisData.sameTeamGames;
+            userProfile.tieGames = nemesisData.tieGames;
+            userProfile.otherOutcomes = nemesisData.otherOutcomes;
+
+            const teammateData = await fetchTeammateData(userProfile.defcon_username);
+            userProfile.bestTeammate = teammateData.bestTeammate;
+            userProfile.teammateWins = teammateData.winsTogether;
+            userProfile.teammateLosses = teammateData.lossesTogether;
+            userProfile.teammateGames = teammateData.gamesPlayed;
+            userProfile.teammateTieGames = teammateData.tieGames;
+            userProfile.teammateOtherOutcomes = teammateData.otherOutcomes;
         }
 
         return userProfile;
@@ -283,6 +329,26 @@ async function fetchNemesisData(defconUsername) {
             userWins: 0,
             userLosses: 0,
             sameTeamGames: 0,
+            tieGames: 0,
+            otherOutcomes: 0
+        };
+    }
+}
+
+async function fetchTeammateData(defconUsername) {
+    try {
+        const response = await fetch(`/api/profile-best-teammate?playerName=${defconUsername}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch best teammate data');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching best teammate data:', error);
+        return {
+            bestTeammate: 'None yet',
+            gamesPlayed: 0,
+            winsTogether: 0,
+            lossesTogether: 0,
             tieGames: 0,
             otherOutcomes: 0
         };

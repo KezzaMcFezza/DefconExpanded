@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 14-04-2025
+* Last Edited 18-09-2025
 */
 .profile-container {
     max-width: 1400px;
@@ -308,6 +308,34 @@
 
 .highlight-stat {
     color: #5eff00;
+}
+
+.highlight-nemesis{
+    color: #ff4949;
+}
+
+.highlight-teammate{
+    color: #4da6ff;
+}
+
+.highlight-defcon-name{
+    color: #ff8400;
+}
+
+.nemesis-container,
+.teammate-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.nemesis-record,
+.teammate-record {
+    font-size: 0.85rem;
+    color: #b8b8b8;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 .territory-select-wrapper {
