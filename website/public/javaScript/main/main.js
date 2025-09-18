@@ -57,6 +57,25 @@ function formatDuration(duration) {
   }
 }
 
+function toggleContributor(element) {
+  const details = element.querySelector('.contributor-details');
+  const arrow = element.querySelector('.contributor-arrow');
+  
+  const additionalRoles = details.querySelectorAll('.contributor-role');
+  if (additionalRoles.length === 0) {
+      return;
+  }
+  
+  if (details.style.display === 'none' || details.style.display === '') {
+      details.style.display = 'block';
+      arrow.style.transform = 'rotate(180deg)';
+      element.classList.add('expanded');
+  } else {
+      details.style.display = 'none';
+      arrow.style.transform = 'rotate(0deg)';
+      element.classList.remove('expanded');
+  }
+}
 
 function formatDurationProfile(duration) {
   if (!duration) return 'Unknown';
@@ -904,6 +923,7 @@ export {
   getTimeAgo,
   formatDuration,
   formatDurationProfile,
+  toggleContributor,
   updatePagination,
   createPaginationButton,
   changePage,
@@ -924,5 +944,6 @@ window.formatBytes = formatBytes;
 window.getTimeAgo = getTimeAgo;
 window.formatDuration = formatDuration;
 window.formatDurationProfile = formatDurationProfile;
+window.toggleContributor = toggleContributor;
 window.performGameSearch = performGameSearch;
 window.soundVolume = soundVolume;
