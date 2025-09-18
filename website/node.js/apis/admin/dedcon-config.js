@@ -29,32 +29,38 @@ const permissions = require('../../permission-index');
 const debug = require('../../debug-helpers');
 
 const configFilePermissions = {
-    '1v1config.txt': permissions.CONFIG_1V1_RANDOM,
-    '1v1configdefault.txt': permissions.CONFIG_1V1_DEFAULT,
-    '1v1configcursed.txt': permissions.CONFIG_1V1_CURSED,
-    '1v1configraizer.txt': permissions.CONFIG_1V1_RAIZER,
-    '1v1configbest.txt': permissions.CONFIG_1V1_BEST_SETUPS_1,
-    '1v1configbest2.txt': permissions.CONFIG_1V1_BEST_SETUPS_2,
-    '1v1configtest.txt': permissions.CONFIG_1V1_TEST,
-    '1v1configvariable.txt': permissions.CONFIG_1V1_VARIABLE,
-    '1v1configukbalanced.txt': permissions.CONFIG_1V1_UK_BALANCED,
-    '2v2config.txt': permissions.CONFIG_2V2_DEFAULT,
-    '2v2configukbalanced.txt': permissions.CONFIG_2V2_UK_BALANCED,
-    '2v2tournament.txt': permissions.CONFIG_2V2_TOURNAMENT,
-    '6playerffaconfig.txt': permissions.CONFIG_6PLAYER_FFA,
-    '3v3ffaconfig.txt': permissions.CONFIG_3V3_FFA,
-    '4v4config.txt': permissions.CONFIG_4V4_DEFAULT,
-    '5v5config.txt': permissions.CONFIG_5V5_DEFAULT,
-    '8playerdiplo.txt': permissions.CONFIG_8PLAYER_DIPLO,
-    '10playerdiplo.txt': permissions.CONFIG_10PLAYER_DIPLO,
-    '16playerconfig.txt': permissions.CONFIG_16PLAYER_DEFAULT,
-    'ukmoddiplo.txt': permissions.CONFIG_UK_MOD_DIPLO,
-    'muriconukmod.txt': permissions.CONFIG_MURICON_UK_MOD,
-    'sonyhoovconfig.txt': permissions.CONFIG_SONY_HOOV,
-    'noobfriendly.txt': permissions.CONFIG_NOOB_FRIENDLY,
-    '1v1muriconrandom.txt': permissions.CONFIG_MURICON_RANDOM,
-    '1v1muricon.txt': permissions.CONFIG_MURICON_DEFAULT,
-    'hawhaw2v2config.txt': permissions.CONFIG_HAWHAW_2V2
+    'DefconExpanded Test Server.txt': permissions.CONFIG_1V1_TEST,
+    'DefconExpanded 1v1 Totally Random.txt': permissions.CONFIG_1V1_RANDOM,
+    'DefconExpanded 1v1 Default.txt': permissions.CONFIG_1V1_DEFAULT,
+    'DefconExpanded 1v1 Best Setups Only.txt': permissions.CONFIG_1V1_BEST_SETUPS_1,
+    'DefconExpanded 1v1 Best Setups Only Second Server.txt': permissions.CONFIG_1V1_BEST_SETUPS_2,
+    'DefconExpanded 1v1 Cursed Setups Only.txt': permissions.CONFIG_1V1_CURSED,
+    'DefconExpanded 1v1 Lots of Units.txt': permissions.CONFIG_1V1_VARIABLE,
+    'DefconExpanded 1v1 UK and Ireland.txt': permissions.CONFIG_1V1_UK_BALANCED,
+    'DefconExpanded 1v1 Totally Random - Second Server.txt': permissions.CONFIG_1V1_RANDOM,
+    'MURICON 1v1 Default 2.8.15.txt': permissions.CONFIG_MURICON_DEFAULT,
+    'DefconExpanded 2v2 Totally Random.txt': permissions.CONFIG_2V2_DEFAULT,
+    'DefconExpanded 2v2 UK and Ireland.txt': permissions.CONFIG_2V2_UK_BALANCED,
+    'DefconExpanded 2v2 Tournament.txt': permissions.CONFIG_2V2_TOURNAMENT,
+    'DefconExpanded 2v2 Max Cities - Pop.txt': permissions.CONFIG_2V2_DEFAULT,
+    'MURICON 1v1 Totally Random 2.8.15.txt': permissions.CONFIG_MURICON_RANDOM,
+    '509 CG 1v1 Totally Random 2.8.15.txt': permissions.CONFIG_1V1_RANDOM,
+    '509 CG 2v2 Totally Random 2.8.15.txt': permissions.CONFIG_HAWHAW_2V2,
+    'Raizer\'s Russia vs USA Totally Random.txt': permissions.CONFIG_1V1_RAIZER,
+    'Sony and Hoov\'s Hideout.txt': permissions.CONFIG_SONY_HOOV,
+    'New Players Welcome Come and Play.txt': permissions.CONFIG_NOOB_FRIENDLY,
+    'DefconExpanded 3v3 Totally Random.txt': permissions.CONFIG_3V3_FFA,
+    'DefconExpanded 3v3 Totally Random Second Server.txt': permissions.CONFIG_3V3_FFA,
+    'DefconExpanded 3v3 Totally Random - Second Server.txt': permissions.CONFIG_3V3_FFA,
+    'MURICON UK Mod.txt': permissions.CONFIG_MURICON_UK_MOD,
+    'DefconExpanded Free For All Random Cities.txt': permissions.CONFIG_6PLAYER_FFA,
+    'DefconExpanded Training.txt': permissions.CONFIG_1V1_TEST,
+    'DefconExpanded Diplomacy UK and Ireland.txt': permissions.CONFIG_UK_MOD_DIPLO,
+    'DefconExpanded 4v4 Totally Random.txt': permissions.CONFIG_4V4_DEFAULT,
+    'DefconExpanded 5v5 Totally Random.txt': permissions.CONFIG_5V5_DEFAULT,
+    'DefconExpanded 8 Player Diplomacy.txt': permissions.CONFIG_8PLAYER_DIPLO,
+    'DefconExpanded 10 Player Diplomacy.txt': permissions.CONFIG_10PLAYER_DIPLO,
+    'DefconExpanded 16 Player Test Server.txt': permissions.CONFIG_16PLAYER_DEFAULT
 };
 
 function hasConfigPermission(userPermissions, filename) {
@@ -72,7 +78,7 @@ function hasConfigPermission(userPermissions, filename) {
 
 router.get('/api/config-files', authenticateToken, async (req, res) => {
     try {
-        const configPath = rootDir;
+        const configPath = path.join(rootDir, 'dedcon_configs');
         console.log(`Current working directory: ${process.cwd()}`);
         console.log(`Searching for config files in: ${configPath}`);
 
@@ -106,7 +112,7 @@ router.get('/api/config-files/:filename', authenticateToken, async (req, res) =>
             return res.status(403).json({ error: 'Insufficient permissions for this config file' });
         }
         
-        const filePath = path.join(rootDir, req.params.filename);
+        const filePath = path.join(rootDir, 'dedcon_configs', req.params.filename);
         const content = await fs.promises.readFile(filePath, 'utf8');
         res.json({ content });
     } catch (error) {
@@ -125,7 +131,7 @@ router.put('/api/config-files/:filename', authenticateToken, async (req, res) =>
             return res.status(403).json({ error: 'Insufficient permissions for this config file' });
         }
         
-        const filePath = path.join(rootDir, req.params.filename);
+        const filePath = path.join(rootDir, 'dedcon_configs', req.params.filename);
         await fs.promises.writeFile(filePath, req.body.content);
         console.log(`${req.user.username} updated config file: ${req.params.filename}`);
         res.json({ message: 'File updated successfully' });
