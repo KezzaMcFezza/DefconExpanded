@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 19-03-2025
+* Last Edited 18-09-2025
 */
 
 .about-container {
@@ -242,7 +242,7 @@
 .contributors-grid {
     display: grid;
     gap: 0.5rem;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .contributor-column {
@@ -273,26 +273,103 @@
 }
 
 .contributor-item {
-    background-color: rgba(40, 40, 58, 0.5);
+    background-color: rgba(28, 28, 39, 0.5);
     border-radius: 6px;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     position: relative;
     padding: 0.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.contributor-item:hover {
+    background-color: rgba(38, 38, 51, 0.6);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.contributor-item.expanded {
+    background-color: rgba(28, 28, 39, 0.5);
+}
+
+.contributor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.contributor-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .contributor-name {
     color: #ffffff;
     font-weight: 500;
     font-size: 0.9rem;
-    display: block;
-    margin-bottom: 0.3rem;
+    margin: 0 0 0.2rem 0;
+}
+
+.contributor-primary-role {
+    color: rgba(161, 161, 161, 0.8);
+    font-size: 0.75rem;
+    font-weight: 400;
+    margin: 0;
+}
+
+.contributor-arrow {
+    color: #4da6ff;
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+    margin-left: 0.5rem;
+}
+
+.contributor-item:has(.contributor-details:empty) .contributor-arrow,
+.contributor-item:has(.contributor-details:not(:has(.contributor-role))) .contributor-arrow {
+    display: none;
+}
+
+.contributor-item:has(.contributor-details:empty),
+.contributor-item:has(.contributor-details:not(:has(.contributor-role))) {
+    cursor: default;
+}
+
+.contributor-item:has(.contributor-details:empty):hover,
+.contributor-item:has(.contributor-details:not(:has(.contributor-role))):hover {
+    background-color: rgba(40, 40, 58, 0.5);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.contributor-details {
+    display: none;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    animation: slideDown 0.3s ease;
 }
 
 .contributor-role {
-    color: rgba(200, 200, 255, 0.7);
+    color: rgba(161, 161, 161, 0.8);
     font-size: 0.8rem;
     display: block;
+    margin-bottom: 0.2rem;
+}
+
+.contributor-role:last-child {
+    margin-bottom: 0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .contributor-column:nth-child(1) .contributor-category-title {
