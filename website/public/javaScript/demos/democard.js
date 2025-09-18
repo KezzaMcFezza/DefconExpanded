@@ -144,14 +144,9 @@ function generateSpectatorsSection(demo) {
 
 function generateDemoActions(demo, canViewId) {
   
-  const demoIdDisplay = canViewId 
-    ? `<span style="color: #888888b0; text-shadow: unset; text-shadow: 0px 0px 0px currentColor; margin-left: auto;">Demo ID: ${demo.id}</span>` 
-    : '';
-
   let result = DEMO_CARD_TEMPLATE.DEMO_ACTIONS
     .replace(/\{\{DEMO_NAME\}\}/g, demo.name)  
     .replace('{{DEMO_ID}}', demo.id)
-    .replace('{{DEMO_ID_DISPLAY}}', demoIdDisplay)
     .replace('{{DOWNLOAD_COUNT}}', demo.download_count || 0)
     .replace('{{WATCH_COUNT}}', demo.watch_count || 0);
   
@@ -188,6 +183,9 @@ async function createDemoCard(demo) {
     GAME_DATE: demoDate.toLocaleDateString(),
     GAME_DURATION: formatDuration(demo.duration),
     WINNING_MESSAGE: scoreData.winningMessage,
+    DEMO_ID_DISPLAY: canViewId 
+      ? `<span style="color: #888888b0; text-shadow: unset; text-shadow: 0px 0px 0px currentColor; margin-left: 30%;">Demo ID: ${demo.id}</span>` 
+      : '',
     TERRITORY_MAP: territoryMap,
     RESULTS_TABLE: resultsTable,
     SPECTATORS_SECTION: spectatorsSection,

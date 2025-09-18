@@ -130,9 +130,12 @@ const DEMO_CARD_TEMPLATE = {
                     <span class="game-date">Date - {{GAME_DATE}}</span><br>
                     <span class="game-duration">Game Duration - {{GAME_DURATION}}</span>
                 </p>
+                <div>
                 <p class="winning-team-info" style="text-align: right; color: #b8b8b8;">
                     {{WINNING_MESSAGE}}
                 </p>
+                {{DEMO_ID_DISPLAY}}
+                </div>
             </div>
             {{TERRITORY_MAP}}
             {{RESULTS_TABLE}}
@@ -198,7 +201,6 @@ const DEMO_CARD_TEMPLATE = {
         <div class="demo-actions">
             <a href="/api/download/{{DEMO_NAME}}" class="download-btn-demo"><i class="fas fa-cloud-arrow-down"></i> Download</a>
             <button class="download-btn-demo" style="border: none; max-width: 150px; min-height: 30.39px;" onclick="launchReplayViewer('{{DEMO_NAME}}')"><i class="fas fa-play"></i> Watch Online</button>
-            {{DEMO_ID_DISPLAY}}
             <div class="demo-stats">
                 <span class="downloads-count"><i class="fas fa-download"></i> {{DOWNLOAD_COUNT}}</span>
                 <span class="watch-count"><i class="fas fa-eye"></i> {{WATCH_COUNT}}</span>
