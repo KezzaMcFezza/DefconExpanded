@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 25-05-2025
+//Last Edited 18-09-2025
 
 const express = require('express');
 const router = express.Router();
@@ -317,6 +317,7 @@ router.get('/api/profile-arch-nemesis', async (req, res) => {
         }
 
         let archNemesis = null;
+        let maxLosses = 0;
         let maxGames = 0;
         let nemesisWins = 0;
         let nemesisLosses = 0;
@@ -326,16 +327,18 @@ router.get('/api/profile-arch-nemesis', async (req, res) => {
         let otherOutcomes = 0;
 
         Object.entries(playerInteractions).forEach(([opponent, record]) => {
-
-            if (record.games >= 3 && record.games > maxGames) {
-                archNemesis = opponent;
-                maxGames = record.games;
-                nemesisWins = record.wins;
-                nemesisLosses = record.losses;
-                totalGames = record.games;
-                sameTeamGames = record.sameTeam;
-                tieGames = record.ties;
-                otherOutcomes = record.otherOutcomes;
+            if (record.games >= 3) {
+                if (record.losses > maxLosses || (record.losses === maxLosses && record.games > maxGames)) {
+                    archNemesis = opponent;
+                    maxLosses = record.losses;
+                    maxGames = record.games;
+                    nemesisWins = record.wins;
+                    nemesisLosses = record.losses;
+                    totalGames = record.games;
+                    sameTeamGames = record.sameTeam;
+                    tieGames = record.ties;
+                    otherOutcomes = record.otherOutcomes;
+                }
             }
         });
 
@@ -360,6 +363,164 @@ router.get('/api/profile-arch-nemesis', async (req, res) => {
         debug.error('getArchNemesis', error, 1);
         debug.exit('getArchNemesis', startTime, 'error', 1);
         res.status(500).json({ error: 'Unable to calculate arch nemesis', details: error.message });
+    }
+});
+
+router.get('/api/profile-best-teammate', async (req, res) => {
+    const startTime = debug.enter('getBestTeammate', [req.query.playerName], 1);
+    try {
+        const { playerName } = req.query;
+        debug.level2('Best teammate request for player:', playerName);
+
+        if (!playerName) {
+            debug.level1('Best teammate request missing player name');
+            debug.exit('getBestTeammate', startTime, 'missing_player_name', 1);
+            return res.status(400).json({ error: 'Player name is required' });
+        }
+
+        const [demos] = await pool.query(
+            `SELECT * FROM demos 
+         WHERE player1_name = ? OR player2_name = ? OR player3_name = ? OR player4_name = ? OR 
+               player5_name = ? OR player6_name = ? OR player7_name = ? OR player8_name = ? OR 
+               player9_name = ? OR player10_name = ?
+         ORDER BY date DESC`,
+            Array(10).fill(playerName)
+        );
+
+        const teammateInteractions = {};
+
+        for (const demo of demos) {
+            try {
+                let playersData = [];
+
+                if (demo.players) {
+                    let parsedData;
+
+                    try {
+                        parsedData = JSON.parse(demo.players);
+                    } catch (parseError) {
+                        console.error('JSON parse error:', parseError);
+                        continue;
+                    }
+
+                    if (parsedData && typeof parsedData === 'object') {
+                        if (Array.isArray(parsedData.players)) {
+                            playersData = parsedData.players;
+                        } else if (Array.isArray(parsedData)) {
+                            playersData = parsedData;
+                        }
+                    }
+                }
+
+                if (playersData.length < 2) continue;
+
+                const userPlayer = playersData.find(p => p.name === playerName);
+                if (!userPlayer) continue;
+
+                const usingAlliances = playersData.some(p => p.alliance !== undefined);
+                const userGroupId = usingAlliances ? userPlayer.alliance : userPlayer.team;
+
+                if (userGroupId === undefined) continue;
+
+                const groupScores = {};
+                playersData.forEach(player => {
+                    const groupId = usingAlliances ? player.alliance : player.team;
+                    if (groupId === undefined) return;
+
+                    if (!groupScores[groupId]) {
+                        groupScores[groupId] = 0;
+                    }
+                    groupScores[groupId] += player.score || 0;
+                });
+
+                const sortedGroups = Object.entries(groupScores).sort((a, b) => b[1] - a[1]);
+                const isTie = sortedGroups.length >= 2 && sortedGroups[0][1] === sortedGroups[1][1];
+
+                let winningGroupId = null;
+                if (!isTie && sortedGroups.length > 0) {
+                    winningGroupId = Number(sortedGroups[0][0]);
+                }
+
+                const userTeamWon = winningGroupId !== null && userGroupId === winningGroupId;
+
+                playersData.forEach(teammate => {
+                    if (teammate.name === playerName) return;
+
+                    const teammateGroupId = usingAlliances ? teammate.alliance : teammate.team;
+                    if (teammateGroupId === undefined) return;
+
+                    if (teammateGroupId === userGroupId) {
+                        if (!teammateInteractions[teammate.name]) {
+                            teammateInteractions[teammate.name] = {
+                                games: 0,
+                                wins: 0,
+                                losses: 0,
+                                ties: 0,
+                                otherOutcomes: 0
+                            };
+                        }
+
+                        teammateInteractions[teammate.name].games++;
+
+                        if (isTie) {
+                            teammateInteractions[teammate.name].ties++;
+                        } else if (userTeamWon) {
+                            teammateInteractions[teammate.name].wins++;
+                        } else {
+                            teammateInteractions[teammate.name].losses++;
+                        }
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error processing demo for best teammate:', error);
+            }
+        }
+
+        let bestTeammate = null;
+        let maxWins = 0;
+        let maxGames = 0;
+        let teammateWins = 0;
+        let teammateLosses = 0;
+        let totalGames = 0;
+        let tieGames = 0;
+        let otherOutcomes = 0;
+
+        Object.entries(teammateInteractions).forEach(([teammate, record]) => {
+            if (record.games >= 3) {
+                if (record.wins > maxWins || (record.wins === maxWins && record.games > maxGames)) {
+                    bestTeammate = teammate;
+                    maxWins = record.wins;
+                    maxGames = record.games;
+                    teammateWins = record.wins;
+                    teammateLosses = record.losses;
+                    totalGames = record.games;
+                    tieGames = record.ties;
+                    otherOutcomes = record.otherOutcomes;
+                }
+            }
+        });
+
+        debug.level2('Best teammate calculation complete:', { bestTeammate, totalGames, maxWins });
+        debug.exit('getBestTeammate', startTime, { bestTeammate, totalGames, maxWins }, 1);
+        res.json({
+            playerName,
+            bestTeammate: bestTeammate || 'None yet',
+            gamesPlayed: totalGames,
+            winsTogether: teammateWins,
+            lossesTogether: teammateLosses,
+            tieGames,
+            otherOutcomes,
+            debug: {
+                recordedGames: demos.length,
+                trackedTeammates: Object.keys(teammateInteractions).length
+            }
+        });
+
+    } catch (error) {
+        debug.error('getBestTeammate', error, 1);
+        debug.exit('getBestTeammate', startTime, 'error', 1);
+        res.status(500).json({ error: 'Unable to calculate best teammate', details: error.message });
     }
 });
 
