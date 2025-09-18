@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 25-05-2025
+//Last Edited 18-09-2025
 
 const express = require('express');
 const router = express.Router();
@@ -37,12 +37,13 @@ router.get('/api/demos', async (req, res) => {
       scoreDifference,
       startDate,
       endDate,
-      gamesPlayed
+      gamesPlayed,
+      includeNewPlayers = 'true'
     } = req.query;
 
     debug.level2('Demo query parameters:', {
       page, sortBy, playerName, serverName, territories, players,
-      scoreFilter, gameDuration, scoreDifference, startDate, endDate, gamesPlayed
+      scoreFilter, gameDuration, scoreDifference, startDate, endDate, gamesPlayed, includeNewPlayers
     });
 
   const limit = 9;
@@ -64,6 +65,21 @@ router.get('/api/demos', async (req, res) => {
     if (serverName) {
       conditions.push('LOWER(game_type) = LOWER(?)');
       params.push(serverName);
+    }
+
+    if (includeNewPlayers === 'false') {
+      conditions.push(`(
+        (player1_name NOT LIKE 'NewPlayer%' OR player1_name IS NULL) AND
+        (player2_name NOT LIKE 'NewPlayer%' OR player2_name IS NULL) AND
+        (player3_name NOT LIKE 'NewPlayer%' OR player3_name IS NULL) AND
+        (player4_name NOT LIKE 'NewPlayer%' OR player4_name IS NULL) AND
+        (player5_name NOT LIKE 'NewPlayer%' OR player5_name IS NULL) AND
+        (player6_name NOT LIKE 'NewPlayer%' OR player6_name IS NULL) AND
+        (player7_name NOT LIKE 'NewPlayer%' OR player7_name IS NULL) AND
+        (player8_name NOT LIKE 'NewPlayer%' OR player8_name IS NULL) AND
+        (player9_name NOT LIKE 'NewPlayer%' OR player9_name IS NULL) AND
+        (player10_name NOT LIKE 'NewPlayer%' OR player10_name IS NULL)
+      )`);
     }
 
     if (territories) {

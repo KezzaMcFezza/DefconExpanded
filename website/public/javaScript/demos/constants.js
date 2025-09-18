@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 21-06-2025
+//Last Edited 18-09-2025
 
 const territoryMapping = {
     'North America': 'northamerica',
@@ -84,7 +84,7 @@ const filterState = {
     combineMode: false,
     scoreFilter: '',
     durationFilter: '',
-    excludeNewPlayers: true,
+    includeNewPlayers: true,
     scoreDifferenceFilter: '',
     dateRange: {
         start: null,
