@@ -1,0 +1,112 @@
+Include ConfigVersion-1.43-beta1
+ServerName MURICON | 1v1 Default | 2.8.15
+ServerKey VDKJDV-ISQNKV-DYUZHI-UCTBNZ-ZSX
+RCONEnabled 1
+RCONTimeoutWindow 0
+RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
+RCONPort 8809
+RCONEncryption 1
+GameMode 0
+ServerPort 5010
+AdvertiseOnInternet 1
+AdvertiseOnLAN 1
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 1000000
+ServerVersion 1.60.1.5 MINICOM
+LogLevel 2
+IdleTime 300
+HostName Server Bot
+AcceptC2 1
+CaseSensitive 0
+EventFile dedcon_game_events/game_events_MURICON_1v1_Default_2_8_15.log
+OutFile dedcon_server_logs/server_output_MURICON_1v1_Default_2_8_15.log
+PlayerLog keyids_with_names.log
+
+# Whatever you do, DO NOT change these lines....
+# EventFile
+# OutFile
+# PlayerLog
+# Record
+
+#ADMIN
+Admin LadenBinKezza~~0~dancefloor
+Admin Sievert~~1~dancefloor
+Admin Lord Haw Haw~~1~TangoFoxtrot39
+
+#ANTI-CHEAT
+GhostProtection 2
+MaxResyncAttempts 3
+
+#KICK VOTES 
+KickVoteMin 2
+KickVoteMinPlayers 0
+KicksToBan 3
+
+#SPEED BUDGET
+IdleTime 300
+IdleTimeGlobal 600
+SlowBudgetStart 1800
+SlowBudgetMax 1800
+SlowBudgetRefill 0
+SlowBudgetRedistributeUsed 100
+SlowBudgetRedistributeUnused 0
+
+#PAUSE
+SlowBudgetUsePause 0
+SlowBudgetUseRealtime 0
+SlowBudgetUse5x 0
+SlowBudgetUse10x 0
+
+#GAME OPTIONS 
+AdvertisePlayers 2
+MaxSpectators 15
+UnitBuffer 5
+CityBuffer 2
+FirstStrikeBonus 15
+MinTeams 2
+MaxTeams 2
+EmptyBomberLaunch 0
+ReadyVoteDelay 90
+ReadyVoteMaxRemove 1
+RandomTerritories 0
+CityPopulations 0
+CitiesPerTerritory 25
+PopulationPerTerritory  100
+SpectatorChatChannel 1
+GameSpeed 0
+DropCourtesy -1
+SlowestSpeed 0
+PermitDefection 1
+RadarSharing 2
+
+WaitClient
+Say The 8 Player is still in development. Please report bugs and glitches to KezzaMcFezza or Sievert.
+Say All our Defcon traditions continue here. Have a gg. -LHH
+Say Type /gamealert *custom message* to notify people on discord to come play!
+Say www.defconexpanded.com
+
+WaitStart
+Say Warning: Each player has 30 minutes of 1x slowdown budget
+Say Each player also has 5 minutes of pause time that will affect their main slowndown budget
+SpectatorChatChannel 0
+
+WaitDefcon 1
+SlowBudgetRefill 60
+Say Slowdown Budget Refill has now been enabled, you will now gain 24 seconds of budget per minute of realtime used.
+Say 1 minute per minute of 5x used, and 2 minutes per 10x used
+Say Each player also has 5 minutes of pause time that will affect their main slowndown budget
+Say Use /speed to check your remaining budgets
+
+WaitEnd
+Record demo_recordings/game8p_%Y-%m-%d-%H-%M.d8crec
+AdvertiseOnInternet 0
+SpectatorChatChannel 1
+Say Game Over !
+Say Game is available on defconexpanded.com
+Say Restart in 30 Seconds!
+WaitSeconds 30
+Quit
+
+
+
