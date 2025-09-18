@@ -116,14 +116,33 @@ router.get('/api/demos', async (req, res) => {
     if (players) {
       const playerList = players.split(',').filter(p => p.trim());
       if (playerList.length > 0) {
-        playerList.forEach(player => {
-          conditions.push(
-            `(player1_name LIKE ? OR player2_name LIKE ? OR player3_name LIKE ? OR player4_name LIKE ?
-              OR player5_name LIKE ? OR player6_name LIKE ? OR player7_name LIKE ? OR player8_name LIKE ?
-              OR player9_name LIKE ? OR player10_name LIKE ?)`
-          );
-          params.push(...Array(10).fill(`%${player}%`));
-        });
+        if (playerList.length === 2) {
+          const [player1, player2] = playerList;
+          conditions.push(`(
+            (player1_name IS NOT NULL AND player1_name != '') +
+            (player2_name IS NOT NULL AND player2_name != '') +
+            (player3_name IS NOT NULL AND player3_name != '') +
+            (player4_name IS NOT NULL AND player4_name != '') +
+            (player5_name IS NOT NULL AND player5_name != '') +
+            (player6_name IS NOT NULL AND player6_name != '') +
+            (player7_name IS NOT NULL AND player7_name != '') +
+            (player8_name IS NOT NULL AND player8_name != '') +
+            (player9_name IS NOT NULL AND player9_name != '') +
+            (player10_name IS NOT NULL AND player10_name != '') = 2
+            AND
+            (
+              (player1_name LIKE ? OR player2_name LIKE ? OR player3_name LIKE ? OR player4_name LIKE ?
+               OR player5_name LIKE ? OR player6_name LIKE ? OR player7_name LIKE ? OR player8_name LIKE ?
+               OR player9_name LIKE ? OR player10_name LIKE ?)
+              AND
+              (player1_name LIKE ? OR player2_name LIKE ? OR player3_name LIKE ? OR player4_name LIKE ?
+               OR player5_name LIKE ? OR player6_name LIKE ? OR player7_name LIKE ? OR player8_name LIKE ?
+               OR player9_name LIKE ? OR player10_name LIKE ?)
+            )
+          )`);
+          params.push(...Array(10).fill(`%${player1}%`));
+          params.push(...Array(10).fill(`%${player2}%`));
+        }
       }
     }
 
