@@ -12,7 +12,6 @@
 
 import {
     initializeDemos,
-    performPlayerSearch,
     resetFilters,
     allDemos,
     currentPage,
@@ -31,7 +30,6 @@ import {
 window.toggleSpectators = toggleSpectators;
 window.launchReplayViewer = launchReplayViewer;
 window.showReportOptions = showReportOptions;
-window.performPlayerSearch = performPlayerSearch;
 window.resetFilters = resetFilters;
 
 export {

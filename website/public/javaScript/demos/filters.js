@@ -217,23 +217,6 @@ function updateDemoList(playerName = '') {
     });
 }
 
-function performPlayerSearch() {
-  const playerSearchInput = document.getElementById('player-search-input');
-  if (!playerSearchInput) return;
-
-  const playerName = playerSearchInput.value.trim();
-  const url = new URL(window.location);
-
-  if (playerName) {
-    url.searchParams.set('playerName', playerName);
-  } else {
-    url.searchParams.delete('playerName');
-  }
-
-  url.searchParams.set('page', '1');
-  window.location.href = url.toString();
-}
-
 function resetFilters() {
   const url = new URL(window.location);
   const hasAppliedFilters = [
@@ -318,20 +301,6 @@ function setupFilterEventListeners() {
   const resetFiltersBtn = document.querySelector('.reset-filters-btn');
   if (resetFiltersBtn) {
     resetFiltersBtn.addEventListener('click', resetFilters);
-  }
-
-  const searchButton = document.getElementById('search-button2');
-  if (searchButton) {
-    searchButton.addEventListener('click', performPlayerSearch);
-  }
-
-  const playerSearchInput = document.getElementById('player-search-input');
-  if (playerSearchInput) {
-    playerSearchInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        performPlayerSearch();
-      }
-    });
   }
 
   const newPlayerSwitch = document.getElementById('newplayer');
@@ -446,6 +415,16 @@ function setupFilterEventListeners() {
       url.searchParams.delete('players');
     }
 
+    const playerSearchInput = document.getElementById('player-search-input');
+    if (playerSearchInput) {
+      const playerName = playerSearchInput.value.trim();
+      if (playerName) {
+        url.searchParams.set('playerName', playerName);
+      } else {
+        url.searchParams.delete('playerName');
+      }
+    }
+
     if (!filterState.includeNewPlayers) {
       url.searchParams.set('includeNewPlayers', 'false');
     } else {
@@ -515,7 +494,6 @@ window.addEventListener('popstate', () => {
 export {
   initializeDemos,
   updateDemoList,
-  performPlayerSearch,
   resetFilters,
   allDemos,
   currentPage,
