@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 25-05-2025
+//Last Edited 18-09-2025
 
 import { 
   displayDemos 
@@ -130,6 +130,9 @@ function initializeDemos() {
       filterState.gamesPlayed = gamesPlayed;
     }
   }
+
+  const includeNewPlayers = urlParams.get('includeNewPlayers') !== 'false';
+  filterState.includeNewPlayers = includeNewPlayers;
   
   const hasAdvancedFilters = [
     'territories', 'combineMode', 'players', 'scoreFilter',

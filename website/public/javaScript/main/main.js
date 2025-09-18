@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 04-08-2025
+//Last Edited 18-09-2025
 
 import { initializeDiscordWidget } from './discord.js';
 import { initializeReportHandlers } from './reporting.js';
@@ -19,6 +19,7 @@ import { initializePopupSystem } from './popup.js';
 import { initializeLeaderboard } from '../leaderboard/leaderboard.js';
 import { initializeGraphs } from '../graph/graph.js';
 import { initializeSmurfChecker } from '../smurfchecker/smurf-checker.js';
+import { territoryMappingUI } from '../demos/constants.js';
 
 let soundVolume = 0.1;
 
@@ -202,7 +203,7 @@ function updateURL(currentPage, currentSort, currentServerFilter, filterState) {
 
   if (filterState && filterState.territories && filterState.territories.size > 0) {
     const territoryNames = Array.from(filterState.territories)
-      .map(id => filterState.territoryMapping ? filterState.territoryMapping[id] : null)
+      .map(id => territoryMappingUI[id])
       .filter(Boolean);
     url.searchParams.set('territories', territoryNames.join(','));
     url.searchParams.set('combineMode', filterState.combineMode);
