@@ -49,7 +49,6 @@ const RconModule = (() => {
         { name: 'New Players Welcome | Come and Play!', port: 8819, permission: PERMISSIONS.RCON_NEW_PLAYER },
         { name: 'DefconExpanded | 3v3 | Totally Random', port: 8820, permission: PERMISSIONS.RCON_3V3_RANDOM },
         { name: 'DefconExpanded | 3v3 | Totally Random Second Server', port: 8821, permission: PERMISSIONS.RCON_3V3_RANDOM_SECOND },
-        { name: 'DefconExpanded | 3v3 | Totally Random - Second Server', port: 8822, permission: PERMISSIONS.RCON_3V3_RANDOM_THIRD },
         { name: 'MURICON | UK Mod', port: 8823, permission: PERMISSIONS.RCON_MURICON_UK },
         { name: 'DefconExpanded | Free For All | Random Cities', port: 8824, permission: PERMISSIONS.RCON_FFA_RANDOM },
         { name: 'DefconExpanded | Training Server', port: 8825, permission: PERMISSIONS.RCON_TRAINING },
