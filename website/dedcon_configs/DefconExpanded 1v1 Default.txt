@@ -1,0 +1,97 @@
+Include ConfigVersion-1.43-beta1
+Include admins
+ServerName DefconExpanded | 1v1 | Default
+ServerKey FCMVWF-CPPWYY-XCSFHD-RKOLYH-INR
+RCONEnabled 1
+RCONTimeoutWindow 0
+RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
+RCONPort 8802
+RCONEncryption 1
+GameMode 0
+ServerPort 5010
+AdvertiseOnInternet 1
+AdvertiseOnLAN 1
+AllianceSize 1
+SlowestSpeed 0
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 1000000
+LogLevel 2
+HostName DefconExpanded
+AcceptC2 1
+MaxIdleRunTime 2500
+MinRunTime 900
+CaseSensitive 0
+EventFile dedcon_game_events/game_events_DefconExpanded_1v1_Default.log
+OutFile dedcon_server_logs/server_output_DefconExpanded_1v1_Default.log
+PlayerLog keyids_with_names.log
+
+# Whatever you do, DO NOT change these lines....
+# EventFile
+# OutFile
+# PlayerLog
+# Record
+
+#ANTI-CHEAT
+GhostProtection 2
+MaxResyncAttempts 3
+
+#SPEED BUDGET
+IdleTime 300
+IdleTimeGlobal 600
+SlowBudgetStart 1800
+SlowBudgetMax 1800
+SlowBudgetRefill 0
+SlowBudgetRedistributeUsed 100
+SlowBudgetRedistributeUnused 0
+
+#PAUSE
+SlowBudgetUsePause 0
+SlowBudgetUseRealtime 0
+SlowBudgetUse5x 0
+SlowBudgetUse10x 0
+
+#KICK VOTES 
+KickVoteMin 2
+KickVoteMinPlayers 0
+KicksToBan 3
+
+#GAME OPTIONS 
+AdvertisePlayers 2
+MaxSpectators 15 
+MinTeams 2
+MaxTeams 2
+ReadyVoteDelay 90
+ReadyVoteMaxRemove 1
+DropCourtesy -1
+RandomTerritories 0
+CityPopulations 0
+CitiesPerTerritory 30
+PopulationPerTerritory  150
+GameSpeed 0
+PermitDefection 0
+SpectatorChatChannel 1
+
+WaitClient
+Say Welcome to Defcon Expanded, This is a 1v1 server only with totally random cites and population and you are able to choose territories if you want. 
+Say This server also has a leaderboard and game recordings on the DefconExpanded website.
+Say Type /gamealert *custom message* to notify people on discord to come play!
+Say www.defconexpanded.com
+
+WaitStart
+Say Each player also has 5 minutes of pause time that will affect their main pause budget
+Say Use /speed to check your remaining pause budget
+SpectatorChatChannel 0
+
+WaitEnd
+Record demo_recordings/game_%Y-%m-%d-%H-%M.dcrec
+AdvertiseOnInternet 0
+SpectatorChatChannel 1
+Say Game Over !
+Say Game is available on defconexpanded.com
+Say Restart in 2 Minutes!
+WaitSeconds 120
+Quit
+
+
+

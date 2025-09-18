@@ -1,0 +1,100 @@
+Include ConfigVersion-1.43-beta1
+Include admins
+ServerName DefconExpanded | Free For All | Random Cities
+ServerKey ICYWWZ-NIXAZC-ONHOHV-FRZNVC-ACV
+RCONEnabled 1
+RCONTimeoutWindow 0
+RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
+RCONPort 8824
+RCONEncryption 1
+GameMode 0
+ServerPort 5010
+AdvertiseOnInternet 1
+AdvertiseOnLAN 1
+TotalBandwidth 6000000
+PlayerBandwidth 2750000
+SpectatorBandwidth 1000000
+LogLevel 2
+CaseSensitive 0
+SlowestSpeed 0
+AllianceSize 1
+HostName DefconExpanded
+AcceptC2 1
+MaxIdleRunTime 2500
+MinRunTime 900
+EventFile dedcon_game_events/game_events_DefconExpanded_Free_For_All_Random_Cities.log
+OutFile dedcon_server_logs/server_output_DefconExpanded_Free_For_All_Random_Cities.log
+PlayerLog keyids_with_names.log
+
+# Whatever you do, DO NOT change these lines....
+# EventFile
+# OutFile
+# PlayerLog
+# Record
+
+#ANTI-CHEAT
+GhostProtection 2
+MaxResyncAttempts 3
+
+#SPEED BUDGET
+IdleTime 300
+IdleTimeGlobal 600
+SlowBudgetStart 1800
+SlowBudgetMax 1800
+SlowBudgetRefill 0
+SlowBudgetRedistributeUsed 100
+SlowBudgetRedistributeUnused 0
+
+#PAUSE BUDGET
+SlowBudgetUsePause 0
+SlowBudgetUseRealtime 0
+SlowBudgetUse5x 0
+SlowBudgetUse10x 0
+
+#KICK VOTES 
+KickVoteMin 2
+KickVoteMinPlayers 0
+KicksToBan 3
+
+#GAME OPTIONS 
+AdvertisePlayers 6
+MaxSpectators 15 
+MinTeams 3
+MaxTeams 6
+ReadyVoteDelay 90
+ReadyVoteMaxRemove 1
+RandomTerritories 0
+CityPopulations 1
+CitiesPerTerritory 50
+PopulationPerTerritory  200
+GameSpeed 0
+DropCourtesy -1
+PermitDefection 1
+RadarSharing 1
+SpectatorChatChannel 1
+
+WaitClient
+Say Welcome to Defcon Expanded, This is a classic free for all server with random cities for everyone who wants to play the classic defcon experience :).
+Say Type /gamealert *custom message* to notify people on discord to come play!
+Say www.defconexpanded.com
+
+WaitStart
+Say Warning: Each player has 30 minutes of 1x slowdown budget
+Say Budget regenerates at 1 minute per minute of 5x used, and 2 minutes per 10x used
+Say Each player also has 5 minutes of pause time that will affect their slowdown budget
+Say Use /speed to check your remaining budgets
+SpectatorChatChannel 0
+
+WaitEnd
+Record demo_recordings/game_%Y-%m-%d-%H-%M.dcrec
+AdvertiseOnInternet 0
+SpectatorChatChannel 1
+Say Game Over !
+Say Game is available on defconexpanded.com
+Say Restart in 2 Minutes!
+WaitSeconds 120
+Quit
+
+
+
+
