@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 04-08-2025 
+* Last Edited 18-09-2025 
 -->
 
 <!DOCTYPE html>
@@ -216,71 +216,143 @@
 
                     <div class="contributors-grid">
                         <div class="contributor-column">
-                            <h3 class="contributor-category-title">Website Development</h3>
                             <div class="contributor-list">
-                                <div class="contributor-item">
-                                    <span class="contributor-name">KezzaMcFezza</span>
-                                    <span class="contributor-role">Lead Developer</span>
+                                <div class="contributor-item" onclick="toggleContributor(this)">
+                                    <div class="contributor-header">
+                                        <div class="contributor-info">
+                                            <span class="contributor-name">KezzaMcFezza</span>
+                                            <span class="contributor-primary-role">Lead Developer</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down contributor-arrow"></i>
+                                    </div>
+                                    <div class="contributor-details">
+                                        <span class="contributor-role">Website UI/UX</span>
+                                        <span class="contributor-role">Defcon Emscripten Port</span>
+                                        <span class="contributor-role">Replay Viewer Developer</span>
+                                        <span class="contributor-role">Dedcon Maintainer</span>
+                                        <span class="contributor-role">8/16 Player Mod</span>
+                                        <span class="contributor-role">Map Modding</span>
+                                    </div>
                                 </div>
-                                <div class="contributor-item">
-                                    <span class="contributor-name">Devil</span>
-                                    <span class="contributor-role">Inspiration</span>
+                                <div class="contributor-item" onclick="toggleContributor(this)">
+                                    <div class="contributor-header">
+                                        <div class="contributor-info">
+                                            <span class="contributor-name">Bert_the_turtle</span>
+                                            <span class="contributor-primary-role">Dedcon Alliance Tracking</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down contributor-arrow"></i>
+                                    </div>
+                                    <div class="contributor-details">
+                                        <span class="contributor-role">Dedcon Creator</span>
+                                        <span class="contributor-role">MacOS/Linux Porting</span>
+                                        <span class="contributor-role">8/16 Player Mod</span>
+                                    </div>
                                 </div>
-                                <div class="contributor-item">
-                                    <span class="contributor-name">Nexustini</span>
-                                    <span class="contributor-role">Server Management</span>
+                                <div class="contributor-item" onclick="toggleContributor(this)">
+                                    <div class="contributor-header">
+                                        <div class="contributor-info">
+                                            <span class="contributor-name">FasterThanRaito</span>
+                                            <span class="contributor-primary-role">Thundys Mod</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down contributor-arrow"></i>
+                                    </div>
+                                    <div class="contributor-details">
+                                        <span class="contributor-role">8/16 Player Mod</span>
+                                        <span class="contributor-role">Map Modding</span>
+                                    </div>
+                                </div>
+                                <div class="contributor-item" onclick="toggleContributor(this)">
+                                    <div class="contributor-header">
+                                        <div class="contributor-info">
+                                            <span class="contributor-name">Sievert</span>
+                                            <span class="contributor-primary-role">8/16 Player Mod</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down contributor-arrow"></i>
+                                    </div>
+                                    <div class="contributor-details">
+                                        <span class="contributor-role">Map Modding</span>
+                                        <span class="contributor-role">General Developer</span>
+                                    </div>
+                                </div>
+                                <div class="contributor-item" onclick="toggleContributor(this)">
+                                    <div class="contributor-header">
+                                        <div class="contributor-info">
+                                            <span class="contributor-name">Nexustini</span>
+                                            <span class="contributor-primary-role">Server Management</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down contributor-arrow"></i>
+                                    </div>
+                                    <div class="contributor-details">
+                                        <span class="contributor-role">Database Management</span>
+                                        <span class="contributor-role">Logistics</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="contributor-column">
-                            <h3 class="contributor-category-title">Mod Development</h3>
                             <div class="contributor-list">
-                                <div class="contributor-item">
-                                    <span class="contributor-name">Sievert</span>
-                                    <span class="contributor-role">Lead Developer</span>
+                                <div class="contributor-item" onclick="toggleContributor(this)">
+                                    <div class="contributor-header">
+                                        <div class="contributor-info">
+                                            <span class="contributor-name">Mars</span>
+                                            <span class="contributor-primary-role">Graphics</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down contributor-arrow"></i>
+                                    </div>
+                                    <div class="contributor-details">
+                                        <span class="contributor-role">Modlist and Game Cards</span>
+                                        <span class="contributor-role">Website Poster</span>
+                                        <span class="contributor-role">Website Banner</span>
+                                    </div>
                                 </div>
-                                <div class="contributor-item">
-                                    <span class="contributor-name">FasterThanRaito</span>
-                                    <span class="contributor-role">Lead Developer</span>
+                                <div class="contributor-item" onclick="toggleContributor(this)">
+                                    <div class="contributor-header">
+                                        <div class="contributor-info">
+                                            <span class="contributor-name">Laika</span>
+                                            <span class="contributor-primary-role">Administrator</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down contributor-arrow"></i>
+                                    </div>
+                                    <div class="contributor-details">
+                                        <span class="contributor-role">Managing DefconExpanded</span>
+                                    </div>
                                 </div>
-                                <div class="contributor-item">
-                                    <span class="contributor-name">Wan May</span>
-                                    <span class="contributor-role">Developer</span>
+                                <div class="contributor-item" onclick="toggleContributor(this)">
+                                    <div class="contributor-header">
+                                        <div class="contributor-info">
+                                            <span class="contributor-name">Wan May</span>
+                                            <span class="contributor-primary-role">General Developer</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down contributor-arrow"></i>
+                                    </div>
+                                    <div class="contributor-details">
+                                        <span class="contributor-role">Replay Viewer Developer</span>
+                                    </div>
                                 </div>
-                                <div class="contributor-item">
-                                    <span class="contributor-name">Bert_the_turtle</span>
-                                    <span class="contributor-role">Developer</span>
+                                <div class="contributor-item" onclick="toggleContributor(this)">
+                                    <div class="contributor-header">
+                                        <div class="contributor-info">
+                                            <span class="contributor-name">Rad</span>
+                                            <span class="contributor-primary-role">Helping with Python Scripts</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down contributor-arrow"></i>
+                                    </div>
+                                    <div class="contributor-details">
+                                        <span class="contributor-role">Linux Testing</span>
+                                    </div>
                                 </div>
-                                <div class="contributor-item">
-                                    <span class="contributor-name">KezzaMcFezza</span>
-                                    <span class="contributor-role">Build Pipelines</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="contributor-column">
-                            <h3 class="contributor-category-title">Game Porting</h3>
-                            <div class="contributor-list">
-                                <div class="contributor-item">
-                                    <span class="contributor-name">Rad</span>
-                                    <span class="contributor-role">Linux Testing</span>
-                                </div>
-                                <div class="contributor-item">
-                                    <span class="contributor-name">KezzaMcFezza</span>
-                                    <span class="contributor-role">Ported Dedcon to MacOS</span>
-                                </div>
-                                <div class="contributor-item">
-                                    <span class="contributor-name">Bert_the_turtle</span>
-                                    <span class="contributor-role">Ported to MacOS and Linux</span>
-                                </div>
-                            </div>
-
-                            <h3 class="contributor-category-title artwork-title">Artwork</h3>
-                            <div class="contributor-list">
-                                <div class="contributor-item">
-                                    <span class="contributor-name">Mars</span>
-                                    <span class="contributor-role">Modlist and Game Cards</span>
+                                <div class="contributor-item" onclick="toggleContributor(this)">
+                                    <div class="contributor-header">
+                                        <div class="contributor-info">
+                                            <span class="contributor-name">Devil</span>
+                                            <span class="contributor-primary-role">Inspiration</span>
+                                        </div>
+                                        <i class="fas fa-chevron-down contributor-arrow"></i>
+                                    </div>
+                                    <div class="contributor-details">
+                                        <span class="contributor-role">Helped with CSS and HTML</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
