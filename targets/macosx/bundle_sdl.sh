@@ -42,7 +42,8 @@ echo "Looking for frameworks in: ${REPO_FRAMEWORKS_DIR}"
 for framework in "SDL2" "Ogg" "Vorbis"; do
   if [ -d "${REPO_FRAMEWORKS_DIR}/${framework}.framework" ]; then
     echo "Found ${framework}.framework in repo"
-    cp -R "${REPO_FRAMEWORKS_DIR}/${framework}.framework" "${FRAMEWORKS}/"
+    #cp -R "${REPO_FRAMEWORKS_DIR}/${framework}.framework" "${FRAMEWORKS}/"
+    ditto "${REPO_FRAMEWORKS_DIR}/${framework}.framework" "${FRAMEWORKS}/${framework}.framework"
   else
     echo "ERROR: ${framework}.framework not found in ${REPO_FRAMEWORKS_DIR}"
     echo "This framework is required for the application to run"
