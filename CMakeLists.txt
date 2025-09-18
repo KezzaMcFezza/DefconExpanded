@@ -53,7 +53,7 @@ else()
     endif()
 endif()
 
-set(REPLAY_VIEWER_VERSION "B1.97.4" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "B1.97.5" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 option(ENABLE_RECORDING_PARSING "Enable recording parsing functionality" ON)
 option(ENABLE_REPLAY_VIEWER "Enable Emscripten Replay Viewer mode (recording playback only)" ON)
 
