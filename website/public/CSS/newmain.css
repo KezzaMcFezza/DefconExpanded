@@ -762,7 +762,7 @@ li {
 }
 
 .date-input {
-    background-color: #1c1c2e;
+    background-color: rgb(20 20 20 / 50%);
     border: 1px solid #333;
     color: #b8b8b8;
     padding: 0.4rem;
@@ -770,7 +770,7 @@ li {
 }
 
 .player-input {
-    background-color: #1c1c2e;
+    background-color: rgb(20 20 20 / 50%);
     border: 1px solid #333;
     color: #fff;
     height: 10px;
@@ -779,7 +779,7 @@ li {
 }
 
 .search-container input {
-    background-color: #1c1c2e;
+    background-color: rgb(20 20 20 / 50%);
     border: 1px solid #333;
     color: #fff;
     padding: 0.75rem;
@@ -1866,7 +1866,6 @@ a {
 }
 
 .release-date {
-    background-color: #ff8400;
     color: #fff;
 }
 
