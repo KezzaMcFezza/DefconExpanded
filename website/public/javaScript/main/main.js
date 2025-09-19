@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 18-09-2025
+//Last Edited 19-09-2025
 
 import { initializeDiscordWidget } from './discord.js';
 import { initializeReportHandlers } from './reporting.js';
@@ -22,6 +22,100 @@ import { initializeSmurfChecker } from '../smurfchecker/smurf-checker.js';
 import { territoryMappingUI } from '../demos/constants.js';
 
 let soundVolume = 0.1;
+
+const BASE_WIDTH = 1920;
+const MIN_SCALE = 0.3;
+const MAX_SCALE = 2;
+const MOBILE_BREAKPOINT = 768;
+const MIN_DESKTOP_WIDTH = 800;
+const MIN_DESKTOP_HEIGHT = 600;
+
+function applyViewportScaling() {
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  
+  if (viewportWidth < MIN_DESKTOP_WIDTH || viewportHeight < MIN_DESKTOP_HEIGHT) {
+    document.documentElement.style.zoom = '';
+    resetSidebarHeight();
+    window.viewportScale = 1;
+    return;
+  }
+  
+  if (viewportWidth <= MOBILE_BREAKPOINT) {
+    document.documentElement.style.zoom = '';
+    resetSidebarHeight();
+    window.viewportScale = 1;
+    return;
+  }
+  
+  let scale = viewportWidth / BASE_WIDTH;
+  scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
+  
+  document.documentElement.style.zoom = scale;
+  window.viewportScale = scale;
+  
+  setTimeout(SidebarHeight, 50);
+  
+  window.dispatchEvent(new CustomEvent('viewportScaled', {
+    detail: { scale, viewportWidth, viewportHeight }
+  }));
+}
+
+function SidebarHeight() {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  
+  const currentScale = window.viewportScale || 1;
+  
+  if (currentScale === 1) {
+    resetSidebarHeight();
+    return;
+  }
+  
+  const dynamicVH = 100 / currentScale;
+  sidebar.style.minHeight = `${dynamicVH}vh`;
+  sidebar.style.height = `${dynamicVH}vh`;
+}
+
+function resetSidebarHeight() {
+  const sidebar = document.getElementById('sidebar');
+  if (!sidebar) return;
+  
+  sidebar.style.minHeight = '';
+  sidebar.style.height = '';
+}
+
+function initializeViewportScaling() {
+  function setupScaling() {
+    applyViewportScaling();
+    
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        applyViewportScaling();
+      }, 100);
+    });
+    
+    window.addEventListener('orientationchange', function() {
+      setTimeout(() => {
+        applyViewportScaling();
+      }, 500);
+    });
+    
+    window.addEventListener('scroll', function() {
+      if (window.defconViewportScale && window.defconViewportScale !== 1) {
+        SidebarHeight();
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupScaling);
+  } else {
+    setupScaling();
+  }
+}
 
 function formatBytes(bytes, decimals = 2) {
   if (bytes === 0) return '0 Bytes';
@@ -850,6 +944,7 @@ function getReplayPlatformDisplay(platform) {
 }
 
 function initializeApplication() {
+  initializeViewportScaling();
   initializePopupSystem();
   initializeAuthentication();
   initializeNavigation();
