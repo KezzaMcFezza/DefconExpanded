@@ -56,7 +56,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const logStream = fs.createWriteStream(path.join(__dirname, 'server.log'), { flags: 'a' });
 const pendingVerifications = new Map();
-const mysqldump = require('mysqldump');
+const { spawn } = require('child_process');
 const cron = require('node-cron');
 
 // functions to be imported from the modules
@@ -473,32 +473,68 @@ async function createDatabaseBackup() {
             outputFile: sqlFilePath
         });
         
-        // create the mysql dump
-        const result = await mysqldump({
-            connection: {
-                host: process.env.DB_HOST,
-                user: process.env.DB_USER,
-                password: process.env.DB_PASSWORD,
-                database: process.env.DB_NAME,
-                port: process.env.DB_PORT || 3306
-            },
-            dumpToFile: sqlFilePath,
-            compressFile: false,
-            dump: {
-                schema: {
-                    table: {
-                        ifNotExist: true,
-                        dropIfExist: true,
-                        charset: true
-                    }
-                },
-                data: {
-                    verbose: false,
-                    lockTables: false,
-                    includeViewData: true,
-                    maxRowsPerInsertStatement: 5000
+        // create the mysql dump using mysqldump with a child process
+        // the mysqldump package for node is so bad its not even funny
+        const result = await new Promise((resolve, reject) => {
+            const mysqldumpArgs = [
+                `--host=${process.env.DB_HOST}`,
+                `--user=${process.env.DB_USER}`,
+                `--password=${process.env.DB_PASSWORD}`,
+                `--port=${process.env.DB_PORT || 3306}`,
+                '--single-transaction',        // consistent snapshot without locking
+                '--quick',                     // retrieve rows one at a time (less memory)
+                '--lock-tables=false',         // don't lock tables
+                '--compress',                  // compress data during transmission
+                '--order-by-primary',          // order by primary key for speed
+                '--max-allowed-packet=1G',     // handle large rows
+                '--skip-routines',             // skip stored procedures
+                '--skip-triggers',             // skip triggers
+                '--skip-events',               // skip events
+                '--skip-add-drop-table',       // skip DROP TABLE statements
+                '--skip-add-locks',            // skip LOCK TABLES statements
+                '--skip-disable-keys',         // skip DISABLE KEYS statements
+                '--skip-comments',             // skip comments
+                '--skip-quote-names',          // dont quote table/column names
+                '--skip-set-charset',          // skip SET NAMES statements
+                '--skip-tz-utc',               // skip timezone conversion
+                process.env.DB_NAME
+            ];
+
+            console.log('Starting mysqldump with optimized arguments...');
+            
+            // use xampp path since we do not have mysql in our path on windows
+            const mysqldumpPath = process.platform === 'win32' 
+                ? 'C:\\xampp\\mysql\\bin\\mysqldump.exe'
+                : '/Applications/XAMPP/xamppfiles/bin/mysqldump';
+            
+            const mysqldumpProcess = spawn(mysqldumpPath, mysqldumpArgs, {
+                stdio: ['ignore', 'pipe', 'pipe']
+            });
+
+            const writeStream = fs.createWriteStream(sqlFilePath);
+            mysqldumpProcess.stdout.pipe(writeStream);
+
+            let errorOutput = '';
+            mysqldumpProcess.stderr.on('data', (data) => {
+                errorOutput += data.toString();
+            });
+
+            mysqldumpProcess.on('close', (code) => {
+                writeStream.end();
+                if (code === 0) {
+                    console.log('mysqldump completed successfully');
+                    resolve({ success: true });
+                } else {
+                    console.error('mysqldump failed with code:', code);
+                    console.error('Error output:', errorOutput);
+                    reject(new Error(`mysqldump failed with code ${code}: ${errorOutput}`));
                 }
-            }
+            });
+
+            mysqldumpProcess.on('error', (error) => {
+                console.error('Failed to start mysqldump:', error);
+                reject(error);
+            });
         });
         
         console.log('MySQL dump created successfully');

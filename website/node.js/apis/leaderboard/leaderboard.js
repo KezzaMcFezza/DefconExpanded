@@ -93,6 +93,9 @@ router.get('/api/most-active-players', async (req, res) => {
 
                 for (const player of playersData) {
                     if (!player.name) continue;
+                    
+                    player.name = player.name.trim();
+                    
                     if (blacklistedPlayers.has(player.name.toLowerCase())) continue;
                     if (namesToExclude.includes(player.name)) continue;
 
@@ -295,6 +298,8 @@ router.get('/api/leaderboard', async (req, res) => {
 
                 for (const player of playersData) {
                     if (!player.name) continue;
+
+                    player.name = player.name.trim();
 
                     if (blacklistedPlayers.has(player.name.toLowerCase())) continue;
 
@@ -675,6 +680,10 @@ router.get('/api/player-nemesis', async (req, res) => {
 
                 const groupScores = {};
                 playersData.forEach(player => {
+                    if (player.name) {
+                        player.name = player.name.trim();
+                    }
+                    
                     const groupId = usingAlliances ? player.alliance : player.team;
                     if (groupId === undefined) return;
 
