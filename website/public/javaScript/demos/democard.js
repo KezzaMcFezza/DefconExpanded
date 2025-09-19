@@ -8,7 +8,7 @@
 //
 //Inspired by Sievert and Wan May
 // 
-//Last Edited 07-06-2025
+//Last Edited 19-09-2025
 
 import { 
   formatDuration,
@@ -154,6 +154,20 @@ function generateDemoActions(demo, canViewId) {
   return result;
 }
 
+function formatGameType(gameType) {
+  if (!gameType) return 'Unknown';
+  
+  let formatted = gameType;
+  
+  formatted = formatted.replace(/NA-SA-EU-AF/g, 'NA SA EU AF');
+  formatted = formatted.replace(/[|-]/g, '');
+  formatted = formatted.replace(/(DefconExpanded|New Player Server|MURICON)\s*(1v1|2v2|3v3)/g, '$1 $2');
+  formatted = formatted.replace(/(DefconExpanded|New Player Server|MURICON)\s*(Free For All|8 Player|10 Player|16 Player)/g, '$1<br>$2');
+  formatted = formatted.replace(/\s*(Totally Random)$/g, '<br>$1');
+  
+  return formatted;
+}
+
 function replaceTemplate(template, replacements) {
   let result = template;
   for (const [key, value] of Object.entries(replacements)) {
@@ -177,7 +191,7 @@ async function createDemoCard(demo) {
   const demoActions = generateDemoActions(demo, canViewId);
 
   const templateInsertions = {
-    GAME_TYPE: demo.game_type || 'Unknown',
+    GAME_TYPE: formatGameType(demo.game_type),
     TIME_AGO: getTimeAgo(demo.date),
     GAME_TIME: demoDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     GAME_DATE: demoDate.toLocaleDateString(),
