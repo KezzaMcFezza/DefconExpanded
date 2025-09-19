@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024 
+* Last Edited 19-09-2025 
 */
 
 @media (prefers-reduced-motion: reduce) {
@@ -19,414 +19,271 @@
     }
 }
 
-@media (max-width: 1366px) {
-
-    body,
-    html {
-        font-family: 'Roboto', Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        color: #fff;
-        height: 100%;
-        line-height: 1.6;
-        overflow: hidden;
-    }
-
-    .profile-container {
-        padding: 0 !important;
-    }
-
-    body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-        opacity: 0.05;
-        z-index: -1;
-    }
-
-    .dedcon-container-main {
-        padding: 0 !important;
-    }
-
-    #sidebar {
-        width: 100%;
-        height: auto;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1000;
-        background-color: #1c1c2e;
-    }
-
-    #sidebar .title {
-        display: flex;
-        line-height: 50px;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 15px;
-        font-size: 1.5rem;
-    }
-
-    #sidebar .title::after {
-        cursor: pointer;
-        padding: 0px 10px 40px 0px;
-        display: block;
-    }
-
-    .game-tile {
-        width: 231px;
-    }
-
-    .mod-item {
-        max-width: 403px !important;
-        min-width: 403px !important;
-    }
-
-    .mod-meta {
-        flex-wrap: nowrap !important;
-    }
-
-    .download-btn {
-        margin-left: auto !important;
-        padding: 4px 10px !important;
-        margin-right: unset !important;
-    }
-
-    .mod-title {
-        max-width: 290px;
-    }
-
-    #sidebar .title::after {
-        content: '\2630';
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    #sidebar .title::after {
-        cursor: pointer;
-        padding: 0px 10px 40px 0px;
-        display: block;
-    }
-
-    #sidebar .title.menu-open::after {
-        display: none;
-    }
-
-    #sidebar .list-items {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-    }
-
-    #sidebar .list-items.show {
-        display: block;
-        background-color: #1a1a1a;
-    }
-
-    #sidebar .list-items li {
-        text-align: left;
-        border-bottom: 1px solid #333;
-    }
-
-    #sidebar .list-items li a {
-        padding: 10px 15px;
-        display: block;
-        font-size: 1rem;
-    }
-
-    main {
-        margin-left: 0;
-        padding: 89px 15px 0;
-    }
-
-    .header-content {
-        padding: 0;
-    }
-
-    .icons {
-        display: flex;
-        justify-content: space-evenly;
-        margin-top: auto;
-        background-color: #1a1b1b;
-        padding: 6px 0;
-        border-top: 1px solid #333;
-        opacity: 0.8;
-    }
-
-    #login-container,
-    #logout-container {
-        padding: 10px;
-        margin-top: 20px;
-        display: none;
-    }
-
-    #login-form input {
-        background-color: #1c1c2e;
-        border: 1px solid #333;
-        color: #fff;
-        padding: 0.50rem;
-        margin-top: 5px;
-        width: 200px;
-        border-radius: 4px 0 0 4px;
-        display: none;
-    }
-
-    .demo-card {
-        width: fit-content;
-    }
-
-    #login-form button,
-    #logout-container button {
-        width: 30%;
-        margin-top: 5px;
-        background-color: #0067b8;
-        padding: 5px;
-        border-radius: 4px;
-        color: white;
-        border: none;
-        cursor: pointer;
-        display: none;
-    }
-
-    #login-form button:hover,
-    #logout-container button:hover {
-        background-color: #3a8ad6;
-        display: none;
-    }
-
-    .discord-widget {
-        margin: 0;
-        background-color: unset;
-        width: 370px;
-    }
-
-    .discord-event {
-        background-color: unset;
-    }
-}
-
-@media (max-width: 1280px) {
-
-    body,
-    html {
-        font-family: 'Roboto', Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        color: #fff;
-        height: 100%;
-        line-height: 1.6;
-        overflow: hidden;
-    }
-
-    body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-        opacity: 0.05;
-        z-index: -1;
-    }
-
-    #sidebar {
-        width: 100%;
-        height: auto;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1000;
-        background-color: #1c1c2e;
-    }
-
-    #sidebar .title {
-        display: flex;
-        line-height: 50px;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 15px;
-        font-size: 1.5rem;
-    }
-
-    #sidebar .title::after {
-        cursor: pointer;
-        padding: 0px 10px 40px 0px;
-        display: block;
-    }
-
-    .game-tile {
-        width: 214px;
-    }
-
-    .mod-item {
-        max-width: 578px !important;
-        min-width: 578px !important;
-    }
-
-    .profile-container {
-        padding: 0 !important;
-    }
-
-    .mod-meta {
-        flex-wrap: nowrap !important;
-    }
-
-    .btn-report {
-        margin: 0 !important;
-    }
-
-    .mod-title {
-        max-width: 290px;
-    }
-
-    #sidebar .title::after {
-        content: '\2630';
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-
-    #sidebar .title::after {
-        cursor: pointer;
-        padding: 0px 10px 40px 0px;
-        display: block;
-    }
-
-    #sidebar .title.menu-open::after {
-        display: none;
-    }
-
-    #sidebar .list-items {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-    }
-
-    #sidebar .list-items.show {
-        display: block;
-    }
-
-    #sidebar .list-items li {
-        text-align: left;
-        border-bottom: 1px solid #333;
-    }
-
-    #sidebar .list-items li a {
-        padding: 10px 15px;
-        display: block;
-        font-size: 1rem;
-    }
-
-    main {
-        margin-left: 0;
-        padding: 89px 15px 0;
-    }
-
-    .header-content {
-        padding: 0;
-    }
-
-    .icons {
-        display: flex;
-        justify-content: space-evenly;
-        margin-top: auto;
-        background-color: #1a1b1b;
-        padding: 6px 0;
-        border-top: 1px solid #333;
-        opacity: 0.8;
-    }
-
-    #login-container,
-    #logout-container {
-        padding: 10px;
-        margin-top: 20px;
-        display: none;
-    }
-
-    #login-form input {
-        background-color: #1c1c2e;
-        border: 1px solid #333;
-        color: #fff;
-        padding: 0.50rem;
-        margin-top: 5px;
-        width: 200px;
-        border-radius: 4px 0 0 4px;
-        display: none;
-    }
-
-    .demo-card {
-        width: fit-content;
-    }
-
-    .demo-card td {
-        padding: 0.4rem;
-    }
-
-    #login-form button,
-    #logout-container button {
-        width: 30%;
-        margin-top: 5px;
-        background-color: #0067b8;
-        padding: 5px;
-        border-radius: 4px;
-        color: white;
-        border: none;
-        cursor: pointer;
-        display: none;
-    }
-
-    #login-form button:hover,
-    #logout-container button:hover {
-        background-color: #3a8ad6;
-        display: none;
-    }
-
-    .discord-widget {
-        margin: 0;
-        background-color: unset;
-        width: 370px;
-    }
-
-    .discord-event {
-        background-color: unset;
-    }
-}
-
-@media (min-width: 1024px) {
-    .hero-section {
-        flex-direction: row;
-    }
-
-    .hero-content {
-        width: 50%;
-    }
-
-    .stats-grid {
-        width: 50%;
-    }
-}
-
 @media (max-width: 768px) {
+    .contributors-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .contributor-column:last-child {
+        grid-column: span 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .artwork-title {
+        margin-top: 1.5rem;
+    }
+
+    .about-info-bar {
+        padding: 1rem;
+    }
+
+    .about-title {
+        font-size: 1.5rem;
+    }
+
+    .profile-info-bar {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding-top: 0;
+    }
+
+    .profile-picture-wrapper {
+        margin-right: 0;
+    }
+
+    .profile-details {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-bio {
+        text-align: center;
+    }
+
+    .profile-actions {
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+    
+    .loading-state {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .defcon-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .contributions-container {
+        grid-template-columns: 1fr;
+    }
+
+    .smurf-checker-content {
+        flex-direction: column;
+    }
+    
+    .search-input-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .player-info {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .alternate-names-list {
+        justify-content: flex-start;
+    }
+    
+    .alternate-name-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .alternate-name-title {
+        font-size: 0.95rem;
+    }
+    
+    .alternate-name-count {
+        font-size: 0.8rem;
+    }
+    
+    .smurf-demos-container {
+        max-height: 300px;
+    }
+    
+    .game-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .game-details {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    
+    .game-type {
+        font-size: 0.95rem;
+    }
+    
+    .game-date {
+        font-size: 0.8rem;
+    }
+    
+    .download-demo-btn {
+        font-size: 13px;
+        padding: 3px 12px;
+        max-width: 70px;
+        align-self: flex-start;
+    }
+    
+    .infraction-demos-section h4 {
+        font-size: 1rem;
+    }
+
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-header h1 {
+        font-size: 2rem;
+    }
+
+    .settings-container {
+        padding: 0 1rem 1rem;
+    }
+
+    .leaderboard-container {
+        padding: 0 1rem 1rem;
+    }
+
+    .controls-row,
+    .filter-bar,
+    .primary-filters {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+
+    .control-group,
+    .filter-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    select {
+        flex-grow: 1;
+    }
+
+    .filters-toggle-btn,
+    .toggle-container {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .leaderboard-filters.expanded {
+        max-height: 280px;
+    }
+
+    .advanced-filters-row {
+        flex-direction: column;
+    }
+
+    #leaderboard-table th:nth-child(4),
+    #leaderboard-table td:nth-child(4) {
+        display: none;
+    }
+
+    .date-inputs {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .rank-cell {
+        width: 40px;
+    }
+
+    .player-cell {
+        width: auto;
+    }
+
+    tr:nth-child(1) .rank-cell::before,
+    tr:nth-child(2) .rank-cell::before,
+    tr:nth-child(3) .rank-cell::before {
+        display: none;
+    }
+
+    .winner-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .stat-item:last-child {
+        grid-column: span 2;
+    }
+
+    .dedcon-info-bar {
+        padding: 1rem;
+    }
+
+    .dedcon-title {
+        font-size: 1.5rem;
+    }
+
+    .dedcon-description {
+        font-size: 0.9rem;
+    }
+
+    .dedcon-links {
+        flex-direction: column;
+    }
+
+    .permission-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .preset-buttons {
+        flex-direction: column;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .permissions-container {
+        max-height: 400px;
+    }
+
     #gamesChart {
         height: 300px;
     }
     
-    .legend-container {
-        font-size: 10px;
+    .apexcharts-legend {
+        flex-wrap: wrap;
+        justify-content: center;
     }
     
+    .server-checkboxes-two-column {
+        grid-template-columns: 1fr;
+    }
+
+    .patchnote-item {
+        flex-direction: column;
+    }
+
+    .patchnote-image {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+
     .hero-section {
         flex-direction: column;
     }
@@ -445,8 +302,72 @@
     }
 }
 
-@media (max-width: 430px) {
+@media (max-width: 480px) {
+    .profile-username {
+        font-size: 1.5rem;
+    }
 
+    .profile-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .favorite-mods-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dedcon-accordion-header {
+        padding: 12px;
+    }
+    
+    .dedcon-accordion-header h3 {
+        font-size: 1rem;
+    }
+    
+    .dedcon-logo {
+        width: 20px;
+        height: 20px;
+    }
+
+    .dropdown-header {
+        flex-wrap: wrap;
+    }
+
+    .os-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .dropdown-header h3 {
+        font-size: 1rem;
+    }
+
+    #leaderboard-table th:nth-child(5),
+    #leaderboard-table td:nth-child(5) {
+        display: none;
+    }
+
+    .activeplayersleaderboard {
+        grid-template-columns: 1fr;
+    }
+
+    .smurf-checker-container {
+        padding: 0 0.5rem;
+    }
+    
+    .search-section,
+    .info-section,
+    .smurf-card {
+        padding: 1rem;
+    }
+    
+    .smurf-card-title {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 430px) {
     body,
     html {
         font-family: 'Roboto', Arial, sans-serif;
@@ -679,7 +600,6 @@
         display: none !important;
     }
 
-
     .header-content {
         padding: 12px !important;
         display: flex;
@@ -725,7 +645,6 @@
     .demo-card {
         width: 342px !important;
         padding: 1.2rem !important;
-
     }
 
     .settings-grid {
@@ -896,7 +815,6 @@
         margin: 0px !important;
     }
 
-
     .dedcon-container-main {
         padding: 0 !important;
     }
@@ -1050,5 +968,4 @@
         flex-direction: column;
         align-items: flex-start;
     }
-
 }

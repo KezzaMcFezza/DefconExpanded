@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024
+* Last Edited 19-09-2025
 */
 
 .fa-user {
@@ -490,88 +490,3 @@
         transform: translateY(0);
     }
 }
-
-@media (max-width: 768px) {
-    .smurf-checker-content {
-        flex-direction: column;
-    }
-    
-    .search-input-container {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .player-info {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .alternate-names-list {
-        justify-content: flex-start;
-    }
-    
-    .alternate-name-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
-    }
-    
-    .alternate-name-title {
-        font-size: 0.95rem;
-    }
-    
-    .alternate-name-count {
-        font-size: 0.8rem;
-    }
-    
-    .smurf-demos-container {
-        max-height: 300px;
-    }
-    
-    .game-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
-    }
-    
-    .game-details {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.75rem;
-    }
-    
-    .game-type {
-        font-size: 0.95rem;
-    }
-    
-    .game-date {
-        font-size: 0.8rem;
-    }
-    
-    .download-demo-btn {
-        font-size: 13px;
-        padding: 3px 12px;
-        max-width: 70px;
-        align-self: flex-start;
-    }
-    
-    .infraction-demos-section h4 {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .smurf-checker-container {
-        padding: 0 0.5rem;
-    }
-    
-    .search-section,
-    .info-section,
-    .smurf-card {
-        padding: 1rem;
-    }
-    
-    .smurf-card-title {
-        font-size: 1.1rem;
-    }
-} 

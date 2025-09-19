@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 06-06-2025
+* Last Edited 19-09-2025
 */
 
 .dedcon-container {
@@ -424,45 +424,6 @@
     background: rgba(77, 166, 255, 0.7);
 }
 
-@media (max-width: 1024px) {
-    .dedcon-content {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .dedcon-info-bar {
-        padding: 1rem;
-    }
-
-    .dedcon-title {
-        font-size: 1.5rem;
-    }
-
-    .dedcon-description {
-        font-size: 0.9rem;
-    }
-
-    .dedcon-links {
-        flex-direction: column;
-    }
-}
-
-@media (max-width: 480px) {
-    .dropdown-header {
-        flex-wrap: wrap;
-    }
-
-    .os-icon {
-        width: 20px;
-        height: 20px;
-    }
-
-    .dropdown-header h3 {
-        font-size: 1rem;
-    }
-}
-
 .dedcon-accordion {
     margin-bottom: 15px;
     border-radius: 8px;
@@ -527,19 +488,4 @@
 
 .dedcon-accordion-content p {
     margin: 16px 0;
-}
-
-@media (max-width: 480px) {
-    .dedcon-accordion-header {
-        padding: 12px;
-    }
-    
-    .dedcon-accordion-header h3 {
-        font-size: 1rem;
-    }
-    
-    .dedcon-logo {
-        width: 20px;
-        height: 20px;
-    }
 }

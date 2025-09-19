@@ -9,8 +9,9 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-09-2025
+* Last Edited 19-09-2025
 */
+
 .profile-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -846,69 +847,4 @@
     background-color: rgba(0, 0, 0, 0.3);
     pointer-events: none;
     z-index: -1;
-}
-
-@media (max-width: 1024px) {
-    .profile-content {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .profile-info-bar {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        padding-top: 0;
-    }
-
-    .profile-picture-wrapper {
-        margin-right: 0;
-    }
-
-    .profile-details {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .profile-bio {
-        text-align: center;
-    }
-
-    .profile-actions {
-        margin-left: 0;
-        margin-top: 1rem;
-    }
-    
-    .loading-state {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-
-    .defcon-stats {
-        grid-template-columns: 1fr;
-    }
-
-    .contributions-container {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 480px) {
-    .profile-username {
-        font-size: 1.5rem;
-    }
-
-    .profile-card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-
-    .favorite-mods-grid {
-        grid-template-columns: 1fr;
-    }
 }

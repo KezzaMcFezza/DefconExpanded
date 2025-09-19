@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-12-2024 
+* Last Edited 19-09-2025
 */
 
 #logout-container button {
@@ -946,22 +946,4 @@ mark {
     margin-top: 2rem;
     padding-top: 1rem;
     border-top: 1px solid #333;
-}
-
-@media (max-width: 768px) {
-    .permission-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .preset-buttons {
-        flex-direction: column;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .permissions-container {
-        max-height: 400px;
-    }
 }

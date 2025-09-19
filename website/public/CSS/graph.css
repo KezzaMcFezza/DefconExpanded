@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 20-03-2025
+* Last Edited 19-09-2025
 */
 
 .yaxis-input {
@@ -401,20 +401,4 @@
 
 #deselectAllTerritories:hover {
     background-color: #d60000;
-}
-
-
-@media (max-width: 768px) {
-    #gamesChart {
-        height: 300px;
-    }
-    
-    .apexcharts-legend {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    
-    .server-checkboxes-two-column {
-        grid-template-columns: 1fr;
-    }
 }

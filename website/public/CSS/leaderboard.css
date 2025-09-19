@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 23-08-2025
+* Last Edited 19-09-2025
 */
 
 :root {
@@ -726,97 +726,4 @@ tr:nth-child(3) .rank-cell::before {
 
 #previous-winners-list li:hover .stat-value {
     animation: statPulse 1s infinite;
-}
-
-@media (max-width: 1200px) {
-    .leaderboard-container {
-        grid-template-columns: 1fr;
-    }
-
-    .activeplayersleaderboard {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    }
-}
-
-@media (max-width: 768px) {
-    .leaderboard-container {
-        padding: 0 1rem 1rem;
-    }
-
-    .controls-row,
-    .filter-bar,
-    .primary-filters {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.75rem;
-    }
-
-    .control-group,
-    .filter-group {
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    select {
-        flex-grow: 1;
-    }
-
-    .filters-toggle-btn,
-    .toggle-container {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .leaderboard-filters.expanded {
-        max-height: 280px;
-    }
-
-    .advanced-filters-row {
-        flex-direction: column;
-    }
-
-    #leaderboard-table th:nth-child(4),
-    #leaderboard-table td:nth-child(4) {
-        display: none;
-    }
-
-    .date-inputs {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .rank-cell {
-        width: 40px;
-    }
-
-    .player-cell {
-        width: auto;
-    }
-
-    tr:nth-child(1) .rank-cell::before,
-    tr:nth-child(2) .rank-cell::before,
-    tr:nth-child(3) .rank-cell::before {
-        display: none;
-    }
-
-    .winner-stats {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .stat-item:last-child {
-        grid-column: span 2;
-    }
-}
-
-@media (max-width: 480px) {
-
-    #leaderboard-table th:nth-child(5),
-    #leaderboard-table td:nth-child(5) {
-        display: none;
-    }
-
-    .activeplayersleaderboard {
-        grid-template-columns: 1fr;
-    }
 }

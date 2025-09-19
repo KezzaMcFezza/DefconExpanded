@@ -9,7 +9,7 @@
 * 
 * Inspired by Sievert and Wan May
 * 
-* Last Edited 18-09-2025
+* Last Edited 19-09-2025
 */
 
 .about-container {
@@ -382,55 +382,6 @@
 
 .contributor-column:nth-child(3) .contributor-category-title {
     border-bottom-color: rgba(255, 180, 77, 0.5);
-}
-
-@media (max-width: 992px) {
-    .contributors-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .contributor-column:last-child {
-        grid-column: span 2;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
-    }
-
-    .artwork-title {
-        margin-top: 0;
-    }
-}
-
-@media (max-width: 768px) {
-    .contributors-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .contributor-column:last-child {
-        grid-column: span 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .artwork-title {
-        margin-top: 1.5rem;
-    }
-}
-
-@media (max-width: 1024px) {
-    .graph-content {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .about-info-bar {
-        padding: 1rem;
-    }
-
-    .about-title {
-        font-size: 1.5rem;
-    }
 }
 
 .contributors-about {
