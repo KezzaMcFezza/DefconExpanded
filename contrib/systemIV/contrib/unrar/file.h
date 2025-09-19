@@ -3,6 +3,19 @@
 
 #include <stdio.h>
 
+// XCode unhelpfully defines these giving them values of 0 or 1.
+#if defined(TARGET_OS_MACOSX) && TARGET_OS_MACOSX == 0
+#undef TARGET_OS_MACOSX
+#endif
+
+#if defined(TARGET_OS_WINDOWS) && TARGET_OS_WINDOWS == 0
+#undef TARGET_OS_WINDOWS
+#endif
+
+#if defined(TARGET_OS_LINUX) && TARGET_OS_LINUX == 0
+#undef TARGET_OS_LINUX
+#endif
+
 #ifdef TARGET_OS_WINDOWS
 #include <windows.h>
 #endif

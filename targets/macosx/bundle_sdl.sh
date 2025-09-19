@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+echo SRCROOT = ${SRCROOT}
+echo PROJECT_DIR = ${PROJECT_DIR}
+
 # for macOS - handles SDL2 and other frameworks
 
 set -x
@@ -34,7 +37,7 @@ mkdir -p ${FRAMEWORKS}
 # Define repo framework location
 REPO_FRAMEWORKS_DIR="${GITHUB_WORKSPACE}/contrib/systemIV/contrib/macosx/Frameworks"
 if [ ! -d "${REPO_FRAMEWORKS_DIR}" ]; then
-  REPO_FRAMEWORKS_DIR="../../contrib/systemIV/contrib/macosx/Frameworks"
+  REPO_FRAMEWORKS_DIR="${SRCROOT}/contrib/systemIV/contrib/macosx/Frameworks"
 fi
 
 echo "Looking for frameworks in: ${REPO_FRAMEWORKS_DIR}"
