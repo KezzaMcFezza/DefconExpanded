@@ -133,7 +133,6 @@
 }
 
 .release-date {
-  background-color: #181818;
   color: #a0a0a0;
 }
 
@@ -176,7 +175,7 @@
 
 .mod-info {
   padding: 15px;
-  background-color: #181818;
+  background-color: rgb(12 12 12 / 50%);
 }
 
 .mod-meta {

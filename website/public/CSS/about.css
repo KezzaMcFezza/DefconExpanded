@@ -188,7 +188,7 @@
 }
 
 .date-input {
-    background-color: rgba(28, 28, 46, 0.6);
+    background-color: rgb(20 20 20 / 50%);
     border: 1px solid #333;
     color: #fff;
     padding: 0.4rem;
@@ -197,7 +197,7 @@
 }
 
 .player-input {
-    background-color: rgba(28, 28, 46, 0.6);
+    background-color: rgb(20 20 20 / 50%);
     border: 1px solid #333;
     color: #fff;
     border-radius: 4px;
@@ -205,7 +205,7 @@
 
 .server-select,
 #graph-filter {
-    background-color: rgba(28, 28, 46, 0.6);
+    background-color: rgb(20 20 20 / 50%);
     border: 1px solid #333;
     color: #fff;
     padding: 0.4rem;
