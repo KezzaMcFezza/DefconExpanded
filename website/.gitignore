@@ -4,8 +4,9 @@
 *.key
 *.env
 *.log
+*.sql
 **/ca_bundle.crt
 **/certificate.crt
 **/private.key
 /node_modules
-/node.js/server.log
+/website/node.js/database-backups

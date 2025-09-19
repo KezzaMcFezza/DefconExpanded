@@ -56,7 +56,8 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const logStream = fs.createWriteStream(path.join(__dirname, 'server.log'), { flags: 'a' });
 const pendingVerifications = new Map();
-const { spawn } = require('child_process');
+const mysqldump = require('mysqldump');
+const cron = require('node-cron');
 
 // functions to be imported from the modules
 const {
@@ -439,6 +440,79 @@ app.get('/site.webmanifest', (req, res) => {
 app.get('/browserconfig.xml', (req, res) => {
   res.sendFile(path.join(publicDir, 'browserconfig.xml'));
 });
+
+
+// function to generate a mysql dump of the defcon_demos database
+async function createDatabaseBackup() {
+    const startTime = debugUtils.debugFunctionEntry('createDatabaseBackup', [], 1);
+    
+    try {
+        // create the backups directory if it doesn't exist
+        const backupsDir = path.join(__dirname, 'database-backups');
+        if (!fs.existsSync(backupsDir)) {
+            fs.mkdirSync(backupsDir, { recursive: true });
+            console.log('Created database-backups directory at:', backupsDir);
+        }
+        
+        // generate the filename with current date in your format (DD-MM-YYYY)
+        const now = new Date();
+        const day = String(now.getDate()).padStart(2, '0');
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const year = now.getFullYear();
+        const dateString = `${day}-${month}-${year}`;
+        
+        const sqlFileName = `defcon_demos${dateString}.sql`;
+        const sqlFilePath = path.join(backupsDir, sqlFileName);
+        
+        console.log(`Creating database backup: ${sqlFileName}`);
+        console.debug(2, 'Database backup configuration:', {
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            database: process.env.DB_NAME,
+            port: process.env.DB_PORT,
+            outputFile: sqlFilePath
+        });
+        
+        // create the mysql dump
+        const result = await mysqldump({
+            connection: {
+                host: process.env.DB_HOST,
+                user: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_NAME,
+                port: process.env.DB_PORT || 3306
+            },
+            dumpToFile: sqlFilePath,
+            compressFile: false,
+            dump: {
+                schema: {
+                    table: {
+                        ifNotExist: true,
+                        dropIfExist: true,
+                        charset: true
+                    }
+                },
+                data: {
+                    verbose: false,
+                    lockTables: false,
+                    includeViewData: true,
+                    maxRowsPerInsertStatement: 5000
+                }
+            }
+        });
+        
+        console.log('MySQL dump created successfully');
+        console.debug(2, 'MySQL dump result:', result);
+        
+        console.log(`Database backup completed successfully: ${sqlFileName}`);
+        debugUtils.debugFunctionExit('createDatabaseBackup', startTime, 'success', 1);
+        
+    } catch (error) {
+        console.error('Error creating database backup:', error);
+        debugUtils.debugFunctionExit('createDatabaseBackup', startTime, 'error', 1);
+        throw error;
+    }
+}
 
 // function to find the current replay viewer files
 function findReplayViewerFiles() {
@@ -841,11 +915,11 @@ const jsonWatcher = chokidar.watch(`${gameLogsDir}/{game_*.json,game8p_*.json,ga
 
 demoWatcher
     .on('add', async (demoPath) => {
-        console.log(`New demo detected: ${demoPath}`);
+        debug.level1(`New demo detected: ${demoPath}`);
         const demoFileName = path.basename(demoPath);
         const exists = await demoExistsInDatabase(demoFileName);
         if (exists) {
-            console.log(`Demo ${demoFileName} already exists in the database. Skipping.`);
+            debug.level1(`Demo ${demoFileName} already exists in the database. Skipping.`);
             return;
         }
 
@@ -1152,6 +1226,18 @@ process.on('SIGINT', async () => {
 
 app.use(errorHandler);
 
+cron.schedule('0 3 * * *', async () => {
+    console.log('Its time to do a backup...');
+    try {
+        await createDatabaseBackup();
+        console.log('Database backup completed!');
+    } catch (error) {
+        console.error('Error, 3am backup failed:', error);
+    }
+}, {
+    scheduled: true,
+    timezone: "Europe/London" // because fuck utc
+});
 
 const server = http.listen(port, async () => {
     console.log(`Defcon Expanded Demo and File Server Listening at http://localhost:${port}`);
@@ -1162,6 +1248,16 @@ const server = http.listen(port, async () => {
     
     // set server instance for debug utilities
     debugUtils.setServerInstance(server);
+
+    // create database backup before server is initialized
+    console.log("Creating initial database backup...");
+    try {
+        createDatabaseBackup();
+        console.log("Initial database backup completed successfully!");
+    } catch (error) {
+        console.error("Error creating initial database backup:", error);
+        // don't fail the entire initialization if backup fails
+    }
     
     try {
       await initializeServer();
@@ -1169,5 +1265,5 @@ const server = http.listen(port, async () => {
     } catch (error) {
       console.error("Assuming you broke something? - ", error);
     }
-  });
+});
   
