@@ -8,20 +8,30 @@
 //
 // Inspired by Sievert and Wan May
 // 
-// Last Edited 23-08-2025
+// Last Edited 19-09-2025
 
 import { leaderboardFilters, serverPlaylists } from './constants.js';
 import { setupCurrentSeason, checkSeasonEndingSoon, applySeasonFilter, toggleCustomDateInputs } from './seasons.js';
 import { initializeFilterElements, initializePlaylistDropdown, applyUrlParameters, updateURL } from './filters.js';
 import { fetchLeaderboard, fetchAllTimeMostActivePlayers, fetchPreviousSeasonWinners } from './api.js';
 
-export function initializeLeaderboard() {
-    setupCurrentSeason();
+export async function initializeLeaderboard() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasCustomDates = urlParams.has('startDate') || urlParams.has('endDate');
+    
+    const { updateSeasonSelector } = await import('./seasons.js');
+    if (!hasCustomDates) {
+        setupCurrentSeason();
+    } else {
+        updateSeasonSelector('custom');
+    }
+    
     initializeFilterElements();
     initializePlaylistDropdown();
-    applyUrlParameters();
+    await applyUrlParameters();
     setupEventListeners();
     checkSeasonEndingSoon();
+    
     fetchLeaderboard();
     fetchAllTimeMostActivePlayers();
     fetchPreviousSeasonWinners();
@@ -123,8 +133,19 @@ function setupEventListeners() {
     const applyFiltersBtn = document.getElementById('apply-filters');
     if (applyFiltersBtn) {
         applyFiltersBtn.addEventListener('click', () => {
+            if (leaderboardFilters.startDate || leaderboardFilters.endDate) {
+                const seasonSelect = document.getElementById('season-select');
+                if (seasonSelect) {
+                    import('./seasons.js').then(module => {
+                        module.updateSeasonSelector('custom');
+                        module.toggleCustomDateInputs(true);
+                    });
+                }
+            }
+            
             updateURL();
-            fetchLeaderboard();
+            
+            window.location.reload();
         });
     }
 

@@ -8,7 +8,7 @@
 //
 // Inspired by Sievert and Wan May
 // 
-// Last Edited 23-08-2025
+// Last Edited 19-09-2025
 
 import { leaderboardFilters, serverPlaylists } from './constants.js';
 import { getCurrentSeason } from './seasons.js';
@@ -55,7 +55,7 @@ export function initializePlaylistDropdown() {
     });
 }
 
-export function applyUrlParameters() {
+export async function applyUrlParameters() {
     const urlParams = new URLSearchParams(window.location.search);
 
     for (const [key, value] of urlParams.entries()) {
@@ -64,16 +64,26 @@ export function applyUrlParameters() {
         }
     }
 
+    const hasCustomDates = urlParams.has('startDate') || urlParams.has('endDate');
+    
     if (urlParams.has('season')) {
         const seasonValue = urlParams.get('season');
         
-        import('./seasons.js').then(module => {
-            module.applySeasonFilter(seasonValue);
-        });
+        const seasonsModule = await import('./seasons.js');
+        seasonsModule.applySeasonFilter(seasonValue);
 
         const seasonSelect = document.getElementById('season-select');
         if (seasonSelect) {
             seasonSelect.value = seasonValue;
+        }
+    } else if (hasCustomDates) {
+        const seasonsModule = await import('./seasons.js');
+        seasonsModule.applySeasonFilter('custom');
+        seasonsModule.toggleCustomDateInputs(true);
+
+        const seasonSelect = document.getElementById('season-select');
+        if (seasonSelect) {
+            seasonSelect.value = 'custom';
         }
     }
 
@@ -85,6 +95,8 @@ export function applyUrlParameters() {
             playlistFilter.value = playlistValue;
         }
     }
+    
+    initializeFilterElements();
 }
 
 export function updateURL() {
@@ -100,7 +112,18 @@ export function updateURL() {
 
     const seasonSelect = document.getElementById('season-select');
     if (seasonSelect) {
-        url.searchParams.set('season', seasonSelect.value);
+        if (leaderboardFilters.startDate || leaderboardFilters.endDate) {
+            url.searchParams.set('season', 'custom');
+        } else {
+            url.searchParams.set('season', seasonSelect.value);
+        }
+    }
+
+    const playlistFilter = document.getElementById('playlist-filter');
+    if (playlistFilter && playlistFilter.value !== 'all') {
+        url.searchParams.set('playlist', playlistFilter.value);
+    } else {
+        url.searchParams.delete('playlist');
     }
 
     window.history.pushState({}, '', url);

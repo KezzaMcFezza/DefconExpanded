@@ -8,7 +8,7 @@
 //
 // Inspired by Sievert and Wan May
 // 
-// Last Edited 28-08-2025
+// Last Edited 19-09-2025
 
 import { leaderboardFilters, defaultNames, serverPlaylists } from './constants.js';
 
@@ -127,7 +127,19 @@ export function updateLeaderboardMetadata(data) {
         } else if (selectedValue === 'all') {
             headerText += ' - ALL TIME';
         } else if (selectedValue === 'custom') {
-            headerText += ' - CUSTOM PERIOD';
+            if (leaderboardFilters.startDate && leaderboardFilters.endDate) {
+                const startDate = new Date(leaderboardFilters.startDate).toLocaleDateString();
+                const endDate = new Date(leaderboardFilters.endDate).toLocaleDateString();
+                headerText += ` - CUSTOM PERIOD (${startDate} - ${endDate})`;
+            } else if (leaderboardFilters.startDate) {
+                const startDate = new Date(leaderboardFilters.startDate).toLocaleDateString();
+                headerText += ` - CUSTOM PERIOD (From ${startDate})`;
+            } else if (leaderboardFilters.endDate) {
+                const endDate = new Date(leaderboardFilters.endDate).toLocaleDateString();
+                headerText += ` - CUSTOM PERIOD (Until ${endDate})`;
+            } else {
+                headerText += ' - CUSTOM PERIOD';
+            }
         } else {
             shouldWaitForAsyncOperation = true;
             import('./seasons.js').then(module => {

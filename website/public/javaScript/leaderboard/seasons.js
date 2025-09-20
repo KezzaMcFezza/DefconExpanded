@@ -8,7 +8,7 @@
 //
 // Inspired by Sievert and Wan May
 // 
-// Last Edited 14-04-2025
+// Last Edited 19-09-2025
 
 import { firstSeason, seasonBoundaries, leaderboardFilters } from './constants.js';
 
@@ -128,6 +128,14 @@ export function updateSeasonSelector(currentSeasonKey = 'current') {
         const option = document.createElement('option');
         option.value = key;
         option.textContent = season.displayName;
+        seasonSelect.add(option);
+    }
+
+    const customOption = Array.from(seasonSelect.options).find(option => option.value === 'custom');
+    if (!customOption) {
+        const option = document.createElement('option');
+        option.value = 'custom';
+        option.textContent = 'Custom Period';
         seasonSelect.add(option);
     }
 
