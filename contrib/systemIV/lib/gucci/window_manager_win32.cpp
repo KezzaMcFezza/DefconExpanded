@@ -129,7 +129,44 @@ void WindowManagerWin32::EnableOpenGL(int _colourDepth, int _zDepth)
 	pfd.cColorBits = _colourDepth;
 	pfd.cDepthBits = _zDepth;
 	pfd.iLayerType = PFD_MAIN_PLANE;
+	
 	format = ChoosePixelFormat( m_hDC, &pfd );
+	
+	// verify we actually got hardware acceleration
+	PIXELFORMATDESCRIPTOR actualPfd;
+	DescribePixelFormat(m_hDC, format, sizeof(actualPfd), &actualPfd);
+	
+	if (actualPfd.dwFlags & PFD_GENERIC_FORMAT && !(actualPfd.dwFlags & PFD_GENERIC_ACCELERATED)) {
+		
+		int numFormats = DescribePixelFormat(m_hDC, 1, sizeof(PIXELFORMATDESCRIPTOR), NULL);
+		bool foundHardware = false;
+		
+		for (int i = 1; i <= numFormats; i++) {
+			DescribePixelFormat(m_hDC, i, sizeof(actualPfd), &actualPfd);
+			
+			// check if this format is hardware accelerated
+			if (!(actualPfd.dwFlags & PFD_GENERIC_FORMAT) || 
+			    (actualPfd.dwFlags & PFD_GENERIC_ACCELERATED)) {
+				if ((actualPfd.dwFlags & PFD_DRAW_TO_WINDOW) &&
+				    (actualPfd.dwFlags & PFD_SUPPORT_OPENGL) &&
+				    (actualPfd.dwFlags & PFD_DOUBLEBUFFER) &&
+				    actualPfd.iPixelType == PFD_TYPE_RGBA &&
+				    actualPfd.cColorBits >= _colourDepth &&
+				    actualPfd.cDepthBits >= _zDepth) {
+					
+					format = i;
+					foundHardware = true;
+					AppDebugOut("SUCCESS: Found hardware accelerated format: %d\n", i);
+					break;
+				}
+			}
+		}
+		
+		if (!foundHardware) {
+			AppDebugOut("FATAL: Could not find hardware accelerated OpenGL format!\n");
+		}
+	}
+	
 	SetPixelFormat( m_hDC, format, &pfd );
 	
 	// Create a temporary context to initialize GLEW
@@ -140,23 +177,59 @@ void WindowManagerWin32::EnableOpenGL(int _colourDepth, int _zDepth)
 	GLenum glewResult = glewInit();
 	if (glewResult != GLEW_OK) {
 		// GLEW failed, fall back to legacy OpenGL
+		AppDebugOut("GLEW initialization failed: %s\n", glewGetErrorString(glewResult));
 		m_hRC = tempContext;
 		glClear(GL_COLOR_BUFFER_BIT);
 		return;
 	}
 	
-	// Check if we can create a modern OpenGL 3.3 Core context
+	//
+	// print OpenGL information for debugging
+
+	const GLubyte* renderer = glGetString(GL_RENDERER);
+	
+	// check if we got software rendering
+	if (strstr((const char*)renderer, "GDI Generic") || 
+	    strstr((const char*)renderer, "Software") ||
+	    strstr((const char*)renderer, "Microsoft")) {
+		AppDebugOut("FATAL: Using software rendering :(\n");
+	}
+	
+	// check if we can create a modern OpenGL 3.3 Core context using WGL extensions
 	if (WGLEW_ARB_create_context && WGLEW_ARB_create_context_profile) {
-		// Define OpenGL 3.3 Core Profile attributes
+		if (WGLEW_ARB_pixel_format) {
+			AppDebugOut("Using wglChoosePixelFormatARB for hardware-accelerated pixel format...\n");
+			
+			const int pixelAttribs[] = {
+				WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+				WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+				WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+				WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,  // require hardware acceleration
+				WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+				WGL_COLOR_BITS_ARB, _colourDepth,
+				WGL_DEPTH_BITS_ARB, _zDepth,
+				0
+			};
+			
+			int pixelFormat;
+			UINT numFormats;
+			if (wglChoosePixelFormatARB(m_hDC, pixelAttribs, NULL, 1, &pixelFormat, &numFormats) && numFormats > 0) {
+				AppDebugOut("Found hardware-accelerated pixel format via WGL: %d\n", pixelFormat);
+				
+				// we would need to recreate the window to use this new pixel format
+				// for now well continue with what we have but this is noted for future
+			}
+		}
+		
+		// define OpenGL 3.3 compatibility crofile attributes
 		int contextAttribs[] = {
 			WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
 			WGL_CONTEXT_MINOR_VERSION_ARB, 3,
 			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB, 
-			WGL_CONTEXT_FLAGS_ARB, 0, // Can add WGL_CONTEXT_DEBUG_BIT_ARB for debug builds
-			0 // Null terminator
+			WGL_CONTEXT_FLAGS_ARB, 0,
+			0
 		};
 		
-		// Try to create OpenGL 3.3 Core Profile context
 		m_hRC = wglCreateContextAttribsARB(m_hDC, 0, contextAttribs);
 		
 		if (m_hRC) {
@@ -168,13 +241,16 @@ void WindowManagerWin32::EnableOpenGL(int _colourDepth, int _zDepth)
 			// Re-initialize GLEW with the new context
 			glewResult = glewInit();
 			if (glewResult != GLEW_OK) {
-				// This shouldn't happen, but fallback to legacy if it does
+				AppDebugOut("GLEW re-initialization failed: %s\n", glewGetErrorString(glewResult));
 				wglMakeCurrent(NULL, NULL);
 				wglDeleteContext(m_hRC);
 				m_hRC = wglCreateContext( m_hDC );
 				wglMakeCurrent( m_hDC, m_hRC );
+			} else {
+				AppDebugOut("Successfully created OpenGL 3.3 Compatibility context\n");
 			}
 		} else {
+			AppDebugOut("OpenGL 3.3 context creation failed, using legacy context\n");
 			// OpenGL 3.3 context creation failed, use the temporary context
 			m_hRC = tempContext;
 		}
