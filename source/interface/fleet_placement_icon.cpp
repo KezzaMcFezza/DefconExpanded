@@ -71,12 +71,30 @@ void FleetPlacementIconButton::Render( int realX, int realY, bool highlighted, b
     if( !team ) return;
 
     //
-    // check if we have any units available for this fleet
+    // check if we have any units available for this fleet and remove unavailable unit types
 
     bool hasUnitsAvailable = false;
-    for( int i = 0; i < team->m_fleets[m_fleetId]->m_memberType.Size(); ++i )
+    Fleet *fleet = team->m_fleets[m_fleetId];
+    
+    //
+    // remove unit types that are no longer available from the fleet composition
+
+    for( int i = fleet->m_memberType.Size() - 1; i >= 0; --i )
     {
-        int unitType = team->m_fleets[m_fleetId]->m_memberType[i];
+        int unitType = fleet->m_memberType[i];
+        if( team->m_unitsAvailable[unitType] <= 0 ||
+            team->m_unitCredits < g_app->GetWorld()->GetUnitValue(unitType) )
+        {
+            fleet->m_memberType.RemoveData(i);
+        }
+    }
+    
+    //
+    // check if we have any units available after removing unavailable ones
+
+    for( int i = 0; i < fleet->m_memberType.Size(); ++i )
+    {
+        int unitType = fleet->m_memberType[i];
         if( team->m_unitsAvailable[unitType] > 0 &&
             team->m_unitCredits >= g_app->GetWorld()->GetUnitValue(unitType) )
         {
@@ -228,6 +246,20 @@ void FleetPlacementIconButton::MouseUp()
             team->m_fleets[newFleetId]->m_longitude = exactLongitude;
             team->m_fleets[newFleetId]->m_latitude = exactLatitude;
             team->m_fleets[newFleetId]->m_active = true;
+        }
+        
+        //
+        // remove unavailable unit types from the fleet composition after placement
+
+        Fleet *templateFleet = team->m_fleets[m_fleetId];
+        for( int i = templateFleet->m_memberType.Size() - 1; i >= 0; --i )
+        {
+            int unitType = templateFleet->m_memberType[i];
+            if( team->m_unitsAvailable[unitType] <= 0 ||
+                team->m_unitCredits < g_app->GetWorld()->GetUnitValue(unitType) )
+            {
+                templateFleet->m_memberType.RemoveData(i);
+            }
         }
         
         //
