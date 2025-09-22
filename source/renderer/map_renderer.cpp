@@ -1112,7 +1112,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
             Image *img = g_resource->GetImage( "graphics/fighter.bmp" );
             for( int i = 0; i < numFighters; ++i )
             {
-                g_renderer->Blit( img, xPos+=gap, yPos, objSize, objSize, col, 0 );
+                g_renderer->UnitRotating( img, xPos+=gap, yPos, objSize, objSize, col, 0 );
             }
             
             if( numFighters > 0 ) xPos += gap*0.5f;
@@ -1128,10 +1128,10 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
             Image *nuke = g_resource->GetImage( "graphics/nuke.bmp" );
             for( int i = 0; i < numBombers; ++i )
             {
-                g_renderer->Blit( img, xPos+=gap, yPos, objSize*1.2f, objSize*1.2f, col, 0 );
+                g_renderer->UnitRotating( img, xPos+=gap, yPos, objSize*1.2f, objSize*1.2f, col, 0 );
                 if( (i+1) <= numNukes )
                 {
-                    g_renderer->Blit( nuke, xPos, yPos, objSize*0.65f, objSize*0.65f, col, 0 );
+                    g_renderer->UnitRotating( nuke, xPos, yPos, objSize*0.65f, objSize*0.65f, col, 0 );
                 }
             }
             if( numBombers > 0 ) xPos += gap*0.5f;
@@ -1147,7 +1147,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
             Image *img = g_resource->GetImage( "graphics/nuke.bmp" );
             for( int i = 0; i < numNukes; ++i )
             {
-                g_renderer->Blit( img, xPos+=gap*0.5f, yPos, objSize, objSize, col, 0 );
+                g_renderer->UnitRotating( img, xPos+=gap*0.5f, yPos, objSize, objSize, col, 0 );
             }
         }
     }
@@ -2616,7 +2616,7 @@ void MapRenderer::RenderObjects()
                     if( wobj->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer->Blit( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
+                    g_renderer->UnitRotating( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
 
                     g_renderer->SetFont( "kremlin", true );
 

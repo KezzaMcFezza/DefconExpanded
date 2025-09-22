@@ -214,7 +214,7 @@ bool NukePointer::Render()
         if( m_mode == 0 )
         {
             Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-            g_renderer->Blit( img, obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue(), size*2, size*2, col, 0 );
+            g_renderer->UnitRotating( img, obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue(), size*2, size*2, col, 0 );
         }
     }
 
@@ -258,9 +258,7 @@ bool NukePointer::Render()
         if( targetDir.y < 0.0f ) angle += M_PI;
 
         Image *img = g_resource->GetImage( "graphics/arrow.bmp" );
-        // NOTE: Keeping legacy Blit() for rotated arrow - EffectsSprite() doesn't support rotation
-        // This is less critical since off-screen arrows are infrequent compared to explosions/sonar
-        g_renderer->Blit( img, m_longitude, m_latitude, size, size, col, angle );
+        g_renderer->UnitRotating( img, m_longitude, m_latitude, size, size, col, angle );
     }
     
     return ( m_lifeTime <= 0.0f );

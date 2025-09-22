@@ -414,7 +414,7 @@ void WorldObject::Render ()
             if( selected || sameFleet )
             {
                 bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
-                g_renderer->Blit( bmpImage, x, y, thisSize, size*-2, colour );        
+                g_renderer->UnitMainSprite( bmpImage, x, y, thisSize, size*-2, colour );        
             }
         }
         colour.m_a /= 2;
@@ -695,7 +695,7 @@ void WorldObject::RenderGhost( int teamId )
             thisSize = size*-2;
         }       
 
-        g_renderer->Blit( img, x, y, thisSize, size*-2, col );
+        g_renderer->UnitMainSprite( img, x, y, thisSize, size*-2, col );
     }
 }
 

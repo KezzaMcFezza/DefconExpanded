@@ -58,7 +58,7 @@ void DepthCharge::Render()
     
     float angle = sinf(g_gameTime*1.5f) * 0.2f;
     Image *bmpImage = g_resource->GetImage( bmpImageFilename );
-    g_renderer->Blit( bmpImage, m_longitude.DoubleValue(), m_latitude.DoubleValue(), size, size, colour, angle);
+    g_renderer->UnitRotating( bmpImage, m_longitude.DoubleValue(), m_latitude.DoubleValue(), size, size, colour, angle);
 }
 
 void DepthCharge::Impact()
