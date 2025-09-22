@@ -1156,9 +1156,9 @@ out vec4 FragColor;
 void main() {
     FragColor = texture(ourTexture, texCoord) * vertexColor;
 })";
-#else
-    // Desktop OpenGL 3.3 shaders
-    const char* vertexShaderSource = R"(#version 330 core
+#elif defined(TARGET_OS_MACOSX)
+    // Desktop OpenGL 3.2 shaders
+    const char* vertexShaderSource = R"(#version 150 core
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec2 aTexCoord;
@@ -1187,8 +1187,38 @@ out vec4 FragColor;
 void main() {
     FragColor = texture(ourTexture, texCoord) * vertexColor;
 })";
-#endif
+#else
+// Desktop OpenGL 3.2 shaders
+const char* vertexShaderSource = R"(#version 330 core
+layout (location = 0) in vec2 aPos;
+layout (location = 1) in vec4 aColor;
+layout (location = 2) in vec2 aTexCoord;
+uniform mat4 uProjection;
+uniform mat4 uModelView;
+out vec4 vertexColor;
+out vec2 texCoord;
+void main() {
+    gl_Position = uProjection * uModelView * vec4(aPos, 0.0, 1.0);
+    vertexColor = aColor;
+    texCoord = aTexCoord;
+})";
     
+    const char* colorFragmentShaderSource = R"(#version 330 core
+in vec4 vertexColor;
+out vec4 FragColor;
+void main() {
+    FragColor = vertexColor;
+})";
+    
+    const char* textureFragmentShaderSource = R"(#version 330 core
+in vec4 vertexColor;
+in vec2 texCoord;
+uniform sampler2D ourTexture;
+out vec4 FragColor;
+void main() {
+    FragColor = texture(ourTexture, texCoord) * vertexColor;
+})";
+#endif   
     m_colorShaderProgram = CreateShader(vertexShaderSource, colorFragmentShaderSource);
     m_textureShaderProgram = CreateShader(vertexShaderSource, textureFragmentShaderSource);
     m_shaderProgram = m_colorShaderProgram;
@@ -1266,10 +1296,7 @@ void Renderer::FlushTriangles(bool useTexture) {
     glBindVertexArray(m_VAO);    
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     
-    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_triangleVertexCount, m_triangleVertices, GL_DYNAMIC_DRAW);
-    
-    //glBufferSubData(GL_ARRAY_BUFFER, 0, m_triangleVertexCount * sizeof(Vertex2D), m_triangleVertices);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_triangleVertexCount * sizeof(Vertex2D), m_triangleVertices);
     
     glDrawArrays(GL_TRIANGLES, 0, m_triangleVertexCount);
     
@@ -1295,15 +1322,8 @@ void Renderer::FlushLines() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    
-    
-    
-    
-    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_lineVertexCount, m_lineVertices, GL_DYNAMIC_DRAW);
-    
-    
-    // glBufferSubData(GL_ARRAY_BUFFER, 0, m_lineVertexCount * sizeof(Vertex2D), m_lineVertices);
+     
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_lineVertexCount * sizeof(Vertex2D), m_lineVertices);
     
     glDrawArrays(GL_LINES, 0, m_lineVertexCount);
     

@@ -420,6 +420,150 @@ void main() {
 }
 )";
 
+#elif defined(TARGET_OS_MACOSX)
+    // Desktop OpenGL 3.2 Core 3D shaders
+    const char* vertex3DShaderSource = R"(#version 150 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec4 aColor;
+
+uniform mat4 uProjection;
+uniform mat4 uModelView;
+uniform vec3 uCameraPos;
+uniform bool uFogOrientationBased;
+
+out vec4 vertexColor;
+out float fogFactor;
+out float fogDistance;
+
+void main() {
+    vec4 viewPos = uModelView * vec4(aPos, 1.0);
+    gl_Position = uProjection * viewPos;
+    vertexColor = aColor;
+    
+    if (uFogOrientationBased) {
+        vec3 surfaceNormal = normalize(aPos);
+        vec3 cameraDir = normalize(uCameraPos - aPos);
+        float dotProduct = dot(surfaceNormal, cameraDir);
+        fogFactor = 1.0 - clamp(dotProduct, 0.0, 1.0);
+        fogDistance = 0.0; 
+    } else {
+        fogDistance = length(viewPos.xyz);
+        fogFactor = 0.0; 
+    }
+}
+)";
+
+    const char* fragment3DShaderSource = R"(#version 150 core
+
+in vec4 vertexColor;
+in float fogFactor;
+in float fogDistance;
+
+uniform bool uFogEnabled;
+uniform bool uFogOrientationBased;
+uniform float uFogStart;
+uniform float uFogEnd;
+uniform vec4 uFogColor;
+
+out vec4 FragColor;
+
+void main() {
+    vec4 finalColor = vertexColor;
+    
+    if (uFogEnabled) {
+        if (uFogOrientationBased) {
+            finalColor.rgb = mix(vertexColor.rgb, uFogColor.rgb, fogFactor);
+        } else {
+            float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
+            finalColor.rgb = mix(uFogColor.rgb, vertexColor.rgb, distanceFogFactor);
+        }
+    }
+    
+    FragColor = finalColor;
+}
+)";
+
+    const char* textureFragmentShaderSource = R"(#version 150 core
+
+in vec4 vertexColor;
+in vec2 texCoord;
+in float fogFactor;
+in float fogDistance;
+
+uniform sampler2D ourTexture;
+uniform bool uFogEnabled;
+uniform bool uFogOrientationBased;
+uniform float uFogStart;
+uniform float uFogEnd;
+uniform vec4 uFogColor;
+
+out vec4 FragColor;
+
+void main() {
+    vec4 texColor = texture(ourTexture, texCoord);
+    
+    // MUCH less aggressive alpha testing - only discard completely transparent pixels
+    // This preserves natural texture transparency like 2D mode
+    if (texColor.a < 0.01) {
+        discard;
+    }
+
+    vec4 finalColor = texColor * vertexColor;
+
+    // Don't discard based on final alpha - let natural transparency work
+    // This prevents z-fighting and matches 2D behavior
+    
+         if (uFogEnabled) {
+         float pixelLuminance = (finalColor.r + finalColor.g + finalColor.b) / 3.0;
+         if (pixelLuminance > 0.05) {
+             if (uFogOrientationBased) {
+                 finalColor.rgb = mix(finalColor.rgb, uFogColor.rgb, fogFactor);
+             } else {
+                 float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
+                 finalColor.rgb = mix(uFogColor.rgb, finalColor.rgb, distanceFogFactor);
+             }
+         }
+     }
+    
+    FragColor = finalColor;
+}
+)";
+
+    const char* vertex3DTexturedShaderSource = R"(#version 150 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec4 aColor;
+layout (location = 2) in vec2 aTexCoord;
+
+uniform mat4 uProjection;
+uniform mat4 uModelView;
+uniform vec3 uCameraPos;
+uniform bool uFogOrientationBased;
+
+out vec4 vertexColor;
+out vec2 texCoord;
+out float fogFactor;
+out float fogDistance;
+
+void main() {
+    vec4 viewPos = uModelView * vec4(aPos, 1.0);
+    gl_Position = uProjection * viewPos;
+    vertexColor = aColor;
+    texCoord = aTexCoord;
+    
+    if (uFogOrientationBased) {
+        vec3 surfaceNormal = normalize(aPos);
+        vec3 cameraDir = normalize(uCameraPos - aPos);
+        float dotProduct = dot(surfaceNormal, cameraDir);
+        fogFactor = 1.0 - clamp(dotProduct, 0.0, 1.0);
+        fogDistance = 0.0; 
+    } else {
+        fogDistance = length(viewPos.xyz);
+        fogFactor = 0.0; 
+    }
+}
+)";
 #else
     // Desktop OpenGL 3.3 Core 3D shaders
     const char* vertex3DShaderSource = R"(#version 330 core

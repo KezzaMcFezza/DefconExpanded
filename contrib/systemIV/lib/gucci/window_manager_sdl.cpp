@@ -277,10 +277,16 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 0 );
     SDL_GL_SetAttribute( SDL_GL_ACCELERATED_VISUAL, 1 );
 #elif defined(TARGET_OS_MACOSX)
-    // Request OpenGL 3.3 Core Profile for desktop
+
+    //
+    // macOS only supports 3.2 Core Profile on older hardware
+    // since arm64 uses metal and layers onto opengl anyway, this
+    // is a good compromise. macos in the future will likely use metal 
+
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE); 
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 );
+    SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG );
     SDL_GL_SetAttribute( SDL_GL_ACCELERATED_VISUAL, 1 );
 #else
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY );
