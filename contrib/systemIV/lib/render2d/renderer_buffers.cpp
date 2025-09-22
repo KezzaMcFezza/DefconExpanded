@@ -66,8 +66,13 @@ void Renderer::FlushUITriangles() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_uiTriangleVertexCount * sizeof(Vertex2D), m_uiTriangleVertices);
     
+    
+    // glBufferSubData(GL_ARRAY_BUFFER, 0, m_uiTriangleVertexCount * sizeof(Vertex2D), m_uiTriangleVertices);
+    
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_uiTriangleVertexCount, m_uiTriangleVertices, GL_DYNAMIC_DRAW);
+        
     glDrawArrays(GL_TRIANGLES, 0, m_uiTriangleVertexCount);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -92,8 +97,12 @@ void Renderer::FlushUILines() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_uiLineVertexCount * sizeof(Vertex2D), m_uiLineVertices);
     
+    //glBufferSubData(GL_ARRAY_BUFFER, 0, m_uiLineVertexCount * sizeof(Vertex2D), m_uiLineVertices);
+    
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_uiLineVertexCount, m_uiLineVertices, GL_DYNAMIC_DRAW);
+        
     glDrawArrays(GL_LINES, 0, m_uiLineVertexCount);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -151,7 +160,10 @@ void Renderer::FlushTextBuffer() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_textVertexCount * sizeof(Vertex2D), m_textVertices);
+    
+    //glBufferSubData(GL_ARRAY_BUFFER, 0, m_textVertexCount * sizeof(Vertex2D), m_textVertices);
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_textVertexCount, m_textVertices, GL_DYNAMIC_DRAW);    
     
     glDrawArrays(GL_TRIANGLES, 0, m_textVertexCount);
     
@@ -196,7 +208,11 @@ void Renderer::FlushSpriteBuffer() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_spriteVertexCount * sizeof(Vertex2D), m_spriteVertices);
+//    glBufferSubData(GL_ARRAY_BUFFER, 0, m_spriteVertexCount * sizeof(Vertex2D), m_spriteVertices);
+    
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_spriteVertexCount, m_spriteVertices, GL_DYNAMIC_DRAW);    
+    
     
     glDrawArrays(GL_TRIANGLES, 0, m_spriteVertexCount);
     
@@ -264,7 +280,11 @@ void Renderer::FlushUnitTrails() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitTrailVertexCount * sizeof(Vertex2D), m_unitTrailVertices);
+    //glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitTrailVertexCount * sizeof(Vertex2D), m_unitTrailVertices);
+    
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_unitTrailVertexCount, m_unitTrailVertices, GL_DYNAMIC_DRAW);    
+    
     
     glDrawArrays(GL_LINES, 0, m_unitTrailVertexCount);
     
@@ -351,7 +371,13 @@ void Renderer::FlushUnitMainSprites() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitMainVertexCount * sizeof(Vertex2D), m_unitMainVertices);
+    
+    
+    // glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitMainVertexCount * sizeof(Vertex2D), m_unitMainVertices);
+    
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_unitMainVertexCount, m_unitMainVertices, GL_DYNAMIC_DRAW);
+    
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitMainVertexCount);
     
@@ -454,8 +480,11 @@ void Renderer::FlushUnitRotating() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitRotatingVertexCount * sizeof(Vertex2D), m_unitRotatingVertices);
+    // glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitRotatingVertexCount * sizeof(Vertex2D), m_unitRotatingVertices);
     
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_unitRotatingVertexCount, m_unitRotatingVertices, GL_DYNAMIC_DRAW);
+
     glDrawArrays(GL_TRIANGLES, 0, m_unitRotatingVertexCount);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -540,8 +569,11 @@ void Renderer::FlushUnitStateIcons() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitStateVertexCount * sizeof(Vertex2D), m_unitStateVertices);
+//    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitStateVertexCount * sizeof(Vertex2D), m_unitStateVertices);
     
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_unitStateVertexCount, m_unitStateVertices, GL_DYNAMIC_DRAW);    
+        
     glDrawArrays(GL_TRIANGLES, 0, m_unitStateVertexCount);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -599,7 +631,10 @@ void Renderer::FlushUnitCounters() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitCounterVertexCount * sizeof(Vertex2D), m_unitCounterVertices);
+//    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitCounterVertexCount * sizeof(Vertex2D), m_unitCounterVertices);
+
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_unitCounterVertexCount, m_unitCounterVertices, GL_DYNAMIC_DRAW);    
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitCounterVertexCount);
     
@@ -770,7 +805,10 @@ void Renderer::FlushUnitNukeIcons() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitNukeVertexCount * sizeof(Vertex2D), m_unitNukeVertices);
+//    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitNukeVertexCount * sizeof(Vertex2D), m_unitNukeVertices);
+    
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_unitNukeVertexCount, m_unitNukeVertices, GL_DYNAMIC_DRAW);    
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitNukeVertexCount);
     
@@ -825,7 +863,10 @@ void Renderer::FlushEffectsLines() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsLineVertexCount * sizeof(Vertex2D), m_effectsLineVertices);
+    //glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsLineVertexCount * sizeof(Vertex2D), m_effectsLineVertices);
+    
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_effectsLineVertexCount, m_effectsLineVertices, GL_DYNAMIC_DRAW);        
     
     glDrawArrays(GL_LINES, 0, m_effectsLineVertexCount);
     
@@ -907,7 +948,10 @@ void Renderer::FlushEffectsSprites() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsSpriteVertexCount * sizeof(Vertex2D), m_effectsSpriteVertices);
+//    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsSpriteVertexCount * sizeof(Vertex2D), m_effectsSpriteVertices);
+    
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_effectsSpriteVertexCount, m_effectsSpriteVertices, GL_DYNAMIC_DRAW);        
     
     glDrawArrays(GL_TRIANGLES, 0, m_effectsSpriteVertexCount);
     
@@ -1022,8 +1066,11 @@ void Renderer::FlushUnitHighlights() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitHighlightVertexCount * sizeof(Vertex2D), m_unitHighlightVertices);
+//    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitHighlightVertexCount * sizeof(Vertex2D), m_unitHighlightVertices);
     
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_unitHighlightVertexCount, m_unitHighlightVertices, GL_DYNAMIC_DRAW);    
+
     glDrawArrays(GL_TRIANGLES, 0, m_unitHighlightVertexCount);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -1100,7 +1147,11 @@ void Renderer::FlushHealthBars() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_healthBarVertexCount * sizeof(Vertex2D), m_healthBarVertices);
+//    glBufferSubData(GL_ARRAY_BUFFER, 0, m_healthBarVertexCount * sizeof(Vertex2D), m_healthBarVertices);
+    
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_healthBarVertexCount, m_healthBarVertices, GL_DYNAMIC_DRAW);    
+    
     
     glDrawArrays(GL_TRIANGLES, 0, m_healthBarVertexCount);
     

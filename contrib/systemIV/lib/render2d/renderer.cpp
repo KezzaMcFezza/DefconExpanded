@@ -229,7 +229,7 @@ void Renderer::Set2DViewport(float l, float r, float b, float t, int x, int y, i
     m_modelViewMatrix.LoadIdentity();
     m_projectionMatrix.Ortho(l - 0.325f, r - 0.325f, b - 0.325f, t - 0.325f, -1.0f, 1.0f);
 
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)   
+#if !defined(TARGET_OS_MACOSX ) && (!defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN))
     // Calculate scale factors between logical and physical resolution
     float scaleX = (float)g_windowManager->PhysicalWindowW() / (float)g_windowManager->WindowW();
     float scaleY = (float)g_windowManager->PhysicalWindowH() / (float)g_windowManager->WindowH();
@@ -832,7 +832,7 @@ void Renderer::EndLineStrip2D() {
 
 void Renderer::SetClip(int x, int y, int w, int h) {
 
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
+#if !defined(TARGET_OS_MACOSX) && (!defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN))
     // Calculate scale factors between logical and physical resolution
     float scaleX = (float)g_windowManager->PhysicalWindowW() / (float)g_windowManager->WindowW();
     float scaleY = (float)g_windowManager->PhysicalWindowH() / (float)g_windowManager->WindowH();
@@ -1263,9 +1263,13 @@ void Renderer::FlushTriangles(bool useTexture) {
         glUniform1i(texLoc, 0);
     }
     
-    glBindVertexArray(m_VAO);
+    glBindVertexArray(m_VAO);    
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_triangleVertexCount * sizeof(Vertex2D), m_triangleVertices);
+    
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_triangleVertexCount, m_triangleVertices, GL_DYNAMIC_DRAW);
+    
+    //glBufferSubData(GL_ARRAY_BUFFER, 0, m_triangleVertexCount * sizeof(Vertex2D), m_triangleVertices);
     
     glDrawArrays(GL_TRIANGLES, 0, m_triangleVertexCount);
     
@@ -1291,7 +1295,15 @@ void Renderer::FlushLines() {
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_lineVertexCount * sizeof(Vertex2D), m_lineVertices);
+    
+    
+    
+    
+    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * m_lineVertexCount, m_lineVertices, GL_DYNAMIC_DRAW);
+    
+    
+    // glBufferSubData(GL_ARRAY_BUFFER, 0, m_lineVertexCount * sizeof(Vertex2D), m_lineVertices);
     
     glDrawArrays(GL_LINES, 0, m_lineVertexCount);
     
