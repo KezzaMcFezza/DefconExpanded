@@ -53,7 +53,7 @@ else()
     endif()
 endif()
 
-set(REPLAY_VIEWER_VERSION "B1.97.5" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "B1.98" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 option(ENABLE_RECORDING_PARSING "Enable recording parsing functionality" ON)
 option(ENABLE_REPLAY_VIEWER "Enable Emscripten Replay Viewer mode (recording playback only)" ON)
 
@@ -847,7 +847,7 @@ elseif(UNIX AND NOT APPLE)
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/data" "${MAIN_EXE_OUTPUT_DIR}/data"
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/mods" "${MAIN_EXE_OUTPUT_DIR}/mods"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/*.dat" "${MAIN_EXE_OUTPUT_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/sounds.dat" "${MAIN_EXE_OUTPUT_DIR}/"
         COMMAND ${CMAKE_SOURCE_DIR}/targets/linux/bundle_sdl.sh ${MAIN_EXE_OUTPUT_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/targets/linux/launch_cmake.sh ${MAIN_EXE_OUTPUT_DIR}/launch.sh
     )
@@ -862,7 +862,7 @@ elseif(APPLE)
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/data" "${DATA_TARGET_DIR}/data"
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/mods" "${DATA_TARGET_DIR}/mods"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/resources/macosx/*" "${DATA_TARGET_DIR}/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/*.dat" "${DATA_TARGET_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/sounds.dat" "${DATA_TARGET_DIR}/"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/targets/macosx/Info_cmake.plist" "${BUNDLE_DIR}/Info.plist"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/targets/macosx/Base.lproj/SDLMain.nib" "${DATA_TARGET_DIR}/SDLMain.nib"
         COMMAND ${CMAKE_SOURCE_DIR}/targets/macosx/bundle_sdl.sh ${BUNDLE_DIR}
