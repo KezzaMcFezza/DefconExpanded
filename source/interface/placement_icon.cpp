@@ -144,18 +144,37 @@ void PlacementIconButton::MouseUp()
 
 	int teamId = g_app->GetWorld()->m_myTeamId;
 
-    if( g_app->GetWorld()->IsValidPlacement( teamId, Fixed::FromDouble(longitude), Fixed::FromDouble(latitude), m_unitType ) )
-    {
-        g_app->GetClientToServer()->RequestPlacement( teamId, m_unitType, Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
+    //
+    // check if we have units available before attempting placement
 
-	    if(EclMouseInWindow( EclGetWindow("Side Panel") ))
-	    {
-            g_app->GetMapRenderer()->m_showTeam[ g_app->GetWorld()->m_myTeamId ] = false;
-            if( m_unitType == WorldObject::TypeRadarStation )
+    Team *team = g_app->GetWorld()->GetTeam(teamId);
+    if( team->m_unitsAvailable[m_unitType] > 0 &&
+        team->m_unitCredits >= g_app->GetWorld()->GetUnitValue(m_unitType) )
+    {
+        if( g_app->GetWorld()->IsValidPlacement( teamId, Fixed::FromDouble(longitude), Fixed::FromDouble(latitude), m_unitType ) )
+        {
+            g_app->GetClientToServer()->RequestPlacement( teamId, m_unitType, Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
+
+            //
+            // dont exit placement mode, stay in toggle mode
+            // only exit if clicking on the side panel
+
+            if(EclMouseInWindow( EclGetWindow("Side Panel") ))
             {
-                g_app->GetMapRenderer()->m_showRadar = false;
+                g_app->GetMapRenderer()->m_showTeam[ g_app->GetWorld()->m_myTeamId ] = false;
+                if( m_unitType == WorldObject::TypeRadarStation )
+                {
+                    g_app->GetMapRenderer()->m_showRadar = false;
+                }
+                EclRemoveWindow( "Placement" );
             }
-	    }
+        }
+        else
+        {
+#ifdef TOGGLE_SOUND
+        g_soundSystem->TriggerEvent( "Interface", "Error" );
+#endif
+        }
     }
     else
     {

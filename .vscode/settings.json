@@ -43,7 +43,7 @@
     "cmake.buildBeforeRun": true,
     "cmake.parallelJobs": 0,
     "cmake.useCMakePresets": "never",
-    "cmake.sourceDirectory": "C:/DefconNewSource",
+    "cmake.sourceDirectory": "C:/xampp/htdocs",
     "files.associations": {
         "fstream": "cpp",
         "algorithm": "cpp",
