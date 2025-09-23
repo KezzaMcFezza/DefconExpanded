@@ -579,7 +579,13 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/netlib/thread_controller.cpp
     ${SYSTEMIV_PATH}/lib/render/colour.cpp
     ${SYSTEMIV_PATH}/lib/render2d/renderer.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/renderer_buffers.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/primitives.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/text.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/buffers/operations.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/buffers/primitive_buffers.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/buffers/sprite_buffers.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/buffers/text_buffers.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/buffers/eclipse_buffers.cpp
     ${SYSTEMIV_PATH}/lib/render3d/renderer_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_buffers.cpp
     ${SYSTEMIV_PATH}/lib/render3d/renderer_nuke.cpp
