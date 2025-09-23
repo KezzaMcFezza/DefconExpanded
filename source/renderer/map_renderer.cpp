@@ -197,7 +197,6 @@ void MapRenderer::Render()
 {
     START_PROFILE( "MapRenderer" );
     
-    // PERFORMANCE TRACKING: Reset draw call counters for new frame
     g_renderer->BeginFrame();
 
     // Update frame timing when either FPS counter or debug menu is shown
@@ -287,9 +286,6 @@ void MapRenderer::Render()
     float left, right, top, bottom;
     GetWindowBounds( &left, &right, &top, &bottom );
 
-
-
-
     // Render the landscape first to avoid object clipping at map edges
     for( int x = 0; x < 2; ++x )
     {
@@ -301,8 +297,8 @@ void MapRenderer::Render()
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
         g_renderer->Blit( bmpBlur, -180, 100, 360, -200, blurColour );
 
-        g_renderer->Line( -540, 100, 1080, 100, blurColour );
-        g_renderer->Line( -540, -100, 1080, -100, blurColour );
+        g_renderer->EffectsLine( -540, 100, 1080, 100, blurColour );
+        g_renderer->EffectsLine( -540, -100, 1080, -100, blurColour );
            
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
@@ -328,6 +324,7 @@ void MapRenderer::Render()
         // master scene batching, wrap the entire map rendering loop inside the buffers
         //
 
+        g_renderer->BeginTextBatch();
         g_renderer->BeginUnitMainBatch();       // Main unit sprites + city icons
         g_renderer->BeginUnitRotatingBatch();   // Rotating sprites (aircraft, nukes)
         g_renderer->BeginUnitTrailBatch();      // Unit movement trails
@@ -338,48 +335,26 @@ void MapRenderer::Render()
         g_renderer->BeginEffectsLineBatch();    // All line effects (waypoints, radar, etc.)
         g_renderer->BeginEffectsSpriteBatch();  // All sprite effects (explosions, nukesymbols, population, radiation, etc.)
 
-        if( m_showPopulation )          
+        if( m_showRadar )               
         {
-            g_renderer->EndUnitStateBatch();
-            g_renderer->EndUnitNukeBatch();
-            g_renderer->EndUnitHighlightBatch();
-            g_renderer->EndHealthBarBatch();
-            
-            RenderPopulationDensity();
-            
-            g_renderer->BeginUnitStateBatch();
-            g_renderer->BeginUnitNukeBatch();
-            g_renderer->BeginUnitHighlightBatch();
-            g_renderer->BeginHealthBarBatch();
+            RenderRadar();
         }
-        if( m_showNukeUnits )           RenderNukeUnits();
-        
+        if( m_showPopulation )          
+        { 
+            RenderPopulationDensity();
+        }
+        if( m_showNukeUnits )           
+        {
+            RenderNukeUnits();
+        }
+
         RenderObjects();
-        RenderGunfire();    
-        
-        g_renderer->EndUnitStateBatch();
-        g_renderer->EndUnitNukeBatch();
-        g_renderer->EndUnitHighlightBatch();
-        g_renderer->EndHealthBarBatch();
-        
-        RenderCities(); 
-        
-        g_renderer->BeginUnitStateBatch();
-        g_renderer->BeginUnitNukeBatch();
-        g_renderer->BeginUnitHighlightBatch();
-        g_renderer->BeginHealthBarBatch();
-        
+        RenderGunfire();      
+        RenderCities();       
         RenderBlips();        
         RenderWorldMessages();
 		RenderSanta();
-
-        if( m_showRadar )               RenderRadar();
         RenderNodes();
-
-        g_renderer->EndUnitStateBatch();
-        g_renderer->EndUnitNukeBatch();
-        g_renderer->EndUnitHighlightBatch();
-        g_renderer->EndHealthBarBatch();
 
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
@@ -401,11 +376,6 @@ void MapRenderer::Render()
                 g_renderer->EffectsSprite( boom, pos->x.DoubleValue(), pos->y.DoubleValue(), 15.0f, 15.0f, col );
             }
         }
-        
-        g_renderer->BeginUnitStateBatch();
-        g_renderer->BeginUnitNukeBatch();
-        g_renderer->BeginUnitHighlightBatch();
-        g_renderer->BeginHealthBarBatch();
 
         if( m_highlightUnit != -1 )
         {
@@ -427,6 +397,7 @@ void MapRenderer::Render()
         g_renderer->EndHealthBarBatch();        // Flush all unit health bars
         g_renderer->EndUnitRotatingBatch();     // Flush all rotating sprites (atlas batching!)
         g_renderer->EndUnitMainBatch();         // Flush all main unit sprites + city icons (atlas batching!)
+        g_renderer->EndTextBatch();             // Flush all text
 
         left += GetLongitudeMod();
         right += GetLongitudeMod();
@@ -465,7 +436,6 @@ void MapRenderer::Render()
         right += GetLongitudeMod();
     }
 
-    g_renderer->FlushVertices(GL_TRIANGLES, true);
 
     END_PROFILE( "MapRenderer" );
 }
@@ -2097,8 +2067,6 @@ void MapRenderer::RenderActionLine( float fromLong, float fromLat, float toLong,
         }
     }
 
-    // MASSIVE PERFORMANCE FIX: Use batched EffectsLine instead of immediate mode Line
-    // This allows thousands of waypoint lines to be drawn in a single draw call
     g_renderer->EffectsLine( fromLong, fromLat, toLong, toLat, col );
     g_renderer->EffectsLine( fromLong+GetLongitudeMod(), fromLat, toLong+GetLongitudeMod(), toLat, col );
 
@@ -2354,15 +2322,15 @@ void MapRenderer::RenderUnitHighlight( int _objectId )
         col.m_a = 255;
         if( fmod((float)g_gameTime*2, 2.0f) < 1.0f ) col.m_a = 100;
 
-        g_renderer->Line(predictedLongitude - size/2 - 5.0f, predictedLatitude, 
+        g_renderer->EffectsLine(predictedLongitude - size/2 - 5.0f, predictedLatitude, 
                          predictedLongitude - size/2, predictedLatitude, col );
-        g_renderer->Line(predictedLongitude + size/2 + 5.0f, predictedLatitude, 
+        g_renderer->EffectsLine(predictedLongitude + size/2 + 5.0f, predictedLatitude, 
                          predictedLongitude + size/2, predictedLatitude, col );
-        g_renderer->Line(predictedLongitude, predictedLatitude + size/2 + 5.0f, 
+        g_renderer->EffectsLine(predictedLongitude, predictedLatitude + size/2 + 5.0f, 
                          predictedLongitude, predictedLatitude + size/2, col );
-        g_renderer->Line(predictedLongitude, predictedLatitude - size/2 - 5.0f, 
+        g_renderer->EffectsLine(predictedLongitude, predictedLatitude - size/2 - 5.0f, 
                          predictedLongitude, predictedLatitude - size/2, col );
-        g_renderer->Rect( predictedLongitude - size/2, 
+        g_renderer->EffectsRect( predictedLongitude - size/2, 
                           predictedLatitude - size/2, size, size, col, 2.0f );
     }
 }
@@ -2897,6 +2865,72 @@ void MapRenderer::RenderPopulationDensity()
 }
 
 
+void MapRenderer::RenderRadar()
+{
+    START_PROFILE( "Radar" );
+    
+    g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
+    g_renderer->SetDepthBuffer( true, true );
+
+    //
+    // begin radar micro batching (own radar)
+
+    g_renderer->BeginEffectsCircleBatch();
+    
+    //
+    // Render our radar
+
+    RenderRadar( false, false );  // Own filled circles
+    RenderRadar( false, true );   // Own outlined circles
+
+    //
+    // end it
+
+    g_renderer->EndEffectsCircleBatch();
+
+    //
+    // check if we need allied radar
+
+    int myTeamId = g_app->GetWorld()->m_myTeamId;
+    bool sharingRadar = false;
+    for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
+    {
+        Team *team = g_app->GetWorld()->m_teams[i];
+        if( team->m_teamId != myTeamId &&
+            myTeamId != -1 &&
+            team->m_sharingRadar[myTeamId] )
+        {
+            sharingRadar = true;
+            break;
+        }
+    }
+
+    //
+    // begin allied radar micro batch
+
+    g_renderer->BeginEffectsCircleBatch();
+
+    if( sharingRadar )
+    {
+        RenderRadar( true, false );  // Allied filled circles
+        RenderRadar( true, true );   // Allied outlined circles
+    }
+
+    //
+    // end it
+
+    g_renderer->EndEffectsCircleBatch();
+
+    //
+    // darken the whole world not covered by radar (uses depth buffer as mask)
+
+    g_renderer->SetBlendMode( Renderer::BlendModeNormal );        
+    g_renderer->RectFill( -180, -100, 360, 200, Colour(0,0,0,150) );
+    g_renderer->SetDepthBuffer( false, false );
+    
+    END_PROFILE( "Radar" );
+}
+
 void MapRenderer::RenderRadar( bool _allies, bool _outlined )
 {
     int myTeamId = g_app->GetWorld()->m_myTeamId;
@@ -2927,9 +2961,10 @@ void MapRenderer::RenderRadar( bool _allies, bool _outlined )
                             col.m_a = 50;
                             lineWidth = 1.0f;
                         }
-                        g_renderer->Circle( predictedLongitude-360, predictedLatitude, size+0.1f, 50, col, lineWidth );
-                        g_renderer->Circle( predictedLongitude,     predictedLatitude, size+0.1f, 50, col, lineWidth );
-                        g_renderer->Circle( predictedLongitude+360, predictedLatitude, size+0.1f, 50, col, lineWidth );
+                        
+                        g_renderer->EffectsCircleOutline( predictedLongitude-360, predictedLatitude, size+0.1f, 50, col, lineWidth );
+                        g_renderer->EffectsCircleOutline( predictedLongitude,     predictedLatitude, size+0.1f, 50, col, lineWidth );
+                        g_renderer->EffectsCircleOutline( predictedLongitude+360, predictedLatitude, size+0.1f, 50, col, lineWidth );
                     }
                     else
                     {
@@ -2938,66 +2973,15 @@ void MapRenderer::RenderRadar( bool _allies, bool _outlined )
                         {
                             col.m_a = 0;
                         }
-
-                        g_renderer->CircleFill( predictedLongitude-360, predictedLatitude, size, 50, col );
-                        g_renderer->CircleFill( predictedLongitude,     predictedLatitude, size, 50, col );
-                        g_renderer->CircleFill( predictedLongitude+360, predictedLatitude, size, 50, col ) ;
+ 
+                        g_renderer->EffectsCircleFill( predictedLongitude-360, predictedLatitude, size, 50, col );
+                        g_renderer->EffectsCircleFill( predictedLongitude,     predictedLatitude, size, 50, col );
+                        g_renderer->EffectsCircleFill( predictedLongitude+360, predictedLatitude, size, 50, col );
                     }
                 }
             }
         }
     }
-}
-
-
-void MapRenderer::RenderRadar()
-{
-    START_PROFILE( "Radar" );
-
-    float timeFactor = g_predictionTime * g_app->GetWorld()->GetTimeScaleFactor().DoubleValue();
-
-    g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-    g_renderer->SetDepthBuffer( true, true );
-
-    //
-    // Render our Radar first
-
-    RenderRadar( false, false );
-    RenderRadar( false, true );
-
-
-    //
-    // Now Render allied radar if we are sharing
-
-    int myTeamId = g_app->GetWorld()->m_myTeamId;
-    bool sharingRadar = false;
-    for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
-    {
-        Team *team = g_app->GetWorld()->m_teams[i];
-        if( team->m_teamId != myTeamId &&
-            myTeamId != -1 &&
-            team->m_sharingRadar[myTeamId] )
-        {
-            sharingRadar = true;
-            break;
-        }
-    }
-
-    if( sharingRadar )
-    {
-        RenderRadar( true, false );
-        RenderRadar( true, true );
-    }
-
-
-    //
-    // Now darken the whole world not covered by Radar
-
-    g_renderer->SetBlendMode( Renderer::BlendModeNormal );        
-    g_renderer->RectFill( -180, -100, 360, 200, Colour(0,0,0,150) );
-    g_renderer->SetDepthBuffer( false, false );
-    
-    END_PROFILE( "Radar" );
 }
 
 void MapRenderer::RenderNodes()
