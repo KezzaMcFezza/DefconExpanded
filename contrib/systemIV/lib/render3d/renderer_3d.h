@@ -343,7 +343,6 @@ public:
     int GetUITriangleCalls() const { return 0; }    
     int GetUILineCalls() const { return 0; }        
     int GetTextCalls() const { return m_prevTextCalls3D; }
-    int GetSpriteCalls() const { return m_prevMegaVBOCalls3D; }  
     int GetUnitTrailCalls() const { return m_prevUnitTrailCalls3D; }
     int GetUnitMainSpriteCalls() const { return m_prevUnitMainSpriteCalls3D; }
     int GetUnitRotatingCalls() const { return m_prevUnitRotatingCalls3D; }

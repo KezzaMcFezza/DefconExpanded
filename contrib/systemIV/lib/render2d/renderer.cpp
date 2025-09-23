@@ -10,6 +10,7 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/resource/bitmap.h"
+#include "lib/resource/sprite_atlas.h"
 #include "lib/math/vector3.h"
 #include "lib/math/math_utils.h"
 #include "lib/hi_res_time.h"
@@ -66,6 +67,43 @@ void Matrix4f::Multiply(const Matrix4f& other) {
         }
     }
     *this = result;
+}
+
+// ============================================================================
+// GET TEXTURE ATLAS COORDINATES
+// ============================================================================
+
+// get UV coordinates for an image from the atlas
+void Renderer::GetImageUVCoords(Image* image, float& u1, float& v1, float& u2, float& v2) {
+    AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(image);
+    if (atlasImage) {
+        // use atlas coordinates
+        const AtlasCoord* coord = atlasImage->GetAtlasCoord();
+        if (coord) {
+            u1 = coord->u1;
+            v1 = coord->v1;
+            u2 = coord->u2;
+            v2 = coord->v2;
+            return;
+        }
+    }
+    
+    // regular image, use full texture with edge padding
+    float onePixelW = 1.0f / (float) image->Width();
+    float onePixelH = 1.0f / (float) image->Height();
+    u1 = onePixelW;
+    v1 = onePixelH;
+    u2 = 1.0f - onePixelW;
+    v2 = 1.0f - onePixelH;
+}
+
+// get texture ID for batching
+unsigned int Renderer::GetEffectiveTextureID(Image* image) {
+    AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(image);
+    if (atlasImage) {
+        return atlasImage->GetAtlasTextureID();
+    }
+    return image->m_textureID;
 }
 
 // ============================================================================
@@ -136,8 +174,6 @@ Renderer::Renderer()
       m_uiLineVertexCount = 0;
       m_textVertexCount = 0;
       m_currentTextTexture = 0;
-      m_spriteVertexCount = 0;
-      m_currentSpriteTexture = 0;
       m_unitTrailVertexCount = 0;
       m_unitMainVertexCount = 0;
       m_currentUnitMainTexture = 0;
@@ -152,6 +188,7 @@ Renderer::Renderer()
       m_unitNukeVertexCount = 0;
       m_currentUnitNukeTexture = 0;
       m_effectsLineVertexCount = 0;
+      m_effectsRectVertexCount = 0;
       m_effectsSpriteVertexCount = 0;
       m_currentEffectsSpriteTexture = 0;
       m_healthBarVertexCount = 0;
@@ -161,7 +198,6 @@ Renderer::Renderer()
       m_uiTriangleCalls = 0;
       m_uiLineCalls = 0;
       m_textCalls = 0;
-      m_spriteCalls = 0;
       m_unitTrailCalls = 0;
       m_unitMainSpriteCalls = 0;
       m_unitRotatingCalls = 0;
@@ -170,6 +206,7 @@ Renderer::Renderer()
       m_unitCounterCalls = 0;
       m_unitNukeIconCalls = 0;
       m_effectsLineCalls = 0;
+      m_effectsRectCalls = 0;
       m_effectsSpriteCalls = 0;
       m_healthBarCalls = 0;
       m_prevDrawCallsPerFrame = 0;
@@ -178,7 +215,6 @@ Renderer::Renderer()
       m_prevUiTriangleCalls = 0;
       m_prevUiLineCalls = 0;
       m_prevTextCalls = 0;
-      m_prevSpriteCalls = 0;
       m_prevUnitTrailCalls = 0;
       m_prevUnitMainSpriteCalls = 0;
       m_prevUnitRotatingCalls = 0;
@@ -187,6 +223,7 @@ Renderer::Renderer()
       m_prevUnitCounterCalls = 0;
       m_prevUnitNukeIconCalls = 0;
       m_prevEffectsLineCalls = 0;
+      m_prevEffectsRectCalls = 0;
       m_prevEffectsSpriteCalls = 0;
       m_prevHealthBarCalls = 0;
     
@@ -282,6 +319,14 @@ void Renderer::BeginScene() {
         glDisable   ( GL_POINT_SMOOTH );
     }
 #endif
+}
+
+void Renderer::BeginFrame() {
+    ResetFrameCounters();
+}
+
+void Renderer::EndFrame() {
+    FlushAllSpecializedBuffers();
 }
 
 void Renderer::ClearScreen(bool _colour, bool _depth) {
@@ -453,383 +498,6 @@ BitmapFont *Renderer::GetBitmapFont() {
     return font;
 }
 
-// text rendering functions, most original and just been converted to opengl 3.3 core
-
-void Renderer::Text(float x, float y, Colour const &col, float size, const char *text, ...) {   
-    char buf[1024];
-    va_list ap;
-    va_start(ap, text);
-    vsprintf(buf, text, ap);
-    TextSimple(x, y, col, size, buf);
-}
-
-void Renderer::TextCentre(float x, float y, Colour const &col, float size, const char *text, ...) {
-    char buf[1024];
-    va_list ap;
-    va_start(ap, text);
-    vsprintf(buf, text, ap);
-    float actualX = x - TextWidth(buf, size) / 2.0f;
-    TextSimple(actualX, y, col, size, buf);
-}
-
-void Renderer::TextRight(float x, float y, Colour const &col, float size, const char *text, ...) {
-    char buf[1024];
-    va_list ap;
-    va_start(ap, text);
-    vsprintf(buf, text, ap);
-    float actualX = x - TextWidth(buf, size);
-    TextSimple(actualX, y, col, size, buf);
-}
-
-void Renderer::TextCentreSimple(float x, float y, Colour const &col, float size, const char *text) {
-    float actualX = x - TextWidth(text, size) / 2.0f;
-    TextSimple(actualX, y, col, size, text);
-}
-
-void Renderer::TextRightSimple(float x, float y, Colour const &col, float size, const char *text) {
-    float actualX = x - TextWidth(text, size);
-    TextSimple(actualX, y, col, size, text);
-}
-
-void Renderer::TextSimple(float x, float y, Colour const &col, float size, const char *text) {
-    BitmapFont *font = g_resource->GetBitmapFont(m_currentFontFilename);
-    if (font) {
-        font->SetSpacing(GetFontSpacing(m_currentFontName));
-    } else {
-        font = g_resource->GetBitmapFont(m_defaultFontFilename);
-        if (font) {
-            font->SetSpacing(GetFontSpacing(m_defaultFontName));
-        }
-    }
-
-    if (font) {    
-        font->SetHoriztonalFlip(m_horizFlip);
-        font->SetFixedWidth(m_fixedWidth);
-                
-        if (m_blendMode != BlendModeSubtractive) {			
-            int blendSrc = m_blendSrcFactor, blendDst = m_blendDstFactor;
-            SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
-            font->DrawText2DSimple(x, y, size, text, col);
-            SetBlendFunc(blendSrc, blendDst);
-        } else {
-            font->DrawText2DSimple(x, y, size, text, col);
-        }
-    }
-}
-
-void Renderer::TextSimpleBatch(float x, float y, Colour const &col, float size, const char *text) {
-    BitmapFont *font = g_resource->GetBitmapFont(m_currentFontFilename);
-    if (font) {
-        font->SetSpacing(GetFontSpacing(m_currentFontName));
-    } else {
-        font = g_resource->GetBitmapFont(m_defaultFontFilename);
-        if (font) {
-            font->SetSpacing(GetFontSpacing(m_defaultFontName));
-        }
-    }
-
-    if (font) {    
-        font->SetHoriztonalFlip(m_horizFlip);
-        font->SetFixedWidth(m_fixedWidth);
-        
-        // blend mode is handled in FlushTextBuffer, just accumulate text
-        font->DrawText2DSimpleBatch(x, y, size, text, col);
-    }
-}
-
-void Renderer::TextCentreSimpleBatch(float x, float y, Colour const &col, float size, const char *text) {
-    float actualX = x - TextWidth(text, size) / 2.0f;
-    TextSimpleBatch(actualX, y, col, size, text);
-}
-
-void Renderer::TextRightSimpleBatch(float x, float y, Colour const &col, float size, const char *text) {
-    float actualX = x - TextWidth(text, size);
-    TextSimpleBatch(actualX, y, col, size, text);
-}
-
-float Renderer::TextWidth(const char *text, float size) {
-    BitmapFont *font = g_resource->GetBitmapFont(m_currentFontFilename);
-    if (font) {
-        font->SetSpacing(GetFontSpacing(m_currentFontName));
-    } else {
-        font = g_resource->GetBitmapFont(m_defaultFontFilename);
-        if (font) {
-            font->SetSpacing(GetFontSpacing(m_defaultFontName));
-        }
-    }
-
-    if (!font) return -1;
-
-    font->SetHoriztonalFlip(m_horizFlip);
-    font->SetFixedWidth(m_fixedWidth);
-    return font->GetTextWidth(text, size);
-}
-
-float Renderer::TextWidth(const char *text, unsigned int textLen, float size, BitmapFont *bitmapFont) {
-    if (!bitmapFont) return -1;
-    return bitmapFont->GetTextWidth(text, textLen, size);
-}
-
-// primitive rendering functions, includes all the original immediate mode rendering functions
-// contains some attempted batching methods but most are flushing to quickly
-
-void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float lineWidth) {
-
-#ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
-#endif
-
-    if (m_lineVertexCount + 8 > MAX_VERTICES) {
-        FlushLines();
-    }
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    // create 4 lines to form rectangle outline
-    // top line
-    m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
-    m_lineVertices[m_lineVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
-    // right line
-    m_lineVertices[m_lineVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
-    m_lineVertices[m_lineVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
-    // bottom line
-    m_lineVertices[m_lineVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
-    m_lineVertices[m_lineVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
-    // left line
-    m_lineVertices[m_lineVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
-    m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
-    
-    FlushLines();
-}
-
-void Renderer::RectFill(float x, float y, float w, float h, Colour const &col) {
-    RectFill(x, y, w, h, col, col, col, col);
-}
-
-void Renderer::RectFill(float x, float y, float w, float h, Colour const &col1, Colour const &col2, bool horizontal) {
-    if (horizontal) {
-        RectFill(x, y, w, h, col1, col1, col2, col2);
-    } else {
-        RectFill(x, y, w, h, col1, col2, col2, col1);
-    }
-}
-
-void Renderer::RectFill(float x, float y, float w, float h, Colour const &colTL, Colour const &colTR, 
-                        Colour const &colBR, Colour const &colBL) {
-    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
-        FlushTriangles(false);
-    }
-    
-    float rTL = colTL.m_r / 255.0f, gTL = colTL.m_g / 255.0f, bTL = colTL.m_b / 255.0f, aTL = colTL.m_a / 255.0f;
-    float rTR = colTR.m_r / 255.0f, gTR = colTR.m_g / 255.0f, bTR = colTR.m_b / 255.0f, aTR = colTR.m_a / 255.0f;
-    float rBR = colBR.m_r / 255.0f, gBR = colBR.m_g / 255.0f, bBR = colBR.m_b / 255.0f, aBR = colBR.m_a / 255.0f;
-    float rBL = colBL.m_r / 255.0f, gBL = colBL.m_g / 255.0f, bBL = colBL.m_b / 255.0f, aBL = colBL.m_a / 255.0f;
-    
-    // first triangle: TL, TR, BR
-    m_triangleVertices[m_triangleVertexCount++] = {x, y, rTL, gTL, bTL, aTL, 0.0f, 0.0f};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y, rTR, gTR, bTR, aTR, 1.0f, 0.0f};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, rBR, gBR, bBR, aBR, 1.0f, 1.0f};
-    
-    // second triangle: TL, BR, BL
-    m_triangleVertices[m_triangleVertexCount++] = {x, y, rTL, gTL, bTL, aTL, 0.0f, 0.0f};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, rBR, gBR, bBR, aBR, 1.0f, 1.0f};
-    m_triangleVertices[m_triangleVertexCount++] = {x, y + h, rBL, gBL, bBL, aBL, 0.0f, 1.0f};
-    
-    FlushTriangles(false);
-}
-
-void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth) {
-    
-#ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
-#endif
-    
-    if (m_lineVertexCount + 2 > MAX_VERTICES) {
-        FlushLines();
-    }
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    m_lineVertices[m_lineVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
-    m_lineVertices[m_lineVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
-    
-    FlushLines();
-}
-
-void Renderer::Circle(float x, float y, float radius, int numPoints, Colour const &col, float lineWidth) {
-
-#ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
-#endif
-
-    if (m_lineVertexCount + numPoints * 2 > MAX_VERTICES) {
-        FlushLines();
-    }
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    for (int i = 0; i < numPoints; ++i) {
-        float angle1 = 2.0f * M_PI * (float) i / (float) numPoints;
-        float angle2 = 2.0f * M_PI * (float) (i + 1) / (float) numPoints;
-        
-        float x1 = x + cosf(angle1) * radius;
-        float y1 = y + sinf(angle1) * radius;
-        float x2 = x + cosf(angle2) * radius;
-        float y2 = y + sinf(angle2) * radius;
-        
-        m_lineVertices[m_lineVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
-        m_lineVertices[m_lineVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
-    }
-    
-    FlushLines();
-}
-
-void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour const &col) {
-    if (m_triangleVertexCount + numPoints * 3 > MAX_VERTICES) {
-        FlushTriangles(false);
-    }
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    for (int i = 0; i < numPoints; ++i) {
-        float angle1 = 2.0f * M_PI * (float) i / (float) numPoints;
-        float angle2 = 2.0f * M_PI * (float) (i + 1) / (float) numPoints;
-        
-        float x1 = x + cosf(angle1) * radius;
-        float y1 = y + sinf(angle1) * radius;
-        float x2 = x + cosf(angle2) * radius;
-        float y2 = y + sinf(angle2) * radius;
-        
-        // triangle: center, point i, point i+1
-        m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, 0.5f, 0.5f};
-        m_triangleVertices[m_triangleVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
-        m_triangleVertices[m_triangleVertexCount++] = {x2, y2, r, g, b, a, 1.0f, 0.0f};
-    }
-    
-    FlushTriangles(false);
-}
-
-void Renderer::TriangleFill(float x1, float y1, float x2, float y2, float x3, float y3, Colour const &col) {
-    if (m_triangleVertexCount + 3 > MAX_VERTICES) {
-        FlushTriangles(false);
-    }
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    m_triangleVertices[m_triangleVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
-    m_triangleVertices[m_triangleVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
-    m_triangleVertices[m_triangleVertexCount++] = {x3, y3, r, g, b, a, 0.0f, 0.0f};
-    
-    FlushTriangles(false);
-}
-
-void Renderer::BeginLines(Colour const &col, float lineWidth) {
-
-#ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
-#endif
-
-    m_currentLineColor = col;
-}
-
-void Renderer::Line(float x, float y) {
-    if (m_lineVertexCount + 1 > MAX_VERTICES) {
-        FlushLines();
-    }
-    
-    float r = m_currentLineColor.m_r / 255.0f, g = m_currentLineColor.m_g / 255.0f;
-    float b = m_currentLineColor.m_b / 255.0f, a = m_currentLineColor.m_a / 255.0f;
-    
-    m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
-}
-
-void Renderer::EndLines() {
-    if (m_lineVertexCount < 2) {
-        m_lineVertexCount = 0;
-        return;
-    }
-    
-    // convert line strip to individual line segments
-    int tempLineVertexCount = (m_lineVertexCount - 1) * 2;
-    Vertex2D* tempLineVertices = new Vertex2D[tempLineVertexCount];
-    
-    int lineIndex = 0;
-    for (int i = 0; i < m_lineVertexCount - 1; i++) {
-        tempLineVertices[lineIndex++] = m_lineVertices[i];
-        tempLineVertices[lineIndex++] = m_lineVertices[i + 1];
-    }
-    
-    m_lineVertexCount = 0;
-    
-    for (int i = 0; i < tempLineVertexCount; i++) {
-        if (m_lineVertexCount >= MAX_VERTICES) {
-            FlushLines();
-        }
-        m_lineVertices[m_lineVertexCount++] = tempLineVertices[i];
-    }
-    
-    delete[] tempLineVertices;
-    FlushLines();
-}
-
-void Renderer::BeginLineStrip2D(Colour const &col, float lineWidth) {
-    m_lineStripActive = true;
-    m_lineStripColor = col;
-    m_lineStripWidth = lineWidth;
-    m_lineVertexCount = 0;
-
-#ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
-#endif
-}
-
-void Renderer::LineStripVertex2D(float x, float y) {
-    if (!m_lineStripActive) return;
-    
-    if (m_lineVertexCount >= MAX_VERTICES) {
-        EndLineStrip2D();
-        BeginLineStrip2D(m_lineStripColor, m_lineStripWidth);
-    }
-    
-    float r = m_lineStripColor.m_r / 255.0f, g = m_lineStripColor.m_g / 255.0f;
-    float b = m_lineStripColor.m_b / 255.0f, a = m_lineStripColor.m_a / 255.0f;
-    
-    m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
-}
-
-void Renderer::EndLineStrip2D() {
-    if (!m_lineStripActive) return;
-    
-    if (m_lineVertexCount < 2) {
-        m_lineVertexCount = 0;
-        m_lineStripActive = false;
-        return;
-    }
-    
-    // convert to line segments
-    int tempVertexCount = (m_lineVertexCount - 1) * 2;
-    Vertex2D* tempVertices = new Vertex2D[tempVertexCount];
-    
-    int lineIndex = 0;
-    for (int i = 0; i < m_lineVertexCount - 1; i++) {
-        tempVertices[lineIndex++] = m_lineVertices[i];
-        tempVertices[lineIndex++] = m_lineVertices[i + 1];
-    }
-    
-    m_lineVertexCount = 0;
-    
-    for (int i = 0; i < tempVertexCount; i++) {
-        if (m_lineVertexCount >= MAX_VERTICES) {
-            FlushLines();
-        }
-        m_lineVertices[m_lineVertexCount++] = tempVertices[i];
-    }
-    
-    delete[] tempVertices;
-    FlushLines();
-    m_lineStripActive = false;
-}
-
 void Renderer::SetClip(int x, int y, int w, int h) {
 
 #if !defined(TARGET_OS_MACOSX) && (!defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN))
@@ -949,66 +617,6 @@ void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const
     m_triangleVertices[m_triangleVertexCount++] = {vert4.x, vert4.y, r, g, b, a, u1, v1};
     
     FlushTriangles(true);
-}
-
-// batched font rendering function that works extremely well
-void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float h, 
-                        float texX, float texY, float texW, float texH, Colour const &col) {
-    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
-        FlushTriangles(true);
-    }
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    FlushIfTextureChanged(textureID, true);
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    
-    float u1 = texX, v1 = texY, u2 = texX + texW, v2 = texY + texH;
-    
-    // First triangle: TL, TR, BR
-    m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, u1, v2};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y, r, g, b, a, u2, v2};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
-    
-    // Second triangle: TL, BR, BL
-    m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, u1, v2};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
-    m_triangleVertices[m_triangleVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
-}
-
-// batched text rendering function - accumulates to text buffer instead of immediate flush
-void Renderer::BatchBlitChar(unsigned int textureID, float x, float y, float w, float h, 
-                             float texX, float texY, float texW, float texH, Colour const &col) {
-    // check if we need to flush due to texture change
-    if (m_currentTextTexture != 0 && m_currentTextTexture != textureID) {
-        FlushTextBuffer();
-    }
-    
-    // check if we need to flush due to buffer full
-    if (m_textVertexCount + 6 > MAX_TEXT_VERTICES) {
-        FlushTextBuffer();
-    }
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    // set current texture for batching
-    m_currentTextTexture = textureID;
-    
-    float u1 = texX, v1 = texY, u2 = texX + texW, v2 = texY + texH;
-    
-    // first triangle: TL, TR, BR
-    m_textVertices[m_textVertexCount++] = {x, y, r, g, b, a, u1, v2};
-    m_textVertices[m_textVertexCount++] = {x + w, y, r, g, b, a, u2, v2};
-    m_textVertices[m_textVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
-    
-    // second triangle: TL, BR, BL
-    m_textVertices[m_textVertexCount++] = {x, y, r, g, b, a, u1, v2};
-    m_textVertices[m_textVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
-    m_textVertices[m_textVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
 }
 
 void Renderer::SaveScreenshot() {
@@ -1249,10 +857,13 @@ void Renderer::SetupVertexArrays() {
     glBindVertexArray(0);
 }
 
-//
-// buffer flush methods
+// ============================================================================
+// FLUSH METHODS
+// ============================================================================
 
+//
 // this function is problematic but necessary without a texture atlas
+
 void Renderer::FlushIfTextureChanged(unsigned int newTextureID, bool useTexture) {
     if (!m_batchingTextures) {
         FlushTriangles(useTexture);
@@ -1342,31 +953,17 @@ void Renderer::FlushAllBuffers() {
 //
 // frame managment
 
-// this is a funny one, back when i was learning opengl i was trying to over engineer a flush mechanism before the buffer overflowed
-// well its safe to say i was an absolute idiot, not only did it not work i also embarrased myself, even claude.ai was dissapointed :)
-bool Renderer::ShouldFlushThisFrame() {
-    //if (m_triangleVertexCount >= MAX_VERTICES - 100 || m_lineVertexCount >= MAX_VERTICES - 100) {
-    //    return true;
-    //}
+void Renderer::ResetFrameCounters() {    
     
-    //float currentTime = GetHighResTime();
-    //if (currentTime - m_lastFlushTime >= 1.0f) {
-    //    m_lastFlushTime = currentTime;
-    //    return true;
-    //}
-    
-    return false; // return false so msvc does not shit itself, emscriptens compiler does not care about functions not returning values
-}
-
-void Renderer::ResetFrameCounters() {
+    //
     // store previous frames data
+
     m_prevDrawCallsPerFrame = m_drawCallsPerFrame;
     m_prevLegacyTriangleCalls = m_legacyTriangleCalls;
     m_prevLegacyLineCalls = m_legacyLineCalls;
     m_prevUiTriangleCalls = m_uiTriangleCalls;
     m_prevUiLineCalls = m_uiLineCalls;
     m_prevTextCalls = m_textCalls;
-    m_prevSpriteCalls = m_spriteCalls;
     m_prevUnitTrailCalls = m_unitTrailCalls;
     m_prevUnitMainSpriteCalls = m_unitMainSpriteCalls;
     m_prevUnitRotatingCalls = m_unitRotatingCalls;
@@ -1375,17 +972,22 @@ void Renderer::ResetFrameCounters() {
     m_prevUnitCounterCalls = m_unitCounterCalls;
     m_prevUnitNukeIconCalls = m_unitNukeIconCalls;
     m_prevEffectsLineCalls = m_effectsLineCalls;
+    m_prevEffectsRectCalls = m_effectsRectCalls;
     m_prevEffectsSpriteCalls = m_effectsSpriteCalls;
+    m_prevEffectsCircleFillCalls = m_effectsCircleFillCalls;
+    m_prevEffectsCircleOutlineCalls = m_effectsCircleOutlineCalls;
+    m_prevEffectsCircleOutlineThickCalls = m_effectsCircleOutlineThickCalls;
     m_prevHealthBarCalls = m_healthBarCalls;
     
+    //
     // reset current frame counters
+
     m_drawCallsPerFrame = 0;
     m_legacyTriangleCalls = 0;
     m_legacyLineCalls = 0;
     m_uiTriangleCalls = 0;
     m_uiLineCalls = 0;
     m_textCalls = 0;
-    m_spriteCalls = 0;
     m_unitTrailCalls = 0;
     m_unitMainSpriteCalls = 0;
     m_unitRotatingCalls = 0;
@@ -1394,11 +996,17 @@ void Renderer::ResetFrameCounters() {
     m_unitCounterCalls = 0;
     m_unitNukeIconCalls = 0;
     m_effectsLineCalls = 0;
+    m_effectsRectCalls = 0;
     m_effectsSpriteCalls = 0;
+    m_effectsCircleFillCalls = 0;
+    m_effectsCircleOutlineCalls = 0;
+    m_effectsCircleOutlineThickCalls = 0;
     m_healthBarCalls = 0;
 }
 
+//
 // i know the infamous if else block, shut up
+
 void Renderer::IncrementDrawCall(const char* bufferType) {
     m_drawCallsPerFrame++;
     
@@ -1412,8 +1020,6 @@ void Renderer::IncrementDrawCall(const char* bufferType) {
         m_uiLineCalls++;
     } else if (strcmp(bufferType, "text") == 0) {
         m_textCalls++;
-    } else if (strcmp(bufferType, "sprites") == 0) {
-        m_spriteCalls++;
     } else if (strcmp(bufferType, "unit_trails") == 0) {
         m_unitTrailCalls++;
     } else if (strcmp(bufferType, "unit_main_sprites") == 0) {
@@ -1430,20 +1036,17 @@ void Renderer::IncrementDrawCall(const char* bufferType) {
         m_unitNukeIconCalls++;
     } else if (strcmp(bufferType, "effects_lines") == 0) {
         m_effectsLineCalls++;
+    } else if (strcmp(bufferType, "effects_rects") == 0) {
+        m_effectsRectCalls++;
     } else if (strcmp(bufferType, "effects_sprites") == 0) {
         m_effectsSpriteCalls++;
+    } else if (strcmp(bufferType, "effects_circle_fills") == 0) {
+        m_effectsCircleFillCalls++;
+    } else if (strcmp(bufferType, "effects_circle_outlines_thin") == 0) {
+        m_effectsCircleOutlineCalls++;
+    } else if (strcmp(bufferType, "effects_circle_outlines_thick") == 0) {
+        m_effectsCircleOutlineThickCalls++;
     } else if (strcmp(bufferType, "health_bars") == 0) {
         m_healthBarCalls++;
     }
-}
-
-//
-// frame begin and end
-
-void Renderer::BeginFrame() {
-    ResetFrameCounters();
-}
-
-void Renderer::EndFrame() {
-    FlushAllSpecializedBuffers();
 }

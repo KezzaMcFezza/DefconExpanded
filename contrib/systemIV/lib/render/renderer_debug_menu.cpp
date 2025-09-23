@@ -99,10 +99,11 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     yPos += lineHeight;
     
     int totalDrawCalls, legacyTriangleCalls, legacyLineCalls;
-    int uiTriangleCalls, uiLineCalls, textCalls, spriteCalls;
+    int uiTriangleCalls, uiLineCalls, textCalls;
     int unitTrailCalls, unitMainSpriteCalls, unitRotatingCalls, unitHighlightCalls;
     int unitStateIconCalls, unitCounterCalls, unitNukeIconCalls;
-    int effectsLineCalls, effectsSpriteCalls;
+    int effectsLineCalls, effectsRectCalls, effectsSpriteCalls;
+    int effectsCircleFillCalls, effectsCircleOutlineCalls, effectsCircleOutlineThickCalls;
     int totalUnitCalls, totalEffectCalls, totalSpecializedCalls;
     
     if (is3DMode && g_renderer3d) {
@@ -112,7 +113,6 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
         uiTriangleCalls = m_renderer->GetUITriangleCalls(); 
         uiLineCalls = m_renderer->GetUILineCalls();
         textCalls = g_renderer3d->GetTextCalls() + m_renderer->GetTextCalls();
-        spriteCalls = g_renderer3d->GetSpriteCalls() + m_renderer->GetSpriteCalls();
         unitTrailCalls = g_renderer3d->GetUnitTrailCalls();
         unitMainSpriteCalls = g_renderer3d->GetUnitMainSpriteCalls();
         unitRotatingCalls = g_renderer3d->GetUnitRotatingCalls();
@@ -121,10 +121,14 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
         unitCounterCalls = g_renderer3d->GetUnitCounterCalls();
         unitNukeIconCalls = g_renderer3d->GetUnitNukeIconCalls();
         effectsLineCalls = g_renderer3d->GetEffectsLineCalls();
+        effectsRectCalls = m_renderer->GetEffectsRectCalls(); 
         effectsSpriteCalls = g_renderer3d->GetEffectsSpriteCalls();
+        effectsCircleFillCalls = m_renderer->GetEffectsCircleFillCalls();
+        effectsCircleOutlineCalls = m_renderer->GetEffectsCircleOutlineCalls();
+        effectsCircleOutlineThickCalls = m_renderer->GetEffectsCircleOutlineThickCalls();
         totalUnitCalls = g_renderer3d->GetTotalUnitCalls();
         totalEffectCalls = g_renderer3d->GetTotalEffectCalls();
-        totalSpecializedCalls = g_renderer3d->GetTotalSpecializedCalls() + m_renderer->GetUITriangleCalls() + m_renderer->GetUILineCalls() + m_renderer->GetTextCalls() + m_renderer->GetSpriteCalls();
+        totalSpecializedCalls = g_renderer3d->GetTotalSpecializedCalls() + m_renderer->GetUITriangleCalls() + m_renderer->GetUILineCalls() + m_renderer->GetTextCalls();
     } else {
         // 2d map renderer scene only
         totalDrawCalls = m_renderer->GetTotalDrawCalls();
@@ -133,7 +137,6 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
         uiTriangleCalls = m_renderer->GetUITriangleCalls();
         uiLineCalls = m_renderer->GetUILineCalls();
         textCalls = m_renderer->GetTextCalls();
-        spriteCalls = m_renderer->GetSpriteCalls();
         unitTrailCalls = m_renderer->GetUnitTrailCalls();
         unitMainSpriteCalls = m_renderer->GetUnitMainSpriteCalls();
         unitRotatingCalls = m_renderer->GetUnitRotatingCalls();
@@ -142,7 +145,11 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
         unitCounterCalls = m_renderer->GetUnitCounterCalls();
         unitNukeIconCalls = m_renderer->GetUnitNukeIconCalls();
         effectsLineCalls = m_renderer->GetEffectsLineCalls();
+        effectsRectCalls = m_renderer->GetEffectsRectCalls();
         effectsSpriteCalls = m_renderer->GetEffectsSpriteCalls();
+        effectsCircleFillCalls = m_renderer->GetEffectsCircleFillCalls();
+        effectsCircleOutlineCalls = m_renderer->GetEffectsCircleOutlineCalls();
+        effectsCircleOutlineThickCalls = m_renderer->GetEffectsCircleOutlineThickCalls();
         totalUnitCalls = m_renderer->GetTotalUnitCalls();
         totalEffectCalls = m_renderer->GetTotalEffectCalls();
         totalSpecializedCalls = m_renderer->GetTotalSpecializedCalls();
@@ -162,8 +169,8 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     
     // Core UI buffers (GREEN - optimized) - KEEP EXACT SAME LAYOUT
     m_renderer->TextSimple(25, yPos, Colour(100, 255, 100, 255), 11.0f, "UI Buffers:");
-    snprintf(statsBuffer, sizeof(statsBuffer), "Triangles: %d  Lines: %d  Text: %d  Textures: %d", 
-             uiTriangleCalls, uiLineCalls, textCalls, spriteCalls);
+    snprintf(statsBuffer, sizeof(statsBuffer), "Triangles: %d  Lines: %d  Text: %d", 
+             uiTriangleCalls, uiLineCalls, textCalls);
     m_renderer->TextSimple(175, yPos, Colour(100, 255, 100, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
@@ -186,11 +193,22 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     m_renderer->TextSimple(indentSmall, yPos, Colour(120, 170, 255, 255), 10.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Effects rendering specialized buffers (YELLOW - new system)
+    // Effects rendering specialized buffers
     m_renderer->TextSimple(25, yPos, Colour(255, 255, 100, 255), 11.0f, "Effects Buffers:");
-    snprintf(statsBuffer, sizeof(statsBuffer), "Lines: %d  Sprites: %d  (Total: %d)", 
-             effectsLineCalls, effectsSpriteCalls, totalEffectCalls);
-    m_renderer->TextSimple(140, yPos, Colour(255, 255, 100, 255), 11.0f, statsBuffer);
+    snprintf(statsBuffer, sizeof(statsBuffer), "Total: %d", totalEffectCalls);
+    m_renderer->TextSimple(indentLarge, yPos, Colour(255, 255, 100, 255), 11.0f, statsBuffer);
+    yPos += lineHeight;
+    
+    // Effects buffer details
+    snprintf(statsBuffer, sizeof(statsBuffer), "  Lines: %d  Rects: %d  Sprites: %d",
+             effectsLineCalls, effectsRectCalls, effectsSpriteCalls);
+    m_renderer->TextSimple(indentSmall, yPos, Colour(255, 255, 120, 255), 10.0f, statsBuffer);
+    yPos += 14.0f;
+    
+    snprintf(statsBuffer, sizeof(statsBuffer), "  Circles: Fill: %d  Outline: %d  Thick: %d", 
+             effectsCircleFillCalls, effectsCircleOutlineCalls, 
+             effectsCircleOutlineThickCalls);
+    m_renderer->TextSimple(indentSmall, yPos, Colour(255, 255, 120, 255), 10.0f, statsBuffer);
     yPos += lineHeight;
     
     // Performance summary (CYAN - analysis)
@@ -300,7 +318,6 @@ int RendererDebugMenu::EstimateBufferVertexCount()
     estimate += m_renderer->GetUILineCalls() * 4; // UI lines often batched
     estimate += m_renderer->GetUITriangleCalls() * 6; // UI quads
     estimate += m_renderer->GetTextCalls() * 24; // Text often has multiple quads
-    estimate += m_renderer->GetSpriteCalls() * 6; // Sprite quads
     
     // Unit rendering
     estimate += m_renderer->GetUnitTrailCalls() * 8; // Trail segments
@@ -326,7 +343,6 @@ int RendererDebugMenu::EstimateTextureSwitches()
     
     // Each different type of textured call likely uses different textures
     if (m_renderer->GetTextCalls() > 0) switches++;
-    if (m_renderer->GetSpriteCalls() > 0) switches += 5; // Assuming ~5 different sprite textures
     if (m_renderer->GetUnitMainSpriteCalls() > 0) switches += 8; // Different unit types
     if (m_renderer->GetUnitRotatingCalls() > 0) switches += 3; // Aircraft/rotating nuke textures
     if (m_renderer->GetUnitStateIconCalls() > 0) switches += 3; // Fighter, bomber, nuke icons

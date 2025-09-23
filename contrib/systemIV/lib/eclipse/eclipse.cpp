@@ -1,4 +1,5 @@
 #include "lib/universal_include.h"
+#include "lib/render2d/renderer.h"
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -299,6 +300,12 @@ void EclRegisterTooltipCallback ( void (*_callback) (EclWindow *, EclButton *, f
 
 void EclRender ()
 {
+    //
+    // Begin UI batching for all Eclipse windows
+    // This follows the same pattern as map_renderer.cpp for optimal performance
+    //
+    
+    g_renderer->BeginUIBatch();
 
     bool maximiseRender = false;
 
@@ -331,6 +338,12 @@ void EclRender ()
             END_PROFILE( window->m_name );
         }
     }
+    
+    //
+    // End UI batching and flush all accumulated UI primitives
+    //
+    
+    g_renderer->EndUIBatch();
 
 
     //
