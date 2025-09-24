@@ -411,7 +411,8 @@ void MapRenderer::Render()
         
         // begin batching for cursor targets and mouse UI
         // this fixes the blend issue with the cursor target sprite
-        g_renderer->BeginUnitRotatingBatch(); 
+        g_renderer->BeginUnitRotatingBatch();
+        g_renderer->BeginEffectsLineBatch();
         g_renderer->BeginEffectsSpriteBatch();   
         
         if( IsMouseInMapRenderer() )
@@ -429,6 +430,7 @@ void MapRenderer::Render()
         
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );  // ensure correct blend mode for cursor targets
         g_renderer->EndEffectsSpriteBatch(); 
+        g_renderer->EndEffectsLineBatch();
         g_renderer->EndUnitRotatingBatch();      
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );    // reset blend mode after flush
         
