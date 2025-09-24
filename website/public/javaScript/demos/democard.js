@@ -112,7 +112,7 @@ function generateResultsTable(parsedPlayers, sortedGroups, colorSystem, highestS
             .replace('{{PLAYER_ICON}}', playerIconLink)
             .replace('{{PLAYER_NAME}}', playerNameWithCrown)
             .replace('{{TERRITORY}}', player.territory || 'undefined')
-            .replace('{{SCORE}}', player.score);
+            .replace('{{SCORE}}', player.score === 0 ? '???' : player.score);
         });
     });
   } else {
