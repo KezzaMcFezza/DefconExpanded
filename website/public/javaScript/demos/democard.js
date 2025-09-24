@@ -198,7 +198,7 @@ async function createDemoCard(demo) {
     GAME_DURATION: formatDuration(demo.duration),
     WINNING_MESSAGE: scoreData.winningMessage,
     DEMO_ID_DISPLAY: canViewId 
-      ? `<span style="color: #888888b0; text-shadow: unset; text-shadow: 0px 0px 0px currentColor; margin-left: 29%;">Demo ID: ${demo.id}</span>` 
+      ? `<span style="color: #888888b0; text-shadow: unset; text-shadow: 0px 0px 0px currentColor; margin-left: 13%;">Demo ID: ${demo.id}</span>` 
       : '',
     TERRITORY_MAP: territoryMap,
     RESULTS_TABLE: resultsTable,

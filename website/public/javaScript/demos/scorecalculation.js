@@ -79,6 +79,10 @@ function calculateWinningMessage(parsedPlayers, sortedGroups, colorSystem, using
   let winningMessage = 'No winning team determined.';
 
   if (parsedPlayers.length > 0) {
+      const allPlayersHaveZeroScore = parsedPlayers.every(player => player.score === 0);
+      if (allPlayersHaveZeroScore) {
+        return '<span style="color: #ffa500;">Game may be incomplete</span>';
+      }
     const playersPerGroup = {};
     parsedPlayers.forEach(player => {
       const groupId = usingAlliances ? player.alliance : player.team;

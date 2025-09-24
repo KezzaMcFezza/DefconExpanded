@@ -60,17 +60,6 @@ async function checkForMatch() {
 
                 try {
                     await pool.query('START TRANSACTION');
-
-                    if (allPlayersHaveZeroScore(logData)) {
-                        console.log(`Skipping game ${dcrecFileName} - all players have score 0, likely an incomplete game`);
-                        processedPairs.add(pairKey);
-                        pendingDemos.delete(dcrecFileName);
-                        pendingJsons.delete(jsonFileName);
-                        processedJsons.add(jsonFileName);
-                        await pool.query('COMMIT');
-                        continue;
-                    }
-
                     await processDemoFile(dcrecFileName, demoInfo.stats.size, logData, jsonFileName);
 
                     processedPairs.add(pairKey);
@@ -118,16 +107,6 @@ async function checkForMatch() {
                 if (recordSetting && path.basename(recordSetting) === demoFileName) {
                     try {
                         await pool.query('START TRANSACTION');
-
-                        if (allPlayersHaveZeroScore(logData)) {
-                            console.log(`Skipping game ${demoFileName} - all players have score 0, likely an incomplete game`);
-                            processedPairs.add(pairKey);
-                            pendingDemos.delete(demoFileName);
-                            pendingJsons.delete(jsonFileName);
-                            processedJsons.add(jsonFileName);
-                            await pool.query('COMMIT');
-                            continue;
-                        }
 
                         console.log(`Matching files found: ${demoFileName} and ${jsonFileName}`);
                         await processDemoFile(demoFileName, demoInfo.stats.size, logData, jsonFileName);
