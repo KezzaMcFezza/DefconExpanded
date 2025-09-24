@@ -691,7 +691,7 @@ void Renderer::FlushEffectsLines() {
 // im not sure where the linewidth was defined before the 
 // refactor but here seems like a good place to set line width
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.5f);
+    glLineWidth(1.0f);
 #endif
     
     glUseProgram(m_colorShaderProgram);
@@ -723,7 +723,7 @@ void Renderer::FlushEffectsRects() {
 // im not sure where the linewidth was defined before the 
 // refactor but here seems like a good place to set line width
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.5f);
+    glLineWidth(1.0f);
 #endif
     
     glUseProgram(m_colorShaderProgram);

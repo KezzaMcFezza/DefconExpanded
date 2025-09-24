@@ -294,6 +294,8 @@ void MapRenderer::Render()
         Colour desaturatedColour = g_styleTable->GetSecondaryColour( STYLE_WORLD_LAND );
         blurColour = blurColour * mapColourFader + desaturatedColour * (1-mapColourFader);
 
+        g_renderer->BeginEffectsLineBatch();
+        
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
         g_renderer->Blit( bmpBlur, -180, 100, 360, -200, blurColour );
 
@@ -303,6 +305,8 @@ void MapRenderer::Render()
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
         RenderCountryControl();
+
+        g_renderer->EndEffectsLineBatch();
 
         bool showCoastlines = g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES );
         bool showBorders    = g_preferences->GetInt( PREFS_GRAPHICS_BORDERS );
