@@ -27,6 +27,7 @@ def process_game_logs(game_events_file, output_directory):
     game_start_time = None
     game_end_time = None
     current_game_data = create_new_game_data()
+    current_game_events = []  # Separate storage for raw events
     player_info = {}  # Tracks all players
     player_names = {}  # Persistent storage for player names
     team_territories = {}  # Persistent storage for territories
@@ -43,10 +44,17 @@ def process_game_logs(game_events_file, output_directory):
                 f.seek(0, os.SEEK_CUR)
                 continue
 
+            timestamp = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+            current_game_events.append({
+                'timestamp': timestamp,
+                'raw_line': line.strip()
+            })
+
             if 'SERVER_START' in line:
                 if processing_game:
                     write_game_report(current_game_data, output_directory)
                 current_game_data = create_new_game_data()
+                current_game_events = []  # Reset raw events on server start
                 player_info = {}
                 player_names = {}  # Reset player names on server start
                 team_territories = {}  # Reset territories on server start
@@ -76,8 +84,10 @@ def process_game_logs(game_events_file, output_directory):
                 if game_start_time is not None and game_end_time is not None:
                     update_final_player_data(current_game_data, final_players, team_alliances, team_territories)
                     write_game_report(current_game_data, output_directory)
+                    write_raw_game_events_report(current_game_data, current_game_events, output_directory)
                     
                     current_game_data = create_new_game_data()
+                    current_game_events = []
                     player_info = {}
                     final_players = {}
                     team_alliances = {}
@@ -257,6 +267,19 @@ def write_game_report(game_data, output_directory):
         print(f"Game report written to {output_file}")
     else:
         print("Incomplete game data. Skipping game report creation.")
+
+def write_raw_game_events_report(game_data, game_events, output_directory):
+    if game_data['start_time'] and game_events:
+        start_time = datetime.fromisoformat(game_data['start_time'])
+        filename = f"game_{start_time.strftime('%Y-%m-%d-%H-%M')}_events.log"
+        output_file = os.path.join(output_directory, filename)
+        
+        with open(output_file, 'w') as f:
+            for event in game_events:
+                f.write(f"[{event['timestamp']}] {event['raw_line']}\n")
+        
+        print(f"Raw game events log written to {output_file}")
+        print(f"Total game events captured: {len(game_events)}")
 
 def get_territory_name(territory_id):
     territories = {

@@ -70,62 +70,6 @@ void FleetPlacementIconButton::Render( int realX, int realY, bool highlighted, b
     Team *team          = g_app->GetWorld()->GetTeam(g_app->GetWorld()->m_myTeamId);
     if( !team ) return;
 
-    //
-    // check if we have any units available for this fleet and remove unavailable unit types
-
-    bool hasUnitsAvailable = false;
-    Fleet *fleet = team->m_fleets[m_fleetId];
-    
-    //
-    // remove unit types that are no longer available from the fleet composition
-
-    for( int i = fleet->m_memberType.Size() - 1; i >= 0; --i )
-    {
-        int unitType = fleet->m_memberType[i];
-        if( team->m_unitsAvailable[unitType] <= 0 ||
-            team->m_unitCredits < g_app->GetWorld()->GetUnitValue(unitType) )
-        {
-            fleet->m_memberType.RemoveData(i);
-        }
-    }
-    
-    //
-    // check if we have any units available after removing unavailable ones
-
-    for( int i = 0; i < fleet->m_memberType.Size(); ++i )
-    {
-        int unitType = fleet->m_memberType[i];
-        if( team->m_unitsAvailable[unitType] > 0 &&
-            team->m_unitCredits >= g_app->GetWorld()->GetUnitValue(unitType) )
-        {
-            hasUnitsAvailable = true;
-            break;
-        }
-    }
-    
-    //
-    // if no units available exit placement mode and clear fleet 
-
-    if( !hasUnitsAvailable )
-    {
-        g_app->GetMapRenderer()->m_showTeam[ g_app->GetWorld()->m_myTeamId ] = false;
-        EclRemoveWindow( "Placement" ); 
-        
-        //
-        // clear the fleet composition from the side panel
-
-        SidePanel *sidepanel = (SidePanel *)EclGetWindow("Side Panel");
-        if( sidepanel && sidepanel->m_currentFleetId != -1 )
-        {
-            Fleet *fleet = team->m_fleets[sidepanel->m_currentFleetId];
-            if( fleet && !fleet->m_active )
-            {
-                fleet->m_memberType.Empty();
-            }
-        }
-        return;
-    }
-
 	Colour colour       = team->GetTeamColour();
 
     float longitude = 0.0f;
@@ -207,12 +151,6 @@ void FleetPlacementIconButton::MouseUp()
 	
     if( team->m_fleets[m_fleetId]->ValidFleetPlacement( exactLongitude, exactLatitude ) )
     {
-        //
-        // create a new fleet for the actual placement
-
-        int newFleetId = team->m_fleets.Size();
-        g_app->GetClientToServer()->RequestFleet( team->m_teamId );
-        
         for( int i = 0; i < team->m_fleets[m_fleetId]->m_memberType.Size(); ++i )
         {
             g_app->GetMapRenderer()->ConvertPixelsToAngle( g_inputManager->m_mouseX, 
@@ -231,72 +169,19 @@ void FleetPlacementIconButton::MouseUp()
                 thisLong += 360;
             }
 
-            //
-            // place units in the new fleet, not the template fleet
-
+            team->m_unitsAvailable[ team->m_fleets[m_fleetId]->m_memberType[i] ]++;
+            team->m_unitCredits += g_app->GetWorld()->GetUnitValue( team->m_fleets[m_fleetId]->m_memberType[i] );
             g_app->GetClientToServer()->RequestPlacement( team->m_teamId, team->m_fleets[m_fleetId]->m_memberType[i],
-                                                          thisLong, thisLat, newFleetId );
+                                                          thisLong, thisLat, m_fleetId );
         }
-        
-        //
-        // mark the new fleet as active, not the template fleet
-        
-        if( team->m_fleets.ValidIndex(newFleetId) )
-        {
-            team->m_fleets[newFleetId]->m_longitude = exactLongitude;
-            team->m_fleets[newFleetId]->m_latitude = exactLatitude;
-            team->m_fleets[newFleetId]->m_active = true;
-        }
-        
-        //
-        // remove unavailable unit types from the fleet composition after placement
-
-        Fleet *templateFleet = team->m_fleets[m_fleetId];
-        for( int i = templateFleet->m_memberType.Size() - 1; i >= 0; --i )
-        {
-            int unitType = templateFleet->m_memberType[i];
-            if( team->m_unitsAvailable[unitType] <= 0 ||
-                team->m_unitCredits < g_app->GetWorld()->GetUnitValue(unitType) )
-            {
-                templateFleet->m_memberType.RemoveData(i);
-            }
-        }
-        
-        //
-        // check if we have any ships left to place
-
-        int shipsRemaining = 0;
-        shipsRemaining += team->m_unitsAvailable[WorldObject::TypeBattleShip];
-        shipsRemaining += team->m_unitsAvailable[WorldObject::TypeCarrier];
-        shipsRemaining += team->m_unitsAvailable[WorldObject::TypeSub];
-        
-        if( shipsRemaining <= 0 )
-        {
-            //
-            // no more ships available, exit fleet placement mode and clear fleet
-            
-            g_app->GetMapRenderer()->m_showTeam[ g_app->GetWorld()->m_myTeamId ] = false;        
-            EclRemoveWindow( "Placement" );
-            
-            SidePanel *sidepanel = (SidePanel *)EclGetWindow("Side Panel");
-            if( sidepanel )
-            {
-                //
-                // clear the fleet before changing modes
-                
-                if( sidepanel->m_currentFleetId != -1 )
-                {
-                    Fleet *fleet = team->m_fleets[sidepanel->m_currentFleetId];
-                    if( fleet && !fleet->m_active )
-                    {
-                        fleet->m_memberType.Empty();
-                    }
-                }
-                
-                sidepanel->ChangeMode(SidePanel::ModeUnitPlacement);
-                sidepanel->m_currentFleetId = -1;
-            }
-        }
+        team->m_fleets[m_fleetId]->m_longitude = exactLongitude;
+        team->m_fleets[m_fleetId]->m_latitude = exactLatitude;
+        team->m_fleets[m_fleetId]->m_active = true;
+        g_app->GetMapRenderer()->m_showTeam[ g_app->GetWorld()->m_myTeamId ] = false;        
+    	EclRemoveWindow( "Placement" );
+        SidePanel *sidepanel = (SidePanel *)EclGetWindow("Side Panel");
+        sidepanel->ChangeMode(SidePanel::ModeUnitPlacement);
+        sidepanel->m_currentFleetId = -1;
     }
     else
     {

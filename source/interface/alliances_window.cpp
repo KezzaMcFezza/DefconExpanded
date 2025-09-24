@@ -1,5 +1,4 @@
 #include "lib/universal_include.h"
-#include "lib/render2d/renderer.h"
 #include "lib/language_table.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/resource.h"
