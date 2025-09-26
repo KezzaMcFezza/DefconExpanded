@@ -57,16 +57,13 @@ SidePanel::~SidePanel()
 	    !myTeam->m_fleets[ m_currentFleetId ]->m_active )
 	{
 		Fleet *fleet = myTeam->GetFleet( m_currentFleetId );
-		
-		//
-		// dont put back units, fleet is just a template
 
-		// while ( fleet->m_memberType.Size() > 0 )
-		// {
-		//	myTeam->m_unitsAvailable[ fleet->m_memberType[0] ]++;
-		//	myTeam->m_unitCredits += g_app->GetWorld()->GetUnitValue( fleet->m_memberType[0] );
-		//	fleet->m_memberType.RemoveData(0);
-		// }
+		while ( fleet->m_memberType.Size() > 0 )
+		{
+			myTeam->m_unitsAvailable[ fleet->m_memberType[0] ]++;
+			myTeam->m_unitCredits += g_app->GetWorld()->GetUnitValue( fleet->m_memberType[0] );
+			fleet->m_memberType.RemoveData(0);
+		}
 		
 		myTeam->m_fleets.RemoveData( m_currentFleetId );
 		delete fleet;
@@ -198,6 +195,12 @@ void SidePanel::Render( bool hasFocus )
                     yMod = 60;
                 }
 
+                //
+                // end rect fill batch and begin sprite batch to ensure sprites render on top
+
+                g_renderer->EndEclipseRectFillBatch();
+                g_renderer->BeginEclipseSpriteBatch();
+                
                 for( int i = 0; i < myTeam->m_fleets[ m_currentFleetId ]->m_memberType.Size(); ++i )
                 {
                     int type = myTeam->m_fleets[ m_currentFleetId ]->m_memberType[i];
@@ -724,10 +727,9 @@ void AddToFleetButton::MouseUp()
                         if( team->m_unitsAvailable[m_unitType] > 0 &&
                             team->m_unitCredits >= g_app->GetWorld()->GetUnitValue( m_unitType ) )
                         {
+                            team->m_unitsAvailable[m_unitType] --;
+                            team->m_unitCredits -= g_app->GetWorld()->GetUnitValue( m_unitType );
                             
-                            //
-                            // dont consume units when building fleet
-
                             fleet->m_memberType.PutData( m_unitType );
                         }
                     }
@@ -736,8 +738,8 @@ void AddToFleetButton::MouseUp()
                 else
                 {
 
-                    //
-                    // dont consume units when building fleet
+                    team->m_unitsAvailable[m_unitType] --;
+                    team->m_unitCredits -= g_app->GetWorld()->GetUnitValue( m_unitType );
                     
                     fleet->m_memberType.PutData( m_unitType );
                 }
@@ -797,8 +799,8 @@ void RemoveUnitButton::MouseUp()
             if( myTeam->m_fleets[ parent->m_currentFleetId ]->m_memberType.ValidIndex(m_memberId) &&
                 !myTeam->m_fleets[ parent->m_currentFleetId ]->m_active )
             {
-                //
-                // dont add back to unitsAvailable
+                myTeam->m_unitsAvailable[ myTeam->m_fleets[ parent->m_currentFleetId ]->m_memberType[m_memberId]]++;
+                myTeam->m_unitCredits += g_app->GetWorld()->GetUnitValue( myTeam->m_fleets[ parent->m_currentFleetId ]->m_memberType[m_memberId] );
 
                 myTeam->m_fleets[ parent->m_currentFleetId ]->m_memberType.RemoveData(m_memberId);
             }

@@ -161,7 +161,11 @@ void DemoWindow::Create()
 
 void DemoWindow::Render( bool _hasFocus )
 {
+    g_renderer->BeginTextBatch();
+    g_renderer->BeginEclipseRectFillBatch();
     InterfaceWindow::Render( _hasFocus );
+    g_renderer->EndEclipseRectFillBatch();
+    g_renderer->EndTextBatch();
 
     char *filename = "gui/demo.bmp";
 
@@ -184,7 +188,7 @@ void DemoWindow::Render( bool _hasFocus )
 
     Image *img = g_resource->GetImage( filename );
 
-    g_renderer->Blit( img, m_x + 10, m_y + 30, White );
+    g_renderer->EclipseSprite( img, m_x + 10, m_y + 30, White );
     g_renderer->EclipseRect( m_x + 10, m_y + 30, img->Width(), img->Height(), Colour(0,0,0,255) );
 
 	//g_renderer->SetFont( "lucon" );
@@ -192,6 +196,7 @@ void DemoWindow::Render( bool _hasFocus )
 	int oldBlendMode = g_renderer->m_blendMode;
 	g_renderer->SetBlendMode( Renderer::BlendModeSubtractive );
 
+    g_renderer->BeginTextBatch();
     g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 168, Colour( 220, 220, 220, 0 ), 18, LANGUAGEPHRASE("demo_top1") );
 
     g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 200, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle1") );
@@ -220,7 +225,7 @@ void DemoWindow::Render( bool _hasFocus )
     g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 380, Colour( 220, 220, 220, 0 ), 30, metaserverPrice );    
 #endif
 
-
+    g_renderer->EndTextBatch();
 
 	g_renderer->SetBlendMode( oldBlendMode );
 

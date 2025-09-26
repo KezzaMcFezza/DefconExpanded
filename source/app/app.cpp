@@ -757,7 +757,6 @@ void App::ReinitialiseWindow()
     
     InitFonts();
 
-    // Recreate debug menu with new renderer
     delete m_debugMenu;
     m_debugMenu = new RendererDebugMenu(g_renderer);
 
