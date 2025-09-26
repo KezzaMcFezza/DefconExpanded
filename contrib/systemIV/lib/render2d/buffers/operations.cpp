@@ -37,6 +37,10 @@ void Renderer::FlushAllSpecializedBuffers() {
     FlushEffectsLines();
     FlushEffectsRects();
     FlushEffectsSprites();
+    FlushEclipseRects();
+    FlushEclipseRectFills();
+    FlushEclipseLines();
+    FlushEclipseSprites();
 }
 
 void Renderer::FlushAllUnitBuffers() {
@@ -70,7 +74,15 @@ void Renderer::FlushTextContext() {
 // ============================================================================
 
 void Renderer::BeginTextBatch() {
-    m_allowImmedateFlush = false;
+    for (int i = 0; i < MAX_FONT_ATLASES; i++) {
+        m_fontBatches[i].vertexCount = 0;
+        m_fontBatches[i].textureID = 0;
+    }
+    
+    m_currentFontBatchIndex = 0;
+    m_textVertices = m_fontBatches[0].vertices;
+    m_textVertexCount = 0;
+    m_currentTextTexture = 0;
 }
 
 void Renderer::BeginUnitTrailBatch() {
@@ -149,13 +161,55 @@ void Renderer::BeginUIBatch() {
     BeginUILineBatch();
 }
 
+void Renderer::BeginEclipseRectBatch() {
+    m_eclipseRectVertexCount = 0;
+}
+
+void Renderer::BeginEclipseRectFillBatch() {
+    m_eclipseRectFillVertexCount = 0;
+}
+
+void Renderer::BeginEclipseTriangleFillBatch() {
+    m_eclipseTriangleFillVertexCount = 0;
+}
+
+void Renderer::BeginEclipseLineBatch() {
+    m_eclipseLineVertexCount = 0;
+}
+
+void Renderer::BeginEclipseSpriteBatch() {
+    m_eclipseSpriteVertexCount = 0;
+    m_currentEclipseSpriteTexture = 0;
+}
+
 // ============================================================================
 // END SCENES
 // ============================================================================
 
 void Renderer::EndTextBatch() {
-    FlushTextContext();
-    m_allowImmedateFlush = true;
+    for (int i = 0; i < MAX_FONT_ATLASES; i++) {
+        if (m_fontBatches[i].vertexCount > 0) {
+            
+            //
+            // temporarily switch for flushing
+            
+            m_textVertices = m_fontBatches[i].vertices;
+            m_textVertexCount = m_fontBatches[i].vertexCount;
+            m_currentTextTexture = m_fontBatches[i].textureID;
+            
+            FlushTextBuffer();
+            
+            //
+            // mark it as flushed
+
+            m_fontBatches[i].vertexCount = 0;
+        }
+    }
+    
+    m_currentFontBatchIndex = 0;
+    m_textVertices = m_fontBatches[0].vertices;
+    m_textVertexCount = 0;
+    m_currentTextTexture = 0;
 }
 
 void Renderer::EndUnitTrailBatch() {
@@ -247,9 +301,46 @@ void Renderer::EndUIBatch() {
     EndUILineBatch();
 }
 
+void Renderer::EndEclipseRectBatch() {
+    if (m_eclipseRectVertexCount > 0) {
+        FlushEclipseRects();
+    }
+}
+
+void Renderer::EndEclipseRectFillBatch() {
+    if (m_eclipseRectFillVertexCount > 0) {
+        FlushEclipseRectFills();
+    }
+}
+
+void Renderer::EndEclipseTriangleFillBatch() {
+    if (m_eclipseTriangleFillVertexCount > 0) {
+        FlushEclipseTriangleFills();
+    }
+}
+
+void Renderer::EndEclipseLineBatch() {
+    if (m_eclipseLineVertexCount > 0) {
+        FlushEclipseLines();
+    }
+}
+
+void Renderer::EndEclipseSpriteBatch() {
+    if (m_eclipseSpriteVertexCount > 0) {
+        FlushEclipseSprites();
+    }
+}
+
 // ============================================================================
 // NOW FLUSH IF FULL
 // ============================================================================
+
+void Renderer::FlushTextBufferIfFull(int charactersNeeded) {
+    int verticesNeeded = charactersNeeded * 6;
+    if (m_textVertexCount + verticesNeeded > MAX_TEXT_VERTICES) {
+        FlushTextBuffer();
+    }
+}
 
 void Renderer::FlushUnitTrailsIfFull(int segmentsNeeded) {
     if (m_unitTrailVertexCount + segmentsNeeded > MAX_UNIT_TRAIL_VERTICES) {
@@ -290,6 +381,36 @@ void Renderer::FlushEffectsLinesIfFull(int segmentsNeeded) {
 void Renderer::FlushEffectsRectsIfFull(int segmentsNeeded) {
     if (m_effectsRectVertexCount + segmentsNeeded > MAX_EFFECTS_LINE_VERTICES) {
         FlushEffectsRects();
+    }
+}
+
+void Renderer::FlushEclipseRectsIfFull(int segmentsNeeded) {
+    if (m_eclipseRectVertexCount + segmentsNeeded > MAX_ECLIPSE_RECT_VERTICES) {
+        FlushEclipseRects();
+    }
+}
+
+void Renderer::FlushEclipseRectFillsIfFull(int verticesNeeded) {
+    if (m_eclipseRectFillVertexCount + verticesNeeded > MAX_ECLIPSE_RECTFILL_VERTICES) {
+        FlushEclipseRectFills();
+    }
+}
+
+void Renderer::FlushEclipseTriangleFillsIfFull(int verticesNeeded) {
+    if (m_eclipseTriangleFillVertexCount + verticesNeeded > MAX_ECLIPSE_TRIANGLEFILL_VERTICES) {
+        FlushEclipseTriangleFills();
+    }
+}
+
+void Renderer::FlushEclipseLinesIfFull(int segmentsNeeded) {
+    if (m_eclipseLineVertexCount + segmentsNeeded > MAX_ECLIPSE_LINE_VERTICES) {
+        FlushEclipseLines();
+    }
+}
+
+void Renderer::FlushEclipseSpritesIfFull(int verticesNeeded) {
+    if (m_eclipseSpriteVertexCount + verticesNeeded > MAX_ECLIPSE_SPRITE_VERTICES) {
+        FlushEclipseSprites();
     }
 }
 
@@ -833,4 +954,152 @@ void Renderer::FlushHealthBars() {
     glUseProgram(0);
     
     m_healthBarVertexCount = 0;
+}
+
+void Renderer::FlushEclipseRects() {
+    if (m_eclipseRectVertexCount == 0) return;
+    
+    IncrementDrawCall("eclipse_rects");
+    
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(1.0f);
+#endif
+    
+    glUseProgram(m_colorShaderProgram);
+    
+    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_eclipseRectVertexCount * sizeof(Vertex2D), m_eclipseRectVertices);
+    
+    glDrawArrays(GL_LINES, 0, m_eclipseRectVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    m_eclipseRectVertexCount = 0;
+}
+
+void Renderer::FlushEclipseRectFills() {
+    if (m_eclipseRectFillVertexCount == 0) return;
+    
+    IncrementDrawCall("eclipse_rectfills");
+    
+    glUseProgram(m_colorShaderProgram);
+    
+    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_eclipseRectFillVertexCount * sizeof(Vertex2D), m_eclipseRectFillVertices);
+    
+    glDrawArrays(GL_TRIANGLES, 0, m_eclipseRectFillVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    m_eclipseRectFillVertexCount = 0;
+}
+
+void Renderer::FlushEclipseTriangleFills() {
+    if (m_eclipseTriangleFillVertexCount == 0) return;
+    
+    IncrementDrawCall("eclipse_trianglefills");
+    
+    glUseProgram(m_colorShaderProgram);
+    
+    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_eclipseTriangleFillVertexCount * sizeof(Vertex2D), m_eclipseTriangleFillVertices);
+    
+    glDrawArrays(GL_TRIANGLES, 0, m_eclipseTriangleFillVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    m_eclipseTriangleFillVertexCount = 0;
+}
+
+void Renderer::FlushEclipseLines() {
+    if (m_eclipseLineVertexCount == 0) return;
+    
+    IncrementDrawCall("eclipse_lines");
+    
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(1.0f);
+#endif
+    
+    glUseProgram(m_colorShaderProgram);
+    
+    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_eclipseLineVertexCount * sizeof(Vertex2D), m_eclipseLineVertices);
+    
+    glDrawArrays(GL_LINES, 0, m_eclipseLineVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    m_eclipseLineVertexCount = 0;
+}
+
+void Renderer::FlushEclipseSprites() {
+    if (m_eclipseSpriteVertexCount == 0) return;
+    
+    IncrementDrawCall("eclipse_sprites");
+    
+    glUseProgram(m_textureShaderProgram);
+    
+    if (m_currentEclipseSpriteTexture != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_currentEclipseSpriteTexture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    }
+    
+    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
+    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
+    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
+    
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    glUniform1i(texLoc, 0);
+    
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, m_eclipseSpriteVertexCount * sizeof(Vertex2D), m_eclipseSpriteVertices);
+    
+    glDrawArrays(GL_TRIANGLES, 0, m_eclipseSpriteVertexCount);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+    glUseProgram(0);
+       
+    m_eclipseSpriteVertexCount = 0;
+    m_currentEclipseSpriteTexture = 0;
 }

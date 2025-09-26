@@ -45,67 +45,96 @@ void Renderer::UnitCounterText(float x, float y, Colour const &col, float size, 
     }
 }
 
-// batched font rendering function that works extremely well
 void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float h, 
                         float texX, float texY, float texW, float texH, Colour const &col) {
-    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
-        FlushTriangles(true);
+    
+    // find the font batch for this texture ID, or find an empty one
+    int targetBatch = -1;
+    
+    // check if we already have a batch for this texture
+    for (int i = 0; i < MAX_FONT_ATLASES; i++) {
+        if (m_fontBatches[i].textureID == textureID && m_fontBatches[i].vertexCount > 0) {
+            targetBatch = i;
+            break;
+        }
+    }
+    
+    // ff not found, find the first empty batch
+    if (targetBatch == -1) {
+        for (int i = 0; i < MAX_FONT_ATLASES; i++) {
+            if (m_fontBatches[i].vertexCount == 0) {
+                targetBatch = i;
+                m_fontBatches[i].textureID = textureID;
+                break;
+            }
+        }
+    }
+    
+    // if no empty batch found, use the current one
+    if (targetBatch == -1) {
+        targetBatch = m_currentFontBatchIndex;
+    }
+    
+    FontBatch *batch = &m_fontBatches[targetBatch];
+    
+    if (batch->vertexCount + 6 > MAX_TEXT_VERTICES) {
+        m_textVertices = batch->vertices;
+        m_textVertexCount = batch->vertexCount;
+        m_currentTextTexture = batch->textureID;
+        FlushTextBuffer();
+        batch->vertexCount = 0;
     }
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    FlushIfTextureChanged(textureID, true);
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    
-    float u1 = texX, v1 = texY, u2 = texX + texW, v2 = texY + texH;
-    
-    // First triangle: TL, TR, BR
-    m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, u1, v2};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y, r, g, b, a, u2, v2};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
-    
-    // Second triangle: TL, BR, BL
-    m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, u1, v2};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
-    m_triangleVertices[m_triangleVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
-}
-
-// batched text rendering function - accumulates to text buffer instead of immediate flush
-void Renderer::BatchBlitChar(unsigned int textureID, float x, float y, float w, float h, 
-                             float texX, float texY, float texW, float texH, Colour const &col) {
-    // check if we need to flush due to texture change
-    if (m_currentTextTexture != 0 && m_currentTextTexture != textureID) {
-        FlushTextBuffer();
-    }
-    
-    // check if we need to flush due to buffer full
-    if (m_textVertexCount + 6 > MAX_TEXT_VERTICES) {
-        FlushTextBuffer();
-    }
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    // set current texture for batching
-    m_currentTextTexture = textureID;
-    
     float u1 = texX, v1 = texY, u2 = texX + texW, v2 = texY + texH;
     
     // first triangle: TL, TR, BR
-    m_textVertices[m_textVertexCount++] = {x, y, r, g, b, a, u1, v2};
-    m_textVertices[m_textVertexCount++] = {x + w, y, r, g, b, a, u2, v2};
-    m_textVertices[m_textVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
+    batch->vertices[batch->vertexCount++] = {x, y, r, g, b, a, u1, v2};
+    batch->vertices[batch->vertexCount++] = {x + w, y, r, g, b, a, u2, v2};
+    batch->vertices[batch->vertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
     
-    // second triangle: TL, BR, BL
-    m_textVertices[m_textVertexCount++] = {x, y, r, g, b, a, u1, v2};
-    m_textVertices[m_textVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
-    m_textVertices[m_textVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
+    // second triangle: TL, BR, BL  
+    batch->vertices[batch->vertexCount++] = {x, y, r, g, b, a, u1, v2};
+    batch->vertices[batch->vertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
+    batch->vertices[batch->vertexCount++] = {x, y + h, r, g, b, a, u1, v1};
+    
+    m_currentFontBatchIndex = targetBatch;
+    m_textVertices = batch->vertices;
+    m_textVertexCount = batch->vertexCount;
+    m_currentTextTexture = batch->textureID;
 }
 
-void Renderer::TextSimpleBatch(float x, float y, Colour const &col, float size, const char *text) {
+// ============================================================================
+// SIMPLE TEXT RENDERING FUNCTIONS
+// ============================================================================
+
+void Renderer::Text(float x, float y, Colour const &col, float size, const char *text, ...) {   
+    char buf[1024];
+    va_list ap;
+    va_start(ap, text);
+    vsprintf(buf, text, ap);
+    TextSimple(x, y, col, size, buf);
+}
+
+void Renderer::TextCentre(float x, float y, Colour const &col, float size, const char *text, ...) {
+    char buf[1024];
+    va_list ap;
+    va_start(ap, text);
+    vsprintf(buf, text, ap);
+    float actualX = x - TextWidth(buf, size) / 2.0f;
+    TextSimple(actualX, y, col, size, buf);
+}
+
+void Renderer::TextRight(float x, float y, Colour const &col, float size, const char *text, ...) {
+    char buf[1024];
+    va_list ap;
+    va_start(ap, text);
+    vsprintf(buf, text, ap);
+    float actualX = x - TextWidth(buf, size);
+    TextSimple(actualX, y, col, size, buf);
+}
+
+void Renderer::TextSimple(float x, float y, Colour const &col, float size, const char *text) {
     BitmapFont *font = g_resource->GetBitmapFont(m_currentFontFilename);
     if (font) {
         font->SetSpacing(GetFontSpacing(m_currentFontName));
@@ -119,18 +148,47 @@ void Renderer::TextSimpleBatch(float x, float y, Colour const &col, float size, 
     if (font) {    
         font->SetHoriztonalFlip(m_horizFlip);
         font->SetFixedWidth(m_fixedWidth);
-        
-        // blend mode is handled in FlushTextBuffer, just accumulate text
-        font->DrawText2DSimpleBatch(x, y, size, text, col);
+                
+        if (m_blendMode != BlendModeSubtractive) {			
+            int blendSrc = m_blendSrcFactor, blendDst = m_blendDstFactor;
+            SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            font->DrawText2DSimple(x, y, size, text, col);
+            SetBlendFunc(blendSrc, blendDst);
+        } else {
+            font->DrawText2DSimple(x, y, size, text, col);
+        }
     }
 }
 
-void Renderer::TextCentreSimpleBatch(float x, float y, Colour const &col, float size, const char *text) {
+void Renderer::TextCentreSimple(float x, float y, Colour const &col, float size, const char *text) {
     float actualX = x - TextWidth(text, size) / 2.0f;
-    TextSimpleBatch(actualX, y, col, size, text);
+    TextSimple(actualX, y, col, size, text);
 }
 
-void Renderer::TextRightSimpleBatch(float x, float y, Colour const &col, float size, const char *text) {
+void Renderer::TextRightSimple(float x, float y, Colour const &col, float size, const char *text) {
     float actualX = x - TextWidth(text, size);
-    TextSimpleBatch(actualX, y, col, size, text);
+    TextSimple(actualX, y, col, size, text);
+}
+
+float Renderer::TextWidth(const char *text, float size) {
+    BitmapFont *font = g_resource->GetBitmapFont(m_currentFontFilename);
+    if (font) {
+        font->SetSpacing(GetFontSpacing(m_currentFontName));
+    } else {
+        font = g_resource->GetBitmapFont(m_defaultFontFilename);
+        if (font) {
+            font->SetSpacing(GetFontSpacing(m_defaultFontName));
+        }
+    }
+
+    if (!font) return -1;
+
+    font->SetHoriztonalFlip(m_horizFlip);
+    font->SetFixedWidth(m_fixedWidth);
+    return font->GetTextWidth(text, size);
+}
+
+float Renderer::TextWidth(const char *text, unsigned int textLen, float size, BitmapFont *bitmapFont) {
+    if (!bitmapFont) return -1;
+    return bitmapFont->GetTextWidth(text, textLen, size);
 }

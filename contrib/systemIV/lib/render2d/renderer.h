@@ -83,6 +83,11 @@ private:
   static const int MAX_EFFECTS_LINE_VERTICES    = 150000;
   static const int MAX_EFFECTS_SPRITE_VERTICES  = 100000;
   static const int MAX_HEALTH_BAR_VERTICES      = 50000;
+  static const int MAX_ECLIPSE_RECT_VERTICES    = 200000;
+  static const int MAX_ECLIPSE_RECTFILL_VERTICES= 300000;
+  static const int MAX_ECLIPSE_TRIANGLEFILL_VERTICES = 300000;
+  static const int MAX_ECLIPSE_LINE_VERTICES    = 200000;
+  static const int MAX_ECLIPSE_SPRITE_VERTICES  = 150000; 
 
 protected:
   char *m_defaultFontName;
@@ -130,11 +135,22 @@ protected:
   int m_uiLineVertexCount;
 
   //
-  // text/font buffer (textured with smart batching by font texture)
+  // text/font buffer, textured with font-aware batching for multiple atlases
 
-  Vertex2D m_textVertices           [MAX_TEXT_VERTICES];
-  int m_textVertexCount;
-  unsigned int m_currentTextTexture;
+  static const int MAX_FONT_ATLASES = 4;  // bitlow, kremlin, lucon, zerothre
+  
+  struct FontBatch {
+    Vertex2D vertices[MAX_TEXT_VERTICES];
+    int vertexCount;
+    unsigned int textureID;
+  };
+  
+  FontBatch m_fontBatches[MAX_FONT_ATLASES];
+  int m_currentFontBatchIndex;
+  
+  Vertex2D *m_textVertices;           // points to current font batch vertices
+  int m_textVertexCount;              // current font batch vertex count  
+  unsigned int m_currentTextTexture;  // current font batch texture ID
 
   //
   // unit rendering buffers
@@ -195,6 +211,25 @@ protected:
   int m_healthBarVertexCount;
 
   //
+  // eclipse UI primitive rendering buffers 
+
+  Vertex2D m_eclipseRectVertices    [MAX_ECLIPSE_RECT_VERTICES];
+  int m_eclipseRectVertexCount;
+
+  Vertex2D m_eclipseRectFillVertices[MAX_ECLIPSE_RECTFILL_VERTICES];
+  int m_eclipseRectFillVertexCount;
+
+  Vertex2D m_eclipseTriangleFillVertices[MAX_ECLIPSE_TRIANGLEFILL_VERTICES];
+  int m_eclipseTriangleFillVertexCount;
+
+  Vertex2D m_eclipseLineVertices    [MAX_ECLIPSE_LINE_VERTICES];
+  int m_eclipseLineVertexCount;
+
+  Vertex2D m_eclipseSpriteVertices  [MAX_ECLIPSE_SPRITE_VERTICES];
+  int m_eclipseSpriteVertexCount;
+  unsigned int m_currentEclipseSpriteTexture;
+
+  //
   // flush control, more of a global way to disable batching
 
   bool m_allowImmedateFlush;
@@ -203,6 +238,7 @@ protected:
   // line rendering state
 
   Colour m_currentLineColor;
+  Colour m_currentEclipseLineColor;
 
   //
   // line strip rendering state
@@ -293,10 +329,24 @@ protected:
   void FlushEffectsCircleOutlinesThick();
 
   //
+  // eclipse UI primitive flush methods
+  
+  void FlushEclipseRects();
+  void FlushEclipseRectFills();
+  void FlushEclipseTriangleFills();
+  void FlushEclipseLines();
+  void FlushEclipseSprites();
+
+  //
   // buffer overflow management
 
   void FlushEffectsLinesIfFull      (int segmentsNeeded);
   void FlushEffectsRectsIfFull      (int segmentsNeeded);
+  void FlushEclipseRectsIfFull      (int segmentsNeeded);
+  void FlushEclipseRectFillsIfFull  (int verticesNeeded);
+  void FlushEclipseTriangleFillsIfFull(int verticesNeeded);
+  void FlushEclipseLinesIfFull      (int segmentsNeeded);
+  void FlushEclipseSpritesIfFull    (int verticesNeeded);
   void FlushUnitStateIconsIfFull    (int verticesNeeded);
   void FlushUnitNukeIconsIfFull     (int verticesNeeded);
   void FlushUnitRotatingIfFull      (int verticesNeeded);
@@ -360,7 +410,43 @@ public:
   void BeginUIBatch();
   void EndUIBatch();
   
+  //
+  // eclipse UI primitive batching system
+  
+  void BeginEclipseRectBatch();
+  void EndEclipseRectBatch();
+  void BeginEclipseRectFillBatch();
+  void EndEclipseRectFillBatch();
+  void BeginEclipseTriangleFillBatch();
+  void EndEclipseTriangleFillBatch();
+  void BeginEclipseLineBatch();
+  void EndEclipseLineBatch();
+  void BeginEclipseSpriteBatch();
+  void EndEclipseSpriteBatch();
+  
+  //
+  // eclipse primitive rendering (non-textured)
+
+  void EclipseRect(float x, float y, float w, float h, Colour const &col, float lineWidth = 1.0f);
+  void EclipseRectFill(float x, float y, float w, float h, Colour const &col);
+  void EclipseRectFill(float x, float y, float w, float h, Colour const &colTL, Colour const &colTR, 
+                       Colour const &colBR, Colour const &colBL);
+  void EclipseRectFill(float x, float y, float w, float h, Colour const &col1, 
+                       Colour const &col2, bool horizontal);
+
+  void EclipseTriangleFill(float x1, float y1, float x2, float y2, float x3, float y3, Colour const &col);
+  void EclipseTriangleFill(float x1, float y1, float x2, float y2, float x3, float y3, 
+                          Colour const &col1, Colour const &col2, Colour const &col3);
+
+  void EclipseLine(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth = 1.0f);
+  
+  void BeginEclipseLines(Colour const &col, float lineWidth);
+  void EclipseLine(float x, float y);
+  void EndEclipseLines();
+  
+  //
   // Eclipse sprite rendering (textured)
+  
   void EclipseSprite(Image *src, float x, float y, float w, float h, Colour const &col);
   void EclipseSprite(Image *src, float x, float y, float w, float h, Colour const &col, float angle);
 
@@ -387,6 +473,11 @@ public:
   int m_effectsCircleOutlineCalls;
   int m_effectsCircleOutlineThickCalls;
   int m_healthBarCalls;
+  int m_eclipseRectCalls;
+  int m_eclipseRectFillCalls;
+  int m_eclipseTriangleFillCalls;
+  int m_eclipseLineCalls;
+  int m_eclipseSpriteCalls;
   int m_prevDrawCallsPerFrame;
   int m_prevLegacyTriangleCalls;
   int m_prevLegacyLineCalls;
@@ -407,6 +498,11 @@ public:
   int m_prevEffectsCircleOutlineCalls;
   int m_prevEffectsCircleOutlineThickCalls;
   int m_prevHealthBarCalls;
+  int m_prevEclipseRectCalls;
+  int m_prevEclipseRectFillCalls;
+  int m_prevEclipseTriangleFillCalls;
+  int m_prevEclipseLineCalls;
+  int m_prevEclipseSpriteCalls;
 
   //
   // start over
@@ -437,6 +533,11 @@ public:
   int GetEffectsCircleOutlineCalls () const { return m_prevEffectsCircleOutlineCalls; }
   int GetEffectsCircleOutlineThickCalls () const { return m_prevEffectsCircleOutlineThickCalls; }
   int GetHealthBarCalls         () const { return m_prevHealthBarCalls; }
+  int GetEclipseRectCalls       () const { return m_prevEclipseRectCalls; }
+  int GetEclipseRectFillCalls   () const { return m_prevEclipseRectFillCalls; }
+  int GetEclipseTriangleFillCalls() const { return m_prevEclipseTriangleFillCalls; }
+  int GetEclipseLineCalls       () const { return m_prevEclipseLineCalls; }
+  int GetEclipseSpriteCalls     () const { return m_prevEclipseSpriteCalls; }
 
   //
   // combined draw call counters
@@ -522,12 +623,6 @@ public:
                                  const char *text);
   void TextRightSimple          (float x, float y, Colour const &col, float size,
                                  const char *text);
-  void TextSimpleBatch          (float x, float y, Colour const &col, float size,
-                                 const char *text);
-  void TextCentreSimpleBatch    (float x, float y, Colour const &col, float size,
-                                 const char *text);
-  void TextRightSimpleBatch     (float x, float y, Colour const &col, float size,
-                                 const char *text);
 
   float TextWidth               (const char *text, float size);
   float TextWidth               (const char *text, unsigned int textLen, float size,
@@ -594,12 +689,10 @@ public:
   void BlitChar                 (unsigned int textureID, float x, float y, float w, float h,
                                  float texX, float texY, float texW, float texH,
                                  Colour const &col);
-  void BatchBlitChar            (unsigned int textureID, float x, float y, float w, float h,
-                                 float texX, float texY, float texW, float texH,
-                                 Colour const &col);
 
   void BeginTextBatch();
   void EndTextBatch();
+  void FlushTextBufferIfFull    (int charactersNeeded);
 
   //
   // map-specific text batching methods

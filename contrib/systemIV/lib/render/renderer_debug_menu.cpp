@@ -47,16 +47,30 @@ RendererDebugMenu::~RendererDebugMenu()
 
 void RendererDebugMenu::Update(double frameTime)
 {
-    // Update frame time history for smoothed averages
+    //
+    // update frame time history for smoothed averages
+
     m_frameTimeHistory[m_frameTimeIndex] = frameTime;
     m_frameTimeIndex = (m_frameTimeIndex + 1) % FRAME_TIME_HISTORY_SIZE;
     
-    // Calculate rolling average
+    //
+    // calculate rolling average
+
     double sum = 0.0;
+    int validFrames = 0;
     for (int i = 0; i < FRAME_TIME_HISTORY_SIZE; i++) {
-        sum += m_frameTimeHistory[i];
+        if (m_frameTimeHistory[i] > 0.0) {
+            sum += m_frameTimeHistory[i];
+            validFrames++;
+        }
     }
-    m_averageFrameTime = sum / FRAME_TIME_HISTORY_SIZE;
+    
+    //
+    // only update average if we have valid frames
+
+    if (validFrames > 0) {
+        m_averageFrameTime = sum / validFrames;
+    }
 }
 
 void RendererDebugMenu::RenderDebugMenu()
@@ -104,7 +118,8 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     int unitStateIconCalls, unitCounterCalls, unitNukeIconCalls;
     int effectsLineCalls, effectsRectCalls, effectsSpriteCalls;
     int effectsCircleFillCalls, effectsCircleOutlineCalls, effectsCircleOutlineThickCalls;
-    int totalUnitCalls, totalEffectCalls, totalSpecializedCalls;
+    int eclipseRectCalls, eclipseRectFillCalls, eclipseTriangleFillCalls, eclipseLineCalls, eclipseSpriteCalls;
+    int totalUnitCalls, totalEffectCalls;
     
     if (is3DMode && g_renderer3d) {
         totalDrawCalls = g_renderer3d->GetTotalDrawCalls() + m_renderer->GetTotalDrawCalls();
@@ -126,9 +141,13 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
         effectsCircleFillCalls = m_renderer->GetEffectsCircleFillCalls();
         effectsCircleOutlineCalls = m_renderer->GetEffectsCircleOutlineCalls();
         effectsCircleOutlineThickCalls = m_renderer->GetEffectsCircleOutlineThickCalls();
+        eclipseRectCalls = m_renderer->GetEclipseRectCalls();
+        eclipseRectFillCalls = m_renderer->GetEclipseRectFillCalls();
+        eclipseTriangleFillCalls = m_renderer->GetEclipseTriangleFillCalls();
+        eclipseLineCalls = m_renderer->GetEclipseLineCalls();
+        eclipseSpriteCalls = m_renderer->GetEclipseSpriteCalls();
         totalUnitCalls = g_renderer3d->GetTotalUnitCalls();
         totalEffectCalls = g_renderer3d->GetTotalEffectCalls();
-        totalSpecializedCalls = g_renderer3d->GetTotalSpecializedCalls() + m_renderer->GetUITriangleCalls() + m_renderer->GetUILineCalls() + m_renderer->GetTextCalls();
     } else {
         // 2d map renderer scene only
         totalDrawCalls = m_renderer->GetTotalDrawCalls();
@@ -150,9 +169,13 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
         effectsCircleFillCalls = m_renderer->GetEffectsCircleFillCalls();
         effectsCircleOutlineCalls = m_renderer->GetEffectsCircleOutlineCalls();
         effectsCircleOutlineThickCalls = m_renderer->GetEffectsCircleOutlineThickCalls();
+        eclipseRectCalls = m_renderer->GetEclipseRectCalls();
+        eclipseRectFillCalls = m_renderer->GetEclipseRectFillCalls();
+        eclipseTriangleFillCalls = m_renderer->GetEclipseTriangleFillCalls();
+        eclipseLineCalls = m_renderer->GetEclipseLineCalls();
+        eclipseSpriteCalls = m_renderer->GetEclipseSpriteCalls();
         totalUnitCalls = m_renderer->GetTotalUnitCalls();
         totalEffectCalls = m_renderer->GetTotalEffectCalls();
-        totalSpecializedCalls = m_renderer->GetTotalSpecializedCalls();
     }
     
     // Total draw calls header
@@ -160,27 +183,27 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     m_renderer->TextSimple(25, yPos, Colour(255, 255, 255, 255), 12.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Legacy immediate mode buffers (RED - performance issues)
+    // Legacy immediate mode buffers 
     m_renderer->TextSimple(25, yPos, Colour(255, 100, 100, 255), 11.0f, "Immediate Mode:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Triangles: %d  Lines: %d", 
              legacyTriangleCalls, legacyLineCalls);
     m_renderer->TextSimple(indentLarge, yPos, Colour(255, 100, 100, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Core UI buffers (GREEN - optimized) - KEEP EXACT SAME LAYOUT
+    // Core UI buffers 
     m_renderer->TextSimple(25, yPos, Colour(100, 255, 100, 255), 11.0f, "UI Buffers:");
-    snprintf(statsBuffer, sizeof(statsBuffer), "Triangles: %d  Lines: %d  Text: %d", 
-             uiTriangleCalls, uiLineCalls, textCalls);
-    m_renderer->TextSimple(175, yPos, Colour(100, 255, 100, 255), 11.0f, statsBuffer);
+    snprintf(statsBuffer, sizeof(statsBuffer), "Sprites: %d TriangleFill: %d Text: %d  Rects: %d  RectFill: %d Lines: %d", 
+             eclipseSpriteCalls, eclipseTriangleFillCalls, textCalls, eclipseRectCalls, eclipseRectFillCalls, eclipseLineCalls);
+    m_renderer->TextSimple(100, yPos, Colour(100, 255, 100, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Unit rendering specialized buffers (BLUE - new system)
+    // Unit rendering buffers
     m_renderer->TextSimple(25, yPos, Colour(100, 150, 255, 255), 11.0f, "Unit Rendering Buffers:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Total: %d", totalUnitCalls);
     m_renderer->TextSimple(indentLarge, yPos, Colour(100, 150, 255, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Unit buffer details (indented)
+    // Unit buffer details 
     snprintf(statsBuffer, sizeof(statsBuffer), "  Trails: %d  Static: %d  Rotating: %d  Highlights: %d", 
              unitTrailCalls, unitMainSpriteCalls, 
              unitRotatingCalls, unitHighlightCalls);
@@ -193,7 +216,7 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     m_renderer->TextSimple(indentSmall, yPos, Colour(120, 170, 255, 255), 10.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Effects rendering specialized buffers
+    // Effects rendering buffers
     m_renderer->TextSimple(25, yPos, Colour(255, 255, 100, 255), 11.0f, "Effects Buffers:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Total: %d", totalEffectCalls);
     m_renderer->TextSimple(indentLarge, yPos, Colour(255, 255, 100, 255), 11.0f, statsBuffer);
@@ -211,12 +234,18 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     m_renderer->TextSimple(indentSmall, yPos, Colour(255, 255, 120, 255), 10.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Performance summary (CYAN - analysis)
+    // Performance summary
     int legacyTotal = legacyTriangleCalls + legacyLineCalls;
+    int eclipseUITotal = eclipseSpriteCalls + eclipseTriangleFillCalls + textCalls + eclipseRectCalls + eclipseRectFillCalls + eclipseLineCalls;
+    int batchedTotal = totalUnitCalls + totalEffectCalls + eclipseUITotal;
+    
     m_renderer->TextSimple(25, yPos, Colour(100, 255, 255, 255), 11.0f, "Conclusion:");
-    snprintf(statsBuffer, sizeof(statsBuffer), "Batched: %d  Legacy: %d", 
-             totalSpecializedCalls, legacyTotal);
-    m_renderer->TextSimple(indentLarge, yPos, Colour(100, 255, 255, 255), 11.0f, statsBuffer);
+    yPos += lineHeight;
+    
+    snprintf(statsBuffer, sizeof(statsBuffer), "  Batched: %d  Legacy: %d", 
+             batchedTotal, legacyTotal);
+    m_renderer->TextSimple(35, yPos, Colour(100, 255, 255, 255), 11.0f, statsBuffer);
+    yPos += 14.0f;
     yPos += lineHeight;
     
 }
@@ -237,13 +266,22 @@ void RendererDebugMenu::RenderSystemInformation(float& yPos)
         m_renderer->TextSimple(25, yPos, Colour(255, 200, 100, 255), 12.0f, "Frame Times:");
         yPos += lineHeight;
         
-        snprintf(infoBuffer, sizeof(infoBuffer), "  Average Frame Time: %.2f ms", m_averageFrameTime * 1000.0);
-        m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
-        yPos += 14.0f;
-        
-        double fps = m_averageFrameTime > 0.0 ? 1.0 / m_averageFrameTime : 0.0;
-        snprintf(infoBuffer, sizeof(infoBuffer), "  Average FPS: %.1f", fps);
-        m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
+        if (m_averageFrameTime > 0.0) {
+            snprintf(infoBuffer, sizeof(infoBuffer), "  Average Frame Time: %.2f ms", m_averageFrameTime * 1000.0);
+            m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
+            yPos += 14.0f;
+            
+            double fps = 1.0 / m_averageFrameTime;
+            snprintf(infoBuffer, sizeof(infoBuffer), "  Average FPS: %.1f", fps);
+            m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
+        } else {
+            snprintf(infoBuffer, sizeof(infoBuffer), "  Frame Time: Collecting data...");
+            m_renderer->TextSimple(35, yPos, Colour(255, 255, 100, 255), 11.0f, infoBuffer);
+            yPos += 14.0f;
+            
+            snprintf(infoBuffer, sizeof(infoBuffer), "  FPS: Collecting data...");
+            m_renderer->TextSimple(35, yPos, Colour(255, 255, 100, 255), 11.0f, infoBuffer);
+        }
         yPos += lineHeight;
     }
     

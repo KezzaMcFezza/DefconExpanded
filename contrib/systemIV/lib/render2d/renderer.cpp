@@ -172,6 +172,8 @@ Renderer::Renderer()
       m_allowImmedateFlush(true) {
       m_uiTriangleVertexCount = 0;
       m_uiLineVertexCount = 0;
+      m_currentFontBatchIndex = 0;
+      m_textVertices = m_fontBatches[0].vertices;
       m_textVertexCount = 0;
       m_currentTextTexture = 0;
       m_unitTrailVertexCount = 0;
@@ -192,6 +194,11 @@ Renderer::Renderer()
       m_effectsSpriteVertexCount = 0;
       m_currentEffectsSpriteTexture = 0;
       m_healthBarVertexCount = 0;
+      m_eclipseRectVertexCount = 0;
+      m_eclipseRectFillVertexCount = 0;
+      m_eclipseLineVertexCount = 0;
+      m_eclipseSpriteVertexCount = 0;
+      m_currentEclipseSpriteTexture = 0;
       m_drawCallsPerFrame = 0;
       m_legacyTriangleCalls = 0;
       m_legacyLineCalls = 0;
@@ -209,6 +216,11 @@ Renderer::Renderer()
       m_effectsRectCalls = 0;
       m_effectsSpriteCalls = 0;
       m_healthBarCalls = 0;
+      m_eclipseRectCalls = 0;
+      m_eclipseRectFillCalls = 0;
+      m_eclipseTriangleFillCalls = 0;
+      m_eclipseLineCalls = 0;
+      m_eclipseSpriteCalls = 0;
       m_prevDrawCallsPerFrame = 0;
       m_prevLegacyTriangleCalls = 0;
       m_prevLegacyLineCalls = 0;
@@ -226,8 +238,19 @@ Renderer::Renderer()
       m_prevEffectsRectCalls = 0;
       m_prevEffectsSpriteCalls = 0;
       m_prevHealthBarCalls = 0;
+      m_prevEclipseRectCalls = 0;
+      m_prevEclipseRectFillCalls = 0;
+      m_prevEclipseTriangleFillCalls = 0;
+      m_prevEclipseLineCalls = 0;
+      m_prevEclipseSpriteCalls = 0;
+
+      // Initialize font-aware batching system
+      for (int i = 0; i < MAX_FONT_ATLASES; i++) {
+          m_fontBatches[i].vertexCount = 0;
+          m_fontBatches[i].textureID = 0;
+      }
     
-    // Initialize OpenGL components
+      // Initialize OpenGL components
       InitializeShaders();
       SetupVertexArrays();
     
@@ -343,6 +366,14 @@ void Renderer::Shutdown() {
 // ============================================================================
 
 void Renderer::SetBlendMode(int _blendMode) {
+    
+    //
+    // flush any pending EclipseSprites to preserve blend mode
+    
+    if (m_blendMode != _blendMode && m_eclipseSpriteVertexCount > 0) {
+        FlushEclipseSprites();
+    }
+    
     m_blendMode = _blendMode;
     
     switch (_blendMode) {
@@ -978,6 +1009,11 @@ void Renderer::ResetFrameCounters() {
     m_prevEffectsCircleOutlineCalls = m_effectsCircleOutlineCalls;
     m_prevEffectsCircleOutlineThickCalls = m_effectsCircleOutlineThickCalls;
     m_prevHealthBarCalls = m_healthBarCalls;
+    m_prevEclipseRectCalls = m_eclipseRectCalls;
+    m_prevEclipseRectFillCalls = m_eclipseRectFillCalls;
+    m_prevEclipseTriangleFillCalls = m_eclipseTriangleFillCalls;
+    m_prevEclipseLineCalls = m_eclipseLineCalls;
+    m_prevEclipseSpriteCalls = m_eclipseSpriteCalls;
     
     //
     // reset current frame counters
@@ -1002,6 +1038,11 @@ void Renderer::ResetFrameCounters() {
     m_effectsCircleOutlineCalls = 0;
     m_effectsCircleOutlineThickCalls = 0;
     m_healthBarCalls = 0;
+    m_eclipseRectCalls = 0;
+    m_eclipseRectFillCalls = 0;
+    m_eclipseTriangleFillCalls = 0;
+    m_eclipseLineCalls = 0;
+    m_eclipseSpriteCalls = 0;
 }
 
 //
@@ -1048,5 +1089,15 @@ void Renderer::IncrementDrawCall(const char* bufferType) {
         m_effectsCircleOutlineThickCalls++;
     } else if (strcmp(bufferType, "health_bars") == 0) {
         m_healthBarCalls++;
+    } else if (strcmp(bufferType, "eclipse_rects") == 0) {
+        m_eclipseRectCalls++;
+    } else if (strcmp(bufferType, "eclipse_rectfills") == 0) {
+        m_eclipseRectFillCalls++;
+    } else if (strcmp(bufferType, "eclipse_trianglefills") == 0) {
+        m_eclipseTriangleFillCalls++;
+    } else if (strcmp(bufferType, "eclipse_lines") == 0) {
+        m_eclipseLineCalls++;
+    } else if (strcmp(bufferType, "eclipse_sprites") == 0) {
+        m_eclipseSpriteCalls++;
     }
 }
