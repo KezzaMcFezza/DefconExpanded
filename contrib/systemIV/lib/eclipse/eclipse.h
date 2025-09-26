@@ -11,6 +11,7 @@
 #ifndef _included_eclipse_h
 #define _included_eclipse_h
 
+#include <stddef.h>  
 #include "eclwindow.h"
 #include "eclbutton.h"
 

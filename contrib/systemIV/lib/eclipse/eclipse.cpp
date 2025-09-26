@@ -9,9 +9,11 @@
 #include "lib/hi_res_time.h"
 #include "lib/debug_utils.h"
 #include "lib/profiler.h"
+#include "lib/render2d/renderer.h"
 
 #include "eclipse.h"
 
+extern Renderer *g_renderer;
 
 // ============================================================================
 
@@ -300,6 +302,12 @@ void EclRegisterTooltipCallback ( void (*_callback) (EclWindow *, EclButton *, f
 void EclRender ()
 {
 
+    //
+    // this triple batching system might look strange but it actually has a purpose
+    // it means that each window contains it own batched context. so nothing outside
+    // of that window can interfere with its rendering. it works well for 90 percent
+    // of the codebase but some places needed micro batches
+
     bool maximiseRender = false;
 
     //
@@ -310,7 +318,26 @@ void EclRender ()
         EclWindow *maximised = EclGetWindow( maximisedWindow );
         if( maximised )
         {
+            //
+            // begin all batches for the maximized window
+
+            g_renderer->BeginEclipseRectBatch();
+            g_renderer->BeginEclipseLineBatch();
+            g_renderer->BeginTextBatch();
+            g_renderer->BeginEclipseTriangleFillBatch();
+            g_renderer->BeginEclipseRectFillBatch();
+
             maximised->Render( true );
+
+            //
+            // now end all batches in correct z-order 
+            
+            g_renderer->EndEclipseRectFillBatch();
+            g_renderer->EndEclipseTriangleFillBatch();
+            g_renderer->EndEclipseLineBatch();
+            g_renderer->EndEclipseRectBatch();
+            g_renderer->EndTextBatch();   
+
             maximiseRender = true;
         }
         else
@@ -321,13 +348,38 @@ void EclRender ()
 
     if( !maximiseRender )
     {
+        //
+        // windows are stored back to front, so render from back to front...
+
         for ( int i = windows.Size() - 1; i >= 0; --i )
         {
             EclWindow *window = windows.GetData(i);
             bool hasFocus = ( strcmp ( window->m_name, windowFocus ) == 0 );
             
             START_PROFILE( window->m_name );
+
+            //
+            // begin
+
+            g_renderer->BeginEclipseRectBatch();
+            g_renderer->BeginEclipseLineBatch();
+            g_renderer->BeginTextBatch();
+            g_renderer->BeginEclipseTriangleFillBatch();
+            g_renderer->BeginEclipseRectFillBatch();
+            g_renderer->BeginEclipseSpriteBatch();
+
             window->Render( hasFocus );
+
+            //
+            // end it
+
+            g_renderer->EndEclipseRectFillBatch();  
+            g_renderer->EndEclipseTriangleFillBatch();
+            g_renderer->EndEclipseSpriteBatch();          
+            g_renderer->EndEclipseLineBatch();     
+            g_renderer->EndEclipseRectBatch();  
+            g_renderer->EndTextBatch();     
+
             END_PROFILE( window->m_name );
         }
     }
@@ -344,8 +396,26 @@ void EclRender ()
             {
                 if( button )
                 {
+                    //
+                    // begin
+
+                    g_renderer->BeginEclipseRectBatch();
+                    g_renderer->BeginEclipseLineBatch();
+                    g_renderer->BeginTextBatch();
+                    g_renderer->BeginEclipseTriangleFillBatch();
+                    g_renderer->BeginEclipseRectFillBatch();
+
                     float timer = GetHighResTime() - tooltipTimer;
                     tooltipCallback( window, button, timer );
+
+                    //
+                    // end it
+
+                    g_renderer->EndEclipseRectFillBatch();
+                    g_renderer->EndEclipseTriangleFillBatch();
+                    g_renderer->EndEclipseLineBatch();
+                    g_renderer->EndEclipseRectBatch();
+                    g_renderer->EndTextBatch();
                 }
             }
         }
