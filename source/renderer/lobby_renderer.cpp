@@ -107,6 +107,8 @@ void LobbyRenderer::Render()
 {
     START_PROFILE( "LobbyRenderer" );
 
+    g_renderer->BeginTextBatch();
+
     if( g_languageTable->m_lang && ( !m_lastLanguage || stricmp( g_languageTable->m_lang->m_name, m_lastLanguage ) != 0 ) )
     {
         if( m_lastLanguage )
@@ -146,21 +148,37 @@ void LobbyRenderer::Render()
         END_PROFILE( "Test Hours" );
     #endif
 
+    g_renderer->BeginEclipseRectBatch();
+    g_renderer->BeginEclipseRectFillBatch();
+
     START_PROFILE( "VersionInfo" );
     RenderVersionInfo();
     END_PROFILE( "VersionInfo" );
+
+    g_renderer->EndEclipseRectFillBatch();
+    g_renderer->EndEclipseRectBatch();
+
 #if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN)
+
     START_PROFILE( "AuthStatus" );
     RenderAuthStatus();
     END_PROFILE( "AuthStatus" );
+
+    g_renderer->BeginEclipseRectBatch();
+    g_renderer->BeginEclipseRectFillBatch();
+
     START_PROFILE( "Motd" );
     RenderMotd();
     END_PROFILE( "Motd" );
+
+    g_renderer->EndEclipseRectFillBatch();
+    g_renderer->EndEclipseRectBatch();
+
     START_PROFILE( "DemoLimits" );
     RenderDemoLimits();
     END_PROFILE( "DemoLimits" );
-#endif
 
+#endif
 
     //RenderNetworkIdentity();
 
@@ -169,13 +187,20 @@ void LobbyRenderer::Render()
 #if TARGET_EMSCRIPTEN
         // Disable lobby overlays completely for replay mode
 #else
+        g_renderer->BeginEclipseRectFillBatch();
+
         START_PROFILE( "Overlay" );
         RenderOverlay();
         END_PROFILE( "Overlay" );
+
+        g_renderer->EndEclipseRectFillBatch();
 #endif
     }
 
+    g_renderer->EndTextBatch();
+
     END_PROFILE( "LobbyRenderer" );
+
 }
 
 
@@ -238,7 +263,6 @@ void LobbyRenderer::RenderTitle()
 #endif
 
     g_renderer->SetFont();
-
 }
 
 
@@ -393,7 +417,7 @@ void LobbyRenderer::RenderOverlay()
                     cursor = true;
                     if( lastLineChars != -1 || fmod(timeNow,1.0f) < 0.5f )
                     {
-                        g_renderer->RectFill( xPos+g_renderer->TextWidth(thisLineCopyP, fontSize)+5,
+                        g_renderer->EclipseRectFill( xPos+g_renderer->TextWidth(thisLineCopyP, fontSize)+5,
                                               yPos, 10, 15, Colour(0,255,0,255) );
                     }
                 }
@@ -421,24 +445,32 @@ void LobbyRenderer::RenderBorder()
 
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
-    g_renderer->RectFill( 0, 0, windowW, borderSize, fillCol );
-    g_renderer->RectFill( 0, windowH-borderSize, windowW, borderSize, fillCol );
-    g_renderer->RectFill( 0, borderSize, borderSize, windowH-borderSize*2, fillCol );
-    g_renderer->RectFill( windowW-borderSize, borderSize, borderSize, windowH-borderSize*2, fillCol );
+    g_renderer->BeginEclipseRectFillBatch();
 
-    g_renderer->BeginLines( lineCol, 1 );
-    g_renderer->Line( borderSize, borderSize );
-    g_renderer->Line( windowW-borderSize, borderSize );
-    g_renderer->Line( windowW-borderSize, windowH-borderSize );
-    g_renderer->Line( borderSize, windowH-borderSize );
-    g_renderer->Line( borderSize, borderSize );
-    g_renderer->EndLines();
+    g_renderer->EclipseRectFill( 0, 0, windowW, borderSize, fillCol );
+    g_renderer->EclipseRectFill( 0, windowH-borderSize, windowW, borderSize, fillCol );
+    g_renderer->EclipseRectFill( 0, borderSize, borderSize, windowH-borderSize*2, fillCol );
+    g_renderer->EclipseRectFill( windowW-borderSize, borderSize, borderSize, windowH-borderSize*2, fillCol );
+
+    g_renderer->EndEclipseRectFillBatch();
+
+    g_renderer->BeginEclipseLineBatch();
+
+    g_renderer->BeginEclipseLines( lineCol, 1 );
+    g_renderer->EclipseLine( borderSize, borderSize );
+    g_renderer->EclipseLine( windowW-borderSize, borderSize );
+    g_renderer->EclipseLine( windowW-borderSize, windowH-borderSize );
+    g_renderer->EclipseLine( borderSize, windowH-borderSize );
+    g_renderer->EclipseLine( borderSize, borderSize );
+    g_renderer->EndEclipseLines();
+
+    g_renderer->EndEclipseLineBatch();
 }
 
 void LobbyRenderer::RenderVersionInfo()
 {
 #if defined(REPLAY_VIEWER_DESKTOP) || defined(TARGET_EMSCRIPTEN)
-    char currentVersion[256] = "BETA" "  " "1.98";
+    char currentVersion[256] = "RELEASE" "  " "1.0";
 #else
     char currentVersion[256] = APP_NAME "  " APP_VERSION;
 #endif
@@ -500,8 +532,8 @@ void LobbyRenderer::RenderVersionInfo()
 
                 if( mouseInArea )
                 {
-                    g_renderer->RectFill( xPos, yPos, areaWidth, 45, Colour(0,255,0,20) );
-                    g_renderer->Rect( xPos, yPos, areaWidth, 45, fontBold );
+                    g_renderer->EclipseRectFill( xPos, yPos, areaWidth, 45, Colour(0,255,0,20) );
+                    g_renderer->EclipseRect( xPos, yPos, areaWidth, 45, fontBold );
 
                     if( g_inputManager->m_lmbUnClicked )
                     {
@@ -527,7 +559,7 @@ void LobbyRenderer::RenderVersionInfo()
         delete latestVersion;
 		if ( updateUrlDir )
 			delete updateUrlDir;
-    }
+    } 
 }
 
 #if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN)
@@ -580,8 +612,8 @@ void LobbyRenderer::RenderMotd()
         static float boxY = 99999;
         float boxH = g_windowManager->WindowH() - 60 - boxY;
         float boxW = 350;
-        g_renderer->RectFill( boxX, boxY, boxW, boxH, fillCol );
-        g_renderer->Rect( boxX, boxY, boxW, boxH, lineCol );
+        g_renderer->EclipseRectFill( boxX, boxY, boxW, boxH, fillCol );
+        g_renderer->EclipseRect( boxX, boxY, boxW, boxH, lineCol );
 
 		char *fullString = motd->GetDataString( NET_METASERVER_DATA_MOTD );
         g_renderer->SetFont("zerothre");
