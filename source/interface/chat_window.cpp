@@ -324,9 +324,6 @@ void ChatWindow::RenderTeams()
         //
         // Players
         //
-        // Begin text batching for all team and spectator names
-        //
-        g_renderer->BeginTextBatch();
 
         for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
         {
@@ -348,7 +345,7 @@ void ChatWindow::RenderTeams()
                     mouseY > y - 2 &&
                     mouseY < y + 15 )
                 {
-                    g_renderer->RectFill( x, y - 2, width + 6, 15, Colour(50,50,150,200));
+                    g_renderer->EclipseRectFill( x, y - 2, width + 6, 15, Colour(50,50,150,200));
                     if( g_inputManager->m_lmbUnClicked )
                     {
                         m_channel = team->m_teamId;
@@ -357,7 +354,7 @@ void ChatWindow::RenderTeams()
 
                 if( m_channel == team->m_teamId )
                 {
-                    g_renderer->RectFill( x, y - 2, width + 6, 15, Colour(150,150,150,100));
+                    g_renderer->EclipseRectFill( x, y - 2, width + 6, 15, Colour(150,150,150,100));
                 }
 
                 Colour col = team->GetTeamColour();
@@ -373,11 +370,11 @@ void ChatWindow::RenderTeams()
 					strcpy ( &name[8], "..." );
 				}
 				
-                g_renderer->TextSimpleBatch( x, y, col, 14.0f, name );
+                g_renderer->TextSimple( x, y, col, 14.0f, name );
 
                 if( !g_app->GetWorld()->IsChatMessageVisible( team->m_teamId, m_channel, false ) )
                 {
-                    g_renderer->Line( x, y+6, x+width, y+6, Colour(255,255,255,100) );
+                    g_renderer->EclipseLine( x, y+6, x+width, y+6, Colour(255,255,255,100) );
                 }
 
                 y+= 16;
@@ -391,7 +388,7 @@ void ChatWindow::RenderTeams()
         if( g_app->GetWorld()->m_spectators.Size() > 0 )
         {
             y += 15;
-            g_renderer->TextSimpleBatch( x, y, Colour(255,255,255,255*m_alpha), 12, LANGUAGEPHRASE("dialog_chat_spectators") );
+            g_renderer->TextSimple( x, y, Colour(255,255,255,255*m_alpha), 12, LANGUAGEPHRASE("dialog_chat_spectators") );
             y += 13;
 
             for( int i = 0; i < g_app->GetWorld()->m_spectators.Size(); ++i )
@@ -405,19 +402,25 @@ void ChatWindow::RenderTeams()
                 col.m_a *= m_alpha;
 
                 Spectator *spec = g_app->GetWorld()->m_spectators[i];
-                g_renderer->TextSimpleBatch( x, y, col, 10, spec->m_name );
+                char specName[64];
+                strncpy(specName, spec->m_name, sizeof(specName));
+                specName[sizeof(specName) - 1] = '\0';
+                
+                if ( strlen(specName) >= 13 )
+                {
+                    strcpy ( &specName[11], "..." );
+                }
+                
+                g_renderer->TextSimple( x, y, col, 10, specName );
 
                 if( m_channel < CHATCHANNEL_PUBLIC )
                 {
-                    g_renderer->Line( x, y+5, x+70, y+5, Colour(255,255,255,100) );
+                    g_renderer->EclipseLine( x, y+5, x+70, y+5, Colour(255,255,255,100) );
                 }
 
                 y += 11;
             }
         }
-        
-        // end it
-        g_renderer->EndTextBatch();
     }
 }
 
@@ -459,8 +462,6 @@ void ChatWindow::RenderMessages()
     
     int extraLines = 0;
 
-    // text batching for all chat messages, channel names, and player names
-    g_renderer->BeginTextBatch();
 
     for( int i = 0; i <= g_app->GetWorld()->m_chat.Size(); i++ )
     {
@@ -536,9 +537,22 @@ void ChatWindow::RenderMessages()
                     xPos += teamW;
                 }
                 
-                if( y >= 0 && y <= g_windowManager->WindowH() )
+                EclButton *clipButton = GetButton("Invert");
+                int clipTop = m_y + clipButton->m_y;
+                int clipBottom = m_y + clipButton->m_y + clipButton->m_h;
+                
+                //
+                // use the same bounds as the SetClip call
+                
+                if( m_minimised )
                 {
-                    g_renderer->TextSimpleBatch( xPos, y, teamCol, 12, wrapped[w] );
+                    clipTop = m_y + m_h - 200;
+                    clipBottom = m_y + m_h;
+                }
+                
+                if( clipButton && y >= clipTop && y <= clipBottom )
+                {
+                    g_renderer->TextSimple( xPos, y, teamCol, 12, wrapped[w] );
                 }
                 if( w>0) y -= h;
             }
@@ -547,16 +561,26 @@ void ChatWindow::RenderMessages()
 
             if( done )
             {                
-                if( channelName[0] != '\x0' )
+                EclButton *clipButton = GetButton("Invert");
+                int clipTop = m_y + clipButton->m_y;
+                int clipBottom = m_y + clipButton->m_y + clipButton->m_h;
+                
+                if( m_minimised )
                 {
-                    g_renderer->TextSimpleBatch( x, y, White, 12, channelName );
+                    clipTop = m_y + m_h - 200;
+                    clipBottom = m_y + m_h;
+                }
+                
+                if( channelName[0] != '\x0' && clipButton && y >= clipTop && y <= clipBottom )
+                {
+                    g_renderer->TextSimple( x, y, White, 12, channelName );
                     textX += channelNameTextWidth;
                     textX += 5;
                 }
 
-                if( !action )
+                if( !action && clipButton && y >= clipTop && y <= clipBottom )
                 {
-                    g_renderer->TextSimpleBatch( textX, y, teamCol, 12, chatMsg->m_playerName );                
+                    g_renderer->TextSimple( textX, y, teamCol, 12, chatMsg->m_playerName );                
                 }
             
                 y -=h;
@@ -564,8 +588,6 @@ void ChatWindow::RenderMessages()
         }
     }
 
-    // end it
-    g_renderer->EndTextBatch();
     g_renderer->ResetClip();
     
     if( g_keys[KEY_ENTER] && g_keyDeltas[KEY_ENTER])
@@ -640,12 +662,10 @@ void ChatWindow::Render( bool _hasFocus )
     if( strlen(m_message) < 1 )
     {
         EclButton *input = GetButton("Msg");
-        g_renderer->BeginTextBatch();
-        g_renderer->TextSimpleBatch( m_x + input->m_x + 5, 
+        g_renderer->TextSimple( m_x + input->m_x + 5, 
                                     m_y + input->m_y + 3 ,
                                     Colour(255,255,255,50),
                                     14, GetChannelName(m_channel,true) );
-        g_renderer->EndTextBatch();
     }
 }
 
@@ -669,7 +689,7 @@ void ChatInputField::Render( int realX, int realY, bool highlighted, bool clicke
     if( EclMouseInButton(m_parent,this) )
     {
         Colour col(255,255,200,100);
-        g_renderer->Rect( realX, realY, m_w, m_h, col, 1.0f );
+        g_renderer->EclipseRect( realX, realY, m_w, m_h, col, 1.0f );
     }
 
     ChatWindow *parent = (ChatWindow *) m_parent;
@@ -677,7 +697,7 @@ void ChatInputField::Render( int realX, int realY, bool highlighted, bool clicke
     {
         int alpha = 100 + 155 * fabs(sinf(g_gameTime*3));
         Colour col(255,255,200,alpha);
-        g_renderer->Rect( realX, realY, m_w, m_h, col, 1.0f );
+        g_renderer->EclipseRect( realX, realY, m_w, m_h, col, 1.0f );
     }
 }
 
