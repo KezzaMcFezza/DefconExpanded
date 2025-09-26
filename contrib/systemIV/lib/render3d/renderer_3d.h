@@ -204,7 +204,7 @@ private:
     int m_nuke3DModelVertexCount3D;
     
     // Star field rendering buffers
-    static const int MAX_STAR_FIELD_VERTICES_3D = 150000; 
+    static const int MAX_STAR_FIELD_VERTICES_3D = 500000; 
     Vertex3DTextured m_starFieldVertices3D[MAX_STAR_FIELD_VERTICES_3D];
     int m_starFieldVertexCount3D;
     unsigned int m_currentStarFieldTexture3D;

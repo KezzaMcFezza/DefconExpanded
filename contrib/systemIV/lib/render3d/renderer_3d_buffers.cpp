@@ -11,7 +11,9 @@
 #include "lib/string_utils.h"
 #include "lib/resource/sprite_atlas.h"
 #include "lib/render/colour.h"
+#include "lib/preferences.h"
 
+#include "renderer/map_renderer.h"
 #include "renderer_3d.h"
 
 extern Renderer3D *g_renderer3d;
@@ -76,6 +78,10 @@ void Renderer3D::FlushUnitTrails3D() {
     if (m_unitTrailVertexCount3D == 0) return;
 
     IncrementDrawCall3D("unit_trails");
+    
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_UNIT_TRAIL_THICKNESS, 1.0f));
+#endif
     
     // use 3D shader program
     glUseProgram(m_shader3DProgram);

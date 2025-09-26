@@ -10,31 +10,21 @@
 #include "lib/render2d/renderer.h"
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/colour.h"
-#include "lib/render/styletable.h"
-#include "lib/profiler.h"
-#include "lib/language_table.h"
 #include "lib/preferences.h"
 #include "lib/math/math_utils.h"
 #include "lib/math/random_number.h"
 #include "lib/hi_res_time.h"
-#include "lib/sound/soundsystem.h"
 #include "lib/resource/image.h"
 #include "lib/resource/bitmap.h"
 
 #include "app/app.h"
 #include "app/globals.h"
-#include "lib/multiline_text.h"
-#include "app/tutorial.h"
 #include "app/game.h"
 #ifdef TARGET_OS_MACOSX
 #include "app/macutil.h"
 #endif
 
-#include "network/ClientToServer.h"
-
-#include "interface/components/core.h"
 #include "interface/interface.h"
-#include "interface/worldobject_window.h"
 #include "interface/toolbar.h"
 
 #include "renderer/map_renderer.h"
@@ -47,14 +37,63 @@
 #include "world/worldobject.h"
 #include "world/city.h"
 #include "world/nuke.h"
-#include "world/node.h"
-#include "world/blip.h"
 #include "world/fleet.h"
 #include "world/whiteboard.h"
-#include "curves.h"
 
-// i couldnt be arsed figuring out what includes we need and dont need
-// so i just copied and pasted all the includes from map renderer :)
+// ******************************************************************************************************************************
+//                                              Globe Options Menu Value Conversion Functions
+// ******************************************************************************************************************************
+
+//
+// these functions convert between menu values and internal values
+
+float MapRenderer::ConvertMenuToLandUnitSize(float menuValue) {
+    float baseValue = 0.0075f;
+    float scaleFactor = 0.002f;
+    return baseValue + (menuValue - 1.0f) * scaleFactor;
+}
+
+float MapRenderer::ConvertLandUnitSizeToMenu(float internalValue) {
+    float baseValue = 0.0075f;
+    float scaleFactor = 0.002f;
+    return 1.0f + (internalValue - baseValue) / scaleFactor;
+}
+
+float MapRenderer::ConvertMenuToNavalUnitSize(float menuValue) {
+    float baseValue = 0.015f;
+    float scaleFactor = 0.005f;
+    return baseValue + (menuValue - 1.0f) * scaleFactor;
+}
+
+float MapRenderer::ConvertNavalUnitSizeToMenu(float internalValue) {
+    float baseValue = 0.015f;
+    float scaleFactor = 0.005f;
+    return 1.0f + (internalValue - baseValue) / scaleFactor;
+}
+
+float MapRenderer::ConvertMenuToFogDensity(float menuValue) {
+    float baseValue = 0.03f;
+    float scaleFactor = 0.03f;
+    return baseValue + (menuValue - 1.0f) * scaleFactor;
+}
+
+float MapRenderer::ConvertFogDensityToMenu(float internalValue) {
+    float baseValue = 0.03f;
+    float scaleFactor = 0.03f;
+    return 1.0f + (internalValue - baseValue) / scaleFactor;
+}
+
+float MapRenderer::ConvertMenuToStarSize(float menuValue) {
+    float baseValue = 0.032f;
+    float scaleFactor = 0.005f;
+    return baseValue + (menuValue - 1.0f) * scaleFactor;
+}
+
+float MapRenderer::ConvertStarSizeToMenu(float internalValue) {
+    float baseValue = 0.032f;
+    float scaleFactor = 0.005f;
+    return 1.0f + (internalValue - baseValue) / scaleFactor;
+}
 
 // ******************************************************************************************************************************
 //                                              Globe initialisation and camera controls
@@ -189,7 +228,7 @@ void MapRenderer::Generate3DStarField()
     g_starField3D.Empty();
     
     // generate random stars on a large sphere around the globe
-    int numStars = 1200;                // adjust for desired star density 
+    int numStars = g_preferences->GetInt(PREFS_GLOBE_STAR_DENSITY, 1200); 
     float starSphereRadius = 20.0f;     // far from globe
     
     for (int i = 0; i < numStars; i++) {
@@ -204,7 +243,10 @@ void MapRenderer::Generate3DStarField()
         star.position.y = starSphereRadius * sin(phi);
         star.position.z = starSphereRadius * cos(theta) * cos(phi);
         
-        star.size = 0.020f + frand(0.025f); 
+        float menuStarSize = g_preferences->GetFloat(PREFS_GLOBE_STAR_SIZE, 1.0f);
+        float internalStarSize = MapRenderer::ConvertMenuToStarSize(menuStarSize);
+        float sizeVariation = internalStarSize * 0.5f;
+        star.size = internalStarSize + frand(sizeVariation) - (sizeVariation * 0.5f); 
         
         // random brightness for realism
         float brightnessFactor = frand();
@@ -243,6 +285,13 @@ void MapRenderer::Regenerate3DStarField()
 
 void MapRenderer::Render3DStarField()
 {
+    //
+    // first lets check if starfield is enabled in preferences
+    
+    if (!g_preferences->GetInt(PREFS_GLOBE_STARFIELD, 1)) {
+        return;
+    }
+    
     Generate3DStarField();
     
     Image *cityImg = g_resource->GetImage("graphics/city.bmp");
@@ -299,11 +348,15 @@ void MapRenderer::Toggle3DGlobeMode()
     m_3DGlobeMode = !m_3DGlobeMode;
     
     if (m_3DGlobeMode) {
+
+        //
         // only initialize 3D camera position the first time its used
         // this preserves camera position when switching between 2D and 3D modes
         // we save the camera position during runtime just like the 2D map renderer
+
         if (!m_globe3DCamera.m_initialized) {
-            m_globe3DCamera.m_cameraDistance = 3.0f;
+            float globeSize = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
+            m_globe3DCamera.m_cameraDistance = 3.0f * globeSize;
             m_globe3DCamera.m_cameraTheta = 0.0f;
             m_globe3DCamera.m_cameraPhi = 0.0f;
             
@@ -350,7 +403,9 @@ void MapRenderer::Toggle3DGlobeMode()
 
 void MapRenderer::Render3DGlobe(bool inLobbyMode)
 {
+    //
     // begin draw call tracking
+
     g_renderer3d->BeginFrame3D();
     
     float aspect = (float)g_windowManager->WindowW() / (float)g_windowManager->WindowH();
@@ -363,22 +418,39 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
             m_globe3DCamera.m_cameraUp.x, m_globe3DCamera.m_cameraUp.y, m_globe3DCamera.m_cameraUp.z
         );
         
+        //
         // set camera position for billboard calculations
+
         g_renderer3d->SetCameraPosition(m_globe3DCamera.m_cameraPos.x, 
                                        m_globe3DCamera.m_cameraPos.y, 
                                        m_globe3DCamera.m_cameraPos.z);
     }
     
+    //
     // enable depth testing for 3D sprites
+
     glEnable(GL_DEPTH_TEST);
     glClear(GL_DEPTH_BUFFER_BIT);
     
+    //
     // enable fog for the main scene
+
     if (!inLobbyMode) {
-    g_renderer3d->EnableOrientationFog(0.03f, 0.03f, 0.03f, 20.0f,
-                                      m_globe3DCamera.m_cameraPos.x,
-                                      m_globe3DCamera.m_cameraPos.y,
-                                      m_globe3DCamera.m_cameraPos.z);
+        float fogDistanceSetting = (float)g_preferences->GetInt(PREFS_GLOBE_FOG_DISTANCE, 20);
+        float distanceMultiplier = (fogDistanceSetting / 20.0f - 1.0f) * 2.0f + 1.0f;
+        
+        //
+        // scale the camera distance for fog calculations
+        // we pass in fake camera values here to make the
+        // fog render further or closer to the real camera
+        
+        Vector3<float> fogCameraPos = m_globe3DCamera.m_cameraPos;
+        fogCameraPos = fogCameraPos * distanceMultiplier;
+        
+        g_renderer3d->EnableOrientationFog(0.03f, 0.03f, 0.03f, 20.0f,
+                                          fogCameraPos.x,
+                                          fogCameraPos.y,
+                                          fogCameraPos.z);
     }
 
     //
@@ -451,7 +523,12 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
 
     if (g_preferences->GetInt(PREFS_GRAPHICS_COASTLINES) == 1) {
         if (!g_renderer3d->IsMegaVBO3DValid("GlobeCoastlines")) {
+#ifndef TARGET_EMSCRIPTEN
+            glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
+#endif
             g_renderer3d->BeginMegaVBO3D("GlobeCoastlines", Colour(0, 255, 0, 255));
+
+            float globeRadius = inLobbyMode ? 1.0f : g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
 
             for( int i = 0; i < g_app->GetEarthData()->m_islands.Size(); ++i )
             {
@@ -463,7 +540,7 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
                 {
                     Vector3<float> *thePoint = island->m_points[j];
 
-                    Vector3<float> thisPoint(0,0,1);
+                    Vector3<float> thisPoint(0,0,globeRadius);
                     thisPoint.RotateAroundY( thePoint->x/180.0f * M_PI );
                     Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
                     right.Normalise();
@@ -487,6 +564,9 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     }
 
     // Build it
+#ifndef TARGET_EMSCRIPTEN
+    glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
+#endif
     g_renderer3d->RenderMegaVBO3D("GlobeCoastlines");
     
     //
@@ -494,7 +574,15 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
 
     if (g_preferences->GetInt(PREFS_GRAPHICS_BORDERS) == 1) {
         if (!g_renderer3d->IsMegaVBO3DValid("GlobeBorders")) {
+#ifndef TARGET_EMSCRIPTEN
+            glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
+#endif
             g_renderer3d->BeginMegaVBO3D("GlobeBorders", Colour(0, 255, 0, 71));
+
+            //
+            // get globe size preference, only apply in non lobby mode
+            
+            float globeRadius = inLobbyMode ? 1.0f : g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
 
             for( int i = 0; i < g_app->GetEarthData()->m_borders.Size(); ++i )
             {
@@ -506,7 +594,7 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
                 {
                     Vector3<float> *thePoint = island->m_points[j];
 
-                    Vector3<float> thisPoint(0,0,1);
+                    Vector3<float> thisPoint(0,0,globeRadius);
                     thisPoint.RotateAroundY( thePoint->x/180.0f * M_PI );
                     Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
                     right.Normalise();
@@ -529,6 +617,9 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
         }
         
         // Build it
+#ifndef TARGET_EMSCRIPTEN
+        glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
+#endif
         g_renderer3d->RenderMegaVBO3D("GlobeBorders");
     }
   
@@ -548,9 +639,9 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     g_renderer3d->BeginStarFieldBatch3D();      // Star field batching
     g_renderer3d->BeginGlobeSurfaceBatch3D();   // Globe surface batching
     
-    Render3DGlobeCulling();
+    Render3DGlobeCulling(inLobbyMode);
     Render3DStarField();
-    Render3DGlobeSurface(); 
+    Render3DGlobeSurface(inLobbyMode); 
 
     //
     // end the globe surface scene
@@ -731,10 +822,17 @@ void MapRenderer::Update3DGlobeCamera()
             m_globe3DCamera.m_cameraDistance -= 5.0f * g_advanceTime;
         }
         
-        // clamp vertical rotation and zoom distance
+        //
+        // clamp vertical rotation and zoom distance according
+        // to the globe size set inside preferences
+
         m_globe3DCamera.m_cameraPhi = fmaxf(-M_PI/2.0f + 0.1f, fminf(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
-        m_globe3DCamera.m_cameraDistance = fmaxf(1.5f, fminf(3.0f, m_globe3DCamera.m_cameraDistance));
+        float globeSize = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
+        float minDistance = 1.5f * globeSize;
+        float maxDistance = 3.0f * globeSize;
+        m_globe3DCamera.m_cameraDistance = fmaxf(minDistance, fminf(maxDistance, m_globe3DCamera.m_cameraDistance));
         
+        //
         // update camera position
         m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
         m_globe3DCamera.m_cameraPos.y = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraPhi);
@@ -776,7 +874,10 @@ void MapRenderer::Update3DGlobeCamera()
     // mouse wheel zoom
     if (IsMouseInMapRenderer() && g_inputManager->m_mouseVelZ != 0) {
         m_globe3DCamera.m_cameraDistance += g_inputManager->m_mouseVelZ * -0.1f;
-        m_globe3DCamera.m_cameraDistance = fmaxf(1.5f, fminf(3.0f, m_globe3DCamera.m_cameraDistance));
+        float globeSize = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
+        float minDistance = 1.5f * globeSize;
+        float maxDistance = 3.0f * globeSize;
+        m_globe3DCamera.m_cameraDistance = fmaxf(minDistance, fminf(maxDistance, m_globe3DCamera.m_cameraDistance));
         
         m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
         m_globe3DCamera.m_cameraPos.y = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraPhi);
@@ -796,7 +897,8 @@ Vector3<float> MapRenderer::ConvertLongLatTo3DPosition(float longitude, float la
     float latRad = latitude * M_PI / 180.0f;
     
     // spherical to cartesian conversion
-    Vector3<float> pos(0, 0, 1);
+    float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
+    Vector3<float> pos(0, 0, globeRadius);
     pos.RotateAroundY(lonRad);
     Vector3<float> right = pos ^ Vector3<float>(0, 1, 0);
     right.Normalise();
@@ -808,7 +910,7 @@ Vector3<float> MapRenderer::ConvertLongLatTo3DPosition(float longitude, float la
 //
 // render a filled semi transparent globe surface to occlude stars behind it
 
-void MapRenderer::Render3DGlobeSurface()
+void MapRenderer::Render3DGlobeSurface(bool inLobbyMode)
 {
 
     //
@@ -817,7 +919,7 @@ void MapRenderer::Render3DGlobeSurface()
     Colour globeColor(0, 0, 0, 30);
     
     int segments = 64; 
-    float radius = 1.0f; 
+    float radius = inLobbyMode ? 1.0f : g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f); 
     Vector3<float> center(0.0f, 0.0f, 0.0f);
     
     //
@@ -865,7 +967,7 @@ void MapRenderer::Render3DGlobeSurface()
 //
 // simple culling writes depth values but no color, creating an invisible mask
 
-void MapRenderer::Render3DGlobeCulling()
+void MapRenderer::Render3DGlobeCulling(bool inLobbyMode)
 {
     // disable color writing, we only want to write to depth buffer
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -876,7 +978,7 @@ void MapRenderer::Render3DGlobeCulling()
     
     // render the same globe geometry as the visible surface
     int segments = 32; 
-    float radius = 0.998f; // slightly smaller than visible surface
+    float radius = (inLobbyMode ? 1.0f : g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f)) * 0.998f;
     Vector3<float> center(0.0f, 0.0f, 0.0f);
     
     // render filled sphere using 3D renderer triangle system
@@ -1281,19 +1383,27 @@ void MapRenderer::Render3DUnits()
                 MovingObject *mobj = (MovingObject*)wobj;
                 isAirUnit = (mobj->m_movementType == MovingObject::MovementTypeAir);
                 
+                //
+                // base size for land and sea units is set inside preferences
+                // but we dont change the multiplier. the multiplier is fixed
+
                 if (isAirUnit) {
-                    size = baseSize * 0.0075f * 1.0f;
+                    float landUnitMultiplier = ConvertMenuToLandUnitSize(g_preferences->GetFloat(PREFS_GLOBE_LAND_UNIT_SIZE, 1.0f));
+                    size = baseSize * landUnitMultiplier * 1.0f;
                 } else if (mobj->m_movementType == MovingObject::MovementTypeSea) {
-                    size = baseSize * 0.0075f * 2.0f;
+                    float navalUnitMultiplier = ConvertMenuToNavalUnitSize(g_preferences->GetFloat(PREFS_GLOBE_NAVAL_UNIT_SIZE, 1.0f));
+                    size = baseSize * navalUnitMultiplier;
                 } else {
-                    size = baseSize * 0.0075f;
+                    float landUnitMultiplier = ConvertMenuToLandUnitSize(g_preferences->GetFloat(PREFS_GLOBE_LAND_UNIT_SIZE, 1.0f));
+                    size = baseSize * landUnitMultiplier;
                 }
             } else {
-                size = baseSize * 0.0075f * 2.0f;
+                float landUnitMultiplier = ConvertMenuToLandUnitSize(g_preferences->GetFloat(PREFS_GLOBE_LAND_UNIT_SIZE, 1.0f));
+                size = baseSize * landUnitMultiplier * 2.0f; 
             }
             
             size = fmaxf(size, 0.002f);  
-            size = fminf(size, 0.04f);   
+            size = fminf(size, 0.1f);
             
             Colour unitColor = White;
             Team *team = g_app->GetWorld()->GetTeam(wobj->m_teamId);

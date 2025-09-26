@@ -11,6 +11,9 @@ class AnimatedIcon;
 
 #define    CLEARQUEUE_STATEID  255
 
+//
+// 2D map rendering preferences
+
 #define    PREFS_GRAPHICS_COASTLINE_THICKNESS         "RenderCoastlineThickness"
 #define    PREFS_GRAPHICS_BORDER_THICKNESS            "RenderBorderThickness"
 #define    PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS        "RenderUnitTrailThickness"
@@ -30,6 +33,21 @@ class AnimatedIcon;
 #define    STYLE_WORLD_BORDERS                        "WorldBorders"
 #define    STYLE_WORLD_WATER                          "WorldWater"
 #define    STYLE_WORLD_LAND                           "WorldLand"
+
+//
+// globe 3D rendering preferences
+
+#define    PREFS_GLOBE_SIZE                           "GlobeSize"
+#define    PREFS_GLOBE_COAST_THICKNESS                "GlobeCoastThickness"
+#define    PREFS_GLOBE_BORDER_THICKNESS               "GlobeBorderThickness"
+#define    PREFS_GLOBE_FOG_DISTANCE                   "GlobeFogDistance"
+#define    PREFS_GLOBE_STARFIELD                      "GlobeStarfield"
+#define    PREFS_GLOBE_STAR_SIZE                      "GlobeStarSize"
+#define    PREFS_GLOBE_STAR_DENSITY                   "GlobeStarDensity"
+#define    PREFS_GLOBE_LAND_UNIT_SIZE                 "GlobeLandUnitSize"
+#define    PREFS_GLOBE_NAVAL_UNIT_SIZE                "GlobeNavalUnitSize"
+#define    PREFS_GLOBE_WHITEBOARD_THICKNESS           "GlobeWhiteboardThickness"
+#define    PREFS_GLOBE_UNIT_TRAIL_THICKNESS           "GlobeUnitTrailThickness"
 
 #define    PREFS_INTERFACE_TOOLTIPS                   "InterfaceTooltips"
 #define    PREFS_INTERFACE_POPUPSCALE                 "InterfacePopupScale"
@@ -327,7 +345,7 @@ public:
     void    Render3DWorldObjectTargets();
     void    Render3DNukeHighlights();
     void    Render3DAnimations();
-    void    Render3DGlobeCulling();
+    void    Render3DGlobeCulling(bool inLobbyMode = false);
     void    Render3DWhiteBoard();
     void    Render3DPopulationDensity();
     void    Render3DUnitHighlight                         (int objectId);
@@ -343,13 +361,21 @@ public:
     Vector3<float> CalculateHistoricalNuke3DPosition      (Nuke* nuke, const Vector3<Fixed>& historicalPos);
     Vector3<float> CalculateHistoricalNuke3DPositionByAge (Nuke* nuke, const Vector3<Fixed>& historicalPos, float historicalProgress);
     Vector3<float> CalculateGunfire3DPosition             (GunFire* gunfire);
+    static  float ConvertMenuToLandUnitSize               (float menuValue);
+    static  float ConvertLandUnitSizeToMenu               (float internalValue);
+    static  float ConvertMenuToNavalUnitSize              (float menuValue);
+    static  float ConvertNavalUnitSizeToMenu              (float internalValue);
+    static  float ConvertMenuToFogDensity                 (float menuValue);
+    static  float ConvertFogDensityToMenu                 (float internalValue);
+    static  float ConvertMenuToStarSize                   (float menuValue);
+    static  float ConvertStarSizeToMenu                   (float internalValue);
     
     // 3D star field functionality
     void    Generate3DStarField    ();
     void    Cleanup3DStarField     ();
     void    Regenerate3DStarField  ();
     void    Render3DStarField      ();
-    void    Render3DGlobeSurface   ();
+    void    Render3DGlobeSurface   (bool inLobbyMode = false);
 };
 
 

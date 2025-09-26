@@ -5,7 +5,9 @@
 
 #include "lib/debug_utils.h"
 #include "lib/string_utils.h"
+#include "lib/preferences.h"
 #include "lib/render2d/renderer.h"
+#include "renderer/map_renderer.h"
 #include "renderer_3d.h"
 
 Renderer3D *g_renderer3d = NULL;
@@ -1089,6 +1091,13 @@ void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
     
     // Track legacy draw call for debug menu
     IncrementDrawCall3D("legacy_vertices");
+    
+    // Set line width for whiteboard rendering in 3D globe mode
+#ifndef TARGET_EMSCRIPTEN
+    if (primitiveType == GL_LINES) {
+        glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_WHITEBOARD_THICKNESS, 1.0f));
+    }
+#endif
     
     // Use 3D shader program
     glUseProgram(m_shader3DProgram);

@@ -7,6 +7,7 @@
 #include "lib/preferences.h"
 #include "lib/resource/resource.h"
 #include "lib/render2d/renderer.h"
+#include "lib/render3d/renderer_3d.h"
 #include "lib/netlib/net_lib.h"
 #include "lib/math/random_number.h"
 #include "lib/hi_res_time.h"
@@ -996,6 +997,17 @@ class GraphicsOptionsButton : public InterfaceButton
 };
 
 
+class GlobeOptionsButton : public InterfaceButton
+{
+    void MouseUp()
+    {
+        GlobeOptionsWindow *window = new GlobeOptionsWindow();
+        EclRegisterWindow( window );
+        window->Centralise();
+    }
+};
+
+
 class SoundOptionsButton : public InterfaceButton
 {
     void MouseUp()
@@ -1053,7 +1065,7 @@ class ControlOptionsButton : public InterfaceButton
 OptionsMenuWindow::OptionsMenuWindow()
 :   InterfaceWindow( "OptionsMenu", "dialog_options", true )
 {
-    SetSize( 190, 240 );
+    SetSize( 190, 265 );
     Centralise();
 }
 
@@ -1073,6 +1085,10 @@ void OptionsMenuWindow::Create()
     GraphicsOptionsButton *graphics = new GraphicsOptionsButton();
     graphics->SetProperties( "Graphics", 10, y+=h+g, m_w-20, h, "dialog_graphicsoptions", " ", true, false );
     RegisterButton( graphics );
+
+    GlobeOptionsButton *globe = new GlobeOptionsButton();
+    globe->SetProperties( "Globe", 10, y+=h+g, m_w-20, h, "dialog_globeoptions", " ", true, false );
+    RegisterButton( globe );
 
     SoundOptionsButton *sound = new SoundOptionsButton();
     sound->SetProperties( "Sound", 10, y+=h+g, m_w-20, h, "dialog_soundoptions", " ", true, false );
@@ -1327,6 +1343,150 @@ void GraphicsOptionsWindow::Render( bool _hasFocus )
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_whiteboardthickness") );
 #endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_lobbyeffects") );
+}
+
+
+// ***************************************************************************
+// Class GlobeOptionsWindow
+// ***************************************************************************
+
+class ApplyGlobeButton : public InterfaceButton
+{
+    void MouseUp()
+    {
+        GlobeOptionsWindow *gow = (GlobeOptionsWindow *) m_parent;
+        
+        g_preferences->SetFloat( PREFS_GLOBE_SIZE, gow->m_globeSize );
+#ifndef TARGET_EMSCRIPTEN
+        g_preferences->SetFloat( PREFS_GLOBE_COAST_THICKNESS, gow->m_globeCoastThickness );
+        g_preferences->SetFloat( PREFS_GLOBE_BORDER_THICKNESS, gow->m_globeBorderThickness );
+#endif
+        
+        //
+        // invalidate globe VBOs so they rebuild with new thickness
+
+        if (g_renderer3d) {
+            g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
+            g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
+        }
+
+        g_preferences->SetInt( PREFS_GLOBE_FOG_DISTANCE, gow->m_globeFogDistance );
+        g_preferences->SetInt( PREFS_GLOBE_STARFIELD, gow->m_globeStarfield );
+        g_preferences->SetFloat( PREFS_GLOBE_STAR_SIZE, gow->m_globeStarSize );
+        g_preferences->SetInt( PREFS_GLOBE_STAR_DENSITY, gow->m_globeStarDensity );
+        
+        //
+        // regenerate starfield when star settings change
+
+        if (g_app && g_app->GetMapRenderer()) {
+            g_app->GetMapRenderer()->Regenerate3DStarField();
+        }
+        g_preferences->SetFloat( PREFS_GLOBE_LAND_UNIT_SIZE, gow->m_globeLandUnitSize );
+        g_preferences->SetFloat( PREFS_GLOBE_NAVAL_UNIT_SIZE, gow->m_globeNavalUnitSize );
+#ifndef TARGET_EMSCRIPTEN
+        g_preferences->SetFloat( PREFS_GLOBE_WHITEBOARD_THICKNESS, gow->m_globeWhiteboardThickness );
+        g_preferences->SetFloat( PREFS_GLOBE_UNIT_TRAIL_THICKNESS, gow->m_globeUnitTrailThickness );
+#endif
+
+        g_preferences->Save();
+    }
+};
+
+
+GlobeOptionsWindow::GlobeOptionsWindow()
+:   InterfaceWindow( "Globe", "dialog_globeoptions", true )
+{
+    SetSize( 420, 480 );
+    Centralise();
+    
+    m_globeSize              = g_preferences->GetFloat( PREFS_GLOBE_SIZE, 1.0f );
+#ifndef TARGET_EMSCRIPTEN
+    m_globeCoastThickness    = g_preferences->GetFloat( PREFS_GLOBE_COAST_THICKNESS, 1.0f );
+    m_globeBorderThickness   = g_preferences->GetFloat( PREFS_GLOBE_BORDER_THICKNESS, 1.0f );
+#endif
+    m_globeFogDistance       = g_preferences->GetInt( PREFS_GLOBE_FOG_DISTANCE, 20 );
+    m_globeStarfield         = g_preferences->GetInt( PREFS_GLOBE_STARFIELD, 1 );
+    m_globeStarSize          = g_preferences->GetFloat( PREFS_GLOBE_STAR_SIZE, 1.0f );
+    m_globeStarDensity       = g_preferences->GetInt( PREFS_GLOBE_STAR_DENSITY, 1200 );
+    m_globeLandUnitSize      = g_preferences->GetFloat( PREFS_GLOBE_LAND_UNIT_SIZE, 1.0f );
+    m_globeNavalUnitSize     = g_preferences->GetFloat( PREFS_GLOBE_NAVAL_UNIT_SIZE, 1.0f );
+#ifndef TARGET_EMSCRIPTEN
+    m_globeWhiteboardThickness = g_preferences->GetFloat( PREFS_GLOBE_WHITEBOARD_THICKNESS, 1.0f );
+    m_globeUnitTrailThickness = g_preferences->GetFloat( PREFS_GLOBE_UNIT_TRAIL_THICKNESS, 1.0f );
+#endif
+}
+
+
+void GlobeOptionsWindow::Create()
+{
+    InterfaceWindow::Create();
+    
+    int x = 220;
+    int w = m_w - x - 20;
+    int y = 30;
+    int h = 30;
+
+    InvertedBox *box = new InvertedBox();
+    box->SetProperties( "invert", 10, 50, m_w - 20, m_h - 110, " ", " ", false, false );        
+    RegisterButton( box );
+
+    CreateValueControl( "Globe Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeSize, 0.1f, 1.0f, 2.0f, NULL, " ", false );
+#ifndef TARGET_EMSCRIPTEN
+    CreateValueControl( "Coast Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_globeCoastThickness, 0.1f, 0.1f, 10.0f, NULL, " ", false );
+    CreateValueControl( "Border Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_globeBorderThickness, 0.1f, 0.1f, 10.0f, NULL, " ", false );
+#endif
+    CreateValueControl( "Fog Distance", x, y+=h, w, 20, InputField::TypeInt, &m_globeFogDistance, 1, 1, 100, NULL, " ", false );
+
+    DropDownMenu *dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Starfield", x, y+=h, w, 20, "dialog_globestarfield", " ", true, false );
+    dropDown->AddOption( "dialog_enabled", 1, true );
+    dropDown->AddOption( "dialog_disabled", 0, true );
+    dropDown->RegisterInt( &m_globeStarfield );
+    RegisterButton(dropDown);
+
+    CreateValueControl( "Star Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeStarSize, 0.1f, 0.1f, 20.0f, NULL, " ", false );
+    CreateValueControl( "Star Density", x, y+=h, w, 20, InputField::TypeInt, &m_globeStarDensity, 50, 100, 20000, NULL, " ", false );
+    CreateValueControl( "Land Unit Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeLandUnitSize, 0.1f, 0.1f, 7.0f, NULL, " ", false );
+    CreateValueControl( "Naval Unit Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeNavalUnitSize, 0.1f, 0.1f, 7.0f, NULL, " ", false );
+#ifndef TARGET_EMSCRIPTEN
+    CreateValueControl( "Whiteboard Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_globeWhiteboardThickness, 0.1f, 0.1f, 10.0f, NULL, " ", false );
+    CreateValueControl( "Unit Trail Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_globeUnitTrailThickness, 0.1f, 0.1f, 10.0f, NULL, " ", false );
+#endif
+
+    CloseButton *cancel = new CloseButton();
+    cancel->SetProperties( "Close", 10, m_h - 30, m_w / 2 - 15, 20, "dialog_close", " ", true, false );
+    RegisterButton( cancel );
+
+    ApplyGlobeButton *apply = new ApplyGlobeButton();
+    apply->SetProperties( "Apply", cancel->m_x+cancel->m_w+10, m_h - 30, m_w / 2 - 15, 20, "dialog_apply", " ", true, false );
+    RegisterButton( apply );     
+}
+
+
+void GlobeOptionsWindow::Render( bool _hasFocus )
+{
+    InterfaceWindow::Render( _hasFocus );
+
+    int x = m_x + 20;
+    int y = m_y + 35;
+    int h = 30;
+    int size = 13;
+
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globesize") );
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globecoastthickness") );
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globeborderthickness") );
+#endif
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globefogdistance") );
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestarfield") );
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestarsize") );
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestardensity") );
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globelandunitsize") );
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globenavalunitsize") );
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globewhiteboardthickness") );
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globeunittrailthickness") );
+#endif
 }
 
 

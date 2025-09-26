@@ -15,6 +15,7 @@
 #include "lib/gucci/input.h"
 #include "lib/resource/resource.h"
 #include "lib/render2d/renderer.h"
+#include "lib/render3d/renderer_3d.h"
 #include "lib/render/styletable.h"
 #include "lib/render/renderer_debug_menu.h"
 #include "lib/debug_utils.h"
@@ -1254,6 +1255,14 @@ void App::StartGame()
     }
 
 	m_gameRunning = true;
+    
+    //
+    // invalidate globe VBOs if the globe radius has changed from default
+    
+    if (g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f) != 1.0f) {
+        g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
+        g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
+    }
 }
 
 

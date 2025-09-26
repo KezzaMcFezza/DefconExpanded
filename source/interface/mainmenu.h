@@ -80,6 +80,31 @@ public:
 
 // ============================================================================
 
+class GlobeOptionsWindow : public InterfaceWindow
+{
+public:
+    float   m_globeSize;
+    float   m_globeCoastThickness;
+    float   m_globeBorderThickness;
+    int     m_globeFogDistance;
+    int     m_globeStarfield;
+    float   m_globeStarSize;
+    int     m_globeStarDensity;
+    float   m_globeLandUnitSize;
+    float   m_globeNavalUnitSize;
+    float   m_globeWhiteboardThickness;
+    float   m_globeUnitTrailThickness;
+    
+public:
+    GlobeOptionsWindow();
+
+    void Create();
+    void Render( bool _hasFocus );
+};
+
+
+// ============================================================================
+
 class ControlOptionsWindow : public InterfaceWindow
 {
 public:
