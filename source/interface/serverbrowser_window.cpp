@@ -169,15 +169,15 @@ void RenderPlayerSlots( int _x, int _y, int _w, int _h, int _numTeams, int _numH
 
         if( _numHumanTeams > i )
         {            
-            g_renderer->RectFill( x, y, slotW, h, Colour(0,255,0,255) );
+            g_renderer->EclipseRectFill( x, y, slotW, h, Colour(0,255,0,255) );
         }
         else if( _numTeams > i )
         {
-            g_renderer->RectFill( x, y, slotW, h, Colour(0,200,0,100) );
+            g_renderer->EclipseRectFill( x, y, slotW, h, Colour(0,200,0,100) );
         }
         else if( _maxTeams > i && _inProgress == 0 )
         {
-            g_renderer->RectFill( x, y, slotW, h, Colour(255,255,255,60) );
+            g_renderer->EclipseRectFill( x, y, slotW, h, Colour(255,255,255,60) );
         }
         else
         {
@@ -221,7 +221,7 @@ public:
 
             if( sbw->m_selection == realIndex )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(50,50,80,80), Colour(150,150,200,80), true );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(50,50,80,80), Colour(150,150,200,80), true );
             }
 
 
@@ -253,7 +253,7 @@ public:
             if( hasJoinedGame > 0 && sbw->m_listType != ServerBrowserWindow::ListTypeRecent )
             {
                 int alpha = 30;
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(155,155,255,alpha) );                
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(155,155,255,alpha) );                
             }
 
             bool password = false;
@@ -467,13 +467,13 @@ public:
             {
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
                 Image *lock = g_resource->GetImage( "gui/locked.bmp");
-                g_renderer->Blit( lock, realX, realY, 14, 14, White );
+                g_renderer->EclipseSprite( lock, realX, realY, 14, 14, White );
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
             }
 
             if( highlighted || clicked )
             {
-                g_renderer->Rect( realX, realY, m_w, m_h, White );
+                g_renderer->EclipseRect( realX, realY, m_w, m_h, White );
             }
     
             END_PROFILE( "RenderText" );
@@ -702,16 +702,16 @@ public:
     {      
         ServerBrowserWindow *parent = (ServerBrowserWindow *)m_parent;                        
 
-        g_renderer->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,20) );
+        g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(200,200,255,20) );
 
         if( highlighted ) 
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,50) );
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(200,200,255,50) );
         }
 
         if( parent->m_sortType == m_sortType )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,100) );
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(200,200,255,100) );
         }
 
 
@@ -737,21 +737,19 @@ public:
 
             if( parent->m_sortInvert )
             {
-                // Down arrow triangle - use TriangleFill for solid triangle like original
                 float x1 = realX + m_w - 16, y1 = midPointY + 5;  // Bottom left
                 float x2 = realX + m_w - 4,  y2 = midPointY + 5;  // Bottom right  
                 float x3 = realX + m_w - 10, y3 = midPointY - 5;  // Top center
                 
-                g_renderer->TriangleFill( x1, y1, x2, y2, x3, y3, arrowColor );
+                g_renderer->EclipseTriangleFill( x1, y1, x2, y2, x3, y3, arrowColor );
             }
             else
             {
-                // Up arrow triangle - use TriangleFill for solid triangle like original
                 float x1 = realX + m_w - 16, y1 = midPointY - 5;  // Top left
                 float x2 = realX + m_w - 4,  y2 = midPointY - 5;  // Top right
                 float x3 = realX + m_w - 10, y3 = midPointY + 5;  // Bottom center
                 
-                g_renderer->TriangleFill( x1, y1, x2, y2, x3, y3, arrowColor );
+                g_renderer->EclipseTriangleFill( x1, y1, x2, y2, x3, y3, arrowColor );
             }
         }
     }

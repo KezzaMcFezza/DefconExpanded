@@ -121,9 +121,9 @@ void InfoWindow::Render( bool _hasFocus )
         if( img )
         {
             g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-            g_renderer->Blit( img, m_x+5, m_y+5, 30.0f, 30.0f, White );                       
-            g_renderer->Blit( img, m_x+m_w-200, m_y, 180.0f, 180.0f, Colour(155,155,255,50));           
-            g_renderer->Blit( img, m_x+m_w-230, m_y-50, 240.0f, 240.0f, Colour(155,155,255,5));           
+            g_renderer->EclipseSprite( img, m_x+5, m_y+5, 30.0f, 30.0f, White );                       
+            g_renderer->EclipseSprite( img, m_x+m_w-200, m_y, 180.0f, 180.0f, Colour(155,155,255,50));           
+            g_renderer->EclipseSprite( img, m_x+m_w-230, m_y-50, 240.0f, 240.0f, Colour(155,155,255,5));           
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
         }
         

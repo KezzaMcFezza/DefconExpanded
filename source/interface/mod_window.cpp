@@ -32,27 +32,27 @@ public:
 
         if( g_modSystem->m_mods.ValidIndex(actualIndex) )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,10), Colour(255,255,255,50), false );
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,10), Colour(255,255,255,50), false );
 
             InstalledMod *mod = g_modSystem->m_mods[actualIndex];
             
             if( mod->m_active )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(0,255,0,50) );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(0,255,0,50) );
                 g_renderer->TextRightSimple( realX + m_w - 10, realY + 3, White, 14, LANGUAGEPHRASE("dialog_mod_active") );
             }
 
             if( highlighted )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+                g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
             }
             
             if( strcmp( mod->m_name, parent->m_selectionName ) == 0 &&
                 strcmp( mod->m_version, parent->m_selectionVersion ) == 0 )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+                g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
             }
 
             Colour textColour( 255, 255, 255, 200 );
@@ -235,7 +235,7 @@ class FindMoreModsButton : public EclButton
     {
         if( highlighted )
         {
-            g_renderer->Rect( realX, realY, m_w, m_h, White );
+            g_renderer->EclipseRect( realX, realY, m_w, m_h, White );
         }
 
         g_renderer->TextCentre( realX+m_w/2, realY+5, Colour(200,200,255,200), 12, LANGUAGEPHRASE("dialog_mod_click_download_mods") );
@@ -292,7 +292,7 @@ class VisitModWebsiteButton : public EclButton
             if( highlighted )
             {
                 //g_renderer->Rect( realX, realY, m_w, m_h, White );
-                g_renderer->Line( realX+m_w/2 - 9, realY+m_h, realX+m_w, realY+m_h, White );
+                g_renderer->EclipseLine( realX+m_w/2 - 9, realY+m_h, realX+m_w, realY+m_h, White );
             }
 
             g_renderer->TextSimple( realX+m_w/2 - 6, realY+5, White, 11, LANGUAGEPHRASE("dialog_mod_click_here") );
@@ -504,7 +504,7 @@ void ModWindow::Render( bool _hasFocus )
 
     if( m_image )
     {
-        g_renderer->Blit( m_image, xPos, m_y + 30, w, 118, White );
+        g_renderer->EclipseSprite( m_image, xPos, m_y + 30, w, 118, White );
     }
     else
     {
@@ -519,7 +519,7 @@ void ModWindow::Render( bool _hasFocus )
         }
     }
 
-    g_renderer->Rect( xPos, m_y + 30, w, w*9/16.0f, Colour(200,200,255,200) );
+    g_renderer->EclipseRect( xPos, m_y + 30, w, w*9/16.0f, Colour(200,200,255,200) );
 
 
     //

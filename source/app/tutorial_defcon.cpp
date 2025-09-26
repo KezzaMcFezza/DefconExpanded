@@ -2956,8 +2956,8 @@ void TutorialPopup::Render( bool _hasFocus )
         //
         // Render the window
 
-        g_renderer->RectFill ( m_x, m_y, m_w, m_h, windowColP, windowColS, alignment );
-        g_renderer->Rect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
+        g_renderer->EclipseRectFill ( m_x, m_y, m_w, m_h, windowColP, windowColS, alignment );
+        g_renderer->EclipseRect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
 
 
         //
@@ -3046,7 +3046,7 @@ void TutorialPopup::Render( bool _hasFocus )
                     {
                         targetScreenX = window->m_x + button->m_x + button->m_w/2;
                         targetScreenY = window->m_y + button->m_y + button->m_h/2;
-                        g_renderer->Rect( window->m_x + button->m_x-outSize, 
+                        g_renderer->EclipseRect( window->m_x + button->m_x-outSize, 
                                           window->m_y + button->m_y-outSize, 
                                           button->m_w+outSize*2, 
                                           button->m_h+outSize*2, borderCol, 3.0f );
@@ -3055,7 +3055,7 @@ void TutorialPopup::Render( bool _hasFocus )
                     {
                         targetScreenX = window->m_x + window->m_w/2;
                         targetScreenY = window->m_y + window->m_h/2;
-                        g_renderer->Rect( window->m_x-outSize, 
+                        g_renderer->EclipseRect( window->m_x-outSize, 
                                           window->m_y-outSize, 
                                           window->m_w+outSize*2, 
                                           window->m_h+outSize*2, borderCol, 3.0f );
@@ -3113,7 +3113,7 @@ void TutorialPopup::Render( bool _hasFocus )
                     col.m_a = 255;
                     float size = 30 * ( 1.0f + sinf(g_gameTime*5) * 0.1f );
                     g_renderer->SetBlendMode(Renderer::BlendModeAdditive );
-                    g_renderer->Blit( img, targetScreenX, targetScreenY, size, size, col, angle );
+                    g_renderer->EclipseSprite( img, targetScreenX, targetScreenY, size, size, col, angle );
                     g_renderer->SetBlendMode(Renderer::BlendModeNormal);
                 }
             }

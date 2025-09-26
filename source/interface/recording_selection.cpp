@@ -37,12 +37,12 @@ void PlayFromLobbyButton::Render( int realX, int realY, bool highlighted, bool c
     
     bool colourAlignment    = g_styleTable->GetStyle(styleName)->m_horizontal;
 
-    g_renderer->RectFill    ( realX, realY, m_w, m_h, primaryCol, secondaryCol, colourAlignment );
+    g_renderer->EclipseRectFill    ( realX, realY, m_w, m_h, primaryCol, secondaryCol, colourAlignment );
 
-    g_renderer->Line        ( realX, realY, realX+m_w, realY, borderPrimary );
-    g_renderer->Line        ( realX, realY, realX, realY+m_h, borderPrimary );
-    g_renderer->Line        ( realX, realY+m_h, realX+m_w, realY+m_h, borderSeconary );
-    g_renderer->Line        ( realX+m_w, realY, realX+m_w, realY+m_h, borderSeconary );
+    g_renderer->EclipseLine        ( realX, realY, realX+m_w, realY, borderPrimary );
+    g_renderer->EclipseLine        ( realX, realY, realX, realY+m_h, borderPrimary );
+    g_renderer->EclipseLine        ( realX, realY+m_h, realX+m_w, realY+m_h, borderSeconary );
+    g_renderer->EclipseLine        ( realX+m_w, realY, realX+m_w, realY+m_h, borderSeconary );
     
     // Render our custom larger text
     Colour fontColour = g_styleTable->GetPrimaryColour(FONTSTYLE_BUTTON);
@@ -168,12 +168,12 @@ void PlayFromGameStartButton::Render( int realX, int realY, bool highlighted, bo
     
     bool colourAlignment    = g_styleTable->GetStyle(styleName)->m_horizontal;
 
-    g_renderer->RectFill    ( realX, realY, m_w, m_h, primaryCol, secondaryCol, colourAlignment );
+    g_renderer->EclipseRectFill    ( realX, realY, m_w, m_h, primaryCol, secondaryCol, colourAlignment );
 
-    g_renderer->Line        ( realX, realY, realX+m_w, realY, borderPrimary );
-    g_renderer->Line        ( realX, realY, realX, realY+m_h, borderPrimary );
-    g_renderer->Line        ( realX, realY+m_h, realX+m_w, realY+m_h, borderSeconary );
-    g_renderer->Line        ( realX+m_w, realY, realX+m_w, realY+m_h, borderSeconary );
+    g_renderer->EclipseLine        ( realX, realY, realX+m_w, realY, borderPrimary );
+    g_renderer->EclipseLine        ( realX, realY, realX, realY+m_h, borderPrimary );
+    g_renderer->EclipseLine        ( realX, realY+m_h, realX+m_w, realY+m_h, borderSeconary );
+    g_renderer->EclipseLine        ( realX+m_w, realY, realX+m_w, realY+m_h, borderSeconary );
     
     // Render our custom larger text
     Colour fontColour = g_styleTable->GetPrimaryColour(FONTSTYLE_BUTTON);

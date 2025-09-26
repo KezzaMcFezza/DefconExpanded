@@ -153,12 +153,12 @@ void PlaybackControlWindow::Create()
     
     // Seek bar
     SeekBar *seekBar = new SeekBar();
-    seekBar->SetProperties("SeekBar", controlsStartX, 50, controlsWidth, 15, "", "Click and drag to seek to different position in recording", false, false);
+    seekBar->SetProperties("SeekBar", controlsStartX, 50, controlsWidth, 17, "", "Click and drag to seek to different position in recording", false, false);
     RegisterButton(seekBar);
     
     // Speed slider 
     SpeedSlider *speedSlider = new SpeedSlider();
-    speedSlider->SetProperties("SpeedSlider", controlsStartX, 85, controlsWidth, 15, "", "Adjust playback speed", false, false);
+    speedSlider->SetProperties("SpeedSlider", controlsStartX, 85, controlsWidth, 17, "", "Adjust playback speed", false, false);
     RegisterButton(speedSlider);
     
     // initialize it
@@ -167,9 +167,9 @@ void PlaybackControlWindow::Create()
     // create the buttons below the seek bar and play button
     int spectatorButtonY = 130;      // top row for spectator button
     int playerButtonY = 155;         // second row for player buttons
-    int perspectiveButtonWidth = 60;
+    int perspectiveButtonWidth = 65;
     int perspectiveButtonHeight = 20;
-    int perspectiveButtonSpacing = 65;
+    int perspectiveButtonSpacing = 70;
     int perspectiveStartX = controlsStartX; 
     
     // make sure to always create the spectator button first
@@ -417,22 +417,21 @@ void PlaybackControlWindow::Render(bool _hasFocus)
     float progressX = m_x + 95;
     float progressY = m_y + 25;
     float progressW = m_w - 105;
-    float progressH = 6;  
+    float progressH = 10;  
     
     // Background
-    g_renderer->RectFill(progressX, progressY, progressW, progressH, Colour(50, 50, 50, 200));
-    g_renderer->Rect(progressX, progressY, progressW, progressH, Colour(100, 100, 100, 255));
+    g_renderer->EclipseRectFill(progressX, progressY, progressW, progressH, Colour(50, 50, 50, 200));
     
     // Progress fill
     if (m_totalSeqIds > 0) {
         float progress = (float)m_currentSeqId / (float)m_totalSeqIds;
         float fillW = progressW * progress;
-        g_renderer->RectFill(progressX, progressY, fillW, progressH, Colour(100, 150, 255, 200));
+        g_renderer->EclipseRectFill(progressX, progressY, fillW, progressH, Colour(100, 150, 255, 200));
     }
     
-    // Progress text (cached for performance) - centered on the progress bar
+    // Progress text centered on the progress bar
     float progressCenterX = progressX + progressW / 2;
-    g_renderer->TextCentreSimple(progressCenterX, progressY - 3, Colour(200, 200, 200, 255), 10.0f, m_cachedProgressText);
+    g_renderer->TextCentreSimple(progressCenterX, progressY, Colour(200, 200, 200, 255), 11.0f, m_cachedProgressText);
     
     
     // radar perspective label
@@ -449,7 +448,7 @@ void PlaybackControlWindow::Render(bool _hasFocus)
     {
         sprintf(perspectiveText, "Player Perspective: Unknown");
     }
-    g_renderer->TextSimple(m_x + 95, m_y + 115, Colour(180, 180, 180, 255), 8.0f, perspectiveText);
+    g_renderer->TextSimple(m_x + 95, m_y + 110, Colour(180, 180, 180, 255), 10.0f, perspectiveText);
 }
 
 void PlaybackControlWindow::Update()
@@ -721,16 +720,14 @@ void SpeedSlider::Render(int realX, int realY, bool highlighted, bool clicked)
     Colour trackCol = Colour(80, 80, 80, 255);
     Colour thumbCol = highlighted ? Colour(150, 150, 255, 255) : Colour(120, 120, 200, 255);
     
-    g_renderer->RectFill(realX, realY + m_h/2 - 2, m_w, 4, trackCol);
-    g_renderer->Rect(realX, realY + m_h/2 - 2, m_w, 4, Colour(120, 120, 120, 255));
+    g_renderer->EclipseRectFill(realX, realY + m_h/2 - 3, m_w, 6, trackCol);
     
     // Slider thumb
     float thumbX = realX + (m_value * (m_w - 10));
-    g_renderer->RectFill(thumbX, realY, 10, m_h, thumbCol);
-    g_renderer->Rect(thumbX, realY, 10, m_h, Colour(200, 200, 200, 255));
-    
+    g_renderer->EclipseRectFill(thumbX, realY, 10, m_h, thumbCol);
+
     g_renderer->TextSimple(realX, realY - 12, Colour(180, 180, 180, 255), 8.0f, "1x");
-    g_renderer->TextSimple(realX + m_w - 20, realY - 12, Colour(180, 180, 180, 255), 8.0f, "100x");
+    g_renderer->TextSimple(realX + m_w - 25, realY - 12, Colour(180, 180, 180, 255), 10.0f, "100x");
 }
 
 void SpeedSlider::Update()
@@ -823,13 +820,11 @@ void SeekBar::Render(int realX, int realY, bool highlighted, bool clicked)
         thumbCol = Colour(120, 200, 120, 255); // Normal green
     }
     
-    g_renderer->RectFill(realX, realY + m_h/2 - 3, m_w, 6, trackCol);
-    g_renderer->Rect(realX, realY + m_h/2 - 3, m_w, 6, Colour(120, 120, 120, 255));
+    g_renderer->EclipseRectFill(realX, realY + m_h/2 - 3, m_w, 6, trackCol);
     
     // Seek thumb (thinner for precise clicking)
     float thumbX = realX + (m_value * (m_w - 6));
-    g_renderer->RectFill(thumbX, realY, 6, m_h, thumbCol);
-    g_renderer->Rect(thumbX, realY, 6, m_h, Colour(200, 200, 200, 255));
+    g_renderer->EclipseRectFill(thumbX, realY, 6, m_h, thumbCol);
 }
 
 void SeekBar::Update()
@@ -914,27 +909,24 @@ void PlayerPerspectiveButton::Render( int realX, int realY, bool highlighted, bo
     {
         // selected button is brighter
         buttonCol.m_a = 255;
-        g_renderer->RectFill(realX, realY, m_w, m_h, buttonCol);
-        g_renderer->Rect(realX, realY, m_w, m_h, Colour(255, 255, 255, 255), 2);
+        g_renderer->EclipseRectFill(realX, realY, m_w, m_h, buttonCol);
     }
     else if( highlighted || clicked )
     {
         // highlighted button
         buttonCol.m_a = 200;
-        g_renderer->RectFill(realX, realY, m_w, m_h, buttonCol);
-        g_renderer->Rect(realX, realY, m_w, m_h, Colour(200, 200, 200, 255));
+        g_renderer->EclipseRectFill(realX, realY, m_w, m_h, buttonCol);
     }
     else
     {
         // normal button
         buttonCol.m_a = 150;
-        g_renderer->RectFill(realX, realY, m_w, m_h, buttonCol);
-        g_renderer->Rect(realX, realY, m_w, m_h, Colour(120, 120, 120, 255));
+        g_renderer->EclipseRectFill(realX, realY, m_w, m_h, buttonCol);
     }
     
     // button text
     Colour textCol = m_isSelected ? Colour(255, 255, 255, 255) : Colour(220, 220, 220, 255);
-    g_renderer->TextCentreSimple(realX + m_w/2, realY + m_h/2 - 6, textCol, 8.0f, m_caption);
+    g_renderer->TextCentreSimple(realX + m_w/2, realY + m_h/2 - 6, textCol, 9.0f, m_caption);
 }
 
 // ============================================================================

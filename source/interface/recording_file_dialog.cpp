@@ -55,7 +55,7 @@ public:
 
         if( actualIndex < totalItems )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,10), Colour(255,255,255,50), false );
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,10), Colour(255,255,255,50), false );
 
             char *displayText = NULL;
             bool isDirectory = false;
@@ -75,19 +75,19 @@ public:
             
             if( isSelected )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(0,255,0,50) );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(0,255,0,50) );
             }
 
             if( highlighted )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+                g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
             }
             
             if( isSelected )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+                g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
             }
 
             Colour textColour( 255, 255, 255, 200 );
@@ -757,14 +757,14 @@ void RecordingFileDialog::Render( bool _hasFocus )
 
     if( m_image )
     {
-        g_renderer->Blit( m_image, xPos, m_y + 30, w, 118, White );
+        g_renderer->EclipseSprite( m_image, xPos, m_y + 30, w, 118, White );
     }
     else
     {
         g_renderer->TextCentreSimple( xPos+w/2, m_y + 60, White, 14, LANGUAGEPHRASE("dialog_mod_screenshot_not_found") );
     }
 
-    g_renderer->Rect( xPos, m_y + 30, w, 118, Colour(200,200,255,200) );
+    g_renderer->EclipseRect( xPos, m_y + 30, w, 118, Colour(200,200,255,200) );
 
     //
     // directory and file information 

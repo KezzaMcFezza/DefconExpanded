@@ -120,8 +120,8 @@ void Interface::TooltipRender( EclWindow *_window, EclButton *_button, float _ti
         // Render the box
 
        
-        g_renderer->RectFill ( boxX, boxY, boxW, boxH, windowColP, windowColP, windowColS, windowColS );
-        g_renderer->Rect     ( boxX, boxY, boxW, boxH, borderCol);
+        g_renderer->EclipseRectFill ( boxX, boxY, boxW, boxH, windowColP, windowColP, windowColS, windowColS );
+        g_renderer->EclipseRect     ( boxX, boxY, boxW, boxH, borderCol);
 
 
         //
@@ -342,6 +342,7 @@ void Interface::Update()
 
 void Interface::Render()
 {
+    g_renderer->BeginTextBatch();
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     g_renderer->SetFont( "kremlin" );    
 
@@ -468,7 +469,7 @@ void Interface::Render()
                 int red = totalBad*12;
                 int green = 255 - red;
                 col.Set(red,green,0,255);
-                g_renderer->RectFill( 5, 5, 13, 13, col );
+                g_renderer->EclipseRectFill( 5, 5, 13, 13, col );
 
                 g_renderer->SetFont();
 
@@ -682,6 +683,7 @@ void Interface::Render()
     }
 
     g_renderer->SetFont();
+    g_renderer->EndTextBatch();
 }
 
 
@@ -840,8 +842,12 @@ void Interface::OpenGameWindows()
 #ifndef NON_PLAYABLE
     if( localPlayer )
     {
-        SidePanel *sidePanel = new SidePanel("Side Panel");
-        EclRegisterWindow( sidePanel );
+        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
+        if( !isReplayMode )
+        {
+            SidePanel *sidePanel = new SidePanel("Side Panel");
+            EclRegisterWindow( sidePanel );
+        }
     }
 #endif
 

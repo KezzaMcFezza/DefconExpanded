@@ -141,7 +141,7 @@ class MainMenuNewGameButton : public InterfaceButton
 
 
 
-#if RECORDING_PARSING
+#if !defined(RECORDING_PARSING) || !defined(REPLAY_VIEWER_DESKTOP) 
 class MainMenuPlaybackRecordingButton : public InterfaceButton
 {
 public:
@@ -505,8 +505,8 @@ public:
         {
             if( highlighted || clicked )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+                g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
             }
         }
 
@@ -1611,8 +1611,8 @@ class ShowNetworkingHelpButton : public TextButton
     {
         if( highlighted || clicked )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+            g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
         }
 
         TextButton::Render( realX, realY, highlighted, clicked );
