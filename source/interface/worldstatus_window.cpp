@@ -34,7 +34,10 @@ public:
     {
         int myTeamId = g_app->GetWorld()->m_myTeamId;
 
-        bool speedControllable = g_app->GetWorld()->CanSetTimeFactor( m_timeScale );
+        //
+        // in replay mode, treat as spectator. no speed control
+        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
+        bool speedControllable = !isReplayMode && g_app->GetWorld()->CanSetTimeFactor( m_timeScale );
 
         if( speedControllable )
         {
@@ -57,7 +60,7 @@ public:
         {
             if( g_app->GetWorld()->GetTimeScaleFactor() == m_timeScale )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,100) );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,100) );
             }
         }
 
@@ -91,8 +94,8 @@ public:
             float arrowX = realX + m_w/2;
             float arrowY = realY + m_h/2;
 
-            g_renderer->RectFill( arrowX - 5, arrowY-4, 3, 9, White );
-            g_renderer->RectFill( arrowX + 2, arrowY-4, 3, 9, White );
+            g_renderer->EclipseRectFill( arrowX - 5, arrowY-4, 3, 9, White );
+            g_renderer->EclipseRectFill( arrowX + 2, arrowY-4, 3, 9, White );
         }
         else
         {
@@ -106,10 +109,9 @@ public:
 
             for( int i = 0; i < numArrows; ++i )
             {
-                // Convert deprecated GL_TRIANGLES to TriangleFill - right-pointing arrow triangle
-                g_renderer->TriangleFill( arrowX, arrowY-5,      // Top vertex
-                                         arrowX+5, arrowY,      // Right vertex  
-                                         arrowX, arrowY+5,      // Bottom vertex
+                g_renderer->EclipseTriangleFill( arrowX, arrowY-5,// Top vertex
+                                         arrowX+5, arrowY,        // Right vertex  
+                                         arrowX, arrowY+5,        // Bottom vertex
                                          White );
 
                 arrowX += 5;
@@ -132,7 +134,7 @@ public:
                 {
                     Colour col = team->GetTeamColour();
                     int x = realX + 1 + validTeams*2;                
-                    g_renderer->Line( x, realY, x, realY+m_h, col, 2 );
+                    g_renderer->EclipseLine( x, realY, x, realY+m_h, col, 2 );
                     validTeams++;
 
                     strcat( newTooltip, "\n- " );                    
@@ -155,7 +157,8 @@ public:
     
     void MouseUp()
     {
-        bool speedSettable = g_app->GetWorld()->CanSetTimeFactor( m_timeScale );
+        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
+        bool speedSettable = !isReplayMode && g_app->GetWorld()->CanSetTimeFactor( m_timeScale );
 
         if( speedSettable )
         {
@@ -174,8 +177,8 @@ public:
         int defcon = g_app->GetWorld()->GetDefcon();
         if( m_defcon != defcon )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,100) );
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(200,200,200,100) );
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(100,100,100,100) );
+            g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(200,200,200,100) );
 			if( m_captionIsLanguagePhrase )
 			{
 				g_renderer->Text( realX + 5, realY + 2, Colour(200,200,200,100), 15, LANGUAGEPHRASE(m_caption) );
@@ -187,8 +190,8 @@ public:
         }
         else
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(50,50,255,255));
-            g_renderer->Rect( realX, realY, m_w, m_h, White);
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(50,50,255,255));
+            g_renderer->EclipseRect( realX, realY, m_w, m_h, White);
 			if( m_captionIsLanguagePhrase )
 			{
 				g_renderer->TextSimple( realX + 5, realY + 2, White, 15, LANGUAGEPHRASE(m_caption) );
@@ -451,7 +454,7 @@ void ScoresWindow::Render( bool _hasFocus )
 	g_renderer->TextRightSimple( m_x + m_w - 10, yPos+2, White, 11, GameOption::TranslateValue( scoreMode->m_subOptions[scoreMode->m_currentValue] ) );
     yPos += 15;
 
-    g_renderer->Line( m_x + 10, yPos, m_x + m_w - 10, yPos, LightGray, 1.0f );
+    g_renderer->EclipseLine( m_x + 10, yPos, m_x + m_w - 10, yPos, LightGray, 1.0f );
 
     yPos += 3;
 

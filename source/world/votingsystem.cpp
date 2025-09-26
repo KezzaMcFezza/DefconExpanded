@@ -112,17 +112,23 @@ void VotingSystem::RegisterNewVote( int _createTeamId, int _voteType, int _voteD
 
     if( canSeeVote )
     {
-        if( !EclGetWindow("Alliances") )
+        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
+        int isSpectator = g_app->GetWorld()->IsSpectating( g_app->GetClientToServer()->m_clientId );
+        
+        if( isSpectator == -1 && !isReplayMode && !EclGetWindow("Alliances") )
         {
             EclRegisterWindow( new AlliancesWindow() );
         }
 
-        VotingWindow *vote = (VotingWindow *) EclGetWindow("Vote");
-        if( !vote || vote->m_voteId != voteId )
+        if( !isReplayMode )
         {
-            VotingWindow *window = new VotingWindow();
-            window->m_voteId = voteId;
-            EclRegisterWindow( window );
+            VotingWindow *vote = (VotingWindow *) EclGetWindow("Vote");
+            if( !vote || vote->m_voteId != voteId )
+            {
+                VotingWindow *window = new VotingWindow();
+                window->m_voteId = voteId;
+                EclRegisterWindow( window );
+            }
         }
     }
 }

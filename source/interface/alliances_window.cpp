@@ -295,21 +295,21 @@ public:
             {       
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,50) );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(100,100,100,50) );
 
                 if( highlighted || clicked )
                 {
-                    g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,150) );
-                    g_renderer->Blit( img, realX+8, realY+2, 15, 15, Colour(255,255,255,20) );
+                    g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(100,100,100,150) );
+                    g_renderer->EclipseSprite( img, realX+8, realY+2, 15, 15, Colour(255,255,255,20) );
                 }
 
                 if( vote->GetCurrentVote( myTeam->m_teamId ) == m_vote )
                 {
-                    g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,150) );
-                    g_renderer->Blit( img, realX+8, realY+2, 15, 15, White );
+                    g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(100,100,100,150) );
+                    g_renderer->EclipseSprite( img, realX+8, realY+2, 15, 15, White );
                 }
 
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(100,100,100,100) );
+                g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(100,100,100,100) );
 
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
             }
@@ -490,19 +490,19 @@ public:
             myTeam &&
             team != myTeam )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,100) );
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200));
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(10,10,50,100) );
+            g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,200));
 
             if( highlighted || clicked )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,55));
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,55));
             }
 
             if( myTeam->m_ceaseFire[teamId] )
             {
                 Image *img = g_resource->GetImage( "gui/tick.bmp" );
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                g_renderer->Blit( img, realX + 2, realY+2, 15, 15, White );
+                g_renderer->EclipseSprite( img, realX + 2, realY+2, 15, 15, White );
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
             }
@@ -541,19 +541,19 @@ public:
         if( team &&
             team != myTeam )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,100) );
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200));
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(10,10,50,100) );
+            g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,200));
 
             if( highlighted || clicked )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,55));
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,55));
             }
 
             if( myTeam->m_sharingRadar[teamId] )
             {
                 Image *img = g_resource->GetImage( "gui/tick.bmp" );
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                g_renderer->Blit( img, realX + 2, realY+2, 15, 15, White );
+                g_renderer->EclipseSprite( img, realX + 2, realY+2, 15, 15, White );
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );                
             }
         }
@@ -598,15 +598,15 @@ public:
             teamColDark.m_g *= 0.2f;
             teamColDark.m_b *= 0.2f;
 
-            g_renderer->RectFill( realX, realY, m_w, m_h, teamCol, teamColDark, teamColDark, teamCol );
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, teamCol, teamColDark, teamColDark, teamCol );
+            g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
             
-            g_renderer->RectFill( realX + m_w-180, realY, 60, m_h, Colour(0,0,0,50) );
-            g_renderer->RectFill( realX + m_w-60, realY, 60, m_h, Colour(0,0,0,50) );
+            g_renderer->EclipseRectFill( realX + m_w-180, realY, 60, m_h, Colour(0,0,0,50) );
+            g_renderer->EclipseRectFill( realX + m_w-60, realY, 60, m_h, Colour(0,0,0,50) );
 
             if( teamId == g_app->GetWorld()->m_myTeamId )
             {
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,255) );
+                g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,255) );
                 g_renderer->TextCentreSimple( realX+180, realY+10, White, 15, "-" );
                 g_renderer->TextCentreSimple( realX+240, realY+10, White, 15, "-" );
                 g_renderer->TextCentreSimple( realX+305, realY+10, White, 15, "-" );
@@ -619,7 +619,7 @@ public:
                 if( myTeamId != -1 &&
                     team->m_sharingRadar[myTeamId] )
                 {
-                    g_renderer->Blit( img, realX+175, realY+8, 15, 15, White );
+                    g_renderer->EclipseSprite( img, realX+175, realY+8, 15, 15, White );
                 }           
 
                 int sharingRadar = g_app->GetGame()->GetOptionValue("RadarSharing");
@@ -627,7 +627,7 @@ public:
                     g_app->GetWorld()->GetMyTeam() &&
                     g_app->GetWorld()->GetMyTeam()->m_sharingRadar[teamId] )                    
                 {
-                    g_renderer->Blit( img, realX+235, realY+8, 15, 15, White );
+                    g_renderer->EclipseSprite( img, realX+235, realY+8, 15, 15, White );
                 }
 
                 int permitDefection = g_app->GetGame()->GetOptionValue("PermitDefection");
@@ -635,7 +635,7 @@ public:
                     g_app->GetWorld()->GetMyTeam() &&
                     g_app->GetWorld()->GetMyTeam()->m_ceaseFire[teamId] )
                 {
-                    g_renderer->Blit( img, realX+320, realY+8, 15, 15, White );
+                    g_renderer->EclipseSprite( img, realX+320, realY+8, 15, 15, White );
                 }
 
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
@@ -643,7 +643,7 @@ public:
 
             if( teamId == parent->m_selectionTeamId )
             {
-                g_renderer->Rect( realX-2, realY-2, m_w+4, m_h+4, Colour(255,255,255,255) );
+                g_renderer->EclipseRect( realX-2, realY-2, m_w+4, m_h+4, Colour(255,255,255,255) );
             }
             
             g_renderer->TextSimple( realX+10, realY+6, White, 20, team->m_name );                                   
@@ -674,15 +674,15 @@ public:
         
         if( vote )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,200) );
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(10,10,50,200) );
             
             Colour borderCol(255,255,255,100);
             if( highlighted || clicked ) 
             {
                 borderCol.m_a = 255;
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,150,100) );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(100,100,150,100) );
             }
-            g_renderer->Rect( realX, realY, m_w, m_h, borderCol );
+            g_renderer->EclipseRect( realX, realY, m_w, m_h, borderCol );
 
             switch( vote->m_voteType )
             {
@@ -750,6 +750,11 @@ public:
 
     void MouseUp()
     {
+        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
+        int isSpectator = g_app->GetWorld()->IsSpectating( g_app->GetClientToServer()->m_clientId );
+        
+        if( isReplayMode || isSpectator != -1 ) return;
+        
         AlliancesWindow *parent = (AlliancesWindow *)m_parent;
         int voteId = parent->m_votes[m_voteIndex];
         Vote *vote = g_app->GetWorld()->m_votingSystem.LookupVote( voteId );

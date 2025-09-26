@@ -185,8 +185,8 @@ void SidePanel::Render( bool hasFocus )
 
                     for( int i = 0; i < 6; ++i )
                     {
-                        g_renderer->RectFill( x, y, 40, 40, Colour(90,90,170,200) );
-                        g_renderer->Rect(x, y, 40, 40, White );
+                        g_renderer->EclipseRectFill( x, y, 40, 40, Colour(90,90,170,200) );
+                        g_renderer->EclipseRect(x, y, 40, 40, White );
                         y += yMod;
                     }
                     y = m_y+20;
@@ -203,7 +203,7 @@ void SidePanel::Render( bool hasFocus )
                     int type = myTeam->m_fleets[ m_currentFleetId ]->m_memberType[i];
                     Image *bmpImage	= g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[type] );
                     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                    g_renderer->Blit( bmpImage, x+3, y, 35, 35, myTeam->GetTeamColour() );
+                    g_renderer->EclipseSprite( bmpImage, x+3, y, 35, 35, myTeam->GetTeamColour() );
                     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
                     y += yMod;
                 }
@@ -375,7 +375,7 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
     {
         for( int y = -1; y <= 1; ++y )
         {
-            g_renderer->Blit( bmpImage, realX+x, realY+y, m_w, m_h, col );
+            g_renderer->EclipseSprite( bmpImage, realX+x, realY+y, m_w, m_h, col );
         }
     }
     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
@@ -409,7 +409,7 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
 	//float size = 32.0f;
 	if( bmpImage )
 	{
-		g_renderer->Blit( bmpImage, realX, realY, m_w, m_h, colour );
+		g_renderer->EclipseSprite( bmpImage, realX, realY, m_w, m_h, colour );
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	}
 
@@ -520,7 +520,7 @@ void PanelModeButton::Render(int realX, int realY, bool highlighted, bool clicke
         {
             for( int y = -1; y <= 1; ++y )
             {
-                g_renderer->Blit( bmpImage, realX+x, realY+y, m_w, m_h, col );
+                g_renderer->EclipseSprite( bmpImage, realX+x, realY+y, m_w, m_h, col );
             }
         }
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
@@ -548,7 +548,7 @@ void PanelModeButton::Render(int realX, int realY, bool highlighted, bool clicke
 	    float size = 32.0f;
 	    if( bmpImage )
 	    {
-		    g_renderer->Blit( bmpImage, realX, realY, m_w, m_h, colour );
+		    g_renderer->EclipseSprite( bmpImage, realX, realY, m_w, m_h, colour );
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	    }
         Colour textCol = White;
@@ -616,7 +616,7 @@ void AddToFleetButton::Render( int realX, int realY, bool highlighted, bool clic
         {
             for( int y = -1; y <= 1; ++y )
             {
-                g_renderer->Blit( bmpImage, realX+x, realY+y, m_w, m_h, col );
+                g_renderer->EclipseSprite( bmpImage, realX+x, realY+y, m_w, m_h, col );
             }
         }
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
@@ -652,7 +652,7 @@ void AddToFleetButton::Render( int realX, int realY, bool highlighted, bool clic
 	    //float size = 32.0f;
 	    if( bmpImage )
 	    {
-		    g_renderer->Blit( bmpImage, realX, realY, m_w, m_h, colour );
+		    g_renderer->EclipseSprite( bmpImage, realX, realY, m_w, m_h, colour );
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	    }
 
@@ -836,8 +836,8 @@ void NewFleetButton::Render( int realX, int realY, bool highlighted, bool clicke
     if( m_disabled )    col = Colour(100,100,100, transparency);
 
     
-    g_renderer->RectFill ( realX, realY, m_w, m_h, col );
-    g_renderer->Rect     ( realX, realY, m_w, m_h, Colour(150,150,200,transparency) );   
+    g_renderer->EclipseRectFill ( realX, realY, m_w, m_h, col );
+    g_renderer->EclipseRect     ( realX, realY, m_w, m_h, Colour(150,150,200,transparency) );   
 
 	if( m_captionIsLanguagePhrase )
 	{
@@ -906,7 +906,7 @@ void FleetPlacementButton::Render( int realX, int realY, bool highlighted, bool 
 
         Image *img = g_resource->GetImage( "graphics/cursor_target.bmp" );
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-        g_renderer->Blit( img, realX, realY, m_w, m_h, col );
+        g_renderer->EclipseSprite( img, realX, realY, m_w, m_h, col );
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     }
     g_renderer->ResetClip();

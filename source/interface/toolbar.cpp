@@ -44,7 +44,7 @@ void ToolbarButton::Render( int realX, int realY, bool highlighted, bool clicked
         {
             for( int y = -1; y <= 1; ++y )
             {
-                g_renderer->Blit( image, realX+x, realY+y, m_w, m_h, col );
+                g_renderer->EclipseSprite( image, realX+x, realY+y, m_w, m_h, col );
             }
         }
 
@@ -61,7 +61,7 @@ void ToolbarButton::Render( int realX, int realY, bool highlighted, bool clicked
 				{
 					for( int y = -size; y <= size; y++ )
 					{
-						g_renderer->Blit( image, realX+x, realY+y, m_w, m_h, col );
+						g_renderer->EclipseSprite( image, realX+x, realY+y, m_w, m_h, col );
 					}
 				}
 			}
@@ -70,8 +70,8 @@ void ToolbarButton::Render( int realX, int realY, bool highlighted, bool clicked
 			{
 				FadingWindow *parent = (FadingWindow *)m_parent;
 	            
-				g_renderer->RectFill( realX-2, realY-2, m_w+4, m_h+4, Colour(255,255,255,50.0f*parent->m_alpha) );
-				g_renderer->Rect( realX-2, realY-2, m_w+4, m_h+4, Colour(200,200,255,200.0f*parent->m_alpha) );
+				g_renderer->EclipseRectFill( realX-2, realY-2, m_w+4, m_h+4, Colour(255,255,255,50.0f*parent->m_alpha) );
+				g_renderer->EclipseRect( realX-2, realY-2, m_w+4, m_h+4, Colour(200,200,255,200.0f*parent->m_alpha) );
 			}
 		}
 
@@ -84,13 +84,13 @@ void ToolbarButton::Render( int realX, int realY, bool highlighted, bool clicked
 		{
 	        col.Set(200,200,255,200);
 		}
-        g_renderer->Blit( image, realX, realY, m_w, m_h, col );
+        g_renderer->EclipseSprite( image, realX, realY, m_w, m_h, col );
 
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     }
     else
     {
-        g_renderer->RectFill( realX, realY, m_w, m_h, Colour(50,50,100,100) );
+        g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(50,50,100,100) );
     }
 
    
@@ -152,6 +152,9 @@ class PlacementWindowButton : public ToolbarButton
 
     void MouseUp()
     {
+        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
+        if( isReplayMode ) return;
+        
         if( !m_disabled )
         {
             if( EclGetWindow( "Side Panel" ) )
@@ -248,6 +251,9 @@ class ShowAlliancesButton : public ToolbarButton
     }
     void MouseUp()
     {
+        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
+        if( isReplayMode ) return;
+        
         if( EclGetWindow( "Alliances" ) )
         {
             EclRemoveWindow( "Alliances" );
@@ -509,9 +515,14 @@ void Toolbar::Create()
 
 #ifndef NON_PLAYABLE
     int isSpectator = g_app->GetWorld()->IsSpectating( g_app->GetClientToServer()->m_clientId );
-    if( isSpectator == -1 )
+    bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
+    
+    //
+    // only show units and alliances buttons for non-spectators in non-replay mode
+
+    if( isSpectator == -1 && !isReplayMode )
     {
-		PlacementWindowButton *placement = new PlacementWindowButton();
+        PlacementWindowButton *placement = new PlacementWindowButton();
         placement->SetProperties( "Placement", x, y, iconSize, iconSize, "dialog_toolbar_units", "tooltip_toolbar_units", true, true );
         strcpy(placement->m_iconFilename, "gui/tb_units.bmp" );
         RegisterButton( placement );
@@ -570,7 +581,6 @@ void Toolbar::Create()
 
 #ifndef NON_PLAYABLE
     // enable whiteboard for non spectators in live games OR during replay mode
-    bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
     if( isSpectator == -1 || isReplayMode )
     {
         bool supportWhiteBoard = VersionManager::DoesSupportWhiteBoard( g_app->GetClientToServer()->m_serverVersion );
