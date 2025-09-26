@@ -137,14 +137,14 @@ public:
                 g_renderer->SetBlendMode( Renderer::BlendModeSubtractive );
             }
 
-            g_renderer->RectFill( realX, realY, m_w, m_h, col );
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, col );
 
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
             
             Colour borderCol(255,255,255,100);
             if( highlighted || clicked ) borderCol.m_a = 255;
 
-            g_renderer->Rect( realX, realY, m_w, m_h, borderCol );
+            g_renderer->EclipseRect( realX, realY, m_w, m_h, borderCol );
         }
     }
 

@@ -89,16 +89,12 @@ public:
 		{        
             if( fd->IsFileSelected(index) != -1 )
             {
-				// Convert glColor4f + glBegin(GL_QUADS) to modern renderer RectFill
-				g_renderer->RectFill( realX, realY, m_w, m_h, Colour(77, 77, 255, 128) );
+				g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(77, 77, 255, 128) );
             }
-
-    		// Removed glColor4f - color is handled by the modern renderer system
 
 			if( clicked || highlighted )
 			{
-				// Convert glBegin(GL_LINE_LOOP) to modern renderer Rect
-				g_renderer->Rect( realX, realY, m_w, m_h, White );
+				g_renderer->EclipseRect( realX, realY, m_w, m_h, White );
 			}
 
 			char *fileName = fd->m_files->GetData( index );

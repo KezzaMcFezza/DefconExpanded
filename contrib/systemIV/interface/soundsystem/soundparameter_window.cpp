@@ -27,19 +27,17 @@ SoundParameterButton::SoundParameterButton()
 
 void SoundParameterButton::Render( int realX, int realY, bool highlighted,  bool clicked )
 {
-    // Convert glColor4f + glBegin(GL_QUADS) to modern renderer RectFill
     float editAreaWidth = m_w - 100;
-    g_renderer->RectFill( realX + m_w - editAreaWidth, realY, editAreaWidth, m_h, Colour(25, 0, 0, 128) );
+    g_renderer->EclipseRectFill( realX + m_w - editAreaWidth, realY, editAreaWidth, m_h, Colour(25, 0, 0, 128) );
 
-    // Convert all the border lines to modern renderer Line calls
     // Top line
-    g_renderer->Line( realX + m_w - editAreaWidth, realY, realX + m_w, realY, Colour(0, 0, 0, 255) );
+    g_renderer->EclipseLine( realX + m_w - editAreaWidth, realY, realX + m_w, realY, Colour(0, 0, 0, 255) );
     // Left line
-    g_renderer->Line( realX + m_w - editAreaWidth, realY, realX + m_w - editAreaWidth, realY+m_h, Colour(0, 0, 0, 255) );
+    g_renderer->EclipseLine( realX + m_w - editAreaWidth, realY, realX + m_w - editAreaWidth, realY+m_h, Colour(0, 0, 0, 255) );
     // Right line
-    g_renderer->Line( realX + m_w, realY, realX + m_w, realY + m_h, Colour(229, 76, 76, 76) );
+    g_renderer->EclipseLine( realX + m_w, realY, realX + m_w, realY + m_h, Colour(229, 76, 76, 76) );
     // Bottom line
-    g_renderer->Line( realX + m_w - editAreaWidth, realY+m_h, realX + m_w, realY + m_h, Colour(100, 34, 34, 150) );
+    g_renderer->EclipseLine( realX + m_w - editAreaWidth, realY+m_h, realX + m_w, realY + m_h, Colour(100, 34, 34, 150) );
 
 
     TextButton::Render( realX, realY, highlighted, clicked );
@@ -271,12 +269,12 @@ void SoundParameterGraph::RenderAxis( int realX, int realY )
 
     // Convert axis rendering to modern renderer Line calls
     // Main horizontal axis line
-    g_renderer->Line( realX + x1, realY + y, realX + x2, realY + y, White );
+    g_renderer->EclipseLine( realX + x1, realY + y, realX + x2, realY + y, White );
     
     // Vertical axis line (if linked parameter)
     if( m_parameter->m_type == SoundParameter::TypeLinked )
     {
-        g_renderer->Line( realX + x, realY + y1, realX + x, realY + y2, White );
+        g_renderer->EclipseLine( realX + x, realY + y1, realX + x, realY + y2, White );
     }
 
     g_renderer->Text( realX + x1, realY + y + 20, White, 10, "%2.2f", m_minOutput );
@@ -305,7 +303,7 @@ void SoundParameterGraph::RenderAxis( int realX, int realY )
 		{
 			float output = m_minOutput + (float)i * 0.1f * (m_maxOutput - m_minOutput);
 			GetPosition( output, 0, &x1, &y );
-			g_renderer->Line( realX + x1, realY + y1, realX + x1, realY + y2, Colour(60, 60, 70, 255) );
+			g_renderer->EclipseLine( realX + x1, realY + y1, realX + x1, realY + y2, Colour(60, 60, 70, 255) );
 		}
 	}
 }
@@ -321,7 +319,7 @@ void SoundParameterGraph::RenderValues( int realX, int realY )
             GetPosition( m_parameter->m_outputLower, m_minInput, &x, &y1 );
             GetPosition( m_parameter->m_outputLower, m_maxInput, &x, &y2 );
             // Convert fixed value line to modern renderer
-            g_renderer->Line( realX + x, realY + y1, realX + x, realY + y2, Colour(179, 204, 255, 179) );
+            g_renderer->EclipseLine( realX + x, realY + y1, realX + x, realY + y2, Colour(179, 204, 255, 179) );
             g_renderer->Text( realX + x, realY + y1 + 10, White, 10, "%2.2f", m_parameter->m_outputLower );
             break;
         }
@@ -334,11 +332,11 @@ void SoundParameterGraph::RenderValues( int realX, int realY )
             GetPosition( m_parameter->m_outputUpper, m_minInput, &x2, NULL );
 
             // Convert ranged random visualization to modern renderer
-            g_renderer->RectFill( realX + x1, realY + y1, x2 - x1, y2 - y1, Colour(128, 128, 255, 76) );
+            g_renderer->EclipseRectFill( realX + x1, realY + y1, x2 - x1, y2 - y1, Colour(128, 128, 255, 76) );
             
             // Border lines
-            g_renderer->Line( realX + x1, realY + y1, realX + x1, realY + y2, Colour(128, 128, 255, 179) );
-            g_renderer->Line( realX + x2, realY + y1, realX + x2, realY + y2, Colour(128, 128, 255, 179) );
+            g_renderer->EclipseLine( realX + x1, realY + y1, realX + x1, realY + y2, Colour(128, 128, 255, 179) );
+            g_renderer->EclipseLine( realX + x2, realY + y1, realX + x2, realY + y2, Colour(128, 128, 255, 179) );
 
             g_renderer->TextCentre( realX + x1, realY + y1 + 10, White, 10, "%2.2f", m_parameter->m_outputLower );
             g_renderer->TextCentre( realX + x2, realY + y1 + 10, White, 10, "%2.2f", m_parameter->m_outputUpper );
@@ -357,15 +355,15 @@ void SoundParameterGraph::RenderValues( int realX, int realY )
             
             // Convert linked parameter visualization to modern renderer
             // Main connection line
-            g_renderer->Line( realX + x1, realY + y1, realX + x2, realY + y2, Colour(128, 128, 255, 230) );
+            g_renderer->EclipseLine( realX + x1, realY + y1, realX + x2, realY + y2, Colour(128, 128, 255, 230) );
             
             // Vertical indicator lines
             if( y1 >= y2 ) {
-                g_renderer->Line( realX + x1, realY + y1, realX + x1, realY + minY, Colour(128, 128, 255, 230) );
-                g_renderer->Line( realX + x2, realY + y2, realX + x2, realY + maxY, Colour(128, 128, 255, 230) );
+                g_renderer->EclipseLine( realX + x1, realY + y1, realX + x1, realY + minY, Colour(128, 128, 255, 230) );
+                g_renderer->EclipseLine( realX + x2, realY + y2, realX + x2, realY + maxY, Colour(128, 128, 255, 230) );
             } else {
-                g_renderer->Line( realX + x1, realY + y1, realX + x1, realY + maxY, Colour(128, 128, 255, 230) );
-                g_renderer->Line( realX + x2, realY + y2, realX + x2, realY + minY, Colour(128, 128, 255, 230) );
+                g_renderer->EclipseLine( realX + x1, realY + y1, realX + x1, realY + maxY, Colour(128, 128, 255, 230) );
+                g_renderer->EclipseLine( realX + x2, realY + y2, realX + x2, realY + minY, Colour(128, 128, 255, 230) );
             }
 
             g_renderer->TextCentre( realX + x1, realY + minY + 10, White, 10, "%2.2f", m_parameter->m_outputLower );
@@ -394,12 +392,12 @@ void SoundParameterGraph::RenderOutput( int realX, int realY )
         GetPosition( output, m_minInput, &x, &minY );
         GetPosition( output, m_maxInput, &x, &maxY );
         // Convert output visualization to modern renderer
-        g_renderer->Line( realX + x, realY + minY, realX + x, realY + maxY, Colour(128, 255, 128, 191) );
+        g_renderer->EclipseLine( realX + x, realY + minY, realX + x, realY + maxY, Colour(128, 255, 128, 191) );
 
         float desiredOutput = m_parameter->m_desiredOutput;
         GetPosition( desiredOutput, m_minInput, &x, &minY );
         GetPosition( desiredOutput, m_maxInput, &x, &maxY );
-        g_renderer->Line( realX + x, realY + minY, realX + x, realY + maxY, Colour(128, 255, 128, 89) );
+        g_renderer->EclipseLine( realX + x, realY + minY, realX + x, realY + maxY, Colour(128, 255, 128, 89) );
     }
     else if( m_parameter->m_type == SoundParameter::TypeLinked )
     {
@@ -440,8 +438,8 @@ void SoundParameterGraph::RenderOutput( int realX, int realY )
         GetPosition( desiredOutput, m_minInput, &maxX, &maxY );
         
         // Convert linked output visualization to modern renderer
-        g_renderer->Line( realX + minX, realY + minY, realX + maxX, realY + minY, Colour(128, 255, 128, 89) );
-        g_renderer->Line( realX + maxX, realY + minY, realX + maxX, realY + maxY, Colour(128, 255, 128, 89) );
+        g_renderer->EclipseLine( realX + minX, realY + minY, realX + maxX, realY + minY, Colour(128, 255, 128, 89) );
+        g_renderer->EclipseLine( realX + maxX, realY + minY, realX + maxX, realY + maxY, Colour(128, 255, 128, 89) );
     }
 }
 

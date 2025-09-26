@@ -53,11 +53,11 @@ void InputField::Render( int realX, int realY, bool highlighted, bool clicked )
     Colour borderA = g_styleTable->GetPrimaryColour(STYLE_INPUT_BORDER);
     Colour borderB = g_styleTable->GetSecondaryColour(STYLE_INPUT_BORDER);
 
-    g_renderer->RectFill    ( realX, realY, m_w, m_h, background );
-    g_renderer->Line        ( realX, realY, realX + m_w, realY, borderA );
-    g_renderer->Line        ( realX, realY, realX, realY + m_h, borderA );
-    g_renderer->Line        ( realX + m_w, realY, realX + m_w, realY + m_h, borderB );
-    g_renderer->Line        ( realX, realY + m_h, realX + m_w, realY + m_h, borderB );
+    g_renderer->EclipseRectFill    ( realX, realY, m_w, m_h, background );
+    g_renderer->EclipseLine        ( realX, realY, realX + m_w, realY, borderA );
+    g_renderer->EclipseLine        ( realX, realY, realX, realY + m_h, borderA );
+    g_renderer->EclipseLine        ( realX + m_w, realY, realX + m_w, realY + m_h, borderB );
+    g_renderer->EclipseLine        ( realX, realY + m_h, realX + m_w, realY + m_h, borderB );
 
 	if (!highlighted)
 	{
@@ -95,7 +95,7 @@ void InputField::Render( int realX, int realY, bool highlighted, bool clicked )
             GetHighResTime() < m_lastKeyPressTimer+1.0f )
 		{
 			float cursorX = fieldX + textWidth + 1;
-            g_renderer->Line( cursorX, realY + 2, cursorX, realY + m_h - 2, White );
+            g_renderer->EclipseLine( cursorX, realY + 2, cursorX, realY + m_h - 2, White );
 		}
 	}
 
@@ -331,17 +331,16 @@ void InputScroller::Render( int realX, int realY, bool highlighted, bool clicked
     //
     // Render arrow
 
-    // Convert glBegin(GL_TRIANGLES) to modern renderer TriangleFill
     float midPoint = realY + m_h/2;
     if( m_change < 0 )
     {
-        g_renderer->TriangleFill( realX + 6, midPoint,
+        g_renderer->EclipseTriangleFill( realX + 6, midPoint,
                                   realX + 14, midPoint-4,
                                   realX + 14, midPoint+4, White );
     }
     else
     {
-        g_renderer->TriangleFill( realX + m_w - 14, midPoint-4,
+        g_renderer->EclipseTriangleFill( realX + m_w - 14, midPoint-4,
                                   realX + m_w - 6, midPoint,
                                   realX + m_w - 14, midPoint + 4, White );
     }

@@ -24,21 +24,21 @@ void CheckBox::Render( int realX, int realY, bool highlighted, bool clicked )
     Colour borderA      = g_styleTable->GetPrimaryColour(STYLE_INPUT_BORDER);
     Colour borderB      = g_styleTable->GetSecondaryColour(STYLE_INPUT_BORDER);
 
-    g_renderer->Line        ( realX, realY+1, realX+m_w, realY+1, borderA );
-    g_renderer->Line        ( realX+1, realY, realX+1, realY+m_h, borderA );
+    g_renderer->EclipseLine        ( realX, realY+1, realX+m_w, realY+1, borderA );
+    g_renderer->EclipseLine        ( realX+1, realY, realX+1, realY+m_h, borderA );
 
-    g_renderer->RectFill    ( realX, realY, m_w, m_h, background );
-    g_renderer->Line        ( realX, realY, realX + m_w, realY, borderB );
-    g_renderer->Line        ( realX, realY, realX, realY + m_h, borderB );
-    g_renderer->Line        ( realX + m_w, realY, realX + m_w, realY + m_h, borderB );
-    g_renderer->Line        ( realX, realY + m_h, realX + m_w, realY + m_h, borderB );    
+    g_renderer->EclipseRectFill    ( realX, realY, m_w, m_h, background );
+    g_renderer->EclipseLine        ( realX, realY, realX + m_w, realY, borderB );
+    g_renderer->EclipseLine        ( realX, realY, realX, realY + m_h, borderB );
+    g_renderer->EclipseLine        ( realX + m_w, realY, realX + m_w, realY + m_h, borderB );
+    g_renderer->EclipseLine        ( realX, realY + m_h, realX + m_w, realY + m_h, borderB );    
     
     if( m_value && *m_value == true )
     {
         float inset = 4;
         Colour col(255,255,255,180);
-        g_renderer->Line( realX+inset, realY+inset, realX+m_w-inset, realY+m_h-inset, col );
-        g_renderer->Line( realX+inset, realY+m_h-inset, realX+m_w-inset, realY+inset, col );
+        g_renderer->EclipseLine( realX+inset, realY+inset, realX+m_w-inset, realY+m_h-inset, col );
+        g_renderer->EclipseLine( realX+inset, realY+m_h-inset, realX+m_w-inset, realY+inset, col );
     }
 }
 

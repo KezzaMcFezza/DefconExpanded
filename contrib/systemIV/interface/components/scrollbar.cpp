@@ -146,11 +146,11 @@ void ScrollBarButton::Render( int realX, int realY, bool highlighted, bool click
     Colour borderB = g_styleTable->GetSecondaryColour(STYLE_INPUT_BORDER);
 
     // Background
-    g_renderer->RectFill( realX, realY, m_w, m_h, background );
-    g_renderer->Line        ( realX, realY, realX + m_w, realY, borderA );
-    g_renderer->Line        ( realX, realY, realX, realY + m_h, borderA );
-    g_renderer->Line        ( realX + m_w, realY, realX + m_w, realY + m_h, borderB );
-    g_renderer->Line        ( realX, realY + m_h, realX + m_w, realY + m_h, borderB );
+    g_renderer->EclipseRectFill( realX, realY, m_w, m_h, background );
+    g_renderer->EclipseLine        ( realX, realY, realX + m_w, realY, borderA );
+    g_renderer->EclipseLine        ( realX, realY, realX, realY + m_h, borderA );
+    g_renderer->EclipseLine        ( realX + m_w, realY, realX + m_w, realY + m_h, borderB );
+    g_renderer->EclipseLine        ( realX, realY + m_h, realX + m_w, realY + m_h, borderB );
 
 
     //
@@ -183,14 +183,13 @@ void ScrollBarButton::Render( int realX, int realY, bool highlighted, bool click
         height = 5.0f;
     }
 
-    g_renderer->RectFill( xPos, yPos, width, height, 
+    g_renderer->EclipseRectFill( xPos, yPos, width, height, 
                           primaryCol, primaryCol, secondaryCol, secondaryCol );
 
-    g_renderer->Line ( xPos, yPos, xPos+width, yPos, borderPrimary );
-    g_renderer->Line ( xPos, yPos, xPos, yPos+height, borderPrimary );
-    g_renderer->Line ( xPos, yPos+height, xPos+width, yPos+height, borderSeconary );
-    g_renderer->Line ( xPos+width, yPos, xPos+width, yPos+height, borderSeconary );
-    
+    g_renderer->EclipseLine ( xPos, yPos, xPos+width, yPos, borderPrimary );
+    g_renderer->EclipseLine ( xPos, yPos, xPos, yPos+height, borderPrimary );
+    g_renderer->EclipseLine ( xPos, yPos+height, xPos+width, yPos+height, borderSeconary );
+    g_renderer->EclipseLine ( xPos+width, yPos, xPos+width, yPos+height, borderSeconary );
 }
 
 void ScrollBarButton::MouseUp()
@@ -280,16 +279,15 @@ void ScrollChangeButton::Render( int realX, int realY, bool highlighted, bool cl
     float midPointX = realX + m_w/2.0f;
     float midPointY = realY + m_h/2.0f;
 
-    // Convert glBegin(GL_TRIANGLES) to modern renderer TriangleFill
     if( m_amount < 0 )
     {
-        g_renderer->TriangleFill( midPointX, midPointY-5,
+        g_renderer->EclipseTriangleFill( midPointX, midPointY-5,
                                   midPointX+4, midPointY+4,
                                   midPointX-4, midPointY+4, White );
     }
     else
     {
-        g_renderer->TriangleFill( midPointX, midPointY+3,
+        g_renderer->EclipseTriangleFill( midPointX, midPointY+3,
                                   midPointX-4, midPointY-4,
                                   midPointX+4, midPointY-4, White );
     }

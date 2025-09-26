@@ -272,8 +272,7 @@ void DropDownMenu::Render( int realX, int realY, bool highlighted, bool clicked 
         
     float midPointY = realY + m_h/2.0f;
 
-    // Convert glBegin(GL_TRIANGLES) to modern renderer TriangleFill
-    g_renderer->TriangleFill( realX + m_w - 14, midPointY-4,
+    g_renderer->EclipseTriangleFill( realX + m_w - 14, midPointY-4,
                               realX + m_w - 6, midPointY-4,
                               realX + m_w - 10, midPointY+4, White );
 }
@@ -397,12 +396,12 @@ void DropDownMenuOption::Render( int realX, int realY, bool highlighted, bool cl
 
             if( highlighted )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,200,100) );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(100,100,200,100) );
             }
 
             if( menu->GetSelectionValue() == m_value )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,200,200) );
+                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(100,100,200,200) );
                 TextButton::Render( realX, realY, highlighted, true );
             }
             else
