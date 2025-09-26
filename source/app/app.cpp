@@ -16,6 +16,7 @@
 #include "lib/resource/resource.h"
 #include "lib/render2d/renderer.h"
 #include "lib/render/styletable.h"
+#include "lib/render/renderer_debug_menu.h"
 #include "lib/debug_utils.h"
 #include "lib/profiler.h"
 #include "lib/hi_res_time.h"
@@ -123,7 +124,13 @@ App::App()
 	m_inited(false),
     m_achievementTracker(NULL),
     m_debugPrintClientLetters(false),
-    m_renderingEnabled(true)
+    m_renderingEnabled(true),
+    m_showFps(false),
+    m_showDebugMenu(false),
+    m_currentFrames(0),
+    m_framesPerSecond(0),
+    m_frameCountTimer(1.0f),
+    m_debugMenu(NULL)
 {
     // Initialize replay filename to empty
     m_replayFilename[0] = '\0';
@@ -159,6 +166,7 @@ App::~App()
 #ifdef TOGGLE_SOUND
 	delete g_soundSystem;
 #endif
+	delete m_debugMenu;
 }
 
 void App::InitMetaServer()
@@ -390,6 +398,8 @@ void App::MinimalInit()
     
     g_renderer = new Renderer();
     InitFonts();
+
+    m_debugMenu = new RendererDebugMenu(g_renderer);
 
     m_mapRenderer = new MapRenderer();
     m_mapRenderer->Init();
@@ -747,6 +757,10 @@ void App::ReinitialiseWindow()
     
     InitFonts();
 
+    // Recreate debug menu with new renderer
+    delete m_debugMenu;
+    m_debugMenu = new RendererDebugMenu(g_renderer);
+
     m_mapRenderer->Init();
     m_interface->Init(); 
     
@@ -762,6 +776,20 @@ void App::Update()
         //AppDebugOut("WebGL: Update() called %d times\n", updateCount);
     }
 #endif    
+
+    //
+    // global debug menu key handling
+
+    //
+    // F1 toggles FPS counter only
+
+    if( g_keys[KEY_F1] && g_keyDeltas[KEY_F1] ) m_showFps = !m_showFps;
+    
+    //
+    // F2 toggles debug menu
+
+    if( g_keys[KEY_F2] && g_keyDeltas[KEY_F2] ) m_showDebugMenu = !m_showDebugMenu;
+    
     //
     // Update the interface
 
@@ -795,14 +823,12 @@ void App::Render()
 #endif
     START_PROFILE("Render");
 
+    //
+    // begin frame for global draw call tracking
+
+    g_renderer->BeginFrame();
     g_renderer->ClearScreen( true, false );
     g_renderer->BeginScene();
-
-    //
-    // Scene level text batching if we have the batched text functions in the scene
-    //
-
-    g_renderer->BeginFrameTextBatch();
     
     //
     // World map
@@ -836,12 +862,9 @@ void App::Render()
     g_renderer->Reset2DViewport();
     g_renderer->BeginScene();
 
-       
-
     //
-    // Eclipse buttons and windows
+    // eclipse buttons and windows, but first check if UI should be hidden
 
-    // Check if UI should be hidden
     extern bool g_hideUI;
     if( !g_hideUI )
     {
@@ -849,7 +872,7 @@ void App::Render()
     }
 
     START_PROFILE( "Eclipse GUI" );
-    g_renderer->SetBlendMode( Renderer::BlendModeNormal );
+    //g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     
     if( !g_hideUI )
     {
@@ -857,6 +880,53 @@ void App::Render()
     }
     
     END_PROFILE( "Eclipse GUI" );
+    
+    //
+    // update frame timing when either FPS counter or debug menu is shown
+
+    if( m_showFps || m_showDebugMenu )
+    {
+        static double s_lastRender = 0;
+        static double s_biggest = 0;
+        double timeNow = GetHighResTime();
+        double lastFrame = timeNow - s_lastRender;        
+        s_lastRender = timeNow;
+        if( lastFrame > s_biggest ) s_biggest = lastFrame;
+        
+        m_frameCountTimer -= g_advanceTime;
+        m_currentFrames++;
+        if( m_frameCountTimer <= 0.0f )
+        {
+            m_frameCountTimer = 1.0f;
+            m_framesPerSecond = m_currentFrames;
+            m_currentFrames = 0;
+            s_biggest = 0;
+        }
+        
+        g_renderer->BeginTextBatch();
+
+        //
+        // show FPS counter if F1 was pressed
+
+        if( m_showFps )
+        {
+            char fps[64];
+            strcpy( fps, LANGUAGEPHRASE("dialog_mapr_fps") );
+            LPREPLACEINTEGERFLAG( 'F', m_framesPerSecond, fps );
+            g_renderer->TextSimple( 25, 25, White, 20.0f, fps );
+        }
+        
+        //
+        // Show debug menu if F2 was pressed
+
+        if( m_showDebugMenu && m_debugMenu )
+        {
+            m_debugMenu->Update(lastFrame);
+            m_debugMenu->RenderDebugMenu();
+        }
+        
+        g_renderer->EndTextBatch();
+    }
     
     
     //
@@ -871,12 +941,6 @@ void App::Render()
 #ifdef SHOW_OWNER
     RenderOwner(); 
 #endif
-
-    //
-    // End the text batching
-    //
-
-    g_renderer->EndFrameTextBatch();
 
     //
     // Flip with FPS limiting
@@ -948,6 +1012,11 @@ void App::Render()
     g_windowManager->Flip();
     END_PROFILE( "GL Flip" );   
     
+    //
+    // End frame for global draw call tracking
+
+    g_renderer->EndFrame();
+    
     END_PROFILE( "Render" );
 }
 
@@ -985,7 +1054,7 @@ void App::RenderTitleScreen()
 
         float bombSize = 500;
         Colour col(255,155,155, 255*(bombTimer-GetHighResTime())/10 );
-        g_renderer->Blit( blur, bombX, baseLine-300, bombSize, bombSize, col );
+        g_renderer->EclipseSprite( blur, bombX, baseLine-300, bombSize, bombSize, col );
     }
 
 
@@ -998,14 +1067,14 @@ void App::RenderTitleScreen()
     
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );        
 
-    g_renderer->RectFill( 0, baseLine, windowW, windowH-baseLine, Black );
+    g_renderer->EclipseRectFill( 0, baseLine, windowW, windowH-baseLine, Black );
 
     while( x < windowW )
     {        
         float thisW = 50+sfrand(30);
         float thisH = 40+frand(140);
 
-        g_renderer->RectFill( x, baseLine - thisH, thisW, thisH, Black );
+        g_renderer->EclipseRectFill( x, baseLine - thisH, thisW, thisH, Black );
 
         x += thisW;
     }

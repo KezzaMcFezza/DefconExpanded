@@ -28,6 +28,7 @@ class StatusIcon;
 class Tutorial;
 class World;
 class RecordingFileDialog;
+class RendererDebugMenu;
 
 class App
 {
@@ -50,6 +51,13 @@ public:                 // STARTUP OPTIONS
     bool        m_renderingEnabled;
 
     char        m_replayFilename[512];              // Command line replay file support, uses -l to match dedcons command line arguments
+    
+    // Global debug menu and FPS counter
+    bool        m_showFps;
+    bool        m_showDebugMenu;
+    int         m_currentFrames;
+    int         m_framesPerSecond;
+    float       m_frameCountTimer;
 
 private:
     MapRenderer         *m_mapRenderer;
@@ -65,6 +73,7 @@ private:
 
 #endif
     NetLib              *m_netLib;
+    RendererDebugMenu   *m_debugMenu;
     
     bool        m_mousePointerVisible;
 
