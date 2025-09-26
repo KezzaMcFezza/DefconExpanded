@@ -161,6 +161,9 @@ void BitmapFont::DrawText2DSimple(float _x, float _y, float _size, char const *_
     if (!g_renderer) return;
     
     unsigned numChars = (unsigned) strlen(_text);
+    
+    g_renderer->FlushTextBufferIfFull(numChars);
+    
     float currentX = _x;
     
     for( unsigned int i = 0; i < numChars; ++i )
@@ -183,8 +186,6 @@ void BitmapFont::DrawText2DSimple(float _x, float _y, float _size, char const *_
             finalTexH = -texH;
         }
 
-        // Use the renderer's BlitChar function which handles texture sub-regions
-        // This will handle all the texture binding, shader setup, and VBO rendering
         g_renderer->BlitChar(m_textureID, currentX, _y, horiSize, _size, 
                            texX, finalTexY, texW, finalTexH, _col);
 
@@ -195,55 +196,9 @@ void BitmapFont::DrawText2DSimple(float _x, float _y, float _size, char const *_
         {
             currentX -= _size*0.55f;
         }
-    }
-    
-    g_renderer->FlushVertices(GL_TRIANGLES, true);
+    }   
 }
 
-void BitmapFont::DrawText2DSimpleBatch(float _x, float _y, float _size, char const *_text, Colour const &_col )
-{
-    // Get the renderer instance - we need this to use the modern BatchBlitChar function
-    extern class Renderer *g_renderer;
-    if (!g_renderer) return;
-    
-    unsigned numChars = (unsigned) strlen(_text);
-    float currentX = _x;
-    
-    for( unsigned int i = 0; i < numChars; ++i )
-    {       
-        unsigned char thisChar = _text[i];
-
-        float texX = GetTexCoordX( thisChar );
-        float texY = GetTexCoordY( thisChar );
-        float texW = GetTexWidth( thisChar );
-        float texH = TEX_HEIGHT;
-
-        float horiSize = _size * texW/texH;
-        
-        // Handle horizontal flip by adjusting texture coordinates
-        float finalTexY = texY;
-        float finalTexH = texH;
-        if( m_horizontalFlip )
-        {
-            finalTexY += texH;
-            finalTexH = -texH;
-        }
-
-        // Use the renderer's BatchBlitChar function which accumulates to text buffer
-        // This allows multiple text strings to be batched together instead of immediate flush
-        g_renderer->BatchBlitChar(m_textureID, currentX, _y, horiSize, _size, 
-                                 texX, finalTexY, texW, finalTexH, _col);
-
-        currentX += horiSize;                
-        currentX += _size * m_spacing;
-
-        if( m_fixedWidth )
-        {
-            currentX -= _size*0.55f;
-        }
-    }
-    
-}
 
 
 void BitmapFont::DrawText2D( float _x, float _y, float _size, char const *_text, ... )
