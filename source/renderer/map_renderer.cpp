@@ -39,7 +39,6 @@
 #include "renderer/map_renderer.h"
 #include "renderer/animated_icon.h"
 
-#include "lib/render/renderer_debug_menu.h"
 
 #include "world/world.h"
 #include "world/earthdata.h"
@@ -87,11 +86,6 @@ MapRenderer::MapRenderer()
     m_autoCamTimer(20.0f),
     m_lockCamControl(false),
     m_showNukeUnits(false),
-    m_currentFrames(0),
-    m_framesPerSecond(0),
-    m_frameCountTimer(1.0f),
-    m_showFps(false),
-    m_showDebugMenu(false),
     m_lockCommands(false),
     m_draggingCamera(false),
     m_tooltip(NULL),
@@ -105,7 +99,6 @@ MapRenderer::MapRenderer()
 	m_drawingPlanningTime(0.0f),
 	m_longitudePlanningOld(0.0f),
 	m_latitudePlanningOld(0.0f),
-	m_debugMenu(NULL),
 	m_3DGlobeMode(false)
 {
     for( int i = 0; i < MAX_TEAMS; ++i )
@@ -133,9 +126,6 @@ static void DeleteAndDestroyDisplayList( const char *name )
 MapRenderer::~MapRenderer()
 {
     Reset();
-    
-    delete m_debugMenu;
-    m_debugMenu = NULL;
 
     DeleteAndDestroyDisplayList( "MapCoastlines" );
 	DeleteAndDestroyDisplayList( "MapBorders" );
@@ -150,11 +140,6 @@ MapRenderer::~MapRenderer()
 void MapRenderer::Init()
 {
     Reset();
-    
-    // Initialize debug menu
-    if (!m_debugMenu) {
-        m_debugMenu = new RendererDebugMenu(g_renderer);
-    }
 
     bmpRadar        = g_resource->GetImage( "graphics/radar.bmp" );
     bmpBlur         = g_resource->GetImage( "graphics/blur.bmp" );
@@ -196,49 +181,6 @@ void MapRenderer::Reset()
 void MapRenderer::Render()
 {
     START_PROFILE( "MapRenderer" );
-    
-    g_renderer->BeginFrame();
-
-    // Update frame timing when either FPS counter or debug menu is shown
-    if( m_showFps || m_showDebugMenu )
-    {
-        static double s_lastRender = 0;
-        static double s_biggest = 0;
-        double timeNow = GetHighResTime();
-        double lastFrame = timeNow - s_lastRender;        
-        int lastFrameSize = int(lastFrame * 1000) * 0.2f;
-        s_lastRender = timeNow;
-        if( lastFrame > s_biggest ) s_biggest = lastFrame;
-        
-        m_frameCountTimer -= g_advanceTime;
-        m_currentFrames++;
-        if( m_frameCountTimer <= 0.0f )
-        {
-            m_frameCountTimer = 1.0f;
-            m_framesPerSecond = m_currentFrames;
-            m_currentFrames = 0;
-
-            //AppDebugOut( "%dms\n", int(s_biggest * 1000) );
-            s_biggest = 0;
-        }
-        
-        // Show FPS counter if F1 was pressed (lightweight)
-        if( m_showFps )
-        {
-            char fps[64];
-            strcpy( fps, LANGUAGEPHRASE("dialog_mapr_fps") );
-            LPREPLACEINTEGERFLAG( 'F', m_framesPerSecond, fps );
-            g_renderer->TextSimple( 25, 25, White, 20.0f, fps );
-        }
-        
-        // Show debug menu if F2 was pressed (performance heavy)
-        if( m_showDebugMenu && m_debugMenu )
-        {
-            m_debugMenu->Update(lastFrame);
-            m_debugMenu->RenderDebugMenu();
-        }
-    }
-
 
     //
     // Render it!
@@ -295,7 +237,9 @@ void MapRenderer::Render()
         blurColour = blurColour * mapColourFader + desaturatedColour * (1-mapColourFader);
 
         g_renderer->BeginEffectsLineBatch();
-        
+        g_renderer->BeginEffectsSpriteBatch();
+        g_renderer->BeginTextBatch();
+
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
         g_renderer->Blit( bmpBlur, -180, 100, 360, -200, blurColour );
 
@@ -305,8 +249,11 @@ void MapRenderer::Render()
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
         RenderCountryControl();
+        RenderWorldMessages();
 
+        g_renderer->EndEffectsSpriteBatch();
         g_renderer->EndEffectsLineBatch();
+        g_renderer->EndTextBatch();
 
         bool showCoastlines = g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES );
         bool showBorders    = g_preferences->GetInt( PREFS_GRAPHICS_BORDERS );
@@ -326,9 +273,7 @@ void MapRenderer::Render()
 
         //
         // master scene batching, wrap the entire map rendering loop inside the buffers
-        //
 
-        g_renderer->BeginTextBatch();
         g_renderer->BeginUnitMainBatch();       // Main unit sprites + city icons
         g_renderer->BeginUnitRotatingBatch();   // Rotating sprites (aircraft, nukes)
         g_renderer->BeginUnitTrailBatch();      // Unit movement trails
@@ -339,10 +284,6 @@ void MapRenderer::Render()
         g_renderer->BeginEffectsLineBatch();    // All line effects (waypoints, radar, etc.)
         g_renderer->BeginEffectsSpriteBatch();  // All sprite effects (explosions, nukesymbols, population, radiation, etc.)
 
-        if( m_showRadar )               
-        {
-            RenderRadar();
-        }
         if( m_showPopulation )          
         { 
             RenderPopulationDensity();
@@ -356,7 +297,6 @@ void MapRenderer::Render()
         RenderGunfire();      
         RenderCities();       
         RenderBlips();        
-        RenderWorldMessages();
 		RenderSanta();
         RenderNodes();
 
@@ -392,6 +332,7 @@ void MapRenderer::Render()
         // master scene batching, end all batching systems and flush
         //
 
+        g_renderer->EndUnitMainBatch();         // Flush all main unit sprites + city icons 
         g_renderer->EndUnitTrailBatch();        // Flush all unit trails
         g_renderer->EndEffectsSpriteBatch();    // Flush all sprite effects (explosions, cities, nukesymbols, population, radiation)
         g_renderer->EndEffectsLineBatch();      // Flush all line effects (waypoints, radar)
@@ -399,25 +340,40 @@ void MapRenderer::Render()
         g_renderer->EndUnitNukeBatch();         // Flush all small nuke icons (restarted after radiation)
         g_renderer->EndUnitStateBatch();        // Flush all unit state icons (restarted after radiation)
         g_renderer->EndHealthBarBatch();        // Flush all unit health bars
-        g_renderer->EndUnitRotatingBatch();     // Flush all rotating sprites (atlas batching!)
-        g_renderer->EndUnitMainBatch();         // Flush all main unit sprites + city icons (atlas batching!)
-        g_renderer->EndTextBatch();             // Flush all text
+        g_renderer->EndUnitRotatingBatch();     // Flush all rotating sprites
+
+        //
+        // render radar outside of the main scene to
+        // render it in front of everything the radar 
+        // system batches internally anyway
+
+        if( m_showRadar )               
+        {
+            RenderRadar();
+        }
 
         left += GetLongitudeMod();
         right += GetLongitudeMod();
     }    
 
+    //
     // render mouse seperately to prevent object info boxes being covered by territory areas
+
     GetWindowBounds( &left, &right, &top, &bottom );
     for( int x = 0; x < 2; ++x )
     {
         g_renderer->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
         
+        //
         // begin batching for cursor targets and mouse UI
         // this fixes the blend issue with the cursor target sprite
-        g_renderer->BeginUnitRotatingBatch();
+
         g_renderer->BeginEffectsLineBatch();
-        g_renderer->BeginEffectsSpriteBatch();   
+        g_renderer->BeginEffectsSpriteBatch();
+        g_renderer->BeginTextBatch();
+        g_renderer->BeginEclipseRectBatch();
+        g_renderer->BeginEclipseRectFillBatch();
+        g_renderer->BeginUnitRotatingBatch();
         
         if( IsMouseInMapRenderer() )
         {
@@ -432,10 +388,18 @@ void MapRenderer::Render()
             }
         }
         
+        //
+        // end background fill before setting blend mode
+
+        g_renderer->EndEclipseRectFillBatch(); 
+        
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );  // ensure correct blend mode for cursor targets
+        g_renderer->EndUnitRotatingBatch();
+        g_renderer->EndEclipseRectBatch();
+        g_renderer->EndTextBatch();
         g_renderer->EndEffectsSpriteBatch(); 
         g_renderer->EndEffectsLineBatch();
-        g_renderer->EndUnitRotatingBatch();      
+
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );    // reset blend mode after flush
         
         left += GetLongitudeMod();
@@ -491,8 +455,8 @@ void MapRenderer::RenderPlacementDetails()
 
 
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-        g_renderer->RectFill( boxX, boxY, boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
-        g_renderer->Rect( boxX, boxY, boxW, totalBoxH, windowBorder );
+        g_renderer->EclipseRectFill( boxX, boxY, boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
+        g_renderer->EclipseRect( boxX, boxY, boxW, totalBoxH, windowBorder );
 
 
         g_renderer->SetFont( "kremlin", true );
@@ -614,7 +578,7 @@ void MapRenderer::RenderCountryControl()
                     strupr(teamName);
 
                     g_renderer->SetFont( "kremlin", true );
-                    g_renderer->TextCentreSimpleBatch( populationCentre.x, populationCentre.y, White, 7, teamName );
+                    g_renderer->TextCentreSimple( populationCentre.x, populationCentre.y, White, 7, teamName );
                     g_renderer->SetFont();
                 }              
             }
@@ -809,8 +773,8 @@ void MapRenderer::RenderCityObjectDetails( WorldObject *wobj, float *boxX, float
 
     *boxY += *boxH;
 
-    g_renderer->RectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
-    g_renderer->Rect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
+    g_renderer->EclipseRectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
+    g_renderer->EclipseRect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
     float timeSize = 1.5f * m_drawScale;
 
 
@@ -920,7 +884,7 @@ void MapRenderer::RenderTooltip( float *boxX, float *boxY, float *boxW, float *b
                 float iconY = *boxY + iconSize - 0.3f * m_drawScale ;
 
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                g_renderer->Blit( img, *boxX + *boxSep, iconY, iconSize, -iconSize, Colour(255,255,255,255*alpha) );
+                g_renderer->EffectsSprite( img, *boxX + *boxSep, iconY, iconSize, -iconSize, Colour(255,255,255,255*alpha) );
                 thisLine += 5;
 
                 g_renderer->TextSimple( *boxX + *boxSep + 2 * m_drawScale, *boxY, fontCol, textSize*0.6f, thisLine );
@@ -1008,8 +972,8 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     //
     // Render main box
 
-    g_renderer->RectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
-    g_renderer->Rect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
+    g_renderer->EclipseRectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
+    g_renderer->EclipseRect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
 
 
     *boxY -= *boxH;
@@ -1190,8 +1154,8 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
     //
     // Render main box
 
-    g_renderer->RectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
-    g_renderer->Rect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
+    g_renderer->EclipseRectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
+    g_renderer->EclipseRect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
     
 
 
@@ -1206,7 +1170,7 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
 
         if( m_currentStateId == CLEARQUEUE_STATEID )
         {
-            g_renderer->RectFill( stateX+inset, 
+            g_renderer->EclipseRectFill( stateX+inset, 
                                   stateY+inset, 
                                   stateW-inset*2, 
                                   stateH-inset*2, 
@@ -1235,7 +1199,7 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
             state->m_numTimesPermitted != 0 &&
             state->m_defconPermitted >= g_app->GetWorld()->GetDefcon())
         {
-            g_renderer->RectFill( stateX+inset, 
+            g_renderer->EclipseRectFill( stateX+inset, 
                                   stateY+inset, 
                                   stateW-inset*2, 
                                   stateH-inset*2, 
@@ -1246,14 +1210,14 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
         
         if( i == wobj->m_currentState )
         {
-            g_renderer->RectFill( stateX+inset, 
+            g_renderer->EclipseRectFill( stateX+inset, 
                                   stateY+inset, 
                                   stateW-inset*2, 
                                   stateH-inset*2, 
                                   selectedSecondary, 
                                   selectedPrimary, 
                                   selectOrientation );
-            g_renderer->Rect( stateX+inset, 
+            g_renderer->EclipseRect( stateX+inset, 
                               stateY+inset, 
                               stateW-inset*2, 
                               stateH-inset*2,
@@ -1319,13 +1283,13 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
         {
             if( state->m_numTimesPermitted == 0 )
             {
-                g_renderer->RectFill( stateX, stateY, stateW, stateH, Colour(0,0,0,100) );
+                g_renderer->EclipseRectFill( stateX, stateY, stateW, stateH, Colour(0,0,0,100) );
                 strcpy( caption, LANGUAGEPHRASE("dialog_mapr_empty") );
                 g_renderer->TextCentre( stateX + stateW/2, textYPos, Colour(255,0,0,255), textSize, caption );
             }
             else if( state->m_defconPermitted < g_app->GetWorld()->GetDefcon())
             {                
-                g_renderer->RectFill( stateX, stateY, stateW, stateH, Colour(0,0,0,100) );
+                g_renderer->EclipseRectFill( stateX, stateY, stateW, stateH, Colour(0,0,0,100) );
                 strcpy( caption, LANGUAGEPHRASE("dialog_mapr_not_before_defcon_x") );
 				LPREPLACEINTEGERFLAG( 'D', state->m_defconPermitted, caption );
                 g_renderer->TextCentre( stateX + stateW/2, textYPos, Colour(255,0,0,255), textSize, caption );
@@ -1414,8 +1378,8 @@ void MapRenderer::RenderEnemyObjectDetails( WorldObject *wobj, float *boxX, floa
             // Render title
 
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-            g_renderer->RectFill( *boxX, *boxY, *boxW, *boxH, windowColPrimary, windowColSecondary, windowOrientation );
-            g_renderer->Rect    ( *boxX, *boxY, *boxW, *boxH, windowBorder );
+            g_renderer->EclipseRectFill( *boxX, *boxY, *boxW, *boxH, windowColPrimary, windowColSecondary, windowOrientation );
+            g_renderer->EclipseRect    ( *boxX, *boxY, *boxW, *boxH, windowBorder );
             
             char *titleFont = g_styleTable->GetStyle( FONTSTYLE_POPUP )->m_fontName;
             g_renderer->SetFont( titleFont, true );
@@ -1451,8 +1415,8 @@ void MapRenderer::RenderEnemyObjectDetails( WorldObject *wobj, float *boxX, floa
                 totalBoxH += m_tooltip->Size() * -(*boxH) * 0.6f;
             }
 
-			g_renderer->RectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
-			g_renderer->Rect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
+			g_renderer->EclipseRectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
+			g_renderer->EclipseRect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
             
 			int attackOdds = g_app->GetWorld()->GetAttackOdds( ourObj->m_type, wobj->m_type, ourObj->m_objectId );
 				        
@@ -1679,16 +1643,16 @@ void MapRenderer::RenderMouse()
 					char caption[128];
                     strcpy( caption, LANGUAGEPHRASE("dialog_mapr_defcon_x_required") );
 					LPREPLACEINTEGERFLAG( 'D', defconRequired, caption );
-                    g_renderer->TextCentreSimpleBatch( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, caption );
+                    g_renderer->TextCentreSimple( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, caption );
                     break;
                 }
 
                 case WorldObject::TargetTypeOutOfRange:
-                    g_renderer->TextCentreSimpleBatch( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, LANGUAGEPHRASE("dialog_mapr_out_of_range") );
+                    g_renderer->TextCentreSimple( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, LANGUAGEPHRASE("dialog_mapr_out_of_range") );
                     break;
 
                 case WorldObject::TargetTypeOutOfStock:
-                    g_renderer->TextCentreSimpleBatch( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, LANGUAGEPHRASE("dialog_mapr_empty") );
+                    g_renderer->TextCentreSimple( actionCursorLongitude, actionCursorLatitude+actionCursorSize, White, 2, LANGUAGEPHRASE("dialog_mapr_empty") );
                     break;
             }
             g_renderer->SetFont();
@@ -1943,8 +1907,8 @@ void MapRenderer::RenderEmptySpaceDetails( float _mouseX, float _mouseY )
         totalBoxH += m_tooltip->Size() * -boxH * 0.6f;
 
 
-        g_renderer->RectFill( boxX, boxY, boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
-        g_renderer->Rect( boxX, boxY, boxW, totalBoxH, windowBorder );
+        g_renderer->EclipseRectFill( boxX, boxY, boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
+        g_renderer->EclipseRect( boxX, boxY, boxW, totalBoxH, windowBorder );
 
 
         //
@@ -2028,8 +1992,8 @@ void MapRenderer::RenderTooltip( char *_tooltip )
         windowColS.m_a *= alpha;
         borderCol.m_a *= alpha;
 
-        g_renderer->RectFill ( boxX, boxY, boxW, boxH, windowColS, windowColP, alignment );
-        g_renderer->Rect     ( boxX, boxY, boxW, boxH, borderCol);
+        g_renderer->EclipseRectFill ( boxX, boxY, boxW, boxH, windowColS, windowColP, alignment );
+        g_renderer->EclipseRect     ( boxX, boxY, boxW, boxH, borderCol);
 
     
         //
@@ -2133,7 +2097,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                 if( renderTooltip )
                 {
                     g_renderer->SetFont( "kremlin", true );
-                                            g_renderer->TextCentreSimpleBatch( predictedLongitude, predictedLatitude+range, col, 1, LANGUAGEPHRASE("dialog_mapr_combat_range") );
+                                            g_renderer->TextCentreSimple( predictedLongitude, predictedLatitude+range, col, 1, LANGUAGEPHRASE("dialog_mapr_combat_range") );
                     g_renderer->SetFont();
                 }
             }
@@ -2155,7 +2119,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     if( renderTooltip )
                     {
                         g_renderer->SetFont( "kremlin", true );
-                        g_renderer->TextCentreSimpleBatch( predictedLongitude, predictedLatitude+predictedRange, col, 1, LANGUAGEPHRASE("dialog_mapr_fuel_range") );
+                        g_renderer->TextCentreSimple( predictedLongitude, predictedLatitude+predictedRange, col, 1, LANGUAGEPHRASE("dialog_mapr_fuel_range") );
                         g_renderer->SetFont();
                     }
                 }
@@ -2601,7 +2565,7 @@ void MapRenderer::RenderObjects()
 						char caption[128];
                         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_queue") );
 						LPREPLACEINTEGERFLAG( 'N', wobj->m_numNukesInQueue, caption );
-                        g_renderer->TextCentreSimpleBatch( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
+                        g_renderer->TextCentreSimple( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
                         yPos += 0.5f;
                     }
 
@@ -2611,7 +2575,7 @@ void MapRenderer::RenderObjects()
 						char caption[128];
                         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_flight") );
 						LPREPLACEINTEGERFLAG( 'N', wobj->m_numNukesInFlight, caption );
-                        g_renderer->TextCentreSimpleBatch( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
+                        g_renderer->TextCentreSimple( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
                     }
 
                     g_renderer->SetFont();                
@@ -2770,7 +2734,7 @@ void MapRenderer::RenderCities()
 						char caption[128];
                         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_queue") );
 						LPREPLACEINTEGERFLAG( 'N', city->m_numNukesInQueue, caption );
-                        g_renderer->TextCentreSimpleBatch( city->m_longitude.DoubleValue(), yPos, col, textSize, caption );
+                        g_renderer->TextCentreSimple( city->m_longitude.DoubleValue(), yPos, col, textSize, caption );
                         yPos += 0.5f;
                     }
 
@@ -2780,7 +2744,7 @@ void MapRenderer::RenderCities()
 						char caption[128];
 						strcpy( caption, LANGUAGEPHRASE("dialog_mapr_nukes_in_flight") );
 						LPREPLACEINTEGERFLAG( 'N', city->m_numNukesInFlight, caption );
-                        g_renderer->TextCentreSimpleBatch( city->m_longitude.DoubleValue(), yPos, col, textSize, caption );
+                        g_renderer->TextCentreSimple( city->m_longitude.DoubleValue(), yPos, col, textSize, caption );
                     }
                 }
             }            
@@ -2820,13 +2784,13 @@ void MapRenderer::RenderCities()
                         textSize *= textSize * 0.5;
                         textSize *= sqrtf( sqrtf( m_zoomFactor ) ) * 0.8f;
 
-                        g_renderer->TextCentreSimpleBatch( city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue(), cityColour, textSize, LANGUAGEPHRASEADDITIONAL(city->m_name) );
+                        g_renderer->TextCentreSimple( city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue(), cityColour, textSize, LANGUAGEPHRASEADDITIONAL(city->m_name) );
                     }                
 
                     if( showCountryNames && city->m_capital )
                     {
                         float countrySize = textSize;
-                        g_renderer->TextCentreSimpleBatch( city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue()-textSize, countryColour, countrySize, LANGUAGEPHRASEADDITIONAL(city->m_country) );
+                        g_renderer->TextCentreSimple( city->m_longitude.DoubleValue(), city->m_latitude.DoubleValue()-textSize, countryColour, countrySize, LANGUAGEPHRASEADDITIONAL(city->m_country) );
                     }
                 }
             }
@@ -2929,6 +2893,8 @@ void MapRenderer::RenderRadar()
 
     //
     // darken the whole world not covered by radar (uses depth buffer as mask)
+    // cannot use batching here as im having issues with depth and blend modes 
+    // when flushing
 
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );        
     g_renderer->RectFill( -180, -100, 360, 200, Colour(0,0,0,150) );
@@ -2958,6 +2924,12 @@ void MapRenderer::RenderRadar( bool _allies, bool _outlined )
                     float predictedLongitude = wobj->m_longitude.DoubleValue() + wobj->m_vel.x.DoubleValue() * timeFactor;
                     float predictedLatitude = wobj->m_latitude.DoubleValue() + wobj->m_vel.y.DoubleValue() * timeFactor;
                     
+                    //
+                    // Important!
+                    // i changed the number of segments from 50 to 30  for radar circles
+                    // this improves performance by a quite a bit, but incase find a 
+                    // better way to do this ill leave this here
+                    
                     if( _outlined )
                     {
                         Colour col(150,150,255,255);
@@ -2968,9 +2940,9 @@ void MapRenderer::RenderRadar( bool _allies, bool _outlined )
                             lineWidth = 1.0f;
                         }
                         
-                        g_renderer->EffectsCircleOutline( predictedLongitude-360, predictedLatitude, size+0.1f, 50, col, lineWidth );
-                        g_renderer->EffectsCircleOutline( predictedLongitude,     predictedLatitude, size+0.1f, 50, col, lineWidth );
-                        g_renderer->EffectsCircleOutline( predictedLongitude+360, predictedLatitude, size+0.1f, 50, col, lineWidth );
+                        g_renderer->EffectsCircleOutline( predictedLongitude-360, predictedLatitude, size+0.1f, 30, col, lineWidth );
+                        g_renderer->EffectsCircleOutline( predictedLongitude,     predictedLatitude, size+0.1f, 30, col, lineWidth );
+                        g_renderer->EffectsCircleOutline( predictedLongitude+360, predictedLatitude, size+0.1f, 30, col, lineWidth );
                     }
                     else
                     {
@@ -2980,9 +2952,9 @@ void MapRenderer::RenderRadar( bool _allies, bool _outlined )
                             col.m_a = 0;
                         }
  
-                        g_renderer->EffectsCircleFill( predictedLongitude-360, predictedLatitude, size, 50, col );
-                        g_renderer->EffectsCircleFill( predictedLongitude,     predictedLatitude, size, 50, col );
-                        g_renderer->EffectsCircleFill( predictedLongitude+360, predictedLatitude, size, 50, col );
+                        g_renderer->EffectsCircleFill( predictedLongitude-360, predictedLatitude, size, 30, col );
+                        g_renderer->EffectsCircleFill( predictedLongitude,     predictedLatitude, size, 30, col );
+                        g_renderer->EffectsCircleFill( predictedLongitude+360, predictedLatitude, size, 30, col );
                     }
                 }
             }
@@ -3071,7 +3043,7 @@ void MapRenderer::RenderNodes()
             for( int j = 0; j < node->m_routeTable.Size(); ++j )
             {
                 Node *nextNode = g_app->GetWorld()->m_nodes[node->m_routeTable[j]->m_nextNodeId];
-                g_renderer->Line(node->m_longitude.DoubleValue(), 
+                g_renderer->EffectsLine(node->m_longitude.DoubleValue(), 
                                  node->m_latitude.DoubleValue(), 
                                  nextNode->m_longitude.DoubleValue(), 
                                  nextNode->m_latitude.DoubleValue(), 
@@ -3622,11 +3594,6 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY )
 
 void MapRenderer::Update()
 {
-    // F1 toggles FPS counter only (lightweight)
-    if( g_keys[KEY_F1] && g_keyDeltas[KEY_F1] ) m_showFps = !m_showFps;
-    
-    // F2 toggles debug menu (performance heavy)
-    if( g_keys[KEY_F2] && g_keyDeltas[KEY_F2] ) m_showDebugMenu = !m_showDebugMenu;
     
     // KEY_G toggles 3D globe mode
     if( g_keys[KEY_G] && g_keyDeltas[KEY_G] && !g_app->GetInterface()->UsingChatWindow() ) {

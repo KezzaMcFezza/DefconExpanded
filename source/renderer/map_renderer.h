@@ -8,7 +8,6 @@
 class Image;
 class WorldObject;
 class AnimatedIcon;
-class RendererDebugMenu;
 
 #define    CLEARQUEUE_STATEID  255
 
@@ -109,11 +108,6 @@ protected:
     bool    m_lockCommands;
     bool    m_draggingCamera;
 
-    int     m_currentFrames;
-    int     m_framesPerSecond;
-    float   m_frameCountTimer;
-    bool    m_showFps;    
-    bool    m_showDebugMenu;            // Separate control for debug menu (F2)
     float   m_tooltipTimer;
 
 	bool    m_showWhiteBoard;			// Used to show the white board(s) without editing the player white board
@@ -201,7 +195,6 @@ public:
     
     bool m_3DGlobeMode;
     
-    RendererDebugMenu* m_debugMenu;
 
 public:
     MapRenderer();
@@ -357,9 +350,6 @@ public:
     void    Regenerate3DStarField  ();
     void    Render3DStarField      ();
     void    Render3DGlobeSurface   ();
-	
-	// Debug menu functionality
-	RendererDebugMenu* GetDebugMenu() const { return m_debugMenu; }
 };
 
 
