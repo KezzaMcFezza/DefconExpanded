@@ -447,6 +447,7 @@ public:
   //
   // Eclipse sprite rendering (textured)
   
+  void EclipseSprite(Image *src, float x, float y, Colour const &col);
   void EclipseSprite(Image *src, float x, float y, float w, float h, Colour const &col);
   void EclipseSprite(Image *src, float x, float y, float w, float h, Colour const &col, float angle);
 

@@ -13,6 +13,12 @@ extern Renderer *g_renderer;
 // BATCHED ECLIPSE SPRITE RENDERING
 // ============================================================================
 
+void Renderer::EclipseSprite(Image *src, float x, float y, Colour const &col) {
+    float w = src->Width();
+    float h = src->Height();
+    EclipseSprite(src, x, y, w, h, col);
+}
+
 void Renderer::EclipseSprite(Image *src, float x, float y, float w, float h, Colour const &col) {
     // Check for texture change and flush if needed
     unsigned int textureID = GetEffectiveTextureID(src);
