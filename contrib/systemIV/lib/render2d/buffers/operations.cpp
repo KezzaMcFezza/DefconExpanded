@@ -570,8 +570,8 @@ void Renderer::FlushUnitMainSprites() {
         glBindTexture(GL_TEXTURE_2D, m_currentUnitMainTexture);
     }
     
-    //glBindVertexArray(m_VAO);
-    //glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     UploadVertexData(m_unitMainVertices, m_unitMainVertexCount);   
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitMainVertexCount);
