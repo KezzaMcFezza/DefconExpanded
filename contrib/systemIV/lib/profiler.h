@@ -92,6 +92,7 @@ public:
     void                ResetTotalTime  ();
 
 	double				GetMaxChildTime	();
+	double				GetCpuPercentage() const;
 };
 
 

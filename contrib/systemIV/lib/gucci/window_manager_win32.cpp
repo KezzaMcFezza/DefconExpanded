@@ -2,8 +2,11 @@
 
 #include <limits.h>
 #include <shellapi.h>
+#include <thread>
+#include <algorithm>
 
 #include "lib/debug_utils.h"
+#include "lib/thread_affinity.h"
 
 #include "input.h"
 #include "window_manager_win32.h"
@@ -534,6 +537,22 @@ int WINAPI WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance,
 				   LPSTR _cmdLine, int _iCmdShow)
 {
 	g_hInstance = _hInstance;
+
+	//
+    // initialize thread affinity, bind main thread to a dedicated core
+    // this ensures that defcon main thread and network threads use separate cores
+
+    int mainCore, networkCore;
+    GetThreadAffinitySettings(mainCore, networkCore);
+    
+	//
+    // convert core number to bitmask (core N = 2^N)
+
+    DWORD affinityMask = 1 << mainCore;
+    
+    SetThreadAffinityMask(GetCurrentThread(), affinityMask);
+    
+    
 
 #ifdef USE_CRASHREPORTING
     __try

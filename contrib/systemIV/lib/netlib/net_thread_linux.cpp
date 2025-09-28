@@ -1,7 +1,13 @@
 #include "lib/universal_include.h"
 #include "lib/debug_utils.h"
 #include "net_thread.h"
-#include "lib/debug_utils.h"
+#include "lib/thread_affinity.h"
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <pthread.h>
+#include <sched.h>
 
 NetRetCode NetStartThread(NetThreadFunc functionPtr, void *arg)
 {

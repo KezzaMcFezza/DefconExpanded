@@ -138,6 +138,18 @@ double ProfiledElement::GetMaxChildTime()
 	return rv / m_children[first]->m_historyNumSeconds;
 }
 
+double ProfiledElement::GetCpuPercentage() const
+{
+	//
+	// calculate what percentage of main thread time this element consumed
+	
+	if (g_profiler && g_profiler->m_lengthOfLastSecond > 0.0)
+	{
+		return (m_lastTotalTime / g_profiler->m_lengthOfLastSecond) * 100.0;
+	}
+	return 0.0;
+}
+
 
 
 // ****************************************************************************
