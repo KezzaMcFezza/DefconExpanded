@@ -1,3 +1,4 @@
+#include "lib/resource/image.h"
 #include "lib/universal_include.h"
 
 #include <math.h>
@@ -7,6 +8,8 @@
 #include "lib/string_utils.h"
 #include "lib/preferences.h"
 #include "lib/render2d/renderer.h"
+#include "lib/resource/sprite_atlas.h"
+#include "lib/resource/image.h"
 #include "renderer/map_renderer.h"
 #include "renderer_3d.h"
 
@@ -727,6 +730,39 @@ void main() {
     }
 }
 
+// get UV coordinates for an image from the atlas
+void Renderer3D::GetImageUVCoords(Image* image, float& u1, float& v1, float& u2, float& v2) {
+    AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(image);
+    if (atlasImage) {
+        // use atlas coordinates
+        const AtlasCoord* coord = atlasImage->GetAtlasCoord();
+        if (coord) {
+            u1 = coord->u1;
+            v1 = coord->v1;
+            u2 = coord->u2;
+            v2 = coord->v2;
+            return;
+        }
+    }
+    
+    // regular image, use full texture with edge padding
+    float onePixelW = 1.0f / (float) image->Width();
+    float onePixelH = 1.0f / (float) image->Height();
+    u1 = onePixelW;
+    v1 = onePixelH;
+    u2 = 1.0f - onePixelW;
+    v2 = 1.0f - onePixelH;
+}
+
+// get texture ID for batching
+unsigned int Renderer3D::GetEffectiveTextureID(Image* image) {
+    AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(image);
+    if (atlasImage) {
+        return atlasImage->GetAtlasTextureID();
+    }
+    return image->m_textureID;
+}
+
 void Renderer3D::Setup3DVertexArrays() {
     // Generate VAO and VBO for 3D rendering
     glGenVertexArrays(1, &m_VAO3D);
@@ -927,156 +963,6 @@ void Renderer3D::EndTexturedQuad3D() {
     m_texturedQuad3DActive = false;
 }
 
-void Renderer3D::Flush3DTexturedVertices() {
-    if (m_vertex3DTexturedCount == 0) return;
-    
-    // Track legacy draw call for debug menu
-    IncrementDrawCall3D("legacy_triangles");
-    
-    // Use textured 3D shader program
-    glUseProgram(m_shader3DTexturedProgram);
-    
-    // Set matrix uniforms
-    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    glUniform1i(texLoc, 0);
-    
-    // Set fog uniforms (both distance-based and orientation-based)
-    int fogEnabledLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogEnabled");
-    int fogOrientationLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogOrientationBased");
-    int fogStartLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogStart");
-    int fogEndLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogEnd");
-    int fogColorLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogColor");
-    int cameraPosLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uCameraPos");
-    
-    glUniform1i(fogEnabledLoc, m_fogEnabled ? 1 : 0);
-    glUniform1i(fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
-    glUniform1f(fogStartLoc, m_fogStart);
-    glUniform1f(fogEndLoc, m_fogEnd);
-    glUniform4f(fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
-    glUniform3f(cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
-    
-    // Bind texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_currentTexture3D);
-    
-    // Set proper texture parameters for clean rendering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    
-    // Upload vertex data
-    glBindVertexArray(m_VAO3DTextured);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertex3DTexturedCount * sizeof(Vertex3DTextured), m_vertices3DTextured);
-    
-    // Draw as triangles (convert quad to two triangles with proper winding)
-    if (m_vertex3DTexturedCount == 4) {
-        // Ensure counter-clockwise winding order for proper face culling
-        // Expected vertex order: 0=bottom-left, 1=bottom-right, 2=top-right, 3=top-left
-        Vertex3DTextured triangleVertices[6];
-        
-        // First triangle: bottom-left -> bottom-right -> top-right
-        triangleVertices[0] = m_vertices3DTextured[0]; // bottom-left
-        triangleVertices[1] = m_vertices3DTextured[1]; // bottom-right  
-        triangleVertices[2] = m_vertices3DTextured[2]; // top-right
-        
-        // Second triangle: bottom-left -> top-right -> top-left
-        triangleVertices[3] = m_vertices3DTextured[0]; // bottom-left
-        triangleVertices[4] = m_vertices3DTextured[2]; // top-right
-        triangleVertices[5] = m_vertices3DTextured[3]; // top-left
-        
-        // Upload triangle data
-        glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(Vertex3DTextured), triangleVertices);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-    } else {
-        // Draw as triangle fan for other polygon types
-        glDrawArrays(GL_TRIANGLE_FAN, 0, m_vertex3DTexturedCount);
-    }
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
-    // Reset vertex count
-    m_vertex3DTexturedCount = 0;
-}
-
-void Renderer3D::BeginCachedGeometry3D(const char* cacheKey, Colour const &col) {
-    // Check if this VBO already exists and is valid
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
-    if (tree && tree->data && tree->data->isValid) {
-        // VBO already exists, no need to rebuild
-        return;
-    }
-    
-    // Start building cached geometry
-    BeginLineStrip3D(col);
-}
-
-void Renderer3D::CachedLineStrip3D(const Vector3<float>* vertices, int vertexCount) {
-    for (int i = 0; i < vertexCount; i++) {
-        LineStripVertex3D(vertices[i]);
-    }
-}
-
-void Renderer3D::EndCachedGeometry3D() {
-    // Implementation will be completed when we convert the actual globe rendering
-    // For now, this is a placeholder
-    EndLineStrip3D();
-}
-
-void Renderer3D::RenderCachedGeometry3D(const char* cacheKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
-    if (!tree || !tree->data || !tree->data->isValid) {
-        return; // VBO doesn't exist or is invalid
-    }
-    
-    Cached3DVBO* cachedVBO = tree->data;
-    
-    // Use 3D shader
-    glUseProgram(m_shader3DProgram);
-    
-    // Set uniforms
-    int projLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    
-    // Render the cached VBO
-    glBindVertexArray(cachedVBO->VAO);
-    glDrawArrays(GL_LINES, 0, cachedVBO->vertexCount);
-    glBindVertexArray(0);
-    glUseProgram(0);
-}
-
-void Renderer3D::InvalidateCached3DVBO(const char* cacheKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
-    if (tree && tree->data) {
-        Cached3DVBO* cachedVBO = tree->data;
-        cachedVBO->isValid = false;
-        if (cachedVBO->VBO != 0) {
-            glDeleteBuffers(1, &cachedVBO->VBO);
-            cachedVBO->VBO = 0;
-        }
-        if (cachedVBO->VAO != 0) {
-            glDeleteVertexArrays(1, &cachedVBO->VAO);
-            cachedVBO->VAO = 0;
-        }
-    }
-}
-
-bool Renderer3D::IsCachedGeometry3DValid(const char* cacheKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
-    return (tree && tree->data && tree->data->isValid);
-}
-
 void Renderer3D::SetColor(const Colour& col) {
     m_lineStrip3DColor = col;
 }
@@ -1086,36 +972,13 @@ void Renderer3D::Clear3DState() {
     m_lineStrip3DActive = false;
 }
 
-void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
-    if (m_vertex3DCount == 0) return;
-    
-    // Track legacy draw call for debug menu
-    IncrementDrawCall3D("legacy_vertices");
-    
-    // Set line width for whiteboard rendering in 3D globe mode
-#ifndef TARGET_EMSCRIPTEN
-    if (primitiveType == GL_LINES) {
-        glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_WHITEBOARD_THICKNESS, 1.0f));
-    }
-#endif
-    
-    // Use 3D shader program
-    glUseProgram(m_shader3DProgram);
-    
-    // Set matrix uniforms
-    int projLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    
-    // Set fog uniforms (both distance-based and orientation-based)
-    int fogEnabledLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnabled");
-    int fogOrientationLoc = glGetUniformLocation(m_shader3DProgram, "uFogOrientationBased");
-    int fogStartLoc = glGetUniformLocation(m_shader3DProgram, "uFogStart");
-    int fogEndLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnd");
-    int fogColorLoc = glGetUniformLocation(m_shader3DProgram, "uFogColor");
-    int cameraPosLoc = glGetUniformLocation(m_shader3DProgram, "uCameraPos");
+void Renderer3D::SetFogUniforms3D(unsigned int shaderProgram) {
+    int fogEnabledLoc = glGetUniformLocation(shaderProgram, "uFogEnabled");
+    int fogOrientationLoc = glGetUniformLocation(shaderProgram, "uFogOrientationBased");
+    int fogStartLoc = glGetUniformLocation(shaderProgram, "uFogStart");
+    int fogEndLoc = glGetUniformLocation(shaderProgram, "uFogEnd");
+    int fogColorLoc = glGetUniformLocation(shaderProgram, "uFogColor");
+    int cameraPosLoc = glGetUniformLocation(shaderProgram, "uCameraPos");
     
     glUniform1i(fogEnabledLoc, m_fogEnabled ? 1 : 0);
     glUniform1i(fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
@@ -1123,196 +986,6 @@ void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
     glUniform1f(fogEndLoc, m_fogEnd);
     glUniform4f(fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
     glUniform3f(cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
-    
-    // Upload vertex data
-    glBindVertexArray(m_VAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3D);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertex3DCount * sizeof(Vertex3D), m_vertices3D);
-    
-    // Draw
-    glDrawArrays(primitiveType, 0, m_vertex3DCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
-    // Reset vertex count
-    m_vertex3DCount = 0;
-}
-
-// ================================
-// Mega-VBO System for 3D (Performance)
-// ================================
-
-void Renderer3D::BeginMegaVBO3D(const char* megaVBOKey, Colour const &col) {
-    // Check if this mega-VBO already exists and is valid
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    if (tree && tree->data && tree->data->isValid) {
-        // Mega-VBO already exists, no need to rebuild
-        return;
-    }
-    
-    // Store mega-VBO key for building
-    if (m_currentMegaVBO3DKey) {
-        delete[] m_currentMegaVBO3DKey;
-    }
-    m_currentMegaVBO3DKey = newStr(megaVBOKey);
-    
-    // Store mega-VBO state
-    m_megaVBO3DActive = true;
-    m_megaVBO3DColor = col;
-    
-    // Clear mega vertex buffer
-    m_megaVertex3DCount = 0;
-}
-
-void Renderer3D::AddLineStripToMegaVBO3D(const Vector3<float>* vertices, int vertexCount) {
-    if (!m_megaVBO3DActive || vertexCount < 2) return;
-    
-    // Convert color to float
-    float r = m_megaVBO3DColor.m_r / 255.0f, g = m_megaVBO3DColor.m_g / 255.0f;
-    float b = m_megaVBO3DColor.m_b / 255.0f, a = m_megaVBO3DColor.m_a / 255.0f;
-    
-    // Convert line strip to line segments and add to mega buffer
-    for (int i = 0; i < vertexCount - 1; i++) {
-        if (m_megaVertex3DCount + 2 >= MAX_MEGA_3D_VERTICES) {
-            return;
-        }
-        
-        // Line from vertex i to vertex i+1
-        // First vertex of line segment
-        m_megaVertices3D[m_megaVertex3DCount] = Vertex3D(
-            vertices[i].x, vertices[i].y, vertices[i].z, r, g, b, a
-        );
-        m_megaVertex3DCount++;
-        
-        // Second vertex of line segment
-        m_megaVertices3D[m_megaVertex3DCount] = Vertex3D(
-            vertices[i + 1].x, vertices[i + 1].y, vertices[i + 1].z, r, g, b, a
-        );
-        m_megaVertex3DCount++;
-    }
-}
-
-void Renderer3D::EndMegaVBO3D() {
-    if (!m_megaVBO3DActive || !m_currentMegaVBO3DKey) return;
-    
-    if (m_megaVertex3DCount < 2) {
-        // Not enough vertices for lines
-        m_megaVBO3DActive = false;
-        return;
-    }
-    
-    // Create or get cached mega-VBO
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(m_currentMegaVBO3DKey);
-    Cached3DVBO* cachedVBO = NULL;
-    if (!tree || !tree->data) {
-        cachedVBO = new Cached3DVBO();
-        cachedVBO->VBO = 0;
-        cachedVBO->VAO = 0;
-        cachedVBO->vertexCount = 0;
-        cachedVBO->isValid = false;
-        m_cached3DVBOs.PutData(m_currentMegaVBO3DKey, cachedVBO);
-    } else {
-        cachedVBO = tree->data;
-    }
-    
-    // Create VBO if it doesn't exist
-    if (cachedVBO->VBO == 0) {
-        glGenVertexArrays(1, &cachedVBO->VAO);
-        glGenBuffers(1, &cachedVBO->VBO);
-    }
-    
-    // Upload mega data to VBO
-    glBindVertexArray(cachedVBO->VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
-    glBufferData(GL_ARRAY_BUFFER, m_megaVertex3DCount * sizeof(Vertex3D), m_megaVertices3D, GL_STATIC_DRAW);
-    
-    // Set up vertex attributes (3D version)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    
-    // Store mega-VBO info
-    cachedVBO->vertexCount = m_megaVertex3DCount;
-    cachedVBO->color = m_megaVBO3DColor;
-    cachedVBO->isValid = true;
-    
-    // Reset state
-    m_megaVertex3DCount = 0;
-    m_megaVBO3DActive = false;
-}
-
-void Renderer3D::RenderMegaVBO3D(const char* megaVBOKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    if (!tree || !tree->data || !tree->data->isValid) {
-        return; // Mega-VBO doesn't exist or is invalid
-    }
-    
-    // Track VBO draw call for debug menu
-    IncrementDrawCall3D("mega_vbo");
-    
-    Cached3DVBO* cachedVBO = tree->data;
-    
-    // Use 3D shader
-    glUseProgram(m_shader3DProgram);
-    
-    // Set uniforms
-    int projLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    
-    // Set fog uniforms (both distance-based and orientation-based)
-    int fogEnabledLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnabled");
-    int fogOrientationLoc = glGetUniformLocation(m_shader3DProgram, "uFogOrientationBased");
-    int fogStartLoc = glGetUniformLocation(m_shader3DProgram, "uFogStart");
-    int fogEndLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnd");
-    int fogColorLoc = glGetUniformLocation(m_shader3DProgram, "uFogColor");
-    int cameraPosLoc = glGetUniformLocation(m_shader3DProgram, "uCameraPos");
-    
-    glUniform1i(fogEnabledLoc, m_fogEnabled ? 1 : 0);
-    glUniform1i(fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
-    glUniform1f(fogStartLoc, m_fogStart);
-    glUniform1f(fogEndLoc, m_fogEnd);
-    glUniform4f(fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
-    glUniform3f(cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
-    
-    // Render the mega-VBO with single draw call
-    glBindVertexArray(cachedVBO->VAO);
-    glDrawArrays(GL_LINES, 0, cachedVBO->vertexCount);
-    glBindVertexArray(0);
-    glUseProgram(0);
-}
-
-bool Renderer3D::IsMegaVBO3DValid(const char* megaVBOKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    return (tree && tree->data && tree->data->isValid);
-}
-
-void Renderer3D::InvalidateAll3DVBOs() {
-    DArray<Cached3DVBO*> *allVBOs = m_cached3DVBOs.ConvertToDArray();
-    for (int i = 0; i < allVBOs->Size(); ++i) {
-        Cached3DVBO* cachedVBO = allVBOs->GetData(i);
-        if (cachedVBO) {
-            cachedVBO->isValid = false;
-            if (cachedVBO->VBO != 0) {
-                glDeleteBuffers(1, &cachedVBO->VBO);
-                cachedVBO->VBO = 0;
-            }
-            if (cachedVBO->VAO != 0) {
-                glDeleteVertexArrays(1, &cachedVBO->VAO);
-                cachedVBO->VAO = 0;
-            }
-        }
-    }
-    delete allVBOs;
-    AppDebugOut("Invalidated all cached 3D VBOs\n");
 }
 
 void Renderer3D::EnableDistanceFog(float start, float end, float density, float r, float g, float b, float a) {
