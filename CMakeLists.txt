@@ -53,7 +53,7 @@ else()
     endif()
 endif()
 
-set(REPLAY_VIEWER_VERSION "R1.0" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "R1.07" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 option(ENABLE_RECORDING_PARSING "Enable recording parsing functionality" ON)
 option(ENABLE_REPLAY_VIEWER "Enable Emscripten Replay Viewer mode (recording playback only)" ON)
 
@@ -580,15 +580,18 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/render/colour.cpp
     ${SYSTEMIV_PATH}/lib/render2d/renderer.cpp
     ${SYSTEMIV_PATH}/lib/render2d/primitives.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/renderer_vbo.cpp
     ${SYSTEMIV_PATH}/lib/render2d/buffers/operations.cpp
     ${SYSTEMIV_PATH}/lib/render2d/buffers/primitive_buffers.cpp
     ${SYSTEMIV_PATH}/lib/render2d/buffers/sprite_buffers.cpp
     ${SYSTEMIV_PATH}/lib/render2d/buffers/text_buffers.cpp
     ${SYSTEMIV_PATH}/lib/render2d/buffers/eclipse_buffers.cpp
     ${SYSTEMIV_PATH}/lib/render3d/renderer_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_buffers.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/renderer_nuke.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/renderer_vbo.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/buffers/operations_3d.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/buffers/primitives_3d_buffers.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/buffers/sprite_3d_buffers.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_nuke.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_vbo.cpp
     ${SYSTEMIV_PATH}/lib/render/renderer_debug_menu.cpp
     ${SYSTEMIV_PATH}/lib/render/styletable.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmap.cpp
