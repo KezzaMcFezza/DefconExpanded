@@ -699,9 +699,6 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\primitives.cpp">
       <Filter>lib\render2d</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\text.cpp">
-      <Filter>lib\render2d</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\operations.cpp">
       <Filter>lib\render2d\buffers</Filter>
     </ClCompile>

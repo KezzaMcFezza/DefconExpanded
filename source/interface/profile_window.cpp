@@ -121,18 +121,21 @@ void ProfileWindow::RenderElementProfile(ProfiledElement *_pe, unsigned int _ind
 			else if (minAvgMax == 2)	lastColumn = child->m_longest;
 			lastColumn *= 1000.0f;
 
+            double cpuPercentage = child->GetCpuPercentage();
+
             if( child->m_lastNumCalls > 0 )
             {
 			    sprintf(caption, 
-                        "%*s%-*s:%5d x%5.2f = %4.0f (%f)",
+                        "%*s%-*s:%5d x%5.2f = %5.2f%% (%5.2f)",
 					    _indent + 1,
 					    icon,
 					    24 - _indent,
 					    child->m_name, 
 					    child->m_lastNumCalls, 
 					    time/(float)child->m_lastNumCalls,
-					    time,
+					    cpuPercentage,
 					    lastColumn);
+
 			    int brightness = (time / largestTime) * 150.0f + 105.0f;
 			    if (brightness < 105) brightness = 105;
 			    else if (brightness > 255) brightness = 255;

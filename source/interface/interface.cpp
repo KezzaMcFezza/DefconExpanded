@@ -244,7 +244,7 @@ void Interface::Update()
     //
     // Hide UI toggle?
 
-    if( g_keyDeltas[KEY_H] && !UsingChatWindow() )
+    if( g_keyDeltas[KEY_H] && !UsingChatWindow() && !UsingAnyInputField() )
     {
         extern bool g_hideUI;
         g_hideUI = !g_hideUI;
@@ -889,6 +889,25 @@ bool Interface::UsingChatWindow()
         chat->m_typingMessage )
     {
         return true;
+    }
+
+    return false;
+}
+
+
+bool Interface::UsingAnyInputField()
+{
+    EclWindow *currentWindow = EclGetWindow();
+    if( currentWindow )
+    {
+        //
+        // check if we're editing any input field
+        
+        if( currentWindow->m_currentTextEdit[0] != '\0' &&
+            strcmp(currentWindow->m_currentTextEdit, "None") != 0 )
+        {
+            return true;
+        }
     }
 
     return false;

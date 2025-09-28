@@ -57,6 +57,7 @@ public:
     void OpenGameWindows();
 
     bool UsingChatWindow();
+    bool UsingAnyInputField();
 
     void ShowMessage( Fixed longitude, Fixed latitude, int teamId, const char *msg, bool showLarge=false );
 
