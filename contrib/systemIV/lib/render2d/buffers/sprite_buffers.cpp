@@ -34,16 +34,6 @@ void Renderer::UnitMainSprite(Image *src, float x, float y, float w, float h, Co
         FlushUnitMainSprites();
     }
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (src->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    
     m_currentUnitMainTexture = effectiveTextureID;
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
@@ -67,19 +57,8 @@ void Renderer::UnitRotating(Image *src, float x, float y, float w, float h, Colo
     
     unsigned int effectiveTextureID = GetEffectiveTextureID(src);
     
-    // only flush if texture changes
     if (m_unitRotatingVertexCount > 0 && m_currentUnitRotatingTexture != effectiveTextureID) {
         FlushUnitRotating();
-    }
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (src->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     
     m_currentUnitRotatingTexture = effectiveTextureID;
@@ -124,16 +103,6 @@ void Renderer::UnitStateIcon(Image *stateSrc, float x, float y, float w, float h
         FlushUnitStateIcons();
     }
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (stateSrc->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    
     m_currentUnitStateTexture = effectiveTextureID;
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
@@ -163,32 +132,15 @@ void Renderer::UnitNukeIcon(float x, float y, float w, float h, Colour const &co
         FlushUnitNukeIcons();
     }
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (nukeBmp->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    
     m_currentUnitNukeTexture = effectiveTextureID;
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
     float u1, v1, u2, v2;
     
-    // make smallnuke behave like old Blit() system by shrinking UV area 
-    // to sample just the core nuke sprite, then stretch it to fill the entire render area
-    // this is a hacky workaround but i dont care it works. changing the atlas cords caused texture
-    // bleeding and positioning issues
     AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(nukeBmp);
     if (atlasImage) {
         GetImageUVCoords(nukeBmp, u1, v1, u2, v2);
-        
-        // simulate 14x14 area within 16x16 atlas coordinates
-        // 14 x 14 simulates what the old smallnuke looks like
-        float shrinkX = (u2 - u1) * 0.0625f;  // 6.25% 
+        float shrinkX = (u2 - u1) * 0.0655f;  // 6.25% 
         u1 += shrinkX;
         u2 -= shrinkX;
     } else {
@@ -218,16 +170,6 @@ void Renderer::UnitNukeIcon(float x, float y, float w, float h, Colour const &co
         FlushUnitNukeIcons();
     }
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (nukeBmp->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    
     m_currentUnitNukeTexture = effectiveTextureID;
     
     Vector3<float> vert1(-w, +h, 0);
@@ -252,7 +194,6 @@ void Renderer::UnitNukeIcon(float x, float y, float w, float h, Colour const &co
     AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(nukeBmp);
     if (atlasImage) {
         GetImageUVCoords(nukeBmp, u1, v1, u2, v2);
-        
         float shrinkX = (u2 - u1) * 0.0625f; 
         u1 += shrinkX;
         u2 -= shrinkX;
@@ -282,16 +223,6 @@ void Renderer::EffectsSprite(Image *src, float x, float y, float w, float h, Col
         FlushEffectsSprites();
     }
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (src->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    
     m_currentEffectsSpriteTexture = effectiveTextureID;
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
@@ -318,16 +249,6 @@ void Renderer::UnitHighlight(Image *blurSrc, float x, float y, float w, float h,
     
     if (m_unitHighlightVertexCount > 0 && m_currentUnitHighlightTexture != effectiveTextureID) {
         FlushUnitHighlights();
-    }
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (blurSrc->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     
     m_currentUnitHighlightTexture = effectiveTextureID;

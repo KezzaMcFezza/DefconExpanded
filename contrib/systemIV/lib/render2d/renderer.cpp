@@ -160,6 +160,7 @@ Renderer::Renderer()
       m_textureShaderProgram(0),
       m_VAO(0),
       m_VBO(0),
+      m_bufferNeedsUpload(true),
       m_triangleVertexCount(0),
       m_lineVertexCount(0),
       m_lineStripActive(false),
@@ -252,6 +253,7 @@ Renderer::Renderer()
     
       // Initialize OpenGL components
       InitializeShaders();
+      CacheUniformLocations();
       SetupVertexArrays();
     
     m_megaVertices = new Vertex2D[MAX_MEGA_VERTICES];
@@ -346,6 +348,7 @@ void Renderer::BeginScene() {
 
 void Renderer::BeginFrame() {
     ResetFrameCounters();
+    m_bufferNeedsUpload = true; // mark buffer as needing upload for new frame
 }
 
 void Renderer::EndFrame() {
@@ -712,6 +715,24 @@ char *Renderer::ScreenshotsDirectory() {
 // shader and buffer managment
 //
 
+void Renderer::CacheUniformLocations() {
+
+    //
+    // cache color shader uniforms
+
+    m_colorShaderUniforms.projectionLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
+    m_colorShaderUniforms.modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
+    m_colorShaderUniforms.textureLoc = -1; // not used in color shader
+    
+    //
+    // cache texture shader uniforms  
+
+    m_textureShaderUniforms.projectionLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
+    m_textureShaderUniforms.modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
+    m_textureShaderUniforms.textureLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
+    
+}
+
 unsigned int Renderer::CreateShader(const char* vertexSource, const char* fragmentSource) {
     // create vertex shader
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -889,6 +910,27 @@ void Renderer::SetupVertexArrays() {
 }
 
 // ============================================================================
+// UNIFORM MANAGEMENT
+// ============================================================================
+
+void Renderer::SetColorShaderUniforms() {
+    glUniformMatrix4fv(m_colorShaderUniforms.projectionLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(m_colorShaderUniforms.modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+}
+
+void Renderer::SetTextureShaderUniforms() {
+    glUniformMatrix4fv(m_textureShaderUniforms.projectionLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(m_textureShaderUniforms.modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    glUniform1i(m_textureShaderUniforms.textureLoc, 0);
+}
+
+void Renderer::UploadVertexData(const Vertex2D* vertices, int vertexCount) {
+    if (vertexCount == 0) return;
+    
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(Vertex2D), vertices);
+}
+
+// ============================================================================
 // FLUSH METHODS
 // ============================================================================
 
@@ -914,66 +956,6 @@ void Renderer::FlushVertices(unsigned int primitiveType, bool useTexture) {
     } else if (primitiveType == GL_LINES) {
         FlushLines();
     }
-}
-
-void Renderer::FlushTriangles(bool useTexture) {
-    if (m_triangleVertexCount == 0) return;
-    
-    IncrementDrawCall("legacy_triangles");
-    
-    unsigned int shaderToUse = useTexture ? m_textureShaderProgram : m_colorShaderProgram;
-    glUseProgram(shaderToUse);
-    
-    int projLoc = glGetUniformLocation(shaderToUse, "uProjection");
-    int modelViewLoc = glGetUniformLocation(shaderToUse, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
-    
-    if (useTexture) {
-        int texLoc = glGetUniformLocation(shaderToUse, "ourTexture");
-        glUniform1i(texLoc, 0);
-    }
-    
-    glBindVertexArray(m_VAO);    
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_triangleVertexCount * sizeof(Vertex2D), m_triangleVertices);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_triangleVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
-    m_triangleVertexCount = 0;
-}
-
-void Renderer::FlushLines() {
-    if (m_lineVertexCount == 0) return;
-    
-    IncrementDrawCall("legacy_lines");
-    
-    glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
-    
-    glBindVertexArray(m_VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-     
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_lineVertexCount * sizeof(Vertex2D), m_lineVertices);
-    
-    glDrawArrays(GL_LINES, 0, m_lineVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
-    m_lineVertexCount = 0;
 }
 
 void Renderer::FlushAllBuffers() {

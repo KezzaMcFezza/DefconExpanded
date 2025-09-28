@@ -122,10 +122,6 @@ void Renderer::EclipseSprite(Image *src, float x, float y, float w, float h, Col
 // ============================================================================
 
 void Renderer::EclipseRect(float x, float y, float w, float h, Colour const &col, float lineWidth) {
-#ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
-#endif
-
     FlushEclipseRectsIfFull(8);
         
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
@@ -147,7 +143,6 @@ void Renderer::EclipseRect(float x, float y, float w, float h, Colour const &col
     m_eclipseRectVertices[m_eclipseRectVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
     m_eclipseRectVertices[m_eclipseRectVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
 }
-
 void Renderer::EclipseRectFill(float x, float y, float w, float h, Colour const &col) {
     EclipseRectFill(x, y, w, h, col, col, col, col);
 }
@@ -199,10 +194,6 @@ void Renderer::EclipseTriangleFill(float x1, float y1, float x2, float y2, float
 }
 
 void Renderer::EclipseLine(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth) {
-#ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
-#endif
-
     FlushEclipseLinesIfFull(2);
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
@@ -212,10 +203,6 @@ void Renderer::EclipseLine(float x1, float y1, float x2, float y2, Colour const 
 }
 
 void Renderer::BeginEclipseLines(Colour const &col, float lineWidth) {
-#ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
-#endif
-
     m_currentEclipseLineColor = col;
 }
 

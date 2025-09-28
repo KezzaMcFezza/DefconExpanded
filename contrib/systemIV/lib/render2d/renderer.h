@@ -45,6 +45,15 @@ struct Vertex2D {
 class Renderer {
 private:
 
+  struct ShaderUniforms {
+    int projectionLoc;
+    int modelViewLoc;
+    int textureLoc; 
+  };
+
+  ShaderUniforms m_colorShaderUniforms;
+  ShaderUniforms m_textureShaderUniforms;
+
   //
   // micro batching system - allows the debug menu to track the number of draw
   // calls per frame this system could be abolished, but realistically to
@@ -74,15 +83,15 @@ private:
   static const int MAX_UI_VERTICES              = 500000;
   static const int MAX_TEXT_VERTICES            = 300000;
   static const int MAX_UNIT_TRAIL_VERTICES      = 250000;
-  static const int MAX_UNIT_MAIN_VERTICES       = 50000;
-  static const int MAX_UNIT_ROTATING_VERTICES   = 30000;
-  static const int MAX_UNIT_HIGHLIGHT_VERTICES  = 20000;
-  static const int MAX_UNIT_STATE_VERTICES      = 40000;
+  static const int MAX_UNIT_MAIN_VERTICES       = 500000;
+  static const int MAX_UNIT_ROTATING_VERTICES   = 300000;
+  static const int MAX_UNIT_HIGHLIGHT_VERTICES  = 200000;
+  static const int MAX_UNIT_STATE_VERTICES      = 400000;
   static const int MAX_UNIT_COUNTER_VERTICES    = 350000;
-  static const int MAX_UNIT_NUKE_VERTICES       = 20000;
+  static const int MAX_UNIT_NUKE_VERTICES       = 200000;
   static const int MAX_EFFECTS_LINE_VERTICES    = 150000;
   static const int MAX_EFFECTS_SPRITE_VERTICES  = 100000;
-  static const int MAX_HEALTH_BAR_VERTICES      = 50000;
+  static const int MAX_HEALTH_BAR_VERTICES      = 500000;
   static const int MAX_ECLIPSE_RECT_VERTICES    = 200000;
   static const int MAX_ECLIPSE_RECTFILL_VERTICES= 300000;
   static const int MAX_ECLIPSE_TRIANGLEFILL_VERTICES = 300000;
@@ -109,6 +118,8 @@ protected:
   unsigned int m_textureShaderProgram;
   unsigned int m_VAO;
   unsigned int m_VBO;
+  
+  bool m_bufferNeedsUpload;
 
   Matrix4f m_projectionMatrix;
   Matrix4f m_modelViewMatrix;
@@ -291,7 +302,11 @@ protected:
   // methods for modern OpenGL
 
   void InitializeShaders();
+  void CacheUniformLocations();
   void SetupVertexArrays();
+  void SetColorShaderUniforms();
+  void SetTextureShaderUniforms();
+  void UploadVertexData(const Vertex2D* vertices, int vertexCount);
   void FlushIfTextureChanged(unsigned int newTextureID, bool useTexture);
   bool ShouldFlushThisFrame();
   void FlushTriangles(bool useTexture);

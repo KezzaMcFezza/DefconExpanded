@@ -34,15 +34,7 @@ void Renderer::UnitCounterText(float x, float y, Colour const &col, float size, 
     font->SetHoriztonalFlip(false);
     font->SetFixedWidth(false);
     
-    // Render text using optimized font system
-    if (m_blendMode != BlendModeSubtractive) {
-        int blendSrc = m_blendSrcFactor, blendDst = m_blendDstFactor;
-        SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        font->DrawText2DSimple(x, y, size, text, col);
-        SetBlendFunc(blendSrc, blendDst);
-    } else {
-        font->DrawText2DSimple(x, y, size, text, col);
-    }
+    font->DrawText2DSimple(x, y, size, text, col);
 }
 
 void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float h, 
@@ -148,15 +140,8 @@ void Renderer::TextSimple(float x, float y, Colour const &col, float size, const
     if (font) {    
         font->SetHoriztonalFlip(m_horizFlip);
         font->SetFixedWidth(m_fixedWidth);
-                
-        if (m_blendMode != BlendModeSubtractive) {			
-            int blendSrc = m_blendSrcFactor, blendDst = m_blendDstFactor;
-            SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
-            font->DrawText2DSimple(x, y, size, text, col);
-            SetBlendFunc(blendSrc, blendDst);
-        } else {
-            font->DrawText2DSimple(x, y, size, text, col);
-        }
+        
+        font->DrawText2DSimple(x, y, size, text, col);
     }
 }
 

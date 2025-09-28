@@ -63,9 +63,6 @@ void Renderer::EffectsRect(float x, float y, float w, float h, Colour const &col
 }
 
 void Renderer::EffectsLine(float x1, float y1, float x2, float y2, Colour const &col) {
-#ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.0f);
-#endif
 
     FlushEffectsLinesIfFull(2);
     

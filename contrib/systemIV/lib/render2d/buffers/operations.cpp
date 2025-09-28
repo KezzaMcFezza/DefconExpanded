@@ -424,24 +424,15 @@ void Renderer::FlushUITriangles() {
     IncrementDrawCall("ui_triangles");
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     
     
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_uiTriangleVertexCount * sizeof(Vertex2D), m_uiTriangleVertices);
+    UploadVertexData(m_uiTriangleVertices, m_uiTriangleVertexCount);
         
     glDrawArrays(GL_TRIANGLES, 0, m_uiTriangleVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_uiTriangleVertexCount = 0;
 }
@@ -452,25 +443,58 @@ void Renderer::FlushUILines() {
     IncrementDrawCall("ui_lines");
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_uiLineVertexCount * sizeof(Vertex2D), m_uiLineVertices);
+    UploadVertexData(m_uiLineVertices, m_uiLineVertexCount);
            
     glDrawArrays(GL_LINES, 0, m_uiLineVertexCount);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     m_uiLineVertexCount = 0;
+}
+
+void Renderer::FlushTriangles(bool useTexture) {
+    if (m_triangleVertexCount == 0) return;
+    
+    IncrementDrawCall("legacy_triangles");
+    
+    unsigned int shaderToUse = useTexture ? m_textureShaderProgram : m_colorShaderProgram;
+    glUseProgram(shaderToUse);
+    
+    if (useTexture) {
+        SetTextureShaderUniforms();
+    } else {
+        SetColorShaderUniforms();
+    }
+    
+    glBindVertexArray(m_VAO);    
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    
+    UploadVertexData(m_triangleVertices, m_triangleVertexCount);
+    
+    glDrawArrays(GL_TRIANGLES, 0, m_triangleVertexCount);
+    
+    m_triangleVertexCount = 0;
+}
+
+void Renderer::FlushLines() {
+    if (m_lineVertexCount == 0) return;
+    
+    IncrementDrawCall("legacy_lines");
+    
+    glUseProgram(m_colorShaderProgram);
+    SetColorShaderUniforms();
+    
+    glBindVertexArray(m_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+     
+    UploadVertexData(m_lineVertices, m_lineVertexCount);
+    
+    glDrawArrays(GL_LINES, 0, m_lineVertexCount);
+    
+    m_lineVertexCount = 0;
 }
 
 void Renderer::FlushTextBuffer() {
@@ -488,33 +512,20 @@ void Renderer::FlushTextBuffer() {
     }
     
     glUseProgram(m_textureShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
-    glUniform1i(texLoc, 0);
+    SetTextureShaderUniforms();
     
     // bind the current text texture
     if (m_currentTextTexture != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_currentTextTexture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     }
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
     
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_textVertexCount * sizeof(Vertex2D), m_textVertices);  
+    UploadVertexData(m_textVertices, m_textVertexCount);  
     
     glDrawArrays(GL_TRIANGLES, 0, m_textVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     // restore previous blend state
     SetBlendFunc(currentBlendSrc, currentBlendDst);
@@ -528,29 +539,18 @@ void Renderer::FlushUnitTrails() {
     
     IncrementDrawCall("unit_trails");
     
-// im not sure where the linewidth was defined before the 
-// refactor but here seems like a good place to set line width
 #ifndef TARGET_EMSCRIPTEN
     glLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS)); 
 #endif
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitTrailVertexCount * sizeof(Vertex2D), m_unitTrailVertices); 
+    UploadVertexData(m_unitTrailVertices, m_unitTrailVertexCount); 
     
     glDrawArrays(GL_LINES, 0, m_unitTrailVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_unitTrailVertexCount = 0;
 }
@@ -562,31 +562,19 @@ void Renderer::FlushUnitMainSprites() {
     IncrementDrawCall("unit_main_sprites");
     
     glUseProgram(m_textureShaderProgram);
+    SetTextureShaderUniforms();
     
+    // bind texture here during flush
     if (m_currentUnitMainTexture != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_currentUnitMainTexture);
     }
     
-    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
-    glUniform1i(texLoc, 0);
-    
-    glBindVertexArray(m_VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    
-    
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitMainVertexCount * sizeof(Vertex2D), m_unitMainVertices);   
+    //glBindVertexArray(m_VAO);
+    //glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    UploadVertexData(m_unitMainVertices, m_unitMainVertexCount);   
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitMainVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_unitMainVertexCount = 0;
 }
@@ -597,29 +585,18 @@ void Renderer::FlushUnitRotating() {
     IncrementDrawCall("unit_rotating");
     
     glUseProgram(m_textureShaderProgram);
+    SetTextureShaderUniforms();
     
     if (m_currentUnitRotatingTexture != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_currentUnitRotatingTexture);
     }
     
-    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
-    glUniform1i(texLoc, 0);
-    
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitRotatingVertexCount * sizeof(Vertex2D), m_unitRotatingVertices);
+    UploadVertexData(m_unitRotatingVertices, m_unitRotatingVertexCount);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitRotatingVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_unitRotatingVertexCount = 0;
 }
@@ -630,22 +607,13 @@ void Renderer::FlushEffectsCircleFills() {
     IncrementDrawCall("effects_circle_fills");
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsCircleFillVertexCount * sizeof(Vertex2D), m_radarFillVertices);
+    UploadVertexData(m_radarFillVertices, m_effectsCircleFillVertexCount);
     
     glDrawArrays(GL_TRIANGLES, 0, m_effectsCircleFillVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_effectsCircleFillVertexCount = 0;
 }
@@ -660,22 +628,13 @@ void Renderer::FlushEffectsCircleOutlines() {
 #endif
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsCircleOutlineVertexCount * sizeof(Vertex2D), m_effectsCircleOutlineVertices);
+    UploadVertexData(m_effectsCircleOutlineVertices, m_effectsCircleOutlineVertexCount);
     
     glDrawArrays(GL_LINES, 0, m_effectsCircleOutlineVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_effectsCircleOutlineVertexCount = 0;
 }
@@ -690,22 +649,13 @@ void Renderer::FlushEffectsCircleOutlinesThick() {
 #endif
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsCircleOutlineThickVertexCount * sizeof(Vertex2D), m_effectsCircleOutlineThickVertices);
+    UploadVertexData(m_effectsCircleOutlineThickVertices, m_effectsCircleOutlineThickVertexCount);
     
     glDrawArrays(GL_LINES, 0, m_effectsCircleOutlineThickVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_effectsCircleOutlineThickVertexCount = 0;
 }
@@ -716,29 +666,17 @@ void Renderer::FlushUnitStateIcons() {
     IncrementDrawCall("unit_state_icons");
     
     glUseProgram(m_textureShaderProgram);
-
+    
     if (m_currentUnitStateTexture != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_currentUnitStateTexture);
     }
     
-    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
-    glUniform1i(texLoc, 0);
-    
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitStateVertexCount * sizeof(Vertex2D), m_unitStateVertices); 
+    UploadVertexData(m_unitStateVertices, m_unitStateVertexCount); 
         
     glDrawArrays(GL_TRIANGLES, 0, m_unitStateVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_unitStateVertexCount = 0;
 }
@@ -749,24 +687,13 @@ void Renderer::FlushUnitCounters() {
     IncrementDrawCall("unit_counters");
     
     glUseProgram(m_textureShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
-    glUniform1i(texLoc, 0);
+    SetTextureShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitCounterVertexCount * sizeof(Vertex2D), m_unitCounterVertices);
+    UploadVertexData(m_unitCounterVertices, m_unitCounterVertexCount);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitCounterVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_unitCounterVertexCount = 0;
 }
@@ -783,23 +710,11 @@ void Renderer::FlushUnitNukeIcons() {
         glBindTexture(GL_TEXTURE_2D, m_currentUnitNukeTexture);
     }
     
-    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
-    glUniform1i(texLoc, 0);
-    
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitNukeVertexCount * sizeof(Vertex2D), m_unitNukeVertices);
+    UploadVertexData(m_unitNukeVertices, m_unitNukeVertexCount);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitNukeVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_unitNukeVertexCount = 0;
 }
@@ -809,29 +724,18 @@ void Renderer::FlushEffectsLines() {
     
     IncrementDrawCall("effects_lines");
 
-// im not sure where the linewidth was defined before the 
-// refactor but here seems like a good place to set line width
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.0f);
+    glLineWidth(1.0f);  // Set once during flush, not per line
 #endif
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsLineVertexCount * sizeof(Vertex2D), m_effectsLineVertices);
+    UploadVertexData(m_effectsLineVertices, m_effectsLineVertexCount);
     
     glDrawArrays(GL_LINES, 0, m_effectsLineVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_effectsLineVertexCount = 0;
 }
@@ -848,22 +752,13 @@ void Renderer::FlushEffectsRects() {
 #endif
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsRectVertexCount * sizeof(Vertex2D), m_effectsRectVertices);
+    UploadVertexData(m_effectsRectVertices, m_effectsRectVertexCount);
     
     glDrawArrays(GL_LINES, 0, m_effectsRectVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_effectsRectVertexCount = 0;
 }
@@ -874,29 +769,18 @@ void Renderer::FlushEffectsSprites() {
     IncrementDrawCall("effects_sprites");
     
     glUseProgram(m_textureShaderProgram);
+    SetTextureShaderUniforms();
     
     if (m_currentEffectsSpriteTexture != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_currentEffectsSpriteTexture);
     }
     
-    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
-    glUniform1i(texLoc, 0);
-    
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsSpriteVertexCount * sizeof(Vertex2D), m_effectsSpriteVertices);
+    UploadVertexData(m_effectsSpriteVertices, m_effectsSpriteVertexCount);
     
     glDrawArrays(GL_TRIANGLES, 0, m_effectsSpriteVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_effectsSpriteVertexCount = 0;
 }
@@ -907,24 +791,18 @@ void Renderer::FlushUnitHighlights() {
     IncrementDrawCall("unit_highlights");
     
     glUseProgram(m_textureShaderProgram);
+    SetTextureShaderUniforms();
     
-    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
-    glUniform1i(texLoc, 0);
+    if (m_currentUnitHighlightTexture != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_currentUnitHighlightTexture);
+    }
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitHighlightVertexCount * sizeof(Vertex2D), m_unitHighlightVertices);
+    UploadVertexData(m_unitHighlightVertices, m_unitHighlightVertexCount);
  
     glDrawArrays(GL_TRIANGLES, 0, m_unitHighlightVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_unitHighlightVertexCount = 0;
 }
@@ -936,22 +814,13 @@ void Renderer::FlushHealthBars() {
     IncrementDrawCall("health_bars");
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_healthBarVertexCount * sizeof(Vertex2D), m_healthBarVertices);
+    UploadVertexData(m_healthBarVertices, m_healthBarVertexCount);
     
     glDrawArrays(GL_TRIANGLES, 0, m_healthBarVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_healthBarVertexCount = 0;
 }
@@ -962,26 +831,17 @@ void Renderer::FlushEclipseRects() {
     IncrementDrawCall("eclipse_rects");
     
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.0f);
+    glLineWidth(1.0f);  // Set once during flush
 #endif
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_eclipseRectVertexCount * sizeof(Vertex2D), m_eclipseRectVertices);
+    UploadVertexData(m_eclipseRectVertices, m_eclipseRectVertexCount);
     
     glDrawArrays(GL_LINES, 0, m_eclipseRectVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_eclipseRectVertexCount = 0;
 }
@@ -992,22 +852,13 @@ void Renderer::FlushEclipseRectFills() {
     IncrementDrawCall("eclipse_rectfills");
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_eclipseRectFillVertexCount * sizeof(Vertex2D), m_eclipseRectFillVertices);
+    UploadVertexData(m_eclipseRectFillVertices, m_eclipseRectFillVertexCount);
     
     glDrawArrays(GL_TRIANGLES, 0, m_eclipseRectFillVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_eclipseRectFillVertexCount = 0;
 }
@@ -1018,22 +869,13 @@ void Renderer::FlushEclipseTriangleFills() {
     IncrementDrawCall("eclipse_trianglefills");
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_eclipseTriangleFillVertexCount * sizeof(Vertex2D), m_eclipseTriangleFillVertices);
+    UploadVertexData(m_eclipseTriangleFillVertices, m_eclipseTriangleFillVertexCount);
     
     glDrawArrays(GL_TRIANGLES, 0, m_eclipseTriangleFillVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_eclipseTriangleFillVertexCount = 0;
 }
@@ -1044,26 +886,17 @@ void Renderer::FlushEclipseLines() {
     IncrementDrawCall("eclipse_lines");
     
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.0f);
+    glLineWidth(1.0f);  // Set once during flush
 #endif
     
     glUseProgram(m_colorShaderProgram);
-    
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_eclipseLineVertexCount * sizeof(Vertex2D), m_eclipseLineVertices);
+    UploadVertexData(m_eclipseLineVertices, m_eclipseLineVertexCount);
     
     glDrawArrays(GL_LINES, 0, m_eclipseLineVertexCount);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
     
     m_eclipseLineVertexCount = 0;
 }
@@ -1074,32 +907,19 @@ void Renderer::FlushEclipseSprites() {
     IncrementDrawCall("eclipse_sprites");
     
     glUseProgram(m_textureShaderProgram);
+    SetTextureShaderUniforms();
     
     if (m_currentEclipseSpriteTexture != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_currentEclipseSpriteTexture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     }
-    
-    int projLoc = glGetUniformLocation(m_textureShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_textureShaderProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_textureShaderProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
-    glUniform1i(texLoc, 0);
     
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_eclipseSpriteVertexCount * sizeof(Vertex2D), m_eclipseSpriteVertices);
+    UploadVertexData(m_eclipseSpriteVertices, m_eclipseSpriteVertexCount);
     
     glDrawArrays(GL_TRIANGLES, 0, m_eclipseSpriteVertexCount);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-       
     m_eclipseSpriteVertexCount = 0;
     m_currentEclipseSpriteTexture = 0;
 }
