@@ -297,7 +297,7 @@ void MapRenderer::Render()
 
         RenderObjects();
         RenderCities();  
-        
+
         g_renderer->EndTextBatch();
 
         RenderGunfire();           
@@ -2509,11 +2509,6 @@ void MapRenderer::RenderObjects()
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
     //
-    // set blend mode once for all objects 
-
-    g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-    
-    //
     // set font once for all status text
 
     g_renderer->SetFont( "kremlin", true );
@@ -2524,6 +2519,11 @@ void MapRenderer::RenderObjects()
         {            
             WorldObject *wobj = g_app->GetWorld()->m_objects[i];
             START_PROFILE( WorldObject::GetName(wobj->m_type) );
+
+            //
+            // set blend mode for each object
+
+            g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
             bool onScreen = IsOnScreen( wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue() );
             if( onScreen || wobj->m_type == WorldObject::TypeNuke )
