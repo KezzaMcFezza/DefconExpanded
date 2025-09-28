@@ -293,9 +293,14 @@ void MapRenderer::Render()
             RenderNukeUnits();
         }
 
+        g_renderer->BeginTextBatch();
+
         RenderObjects();
-        RenderGunfire();      
-        RenderCities();       
+        RenderCities();  
+        
+        g_renderer->EndTextBatch();
+
+        RenderGunfire();           
         RenderBlips();        
 		RenderSanta();
         RenderNodes();
@@ -2503,6 +2508,15 @@ void MapRenderer::RenderObjects()
 
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
+    //
+    // set blend mode once for all objects 
+
+    g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
+    
+    //
+    // set font once for all status text
+
+    g_renderer->SetFont( "kremlin", true );
      
     for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
     {
@@ -2510,8 +2524,6 @@ void MapRenderer::RenderObjects()
         {            
             WorldObject *wobj = g_app->GetWorld()->m_objects[i];
             START_PROFILE( WorldObject::GetName(wobj->m_type) );
-
-            g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
             bool onScreen = IsOnScreen( wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue() );
             if( onScreen || wobj->m_type == WorldObject::TypeNuke )
@@ -2556,8 +2568,6 @@ void MapRenderer::RenderObjects()
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
                     g_renderer->UnitRotating( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
 
-                    g_renderer->SetFont( "kremlin", true );
-
                     float yPos = wobj->m_latitude.DoubleValue()+1.6f;
                     if( wobj->m_numNukesInQueue )
                     {
@@ -2577,8 +2587,6 @@ void MapRenderer::RenderObjects()
 						LPREPLACEINTEGERFLAG( 'N', wobj->m_numNukesInFlight, caption );
                         g_renderer->TextCentreSimple( wobj->m_longitude.DoubleValue(), yPos, col, textSize, caption );
                     }
-
-                    g_renderer->SetFont();                
                 }
             }
 #endif
@@ -2586,6 +2594,8 @@ void MapRenderer::RenderObjects()
         }
     }
     
+    // Reset font once after all objects instead of per-object
+    g_renderer->SetFont();
 
 #ifndef NON_PLAYABLE
     WorldObject *selection = g_app->GetWorld()->GetWorldObject(m_currentSelectionId);
@@ -2637,8 +2647,6 @@ void MapRenderer::RenderObjects()
         }
     }
 #endif
- 
-
 
     END_PROFILE( "Objects" );
 }
@@ -2766,9 +2774,6 @@ void MapRenderer::RenderCities()
         cityColour.m_a      = 200.0f * (1.0f - sqrtf(m_zoomFactor));
         countryColour.m_a   = 200.0f * (1.0f - sqrtf(m_zoomFactor));
 
-        // begin text batching as this was the main culprit for immediate draw calls
-        g_renderer->BeginMapTextBatch();
-
         for( int i = 0; i < g_app->GetWorld()->m_cities.Size(); ++i )
         {
             City *city = g_app->GetWorld()->m_cities.GetData(i);
@@ -2795,9 +2800,6 @@ void MapRenderer::RenderCities()
                 }
             }
         }
-
-        // end it
-        g_renderer->EndMapTextBatch();
     }
 
 	g_renderer->SetFont();

@@ -912,6 +912,7 @@ Vector3<float> MapRenderer::ConvertLongLatTo3DPosition(float longitude, float la
 
 void MapRenderer::Render3DGlobeSurface(bool inLobbyMode)
 {
+    if (!m_3DGlobeMode) return;
 
     //
     // This will occlude stars behind the globe while maintaining coastline visibility
