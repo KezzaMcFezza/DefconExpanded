@@ -167,3 +167,23 @@ void Renderer::EffectsCircleOutline(float x, float y, float radius, int segments
         (*targetCount)++;
     }
 }
+
+void Renderer::BeginWhiteboardBatch() {
+    m_whiteboardVertexCount = 0;
+}
+
+void Renderer::WhiteboardLine(float x1, float y1, float x2, float y2, Colour const &col) {
+    if (m_whiteboardVertexCount + 2 > MAX_WHITEBOARD_VERTICES) {
+        FlushWhiteboard();
+    }
+    
+    float r = col.m_r / 255.0f, g = col.m_g / 255.0f;
+    float b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    
+    m_whiteboardVertices[m_whiteboardVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
+    m_whiteboardVertices[m_whiteboardVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
+}
+
+void Renderer::EndWhiteboardBatch() {
+    FlushWhiteboard();
+}

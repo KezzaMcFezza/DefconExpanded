@@ -49,6 +49,7 @@ public:
 private:
     // Page rendering methods
     void RenderBufferStatistics(float& yPos);
+    void RenderFlushTimings(float& yPos);
     void RenderSystemInformation(float& yPos);
     
     // Analysis methods

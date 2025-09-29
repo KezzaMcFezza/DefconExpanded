@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "lib/debug_utils.h"
+#include "lib/hi_res_time.h"
 #include "lib/string_utils.h"
 #include "lib/preferences.h"
 #include "lib/render2d/renderer.h"
@@ -128,10 +129,19 @@ Renderer3D::Renderer3D(Renderer* renderer)
 :   m_renderer(renderer),
     m_shader3DProgram(0),
     m_shader3DTexturedProgram(0),
-    m_VAO3D(0),
-    m_VBO3D(0),
-    m_VAO3DTextured(0),
-    m_VBO3DTextured(0),
+    m_VAO3D(0), m_VBO3D(0),
+    m_VAO3DTextured(0), m_VBO3DTextured(0),
+    m_unitVAO3D(0), m_unitVBO3D(0),
+    m_effectsVAO3D(0), m_effectsVBO3D(0),
+    m_globeVAO3D(0), m_globeVBO3D(0),
+    m_starsVAO3D(0), m_starsVBO3D(0),
+    m_healthVAO3D(0), m_healthVBO3D(0),
+    m_textVAO3D(0), m_textVBO3D(0),
+    m_nukeVAO3D(0), m_nukeVBO3D(0),
+    m_legacyVAO3D(0), m_legacyVBO3D(0),
+    m_currentShaderProgram3D(0),
+    m_matrices3DNeedUpdate(true),
+    m_fog3DNeedsUpdate(true),
     m_vertex3DCount(0),
     m_vertex3DTexturedCount(0),
     m_lineStrip3DActive(false),
@@ -211,8 +221,11 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_prevTextCalls3D = 0;
     m_prevMegaVBOCalls3D = 0;
     m_prevNuke3DModelCalls3D = 0;
+    m_flushTimingCount3D = 0;
+    m_currentFlushStartTime3D = 0.0;
     
     Initialize3DShaders();
+    Cache3DUniformLocations();
     Setup3DVertexArrays();
     Setup3DTexturedVertexArrays();
     
@@ -241,6 +254,24 @@ void Renderer3D::Shutdown() {
         glDeleteVertexArrays(1, &m_VAO3DTextured);
         m_VAO3DTextured = 0;
     }
+    
+    // Clean up specialized 3D VAOs and VBOs
+    if (m_unitVAO3D) glDeleteVertexArrays(1, &m_unitVAO3D);
+    if (m_unitVBO3D) glDeleteBuffers(1, &m_unitVBO3D);
+    if (m_effectsVAO3D) glDeleteVertexArrays(1, &m_effectsVAO3D);
+    if (m_effectsVBO3D) glDeleteBuffers(1, &m_effectsVBO3D);
+    if (m_globeVAO3D) glDeleteVertexArrays(1, &m_globeVAO3D);
+    if (m_globeVBO3D) glDeleteBuffers(1, &m_globeVBO3D);
+    if (m_starsVAO3D) glDeleteVertexArrays(1, &m_starsVAO3D);
+    if (m_starsVBO3D) glDeleteBuffers(1, &m_starsVBO3D);
+    if (m_healthVAO3D) glDeleteVertexArrays(1, &m_healthVAO3D);
+    if (m_healthVBO3D) glDeleteBuffers(1, &m_healthVBO3D);
+    if (m_textVAO3D) glDeleteVertexArrays(1, &m_textVAO3D);
+    if (m_textVBO3D) glDeleteBuffers(1, &m_textVBO3D);
+    if (m_nukeVAO3D) glDeleteVertexArrays(1, &m_nukeVAO3D);
+    if (m_nukeVBO3D) glDeleteBuffers(1, &m_nukeVBO3D);
+    if (m_legacyVAO3D) glDeleteVertexArrays(1, &m_legacyVAO3D);
+    if (m_legacyVBO3D) glDeleteBuffers(1, &m_legacyVBO3D);
     if (m_shader3DProgram) {
         glDeleteProgram(m_shader3DProgram);
         m_shader3DProgram = 0;
@@ -764,23 +795,63 @@ unsigned int Renderer3D::GetEffectiveTextureID(Image* image) {
 }
 
 void Renderer3D::Setup3DVertexArrays() {
-    // Generate VAO and VBO for 3D rendering
+    // Helper function to set up vertex attributes for non-textured 3D rendering
+    auto setup3DVertexAttributes = []() {
+        // Position attribute (location 0) - 3 components
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)0);
+        glEnableVertexAttribArray(0);
+        // Color attribute (location 1) - 4 components
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+    };
+    
+    // Generate VAO and VBO for legacy 3D rendering
     glGenVertexArrays(1, &m_VAO3D);
     glGenBuffers(1, &m_VBO3D);
-    
     glBindVertexArray(m_VAO3D);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO3D);
-    
-    // Allocate buffer for maximum 3D vertices
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_3D_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    setup3DVertexAttributes();
     
-    // Position attribute (location 0) - now 3 components
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)0);
-    glEnableVertexAttribArray(0);
+    // Create Effects VAO/VBO pair (trails and lines)
+    glGenVertexArrays(1, &m_effectsVAO3D);
+    glGenBuffers(1, &m_effectsVBO3D);
+    glBindVertexArray(m_effectsVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_effectsVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * (MAX_UNIT_TRAIL_VERTICES_3D + MAX_EFFECTS_LINE_VERTICES_3D), NULL, GL_STREAM_DRAW);
+    setup3DVertexAttributes();
     
-    // Color attribute (location 1)
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    // Create Globe VAO/VBO pair (non-textured surface triangles)
+    glGenVertexArrays(1, &m_globeVAO3D);
+    glGenBuffers(1, &m_globeVBO3D);
+    glBindVertexArray(m_globeVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_globeVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_GLOBE_SURFACE_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
+    setup3DVertexAttributes();
+    
+    // Create Nuke 3D Models VAO/VBO pair
+    glGenVertexArrays(1, &m_nukeVAO3D);
+    glGenBuffers(1, &m_nukeVBO3D);
+    glBindVertexArray(m_nukeVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_nukeVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_NUKE_3D_MODEL_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
+    setup3DVertexAttributes();
+    
+    // Create Health VAO/VBO pair (health bars use non-textured Vertex3D)
+    glGenVertexArrays(1, &m_healthVAO3D);
+    glGenBuffers(1, &m_healthVBO3D);
+    glBindVertexArray(m_healthVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_healthVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_HEALTH_BAR_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
+    setup3DVertexAttributes();
+    
+    // Create Legacy VAO/VBO pair (keep original behavior)
+    glGenVertexArrays(1, &m_legacyVAO3D);
+    glGenBuffers(1, &m_legacyVBO3D);
+    glBindVertexArray(m_legacyVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_legacyVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_3D_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    setup3DVertexAttributes();
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -789,27 +860,52 @@ void Renderer3D::Setup3DVertexArrays() {
 }
 
 void Renderer3D::Setup3DTexturedVertexArrays() {
-    // Generate VAO and VBO for textured 3D rendering
+    // Helper function to set up vertex attributes for textured 3D rendering
+    auto setup3DTexturedVertexAttributes = []() {
+        // Position attribute (location 0) - 3 components
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)0);
+        glEnableVertexAttribArray(0);
+        // Color attribute (location 1) - 4 components
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        // Texture coordinate attribute (location 2) - 2 components
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(7 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+    };
+    
+    // Generate VAO and VBO for legacy textured 3D rendering
     glGenVertexArrays(1, &m_VAO3DTextured);
     glGenBuffers(1, &m_VBO3DTextured);
-    
     glBindVertexArray(m_VAO3DTextured);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
-    
-    // Allocate buffer for maximum textured 3D vertices
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * MAX_3D_TEXTURED_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    setup3DTexturedVertexAttributes();
     
-    // Position attribute (location 0) - 3 components
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)0);
-    glEnableVertexAttribArray(0);
+    // Create Unit VAO/VBO pair (sprites and highlights)
+    glGenVertexArrays(1, &m_unitVAO3D);
+    glGenBuffers(1, &m_unitVBO3D);
+    glBindVertexArray(m_unitVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_unitVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * (MAX_UNIT_MAIN_VERTICES_3D + MAX_UNIT_ROTATING_VERTICES_3D + MAX_UNIT_STATE_VERTICES_3D + MAX_UNIT_COUNTER_VERTICES_3D + MAX_UNIT_NUKE_VERTICES_3D + MAX_UNIT_HIGHLIGHT_VERTICES_3D), NULL, GL_DYNAMIC_DRAW);
+    setup3DTexturedVertexAttributes();
     
-    // Color attribute (location 1) - 4 components
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    // Create Text VAO/VBO pair
+    glGenVertexArrays(1, &m_textVAO3D);
+    glGenBuffers(1, &m_textVBO3D);
+    glBindVertexArray(m_textVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_textVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * MAX_TEXT_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
+    setup3DTexturedVertexAttributes();
     
-    // Texture coordinate attribute (location 2) - 2 components
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(7 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    // Note: Health bars will be set up with non-textured attributes in Setup3DVertexArrays()
+    
+    // Create Stars VAO/VBO pair (stars and effects sprites - textured)
+    glGenVertexArrays(1, &m_starsVAO3D);
+    glGenBuffers(1, &m_starsVBO3D);
+    glBindVertexArray(m_starsVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_starsVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * (MAX_STAR_FIELD_VERTICES_3D + MAX_EFFECTS_SPRITE_VERTICES_3D), NULL, GL_DYNAMIC_DRAW);
+    setup3DTexturedVertexAttributes();
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -819,12 +915,14 @@ void Renderer3D::Setup3DTexturedVertexArrays() {
 
 void Renderer3D::SetPerspective(float fovy, float aspect, float nearZ, float farZ) {
     m_projectionMatrix3D.Perspective(fovy, aspect, nearZ, farZ);
+    InvalidateMatrices3D();
 }
 
 void Renderer3D::SetLookAt(float eyeX, float eyeY, float eyeZ,
                            float centerX, float centerY, float centerZ,
                            float upX, float upY, float upZ) {
     m_modelViewMatrix3D.LookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
+    InvalidateMatrices3D();
 }
 
 void Renderer3D::BeginLineStrip3D(Colour const &col) {
@@ -972,6 +1070,78 @@ void Renderer3D::Clear3DState() {
     m_lineStrip3DActive = false;
 }
 
+void Renderer3D::Cache3DUniformLocations() {
+    m_shader3DUniforms.projectionLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
+    m_shader3DUniforms.modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
+    m_shader3DUniforms.textureLoc = -1; // not used in basic 3D shader
+    m_shader3DUniforms.fogEnabledLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnabled");
+    m_shader3DUniforms.fogOrientationLoc = glGetUniformLocation(m_shader3DProgram, "uFogOrientationBased");
+    m_shader3DUniforms.fogStartLoc = glGetUniformLocation(m_shader3DProgram, "uFogStart");
+    m_shader3DUniforms.fogEndLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnd");
+    m_shader3DUniforms.fogColorLoc = glGetUniformLocation(m_shader3DProgram, "uFogColor");
+    m_shader3DUniforms.cameraPosLoc = glGetUniformLocation(m_shader3DProgram, "uCameraPos");
+    
+    //
+    // cache uniform locations for 3D textured shader
+
+    m_shader3DTexturedUniforms.projectionLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
+    m_shader3DTexturedUniforms.modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
+    m_shader3DTexturedUniforms.textureLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
+    m_shader3DTexturedUniforms.fogEnabledLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogEnabled");
+    m_shader3DTexturedUniforms.fogOrientationLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogOrientationBased");
+    m_shader3DTexturedUniforms.fogStartLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogStart");
+    m_shader3DTexturedUniforms.fogEndLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogEnd");
+    m_shader3DTexturedUniforms.fogColorLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogColor");
+    m_shader3DTexturedUniforms.cameraPosLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uCameraPos");
+}
+
+void Renderer3D::Set3DShaderUniforms() {
+    // Only upload matrices if they changed or we switched shaders
+    if (m_matrices3DNeedUpdate || m_currentShaderProgram3D != m_shader3DProgram) {
+        glUniformMatrix4fv(m_shader3DUniforms.projectionLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
+        glUniformMatrix4fv(m_shader3DUniforms.modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
+    }
+    
+    // Only upload fog uniforms if they changed or we switched shaders  
+    if (m_fog3DNeedsUpdate || m_currentShaderProgram3D != m_shader3DProgram) {
+        glUniform1i(m_shader3DUniforms.fogEnabledLoc, m_fogEnabled ? 1 : 0);
+        glUniform1i(m_shader3DUniforms.fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
+        glUniform1f(m_shader3DUniforms.fogStartLoc, m_fogStart);
+        glUniform1f(m_shader3DUniforms.fogEndLoc, m_fogEnd);
+        glUniform4f(m_shader3DUniforms.fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
+        glUniform3f(m_shader3DUniforms.cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
+    }
+    
+    // Track current shader and reset dirty flags
+    m_currentShaderProgram3D = m_shader3DProgram;
+    m_matrices3DNeedUpdate = false;
+    m_fog3DNeedsUpdate = false;
+}
+
+void Renderer3D::SetTextured3DShaderUniforms() {
+    // Only upload matrices if they changed or we switched shaders
+    if (m_matrices3DNeedUpdate || m_currentShaderProgram3D != m_shader3DTexturedProgram) {
+        glUniformMatrix4fv(m_shader3DTexturedUniforms.projectionLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
+        glUniformMatrix4fv(m_shader3DTexturedUniforms.modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
+        glUniform1i(m_shader3DTexturedUniforms.textureLoc, 0);
+    }
+    
+    // Only upload fog uniforms if they changed or we switched shaders
+    if (m_fog3DNeedsUpdate || m_currentShaderProgram3D != m_shader3DTexturedProgram) {
+        glUniform1i(m_shader3DTexturedUniforms.fogEnabledLoc, m_fogEnabled ? 1 : 0);
+        glUniform1i(m_shader3DTexturedUniforms.fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
+        glUniform1f(m_shader3DTexturedUniforms.fogStartLoc, m_fogStart);
+        glUniform1f(m_shader3DTexturedUniforms.fogEndLoc, m_fogEnd);
+        glUniform4f(m_shader3DTexturedUniforms.fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
+        glUniform3f(m_shader3DTexturedUniforms.cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
+    }
+    
+    // Track current shader and reset dirty flags
+    m_currentShaderProgram3D = m_shader3DTexturedProgram;
+    m_matrices3DNeedUpdate = false;
+    m_fog3DNeedsUpdate = false;
+}
+
 void Renderer3D::SetFogUniforms3D(unsigned int shaderProgram) {
     int fogEnabledLoc = glGetUniformLocation(shaderProgram, "uFogEnabled");
     int fogOrientationLoc = glGetUniformLocation(shaderProgram, "uFogOrientationBased");
@@ -988,6 +1158,30 @@ void Renderer3D::SetFogUniforms3D(unsigned int shaderProgram) {
     glUniform3f(cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
 }
 
+void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3D* vertices, int vertexCount) {
+    if (vertexCount == 0) return;
+    
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    
+    //
+    // orphan the buffer, this invalidates the old buffer and allocates new memory
+
+    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex3D), NULL, GL_STREAM_DRAW);
+    
+    //
+    // upload new data, no sync needed as we have fresh memory
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(Vertex3D), vertices);
+}
+
+void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount) {
+    if (vertexCount == 0) return;
+    
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex3DTextured), NULL, GL_STREAM_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(Vertex3DTextured), vertices);
+}
+
 void Renderer3D::EnableDistanceFog(float start, float end, float density, float r, float g, float b, float a) {
     m_fogEnabled = true;
     m_fogOrientationBased = false;
@@ -998,6 +1192,7 @@ void Renderer3D::EnableDistanceFog(float start, float end, float density, float 
     m_fogColor[1] = g;
     m_fogColor[2] = b;
     m_fogColor[3] = a;
+    InvalidateFog3D();
 }
 
 void Renderer3D::EnableOrientationFog(float r, float g, float b, float a, float camX, float camY, float camZ) {
@@ -1010,16 +1205,19 @@ void Renderer3D::EnableOrientationFog(float r, float g, float b, float a, float 
     m_cameraPos[0] = camX;
     m_cameraPos[1] = camY;
     m_cameraPos[2] = camZ;
+    InvalidateFog3D();
 }
 
 void Renderer3D::DisableFog() {
     m_fogEnabled = false;
+    InvalidateFog3D();
 } 
 
 void Renderer3D::SetCameraPosition(float x, float y, float z) {
     m_cameraPos[0] = x;
     m_cameraPos[1] = y;
     m_cameraPos[2] = z;
+    InvalidateFog3D();
 }
 
 void Renderer3D::CreateSurfaceAlignedBillboard(const Vector3<float>& position, float width, float height, 
@@ -1214,9 +1412,57 @@ void Renderer3D::ResetFrameCounters3D() {
 
 void Renderer3D::BeginFrame3D() {
     ResetFrameCounters3D();
+    ResetFlushTimings3D();
 }
 
 void Renderer3D::EndFrame3D() {
     // Flush any remaining buffers if needed
     FlushAllSpecializedBuffers3D();
+}
+
+// ============================================================================
+// DEBUG MENU FUNCTIONS
+// ============================================================================
+
+void Renderer3D::StartFlushTiming3D(const char* name) {
+    
+    m_currentFlushStartTime3D = GetHighResTime();
+    
+    for (int i = 0; i < m_flushTimingCount3D; i++) {
+        if (strcmp(m_flushTimings3D[i].name, name) == 0) {
+            return;
+        }
+    }
+    
+    if (m_flushTimingCount3D < MAX_FLUSH_TYPES_3D) {
+        m_flushTimings3D[m_flushTimingCount3D].name = name;
+        m_flushTimings3D[m_flushTimingCount3D].totalTime = 0.0;
+        m_flushTimings3D[m_flushTimingCount3D].callCount = 0;
+        m_flushTimingCount3D++;
+    }
+}
+
+void Renderer3D::EndFlushTiming3D(const char* name) {
+    double endTime = GetHighResTime();
+    double elapsed = endTime - m_currentFlushStartTime3D;
+    
+    for (int i = 0; i < m_flushTimingCount3D; i++) {
+        if (strcmp(m_flushTimings3D[i].name, name) == 0) {
+            m_flushTimings3D[i].totalTime += elapsed;
+            m_flushTimings3D[i].callCount++;
+            return;
+        }
+    }
+}
+
+void Renderer3D::ResetFlushTimings3D() {
+    for (int i = 0; i < m_flushTimingCount3D; i++) {
+        m_flushTimings3D[i].totalTime = 0.0;
+        m_flushTimings3D[i].callCount = 0;
+    }
+}
+
+const Renderer3D::FlushTiming3D* Renderer3D::GetFlushTimings3D(int& count) const {
+    count = m_flushTimingCount3D;
+    return m_flushTimings3D;
 } 

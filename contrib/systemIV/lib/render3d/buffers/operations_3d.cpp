@@ -283,6 +283,7 @@ void Renderer3D::FlushNuke3DModels3DIfFull(int verticesNeeded) {
 void Renderer3D::FlushUnitTrails3D() {
     if (m_unitTrailVertexCount3D == 0) return;
 
+    StartFlushTiming3D("Unit_Trails_3D");
     IncrementDrawCall3D("unit_trails");
     
 #ifndef TARGET_EMSCRIPTEN
@@ -291,389 +292,271 @@ void Renderer3D::FlushUnitTrails3D() {
     
     // use 3D shader program
     glUseProgram(m_shader3DProgram);
+    Set3DShaderUniforms();
     
-    int projLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    
-    // set fog uniforms
-    SetFogUniforms3D(m_shader3DProgram);
-    
-    glBindVertexArray(m_VAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3D);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitTrailVertexCount3D * sizeof(Vertex3D), m_unitTrailVertices3D);
+    glBindVertexArray(m_effectsVAO3D);
+    UploadVertexDataTo3DVBO(m_effectsVBO3D, m_unitTrailVertices3D, m_unitTrailVertexCount3D);
     
     glDrawArrays(GL_LINES, 0, m_unitTrailVertexCount3D);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     m_unitTrailVertexCount3D = 0;
+    
+    EndFlushTiming3D("Unit_Trails_3D");
 }
 
 void Renderer3D::FlushUnitMainSprites3D() {
     if (m_unitMainVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Unit_Main_3D");
     IncrementDrawCall3D("unit_main_sprites");
     
     glDepthMask(GL_FALSE);
     
     glUseProgram(m_shader3DTexturedProgram);
+    SetTextured3DShaderUniforms();
     
     if (m_currentUnitMainTexture3D != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_currentUnitMainTexture3D);
     }
     
-    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    glUniform1i(texLoc, 0);
-    
-    SetFogUniforms3D(m_shader3DTexturedProgram);
-    
-    glBindVertexArray(m_VAO3DTextured);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitMainVertexCount3D * sizeof(Vertex3DTextured), m_unitMainVertices3D);
+    glBindVertexArray(m_unitVAO3D);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitMainVertices3D, m_unitMainVertexCount3D);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitMainVertexCount3D);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     glDepthMask(GL_TRUE);
     
     m_unitMainVertexCount3D = 0;
+    
+    EndFlushTiming3D("Unit_Main_3D");
 }
 
 void Renderer3D::FlushUnitRotating3D() {
     if (m_unitRotatingVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Unit_Rotating_3D");
     IncrementDrawCall3D("unit_rotating");
     
     glDepthMask(GL_FALSE);
     
     glUseProgram(m_shader3DTexturedProgram);
+    SetTextured3DShaderUniforms();
     
     if (m_currentUnitRotatingTexture3D != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_currentUnitRotatingTexture3D);
     }
     
-    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    glUniform1i(texLoc, 0);
-    
-    SetFogUniforms3D(m_shader3DTexturedProgram);
-    
-    glBindVertexArray(m_VAO3DTextured);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitRotatingVertexCount3D * sizeof(Vertex3DTextured), m_unitRotatingVertices3D);
+    glBindVertexArray(m_unitVAO3D);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitRotatingVertices3D, m_unitRotatingVertexCount3D);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitRotatingVertexCount3D);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     glDepthMask(GL_TRUE);
     
     m_unitRotatingVertexCount3D = 0;
+    
+    EndFlushTiming3D("Unit_Rotating_3D");
 }
 
 void Renderer3D::FlushUnitStateIcons3D() {
     if (m_unitStateVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Unit_StateIcons_3D");
     IncrementDrawCall3D("unit_state_icons");
     
     glDepthMask(GL_FALSE);
     
     glUseProgram(m_shader3DTexturedProgram);
+    SetTextured3DShaderUniforms();
     
-    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
+    if (m_currentUnitStateTexture3D != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_currentUnitStateTexture3D);
+    }
     
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    glUniform1i(texLoc, 0);
-    
-    SetFogUniforms3D(m_shader3DTexturedProgram);
-    
-    glBindVertexArray(m_VAO3DTextured);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitStateVertexCount3D * sizeof(Vertex3DTextured), m_unitStateVertices3D);
+    glBindVertexArray(m_unitVAO3D);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitStateVertices3D, m_unitStateVertexCount3D);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitStateVertexCount3D);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     glDepthMask(GL_TRUE);
     
     m_unitStateVertexCount3D = 0;
+    
+    EndFlushTiming3D("Unit_StateIcons_3D");
 }
 
 void Renderer3D::FlushUnitCounters3D() {
     if (m_unitCounterVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Unit_Counters_3D");
     IncrementDrawCall3D("unit_counters");
     
     glUseProgram(m_shader3DTexturedProgram);
+    SetTextured3DShaderUniforms();
     
-    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    glUniform1i(texLoc, 0);
-    
-    SetFogUniforms3D(m_shader3DTexturedProgram);
-    
-    glBindVertexArray(m_VAO3DTextured);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitCounterVertexCount3D * sizeof(Vertex3DTextured), m_unitCounterVertices3D);
+    glBindVertexArray(m_unitVAO3D);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitCounterVertices3D, m_unitCounterVertexCount3D);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitCounterVertexCount3D);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     m_unitCounterVertexCount3D = 0;
+    
+    EndFlushTiming3D("Unit_Counters_3D");
 }
 
 void Renderer3D::FlushUnitNukeIcons3D() {
     if (m_unitNukeVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Unit_Nukes_3D");
     IncrementDrawCall3D("unit_nuke_icons");
     
     glDepthMask(GL_FALSE);
     
     glUseProgram(m_shader3DTexturedProgram);
+    SetTextured3DShaderUniforms();
     
-    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
+    if (m_currentUnitNukeTexture3D != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_currentUnitNukeTexture3D);
+    }
     
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    glUniform1i(texLoc, 0);
-    
-    SetFogUniforms3D(m_shader3DTexturedProgram);
-    
-    glBindVertexArray(m_VAO3DTextured);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitNukeVertexCount3D * sizeof(Vertex3DTextured), m_unitNukeVertices3D);
+    glBindVertexArray(m_unitVAO3D);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitNukeVertices3D, m_unitNukeVertexCount3D);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitNukeVertexCount3D);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     glDepthMask(GL_TRUE);
     
     m_unitNukeVertexCount3D = 0;
+    
+    EndFlushTiming3D("Unit_Nukes_3D");
 }
 
 void Renderer3D::FlushEffectsLines3D() {
     if (m_effectsLineVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Effects_Lines_3D");
     IncrementDrawCall3D("effects_lines");
     
     glUseProgram(m_shader3DProgram);
+    Set3DShaderUniforms();
     
-    int projLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    
-    SetFogUniforms3D(m_shader3DProgram);
-    
-    glBindVertexArray(m_VAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3D);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsLineVertexCount3D * sizeof(Vertex3D), m_effectsLineVertices3D);
+    glBindVertexArray(m_effectsVAO3D);
+    UploadVertexDataTo3DVBO(m_effectsVBO3D, m_effectsLineVertices3D, m_effectsLineVertexCount3D);
     
     glDrawArrays(GL_LINES, 0, m_effectsLineVertexCount3D);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     m_effectsLineVertexCount3D = 0;
+    
+    EndFlushTiming3D("Effects_Lines_3D");
 }
 
 void Renderer3D::FlushEffectsSprites3D() {
     if (m_effectsSpriteVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Effects_Sprites_3D");
     IncrementDrawCall3D("effects_sprites");
     
     glDepthMask(GL_FALSE);
     
     glUseProgram(m_shader3DTexturedProgram);
     
+    SetTextured3DShaderUniforms();
+    
     if (m_currentEffectsSpriteTexture3D != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_currentEffectsSpriteTexture3D);
     }
     
-    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    glUniform1i(texLoc, 0);
-    
-    SetFogUniforms3D(m_shader3DTexturedProgram);
-    
-    glBindVertexArray(m_VAO3DTextured);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_effectsSpriteVertexCount3D * sizeof(Vertex3DTextured), m_effectsSpriteVertices3D);
+    glBindVertexArray(m_starsVAO3D);
+    UploadVertexDataTo3DVBO(m_starsVBO3D, m_effectsSpriteVertices3D, m_effectsSpriteVertexCount3D);
     
     glDrawArrays(GL_TRIANGLES, 0, m_effectsSpriteVertexCount3D);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     glDepthMask(GL_TRUE);
     
     m_effectsSpriteVertexCount3D = 0;
+    
+    EndFlushTiming3D("Effects_Sprites_3D");
 }
 
 void Renderer3D::FlushUnitHighlights3D() {
     if (m_unitHighlightVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Unit_Highlights_3D");
     IncrementDrawCall3D("unit_highlights");
     
     glUseProgram(m_shader3DTexturedProgram);
+    SetTextured3DShaderUniforms();
     
-    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
+    if (m_currentUnitHighlightTexture3D != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_currentUnitHighlightTexture3D);
+    }
     
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    glUniform1i(texLoc, 0);
-    
-    SetFogUniforms3D(m_shader3DTexturedProgram);
-    
-    glBindVertexArray(m_VAO3DTextured);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_unitHighlightVertexCount3D * sizeof(Vertex3DTextured), m_unitHighlightVertices3D);
+    glBindVertexArray(m_unitVAO3D);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitHighlightVertices3D, m_unitHighlightVertexCount3D);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitHighlightVertexCount3D);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     m_unitHighlightVertexCount3D = 0;
+    
+    EndFlushTiming3D("Unit_Highlights_3D");
 }
 
 void Renderer3D::FlushHealthBars3D() {
     if (m_healthBarVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Health_Bars_3D");
     IncrementDrawCall3D("health_bars");
     
     glUseProgram(m_shader3DProgram);
+    Set3DShaderUniforms();
     
-    int projLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    
-    // Set fog uniforms
-    SetFogUniforms3D(m_shader3DProgram);
-    
-    glBindVertexArray(m_VAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3D);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_healthBarVertexCount3D * sizeof(Vertex3D), m_healthBarVertices3D);
+    glBindVertexArray(m_healthVAO3D);
+    UploadVertexDataTo3DVBO(m_healthVBO3D, m_healthBarVertices3D, m_healthBarVertexCount3D);
     
     glDrawArrays(GL_TRIANGLES, 0, m_healthBarVertexCount3D);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     m_healthBarVertexCount3D = 0;
+    
+    EndFlushTiming3D("Health_Bars_3D");
 }
 
 void Renderer3D::FlushTextBuffer3D() {
     if (m_textVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Text_3D");
     IncrementDrawCall3D("text");
     
     glUseProgram(m_shader3DTexturedProgram);
+    SetTextured3DShaderUniforms();
     
-    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    glUniform1i(texLoc, 0);
-    
-    // set fog 
-    SetFogUniforms3D(m_shader3DTexturedProgram);
-    
-    // bind the current text texture
     if (m_currentTextTexture3D != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_currentTextTexture3D);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     }
     
-    glBindVertexArray(m_VAO3DTextured);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_textVertexCount3D * sizeof(Vertex3DTextured), m_textVertices3D);
+    glBindVertexArray(m_textVAO3D);
+    UploadVertexDataTo3DVBO(m_textVBO3D, m_textVertices3D, m_textVertexCount3D);
     
     glDrawArrays(GL_TRIANGLES, 0, m_textVertexCount3D);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     m_textVertexCount3D = 0;
     m_currentTextTexture3D = 0;  // reset texture tracking
+    
+    EndFlushTiming3D("Text_3D");
 }
 
 void Renderer3D::FlushNuke3DModels3D() {
     if (m_nuke3DModelVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Nuke_3D_Models");
     IncrementDrawCall3D("nuke_3d_models");
     
     glUseProgram(m_shader3DProgram);
+    Set3DShaderUniforms();
     
-    int projLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    
-    SetFogUniforms3D(m_shader3DProgram);
-    
-    glBindVertexArray(m_VAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3D);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_nuke3DModelVertexCount3D * sizeof(Vertex3D), m_nuke3DModelVertices3D);
+    glBindVertexArray(m_nukeVAO3D);
+    UploadVertexDataTo3DVBO(m_nukeVBO3D, m_nuke3DModelVertices3D, m_nuke3DModelVertexCount3D);
     
     // enable face culling for proper 3D model rendering
     glEnable(GL_CULL_FACE);
@@ -684,70 +567,50 @@ void Renderer3D::FlushNuke3DModels3D() {
     
     glDisable(GL_CULL_FACE);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     m_nuke3DModelVertexCount3D = 0;
+    
+    EndFlushTiming3D("Nuke_3D_Models");
 }
 
 void Renderer3D::FlushStarField3D() {
     if (m_starFieldVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Star_Field_3D");
     IncrementDrawCall3D("star_field");
     
     glDepthMask(GL_FALSE);  // dont write to depth buffer for stars
     
     glUseProgram(m_shader3DTexturedProgram);
     
+    SetTextured3DShaderUniforms();
+    
     if (m_currentStarFieldTexture3D != 0) {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_currentStarFieldTexture3D);
     }
     
-    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    glUniform1i(texLoc, 0);
-    
-    SetFogUniforms3D(m_shader3DTexturedProgram);
-    
-    glBindVertexArray(m_VAO3DTextured);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_starFieldVertexCount3D * sizeof(Vertex3DTextured), m_starFieldVertices3D);
+    glBindVertexArray(m_starsVAO3D);
+    UploadVertexDataTo3DVBO(m_starsVBO3D, m_starFieldVertices3D, m_starFieldVertexCount3D);
     
     glDrawArrays(GL_TRIANGLES, 0, m_starFieldVertexCount3D);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     glDepthMask(GL_TRUE);
     
     m_starFieldVertexCount3D = 0;
+    
+    EndFlushTiming3D("Star_Field_3D");
 }
 
 void Renderer3D::FlushGlobeSurface3D() {
     if (m_globeSurfaceVertexCount3D == 0) return;
     
+    StartFlushTiming3D("Globe_Surface_3D");
     IncrementDrawCall3D("globe_surface");
     
     glUseProgram(m_shader3DProgram);
+    Set3DShaderUniforms();
     
-    int projLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    
-    SetFogUniforms3D(m_shader3DProgram);
-    
-    glBindVertexArray(m_VAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3D);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_globeSurfaceVertexCount3D * sizeof(Vertex3D), m_globeSurfaceVertices3D);
+    glBindVertexArray(m_globeVAO3D);
+    UploadVertexDataTo3DVBO(m_globeVBO3D, m_globeSurfaceVertices3D, m_globeSurfaceVertexCount3D);
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -756,16 +619,15 @@ void Renderer3D::FlushGlobeSurface3D() {
     
     glDisable(GL_BLEND);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     m_globeSurfaceVertexCount3D = 0;
+    
+    EndFlushTiming3D("Globe_Surface_3D");
 }
 
 void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
     if (m_vertex3DCount == 0) return;
     
+    StartFlushTiming3D("Legacy_Vertices_3D");
     // Track legacy draw call for debug menu
     IncrementDrawCall3D("legacy_vertices");
     
@@ -778,92 +640,39 @@ void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
     
     // Use 3D shader program
     glUseProgram(m_shader3DProgram);
-    
-    // Set matrix uniforms
-    int projLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    
-    // Set fog uniforms (both distance-based and orientation-based)
-    int fogEnabledLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnabled");
-    int fogOrientationLoc = glGetUniformLocation(m_shader3DProgram, "uFogOrientationBased");
-    int fogStartLoc = glGetUniformLocation(m_shader3DProgram, "uFogStart");
-    int fogEndLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnd");
-    int fogColorLoc = glGetUniformLocation(m_shader3DProgram, "uFogColor");
-    int cameraPosLoc = glGetUniformLocation(m_shader3DProgram, "uCameraPos");
-    
-    glUniform1i(fogEnabledLoc, m_fogEnabled ? 1 : 0);
-    glUniform1i(fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
-    glUniform1f(fogStartLoc, m_fogStart);
-    glUniform1f(fogEndLoc, m_fogEnd);
-    glUniform4f(fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
-    glUniform3f(cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
+    Set3DShaderUniforms();
     
     // Upload vertex data
-    glBindVertexArray(m_VAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3D);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertex3DCount * sizeof(Vertex3D), m_vertices3D);
+    glBindVertexArray(m_legacyVAO3D);
+    UploadVertexDataTo3DVBO(m_legacyVBO3D, m_vertices3D, m_vertex3DCount);
     
     // Draw
     glDrawArrays(primitiveType, 0, m_vertex3DCount);
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     // Reset vertex count
     m_vertex3DCount = 0;
+    
+    EndFlushTiming3D("Legacy_Vertices_3D");
 }
 
 void Renderer3D::Flush3DTexturedVertices() {
     if (m_vertex3DTexturedCount == 0) return;
     
+    StartFlushTiming3D("Legacy_Triangles_3D");
     // Track legacy draw call for debug menu
     IncrementDrawCall3D("legacy_triangles");
     
     // Use textured 3D shader program
     glUseProgram(m_shader3DTexturedProgram);
-    
-    // Set matrix uniforms
-    int projLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uModelView");
-    int texLoc = glGetUniformLocation(m_shader3DTexturedProgram, "ourTexture");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    glUniform1i(texLoc, 0);
-    
-    // Set fog uniforms (both distance-based and orientation-based)
-    int fogEnabledLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogEnabled");
-    int fogOrientationLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogOrientationBased");
-    int fogStartLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogStart");
-    int fogEndLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogEnd");
-    int fogColorLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogColor");
-    int cameraPosLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uCameraPos");
-    
-    glUniform1i(fogEnabledLoc, m_fogEnabled ? 1 : 0);
-    glUniform1i(fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
-    glUniform1f(fogStartLoc, m_fogStart);
-    glUniform1f(fogEndLoc, m_fogEnd);
-    glUniform4f(fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
-    glUniform3f(cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
+    SetTextured3DShaderUniforms();
     
     // Bind texture
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_currentTexture3D);
     
-    // Set proper texture parameters for clean rendering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    
     // Upload vertex data
     glBindVertexArray(m_VAO3DTextured);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO3DTextured);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertex3DTexturedCount * sizeof(Vertex3DTextured), m_vertices3DTextured);
+    UploadVertexDataTo3DVBO(m_VBO3DTextured, m_vertices3DTextured, m_vertex3DTexturedCount);
     
     // Draw as triangles (convert quad to two triangles with proper winding)
     if (m_vertex3DTexturedCount == 4) {
@@ -882,19 +691,17 @@ void Renderer3D::Flush3DTexturedVertices() {
         triangleVertices[5] = m_vertices3DTextured[3]; // top-left
         
         // Upload triangle data
-        glBufferSubData(GL_ARRAY_BUFFER, 0, 6 * sizeof(Vertex3DTextured), triangleVertices);
+        UploadVertexDataTo3DVBO(m_VBO3DTextured, triangleVertices, 6);
         glDrawArrays(GL_TRIANGLES, 0, 6);
     } else {
         // Draw as triangle fan for other polygon types
         glDrawArrays(GL_TRIANGLE_FAN, 0, m_vertex3DTexturedCount);
     }
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glUseProgram(0);
-    
     // Reset vertex count
     m_vertex3DTexturedCount = 0;
+    
+    EndFlushTiming3D("Legacy_Triangles_3D");
 }
 
 void Renderer3D::FlushTextContext3D() {

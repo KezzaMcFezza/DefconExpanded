@@ -76,6 +76,7 @@ private:
     BUFFER_UNIT_NUKE_ICONS,    // small nuke icons
     BUFFER_EFFECTS_LINES,      // gunfire trails, radar ranges
     BUFFER_EFFECTS_SPRITES,    // explosions
+    BUFFER_WHITEBOARD,         // whiteboard drawings
     BUFFER_LEGACY              // immediate mode rendering
   };
 
@@ -92,6 +93,7 @@ private:
   static const int MAX_EFFECTS_LINE_VERTICES    = 150000;
   static const int MAX_EFFECTS_SPRITE_VERTICES  = 100000;
   static const int MAX_HEALTH_BAR_VERTICES      = 500000;
+  static const int MAX_WHITEBOARD_VERTICES      = 200000;
   static const int MAX_ECLIPSE_RECT_VERTICES    = 200000;
   static const int MAX_ECLIPSE_RECTFILL_VERTICES= 300000;
   static const int MAX_ECLIPSE_TRIANGLEFILL_VERTICES = 300000;
@@ -117,7 +119,14 @@ protected:
   unsigned int m_colorShaderProgram;
   unsigned int m_textureShaderProgram;
   unsigned int m_VAO;
-  unsigned int m_VBO;
+  unsigned int m_VBO; 
+
+  unsigned int m_uiVAO, m_uiVBO;            // eclipse rectangles, rect fills, triangle fills, lines, sprites
+  unsigned int m_textVAO, m_textVBO;        // text rendering
+  unsigned int m_unitVAO, m_unitVBO;        // unit sprites and highlights
+  unsigned int m_effectsVAO, m_effectsVBO;  // effects and trails
+  unsigned int m_healthVAO, m_healthVBO;    // health bars
+  unsigned int m_legacyVAO, m_legacyVBO;    // triangle/line rendering
   
   bool m_bufferNeedsUpload;
 
@@ -222,6 +231,12 @@ protected:
   int m_healthBarVertexCount;
 
   //
+  // whiteboard rendering buffer
+
+  Vertex2D m_whiteboardVertices     [MAX_WHITEBOARD_VERTICES];
+  int m_whiteboardVertexCount;
+
+  //
   // eclipse UI primitive rendering buffers 
 
   Vertex2D m_eclipseRectVertices    [MAX_ECLIPSE_RECT_VERTICES];
@@ -307,6 +322,7 @@ protected:
   void SetColorShaderUniforms();
   void SetTextureShaderUniforms();
   void UploadVertexData(const Vertex2D* vertices, int vertexCount);
+  void UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices, int vertexCount);
   void FlushIfTextureChanged(unsigned int newTextureID, bool useTexture);
   bool ShouldFlushThisFrame();
   void FlushTriangles(bool useTexture);
@@ -342,6 +358,7 @@ protected:
   void FlushEffectsCircleFills();
   void FlushEffectsCircleOutlines();
   void FlushEffectsCircleOutlinesThick();
+  void FlushWhiteboard();
 
   //
   // eclipse UI primitive flush methods
@@ -489,6 +506,7 @@ public:
   int m_effectsCircleOutlineCalls;
   int m_effectsCircleOutlineThickCalls;
   int m_healthBarCalls;
+  int m_whiteboardCalls;
   int m_eclipseRectCalls;
   int m_eclipseRectFillCalls;
   int m_eclipseTriangleFillCalls;
@@ -514,6 +532,7 @@ public:
   int m_prevEffectsCircleOutlineCalls;
   int m_prevEffectsCircleOutlineThickCalls;
   int m_prevHealthBarCalls;
+  int m_prevWhiteboardCalls;
   int m_prevEclipseRectCalls;
   int m_prevEclipseRectFillCalls;
   int m_prevEclipseTriangleFillCalls;
@@ -549,6 +568,7 @@ public:
   int GetEffectsCircleOutlineCalls () const { return m_prevEffectsCircleOutlineCalls; }
   int GetEffectsCircleOutlineThickCalls () const { return m_prevEffectsCircleOutlineThickCalls; }
   int GetHealthBarCalls         () const { return m_prevHealthBarCalls; }
+  int GetWhiteboardCalls        () const { return m_prevWhiteboardCalls; }
   int GetEclipseRectCalls       () const { return m_prevEclipseRectCalls; }
   int GetEclipseRectFillCalls   () const { return m_prevEclipseRectFillCalls; }
   int GetEclipseTriangleFillCalls() const { return m_prevEclipseTriangleFillCalls; }
@@ -567,7 +587,7 @@ public:
   int GetTotalEffectCalls() const {
     return m_prevEffectsLineCalls + m_prevEffectsRectCalls + m_prevEffectsSpriteCalls + 
            m_prevEffectsCircleFillCalls + m_prevEffectsCircleOutlineCalls + 
-           m_prevEffectsCircleOutlineThickCalls;
+           m_prevEffectsCircleOutlineThickCalls + m_prevWhiteboardCalls;
   }
   int GetTotalSpecializedCalls() const {
     return GetTotalUnitCalls() + GetTotalEffectCalls() + m_prevUiTriangleCalls +
@@ -695,6 +715,13 @@ public:
   bool IsMegaVBOValid           (const char *megaVBOKey);
   void InvalidateAllVBOs        ();
 
+  //
+  // whiteboard batching system 
+
+  void BeginWhiteboardBatch     ();
+  void WhiteboardLine           (float x1, float y1, float x2, float y2, Colour const &col);
+  void EndWhiteboardBatch       ();
+
   void SetClip                  (int x, int y, int w, int h);
   void ResetClip                ();
 
@@ -810,6 +837,30 @@ public:
   void BeginHealthBarBatch        ();
   void HealthBarRect              (float x, float y, float w, float h, Colour const &col);
   void EndHealthBarBatch          ();
+
+  //
+  // flush timing system for performance monitoring
+
+  static const int MAX_FLUSH_TYPES = 50;
+
+  struct FlushTiming {
+    const char* name;
+    double totalTime;
+    double totalGpuTime;
+    int callCount;
+    unsigned int queryObject;
+    bool queryPending;
+  };
+
+  FlushTiming m_flushTimings[MAX_FLUSH_TYPES];
+  int m_flushTimingCount;
+  double m_currentFlushStartTime;
+
+  void StartFlushTiming(const char* name);
+  void EndFlushTiming(const char* name);
+  void UpdateGpuTimings();
+  void ResetFlushTimings();
+  const FlushTiming* GetFlushTimings(int& count) const;
 
 protected:
 };

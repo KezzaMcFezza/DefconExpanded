@@ -27,16 +27,6 @@ void Renderer3D::UnitMainSprite3D(Image *src, float x, float y, float z, float w
         FlushUnitMainSprites3D();
     }
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (src->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    
     m_currentUnitMainTexture3D = effectiveTextureID;
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
@@ -78,16 +68,6 @@ void Renderer3D::UnitRotating3D(Image *src, float x, float y, float z, float w, 
     
     if (m_unitRotatingVertexCount3D > 0 && m_currentUnitRotatingTexture3D != effectiveTextureID) {
         FlushUnitRotating3D();
-    }
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (src->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     
     m_currentUnitRotatingTexture3D = effectiveTextureID;
@@ -146,16 +126,6 @@ void Renderer3D::UnitStateIcon3D(Image *stateSrc, float x, float y, float z, flo
         FlushUnitStateIcons3D();
     }
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (stateSrc->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    
     m_currentUnitStateTexture3D = effectiveTextureID;
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
@@ -197,16 +167,6 @@ void Renderer3D::UnitNukeIcon3D(float x, float y, float z, float w, float h, Col
 
     if (m_unitNukeVertexCount3D > 0 && m_currentUnitNukeTexture3D != effectiveTextureID) {
         FlushUnitNukeIcons3D();
-    }
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (nukeBmp->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     
     m_currentUnitNukeTexture3D = effectiveTextureID;
@@ -264,16 +224,6 @@ void Renderer3D::UnitNukeIcon3D(float x, float y, float z, float w, float h, Col
     
     if (m_unitNukeVertexCount3D > 0 && m_currentUnitNukeTexture3D != effectiveTextureID) {
         FlushUnitNukeIcons3D();
-    }
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (nukeBmp->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     
     m_currentUnitNukeTexture3D = effectiveTextureID;
@@ -341,16 +291,6 @@ void Renderer3D::UnitHighlight3D(Image *blurSrc, float x, float y, float z, floa
         FlushUnitHighlights3D();
     }
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (blurSrc->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    
     m_currentUnitHighlightTexture3D = effectiveTextureID;
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
@@ -381,16 +321,6 @@ void Renderer3D::EffectsSprite3D(Image *src, float x, float y, float z, float w,
 
     if (m_effectsSpriteVertexCount3D > 0 && m_currentEffectsSpriteTexture3D != effectiveTextureID) {
         FlushEffectsSprites3D();
-    }
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (src->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     
     m_currentEffectsSpriteTexture3D = effectiveTextureID;
@@ -428,16 +358,6 @@ void Renderer3D::StarFieldSprite3D(Image *src, float x, float y, float z, float 
     
     if (m_starFieldVertexCount3D > 0 && m_currentStarFieldTexture3D != effectiveTextureID) {
         FlushStarField3D();
-    }
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, effectiveTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (src->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     
     m_currentStarFieldTexture3D = effectiveTextureID;

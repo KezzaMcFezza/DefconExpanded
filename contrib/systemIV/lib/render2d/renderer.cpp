@@ -158,8 +158,20 @@ Renderer::Renderer()
       m_shaderProgram(0),
       m_colorShaderProgram(0),
       m_textureShaderProgram(0),
-      m_VAO(0),
+      m_VAO(0), 
       m_VBO(0),
+      m_uiVAO(0), 
+      m_uiVBO(0),
+      m_textVAO(0), 
+      m_textVBO(0), 
+      m_unitVAO(0), 
+      m_unitVBO(0),
+      m_effectsVAO(0), 
+      m_effectsVBO(0),
+      m_healthVAO(0), 
+      m_healthVBO(0),
+      m_legacyVAO(0), 
+      m_legacyVBO(0),
       m_bufferNeedsUpload(true),
       m_triangleVertexCount(0),
       m_lineVertexCount(0),
@@ -195,6 +207,7 @@ Renderer::Renderer()
       m_effectsSpriteVertexCount = 0;
       m_currentEffectsSpriteTexture = 0;
       m_healthBarVertexCount = 0;
+      m_whiteboardVertexCount = 0;
       m_eclipseRectVertexCount = 0;
       m_eclipseRectFillVertexCount = 0;
       m_eclipseLineVertexCount = 0;
@@ -217,6 +230,7 @@ Renderer::Renderer()
       m_effectsRectCalls = 0;
       m_effectsSpriteCalls = 0;
       m_healthBarCalls = 0;
+      m_whiteboardCalls = 0;
       m_eclipseRectCalls = 0;
       m_eclipseRectFillCalls = 0;
       m_eclipseTriangleFillCalls = 0;
@@ -239,11 +253,14 @@ Renderer::Renderer()
       m_prevEffectsRectCalls = 0;
       m_prevEffectsSpriteCalls = 0;
       m_prevHealthBarCalls = 0;
+      m_prevWhiteboardCalls = 0;
       m_prevEclipseRectCalls = 0;
       m_prevEclipseRectFillCalls = 0;
       m_prevEclipseTriangleFillCalls = 0;
       m_prevEclipseLineCalls = 0;
       m_prevEclipseSpriteCalls = 0;
+      m_flushTimingCount = 0;
+      m_currentFlushStartTime = 0.0;
 
       // Initialize font-aware batching system
       for (int i = 0; i < MAX_FONT_ATLASES; i++) {
@@ -255,6 +272,7 @@ Renderer::Renderer()
       InitializeShaders();
       CacheUniformLocations();
       SetupVertexArrays();
+      ResetFlushTimings();
     
     m_megaVertices = new Vertex2D[MAX_MEGA_VERTICES];
     g_renderer3d = new Renderer3D(this);
@@ -271,6 +289,18 @@ Renderer::~Renderer() {
     if (m_textureShaderProgram) glDeleteProgram(m_textureShaderProgram);
     if (m_VAO) glDeleteVertexArrays(1, &m_VAO);
     if (m_VBO) glDeleteBuffers(1, &m_VBO);
+    if (m_uiVAO) glDeleteVertexArrays(1, &m_uiVAO);
+    if (m_uiVBO) glDeleteBuffers(1, &m_uiVBO);
+    if (m_textVAO) glDeleteVertexArrays(1, &m_textVAO);
+    if (m_textVBO) glDeleteBuffers(1, &m_textVBO);
+    if (m_unitVAO) glDeleteVertexArrays(1, &m_unitVAO);
+    if (m_unitVBO) glDeleteBuffers(1, &m_unitVBO);
+    if (m_effectsVAO) glDeleteVertexArrays(1, &m_effectsVAO);
+    if (m_effectsVBO) glDeleteBuffers(1, &m_effectsVBO);
+    if (m_healthVAO) glDeleteVertexArrays(1, &m_healthVAO);
+    if (m_healthVBO) glDeleteBuffers(1, &m_healthVBO);
+    if (m_legacyVAO) glDeleteVertexArrays(1, &m_legacyVAO);
+    if (m_legacyVBO) glDeleteBuffers(1, &m_legacyVBO);
     
     if (m_megaVertices) {
         delete[] m_megaVertices;
@@ -348,11 +378,13 @@ void Renderer::BeginScene() {
 
 void Renderer::BeginFrame() {
     ResetFrameCounters();
+    ResetFlushTimings(); 
     m_bufferNeedsUpload = true; // mark buffer as needing upload for new frame
 }
 
 void Renderer::EndFrame() {
     FlushAllSpecializedBuffers();
+    UpdateGpuTimings();
 }
 
 void Renderer::ClearScreen(bool _colour, bool _depth) {
@@ -557,100 +589,6 @@ void Renderer::SetClip(int x, int y, int w, int h) {
 
 void Renderer::ResetClip() {
     glDisable(GL_SCISSOR_TEST);
-}
-
-
-// opengl 3.3 core converted blit functions, which in the original opengl 1.2 method
-// it was immediate mode rendering and immediately flushed after each draw call
-// the codebase heavily uses blit so the slow conversion process is still underway
-void Renderer::Blit(Image *src, float x, float y, Colour const &col) {
-    float w = src->Width();
-    float h = src->Height();
-    Blit(src, x, y, w, h, col);
-}
-
-void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const &col) {    
-    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
-        FlushTriangles(true);
-    }
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, src->m_textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (src->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    
-    // Get UV coordinates - atlas sprites use specific regions, others use full texture
-    float u1, v1, u2, v2;
-    GetImageUVCoords(src, u1, v1, u2, v2);
-    
-    // First triangle: TL, TR, BR
-    m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, u1, v2};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y, r, g, b, a, u2, v2};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
-    
-    // Second triangle: TL, BR, BL
-    m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, u1, v2};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
-    m_triangleVertices[m_triangleVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
-    
-    FlushTriangles(true);
-}
-
-void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const &col, float angle) {    
-    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
-        FlushTriangles(true);
-    }
-    
-    // calculate rotated vertices
-    Vector3<float> vert1(-w, +h, 0);
-    Vector3<float> vert2(+w, +h, 0);
-    Vector3<float> vert3(+w, -h, 0);
-    Vector3<float> vert4(-w, -h, 0);
-
-    vert1.RotateAroundZ(angle);
-    vert2.RotateAroundZ(angle);
-    vert3.RotateAroundZ(angle);
-    vert4.RotateAroundZ(angle);
-
-    vert1 += Vector3<float>(x, y, 0);
-    vert2 += Vector3<float>(x, y, 0);
-    vert3 += Vector3<float>(x, y, 0);
-    vert4 += Vector3<float>(x, y, 0);
-
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, src->m_textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    if (src->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    }
-    
-    // get UV coordinates, atlas sprites use specific regions, others use full texture
-    float u1, v1, u2, v2;
-    GetImageUVCoords(src, u1, v1, u2, v2);
-    
-    // first triangle: vert1, vert2, vert3
-    m_triangleVertices[m_triangleVertexCount++] = {vert1.x, vert1.y, r, g, b, a, u1, v2};
-    m_triangleVertices[m_triangleVertexCount++] = {vert2.x, vert2.y, r, g, b, a, u2, v2};
-    m_triangleVertices[m_triangleVertexCount++] = {vert3.x, vert3.y, r, g, b, a, u2, v1};
-    
-    // second triangle: vert1, vert3, vert4
-    m_triangleVertices[m_triangleVertexCount++] = {vert1.x, vert1.y, r, g, b, a, u1, v2};
-    m_triangleVertices[m_triangleVertexCount++] = {vert3.x, vert3.y, r, g, b, a, u2, v1};
-    m_triangleVertices[m_triangleVertexCount++] = {vert4.x, vert4.y, r, g, b, a, u1, v1};
-    
-    FlushTriangles(true);
 }
 
 void Renderer::SaveScreenshot() {
@@ -885,25 +823,99 @@ void main() {
 }
 
 void Renderer::SetupVertexArrays() {
+
+    //
+    // set up vertex attributes for Vertex2D format
+
+    auto setupVertexAttributes = []() {
+
+        //
+        // position attribute (x, y)
+
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        //
+        // color attribute (r, g, b, a)
+            
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
+        //
+        // texture coordinate attribute (u, v)
+
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+    };
+    
+    //
+    // create UI VAO/VBO pair
+
+    glGenVertexArrays(1, &m_uiVAO);
+    glGenBuffers(1, &m_uiVBO);
+    glBindVertexArray(m_uiVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_uiVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_UI_VERTICES + MAX_ECLIPSE_RECT_VERTICES + MAX_ECLIPSE_RECTFILL_VERTICES + MAX_ECLIPSE_TRIANGLEFILL_VERTICES + MAX_ECLIPSE_LINE_VERTICES + MAX_ECLIPSE_SPRITE_VERTICES), NULL, GL_DYNAMIC_DRAW);
+    setupVertexAttributes();
+    
+    // create text VAO/VBO pair  
+
+    glGenVertexArrays(1, &m_textVAO);
+    glGenBuffers(1, &m_textVBO);
+    glBindVertexArray(m_textVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_textVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_TEXT_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    setupVertexAttributes();
+    
+    //
+    // create unit VAO/VBO pair
+    
+    glGenVertexArrays(1, &m_unitVAO);
+    glGenBuffers(1, &m_unitVBO);
+    glBindVertexArray(m_unitVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_unitVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_UNIT_MAIN_VERTICES + MAX_UNIT_ROTATING_VERTICES + MAX_UNIT_HIGHLIGHT_VERTICES + MAX_UNIT_STATE_VERTICES + MAX_UNIT_COUNTER_VERTICES + MAX_UNIT_NUKE_VERTICES), NULL, GL_DYNAMIC_DRAW);
+    setupVertexAttributes();
+    
+    //
+    // create effects VAO/VBO pair
+
+    glGenVertexArrays(1, &m_effectsVAO);
+    glGenBuffers(1, &m_effectsVBO);
+    glBindVertexArray(m_effectsVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_effectsVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_UNIT_TRAIL_VERTICES + MAX_EFFECTS_LINE_VERTICES + MAX_EFFECTS_SPRITE_VERTICES * 2), NULL, GL_STREAM_DRAW);
+    setupVertexAttributes();
+    
+    //
+    // create health VAO/VBO pair
+
+    glGenVertexArrays(1, &m_healthVAO);
+    glGenBuffers(1, &m_healthVBO);
+    glBindVertexArray(m_healthVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_healthVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_HEALTH_BAR_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    setupVertexAttributes();
+    
+    //
+    // create legacy VAO/VBO pair
+
+    glGenVertexArrays(1, &m_legacyVAO);
+    glGenBuffers(1, &m_legacyVBO);
+    glBindVertexArray(m_legacyVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_legacyVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    setupVertexAttributes();
+    
+    //
+    // old VAO/VBO
+
     glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);
-    
     glBindVertexArray(m_VAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_VERTICES, NULL, GL_DYNAMIC_DRAW);
-    
-    // Position attribute
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
-    glEnableVertexAttribArray(0);
-    
-    // Color attribute
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    
-    // Texture coordinate attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    setupVertexAttributes();
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -930,41 +942,127 @@ void Renderer::UploadVertexData(const Vertex2D* vertices, int vertexCount) {
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(Vertex2D), vertices);
 }
 
+void Renderer::UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices, int vertexCount) {
+    if (vertexCount == 0) return;
+    
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    
+    //
+    // orphan the buffer, this invalidates the old buffer and allocates new memory
+
+    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex2D), NULL, GL_STREAM_DRAW);
+    
+    //
+    // upload new data, no sync needed as we have fresh memory
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(Vertex2D), vertices);
+}
+
 // ============================================================================
-// FLUSH METHODS
+// DEBUG MENU FUNCTIONS
 // ============================================================================
 
-//
-// this function is problematic but necessary without a texture atlas
+void Renderer::StartFlushTiming(const char* name) {
 
-void Renderer::FlushIfTextureChanged(unsigned int newTextureID, bool useTexture) {
-    if (!m_batchingTextures) {
-        FlushTriangles(useTexture);
-        return;
+    //
+    // store start time
+    
+    m_currentFlushStartTime = GetHighResTime();
+    
+    //
+    // find timing entry
+
+    for (int i = 0; i < m_flushTimingCount; i++) {
+        if (strcmp(m_flushTimings[i].name, name) == 0) {
+
+            //
+            // start GPU timing
+
+            if (m_flushTimings[i].queryObject == 0) {
+                glGenQueries(1, &m_flushTimings[i].queryObject);
+            }
+            
+            //
+            // only start new query if previous one is complete
+            
+            if (!m_flushTimings[i].queryPending) {
+                glBeginQuery(GL_TIME_ELAPSED, m_flushTimings[i].queryObject);
+                m_flushTimings[i].queryPending = true;
+            }
+            return;
+        }
     }
     
-    if (m_triangleVertexCount > 0 && m_currentBoundTexture != newTextureID) {
-        FlushTriangles(useTexture);
+    //
+    // create new timing entry
+
+    if (m_flushTimingCount < MAX_FLUSH_TYPES) {
+        FlushTiming* timing = &m_flushTimings[m_flushTimingCount];
+        timing->name = name;
+        timing->totalTime = 0.0;
+        timing->totalGpuTime = 0.0;
+        timing->callCount = 0;
+        timing->queryPending = false;
+        
+        glGenQueries(1, &timing->queryObject);
+        glBeginQuery(GL_TIME_ELAPSED, timing->queryObject);
+        timing->queryPending = true;
+        
+        m_flushTimingCount++;
     }
+}
+
+void Renderer::EndFlushTiming(const char* name) {
+    double cpuTime = GetHighResTime() - m_currentFlushStartTime;
     
-    m_currentBoundTexture = newTextureID;
-}
+    for (int i = 0; i < m_flushTimingCount; i++) {
+        if (strcmp(m_flushTimings[i].name, name) == 0) {
+            if (m_flushTimings[i].queryPending) {
+                glEndQuery(GL_TIME_ELAPSED);
+            }
+            
+            //
+            // update CPU timing
 
-void Renderer::FlushVertices(unsigned int primitiveType, bool useTexture) {
-    if (primitiveType == GL_TRIANGLES) {
-        FlushTriangles(useTexture);
-    } else if (primitiveType == GL_LINES) {
-        FlushLines();
+            m_flushTimings[i].totalTime += cpuTime;
+            m_flushTimings[i].callCount++;
+            return;
+        }
     }
 }
 
-void Renderer::FlushAllBuffers() {
-    FlushTriangles(false);
-    FlushLines();
+void Renderer::UpdateGpuTimings() {
+
+    //
+    // call this once per frame to collect GPU timing results
+
+    for (int i = 0; i < m_flushTimingCount; i++) {
+        if (m_flushTimings[i].queryPending) {
+            int available = 0;
+            glGetQueryObjectiv(m_flushTimings[i].queryObject, GL_QUERY_RESULT_AVAILABLE, &available);
+            
+            if (available) {
+                uint64_t gpuTime;
+                glGetQueryObjectui64v(m_flushTimings[i].queryObject, GL_QUERY_RESULT, &gpuTime);
+                m_flushTimings[i].totalGpuTime += gpuTime / 1000000.0; // Convert to milliseconds
+                m_flushTimings[i].queryPending = false;
+            }
+        }
+    }
 }
 
-//
-// frame managment
+void Renderer::ResetFlushTimings() {
+    for (int i = 0; i < m_flushTimingCount; i++) {
+        m_flushTimings[i].totalTime = 0.0;
+        m_flushTimings[i].totalGpuTime = 0.0;
+        m_flushTimings[i].callCount = 0;
+    }
+}
+
+const Renderer::FlushTiming* Renderer::GetFlushTimings(int& count) const {
+    count = m_flushTimingCount;
+    return m_flushTimings;
+}
 
 void Renderer::ResetFrameCounters() {    
     
@@ -991,6 +1089,7 @@ void Renderer::ResetFrameCounters() {
     m_prevEffectsCircleOutlineCalls = m_effectsCircleOutlineCalls;
     m_prevEffectsCircleOutlineThickCalls = m_effectsCircleOutlineThickCalls;
     m_prevHealthBarCalls = m_healthBarCalls;
+    m_prevWhiteboardCalls = m_whiteboardCalls;
     m_prevEclipseRectCalls = m_eclipseRectCalls;
     m_prevEclipseRectFillCalls = m_eclipseRectFillCalls;
     m_prevEclipseTriangleFillCalls = m_eclipseTriangleFillCalls;
@@ -1020,6 +1119,7 @@ void Renderer::ResetFrameCounters() {
     m_effectsCircleOutlineCalls = 0;
     m_effectsCircleOutlineThickCalls = 0;
     m_healthBarCalls = 0;
+    m_whiteboardCalls = 0;
     m_eclipseRectCalls = 0;
     m_eclipseRectFillCalls = 0;
     m_eclipseTriangleFillCalls = 0;
@@ -1071,6 +1171,8 @@ void Renderer::IncrementDrawCall(const char* bufferType) {
         m_effectsCircleOutlineThickCalls++;
     } else if (strcmp(bufferType, "health_bars") == 0) {
         m_healthBarCalls++;
+    } else if (strcmp(bufferType, "whiteboard") == 0) {
+        m_whiteboardCalls++;
     } else if (strcmp(bufferType, "eclipse_rects") == 0) {
         m_eclipseRectCalls++;
     } else if (strcmp(bufferType, "eclipse_rectfills") == 0) {

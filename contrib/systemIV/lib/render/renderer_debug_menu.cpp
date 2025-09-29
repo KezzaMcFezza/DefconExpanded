@@ -78,14 +78,17 @@ void RendererDebugMenu::RenderDebugMenu()
     if (!m_renderer) return;
     
     float baseY = 55.0f;  // Move debug menu down to avoid FPS overlap
-    float lineHeight = 15.0f;
     float yPos = baseY;
     
-    // Render all sections on one page
+    //
+    // render it
+
     RenderBufferStatistics(yPos);
-    yPos += 5.0f; // Add some spacing between sections
+    yPos += 2.0f; 
+    RenderFlushTimings(yPos);  
+    yPos += 2.0f;
     RenderSystemInformation(yPos);
-    yPos += 5.0f;
+    yPos += 2.0f;
 }
 
 void RendererDebugMenu::RenderBufferStatistics(float& yPos)
@@ -98,84 +101,69 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     float indentLarge = 200.0f;
     
     //
-    // detect if we are in 3d mode
+    // render text for both 2d and 3d
 
-    bool is3DMode = false;
-    if (g_app && g_app->GetMapRenderer()) {
-        is3DMode = g_app->GetMapRenderer()->Is3DGlobeModeEnabled();
-    }
-    
-    if (is3DMode) {
-        m_renderer->TextSimple(25, yPos, Colour(255, 255, 255, 255), 13.0f, "Advanced Buffer Statistics (3D Mode)");
-    } else {
-        m_renderer->TextSimple(25, yPos, Colour(255, 255, 255, 255), 13.0f, "Advanced Buffer Statistics (2D Mode)");
-    }
+    m_renderer->TextSimple(25, yPos, Colour(255, 255, 255, 255), 13.0f, "Global Buffer Statistics");
     yPos += lineHeight;
     
     int totalDrawCalls, legacyTriangleCalls, legacyLineCalls;
-    int uiTriangleCalls, uiLineCalls, textCalls;
+    int textCalls;
     int unitTrailCalls, unitMainSpriteCalls, unitRotatingCalls, unitHighlightCalls;
     int unitStateIconCalls, unitCounterCalls, unitNukeIconCalls;
     int effectsLineCalls, effectsRectCalls, effectsSpriteCalls;
     int effectsCircleFillCalls, effectsCircleOutlineCalls, effectsCircleOutlineThickCalls;
+    int whiteboardCalls;
     int eclipseRectCalls, eclipseRectFillCalls, eclipseTriangleFillCalls, eclipseLineCalls, eclipseSpriteCalls;
     int totalUnitCalls, totalEffectCalls;
     
-    if (is3DMode && g_renderer3d) {
-        totalDrawCalls = g_renderer3d->GetTotalDrawCalls() + m_renderer->GetTotalDrawCalls();
-        legacyTriangleCalls = g_renderer3d->GetLegacyTriangleCalls() + m_renderer->GetLegacyTriangleCalls();
-        legacyLineCalls = g_renderer3d->GetLegacyLineCalls() + m_renderer->GetLegacyLineCalls();
-        uiTriangleCalls = m_renderer->GetUITriangleCalls(); 
-        uiLineCalls = m_renderer->GetUILineCalls();
-        textCalls = g_renderer3d->GetTextCalls() + m_renderer->GetTextCalls();
-        unitTrailCalls = g_renderer3d->GetUnitTrailCalls();
-        unitMainSpriteCalls = g_renderer3d->GetUnitMainSpriteCalls();
-        unitRotatingCalls = g_renderer3d->GetUnitRotatingCalls();
-        unitHighlightCalls = g_renderer3d->GetUnitHighlightCalls();
-        unitStateIconCalls = g_renderer3d->GetUnitStateIconCalls();
-        unitCounterCalls = g_renderer3d->GetUnitCounterCalls();
-        unitNukeIconCalls = g_renderer3d->GetUnitNukeIconCalls();
-        effectsLineCalls = g_renderer3d->GetEffectsLineCalls();
-        effectsRectCalls = m_renderer->GetEffectsRectCalls(); 
-        effectsSpriteCalls = g_renderer3d->GetEffectsSpriteCalls();
-        effectsCircleFillCalls = m_renderer->GetEffectsCircleFillCalls();
-        effectsCircleOutlineCalls = m_renderer->GetEffectsCircleOutlineCalls();
-        effectsCircleOutlineThickCalls = m_renderer->GetEffectsCircleOutlineThickCalls();
-        eclipseRectCalls = m_renderer->GetEclipseRectCalls();
-        eclipseRectFillCalls = m_renderer->GetEclipseRectFillCalls();
-        eclipseTriangleFillCalls = m_renderer->GetEclipseTriangleFillCalls();
-        eclipseLineCalls = m_renderer->GetEclipseLineCalls();
-        eclipseSpriteCalls = m_renderer->GetEclipseSpriteCalls();
-        totalUnitCalls = g_renderer3d->GetTotalUnitCalls();
-        totalEffectCalls = g_renderer3d->GetTotalEffectCalls();
-    } else {
-        // 2d map renderer scene only
-        totalDrawCalls = m_renderer->GetTotalDrawCalls();
-        legacyTriangleCalls = m_renderer->GetLegacyTriangleCalls();
-        legacyLineCalls = m_renderer->GetLegacyLineCalls();
-        uiTriangleCalls = m_renderer->GetUITriangleCalls();
-        uiLineCalls = m_renderer->GetUILineCalls();
-        textCalls = m_renderer->GetTextCalls();
-        unitTrailCalls = m_renderer->GetUnitTrailCalls();
-        unitMainSpriteCalls = m_renderer->GetUnitMainSpriteCalls();
-        unitRotatingCalls = m_renderer->GetUnitRotatingCalls();
-        unitHighlightCalls = m_renderer->GetUnitHighlightCalls();
-        unitStateIconCalls = m_renderer->GetUnitStateIconCalls();
-        unitCounterCalls = m_renderer->GetUnitCounterCalls();
-        unitNukeIconCalls = m_renderer->GetUnitNukeIconCalls();
-        effectsLineCalls = m_renderer->GetEffectsLineCalls();
-        effectsRectCalls = m_renderer->GetEffectsRectCalls();
-        effectsSpriteCalls = m_renderer->GetEffectsSpriteCalls();
-        effectsCircleFillCalls = m_renderer->GetEffectsCircleFillCalls();
-        effectsCircleOutlineCalls = m_renderer->GetEffectsCircleOutlineCalls();
-        effectsCircleOutlineThickCalls = m_renderer->GetEffectsCircleOutlineThickCalls();
-        eclipseRectCalls = m_renderer->GetEclipseRectCalls();
-        eclipseRectFillCalls = m_renderer->GetEclipseRectFillCalls();
-        eclipseTriangleFillCalls = m_renderer->GetEclipseTriangleFillCalls();
-        eclipseLineCalls = m_renderer->GetEclipseLineCalls();
-        eclipseSpriteCalls = m_renderer->GetEclipseSpriteCalls();
-        totalUnitCalls = m_renderer->GetTotalUnitCalls();
-        totalEffectCalls = m_renderer->GetTotalEffectCalls();
+    //
+    // start with 2D renderer stats as base
+    
+    totalDrawCalls = m_renderer->GetTotalDrawCalls();
+    legacyTriangleCalls = m_renderer->GetLegacyTriangleCalls();
+    legacyLineCalls = m_renderer->GetLegacyLineCalls();
+    textCalls = m_renderer->GetTextCalls();
+    unitTrailCalls = m_renderer->GetUnitTrailCalls();
+    unitMainSpriteCalls = m_renderer->GetUnitMainSpriteCalls();
+    unitRotatingCalls = m_renderer->GetUnitRotatingCalls();
+    unitHighlightCalls = m_renderer->GetUnitHighlightCalls();
+    unitStateIconCalls = m_renderer->GetUnitStateIconCalls();
+    unitCounterCalls = m_renderer->GetUnitCounterCalls();
+    unitNukeIconCalls = m_renderer->GetUnitNukeIconCalls();
+    effectsLineCalls = m_renderer->GetEffectsLineCalls();
+    effectsRectCalls = m_renderer->GetEffectsRectCalls();
+    effectsSpriteCalls = m_renderer->GetEffectsSpriteCalls();
+    effectsCircleFillCalls = m_renderer->GetEffectsCircleFillCalls();
+    effectsCircleOutlineCalls = m_renderer->GetEffectsCircleOutlineCalls();
+    effectsCircleOutlineThickCalls = m_renderer->GetEffectsCircleOutlineThickCalls();
+    whiteboardCalls = m_renderer->GetWhiteboardCalls();
+    eclipseRectCalls = m_renderer->GetEclipseRectCalls();
+    eclipseRectFillCalls = m_renderer->GetEclipseRectFillCalls();
+    eclipseTriangleFillCalls = m_renderer->GetEclipseTriangleFillCalls();
+    eclipseLineCalls = m_renderer->GetEclipseLineCalls();
+    eclipseSpriteCalls = m_renderer->GetEclipseSpriteCalls();
+    totalUnitCalls = m_renderer->GetTotalUnitCalls();
+    totalEffectCalls = m_renderer->GetTotalEffectCalls();
+
+    //
+    // add 3D stats to combine them
+
+    if (g_renderer3d) {
+        totalDrawCalls += g_renderer3d->GetTotalDrawCalls();
+        legacyTriangleCalls += g_renderer3d->GetLegacyTriangleCalls();
+        legacyLineCalls += g_renderer3d->GetLegacyLineCalls();
+        textCalls += g_renderer3d->GetTextCalls();
+        unitTrailCalls += g_renderer3d->GetUnitTrailCalls();
+        unitMainSpriteCalls += g_renderer3d->GetUnitMainSpriteCalls();
+        unitRotatingCalls += g_renderer3d->GetUnitRotatingCalls();
+        unitHighlightCalls += g_renderer3d->GetUnitHighlightCalls();
+        unitStateIconCalls += g_renderer3d->GetUnitStateIconCalls();
+        unitCounterCalls += g_renderer3d->GetUnitCounterCalls();
+        unitNukeIconCalls += g_renderer3d->GetUnitNukeIconCalls();
+        effectsLineCalls += g_renderer3d->GetEffectsLineCalls();
+        effectsSpriteCalls += g_renderer3d->GetEffectsSpriteCalls();
+        totalUnitCalls += g_renderer3d->GetTotalUnitCalls();
+        totalEffectCalls += g_renderer3d->GetTotalEffectCalls();
     }
     
     // Total draw calls header
@@ -223,8 +211,8 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     yPos += lineHeight;
     
     // Effects buffer details
-    snprintf(statsBuffer, sizeof(statsBuffer), "  Lines: %d  Rects: %d  Sprites: %d",
-             effectsLineCalls, effectsRectCalls, effectsSpriteCalls);
+    snprintf(statsBuffer, sizeof(statsBuffer), "  Lines: %d  Rects: %d  Sprites: %d  Whiteboard: %d",
+             effectsLineCalls, effectsRectCalls, effectsSpriteCalls, whiteboardCalls);
     m_renderer->TextSimple(indentSmall, yPos, Colour(255, 255, 120, 255), 10.0f, statsBuffer);
     yPos += 14.0f;
     
@@ -246,8 +234,67 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
              batchedTotal, legacyTotal);
     m_renderer->TextSimple(35, yPos, Colour(100, 255, 255, 255), 11.0f, statsBuffer);
     yPos += 14.0f;
+    
+}
+
+void RendererDebugMenu::RenderFlushTimings(float& yPos)
+{
+    if (!m_renderer) return;
+    
+    m_renderer->UpdateGpuTimings();
+    
+    int timingCount = 0;
+    const Renderer::FlushTiming* timings = m_renderer->GetFlushTimings(timingCount);
+    
+    if (timingCount == 0) return;
+    
+    //
+    // copy and sort by total time in a descending order
+
+    Renderer::FlushTiming sorted[50];
+    for (int i = 0; i < timingCount; i++) {
+        sorted[i] = timings[i];
+    }
+    
+    //
+    // use bubble sort to make things simple
+
+    for (int i = 0; i < timingCount - 1; i++) {
+        for (int j = 0; j < timingCount - i - 1; j++) {
+            if (sorted[j].totalTime < sorted[j + 1].totalTime) {
+                Renderer::FlushTiming temp = sorted[j];
+                sorted[j] = sorted[j + 1];
+                sorted[j + 1] = temp;
+            }
+        }
+    }
+    
+    float lineHeight = 16.0f;
+    char buffer[256];
+    
+    m_renderer->TextSimple(25, yPos, Colour(255, 200, 100, 255), 13.0f, "Flush Timings (Top 5)");
     yPos += lineHeight;
     
+    //
+    // show top 5 flush functions
+
+    for (int i = 0; i < 5 && i < timingCount; i++) {
+        if (sorted[i].callCount == 0) continue;
+        
+        double avgCpuMs = (sorted[i].totalTime / sorted[i].callCount) * 1000.0;
+        double avgGpuMs = sorted[i].totalGpuTime > 0 ? (sorted[i].totalGpuTime / sorted[i].callCount) : 0.0;
+        
+        snprintf(buffer, sizeof(buffer), "  %s: CPU %.3fms | GPU %.3fms (%d calls)",
+                 sorted[i].name, avgCpuMs, avgGpuMs, sorted[i].callCount);
+        
+        // Color code based on which is higher
+        Colour col = (avgGpuMs > avgCpuMs) ? 
+            Colour(255, 100, 100, 255) :  // Red if GPU bound
+            Colour(100, 255, 100, 255);   // Green if CPU bound
+        
+        m_renderer->TextSimple(35, yPos, col, 11.0f, buffer);
+        yPos += 14.0f;
+    }
 }
 
 void RendererDebugMenu::RenderSystemInformation(float& yPos)
@@ -368,6 +415,22 @@ int RendererDebugMenu::EstimateBufferVertexCount()
     // Effects
     estimate += m_renderer->GetEffectsLineCalls() * 6; // Effect lines often grouped
     estimate += m_renderer->GetEffectsSpriteCalls() * 6; // Effect sprites
+    estimate += m_renderer->GetWhiteboardCalls() * 2; // Whiteboard lines (2 vertices per line)
+    
+    // Add 3D renderer stats
+    if (g_renderer3d) {
+        estimate += g_renderer3d->GetLegacyLineCalls() * 2;
+        estimate += g_renderer3d->GetLegacyTriangleCalls() * 6;
+        estimate += g_renderer3d->GetTextCalls() * 24;
+        estimate += g_renderer3d->GetUnitTrailCalls() * 8;
+        estimate += g_renderer3d->GetUnitMainSpriteCalls() * 6;
+        estimate += g_renderer3d->GetUnitRotatingCalls() * 6;
+        estimate += g_renderer3d->GetUnitHighlightCalls() * 6;
+        estimate += g_renderer3d->GetUnitStateIconCalls() * 6;
+        estimate += g_renderer3d->GetUnitNukeIconCalls() * 6;
+        estimate += g_renderer3d->GetEffectsLineCalls() * 6;
+        estimate += g_renderer3d->GetEffectsSpriteCalls() * 6;
+    }
     
     return estimate;
 }
@@ -386,6 +449,16 @@ int RendererDebugMenu::EstimateTextureSwitches()
     if (m_renderer->GetUnitStateIconCalls() > 0) switches += 3; // Fighter, bomber, nuke icons
     if (m_renderer->GetUnitNukeIconCalls() > 0) switches++;
     if (m_renderer->GetEffectsSpriteCalls() > 0) switches += 3; // Different effect types
+    
+    // Add 3D renderer stats if available
+    if (g_renderer3d) {
+        if (g_renderer3d->GetTextCalls() > 0) switches++;
+        if (g_renderer3d->GetUnitMainSpriteCalls() > 0) switches += 8; // Different unit types
+        if (g_renderer3d->GetUnitRotatingCalls() > 0) switches += 3; // Aircraft/rotating nuke textures
+        if (g_renderer3d->GetUnitStateIconCalls() > 0) switches += 3; // Fighter, bomber, nuke icons
+        if (g_renderer3d->GetUnitNukeIconCalls() > 0) switches++;
+        if (g_renderer3d->GetEffectsSpriteCalls() > 0) switches += 3; // Different effect types
+    }
     
     return switches;
 }

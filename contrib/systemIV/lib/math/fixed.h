@@ -1,6 +1,8 @@
 #ifndef FIXED_H
 #define FIXED_H
 
+#include "lib/universal_include.h"
+
 // Decide what implemention of the Fixed class we'll use
 // 
 #if defined(FLOAT_NUMERICS)

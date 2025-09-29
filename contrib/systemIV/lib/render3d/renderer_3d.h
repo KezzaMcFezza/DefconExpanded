@@ -72,6 +72,27 @@ private:
     // Reference to main renderer for shader access
     Renderer* m_renderer;
     
+    // Uniform location caching for 3D shaders
+    struct Shader3DUniforms {
+        int projectionLoc;
+        int modelViewLoc;
+        int textureLoc;
+        int fogEnabledLoc;
+        int fogOrientationLoc;
+        int fogStartLoc;
+        int fogEndLoc;
+        int fogColorLoc;
+        int cameraPosLoc;
+    };
+    
+    Shader3DUniforms m_shader3DUniforms;
+    Shader3DUniforms m_shader3DTexturedUniforms;
+    
+    // Uniform state caching to eliminate redundant uploads
+    unsigned int m_currentShaderProgram3D;
+    bool m_matrices3DNeedUpdate;
+    bool m_fog3DNeedsUpdate;
+    
     // 3D-specific OpenGL objects
     unsigned int m_shader3DProgram;
     unsigned int m_shader3DTexturedProgram;  // Textured shader for quads
@@ -79,6 +100,16 @@ private:
     unsigned int m_VBO3D;
     unsigned int m_VAO3DTextured;            // VAO for textured quads
     unsigned int m_VBO3DTextured;            // VBO for textured quads
+    
+    // Specialized 3D VAOs and VBOs for different rendering groups
+    unsigned int m_unitVAO3D, m_unitVBO3D;           // Unit sprites and highlights
+    unsigned int m_effectsVAO3D, m_effectsVBO3D;     // Effects lines and trails (non-textured)
+    unsigned int m_globeVAO3D, m_globeVBO3D;         // Globe surface (non-textured)
+    unsigned int m_starsVAO3D, m_starsVBO3D;         // Stars and effects sprites (textured)
+    unsigned int m_healthVAO3D, m_healthVBO3D;       // Health bars
+    unsigned int m_textVAO3D, m_textVBO3D;           // Text rendering
+    unsigned int m_nukeVAO3D, m_nukeVBO3D;           // 3D nuke models
+    unsigned int m_legacyVAO3D, m_legacyVBO3D;       // Legacy rendering
     
     // 3D matrices
     Matrix4f3D m_projectionMatrix3D;
@@ -254,14 +285,39 @@ private:
     int m_prevStarFieldCalls3D;
     int m_prevGlobeSurfaceCalls3D;
     
+    static const int MAX_FLUSH_TYPES_3D = 50;
+    
+    struct FlushTiming3D {
+        const char* name;
+        double totalTime;
+        int callCount;
+    };
+    
+    FlushTiming3D m_flushTimings3D[MAX_FLUSH_TYPES_3D];
+    int m_flushTimingCount3D;
+    double m_currentFlushStartTime3D;
+    
     void IncrementDrawCall3D(const char* bufferType);
     void ResetFrameCounters3D();
+    void StartFlushTiming3D(const char* name);
+    void EndFlushTiming3D(const char* name);
+    void ResetFlushTimings3D();
+    const FlushTiming3D* GetFlushTimings3D(int& count) const;
     void Initialize3DShaders();
+    void Cache3DUniformLocations();
     void Setup3DVertexArrays();
     void Setup3DTexturedVertexArrays();
     void Flush3DVertices(unsigned int primitiveType);
     void Flush3DTexturedVertices();
     void SetFogUniforms3D(unsigned int shaderProgram);
+    void Set3DShaderUniforms();
+    void SetTextured3DShaderUniforms();
+    void UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3D* vertices, int vertexCount);
+    void UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount);
+    
+    // Uniform invalidation functions
+    void InvalidateMatrices3D() { m_matrices3DNeedUpdate = true; }
+    void InvalidateFog3D() { m_fog3DNeedsUpdate = true; }
     
     // Billboard helper functions
     void CreateSurfaceAlignedBillboard(const Vector3<float>& position, float width, float height, 
