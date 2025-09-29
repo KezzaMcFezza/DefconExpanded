@@ -639,9 +639,8 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     g_renderer3d->BeginStarFieldBatch3D();      // Star field batching
     g_renderer3d->BeginGlobeSurfaceBatch3D();   // Globe surface batching
     
-    Render3DGlobeCulling(inLobbyMode);
+    Render3DGlobeCulling();
     Render3DStarField();
-    Render3DGlobeSurface(inLobbyMode); 
 
     //
     // end the globe surface scene
@@ -908,64 +907,6 @@ Vector3<float> MapRenderer::ConvertLongLatTo3DPosition(float longitude, float la
 }
 
 //
-// render a filled semi transparent globe surface to occlude stars behind it
-
-void MapRenderer::Render3DGlobeSurface(bool inLobbyMode)
-{
-    if (!m_3DGlobeMode) return;
-
-    //
-    // This will occlude stars behind the globe while maintaining coastline visibility
-
-    Colour globeColor(0, 0, 0, 30);
-    
-    int segments = 64; 
-    float radius = inLobbyMode ? 1.0f : g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f); 
-    Vector3<float> center(0.0f, 0.0f, 0.0f);
-    
-    //
-    // render filled sphere using triangle approach
-    // create triangular faces for the sphere
-
-    for (int lat = 0; lat < segments; ++lat) {
-        float theta1 = M_PI * lat / segments - M_PI/2; // -90 to +90 degrees
-        float theta2 = M_PI * (lat + 1) / segments - M_PI/2;
-        
-        for (int lon = 0; lon < segments; ++lon) {
-            float phi1 = 2.0f * M_PI * lon / segments;
-            float phi2 = 2.0f * M_PI * (lon + 1) / segments;
-            
-            // Calculate the 4 vertices of this quad
-            float x1 = radius * cosf(theta1) * cosf(phi1);
-            float y1 = radius * sinf(theta1);
-            float z1 = radius * cosf(theta1) * sinf(phi1);
-            
-            float x2 = radius * cosf(theta1) * cosf(phi2);
-            float y2 = radius * sinf(theta1);
-            float z2 = radius * cosf(theta1) * sinf(phi2);
-            
-            float x3 = radius * cosf(theta2) * cosf(phi2);
-            float y3 = radius * sinf(theta2);
-            float z3 = radius * cosf(theta2) * sinf(phi2);
-            
-            float x4 = radius * cosf(theta2) * cosf(phi1);
-            float y4 = radius * sinf(theta2);
-            float z4 = radius * cosf(theta2) * sinf(phi1);
-            
-            // First triangle: 1, 2, 3
-            g_renderer3d->GlobeSurfaceTriangle3D(center.x + x1, center.y + y1, center.z + z1,
-                                               center.x + x2, center.y + y2, center.z + z2,
-                                               center.x + x3, center.y + y3, center.z + z3, globeColor);
-            
-            // Second triangle: 1, 3, 4
-            g_renderer3d->GlobeSurfaceTriangle3D(center.x + x1, center.y + y1, center.z + z1,
-                                               center.x + x3, center.y + y3, center.z + z3,
-                                               center.x + x4, center.y + y4, center.z + z4, globeColor);
-        }
-    }
-}
-
-//
 // simple culling writes depth values but no color, creating an invisible mask
 
 void MapRenderer::Render3DGlobeCulling(bool inLobbyMode)
@@ -1022,60 +963,6 @@ void MapRenderer::Render3DGlobeCulling(bool inLobbyMode)
     
     // re-enable color writing
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-}
-
-//
-// create a simple sphere using triangles
-
-void MapRenderer::Render3DSphere(const Vector3<float>& center, float radius, const Colour& color, int segments)
-{
-    if (!m_3DGlobeMode) return;
-    
-    float r = color.m_r / 255.0f;
-    float g = color.m_g / 255.0f;
-    float b = color.m_b / 255.0f;
-    float a = color.m_a / 255.0f;
-    
-    g_renderer3d->BeginLineStrip3D(color);
-      
-    for (int lat = 0; lat < segments; ++lat) {
-        float theta1 = M_PI * lat / segments - M_PI/2; // -90 to +90 degrees
-        float theta2 = M_PI * (lat + 1) / segments - M_PI/2;
-        
-        float y1 = sinf(theta1) * radius;
-        float y2 = sinf(theta2) * radius;
-        float r1 = cosf(theta1) * radius;
-        float r2 = cosf(theta2) * radius;
-        
-        for (int lon = 0; lon <= segments; ++lon) {
-            float phi = 2.0f * M_PI * lon / segments;
-            
-            float x1 = r1 * cosf(phi);
-            float z1 = r1 * sinf(phi);
-            
-            g_renderer3d->LineStripVertex3D(center.x + x1, center.y + y1, center.z + z1);
-        }
-    }
-    
-    g_renderer3d->EndLineStrip3D();
-    
-    for (int lon = 0; lon < segments/2; ++lon) {
-        float phi = 2.0f * M_PI * lon / segments;
-        
-        g_renderer3d->BeginLineStrip3D(color);
-        
-        for (int lat = 0; lat <= segments; ++lat) {
-            float theta = M_PI * lat / segments - M_PI/2;
-            
-            float x = cosf(theta) * cosf(phi) * radius;
-            float y = sinf(theta) * radius;
-            float z = cosf(theta) * sinf(phi) * radius;
-            
-            g_renderer3d->LineStripVertex3D(center.x + x, center.y + y, center.z + z);
-        }
-        
-        g_renderer3d->EndLineStrip3D();
-    }
 }
 
 //

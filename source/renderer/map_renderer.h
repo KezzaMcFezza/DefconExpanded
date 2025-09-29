@@ -349,7 +349,6 @@ public:
     void    Render3DWhiteBoard();
     void    Render3DPopulationDensity();
     void    Render3DUnitHighlight                         (int objectId);
-    void    Render3DSphere                                (const Vector3<float>& center, float radius, const Colour& color, int segments);
     void    Render3DActionLine                            (const Vector3<float>& fromPos, const Vector3<float>& toPos, const Colour& col, bool animate);
     float   CalculateUnitElevation                        (WorldObject* wobj);
     float   CalculateBallisticHeight                      (float totalDistanceRadians, float progress);
@@ -375,7 +374,6 @@ public:
     void    Cleanup3DStarField     ();
     void    Regenerate3DStarField  ();
     void    Render3DStarField      ();
-    void    Render3DGlobeSurface   (bool inLobbyMode = false);
 };
 
 
