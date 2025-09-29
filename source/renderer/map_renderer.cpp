@@ -283,6 +283,7 @@ void MapRenderer::Render()
         g_renderer->BeginHealthBarBatch();      // Unit health bars
         g_renderer->BeginEffectsLineBatch();    // All line effects (waypoints, radar, etc.)
         g_renderer->BeginEffectsSpriteBatch();  // All sprite effects (explosions, nukesymbols, population, radiation, etc.)
+        g_renderer->BeginWhiteboardBatch();     // Whiteboard drawings 
 
         if( m_showPopulation )          
         { 
@@ -341,6 +342,7 @@ void MapRenderer::Render()
         g_renderer->EndUnitTrailBatch();        // Flush all unit trails
         g_renderer->EndEffectsSpriteBatch();    // Flush all sprite effects (explosions, cities, nukesymbols, population, radiation)
         g_renderer->EndEffectsLineBatch();      // Flush all line effects (waypoints, radar)
+        g_renderer->EndWhiteboardBatch();       // Flush all whiteboard drawings
         g_renderer->EndUnitHighlightBatch();    // Flush all unit selection highlights (restarted after radiation)
         g_renderer->EndUnitNukeBatch();         // Flush all small nuke icons (restarted after radiation)
         g_renderer->EndUnitStateBatch();        // Flush all unit state icons (restarted after radiation)
@@ -4942,49 +4944,31 @@ void MapRenderer::RenderWhiteBoard()
 
 			Colour colourBoard = team->GetTeamColour();
 
-			// Render whiteboard using immediate mode (changes frequently, no caching needed)
 			const LList<WhiteBoardPoint *> *points = whiteBoard->GetListPoints();
 			int sizePoints = points->Size();
 
-			if ( sizePoints > 0 )
+			if ( sizePoints > 1 )
 			{
-				bool lineStripActive = false;
+				WhiteBoardPoint *prevPt = points->GetData( 0 );
 				
-				for ( int i = 0; i < sizePoints; i++ )
+				for ( int j = 1; j < sizePoints; j++ )
 				{
-					WhiteBoardPoint *pt = points->GetData( i );
+					WhiteBoardPoint *currPt = points->GetData( j );
 
-					if ( i == 0 )
+                    //
+					// if this is a start point, skip the line from previous point
+
+					if ( currPt->m_startPoint )
 					{
-#ifndef TARGET_EMSCRIPTEN
-						g_renderer->BeginLineStrip2D( colourBoard, g_preferences->GetFloat(PREFS_GRAPHICS_WHITEBOARD_THICKNESS) );
-#else
-                        g_renderer->BeginLineStrip2D( colourBoard, 3.0f );
-#endif
-						lineStripActive = true;
-					}
-					else if ( pt->m_startPoint )
-					{
-						// End current line strip and start a new one
-						if( lineStripActive )
-						{
-							g_renderer->EndLineStrip2D();
-						}
-#ifndef TARGET_EMSCRIPTEN
-						g_renderer->BeginLineStrip2D( colourBoard, g_preferences->GetFloat(PREFS_GRAPHICS_WHITEBOARD_THICKNESS) );
-#else
-                        g_renderer->BeginLineStrip2D( colourBoard, 3.0f );
-#endif
-						lineStripActive = true;
+						prevPt = currPt;
+						continue;
 					}
 
-					g_renderer->LineStripVertex2D( pt->m_longitude, pt->m_latitude );
-				}
-				
-				// End the final line strip
-				if( lineStripActive )
-				{
-					g_renderer->EndLineStrip2D();
+					g_renderer->WhiteboardLine( prevPt->m_longitude, prevPt->m_latitude, 
+											   currPt->m_longitude, currPt->m_latitude, 
+											   colourBoard );
+					
+					prevPt = currPt;
 				}
 			}
 		}

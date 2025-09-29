@@ -123,9 +123,9 @@ void LobbyRenderer::Render()
     if( g_preferences->GetInt(PREFS_GRAPHICS_LOBBYEFFECTS) == 1 )
     {
 
-        START_PROFILE( "Globe" );
+        START_PROFILE( "Lobby Globe" );
         Render3DScene();
-        END_PROFILE( "Globe" );
+        END_PROFILE( "Lobby Globe" );
 
         //START_PROFILE( "CityDetails" );
         //RenderCityDetails();
@@ -470,7 +470,7 @@ void LobbyRenderer::RenderBorder()
 void LobbyRenderer::RenderVersionInfo()
 {
 #if defined(REPLAY_VIEWER_DESKTOP) || defined(TARGET_EMSCRIPTEN)
-    char currentVersion[256] = "RELEASE" "  " "1.0";
+    char currentVersion[256] = "RELEASE" "  " "1.07";
 #else
     char currentVersion[256] = APP_NAME "  " APP_VERSION;
 #endif

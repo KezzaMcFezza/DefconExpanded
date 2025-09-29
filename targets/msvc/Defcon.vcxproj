@@ -1387,7 +1387,7 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_vbo.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\operations_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\primitives_3d_buffers.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\primitive_3d_buffers.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\sprite_3d_buffers.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_nuke.cpp" />

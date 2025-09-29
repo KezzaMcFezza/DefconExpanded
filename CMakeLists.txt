@@ -588,7 +588,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/render2d/buffers/eclipse_buffers.cpp
     ${SYSTEMIV_PATH}/lib/render3d/renderer_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/buffers/operations_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/buffers/primitives_3d_buffers.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/buffers/primitive_3d_buffers.cpp
     ${SYSTEMIV_PATH}/lib/render3d/buffers/sprite_3d_buffers.cpp
     ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_nuke.cpp
     ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_vbo.cpp
