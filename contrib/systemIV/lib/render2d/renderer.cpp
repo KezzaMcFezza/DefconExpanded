@@ -383,7 +383,6 @@ void Renderer::BeginFrame() {
 }
 
 void Renderer::EndFrame() {
-    FlushAllSpecializedBuffers();
     UpdateGpuTimings();
 }
 
@@ -986,7 +985,9 @@ void Renderer::StartFlushTiming(const char* name) {
             // only start new query if previous one is complete
             
             if (!m_flushTimings[i].queryPending) {
+#ifndef TARGET_EMSCRIPTEN
                 glBeginQuery(GL_TIME_ELAPSED, m_flushTimings[i].queryObject);
+#endif
                 m_flushTimings[i].queryPending = true;
             }
             return;
@@ -1005,9 +1006,10 @@ void Renderer::StartFlushTiming(const char* name) {
         timing->queryPending = false;
         
         glGenQueries(1, &timing->queryObject);
+#ifndef TARGET_EMSCRIPTEN
         glBeginQuery(GL_TIME_ELAPSED, timing->queryObject);
+#endif
         timing->queryPending = true;
-        
         m_flushTimingCount++;
     }
 }
@@ -1018,7 +1020,9 @@ void Renderer::EndFlushTiming(const char* name) {
     for (int i = 0; i < m_flushTimingCount; i++) {
         if (strcmp(m_flushTimings[i].name, name) == 0) {
             if (m_flushTimings[i].queryPending) {
+#ifndef TARGET_EMSCRIPTEN
                 glEndQuery(GL_TIME_ELAPSED);
+#endif
             }
             
             //
@@ -1039,11 +1043,14 @@ void Renderer::UpdateGpuTimings() {
     for (int i = 0; i < m_flushTimingCount; i++) {
         if (m_flushTimings[i].queryPending) {
             int available = 0;
+#ifndef TARGET_EMSCRIPTEN
             glGetQueryObjectiv(m_flushTimings[i].queryObject, GL_QUERY_RESULT_AVAILABLE, &available);
-            
+#endif
             if (available) {
                 uint64_t gpuTime;
+#ifndef TARGET_EMSCRIPTEN
                 glGetQueryObjectui64v(m_flushTimings[i].queryObject, GL_QUERY_RESULT, &gpuTime);
+#endif
                 m_flushTimings[i].totalGpuTime += gpuTime / 1000000.0; // Convert to milliseconds
                 m_flushTimings[i].queryPending = false;
             }

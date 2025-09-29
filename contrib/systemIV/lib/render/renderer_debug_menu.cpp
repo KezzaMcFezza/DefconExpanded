@@ -85,8 +85,10 @@ void RendererDebugMenu::RenderDebugMenu()
 
     RenderBufferStatistics(yPos);
     yPos += 2.0f; 
+#ifndef TARGET_EMSCRIPTEN
     RenderFlushTimings(yPos);  
     yPos += 2.0f;
+#endif
     RenderSystemInformation(yPos);
     yPos += 2.0f;
 }

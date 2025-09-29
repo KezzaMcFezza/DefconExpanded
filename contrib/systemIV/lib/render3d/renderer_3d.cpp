@@ -1416,8 +1416,7 @@ void Renderer3D::BeginFrame3D() {
 }
 
 void Renderer3D::EndFrame3D() {
-    // Flush any remaining buffers if needed
-    FlushAllSpecializedBuffers3D();
+    g_renderer->UpdateGpuTimings();
 }
 
 // ============================================================================
