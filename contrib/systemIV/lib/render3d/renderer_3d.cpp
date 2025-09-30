@@ -460,8 +460,8 @@ void main() {
     // Desktop OpenGL 3.2 Core 3D shaders
     const char* vertex3DShaderSource = R"(#version 150 core
 
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec4 aColor;
+in vec3 aPos;
+in vec4 aColor;
 
 uniform mat4 uProjection;
 uniform mat4 uModelView;
@@ -568,9 +568,9 @@ void main() {
 
     const char* vertex3DTexturedShaderSource = R"(#version 150 core
 
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec4 aColor;
-layout (location = 2) in vec2 aTexCoord;
+in vec3 aPos;
+in vec4 aColor;
+in vec2 aTexCoord;
 
 uniform mat4 uProjection;
 uniform mat4 uModelView;

@@ -699,6 +699,13 @@ unsigned int Renderer::CreateShader(const char* vertexSource, const char* fragme
     unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
+    
+#ifdef TARGET_OS_MACOSX
+    glBindAttribLocation(shaderProgram, 0, "aPos");
+    glBindAttribLocation(shaderProgram, 1, "aColor");
+    glBindAttribLocation(shaderProgram, 2, "aTexCoord");
+#endif
+    
     glLinkProgram(shaderProgram);
     
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
@@ -754,11 +761,11 @@ void main() {
     FragColor = texture(ourTexture, texCoord) * vertexColor;
 })";
 #elif defined(TARGET_OS_MACOSX)
-    // Desktop OpenGL 3.2 shaders
+    // Desktop OpenGL 3.2 shaders, GLSL 1.50 doesn't support layout qualifiers so bind them before linking
     const char* vertexShaderSource = R"(#version 150 core
-layout (location = 0) in vec2 aPos;
-layout (location = 1) in vec4 aColor;
-layout (location = 2) in vec2 aTexCoord;
+in vec2 aPos;
+in vec4 aColor;
+in vec2 aTexCoord;
 uniform mat4 uProjection;
 uniform mat4 uModelView;
 out vec4 vertexColor;
@@ -769,14 +776,14 @@ void main() {
     texCoord = aTexCoord;
 })";
 
-    const char* colorFragmentShaderSource = R"(#version 330 core
+    const char* colorFragmentShaderSource = R"(#version 150 core
 in vec4 vertexColor;
 out vec4 FragColor;
 void main() {
     FragColor = vertexColor;
 })";
 
-    const char* textureFragmentShaderSource = R"(#version 330 core
+    const char* textureFragmentShaderSource = R"(#version 150 core
 in vec4 vertexColor;
 in vec2 texCoord;
 uniform sampler2D ourTexture;
@@ -785,7 +792,7 @@ void main() {
     FragColor = texture(ourTexture, texCoord) * vertexColor;
 })";
 #else
-// Desktop OpenGL 3.2 shaders
+// Desktop OpenGL 3.3 shaders
 const char* vertexShaderSource = R"(#version 330 core
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec4 aColor;
