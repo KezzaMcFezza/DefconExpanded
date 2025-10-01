@@ -4122,7 +4122,7 @@ void MapRenderer::Update()
         //
         // double click detection for the silo targetting system
         
-        if( g_inputManager->m_lmbUnClicked )
+        if( g_inputManager->m_lmbUnClicked )                                        // LEFT BUTTON UNCLICKED
         {
             float currentTime = GetHighResTime();
             float timeSinceLastClick = currentTime - m_lastClickTime;
@@ -4240,6 +4240,23 @@ void MapRenderer::Update()
                 {
                     HandleObjectAction(longitude, latitude, underMouseId);
                 }
+            }
+        }
+#else
+        if( g_inputManager->m_lmbUnClicked )                                        // LEFT BUTTON UNCLICKED
+        {
+            if( m_currentStateId != -1 )                            
+            {             
+                HandleClickStateMenu();
+            }
+            else if( underMouse &&
+                     underMouseId == m_currentHighlightId )                             
+            {                
+                HandleSelectObject(underMouseId);
+            }
+            else 
+            {
+                HandleObjectAction(longitude, latitude, underMouseId);
             }
         }
 #endif
