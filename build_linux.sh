@@ -160,29 +160,29 @@ fi
 
 echo ""
 echo "========================================"
-echo "🎉 Build completed successfully! 🎉"
+echo "Build completed successfully!"
 echo "========================================"
 
 # Final summary
 echo ""
-echo "📦 BUILD SUMMARY:"
+echo "BUILD SUMMARY:"
 echo "=================="
 if [ -d "build/result/Release" ]; then
-    echo "✅ Binary location: build/result/Release/"
-    echo "✅ Executable: build/result/Release/defcon"
+    echo "âœ… Binary location: build/result/Release/"
+    echo "âœ… Executable: build/result/Release/defcon"
     
     if [ -f "$TARBALL_NAME" ]; then
-        echo "✅ Package: $TARBALL_NAME"
+        echo "Package: $TARBALL_NAME"
         echo ""
-        echo "🚀 Ready to distribute!"
+        echo "Ready to distribute!"
         echo "   - Run directly: ./build/result/Release/defcon"
         echo "   - Or extract package: tar -xjf $TARBALL_NAME"
     fi
 else
-    echo "❌ Build artifacts not found in expected location"
+    echo "Build artifacts not found in expected location"
 fi
 
 echo ""
-echo "🔄 To rebuild:"
+echo "To rebuild:"
 echo "   - Clean rebuild: rm -rf build && ./build_linux.sh"
 echo "   - Quick rebuild: ./build_linux.sh"
