@@ -37,6 +37,7 @@
 #include "interface/network_window.h"
 #include "interface/profile_window.h"
 #include "interface/worldstatus_window.h"
+#include "interface/lobby_window.h"
 #include "interface/mainmenu.h"
 #include "interface/side_panel.h"
 #include "interface/chat_window.h"
@@ -243,12 +244,13 @@ void Interface::Update()
 
     //
     // Hide UI toggle?
-
+#if RECORDING_PARSING
     if( g_keyDeltas[KEY_H] && !UsingChatWindow() && !UsingAnyInputField() )
     {
         extern bool g_hideUI;
         g_hideUI = !g_hideUI;
     }
+#endif
 
 
     //
@@ -330,12 +332,43 @@ void Interface::Update()
         EclGetWindows()->Size() == 0 )
     {
 #if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-        // REPLAY VIEWER MODE: Open recording selection window instead of main menu
+
+        //
+        // Open recording selection window instead of main menu
+
         OpenReplayViewerWindow();
+
+#elif defined(SILO_PRACTICE)
+
+        //
+        // Skip main menu and open lobby window directly
+        // Start a local game server automatically for silo practice
+        
+        LobbyWindow *lobby = new LobbyWindow();
+        bool success = lobby->StartNewServer();
+
+        if( success )
+        {
+            ChatWindow *chat = new ChatWindow();
+            chat->SetPosition( g_windowManager->WindowW()/2 - chat->m_w/2, 
+                               g_windowManager->WindowH() - chat->m_h - 30 );
+            EclRegisterWindow( chat );
+
+            float lobbyX = g_windowManager->WindowW()/2 - lobby->m_w/2;
+            float lobbyY = chat->m_y - lobby->m_h - 30;
+            lobbyY = std::max( lobbyY, 0.0f );
+            lobby->SetPosition(lobbyX, lobbyY);
+            EclRegisterWindow( lobby );
+        }
+
 #else
-        // NORMAL MODE: Open main menu
+
+        //
+        // Open main menu
+        
         EclRegisterWindow( new MainMenu() );
 #endif
+
     }
 
 }
@@ -861,6 +894,7 @@ void Interface::OpenGameWindows()
         EclRegisterWindow( new TutorialWindow() );
     }   
 
+#if RECORDING_PARSING
     //
     // If we're in recording playback mode, open the playback control window
 
@@ -868,6 +902,7 @@ void Interface::OpenGameWindows()
     {
         EclRegisterWindow( new PlaybackControlWindow() );
     }
+#endif
 }
 
 

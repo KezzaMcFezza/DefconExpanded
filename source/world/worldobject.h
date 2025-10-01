@@ -122,7 +122,9 @@ public:
 
     virtual bool        Update          ();
     virtual void        Render          ();
+#if RECORDING_PARSING
     virtual void        RenderHealthBar ();
+#endif
     
 	virtual void		RunAI			();
 

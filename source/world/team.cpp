@@ -452,6 +452,9 @@ void Team::PlacementAI()
         int x = 0;
         if( createFleet )
         {
+#if SILO_PRACTICE
+            return;
+#endif
             // set up a new fleet    
             int fleetType = -1;
             bool defensive = false;
@@ -588,6 +591,10 @@ void Team::PlacementAI()
             }
             else if( objectPriority == WorldObject::TypeAirBase )
             {
+#if SILO_PRACTICE
+                m_unitsAvailable[objectPriority] = 0;
+                return;
+#endif
                 int defensiveBases = 4 * g_app->GetGame()->GetOptionValue("TerritoriesPerTeam");
                 defensiveBases *= (10.0f - m_aggression) / 10.0f;
 

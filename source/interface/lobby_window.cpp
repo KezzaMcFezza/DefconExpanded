@@ -295,6 +295,8 @@ void TeamOptionsWindow::Create()
         yPos += 18;
     }
 
+#ifndef SILO_PRACTICE
+
     //
     // Join spectators
 
@@ -306,7 +308,7 @@ void TeamOptionsWindow::Create()
 
         yPos += 18;
     }
-
+#endif
 
     //
     // Alliance colour buttons
@@ -1689,7 +1691,11 @@ void LobbyWindow::Create()
     int boxH    = 25;
     int boxGap  = 5;
     int boxY    = 40;
+#if SILO_PRACTICE
+    int totalH  = (boxH+boxGap)*(MAX_TEAMS)+15;
+#else
     int totalH  = (boxH+boxGap)*(MAX_TEAMS-1)+15;
+#endif
     totalH += 150;
 
     float worldMapW = boxW + 40;
@@ -1698,8 +1704,11 @@ void LobbyWindow::Create()
     InvertedBox *teamsBox = new InvertedBox();
     teamsBox->SetProperties( "TeamsBox", 10, 30, m_w-20, m_h - 70, " ", " ", false, false );
     RegisterButton( teamsBox );
-
+#if SILO_PRACTICE
+    for( int i = 0; i < MAX_TEAMS; ++i )
+#else
     for( int i = 0; i < MAX_TEAMS-1; ++i )
+#endif
     {        
         char buttonName[256];
         sprintf( buttonName, "Team%d", i );
@@ -1763,20 +1772,22 @@ void LobbyWindow::Create()
     }
 
     RegisterGameOptionButton( this, boxX, boxY, boxW+10, 17, 100, serverNameIndex, m_gameOptions, false, true, true, 20 );
+#ifndef SILO_PRACTICE
     RegisterGameOptionButton( this, boxX, boxY+=40, boxW+10, 17, 100, gameModeIndex, m_gameOptions, false, false, false, 0 );
     RegisterGameOptionButton( this, boxX, boxY+=20, boxW+10, 17, 100, scoreModeIndex, m_gameOptions, false, false, false, 0 );
-
-
-    //
-    // Team Ready / control buttons
-
+#endif
     AdvancedOptionsButton *options = new AdvancedOptionsButton();
     options->SetProperties( "Advanced Options", 10, m_h - 30, 140, 20, "dialog_lobby_advanced_options", " ", true, false );
     RegisterButton( options );
-
+#ifndef SILO_PRACTICE
     ExitButton *exit = new ExitButton();
     exit->SetProperties( "Exit", m_w - 260, m_h - 30, 120, 20, "dialog_leavegame", " ", true, false );
     RegisterButton( exit );
+#endif
+
+
+    //
+    // Team Ready button
 
     TeamReadyButton *trb = new TeamReadyButton();
     trb->SetProperties( "Ready", m_w - 130, m_h - 30, 120, 20, "dialog_ready", "tooltip_lobby_ready", true, true );
@@ -2097,9 +2108,13 @@ void LobbyWindow::Render( bool _hasFocus )
 		{
             strcpy( caption, LANGUAGEPHRASE("unknown") );
 		}
-
-        g_renderer->TextSimple( m_x+275, m_y+272, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
+#if SILO_PRACTICE
+        g_renderer->TextSimple( m_x+275, m_y+232, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
+        g_renderer->TextCentreSimple( m_x+440, m_y+232, White, 11, caption );
+#else
+		g_renderer->TextSimple( m_x+275, m_y+272, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
         g_renderer->TextCentreSimple( m_x+440, m_y+272, White, 11, caption );
+#endif
 
 
         char localIp[256];
@@ -2109,9 +2124,13 @@ void LobbyWindow::Render( bool _hasFocus )
         strcpy( caption, LANGUAGEPHRASE("dialog_internet_identity_details") );
 		LPREPLACESTRINGFLAG( 'I', localIp, caption );
 		LPREPLACEINTEGERFLAG( 'P', localPort, caption );
-
+#if SILO_PRACTICE
+		g_renderer->TextSimple( m_x+275, m_y+252, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
+        g_renderer->TextCentreSimple( m_x+440, m_y+252, White, 11, caption );  
+#else    
 		g_renderer->TextSimple( m_x+275, m_y+292, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
-        g_renderer->TextCentreSimple( m_x+440, m_y+292, White, 11, caption );       
+        g_renderer->TextCentreSimple( m_x+440, m_y+292, White, 11, caption );   
+#endif
     }
     else
     {
@@ -2138,9 +2157,10 @@ void LobbyWindow::Render( bool _hasFocus )
     GameOption *gameMode = g_app->GetGame()->GetOption("GameMode");
     GameOption *scoreMode = g_app->GetGame()->GetOption("ScoreMode");
 
+#ifndef SILO_PRACTICE
     char gameModeStringId[256];
     char scoreModeStringId[256];
-    
+
     sprintf( gameModeStringId, "tooltip_gamemode_%s", gameMode->m_subOptions[gameMode->m_currentValue] );
     sprintf( scoreModeStringId, "tooltip_scoremode_%s", scoreMode->m_subOptions[scoreMode->m_currentValue] );
 
@@ -2148,9 +2168,13 @@ void LobbyWindow::Render( bool _hasFocus )
     {
         if( gameModeStringId[i] == ' ' ) gameModeStringId[i] = '_';
     }
+#endif
 
     char fullString[10000];
+
+#ifndef SILO_PRACTICE
     sprintf( fullString, "%s\n\n%s", LANGUAGEPHRASE(gameModeStringId), LANGUAGEPHRASE(scoreModeStringId ) );
+#endif
 
     float captionX = 270;
     float captionY = m_y + m_h - 70;
@@ -2161,10 +2185,11 @@ void LobbyWindow::Render( bool _hasFocus )
 
     for( int i = wrapped.Size()-1; i >= 0; --i )
     {
+#ifndef SILO_PRACTICE
         char *thisLine = wrapped[i];
         g_renderer->Text( m_x+captionX, captionY-=gap, Colour(255,255,255,128), 10, thisLine );
+#endif
     }
-
 
     //
     // Render the ready timer

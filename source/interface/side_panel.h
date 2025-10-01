@@ -48,9 +48,7 @@ public:
 	UnitPlacementButton( int unitType);
 
 	int m_unitType;
-
-protected:
-	bool	m_disabled;
+	bool m_disabled;
 
 public:
     void Render( int realX, int realY, bool highlighted, bool clicked );

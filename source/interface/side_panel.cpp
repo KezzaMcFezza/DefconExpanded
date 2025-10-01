@@ -92,11 +92,17 @@ void SidePanel::Create()
 
     UnitPlacementButton *airbase = new UnitPlacementButton(WorldObject::TypeAirBase);
     airbase->SetProperties( "AirBase", x, y+150, 48, 48, "", "tooltip_place_airbase", false, true );
+#if SILO_PRACTICE
+    airbase->m_disabled = true;
+#endif
     RegisterButton( airbase );
 
     PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
     fmb->SetProperties( "FleetMode", x, y+220, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
     strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
+#if SILO_PRACTICE
+    fmb->m_disabled = true;
+#endif
     RegisterButton( fmb );
 }
 
@@ -270,6 +276,9 @@ void SidePanel::ChangeMode( int mode )
 
         UnitPlacementButton *airbase = new UnitPlacementButton(WorldObject::TypeAirBase);
         airbase->SetProperties( "AirBase", x, y+150, 48, 48, "", "tooltip_place_airbase", false, true );
+#if SILO_PRACTICE
+        airbase->m_disabled = true;
+#endif
         RegisterButton( airbase );
 
         Team *myTeam = g_app->GetWorld()->GetTeam( g_app->GetWorld()->m_myTeamId );
@@ -281,10 +290,14 @@ void SidePanel::ChangeMode( int mode )
         PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
         fmb->SetProperties( "FleetMode", x, y+220, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
         strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
+#if SILO_PRACTICE
+        fmb->m_disabled = true;
+#else
         if( shipsRemaining == 0 )
         {
             fmb->m_disabled = true;
         }
+#endif
         RegisterButton( fmb );
     }
     else if( m_mode == ModeFleetPlacement )
@@ -371,6 +384,13 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
         m_disabled = false;
     }
 
+#if SILO_PRACTICE
+    if( m_unitType == WorldObject::TypeAirBase )
+    {
+        m_disabled = true;
+    }
+#endif
+
 	Image *bmpImage			= g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[m_unitType] );
     g_renderer->SetBlendMode( Renderer::BlendModeSubtractive );
     Colour col(30,30,30,0);
@@ -404,7 +424,19 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
 	}
     else
     {
+#if !SILO_PRACTICE
         m_disabled = false;
+#else
+        if( m_unitType != WorldObject::TypeAirBase )
+        {
+            m_disabled = false;
+        }
+#endif
+    }
+
+    if( m_disabled )
+    {
+        colour = Colour(50, 50, 50, 255);
     }
 	
     colour.m_a = 255;
@@ -509,6 +541,13 @@ void PanelModeButton::Render(int realX, int realY, bool highlighted, bool clicke
 {
 #ifndef NON_PLAYABLE
     SidePanel *parent = (SidePanel *)m_parent;
+
+#if SILO_PRACTICE
+    if( m_mode == SidePanel::ModeFleetPlacement )
+    {
+        m_disabled = true;
+    }
+#endif
 
     if( m_imageButton )
     {

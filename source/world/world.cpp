@@ -1195,6 +1195,31 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
 {
     if( teamId == -1 ) return false;
 
+#if SILO_PRACTICE
+    switch( objectType )
+    {
+        case WorldObject::TypeSilo:      
+        case WorldObject::TypeRadarStation:
+        {
+            if( g_app->GetMapRenderer()->IsValidTerritory( teamId, longitude, latitude, false ) )
+            {
+                int nearestIndex = GetNearestObject( teamId, longitude, latitude );
+                if( nearestIndex == -1 ) return true;
+                else
+                {
+                    WorldObject *obj = GetWorldObject(nearestIndex);
+                    Fixed distance = GetDistance( longitude, latitude, obj->m_longitude, obj->m_latitude);
+                    Fixed maxDistance = 5 / GetGameScale();
+                    return ( distance > maxDistance );                    
+                }
+            }
+            break;
+        }
+        
+        default:
+            return false;
+    }
+#else
     switch( objectType )
     {
         case WorldObject::TypeSilo:      
@@ -1241,7 +1266,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
         }
         break;
     }
-
+#endif
 
     return false;
 }

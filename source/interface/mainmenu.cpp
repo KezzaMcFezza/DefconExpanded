@@ -311,7 +311,31 @@ class ConfirmLeaveGameButton : public InterfaceButton
     {
         g_app->ShutdownCurrentGame();
         EclRemoveAllWindows();
+        
+#ifdef SILO_PRACTICE
+        //
+        // start a new game and open lobby window
+        // instead of returning to main menu
+        
+        LobbyWindow *lobby = new LobbyWindow();
+        bool success = lobby->StartNewServer();
+
+        if( success )
+        {
+            ChatWindow *chat = new ChatWindow();
+            chat->SetPosition( g_windowManager->WindowW()/2 - chat->m_w/2, 
+                               g_windowManager->WindowH() - chat->m_h - 30 );
+            EclRegisterWindow( chat );
+
+            float lobbyX = g_windowManager->WindowW()/2 - lobby->m_w/2;
+            float lobbyY = chat->m_y - lobby->m_h - 30;
+            lobbyY = max( lobbyY, 0.0f );
+            lobby->SetPosition(lobbyX, lobbyY);
+            EclRegisterWindow( lobby );
+        }
+#else
         g_app->GetInterface()->OpenSetupWindows();
+#endif
     }
 };
 
@@ -815,7 +839,7 @@ void MainMenu::Create()
     
     //
     // New Game
-#ifndef REPLAY_VIEWER_DESKTOP
+#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(SILO_PRACTICE)
     if( !g_app->m_gameRunning )
     {
         button = new MainMenuNewGameButton();
@@ -827,7 +851,7 @@ void MainMenu::Create()
 
     //
     // Play back recording.
-#if !defined(RECORDING_PARSING) || !defined(REPLAY_VIEWER_DESKTOP) 
+#if defined(RECORDING_PARSING) && !defined(SILO_PRACTICE) && !defined(REPLAY_VIEWER_DESKTOP)
     button = new MainMenuPlaybackRecordingButton();
     button->SetProperties( "Playback Recording", 10, y+=h+g, m_w-20, h, "dialog_playbackrecording", " ", true, false );
     RegisterButton( button );
@@ -835,7 +859,7 @@ void MainMenu::Create()
 
     //
     // Join Game
-#ifndef REPLAY_VIEWER_DESKTOP
+#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(SILO_PRACTICE)
     button = new MainMenuJoinGameButton();
     button->SetProperties( "Join Game", 10, y+=h+g, m_w-20, h, "dialog_joingame", " ", true, false );
     RegisterButton( button );
@@ -852,7 +876,7 @@ void MainMenu::Create()
     //
     // Tutorial
     // Rolling Demo
-#ifndef REPLAY_VIEWER_DESKTOP
+#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(SILO_PRACTICE)
     if( !g_app->m_gameRunning )
     {
 #ifndef NON_PLAYABLE
@@ -903,7 +927,7 @@ void MainMenu::Create()
 
     if( demoUser )
     {
-#if !defined(RETAIL) && !defined(REPLAY_VIEWER_DESKTOP)
+#if !defined(RETAIL) && !defined(REPLAY_VIEWER_DESKTOP) && !defined(SILO_PRACTICE)
         BuyNowButton *buyNow = new BuyNowButton();
         buyNow->SetProperties( "BUY NOW", 10, y+=h+g, m_w-20, h, "dialog_buy_now_caps", " ", true, false );
         buyNow->m_closeOnClick = false;
@@ -1098,7 +1122,7 @@ void OptionsMenuWindow::Create()
     //other->SetProperties( "Other Options", 10, y+=h, m_w-20, h-3, "dialog_otheroptions", " ", true, false );
     //RegisterButton( other );
 
-#ifndef REPLAY_VIEWER_DESKTOP
+#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(SILO_PRACTICE)
     NetworkOptionsButton *network = new NetworkOptionsButton();
     network->SetProperties( "Network", 10, y+=h+g, m_w-20, h, "dialog_networkoptions", " ", true, false );
     RegisterButton( network );

@@ -1,6 +1,8 @@
 #ifndef _included_playback_control_window_h
 #define _included_playback_control_window_h
 
+#if RECORDING_PARSING
+
 #include "interface/components/core.h"
 #include "interface/fading_window.h"
 #include "world/world.h"
@@ -172,4 +174,5 @@ public:
     void Render( int realX, int realY, bool highlighted, bool clicked );
 };
 
+#endif
 #endif

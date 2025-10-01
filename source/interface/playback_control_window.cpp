@@ -19,6 +19,8 @@
 #include "network/Server.h"
 #include "renderer/map_renderer.h"
 
+#if RECORDING_PARSING
+
 class HideUIConfirmCloseButton : public InterfaceButton
 {
 public:
@@ -959,3 +961,5 @@ void HideUIButton::Render(int realX, int realY, bool highlighted, bool clicked)
 {
     InterfaceButton::Render(realX, realY, highlighted, clicked);
 }
+
+#endif

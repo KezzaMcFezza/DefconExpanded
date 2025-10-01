@@ -93,6 +93,10 @@ protected:
 
 	float	m_drawScale;
     
+    float   m_lastClickTime;
+    float   m_lastClickX;
+    float   m_lastClickY;
+    
     Image   *m_territories[World::NumTerritories];
     
     Image   *bmpRadar;    
@@ -213,6 +217,20 @@ public:
     
     bool m_3DGlobeMode;
     
+    bool    m_nukeTravelTimeEnabled;
+    bool    m_siloRankingsDirty;
+    Fixed   m_nukeTravelTargetLongitude;
+    Fixed   m_nukeTravelTargetLatitude;
+    
+    int     m_wrongSiloId;
+    float   m_wrongSiloTime;
+    bool    m_wrongSiloWasFirst;
+    
+    LList<int> m_flightTimeCacheIds;
+    LList<int> m_siloRankings;    
+    LList<Fixed> m_flightTimeCacheTimes;
+    LList<Fixed> m_siloLaunchTimes;
+    LList<bool> m_siloLaunchCorrect;
 
 public:
     MapRenderer();
@@ -232,6 +250,9 @@ public:
 
     void    Render();
     void    RenderMouse();
+    void    RenderNukeSyncTarget();
+    void    RenderSyncOverlay();
+    Colour  GetLaunchGradientColour(float timeOverdue);
     void    RenderCoastlines();
     void    RenderLowDetailCoastlines();
     void    RenderBorders();
@@ -290,6 +311,16 @@ public:
 
     int     GetCurrentSelectionId();
     void    SetCurrentSelectionId( int id );
+    
+    Fixed   GetCachedFlightTime(int objectId);
+    Fixed   GetLaunchCountdown(int siloId);
+    
+    void    SetCachedFlightTime(int objectId, Fixed flightTime);
+    void    RecordSiloLaunch(int siloId);
+    void    RankSilosForSync();
+
+    int     GetSiloRank(int siloId);
+    const char* GetNukeDirection(int siloId);
 
     int     GetCurrentHighlightId();
 

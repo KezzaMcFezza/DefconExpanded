@@ -419,10 +419,14 @@ void WorldObject::Render ()
         }
         colour.m_a /= 2;
     }
-    
+
+#if RECORDING_PARSING
     RenderHealthBar();
+#endif
+
 }
 
+#if RECORDING_PARSING
 void WorldObject::RenderHealthBar()
 {
     // only render if the user has enabled the health bars
@@ -431,7 +435,7 @@ void WorldObject::RenderHealthBar()
     {
         return;
     }
-    
+
     // Only render health bar if the unit is alive and has an m_maxLife value, and its m_life is greater than 1
     if( m_life <= 0 || m_type == TypeCity || m_maxLife <= 1 )
     {
@@ -500,6 +504,8 @@ void WorldObject::RenderHealthBar()
         g_renderer->HealthBarRect(barX, barY, healthBarWidth, barHeight, healthColour);
     }
 }
+
+#endif
 
 void WorldObject::RenderCounter( int counter )
 {

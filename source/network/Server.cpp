@@ -1921,7 +1921,9 @@ void Server::Advance()
             
             if( m_recordingPlaybackMode && clientId != -1 )
             {
+#ifndef SILO_PRACTICE
                 ForceSpectatorMode( clientId );
+#endif
             }
         }
         else if ( strcmp(cmd, NET_DEFCON_CLIENT_LEAVE) == 0 )
@@ -1957,7 +1959,9 @@ void Server::Advance()
             {
                 if( m_recordingPlaybackMode )
                 {
+#ifndef SILO_PRACTICE
                     ForceSpectatorMode( clientId );
+#endif
                 }
                 else
                 {
@@ -2173,6 +2177,10 @@ void Server::Advance()
 
 void Server::Advertise()
 {
+
+#ifdef SILO_PRACTICE
+    return;
+#endif
     // Dont advertise the server to prevent external clients from messing up the RNG state
     if( m_recordingPlaybackMode )
     {

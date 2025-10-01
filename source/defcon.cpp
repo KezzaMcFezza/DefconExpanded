@@ -435,7 +435,7 @@ bool ProcessServerLetters( Directory *letter )
         int clientId = letter->GetDataInt(NET_DEFCON_CLIENTID);        
         int teamId   = letter->GetDataInt(NET_DEFCON_TEAMID);
         int teamType = letter->GetDataInt(NET_DEFCON_TEAMTYPE);
-    
+#if RECORDING_PARSING
         // override teamId if we are in replay mode, this way we can manipulate it to see other teams radar perspective
         if( g_app->GetServer() && g_app->GetServer()->m_recordingPlaybackMode )
         {
@@ -444,7 +444,7 @@ bool ProcessServerLetters( Directory *letter )
                 teamId = g_desiredPerspectiveTeamId;
             }
         }
-    
+#endif
         if( teamType != Team::TypeAI &&
             clientId != g_app->GetClientToServer()->m_clientId )
         {
@@ -706,6 +706,7 @@ void Hash( hash_context &c, const Fixed &f )
        Hash(c, f.DoubleValue() );
 }
 
+#ifndef SILO_PRACTICE
 unsigned char GenerateSyncValue()
 {
     START_PROFILE( "GenerateSyncValue" );
@@ -781,6 +782,8 @@ unsigned char GenerateSyncValue()
 
     return result;
 }
+
+#endif
 
 
 // Forward declaration for HandleGameStart
@@ -970,7 +973,11 @@ void EmscriptenMainLoop()
                         g_app->GetClientToServer()->m_resynchronising = -1.0f;
                     }
 
+#ifndef SILO_PRACTICE
                     unsigned char sync = GenerateSyncValue();
+#else
+                    unsigned char sync = 0;
+#endif
                     SyncRandLog( "Sync %d = %d", g_lastProcessedSequenceId, sync );
                     if( g_app->m_debugPrintClientLetters )
                     {
@@ -1193,14 +1200,13 @@ void DefconMain()
                     g_app->GetServer()->Advance();
                     float timeToAdd = SERVER_ADVANCE_PERIOD.DoubleValue();
                     if( !g_app->m_gameRunning ) timeToAdd *= 5.0f;
-                    
-                    // NEW: Apply recording fast-forward speed multiplier
+#if RECORDING_PARSING
                     if( g_app->GetServer()->IsRecordingPlaybackMode() )
                     {
                         float speedMultiplier = g_app->GetServer()->GetRecordingAdvanceSpeedMultiplier();
                         timeToAdd /= speedMultiplier;
                     }
-                    
+#endif
                     nextServerAdvanceTime += timeToAdd;
                     if (timeNow > nextServerAdvanceTime)
                     {
@@ -1309,7 +1315,11 @@ void DefconMain()
                             g_app->GetClientToServer()->m_resynchronising = -1.0f;
                         }
 
+#ifndef SILO_PRACTICE
                         unsigned char sync = GenerateSyncValue();
+#else
+                        unsigned char sync = 0;
+#endif
                         SyncRandLog( "Sync %d = %d", g_lastProcessedSequenceId, sync );
                         if( g_app->m_debugPrintClientLetters )
                         {

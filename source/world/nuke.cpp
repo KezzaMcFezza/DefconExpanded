@@ -376,3 +376,167 @@ void Nuke::LockTarget()
 {
     m_targetLocked = true;
 }
+
+#ifdef SILO_PRACTICE
+
+//
+// my best attempt at simulating the nuke trajectory to determine accurate travel time
+// im 100 percent sure i am missing an edge case but it works well enough for now
+
+Fixed Nuke::CalculateFlightTime(Fixed fromLongitude, Fixed fromLatitude, 
+                                 Fixed toLongitude, Fixed toLatitude)
+{
+    //
+    // normalize target longitude for seam crossing
+
+    Fixed normalizedToLongitude = toLongitude;
+    Fixed directDistanceSqd = g_app->GetWorld()->GetDistanceSqd(fromLongitude, fromLatitude, toLongitude, toLatitude, true);
+    Fixed distanceAcrossSeamSqd = g_app->GetWorld()->GetDistanceAcrossSeamSqd(fromLongitude, fromLatitude, toLongitude, toLatitude);
+    
+    if (distanceAcrossSeamSqd < directDistanceSqd) {
+        //
+        // path across seam is shorter, normalize the target longitude
+        
+        Fixed targetSeamLatitude;
+        Fixed targetSeamLongitude;
+        g_app->GetWorld()->GetSeamCrossLatitude(Vector3<Fixed>(toLongitude, toLatitude, 0), 
+                                                 Vector3<Fixed>(fromLongitude, fromLatitude, 0),
+                                                 &targetSeamLongitude, &targetSeamLatitude);
+        if (targetSeamLongitude < 0) {
+            normalizedToLongitude -= 360;
+        } else {
+            normalizedToLongitude += 360;
+        }
+    }
+    
+    //
+    // calculate total distance using normalized coordinates
+    
+    Vector3<Fixed> target(normalizedToLongitude, toLatitude, 0);
+    Vector3<Fixed> startPos(fromLongitude, fromLatitude, 0);
+    Fixed totalDistance = (target - startPos).Mag();
+    
+    if (totalDistance <= 0) {
+        return Fixed(0);
+    }
+    
+    //
+    // determine curve direction using normalized coordinates
+    
+    Fixed curveDirection;
+    if (normalizedToLongitude >= fromLongitude) {
+        curveDirection = 1;
+    } else {
+        curveDirection = -1;
+    }
+    
+    //
+    // simulate the nuke
+    
+    Fixed simLongitude = fromLongitude;
+    Fixed simLatitude = fromLatitude;
+    Fixed speed = Fixed::Hundredths(20);
+    Fixed timeElapsed = 0;
+    
+    //
+    // use the actual timestep from the game
+    // multiply by time scale factor for actual game speed
+
+    Fixed timePerUpdate = SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor();
+    
+    int maxIterations = 100000;
+    int iteration = 0;
+    
+    //
+    // track the simulated target, this can change when crossing seam
+    
+    Fixed simTargetLongitude = normalizedToLongitude;
+    Fixed simTargetLatitude = toLatitude;
+    
+    while (iteration < maxIterations) {
+
+        //
+        // calculate current position and progress using current target
+        
+        Vector3<Fixed> target(simTargetLongitude, simTargetLatitude, 0);
+        Vector3<Fixed> pos(simLongitude, simLatitude, 0);
+        Fixed remainingDistance = (target - pos).Mag();
+        Fixed fractionDistance = 1 - remainingDistance / totalDistance;
+        
+        //
+        // calculate movement direction
+        
+        Vector3<Fixed> front = (target - pos).Normalise();
+        Fixed fractionNorth = 5 * simLatitude.abs() / (200 / 2);
+        fractionNorth = max(fractionNorth, 3);
+        
+        front.RotateAroundZ(Fixed::PI / (fractionNorth * curveDirection));
+        front.RotateAroundZ(fractionDistance * (-curveDirection * Fixed::PI / fractionNorth));
+        
+        //
+        // north pole protection, im certain this is incorrect
+        // in some edge cases it will not calculate the correct time
+        
+        if (pos.y > 85) {
+            Fixed extremeFractionNorth = (pos.y - 85) / 15;
+            Clamp(extremeFractionNorth, Fixed(0), Fixed(1));
+            front.y *= (1 - extremeFractionNorth);
+            front.Normalise();
+        }
+        
+        //
+        // calculate velocity with acceleration
+        
+        Vector3<Fixed> vel = front * (speed / 2 + speed / 2 * fractionDistance * fractionDistance);
+        
+        //
+        // update position with timestep
+        
+        simLongitude = simLongitude + vel.x * timePerUpdate;
+        simLatitude = simLatitude + vel.y * timePerUpdate;
+        
+        //
+        // handle world wrapping
+        
+        if (simLongitude <= -180 || simLongitude >= 180) {
+            if (simLongitude >= 180) {
+                Fixed amountCrossed = simLongitude - 180;
+                simLongitude = -180 + amountCrossed;
+            } else if (simLongitude <= -180) {
+                Fixed amountCrossed = simLongitude + 180;
+                simLongitude = 180 + amountCrossed;
+            }
+            
+            //
+            // also adjust target longitude when crossing seam
+            
+            if (simTargetLongitude > 180) {
+                simTargetLongitude -= 360;
+            } else if (simTargetLongitude < -180) {
+                simTargetLongitude += 360;
+            }
+        }
+        
+        //
+        // World::GetDistance automatically handles seam wrapping
+        
+        Fixed newDistance = g_app->GetWorld()->GetDistance(simLongitude, simLatitude, toLongitude, toLatitude);
+        
+        //
+        // have we arrived?
+        
+        if (newDistance < 2 && newDistance >= remainingDistance) {
+            return timeElapsed;
+        }
+        
+        timeElapsed += timePerUpdate;
+        iteration++;
+    }
+    
+    //
+    // incase something went wrong, return an estimated time
+    
+    return totalDistance / speed;
+}
+
+#endif

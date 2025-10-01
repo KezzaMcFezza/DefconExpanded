@@ -15,6 +15,8 @@ Global
 		Release Endgame|x64 = Release Endgame|x64
 		Release Replay Viewer|Win32 = Release Replay Viewer|Win32
 		Release Replay Viewer|x64 = Release Replay Viewer|x64
+		Release Silo Practice|Win32 = Release Silo Practice|Win32
+		Release Silo Practice|x64 = Release Silo Practice|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
@@ -35,6 +37,10 @@ Global
 		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Replay Viewer|Win32.Build.0 = Release Replay Viewer|Win32
 		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Replay Viewer|x64.ActiveCfg = Release Replay Viewer|x64
 		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Replay Viewer|x64.Build.0 = Release Replay Viewer|x64
+		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Silo Practice|Win32.ActiveCfg = Release Silo Practice|Win32
+		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Silo Practice|Win32.Build.0 = Release Silo Practice|Win32
+		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Silo Practice|x64.ActiveCfg = Release Silo Practice|x64
+		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release Silo Practice|x64.Build.0 = Release Silo Practice|x64
 		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release|Win32.ActiveCfg = Release|Win32
 		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release|Win32.Build.0 = Release|Win32
 		{58515771-3484-43F9-9D1B-4F800F7F0436}.Release|x64.ActiveCfg = Release|x64

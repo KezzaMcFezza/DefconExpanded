@@ -38,6 +38,11 @@ public:
     int     IsValidMovementTarget( Fixed longitude, Fixed latitude );
 
     void    LockTarget();
+    
+#ifdef SILO_PRACTICE
+    static Fixed CalculateFlightTime(Fixed fromLongitude, Fixed fromLatitude, 
+                                     Fixed toLongitude, Fixed toLatitude);
+#endif
 }; 
 
 

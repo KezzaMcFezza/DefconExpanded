@@ -59,6 +59,11 @@
 #include "interface/recording_selection.h"
 #endif
 
+#ifdef SILO_PRACTICE
+#include "interface/lobby_window.h"
+#include "interface/chat_window.h"
+#endif
+
 #include "renderer/map_renderer.h"
 #include "renderer/lobby_renderer.h"
 
@@ -444,6 +449,29 @@ void App::FinishInit()
 #ifdef EMSCRIPTEN_DEBUG
         AppDebugOut("Opened recording selection window directly and skipped main menu)\n");
 #endif
+#elif defined(SILO_PRACTICE)
+
+        //
+        // Skip main menu and open lobby window directly
+        // Start a local game server automatically for silo practice
+        
+        LobbyWindow *lobby = new LobbyWindow();
+        bool success = lobby->StartNewServer();
+
+        if( success )
+        {
+            ChatWindow *chat = new ChatWindow();
+            chat->SetPosition( g_windowManager->WindowW()/2 - chat->m_w/2, 
+                               g_windowManager->WindowH() - chat->m_h - 30 );
+            EclRegisterWindow( chat );
+
+            float lobbyX = g_windowManager->WindowW()/2 - lobby->m_w/2;
+            float lobbyY = chat->m_y - lobby->m_h - 30;
+            lobbyY = std::max( lobbyY, 0.0f );
+            lobby->SetPosition(lobbyX, lobbyY);
+            EclRegisterWindow( lobby );
+        }
+
 #else
         m_interface->OpenSetupWindows();
 #endif
@@ -864,20 +892,27 @@ void App::Render()
 
     //
     // eclipse buttons and windows, but first check if UI should be hidden
-
+#if RECORDING_PARSING
     extern bool g_hideUI;
     if( !g_hideUI )
     {
         GetInterface()->Render();
     }
-
+#else
+    GetInterface()->Render();
+#endif
     START_PROFILE( "Eclipse GUI" );
     //g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     
+#if RECORDING_PARSING
+    extern bool g_hideUI;
     if( !g_hideUI )
     {
         EclRender();
     }
+#else
+    EclRender();
+#endif
     
     END_PROFILE( "Eclipse GUI" );
     
@@ -932,10 +967,15 @@ void App::Render()
     //
     // Mouse
 
+#if RECORDING_PARSING
+    extern bool g_hideUI;
     if( !g_hideUI )
     {
         GetInterface()->RenderMouse();
     }
+#else
+    GetInterface()->RenderMouse();
+#endif
    
 
 #ifdef SHOW_OWNER
