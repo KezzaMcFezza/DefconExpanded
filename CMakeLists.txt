@@ -54,25 +54,11 @@ else()
 endif()
 
 set(REPLAY_VIEWER_VERSION "R1.13" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
-option(ENABLE_RECORDING_PARSING "Enable recording parsing functionality" ON)
-option(ENABLE_REPLAY_VIEWER "Enable Emscripten Replay Viewer mode (recording playback only)" ON)
+set(SYNC_PRACTICE_VERSION "B1.0" CACHE STRING "Version prefix for silo practice client (e.g., B1.0, B1.1)")
 
-if(ENABLE_RECORDING_PARSING)
-    add_definitions(-DRECORDING_PARSING=1)
-    message(STATUS "Recording parsing enabled")
-else()
-    add_definitions(-DRECORDING_PARSING=0)
-    message(STATUS "Recording parsing disabled")
-endif()
-
-if(ENABLE_REPLAY_VIEWER)
-    set(ENABLE_RECORDING_PARSING ON CACHE BOOL "Enable recording parsing functionality" FORCE)
-    add_definitions(-DRECORDING_PARSING=1)
-    add_definitions(-DREPLAY_VIEWER=1)
-    message(STATUS "Emscripten Replay Viewer mode enabled (recording parsing auto-enabled)")
-else()
-    add_definitions(-DREPLAY_VIEWER=0)
-    message(STATUS "Emscripten Replay Viewer mode disabled")
+# build mode is now determined by preprocessor definitions passed via CMAKE_CXX_FLAGS
+if(NOT REPLAY_VIEWER_BUILD AND NOT SYNC_PRACTICE_BUILD)
+    message(STATUS "Standard build mode")
 endif()
 
 include_directories(
@@ -106,8 +92,6 @@ set(RESOURCE_FILES
 if(EMSCRIPTEN)
     message(STATUS "Configuring for WebAssembly/Emscripten build")
     
-    set(ENABLE_RECORDING_PARSING ON CACHE BOOL "Enable recording parsing functionality" FORCE)
-    add_definitions(-DRECORDING_PARSING=1)
     add_definitions(-DTARGET_EMSCRIPTEN -DWASM_BUILD -DTARGET_OS_LINUX -DENABLE_BINRELOC)
     add_definitions(-DSDL_MAIN_HANDLED -DGUI -DSILENT)
     add_definitions(-D__EMSCRIPTEN_PTHREADS__)
@@ -527,15 +511,10 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/interface/worldobject_window.cpp
     ${ROOT_PATH}/source/interface/info_window.cpp
     ${ROOT_PATH}/source/interface/placement_icon.cpp
+    ${ROOT_PATH}/source/network/recordingparser.cpp
+    ${ROOT_PATH}/source/interface/recording_selection.cpp
+    ${ROOT_PATH}/source/interface/recording_file_dialog.cpp
 )
-
-if(ENABLE_RECORDING_PARSING)
-    list(APPEND DEFCON_SOURCE
-        ${ROOT_PATH}/source/network/recordingparser.cpp
-        ${ROOT_PATH}/source/interface/recording_selection.cpp
-        ${ROOT_PATH}/source/interface/recording_file_dialog.cpp
-    )
-endif()
 
 set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/interface/components/checkbox.cpp
@@ -676,9 +655,12 @@ endforeach()
 
 set(ALL_SOURCES ${DEFCON_SOURCE} ${SYSTEMIV_SOURCE} ${UNRAR_SOURCE} ${PLATFORM_SPECIFIC_FILES} ${RESOURCE_FILES})
 
-if(EMSCRIPTEN AND ENABLE_REPLAY_VIEWER)
+if(REPLAY_VIEWER_BUILD)
     set(EXECUTABLE_NAME "replay_viewer_${REPLAY_VIEWER_VERSION}")
     message(STATUS "Building WebAssembly replay viewer with version: ${REPLAY_VIEWER_VERSION}")
+elseif(SYNC_PRACTICE_BUILD)
+    set(EXECUTABLE_NAME "sync_practice_${SYNC_PRACTICE_VERSION}")
+    message(STATUS "Building WebAssembly silo practice client with version: ${SYNC_PRACTICE_VERSION}")
 else()
     set(EXECUTABLE_NAME "defcon")
 endif()
@@ -721,11 +703,22 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_FUNCTIONS=['_main','_malloc','_free']")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','print','printErr']")
     
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/.emscripten/data@data")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/.emscripten/preferences.txt@preferences.txt")
+    # set the correct data directory based on build type
+    if(REPLAY_VIEWER_BUILD)
+        set(EMSCRIPTEN_DATA_DIR "${CMAKE_SOURCE_DIR}/localisation/emscripten/replay_viewer")
+        message(STATUS "Using replay viewer data directory: ${EMSCRIPTEN_DATA_DIR}")
+    elseif(SYNC_PRACTICE_BUILD)
+        set(EMSCRIPTEN_DATA_DIR "${CMAKE_SOURCE_DIR}/localisation/emscripten/sync_practice")
+        message(STATUS "Using silo practice data directory: ${EMSCRIPTEN_DATA_DIR}")
+    else()
+        message(FATAL_ERROR "EMSCRIPTEN build requires either REPLAY_VIEWER_BUILD or SYNC_PRACTICE_BUILD to be defined")
+    endif()
+    
+    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${EMSCRIPTEN_DATA_DIR}/data@data")
+    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${EMSCRIPTEN_DATA_DIR}/preferences.txt@preferences.txt")
 
-    if(EXISTS "${CMAKE_SOURCE_DIR}/localisation/.emscripten/mods")
-        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${CMAKE_SOURCE_DIR}/localisation/.emscripten/mods@mods")
+    if(EXISTS "${EMSCRIPTEN_DATA_DIR}/mods")
+        set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${EMSCRIPTEN_DATA_DIR}/mods@mods")
     endif()
 
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -w")
@@ -848,14 +841,14 @@ if(MSVC)
         "${MAIN_EXE_OUTPUT_DIR}/$<TARGET_FILE_NAME:${EXECUTABLE_NAME}>"
     )
 
-elseif(UNIX AND NOT APPLE)
+elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     add_custom_command(TARGET ${EXECUTABLE_NAME} PRE_BUILD 
         COMMAND ${CMAKE_COMMAND} -E make_directory "${MAIN_EXE_OUTPUT_DIR}"
     )
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/.desktop-replay-viewer/data" "${MAIN_EXE_OUTPUT_DIR}/data"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/.desktop-replay-viewer/mods" "${MAIN_EXE_OUTPUT_DIR}/mods"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/.desktop-replay-viewer/sounds.dat" "${MAIN_EXE_OUTPUT_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/desktop_replay_viewer/data" "${MAIN_EXE_OUTPUT_DIR}/data"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/desktop_replay_viewer/mods" "${MAIN_EXE_OUTPUT_DIR}/mods"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/desktop_replay_viewer/sounds.dat" "${MAIN_EXE_OUTPUT_DIR}/"
         COMMAND ${CMAKE_SOURCE_DIR}/targets/linux/bundle_sdl.sh ${MAIN_EXE_OUTPUT_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/targets/linux/launch_cmake.sh ${MAIN_EXE_OUTPUT_DIR}/launch.sh
     )
@@ -867,10 +860,10 @@ elseif(APPLE)
     set(BUNDLE_DIR ${MAIN_EXE_OUTPUT_DIR}/${EXECUTABLE_NAME}.app/Contents)
     set(DATA_TARGET_DIR ${BUNDLE_DIR}/Resources/)
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/.desktop-replay-viewer/data" "${DATA_TARGET_DIR}/data"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/.desktop-replay-viewer/mods" "${DATA_TARGET_DIR}/mods"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/desktop_replay_viewer/data" "${DATA_TARGET_DIR}/data"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/desktop_replay_viewer/mods" "${DATA_TARGET_DIR}/mods"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/resources/macosx/*" "${DATA_TARGET_DIR}/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/.desktop-replay-viewer/sounds.dat" "${DATA_TARGET_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/desktop_replay_viewer/sounds.dat" "${DATA_TARGET_DIR}/"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/targets/macosx/Info_cmake.plist" "${BUNDLE_DIR}/Info.plist"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/targets/macosx/Base.lproj/SDLMain.nib" "${DATA_TARGET_DIR}/SDLMain.nib"
         COMMAND ${CMAKE_SOURCE_DIR}/targets/macosx/bundle_sdl.sh ${BUNDLE_DIR}
