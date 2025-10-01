@@ -470,7 +470,7 @@ void LobbyRenderer::RenderBorder()
 void LobbyRenderer::RenderVersionInfo()
 {
 #if defined(REPLAY_VIEWER_DESKTOP) || defined(TARGET_EMSCRIPTEN)
-    char currentVersion[256] = "RELEASE" "  " "1.07";
+    char currentVersion[256] = "RELEASE" "  " "1.13";
 #elif defined(SILO_PRACTICE)
     char currentVersion[256] = "BETA" "  " "1.0";
 #else

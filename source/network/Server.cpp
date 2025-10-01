@@ -937,6 +937,7 @@ void Server::RegisterNewTeam ( int clientId, int _teamType )
     // Or is this an unusual game mode?
     // Only affects this client if they are themselves a demo
 
+#ifndef SILO_PRACTICE
     if( _teamType != Team::TypeAI &&
         Authentication_IsDemoKey( sToC->m_authKey ) )
     {
@@ -964,6 +965,7 @@ void Server::RegisterNewTeam ( int clientId, int _teamType )
             return;
         }
     }
+#endif
 
 
     //
@@ -2602,6 +2604,7 @@ void Server::AuthenticateClient ( int _clientId )
     // Or is this an unusual game mode?
     // Only affects this client if they are themselves a demo
 
+#ifndef SILO_PRACTICE
     if( Authentication_IsDemoKey( client->m_authKey ) )
     {
         int numDemoTeams = GetNumDemoTeams();
@@ -2638,6 +2641,7 @@ void Server::AuthenticateClient ( int _clientId )
             return;
         }
     }
+#endif
 
 
     //
