@@ -442,18 +442,22 @@ async function displayResourcesRecentReleases() {
     const container = document.querySelector('.dedcon-build-container');
     if (!container) return;
 
-    const latestResourcesPerPlatform = [];
-    const seenPlatforms = new Set();
-    
     const sortedResources = resources
       .filter(resource => resource.platform && resource.platform !== 'NULL')
       .sort((a, b) => new Date(b.date) - new Date(a.date));
     
+    const resourcesByPlatform = {};
     for (const resource of sortedResources) {
-      if (!seenPlatforms.has(resource.platform)) {
-        latestResourcesPerPlatform.push(resource);
-        seenPlatforms.add(resource.platform);
+      if (!resourcesByPlatform[resource.platform]) {
+        resourcesByPlatform[resource.platform] = [];
       }
+      resourcesByPlatform[resource.platform].push(resource);
+    }
+    
+    const latestResourcesPerPlatform = [];
+    for (const platform in resourcesByPlatform) {
+      const platformResources = resourcesByPlatform[platform].slice(0, 3);
+      latestResourcesPerPlatform.push(...platformResources);
     }
     
     const recentResources = latestResourcesPerPlatform;
