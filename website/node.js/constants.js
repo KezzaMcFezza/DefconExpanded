@@ -19,6 +19,8 @@ const nodemailer = require('nodemailer');
 const rootDir = path.join(__dirname, '..');
 const publicDir = path.join(rootDir, 'public');
 const demoDir = path.join(rootDir, 'demo_recordings');
+const replayViewerDir = path.join(rootDir, 'replay_viewer');
+const syncPracticeDir = path.join(rootDir, 'sync_practice');
 const resourcesDir = path.join(publicDir, 'Files');
 const dedconBuildsDir = path.join(publicDir, 'Files');
 const replayBuildsDir = path.join(publicDir, 'Files');
@@ -165,6 +167,8 @@ module.exports = {
     storage,
     upload,
     rootDir,
+    replayViewerDir,
+    syncPracticeDir,
     publicDir,
     gameLogsDir
 };
