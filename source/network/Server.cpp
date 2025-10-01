@@ -161,13 +161,37 @@ bool Server::Initialise()
     m_outboxMutex = new NetMutex();
 
 #ifdef TARGET_EMSCRIPTEN
-
-    //
-    // For WebAssembly, create a fake local server that doesn't use networking
     
-    m_listener = new NetSocketListener(ourPort);
+#ifdef EMSCRIPTEN_NETWORK_TESTBED
+    AppDebugOut("SERVER: Starting local server (networking disabled)\n");
+#endif
+    
+    //
+    // create a fake listener that doesn't actually bind to anything
 
-    // We dont call bind() here as it will fail in WASM
+    m_listener = new NetSocketListener(ourPort);
+    
+#ifdef EMSCRIPTEN_NETWORK_TESTBED
+    AppDebugOut("SERVER: Local server started on fake port %d\n", ourPort);
+#endif
+    
+    //
+    // pre create a fake client registration
+    // this simulates the client connecting to the server
+
+    ServerToClient *newClient = new ServerToClient("127.0.0.1", 5011, m_listener);
+    newClient->m_clientId = 1;
+    strcpy(newClient->m_version, APP_VERSION);
+    newClient->m_authKeyId = 1;
+    strcpy(newClient->m_authKey, "WEBASSEMBLY-LOCAL-FULL-KEY");
+    newClient->m_basicAuthCheck = 1;
+    newClient->m_spectator = false;
+    
+    m_clients.PutData(newClient, 1);
+    
+#ifdef EMSCRIPTEN_NETWORK_TESTBED
+    AppDebugOut("SERVER: Server registered fake client with ID %d\n", newClient->m_clientId);
+#endif
     
     return true;
 #else
