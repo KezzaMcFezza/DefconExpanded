@@ -961,7 +961,7 @@ void Server::RegisterNewTeam ( int clientId, int _teamType )
     // Or is this an unusual game mode?
     // Only affects this client if they are themselves a demo
 
-#ifndef SILO_PRACTICE
+#ifndef SYNC_PRACTICE
     if( _teamType != Team::TypeAI &&
         Authentication_IsDemoKey( sToC->m_authKey ) )
     {
@@ -1947,7 +1947,7 @@ void Server::Advance()
             
             if( m_recordingPlaybackMode && clientId != -1 )
             {
-#ifndef SILO_PRACTICE
+#ifndef SYNC_PRACTICE
                 ForceSpectatorMode( clientId );
 #endif
             }
@@ -1985,7 +1985,7 @@ void Server::Advance()
             {
                 if( m_recordingPlaybackMode )
                 {
-#ifndef SILO_PRACTICE
+#ifndef SYNC_PRACTICE
                     ForceSpectatorMode( clientId );
 #endif
                 }
@@ -2204,7 +2204,7 @@ void Server::Advance()
 void Server::Advertise()
 {
 
-#ifdef SILO_PRACTICE
+#ifdef SYNC_PRACTICE
     return;
 #endif
     // Dont advertise the server to prevent external clients from messing up the RNG state
@@ -2628,7 +2628,7 @@ void Server::AuthenticateClient ( int _clientId )
     // Or is this an unusual game mode?
     // Only affects this client if they are themselves a demo
 
-#ifndef SILO_PRACTICE
+#ifndef SYNC_PRACTICE
     if( Authentication_IsDemoKey( client->m_authKey ) )
     {
         int numDemoTeams = GetNumDemoTeams();

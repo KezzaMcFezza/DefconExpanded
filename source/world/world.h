@@ -31,7 +31,7 @@ class ChatMessage;
 class Spectator;
 struct CityLocation;
 
-#if SILO_PRACTICE
+#if SYNC_PRACTICE
 #define MAX_TEAMS				2
 #else
 #define MAX_TEAMS				7

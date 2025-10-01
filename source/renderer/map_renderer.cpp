@@ -100,7 +100,7 @@ MapRenderer::MapRenderer()
 	m_drawingPlanningTime(0.0f),
 	m_longitudePlanningOld(0.0f),
 	m_latitudePlanningOld(0.0f),
-#ifdef SILO_PRACTICE
+#ifdef SYNC_PRACTICE
 	m_3DGlobeMode(false),
 	m_nukeTravelTimeEnabled(false),
 	m_nukeTravelTargetLongitude(0),
@@ -191,7 +191,7 @@ void MapRenderer::Reset()
     delete m_tooltip;
     m_tooltip = NULL;
     
-#ifdef SILO_PRACTICE
+#ifdef SYNC_PRACTICE
     m_nukeTravelTimeEnabled = false;
     m_nukeTravelTargetLongitude = 0;
     m_nukeTravelTargetLatitude = 0;
@@ -328,7 +328,7 @@ void MapRenderer::Render()
 
         RenderObjects();
         RenderCities();
-#ifdef SILO_PRACTICE
+#ifdef SYNC_PRACTICE
         RenderNukeSyncTarget();
         RenderSyncOverlay();
 #endif
@@ -1514,7 +1514,7 @@ void MapRenderer::RenderEnemyObjectDetails( WorldObject *wobj, float *boxX, floa
 	g_renderer->SetFont();
 }
 
-#ifdef SILO_PRACTICE
+#ifdef SYNC_PRACTICE
 
 //
 // render the cursor target for the silo targetting system
@@ -4020,7 +4020,7 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY )
 
 void MapRenderer::Update()
 {
-#ifdef SILO_PRACTICE
+#ifdef SYNC_PRACTICE
     //
     // check if all silos have been launched and reset the sync system
     
@@ -4118,7 +4118,7 @@ void MapRenderer::Update()
 #ifndef NON_PLAYABLE
     if( g_app->GetWorld()->GetTimeScaleFactor() > 0 && !m_lockCommands)
     {
-#ifdef SILO_PRACTICE
+#ifdef SYNC_PRACTICE
         //
         // double click detection for the silo targetting system
         
@@ -4639,7 +4639,7 @@ void MapRenderer::SetCurrentSelectionId( int id )
     }
 }
 
-#ifdef SILO_PRACTICE
+#ifdef SYNC_PRACTICE
 
 Fixed MapRenderer::GetCachedFlightTime(int objectId)
 {

@@ -706,7 +706,7 @@ void Hash( hash_context &c, const Fixed &f )
        Hash(c, f.DoubleValue() );
 }
 
-#ifndef SILO_PRACTICE
+#ifndef SYNC_PRACTICE
 unsigned char GenerateSyncValue()
 {
     START_PROFILE( "GenerateSyncValue" );
@@ -854,13 +854,13 @@ void EmscriptenMainLoop()
                     float timeToAdd = SERVER_ADVANCE_PERIOD.DoubleValue();
                     if( !g_app->m_gameRunning ) timeToAdd *= 5.0f;
                     
-                    // NEW: Apply recording fast-forward speed multiplier
+#if RECORDING_PARSING
                     if( g_app->GetServer()->IsRecordingPlaybackMode() )
                     {
                         float speedMultiplier = g_app->GetServer()->GetRecordingAdvanceSpeedMultiplier();
                         timeToAdd /= speedMultiplier;
                     }
-                    
+#endif                 
                     g_nextServerAdvanceTime += timeToAdd;
                     if (timeNow > g_nextServerAdvanceTime)
                     {
@@ -973,7 +973,7 @@ void EmscriptenMainLoop()
                         g_app->GetClientToServer()->m_resynchronising = -1.0f;
                     }
 
-#ifndef SILO_PRACTICE
+#ifndef SYNC_PRACTICE
                     unsigned char sync = GenerateSyncValue();
 #else
                     unsigned char sync = 0;
@@ -1315,7 +1315,7 @@ void DefconMain()
                             g_app->GetClientToServer()->m_resynchronising = -1.0f;
                         }
 
-#ifndef SILO_PRACTICE
+#ifndef SYNC_PRACTICE
                         unsigned char sync = GenerateSyncValue();
 #else
                         unsigned char sync = 0;

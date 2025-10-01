@@ -59,7 +59,7 @@
 #include "interface/recording_selection.h"
 #endif
 
-#ifdef SILO_PRACTICE
+#ifdef SYNC_PRACTICE
 #include "interface/lobby_window.h"
 #include "interface/chat_window.h"
 #endif
@@ -439,17 +439,7 @@ void App::FinishInit()
     InitMetaServer();
     if (EclGetWindows()->Size() == 0)
     {
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-
-        //
-        // Skip main menu and open recording selection window directly
-
-        RecordingSelectionWindow *recordingWindow = new RecordingSelectionWindow();
-        EclRegisterWindow(recordingWindow);
-#ifdef EMSCRIPTEN_DEBUG
-        AppDebugOut("Opened recording selection window directly and skipped main menu)\n");
-#endif
-#elif defined(SILO_PRACTICE)
+#if defined(SYNC_PRACTICE)
 
         //
         // Skip main menu and open lobby window directly
@@ -471,7 +461,16 @@ void App::FinishInit()
             lobby->SetPosition(lobbyX, lobbyY);
             EclRegisterWindow( lobby );
         }
+#elif defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
 
+        //
+        // Skip main menu and open recording selection window directly
+
+        RecordingSelectionWindow *recordingWindow = new RecordingSelectionWindow();
+        EclRegisterWindow(recordingWindow);
+#ifdef EMSCRIPTEN_DEBUG
+        AppDebugOut("Opened recording selection window directly and skipped main menu)\n");
+#endif
 #else
         m_interface->OpenSetupWindows();
 #endif

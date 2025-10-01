@@ -1195,7 +1195,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
 {
     if( teamId == -1 ) return false;
 
-#if SILO_PRACTICE
+#if SYNC_PRACTICE
     switch( objectType )
     {
         case WorldObject::TypeSilo:      

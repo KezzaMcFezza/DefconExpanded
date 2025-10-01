@@ -20,7 +20,7 @@
     <LocalDebuggerWorkingDirectory>$(ProjectDir)/Defcon Result/Release</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Silo Practice|Win32'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|Win32'">
     <LocalDebuggerWorkingDirectory>$(ProjectDir)/Defcon Result/Release</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
@@ -32,8 +32,8 @@
     <LocalDebuggerWorkingDirectory>$(ProjectDir)/Defcon Result/Release</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Silo Practice|x64'">
-    <LocalDebuggerWorkingDirectory>$(ProjectDir)/Defcon Result/Release SyncPrac</LocalDebuggerWorkingDirectory>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|x64'">
+    <LocalDebuggerWorkingDirectory>$(ProjectDir)/Defcon Result/Release Sync Practice</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Endgame|x64'">

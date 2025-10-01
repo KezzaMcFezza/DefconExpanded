@@ -338,7 +338,7 @@ void Interface::Update()
 
         OpenReplayViewerWindow();
 
-#elif defined(SILO_PRACTICE)
+#elif defined(SYNC_PRACTICE)
 
         //
         // Skip main menu and open lobby window directly

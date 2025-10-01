@@ -377,7 +377,7 @@ void Nuke::LockTarget()
     m_targetLocked = true;
 }
 
-#ifdef SILO_PRACTICE
+#ifdef SYNC_PRACTICE
 
 //
 // my best attempt at simulating the nuke trajectory to determine accurate travel time

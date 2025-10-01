@@ -158,7 +158,7 @@ void LobbyRenderer::Render()
     g_renderer->EndEclipseRectFillBatch();
     g_renderer->EndEclipseRectBatch();
 
-#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN) && !defined(SILO_PRACTICE)
+#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN) && !defined(SYNC_PRACTICE)
 
     START_PROFILE( "AuthStatus" );
     RenderAuthStatus();
@@ -469,10 +469,10 @@ void LobbyRenderer::RenderBorder()
 
 void LobbyRenderer::RenderVersionInfo()
 {
-#if defined(REPLAY_VIEWER_DESKTOP) || defined(TARGET_EMSCRIPTEN)
-    char currentVersion[256] = "RELEASE" "  " "1.13";
-#elif defined(SILO_PRACTICE)
+#if defined(SYNC_PRACTICE)
     char currentVersion[256] = "BETA" "  " "1.0";
+#elif defined(REPLAY_VIEWER_DESKTOP) || defined(TARGET_EMSCRIPTEN)
+    char currentVersion[256] = "RELEASE" "  " "1.13";
 #else
     char currentVersion[256] = APP_NAME "  " APP_VERSION;
 #endif
@@ -486,10 +486,10 @@ void LobbyRenderer::RenderVersionInfo()
     g_renderer->SetFont( "kremlin" );
 
     g_renderer->TextSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_version") );
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER_DESKTOP)
-    g_renderer->TextSimple( xPos + 160, yPos, fontNormal, 20, currentVersion );
-#elif defined(SILO_PRACTICE)
+#if defined(SYNC_PRACTICE)
     g_renderer->TextSimple( xPos + 220, yPos, fontNormal, 20, currentVersion );
+#elif defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER_DESKTOP)
+    g_renderer->TextSimple( xPos + 160, yPos, fontNormal, 20, currentVersion );
 #else
     g_renderer->TextSimple( xPos + 100, yPos, fontNormal, 20, currentVersion );
 #endif
@@ -566,7 +566,7 @@ void LobbyRenderer::RenderVersionInfo()
     } 
 }
 
-#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN) && !defined(SILO_PRACTICE)
+#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN) && !defined(SYNC_PRACTICE)
 void LobbyRenderer::RenderAuthStatus()
 {
     Colour fontBold( 0, 255, 0, 255 );

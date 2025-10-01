@@ -92,7 +92,7 @@ void SidePanel::Create()
 
     UnitPlacementButton *airbase = new UnitPlacementButton(WorldObject::TypeAirBase);
     airbase->SetProperties( "AirBase", x, y+150, 48, 48, "", "tooltip_place_airbase", false, true );
-#if SILO_PRACTICE
+#if SYNC_PRACTICE
     airbase->m_disabled = true;
 #endif
     RegisterButton( airbase );
@@ -100,7 +100,7 @@ void SidePanel::Create()
     PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
     fmb->SetProperties( "FleetMode", x, y+220, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
     strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
-#if SILO_PRACTICE
+#if SYNC_PRACTICE
     fmb->m_disabled = true;
 #endif
     RegisterButton( fmb );
@@ -276,7 +276,7 @@ void SidePanel::ChangeMode( int mode )
 
         UnitPlacementButton *airbase = new UnitPlacementButton(WorldObject::TypeAirBase);
         airbase->SetProperties( "AirBase", x, y+150, 48, 48, "", "tooltip_place_airbase", false, true );
-#if SILO_PRACTICE
+#if SYNC_PRACTICE
         airbase->m_disabled = true;
 #endif
         RegisterButton( airbase );
@@ -290,7 +290,7 @@ void SidePanel::ChangeMode( int mode )
         PanelModeButton *fmb = new PanelModeButton( ModeFleetPlacement, true );
         fmb->SetProperties( "FleetMode", x, y+220, 48, 48, "dialog_fleets", "tooltip_fleet_button", true, true );
         strcpy( fmb->bmpImageFilename, "graphics/fleet.bmp" );
-#if SILO_PRACTICE
+#if SYNC_PRACTICE
         fmb->m_disabled = true;
 #else
         if( shipsRemaining == 0 )
@@ -384,7 +384,7 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
         m_disabled = false;
     }
 
-#if SILO_PRACTICE
+#if SYNC_PRACTICE
     if( m_unitType == WorldObject::TypeAirBase )
     {
         m_disabled = true;
@@ -424,7 +424,7 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
 	}
     else
     {
-#if !SILO_PRACTICE
+#if !SYNC_PRACTICE
         m_disabled = false;
 #else
         if( m_unitType != WorldObject::TypeAirBase )
@@ -542,7 +542,7 @@ void PanelModeButton::Render(int realX, int realY, bool highlighted, bool clicke
 #ifndef NON_PLAYABLE
     SidePanel *parent = (SidePanel *)m_parent;
 
-#if SILO_PRACTICE
+#if SYNC_PRACTICE
     if( m_mode == SidePanel::ModeFleetPlacement )
     {
         m_disabled = true;

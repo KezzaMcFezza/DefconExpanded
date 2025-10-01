@@ -452,7 +452,7 @@ void Team::PlacementAI()
         int x = 0;
         if( createFleet )
         {
-#if SILO_PRACTICE
+#if SYNC_PRACTICE
             return;
 #endif
             // set up a new fleet    
@@ -591,7 +591,7 @@ void Team::PlacementAI()
             }
             else if( objectPriority == WorldObject::TypeAirBase )
             {
-#if SILO_PRACTICE
+#if SYNC_PRACTICE
                 m_unitsAvailable[objectPriority] = 0;
                 return;
 #endif

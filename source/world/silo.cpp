@@ -37,7 +37,7 @@ Silo::Silo()
     m_maxLife = 25; // new variable for the health bar system
 
     m_nukeSupply = 10;
-#ifdef SILO_PRACTICE
+#ifdef SYNC_PRACTICE
     AddState( LANGUAGEPHRASE("state_silonuke"), 120, 120, 10, Fixed::MAX, true, 10, 5 );   
 #else
     AddState( LANGUAGEPHRASE("state_silonuke"), 120, 120, 10, Fixed::MAX, true, 10, 1 );  
@@ -60,7 +60,7 @@ void Silo::Action( int targetObjectId, Fixed longitude, Fixed latitude )
         {
             g_app->GetWorld()->LaunchNuke( m_teamId, m_objectId, longitude, latitude, 360 );
             m_numNukesLaunched++;
-#ifdef SILO_PRACTICE
+#ifdef SYNC_PRACTICE
             g_app->GetMapRenderer()->RecordSiloLaunch(m_objectId);
 #endif
             for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
