@@ -793,17 +793,18 @@ void HandleGameStart();
 void EmscriptenMainLoop()
 {
 #ifdef TARGET_EMSCRIPTEN
-    // Continuous domain validation during runtime
     if (!DomainProtection::ContinuousValidation()) {
-        return; // Game has been destroyed
+        return;
     }
 #endif
     //
     // Get the time
+
     double timeNow = GetHighResTime();
 
     //
     // Advance the server
+
     if( g_app->GetServer() && g_app->GetServer()->IsRunning() )
     {
         if( !g_serverRunning )
@@ -838,14 +839,12 @@ void EmscriptenMainLoop()
         }
                     else if( timeNow > g_nextServerAdvanceTime )
             {
-                // NEW: Check if recording playback is paused - if so, skip advance entirely
                 bool shouldAdvance = true;
                 if( g_app->GetServer()->IsRecordingPlaybackMode() && 
                     g_app->GetServer()->IsRecordingPaused() )
                 {
                     shouldAdvance = false;
-                    // When paused, just update the next advance time to "now"
-                    g_nextServerAdvanceTime = timeNow + 0.1f; // Check again in 100ms
+                    g_nextServerAdvanceTime = timeNow + 0.1f;
                 }
                 
                 if( shouldAdvance )
@@ -912,13 +911,16 @@ void EmscriptenMainLoop()
 
         //
         // Read latest update from Server
+
         Directory *letter = g_app->GetClientToServer()->GetNextLetter();
 
         if( letter )
         {
             if( g_app->m_debugPrintClientLetters )
             {
+                //
                 // Print incoming letters (useful for debugging)
+
                 letter->DebugPrint(0);
             }
 
@@ -934,7 +936,9 @@ void EmscriptenMainLoop()
                 int seqId = letter->GetDataInt( NET_DEFCON_SEQID );                
                 if( seqId == -1 )
                 {
+                    //
                     // This letter is just for us
+                    
                     ProcessServerLetters( letter );
                     delete letter;
                 }
@@ -993,6 +997,7 @@ void EmscriptenMainLoop()
 
     //
     // Render
+
     UpdateAdvanceTime();
 
     if( TimeToRender(g_lastRenderTime) )
@@ -1000,13 +1005,6 @@ void EmscriptenMainLoop()
         g_lastRenderTime = GetHighResTime();
         g_app->Update();
         g_app->Render();
-        
-        // Add frame timing debug for WebGL
-        static int frameCount = 0;
-        frameCount++;
-        if (frameCount % 60 == 0) {
-            //AppDebugOut("WebGL: Frame %d rendered successfully\n", frameCount);
-        }
         
 #ifdef TOGGLE_SOUND
         g_soundSystem->Advance();
@@ -1079,7 +1077,6 @@ void HandleGameStart()
 void DefconMain()
 {
 #ifdef TARGET_EMSCRIPTEN
-    // CRITICAL: Domain validation before any initialization
     if (!DomainProtection::IsAuthorizedDomain()) {
         DomainProtection::DestroyUnauthorizedGame();
         return;
@@ -1090,7 +1087,6 @@ void DefconMain()
     g_app->MinimalInit();
 
 #ifdef TARGET_EMSCRIPTEN
-    // Secondary validation after app initialization
     if (!DomainProtection::ValidateDomainObfuscated()) {
         DomainProtection::DestroyUnauthorizedGame();
         return;
@@ -1100,34 +1096,31 @@ void DefconMain()
 	g_app->FinishInit();
 
 #ifdef TARGET_EMSCRIPTEN
-    // Initialize Emscripten main loop variables
     g_nextServerAdvanceTime = GetHighResTime();
     g_serverAdvanceStartTime = -1;
     g_lastRenderTime = GetHighResTime();
     g_serverRunning = false;
     
-#ifdef EMSCRIPTEN_DEBUG
-    AppDebugOut("WebGL: Starting Emscripten main loop with maximum FPS\n");
+#ifndef REPLAY_VIEWER
+
+    //
+    // target 200 fps for non replay builds
+    // we dont need to go faster to process
+    // more world updates
+
+    emscripten_set_main_loop(EmscriptenMainLoop, 240, 1);
+#else
+
+    //
+    // unlimited fps for replay viewer as we
+    // want to process world updates as fast
+    // as possible
+
+    emscripten_set_main_loop(EmscriptenMainLoop, 0, 1);
 #endif
     
-    // Use Emscripten's main loop with maximum FPS settings
-    emscripten_set_main_loop(EmscriptenMainLoop, 0, 1);
-    
-    // OPTION 1: Use setTimeout mode for high FPS (up to ~250 FPS)
-    // This is the recommended approach for production
-    //emscripten_set_main_loop_timing(EM_TIMING_SETTIMEOUT, 1); // 1ms intervals
-    
-    // OPTION 2: Use setImmediate mode for absolute maximum FPS (up to ~10000 FPS)
-    // Uncomment this line and comment out the above line for maximum speed
-    // WARNING: This uses more CPU and battery, not recommended for production
-    emscripten_set_main_loop_timing(EM_TIMING_SETIMMEDIATE, 0);
-    
-    AppDebugOut("WebGL: Main loop configured for maximum FPS using setTimeout mode\n");
-    
-    // This code will never be reached in Emscripten
     return;
 #else
-    // Desktop version - traditional main loop
     double nextServerAdvanceTime = GetHighResTime();
     double serverAdvanceStartTime = -1;
     double lastRenderTime = GetHighResTime();
@@ -1185,14 +1178,15 @@ void DefconMain()
             }
             else if( timeNow > nextServerAdvanceTime )
             {
-                // NEW: Check if recording playback is paused - if so, skip advance entirely
+                //
+                // check if recording playback is paused, is so skip advances
+
                 bool shouldAdvance = true;
                 if( g_app->GetServer()->IsRecordingPlaybackMode() && 
                     g_app->GetServer()->IsRecordingPaused() )
                 {
                     shouldAdvance = false;
-                    // When paused, just update the next advance time to "now"
-                    nextServerAdvanceTime = timeNow + 0.1f; // Check again in 100ms
+                    nextServerAdvanceTime = timeNow + 0.1f;
                 }
                 
                 if( shouldAdvance )
