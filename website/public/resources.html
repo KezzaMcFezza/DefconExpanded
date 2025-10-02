@@ -94,7 +94,65 @@
       margin-left: 0 !important;
     }
   }
-</style>
+
+  .build-type-section {
+    margin-bottom: 1rem;
+  }
+
+  .build-type-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .build-cover-image {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    margin-top: 1.5rem;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .build-cover-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .build-description {
+    color: #b8b8b8;
+    font-size: 0.95rem;
+    margin: 0 0 1.5rem 0;
+    padding: 0 0.5rem;
+    line-height: 1.6;
+  }
+
+  .dedcon-accordion-header[data-build-type] {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .dedcon-accordion-header[data-build-type] h3 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .sync-practice-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background-color: rgb(0 0 0 / 32%);
+    padding: 1.0rem;
+    border-radius: 8px;
+    text-align: center;
+    display: flex;
+    backdrop-filter: blur(5px);
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .build-cover-image {
+    position: relative;
+  }</style>
 
 <body class="hide-scrollbar">
   <div id="sidebar">
@@ -106,7 +164,7 @@
       <li><a href="/about" id="nav-about"><img src="/images/abouticon.png" alt="About" class="steam-logo"
             style="margin-right: 10px; width: 19px;">About</a></li>
       <li><a href="/resources" id="nav-resources"><img src="/images/favicon.png" alt="Expanded Builds"
-                  class="steam-logo" style="margin-right: 10px; width: 19px;">Expanded Builds</a></li>
+                  class="steam-logo" style="margin-right: 10px; width: 19px;">Custom Defcon</a></li>
       <li><a href="/replay-viewer" id="nav-replay-viewer"><img src="/images/icon3expanded.png" alt="Replay Viewer"
                   class="steam-logo" style="margin-right: 10px; width: 19px;">Replay Viewer</a></li>
       <li><a href="/dedcon-builds" id="nav-dedcon-builds"><img src="/images/dedcon.png" alt="Steam" class="steam-logo"
@@ -198,31 +256,28 @@
         <div class="dedcon-info-bar">
           <h1 class="dedcon-title">DefconExpanded Builds</h1>
           <p class="dedcon-description">
-            Welcome to our collection of modded DEFCON builds! Here you can download these versions of DEFCON that support 8, 10, and 16 player matches.
+            Welcome to our collection of modded DEFCON builds! This page contains all of the custom DEFCON clients that
+            we have made for the community.
             <br>
             <br>
-            These Builds are closely based off <a href="http://minicom.simamo.de/" target="_blank" class="alinks" style="font-size: unset !important;">MINICOM</a>, a community fixed and expanded upon version of DEFCON created by Bert_the_turtle. These builds include the following features:
-            <ul>
-              <li>16 Player limit, instead of the original 6</li>
-              <li>Includes map mods that contain 7-16 player configurations</li>
-              <li>Better modding support</li>
-              <li>A ton of new game options to play around with</li>
-              <li>Empty bomber launch feature</li>
-            </ul>
+            The 
+            <mark style="border-radius: 3px; background-color: rgb(0 183 255); font-weight: bold; padding: 2px 4px;">Sync Practice Client</mark> is now available, as a beta release!
+            <br>
             </p>
           <p class="dedcon-description">
-            The most recent releases support MacOS and Linux!
-            <br>
-            <br>
             Special thanks to bert_the_turtle for helping with the cross-platform development, 
             making it possible for everyone to enjoy these modded builds regardless of their platform.
+            <br>
+            <br>
+            MacOS and Linux builds are supported and always in the works for these builds, 
+            getting Mac builds to work is tricky since its a small part of the DEFCON community.
             <br>
             <br>
             If you get a virus warning on Windows builds, temporarily disable Windows Defender as these builds aren't digitally signed.
             Check out our installation guide below if you are struggling.
             <br>
             <br>
-            These modded builds also support Dedcon so you can host your own servers!
+            The 8-16 player builds also support Dedcon so you can host your own servers!
           </p>
           <div class="dedcon-links">
             <a href="https://youtu.be/jkreFpXcx7w" class="dedcon-link" target="_blank">Installation Tutorial <i class="fas fa-external-link-alt"></i></a>
@@ -236,11 +291,6 @@
           <h3 class="recording-sections-title">Windows Users</h3>
           <p class="pabout2" style="text-align: left; font-size: 0.95rem;">
             If you get a virus warning, temporarily disable Windows Defender. These builds aren't digitally signed so they may trigger false positives.
-            Use the installer for easiest setup, or extract manually to your DEFCON directory.
-            <br><br>
-            <a href="/DEFCONExpandedInstaller.exe" class="btn-download">
-              Download Windows Installer
-            </a>
           </p>
           <br>
           
@@ -260,17 +310,65 @@
         <div class="dedcon-main-content">
           <div class="dedcon-card downloads-card">
             <div class="dedcon-card-header">
-              <h2 class="dedcon-card-title">Recent Releases</h2>
+              <h2 class="dedcon-card-title">Available Builds</h2>
             </div>
-            <div class="dedcon-build-container">
-            </div>
-          </div>
 
-          <div class="dedcon-card beta-card">
-            <div class="dedcon-card-header">
-              <h2 class="dedcon-card-title">Version History</h2>
+            <div class="build-type-section">
+              <div class="dedcon-accordion">
+                <div class="dedcon-accordion-header active" data-build-type="sync-practice">
+                  <h3>Sync Practice Client</h3>
+                  <span class="dedcon-toggle-icon">−</span>
+                </div>
+                <div class="dedcon-accordion-content" style="max-height: 1000px;">
+                  <div class="build-cover-image">
+                    <img src="/images/syncpracticebuildcover.png" alt="Sync Practice Client" />
+                    <div class="sync-practice-button">
+                        <p class="pabout2" style="text-align: left; font-size: 0.95rem; margin: 0; padding: 0 0 10px 0;">Try the online version!</p>
+                        <a class="download-btn-demo" href="/sync-practice" target="_blank" style="border: none; margin: 0;max-width: 200px;"><i class="fas fa-play"></i> Start Sync Practice</a>
+                    </div>
+                  </div>
+                  <p class="build-description">
+                    A guided practice mode that shows you which silos to launch and what order, and the timing of each launch.
+                    <br>
+                    Currently extremely simple and only handles 1 nuke at a time, down the line full launch sequences will be added!
+                    <br>
+                    <br>
+                    All you have to do is double click anywhere on the map and your silos will calculate the best launch pattern.
+                  </p>
+                  <div class="sync-practice-build-container">
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="dedcon-beta-container">
+
+            <div class="build-type-section">
+              <div class="dedcon-accordion">
+                <div class="dedcon-accordion-header" data-build-type="8-16-player">
+                  <h3>8-16 Player Clients</h3>
+                  <span class="dedcon-toggle-icon">+</span>
+                </div>
+                <div class="dedcon-accordion-content">
+                  <div class="build-cover-image">
+                    <img src="/images/cpuscreen.jpg" alt="8 Player Build" />
+                  </div>
+                  <p class="build-description">
+                    These Builds are closely based off <a href="http://minicom.simamo.de/" target="_blank" class="alinks" style="font-size: unset !important;">MINICOM</a>, a community fixed and expanded upon version of DEFCON created by bert_the_turtle. These builds include the following features:
+                    <br>
+                    <br>
+                      - Upto 16 Players, instead of the original 6
+                    <br>
+                      - Includes map mods that contain 7-16 player configurations
+                    <br>
+                      - Empty bomber launch, launch bombers without a nuke
+                    <br>
+                      - Better modding support, customizable unit stats
+                    <br>
+                      - A ton of new game options to play around with
+                  </p>
+                  <div class="dedcon-build-container">
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -287,13 +385,11 @@
                 </div>
                 <div class="dedcon-accordion-content">
                   <p class="pabout2" style="text-align: left; font-size: 17px;">
-                    <strong>Method 1 - Installer (Recommended):</strong><br>
-                    Download and run the .exe installer. It will automatically install the modded build and replace your original DEFCON installation.
-                    <br><br>
-                    <strong>Method 2 - Manual Installation:</strong><br>
+                    <strong>Manual Installation:</strong><br>
                     1. Download the .zip file<br>
                     2. Extract to your DEFCON installation directory (usually in C:/Steam/steamapps/common/DEFCON/)<br>
-                    3. Overwrite existing files when prompted<br>
+                    3. Or create a new folder and copy all your steam defcon files into it<br>
+                    4. Overwrite existing files when prompted<br>
                     <br>
                     <strong>Note:</strong> You may need to temporarily disable Windows Defender to avoid false virus warnings.
                   </p>
@@ -360,6 +456,16 @@
           if (content.style.maxHeight) {
             content.style.maxHeight = null;
           } else {
+            content.style.maxHeight = content.scrollHeight + "px";
+          }
+        });
+      });
+
+      window.addEventListener('buildsLoaded', function() {
+        const activeAccordions = document.querySelectorAll('.dedcon-accordion-header.active');
+        activeAccordions.forEach(accordion => {
+          const content = accordion.nextElementSibling;
+          if (content.style.maxHeight) {
             content.style.maxHeight = content.scrollHeight + "px";
           }
         });

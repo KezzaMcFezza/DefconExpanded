@@ -48,6 +48,74 @@
     #sidebar .list-items li a i {
         margin-right: 0.7rem !important;
     }
+
+    input[type="text"] {
+        width: 10%;
+        padding: 8px;
+        border: 1px solid #444;
+        background-color: #1c1c2e;
+        color: #fff;
+    }
+
+    input[type="date"] {
+        width: 10%;
+        padding: 8px;
+        border: 1px solid #444;
+        background-color: #1c1c2e;
+        color: #fff;
+    }
+
+    select {
+        width: 10%;
+        padding: 8px;
+        border: 1px solid #444;
+        background-color: #1c1c2e;
+        color: #fff;
+    }
+
+    #admin-content form {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #admin-content input[type="text"],
+    #admin-content input[type="date"],
+    #admin-content select {
+        background-color: #1c1c2e;
+        border: 1px solid #333;
+        color: #fff;
+        width: 200px;
+        padding: 0.5rem;
+        margin-bottom: 10px;
+        border-radius: 5px;
+    }
+
+    #admin-content input[type="file"] {
+        margin-bottom: 10px;
+    }
+
+    #admin-content input[type="text"],
+    #admin-content input[type="file"],
+    #admin-content input[type="number"] {
+        width: 200px;
+    }
+
+    #admin-content button {
+        background-color: #0067b8;
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin-top: 10px;
+    }
+
+    #admin-content button:hover {
+        background-color: #3a8ad6;
+    }
 </style>
 
 <body class="hide-scrollbar">
@@ -100,56 +168,34 @@
 
             <div id="admin-content">
                 <div id="resource-management" class="section">
-                    <h2 data-permission="RESOURCE_ADD">Windows Builds</h2>
-                    <form id="upload-windows-resource" enctype="multipart/form-data" data-permission="RESOURCE_ADD">
-                        <input type="file" name="resourceFile" accept=".zip" required>
-                        <input type="text" name="version" placeholder="Version" required>
+                    <h2 data-permission="RESOURCE_ADD">Upload Build</h2>
+                    <form id="upload-resource" enctype="multipart/form-data" data-permission="RESOURCE_ADD">
+                        <input type="file" name="resourceFile" accept=".zip,.tar,.tar.gz,.tar.bz2" required>
+                        <input type="text" name="version" placeholder="Version (e.g., 2.8.15.1)" required>
                         <input type="date" name="releaseDate" required>
-                        <select name="playerCount" required>
+                        
+                        <select name="platform" required>
+                            <option value="">Select Platform</option>
+                            <option value="windows">Windows</option>
+                            <option value="linux">Linux</option>
+                            <option value="macos-intel">MacOS Intel</option>
+                            <option value="macos-arm64">MacOS ARM64</option>
+                        </select>
+                        
+                        <select name="buildType" id="build-type-select" required>
+                            <option value="">Select Build Type</option>
+                            <option value="8-16-player">8-16 Player Clients</option>
+                            <option value="sync-practice">Sync Practice Client</option>
+                        </select>
+                        
+                        <select name="playerCount" id="player-count-select" style="display: none;">
+                            <option value="">Select Player Count</option>
                             <option value="8">8 Players</option>
                             <option value="10">10 Players</option>
                             <option value="16">16 Players</option>
                         </select>
-                        <button type="submit">Upload Windows Resource</button>
-                    </form>
-
-                    <h2 data-permission="RESOURCE_ADD">Linux Builds</h2>
-                    <form id="upload-linux-resource" enctype="multipart/form-data" data-permission="RESOURCE_ADD">
-                        <input type="file" name="resourceFile" accept=".zip" required>
-                        <input type="text" name="version" placeholder="Version" required>
-                        <input type="date" name="releaseDate" required>
-                        <select name="playerCount" required>
-                            <option value="8">8 Players</option>
-                            <option value="10">10 Players</option>
-                            <option value="16">16 Players</option>
-                        </select>
-                        <button type="submit">Upload Linux Resource</button>
-                    </form>
-
-                    <h2 data-permission="RESOURCE_ADD">MacOS Intel Builds</h2>
-                    <form id="upload-macos-intel-resource" enctype="multipart/form-data" data-permission="RESOURCE_ADD">
-                        <input type="file" name="resourceFile" accept=".zip" required>
-                        <input type="text" name="version" placeholder="Version" required>
-                        <input type="date" name="releaseDate" required>
-                        <select name="playerCount" required>
-                            <option value="8">8 Players</option>
-                            <option value="10">10 Players</option>
-                            <option value="16">16 Players</option>
-                        </select>
-                        <button type="submit">Upload MacOS Intel Resource</button>
-                    </form>
-
-                    <h2 data-permission="RESOURCE_ADD">MacOS ARM64 Builds</h2>
-                    <form id="upload-macos-arm64-resource" enctype="multipart/form-data" data-permission="RESOURCE_ADD">
-                        <input type="file" name="resourceFile" accept=".zip" required>
-                        <input type="text" name="version" placeholder="Version" required>
-                        <input type="date" name="releaseDate" required>
-                        <select name="playerCount" required>
-                            <option value="8">8 Players</option>
-                            <option value="10">10 Players</option>
-                            <option value="16">16 Players</option>
-                        </select>
-                        <button type="submit">Upload MacOS ARM64 Resource</button>
+                        
+                        <button type="submit">Upload Build</button>
                     </form>
 
                     <h2>Resource List</h2>
@@ -161,6 +207,8 @@
                                 <th>Release Date</th>
                                 <th>Size</th>
                                 <th>Platform</th>
+                                <th>Build Type</th>
+                                <th>Player Count</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -182,6 +230,16 @@
                             <option value="macos-intel">MacOS Intel</option>
                             <option value="macos-arm64">MacOS ARM64</option>
                         </select>
+                        <select id="edit-resource-build-type" required>
+                            <option value="8-16-player">8-16 Player Clients</option>
+                            <option value="sync-practice">Sync Practice Client</option>
+                        </select>
+                        <select id="edit-resource-player-count">
+                            <option value="">N/A</option>
+                            <option value="8">8 Players</option>
+                            <option value="10">10 Players</option>
+                            <option value="16">16 Players</option>
+                        </select>
                         <button type="submit">Save Changes</button>
                         <button type="button" id="cancel-edit">Cancel</button>
                     </form>
@@ -190,7 +248,37 @@
         </main>
     </div>
     <script>
-
+        document.addEventListener('DOMContentLoaded', function() {
+            const buildTypeSelect = document.getElementById('build-type-select');
+            const playerCountSelect = document.getElementById('player-count-select');
+            
+            if (buildTypeSelect && playerCountSelect) {
+                buildTypeSelect.addEventListener('change', function() {
+                    if (this.value === '8-16-player') {
+                        playerCountSelect.style.display = 'block';
+                        playerCountSelect.required = true;
+                    } else {
+                        playerCountSelect.style.display = 'none';
+                        playerCountSelect.required = false;
+                        playerCountSelect.value = '';
+                    }
+                });
+            }
+            
+            const editBuildTypeSelect = document.getElementById('edit-resource-build-type');
+            const editPlayerCountSelect = document.getElementById('edit-resource-player-count');
+            
+            if (editBuildTypeSelect && editPlayerCountSelect) {
+                editBuildTypeSelect.addEventListener('change', function() {
+                    if (this.value === '8-16-player') {
+                        editPlayerCountSelect.style.display = 'block';
+                    } else {
+                        editPlayerCountSelect.style.display = 'none';
+                        editPlayerCountSelect.value = '';
+                    }
+                });
+            }
+        });
     </script>
 </body>
 

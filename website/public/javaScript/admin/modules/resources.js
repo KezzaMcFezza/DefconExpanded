@@ -70,12 +70,26 @@ const ResourcesModule = (() => {
                 }
             }
 
+            let buildTypeDisplay = resource.build_type || '<span style="color: #ff4444;">Not Set</span>';
+            if (buildTypeDisplay === '8-16-player') {
+                buildTypeDisplay = '8-16 Player Clients';
+            } else if (buildTypeDisplay === 'sync-practice') {
+                buildTypeDisplay = 'Sync Practice Client';
+            }
+
+            let playerCountDisplay = resource.player_count || 'N/A';
+            if (playerCountDisplay && playerCountDisplay !== 'N/A') {
+                playerCountDisplay = playerCountDisplay + ' Players';
+            }
+
             row.innerHTML = `
                 <td>${resource.name}</td>
                 <td>${resource.version || '<span style="color: #ff4444;">Not Set</span>'}</td>
                 <td>${resource.date ? new Date(resource.date).toLocaleDateString() : '<span style="color: #ff4444;">Not Set</span>'}</td>
                 <td>${Utils.formatBytes(resource.size)}</td>
                 <td>${platformDisplay}</td>
+                <td>${buildTypeDisplay}</td>
+                <td>${playerCountDisplay}</td>
                 <td>${actionsHtml}</td>
             `;
         });
@@ -87,14 +101,25 @@ const ResourcesModule = (() => {
         if (!Auth.requirePermission(PERMISSIONS.RESOURCE_ADD, 'upload resources')) return;
         
         const formData = new FormData(event.target);
-        const platform = event.target.id.replace('upload-', '').replace('-resource', '');
-        formData.append('platform', platform);
+        const platform = formData.get('platform');
+        const buildType = formData.get('buildType');
+        
+        if (!platform || !buildType) {
+            await UI.showAlert('Please select both platform and build type');
+            return;
+        }
 
         try {
             await API.post('/api/upload-resource', formData, true);
-            await UI.showAlert(`${platform.charAt(0).toUpperCase() + platform.slice(1)} resource uploaded successfully`);
+            await UI.showAlert('Resource uploaded successfully');
             loadResources();
             event.target.reset();
+            
+            const playerCountSelect = document.getElementById('player-count-select');
+            if (playerCountSelect) {
+                playerCountSelect.style.display = 'none';
+                playerCountSelect.required = false;
+            }
         } catch (error) {
             console.error('Error uploading resource:', error);
             await UI.showAlert('Error uploading resource: ' + error.message);
@@ -106,18 +131,28 @@ const ResourcesModule = (() => {
         
         try {
             const resource = await API.get(`/api/resource/${resourceId}`);
-            
             const idField = document.getElementById('edit-resource-id');
             const nameField = document.getElementById('edit-resource-name');
             const versionField = document.getElementById('edit-resource-version');
             const dateField = document.getElementById('edit-resource-date');
             const platformField = document.getElementById('edit-resource-platform');
+            const buildTypeField = document.getElementById('edit-resource-build-type');
+            const playerCountField = document.getElementById('edit-resource-player-count');
             
             if (idField) idField.value = resource.id;
             if (nameField) nameField.value = resource.name;
             if (versionField) versionField.value = resource.version;
             if (dateField) dateField.value = new Date(resource.date).toISOString().split('T')[0];
             if (platformField) platformField.value = resource.platform;
+            if (buildTypeField) buildTypeField.value = resource.build_type || '8-16-player';
+            if (playerCountField) playerCountField.value = resource.player_count || '';
+            if (playerCountField && buildTypeField) {
+                if (buildTypeField.value === '8-16-player') {
+                    playerCountField.style.display = 'block';
+                } else {
+                    playerCountField.style.display = 'none';
+                }
+            }
             
             UI.showElement('resource-edit');
         } catch (error) {
@@ -136,13 +171,22 @@ const ResourcesModule = (() => {
         const version = document.getElementById('edit-resource-version')?.value;
         const date = document.getElementById('edit-resource-date')?.value;
         const platform = document.getElementById('edit-resource-platform')?.value;
+        const buildType = document.getElementById('edit-resource-build-type')?.value;
+        const playerCount = document.getElementById('edit-resource-player-count')?.value;
         
         if (!resourceId || !name) {
             await UI.showAlert('Resource name is required');
             return;
         }
 
-        const updatedResource = { name, version, date, platform };
+        const updatedResource = { 
+            name, 
+            version, 
+            date, 
+            platform, 
+            build_type: buildType,
+            player_count: playerCount || null
+        };
 
         try {
             await API.put(`/api/resource/${resourceId}`, updatedResource);
@@ -177,26 +221,17 @@ const ResourcesModule = (() => {
     }
 
     function setupEventListeners() {
-        const uploadForms = [
-            document.getElementById('upload-windows-resource'),
-            document.getElementById('upload-linux-resource'),
-            document.getElementById('upload-macos-resource'),
-            document.getElementById('upload-macos-intel-resource'),
-            document.getElementById('upload-macos-arm64-resource')
-        ];
-        
-        uploadForms.forEach(form => {
-            if (form) {
-                form.addEventListener('submit', uploadResource);
-            }
-        });
+        const uploadForm = document.getElementById('upload-resource');
+        if (uploadForm) {
+            uploadForm.addEventListener('submit', uploadResource);
+        }
         
         const editForm = document.getElementById('edit-resource-form');
         if (editForm) {
             editForm.addEventListener('submit', saveEditResource);
         }
         
-        const cancelEditButton = document.getElementById('cancel-edit-resource');
+        const cancelEditButton = document.getElementById('cancel-edit');
         if (cancelEditButton) {
             cancelEditButton.addEventListener('click', cancelEditResource);
         }

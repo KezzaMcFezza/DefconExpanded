@@ -318,7 +318,8 @@
 }
 
 .dedcon-build-container .version-history-table,
-.dedcon-beta-container .version-history-table {
+.dedcon-beta-container .version-history-table,
+.sync-practice-build-container .version-history-table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
@@ -329,12 +330,14 @@
 }
 
 .dedcon-build-container .version-history-table thead,
-.dedcon-beta-container .version-history-table thead {
+.dedcon-beta-container .version-history-table thead,
+.sync-practice-build-container .version-history-table thead {
     background-color: rgba(0, 0, 0, 0.2);
 }
 
 .dedcon-build-container .version-history-table th,
-.dedcon-beta-container .version-history-table th {
+.dedcon-beta-container .version-history-table th,
+.sync-practice-build-container .version-history-table th {
     padding: 12px 16px;
     text-align: left;
     color: #fff;
@@ -346,7 +349,8 @@
 }
 
 .dedcon-build-container .version-history-table td,
-.dedcon-beta-container .version-history-table td {
+.dedcon-beta-container .version-history-table td,
+.sync-practice-build-container .version-history-table td {
     padding: 10px 16px;
     text-align: left;
     font-size: 14px;
@@ -356,7 +360,8 @@
 }
 
 .dedcon-build-container .version-history-table .platform-cell,
-.dedcon-beta-container .version-history-table .platform-cell {
+.dedcon-beta-container .version-history-table .platform-cell,
+.sync-practice-build-container .version-history-table .platform-cell {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -364,13 +369,15 @@
 }
 
 .dedcon-build-container .version-history-table .td2,
-.dedcon-beta-container .version-history-table .td2 {
+.dedcon-beta-container .version-history-table .td2,
+.sync-practice-build-container .version-history-table .td2 {
     color: #fffb00;
     font-weight: 500;
 }
 
 .dedcon-build-container .btn-download,
-.dedcon-beta-container .btn-download {
+.dedcon-beta-container .btn-download,
+.sync-practice-build-container .btn-download {
     padding: 6px 12px;
     font-size: 13px;
     border-radius: 4px;
@@ -385,7 +392,8 @@
 }
 
 .dedcon-build-container .btn-download:hover,
-.dedcon-beta-container .btn-download:hover {
+.dedcon-beta-container .btn-download:hover,
+.sync-practice-build-container .btn-download:hover {
     background-color: #1a86d4;
 }
 

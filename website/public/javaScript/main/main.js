@@ -443,7 +443,11 @@ async function displayResourcesRecentReleases() {
     if (!container) return;
 
     const sortedResources = resources
-      .filter(resource => resource.platform && resource.platform !== 'NULL')
+      .filter(resource => 
+        resource.platform && 
+        resource.platform !== 'NULL' &&
+        resource.build_type === '8-16-player'
+      )
       .sort((a, b) => new Date(b.date) - new Date(a.date));
     
     const resourcesByPlatform = {};
@@ -464,12 +468,42 @@ async function displayResourcesRecentReleases() {
 
     if (recentResources.length === 0) {
       container.innerHTML = '<p style="color: #b8b8b8; text-align: center; padding: 2rem;">No recent releases available.</p>';
+      window.dispatchEvent(new Event('buildsLoaded'));
       return;
     }
 
-    container.innerHTML = createResourceTable(recentResources);
+    container.innerHTML = createResourceTable(recentResources, true);
+    window.dispatchEvent(new Event('buildsLoaded'));
   } catch (error) {
     console.error('Error loading resources:', error);
+  }
+}
+
+async function displaySyncPracticeBuilds() {
+  try {
+    const response = await fetch('/api/resources');
+    const resources = await response.json();
+
+    const container = document.querySelector('.sync-practice-build-container');
+    if (!container) return;
+
+    const syncPracticeBuilds = resources
+      .filter(resource => 
+        resource.platform && 
+        resource.platform !== 'NULL' &&
+        resource.build_type === 'sync-practice'
+      )
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (syncPracticeBuilds.length === 0) {
+      window.dispatchEvent(new Event('buildsLoaded'));
+      return;
+    }
+
+    container.innerHTML = createResourceTable(syncPracticeBuilds, false);
+    window.dispatchEvent(new Event('buildsLoaded'));
+  } catch (error) {
+    const container = document.querySelector('.sync-practice-build-container');
   }
 }
 
@@ -486,6 +520,7 @@ async function displayResourcesVersionHistory() {
 
     if (allResources.length === 0) {
       container.innerHTML = '<p style="color: #b8b8b8; text-align: center; padding: 2rem;">No resources available.</p>';
+      window.dispatchEvent(new Event('buildsLoaded'));
       return;
     }
 
@@ -495,13 +530,15 @@ async function displayResourcesVersionHistory() {
       container.classList.remove('scrollable');
     }
 
-    container.innerHTML = createResourceTable(allResources);
+    const hasPlayerCounts = allResources.some(r => r.player_count);
+    container.innerHTML = createResourceTable(allResources, hasPlayerCounts);
+    window.dispatchEvent(new Event('buildsLoaded'));
   } catch (error) {
     console.error('Error loading resources:', error);
   }
 }
 
-function createResourceTable(resources) {
+function createResourceTable(resources, showPlayerCount = false) {
   const platformIcons = {
     'windows': '/images/windows-icon.png',
     'linux': '/images/linux-icon.png',
@@ -518,6 +555,7 @@ function createResourceTable(resources) {
           <th>Version</th>
           <th>Release Date</th>
           <th>File Size</th>
+          ${showPlayerCount ? '<th>Player Count</th>' : ''}
           <th>Download</th>
         </tr>
       </thead>
@@ -530,6 +568,7 @@ function createResourceTable(resources) {
     const version = resource.version || 'Unknown';
     const date = resource.date ? new Date(resource.date).toLocaleDateString() : 'Unknown';
     const size = formatBytes(resource.size || 0);
+    const playerCount = resource.player_count ? `${resource.player_count} Players` : 'N/A';
 
     tableHTML += `
       <tr>
@@ -540,6 +579,7 @@ function createResourceTable(resources) {
         <td class="td2">${version}</td>
         <td>${date}</td>
         <td>${size}</td>
+        ${showPlayerCount ? `<td>${playerCount}</td>` : ''}
         <td>
           <a href="/api/download-resource/${encodeURIComponent(resource.name)}" class="btn-download">
             Download
@@ -997,13 +1037,16 @@ function initializeApplication() {
     }
   }
 
+  const syncPracticeContainer = document.querySelector('.sync-practice-build-container');
+  if (syncPracticeContainer && window.location.pathname.includes('/resources')) {
+    displaySyncPracticeBuilds();
+  }
+
   const dedconBetaContainer = document.querySelector('.dedcon-beta-container');
   if (dedconBetaContainer) {
-    if (window.location.pathname.includes('/resources')) {
-      displayResourcesVersionHistory();
-    } else if (window.location.pathname.includes('/replay-viewer')) {
+    if (window.location.pathname.includes('/replay-viewer')) {
       displayReplayVersionHistory();
-    } else {
+    } else if (!window.location.pathname.includes('/resources')) {
       displayDedconBetaBuilds();
     }
   }
@@ -1031,6 +1074,7 @@ export {
   loadResources,
   displayResourcesMain,
   displayResourcesRecentReleases,
+  displaySyncPracticeBuilds,
   displayResourcesVersionHistory,
   createResourceTable,
   getResourcePlatformDisplay,

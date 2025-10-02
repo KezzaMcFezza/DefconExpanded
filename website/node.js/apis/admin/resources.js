@@ -48,15 +48,20 @@ router.post('/api/upload-resource', authenticateToken, upload.single('resourceFi
     try {
         const originalName = req.file.originalname;
         const filePath = path.join(resourcesDir, originalName);
-        const { version, releaseDate, platform, playerCount } = req.body;
+        const { version, releaseDate, platform, buildType, playerCount } = req.body;
 
-        if (!version || !platform || !playerCount) {
+        if (!version || !platform || !buildType) {
             console.log(`Failed resource upload attempt by ${req.user.username} from IP ${clientIp}: Missing required fields`);
-            return res.status(400).json({ error: 'Version, platform, and player count are required' });
+            return res.status(400).json({ error: 'Version, platform, and build type are required' });
+        }
+
+        if (buildType === '8-16-player' && !playerCount) {
+            console.log(`Failed resource upload attempt by ${req.user.username} from IP ${clientIp}: Player count required for 8-16 player builds`);
+            return res.status(400).json({ error: 'Player count is required for 8-16 player builds' });
         }
 
         console.log(`Processing resource upload by ${req.user.username} from IP ${clientIp}:`,
-            JSON.stringify({ name: originalName, version, releaseDate, platform, playerCount }, null, 2));
+            JSON.stringify({ name: originalName, version, releaseDate, platform, buildType, playerCount }, null, 2));
 
 
         fs.renameSync(req.file.path, filePath);
@@ -66,12 +71,12 @@ router.post('/api/upload-resource', authenticateToken, upload.single('resourceFi
         const uploadDate = releaseDate ? new Date(releaseDate) : new Date();
 
         const [result] = await pool.query(
-            'INSERT INTO resources (name, size, date, version, platform, player_count) VALUES (?, ?, ?, ?, ?, ?)',
-            [originalName, stats.size, uploadDate, version, platform, playerCount]
+            'INSERT INTO resources (name, size, date, version, platform, build_type, player_count) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [originalName, stats.size, uploadDate, version, platform, buildType, playerCount || null]
         );
 
-        console.log(`Resource successfully uploaded by ${req.user.username} from IP ${clientIp}: ${originalName} (Version: ${version}, Platform: ${platform}, Player Count: ${playerCount})`);
-        res.json({ message: 'Resource uploaded successfully', resourceName: originalName, version: version, platform: platform, playerCount: playerCount });
+        console.log(`Resource successfully uploaded by ${req.user.username} from IP ${clientIp}: ${originalName} (Version: ${version}, Platform: ${platform}, Build Type: ${buildType}, Player Count: ${playerCount || 'N/A'})`);
+        res.json({ message: 'Resource uploaded successfully', resourceName: originalName, version: version, platform: platform, buildType: buildType, playerCount: playerCount });
     } catch (error) {
         console.error(`Error uploading resource by ${req.user.username} from IP ${clientIp}:`, error.message);
 
@@ -113,17 +118,17 @@ router.delete('/api/resource/:resourceId', authenticateToken, checkPermission(pe
 router.put('/api/resource/:resourceId', authenticateToken, checkPermission(permissions.RESOURCE_EDIT), async (req, res) => {
     const clientIp = getClientIp(req);
     const { resourceId } = req.params;
-    const { name, version, date, platform, playerCount } = req.body;
+    const { name, version, date, platform, build_type, player_count } = req.body;
 
 
     console.log(`Resource edit by ${req.user.username} from IP ${clientIp}`);
-    console.log(`Editing resource ID ${resourceId}:`, JSON.stringify({ name, version, date, platform, playerCount }, null, 2));
+    console.log(`Editing resource ID ${resourceId}:`, JSON.stringify({ name, version, date, platform, build_type, player_count }, null, 2));
 
     try {
         const [oldData] = await pool.query('SELECT * FROM resources WHERE id = ?', [resourceId]);
         const [result] = await pool.query(
-            'UPDATE resources SET name = ?, version = ?, date = ?, platform = ?, player_count = ? WHERE id = ?',
-            [name, version, new Date(date), platform, playerCount, resourceId]
+            'UPDATE resources SET name = ?, version = ?, date = ?, platform = ?, build_type = ?, player_count = ? WHERE id = ?',
+            [name, version, new Date(date), platform, build_type, player_count, resourceId]
         );
 
         if (result.affectedRows === 0) {
@@ -132,7 +137,7 @@ router.put('/api/resource/:resourceId', authenticateToken, checkPermission(permi
         } else {
             console.log(`Resource successfully edited by ${req.user.username} from IP ${clientIp}:`);
             console.log(`Old data:`, JSON.stringify(oldData[0], null, 2));
-            console.log(`New data:`, JSON.stringify({ name, version, date, platform, playerCount }, null, 2));
+            console.log(`New data:`, JSON.stringify({ name, version, date, platform, build_type, player_count }, null, 2));
             res.json({ message: 'Resource updated successfully' });
         }
     } catch (error) {
