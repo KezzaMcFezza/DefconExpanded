@@ -880,7 +880,7 @@ void Renderer::SetupVertexArrays() {
     glGenBuffers(1, &m_unitVBO);
     glBindVertexArray(m_unitVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_unitVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_UNIT_MAIN_VERTICES + MAX_UNIT_ROTATING_VERTICES + MAX_UNIT_HIGHLIGHT_VERTICES + MAX_UNIT_STATE_VERTICES + MAX_UNIT_COUNTER_VERTICES + MAX_UNIT_NUKE_VERTICES), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_UNIT_MAIN_VERTICES + MAX_UNIT_ROTATING_VERTICES + MAX_UNIT_HIGHLIGHT_VERTICES + MAX_UNIT_STATE_VERTICES + MAX_UNIT_COUNTER_VERTICES + MAX_UNIT_NUKE_VERTICES), NULL, GL_STATIC_DRAW);
     setupVertexAttributes();
     
     //
@@ -890,7 +890,7 @@ void Renderer::SetupVertexArrays() {
     glGenBuffers(1, &m_effectsVBO);
     glBindVertexArray(m_effectsVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_effectsVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_UNIT_TRAIL_VERTICES + MAX_EFFECTS_LINE_VERTICES + MAX_EFFECTS_SPRITE_VERTICES * 2), NULL, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_UNIT_TRAIL_VERTICES + MAX_EFFECTS_LINE_VERTICES + MAX_EFFECTS_SPRITE_VERTICES * 2), NULL, GL_DYNAMIC_DRAW);
     setupVertexAttributes();
     
     //

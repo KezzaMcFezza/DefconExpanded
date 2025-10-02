@@ -712,6 +712,7 @@ void Renderer::FlushUnitStateIcons() {
     IncrementDrawCall("unit_state_icons");
 
     glUseProgram(m_textureShaderProgram);
+    SetTextureShaderUniforms();
     
     if (m_currentUnitStateTexture != 0) {
         glActiveTexture(GL_TEXTURE0);
@@ -754,6 +755,7 @@ void Renderer::FlushUnitNukeIcons() {
     IncrementDrawCall("unit_nuke_icons");
     
     glUseProgram(m_textureShaderProgram);
+    SetTextureShaderUniforms();
 
     if (m_currentUnitNukeTexture != 0) {
         glActiveTexture(GL_TEXTURE0);

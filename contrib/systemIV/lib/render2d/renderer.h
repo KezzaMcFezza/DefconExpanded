@@ -85,13 +85,13 @@ private:
   static const int MAX_TEXT_VERTICES            = 28000;
   static const int MAX_UNIT_TRAIL_VERTICES      = 30000;
   static const int MAX_UNIT_MAIN_VERTICES       = 3000;
-  static const int MAX_UNIT_ROTATING_VERTICES   = 2000;
+  static const int MAX_UNIT_ROTATING_VERTICES   = 10000;
   static const int MAX_UNIT_HIGHLIGHT_VERTICES  = 500;
-  static const int MAX_UNIT_STATE_VERTICES      = 3500;
+  static const int MAX_UNIT_STATE_VERTICES      = 7500;
   static const int MAX_UNIT_COUNTER_VERTICES    = 100;
   static const int MAX_UNIT_NUKE_VERTICES       = 7500;
   static const int MAX_EFFECTS_LINE_VERTICES    = 50000;
-  static const int MAX_EFFECTS_SPRITE_VERTICES  = 10000;
+  static const int MAX_EFFECTS_SPRITE_VERTICES  = 7500;
   static const int MAX_HEALTH_BAR_VERTICES      = 500;
   static const int MAX_WHITEBOARD_VERTICES      = 2000;
   static const int MAX_ECLIPSE_RECT_VERTICES    = 2000;

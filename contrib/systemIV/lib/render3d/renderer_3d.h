@@ -167,24 +167,24 @@ private:
     // ============================================
     
     // Unit trail rendering buffers
-    static const int MAX_UNIT_TRAIL_VERTICES_3D = 6000; 
+    static const int MAX_UNIT_TRAIL_VERTICES_3D = 30000; 
     Vertex3D m_unitTrailVertices3D[MAX_UNIT_TRAIL_VERTICES_3D];
     int m_unitTrailVertexCount3D;
     
     // Unit main sprite rendering buffers
-    static const int MAX_UNIT_MAIN_VERTICES_3D = 2000;
+    static const int MAX_UNIT_MAIN_VERTICES_3D = 3000;
     Vertex3DTextured m_unitMainVertices3D[MAX_UNIT_MAIN_VERTICES_3D];
     int m_unitMainVertexCount3D;
     unsigned int m_currentUnitMainTexture3D;
     
     // Unit rotating sprite rendering buffers  
-    static const int MAX_UNIT_ROTATING_VERTICES_3D = 2000;
+    static const int MAX_UNIT_ROTATING_VERTICES_3D = 10000;
     Vertex3DTextured m_unitRotatingVertices3D[MAX_UNIT_ROTATING_VERTICES_3D];
     int m_unitRotatingVertexCount3D;
     unsigned int m_currentUnitRotatingTexture3D;
     
     // Unit state icon rendering buffers
-    static const int MAX_UNIT_STATE_VERTICES_3D = 3500;
+    static const int MAX_UNIT_STATE_VERTICES_3D = 7500;
     Vertex3DTextured m_unitStateVertices3D[MAX_UNIT_STATE_VERTICES_3D];
     int m_unitStateVertexCount3D;
     unsigned int m_currentUnitStateTexture3D;
@@ -208,12 +208,12 @@ private:
     unsigned int m_currentUnitHighlightTexture3D;
     
     // Effects line rendering buffers
-    static const int MAX_EFFECTS_LINE_VERTICES_3D = 15000;
+    static const int MAX_EFFECTS_LINE_VERTICES_3D = 50000;
     Vertex3D m_effectsLineVertices3D[MAX_EFFECTS_LINE_VERTICES_3D];
     int m_effectsLineVertexCount3D;
     
     // Effects sprite rendering buffers
-    static const int MAX_EFFECTS_SPRITE_VERTICES_3D = 10000;
+    static const int MAX_EFFECTS_SPRITE_VERTICES_3D = 7500;
     Vertex3DTextured m_effectsSpriteVertices3D[MAX_EFFECTS_SPRITE_VERTICES_3D];
     int m_effectsSpriteVertexCount3D;
     unsigned int m_currentEffectsSpriteTexture3D;
