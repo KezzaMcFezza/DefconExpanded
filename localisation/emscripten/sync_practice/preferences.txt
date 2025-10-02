@@ -52,7 +52,7 @@ TutorialCompleted = 0
 RenderNodes = 0
 AmbxEnabled = 0
 
-ScreenAntiAliasing = 4
+ScreenAntiAliasing = 0
 ModPath = 
 InterfaceKeyboard = -1
 ShowFPS = 1
