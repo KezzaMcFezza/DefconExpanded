@@ -80,25 +80,25 @@ private:
     BUFFER_LEGACY              // immediate mode rendering
   };
 
-  static const int MAX_VERTICES                 = 100000;
-  static const int MAX_UI_VERTICES              = 500000;
-  static const int MAX_TEXT_VERTICES            = 300000;
-  static const int MAX_UNIT_TRAIL_VERTICES      = 250000;
-  static const int MAX_UNIT_MAIN_VERTICES       = 500000;
-  static const int MAX_UNIT_ROTATING_VERTICES   = 300000;
-  static const int MAX_UNIT_HIGHLIGHT_VERTICES  = 200000;
-  static const int MAX_UNIT_STATE_VERTICES      = 400000;
-  static const int MAX_UNIT_COUNTER_VERTICES    = 350000;
-  static const int MAX_UNIT_NUKE_VERTICES       = 200000;
-  static const int MAX_EFFECTS_LINE_VERTICES    = 150000;
-  static const int MAX_EFFECTS_SPRITE_VERTICES  = 100000;
-  static const int MAX_HEALTH_BAR_VERTICES      = 500000;
-  static const int MAX_WHITEBOARD_VERTICES      = 200000;
-  static const int MAX_ECLIPSE_RECT_VERTICES    = 200000;
-  static const int MAX_ECLIPSE_RECTFILL_VERTICES= 300000;
-  static const int MAX_ECLIPSE_TRIANGLEFILL_VERTICES = 300000;
-  static const int MAX_ECLIPSE_LINE_VERTICES    = 200000;
-  static const int MAX_ECLIPSE_SPRITE_VERTICES  = 150000; 
+  static const int MAX_VERTICES                 = 1000;
+  static const int MAX_UI_VERTICES              = 5000;
+  static const int MAX_TEXT_VERTICES            = 28000;
+  static const int MAX_UNIT_TRAIL_VERTICES      = 30000;
+  static const int MAX_UNIT_MAIN_VERTICES       = 3000;
+  static const int MAX_UNIT_ROTATING_VERTICES   = 2000;
+  static const int MAX_UNIT_HIGHLIGHT_VERTICES  = 500;
+  static const int MAX_UNIT_STATE_VERTICES      = 3500;
+  static const int MAX_UNIT_COUNTER_VERTICES    = 100;
+  static const int MAX_UNIT_NUKE_VERTICES       = 7500;
+  static const int MAX_EFFECTS_LINE_VERTICES    = 50000;
+  static const int MAX_EFFECTS_SPRITE_VERTICES  = 10000;
+  static const int MAX_HEALTH_BAR_VERTICES      = 500;
+  static const int MAX_WHITEBOARD_VERTICES      = 2000;
+  static const int MAX_ECLIPSE_RECT_VERTICES    = 2000;
+  static const int MAX_ECLIPSE_RECTFILL_VERTICES= 3000;
+  static const int MAX_ECLIPSE_TRIANGLEFILL_VERTICES = 3000;
+  static const int MAX_ECLIPSE_LINE_VERTICES    = 2000;
+  static const int MAX_ECLIPSE_SPRITE_VERTICES  = 1500; 
 
 protected:
   char *m_defaultFontName;

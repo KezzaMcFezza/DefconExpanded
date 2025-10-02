@@ -6,6 +6,16 @@
 #define NOMINMAX
 #include <windows.h>
 
+typedef HGLRC (WINAPI *PFNWGLCREATECONTEXTATTRIBSARBPROC)(HDC, HGLRC, const int *);
+typedef BOOL  (WINAPI *PFNWGLCHOOSEPIXELFORMATARBPROC)(HDC, const int *, const FLOAT *, UINT, int *, UINT *);
+typedef BOOL  (WINAPI *PFNWGLSWAPINTERVALEXTPROC)(int);
+typedef int   (WINAPI *PFNWGLGETSWAPINTERVALEXTPROC)(void);
+
+static PFNWGLCREATECONTEXTATTRIBSARBPROC  _wglCreateContextAttribsARB  = nullptr;
+static PFNWGLCHOOSEPIXELFORMATARBPROC     _wglChoosePixelFormatARB     = nullptr;
+static PFNWGLSWAPINTERVALEXTPROC          _wglSwapIntervalEXT          = nullptr;
+static PFNWGLGETSWAPINTERVALEXTPROC       _wglGetSwapIntervalEXT       = nullptr;
+
 class WindowManagerWin32 : public WindowManager
 {
 public:

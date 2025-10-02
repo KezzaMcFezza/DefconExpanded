@@ -6,7 +6,6 @@
 #include <algorithm>
 
 #include "lib/debug_utils.h"
-#include "lib/thread_affinity.h"
 
 #include "input.h"
 #include "window_manager_win32.h"
@@ -22,7 +21,6 @@ static HINSTANCE g_hInstance;
 #ifndef LLKHF_ALTDOWN
 #define LLKHF_ALTDOWN 0x20
 #endif
-
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -70,7 +68,7 @@ void WindowManagerWin32::SaveDesktop()
     DEVMODE mode;
     ZeroMemory(&mode, sizeof(mode));
     mode.dmSize = sizeof(mode);
-    bool success = EnumDisplaySettings ( NULL, ENUM_CURRENT_SETTINGS, &mode );
+    EnumDisplaySettings ( NULL, ENUM_CURRENT_SETTINGS, &mode );
             
     m_desktopScreenW = mode.dmPelsWidth;
     m_desktopScreenH = mode.dmPelsHeight;
@@ -87,7 +85,7 @@ void WindowManagerWin32::RestoreDesktop()
     DEVMODE mode;
     ZeroMemory(&mode, sizeof(mode));
     mode.dmSize = sizeof(mode);
-    bool success = EnumDisplaySettings ( NULL, ENUM_CURRENT_SETTINGS, &mode );
+    EnumDisplaySettings ( NULL, ENUM_CURRENT_SETTINGS, &mode );
 
     //
     // has anything changed?
@@ -110,159 +108,357 @@ void WindowManagerWin32::RestoreDesktop()
 	    devmode.dmPelsHeight = m_desktopScreenH;
 	    devmode.dmDisplayFrequency = m_desktopRefresh;
 	    devmode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_DISPLAYFREQUENCY | DM_BITSPERPEL;
-	    long result = ChangeDisplaySettings(&devmode, CDS_FULLSCREEN);
+	    ChangeDisplaySettings(&devmode, CDS_FULLSCREEN);
     }
 }
 
+//
+// add proper logging for opengl context creation errors
+
+static void LogLastError(const char* where)
+{
+    DWORD err = GetLastError();
+    if (err != 0) {
+        LPVOID lpMsgBuf = nullptr;
+        FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                       nullptr, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                       (LPSTR)&lpMsgBuf, 0, nullptr);
+        if (lpMsgBuf) {
+            AppDebugOut("%s failed. GetLastError=%lu: %s\n", where, err, (LPSTR)lpMsgBuf);
+            LocalFree(lpMsgBuf);
+        } else {
+            AppDebugOut("%s failed. GetLastError=%lu\n", where, err);
+        }
+    }
+}
+
+//
+// create a hidden dummy window for loading WGL extensions
+
+static HWND CreateDummyWindow(HINSTANCE hInst)
+{
+    WNDCLASSA wc = {};
+    wc.style         = CS_OWNDC;
+    wc.lpfnWndProc   = DefWindowProcA;
+    wc.hInstance     = hInst;
+    wc.lpszClassName = "GLDummyWindow";
+    RegisterClassA(&wc);
+    HWND hwnd = CreateWindowA("GLDummyWindow", "dummy", WS_OVERLAPPEDWINDOW,
+                              CW_USEDEFAULT, CW_USEDEFAULT, 32, 32,
+                              nullptr, nullptr, hInst, nullptr);
+    return hwnd;
+}
+
+//
+// choose a legacy pixelformat + legacy RC for the dummy
+
+static bool MakeDummyContext(HWND dummy, HDC& hdc, HGLRC& hglrc)
+{
+    hdc = GetDC(dummy);
+
+    PIXELFORMATDESCRIPTOR pfd = {};
+    pfd.nSize      = sizeof(PIXELFORMATDESCRIPTOR);
+    pfd.nVersion   = 1;
+    pfd.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+    pfd.iPixelType = PFD_TYPE_RGBA;
+    pfd.cColorBits = 24;
+    pfd.cAlphaBits = 8;
+    pfd.cDepthBits = 24;
+    pfd.cStencilBits= 8;
+    pfd.iLayerType = PFD_MAIN_PLANE;
+
+    int pf = ChoosePixelFormat(hdc, &pfd);
+    if (pf == 0) { AppDebugOut("Dummy ChoosePixelFormat failed\n"); LogLastError("ChoosePixelFormat"); return false; }
+    if (!SetPixelFormat(hdc, pf, &pfd)) { AppDebugOut("Dummy SetPixelFormat failed\n"); LogLastError("SetPixelFormat"); return false; }
+
+    hglrc = wglCreateContext(hdc);
+    if (!hglrc) { AppDebugOut("Dummy wglCreateContext failed\n"); LogLastError("wglCreateContext"); return false; }
+    if (!wglMakeCurrent(hdc, hglrc)) { AppDebugOut("Dummy wglMakeCurrent failed\n"); LogLastError("wglMakeCurrent"); return false; }
+
+	//
+    // load only the WGL procs we need
+
+    _wglChoosePixelFormatARB    = (PFNWGLCHOOSEPIXELFORMATARBPROC) wglGetProcAddress("wglChoosePixelFormatARB");
+    _wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC) wglGetProcAddress("wglCreateContextAttribsARB");
+    _wglSwapIntervalEXT         = (PFNWGLSWAPINTERVALEXTPROC) wglGetProcAddress("wglSwapIntervalEXT");
+    _wglGetSwapIntervalEXT      = (PFNWGLGETSWAPINTERVALEXTPROC) wglGetProcAddress("wglGetSwapIntervalEXT");
+
+    return true;
+}
+
+static void DestroyDummy(HWND dummy, HDC hdc, HGLRC hglrc)
+{
+    wglMakeCurrent(nullptr, nullptr);
+    if (hglrc) wglDeleteContext(hglrc);
+    if (hdc)   ReleaseDC(dummy, hdc);
+    DestroyWindow(dummy);
+}
+
+//
+// create the OpenGL context
 
 void WindowManagerWin32::EnableOpenGL(int _colourDepth, int _zDepth)
 {
-	PIXELFORMATDESCRIPTOR pfd;
-	int format;
-	
-	// Get the device context (DC)
-	m_hDC = GetDC( m_hWnd );
-	
-	// Set the pixel format for the DC
-	ZeroMemory( &pfd, sizeof( pfd ) );
-	pfd.nSize = sizeof( pfd );
-	pfd.nVersion = 1;
-	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	pfd.iPixelType = PFD_TYPE_RGBA;
-	pfd.cColorBits = _colourDepth;
-	pfd.cDepthBits = _zDepth;
-	pfd.iLayerType = PFD_MAIN_PLANE;
-	
-	format = ChoosePixelFormat( m_hDC, &pfd );
-	
-	// verify we actually got hardware acceleration
-	PIXELFORMATDESCRIPTOR actualPfd;
-	DescribePixelFormat(m_hDC, format, sizeof(actualPfd), &actualPfd);
-	
-	if (actualPfd.dwFlags & PFD_GENERIC_FORMAT && !(actualPfd.dwFlags & PFD_GENERIC_ACCELERATED)) {
-		
-		int numFormats = DescribePixelFormat(m_hDC, 1, sizeof(PIXELFORMATDESCRIPTOR), NULL);
-		bool foundHardware = false;
-		
-		for (int i = 1; i <= numFormats; i++) {
-			DescribePixelFormat(m_hDC, i, sizeof(actualPfd), &actualPfd);
-			
-			// check if this format is hardware accelerated
-			if (!(actualPfd.dwFlags & PFD_GENERIC_FORMAT) || 
-			    (actualPfd.dwFlags & PFD_GENERIC_ACCELERATED)) {
-				if ((actualPfd.dwFlags & PFD_DRAW_TO_WINDOW) &&
-				    (actualPfd.dwFlags & PFD_SUPPORT_OPENGL) &&
-				    (actualPfd.dwFlags & PFD_DOUBLEBUFFER) &&
-				    actualPfd.iPixelType == PFD_TYPE_RGBA &&
-				    actualPfd.cColorBits >= _colourDepth &&
-				    actualPfd.cDepthBits >= _zDepth) {
-					
-					format = i;
-					foundHardware = true;
-					AppDebugOut("SUCCESS: Found hardware accelerated format: %d\n", i);
-					break;
-				}
-			}
-		}
-		
-		if (!foundHardware) {
-			AppDebugOut("FATAL: Could not find hardware accelerated OpenGL format!\n");
-		}
-	}
-	
-	SetPixelFormat( m_hDC, format, &pfd );
-	
-	// Create a temporary context to initialize GLEW
-	HGLRC tempContext = wglCreateContext( m_hDC );
-	wglMakeCurrent( m_hDC, tempContext );
-	
-	// Initialize GLEW
-	GLenum glewResult = glewInit();
-	if (glewResult != GLEW_OK) {
-		// GLEW failed, fall back to legacy OpenGL
-		AppDebugOut("GLEW initialization failed: %s\n", glewGetErrorString(glewResult));
-		m_hRC = tempContext;
-		glClear(GL_COLOR_BUFFER_BIT);
-		return;
-	}
-	
+
+    //
+    // create dummy window to load WGL extensions
+    // we need a temporary OpenGL context to access wglGetProcAddress
+    
+    HINSTANCE hInst = GetModuleHandle(nullptr);
+    HWND dummyWnd = CreateDummyWindow(hInst);
+    HDC dummyDC = nullptr;
+    HGLRC dummyRC = nullptr;
+    
+    int chosenPixelFormat = 0;
+    PIXELFORMATDESCRIPTOR chosenPFD = {};
+    PIXELFORMATDESCRIPTOR finalPFD = {};
+    
+    if (!dummyWnd || !MakeDummyContext(dummyWnd, dummyDC, dummyRC))
+    {
+        AppDebugOut("Failed to create dummy GL context. Falling back to legacy path.\n");
+        // this should never happen but this is useful for debugging
+    }
+
+
+    //
+    // get device context for our main window
+    
+    m_hDC = GetDC(m_hWnd);
+    if (!m_hDC)
+    {
+        if (dummyWnd) DestroyDummy(dummyWnd, dummyDC, dummyRC);
+        return;
+    }
+
+
+    //
+    // choose pixel format with hardware acceleration
+    // attempt modern WGL method first, fall back to legacy if not available
+    
+    BOOL setPixelFormatSuccess = FALSE;
+
+    if (_wglChoosePixelFormatARB)
+    {
+        AppDebugOut("Using wglChoosePixelFormatARB for hardware-accelerated pixel format...\n");
+        
+		//
+        // request the hardware-accelerated pixel format that we want
+
+        int pixelAttribs[] = {
+            WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+            WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+            WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
+            WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,  // explicitly request hardware acceleration
+            WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
+            WGL_COLOR_BITS_ARB, _colourDepth,
+            WGL_ALPHA_BITS_ARB, 8,
+            WGL_DEPTH_BITS_ARB, _zDepth,
+            WGL_STENCIL_BITS_ARB, 8,
+            0, 0
+        };
+        
+        UINT numFormats = 0;
+        if (_wglChoosePixelFormatARB(m_hDC, pixelAttribs, nullptr, 1, &chosenPixelFormat, &numFormats) && numFormats > 0)
+        {
+            AppDebugOut("Found hardware-accelerated pixel format: %d\n", chosenPixelFormat);
+            DescribePixelFormat(m_hDC, chosenPixelFormat, sizeof(chosenPFD), &chosenPFD);
+            setPixelFormatSuccess = SetPixelFormat(m_hDC, chosenPixelFormat, &chosenPFD);
+            
+            if (!setPixelFormatSuccess)
+            {
+                LogLastError("SetPixelFormat(ARB)");
+            }
+        }
+        else
+        {
+            AppDebugOut("wglChoosePixelFormatARB failed to find suitable format\n");
+        }
+    }
+
 	//
-	// print OpenGL information for debugging
+    // fall back to legacy pixel format selection if modern method failed
 
-	const GLubyte* renderer = glGetString(GL_RENDERER);
-	
-	// check if we got software rendering
-	if (strstr((const char*)renderer, "GDI Generic") || 
-	    strstr((const char*)renderer, "Software") ||
-	    strstr((const char*)renderer, "Microsoft")) {
-		AppDebugOut("FATAL: Using software rendering :(\n");
-	}
-	
-	// check if we can create a modern OpenGL 3.3 Core context using WGL extensions
-	if (WGLEW_ARB_create_context && WGLEW_ARB_create_context_profile) {
-		if (WGLEW_ARB_pixel_format) {
-			AppDebugOut("Using wglChoosePixelFormatARB for hardware-accelerated pixel format...\n");
-			
-			const int pixelAttribs[] = {
-				WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-				WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-				WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
-				WGL_ACCELERATION_ARB, WGL_FULL_ACCELERATION_ARB,  // require hardware acceleration
-				WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
-				WGL_COLOR_BITS_ARB, _colourDepth,
-				WGL_DEPTH_BITS_ARB, _zDepth,
-				0
-			};
-			
-			int pixelFormat;
-			UINT numFormats;
-			if (wglChoosePixelFormatARB(m_hDC, pixelAttribs, NULL, 1, &pixelFormat, &numFormats) && numFormats > 0) {
-				AppDebugOut("Found hardware-accelerated pixel format via WGL: %d\n", pixelFormat);
-				
-				// we would need to recreate the window to use this new pixel format
-				// for now well continue with what we have but this is noted for future
-			}
-		}
-		
-		// define OpenGL 3.3 compatibility crofile attributes
-		int contextAttribs[] = {
-			WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-			WGL_CONTEXT_MINOR_VERSION_ARB, 3,
-			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB, 
-			WGL_CONTEXT_FLAGS_ARB, 0,
-			0
-		};
-		
-		m_hRC = wglCreateContextAttribsARB(m_hDC, 0, contextAttribs);
-		
-		if (m_hRC) {
-			// Success! Clean up temporary context and use the new one
-			wglMakeCurrent(NULL, NULL);
-			wglDeleteContext(tempContext);
-			wglMakeCurrent(m_hDC, m_hRC);
-			
-			// Re-initialize GLEW with the new context
-			glewResult = glewInit();
-			if (glewResult != GLEW_OK) {
-				AppDebugOut("GLEW re-initialization failed: %s\n", glewGetErrorString(glewResult));
-				wglMakeCurrent(NULL, NULL);
-				wglDeleteContext(m_hRC);
-				m_hRC = wglCreateContext( m_hDC );
-				wglMakeCurrent( m_hDC, m_hRC );
-			} else {
-				AppDebugOut("Successfully created OpenGL 3.3 Compatibility context\n");
-			}
-		} else {
-			AppDebugOut("OpenGL 3.3 context creation failed, using legacy context\n");
-			// OpenGL 3.3 context creation failed, use the temporary context
-			m_hRC = tempContext;
-		}
-	} else {
-		// WGL extensions not available, use the temporary context
-		m_hRC = tempContext;
-	}
+    if (!setPixelFormatSuccess)
+    {
+        AppDebugOut("Falling back to legacy ChoosePixelFormat\n");
+        
+        PIXELFORMATDESCRIPTOR pfd = {};
+        pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
+        pfd.nVersion = 1;
+        pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+        pfd.iPixelType = PFD_TYPE_RGBA;
+        pfd.cColorBits = _colourDepth;
+        pfd.cAlphaBits = 8;
+        pfd.cDepthBits = _zDepth;
+        pfd.cStencilBits = 8;
+        pfd.iLayerType = PFD_MAIN_PLANE;
 
-	glClear(GL_COLOR_BUFFER_BIT);
+        chosenPixelFormat = ChoosePixelFormat(m_hDC, &pfd);
+        if (chosenPixelFormat == 0)
+        {
+            LogLastError("ChoosePixelFormat");
+            goto CLEANUP_AND_FAIL;
+        }
+
+        if (!SetPixelFormat(m_hDC, chosenPixelFormat, &pfd))
+        {
+            LogLastError("SetPixelFormat");
+            goto CLEANUP_AND_FAIL;
+        }
+        
+        chosenPFD = pfd;
+    }
+
+
+    //
+    // destroy dummy window
+    
+    if (dummyWnd)
+    {
+        DestroyDummy(dummyWnd, dummyDC, dummyRC);
+    }
+
+
+    //
+    // create OpenGL 3.3 context
+    // try compatibility profile first, if that somehow fails we have core profile
+    
+    HGLRC shareContext = nullptr;
+    
+    if (_wglCreateContextAttribsARB)
+    {
+		//
+        // compatibility Profile
+
+        int contextAttribsCompat[] = {
+            WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+            WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+            WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+            WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+            0
+        };
+        
+        m_hRC = _wglCreateContextAttribsARB(m_hDC, shareContext, contextAttribsCompat);
+        
+        if (m_hRC)
+        {
+            AppDebugOut("Successfully created OpenGL 3.3 Compatibility context\n");
+        }
+        else
+        {
+			//
+            // core Profile
+			
+            AppDebugOut("OpenGL 3.3 Compatibility failed, trying Core profile\n");
+            
+            int contextAttribsCore[] = {
+                WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+                WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+                WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+                WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+                0
+            };
+            
+            m_hRC = _wglCreateContextAttribsARB(m_hDC, shareContext, contextAttribsCore);
+            
+            if (m_hRC)
+            {
+                AppDebugOut("Successfully created OpenGL 3.3 Core context\n");
+            }
+        }
+    }
+
+	//
+    // fall back to legacy OpenGL context if modern creation failed
+
+    if (!m_hRC)
+    {
+        AppDebugOut("Falling back to legacy wglCreateContext\n");
+        m_hRC = wglCreateContext(m_hDC);
+        
+        if (!m_hRC)
+        {
+            LogLastError("wglCreateContext");
+            goto CLEANUP_AND_FAIL;
+        }
+    }
+    
+    if (!wglMakeCurrent(m_hDC, m_hRC))
+    {
+        LogLastError("wglMakeCurrent");
+        goto CLEANUP_AND_FAIL;
+    }
+
+
+    //
+    // initialize GLEW
+    
+    glewExperimental = GL_TRUE;
+    GLenum glewResult = glewInit();
+    
+    if (glewResult != GLEW_OK)
+    {
+        AppDebugOut("glewInit failed: %s\n", (const char*)glewGetErrorString(glewResult));
+        // usually if glew fails its fatal but continue anyway
+    }
+
+
+    //
+    // if we have to start looking at these debug logs
+	// then something is wrong
+    
+    const char* vendor = (const char*)glGetString(GL_VENDOR);
+    const char* renderer = (const char*)glGetString(GL_RENDERER);
+    const char* version = (const char*)glGetString(GL_VERSION);
+    
+    AppDebugOut("Reported GPU Vendor   : %s\n", vendor ? vendor : "(null)");
+    AppDebugOut("Reported GPU Renderer : %s\n", renderer ? renderer : "(null)");
+    AppDebugOut("Reported GPU Version  : %s\n", version ? version : "(null)");
+
+	//
+    // do we have software rendering?
+
+    if ((vendor && strstr(vendor, "Microsoft")) || (renderer && strstr(renderer, "GDI Generic")))
+    {
+        AppDebugOut("WARNING: Software rendering detected via driver\n");
+    }
+
+    //
+    // pixel formats are usually more accurate for detecting software rendering
+
+    if ((finalPFD.dwFlags & PFD_GENERIC_FORMAT) || (finalPFD.dwFlags & PFD_SUPPORT_GDI))
+    {
+        AppDebugOut("WARNING: Software rendering detected via pixel format\n");
+    }
+
+	//
+    // disable vsync, nobody likes it
+    
+    if (_wglSwapIntervalEXT)
+    {
+        _wglSwapIntervalEXT(0);
+    }
+
+    return;
+    
+CLEANUP_AND_FAIL:
+    if (m_hRC)
+    {
+        wglMakeCurrent(nullptr, nullptr);
+        wglDeleteContext(m_hRC);
+        m_hRC = nullptr;
+    }
+    
+    if (m_hDC)
+    {
+        ReleaseDC(m_hWnd, m_hDC);
+        m_hDC = nullptr;
+    }
+    
+    if (dummyWnd)
+    {
+        DestroyDummy(dummyWnd, dummyDC, dummyRC);
+    }
 }
 
 
@@ -389,8 +585,6 @@ bool WindowManagerWin32::CreateWin(int _width, int _height, bool _windowed,
 		HWND desktopWindow = GetDesktopWindow();
 		RECT desktopRect;
 		GetWindowRect(desktopWindow, &desktopRect);
-		int desktopWidth = desktopRect.right - desktopRect.left;
-		int desktopHeight = desktopRect.bottom - desktopRect.top;
 
 		posX = (desktopRect.right - _width) / 2;
 		posY = (desktopRect.bottom - _height) / 2;
@@ -537,22 +731,7 @@ int WINAPI WinMain(HINSTANCE _hInstance, HINSTANCE _hPrevInstance,
 				   LPSTR _cmdLine, int _iCmdShow)
 {
 	g_hInstance = _hInstance;
-
-	//
-    // initialize thread affinity, bind main thread to a dedicated core
-    // this ensures that defcon main thread and network threads use separate cores
-
-    int mainCore, networkCore;
-    GetThreadAffinitySettings(mainCore, networkCore);
-    
-	//
-    // convert core number to bitmask (core N = 2^N)
-
-    DWORD affinityMask = 1 << mainCore;
-    
-    SetThreadAffinityMask(GetCurrentThread(), affinityMask);
-    
-    
+     
 
 #ifdef USE_CRASHREPORTING
     __try

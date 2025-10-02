@@ -116,12 +116,12 @@ private:
     Matrix4f3D m_modelViewMatrix3D;
     
     // Dynamic vertex buffer for 3D rendering
-    static const int MAX_3D_VERTICES = 4200000;
+    static const int MAX_3D_VERTICES = 4200;
     Vertex3D m_vertices3D[MAX_3D_VERTICES];
     int m_vertex3DCount;
     
     // Dynamic vertex buffer for 3D textured rendering
-    static const int MAX_3D_TEXTURED_VERTICES = 300000;
+    static const int MAX_3D_TEXTURED_VERTICES = 3000;
     Vertex3DTextured m_vertices3DTextured[MAX_3D_TEXTURED_VERTICES];
     int m_vertex3DTexturedCount;
     
@@ -134,7 +134,7 @@ private:
     Colour m_texturedQuad3DColor;
     unsigned int m_currentTexture3D;
     
-    // Mega-VBO state for 3D rendering (like 2D system)
+    // Mega VBO for the 3D coastlines and borders
     bool m_megaVBO3DActive;
     char* m_currentMegaVBO3DKey;
     Colour m_megaVBO3DColor;
@@ -167,81 +167,81 @@ private:
     // ============================================
     
     // Unit trail rendering buffers
-    static const int MAX_UNIT_TRAIL_VERTICES_3D = 600000; 
+    static const int MAX_UNIT_TRAIL_VERTICES_3D = 6000; 
     Vertex3D m_unitTrailVertices3D[MAX_UNIT_TRAIL_VERTICES_3D];
     int m_unitTrailVertexCount3D;
     
     // Unit main sprite rendering buffers
-    static const int MAX_UNIT_MAIN_VERTICES_3D = 600000;
+    static const int MAX_UNIT_MAIN_VERTICES_3D = 2000;
     Vertex3DTextured m_unitMainVertices3D[MAX_UNIT_MAIN_VERTICES_3D];
     int m_unitMainVertexCount3D;
     unsigned int m_currentUnitMainTexture3D;
     
     // Unit rotating sprite rendering buffers  
-    static const int MAX_UNIT_ROTATING_VERTICES_3D = 100000;
+    static const int MAX_UNIT_ROTATING_VERTICES_3D = 2000;
     Vertex3DTextured m_unitRotatingVertices3D[MAX_UNIT_ROTATING_VERTICES_3D];
     int m_unitRotatingVertexCount3D;
     unsigned int m_currentUnitRotatingTexture3D;
     
     // Unit state icon rendering buffers
-    static const int MAX_UNIT_STATE_VERTICES_3D = 150000;
+    static const int MAX_UNIT_STATE_VERTICES_3D = 3500;
     Vertex3DTextured m_unitStateVertices3D[MAX_UNIT_STATE_VERTICES_3D];
     int m_unitStateVertexCount3D;
     unsigned int m_currentUnitStateTexture3D;
     
     // Unit counter text rendering buffers
-    static const int MAX_UNIT_COUNTER_VERTICES_3D = 150000;
+    static const int MAX_UNIT_COUNTER_VERTICES_3D = 500;
     Vertex3DTextured m_unitCounterVertices3D[MAX_UNIT_COUNTER_VERTICES_3D];
     int m_unitCounterVertexCount3D;
     unsigned int m_currentUnitCounterTexture3D;
     
     // Unit nuke icon rendering buffers
-    static const int MAX_UNIT_NUKE_VERTICES_3D = 200000;
+    static const int MAX_UNIT_NUKE_VERTICES_3D = 7500;
     Vertex3DTextured m_unitNukeVertices3D[MAX_UNIT_NUKE_VERTICES_3D];
     int m_unitNukeVertexCount3D;
     unsigned int m_currentUnitNukeTexture3D;
     
     // Unit highlight rendering buffers
-    static const int MAX_UNIT_HIGHLIGHT_VERTICES_3D = 150000;
+    static const int MAX_UNIT_HIGHLIGHT_VERTICES_3D = 500;
     Vertex3DTextured m_unitHighlightVertices3D[MAX_UNIT_HIGHLIGHT_VERTICES_3D];
     int m_unitHighlightVertexCount3D;
     unsigned int m_currentUnitHighlightTexture3D;
     
     // Effects line rendering buffers
-    static const int MAX_EFFECTS_LINE_VERTICES_3D = 750000;
+    static const int MAX_EFFECTS_LINE_VERTICES_3D = 15000;
     Vertex3D m_effectsLineVertices3D[MAX_EFFECTS_LINE_VERTICES_3D];
     int m_effectsLineVertexCount3D;
     
     // Effects sprite rendering buffers
-    static const int MAX_EFFECTS_SPRITE_VERTICES_3D = 600000;
+    static const int MAX_EFFECTS_SPRITE_VERTICES_3D = 10000;
     Vertex3DTextured m_effectsSpriteVertices3D[MAX_EFFECTS_SPRITE_VERTICES_3D];
     int m_effectsSpriteVertexCount3D;
     unsigned int m_currentEffectsSpriteTexture3D;
     
     // Health bar rendering buffers
-    static const int MAX_HEALTH_BAR_VERTICES_3D = 60000;
+    static const int MAX_HEALTH_BAR_VERTICES_3D = 500;
     Vertex3DTextured m_healthBarVertices3D[MAX_HEALTH_BAR_VERTICES_3D];
     int m_healthBarVertexCount3D;
     
     // Text rendering buffers
-    static const int MAX_TEXT_VERTICES_3D = 300000;
+    static const int MAX_TEXT_VERTICES_3D = 1000;
     Vertex3DTextured m_textVertices3D[MAX_TEXT_VERTICES_3D];
     int m_textVertexCount3D;
     unsigned int m_currentTextTexture3D;
     
     // 3D Nuke model rendering buffers  
-    static const int MAX_NUKE_3D_MODEL_VERTICES_3D = 300000;
+    static const int MAX_NUKE_3D_MODEL_VERTICES_3D = 7500;
     Vertex3D m_nuke3DModelVertices3D[MAX_NUKE_3D_MODEL_VERTICES_3D];
     int m_nuke3DModelVertexCount3D;
     
     // Star field rendering buffers
-    static const int MAX_STAR_FIELD_VERTICES_3D = 500000; 
+    static const int MAX_STAR_FIELD_VERTICES_3D = 5000; 
     Vertex3DTextured m_starFieldVertices3D[MAX_STAR_FIELD_VERTICES_3D];
     int m_starFieldVertexCount3D;
     unsigned int m_currentStarFieldTexture3D;
     
     // Globe surface rendering buffers  
-    static const int MAX_GLOBE_SURFACE_VERTICES_3D = 250000; 
+    static const int MAX_GLOBE_SURFACE_VERTICES_3D = 2500; 
     Vertex3D m_globeSurfaceVertices3D[MAX_GLOBE_SURFACE_VERTICES_3D];
     int m_globeSurfaceVertexCount3D;
     
