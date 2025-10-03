@@ -85,31 +85,37 @@ int InputManagerWin32::EventHandler(unsigned int message, long long wParam, int 
         case WM_LBUTTONDOWN:
 			m_lmb = true;
 			g_windowManager->CaptureMouse();
+			EclUpdateMouse( m_mouseX, m_mouseY, m_lmb, m_rmb );
 			logEvent = true;
 			break;
 		case WM_LBUTTONUP:
 			m_lmb = false;
 			g_windowManager->UncaptureMouse();
+			EclUpdateMouse( m_mouseX, m_mouseY, m_lmb, m_rmb );
 			logEvent = true;
 			break;
 		case WM_MBUTTONDOWN:
 			m_mmb = true;
 			g_windowManager->CaptureMouse();
+			EclUpdateMouse( m_mouseX, m_mouseY, m_lmb, m_rmb );
 			logEvent = true;
 			break;
 		case WM_MBUTTONUP:
 			m_mmb = false;
 			g_windowManager->UncaptureMouse();
+			EclUpdateMouse( m_mouseX, m_mouseY, m_lmb, m_rmb );
 			logEvent = true;
 			break;
 		case WM_RBUTTONDOWN:
 			m_rmb = true;
 			g_windowManager->CaptureMouse();
+			EclUpdateMouse( m_mouseX, m_mouseY, m_lmb, m_rmb );
 			logEvent = true;
 			break;
 		case WM_RBUTTONUP:
 			m_rmb = false;
 			g_windowManager->UncaptureMouse();
+			EclUpdateMouse( m_mouseX, m_mouseY, m_lmb, m_rmb );
 			logEvent = true;
 			break;
 
@@ -136,6 +142,8 @@ int InputManagerWin32::EventHandler(unsigned int message, long long wParam, int 
 			
 			m_mouseX = (int)(newPosX * scaleX);
 			m_mouseY = (int)(newPosY * scaleY);
+			
+			EclUpdateMouse( m_mouseX, m_mouseY, m_lmb, m_rmb );
 			logEvent = true;
 			break;
 		}
@@ -231,12 +239,5 @@ int InputManagerWin32::EventHandler(unsigned int message, long long wParam, int 
 			return -1;		
 	}
 	
-	// Run this for every event we get, to handle the case of multiple mouse events in a
-	// single update cycle.
-	EclUpdateMouse( g_inputManager->m_mouseX, 
-					g_inputManager->m_mouseY, 
-					g_inputManager->m_lmb, 
-					g_inputManager->m_rmb );
-
 	return 0;
 }

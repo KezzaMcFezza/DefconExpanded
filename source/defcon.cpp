@@ -17,6 +17,7 @@
 #include <time.h>
 
 #include "lib/gucci/input.h"
+#include "lib/gucci/window_manager.h"
 #include "lib/hi_res_time.h"
 #include "lib/debug_utils.h"
 #include "lib/profiler.h"
@@ -797,6 +798,12 @@ void EmscriptenMainLoop()
         return;
     }
 #endif
+    
+    //
+    // Poll input events first to minimize latency
+    
+    g_windowManager->PollForMessages();
+    
     //
     // Get the time
 
@@ -1137,6 +1144,12 @@ void DefconMain()
 
 	while(true)
     {
+        
+        //
+        // poll input events first to minimize latency
+        
+        g_windowManager->PollForMessages();
+        
         //
         // Get the time
         double timeNow = GetHighResTime();

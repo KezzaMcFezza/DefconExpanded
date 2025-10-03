@@ -641,7 +641,6 @@ void WindowManagerWin32::DestroyWin()
 
 void WindowManagerWin32::Flip()
 {
-    PollForMessages();
 	SwapBuffers(m_hDC);
 }
 

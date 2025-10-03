@@ -247,6 +247,8 @@ int InputManagerSDL::EventHandler(unsigned int message, long long wParam, int lP
 				m_rawRmb = false;
 				
 			m_rmb = m_shouldEmulateRmb ? (m_rawRmb || m_emulatedRmb) : m_rawRmb;
+			
+			EclUpdateMouse( m_mouseX, m_mouseY, m_lmb, m_rmb );
 			break;
 		}
 
@@ -265,6 +267,8 @@ int InputManagerSDL::EventHandler(unsigned int message, long long wParam, int lP
 				m_rawRmb = true;
 				
 			m_rmb = m_shouldEmulateRmb ? (m_rawRmb || m_emulatedRmb) : m_rawRmb;
+			
+			EclUpdateMouse( m_mouseX, m_mouseY, m_lmb, m_rmb );
 			break;
 		}
             
@@ -305,6 +309,8 @@ int InputManagerSDL::EventHandler(unsigned int message, long long wParam, int lP
 				m_mouseX = sdlEvent->motion.x;
 				m_mouseY = sdlEvent->motion.y;
 			}
+			
+			EclUpdateMouse( m_mouseX, m_mouseY, m_lmb, m_rmb );
 			break;
 		}
 
@@ -379,14 +385,7 @@ int InputManagerSDL::EventHandler(unsigned int message, long long wParam, int lP
 					
 		default:
 			return -1;
-	}
-	
-	// Run this for every event we get, to handle the case of multiple mouse events in a
-	// single update cycle.
-	EclUpdateMouse( g_inputManager->m_mouseX, 
-					g_inputManager->m_mouseY, 
-					g_inputManager->m_lmb, 
-					g_inputManager->m_rmb );
+	}	
 	
 	return 0;
 }

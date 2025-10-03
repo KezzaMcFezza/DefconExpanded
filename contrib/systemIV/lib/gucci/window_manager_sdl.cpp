@@ -445,8 +445,6 @@ void WindowManagerSDL::DestroyWin()
 
 void WindowManagerSDL::Flip()
 {
-	PollForMessages();
-	
 	if (m_tryingToCaptureMouse) 
 		g_windowManager->CaptureMouse();
 	
