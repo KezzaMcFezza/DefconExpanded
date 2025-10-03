@@ -1174,16 +1174,8 @@ void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3D* verti
     
     const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3D);
     
-    #ifdef TARGET_EMSCRIPTEN
-
-        //
-        // direct upload is faster in WebGL, avoids JavaScript->WASM overhead
-
-        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
-    #else
-        glBufferData(GL_ARRAY_BUFFER, bytes, NULL, GL_STREAM_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
-    #endif
+    glBufferData(GL_ARRAY_BUFFER, bytes, NULL, GL_STREAM_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
 }
 
 void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount) {
@@ -1193,13 +1185,8 @@ void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3DTexture
     
     const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3DTextured);
     
-    #ifdef TARGET_EMSCRIPTEN
-
-        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
-    #else
-        glBufferData(GL_ARRAY_BUFFER, bytes, NULL, GL_STREAM_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
-    #endif
+    glBufferData(GL_ARRAY_BUFFER, bytes, NULL, GL_STREAM_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
 }
 
 void Renderer3D::EnableDistanceFog(float start, float end, float density, float r, float g, float b, float a) {

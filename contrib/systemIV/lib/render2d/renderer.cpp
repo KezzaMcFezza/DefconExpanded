@@ -962,16 +962,9 @@ void Renderer::UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices,
     
     const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex2D);
     
-    #ifdef TARGET_EMSCRIPTEN
-    
-        //
-        // direct upload is faster, avoids javascript->wasm overhead
-
-        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
-    #else
-        glBufferData(GL_ARRAY_BUFFER, bytes, NULL, GL_STREAM_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
-    #endif
+    glBufferData(GL_ARRAY_BUFFER, bytes, NULL, GL_STREAM_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+ 
 }
 
 // ============================================================================

@@ -293,28 +293,8 @@ void Renderer::EndMegaVBO() {
     //
     // upload vertex data
     
-#ifdef TARGET_EMSCRIPTEN
-    if (cachedVBO->vertexCount != m_megaVertexCount) {
-        glBufferData(GL_ARRAY_BUFFER, m_megaVertexCount * sizeof(Vertex2D), m_megaVertices, GL_STATIC_DRAW);
-    } else {
-        glBufferSubData(GL_ARRAY_BUFFER, 0, m_megaVertexCount * sizeof(Vertex2D), m_megaVertices);
-    }
-#else
     glBufferData(GL_ARRAY_BUFFER, m_megaVertexCount * sizeof(Vertex2D), m_megaVertices, GL_STATIC_DRAW);
-#endif
-    
-    //
-    // upload index data
-    
-#ifdef TARGET_EMSCRIPTEN
-    if (cachedVBO->indexCount != m_megaIndexCount) {
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_megaIndexCount * sizeof(unsigned int), m_megaIndices, GL_STATIC_DRAW);
-    } else {
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_megaIndexCount * sizeof(unsigned int), m_megaIndices);
-    }
-#else
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_megaIndexCount * sizeof(unsigned int), m_megaIndices, GL_STATIC_DRAW);
-#endif
     
     // Store mega-VBO info
     cachedVBO->vertexCount = m_megaVertexCount;

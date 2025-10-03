@@ -188,25 +188,8 @@ void Renderer3D::EndMegaVBO3D() {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     }
     
-#ifdef TARGET_EMSCRIPTEN
-    if (isNewVBO || cachedVBO->vertexCount != m_megaVertex3DCount) {
-        glBufferData(GL_ARRAY_BUFFER, m_megaVertex3DCount * sizeof(Vertex3D), m_megaVertices3D, GL_STATIC_DRAW);
-    } else {
-        glBufferSubData(GL_ARRAY_BUFFER, 0, m_megaVertex3DCount * sizeof(Vertex3D), m_megaVertices3D);
-    }
-#else
     glBufferData(GL_ARRAY_BUFFER, m_megaVertex3DCount * sizeof(Vertex3D), m_megaVertices3D, GL_STATIC_DRAW);
-#endif
-    
-#ifdef TARGET_EMSCRIPTEN
-    if (isNewVBO || cachedVBO->indexCount != m_megaIndex3DCount) {
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_megaIndex3DCount * sizeof(unsigned int), m_megaIndices3D, GL_STATIC_DRAW);
-    } else {
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_megaIndex3DCount * sizeof(unsigned int), m_megaIndices3D);
-    }
-#else
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_megaIndex3DCount * sizeof(unsigned int), m_megaIndices3D, GL_STATIC_DRAW);
-#endif
     
     // Store mega-VBO info
     cachedVBO->vertexCount = m_megaVertex3DCount;
