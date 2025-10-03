@@ -284,7 +284,8 @@ protected:
   //
   // megavbo state for large geometry
 
-  static const int MAX_MEGA_VERTICES = 4200000; // any higher and she crashes
+  int m_maxMegaVertices;
+  int m_maxMegaIndices;
 
   bool m_megaVBOActive;
   char *m_currentMegaVBOKey;
@@ -292,6 +293,8 @@ protected:
   float m_megaVBOWidth;
   Vertex2D *m_megaVertices;
   int m_megaVertexCount;
+  unsigned int *m_megaIndices;
+  int m_megaIndexCount;
 
   //
   // vbo caching system for coastlines and borders, replaced display lists
@@ -299,7 +302,9 @@ protected:
   struct CachedVBO {
     unsigned int VBO;
     unsigned int VAO;
-    int vertexCount;
+    unsigned int IBO;           // Index buffer for indexed drawing
+    int vertexCount;            // Number of actual vertices (no duplication)
+    int indexCount;             // Number of indices
     Colour color;
     float lineWidth;
     bool isValid;
@@ -713,6 +718,7 @@ public:
   void EndMegaVBO               ();
   void RenderMegaVBO            (const char *megaVBOKey);
   bool IsMegaVBOValid           (const char *megaVBOKey);
+  void SetMegaVBOBufferSizes    (int vertexCount, int indexCount);
   void InvalidateAllVBOs        ();
 
   //

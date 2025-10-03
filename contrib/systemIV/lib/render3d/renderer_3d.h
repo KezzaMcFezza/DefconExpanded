@@ -138,15 +138,20 @@ private:
     bool m_megaVBO3DActive;
     char* m_currentMegaVBO3DKey;
     Colour m_megaVBO3DColor;
-    static const int MAX_MEGA_3D_VERTICES = 4200000;  // any higher and she crashes
+    int m_maxMegaVertices3D;
+    int m_maxMegaIndices3D;
     Vertex3D* m_megaVertices3D;
     int m_megaVertex3DCount;
+    unsigned int* m_megaIndices3D;
+    int m_megaIndex3DCount;
     
     // VBO caching system for 3D geometry (replaces display lists)
     struct Cached3DVBO {
         unsigned int VBO;
         unsigned int VAO;
-        int vertexCount;
+        unsigned int IBO;           // Index buffer for indexed drawing
+        int vertexCount;            // Number of actual vertices (no duplication)
+        int indexCount;             // Number of indices
         Colour color;
         bool isValid;
     };
@@ -379,6 +384,7 @@ public:
     void EndMegaVBO3D();
     void RenderMegaVBO3D(const char* megaVBOKey);
     bool IsMegaVBO3DValid(const char* megaVBOKey);
+    void SetMegaVBO3DBufferSizes(int vertexCount, int indexCount);
     void InvalidateAll3DVBOs();
     
     // Utility functions

@@ -93,6 +93,8 @@ void ModSystem::Initialise()
     {
         SetModPath( g_preferences->GetString( "ModPath" ) );
         
+        UpdateGeographyAffectingMods();
+        
         // Scan mods  immediately after loading mods during game startup
         ScanModGraphics();
         AppDebugOut("ModSystem: Scanned mod graphics during initialization\n");
@@ -840,21 +842,21 @@ void ModSystem::Commit()
         {
             AppDebugOut("Geography data changed, rebuilding VBOs\n");
             
-            g_app->GetEarthData()->LoadCoastlines();
-            g_app->GetEarthData()->LoadBorders();
-
-            // Invalidate and rebuild VBOs for both 2D and 3D renderers
             if (g_renderer) {
                 g_renderer->InvalidateCachedVBO("all_coastlines");
                 g_renderer->InvalidateCachedVBO("all_borders");
-                AppDebugOut("Invalidated 2D coastlines and borders VBOs\n");
+                AppDebugOut("Pre-invalidated 2D coastlines and borders VBOs\n");
             }
             if (g_renderer3d) {
                 g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
                 g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
                 g_renderer3d->InvalidateCached3DVBO("GlobeGridlines");
-                AppDebugOut("Invalidated 3D globe VBOs\n");
+                AppDebugOut("Pre-invalidated 3D globe VBOs\n");
             }
+            
+            g_app->GetEarthData()->LoadCoastlines();
+            g_app->GetEarthData()->LoadBorders();
+            g_app->GetEarthData()->CalculateAndSetBufferSizes();
         }
         else
         {

@@ -2,7 +2,6 @@
 
 #include "lib/debug_utils.h"
 #include "lib/string_utils.h"
-#include "lib/hi_res_time.h"
 
 #include "lib/render2d/renderer.h"
 
@@ -95,27 +94,34 @@ void Renderer::EndCachedLineStrip() {
         lineVertices[lineIndex++] = m_lineVertices[i + 1];
     }
     
-    // Create VBO if it doesn't exist
-    if (cachedVBO->VBO == 0) {
+    bool isNewVBO = (cachedVBO->VBO == 0);
+    if (isNewVBO) {
         glGenVertexArrays(1, &cachedVBO->VAO);
         glGenBuffers(1, &cachedVBO->VBO);
+        
+        glBindVertexArray(cachedVBO->VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+        
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+    } else {
+        glBindVertexArray(cachedVBO->VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
     }
     
-    // Upload data to VBO
-    glBindVertexArray(cachedVBO->VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+#ifdef TARGET_EMSCRIPTEN
+    if (isNewVBO || cachedVBO->vertexCount != lineVertexCount) {
+        glBufferData(GL_ARRAY_BUFFER, lineVertexCount * sizeof(Vertex2D), lineVertices, GL_STATIC_DRAW);
+    } else {
+        glBufferSubData(GL_ARRAY_BUFFER, 0, lineVertexCount * sizeof(Vertex2D), lineVertices);
+    }
+#else
     glBufferData(GL_ARRAY_BUFFER, lineVertexCount * sizeof(Vertex2D), lineVertices, GL_STATIC_DRAW);
-    
-    // Set up vertex attributes
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+#endif
     
     // Store VBO info
     cachedVBO->vertexCount = lineVertexCount;
@@ -136,36 +142,37 @@ void Renderer::RenderCachedLineStrip(const char* cacheKey) {
     }
     CachedVBO* cachedVBO = tree->data;
     
-    // Use color shader
     glUseProgram(m_colorShaderProgram);
-    
-    // Set uniforms
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    SetColorShaderUniforms();
     
     // Render the cached VBO
     glBindVertexArray(cachedVBO->VAO);
     glDrawArrays(GL_LINES, 0, cachedVBO->vertexCount);
-    glBindVertexArray(0);
-    glUseProgram(0);
 }
 
 void Renderer::InvalidateCachedVBO(const char* cacheKey) {
     BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(cacheKey);
     if (tree && tree->data) {
         CachedVBO* cachedVBO = tree->data;
-        cachedVBO->isValid = false;
+
         if (cachedVBO->VBO != 0) {
             glDeleteBuffers(1, &cachedVBO->VBO);
             cachedVBO->VBO = 0;
+        }
+        if (cachedVBO->IBO != 0) {
+            glDeleteBuffers(1, &cachedVBO->IBO);
+            cachedVBO->IBO = 0;
         }
         if (cachedVBO->VAO != 0) {
             glDeleteVertexArrays(1, &cachedVBO->VAO);
             cachedVBO->VAO = 0;
         }
+        
+        //
+        // delete the struct and remove from BTree to free CPU memory
+
+        delete cachedVBO;
+        m_cachedVBOs.RemoveData(cacheKey);
     }
 }
 
@@ -191,39 +198,47 @@ void Renderer::BeginMegaVBO(const char* megaVBOKey, Colour const &col) {
     m_megaVBOActive = true;
     m_megaVBOColor = col;
     
-    // Clear mega vertex buffer
+    // Clear mega vertex and index buffers
     m_megaVertexCount = 0;
+    m_megaIndexCount = 0;
 }
 
 void Renderer::AddLineStripToMegaVBO(float* vertices, int vertexCount) {
     if (!m_megaVBOActive || vertexCount < 2) return;
     
-    // Convert color to float
+    //
+    // convert color to float
+
     float r = m_megaVBOColor.m_r / 255.0f, g = m_megaVBOColor.m_g / 255.0f;
     float b = m_megaVBOColor.m_b / 255.0f, a = m_megaVBOColor.m_a / 255.0f;
     
-    // Convert line strip to line segments and add to mega buffer
-    for (int i = 0; i < vertexCount - 1; i++) {
-        if (m_megaVertexCount + 2 >= MAX_MEGA_VERTICES) {
-            AppDebugOut("Warning: Mega-VBO exceeded maximum vertex count\n");
-            return;
-        }
+    //
+    // store starting vertex index for this line strip
         
-        // Line from vertex i to vertex i+1
-        // First vertex of line segment
+    unsigned int startIndex = m_megaVertexCount;
+
+    //
+    // add vertices without duplication
+
+    for (int i = 0; i < vertexCount; i++) {
         m_megaVertices[m_megaVertexCount++] = {
             vertices[i * 2], vertices[i * 2 + 1], 
             r, g, b, a, 
             0.0f, 0.0f
         };
-        
-        // Second vertex of line segment
-        m_megaVertices[m_megaVertexCount++] = {
-            vertices[(i + 1) * 2], vertices[(i + 1) * 2 + 1], 
-            r, g, b, a, 
-            0.0f, 0.0f
-        };
     }
+    
+    //
+    // add indices for this line strip
+
+    for (int i = 0; i < vertexCount; i++) {
+        m_megaIndices[m_megaIndexCount++] = startIndex + i;
+    }
+    
+    //
+    // add primitive restart index to separate line strips
+
+    m_megaIndices[m_megaIndexCount++] = 0xFFFFFFFF;
 }
 
 void Renderer::EndMegaVBO() {
@@ -241,37 +256,69 @@ void Renderer::EndMegaVBO() {
         cachedVBO = new CachedVBO();
         cachedVBO->VBO = 0;
         cachedVBO->VAO = 0;
+        cachedVBO->IBO = 0;
         cachedVBO->vertexCount = 0;
+        cachedVBO->indexCount = 0;
         cachedVBO->isValid = false;
         m_cachedVBOs.PutData(m_currentMegaVBOKey, cachedVBO);
     } else {
         cachedVBO = tree->data;
     }
     
-    // Create VBO if it doesn't exist
     if (cachedVBO->VBO == 0) {
         glGenVertexArrays(1, &cachedVBO->VAO);
         glGenBuffers(1, &cachedVBO->VBO);
+        glGenBuffers(1, &cachedVBO->IBO);
+        
+        glBindVertexArray(cachedVBO->VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+        
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        
+        //
+        // bind index buffer to VAO
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
+    } else {
+        glBindVertexArray(cachedVBO->VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     }
     
-    // Upload mega data to VBO
-    glBindVertexArray(cachedVBO->VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+    //
+    // upload vertex data
+    
+#ifdef TARGET_EMSCRIPTEN
+    if (cachedVBO->vertexCount != m_megaVertexCount) {
+        glBufferData(GL_ARRAY_BUFFER, m_megaVertexCount * sizeof(Vertex2D), m_megaVertices, GL_STATIC_DRAW);
+    } else {
+        glBufferSubData(GL_ARRAY_BUFFER, 0, m_megaVertexCount * sizeof(Vertex2D), m_megaVertices);
+    }
+#else
     glBufferData(GL_ARRAY_BUFFER, m_megaVertexCount * sizeof(Vertex2D), m_megaVertices, GL_STATIC_DRAW);
+#endif
     
-    // Set up vertex attributes
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    //
+    // upload index data
     
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+#ifdef TARGET_EMSCRIPTEN
+    if (cachedVBO->indexCount != m_megaIndexCount) {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_megaIndexCount * sizeof(unsigned int), m_megaIndices, GL_STATIC_DRAW);
+    } else {
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_megaIndexCount * sizeof(unsigned int), m_megaIndices);
+    }
+#else
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_megaIndexCount * sizeof(unsigned int), m_megaIndices, GL_STATIC_DRAW);
+#endif
     
     // Store mega-VBO info
     cachedVBO->vertexCount = m_megaVertexCount;
+    cachedVBO->indexCount = m_megaIndexCount;
     cachedVBO->color = m_megaVBOColor;
     cachedVBO->lineWidth = m_megaVBOWidth;
     cachedVBO->isValid = true;
@@ -282,6 +329,7 @@ void Renderer::EndMegaVBO() {
     
     // Reset state
     m_megaVertexCount = 0;
+    m_megaIndexCount = 0;
     m_megaVBOActive = false;
 }
 
@@ -293,21 +341,23 @@ void Renderer::RenderMegaVBO(const char* megaVBOKey) {
     
     CachedVBO* cachedVBO = tree->data;
     
-    // Use color shader
     glUseProgram(m_colorShaderProgram);
+    SetColorShaderUniforms();
     
-    // Set uniforms
-    int projLoc = glGetUniformLocation(m_colorShaderProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_colorShaderProgram, "uModelView");
+#ifndef TARGET_EMSCRIPTEN
+    glEnable(GL_PRIMITIVE_RESTART);
+    glPrimitiveRestartIndex(0xFFFFFFFF);
+#endif
     
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
-    
-    // Render the mega-VBO with single draw call
+    //
+    // render the mega-VBO with indexed drawing for emscripten
+
     glBindVertexArray(cachedVBO->VAO);
-    glDrawArrays(GL_LINES, 0, cachedVBO->vertexCount);
-    glBindVertexArray(0);
-    glUseProgram(0);
+    glDrawElements(GL_LINE_STRIP, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
+    
+#ifndef TARGET_EMSCRIPTEN
+    glDisable(GL_PRIMITIVE_RESTART);
+#endif
 }
 
 bool Renderer::IsMegaVBOValid(const char* megaVBOKey) {
@@ -316,21 +366,50 @@ bool Renderer::IsMegaVBOValid(const char* megaVBOKey) {
 }
 
 void Renderer::InvalidateAllVBOs() {
-    DArray<CachedVBO*> *allVBOs = m_cachedVBOs.ConvertToDArray();
-    for (int i = 0; i < allVBOs->Size(); ++i) {
-        CachedVBO* cachedVBO = allVBOs->GetData(i);
-        if (cachedVBO) {
-            cachedVBO->isValid = false;
-            if (cachedVBO->VBO != 0) {
-                glDeleteBuffers(1, &cachedVBO->VBO);
-                cachedVBO->VBO = 0;
-            }
-            if (cachedVBO->VAO != 0) {
-                glDeleteVertexArrays(1, &cachedVBO->VAO);
-                cachedVBO->VAO = 0;
-            }
-        }
+    
+    //
+    // collect all keys first (can't modify BTree while iterating)
+
+    DArray<char*> *keys = m_cachedVBOs.ConvertIndexToDArray();
+    
+    //
+    // delete each VBO 
+
+    for (int i = 0; i < keys->Size(); ++i) {
+        InvalidateCachedVBO(keys->GetData(i));
     }
-    delete allVBOs;
-    AppDebugOut("Invalidated all cached VBOs\n");
+    
+    delete keys;
+}
+
+void Renderer::SetMegaVBOBufferSizes(int vertexCount, int indexCount) {
+
+    //
+    // calculate new sizes with 10% safety margin
+
+    int newMaxVertices = (int)(vertexCount * 1.1f);
+    int newMaxIndices = (int)(indexCount * 1.1f);
+    
+    //
+    // delete all mega-VBO GPU/CPU resources when resizing
+
+    InvalidateCachedVBO("all_coastlines");
+    InvalidateCachedVBO("all_borders");
+    
+    //
+    // free existing CPU buffers
+
+    if (m_megaVertices) {
+        delete[] m_megaVertices;
+        m_megaVertices = NULL;
+    }
+    if (m_megaIndices) {
+        delete[] m_megaIndices;
+        m_megaIndices = NULL;
+    }
+    
+    m_maxMegaVertices = newMaxVertices;
+    m_maxMegaIndices = newMaxIndices;
+    m_megaVertices = new Vertex2D[m_maxMegaVertices];
+    m_megaIndices = new unsigned int[m_maxMegaIndices];
 }

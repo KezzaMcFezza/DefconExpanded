@@ -178,6 +178,8 @@ Renderer::Renderer()
       m_lineStripActive(false),
       m_cachedLineStripActive(false),
       m_currentCacheKey(NULL),
+      m_maxMegaVertices(2500000),
+      m_maxMegaIndices(5000000),
       m_megaVBOActive(false),
       m_currentMegaVBOKey(NULL),
       m_megaVertices(NULL),
@@ -274,7 +276,8 @@ Renderer::Renderer()
       SetupVertexArrays();
       ResetFlushTimings();
     
-    m_megaVertices = new Vertex2D[MAX_MEGA_VERTICES];
+    m_megaVertices = new Vertex2D[m_maxMegaVertices];
+    m_megaIndices = new unsigned int[m_maxMegaIndices];
     g_renderer3d = new Renderer3D(this);
 }
 
@@ -305,6 +308,10 @@ Renderer::~Renderer() {
     if (m_megaVertices) {
         delete[] m_megaVertices;
         m_megaVertices = NULL;
+    }
+    if (m_megaIndices) {
+        delete[] m_megaIndices;
+        m_megaIndices = NULL;
     }
     
     if (g_renderer3d) {
@@ -949,19 +956,22 @@ void Renderer::UploadVertexData(const Vertex2D* vertices, int vertexCount) {
 }
 
 void Renderer::UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices, int vertexCount) {
-    if (vertexCount == 0) return;
+    if (vertexCount <= 0 || !vertices) return;
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     
-    //
-    // orphan the buffer, this invalidates the old buffer and allocates new memory
-
-    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex2D), NULL, GL_STREAM_DRAW);
+    const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex2D);
     
-    //
-    // upload new data, no sync needed as we have fresh memory
+    #ifdef TARGET_EMSCRIPTEN
+    
+        //
+        // direct upload is faster, avoids javascript->wasm overhead
 
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(Vertex2D), vertices);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+    #else
+        glBufferData(GL_ARRAY_BUFFER, bytes, NULL, GL_STREAM_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+    #endif
 }
 
 // ============================================================================

@@ -147,6 +147,8 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_lineStrip3DActive(false),
     m_texturedQuad3DActive(false),
     m_currentTexture3D(0),
+    m_maxMegaVertices3D(2500000),
+    m_maxMegaIndices3D(5000000),
     m_megaVBO3DActive(false),
     m_currentMegaVBO3DKey(NULL),
     m_megaVertices3D(NULL),
@@ -229,8 +231,11 @@ Renderer3D::Renderer3D(Renderer* renderer)
     Setup3DVertexArrays();
     Setup3DTexturedVertexArrays();
     
-    // Allocate mega vertex buffer for 3D
-    m_megaVertices3D = new Vertex3D[MAX_MEGA_3D_VERTICES];
+    //
+    // allocate mega vertex and index buffers for 3D coastlines and borders
+
+    m_megaVertices3D = new Vertex3D[m_maxMegaVertices3D];
+    m_megaIndices3D = new unsigned int[m_maxMegaIndices3D];
 }
 
 Renderer3D::~Renderer3D() {
@@ -281,10 +286,14 @@ void Renderer3D::Shutdown() {
         m_shader3DTexturedProgram = 0;
     }
     
-    // Clean up mega vertex buffer
+    // Clean up mega vertex and index buffers
     if (m_megaVertices3D) {
         delete[] m_megaVertices3D;
         m_megaVertices3D = NULL;
+    }
+    if (m_megaIndices3D) {
+        delete[] m_megaIndices3D;
+        m_megaIndices3D = NULL;
     }
     if (m_currentMegaVBO3DKey) {
         delete[] m_currentMegaVBO3DKey;
@@ -1159,27 +1168,38 @@ void Renderer3D::SetFogUniforms3D(unsigned int shaderProgram) {
 }
 
 void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3D* vertices, int vertexCount) {
-    if (vertexCount == 0) return;
+    if (vertexCount <= 0 || !vertices) return;
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     
-    //
-    // orphan the buffer, this invalidates the old buffer and allocates new memory
-
-    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex3D), NULL, GL_STREAM_DRAW);
+    const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3D);
     
-    //
-    // upload new data, no sync needed as we have fresh memory
+    #ifdef TARGET_EMSCRIPTEN
 
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(Vertex3D), vertices);
+        //
+        // direct upload is faster in WebGL, avoids JavaScript->WASM overhead
+
+        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+    #else
+        glBufferData(GL_ARRAY_BUFFER, bytes, NULL, GL_STREAM_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+    #endif
 }
 
 void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount) {
-    if (vertexCount == 0) return;
+    if (vertexCount <= 0 || !vertices) return;
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex3DTextured), NULL, GL_STREAM_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(Vertex3DTextured), vertices);
+    
+    const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3DTextured);
+    
+    #ifdef TARGET_EMSCRIPTEN
+
+        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+    #else
+        glBufferData(GL_ARRAY_BUFFER, bytes, NULL, GL_STREAM_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+    #endif
 }
 
 void Renderer3D::EnableDistanceFog(float start, float end, float density, float r, float g, float b, float a) {

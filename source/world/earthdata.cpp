@@ -4,6 +4,8 @@
 #include "lib/math/vector3.h"
 #include "lib/hi_res_time.h"
 #include "lib/preferences.h"
+#include "lib/render2d/renderer.h"
+#include "lib/render3d/renderer_3d.h"
 
 #include "city.h"
 #include "earthdata.h"
@@ -30,6 +32,7 @@ void EarthData::Initialise()
 {        
     LoadCoastlines();
     LoadBorders();
+    CalculateAndSetBufferSizes();
     LoadCities();
 }
 
@@ -186,6 +189,49 @@ void EarthData::LoadCoastlines()
     AppDebugOut( "Parsing Coastline data (%d islands) : %dms\n", numIslands, int( totalTime * 1000.0f ) );
 }
 
+
+// ================================================================================
+
+void EarthData::CalculateAndSetBufferSizes()
+{
+    int totalVertices = 0;
+    int totalIndices = 0;
+    
+    //
+    // count vertices and indices for coastlines
+
+    for (int i = 0; i < m_islands.Size(); ++i) {
+        Island* island = m_islands[i];
+        int pointCount = island->m_points.Size();
+        if (pointCount >= 2) {
+            totalVertices += pointCount;
+            totalIndices += pointCount + 1;
+        }
+    }
+    
+    //
+    // count vertices and indices for borders
+
+    for (int i = 0; i < m_borders.Size(); ++i) {
+        Island* border = m_borders[i];
+        int pointCount = border->m_points.Size();
+        if (pointCount >= 2) {
+            totalVertices += pointCount;
+            totalIndices += pointCount + 1;
+        }
+    }
+    
+    //
+    // set buffer sizes for both 2D and 3D renderers
+    // both renderers use the same data
+
+    if (g_renderer) {
+        g_renderer->SetMegaVBOBufferSizes(totalVertices, totalIndices);
+    }
+    if (g_renderer3d) {
+        g_renderer3d->SetMegaVBO3DBufferSizes(totalVertices, totalIndices);
+    }
+}
 
 // ================================================================================
 

@@ -42,36 +42,34 @@ void Renderer3D::RenderCachedGeometry3D(const char* cacheKey) {
     
     Cached3DVBO* cachedVBO = tree->data;
     
-    // Use 3D shader
     glUseProgram(m_shader3DProgram);
-    
-    // Set uniforms
-    int projLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
+    Set3DShaderUniforms();
     
     // Render the cached VBO
     glBindVertexArray(cachedVBO->VAO);
     glDrawArrays(GL_LINES, 0, cachedVBO->vertexCount);
-    glBindVertexArray(0);
-    glUseProgram(0);
 }
 
 void Renderer3D::InvalidateCached3DVBO(const char* cacheKey) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
     if (tree && tree->data) {
         Cached3DVBO* cachedVBO = tree->data;
-        cachedVBO->isValid = false;
+
         if (cachedVBO->VBO != 0) {
             glDeleteBuffers(1, &cachedVBO->VBO);
             cachedVBO->VBO = 0;
+        }
+        if (cachedVBO->IBO != 0) {
+            glDeleteBuffers(1, &cachedVBO->IBO);
+            cachedVBO->IBO = 0;
         }
         if (cachedVBO->VAO != 0) {
             glDeleteVertexArrays(1, &cachedVBO->VAO);
             cachedVBO->VAO = 0;
         }
+        
+        delete cachedVBO;
+        m_cached3DVBOs.RemoveData(cacheKey);
     }
 }
 
@@ -103,36 +101,45 @@ void Renderer3D::BeginMegaVBO3D(const char* megaVBOKey, Colour const &col) {
     m_megaVBO3DActive = true;
     m_megaVBO3DColor = col;
     
-    // Clear mega vertex buffer
     m_megaVertex3DCount = 0;
+    m_megaIndex3DCount = 0;
 }
 
 void Renderer3D::AddLineStripToMegaVBO3D(const Vector3<float>* vertices, int vertexCount) {
     if (!m_megaVBO3DActive || vertexCount < 2) return;
     
-    // Convert color to float
+    //
+    // convert color to float
+
     float r = m_megaVBO3DColor.m_r / 255.0f, g = m_megaVBO3DColor.m_g / 255.0f;
     float b = m_megaVBO3DColor.m_b / 255.0f, a = m_megaVBO3DColor.m_a / 255.0f;
     
-    // Convert line strip to line segments and add to mega buffer
-    for (int i = 0; i < vertexCount - 1; i++) {
-        if (m_megaVertex3DCount + 2 >= MAX_MEGA_3D_VERTICES) {
-            return;
-        }
-        
-        // Line from vertex i to vertex i+1
-        // First vertex of line segment
+    //
+    // store starting vertex index for this line strip
+
+    unsigned int startIndex = m_megaVertex3DCount;
+    
+    //
+    // add vertices without duplication
+
+    for (int i = 0; i < vertexCount; i++) {
         m_megaVertices3D[m_megaVertex3DCount] = Vertex3D(
             vertices[i].x, vertices[i].y, vertices[i].z, r, g, b, a
         );
         m_megaVertex3DCount++;
-        
-        // Second vertex of line segment
-        m_megaVertices3D[m_megaVertex3DCount] = Vertex3D(
-            vertices[i + 1].x, vertices[i + 1].y, vertices[i + 1].z, r, g, b, a
-        );
-        m_megaVertex3DCount++;
     }
+    
+    //
+    // add indices for this line strip
+
+    for (int i = 0; i < vertexCount; i++) {
+        m_megaIndices3D[m_megaIndex3DCount++] = startIndex + i;
+    }
+    
+    //
+    // add primitive restart index to separate line strips
+
+    m_megaIndices3D[m_megaIndex3DCount++] = 0xFFFFFFFF;
 }
 
 void Renderer3D::EndMegaVBO3D() {
@@ -151,40 +158,65 @@ void Renderer3D::EndMegaVBO3D() {
         cachedVBO = new Cached3DVBO();
         cachedVBO->VBO = 0;
         cachedVBO->VAO = 0;
+        cachedVBO->IBO = 0;
         cachedVBO->vertexCount = 0;
+        cachedVBO->indexCount = 0;
         cachedVBO->isValid = false;
         m_cached3DVBOs.PutData(m_currentMegaVBO3DKey, cachedVBO);
     } else {
         cachedVBO = tree->data;
     }
     
-    // Create VBO if it doesn't exist
-    if (cachedVBO->VBO == 0) {
+    bool isNewVBO = (cachedVBO->VBO == 0);
+    if (isNewVBO) {
         glGenVertexArrays(1, &cachedVBO->VAO);
         glGenBuffers(1, &cachedVBO->VBO);
+        glGenBuffers(1, &cachedVBO->IBO);
+        
+        glBindVertexArray(cachedVBO->VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+        
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
+    } else {
+        glBindVertexArray(cachedVBO->VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     }
     
-    // Upload mega data to VBO
-    glBindVertexArray(cachedVBO->VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+#ifdef TARGET_EMSCRIPTEN
+    if (isNewVBO || cachedVBO->vertexCount != m_megaVertex3DCount) {
+        glBufferData(GL_ARRAY_BUFFER, m_megaVertex3DCount * sizeof(Vertex3D), m_megaVertices3D, GL_STATIC_DRAW);
+    } else {
+        glBufferSubData(GL_ARRAY_BUFFER, 0, m_megaVertex3DCount * sizeof(Vertex3D), m_megaVertices3D);
+    }
+#else
     glBufferData(GL_ARRAY_BUFFER, m_megaVertex3DCount * sizeof(Vertex3D), m_megaVertices3D, GL_STATIC_DRAW);
+#endif
     
-    // Set up vertex attributes (3D version)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+#ifdef TARGET_EMSCRIPTEN
+    if (isNewVBO || cachedVBO->indexCount != m_megaIndex3DCount) {
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_megaIndex3DCount * sizeof(unsigned int), m_megaIndices3D, GL_STATIC_DRAW);
+    } else {
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, m_megaIndex3DCount * sizeof(unsigned int), m_megaIndices3D);
+    }
+#else
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_megaIndex3DCount * sizeof(unsigned int), m_megaIndices3D, GL_STATIC_DRAW);
+#endif
     
     // Store mega-VBO info
     cachedVBO->vertexCount = m_megaVertex3DCount;
+    cachedVBO->indexCount = m_megaIndex3DCount;
     cachedVBO->color = m_megaVBO3DColor;
     cachedVBO->isValid = true;
     
     // Reset state
     m_megaVertex3DCount = 0;
+    m_megaIndex3DCount = 0;
     m_megaVBO3DActive = false;
 }
 
@@ -199,36 +231,19 @@ void Renderer3D::RenderMegaVBO3D(const char* megaVBOKey) {
     
     Cached3DVBO* cachedVBO = tree->data;
     
-    // Use 3D shader
     glUseProgram(m_shader3DProgram);
+    Set3DShaderUniforms();
     
-    // Set uniforms
-    int projLoc = glGetUniformLocation(m_shader3DProgram, "uProjection");
-    int modelViewLoc = glGetUniformLocation(m_shader3DProgram, "uModelView");
-    
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
-    glUniformMatrix4fv(modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
-    
-    // Set fog uniforms (both distance-based and orientation-based)
-    int fogEnabledLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnabled");
-    int fogOrientationLoc = glGetUniformLocation(m_shader3DProgram, "uFogOrientationBased");
-    int fogStartLoc = glGetUniformLocation(m_shader3DProgram, "uFogStart");
-    int fogEndLoc = glGetUniformLocation(m_shader3DProgram, "uFogEnd");
-    int fogColorLoc = glGetUniformLocation(m_shader3DProgram, "uFogColor");
-    int cameraPosLoc = glGetUniformLocation(m_shader3DProgram, "uCameraPos");
-    
-    glUniform1i(fogEnabledLoc, m_fogEnabled ? 1 : 0);
-    glUniform1i(fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
-    glUniform1f(fogStartLoc, m_fogStart);
-    glUniform1f(fogEndLoc, m_fogEnd);
-    glUniform4f(fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
-    glUniform3f(cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
-    
-    // Render the mega-VBO with single draw call
+#ifndef TARGET_EMSCRIPTEN
+    glEnable(GL_PRIMITIVE_RESTART);
+    glPrimitiveRestartIndex(0xFFFFFFFF);
+#endif
     glBindVertexArray(cachedVBO->VAO);
-    glDrawArrays(GL_LINES, 0, cachedVBO->vertexCount);
-    glBindVertexArray(0);
-    glUseProgram(0);
+    glDrawElements(GL_LINE_STRIP, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
+    
+#ifndef TARGET_EMSCRIPTEN
+    glDisable(GL_PRIMITIVE_RESTART);
+#endif
 }
 
 bool Renderer3D::IsMegaVBO3DValid(const char* megaVBOKey) {
@@ -237,21 +252,34 @@ bool Renderer3D::IsMegaVBO3DValid(const char* megaVBOKey) {
 }
 
 void Renderer3D::InvalidateAll3DVBOs() {
-    DArray<Cached3DVBO*> *allVBOs = m_cached3DVBOs.ConvertToDArray();
-    for (int i = 0; i < allVBOs->Size(); ++i) {
-        Cached3DVBO* cachedVBO = allVBOs->GetData(i);
-        if (cachedVBO) {
-            cachedVBO->isValid = false;
-            if (cachedVBO->VBO != 0) {
-                glDeleteBuffers(1, &cachedVBO->VBO);
-                cachedVBO->VBO = 0;
-            }
-            if (cachedVBO->VAO != 0) {
-                glDeleteVertexArrays(1, &cachedVBO->VAO);
-                cachedVBO->VAO = 0;
-            }
-        }
+    DArray<char*> *keys = m_cached3DVBOs.ConvertIndexToDArray();
+    
+    for (int i = 0; i < keys->Size(); ++i) {
+        InvalidateCached3DVBO(keys->GetData(i));
     }
-    delete allVBOs;
-    AppDebugOut("Invalidated all cached 3D VBOs\n");
+    
+    delete keys;
+}
+
+void Renderer3D::SetMegaVBO3DBufferSizes(int vertexCount, int indexCount) {
+    int newMaxVertices = (int)(vertexCount * 1.1f);
+    int newMaxIndices = (int)(indexCount * 1.1f);
+    
+    InvalidateCached3DVBO("GlobeCoastlines");
+    InvalidateCached3DVBO("GlobeBorders");
+    InvalidateCached3DVBO("GlobeGridlines");
+    
+    if (m_megaVertices3D) {
+        delete[] m_megaVertices3D;
+        m_megaVertices3D = NULL;
+    }
+    if (m_megaIndices3D) {
+        delete[] m_megaIndices3D;
+        m_megaIndices3D = NULL;
+    }
+    
+    m_maxMegaVertices3D = newMaxVertices;
+    m_maxMegaIndices3D = newMaxIndices;
+    m_megaVertices3D = new Vertex3D[m_maxMegaVertices3D];
+    m_megaIndices3D = new unsigned int[m_maxMegaIndices3D];
 }

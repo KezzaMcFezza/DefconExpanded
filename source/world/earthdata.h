@@ -24,6 +24,7 @@ public:
     void LoadBorders();
     void LoadCities();
     void LoadCoastlines();
+    void CalculateAndSetBufferSizes();
 };
 
 
