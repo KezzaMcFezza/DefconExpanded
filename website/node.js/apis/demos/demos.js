@@ -232,7 +232,28 @@ router.get('/api/demos', async (req, res) => {
         }
       });
 
-      processedDemos.sort((a, b) => {
+      const filteredDemos = processedDemos.filter(demo => {
+        try {
+          if (demo.game_type && (demo.game_type.includes('8 Player') || demo.game_type.includes('10 Player'))) {
+            return false;
+          }
+          
+          if (!demo.players) return true;
+          const playerData = JSON.parse(demo.players);
+          const parsedPlayers = playerData.players || playerData;
+          
+          if (!Array.isArray(parsedPlayers) || parsedPlayers.length === 0) return true;
+          
+          if (parsedPlayers.length > 6) return false;
+          
+          const allPlayersHaveZeroScore = parsedPlayers.every(player => (player.score || 0) === 0);
+          return !allPlayersHaveZeroScore;
+        } catch (error) {
+          return false;
+        }
+      });
+
+      filteredDemos.sort((a, b) => {
         return scoreDifference === 'largest' ?
           b.scoreDiff - a.scoreDiff :
           a.scoreDiff - b.scoreDiff;
@@ -240,8 +261,8 @@ router.get('/api/demos', async (req, res) => {
 
       const start = offset;
       const end = offset + limit;
-      demos = processedDemos.slice(start, end);
-      totalDemos = processedDemos.length;
+      demos = filteredDemos.slice(start, end);
+      totalDemos = filteredDemos.length;
       totalPages = Math.ceil(totalDemos / limit);
 
     } else {
