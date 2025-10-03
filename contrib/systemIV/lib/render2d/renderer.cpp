@@ -184,7 +184,9 @@ Renderer::Renderer()
       m_currentMegaVBOKey(NULL),
       m_megaVertices(NULL),
       m_megaVertexCount(0),
-      m_allowImmedateFlush(true) {
+      m_allowImmedateFlush(true),
+      m_lineConversionBuffer(NULL),
+      m_lineConversionBufferSize(0) {
       m_uiTriangleVertexCount = 0;
       m_uiLineVertexCount = 0;
       m_currentFontBatchIndex = 0;
@@ -278,6 +280,10 @@ Renderer::Renderer()
     
     m_megaVertices = new Vertex2D[m_maxMegaVertices];
     m_megaIndices = new unsigned int[m_maxMegaIndices];
+    
+    m_lineConversionBufferSize = std::max(MAX_ECLIPSE_LINE_VERTICES * 2, MAX_VERTICES * 2);
+    m_lineConversionBuffer = new Vertex2D[m_lineConversionBufferSize];
+    
     g_renderer3d = new Renderer3D(this);
 }
 
@@ -292,6 +298,12 @@ Renderer::~Renderer() {
     if (m_textureShaderProgram) glDeleteProgram(m_textureShaderProgram);
     if (m_VAO) glDeleteVertexArrays(1, &m_VAO);
     if (m_VBO) glDeleteBuffers(1, &m_VBO);
+    if (m_eclipseLinesVAO) glDeleteVertexArrays(1, &m_eclipseLinesVAO);
+    if (m_eclipseLinesVBO) glDeleteBuffers(1, &m_eclipseLinesVBO);
+    if (m_eclipseFillsVAO) glDeleteVertexArrays(1, &m_eclipseFillsVAO);
+    if (m_eclipseFillsVBO) glDeleteBuffers(1, &m_eclipseFillsVBO);
+    if (m_eclipseSpritesVAO) glDeleteVertexArrays(1, &m_eclipseSpritesVAO);
+    if (m_eclipseSpritesVBO) glDeleteBuffers(1, &m_eclipseSpritesVBO);
     if (m_uiVAO) glDeleteVertexArrays(1, &m_uiVAO);
     if (m_uiVBO) glDeleteBuffers(1, &m_uiVBO);
     if (m_textVAO) glDeleteVertexArrays(1, &m_textVAO);
@@ -312,6 +324,11 @@ Renderer::~Renderer() {
     if (m_megaIndices) {
         delete[] m_megaIndices;
         m_megaIndices = NULL;
+    }
+    
+    if (m_lineConversionBuffer) {
+        delete[] m_lineConversionBuffer;
+        m_lineConversionBuffer = NULL;
     }
     
     if (g_renderer3d) {
@@ -862,13 +879,43 @@ void Renderer::SetupVertexArrays() {
     };
     
     //
-    // create UI VAO/VBO pair
+    // create Eclipse Lines VAO/VBO pair
 
+    glGenVertexArrays(1, &m_eclipseLinesVAO);
+    glGenBuffers(1, &m_eclipseLinesVBO);
+    glBindVertexArray(m_eclipseLinesVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_eclipseLinesVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_ECLIPSE_RECT_VERTICES + MAX_ECLIPSE_LINE_VERTICES), NULL, GL_STREAM_DRAW);
+    setupVertexAttributes();
+    
+    //
+    // create Eclipse Fills VAO/VBO pair
+
+    glGenVertexArrays(1, &m_eclipseFillsVAO);
+    glGenBuffers(1, &m_eclipseFillsVBO);
+    glBindVertexArray(m_eclipseFillsVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_eclipseFillsVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_ECLIPSE_RECTFILL_VERTICES + MAX_ECLIPSE_TRIANGLEFILL_VERTICES), NULL, GL_STREAM_DRAW);
+    setupVertexAttributes();
+    
+    //
+    // create Eclipse Sprites VAO/VBO pair
+
+    glGenVertexArrays(1, &m_eclipseSpritesVAO);
+    glGenBuffers(1, &m_eclipseSpritesVBO);
+    glBindVertexArray(m_eclipseSpritesVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_eclipseSpritesVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_ECLIPSE_SPRITE_VERTICES, NULL, GL_STREAM_DRAW);
+    setupVertexAttributes();
+    
+    //
+    // create general UI VAO/VBO pair
+    
     glGenVertexArrays(1, &m_uiVAO);
     glGenBuffers(1, &m_uiVBO);
     glBindVertexArray(m_uiVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_uiVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_UI_VERTICES + MAX_ECLIPSE_RECT_VERTICES + MAX_ECLIPSE_RECTFILL_VERTICES + MAX_ECLIPSE_TRIANGLEFILL_VERTICES + MAX_ECLIPSE_LINE_VERTICES + MAX_ECLIPSE_SPRITE_VERTICES), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_UI_VERTICES, NULL, GL_STREAM_DRAW);
     setupVertexAttributes();
     
     // create text VAO/VBO pair  
@@ -887,7 +934,7 @@ void Renderer::SetupVertexArrays() {
     glGenBuffers(1, &m_unitVBO);
     glBindVertexArray(m_unitVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_unitVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_UNIT_MAIN_VERTICES + MAX_UNIT_ROTATING_VERTICES + MAX_UNIT_HIGHLIGHT_VERTICES + MAX_UNIT_STATE_VERTICES + MAX_UNIT_COUNTER_VERTICES + MAX_UNIT_NUKE_VERTICES), NULL, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_UNIT_MAIN_VERTICES + MAX_UNIT_ROTATING_VERTICES + MAX_UNIT_HIGHLIGHT_VERTICES + MAX_UNIT_STATE_VERTICES + MAX_UNIT_COUNTER_VERTICES + MAX_UNIT_NUKE_VERTICES), NULL, GL_STREAM_DRAW);
     setupVertexAttributes();
     
     //

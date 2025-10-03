@@ -153,6 +153,10 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_currentMegaVBO3DKey(NULL),
     m_megaVertices3D(NULL),
     m_megaVertex3DCount(0),
+    m_megaIndices3D(NULL),
+    m_megaIndex3DCount(0),
+    m_lineConversionBuffer3D(NULL),
+    m_lineConversionBufferSize3D(0),
     m_unitTrailVertexCount3D(0),
     m_unitMainVertexCount3D(0),
     m_currentUnitMainTexture3D(0),
@@ -236,6 +240,9 @@ Renderer3D::Renderer3D(Renderer* renderer)
 
     m_megaVertices3D = new Vertex3D[m_maxMegaVertices3D];
     m_megaIndices3D = new unsigned int[m_maxMegaIndices3D];
+    
+    m_lineConversionBufferSize3D = MAX_3D_VERTICES * 2;
+    m_lineConversionBuffer3D = new Vertex3D[m_lineConversionBufferSize3D];
 }
 
 Renderer3D::~Renderer3D() {
@@ -298,6 +305,11 @@ void Renderer3D::Shutdown() {
     if (m_currentMegaVBO3DKey) {
         delete[] m_currentMegaVBO3DKey;
         m_currentMegaVBO3DKey = NULL;
+    }
+    
+    if (m_lineConversionBuffer3D) {
+        delete[] m_lineConversionBuffer3D;
+        m_lineConversionBuffer3D = NULL;
     }
     
     // Clean up cached VBOs
@@ -971,9 +983,8 @@ void Renderer3D::EndLineStrip3D() {
         return;
     }
     
-    // Convert line strip to line segments for GL_LINES
     int lineVertexCount = (m_vertex3DCount - 1) * 2;
-    Vertex3D* lineVertices = new Vertex3D[lineVertexCount];
+    Vertex3D* lineVertices = m_lineConversionBuffer3D;
     
     int lineIndex = 0;
     for (int i = 0; i < m_vertex3DCount - 1; i++) {
@@ -987,11 +998,8 @@ void Renderer3D::EndLineStrip3D() {
     for (int i = 0; i < lineVertexCount; i++) {
         if (m_vertex3DCount >= MAX_3D_VERTICES) break;
         m_vertices3D[m_vertex3DCount++] = lineVertices[i];
-    }
-    
-    delete[] lineVertices;
-    
-    // Render the lines
+    }  
+
     Flush3DVertices(GL_LINES);
     
     m_lineStrip3DActive = false;

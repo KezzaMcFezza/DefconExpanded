@@ -223,9 +223,11 @@ void Renderer::EndEclipseLines() {
         return;
     }
     
-    // Convert line strip to individual line segments
+    //
+    // convert line strip to individual line segments using pre-allocated buffer
+    
     int tempLineVertexCount = (m_eclipseLineVertexCount - 1) * 2;
-    Vertex2D* tempLineVertices = new Vertex2D[tempLineVertexCount];
+    Vertex2D* tempLineVertices = m_lineConversionBuffer;
     
     int lineIndex = 0;
     for (int i = 0; i < m_eclipseLineVertexCount - 1; i++) {
@@ -242,6 +244,5 @@ void Renderer::EndEclipseLines() {
         m_eclipseLineVertices[m_eclipseLineVertexCount++] = tempLineVertices[i];
     }
     
-    delete[] tempLineVertices;
     FlushEclipseLines();
 }

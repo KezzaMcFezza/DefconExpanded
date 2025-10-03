@@ -899,8 +899,8 @@ void Renderer::FlushEclipseRects() {
     glUseProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_uiVAO);
-    UploadVertexDataToVBO(m_uiVBO, m_eclipseRectVertices, m_eclipseRectVertexCount);
+    glBindVertexArray(m_eclipseLinesVAO);
+    UploadVertexDataToVBO(m_eclipseLinesVBO, m_eclipseRectVertices, m_eclipseRectVertexCount);
     
     glDrawArrays(GL_LINES, 0, m_eclipseRectVertexCount);
     
@@ -918,8 +918,8 @@ void Renderer::FlushEclipseRectFills() {
     glUseProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_uiVAO);
-    UploadVertexDataToVBO(m_uiVBO, m_eclipseRectFillVertices, m_eclipseRectFillVertexCount);
+    glBindVertexArray(m_eclipseFillsVAO);
+    UploadVertexDataToVBO(m_eclipseFillsVBO, m_eclipseRectFillVertices, m_eclipseRectFillVertexCount);
     
     glDrawArrays(GL_TRIANGLES, 0, m_eclipseRectFillVertexCount);
     
@@ -937,8 +937,8 @@ void Renderer::FlushEclipseTriangleFills() {
     glUseProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_uiVAO);
-    UploadVertexDataToVBO(m_uiVBO, m_eclipseTriangleFillVertices, m_eclipseTriangleFillVertexCount);
+    glBindVertexArray(m_eclipseFillsVAO);
+    UploadVertexDataToVBO(m_eclipseFillsVBO, m_eclipseTriangleFillVertices, m_eclipseTriangleFillVertexCount);
     
     glDrawArrays(GL_TRIANGLES, 0, m_eclipseTriangleFillVertexCount);
     
@@ -960,8 +960,8 @@ void Renderer::FlushEclipseLines() {
     glUseProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_uiVAO);
-    UploadVertexDataToVBO(m_uiVBO, m_eclipseLineVertices, m_eclipseLineVertexCount);
+    glBindVertexArray(m_eclipseLinesVAO);
+    UploadVertexDataToVBO(m_eclipseLinesVBO, m_eclipseLineVertices, m_eclipseLineVertexCount);
     
     glDrawArrays(GL_LINES, 0, m_eclipseLineVertexCount);
     
@@ -984,8 +984,8 @@ void Renderer::FlushEclipseSprites() {
         glBindTexture(GL_TEXTURE_2D, m_currentEclipseSpriteTexture);
     }
     
-    glBindVertexArray(m_uiVAO);
-    UploadVertexDataToVBO(m_uiVBO, m_eclipseSpriteVertices, m_eclipseSpriteVertexCount);
+    glBindVertexArray(m_eclipseSpritesVAO);
+    UploadVertexDataToVBO(m_eclipseSpritesVBO, m_eclipseSpriteVertices, m_eclipseSpriteVertexCount);
     
     glDrawArrays(GL_TRIANGLES, 0, m_eclipseSpriteVertexCount);
     

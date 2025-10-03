@@ -83,9 +83,8 @@ void Renderer::EndCachedLineStrip() {
         cachedVBO = tree->data;
     }
     
-    // Create line segments from line strip
     int lineVertexCount = (m_lineVertexCount - 1) * 2;
-    Vertex2D* lineVertices = new Vertex2D[lineVertexCount];
+    Vertex2D* lineVertices = m_lineConversionBuffer;
     
     int lineIndex = 0;
     for (int i = 0; i < m_lineVertexCount - 1; i++) {
@@ -129,8 +128,6 @@ void Renderer::EndCachedLineStrip() {
     cachedVBO->lineWidth = m_cachedLineStripWidth;
     cachedVBO->isValid = true;
     
-    // Clean up
-    delete[] lineVertices;
     m_lineVertexCount = 0;
     m_cachedLineStripActive = false;
 }

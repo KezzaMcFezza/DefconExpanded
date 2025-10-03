@@ -121,12 +121,15 @@ protected:
   unsigned int m_VAO;
   unsigned int m_VBO; 
 
-  unsigned int m_uiVAO, m_uiVBO;            // eclipse rectangles, rect fills, triangle fills, lines, sprites
-  unsigned int m_textVAO, m_textVBO;        // text rendering
-  unsigned int m_unitVAO, m_unitVBO;        // unit sprites and highlights
-  unsigned int m_effectsVAO, m_effectsVBO;  // effects and trails
-  unsigned int m_healthVAO, m_healthVBO;    // health bars
-  unsigned int m_legacyVAO, m_legacyVBO;    // triangle/line rendering
+  unsigned int m_eclipseLinesVAO, m_eclipseLinesVBO;      // eclipse rects + lines (line primitives)
+  unsigned int m_eclipseFillsVAO, m_eclipseFillsVBO;      // eclipse rectfills + trianglefills (filled primitives)
+  unsigned int m_eclipseSpritesVAO, m_eclipseSpritesVBO;  // eclipse sprites (textured, high texture switching)
+  unsigned int m_uiVAO, m_uiVBO;                          // general UI triangles and lines (non-Eclipse)
+  unsigned int m_textVAO, m_textVBO;                      // text rendering
+  unsigned int m_unitVAO, m_unitVBO;                      // unit sprites and highlights
+  unsigned int m_effectsVAO, m_effectsVBO;                // effects and trails
+  unsigned int m_healthVAO, m_healthVBO;                  // health bars
+  unsigned int m_legacyVAO, m_legacyVBO;                  // triangle/line rendering
   
   bool m_bufferNeedsUpload;
 
@@ -259,6 +262,9 @@ protected:
   // flush control, more of a global way to disable batching
 
   bool m_allowImmedateFlush;
+
+  Vertex2D* m_lineConversionBuffer;
+  int m_lineConversionBufferSize;
 
   //
   // line rendering state

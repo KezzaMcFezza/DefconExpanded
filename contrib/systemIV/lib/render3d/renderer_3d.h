@@ -158,6 +158,9 @@ private:
     
     BTree<Cached3DVBO*> m_cached3DVBOs;
     
+    Vertex3D* m_lineConversionBuffer3D;
+    int m_lineConversionBufferSize3D;
+    
     // Fog parameters
     bool m_fogEnabled;
     bool m_fogOrientationBased;  // true = orientation-based, false = distance-based
