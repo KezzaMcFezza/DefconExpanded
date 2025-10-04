@@ -759,7 +759,7 @@ unsigned char GenerateSyncValue()
 
     {
 #ifdef TARGET_EMSCRIPTEN
-        if( g_lastProcessedSequenceId == 0 ) // web assembly fake networking only creates a hello message
+        if( g_lastProcessedSequenceId <= 1 ) // web assembly fake networking only creates a hello message
 #else
         if( g_lastProcessedSequenceId <= 2 ) // desktop creates a spectator handshake which means
                                              // we need to compensate for this
