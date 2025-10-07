@@ -167,9 +167,16 @@ echo "========================================"
 echo ""
 echo "BUILD SUMMARY:"
 echo "=================="
+
 if [ -d "build/result/Release" ]; then
-    echo "âœ… Binary location: build/result/Release/"
-    echo "âœ… Executable: build/result/Release/defcon"
+    echo "Binary location: build/result/Release/"
+    echo "Executable: build/result/Release/defcon"
+    
+    if [ -d "build/result/Release/lib" ]; then
+        echo "Bundled libraries in: build/result/Release/lib/"
+        echo "   Libraries bundled:"
+        ls -1 build/result/Release/lib/ 2>/dev/null | sed 's/^/   - /' || echo "   (library list unavailable)"
+    fi
     
     if [ -f "$TARBALL_NAME" ]; then
         echo "Package: $TARBALL_NAME"
