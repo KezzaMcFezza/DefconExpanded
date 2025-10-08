@@ -53,8 +53,8 @@ else()
     endif()
 endif()
 
-set(REPLAY_VIEWER_VERSION "R1.16" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
-set(SYNC_PRACTICE_VERSION "B1.1" CACHE STRING "Version prefix for silo practice client (e.g., B1.0, B1.1)")
+set(REPLAY_VIEWER_VERSION "R1.20.4" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(SYNC_PRACTICE_VERSION "B1.15" CACHE STRING "Version prefix for silo practice client (e.g., B1.0, B1.1)")
 
 # build mode is now determined by preprocessor definitions passed via CMAKE_CXX_FLAGS
 if(NOT REPLAY_VIEWER_BUILD AND NOT SYNC_PRACTICE_BUILD)
