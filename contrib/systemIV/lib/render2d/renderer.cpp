@@ -21,6 +21,9 @@
 #include "lib/language_table.h"
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/colour.h"
+#include "shaders/vertex.glsl.h"
+#include "shaders/color_fragment.glsl.h"
+#include "shaders/texture_fragment.glsl.h"
 
 #include "renderer.h"
 
@@ -744,111 +747,12 @@ unsigned int Renderer::CreateShader(const char* vertexSource, const char* fragme
     return shaderProgram;
 }
 
-// here we create different shaders for the emscripten build and the desktop build
-// this is because emscripten does not support the core profile, but the core profile
-// is the closest to WebGL 2.0.
 //
-// we have to use ES3.0 for emscripten which this function handles
+// create shader programs using shader sources from .glsl.h headers
+
 void Renderer::InitializeShaders() {
-#ifdef TARGET_EMSCRIPTEN
-    // WebGL 2.0 shaders
-    const char* vertexShaderSource = R"(#version 300 es
-precision highp float;
-layout (location = 0) in vec2 aPos;
-layout (location = 1) in vec4 aColor;
-layout (location = 2) in vec2 aTexCoord;
-uniform mat4 uProjection;
-uniform mat4 uModelView;
-out vec4 vertexColor;
-out vec2 texCoord;
-void main() {
-    gl_Position = uProjection * uModelView * vec4(aPos, 0.0, 1.0);
-    vertexColor = aColor;
-    texCoord = aTexCoord;
-})";
-
-    const char* colorFragmentShaderSource = R"(#version 300 es
-precision mediump float;
-in vec4 vertexColor;
-out vec4 FragColor;
-void main() {
-    FragColor = vertexColor;
-})";
-
-    const char* textureFragmentShaderSource = R"(#version 300 es
-precision mediump float;
-in vec4 vertexColor;
-in vec2 texCoord;
-uniform sampler2D ourTexture;
-out vec4 FragColor;
-void main() {
-    FragColor = texture(ourTexture, texCoord) * vertexColor;
-})";
-#elif defined(TARGET_OS_MACOSX)
-    // Desktop OpenGL 3.2 shaders, GLSL 1.50 doesn't support layout qualifiers so bind them before linking
-    const char* vertexShaderSource = R"(#version 150 core
-in vec2 aPos;
-in vec4 aColor;
-in vec2 aTexCoord;
-uniform mat4 uProjection;
-uniform mat4 uModelView;
-out vec4 vertexColor;
-out vec2 texCoord;
-void main() {
-    gl_Position = uProjection * uModelView * vec4(aPos, 0.0, 1.0);
-    vertexColor = aColor;
-    texCoord = aTexCoord;
-})";
-
-    const char* colorFragmentShaderSource = R"(#version 150 core
-in vec4 vertexColor;
-out vec4 FragColor;
-void main() {
-    FragColor = vertexColor;
-})";
-
-    const char* textureFragmentShaderSource = R"(#version 150 core
-in vec4 vertexColor;
-in vec2 texCoord;
-uniform sampler2D ourTexture;
-out vec4 FragColor;
-void main() {
-    FragColor = texture(ourTexture, texCoord) * vertexColor;
-})";
-#else
-// Desktop OpenGL 3.3 shaders
-const char* vertexShaderSource = R"(#version 330 core
-layout (location = 0) in vec2 aPos;
-layout (location = 1) in vec4 aColor;
-layout (location = 2) in vec2 aTexCoord;
-uniform mat4 uProjection;
-uniform mat4 uModelView;
-out vec4 vertexColor;
-out vec2 texCoord;
-void main() {
-    gl_Position = uProjection * uModelView * vec4(aPos, 0.0, 1.0);
-    vertexColor = aColor;
-    texCoord = aTexCoord;
-})";
-    
-    const char* colorFragmentShaderSource = R"(#version 330 core
-in vec4 vertexColor;
-out vec4 FragColor;
-void main() {
-    FragColor = vertexColor;
-})";
-    
-    const char* textureFragmentShaderSource = R"(#version 330 core
-in vec4 vertexColor;
-in vec2 texCoord;
-uniform sampler2D ourTexture;
-out vec4 FragColor;
-void main() {
-    FragColor = texture(ourTexture, texCoord) * vertexColor;
-})";
-#endif   
-    m_colorShaderProgram = CreateShader(vertexShaderSource, colorFragmentShaderSource);
-    m_textureShaderProgram = CreateShader(vertexShaderSource, textureFragmentShaderSource);
+    m_colorShaderProgram = CreateShader(VERTEX_2D_SHADER_SOURCE, COLOR_FRAGMENT_2D_SHADER_SOURCE);
+    m_textureShaderProgram = CreateShader(VERTEX_2D_SHADER_SOURCE, TEXTURE_FRAGMENT_2D_SHADER_SOURCE);
     m_shaderProgram = m_colorShaderProgram;
 }
 
@@ -1002,15 +906,14 @@ void Renderer::UploadVertexData(const Vertex2D* vertices, int vertexCount) {
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(Vertex2D), vertices);
 }
 
-void Renderer::UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices, int vertexCount) {
+void Renderer::UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices, int vertexCount, unsigned int usageHint) {
     if (vertexCount <= 0 || !vertices) return;
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     
     const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex2D);
     
-    glBufferData(GL_ARRAY_BUFFER, bytes, NULL, GL_STREAM_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+    glBufferData(GL_ARRAY_BUFFER, bytes, vertices, usageHint);
  
 }
 

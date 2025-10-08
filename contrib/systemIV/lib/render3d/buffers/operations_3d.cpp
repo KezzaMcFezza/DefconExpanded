@@ -295,7 +295,7 @@ void Renderer3D::FlushUnitTrails3D() {
     Set3DShaderUniforms();
     
     glBindVertexArray(m_effectsVAO3D);
-    UploadVertexDataTo3DVBO(m_effectsVBO3D, m_unitTrailVertices3D, m_unitTrailVertexCount3D);
+    UploadVertexDataTo3DVBO(m_effectsVBO3D, m_unitTrailVertices3D, m_unitTrailVertexCount3D, GL_STREAM_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_unitTrailVertexCount3D);
     
@@ -321,7 +321,7 @@ void Renderer3D::FlushUnitMainSprites3D() {
     }
     
     glBindVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitMainVertices3D, m_unitMainVertexCount3D);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitMainVertices3D, m_unitMainVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitMainVertexCount3D);
     glDepthMask(GL_TRUE);
@@ -348,7 +348,7 @@ void Renderer3D::FlushUnitRotating3D() {
     }
     
     glBindVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitRotatingVertices3D, m_unitRotatingVertexCount3D);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitRotatingVertices3D, m_unitRotatingVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitRotatingVertexCount3D);
     glDepthMask(GL_TRUE);
@@ -375,7 +375,7 @@ void Renderer3D::FlushUnitStateIcons3D() {
     }
     
     glBindVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitStateVertices3D, m_unitStateVertexCount3D);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitStateVertices3D, m_unitStateVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitStateVertexCount3D);
     glDepthMask(GL_TRUE);
@@ -395,7 +395,7 @@ void Renderer3D::FlushUnitCounters3D() {
     SetTextured3DShaderUniforms();
     
     glBindVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitCounterVertices3D, m_unitCounterVertexCount3D);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitCounterVertices3D, m_unitCounterVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitCounterVertexCount3D);
     
@@ -421,7 +421,7 @@ void Renderer3D::FlushUnitNukeIcons3D() {
     }
     
     glBindVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitNukeVertices3D, m_unitNukeVertexCount3D);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitNukeVertices3D, m_unitNukeVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitNukeVertexCount3D);
     glDepthMask(GL_TRUE);
@@ -441,7 +441,7 @@ void Renderer3D::FlushEffectsLines3D() {
     Set3DShaderUniforms();
     
     glBindVertexArray(m_effectsVAO3D);
-    UploadVertexDataTo3DVBO(m_effectsVBO3D, m_effectsLineVertices3D, m_effectsLineVertexCount3D);
+    UploadVertexDataTo3DVBO(m_effectsVBO3D, m_effectsLineVertices3D, m_effectsLineVertexCount3D, GL_STREAM_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_effectsLineVertexCount3D);
     
@@ -468,7 +468,7 @@ void Renderer3D::FlushEffectsSprites3D() {
     }
     
     glBindVertexArray(m_starsVAO3D);
-    UploadVertexDataTo3DVBO(m_starsVBO3D, m_effectsSpriteVertices3D, m_effectsSpriteVertexCount3D);
+    UploadVertexDataTo3DVBO(m_starsVBO3D, m_effectsSpriteVertices3D, m_effectsSpriteVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_effectsSpriteVertexCount3D);
     glDepthMask(GL_TRUE);
@@ -493,7 +493,7 @@ void Renderer3D::FlushUnitHighlights3D() {
     }
     
     glBindVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitHighlightVertices3D, m_unitHighlightVertexCount3D);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitHighlightVertices3D, m_unitHighlightVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitHighlightVertexCount3D);
     
@@ -512,7 +512,7 @@ void Renderer3D::FlushHealthBars3D() {
     Set3DShaderUniforms();
     
     glBindVertexArray(m_healthVAO3D);
-    UploadVertexDataTo3DVBO(m_healthVBO3D, m_healthBarVertices3D, m_healthBarVertexCount3D);
+    UploadVertexDataTo3DVBO(m_healthVBO3D, m_healthBarVertices3D, m_healthBarVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_healthBarVertexCount3D);
     
@@ -536,7 +536,7 @@ void Renderer3D::FlushTextBuffer3D() {
     }
     
     glBindVertexArray(m_textVAO3D);
-    UploadVertexDataTo3DVBO(m_textVBO3D, m_textVertices3D, m_textVertexCount3D);
+    UploadVertexDataTo3DVBO(m_textVBO3D, m_textVertices3D, m_textVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_textVertexCount3D);
     
@@ -556,7 +556,7 @@ void Renderer3D::FlushNuke3DModels3D() {
     Set3DShaderUniforms();
     
     glBindVertexArray(m_nukeVAO3D);
-    UploadVertexDataTo3DVBO(m_nukeVBO3D, m_nuke3DModelVertices3D, m_nuke3DModelVertexCount3D);
+    UploadVertexDataTo3DVBO(m_nukeVBO3D, m_nuke3DModelVertices3D, m_nuke3DModelVertexCount3D, GL_DYNAMIC_DRAW);
     
     // enable face culling for proper 3D model rendering
     glEnable(GL_CULL_FACE);
@@ -590,7 +590,7 @@ void Renderer3D::FlushStarField3D() {
     }
     
     glBindVertexArray(m_starsVAO3D);
-    UploadVertexDataTo3DVBO(m_starsVBO3D, m_starFieldVertices3D, m_starFieldVertexCount3D);
+    UploadVertexDataTo3DVBO(m_starsVBO3D, m_starFieldVertices3D, m_starFieldVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_starFieldVertexCount3D);
     glDepthMask(GL_TRUE);
@@ -610,7 +610,7 @@ void Renderer3D::FlushGlobeSurface3D() {
     Set3DShaderUniforms();
     
     glBindVertexArray(m_globeVAO3D);
-    UploadVertexDataTo3DVBO(m_globeVBO3D, m_globeSurfaceVertices3D, m_globeSurfaceVertexCount3D);
+    UploadVertexDataTo3DVBO(m_globeVBO3D, m_globeSurfaceVertices3D, m_globeSurfaceVertexCount3D, GL_DYNAMIC_DRAW);
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -644,7 +644,7 @@ void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
     
     // Upload vertex data
     glBindVertexArray(m_legacyVAO3D);
-    UploadVertexDataTo3DVBO(m_legacyVBO3D, m_vertices3D, m_vertex3DCount);
+    UploadVertexDataTo3DVBO(m_legacyVBO3D, m_vertices3D, m_vertex3DCount, GL_DYNAMIC_DRAW);
     
     // Draw
     glDrawArrays(primitiveType, 0, m_vertex3DCount);
@@ -672,7 +672,7 @@ void Renderer3D::Flush3DTexturedVertices() {
     
     // Upload vertex data
     glBindVertexArray(m_VAO3DTextured);
-    UploadVertexDataTo3DVBO(m_VBO3DTextured, m_vertices3DTextured, m_vertex3DTexturedCount);
+    UploadVertexDataTo3DVBO(m_VBO3DTextured, m_vertices3DTextured, m_vertex3DTexturedCount, GL_DYNAMIC_DRAW);
     
     // Draw as triangles (convert quad to two triangles with proper winding)
     if (m_vertex3DTexturedCount == 4) {
@@ -691,7 +691,7 @@ void Renderer3D::Flush3DTexturedVertices() {
         triangleVertices[5] = m_vertices3DTextured[3]; // top-left
         
         // Upload triangle data
-        UploadVertexDataTo3DVBO(m_VBO3DTextured, triangleVertices, 6);
+        UploadVertexDataTo3DVBO(m_VBO3DTextured, triangleVertices, 6, GL_DYNAMIC_DRAW);
         glDrawArrays(GL_TRIANGLES, 0, 6);
     } else {
         // Draw as triangle fan for other polygon types

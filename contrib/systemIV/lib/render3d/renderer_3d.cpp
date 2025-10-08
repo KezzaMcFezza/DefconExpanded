@@ -12,6 +12,11 @@
 #include "lib/resource/sprite_atlas.h"
 #include "lib/resource/image.h"
 #include "renderer/map_renderer.h"
+#include "shaders/vertex.glsl.h"
+#include "shaders/fragment.glsl.h"
+#include "shaders/textured_vertex.glsl.h"
+#include "shaders/textured_fragment.glsl.h"
+
 #include "renderer_3d.h"
 
 Renderer3D *g_renderer3d = NULL;
@@ -326,456 +331,23 @@ void Renderer3D::Shutdown() {
     m_cached3DVBOs.Empty();
 }
 
+//
+// create 3D shader programs using shader sources from .glsl.h headers
+
 void Renderer3D::Initialize3DShaders() {
-    // Create separate 3D shader sources for WebGL vs Desktop
-#ifdef TARGET_EMSCRIPTEN
-    // WebGL 2.0 (OpenGL ES 3.0) 3D shaders
-    const char* vertex3DShaderSource = R"(#version 300 es
-precision highp float;
-
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec4 aColor;
-
-uniform mat4 uProjection;
-uniform mat4 uModelView;
-uniform vec3 uCameraPos;
-uniform bool uFogOrientationBased;
-
-out vec4 vertexColor;
-out float fogFactor;
-out float fogDistance;
-
-void main() {
-    vec4 viewPos = uModelView * vec4(aPos, 1.0);
-    gl_Position = uProjection * viewPos;
-    vertexColor = aColor;
+    m_shader3DProgram = m_renderer->CreateShader(VERTEX_3D_SHADER_SOURCE, FRAGMENT_3D_SHADER_SOURCE);
     
-    if (uFogOrientationBased) {
-        vec3 surfaceNormal = normalize(aPos);
-        vec3 cameraDir = normalize(uCameraPos - aPos);
-        float dotProduct = dot(surfaceNormal, cameraDir);
-        fogFactor = 1.0 - clamp(dotProduct, 0.0, 1.0);
-        fogDistance = 0.0; 
-    } else {
-        fogDistance = length(viewPos.xyz);
-        fogFactor = 0.0; 
-    }
-}
-)";
+    //
+    // create 3D shader program
 
-    const char* fragment3DShaderSource = R"(#version 300 es
-precision mediump float;
-
-in vec4 vertexColor;
-in float fogFactor;
-in float fogDistance;
-
-uniform bool uFogEnabled;
-uniform bool uFogOrientationBased;
-uniform float uFogStart;
-uniform float uFogEnd;
-uniform vec4 uFogColor;
-
-out vec4 FragColor;
-
-void main() {
-    vec4 finalColor = vertexColor;
-    
-    if (uFogEnabled) {
-        if (uFogOrientationBased) {
-            finalColor.rgb = mix(vertexColor.rgb, uFogColor.rgb, fogFactor);
-        } else {
-            float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
-            finalColor.rgb = mix(uFogColor.rgb, vertexColor.rgb, distanceFogFactor);
-        }
-    }
-    
-    FragColor = finalColor;
-}
-)";
-
-    const char* textureFragmentShaderSource = R"(#version 300 es
-precision mediump float;
-
-in vec4 vertexColor;
-in vec2 texCoord;
-in float fogFactor;
-in float fogDistance;
-
-uniform sampler2D ourTexture;
-uniform bool uFogEnabled;
-uniform bool uFogOrientationBased;
-uniform float uFogStart;
-uniform float uFogEnd;
-uniform vec4 uFogColor;
-
-out vec4 FragColor;
-
-void main() {
-    vec4 texColor = texture(ourTexture, texCoord);
-    
-    // MUCH less aggressive alpha testing - only discard completely transparent pixels
-    // This preserves natural texture transparency like 2D mode
-    if (texColor.a < 0.01) {
-        discard;
-    }
-    
-    vec4 finalColor = texColor * vertexColor;
-    
-    // Don't discard based on final alpha - let natural transparency work
-    // This prevents z-fighting and matches 2D behavior
-    
-         if (uFogEnabled) {
-         float pixelLuminance = (finalColor.r + finalColor.g + finalColor.b) / 3.0;
-         if (pixelLuminance > 0.05) {
-             if (uFogOrientationBased) {
-                 finalColor.rgb = mix(finalColor.rgb, uFogColor.rgb, fogFactor);
-             } else {
-                 float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
-                 finalColor.rgb = mix(uFogColor.rgb, finalColor.rgb, distanceFogFactor);
-             }
-         }
-     }
-    
-    FragColor = finalColor;
-}
-)";
-
-    const char* vertex3DTexturedShaderSource = R"(#version 300 es
-precision highp float;
-
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec4 aColor;
-layout (location = 2) in vec2 aTexCoord;
-
-uniform mat4 uProjection;
-uniform mat4 uModelView;
-uniform vec3 uCameraPos;
-uniform bool uFogOrientationBased;
-
-out vec4 vertexColor;
-out vec2 texCoord;
-out float fogFactor;
-out float fogDistance;
-
-void main() {
-    vec4 viewPos = uModelView * vec4(aPos, 1.0);
-    gl_Position = uProjection * viewPos;
-    vertexColor = aColor;
-    texCoord = aTexCoord;
-    
-    if (uFogOrientationBased) {
-        vec3 surfaceNormal = normalize(aPos);
-        vec3 cameraDir = normalize(uCameraPos - aPos);
-        float dotProduct = dot(surfaceNormal, cameraDir);
-        fogFactor = 1.0 - clamp(dotProduct, 0.0, 1.0);
-        fogDistance = 0.0; 
-    } else {
-        fogDistance = length(viewPos.xyz);
-        fogFactor = 0.0; 
-    }
-}
-)";
-
-#elif defined(TARGET_OS_MACOSX)
-    // Desktop OpenGL 3.2 Core 3D shaders
-    const char* vertex3DShaderSource = R"(#version 150 core
-
-in vec3 aPos;
-in vec4 aColor;
-
-uniform mat4 uProjection;
-uniform mat4 uModelView;
-uniform vec3 uCameraPos;
-uniform bool uFogOrientationBased;
-
-out vec4 vertexColor;
-out float fogFactor;
-out float fogDistance;
-
-void main() {
-    vec4 viewPos = uModelView * vec4(aPos, 1.0);
-    gl_Position = uProjection * viewPos;
-    vertexColor = aColor;
-    
-    if (uFogOrientationBased) {
-        vec3 surfaceNormal = normalize(aPos);
-        vec3 cameraDir = normalize(uCameraPos - aPos);
-        float dotProduct = dot(surfaceNormal, cameraDir);
-        fogFactor = 1.0 - clamp(dotProduct, 0.0, 1.0);
-        fogDistance = 0.0; 
-    } else {
-        fogDistance = length(viewPos.xyz);
-        fogFactor = 0.0; 
-    }
-}
-)";
-
-    const char* fragment3DShaderSource = R"(#version 150 core
-
-in vec4 vertexColor;
-in float fogFactor;
-in float fogDistance;
-
-uniform bool uFogEnabled;
-uniform bool uFogOrientationBased;
-uniform float uFogStart;
-uniform float uFogEnd;
-uniform vec4 uFogColor;
-
-out vec4 FragColor;
-
-void main() {
-    vec4 finalColor = vertexColor;
-    
-    if (uFogEnabled) {
-        if (uFogOrientationBased) {
-            finalColor.rgb = mix(vertexColor.rgb, uFogColor.rgb, fogFactor);
-        } else {
-            float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
-            finalColor.rgb = mix(uFogColor.rgb, vertexColor.rgb, distanceFogFactor);
-        }
-    }
-    
-    FragColor = finalColor;
-}
-)";
-
-    const char* textureFragmentShaderSource = R"(#version 150 core
-
-in vec4 vertexColor;
-in vec2 texCoord;
-in float fogFactor;
-in float fogDistance;
-
-uniform sampler2D ourTexture;
-uniform bool uFogEnabled;
-uniform bool uFogOrientationBased;
-uniform float uFogStart;
-uniform float uFogEnd;
-uniform vec4 uFogColor;
-
-out vec4 FragColor;
-
-void main() {
-    vec4 texColor = texture(ourTexture, texCoord);
-    
-    // MUCH less aggressive alpha testing - only discard completely transparent pixels
-    // This preserves natural texture transparency like 2D mode
-    if (texColor.a < 0.01) {
-        discard;
-    }
-
-    vec4 finalColor = texColor * vertexColor;
-
-    // Don't discard based on final alpha - let natural transparency work
-    // This prevents z-fighting and matches 2D behavior
-    
-         if (uFogEnabled) {
-         float pixelLuminance = (finalColor.r + finalColor.g + finalColor.b) / 3.0;
-         if (pixelLuminance > 0.05) {
-             if (uFogOrientationBased) {
-                 finalColor.rgb = mix(finalColor.rgb, uFogColor.rgb, fogFactor);
-             } else {
-                 float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
-                 finalColor.rgb = mix(uFogColor.rgb, finalColor.rgb, distanceFogFactor);
-             }
-         }
-     }
-    
-    FragColor = finalColor;
-}
-)";
-
-    const char* vertex3DTexturedShaderSource = R"(#version 150 core
-
-in vec3 aPos;
-in vec4 aColor;
-in vec2 aTexCoord;
-
-uniform mat4 uProjection;
-uniform mat4 uModelView;
-uniform vec3 uCameraPos;
-uniform bool uFogOrientationBased;
-
-out vec4 vertexColor;
-out vec2 texCoord;
-out float fogFactor;
-out float fogDistance;
-
-void main() {
-    vec4 viewPos = uModelView * vec4(aPos, 1.0);
-    gl_Position = uProjection * viewPos;
-    vertexColor = aColor;
-    texCoord = aTexCoord;
-    
-    if (uFogOrientationBased) {
-        vec3 surfaceNormal = normalize(aPos);
-        vec3 cameraDir = normalize(uCameraPos - aPos);
-        float dotProduct = dot(surfaceNormal, cameraDir);
-        fogFactor = 1.0 - clamp(dotProduct, 0.0, 1.0);
-        fogDistance = 0.0; 
-    } else {
-        fogDistance = length(viewPos.xyz);
-        fogFactor = 0.0; 
-    }
-}
-)";
-#else
-    // Desktop OpenGL 3.3 Core 3D shaders
-    const char* vertex3DShaderSource = R"(#version 330 core
-
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec4 aColor;
-
-uniform mat4 uProjection;
-uniform mat4 uModelView;
-uniform vec3 uCameraPos;
-uniform bool uFogOrientationBased;
-
-out vec4 vertexColor;
-out float fogFactor;
-out float fogDistance;
-
-void main() {
-    vec4 viewPos = uModelView * vec4(aPos, 1.0);
-    gl_Position = uProjection * viewPos;
-    vertexColor = aColor;
-    
-    if (uFogOrientationBased) {
-        vec3 surfaceNormal = normalize(aPos);
-        vec3 cameraDir = normalize(uCameraPos - aPos);
-        float dotProduct = dot(surfaceNormal, cameraDir);
-        fogFactor = 1.0 - clamp(dotProduct, 0.0, 1.0);
-        fogDistance = 0.0; 
-    } else {
-        fogDistance = length(viewPos.xyz);
-        fogFactor = 0.0; 
-    }
-}
-)";
-
-    const char* fragment3DShaderSource = R"(#version 330 core
-
-in vec4 vertexColor;
-in float fogFactor;
-in float fogDistance;
-
-uniform bool uFogEnabled;
-uniform bool uFogOrientationBased;
-uniform float uFogStart;
-uniform float uFogEnd;
-uniform vec4 uFogColor;
-
-out vec4 FragColor;
-
-void main() {
-    vec4 finalColor = vertexColor;
-    
-    if (uFogEnabled) {
-        if (uFogOrientationBased) {
-            finalColor.rgb = mix(vertexColor.rgb, uFogColor.rgb, fogFactor);
-        } else {
-            float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
-            finalColor.rgb = mix(uFogColor.rgb, vertexColor.rgb, distanceFogFactor);
-        }
-    }
-    
-    FragColor = finalColor;
-}
-)";
-
-    const char* textureFragmentShaderSource = R"(#version 330 core
-
-in vec4 vertexColor;
-in vec2 texCoord;
-in float fogFactor;
-in float fogDistance;
-
-uniform sampler2D ourTexture;
-uniform bool uFogEnabled;
-uniform bool uFogOrientationBased;
-uniform float uFogStart;
-uniform float uFogEnd;
-uniform vec4 uFogColor;
-
-out vec4 FragColor;
-
-void main() {
-    vec4 texColor = texture(ourTexture, texCoord);
-    
-    // MUCH less aggressive alpha testing - only discard completely transparent pixels
-    // This preserves natural texture transparency like 2D mode
-    if (texColor.a < 0.01) {
-        discard;
-    }
-
-    vec4 finalColor = texColor * vertexColor;
-
-    // Don't discard based on final alpha - let natural transparency work
-    // This prevents z-fighting and matches 2D behavior
-    
-         if (uFogEnabled) {
-         float pixelLuminance = (finalColor.r + finalColor.g + finalColor.b) / 3.0;
-         if (pixelLuminance > 0.05) {
-             if (uFogOrientationBased) {
-                 finalColor.rgb = mix(finalColor.rgb, uFogColor.rgb, fogFactor);
-             } else {
-                 float distanceFogFactor = clamp((uFogEnd - fogDistance) / (uFogEnd - uFogStart), 0.0, 1.0);
-                 finalColor.rgb = mix(uFogColor.rgb, finalColor.rgb, distanceFogFactor);
-             }
-         }
-     }
-    
-    FragColor = finalColor;
-}
-)";
-
-    const char* vertex3DTexturedShaderSource = R"(#version 330 core
-
-layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec4 aColor;
-layout (location = 2) in vec2 aTexCoord;
-
-uniform mat4 uProjection;
-uniform mat4 uModelView;
-uniform vec3 uCameraPos;
-uniform bool uFogOrientationBased;
-
-out vec4 vertexColor;
-out vec2 texCoord;
-out float fogFactor;
-out float fogDistance;
-
-void main() {
-    vec4 viewPos = uModelView * vec4(aPos, 1.0);
-    gl_Position = uProjection * viewPos;
-    vertexColor = aColor;
-    texCoord = aTexCoord;
-    
-    if (uFogOrientationBased) {
-        vec3 surfaceNormal = normalize(aPos);
-        vec3 cameraDir = normalize(uCameraPos - aPos);
-        float dotProduct = dot(surfaceNormal, cameraDir);
-        fogFactor = 1.0 - clamp(dotProduct, 0.0, 1.0);
-        fogDistance = 0.0; 
-    } else {
-        fogDistance = length(viewPos.xyz);
-        fogFactor = 0.0; 
-    }
-}
-)";
-#endif
-    
-    // Create 3D shader program
-    m_shader3DProgram = m_renderer->CreateShader(vertex3DShaderSource, fragment3DShaderSource);
-    
     if (m_shader3DProgram == 0) {
         AppDebugOut("Renderer3D: Failed to create 3D shader program\n");
     }
     
-    // Create textured 3D shader program
-    m_shader3DTexturedProgram = m_renderer->CreateShader(vertex3DTexturedShaderSource, textureFragmentShaderSource);
+    //
+    // create textured 3D shader program
+
+    m_shader3DTexturedProgram = m_renderer->CreateShader(TEXTURED_VERTEX_3D_SHADER_SOURCE, TEXTURED_FRAGMENT_3D_SHADER_SOURCE);
     
     if (m_shader3DTexturedProgram == 0) {
         AppDebugOut("Renderer3D: Failed to create textured 3D shader program\n");
@@ -1175,26 +747,24 @@ void Renderer3D::SetFogUniforms3D(unsigned int shaderProgram) {
     glUniform3f(cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
 }
 
-void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3D* vertices, int vertexCount) {
+void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3D* vertices, int vertexCount, unsigned int usageHint) {
     if (vertexCount <= 0 || !vertices) return;
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     
     const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3D);
     
-    glBufferData(GL_ARRAY_BUFFER, bytes, NULL, GL_STREAM_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+    glBufferData(GL_ARRAY_BUFFER, bytes, vertices, usageHint);
 }
 
-void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount) {
+void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount, unsigned int usageHint) {
     if (vertexCount <= 0 || !vertices) return;
     
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     
     const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3DTextured);
     
-    glBufferData(GL_ARRAY_BUFFER, bytes, NULL, GL_STREAM_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+    glBufferData(GL_ARRAY_BUFFER, bytes, vertices, usageHint);
 }
 
 void Renderer3D::EnableDistanceFog(float start, float end, float density, float r, float g, float b, float a) {

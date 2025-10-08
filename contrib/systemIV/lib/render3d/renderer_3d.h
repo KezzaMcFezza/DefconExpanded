@@ -320,8 +320,8 @@ private:
     void SetFogUniforms3D(unsigned int shaderProgram);
     void Set3DShaderUniforms();
     void SetTextured3DShaderUniforms();
-    void UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3D* vertices, int vertexCount);
-    void UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount);
+    void UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3D* vertices, int vertexCount, unsigned int usageHint);
+    void UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount, unsigned int usageHint);
     
     // Uniform invalidation functions
     void InvalidateMatrices3D() { m_matrices3DNeedUpdate = true; }

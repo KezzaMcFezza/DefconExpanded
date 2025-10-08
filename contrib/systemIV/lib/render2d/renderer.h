@@ -333,7 +333,7 @@ protected:
   void SetColorShaderUniforms();
   void SetTextureShaderUniforms();
   void UploadVertexData(const Vertex2D* vertices, int vertexCount);
-  void UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices, int vertexCount);
+  void UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices, int vertexCount, unsigned int usageHint);
   void FlushIfTextureChanged(unsigned int newTextureID, bool useTexture);
   bool ShouldFlushThisFrame();
   void FlushTriangles(bool useTexture);
