@@ -919,41 +919,35 @@ void Renderer3D::CreateCameraFacingBillboard(const Vector3<float>& position, flo
 
 
 //
-// increment draw calls for the 3d globe mode, pretty much a copy and paste from 2d renderer
+// increment draw calls for the 3d renderer
 
 void Renderer3D::IncrementDrawCall3D(const char* bufferType) {
     m_drawCallsPerFrame3D++;
     
-    if (strcmp(bufferType, "legacy_vertices") == 0) {
-        m_legacyVertexCalls3D++;
-    } else if (strcmp(bufferType, "legacy_triangles") == 0) {
-        m_legacyTriangleCalls3D++;
-    } else if (strcmp(bufferType, "text") == 0) {
-        m_textCalls3D++;
-    } else if (strcmp(bufferType, "mega_vbo") == 0) {
-        m_megaVBOCalls3D++;
-    } else if (strcmp(bufferType, "unit_trails") == 0) {
-        m_unitTrailCalls3D++;
-    } else if (strcmp(bufferType, "unit_main_sprites") == 0) {
-        m_unitMainSpriteCalls3D++;
-    } else if (strcmp(bufferType, "unit_rotating") == 0) {
-        m_unitRotatingCalls3D++;
-    } else if (strcmp(bufferType, "unit_highlights") == 0) {
-        m_unitHighlightCalls3D++;
-    } else if (strcmp(bufferType, "unit_state_icons") == 0) {
-        m_unitStateCalls3D++;
-    } else if (strcmp(bufferType, "unit_counters") == 0) {
-        m_unitCounterCalls3D++;
-    } else if (strcmp(bufferType, "unit_nuke_icons") == 0) {
-        m_unitNukeIconCalls3D++;
-    } else if (strcmp(bufferType, "effects_lines") == 0) {
-        m_effectsLineCalls3D++;
-    } else if (strcmp(bufferType, "effects_sprites") == 0) {
-        m_effectsSpriteCalls3D++;
-    } else if (strcmp(bufferType, "health_bars") == 0) {
-        m_healthBarCalls3D++;
-    } else if (strcmp(bufferType, "nuke_3d_models") == 0) {
-        m_nuke3DModelCalls3D++;
+    constexpr auto hash = [](const char* str) constexpr {
+        uint32_t hash = 5381;
+        while (*str) {
+            hash = ((hash << 5) + hash) + *str++;
+        }
+        return hash;
+    };
+    
+    switch (hash(bufferType)) {
+        case hash("legacy_vertices"): m_legacyVertexCalls3D++; break;
+        case hash("legacy_triangles"): m_legacyTriangleCalls3D++; break;
+        case hash("text"): m_textCalls3D++; break;
+        case hash("mega_vbo"): m_megaVBOCalls3D++; break;
+        case hash("unit_trails"): m_unitTrailCalls3D++; break;
+        case hash("unit_main_sprites"): m_unitMainSpriteCalls3D++; break;
+        case hash("unit_rotating"): m_unitRotatingCalls3D++; break;
+        case hash("unit_highlights"): m_unitHighlightCalls3D++; break;
+        case hash("unit_state_icons"): m_unitStateCalls3D++; break;
+        case hash("unit_counters"): m_unitCounterCalls3D++; break;
+        case hash("unit_nuke_icons"): m_unitNukeIconCalls3D++; break;
+        case hash("effects_lines"): m_effectsLineCalls3D++; break;
+        case hash("effects_sprites"): m_effectsSpriteCalls3D++; break;
+        case hash("health_bars"): m_healthBarCalls3D++; break;
+        case hash("nuke_3d_models"): m_nuke3DModelCalls3D++; break;
     }
 }
 

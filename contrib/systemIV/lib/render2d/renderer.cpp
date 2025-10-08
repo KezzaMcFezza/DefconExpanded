@@ -1095,60 +1095,44 @@ void Renderer::ResetFrameCounters() {
 }
 
 //
-// i know the infamous if else block, shut up
+// increment draw calls for the 2d renderer
 
 void Renderer::IncrementDrawCall(const char* bufferType) {
     m_drawCallsPerFrame++;
     
-    if (strcmp(bufferType, "legacy_triangles") == 0) {
-        m_legacyTriangleCalls++;
-    } else if (strcmp(bufferType, "legacy_lines") == 0) {
-        m_legacyLineCalls++;
-    } else if (strcmp(bufferType, "ui_triangles") == 0) {
-        m_uiTriangleCalls++;
-    } else if (strcmp(bufferType, "ui_lines") == 0) {
-        m_uiLineCalls++;
-    } else if (strcmp(bufferType, "text") == 0) {
-        m_textCalls++;
-    } else if (strcmp(bufferType, "unit_trails") == 0) {
-        m_unitTrailCalls++;
-    } else if (strcmp(bufferType, "unit_main_sprites") == 0) {
-        m_unitMainSpriteCalls++;
-    } else if (strcmp(bufferType, "unit_rotating") == 0) {
-        m_unitRotatingCalls++;
-    } else if (strcmp(bufferType, "unit_highlights") == 0) {
-        m_unitHighlightCalls++;
-    } else if (strcmp(bufferType, "unit_state_icons") == 0) {
-        m_unitStateIconCalls++;
-    } else if (strcmp(bufferType, "unit_counters") == 0) {
-        m_unitCounterCalls++;
-    } else if (strcmp(bufferType, "unit_nuke_icons") == 0) {
-        m_unitNukeIconCalls++;
-    } else if (strcmp(bufferType, "effects_lines") == 0) {
-        m_effectsLineCalls++;
-    } else if (strcmp(bufferType, "effects_rects") == 0) {
-        m_effectsRectCalls++;
-    } else if (strcmp(bufferType, "effects_sprites") == 0) {
-        m_effectsSpriteCalls++;
-    } else if (strcmp(bufferType, "effects_circle_fills") == 0) {
-        m_effectsCircleFillCalls++;
-    } else if (strcmp(bufferType, "effects_circle_outlines_thin") == 0) {
-        m_effectsCircleOutlineCalls++;
-    } else if (strcmp(bufferType, "effects_circle_outlines_thick") == 0) {
-        m_effectsCircleOutlineThickCalls++;
-    } else if (strcmp(bufferType, "health_bars") == 0) {
-        m_healthBarCalls++;
-    } else if (strcmp(bufferType, "whiteboard") == 0) {
-        m_whiteboardCalls++;
-    } else if (strcmp(bufferType, "eclipse_rects") == 0) {
-        m_eclipseRectCalls++;
-    } else if (strcmp(bufferType, "eclipse_rectfills") == 0) {
-        m_eclipseRectFillCalls++;
-    } else if (strcmp(bufferType, "eclipse_trianglefills") == 0) {
-        m_eclipseTriangleFillCalls++;
-    } else if (strcmp(bufferType, "eclipse_lines") == 0) {
-        m_eclipseLineCalls++;
-    } else if (strcmp(bufferType, "eclipse_sprites") == 0) {
-        m_eclipseSpriteCalls++;
+    constexpr auto hash = [](const char* str) constexpr {
+        uint32_t hash = 5381;
+        while (*str) {
+            hash = ((hash << 5) + hash) + *str++;
+        }
+        return hash;
+    };
+    
+    switch (hash(bufferType)) {
+        case hash("legacy_triangles"): m_legacyTriangleCalls++; break;
+        case hash("legacy_lines"): m_legacyLineCalls++; break;
+        case hash("ui_triangles"): m_uiTriangleCalls++; break;
+        case hash("ui_lines"): m_uiLineCalls++; break;
+        case hash("text"): m_textCalls++; break;
+        case hash("unit_trails"): m_unitTrailCalls++; break;
+        case hash("unit_main_sprites"): m_unitMainSpriteCalls++; break;
+        case hash("unit_rotating"): m_unitRotatingCalls++; break;
+        case hash("unit_highlights"): m_unitHighlightCalls++; break;
+        case hash("unit_state_icons"): m_unitStateIconCalls++; break;
+        case hash("unit_counters"): m_unitCounterCalls++; break;
+        case hash("unit_nuke_icons"): m_unitNukeIconCalls++; break;
+        case hash("effects_lines"): m_effectsLineCalls++; break;
+        case hash("effects_rects"): m_effectsRectCalls++; break;
+        case hash("effects_sprites"): m_effectsSpriteCalls++; break;
+        case hash("effects_circle_fills"): m_effectsCircleFillCalls++; break;
+        case hash("effects_circle_outlines_thin"): m_effectsCircleOutlineCalls++; break;
+        case hash("effects_circle_outlines_thick"): m_effectsCircleOutlineThickCalls++; break;
+        case hash("health_bars"): m_healthBarCalls++; break;
+        case hash("whiteboard"): m_whiteboardCalls++; break;
+        case hash("eclipse_rects"): m_eclipseRectCalls++; break;
+        case hash("eclipse_rectfills"): m_eclipseRectFillCalls++; break;
+        case hash("eclipse_trianglefills"): m_eclipseTriangleFillCalls++; break;
+        case hash("eclipse_lines"): m_eclipseLineCalls++; break;
+        case hash("eclipse_sprites"): m_eclipseSpriteCalls++; break;
     }
 }
