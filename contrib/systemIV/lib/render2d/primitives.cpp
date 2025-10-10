@@ -25,7 +25,7 @@ void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const
         FlushTriangles(true);
     }
     
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, src->m_textureID);
@@ -75,7 +75,7 @@ void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const
     vert3 += Vector3<float>(x, y, 0);
     vert4 += Vector3<float>(x, y, 0);
 
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, src->m_textureID);
@@ -114,7 +114,7 @@ void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float
         FlushLines();
     }
     
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
     // create 4 lines to form rectangle outline
     // top line
@@ -155,10 +155,10 @@ void Renderer::RectFill(float x, float y, float w, float h, Colour const &colTL,
         FlushTriangles(false);
     }
     
-    float rTL = colTL.m_r / 255.0f, gTL = colTL.m_g / 255.0f, bTL = colTL.m_b / 255.0f, aTL = colTL.m_a / 255.0f;
-    float rTR = colTR.m_r / 255.0f, gTR = colTR.m_g / 255.0f, bTR = colTR.m_b / 255.0f, aTR = colTR.m_a / 255.0f;
-    float rBR = colBR.m_r / 255.0f, gBR = colBR.m_g / 255.0f, bBR = colBR.m_b / 255.0f, aBR = colBR.m_a / 255.0f;
-    float rBL = colBL.m_r / 255.0f, gBL = colBL.m_g / 255.0f, bBL = colBL.m_b / 255.0f, aBL = colBL.m_a / 255.0f;
+    float rTL = colTL.GetRFloat(), gTL = colTL.GetGFloat(), bTL = colTL.GetBFloat(), aTL = colTL.GetAFloat();
+    float rTR = colTR.GetRFloat(), gTR = colTR.GetGFloat(), bTR = colTR.GetBFloat(), aTR = colTR.GetAFloat();
+    float rBR = colBR.GetRFloat(), gBR = colBR.GetGFloat(), bBR = colBR.GetBFloat(), aBR = colBR.GetAFloat();
+    float rBL = colBL.GetRFloat(), gBL = colBL.GetGFloat(), bBL = colBL.GetBFloat(), aBL = colBL.GetAFloat();
     
     // first triangle: TL, TR, BR
     m_triangleVertices[m_triangleVertexCount++] = {x, y, rTL, gTL, bTL, aTL, 0.0f, 0.0f};
@@ -183,7 +183,7 @@ void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, f
         FlushLines();
     }
     
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
     m_lineVertices[m_lineVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
     m_lineVertices[m_lineVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
@@ -201,7 +201,7 @@ void Renderer::Circle(float x, float y, float radius, int numPoints, Colour cons
         FlushLines();
     }
     
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
     for (int i = 0; i < numPoints; ++i) {
         float angle1 = 2.0f * M_PI * (float) i / (float) numPoints;
@@ -224,7 +224,7 @@ void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour 
         FlushTriangles(false);
     }
     
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
     for (int i = 0; i < numPoints; ++i) {
         float angle1 = 2.0f * M_PI * (float) i / (float) numPoints;
@@ -249,7 +249,7 @@ void Renderer::TriangleFill(float x1, float y1, float x2, float y2, float x3, fl
         FlushTriangles(false);
     }
     
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
+    float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
     m_triangleVertices[m_triangleVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
     m_triangleVertices[m_triangleVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
@@ -272,8 +272,8 @@ void Renderer::Line(float x, float y) {
         FlushLines();
     }
     
-    float r = m_currentLineColor.m_r / 255.0f, g = m_currentLineColor.m_g / 255.0f;
-    float b = m_currentLineColor.m_b / 255.0f, a = m_currentLineColor.m_a / 255.0f;
+    float r = m_currentLineColor.GetRFloat(), g = m_currentLineColor.GetGFloat();
+    float b = m_currentLineColor.GetBFloat(), a = m_currentLineColor.GetAFloat();
     
     m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
 }
@@ -326,8 +326,8 @@ void Renderer::LineStripVertex2D(float x, float y) {
         BeginLineStrip2D(m_lineStripColor, m_lineStripWidth);
     }
     
-    float r = m_lineStripColor.m_r / 255.0f, g = m_lineStripColor.m_g / 255.0f;
-    float b = m_lineStripColor.m_b / 255.0f, a = m_lineStripColor.m_a / 255.0f;
+    float r = m_lineStripColor.GetRFloat(), g = m_lineStripColor.GetGFloat();
+    float b = m_lineStripColor.GetBFloat(), a = m_lineStripColor.GetAFloat();
     
     m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
 }

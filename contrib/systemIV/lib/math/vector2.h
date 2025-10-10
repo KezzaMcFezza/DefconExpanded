@@ -11,21 +11,21 @@ private:
 public:
 	float x, y;
 
-	Vector2();
-	Vector2(Vector3<float> const &);
-	Vector2(float _x, float _y);
+	constexpr Vector2();
+	constexpr Vector2(Vector3<float> const &);
+	constexpr Vector2(float _x, float _y);
 
-	void	Zero();
-    void	Set	(float _x, float _y);
+	constexpr void	Zero();
+    constexpr void	Set	(float _x, float _y);
 
-	float	operator ^ (Vector2 const &b) const;	// Cross product
-	float   operator * (Vector2 const &b) const;	// Dot product
+	constexpr float	operator ^ (Vector2 const &b) const;	// Cross product
+	constexpr float   operator * (Vector2 const &b) const;	// Dot product
 
-	Vector2 operator - () const;					// Negate
-	Vector2 operator + (Vector2 const &b) const;
-	Vector2 operator - (Vector2 const &b) const;
-	Vector2 operator * (float const b) const;		// Scale
-	Vector2 operator / (float const b) const;
+	constexpr Vector2 operator - () const;					// Negate
+	constexpr Vector2 operator + (Vector2 const &b) const;
+	constexpr Vector2 operator - (Vector2 const &b) const;
+	constexpr Vector2 operator * (float const b) const;		// Scale
+	constexpr Vector2 operator / (float const b) const;
 
     void	operator = (Vector2 const &b);
     void	operator = (Vector3<float> const &b);
@@ -34,21 +34,21 @@ public:
 	void	operator += (Vector2 const &b);
 	void	operator -= (Vector2 const &b);
 
-	bool operator == (Vector2 const &b) const;		// Uses FLT_EPSILON
-	bool operator != (Vector2 const &b) const;		// Uses FLT_EPSILON
+	constexpr bool operator == (Vector2 const &b) const;		// Uses FLT_EPSILON
+	constexpr bool operator != (Vector2 const &b) const;		// Uses FLT_EPSILON
 
 	Vector2 const &Normalise();
 	void	SetLength		(float _len);
 	
     float	Mag				() const;
-	float	MagSquared		() const;
+	constexpr float	MagSquared		() const;
 
 	float  *GetData			();
 };
 
 
 // Operator * between float and Vector2
-inline Vector2 operator * (	float _scale, Vector2 const &_v )
+constexpr inline Vector2 operator * (	float _scale, Vector2 const &_v )
 {
 	return _v * _scale;
 }

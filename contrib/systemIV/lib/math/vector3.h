@@ -17,28 +17,28 @@ public:
 	T x, y, z;
 	
 	// *** Class methods ***
-	static Vector3 const UpVector()
+	static constexpr Vector3 const UpVector()
 	{
 		return Vector3(0, 1, 0);
 	}
 	
-	static Vector3 const ZeroVector()
+	static constexpr Vector3 const ZeroVector()
 	{
 		return Vector3(0, 0, 0);
 	}
 
 	// *** Constructors ***
-	Vector3()
+	constexpr Vector3()
 	:	x(0), y(0), z(0) 
 	{
 	}
 
-	inline Vector3(T _x, T _y, T _z)
+	constexpr Vector3(T _x, T _y, T _z)
 	:	x(_x), y(_y), z(_z) 
 	{
 	}
 
-	Vector3(Vector2 const &_b)
+	constexpr Vector3(Vector2 const &_b)
 	:	x(_b.x), y(0), z(_b.y)
 	{
 	}
@@ -46,49 +46,49 @@ public:
 	template <class T2>
 	Vector3(Vector3<T2> const &_v);
 
-	void Zero()
+	constexpr void Zero()
 	{
 		x = y = z = 0;
 	}
 
-	void Set(float _x, float _y, float _z)
+	constexpr void Set(float _x, float _y, float _z)
 	{
 		x = _x;
 		y = _y;
 		z = _z;
 	}
 	
-	Vector3 operator ^ (Vector3<T> const &b) const
+	constexpr Vector3 operator ^ (Vector3<T> const &b) const
 	{
 		return Vector3(y*b.z - z*b.y, z*b.x - x*b.z, x*b.y - y*b.x); 
 	}
 
-	T operator * (Vector3<T> const &b) const
+	constexpr T operator * (Vector3<T> const &b) const
 	{
 		return x*b.x + y*b.y + z*b.z;
 	}
 
-	Vector3<T> operator - () const
+	constexpr Vector3<T> operator - () const
 	{
 		return Vector3(-x, -y, -z);
 	}
 
-	Vector3<T> operator + (Vector3<T> const &b) const
+	constexpr Vector3<T> operator + (Vector3<T> const &b) const
 	{
 		return Vector3(x + b.x, y + b.y, z + b.z);
 	}
 
-	Vector3<T> operator - (Vector3<T> const &b) const
+	constexpr Vector3<T> operator - (Vector3<T> const &b) const
 	{
 		return Vector3(x - b.x, y - b.y, z - b.z);
 	}
 
-	Vector3<T> operator * (T const b) const
+	constexpr Vector3<T> operator * (T const b) const
 	{
 		return Vector3(x * b, y * b, z * b);
 	}
 
-	Vector3<T> operator / (T const b) const
+	constexpr Vector3<T> operator / (T const b) const
 	{
 		T multiplier = 1 / b;
 		return Vector3(x * multiplier, y * multiplier, z * multiplier);
@@ -214,7 +214,7 @@ public:
         return sqrt(magSqd);		
 	}
 
-	T MagSquared() const
+	constexpr T MagSquared() const
 	{
 		return x * x + y * y + z * z;
 	}
@@ -240,7 +240,7 @@ public:
 
 // Operator * between float and Vector3
 template <class T>
-inline Vector3<T> operator * (	T _scale, Vector3<T> const &_v )
+constexpr inline Vector3<T> operator * (	T _scale, Vector3<T> const &_v )
 {
 	return _v * _scale;
 }

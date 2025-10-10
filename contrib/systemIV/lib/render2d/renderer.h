@@ -14,10 +14,10 @@
 class Image;
 class BitmapFont;
 
-#define White Colour        (255, 255, 255)
-#define Black Colour        (0, 0, 0)
-#define LightGray Colour    (200, 200, 200)
-#define DarkGray Colour     (100, 100, 100)
+static const Colour White{255, 255, 255};
+static const Colour Black{0, 0, 0};
+static const Colour LightGray{200, 200, 200};
+static const Colour DarkGray{100, 100, 100};
 
 #ifndef TARGET_EMSCRIPTEN
 #define PREFS_GRAPHICS_SMOOTHLINES "RenderSmoothLines"
@@ -29,17 +29,23 @@ class BitmapFont;
 struct Matrix4f {
   float m[16];
 
-  Matrix4f();
-  void LoadIdentity();
+  constexpr Matrix4f();
+  constexpr void LoadIdentity();
   void Ortho(float left, float right, float bottom, float top, float nearZ,
              float farZ);
-  void Multiply(const Matrix4f &other);
+  constexpr void Multiply(const Matrix4f &other);
 };
 
 struct Vertex2D {
   float x, y;
   float r, g, b, a;
   float u, v; // texture coordinates
+  
+  constexpr Vertex2D() : x(0), y(0), r(1), g(1), b(1), a(1), u(0), v(0) {}
+  constexpr Vertex2D(float px, float py, float pr, float pg, float pb, float pa, float pu, float pv) 
+    : x(px), y(py), r(pr), g(pg), b(pb), a(pa), u(pu), v(pv) {}
+  constexpr Vertex2D(float px, float py, const Colour& color, float pu, float pv)
+    : x(px), y(py), r(color.GetRFloat()), g(color.GetGFloat()), b(color.GetBFloat()), a(color.GetAFloat()), u(pu), v(pv) {}
 };
 
 class Renderer {
@@ -80,25 +86,25 @@ private:
     BUFFER_LEGACY              // immediate mode rendering
   };
 
-  static const int MAX_VERTICES                 = 1000;
-  static const int MAX_UI_VERTICES              = 5000;
-  static const int MAX_TEXT_VERTICES            = 28000;
-  static const int MAX_UNIT_TRAIL_VERTICES      = 30000;
-  static const int MAX_UNIT_MAIN_VERTICES       = 3000;
-  static const int MAX_UNIT_ROTATING_VERTICES   = 10000;
-  static const int MAX_UNIT_HIGHLIGHT_VERTICES  = 500;
-  static const int MAX_UNIT_STATE_VERTICES      = 7500;
-  static const int MAX_UNIT_COUNTER_VERTICES    = 100;
-  static const int MAX_UNIT_NUKE_VERTICES       = 7500;
-  static const int MAX_EFFECTS_LINE_VERTICES    = 50000;
-  static const int MAX_EFFECTS_SPRITE_VERTICES  = 7500;
-  static const int MAX_HEALTH_BAR_VERTICES      = 500;
-  static const int MAX_WHITEBOARD_VERTICES      = 2000;
-  static const int MAX_ECLIPSE_RECT_VERTICES    = 2000;
-  static const int MAX_ECLIPSE_RECTFILL_VERTICES= 3000;
-  static const int MAX_ECLIPSE_TRIANGLEFILL_VERTICES = 3000;
-  static const int MAX_ECLIPSE_LINE_VERTICES    = 2000;
-  static const int MAX_ECLIPSE_SPRITE_VERTICES  = 1500; 
+  static constexpr int MAX_VERTICES                 = 1000;
+  static constexpr int MAX_UI_VERTICES              = 5000;
+  static constexpr int MAX_TEXT_VERTICES            = 28000;
+  static constexpr int MAX_UNIT_TRAIL_VERTICES      = 30000;
+  static constexpr int MAX_UNIT_MAIN_VERTICES       = 3000;
+  static constexpr int MAX_UNIT_ROTATING_VERTICES   = 10000;
+  static constexpr int MAX_UNIT_HIGHLIGHT_VERTICES  = 500;
+  static constexpr int MAX_UNIT_STATE_VERTICES      = 7500;
+  static constexpr int MAX_UNIT_COUNTER_VERTICES    = 100;
+  static constexpr int MAX_UNIT_NUKE_VERTICES       = 7500;
+  static constexpr int MAX_EFFECTS_LINE_VERTICES    = 50000;
+  static constexpr int MAX_EFFECTS_SPRITE_VERTICES  = 7500;
+  static constexpr int MAX_HEALTH_BAR_VERTICES      = 500;
+  static constexpr int MAX_WHITEBOARD_VERTICES      = 2000;
+  static constexpr int MAX_ECLIPSE_RECT_VERTICES    = 2000;
+  static constexpr int MAX_ECLIPSE_RECTFILL_VERTICES= 3000;
+  static constexpr int MAX_ECLIPSE_TRIANGLEFILL_VERTICES = 3000;
+  static constexpr int MAX_ECLIPSE_LINE_VERTICES    = 2000;
+  static constexpr int MAX_ECLIPSE_SPRITE_VERTICES  = 1500; 
 
 protected:
   char *m_defaultFontName;

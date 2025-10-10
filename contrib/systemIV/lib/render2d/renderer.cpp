@@ -33,15 +33,16 @@ Renderer *g_renderer = NULL;
 // MATRIX4F IMPLEMENTATION
 // ============================================================================
 
-Matrix4f::Matrix4f() {
-    LoadIdentity();
+constexpr Matrix4f::Matrix4f() 
+    : m{1,0,0,0,  0,1,0,0,  0,0,1,0,  0,0,0,1}
+{
 }
 
-void Matrix4f::LoadIdentity() {
-    for (int i = 0; i < 16; i++) {
-        m[i] = 0.0f;
-    }
-    m[0] = m[5] = m[10] = m[15] = 1.0f;
+constexpr void Matrix4f::LoadIdentity() {
+    m[0] = 1.0f; m[1] = 0.0f; m[2] = 0.0f; m[3] = 0.0f;
+    m[4] = 0.0f; m[5] = 1.0f; m[6] = 0.0f; m[7] = 0.0f;
+    m[8] = 0.0f; m[9] = 0.0f; m[10] = 1.0f; m[11] = 0.0f;
+    m[12] = 0.0f; m[13] = 0.0f; m[14] = 0.0f; m[15] = 1.0f;
 }
 
 void Matrix4f::Ortho(float left, float right, float bottom, float top, float nearZ, float farZ) {
@@ -59,7 +60,7 @@ void Matrix4f::Ortho(float left, float right, float bottom, float top, float nea
     m[14] = tz;
 }
 
-void Matrix4f::Multiply(const Matrix4f& other) {
+constexpr void Matrix4f::Multiply(const Matrix4f& other) {
     Matrix4f result;
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {

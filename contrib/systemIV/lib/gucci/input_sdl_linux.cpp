@@ -42,7 +42,7 @@ InputManagerSDL::InputManagerSDL()
 }
 
 
-static int ConvertSDLKeyIdToWin32KeyId(SDLKey _keyCode)
+constexpr static int ConvertSDLKeyIdToWin32KeyId(SDLKey _keyCode)
 {
 	int keyCode = (int) _keyCode;
 
@@ -96,14 +96,9 @@ static int ConvertSDLKeyIdToWin32KeyId(SDLKey _keyCode)
 	return keyCode;
 }
 
-static inline int SignOf(int x) 
-{
-	if (x >= 0)
-		return 1;
-	else
-		return 0;
+constexpr int SignOf(int x) {
+    return (x >= 0) ? 1 : 0;
 }
-
 
 void InputManagerSDL::ResetWindowHandle()
 {

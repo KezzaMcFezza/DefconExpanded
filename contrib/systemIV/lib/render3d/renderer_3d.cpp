@@ -25,13 +25,11 @@ Renderer3D *g_renderer3d = NULL;
 // Matrix4f3D Implementation
 // ================================
 
-Matrix4f3D::Matrix4f3D() {
-    LoadIdentity();
-}
-
-void Matrix4f3D::LoadIdentity() {
-    memset(m, 0, sizeof(m));
-    m[0] = m[5] = m[10] = m[15] = 1.0f;
+constexpr void Matrix4f3D::LoadIdentity() {
+    m[0] = 1.0f; m[1] = 0.0f; m[2] = 0.0f; m[3] = 0.0f;
+    m[4] = 0.0f; m[5] = 1.0f; m[6] = 0.0f; m[7] = 0.0f;
+    m[8] = 0.0f; m[9] = 0.0f; m[10] = 1.0f; m[11] = 0.0f;
+    m[12] = 0.0f; m[13] = 0.0f; m[14] = 0.0f; m[15] = 1.0f;
 }
 
 void Matrix4f3D::Perspective(float fovy, float aspect, float nearZ, float farZ) {
@@ -94,7 +92,7 @@ void Matrix4f3D::LookAt(float eyeX, float eyeY, float eyeZ,
     m[15] = 1.0f;
 }
 
-void Matrix4f3D::Multiply(const Matrix4f3D& other) {
+constexpr void Matrix4f3D::Multiply(const Matrix4f3D& other) {
     Matrix4f3D result;
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
@@ -120,7 +118,7 @@ void Matrix4f3D::Normalize(float& x, float& y, float& z) {
     }
 }
 
-void Matrix4f3D::Cross(float ax, float ay, float az, float bx, float by, float bz, float& cx, float& cy, float& cz) {
+constexpr void Matrix4f3D::Cross(float ax, float ay, float az, float bx, float by, float bz, float& cx, float& cy, float& cz) {
     cx = ay * bz - az * by;
     cy = az * bx - ax * bz;
     cz = ax * by - ay * bx;
@@ -534,10 +532,10 @@ void Renderer3D::LineStripVertex3D(float x, float y, float z) {
     }
     
     // Convert color to float
-    float r = m_lineStrip3DColor.m_r / 255.0f;
-    float g = m_lineStrip3DColor.m_g / 255.0f;
-    float b = m_lineStrip3DColor.m_b / 255.0f;
-    float a = m_lineStrip3DColor.m_a / 255.0f;
+    float r = m_lineStrip3DColor.GetRFloat();
+    float g = m_lineStrip3DColor.GetGFloat();
+    float b = m_lineStrip3DColor.GetBFloat();
+    float a = m_lineStrip3DColor.GetAFloat();
     
     // Add vertex to buffer
     m_vertices3D[m_vertex3DCount] = Vertex3D(x, y, z, r, g, b, a);
@@ -623,10 +621,10 @@ void Renderer3D::TexturedQuadVertex3D(float x, float y, float z, float u, float 
     }
     
     // Convert color to float
-    float r = m_texturedQuad3DColor.m_r / 255.0f;
-    float g = m_texturedQuad3DColor.m_g / 255.0f;
-    float b = m_texturedQuad3DColor.m_b / 255.0f;
-    float a = m_texturedQuad3DColor.m_a / 255.0f;
+    float r = m_texturedQuad3DColor.GetRFloat();
+    float g = m_texturedQuad3DColor.GetGFloat();
+    float b = m_texturedQuad3DColor.GetBFloat();
+    float a = m_texturedQuad3DColor.GetAFloat();
     
     // Add vertex to buffer
     m_vertices3DTextured[m_vertex3DTexturedCount] = Vertex3DTextured(x, y, z, r, g, b, a, u, v);

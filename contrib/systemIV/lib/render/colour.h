@@ -40,6 +40,11 @@ public:
 
 	unsigned char const *GetData() const;
 
+    constexpr float GetRFloat() const { return static_cast<float>(m_r) / 255.0f; }
+    constexpr float GetGFloat() const { return static_cast<float>(m_g) / 255.0f; }
+    constexpr float GetBFloat() const { return static_cast<float>(m_b) / 255.0f; }
+    constexpr float GetAFloat() const { return static_cast<float>(m_a) / 255.0f; }
+
     void GetHexValue( char *_hex );
     void LoadFromHex( char *_hex );
 

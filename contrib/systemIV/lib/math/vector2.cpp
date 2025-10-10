@@ -25,7 +25,7 @@ bool Vector2::Compare(Vector2 const &b) const
 // ******************
 
 // Constructor
-Vector2::Vector2()
+constexpr Vector2::Vector2()
 :	x(0.0f),
 	y(0.0f) 
 {
@@ -33,7 +33,7 @@ Vector2::Vector2()
 
 
 // Constructor
-Vector2::Vector2(Vector3<float> const &v)
+constexpr Vector2::Vector2(Vector3<float> const &v)
 :	x(v.x),
 	y(v.z)
 {
@@ -41,20 +41,20 @@ Vector2::Vector2(Vector3<float> const &v)
 
 
 // Constructor
-Vector2::Vector2(float _x, float _y)
+constexpr Vector2::Vector2(float _x, float _y)
 :	x(_x),
 	y(_y) 
 {
 }
 
 
-void Vector2::Zero()
+constexpr void Vector2::Zero()
 {
 	x = y = 0.0f;
 }
 
 
-void Vector2::Set(float _x, float _y)
+constexpr void Vector2::Set(float _x, float _y)
 {
 	x = _x;
 	y = _y;
@@ -62,45 +62,45 @@ void Vector2::Set(float _x, float _y)
 
 
 // Cross Product
-float Vector2::operator ^ (Vector2 const &b) const
+constexpr float Vector2::operator ^ (Vector2 const &b) const
 {
 	return x*b.y - y*b.x;
 }
 
 
 // Dot Product
-float Vector2::operator * (Vector2 const &b) const
+constexpr float Vector2::operator * (Vector2 const &b) const
 {
 	return (x * b.x + y * b.y);
 }
 
 
 // Negate
-Vector2 Vector2::operator - () const
+constexpr Vector2 Vector2::operator - () const
 {
 	return Vector2(-x, -y);
 }
 
 
-Vector2 Vector2::operator + (Vector2 const &b) const
+constexpr Vector2 Vector2::operator + (Vector2 const &b) const
 {
 	return Vector2(x + b.x, y + b.y);
 }
 
 
-Vector2 Vector2::operator - (Vector2 const &b) const
+constexpr Vector2 Vector2::operator - (Vector2 const &b) const
 {
 	return Vector2(x - b.x, y - b.y);
 }
 
 
-Vector2 Vector2::operator * (float const b) const
+constexpr Vector2 Vector2::operator * (float const b) const
 {
 	return Vector2(x * b, y * b);
 }
 
 
-Vector2 Vector2::operator / (float const b) const
+constexpr Vector2 Vector2::operator / (float const b) const
 {
 	float multiplier = 1.0f / b;
 	return Vector2(x * multiplier, y * multiplier);
@@ -186,19 +186,19 @@ float Vector2::Mag() const
 }
 
 
-float Vector2::MagSquared() const
+constexpr float Vector2::MagSquared() const
 {
     return x * x + y * y;
 }
 
 
-bool Vector2::operator == (Vector2 const &b) const
+constexpr bool Vector2::operator == (Vector2 const &b) const
 {
 	return Compare(b);
 }
 
 
-bool Vector2::operator != (Vector2 const &b) const
+constexpr bool Vector2::operator != (Vector2 const &b) const
 {
 	return !Compare(b);
 }

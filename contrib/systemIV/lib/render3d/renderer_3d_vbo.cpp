@@ -111,8 +111,8 @@ void Renderer3D::AddLineStripToMegaVBO3D(const Vector3<float>* vertices, int ver
     //
     // convert color to float
 
-    float r = m_megaVBO3DColor.m_r / 255.0f, g = m_megaVBO3DColor.m_g / 255.0f;
-    float b = m_megaVBO3DColor.m_b / 255.0f, a = m_megaVBO3DColor.m_a / 255.0f;
+    float r = m_megaVBO3DColor.GetRFloat(), g = m_megaVBO3DColor.GetGFloat();
+    float b = m_megaVBO3DColor.GetBFloat(), a = m_megaVBO3DColor.GetAFloat();
     
     //
     // store starting vertex index for this line strip

@@ -2,8 +2,8 @@
 #define _included_sprite_atlas_h
 
 // Atlas texture dimensions
-#define ATLAS_TEXTURE_WIDTH  412.0f
-#define ATLAS_TEXTURE_HEIGHT 1518.0f
+constexpr float ATLAS_TEXTURE_WIDTH = 412.0f;
+constexpr float ATLAS_TEXTURE_HEIGHT = 1518.0f;
 
 // undefine windows macro, since the atlas texture is defined as ERROR,
 // emscripten does not care about this as its not using windows headers
@@ -16,16 +16,16 @@ struct AtlasCoord {
     float u1, v1, u2, v2;  // UV coordinates, normalized 0.0 - 1.0
     int width, height;     // original sprite dimensions
     
-    AtlasCoord() : u1(0), v1(0), u2(0), v2(0), width(0), height(0) {}
+    constexpr AtlasCoord() : u1(0), v1(0), u2(0), v2(0), width(0), height(0) {}
     
-    AtlasCoord(int x, int y, int w, int h) {
-        // convert pixel coordinates to UV coordinates
-        u1 = (float)x / ATLAS_TEXTURE_WIDTH;
-        v1 = 1.0f - (float)(y + h) / ATLAS_TEXTURE_HEIGHT;  // flip Y for OpenGL
-        u2 = (float)(x + w) / ATLAS_TEXTURE_WIDTH;
-        v2 = 1.0f - (float)y / ATLAS_TEXTURE_HEIGHT;
-        width = w;
-        height = h;
+    constexpr AtlasCoord(int x, int y, int w, int h) 
+        : u1((float)x / ATLAS_TEXTURE_WIDTH),
+          v1(1.0f - (float)(y + h) / ATLAS_TEXTURE_HEIGHT),  // flip Y for OpenGL
+          u2((float)(x + w) / ATLAS_TEXTURE_WIDTH),
+          v2(1.0f - (float)y / ATLAS_TEXTURE_HEIGHT),
+          width(w),
+          height(h)
+    {
     }
 };
 
