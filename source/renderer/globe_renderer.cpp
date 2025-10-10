@@ -652,20 +652,18 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     // begin scene main scene
 
     g_renderer3d->BeginNuke3DModelBatch3D();    // 3D nuke models (replaces flat nuke sprites)
-    g_renderer3d->BeginUnitTrailBatch3D();      // Unit movement trails
     g_renderer3d->BeginUnitMainBatch3D();       // Main unit sprites + city icons
     g_renderer3d->BeginUnitRotatingBatch3D();   // Rotating sprites (aircraft, but not nukes anymore)
-    g_renderer3d->BeginUnitTrailBatch3D();      // Unit movement trails
     g_renderer3d->BeginUnitStateBatch3D();      // Unit state icons (fighters/bombers on units)
     g_renderer3d->BeginUnitNukeBatch3D();       // Small nuke icons on units
+    g_renderer3d->BeginUnitTrailBatch3D();      // Unit movement trails
     g_renderer3d->BeginEffectsLineBatch3D();    // All line effects (gunfire trails, etc.)
     g_renderer3d->BeginEffectsSpriteBatch3D();  // All sprite effects (explosions, sonar pings, etc.)
 
     //
     // force additive blending after culling has been applied
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
 
     Render3DGlobeCities();
     Render3DUnits();
@@ -684,19 +682,19 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     //
     // now end the main scene and flush
     
-    g_renderer3d->EndUnitTrailBatch3D();        // Flush all unit trails
+    // End batching in reverse order for proper cleanup
     g_renderer3d->EndEffectsSpriteBatch3D();    // Flush all sprite effects (explosions, sonar pings)
     g_renderer3d->EndEffectsLineBatch3D();      // Flush all line effects (gunfire trails)
+    g_renderer3d->EndUnitTrailBatch3D();        // Flush all unit trails
     g_renderer3d->EndUnitNukeBatch3D();         // Flush all small nuke icons
     g_renderer3d->EndUnitStateBatch3D();        // Flush all unit state icons
     g_renderer3d->EndUnitRotatingBatch3D();     // Flush all rotating sprites (atlas batching!)
     g_renderer3d->EndUnitMainBatch3D();         // Flush all main unit sprites + city icons (atlas batching!)
-    g_renderer3d->EndUnitTrailBatch3D();        // Flush all unit trails
     g_renderer3d->EndNuke3DModelBatch3D();      // Flush all 3D nuke models
 
 
     glDisable(GL_DEPTH_TEST);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
 
     // reset to 2d viewport
     g_renderer->Reset2DViewport();
@@ -756,8 +754,7 @@ void MapRenderer::SetupCamera3d()
 
     // OpenGL 3.3 state management
     glDisable( GL_CULL_FACE );
-    glEnable( GL_BLEND );
-    g_renderer->SetBlendFunc( GL_SRC_ALPHA, GL_ONE );
+    g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
     glDisable( GL_DEPTH_TEST );
 
     // changed function name to enableDistanceFog, as now we have two fog modes
