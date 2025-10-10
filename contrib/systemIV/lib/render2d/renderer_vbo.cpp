@@ -98,8 +98,8 @@ void Renderer::EndCachedLineStrip() {
         glGenVertexArrays(1, &cachedVBO->VAO);
         glGenBuffers(1, &cachedVBO->VBO);
         
-        glBindVertexArray(cachedVBO->VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+        SetVertexArray(cachedVBO->VAO);
+        SetArrayBuffer(cachedVBO->VBO);
         
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
         glEnableVertexAttribArray(0);
@@ -108,8 +108,8 @@ void Renderer::EndCachedLineStrip() {
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(2);
     } else {
-        glBindVertexArray(cachedVBO->VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+        SetVertexArray(cachedVBO->VAO);
+        SetArrayBuffer(cachedVBO->VBO);
     }
     
 #ifdef TARGET_EMSCRIPTEN
@@ -139,11 +139,11 @@ void Renderer::RenderCachedLineStrip(const char* cacheKey) {
     }
     CachedVBO* cachedVBO = tree->data;
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
     // Render the cached VBO
-    glBindVertexArray(cachedVBO->VAO);
+    SetVertexArray(cachedVBO->VAO);
     glDrawArrays(GL_LINES, 0, cachedVBO->vertexCount);
 }
 
@@ -267,8 +267,8 @@ void Renderer::EndMegaVBO() {
         glGenBuffers(1, &cachedVBO->VBO);
         glGenBuffers(1, &cachedVBO->IBO);
         
-        glBindVertexArray(cachedVBO->VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+        SetVertexArray(cachedVBO->VAO);
+        SetArrayBuffer(cachedVBO->VBO);
         
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
         glEnableVertexAttribArray(0);
@@ -282,8 +282,8 @@ void Renderer::EndMegaVBO() {
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     } else {
-        glBindVertexArray(cachedVBO->VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+        SetVertexArray(cachedVBO->VAO);
+        SetArrayBuffer(cachedVBO->VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     }
     
@@ -318,7 +318,7 @@ void Renderer::RenderMegaVBO(const char* megaVBOKey) {
     
     CachedVBO* cachedVBO = tree->data;
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
 #ifndef TARGET_EMSCRIPTEN
@@ -329,7 +329,7 @@ void Renderer::RenderMegaVBO(const char* megaVBOKey) {
     //
     // render the mega-VBO with indexed drawing for emscripten
 
-    glBindVertexArray(cachedVBO->VAO);
+    SetVertexArray(cachedVBO->VAO);
     glDrawElements(GL_LINE_STRIP, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
     
 #ifndef TARGET_EMSCRIPTEN

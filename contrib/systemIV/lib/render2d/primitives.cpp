@@ -27,14 +27,14 @@ void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const
     
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, src->m_textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    SetActiveTexture(GL_TEXTURE0);
+    SetBoundTexture(src->m_textureID);
+    SetTextureParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     if (src->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        SetTextureParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        SetTextureParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     
     // Get UV coordinates - atlas sprites use specific regions, others use full texture
@@ -77,14 +77,14 @@ void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const
 
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, src->m_textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    SetActiveTexture(GL_TEXTURE0);
+    SetBoundTexture(src->m_textureID);
+    SetTextureParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     if (src->m_mipmapping) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        SetTextureParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        SetTextureParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     
     // get UV coordinates, atlas sprites use specific regions, others use full texture
@@ -107,7 +107,7 @@ void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const
 void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float lineWidth) {
 
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
+    SetLineWidth(lineWidth);
 #endif
 
     if (m_lineVertexCount + 8 > MAX_VERTICES) {
@@ -176,7 +176,7 @@ void Renderer::RectFill(float x, float y, float w, float h, Colour const &colTL,
 void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth) {
     
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
+    SetLineWidth(lineWidth);
 #endif
     
     if (m_lineVertexCount + 2 > MAX_VERTICES) {
@@ -194,7 +194,7 @@ void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, f
 void Renderer::Circle(float x, float y, float radius, int numPoints, Colour const &col, float lineWidth) {
 
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
+    SetLineWidth(lineWidth);
 #endif
 
     if (m_lineVertexCount + numPoints * 2 > MAX_VERTICES) {
@@ -261,7 +261,7 @@ void Renderer::TriangleFill(float x1, float y1, float x2, float y2, float x3, fl
 void Renderer::BeginLines(Colour const &col, float lineWidth) {
 
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
+    SetLineWidth(lineWidth);
 #endif
 
     m_currentLineColor = col;
@@ -314,7 +314,7 @@ void Renderer::BeginLineStrip2D(Colour const &col, float lineWidth) {
     m_lineVertexCount = 0;
 
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(lineWidth);
+    SetLineWidth(lineWidth);
 #endif
 }
 

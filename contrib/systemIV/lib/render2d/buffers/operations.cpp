@@ -453,10 +453,11 @@ void Renderer::FlushUITriangles() {
     StartFlushTiming("UI_Triangles"); 
     IncrementDrawCall("ui_triangles");
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_uiVAO);
+    SetVertexArray(m_uiVAO);
+    SetArrayBuffer(m_uiVBO);
     UploadVertexDataToVBO(m_uiVBO, m_uiTriangleVertices, m_uiTriangleVertexCount, GL_STREAM_DRAW);
         
     glDrawArrays(GL_TRIANGLES, 0, m_uiTriangleVertexCount);
@@ -472,10 +473,11 @@ void Renderer::FlushUILines() {
     StartFlushTiming("UI_Lines");
     IncrementDrawCall("ui_lines");
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_uiVAO);
+    SetVertexArray(m_uiVAO);
+    SetArrayBuffer(m_uiVBO);
     UploadVertexDataToVBO(m_uiVBO, m_uiLineVertices, m_uiLineVertexCount, GL_STREAM_DRAW);
            
     glDrawArrays(GL_LINES, 0, m_uiLineVertexCount);
@@ -492,7 +494,7 @@ void Renderer::FlushTriangles(bool useTexture) {
     IncrementDrawCall("legacy_triangles");
     
     unsigned int shaderToUse = useTexture ? m_textureShaderProgram : m_colorShaderProgram;
-    glUseProgram(shaderToUse);
+    SetShaderProgram(shaderToUse);
     
     if (useTexture) {
         SetTextureShaderUniforms();
@@ -500,7 +502,8 @@ void Renderer::FlushTriangles(bool useTexture) {
         SetColorShaderUniforms();
     }
     
-    glBindVertexArray(m_legacyVAO);    
+    SetVertexArray(m_legacyVAO);    
+    SetArrayBuffer(m_legacyVBO);
     UploadVertexDataToVBO(m_legacyVBO, m_triangleVertices, m_triangleVertexCount, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_triangleVertexCount);
@@ -516,10 +519,11 @@ void Renderer::FlushLines() {
     StartFlushTiming("Legacy_Lines");
     IncrementDrawCall("legacy_lines");
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_legacyVAO);
+    SetVertexArray(m_legacyVAO);
+    SetArrayBuffer(m_legacyVBO);
     UploadVertexDataToVBO(m_legacyVBO, m_lineVertices, m_lineVertexCount, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_lineVertexCount);
@@ -541,19 +545,20 @@ void Renderer::FlushTextBuffer() {
     
     // set correct blend mode for text rendering (additive for smooth fonts)
     if (m_blendMode != BlendModeSubtractive) {
-        SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        SetBlendMode(BlendModeAdditive);
     }
     
-    glUseProgram(m_textureShaderProgram);
+    SetShaderProgram(m_textureShaderProgram);
     SetTextureShaderUniforms();
     
     // bind the current text texture
     if (m_currentTextTexture != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentTextTexture);
+        SetActiveTexture(GL_TEXTURE0);
+        SetBoundTexture(m_currentTextTexture);
     }
     
-    glBindVertexArray(m_textVAO);
+    SetVertexArray(m_textVAO);
+    SetArrayBuffer(m_textVBO);
     UploadVertexDataToVBO(m_textVBO, m_textVertices, m_textVertexCount, GL_DYNAMIC_DRAW);  
     
     glDrawArrays(GL_TRIANGLES, 0, m_textVertexCount);
@@ -574,13 +579,14 @@ void Renderer::FlushUnitTrails() {
     IncrementDrawCall("unit_trails");
     
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS)); 
+    SetLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS)); 
 #endif
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_effectsVAO);
+    SetVertexArray(m_effectsVAO);
+    SetArrayBuffer(m_effectsVBO);
     UploadVertexDataToVBO(m_effectsVBO, m_unitTrailVertices, m_unitTrailVertexCount, GL_DYNAMIC_DRAW); 
     
     glDrawArrays(GL_LINES, 0, m_unitTrailVertexCount);
@@ -597,16 +603,17 @@ void Renderer::FlushUnitMainSprites() {
     StartFlushTiming("Unit_Main");
     IncrementDrawCall("unit_main_sprites");
     
-    glUseProgram(m_textureShaderProgram);
+    SetShaderProgram(m_textureShaderProgram);
     SetTextureShaderUniforms();
     
     // bind texture here during flush
     if (m_currentUnitMainTexture != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentUnitMainTexture);
+        SetActiveTexture(GL_TEXTURE0);
+        SetBoundTexture(m_currentUnitMainTexture);
     }
     
-    glBindVertexArray(m_unitVAO);
+    SetVertexArray(m_unitVAO);
+    SetArrayBuffer(m_unitVBO);
     UploadVertexDataToVBO(m_unitVBO, m_unitMainVertices, m_unitMainVertexCount, GL_STREAM_DRAW);   
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitMainVertexCount);
@@ -622,15 +629,16 @@ void Renderer::FlushUnitRotating() {
     StartFlushTiming("Unit_Rotating");
     IncrementDrawCall("unit_rotating");
     
-    glUseProgram(m_textureShaderProgram);
+    SetShaderProgram(m_textureShaderProgram);
     SetTextureShaderUniforms();
     
     if (m_currentUnitRotatingTexture != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentUnitRotatingTexture);
+        SetActiveTexture(GL_TEXTURE0);
+        SetBoundTexture(m_currentUnitRotatingTexture);
     }
     
-    glBindVertexArray(m_unitVAO);
+    SetVertexArray(m_unitVAO);
+    SetArrayBuffer(m_unitVBO);
     UploadVertexDataToVBO(m_unitVBO, m_unitRotatingVertices, m_unitRotatingVertexCount, GL_STREAM_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitRotatingVertexCount);
@@ -646,10 +654,11 @@ void Renderer::FlushEffectsCircleFills() {
     IncrementDrawCall("effects_circle_fills");
     StartFlushTiming("Effects_CircleFills");
 
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_effectsVAO);
+    SetVertexArray(m_effectsVAO);
+    SetArrayBuffer(m_effectsVBO);
     UploadVertexDataToVBO(m_effectsVBO, m_radarFillVertices, m_effectsCircleFillVertexCount, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_effectsCircleFillVertexCount);
@@ -666,13 +675,14 @@ void Renderer::FlushEffectsCircleOutlines() {
     StartFlushTiming("Effects_CircleOutlinesThin");
 
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.0f); 
+    SetLineWidth(1.0f); 
 #endif
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_effectsVAO);
+    SetVertexArray(m_effectsVAO);
+    SetArrayBuffer(m_effectsVBO);
     UploadVertexDataToVBO(m_effectsVBO, m_effectsCircleOutlineVertices, m_effectsCircleOutlineVertexCount, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_effectsCircleOutlineVertexCount);
@@ -689,13 +699,14 @@ void Renderer::FlushEffectsCircleOutlinesThick() {
     StartFlushTiming("Effects_CircleOutlinesThick");
 
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(3.0f); // Own radar thick lines
+    SetLineWidth(3.0f); // Own radar thick lines
 #endif
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_effectsVAO);
+    SetVertexArray(m_effectsVAO);
+    SetArrayBuffer(m_effectsVBO);
     UploadVertexDataToVBO(m_effectsVBO, m_effectsCircleOutlineThickVertices, m_effectsCircleOutlineThickVertexCount, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_effectsCircleOutlineThickVertexCount);
@@ -711,15 +722,16 @@ void Renderer::FlushUnitStateIcons() {
     StartFlushTiming("Unit_StateIcons");
     IncrementDrawCall("unit_state_icons");
 
-    glUseProgram(m_textureShaderProgram);
+    SetShaderProgram(m_textureShaderProgram);
     SetTextureShaderUniforms();
     
     if (m_currentUnitStateTexture != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentUnitStateTexture);
+        SetActiveTexture(GL_TEXTURE0);
+        SetBoundTexture(m_currentUnitStateTexture);
     }
     
-    glBindVertexArray(m_unitVAO);
+    SetVertexArray(m_unitVAO);
+    SetArrayBuffer(m_unitVBO);
     UploadVertexDataToVBO(m_unitVBO, m_unitStateVertices, m_unitStateVertexCount, GL_STREAM_DRAW); 
         
     glDrawArrays(GL_TRIANGLES, 0, m_unitStateVertexCount);
@@ -735,10 +747,11 @@ void Renderer::FlushUnitCounters() {
     StartFlushTiming("Unit_Counters");
     IncrementDrawCall("unit_counters");
     
-    glUseProgram(m_textureShaderProgram);
+    SetShaderProgram(m_textureShaderProgram);
     SetTextureShaderUniforms();
     
-    glBindVertexArray(m_unitVAO);
+    SetVertexArray(m_unitVAO);
+    SetArrayBuffer(m_unitVBO);
     UploadVertexDataToVBO(m_unitVBO, m_unitCounterVertices, m_unitCounterVertexCount, GL_STREAM_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitCounterVertexCount);
@@ -754,15 +767,16 @@ void Renderer::FlushUnitNukeIcons() {
     StartFlushTiming("Unit_Nukes");
     IncrementDrawCall("unit_nuke_icons");
     
-    glUseProgram(m_textureShaderProgram);
+    SetShaderProgram(m_textureShaderProgram);
     SetTextureShaderUniforms();
 
     if (m_currentUnitNukeTexture != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentUnitNukeTexture);
+        SetActiveTexture(GL_TEXTURE0);
+        SetBoundTexture(m_currentUnitNukeTexture);
     }
     
-    glBindVertexArray(m_unitVAO);
+    SetVertexArray(m_unitVAO);
+    SetArrayBuffer(m_unitVBO);
     UploadVertexDataToVBO(m_unitVBO, m_unitNukeVertices, m_unitNukeVertexCount, GL_STREAM_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitNukeVertexCount);
@@ -779,13 +793,14 @@ void Renderer::FlushEffectsLines() {
     IncrementDrawCall("effects_lines");
 
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.0f);  // Set once during flush, not per line
+    SetLineWidth(1.0f);  // Set once during flush, not per line
 #endif
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_effectsVAO);
+    SetVertexArray(m_effectsVAO);
+    SetArrayBuffer(m_effectsVBO);
     UploadVertexDataToVBO(m_effectsVBO, m_effectsLineVertices, m_effectsLineVertexCount, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_effectsLineVertexCount);
@@ -802,13 +817,14 @@ void Renderer::FlushEffectsRects() {
     IncrementDrawCall("effects_rects");
 
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.0f);
+    SetLineWidth(1.0f);
 #endif
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_effectsVAO);
+    SetVertexArray(m_effectsVAO);
+    SetArrayBuffer(m_effectsVBO);
     UploadVertexDataToVBO(m_effectsVBO, m_effectsRectVertices, m_effectsRectVertexCount, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_effectsRectVertexCount);
@@ -824,15 +840,16 @@ void Renderer::FlushEffectsSprites() {
     StartFlushTiming("Effects_Sprites");
     IncrementDrawCall("effects_sprites");
     
-    glUseProgram(m_textureShaderProgram);
+    SetShaderProgram(m_textureShaderProgram);
     SetTextureShaderUniforms();
     
     if (m_currentEffectsSpriteTexture != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentEffectsSpriteTexture);
+        SetActiveTexture(GL_TEXTURE0);
+        SetBoundTexture(m_currentEffectsSpriteTexture);
     }
     
-    glBindVertexArray(m_effectsVAO);
+    SetVertexArray(m_effectsVAO);
+    SetArrayBuffer(m_effectsVBO);
     UploadVertexDataToVBO(m_effectsVBO, m_effectsSpriteVertices, m_effectsSpriteVertexCount, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_effectsSpriteVertexCount);
@@ -848,15 +865,16 @@ void Renderer::FlushUnitHighlights() {
     StartFlushTiming("Unit_Highlights");
     IncrementDrawCall("unit_highlights");
     
-    glUseProgram(m_textureShaderProgram);
+    SetShaderProgram(m_textureShaderProgram);
     SetTextureShaderUniforms();
     
     if (m_currentUnitHighlightTexture != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentUnitHighlightTexture);
+        SetActiveTexture(GL_TEXTURE0);
+        SetBoundTexture(m_currentUnitHighlightTexture);
     }
     
-    glBindVertexArray(m_unitVAO);
+    SetVertexArray(m_unitVAO);
+    SetArrayBuffer(m_unitVBO);
     UploadVertexDataToVBO(m_unitVBO, m_unitHighlightVertices, m_unitHighlightVertexCount, GL_STREAM_DRAW);
  
     glDrawArrays(GL_TRIANGLES, 0, m_unitHighlightVertexCount);
@@ -873,10 +891,11 @@ void Renderer::FlushHealthBars() {
     StartFlushTiming("Health_Bars");
     IncrementDrawCall("health_bars");
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_healthVAO);
+    SetVertexArray(m_healthVAO);
+    SetArrayBuffer(m_healthVBO);
     UploadVertexDataToVBO(m_healthVBO, m_healthBarVertices, m_healthBarVertexCount, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_healthBarVertexCount);
@@ -893,13 +912,14 @@ void Renderer::FlushEclipseRects() {
     IncrementDrawCall("eclipse_rects");
     
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.0f);
+    SetLineWidth(1.0f);
 #endif
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_eclipseLinesVAO);
+    SetVertexArray(m_eclipseLinesVAO);
+    SetArrayBuffer(m_eclipseLinesVBO);
     UploadVertexDataToVBO(m_eclipseLinesVBO, m_eclipseRectVertices, m_eclipseRectVertexCount, GL_STREAM_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_eclipseRectVertexCount);
@@ -915,10 +935,11 @@ void Renderer::FlushEclipseRectFills() {
     StartFlushTiming("Eclipse_RectFills");
     IncrementDrawCall("eclipse_rectfills");
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_eclipseFillsVAO);
+    SetVertexArray(m_eclipseFillsVAO);
+    SetArrayBuffer(m_eclipseFillsVBO);
     UploadVertexDataToVBO(m_eclipseFillsVBO, m_eclipseRectFillVertices, m_eclipseRectFillVertexCount, GL_STREAM_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_eclipseRectFillVertexCount);
@@ -934,10 +955,11 @@ void Renderer::FlushEclipseTriangleFills() {
     StartFlushTiming("Eclipse_TriangleFills");
     IncrementDrawCall("eclipse_trianglefills");
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_eclipseFillsVAO);
+    SetVertexArray(m_eclipseFillsVAO);
+    SetArrayBuffer(m_eclipseFillsVBO);
     UploadVertexDataToVBO(m_eclipseFillsVBO, m_eclipseTriangleFillVertices, m_eclipseTriangleFillVertexCount, GL_STREAM_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_eclipseTriangleFillVertexCount);
@@ -954,13 +976,14 @@ void Renderer::FlushEclipseLines() {
     IncrementDrawCall("eclipse_lines");
     
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.0f);  // Set once during flush
+    SetLineWidth(1.0f);  // Set once during flush
 #endif
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_eclipseLinesVAO);
+    SetVertexArray(m_eclipseLinesVAO);
+    SetArrayBuffer(m_eclipseLinesVBO);
     UploadVertexDataToVBO(m_eclipseLinesVBO, m_eclipseLineVertices, m_eclipseLineVertexCount, GL_STREAM_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_eclipseLineVertexCount);
@@ -976,15 +999,16 @@ void Renderer::FlushEclipseSprites() {
     StartFlushTiming("Eclipse_Sprites");
     IncrementDrawCall("eclipse_sprites");
     
-    glUseProgram(m_textureShaderProgram);
+    SetShaderProgram(m_textureShaderProgram);
     SetTextureShaderUniforms();
     
     if (m_currentEclipseSpriteTexture != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentEclipseSpriteTexture);
+        SetActiveTexture(GL_TEXTURE0);
+        SetBoundTexture(m_currentEclipseSpriteTexture);
     }
     
-    glBindVertexArray(m_eclipseSpritesVAO);
+    SetVertexArray(m_eclipseSpritesVAO);
+    SetArrayBuffer(m_eclipseSpritesVBO);
     UploadVertexDataToVBO(m_eclipseSpritesVBO, m_eclipseSpriteVertices, m_eclipseSpriteVertexCount, GL_STREAM_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_eclipseSpriteVertexCount);
@@ -1002,13 +1026,14 @@ void Renderer::FlushWhiteboard() {
     IncrementDrawCall("whiteboard");
     
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_WHITEBOARD_THICKNESS));
+    SetLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_WHITEBOARD_THICKNESS));
 #endif
     
-    glUseProgram(m_colorShaderProgram);
+    SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    glBindVertexArray(m_legacyVAO);
+    SetVertexArray(m_legacyVAO);
+    SetArrayBuffer(m_legacyVBO);
     UploadVertexDataToVBO(m_legacyVBO, m_whiteboardVertices, m_whiteboardVertexCount, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_whiteboardVertexCount);

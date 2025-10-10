@@ -6,6 +6,7 @@
 
 #include "renderer/map_renderer.h"
 #include "lib/render3d/renderer_3d.h"
+#include "lib/render2d/renderer.h"
 
 extern Renderer3D *g_renderer3d;
 
@@ -291,10 +292,10 @@ void Renderer3D::FlushUnitTrails3D() {
 #endif
     
     // use 3D shader program
-    glUseProgram(m_shader3DProgram);
+    m_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
     
-    glBindVertexArray(m_effectsVAO3D);
+    m_renderer->SetVertexArray(m_effectsVAO3D);
     UploadVertexDataTo3DVBO(m_effectsVBO3D, m_unitTrailVertices3D, m_unitTrailVertexCount3D, GL_STREAM_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_unitTrailVertexCount3D);
@@ -312,15 +313,15 @@ void Renderer3D::FlushUnitMainSprites3D() {
     
     glDepthMask(GL_FALSE);
     
-    glUseProgram(m_shader3DTexturedProgram);
+    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
     
     if (m_currentUnitMainTexture3D != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentUnitMainTexture3D);
+        m_renderer->SetActiveTexture(GL_TEXTURE0);
+        m_renderer->SetBoundTexture(m_currentUnitMainTexture3D);
     }
     
-    glBindVertexArray(m_unitVAO3D);
+    m_renderer->SetVertexArray(m_unitVAO3D);
     UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitMainVertices3D, m_unitMainVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitMainVertexCount3D);
@@ -339,15 +340,15 @@ void Renderer3D::FlushUnitRotating3D() {
     
     glDepthMask(GL_FALSE);
     
-    glUseProgram(m_shader3DTexturedProgram);
+    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
     
     if (m_currentUnitRotatingTexture3D != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentUnitRotatingTexture3D);
+        m_renderer->SetActiveTexture(GL_TEXTURE0);
+        m_renderer->SetBoundTexture(m_currentUnitRotatingTexture3D);
     }
     
-    glBindVertexArray(m_unitVAO3D);
+    m_renderer->SetVertexArray(m_unitVAO3D);
     UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitRotatingVertices3D, m_unitRotatingVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitRotatingVertexCount3D);
@@ -366,15 +367,15 @@ void Renderer3D::FlushUnitStateIcons3D() {
     
     glDepthMask(GL_FALSE);
     
-    glUseProgram(m_shader3DTexturedProgram);
+    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
     
     if (m_currentUnitStateTexture3D != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentUnitStateTexture3D);
+        m_renderer->SetActiveTexture(GL_TEXTURE0);
+        m_renderer->SetBoundTexture(m_currentUnitStateTexture3D);
     }
     
-    glBindVertexArray(m_unitVAO3D);
+    m_renderer->SetVertexArray(m_unitVAO3D);
     UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitStateVertices3D, m_unitStateVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitStateVertexCount3D);
@@ -391,10 +392,10 @@ void Renderer3D::FlushUnitCounters3D() {
     StartFlushTiming3D("Unit_Counters_3D");
     IncrementDrawCall3D("unit_counters");
     
-    glUseProgram(m_shader3DTexturedProgram);
+    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
     
-    glBindVertexArray(m_unitVAO3D);
+    m_renderer->SetVertexArray(m_unitVAO3D);
     UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitCounterVertices3D, m_unitCounterVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitCounterVertexCount3D);
@@ -412,15 +413,15 @@ void Renderer3D::FlushUnitNukeIcons3D() {
     
     glDepthMask(GL_FALSE);
     
-    glUseProgram(m_shader3DTexturedProgram);
+    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
     
     if (m_currentUnitNukeTexture3D != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentUnitNukeTexture3D);
+        m_renderer->SetActiveTexture(GL_TEXTURE0);
+        m_renderer->SetBoundTexture(m_currentUnitNukeTexture3D);
     }
     
-    glBindVertexArray(m_unitVAO3D);
+    m_renderer->SetVertexArray(m_unitVAO3D);
     UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitNukeVertices3D, m_unitNukeVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitNukeVertexCount3D);
@@ -437,10 +438,10 @@ void Renderer3D::FlushEffectsLines3D() {
     StartFlushTiming3D("Effects_Lines_3D");
     IncrementDrawCall3D("effects_lines");
     
-    glUseProgram(m_shader3DProgram);
+    m_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
     
-    glBindVertexArray(m_effectsVAO3D);
+    m_renderer->SetVertexArray(m_effectsVAO3D);
     UploadVertexDataTo3DVBO(m_effectsVBO3D, m_effectsLineVertices3D, m_effectsLineVertexCount3D, GL_STREAM_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_effectsLineVertexCount3D);
@@ -458,16 +459,16 @@ void Renderer3D::FlushEffectsSprites3D() {
     
     glDepthMask(GL_FALSE);
     
-    glUseProgram(m_shader3DTexturedProgram);
+    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     
     SetTextured3DShaderUniforms();
     
     if (m_currentEffectsSpriteTexture3D != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentEffectsSpriteTexture3D);
+        m_renderer->SetActiveTexture(GL_TEXTURE0);
+        m_renderer->SetBoundTexture(m_currentEffectsSpriteTexture3D);
     }
     
-    glBindVertexArray(m_starsVAO3D);
+    m_renderer->SetVertexArray(m_starsVAO3D);
     UploadVertexDataTo3DVBO(m_starsVBO3D, m_effectsSpriteVertices3D, m_effectsSpriteVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_effectsSpriteVertexCount3D);
@@ -484,15 +485,15 @@ void Renderer3D::FlushUnitHighlights3D() {
     StartFlushTiming3D("Unit_Highlights_3D");
     IncrementDrawCall3D("unit_highlights");
     
-    glUseProgram(m_shader3DTexturedProgram);
+    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
     
     if (m_currentUnitHighlightTexture3D != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentUnitHighlightTexture3D);
+        m_renderer->SetActiveTexture(GL_TEXTURE0);
+        m_renderer->SetBoundTexture(m_currentUnitHighlightTexture3D);
     }
     
-    glBindVertexArray(m_unitVAO3D);
+    m_renderer->SetVertexArray(m_unitVAO3D);
     UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitHighlightVertices3D, m_unitHighlightVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_unitHighlightVertexCount3D);
@@ -508,10 +509,10 @@ void Renderer3D::FlushHealthBars3D() {
     StartFlushTiming3D("Health_Bars_3D");
     IncrementDrawCall3D("health_bars");
     
-    glUseProgram(m_shader3DProgram);
+    m_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
     
-    glBindVertexArray(m_healthVAO3D);
+    m_renderer->SetVertexArray(m_healthVAO3D);
     UploadVertexDataTo3DVBO(m_healthVBO3D, m_healthBarVertices3D, m_healthBarVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_healthBarVertexCount3D);
@@ -527,15 +528,15 @@ void Renderer3D::FlushTextBuffer3D() {
     StartFlushTiming3D("Text_3D");
     IncrementDrawCall3D("text");
     
-    glUseProgram(m_shader3DTexturedProgram);
+    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
     
     if (m_currentTextTexture3D != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentTextTexture3D);
+        m_renderer->SetActiveTexture(GL_TEXTURE0);
+        m_renderer->SetBoundTexture(m_currentTextTexture3D);
     }
     
-    glBindVertexArray(m_textVAO3D);
+    m_renderer->SetVertexArray(m_textVAO3D);
     UploadVertexDataTo3DVBO(m_textVBO3D, m_textVertices3D, m_textVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_textVertexCount3D);
@@ -552,10 +553,10 @@ void Renderer3D::FlushNuke3DModels3D() {
     StartFlushTiming3D("Nuke_3D_Models");
     IncrementDrawCall3D("nuke_3d_models");
     
-    glUseProgram(m_shader3DProgram);
+    m_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
     
-    glBindVertexArray(m_nukeVAO3D);
+    m_renderer->SetVertexArray(m_nukeVAO3D);
     UploadVertexDataTo3DVBO(m_nukeVBO3D, m_nuke3DModelVertices3D, m_nuke3DModelVertexCount3D, GL_DYNAMIC_DRAW);
     
     // enable face culling for proper 3D model rendering
@@ -580,16 +581,16 @@ void Renderer3D::FlushStarField3D() {
     
     glDepthMask(GL_FALSE);  // dont write to depth buffer for stars
     
-    glUseProgram(m_shader3DTexturedProgram);
+    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     
     SetTextured3DShaderUniforms();
     
     if (m_currentStarFieldTexture3D != 0) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_currentStarFieldTexture3D);
+        m_renderer->SetActiveTexture(GL_TEXTURE0);
+        m_renderer->SetBoundTexture(m_currentStarFieldTexture3D);
     }
     
-    glBindVertexArray(m_starsVAO3D);
+    m_renderer->SetVertexArray(m_starsVAO3D);
     UploadVertexDataTo3DVBO(m_starsVBO3D, m_starFieldVertices3D, m_starFieldVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_starFieldVertexCount3D);
@@ -606,18 +607,17 @@ void Renderer3D::FlushGlobeSurface3D() {
     StartFlushTiming3D("Globe_Surface_3D");
     IncrementDrawCall3D("globe_surface");
     
-    glUseProgram(m_shader3DProgram);
+    m_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
     
-    glBindVertexArray(m_globeVAO3D);
+    m_renderer->SetVertexArray(m_globeVAO3D);
     UploadVertexDataTo3DVBO(m_globeVBO3D, m_globeSurfaceVertices3D, m_globeSurfaceVertexCount3D, GL_DYNAMIC_DRAW);
     
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    m_renderer->SetBlendMode(Renderer::BlendModeNormal);
     
     glDrawArrays(GL_TRIANGLES, 0, m_globeSurfaceVertexCount3D);
     
-    glDisable(GL_BLEND);
+    m_renderer->SetBlendMode(Renderer::BlendModeDisabled);
     
     m_globeSurfaceVertexCount3D = 0;
     
@@ -639,11 +639,11 @@ void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
 #endif
     
     // Use 3D shader program
-    glUseProgram(m_shader3DProgram);
+    m_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
     
     // Upload vertex data
-    glBindVertexArray(m_legacyVAO3D);
+    m_renderer->SetVertexArray(m_legacyVAO3D);
     UploadVertexDataTo3DVBO(m_legacyVBO3D, m_vertices3D, m_vertex3DCount, GL_DYNAMIC_DRAW);
     
     // Draw
@@ -663,15 +663,15 @@ void Renderer3D::Flush3DTexturedVertices() {
     IncrementDrawCall3D("legacy_triangles");
     
     // Use textured 3D shader program
-    glUseProgram(m_shader3DTexturedProgram);
+    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
     
     // Bind texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_currentTexture3D);
+    m_renderer->SetActiveTexture(GL_TEXTURE0);
+    m_renderer->SetBoundTexture(m_currentTexture3D);
     
     // Upload vertex data
-    glBindVertexArray(m_VAO3DTextured);
+    m_renderer->SetVertexArray(m_VAO3DTextured);
     UploadVertexDataTo3DVBO(m_VBO3DTextured, m_vertices3DTextured, m_vertex3DTexturedCount, GL_DYNAMIC_DRAW);
     
     // Draw as triangles (convert quad to two triangles with proper winding)

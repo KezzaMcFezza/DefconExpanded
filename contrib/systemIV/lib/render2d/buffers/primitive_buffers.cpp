@@ -35,10 +35,6 @@ void Renderer::UnitTrailLine(float x1, float y1, float x2, float y2, Colour cons
 }
 
 void Renderer::EffectsRect(float x, float y, float w, float h, Colour const &col, float lineWidth) {
-#ifndef TARGET_EMSCRIPTEN
-    glLineWidth(1.0f);
-#endif
-
     FlushEffectsRectsIfFull(8);
         
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;

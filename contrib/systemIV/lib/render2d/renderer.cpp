@@ -146,24 +146,53 @@ static const char *GetFontFilename(const char *_fontName, const char *_langName,
 
 Renderer::Renderer()
     : m_alpha(1.0f),
-      m_currentFontName(NULL),
-      m_currentFontFilename(NULL),
-      m_currentFontLanguageSpecific(false),
+      m_colourDepth(32),
+      m_mouseMode(0),
+      m_blendMode(BlendModeNormal),
+      m_blendSrcFactor(GL_ONE),
+      m_blendDstFactor(GL_ZERO),
+      m_blendEnabled(false),
+      m_depthTestEnabled(false),
+      m_depthMaskEnabled(false),
+      m_currentBlendSrcFactor(-1),
+      m_currentBlendDstFactor(-1),
+      m_currentViewportX(-1),
+      m_currentViewportY(-1),
+      m_currentViewportWidth(-1),
+      m_currentViewportHeight(-1),
+      m_currentActiveTexture(0),
+      m_currentShaderProgram(0),
+      m_currentVAO(0),
+      m_currentArrayBuffer(0),
+      m_currentElementBuffer(0),
+      m_currentLineWidth(-1.0f),
+      m_scissorTestEnabled(false),
+      m_currentTextureMagFilter(-1),
+      m_currentTextureMinFilter(-1),
+      m_currentScissorX(-1),
+      m_currentScissorY(-1),
+      m_currentScissorWidth(-1),
+      m_currentScissorHeight(-1),
       m_defaultFontName(NULL),
       m_defaultFontFilename(NULL),
       m_defaultFontLanguageSpecific(false),
+      m_currentFontName(NULL),
+      m_currentFontFilename(NULL),
+      m_currentFontLanguageSpecific(false),
       m_horizFlip(false),
       m_fixedWidth(false),
       m_negative(false),
-      m_blendSrcFactor(GL_ONE),
-      m_blendDstFactor(GL_ZERO),
-      m_currentBoundTexture(0),
-      m_batchingTextures(true),
       m_shaderProgram(0),
       m_colorShaderProgram(0),
       m_textureShaderProgram(0),
       m_VAO(0), 
       m_VBO(0),
+      m_eclipseLinesVAO(0), 
+      m_eclipseLinesVBO(0),
+      m_eclipseFillsVAO(0), 
+      m_eclipseFillsVBO(0),
+      m_eclipseSpritesVAO(0), 
+      m_eclipseSpritesVBO(0),
       m_uiVAO(0), 
       m_uiVBO(0),
       m_textVAO(0), 
@@ -177,20 +206,71 @@ Renderer::Renderer()
       m_legacyVAO(0), 
       m_legacyVBO(0),
       m_bufferNeedsUpload(true),
+      m_projMatrixLocation(-1),
+      m_modelViewMatrixLocation(-1),
+      m_colorLocation(-1),
+      m_textureLocation(-1),
       m_triangleVertexCount(0),
       m_lineVertexCount(0),
+      m_uiTriangleVertexCount(0),
+      m_uiLineVertexCount(0),
+      m_currentFontBatchIndex(0),
+      m_textVertices(NULL),
+      m_textVertexCount(0),
+      m_currentTextTexture(0),
+      m_unitTrailVertexCount(0),
+      m_unitMainVertexCount(0),
+      m_currentUnitMainTexture(0),
+      m_unitRotatingVertexCount(0),
+      m_currentUnitRotatingTexture(0),
+      m_effectsCircleFillVertexCount(0),
+      m_effectsCircleOutlineVertexCount(0),
+      m_effectsCircleOutlineThickVertexCount(0),
+      m_unitHighlightVertexCount(0),
+      m_currentUnitHighlightTexture(0),
+      m_unitStateVertexCount(0),
+      m_currentUnitStateTexture(0),
+      m_unitCounterVertexCount(0),
+      m_currentUnitCounterTexture(0),
+      m_unitNukeVertexCount(0),
+      m_currentUnitNukeTexture(0),
+      m_effectsLineVertexCount(0),
+      m_effectsRectVertexCount(0),
+      m_effectsSpriteVertexCount(0),
+      m_currentEffectsSpriteTexture(0),
+      m_healthBarVertexCount(0),
+      m_whiteboardVertexCount(0),
+      m_eclipseRectVertexCount(0),
+      m_eclipseRectFillVertexCount(0),
+      m_eclipseTriangleFillVertexCount(0),
+      m_eclipseLineVertexCount(0),
+      m_eclipseSpriteVertexCount(0),
+      m_currentEclipseSpriteTexture(0),
+      m_allowImmedateFlush(true),
+      m_lineConversionBuffer(NULL),
+      m_lineConversionBufferSize(0),
+      m_currentLineColor(0, 0, 0, 0),
+      m_currentEclipseLineColor(0, 0, 0, 0),
       m_lineStripActive(false),
+      m_lineStripColor(0, 0, 0, 0),
+      m_lineStripWidth(1.0f),
       m_cachedLineStripActive(false),
       m_currentCacheKey(NULL),
+      m_cachedLineStripColor(0, 0, 0, 0),
+      m_cachedLineStripWidth(1.0f),
       m_maxMegaVertices(2500000),
       m_maxMegaIndices(5000000),
       m_megaVBOActive(false),
       m_currentMegaVBOKey(NULL),
+      m_megaVBOColor(0, 0, 0, 0),
+      m_megaVBOWidth(1.0f),
       m_megaVertices(NULL),
       m_megaVertexCount(0),
-      m_allowImmedateFlush(true),
-      m_lineConversionBuffer(NULL),
-      m_lineConversionBufferSize(0) {
+      m_megaIndices(NULL),
+      m_megaIndexCount(0),
+      m_cachedVBOs(),
+      m_currentBoundTexture(0),
+      m_batchingTextures(true) {
       m_uiTriangleVertexCount = 0;
       m_uiLineVertexCount = 0;
       m_currentFontBatchIndex = 0;
@@ -321,6 +401,12 @@ Renderer::~Renderer() {
     if (m_legacyVAO) glDeleteVertexArrays(1, &m_legacyVAO);
     if (m_legacyVBO) glDeleteBuffers(1, &m_legacyVBO);
     
+    for (int i = 0; i < m_flushTimingCount; i++) {
+        if (m_flushTimings[i].queryObject != 0) {
+            glDeleteQueries(1, &m_flushTimings[i].queryObject);
+        }
+    }
+    
     if (m_megaVertices) {
         delete[] m_megaVertices;
         m_megaVertices = NULL;
@@ -360,24 +446,24 @@ void Renderer::Set2DViewport(float l, float r, float b, float t, int x, int y, i
     int physicalW = (int)(w * scaleX);
     int physicalH = (int)(h * scaleY);
 
-    glViewport(physicalX, physicalY, physicalW, physicalH);
+    SetViewport(physicalX, physicalY, physicalW, physicalH);
 #else
     float scaleX = g_windowManager->GetHighDPIScaleX();
     float scaleY = g_windowManager->GetHighDPIScaleY();
 
-    glViewport(scaleX * x, scaleY * (g_windowManager->WindowH() - h - y), scaleX * w, scaleY * h);
+    SetViewport(scaleX * x, scaleY * (g_windowManager->WindowH() - h - y), scaleX * w, scaleY * h);
 #endif
 }
 
 void Renderer::Reset2DViewport() {
     Set2DViewport(0, g_windowManager->WindowW(), g_windowManager->WindowH(), 0, 
                   0, 0, g_windowManager->WindowW(), g_windowManager->WindowH());
+    ResetClip();
 }
 
 void Renderer::BeginScene() {
-    m_currentBoundTexture = 0;
-    SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
+    SetBoundTexture(0);
+    SetBlendMode(BlendModeNormal);
 
 #ifdef TARGET_OS_MACOSX
     // Line smoothing crashes some Mac OSX machines with Radeon graphics
@@ -440,19 +526,31 @@ void Renderer::SetBlendMode(int _blendMode) {
     
     switch (_blendMode) {
         case BlendModeDisabled:
-            glDisable(GL_BLEND);
+            if (m_blendEnabled) {
+                glDisable(GL_BLEND);
+                m_blendEnabled = false;
+            }
             break;
         case BlendModeNormal:
             SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glEnable(GL_BLEND);
+            if (!m_blendEnabled) {
+                glEnable(GL_BLEND);
+                m_blendEnabled = true;
+            }
             break;
         case BlendModeAdditive:
             SetBlendFunc(GL_SRC_ALPHA, GL_ONE);
-            glEnable(GL_BLEND);
+            if (!m_blendEnabled) {
+                glEnable(GL_BLEND);
+                m_blendEnabled = true;
+            }
             break;
         case BlendModeSubtractive:
             SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR);
-            glEnable(GL_BLEND);
+            if (!m_blendEnabled) {
+                glEnable(GL_BLEND);
+                m_blendEnabled = true;
+            }
             break;
     }
 }
@@ -460,16 +558,36 @@ void Renderer::SetBlendMode(int _blendMode) {
 void Renderer::SetBlendFunc(int srcFactor, int dstFactor) {
     m_blendSrcFactor = srcFactor;
     m_blendDstFactor = dstFactor;
-    glBlendFunc(srcFactor, dstFactor);
+    
+    //
+    // only call glBlendFunc if the parameters have actually changed
+
+    if (m_currentBlendSrcFactor != srcFactor || m_currentBlendDstFactor != dstFactor) {
+        glBlendFunc(srcFactor, dstFactor);
+        m_currentBlendSrcFactor = srcFactor;
+        m_currentBlendDstFactor = dstFactor;
+    }
 }
 
 void Renderer::SetDepthBuffer(bool _enabled, bool _clearNow) {
     if (_enabled) {
-        glEnable(GL_DEPTH_TEST);
-        glDepthMask(true);
+        if (!m_depthTestEnabled) {
+            glEnable(GL_DEPTH_TEST);
+            m_depthTestEnabled = true;
+        }
+        if (!m_depthMaskEnabled) {
+            glDepthMask(true);
+            m_depthMaskEnabled = true;
+        }
     } else {
-        glDisable(GL_DEPTH_TEST);
-        glDepthMask(false);
+        if (m_depthTestEnabled) {
+            glDisable(GL_DEPTH_TEST);
+            m_depthTestEnabled = false;
+        }
+        if (m_depthMaskEnabled) {
+            glDepthMask(false);
+            m_depthMaskEnabled = false;
+        }
     }
  
     if (_clearNow) {
@@ -591,6 +709,104 @@ BitmapFont *Renderer::GetBitmapFont() {
     return font;
 }
 
+void Renderer::SetViewport(int x, int y, int width, int height) {
+    if (m_currentViewportX != x || m_currentViewportY != y || 
+        m_currentViewportWidth != width || m_currentViewportHeight != height) {
+        glViewport(x, y, width, height);
+        m_currentViewportX = x;
+        m_currentViewportY = y;
+        m_currentViewportWidth = width;
+        m_currentViewportHeight = height;
+    }
+}
+
+void Renderer::SetActiveTexture(GLenum texture) {
+    if (m_currentActiveTexture != texture) {
+        glActiveTexture(texture);
+        m_currentActiveTexture = texture;
+    }
+}
+
+void Renderer::SetShaderProgram(GLuint program) {
+    if (m_currentShaderProgram != program) {
+        glUseProgram(program);
+        m_currentShaderProgram = program;
+    }
+}
+
+void Renderer::SetVertexArray(GLuint vao) {
+    if (m_currentVAO != vao) {
+        glBindVertexArray(vao);
+        m_currentVAO = vao;
+    }
+}
+
+void Renderer::SetArrayBuffer(GLuint buffer) {
+    if (m_currentArrayBuffer != buffer) {
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+        m_currentArrayBuffer = buffer;
+    }
+}
+
+void Renderer::SetElementBuffer(GLuint buffer) {
+    if (m_currentElementBuffer != buffer) {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
+        m_currentElementBuffer = buffer;
+    }
+}
+
+void Renderer::SetLineWidth(GLfloat width) {
+    if (m_currentLineWidth != width) {
+        glLineWidth(width);
+        m_currentLineWidth = width;
+    }
+}
+
+void Renderer::SetBoundTexture(GLuint texture) {
+    if (m_currentBoundTexture != texture) {
+        glBindTexture(GL_TEXTURE_2D, texture);
+        m_currentBoundTexture = texture;
+    }
+}
+
+void Renderer::SetScissorTest(bool enabled) {
+    if (m_scissorTestEnabled != enabled) {
+        if (enabled) {
+            glEnable(GL_SCISSOR_TEST);
+        } else {
+            glDisable(GL_SCISSOR_TEST);
+        }
+        m_scissorTestEnabled = enabled;
+    }
+}
+
+void Renderer::SetScissor(int x, int y, int width, int height) {
+    if (m_currentScissorX != x || m_currentScissorY != y || 
+        m_currentScissorWidth != width || m_currentScissorHeight != height) {
+        glScissor(x, y, width, height);
+        m_currentScissorX = x;
+        m_currentScissorY = y;
+        m_currentScissorWidth = width;
+        m_currentScissorHeight = height;
+    }
+}
+
+void Renderer::SetTextureParameter(GLenum pname, GLint param) {
+    if (pname == GL_TEXTURE_MAG_FILTER) {
+        if (m_currentTextureMagFilter != param) {
+            glTexParameteri(GL_TEXTURE_2D, pname, param);
+            m_currentTextureMagFilter = param;
+        }
+    } else if (pname == GL_TEXTURE_MIN_FILTER) {
+        if (m_currentTextureMinFilter != param) {
+            glTexParameteri(GL_TEXTURE_2D, pname, param);
+            m_currentTextureMinFilter = param;
+        }
+    } else {
+        glTexParameteri(GL_TEXTURE_2D, pname, param);
+    }
+}
+
 void Renderer::SetClip(int x, int y, int w, int h) {
 
 #if !defined(TARGET_OS_MACOSX) && (!defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN))
@@ -604,18 +820,18 @@ void Renderer::SetClip(int x, int y, int w, int h) {
     int physicalW = (int)(w * scaleX);
     int physicalH = (int)(h * scaleY);
     
-    glScissor(physicalX, physicalY, physicalW, physicalH);
+    SetScissor(physicalX, physicalY, physicalW, physicalH);
 #else
     float scaleX = g_windowManager->GetHighDPIScaleX();
     float scaleY = g_windowManager->GetHighDPIScaleY();
 
-    glScissor(scaleX * x, scaleY * (g_windowManager->WindowH() - h - y), scaleX * w, scaleY * h);
+    SetScissor(scaleX * x, scaleY * (g_windowManager->WindowH() - h - y), scaleX * w, scaleY * h);
 #endif
-    glEnable(GL_SCISSOR_TEST);
+    SetScissorTest(true);
 }
 
 void Renderer::ResetClip() {
-    glDisable(GL_SCISSOR_TEST);
+    SetScissorTest(false);
 }
 
 void Renderer::SaveScreenshot() {
@@ -910,8 +1126,6 @@ void Renderer::UploadVertexData(const Vertex2D* vertices, int vertexCount) {
 void Renderer::UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices, int vertexCount, unsigned int usageHint) {
     if (vertexCount <= 0 || !vertices) return;
     
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    
     const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex2D);
     
     glBufferData(GL_ARRAY_BUFFER, bytes, vertices, usageHint);
@@ -984,6 +1198,7 @@ void Renderer::EndFlushTiming(const char* name) {
 #ifndef TARGET_EMSCRIPTEN
                 glEndQuery(GL_TIME_ELAPSED);
 #endif
+                m_flushTimings[i].queryPending = false;
             }
             
             //
@@ -1002,19 +1217,16 @@ void Renderer::UpdateGpuTimings() {
     // call this once per frame to collect GPU timing results
 
     for (int i = 0; i < m_flushTimingCount; i++) {
-        if (m_flushTimings[i].queryPending) {
-            int available = 0;
+        int available = 0;
 #ifndef TARGET_EMSCRIPTEN
-            glGetQueryObjectiv(m_flushTimings[i].queryObject, GL_QUERY_RESULT_AVAILABLE, &available);
+        glGetQueryObjectiv(m_flushTimings[i].queryObject, GL_QUERY_RESULT_AVAILABLE, &available);
 #endif
-            if (available) {
-                uint64_t gpuTime;
+        if (available) {
+            uint64_t gpuTime;
 #ifndef TARGET_EMSCRIPTEN
-                glGetQueryObjectui64v(m_flushTimings[i].queryObject, GL_QUERY_RESULT, &gpuTime);
+            glGetQueryObjectui64v(m_flushTimings[i].queryObject, GL_QUERY_RESULT, &gpuTime);
 #endif
-                m_flushTimings[i].totalGpuTime += gpuTime / 1000000.0; // Convert to milliseconds
-                m_flushTimings[i].queryPending = false;
-            }
+            m_flushTimings[i].totalGpuTime += gpuTime / 1000000.0; // Convert to milliseconds
         }
     }
 }

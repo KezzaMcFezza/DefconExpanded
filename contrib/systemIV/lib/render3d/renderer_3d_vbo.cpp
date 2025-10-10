@@ -2,6 +2,7 @@
 
 #include "lib/debug_utils.h"
 #include "lib/string_utils.h"
+#include "lib/render2d/renderer.h"
 
 #include "renderer_3d.h"
 
@@ -42,11 +43,11 @@ void Renderer3D::RenderCachedGeometry3D(const char* cacheKey) {
     
     Cached3DVBO* cachedVBO = tree->data;
     
-    glUseProgram(m_shader3DProgram);
+    m_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
     
     // Render the cached VBO
-    glBindVertexArray(cachedVBO->VAO);
+    m_renderer->SetVertexArray(cachedVBO->VAO);
     glDrawArrays(GL_LINES, 0, cachedVBO->vertexCount);
 }
 
@@ -214,14 +215,14 @@ void Renderer3D::RenderMegaVBO3D(const char* megaVBOKey) {
     
     Cached3DVBO* cachedVBO = tree->data;
     
-    glUseProgram(m_shader3DProgram);
+    m_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
     
 #ifndef TARGET_EMSCRIPTEN
     glEnable(GL_PRIMITIVE_RESTART);
     glPrimitiveRestartIndex(0xFFFFFFFF);
 #endif
-    glBindVertexArray(cachedVBO->VAO);
+    m_renderer->SetVertexArray(cachedVBO->VAO);
     glDrawElements(GL_LINE_STRIP, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
     
 #ifndef TARGET_EMSCRIPTEN

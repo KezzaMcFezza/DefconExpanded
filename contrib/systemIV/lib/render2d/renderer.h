@@ -60,6 +60,7 @@ private:
   ShaderUniforms m_colorShaderUniforms;
   ShaderUniforms m_textureShaderUniforms;
 
+
   //
   // micro batching system - allows the debug menu to track the number of draw
   // calls per frame this system could be abolished, but realistically to
@@ -417,6 +418,18 @@ public:
   unsigned int CreateShader         (const char *vertexSource,
                                      const char *fragmentSource);
 
+  void SetViewport                  (int x, int y, int width, int height);
+  void SetActiveTexture             (GLenum texture);
+  void SetShaderProgram             (GLuint program);
+  void SetVertexArray               (GLuint vao);
+  void SetArrayBuffer               (GLuint buffer);
+  void SetElementBuffer             (GLuint buffer);
+  void SetLineWidth                 (GLfloat width);
+  void SetBoundTexture              (GLuint texture);
+  void SetScissorTest               (bool enabled);
+  void SetScissor                   (int x, int y, int width, int height);
+  void SetTextureParameter          (GLenum pname, GLint param);
+
   //
   // atlas sprite support helpers
 
@@ -621,6 +634,31 @@ public:
   int m_blendMode;
   int m_blendSrcFactor;
   int m_blendDstFactor;
+  
+  bool m_blendEnabled;
+  bool m_depthTestEnabled;
+  bool m_depthMaskEnabled;
+  bool m_scissorTestEnabled;
+
+  int m_currentBlendSrcFactor;
+  int m_currentBlendDstFactor;
+  int m_currentViewportX;
+  int m_currentViewportY;
+  int m_currentViewportWidth;
+  int m_currentViewportHeight;
+  int m_currentScissorX;
+  int m_currentScissorY;
+  int m_currentScissorWidth;
+  int m_currentScissorHeight;
+
+  GLenum m_currentActiveTexture;
+  GLfloat m_currentLineWidth;
+  GLuint m_currentShaderProgram;
+  GLuint m_currentVAO;
+  GLuint m_currentArrayBuffer;
+  GLuint m_currentElementBuffer;
+  GLint m_currentTextureMagFilter;
+  GLint m_currentTextureMinFilter;
 
   enum {
     BlendModeDisabled,
