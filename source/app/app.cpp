@@ -772,7 +772,6 @@ void App::ReinitialiseWindow()
     
 
 	g_windowManager->DestroyWin();
-    g_resource->Restart();
 
     //
     // The old OpenGL context was destroyed, so we need to recreate 
@@ -784,6 +783,8 @@ void App::ReinitialiseWindow()
     InitialiseWindow();
     
     g_renderer = new Renderer();
+    
+    g_resource->Restart();
     
     InitFonts();
 
