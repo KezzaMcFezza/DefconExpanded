@@ -441,7 +441,9 @@ bool SpriteAtlasManager::Initialize() {
         "graphics/map.bmp",
         "graphics/water.bmp",
         "graphics/water_shaded.bmp",
-        "graphics/territory.bmp"
+        "graphics/territory.bmp",
+        "graphics/defconatlas.bmp",
+        "gui/defconuiatlas.bmp"
     };
 
     int excludeCount = sizeof(excludedGraphics) / sizeof(char*);
