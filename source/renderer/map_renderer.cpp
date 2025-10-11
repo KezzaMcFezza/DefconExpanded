@@ -127,29 +127,9 @@ MapRenderer::MapRenderer()
     }
 }
 
-static void DeleteAndDestroyDisplayList( const char *name )
-{
-    // Display lists no longer used - converted to VBO system
-    // Legacy cleanup function kept for compatibility
-    unsigned int displayListId = 0;
-	if( !g_resource->GetDisplayList( name, displayListId ) )
-	{
-		g_resource->DeleteDisplayList( name );
-	}
-}
-
 MapRenderer::~MapRenderer()
 {
     Reset();
-
-    DeleteAndDestroyDisplayList( "MapCoastlines" );
-	DeleteAndDestroyDisplayList( "MapBorders" );
-    for( int i = 0; i < MAX_TEAMS; ++i )
-    {
-		char whiteboardname[32];
-		snprintf( whiteboardname, sizeof(whiteboardname), "WhiteBoard%d", i );
-		DeleteAndDestroyDisplayList( whiteboardname );
-    }
 }
 
 void MapRenderer::Init()
@@ -2813,7 +2793,7 @@ void MapRenderer::RenderCoastlines()
     lineColour = lineColour * mapColourFader + desaturatedColour * (1-mapColourFader);
 
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_COASTLINE_THICKNESS));
+    g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_COASTLINE_THICKNESS));
 #endif
 
     // Check if VBO exists and is valid, if not build it
@@ -2882,7 +2862,7 @@ void MapRenderer::RenderBorders()
 #endif
 
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_BORDER_THICKNESS));
+    g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_BORDER_THICKNESS));
 #endif
     
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );

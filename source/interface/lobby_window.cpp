@@ -582,9 +582,9 @@ public:
                     {
                         g_renderer->EclipseSprite( img, realX+optionsX, realY+optionsY, optionsW, optionsH, Colour(255,255,255,250) );                    
                     }
-                    g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-
+                    
                     g_renderer->EndEclipseSpriteBatch();
+                    g_renderer->SetBlendMode( Renderer::BlendModeNormal );
                 }
 
 

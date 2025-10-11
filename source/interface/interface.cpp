@@ -751,7 +751,7 @@ void Interface::RenderMouse()
         {
 			mouse = g_resource->GetImage( "gui/mouse.bmp" );
         }
-
+        g_renderer->SetBlendMode( Renderer::BlendModeNormal );
         g_renderer->Blit( mouse, mouseX-8, mouseY-8, White );
     }
 }

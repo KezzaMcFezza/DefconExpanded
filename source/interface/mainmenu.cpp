@@ -1180,9 +1180,6 @@ class ApplyGraphicsButton : public InterfaceButton
         g_preferences->SetInt( PREFS_GRAPHICS_LOBBYEFFECTS, gow->m_lobbyEffects );
         
         g_app->GetEarthData()->LoadCoastlines();
-        
-        g_resource->DeleteDisplayList( "MapCoastlines" );
-        g_resource->DeleteDisplayList( "LobbyGlobe" );
 
         g_preferences->Save();
     }

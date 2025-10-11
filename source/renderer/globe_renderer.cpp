@@ -131,10 +131,6 @@ void MapRenderer::RenderGlobeMouse()
     // we need to intersect the mouse ray with the globe surface
     Vector3<float> mouseWorldPos = ScreenToGlobePosition(mouseScreenX, mouseScreenY);
     
-    // set up 2D rendering context for cursor sprites
-    g_renderer->Reset2DViewport();
-    g_renderer->SetBlendMode(Renderer::BlendModeNormal);
-    
     // render move cursor when dragging camera
     if (m_globe3DCamera.m_isDragging) {
         Image *move = g_resource->GetImage("gui/move.bmp");
@@ -524,7 +520,7 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     if (g_preferences->GetInt(PREFS_GRAPHICS_COASTLINES) == 1) {
         if (!g_renderer3d->IsMegaVBO3DValid("GlobeCoastlines")) {
 #ifndef TARGET_EMSCRIPTEN
-            glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
+            g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
 #endif
             g_renderer3d->BeginMegaVBO3D("GlobeCoastlines", Colour(0, 255, 0, 255));
 
@@ -565,7 +561,7 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
 
     // Build it
 #ifndef TARGET_EMSCRIPTEN
-    glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
+    g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
 #endif
     g_renderer3d->RenderMegaVBO3D("GlobeCoastlines");
     
@@ -575,7 +571,7 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     if (g_preferences->GetInt(PREFS_GRAPHICS_BORDERS) == 1) {
         if (!g_renderer3d->IsMegaVBO3DValid("GlobeBorders")) {
 #ifndef TARGET_EMSCRIPTEN
-            glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
+            g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
 #endif
             g_renderer3d->BeginMegaVBO3D("GlobeBorders", Colour(0, 255, 0, 71));
 
@@ -618,7 +614,7 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
         
         // Build it
 #ifndef TARGET_EMSCRIPTEN
-        glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
+        g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
 #endif
         g_renderer3d->RenderMegaVBO3D("GlobeBorders");
     }

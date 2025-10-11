@@ -24,19 +24,38 @@ Resource *g_resource = NULL;
 
 Resource::Resource()
 {
+    m_spriteAtlasManager = NULL;
+}
+
+void Resource::InitializeAtlases()
+{
+    if (!g_spriteAtlasManager) {
+        g_spriteAtlasManager = new SpriteAtlasManager();
+        g_spriteAtlasManager->Initialize();
+    }
 }
 
 void Resource::Restart()
 {
     Shutdown();
     
-    // Invalidate VBOs when resources restart
+    //
+    // recreate and rebuild atlases for mods
+
+    g_spriteAtlasManager = new SpriteAtlasManager();
+    g_spriteAtlasManager->Initialize();
+    
+    //
+    // invalidate VBOs when resources restart
+
     extern Renderer *g_renderer;
     extern Renderer3D *g_renderer3d;
+
     if (g_renderer) {
         g_renderer->InvalidateAllVBOs();
         AppDebugOut("Resource restart: Invalidated all 2D VBOs for mod loading\n");
     }
+
     if (g_renderer3d) {
         g_renderer3d->InvalidateAll3DVBOs();
         AppDebugOut("Resource restart: Invalidated all 3D VBOs for mod loading\n");
@@ -45,6 +64,15 @@ void Resource::Restart()
 
 void Resource::Shutdown()
 {
+
+    //
+    // Shutdown atlases first
+
+    if (g_spriteAtlasManager) {
+        delete g_spriteAtlasManager;
+        g_spriteAtlasManager = NULL;
+    }
+
     //
     // Image Cache
 
@@ -75,15 +103,6 @@ void Resource::Shutdown()
     // TestBitmapFont cache
 
     m_testBitmapFontCache.Empty();
-
-
-    //
-    // Display list cache - OpenGL 3.3 Core Profile: Display lists not available
-    // Modern equivalent: VBO caching system (already implemented in renderer)
-
-    // Note: Display lists have been replaced with VBO caching system in the modern renderer
-    // No cleanup needed as display lists are not used in OpenGL 3.3 Core Profile
-    m_displayLists.Empty();
 }
 
 
@@ -99,54 +118,37 @@ Image *Resource::GetImage( const char *filename )
     {
         return image;
     }
-    else
-    {
-        // NEW: Check if this is a mod graphic first
-        bool isModGraphic = g_modSystem && g_modSystem->IsModGraphic(filename);
+    
+    //
+    // check if this is a mod graphic
+    
+    extern class ModSystem *g_modSystem;
+    bool isModGraphic = g_modSystem && g_modSystem->IsModGraphic(filename);
+    
+    //
+    // try runtime atlas ONLY if not a mod graphic and atlas is initialized
+    
+    if (!isModGraphic && g_spriteAtlasManager && g_spriteAtlasManager->IsInitialized()) {
+        RuntimeTextureAtlas* atlas = NULL;
+        const PackedSprite* sprite = g_spriteAtlasManager->GetSpriteFromAnyAtlas(filename, &atlas);
         
-        // Check if this is an atlas sprite AND not a mod graphic
-        if( SpriteAtlas::IsAtlasSprite(filename) && !isModGraphic )
-        {
-            const AtlasCoord* coord = SpriteAtlas::GetSpriteCoord(filename);
-            if( coord )
-            {
-                // Attempt to create atlas image
-                AtlasImage* atlasImage = new AtlasImage(coord);
-                
-                // Check if atlas loading failed
-                if( AtlasImage::IsAtlasLoadFailed() )
-                {
-                    AppDebugOut("Atlas failed for %s, falling back to individual BMP\n", filename);
-                    
-                    // Clean up failed atlas image
-                    delete atlasImage;
-                    
-                    // FALLBACK: Load as individual BMP
-                    image = new Image( fullFilename );
-                    image->MakeTexture( true, true );
-                }
-                else
-                {
-                    // Atlas loading succeeded
-                    image = atlasImage;
-                }
-                
-                m_imageCache.PutData( fullFilename, image );
-                return image;
-            }
+        if (sprite && atlas) {
+
+            //
+            // create AtlasImage from runtime-packed sprite
+            
+            AtlasImage* atlasImage = new AtlasImage((PackedSprite*)sprite, atlas);
+            image = atlasImage;
+            
+            m_imageCache.PutData( fullFilename, image );
+            return image;
         }
-        
-        // Not an atlas sprite OR is a mod graphic - load as individual BMP
-        if (isModGraphic)
-        {
-            AppDebugOut("Loading mod graphic as individual BMP: %s\n", filename);
-        }
-        
-        image = new Image( fullFilename );
-        m_imageCache.PutData( fullFilename, image );
-        image->MakeTexture( true, true );
-        return image;
     }
+    
+    image = new Image( fullFilename );
+    m_imageCache.PutData( fullFilename, image );
+    image->MakeTexture( true, true );
+    return image;
 }
 
 
@@ -201,37 +203,3 @@ bool Resource::TestBitmapFont ( const char *filename )
     m_testBitmapFontCache.PutData( fullFilename, true );
     return false;
 }
-
-
-bool Resource::GetDisplayList( const char *_name, unsigned int &_listId )
-{
-    // OpenGL 3.3 Core Profile: Display lists not available
-    // Modern equivalent: VBO caching system (implemented in renderer)
-    
-    BTree<unsigned int> *data = m_displayLists.LookupTree(_name);
-
-    if( data )
-    {
-        _listId = data->data;
-        return false;
-    }
-
-    // OpenGL 3.3 Core Profile: Use VBO caching instead of display lists
-    // Return a dummy ID and indicate that caching should be handled by the modern renderer
-    _listId = 0; // Dummy ID - actual caching handled by VBO system
-    m_displayLists.PutData( _name, _listId );
-
-    return true; // Always return true to indicate "new" (but VBO system handles actual caching)
-}
-
-
-void Resource::DeleteDisplayList( const char *_name )
-{
-    BTree<unsigned int> *data = m_displayLists.LookupTree(_name);
-
-    if( data )
-    {
-        m_displayLists.RemoveData( _name );
-    }
-}
-

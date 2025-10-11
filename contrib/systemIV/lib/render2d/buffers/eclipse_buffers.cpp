@@ -20,26 +20,15 @@ void Renderer::EclipseSprite(Image *src, float x, float y, Colour const &col) {
 }
 
 void Renderer::EclipseSprite(Image *src, float x, float y, float w, float h, Colour const &col) {
-    // Check for texture change and flush if needed
-    unsigned int textureID = GetEffectiveTextureID(src);
-    if (m_eclipseSpriteVertexCount > 0 && m_currentEclipseSpriteTexture != textureID) {
-        FlushEclipseSprites();
-    }
-    
-    //
-    // check for blend mode change and flush 
-    
-    static int s_lastSpriteBlendMode = -1;
-    if (m_eclipseSpriteVertexCount > 0 && s_lastSpriteBlendMode != -1 && s_lastSpriteBlendMode != m_blendMode) {
-        FlushEclipseSprites();
-    }
-    s_lastSpriteBlendMode = m_blendMode;
-    
-    // Check for buffer overflow and flush if needed
     FlushEclipseSpritesIfFull(6);
     
-    // Set current texture for batching
-    m_currentEclipseSpriteTexture = textureID;
+    unsigned int effectiveTextureID = GetEffectiveTextureID(src);
+    
+    if (m_eclipseSpriteVertexCount > 0 && m_currentEclipseSpriteTexture != effectiveTextureID) {
+        FlushEclipseSprites();
+    }
+    
+    m_currentEclipseSpriteTexture = effectiveTextureID;
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
     
@@ -59,30 +48,15 @@ void Renderer::EclipseSprite(Image *src, float x, float y, float w, float h, Col
 }
 
 void Renderer::EclipseSprite(Image *src, float x, float y, float w, float h, Colour const &col, float angle) {
-    
-    //
-    // check for texture change and flush if needed
-
-    unsigned int textureID = GetEffectiveTextureID(src);
-    if (m_eclipseSpriteVertexCount > 0 && m_currentEclipseSpriteTexture != textureID) {
-        FlushEclipseSprites();
-    }
-    
-    static int s_lastSpriteBlendMode = -1;
-    if (m_eclipseSpriteVertexCount > 0 && s_lastSpriteBlendMode != -1 && s_lastSpriteBlendMode != m_blendMode) {
-        FlushEclipseSprites();
-    }
-    s_lastSpriteBlendMode = m_blendMode;
-    
-    //
-    // check for buffer overflow and flush if needed
-
     FlushEclipseSpritesIfFull(6);
     
-    //
-    // set current texture for batching
-
-    m_currentEclipseSpriteTexture = textureID;
+    unsigned int effectiveTextureID = GetEffectiveTextureID(src);
+    
+    if (m_eclipseSpriteVertexCount > 0 && m_currentEclipseSpriteTexture != effectiveTextureID) {
+        FlushEclipseSprites();
+    }
+    
+    m_currentEclipseSpriteTexture = effectiveTextureID;
     
     // calculate rotated vertices
     Vector3<float> vert1(-w, +h, 0);

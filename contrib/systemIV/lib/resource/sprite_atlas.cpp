@@ -1,133 +1,552 @@
 #include "lib/universal_include.h"
-#include "sprite_atlas.h"
+
 #include <string.h>
+#include <vector>
 
-const AtlasCoord SpriteAtlas::AIRBASE(153, 1, 128, 128);
-const AtlasCoord SpriteAtlas::BATTLESHIP(283, 131, 128, 128);
-const AtlasCoord SpriteAtlas::BOMBER(131, 261, 128, 128);
-const AtlasCoord SpriteAtlas::CARRIER(261, 261, 128, 128);
-const AtlasCoord SpriteAtlas::FIGHTER(1, 543, 128, 128);
-const AtlasCoord SpriteAtlas::NUKE(1, 673, 128, 128);
-const AtlasCoord SpriteAtlas::POPULATION(1, 803, 128, 128);
-const AtlasCoord SpriteAtlas::RADAR(261, 781, 128, 128);
-const AtlasCoord SpriteAtlas::RADARSTATION(131, 911, 128, 128);
-const AtlasCoord SpriteAtlas::SAM(261, 911, 128, 128);
-const AtlasCoord SpriteAtlas::SAUCER(1, 1063, 128, 128);
-const AtlasCoord SpriteAtlas::SILO(261, 1041, 128, 128);
-const AtlasCoord SpriteAtlas::SUB(1, 1193, 128, 128);
-const AtlasCoord SpriteAtlas::SUB_SURFACED(1, 1323, 128, 128);
-const AtlasCoord SpriteAtlas::AIRBASE_BLUR(283, 1, 128, 128);
-const AtlasCoord SpriteAtlas::BATTLESHIP_BLUR(1, 153, 128, 128);
-const AtlasCoord SpriteAtlas::BOMBER_BLUR(1, 283, 128, 128);
-const AtlasCoord SpriteAtlas::CARRIER_BLUR(131, 391, 128, 128);
-const AtlasCoord SpriteAtlas::FIGHTER_BLUR(261, 521, 128, 128);
-const AtlasCoord SpriteAtlas::NUKE_BLUR(261, 651, 128, 128);
-const AtlasCoord SpriteAtlas::RADARSTATION_BLUR(1, 933, 128, 128);
-const AtlasCoord SpriteAtlas::SAM_BLUR(131, 1041, 128, 128);
-const AtlasCoord SpriteAtlas::SILO_BLUR(131, 1171, 128, 128);
-const AtlasCoord SpriteAtlas::SUB_BLUR(261, 1171, 128, 128);
-const AtlasCoord SpriteAtlas::SUB_SURFACED_BLUR(131, 1301, 128, 128);
-const AtlasCoord SpriteAtlas::SMALLBOMBER(131, 189, 16, 16);
-const AtlasCoord SpriteAtlas::SMALLFIGHTER(131, 207, 16, 16);
-const AtlasCoord SpriteAtlas::SMALLNUKE(131, 225, 16, 16);
-const AtlasCoord SpriteAtlas::ARROW(153, 131, 128, 128);
-const AtlasCoord SpriteAtlas::EXPLOSION(131, 521, 128, 128);
-const AtlasCoord SpriteAtlas::FLEET(131, 651, 128, 128);
-const AtlasCoord SpriteAtlas::NUKESYMBOL(131, 781, 128, 128);
-const AtlasCoord SpriteAtlas::UNITS(261, 1301, 128, 128);
-const AtlasCoord SpriteAtlas::CURSOR_SELECTION(1, 413, 128, 128);
-const AtlasCoord SpriteAtlas::CURSOR_TARGET(261, 391, 128, 128);
-const AtlasCoord SpriteAtlas::TORNADO(1, 1, 150, 150);
-const AtlasCoord SpriteAtlas::CITY(1, 1453, 64, 64);
-const AtlasCoord SpriteAtlas::DEPTHCHARGE(67, 1453, 64, 64);
-const AtlasCoord SpriteAtlas::ERROR(133, 1431, 64, 64);
-const AtlasCoord SpriteAtlas::LASER(199, 1431, 64, 64);
-const AtlasCoord SpriteAtlas::TARGETCURSOR(265, 1431, 64, 64);
-const AtlasCoord SpriteAtlas::BLIP(331, 1431, 32, 32);           // 32x32
-const AtlasCoord SpriteAtlas::POPBUTTON(131, 153, 16, 16);       // 16x16
-const AtlasCoord SpriteAtlas::RADARBUTTON(131, 171, 16, 16);     // 16x16
-const AtlasCoord SpriteAtlas::ACTIONLINE(131, 243, 16, 8);       // 16x8
+#define STB_RECT_PACK_IMPLEMENTATION
+#include "stb_rect_pack.h"
 
-struct SpriteMapping {
-    const char* filename;
-    const AtlasCoord* coord;
-};
+#include "lib/debug_utils.h"
+#include "lib/filesys/file_system.h"
+#include "lib/filesys/binary_stream_readers.h"
+#include "lib/resource/bitmap.h"
+#include "lib/resource/image.h"
+#include "lib/string_utils.h"
+#include "lib/tosser/llist.h"
+#include "sprite_atlas.h"
 
-static const SpriteMapping s_spriteMap[] = {
-    // main unit sprites
-    { "graphics/airbase.bmp", &SpriteAtlas::AIRBASE },
-    { "graphics/battleship.bmp", &SpriteAtlas::BATTLESHIP },
-    { "graphics/bomber.bmp", &SpriteAtlas::BOMBER },
-    { "graphics/carrier.bmp", &SpriteAtlas::CARRIER },
-    { "graphics/fighter.bmp", &SpriteAtlas::FIGHTER },
-    { "graphics/nuke.bmp", &SpriteAtlas::NUKE },
-    { "graphics/population.bmp", &SpriteAtlas::POPULATION },
-    { "graphics/radar.bmp", &SpriteAtlas::RADAR },
-    { "graphics/radarstation.bmp", &SpriteAtlas::RADARSTATION },
-    { "graphics/sam.bmp", &SpriteAtlas::SAM },
-    { "graphics/saucer.bmp", &SpriteAtlas::SAUCER },
-    { "graphics/silo.bmp", &SpriteAtlas::SILO },
-    { "graphics/sub.bmp", &SpriteAtlas::SUB },
-    { "graphics/sub_surfaced.bmp", &SpriteAtlas::SUB_SURFACED },
+SpriteAtlasManager* g_spriteAtlasManager = NULL;
+
+AtlasCoord::AtlasCoord(int x, int y, int w, int h, int atlasWidth, int atlasHeight) {
+    width = w;
+    height = h;
+    pixelX = x;
+    pixelY = y;
     
-    // blur variants
-    { "graphics/airbase_blur.bmp", &SpriteAtlas::AIRBASE_BLUR },
-    { "graphics/battleship_blur.bmp", &SpriteAtlas::BATTLESHIP_BLUR },
-    { "graphics/bomber_blur.bmp", &SpriteAtlas::BOMBER_BLUR },
-    { "graphics/carrier_blur.bmp", &SpriteAtlas::CARRIER_BLUR },
-    { "graphics/fighter_blur.bmp", &SpriteAtlas::FIGHTER_BLUR },
-    { "graphics/nuke_blur.bmp", &SpriteAtlas::NUKE_BLUR },
-    { "graphics/radarstation_blur.bmp", &SpriteAtlas::RADARSTATION_BLUR },
-    { "graphics/sam_blur.bmp", &SpriteAtlas::SAM_BLUR },
-    { "graphics/silo_blur.bmp", &SpriteAtlas::SILO_BLUR },
-    { "graphics/sub_blur.bmp", &SpriteAtlas::SUB_BLUR },
-    { "graphics/sub_surfaced_blur.bmp", &SpriteAtlas::SUB_SURFACED_BLUR },
-    
-    // small unit indicators
-    { "graphics/smallbomber.bmp", &SpriteAtlas::SMALLBOMBER },
-    { "graphics/smallfighter.bmp", &SpriteAtlas::SMALLFIGHTER },
-    { "graphics/smallnuke.bmp", &SpriteAtlas::SMALLNUKE },
-    
-    // UI and effect sprites
-    { "graphics/arrow.bmp", &SpriteAtlas::ARROW },
-    { "graphics/explosion.bmp", &SpriteAtlas::EXPLOSION },
-    { "graphics/fleet.bmp", &SpriteAtlas::FLEET },
-    { "graphics/nukesymbol.bmp", &SpriteAtlas::NUKESYMBOL },
-    { "graphics/units.bmp", &SpriteAtlas::UNITS },
-    { "graphics/cursor_selection.bmp", &SpriteAtlas::CURSOR_SELECTION },
-    { "graphics/cursor_target.bmp", &SpriteAtlas::CURSOR_TARGET },
-    { "graphics/tornado.bmp", &SpriteAtlas::TORNADO },
-    { "graphics/city.bmp", &SpriteAtlas::CITY },
-    { "graphics/depthcharge.bmp", &SpriteAtlas::DEPTHCHARGE },
-    { "graphics/error.bmp", &SpriteAtlas::ERROR },
-    { "graphics/laser.bmp", &SpriteAtlas::LASER },
-    { "graphics/targetcursor.bmp", &SpriteAtlas::TARGETCURSOR },
-    { "graphics/blip.bmp", &SpriteAtlas::BLIP },
-    { "graphics/popbutton.bmp", &SpriteAtlas::POPBUTTON },
-    { "graphics/radarbutton.bmp", &SpriteAtlas::RADARBUTTON },
-    { "graphics/actionline.bmp", &SpriteAtlas::ACTIONLINE },
-};
+    //
+    // convert pixel coordinates to normalized UV coordinates (0.0 - 1.0)
 
-static const int s_spriteMapSize = sizeof(s_spriteMap) / sizeof(SpriteMapping);
-
-bool SpriteAtlas::IsAtlasSprite(const char* filename) {
-    if (!filename) return false;
+    u1 = (float)x / (float)atlasWidth;
+    u2 = (float)(x + w) / (float)atlasWidth;
     
-    for (int i = 0; i < s_spriteMapSize; i++) {
-        if (strcmp(filename, s_spriteMap[i].filename) == 0) {
-            return true;
+    //
+    // standard image coordinates (Y=0 at top)
+
+    v1 = (float)y / (float)atlasHeight;
+    v2 = (float)(y + h) / (float)atlasHeight;
+}
+
+PackedSprite::PackedSprite() 
+    : filename(NULL), sourceBitmap(NULL) {
+}
+
+PackedSprite::~PackedSprite() {
+    if (filename) {
+        delete[] filename;
+        filename = NULL;
+    }
+    if (sourceBitmap) {
+        delete sourceBitmap;
+        sourceBitmap = NULL;
+    }
+}
+
+// ============================================================================
+// IMPLEMENTATION
+// ============================================================================
+
+RuntimeTextureAtlas::RuntimeTextureAtlas(const char* name)
+    : m_width(0), m_height(0), m_textureID(0), m_atlasBitmap(NULL), m_name(NULL) {
+    m_name = newStr(name);
+}
+
+RuntimeTextureAtlas::~RuntimeTextureAtlas() {
+
+    //
+    // clean up sprites
+
+    DArray<PackedSprite*>* sprites = m_spriteMap.ConvertToDArray();
+    for (int i = 0; i < sprites->Size(); ++i) {
+        delete sprites->GetData(i);
+    }
+    delete sprites;
+    m_spriteMap.Empty();
+    
+    //
+    // clean up atlas bitmap
+
+    if (m_atlasBitmap) {
+        delete m_atlasBitmap;
+        m_atlasBitmap = NULL;
+    }
+
+    //
+    // clean up OpenGL texture
+
+    if (m_textureID > 0) {
+        glDeleteTextures(1, (GLuint*)&m_textureID);
+        m_textureID = 0;
+    }
+    
+    if (m_name) {
+        delete[] m_name;
+        m_name = NULL;
+    }
+}
+
+//
+// load sprites from data folder, or from main.dat archive
+
+void RuntimeTextureAtlas::LoadSprites(
+    const char* directory,
+    const char** excludeList, int excludeCount,
+    PackedSprite*** outSprites, int* outCount) {
+    
+    //
+    // list all BMP files in directory
+
+    char searchPath[512];
+    snprintf(searchPath, sizeof(searchPath), "data/%s", directory);
+    searchPath[sizeof(searchPath) - 1] = '\0';
+    
+    LList<char*>* files = g_fileSystem->ListArchive(searchPath, "*.bmp", false);
+    if (!files || files->Size() == 0) {
+        AppDebugOut("WARNING: No sprites found in %s\n", directory);
+        *outSprites = NULL;
+        *outCount = 0;
+        if (files) {
+            files->EmptyAndDelete();
+            delete files;
+        }
+        return;
+    }
+    
+    //
+    // allocate sprite array
+
+    std::vector<PackedSprite*> sprites;
+    sprites.reserve(files->Size());
+    
+    //
+    // load each sprite
+
+    for (int i = 0; i < files->Size(); ++i) {
+        char* filename = files->GetData(i);
+        
+        //
+        // build full path
+
+        char fullPath[512];
+        snprintf(fullPath, sizeof(fullPath), "%s%s", directory, filename);
+        fullPath[sizeof(fullPath) - 1] = '\0';
+        
+        //
+        // check if its an excluded sprite, like data textures
+
+        bool excluded = false;
+        for (int e = 0; e < excludeCount; ++e) {
+            if (strcmp(fullPath, excludeList[e]) == 0) {
+                excluded = true;
+                break;
+            }
+        }
+        
+        if (excluded) continue;
+        
+        //
+        // load it
+
+        char dataPath[512];
+        snprintf(dataPath, sizeof(dataPath), "data/%s", fullPath);
+        dataPath[sizeof(dataPath) - 1] = '\0';
+        
+        BinaryReader* reader = g_fileSystem->GetBinaryReader(dataPath);
+        if (reader && reader->IsOpen()) {
+            Bitmap* bmp = new Bitmap(reader, "bmp");
+            delete reader;
+            
+            if (bmp->m_width > 0 && bmp->m_height > 0) {
+                PackedSprite* sprite = new PackedSprite();
+                sprite->filename = newStr(fullPath);
+                sprite->sourceBitmap = bmp;
+                sprites.push_back(sprite);
+
+            } else {
+                AppDebugOut("ERROR: Invalid bitmap: %s\n", fullPath);
+                delete bmp;
+            }
+        } else {
+            AppDebugOut("ERROR: Failed to load: %s\n", dataPath);
+            if (reader) delete reader;
         }
     }
+    
+    files->EmptyAndDelete();
+    delete files;
+    
+    //
+    // convert to array
+
+    *outCount = sprites.size();
+    if (*outCount > 0) {
+        *outSprites = new PackedSprite*[*outCount];
+        for (int i = 0; i < *outCount; ++i) {
+            (*outSprites)[i] = sprites[i];
+        }
+    } else {
+        *outSprites = NULL;
+    }
+    
+    //
+    // display total sprites from this atlas
+
+    AppDebugOut("%s Sprites: %d\n", m_name, *outCount);
+}
+
+bool RuntimeTextureAtlas::PackSprites(PackedSprite** sprites, int spriteCount,
+                                       int maxWidth, int maxHeight) {
+    
+    //
+    // allocate stb_rect_pack structures
+
+    stbrp_rect* rects = new stbrp_rect[spriteCount];
+    
+    //
+    // initialize rectangles with sprite dimensions with 2px padding
+
+    for (int i = 0; i < spriteCount; ++i) {
+        rects[i].id = i;
+        rects[i].w = sprites[i]->sourceBitmap->m_width + 2;  // 1px padding each side
+        rects[i].h = sprites[i]->sourceBitmap->m_height + 2;
+        rects[i].was_packed = 0;
+    }
+    
+    //
+    // try packing with progressively larger atlas sizes
+
+    int atlasW = 512;
+    int atlasH = 512;
+    bool allPacked = false;
+    stbrp_context context;
+    stbrp_node* nodes = NULL;
+    
+    while (!allPacked && atlasW <= maxWidth) {
+
+        //
+        // allocate nodes for this attempt
+
+        if (nodes) delete[] nodes;
+        nodes = new stbrp_node[atlasW];
+        
+        //
+        // initialize packing context
+
+        stbrp_init_target(&context, atlasW, atlasH, nodes, atlasW);
+        
+        //
+        // attempt to pack all rectangles
+
+        stbrp_pack_rects(&context, rects, spriteCount);
+        
+        //
+        // check if all rectangles were packed
+
+        allPacked = true;
+        for (int i = 0; i < spriteCount; ++i) {
+            if (!rects[i].was_packed) {
+                allPacked = false;
+                break;
+            }
+        }
+        
+        if (!allPacked) {
+            if (atlasH < atlasW) {
+                atlasH = atlasW;
+            } else {
+                atlasW *= 2;
+                atlasH = atlasW / 2;
+            }
+        }
+    }
+    
+    delete[] nodes;
+    
+    if (!allPacked) {
+        delete[] rects;
+        return false;
+    }
+    
+    m_width = atlasW;
+    m_height = atlasH;
+    
+    //
+    // store packed coordinates in sprites
+
+    for (int i = 0; i < spriteCount; ++i) {
+        PackedSprite* sprite = sprites[rects[i].id];
+        
+        //
+        // account for 1px padding offset
+
+        int x = rects[i].x + 1;
+        int y = rects[i].y + 1;
+        int w = sprite->sourceBitmap->m_width;
+        int h = sprite->sourceBitmap->m_height;
+        
+        sprite->coord = AtlasCoord(x, y, w, h, m_width, m_height);
+        
+    }
+    
+    delete[] rects;
+    return true;
+}
+
+void RuntimeTextureAtlas::BlitSpritesToAtlas(PackedSprite** sprites, int spriteCount) {
+    
+    //
+    // now create the atlas bitmaps
+
+    m_atlasBitmap = new Bitmap(m_width, m_height);
+    m_atlasBitmap->Clear(Colour(0, 0, 0, 0));  // transparent black
+    
+    //
+    // blit each sprite to its position in the atlas
+
+    for (int i = 0; i < spriteCount; ++i) {
+        PackedSprite* sprite = sprites[i];
+        Bitmap* src = sprite->sourceBitmap;
+        
+        int x = sprite->coord.pixelX;
+        int y = sprite->coord.pixelY;
+        
+        m_atlasBitmap->Blit(
+            0, 0, src->m_width, src->m_height, src,
+            x, y, src->m_width, src->m_height,
+            false);
+        
+    }
+}
+
+void RuntimeTextureAtlas::CreateGLTexture() {
+    m_atlasBitmap->ConvertPinkToTransparent();
+    m_textureID = m_atlasBitmap->ConvertToTexture(true);
+}
+
+bool RuntimeTextureAtlas::BuildFromDirectory(const char* directory,
+                                              const char** excludeList,
+                                              int excludeCount) {
+    
+    //
+    // load all sprites from directory
+
+    PackedSprite** sprites = NULL;
+    int spriteCount = 0;
+    LoadSprites(directory, excludeList, excludeCount, &sprites, &spriteCount);
+    
+    if (spriteCount == 0) {
+        AppDebugOut("No sprites loaded for atlas %s\n\n", m_name);
+        return false;
+    }
+    
+    //
+    // pack sprites into atlas
+
+    if (!PackSprites(sprites, spriteCount)) {
+        for (int i = 0; i < spriteCount; ++i) {
+            delete sprites[i];
+        }
+        delete[] sprites;
+        return false;
+    }
+    
+    BlitSpritesToAtlas(sprites, spriteCount);
+    CreateGLTexture();
+    
+    //
+    // store sprites in map for lookup
+    
+    for (int i = 0; i < spriteCount; ++i) {
+        m_spriteMap.PutData(sprites[i]->filename, sprites[i]);
+        
+        //
+        // delete source bitmap to save memory
+        
+        delete sprites[i]->sourceBitmap;
+        sprites[i]->sourceBitmap = NULL;
+    }
+    
+    delete[] sprites;
+    return true;
+}
+
+const PackedSprite* RuntimeTextureAtlas::GetSprite(const char* filename) const {
+    return const_cast<BTree<PackedSprite*>*>(&m_spriteMap)->GetData(filename);
+}
+
+bool RuntimeTextureAtlas::HasSprite(const char* filename) const {
+    return const_cast<BTree<PackedSprite*>*>(&m_spriteMap)->GetData(filename) != NULL;
+}
+
+AtlasImage::AtlasImage(PackedSprite* sprite, RuntimeTextureAtlas* atlas)
+    : Image((Bitmap*)NULL),  // dont load individual bitmap
+      m_packedSprite(sprite),
+      m_atlas(atlas) {
+
+    //
+    // copy texture ID from atlas
+    
+    m_textureID = atlas->GetTextureID();
+    m_mipmapping = true;
+    m_bitmap = NULL;      
+}
+
+AtlasImage::~AtlasImage() {
+    m_textureID = -1;
+}
+
+int AtlasImage::Width() {
+    return m_packedSprite ? m_packedSprite->coord.width : 0;
+}
+
+int AtlasImage::Height() {
+    return m_packedSprite ? m_packedSprite->coord.height : 0;
+}
+
+const AtlasCoord* AtlasImage::GetAtlasCoord() const {
+    return m_packedSprite ? &m_packedSprite->coord : NULL;
+}
+
+unsigned int AtlasImage::GetAtlasTextureID() const {
+    return m_atlas ? m_atlas->GetTextureID() : 0;
+}
+
+SpriteAtlasManager::SpriteAtlasManager()
+    : m_graphicsAtlas(NULL), m_guiAtlas(NULL), m_initialized(false) {
+}
+
+SpriteAtlasManager::~SpriteAtlasManager() {
+    Shutdown();
+}
+
+bool SpriteAtlasManager::Initialize() {
+    if (m_initialized) {
+        return true;
+    }
+    
+    //
+    // define excluded data textures that cannot be atlased
+    
+        const char* excludedGraphics[] = {
+        "graphics/blur.bmp",
+        "graphics/map.bmp",
+        "graphics/water.bmp",
+        "graphics/water_shaded.bmp",
+        "graphics/territory.bmp"
+    };
+
+    int excludeCount = sizeof(excludedGraphics) / sizeof(char*);
+    
+
+    //
+    // build graphics atlas
+    
+    m_graphicsAtlas = new RuntimeTextureAtlas("Graphics");
+    if (!m_graphicsAtlas->BuildFromDirectory("graphics/", excludedGraphics, excludeCount)) {
+        delete m_graphicsAtlas;
+        m_graphicsAtlas = NULL;
+        return false;
+    }
+    
+    //
+    // build interface atlas
+    
+    m_guiAtlas = new RuntimeTextureAtlas("Interface");
+    if (!m_guiAtlas->BuildFromDirectory("gui/", NULL, 0)) {
+        delete m_guiAtlas;
+        m_guiAtlas = NULL;
+        return false;
+    }
+    
+    //
+    // calculate and display total sprites loaded
+    
+    int totalSprites = 0;
+    if (m_graphicsAtlas) {
+        totalSprites += m_graphicsAtlas->GetSpriteCount();
+    }
+    if (m_guiAtlas) {
+        totalSprites += m_guiAtlas->GetSpriteCount();
+    }
+    
+    AppDebugOut("Total sprites loaded: %d\n", totalSprites);
+    
+    m_initialized = true; 
+    return true;
+}
+
+void SpriteAtlasManager::Rebuild() {
+    Shutdown();
+    Initialize();
+}
+
+void SpriteAtlasManager::Shutdown() {
+    if (m_graphicsAtlas) {
+        delete m_graphicsAtlas;
+        m_graphicsAtlas = NULL;
+    }
+    
+    if (m_guiAtlas) {
+        delete m_guiAtlas;
+        m_guiAtlas = NULL;
+    }
+    
+    m_initialized = false;
+}
+
+bool SpriteAtlasManager::IsAtlasSprite(const char* filename) const {
+    if (!m_initialized) return false;
+    
+    if (m_graphicsAtlas && m_graphicsAtlas->HasSprite(filename)) {
+        return true;
+    }
+    
+    if (m_guiAtlas && m_guiAtlas->HasSprite(filename)) {
+        return true;
+    }
+    
     return false;
 }
 
-const AtlasCoord* SpriteAtlas::GetSpriteCoord(const char* filename) {
-    if (!filename) return NULL;
+const PackedSprite* SpriteAtlasManager::GetSpriteFromAnyAtlas(
+    const char* filename, RuntimeTextureAtlas** outAtlas) const {
     
-    for (int i = 0; i < s_spriteMapSize; i++) {
-        if (strcmp(filename, s_spriteMap[i].filename) == 0) {
-            return s_spriteMap[i].coord;
+    if (!m_initialized) {
+        if (outAtlas) *outAtlas = NULL;
+        return NULL;
+    }
+    
+    //
+    // check graphics atlas first
+    
+    if (m_graphicsAtlas) {
+        const PackedSprite* sprite = m_graphicsAtlas->GetSprite(filename);
+        if (sprite) {
+            if (outAtlas) *outAtlas = m_graphicsAtlas;
+            return sprite;
         }
     }
+    
+    //
+    // now check interface atlas
+    
+    if (m_guiAtlas) {
+        const PackedSprite* sprite = m_guiAtlas->GetSprite(filename);
+        if (sprite) {
+            if (outAtlas) *outAtlas = m_guiAtlas;
+            return sprite;
+        }
+    }
+    
+    if (outAtlas) *outAtlas = NULL;
     return NULL;
 }

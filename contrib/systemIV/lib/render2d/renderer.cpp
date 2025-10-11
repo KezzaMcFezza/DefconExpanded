@@ -514,14 +514,6 @@ void Renderer::Shutdown() {
 // ============================================================================
 
 void Renderer::SetBlendMode(int _blendMode) {
-    
-    //
-    // flush any pending EclipseSprites to preserve blend mode
-    
-    if (m_blendMode != _blendMode && m_eclipseSpriteVertexCount > 0) {
-        FlushEclipseSprites();
-    }
-    
     m_blendMode = _blendMode;
     
     switch (_blendMode) {

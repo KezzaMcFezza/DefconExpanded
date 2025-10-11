@@ -1,90 +1,116 @@
 #ifndef _included_sprite_atlas_h
 #define _included_sprite_atlas_h
 
-// Atlas texture dimensions
-constexpr float ATLAS_TEXTURE_WIDTH = 412.0f;
-constexpr float ATLAS_TEXTURE_HEIGHT = 1518.0f;
+#include "lib/tosser/btree.h"
+#include "lib/resource/image.h"
 
-// undefine windows macro, since the atlas texture is defined as ERROR,
-// emscripten does not care about this as its not using windows headers
-#ifdef ERROR
-#undef ERROR
-#endif
+class Bitmap;
 
-// Atlas coordinate structure
+//
+// atlas coordinate structure
+
 struct AtlasCoord {
     float u1, v1, u2, v2;  // UV coordinates, normalized 0.0 - 1.0
     int width, height;     // original sprite dimensions
+    int pixelX, pixelY;    // pixel coordinates in atlas for blitting
     
-    constexpr AtlasCoord() : u1(0), v1(0), u2(0), v2(0), width(0), height(0) {}
+    constexpr AtlasCoord() : u1(0), v1(0), u2(0), v2(0), width(0), height(0), pixelX(0), pixelY(0) {}
     
-    constexpr AtlasCoord(int x, int y, int w, int h) 
-        : u1((float)x / ATLAS_TEXTURE_WIDTH),
-          v1(1.0f - (float)(y + h) / ATLAS_TEXTURE_HEIGHT),  // flip Y for OpenGL
-          u2((float)(x + w) / ATLAS_TEXTURE_WIDTH),
-          v2(1.0f - (float)y / ATLAS_TEXTURE_HEIGHT),
-          width(w),
-          height(h)
-    {
-    }
+    AtlasCoord(int x, int y, int w, int h, int atlasWidth, int atlasHeight);
 };
 
-class SpriteAtlas {
+struct PackedSprite {
+    char* filename;                 // Full path like "graphics/bomber.bmp"
+    AtlasCoord coord;              // UV coordinates in atlas
+    Bitmap* sourceBitmap;          // Original bitmap (temporary, deleted after packing)
+    
+    PackedSprite();
+    ~PackedSprite();
+};
+
+class RuntimeTextureAtlas {
+private:
+    int m_width, m_height;                      // Final atlas dimensions
+    unsigned int m_textureID;                   // OpenGL texture ID
+    Bitmap* m_atlasBitmap;                      // Combined atlas bitmap
+    BTree<PackedSprite*> m_spriteMap;           // filename -> PackedSprite lookup
+    char* m_name;                               // Atlas name for debugging
+    
+    bool PackSprites              (PackedSprite** sprites, int spriteCount, 
+                                   int maxWidth = 2048, int maxHeight = 2048);
+    void BlitSpritesToAtlas       (PackedSprite** sprites, int spriteCount);
+    void CreateGLTexture          ();
+    void LoadSprites (const char* directory, 
+                                   const char** excludeList, int excludeCount,
+                                   PackedSprite*** outSprites, int* outCount);
+    
 public:
-    static const AtlasCoord AIRBASE;
-    static const AtlasCoord BATTLESHIP;
-    static const AtlasCoord BOMBER;
-    static const AtlasCoord CARRIER;
-    static const AtlasCoord FIGHTER;
-    static const AtlasCoord NUKE;
-    static const AtlasCoord POPULATION;
-    static const AtlasCoord RADAR;
-    static const AtlasCoord RADARSTATION;
-    static const AtlasCoord SAM;
-    static const AtlasCoord SAUCER;
-    static const AtlasCoord SILO;
-    static const AtlasCoord SUB;
-    static const AtlasCoord SUB_SURFACED;
-    static const AtlasCoord AIRBASE_BLUR;
-    static const AtlasCoord BATTLESHIP_BLUR;
-    static const AtlasCoord BOMBER_BLUR;
-    static const AtlasCoord CARRIER_BLUR;
-    static const AtlasCoord FIGHTER_BLUR;
-    static const AtlasCoord NUKE_BLUR;
-    static const AtlasCoord RADARSTATION_BLUR;
-    static const AtlasCoord SAM_BLUR;
-    static const AtlasCoord SILO_BLUR;
-    static const AtlasCoord SUB_BLUR;
-    static const AtlasCoord SUB_SURFACED_BLUR;
-    static const AtlasCoord SMALLBOMBER;
-    static const AtlasCoord SMALLFIGHTER;
-    static const AtlasCoord SMALLNUKE;
-    static const AtlasCoord ARROW;           // 128x128
-    static const AtlasCoord EXPLOSION;       // 128x128
-    static const AtlasCoord FLEET;           // 128x128
-    static const AtlasCoord NUKESYMBOL;      // 128x128
-    static const AtlasCoord UNITS;           // 128x128
-    static const AtlasCoord CURSOR_SELECTION; // 128x128
-    static const AtlasCoord CURSOR_TARGET;   // 128x128
-    static const AtlasCoord TORNADO;         // 150x150
-    static const AtlasCoord CITY;
-    static const AtlasCoord DEPTHCHARGE;
-    static const AtlasCoord ERROR;
-    static const AtlasCoord LASER;
-    static const AtlasCoord TARGETCURSOR;
-    static const AtlasCoord BLIP;            // 32x32
-    static const AtlasCoord POPBUTTON;       // 16x16
-    static const AtlasCoord RADARBUTTON;     // 16x16
-    static const AtlasCoord ACTIONLINE;      // 16x8
+    RuntimeTextureAtlas           (const char* name);
+    ~RuntimeTextureAtlas          ();
     
-    // check if a filename corresponds to an atlas sprite
-    static bool IsAtlasSprite(const char* filename);
+    bool BuildFromDirectory       (const char* directory, 
+                                   const char** excludeList = nullptr,
+                                   int excludeCount = 0);
     
-    // get atlas coordinates for a sprite by filename
-    static const AtlasCoord* GetSpriteCoord(const char* filename);
+    const PackedSprite* GetSprite (const char* filename) const;
     
-    // get the atlas texture filename
-    static const char* GetAtlasTexturePath() { return "graphics/defconatlas.bmp"; }
+    int GetWidth             () const { return m_width; }
+    int GetHeight            () const { return m_height; }
+    unsigned int GetTextureID() const { return m_textureID; }
+    const char* GetName      () const { return m_name; }
+    int GetSpriteCount       () const { return m_spriteMap.Size(); }
+    
+    bool HasSprite           (const char* filename) const;
 };
 
-#endif // _included_sprite_atlas_h
+//
+// atlas image class
+
+class AtlasImage : public Image {
+private:
+    PackedSprite* m_packedSprite;
+    RuntimeTextureAtlas* m_atlas;
+    
+public:
+    AtlasImage(PackedSprite* sprite, RuntimeTextureAtlas* atlas);
+    virtual ~AtlasImage();
+    virtual int Width();
+    virtual int Height();
+    
+    const AtlasCoord* GetAtlasCoord() const;
+    
+    unsigned int GetAtlasTextureID() const;
+    
+    RuntimeTextureAtlas* GetAtlas() const { return m_atlas; }
+};
+
+//
+// global atlas manager
+
+class SpriteAtlasManager {
+private:
+    RuntimeTextureAtlas* m_graphicsAtlas;
+    RuntimeTextureAtlas* m_guiAtlas;
+    bool m_initialized;
+    
+public:
+    SpriteAtlasManager();
+    ~SpriteAtlasManager();
+    
+    bool Initialize();
+    void Rebuild();
+    void Shutdown();
+    bool IsAtlasSprite                       (const char* filename) const;
+
+    const PackedSprite* GetSpriteFromAnyAtlas(const char* filename, 
+                                               RuntimeTextureAtlas** outAtlas) const;
+    
+    RuntimeTextureAtlas* GetGraphicsAtlas    () const { return m_graphicsAtlas; }
+    RuntimeTextureAtlas* GetGUIAtlas         () const { return m_guiAtlas; }
+    
+    bool IsInitialized                       () const { return m_initialized; }
+};
+
+extern SpriteAtlasManager* g_spriteAtlasManager;
+
+#endif

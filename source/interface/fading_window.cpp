@@ -69,21 +69,9 @@ void FadingWindow::Render( bool _hasFocus, bool _renderButtons )
     borderCol.m_a *= m_alpha;
 
     bool alignment = g_styleTable->GetStyle(STYLE_WINDOW_BACKGROUND)->m_horizontal;
-
-    //
-    // we must use batches here to ensure z-index is correct
-
-    g_renderer->BeginEclipseRectFillBatch();
-    g_renderer->BeginEclipseRectBatch();
     
     g_renderer->EclipseRectFill ( m_x, m_y, m_w, m_h, windowColA, windowColB, alignment );
     g_renderer->EclipseRect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
-
-    g_renderer->EndEclipseRectFillBatch();
-    g_renderer->EndEclipseRectBatch();
-
-    //
-    // now end it
 
     //
     // Draw the buttons if we are focused

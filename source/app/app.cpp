@@ -404,6 +404,8 @@ void App::MinimalInit()
     
     g_renderer = new Renderer();
     InitFonts();
+    
+    g_resource->InitializeAtlases();
 
     m_debugMenu = new RendererDebugMenu(g_renderer);
 

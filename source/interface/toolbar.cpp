@@ -50,8 +50,6 @@ void ToolbarButton::Render( int realX, int realY, bool highlighted, bool clicked
 
 		if( !m_disabled )
 		{
-			g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-
 			if( highlighted || clicked || m_toggle )
 			{
 				col.Set( 0, 0, 255, 255 );
@@ -75,7 +73,6 @@ void ToolbarButton::Render( int realX, int realY, bool highlighted, bool clicked
 			}
 		}
 
-        g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 		if( !m_disabled )
 		{
 	        col.Set(200,200,255,255);

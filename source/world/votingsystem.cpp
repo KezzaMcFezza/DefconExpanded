@@ -413,8 +413,6 @@ void Vote::Finish( int _result )
             g_app->GetStatusIcon()->SetSubIcon( STATUS_ICON_EVENT );
         }
 
-        g_resource->DeleteDisplayList( "MapCountryControl" );
-
 
         //
         // Update everyones CeaseFire status

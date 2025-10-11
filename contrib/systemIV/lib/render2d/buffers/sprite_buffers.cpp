@@ -10,6 +10,7 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/resource/bitmap.h"
+#include "lib/resource/sprite_atlas.h"
 #include "lib/math/vector3.h"
 #include "lib/math/math_utils.h"
 #include "lib/hi_res_time.h"
@@ -140,9 +141,14 @@ void Renderer::UnitNukeIcon(float x, float y, float w, float h, Colour const &co
     AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(nukeBmp);
     if (atlasImage) {
         GetImageUVCoords(nukeBmp, u1, v1, u2, v2);
-        float shrinkX = (u2 - u1) * 0.0655f;  // 6.25% 
+
+        // shrink to match the old look of smallnuke
+        float shrinkX = (u2 - u1) * 0.0625f;
+        float shrinkY = (v2 - v1) * 0.10f;
         u1 += shrinkX;
         u2 -= shrinkX;
+        v1 += shrinkY;
+        v2 -= shrinkY;
     } else {
         GetImageUVCoords(nukeBmp, u1, v1, u2, v2);
     }

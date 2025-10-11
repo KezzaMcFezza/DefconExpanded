@@ -14,8 +14,10 @@
 
 #include "lib/tosser/btree.h"
 
+// Forward declarations
 class Image;
 class BitmapFont;
+class SpriteAtlasManager;
 
 
 
@@ -25,20 +27,19 @@ protected:
     BTree   <Image *>           m_imageCache;
     BTree   <BitmapFont *>      m_bitmapFontCache;
     BTree   <bool>              m_testBitmapFontCache;
-    BTree   <unsigned int>      m_displayLists;
+
+    SpriteAtlasManager* m_spriteAtlasManager;
 
 public:
     Resource();
 
+    void            InitializeAtlases();
     void            Restart();
     void            Shutdown();
 
     Image           *GetImage           ( const char *_filename );
     BitmapFont      *GetBitmapFont      ( const char *_filename );
     bool            TestBitmapFont      ( const char *_filename );
-
-    bool            GetDisplayList      ( const char *_name, unsigned int &_listId );                    // returns true if list was created
-    void            DeleteDisplayList   ( const char *_name );
 };
 
 

@@ -81,7 +81,6 @@ void ModSystem::Initialise()
 
     LoadInstalledMods();
 
-
     //
     // Set mod path from preferences, unless we are DEMO user
 
@@ -92,12 +91,7 @@ void ModSystem::Initialise()
     if( !demoUser )
     {
         SetModPath( g_preferences->GetString( "ModPath" ) );
-        
-        UpdateGeographyAffectingMods();
-        
-        // Scan mods  immediately after loading mods during game startup
-        ScanModGraphics();
-        AppDebugOut("ModSystem: Scanned mod graphics during initialization\n");
+        UpdateGeographyAffectingMods();      
     }
 }
 
@@ -725,6 +719,8 @@ void ModSystem::Commit()
     {
         previousGeographyMods.PutData(newStr(m_geographyAffectingMods[i]));
     }
+    
+    ClearModGraphicsCache();
 
     g_fileSystem->ClearSearchPath();
 
@@ -804,9 +800,6 @@ void ModSystem::Commit()
 
         // Update geography-affecting mods list
         UpdateGeographyAffectingMods();
-        
-        // Scan for mod graphics after resource restart
-        ScanModGraphics();
 
         // VBO rebuilding, only if geography data changed
         bool geographyChanged = false;
