@@ -1,9 +1,8 @@
 #ifndef INCLUDED_WINDOW_MANAGER_SDL_H
 #define INCLUDED_WINDOW_MANAGER_SDL_H
 
-#include "window_manager.h"
-
 #include <SDL2/SDL.h>
+#include "window_manager.h"
 
 class WindowManagerSDL : public WindowManager
 {

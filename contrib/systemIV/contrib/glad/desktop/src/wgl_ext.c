@@ -2,10 +2,6 @@
 #include <glad/wgl_ext.h>
 #include <windows.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB = NULL;
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = NULL;
 
@@ -19,7 +15,3 @@ int gladLoadWGL(HDC hdc) {
     
     return 1; // Success
 }
-
-#ifdef __cplusplus
-}
-#endif

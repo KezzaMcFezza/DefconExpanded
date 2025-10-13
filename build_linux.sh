@@ -27,14 +27,13 @@ echo "====================================="
 # Update package list
 sudo apt-get update
 
-# Install build dependencies
 sudo apt-get install -y \
     build-essential \
     cmake \
     libgl1-mesa-dev \
     libglu1-mesa-dev \
-    libsdl1.2-dev \
-    libsdl2-dev \
+    libasound2-dev \
+    libpulse-dev \
     pkg-config \
     libpkgconf-dev \
     libvorbis-dev \

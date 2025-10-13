@@ -1,5 +1,6 @@
 
 #include "lib/universal_include.h"
+#include <SDL2/SDL.h>
 
 #ifdef TARGET_OS_LINUX
 #include "binreloc.h"

@@ -320,9 +320,17 @@ elseif(APPLE)
         ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_dsound.cpp
     )
 
-    elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
+elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
 
-    find_package(SDL2 REQUIRED) 
+    set(SDL2_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/SDL2-2.32.10")
+    set(SDL2_INCLUDE_DIRS ${SDL2_PATH}/include)
+    set(SDL2_LIBRARIES ${SDL2_PATH}/lib/libSDL2-2.0.so)
+    set(SDL2_FOUND TRUE)
+
+    if(NOT EXISTS ${SDL2_LIBRARIES})
+        message(FATAL_ERROR "SDL2 library not found at: ${SDL2_LIBRARIES}")
+    endif()
+    
     find_package(OpenGL REQUIRED)
     
     if(PKG_CONFIG_FOUND)
@@ -785,7 +793,6 @@ else()
     )
     
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE 
-        SDL2main
         ${SDL2_LIBRARIES}
         ${OPENGL_LIBRARIES}
         ${VORBIS_LIBRARIES}

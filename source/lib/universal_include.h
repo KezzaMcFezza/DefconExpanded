@@ -144,6 +144,7 @@
     #define PROFILER_ENABLED
     #define AUTHENTICATION_LEVEL 1
     #define FLOAT_NUMERICS
+    #define TRACK_GL_ERRORS
     //#define TRACK_SYNC_RAND
     //#define TRACK_SYNC_RAND_EXTRA_VALIDATION     // Warning: Changes sync value calculation.
     #define TRACK_LANGUAGEPHRASE_ERRORS
@@ -284,20 +285,15 @@
 
 // Include OpenGL
 #ifdef TARGET_OS_MACOSX
-#include <GL/glew.h>
-#include <OpenGL/gl3.h>
+#include <glad/glad.h>
 #include <SDL2/SDL.h>
 #undef TARGET_OS_LINUX
 #undef TARGET_OS_WINDOWS
 #elif defined(TARGET_MSVC)
-#include <GL/glew.h>
-#include <GL/gl.h>
-#elif defined(TARGET_OS_LINUX) && !defined(TARGET_EMSCRIPTEN)
-#include <GL/glew.h>
-#include <GL/gl.h>
+#include <glad/glad.h>
+#include <glad/wgl_ext.h>
 #else
-#include <GLES3/gl3.h>
-#include <EGL/egl.h>
+#include <glad/glad.h>
 #endif
 
 // Include pthread for Emscripten threading support
