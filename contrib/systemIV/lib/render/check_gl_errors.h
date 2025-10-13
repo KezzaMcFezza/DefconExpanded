@@ -93,7 +93,6 @@ static inline const char* glErrorToString(GLenum error) {
         #ifndef TARGET_EMSCRIPTEN
         case GL_STACK_OVERFLOW:                return "GL_STACK_OVERFLOW";
         case GL_STACK_UNDERFLOW:               return "GL_STACK_UNDERFLOW";
-        case GL_TABLE_TOO_LARGE:               return "GL_TABLE_TOO_LARGE";
         #endif
         
         #ifdef GL_CONTEXT_LOST
