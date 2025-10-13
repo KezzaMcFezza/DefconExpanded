@@ -188,7 +188,9 @@ void DemoWindow::Render( bool _hasFocus )
 
     Image *img = g_resource->GetImage( filename );
 
+    g_renderer->BeginEclipseSpriteBatch();
     g_renderer->EclipseSprite( img, m_x + 10, m_y + 30, White );
+    g_renderer->EndEclipseSpriteBatch();
     g_renderer->EclipseRect( m_x + 10, m_y + 30, img->Width(), img->Height(), Colour(0,0,0,255) );
 
 	//g_renderer->SetFont( "lucon" );
