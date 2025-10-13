@@ -79,6 +79,7 @@ dialog_no_l                         no
 dialog_ok                           Ok
 dialog_back		            Back
 dialog_cancel                       Cancel
+dialog_cancel_seeking               Cancel seeking and return to normal playback
 dialog_save                         Save
 dialog_abort                        Abort
 dialog_restore_default              Restore Default

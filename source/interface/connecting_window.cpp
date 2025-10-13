@@ -27,15 +27,33 @@ class AbortButton : public InterfaceButton
 {
     void MouseUp()
     {
-        EclRemoveWindow( "LOBBY" );        
-        EclRemoveWindow( m_parent->m_name );
+        //
+        // check if were in seek mode
         
-        g_app->ShutdownCurrentGame();
-        
+        ConnectingWindow *connectingWindow = (ConnectingWindow*)m_parent;
+        if (connectingWindow && connectingWindow->m_isSeekMode) {
+            CancelSeeking();
+        } else {
+            EclRemoveWindow( "LOBBY" );        
+            EclRemoveWindow( m_parent->m_name );
+            
+            g_app->ShutdownCurrentGame();
+            
 #if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-        // In replay viewer mode, go back to recording selection window instead of main menu
-        g_app->GetInterface()->OpenReplayViewerWindow();
+            // In replay viewer mode, go back to recording selection window instead of main menu
+            g_app->GetInterface()->OpenReplayViewerWindow();
 #endif
+        }
+    }
+    
+private:
+    void CancelSeeking()
+    {
+        if (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) {
+            g_app->GetServer()->SetRecordingSpeed(1.0f);
+        }
+        
+        EclRemoveWindow(m_parent->m_name);
     }
 };
 
@@ -95,15 +113,31 @@ void ConnectingWindow::Create()
                         m_fastForwardMode || m_isSeekMode;
     
     AbortButton *abort = new AbortButton();
-    if( isReplayMode )
+    
+    //
+    // determine button text and tooltip based on mode
+
+    const char* buttonText;
+    const char* buttonTooltip;
+
+    if( m_isSeekMode )
     {
-        // Smaller window - use left-aligned button like new version
-        abort->SetProperties( "Abort", 10, m_h-30, 80, 20, LANGUAGEPHRASE("dialog_abort"), LANGUAGEPHRASE("dialog_abort_current_connection"), false, true );
+        buttonText = LANGUAGEPHRASE( "dialog_cancel" );
+        buttonTooltip =  LANGUAGEPHRASE( "dialog_cancel_seeking" );
     }
     else
     {
-        // Larger window - use centered button like old version
-        abort->SetProperties( "Abort", m_w/2-50, m_h-30, 100, 20, "dialog_abort", "dialog_abort_current_connection", true, true );
+        buttonText = LANGUAGEPHRASE("dialog_abort");
+        buttonTooltip = LANGUAGEPHRASE("dialog_abort_current_connection");
+    }
+    
+    if( isReplayMode )
+    {
+        abort->SetProperties( "Abort", 10, m_h-30, 80, 20, buttonText, buttonTooltip, false, true );
+    }
+    else
+    {
+        abort->SetProperties( "Abort", m_w/2-50, m_h-30, 100, 20, buttonText, buttonTooltip, false, true );
     }
     RegisterButton( abort );
 }
