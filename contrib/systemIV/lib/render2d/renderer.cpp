@@ -1145,7 +1145,9 @@ void Renderer::StartFlushTiming(const char* name) {
             // start GPU timing
 
             if (m_flushTimings[i].queryObject == 0) {
+#ifndef TARGET_EMSCRIPTEN
                 glGenQueries(1, &m_flushTimings[i].queryObject);
+#endif
             }
             
             //
@@ -1172,8 +1174,8 @@ void Renderer::StartFlushTiming(const char* name) {
         timing->callCount = 0;
         timing->queryPending = false;
         
-        glGenQueries(1, &timing->queryObject);
 #ifndef TARGET_EMSCRIPTEN
+        glGenQueries(1, &timing->queryObject);
         glBeginQuery(GL_TIME_ELAPSED, timing->queryObject);
 #endif
         timing->queryPending = true;

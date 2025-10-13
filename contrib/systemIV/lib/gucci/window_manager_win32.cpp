@@ -10,10 +10,6 @@
 #include "input.h"
 #include "window_manager_win32.h"
 
-#ifdef TARGET_MSVC
-#include <GL/wglew.h>
-#endif
-
 static HINSTANCE g_hInstance;
 
 #define WH_KEYBOARD_LL 13
@@ -391,15 +387,12 @@ void WindowManagerWin32::EnableOpenGL(int _colourDepth, int _zDepth)
 
 
     //
-    // initialize GLEW
+    // initialize GLAD
     
-    glewExperimental = GL_TRUE;
-    GLenum glewResult = glewInit();
-    
-    if (glewResult != GLEW_OK)
+    if (!gladLoadGL())
     {
-        AppDebugOut("glewInit failed: %s\n", (const char*)glewGetErrorString(glewResult));
-        // usually if glew fails its fatal but continue anyway
+        AppDebugOut("gladLoadGL failed\n");
+        return;
     }
 
 

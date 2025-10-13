@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 # Kezza and Bert's Linux Build Script
 # Mimics the GitHub workflow for local building
@@ -33,7 +33,6 @@ sudo apt-get install -y \
     cmake \
     libgl1-mesa-dev \
     libglu1-mesa-dev \
-    libglew-dev \
     libsdl1.2-dev \
     libsdl2-dev \
     pkg-config \
@@ -107,7 +106,7 @@ cd build
 # Configure CMake
 cmake .. \
     -DCMAKE_BUILD_TYPE="Release" \
-    -DCMAKE_CXX_STANDARD=14 \
+    -DCMAKE_CXX_STANDARD="17" \
     -DCMAKE_CXX_FLAGS="-w" \
     -DCMAKE_C_FLAGS="-w"
 

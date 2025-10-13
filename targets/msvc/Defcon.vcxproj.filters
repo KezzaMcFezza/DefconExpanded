@@ -85,6 +85,9 @@
     <Filter Include="lib\render2d\buffers">
       <UniqueIdentifier>{333a230f-85f8-4b76-9c8f-f616a5a65284}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\render3d\buffers">
+      <UniqueIdentifier>{3e379d61-1966-45b3-8ef0-ae5b5ef76dd8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\app\app.cpp">
@@ -663,15 +666,6 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp">
       <Filter>lib\render3d</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_buffers.cpp">
-      <Filter>lib\render3d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_nuke.cpp">
-      <Filter>lib\render3d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_vbo.cpp">
-      <Filter>lib\render3d</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\resource\sprite_atlas.cpp">
       <Filter>lib\resource</Filter>
     </ClCompile>
@@ -705,6 +699,13 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\eclipse_buffers.cpp">
       <Filter>lib\render2d\buffers</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\glad\desktop\src\glad.c" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_vbo.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\operations_3d.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\primitive_3d_buffers.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\sprite_3d_buffers.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_nuke.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_vbo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">
@@ -1290,6 +1291,5 @@
     <Library Include="..\..\contrib\systemIV\contrib\oggvorbis\lib\vs2022\vorbisfile.lib">
       <Filter>contrib</Filter>
     </Library>
-    <Library Include="..\..\contrib\systemIV\contrib\glew\lib\Release\Win32\glew32s.lib" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 # call from main directory to build versioned source archive
 

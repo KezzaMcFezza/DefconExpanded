@@ -6,7 +6,7 @@ template <class T> class Vector3;
 class Vector2
 {
 private:
-	bool Compare(Vector2 const &b) const;
+	constexpr bool Compare(Vector2 const &b) const;
 
 public:
 	float x, y;

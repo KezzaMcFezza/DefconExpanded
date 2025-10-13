@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 
 # for Linux
 
@@ -24,26 +24,4 @@ if test -z ${SDL2}; then
 else
     # just copy
     cp ${SDL2} ./lib/
-fi
-
-# find and bundle GLEW
-GLEW=`ldd defcon | grep libGLEW | sed -e 's/.*=> //' -e 's/ .*//'`
-if [ -n "${GLEW}" ]; then
-    echo "Found GLEW: ${GLEW}"
-    cp -av ${GLEW} ./lib/
-else
-    # try to locate GLEW via pkg-config or common paths
-    echo "GLEW not found in ldd output, searching common locations..."
-    if pkg-config --exists glew; then
-        GLEW_LIBDIR="`pkg-config --variable=libdir glew`"
-        for f in "${GLEW_LIBDIR}"/libGLEW.so* "${GLEW_LIBDIR}"/x86_64-linux-gnu/libGLEW.so*; do
-            test -r $f && cp -av $f ./lib/ && echo "Bundled: $f" || true
-        done
-    else
-        for libdir in /usr/lib /usr/lib/x86_64-linux-gnu /usr/local/lib; do
-            for f in "${libdir}"/libGLEW.so*; do
-                test -r $f && cp -av $f ./lib/ && echo "Bundled: $f" || true
-            done
-        done
-    fi
 fi

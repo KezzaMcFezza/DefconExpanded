@@ -258,8 +258,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
@@ -279,7 +279,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;../../contrib/systemIV/contrib/glew/lib/Release/Win32/glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Debug\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -306,8 +306,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -321,13 +321,14 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <BrowseInformationFile>
       </BrowseInformationFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>TARGET_MSVC;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;../../contrib/systemIV/contrib/glew/lib/Release/x64/glew32s.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libogg/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libogg/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Debug\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -355,8 +356,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
@@ -378,7 +379,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;../../contrib/systemIV/contrib/glew/lib/Release/x64/glew32s.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libogg/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libogg/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\DebugRecParse\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -405,8 +406,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -421,13 +422,14 @@
       <BrowseInformationFile>
       </BrowseInformationFile>
       <UndefinePreprocessorDefinitions>TARGET_EMSCRIPTEN;</UndefinePreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>TARGET_MSVC;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;../../contrib/systemIV/contrib/glew/lib/Release/x64/glew32s.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libogg/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libogg/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\DebugRecParse\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -460,8 +462,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;RECORDING_PARSING;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -485,7 +487,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/glew/lib/Release/Win32/glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -525,8 +527,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;RECORDING_PARSING;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -551,7 +553,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/glew/lib/Release/Win32/glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -592,8 +594,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;RECORDING_PARSING;RECORDING_PARSING;ENDGAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;RECORDING_PARSING;ENDGAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -618,7 +620,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/glew/lib/Release/Win32/glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Endgame\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -658,8 +660,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;RECORDING_PARSING;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -685,7 +687,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/glew/lib/Release/x64/glew32s.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -724,8 +726,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;SYNC_PRACTICE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;SYNC_PRACTICE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -751,7 +753,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/glew/lib/Release/x64/glew32s.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Sync Practice\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -790,8 +792,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;RECORDING_PARSING;RECORDING_PARSING;ENDGAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;RECORDING_PARSING;ENDGAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -810,13 +812,14 @@
       </BrowseInformationFile>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/glew/lib/Release/x64/glew32s.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Endgame\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -856,8 +859,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;RECORDING_PARSING;REPLAY_VIEWER;RECORDING_PARSING;REPLAY_VIEWER_DESKTOP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;REPLAY_VIEWER;RECORDING_PARSING;REPLAY_VIEWER_DESKTOP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -882,7 +885,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/glew/lib/Release/Win32/glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Replay Viewer\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -922,8 +925,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glew/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;GLEW_STATIC;RECORDING_PARSING;REPLAY_VIEWER;RECORDING_PARSING;REPLAY_VIEWER_DESKTOP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;REPLAY_VIEWER;RECORDING_PARSING;REPLAY_VIEWER_DESKTOP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -942,13 +945,14 @@
       </BrowseInformationFile>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/glew/lib/Release/x64/glew32s.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Replay Viewer\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -971,6 +975,20 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\glad\desktop\src\glad.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Endgame|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Endgame|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Replay Viewer|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Replay Viewer|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Recording Parsing|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Recording Parsing|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\archive.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|Win32'">NotUsing</PrecompiledHeader>
@@ -1989,7 +2007,6 @@
     <Library Include="..\..\contrib\systemIV\contrib\oggvorbis\lib\vs2022\ogg.lib" />
     <Library Include="..\..\contrib\systemIV\contrib\oggvorbis\lib\vs2022\vorbis.lib" />
     <Library Include="..\..\contrib\systemIV\contrib\oggvorbis\lib\vs2022\vorbisfile.lib" />
-    <Library Include="..\..\contrib\systemIV\contrib\glew\lib\Release\Win32\glew32s.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

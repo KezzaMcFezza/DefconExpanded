@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(ROOT_PATH ".")
 set(SYSTEMIV_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV" CACHE PATH "Location of the SystemIV base")
-set(GLEW_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/glew")
+set(GLAD_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/glad")
 set(RESOURCES_DIR "${ROOT_PATH}/resources")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/result/Debug")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/result/Release")
@@ -16,41 +16,12 @@ set(CMAKE_CONFIGURATION_TYPES "Release" "Debug" CACHE STRING "" FORCE)
 
 find_package(PkgConfig QUIET)
 
-if(MSVC)
-    set(GLEW_LIBRARY "${GLEW_PATH}/lib/Release/Win32/glew32s.lib")
-elseif(APPLE)
-    # Now we link GLEW via homebrew
-    find_library(GLEW_LIBRARY NAMES GLEW glew
-        PATHS /opt/homebrew/lib /usr/local/lib
-        NO_DEFAULT_PATH)
-    
-    if(NOT GLEW_LIBRARY)
-        message(FATAL_ERROR "GLEW not found. Install via Homebrew: brew install glew")
-    endif()
-    
-    find_path(GLEW_INCLUDE_DIR GL/glew.h
-        PATHS /opt/homebrew/include /usr/local/include
-        NO_DEFAULT_PATH)
-        
-    if(GLEW_INCLUDE_DIR)
-        include_directories(${GLEW_INCLUDE_DIR})
-    endif()
-    
+if(EMSCRIPTEN)
+    set(GLAD_INCLUDE_DIR "${GLAD_PATH}/emscripten/include")
+    set(GLAD_SOURCE_FILE "${GLAD_PATH}/emscripten/src/glad.c")
 else()
-    if(PKG_CONFIG_FOUND)
-        pkg_check_modules(GLEW glew)
-        if(GLEW_FOUND)
-            set(GLEW_LIBRARY ${GLEW_LIBRARIES})
-        endif()
-    endif()
-    if(NOT GLEW_FOUND)
-        find_library(GLEW_LIBRARY NAMES GLEW glew
-            PATHS /usr/lib/x86_64-linux-gnu /usr/local/lib /usr/lib
-            NO_DEFAULT_PATH)
-        if(NOT GLEW_LIBRARY)
-            set(GLEW_LIBRARY "${GLEW_PATH}/lib/Release/Linux/libglew.a")
-        endif()
-    endif()
+    set(GLAD_INCLUDE_DIR "${GLAD_PATH}/desktop/include")
+    set(GLAD_SOURCE_FILE "${GLAD_PATH}/desktop/src/glad.c")
 endif()
 
 set(REPLAY_VIEWER_VERSION "R1.20.4" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
@@ -72,11 +43,8 @@ include_directories(
     ${SYSTEMIV_PATH}/lib/gucci
     ${SYSTEMIV_PATH}/lib/netlib
     ${SYSTEMIV_PATH}/lib/eclipse
+    ${GLAD_INCLUDE_DIR}
 )
-
-if(NOT EMSCRIPTEN)
-    include_directories(${GLEW_PATH}/include)
-endif()
 
 set(RESOURCE_FILES
     "${RESOURCES_DIR}/appicon.ico"
@@ -215,8 +183,22 @@ elseif(MSVC)
     set(CMAKE_GENERATOR_TOOLSET "v143")
     enable_language(RC)
     
-    add_definitions(-D_WIN32 -DWIN32 -DTARGET_MSVC -DGLEW_STATIC)
+    add_definitions(-D_WIN32 -DWIN32 -DTARGET_MSVC)
     add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
+
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_definitions(-DTOGGLE_SOUND)
+        add_definitions(-DRECORDING_PARSING) 
+        #add_definitions(-DREPLAY_VIEWER) 
+        #add_definitions(-DREPLAY_VIEWER_DESKTOP)
+    endif()
+
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_definitions(-DTOGGLE_SOUND)
+    add_definitions(-DRECORDING_PARSING) 
+    #add_definitions(-DREPLAY_VIEWER) 
+    #add_definitions(-DREPLAY_VIEWER_DESKTOP)
+    endif()
     
     set(CMAKE_RC_FLAGS "${CMAKE_RC_FLAGS} /I\"${RESOURCES_DIR}\"")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /EHsc /Zm2000 /Zf")
@@ -277,21 +259,21 @@ elseif(APPLE)
     endif()
     
     add_definitions(-DSDL_MAIN_HANDLED)
-    add_definitions(-D_DARWIN -DMACOS -DTARGET_OS_MACOSX -DGUI -DSILENT -DGLEW_STATIC)
+    add_definitions(-D_DARWIN -DMACOS -DTARGET_OS_MACOSX -DGUI -DSILENT)
 
-    add_definitions(-DTOGGLE_SOUND) 
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_definitions(-DTOGGLE_SOUND)
+        add_definitions(-DRECORDING_PARSING) 
+        #add_definitions(-DREPLAY_VIEWER) 
+        #add_definitions(-DREPLAY_VIEWER_DESKTOP)
+    endif()
+
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_definitions(-DTOGGLE_SOUND)
     add_definitions(-DRECORDING_PARSING) 
     #add_definitions(-DREPLAY_VIEWER) 
-    #add_definitions(-DREPLAY_VIEWER_DESKTOP) 
-    #add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
-    #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
-    #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
-    #add_definitions(-DTOGGLE_SOUND_TESTBED)
-    #add_definitions(-DEMSCRIPTEN_PLAYBACK_TESTBED)
-    #add_definitions(-DEMSCRIPTEN_DEBUG)
-    
-    set(ENABLE_REPLAY_VIEWER OFF CACHE BOOL "" FORCE)
-    add_definitions(-DREPLAY_VIEWER=0)
+    #add_definitions(-DREPLAY_VIEWER_DESKTOP)
+    endif()
     
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F${MACOS_FRAMEWORKS_DIR}")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -F${MACOS_FRAMEWORKS_DIR}")
@@ -338,11 +320,8 @@ elseif(APPLE)
         ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_dsound.cpp
     )
 
-    elseif(UNIX AND NOT APPLE)
+    elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
 
-    add_definitions(-UTARGET_EMSCRIPTEN)
-    #add_definitions(-UREPLAY_VIEWER)
-    
     find_package(SDL2 REQUIRED) 
     find_package(OpenGL REQUIRED)
     
@@ -352,16 +331,21 @@ elseif(APPLE)
         message(FATAL_ERROR "pkg-config is required for Linux builds but was not found")
     endif()
     
-    add_definitions(-DTARGET_OS_LINUX -DENABLE_BINRELOC -DGUI -DSILENT -DGLEW_STATIC)
-    add_definitions(-DTOGGLE_SOUND) 
+    add_definitions(-DTARGET_OS_LINUX -DENABLE_BINRELOC -DGUI -DSILENT)
+    
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_definitions(-DTOGGLE_SOUND)
+        add_definitions(-DRECORDING_PARSING) 
+        #add_definitions(-DREPLAY_VIEWER) 
+        #add_definitions(-DREPLAY_VIEWER_DESKTOP)
+    endif()
+
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_definitions(-DTOGGLE_SOUND)
     add_definitions(-DRECORDING_PARSING) 
-    #add_definitions(-DREPLAY_VIEWER_DESKTOP) 
-    #add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
-    #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
-    #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
-    #add_definitions(-DTOGGLE_SOUND_TESTBED)
-    #add_definitions(-DEMSCRIPTEN_PLAYBACK_TESTBED)
-    #add_definitions(-DEMSCRIPTEN_DEBUG)
+    #add_definitions(-DREPLAY_VIEWER) 
+    #add_definitions(-DREPLAY_VIEWER_DESKTOP)
+    endif()
     
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-deprecated-declarations -Wno-error=format-security -fpermissive")
     set(CMAKE_INSTALL_RPATH "$ORIGIN")
@@ -653,7 +637,7 @@ foreach(FILE ${FILES_TO_EXCLUDE})
     list(REMOVE_ITEM UNRAR_SOURCE ${FILE})
 endforeach()
 
-set(ALL_SOURCES ${DEFCON_SOURCE} ${SYSTEMIV_SOURCE} ${UNRAR_SOURCE} ${PLATFORM_SPECIFIC_FILES} ${RESOURCE_FILES})
+set(ALL_SOURCES ${DEFCON_SOURCE} ${SYSTEMIV_SOURCE} ${UNRAR_SOURCE} ${PLATFORM_SPECIFIC_FILES} ${RESOURCE_FILES} ${GLAD_SOURCE_FILE})
 
 if(REPLAY_VIEWER_BUILD)
     set(EXECUTABLE_NAME "replay_viewer_${REPLAY_VIEWER_VERSION}")
@@ -758,7 +742,6 @@ elseif(MSVC)
         "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis/lib/vs2022/ogg.lib"
         "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis/lib/vs2022/vorbis.lib"
         "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis/lib/vs2022/vorbisfile.lib"
-        "${GLEW_LIBRARY}"
         wsock32 opengl32 glu32 dsound dxguid dbghelp winmm Ws2_32
     )
     
@@ -787,7 +770,6 @@ elseif(APPLE)
         "-framework Carbon" 
         "-framework IOKit" 
         "-framework AppKit"
-        "${GLEW_LIBRARY}"
         "-liconv"
     )
 
@@ -806,7 +788,6 @@ else()
         SDL2main
         ${SDL2_LIBRARIES}
         ${OPENGL_LIBRARIES}
-        "${GLEW_LIBRARY}"
         ${VORBIS_LIBRARIES}
         dl
         pthread
@@ -819,11 +800,6 @@ target_include_directories(${EXECUTABLE_NAME} PUBLIC
     ${SYSTEMIV_PATH}
 )
 
-if(NOT EMSCRIPTEN)
-    target_include_directories(${EXECUTABLE_NAME} PUBLIC
-        ${GLEW_PATH}/include
-    )
-endif()
 
 add_library(systemIV INTERFACE)
 target_link_libraries(${EXECUTABLE_NAME} PUBLIC systemIV)

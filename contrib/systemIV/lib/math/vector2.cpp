@@ -13,10 +13,11 @@
 // *******************
 
 // *** Compare
-bool Vector2::Compare(Vector2 const &b) const
+constexpr bool Vector2::Compare(Vector2 const &b) const
 {
-	return ( (fabsf(x - b.x) < FLT_EPSILON) &&
-			 (fabsf(y - b.y) < FLT_EPSILON) );
+	constexpr float epsilon = 1.192092896e-07f; // FLT_EPSILON equivalent
+	return ( ((x - b.x) < epsilon && (b.x - x) < epsilon) &&
+			 ((y - b.y) < epsilon && (b.y - y) < epsilon) );
 }
 
 

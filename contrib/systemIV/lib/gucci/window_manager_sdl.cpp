@@ -397,14 +397,11 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
     }
     
 #if (defined(TARGET_OS_LINUX) && !defined(TARGET_EMSCRIPTEN)) || defined(TARGET_OS_MACOSX)
-    // we need to initialise GLEW now that we are using compatibility profile
-    // instead of OpenGL ES 3.0
-    printf("Initializing GLEW...\n");
+    printf("Initializing GLAD...\n");
     fflush(stdout);
     
-    GLenum glewResult = glewInit();
-    if (glewResult != GLEW_OK) {
-        printf("GLEW initialization failed: %s\n", glewGetErrorString(glewResult));
+    if (!gladLoadGL()) {
+        printf("GLAD initialization failed\n");
         
         SDL_GL_DeleteContext( m_glContext );
         m_glContext = 0;
@@ -415,7 +412,27 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
         return false;
     }
     
-    printf("GLEW initialized successfully\n");
+    printf("GLAD initialized successfully\n");
+#elif defined(TARGET_EMSCRIPTEN)
+    printf("Initializing GLAD for Emscripten...\n");
+    fflush(stdout);
+    
+    //
+    // for Emscripten, we need to use gladLoadGLES2Loader with SDL_GL_GetProcAddress
+    
+    if (!gladLoadGLES2Loader((GLADloadproc)SDL_GL_GetProcAddress)) {
+        printf("GLAD initialization failed\n");
+        
+        SDL_GL_DeleteContext( m_glContext );
+        m_glContext = 0;
+        
+        SDL_DestroyWindow( m_window );
+        m_window = NULL;
+        
+        return false;
+    }
+    
+    printf("GLAD initialized successfully\n");
 #endif
     
     m_windowDisplayIndex = displayIndex;

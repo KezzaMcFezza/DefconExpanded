@@ -129,6 +129,7 @@
         "-I${workspaceFolder}/contrib/systemIV/contrib/oggvorbis64/include",
         "-I${workspaceFolder}/contrib/ambx1.1/inc",
         "-I${workspaceFolder}/contrib/systemIV/contrib/glew/include",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/glad/desktop/include",
         "-I${workspaceFolder}/contrib/systemIV/lib/gucci",
         "-I${workspaceFolder}/contrib/systemIV/lib/netlib",
         "-I${workspaceFolder}/contrib/systemIV/lib/eclipse",
@@ -136,7 +137,6 @@
         "-DWIN32",
         "-D_WIN32",
         "-DTARGET_MSVC",
-        "-DGLEW_STATIC",
         "-D_WINSOCK_DEPRECATED_NO_WARNINGS",
         "-D_CRT_SECURE_NO_WARNINGS",
         "-Wno-writable-strings"
