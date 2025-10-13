@@ -15,6 +15,15 @@ class ScrollBar;
 class Bitmap;
 class Image;
 
+struct RecordingFileInfo
+{
+    char *filename;
+    time_t modificationTime;
+    
+    RecordingFileInfo() : filename(NULL), modificationTime(0) {}
+    ~RecordingFileInfo() { delete[] filename; }
+};
+
 class RecordingFileDialog : public InterfaceWindow
 {
 public:
@@ -24,9 +33,24 @@ public:
     
     RecordingSelectionWindow *m_parentWindow;   // callback target
     
-    LList<char *>   *m_files;                   // files only
+    LList<RecordingFileInfo *> *m_files;        // files with date info
     LList<char *>   *m_directories;             // directories/folders only
     LList<int>      m_selected;                 // selected file i
+    
+    enum
+    {
+        SortTypeName,
+        SortTypeDate
+    };
+    int m_sortType;
+    bool m_sortInvert;
+    
+    enum
+    {
+        ShowFoldersFirst,
+        ShowFilesFirst
+    };
+    int m_showOrder;
     
     ScrollBar       *m_scrollbar;               
     
@@ -59,6 +83,7 @@ public:
     bool CanNavigateBack();            // check if parent directory exists
     void RefreshFileListing();
     void LoadMap();                    // load map.bmp
+    void SortFileList();               // sort files by current criteria
 
     void Render                        ( bool _hasFocus );
     void Create();

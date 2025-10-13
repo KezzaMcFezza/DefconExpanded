@@ -27,10 +27,12 @@ char *RecordingFileDialog::s_lastFolder = NULL;
 
 #ifdef TARGET_MSVC
     #include <direct.h>
+    #include <sys/stat.h>
     #define PATH_SEPARATOR "\\"
     #define getcwd _getcwd
 #else
     #include <unistd.h>
+    #include <sys/stat.h>
     #define PATH_SEPARATOR "/"
 #endif
 
@@ -61,16 +63,51 @@ public:
             bool isDirectory = false;
             bool isSelected = false;
             
-            if (actualIndex < numDirectories)
+            if (parent->m_showOrder == RecordingFileDialog::ShowFoldersFirst)
             {
-                displayText = parent->m_directories->GetData(actualIndex);
-                isDirectory = true;
+
+                //
+                // folders first, then files
+
+                if (actualIndex < numDirectories)
+                {
+                    displayText = parent->m_directories->GetData(actualIndex);
+                    isDirectory = true;
+                }
+                else
+                {
+                    int fileIndex = actualIndex - numDirectories;
+                    if (parent->m_files && parent->m_files->ValidIndex(fileIndex))
+                    {
+                        RecordingFileInfo *fileInfo = parent->m_files->GetData(fileIndex);
+                        displayText = fileInfo->filename;
+                        isSelected = (parent->m_selected.Size() > 0 && parent->m_selected[0] == fileIndex);
+                    }
+                }
             }
             else
             {
-                int fileIndex = actualIndex - numDirectories;
-                displayText = parent->m_files->GetData(fileIndex);
-                isSelected = (parent->m_selected.Size() > 0 && parent->m_selected[0] == fileIndex);
+                //
+                // files first, then folders
+                
+                if (actualIndex < numFiles)
+                {
+                    if (parent->m_files && parent->m_files->ValidIndex(actualIndex))
+                    {
+                        RecordingFileInfo *fileInfo = parent->m_files->GetData(actualIndex);
+                        displayText = fileInfo->filename;
+                        isSelected = (parent->m_selected.Size() > 0 && parent->m_selected[0] == actualIndex);
+                    }
+                }
+                else
+                {
+                    int dirIndex = actualIndex - numFiles;
+                    if (parent->m_directories && parent->m_directories->ValidIndex(dirIndex))
+                    {
+                        displayText = parent->m_directories->GetData(dirIndex);
+                        isDirectory = true;
+                    }
+                }
             }
             
             if( isSelected )
@@ -100,7 +137,64 @@ public:
 
             if( displayText )
             {
-                g_renderer->TextSimple( realX + 10, realY + 3, textColour, 12, displayText );
+                
+                //
+                // truncate names based on type, folders get 50 chars and dcrecs get 24 chars
+
+                char displayName[64];
+                strncpy(displayName, displayText, sizeof(displayName) - 1);
+                displayName[sizeof(displayName) - 1] = '\0';
+                
+                if (isDirectory)
+                {
+                    if (strlen(displayName) > 41)
+                    {
+                        strcpy(&displayName[38], "...");
+                    }
+                }
+                else
+                {
+                    if (strlen(displayName) > 24)
+                    {
+                        strcpy(&displayName[21], "...");
+                    }
+                }
+                
+                g_renderer->TextSimple( realX + 10, realY + 3, textColour, 12, displayName );
+                
+                //
+                // show date for files
+
+                if (!isDirectory && parent->m_files)
+                {
+                    int fileIndex = -1;
+                    
+                    if (parent->m_showOrder == RecordingFileDialog::ShowFoldersFirst)
+                    {
+                        if (actualIndex >= numDirectories)
+                        {
+                            fileIndex = actualIndex - numDirectories;
+                        }
+                    }
+                    else
+                    {
+                        if (actualIndex < numFiles)
+                        {
+                            fileIndex = actualIndex;
+                        }
+                    }
+                    
+                    if (fileIndex >= 0 && parent->m_files->ValidIndex(fileIndex))
+                    {
+                        RecordingFileInfo *fileInfo = parent->m_files->GetData(fileIndex);
+                        char dateStr[64];
+                        struct tm *timeinfo = localtime(&fileInfo->modificationTime);
+                        strftime(dateStr, sizeof(dateStr), "%m/%d/%y %H:%M", timeinfo);
+                        
+                        Colour dateColour(200, 200, 200, 150);
+                        g_renderer->TextRightSimple( realX + m_w - 10, realY + 3, dateColour, 10, dateStr );
+                    }
+                }
             }
         }
     }
@@ -114,41 +208,88 @@ public:
         double timeDelta = timeNow - m_lastClickTime;
         
         int numDirectories = parent->m_directories ? parent->m_directories->Size() : 0;
+        int numFiles = parent->m_files ? parent->m_files->Size() : 0;
         
-        if (actualIndex < numDirectories)
+        if (parent->m_showOrder == RecordingFileDialog::ShowFoldersFirst)
         {
-            //
-            // delay on double click
-
-            if (timeDelta < 0.3) 
+            if (actualIndex < numDirectories)
             {
                 //
-                // lets go
+                // delay on double click
 
-                char *dirName = parent->m_directories->GetData(actualIndex);
-                parent->NavigateInto(dirName);
+                if (timeDelta < 0.3) 
+                {
+                    //
+                    // lets go
+
+                    char *dirName = parent->m_directories->GetData(actualIndex);
+                    parent->NavigateInto(dirName);
+                }
+
+                //
+                // just highlight if not double clicked
             }
+            else
+            {
+                int fileIndex = actualIndex - numDirectories;
+                if (parent->m_files && parent->m_files->ValidIndex(fileIndex))
+                {
+                    RecordingFileInfo *fileInfo = parent->m_files->GetData(fileIndex);
+                    if (timeDelta < 0.3)
+                    {
+                        parent->FileSelected(fileInfo->filename);
+                    }
+                    else
+                    {
 
-            //
-            // just highlight if not double clicked
+                        //
+                        // single click just selects/highlights the file
+                        
+                        parent->SelectFile(fileInfo->filename);
+                    }
+                }
+            }
         }
         else
         {
-            int fileIndex = actualIndex - numDirectories;
-            if (parent->m_files && parent->m_files->ValidIndex(fileIndex))
+            if (actualIndex < numFiles)
             {
-                if (timeDelta < 0.3)
+                if (parent->m_files && parent->m_files->ValidIndex(actualIndex))
                 {
-                    char *filename = parent->m_files->GetData(fileIndex);
-                    parent->FileSelected(filename);
+                    RecordingFileInfo *fileInfo = parent->m_files->GetData(actualIndex);
+                    if (timeDelta < 0.3)
+                    {
+                        parent->FileSelected(fileInfo->filename);
+                    }
+                    else
+                    {
+
+                        //
+                        // single click just selects/highlights the file
+                        
+                        parent->SelectFile(fileInfo->filename);
+                    }
                 }
-                else
+            }
+            else
+            {
+                int dirIndex = actualIndex - numFiles;
+                if (parent->m_directories && parent->m_directories->ValidIndex(dirIndex))
                 {
                     //
-                    // single click just selects/highlights the file
-                    
-                    char *filename = parent->m_files->GetData(fileIndex);
-                    parent->SelectFile(filename);
+                    // delay on double click
+
+                    if (timeDelta < 0.3) 
+                    {
+                        //
+                        // lets go
+
+                        char *dirName = parent->m_directories->GetData(dirIndex);
+                        parent->NavigateInto(dirName);
+                    }
+
+                    //
+                    // just highlight if not double clicked
                 }
             }
         }
@@ -157,6 +298,84 @@ public:
     }
 };
 
+
+class RecordingSortButton : public InterfaceButton
+{
+public:
+    void MouseUp()
+    {
+        RecordingFileDialog *parent = (RecordingFileDialog *)m_parent;
+        
+        // Toggle between Name and Date
+        if (parent->m_sortType == RecordingFileDialog::SortTypeName)
+        {
+            parent->m_sortType = RecordingFileDialog::SortTypeDate;
+        }
+        else
+        {
+            parent->m_sortType = RecordingFileDialog::SortTypeName;
+        }
+        
+        parent->SortFileList();
+    }
+
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {      
+        RecordingFileDialog *parent = (RecordingFileDialog *)m_parent;
+
+        g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(200,200,255,20) );
+
+        if( highlighted ) 
+        {
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(200,200,255,50) );
+        }
+
+        //
+        // Render the caption based on current sort type
+
+        const char* caption = (parent->m_sortType == RecordingFileDialog::SortTypeName) ? "Name" : "Date";
+        g_renderer->Text( realX + 10, realY+3, Colour(200,200,255,255), 12, caption );
+    }
+};
+
+class RecordingShowOrderButton : public InterfaceButton
+{
+public:
+    void MouseUp()
+    {
+        RecordingFileDialog *parent = (RecordingFileDialog *)m_parent;
+        
+        // Toggle between Folders and Dcrecs
+        if (parent->m_showOrder == RecordingFileDialog::ShowFoldersFirst)
+        {
+            parent->m_showOrder = RecordingFileDialog::ShowFilesFirst;
+        }
+        else
+        {
+            parent->m_showOrder = RecordingFileDialog::ShowFoldersFirst;
+        }
+        
+        parent->RefreshFileListing();
+    }
+
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {      
+        RecordingFileDialog *parent = (RecordingFileDialog *)m_parent;
+
+        g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(200,200,255,20) );
+
+        if( highlighted ) 
+        {
+            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(200,200,255,50) );
+        }
+
+        //
+        // Render the caption based on current show order
+
+        const char* caption = (parent->m_showOrder == RecordingFileDialog::ShowFoldersFirst) ? "Folders" : "Dcrecs";
+        g_renderer->Text( realX + 10, realY+3, Colour(200,200,255,255), 12, caption );
+    }
+};
 
 class RecordingBackButton : public InterfaceButton
 {
@@ -223,7 +442,10 @@ RecordingFileDialog::RecordingFileDialog(RecordingSelectionWindow *parent)
     m_scrollbar(NULL),
     m_historyIndex(-1),
     m_bitmap(NULL),
-    m_image(NULL)
+    m_image(NULL),
+    m_sortType(SortTypeDate),
+    m_sortInvert(true),
+    m_showOrder(RecordingFileDialog::ShowFoldersFirst)
 {
         SetSize( 560, 400 );
         Centralise();
@@ -359,7 +581,7 @@ void RecordingFileDialog::Create()
     int listW = 320;
 
     InvertedBox *box = new InvertedBox();
-    box->SetProperties( "box", 10, 30, listW, m_h - 70, " ", " ", false, false );
+    box->SetProperties( "box", 10, 25, listW, m_h - 60, " ", " ", false, false );
     RegisterButton( box );
 
     //
@@ -368,7 +590,7 @@ void RecordingFileDialog::Create()
     int itemH = 20;
     int itemG = 2;
     int maxItems = (m_h - 100) / (itemH + itemG);
-    int y = 20;
+    int y = 35;
     int itemX = 20;
     int itemW = listW - 40;
 
@@ -382,6 +604,20 @@ void RecordingFileDialog::Create()
         button->m_index = i;
         RegisterButton( button );
     }
+
+    //
+    // sort button
+
+    RecordingSortButton *sortButton = new RecordingSortButton();
+    sortButton->SetProperties( "Sort", 20, 30, 80, 20, "Name", " ", false, false );
+    RegisterButton( sortButton );
+
+    //
+    // show order button
+
+    RecordingShowOrderButton *showOrderButton = new RecordingShowOrderButton();
+    showOrderButton->SetProperties( "ShowOrder", 105, 30, 80, 20, "Folders", " ", false, false );
+    RegisterButton( showOrderButton );
 
     //
     // navigation and control buttons 
@@ -402,7 +638,7 @@ void RecordingFileDialog::Create()
     // scrollbar
 
     m_scrollbar = new ScrollBar( this );
-    m_scrollbar->Create( "scroll", 10 + listW - 27, 42, 18, m_h - 110, 0, maxItems );        
+    m_scrollbar->Create( "scroll", 10 + listW - 27, 57, 18, m_h - 110, 0, maxItems );        
     
     //
     // refresh the file listing and load directory image
@@ -433,7 +669,8 @@ void RecordingFileDialog::SelectFile( char *_filename )
         {
             for (int i = 0; i < m_files->Size(); ++i)
             {
-                if (strcmp(m_files->GetData(i), _filename) == 0)
+                RecordingFileInfo *fileInfo = m_files->GetData(i);
+                if (strcmp(fileInfo->filename, _filename) == 0)
                 {
                     m_selected.PutData(i);
                     break;
@@ -613,19 +850,51 @@ void RecordingFileDialog::RefreshFileListing()
     m_directories = ListSubDirectoryNames(m_currentPath);
     
     //
-    // use Defcons file system for proper file enumeration
+    // get list of files with modification times
 
+    m_files = new LList<RecordingFileInfo *>();
+    
+    LList<char *> *tempFiles = NULL;
     if (g_fileSystem)
     {
-        m_files = g_fileSystem->ListArchive(searchPath, m_filter, false);
+        tempFiles = g_fileSystem->ListArchive(searchPath, m_filter, false);
     }
     else
     {
-        // fallback to basic directory listing if file system not available
-        m_files = ListDirectory(m_currentPath, m_filter, false);
+        tempFiles = ListDirectory(m_currentPath, m_filter, false);
+    }
+    
+    if (tempFiles)
+    {
+        for (int i = 0; i < tempFiles->Size(); ++i)
+        {
+            char *filename = tempFiles->GetData(i);
+            char *fullPath = GetFullPathForFile(filename);
+            
+            RecordingFileInfo *fileInfo = new RecordingFileInfo();
+            fileInfo->filename = newStr(filename);
+            
+            // Get file modification time
+            struct stat fileStat;
+            if (stat(fullPath, &fileStat) == 0)
+            {
+                fileInfo->modificationTime = fileStat.st_mtime;
+            }
+            else
+            {
+                fileInfo->modificationTime = 0;
+            }
+            
+            m_files->PutData(fileInfo);
+            delete[] fullPath;
+        }
+        
+        tempFiles->EmptyAndDelete();
+        delete tempFiles;
     }
     
     m_selected.Empty();
+    SortFileList();
     
     //
     // update scroll bar
@@ -707,6 +976,74 @@ char *RecordingFileDialog::GetFullPathForFile(const char *filename)
 char *RecordingFileDialog::GetFullPathForDirectory(const char *dirname)
 {
     return GetFullPathForFile(dirname); 
+}
+
+void RecordingFileDialog::SortFileList()
+{
+    if (!m_files || m_files->Size() <= 1) return;
+    
+    //
+    // create temporary array for sorting
+
+    int numFiles = m_files->Size();
+    RecordingFileInfo **tempArray = new RecordingFileInfo*[numFiles];
+    
+    //
+    // copy pointers to temporary array
+
+    for (int i = 0; i < numFiles; ++i)
+    {
+        tempArray[i] = m_files->GetData(i);
+    }
+    
+    //
+    // execute bubble sort on the array
+
+    for (int i = 0; i < numFiles - 1; ++i)
+    {
+        for (int j = 0; j < numFiles - i - 1; ++j)
+        {
+            RecordingFileInfo *file1 = tempArray[j];
+            RecordingFileInfo *file2 = tempArray[j + 1];
+            
+            bool shouldSwap = false;
+            
+            switch (m_sortType)
+            {
+                case SortTypeName:
+                    if (m_sortInvert)
+                        shouldSwap = (strcmp(file1->filename, file2->filename) < 0);
+                    else
+                        shouldSwap = (strcmp(file1->filename, file2->filename) > 0);
+                    break;
+                    
+                case SortTypeDate:
+                    if (m_sortInvert)
+                        shouldSwap = (file1->modificationTime < file2->modificationTime);
+                    else
+                        shouldSwap = (file1->modificationTime > file2->modificationTime);
+                    break;
+            }
+            
+            if (shouldSwap)
+            {
+                RecordingFileInfo *temp = tempArray[j];
+                tempArray[j] = tempArray[j + 1];
+                tempArray[j + 1] = temp;
+            }
+        }
+    }
+    
+    //
+    // clear the list and rebuild it with sorted order
+
+    m_files->Empty();
+    for (int i = 0; i < numFiles; ++i)
+    {
+        m_files->PutDataAtEnd(tempArray[i]);
+    }
+    
+    delete[] tempArray;
 }
 
 void RecordingFileDialog::LoadMap()
@@ -809,7 +1146,16 @@ void RecordingFileDialog::Render( bool _hasFocus )
 #endif
         }
         
-        g_renderer->TextRightSimple( xPos + w, yPos, White, fontSize, folderName );
+        char displayFolderName[64];
+        strncpy(displayFolderName, folderName, sizeof(displayFolderName) - 1);
+        displayFolderName[sizeof(displayFolderName) - 1] = '\0';
+        
+        if (strlen(displayFolderName) > 40)
+        {
+            strcpy(&displayFolderName[37], "...");
+        }
+        
+        g_renderer->TextRightSimple( xPos + w, yPos, White, fontSize, displayFolderName );
     }
     yPos += gap;
 
@@ -837,7 +1183,20 @@ void RecordingFileDialog::Render( bool _hasFocus )
     if (m_selectedFile)
     {
         g_renderer->TextSimple( xPos, yPos, nameColour, fontSize, "Selected:" );
-        g_renderer->TextRightSimple( xPos + w, yPos, Colour(0,255,0,200), fontSize - 1, m_selectedFile );
+        
+        //
+        // truncate long selected file names to 24 characters
+
+        char displaySelectedName[32];
+        strncpy(displaySelectedName, m_selectedFile, sizeof(displaySelectedName) - 1);
+        displaySelectedName[sizeof(displaySelectedName) - 1] = '\0';
+        
+        if (strlen(displaySelectedName) > 24)
+        {
+            strcpy(&displaySelectedName[21], "...");
+        }
+        
+        g_renderer->TextRightSimple( xPos + w, yPos, Colour(0,255,0,200), fontSize - 1, displaySelectedName );
     }
     else
     {
