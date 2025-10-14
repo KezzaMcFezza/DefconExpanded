@@ -31,3 +31,7 @@ CPack*.cmake
 /result
 /build
 /lib
+
+# hidden IDE folders
+*.kdev*
+.kdev4/
