@@ -53,7 +53,7 @@ UncompressedArchive::UncompressedArchive(char const *_filename, char const *_pas
 	SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
 #endif
 	CommandData command;
-	command.ParseArg("x", NULL);
+	command.ParseArg("e", NULL);
 	command.ParseArg(filename, NULL);
 	if (_password)
 	{
@@ -62,6 +62,7 @@ UncompressedArchive::UncompressedArchive(char const *_filename, char const *_pas
 		strncat(buf, _password, 125);
 		command.ParseArg(buf, NULL);
 	}
+	command.ParseArg("-ep0", NULL);
 	command.ParseDone();
 
 	InitConsoleOptions(command.MsgStream, command.Sound);
