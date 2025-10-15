@@ -11,6 +11,7 @@
 #include "interface/components/scrollbar.h"
 
 #include "chat_window.h"
+#include "interface/interface.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -365,10 +366,7 @@ void ChatWindow::RenderTeams()
                     col.Set(255,255,255,50);
                 }
 
-				if ( strlen(name) > 8 )
-				{
-					strcpy ( &name[8], "..." );
-				}
+				TruncateText(name, name, 8, 0);
 				
                 g_renderer->TextSimple( x, y, col, 14.0f, name );
 
@@ -406,10 +404,7 @@ void ChatWindow::RenderTeams()
                 strncpy(specName, spec->m_name, sizeof(specName));
                 specName[sizeof(specName) - 1] = '\0';
                 
-                if ( strlen(specName) >= 13 )
-                {
-                    strcpy ( &specName[11], "..." );
-                }
+                TruncateText(specName, specName, 13, 0);
                 
                 g_renderer->TextSimple( x, y, col, 10, specName );
 

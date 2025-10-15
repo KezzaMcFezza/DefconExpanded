@@ -13,6 +13,7 @@
 #define _included_interface_h
 
 #include "lib/tosser/llist.h"
+#include "lib/math/fixed.h"
 
 class Image;
 class WorldMessage;
@@ -64,5 +65,6 @@ public:
 	void SetMouseCursor( const char *filename = NULL );
 };
 
+void TruncateText(char *dest, const char *src, int maxLength, int suffixLength = 0);
 
 #endif

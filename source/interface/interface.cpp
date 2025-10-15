@@ -55,6 +55,46 @@
 
 static bool s_toggleFullscreen = false;
 
+//
+// truncation function
+// for .dcrec files it shows last 5 characters 
+// 
+// (game_2025-09-30...dcrec)
+
+void TruncateText(char *dest, const char *src, int maxLength, int suffixLength)
+{
+    if (!src || !dest) return;
+    
+    int srcLen = strlen(src);
+    if (srcLen <= maxLength) {
+        strcpy(dest, src);
+        return;
+    }
+    
+    //
+    // calculate how much space we need for the suffix
+
+    int suffixSpace = suffixLength + 3; // +3 for ...
+    int availableSpace = maxLength - suffixSpace;
+    
+    if (availableSpace <= 0) {
+        strcpy(dest, "...");
+        if (suffixLength > 0) {
+            strncat(dest, src + srcLen - suffixLength, suffixLength);
+        }
+        return;
+    }
+    
+    strncpy(dest, src, availableSpace);
+    dest[availableSpace] = '\0';
+    
+    strcat(dest, "...");
+    
+    if (suffixLength > 0) {
+        strncat(dest, src + srcLen - suffixLength, suffixLength);
+    }
+}
+
 void Interface::TooltipRender( EclWindow *_window, EclButton *_button, float _timer )
 {
     int showTooltips = g_preferences->GetInt( PREFS_INTERFACE_TOOLTIPS );

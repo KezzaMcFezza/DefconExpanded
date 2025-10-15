@@ -16,6 +16,7 @@
 
 #include "interface/recording_file_dialog.h"
 #include "interface/recording_selection.h"
+#include "interface/interface.h"
 
 extern FileSystem *g_fileSystem;
 extern Preferences *g_preferences;
@@ -142,22 +143,14 @@ public:
                 // truncate names based on type, folders get 50 chars and dcrecs get 24 chars
 
                 char displayName[64];
-                strncpy(displayName, displayText, sizeof(displayName) - 1);
-                displayName[sizeof(displayName) - 1] = '\0';
                 
                 if (isDirectory)
                 {
-                    if (strlen(displayName) > 41)
-                    {
-                        strcpy(&displayName[38], "...");
-                    }
+                    TruncateText(displayName, displayText, 41, 0);
                 }
                 else
                 {
-                    if (strlen(displayName) > 24)
-                    {
-                        strcpy(&displayName[21], "...");
-                    }
+                    TruncateText(displayName, displayText, 25, 5);
                 }
                 
                 g_renderer->TextSimple( realX + 10, realY + 3, textColour, 12, displayName );
@@ -1147,13 +1140,7 @@ void RecordingFileDialog::Render( bool _hasFocus )
         }
         
         char displayFolderName[64];
-        strncpy(displayFolderName, folderName, sizeof(displayFolderName) - 1);
-        displayFolderName[sizeof(displayFolderName) - 1] = '\0';
-        
-        if (strlen(displayFolderName) > 40)
-        {
-            strcpy(&displayFolderName[37], "...");
-        }
+        TruncateText(displayFolderName, folderName, 40, 0);
         
         g_renderer->TextRightSimple( xPos + w, yPos, White, fontSize, displayFolderName );
     }
@@ -1184,17 +1171,9 @@ void RecordingFileDialog::Render( bool _hasFocus )
     {
         g_renderer->TextSimple( xPos, yPos, nameColour, fontSize, "Selected:" );
         
-        //
-        // truncate long selected file names to 24 characters
 
         char displaySelectedName[32];
-        strncpy(displaySelectedName, m_selectedFile, sizeof(displaySelectedName) - 1);
-        displaySelectedName[sizeof(displaySelectedName) - 1] = '\0';
-        
-        if (strlen(displaySelectedName) > 24)
-        {
-            strcpy(&displaySelectedName[21], "...");
-        }
+        TruncateText(displaySelectedName, m_selectedFile, 25, 5);
         
         g_renderer->TextRightSimple( xPos + w, yPos, Colour(0,255,0,200), fontSize - 1, displaySelectedName );
     }
