@@ -819,7 +819,7 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     )
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/mods" "${MAIN_EXE_OUTPUT_DIR}/mods"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/main.dat" "${MAIN_EXE_OUTPUT_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/main.dat" "${MAIN_EXE_OUTPUT_DIR}/"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/sounds.dat" "${MAIN_EXE_OUTPUT_DIR}/"
         COMMAND ${CMAKE_SOURCE_DIR}/targets/linux/bundle_sdl.sh ${MAIN_EXE_OUTPUT_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/targets/linux/launch_cmake.sh ${MAIN_EXE_OUTPUT_DIR}/launch.sh
@@ -833,7 +833,7 @@ elseif(APPLE)
     set(DATA_TARGET_DIR ${BUNDLE_DIR}/Resources/)
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
         COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/mods" "${DATA_TARGET_DIR}/mods"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/main.dat" "${DATA_TARGET_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/main.dat" "${DATA_TARGET_DIR}/"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/sounds.dat" "${DATA_TARGET_DIR}/"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/resources/macosx/*" "${DATA_TARGET_DIR}/"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/targets/macosx/Info_cmake.plist" "${BUNDLE_DIR}/Info.plist"
