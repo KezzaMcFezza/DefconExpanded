@@ -25,7 +25,7 @@
 #include "interface/styleeditor_window.h"
 #include "interface/connecting_window.h"
 #include "interface/resynchronise_window.h"
-
+#include "interface/mapeditor_window.h"
 
 class NetworkButton : public InterfaceButton
 {
@@ -152,6 +152,14 @@ class DebugResynchronisedButton : public InterfaceButton
         window->m_debugVersion = true;
         EclRegisterWindow( window );
     }
+};
+
+class MapEditorButton : public InterfaceButton
+{
+    void MouseUp(){
+        MapEditorWindow *window = new MapEditorWindow();
+        EclRegisterWindow( window );
+    };
 };
 
 
