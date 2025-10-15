@@ -363,6 +363,16 @@ void App::MinimalInit()
 	g_preferences->Load( GetPrefsPath() );
 #endif
 
+    //
+    // set default playername based on build type
+    // better than multiple unique prefs files
+
+#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
+    g_preferences->SetString( "PlayerName", "ReplayClient" );
+#elif defined(SYNC_PRACTICE)
+    g_preferences->SetString( "PlayerName", "SyncPracticeClient" );
+#endif
+
     g_modSystem = new ModSystem();
     g_modSystem->Initialise();
     

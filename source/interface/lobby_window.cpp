@@ -1009,8 +1009,11 @@ class RequestAIButton : public InterfaceButton
     {
         int numTeams = g_app->GetWorld()->m_teams.Size();
         int maxTeams = g_app->GetGame()->GetOptionValue("MaxTeams");
-
+#ifdef SYNC_PRACTICE
+        return( numTeams < maxTeams-1 );
+#else
         return( numTeams < maxTeams );
+#endif
     }
 
     void Render( int realX, int realY, bool highlighted, bool clicked )

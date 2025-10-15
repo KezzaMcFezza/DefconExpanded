@@ -1407,8 +1407,7 @@ bool ClientToServer::IsClientDemo( int _clientId )
 
 bool ClientToServer::AmIDemoClient()
 {
-#ifdef TARGET_EMSCRIPTEN
-    // WebAssembly: Always treat as full user (not demo) for local mode
+#if defined(TARGET_EMSCRIPTEN) || defined(SYNC_PRACTICE)
     return false;
 #else
     if( IsConnected() )
