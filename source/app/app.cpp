@@ -340,15 +340,8 @@ void App::MinimalInit()
     InitialiseHighResTime();
 
     g_fileSystem = new FileSystem();
-#ifndef TARGET_EMSCRIPTEN
-    // Skip main.dat for WebAssembly - data folder is already preloaded
     g_fileSystem->ParseArchive( "main.dat" );
     g_fileSystem->ParseArchives( "localisation/", "*.dat" );
-#else
-    #ifdef EMSCRIPTEN_DEBUG
-        AppDebugOut("WebGL: Skipping archive parsing - files preloaded by Emscripten\n");
-#endif
-#endif
 
     g_preferences = new Preferences();
 
@@ -421,14 +414,7 @@ void App::MinimalInit()
 
 void App::FinishInit()
 {
-#ifndef TARGET_EMSCRIPTEN
-	// Skip sounds.dat for WebAssembly - audio files are already preloaded
 	g_fileSystem->ParseArchive( "sounds.dat" );
-#else
-	#ifdef EMSCRIPTEN_DEBUG
-        AppDebugOut("WebGL: Skipping sounds.dat parsing - audio files preloaded by Emscripten\n");
-#endif
-#endif
 #ifdef TOGGLE_SOUND
 	g_soundSystem = new SoundSystem();
     g_soundSystem->Initialise( new DefconSoundInterface() );            
