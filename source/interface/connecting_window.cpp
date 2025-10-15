@@ -50,7 +50,9 @@ private:
     void CancelSeeking()
     {
         if (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) {
+#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
             g_app->GetServer()->SetRecordingSpeed(1.0f);
+#endif
         }
         
         EclRemoveWindow(m_parent->m_name);
