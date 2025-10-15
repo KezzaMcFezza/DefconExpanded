@@ -24,8 +24,8 @@ else()
     set(GLAD_SOURCE_FILE "${GLAD_PATH}/desktop/src/glad.c")
 endif()
 
-set(REPLAY_VIEWER_VERSION "R1.20.4" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
-set(SYNC_PRACTICE_VERSION "B1.15" CACHE STRING "Version prefix for silo practice client (e.g., B1.0, B1.1)")
+set(REPLAY_VIEWER_VERSION "R1.22" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(SYNC_PRACTICE_VERSION "B1.16" CACHE STRING "Version prefix for silo practice client (e.g., B1.0, B1.1)")
 
 # build mode is now determined by preprocessor definitions passed via CMAKE_CXX_FLAGS
 if(NOT REPLAY_VIEWER_BUILD AND NOT SYNC_PRACTICE_BUILD)
@@ -698,7 +698,7 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_DATA_DIR "${CMAKE_SOURCE_DIR}/localisation")  
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${EMSCRIPTEN_DATA_DIR}/main.dat@main.dat")
 
-    if(EXISTS "${EMSCRIPTEN_DATA_DIR}/mods")
+    if(REPLAY_VIEWER_BUILD AND EXISTS "${EMSCRIPTEN_DATA_DIR}/mods")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${EMSCRIPTEN_DATA_DIR}/mods@mods")
     endif()
 
