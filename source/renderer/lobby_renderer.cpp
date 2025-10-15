@@ -471,7 +471,7 @@ void LobbyRenderer::RenderVersionInfo()
 {
 #if defined(SYNC_PRACTICE)
     char currentVersion[256] = "BETA" "  " "1.15";
-#elif defined(REPLAY_VIEWER_DESKTOP) || defined(TARGET_EMSCRIPTEN)
+#elif defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
     char currentVersion[256] = "RELEASE" "  " "1.20.4";
 #else
     char currentVersion[256] = APP_NAME "  " APP_VERSION;
@@ -485,14 +485,22 @@ void LobbyRenderer::RenderVersionInfo()
     Colour fontNormal( 0, 255, 0, 155 );
     g_renderer->SetFont( "kremlin" );
 
+#if defined(SYNC_PRACTICE)
+    g_renderer->TextSimple( xPos, yPos, fontBold, 20, "SYNC PRACTICE CLIENT:" );
+#elif defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
+    g_renderer->TextSimple( xPos, yPos, fontBold, 20, "REPLAY VIEWER:" );
+#else
     g_renderer->TextSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_version") );
+#endif
+
 #if defined(SYNC_PRACTICE)
     g_renderer->TextSimple( xPos + 220, yPos, fontNormal, 20, currentVersion );
-#elif defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER_DESKTOP)
+#elif defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
     g_renderer->TextSimple( xPos + 160, yPos, fontNormal, 20, currentVersion );
 #else
     g_renderer->TextSimple( xPos + 100, yPos, fontNormal, 20, currentVersion );
 #endif
+
     g_renderer->SetFont();
 
 

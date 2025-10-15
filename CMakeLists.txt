@@ -695,19 +695,8 @@ if(EMSCRIPTEN)
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_FUNCTIONS=['_main','_malloc','_free']")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap','print','printErr']")
     
-    # set the correct data directory based on build type
-    if(REPLAY_VIEWER_BUILD)
-        set(EMSCRIPTEN_DATA_DIR "${CMAKE_SOURCE_DIR}/localisation/emscripten/replay_viewer")
-        message(STATUS "Using replay viewer data directory: ${EMSCRIPTEN_DATA_DIR}")
-    elseif(SYNC_PRACTICE_BUILD)
-        set(EMSCRIPTEN_DATA_DIR "${CMAKE_SOURCE_DIR}/localisation/emscripten/sync_practice")
-        message(STATUS "Using silo practice data directory: ${EMSCRIPTEN_DATA_DIR}")
-    else()
-        message(FATAL_ERROR "EMSCRIPTEN build requires either REPLAY_VIEWER_BUILD or SYNC_PRACTICE_BUILD to be defined")
-    endif()
-    
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${EMSCRIPTEN_DATA_DIR}/data@data")
-    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${EMSCRIPTEN_DATA_DIR}/preferences.txt@preferences.txt")
+    set(EMSCRIPTEN_DATA_DIR "${CMAKE_SOURCE_DIR}/localisation")  
+    set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${EMSCRIPTEN_DATA_DIR}/main.dat@main.dat")
 
     if(EXISTS "${EMSCRIPTEN_DATA_DIR}/mods")
         set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} --preload-file ${EMSCRIPTEN_DATA_DIR}/mods@mods")
@@ -829,9 +818,9 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
         COMMAND ${CMAKE_COMMAND} -E make_directory "${MAIN_EXE_OUTPUT_DIR}"
     )
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/desktop_replay_viewer/data" "${MAIN_EXE_OUTPUT_DIR}/data"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/desktop_replay_viewer/mods" "${MAIN_EXE_OUTPUT_DIR}/mods"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/desktop_replay_viewer/sounds.dat" "${MAIN_EXE_OUTPUT_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/mods" "${MAIN_EXE_OUTPUT_DIR}/mods"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/main.dat" "${MAIN_EXE_OUTPUT_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/sounds.dat" "${MAIN_EXE_OUTPUT_DIR}/"
         COMMAND ${CMAKE_SOURCE_DIR}/targets/linux/bundle_sdl.sh ${MAIN_EXE_OUTPUT_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/targets/linux/launch_cmake.sh ${MAIN_EXE_OUTPUT_DIR}/launch.sh
     )
@@ -843,10 +832,10 @@ elseif(APPLE)
     set(BUNDLE_DIR ${MAIN_EXE_OUTPUT_DIR}/${EXECUTABLE_NAME}.app/Contents)
     set(DATA_TARGET_DIR ${BUNDLE_DIR}/Resources/)
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/desktop_replay_viewer/data" "${DATA_TARGET_DIR}/data"
-        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/desktop_replay_viewer/mods" "${DATA_TARGET_DIR}/mods"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/mods" "${DATA_TARGET_DIR}/mods"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different "${DATA_SOURCE_DIR}/main.dat" "${DATA_TARGET_DIR}/"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/sounds.dat" "${DATA_TARGET_DIR}/"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/resources/macosx/*" "${DATA_TARGET_DIR}/"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DATA_SOURCE_DIR}/desktop_replay_viewer/sounds.dat" "${DATA_TARGET_DIR}/"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_SOURCE_DIR}/targets/macosx/Info_cmake.plist" "${BUNDLE_DIR}/Info.plist"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/targets/macosx/Base.lproj/SDLMain.nib" "${DATA_TARGET_DIR}/SDLMain.nib"
         COMMAND ${CMAKE_SOURCE_DIR}/targets/macosx/bundle_sdl.sh ${BUNDLE_DIR}
