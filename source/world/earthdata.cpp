@@ -91,6 +91,11 @@ void EarthData::LoadCities()
     {
         char *line = cities->GetRestOfLine();
 
+        if( !line || strlen(line) == 0 )
+        {
+            continue;
+        }
+
         char name[256];
         char country[256];
         float latitude, longitude;
