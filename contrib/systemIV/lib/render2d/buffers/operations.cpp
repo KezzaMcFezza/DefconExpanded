@@ -999,8 +999,6 @@ void Renderer::FlushEclipseSprites() {
     StartFlushTiming("Eclipse_Sprites");
     IncrementDrawCall("eclipse_sprites");
     
-    SetBlendMode(BlendModeAdditive);
-    
     SetShaderProgram(m_textureShaderProgram);
     SetTextureShaderUniforms();
     

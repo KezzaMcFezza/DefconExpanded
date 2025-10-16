@@ -48,7 +48,9 @@ ChatWindow::ChatWindow()
     m_channel(CHATCHANNEL_PUBLIC),
     m_hasFocus(false),
     m_typingMessage(false),
-    m_minimised(false)
+    m_minimised(false),
+    m_lastNumMessages(0),
+    m_lastWidth(-1)
 {
     SetSize( 500, 200 );   
     SetPosition( 0, g_windowManager->WindowH()-m_h );
@@ -66,10 +68,6 @@ ChatWindow::ChatWindow()
 }
 
 
-ChatWindow::~ChatWindow()
-{
-    delete m_scrollbar;
-}
 
 void ChatWindow::Create()
 {
@@ -84,7 +82,7 @@ void ChatWindow::Create()
     ChatInputField *input = new ChatInputField();
     input->SetProperties( "Msg", 5, m_h - 25, m_w-10, 20, " ", " ", false, false );
     input->RegisterString( m_message );
-    input->m_highBound = 128;
+    input->m_highBound = 1000;
     input->m_align = -1;
     input->SetInputNoExtendedCharacters( g_renderer->IsFontLanguageSpecific() );
     RegisterButton( input );
@@ -112,7 +110,7 @@ void ChatWindow::Create()
 
     if( windowSize > 40 )
     {
-        m_scrollbar->Create( "Scrollbar", m_w-22, 20, 18, m_h - 50, 0, windowSize );    
+        m_scrollbar->Create( "Scrollbar", m_w-22, 20, 18, m_h - 50, 0, windowSize, 32 );    
     }
 }
 
@@ -229,6 +227,7 @@ void ChatWindow::Update()
 
     if( g_app->m_gameRunning )
     {
+        /*
         if( EclGetWindow() == this )
         {
             if( m_h < 200 )
@@ -253,6 +252,7 @@ void ChatWindow::Update()
                 Create();
             }
         }
+        */
     }
     else
     {
@@ -308,7 +308,7 @@ void ChatWindow::RenderWindow()
 void ChatWindow::RenderTeams()
 {
     bool mouseInWindow = EclMouseInWindow(this) || EclGetWindow() == this;
-    
+
     if( mouseInWindow || !g_app->m_gameRunning || m_hasFocus )
     {
         int x = m_x + m_w - 100;
@@ -324,7 +324,6 @@ void ChatWindow::RenderTeams()
 
         //
         // Players
-        //
 
         for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
         {
@@ -335,15 +334,15 @@ void ChatWindow::RenderTeams()
                 char name[64];
                 strncpy(name, team->GetTeamName(), sizeof(name));
                 name[sizeof(name) - 1] = '\0';
-
+                
                 int width = 70;
                 int mouseX = g_inputManager->m_mouseX;
                 int mouseY = g_inputManager->m_mouseY;
                 if( team->m_teamId != myTeam &&
                     !spectating &&
-                    mouseX > x &&
+                    mouseX > x && 
                     mouseX < x + width &&
-                    mouseY > y - 2 &&
+                    mouseY > y - 2 && 
                     mouseY < y + 15 )
                 {
                     g_renderer->EclipseRectFill( x, y - 2, width + 6, 15, Colour(50,50,150,200));
@@ -366,7 +365,7 @@ void ChatWindow::RenderTeams()
                     col.Set(255,255,255,50);
                 }
 
-				TruncateText(name, name, 8, 0);
+			TruncateText(name, name, 8, 0);
 				
                 g_renderer->TextSimple( x, y, col, 14.0f, name );
 
@@ -386,7 +385,7 @@ void ChatWindow::RenderTeams()
         if( g_app->GetWorld()->m_spectators.Size() > 0 )
         {
             y += 15;
-            g_renderer->TextSimple( x, y, Colour(255,255,255,255*m_alpha), 12, LANGUAGEPHRASE("dialog_chat_spectators") );
+            g_renderer->Text( x, y, Colour(255,255,255,255*m_alpha), 12, LANGUAGEPHRASE("dialog_chat_spectators") );
             y += 13;
 
             for( int i = 0; i < g_app->GetWorld()->m_spectators.Size(); ++i )
@@ -446,21 +445,38 @@ void ChatWindow::RenderMessages()
     
     EclButton *clip = GetButton("Invert");
 
-    if( !m_minimised )
+    float clipYMin = m_y+clip->m_y;
+    float clipH = clip->m_h;
+    if( m_minimised )
     {
-        g_renderer->SetClip( m_x+clip->m_x, m_y+clip->m_y, clip->m_w, clip->m_h );
+        clipYMin = m_y+m_h-200;
+        clipH = m_y+m_h;
     }
-    else
+
+    g_renderer->SetClip( m_x+clip->m_x, clipYMin, clip->m_w, clipH );
+
+    float clipYMax = clipYMin + clipH + h;
+    clipYMin -= h;
+
+    LList <ChatMessage *> & chat = g_app->GetWorld()->m_chat;
+    int minProcess = chat.Size() - m_lastNumMessages;
+    m_lastNumMessages = chat.Size();
+
+    // reprocess all chat messages if the 
+    bool fullScan = ( clip->m_w != m_lastWidth );
+    m_lastWidth = clip->m_w;
+    if( fullScan )
     {
-        g_renderer->SetClip( m_x+clip->m_x, m_y+m_h-200, clip->m_w, m_y+m_h );
+        minProcess = 0;
     }
-    
-    int extraLines = 0;
+
+    bool viewingLatest = ( m_scrollbar->m_currentValue == m_scrollbar->m_numRows - m_scrollbar->m_winSize ) ||
+                           m_scrollbar->m_winSize >= m_scrollbar->m_numRows;
 
 
-    for( int i = 0; i <= g_app->GetWorld()->m_chat.Size(); i++ )
+    for( int i = 0; i <= chat.Size() && (fullScan || y >= clipYMin || i <= minProcess ); i++ )
     {
-        ChatMessage *chatMsg = g_app->GetWorld()->m_chat[i];
+        ChatMessage *chatMsg = chat[i];
 
         if( chatMsg && chatMsg->m_visible )
         {
@@ -468,7 +484,7 @@ void ChatWindow::RenderMessages()
                                             NULL : 
                                             g_app->GetWorld()->GetTeam(chatMsg->m_fromTeamId);
                        
-            char newMsg[1024];
+            char newMsg[1000];
             bool action = false;
 
             if( chatMsg->m_messageId == -1 )
@@ -478,7 +494,8 @@ void ChatWindow::RenderMessages()
             }
             else
             {
-                snprintf( newMsg, sizeof(newMsg), "%s", chatMsg->m_message.c_str() );
+                strncpy( newMsg, chatMsg->m_message.c_str(), sizeof(newMsg) - 1 );
+                newMsg[sizeof(newMsg) - 1] = '\0';
             }
             newMsg[ sizeof(newMsg) - 1 ] = '\0';
             
@@ -517,36 +534,43 @@ void ChatWindow::RenderMessages()
                 width -= teamW;
                 width -= playerNameTextWidth;
             }
+            else
+            {
+                width -= teamW;
+            }
             width -= 10;
             MultiLineText wrapped( newMsg, width, 12, true );
 
             bool done = false;
-            extraLines += wrapped.Size() - 1;
             for( int w = wrapped.Size()-1; w>=0; --w )
             {
-                done = true;
                 int xPos = x;
                 if( !action )
                 {
                     if( w == 0 ) xPos += playerNameTextWidth + 10;           
-                    xPos += teamW;
                 }
+                xPos += teamW;
                 
-                EclButton *clipButton = GetButton("Invert");
-                int clipTop = m_y + clipButton->m_y;
-                int clipBottom = m_y + clipButton->m_y + clipButton->m_h;
-                
-                //
-                // use the same bounds as the SetClip call
-                
-                if( m_minimised )
+                if( y >= clipYMin && y <= clipYMax && i >= minProcess )
                 {
-                    clipTop = m_y + m_h - 200;
-                    clipBottom = m_y + m_h;
-                }
-                
-                if( clipButton && y >= clipTop && y <= clipBottom )
-                {
+                    done = true;
+                    if(team){
+                        switch (team->m_allianceId) //////////////////////////////////////////////////////////////
+                        {
+                            case 2:
+                            case 6:
+                            case 8:
+                            case 9:
+                            case 10:
+                            case 11:
+                            case 12:
+                            case 13:
+                            case 15:
+                            g_renderer->EclipseRectFill( xPos, y -2 , width, 14, Colour(250,250,250,20));
+                            g_renderer->TextSimple( xPos, y, Colour(250,250,250,80), 12, wrapped[w] );
+                        }
+                    }
+                        
                     g_renderer->TextSimple( xPos, y, teamCol, 12, wrapped[w] );
                 }
                 if( w>0) y -= h;
@@ -556,30 +580,50 @@ void ChatWindow::RenderMessages()
 
             if( done )
             {                
-                EclButton *clipButton = GetButton("Invert");
-                int clipTop = m_y + clipButton->m_y;
-                int clipBottom = m_y + clipButton->m_y + clipButton->m_h;
-                
-                if( m_minimised )
-                {
-                    clipTop = m_y + m_h - 200;
-                    clipBottom = m_y + m_h;
-                }
-                
-                if( channelName[0] != '\x0' && clipButton && y >= clipTop && y <= clipBottom )
+                if( channelName[0] != '\x0' )
                 {
                     g_renderer->TextSimple( x, y, White, 12, channelName );
                     textX += channelNameTextWidth;
                     textX += 5;
                 }
 
-                if( !action && clipButton && y >= clipTop && y <= clipBottom )
+                if( !action )
                 {
-                    g_renderer->TextSimple( textX, y, teamCol, 12, chatMsg->m_playerName );                
+                    if(team){
+                        switch (team->m_allianceId) //////////////////////////////////////////////////////////////
+                        {
+                            case 2:
+                            case 6:
+                            case 8:
+                            case 9:
+                            case 10:
+                            case 11:
+                            case 12:
+                            case 13:
+                            case 15:
+                            g_renderer->EclipseRectFill( textX, y -2 , width, 14,  Colour(250,250,250,25));
+                            g_renderer->Text( textX, y,  Colour(250,250,250,80), 12, "%s:", chatMsg->m_playerName );
+                        }
+                    }
+                    g_renderer->Text( textX, y, teamCol, 12, "%s:", chatMsg->m_playerName );
                 }
+            }
             
+            if( wrapped.Size() > 0 )
+            {
                 y -=h;
             }
+        }
+
+        if( i == minProcess - 1 )
+        {
+            // adapt scroll bar incrementally
+            m_scrollbar->SetNumRows( m_scrollbar->m_numRows + startingY - y );
+
+            // so far, we haven't rendered anything; good because we didn't know how
+            // many lines the new messages would have taken. Reset y to the start,
+            // render essentially like the last frame.
+            y = startingY;
         }
     }
 
@@ -590,10 +634,11 @@ void ChatWindow::RenderMessages()
         BeginTypingMessage();
     }
 
-    bool viewingLatest = ( m_scrollbar->m_currentValue == m_scrollbar->m_numRows - m_scrollbar->m_winSize ) ||
-                           m_scrollbar->m_winSize >= m_scrollbar->m_numRows;
-
-    m_scrollbar->SetNumRows(startingY - y);
+    if( fullScan )
+    {
+        // adapt scroll bar in one go
+        m_scrollbar->SetNumRows(startingY - y);
+    }
 
     if( viewingLatest )
     {
@@ -609,26 +654,31 @@ char *ChatWindow::GetChannelName( int _channelId, bool _includePublic )
 
     if( _channelId == CHATCHANNEL_PUBLIC && _includePublic )
     {
-        strcpy( channelName, LANGUAGEPHRASE("dialog_chat_channel_public") );
+        strncpy( channelName, LANGUAGEPHRASE("dialog_chat_channel_public"), sizeof(channelName) - 1 );
+        channelName[sizeof(channelName) - 1] = '\0';
     }
     else if( _channelId == CHATCHANNEL_ALLIANCE )
     {
-        strcpy( channelName, LANGUAGEPHRASE("dialog_chat_channel_alliance") );
+        strncpy( channelName, LANGUAGEPHRASE("dialog_chat_channel_alliance"), sizeof(channelName) - 1 );
+        channelName[sizeof(channelName) - 1] = '\0';
     }
     else if( _channelId == CHATCHANNEL_SPECTATORS )
     {
-        strcpy( channelName, LANGUAGEPHRASE("dialog_chat_channel_spectators") );
+        strncpy( channelName, LANGUAGEPHRASE("dialog_chat_channel_spectators"), sizeof(channelName) - 1 );
+        channelName[sizeof(channelName) - 1] = '\0';
     }
     else if( _channelId == g_app->GetWorld()->m_myTeamId )
     {
-        strcpy( channelName, LANGUAGEPHRASE("dialog_chat_channel_private") );
+        strncpy( channelName, LANGUAGEPHRASE("dialog_chat_channel_private"), sizeof(channelName) - 1 );
+        channelName[sizeof(channelName) - 1] = '\0';
     }
     else
     {
         Team *team = g_app->GetWorld()->GetTeam(_channelId);
         if( team )
 		{
-            strcpy( channelName, LANGUAGEPHRASE("dialog_chat_channel_to_team_name") );
+			strncpy( channelName, LANGUAGEPHRASE("dialog_chat_channel_to_team_name"), sizeof(channelName) - 1 );
+			channelName[sizeof(channelName) - 1] = '\0';
 			LPREPLACESTRINGFLAG( 'T', team->m_name, channelName );
 		}
     }                
@@ -657,10 +707,10 @@ void ChatWindow::Render( bool _hasFocus )
     if( strlen(m_message) < 1 )
     {
         EclButton *input = GetButton("Msg");
-        g_renderer->TextSimple( m_x + input->m_x + 5, 
-                                    m_y + input->m_y + 3 ,
-                                    Colour(255,255,255,50),
-                                    14, GetChannelName(m_channel,true) );
+        g_renderer->Text( m_x + input->m_x + 5, 
+                          m_y + input->m_y + 3 ,
+                          Colour(255,255,255,50),
+                          14, GetChannelName(m_channel,true) );
     }
 }
 
@@ -699,7 +749,7 @@ void ChatInputField::Render( int realX, int realY, bool highlighted, bool clicke
 
 void ChatInputField::Keypress( int keyCode, bool shift, bool ctrl, bool alt, unsigned char ascii )
 {
-   if( keyCode == KEY_ENTER )
+    if( keyCode == KEY_ENTER )
     {
         //m_parent->EndTextEdit();
 
@@ -744,7 +794,7 @@ void ChatInputField::Keypress( int keyCode, bool shift, bool ctrl, bool alt, uns
         }
         else
         {
-            EclSetCurrentFocus( "None" );                        
+            EclSetCurrentFocus( "None" );
         }
     }
     else

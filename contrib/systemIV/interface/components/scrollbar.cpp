@@ -279,16 +279,21 @@ void ScrollChangeButton::Render( int realX, int realY, bool highlighted, bool cl
     float midPointX = realX + m_w/2.0f;
     float midPointY = realY + m_h/2.0f;
 
+    //
+    // respect the renderers alpha setting
+    
+    Colour triangleColor(255, 255, 255, (int)(255 * g_renderer->m_alpha));
+
     if( m_amount < 0 )
     {
         g_renderer->EclipseTriangleFill( midPointX, midPointY-5,
                                   midPointX+4, midPointY+4,
-                                  midPointX-4, midPointY+4, White );
+                                  midPointX-4, midPointY+4, triangleColor );
     }
     else
     {
         g_renderer->EclipseTriangleFill( midPointX, midPointY+3,
                                   midPointX-4, midPointY-4,
-                                  midPointX+4, midPointY-4, White );
+                                  midPointX+4, midPointY-4, triangleColor );
     }
 }

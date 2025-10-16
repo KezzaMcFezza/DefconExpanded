@@ -514,6 +514,11 @@ void Renderer::Shutdown() {
 // ============================================================================
 
 void Renderer::SetBlendMode(int _blendMode) {
+
+    if (m_blendMode != _blendMode && m_eclipseSpriteVertexCount > 0) {
+        FlushEclipseSprites();
+    }
+
     m_blendMode = _blendMode;
     
     switch (_blendMode) {
@@ -800,13 +805,34 @@ void Renderer::SetTextureParameter(GLenum pname, GLint param) {
 }
 
 void Renderer::SetClip(int x, int y, int w, int h) {
+    
+    //
+    // flush all eclipse and text batches before changing scissor state
+    // create a seperate draw call for each rendering operation with
+    // scissor testing enabled. as you cannot have multiple scissor regions
+    // active in the same draw call. other options like shader clipping was
+    // explored but due to being ass at programming i just caused lots of
+    // rendering artifacts.
+    //
+    // we increase draw calls by around 10 percent with this method :(
+    
+    EndEclipseRectFillBatch();
+    EndEclipseTriangleFillBatch();
+    EndEclipseSpriteBatch(); 
+    EndEclipseLineBatch();
+    EndEclipseRectBatch();
+    EndTextBatch();
+
+    //
+    // calculate scale factors between logical and physical resolution
 
 #if !defined(TARGET_OS_MACOSX) && (!defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN))
-    // Calculate scale factors between logical and physical resolution
     float scaleX = (float)g_windowManager->PhysicalWindowW() / (float)g_windowManager->WindowW();
     float scaleY = (float)g_windowManager->PhysicalWindowH() / (float)g_windowManager->WindowH();
     
-    // Apply scaling to convert logical coordinates to physical clipping coordinates  
+    //
+    // apply scaling to convert logical coordinates to physical clipping coordinates  
+
     int physicalX = (int)(x * scaleX);
     int physicalY = (int)((g_windowManager->WindowH() - h - y) * scaleY);
     int physicalW = (int)(w * scaleX);
@@ -823,6 +849,14 @@ void Renderer::SetClip(int x, int y, int w, int h) {
 }
 
 void Renderer::ResetClip() {
+
+    EndEclipseRectFillBatch();
+    EndEclipseTriangleFillBatch();
+    EndEclipseSpriteBatch(); 
+    EndEclipseLineBatch();
+    EndEclipseRectBatch();
+    EndTextBatch();
+    
     SetScissorTest(false);
 }
 

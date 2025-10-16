@@ -51,14 +51,9 @@ void FadingWindow::Render( bool _hasFocus, bool _renderButtons )
 
     Clamp( m_alpha, 0.0f, 1.0f );
 
-
     //
     // Render the window
-
-    g_renderer->SetClip( m_x, m_y, m_w, m_h );
-
-    //
-    // Draw the window bars
+    // Draw the window bars first
 
     Colour windowColA  = g_styleTable->GetPrimaryColour( STYLE_WINDOW_BACKGROUND );
     Colour windowColB  = g_styleTable->GetSecondaryColour( STYLE_WINDOW_BACKGROUND );
@@ -72,6 +67,8 @@ void FadingWindow::Render( bool _hasFocus, bool _renderButtons )
     
     g_renderer->EclipseRectFill ( m_x, m_y, m_w, m_h, windowColA, windowColB, alignment );
     g_renderer->EclipseRect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
+
+    g_renderer->SetClip( m_x, m_y, m_w, m_h );
 
     //
     // Draw the buttons if we are focused

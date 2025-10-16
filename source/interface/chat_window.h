@@ -24,6 +24,8 @@ public:
 
     ScrollBar *m_scrollbar;
 
+    int     m_lastNumMessages;
+    float   m_lastWidth;
 protected:    
     void    RenderWindow();
     void    RenderTeams();
@@ -33,7 +35,6 @@ protected:
 
 public:
     ChatWindow();
-    ~ChatWindow();
 
     void Create();
     void Render( bool _hasFocus );
