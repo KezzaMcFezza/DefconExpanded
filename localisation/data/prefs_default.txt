@@ -56,7 +56,7 @@ InterfaceStyle = default.txt
 InterfaceZoomSpeed = 1.0
 InterfaceTextLanguage = english
 
-PlayerName = ReplayClient
+PlayerName =
 ServerName1 = 
 ServerName2 =
 ServerName3 =
