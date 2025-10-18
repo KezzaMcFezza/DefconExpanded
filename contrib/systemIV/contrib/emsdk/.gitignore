@@ -1,4 +1,9 @@
 *.pyc
+
+CMakeCache.txt
+.ninja_log
+build.ninja
+.ninja_deps
 __pycache__
 
 # Support for --embedded configs
@@ -14,6 +19,8 @@ __pycache__
 
 # File that get download/extracted by emsdk itself
 /ccache
+/result
+/build
 /gnu
 /upstream
 /fastcomp
