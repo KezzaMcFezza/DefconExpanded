@@ -1,0 +1,5 @@
+Name        Territory Radar Ranges
+Version     0.4
+Author      bert_the_turtle, KezzaMcFezza
+Website     http://www.thp.uni-koeln.de/~moos/stuff/defconmods/radar/
+Comment     Shows only the radar range of the territories as outlines on the map.

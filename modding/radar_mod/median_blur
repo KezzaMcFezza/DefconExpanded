@@ -1,0 +1,11 @@
+# GIMP 'Median Blur' settings
+
+(time 0)
+(neighborhood circle)
+(radius 25)
+(percentile 41.200000000000003)
+(alpha-percentile 50)
+(abyss-policy clamp)
+(high-precision yes)
+
+# end of 'Median Blur' settings
