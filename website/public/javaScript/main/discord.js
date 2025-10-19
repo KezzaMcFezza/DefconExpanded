@@ -72,7 +72,7 @@ function updateDiscordWidget() {
                 <p class="event-date">${discordEvent.date}</p>
                 <div class="event-time-div">
                     <p class="event-time">${discordEvent.time}</p>
-                    <a href="https://discord.gg/qADkVKY" target="_blank" class="discord-join-button">Join now!</a>
+                    <a href="https://discord.gg/t7tV9MrmhU" target="_blank" class="discord-join-button">Join now!</a>
                 </div>
             </div>
         </div>
