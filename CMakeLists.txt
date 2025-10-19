@@ -337,11 +337,20 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     
     find_package(OpenGL REQUIRED)
     
-    if(PKG_CONFIG_FOUND)
-        pkg_check_modules(VORBIS REQUIRED vorbisfile vorbis ogg)
-    else()
-        message(FATAL_ERROR "pkg-config is required for Linux builds but was not found")
+    set(VORBIS_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis64/linux")
+    set(VORBIS_INCLUDE_DIRS ${VORBIS_PATH}/include)
+    set(CMAKE_PREFIX_PATH "${VORBIS_PATH}" ${CMAKE_PREFIX_PATH})
+    set(CMAKE_LIBRARY_PATH "${VORBIS_PATH}/lib64" ${CMAKE_LIBRARY_PATH})
+    
+    find_library(OGG_LIBRARY NAMES ogg PATHS ${VORBIS_PATH}/lib64 NO_DEFAULT_PATH)
+    find_library(VORBIS_LIBRARY NAMES vorbis PATHS ${VORBIS_PATH}/lib64 NO_DEFAULT_PATH)
+    find_library(VORBISFILE_LIBRARY NAMES vorbisfile PATHS ${VORBIS_PATH}/lib64 NO_DEFAULT_PATH)
+    
+    if(NOT OGG_LIBRARY AND NOT VORBIS_LIBRARY AND NOT VORBISFILE_LIBRARY)
+        message(FATAL_ERROR "Prebuilt Vorbis/OGG libraries not found in ${VORBIS_PATH}/lib64/")
     endif()
+    
+    set(VORBIS_LIBRARIES ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY} ${OGG_LIBRARY})
     
     add_definitions(-DTARGET_OS_LINUX -DENABLE_BINRELOC -DGUI -DSILENT)
     
@@ -365,6 +374,10 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     set(CMAKE_INSTALL_RPATH "$ORIGIN")
     set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
+    set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-pie")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-pie")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie")
     
     set(PLATFORM_SPECIFIC_FILES
         ${ROOT_PATH}/source/lib/debug_utils_linux.cpp
@@ -785,6 +798,7 @@ else()
     target_include_directories(${EXECUTABLE_NAME} PUBLIC 
         ${SDL2_INCLUDE_DIRS}
         ${OPENGL_INCLUDE_DIRS}
+        ${VORBIS_INCLUDE_DIRS}
     )
     
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE 
