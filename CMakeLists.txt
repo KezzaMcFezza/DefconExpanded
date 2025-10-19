@@ -15,6 +15,16 @@ set(TEST_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/tests")
 set(CMAKE_CONFIGURATION_TYPES "Release" "Debug" CACHE STRING "" FORCE)
 
 find_package(PkgConfig QUIET)
+find_package(OpenMP)
+
+if(OpenMP_CXX_FOUND)
+    message(STATUS "OpenMP found")
+    add_definitions(-DOPENMP)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+else()
+    message(STATUS "OpenMP not found")
+endif()
 
 if(EMSCRIPTEN)
     set(GLAD_INCLUDE_DIR "${GLAD_PATH}/emscripten/include")
@@ -761,6 +771,10 @@ elseif(MSVC)
         wsock32 opengl32 glu32 dsound dxguid dbghelp winmm Ws2_32
     )
     
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(${EXECUTABLE_NAME} PRIVATE OpenMP::OpenMP_CXX)
+    endif()
+    
 elseif(APPLE)
     set_target_properties(${EXECUTABLE_NAME} PROPERTIES
         WIN32_EXECUTABLE FALSE
@@ -788,6 +802,10 @@ elseif(APPLE)
         "-framework AppKit"
         "-liconv"
     )
+    
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(${EXECUTABLE_NAME} PRIVATE OpenMP::OpenMP_CXX)
+    endif()
 
 else()
     set_target_properties(${EXECUTABLE_NAME} PROPERTIES
@@ -808,6 +826,11 @@ else()
         dl
         pthread
     )
+    
+    if(OpenMP_CXX_FOUND)
+        target_link_libraries(${EXECUTABLE_NAME} PRIVATE OpenMP::OpenMP_CXX)
+    endif()
+
 endif()
 
 target_include_directories(${EXECUTABLE_NAME} PUBLIC
