@@ -438,6 +438,45 @@ public:
         return GetTotalUnitCalls() + GetTotalEffectCalls() + m_prevTextCalls3D + m_prevMegaVBOCalls3D;
     }
 
+    int GetCurrentTextVertexCount() const { return m_textVertexCount3D; }
+    int GetCurrentUnitTrailVertexCount() const { return m_unitTrailVertexCount3D; }
+    int GetCurrentUnitMainVertexCount() const { return m_unitMainVertexCount3D; }
+    int GetCurrentUnitRotatingVertexCount() const { return m_unitRotatingVertexCount3D; }
+    int GetCurrentUnitHighlightVertexCount() const { return m_unitHighlightVertexCount3D; }
+    int GetCurrentUnitStateVertexCount() const { return m_unitStateVertexCount3D; }
+    int GetCurrentUnitCounterVertexCount() const { return m_unitCounterVertexCount3D; }
+    int GetCurrentUnitNukeVertexCount() const { return m_unitNukeVertexCount3D; }
+    int GetCurrentEffectsLineVertexCount() const { return m_effectsLineVertexCount3D; }
+    int GetCurrentEffectsSpriteVertexCount() const { return m_effectsSpriteVertexCount3D; }
+    int GetCurrentHealthBarVertexCount() const { return m_healthBarVertexCount3D; }
+    int GetCurrentNuke3DModelVertexCount() const { return m_nuke3DModelVertexCount3D; }
+    int GetCurrentStarFieldVertexCount() const { return m_starFieldVertexCount3D; }
+    int GetCurrentGlobeSurfaceVertexCount() const { return m_globeSurfaceVertexCount3D; }
+    
+    int GetTotalCurrentVertexCount() const {
+        return m_textVertexCount3D + m_unitTrailVertexCount3D + m_unitMainVertexCount3D + 
+               m_unitRotatingVertexCount3D + m_unitHighlightVertexCount3D + m_unitStateVertexCount3D +
+               m_unitCounterVertexCount3D + m_unitNukeVertexCount3D + m_effectsLineVertexCount3D +
+               m_effectsSpriteVertexCount3D + m_healthBarVertexCount3D + m_nuke3DModelVertexCount3D +
+               m_starFieldVertexCount3D + m_globeSurfaceVertexCount3D;
+    }
+
+    size_t GetTotalAllocatedBufferMemory() const {
+        size_t total = 0;
+        
+        int nonTexturedVertices = m_unitTrailVertexCount3D + m_effectsLineVertexCount3D + 
+                                 m_nuke3DModelVertexCount3D + m_globeSurfaceVertexCount3D;
+        total += nonTexturedVertices * sizeof(Vertex3D);
+        
+        int texturedVertices = m_unitMainVertexCount3D + m_unitRotatingVertexCount3D + 
+                              m_unitStateVertexCount3D + m_unitCounterVertexCount3D + 
+                              m_unitNukeVertexCount3D + m_unitHighlightVertexCount3D + 
+                              m_effectsSpriteVertexCount3D + m_healthBarVertexCount3D + 
+                              m_textVertexCount3D + m_starFieldVertexCount3D;
+        total += texturedVertices * sizeof(Vertex3DTextured);
+        
+        return total;
+    }
 
     void GetImageUVCoords(Image* image, float& u1, float& v1, float& u2, float& v2);
     unsigned int GetEffectiveTextureID(Image* image);

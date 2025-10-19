@@ -54,7 +54,7 @@ private:
     
     // Analysis methods
     size_t GetMemoryUsage();
-    int EstimateBufferVertexCount();
+    int GetActualBufferVertexCount();
     int EstimateTextureSwitches();
 };
 

@@ -624,6 +624,68 @@ public:
            m_prevUiLineCalls + m_prevTextCalls;
   }
 
+  //
+  // get vertex counts
+
+  int GetCurrentTextVertexCount() const { return m_textVertexCount; }
+  int GetCurrentUnitTrailVertexCount() const { return m_unitTrailVertexCount; }
+  int GetCurrentUnitMainVertexCount() const { return m_unitMainVertexCount; }
+  int GetCurrentUnitRotatingVertexCount() const { return m_unitRotatingVertexCount; }
+  int GetCurrentUnitHighlightVertexCount() const { return m_unitHighlightVertexCount; }
+  int GetCurrentUnitStateVertexCount() const { return m_unitStateVertexCount; }
+  int GetCurrentUnitCounterVertexCount() const { return m_unitCounterVertexCount; }
+  int GetCurrentUnitNukeVertexCount() const { return m_unitNukeVertexCount; }
+  int GetCurrentEffectsLineVertexCount() const { return m_effectsLineVertexCount; }
+  int GetCurrentEffectsRectVertexCount() const { return m_effectsRectVertexCount; }
+  int GetCurrentEffectsSpriteVertexCount() const { return m_effectsSpriteVertexCount; }
+  int GetCurrentEffectsCircleFillVertexCount() const { return m_effectsCircleFillVertexCount; }
+  int GetCurrentEffectsCircleOutlineVertexCount() const { return m_effectsCircleOutlineVertexCount; }
+  int GetCurrentEffectsCircleOutlineThickVertexCount() const { return m_effectsCircleOutlineThickVertexCount; }
+  int GetCurrentHealthBarVertexCount() const { return m_healthBarVertexCount; }
+  int GetCurrentWhiteboardVertexCount() const { return m_whiteboardVertexCount; }
+  int GetCurrentEclipseRectVertexCount() const { return m_eclipseRectVertexCount; }
+  int GetCurrentEclipseRectFillVertexCount() const { return m_eclipseRectFillVertexCount; }
+  int GetCurrentEclipseTriangleFillVertexCount() const { return m_eclipseTriangleFillVertexCount; }
+  int GetCurrentEclipseLineVertexCount() const { return m_eclipseLineVertexCount; }
+  int GetCurrentEclipseSpriteVertexCount() const { return m_eclipseSpriteVertexCount; }
+  int GetCurrentUITriangleVertexCount() const { return m_uiTriangleVertexCount; }
+  int GetCurrentUILineVertexCount() const { return m_uiLineVertexCount; }
+  int GetCurrentLegacyTriangleVertexCount() const { return m_triangleVertexCount; }
+  int GetCurrentLegacyLineVertexCount() const { return m_lineVertexCount; }
+  
+  //
+  // now get total current vertex count across all buffers
+  
+  int GetTotalCurrentVertexCount() const {
+    return m_textVertexCount + m_unitTrailVertexCount + m_unitMainVertexCount + 
+           m_unitRotatingVertexCount + m_unitHighlightVertexCount + m_unitStateVertexCount +
+           m_unitCounterVertexCount + m_unitNukeVertexCount + m_effectsLineVertexCount +
+           m_effectsRectVertexCount + m_effectsSpriteVertexCount + m_effectsCircleFillVertexCount +
+           m_effectsCircleOutlineVertexCount + m_effectsCircleOutlineThickVertexCount +
+           m_healthBarVertexCount + m_whiteboardVertexCount + m_eclipseRectVertexCount +
+           m_eclipseRectFillVertexCount + m_eclipseTriangleFillVertexCount + m_eclipseLineVertexCount +
+           m_eclipseSpriteVertexCount + m_uiTriangleVertexCount + m_uiLineVertexCount +
+           m_triangleVertexCount + m_lineVertexCount;
+  }
+
+  int GetMegaBufferVertexCount() const { return m_maxMegaVertices; }
+  int GetMegaBufferIndexCount() const { return m_maxMegaIndices; }
+  int GetLineConversionBufferSize() const { return m_lineConversionBufferSize; }
+  
+  //
+  // now get total allocated memory
+
+  size_t GetTotalAllocatedBufferMemory() const {
+    size_t total = 0;
+    
+    total += GetTotalCurrentVertexCount() * sizeof(Vertex2D);
+    total += m_maxMegaVertices * sizeof(Vertex2D);
+    total += m_maxMegaIndices * sizeof(unsigned int);
+    total += m_lineConversionBufferSize * sizeof(Vertex2D);
+    
+    return total;
+  }
+
 protected:
   char *ScreenshotsDirectory();
 

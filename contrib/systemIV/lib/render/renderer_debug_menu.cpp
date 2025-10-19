@@ -334,25 +334,45 @@ void RendererDebugMenu::RenderSystemInformation(float& yPos)
         yPos += lineHeight;
     }
     
-    // Memory information
+    //
+    // buffer memory breakdown
+
     if (m_showMemoryInfo) {
-        m_renderer->TextSimple(25, yPos, Colour(100, 255, 200, 255), 12.0f, "Memory Usage:");
+        m_renderer->TextSimple(25, yPos, Colour(100, 255, 200, 255), 12.0f, "Buffer Memory Breakdown:");
         yPos += lineHeight;
         
-        size_t memoryUsage = GetMemoryUsage();
-        if (memoryUsage > 0) {
-            snprintf(infoBuffer, sizeof(infoBuffer), "  Process Memory: %.1f MB", memoryUsage / (1024.0 * 1024.0));
-            m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
-            yPos += 14.0f;
-        }
-        
-        // Estimated buffer memory usage
-        int totalBufferVertices = EstimateBufferVertexCount();
-        float bufferMemoryMB = (totalBufferVertices * sizeof(Vertex2D)) / (1024.0f * 1024.0f);
-        snprintf(infoBuffer, sizeof(infoBuffer), "  Buffer Memory: ~%.2f MB (%d vertices)", 
-                 bufferMemoryMB, totalBufferVertices);
+        //
+        // current vertex buffer usage
+
+        int currentVertices = GetActualBufferVertexCount();
+        float currentMemoryMB = (currentVertices * sizeof(Vertex2D)) / (1024.0f * 1024.0f);
+        snprintf(infoBuffer, sizeof(infoBuffer), "  Current Usage: %.2f MB", 
+                 currentMemoryMB);
         m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
-        yPos += lineHeight;
+        yPos += 14.0f;
+        
+        //
+        // total allocated memory
+
+        size_t totalAllocated = m_renderer->GetTotalAllocatedBufferMemory();
+        if (g_renderer3d) {
+            totalAllocated += g_renderer3d->GetTotalAllocatedBufferMemory();
+        }
+        float totalMemoryMB = totalAllocated / (1024.0f * 1024.0f);
+        snprintf(infoBuffer, sizeof(infoBuffer), "  Total Allocated: %.2f MB", totalMemoryMB);
+        m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
+        yPos += 14.0f;
+        
+        //
+        // mega buffer memory (coastline and borders)
+
+        int megaVertices = m_renderer->GetMegaBufferVertexCount();
+        int megaIndices = m_renderer->GetMegaBufferIndexCount();
+        float megaMemoryMB = ((megaVertices * sizeof(Vertex2D)) + (megaIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+        snprintf(infoBuffer, sizeof(infoBuffer), "  Coastlines and Borders: %.2f MB", 
+                 megaMemoryMB);
+        m_renderer->TextSimple(35, yPos, Colour(255, 200, 100, 255), 11.0f, infoBuffer);
+        yPos += 14.0f;
     }
 }
 
@@ -392,49 +412,20 @@ size_t RendererDebugMenu::GetMemoryUsage()
     return 0; // Unable to determine
 }
 
-int RendererDebugMenu::EstimateBufferVertexCount()
+int RendererDebugMenu::GetActualBufferVertexCount()
 {
     if (!m_renderer) return 0;
     
-    // Rough estimation based on typical vertex counts per draw call type
-    int estimate = 0;
+    int totalVertices = m_renderer->GetTotalCurrentVertexCount();
     
-    // Lines use 2 vertices per call, triangles use 3+ vertices per call
-    estimate += m_renderer->GetLegacyLineCalls() * 2;
-    estimate += m_renderer->GetLegacyTriangleCalls() * 6; // Assuming quads
-    estimate += m_renderer->GetUILineCalls() * 4; // UI lines often batched
-    estimate += m_renderer->GetUITriangleCalls() * 6; // UI quads
-    estimate += m_renderer->GetTextCalls() * 24; // Text often has multiple quads
-    
-    // Unit rendering
-    estimate += m_renderer->GetUnitTrailCalls() * 8; // Trail segments
-    estimate += m_renderer->GetUnitMainSpriteCalls() * 6; // Unit sprites
-    estimate += m_renderer->GetUnitRotatingCalls() * 6; // Rotating sprites (aircraft/nukes)
-    estimate += m_renderer->GetUnitHighlightCalls() * 6; // Highlight quads
-    estimate += m_renderer->GetUnitStateIconCalls() * 6; // State icon quads
-    estimate += m_renderer->GetUnitNukeIconCalls() * 6; // Nuke icon quads
-    
-    // Effects
-    estimate += m_renderer->GetEffectsLineCalls() * 6; // Effect lines often grouped
-    estimate += m_renderer->GetEffectsSpriteCalls() * 6; // Effect sprites
-    estimate += m_renderer->GetWhiteboardCalls() * 2; // Whiteboard lines (2 vertices per line)
-    
-    // Add 3D renderer stats
+    //
+    // add 3D renderer stats if available
+
     if (g_renderer3d) {
-        estimate += g_renderer3d->GetLegacyLineCalls() * 2;
-        estimate += g_renderer3d->GetLegacyTriangleCalls() * 6;
-        estimate += g_renderer3d->GetTextCalls() * 24;
-        estimate += g_renderer3d->GetUnitTrailCalls() * 8;
-        estimate += g_renderer3d->GetUnitMainSpriteCalls() * 6;
-        estimate += g_renderer3d->GetUnitRotatingCalls() * 6;
-        estimate += g_renderer3d->GetUnitHighlightCalls() * 6;
-        estimate += g_renderer3d->GetUnitStateIconCalls() * 6;
-        estimate += g_renderer3d->GetUnitNukeIconCalls() * 6;
-        estimate += g_renderer3d->GetEffectsLineCalls() * 6;
-        estimate += g_renderer3d->GetEffectsSpriteCalls() * 6;
+        totalVertices += g_renderer3d->GetTotalCurrentVertexCount();
     }
     
-    return estimate;
+    return totalVertices;
 }
 
 int RendererDebugMenu::EstimateTextureSwitches()
