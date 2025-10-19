@@ -15,7 +15,7 @@
 
 #ifndef NO_WINDOW_MANAGER
 #include "lib/gucci/window_manager.h"
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #endif
 
 static char *s_pathToProgram = 0;
@@ -35,7 +35,7 @@ static void fatalSignal(int signum, siginfo_t *siginfo, void *arg)
 	AppGenerateBlackBox("blackbox.txt", 0);
 
 	fprintf(stderr, 
-			"\n\nDarwinia has unexpectedly encountered a fatal error.\n"
+			"\n\nDefcon has unexpectedly encountered a fatal error.\n"
 			"A full description of the error can be found in the file\n"
 			"/tmp/blackbox.txt\n\n");
 
