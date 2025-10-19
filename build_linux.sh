@@ -38,6 +38,7 @@ sudo apt-get install -y \
     libpkgconf-dev \
     libvorbis-dev \
     libogg-dev \
+    libomp-dev \
     mesa-common-dev \
     git \
     wget \

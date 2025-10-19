@@ -3,6 +3,10 @@
 #include <string.h>
 #include <math.h>
 
+#ifdef OPENMP
+#include <omp.h>
+#endif
+
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/file_system.h"
@@ -187,6 +191,50 @@ void Bitmap::Read24BitLine(int length, BinaryReader *f, int y)
 }
 
 
+#ifdef OPENMP
+
+//
+// read operations that work with raw data
+// used for parallel processing
+
+void Bitmap::Read4BitLineFromData(int length, unsigned char *data, Colour pal[256], int y)
+{
+	for (int x = 0; x < length; x += 2) 
+	{
+		unsigned char i = data[x / 2];
+		unsigned idx1 = i & 15;
+		unsigned idx2 = (i >> 4) & 15;
+		PutPixel(x+1, y, pal[idx1]);
+		PutPixel(x, y, pal[idx2]);
+	}
+}
+
+
+void Bitmap::Read8BitLineFromData(int length, unsigned char *data, Colour pal[256], int y)
+{
+	for (int x = 0; x < length; ++x) 
+	{
+		unsigned char i = data[x];
+		PutPixel(x, y, pal[i]);
+	}
+}
+
+
+void Bitmap::Read24BitLineFromData(int length, unsigned char *data, int y)
+{
+	Colour c;
+	c.m_a = 255;
+
+	for (int i=0; i<length; i++) 
+	{
+		c.m_b = data[i * 3];
+		c.m_g = data[i * 3 + 1];
+		c.m_r = data[i * 3 + 2];
+		PutPixel(i, y, c);
+	}
+}
+#endif
+
 void Bitmap::LoadBmp(BinaryReader *_in)
 {
 	BitmapFileHeader fileheader;
@@ -220,6 +268,66 @@ void Bitmap::LoadBmp(BinaryReader *_in)
 	AppAssert(infoheader.biCompression == BMP_RGB); 
 	AppAssert(!_in->m_eof);
 
+#ifdef OPENMP
+
+	//
+	// read the image data into memory first, then process in parallel
+
+	int bytesPerLine = 0;
+	int totalBytes = 0;
+	
+	switch (infoheader.biBitCount)
+	{
+	case 4:
+		bytesPerLine = (infoheader.biWidth + 1) / 2; // 4 bits per pixel, rounded up
+		break;
+	case 8:
+		bytesPerLine = infoheader.biWidth;
+		break;
+	case 24:
+		bytesPerLine = infoheader.biWidth * 3;
+		break;
+	default:
+		AppAbort("Error reading bitmap");
+		break;
+	}
+	
+	//
+	// add padding for 4-byte alignment
+
+	bytesPerLine = (bytesPerLine + 3) & ~3;
+	totalBytes = bytesPerLine * infoheader.biHeight;
+	
+	//
+	// read all image data into memory
+
+	unsigned char *imageData = new unsigned char[totalBytes];
+	_in->ReadBytes(totalBytes, imageData);
+	
+	//
+	// process lines in parallel
+
+	#pragma omp parallel for schedule(static, 8)
+	for (int i = 0; i < (int)infoheader.biHeight; ++i) 
+	{
+		unsigned char *lineData = imageData + (i * bytesPerLine);
+		
+		switch (infoheader.biBitCount)
+		{
+		case 4:
+			Read4BitLineFromData(infoheader.biWidth, lineData, palette, i);
+			break;
+		case 8:
+			Read8BitLineFromData(infoheader.biWidth, lineData, palette, i);
+			break;
+		case 24:
+			Read24BitLineFromData(infoheader.biWidth, lineData, i);
+			break;
+		}
+	}
+	
+	delete[] imageData;
+#else
 	// Read the image
 	for (int i = 0; i < (int)infoheader.biHeight; ++i) 
 	{
@@ -239,6 +347,7 @@ void Bitmap::LoadBmp(BinaryReader *_in)
 			break;
 		}
 	}
+#endif
 }
 
 // Little endian output functions
@@ -561,9 +670,11 @@ void Bitmap::Blit(int _srcX, int _srcY, int _srcW, int _srcH, Bitmap *_srcBmp,
 
 void Bitmap::ApplyDilateFilter()
 {
-    static Colour *temp = new Colour[ m_width * m_height ];
+    Colour *temp = new Colour[ m_width * m_height ];
 	memcpy( temp, m_pixels, sizeof(Colour) * m_width * m_height );
 
+#ifdef OPENMP
+    #pragma omp parallel for schedule(static, 16)
     for( int x = 1; x < m_width-1; ++x )
     {
         for( int y = 1; y < m_height-1; ++y )
@@ -591,6 +702,37 @@ void Bitmap::ApplyDilateFilter()
             m_pixels[ y * m_width + x ].Set( adjacentRed, adjacentGreen, adjacentBlue );
         }
     }
+#else
+    for( int x = 1; x < m_width-1; ++x )
+    {
+        for( int y = 1; y < m_height-1; ++y )
+        {
+            float adjacentRed = 0.0f;
+            float adjacentGreen = 0.0f;
+            float adjacentBlue = 0.0f;
+            for( int i = -1; i <= 1; ++i )
+            {
+                for( int j = -1; j <= 1; ++j )
+                {
+                    if( i != 0 || j != 0 )
+                    {
+                        Colour col = temp[ (y+j) * m_width + (x+i) ];
+                        adjacentRed += col.m_r;
+                        adjacentGreen += col.m_g;
+                        adjacentBlue += col.m_b;
+                    }
+                }
+            }
+            adjacentRed /= 8.0f;
+            adjacentGreen /= 8.0f;
+            adjacentBlue /= 8.0f;
+
+            m_pixels[ y * m_width + x ].Set( adjacentRed, adjacentGreen, adjacentBlue );
+        }
+    }
+#endif
+    
+    delete[] temp;
 }
 
 
@@ -599,7 +741,7 @@ void Bitmap::ApplyBlurFilter(float _scale)
 	AppAssert(m_width > 0 && m_width <= 1024);
 	AppAssert(m_height > 0 && m_height <= 1024);
 
-    static Colour *temp = new Colour[ m_width * m_height ];
+    Colour *temp = new Colour[ m_width * m_height ];
 	memset(temp, 0, sizeof(Colour) * m_width * m_height);
 
 
@@ -611,10 +753,20 @@ void Bitmap::ApplyBlurFilter(float _scale)
 		m[i] *= _scale * 0.0526f;
 	}
 
+#ifdef OPENMP
+	int numThreads = omp_get_max_threads();
+	if (m_height < numThreads * 4) {
+
+		//
+		// image too small, so disable parallelization
+
+		omp_set_num_threads(1);
+	}
 
 	//
-	// Horizontal blur
+	// horizontal blur
 	
+	#pragma omp parallel for schedule(static, 16)
 	for (int y = 0; y < m_height; ++y)
 	{
 		for (int x = 0; x < m_width; ++x)
@@ -628,19 +780,83 @@ void Bitmap::ApplyBlurFilter(float _scale)
 				if (a < 0 || a >= m_width) continue;
 
 				Colour &dest = temp[y * m_width + a];
-				int r = dest.m_r + int((float)src.m_r * m[i]);
-				int g = dest.m_g + int((float)src.m_g * m[i]);
-				int b = dest.m_b + int((float)src.m_b * m[i]);
-
-				if (r > 255) r = 255;
-				if (g > 255) g = 255;
-				if (b > 255) b = 255;
-
-				temp[y * m_width + a].Set(r, g, b);
+				dest.m_r += int((float)src.m_r * m[i]);
+				dest.m_g += int((float)src.m_g * m[i]);
+				dest.m_b += int((float)src.m_b * m[i]);
 			}
 		}
 	}
 
+	for (int i = 0; i < blurSize; ++i)
+	{
+		m[i] *= 2.0f;
+	}
+
+	//
+	// vertical blur
+	
+	Clear(Colour(0,0,0,0));
+	#pragma omp parallel for schedule(static, 16)
+	for (int destY = 0; destY < m_height; ++destY)
+	{
+		for (int x = 0; x < m_width; ++x)
+		{
+			for (int i = 0; i < blurSize; ++i)
+			{
+				int srcY = destY - i + halfBlurSize;
+				if (srcY < 0 || srcY >= m_height) continue;
+
+				Colour &src = temp[srcY * m_width + x];
+				if (src.m_r == 0 && src.m_g == 0 && src.m_b == 0) continue;
+
+				Colour &dest = m_lines[destY][x];
+				dest.m_r += int((float)src.m_r * m[i]);
+				dest.m_g += int((float)src.m_g * m[i]);
+				dest.m_b += int((float)src.m_b * m[i]);
+			}
+		}
+	}
+	
+	//
+	// clamp values to 255
+	
+	#pragma omp parallel for schedule(static, 32)
+	for (int y = 0; y < m_height; ++y)
+	{
+		for (int x = 0; x < m_width; ++x)
+		{
+			Colour &dest = m_lines[y][x];
+			if (dest.m_r > 255) dest.m_r = 255;
+			if (dest.m_g > 255) dest.m_g = 255;
+			if (dest.m_b > 255) dest.m_b = 255;
+		}
+	}
+	
+	//
+	// restore original thread count
+	
+	omp_set_num_threads(numThreads);
+#else
+	// Horizontal blur
+	for (int y = 0; y < m_height; ++y)
+	{
+		for (int x = 0; x < m_width; ++x)
+		{
+			Colour &src = m_lines[y][x];
+			if (src.m_r == 0 && src.m_g == 0 && src.m_b == 0) continue;
+
+			for (int i = 0; i < blurSize; ++i)
+			{
+				int a = x + i - halfBlurSize;
+				if (a < 0 || a >= m_width) continue;
+
+				Colour &dest = temp[y * m_width + a];
+				dest.m_r += int((float)src.m_r * m[i]);
+				dest.m_g += int((float)src.m_g * m[i]);
+				dest.m_b += int((float)src.m_b * m[i]);
+			}
+		}
+	}
 
 	for (int i = 0; i < blurSize; ++i)
 	{
@@ -665,18 +881,27 @@ void Bitmap::ApplyBlurFilter(float _scale)
 				if (a < 0 || a >= m_height) continue;
 
 				Colour &dest = m_lines[a][x];
-				int r = dest.m_r + int((float)src.m_r * m[i]);
-				int g = dest.m_g + int((float)src.m_g * m[i]);
-				int b = dest.m_b + int((float)src.m_b * m[i]);
-
-				if (r > 255) r = 255;
-				if (g > 255) g = 255;
-				if (b > 255) b = 255;
-
-				m_lines[a][x].Set(r, g, b);
+				dest.m_r += int((float)src.m_r * m[i]);
+				dest.m_g += int((float)src.m_g * m[i]);
+				dest.m_b += int((float)src.m_b * m[i]);
 			}
 		}
 	}
+	
+	// Clamp values to 255
+	for (int y = 0; y < m_height; ++y)
+	{
+		for (int x = 0; x < m_width; ++x)
+		{
+			Colour &dest = m_lines[y][x];
+			if (dest.m_r > 255) dest.m_r = 255;
+			if (dest.m_g > 255) dest.m_g = 255;
+			if (dest.m_b > 255) dest.m_b = 255;
+		}
+	}
+#endif
+	
+	delete[] temp;
 }
 
 
@@ -685,6 +910,8 @@ void Bitmap::ConvertColourToAlpha()
 	Colour col;
     Colour newCol( 255, 255, 255, 0 );
 
+#ifdef OPENMP
+    #pragma omp parallel for schedule(static, 32)
     for( int y = 0; y < m_height; ++y )
     {
 	    for( int x = 0; x < m_width; ++x )
@@ -694,6 +921,17 @@ void Bitmap::ConvertColourToAlpha()
             PutPixel( x, y, newCol );
         }
     }
+#else
+    for( int y = 0; y < m_height; ++y )
+    {
+	    for( int x = 0; x < m_width; ++x )
+        {
+            col = GetPixel( x, y );
+            newCol.m_a = col.m_g;
+            PutPixel( x, y, newCol );
+        }
+    }
+#endif
 }
 
 		
@@ -702,6 +940,8 @@ void Bitmap::ConvertPinkToTransparent()
 	Colour pink(255, 0, 255);
 	Colour trans(128,128,128,0);
 
+#ifdef OPENMP
+	#pragma omp parallel for schedule(static, 32)
 	for (int y = 0; y < m_height; ++y) 
 	{
 		for (int x = 0; x < m_width; ++x) 
@@ -713,6 +953,19 @@ void Bitmap::ConvertPinkToTransparent()
 			}
 		}
 	}
+#else
+	for (int y = 0; y < m_height; ++y) 
+	{
+		for (int x = 0; x < m_width; ++x) 
+		{
+			Colour c(GetPixel(x, y));
+			if (c == pink)
+			{
+				PutPixel(x, y, trans);
+			}
+		}
+	}
+#endif
 }
 
 
@@ -735,11 +988,9 @@ int Bitmap::ConvertToTexture(bool _mipmapping)
 {
 	GLuint texId;
 
-    // OpenGL 3.3 Core Profile: No need to enable GL_TEXTURE_2D (deprecated)
 	glGenTextures	(1, &texId);
 	glBindTexture	(GL_TEXTURE_2D, texId);
     
-    // OpenGL 3.3 Core Profile: Use GL_CLAMP_TO_EDGE instead of deprecated GL_CLAMP
     glTexParameteri	(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
     glTexParameteri	(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 	glTexParameteri	(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -747,16 +998,13 @@ int Bitmap::ConvertToTexture(bool _mipmapping)
 	
     if (_mipmapping)
 	{
-        // OpenGL 3.3 Core Profile: Use glTexImage2D + glGenerateMipmap instead of deprecated gluBuild2DMipmaps
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pixels);
         glGenerateMipmap(GL_TEXTURE_2D);
 	}
-	else
+    else
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pixels);
 	}
-
-    // OpenGL 3.3 Core Profile: No need to disable GL_TEXTURE_2D (deprecated)
 
 	return (int) texId;
 }

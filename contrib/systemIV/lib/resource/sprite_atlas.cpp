@@ -3,6 +3,10 @@
 #include <string.h>
 #include <vector>
 
+#ifdef OPENMP
+#include <omp.h>
+#endif
+
 #define STB_RECT_PACK_IMPLEMENTATION
 #include "stb_rect_pack.h"
 
@@ -121,21 +125,25 @@ void RuntimeTextureAtlas::LoadSprites(
         return;
     }
     
-    //
-    // allocate sprite array
-
-    std::vector<PackedSprite*> sprites;
-    sprites.reserve(files->Size());
+    int totalFiles = files->Size();
     
     //
-    // load each sprite
-
-    for (int i = 0; i < files->Size(); ++i) {
+    // pre-allocate sprite array to hold results
+    
+    PackedSprite** sprites = new PackedSprite*[totalFiles];
+    for (int i = 0; i < totalFiles; ++i) {
+        sprites[i] = NULL; 
+    }
+    
+    //
+    // pre-filter excluded files and build work list
+    
+    bool* shouldProcess = new bool[totalFiles];
+    int validFileCount = 0;
+    
+    for (int i = 0; i < totalFiles; ++i) {
         char* filename = files->GetData(i);
         
-        //
-        // build full path
-
         char fullPath[512];
         snprintf(fullPath, sizeof(fullPath), "%s%s", directory, filename);
         fullPath[sizeof(fullPath) - 1] = '\0';
@@ -151,11 +159,108 @@ void RuntimeTextureAtlas::LoadSprites(
             }
         }
         
-        if (excluded) continue;
+        shouldProcess[i] = !excluded;
+        if (!excluded) {
+            validFileCount++;
+        }
+    }
+    
+#ifdef OPENMP
+
+    //
+    // determine if parallelization is worthwhile
+    // it always will be unless loading small mods
+    
+    int numThreads = omp_get_max_threads();
+    bool useParallel = (validFileCount >= numThreads * 2);
+    
+    if (!useParallel) {
+        numThreads = 1;
+        omp_set_num_threads(1);
+    }
+    
+    AppDebugOut("%s: Loading %d sprites using %d thread%s...\n", 
+                m_name, validFileCount, numThreads, numThreads > 1 ? "s" : "");
+    
+    //
+    // parallel bitmap loading, each iteration is completely independent
+    
+    #pragma omp parallel for schedule(dynamic, 1) if(useParallel)
+    for (int i = 0; i < totalFiles; ++i) {
+        if (!shouldProcess[i]) {
+            continue;
+        }
         
         //
-        // load it
+        // build paths with thread-local stack variables
+        
+        char* filename = files->GetData(i);
+        char fullPath[512];
+        snprintf(fullPath, sizeof(fullPath), "%s%s", directory, filename);
+        fullPath[sizeof(fullPath) - 1] = '\0';
+        
+        char dataPath[512];
+        snprintf(dataPath, sizeof(dataPath), "data/%s", fullPath);
+        dataPath[sizeof(dataPath) - 1] = '\0';
+        
+        //
+        // each thread gets its own BinaryReader
+        // g_fileSystem is read-only, returns new reader per call
+        
+        BinaryReader* reader = g_fileSystem->GetBinaryReader(dataPath);
+        
+        if (reader && reader->IsOpen()) {
+            Bitmap* bmp = new Bitmap(reader, "bmp");
+            delete reader;
+            
+            if (bmp->m_width > 0 && bmp->m_height > 0) {
 
+                //
+                // each thread allocates its own PackedSprite
+                // and writes to a unique array index
+                
+                PackedSprite* sprite = new PackedSprite();
+                sprite->filename = newStr(fullPath);
+                sprite->sourceBitmap = bmp;
+                sprites[i] = sprite;
+            } else {
+                #pragma omp critical
+                {
+                    AppDebugOut("ERROR: Invalid bitmap: %s\n", fullPath);
+                }
+                delete bmp;
+            }
+        } else {
+            #pragma omp critical
+            {
+                AppDebugOut("ERROR: Failed to load: %s\n", dataPath);
+            }
+            if (reader) delete reader;
+        }
+    }
+    
+    //
+    // restore thread count if we changed it
+
+    if (!useParallel) {
+        omp_set_num_threads(omp_get_max_threads());
+    }
+    
+#else
+
+    AppDebugOut("%s: Loading %d sprites...\n", 
+                m_name, validFileCount);
+    
+    for (int i = 0; i < totalFiles; ++i) {
+        if (!shouldProcess[i]) {
+            continue;
+        }
+        
+        char* filename = files->GetData(i);
+        char fullPath[512];
+        snprintf(fullPath, sizeof(fullPath), "%s%s", directory, filename);
+        fullPath[sizeof(fullPath) - 1] = '\0';
+        
         char dataPath[512];
         snprintf(dataPath, sizeof(dataPath), "data/%s", fullPath);
         dataPath[sizeof(dataPath) - 1] = '\0';
@@ -169,8 +274,7 @@ void RuntimeTextureAtlas::LoadSprites(
                 PackedSprite* sprite = new PackedSprite();
                 sprite->filename = newStr(fullPath);
                 sprite->sourceBitmap = bmp;
-                sprites.push_back(sprite);
-
+                sprites[i] = sprite;
             } else {
                 AppDebugOut("ERROR: Invalid bitmap: %s\n", fullPath);
                 delete bmp;
@@ -180,26 +284,32 @@ void RuntimeTextureAtlas::LoadSprites(
             if (reader) delete reader;
         }
     }
+#endif
+     
+    PackedSprite** compactedSprites = new PackedSprite*[validFileCount];
+    int compactIndex = 0;
+    
+    for (int i = 0; i < totalFiles; ++i) {
+        if (sprites[i] != NULL) {
+            compactedSprites[compactIndex++] = sprites[i];
+        }
+    }
+    
+    delete[] sprites;
+    delete[] shouldProcess;
+    
+    //
+    // clean up file list
     
     files->EmptyAndDelete();
     delete files;
     
     //
-    // convert to array
-
-    *outCount = sprites.size();
-    if (*outCount > 0) {
-        *outSprites = new PackedSprite*[*outCount];
-        for (int i = 0; i < *outCount; ++i) {
-            (*outSprites)[i] = sprites[i];
-        }
-    } else {
-        *outSprites = NULL;
-    }
+    // return results
     
-    //
-    // display total sprites from this atlas
-
+    *outCount = compactIndex;
+    *outSprites = compactedSprites;
+    
     AppDebugOut("%s Sprites: %d\n", m_name, *outCount);
 }
 

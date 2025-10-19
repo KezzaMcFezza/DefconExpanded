@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef OPENMP
+#include <omp.h>
+#endif
+
 #include <algorithm>
 
 #include "lib/filesys/binary_stream_readers.h"
@@ -51,6 +55,82 @@ BitmapFont::BitmapFont(char *_filename)
     int perCharWidth = bmp.m_width * TEX_WIDTH;
     int perCharHeight = bmp.m_height * TEX_HEIGHT;
     
+#ifdef OPENMP
+
+    //
+    // each character is analyzed independently in parallel
+    // the bitmap pixels are read-only, each thread writes to unique indices
+
+    int numThreads = omp_get_max_threads();
+    
+    bool useParallel = (256 >= numThreads * 64);
+    
+    if (!useParallel) {
+        numThreads = 1;
+        omp_set_num_threads(1);
+    }
+    
+    //
+    // analyze all 256 character glyphs in parallel
+    // each iteration writes to m_leftMargin[c] and m_rightMargin[c]
+    // where c is unique per iteration, so no race conditions possible
+    
+    #pragma omp parallel for schedule(static, 16) if(useParallel)
+    for( int c = 0; c < 256; ++c )
+    {
+
+        //
+        // initialize margins for this character
+        // Each thread writes to a unique index c
+        
+        m_leftMargin[c] = 1.0f;
+        m_rightMargin[c] = 0.0f;
+        
+        int left    = (c % 16) * perCharWidth;
+        int right   = left + perCharWidth;
+        int top     = (c / 16) * perCharHeight;
+        int bottom  = top + perCharHeight;
+        
+        //
+        // scan pixels to find actual character bounds
+        
+        for( int x = left; x < right; ++x )
+        {
+            for( int y = top; y < bottom; ++y )
+            {
+                Colour pixelCol = bmp.GetPixel(x, bmp.m_height - y - 1);
+
+                //
+                // check if pixel is part of character
+
+                if( pixelCol.m_r > 64 &&
+                    pixelCol.m_g > 64 &&
+                    pixelCol.m_b > 64 )
+                {
+                    float thisVal = TEX_WIDTH * float(x - left) / float(right - left);
+                    
+                    if( thisVal < m_leftMargin[c] ) m_leftMargin[c] = thisVal;
+                    if( thisVal > m_rightMargin[c] ) m_rightMargin[c] = thisVal;
+                }
+            }
+        }
+
+        m_leftMargin[c] -= 1.0f / (float)bmp.m_width;
+        m_rightMargin[c] += 1.0f / (float)bmp.m_height;
+
+        m_leftMargin[c] = std::min(m_leftMargin[c], TEX_WIDTH * 0.45f );
+        m_rightMargin[c] = std::max(m_rightMargin[c], TEX_WIDTH * 0.55f );
+    }
+    
+    //
+    // restore thread count if changed
+    
+    if (!useParallel) {
+        omp_set_num_threads(omp_get_max_threads());
+    }
+    
+#else
+    
     for( int c = 0; c < 256; ++c )
     {
         m_leftMargin[c] = 1.0f;
@@ -65,13 +145,13 @@ BitmapFont::BitmapFont(char *_filename)
         {
             for( int y = top; y < bottom; ++y )
             {
-                Colour pixelCol = bmp.GetPixel(x,bmp.m_height-y-1);
+                Colour pixelCol = bmp.GetPixel(x, bmp.m_height - y - 1);
 
                 if( pixelCol.m_r > 64 &&
                     pixelCol.m_g > 64 &&
                     pixelCol.m_b > 64 )
                 {
-                    float thisVal = TEX_WIDTH * float(x-left) / float(right-left);                    
+                    float thisVal = TEX_WIDTH * float(x - left) / float(right - left);                    
                     if( thisVal < m_leftMargin[c] ) m_leftMargin[c] = thisVal;
                     if( thisVal > m_rightMargin[c] ) m_rightMargin[c] = thisVal;
                 }
@@ -83,9 +163,8 @@ BitmapFont::BitmapFont(char *_filename)
 
         m_leftMargin[c] = std::min(m_leftMargin[c], TEX_WIDTH * 0.45f );
         m_rightMargin[c] = std::max(m_rightMargin[c], TEX_WIDTH * 0.55f );
-
     }
-
+#endif
 }
 
 
