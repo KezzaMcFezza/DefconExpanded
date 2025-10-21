@@ -20,7 +20,7 @@ router.get('/api/discord-widget', async (req, res) => {
     const startTime = debug.enter('getDiscordWidget', [], 1);
     
     try {
-        const discordResponse = await axios.get('https://discordapp.com/api/guilds/1256842522215579668/widget.json');
+        const discordResponse = await axios.get('https://discord.com/api/guilds/244276153517342720/widget.json');
         
         res.json(discordResponse.data);
     } catch (error) {
