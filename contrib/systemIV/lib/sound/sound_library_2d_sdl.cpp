@@ -11,7 +11,7 @@
 static SDL_AudioSpec s_audioSpec;
 static int s_audioStarted = 0;
 
-#include "app.h"
+#include "app/app.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/hi_res_time.h"
 
