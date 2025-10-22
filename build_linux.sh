@@ -182,6 +182,12 @@ if [ -d "result/$BUILD_TYPE" ]; then
     echo "Contents:"
     ls -la result/$BUILD_TYPE/
     
+    # Set execute permissions for launch.sh if it exists
+    if [ -f "result/$BUILD_TYPE/launch.sh" ]; then
+        chmod +x result/$BUILD_TYPE/launch.sh
+        echo "Execute permissions set for launch.sh"
+    fi
+    
     # Create tarball with git revision count (mimicking GitHub workflow)
     cd "$SCRIPT_DIR"
     if [ -d ".git" ]; then
