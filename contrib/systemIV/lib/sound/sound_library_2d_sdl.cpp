@@ -178,6 +178,17 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 		const char *errString = SDL_GetError();
 		AppReleaseAssert(false, "Failed to open audio output device: \"%s\"", errString);
 	}
+	else {
+		// Verify that SDL is actually using the requested number of samples
+		// s_audioSpec is filled by SDL_OpenAudio with the actual values being used
+		AppDebugOut("Audio samples verification: requested=%d, SDL is using=%d\n", 
+			desired.samples, s_audioSpec.samples);
+		
+		if (desired.samples != s_audioSpec.samples) {
+			AppDebugOut("WARNING: SDL changed samples per buffer from %d to %d\n", 
+				desired.samples, s_audioSpec.samples);
+		}
+	}
 #endif
 
 #ifdef TOGGLE_SOUND_TESTBED	
