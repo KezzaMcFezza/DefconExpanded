@@ -18,7 +18,7 @@ def main():
     os.chdir(localisation_dir)
     
     # build the rar command
-    cmd = [rar_exe, "a", "-r", "-s", "-ma4", "main.dat", "data/"]
+    cmd = [rar_exe, "a", "-r", "-s", "main.dat", "data/"]
     
     # run it and show rar output
     subprocess.run(cmd, check=True)
