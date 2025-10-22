@@ -173,7 +173,7 @@ static LString ToUTF32( const char *str /* UTF8 */ )
         }
     }
     return result;
-#elif TARGET_OS_MACOSX
+#elif defined(TARGET_OS_MACOSX)
     // Using iconv works on MacOSX and Linux
     if( !str ) return LString();
     size_t strSize = strlen(str);
@@ -196,7 +196,7 @@ static LString ToUTF32( const char *str /* UTF8 */ )
     }
 
     return convertedString;
-#elif TARGET_OS_LINUX
+#elif defined(TARGET_OS_LINUX)
     // Linux implementation using similar iconv approach
     if (!str) return LString();
     size_t strSize = strlen(str);
@@ -215,6 +215,38 @@ static LString ToUTF32( const char *str /* UTF8 */ )
         iconv(cd, &inBytes, &inBytesLeft, &outBytes, &outBytesLeft);
         convertedString.assign(buffer.begin(), buffer.end() - outBytesLeft / sizeof(wchar32));
         iconv_close(cd);
+    }
+
+    return convertedString;
+#elif defined(WINDOWS_SDL)
+
+	//
+    // windows implementation using Windows API for UTF-8 to UTF-32 conversion
+
+    if (!str) return LString();
+    size_t strSize = strlen(str);
+    if (strSize == 0) return LString();
+    
+    LString convertedString;
+
+	//
+    // first convert UTF-8 to UTF-16 using windows API
+
+    int wideLen = MultiByteToWideChar(CP_UTF8, 0, str, (int)strSize, NULL, 0);
+    if (wideLen > 0)
+    {
+        std::vector<wchar_t> wideBuffer(wideLen);
+        MultiByteToWideChar(CP_UTF8, 0, str, (int)strSize, &wideBuffer[0], wideLen);
+
+		//
+        // convert UTF-16 to UTF-32
+
+        for (int i = 0; i < wideLen; ++i)
+        {
+            wchar32 ch = (wchar32)wideBuffer[i];
+            if (ch > 0xff) continue;
+            convertedString.push_back(ch);
+        }
     }
 
     return convertedString;
