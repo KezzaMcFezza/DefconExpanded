@@ -739,7 +739,7 @@ void App::InitialiseWindow()
         g_preferences->Save();
     }    
 
-#ifdef TARGET_MSVC
+#if defined TARGET_MSVC && !defined WINDOWS_SDL
 	WindowManagerWin32 *wm32 = (WindowManagerWin32*) g_windowManager;
 
 	DWORD dwStyle = GetWindowLong( wm32->m_hWnd, GWL_STYLE );
@@ -749,7 +749,7 @@ void App::InitialiseWindow()
 	HICON hIcon = LoadIcon( wm32->GethInstance(), MAKEINTRESOURCE(IDI_ICON1) );
 	//SendMessage( wm32->m_hWnd, (UINT)WM_SETICON, ICON_SMALL, (LPARAM)hIcon );
 	SendMessage( wm32->m_hWnd, (UINT)WM_SETICON, ICON_BIG, (LPARAM)hIcon );
-#endif // TARGET_MSVC
+#endif // TARGET_MSVC && !WINDOWS_SDL
 
     g_windowManager->HideMousePointer();
 	SetMousePointerVisible(true);

@@ -152,6 +152,10 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	
 	AppDebugOut("Initialising SDL Audio\n");
 	
+#ifdef WINDOWS_SDL
+	SDL_setenv("SDL_AUDIODRIVER", "directsound", 1);
+#endif
+
 #ifdef TARGET_EMSCRIPTEN
 	// now this is the real fix
 	// we pass NULL as second parameter to force SDL to honor our exact frequency request

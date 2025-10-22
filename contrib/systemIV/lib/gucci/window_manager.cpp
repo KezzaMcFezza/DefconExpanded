@@ -172,7 +172,7 @@ class DeleteWindowManagerOnExit {
 
 static DeleteWindowManagerOnExit please;
 
-#if defined TARGET_OS_MACOSX || TARGET_OS_LINUX
+#if defined TARGET_OS_MACOSX || TARGET_OS_LINUX || WINDOWS_SDL
 #include "window_manager_sdl.h"
 #else
 #include "window_manager_win32.h"
@@ -180,7 +180,7 @@ static DeleteWindowManagerOnExit please;
 
 WindowManager *WindowManager::Create()
 {
-#if defined TARGET_OS_MACOSX || TARGET_OS_LINUX
+#if defined TARGET_OS_MACOSX || TARGET_OS_LINUX || WINDOWS_SDL
 	return new WindowManagerSDL();
 #else
 	return new WindowManagerWin32();

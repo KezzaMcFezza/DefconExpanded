@@ -23,7 +23,7 @@ TrayIcon::~TrayIcon()
     RemoveIcon();
 }
 
-#ifdef TARGET_MSVC
+#if defined TARGET_MSVC && !defined WINDOWS_SDL
 #define NOMINMAX
 #include <windows.h>
 
@@ -147,6 +147,21 @@ long TrayIcon::EventHandler(unsigned int message, long wParam, long long lParam)
             break;
         }
     }
+    return -1;
+}
+#endif
+
+// 
+// currently just stubs until i figure out how the fuck to get this working with SDL
+
+#if defined WINDOWS_SDL
+void TrayIcon::Update() {}
+void TrayIcon::SetIcon(const char *_iconId) {}
+void TrayIcon::SetSubIcon(const char *_iconId) {}
+void TrayIcon::SetCaption(const char *_caption) {}
+void TrayIcon::RemoveIcon() {}
+long TrayIcon::EventHandler(unsigned int _eventId, long wParam, long long lParam)
+{
     return -1;
 }
 #endif

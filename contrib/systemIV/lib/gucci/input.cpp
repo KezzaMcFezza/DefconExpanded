@@ -346,7 +346,7 @@ int InputManager::GetKeyId(char const *_keyName)
 	return -1;
 }
 
-#if defined TARGET_OS_MACOSX || TARGET_OS_LINUX
+#if defined TARGET_OS_MACOSX || TARGET_OS_LINUX || WINDOWS_SDL
 #include "input_sdl.h"
 #else
 #include "input_win32.h"
@@ -354,7 +354,7 @@ int InputManager::GetKeyId(char const *_keyName)
 
 InputManager *InputManager::Create()
 {
-#if defined TARGET_OS_MACOSX || TARGET_OS_LINUX
+#if defined TARGET_OS_MACOSX || TARGET_OS_LINUX || WINDOWS_SDL
 	return new InputManagerSDL();
 #else
 	return new InputManagerWin32();

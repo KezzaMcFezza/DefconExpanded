@@ -142,13 +142,16 @@ void WindowManagerSDL::SaveDesktop()
     m_desktopColourDepth = SDL_BITSPERPIXEL( desktopMode.format );
     m_desktopRefresh = 60;
 
-#ifdef TARGET_OS_MACOSX
+    #if defined(TARGET_OS_MACOSX)
 	CGRect rect = CGDisplayBounds( CGMainDisplayID() );
     m_desktopScreenW = rect.size.width;
     m_desktopScreenH = rect.size.height;
-#else
+#elif defined(TARGET_OS_LINUX)
 	#warning "Need to do code for linux to determine default WindowResolution"
 
+    m_desktopScreenW = 1024;
+    m_desktopScreenH = 768;
+#else
     m_desktopScreenW = 1024;
     m_desktopScreenH = 768;
 #endif
@@ -397,7 +400,7 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
         return false;
     }
     
-#if (defined(TARGET_OS_LINUX) && !defined(TARGET_EMSCRIPTEN)) || defined(TARGET_OS_MACOSX)
+    #if (defined(TARGET_OS_LINUX) && !defined(TARGET_EMSCRIPTEN)) || defined(TARGET_OS_MACOSX)
     printf("Initializing GLAD...\n");
     fflush(stdout);
     
@@ -414,6 +417,25 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
     }
     
     printf("GLAD initialized successfully\n");
+
+#elif defined(WINDOWS_SDL)
+    printf("Initializing GLAD...\n");
+    fflush(stdout);
+    
+    if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
+        printf("GLAD initialization failed\n");
+        
+        SDL_GL_DeleteContext( m_glContext );
+        m_glContext = 0;
+        
+        SDL_DestroyWindow( m_window );
+        m_window = NULL;
+        
+        return false;
+    }
+    
+    printf("GLAD initialized successfully\n");
+    
 #elif defined(TARGET_EMSCRIPTEN)
     printf("Initializing GLAD for Emscripten...\n");
     fflush(stdout);

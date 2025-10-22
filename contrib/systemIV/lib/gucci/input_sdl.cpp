@@ -3,7 +3,10 @@
 #include <ctime>
 #include <SDL2/SDL.h>
 #include <cstring>
+
+#ifndef WINDOWS_SDL
 #include <iconv.h>
+#endif
 
 #include <string>
 #include <vector>

@@ -15,11 +15,11 @@
 #include "sound_sample_decoder.h"
 #include "sound_blueprint_manager.h"
 
-#ifdef WIN32
-#include "sound_library_3d_dsound.h"
-#else
-#include "sound_library_2d_sdl.h"
-#include "sound_library_3d_software.h"
+#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
+    #include "sound_library_2d_sdl.h"
+    #include "sound_library_3d_software.h"
+#elif defined(TARGET_MSVC)
+    #include "sound_library_3d_dsound.h"
 #endif
 
 #define SOUNDSYSTEM_UPDATEPERIOD    0.05f
@@ -56,7 +56,7 @@ SoundSystem::~SoundSystem()
 
     delete g_soundLibrary3d;
     g_soundLibrary3d = NULL;
-#ifndef TARGET_MSVC
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
 	delete g_soundLibrary2d;
 	g_soundLibrary2d = NULL;
 #endif
@@ -74,7 +74,7 @@ void SoundSystem::Initialise( SoundSystemInterface *_interface )
     m_blueprints.LoadEffects();
     m_blueprints.LoadBlueprints();
 
-#ifndef TARGET_MSVC
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
 	g_soundLibrary2d = NULL;
 #endif
     RestartSoundLibrary();
@@ -89,7 +89,7 @@ void SoundSystem::RestartSoundLibrary()
 	delete [] m_channels;
 	delete g_soundLibrary3d;
 	g_soundLibrary3d = NULL;
-#ifndef TARGET_MSVC
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
 	delete g_soundLibrary2d;
 	g_soundLibrary2d = NULL;
 #endif
@@ -104,7 +104,7 @@ void SoundSystem::RestartSoundLibrary()
     int hw3d            = g_preferences->GetInt("SoundHW3D", 0);
     const char *libName       = g_preferences->GetString("SoundLibrary", "dsound");
 
-#ifdef TARGET_MSVC
+#if defined TARGET_MSVC && !defined WINDOWS_SDL
 	g_soundLibrary3d = new SoundLibrary3dDirectSound();
 #else
 	g_soundLibrary2d = new SoundLibrary2dSDL();
@@ -662,7 +662,7 @@ void SoundSystem::Advance()
         
         START_PROFILE("SoundSystem");        
 		
-#ifndef TARGET_MSVC
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
 		((SoundLibrary2dSDL *)g_soundLibrary2d)->m_callbackLock.Lock();
 #endif
 		
@@ -897,7 +897,7 @@ void SoundSystem::Advance()
         RuntimeVerify();
 #endif
 
-#ifndef TARGET_MSVC
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
 		((SoundLibrary2dSDL *)g_soundLibrary2d)->m_callbackLock.Unlock();
 #endif
 
