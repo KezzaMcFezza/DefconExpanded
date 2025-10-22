@@ -19,6 +19,7 @@ public:
     int     m_dspEffects;
     int     m_memoryUsage;
     int     m_masterVolume;
+    int     m_soundBufferSize;
     
 public:
     SoundOptionsWindow();

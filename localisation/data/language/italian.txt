@@ -122,6 +122,12 @@ dialog_8channels			8 canali
 dialog_16channels			16 canali
 dialog_32channels			32 canali
 dialog_64channels			64 canali
+dialog_soundbuffersize			Dimensione del buffer audio
+dialog_512samples			512 campioni
+dialog_1024samples			1024 campioni
+dialog_2048samples			2048 campioni
+dialog_4096samples			4096 campioni
+dialog_8192samples			8192 campioni
 dialog_memoryusage			Uso memoria
 dialog_swapstereo			Scambio stereo
 dialog_hw3dsound			Hardware3D sonoro

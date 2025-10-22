@@ -122,6 +122,12 @@ dialog_8channels			8 canaux
 dialog_16channels			16 canaux
 dialog_32channels			32 canaux
 dialog_64channels			64 canaux
+dialog_soundbuffersize			Taille du tampon sonore
+dialog_512samples			512 échantillons
+dialog_1024samples			1024 échantillons
+dialog_2048samples			2048 échantillons
+dialog_4096samples			4096 échantillons
+dialog_8192samples			8192 échantillons
 dialog_memoryusage			Utilisation m�moire
 dialog_swapstereo			St�r�o invers�e
 dialog_hw3dsound			Sons Hardware3d

@@ -122,6 +122,12 @@ dialog_8channels			8 Kan�le
 dialog_16channels			16 Kan�le
 dialog_32channels			32 Kan�le
 dialog_64channels			64 Kan�le
+dialog_soundbuffersize			Sound-Puffergröße
+dialog_512samples			512 Samples
+dialog_1024samples			1024 Samples
+dialog_2048samples			2048 Samples
+dialog_4096samples			4096 Samples
+dialog_8192samples			8192 Samples
 dialog_memoryusage			Speicherverbrauch
 dialog_swapstereo			Stereo tauschen
 dialog_hw3dsound			Hardware 3D-Sound

@@ -122,6 +122,12 @@ dialog_8channels			8 Canales
 dialog_16channels			16 Canales
 dialog_32channels			32 Canales
 dialog_64channels			64 Canales
+dialog_soundbuffersize			Tamaño del búfer de sonido
+dialog_512samples			512 muestras
+dialog_1024samples			1024 muestras
+dialog_2048samples			2048 muestras
+dialog_4096samples			4096 muestras
+dialog_8192samples			8192 muestras
 dialog_memoryusage			Uso de Memoria
 dialog_swapstereo			Intercambiar en Est�reo
 dialog_hw3dsound			Sonido Hardware3d
