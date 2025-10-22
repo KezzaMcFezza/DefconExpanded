@@ -27,7 +27,9 @@
 #define PREFS_SOUND_DSPEFFECTS      "SoundDSP"
 #define PREFS_SOUND_MEMORY          "SoundMemoryUsage"
 #define PREFS_SOUND_MASTERVOLUME    "SoundMasterVolume"
+#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
 #define PREFS_SOUND_BUFFERSIZE      "SoundBufferSize"
+#endif
 #define PREFS_RECORDING_LAST_FOLDER "RecordingLastFolder"
 
 

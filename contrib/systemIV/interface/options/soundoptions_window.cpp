@@ -30,8 +30,9 @@ public:
         g_preferences->SetInt( PREFS_SOUND_DSPEFFECTS, parent->m_dspEffects );
         g_preferences->SetInt( PREFS_SOUND_MEMORY, parent->m_memoryUsage );
         g_preferences->SetInt( PREFS_SOUND_MASTERVOLUME, parent->m_masterVolume );
+#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
         g_preferences->SetInt( PREFS_SOUND_BUFFERSIZE, parent->m_soundBufferSize );
-
+#endif
         if( parent->m_soundLib == 0 ) g_preferences->SetString( PREFS_SOUND_LIBRARY, "software" );
         else                          g_preferences->SetString( PREFS_SOUND_LIBRARY, "dsound" );
         
@@ -107,7 +108,11 @@ public:
 SoundOptionsWindow::SoundOptionsWindow()
 :   InterfaceWindow( "Sound", "dialog_soundoptions", true )
 {
+#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     SetSize( 390, 380 );
+#else
+    SetSize( 390, 350 );
+#endif
 
     m_mixFreq       = g_preferences->GetInt( PREFS_SOUND_MIXFREQ, 22050 );
     m_numChannels   = g_preferences->GetInt( PREFS_SOUND_CHANNELS, 16 );
@@ -116,7 +121,9 @@ SoundOptionsWindow::SoundOptionsWindow()
     m_dspEffects    = g_preferences->GetInt( PREFS_SOUND_DSPEFFECTS, 1 );
     m_memoryUsage   = g_preferences->GetInt( PREFS_SOUND_MEMORY, 1 );
     m_masterVolume  = g_preferences->GetInt( PREFS_SOUND_MASTERVOLUME, 255 );
+#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     m_soundBufferSize = g_preferences->GetInt( PREFS_SOUND_BUFFERSIZE, 512 );
+#endif
 
     const char *soundLib  = g_preferences->GetString( PREFS_SOUND_LIBRARY );
     
@@ -165,6 +172,7 @@ void SoundOptionsWindow::Create()
     numChannels->RegisterInt( &m_numChannels );
     RegisterButton( numChannels );
 
+#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     DropDownMenu *soundBufferSize = new DropDownMenu();
     soundBufferSize->SetProperties( "Sound Buffer Size", x, y+=h, w, 20, "dialog_soundbuffersize", " ", true, false );
     soundBufferSize->AddOption( "dialog_512samples", 512, true );
@@ -174,6 +182,7 @@ void SoundOptionsWindow::Create()
     soundBufferSize->AddOption( "dialog_8192samples", 8192, true );
     soundBufferSize->RegisterInt( &m_soundBufferSize );
     RegisterButton( soundBufferSize );
+#endif
 
     //DropDownMenu *memoryUsage = new DropDownMenu();
     //memoryUsage->SetProperties( "Memory Usage", x, y+=h, w, 20, "dialog_memoryusage", " ", true, false );
@@ -232,7 +241,9 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundlibrary") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_mixfrequency") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_numchannels") );
+#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundbuffersize") );
+#endif
     //g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_memoryusage") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_swapstereo") );
 

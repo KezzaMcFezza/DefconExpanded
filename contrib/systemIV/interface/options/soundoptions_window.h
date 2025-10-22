@@ -19,8 +19,10 @@ public:
     int     m_dspEffects;
     int     m_memoryUsage;
     int     m_masterVolume;
+#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     int     m_soundBufferSize;
-    
+#endif
+
 public:
     SoundOptionsWindow();
 
