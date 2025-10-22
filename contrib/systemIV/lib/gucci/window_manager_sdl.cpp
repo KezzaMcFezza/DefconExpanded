@@ -184,7 +184,7 @@ void WindowManagerSDL::SaveDesktop()
         {
             m_desktopScreenW = displayBounds.w;
             m_desktopScreenH = displayBounds.h;
-            printf("Successfuly got display bounds: %dx%d\n", m_desktopScreenW, m_desktopScreenH);
+            AppDebugOut("Successfuly got display bounds: %dx%d\n", m_desktopScreenW, m_desktopScreenH);
         }
     }
     else
@@ -200,7 +200,7 @@ void WindowManagerSDL::SaveDesktop()
     m_desktopColourDepth = SDL_BITSPERPIXEL( desktopMode.format );
     m_desktopRefresh = desktopMode.refresh_rate;
 
-    #if defined(TARGET_OS_MACOSX)
+#if defined(TARGET_OS_MACOSX)
         CGRect rect = CGDisplayBounds( CGMainDisplayID() );
         printf("macOS native resolution verification: %dx%d\n", (int)rect.size.width, (int)rect.size.height);
 #endif
