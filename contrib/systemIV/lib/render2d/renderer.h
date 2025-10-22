@@ -91,7 +91,7 @@ private:
   static constexpr int MAX_UI_VERTICES              = 5000;
   static constexpr int MAX_TEXT_VERTICES            = 28000;
   static constexpr int MAX_UNIT_TRAIL_VERTICES      = 30000;
-  static constexpr int MAX_UNIT_MAIN_VERTICES       = 3000;
+  static constexpr int MAX_UNIT_MAIN_VERTICES       = 30000;
   static constexpr int MAX_UNIT_ROTATING_VERTICES   = 10000;
   static constexpr int MAX_UNIT_HIGHLIGHT_VERTICES  = 500;
   static constexpr int MAX_UNIT_STATE_VERTICES      = 7500;

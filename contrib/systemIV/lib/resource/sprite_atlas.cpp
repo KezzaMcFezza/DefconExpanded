@@ -3,10 +3,6 @@
 #include <string.h>
 #include <vector>
 
-#ifdef OPENMP
-#include <omp.h>
-#endif
-
 #define STB_RECT_PACK_IMPLEMENTATION
 #include "stb_rect_pack.h"
 

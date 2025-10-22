@@ -5,10 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef OPENMP
-#include <omp.h>
-#endif
-
 #include <algorithm>
 
 #include "lib/filesys/binary_stream_readers.h"

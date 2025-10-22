@@ -20,13 +20,10 @@ private:
 	void Read4BitLine           (int length, BinaryReader *f, Colour *pal, int line);
 	void Read8BitLine           (int length, BinaryReader *f, Colour *pal, int line);
 	void Read24BitLine          (int length, BinaryReader *f, int line);
-	
-#ifdef OPENMP
-	// OpenMP-optimized versions that work with raw data
 	void Read4BitLineFromData   (int length, unsigned char *data, Colour *pal, int line);
 	void Read8BitLineFromData   (int length, unsigned char *data, Colour *pal, int line);
 	void Read24BitLineFromData  (int length, unsigned char *data, int line);
-#endif
+
 	
     void LoadBmp                (BinaryReader *_in);
 	

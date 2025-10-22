@@ -3,10 +3,6 @@
 #include <string.h>
 #include <math.h>
 
-#ifdef OPENMP
-#include <omp.h>
-#endif
-
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/file_system.h"

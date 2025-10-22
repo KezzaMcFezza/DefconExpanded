@@ -296,6 +296,10 @@
 #include <glad/glad.h>
 #endif
 
+#ifdef OPENMP
+#include <omp.h>
+#endif
+
 // Include pthread for Emscripten threading support
 #ifdef TARGET_EMSCRIPTEN
 #include <pthread.h>

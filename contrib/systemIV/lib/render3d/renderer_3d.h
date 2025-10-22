@@ -184,7 +184,7 @@ private:
     int m_unitTrailVertexCount3D;
     
     // Unit main sprite rendering buffers
-    static constexpr int MAX_UNIT_MAIN_VERTICES_3D = 3000;
+    static constexpr int MAX_UNIT_MAIN_VERTICES_3D = 30000;
     Vertex3DTextured m_unitMainVertices3D[MAX_UNIT_MAIN_VERTICES_3D];
     int m_unitMainVertexCount3D;
     unsigned int m_currentUnitMainTexture3D;
