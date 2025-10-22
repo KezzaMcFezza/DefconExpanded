@@ -122,12 +122,38 @@ void WindowManagerSDL::ListAllDisplayModes( int displayIndex )
         // SDL reports high DPI resolutions here as well, which are
         // identified by being larger than the dimensions reported by
         // the display bounds function. We don't support High DPI in
-        // Darwinia, so let's remove them from the list.
+        // Defcon, so let's remove them from the list.
         if( mode.w > bounds.w || mode.h > bounds.h ) continue;
         
-        WindowResolution *res = new WindowResolution( mode.w, mode.h );
-        if (GetResolutionId( mode.w, mode.h ) == -1)
+        int resId = GetResolutionId( mode.w, mode.h );
+        WindowResolution *res;
+        
+        if( resId == -1 )
+        {
+            //
+            // new resolution, create it
+
+            res = new WindowResolution( mode.w, mode.h );
             m_resolutions.PutData( res );
+        }
+        else
+        {
+            res = m_resolutions[resId];
+        }
+        
+        //
+        // add refresh rate if its not 0, which means unknown/unsupported
+
+        if( mode.refresh_rate != 0 )
+        {
+            //
+            // only add if this refresh rate isn't already in the list for this resolution
+            
+            if( res->m_refreshRates.FindData( mode.refresh_rate ) == -1 )
+            {
+                res->m_refreshRates.PutDataAtEnd( mode.refresh_rate );
+            }
+        }
     }
 }
 
@@ -137,23 +163,46 @@ void WindowManagerSDL::SaveDesktop()
     int displayIndex = GetDefaultDisplayIndex();
 
     SDL_DisplayMode desktopMode;
-    SDL_GetDesktopDisplayMode( displayIndex, &desktopMode );
+    if( SDL_GetDesktopDisplayMode( displayIndex, &desktopMode ) != 0 )
+    {
+        AppDebugOut("Couldn't get desktop display mode for display: %d, error: %s\n", displayIndex, SDL_GetError());
+        AppDebugOut("Trying again with a different method...\n");
+
+        
+        //
+        // fallback: get bounds from SDL_GetDisplayBounds which might work
+
+        SDL_Rect displayBounds;
+        if( SDL_GetDisplayBounds( displayIndex, &displayBounds ) != 0 )
+        {
+            AppDebugOut("Still couldnt get display bounds, error: %s\n", SDL_GetError());
+            AppDebugOut("Using 1024x768 as fallback resolution\n");
+            m_desktopScreenW = 1024;
+            m_desktopScreenH = 768;
+        }
+        else
+        {
+            m_desktopScreenW = displayBounds.w;
+            m_desktopScreenH = displayBounds.h;
+            printf("Successfuly got display bounds: %dx%d\n", m_desktopScreenW, m_desktopScreenH);
+        }
+    }
+    else
+    {
+        //
+        // success! hopefully, print the result incase its not.
+
+        m_desktopScreenW = desktopMode.w;
+        m_desktopScreenH = desktopMode.h;
+        AppDebugOut("Desktop resolution determined to be: %dx%d\n", m_desktopScreenW, m_desktopScreenH);
+    }
 
     m_desktopColourDepth = SDL_BITSPERPIXEL( desktopMode.format );
-    m_desktopRefresh = 60;
+    m_desktopRefresh = desktopMode.refresh_rate;
 
     #if defined(TARGET_OS_MACOSX)
-	CGRect rect = CGDisplayBounds( CGMainDisplayID() );
-    m_desktopScreenW = rect.size.width;
-    m_desktopScreenH = rect.size.height;
-#elif defined(TARGET_OS_LINUX)
-	#warning "Need to do code for linux to determine default WindowResolution"
-
-    m_desktopScreenW = 1024;
-    m_desktopScreenH = 768;
-#else
-    m_desktopScreenW = 1024;
-    m_desktopScreenH = 768;
+        CGRect rect = CGDisplayBounds( CGMainDisplayID() );
+        printf("macOS native resolution verification: %dx%d\n", (int)rect.size.width, (int)rect.size.height);
 #endif
 }
 
