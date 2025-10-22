@@ -139,6 +139,8 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	m_freq = g_preferences->GetInt("SoundMixFreq", 44100);
 	m_samplesPerBuffer = g_preferences->GetInt("SoundBufferSize", 4000);
 
+	AppDebugOut("Buffer size: %u\n", m_samplesPerBuffer);
+
 	// Initialise the output device
 
 	SDL_AudioSpec desired;
