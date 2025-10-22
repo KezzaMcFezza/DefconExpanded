@@ -8,6 +8,7 @@ set -e  # Exit on any error
 # Default options
 BUILD_TYPE="Release"
 INSTALL_DEPS=false
+REBUILD_DATA=false
 
 # Parse command line arguments
 show_help() {
@@ -16,6 +17,7 @@ show_help() {
     echo "Options:"
     echo "  -d, --debug           Build in Debug mode (default: Release)"
     echo "  -i, --install-deps    Install dependencies via apt-get (default: skip)"
+    echo "  -r, --rebuild-data    Rebuild main.dat from localisation/data (default: skip)"
     echo "  -h, --help            Show this help message"
     echo ""
     echo "Examples:"
@@ -23,6 +25,7 @@ show_help() {
     echo "  $0 --debug            # Build Debug without installing deps"
     echo "  $0 --install-deps     # Build Release and install deps"
     echo "  $0 -d -i              # Build Debug and install deps"
+    echo "  $0 --rebuild-data     # Rebuild main.dat and build Release"
     exit 0
 }
 
@@ -34,6 +37,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -i|--install-deps)
             INSTALL_DEPS=true
+            shift
+            ;;
+        -r|--rebuild-data)
+            REBUILD_DATA=true
             shift
             ;;
         -h|--help)
@@ -52,6 +59,7 @@ echo "Kezza and Bert's Linux Build Script"
 echo "========================================"
 echo "Build Type: $BUILD_TYPE"
 echo "Install Dependencies: $INSTALL_DEPS"
+echo "Rebuild Data Archive: $REBUILD_DATA"
 echo "========================================"
 
 # Get the script directory to ensure we're in the right place
@@ -65,9 +73,56 @@ if [ ! -d ".git" ]; then
     echo "Warning: Not in a git repository. Make sure you're in the project root."
 fi
 
+if [ "$REBUILD_DATA" = true ]; then
+    echo ""
+    echo "Step 1: Rebuilding main.dat..."
+    echo "=============================="
+    
+    # Check if the Python script exists
+    if [ ! -f "tools/python/datatoarchive.py" ]; then
+        echo "Error: tools/python/datatoarchive.py not found!"
+        exit 1
+    fi
+    
+    # Check if Python 3 is available
+    if ! command -v python3 &> /dev/null; then
+        echo "Error: python3 is required to rebuild main.dat"
+        exit 1
+    fi
+    
+    # Make rar.bin executable
+    if [ -f "tools/bin/rar.bin" ]; then
+        chmod +x tools/bin/rar.bin
+        echo "Set execute permissions for tools/bin/rar.bin"
+    else
+        echo "Error: tools/bin/rar.bin not found!"
+        exit 1
+    fi
+    
+    # Run the data archive script
+    echo "Running datatoarchive.py..."
+    python3 tools/python/datatoarchive.py
+    
+    if [ $? -eq 0 ]; then
+        echo "main.dat created in localisation/ directory"
+        
+        # Copy main.dat to build output directory if it exists
+        if [ -d "build/result/$BUILD_TYPE" ]; then
+            echo "Copying main.dat to build/result/$BUILD_TYPE/..."
+            cp localisation/main.dat "build/result/$BUILD_TYPE/"
+            echo "main.dat copied successfully!"
+        else
+            echo "Note: Build directory doesn't exist yet. main.dat will be copied during build."
+        fi
+    else
+        echo "Error: Failed to rebuild main.dat"
+        exit 1
+    fi
+fi
+
 if [ "$INSTALL_DEPS" = true ]; then
     echo ""
-    echo "Step 1: Installing Dependencies..."
+    echo "Step 2: Installing Dependencies..."
     echo "====================================="
 
     # Update package list
@@ -94,7 +149,7 @@ if [ "$INSTALL_DEPS" = true ]; then
     echo "Dependencies installed successfully!"
 
     echo ""
-    echo "Step 2: Installing Modern CMake..."
+    echo "Step 3: Installing Modern CMake..."
     echo "=================================="
 
     # Check if CMake is already installed and recent enough
@@ -137,7 +192,7 @@ else
 fi
 
 echo ""
-echo "Step 3: Setting Execute Permissions..."
+echo "Step 4: Setting Execute Permissions..."
 echo "======================================"
 
 # Set execute permissions on the bundle script
@@ -149,7 +204,7 @@ else
 fi
 
 echo ""
-echo "Step 4: Configuring CMake for $BUILD_TYPE..."
+echo "Step 5: Configuring CMake for $BUILD_TYPE..."
 echo "========================================"
 
 # Create build directory
@@ -166,14 +221,14 @@ cmake .. \
 echo "CMake configuration completed!"
 
 echo ""
-echo "Step 5: Building $BUILD_TYPE..."
+echo "Step 6: Building $BUILD_TYPE..."
 echo "==========================="
 
 # Build the project using all available CPU cores
 cmake --build . --parallel $(nproc) --config "$BUILD_TYPE"
 
 echo ""
-echo "Step 6: Packaging Build..."
+echo "Step 7: Packaging Build..."
 echo "=========================="
 
 # Show the results
@@ -254,3 +309,4 @@ echo "   - Clean rebuild: rm -rf build && ./build_linux.sh"
 echo "   - Quick rebuild: ./build_linux.sh"
 echo "   - Debug build: ./build_linux.sh --debug"
 echo "   - With dependencies: ./build_linux.sh --install-deps"
+echo "   - Rebuild main.dat: ./build_linux.sh --rebuild-data"
