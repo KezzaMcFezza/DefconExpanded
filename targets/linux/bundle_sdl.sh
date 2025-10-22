@@ -9,7 +9,7 @@ cd "$1"
 mkdir -p lib
 
 # We now use a pre built SDL2 library, not the package manager one for cross distro compiling
-SDL2_LIB_DIR="../../../contrib/systemIV/contrib/SDL2-2.32.10/lib"
+SDL2_LIB_DIR="../../../contrib/systemIV/contrib/SDL2-2.32.10/linux/lib"
 
 if [ -d "$SDL2_LIB_DIR" ]; then
     echo "Bundling SDL2 libraries..."

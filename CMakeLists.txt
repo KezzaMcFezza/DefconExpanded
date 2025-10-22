@@ -34,7 +34,7 @@ else()
     set(GLAD_SOURCE_FILE "${GLAD_PATH}/desktop/src/glad.c")
 endif()
 
-set(REPLAY_VIEWER_VERSION "R1.22" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "R1.23" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 set(SYNC_PRACTICE_VERSION "B1.16" CACHE STRING "Version prefix for silo practice client (e.g., B1.0, B1.1)")
 
 # build mode is now determined by preprocessor definitions passed via CMAKE_CXX_FLAGS
@@ -336,7 +336,7 @@ elseif(APPLE)
 
 elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
 
-    set(SDL2_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/SDL2-2.32.10")
+    set(SDL2_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/SDL2-2.32.10/linux")
     set(SDL2_INCLUDE_DIRS ${SDL2_PATH}/include)
     set(SDL2_LIBRARIES ${SDL2_PATH}/lib/libSDL2-2.0.so)
     set(SDL2_FOUND TRUE)
