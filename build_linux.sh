@@ -99,11 +99,8 @@ if [ "$REBUILD_DATA" = true ]; then
         exit 1
     fi
     
-    # Make rar.bin executable
-    if [ -f "tools/bin/rar.bin" ]; then
-        chmod +x tools/bin/rar.bin
-        echo "Set execute permissions for tools/bin/rar.bin"
-    else
+    # Verify rar.bin exists (permissions should already be correct)
+    if [ ! -f "tools/bin/rar.bin" ]; then
         echo "Error: tools/bin/rar.bin not found!"
         exit 1
     fi
