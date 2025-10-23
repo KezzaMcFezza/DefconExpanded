@@ -7,13 +7,8 @@
 #include "interface/components/drop_down_menu.h"
 #include "screenoptions_window.h"
 
-
-#define HAVE_REFRESH_RATES
-
-
 class ScreenResDropDownMenu : public DropDownMenu
 {
-#ifdef HAVE_REFRESH_RATES
     void SelectOption( int _option )
     {
         ScreenOptionsWindow *parent = (ScreenOptionsWindow *) m_parent;
@@ -41,7 +36,6 @@ class ScreenResDropDownMenu : public DropDownMenu
             refresh->SelectOption( parent->m_refreshRate );
         }
     }
-#endif
 };
 
 
@@ -49,8 +43,8 @@ class FullscreenRequiredMenu : public DropDownMenu
 {
     void Render( int realX, int realY, bool highlighted, bool clicked )
     {    
-        DropDownMenu *windowed = (DropDownMenu *) m_parent->GetButton( "Windowed" );
-        bool available = (windowed->GetSelectionValue() == 0);
+        DropDownMenu *screenMode = (DropDownMenu *) m_parent->GetButton( "Screen Mode" );
+        bool available = screenMode && (screenMode->GetSelectionValue() == 0);
         if( available )
         {
             DropDownMenu::Render( realX, realY, highlighted, clicked );
@@ -64,8 +58,39 @@ class FullscreenRequiredMenu : public DropDownMenu
 
     void MouseUp()
     {
-        DropDownMenu *windowed = (DropDownMenu *) m_parent->GetButton( "Windowed" );
-        bool available = (windowed->GetSelectionValue() == 0);
+        DropDownMenu *screenMode = (DropDownMenu *) m_parent->GetButton( "Screen Mode" );
+        bool available = screenMode && (screenMode->GetSelectionValue() == 0);
+        if( available )
+        {
+            DropDownMenu::MouseUp();
+        }
+    }    
+};
+
+class RefreshRateRequiredMenu : public DropDownMenu
+{
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {    
+        DropDownMenu *screenMode = (DropDownMenu *) m_parent->GetButton( "Screen Mode" );
+
+        //
+        // only available when screen mode is 0 (fullscreen)
+
+        bool available = screenMode && (screenMode->GetSelectionValue() == 0);
+        if( available )
+        {
+            DropDownMenu::Render( realX, realY, highlighted, clicked );
+        }
+        else
+        {
+            g_renderer->TextSimple( realX+10, realY+9, White, 13, LANGUAGEPHRASE("dialog_windowedmode") );
+        }
+    }
+
+    void MouseUp()
+    {
+        DropDownMenu *screenMode = (DropDownMenu *) m_parent->GetButton( "Screen Mode" );
+        bool available = screenMode && (screenMode->GetSelectionValue() == 0);
         if( available )
         {
             DropDownMenu::MouseUp();
@@ -199,20 +224,23 @@ class SetScreenButton : public InterfaceButton
             g_preferences->SetInt( PREFS_SCREEN_HEIGHT, resolution->m_height );
         }
 
-#ifdef HAVE_REFRESH_RATES
         g_preferences->SetInt( PREFS_SCREEN_REFRESH, parent->m_refreshRate );
-#endif
-        g_preferences->SetInt( PREFS_SCREEN_WINDOWED, parent->m_windowed );
+        
+        //
+        // convert screen mode to windowed/borderless flags
+        // screenMode: 0 = fullscreen, 1 = borderless fullscreen, 2 = windowed
+        
+        int windowed = (parent->m_screenMode == 2) ? 1 : 0;
+        int borderless = (parent->m_screenMode == 1) ? 1 : 0;
+        
+        g_preferences->SetInt( PREFS_SCREEN_WINDOWED, windowed );
+        g_preferences->SetInt( PREFS_SCREEN_BORDERLESS, borderless );
         g_preferences->SetInt( PREFS_SCREEN_COLOUR_DEPTH, parent->m_colourDepth );
         g_preferences->SetInt( PREFS_SCREEN_Z_DEPTH, parent->m_zDepth );
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
         g_preferences->SetInt( PREFS_SCREEN_UI_SCALE, parent->m_uiScale );
 #endif
-
-#ifdef TARGET_EMSCRIPTEN
         g_preferences->SetInt( PREFS_SCREEN_ANTIALIAS, parent->m_antiAlias );
-#endif
-
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
         g_preferences->SetInt( PREFS_SCREEN_FPS_LIMIT, parent->m_fpsLimit );
 #endif
@@ -232,21 +260,26 @@ class SetScreenButton : public InterfaceButton
         parent->m_resId = g_windowManager->GetResolutionId( g_preferences->GetInt(PREFS_SCREEN_WIDTH),
                                                             g_preferences->GetInt(PREFS_SCREEN_HEIGHT) );
         
-        parent->m_windowed      = g_preferences->GetInt( PREFS_SCREEN_WINDOWED, 0 );
-        parent->m_colourDepth   = g_preferences->GetInt( PREFS_SCREEN_COLOUR_DEPTH, 16 );
+        //
+        // convert windowed/borderless flags back to screen mode for UI
 
-#ifdef HAVE_REFRESH_RATES
-        parent->m_refreshRate   = g_preferences->GetInt( PREFS_SCREEN_REFRESH, 60 );
-#endif		
+        int tempWindowed = g_preferences->GetInt( PREFS_SCREEN_WINDOWED, 0 );
+        int tempBorderless = g_preferences->GetInt( PREFS_SCREEN_BORDERLESS, 0 );
+
+        if( tempWindowed )
+            parent->m_screenMode = 2;
+        else if( tempBorderless )
+            parent->m_screenMode = 1;
+        else
+            parent->m_screenMode = 0;
+        
+        parent->m_colourDepth   = g_preferences->GetInt( PREFS_SCREEN_COLOUR_DEPTH, 16 );
+        parent->m_refreshRate   = g_preferences->GetInt( PREFS_SCREEN_REFRESH, 60 );	
         parent->m_zDepth        = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH, 24 );
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
         parent->m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
 #endif
-
-#ifdef TARGET_EMSCRIPTEN
         parent->m_antiAlias     = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
-#endif
-
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
         parent->m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
 #endif
@@ -273,21 +306,23 @@ ScreenOptionsWindow::ScreenOptionsWindow()
     m_resId = g_windowManager->GetResolutionId( g_preferences->GetInt(PREFS_SCREEN_WIDTH),
                                                 g_preferences->GetInt(PREFS_SCREEN_HEIGHT) );
 
-    m_windowed      = g_preferences->GetInt( PREFS_SCREEN_WINDOWED, 0 );
+    int windowed = g_preferences->GetInt( PREFS_SCREEN_WINDOWED, 0 );
+    int borderless = g_preferences->GetInt( PREFS_SCREEN_BORDERLESS, 0 );
+    if( windowed )
+        m_screenMode = 2;
+    else if( borderless )
+        m_screenMode = 1;
+    else
+        m_screenMode = 0;
+    
     m_colourDepth   = g_preferences->GetInt( PREFS_SCREEN_COLOUR_DEPTH, 16 );
-#ifdef HAVE_REFRESH_RATES
     m_refreshRate   = g_preferences->GetInt( PREFS_SCREEN_REFRESH, 60 );
 	height += 30;
-#endif
     m_zDepth        = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH, 24 );
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
 #endif
-
-#ifdef TARGET_EMSCRIPTEN
 	m_antiAlias		= g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
-#endif
-
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
 #endif
@@ -323,22 +358,22 @@ void ScreenOptionsWindow::Create()
         screenRes->AddOption( caption, i );
     }
 
-    DropDownMenu *windowed = new DropDownMenu();
-    windowed->SetProperties( "Windowed", x, y+=h, w, 20, "dialog_windowed", " ", true, false );
-    windowed->AddOption( "dialog_yes", 1, true );
-    windowed->AddOption( "dialog_no", 0, true );
-    windowed->RegisterInt( &m_windowed );
+    DropDownMenu *screenMode = new DropDownMenu();
+    screenMode->SetProperties( "Screen Mode", x, y+=h, w, 20, "dialog_screenmode", " ", true, false );
+    screenMode->AddOption( "dialog_screenmode_fullscreen", 0, true );
+    screenMode->AddOption( "dialog_screenmode_borderless", 1, true );
+    screenMode->AddOption( "dialog_screenmode_windowed", 2, true );
+    screenMode->RegisterInt( &m_screenMode );
 
-#ifdef HAVE_REFRESH_RATES
-    FullscreenRequiredMenu *refresh = new FullscreenRequiredMenu();
+    RefreshRateRequiredMenu *refresh = new RefreshRateRequiredMenu();
     refresh->SetProperties( "Refresh Rate", x, y+=h, w, 20, "dialog_refreshrate", " ", true, false );
     refresh->RegisterInt( &m_refreshRate );
-    RegisterButton( refresh );
-#endif
 
-    RegisterButton( windowed );
+    RegisterButton( refresh );
+    RegisterButton( screenMode );
     RegisterButton( screenRes );
-    screenRes->RegisterInt( &m_resId );   
+    
+    screenRes->RegisterInt( &m_resId );
 
 
     FullscreenRequiredMenu *colourDepth = new FullscreenRequiredMenu();
@@ -372,17 +407,15 @@ void ScreenOptionsWindow::Create()
     RegisterButton( uiScale );
 #endif
 
-#ifdef TARGET_EMSCRIPTEN
     DropDownMenu *antiAlias = new DropDownMenu();
     antiAlias->SetProperties( LANGUAGEPHRASE("dialog_antialias"), x, y+=h, w, 20 );
     antiAlias->AddOption( "dialog_no", 0, true );
-    antiAlias->AddOption( "dialog_antialias_2x", 2, false );
-    antiAlias->AddOption( "dialog_antialias_4x", 4, false );
-    antiAlias->AddOption( "dialog_antialias_8x", 8, false );
-    antiAlias->AddOption( "dialog_antialias_16x", 16, false );
+    antiAlias->AddOption( "dialog_antialias_2x", 2, true );
+    antiAlias->AddOption( "dialog_antialias_4x", 4, true );
+    antiAlias->AddOption( "dialog_antialias_8x", 8, true );
+    antiAlias->AddOption( "dialog_antialias_16x", 16, true );
     antiAlias->RegisterInt( &m_antiAlias );
     RegisterButton( antiAlias );
-#endif
 
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     DropDownMenu *fpsLimit = new DropDownMenu();
@@ -418,20 +451,14 @@ void ScreenOptionsWindow::Render( bool _hasFocus )
     int size = 13;
 
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_resolution") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_windowed") );
-#ifdef HAVE_REFRESH_RATES	
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_screenmode") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_refreshrate") );
-#endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_colourdepth") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_zbufferdepth") );
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_windowscaling") );
 #endif
-
-#ifdef TARGET_EMSCRIPTEN
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_antialias") );
-#endif
-
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_fpslimit") );
 #endif

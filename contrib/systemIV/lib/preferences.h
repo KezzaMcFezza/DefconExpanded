@@ -13,6 +13,7 @@
 #define PREFS_SCREEN_COLOUR_DEPTH	"ScreenColourDepth"
 #define PREFS_SCREEN_Z_DEPTH		"ScreenZDepth"
 #define PREFS_SCREEN_WINDOWED		"ScreenWindowed"
+#define PREFS_SCREEN_BORDERLESS		"ScreenBorderless"
 #define PREFS_SCREEN_ANTIALIAS		"ScreenAntiAliasing"
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
 #define PREFS_SCREEN_UI_SCALE		"ScreenUIScale"

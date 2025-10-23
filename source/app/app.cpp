@@ -669,6 +669,7 @@ void App::InitialiseWindow()
     int zDepth          = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH );
 	int antiAlias		= g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
     bool windowed       = g_preferences->GetInt( PREFS_SCREEN_WINDOWED );
+    bool borderless     = g_preferences->GetInt( PREFS_SCREEN_BORDERLESS );
 
     if( screenW == 0 || screenH == 0 )
     {
@@ -686,7 +687,7 @@ void App::InitialiseWindow()
     }
 
 
-    bool success = g_windowManager->CreateWin( screenW, screenH, windowed, colourDepth, screenRefresh, zDepth, antiAlias, "DEFCON" );
+    bool success = g_windowManager->CreateWin( screenW, screenH, windowed, colourDepth, screenRefresh, zDepth, antiAlias, borderless, "DEFCON" );
 
     if( !success )
     {
@@ -726,8 +727,9 @@ void App::InitialiseWindow()
         zDepth = safeZDepth;
         screenRefresh = safeScreenRefresh;
 		antiAlias = 0;
+		borderless = false;
 
-        success = g_windowManager->CreateWin(screenW, screenH, windowed, colourDepth, screenRefresh, zDepth, antiAlias, "DEFCON");
+        success = g_windowManager->CreateWin(screenW, screenH, windowed, colourDepth, screenRefresh, zDepth, antiAlias, borderless, "DEFCON");
         AppReleaseAssert( success, "Failed to set screen mode" );
 
         g_preferences->SetInt( PREFS_SCREEN_WIDTH, screenW );

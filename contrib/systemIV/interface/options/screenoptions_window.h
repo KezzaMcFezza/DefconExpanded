@@ -5,12 +5,11 @@
 #include "interface/components/core.h"
 
 
-
 class ScreenOptionsWindow : public InterfaceWindow
 {
 public:
     int     m_resId;
-    int     m_windowed;
+    int     m_screenMode;
     int     m_colourDepth;
     int     m_refreshRate;
     int     m_zDepth;

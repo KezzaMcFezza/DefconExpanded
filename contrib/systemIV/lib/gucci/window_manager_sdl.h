@@ -13,7 +13,7 @@ public:
 	bool        CreateWin           (int _width, int _height,		       // Set _colourDepth, _refreshRate and/or 
 			                         bool _windowed, int _colourDepth,	   // _zDepth to -1 to get default values
 			                         int _refreshRate, int _zDepth,
-									 int _antiAlias,
+									 int _antiAlias, bool _borderless,
 		                             const char *_title );
     
 	void		HideWin				();

@@ -503,7 +503,23 @@ void WindowManagerWin32::ListAllDisplayModes()
 
 			if (res->m_refreshRates.FindData(devMode.dmDisplayFrequency) == -1)
 			{
-				res->m_refreshRates.PutDataAtEnd(devMode.dmDisplayFrequency);
+				//
+                // insert in descending order (highest refresh rate first)
+
+				bool added = false;
+				for( int i = 0; i < res->m_refreshRates.Size(); ++i )
+				{
+					if( devMode.dmDisplayFrequency > res->m_refreshRates[i] )
+					{
+						res->m_refreshRates.PutDataAtIndex( devMode.dmDisplayFrequency, i );
+						added = true;
+						break;
+					}
+				}
+				if( !added )
+				{
+					res->m_refreshRates.PutDataAtEnd( devMode.dmDisplayFrequency );
+				}
 			}
 		}
 		++i;
@@ -513,7 +529,7 @@ void WindowManagerWin32::ListAllDisplayModes()
 
 bool WindowManagerWin32::CreateWin(int _width, int _height, bool _windowed, 
 	           				     int _colourDepth, int _refreshRate, int _zDepth,
-                                 int antiAlias, const char *_title )
+                                 int antiAlias, bool _borderless, const char *_title )
 {
 	if (!m_dpiAwareness) {
 		bool SetDPIAware = false;
@@ -582,8 +598,34 @@ bool WindowManagerWin32::CreateWin(int _width, int _height, bool _windowed,
 		posX = (desktopRect.right - _width) / 2;
 		posY = (desktopRect.bottom - _height) / 2;
 	}
+	else if (_borderless)
+	{
+		//
+		// borderless fullscreen: use desktop resolution and don't change display settings
+		// creates a popup window that covers the entire screen
+
+        RestoreDesktop();
+
+        windowStyle = WS_POPUP | WS_VISIBLE | WS_MAXIMIZE;
+		
+		HWND desktopWindow = GetDesktopWindow();
+		RECT desktopRect;
+		GetWindowRect(desktopWindow, &desktopRect);
+		
+		posX = desktopRect.left;
+		posY = desktopRect.top;
+		_width = desktopRect.right - desktopRect.left;
+		_height = desktopRect.bottom - desktopRect.top;
+		
+		m_borderWidth = 0;
+		m_titleHeight = 0;
+	}
 	else
 	{
+
+		//
+		// real fullscreen: change display mode with requested resolution and refresh rate
+        
         windowStyle |= WS_MAXIMIZE;
         
 		DEVMODE devmode;

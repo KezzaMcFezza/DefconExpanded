@@ -239,7 +239,7 @@ void WindowManagerSDL::WindowHasMoved()
 }
 
 
-bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _colourDepth, int _refreshRate, int _zDepth, int _antiAlias, const char *_title)
+bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _colourDepth, int _refreshRate, int _zDepth, int _antiAlias, bool _borderless, const char *_title)
 {
     int displayIndex = GetDefaultDisplayIndex();
     AppReleaseAssert(displayIndex >= 0, "Failed to get current SDL display index.\n");
@@ -258,10 +258,21 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
     int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
     if (!_windowed)
     {
-        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
         
-        m_screenW = displayMode.w;
-        m_screenH = displayMode.h;
+        //
+        // don't lock the user to fullscreen or borderless, let them choose
+
+        if( _borderless )
+        {
+            flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        }
+        else
+        {
+            flags |= SDL_WINDOW_FULLSCREEN;
+        }
+        
+        m_screenW = _width;
+        m_screenH = _height;
         
     }
     else {
@@ -383,6 +394,25 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
 
         if( m_window )
         {
+            
+            //
+            // for true fullscreen mode (not borderless), set the display mode with desired refresh rate
+
+            if( !_windowed && !_borderless && _refreshRate != 0 )
+            {
+                SDL_DisplayMode targetMode;
+                targetMode.w = m_screenW;
+                targetMode.h = m_screenH;
+                targetMode.refresh_rate = _refreshRate;
+                targetMode.format = 0; 
+                
+                if( SDL_SetWindowDisplayMode( m_window, &targetMode ) != 0 )
+                {
+                    AppDebugOut("Failed to set display mode to %dx%d @ %dHz: %s\n", 
+                        m_screenW, m_screenH, _refreshRate, SDL_GetError());
+                }
+            }
+            
             m_glContext = SDL_GL_CreateContext( m_window );
             
 #ifdef TARGET_EMSCRIPTEN

@@ -170,9 +170,13 @@ dialog_cpuusageunknown              CPU Usage unknown
 
 dialog_screenoptions                Screen
 dialog_refreshrate                  Refresh Rate
-dialog_windowed                     Windowed
 dialog_windowedmode                 (windowed mode)
 dialog_fullscreen                   Fullscreen
+dialog_screenmode                   Screen Mode
+dialog_screenmode_fullscreen        Fullscreen
+dialog_screenmode_borderless        Fullscreen Windowed
+dialog_screenmode_windowed          Windowed
+dialog_borderless                   Borderless Fullscreen
 dialog_resolution                   Resolution
 dialog_colourdepth                  Colour Depth
 dialog_colourdepth_16               16 bit
@@ -183,7 +187,7 @@ dialog_zbufferdepth                 Z Buffer Depth
 dialog_refreshrate_X                *R Hz
 dialog_resolution_W_H               *W x *H
 dialog_antialias                    Use Anti-Aliasing
-dialog_antialias_2x		    2x MSAA
+dialog_antialias_2x		            2x MSAA
 dialog_antialias_4x                 4x MSAA
 dialog_antialias_8x                 8x MSAA
 dialog_antialias_16x                16x MSAA
