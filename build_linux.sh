@@ -8,7 +8,6 @@ set -e  # Exit on any error
 # Default options
 BUILD_TYPE="Release"
 INSTALL_DEPS=false
-REBUILD_DATA=false
 BUILD_PACKAGE=false
 TARBALL_NAME=""
 
@@ -19,16 +18,16 @@ show_help() {
     echo "Options:"
     echo "  -d, --debug           Build in Debug mode (default: Release)"
     echo "  -i, --install-deps    Install dependencies via apt-get (default: skip)"
-    echo "  -r, --rebuild-data    Rebuild main.dat from localisation/data (default: skip)"
     echo "  -p, --package         Create release tar.bz2 package (default: skip)"
     echo "  -h, --help            Show this help message"
+    echo ""
+    echo "Note: main.dat is automatically rebuilt when localisation/data files change"
     echo ""
     echo "Examples:"
     echo "  $0                    # Build Release (no package)"
     echo "  $0 --debug            # Build Debug without installing deps"
     echo "  $0 --install-deps     # Build Release and install deps"
     echo "  $0 -d -i              # Build Debug and install deps"
-    echo "  $0 --rebuild-data     # Rebuild main.dat and build Release"
     echo "  $0 --package          # Build Release and create tar.bz2"
     exit 0
 }
@@ -41,10 +40,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         -i|--install-deps)
             INSTALL_DEPS=true
-            shift
-            ;;
-        -r|--rebuild-data)
-            REBUILD_DATA=true
             shift
             ;;
         -p|--package)
@@ -67,7 +62,6 @@ echo "Kezza and Bert's Linux Build Script"
 echo "========================================"
 echo "Build Type: $BUILD_TYPE"
 echo "Install Dependencies: $INSTALL_DEPS"
-echo "Rebuild Data Archive: $REBUILD_DATA"
 echo "Create Package:       $BUILD_PACKAGE"
 echo "========================================"
 
@@ -82,20 +76,39 @@ if [ ! -d ".git" ]; then
     echo "Warning: Not in a git repository. Make sure you're in the project root."
 fi
 
-if [ "$REBUILD_DATA" = true ]; then
+echo ""
+echo "Step 1: Checking if main.dat rebuild is needed..."
+echo "=================================================="
+
+# Check if Python 3 is available
+if ! command -v python3 &> /dev/null; then
+    echo "Error: python3 is required to rebuild main.dat"
+    exit 1
+fi
+
+# Check if the checksum script exists
+if [ ! -f "tools/python/check_localisation_changed.py" ]; then
+    echo "Error: tools/python/check_localisation_changed.py not found!"
+    exit 1
+fi
+
+# Run the checksum check script
+# Exit code 0 = changes detected, rebuild needed
+# Exit code 1 = no changes, skip rebuild
+# Temporarily disable exit-on-error to capture the exit code
+set +e
+python3 tools/python/check_localisation_changed.py
+CHECKSUM_RESULT=$?
+set -e
+
+if [ $CHECKSUM_RESULT -eq 0 ]; then
     echo ""
-    echo "Step 1: Rebuilding main.dat..."
-    echo "=============================="
+    echo "Rebuilding main.dat..."
+    echo "======================"
     
     # Check if the Python script exists
     if [ ! -f "tools/python/datatoarchive.py" ]; then
         echo "Error: tools/python/datatoarchive.py not found!"
-        exit 1
-    fi
-    
-    # Check if Python 3 is available
-    if ! command -v python3 &> /dev/null; then
-        echo "Error: python3 is required to rebuild main.dat"
         exit 1
     fi
     
@@ -124,6 +137,12 @@ if [ "$REBUILD_DATA" = true ]; then
         echo "Error: Failed to rebuild main.dat"
         exit 1
     fi
+else
+    echo ""
+    echo "Skipping main.dat rebuild (no changes detected)"
+    echo "================================================"
+    echo "The localisation/data/ files have not changed since the last rebuild."
+    echo "To force a rebuild, delete localisation/.localisation_checksums"
 fi
 
 if [ "$INSTALL_DEPS" = true ]; then
@@ -322,5 +341,6 @@ echo "   - Clean rebuild: rm -rf build && ./build_linux.sh"
 echo "   - Quick rebuild: ./build_linux.sh"
 echo "   - Debug build: ./build_linux.sh --debug"
 echo "   - With dependencies: ./build_linux.sh --install-deps"
-echo "   - Rebuild main.dat: ./build_linux.sh --rebuild-data"
 echo "   - Create package: ./build_linux.sh --package"
+echo ""
+echo "Note: main.dat is automatically rebuilt when localisation/data/ files change"
