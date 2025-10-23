@@ -542,8 +542,7 @@ float SoundLibrary3dDirectSound::GetChannelRelFreq (int _channel) const
 
     if( _channel >= m_numChannels - m_numMusicChannels )
     {
-        // Note : This is not correct, as it assumes playback speed is 44Khz
-        return m_channels[_channel].m_freq / 44100.0f;  
+        return m_channels[_channel].m_freq / (float)m_sampleRate;  
     }
     
     return 1.0f;
