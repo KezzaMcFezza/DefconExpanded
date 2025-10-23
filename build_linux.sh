@@ -314,6 +314,8 @@ echo "BUILD SUMMARY:"
 echo "=================="
 echo "Build Type: $BUILD_TYPE"
 
+# Check from the script directory
+cd "$SCRIPT_DIR"
 if [ -d "build/result/$BUILD_TYPE" ]; then
     echo "Binary location: build/result/$BUILD_TYPE/"
     echo "Executable: build/result/$BUILD_TYPE/defcon"
@@ -333,6 +335,8 @@ if [ -d "build/result/$BUILD_TYPE" ]; then
     fi
 else
     echo "Build artifacts not found in expected location"
+    echo "Expected: build/result/$BUILD_TYPE/"
+    echo "This may indicate a build failure - check the output above."
 fi
 
 echo ""
