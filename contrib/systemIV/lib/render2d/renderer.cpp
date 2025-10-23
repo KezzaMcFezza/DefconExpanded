@@ -387,8 +387,8 @@ Renderer::Renderer()
     // use physical dimensions to prevent logical resolution scaling
     // from being applied to the framebuffer and causing clipping
 
-    int screenW = g_windowManager->PhysicalWindowW();
-    int screenH = g_windowManager->PhysicalWindowH();
+    int screenW = (int)(g_windowManager->PhysicalWindowW() * g_windowManager->GetHighDPIScaleX());
+    int screenH = (int)(g_windowManager->PhysicalWindowH() * g_windowManager->GetHighDPIScaleY());
     
     InitializeMSAAFramebuffer(screenW, screenH, msaaSamples);
     
