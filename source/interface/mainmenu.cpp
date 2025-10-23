@@ -852,9 +852,12 @@ void MainMenu::Create()
     //
     // Play back recording.
 #if defined(RECORDING_PARSING) && !defined(SYNC_PRACTICE) && !defined(REPLAY_VIEWER_DESKTOP)
-    button = new MainMenuPlaybackRecordingButton();
-    button->SetProperties( "Playback Recording", 10, y+=h+g, m_w-20, h, "dialog_playbackrecording", " ", true, false );
-    RegisterButton( button );
+    if( !g_app->m_gameRunning )
+    {
+        button = new MainMenuPlaybackRecordingButton();
+        button->SetProperties( "Playback Recording", 10, y+=h+g, m_w-20, h, "dialog_playbackrecording", " ", true, false );
+        RegisterButton( button );
+    }
 #endif
 
     //
