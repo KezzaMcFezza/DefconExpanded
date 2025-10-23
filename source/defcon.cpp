@@ -58,7 +58,6 @@
 #ifdef TARGET_OS_MACOSX
 #include "lib/netlib/net_mutex.h"
 #include "lib/gucci/window_manager.h"
-#include <OpenGL/gl3.h>
 #endif
 
 #ifdef TARGET_EMSCRIPTEN

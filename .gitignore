@@ -41,3 +41,4 @@ CPack*.cmake
 # hidden IDE folders
 *.kdev*
 .kdev4/
+targets/macosx/Defcon.xcodeproj/project.xcworkspace/xcuserdata
