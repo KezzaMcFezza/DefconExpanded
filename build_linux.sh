@@ -9,6 +9,8 @@ set -e  # Exit on any error
 BUILD_TYPE="Release"
 INSTALL_DEPS=false
 REBUILD_DATA=false
+BUILD_PACKAGE=false
+TARBALL_NAME=""
 
 # Parse command line arguments
 show_help() {
@@ -18,14 +20,16 @@ show_help() {
     echo "  -d, --debug           Build in Debug mode (default: Release)"
     echo "  -i, --install-deps    Install dependencies via apt-get (default: skip)"
     echo "  -r, --rebuild-data    Rebuild main.dat from localisation/data (default: skip)"
+    echo "  -p, --package         Create release tar.bz2 package (default: skip)"
     echo "  -h, --help            Show this help message"
     echo ""
     echo "Examples:"
-    echo "  $0                    # Build Release without installing deps"
+    echo "  $0                    # Build Release (no package)"
     echo "  $0 --debug            # Build Debug without installing deps"
     echo "  $0 --install-deps     # Build Release and install deps"
     echo "  $0 -d -i              # Build Debug and install deps"
     echo "  $0 --rebuild-data     # Rebuild main.dat and build Release"
+    echo "  $0 --package          # Build Release and create tar.bz2"
     exit 0
 }
 
@@ -41,6 +45,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -r|--rebuild-data)
             REBUILD_DATA=true
+            shift
+            ;;
+        -p|--package)
+            BUILD_PACKAGE=true
             shift
             ;;
         -h|--help)
@@ -60,6 +68,7 @@ echo "========================================"
 echo "Build Type: $BUILD_TYPE"
 echo "Install Dependencies: $INSTALL_DEPS"
 echo "Rebuild Data Archive: $REBUILD_DATA"
+echo "Create Package:       $BUILD_PACKAGE"
 echo "========================================"
 
 # Get the script directory to ensure we're in the right place
@@ -228,43 +237,50 @@ echo "==========================="
 cmake --build . --parallel $(nproc) --config "$BUILD_TYPE"
 
 echo ""
-echo "Step 7: Packaging Build..."
-echo "=========================="
+echo "Step 7: Build Results"
+echo "======================"
 
 # Show the results
 if [ -d "result/$BUILD_TYPE" ]; then
     echo "Build artifacts found in: build/result/$BUILD_TYPE/"
     echo "Contents:"
     ls -la result/$BUILD_TYPE/
-    
+
     # Set execute permissions for launch.sh if it exists
     if [ -f "result/$BUILD_TYPE/launch.sh" ]; then
         chmod +x result/$BUILD_TYPE/launch.sh
         echo "Execute permissions set for launch.sh"
     fi
-    
-    # Create tarball with git revision count (mimicking GitHub workflow)
-    cd "$SCRIPT_DIR"
-    if [ -d ".git" ]; then
-        GIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "unknown")
-        TARBALL_NAME="defcon-git${GIT_COUNT}-linux-$BUILD_TYPE.tar.bz2"
+
+    if [ "$BUILD_PACKAGE" = true ]; then
+        echo ""
+        echo "Packaging enabled: creating tar.bz2 archive..."
+        # Create tarball with git revision count (mimicking GitHub workflow)
+        cd "$SCRIPT_DIR"
+        if [ -d ".git" ]; then
+            GIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "unknown")
+            TARBALL_NAME="defcon-git${GIT_COUNT}-linux-$BUILD_TYPE.tar.bz2"
+        else
+            TARBALL_NAME="defcon-linux-$BUILD_TYPE.tar.bz2"
+        fi
+
+        echo "Creating package: $TARBALL_NAME"
+        cd build/result
+        tar -cjf "../$TARBALL_NAME" "$BUILD_TYPE"
+        cd "$SCRIPT_DIR"
+
+        # Move tarball to project root for easy access
+        if [ -f "build/$TARBALL_NAME" ]; then
+            mv "build/$TARBALL_NAME" "./"
+            echo "Package created successfully: $TARBALL_NAME"
+            echo "Package size: $(du -h "$TARBALL_NAME" | cut -f1)"
+        else
+            echo "Warning: Failed to create package"
+        fi
     else
-        TARBALL_NAME="defcon-linux-$BUILD_TYPE.tar.bz2"
-    fi
-    
-    echo ""
-    echo "Creating package: $TARBALL_NAME"
-    cd build/result
-    tar -cjf "../$TARBALL_NAME" "$BUILD_TYPE"
-    cd "$SCRIPT_DIR"
-    
-    # Move tarball to project root for easy access
-    if [ -f "build/$TARBALL_NAME" ]; then
-        mv "build/$TARBALL_NAME" "./"
-        echo "Package created successfully: $TARBALL_NAME"
-        echo "Package size: $(du -h "$TARBALL_NAME" | cut -f1)"
-    else
-        echo "Warning: Failed to create package"
+        echo ""
+        echo "Packaging is disabled by default."
+        echo "Run with --package to create a tar.bz2 archive."
     fi
 else
     echo "Build completed, but result/$BUILD_TYPE directory not found."
@@ -292,7 +308,7 @@ if [ -d "build/result/$BUILD_TYPE" ]; then
         ls -1 build/result/$BUILD_TYPE/lib/ 2>/dev/null | sed 's/^/   - /' || echo "   (library list unavailable)"
     fi
     
-    if [ -f "$TARBALL_NAME" ]; then
+    if [ -n "$TARBALL_NAME" ] && [ -f "$TARBALL_NAME" ]; then
         echo "Package: $TARBALL_NAME"
         echo ""
         echo "Ready to distribute!"
@@ -310,3 +326,4 @@ echo "   - Quick rebuild: ./build_linux.sh"
 echo "   - Debug build: ./build_linux.sh --debug"
 echo "   - With dependencies: ./build_linux.sh --install-deps"
 echo "   - Rebuild main.dat: ./build_linux.sh --rebuild-data"
+echo "   - Create package: ./build_linux.sh --package"
