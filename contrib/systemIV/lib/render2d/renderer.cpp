@@ -383,12 +383,12 @@ Renderer::Renderer()
     
     //
     // ensure the FBO is applied to the correct screen dimensions
+    //
+    // use physical dimensions to prevent logical resolution scaling
+    // from being applied to the framebuffer and causing clipping
 
-    int screenW = g_windowManager->WindowW();
-    int screenH = g_windowManager->WindowH();
-    
-    screenW = (int)(screenW * g_windowManager->GetHighDPIScaleX());
-    screenH = (int)(screenH * g_windowManager->GetHighDPIScaleY());
+    int screenW = g_windowManager->PhysicalWindowW();
+    int screenH = g_windowManager->PhysicalWindowH();
     
     InitializeMSAAFramebuffer(screenW, screenH, msaaSamples);
     
