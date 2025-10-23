@@ -35,6 +35,9 @@ CPack*.cmake
 /build
 /lib
 
+# Local release archives produced by build_linux.sh
+/defcon-*-linux-*.tar.bz2
+
 # hidden IDE folders
 *.kdev*
 .kdev4/
