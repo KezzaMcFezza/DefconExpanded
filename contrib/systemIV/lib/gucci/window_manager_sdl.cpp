@@ -359,16 +359,8 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
     SDL_GL_SetAttribute( SDL_GL_ACCELERATED_VISUAL, 1 );
 #endif
     
-    if ( _antiAlias )
-    {
-         SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLEBUFFERS, 2 );
-         SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLESAMPLES, 4 );
-    }
-    else
-    {
-        SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLEBUFFERS, 0 );
-        SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLESAMPLES, 0 );
-    }
+    SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLEBUFFERS, 0 );
+    SDL_GL_SetAttribute ( SDL_GL_MULTISAMPLESAMPLES, 0 );
 
     bool tryingToCreateWindow = true;
     while( tryingToCreateWindow )
@@ -698,7 +690,7 @@ void WindowManagerSDL::HideWin()
 #endif
 }
 
-#if defined(TARGET_OS_LINUX) or defined(TARGET_OS_MACOSX)
+#if defined(TARGET_OS_LINUX) || defined(TARGET_OS_MACOSX)
 void SetupMemoryAccessHandlers();
 void SetupPathToProgram(const char *program);
 

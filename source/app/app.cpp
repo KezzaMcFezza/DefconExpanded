@@ -44,9 +44,6 @@
 #include "app/tutorial.h"
 #include "app/modsystem.h"
 #include "app/macutil.h"
-#if RECORDING_PARSING
-
-#endif
 
 #include "interface/interface.h"
 #include "interface/authkey_window.h"
@@ -101,9 +98,13 @@ int mkdir(const char *pathname, mode_t mode) {
 #include <sys/stat.h>
 //#include "macosspecific/RetinaDisplaySupportHelper.h"
 #endif
+
+//
+// if you enable this you will not be dissapointed :)
+
+//#define ENABLE_FOR_FUN
+
 App *g_app = NULL;
-
-
 
 App::App()
 :   m_interface(NULL),
@@ -846,8 +847,16 @@ void App::Render()
     // begin frame for global draw call tracking
 
     g_renderer->BeginFrame();
+    
+#ifdef ENABLE_FOR_FUN
     g_renderer->ClearScreen( true, false );
     g_renderer->BeginScene();
+    g_renderer->BeginMSAARendering();
+#else
+    g_renderer->BeginMSAARendering();
+    g_renderer->ClearScreen( true, false );
+    g_renderer->BeginScene();
+#endif
     
     //
     // World map
@@ -1039,6 +1048,8 @@ void App::Render()
         s_lastFlipTime = GetHighResTime();
     }
 #endif
+    
+    g_renderer->EndMSAARendering();
     
     g_windowManager->Flip();
     END_PROFILE( "GL Flip" );   

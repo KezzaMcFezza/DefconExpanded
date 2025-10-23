@@ -270,7 +270,14 @@ Renderer::Renderer()
       m_megaIndexCount(0),
       m_cachedVBOs(),
       m_currentBoundTexture(0),
-      m_batchingTextures(true) {
+      m_batchingTextures(true),
+      m_msaaEnabled(false),
+      m_msaaSamples(0),
+      m_msaaFBO(0),
+      m_msaaColorRBO(0),
+      m_msaaDepthRBO(0),
+      m_msaaWidth(0),
+      m_msaaHeight(0) {
       m_uiTriangleVertexCount = 0;
       m_uiLineVertexCount = 0;
       m_currentFontBatchIndex = 0;
@@ -350,13 +357,17 @@ Renderer::Renderer()
       m_flushTimingCount = 0;
       m_currentFlushStartTime = 0.0;
 
-      // Initialize font-aware batching system
+      //
+      // initialize font-aware batching system
+
       for (int i = 0; i < MAX_FONT_ATLASES; i++) {
           m_fontBatches[i].vertexCount = 0;
           m_fontBatches[i].textureID = 0;
       }
     
-      // Initialize OpenGL components
+      //
+      // initialize OpenGL components
+
       InitializeShaders();
       CacheUniformLocations();
       SetupVertexArrays();
@@ -367,6 +378,19 @@ Renderer::Renderer()
     
     m_lineConversionBufferSize = std::max(MAX_ECLIPSE_LINE_VERTICES * 2, MAX_VERTICES * 2);
     m_lineConversionBuffer = new Vertex2D[m_lineConversionBufferSize];
+    
+    int msaaSamples = g_preferences ? g_preferences->GetInt(PREFS_SCREEN_ANTIALIAS, 0) : 0;
+    
+    //
+    // ensure the FBO is applied to the correct screen dimensions
+
+    int screenW = g_windowManager->WindowW();
+    int screenH = g_windowManager->WindowH();
+    
+    screenW = (int)(screenW * g_windowManager->GetHighDPIScaleX());
+    screenH = (int)(screenH * g_windowManager->GetHighDPIScaleY());
+    
+    InitializeMSAAFramebuffer(screenW, screenH, msaaSamples);
     
     g_renderer3d = new Renderer3D(this);
 }
@@ -425,6 +449,8 @@ Renderer::~Renderer() {
         delete g_renderer3d;
         g_renderer3d = NULL;
     }
+
+    DestroyMSAAFramebuffer();
 }
 
 // ============================================================================
@@ -507,6 +533,144 @@ void Renderer::ClearScreen(bool _colour, bool _depth) {
 
 void Renderer::Shutdown() {
     // Intentionally empty
+}
+
+// ============================================================================
+// MSAA FRAMEBUFFER IMPLEMENTATION
+// ============================================================================
+
+void Renderer::InitializeMSAAFramebuffer(int width, int height, int samples) {
+    m_msaaWidth = width;
+    m_msaaHeight = height;
+    m_msaaSamples = samples;
+    
+    if (samples <= 0) {
+        m_msaaEnabled = false;
+        m_msaaFBO = 0;
+        m_msaaColorRBO = 0;
+        m_msaaDepthRBO = 0;
+        return;
+    }
+    
+    //
+    // query the maximum supported samples
+    
+    GLint maxSamples = 0;
+    glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
+    
+    //
+    // generate and bind the MSAA framebuffer
+    
+    glGenFramebuffers(1, &m_msaaFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_msaaFBO);
+    
+    //
+    // create the multisampled color renderbuffer
+    
+    glGenRenderbuffers(1, &m_msaaColorRBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, m_msaaColorRBO);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_msaaSamples, 
+                                     GL_RGBA8, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
+                             GL_RENDERBUFFER, m_msaaColorRBO);
+    
+    //
+    // create the multisampled depth renderbuffer
+    
+    glGenRenderbuffers(1, &m_msaaDepthRBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, m_msaaDepthRBO);
+    glRenderbufferStorageMultisample(GL_RENDERBUFFER, m_msaaSamples, 
+                                     GL_DEPTH_COMPONENT24, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 
+                             GL_RENDERBUFFER, m_msaaDepthRBO);
+    
+    //
+    // check the framebuffer for completeness
+    
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
+        AppDebugOut("MSAA creation failed with status: 0x%x\n", status);
+        
+        if (m_msaaColorRBO) glDeleteRenderbuffers(1, &m_msaaColorRBO);
+        if (m_msaaDepthRBO) glDeleteRenderbuffers(1, &m_msaaDepthRBO);
+        if (m_msaaFBO) glDeleteFramebuffers(1, &m_msaaFBO);
+        
+        m_msaaFBO = 0;
+        m_msaaColorRBO = 0;
+        m_msaaDepthRBO = 0;
+        m_msaaEnabled = false;
+        m_msaaSamples = 0;
+    } else {
+        m_msaaEnabled = true;
+        AppDebugOut("MSAA applied successfully\n");
+    }
+    
+    //
+    // unbind the framebuffer
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+}
+
+//
+// if the window is resized, we need to resize the FBO
+
+void Renderer::ResizeMSAAFramebuffer(int width, int height) {
+    if (!m_msaaEnabled || m_msaaSamples <= 0) {
+        return;
+    }
+    
+    if (width == m_msaaWidth && height == m_msaaHeight) {
+        return;
+    }
+
+    //
+    // destroy and reincarnate the FBO with new dimensions
+    
+    DestroyMSAAFramebuffer();
+    InitializeMSAAFramebuffer(width, height, m_msaaSamples);
+}
+
+void Renderer::DestroyMSAAFramebuffer() {
+    if (m_msaaColorRBO) {
+        glDeleteRenderbuffers(1, &m_msaaColorRBO);
+        m_msaaColorRBO = 0;
+    }
+    
+    if (m_msaaDepthRBO) {
+        glDeleteRenderbuffers(1, &m_msaaDepthRBO);
+        m_msaaDepthRBO = 0;
+    }
+    
+    if (m_msaaFBO) {
+        glDeleteFramebuffers(1, &m_msaaFBO);
+        m_msaaFBO = 0;
+    }
+    
+    m_msaaEnabled = false;
+}
+
+// ============================================================================
+// MSAA SCENE MANAGEMENT
+// ============================================================================
+
+void Renderer::BeginMSAARendering() {
+    if (m_msaaEnabled && m_msaaFBO != 0) {
+        glBindFramebuffer(GL_FRAMEBUFFER, m_msaaFBO);
+    }
+}
+
+void Renderer::EndMSAARendering() {
+    if (m_msaaEnabled && m_msaaFBO != 0) {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, m_msaaFBO);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        
+        glBlitFramebuffer(0, 0, m_msaaWidth, m_msaaHeight,
+                         0, 0, m_msaaWidth, m_msaaHeight,
+                         GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 }
 
 // ============================================================================

@@ -721,6 +721,21 @@ public:
   GLuint m_currentElementBuffer;
   GLint m_currentTextureMagFilter;
   GLint m_currentTextureMinFilter;
+  
+  GLuint m_msaaFBO;
+  GLuint m_msaaColorRBO;
+  GLuint m_msaaDepthRBO;
+  
+  bool m_msaaEnabled;
+  int m_msaaSamples;
+  int m_msaaWidth;
+  int m_msaaHeight;
+  
+  void InitializeMSAAFramebuffer(int width, int height, int samples);
+  void ResizeMSAAFramebuffer(int width, int height);
+  void DestroyMSAAFramebuffer();
+  void BeginMSAARendering();
+  void EndMSAARendering();
 
   enum {
     BlendModeDisabled,
