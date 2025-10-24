@@ -162,7 +162,7 @@ LList <char *> *ListSubDirectoryNames(const char *_dir)
             strcmp( thisfile.name, ".." ) != 0 &&
             (thisfile.attrib & _A_SUBDIR) )
         {
-            char *newname = strdup( thisfile.name );   
+            char *newname = newStr( thisfile.name );   
             result->PutData( newname );
         }
 
@@ -186,7 +186,7 @@ LList <char *> *ListSubDirectoryNames(const char *_dir)
             entry->d_name);
             
         if (IsDirectory(fullname))
-            result->PutData( strdup(entry->d_name) );
+            result->PutData( newStr(entry->d_name) );
     }
     closedir(dir);
     
@@ -418,7 +418,7 @@ std::string FindCaseInsensitive( const std::string &_fullPath )
             found = true;
         }
     
-        matches->EmptyAndDelete();
+        matches->EmptyAndDeleteArray();
     
         // Failed to find a match, just return the original
         if( !found )

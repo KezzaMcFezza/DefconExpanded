@@ -57,12 +57,14 @@ public:
 
 public:
     SoftwareChannel();
+	~SoftwareChannel();
     void Initialise( bool _stereo );
 };
 
 
 SoftwareChannel::SoftwareChannel()
-:	m_freq(1),
+:	m_buffer(NULL),
+	m_freq(1),
 	m_volume(0.0f),
 	m_oldVolLeft(0.0f),
 	m_oldVolRight(0.0f),
@@ -75,6 +77,11 @@ SoftwareChannel::SoftwareChannel()
 #ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SoftwareChannel::SoftwareChannel() - freq initialized to %u\n", m_freq);
 #endif
+}
+
+SoftwareChannel::~SoftwareChannel()
+{
+    delete m_buffer;
 }
 
 void SoftwareChannel::Initialise( bool _stereo )

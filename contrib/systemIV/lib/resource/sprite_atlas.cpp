@@ -115,7 +115,7 @@ void RuntimeTextureAtlas::LoadSprites(
         *outSprites = NULL;
         *outCount = 0;
         if (files) {
-            files->EmptyAndDelete();
+            files->EmptyAndDeleteArray();
             delete files;
         }
         return;
@@ -297,7 +297,7 @@ void RuntimeTextureAtlas::LoadSprites(
     //
     // clean up file list
     
-    files->EmptyAndDelete();
+    files->EmptyAndDeleteArray();
     delete files;
     
     //

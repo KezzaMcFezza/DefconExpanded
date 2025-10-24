@@ -50,9 +50,13 @@ SoundSystem::SoundSystem()
 
 SoundSystem::~SoundSystem()
 {
-    delete [] m_channels;
-
     m_sounds.EmptyAndDelete();
+
+    delete[] m_channels;
+    m_channels = NULL;
+
+    delete g_soundSampleBank;
+    g_soundSampleBank = NULL;
 
     delete g_soundLibrary3d;
     g_soundLibrary3d = NULL;
@@ -120,6 +124,7 @@ void SoundSystem::RestartSoundLibrary()
     m_channels = new SoundInstanceId[m_numChannels];    
 
     g_soundLibrary3d->SetMainCallback( &SoundLibraryMainCallback );
+    g_soundSampleBank->EmptyCache();
 }
 
 

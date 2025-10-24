@@ -31,6 +31,8 @@ void RadarGrid::Initialise( int _resolution, int _numTeams )
 
     m_resolution = _resolution;
 
+    delete[] m_radar;
+
     m_radar = new BoundedArray<unsigned char>[ RADARGRID_WIDTH * RADARGRID_HEIGHT * m_resolution ];
 
     for( int y = 0; y < RADARGRID_HEIGHT * m_resolution; ++y )

@@ -34,7 +34,7 @@ void FileSystem::ParseArchives( const char *_dir, const char *_filter )
         fullFilename[ sizeof(fullFilename) - 1 ] = '\0';
         ParseArchive( fullFilename );
     }
-    results->EmptyAndDelete();
+    results->EmptyAndDeleteArray();
     delete results;
 }
 
@@ -299,7 +299,7 @@ LList<char *> *FileSystem::ListArchive(char *_dir, char *_filter, bool fullFilen
 
 void FileSystem::ClearSearchPath()
 {
-    m_searchPath.EmptyAndDelete();
+    m_searchPath.EmptyAndDeleteArray();
 }
 
 

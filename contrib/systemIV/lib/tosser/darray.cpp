@@ -196,6 +196,21 @@ void DArray<T>::EmptyAndDelete()
 
 
 template <class T>
+void DArray<T>::EmptyAndDeleteArray()
+{
+	for (int i = 0; i < m_arraySize; ++i)
+	{
+		if (ValidIndex(i))
+		{
+			delete[] array[i];
+		}
+	}
+
+	Empty();
+}
+
+
+template <class T>
 T DArray<T>::GetData( int index ) const
 {
 	AppAssert(index < m_arraySize && index >= 0);

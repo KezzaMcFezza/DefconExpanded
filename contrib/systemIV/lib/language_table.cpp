@@ -440,7 +440,7 @@ void LanguageTable::LoadTranslation(const char *_filename)
 void LanguageTable::ClearBaseLanguage()
 {
     DArray<char *> *base = m_baseLanguage.ConvertToDArray();
-    base->EmptyAndDelete();
+    base->EmptyAndDeleteArray();
     delete base;
     m_baseLanguage.Empty();
 }
@@ -449,12 +449,12 @@ void LanguageTable::ClearBaseLanguage()
 void LanguageTable::ClearTranslation()
 {
     DArray<char *> *translation = m_translation.ConvertToDArray();
-    translation->EmptyAndDelete();
+    translation->EmptyAndDeleteArray();
     delete translation;
     m_translation.Empty();
 
     translation = m_translationAdditional.ConvertToDArray();
-    translation->EmptyAndDelete();
+    translation->EmptyAndDeleteArray();
     delete translation;
     m_translationAdditional.Empty();
 }

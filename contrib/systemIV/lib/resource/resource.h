@@ -32,6 +32,7 @@ protected:
 
 public:
     Resource();
+    ~Resource();
 
     void            InitializeAtlases();
     void            Restart();

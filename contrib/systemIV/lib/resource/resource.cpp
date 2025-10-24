@@ -27,6 +27,11 @@ Resource::Resource()
     m_spriteAtlasManager = NULL;
 }
 
+Resource::~Resource()
+{
+    Shutdown();
+}
+
 void Resource::InitializeAtlases()
 {
     if (!g_spriteAtlasManager) {

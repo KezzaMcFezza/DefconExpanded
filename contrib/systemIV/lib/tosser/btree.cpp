@@ -132,6 +132,7 @@ void BTree<T>::RemoveData( const char *newid )
 			//data := data->left
 		if( Left() ) 
 		{
+			if (id) delete[] id;
 			id = new char[strlen(Left()->id) + 1];
 			strcpy( id, Left()->id );
 			data = Left()->data;                  // This bit requires a good copy constructor
@@ -146,6 +147,7 @@ void BTree<T>::RemoveData( const char *newid )
 			
 			if( Right() ) 
 			{
+                if (id) delete[] id;
 				id = new char[strlen(Right()->id) + 1];
 				strcpy( id, Right()->id );
 				data = Right()->data;                  // This bit requires a good copy constructor
@@ -154,6 +156,7 @@ void BTree<T>::RemoveData( const char *newid )
 			}
 			else 
 			{
+                delete[] id;
 				id = NULL;                              // Hopefully this is the root node
 			}	    
 		}
@@ -163,7 +166,10 @@ void BTree<T>::RemoveData( const char *newid )
         if( Left() )
         {
             if( stricmp( Left()->id, newid ) == 0 && !Left()->Left() && !Left()->Right() )
+            {
+                delete ltree;
                 ltree = NULL;
+            }
             else
 		        Left()->RemoveData( newid );
         }
@@ -173,7 +179,10 @@ void BTree<T>::RemoveData( const char *newid )
 	    if( Right() )
         {
             if( stricmp( Right()->id, newid ) == 0 && !Right()->Left() && !Right()->Right() )
+            {
+                delete rtree;
                 rtree = NULL;
+            }
             else
 		        Right()->RemoveData( newid );
         }

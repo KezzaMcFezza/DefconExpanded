@@ -83,6 +83,7 @@ World::World()
 
 World::~World()
 {
+    m_nodes.EmptyAndDelete();
     Shutdown();
 }
 
@@ -114,6 +115,9 @@ void World::LoadNodes()
     int pixelX = 0;
     int pixelY = 0;
     int numNodes = 0;
+
+    m_nodes.EmptyAndDelete();
+    
     for ( int x = 0; x < 800; ++x )
     {
         for( int y = 0; y < 400; ++y )

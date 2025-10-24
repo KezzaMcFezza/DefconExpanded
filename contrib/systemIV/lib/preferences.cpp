@@ -106,6 +106,7 @@ PreferencesItem::PreferencesItem(const char *_key, const char *_str)
 
 PreferencesItem::PreferencesItem(const char *_key, float _float)
 :	m_type(TypeFloat),
+	m_str(NULL),
 	m_float(_float)
 {
 	m_key = newStr(_key);
@@ -114,6 +115,7 @@ PreferencesItem::PreferencesItem(const char *_key, float _float)
 
 PreferencesItem::PreferencesItem(const char *_key, int _int)
 :	m_type(TypeInt),
+	m_str(NULL),
 	m_int(_int)
 {
 	m_key = newStr(_key);
@@ -156,7 +158,7 @@ Preferences::~Preferences()
 		}
 	}
 
-    m_fileText.EmptyAndDelete();
+    m_fileText.EmptyAndDeleteArray();
 }
 
 

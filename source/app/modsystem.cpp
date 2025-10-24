@@ -47,8 +47,9 @@ ModSystem::~ModSystem()
 {
 	delete[] m_modsDir;
 
+    m_criticalFiles.EmptyAndDeleteArray();
     ClearModGraphicsCache();
-    m_geographyAffectingMods.EmptyAndDelete();
+    m_geographyAffectingMods.EmptyAndDeleteArray();
 }
 
 
@@ -142,7 +143,7 @@ void ModSystem::LoadInstalledMods()
         }
     }
 
-    subDirs->EmptyAndDelete();
+    subDirs->EmptyAndDeleteArray();
     delete subDirs;
 }
 
@@ -599,7 +600,7 @@ bool ModSystem::CommitRequired()
 void ModSystem::ScanModGraphics()
 {
     // Clear existing mod graphics list
-    m_modGraphicsFiles.EmptyAndDelete();
+    m_modGraphicsFiles.EmptyAndDeleteArray();
     
     // Scan all active mods for graphics files
     for (int i = 0; i < m_mods.Size(); ++i)
@@ -642,7 +643,7 @@ void ModSystem::ScanModGraphics()
                 }
             }
             
-            bmpFiles->EmptyAndDelete();
+            bmpFiles->EmptyAndDeleteArray();
             delete bmpFiles;
         }
     }
@@ -668,7 +669,7 @@ bool ModSystem::IsModGraphic(const char* filename)
 
 void ModSystem::ClearModGraphicsCache()
 {
-    m_modGraphicsFiles.EmptyAndDelete();
+    m_modGraphicsFiles.EmptyAndDeleteArray();
 }
 
 bool ModSystem::ModContainsGeographyData(const char* modPath)
@@ -691,7 +692,7 @@ bool ModSystem::ModContainsGeographyData(const char* modPath)
 void ModSystem::UpdateGeographyAffectingMods()
 {
     // Clear previous list
-    m_geographyAffectingMods.EmptyAndDelete();
+    m_geographyAffectingMods.EmptyAndDeleteArray();
     
     // Build new list of geography-affecting mods
     for (int i = 0; i < m_mods.Size(); ++i)
@@ -865,10 +866,11 @@ void ModSystem::Commit()
 
 #ifdef TOGGLE_SOUND
         g_soundSystem->EnableCallback(false);
+        g_soundSystem->m_sounds.EmptyAndDelete();
         g_soundSystem->m_blueprints.ClearAll();
+        g_soundSampleBank->EmptyCache();
         g_soundSystem->m_blueprints.LoadEffects();
         g_soundSystem->m_blueprints.LoadBlueprints();
-        g_soundSampleBank->EmptyCache();
         g_soundSystem->PropagateBlueprints(true);
         g_soundSystem->EnableCallback(true);
 #endif
@@ -878,7 +880,7 @@ void ModSystem::Commit()
     }    
 
     // Clean up comparison list
-    previousGeographyMods.EmptyAndDelete();
+    previousGeographyMods.EmptyAndDeleteArray();
         
     if( msgDialog )
     {

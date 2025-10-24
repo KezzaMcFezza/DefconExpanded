@@ -562,7 +562,7 @@ RecordingFileDialog::~RecordingFileDialog()
     delete[] m_filter;
     delete[] m_selectedFile;
     
-    m_navigationHistory.EmptyAndDelete();
+    m_navigationHistory.EmptyAndDeleteArray();
 
 }
 
@@ -882,7 +882,7 @@ void RecordingFileDialog::RefreshFileListing()
             delete[] fullPath;
         }
         
-        tempFiles->EmptyAndDelete();
+        tempFiles->EmptyAndDeleteArray();
         delete tempFiles;
     }
     
@@ -946,7 +946,7 @@ void RecordingFileDialog::CleanupLists()
     
     if (m_directories)
     {
-        m_directories->EmptyAndDelete();
+        m_directories->EmptyAndDeleteArray();
         delete m_directories;
         m_directories = NULL;
     }
