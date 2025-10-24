@@ -398,7 +398,6 @@ void App::MinimalInit()
     m_game = new Game();
 
     m_earthData = new EarthData();
-    m_earthData->Initialise();
     
     g_windowManager = WindowManager::Create();
     InitialiseWindow();
@@ -407,6 +406,9 @@ void App::MinimalInit()
 #endif
     
     g_renderer = new Renderer();
+
+    m_earthData->Initialise();
+    
     InitFonts();
     
     g_resource->InitializeAtlases();
