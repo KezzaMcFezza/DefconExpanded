@@ -419,6 +419,7 @@ std::string FindCaseInsensitive( const std::string &_fullPath )
         }
     
         matches->EmptyAndDeleteArray();
+        delete matches;
     
         // Failed to find a match, just return the original
         if( !found )

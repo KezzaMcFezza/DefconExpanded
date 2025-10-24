@@ -195,6 +195,11 @@ public:
     void MouseUp()
     {
         RecordingFileDialog *parent = (RecordingFileDialog *)m_parent;
+
+        if (!parent || !EclGetWindow(parent->m_name)) {
+            return;  
+        }
+        
         int actualIndex = parent->m_scrollbar->m_currentValue + m_index;
         
         double timeNow = GetHighResTime();

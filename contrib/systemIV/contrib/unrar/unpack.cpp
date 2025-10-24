@@ -786,9 +786,12 @@ bool Unpack::ReadTables()
     else
       BitLength[I]=Length;
   }
-  MakeDecodeTables(BitLength,(struct Decode *)&BD,BC);
 
   const int TableSize=HUFF_TABLE_SIZE;
+
+  memset(&BD, 0, sizeof(BD));
+  MakeDecodeTables(BitLength,(struct Decode *)&BD,BC);
+
   for (int I=0;I<TableSize;)
   {
     if (InAddr>ReadTop-5)
@@ -895,6 +898,9 @@ void Unpack::MakeDecodeTables(unsigned char *LenTab,struct Decode *Dec,int Size)
   long M,N;
   memset(LenCount,0,sizeof(LenCount));
   memset(Dec->DecodeNum,0,Size*sizeof(*Dec->DecodeNum));
+  memset(Dec->DecodeLen, 0, sizeof(Dec->DecodeLen));
+  memset(Dec->DecodePos, 0, sizeof(Dec->DecodePos));
+
   for (I=0;I<Size;I++)
     LenCount[LenTab[I] & 0xF]++;
 

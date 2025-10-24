@@ -64,6 +64,19 @@ static bool s_toggleFullscreen = false;
 void TruncateText(char *dest, const char *src, int maxLength, int suffixLength)
 {
     if (!src || !dest) return;
+
+    if (dest == src) {
+        int len = strlen(src);
+        if (len <= maxLength) {
+            return;
+        }
+
+        char temp[2048];
+        strncpy(temp, src, min(sizeof(temp)-1, (size_t)maxLength));
+        temp[min(sizeof(temp)-1, (size_t)maxLength)] = '\0';
+        strcpy(dest, temp);
+        return;
+    }
     
     int srcLen = strlen(src);
     if (srcLen <= maxLength) {
@@ -84,8 +97,8 @@ void TruncateText(char *dest, const char *src, int maxLength, int suffixLength)
         }
         return;
     }
-    
-    strncpy(dest, src, availableSpace);
+
+    memmove(dest, src, availableSpace);
     dest[availableSpace] = '\0';
     
     strcat(dest, "...");
