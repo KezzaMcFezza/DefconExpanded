@@ -24,6 +24,7 @@
 #include "lib/language_table.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/sound/sound_library_3d.h"
+#include "lib/sound/sound_debug_overlay.h"
 #include "lib/preferences.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/text_file_writer.h"
@@ -134,10 +135,12 @@ App::App()
     m_renderingEnabled(true),
     m_showFps(false),
     m_showDebugMenu(false),
+    m_showSoundOverlay(false),
     m_currentFrames(0),
     m_framesPerSecond(0),
     m_frameCountTimer(1.0f),
-    m_debugMenu(NULL)
+    m_debugMenu(NULL),
+    m_soundOverlay(NULL)
 {
     // Initialize replay filename to empty
     m_replayFilename[0] = '\0';
@@ -174,6 +177,7 @@ App::~App()
 	delete g_soundSystem;
 #endif
 	delete m_debugMenu;
+	delete m_soundOverlay;
 }
 
 void App::InitMetaServer()
@@ -412,6 +416,8 @@ void App::MinimalInit()
     g_resource->InitializeAtlases();
 
     m_debugMenu = new RendererDebugMenu(g_renderer);
+    delete m_soundOverlay;
+    m_soundOverlay = new SoundDebugOverlay();
 
     m_mapRenderer = new MapRenderer();
     m_mapRenderer->Init();
@@ -780,6 +786,8 @@ void App::ReinitialiseWindow()
 
     delete m_debugMenu;
     m_debugMenu = new RendererDebugMenu(g_renderer);
+    delete m_soundOverlay;
+    m_soundOverlay = new SoundDebugOverlay();
 
     m_mapRenderer->Init();
     m_interface->Init(); 
@@ -809,6 +817,16 @@ void App::Update()
     // F2 toggles debug menu
 
     if( g_keys[KEY_F2] && g_keyDeltas[KEY_F2] ) m_showDebugMenu = !m_showDebugMenu;
+
+    //
+    // F3 toggles sound overlay
+
+    if( g_keys[KEY_F3] && g_keyDeltas[KEY_F3] ) m_showSoundOverlay = !m_showSoundOverlay;
+
+    if( m_soundOverlay )
+    {
+        m_soundOverlay->Update(g_advanceTime);
+    }
     
     //
     // Update the interface
@@ -919,7 +937,7 @@ void App::Render()
     //
     // update frame timing when either FPS counter or debug menu is shown
 
-    if( m_showFps || m_showDebugMenu )
+    if( m_showFps || m_showDebugMenu || m_showSoundOverlay )
     {
         static double s_lastRender = 0;
         static double s_biggest = 0;
@@ -958,6 +976,14 @@ void App::Render()
         {
             m_debugMenu->Update(lastFrame);
             m_debugMenu->RenderDebugMenu();
+        }
+
+        //
+        // Show sound overlay if F3 was pressed
+
+        if( m_showSoundOverlay && m_soundOverlay )
+        {
+            m_soundOverlay->Render();
         }
         
         g_renderer->EndTextBatch();
@@ -1674,5 +1700,3 @@ bool App::HasReplayFilename() const
 {
 	return strlen(m_replayFilename) > 0;
 }
-
-

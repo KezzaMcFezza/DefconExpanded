@@ -1,0 +1,300 @@
+#include "lib/universal_include.h"
+
+#include <algorithm>
+#include <stdio.h>
+
+#include "lib/sound/sound_debug_overlay.h"
+
+#include "lib/gucci/window_manager.h"
+#include "lib/hi_res_time.h"
+#include "lib/preferences.h"
+#include "lib/render2d/renderer.h"
+#include "lib/sound/sound_library_2d_sdl.h"
+#include "lib/sound/sound_library_3d.h"
+#include "lib/sound/soundsystem.h"
+
+SoundDebugOverlay::SoundDebugOverlay()
+:   m_cachedStats(),
+    m_previousStats(),
+    m_hasStats(false),
+    m_lastStatsSampleTime(GetHighResTime()),
+    m_audioCallbacksPerSec(0.0),
+    m_topupCallsPerSec(0.0),
+    m_queuedCallbacksPerSec(0.0)
+{
+}
+
+void SoundDebugOverlay::Update(double /*frameTime*/)
+{
+    SoundLibrary2dSDL *sdl = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+
+    if (!sdl)
+    {
+        m_cachedStats = SoundLibrary2dSDL::RuntimeStats();
+        m_previousStats = SoundLibrary2dSDL::RuntimeStats();
+        m_hasStats = false;
+        m_audioCallbacksPerSec = 0.0;
+        m_topupCallsPerSec = 0.0;
+        m_queuedCallbacksPerSec = 0.0;
+        m_lastStatsSampleTime = GetHighResTime();
+        return;
+    }
+
+    SoundLibrary2dSDL::RuntimeStats stats;
+    sdl->GetRuntimeStats(stats);
+    m_cachedStats = stats;
+
+    double now = GetHighResTime();
+
+    if (!m_hasStats)
+    {
+        m_previousStats = stats;
+        m_lastStatsSampleTime = now;
+        m_audioCallbacksPerSec = 0.0;
+        m_topupCallsPerSec = 0.0;
+        m_queuedCallbacksPerSec = 0.0;
+        m_hasStats = true;
+        return;
+    }
+
+    double elapsed = now - m_lastStatsSampleTime;
+    if (elapsed <= 0.0001)
+    {
+        return;
+    }
+
+    auto diff = [](uint64_t current, uint64_t previous) -> uint64_t {
+        if (current >= previous) return current - previous;
+        return current;
+    };
+
+    m_audioCallbacksPerSec = static_cast<double>(diff(stats.audioCallbacks, m_previousStats.audioCallbacks)) / elapsed;
+    m_topupCallsPerSec = static_cast<double>(diff(stats.topupCalls, m_previousStats.topupCalls)) / elapsed;
+    m_queuedCallbacksPerSec = static_cast<double>(diff(stats.callbacksQueued, m_previousStats.callbacksQueued)) / elapsed;
+
+    m_previousStats = stats;
+    m_lastStatsSampleTime = now;
+}
+
+void SoundDebugOverlay::Render()
+{
+    if (!g_renderer)
+    {
+        return;
+    }
+
+    float baseX = 25.0f;
+    if (g_windowManager)
+    {
+        baseX = std::max(25.0f, static_cast<float>(g_windowManager->WindowW()) - 420.0f);
+    }
+
+    float y = 55.0f;
+    const float line = 16.0f;
+    const float sectionGap = 6.0f;
+    char buffer[256];
+
+    g_renderer->TextSimple(baseX, y, Colour(255, 220, 80, 255), 14.0f, "Sound Debug Overlay (F3)");
+    y += line;
+
+    Colour sectionColour(180, 220, 255, 255);
+    Colour textColour(255, 255, 255, 255);
+
+    g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "Preferences");
+    y += line;
+
+    if (g_preferences)
+    {
+        snprintf(buffer, sizeof(buffer), "Sound enabled       : %s", g_preferences->GetInt("Sound", 1) ? "yes" : "no");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Master volume       : %d", g_preferences->GetInt("SoundMasterVolume", 255));
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Mix freq / buffer   : %d Hz / %d samples",
+                 g_preferences->GetInt("SoundMixFreq", 44100),
+                 g_preferences->GetInt("SoundBufferSize", 4000));
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Channels (total/music): %d / %d",
+                 g_preferences->GetInt("SoundChannels", 32),
+                 g_preferences->GetInt("SoundMusicChannels", 12));
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        const char *libName = g_preferences->GetString("SoundLibrary", "sdl");
+        snprintf(buffer, sizeof(buffer), "Sound library       : %s", libName ? libName : "unknown");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Hardware 3D target  : %s", g_preferences->GetInt("SoundHW3D", 0) ? "enabled" : "disabled");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+    }
+    else
+    {
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, "Preferences unavailable");
+        y += line;
+    }
+
+    y += sectionGap;
+
+    g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "Sound System");
+    y += line;
+
+    if (g_soundSystem)
+    {
+        snprintf(buffer, sizeof(buffer), "Instances active    : %d", g_soundSystem->NumSoundInstances());
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Channels used       : %d / %d (music %d)",
+                 g_soundSystem->NumChannelsUsed(),
+                 g_soundSystem->m_numChannels,
+                 g_soundSystem->m_numMusicChannels);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Sounds discarded    : %d", g_soundSystem->NumSoundsDiscarded());
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        double timeUntilSync = g_soundSystem->m_timeSync - GetHighResTime();
+        snprintf(buffer, sizeof(buffer), "Time to next sync   : %.1f ms", timeUntilSync * 1000.0);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Blueprint propagate : %s", g_soundSystem->m_propagateBlueprints ? "yes" : "no");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+    }
+    else
+    {
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, "Sound system not initialised");
+        y += line;
+    }
+
+    y += sectionGap;
+
+    g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "3D Library");
+    y += line;
+
+    if (g_soundLibrary3d)
+    {
+        snprintf(buffer, sizeof(buffer), "Sample rate         : %d Hz", g_soundLibrary3d->GetSampleRate());
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Master volume       : %d", g_soundLibrary3d->GetMasterVolume());
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Channels (total/music): %d / %d",
+                 g_soundLibrary3d->GetNumChannels(),
+                 g_soundLibrary3d->GetNumMusicChannels());
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Max channels        : %d", g_soundLibrary3d->GetMaxChannels());
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "CPU overhead        : %d%%", g_soundLibrary3d->GetCPUOverhead());
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+    }
+    else
+    {
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, "3D library not initialised");
+        y += line;
+    }
+
+    y += sectionGap;
+
+    g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "SDL 2D Renderer");
+    y += line;
+
+    SoundLibrary2dSDL *sdl = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+    if (sdl)
+    {
+        unsigned actualFreq = sdl->GetActualFreq();
+        unsigned actualBuffer = sdl->GetActualSamplesPerBuffer();
+        snprintf(buffer, sizeof(buffer), "Audio started       : %s  Callback: %s",
+                 sdl->IsAudioStarted() ? "yes" : "no",
+                 sdl->HasCallback() ? "set" : "unset");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Recording to WAV    : %s", sdl->IsRecording() ? "yes" : "no");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Actual freq/buffer  : %u Hz / %u samples", actualFreq, actualBuffer);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Channels / format   : %u / 0x%04x",
+                 sdl->GetActualChannels(),
+                 sdl->GetActualFormat());
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        double audioSecondsMixed = (actualFreq > 0)
+                                    ? static_cast<double>(m_cachedStats.totalSamplesMixed) / static_cast<double>(actualFreq)
+                                    : 0.0;
+
+        snprintf(buffer, sizeof(buffer), "Audio callbacks     : %llu (%.1f/sec)",
+                 static_cast<unsigned long long>(m_cachedStats.audioCallbacks),
+                 m_audioCallbacksPerSec);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        double avgMs = m_cachedStats.avgCallbackInterval * 1000.0;
+        double maxMs = m_cachedStats.maxCallbackInterval * 1000.0;
+        double sinceLast = (m_cachedStats.lastCallbackTimestamp > 0.0)
+                               ? (GetHighResTime() - m_cachedStats.lastCallbackTimestamp) * 1000.0
+                               : 0.0;
+        snprintf(buffer, sizeof(buffer), "Callback intervals  : avg %.2f ms  max %.2f ms  idle %.2f ms",
+                 avgMs, maxMs, sinceLast);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Topup calls         : %llu (%.1f/sec)",
+                 static_cast<unsigned long long>(m_cachedStats.topupCalls),
+                 m_topupCallsPerSec);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Buffered callbacks  : queued %llu (%.1f/sec) processed %llu",
+                 static_cast<unsigned long long>(m_cachedStats.callbacksQueued),
+                 m_queuedCallbacksPerSec,
+                 static_cast<unsigned long long>(m_cachedStats.topupCallbacksProcessed));
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Buffer thirst       : %d  pending [%u, %u]",
+                 m_cachedStats.bufferIsThirsty,
+                 m_cachedStats.bufferedSamples[0],
+                 m_cachedStats.bufferedSamples[1]);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Last callback size  : %u samples", m_cachedStats.lastCallbackSamples);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Total mixed audio   : %llu samples (%.2f s)",
+                 static_cast<unsigned long long>(m_cachedStats.totalSamplesMixed),
+                 audioSecondsMixed);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+    }
+    else
+    {
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, "SDL library inactive");
+        y += line;
+    }
+}
