@@ -1,3 +1,57 @@
 *.mp4 filter=lfs diff=lfs merge=lfs -text
 synccompat/community-steam-ai-desync.mp4 filter=lfs diff=lfs merge=lfs -text
 globemode.mp4 filter=lfs diff=lfs merge=lfs -text
+
+
+# All text files get CRLF
+* text=auto eol=crlf
+
+*.c      text eol=crlf
+*.cpp    text eol=crlf
+*.cxx    text eol=crlf
+*.h      text eol=crlf
+*.hpp    text eol=crlf
+*.inl    text eol=crlf
+
+# Source files
+*.js     text eol=crlf
+*.jsx    text eol=crlf
+*.ts     text eol=crlf
+*.tsx    text eol=crlf
+*.html   text eol=crlf
+*.css    text eol=crlf
+*.json   text eol=crlf
+*.yml    text eol=crlf
+*.yaml   text eol=crlf
+
+# Windows scripts
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+*.ps1    text eol=crlf
+
+# Linux/macOS scripts
+*.sh     text eol=lf
+*.bash   text eol=lf
+*.zsh    text eol=lf
+
+# Never change
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.bmp    binary
+*.ico    binary
+*.pdf    binary
+*.zip    binary
+*.7z     binary
+*.rar    binary
+*.dll    binary
+*.exe    binary
+*.dat    binary
+*.dcrec  binary
+*.bin    binary
+
+# Git files
+.gitattributes text eol=lf
+.gitignore     text eol=lf
+.editorconfig  text eol=lf
