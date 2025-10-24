@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 # Kezza and Bert's Linux Build Script
 # Mimics the GitHub workflow for local building
