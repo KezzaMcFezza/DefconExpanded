@@ -31,6 +31,8 @@ private:
 	Buffer			m_buffer[2];
     void			(*m_callback) (StereoSample *buf, unsigned int numSamples);
 	FILE            *m_wavOutput;
+    std::string     m_currentOutputDevice;
+    bool            m_usedFallbackDevice;
 
 public:
 	struct RuntimeStats {
@@ -105,6 +107,8 @@ public:
 	bool			HasCallback() const;
 	bool			IsRecording() const;
 	void			GetRuntimeStats(RuntimeStats &_outStats);
+    const char     *GetCurrentOutputDeviceName() const;
+    bool            UsedFallbackDevice() const;
 	
 };
 

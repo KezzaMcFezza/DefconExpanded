@@ -1,7 +1,9 @@
 #include "lib/universal_include.h"
 
 #include <algorithm>
+#include <limits>
 #include <stdio.h>
+#include <unordered_set>
 
 #include "lib/sound/sound_debug_overlay.h"
 
@@ -11,6 +13,8 @@
 #include "lib/render2d/renderer.h"
 #include "lib/sound/sound_library_2d_sdl.h"
 #include "lib/sound/sound_library_3d.h"
+#include "lib/sound/sound_instance.h"
+#include "lib/sound/sound_sample_bank.h"
 #include "lib/sound/soundsystem.h"
 
 SoundDebugOverlay::SoundDebugOverlay()
@@ -20,7 +24,21 @@ SoundDebugOverlay::SoundDebugOverlay()
     m_lastStatsSampleTime(GetHighResTime()),
     m_audioCallbacksPerSec(0.0),
     m_topupCallsPerSec(0.0),
-    m_queuedCallbacksPerSec(0.0)
+    m_queuedCallbacksPerSec(0.0),
+    m_directCallbacksPerSec(0.0),
+    m_wavCallbacksPerSec(0.0),
+    m_topupProcessedPerSec(0.0)
+#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+    ,m_resampleInstanceCount(0),
+    m_resampleWaitingForLoop(0),
+    m_resampleInvalidInstances(0),
+    m_resampleStepMin(0.0),
+    m_resampleStepMax(0.0),
+    m_resampleStepAvg(0.0),
+    m_resampleCursorFracMin(0.0),
+    m_resampleCursorFracMax(0.0),
+    m_resampleCursorFracAvg(0.0)
+#endif
 {
 }
 
@@ -71,6 +89,111 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
     m_audioCallbacksPerSec = static_cast<double>(diff(stats.audioCallbacks, m_previousStats.audioCallbacks)) / elapsed;
     m_topupCallsPerSec = static_cast<double>(diff(stats.topupCalls, m_previousStats.topupCalls)) / elapsed;
     m_queuedCallbacksPerSec = static_cast<double>(diff(stats.callbacksQueued, m_previousStats.callbacksQueued)) / elapsed;
+    m_directCallbacksPerSec = static_cast<double>(diff(stats.callbacksDirect, m_previousStats.callbacksDirect)) / elapsed;
+    m_wavCallbacksPerSec = static_cast<double>(diff(stats.wavCallbacks, m_previousStats.wavCallbacks)) / elapsed;
+    m_topupProcessedPerSec = static_cast<double>(diff(stats.topupCallbacksProcessed, m_previousStats.topupCallbacksProcessed)) / elapsed;
+
+#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+    m_resampleInstanceCount = 0;
+    m_resampleWaitingForLoop = 0;
+    m_resampleInvalidInstances = 0;
+    m_resampleStepMin = 0.0;
+    m_resampleStepMax = 0.0;
+    m_resampleStepAvg = 0.0;
+    m_resampleCursorFracMin = 0.0;
+    m_resampleCursorFracMax = 0.0;
+    m_resampleCursorFracAvg = 0.0;
+
+    if (g_soundSystem && g_soundSystem->m_channels && g_soundSystem->m_numChannels > 0)
+    {
+        double stepMin = std::numeric_limits<double>::max();
+        double stepMax = 0.0;
+        double stepSum = 0.0;
+        int stepCount = 0;
+
+        double fracMin = std::numeric_limits<double>::max();
+        double fracMax = 0.0;
+        double fracSum = 0.0;
+        int fracCount = 0;
+
+        std::unordered_set<SoundInstance *> processed;
+        processed.reserve(static_cast<size_t>(g_soundSystem->m_numChannels));
+
+        for (int i = 0; i < g_soundSystem->m_numChannels; ++i)
+        {
+            SoundInstanceId instanceId = g_soundSystem->m_channels[i];
+            if (instanceId.m_index < 0)
+            {
+                continue;
+            }
+
+            SoundInstance *instance = g_soundSystem->LockSoundInstance(instanceId);
+            if (!instance)
+            {
+                continue;
+            }
+
+            bool inserted = processed.insert(instance).second;
+            if (!inserted)
+            {
+                g_soundSystem->UnlockSoundInstance(instance);
+                continue;
+            }
+
+            SoundSampleHandle *handle = instance->m_soundSampleHandle;
+            if (handle && handle->m_soundSample)
+            {
+                ++m_resampleInstanceCount;
+
+                double step = instance->m_resampleStep;
+                if (step < stepMin) stepMin = step;
+                if (step > stepMax) stepMax = step;
+                stepSum += step;
+                ++stepCount;
+
+                unsigned int totalFrames = handle->GetFrameCount();
+                if (totalFrames > 0)
+                {
+                    double cursor = instance->m_resampleCursor;
+                    double fraction = cursor / static_cast<double>(totalFrames);
+                    if (fraction < 0.0) fraction = 0.0;
+                    if (fraction < fracMin) fracMin = fraction;
+                    if (fraction > fracMax) fracMax = fraction;
+                    fracSum += fraction;
+                    ++fracCount;
+                    if (fraction >= 1.0)
+                    {
+                        ++m_resampleWaitingForLoop;
+                    }
+                }
+                else
+                {
+                    ++m_resampleInvalidInstances;
+                }
+            }
+            else
+            {
+                ++m_resampleInvalidInstances;
+            }
+
+            g_soundSystem->UnlockSoundInstance(instance);
+        }
+
+        if (stepCount > 0)
+        {
+            m_resampleStepMin = stepMin;
+            m_resampleStepMax = stepMax;
+            m_resampleStepAvg = stepSum / static_cast<double>(stepCount);
+        }
+
+        if (fracCount > 0)
+        {
+            m_resampleCursorFracMin = fracMin;
+            m_resampleCursorFracMax = fracMax;
+            m_resampleCursorFracAvg = fracSum / static_cast<double>(fracCount);
+        }
+    }
+#endif
 
     m_previousStats = stats;
     m_lastStatsSampleTime = now;
@@ -127,6 +250,12 @@ void SoundDebugOverlay::Render()
 
         const char *libName = g_preferences->GetString("SoundLibrary", "sdl");
         snprintf(buffer, sizeof(buffer), "Sound library       : %s", libName ? libName : "unknown");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        const char *preferredDevice = g_preferences->GetString(PREFS_SOUND_OUTPUT_DEVICE, "");
+        const char *preferredDisplay = (preferredDevice && preferredDevice[0]) ? preferredDevice : "<default>";
+        snprintf(buffer, sizeof(buffer), "Preferred output dev: %s", preferredDisplay);
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
@@ -232,6 +361,20 @@ void SoundDebugOverlay::Render()
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
+        const char *activeDevice = sdl->GetCurrentOutputDeviceName();
+        const char *activeDisplay = (activeDevice && activeDevice[0]) ? activeDevice : "<default>";
+        const char *requestedDevice = (g_preferences ? g_preferences->GetString(PREFS_SOUND_OUTPUT_DEVICE, "") : "");
+        if (sdl->UsedFallbackDevice() && requestedDevice && requestedDevice[0])
+        {
+            snprintf(buffer, sizeof(buffer), "Active output device: %s (fallback from %s)", activeDisplay, requestedDevice);
+        }
+        else
+        {
+            snprintf(buffer, sizeof(buffer), "Active output device: %s", activeDisplay);
+        }
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
         snprintf(buffer, sizeof(buffer), "Actual freq/buffer  : %u Hz / %u samples", actualFreq, actualBuffer);
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
@@ -252,6 +395,26 @@ void SoundDebugOverlay::Render()
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
+        snprintf(buffer, sizeof(buffer), "Direct callbacks    : %llu (%.1f/sec)",
+                 static_cast<unsigned long long>(m_cachedStats.callbacksDirect),
+                 m_directCallbacksPerSec);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Queued callbacks    : %llu (%.1f/sec) processed %llu (%.1f/sec)",
+                 static_cast<unsigned long long>(m_cachedStats.callbacksQueued),
+                 m_queuedCallbacksPerSec,
+                 static_cast<unsigned long long>(m_cachedStats.topupCallbacksProcessed),
+                 m_topupProcessedPerSec);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "WAV callbacks       : %llu (%.1f/sec)",
+                 static_cast<unsigned long long>(m_cachedStats.wavCallbacks),
+                 m_wavCallbacksPerSec);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
         double avgMs = m_cachedStats.avgCallbackInterval * 1000.0;
         double maxMs = m_cachedStats.maxCallbackInterval * 1000.0;
         double sinceLast = (m_cachedStats.lastCallbackTimestamp > 0.0)
@@ -265,13 +428,6 @@ void SoundDebugOverlay::Render()
         snprintf(buffer, sizeof(buffer), "Topup calls         : %llu (%.1f/sec)",
                  static_cast<unsigned long long>(m_cachedStats.topupCalls),
                  m_topupCallsPerSec);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
-
-        snprintf(buffer, sizeof(buffer), "Buffered callbacks  : queued %llu (%.1f/sec) processed %llu",
-                 static_cast<unsigned long long>(m_cachedStats.callbacksQueued),
-                 m_queuedCallbacksPerSec,
-                 static_cast<unsigned long long>(m_cachedStats.topupCallbacksProcessed));
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
@@ -297,4 +453,47 @@ void SoundDebugOverlay::Render()
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, "SDL library inactive");
         y += line;
     }
+
+    y += sectionGap;
+
+#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+    g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "Software Resampler");
+    y += line;
+
+    if (m_resampleInstanceCount > 0)
+    {
+        snprintf(buffer, sizeof(buffer), "Instances active    : %d  waiting loop %d  missing data %d",
+                 m_resampleInstanceCount,
+                 m_resampleWaitingForLoop,
+                 m_resampleInvalidInstances);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Resample step       : min %.4f  avg %.4f  max %.4f",
+                 m_resampleStepMin,
+                 m_resampleStepAvg,
+                 m_resampleStepMax);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Cursor progress     : min %.1f%%  avg %.1f%%  max %.1f%%",
+                 m_resampleCursorFracMin * 100.0,
+                 m_resampleCursorFracAvg * 100.0,
+                 m_resampleCursorFracMax * 100.0);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+    }
+    else
+    {
+        snprintf(buffer, sizeof(buffer), "Instances active    : 0  missing data %d",
+                 m_resampleInvalidInstances);
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+    }
+#else
+    g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "Software Resampler");
+    y += line;
+    g_renderer->TextSimple(baseX, y, textColour, 11.0f, "Disabled (hardware handles pitch)");
+    y += line;
+#endif
 }
