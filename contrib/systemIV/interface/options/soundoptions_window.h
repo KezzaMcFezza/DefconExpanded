@@ -2,9 +2,12 @@
 #ifndef _included_soundoptionswindow_h
 #define _included_soundoptionswindow_h
 
+#include "lib/universal_include.h"
 #include "interface/components/core.h"
 
+#if defined(HAVE_DSOUND) && !defined(WINDOWS_SDL)
 #define SOUNDOPTIONSWINDOW_USEHARDWARE3D
+#endif
 //#define SOUNDOPTIONSWINDOW_USEDSPEFFECTS
 
 
