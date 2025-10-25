@@ -101,7 +101,8 @@ void SoundSystem::RestartSoundLibrary()
     //
     // Start up a new sound library
 
-	int mixrate         = g_preferences->GetInt("SoundMixFreq", 22050);
+	g_preferences->SetInt(PREFS_SOUND_MIXFREQ, 44100);
+	int mixrate         = 44100;
 	int volume          = g_preferences->GetInt("SoundMasterVolume", 255);
     m_numChannels       = g_preferences->GetInt("SoundChannels", 32);
     m_numMusicChannels  = g_preferences->GetInt("SoundMusicChannels", 12 );

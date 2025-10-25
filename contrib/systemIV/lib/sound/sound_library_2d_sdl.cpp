@@ -166,7 +166,7 @@ void SoundLibrary2dSDL::TopupBuffer()
 		if (GetHighResTime() > nextOutputTime)
 		{
 			StereoSample buf[5000];
-			int samplesPerSecond = g_preferences->GetInt("SoundMixFreq", 44100);
+			int samplesPerSecond = 44100;
 			int samplesPerUpdate = (int)((double)samplesPerSecond / 20.0);
 			if (m_callback) {
 				G_SL2D->m_callback(buf, samplesPerUpdate);
@@ -243,7 +243,8 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 {
 	AppReleaseAssert(!g_soundLibrary2d, "SoundLibrary2dSDL already exists");
 
-	m_freq = g_preferences->GetInt("SoundMixFreq", 44100);
+	m_freq = 44100;
+	g_preferences->SetInt(PREFS_SOUND_MIXFREQ, m_freq);
 	m_samplesPerBuffer = g_preferences->GetInt("SoundBufferSize", 4000);
 
 	AppDebugOut("Buffer size: %u\n", m_samplesPerBuffer);

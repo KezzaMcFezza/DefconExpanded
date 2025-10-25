@@ -114,7 +114,8 @@ SoundOptionsWindow::SoundOptionsWindow()
     SetSize( 390, 350 );
 #endif
 
-    m_mixFreq       = g_preferences->GetInt( PREFS_SOUND_MIXFREQ, 22050 );
+    m_mixFreq       = 44100;
+    g_preferences->SetInt( PREFS_SOUND_MIXFREQ, m_mixFreq );
     m_numChannels   = g_preferences->GetInt( PREFS_SOUND_CHANNELS, 16 );
     m_useHardware3D = g_preferences->GetInt( PREFS_SOUND_HW3D, 0 );
     m_swapStereo    = g_preferences->GetInt( PREFS_SOUND_SWAPSTEREO, 0 );
@@ -154,14 +155,6 @@ void SoundOptionsWindow::Create()
 #endif
     soundLib->RegisterInt( &m_soundLib );
     RegisterButton( soundLib );
-
-    DropDownMenu *mixFreq = new DropDownMenu();
-    mixFreq->SetProperties( "Mix Frequency", x, y+=h, w, 20, "dialog_mixfrequency", " ", true, false );
-    mixFreq->AddOption( "dialog_11khz", 11025, true );
-    mixFreq->AddOption( "dialog_22khz", 22050, true );
-    mixFreq->AddOption( "dialog_44khz", 44100, true );
-    mixFreq->RegisterInt( &m_mixFreq );
-    RegisterButton( mixFreq );
 
     DropDownMenu *numChannels = new DropDownMenu();
     numChannels->SetProperties( "Num Channels", x, y+=h, w, 20, "dialog_numchannels", " ", true, false );
@@ -239,7 +232,6 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     int size = 13;
 
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundlibrary") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_mixfrequency") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_numchannels") );
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundbuffersize") );

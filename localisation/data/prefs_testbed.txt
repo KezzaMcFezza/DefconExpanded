@@ -6,7 +6,7 @@ ScreenRefresh = 60
 ScreenZDepth = 24
  
 SoundLibrary = dsound
-SoundMixFreq = 22050
+SoundMixFreq = 44100
 SoundMasterVolume = 255
 SoundChannels = 8
 SoundMusicChannels = 4
