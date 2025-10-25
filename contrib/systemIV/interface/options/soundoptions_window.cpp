@@ -3,6 +3,7 @@
 #include "lib/sound/sound_sample_bank.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/render2d/renderer.h"
+#include "lib/render/styletable.h"
 #include "lib/language_table.h"
 #include "lib/preferences.h"
 #include "lib/profiler.h"
@@ -15,6 +16,71 @@
 
 #include "soundoptions_window.h"
 
+
+
+#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
+namespace
+{
+std::string TruncateToFitButtonWidth(const std::string &_text, float _maxWidth)
+{
+    if (_text.empty() || _maxWidth <= 0.0f)
+    {
+        return _text;
+    }
+
+    Style *buttonFont = g_styleTable->GetStyle(FONTSTYLE_BUTTON);
+    AppAssert(buttonFont);
+
+    const bool useDefaultFont = stricmp(buttonFont->m_fontName, "default") == 0;
+    g_renderer->SetFont(useDefaultFont ? NULL : buttonFont->m_fontName,
+                        false,
+                        buttonFont->m_negative);
+
+    const float fontSize = buttonFont->m_size;
+    std::string result = _text;
+
+    const float fullWidth = g_renderer->TextWidth(_text.c_str(), fontSize);
+    if (fullWidth > _maxWidth)
+    {
+        const char *ellipsis = "...";
+        const float ellipsisWidth = g_renderer->TextWidth(ellipsis, fontSize);
+        const bool canAppendEllipsis = ellipsisWidth > 0.0f && ellipsisWidth < _maxWidth;
+        const float maxTextWidth = canAppendEllipsis ? _maxWidth - ellipsisWidth : _maxWidth;
+
+        std::string fitted;
+        fitted.reserve(_text.size());
+
+        for (size_t i = 0; i < _text.size(); ++i)
+        {
+            fitted.push_back(_text[i]);
+            const float width = g_renderer->TextWidth(fitted.c_str(), fontSize);
+            if (width > maxTextWidth)
+            {
+                fitted.pop_back();
+                break;
+            }
+        }
+
+        if (fitted.empty())
+        {
+            result = canAppendEllipsis ? ellipsis : std::string();
+        }
+        else if (canAppendEllipsis && fitted.size() < _text.size())
+        {
+            result = fitted + ellipsis;
+        }
+        else
+        {
+            result = fitted;
+        }
+    }
+
+    g_renderer->SetFont();
+
+    return result;
+}
+} // namespace
+#endif
 
 
 class RestartSoundButton : public InterfaceButton
@@ -166,9 +232,11 @@ void SoundOptionsWindow::Create()
     DropDownMenu *outputDevice = new DropDownMenu();
     outputDevice->SetProperties( "Sound Output Device", x, y+=h, w, 20, "dialog_soundoutputdevice", " ", true, false );
     outputDevice->AddOption( "dialog_sounddevice_default", 0, true );
+    const float maxDeviceLabelWidth = (float)w - 20.0f;
     for( size_t i = 1; i < m_outputDevices.size(); ++i )
     {
-        outputDevice->AddOption( m_outputDevices[i].c_str(), (int)i, false );
+        const std::string displayName = TruncateToFitButtonWidth( m_outputDevices[i], maxDeviceLabelWidth );
+        outputDevice->AddOption( displayName.c_str(), (int)i, false );
     }
     if( m_selectedDeviceIndex < 0 || m_selectedDeviceIndex >= (int)m_outputDevices.size() )
     {
