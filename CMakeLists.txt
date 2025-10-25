@@ -163,7 +163,6 @@ if(EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/netlib/net_udp_packet_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
         ${SYSTEMIV_PATH}/contrib/binreloc/binreloc.c
-        ${SYSTEMIV_PATH}/contrib/unrar/log.cpp
     )
     
     set(EXE_TYPE)
@@ -231,6 +230,8 @@ elseif(MSVC)
         ${SYSTEMIV_PATH}/lib/netlib/condition_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_winxp.cpp
         ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_dsound.cpp
+        ${SYSTEMIV_PATH}/contrib/unrar/isnt.cpp
+        ${SYSTEMIV_PATH}/contrib/unrar/motw.cpp
     )
     
     set(EXE_TYPE WIN32)
@@ -306,7 +307,6 @@ elseif(APPLE)
         ${ROOT_PATH}/source/app/macutil.cpp
         ${ROOT_PATH}/source/app/dockicon.mm
         ${SYSTEMIV_PATH}/lib/gucci/input_sdl.cpp
-        ${SYSTEMIV_PATH}/contrib/unrar/log.cpp
         ${SYSTEMIV_PATH}/contrib/binreloc/binreloc.c
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
@@ -332,6 +332,8 @@ elseif(APPLE)
         ${SYSTEMIV_PATH}/lib/netlib/condition_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_winxp.cpp
         ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_dsound.cpp
+        ${SYSTEMIV_PATH}/contrib/unrar/isnt.cpp
+        ${SYSTEMIV_PATH}/contrib/unrar/motw.cpp
     )
 
 elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
@@ -399,7 +401,6 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/gucci/window_manager_sdl.cpp
         ${SYSTEMIV_PATH}/lib/sound/sound_library_2d_sdl.cpp
         ${SYSTEMIV_PATH}/contrib/binreloc/binreloc.c
-        ${SYSTEMIV_PATH}/contrib/unrar/log.cpp
     )
     
     set(EXE_TYPE)
@@ -414,6 +415,8 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/netlib/condition_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_winxp.cpp
         ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_dsound.cpp
+        ${SYSTEMIV_PATH}/contrib/unrar/isnt.cpp
+        ${SYSTEMIV_PATH}/contrib/unrar/motw.cpp
         ${ROOT_PATH}/source/app/macutil.cpp
         ${ROOT_PATH}/source/app/dockicon.mm
     )
@@ -561,7 +564,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/filesys/text_stream_readers.cpp
     ${SYSTEMIV_PATH}/lib/math/fixed_float.cpp
     ${SYSTEMIV_PATH}/lib/math/fixed_64.cpp
-    ${SYSTEMIV_PATH}/lib/math/hash.cpp
+    ${SYSTEMIV_PATH}/lib/math/hash_data.cpp
     ${SYSTEMIV_PATH}/lib/math/math_utils.cpp
     ${SYSTEMIV_PATH}/lib/math/random_number.cpp
     ${SYSTEMIV_PATH}/lib/math/vector2.cpp
@@ -622,8 +625,10 @@ set(SYSTEMIV_SOURCE
 )
 
 set(UNRAR_SOURCE 
+    ${SYSTEMIV_PATH}/contrib/unrar/unrar.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/archive.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/arcread.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/blake2s.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/cmddata.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/consio.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/crc.cpp
@@ -639,32 +644,38 @@ set(UNRAR_SOURCE
     ${SYSTEMIV_PATH}/contrib/unrar/find.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/getbits.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/global.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/int64.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/isnt.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/hash.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/headers.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/largepage.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/log.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/list.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/match.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/options.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/pathfn.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/rarresource.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/qopen.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/rar.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/rarpch.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/rarvm.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/rarvmtbl.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/rawread.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/rdwrfn.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/recvol.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/resourcerar.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/rijndael.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/rs.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/savepos.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/rs16.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/scantree.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/secpassword.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/sha1.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/sha256.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/smallfn.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/strfn.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/strlist.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/system.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/threadpool.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/timefn.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/ulinks.cpp
+    ${SYSTEMIV_PATH}/contrib/unrar/ui.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/unicode.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/unpack.cpp
-    ${SYSTEMIV_PATH}/contrib/unrar/unrar.cpp
     ${SYSTEMIV_PATH}/contrib/unrar/volume.cpp
 )
 
@@ -843,11 +854,7 @@ target_include_directories(${EXECUTABLE_NAME} PUBLIC
 add_library(systemIV INTERFACE)
 target_link_libraries(${EXECUTABLE_NAME} PUBLIC systemIV)
 
-if(NOT APPLE)
-    target_precompile_headers(${EXECUTABLE_NAME} PRIVATE
-        ${ROOT_PATH}/source/lib/universal_include.h
-    )
-endif()
+
 
 if(MSVC)
     add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 

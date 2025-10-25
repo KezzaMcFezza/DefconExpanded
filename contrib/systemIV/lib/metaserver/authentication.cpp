@@ -1,9 +1,9 @@
 #include "lib/universal_include.h"
+#include "lib/math/hash_data.h"
 
 #include "authentication.h"
 
 #include "lib/debug_utils.h"
-#include "lib/math/hash.h"
 #include "lib/math/random_number.h"
 #include "lib/metaserver/metaserver_defines.h"
 #include "lib/metaserver/metaserver.h"

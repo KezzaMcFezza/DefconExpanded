@@ -80,6 +80,7 @@ void FileSystem::ParseArchive( const char *_filename )
 			}
 			
 			m_archiveFiles.PutData(file->m_filename, file);
+			mainData->m_files[i] = NULL;
 		}
 	}
 

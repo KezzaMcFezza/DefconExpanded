@@ -1,10 +1,8 @@
-#include "coder.h"
-#include "unpack.h"
 
 
-inline unsigned int RangeCoder::GetChar()
+inline byte RangeCoder::GetChar()
 {
-  return(UnpackRead->GetChar());
+  return UnpackRead->GetChar();
 }
 
 
@@ -13,15 +11,16 @@ void RangeCoder::InitDecoder(Unpack *UnpackRead)
   RangeCoder::UnpackRead=UnpackRead;
 
   low=code=0;
-  range=(unsigned int)(-1);
-  for (int i=0;i < 4;i++)
+  range=0xffffffff;
+  for (uint i = 0; i < 4; i++)
     code=(code << 8) | GetChar();
 }
 
 
+// (int) cast before "low" added only to suppress compiler warnings.
 #define ARI_DEC_NORMALIZE(code,low,range,read)                           \
 {                                                                        \
-  while ((low^(low+range))<RAR_TOP || range<RAR_BOT && ((range=-low&(RAR_BOT-1)),1)) \
+  while ((low^(low+range))<TOP || range<BOT && ((range=-(int)low&(BOT-1)),1)) \
   {                                                                      \
     code=(code << 8) | read->GetChar();                                  \
     range <<= 8;                                                         \
@@ -36,7 +35,7 @@ inline int RangeCoder::GetCurrentCount()
 }
 
 
-inline unsigned int RangeCoder::GetCurrentShiftCount(unsigned int SHIFT) 
+inline uint RangeCoder::GetCurrentShiftCount(uint SHIFT) 
 {
   return (code-low)/(range >>= SHIFT);
 }

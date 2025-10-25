@@ -1,21 +1,36 @@
-#include "rarbloat.h"
+#include "rar.hpp"
 
-static char LogName[NM];
 
-void InitLogOptions(char *LogName)
+
+void InitLogOptions(const std::wstring &LogFileName,RAR_CHARSET CSet)
 {
-  strcpy(::LogName,LogName);
 }
 
 
-void Log(const char *ArcName,const char *Format,...)
+void CloseLogOptions()
 {
-  safebuf char Msg[2*NM+1024];
-  va_list ArgPtr;
-  va_start(ArgPtr,Format);
-  vsprintf(Msg,Format,ArgPtr);
-  va_end(ArgPtr);
-  eprintf("%s",Msg);
 }
+
+
+#ifndef SILENT
+void Log(const wchar *ArcName,const wchar *fmt,...)
+{
+  // Preserve the error code for possible following system error message.
+  int Code=ErrHandler.GetSystemErrorCode();
+
+  uiAlarm(UIALARM_ERROR);
+
+  va_list arglist;
+  va_start(arglist,fmt);
+
+  std::wstring s=vwstrprintf(fmt,arglist);
+
+  ReplaceEsc(s);
+  
+  va_end(arglist);
+  eprintf(L"%ls",s.c_str());
+  ErrHandler.SetSystemErrorCode(Code);
+}
+#endif
 
 

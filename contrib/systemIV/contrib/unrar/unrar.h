@@ -1,9 +1,7 @@
 #ifndef INCLUDED_UNRAR_H
 #define INCLUDED_UNRAR_H
 
-
 #define MAX_FILES	16384
-
 
 class MemMappedFile
 {
@@ -16,20 +14,20 @@ public:
 	~MemMappedFile();
 };
 
-
 class UncompressedArchive
 {
 public:
 	MemMappedFile	*m_files[MAX_FILES];
 	unsigned int	m_numFiles;
 
-	// The constructor decompresses a Rar file into memory, creating a big
-	// array of pointers to memory mapped files
-	UncompressedArchive(char const *_filename,	// eg "yourArchive.rar"
-						char const *_password);	// Set to NULL if archive is not encrypted);
+	UncompressedArchive(char const *_filename, char const *_password);
+	~UncompressedArchive();
 
 	MemMappedFile *AllocNewFile(char const *_filename, unsigned int _size);
+
+private:
+	UncompressedArchive(const UncompressedArchive&);
+	UncompressedArchive& operator=(const UncompressedArchive&);
 };
 
-
-#endif
+#endif // INCLUDED_UNRAR_H

@@ -11,8 +11,8 @@
 
 #include "lib/universal_include.h"
 
-#include <unrar/rarbloat.h>
-#include <unrar/sha1.h>
+#include "unrar/rartypes.hpp"
+#include "unrar/sha1.hpp"
 #include <float.h>
 #include <time.h>
 
@@ -643,7 +643,7 @@ bool ProcessServerLetters( Directory *letter )
 }
 
 inline
-void Hash( hash_context &c, unsigned i )
+void Hash( sha1_context &c, unsigned i )
 {
        unsigned char syncBuffer[4] = {
            (unsigned char) (i & 0xFF),
@@ -652,17 +652,17 @@ void Hash( hash_context &c, unsigned i )
            (unsigned char) ((i >> 24) & 0xFF)
        };
 
-       hash_process( &c, (unsigned char *)syncBuffer, 4 );
+       sha1_process( &c, (byte *)syncBuffer, 4 );
 }
 
 inline
-void Hash( hash_context &c, int i )
+void Hash( sha1_context &c, int i )
 {
        Hash( c, (unsigned) i );
 }
 
 inline 
-void Hash( hash_context &c, float f )
+void Hash( sha1_context &c, float f )
 {
 	union 
 	{
@@ -675,7 +675,7 @@ void Hash( hash_context &c, float f )
 }
 
 inline
-void Hash( hash_context &c, double d )
+void Hash( sha1_context &c, double d )
 {
 	union
 	{
@@ -697,11 +697,11 @@ void Hash( hash_context &c, double d )
         (unsigned char) ((i >> 56) & 0xFF),
 	};
 	
-	hash_process( &c, (unsigned char *)syncBuffer, 8 );
+	sha1_process( &c, (byte *)syncBuffer, 8 );
 }
 
 inline
-void Hash( hash_context &c, const Fixed &f )
+void Hash( sha1_context &c, const Fixed &f )
 {
        Hash(c, f.DoubleValue() );
 }
@@ -720,8 +720,8 @@ unsigned char GenerateSyncValue()
     //
     // Objects
 
-    hash_context c;
-    hash_initial(&c);
+    sha1_context c;
+    sha1_init(&c);
 
 #ifdef TRACK_SYNC_RAND_EXTRA_VALIDATION
     for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
@@ -775,7 +775,7 @@ unsigned char GenerateSyncValue()
     }
 	
 	uint32 hashResult[5];
-	hash_final(&c, hashResult);
+	sha1_done(&c, hashResult);
 	result = hashResult[0] & 0xFF;
 		
     END_PROFILE( "GenerateSyncValue" );
