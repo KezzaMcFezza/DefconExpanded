@@ -706,6 +706,10 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\netlib\thread_controller.cpp">
       <Filter>lib\netlib</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\win32library.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.cpp">
+      <Filter>lib\sound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">
@@ -1202,6 +1206,10 @@
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\netlib\thread_controller.h">
       <Filter>lib\netlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\win32library.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.h">
+      <Filter>lib\sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
