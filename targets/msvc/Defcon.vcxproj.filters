@@ -91,6 +91,9 @@
     <Filter Include="contrib\glad">
       <UniqueIdentifier>{e35ff38c-1916-4287-b2bc-a97198032d69}</UniqueIdentifier>
     </Filter>
+    <Filter Include="contrib\highway">
+      <UniqueIdentifier>{f12ab456-3c8d-4e9f-a1b2-d8e9f4a5b6c7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\app\app.cpp">
@@ -581,6 +584,27 @@
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\contrib\glad\desktop\src\wgl_ext.c">
       <Filter>contrib\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\abort.cc">
+      <Filter>contrib\highway</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\aligned_allocator.cc">
+      <Filter>contrib\highway</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\nanobenchmark.cc">
+      <Filter>contrib\highway</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\per_target.cc">
+      <Filter>contrib\highway</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\print.cc">
+      <Filter>contrib\highway</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\targets.cc">
+      <Filter>contrib\highway</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\timer.cc">
+      <Filter>contrib\highway</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_vbo.cpp">
       <Filter>lib\render2d</Filter>

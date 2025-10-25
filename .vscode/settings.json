@@ -123,6 +123,7 @@
         "-I${workspaceFolder}/source/app",
         "-I${workspaceFolder}/contrib/systemIV",
         "-I${workspaceFolder}/contrib/systemIV/contrib",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/highway-1.3.0",
         "-I${workspaceFolder}/contrib/systemIV/contrib/unrar",
         "-I${workspaceFolder}/contrib/systemIV/contrib/binreloc",
         "-I${workspaceFolder}/contrib/systemIV/contrib/oggvorbis/include",

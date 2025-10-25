@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(ROOT_PATH ".")
 set(SYSTEMIV_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV" CACHE PATH "Location of the SystemIV base")
 set(GLAD_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/glad")
+set(HIGHWAY_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/highway-1.3.0")
 set(RESOURCES_DIR "${ROOT_PATH}/resources")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/result/Debug")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/result/Release")
@@ -25,6 +26,40 @@ if(OpenMP_CXX_FOUND)
 else()
     message(STATUS "OpenMP not found")
 endif()
+
+include(CheckCXXSourceCompiles)
+
+set(atomic_test_code "
+    #include <atomic>
+    #include <cstdint>
+    std::atomic<uint8_t> n8(0);
+    std::atomic<uint64_t> n64(0);
+    int main() {
+        ++n8;
+        ++n64;
+        return 0;
+    }")
+
+set(CMAKE_REQUIRED_QUIET_SAVE ${CMAKE_REQUIRED_QUIET})
+set(CMAKE_REQUIRED_QUIET TRUE)
+
+check_cxx_source_compiles("${atomic_test_code}" ATOMICS_LOCK_FREE)
+
+if(NOT ATOMICS_LOCK_FREE)
+    set(CMAKE_REQUIRED_LIBRARIES "-latomic")
+    check_cxx_source_compiles("${atomic_test_code}" ATOMICS_IN_LIBRARY)
+    set(CMAKE_REQUIRED_LIBRARIES)
+    if(ATOMICS_IN_LIBRARY)
+        set(HIGHWAY_NEEDS_ATOMIC_LIB TRUE)
+    endif()
+else()
+    set(HIGHWAY_NEEDS_ATOMIC_LIB FALSE)
+endif()
+
+set(CMAKE_REQUIRED_QUIET ${CMAKE_REQUIRED_QUIET_SAVE})
+unset(atomic_test_code)
+
+message(STATUS "Google Highway SIMD library Enabled")
 
 if(EMSCRIPTEN)
     set(GLAD_INCLUDE_DIR "${GLAD_PATH}/emscripten/include")
@@ -54,6 +89,7 @@ include_directories(
     ${SYSTEMIV_PATH}/lib/netlib
     ${SYSTEMIV_PATH}/lib/eclipse
     ${GLAD_INCLUDE_DIR}
+    ${HIGHWAY_PATH}
 )
 
 set(RESOURCE_FILES
@@ -185,6 +221,7 @@ if(EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/netlib/net_socket_session.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_udp_packet.cpp
         ${SYSTEMIV_PATH}/lib/debug_utils.cpp
+        ${HIGHWAY_PATH}/hwy/aligned_allocator.cc # aligned_allocator.cc causes clang crash on wasm32 target with complex pointer arithmetic
     )
 
 elseif(MSVC)
@@ -219,6 +256,7 @@ elseif(MSVC)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4244 /wd4305 /wd4005 /wd4996")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /IGNORE:4006")
     set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} /IGNORE:4006")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX2")
     
     set(PLATFORM_SPECIFIC_FILES
         ${ROOT_PATH}/source/app/trayicon.cpp
@@ -232,6 +270,7 @@ elseif(MSVC)
         ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_dsound.cpp
         ${SYSTEMIV_PATH}/contrib/unrar/isnt.cpp
         ${SYSTEMIV_PATH}/contrib/unrar/motw.cpp
+        ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
     )
     
     set(EXE_TYPE WIN32)
@@ -294,6 +333,13 @@ elseif(APPLE)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -F${MACOS_FRAMEWORKS_DIR}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-deprecated-declarations -Wno-error=format-security -fpermissive")
     
+    # architecture specific SIMD for macos
+    if(CMAKE_OSX_ARCHITECTURES MATCHES "x86_64")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma -mbmi2")
+    elseif(CMAKE_OSX_ARCHITECTURES MATCHES "arm64")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    endif()
+    
     include_directories(
         ${MACOS_FRAMEWORKS_DIR}
         ${MACOS_FRAMEWORKS_DIR}/SDL2.framework
@@ -313,6 +359,7 @@ elseif(APPLE)
         ${SYSTEMIV_PATH}/lib/gucci/window_manager_sdl.cpp
         ${SYSTEMIV_PATH}/lib/sound/sound_library_2d_sdl.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
+        ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
         ${MACOS_SPECIFIC_SOURCES}
     )
     
@@ -390,6 +437,7 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-pie")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-pie")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -no-pie")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma -mbmi2")
     
     set(PLATFORM_SPECIFIC_FILES
         ${ROOT_PATH}/source/lib/debug_utils_linux.cpp
@@ -401,6 +449,7 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/gucci/window_manager_sdl.cpp
         ${SYSTEMIV_PATH}/lib/sound/sound_library_2d_sdl.cpp
         ${SYSTEMIV_PATH}/contrib/binreloc/binreloc.c
+        ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
     )
     
     set(EXE_TYPE)
@@ -679,13 +728,23 @@ set(UNRAR_SOURCE
     ${SYSTEMIV_PATH}/contrib/unrar/volume.cpp
 )
 
+set(HIGHWAY_SOURCE
+    ${HIGHWAY_PATH}/hwy/abort.cc
+    ${HIGHWAY_PATH}/hwy/nanobenchmark.cc
+    ${HIGHWAY_PATH}/hwy/per_target.cc
+    ${HIGHWAY_PATH}/hwy/print.cc
+    ${HIGHWAY_PATH}/hwy/targets.cc
+    ${HIGHWAY_PATH}/hwy/timer.cc
+)
+
 foreach(FILE ${FILES_TO_EXCLUDE})
     list(REMOVE_ITEM DEFCON_SOURCE ${FILE})
     list(REMOVE_ITEM SYSTEMIV_SOURCE ${FILE})
     list(REMOVE_ITEM UNRAR_SOURCE ${FILE})
+    list(REMOVE_ITEM HIGHWAY_SOURCE ${FILE})
 endforeach()
 
-set(ALL_SOURCES ${DEFCON_SOURCE} ${SYSTEMIV_SOURCE} ${UNRAR_SOURCE} ${PLATFORM_SPECIFIC_FILES} ${RESOURCE_FILES} ${GLAD_SOURCE_FILE})
+set(ALL_SOURCES ${DEFCON_SOURCE} ${SYSTEMIV_SOURCE} ${UNRAR_SOURCE} ${HIGHWAY_SOURCE} ${PLATFORM_SPECIFIC_FILES} ${RESOURCE_FILES} ${GLAD_SOURCE_FILE})
 
 if(REPLAY_VIEWER_BUILD)
     set(EXECUTABLE_NAME "replay_viewer_${REPLAY_VIEWER_VERSION}")
@@ -837,6 +896,10 @@ else()
         dl
         pthread
     )
+    
+    if(HIGHWAY_NEEDS_ATOMIC_LIB)
+        target_link_libraries(${EXECUTABLE_NAME} PRIVATE atomic)
+    endif()
     
     if(OpenMP_CXX_FOUND)
         target_link_libraries(${EXECUTABLE_NAME} PRIVATE OpenMP::OpenMP_CXX)

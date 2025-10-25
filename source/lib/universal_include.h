@@ -283,17 +283,20 @@
 
 #endif
 
-// Include OpenGL
+// Include library headers
 #ifdef TARGET_OS_MACOSX
 #include <glad/glad.h>
+#include <hwy/highway.h>
 #include <SDL2/SDL.h>
 #undef TARGET_OS_LINUX
 #undef TARGET_OS_WINDOWS
 #elif defined(TARGET_MSVC)
 #include <glad/glad.h>
 #include <glad/wgl_ext.h>
+#include <hwy/highway.h>
 #else
 #include <glad/glad.h>
+#include <hwy/highway.h>
 #endif
 
 #ifdef OPENMP
