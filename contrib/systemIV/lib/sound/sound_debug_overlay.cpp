@@ -238,7 +238,7 @@ void SoundDebugOverlay::Render()
 
         snprintf(buffer, sizeof(buffer), "Mix freq / buffer   : %d Hz / %d samples",
                  g_preferences->GetInt("SoundMixFreq", 44100),
-                 g_preferences->GetInt("SoundBufferSize", 4000));
+                 g_preferences->GetInt("SoundBufferSize", 512));
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 

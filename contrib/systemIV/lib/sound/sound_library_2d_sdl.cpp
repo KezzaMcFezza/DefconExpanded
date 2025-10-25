@@ -253,7 +253,7 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 
 	m_freq = 44100;
 	g_preferences->SetInt(PREFS_SOUND_MIXFREQ, m_freq);
-	m_samplesPerBuffer = g_preferences->GetInt("SoundBufferSize", 4000);
+	m_samplesPerBuffer = g_preferences->GetInt("SoundBufferSize", 512);
 
 	AppDebugOut("Buffer size: %u\n", m_samplesPerBuffer);
 
