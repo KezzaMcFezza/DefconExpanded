@@ -23,9 +23,6 @@ public:
 	int     m_dspEffects;
 	int     m_memoryUsage;
 	int     m_masterVolume;
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-	int     m_soundBufferSize;
-#endif
 #if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
 	int                             m_selectedDeviceIndex;
 	std::string                     m_preferredOutputDevice;

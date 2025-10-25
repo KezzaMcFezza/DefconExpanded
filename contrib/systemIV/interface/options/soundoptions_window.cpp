@@ -32,9 +32,6 @@ public:
         g_preferences->SetInt( PREFS_SOUND_DSPEFFECTS, parent->m_dspEffects );
         g_preferences->SetInt( PREFS_SOUND_MEMORY, parent->m_memoryUsage );
         g_preferences->SetInt( PREFS_SOUND_MASTERVOLUME, parent->m_masterVolume );
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-        g_preferences->SetInt( PREFS_SOUND_BUFFERSIZE, parent->m_soundBufferSize );
-#endif
 #if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
         const char *selectedDevice = parent->GetSelectedOutputDeviceName();
         if (selectedDevice && selectedDevice[0])
@@ -137,9 +134,6 @@ SoundOptionsWindow::SoundOptionsWindow()
     m_dspEffects    = g_preferences->GetInt( PREFS_SOUND_DSPEFFECTS, 1 );
     m_memoryUsage   = g_preferences->GetInt( PREFS_SOUND_MEMORY, 1 );
     m_masterVolume  = g_preferences->GetInt( PREFS_SOUND_MASTERVOLUME, 255 );
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-    m_soundBufferSize = g_preferences->GetInt( PREFS_SOUND_BUFFERSIZE, 512 );
-#endif
 
     const char *soundLib  = g_preferences->GetString( PREFS_SOUND_LIBRARY );
     
@@ -194,17 +188,6 @@ void SoundOptionsWindow::Create()
     RegisterButton( soundLib );
 #endif
 
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-    DropDownMenu *soundBufferSize = new DropDownMenu();
-    soundBufferSize->SetProperties( "Sound Buffer Size", x, y+=h, w, 20, "dialog_soundbuffersize", " ", true, false );
-    soundBufferSize->AddOption( "dialog_512samples", 512, true );
-    soundBufferSize->AddOption( "dialog_1024samples", 1024, true );
-    soundBufferSize->AddOption( "dialog_2048samples", 2048, true );
-    soundBufferSize->AddOption( "dialog_4096samples", 4096, true );
-    soundBufferSize->AddOption( "dialog_8192samples", 8192, true );
-    soundBufferSize->RegisterInt( &m_soundBufferSize );
-    RegisterButton( soundBufferSize );
-#endif
 
     //DropDownMenu *memoryUsage = new DropDownMenu();
     //memoryUsage->SetProperties( "Memory Usage", x, y+=h, w, 20, "dialog_memoryusage", " ", true, false );
@@ -264,9 +247,6 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundoutputdevice") );
 #else
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundlibrary") );
-#endif
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundbuffersize") );
 #endif
     //g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_memoryusage") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_swapstereo") );
