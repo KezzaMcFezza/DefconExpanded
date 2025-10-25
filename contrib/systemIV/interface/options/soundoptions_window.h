@@ -13,7 +13,6 @@ class SoundOptionsWindow : public InterfaceWindow
 public:
     int     m_soundLib;
     int     m_mixFreq;
-    int     m_numChannels;
     int     m_useHardware3D;
     int     m_swapStereo;
     int     m_dspEffects;

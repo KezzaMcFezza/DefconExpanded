@@ -24,7 +24,6 @@ public:
         int oldMemoryUsage = g_preferences->GetInt( PREFS_SOUND_MEMORY );
 
         g_preferences->SetInt( PREFS_SOUND_MIXFREQ, parent->m_mixFreq );
-        g_preferences->SetInt( PREFS_SOUND_CHANNELS, parent->m_numChannels );
         g_preferences->SetInt( PREFS_SOUND_HW3D, parent->m_useHardware3D );
         g_preferences->SetInt( PREFS_SOUND_SWAPSTEREO, parent->m_swapStereo );
         g_preferences->SetInt( PREFS_SOUND_DSPEFFECTS, parent->m_dspEffects );
@@ -109,14 +108,13 @@ SoundOptionsWindow::SoundOptionsWindow()
 :   InterfaceWindow( "Sound", "dialog_soundoptions", true )
 {
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-    SetSize( 390, 380 );
-#else
     SetSize( 390, 350 );
+#else
+    SetSize( 390, 320 );
 #endif
 
     m_mixFreq       = 44100;
     g_preferences->SetInt( PREFS_SOUND_MIXFREQ, m_mixFreq );
-    m_numChannels   = g_preferences->GetInt( PREFS_SOUND_CHANNELS, 16 );
     m_useHardware3D = g_preferences->GetInt( PREFS_SOUND_HW3D, 0 );
     m_swapStereo    = g_preferences->GetInt( PREFS_SOUND_SWAPSTEREO, 0 );
     m_dspEffects    = g_preferences->GetInt( PREFS_SOUND_DSPEFFECTS, 1 );
@@ -155,15 +153,6 @@ void SoundOptionsWindow::Create()
 #endif
     soundLib->RegisterInt( &m_soundLib );
     RegisterButton( soundLib );
-
-    DropDownMenu *numChannels = new DropDownMenu();
-    numChannels->SetProperties( "Num Channels", x, y+=h, w, 20, "dialog_numchannels", " ", true, false );
-    numChannels->AddOption( "dialog_8channels", 8, true );
-    numChannels->AddOption( "dialog_16channels", 16, true );
-    numChannels->AddOption( "dialog_32channels", 32, true );
-    numChannels->AddOption( "dialog_64channels", 64, true );
-    numChannels->RegisterInt( &m_numChannels );
-    RegisterButton( numChannels );
 
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     DropDownMenu *soundBufferSize = new DropDownMenu();
@@ -232,7 +221,6 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     int size = 13;
 
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundlibrary") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_numchannels") );
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundbuffersize") );
 #endif

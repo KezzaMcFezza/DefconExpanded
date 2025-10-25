@@ -104,16 +104,22 @@ void SoundSystem::RestartSoundLibrary()
 	g_preferences->SetInt(PREFS_SOUND_MIXFREQ, 44100);
 	int mixrate         = 44100;
 	int volume          = g_preferences->GetInt("SoundMasterVolume", 255);
-    m_numChannels       = g_preferences->GetInt("SoundChannels", 32);
+    int requestedChannels = g_preferences->GetInt("SoundChannels", 32);
     m_numMusicChannels  = g_preferences->GetInt("SoundMusicChannels", 12 );
     int hw3d            = g_preferences->GetInt("SoundHW3D", 0);
     const char *libName       = g_preferences->GetString("SoundLibrary", "dsound");
 
 #if defined TARGET_MSVC && !defined WINDOWS_SDL
+    m_numChannels = requestedChannels;
 	g_soundLibrary3d = new SoundLibrary3dDirectSound();
 #else
 	g_soundLibrary2d = new SoundLibrary2dSDL();
 	g_soundLibrary3d = new SoundLibrary3dSoftware();
+    m_numChannels = 64;
+    if (requestedChannels != m_numChannels)
+    {
+        g_preferences->SetInt("SoundChannels", m_numChannels);
+    }
 #endif
 
     g_soundLibrary3d->SetMasterVolume( volume );
