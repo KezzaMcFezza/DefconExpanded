@@ -91,6 +91,11 @@ UncompressedArchive::UncompressedArchive(char const *_filename, char const *_pas
 	DataIO.SetPackedSizeToRead(0);
 	
 	Unpack Unp(&DataIO);
+
+#ifdef RAR_SMP
+	Unp.SetThreads(Cmd->Threads);
+#endif
+
 	size_t HeaderSize = 0;
 	
 	while ((HeaderSize = Arc.ReadHeader()) > 0)

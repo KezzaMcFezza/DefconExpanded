@@ -19,6 +19,7 @@ class MemMappedFile;
 #endif // NO_UNRAR
 class TextReader;
 class BinaryReader;
+class NetMutex;
 
 #include "lib/tosser/btree.h"
 #include "lib/tosser/llist.h"
@@ -33,16 +34,21 @@ protected:
 #endif // NO_UNRAR
     
 public:
+#ifndef NO_UNRAR
+	NetMutex *m_archiveMutex;
+	int m_loadingThreadCount;	
+#endif // NO_UNRAR
+
     LList <char *> m_searchPath;                                                        // Use to set up mods
 
 public:
     FileSystem();
     ~FileSystem();
 
-
 #ifndef NO_UNRAR
-    void            ParseArchive		( const char *_filename );
-    void            ParseArchives		( const char *_dir, const char *_filter );
+    void            ParseArchive		 ( const char *_filename );                     // Called by each thread inside ParseArchivesParallel
+    void            ParseArchives		 ( const char *_dir, const char *_filter );     // Deprecated but still here incase we need it...
+	void            ParseArchivesParallel( LList<char *> *_archiveList );	            // Load archives in parallel
 #endif // NO_UNRAR
 
 	TextReader		*GetTextReader	    ( const char *_filename );	                    // Caller must delete the TextReader when done

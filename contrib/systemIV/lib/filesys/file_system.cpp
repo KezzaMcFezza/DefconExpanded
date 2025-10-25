@@ -10,18 +10,33 @@
 #include "filesys_utils.h"
 #include "text_stream_readers.h"
 #include "binary_stream_readers.h"
-//#include "unicode/unicode_text_stream_reader.h"
+#include "lib/netlib/net_mutex.h"
+#include "lib/netlib/net_thread.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 FileSystem *g_fileSystem = NULL;
 
 
 FileSystem::FileSystem()
 {
+#ifndef NO_UNRAR
+	m_archiveMutex = new NetMutex();
+	m_loadingThreadCount = 0;
+#endif
 }
 
 
 FileSystem::~FileSystem()
 {
+#ifndef NO_UNRAR
+	delete m_archiveMutex;
+	m_archiveMutex = NULL;
+#endif
 }
 
 void FileSystem::ParseArchives( const char *_dir, const char *_filter )
@@ -43,26 +58,28 @@ void FileSystem::ParseArchive( const char *_filename )
 {
 	UncompressedArchive	*mainData = NULL;
 
-    AppDebugOut( "Parsing archive %s...", _filename );
+    AppDebugOut( "Parsing archive %s...\n", _filename);
 
 	try
 	{
 		mainData = new UncompressedArchive(_filename,NULL);
         if( mainData && mainData->m_numFiles > 0 )
         {
-            AppDebugOut( "DONE\n" );
+            AppDebugOut( "Loaded %s successfully\n", _filename );
         }
         else
         {
-            AppDebugOut( "NOT FOUND\n" );
+            AppDebugOut( "Could not find %s\n", _filename );
         }
 	}
 	catch( ... )
 	{
-        AppDebugOut( "FAILED\n" );
+        AppDebugOut( "Failed to load %s\n", _filename );
 		return;
 	}
 
+	m_archiveMutex->Lock();
+    
 	for (int i = 0; i < mainData->m_numFiles; ++i)
 	{
 		MemMappedFile *file = mainData->m_files[i];
@@ -83,8 +100,88 @@ void FileSystem::ParseArchive( const char *_filename )
 			mainData->m_files[i] = NULL;
 		}
 	}
+	m_archiveMutex->Unlock();
 
 	delete mainData;
+}
+
+//
+// thread entry point for parallel archive loading
+
+struct ArchiveThreadData
+{
+	FileSystem *fs;
+	char filename[512];
+};
+
+#ifdef WIN32
+static unsigned long WINAPI ArchiveLoaderThread(void *_data)
+#else
+static void* ArchiveLoaderThread(void *_data)
+#endif
+{
+	ArchiveThreadData *data = (ArchiveThreadData *)_data;
+	
+	data->fs->ParseArchive(data->filename);
+
+	data->fs->m_archiveMutex->Lock();
+	data->fs->m_loadingThreadCount--;
+	data->fs->m_archiveMutex->Unlock();
+	
+	delete data;
+
+#ifdef WIN32
+	return 0;
+#else
+	return NULL;
+#endif
+}
+
+//
+// load multiple archives in parallel for faster startup
+// each thread calls ParseArchive() to load an archive
+
+void FileSystem::ParseArchivesParallel( LList<char *> *_archiveList )
+{
+	if( !_archiveList || _archiveList->Size() == 0 ) return;
+
+	m_archiveMutex->Lock();
+	m_loadingThreadCount = _archiveList->Size();
+	m_archiveMutex->Unlock();
+
+	//
+	// spawn threads for each archive
+    
+	for( int i = 0; i < _archiveList->Size(); ++i )
+	{
+		ArchiveThreadData *data = new ArchiveThreadData();
+		data->fs = this;
+		snprintf(data->filename, sizeof(data->filename), "%s", _archiveList->GetData(i));
+		data->filename[sizeof(data->filename)-1] = '\0';
+		
+		NetStartThread((NetThreadFunc)ArchiveLoaderThread, data);
+	}
+	
+	//
+	// start the loop - continue until all threads are done
+    
+	while(true)
+	{
+		m_archiveMutex->Lock();
+		int remaining = m_loadingThreadCount;
+		m_archiveMutex->Unlock();
+		
+		if( remaining == 0 ) break;
+		
+//
+// 8ms seems to be the sweetspot for preventing a busy-wait
+
+#ifdef TARGET_MSVC
+		Sleep(8);
+#else
+		usleep(8000);
+#endif
+	}
 }
 #endif // NO_UNRAR
 
@@ -115,7 +212,10 @@ TextReader *FileSystem::GetTextReader(const char *_filename)
 #ifndef NO_UNRAR
 	if( !reader )
 	{
+		m_archiveMutex->Lock();
 		MemMappedFile *mmfile = m_archiveFiles.GetData(_filename);
+		m_archiveMutex->Unlock();
+		
 		if (mmfile) 
 		{
 			//reader = new UnicodeTextDataReader((char*)mmfile->m_data, mmfile->m_size, _filename);	
@@ -158,7 +258,10 @@ BinaryReader *FileSystem::GetBinaryReader(const char *_filename)
 #ifndef NO_UNRAR
     if( !reader )
 	{
+		m_archiveMutex->Lock();
 		MemMappedFile *mmfile = m_archiveFiles.GetData(_filename);
+		m_archiveMutex->Unlock();
+		
 		if (mmfile) reader = new BinaryDataReader(mmfile->m_data, mmfile->m_size, _filename);		
 	}
 #endif // NO_UNRAR
@@ -271,7 +374,9 @@ LList<char *> *FileSystem::ListArchive(char *_dir, char *_filter, bool fullFilen
             _filter = "*";
         }
 
+        m_archiveMutex->Lock();
         DArray <char *> *unfilteredResults = m_archiveFiles.ConvertIndexToDArray();
+        m_archiveMutex->Unlock();
 
         for (unsigned int i = 0; i < unfilteredResults->Size(); ++i)
         {

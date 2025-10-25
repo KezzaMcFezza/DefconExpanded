@@ -348,8 +348,20 @@ void App::MinimalInit()
     InitialiseHighResTime();
 
     g_fileSystem = new FileSystem();
-    g_fileSystem->ParseArchive( "main.dat" );
-    g_fileSystem->ParseArchives( "localisation/", "*.dat" );
+    
+    //
+    // load main.dat and sounds.dat in parallel
+    
+    LList<char *> archivesToLoad;
+    archivesToLoad.PutData( newStr("main.dat") );
+    archivesToLoad.PutData( newStr("sounds.dat") );
+    
+    //
+    // load both archives in parallel
+    // this uses multithreaded RAR decompression
+
+    g_fileSystem->ParseArchivesParallel( &archivesToLoad );
+    archivesToLoad.EmptyAndDeleteArray();
 
     g_preferences = new Preferences();
 
@@ -434,7 +446,6 @@ void App::MinimalInit()
 
 void App::FinishInit()
 {
-	g_fileSystem->ParseArchive( "sounds.dat" );
 #ifdef TOGGLE_SOUND
 	g_soundSystem = new SoundSystem();
     g_soundSystem->Initialise( new DefconSoundInterface() );            
