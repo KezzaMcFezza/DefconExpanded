@@ -4,6 +4,9 @@
 #include "sound_library_2d.h"
 #include "lib/netlib/net_mutex.h"
 
+#include <string>
+#include <vector>
+
 #include <stdint.h>
 
 //*****************************************************************************
@@ -89,6 +92,8 @@ public:
 	
 	void            StartRecordToFile(char const *_filename);
 	void            EndRecordToFile();
+
+    static void     EnumerateOutputDevices(std::vector<std::string> &_outDevices);
 	
 	unsigned		GetSamplesPerBuffer();
 	unsigned		GetFreq();

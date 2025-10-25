@@ -111,6 +111,8 @@ dialog_watershaded			Sombreada
 dialog_soundoptions			Sonido
 dialog_unavailable			no disponible
 dialog_soundlibrary			Biblioteca
+dialog_soundoutputdevice			Dispositivo de salida de sonido
+dialog_sounddevice_default			Por defecto del sistema
 dialog_directsound			DirectSound
 dialog_softwaresound			Sonido por Software
 dialog_mixfrequency			Mezcla

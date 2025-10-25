@@ -6,6 +6,9 @@
 #include "lib/language_table.h"
 #include "lib/preferences.h"
 #include "lib/profiler.h"
+#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
+#include "lib/sound/sound_library_2d_sdl.h"
+#endif
 
 #include "interface/components/drop_down_menu.h"
 #include "interface/components/inputfield.h"
@@ -32,8 +35,22 @@ public:
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
         g_preferences->SetInt( PREFS_SOUND_BUFFERSIZE, parent->m_soundBufferSize );
 #endif
+#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
+        const char *selectedDevice = parent->GetSelectedOutputDeviceName();
+        if (selectedDevice && selectedDevice[0])
+        {
+            g_preferences->SetString( PREFS_SOUND_OUTPUT_DEVICE, selectedDevice );
+        }
+        else
+        {
+            g_preferences->SetString( PREFS_SOUND_OUTPUT_DEVICE, "" );
+        }
+        parent->m_preferredOutputDevice = selectedDevice ? selectedDevice : "";
+        g_preferences->SetString( PREFS_SOUND_LIBRARY, "software" );
+#else
         if( parent->m_soundLib == 0 ) g_preferences->SetString( PREFS_SOUND_LIBRARY, "software" );
         else                          g_preferences->SetString( PREFS_SOUND_LIBRARY, "dsound" );
+#endif
         
         g_soundSystem->RestartSoundLibrary();
 
@@ -128,6 +145,11 @@ SoundOptionsWindow::SoundOptionsWindow()
     
     if( stricmp( soundLib, "dsound" ) == 0 ) m_soundLib = 1;
     else                                     m_soundLib = 0;
+#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
+    const char *preferredDevice = g_preferences->GetString( PREFS_SOUND_OUTPUT_DEVICE, "" );
+    m_preferredOutputDevice = preferredDevice ? preferredDevice : "";
+    m_selectedDeviceIndex = 0;
+#endif
 }
 
 
@@ -144,8 +166,25 @@ void SoundOptionsWindow::Create()
     box->SetProperties( "invert", 10, 50, m_w - 20, m_h-140, " ", " ", false, false );        
     RegisterButton( box );
 
+    
+#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
+    PopulateOutputDevices();
+    DropDownMenu *outputDevice = new DropDownMenu();
+    outputDevice->SetProperties( "Sound Output Device", x, y+=h, w, 20, "dialog_soundoutputdevice", " ", true, false );
+    outputDevice->AddOption( "dialog_sounddevice_default", 0, true );
+    for( size_t i = 1; i < m_outputDevices.size(); ++i )
+    {
+        outputDevice->AddOption( m_outputDevices[i].c_str(), (int)i, false );
+    }
+    if( m_selectedDeviceIndex < 0 || m_selectedDeviceIndex >= (int)m_outputDevices.size() )
+    {
+        m_selectedDeviceIndex = 0;
+    }
+    outputDevice->RegisterInt( &m_selectedDeviceIndex );
+    RegisterButton( outputDevice );
+#else
     DropDownMenu *soundLib = new DropDownMenu();
-    soundLib->SetProperties( "Sound Library", x, y+=h, w, 20, "dialog_soundlibrary", " ", true, false );    
+    soundLib->SetProperties( "Sound Library", x, y+=h, w, 20, "dialog_soundlibrary", " ", true, false );
 #ifdef HAVE_DSOUND
     soundLib->AddOption( "dialog_directsound", 1, true );
 #else
@@ -153,6 +192,7 @@ void SoundOptionsWindow::Create()
 #endif
     soundLib->RegisterInt( &m_soundLib );
     RegisterButton( soundLib );
+#endif
 
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     DropDownMenu *soundBufferSize = new DropDownMenu();
@@ -220,7 +260,11 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     int h = 30;
     int size = 13;
 
+#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundoutputdevice") );
+#else
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundlibrary") );
+#endif
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundbuffersize") );
 #endif
@@ -265,6 +309,45 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     memoryUsage /= 1024.0f;
     g_renderer->TextCentre( m_x + m_w/2, m_y + m_h - 70, White, size, "%s %2.1f Mb", LANGUAGEPHRASE("dialog_memoryusage"), memoryUsage );
 }
+
+#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
+const char *SoundOptionsWindow::GetSelectedOutputDeviceName() const
+{
+    if( m_selectedDeviceIndex <= 0 || m_selectedDeviceIndex >= (int)m_outputDevices.size() )
+    {
+        return "";
+    }
+    return m_outputDevices[m_selectedDeviceIndex].c_str();
+}
+
+
+void SoundOptionsWindow::PopulateOutputDevices()
+{
+    m_outputDevices.clear();
+    m_outputDevices.push_back("");
+
+    std::vector<std::string> detectedDevices;
+    SoundLibrary2dSDL::EnumerateOutputDevices( detectedDevices );
+
+    for( size_t i = 0; i < detectedDevices.size(); ++i )
+    {
+        m_outputDevices.push_back( detectedDevices[i] );
+    }
+
+    m_selectedDeviceIndex = 0;
+    if( !m_preferredOutputDevice.empty() )
+    {
+        for( size_t i = 1; i < m_outputDevices.size(); ++i )
+        {
+            if( stricmp( m_outputDevices[i].c_str(), m_preferredOutputDevice.c_str() ) == 0 )
+            {
+                m_selectedDeviceIndex = (int) i;
+                break;
+            }
+        }
+    }
+}
+#endif
 
 
 

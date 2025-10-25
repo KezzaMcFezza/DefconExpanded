@@ -9,7 +9,9 @@
 #include <SDL2/SDL.h>
 
 static SDL_AudioSpec s_audioSpec;
+static SDL_AudioDeviceID s_audioDevice = 0;
 static int s_audioStarted = 0;
+static bool s_audioSubsystemInitialisedByLibrary = false;
 
 #include "app/app.h"
 #include "lib/sound/soundsystem.h"
@@ -188,7 +190,9 @@ void SoundLibrary2dSDL::TopupBuffer()
 		int callbacksToProcess = m_bufferIsThirsty;
 		if (callbacksToProcess > 2) callbacksToProcess = 2;
 
-		SDL_LockAudio();
+		if (s_audioDevice != 0) {
+			SDL_LockAudioDevice(s_audioDevice);
+		}
 		for (int i = 0; i < callbacksToProcess; i++) {
 #ifdef TOGGLE_SOUND_TESTBED	
 			AppDebugOut("SoundLibrary2dSDL::TopupBuffer: invoking callback %d/%d with %d samples\n", i+1, callbacksToProcess, lengths[i]);
@@ -201,7 +205,9 @@ void SoundLibrary2dSDL::TopupBuffer()
 			}
 		}
 		m_bufferIsThirsty = 0;
-		SDL_UnlockAudio();
+		if (s_audioDevice != 0) {
+			SDL_UnlockAudioDevice(s_audioDevice);
+		}
 #endif
 	}
 
@@ -266,36 +272,52 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	SDL_setenv("SDL_AUDIODRIVER", "directsound", 1);
 #endif
 
-#ifdef TARGET_EMSCRIPTEN
-	// now this is the real fix
-	// we pass NULL as second parameter to force SDL to honor our exact frequency request
-	// this prevents the browser from overriding our 44100 Hz with 48000 Hz
-	if (SDL_OpenAudio(&desired, NULL) < 0) {
-		const char *errString = SDL_GetError();
-		AppReleaseAssert(false, "Failed to open audio output device with exact frequency: \"%s\"", errString);
-	}
-	else {
-		// since we passed NULL, SDL should give us exactly what we requested
-		// if SDL_OpenAudio succeeded, we can assume we got exactly what we wanted
-		// but we know this works so who cares
-		// if sdl denies our request, i will have to punish it
-		s_audioSpec = desired;
-	}
-#else
-	if (SDL_OpenAudio(&desired, &s_audioSpec) < 0) {
-		const char *errString = SDL_GetError();
-		AppReleaseAssert(false, "Failed to open audio output device: \"%s\"", errString);
-	}
-	else {
-		// Verify that SDL is actually using the requested number of samples
-		// s_audioSpec is filled by SDL_OpenAudio with the actual values being used
-		AppDebugOut("Audio samples verification: requested=%d, SDL is using=%d\n", 
-			desired.samples, s_audioSpec.samples);
-		
-		if (desired.samples != s_audioSpec.samples) {
-			AppDebugOut("WARNING: SDL changed samples per buffer from %d to %d\n", 
-				desired.samples, s_audioSpec.samples);
+		bool audioInitialised = (SDL_WasInit(SDL_INIT_AUDIO) & SDL_INIT_AUDIO) != 0;
+		if (!audioInitialised) {
+			if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
+				const char *errString = SDL_GetError();
+				AppReleaseAssert(false, "Failed to initialise SDL audio subsystem: \"%s\"", errString ? errString : "unknown error");
+			}
+			s_audioSubsystemInitialisedByLibrary = true;
 		}
+
+		const char *requestedDevice = g_preferences->GetString(PREFS_SOUND_OUTPUT_DEVICE, "");
+	const char *deviceToUse = (requestedDevice && requestedDevice[0]) ? requestedDevice : NULL;
+	SDL_AudioSpec obtainedSpec;
+	SDL_AudioSpec *obtainedPtr = &obtainedSpec;
+
+#ifdef TARGET_EMSCRIPTEN
+	// Request exact parameters by disallowing automatic changes.
+	obtainedPtr = NULL;
+#endif
+
+	s_audioDevice = SDL_OpenAudioDevice(deviceToUse, 0, &desired, obtainedPtr, 0);
+
+	if (s_audioDevice == 0 && deviceToUse) {
+		const char *errString = SDL_GetError();
+		AppDebugOut("Failed to open audio output device \"%s\": \"%s\". Falling back to system default.\n",
+		            deviceToUse, errString ? errString : "unknown error");
+		deviceToUse = NULL;
+		s_audioDevice = SDL_OpenAudioDevice(NULL, 0, &desired, obtainedPtr, 0);
+	}
+
+	if (s_audioDevice == 0) {
+		const char *errString = SDL_GetError();
+		AppReleaseAssert(false, "Failed to open audio output device: \"%s\"", errString ? errString : "unknown error");
+	}
+
+#ifdef TARGET_EMSCRIPTEN
+	s_audioSpec = desired;
+#else
+	s_audioSpec = obtainedSpec;
+
+	// Verify that SDL is actually using the requested number of samples
+	AppDebugOut("Audio samples verification: requested=%d, SDL is using=%d\n",
+		desired.samples, s_audioSpec.samples);
+
+	if (desired.samples != s_audioSpec.samples) {
+		AppDebugOut("WARNING: SDL changed samples per buffer from %d to %d\n",
+			desired.samples, s_audioSpec.samples);
 	}
 #endif
 
@@ -315,8 +337,34 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	m_samplesPerBuffer = s_audioSpec.samples;
 	
 	// Start the callback function
-	if (g_preferences->GetInt("Sound", 1)) 
-		SDL_PauseAudio(0);
+	if (g_preferences->GetInt("Sound", 1)) {
+		SDL_PauseAudioDevice(s_audioDevice, 0);
+	}
+}
+
+void SoundLibrary2dSDL::EnumerateOutputDevices(std::vector<std::string> &_outDevices)
+{
+	_outDevices.clear();
+
+	bool temporaryInit = false;
+	if ((SDL_WasInit(SDL_INIT_AUDIO) & SDL_INIT_AUDIO) == 0) {
+		if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
+			return;
+		}
+		temporaryInit = true;
+	}
+
+	int deviceCount = SDL_GetNumAudioDevices(0);
+	for (int i = 0; i < deviceCount; ++i) {
+		const char *deviceName = SDL_GetAudioDeviceName(i, 0);
+		if (deviceName && deviceName[0]) {
+			_outDevices.emplace_back(deviceName);
+		}
+	}
+
+	if (temporaryInit) {
+		SDL_QuitSubSystem(SDL_INIT_AUDIO);
+	}
 }
 
 unsigned SoundLibrary2dSDL::GetSamplesPerBuffer()
@@ -391,7 +439,15 @@ SoundLibrary2dSDL::~SoundLibrary2dSDL()
 
 void SoundLibrary2dSDL::Stop()
 {
-	SDL_CloseAudio();
+	if (s_audioDevice != 0) {
+		SDL_PauseAudioDevice(s_audioDevice, 1);
+		SDL_CloseAudioDevice(s_audioDevice);
+		s_audioDevice = 0;
+	}
+	if (s_audioSubsystemInitialisedByLibrary) {
+		SDL_QuitSubSystem(SDL_INIT_AUDIO);
+		s_audioSubsystemInitialisedByLibrary = false;
+	}
 	s_audioStarted = 0;
 
 	m_callbackLock.Lock();

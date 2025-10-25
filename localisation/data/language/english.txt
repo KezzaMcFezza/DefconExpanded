@@ -143,6 +143,8 @@ dialog_watershaded					Shaded
 dialog_soundoptions                 Sound
 dialog_unavailable                  unavailable
 dialog_soundlibrary                 Sound Library
+dialog_soundoutputdevice            Sound Output Device
+dialog_sounddevice_default          System Default
 dialog_directsound                  DirectSound
 dialog_softwaresound                Software Sound
 dialog_mixfrequency                 Mix Frequency
@@ -1729,4 +1731,3 @@ overlay_15_15                       JOHN KNOTTENBELT
 overlay_15_16                       JOSHUA 'MIAH' CLAYTON\n\n
 overlay_15_17                       ----------------------------------------\n
 overlay_15_18                       Translation Services provided by Game Localization Network Ltd.
-

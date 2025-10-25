@@ -111,6 +111,8 @@ dialog_watershaded			Ombreggiato
 dialog_soundoptions			Sonoro
 dialog_unavailable			non disponibile
 dialog_soundlibrary			Libreria suoni
+dialog_soundoutputdevice			Dispositivo audio di uscita
+dialog_sounddevice_default			Predefinito di sistema
 dialog_directsound			DirectSound
 dialog_softwaresound			Software sonoro
 dialog_mixfrequency			Frequenza mix
