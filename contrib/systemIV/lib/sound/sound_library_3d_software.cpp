@@ -209,8 +209,9 @@ void SoundLibrary3dSoftware::Advance()
 }
 
 
-void SoundLibrary3dSoftware::GetChannelData(float _duration)
+void SoundLibrary3dSoftware::GetChannelData(float _duration, unsigned int _numSamples)
 {
+	(void)_duration;
 	// START_PROFILE2(m_profiler, "GetChannelData");
 
 		int numActiveChannels = 0;
@@ -218,15 +219,7 @@ void SoundLibrary3dSoftware::GetChannelData(float _duration)
 		for (int i = 0; i < m_numChannels; ++i)
 		{
 			int silenceRemaining = -1;	
-			unsigned int samplesNeeded;
-			if (m_channels[i].m_freq < m_sampleRate)
-			{
-				samplesNeeded = ceil((double)m_channels[i].m_freq * _duration + 0.5f);
-			}
-			else
-			{
-				samplesNeeded = ceil((double)m_channels[i].m_freq * _duration - 0.5f); //floor this
-			}
+			unsigned int samplesNeeded = _numSamples;
 			if( i >= m_numChannels - m_numMusicChannels ) samplesNeeded *= 2;
 
 			if (m_mainCallback)
@@ -248,8 +241,9 @@ void SoundLibrary3dSoftware::GetChannelData(float _duration)
 }
 
 
-void SoundLibrary3dSoftware::ApplyDspFX(float _duration)
+void SoundLibrary3dSoftware::ApplyDspFX(float _duration, unsigned int _numSamples)
 {
+	(void)_duration;
 	//START_PROFILE2(m_profiler, "ApplyDspFX");
 	{
 		for (int i = 0; i < m_numChannels; ++i)
@@ -258,15 +252,8 @@ void SoundLibrary3dSoftware::ApplyDspFX(float _duration)
 		    {
 				if (m_channels[i].m_dspFX[j].m_userFilter == NULL) continue;
 
-				unsigned int samplesNeeded;
-				if (m_channels[i].m_freq < m_sampleRate)
-				{
-					samplesNeeded = ceil((double)m_channels[i].m_freq * _duration + 0.5f);
-				}
-				else
-				{
-					samplesNeeded = ceil((double)m_channels[i].m_freq * _duration - 0.5f);
-				}
+				unsigned int samplesNeeded = _numSamples;
+				if( i >= m_numChannels - m_numMusicChannels ) samplesNeeded *= 2;
 				
 				m_channels[i].m_dspFX[j].m_userFilter->Process(m_channels[i].m_buffer, 
 																 samplesNeeded);
@@ -318,43 +305,21 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
 
 
 void SoundLibrary3dSoftware::MixStereo(signed short *_inBuf, unsigned int _numSamples,
-                                       float _volLeft, float _volRight, float _relativeFreq)
+                                       float _volLeft, float _volRight)
 {
     float *left = m_left;
     float *right = m_right;
-    
-    // Stereo data is interleaved, so we need twice as many input samples
-    unsigned int maxInputSamples = (unsigned int)(_numSamples * _relativeFreq * 2.2f) + 4;
 
-    for (int j = 0; j < _numSamples; ++j)
+    for (unsigned int j = 0; j < _numSamples; ++j)
     {
-        float realPos = j * _relativeFreq;
-        int sampleLow = (int)realPos;
-        int sampleHigh = sampleLow + 1;
-        float fraction = realPos - (float)sampleLow;
-        
-        // Convert to stereo indices (interleaved L,R,L,R...)
-        int stereoLowL = sampleLow * 2;
-        int stereoLowR = stereoLowL + 1;
-        int stereoHighL = sampleHigh * 2;
-        int stereoHighR = stereoHighL + 1;
-        
-        // Bounds checking for stereo data
-        if (stereoHighR >= maxInputSamples) {
-            stereoHighL = stereoLowL;
-            stereoHighR = stereoLowR;
-            fraction = 0.0f;
-        }
-        
-        // Linear interpolation for left and right channels separately
-        float leftSample = (float)_inBuf[stereoLowL] * (1.0f - fraction) + 
-                          (float)_inBuf[stereoHighL] * fraction;
-        float rightSample = (float)_inBuf[stereoLowR] * (1.0f - fraction) + 
-                           (float)_inBuf[stereoHighR] * fraction;
+        unsigned int sampleIndex = j * 2;
+        float leftSample = (float)_inBuf[sampleIndex];
+        float rightSample = (float)_inBuf[sampleIndex + 1];
 
         *left += leftSample * _volLeft;
         *right += rightSample * _volRight;
-        left++; right++;
+        left++;
+        right++;
     }
 }
 
@@ -373,43 +338,6 @@ void SoundLibrary3dSoftware::MixSameFreqFixedVol(signed short *_inBuf, unsigned 
 	}
 }
 
-void SoundLibrary3dSoftware::MixDiffFreqFixedVol(signed short *_inBuf, unsigned int _numSamples, 
-												 float _volLeft, float _volRight, float _relativeFreq)
-{
-	float *left = m_left;
-	float *right = m_right;
-
-#ifdef TOGGLE_SOUND_TESTBED	
-	AppDebugOut("mixdifreq values! - %u %f \n", _numSamples, _relativeFreq);
-#endif
-	
-	// Estimate max safe buffer access (conservative)
-	unsigned int maxInputSamples = (unsigned int)(_numSamples * _relativeFreq * 1.1f) + 2;
-
-	for (int j = 0; j < _numSamples; ++j)
-	{
-		float realPos = j * _relativeFreq;
-		int sampleLow = (int)realPos;
-		int sampleHigh = sampleLow + 1;
-		float fraction = realPos - (float)sampleLow;
-		
-		// Bounds checking to prevent buffer overrun
-		if (sampleHigh >= maxInputSamples) {
-			sampleHigh = sampleLow;
-			fraction = 0.0f;
-		}
-		
-		// Linear interpolation between two samples
-		float sample = (float)_inBuf[sampleLow] * (1.0f - fraction) + 
-					   (float)_inBuf[sampleHigh] * fraction;
-		
-		*left += sample * _volLeft;
-		*right += sample * _volRight;
-		left++; right++;
-	}
-}
-
-
 void SoundLibrary3dSoftware::MixSameFreqRampVol(signed short *_inBuf, unsigned int _numSamples, 
 												float _volL1, float _volR1, float _volL2, float _volR2)
 {
@@ -425,46 +353,6 @@ void SoundLibrary3dSoftware::MixSameFreqRampVol(signed short *_inBuf, unsigned i
 		*left += (float)*_inBuf * volLeft;
 		*right += (float)*_inBuf * volRight;
 		left++;	right++; _inBuf++;
-		volLeft += volLeftInc;
-		volRight += volRightInc;
-	}
-}
-
-
-void SoundLibrary3dSoftware::MixDiffFreqRampVol(signed short *_inBuf, unsigned int _numSamples,
-												float _volL1, float _volR1, float _volL2, float _volR2, 
-												float _relativeFreq)
-{
-	float volLeft = _volL1;
-	float volRight = _volR1;
-	float volLeftInc = (_volL2 - _volL1) / (float)_numSamples;
-	float volRightInc = (_volR2 - _volR1) / (float)_numSamples;
-	float *left = m_left;
-	float *right = m_right;
-	
-	// Estimate max safe buffer access (conservative)
-	unsigned int maxInputSamples = (unsigned int)(_numSamples * _relativeFreq * 1.1f) + 2;
-	
-	for (int j = 0; j < _numSamples; ++j)
-	{
-		float realPos = j * _relativeFreq;
-		int sampleLow = (int)realPos;
-		int sampleHigh = sampleLow + 1;
-		float fraction = realPos - (float)sampleLow;
-		
-		// Bounds checking to prevent buffer overrun
-		if (sampleHigh >= maxInputSamples) {
-			sampleHigh = sampleLow;
-			fraction = 0.0f;
-		}
-		
-		// Linear interpolation between two samples
-		float sample = (float)_inBuf[sampleLow] * (1.0f - fraction) + 
-					   (float)_inBuf[sampleHigh] * fraction;
-		
-		*left += sample * volLeft;
-		*right += sample * volRight;
-		left++; right++;
 		volLeft += volLeftInc;
 		volRight += volRightInc;
 	}
@@ -495,8 +383,8 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 
 	double duration = (double)_numSamples / (double)g_soundLibrary2d->GetFreq();
 
-	GetChannelData(duration);
-	ApplyDspFX(duration);
+	GetChannelData(duration, _numSamples);
+	ApplyDspFX(duration, _numSamples);
 
 #ifdef TARGET_EMSCRIPTEN
 	// restore channel frequencies after corruption
@@ -557,13 +445,6 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 #ifdef TOGGLE_SOUND_TESTBED	
 			AppDebugOut("Channel: %d. freq = %u, 2dsoundfreq = %u\n", i, m_channels[i].m_freq, g_soundLibrary2d->GetFreq() );
 #endif
-            float relativeFreq = (float)m_channels[i].m_freq / (float)g_soundLibrary2d->GetFreq();
-            
-            if (m_channels[i].m_freq == 0 || relativeFreq <= 0.0f || relativeFreq > 10.0f)
-            {
-            	continue;
-            }
-            
             signed short *inBuf = m_channels[i].m_buffer;
             
             if (!inBuf)
@@ -574,33 +455,17 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 			// Determine which mixer function to use - some are faster than others
 			if( i >= m_numChannels - m_numMusicChannels )
             {
-                MixStereo(inBuf, _numSamples, volLeft, volRight, relativeFreq );
+                MixStereo(inBuf, _numSamples, volLeft, volRight);
             }
             else if (fabsf(deltaVolLeft) < maxDelta && fabsf(deltaVolRight) < maxDelta)
 			{
-				if (NearlyEquals(relativeFreq, 1.0f))
-				{
-					MixSameFreqFixedVol(inBuf, _numSamples, volLeft, volRight);
-				}
-				else
-				{
-					MixDiffFreqFixedVol(inBuf, _numSamples, volLeft, volRight, relativeFreq);
-				}
+				MixSameFreqFixedVol(inBuf, _numSamples, volLeft, volRight);
 			}
 			else
 			{
-				if (NearlyEquals(relativeFreq, 1.0f))
-				{
-					MixSameFreqRampVol(inBuf, _numSamples, 
-									   m_channels[i].m_oldVolLeft, m_channels[i].m_oldVolRight,
-									   volLeft, volRight);
-				}
-				else
-				{
-					MixDiffFreqRampVol(inBuf, _numSamples, 
-									   m_channels[i].m_oldVolLeft, m_channels[i].m_oldVolRight,
-									   volLeft, volRight, relativeFreq);
-				}
+				MixSameFreqRampVol(inBuf, _numSamples, 
+								   m_channels[i].m_oldVolLeft, m_channels[i].m_oldVolRight,
+								   volLeft, volRight);
 			}
 		}
 

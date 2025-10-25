@@ -30,6 +30,13 @@
 
 SoundSystem *g_soundSystem = NULL;
 
+static inline signed short FloatToPcmSample(float _value)
+{
+    if (_value > 32767.0f) _value = 32767.0f;
+    if (_value < -32768.0f) _value = -32768.0f;
+    return (signed short)_value;
+}
+
 
 //*****************************************************************************
 // Class SoundSystem
@@ -170,11 +177,9 @@ bool SoundSystem::SoundLibraryMainCallback( unsigned int _channel, signed short 
     
     if( instance && instance->m_soundSampleHandle )
     {
-		//
-        // Fill the space with sample data
-
+#if defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
         float relFreq = g_soundLibrary3d->GetChannelRelFreq(_channel);
-		int numSamplesWritten = instance->m_soundSampleHandle->Read( _data, _numSamples, stereo, relFreq);
+        int numSamplesWritten = instance->m_soundSampleHandle->Read( _data, _numSamples, stereo, relFreq);
 
         if( numSamplesWritten < _numSamples )
         {
@@ -204,13 +209,11 @@ bool SoundSystem::SoundLibraryMainCallback( unsigned int _channel, signed short 
             {
                 if( numSamplesWritten > 0 )
                 {
-                    // The sound just came to an end, so write a whole buffers worth of silence
                     g_soundLibrary3d->WriteSilence( loopStart, numSamplesRemaining );
                     *_silenceRemaining = g_soundLibrary3d->GetChannelBufSize(_channel) - numSamplesRemaining;
                 }
                 else
                 {
-                    // The sound came to an end and now we are writing silence
                     g_soundLibrary3d->WriteSilence( loopStart, numSamplesRemaining );
                     *_silenceRemaining -= numSamplesRemaining;
                     if( *_silenceRemaining <= 0 )
@@ -220,6 +223,121 @@ bool SoundSystem::SoundLibraryMainCallback( unsigned int _channel, signed short 
                 }
             }
         }
+#else
+        instance->RecalculateResampleStep();
+
+        unsigned int requestedSamples = _numSamples;
+        unsigned int framesRequested = stereo ? requestedSamples / 2 : requestedSamples;
+
+        if( stereo )
+        {
+            AppDebugAssert( (requestedSamples % 2) == 0 );
+        }
+
+        SoundSampleHandle *handle = instance->m_soundSampleHandle;
+        SoundSampleDecoder *decoder = handle ? handle->m_soundSample : NULL;
+        unsigned int totalFrames = handle ? handle->GetFrameCount() : 0;
+
+        double cursor = instance->m_resampleCursor;
+        double step = instance->m_resampleStep;
+        unsigned int framesWritten = 0;
+        bool waitingForLoop = false;
+
+        while( framesWritten < framesRequested )
+        {
+            if( !decoder || totalFrames == 0 )
+            {
+                break;
+            }
+
+            if( cursor >= (double)totalFrames )
+            {
+                double leftover = cursor - (double)totalFrames;
+
+                if( instance->m_loopType == SoundInstance::Looped ||
+                    instance->m_loopType == SoundInstance::LoopedADSR )
+                {
+                    bool looped = instance->AdvanceLoop();
+                    if( looped )
+                    {
+                        handle = instance->m_soundSampleHandle;
+                        decoder = handle ? handle->m_soundSample : NULL;
+                        totalFrames = handle ? handle->GetFrameCount() : 0;
+
+                        cursor = leftover;
+                        if( cursor < 0.0 ) cursor = 0.0;
+                        instance->ResetResamplerCursor( cursor );
+                        instance->RecalculateResampleStep();
+                        step = instance->m_resampleStep;
+                        continue;
+                    }
+                    else
+                    {
+                        cursor = (double)totalFrames;
+                        waitingForLoop = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    cursor = (double)totalFrames;
+                    break;
+                }
+            }
+
+            float outLeft = 0.0f;
+            float outRight = 0.0f;
+            handle->GetFrame( cursor, stereo, outLeft, outRight );
+
+            if( stereo )
+            {
+                unsigned int sampleIndex = framesWritten * 2;
+                if( sampleIndex + 1 < requestedSamples )
+                {
+                    _data[sampleIndex] = FloatToPcmSample( outLeft );
+                    _data[sampleIndex + 1] = FloatToPcmSample( outRight );
+                }
+            }
+            else
+            {
+                _data[framesWritten] = FloatToPcmSample( outLeft );
+            }
+
+            cursor += step;
+            framesWritten++;
+        }
+
+        instance->ResetResamplerCursor( cursor );
+
+        unsigned int samplesWritten = stereo ? framesWritten * 2 : framesWritten;
+
+        if( samplesWritten < requestedSamples )
+        {
+            signed short *loopStart = _data + samplesWritten;
+            unsigned int numSamplesRemaining = requestedSamples - samplesWritten;
+
+            if( numSamplesRemaining > 0 )
+            {
+                g_soundLibrary3d->WriteSilence( loopStart, numSamplesRemaining );
+            }
+
+            if( !waitingForLoop && instance->m_loopType == SoundInstance::SinglePlay )
+            {
+                if( samplesWritten > 0 )
+                {
+                    *_silenceRemaining = g_soundLibrary3d->GetChannelBufSize(_channel) - numSamplesRemaining;
+                }
+                else
+                {
+                    *_silenceRemaining -= numSamplesRemaining;
+                    if( *_silenceRemaining <= 0 )
+                    {
+                        instance->BeginRelease(false);
+                    }
+                }
+            }
+        }
+#endif
 
         g_soundSystem->UnlockSoundInstance( instance );
 

@@ -13,12 +13,9 @@
 #include "sound_blueprint_manager.h"
 
 
-#ifdef TARGET_MSVC
+#if defined(TARGET_MSVC) && !defined(WINDOWS_SDL)
 #define SOUND_USE_DSOUND_FREQUENCY_STUFF                // Set DirectSound buffer frequencies directly
                                                          // If not set, our sound library will do the Frequency adjustments in software
-#endif
-#if defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
-#define SOUND_USE_DSOUND_FREQUENCY_STUFF
 #endif
 
 class TextReader;

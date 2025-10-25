@@ -70,6 +70,124 @@ SoundSampleDecoder::~SoundSampleDecoder()
 }
 
 
+unsigned int SoundSampleDecoder::GetFrameCount() const
+{
+    if (m_numChannels == 0)
+    {
+        return 0;
+    }
+
+    return m_numSamples / m_numChannels;
+}
+
+
+void SoundSampleDecoder::GetFrame(double _frame, bool _stereo, float &_outLeft, float &_outRight)
+{
+    _outLeft = 0.0f;
+    _outRight = 0.0f;
+
+    unsigned int totalFrames = GetFrameCount();
+    if (totalFrames == 0)
+    {
+        return;
+    }
+
+    if (_frame < 0.0)
+    {
+        _frame = 0.0;
+    }
+
+    if (_frame > (double)(totalFrames - 1))
+    {
+        _frame = (double)(totalFrames - 1);
+    }
+
+    unsigned int baseFrame = (unsigned int)_frame;
+    double fraction = _frame - (double)baseFrame;
+    unsigned int nextFrame = baseFrame + 1;
+    if (nextFrame >= totalFrames)
+    {
+        nextFrame = baseFrame;
+        fraction = 0.0;
+    }
+
+    unsigned int samplesPerFrame = m_numChannels ? m_numChannels : 1;
+    unsigned int sampleIndexBase = baseFrame * samplesPerFrame;
+    unsigned int sampleIndexNext = nextFrame * samplesPerFrame;
+
+    unsigned int ensureEnd = sampleIndexNext + samplesPerFrame;
+    if (ensureEnd > m_numSamples)
+    {
+        ensureEnd = m_numSamples;
+    }
+    EnsureCached(ensureEnd);
+
+    if (!m_sampleCache || m_amountCached == 0)
+    {
+        _outLeft = 0.0f;
+        _outRight = 0.0f;
+        return;
+    }
+
+    unsigned int baseIndex = sampleIndexBase;
+    if (baseIndex >= m_amountCached)
+    {
+        baseIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
+    }
+
+    unsigned int nextIndex = sampleIndexNext;
+    if (nextIndex >= m_amountCached)
+    {
+        nextIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
+    }
+
+    float sampleAtBase = (float)m_sampleCache[baseIndex];
+    float sampleAtNext = (float)m_sampleCache[nextIndex];
+
+    if (m_numChannels == 1)
+    {
+        float interpolated = sampleAtBase + (sampleAtNext - sampleAtBase) * (float)fraction;
+
+        _outLeft = interpolated;
+        _outRight = interpolated;
+    }
+    else
+    {
+        unsigned int baseRightIndex = sampleIndexBase + 1;
+        if (baseRightIndex >= m_amountCached)
+        {
+            baseRightIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
+        }
+
+        unsigned int nextRightIndex = sampleIndexNext + 1;
+        if (nextRightIndex >= m_amountCached)
+        {
+            nextRightIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
+        }
+
+        float baseLeft = sampleAtBase;
+        float baseRight = (float)m_sampleCache[baseRightIndex];
+        float nextLeft = sampleAtNext;
+        float nextRight = (float)m_sampleCache[nextRightIndex];
+
+        float left = baseLeft + (nextLeft - baseLeft) * (float)fraction;
+        float right = baseRight + (nextRight - baseRight) * (float)fraction;
+
+        if (_stereo)
+        {
+            _outLeft = left;
+            _outRight = right;
+        }
+        else
+        {
+            float mono = (left + right) * 0.5f;
+            _outLeft = mono;
+            _outRight = mono;
+        }
+    }
+}
+
+
 void SoundSampleDecoder::ReadWavHeader()
 {
 	char buffer[25];
@@ -430,4 +548,3 @@ void SoundSampleDecoder::Read(signed short *_data, unsigned int _startSample, un
         }        
     }
 }
-
