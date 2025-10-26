@@ -253,12 +253,6 @@ void SoundDebugOverlay::Render()
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
-        const char *preferredDevice = g_preferences->GetString(PREFS_SOUND_OUTPUT_DEVICE, "");
-        const char *preferredDisplay = (preferredDevice && preferredDevice[0]) ? preferredDevice : "<default>";
-        snprintf(buffer, sizeof(buffer), "Preferred output dev: %s", preferredDisplay);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
-
         snprintf(buffer, sizeof(buffer), "Hardware 3D target  : %s", g_preferences->GetInt("SoundHW3D", 0) ? "enabled" : "disabled");
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
@@ -363,15 +357,7 @@ void SoundDebugOverlay::Render()
 
         const char *activeDevice = sdl->GetCurrentOutputDeviceName();
         const char *activeDisplay = (activeDevice && activeDevice[0]) ? activeDevice : "<default>";
-        const char *requestedDevice = (g_preferences ? g_preferences->GetString(PREFS_SOUND_OUTPUT_DEVICE, "") : "");
-        if (sdl->UsedFallbackDevice() && requestedDevice && requestedDevice[0])
-        {
-            snprintf(buffer, sizeof(buffer), "Active output device: %s (fallback from %s)", activeDisplay, requestedDevice);
-        }
-        else
-        {
-            snprintf(buffer, sizeof(buffer), "Active output device: %s", activeDisplay);
-        }
+        snprintf(buffer, sizeof(buffer), "Active output device: %s", activeDisplay);
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 

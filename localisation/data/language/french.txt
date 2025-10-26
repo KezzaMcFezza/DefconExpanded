@@ -111,8 +111,6 @@ dialog_watershaded			Nuanc�e
 dialog_soundoptions			Sons
 dialog_unavailable			non disponible
 dialog_soundlibrary			Biblioth�que sonore
-dialog_soundoutputdevice			Peripherique audio de sortie
-dialog_sounddevice_default			Peripherique par defaut
 dialog_directsound			DirectSound
 dialog_softwaresound			Software Sound
 dialog_mixfrequency			Fr�quence de mixage

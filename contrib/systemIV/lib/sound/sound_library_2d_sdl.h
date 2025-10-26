@@ -5,7 +5,6 @@
 #include "lib/netlib/net_mutex.h"
 
 #include <string>
-#include <vector>
 
 #include <stdint.h>
 
@@ -33,7 +32,6 @@ private:
     void			(*m_callback) (StereoSample *buf, unsigned int numSamples);
 	FILE            *m_wavOutput;
     std::string     m_currentOutputDevice;
-    bool            m_usedFallbackDevice;
 
 public:
 	struct RuntimeStats {
@@ -97,8 +95,6 @@ public:
 	void            StartRecordToFile(char const *_filename);
 	void            EndRecordToFile();
 
-    static void     EnumerateOutputDevices(std::vector<std::string> &_outDevices);
-	
 	unsigned		GetSamplesPerBuffer();
 	unsigned		GetFreq();
 	unsigned		GetActualFreq() const;
@@ -108,9 +104,8 @@ public:
 	bool			IsAudioStarted() const;
 	bool			HasCallback() const;
 	bool			IsRecording() const;
-	void			GetRuntimeStats(RuntimeStats &_outStats);
+    void			GetRuntimeStats(RuntimeStats &_outStats);
     const char     *GetCurrentOutputDeviceName() const;
-    bool            UsedFallbackDevice() const;
 	
 };
 

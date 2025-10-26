@@ -111,8 +111,6 @@ dialog_watershaded			Schattiert
 dialog_soundoptions			Sound
 dialog_unavailable			nicht verf�gbar
 dialog_soundlibrary			Sound-Library
-dialog_soundoutputdevice			Audioausgabegeraet
-dialog_sounddevice_default			Systemstandard
 dialog_directsound			DirectSound
 dialog_softwaresound			Software-Sound
 dialog_mixfrequency			Frequenzen mischen

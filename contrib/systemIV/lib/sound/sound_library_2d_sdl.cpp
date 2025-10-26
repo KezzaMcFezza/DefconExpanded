@@ -260,7 +260,6 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	m_actualChannels(0),
 	m_actualFormat(0),
 	m_currentOutputDevice(),
-	m_usedFallbackDevice(false),
 	m_stats(),
 	m_deviceId(0)
 {
@@ -298,8 +297,6 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 			s_audioSubsystemInitialisedByLibrary = true;
 		}
 
-		const char *requestedDevice = g_preferences->GetString(PREFS_SOUND_OUTPUT_DEVICE, "");
-	const char *deviceToUse = (requestedDevice && requestedDevice[0]) ? requestedDevice : NULL;
 	SDL_AudioSpec obtainedSpec;
 	SDL_AudioSpec *obtainedPtr = &obtainedSpec;
 
@@ -308,29 +305,14 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	obtainedPtr = NULL;
 #endif
 
-	s_audioDevice = SDL_OpenAudioDevice(deviceToUse, 0, &desired, obtainedPtr, 0);
-
-	if (s_audioDevice == 0 && deviceToUse) {
-		const char *errString = SDL_GetError();
-		AppDebugOut("Failed to open audio output device \"%s\": \"%s\". Falling back to system default.\n",
-		            deviceToUse, errString ? errString : "unknown error");
-		deviceToUse = NULL;
-		s_audioDevice = SDL_OpenAudioDevice(NULL, 0, &desired, obtainedPtr, 0);
-	}
+	s_audioDevice = SDL_OpenAudioDevice(NULL, 0, &desired, obtainedPtr, 0);
 
 	if (s_audioDevice == 0) {
 		const char *errString = SDL_GetError();
 		AppReleaseAssert(false, "Failed to open audio output device: \"%s\"", errString ? errString : "unknown error");
 	}
 
-    bool requestedSpecificDevice = (requestedDevice && requestedDevice[0]);
-    m_usedFallbackDevice = requestedSpecificDevice && (deviceToUse == NULL);
-	if (deviceToUse && deviceToUse[0]) {
-		m_currentOutputDevice = deviceToUse;
-	}
-	else {
-		m_currentOutputDevice.clear();
-	}
+	m_currentOutputDevice.clear();
 
 #ifdef TARGET_EMSCRIPTEN
 	s_audioSpec = desired;
@@ -369,31 +351,6 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
     if (g_preferences->GetInt("Sound", 1)) {
         SDL_PauseAudioDevice(s_audioDevice, 0);
     }
-}
-
-void SoundLibrary2dSDL::EnumerateOutputDevices(std::vector<std::string> &_outDevices)
-{
-	_outDevices.clear();
-
-	bool temporaryInit = false;
-	if ((SDL_WasInit(SDL_INIT_AUDIO) & SDL_INIT_AUDIO) == 0) {
-		if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) {
-			return;
-		}
-		temporaryInit = true;
-	}
-
-	int deviceCount = SDL_GetNumAudioDevices(0);
-	for (int i = 0; i < deviceCount; ++i) {
-		const char *deviceName = SDL_GetAudioDeviceName(i, 0);
-		if (deviceName && deviceName[0]) {
-			_outDevices.emplace_back(deviceName);
-		}
-	}
-
-	if (temporaryInit) {
-		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-	}
 }
 
 unsigned SoundLibrary2dSDL::GetSamplesPerBuffer()
@@ -463,12 +420,6 @@ const char *SoundLibrary2dSDL::GetCurrentOutputDeviceName() const
 	return m_currentOutputDevice.c_str();
 }
 
-
-bool SoundLibrary2dSDL::UsedFallbackDevice() const
-{
-	return m_usedFallbackDevice;
-}
-
 SoundLibrary2dSDL::~SoundLibrary2dSDL()
 {
 	AppDebugOut ( "Destructing SoundLibrary2dSDL class... " );
@@ -503,7 +454,6 @@ void SoundLibrary2dSDL::Stop()
 	m_stats.bufferedSamples[1] = 0;
 	m_statsLock.Unlock();
 	m_currentOutputDevice.clear();
-	m_usedFallbackDevice = false;
 }
 
 // Lock ensures that old callback won't still be running once this method exits

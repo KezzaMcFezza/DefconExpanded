@@ -4,8 +4,6 @@
 
 #include "lib/universal_include.h"
 #include "interface/components/core.h"
-#include <string>
-#include <vector>
 
 #if defined(HAVE_DSOUND) && !defined(WINDOWS_SDL)
 #define SOUNDOPTIONSWINDOW_USEHARDWARE3D
@@ -23,21 +21,12 @@ public:
 	int     m_dspEffects;
 	int     m_memoryUsage;
 	int     m_masterVolume;
-#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
-	int                             m_selectedDeviceIndex;
-	std::string                     m_preferredOutputDevice;
-	std::vector<std::string>        m_outputDevices;
-#endif
 
 public:
     SoundOptionsWindow();
 
     void Create();
     void Render( bool _hasFocus );
-#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
-	const char *GetSelectedOutputDeviceName() const;
-	void PopulateOutputDevices();
-#endif
 };
 
 
