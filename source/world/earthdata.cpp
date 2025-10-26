@@ -152,16 +152,7 @@ void EarthData::LoadCoastlines()
     int numIslands = 0;
 
     char coastFile[1024];
-#ifdef FUCKED // does not work and really we dont need this anymore
-    if( g_preferences->GetInt(PREFS_GRAPHICS_LOWRESWORLD) == 0 )
-    {
-        strcpy(coastFile, "data/earth/coastlines.dat");
-    }
-    else
-    {
-        strcpy(coastFile, "data/earth/coastlines-low.dat");
-    }
-#endif
+
     strcpy(coastFile, "data/earth/coastlines.dat");
 
     TextReader *coastlines = g_fileSystem->GetTextReader( coastFile );

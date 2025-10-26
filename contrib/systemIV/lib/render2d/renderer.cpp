@@ -495,30 +495,6 @@ void Renderer::Reset2DViewport() {
 void Renderer::BeginScene() {
     SetBoundTexture(0);
     SetBlendMode(BlendModeNormal);
-
-#ifdef TARGET_OS_MACOSX
-    // Line smoothing crashes some Mac OSX machines with Radeon graphics
-    return;
-#endif
-
-#ifndef TARGET_EMSCRIPTEN
-    bool smoothLines = g_preferences->GetInt( PREFS_GRAPHICS_SMOOTHLINES );
-	
-    if( smoothLines )
-    {
-        glHint      ( GL_LINE_SMOOTH_HINT, GL_NICEST );
-        glHint      ( GL_POINT_SMOOTH_HINT, GL_NICEST );
-        glHint      ( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
-
-        glEnable    ( GL_LINE_SMOOTH );
-        glEnable    ( GL_POINT_SMOOTH );
-    }
-    else
-    {
-        glDisable   ( GL_LINE_SMOOTH );
-        glDisable   ( GL_POINT_SMOOTH );
-    }
-#endif
 }
 
 void Renderer::BeginFrame() {

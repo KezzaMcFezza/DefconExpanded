@@ -71,9 +71,6 @@ public:
     // UI visibility toggle
     void ToggleHideUI();
     
-    // Globe mode toggle
-    void ToggleGlobeMode();
-    
     // Player perspective methods
     void InitializePlayers();            // Scan teams and detect players
     void SetPlayerPerspective( int playerIndex );  // Switch to player view

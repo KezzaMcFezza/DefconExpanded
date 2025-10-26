@@ -33,7 +33,6 @@ class GraphicsOptionsWindow : public InterfaceWindow
 {
 public:
 #ifndef TARGET_EMSCRIPTEN
-    int     m_smoothLines;
     float   m_coastlineThickness;
     float   m_borderThickness;
     float   m_unitTrailThickness;

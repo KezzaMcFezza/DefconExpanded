@@ -22,17 +22,10 @@ public:
         int oldMemoryUsage = g_preferences->GetInt( PREFS_SOUND_MEMORY );
 
         g_preferences->SetInt( PREFS_SOUND_MIXFREQ, parent->m_mixFreq );
-        g_preferences->SetInt( PREFS_SOUND_HW3D, parent->m_useHardware3D );
         g_preferences->SetInt( PREFS_SOUND_SWAPSTEREO, parent->m_swapStereo );
         g_preferences->SetInt( PREFS_SOUND_DSPEFFECTS, parent->m_dspEffects );
         g_preferences->SetInt( PREFS_SOUND_MEMORY, parent->m_memoryUsage );
         g_preferences->SetInt( PREFS_SOUND_MASTERVOLUME, parent->m_masterVolume );
-#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
-        g_preferences->SetString( PREFS_SOUND_LIBRARY, "software" );
-#else
-        if( parent->m_soundLib == 0 ) g_preferences->SetString( PREFS_SOUND_LIBRARY, "software" );
-        else                          g_preferences->SetString( PREFS_SOUND_LIBRARY, "dsound" );
-#endif
         
         g_soundSystem->RestartSoundLibrary();
 
@@ -74,56 +67,17 @@ public:
     }
 };
 
-
-
-class HW3DDropDownMenu : public DropDownMenu
-{
-public:
-    void Render( int realX, int realY, bool highlighted, bool clicked )
-    {
-        bool available = g_soundLibrary3d->Hardware3DSupport();
-        if( available )
-        {
-            DropDownMenu::Render( realX, realY, highlighted, clicked );
-        }
-        else
-        {
-            g_renderer->TextSimple( realX+10, realY+9, White, 13, LANGUAGEPHRASE("dialog_unavailable") );
-        }
-    }
-
-    void MouseUp()
-    {
-        bool available = g_soundLibrary3d->Hardware3DSupport();
-        if( available )
-        {
-            DropDownMenu::MouseUp();
-        }
-    }
-};
-
-
 SoundOptionsWindow::SoundOptionsWindow()
 :   InterfaceWindow( "Sound", "dialog_soundoptions", true )
 {
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-    SetSize( 390, 350 );
-#else
-    SetSize( 390, 320 );
-#endif
+    SetSize( 390, 210 );
 
     m_mixFreq       = 44100;
     g_preferences->SetInt( PREFS_SOUND_MIXFREQ, m_mixFreq );
-    m_useHardware3D = g_preferences->GetInt( PREFS_SOUND_HW3D, 0 );
     m_swapStereo    = g_preferences->GetInt( PREFS_SOUND_SWAPSTEREO, 0 );
     m_dspEffects    = g_preferences->GetInt( PREFS_SOUND_DSPEFFECTS, 1 );
     m_memoryUsage   = g_preferences->GetInt( PREFS_SOUND_MEMORY, 1 );
     m_masterVolume  = g_preferences->GetInt( PREFS_SOUND_MASTERVOLUME, 255 );
-
-    const char *soundLib  = g_preferences->GetString( PREFS_SOUND_LIBRARY );
-    
-    if( stricmp( soundLib, "dsound" ) == 0 ) m_soundLib = 1;
-    else                                     m_soundLib = 0;
 }
 
 
@@ -140,20 +94,6 @@ void SoundOptionsWindow::Create()
   	box->SetProperties( "invert", 10, 50, m_w - 20, m_h-140, " ", " ", false, false );        
     RegisterButton( box );
 
-    
-#if !defined(WINDOWS_SDL) && !defined(TARGET_OS_MACOSX) && !defined(TARGET_OS_LINUX)
-    DropDownMenu *soundLib = new DropDownMenu();
-    soundLib->SetProperties( "Sound Library", x, y+=h, w, 20, "dialog_soundlibrary", " ", true, false );
-#ifdef HAVE_DSOUND
-    soundLib->AddOption( "dialog_directsound", 1, true );
-#else
-    soundLib->AddOption( "dialog_softwaresound", 0, true );
-#endif
-    soundLib->RegisterInt( &m_soundLib );
-    RegisterButton( soundLib );
-#endif
-
-
     //DropDownMenu *memoryUsage = new DropDownMenu();
     //memoryUsage->SetProperties( "Memory Usage", x, y+=h, w, 20, "dialog_memoryusage", " ", true, false );
     //memoryUsage->AddOption( "dialog_high", 1, true );
@@ -168,15 +108,6 @@ void SoundOptionsWindow::Create()
     swapStereo->AddOption( "dialog_disabled", 0, true );
     swapStereo->RegisterInt( &m_swapStereo );
     RegisterButton( swapStereo );
-
-#ifdef SOUNDOPTIONSWINDOW_USEHARDWARE3D
-    HW3DDropDownMenu *hw3d = new HW3DDropDownMenu();
-    hw3d->SetProperties( "Hardware3d Sound", x, y+=h, w, 20, "dialog_hw3dsound", " ", true, false );
-    hw3d->AddOption( "dialog_enabled", 1, true );
-    hw3d->AddOption( "dialog_disabled", 0, true );
-    hw3d->RegisterInt( &m_useHardware3D );
-    RegisterButton( hw3d );
-#endif
 
 #ifdef SOUNDOPTIONSWINDOW_USEDSPEFFECTS
     DropDownMenu *dspEffects = new DropDownMenu();
@@ -208,15 +139,8 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     int h = 30;
     int size = 13;
 
-#if !defined(WINDOWS_SDL) && !defined(TARGET_OS_MACOSX) && !defined(TARGET_OS_LINUX)
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundlibrary") );
-#endif
     //g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_memoryusage") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_swapstereo") );
-
-#ifdef SOUNDOPTIONSWINDOW_USEHARDWARE3D
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_hw3dsound") );
-#endif
 
 #ifdef SOUNDOPTIONSWINDOW_USEDSPEFFECTS
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_realtimeeffects") );

@@ -306,6 +306,21 @@ class InfoWindowButton : public ToolbarButton
 };
 
 
+class ToggleGlobeButton : public ToolbarButton
+{
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {
+        m_toggle = g_app->GetMapRenderer()->Is3DGlobeModeEnabled();
+        
+        ToolbarButton::Render( realX, realY, highlighted, clicked );
+    }
+    void MouseUp()
+    {
+        g_app->GetMapRenderer()->Toggle3DGlobeMode();
+    }
+};
+
+
 class ToggleBoolButton : public ToolbarButton
 {
 public:
@@ -450,7 +465,7 @@ public:
 
 Toolbar::Toolbar()
 :   FadingWindow( "Toolbar" ),
-    m_numButtons(10)
+    m_numButtons(11)
 {
     bool chatWindow = false;
     for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
@@ -569,6 +584,11 @@ void Toolbar::Create()
     territory->m_disabled = g_app->GetMapRenderer()->Is3DGlobeModeEnabled(); // disabled for now in globe mode
     strcpy(territory->m_iconFilename, "gui/tb_territory.bmp");
     RegisterButton( territory );
+
+    ToggleGlobeButton *globe = new ToggleGlobeButton();
+    globe->SetProperties( "Globe", x+=gap, y, iconSize, iconSize, "dialog_toolbar_globe", "tooltip_toolbar_globe", true, true );
+    strcpy(globe->m_iconFilename, "gui/tb_globe.bmp" );
+    RegisterButton( globe );
 
     ToggleBoolButton *nukes = new ToggleBoolButton();
     nukes->SetProperties( "Nukes", x+=gap, y, iconSize, iconSize, "dialog_toolbar_nukes", "tooltip_toolbar_nukes", true, true );

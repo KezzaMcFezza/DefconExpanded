@@ -2801,11 +2801,6 @@ void MapRenderer::RenderCoastlines()
         // Build ALL coastlines into single mega-VBO (once only, like display lists)
         LList<Island *> *list = &g_app->GetEarthData()->m_islands;
 
-#ifdef FUCKED // does not work and really we dont need this anymore
-        if( g_preferences->GetInt(PREFS_GRAPHICS_LOWRESWORLD) == 1 )
-        {
-#endif
-
         Colour coastlineColor = g_styleTable->GetPrimaryColour( STYLE_WORLD_COASTLINES );
         
         // Begin mega-VBO for all coastlines (using 1.5f width like original OpenGL 1.2 system)
@@ -4037,11 +4032,6 @@ void MapRenderer::Update()
         }
     }
 #endif
-    
-    // KEY_G toggles 3D globe mode
-    if( g_keys[KEY_G] && g_keyDeltas[KEY_G] && !g_app->GetInterface()->UsingChatWindow() ) {
-        Toggle3DGlobeMode();
-    }
     
     // Update 3D camera if in globe mode
     if( m_3DGlobeMode ) {

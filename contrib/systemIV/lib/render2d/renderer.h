@@ -19,10 +19,6 @@ static const Colour Black{0, 0, 0};
 static const Colour LightGray{200, 200, 200};
 static const Colour DarkGray{100, 100, 100};
 
-#ifndef TARGET_EMSCRIPTEN
-#define PREFS_GRAPHICS_SMOOTHLINES "RenderSmoothLines"
-#endif
-
 //
 // modern OpenGL support structures
 

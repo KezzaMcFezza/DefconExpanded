@@ -98,14 +98,6 @@ dialog_setplayername                Set Player Name
 dialog_setteamname                  Set Team Name
 
 dialog_graphicsoptions              Graphics
-dialog_smoothlines                  Smooth Lines
-dialog_smoothlines_global           Global
-dialog_smoothlines_coastlines_borders Coastlines and Borders
-dialog_smoothlines_trails_gunfire   Trails and Gunfire
-dialog_smoothlines_quality          Smooth Line Quality
-dialog_smoothlines_quality_best     Best
-dialog_smoothlines_quality_normal   Normal
-dialog_smoothlines_quality_minimal  Minimal
 dialog_coastlinethickness           Coastline Thickness
 dialog_borderthickness              Border Thickness
 dialog_unittrailthickness           Unit Trail Thickness
@@ -480,6 +472,7 @@ dialog_toolbar_radar                radar
 dialog_toolbar_people               people
 dialog_toolbar_orders               orders
 dialog_toolbar_territory            territory
+dialog_toolbar_globe                globe
 dialog_toolbar_nukes                nukes
 dialog_toolbar_white_board          white board
 dialog_toolbar_info                 info

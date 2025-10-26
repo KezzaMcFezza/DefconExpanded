@@ -139,14 +139,9 @@ void PlaybackControlWindow::Create()
     healthToggle->SetProperties("HealthToggle", leftButtonsX, buttonStartY + buttonSpacing, buttonWidth, buttonHeight, "HEALTH", "Toggle health bars on/off", false, true);
     RegisterButton(healthToggle);
     
-    // Globe toggle button 
-    GlobeToggleButton *globeToggle = new GlobeToggleButton();
-    globeToggle->SetProperties("GlobeToggle", leftButtonsX, buttonStartY + buttonSpacing * 2, buttonWidth, buttonHeight, "globe", "Toggle 3D globe mode", false, true);
-    RegisterButton(globeToggle);
-    
-    // Hide UI button (below globe)
+    // Hide UI button
     HideUIButton *hideUIButton = new HideUIButton();
-    hideUIButton->SetProperties("HideUI", leftButtonsX, buttonStartY + buttonSpacing * 3, buttonWidth, buttonHeight, "Hide UI", "Hide user interface", false, true);
+    hideUIButton->SetProperties("HideUI", leftButtonsX, buttonStartY + buttonSpacing * 2, buttonWidth, buttonHeight, "Hide UI", "Hide user interface", false, true);
     RegisterButton(hideUIButton);
     
     // Controls area starts after the left buttons
@@ -369,11 +364,6 @@ void PlaybackControlWindow::Render(bool _hasFocus)
         healthToggleBtn->Render(m_x + healthToggleBtn->m_x, m_y + healthToggleBtn->m_y, false, false);
     }
     
-    EclButton *globeToggleBtn = GetButton("GlobeToggle");
-    if (globeToggleBtn) {
-        globeToggleBtn->Render(m_x + globeToggleBtn->m_x, m_y + globeToggleBtn->m_y, false, false);
-    }
-    
     EclButton *hideUIBtn = GetButton("HideUI");
     if (hideUIBtn) {
         hideUIBtn->Render(m_x + hideUIBtn->m_x, m_y + hideUIBtn->m_y, false, false);
@@ -563,12 +553,6 @@ void PlaybackControlWindow::ToggleHealthBars()
         const char* expectedCaption = m_healthBarsEnabled ? "HEALTH*" : "HEALTH";
         healthToggleBtn->SetCaption(expectedCaption, false);
     }
-}
-
-void PlaybackControlWindow::ToggleGlobeMode()
-{
-    // call the same function that KEY_G does
-    g_app->GetMapRenderer()->Toggle3DGlobeMode();
 }
 
 void PlaybackControlWindow::ToggleHideUI()
@@ -929,22 +913,6 @@ void PlayerPerspectiveButton::Render( int realX, int realY, bool highlighted, bo
     // button text
     Colour textCol = m_isSelected ? Colour(255, 255, 255, 255) : Colour(220, 220, 220, 255);
     g_renderer->TextCentreSimple(realX + m_w/2, realY + m_h/2 - 6, textCol, 9.0f, m_caption);
-}
-
-// ============================================================================
-// Globe Toggle Button
-
-void GlobeToggleButton::MouseUp()
-{
-    PlaybackControlWindow *parent = (PlaybackControlWindow*)m_parent;
-    if (parent) {
-        parent->ToggleGlobeMode();
-    }
-}
-
-void GlobeToggleButton::Render(int realX, int realY, bool highlighted, bool clicked)
-{
-    InterfaceButton::Render(realX, realY, highlighted, clicked);
 }
 
 // ============================================================================

@@ -5,18 +5,13 @@
 #include "lib/universal_include.h"
 #include "interface/components/core.h"
 
-#if defined(HAVE_DSOUND) && !defined(WINDOWS_SDL)
-#define SOUNDOPTIONSWINDOW_USEHARDWARE3D
-#endif
 //#define SOUNDOPTIONSWINDOW_USEDSPEFFECTS
 
 
 class SoundOptionsWindow : public InterfaceWindow
 {
 public:
-	int     m_soundLib;
 	int     m_mixFreq;
-	int     m_useHardware3D;
 	int     m_swapStereo;
 	int     m_dspEffects;
 	int     m_memoryUsage;
