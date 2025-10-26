@@ -492,6 +492,19 @@ void Renderer::Reset2DViewport() {
     ResetClip();
 }
 
+void Renderer::HandleWindowResize() {
+#ifndef TARGET_EMSCRIPTEN
+    int screenW = (int)(g_windowManager->PhysicalWindowW() * g_windowManager->GetHighDPIScaleX());
+    int screenH = (int)(g_windowManager->PhysicalWindowH() * g_windowManager->GetHighDPIScaleY());
+#else
+    int screenW = g_windowManager->WindowW();
+    int screenH = g_windowManager->WindowH();
+#endif
+
+    ResizeMSAAFramebuffer(screenW, screenH);
+    Reset2DViewport();
+}
+
 void Renderer::BeginScene() {
     SetBoundTexture(0);
     SetBlendMode(BlendModeNormal);

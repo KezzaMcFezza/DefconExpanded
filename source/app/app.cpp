@@ -820,6 +820,32 @@ void App::ReinitialiseWindow()
     
 }
 
+void App::OnWindowResized(int newWidth, int newHeight)
+{
+    if (newWidth <= 0 || newHeight <= 0)
+    {
+        return;
+    }
+
+    if (g_preferences)
+    {
+        g_preferences->SetInt(PREFS_SCREEN_WIDTH, newWidth);
+        g_preferences->SetInt(PREFS_SCREEN_HEIGHT, newHeight);
+        g_preferences->SetInt(PREFS_SCREEN_WINDOWED, 1);
+        g_preferences->SetInt(PREFS_SCREEN_BORDERLESS, 0);
+    }
+
+    if (g_renderer)
+    {
+        g_renderer->HandleWindowResize();
+    }
+
+    if (m_interface)
+    {
+        m_interface->Init();
+    }
+}
+
 
 void App::Update()
 {

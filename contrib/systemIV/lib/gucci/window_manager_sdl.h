@@ -33,9 +33,10 @@ public:
     void        OpenWebsite( const char *_url );
 
 private:
-	void        ListAllDisplayModes ( int displayIndex );
+    void        ListAllDisplayModes ( int displayIndex );
     void        CalculateHighDPIScaleFactors();
     void        WindowHasMoved();
+    void        HandleResize(int newWidth, int newHeight);
     
 	bool		m_tryingToCaptureMouse;
     

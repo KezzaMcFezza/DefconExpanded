@@ -407,6 +407,23 @@ int InputManagerSDL::EventHandler(unsigned int message, long long wParam, int lP
             m_windowHasFocus = true;
             break;
 		}
+
+        case SDL_WINDOWEVENT:
+        {
+            switch (sdlEvent->window.event)
+            {
+                case SDL_WINDOWEVENT_SIZE_CHANGED:
+                case SDL_WINDOWEVENT_RESIZED:
+                case SDL_WINDOWEVENT_MINIMIZED:
+                case SDL_WINDOWEVENT_MAXIMIZED:
+                case SDL_WINDOWEVENT_RESTORED:
+                    return 0;
+
+                default:
+                    break;
+            }
+            return -1;
+        }
 		
 		case SDL_QUIT:
         {
