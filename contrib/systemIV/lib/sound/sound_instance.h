@@ -126,6 +126,9 @@ public:
 
     char				*m_eventName;
     bool                 m_locked;
+
+    double              m_resampleCursor;           // fractional frame cursor used by software resampler
+    double              m_resampleStep;             // source frames advanced per mixed frame
         
     void    OpenStream  (bool _keepCurrentStream);  // Handles sound groups, file types etc
     
@@ -163,6 +166,9 @@ public:
     bool    IsLocked();
 
     SoundObjectId GetAttachedObject();
+
+    void    ResetResamplerCursor(double _cursor = 0.0);
+    void    RecalculateResampleStep();
 
     static const char *GetPositionTypeName    ( int _type );
     static const char *GetInstanceTypeName    ( int _type );

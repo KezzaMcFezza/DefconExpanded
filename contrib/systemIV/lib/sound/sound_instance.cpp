@@ -137,7 +137,9 @@ SoundInstance::SoundInstance()
     m_eventName(NULL),
     m_restartOccured(true),
     m_restartAttempts(0),
-    m_locked(false)
+    m_locked(false),
+    m_resampleCursor(0.0),
+    m_resampleStep(1.0)
 {
     SetSoundName( "[???]" );
 
@@ -537,6 +539,8 @@ void SoundInstance::OpenStream( bool _keepCurrentStream )
         (_keepCurrentStream || m_sourceType == Sample) )
     {
 		m_soundSampleHandle->Restart();
+        ResetResamplerCursor();
+        RecalculateResampleStep();
         return;
     }
 
@@ -561,6 +565,8 @@ void SoundInstance::OpenStream( bool _keepCurrentStream )
 	
     strcpy( m_sampleName, sampleName );
 	m_soundSampleHandle = g_soundSampleBank->GetSample(m_sampleName);
+    ResetResamplerCursor();
+    RecalculateResampleStep();
 }
 
 
@@ -690,6 +696,7 @@ bool SoundInstance::StartPlaying( int _channelIndex )
     UpdateParameter( m_freq );
     g_soundLibrary3d->SetChannelFrequency( m_channelIndex, 
                                            (float)m_soundSampleHandle->m_soundSample->m_freq * m_freq.GetOutput() );
+    RecalculateResampleStep();
 
     bool done = UpdateChannelVolume();
 
@@ -733,6 +740,7 @@ bool SoundInstance::Advance()
     UpdateParameter( m_freq );
     g_soundLibrary3d->SetChannelFrequency( m_channelIndex, 
                                            (float)m_soundSampleHandle->m_soundSample->m_freq * m_freq.GetOutput() );
+    RecalculateResampleStep();
 
 
     //if( m_loopDelayTimer > 0.0f ) AdvanceLoop();
@@ -939,6 +947,44 @@ void SoundInstance::Lock()
 void SoundInstance::Unlock()
 {
     m_locked = false;
+}
+
+void SoundInstance::ResetResamplerCursor(double _cursor)
+{
+#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+    if (_cursor < 0.0)
+    {
+        _cursor = 0.0;
+    }
+    m_resampleCursor = _cursor;
+#else
+    m_resampleCursor = 0.0;
+#endif
+}
+
+
+void SoundInstance::RecalculateResampleStep()
+{
+#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+    double step = 1.0;
+    if (g_soundLibrary3d && m_soundSampleHandle && m_soundSampleHandle->m_soundSample)
+    {
+        double mixRate = (double)g_soundLibrary3d->GetSampleRate();
+        double sourceRate = (double)m_soundSampleHandle->m_soundSample->m_freq;
+        double freqScale = (double)m_freq.GetOutput();
+
+        if (mixRate > 0.0 && sourceRate > 0.0)
+        {
+            step = (sourceRate * freqScale) / mixRate;
+        }
+    }
+
+    if (step < 1e-6) step = 1e-6;
+    if (step > 5.0) step = 5.0;
+    m_resampleStep = step;
+#else
+    m_resampleStep = 1.0;
+#endif
 }
 
 

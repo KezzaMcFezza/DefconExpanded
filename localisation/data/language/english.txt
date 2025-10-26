@@ -1729,4 +1729,3 @@ overlay_15_15                       JOHN KNOTTENBELT
 overlay_15_16                       JOSHUA 'MIAH' CLAYTON\n\n
 overlay_15_17                       ----------------------------------------\n
 overlay_15_18                       Translation Services provided by Game Localization Network Ltd.
-

@@ -57,6 +57,29 @@ unsigned int SoundSampleHandle::Read(signed short *_data, unsigned int _numSampl
 	return _numSamples;
 }
 
+unsigned int SoundSampleHandle::GetFrameCount() const
+{
+    if (!m_soundSample || m_soundSample->m_numChannels == 0)
+    {
+        return 0;
+    }
+
+    return m_soundSample->m_numSamples / m_soundSample->m_numChannels;
+}
+
+
+void SoundSampleHandle::GetFrame(double _frame, bool _stereo, float &_outLeft, float &_outRight)
+{
+    if (!m_soundSample)
+    {
+        _outLeft = 0.0f;
+        _outRight = 0.0f;
+        return;
+    }
+
+    m_soundSample->GetFrame(_frame, _stereo, _outLeft, _outRight);
+}
+
 
 void SoundSampleHandle::Restart()
 {
@@ -164,4 +187,3 @@ void SoundSampleBank::DiscardSample(char *_sampleName)
         delete cachedSample;
     }
 }
-

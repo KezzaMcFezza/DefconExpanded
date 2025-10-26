@@ -1155,6 +1155,7 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\soundsystem.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\soundsystem_interface.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_blueprint_manager.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_filter.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_instance.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_2d.cpp" />
@@ -1331,6 +1332,7 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\soundsystem.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\soundsystem_interface.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_blueprint_manager.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_filter.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_instance.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_2d.h" />

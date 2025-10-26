@@ -12,8 +12,6 @@
 
 #include "soundoptions_window.h"
 
-
-
 class RestartSoundButton : public InterfaceButton
 {
 public:
@@ -24,17 +22,17 @@ public:
         int oldMemoryUsage = g_preferences->GetInt( PREFS_SOUND_MEMORY );
 
         g_preferences->SetInt( PREFS_SOUND_MIXFREQ, parent->m_mixFreq );
-        g_preferences->SetInt( PREFS_SOUND_CHANNELS, parent->m_numChannels );
         g_preferences->SetInt( PREFS_SOUND_HW3D, parent->m_useHardware3D );
         g_preferences->SetInt( PREFS_SOUND_SWAPSTEREO, parent->m_swapStereo );
         g_preferences->SetInt( PREFS_SOUND_DSPEFFECTS, parent->m_dspEffects );
         g_preferences->SetInt( PREFS_SOUND_MEMORY, parent->m_memoryUsage );
         g_preferences->SetInt( PREFS_SOUND_MASTERVOLUME, parent->m_masterVolume );
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-        g_preferences->SetInt( PREFS_SOUND_BUFFERSIZE, parent->m_soundBufferSize );
-#endif
+#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
+        g_preferences->SetString( PREFS_SOUND_LIBRARY, "software" );
+#else
         if( parent->m_soundLib == 0 ) g_preferences->SetString( PREFS_SOUND_LIBRARY, "software" );
         else                          g_preferences->SetString( PREFS_SOUND_LIBRARY, "dsound" );
+#endif
         
         g_soundSystem->RestartSoundLibrary();
 
@@ -109,21 +107,18 @@ SoundOptionsWindow::SoundOptionsWindow()
 :   InterfaceWindow( "Sound", "dialog_soundoptions", true )
 {
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-    SetSize( 390, 380 );
-#else
     SetSize( 390, 350 );
+#else
+    SetSize( 390, 320 );
 #endif
 
-    m_mixFreq       = g_preferences->GetInt( PREFS_SOUND_MIXFREQ, 22050 );
-    m_numChannels   = g_preferences->GetInt( PREFS_SOUND_CHANNELS, 16 );
+    m_mixFreq       = 44100;
+    g_preferences->SetInt( PREFS_SOUND_MIXFREQ, m_mixFreq );
     m_useHardware3D = g_preferences->GetInt( PREFS_SOUND_HW3D, 0 );
     m_swapStereo    = g_preferences->GetInt( PREFS_SOUND_SWAPSTEREO, 0 );
     m_dspEffects    = g_preferences->GetInt( PREFS_SOUND_DSPEFFECTS, 1 );
     m_memoryUsage   = g_preferences->GetInt( PREFS_SOUND_MEMORY, 1 );
     m_masterVolume  = g_preferences->GetInt( PREFS_SOUND_MASTERVOLUME, 255 );
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-    m_soundBufferSize = g_preferences->GetInt( PREFS_SOUND_BUFFERSIZE, 512 );
-#endif
 
     const char *soundLib  = g_preferences->GetString( PREFS_SOUND_LIBRARY );
     
@@ -142,11 +137,13 @@ void SoundOptionsWindow::Create()
     int h = 30;
     
     InvertedBox *box = new InvertedBox();
-    box->SetProperties( "invert", 10, 50, m_w - 20, m_h-140, " ", " ", false, false );        
+  	box->SetProperties( "invert", 10, 50, m_w - 20, m_h-140, " ", " ", false, false );        
     RegisterButton( box );
 
+    
+#if !defined(WINDOWS_SDL) && !defined(TARGET_OS_MACOSX) && !defined(TARGET_OS_LINUX)
     DropDownMenu *soundLib = new DropDownMenu();
-    soundLib->SetProperties( "Sound Library", x, y+=h, w, 20, "dialog_soundlibrary", " ", true, false );    
+    soundLib->SetProperties( "Sound Library", x, y+=h, w, 20, "dialog_soundlibrary", " ", true, false );
 #ifdef HAVE_DSOUND
     soundLib->AddOption( "dialog_directsound", 1, true );
 #else
@@ -154,35 +151,8 @@ void SoundOptionsWindow::Create()
 #endif
     soundLib->RegisterInt( &m_soundLib );
     RegisterButton( soundLib );
-
-    DropDownMenu *mixFreq = new DropDownMenu();
-    mixFreq->SetProperties( "Mix Frequency", x, y+=h, w, 20, "dialog_mixfrequency", " ", true, false );
-    mixFreq->AddOption( "dialog_11khz", 11025, true );
-    mixFreq->AddOption( "dialog_22khz", 22050, true );
-    mixFreq->AddOption( "dialog_44khz", 44100, true );
-    mixFreq->RegisterInt( &m_mixFreq );
-    RegisterButton( mixFreq );
-
-    DropDownMenu *numChannels = new DropDownMenu();
-    numChannels->SetProperties( "Num Channels", x, y+=h, w, 20, "dialog_numchannels", " ", true, false );
-    numChannels->AddOption( "dialog_8channels", 8, true );
-    numChannels->AddOption( "dialog_16channels", 16, true );
-    numChannels->AddOption( "dialog_32channels", 32, true );
-    numChannels->AddOption( "dialog_64channels", 64, true );
-    numChannels->RegisterInt( &m_numChannels );
-    RegisterButton( numChannels );
-
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-    DropDownMenu *soundBufferSize = new DropDownMenu();
-    soundBufferSize->SetProperties( "Sound Buffer Size", x, y+=h, w, 20, "dialog_soundbuffersize", " ", true, false );
-    soundBufferSize->AddOption( "dialog_512samples", 512, true );
-    soundBufferSize->AddOption( "dialog_1024samples", 1024, true );
-    soundBufferSize->AddOption( "dialog_2048samples", 2048, true );
-    soundBufferSize->AddOption( "dialog_4096samples", 4096, true );
-    soundBufferSize->AddOption( "dialog_8192samples", 8192, true );
-    soundBufferSize->RegisterInt( &m_soundBufferSize );
-    RegisterButton( soundBufferSize );
 #endif
+
 
     //DropDownMenu *memoryUsage = new DropDownMenu();
     //memoryUsage->SetProperties( "Memory Usage", x, y+=h, w, 20, "dialog_memoryusage", " ", true, false );
@@ -238,11 +208,8 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     int h = 30;
     int size = 13;
 
+#if !defined(WINDOWS_SDL) && !defined(TARGET_OS_MACOSX) && !defined(TARGET_OS_LINUX)
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundlibrary") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_mixfrequency") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_numchannels") );
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundbuffersize") );
 #endif
     //g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_memoryusage") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_swapstereo") );
@@ -285,6 +252,3 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     memoryUsage /= 1024.0f;
     g_renderer->TextCentre( m_x + m_w/2, m_y + m_h - 70, White, size, "%s %2.1f Mb", LANGUAGEPHRASE("dialog_memoryusage"), memoryUsage );
 }
-
-
-

@@ -657,6 +657,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/sound/sound_library_2d.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_library_3d.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_software.cpp
+    ${SYSTEMIV_PATH}/lib/sound/sound_debug_overlay.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_parameter.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_sample_bank.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_sample_decoder.cpp

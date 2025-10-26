@@ -58,6 +58,9 @@ public:
 
 	void Read(signed short *_data, unsigned int _startSample, 
               unsigned int _numSamples, bool _stereo, float _relFreq);
+
+    unsigned int GetFrameCount() const;
+    void         GetFrame(double _frame, bool _stereo, float &_outLeft, float &_outRight);
 };
 
 

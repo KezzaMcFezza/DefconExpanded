@@ -786,6 +786,10 @@
     <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\log.cpp">
       <Filter>contrib\unrar</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\win32library.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.cpp">
+      <Filter>lib\sound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">
@@ -1290,6 +1294,10 @@
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\gucci\input_sdl.h">
       <Filter>lib\gucci</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\win32library.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.h">
+      <Filter>lib\sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

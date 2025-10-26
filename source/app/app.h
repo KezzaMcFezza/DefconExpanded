@@ -29,6 +29,7 @@ class Tutorial;
 class World;
 class RecordingFileDialog;
 class RendererDebugMenu;
+class SoundDebugOverlay;
 
 class App
 {
@@ -55,6 +56,7 @@ public:                 // STARTUP OPTIONS
     // Global debug menu and FPS counter
     bool        m_showFps;
     bool        m_showDebugMenu;
+    bool        m_showSoundOverlay;
     int         m_currentFrames;
     int         m_framesPerSecond;
     float       m_frameCountTimer;
@@ -74,6 +76,7 @@ private:
 #endif
     NetLib              *m_netLib;
     RendererDebugMenu   *m_debugMenu;
+    SoundDebugOverlay   *m_soundOverlay;
     
     bool        m_mousePointerVisible;
 
