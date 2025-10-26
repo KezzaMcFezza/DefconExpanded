@@ -16,16 +16,17 @@
 class SoundLibrary2dSDL : public SoundLibrary2d
 {
 private:
-	class Buffer {
-	public:
-		Buffer()
-			: stream(NULL), len(0)
-		{
-		}
-		
-	StereoSample *stream;
-		int len;
-	};
+    class Buffer {
+    public:
+        Buffer()
+            : stream(NULL), len(0), deviceId(0)
+        {
+        }
+        
+    StereoSample *stream;
+        int len;
+        uint32_t deviceId; // SDL_AudioDeviceID snapshot when the callback provided this buffer
+    };
 	
 	int				m_bufferIsThirsty;
 	Buffer			m_buffer[2];
@@ -78,12 +79,13 @@ public:
 	unsigned int	m_actualFreq;
 	unsigned int	m_actualSamplesPerBuffer;
 	unsigned int	m_actualChannels;
-	unsigned int	m_actualFormat;
-	RuntimeStats	m_stats;
+    unsigned int	m_actualFormat;
+    RuntimeStats	m_stats;
+    uint32_t        m_deviceId; // current SDL audio device id for this instance
 
-	void			AudioCallback(StereoSample *buf, unsigned int numSamples);
-	
-	void			Stop();
+    void			AudioCallback(StereoSample *buf, unsigned int numSamples);
+    
+    void			Stop();
 	
 public:
 	SoundLibrary2dSDL();

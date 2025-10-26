@@ -25,7 +25,8 @@ static void sdlAudioCallback(void *userdata, Uint8 *stream, int len)
 	AppDebugOut("sdlAudioCallback START: len=%d, started=%d, g_soundLibrary2d=%p\n", len, s_audioStarted, g_soundLibrary2d);
 #endif
 	
-	if (!s_audioStarted || !g_soundLibrary2d) 
+	SoundLibrary2dSDL *self = static_cast<SoundLibrary2dSDL *>(userdata);
+	if (!s_audioStarted || !self) 
 	{
 #ifdef TOGGLE_SOUND_TESTBED	
 		AppDebugOut("sdlAudioCallback: aborting - not started or no library\n");
@@ -35,7 +36,7 @@ static void sdlAudioCallback(void *userdata, Uint8 *stream, int len)
 #ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("sdlAudioCallback: calling AudioCallback with %d samples\n", len / sizeof(StereoSample));
 #endif
-	G_SL2D->AudioCallback( (StereoSample *) stream, len / sizeof(StereoSample) );
+	self->AudioCallback( (StereoSample *) stream, len / sizeof(StereoSample) );
 #ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("sdlAudioCallback END\n");
 #endif
@@ -82,10 +83,11 @@ void SoundLibrary2dSDL::AudioCallback(StereoSample *stream, unsigned numSamples)
 #ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SoundLibrary2dSDL::AudioCallback: buffering callback (not INVOKE_CALLBACK_FROM_SOUND_THREAD)\n");
 #endif
-	m_buffer[1] = m_buffer[0];
-	m_buffer[0].stream = stream;
-	m_buffer[0].len = numSamples;
-	m_bufferIsThirsty++;
+    m_buffer[1] = m_buffer[0];
+    m_buffer[0].stream = stream;
+    m_buffer[0].len = numSamples;
+    m_buffer[0].deviceId = m_deviceId; // tag with device id that produced this buffer
+    m_bufferIsThirsty++;
 	
 	if (m_bufferIsThirsty > 2)
 		m_bufferIsThirsty = 2;
@@ -185,31 +187,43 @@ void SoundLibrary2dSDL::TopupBuffer()
 #ifdef TOGGLE_SOUND_TESTBED		
 		AppDebugOut("SoundLibrary2dSDL::TopupBuffer: processing buffered callbacks, bufferIsThirsty=%d\n", m_bufferIsThirsty);
 #endif
-		StereoSample *streams[2] = { m_buffer[0].stream, m_buffer[1].stream };
-		unsigned lengths[2] = { (unsigned)m_buffer[0].len, (unsigned)m_buffer[1].len };
-		int callbacksToProcess = m_bufferIsThirsty;
-		if (callbacksToProcess > 2) callbacksToProcess = 2;
+    // Take a thread-safe snapshot of buffered callbacks
+    m_callbackLock.Lock();
+    StereoSample *streams[2] = { m_buffer[0].stream, m_buffer[1].stream };
+    unsigned lengths[2] = { (unsigned)m_buffer[0].len, (unsigned)m_buffer[1].len };
+    uint32_t deviceIds[2] = { m_buffer[0].deviceId, m_buffer[1].deviceId };
+    int callbacksToProcess = m_bufferIsThirsty;
+    m_callbackLock.Unlock();
+    if (callbacksToProcess > 2) callbacksToProcess = 2;
 
-		if (s_audioDevice != 0) {
-			SDL_LockAudioDevice(s_audioDevice);
-		}
-		for (int i = 0; i < callbacksToProcess; i++) {
+    // Lock the current device while filling its buffers
+    SDL_AudioDeviceID currentDevice = s_audioDevice;
+    bool locked = false;
+    if (currentDevice != 0) {
+        SDL_LockAudioDevice(currentDevice);
+        locked = true;
+    }
+    for (int i = 0; i < callbacksToProcess; i++) {
 #ifdef TOGGLE_SOUND_TESTBED	
-			AppDebugOut("SoundLibrary2dSDL::TopupBuffer: invoking callback %d/%d with %d samples\n", i+1, callbacksToProcess, lengths[i]);
+        AppDebugOut("SoundLibrary2dSDL::TopupBuffer: invoking callback %d/%d with %d samples\n", i+1, callbacksToProcess, lengths[i]);
 #endif
-			if (m_callback) {
-				m_callback( streams[i], lengths[i] );
-				processedSamples += lengths[i];
-				lastSamplesProcessed = lengths[i];
-				callbacksProcessed++;
-			}
-		}
-		m_bufferIsThirsty = 0;
-		if (s_audioDevice != 0) {
-			SDL_UnlockAudioDevice(s_audioDevice);
-		}
+        // Only write into buffers that belong to the currently active device
+        if (m_callback && deviceIds[i] == (uint32_t)currentDevice && streams[i] && lengths[i] > 0) {
+            m_callback( streams[i], lengths[i] );
+            processedSamples += lengths[i];
+            lastSamplesProcessed = lengths[i];
+            callbacksProcessed++;
+        }
+    }
+    // Reset thirst counter after processing/dropping pending buffers
+    m_callbackLock.Lock();
+    m_bufferIsThirsty = 0;
+    m_callbackLock.Unlock();
+    if (locked) {
+        SDL_UnlockAudioDevice(currentDevice);
+    }
 #endif
-	}
+    }
 
 	m_statsLock.Lock();
 	m_stats.topupCalls++;
@@ -247,7 +261,8 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	m_actualFormat(0),
 	m_currentOutputDevice(),
 	m_usedFallbackDevice(false),
-	m_stats()
+	m_stats(),
+	m_deviceId(0)
 {
 	AppReleaseAssert(!g_soundLibrary2d, "SoundLibrary2dSDL already exists");
 
@@ -265,8 +280,8 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	desired.format = AUDIO_S16SYS;
 	desired.samples = m_samplesPerBuffer;
 	desired.channels = 2;
-	desired.userdata = 0;
-	desired.callback = sdlAudioCallback;
+    desired.userdata = this;
+    desired.callback = sdlAudioCallback;
 	
 	AppDebugOut("Initialising SDL Audio\n");
 	
@@ -308,8 +323,8 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 		AppReleaseAssert(false, "Failed to open audio output device: \"%s\"", errString ? errString : "unknown error");
 	}
 
-	bool requestedSpecificDevice = (requestedDevice && requestedDevice[0]);
-	m_usedFallbackDevice = requestedSpecificDevice && (deviceToUse == NULL);
+    bool requestedSpecificDevice = (requestedDevice && requestedDevice[0]);
+    m_usedFallbackDevice = requestedSpecificDevice && (deviceToUse == NULL);
 	if (deviceToUse && deviceToUse[0]) {
 		m_currentOutputDevice = deviceToUse;
 	}
@@ -332,7 +347,10 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	}
 #endif
 
-	m_actualFreq = s_audioSpec.freq;
+    // Snapshot the device id for tagging buffers
+    m_deviceId = s_audioDevice;
+
+    m_actualFreq = s_audioSpec.freq;
 	m_actualSamplesPerBuffer = s_audioSpec.samples;
 	m_actualChannels = s_audioSpec.channels;
 	m_actualFormat = s_audioSpec.format;
@@ -348,9 +366,9 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	m_samplesPerBuffer = s_audioSpec.samples;
 	
 	// Start the callback function
-	if (g_preferences->GetInt("Sound", 1)) {
-		SDL_PauseAudioDevice(s_audioDevice, 0);
-	}
+    if (g_preferences->GetInt("Sound", 1)) {
+        SDL_PauseAudioDevice(s_audioDevice, 0);
+    }
 }
 
 void SoundLibrary2dSDL::EnumerateOutputDevices(std::vector<std::string> &_outDevices)
@@ -461,20 +479,23 @@ SoundLibrary2dSDL::~SoundLibrary2dSDL()
 
 void SoundLibrary2dSDL::Stop()
 {
-	if (s_audioDevice != 0) {
-		SDL_PauseAudioDevice(s_audioDevice, 1);
-		SDL_CloseAudioDevice(s_audioDevice);
-		s_audioDevice = 0;
-	}
-	if (s_audioSubsystemInitialisedByLibrary) {
-		SDL_QuitSubSystem(SDL_INIT_AUDIO);
-		s_audioSubsystemInitialisedByLibrary = false;
-	}
-	s_audioStarted = 0;
+    if (s_audioDevice != 0) {
+        SDL_PauseAudioDevice(s_audioDevice, 1);
+        SDL_CloseAudioDevice(s_audioDevice);
+        s_audioDevice = 0;
+    }
+    m_deviceId = 0;
+    if (s_audioSubsystemInitialisedByLibrary) {
+        SDL_QuitSubSystem(SDL_INIT_AUDIO);
+        s_audioSubsystemInitialisedByLibrary = false;
+    }
+    s_audioStarted = 0;
 
-	m_callbackLock.Lock();
-	m_bufferIsThirsty = 0;
-	m_callbackLock.Unlock();
+    m_callbackLock.Lock();
+    m_bufferIsThirsty = 0;
+    m_buffer[0].stream = NULL; m_buffer[0].len = 0; m_buffer[0].deviceId = 0;
+    m_buffer[1].stream = NULL; m_buffer[1].len = 0; m_buffer[1].deviceId = 0;
+    m_callbackLock.Unlock();
 
 	m_statsLock.Lock();
 	m_stats = RuntimeStats();
