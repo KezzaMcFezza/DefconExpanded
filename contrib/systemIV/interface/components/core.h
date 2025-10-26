@@ -20,6 +20,7 @@ public:
 
 public:  
     InterfaceWindow( const char *name, const char *title = NULL, bool titleIsLanguagePhrase = false );
+    virtual void OnResize(int newWidth, int newHeight, int oldWidth, int oldHeight);
     
     void Create();
     void Render( bool hasFocus );
@@ -115,5 +116,4 @@ public:
 
 
 #endif
-
 

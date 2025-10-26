@@ -256,6 +256,9 @@ void WindowManagerSDL::HandleResize(int newWidth, int newHeight)
         return;
     }
 
+    int oldWidth = m_screenW;
+    int oldHeight = m_screenH;
+
     m_screenW = newWidth;
     m_screenH = newHeight;
 
@@ -276,7 +279,7 @@ void WindowManagerSDL::HandleResize(int newWidth, int newHeight)
 
     if (g_app)
     {
-        g_app->OnWindowResized(newWidth, newHeight);
+        g_app->OnWindowResized(newWidth, newHeight, oldWidth, oldHeight);
     }
 }
 

@@ -820,7 +820,7 @@ void App::ReinitialiseWindow()
     
 }
 
-void App::OnWindowResized(int newWidth, int newHeight)
+void App::OnWindowResized(int newWidth, int newHeight, int oldWidth, int oldHeight)
 {
     if (newWidth <= 0 || newHeight <= 0)
     {
@@ -842,7 +842,7 @@ void App::OnWindowResized(int newWidth, int newHeight)
 
     if (m_interface)
     {
-        m_interface->Init();
+        m_interface->HandleWindowResize(newWidth, newHeight, oldWidth, oldHeight);
     }
 }
 

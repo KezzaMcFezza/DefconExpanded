@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 
 #include <math.h>
+#include <algorithm>
 #include <time.h>
 
 #include "lib/eclipse/eclipse.h"
@@ -223,6 +224,60 @@ void Interface::Init()
                    g_windowManager->WindowH() );
 
     EclRegisterTooltipCallback( TooltipRender );
+}
+
+void Interface::HandleWindowResize(int newWidth, int newHeight, int oldWidth, int oldHeight)
+{
+    if (newWidth <= 0 || newHeight <= 0)
+    {
+        return;
+    }
+
+    if (newWidth == oldWidth && newHeight == oldHeight)
+    {
+        return;
+    }
+
+    EclInitialise(newWidth, newHeight);
+
+    LList<EclWindow *> *windows = EclGetWindows();
+    if (!windows)
+    {
+        return;
+    }
+
+    for (int i = 0; i < windows->Size(); ++i)
+    {
+        EclWindow *window = windows->GetData(i);
+        if (!window) continue;
+
+        if (InterfaceWindow *interfaceWindow = dynamic_cast<InterfaceWindow *>(window))
+        {
+            interfaceWindow->OnResize(newWidth, newHeight, oldWidth, oldHeight);
+        }
+        else if (oldWidth > 0 && oldHeight > 0)
+        {
+            // Maintain proportional positioning for non-interface windows
+            float relativeX = static_cast<float>(window->m_x) / static_cast<float>(oldWidth);
+            float relativeY = static_cast<float>(window->m_y) / static_cast<float>(oldHeight);
+
+            window->m_x = static_cast<int>(relativeX * newWidth);
+            window->m_y = static_cast<int>(relativeY * newHeight);
+
+            if (window->m_x + window->m_w > newWidth)
+            {
+                window->m_x = std::max(0, newWidth - window->m_w);
+            }
+
+            if (window->m_y + window->m_h > newHeight)
+            {
+                window->m_y = std::max(0, newHeight - window->m_h);
+            }
+
+            if (window->m_x < 0) window->m_x = 0;
+            if (window->m_y < 0) window->m_y = 0;
+        }
+    }
 }
 
 static inline bool ScreenshotKeyPressed()
