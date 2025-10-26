@@ -106,6 +106,28 @@ void SoundSystem::RestartSoundLibrary()
 #endif
 
     //
+    // Make sure to stop all currently playing sounds before clearing the cache
+
+	m_soundInstanceMutex->Lock();
+	for( int i = 0; i < m_sounds.Size(); ++i )
+	{
+		if( m_sounds.ValidIndex(i) )
+		{
+			SoundInstance *instance = m_sounds[i];
+			instance->StopPlaying();
+
+			delete instance->m_soundSampleHandle;
+			instance->m_soundSampleHandle = NULL;
+		}
+	}
+	m_soundInstanceMutex->Unlock();
+
+	// 
+    // Now clear it
+    
+	g_soundSampleBank->EmptyCache();
+
+    //
     // Start up a new sound library
 
 	g_preferences->SetInt(PREFS_SOUND_MIXFREQ, 44100);
@@ -138,7 +160,6 @@ void SoundSystem::RestartSoundLibrary()
     m_channels = new SoundInstanceId[m_numChannels];    
 
     g_soundLibrary3d->SetMainCallback( &SoundLibraryMainCallback );
-    g_soundSampleBank->EmptyCache();
 }
 
 
