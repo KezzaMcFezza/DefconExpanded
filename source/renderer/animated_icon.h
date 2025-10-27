@@ -2,7 +2,7 @@
 #ifndef _included_animatedicon_h
 #define _included_animatedicon_h
 
-#include "world/world.h"
+#include "lib/tosser/bounded_array.h"
 
 class AnimatedIcon
 {
@@ -17,6 +17,7 @@ public:
 
 public:
     AnimatedIcon();
+    virtual ~AnimatedIcon() {}
     virtual bool Render(); // returns true when finished rendering, and the object is deleted.
 
 };

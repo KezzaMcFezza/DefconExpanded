@@ -49,6 +49,8 @@ public:
     void Empty			();						                        // Resets the array to empty    
 	void EmptyAndDelete ();						                        // Same as Empty() but deletes the elements that are pointed to as well
     void EmptyAndDeleteArray ();					                    // Same as Empty() but delete[]s the elements that are pointed to as well
+    void Compact        ();                                             // Removes all dead slots, compacting array to only used entries
+    bool ShouldCompact  ( int &counter, int checkFrequency );           // Returns true if array should be compacted based on fragmentation
     
     T& operator         [] (int index);
 	const T& operator   [] (int index) const;

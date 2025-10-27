@@ -2041,6 +2041,44 @@ void World::Update()
     }
     END_PROFILE( "GunFire" );
 
+    //
+    // Clean up expired animations
+    //
+    // During resyncing when rendering is disabled, animations accumulate and kill performance
+    // This is because without rendering, we dont actually delete the animations. Instead they 
+    // just sit there and accumulate. Sonar pings would slowly but surely use more and more main 
+    // thread as it iterated over 10s of thousands of null indexes. Eventually almost 90 percent
+    // of the thread time was spent in this loop.
+    
+    for( int i = 0; i < g_app->GetMapRenderer()->m_animations.Size(); ++i )
+    {
+        if( g_app->GetMapRenderer()->m_animations.ValidIndex(i) )
+        {
+            AnimatedIcon *anim = g_app->GetMapRenderer()->m_animations[i];
+            float timePassed = GetHighResTime() - anim->m_startTime;
+            
+            bool expired = ( anim->m_animationType == MapRenderer::AnimationTypeSonarPing && timePassed * 2.5f >= 5.0f ) ||
+                           ( anim->m_animationType == MapRenderer::AnimationTypeActionMarker && timePassed >= 0.5f ) ||
+                           ( anim->m_animationType == MapRenderer::AnimationTypeNukePointer && timePassed >= 10.0f );
+            
+            if( expired )
+            {
+                g_app->GetMapRenderer()->m_animations.RemoveData(i);
+                delete anim;
+            }
+        }
+    }
+    
+    static int animationCompactCounter = 0;
+
+    //
+    // Now compact if fragmentation has reached the threshold
+
+    if( g_app->GetMapRenderer()->m_animations.ShouldCompact( animationCompactCounter, 20 ) )
+    {
+        g_app->GetMapRenderer()->m_animations.Compact();
+    }
+
     START_PROFILE( "Radar Coverage" );
 #ifdef ENDGAME
     if ( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
@@ -2291,6 +2329,7 @@ void World::UpdateRadar()
     //
     // Update gunfire visibility
 
+    START_PROFILE( "Gunfire Visibility" );
     for( int j = 0; j < m_gunfire.Size(); ++j )
     {
         if( m_gunfire.ValidIndex(j) )
@@ -2303,10 +2342,12 @@ void World::UpdateRadar()
             }
         }
     }
+    END_PROFILE( "Gunfire Visibility" );
 
     //
     // Update animation visibility
     
+    START_PROFILE( "Sonar Ping Visibility" );
     for( int j = 0; j < g_app->GetMapRenderer()->m_animations.Size(); ++j )
     {
         if( g_app->GetMapRenderer()->m_animations.ValidIndex(j) )
@@ -2314,21 +2355,33 @@ void World::UpdateRadar()
             SonarPing *ping = (SonarPing *)g_app->GetMapRenderer()->m_animations[j];
             if( ping->m_animationType == MapRenderer::AnimationTypeSonarPing )
             {
+                Fixed fixedLong = Fixed::FromDouble(ping->m_longitude);
+                Fixed fixedLat = Fixed::FromDouble(ping->m_latitude);
+                
                 for( int k = 0; k < m_teams.Size(); ++k )
                 {
                     Team *team = m_teams[k];
-                    ping->m_visible[team->m_teamId] = (team->m_teamId == ping->m_teamId) ||
-                                                       IsVisible( Fixed::FromDouble(ping->m_longitude),
-																  Fixed::FromDouble(ping->m_latitude), team->m_teamId );
+                    if( team->m_teamId == ping->m_teamId )
+                    {
+                        //
+                        // Owner team always sees their own sonar pings
+                        
+                        ping->m_visible[team->m_teamId] = true;
+                    }
+                    else
+                    {
+                        ping->m_visible[team->m_teamId] = IsVisible( fixedLong, fixedLat, team->m_teamId );
+                    }
                 }
             }
         }
     }
-
+    END_PROFILE( "Sonar Ping Visibility" );
 
     //
     // Update explosion visibility
 
+    START_PROFILE( "Explosion Visibility" );
     for( int j = 0; j < m_explosions.Size(); ++j )
     {
         if( m_explosions.ValidIndex(j) )
@@ -2345,11 +2398,12 @@ void World::UpdateRadar()
             }
         }
     }
-
+    END_PROFILE( "Explosion Visibility" );
 
     //
     // Update object visibility
-    
+
+    START_PROFILE( "Object Visibility" );
     for( int i = 0; i < m_objects.Size(); ++i ) 
     {
         if( m_objects.ValidIndex(i) )
@@ -2431,6 +2485,7 @@ void World::UpdateRadar()
             }
         }
     }
+    END_PROFILE( "Object Visibility" );
 }
 
 

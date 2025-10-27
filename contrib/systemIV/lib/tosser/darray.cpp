@@ -323,3 +323,70 @@ int DArray<T>::FindData( const T &newdata ) const
     
     return -1;    
 }
+
+
+template <class T>
+void DArray<T>::Compact()
+{
+	int numUsed = NumUsed();
+	
+	if (numUsed == 0)
+	{
+		Empty();
+		return;
+	}
+	
+	if (numUsed == m_arraySize)
+	{
+		return;
+	}
+	
+	T *newArray = new T[numUsed];
+	char *newShadow = new char[numUsed];
+	int writeIndex = 0;
+	
+	for (int i = 0; i < m_arraySize; ++i)
+	{
+		if (shadow[i] == 1)
+		{
+			newArray[writeIndex] = array[i];
+			newShadow[writeIndex] = 1;
+			++writeIndex;
+		}
+	}
+	
+	delete[] array;
+	delete[] shadow;
+	
+	array = newArray;
+	shadow = newShadow;
+	m_arraySize = numUsed;
+}
+
+
+template <class T>
+bool DArray<T>::ShouldCompact( int &counter, int checkFrequency )
+{
+	if( ++counter >= checkFrequency )
+	{
+		counter = 0;
+		
+		int used = NumUsed();
+		int size = Size();
+		
+		if( size > 0 )
+		{
+			float wastePercent = 100.0f * (size - used) / size;
+			
+			//
+			// Tiered compaction thresholds based on array size
+			
+			if     ( size >= 1000 ) return (wastePercent >= 15.0f);
+			else if( size >= 500 )  return (wastePercent >= 20.0f);
+			else if( size >= 100 )  return (wastePercent >= 25.0f);
+			else if( size >= 50 )   return (wastePercent >= 35.0f);
+		}
+	}
+	
+	return false;
+}
