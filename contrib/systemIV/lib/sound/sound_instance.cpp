@@ -432,7 +432,7 @@ bool SoundInstance::UpdateChannelVolume()
     auto audio_now = []() -> double {
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
         SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
-        if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 0)) {
+        if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1)) {
             unsigned freq = sdl2d->GetActualFreq();
             if (freq > 0) {
                 return (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
@@ -528,7 +528,7 @@ void SoundInstance::BeginRelease( bool _final )
         {
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
             SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
-            if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 0)) {
+            if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1)) {
                 unsigned freq = sdl2d->GetActualFreq();
                 if (freq > 0) m_adsrTimer = (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
                 else m_adsrTimer = GetHighResTime();
@@ -627,7 +627,7 @@ bool SoundInstance::AdvanceLoop()
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
             {
                 SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
-                if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 0)) {
+                if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1)) {
                     unsigned freq = sdl2d->GetActualFreq();
                     if (freq > 0) now = (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
                 }
@@ -667,7 +667,7 @@ bool SoundInstance::AdvanceLoop()
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
             {
                 SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
-                if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 0)) {
+                if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1)) {
                     unsigned freq = sdl2d->GetActualFreq();
                     if (freq > 0) now = (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
                 }
@@ -749,7 +749,7 @@ bool SoundInstance::StartPlaying( int _channelIndex )
 
     // Set ADSR timer baseline to audio timeline at scheduled start if enabled
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
-    if (g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 0))
+    if (g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1))
     {
         SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
         if (sdl2d && sdl2d->UsingPushMode())

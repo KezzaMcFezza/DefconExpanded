@@ -298,7 +298,7 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
     m_deviceQueueLowMs = g_preferences->GetInt("SoundDeviceQueueLowMs", g_preferences->GetInt("SoundQueueLowWaterMs", 20));
     m_deviceQueueHighMs = g_preferences->GetInt("SoundDeviceQueueHighMs", g_preferences->GetInt("SoundQueueHighWaterMs", 35));
     m_timedScheduling = g_preferences->GetInt("SoundTimedScheduling", 1);
-    m_audioClockedADSR = g_preferences->GetInt("SoundAudioClockedADSR", 0);
+    m_audioClockedADSR = g_preferences->GetInt("SoundAudioClockedADSR", 1);
 
     desired.userdata = this;
     desired.callback = m_usePushMode ? NULL : sdlAudioCallback;

@@ -26,7 +26,7 @@ SoundDeviceQueueLowMs = 20
 SoundDeviceQueueHighMs = 35
 SoundRingMs = 160
 SoundTimedScheduling = 1
-SoundAudioClockedADSR = 0
+SoundAudioClockedADSR = 1
 
 RenderSmoothLines = 0
 RenderCoastlines = 1
