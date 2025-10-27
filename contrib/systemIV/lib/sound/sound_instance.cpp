@@ -139,7 +139,8 @@ SoundInstance::SoundInstance()
     m_restartAttempts(0),
     m_locked(false),
     m_resampleCursor(0.0),
-    m_resampleStep(1.0)
+    m_resampleStep(1.0),
+    m_scheduledStartFrames(0)
 {
     SetSoundName( "[???]" );
 

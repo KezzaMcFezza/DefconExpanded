@@ -359,6 +359,8 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 
     m_periodFrames = s_audioSpec.samples;
     m_bytesPerFrame = (SDL_AUDIO_BITSIZE(s_audioSpec.format)/8) * s_audioSpec.channels;
+    m_totalQueuedFrames = 0;
+    m_lastSliceStartSample = 0;
 
 #ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("Frequency: %d\nFormat: %d\nChannels: %d\nSamples: %d\n", 
@@ -565,6 +567,7 @@ int SoundLibrary2dSDL::FeederLoop()
             // Mix one slice
             if (m_callback) {
                 m_callbackLock.Lock();
+                m_lastSliceStartSample = m_totalQueuedFrames;
                 if (m_callback) m_callback(slice.data(), periodFrames);
                 m_callbackLock.Unlock();
             } else {
@@ -578,6 +581,7 @@ int SoundLibrary2dSDL::FeederLoop()
                 m_statsLock.Lock();
                 m_stats.slicesGenerated++;
                 m_statsLock.Unlock();
+                m_totalQueuedFrames += periodFrames;
             } else {
                 SDL_Delay(1);
             }
@@ -606,6 +610,7 @@ int SoundLibrary2dSDL::FeederLoop()
             while (m_feederRun && queued < targetBytes) {
                 if (m_callback) {
                     m_callbackLock.Lock();
+                    m_lastSliceStartSample = m_totalQueuedFrames;
                     if (m_callback) m_callback(slice.data(), periodFrames);
                     m_callbackLock.Unlock();
                 } else {
@@ -619,6 +624,7 @@ int SoundLibrary2dSDL::FeederLoop()
                     m_statsLock.Lock();
                     m_stats.slicesGenerated++;
                     m_statsLock.Unlock();
+                    m_totalQueuedFrames += periodFrames;
                 } else {
                     // If device queueing failed, back off briefly
                     SDL_Delay(1);
@@ -633,4 +639,38 @@ int SoundLibrary2dSDL::FeederLoop()
     }
 
     return 0;
+}
+
+unsigned SoundLibrary2dSDL::GetQueuedFrames() const
+{
+    if (!s_audioDevice || m_bytesPerFrame == 0) return 0;
+    Uint32 bytesQueued = SDL_GetQueuedAudioSize(s_audioDevice);
+    return (unsigned)(bytesQueued / (Uint32)std::max(1u, m_bytesPerFrame));
+}
+
+uint64_t SoundLibrary2dSDL::GetPlaybackSampleIndex() const
+{
+    uint64_t queued = (uint64_t)GetQueuedFrames();
+    if (m_totalQueuedFrames >= queued) return m_totalQueuedFrames - queued;
+    return 0;
+}
+
+unsigned SoundLibrary2dSDL::MsToFrames(unsigned ms) const
+{
+    unsigned freq = GetActualFreq();
+    double frames = (double)ms * (double)freq / 1000.0;
+    if (frames < 0.0) frames = 0.0;
+    if (frames > (double)UINT32_MAX) frames = (double)UINT32_MAX;
+    return (unsigned)(frames + 0.5);
+}
+
+uint64_t SoundLibrary2dSDL::SuggestScheduledStartFrames(unsigned safetyMs) const
+{
+    uint64_t playbackIndex = GetPlaybackSampleIndex();
+    uint64_t targetFrames = (uint64_t)MsToFrames(m_targetLatencyMs);
+    uint64_t safetyFrames = (uint64_t)MsToFrames(safetyMs);
+    if (safetyFrames < (uint64_t)GetPeriodFrames()) safetyFrames = GetPeriodFrames();
+    uint64_t earliestWritable = m_totalQueuedFrames + safetyFrames;
+    uint64_t desired = playbackIndex + targetFrames;
+    return desired > earliestWritable ? desired : earliestWritable;
 }

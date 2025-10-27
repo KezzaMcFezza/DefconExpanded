@@ -111,6 +111,10 @@ public:
     int             FeederLoop();
     
     void			Stop();
+
+    // Timeline tracking (frames)
+    uint64_t        m_totalQueuedFrames = 0;     // cumulative frames ever queued to SDL
+    uint64_t        m_lastSliceStartSample = 0;  // start sample index of the most recent slice we mixed
 	
 public:
 	SoundLibrary2dSDL();
@@ -119,8 +123,8 @@ public:
 	void			SetCallback(void (*_callback) (StereoSample *, unsigned int));
 	void			TopupBuffer();
 	
-	void            StartRecordToFile(char const *_filename);
-	void            EndRecordToFile();
+    void            StartRecordToFile(char const *_filename);
+    void            EndRecordToFile();
 
 	unsigned		GetSamplesPerBuffer();
 	unsigned		GetFreq();
@@ -133,6 +137,18 @@ public:
 	bool			IsRecording() const;
     void			GetRuntimeStats(RuntimeStats &_outStats);
     const char     *GetCurrentOutputDeviceName() const;
+
+    // Push/timeline helpers
+    inline bool     UsingPushMode() const { return m_usePushMode != 0; }
+    inline unsigned GetPeriodFrames() const { return m_periodFrames ? m_periodFrames : GetActualSamplesPerBuffer(); }
+    inline unsigned GetBytesPerFrame() const { return m_bytesPerFrame; }
+    inline unsigned GetTargetLatencyMs() const { return m_targetLatencyMs; }
+    unsigned        GetQueuedFrames() const;
+    inline uint64_t GetTotalQueuedFrames() const { return m_totalQueuedFrames; }
+    uint64_t        GetPlaybackSampleIndex() const;
+    inline uint64_t GetCurrentSliceStartSample() const { return m_lastSliceStartSample; }
+    unsigned        MsToFrames(unsigned ms) const;
+    uint64_t        SuggestScheduledStartFrames(unsigned safetyMs = 5) const;
 	
 };
 

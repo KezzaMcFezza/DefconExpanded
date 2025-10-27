@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/tosser/btree.h"
 #include "lib/profiler.h"
+#include <string.h>
 #include "lib/debug_utils.h"
 #include "lib/preferences.h"
 #include "lib/hi_res_time.h"
@@ -263,6 +264,36 @@ bool SoundSystem::SoundLibraryMainCallback( unsigned int _channel, signed short 
         double step = instance->m_resampleStep;
         unsigned int framesWritten = 0;
         bool waitingForLoop = false;
+
+        // Scheduled start handling for push mode: prefill silence until scheduled start within this window
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+        do {
+            SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+            uint64_t scheduled = instance->GetScheduledStartFrames();
+            if (sdl2d && sdl2d->UsingPushMode() && scheduled > 0)
+            {
+                uint64_t mixStart = sdl2d->GetCurrentSliceStartSample();
+                if (scheduled > mixStart)
+                {
+                    uint64_t df = scheduled - mixStart;
+                    unsigned int preFrames = (df > (uint64_t)framesRequested) ? framesRequested : (unsigned int)df;
+                    if (preFrames > 0)
+                    {
+                        if (stereo)
+                        {
+                            unsigned int preSamples = preFrames * 2u;
+                            memset(_data, 0, preSamples * sizeof(signed short));
+                        }
+                        else
+                        {
+                            memset(_data, 0, preFrames * sizeof(signed short));
+                        }
+                        framesWritten = preFrames;
+                    }
+                }
+            }
+        } while (0);
+#endif
 
         while( framesWritten < framesRequested )
         {
@@ -974,11 +1005,20 @@ void SoundSystem::Advance()
 
 
             START_PROFILE( "Start New Sound" );
-			// Start the new sound
+				// Start the new sound
             bool success = newInstance->StartPlaying( bestAvailableChannel );
             if( success )
             {
                 m_channels[bestAvailableChannel] = newInstance->m_id;
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+                // In push mode, schedule start on audio timeline to avoid missed onsets at high latency
+                SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+                if (sdl2d && sdl2d->UsingPushMode())
+                {
+                    uint64_t startFrames = sdl2d->SuggestScheduledStartFrames(5);
+                    newInstance->SetScheduledStartFrames(startFrames);
+                }
+#endif
             }
             else
             {
