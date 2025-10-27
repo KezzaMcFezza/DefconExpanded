@@ -7,6 +7,8 @@
 #include "lib/sound/sound_library_2d_mode.h"
 
 #include <SDL2/SDL.h>
+#include <vector>
+#include <cstring>
 
 static SDL_AudioSpec s_audioSpec;
 static SDL_AudioDeviceID s_audioDevice = 0;
@@ -18,6 +20,12 @@ static bool s_audioSubsystemInitialisedByLibrary = false;
 #include "lib/hi_res_time.h"
 
 #define G_SL2D static_cast<SoundLibrary2dSDL *>(g_soundLibrary2d)
+
+static int FeederThreadEntry(void *userdata)
+{
+    SoundLibrary2dSDL *self = static_cast<SoundLibrary2dSDL *>(userdata);
+    return self ? self->FeederLoop() : 0;
+}
 
 static void sdlAudioCallback(void *userdata, Uint8 *stream, int len)
 {
@@ -279,8 +287,15 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	desired.format = AUDIO_S16SYS;
 	desired.samples = m_samplesPerBuffer;
 	desired.channels = 2;
+    // Read prefs for push mode and period/latency targets
+    m_usePushMode = g_preferences->GetInt("SoundUsePushMode", 1);
+    int periodPref = g_preferences->GetInt("SoundPeriodFrames", 128);
+    m_targetLatencyMs = g_preferences->GetInt("SoundTargetLatencyMs", 80);
+    m_lowWaterMs = g_preferences->GetInt("SoundQueueLowWaterMs", 60);
+    m_highWaterMs = g_preferences->GetInt("SoundQueueHighWaterMs", 100);
+
     desired.userdata = this;
-    desired.callback = sdlAudioCallback;
+    desired.callback = m_usePushMode ? NULL : sdlAudioCallback;
 	
 	AppDebugOut("Initialising SDL Audio\n");
 	
@@ -297,13 +312,18 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 			s_audioSubsystemInitialisedByLibrary = true;
 		}
 
-	SDL_AudioSpec obtainedSpec;
-	SDL_AudioSpec *obtainedPtr = &obtainedSpec;
+    SDL_AudioSpec obtainedSpec;
+    SDL_AudioSpec *obtainedPtr = &obtainedSpec;
 
 #ifdef TARGET_EMSCRIPTEN
 	// Request exact parameters by disallowing automatic changes.
 	obtainedPtr = NULL;
 #endif
+
+	// Set period based on mode: in push mode, request the preferred small period
+	if (m_usePushMode && periodPref > 0) {
+		desired.samples = static_cast<Uint16>(periodPref);
+	}
 
 	s_audioDevice = SDL_OpenAudioDevice(NULL, 0, &desired, obtainedPtr, 0);
 
@@ -337,6 +357,9 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	m_actualChannels = s_audioSpec.channels;
 	m_actualFormat = s_audioSpec.format;
 
+    m_periodFrames = s_audioSpec.samples;
+    m_bytesPerFrame = (SDL_AUDIO_BITSIZE(s_audioSpec.format)/8) * s_audioSpec.channels;
+
 #ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("Frequency: %d\nFormat: %d\nChannels: %d\nSamples: %d\n", 
 		s_audioSpec.freq, s_audioSpec.format, s_audioSpec.channels, s_audioSpec.samples);
@@ -347,9 +370,23 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	
 	m_samplesPerBuffer = s_audioSpec.samples;
 	
-	// Start the callback function
+    // Start audio device
     if (g_preferences->GetInt("Sound", 1)) {
         SDL_PauseAudioDevice(s_audioDevice, 0);
+    }
+
+    // Start feeder thread if in push mode
+    if (m_usePushMode) {
+        m_feederMutex = SDL_CreateMutex();
+        m_feederRun = 1;
+        m_feederThread = SDL_CreateThread(FeederThreadEntry, "SDLFeeder", this);
+        if (!m_feederThread) {
+            AppDebugOut("Failed to create SDL feeder thread: %s\n", SDL_GetError());
+            m_feederRun = 0;
+        }
+    } else {
+        // In callback mode, ensure callback is set
+        desired.callback = sdlAudioCallback;
     }
 }
 
@@ -413,6 +450,17 @@ void SoundLibrary2dSDL::GetRuntimeStats(RuntimeStats &_outStats)
 	_outStats.bufferIsThirsty = bufferIsThirsty;
 	_outStats.bufferedSamples[0] = buffered0;
 	_outStats.bufferedSamples[1] = buffered1;
+
+    // Ensure some fields are updated on query
+    _outStats.periodFrames = m_periodFrames;
+    _outStats.usingPushMode = m_usePushMode ? 1 : 0;
+    if (m_usePushMode && s_audioDevice != 0) {
+        Uint32 q = SDL_GetQueuedAudioSize(s_audioDevice);
+        unsigned bpf = m_bytesPerFrame ? m_bytesPerFrame : (unsigned)((SDL_AUDIO_BITSIZE(s_audioSpec.format)/8) * s_audioSpec.channels);
+        unsigned freq = GetActualFreq();
+        _outStats.queuedBytes = q;
+        _outStats.queuedMs = (double)q / (double)bpf / (double)freq * 1000.0;
+    }
 }
 
 const char *SoundLibrary2dSDL::GetCurrentOutputDeviceName() const
@@ -430,10 +478,24 @@ SoundLibrary2dSDL::~SoundLibrary2dSDL()
 
 void SoundLibrary2dSDL::Stop()
 {
+    // Stop feeder first (if any) before closing device
+    if (m_feederThread) {
+        m_feederRun = 0;
+        SDL_WaitThread(m_feederThread, NULL);
+        m_feederThread = NULL;
+    }
+    if (s_audioDevice != 0) {
+        // Clear any queued audio
+        SDL_ClearQueuedAudio(s_audioDevice);
+    }
     if (s_audioDevice != 0) {
         SDL_PauseAudioDevice(s_audioDevice, 1);
         SDL_CloseAudioDevice(s_audioDevice);
         s_audioDevice = 0;
+    }
+    if (m_feederMutex) {
+        SDL_DestroyMutex(m_feederMutex);
+        m_feederMutex = NULL;
     }
     m_deviceId = 0;
     if (s_audioSubsystemInitialisedByLibrary) {
@@ -475,4 +537,100 @@ void SoundLibrary2dSDL::EndRecordToFile()
 {
 	fclose(m_wavOutput);
 	m_wavOutput = NULL;
+}
+
+int SoundLibrary2dSDL::FeederLoop()
+{
+    // Prefill to target latency, then maintain within [low, high]
+    const unsigned freq = GetActualFreq();
+    const unsigned bytesPerFrame = m_bytesPerFrame ? m_bytesPerFrame : (unsigned)((SDL_AUDIO_BITSIZE(s_audioSpec.format)/8) * s_audioSpec.channels);
+    const unsigned periodFrames = m_periodFrames ? m_periodFrames : s_audioSpec.samples;
+    const unsigned bytesPerSlice = periodFrames * bytesPerFrame;
+
+    if (bytesPerSlice == 0 || freq == 0) return 0;
+
+    auto ms_to_bytes = [&](unsigned ms)->Uint32 {
+        double frames = (double)ms * (double)freq / 1000.0;
+        return (Uint32)(frames * (double)bytesPerFrame + 0.5);
+    };
+
+    Uint32 prefillBytes = ms_to_bytes(m_targetLatencyMs);
+
+    // Pre-fill
+    {
+        std::vector<StereoSample> slice(periodFrames);
+        while (m_feederRun) {
+            Uint32 queued = SDL_GetQueuedAudioSize(s_audioDevice);
+            if (queued >= prefillBytes) break;
+            // Mix one slice
+            if (m_callback) {
+                m_callbackLock.Lock();
+                if (m_callback) m_callback(slice.data(), periodFrames);
+                m_callbackLock.Unlock();
+            } else {
+                memset(slice.data(), 0, bytesPerSlice);
+            }
+            // Record if enabled
+            if (m_wavOutput) {
+                fwrite(slice.data(), periodFrames, sizeof(StereoSample), m_wavOutput);
+            }
+            if (SDL_QueueAudio(s_audioDevice, slice.data(), bytesPerSlice) == 0) {
+                m_statsLock.Lock();
+                m_stats.slicesGenerated++;
+                m_statsLock.Unlock();
+            } else {
+                SDL_Delay(1);
+            }
+        }
+    }
+
+    // Main loop
+    while (m_feederRun) {
+        Uint32 queued = SDL_GetQueuedAudioSize(s_audioDevice);
+        double queuedMs = (double)queued / (double)bytesPerFrame / (double)freq * 1000.0;
+        // Update queued stats snapshot
+        m_statsLock.Lock();
+        m_stats.queuedBytes = queued;
+        m_stats.queuedMs = queuedMs;
+        m_stats.periodFrames = periodFrames;
+        m_stats.usingPushMode = 1;
+        m_statsLock.Unlock();
+
+        unsigned lowMs = m_lowWaterMs ? m_lowWaterMs : (m_targetLatencyMs > 10 ? m_targetLatencyMs - 10 : m_targetLatencyMs);
+        unsigned highMs = m_highWaterMs ? m_highWaterMs : (m_targetLatencyMs + 20);
+
+        if (queuedMs < (double)lowMs) {
+            // Refill up to high water mark
+            std::vector<StereoSample> slice(periodFrames);
+            Uint32 targetBytes = ms_to_bytes(highMs);
+            while (m_feederRun && queued < targetBytes) {
+                if (m_callback) {
+                    m_callbackLock.Lock();
+                    if (m_callback) m_callback(slice.data(), periodFrames);
+                    m_callbackLock.Unlock();
+                } else {
+                    memset(slice.data(), 0, bytesPerSlice);
+                }
+                if (m_wavOutput) {
+                    fwrite(slice.data(), periodFrames, sizeof(StereoSample), m_wavOutput);
+                }
+                if (SDL_QueueAudio(s_audioDevice, slice.data(), bytesPerSlice) == 0) {
+                    queued += bytesPerSlice;
+                    m_statsLock.Lock();
+                    m_stats.slicesGenerated++;
+                    m_statsLock.Unlock();
+                } else {
+                    // If device queueing failed, back off briefly
+                    SDL_Delay(1);
+                    break;
+                }
+            }
+        } else {
+            // Sleep a bit; choose a small fraction of period
+            Uint32 sleepMs = (Uint32)std::max(1.0, (1000.0 * (double)periodFrames / (double)freq) * 0.25);
+            SDL_Delay(sleepMs);
+        }
+    }
+
+    return 0;
 }

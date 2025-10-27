@@ -16,6 +16,13 @@ SoundMemoryUsage = 1
 SoundBufferSize = 512
 SoundDSP = 0
 
+# SDL push/queue audio mode defaults
+SoundUsePushMode = 1
+SoundPeriodFrames = 128
+SoundTargetLatencyMs = 80
+SoundQueueLowWaterMs = 60
+SoundQueueHighWaterMs = 100
+
 RenderSmoothLines = 0
 RenderCoastlines = 1
 RenderBorders = 1

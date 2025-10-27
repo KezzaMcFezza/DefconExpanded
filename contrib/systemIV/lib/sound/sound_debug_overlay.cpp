@@ -371,6 +371,33 @@ void SoundDebugOverlay::Render()
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
+        // Push mode details
+        if (m_cachedStats.usingPushMode) {
+            double periodMs = (actualFreq > 0) ? (1000.0 * (double)m_cachedStats.periodFrames / (double)actualFreq) : 0.0;
+            snprintf(buffer, sizeof(buffer), "Push mode           : yes");
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+            y += line;
+
+            snprintf(buffer, sizeof(buffer), "Device period       : %u frames (%.2f ms)",
+                     m_cachedStats.periodFrames, periodMs);
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+            y += line;
+
+            snprintf(buffer, sizeof(buffer), "Queued latency      : %u bytes (%.2f ms)",
+                     m_cachedStats.queuedBytes, m_cachedStats.queuedMs);
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+            y += line;
+
+            snprintf(buffer, sizeof(buffer), "Slices generated    : %llu",
+                     (unsigned long long)m_cachedStats.slicesGenerated);
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+            y += line;
+        } else {
+            snprintf(buffer, sizeof(buffer), "Push mode           : no");
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+            y += line;
+        }
+
         double audioSecondsMixed = (actualFreq > 0)
                                     ? static_cast<double>(m_cachedStats.totalSamplesMixed) / static_cast<double>(actualFreq)
                                     : 0.0;

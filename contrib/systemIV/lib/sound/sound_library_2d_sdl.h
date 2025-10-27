@@ -8,6 +8,10 @@
 
 #include <stdint.h>
 
+// Forward declarations for SDL types used in member pointers
+struct SDL_Thread;
+struct SDL_mutex;
+
 //*****************************************************************************
 // Class SoundLibrary2dSDL
 //*****************************************************************************
@@ -33,25 +37,41 @@ private:
 	FILE            *m_wavOutput;
     std::string     m_currentOutputDevice;
 
+    // Push/queue mode state
+    SDL_Thread *     m_feederThread = NULL;
+    SDL_mutex *      m_feederMutex = NULL;
+    volatile int     m_feederRun = 0;
+    unsigned         m_periodFrames = 0;   // device period in frames
+    unsigned         m_bytesPerFrame = 0;  // channels * bytes/sample
+    unsigned         m_targetLatencyMs = 0;
+    unsigned         m_lowWaterMs = 0;
+    unsigned         m_highWaterMs = 0;
+    int              m_usePushMode = 0;
+
 public:
 	struct RuntimeStats {
-		RuntimeStats()
-		:	audioCallbacks(0),
-			callbacksQueued(0),
-			callbacksDirect(0),
-			topupCalls(0),
-			topupCallbacksProcessed(0),
-			wavCallbacks(0),
-			totalSamplesMixed(0),
-			lastCallbackTimestamp(0.0),
-			avgCallbackInterval(0.0),
-			maxCallbackInterval(0.0),
-			lastCallbackSamples(0),
-			bufferIsThirsty(0)
-		{
-			bufferedSamples[0] = 0;
-			bufferedSamples[1] = 0;
-		}
+        RuntimeStats()
+        :	audioCallbacks(0),
+            callbacksQueued(0),
+            callbacksDirect(0),
+            topupCalls(0),
+            topupCallbacksProcessed(0),
+            wavCallbacks(0),
+            totalSamplesMixed(0),
+            lastCallbackTimestamp(0.0),
+            avgCallbackInterval(0.0),
+            maxCallbackInterval(0.0),
+            lastCallbackSamples(0),
+            bufferIsThirsty(0),
+            slicesGenerated(0),
+            periodFrames(0),
+            queuedBytes(0),
+            queuedMs(0.0),
+            usingPushMode(0)
+        {
+            bufferedSamples[0] = 0;
+            bufferedSamples[1] = 0;
+        }
 
 		uint64_t	audioCallbacks;
 		uint64_t	callbacksQueued;
@@ -63,10 +83,16 @@ public:
 		double		lastCallbackTimestamp;
 		double		avgCallbackInterval;
 		double		maxCallbackInterval;
-		unsigned	lastCallbackSamples;
-		int			bufferIsThirsty;
-		unsigned	bufferedSamples[2];
-	};
+        unsigned	lastCallbackSamples;
+        int			bufferIsThirsty;
+        unsigned	bufferedSamples[2];
+        // Push mode runtime
+        uint64_t    slicesGenerated;
+        uint32_t    periodFrames;
+        uint32_t    queuedBytes;
+        double      queuedMs;
+        uint8_t     usingPushMode;
+    };
 
 public:
 
@@ -82,6 +108,7 @@ public:
     uint32_t        m_deviceId; // current SDL audio device id for this instance
 
     void			AudioCallback(StereoSample *buf, unsigned int numSamples);
+    int             FeederLoop();
     
     void			Stop();
 	
