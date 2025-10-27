@@ -256,6 +256,38 @@ void SoundDebugOverlay::Render()
         snprintf(buffer, sizeof(buffer), "Hardware 3D target  : %s", g_preferences->GetInt("SoundHW3D", 0) ? "enabled" : "disabled");
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
+
+        // New push/queue and scheduling prefs
+        snprintf(buffer, sizeof(buffer), "Use push mode       : %s", g_preferences->GetInt("SoundUsePushMode", 1) ? "yes" : "no");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Period frames       : %d", g_preferences->GetInt("SoundPeriodFrames", 128));
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Target latency      : %d ms", g_preferences->GetInt("SoundTargetLatencyMs", 80));
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        // Device queue bounds and ring horizon
+        snprintf(buffer, sizeof(buffer), "Device low/high     : %d / %d ms",
+                 g_preferences->GetInt("SoundDeviceQueueLowMs", g_preferences->GetInt("SoundQueueLowWaterMs", 20)),
+                 g_preferences->GetInt("SoundDeviceQueueHighMs", g_preferences->GetInt("SoundQueueHighWaterMs", 35)));
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Ring horizon        : %d ms", g_preferences->GetInt("SoundRingMs", 160));
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Timed scheduling    : %s", g_preferences->GetInt("SoundTimedScheduling", 1) ? "yes" : "no");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), "Audio-clocked ADSR  : %s", g_preferences->GetInt("SoundAudioClockedADSR", 1) ? "on" : "off");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
     }
     else
     {
@@ -411,6 +443,34 @@ void SoundDebugOverlay::Render()
 
                 snprintf(buffer, sizeof(buffer), "Device low/high     : %u / %u ms",
                          sdlInst->GetDeviceQueueLowMs(), sdlInst->GetDeviceQueueHighMs());
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                // Target latency and scheduling/ADSR flags
+                snprintf(buffer, sizeof(buffer), "Target latency      : %u ms", sdlInst->GetTargetLatencyMs());
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                snprintf(buffer, sizeof(buffer), "Timed scheduling    : %s", sdlInst->UsingTimedScheduling() ? "yes" : "no");
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                snprintf(buffer, sizeof(buffer), "Audio-clocked ADSR  : %s", sdlInst->UsingAudioClockedADSR() ? "on" : "off");
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                // Playback cursor and total queued frames since start
+                uint64_t playbackFrames = sdlInst->GetPlaybackSampleIndex();
+                double playbackMs = (actualFreq > 0) ? (1000.0 * (double)playbackFrames / (double)actualFreq) : 0.0;
+                snprintf(buffer, sizeof(buffer), "Playback cursor     : %llu frames (%.2f ms)",
+                         (unsigned long long)playbackFrames, playbackMs);
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                uint64_t totalQueued = sdlInst->GetTotalQueuedFrames();
+                double totalQueuedSec = (actualFreq > 0) ? ((double)totalQueued / (double)actualFreq) : 0.0;
+                snprintf(buffer, sizeof(buffer), "Total queued audio  : %llu frames (%.2f s)",
+                         (unsigned long long)totalQueued, totalQueuedSec);
                 g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
                 y += line;
             }
