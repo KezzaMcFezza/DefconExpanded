@@ -392,6 +392,28 @@ void SoundDebugOverlay::Render()
                      (unsigned long long)m_cachedStats.slicesGenerated);
             g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
             y += line;
+
+            // Extra ring/device queue stats
+            SoundLibrary2dSDL *sdlInst = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+            if (sdlInst) {
+                unsigned qFrames = sdlInst->GetQueuedFrames();
+                double qMs = (actualFreq > 0) ? (1000.0 * (double)qFrames / (double)actualFreq) : 0.0;
+                snprintf(buffer, sizeof(buffer), "Device queue        : %u frames (%.2f ms)", qFrames, qMs);
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                uint64_t ringFillFrames = sdlInst->GetRingFillFrames();
+                double ringFillMs = (actualFreq > 0) ? (1000.0 * (double)ringFillFrames / (double)actualFreq) : 0.0;
+                snprintf(buffer, sizeof(buffer), "Ring fill/horizon   : %llu frames (%.2f ms) / %u ms",
+                         (unsigned long long)ringFillFrames, ringFillMs, sdlInst->GetRingMs());
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                snprintf(buffer, sizeof(buffer), "Device low/high     : %u / %u ms",
+                         sdlInst->GetDeviceQueueLowMs(), sdlInst->GetDeviceQueueHighMs());
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+            }
         } else {
             snprintf(buffer, sizeof(buffer), "Push mode           : no");
             g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);

@@ -7,6 +7,7 @@
 #include <string>
 
 #include <stdint.h>
+#include <vector>
 
 // Forward declarations for SDL types used in member pointers
 struct SDL_Thread;
@@ -47,6 +48,17 @@ private:
     unsigned         m_lowWaterMs = 0;
     unsigned         m_highWaterMs = 0;
     int              m_usePushMode = 0;
+    // Ring buffer fields (push mode)
+    std::vector<StereoSample> m_ring;
+    uint32_t        m_ringFrames = 0;     // power-of-two length
+    uint32_t        m_ringMask = 0;
+    uint64_t        m_copyIndex = 0;      // next frame to copy into SDL device
+    uint64_t        m_fillIndex = 0;      // ring mixed up to this frame (exclusive)
+    unsigned        m_ringMs = 0;         // target ring horizon in ms
+    unsigned        m_deviceQueueLowMs = 0;   // device queue low water mark
+    unsigned        m_deviceQueueHighMs = 0;  // device queue high water mark
+    int             m_timedScheduling = 1;    // enable timeline scheduling
+    int             m_audioClockedADSR = 0;   // enable ADSR against audio clock
 
 public:
 	struct RuntimeStats {
@@ -109,6 +121,9 @@ public:
 
     void			AudioCallback(StereoSample *buf, unsigned int numSamples);
     int             FeederLoop();
+    void            MixWindowToRing(uint64_t startFrame, unsigned frames);
+    void            EnsureMixedThrough(uint64_t endFrame);
+    unsigned        CopyFromRingToSDL(unsigned framesToCopy);
     
     void			Stop();
 
@@ -140,6 +155,8 @@ public:
 
     // Push/timeline helpers
     inline bool     UsingPushMode() const { return m_usePushMode != 0; }
+    inline bool     UsingTimedScheduling() const { return m_usePushMode != 0 && m_timedScheduling != 0; }
+    inline bool     UsingAudioClockedADSR() const { return m_audioClockedADSR != 0; }
     inline unsigned GetPeriodFrames() const { return m_periodFrames ? m_periodFrames : GetActualSamplesPerBuffer(); }
     inline unsigned GetBytesPerFrame() const { return m_bytesPerFrame; }
     inline unsigned GetTargetLatencyMs() const { return m_targetLatencyMs; }
@@ -149,7 +166,12 @@ public:
     inline uint64_t GetCurrentSliceStartSample() const { return m_lastSliceStartSample; }
     unsigned        MsToFrames(unsigned ms) const;
     uint64_t        SuggestScheduledStartFrames(unsigned safetyMs = 5) const;
-	
+    // Ring/device accessors for debug/logic
+    inline uint64_t GetRingFillFrames() const { return (m_fillIndex > m_copyIndex) ? (m_fillIndex - m_copyIndex) : 0; }
+    inline unsigned GetRingMs() const { return m_ringMs; }
+    inline unsigned GetDeviceQueueLowMs() const { return m_deviceQueueLowMs ? m_deviceQueueLowMs : m_lowWaterMs; }
+    inline unsigned GetDeviceQueueHighMs() const { return m_deviceQueueHighMs ? m_deviceQueueHighMs : m_highWaterMs; }
+
 };
 
 

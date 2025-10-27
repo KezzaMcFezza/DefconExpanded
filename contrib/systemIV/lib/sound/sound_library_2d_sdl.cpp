@@ -293,6 +293,12 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
     m_targetLatencyMs = g_preferences->GetInt("SoundTargetLatencyMs", 80);
     m_lowWaterMs = g_preferences->GetInt("SoundQueueLowWaterMs", 60);
     m_highWaterMs = g_preferences->GetInt("SoundQueueHighWaterMs", 100);
+    // New ring + device-queue prefs (fallback to older ones if unset)
+    m_ringMs = g_preferences->GetInt("SoundRingMs", 160);
+    m_deviceQueueLowMs = g_preferences->GetInt("SoundDeviceQueueLowMs", g_preferences->GetInt("SoundQueueLowWaterMs", 20));
+    m_deviceQueueHighMs = g_preferences->GetInt("SoundDeviceQueueHighMs", g_preferences->GetInt("SoundQueueHighWaterMs", 35));
+    m_timedScheduling = g_preferences->GetInt("SoundTimedScheduling", 1);
+    m_audioClockedADSR = g_preferences->GetInt("SoundAudioClockedADSR", 0);
 
     desired.userdata = this;
     desired.callback = m_usePushMode ? NULL : sdlAudioCallback;
@@ -361,6 +367,20 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
     m_bytesPerFrame = (SDL_AUDIO_BITSIZE(s_audioSpec.format)/8) * s_audioSpec.channels;
     m_totalQueuedFrames = 0;
     m_lastSliceStartSample = 0;
+
+    // Allocate ring (power of two frames)
+    auto nextPow2 = [](uint32_t v)->uint32_t {
+        if (v < 2) return 2;
+        v--; v |= v >> 1; v |= v >> 2; v |= v >> 4; v |= v >> 8; v |= v >> 16; v++;
+        return v;
+    };
+    uint32_t ringFramesTarget = MsToFrames(m_ringMs);
+    if (ringFramesTarget < GetPeriodFrames()*4) ringFramesTarget = GetPeriodFrames()*4;
+    m_ringFrames = nextPow2(ringFramesTarget);
+    m_ringMask = m_ringFrames - 1;
+    m_ring.assign(m_ringFrames, StereoSample());
+    m_copyIndex = 0;
+    m_fillIndex = 0;
 
 #ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("Frequency: %d\nFormat: %d\nChannels: %d\nSamples: %d\n", 
@@ -543,102 +563,139 @@ void SoundLibrary2dSDL::EndRecordToFile()
 
 int SoundLibrary2dSDL::FeederLoop()
 {
-    // Prefill to target latency, then maintain within [low, high]
+    // Maintain device queue short; ring horizon deep
     const unsigned freq = GetActualFreq();
     const unsigned bytesPerFrame = m_bytesPerFrame ? m_bytesPerFrame : (unsigned)((SDL_AUDIO_BITSIZE(s_audioSpec.format)/8) * s_audioSpec.channels);
     const unsigned periodFrames = m_periodFrames ? m_periodFrames : s_audioSpec.samples;
-    const unsigned bytesPerSlice = periodFrames * bytesPerFrame;
+    if (bytesPerFrame == 0 || periodFrames == 0 || freq == 0) return 0;
 
-    if (bytesPerSlice == 0 || freq == 0) return 0;
+    unsigned deviceLowFrames = MsToFrames(GetDeviceQueueLowMs());
+    unsigned deviceHighFrames = MsToFrames(GetDeviceQueueHighMs());
+    unsigned ringHorizonFrames = MsToFrames(m_ringMs);
 
-    auto ms_to_bytes = [&](unsigned ms)->Uint32 {
-        double frames = (double)ms * (double)freq / 1000.0;
-        return (Uint32)(frames * (double)bytesPerFrame + 0.5);
-    };
-
-    Uint32 prefillBytes = ms_to_bytes(m_targetLatencyMs);
-
-    // Pre-fill
-    {
-        std::vector<StereoSample> slice(periodFrames);
-        while (m_feederRun) {
-            Uint32 queued = SDL_GetQueuedAudioSize(s_audioDevice);
-            if (queued >= prefillBytes) break;
-            // Mix one slice
-            if (m_callback) {
-                m_callbackLock.Lock();
-                m_lastSliceStartSample = m_totalQueuedFrames;
-                if (m_callback) m_callback(slice.data(), periodFrames);
-                m_callbackLock.Unlock();
-            } else {
-                memset(slice.data(), 0, bytesPerSlice);
-            }
-            // Record if enabled
-            if (m_wavOutput) {
-                fwrite(slice.data(), periodFrames, sizeof(StereoSample), m_wavOutput);
-            }
-            if (SDL_QueueAudio(s_audioDevice, slice.data(), bytesPerSlice) == 0) {
-                m_statsLock.Lock();
-                m_stats.slicesGenerated++;
-                m_statsLock.Unlock();
-                m_totalQueuedFrames += periodFrames;
-            } else {
-                SDL_Delay(1);
-            }
+    // Initial ring fill and device prefill
+    EnsureMixedThrough(m_copyIndex + ringHorizonFrames);
+    if (GetQueuedFrames() < deviceHighFrames) {
+        unsigned need = deviceHighFrames - GetQueuedFrames();
+        // Ensure ring covers what we'll copy
+        EnsureMixedThrough(m_copyIndex + need);
+        while (need > 0 && m_feederRun) {
+            unsigned copied = CopyFromRingToSDL(need);
+            if (copied == 0) { SDL_Delay(1); break; }
+            need -= copied;
         }
     }
 
     // Main loop
     while (m_feederRun) {
-        Uint32 queued = SDL_GetQueuedAudioSize(s_audioDevice);
-        double queuedMs = (double)queued / (double)bytesPerFrame / (double)freq * 1000.0;
+        Uint32 queuedBytes = SDL_GetQueuedAudioSize(s_audioDevice);
+        unsigned queuedFrames = (unsigned)(queuedBytes / (Uint32)std::max(1u, bytesPerFrame));
+        double queuedMs = (double)queuedFrames / (double)freq * 1000.0;
         // Update queued stats snapshot
         m_statsLock.Lock();
-        m_stats.queuedBytes = queued;
+        m_stats.queuedBytes = queuedBytes;
         m_stats.queuedMs = queuedMs;
         m_stats.periodFrames = periodFrames;
         m_stats.usingPushMode = 1;
         m_statsLock.Unlock();
 
-        unsigned lowMs = m_lowWaterMs ? m_lowWaterMs : (m_targetLatencyMs > 10 ? m_targetLatencyMs - 10 : m_targetLatencyMs);
-        unsigned highMs = m_highWaterMs ? m_highWaterMs : (m_targetLatencyMs + 20);
-
-        if (queuedMs < (double)lowMs) {
-            // Refill up to high water mark
-            std::vector<StereoSample> slice(periodFrames);
-            Uint32 targetBytes = ms_to_bytes(highMs);
-            while (m_feederRun && queued < targetBytes) {
-                if (m_callback) {
-                    m_callbackLock.Lock();
-                    m_lastSliceStartSample = m_totalQueuedFrames;
-                    if (m_callback) m_callback(slice.data(), periodFrames);
-                    m_callbackLock.Unlock();
-                } else {
-                    memset(slice.data(), 0, bytesPerSlice);
-                }
-                if (m_wavOutput) {
-                    fwrite(slice.data(), periodFrames, sizeof(StereoSample), m_wavOutput);
-                }
-                if (SDL_QueueAudio(s_audioDevice, slice.data(), bytesPerSlice) == 0) {
-                    queued += bytesPerSlice;
-                    m_statsLock.Lock();
-                    m_stats.slicesGenerated++;
-                    m_statsLock.Unlock();
-                    m_totalQueuedFrames += periodFrames;
-                } else {
-                    // If device queueing failed, back off briefly
-                    SDL_Delay(1);
-                    break;
-                }
+        if (queuedFrames < deviceLowFrames) {
+            unsigned target = deviceHighFrames;
+            unsigned need = (queuedFrames < target) ? (target - queuedFrames) : 0;
+            // Ensure ring has enough mixed ahead for both need and ring horizon
+            uint64_t ensureEnd = m_copyIndex + std::max<uint64_t>(need, ringHorizonFrames);
+            EnsureMixedThrough(ensureEnd);
+            while (need > 0 && m_feederRun) {
+                unsigned copied = CopyFromRingToSDL(need);
+                if (copied == 0) { SDL_Delay(1); break; }
+                need -= copied;
             }
         } else {
-            // Sleep a bit; choose a small fraction of period
+            // keep ring horizon topped up in background
+            EnsureMixedThrough(m_copyIndex + ringHorizonFrames);
             Uint32 sleepMs = (Uint32)std::max(1.0, (1000.0 * (double)periodFrames / (double)freq) * 0.25);
             SDL_Delay(sleepMs);
         }
     }
 
     return 0;
+}
+
+void SoundLibrary2dSDL::MixWindowToRing(uint64_t startFrame, unsigned frames)
+{
+    if (frames == 0) return;
+    const unsigned period = GetPeriodFrames();
+    std::vector<StereoSample> slice;
+    slice.resize(period);
+    unsigned remaining = frames;
+    uint64_t cursor = startFrame;
+
+    while (remaining > 0) {
+        unsigned chunk = std::min(period, remaining);
+        m_lastSliceStartSample = cursor;
+        if (m_callback) {
+            m_callbackLock.Lock();
+            if (m_callback) m_callback(slice.data(), chunk);
+            m_callbackLock.Unlock();
+        } else {
+            memset(slice.data(), 0, chunk * sizeof(StereoSample));
+        }
+        if (m_wavOutput) {
+            fwrite(slice.data(), chunk, sizeof(StereoSample), m_wavOutput);
+        }
+        // Copy into ring (handle wrap)
+        uint32_t ringPos = (uint32_t)(cursor & m_ringMask);
+        unsigned first = std::min<unsigned>(chunk, m_ringFrames - ringPos);
+        if (!m_ring.empty()) {
+            memcpy(&m_ring[ringPos], slice.data(), first * sizeof(StereoSample));
+            if (chunk > first) {
+                memcpy(&m_ring[0], slice.data() + first, (chunk - first) * sizeof(StereoSample));
+            }
+        }
+        m_statsLock.Lock();
+        m_stats.slicesGenerated++;
+        m_statsLock.Unlock();
+        cursor += chunk;
+        remaining -= chunk;
+    }
+}
+
+void SoundLibrary2dSDL::EnsureMixedThrough(uint64_t endFrame)
+{
+    if (endFrame <= m_fillIndex) return;
+    uint64_t toMix = endFrame - m_fillIndex;
+    MixWindowToRing(m_fillIndex, (unsigned)std::min<uint64_t>(toMix, UINT32_MAX));
+    m_fillIndex = endFrame;
+}
+
+unsigned SoundLibrary2dSDL::CopyFromRingToSDL(unsigned framesToCopy)
+{
+    if (framesToCopy == 0 || m_bytesPerFrame == 0) return 0;
+    // Limit to available mixed frames
+    uint64_t available = (m_fillIndex > m_copyIndex) ? (m_fillIndex - m_copyIndex) : 0;
+    if (available == 0) return 0;
+    unsigned frames = (unsigned)std::min<uint64_t>(available, framesToCopy);
+
+    // Copy in up to two segments to respect ring wrap
+    uint32_t ringPos = (uint32_t)(m_copyIndex & m_ringMask);
+    unsigned first = std::min<unsigned>(frames, m_ringFrames - ringPos);
+    unsigned bytesFirst = first * m_bytesPerFrame;
+    if (first > 0) {
+        if (SDL_QueueAudio(s_audioDevice, &m_ring[ringPos], bytesFirst) != 0) {
+            return 0; // failed, try later
+        }
+    }
+    unsigned second = frames - first;
+    if (second > 0) {
+        unsigned bytesSecond = second * m_bytesPerFrame;
+        if (SDL_QueueAudio(s_audioDevice, &m_ring[0], bytesSecond) != 0) {
+            // Rollback first? SDL_QueueAudio has no rollback; it's unlikely this path hits; treat as partial copy.
+            frames = first; // we only copied the first segment
+        }
+    }
+    m_copyIndex += frames;
+    m_totalQueuedFrames += frames;
+    return frames;
 }
 
 unsigned SoundLibrary2dSDL::GetQueuedFrames() const

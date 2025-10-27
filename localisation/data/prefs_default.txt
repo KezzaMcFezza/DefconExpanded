@@ -22,6 +22,11 @@ SoundPeriodFrames = 128
 SoundTargetLatencyMs = 80
 SoundQueueLowWaterMs = 60
 SoundQueueHighWaterMs = 100
+SoundDeviceQueueLowMs = 20
+SoundDeviceQueueHighMs = 35
+SoundRingMs = 160
+SoundTimedScheduling = 1
+SoundAudioClockedADSR = 0
 
 RenderSmoothLines = 0
 RenderCoastlines = 1

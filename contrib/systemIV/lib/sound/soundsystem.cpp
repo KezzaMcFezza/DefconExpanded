@@ -1011,9 +1011,9 @@ void SoundSystem::Advance()
             {
                 m_channels[bestAvailableChannel] = newInstance->m_id;
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
-                // In push mode, schedule start on audio timeline to avoid missed onsets at high latency
+                // In push mode with timed scheduling, schedule start on audio timeline
                 SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
-                if (sdl2d && sdl2d->UsingPushMode())
+                if (sdl2d && sdl2d->UsingTimedScheduling())
                 {
                     uint64_t startFrames = sdl2d->SuggestScheduledStartFrames(5);
                     newInstance->SetScheduledStartFrames(startFrames);
