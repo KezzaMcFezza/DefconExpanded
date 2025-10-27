@@ -138,7 +138,7 @@ void MapRenderer::RenderGlobeMouse()
             // same as map renderer static size that doesnt use preferences popupscale
             float cursorSize = 48.0f;
             
-            g_renderer->Blit(move, 
+            g_renderer->EffectsSprite(move, 
                             mouseScreenX - cursorSize/2, 
                             mouseScreenY - cursorSize/2, 
                             cursorSize, cursorSize, White);
@@ -652,7 +652,6 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     g_renderer3d->BeginUnitRotatingBatch3D();   // Rotating sprites (aircraft, but not nukes anymore)
     g_renderer3d->BeginUnitStateBatch3D();      // Unit state icons (fighters/bombers on units)
     g_renderer3d->BeginUnitNukeBatch3D();       // Small nuke icons on units
-    g_renderer3d->BeginUnitTrailBatch3D();      // Unit movement trails
     g_renderer3d->BeginEffectsLineBatch3D();    // All line effects (gunfire trails, etc.)
     g_renderer3d->BeginEffectsSpriteBatch3D();  // All sprite effects (explosions, sonar pings, etc.)
 
@@ -672,16 +671,30 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     Render3DWhiteBoard();
     Render3DPopulationDensity();
     Render3DAnimations();
-    Render3DNukeTrajectories();
     Render3DNuke();
+
+
+    //
+    // to prevent z-fighting, dont write to depth buffer and set
+    // blend mode to normal for unit trails
+
+    g_renderer3d->BeginUnitTrailBatch3D();      // Unit movement trails
+
+    g_renderer->SetBlendMode(Renderer::BlendModeNormal);
+    glDepthMask(GL_FALSE);
+
+    Render3DNukeTrajectories();
+
+    g_renderer3d->EndUnitTrailBatch3D();        // Flush all unit trails
+
+    glDepthMask(GL_TRUE);
+    g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
     
     //
     // now end the main scene and flush
     
-    // End batching in reverse order for proper cleanup
     g_renderer3d->EndEffectsSpriteBatch3D();    // Flush all sprite effects (explosions, sonar pings)
     g_renderer3d->EndEffectsLineBatch3D();      // Flush all line effects (gunfire trails)
-    g_renderer3d->EndUnitTrailBatch3D();        // Flush all unit trails
     g_renderer3d->EndUnitNukeBatch3D();         // Flush all small nuke icons
     g_renderer3d->EndUnitStateBatch3D();        // Flush all unit state icons
     g_renderer3d->EndUnitRotatingBatch3D();     // Flush all rotating sprites (atlas batching!)
@@ -695,10 +708,14 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     // reset to 2d viewport
     g_renderer->Reset2DViewport();
     
+    g_renderer->BeginEffectsSpriteBatch();
+
     // render mouse cursor
     if (IsMouseInMapRenderer()) {
         RenderGlobeMouse();
     }
+
+    g_renderer->EndEffectsSpriteBatch();
     
     // end draw call tracking
     g_renderer3d->EndFrame3D();
@@ -1874,15 +1891,9 @@ void MapRenderer::Render3DNukeTrajectories()
             if (maxSize <= 0) continue;
             
             //
-            // nuke trails, added segmented lines instead of one big line
-            // it looks okay but might need some fine tuning
+            // solid nuke trails, it looks alot better than segmented lines
 
             Vector3<float> currentPos = CalculateNuke3DPosition(nuke);
-            
-            //
-            // create line segments for nukes with dashed effect
-            // reduce trail detail based on distance to camera
-            // this almost doubles the fps when in a 3v3
             
             int maxTrailLength = maxSize;  // Use full detail always
             maxTrailLength = fmaxf(4, fminf(maxTrailLength, 32));
@@ -1912,26 +1923,8 @@ void MapRenderer::Render3DNukeTrajectories()
                 Colour segmentColour = colour;
                 segmentColour.m_a = 255 - 255 * (float)j / (float)maxTrailLength;
                 
-                // removed interpolation for now as it was a huge cpu bottleneck
-                Vector3<float> segmentDir = pos3D - prevPos;
-                float segmentLength = segmentDir.Mag();
-                
-                if (segmentLength > 0.001f) {
-                    // just create 2-3 dash segments per trail segment
-                    int numDashes = (segmentLength > 0.05f) ? 3 : 2;
-                    float dashSize = segmentLength / (numDashes * 2.0f);
-                    
-                    for (int dash = 0; dash < numDashes; dash++) {
-                        float startT = (dash * 2.0f) / (numDashes * 2.0f);
-                        float endT = (dash * 2.0f + 1.0f) / (numDashes * 2.0f);
-                        
-                        Vector3<float> dashStart = prevPos + segmentDir * startT;
-                        Vector3<float> dashEnd = prevPos + segmentDir * endT;
-                        
-                        g_renderer3d->UnitTrailLine3D(dashStart.x, dashStart.y, dashStart.z,
-                                                     dashEnd.x, dashEnd.y, dashEnd.z, segmentColour);
-                    }
-                }
+                g_renderer3d->UnitTrailLine3D(prevPos.x, prevPos.y, prevPos.z,
+                                             pos3D.x, pos3D.y, pos3D.z, segmentColour);
                 
                 prevPos = pos3D;
             }
@@ -3070,76 +3063,24 @@ Vector3<float> MapRenderer::CalculateGreatCirclePosition(float startLon, float s
 
 float MapRenderer::CalculateBallisticHeight(float totalDistanceRadians, float progress)
 {
-    // ballistic trajectory: height follows a parabolic arc
-    // height = maxHeight * 4 * progress * (1 - progress)
-    // this peaks at progress = 0.5 (midpoint)
-    
     float arcFactor = 4.0f * progress * (1.0f - progress);
     
-    // scale max height based on total distance, longer shots go higher
-    float maxHeight = 0.0f;
-    float totalDistanceDegrees = totalDistanceRadians * 180.0f / M_PI;
+    //
+    // calculate max height dynamically based on distance
+    // uses square root scaling for smooth transitions
+    
+    float minHeight = 0.03f;      
+    float maxHeight = 0.22f;      
+    float maxDistance = M_PI;     
     
     //
-    // adjustable nuke height arcs, right now they are pretty intense
-    // as it looks good. at some point i might make them more subtle
-
-        if (totalDistanceDegrees > 90.0f) {
-            maxHeight = 0.2f;
-        }
-        else if (totalDistanceDegrees > 80.0f) {
-            maxHeight = 0.19f;
-        }
-        else if (totalDistanceDegrees > 75.0f) {
-            maxHeight = 0.18f;
-        }
-        else if (totalDistanceDegrees > 70.0f) {
-            maxHeight = 0.16f;
-        }
-        else if (totalDistanceDegrees > 65.0f) {
-            maxHeight = 0.15f;
-        }
-        else if (totalDistanceDegrees > 60.0f) {
-            maxHeight = 0.14f;
-        }
-        else if (totalDistanceDegrees > 55.0f) {
-            maxHeight = 0.13f;
-        }
-        else if (totalDistanceDegrees > 50.0f) {
-            maxHeight = 0.12f;
-        }
-        else if (totalDistanceDegrees > 45.0f) {
-            maxHeight = 0.11f;
-        }
-        else if (totalDistanceDegrees > 40.0f) {
-            maxHeight = 0.09f;
-        }
-        else if (totalDistanceDegrees > 35.0f) {
-            maxHeight = 0.08f;
-        }
-        else if (totalDistanceDegrees > 30.0f) {
-            maxHeight = 0.07f;
-        }
-        else if (totalDistanceDegrees > 25.0f) {
-            maxHeight = 0.06f;
-        }
-        else if (totalDistanceDegrees > 20.0f) {
-            maxHeight = 0.05f;
-        }
-        else if (totalDistanceDegrees > 15.0f) {
-            maxHeight = 0.045f;
-        }
-        else if (totalDistanceDegrees > 10.0f) {
-            maxHeight = 0.04f;
-        }
-        else if (totalDistanceDegrees > 5.0f) {
-            maxHeight = 0.035f;
-        }
-        else {
-            maxHeight = 0.03f;
-        }
+    // square root scaling gives nice visual progression
     
-    return maxHeight * arcFactor;
+    float normalizedDistance = totalDistanceRadians / maxDistance;
+    float scaledDistance = sqrtf(normalizedDistance);
+    float trajectoryHeight = minHeight + (maxHeight - minHeight) * scaledDistance;
+    
+    return trajectoryHeight * arcFactor;
 }
 
 //
