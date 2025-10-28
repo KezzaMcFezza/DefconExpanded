@@ -1037,7 +1037,20 @@ void SoundInstance::RecalculateResampleStep()
     double step = 1.0;
     if (g_soundLibrary3d && m_soundSampleHandle && m_soundSampleHandle->m_soundSample)
     {
+        // Prefer the actual SDL device rate when using the SDL 2D backend,
+        // otherwise fall back to the 3D library's configured sample rate.
         double mixRate = (double)g_soundLibrary3d->GetSampleRate();
+        do {
+            if (g_soundLibrary2d) {
+                SoundLibrary2dSDL *sdl2d = dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d);
+                if (sdl2d) {
+                    unsigned r = sdl2d->GetActualFreq();
+                    if (r > 0) {
+                        mixRate = (double)r;
+                    }
+                }
+            }
+        } while (0);
         double sourceRate = (double)m_soundSampleHandle->m_soundSample->m_freq;
         double freqScale = (double)m_freq.GetOutput();
 
