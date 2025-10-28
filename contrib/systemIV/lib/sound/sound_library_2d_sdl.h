@@ -20,20 +20,6 @@ struct SDL_mutex;
 class SoundLibrary2dSDL : public SoundLibrary2d
 {
 private:
-    class Buffer {
-    public:
-        Buffer()
-            : stream(NULL), len(0), deviceId(0)
-        {
-        }
-        
-    StereoSample *stream;
-        int len;
-        uint32_t deviceId; // SDL_AudioDeviceID snapshot when the callback provided this buffer
-    };
-	
-	int				m_bufferIsThirsty;
-	Buffer			m_buffer[2];
     void			(*m_callback) (StereoSample *buf, unsigned int numSamples);
 	FILE            *m_wavOutput;
     std::string     m_currentOutputDevice;
@@ -57,6 +43,7 @@ private:
     unsigned        m_deviceQueueHighMs = 0;  // device queue high water mark
     int             m_timedScheduling = 1;    // enable timeline scheduling
     int             m_audioClockedADSR = 0;   // enable ADSR against audio clock
+    NetMutex        m_deviceStateLock;
 
 public:
 	struct RuntimeStats {
