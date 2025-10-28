@@ -195,7 +195,10 @@ void SoundLibrary2dSDL::TopupBuffer()
 #ifdef TOGGLE_SOUND_TESTBED		
 		AppDebugOut("SoundLibrary2dSDL::TopupBuffer: processing buffered callbacks, bufferIsThirsty=%d\n", m_bufferIsThirsty);
 #endif
+
+    //
     // Take a thread-safe snapshot of buffered callbacks
+    
     m_callbackLock.Lock();
     StereoSample *streams[2] = { m_buffer[0].stream, m_buffer[1].stream };
     unsigned lengths[2] = { (unsigned)m_buffer[0].len, (unsigned)m_buffer[1].len };
@@ -204,18 +207,23 @@ void SoundLibrary2dSDL::TopupBuffer()
     m_callbackLock.Unlock();
     if (callbacksToProcess > 2) callbacksToProcess = 2;
 
+    //
     // Lock the current device while filling its buffers
+    
     SDL_AudioDeviceID currentDevice = s_audioDevice;
     bool locked = false;
     if (currentDevice != 0) {
         SDL_LockAudioDevice(currentDevice);
         locked = true;
     }
+
     for (int i = 0; i < callbacksToProcess; i++) {
 #ifdef TOGGLE_SOUND_TESTBED	
         AppDebugOut("SoundLibrary2dSDL::TopupBuffer: invoking callback %d/%d with %d samples\n", i+1, callbacksToProcess, lengths[i]);
 #endif
+        //
         // Only write into buffers that belong to the currently active device
+        
         if (m_callback && deviceIds[i] == (uint32_t)currentDevice && streams[i] && lengths[i] > 0) {
             m_callback( streams[i], lengths[i] );
             processedSamples += lengths[i];
@@ -223,7 +231,10 @@ void SoundLibrary2dSDL::TopupBuffer()
             callbacksProcessed++;
         }
     }
+
+    //
     // Reset thirst counter after processing/dropping pending buffers
+
     m_callbackLock.Lock();
     m_bufferIsThirsty = 0;
     m_callbackLock.Unlock();
@@ -287,11 +298,10 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	desired.format = AUDIO_S16SYS;
 	desired.samples = m_samplesPerBuffer;
 	desired.channels = 2;
-    // Read prefs for push mode and period/latency targets
+
     m_usePushMode = g_preferences->GetInt("SoundUsePushMode", 1);
     int periodPref = g_preferences->GetInt("SoundPeriodFrames", 128);
     m_targetLatencyMs = g_preferences->GetInt("SoundTargetLatencyMs", 80);
-    // New ring + device-queue prefs
     m_ringMs = g_preferences->GetInt("SoundRingMs", 160);
     m_deviceQueueLowMs = g_preferences->GetInt("SoundDeviceQueueLowMs", 20);
     m_deviceQueueHighMs = g_preferences->GetInt("SoundDeviceQueueHighMs", 35);
@@ -331,7 +341,9 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	obtainedPtr = NULL;
 #endif
 
+    //
 	// Set period based on mode: in push mode, request the preferred small period
+
 	if (m_usePushMode && periodPref > 0) {
 		desired.samples = static_cast<Uint16>(periodPref);
 	}
@@ -350,7 +362,11 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 #else
 	s_audioSpec = obtainedSpec;
 
+#ifdef TOGGLE_SOUND_TESTBED	
+
+    //
 	// Verify that SDL is actually using the requested number of samples
+
 	AppDebugOut("Audio samples verification: requested=%d, SDL is using=%d\n",
 		desired.samples, s_audioSpec.samples);
 
@@ -358,9 +374,13 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 		AppDebugOut("WARNING: SDL changed samples per buffer from %d to %d\n",
 			desired.samples, s_audioSpec.samples);
 	}
+
+#endif
 #endif
 
+    //
     // Snapshot the device id for tagging buffers
+
     m_deviceId = s_audioDevice;
 
     m_actualFreq = s_audioSpec.freq;
@@ -373,12 +393,15 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
     m_totalQueuedFrames = 0;
     m_lastSliceStartSample = 0;
 
+    //
     // Allocate ring (power of two frames)
+
     auto nextPow2 = [](uint32_t v)->uint32_t {
         if (v < 2) return 2;
         v--; v |= v >> 1; v |= v >> 2; v |= v >> 4; v |= v >> 8; v |= v >> 16; v++;
         return v;
     };
+
     uint32_t ringFramesTarget = MsToFrames(m_ringMs);
     if (ringFramesTarget < GetPeriodFrames()*4) ringFramesTarget = GetPeriodFrames()*4;
     m_ringFrames = nextPow2(ringFramesTarget);
@@ -397,22 +420,32 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	
 	m_samplesPerBuffer = s_audioSpec.samples;
 	
+    //
     // Start audio device
+
     if (g_preferences->GetInt("Sound", 1)) {
         SDL_PauseAudioDevice(s_audioDevice, 0);
     }
 
+    //
     // Start feeder thread if in push mode
+
     if (m_usePushMode) {
         m_feederMutex = SDL_CreateMutex();
         m_feederRun = 1;
         m_feederThread = SDL_CreateThread(FeederThreadEntry, "SDLFeeder", this);
+
         if (!m_feederThread) {
+#ifdef TOGGLE_SOUND_TESTBED	
             AppDebugOut("Failed to create SDL feeder thread: %s\n", SDL_GetError());
+#endif
             m_feederRun = 0;
         }
     } else {
+
+        //
         // In callback mode, ensure callback is set
+
         desired.callback = sdlAudioCallback;
     }
 }
@@ -478,7 +511,9 @@ void SoundLibrary2dSDL::GetRuntimeStats(RuntimeStats &_outStats)
 	_outStats.bufferedSamples[0] = buffered0;
 	_outStats.bufferedSamples[1] = buffered1;
 
+    //
     // Ensure some fields are updated on query
+
     _outStats.periodFrames = m_periodFrames;
     _outStats.usingPushMode = m_usePushMode ? 1 : 0;
     if (m_usePushMode && s_audioDevice != 0) {
@@ -497,22 +532,18 @@ const char *SoundLibrary2dSDL::GetCurrentOutputDeviceName() const
 
 SoundLibrary2dSDL::~SoundLibrary2dSDL()
 {
-	AppDebugOut ( "Destructing SoundLibrary2dSDL class... " );
 	Stop();
-	AppDebugOut ( "done.\n" );
 }
 
 
 void SoundLibrary2dSDL::Stop()
 {
-    // Stop feeder first (if any) before closing device
     if (m_feederThread) {
         m_feederRun = 0;
         SDL_WaitThread(m_feederThread, NULL);
         m_feederThread = NULL;
     }
     if (s_audioDevice != 0) {
-        // Clear any queued audio
         SDL_ClearQueuedAudio(s_audioDevice);
     }
     if (s_audioDevice != 0) {
@@ -545,7 +576,9 @@ void SoundLibrary2dSDL::Stop()
 	m_currentOutputDevice.clear();
 }
 
+//
 // Lock ensures that old callback won't still be running once this method exits
+
 void SoundLibrary2dSDL::SetCallback(void (*_callback)(StereoSample *, unsigned int))
 {
 	m_callbackLock.Lock();
@@ -568,7 +601,9 @@ void SoundLibrary2dSDL::EndRecordToFile()
 
 int SoundLibrary2dSDL::FeederLoop()
 {
+    //
     // Maintain device queue short; ring horizon deep
+
     const unsigned freq = GetActualFreq();
     const unsigned bytesPerFrame = m_bytesPerFrame ? m_bytesPerFrame : (unsigned)((SDL_AUDIO_BITSIZE(s_audioSpec.format)/8) * s_audioSpec.channels);
     const unsigned periodFrames = m_periodFrames ? m_periodFrames : s_audioSpec.samples;
@@ -578,11 +613,16 @@ int SoundLibrary2dSDL::FeederLoop()
     unsigned deviceHighFrames = MsToFrames(GetDeviceQueueHighMs());
     unsigned ringHorizonFrames = MsToFrames(m_ringMs);
 
+    //
     // Initial ring fill and device prefill
+
     EnsureMixedThrough(m_copyIndex + ringHorizonFrames);
     if (GetQueuedFrames() < deviceHighFrames) {
         unsigned need = deviceHighFrames - GetQueuedFrames();
+
+        //
         // Ensure ring covers what we'll copy
+
         EnsureMixedThrough(m_copyIndex + need);
         while (need > 0 && m_feederRun) {
             unsigned copied = CopyFromRingToSDL(need);
@@ -591,12 +631,17 @@ int SoundLibrary2dSDL::FeederLoop()
         }
     }
 
+    //
     // Main loop
+
     while (m_feederRun) {
         Uint32 queuedBytes = SDL_GetQueuedAudioSize(s_audioDevice);
         unsigned queuedFrames = (unsigned)(queuedBytes / (Uint32)std::max(1u, bytesPerFrame));
         double queuedMs = (double)queuedFrames / (double)freq * 1000.0;
+
+        //
         // Update queued stats snapshot
+
         m_statsLock.Lock();
         m_stats.queuedBytes = queuedBytes;
         m_stats.queuedMs = queuedMs;
@@ -607,7 +652,10 @@ int SoundLibrary2dSDL::FeederLoop()
         if (queuedFrames < deviceLowFrames) {
             unsigned target = deviceHighFrames;
             unsigned need = (queuedFrames < target) ? (target - queuedFrames) : 0;
+
+            //
             // Ensure ring has enough mixed ahead for both need and ring horizon
+
             uint64_t ensureEnd = m_copyIndex + std::max<uint64_t>(need, ringHorizonFrames);
             EnsureMixedThrough(ensureEnd);
             while (need > 0 && m_feederRun) {
@@ -616,7 +664,10 @@ int SoundLibrary2dSDL::FeederLoop()
                 need -= copied;
             }
         } else {
-            // keep ring horizon topped up in background
+
+            //
+            // Keep ring horizon topped up in background
+
             EnsureMixedThrough(m_copyIndex + ringHorizonFrames);
             Uint32 sleepMs = (Uint32)std::max(1.0, (1000.0 * (double)periodFrames / (double)freq) * 0.25);
             SDL_Delay(sleepMs);
@@ -648,7 +699,10 @@ void SoundLibrary2dSDL::MixWindowToRing(uint64_t startFrame, unsigned frames)
         if (m_wavOutput) {
             fwrite(slice.data(), chunk, sizeof(StereoSample), m_wavOutput);
         }
+
+        //
         // Copy into ring (handle wrap)
+
         uint32_t ringPos = (uint32_t)(cursor & m_ringMask);
         unsigned first = std::min<unsigned>(chunk, m_ringFrames - ringPos);
         if (!m_ring.empty()) {
@@ -657,6 +711,7 @@ void SoundLibrary2dSDL::MixWindowToRing(uint64_t startFrame, unsigned frames)
                 memcpy(&m_ring[0], slice.data() + first, (chunk - first) * sizeof(StereoSample));
             }
         }
+
         m_statsLock.Lock();
         m_stats.slicesGenerated++;
         m_statsLock.Unlock();
@@ -676,28 +731,39 @@ void SoundLibrary2dSDL::EnsureMixedThrough(uint64_t endFrame)
 unsigned SoundLibrary2dSDL::CopyFromRingToSDL(unsigned framesToCopy)
 {
     if (framesToCopy == 0 || m_bytesPerFrame == 0) return 0;
+
+    //
     // Limit to available mixed frames
+
     uint64_t available = (m_fillIndex > m_copyIndex) ? (m_fillIndex - m_copyIndex) : 0;
     if (available == 0) return 0;
     unsigned frames = (unsigned)std::min<uint64_t>(available, framesToCopy);
 
+    //
     // Copy in up to two segments to respect ring wrap
+
     uint32_t ringPos = (uint32_t)(m_copyIndex & m_ringMask);
     unsigned first = std::min<unsigned>(frames, m_ringFrames - ringPos);
     unsigned bytesFirst = first * m_bytesPerFrame;
     if (first > 0) {
         if (SDL_QueueAudio(s_audioDevice, &m_ring[ringPos], bytesFirst) != 0) {
-            return 0; // failed, try later
+            return 0; // Failed, try later
         }
     }
+
     unsigned second = frames - first;
     if (second > 0) {
         unsigned bytesSecond = second * m_bytesPerFrame;
         if (SDL_QueueAudio(s_audioDevice, &m_ring[0], bytesSecond) != 0) {
-            // Rollback first? SDL_QueueAudio has no rollback; it's unlikely this path hits; treat as partial copy.
-            frames = first; // we only copied the first segment
+
+            //
+            // Rollback first? SDL_QueueAudio has no rollback. 
+            // it's unlikely this path hits, treat as partial copy.
+
+            frames = first; // We only copied the first segment
         }
     }
+
     m_copyIndex += frames;
     m_totalQueuedFrames += frames;
     return frames;

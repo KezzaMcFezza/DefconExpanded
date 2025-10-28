@@ -145,14 +145,19 @@ void SoundSystem::RestartSoundLibrary()
 #else
 	g_soundLibrary2d = new SoundLibrary2dSDL();
 	g_soundLibrary3d = new SoundLibrary3dSoftware();
+
+    //
     // Ensure preferences reflect the actual backend used by SDL builds.
     // This avoids writing a misleading "dsound" entry inherited from defaults.
+
     g_preferences->SetString(PREFS_SOUND_LIBRARY, "software");
     m_numChannels = 64;
+
     if (requestedChannels != m_numChannels)
     {
         g_preferences->SetInt("SoundChannels", m_numChannels);
     }
+
 #endif
 
     g_soundLibrary3d->SetMasterVolume( volume );
@@ -268,7 +273,9 @@ bool SoundSystem::SoundLibraryMainCallback( unsigned int _channel, signed short 
         unsigned int framesWritten = 0;
         bool waitingForLoop = false;
 
+        //
         // Scheduled start handling for push mode: prefill silence until scheduled start within this window
+        
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
         do {
             SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
