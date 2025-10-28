@@ -9,6 +9,7 @@
 #include "lib/sound/sound_library_3d_software.h"
 #include "lib/preferences.h"
 #include "lib/render2d/renderer.h"
+#include "lib/gucci/window_manager.h"
 #include "lib/hi_res_time.h"
 
 #if defined(TARGET_MSVC) && !defined(WINDOWS_SDL)
@@ -137,4 +138,3 @@ void SoundProtectionOverlay::Render()
     g_renderer->TextSimple(baseX, y, Colour(200,200,200,255), 11.0f,
                            "Headroom is the main safety knob; others fine-tune behavior.");
 }
-
