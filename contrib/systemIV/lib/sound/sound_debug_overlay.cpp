@@ -232,10 +232,7 @@ void SoundDebugOverlay::Render()
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
-        // Explicitly show whether the SDL device callback is active
-        snprintf(buffer, sizeof(buffer), "SDL device callback : %s", sdl->UsingPushMode() ? "off" : "on");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        // (SDL device callback state shown in SDL 2D section)
 
         snprintf(buffer, sizeof(buffer), "Master volume       : %d", g_preferences->GetInt("SoundMasterVolume", 255));
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
@@ -385,6 +382,11 @@ void SoundDebugOverlay::Render()
         snprintf(buffer, sizeof(buffer), "Audio started       : %s  Library mix callback: %s",
                  sdl->IsAudioStarted() ? "yes" : "no",
                  sdl->HasCallback() ? "set" : "unset");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        // Explicitly show whether SDL is using a device callback (off in push mode)
+        snprintf(buffer, sizeof(buffer), "SDL device callback : %s", sdl->UsingPushMode() ? "off" : "on");
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
