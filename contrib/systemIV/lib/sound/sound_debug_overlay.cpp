@@ -232,6 +232,11 @@ void SoundDebugOverlay::Render()
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
+        // Explicitly show whether the SDL device callback is active
+        snprintf(buffer, sizeof(buffer), "SDL device callback : %s", sdl->UsingPushMode() ? "off" : "on");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
         snprintf(buffer, sizeof(buffer), "Master volume       : %d", g_preferences->GetInt("SoundMasterVolume", 255));
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
@@ -377,19 +382,9 @@ void SoundDebugOverlay::Render()
     {
         unsigned actualFreq = sdl->GetActualFreq();
         unsigned actualBuffer = sdl->GetActualSamplesPerBuffer();
-        snprintf(buffer, sizeof(buffer), "Audio started       : %s  Callback: %s",
+        snprintf(buffer, sizeof(buffer), "Audio started       : %s  Library mix callback: %s",
                  sdl->IsAudioStarted() ? "yes" : "no",
                  sdl->HasCallback() ? "set" : "unset");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
-
-        snprintf(buffer, sizeof(buffer), "Recording to WAV    : %s", sdl->IsRecording() ? "yes" : "no");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
-
-        const char *activeDevice = sdl->GetCurrentOutputDeviceName();
-        const char *activeDisplay = (activeDevice && activeDevice[0]) ? activeDevice : "<default>";
-        snprintf(buffer, sizeof(buffer), "Active output device: %s", activeDisplay);
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
