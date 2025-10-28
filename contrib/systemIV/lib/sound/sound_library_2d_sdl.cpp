@@ -295,7 +295,8 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	SDL_AudioSpec desired;
 	
     desired.freq = m_freq;
-    // Prefer 32-bit output for push mode to increase headroom; keep S16 for callback mode
+    // Use signed 16-bit output for both modes to keep device format
+    // aligned with our internal ring buffer and avoid extra conversions
     desired.format = AUDIO_S16SYS;
 	desired.samples = m_samplesPerBuffer;
 	desired.channels = 2;
@@ -310,10 +311,9 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
     m_audioClockedADSR = g_preferences->GetInt("SoundAudioClockedADSR", 1);
 
     desired.userdata = this;
+    // In push/queue mode, we disable the SDL callback and feed via SDL_QueueAudio.
+    // We keep AUDIO_S16SYS to match the ring buffer format.
     desired.callback = m_usePushMode ? NULL : sdlAudioCallback;
-    if (m_usePushMode) {
-        desired.format = AUDIO_S32SYS;
-    }
 	
 	AppDebugOut("Initialising SDL Audio\n");
 	
@@ -750,43 +750,17 @@ unsigned SoundLibrary2dSDL::CopyFromRingToSDL(unsigned framesToCopy)
     unsigned first = std::min<unsigned>(frames, m_ringFrames - ringPos);
     unsigned bytesFirst = first * m_bytesPerFrame;
     if (first > 0) {
-        if (s_audioSpec.format == AUDIO_S32SYS) {
-            // Convert int16 ring to int32 on the fly
-            unsigned samples = first * s_audioSpec.channels;
-            std::vector<int32_t> tmp(samples);
-            const StereoSample *src = &m_ring[ringPos];
-            for (unsigned i = 0; i < first; ++i) {
-                tmp[i*2 + 0] = ((int32_t)src[i].m_left) << 16;
-                tmp[i*2 + 1] = ((int32_t)src[i].m_right) << 16;
-            }
-            if (SDL_QueueAudio(s_audioDevice, tmp.data(), samples * sizeof(int32_t)) != 0) {
-                return 0;
-            }
-        } else {
-            if (SDL_QueueAudio(s_audioDevice, &m_ring[ringPos], bytesFirst) != 0) {
-                return 0; // Failed, try later
-            }
+        // Queue first contiguous block directly (S16 device format)
+        if (SDL_QueueAudio(s_audioDevice, &m_ring[ringPos], bytesFirst) != 0) {
+            return 0; // Failed, try later
         }
     }
 
     unsigned second = frames - first;
     if (second > 0) {
-        if (s_audioSpec.format == AUDIO_S32SYS) {
-            unsigned samples = second * s_audioSpec.channels;
-            std::vector<int32_t> tmp(samples);
-            const StereoSample *src = &m_ring[0];
-            for (unsigned i = 0; i < second; ++i) {
-                tmp[i*2 + 0] = ((int32_t)src[i].m_left) << 16;
-                tmp[i*2 + 1] = ((int32_t)src[i].m_right) << 16;
-            }
-            if (SDL_QueueAudio(s_audioDevice, tmp.data(), samples * sizeof(int32_t)) != 0) {
-                frames = first;
-            }
-        } else {
-            unsigned bytesSecond = second * m_bytesPerFrame;
-            if (SDL_QueueAudio(s_audioDevice, &m_ring[0], bytesSecond) != 0) {
-                frames = first; // Only copied the first segment
-            }
+        unsigned bytesSecond = second * m_bytesPerFrame;
+        if (SDL_QueueAudio(s_audioDevice, &m_ring[0], bytesSecond) != 0) {
+            frames = first; // Only copied the first segment
         }
     }
 

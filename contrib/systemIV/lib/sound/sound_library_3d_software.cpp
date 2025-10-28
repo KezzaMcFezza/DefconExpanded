@@ -9,6 +9,7 @@
 #include "sound_filter.h"
 #include "sound_library_3d_software.h"
 #include "sound_library_2d.h"
+#include "lib/sound/sound_library_2d_sdl.h"
 #include "lib/preferences.h"
 
 
@@ -401,7 +402,17 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 	}
 #endif
 
-	double duration = (double)_numSamples / (double)g_soundLibrary2d->GetFreq();
+    // Use actual device rate when available to keep time-based
+    // calculations aligned with the real audio clock (push/callback).
+    unsigned actualRate = g_soundLibrary2d ? g_soundLibrary2d->GetFreq() : 44100;
+    if (g_soundLibrary2d) {
+        SoundLibrary2dSDL *sdl2d = dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d);
+        if (sdl2d) {
+            unsigned r = sdl2d->GetActualFreq();
+            if (r > 0) actualRate = r;
+        }
+    }
+    double duration = (double)_numSamples / (double)actualRate;
 
 	GetChannelData(duration, _numSamples);
 	ApplyDspFX(duration, _numSamples);
