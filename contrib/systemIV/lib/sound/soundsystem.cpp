@@ -145,6 +145,9 @@ void SoundSystem::RestartSoundLibrary()
 #else
 	g_soundLibrary2d = new SoundLibrary2dSDL();
 	g_soundLibrary3d = new SoundLibrary3dSoftware();
+    // Ensure preferences reflect the actual backend used by SDL builds.
+    // This avoids writing a misleading "dsound" entry inherited from defaults.
+    g_preferences->SetString(PREFS_SOUND_LIBRARY, "software");
     m_numChannels = 64;
     if (requestedChannels != m_numChannels)
     {
