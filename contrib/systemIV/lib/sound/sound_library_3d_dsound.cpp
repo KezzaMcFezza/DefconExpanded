@@ -180,11 +180,30 @@ SoundLibrary3dDirectSound::SoundLibrary3dDirectSound()
         float hd = g_preferences->GetFloat("SoundHeadroomDb", -1.0f);
         if (hd >= 0.0f) m_fixedHeadroomCentiDb = hd * 100.0f;
     }
-    // Dynamic bus attenuation initial state
+    // Dynamic bus attenuation initial state and defaults (tunable via prefs)
     m_dynamicBusAtten = 0.0f;
     m_dynamicTarget = 0.0f;
     m_dynAttack = 0.5f;
     m_dynRelease = 0.1f;
+    m_dynLoudVolThresh = 7.0f;
+    m_dynStartCount = 2;
+    m_dynDbPerExtra = 2.0f;
+    m_dynMaxDb = 12.0f;
+    if (g_preferences)
+    {
+        float f;
+        int i;
+        f = g_preferences->GetFloat("SoundDSDynAttack", -1.0f); if (f > 0.0f && f <= 1.0f) m_dynAttack = f;
+        f = g_preferences->GetFloat("SoundDSDynRelease", -1.0f); if (f > 0.0f && f <= 1.0f) m_dynRelease = f;
+        f = g_preferences->GetFloat("SoundDSDynLoudVolume", -1.0f); if (f >= 0.0f) m_dynLoudVolThresh = f;
+        i = g_preferences->GetInt("SoundDSDynStartCount", -1); if (i >= 0) m_dynStartCount = i;
+        f = g_preferences->GetFloat("SoundDSDynDbPerExtra", -1.0f); if (f >= 0.0f) m_dynDbPerExtra = f;
+        f = g_preferences->GetFloat("SoundDSDynMaxDb", -1.0f); if (f >= 0.0f) m_dynMaxDb = f;
+        // clamp reasonable ranges
+        if (m_dynStartCount < 0) m_dynStartCount = 0;
+        if (m_dynDbPerExtra < 0.0f) m_dynDbPerExtra = 0.0f;
+        if (m_dynMaxDb < 0.0f) m_dynMaxDb = 0.0f;
+    }
 }
 
 
@@ -908,22 +927,22 @@ void SoundLibrary3dDirectSound::Advance()
 		frameNum = 0;
 	}
 
-    // dynamic global attenuation update
+    // dynamic global attenuation update (DirectSound anti-clip)
     {
         int loudCount = 0;
         for (int i = 0; i < m_numChannels - m_numMusicChannels; ++i)
         {
-            if (m_channels && m_channels[i].m_volume >= 7.0f)
+            if (m_channels && m_channels[i].m_volume >= m_dynLoudVolThresh)
             {
                 ++loudCount;
             }
         }
         float targetDb = 0.0f;
-        if (loudCount > 2)
+        if (loudCount > m_dynStartCount)
         {
-            float extra = (float)(loudCount - 2);
-            targetDb = extra * 2.0f;
-            if (targetDb > 12.0f) targetDb = 12.0f;
+            float extra = (float)(loudCount - m_dynStartCount);
+            targetDb = extra * m_dynDbPerExtra;
+            if (targetDb > m_dynMaxDb) targetDb = m_dynMaxDb;
         }
         m_dynamicTarget = targetDb * 100.0f;
         float alpha = (m_dynamicTarget > m_dynamicBusAtten) ? m_dynAttack : m_dynRelease;

@@ -26,6 +26,11 @@ protected:
     float                        m_dynamicTarget;      // target attenuation
     float                        m_dynAttack;          // smoothing towards more attenuation
     float                        m_dynRelease;         // smoothing back towards 0
+    // Dynamic attenuation heuristics (tunable)
+    float                        m_dynLoudVolThresh;   // channel volume >= threshold considered "loud" (0..10)
+    int                          m_dynStartCount;      // number of loud channels before attenuation starts
+    float                        m_dynDbPerExtra;      // dB attenuation per extra loud channel beyond start
+    float                        m_dynMaxDb;           // maximum dynamic attenuation in dB
             
 protected:
 	IDirectSoundBuffer          *CreateSecondaryBuffer(int _numSamples, int _numChannels);
