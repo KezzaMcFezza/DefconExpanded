@@ -60,6 +60,8 @@ public:
     bool UsingChatWindow();
     bool UsingAnyInputField();
 
+    void HandleWindowResize(int newWidth, int newHeight, int oldWidth, int oldHeight);
+
     void ShowMessage( Fixed longitude, Fixed latitude, int teamId, const char *msg, bool showLarge=false );
 
 	void SetMouseCursor( const char *filename = NULL );

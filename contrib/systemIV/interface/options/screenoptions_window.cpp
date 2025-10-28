@@ -4,6 +4,10 @@
 #include "lib/preferences.h"
 #include "lib/gucci/window_manager.h"
 
+#include "app/globals.h"
+#include "app/app.h"
+#include "interface/interface.h"
+
 #include "interface/components/drop_down_menu.h"
 #include "screenoptions_window.h"
 
@@ -98,83 +102,6 @@ class RefreshRateRequiredMenu : public DropDownMenu
     }    
 };
 
-#ifndef TARGET_OS_LINUX
-static void AdjustWindowPositions(int _newWidth, int _newHeight, int _oldWidth, int _oldHeight)
-{
-	if (_newWidth != _oldWidth || _newHeight != _oldHeight)
-    {
-		// Resolution has changed, adjust the window positions accordingly
-		EclInitialise( _newWidth, _newHeight );
-
-		LList<EclWindow *> *windows = EclGetWindows();
-		for (int i = 0; i < windows->Size(); i++) 
-        {
-			EclWindow *w = windows->GetData(i);
-			
-            int oldCentreX = _oldWidth/2.0f - w->m_w/2;
-            int oldCentreY = _oldHeight/2.0f - w->m_h/2;
-
-            if( fabs(float(w->m_x - oldCentreX)) < 30 &&
-                fabs(float(w->m_y - oldCentreY)) < 30 )
-            {
-                // This window was centralised
-                w->m_x = _newWidth/2.0f - w->m_w/2.0f;
-                w->m_y = _newHeight/2.0f - w->m_h/2.0f;
-            }
-            else
-            {
-                //
-                // Find the two nearest edges, and keep those distances the same
-                // How far are we from each edge?
-
-                float distances[4];
-                distances[0] = w->m_x;                              // left
-                distances[1] = _oldWidth - (w->m_x + w->m_w);       // right
-                distances[2] = w->m_y;                              // top
-                distances[3] = _oldHeight - (w->m_y + w->m_h);      // bottom
-
-                //
-                // Sort those distances, closest first
-
-                LList<int> sortedDistances;
-                for( int j = 0; j < 4; ++j )
-                {
-                    float thisDistance = distances[j];
-                    bool added = false;
-                    for( int k = 0; k < sortedDistances.Size(); ++k )
-                    {
-                        float sortedDistance = distances[sortedDistances[k]];
-                        if( thisDistance < sortedDistance )
-                        {
-                            sortedDistances.PutDataAtIndex( j, k );
-                            added = true;
-                            break;
-                        }
-                    }
-                    if( !added )
-                    {
-                        sortedDistances.PutDataAtEnd( j );
-                    }
-                }
-            
-                //
-                // Preserve the two nearest edge distances;
-
-                for( int j = 0; j < 2; ++j )
-                {
-                    int thisNearest = sortedDistances[j];
-                    
-                    if( thisNearest == 0 )      w->m_x = distances[thisNearest];
-                    if( thisNearest == 1 )      w->m_x = _newWidth - w->m_w - distances[thisNearest];
-                    if( thisNearest == 2 )      w->m_y = distances[thisNearest];
-                    if( thisNearest == 3 )      w->m_y = _newHeight - w->m_h - distances[thisNearest];
-                }
-            }
-		}
-	}
-}
-#endif
-
 
 // SetWindowed - switch to windowed or fullscreen mode.
 // Used by lib/input_sdl.cpp 
@@ -245,13 +172,13 @@ class SetScreenButton : public InterfaceButton
         g_preferences->SetInt( PREFS_SCREEN_FPS_LIMIT, parent->m_fpsLimit );
 #endif
 		
-#ifndef TARGET_OS_LINUX
-        if( resolution )
+        if( resolution && g_app && g_app->GetInterface() )
         {
-            AdjustWindowPositions( resolution->m_width, resolution->m_height,
-                                   oldWidth, oldHeight );
+            g_app->GetInterface()->HandleWindowResize( resolution->m_width,
+                                                       resolution->m_height,
+                                                       oldWidth,
+                                                       oldHeight );
         }
-#endif
 
         parent->RestartWindowManager();
         

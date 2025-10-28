@@ -1,6 +1,8 @@
 #include "lib/universal_include.h"
 
 #include <stdio.h>
+#include <math.h>
+#include <algorithm>
 
 #include "lib/eclipse/eclipse.h"
 #include "lib/gucci/input.h"
@@ -19,6 +21,70 @@ InterfaceWindow::InterfaceWindow( const char *name, const char *title, bool titl
 :   EclWindow(EclGenerateUniqueWindowName(name), title, titleIsLanguagePhrase)
 {
     m_creationTime = GetHighResTime();
+}
+
+void InterfaceWindow::OnResize(int newWidth, int newHeight, int oldWidth, int oldHeight)
+{
+    if (newWidth <= 0 || newHeight <= 0 || oldWidth <= 0 || oldHeight <= 0)
+    {
+        return;
+    }
+
+    if (newWidth == oldWidth && newHeight == oldHeight)
+    {
+        return;
+    }
+
+    // Prevent oversized windows from exceeding the viewport entirely
+    if (m_w > newWidth) m_w = newWidth;
+    if (m_h > newHeight) m_h = newHeight;
+
+    const float oldCentreX = oldWidth * 0.5f - m_w * 0.5f;
+    const float oldCentreY = oldHeight * 0.5f - m_h * 0.5f;
+
+    const bool nearCentreX = fabsf(m_x - oldCentreX) < 30.0f;
+    const bool nearCentreY = fabsf(m_y - oldCentreY) < 30.0f;
+
+    if (nearCentreX)
+    {
+        m_x = newWidth / 2.0f - m_w / 2.0f;
+    }
+    else
+    {
+        float distanceLeft = m_x;
+        float distanceRight = oldWidth - (m_x + m_w);
+        if (distanceRight < distanceLeft)
+        {
+            m_x = newWidth - m_w - distanceRight;
+        }
+        else
+        {
+            m_x = distanceLeft;
+        }
+    }
+
+    if (nearCentreY)
+    {
+        m_y = newHeight / 2.0f - m_h / 2.0f;
+    }
+    else
+    {
+        float distanceTop = m_y;
+        float distanceBottom = oldHeight - (m_y + m_h);
+        if (distanceBottom < distanceTop)
+        {
+            m_y = newHeight - m_h - distanceBottom;
+        }
+        else
+        {
+            m_y = distanceTop;
+        }
+    }
+
+    if (m_x + m_w > newWidth) m_x = std::max(0, newWidth - m_w);
+    if (m_y + m_h > newHeight) m_y = std::max(0, newHeight - m_h);
+    if (m_x < 0) m_x = 0;
+    if (m_y < 0) m_y = 0;
 }
 #ifdef TARGET_EMSCRIPTEN
 void InterfaceWindow::Create()
@@ -422,5 +488,3 @@ void InvertedBox::Render( int realX, int realY, bool highlighted, bool clicked )
     g_renderer->EclipseLine    ( realX+m_w, realY, realX+m_w, realY+m_h, borderSecondary );        // right
     g_renderer->EclipseLine    ( realX, realY+m_h, realX+m_w, realY+m_h, borderSecondary );        // bottom
 }
-
-

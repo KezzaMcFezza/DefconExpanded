@@ -25,8 +25,8 @@
 #include "window_manager_sdl.h"
 #include "input.h"
 
-//#include "app.h"
-//#include "renderer.h"
+#include "app/app.h"
+#include "app/globals.h"
 
 #ifdef TARGET_OS_LINUX
 #include "binreloc.h"
@@ -238,6 +238,51 @@ void WindowManagerSDL::WindowHasMoved()
     ListAllDisplayModes(m_windowDisplayIndex);
 }
 
+void WindowManagerSDL::HandleResize(int newWidth, int newHeight)
+{
+    if (!m_window || newWidth <= 0 || newHeight <= 0)
+    {
+        return;
+    }
+
+    Uint32 windowFlags = SDL_GetWindowFlags(m_window);
+    if (windowFlags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP))
+    {
+        return;
+    }
+
+    if (newWidth == m_screenW && newHeight == m_screenH)
+    {
+        return;
+    }
+
+    int oldWidth = m_screenW;
+    int oldHeight = m_screenH;
+
+    m_screenW = newWidth;
+    m_screenH = newHeight;
+
+    CalculateHighDPIScaleFactors();
+
+    int newDisplayIndex = SDL_GetWindowDisplayIndex(m_window);
+    if (newDisplayIndex >= 0 && newDisplayIndex != m_windowDisplayIndex)
+    {
+        m_windowDisplayIndex = newDisplayIndex;
+        ListAllDisplayModes(m_windowDisplayIndex);
+    }
+
+    if (GetResolutionId(newWidth, newHeight) == -1)
+    {
+        WindowResolution *res = new WindowResolution(newWidth, newHeight);
+        m_resolutions.PutData(res);
+    }
+
+    if (g_app)
+    {
+        g_app->OnWindowResized(newWidth, newHeight, oldWidth, oldHeight);
+    }
+}
+
 
 bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _colourDepth, int _refreshRate, int _zDepth, int _antiAlias, bool _borderless, const char *_title)
 {
@@ -298,6 +343,8 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
         // Usually any combination is OK for windowed mode.
         m_screenW = std::min(usableBounds.w, _width);
         m_screenH = std::min(usableBounds.h, _height);
+
+        flags |= SDL_WINDOW_RESIZABLE;
         
         // Add it to the list of screen resolutions if need be
         WindowResolution *found = NULL;
@@ -377,9 +424,13 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
         
         m_glContext = 0;
 
+        
+        //
+        // use SDL_WINDOWPOS_CENTERED to center the window instead of top-left positioning
+        
         m_window = SDL_CreateWindow( _title,
-                                     displayBounds.x,
-                                     displayBounds.y,
+                                     SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),
+                                     SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),
                                      m_screenW,
                                      m_screenH,
                                      flags );
@@ -588,9 +639,21 @@ void WindowManagerSDL::PollForMessages()
 	{
         if( sdlEvent.type == SDL_WINDOWEVENT )
         {
-            if( sdlEvent.window.event == SDL_WINDOWEVENT_MOVED )
+            switch( sdlEvent.window.event )
             {
-                WindowHasMoved();
+                case SDL_WINDOWEVENT_MOVED:
+                    WindowHasMoved();
+                    break;
+
+                case SDL_WINDOWEVENT_SIZE_CHANGED:
+                case SDL_WINDOWEVENT_RESIZED:
+                case SDL_WINDOWEVENT_MAXIMIZED:
+                case SDL_WINDOWEVENT_RESTORED:
+                    HandleResize(sdlEvent.window.data1, sdlEvent.window.data2);
+                    break;
+
+                default:
+                    break;
             }
         }
         
@@ -658,9 +721,18 @@ void WindowManagerSDL::UnhideMousePointer()
 
 void WindowManagerSDL::SetMousePos(int x, int y)
 {
-    // Not implemented.
+    
+    //
+    // Convert logical coordinates to physical coordinates for cursor positioning
+    
+    float scaleX = (float)PhysicalWindowW() / (float)WindowW();
+    float scaleY = (float)PhysicalWindowH() / (float)WindowH();
+    
+    int physicalX = (int)(x * scaleX);
+    int physicalY = (int)(y * scaleY);
+    
+    SDL_WarpMouseInWindow(m_window, physicalX, physicalY);
 }
-
 
 void WindowManagerSDL::OpenWebsite( const char *_url )
 {	
@@ -777,4 +849,3 @@ extern "C" int main(int argc, char **argv)
 	
 	return 0;
 }
-

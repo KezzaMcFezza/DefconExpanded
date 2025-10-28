@@ -105,6 +105,7 @@ public:
 
     void    InitialiseWindow();                     // First time
     void    ReinitialiseWindow();                   // Window already exists, destroy first
+    void    OnWindowResized(int newWidth, int newHeight, int oldWidth, int oldHeight);
     void    InitStatusIcon();
     void    InitFonts();
     void    InitialiseTestBed();
