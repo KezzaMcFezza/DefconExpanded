@@ -27,6 +27,13 @@ protected:
 	
 	int						m_lastVolumeSet;				// consulted when un-muting
 
+    // Mix-bus limiter and headroom (software path only)
+    float                   m_busGain;          // smoothed limiter gain (0..1)
+    float                   m_limiterAttack;    // attack smoothing (0..1)
+    float                   m_limiterRelease;   // release smoothing (0..1)
+    float                   m_peakThreshold;    // peak threshold before limiting (PCM units)
+    float                   m_headroomDb;       // fixed bus headroom in dB (e.g., 6.0)
+
 protected:
 	void GetChannelData		(float _duration, unsigned int _numSamples);
 	void ApplyDspFX			(float _duration, unsigned int _numSamples);

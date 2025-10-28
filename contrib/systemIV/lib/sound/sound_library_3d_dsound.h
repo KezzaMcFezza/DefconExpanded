@@ -19,6 +19,13 @@ class SoundLibrary3dDirectSound: public SoundLibrary3d
 protected:    
     DirectSoundChannel          *m_channels;
 	DirectSoundData		        *m_directSound;
+
+    // Fixed and dynamic anti-clip attenuation (centi-dB)
+    float                        m_fixedHeadroomCentiDb; // fixed headroom in centi-dB
+    float                        m_dynamicBusAtten;    // current smoothed attenuation
+    float                        m_dynamicTarget;      // target attenuation
+    float                        m_dynAttack;          // smoothing towards more attenuation
+    float                        m_dynRelease;         // smoothing back towards 0
             
 protected:
 	IDirectSoundBuffer          *CreateSecondaryBuffer(int _numSamples, int _numChannels);

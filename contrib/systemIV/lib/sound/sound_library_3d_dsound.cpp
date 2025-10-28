@@ -8,6 +8,7 @@
 
 #include "lib/debug_utils.h"
 #include "lib/hi_res_time.h"
+#include "lib/preferences.h"
 //#include "lib/profiler.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/window_manager_win32.h"
@@ -172,6 +173,18 @@ SoundLibrary3dDirectSound::SoundLibrary3dDirectSound()
 	m_channels(NULL)
 {
 	m_directSound = new DirectSoundData;
+    // Fixed headroom defaults to -12 dB (1200 centi-dB), tunable via SoundHeadroomDb
+    m_fixedHeadroomCentiDb = 1200.0f;
+    if (g_preferences)
+    {
+        float hd = g_preferences->GetFloat("SoundHeadroomDb", -1.0f);
+        if (hd >= 0.0f) m_fixedHeadroomCentiDb = hd * 100.0f;
+    }
+    // Dynamic bus attenuation initial state
+    m_dynamicBusAtten = 0.0f;
+    m_dynamicTarget = 0.0f;
+    m_dynAttack = 0.5f;
+    m_dynRelease = 0.1f;
 }
 
 
@@ -607,8 +620,10 @@ void SoundLibrary3dDirectSound::SetChannelVolume( int _channel, float _volume )
 		channel->m_volume = _volume;
 
         float calculatedVolume = -(5.0f - _volume * 0.5f);
-        calculatedVolume *= 1000.0f;
-        calculatedVolume += m_masterVolume;
+        calculatedVolume *= 1000.0f;                 // centi-dB
+        calculatedVolume += m_masterVolume;          // apply master (centi-dB)
+        calculatedVolume -= m_fixedHeadroomCentiDb;  // fixed headroom (centi-dB)
+        calculatedVolume -= m_dynamicBusAtten;       // dynamic global anti-clip
 
 		if( calculatedVolume < -10000.0f ) calculatedVolume = -10000.0f;
 		if( calculatedVolume > 0.0f ) calculatedVolume = 0.0f;
@@ -892,6 +907,29 @@ void SoundLibrary3dDirectSound::Advance()
 	{
 		frameNum = 0;
 	}
+
+    // dynamic global attenuation update
+    {
+        int loudCount = 0;
+        for (int i = 0; i < m_numChannels - m_numMusicChannels; ++i)
+        {
+            if (m_channels && m_channels[i].m_volume >= 7.0f)
+            {
+                ++loudCount;
+            }
+        }
+        float targetDb = 0.0f;
+        if (loudCount > 2)
+        {
+            float extra = (float)(loudCount - 2);
+            targetDb = extra * 2.0f;
+            if (targetDb > 12.0f) targetDb = 12.0f;
+        }
+        m_dynamicTarget = targetDb * 100.0f;
+        float alpha = (m_dynamicTarget > m_dynamicBusAtten) ? m_dynAttack : m_dynRelease;
+        m_dynamicBusAtten += (m_dynamicTarget - m_dynamicBusAtten) * alpha;
+        if (m_dynamicBusAtten < 0.0f) m_dynamicBusAtten = 0.0f;
+    }
 
     for (int i = 0; i < m_numChannels; ++i)
     {

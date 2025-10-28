@@ -9,6 +9,7 @@
 #include "sound_filter.h"
 #include "sound_library_3d_software.h"
 #include "sound_library_2d.h"
+#include "lib/preferences.h"
 
 
 
@@ -142,6 +143,22 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
 
 	m_left = new float[m_allocatedSamples];
 	m_right = new float[m_allocatedSamples];
+
+    // Limiter/headroom defaults (can be overridden via prefs)
+    m_busGain = 1.0f;
+    m_limiterAttack = 1.0f;     // instant attack towards target
+    m_limiterRelease = 0.02f;   // quicker release back to unity
+    m_peakThreshold = 28000.0f; // start limiting earlier to reduce artifacts
+    m_headroomDb = 12.0f;       // fixed headroom applied pre-mix
+
+    if (g_preferences)
+    {
+        float v;
+        v = g_preferences->GetFloat("SoundHeadroomDb", -1.0f); if (v >= 0.0f) m_headroomDb = v;
+        v = g_preferences->GetFloat("SoundLimiterThreshold", -1.0f); if (v > 0.0f) m_peakThreshold = v;
+        v = g_preferences->GetFloat("SoundLimiterAttack", -1.0f); if (v > 0.0f && v <= 1.0f) m_limiterAttack = v;
+        v = g_preferences->GetFloat("SoundLimiterRelease", -1.0f); if (v > 0.0f && v <= 1.0f) m_limiterRelease = v;
+    }
 }
 
 
@@ -269,12 +286,14 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
 {
 	SoftwareChannel *channel = &m_channels[_channelIndex];
 
-    float calculatedVolume = -(5.0f - channel->m_volume * 0.5f);
-    calculatedVolume += m_masterVolume * 0.001f;
-
-	if( calculatedVolume < -10.0f ) calculatedVolume = -10.0f;
-	if( calculatedVolume > 0.0f ) calculatedVolume = 0.0f;
-	calculatedVolume = expf(calculatedVolume);
+    // Map channel volume (0..10) + master (centi-dB) to linear gain using 10^(dB/20)
+    float channelDb = -(5.0f - channel->m_volume * 0.5f) * 10.0f; // -50dB .. 0dB
+    float masterDb = m_masterVolume * 0.01f;                      // centi-dB -> dB (<= 0)
+    float totalDb = channelDb + masterDb - m_headroomDb;          // apply fixed headroom
+    // Clamp within reasonable range
+    if (totalDb < -100.0f) totalDb = -100.0f;
+    if (totalDb > 0.0f) totalDb = 0.0f;
+    float calculatedVolume = powf(10.0f, totalDb / 20.0f);
 
 	if ( _channelIndex < m_numChannels - m_numMusicChannels )
 	{
@@ -481,36 +500,39 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 #endif
 	}
 
-	// Scan the left and right floating point versions of the output buffer to
-	// find the largest sample
-	float largest = 0.0f;
+	// Simple mix-bus limiter with attack/release
+	float peak = 0.0f;
 	for (int i = 0; i < _numSamples; ++i)
 	{
-		if (fabsf(m_left[i]) > largest)		largest = fabsf(m_left[i]);
-		if (fabsf(m_right[i]) > largest)	largest = fabsf(m_right[i]);
+		if (fabsf(m_left[i]) > peak) peak = fabsf(m_left[i]);
+		if (fabsf(m_right[i]) > peak) peak = fabsf(m_right[i]);
 	}
 
-	// Convert the stereo stream from floats back to signed shorts
-	float scale = 1.0f;
-	if (largest > 32766)
+	float desiredGain = 1.0f;
+	if (peak > m_peakThreshold && peak > 0.0f)
 	{
-		scale = 32766.0f / largest;
+		desiredGain = m_peakThreshold / peak;
 	}
+	float alpha = (desiredGain < m_busGain) ? m_limiterAttack : m_limiterRelease;
+	m_busGain += (desiredGain - m_busGain) * alpha;
+	if (m_busGain < 0.0f) m_busGain = 0.0f;
+	if (m_busGain > 1.0f) m_busGain = 1.0f;
 
-	if (scale > 1.0f)
-	{
-		scale = 1.0f;
-	}
-	
-	// bounds check before final conversion
-	for (int i = 0; i < _numSamples; ++i)
-	{
-		if (_buf && i < _numSamples) 
-		{
-			_buf[i].m_left = Round(m_left[i] * scale);
-			_buf[i].m_right = Round(m_right[i] * scale);
-		}
-	}
+    // Convert floats back to signed shorts with limiter gain and soft clip
+    for (int i = 0; i < _numSamples; ++i)
+    {
+        if (_buf && i < _numSamples)
+        {
+            float l = m_left[i] * m_busGain;
+            float r = m_right[i] * m_busGain;
+            // soft-clip using tanh to avoid harsh edges
+            const float k = 1.0f / 32767.0f;
+            l = 32767.0f * tanhf(l * k);
+            r = 32767.0f * tanhf(r * k);
+            _buf[i].m_left = Round(l);
+            _buf[i].m_right = Round(r);
+        }
+    }
 	// END_PROFILE2(m_profiler, "Mix");
 }
 
@@ -699,4 +721,3 @@ void SoundLibrary3dSoftware::EndRecordToFile()
 {
 	g_soundLibrary2d->EndRecordToFile();
 }
-
