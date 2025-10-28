@@ -708,7 +708,9 @@ void WindowManagerWin32::SetMousePos(int x, int y)
 		m_mouseOffsetY = rect1.top + m_borderWidth + m_titleHeight;
 	}
 
+    //
 	// Convert logical coordinates to physical coordinates for cursor positioning
+    
 	float scaleX = (float)PhysicalWindowW() / (float)WindowW();
 	float scaleY = (float)PhysicalWindowH() / (float)WindowH();
 	

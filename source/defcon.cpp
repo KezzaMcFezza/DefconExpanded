@@ -60,11 +60,6 @@
 #include "lib/gucci/window_manager.h"
 #endif
 
-#ifdef TARGET_EMSCRIPTEN
-#include <emscripten.h>
-#include "lib/domain_protection.h"
-#endif
-
 NetMutex g_renderLock;
 double   g_startTime = FLT_MAX;
 double   g_gameTime = 0.0f;
@@ -74,22 +69,23 @@ float    g_predictionTime = 0.0f;
 int      g_lastProcessedSequenceId = -2;                         // -2=not yet ready to begin. -1=ready for first update (id=0)
 
 #ifdef TARGET_EMSCRIPTEN
+
+//
 // Global variables for Emscripten main loop
+
 static double g_nextServerAdvanceTime = 0.0;
 static double g_serverAdvanceStartTime = -1.0;
 static double g_lastRenderTime = 0.0;
 static bool g_serverRunning = false;
 
+//
 // Function to reset static variables when server shuts down
+
 void ResetWebAssemblyServerState()
 {
     g_nextServerAdvanceTime = 0.0;
     g_serverAdvanceStartTime = -1.0;
     g_serverRunning = false;
-    
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("WebAssembly: Reset static main loop variables for next server instance\n");
-#endif
 }
 #endif
 
@@ -105,31 +101,6 @@ void UpdateAdvanceTime()
 	g_gameTime = realTime;
     g_predictionTime = float(realTime - g_lastServerAdvance) - 0.1f;
     g_predictionTime = min( g_predictionTime, 1.0f );
-    
-    // previous clamp workaround has been removed the actual root cause was g_lastServerAdvance
-    // g_lastServerAdvance was never being updated because of our server to client web assembly
-    // it was initialised to 0.0f, and when the server ran this never updated causing the units
-    // to have insane coordinates, if you had object trails enabled these lines would be infinitely long.
-    // now prediction time should stay in a reasonable range naturally without needing to be clamped!
-
-#ifdef EMSCRIPTEN_UNIT_TESTBED
-    // if we still get extreme values, lets log it
-    if (g_predictionTime < -10.0f || g_predictionTime > 60.0f) {
-        AppDebugOut("g_predictionTime still extreme (%.6f)", g_predictionTime);
-        AppDebugOut("g_lastServerAdvance=%.6f, realTime=%.6f, g_startTime=%.6f\n", 
-                   g_lastServerAdvance, realTime, g_startTime);
-    }
-#endif
-
-#ifdef EMSCRIPTEN_UNIT_TESTBED
-    static float s_lastLogTime = 0.0f;
-    if (GetHighResTime() > s_lastLogTime + 2.0f) 
-    {
-        AppDebugOut("g_predictionTime=%.6f, g_lastServerAdvance=%.6f, realTime=%.6f\n", 
-                   g_predictionTime, g_lastServerAdvance, realTime);
-        s_lastLogTime = GetHighResTime();
-    }
-#endif
 }
 
 
@@ -436,7 +407,11 @@ bool ProcessServerLetters( Directory *letter )
         int teamId   = letter->GetDataInt(NET_DEFCON_TEAMID);
         int teamType = letter->GetDataInt(NET_DEFCON_TEAMTYPE);
 #if RECORDING_PARSING
-        // override teamId if we are in replay mode, this way we can manipulate it to see other teams radar perspective
+
+        //
+        // override teamId if we are in replay mode, this way we can manipulate 
+        // it to see other teams radar perspective
+        
         if( g_app->GetServer() && g_app->GetServer()->m_recordingPlaybackMode )
         {
             if( g_desiredPerspectiveTeamId != -1 )
@@ -792,11 +767,6 @@ void HandleGameStart();
 #ifdef TARGET_EMSCRIPTEN
 void EmscriptenMainLoop()
 {
-#ifdef TARGET_EMSCRIPTEN
-    if (!DomainProtection::ContinuousValidation()) {
-        return;
-    }
-#endif
     
     //
     // Poll input events first to minimize latency
@@ -968,12 +938,7 @@ void EmscriptenMainLoop()
                     }
 
                     g_lastServerAdvance = (float)seqId * SERVER_ADVANCE_PERIOD.DoubleValue() + g_startTime;
-                    g_lastProcessedSequenceId = seqId;
-
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-                    AppDebugOut("WebAssembly: Updated g_lastServerAdvance to %.6f (seqId=%d, g_startTime=%.6f)\n", 
-                               g_lastServerAdvance, seqId, g_startTime);
-#endif       
+                    g_lastProcessedSequenceId = seqId;     
 
                     delete letter;            
                            
@@ -1082,22 +1047,8 @@ void HandleGameStart()
 
 void DefconMain()
 {
-#ifdef TARGET_EMSCRIPTEN
-    if (!DomainProtection::IsAuthorizedDomain()) {
-        DomainProtection::DestroyUnauthorizedGame();
-        return;
-    }
-#endif
-
     g_app = new App();
     g_app->MinimalInit();
-
-#ifdef TARGET_EMSCRIPTEN
-    if (!DomainProtection::ValidateDomainObfuscated()) {
-        DomainProtection::DestroyUnauthorizedGame();
-        return;
-    }
-#endif
 
 	g_app->FinishInit();
 

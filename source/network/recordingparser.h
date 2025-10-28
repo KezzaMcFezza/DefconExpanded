@@ -2,7 +2,6 @@
 #include <string>
 #include <fstream> 
 
-// added the preprocessor for visual studio, this means we can have the parsing files included in the configuration but will only get used if we define RECORDING_PARSING
 #if RECORDING_PARSING
 
 class Directory;

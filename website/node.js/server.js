@@ -135,7 +135,6 @@ const smurfCheckerRoutes = require('./apis/smurfchecker/smurf-checker');
 const replayViewerExtensionRoutes = require('./apis/replay-viewer/replay-viewer-extension');
 const replayViewerRoutes = require('./apis/replay-viewer/replay-viewer');
 const syncPracticeRoutes = require('./apis/sync-practice/sync-practice');
-const domainValidationRoutes = require('./apis/security/domain-validation');
 
 // global error handler, created properly for the first time
 const errorHandler = (err, req, res, next) => {
@@ -327,7 +326,6 @@ app.use(smurfCheckerRoutes);
 app.use(replayViewerExtensionRoutes);
 app.use(replayViewerRoutes);
 app.use(syncPracticeRoutes);
-app.use(domainValidationRoutes);
 
 // added this here for when i need to verify my ssl certificate from zerossl 
 // as no-ip.com does not allow cname validation for some reason?

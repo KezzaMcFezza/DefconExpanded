@@ -40,7 +40,6 @@ public:
 
     virtual void        OpenWebsite			( const char *_url ) = 0;
 
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     int         		WindowW				() { return GetLogicalWidth(); }
     int         		WindowH				() { return GetLogicalHeight(); }
     
@@ -49,10 +48,6 @@ public:
     
     int         		GetLogicalWidth		();                      // Logical window dimensions (what the game thinks the resolution is)
     int         		GetLogicalHeight	();					     // ^^^^^^^^^^^^^^
-#else
-    int         		WindowW				() { return m_screenW; }
-    int         		WindowH				() { return m_screenH; } 
-#endif
 
     bool        		Windowed            ();
 	bool        		Captured            ();

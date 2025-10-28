@@ -51,9 +51,8 @@ public:                 // STARTUP OPTIONS
     bool        m_debugPrintClientLetters;
     bool        m_renderingEnabled;
 
-    char        m_replayFilename[512];              // Command line replay file support, uses -l to match dedcons command line arguments
+    char        m_replayFilename[512];
     
-    // Global debug menu and FPS counter
     bool        m_showFps;
     bool        m_showDebugMenu;
     bool        m_showSoundOverlay;
@@ -71,9 +70,6 @@ private:
     ClientToServer      *m_clientToServer;          // Clients connection to Server
     StatusIcon			*m_statusIcon;
     Tutorial            *m_tutorial;
-#if RECORDING_PARSING
-
-#endif
     NetLib              *m_netLib;
     RendererDebugMenu   *m_debugMenu;
     SoundDebugOverlay   *m_soundOverlay;
@@ -124,9 +120,6 @@ public:
     Game            *GetGame();
     StatusIcon      *GetStatusIcon();
     Tutorial        *GetTutorial();
-#if RECORDING_PARSING
-
-#endif
 	
 	static const char *GetAuthKeyPath();
     static const char *GetPrefsPath();

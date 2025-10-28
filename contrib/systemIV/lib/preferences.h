@@ -15,8 +15,8 @@
 #define PREFS_SCREEN_WINDOWED		"ScreenWindowed"
 #define PREFS_SCREEN_BORDERLESS		"ScreenBorderless"
 #define PREFS_SCREEN_ANTIALIAS		"ScreenAntiAliasing"
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
 #define PREFS_SCREEN_UI_SCALE		"ScreenUIScale"
+#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
 #define PREFS_SCREEN_FPS_LIMIT		"ScreenFpsLimit"
 #endif
 

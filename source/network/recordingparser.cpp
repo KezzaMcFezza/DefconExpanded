@@ -14,7 +14,6 @@
 #include <memory>
 #include <fstream>
 
-// added the preprocessor for visual studio, this means we can have the parsing files included in the configuration but will only get used if we define RECORDING_PARSING
 #if RECORDING_PARSING
 
 inline void reverseCopy( char *_dest, const char *_src, size_t count )
@@ -24,7 +23,9 @@ inline void reverseCopy( char *_dest, const char *_src, size_t count )
 		*(_dest++) = *(--_src);
 } 
 
+//
 // Used for ints, floats and doubles, taking into account endianness
+
 template <class T>
 std::istream &readNetworkValue( std::istream &input, T &v )
 {
@@ -49,36 +50,32 @@ RecordingParser::RecordingParser( std::istream &in, const std::string &filename,
 {
 }
 
+//
 // Constructor for direct file loading for WebAssembly
+
 RecordingParser::RecordingParser( const std::string &filename, Server *server )
     : m_filename( filename ),
       m_server( server ),
       m_ownStream( true )
 {
-    // Open file directly for WebAssembly and native builds
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-    AppDebugOut("RecordingParser: Opening file '%s'\n", filename.c_str());
-#endif
-    
+ 
     m_fileStream.open(filename.c_str(), std::ios::binary | std::ios::in);
     if (!m_fileStream.good())
     {
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
         AppDebugOut("RecordingParser: Failed to open file '%s'\n", filename.c_str());
-#endif
         m_in = nullptr;
         return;
     }
     
+    //
     // Check file size for debugging
+
     m_fileStream.seekg(0, std::ios::end);
     size_t fileSize = m_fileStream.tellg();
     m_fileStream.seekg(0, std::ios::beg);
     
     m_in = &m_fileStream;
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
     AppDebugOut("RecordingParser: Successfully opened file '%s', size: %zu bytes\n", filename.c_str(), fileSize);
-#endif
 }
 
 RecordingParser::~RecordingParser()
@@ -116,32 +113,32 @@ bool RecordingParser::ReadPacket( Directory &dir, bool &zeroMarker )
 
 bool RecordingParser::ReadHeaderPacket( Directory &matchHeader )
 {
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+#ifdef _DEBUG
     AppDebugOut("ReadHeaderPacket: Starting to read header packet\n");
 #endif
     
     bool zeroMarker = false;
     if( !ReadPacket( matchHeader, zeroMarker ) ) 
     {
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+#ifdef _DEBUG
         AppDebugOut("ReadHeaderPacket: Failed to read packet\n");
 #endif
         return false;
     }
 
-#ifdef EMSCRIPTEN_DEBUG
+#ifdef _DEBUG
     AppDebugOut("ReadHeaderPacket: Successfully read packet, name='%s'\n", matchHeader.m_name);
 #endif
 
     if( strcmp( matchHeader.m_name, "DCGR" ) != 0 )
     {
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+#ifdef _DEBUG
         AppDebugOut("ReadHeaderPacket: Invalid header name '%s', expected 'DCGR'\n", matchHeader.m_name);
 #endif
         return false;
     }
 
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+#ifdef _DEBUG
     AppDebugOut("ReadHeaderPacket: Valid DCGR header found\n");
 #endif
     return true;
@@ -155,39 +152,38 @@ void RecordingParser::AddToHistory( Directory *dir )
     g_app->GetServer()->m_recordingHistory.PutDataAtEnd( letter );
 }
 
+//
 // Function to extract game start sequence ID from DCGR header like DedCon does
+
 int RecordingParser::ExtractGameStartFromHeader()
 {
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-    AppDebugOut("Extracting game start sequence ID from DCGR header...\n");
-#endif
-    
+    //
     // Parse header using new direct file loading constructor
+
     Directory matchHeader;
     RecordingParser headerParser(m_filename, g_app->GetServer());
     if (!headerParser.ReadHeaderPacket(matchHeader))
     {
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
         AppDebugOut("Failed to read DCGR header\n");
-#endif
         return 0;
     }
 
+    //
     // Parse header metadata like DedCon does
-    int seqIDStart = 0;  // Default to 0 if not found
+
+    int seqIDStart = 0;        // Default to 0 if not found
     int seqIDEnd = 0x7fffffff;
-    
-    // Check if the header contains metadata fields
+
     if (matchHeader.HasData("ssid"))
     {
         seqIDStart = matchHeader.GetDataInt("ssid");
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+#ifdef _DEBUG
         AppDebugOut("Found 'ssid' in header: %d\n", seqIDStart);
 #endif
     }
     else
     {
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+#ifdef _DEBUG
         AppDebugOut("No 'ssid' field found in header, using default 0\n");
 #endif
     }
@@ -195,7 +191,7 @@ int RecordingParser::ExtractGameStartFromHeader()
     if (matchHeader.HasData("esid"))
     {
         seqIDEnd = matchHeader.GetDataInt("esid");
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+#ifdef _DEBUG
         AppDebugOut("Found 'esid' in header: %d\n", seqIDEnd);
 #endif
     }
@@ -203,7 +199,7 @@ int RecordingParser::ExtractGameStartFromHeader()
     if (matchHeader.HasData("cid"))
     {
         int clientID = matchHeader.GetDataInt("cid");
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+#ifdef _DEBUG
         AppDebugOut("Found 'cid' in header: %d\n", clientID);
 #endif
     }
@@ -211,7 +207,7 @@ int RecordingParser::ExtractGameStartFromHeader()
     if (matchHeader.HasData("sv"))
     {
         const char* serverVersion = matchHeader.GetDataString("sv");
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+#ifdef _DEBUG
         AppDebugOut("Found 'sv' in header: %s\n", serverVersion);
 #endif
     }
@@ -223,28 +219,17 @@ bool RecordingParser::ParseToHistory()
 {
     if (!m_in) 
     {
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut("RecordingParser::ParseToHistory: No valid input stream\n");
-#endif
         return false; 
     }
-    
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-    AppDebugOut("RecordingParser::ParseToHistory: Starting to parse recording to history\n");
-#endif
     
     Directory matchHeader;
     if( !ReadHeaderPacket( matchHeader  ) ) 
     {
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
+#ifdef _DEBUG
         AppDebugOut("RecordingParser::ParseToHistory: Failed to read header packet\n");
 #endif
         return false;
     }
-    
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-    AppDebugOut("RecordingParser::ParseToHistory: Successfully read header packet\n");
-#endif
 
     bool zeroMarker;
     bool suppressUpdate = false;
@@ -264,7 +249,9 @@ bool RecordingParser::ParseToHistory()
 
             if( expectedGameCommandCount != 0 )
             {
+                //
                 // Insert any remaining updates from previous sequence
+                
                 if( gameUpdates.get() && gameUpdates->m_subDirectories.Size() > 0 )
                 {
                     AddToHistory( gameUpdates.release() );
@@ -275,7 +262,9 @@ bool RecordingParser::ParseToHistory()
             expectedGameCommandCount = dir.GetDataInt( "ct" );
             int nextSeqId = dir.GetDataInt( "z" );
 
+            //
             // Insert empty updates to catch up
+
             for( int i = 0; i < nextSeqId - lastRecordedSeqId - 1; ++i )
             {
                 Directory *empty = new Directory;
@@ -299,22 +288,30 @@ bool RecordingParser::ParseToHistory()
                     const char *cmd = dir.GetDataString( NET_DEFCON_COMMAND );
                     if( *cmd == 'c' )
                     {
+                        //
                         // Game update: bundle it into game updates
+                        
                         gameUpdates->AddDirectory( new Directory( dir ) );
                         --expectedGameCommandCount;
                     }
                     else
                     {
+                        //
                         // Server message
+                        
                         if( dir.HasData( NET_DEFCON_CLIENTID ) )
                         {
                             maxClientId = std::max( maxClientId, dir.GetDataInt( NET_DEFCON_CLIENTID ) );
                         }
 
+                        //
                         // Server message can interrupt a sequence of updates
+                        
                         if( gameUpdates.get() ) suppressUpdate = true;
 
+                        //
                         // Management/Server command: add to history
+                        
                         AddToHistory( new Directory( dir ) );
                     }
                 }
@@ -332,23 +329,19 @@ bool RecordingParser::ParseToHistory()
     g_app->GetServer()->m_replayingRecording = true;
     g_app->GetServer()->m_lastRecordedSeqId = lastRecordedSeqId;
     
+    //
     // Set up recording playback state
+    
     g_app->GetServer()->m_recordingPlaybackMode = true;
     g_app->GetServer()->m_recordingCurrentSeqId = 0;
     g_app->GetServer()->m_recordingStartSeqId = 0;
     g_app->GetServer()->m_recordingEndSeqId = lastRecordedSeqId;
     g_app->GetServer()->m_recordingLastAdvanceTime = GetHighResTime();
 
+    //
     // Find and report the game start sequence ID
+    
     int gameStartSeqId = ExtractGameStartFromHeader();
-
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-    AppDebugOut("=== RECORDING ANALYSIS ===\n");
-    AppDebugOut("Recording loaded: %s\n", m_filename.c_str());
-    AppDebugOut("Total sequence IDs: %d (0 to %d)\n", lastRecordedSeqId + 1, lastRecordedSeqId);
-    AppDebugOut("Game starts at sequence ID: %d\n", gameStartSeqId);
-    AppDebugOut("=========================\n");
-#endif
 
     return true;
 }

@@ -115,10 +115,19 @@ int ClientToServer::GetLocalPort()
     if( !m_listener ) return -1;
 
 #ifdef TARGET_EMSCRIPTEN
+
+    //
     // Return fake local port since we don't actually bind
+
     return g_preferences->GetInt( PREFS_NETWORKCLIENTPORT );
+
 #else
+
+    //
+    // Return the actual local port
+
     return m_listener->GetPort();
+
 #endif
 }
 
@@ -142,6 +151,7 @@ void ClientToServer::OpenConnections()
     int port = g_preferences->GetInt( PREFS_NETWORKCLIENTPORT );
     m_listener = new NetSocketListener( port );
 
+    //
     // Don't call Bind() as it will fail in WebAssembly
     
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
@@ -539,6 +549,7 @@ Directory *ClientToServer::GetNextLetter()
 void ClientToServer::RouteServerMessageToClient( Directory *serverMessage )
 {
 
+    //
     // Server advance messages need to reach the client
     // so that g_lastServerAdvance gets updated properly
     
@@ -560,7 +571,7 @@ void ClientToServer::RouteServerMessageToClient( Directory *serverMessage )
         int seqId = serverMessage->GetDataInt(NET_DEFCON_SEQID);
         if( seqId >= 0 )
         {
-            AppDebugOut("Successfully routed server message (seqId=%d) to client - g_lastServerAdvance should update!\n", seqId);
+            AppDebugOut("Successfully routed server message (seqId=%d) to client\n", seqId);
         }
     }
 #endif
@@ -882,7 +893,7 @@ bool ClientToServer::ClientJoin( char *ip, int _serverPort )
     // following the exact same message sequence as real DEFCON
     
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("CLIENT: Faking local client-server connection\n");
+    AppDebugOut("CLIENT: bridging local client-server connection\n");
 #endif
     
     m_serverIp = newStr(ip);
@@ -908,7 +919,7 @@ bool ClientToServer::ClientJoin( char *ip, int _serverPort )
     m_inboxMutex->Unlock();
     
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("CLIENT: Queued fake NET_DEFCON_CLIENTID message\n");
+    AppDebugOut("CLIENT: Queued bridged NET_DEFCON_CLIENTID message\n");
 #endif
     
     //
@@ -925,9 +936,9 @@ bool ClientToServer::ClientJoin( char *ip, int _serverPort )
     m_inboxMutex->Unlock();
     
 #ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("CLIENT: Queued fake NET_DEFCON_CLIENTHELLO message\n");
+    AppDebugOut("CLIENT: Queued bridged NET_DEFCON_CLIENTHELLO message\n");
     
-    AppDebugOut("CLIENT: Local connection established - messages queued for processing\n");
+    AppDebugOut("CLIENT: Local connection established!\n");
 #endif
     
     return true;

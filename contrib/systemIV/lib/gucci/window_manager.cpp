@@ -103,8 +103,6 @@ SecondaryEventHandler WindowManager::GetSecondaryMessageHandler()
     return m_secondaryMessageHandler;
 }
 
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
-
 //
 // New functions that set our logical resolution based on what the user has set in preferences.
 // This is used to set the logical internal resolution of the game to trick DEFCON into rendering
@@ -138,8 +136,6 @@ int WindowManager::GetLogicalHeight()
 {
     return (int)(m_screenH * ScaleFactor());
 }
-
-#endif
 
 class DeleteWindowManagerOnExit {
 	public:

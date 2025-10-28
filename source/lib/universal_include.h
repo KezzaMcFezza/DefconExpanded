@@ -294,6 +294,11 @@
 #include <glad/glad.h>
 #include <glad/wgl_ext.h>
 #include <hwy/highway.h>
+#elif defined(TARGET_EMSCRIPTEN)
+#include <emscripten.h>
+#include <glad/glad.h>
+#include <hwy/highway.h>
+#include <SDL2/SDL.h>
 #else
 #include <glad/glad.h>
 #include <hwy/highway.h>

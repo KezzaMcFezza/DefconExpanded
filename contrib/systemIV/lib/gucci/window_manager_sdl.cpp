@@ -9,22 +9,14 @@
 
 
 #include <limits.h>
-
-
 #include <string.h>
-
-
 #include <stdlib.h>
 #include <fenv.h>
 #include <algorithm>
-
-
-
 #include "lib/debug_utils.h"
 #include "lib/preferences.h"
 #include "window_manager_sdl.h"
 #include "input.h"
-
 #include "app/app.h"
 #include "app/globals.h"
 
@@ -382,17 +374,21 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, _zDepth );
     
 #if defined(TARGET_EMSCRIPTEN)
-    // Request WebGL 2.0 context for modern OpenGL ES 3.0 features
+
+    //
+    // Request OpenGL ES 3.0 context 
+
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES );
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 0 );
     SDL_GL_SetAttribute( SDL_GL_ACCELERATED_VISUAL, 1 );
+
 #elif defined(TARGET_OS_MACOSX)
 
     //
-    // macOS only supports 3.2 Core Profile on older hardware
+    // MacOS only supports 3.2 Core Profile on older hardware
     // since arm64 uses metal and layers onto opengl anyway, this
-    // is a good compromise. macos in the future will likely use metal 
+    // is a good compromise. MacOS in the future will likely use Metal.
 
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE); 
     SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
@@ -414,8 +410,10 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
     {
         tryingToCreateWindow = false;
 
+        //
         // Destroy window from a previous try if, for example, the
         // GL context failed to be created.
+
         if( m_window )
         {
             SDL_DestroyWindow(m_window);
@@ -457,22 +455,6 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
             }
             
             m_glContext = SDL_GL_CreateContext( m_window );
-            
-#ifdef TARGET_EMSCRIPTEN
-            // Debug: Check what WebGL context we got
-            if( m_glContext )
-            {
-                int major, minor, profile;
-                SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major);
-                SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor);
-                SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &profile);
-                printf("WebGL Context Created: %d.%d, Profile: %d\n", major, minor, profile);
-            }
-            else
-            {
-                printf("Failed to create WebGL context: %s\n", SDL_GetError());
-            }
-#endif
         }
         
         if( !m_window || !m_glContext )
@@ -522,7 +504,7 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
         return false;
     }
     
-    #if (defined(TARGET_OS_LINUX) && !defined(TARGET_EMSCRIPTEN)) || defined(TARGET_OS_MACOSX)
+#if (defined(TARGET_OS_LINUX) && !defined(TARGET_EMSCRIPTEN)) || defined(TARGET_OS_MACOSX)
     printf("Initializing GLAD...\n");
     fflush(stdout);
     
@@ -584,12 +566,16 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
     
     CalculateHighDPIScaleFactors();
          
+    //
     // Pass back the actual values to the Renderer
+    
     _width = m_screenW;
     _height = m_screenH;
     _colourDepth = bpp;
 
+    //
     // Hide the mouse pointer again
+    
     if( !m_mousePointerVisible )
         HideMousePointer();
 
@@ -721,7 +707,6 @@ void WindowManagerSDL::UnhideMousePointer()
 
 void WindowManagerSDL::SetMousePos(int x, int y)
 {
-    
     //
     // Convert logical coordinates to physical coordinates for cursor positioning
     

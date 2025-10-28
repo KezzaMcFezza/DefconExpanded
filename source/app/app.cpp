@@ -84,10 +84,12 @@
 #ifdef TARGET_EMSCRIPTEN
 #include <sys/stat.h>
 #include <errno.h>
+
+//
 // For WASM, provide a stub mkdir implementation
+
 int mkdir(const char *pathname, mode_t mode) {
-    // In WASM, just return success - no actual directory creation needed
-    return 0;
+    return 0;     // Return success, but dont create a directory
 }
 #endif
 
@@ -124,9 +126,6 @@ App::App()
     m_mapRenderer(NULL),
     m_lobbyRenderer(NULL),
     m_earthData(NULL),
-#if RECORDING_PARSING
-
-#endif
     m_netLib(NULL),
 	m_mousePointerVisible(false),
 	m_inited(false),
@@ -148,20 +147,17 @@ App::App()
     m_debugMenu(NULL)
 #endif
 {
+    //
     // Initialize replay filename to empty
+    
     m_replayFilename[0] = '\0';
 }
 
 App::~App()
 {
-#if RECORDING_PARSING
-
-#endif
-
 #ifdef TARGET_MSVC
     timeEndPeriod(1);
 #endif
-
     delete m_clientToServer;
 	delete m_game;
 	delete m_earthData;
@@ -198,26 +194,20 @@ void App::InitMetaServer()
 #endif
 
 #ifdef TARGET_EMSCRIPTEN
+
     //
     // For WebAssembly, fake successful authentication to enable all functionality
-
-#ifdef EMSCRIPTEN_DEBUG
-    AppDebugOut("WebAssembly: Faking authentication for local mode\n");
-#endif
     
     char authKey[256];
-    // Use a fake full auth key for WebAssembly that passes validation
     strcpy(authKey, "DEMOTE-OYMPOM-XRUHAT-TVSDNH-ZSR");
     Authentication_SetKey( authKey );
 
     //
     // Fake successful authentication result  
+
     Authentication_SetStatus( authKey, 1, AuthenticationAccepted );
     
-#ifdef EMSCRIPTEN_DEBUG
-    AppDebugOut("WebAssembly: Authentication faked as FULL USER (not demo)\n");
-#endif
-    
+    //
     // Skip real metaserver connection - it will fail anyway
     
     return;
@@ -496,9 +486,6 @@ void App::FinishInit()
 
         RecordingSelectionWindow *recordingWindow = new RecordingSelectionWindow();
         EclRegisterWindow(recordingWindow);
-#ifdef EMSCRIPTEN_DEBUG
-        AppDebugOut("Opened recording selection window directly and skipped main menu)\n");
-#endif
 #else
         m_interface->OpenSetupWindows();
 #endif
@@ -506,9 +493,6 @@ void App::FinishInit()
 
     InitStatusIcon();
     NotifyStartupErrors();
-#if RECORDING_PARSING
-
-#endif
 
 	m_inited = true;
 }
@@ -771,7 +755,7 @@ void App::InitialiseWindow()
         g_preferences->Save();
     }    
 
-#if defined TARGET_MSVC && !defined WINDOWS_SDL
+#if defined(TARGET_MSVC) && !defined(WINDOWS_SDL)
 	WindowManagerWin32 *wm32 = (WindowManagerWin32*) g_windowManager;
 
 	DWORD dwStyle = GetWindowLong( wm32->m_hWnd, GWL_STYLE );
@@ -781,7 +765,7 @@ void App::InitialiseWindow()
 	HICON hIcon = LoadIcon( wm32->GethInstance(), MAKEINTRESOURCE(IDI_ICON1) );
 	//SendMessage( wm32->m_hWnd, (UINT)WM_SETICON, ICON_SMALL, (LPARAM)hIcon );
 	SendMessage( wm32->m_hWnd, (UINT)WM_SETICON, ICON_BIG, (LPARAM)hIcon );
-#endif // TARGET_MSVC && !WINDOWS_SDL
+#endif
 
     g_windowManager->HideMousePointer();
 	SetMousePointerVisible(true);
@@ -848,15 +832,7 @@ void App::OnWindowResized(int newWidth, int newHeight, int oldWidth, int oldHeig
 
 
 void App::Update()
-{
-#ifdef TARGET_EMSCRIPTEN
-    static int updateCount = 0;
-    updateCount++;
-    if (updateCount % 120 == 0) {
-        //AppDebugOut("WebGL: Update() called %d times\n", updateCount);
-    }
-#endif    
-
+{  
     //
     // global debug menu key handling
 
@@ -908,13 +884,6 @@ void App::Update()
 
 void App::Render()
 {
-#ifdef TARGET_EMSCRIPTEN
-    static int renderCount = 0;
-    renderCount++;
-    if (renderCount % 120 == 0) {
-        //AppDebugOut("WebGL: Render() called %d times\n", renderCount);
-    }
-#endif
     START_PROFILE("Render");
 
     //
@@ -966,6 +935,7 @@ void App::Render()
 
     //
     // eclipse buttons and windows, but first check if UI should be hidden
+
 #if RECORDING_PARSING
     extern bool g_hideUI;
     if( !g_hideUI )
@@ -976,7 +946,6 @@ void App::Render()
     GetInterface()->Render();
 #endif
     START_PROFILE( "Eclipse GUI" );
-    //g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     
 #if RECORDING_PARSING
     extern bool g_hideUI;
@@ -1083,7 +1052,9 @@ void App::Render()
     
     if( fpsLimit == 69 )
     {
+        //
         // Use refresh rate from screen preferences, please dont flame me for this method 
+
         fpsLimit = g_preferences->GetInt(PREFS_SCREEN_REFRESH, 60);
     }
     
@@ -1092,7 +1063,10 @@ void App::Render()
         double targetFrameTime = 1.0 / (double)fpsLimit;
         
         #ifdef TARGET_MSVC
+
+            //
             // High resolution timer for better Sleep() precision
+            
             static bool s_timerResolutionSet = false;
             if( !s_timerResolutionSet )
             {
@@ -1101,7 +1075,9 @@ void App::Render()
             }
         #endif
         
+        //
         // Wait until target frame time has passed
+
         double currentTime = GetHighResTime();
         double timeSinceLastFlip = currentTime - s_lastFlipTime;
         
@@ -1110,21 +1086,29 @@ void App::Render()
             double timeToWait = targetFrameTime - timeSinceLastFlip;
             
             #ifdef TARGET_MSVC
+
+                //
                 // Use Sleep() for most of the wait, then busy-wait for precision
+                
                 if( timeToWait > 0.002 ) 
                 {
                     double sleepTime = timeToWait - 0.001; // Leave 1ms for busy-wait
                     Sleep( (DWORD)(sleepTime * 1000.0) );
                 }
                 
+                //
                 // Busy wait for the remaining time 
+
                 double endTime = s_lastFlipTime + targetFrameTime;
                 while( GetHighResTime() < endTime )
                 {
-                    // Hey guys its scarce here
+                    // Do nothing
                 }
             #else
+            
+                //
                 // On Unix we use nanosleep
+                
                 if( timeToWait > 0.0001 )
                 {
                     struct timespec ts;
