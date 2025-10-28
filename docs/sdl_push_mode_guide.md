@@ -34,8 +34,6 @@ All preferences live in `localisation/data/prefs_default.txt` and can be overrid
 - `SoundTargetLatencyMs` (default: `80`)
   - Target audible latency for scheduling new onsets. Used to compute the earliest start time relative to the current playback cursor. This does not force the device queue size; see device low/high below.
 
-- `SoundQueueLowWaterMs` / `SoundQueueHighWaterMs` (defaults: `60` / `100`)
-  - Legacy device-queue bounds. Kept for compatibility. If `SoundDeviceQueueLowMs/HighMs` are set, those take precedence for push mode.
 
 - `SoundDeviceQueueLowMs` / `SoundDeviceQueueHighMs` (defaults: `20` / `35`)
   - Device queue refill bounds used in push mode. Keep these small to get fast audible reaction. The feeder tops up to High when the queue drops below Low.
@@ -131,4 +129,3 @@ In the Preferences section:
 ## Summary
 
 Use push mode with small periods for crisp ADSR and parameter changes. Keep the device queue short for fast audible reaction and push extra safety into the software ring horizon. Enable timed scheduling and audio‑clocked ADSR so onsets and envelopes align with the audio timeline.
-

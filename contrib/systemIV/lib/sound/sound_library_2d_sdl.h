@@ -45,8 +45,6 @@ private:
     unsigned         m_periodFrames = 0;   // device period in frames
     unsigned         m_bytesPerFrame = 0;  // channels * bytes/sample
     unsigned         m_targetLatencyMs = 0;
-    unsigned         m_lowWaterMs = 0;
-    unsigned         m_highWaterMs = 0;
     int              m_usePushMode = 0;
     // Ring buffer fields (push mode)
     std::vector<StereoSample> m_ring;
@@ -169,8 +167,8 @@ public:
     // Ring/device accessors for debug/logic
     inline uint64_t GetRingFillFrames() const { return (m_fillIndex > m_copyIndex) ? (m_fillIndex - m_copyIndex) : 0; }
     inline unsigned GetRingMs() const { return m_ringMs; }
-    inline unsigned GetDeviceQueueLowMs() const { return m_deviceQueueLowMs ? m_deviceQueueLowMs : m_lowWaterMs; }
-    inline unsigned GetDeviceQueueHighMs() const { return m_deviceQueueHighMs ? m_deviceQueueHighMs : m_highWaterMs; }
+    inline unsigned GetDeviceQueueLowMs() const { return m_deviceQueueLowMs; }
+    inline unsigned GetDeviceQueueHighMs() const { return m_deviceQueueHighMs; }
 
 };
 

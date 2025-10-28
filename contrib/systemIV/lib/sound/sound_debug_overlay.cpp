@@ -274,8 +274,8 @@ void SoundDebugOverlay::Render()
 
         // Device queue bounds and ring horizon
         snprintf(buffer, sizeof(buffer), "Device low/high     : %d / %d ms",
-                 g_preferences->GetInt("SoundDeviceQueueLowMs", g_preferences->GetInt("SoundQueueLowWaterMs", 20)),
-                 g_preferences->GetInt("SoundDeviceQueueHighMs", g_preferences->GetInt("SoundQueueHighWaterMs", 35)));
+                 g_preferences->GetInt("SoundDeviceQueueLowMs", 20),
+                 g_preferences->GetInt("SoundDeviceQueueHighMs", 35));
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
