@@ -164,9 +164,7 @@ class SetScreenButton : public InterfaceButton
         g_preferences->SetInt( PREFS_SCREEN_BORDERLESS, borderless );
         g_preferences->SetInt( PREFS_SCREEN_COLOUR_DEPTH, parent->m_colourDepth );
         g_preferences->SetInt( PREFS_SCREEN_Z_DEPTH, parent->m_zDepth );
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
         g_preferences->SetInt( PREFS_SCREEN_UI_SCALE, parent->m_uiScale );
-#endif
         g_preferences->SetInt( PREFS_SCREEN_ANTIALIAS, parent->m_antiAlias );
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
         g_preferences->SetInt( PREFS_SCREEN_FPS_LIMIT, parent->m_fpsLimit );
@@ -203,9 +201,7 @@ class SetScreenButton : public InterfaceButton
         parent->m_colourDepth   = g_preferences->GetInt( PREFS_SCREEN_COLOUR_DEPTH, 16 );
         parent->m_refreshRate   = g_preferences->GetInt( PREFS_SCREEN_REFRESH, 60 );	
         parent->m_zDepth        = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH, 24 );
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
         parent->m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
-#endif
         parent->m_antiAlias     = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
         parent->m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
@@ -246,9 +242,7 @@ ScreenOptionsWindow::ScreenOptionsWindow()
     m_refreshRate   = g_preferences->GetInt( PREFS_SCREEN_REFRESH, 60 );
 	height += 30;
     m_zDepth        = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH, 24 );
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
-#endif
 	m_antiAlias		= g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
@@ -318,7 +312,6 @@ void ScreenOptionsWindow::Create()
     zDepth->RegisterInt( &m_zDepth );
     RegisterButton( zDepth );
 
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     DropDownMenu *uiScale = new DropDownMenu();
     uiScale->SetProperties( "UI Scale", x, y+=h, w, 20, "dialog_windowscaling", " ", true, false );
     uiScale->AddOption( "25%", 25, false );
@@ -332,7 +325,6 @@ void ScreenOptionsWindow::Create()
     uiScale->AddOption( "200%", 200, false );
     uiScale->RegisterInt( &m_uiScale );
     RegisterButton( uiScale );
-#endif
 
     DropDownMenu *antiAlias = new DropDownMenu();
     antiAlias->SetProperties( LANGUAGEPHRASE("dialog_antialias"), x, y+=h, w, 20 );
@@ -382,9 +374,7 @@ void ScreenOptionsWindow::Render( bool _hasFocus )
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_refreshrate") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_colourdepth") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_zbufferdepth") );
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_windowscaling") );
-#endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_antialias") );
 #if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_fpslimit") );

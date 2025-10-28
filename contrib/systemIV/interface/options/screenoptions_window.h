@@ -14,8 +14,8 @@ public:
     int     m_refreshRate;
     int     m_zDepth;
     int		m_antiAlias;
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     int     m_uiScale;
+#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     int     m_fpsLimit;
 #endif
 	
