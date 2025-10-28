@@ -48,7 +48,7 @@ public:
     int         		PhysicalWindowH		() { return m_screenH; }
     
     int         		GetLogicalWidth		();                      // Logical window dimensions (what the game thinks the resolution is)
-    int         		GetLogicalHeight	();    
+    int         		GetLogicalHeight	();					     // ^^^^^^^^^^^^^^
 #else
     int         		WindowW				() { return m_screenW; }
     int         		WindowH				() { return m_screenH; } 

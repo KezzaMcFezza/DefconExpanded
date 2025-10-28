@@ -25,7 +25,7 @@
 #include "window_manager_sdl.h"
 #include "input.h"
 
-#include "app.h"
+#include "app/app.h"
 #include "app/globals.h"
 
 #ifdef TARGET_OS_LINUX
@@ -424,9 +424,13 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
         
         m_glContext = 0;
 
+        
+        //
+        // use SDL_WINDOWPOS_CENTERED to center the window instead of top-left positioning
+        
         m_window = SDL_CreateWindow( _title,
-                                     displayBounds.x,
-                                     displayBounds.y,
+                                     SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),
+                                     SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),
                                      m_screenW,
                                      m_screenH,
                                      flags );
@@ -717,9 +721,18 @@ void WindowManagerSDL::UnhideMousePointer()
 
 void WindowManagerSDL::SetMousePos(int x, int y)
 {
-    // Not implemented.
+    
+    //
+    // Convert logical coordinates to physical coordinates for cursor positioning
+    
+    float scaleX = (float)PhysicalWindowW() / (float)WindowW();
+    float scaleY = (float)PhysicalWindowH() / (float)WindowH();
+    
+    int physicalX = (int)(x * scaleX);
+    int physicalY = (int)(y * scaleY);
+    
+    SDL_WarpMouseInWindow(m_window, physicalX, physicalY);
 }
-
 
 void WindowManagerSDL::OpenWebsite( const char *_url )
 {	

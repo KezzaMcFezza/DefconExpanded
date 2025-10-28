@@ -337,9 +337,18 @@ int InputManagerSDL::EventHandler(unsigned int message, long long wParam, int lP
 					        sdlEvent->motion.x, sdlEvent->motion.y,
 					        sdlEvent->motion.xrel, sdlEvent->motion.yrel);
 #endif // VERBOSE_DEBUG
-				m_mouseX = sdlEvent->motion.x;
-				m_mouseY = sdlEvent->motion.y;
-			}
+
+		        //
+		        // Convert physical coordinates to logical coordinates
+		        // Physical mouse coordinates need to be scaled to match logical resolution
+
+		        float scaleX = (float)g_windowManager->WindowW() / (float)g_windowManager->PhysicalWindowW();
+		        float scaleY = (float)g_windowManager->WindowH() / (float)g_windowManager->PhysicalWindowH();
+		
+		        m_mouseX = (int)(sdlEvent->motion.x * scaleX);
+		        m_mouseY = (int)(sdlEvent->motion.y * scaleY);
+
+		    }
 			
 			EclUpdateMouse( m_mouseX, m_mouseY, m_lmb, m_rmb );
 			break;
