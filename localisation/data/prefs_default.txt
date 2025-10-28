@@ -18,7 +18,7 @@ SoundDSP = 0
 
 # Mix-bus safety and limiter (shared/SDL)
 # Fixed headroom in dB applied before mixing (both backends)
-SoundHeadroomDb = 12
+SoundHeadroomDb = 12.00
 # SDL mix-bus limiter settings
 SoundLimiterThreshold = 28000
 SoundLimiterAttack = 1.0
