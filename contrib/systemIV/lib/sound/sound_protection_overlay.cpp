@@ -47,11 +47,11 @@ void SoundProtectionOverlay::Render()
     Colour textColour(255, 255, 255, 255);
     Colour warnColour(255, 80, 80, 255);
 
-    // Shared headroom
+    // Shared headroom (pref value)
     g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "Headroom");
     y += line;
-    float headroomDb = g_preferences ? g_preferences->GetFloat("SoundHeadroomDb", 12.0f) : 12.0f;
-    snprintf(buffer, sizeof(buffer), "SoundHeadroomDb     : %.1f dB", headroomDb);
+    float prefHeadroomDb = g_preferences ? g_preferences->GetFloat("SoundHeadroomDb", 12.0f) : 12.0f;
+    snprintf(buffer, sizeof(buffer), "SoundHeadroomDb     : %.1f dB", prefHeadroomDb);
     g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
     y += line;
 
@@ -72,6 +72,15 @@ void SoundProtectionOverlay::Render()
             bool limiting = busGain < 0.999f;
 
             snprintf(buffer, sizeof(buffer), "Limiter threshold   : %.0f (PCM)", thr);
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
+
+            // Show threshold adjusted for headroom (pre-headroom equivalent threshold)
+            float swHeadroomDb = sw->GetHeadroomDb();
+            float headroomGain = powf(10.0f, -swHeadroomDb / 20.0f);
+            float preHeadThr = (headroomGain > 0.0f) ? (thr / headroomGain) : thr;
+            float marginToFS = 32767.0f - thr;
+            snprintf(buffer, sizeof(buffer), "Thr pre-headroom    : %.0f (PCM)  margin to FS: %.0f",
+                     preHeadThr, marginToFS);
             g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
 
             float atk = g_preferences ? g_preferences->GetFloat("SoundLimiterAttack", 1.0f) : 1.0f;
@@ -129,6 +138,20 @@ void SoundProtectionOverlay::Render()
             snprintf(buffer, sizeof(buffer), "Attack / release    : %.2f / %.2f",
                      ds->GetDynAttack(), ds->GetDynRelease());
             g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
+
+            // Show number of loud channels vs non-music total
+            int total = g_soundLibrary3d->GetNumChannels();
+            int music = g_soundLibrary3d->GetNumMusicChannels();
+            int nonMusic = std::max(0, total - music);
+            int loud = 0;
+            float loudThresh = ds->GetDynLoudVolThresh();
+            for (int i = 0; i < nonMusic; ++i)
+            {
+                float vol = g_soundLibrary3d->GetChannelVolume(i);
+                if (vol >= loudThresh) ++loud;
+            }
+            snprintf(buffer, sizeof(buffer), "Loud channels       : %d / %d (>= %.1f)", loud, nonMusic, loudThresh);
+            g_renderer->TextSimple(baseX, y, (loud > ds->GetDynStartCount()) ? warnColour : textColour, 11.0f, buffer); y += line;
         }
 #endif
     }
