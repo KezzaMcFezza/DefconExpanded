@@ -91,3 +91,33 @@ Common goals and the most relevant knobs:
 - Does changing SoundLimiterThreshold change overall loudness?
   - No under normal conditions. It only affects behavior when peaks cross the threshold. For consistent everyday level, use SoundHeadroomDb.
 
+## Debug Overlays (F3, F4)
+
+- F3: Sound Debug Overlay
+  - Existing runtime stats (callbacks, buffering, etc.). Useful for timing/throughput checks.
+
+- F4: Sound Safety Overlay
+  - Shows the safety knobs and whether protection is currently engaged. Only displays the values relevant to the active backend.
+  - Shared
+    - SoundHeadroomDb (dB): main safety margin.
+  - SDL (software mixer active)
+    - Limiter threshold (PCM), pre‑headroom equivalent threshold, and margin to full‑scale.
+    - Limiter attack/release (smoothing).
+    - Peak (pre‑limit) vs threshold.
+    - Limiter bus gain (runtime):
+      - Red when limiting is active (bus gain < 1.0), accompanied by “LIMITER ACTIVE”.
+      - Peak line turns red when the measured pre‑limit peak exceeds threshold (headroom alone was insufficient).
+  - DirectSound (DS backend active)
+    - Fixed headroom (dB).
+    - Dynamic attenuation (current dB):
+      - Red when any attenuation is applied (> 0 dB), accompanied by “ATTENUATION ACTIVE”.
+    - Start@loud count and loud volume threshold (what counts as “loud”).
+    - Per‑extra/max dB (strength/cap).
+    - Attack/release (smoothing).
+    - Loud channels vs non‑music channels:
+      - Red when the number of loud channels exceeds the start count (dynamic attenuation likely to engage).
+
+Interpreting red indicators
+- SDL: Red peak or bus‑gain lines mean the limiter had to engage — consider increasing SoundHeadroomDb or lowering SoundLimiterThreshold if this happens frequently.
+- DS: Red dynamic‑attenuation or loud‑channel lines mean global ducking is in effect or imminent — consider increasing SoundHeadroomDb, reducing SoundDSDynStartCount, or adjusting SoundDSDynDbPerExtra/MaxDb.
+
