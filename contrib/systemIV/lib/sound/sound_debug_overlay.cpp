@@ -238,11 +238,18 @@ void SoundDebugOverlay::Render()
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
-        snprintf(buffer, sizeof(buffer), "Mix freq / buffer   : %d Hz / %d samples",
-                 g_preferences->GetInt("SoundMixFreq", 44100),
-                 g_preferences->GetInt("SoundBufferSize", 512));
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        // Clarify callback-vs-push parameters in the Preferences view
+        const int usePush = g_preferences->GetInt("SoundUsePushMode", 1);
+
+        // In push mode, period frames are the relevant granularity; hide callback buffer size
+        if (!usePush)
+        {
+            snprintf(buffer, sizeof(buffer), "Mix freq / buffer   : %d Hz / %d samples (callback mode)",
+                     g_preferences->GetInt("SoundMixFreq", 44100),
+                     g_preferences->GetInt("SoundBufferSize", 512));
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+            y += line;
+        }
 
         snprintf(buffer, sizeof(buffer), "Channels (total/music): %d / %d",
                  g_preferences->GetInt("SoundChannels", 32),
@@ -260,35 +267,55 @@ void SoundDebugOverlay::Render()
         y += line;
 
         // New push/queue and scheduling prefs
-        snprintf(buffer, sizeof(buffer), "Use push mode       : %s", g_preferences->GetInt("SoundUsePushMode", 1) ? "yes" : "no");
+        snprintf(buffer, sizeof(buffer), "Use push mode       : %s", usePush ? "yes" : "no");
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
-        snprintf(buffer, sizeof(buffer), "Period frames       : %d", g_preferences->GetInt("SoundPeriodFrames", 128));
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        // For push-only prefs, de-emphasize when push mode is off
+        Colour pushPrefColour = usePush ? textColour : Colour(160,160,160,220);
+
+        snprintf(buffer, sizeof(buffer), usePush ?
+                 "Period frames       : %d" :
+                 "Period frames       : %d (push-mode only)",
+                 g_preferences->GetInt("SoundPeriodFrames", 128));
+        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
         y += line;
 
-        snprintf(buffer, sizeof(buffer), "Target latency      : %d ms", g_preferences->GetInt("SoundTargetLatencyMs", 80));
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        snprintf(buffer, sizeof(buffer), usePush ?
+                 "Target latency      : %d ms" :
+                 "Target latency      : %d ms (push-mode only)",
+                 g_preferences->GetInt("SoundTargetLatencyMs", 80));
+        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
         y += line;
 
         // Device queue bounds and ring horizon
-        snprintf(buffer, sizeof(buffer), "Device low/high     : %d / %d ms",
+        snprintf(buffer, sizeof(buffer), usePush ?
+                 "Device low/high     : %d / %d ms" :
+                 "Device low/high     : %d / %d ms (push-mode only)",
                  g_preferences->GetInt("SoundDeviceQueueLowMs", 20),
                  g_preferences->GetInt("SoundDeviceQueueHighMs", 35));
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
         y += line;
 
-        snprintf(buffer, sizeof(buffer), "Ring horizon        : %d ms", g_preferences->GetInt("SoundRingMs", 160));
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        snprintf(buffer, sizeof(buffer), usePush ?
+                 "Ring horizon        : %d ms" :
+                 "Ring horizon        : %d ms (push-mode only)",
+                 g_preferences->GetInt("SoundRingMs", 160));
+        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
         y += line;
 
-        snprintf(buffer, sizeof(buffer), "Timed scheduling    : %s", g_preferences->GetInt("SoundTimedScheduling", 1) ? "yes" : "no");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        snprintf(buffer, sizeof(buffer), usePush ?
+                 "Timed scheduling    : %s" :
+                 "Timed scheduling    : %s (push-mode only)",
+                 g_preferences->GetInt("SoundTimedScheduling", 1) ? "yes" : "no");
+        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
         y += line;
 
-        snprintf(buffer, sizeof(buffer), "Audio-clocked ADSR  : %s", g_preferences->GetInt("SoundAudioClockedADSR", 1) ? "on" : "off");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        snprintf(buffer, sizeof(buffer), usePush ?
+                 "Audio-clocked ADSR  : %s" :
+                 "Audio-clocked ADSR  : %s (push-mode only)",
+                 g_preferences->GetInt("SoundAudioClockedADSR", 1) ? "on" : "off");
+        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
         y += line;
     }
     else
