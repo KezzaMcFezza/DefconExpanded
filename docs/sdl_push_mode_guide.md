@@ -21,6 +21,18 @@ Key ideas in push mode:
 - Timestamped scheduling places new sound starts at exact future sample indices on the “audio timeline” (playback cursor), avoiding missed short bleeps even with a deep safety horizon.
 - Optional audio‑clocked ADSR drives the envelope from the audio playhead (not wall clock), so envelopes are aligned to what you actually hear.
 
+## Audio Quality vs Latency (Ring Optional)
+
+- Audio quality (crisp ADSR and precise onsets) depends on a small render period and timeline alignment, not on having a deep software ring.
+- With no ring or a very shallow one, quality is identical across CPUs. The only difference is latency, which is set by the device queue depth (low/high water marks).
+- Keep `SoundPeriodFrames` small (64–128) and enable `SoundTimedScheduling = 1` and `SoundAudioClockedADSR = 1`. This preserves envelope crispness and onset precision regardless of ring depth.
+- A deeper ring provides extra safety headroom without increasing the device queue, but any audio mixed far ahead cannot be altered later. If you want late ADSR/starts to affect pending audio, keep the ring shallow (or effectively off) and use the device queue for headroom.
+
+Why quality stays the same without a deep ring:
+- Same mixing/resampling pipeline and bit depth; fidelity doesn’t change.
+- Small `SoundPeriodFrames` gives fine change granularity.
+- Timed scheduling and audio‑clocked ADSR align starts and envelopes to the playback clock.
+
 ## Parameters and Defaults
 
 All preferences live in `localisation/data/prefs_default.txt` and can be overridden in user prefs.
@@ -59,6 +71,10 @@ Related (for callback mode):
 - In the background, the ring is topped up to `SoundRingMs` ahead of the device copy index.
 - New sounds are scheduled to start at the earliest future sample time that isn’t already in the device queue (timeline scheduling), optionally anchoring ADSR to that start.
 
+Notes on the ring vs device queue:
+- The device queue determines audible latency. Larger Low/High values increase latency but improve underrun resilience.
+- The ring horizon (`SoundRingMs`) determines how far ahead audio is pre‑mixed. Larger horizons increase safety but create a region of future audio that won’t reflect late changes.
+
 ## What “Crisp” Means
 
 - Fast ADSR: Envelopes change shape within small slices; with audio‑clocked ADSR on, the envelope aligns to playback time.
@@ -66,33 +82,42 @@ Related (for callback mode):
 
 ## Recommended Settings
 
-### A) Low Latency, Crisp Sound (fast reaction)
+### CPU‑Class Presets (current implementation)
 
-- `SoundUsePushMode = 1`
-- `SoundPeriodFrames = 64` or `128`
+All presets keep quality features on: `SoundUsePushMode = 1`, `SoundTimedScheduling = 1`, `SoundAudioClockedADSR = 1`. They differ only in latency (device queue) and safety horizon (ring).
+
+Preset A — Fast CPU, Low Latency
+- `SoundPeriodFrames = 64–128`
 - `SoundDeviceQueueLowMs = 10–20`
 - `SoundDeviceQueueHighMs = 20–35`
-- `SoundRingMs = 60–120`
-- `SoundTimedScheduling = 1`
-- `SoundAudioClockedADSR = 1`
+- `SoundRingMs = 20–40` (or ≈ High to keep the ring effectively minimal)
+- `SoundTargetLatencyMs = 30–50`
 
-Notes:
-- Keep the device queue small; you’ll hear changes roughly within this window.
-- Keep the ring horizon modest but sufficient for your workload; increase if you see underruns.
+Preset B — Mid‑Range CPU, Balanced
+- `SoundPeriodFrames = 128`
+- `SoundDeviceQueueLowMs = 20–30`
+- `SoundDeviceQueueHighMs = 35–60`
+- `SoundRingMs = 35–70` (≈ High or a little higher)
+- `SoundTargetLatencyMs = 60–90`
 
-### B) Higher Safety, Still Crisp Sound (deeper headroom)
+Preset C — Small CPU, Latency OK (quality preserved)
+- `SoundPeriodFrames = 64–128` (keep small for crisp ADSR/onsets)
+- `SoundDeviceQueueLowMs = 50–80`
+- `SoundDeviceQueueHighMs = 90–140`
+- `SoundRingMs = 90–140` (≈ High to avoid stale pre‑mix)
+- `SoundTargetLatencyMs = 120–160`
 
-- `SoundUsePushMode = 1`
-- `SoundPeriodFrames = 64` or `128`
-- `SoundDeviceQueueLowMs = 15–25`
-- `SoundDeviceQueueHighMs = 30–45`
-- `SoundRingMs = 120–200` (or higher if needed)
-- `SoundTimedScheduling = 1`
-- `SoundAudioClockedADSR = 1`
+Preset D — Ultra‑Safe (when spikes are severe)
+- `SoundPeriodFrames = 128` (only consider 256 if per‑slice overhead is a proven bottleneck)
+- `SoundDeviceQueueLowMs = 70–120`
+- `SoundDeviceQueueHighMs = 120–180`
+- `SoundRingMs = 120–180` (≈ High)
+- `SoundTargetLatencyMs = High + 20–40`
 
-Notes:
-- Device queue remains short for fast audible reaction; the ring carries the extra safety.
-- Timeline scheduling guarantees short onsets aren’t missed inside the ring horizon.
+Tuning guidance:
+- Start from the closest preset and adjust Low/High upward if underruns occur. Keep `SoundPeriodFrames` small to preserve crispness.
+- Prefer increasing device Low/High (latency) over increasing period size on small CPUs. Only raise period to 256 if unavoidable.
+- Keeping `SoundRingMs` near High reduces or eliminates stale pre‑mixed audio while retaining a simple, robust pipeline.
 
 ## Overlay Diagnostics (F3)
 
@@ -125,6 +150,13 @@ In the Preferences section:
 - CPU: Smaller `SoundPeriodFrames` increases mixing calls. Start at 128 and move to 64 if needed and CPU allows.
 - Stability: If underruns occur, first increase `SoundRingMs`, then, if absolutely necessary, slightly raise device low/high.
 - Physics: You cannot make audible changes earlier than the device queue length. The ring gives safety without increasing audible delay.
+
+## Why Small CPUs Don’t Need Larger Periods
+
+- Period controls change granularity, not total mix work per second. Mixing 44100 frames/sec costs roughly the same whether done in 64‑frame or 256‑frame chunks; the main difference is small per‑slice overhead.
+- Buy headroom with latency instead of coarsening granularity: keep `SoundPeriodFrames` small (64–128) for envelope sharpness and precise onsets, and increase device Low/High so small CPUs have time to mix without underruns.
+
+Net effect: same audio quality and “speedy” envelopes/onsets across machines; only the audible delay differs with CPU headroom.
 
 ## Summary
 
