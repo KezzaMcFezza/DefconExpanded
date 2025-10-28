@@ -16,6 +16,9 @@ public:
 	int     m_dspEffects;
 	int     m_memoryUsage;
 	int     m_masterVolume;
+#ifdef WINDOWS_SDL
+	int     m_audioDriver;
+#endif
 
 public:
     SoundOptionsWindow();

@@ -232,15 +232,24 @@ void SoundDebugOverlay::Render()
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
+        // (SDL device callback state shown in SDL 2D section)
+
         snprintf(buffer, sizeof(buffer), "Master volume       : %d", g_preferences->GetInt("SoundMasterVolume", 255));
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
-        snprintf(buffer, sizeof(buffer), "Mix freq / buffer   : %d Hz / %d samples",
-                 g_preferences->GetInt("SoundMixFreq", 44100),
-                 g_preferences->GetInt("SoundBufferSize", 512));
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        // Clarify callback-vs-push parameters in the Preferences view
+        const int usePush = g_preferences->GetInt("SoundUsePushMode", 1);
+
+        // In push mode, period frames are the relevant granularity; hide callback buffer size
+        if (!usePush)
+        {
+            snprintf(buffer, sizeof(buffer), "Mix freq / buffer   : %d Hz / %d samples (callback mode)",
+                     g_preferences->GetInt("SoundMixFreq", 44100),
+                     g_preferences->GetInt("SoundBufferSize", 512));
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+            y += line;
+        }
 
         snprintf(buffer, sizeof(buffer), "Channels (total/music): %d / %d",
                  g_preferences->GetInt("SoundChannels", 32),
@@ -255,6 +264,58 @@ void SoundDebugOverlay::Render()
 
         snprintf(buffer, sizeof(buffer), "Hardware 3D target  : %s", g_preferences->GetInt("SoundHW3D", 0) ? "enabled" : "disabled");
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        // New push/queue and scheduling prefs
+        snprintf(buffer, sizeof(buffer), "Use push mode       : %s", usePush ? "yes" : "no");
+        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+        y += line;
+
+        // For push-only prefs, de-emphasize when push mode is off
+        Colour pushPrefColour = usePush ? textColour : Colour(160,160,160,220);
+
+        snprintf(buffer, sizeof(buffer), usePush ?
+                 "Period frames       : %d" :
+                 "Period frames       : %d (push-mode only)",
+                 g_preferences->GetInt("SoundPeriodFrames", 128));
+        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), usePush ?
+                 "Target latency      : %d ms" :
+                 "Target latency      : %d ms (push-mode only)",
+                 g_preferences->GetInt("SoundTargetLatencyMs", 80));
+        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
+        y += line;
+
+        // Device queue bounds and ring horizon
+        snprintf(buffer, sizeof(buffer), usePush ?
+                 "Device low/high     : %d / %d ms" :
+                 "Device low/high     : %d / %d ms (push-mode only)",
+                 g_preferences->GetInt("SoundDeviceQueueLowMs", 20),
+                 g_preferences->GetInt("SoundDeviceQueueHighMs", 35));
+        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), usePush ?
+                 "Ring horizon        : %d ms" :
+                 "Ring horizon        : %d ms (push-mode only)",
+                 g_preferences->GetInt("SoundRingMs", 160));
+        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), usePush ?
+                 "Timed scheduling    : %s" :
+                 "Timed scheduling    : %s (push-mode only)",
+                 g_preferences->GetInt("SoundTimedScheduling", 1) ? "yes" : "no");
+        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
+        y += line;
+
+        snprintf(buffer, sizeof(buffer), usePush ?
+                 "Audio-clocked ADSR  : %s" :
+                 "Audio-clocked ADSR  : %s (push-mode only)",
+                 g_preferences->GetInt("SoundAudioClockedADSR", 1) ? "on" : "off");
+        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
         y += line;
     }
     else
@@ -345,19 +406,14 @@ void SoundDebugOverlay::Render()
     {
         unsigned actualFreq = sdl->GetActualFreq();
         unsigned actualBuffer = sdl->GetActualSamplesPerBuffer();
-        snprintf(buffer, sizeof(buffer), "Audio started       : %s  Callback: %s",
+        snprintf(buffer, sizeof(buffer), "Audio started       : %s  Library mix callback: %s",
                  sdl->IsAudioStarted() ? "yes" : "no",
                  sdl->HasCallback() ? "set" : "unset");
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
-        snprintf(buffer, sizeof(buffer), "Recording to WAV    : %s", sdl->IsRecording() ? "yes" : "no");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
-
-        const char *activeDevice = sdl->GetCurrentOutputDeviceName();
-        const char *activeDisplay = (activeDevice && activeDevice[0]) ? activeDevice : "<default>";
-        snprintf(buffer, sizeof(buffer), "Active output device: %s", activeDisplay);
+        // Explicitly show whether SDL is using a device callback (off in push mode)
+        snprintf(buffer, sizeof(buffer), "SDL device callback : %s", sdl->UsingPushMode() ? "off" : "on");
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
 
@@ -370,6 +426,83 @@ void SoundDebugOverlay::Render()
                  sdl->GetActualFormat());
         g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
         y += line;
+
+        // Push mode details
+        if (m_cachedStats.usingPushMode) {
+            double periodMs = (actualFreq > 0) ? (1000.0 * (double)m_cachedStats.periodFrames / (double)actualFreq) : 0.0;
+            snprintf(buffer, sizeof(buffer), "Push mode           : yes");
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+            y += line;
+
+            snprintf(buffer, sizeof(buffer), "Device period       : %u frames (%.2f ms)",
+                     m_cachedStats.periodFrames, periodMs);
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+            y += line;
+
+            snprintf(buffer, sizeof(buffer), "Queued latency      : %u bytes (%.2f ms)",
+                     m_cachedStats.queuedBytes, m_cachedStats.queuedMs);
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+            y += line;
+
+            snprintf(buffer, sizeof(buffer), "Slices generated    : %llu",
+                     (unsigned long long)m_cachedStats.slicesGenerated);
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+            y += line;
+
+            // Extra ring/device queue stats
+            SoundLibrary2dSDL *sdlInst = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+            if (sdlInst) {
+                unsigned qFrames = sdlInst->GetQueuedFrames();
+                double qMs = (actualFreq > 0) ? (1000.0 * (double)qFrames / (double)actualFreq) : 0.0;
+                snprintf(buffer, sizeof(buffer), "Device queue        : %u frames (%.2f ms)", qFrames, qMs);
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                uint64_t ringFillFrames = sdlInst->GetRingFillFrames();
+                double ringFillMs = (actualFreq > 0) ? (1000.0 * (double)ringFillFrames / (double)actualFreq) : 0.0;
+                snprintf(buffer, sizeof(buffer), "Ring fill/horizon   : %llu frames (%.2f ms) / %u ms",
+                         (unsigned long long)ringFillFrames, ringFillMs, sdlInst->GetRingMs());
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                snprintf(buffer, sizeof(buffer), "Device low/high     : %u / %u ms",
+                         sdlInst->GetDeviceQueueLowMs(), sdlInst->GetDeviceQueueHighMs());
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                // Target latency and scheduling/ADSR flags
+                snprintf(buffer, sizeof(buffer), "Target latency      : %u ms", sdlInst->GetTargetLatencyMs());
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                snprintf(buffer, sizeof(buffer), "Timed scheduling    : %s", sdlInst->UsingTimedScheduling() ? "yes" : "no");
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                snprintf(buffer, sizeof(buffer), "Audio-clocked ADSR  : %s", sdlInst->UsingAudioClockedADSR() ? "on" : "off");
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                // Playback cursor and total queued frames since start
+                uint64_t playbackFrames = sdlInst->GetPlaybackSampleIndex();
+                double playbackMs = (actualFreq > 0) ? (1000.0 * (double)playbackFrames / (double)actualFreq) : 0.0;
+                snprintf(buffer, sizeof(buffer), "Playback cursor     : %llu frames (%.2f ms)",
+                         (unsigned long long)playbackFrames, playbackMs);
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+
+                uint64_t totalQueued = sdlInst->GetTotalQueuedFrames();
+                double totalQueuedSec = (actualFreq > 0) ? ((double)totalQueued / (double)actualFreq) : 0.0;
+                snprintf(buffer, sizeof(buffer), "Total queued audio  : %llu frames (%.2f s)",
+                         (unsigned long long)totalQueued, totalQueuedSec);
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+                y += line;
+            }
+        } else {
+            snprintf(buffer, sizeof(buffer), "Push mode           : no");
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
+            y += line;
+        }
 
         double audioSecondsMixed = (actualFreq > 0)
                                     ? static_cast<double>(m_cachedStats.totalSamplesMixed) / static_cast<double>(actualFreq)

@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/tosser/btree.h"
 #include "lib/profiler.h"
+#include <string.h>
 #include "lib/debug_utils.h"
 #include "lib/preferences.h"
 #include "lib/hi_res_time.h"
@@ -144,11 +145,19 @@ void SoundSystem::RestartSoundLibrary()
 #else
 	g_soundLibrary2d = new SoundLibrary2dSDL();
 	g_soundLibrary3d = new SoundLibrary3dSoftware();
+
+    //
+    // Ensure preferences reflect the actual backend used by SDL builds.
+    // This avoids writing a misleading "dsound" entry inherited from defaults.
+
+    g_preferences->SetString(PREFS_SOUND_LIBRARY, "software");
     m_numChannels = 64;
+
     if (requestedChannels != m_numChannels)
     {
         g_preferences->SetInt("SoundChannels", m_numChannels);
     }
+
 #endif
 
     g_soundLibrary3d->SetMasterVolume( volume );
@@ -263,6 +272,38 @@ bool SoundSystem::SoundLibraryMainCallback( unsigned int _channel, signed short 
         double step = instance->m_resampleStep;
         unsigned int framesWritten = 0;
         bool waitingForLoop = false;
+
+        //
+        // Scheduled start handling for push mode: prefill silence until scheduled start within this window
+        
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+        do {
+            SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+            uint64_t scheduled = instance->GetScheduledStartFrames();
+            if (sdl2d && sdl2d->UsingPushMode() && scheduled > 0)
+            {
+                uint64_t mixStart = sdl2d->GetCurrentSliceStartSample();
+                if (scheduled > mixStart)
+                {
+                    uint64_t df = scheduled - mixStart;
+                    unsigned int preFrames = (df > (uint64_t)framesRequested) ? framesRequested : (unsigned int)df;
+                    if (preFrames > 0)
+                    {
+                        if (stereo)
+                        {
+                            unsigned int preSamples = preFrames * 2u;
+                            memset(_data, 0, preSamples * sizeof(signed short));
+                        }
+                        else
+                        {
+                            memset(_data, 0, preFrames * sizeof(signed short));
+                        }
+                        framesWritten = preFrames;
+                    }
+                }
+            }
+        } while (0);
+#endif
 
         while( framesWritten < framesRequested )
         {
@@ -974,11 +1015,20 @@ void SoundSystem::Advance()
 
 
             START_PROFILE( "Start New Sound" );
-			// Start the new sound
+				// Start the new sound
             bool success = newInstance->StartPlaying( bestAvailableChannel );
             if( success )
             {
                 m_channels[bestAvailableChannel] = newInstance->m_id;
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+                // In push mode with timed scheduling, schedule start on audio timeline
+                SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+                if (sdl2d && sdl2d->UsingTimedScheduling())
+                {
+                    uint64_t startFrames = sdl2d->SuggestScheduledStartFrames(5);
+                    newInstance->SetScheduledStartFrames(startFrames);
+                }
+#endif
             }
             else
             {

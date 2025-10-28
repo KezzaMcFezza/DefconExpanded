@@ -126,6 +126,8 @@ public:
 
     char				*m_eventName;
     bool                 m_locked;
+    // Absolute start frame on the audio timeline when this instance should begin output
+    uint64_t             m_scheduledStartFrames;
 
     double              m_resampleCursor;           // fractional frame cursor used by software resampler
     double              m_resampleStep;             // source frames advanced per mixed frame
@@ -169,6 +171,10 @@ public:
 
     void    ResetResamplerCursor(double _cursor = 0.0);
     void    RecalculateResampleStep();
+
+    // Scheduled start support (absolute frames on the audio timeline). 0 = immediate
+    inline void     SetScheduledStartFrames(uint64_t frames) { m_scheduledStartFrames = frames; }
+    inline uint64_t GetScheduledStartFrames() const { return m_scheduledStartFrames; }
 
     static const char *GetPositionTypeName    ( int _type );
     static const char *GetInstanceTypeName    ( int _type );

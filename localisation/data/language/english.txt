@@ -135,7 +135,9 @@ dialog_watershaded					Shaded
 dialog_soundoptions                 Sound
 dialog_unavailable                  unavailable
 dialog_soundlibrary                 Sound Library
-dialog_directsound                  DirectSound
+dialog_audiodriver                  Audio Driver
+dialog_audiodriver_wasapi           WASAPI (Vista+)
+dialog_audiodriver_directsound      DirectSound (XP)
 dialog_softwaresound                Software Sound
 dialog_mixfrequency                 Mix Frequency
 dialog_11khz                        11 Khz Low Quality

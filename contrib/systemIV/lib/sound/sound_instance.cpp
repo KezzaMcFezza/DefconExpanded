@@ -12,6 +12,8 @@
 #include "soundsystem.h"
 #include "sound_sample_decoder.h"
 #include "sound_library_3d.h"
+#include "lib/sound/sound_library_2d_sdl.h"
+#include "lib/preferences.h"
 #include "sound_blueprint_manager.h"
 
 
@@ -139,7 +141,8 @@ SoundInstance::SoundInstance()
     m_restartAttempts(0),
     m_locked(false),
     m_resampleCursor(0.0),
-    m_resampleStep(1.0)
+    m_resampleStep(1.0),
+    m_scheduledStartFrames(0)
 {
     SetSoundName( "[???]" );
 
@@ -426,12 +429,24 @@ void SoundInstance::PropagateBlueprints( bool _forceRestart )
 
 bool SoundInstance::UpdateChannelVolume()
 {
+    auto audio_now = []() -> double {
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+        SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+        if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1)) {
+            unsigned freq = sdl2d->GetActualFreq();
+            if (freq > 0) {
+                return (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
+            }
+        }
+#endif
+        return GetHighResTime();
+    };
     UpdateParameter( m_attack );
     UpdateParameter( m_sustain );
     UpdateParameter( m_release );
     UpdateParameter( m_volume );
 
-    float timeSince = GetHighResTime() - m_adsrTimer;
+    float timeSince = (float)(audio_now() - m_adsrTimer);
     float volume = 0.0f;
     bool finished = false;
     
@@ -445,7 +460,7 @@ bool SoundInstance::UpdateChannelVolume()
             volume = m_volume.GetOutput() * fractionIntoAttack;
             if( NearlyEquals(fractionIntoAttack, 1.0f) )
             {
-                m_adsrTimer = GetHighResTime();
+                m_adsrTimer = audio_now();
                 m_adsrState = StateSustain;
             }
             break;
@@ -457,7 +472,7 @@ bool SoundInstance::UpdateChannelVolume()
             float sustain = m_sustain.GetOutput();
 
             if( sustain > 0.0f && 
-                GetHighResTime() >= m_adsrTimer + sustain )
+                audio_now() >= m_adsrTimer + sustain )
             {
                 BeginRelease(false);
             }
@@ -509,7 +524,20 @@ void SoundInstance::BeginRelease( bool _final )
     if( m_adsrState != StateRelease )
     {
         m_adsrState = StateRelease;
-        m_adsrTimer = GetHighResTime();
+        // Switch timer to appropriate clock
+        {
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+            SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+            if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1)) {
+                unsigned freq = sdl2d->GetActualFreq();
+                if (freq > 0) m_adsrTimer = (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
+                else m_adsrTimer = GetHighResTime();
+            } else
+#endif
+            {
+                m_adsrTimer = GetHighResTime();
+            }
+        }
 
         if( m_loopType == LoopedADSR && !_final )
         {
@@ -519,7 +547,8 @@ void SoundInstance::BeginRelease( bool _final )
             }
             else
             {
-                m_loopDelayTimer = GetHighResTime();
+                // use the same clock base
+                m_loopDelayTimer = (float)m_adsrTimer;
             }
         }
     }
@@ -594,7 +623,17 @@ bool SoundInstance::AdvanceLoop()
         if( m_loopDelayTimer > 0.0f )
         {
             float loopFinish = m_loopDelayTimer + m_loopDelay.GetOutput();
-            if( GetHighResTime() >= loopFinish )
+            double now = GetHighResTime();
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+            {
+                SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+                if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1)) {
+                    unsigned freq = sdl2d->GetActualFreq();
+                    if (freq > 0) now = (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
+                }
+            }
+#endif
+            if( now >= loopFinish )
             {
                 g_soundSystem->TriggerDuplicateSound( this );
                 m_loopDelayTimer = 0.0f;
@@ -624,7 +663,17 @@ bool SoundInstance::AdvanceLoop()
         else
         {
             float loopFinish = m_loopDelayTimer + m_loopDelay.GetOutput();
-            if( GetHighResTime() >= loopFinish )
+            double now = GetHighResTime();
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+            {
+                SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+                if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1)) {
+                    unsigned freq = sdl2d->GetActualFreq();
+                    if (freq > 0) now = (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
+                }
+            }
+#endif
+            if( now >= loopFinish )
             {
                 OpenStream( false );
                 m_loopDelayTimer = 0.0f;
@@ -697,6 +746,25 @@ bool SoundInstance::StartPlaying( int _channelIndex )
     g_soundLibrary3d->SetChannelFrequency( m_channelIndex, 
                                            (float)m_soundSampleHandle->m_soundSample->m_freq * m_freq.GetOutput() );
     RecalculateResampleStep();
+
+    // Set ADSR timer baseline to audio timeline at scheduled start if enabled
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+    if (g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1))
+    {
+        SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
+        if (sdl2d && sdl2d->UsingPushMode())
+        {
+            unsigned freq = sdl2d->GetActualFreq();
+            if (freq > 0)
+            {
+                double scheduled = (double)GetScheduledStartFrames() / (double)freq;
+                // Use scheduled if present, else current audio now
+                double now = (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
+                m_adsrTimer = (GetScheduledStartFrames() > 0) ? scheduled : now;
+            }
+        }
+    }
+#endif
 
     bool done = UpdateChannelVolume();
 
