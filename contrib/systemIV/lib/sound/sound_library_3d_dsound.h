@@ -74,6 +74,16 @@ public:
                                  Vector3<float> const &_up, Vector3<float> const &_vel);
 
     void Advance                ();
+
+    // Runtime inspection (debug/overlay)
+    inline float GetFixedHeadroomDb() const { return m_fixedHeadroomCentiDb * 0.01f; }
+    inline float GetDynamicBusAttenDb() const { return m_dynamicBusAtten * 0.01f; }
+    inline float GetDynAttack() const { return m_dynAttack; }
+    inline float GetDynRelease() const { return m_dynRelease; }
+    inline float GetDynLoudVolThresh() const { return m_dynLoudVolThresh; }
+    inline int   GetDynStartCount() const { return m_dynStartCount; }
+    inline float GetDynDbPerExtra() const { return m_dynDbPerExtra; }
+    inline float GetDynMaxDb() const { return m_dynMaxDb; }
 };
 
 

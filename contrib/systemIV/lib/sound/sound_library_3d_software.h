@@ -79,6 +79,11 @@ public:
 
 	void StartRecordToFile	(char const *_filename);
 	void EndRecordToFile	();
+
+    // Runtime inspection (debug/overlay)
+    inline float GetHeadroomDb() const { return m_headroomDb; }
+    inline float GetLimiterThreshold() const { return m_peakThreshold; }
+    inline float GetLimiterBusGain() const { return m_busGain; }
 };
 
 

@@ -25,6 +25,7 @@
 #include "lib/sound/soundsystem.h"
 #include "lib/sound/sound_library_3d.h"
 #include "lib/sound/sound_debug_overlay.h"
+#include "lib/sound/sound_protection_overlay.h"
 #include "lib/preferences.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/text_file_writer.h"
@@ -137,13 +138,15 @@ App::App()
     m_showDebugMenu(false),
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     m_showSoundOverlay(false),
+    m_showSoundProtection(false),
 #endif
     m_currentFrames(0),
     m_framesPerSecond(0),
     m_frameCountTimer(1.0f),
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     m_debugMenu(NULL),
-    m_soundOverlay(NULL)
+    m_soundOverlay(NULL),
+    m_soundProtectionOverlay(NULL)
 #else
     m_debugMenu(NULL)
 #endif
@@ -441,6 +444,8 @@ void App::MinimalInit()
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     delete m_soundOverlay;
     m_soundOverlay = new SoundDebugOverlay();
+    delete m_soundProtectionOverlay;
+    m_soundProtectionOverlay = new SoundProtectionOverlay();
 #endif
 
     m_mapRenderer = new MapRenderer();
@@ -813,6 +818,8 @@ void App::ReinitialiseWindow()
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     delete m_soundOverlay;
     m_soundOverlay = new SoundDebugOverlay();
+    delete m_soundProtectionOverlay;
+    m_soundProtectionOverlay = new SoundProtectionOverlay();
 #endif
 
     m_mapRenderer->Init();
@@ -876,10 +883,15 @@ void App::Update()
     // F3 toggles sound overlay
 
     if( g_keys[KEY_F3] && g_keyDeltas[KEY_F3] ) m_showSoundOverlay = !m_showSoundOverlay;
+    if( g_keys[KEY_F4] && g_keyDeltas[KEY_F4] ) m_showSoundProtection = !m_showSoundProtection;
 
     if( m_soundOverlay )
     {
         m_soundOverlay->Update(g_advanceTime);
+    }
+    if( m_soundProtectionOverlay )
+    {
+        m_soundProtectionOverlay->Update(g_advanceTime);
     }
 
 #endif  
@@ -994,7 +1006,7 @@ void App::Render()
     // update frame timing when either FPS counter or debug menu is shown
 
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-    if( m_showFps || m_showDebugMenu || m_showSoundOverlay )
+    if( m_showFps || m_showDebugMenu || m_showSoundOverlay || m_showSoundProtection )
 #else
     if( m_showFps || m_showDebugMenu )
 #endif
@@ -1046,6 +1058,10 @@ void App::Render()
         if( m_showSoundOverlay && m_soundOverlay )
         {
             m_soundOverlay->Render();
+        }
+        if( m_showSoundProtection && m_soundProtectionOverlay )
+        {
+            m_soundProtectionOverlay->Render();
         }
 
 #endif
