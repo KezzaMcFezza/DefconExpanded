@@ -26,6 +26,9 @@ public:
         g_preferences->SetInt( PREFS_SOUND_DSPEFFECTS, parent->m_dspEffects );
         g_preferences->SetInt( PREFS_SOUND_MEMORY, parent->m_memoryUsage );
         g_preferences->SetInt( PREFS_SOUND_MASTERVOLUME, parent->m_masterVolume );
+#ifdef WINDOWS_SDL
+        g_preferences->SetInt( PREFS_SOUND_AUDIODRIVER, parent->m_audioDriver );
+#endif
         
         g_soundSystem->RestartSoundLibrary();
 
@@ -70,7 +73,11 @@ public:
 SoundOptionsWindow::SoundOptionsWindow()
 :   InterfaceWindow( "Sound", "dialog_soundoptions", true )
 {
+#ifdef WINDOWS_SDL
+    SetSize( 390, 240 );
+#else
     SetSize( 390, 210 );
+#endif
 
     m_mixFreq       = 44100;
     g_preferences->SetInt( PREFS_SOUND_MIXFREQ, m_mixFreq );
@@ -78,6 +85,9 @@ SoundOptionsWindow::SoundOptionsWindow()
     m_dspEffects    = g_preferences->GetInt( PREFS_SOUND_DSPEFFECTS, 1 );
     m_memoryUsage   = g_preferences->GetInt( PREFS_SOUND_MEMORY, 1 );
     m_masterVolume  = g_preferences->GetInt( PREFS_SOUND_MASTERVOLUME, 255 );
+#ifdef WINDOWS_SDL
+    m_audioDriver   = g_preferences->GetInt( PREFS_SOUND_AUDIODRIVER, 0 );
+#endif
 }
 
 
@@ -101,6 +111,15 @@ void SoundOptionsWindow::Create()
     //memoryUsage->AddOption( "dialog_low", 3, true );
     //memoryUsage->RegisterInt( &m_memoryUsage );
     //RegisterButton( memoryUsage );
+
+#ifdef WINDOWS_SDL
+    DropDownMenu *audioDriver = new DropDownMenu();
+    audioDriver->SetProperties( "Audio Driver", x, y+=h, w, 20, "dialog_audiodriver", " ", true, false );
+    audioDriver->AddOption( "dialog_audiodriver_wasapi", 0, true );
+    audioDriver->AddOption( "dialog_audiodriver_directsound", 1, true );
+    audioDriver->RegisterInt( &m_audioDriver );
+    RegisterButton( audioDriver );
+#endif
 
     DropDownMenu *swapStereo = new DropDownMenu();
     swapStereo->SetProperties( "Swap Stereo", x, y+=h, w, 20, "dialog_swapstereo", " ", true, false );
@@ -140,6 +159,9 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     int size = 13;
 
     //g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_memoryusage") );
+#ifdef WINDOWS_SDL
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_audiodriver") );
+#endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_swapstereo") );
 
 #ifdef SOUNDOPTIONSWINDOW_USEDSPEFFECTS

@@ -304,7 +304,14 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	AppDebugOut("Initialising SDL Audio\n");
 	
 #ifdef WINDOWS_SDL
-	SDL_setenv("SDL_AUDIODRIVER", "directsound", 1);
+	int audioDriverPref = g_preferences->GetInt(PREFS_SOUND_AUDIODRIVER, 0);
+	if (audioDriverPref == 1) {
+		SDL_setenv("SDL_AUDIODRIVER", "directsound", 1);
+		AppDebugOut("Using DirectSound audio driver\n");
+	} else {
+		SDL_setenv("SDL_AUDIODRIVER", "wasapi", 1);
+		AppDebugOut("Using WASAPI audio driver\n");
+	}
 #endif
 
 		bool audioInitialised = (SDL_WasInit(SDL_INIT_AUDIO) & SDL_INIT_AUDIO) != 0;
