@@ -40,17 +40,17 @@ All preferences live in `localisation/data/prefs_default.txt` and can be overrid
 - `SoundUsePushMode` (default: `1`)
   - 1 = push/queue mode, 0 = SDL callback mode.
 
-- `SoundPeriodFrames` (default: `128`)
+- `SoundPeriodFrames` (default: `64`)
   - Render quantum (frames) per slice. Smaller = crisper response and envelope shape; higher CPU and queue ops.
 
-- `SoundTargetLatencyMs` (default: `80`)
+- `SoundTargetLatencyMs` (default: `40`)
   - Target audible latency for scheduling new onsets. Used to compute the earliest start time relative to the current playback cursor. This does not force the device queue size; see device low/high below.
 
 
-- `SoundDeviceQueueLowMs` / `SoundDeviceQueueHighMs` (defaults: `20` / `35`)
+- `SoundDeviceQueueLowMs` / `SoundDeviceQueueHighMs` (defaults: `15` / `30`)
   - Device queue refill bounds used in push mode. Keep these small to get fast audible reaction. The feeder tops up to High when the queue drops below Low.
 
-- `SoundRingMs` (default: `160`)
+- `SoundRingMs` (default: `30`)
   - Software ring buffer horizon to keep pre‑mixed ahead of `copyIndex`. This is your underrun safety margin that can still be rewritten until copied to the device.
 
 - `SoundTimedScheduling` (default: `1`)
