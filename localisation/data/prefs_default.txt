@@ -16,6 +16,14 @@ SoundMemoryUsage = 1
 SoundBufferSize = 512
 SoundDSP = 0
 
+# Mix-bus safety and limiter (shared/SDL)
+# Fixed headroom in dB applied before mixing (both backends)
+SoundHeadroomDb = 12
+# SDL mix-bus limiter settings
+SoundLimiterThreshold = 28000
+SoundLimiterAttack = 1.0
+SoundLimiterRelease = 0.02
+
 # SDL push/queue audio mode defaults
 SoundUsePushMode = 1
 SoundPeriodFrames = 64
@@ -25,6 +33,14 @@ SoundDeviceQueueHighMs = 30
 SoundRingMs = 30
 SoundTimedScheduling = 1
 SoundAudioClockedADSR = 1
+
+# DirectSound dynamic anti-clip (global attenuation) defaults
+SoundDSDynLoudVolume = 7.0
+SoundDSDynStartCount = 2
+SoundDSDynDbPerExtra = 2.0
+SoundDSDynMaxDb = 12.0
+SoundDSDynAttack = 0.5
+SoundDSDynRelease = 0.1
 
 RenderSmoothLines = 0
 RenderCoastlines = 1
