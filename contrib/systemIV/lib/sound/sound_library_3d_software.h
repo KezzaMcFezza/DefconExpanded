@@ -33,6 +33,7 @@ protected:
     float                   m_limiterRelease;   // release smoothing (0..1)
     float                   m_peakThreshold;    // peak threshold before limiting (PCM units)
     float                   m_headroomDb;       // fixed bus headroom in dB (e.g., 6.0)
+    float                   m_lastPeak;         // last measured pre-limit peak (PCM units)
 
 protected:
 	void GetChannelData		(float _duration, unsigned int _numSamples);
@@ -78,12 +79,13 @@ public:
                              Vector3<float> const &_up, Vector3<float> const &_vel);
 
 	void StartRecordToFile	(char const *_filename);
-	void EndRecordToFile	();
+    void EndRecordToFile	();
 
     // Runtime inspection (debug/overlay)
     inline float GetHeadroomDb() const { return m_headroomDb; }
     inline float GetLimiterThreshold() const { return m_peakThreshold; }
     inline float GetLimiterBusGain() const { return m_busGain; }
+    inline float GetLimiterLastPeak() const { return m_lastPeak; }
 };
 
 

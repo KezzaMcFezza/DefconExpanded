@@ -141,8 +141,8 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
 	m_allocatedSamples = g_soundLibrary2d->GetSamplesPerBuffer();
 #endif
 
-	m_left = new float[m_allocatedSamples];
-	m_right = new float[m_allocatedSamples];
+    m_left = new float[m_allocatedSamples];
+    m_right = new float[m_allocatedSamples];
 
     // Limiter/headroom defaults (can be overridden via prefs)
     m_busGain = 1.0f;
@@ -150,6 +150,7 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
     m_limiterRelease = 0.02f;   // quicker release back to unity
     m_peakThreshold = 28000.0f; // start limiting earlier to reduce artifacts
     m_headroomDb = 12.0f;       // fixed headroom applied pre-mix
+    m_lastPeak = 0.0f;
 
     if (g_preferences)
     {
@@ -501,12 +502,13 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 	}
 
 	// Simple mix-bus limiter with attack/release
-	float peak = 0.0f;
-	for (int i = 0; i < _numSamples; ++i)
-	{
-		if (fabsf(m_left[i]) > peak) peak = fabsf(m_left[i]);
-		if (fabsf(m_right[i]) > peak) peak = fabsf(m_right[i]);
-	}
+    float peak = 0.0f;
+    for (int i = 0; i < _numSamples; ++i)
+    {
+        if (fabsf(m_left[i]) > peak) peak = fabsf(m_left[i]);
+        if (fabsf(m_right[i]) > peak) peak = fabsf(m_right[i]);
+    }
+    m_lastPeak = peak;
 
 	float desiredGain = 1.0f;
 	if (peak > m_peakThreshold && peak > 0.0f)
