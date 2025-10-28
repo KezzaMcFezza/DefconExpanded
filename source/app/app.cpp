@@ -1046,7 +1046,6 @@ void App::Render()
 
     START_PROFILE( "GL Flip" );
     
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     static double s_lastFlipTime = 0.0;
     int fpsLimit = g_preferences->GetInt(PREFS_SCREEN_FPS_LIMIT, 0);
     
@@ -1121,7 +1120,6 @@ void App::Render()
         
         s_lastFlipTime = GetHighResTime();
     }
-#endif
     
     g_renderer->EndMSAARendering();
     

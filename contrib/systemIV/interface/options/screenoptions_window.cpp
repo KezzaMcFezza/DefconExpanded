@@ -166,9 +166,7 @@ class SetScreenButton : public InterfaceButton
         g_preferences->SetInt( PREFS_SCREEN_Z_DEPTH, parent->m_zDepth );
         g_preferences->SetInt( PREFS_SCREEN_UI_SCALE, parent->m_uiScale );
         g_preferences->SetInt( PREFS_SCREEN_ANTIALIAS, parent->m_antiAlias );
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
         g_preferences->SetInt( PREFS_SCREEN_FPS_LIMIT, parent->m_fpsLimit );
-#endif
 		
         if( resolution && g_app && g_app->GetInterface() )
         {
@@ -203,9 +201,7 @@ class SetScreenButton : public InterfaceButton
         parent->m_zDepth        = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH, 24 );
         parent->m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
         parent->m_antiAlias     = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
         parent->m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
-#endif
 
         parent->Remove();
         parent->Create();
@@ -221,11 +217,8 @@ void ScreenOptionsWindow::RestartWindowManager()
 ScreenOptionsWindow::ScreenOptionsWindow()
 :   InterfaceWindow( "ScreenOptions", "dialog_screenoptions", true )
 {
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
 	int height = 360;
-#else 
-	int height = 300;
-#endif
+
     m_resId = g_windowManager->GetResolutionId( g_preferences->GetInt(PREFS_SCREEN_WIDTH),
                                                 g_preferences->GetInt(PREFS_SCREEN_HEIGHT) );
 
@@ -244,9 +237,7 @@ ScreenOptionsWindow::ScreenOptionsWindow()
     m_zDepth        = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH, 24 );
     m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
 	m_antiAlias		= g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
-#endif
 	
     SetSize( 390, height );
 }
@@ -336,7 +327,6 @@ void ScreenOptionsWindow::Create()
     antiAlias->RegisterInt( &m_antiAlias );
     RegisterButton( antiAlias );
 
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     DropDownMenu *fpsLimit = new DropDownMenu();
     fpsLimit->SetProperties( "FPS Limit", x, y+=h, w, 20, "dialog_fpslimit", " ", true, false );
     fpsLimit->AddOption( "dialog_fpslimit_no_limit", 0, true );
@@ -348,7 +338,6 @@ void ScreenOptionsWindow::Create()
     fpsLimit->AddOption( "dialog_fpslimit_1000fps", 1000, true );
     fpsLimit->RegisterInt( &m_fpsLimit );
     RegisterButton( fpsLimit );
-#endif
 
 	CloseButton *cancel = new CloseButton();
     cancel->SetProperties( "Close", 10, m_h - 30, m_w / 2 - 15, 20, "dialog_close", " ", true, false );
@@ -376,7 +365,5 @@ void ScreenOptionsWindow::Render( bool _hasFocus )
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_zbufferdepth") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_windowscaling") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_antialias") );
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_fpslimit") );
-#endif
 }

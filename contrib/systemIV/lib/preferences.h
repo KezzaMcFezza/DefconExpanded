@@ -16,9 +16,7 @@
 #define PREFS_SCREEN_BORDERLESS		"ScreenBorderless"
 #define PREFS_SCREEN_ANTIALIAS		"ScreenAntiAliasing"
 #define PREFS_SCREEN_UI_SCALE		"ScreenUIScale"
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
 #define PREFS_SCREEN_FPS_LIMIT		"ScreenFpsLimit"
-#endif
 
 #define PREFS_SOUND_LIBRARY         "SoundLibrary"
 #define PREFS_SOUND_MIXFREQ         "SoundMixFreq"
