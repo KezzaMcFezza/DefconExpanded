@@ -359,8 +359,12 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
 	{
 		Vector3<float> to = channel->m_pos - m_listenerPos;
 		float dist = to.Mag();
-		to /= dist;
-		float dotRight = to * m_listenerRight;
+		float dotRight = 0.0f;
+		if (dist > 1e-5f)
+		{
+			to /= dist;
+			dotRight = to * m_listenerRight;
+		}
 		*_right = (dotRight + 1.0f) * 0.5f;
 		*_left = 1.0f - *_right;
 
