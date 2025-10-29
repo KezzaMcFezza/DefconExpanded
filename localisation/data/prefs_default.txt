@@ -34,6 +34,11 @@ SoundRingMs = 30
 SoundTimedScheduling = 1
 SoundAudioClockedADSR = 1
 
+# Optional per-voice minimum fade-in to smooth starts (off by default)
+SoundMinFadeIn = 0
+SoundMinFadeInMs = 3.0
+SoundFadeInJitterMs = 0.75
+
 # DirectSound dynamic anti-clip (global attenuation) defaults
 SoundDSDynLoudVolume = 7.0
 SoundDSDynStartCount = 2

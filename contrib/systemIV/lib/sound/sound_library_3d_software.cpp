@@ -764,7 +764,16 @@ void SoundLibrary3dSoftware::ResetChannel( int _channel )
 #ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("ResetChannel %d - enabling fade-in envelope\n", _channel);
 #endif
-    // Deterministic per-channel fade-in (ms), with small jitter to de-correlate starts
+    // Optional deterministic per-channel fade-in (ms), with small jitter to de-correlate starts
+    int enableFade = g_preferences ? g_preferences->GetInt("SoundMinFadeIn", 0) : 0;
+    if (!enableFade)
+    {
+        m_channels[_channel].m_fadeSamplesTotal = 0u;
+        m_channels[_channel].m_fadeSamplesRemaining = 0u;
+        return;
+    }
+    
+    // Enabled: configure envelope
     float baseMs = 3.0f;      // default 3 ms
     float jitterMs = 0.75f;   // +/- 0.75 ms
     if (g_preferences)
