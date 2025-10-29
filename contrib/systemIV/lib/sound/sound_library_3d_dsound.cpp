@@ -175,6 +175,7 @@ SoundLibrary3dDirectSound::SoundLibrary3dDirectSound()
 	m_directSound = new DirectSoundData;
     // Fixed headroom defaults to -12 dB (1200 centi-dB), tunable via SoundHeadroomDb
     m_fixedHeadroomCentiDb = 1200.0f;
+    m_dynEnabled = true;
     if (g_preferences)
     {
         float hd = g_preferences->GetFloat("SoundHeadroomDb", -1.0f);
@@ -193,6 +194,8 @@ SoundLibrary3dDirectSound::SoundLibrary3dDirectSound()
     {
         float f;
         int i;
+        // on/off toggle (default on)
+        int b = g_preferences->GetInt("SoundDSDynEnabled", 1); m_dynEnabled = (b != 0);
         f = g_preferences->GetFloat("SoundDSDynAttack", -1.0f); if (f > 0.0f && f <= 1.0f) m_dynAttack = f;
         f = g_preferences->GetFloat("SoundDSDynRelease", -1.0f); if (f > 0.0f && f <= 1.0f) m_dynRelease = f;
         f = g_preferences->GetFloat("SoundDSDynLoudVolume", -1.0f); if (f >= 0.0f) m_dynLoudVolThresh = f;
@@ -928,6 +931,7 @@ void SoundLibrary3dDirectSound::Advance()
 	}
 
     // dynamic global attenuation update (DirectSound anti-clip)
+    if (m_dynEnabled)
     {
         int loudCount = 0;
         for (int i = 0; i < m_numChannels - m_numMusicChannels; ++i)
@@ -948,6 +952,12 @@ void SoundLibrary3dDirectSound::Advance()
         float alpha = (m_dynamicTarget > m_dynamicBusAtten) ? m_dynAttack : m_dynRelease;
         m_dynamicBusAtten += (m_dynamicTarget - m_dynamicBusAtten) * alpha;
         if (m_dynamicBusAtten < 0.0f) m_dynamicBusAtten = 0.0f;
+    }
+    else
+    {
+        // Disabled: ensure no dynamic attenuation is applied
+        m_dynamicTarget = 0.0f;
+        m_dynamicBusAtten = 0.0f;
     }
 
     for (int i = 0; i < m_numChannels; ++i)

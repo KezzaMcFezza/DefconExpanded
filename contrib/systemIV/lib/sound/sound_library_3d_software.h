@@ -36,6 +36,7 @@ protected:
     float                   m_peakThreshold;    // peak threshold before limiting (PCM units)
     float                   m_headroomDb;       // fixed bus headroom in dB (e.g., 6.0)
     float                   m_lastPeak;         // last measured pre-limit peak (PCM units)
+    bool                    m_enableLimiter;    // preference: enable mix-bus limiter
 
 protected:
 	void GetChannelData		(float _duration, unsigned int _numSamples);

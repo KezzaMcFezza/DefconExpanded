@@ -4,6 +4,13 @@ This project adds robust, consistent protection against clipping across SDL and 
 
 Use the settings below to tune behavior. The one knob that matters most for “don’t clip” is SoundHeadroomDb; the limiter (SDL) and dynamic attenuation (DirectSound) provide extra safety only when needed.
 
+Quick toggles (default on)
+
+- SoundLimiter = 1
+  - Enables the SDL mix‑bus limiter. Set to 0 to disable.
+- SoundDSDynEnabled = 1
+  - Enables DirectSound dynamic attenuation. Set to 0 to disable.
+
 ## Overview
 
 - Fixed headroom (shared): Always applies a small attenuation to keep day‑to‑day mixes below full‑scale.

@@ -19,6 +19,8 @@ SoundDSP = 0
 # Mix-bus safety and limiter (shared/SDL)
 # Fixed headroom in dB applied before mixing (both backends)
 SoundHeadroomDb = 12.00
+# Enable or disable SDL mix-bus limiter (default on)
+SoundLimiter = 1
 # SDL mix-bus limiter settings
 SoundLimiterThreshold = 28000
 SoundLimiterAttack = 1.0
@@ -40,6 +42,8 @@ SoundMinFadeInMs = 3.0
 SoundFadeInJitterMs = 0.75
 
 # DirectSound dynamic anti-clip (global attenuation) defaults
+# Enable or disable dynamic attenuation (default on)
+SoundDSDynEnabled = 1
 SoundDSDynLoudVolume = 7.0
 SoundDSDynStartCount = 2
 SoundDSDynDbPerExtra = 2.0

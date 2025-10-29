@@ -175,6 +175,7 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
     m_peakThreshold = 28000.0f; // start limiting earlier to reduce artifacts
     m_headroomDb = 12.0f;       // fixed headroom applied pre-mix
     m_lastPeak = 0.0f;
+    m_enableLimiter = true;
 
     if (g_preferences)
     {
@@ -183,6 +184,8 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
         v = g_preferences->GetFloat("SoundLimiterThreshold", -1.0f); if (v > 0.0f) m_peakThreshold = v;
         v = g_preferences->GetFloat("SoundLimiterAttack", -1.0f); if (v > 0.0f && v <= 1.0f) m_limiterAttack = v;
         v = g_preferences->GetFloat("SoundLimiterRelease", -1.0f); if (v > 0.0f && v <= 1.0f) m_limiterRelease = v;
+        // on/off toggle (default on)
+        int b = g_preferences->GetInt("SoundLimiter", 1); m_enableLimiter = (b != 0);
     }
 }
 
@@ -597,31 +600,50 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
 #endif
 	}
 
-    float peak = 0.0f;
-    for (unsigned int i = 0; i < _numSamples; ++i)
-    {
-        if (fabsf(m_left[i]) > peak) peak = fabsf(m_left[i]);
-        if (fabsf(m_right[i]) > peak) peak = fabsf(m_right[i]);
-    }
-    m_lastPeak = peak;
-
-	float desiredGain = 1.0f;
-	if (peak > m_peakThreshold && peak > 0.0f)
-	{
-		desiredGain = m_peakThreshold / peak;
-	}
-	float alpha = (desiredGain < m_busGain) ? m_limiterAttack : m_limiterRelease;
-	m_busGain += (desiredGain - m_busGain) * alpha;
-	if (m_busGain < 0.0f) m_busGain = 0.0f;
-	if (m_busGain > 1.0f) m_busGain = 1.0f;
-
+    // Limiter and output mapping to [-1,1] for SDL float
     const float invPcm = 1.0f / 32767.0f;
-    for (unsigned int i = 0; i < _numSamples; ++i)
+    if (m_enableLimiter)
     {
-        float l = m_left[i] * m_busGain;
-        float r = m_right[i] * m_busGain;
-        _outInterleaved[i * 2] = tanhf(l * invPcm);
-        _outInterleaved[i * 2 + 1] = tanhf(r * invPcm);
+        float peak = 0.0f;
+        for (unsigned int i = 0; i < _numSamples; ++i)
+        {
+            if (fabsf(m_left[i]) > peak) peak = fabsf(m_left[i]);
+            if (fabsf(m_right[i]) > peak) peak = fabsf(m_right[i]);
+        }
+        m_lastPeak = peak;
+
+        float desiredGain = 1.0f;
+        if (peak > m_peakThreshold && peak > 0.0f)
+        {
+            desiredGain = m_peakThreshold / peak;
+        }
+        float alpha = (desiredGain < m_busGain) ? m_limiterAttack : m_limiterRelease;
+        m_busGain += (desiredGain - m_busGain) * alpha;
+        if (m_busGain < 0.0f) m_busGain = 0.0f;
+        if (m_busGain > 1.0f) m_busGain = 1.0f;
+
+        for (unsigned int i = 0; i < _numSamples; ++i)
+        {
+            float l = m_left[i] * m_busGain;
+            float r = m_right[i] * m_busGain;
+            _outInterleaved[i * 2] = tanhf(l * invPcm);
+            _outInterleaved[i * 2 + 1] = tanhf(r * invPcm);
+        }
+    }
+    else
+    {
+        // Limiter disabled: just scale to [-1,1] with clamp
+        m_lastPeak = 0.0f;
+        m_busGain = 1.0f;
+        for (unsigned int i = 0; i < _numSamples; ++i)
+        {
+            float l = m_left[i] * invPcm;
+            float r = m_right[i] * invPcm;
+            if (l < -1.0f) l = -1.0f; if (l > 1.0f) l = 1.0f;
+            if (r < -1.0f) r = -1.0f; if (r > 1.0f) r = 1.0f;
+            _outInterleaved[i * 2] = l;
+            _outInterleaved[i * 2 + 1] = r;
+        }
     }
 }
 
