@@ -554,25 +554,9 @@ void ChatWindow::RenderMessages()
                 if( y >= clipYMin && y <= clipYMax && i >= minProcess )
                 {
                     done = true;
-                    if(team){
-                        switch (team->m_allianceId) //////////////////////////////////////////////////////////////
-                        {
-                            case 2:
-                            case 6:
-                            case 8:
-                            case 9:
-                            case 10:
-                            case 11:
-                            case 12:
-                            case 13:
-                            case 15:
-                            g_renderer->EclipseRectFill( xPos, y -2 , width, 14, Colour(250,250,250,20));
-                            g_renderer->TextSimple( xPos, y, Colour(250,250,250,80), 12, wrapped[w] );
-                        }
-                    }
-                        
                     g_renderer->TextSimple( xPos, y, teamCol, 12, wrapped[w] );
                 }
+
                 if( w>0) y -= h;
             }
 
@@ -589,22 +573,6 @@ void ChatWindow::RenderMessages()
 
                 if( !action )
                 {
-                    if(team){
-                        switch (team->m_allianceId) //////////////////////////////////////////////////////////////
-                        {
-                            case 2:
-                            case 6:
-                            case 8:
-                            case 9:
-                            case 10:
-                            case 11:
-                            case 12:
-                            case 13:
-                            case 15:
-                            g_renderer->EclipseRectFill( textX, y -2 , width, 14,  Colour(250,250,250,25));
-                            g_renderer->Text( textX, y,  Colour(250,250,250,80), 12, "%s:", chatMsg->m_playerName );
-                        }
-                    }
                     g_renderer->Text( textX, y, teamCol, 12, "%s:", chatMsg->m_playerName );
                 }
             }
