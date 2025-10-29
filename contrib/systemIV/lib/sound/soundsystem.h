@@ -78,8 +78,13 @@ public:
     void TriggerEvent           ( const char *_type, const char *_eventName, Vector3<float> const &_pos );
 
     void StopAllSounds          ( SoundObjectId _id, const char *_eventName=NULL );        // Pass in NULL to stop every event.
-                                                                                     // Full event name required, eg "Darwinian SeenThreat"
+                                                                                    // Full event name required, eg "Darwinian SeenThreat"
 	void EnableCallback         ( bool _enabled );
+
+    bool GenerateChannelSamplesShort(unsigned int channel, signed short *dst, unsigned int numSamples, int *silenceRemaining);
+#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+    bool GenerateChannelSamplesFloat(unsigned int channel, float *dst, unsigned int numSamples, int *silenceRemaining);
+#endif
 
     void StopAllDSPEffects      ();
 

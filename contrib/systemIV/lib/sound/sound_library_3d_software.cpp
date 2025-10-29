@@ -11,6 +11,14 @@
 #include "sound_library_2d.h"
 #include "lib/sound/sound_library_2d_sdl.h"
 #include "lib/preferences.h"
+#include "soundsystem.h"
+
+static inline signed short FloatToPcmClamp(float value)
+{
+    if (value > 32767.0f) value = 32767.0f;
+    if (value < -32768.0f) value = -32768.0f;
+    return (signed short)Round(value);
+}
 
 
 
@@ -44,6 +52,7 @@ public:
 	SoundLibFilterSoftware		m_dspFX[SoundLibrary3d::NUM_FILTERS];
 
 	signed short		*m_buffer;
+    float               *m_bufferFloat;
 	unsigned int		m_samplesInBuffer;
 	bool				m_containsSilence;		// Updated in callback
 
@@ -66,6 +75,7 @@ public:
 
 SoftwareChannel::SoftwareChannel()
 :	m_buffer(NULL),
+    m_bufferFloat(NULL),
 	m_freq(1),
 	m_volume(0.0f),
 	m_oldVolLeft(0.0f),
@@ -83,7 +93,10 @@ SoftwareChannel::SoftwareChannel()
 
 SoftwareChannel::~SoftwareChannel()
 {
-    delete m_buffer;
+    delete [] m_buffer;
+    m_buffer = NULL;
+    delete [] m_bufferFloat;
+    m_bufferFloat = NULL;
 }
 
 void SoftwareChannel::Initialise( bool _stereo )
@@ -97,6 +110,8 @@ void SoftwareChannel::Initialise( bool _stereo )
 	if( _stereo ) m_samplesInBuffer *= 5;
 	m_buffer = new signed short[m_samplesInBuffer];
 	memset(m_buffer, 0, sizeof(signed short) * m_samplesInBuffer);
+    m_bufferFloat = new float[m_samplesInBuffer];
+    memset(m_bufferFloat, 0, sizeof(float) * m_samplesInBuffer);
 
 	for (int i = 0; i < SoundLibrary3dSoftware::NUM_FILTERS; ++i)
 	{
@@ -241,15 +256,29 @@ void SoundLibrary3dSoftware::GetChannelData(float _duration, unsigned int _numSa
 			unsigned int samplesNeeded = _numSamples;
 			if( i >= m_numChannels - m_numMusicChannels ) samplesNeeded *= 2;
 
-			if (m_mainCallback)
-			{
-				m_channels[i].m_containsSilence = 
-					!m_mainCallback(i, m_channels[i].m_buffer, samplesNeeded, &silenceRemaining);
-			}
-			else
-			{
-				m_channels[i].m_containsSilence = true;
-			}
+            bool hasData = false;
+#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+            if (g_soundSystem)
+            {
+                hasData = g_soundSystem->GenerateChannelSamplesFloat(i, m_channels[i].m_bufferFloat, samplesNeeded, &silenceRemaining);
+            }
+            else
+#endif
+            if (m_mainCallback)
+            {
+                hasData = m_mainCallback(i, m_channels[i].m_buffer, samplesNeeded, &silenceRemaining);
+                if (hasData)
+                {
+                    unsigned int copySamples = samplesNeeded;
+                    signed short *src = m_channels[i].m_buffer;
+                    float *dst = m_channels[i].m_bufferFloat;
+                    for (unsigned int s = 0; s < copySamples; ++s)
+                    {
+                        dst[s] = (float)src[s];
+                    }
+                }
+            }
+            m_channels[i].m_containsSilence = !hasData;
 				
 			if (!m_channels[i].m_containsSilence)
 			{
@@ -267,16 +296,42 @@ void SoundLibrary3dSoftware::ApplyDspFX(float _duration, unsigned int _numSample
 	{
 		for (int i = 0; i < m_numChannels; ++i)
 		{
+            bool hasFilters = false;
+            for (int j = 0; j < NUM_FILTERS; ++j)
+            {
+                if (m_channels[i].m_dspFX[j].m_userFilter)
+                {
+                    hasFilters = true;
+                    break;
+                }
+            }
+
+            if (!hasFilters)
+            {
+                continue;
+            }
+
+            unsigned int samplesNeeded = _numSamples;
+			if( i >= m_numChannels - m_numMusicChannels ) samplesNeeded *= 2;
+
+            float *floatBuf = m_channels[i].m_bufferFloat;
+            signed short *shortBuf = m_channels[i].m_buffer;
+
+            for (unsigned int s = 0; s < samplesNeeded; ++s)
+            {
+                shortBuf[s] = FloatToPcmClamp(floatBuf[s]);
+            }
+
 			for( int j = 0; j < NUM_FILTERS; ++j )
 		    {
 				if (m_channels[i].m_dspFX[j].m_userFilter == NULL) continue;
-
-				unsigned int samplesNeeded = _numSamples;
-				if( i >= m_numChannels - m_numMusicChannels ) samplesNeeded *= 2;
-				
-				m_channels[i].m_dspFX[j].m_userFilter->Process(m_channels[i].m_buffer, 
-																 samplesNeeded);
+				m_channels[i].m_dspFX[j].m_userFilter->Process(shortBuf, samplesNeeded);
 			}
+
+            for (unsigned int s = 0; s < samplesNeeded; ++s)
+            {
+                floatBuf[s] = (float)shortBuf[s];
+            }
 		}
 	}
 	// END_PROFILE2(m_profiler, "ApplyDspFX");
@@ -325,7 +380,7 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
 }
 
 
-void SoundLibrary3dSoftware::MixStereo(signed short *_inBuf, unsigned int _numSamples,
+void SoundLibrary3dSoftware::MixStereo(float *_inBuf, unsigned int _numSamples,
                                        float _volLeft, float _volRight)
 {
     float *left = m_left;
@@ -334,8 +389,8 @@ void SoundLibrary3dSoftware::MixStereo(signed short *_inBuf, unsigned int _numSa
     for (unsigned int j = 0; j < _numSamples; ++j)
     {
         unsigned int sampleIndex = j * 2;
-        float leftSample = (float)_inBuf[sampleIndex];
-        float rightSample = (float)_inBuf[sampleIndex + 1];
+        float leftSample = _inBuf[sampleIndex];
+        float rightSample = _inBuf[sampleIndex + 1];
 
         *left += leftSample * _volLeft;
         *right += rightSample * _volRight;
@@ -345,7 +400,7 @@ void SoundLibrary3dSoftware::MixStereo(signed short *_inBuf, unsigned int _numSa
 }
 
 
-void SoundLibrary3dSoftware::MixSameFreqFixedVol(signed short *_inBuf, unsigned int _numSamples,
+void SoundLibrary3dSoftware::MixSameFreqFixedVol(float *_inBuf, unsigned int _numSamples,
 											 	 float _volLeft, float _volRight)
 {
 	float *finalLeft = &m_left[_numSamples - 1];
@@ -353,13 +408,13 @@ void SoundLibrary3dSoftware::MixSameFreqFixedVol(signed short *_inBuf, unsigned 
 	float *right = m_right;
 	while (left <= finalLeft)
 	{
-		*left += (float)*_inBuf * _volLeft;
-		*right += (float)*_inBuf * _volRight;
+		*left += *_inBuf * _volLeft;
+		*right += *_inBuf * _volRight;
 		left++;	right++; _inBuf++;
 	}
 }
 
-void SoundLibrary3dSoftware::MixSameFreqRampVol(signed short *_inBuf, unsigned int _numSamples, 
+void SoundLibrary3dSoftware::MixSameFreqRampVol(float *_inBuf, unsigned int _numSamples, 
 												float _volL1, float _volR1, float _volL2, float _volR2)
 {
 	float volLeft = _volL1;
@@ -371,8 +426,8 @@ void SoundLibrary3dSoftware::MixSameFreqRampVol(signed short *_inBuf, unsigned i
 	float *right = m_right;
 	while (left <= finalLeft)
 	{
-		*left += (float)*_inBuf * volLeft;
-		*right += (float)*_inBuf * volRight;
+		*left += *_inBuf * volLeft;
+		*right += *_inBuf * volRight;
 		left++;	right++; _inBuf++;
 		volLeft += volLeftInc;
 		volRight += volRightInc;
@@ -476,7 +531,7 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 #ifdef TOGGLE_SOUND_TESTBED	
 			AppDebugOut("Channel: %d. freq = %u, 2dsoundfreq = %u\n", i, m_channels[i].m_freq, g_soundLibrary2d->GetFreq() );
 #endif
-            signed short *inBuf = m_channels[i].m_buffer;
+            float *inBuf = m_channels[i].m_bufferFloat;
             
             if (!inBuf)
             {

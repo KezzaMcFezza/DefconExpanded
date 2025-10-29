@@ -39,9 +39,9 @@ protected:
 	void GetChannelData		(float _duration, unsigned int _numSamples);
 	void ApplyDspFX			(float _duration, unsigned int _numSamples);
     
-    void MixStereo          (signed short *in, unsigned int numSamples, float volL, float volR);
-	void MixSameFreqFixedVol(signed short *in, unsigned int numSamples, float volL, float volR);
-	void MixSameFreqRampVol (signed short *in, unsigned int num, float volL1, float volR1, float volL2, float volR2);
+    void MixStereo          (float *in, unsigned int numSamples, float volL, float volR);
+	void MixSameFreqFixedVol(float *in, unsigned int numSamples, float volL, float volR);
+	void MixSameFreqRampVol (float *in, unsigned int num, float volL1, float volR1, float volL2, float volR2);
 	void CalcChannelVolumes	(int _channelIndex, float *_left, float *_right);
 
 public:
