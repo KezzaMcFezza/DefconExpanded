@@ -5,9 +5,11 @@
 
 #include "lib/sound/sound_library_2d_sdl.h"
 #include "lib/sound/sound_library_2d_mode.h"
+#include "lib/sound/sound_library_3d_software.h"
 
 #include <SDL2/SDL.h>
 #include <vector>
+#include <algorithm>
 #include <cstring>
 #include <cstdio>   // snprintf when caching device/driver name
 
@@ -43,37 +45,28 @@ static void sdlAudioCallback(void *userdata, Uint8 *stream, int len)
 		return;
 	}
 #ifdef TOGGLE_SOUND_TESTBED	
-	AppDebugOut("sdlAudioCallback: calling AudioCallback with %d samples\n", len / sizeof(StereoSample));
+	AppDebugOut("sdlAudioCallback: calling AudioCallback with %d bytes\n", len);
 #endif
-	self->AudioCallback( (StereoSample *) stream, len / sizeof(StereoSample) );
+    unsigned bytesPerFrame = self ? self->GetBytesPerFrame() : 0;
+    unsigned frames = (bytesPerFrame > 0) ? (unsigned)(len / bytesPerFrame) : 0;
+    self->AudioCallback(reinterpret_cast<float *>(stream), frames);
 #ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("sdlAudioCallback END\n");
 #endif
 }
 
-void SoundLibrary2dSDL::AudioCallback(StereoSample *stream, unsigned numSamples)
+void SoundLibrary2dSDL::AudioCallback(float *stream, unsigned numFrames)
 {
 #ifdef TOGGLE_SOUND_TESTBED	
-	AppDebugOut("SoundLibrary2dSDL::AudioCallback START: stream=%p, numSamples=%u\n", stream, numSamples);
+	AppDebugOut("SoundLibrary2dSDL::AudioCallback START: stream=%p, numFrames=%u\n", stream, numFrames);
 #endif
 
 	double now = GetHighResTime();
 
-	void (*callback)(StereoSample *, unsigned int) = NULL;
-	m_callbackLock.Lock();
-	callback = m_callback;
-	m_callbackLock.Unlock();
-
-	if (!callback)
+	if (stream && numFrames > 0)
 	{
-		memset(stream, 0, numSamples * sizeof(StereoSample));
-#ifdef TOGGLE_SOUND_TESTBED
-		AppDebugOut("SoundLibrary2dSDL::AudioCallback: no callback set, wrote silence\n");
-#endif
-		return;
-	}
-
-	callback(stream, numSamples);
+        RenderFloatBlock(stream, numFrames);
+    }
 
 	m_statsLock.Lock();
 
@@ -100,9 +93,9 @@ void SoundLibrary2dSDL::AudioCallback(StereoSample *stream, unsigned numSamples)
 
 	m_stats.audioCallbacks++;
 	m_stats.callbacksDirect++;
-	m_stats.totalSamplesMixed += numSamples;
+	m_stats.totalSamplesMixed += numFrames;
 	m_stats.lastCallbackTimestamp = now;
-	m_stats.lastCallbackSamples = numSamples;
+	m_stats.lastCallbackSamples = numFrames;
 	m_stats.bufferIsThirsty = 0;
 	m_stats.bufferedSamples[0] = 0;
 	m_stats.bufferedSamples[1] = 0;
@@ -112,6 +105,80 @@ void SoundLibrary2dSDL::AudioCallback(StereoSample *stream, unsigned numSamples)
 #ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("SoundLibrary2dSDL::AudioCallback END\n");
 #endif
+}
+
+void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
+{
+    if (!dest || numFrames == 0)
+    {
+        return;
+    }
+
+    SoundLibrary3dSoftware *software3d = nullptr;
+    if (m_usingFloatDevice && g_soundLibrary3d)
+    {
+        software3d = dynamic_cast<SoundLibrary3dSoftware *>(g_soundLibrary3d);
+    }
+
+    if (software3d)
+    {
+        software3d->RenderToInterleavedFloat(dest, numFrames);
+        return;
+    }
+
+    void (*callback)(StereoSample *, unsigned int) = NULL;
+    m_callbackLock.Lock();
+    callback = m_callback;
+    m_callbackLock.Unlock();
+
+    if (!callback)
+    {
+        memset(dest, 0, sizeof(float) * numFrames * 2);
+        return;
+    }
+
+    if (m_tempShort.size() < numFrames)
+    {
+        m_tempShort.resize(numFrames);
+    }
+
+    callback(m_tempShort.data(), numFrames);
+    ConvertShortBlockToFloat(m_tempShort.data(), dest, numFrames);
+}
+
+void SoundLibrary2dSDL::ConvertShortBlockToFloat(const StereoSample *src, float *dst, unsigned int numFrames)
+{
+    if (!src || !dst || numFrames == 0)
+    {
+        return;
+    }
+
+    const float scale = 1.0f / 32767.0f;
+    for (unsigned int i = 0; i < numFrames; ++i)
+    {
+        dst[i * 2] = std::max(-1.0f, std::min(1.0f, src[i].m_left * scale));
+        dst[i * 2 + 1] = std::max(-1.0f, std::min(1.0f, src[i].m_right * scale));
+    }
+}
+
+void SoundLibrary2dSDL::ConvertFloatBlockToShort(const float *src, StereoSample *dst, unsigned int numFrames)
+{
+    if (!src || !dst || numFrames == 0)
+    {
+        return;
+    }
+
+    for (unsigned int i = 0; i < numFrames; ++i)
+    {
+        float l = src[i * 2] * 32767.0f;
+        float r = src[i * 2 + 1] * 32767.0f;
+        if (l > 32767.0f) l = 32767.0f;
+        if (l < -32768.0f) l = -32768.0f;
+        if (r > 32767.0f) r = 32767.0f;
+        if (r < -32768.0f) r = -32768.0f;
+        dst[i].m_left = Round(l);
+        dst[i].m_right = Round(r);
+    }
 }
 
 void SoundLibrary2dSDL::TopupBuffer()
@@ -134,23 +201,25 @@ void SoundLibrary2dSDL::TopupBuffer()
 		
 		if (GetHighResTime() > nextOutputTime)
 		{
-			StereoSample buf[5000];
 			int samplesPerSecond = 44100;
 			int samplesPerUpdate = (int)((double)samplesPerSecond / 20.0);
-			void (*callback)(StereoSample *, unsigned int) = NULL;
-			m_callbackLock.Lock();
-			callback = m_callback;
-			m_callbackLock.Unlock();
-			if (callback) {
-				callback(buf, samplesPerUpdate);
-				processedSamples += samplesPerUpdate;
-				lastSamplesProcessed = samplesPerUpdate;
-				wavCallback = true;
-			}
-			else {
-				memset(buf, 0, samplesPerUpdate * sizeof(StereoSample));
-			}
-			fwrite(buf, sizeof(StereoSample), samplesPerUpdate, m_wavOutput);
+            if (samplesPerUpdate > 0)
+            {
+                if (m_sliceScratch.size() < (size_t)samplesPerUpdate * 2)
+                {
+                    m_sliceScratch.resize((size_t)samplesPerUpdate * 2, 0.0f);
+                }
+                RenderFloatBlock(m_sliceScratch.data(), samplesPerUpdate);
+                if (m_tempShort.size() < (size_t)samplesPerUpdate)
+                {
+                    m_tempShort.resize(samplesPerUpdate);
+                }
+                ConvertFloatBlockToShort(m_sliceScratch.data(), m_tempShort.data(), samplesPerUpdate);
+                fwrite(m_tempShort.data(), sizeof(StereoSample), samplesPerUpdate, m_wavOutput);
+                processedSamples += samplesPerUpdate;
+                lastSamplesProcessed = samplesPerUpdate;
+                wavCallback = true;
+            }
 			nextOutputTime += 1.0 / 20.0;
 		}
 	}
@@ -198,9 +267,8 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	SDL_zero(desired);
 	
     desired.freq = m_freq;
-    // Use signed 16-bit output for both modes to keep device format
-    // aligned with our internal ring buffer and avoid extra conversions
-    desired.format = AUDIO_S16SYS;
+    // Request 32-bit float output so SDL performs the final quantisation.
+    desired.format = AUDIO_F32SYS;
 	desired.samples = m_samplesPerBuffer;
 	desired.channels = 2;
 
@@ -215,7 +283,6 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 
     desired.userdata = this;
     // In push/queue mode, we disable the SDL callback and feed via SDL_QueueAudio.
-    // We keep AUDIO_S16SYS to match the ring buffer format.
     desired.callback = m_usePushMode ? NULL : sdlAudioCallback;
 	
 	AppDebugOut("Initialising SDL Audio\n");
@@ -284,8 +351,8 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 #endif
 #endif
 
-    // Enforce the signed 16-bit stereo contract expected by the mixer
-    if (s_audioSpec.format != AUDIO_S16SYS || s_audioSpec.channels != 2)
+    // Enforce the float stereo contract expected by the mixer
+    if (s_audioSpec.format != AUDIO_F32SYS || s_audioSpec.channels != 2)
     {
         SDL_AudioDeviceID badDevice = s_audioDevice;
         s_audioDevice = 0;
@@ -299,7 +366,7 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
             s_audioSubsystemInitialisedByLibrary = false;
         }
         AppReleaseAssert(false,
-            "SDL audio device returned unsupported format (format=0x%x, channels=%d). Signed 16-bit stereo is required.",
+            "SDL audio device returned unsupported format (format=0x%x, channels=%d). 32-bit float stereo is required.",
             s_audioSpec.format, s_audioSpec.channels);
     }
 
@@ -326,6 +393,7 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	m_actualFormat = s_audioSpec.format;
 
     m_periodFrames = s_audioSpec.samples;
+    m_usingFloatDevice = true;
     m_bytesPerFrame = (SDL_AUDIO_BITSIZE(s_audioSpec.format)/8) * s_audioSpec.channels;
     m_totalQueuedFrames = 0;
     m_lastSliceStartSample = 0;
@@ -343,14 +411,14 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
     if (ringFramesTarget < GetPeriodFrames()*4) ringFramesTarget = GetPeriodFrames()*4;
     m_ringFrames = nextPow2(ringFramesTarget);
     m_ringMask = m_ringFrames - 1;
-    m_ring.assign(m_ringFrames, StereoSample());
+    m_ring.assign(static_cast<size_t>(m_ringFrames) * s_audioSpec.channels, 0.0f);
     m_copyIndex = 0;
     m_fillIndex = 0;
 
 #ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("Frequency: %d\nFormat: %d\nChannels: %d\nSamples: %d\n", 
 		s_audioSpec.freq, s_audioSpec.format, s_audioSpec.channels, s_audioSpec.samples);
-	AppDebugOut("Size of Stereo Sample: %u\n", sizeof(StereoSample));
+	AppDebugOut("SDL float output bytes/frame: %u\n", m_bytesPerFrame);
 #endif
 	
 	s_audioStarted = 1;
@@ -625,26 +693,24 @@ void SoundLibrary2dSDL::MixWindowToRing(uint64_t startFrame, unsigned frames)
 {
     if (frames == 0) return;
     const unsigned period = GetPeriodFrames();
-    std::vector<StereoSample> slice;
-    slice.resize(period);
+    const unsigned channels = s_audioSpec.channels ? s_audioSpec.channels : 2;
+    if (m_sliceScratch.size() < (size_t)period * channels)
+    {
+        m_sliceScratch.resize((size_t)period * channels, 0.0f);
+    }
     unsigned remaining = frames;
     uint64_t cursor = startFrame;
 
     while (remaining > 0) {
         unsigned chunk = std::min(period, remaining);
         m_lastSliceStartSample = cursor;
-        void (*callback)(StereoSample *, unsigned int) = NULL;
-        m_callbackLock.Lock();
-        callback = m_callback;
-        m_callbackLock.Unlock();
-
-        if (callback) {
-            callback(slice.data(), chunk);
-        } else {
-            memset(slice.data(), 0, chunk * sizeof(StereoSample));
-        }
+        RenderFloatBlock(m_sliceScratch.data(), chunk);
         if (m_wavOutput) {
-            fwrite(slice.data(), sizeof(StereoSample), chunk, m_wavOutput);
+            if (m_tempShort.size() < (size_t)chunk) {
+                m_tempShort.resize(chunk);
+            }
+            ConvertFloatBlockToShort(m_sliceScratch.data(), m_tempShort.data(), chunk);
+            fwrite(m_tempShort.data(), sizeof(StereoSample), chunk, m_wavOutput);
         }
 
         //
@@ -653,9 +719,11 @@ void SoundLibrary2dSDL::MixWindowToRing(uint64_t startFrame, unsigned frames)
         uint32_t ringPos = (uint32_t)(cursor & m_ringMask);
         unsigned first = std::min<unsigned>(chunk, m_ringFrames - ringPos);
         if (!m_ring.empty()) {
-            memcpy(&m_ring[ringPos], slice.data(), first * sizeof(StereoSample));
+            float *dst = &m_ring[(size_t)ringPos * channels];
+            const float *src = m_sliceScratch.data();
+            memcpy(dst, src, (size_t)first * channels * sizeof(float));
             if (chunk > first) {
-                memcpy(&m_ring[0], slice.data() + first, (chunk - first) * sizeof(StereoSample));
+                memcpy(&m_ring[0], src + (size_t)first * channels, (size_t)(chunk - first) * channels * sizeof(float));
             }
         }
 
@@ -692,9 +760,9 @@ unsigned SoundLibrary2dSDL::CopyFromRingToSDL(unsigned framesToCopy)
     uint32_t ringPos = (uint32_t)(m_copyIndex & m_ringMask);
     unsigned first = std::min<unsigned>(frames, m_ringFrames - ringPos);
     unsigned bytesFirst = first * m_bytesPerFrame;
+    const unsigned channels = s_audioSpec.channels ? s_audioSpec.channels : 2;
     if (first > 0) {
-        // Queue first contiguous block directly (S16 device format)
-        if (SDL_QueueAudio(s_audioDevice, &m_ring[ringPos], bytesFirst) != 0) {
+        if (SDL_QueueAudio(s_audioDevice, &m_ring[(size_t)ringPos * channels], bytesFirst) != 0) {
             return 0; // Failed, try later
         }
     }

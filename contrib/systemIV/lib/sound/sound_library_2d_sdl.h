@@ -32,8 +32,11 @@ private:
     unsigned         m_bytesPerFrame = 0;  // channels * bytes/sample
     unsigned         m_targetLatencyMs = 0;
     int              m_usePushMode = 0;
+    bool             m_usingFloatDevice = false;
     // Ring buffer fields (push mode)
-    std::vector<StereoSample> m_ring;
+    std::vector<float> m_ring;             // interleaved float stereo frames
+    std::vector<float> m_sliceScratch;
+    std::vector<StereoSample> m_tempShort;
     uint32_t        m_ringFrames = 0;     // power-of-two length
     uint32_t        m_ringMask = 0;
     uint64_t        m_copyIndex = 0;      // next frame to copy into SDL device
@@ -104,7 +107,10 @@ public:
     RuntimeStats	m_stats;
     uint32_t        m_deviceId; // current SDL audio device id for this instance
 
-    void			AudioCallback(StereoSample *buf, unsigned int numSamples);
+    void			AudioCallback(float *buf, unsigned int numFrames);
+    void            RenderFloatBlock(float *dest, unsigned int numFrames);
+    void            ConvertShortBlockToFloat(const StereoSample *src, float *dst, unsigned int numFrames);
+    void            ConvertFloatBlockToShort(const float *src, StereoSample *dst, unsigned int numFrames);
     int             FeederLoop();
     void            MixWindowToRing(uint64_t startFrame, unsigned frames);
     void            EnsureMixedThrough(uint64_t endFrame);

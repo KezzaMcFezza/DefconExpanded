@@ -141,6 +141,7 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
 :   SoundLibrary3d(),
 	m_channels(NULL),
 	m_allocatedSamples(0),
+    m_interleaved(NULL),
 	m_listenerFront(1,0,0),
 	m_listenerUp(0,1,0),
 	m_lastVolumeSet(GetMasterVolume())
@@ -159,6 +160,7 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
 
     m_left = new float[m_allocatedSamples];
     m_right = new float[m_allocatedSamples];
+    m_interleaved = new float[m_allocatedSamples * 2];
 
     // Limiter/headroom defaults (can be overridden via prefs)
     m_busGain = 1.0f;
@@ -187,6 +189,7 @@ SoundLibrary3dSoftware::~SoundLibrary3dSoftware()
 	m_numChannels = 0;
 	delete [] m_left;			m_left = NULL;
 	delete [] m_right;			m_right = NULL;
+    delete [] m_interleaved;    m_interleaved = NULL;
 }
 
 
@@ -440,25 +443,27 @@ void SoundLibrary3dSoftware::EnableCallback(bool _enabled)
 	g_soundLibrary2d->SetCallback( _enabled ? SoundLib3dSoftwareCallbackWrapper : NULL );
 }
 
-
-void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSamples)
+void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, unsigned int _numSamples)
 {
-	if (!m_channels) 
-	{
-		return;
-	}
+    if (!_outInterleaved || _numSamples == 0)
+    {
+        return;
+    }
+
+    if (!m_channels)
+    {
+        memset(_outInterleaved, 0, sizeof(float) * _numSamples * 2);
+        return;
+    }
 
 #ifdef TARGET_EMSCRIPTEN
-	// Fixes the frequency data loss, so now we store channel frequencies locally to prevent corruption in WebAssembly threading
-	static unsigned int channelFreqs[64]; // defcon supports upto 64 channels
+	static unsigned int channelFreqs[64];
 	for (int i = 0; i < m_numChannels && i < 64; ++i)
 	{
 		channelFreqs[i] = m_channels[i].m_freq;
 	}
 #endif
 
-    // Use actual device rate when available to keep time-based
-    // calculations aligned with the real audio clock (push/callback).
     unsigned actualRate = g_soundLibrary2d ? g_soundLibrary2d->GetFreq() : 44100;
     if (g_soundLibrary2d) {
         SoundLibrary2dSDL *sdl2d = dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d);
@@ -473,7 +478,6 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 	ApplyDspFX(duration, _numSamples);
 
 #ifdef TARGET_EMSCRIPTEN
-	// restore channel frequencies after corruption
 	for (int i = 0; i < m_numChannels && i < 64; ++i)
 	{
 		if (m_channels[i].m_freq != channelFreqs[i])
@@ -483,30 +487,23 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 	}
 #endif
 
-	// START_PROFILE2(m_profiler, "Mix");
-	
-	// now its pretty important to ensure we dont overflow the mixing buffers
 	if (_numSamples > m_allocatedSamples)
 	{
 		_numSamples = m_allocatedSamples;
 	}
-	
-	// verify buffer pointers before memset, in the debug stack trace we saw that channel 0 was getting given garbage data
+
 	if (!m_left || !m_right)
 	{
+        memset(_outInterleaved, 0, sizeof(float) * _numSamples * 2);
 		return;
 	}
-	
+
 	memset(m_left, 0, sizeof(float) * _numSamples);
 	memset(m_right, 0, sizeof(float) * _numSamples);
 
-	// Merge all the channel's into one stereo stream, converting to floats to
-	// prevent overflows and reap the benefits of huge FPU power on Athlons
-	// and modern Pentiums.
 	for (int i = 0; i < m_numChannels; ++i)
 	{
 #ifdef TARGET_EMSCRIPTEN
-		// re check frequency before each channel mix
 		if (m_channels[i].m_freq != channelFreqs[i])
 		{
 			m_channels[i].m_freq = channelFreqs[i];
@@ -525,20 +522,17 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 		m_channels[i].m_forceVolumeJump = false;
 		float const maxDelta = 0.003f;
 
-		// Skip this channel if it contains silence
 		if (!m_channels[i].m_containsSilence) 
 		{
 #ifdef TOGGLE_SOUND_TESTBED	
 			AppDebugOut("Channel: %d. freq = %u, 2dsoundfreq = %u\n", i, m_channels[i].m_freq, g_soundLibrary2d->GetFreq() );
 #endif
             float *inBuf = m_channels[i].m_bufferFloat;
-            
             if (!inBuf)
             {
             	continue;
             }
 
-			// Determine which mixer function to use - some are faster than others
 			if( i >= m_numChannels - m_numMusicChannels )
             {
                 MixStereo(inBuf, _numSamples, volLeft, volRight);
@@ -559,7 +553,6 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 		m_channels[i].m_oldVolRight = volRight;
 		
 #ifdef TARGET_EMSCRIPTEN
-		// verify frequency hasnt been corrupted after mixing operations
 		if (m_channels[i].m_freq != channelFreqs[i])
 		{
 			m_channels[i].m_freq = channelFreqs[i];
@@ -567,9 +560,8 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 #endif
 	}
 
-	// Simple mix-bus limiter with attack/release
     float peak = 0.0f;
-    for (int i = 0; i < _numSamples; ++i)
+    for (unsigned int i = 0; i < _numSamples; ++i)
     {
         if (fabsf(m_left[i]) > peak) peak = fabsf(m_left[i]);
         if (fabsf(m_right[i]) > peak) peak = fabsf(m_right[i]);
@@ -586,22 +578,39 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 	if (m_busGain < 0.0f) m_busGain = 0.0f;
 	if (m_busGain > 1.0f) m_busGain = 1.0f;
 
-    // Convert floats back to signed shorts with limiter gain and soft clip
-    for (int i = 0; i < _numSamples; ++i)
+    const float invPcm = 1.0f / 32767.0f;
+    for (unsigned int i = 0; i < _numSamples; ++i)
     {
-        if (_buf && i < _numSamples)
-        {
-            float l = m_left[i] * m_busGain;
-            float r = m_right[i] * m_busGain;
-            // soft-clip using tanh to avoid harsh edges
-            const float k = 1.0f / 32767.0f;
-            l = 32767.0f * tanhf(l * k);
-            r = 32767.0f * tanhf(r * k);
-            _buf[i].m_left = Round(l);
-            _buf[i].m_right = Round(r);
-        }
+        float l = m_left[i] * m_busGain;
+        float r = m_right[i] * m_busGain;
+        _outInterleaved[i * 2] = tanhf(l * invPcm);
+        _outInterleaved[i * 2 + 1] = tanhf(r * invPcm);
     }
-	// END_PROFILE2(m_profiler, "Mix");
+}
+
+
+void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSamples)
+{
+	if (!m_interleaved || !_buf)
+	{
+		return;
+	}
+
+    RenderToInterleavedFloat(m_interleaved, _numSamples);
+
+    for (unsigned int i = 0; i < _numSamples; ++i)
+    {
+        float l = m_interleaved[i * 2];
+        float r = m_interleaved[i * 2 + 1];
+        float lPcm = l * 32767.0f;
+        float rPcm = r * 32767.0f;
+        if (lPcm > 32767.0f) lPcm = 32767.0f;
+        if (lPcm < -32768.0f) lPcm = -32768.0f;
+        if (rPcm > 32767.0f) rPcm = 32767.0f;
+        if (rPcm < -32768.0f) rPcm = -32768.0f;
+        _buf[i].m_left = Round(lPcm);
+        _buf[i].m_right = Round(rPcm);
+    }
 }
 
 

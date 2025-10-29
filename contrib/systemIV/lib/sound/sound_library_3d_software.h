@@ -21,6 +21,8 @@ protected:
 	float					*m_right;						
 	unsigned int			m_allocatedSamples;				// Actual allocated buffer size
 
+    float                  *m_interleaved;                 // Scratch interleaved output (L,R)
+
 	Vector3<float>			m_listenerFront;
 	Vector3<float>			m_listenerUp;
 	Vector3<float>			m_listenerRight;
@@ -54,6 +56,7 @@ public:
 	void SetMasterVolume    ( int _volume );
 	void EnableCallback     (bool _enabled);
     void Callback			(StereoSample *_buf, unsigned int _numSamples); // Called from SoundLibrary2d
+    void RenderToInterleavedFloat(float *_outInterleaved, unsigned int _numSamples);
 
     bool Hardware3DSupport	();
     int  GetMaxChannels		();
