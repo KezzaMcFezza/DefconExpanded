@@ -4,14 +4,14 @@ This project adds robust, consistent protection against clipping across SDL and 
 
 Use the settings below to tune behavior. The one knob that matters most for “don’t clip” is SoundHeadroomDb; the limiter (SDL) and dynamic attenuation (DirectSound) provide extra safety only when needed.
 
-Quick toggles (default on)
+Quick toggles (default off)
 
-- SoundLimiter = 1
-  - Enables the SDL mix‑bus limiter. Set to 0 to disable.
-- SoundSDLDynEnabled = 1
-  - Enables the SDL crowd attenuation heuristic. Set to 0 to keep SDL channels at full gain regardless of loud-channel count.
-- SoundDSDynEnabled = 1
-  - Enables DirectSound dynamic attenuation. Set to 0 to disable.
+- SoundLimiter = 0
+  - SDL mix‑bus limiter. Set to 1 if you want automatic peak catching on the software mixer.
+- SoundSDLDynEnabled = 0
+  - SDL crowd attenuation heuristic. Set to 1 if you want the mixer to pre‑duck whenever many channels run loud.
+- SoundDSDynEnabled = 0
+  - DirectSound dynamic attenuation. Set to 1 to keep the DS backend’s classic crowd attenuation behavior.
 
 ## Overview
 
@@ -30,6 +30,8 @@ Quick toggles (default on)
   - Hard clipping cannot occur on the SDL path because the limiter always pulls the bus gain down before samples exceed the threshold and the output stage applies a tanh soft clip before writing PCM.
 
 ## SDL Mix‑Bus Limiter (Extra Safety)
+
+Disabled by default. Enable by setting `SoundLimiter = 1`.
 
 Applies after mixing to floats, only when needed. It measures the peak within each audio block and reduces gain enough to keep the block under the threshold, with smoothing. A soft‑clip (tanh) avoids harsh edges for any residual overs.
 
@@ -50,6 +52,8 @@ Notes:
 - If you prefer fewer gain changes during extreme stacks, raise the threshold slightly or increase release.
 
 ## SDL Crowd Attenuation (Dynamic Pre-Duck)
+
+Disabled by default. Enable by setting `SoundSDLDynEnabled = 1`.
 
 Mirrors the DirectSound anti-clip heuristic, but runs entirely within the SDL software mixer. When many non-music channels sit at high volume simultaneously, the system gently lowers the bus before the limiter needs to engage, then releases once things calm down.
 
@@ -105,6 +109,8 @@ Notes:
 
 ## DirectSound Dynamic Anti‑Clip (Extra Safety)
 
+Disabled by default. Enable by setting `SoundDSDynEnabled = 1`.
+
 DirectSound mixes in the OS/driver, where we cannot insert a true mix‑bus limiter. Instead, a global pre‑attenuation kicks in when many channels are “loud,” with attack/release smoothing.
 The SDL software mixer exposes the same heuristic via the SoundSDLDyn* settings described above, so you can keep both backends aligned.
 
@@ -139,6 +145,7 @@ Notes:
 
 These defaults aim for robust protection with minimal audible side‑effects:
 
+- Quick toggles: SoundLimiter = 0, SoundSDLDynEnabled = 0, SoundDSDynEnabled = 0
 - SoundHeadroomDb = 12
 - SDL: SoundLimiterThreshold = 28000, SoundLimiterAttack = 1.0, SoundLimiterRelease = 0.02
 - SDL crowd attenuation: SoundSDLDynLoudVolume = 7.0, SoundSDLDynStartCount = 2, SoundSDLDynDbPerExtra = 2.0, SoundSDLDynMaxDb = 12.0, SoundSDLDynAttack = 0.5, SoundSDLDynRelease = 0.1
