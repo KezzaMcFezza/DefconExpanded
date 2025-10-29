@@ -161,9 +161,4 @@ void SoundProtectionOverlay::Render()
         }
 #endif
     }
-
-    // Help text
-    y += sectionGap;
-    g_renderer->TextSimple(baseX, y, Colour(200,200,200,255), 11.0f,
-                           "Headroom is the main safety knob; others fine-tune behavior.");
 }
