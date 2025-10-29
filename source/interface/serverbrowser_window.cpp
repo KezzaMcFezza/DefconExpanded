@@ -465,10 +465,12 @@ public:
 
             if( password )
             {
+                g_renderer->EndEclipseRectFillBatch();
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
                 Image *lock = g_resource->GetImage( "gui/locked.bmp");
                 g_renderer->EclipseSprite( lock, realX, realY, 14, 14, White );
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
+                g_renderer->BeginEclipseRectFillBatch();
             }
 
             if( highlighted || clicked )
