@@ -365,6 +365,7 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
 			to /= dist;
 			dotRight = to * m_listenerRight;
 		}
+		Clamp(dotRight, -1.0f, 1.0f);
 		*_right = (dotRight + 1.0f) * 0.5f;
 		*_left = 1.0f - *_right;
 
@@ -384,6 +385,8 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
 
 	*_left *= calculatedVolume; 
 	*_right *= calculatedVolume; 
+	Clamp(*_left, 0.0f, calculatedVolume);
+	Clamp(*_right, 0.0f, calculatedVolume);
 }
 
 
