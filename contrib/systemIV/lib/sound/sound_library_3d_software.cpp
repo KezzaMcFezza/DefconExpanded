@@ -49,12 +49,16 @@ public:
 class SoftwareChannel
 {
 public:
-	SoundLibFilterSoftware		m_dspFX[SoundLibrary3d::NUM_FILTERS];
+    SoundLibFilterSoftware		m_dspFX[SoundLibrary3d::NUM_FILTERS];
 
 	signed short		*m_buffer;
     float               *m_bufferFloat;
 	unsigned int		m_samplesInBuffer;
 	bool				m_containsSilence;		// Updated in callback
+
+    // Minimum fade-in envelope to reduce start transients
+    unsigned int        m_fadeSamplesRemaining;
+    unsigned int        m_fadeSamplesTotal;
 
 	unsigned int		m_freq;					// Value recorded on previous call of SetChannelFrequency
 	float				m_volume;				// Value recorded on previous call of SetChannelVolume
@@ -82,6 +86,8 @@ SoftwareChannel::SoftwareChannel()
 	m_oldVolRight(0.0f),
 	m_forceVolumeJump(true),
 	m_containsSilence(true),
+    m_fadeSamplesRemaining(0),
+    m_fadeSamplesTotal(0),
 	m_minDist(0.1f),
 	m_pos(0,0,0),
 	m_3DMode(0)
@@ -540,20 +546,44 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
             	continue;
             }
 
-			if( i >= m_numChannels - m_numMusicChannels )
+            if( i >= m_numChannels - m_numMusicChannels )
             {
                 MixStereo(inBuf, _numSamples, volLeft, volRight);
             }
-            else if (fabsf(deltaVolLeft) < maxDelta && fabsf(deltaVolRight) < maxDelta)
-			{
-				MixSameFreqFixedVol(inBuf, _numSamples, volLeft, volRight);
-			}
-			else
-			{
-				MixSameFreqRampVol(inBuf, _numSamples, 
-								   m_channels[i].m_oldVolLeft, m_channels[i].m_oldVolRight,
-								   volLeft, volRight);
-			}
+            else
+            {
+                // Apply a minimum fade-in envelope across buffers when active
+                bool fadeActive = (m_channels[i].m_fadeSamplesRemaining > 0 && m_channels[i].m_fadeSamplesTotal > 0);
+                if (fadeActive)
+                {
+                    float fStart = 1.0f - ((float)m_channels[i].m_fadeSamplesRemaining / (float)m_channels[i].m_fadeSamplesTotal);
+                    if (fStart < 0.0f) fStart = 0.0f; if (fStart > 1.0f) fStart = 1.0f;
+                    unsigned int remAfter = (m_channels[i].m_fadeSamplesRemaining > _numSamples) ? (m_channels[i].m_fadeSamplesRemaining - _numSamples) : 0u;
+                    float fEnd = 1.0f - ((float)remAfter / (float)m_channels[i].m_fadeSamplesTotal);
+                    if (fEnd < 0.0f) fEnd = 0.0f; if (fEnd > 1.0f) fEnd = 1.0f;
+
+                    float startL = m_channels[i].m_oldVolLeft * fStart;
+                    float startR = m_channels[i].m_oldVolRight * fStart;
+                    float endL = volLeft * fEnd;
+                    float endR = volRight * fEnd;
+                    MixSameFreqRampVol(inBuf, _numSamples, startL, startR, endL, endR);
+                    // consume fade samples
+                    if (m_channels[i].m_fadeSamplesRemaining > _numSamples)
+                        m_channels[i].m_fadeSamplesRemaining -= _numSamples;
+                    else
+                        m_channels[i].m_fadeSamplesRemaining = 0u;
+                }
+                else if (fabsf(deltaVolLeft) < maxDelta && fabsf(deltaVolRight) < maxDelta)
+                {
+                    MixSameFreqFixedVol(inBuf, _numSamples, volLeft, volRight);
+                }
+                else
+                {
+                    MixSameFreqRampVol(inBuf, _numSamples,
+                                       m_channels[i].m_oldVolLeft, m_channels[i].m_oldVolRight,
+                                       volLeft, volRight);
+                }
+            }
 		}
 
 		m_channels[i].m_oldVolLeft = volLeft;
@@ -731,6 +761,35 @@ void SoundLibrary3dSoftware::ResetChannel( int _channel )
 	AppDebugOut("ResetChannel %d - freq was %u\n", _channel, m_channels[_channel].m_freq);
 #endif
 	m_channels[_channel].m_forceVolumeJump = true;
+#ifdef TOGGLE_SOUND_TESTBED	
+	AppDebugOut("ResetChannel %d - enabling fade-in envelope\n", _channel);
+#endif
+    // Deterministic per-channel fade-in (ms), with small jitter to de-correlate starts
+    float baseMs = 3.0f;      // default 3 ms
+    float jitterMs = 0.75f;   // +/- 0.75 ms
+    if (g_preferences)
+    {
+        float v = g_preferences->GetFloat("SoundMinFadeInMs", -1.0f); if (v >= 0.0f) baseMs = v;
+        v = g_preferences->GetFloat("SoundFadeInJitterMs", -1.0f); if (v >= 0.0f) jitterMs = v;
+    }
+    // Hash channel index into [-1,1]
+    unsigned int x = (unsigned int)_channel * 2654435761u ^ 0x9e3779b9u;
+    float u01 = (float)(x & 0xFFFF) / 65535.0f; // [0,1]
+    float jitter = (u01 * 2.0f) - 1.0f;         // [-1,1]
+    float fadeMs = baseMs + jitter * jitterMs;
+    if (fadeMs < 0.0f) fadeMs = 0.0f;
+    unsigned int rate = (m_sampleRate > 0) ? (unsigned int)m_sampleRate : 44100u;
+    unsigned int totalSamples = (unsigned int)(fadeMs * 0.001f * (float)rate + 0.5f);
+    if (totalSamples > 0)
+    {
+        m_channels[_channel].m_fadeSamplesTotal = totalSamples;
+        m_channels[_channel].m_fadeSamplesRemaining = totalSamples;
+    }
+    else
+    {
+        m_channels[_channel].m_fadeSamplesTotal = 0u;
+        m_channels[_channel].m_fadeSamplesRemaining = 0u;
+    }
 #ifdef TOGGLE_SOUND_TESTBED	
 	AppDebugOut("ResetChannel %d - freq is now %u\n", _channel, m_channels[_channel].m_freq);
 #endif
