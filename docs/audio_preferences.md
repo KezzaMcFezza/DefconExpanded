@@ -39,6 +39,27 @@ Notes:
 - The limiter acts only when a block’s peak exceeds SoundLimiterThreshold. Under normal play it remains transparent.
 - If you prefer fewer gain changes during extreme stacks, raise the threshold slightly or increase release.
 
+## Per‑Voice Minimum Fade‑In (SDL Software Mixer)
+
+Applies a very short fade‑in to newly started non‑music voices to reduce correlated start transients when many sounds begin in the same frame (e.g., zooming into multiple nukes). Disabled by default.
+
+- SoundMinFadeIn (int; 0=off, 1=on; default 0)
+
+  - Master switch. When enabled, each new channel gets a minimum fade envelope applied across successive mix buffers.
+
+- SoundMinFadeInMs (float, ms; default 3.0)
+
+  - Base fade‑in length. 2.0–5.0 ms is a good range: short enough to preserve punch, long enough to smooth clicks.
+
+- SoundFadeInJitterMs (float, ms; default 0.75)
+
+  - Adds a small deterministic per‑channel jitter (± value) to the fade length to decorrelate simultaneous starts, reducing the chance that many transients align.
+
+Notes:
+
+- This envelope multiplies the normal per‑channel volume (ADSR, distance, pan); it doesn’t replace your content’s Attack parameter.
+- Deterministic jitter is derived from the channel index, so behavior is stable run‑to‑run while still spreading onsets.
+
 ## DirectSound Dynamic Anti‑Clip (Extra Safety)
 
 DirectSound mixes in the OS/driver, where we cannot insert a true mix‑bus limiter. Instead, a global pre‑attenuation kicks in when many channels are “loud,” with attack/release smoothing.
