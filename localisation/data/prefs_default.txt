@@ -27,12 +27,13 @@ SoundLimiterAttack = 1.0
 SoundLimiterRelease = 0.02
 
 # SDL push/queue audio mode defaults
+# Mid-range CPU, balanced preset (see docs/sdl_push_mode_guide.md)
 SoundUsePushMode = 1
-SoundPeriodFrames = 64
-SoundTargetLatencyMs = 40
-SoundDeviceQueueLowMs = 15
-SoundDeviceQueueHighMs = 30
-SoundRingMs = 30
+SoundPeriodFrames = 128
+SoundTargetLatencyMs = 75
+SoundDeviceQueueLowMs = 25
+SoundDeviceQueueHighMs = 50
+SoundRingMs = 55
 SoundTimedScheduling = 1
 SoundAudioClockedADSR = 1
 
