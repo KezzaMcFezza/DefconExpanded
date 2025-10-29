@@ -16,21 +16,26 @@ Use the settings below to tune behavior. The one knob that matters most for “d
   - Fixed safety margin applied before mixing (SDL) or before setting per‑channel volume (DirectSound).
   - Higher values = more headroom (safer, slightly quieter overall). Lower values = louder, less margin.
   - Recommended: 12 to match empirical safe point on DS; 6–12 is a reasonable range.
+  - SoundHeadroomDb just offsets every channel downward before mixing, so raising it buys you more margin and keeps the limiter idle. Dropping headroom pushes the mix hotter; the limiter will engage more often and the soft‑clip curve will imprint itself on transients. That’s a subjective choice: if you like the punch the limiter adds, run with less headroom; if you want cleaner dynamics, keep the headroom high enough that Limiter bus gain stays near 1.0 except on true outliers.
+  - Hard clipping cannot occur on the SDL path because the limiter always pulls the bus gain down before samples exceed the threshold and the output stage applies a tanh soft clip before writing PCM.
 
 ## SDL Mix‑Bus Limiter (Extra Safety)
 
 Applies after mixing to floats, only when needed. It measures the peak within each audio block and reduces gain enough to keep the block under the threshold, with smoothing. A soft‑clip (tanh) avoids harsh edges for any residual overs.
 
 - SoundLimiterThreshold (float, PCM; default 28000)
+
   - Peak level where limiting starts (full‑scale ≈ 32767). Lower = earlier limiting (safer), higher = later limiting (louder, riskier).
 
 - SoundLimiterAttack (float, 0..1; default 1.0)
+
   - Smoothing when gain needs to decrease (limiter engages). 1.0 = instant, guaranteeing the current block is pulled under threshold.
 
 - SoundLimiterRelease (float, 0..1; default 0.02)
   - Smoothing when gain recovers after a peak. Smaller values = quicker recovery but more audible gain riding; larger = smoother but slower.
 
 Notes:
+
 - The limiter acts only when a block’s peak exceeds SoundLimiterThreshold. Under normal play it remains transparent.
 - If you prefer fewer gain changes during extreme stacks, raise the threshold slightly or increase release.
 
@@ -39,24 +44,30 @@ Notes:
 DirectSound mixes in the OS/driver, where we cannot insert a true mix‑bus limiter. Instead, a global pre‑attenuation kicks in when many channels are “loud,” with attack/release smoothing.
 
 - SoundDSDynLoudVolume (float, 0..10; default 7.0)
+
   - Per‑channel volume considered “loud.” Channels at or above this level contribute to the loud channel count.
 
 - SoundDSDynStartCount (int; default 2)
+
   - Number of loud channels before attenuation begins.
 
 - SoundDSDynDbPerExtra (float, dB; default 2.0)
+
   - Attenuation per loud channel beyond SoundDSDynStartCount.
 
 - SoundDSDynMaxDb (float, dB; default 12.0)
+
   - Maximum dynamic attenuation cap.
 
 - SoundDSDynAttack (float, 0..1; default 0.5)
+
   - Smoothing when increasing attenuation (faster means more responsive).
 
 - SoundDSDynRelease (float, 0..1; default 0.1)
   - Smoothing when reducing attenuation (slower prevents pumping).
 
 Notes:
+
 - This heuristic anticipates clipping risk when dense stacks of loud channels occur. It preserves loudness under normal conditions and ducks the whole mix only under heavy load.
 
 ## Defaults
@@ -72,9 +83,11 @@ These defaults aim for robust protection with minimal audible side‑effects:
 Common goals and the most relevant knobs:
 
 - “Just make clipping impossible”
+
   - Increase SoundHeadroomDb (e.g., 14). This is the primary safety lever.
 
 - “Catch more peaks on SDL without killing dynamics”
+
   - Lower SoundLimiterThreshold a little (e.g., 27000); keep Attack at 1.0; adjust Release between 0.01–0.05.
 
 - “Be more proactive on DirectSound when many sounds stack”
@@ -83,9 +96,11 @@ Common goals and the most relevant knobs:
 ## FAQ
 
 - Why not just turn down the master volume?
+
   - Lowering master works but penalizes loudness all the time. Headroom + limiter/attenuation preserves full loudness for normal play and intervenes only when necessary.
 
 - Why did SDL and DS have different “safe” master values before?
+
   - Their original mappings and mixing stages differed. With a unified headroom strategy and protection, one set of defaults works consistently across both.
 
 - Does changing SoundLimiterThreshold change overall loudness?
@@ -94,6 +109,7 @@ Common goals and the most relevant knobs:
 ## Debug Overlays (F3, F4)
 
 - F3: Sound Debug Overlay
+
   - Existing runtime stats (callbacks, buffering, etc.). Useful for timing/throughput checks.
 
 - F4: Sound Safety Overlay
@@ -118,6 +134,6 @@ Common goals and the most relevant knobs:
       - Red when the number of loud channels exceeds the start count (dynamic attenuation likely to engage).
 
 Interpreting red indicators
+
 - SDL: Red peak or bus‑gain lines mean the limiter had to engage — consider increasing SoundHeadroomDb or lowering SoundLimiterThreshold if this happens frequently.
 - DS: Red dynamic‑attenuation or loud‑channel lines mean global ducking is in effect or imminent — consider increasing SoundHeadroomDb, reducing SoundDSDynStartCount, or adjusting SoundDSDynDbPerExtra/MaxDb.
-
