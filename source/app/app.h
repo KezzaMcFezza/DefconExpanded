@@ -31,6 +31,8 @@ class RecordingFileDialog;
 class RendererDebugMenu;
 class SoundDebugOverlay;
 
+extern bool g_hideUI;
+
 class App
 {
 public:                 // STARTUP OPTIONS   
@@ -135,8 +137,9 @@ public:
 	const char* GetReplayFilename() const;
 	bool HasReplayFilename() const;
 
-    // prevents users in replay mode from playing with server settings
+
     bool                HasServerPrivileges()           { return m_server && m_server->ShouldAllowServerControls(); }
+    void                ToggleHideUI();
 };
 
 void	ConfirmExit( const char *_parentWindowName );

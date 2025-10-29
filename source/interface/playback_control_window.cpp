@@ -27,7 +27,7 @@ public:
     void MouseUp()
     {
         // hide the UI when this button is pressed
-        g_hideUI = true;
+        g_app->ToggleHideUI();
         
         EclRemoveWindow(m_parent->m_name);
     }
@@ -61,8 +61,7 @@ public:
 };
 
 int g_desiredPerspectiveTeamId = -1;        // global variable for team perspective switching
-bool g_healthBarsEnabled = false;           // global variable for health bar visibility 
-bool g_hideUI = false;                      // global variable for UI visibility toggle
+bool g_healthBarsEnabled = false;           // global variable for health bar visibility
 
 // ============================================================================
 // Playback Control Window
@@ -557,7 +556,7 @@ void PlaybackControlWindow::ToggleHealthBars()
 
 void PlaybackControlWindow::ToggleHideUI()
 {
-    g_hideUI = !g_hideUI;
+    g_app->ToggleHideUI();
 }
 
 void PlaybackControlWindow::UpdateProgress(int currentSeq, int totalSeq)

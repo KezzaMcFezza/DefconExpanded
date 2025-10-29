@@ -351,17 +351,6 @@ void Interface::Update()
     }
 
     //
-    // Hide UI toggle?
-#if RECORDING_PARSING
-    if( g_keyDeltas[KEY_H] && !UsingChatWindow() && !UsingAnyInputField() )
-    {
-        extern bool g_hideUI;
-        g_hideUI = !g_hideUI;
-    }
-#endif
-
-
-    //
     // Pop up main menu?
 
     if( m_escTimer > 0.0f )

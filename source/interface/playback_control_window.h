@@ -13,9 +13,6 @@ extern int g_desiredPerspectiveTeamId;
 // global variable for health bar visibility
 extern bool g_healthBarsEnabled;
 
-// global variable for UI visibility toggle
-extern bool g_hideUI;
-
 class PlaybackControlWindow : public FadingWindow
 {
 private:

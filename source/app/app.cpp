@@ -108,6 +108,7 @@ int mkdir(const char *pathname, mode_t mode) {
 //#define ENABLE_FOR_FUN
 
 App *g_app = NULL;
+bool g_hideUI = false;
 
 App::App()
 :   m_interface(NULL),
@@ -833,8 +834,6 @@ void App::OnWindowResized(int newWidth, int newHeight, int oldWidth, int oldHeig
 
 void App::Update()
 {  
-    //
-    // global debug menu key handling
 
     //
     // F1 toggles FPS counter only
@@ -867,6 +866,14 @@ void App::Update()
     g_inputManager->Advance();
     m_interface->Update();
     END_PROFILE("Interface");
+
+    //
+    // Toggle UI visibility with H key
+    
+    if( g_keys[KEY_H] && g_keyDeltas[KEY_H] && !m_interface->UsingChatWindow() && !m_interface->UsingAnyInputField() )
+    {
+        g_hideUI = !g_hideUI;
+    }
 	
 
     if( m_tutorial )
@@ -936,26 +943,16 @@ void App::Render()
     //
     // eclipse buttons and windows, but first check if UI should be hidden
 
-#if RECORDING_PARSING
-    extern bool g_hideUI;
     if( !g_hideUI )
     {
         GetInterface()->Render();
     }
-#else
-    GetInterface()->Render();
-#endif
     START_PROFILE( "Eclipse GUI" );
     
-#if RECORDING_PARSING
-    extern bool g_hideUI;
     if( !g_hideUI )
     {
         EclRender();
     }
-#else
-    EclRender();
-#endif
     
     END_PROFILE( "Eclipse GUI" );
     
@@ -1026,17 +1023,8 @@ void App::Render()
     //
     // Mouse
 
-#if RECORDING_PARSING
-    extern bool g_hideUI;
-    if( !g_hideUI )
-    {
-        GetInterface()->RenderMouse();
-    }
-#else
     GetInterface()->RenderMouse();
-#endif
    
-
 #ifdef SHOW_OWNER
     RenderOwner(); 
 #endif
@@ -1735,6 +1723,11 @@ void App::RestartAmbienceMusic()
 		g_soundSystem->TriggerEvent( "Music", "StartMusic" );
 	}
 #endif
+}
+
+void App::ToggleHideUI()
+{
+	g_hideUI = !g_hideUI;
 }
 
 const char* App::GetReplayFilename() const
