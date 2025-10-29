@@ -8,6 +8,8 @@ Quick toggles (default on)
 
 - SoundLimiter = 1
   - Enables the SDL mix‑bus limiter. Set to 0 to disable.
+- SoundSDLDynEnabled = 1
+  - Enables the SDL crowd attenuation heuristic. Set to 0 to keep SDL channels at full gain regardless of loud-channel count.
 - SoundDSDynEnabled = 1
   - Enables DirectSound dynamic attenuation. Set to 0 to disable.
 
@@ -15,6 +17,7 @@ Quick toggles (default on)
 
 - Fixed headroom (shared): Always applies a small attenuation to keep day‑to‑day mixes below full‑scale.
 - SDL mix‑bus limiter: Catches rare peaks that still exceed headroom when many loud sounds overlap.
+- SDL crowd attenuation: Pre‑emptively lowers the SDL software mix when many non‑music channels are running hot, mirroring the DirectSound heuristic.
 - DirectSound dynamic anti‑clip: Pre‑attenuates the whole mix when many channels are simultaneously loud (since the OS/driver performs the final mix).
 
 ## Main Knob (Shared)
@@ -46,6 +49,39 @@ Notes:
 - The limiter acts only when a block’s peak exceeds SoundLimiterThreshold. Under normal play it remains transparent.
 - If you prefer fewer gain changes during extreme stacks, raise the threshold slightly or increase release.
 
+## SDL Crowd Attenuation (Dynamic Pre-Duck)
+
+Mirrors the DirectSound anti-clip heuristic, but runs entirely within the SDL software mixer. When many non-music channels sit at high volume simultaneously, the system gently lowers the bus before the limiter needs to engage, then releases once things calm down.
+
+- SoundSDLDynLoudVolume (float, 0..10; default 7.0)
+
+  - Per-channel volume considered “loud.” Channels at or above this level contribute to the loud-channel count.
+
+- SoundSDLDynStartCount (int; default 2)
+
+  - Loud channels allowed before attenuation begins. Choose a value based on how dense you expect gameplay stacks to get.
+
+- SoundSDLDynDbPerExtra (float, dB; default 2.0)
+
+  - Attenuation amount added for each loud channel beyond SoundSDLDynStartCount.
+
+- SoundSDLDynMaxDb (float, dB; default 12.0)
+
+  - Hard cap on the attenuation amount. Prevents the mix from getting too quiet even if the loud-channel count spikes.
+
+- SoundSDLDynAttack (float, 0..1; default 0.5)
+
+  - Smoothing factor when attenuation increases. Higher = reacts faster to sudden dense stacks.
+
+- SoundSDLDynRelease (float, 0..1; default 0.1)
+
+  - Smoothing when attenuation relaxes. Lower = quicker bounce-back; higher = smoother decay.
+
+Notes:
+
+- Only non-music channels are counted; music stays steady so score cues do not pump.
+- Works in tandem with the limiter: the dynamic ducking handles sustained density, while the limiter protects single rogue peaks.
+
 ## Per‑Voice Minimum Fade‑In (SDL Software Mixer)
 
 Applies a very short fade‑in to newly started non‑music voices to reduce correlated start transients when many sounds begin in the same frame (e.g., zooming into multiple nukes). Disabled by default.
@@ -70,6 +106,7 @@ Notes:
 ## DirectSound Dynamic Anti‑Clip (Extra Safety)
 
 DirectSound mixes in the OS/driver, where we cannot insert a true mix‑bus limiter. Instead, a global pre‑attenuation kicks in when many channels are “loud,” with attack/release smoothing.
+The SDL software mixer exposes the same heuristic via the SoundSDLDyn* settings described above, so you can keep both backends aligned.
 
 - SoundDSDynLoudVolume (float, 0..10; default 7.0)
 
@@ -104,6 +141,7 @@ These defaults aim for robust protection with minimal audible side‑effects:
 
 - SoundHeadroomDb = 12
 - SDL: SoundLimiterThreshold = 28000, SoundLimiterAttack = 1.0, SoundLimiterRelease = 0.02
+- SDL crowd attenuation: SoundSDLDynLoudVolume = 7.0, SoundSDLDynStartCount = 2, SoundSDLDynDbPerExtra = 2.0, SoundSDLDynMaxDb = 12.0, SoundSDLDynAttack = 0.5, SoundSDLDynRelease = 0.1
 - DS: SoundDSDynLoudVolume = 7.0, SoundDSDynStartCount = 2, SoundDSDynDbPerExtra = 2.0, SoundDSDynMaxDb = 12.0, SoundDSDynAttack = 0.5, SoundDSDynRelease = 0.1
 
 ## Tuning Guide
@@ -118,8 +156,8 @@ Common goals and the most relevant knobs:
 
   - Lower SoundLimiterThreshold a little (e.g., 27000); keep Attack at 1.0; adjust Release between 0.01–0.05.
 
-- “Be more proactive on DirectSound when many sounds stack”
-  - Lower SoundDSDynStartCount, or increase SoundDSDynDbPerExtra and/or SoundDSDynMaxDb.
+- “Be more proactive when many sounds stack (crowd attenuation)”
+  - Lower SoundDSDynStartCount (and/or SoundSDLDynStartCount), or increase the per-extra and max dB values on the relevant backend to duck earlier and harder.
 
 ## FAQ
 
@@ -151,6 +189,9 @@ Common goals and the most relevant knobs:
     - Limiter bus gain (runtime):
       - Red when limiting is active (bus gain < 1.0), accompanied by “LIMITER ACTIVE”.
       - Peak line turns red when the measured pre‑limit peak exceeds threshold (headroom alone was insufficient).
+    - Crowd attenuation snapshot:
+      - Shows current vs target attenuation, start count, loud threshold, per-extra/max dB, attack/release, and loud-channel count.
+      - When attenuation is active, the line turns red and “CROWD ATTENUATION ACTIVE” appears.
   - DirectSound (DS backend active)
     - Fixed headroom (dB).
     - Dynamic attenuation (current dB):
@@ -163,5 +204,5 @@ Common goals and the most relevant knobs:
 
 Interpreting red indicators
 
-- SDL: Red peak or bus‑gain lines mean the limiter had to engage — consider increasing SoundHeadroomDb or lowering SoundLimiterThreshold if this happens frequently.
+- SDL: Red peak/bus‑gain lines or the crowd‑attenuation line (“CROWD ATTENUATION ACTIVE”) mean protection is ducking the mix — consider increasing SoundHeadroomDb, lowering SoundLimiterThreshold, or adjusting SoundSDLDyn* if this happens frequently.
 - DS: Red dynamic‑attenuation or loud‑channel lines mean global ducking is in effect or imminent — consider increasing SoundHeadroomDb, reducing SoundDSDynStartCount, or adjusting SoundDSDynDbPerExtra/MaxDb.

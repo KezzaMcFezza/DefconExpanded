@@ -101,6 +101,37 @@ void SoundProtectionOverlay::Render()
                 g_renderer->TextSimple(baseX, y, warnColour, 11.0f, "LIMITER ACTIVE"); y += line;
             }
 
+            if (sw->GetDynEnabled())
+            {
+                float dynDb = sw->GetDynBusAttenDb();
+                float dynTarget = sw->GetDynTargetDb();
+                snprintf(buffer, sizeof(buffer), "Crowd attenuation   : %.1f dB (target %.1f)", dynDb, dynTarget);
+                g_renderer->TextSimple(baseX, y, dynDb > 0.05f ? warnColour : textColour, 11.0f, buffer); y += line;
+
+                snprintf(buffer, sizeof(buffer), "Start@loud count    : %d  loud vol >= %.1f",
+                         sw->GetDynStartCount(), sw->GetDynLoudVolThresh());
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
+
+                snprintf(buffer, sizeof(buffer), "Per extra / max dB  : %.1f / %.1f",
+                         sw->GetDynDbPerExtra(), sw->GetDynMaxDb());
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
+
+                snprintf(buffer, sizeof(buffer), "Attack / release    : %.2f / %.2f",
+                         sw->GetDynAttack(), sw->GetDynRelease());
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
+
+                int total = g_soundLibrary3d->GetNumChannels();
+                int music = g_soundLibrary3d->GetNumMusicChannels();
+                int nonMusic = std::max(0, total - music);
+                int loud = sw->GetDynLoudCount();
+                snprintf(buffer, sizeof(buffer), "Loud channels       : %d / %d (>= %.1f)", loud, nonMusic, sw->GetDynLoudVolThresh());
+                g_renderer->TextSimple(baseX, y, (loud > sw->GetDynStartCount()) ? warnColour : textColour, 11.0f, buffer); y += line;
+            }
+            else
+            {
+                g_renderer->TextSimple(baseX, y, textColour, 11.0f, "Crowd attenuation   : disabled"); y += line;
+            }
+
             // SDL device snapshot
             SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
             if (sdl2d)

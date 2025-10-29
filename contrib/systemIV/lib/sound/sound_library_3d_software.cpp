@@ -13,6 +13,8 @@
 #include "lib/preferences.h"
 #include "soundsystem.h"
 
+#include <algorithm>
+
 static inline signed short FloatToPcmClamp(float value)
 {
     if (value > 32767.0f) value = 32767.0f;
@@ -176,6 +178,16 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
     m_headroomDb = 12.0f;       // fixed headroom applied pre-mix
     m_lastPeak = 0.0f;
     m_enableLimiter = true;
+    m_dynEnabled = true;
+    m_dynamicBusAttenDb = 0.0f;
+    m_dynamicTargetDb = 0.0f;
+    m_dynAttack = 0.5f;
+    m_dynRelease = 0.1f;
+    m_dynLoudVolThresh = 7.0f;
+    m_dynStartCount = 2;
+    m_dynDbPerExtra = 2.0f;
+    m_dynMaxDb = 12.0f;
+    m_dynLastLoudCount = 0;
 
     if (g_preferences)
     {
@@ -186,6 +198,17 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
         v = g_preferences->GetFloat("SoundLimiterRelease", -1.0f); if (v > 0.0f && v <= 1.0f) m_limiterRelease = v;
         // on/off toggle (default on)
         int b = g_preferences->GetInt("SoundLimiter", 1); m_enableLimiter = (b != 0);
+        b = g_preferences->GetInt("SoundSDLDynEnabled", 1); m_dynEnabled = (b != 0);
+        v = g_preferences->GetFloat("SoundSDLDynAttack", -1.0f); if (v > 0.0f && v <= 1.0f) m_dynAttack = v;
+        v = g_preferences->GetFloat("SoundSDLDynRelease", -1.0f); if (v > 0.0f && v <= 1.0f) m_dynRelease = v;
+        v = g_preferences->GetFloat("SoundSDLDynLoudVolume", -1.0f); if (v >= 0.0f) m_dynLoudVolThresh = v;
+        int i = g_preferences->GetInt("SoundSDLDynStartCount", -1); if (i >= 0) m_dynStartCount = i;
+        v = g_preferences->GetFloat("SoundSDLDynDbPerExtra", -1.0f); if (v >= 0.0f) m_dynDbPerExtra = v;
+        v = g_preferences->GetFloat("SoundSDLDynMaxDb", -1.0f); if (v >= 0.0f) m_dynMaxDb = v;
+        if (m_dynStartCount < 0) m_dynStartCount = 0;
+        if (m_dynDbPerExtra < 0.0f) m_dynDbPerExtra = 0.0f;
+        if (m_dynMaxDb < 0.0f) m_dynMaxDb = 0.0f;
+        Clamp(m_dynLoudVolThresh, 0.0f, 10.0f);
     }
 }
 
@@ -358,7 +381,8 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
     // Map channel volume (0..10) + master (centi-dB) to linear gain using 10^(dB/20)
     float channelDb = -(5.0f - channel->m_volume * 0.5f) * 10.0f; // -50dB .. 0dB
     float masterDb = m_masterVolume * 0.01f;                      // centi-dB -> dB (<= 0)
-    float totalDb = channelDb + masterDb - m_headroomDb;          // apply fixed headroom
+    float dynamicDb = (m_dynEnabled ? m_dynamicBusAttenDb : 0.0f);
+    float totalDb = channelDb + masterDb - m_headroomDb - dynamicDb; // apply fixed + dynamic headroom
     // Clamp within reasonable range
     if (totalDb < -100.0f) totalDb = -100.0f;
     if (totalDb > 0.0f) totalDb = 0.0f;
@@ -502,6 +526,40 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
 		}
 	}
 #endif
+
+    if (m_dynEnabled)
+    {
+        int nonMusic = std::max(0, m_numChannels - m_numMusicChannels);
+        int loudCount = 0;
+        for (int i = 0; i < nonMusic; ++i)
+        {
+            if (!m_channels[i].m_containsSilence && m_channels[i].m_volume >= m_dynLoudVolThresh)
+            {
+                ++loudCount;
+            }
+        }
+        m_dynLastLoudCount = loudCount;
+
+        float targetDb = 0.0f;
+        if (loudCount > m_dynStartCount)
+        {
+            float extra = static_cast<float>(loudCount - m_dynStartCount);
+            targetDb = extra * m_dynDbPerExtra;
+            if (targetDb > m_dynMaxDb) targetDb = m_dynMaxDb;
+        }
+        m_dynamicTargetDb = targetDb;
+
+        float alpha = (m_dynamicTargetDb > m_dynamicBusAttenDb) ? m_dynAttack : m_dynRelease;
+        m_dynamicBusAttenDb += (m_dynamicTargetDb - m_dynamicBusAttenDb) * alpha;
+        if (m_dynamicBusAttenDb < 0.0f) m_dynamicBusAttenDb = 0.0f;
+        if (m_dynamicBusAttenDb > m_dynMaxDb) m_dynamicBusAttenDb = m_dynMaxDb;
+    }
+    else
+    {
+        m_dynLastLoudCount = 0;
+        m_dynamicTargetDb = 0.0f;
+        m_dynamicBusAttenDb = 0.0f;
+    }
 
 	if (_numSamples > m_allocatedSamples)
 	{
