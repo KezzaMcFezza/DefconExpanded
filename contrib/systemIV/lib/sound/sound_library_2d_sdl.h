@@ -125,6 +125,7 @@ public:
     
     void			Stop();
     void            SetAudioThreadPriority();  // Boost audio thread priority
+    void            PrecisionSleep(double milliseconds);  // Platform-specific high-precision sleep
 
     // Timeline tracking (frames)
     uint64_t        m_totalQueuedFrames = 0;     // cumulative frames ever queued to SDL

@@ -20,12 +20,14 @@
 #include <sched.h>
 #include <sys/resource.h>
 #include <errno.h>
+#include <time.h>  // For nanosleep
 #endif
 
 #ifdef TARGET_OS_MACOSX
 #include <pthread.h>
 #include <mach/thread_policy.h>
 #include <mach/thread_act.h>
+#include <time.h>  // For nanosleep
 #endif
 
 #ifdef TARGET_MSVC
@@ -726,6 +728,37 @@ void SoundLibrary2dSDL::SetAudioThreadPriority()
 #endif
 }
 
+void SoundLibrary2dSDL::PrecisionSleep(double milliseconds)
+{
+    if (milliseconds <= 0.0) return;
+    
+#ifdef TARGET_MSVC
+    // Windows: hybrid sleep + busy-wait for sub-millisecond precision
+    // This matches the approach used in app.cpp for frame limiting
+    if (milliseconds > 1.0) {
+        // Sleep for most of the time, leave 0.5ms for precision busy-wait
+        Sleep((DWORD)(milliseconds - 0.5));
+        double endTime = GetHighResTime() + 0.0005; // 0.5ms
+        while (GetHighResTime() < endTime) {
+            // Precision spin - we have THREAD_PRIORITY_TIME_CRITICAL so this is safe
+        }
+    } else {
+        // For very short sleeps, just busy-wait with high-res timer
+        double endTime = GetHighResTime() + (milliseconds / 1000.0);
+        while (GetHighResTime() < endTime) {
+            // Spin
+        }
+    }
+#else
+    // Unix/Linux/macOS: use nanosleep for sub-millisecond precision (like app.cpp)
+    // nanosleep has much better precision than SDL_Delay on Linux (no 4ms granularity issue)
+    struct timespec ts;
+    ts.tv_sec = (time_t)(milliseconds / 1000.0);
+    ts.tv_nsec = (long)(fmod(milliseconds, 1000.0) * 1000000.0);
+    nanosleep(&ts, NULL);
+#endif
+}
+
 int SoundLibrary2dSDL::FeederLoop()
 {
     // Boost this thread's priority for real-time audio performance
@@ -769,7 +802,7 @@ int SoundLibrary2dSDL::FeederLoop()
             unsigned copied = CopyFromRingToSDL(need);
             if (copied == 0) {
                 ringStarvedPrefill = true;
-                SDL_Delay(1);
+                PrecisionSleep(0.3);  // Sub-millisecond precision sleep
                 break;
             }
             need -= copied;
@@ -824,7 +857,7 @@ int SoundLibrary2dSDL::FeederLoop()
                 unsigned copied = CopyFromRingToSDL(need);
                 if (copied == 0) {
                     ringStarved = true;
-                    SDL_Delay(1);
+                    PrecisionSleep(0.3);  // Sub-millisecond precision sleep
                     break;
                 }
                 need -= copied;
@@ -842,7 +875,7 @@ int SoundLibrary2dSDL::FeederLoop()
 
             EnsureMixedThrough(m_copyIndex + ringHorizonFrames);
             Uint32 sleepMs = (Uint32)std::max(1.0, (1000.0 * (double)periodFrames / (double)freq) * 0.25);
-            SDL_Delay(sleepMs);
+            PrecisionSleep((double)sleepMs);  // Use precision sleep instead of SDL_Delay
         }
     }
 
