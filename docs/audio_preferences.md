@@ -57,11 +57,6 @@ Notes:
 - The envelope multiplies the normal per-channel gain (ADSR, distance, pan); it doesn’t replace content Attack.
 - Deterministic jitter is derived from the channel index, so behaviour is stable run-to-run while still spreading onsets.
 
-## SFX De-Correlation (Optional)
-
-- `SoundRandomStartMs` (float, ms; default `0.0`)
-  - Applies only to non-music sounds on the software mixer path. When > 0, each new SFX instance starts at a random offset up to this many milliseconds inside the sample. This de-correlates large bursts of identical waveforms (for example, many rumble loops that start together), reducing phase-coherent summing and peak stacking. Set to a small value like 2–5 ms if dense stacks still feel “tearing” under heavy load. Leave at 0.0 to preserve exact onsets.
-
 ## Debug Overlay (F3)
 
 - **Sound Debug Overlay**

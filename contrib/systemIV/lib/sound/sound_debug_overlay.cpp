@@ -421,18 +421,6 @@ void SoundDebugOverlay::Render()
         g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
         leftY += line;
 
-        // Random SFX start offset (software mixer)
-        float randStartMs = g_preferences->GetFloat("SoundRandomStartMs", 0.0f);
-        if (randStartMs > 0.0f)
-        {
-            snprintf(buffer, sizeof(buffer), "Random SFX start    : %.2f ms", randStartMs);
-        }
-        else
-        {
-            snprintf(buffer, sizeof(buffer), "Random SFX start    : off");
-        }
-        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
-        leftY += line;
     }
     else
     {

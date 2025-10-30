@@ -596,31 +596,7 @@ void SoundInstance::OpenStream( bool _keepCurrentStream )
     strcpy( m_sampleName, sampleName );
 	m_soundSampleHandle = g_soundSampleBank->GetSample(m_sampleName);
 
-    // Optional random start offset to de-correlate dense SFX bursts
-    double startCursor = 0.0;
-    do {
-        if (!g_preferences) break;
-        // Only apply to non-music instances (SFX/ambience)
-        if (m_positionType == TypeMusic) break;
-        float randMs = g_preferences->GetFloat("SoundRandomStartMs", 0.0f);
-        if (randMs <= 0.0f) break;
-        if (!m_soundSampleHandle || !m_soundSampleHandle->m_soundSample) break;
-        unsigned int totalFrames = m_soundSampleHandle->GetFrameCount();
-        unsigned int srcRate = m_soundSampleHandle->m_soundSample->m_freq;
-        if (totalFrames == 0 || srcRate == 0) break;
-        double maxFrames = (double)srcRate * (double)randMs * 0.001;
-        if (maxFrames < 1.0) break;
-        unsigned int maxOffset = (unsigned int)maxFrames;
-        if (maxOffset >= totalFrames) maxOffset = totalFrames - 1;
-        if (maxOffset > 0)
-        {
-            unsigned int r = (unsigned int)AppRandom();
-            unsigned int offsetFrames = r % (maxOffset + 1);
-            startCursor = (double)offsetFrames;
-        }
-    } while (0);
-
-    ResetResamplerCursor(startCursor);
+    ResetResamplerCursor();
     RecalculateResampleStep();
 }
 

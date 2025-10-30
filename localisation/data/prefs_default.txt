@@ -18,11 +18,6 @@ SoundDSP = 0
 SoundResamplerSfx = sinc64
 SoundResamplerMusic = sinc128
 
-# Optional random start offset for non-music SFX (ms, default off)
-# Randomizes initial playback cursor up to this many milliseconds to de-correlate
-# large bursts of identical waveforms (e.g. many rumbles) and reduce peak stacking.
-SoundRandomStartMs = 0.0
-
 # SDL push/queue audio mode defaults
 # Mid-range CPU, balanced preset (see docs/sdl_push_mode_guide.md)
 SoundUsePushMode = 1
