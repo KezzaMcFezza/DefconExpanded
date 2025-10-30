@@ -48,6 +48,7 @@ static inline signed short FloatToPcmSample(float _value)
 SoundSystem::SoundSystem()
 :   m_timeSync(0.0f),
     m_channels(NULL),
+    m_channelPacked(NULL),
     m_numChannels(0),
     m_numMusicChannels(0),
     m_interface(NULL),
@@ -55,6 +56,7 @@ SoundSystem::SoundSystem()
 {
     m_soundInstanceMutex = new NetMutex();
     AppSeedRandom( (unsigned int) GetHighResTime() );
+    m_invalidChannelIdReads.store(0, std::memory_order_relaxed);
 }
 
 
@@ -64,6 +66,10 @@ SoundSystem::~SoundSystem()
 
     delete[] m_channels;
     m_channels = NULL;
+    delete[] m_channelPacked;
+    m_channelPacked = NULL;
+    delete[] m_channelPacked;
+    m_channelPacked = NULL;
 
     delete g_soundSampleBank;
     g_soundSampleBank = NULL;
@@ -186,6 +192,12 @@ void SoundSystem::RestartSoundLibrary()
     m_numChannels = g_soundLibrary3d->GetNumChannels();
     m_numMusicChannels = g_soundLibrary3d->GetNumMusicChannels();
     m_channels = new SoundInstanceId[m_numChannels];
+    m_channelPacked = new std::atomic<uint64_t>[m_numChannels];
+    for (int i = 0; i < m_numChannels; ++i)
+    {
+        m_channels[i].SetInvalid();
+        m_channelPacked[i].store(PackChannelId(InvalidChannelId()), std::memory_order_relaxed);
+    }
 
     g_soundLibrary3d->SetMainCallback(&SoundLibraryMainCallback);
 }
@@ -237,7 +249,7 @@ bool SoundSystem::SoundLibraryMainCallback( unsigned int _channel, signed short 
 bool SoundSystem::GenerateChannelSamplesShort(unsigned int channel, signed short *dst, unsigned int numSamples, int *silenceRemaining)
 {
     // Defensive guard: mixer may be reinitialising
-    if (!m_channels || channel >= (unsigned)m_numChannels)
+    if (!m_channelPacked || channel >= (unsigned)m_numChannels)
     {
         if (g_soundLibrary3d)
         {
@@ -250,7 +262,7 @@ bool SoundSystem::GenerateChannelSamplesShort(unsigned int channel, signed short
         return false;
     }
 
-    SoundInstanceId soundId = m_channels[channel];
+    SoundInstanceId soundId = LoadChannelId((int)channel);
     SoundInstance *instance = LockSoundInstance(soundId);
     bool stereo = IsMusicChannel(channel);
 
@@ -473,7 +485,7 @@ bool SoundSystem::GenerateChannelSamplesShort(unsigned int channel, signed short
 bool SoundSystem::GenerateChannelSamplesFloat(unsigned int channel, float *dst, unsigned int numSamples, int *silenceRemaining)
 {
     // Defensive guard: mixer may be reinitialising
-    if (!m_channels || channel >= (unsigned)m_numChannels)
+    if (!m_channelPacked || channel >= (unsigned)m_numChannels)
     {
         if (dst && numSamples > 0)
         {
@@ -482,7 +494,7 @@ bool SoundSystem::GenerateChannelSamplesFloat(unsigned int channel, float *dst, 
         return false;
     }
 
-    SoundInstanceId soundId = m_channels[channel];
+    SoundInstanceId soundId = LoadChannelId((int)channel);
     SoundInstance *instance = LockSoundInstance(soundId);
     bool stereo = IsMusicChannel(channel);
 
@@ -626,6 +638,10 @@ bool SoundSystem::GenerateChannelSamplesFloat(unsigned int channel, float *dst, 
     else
     {
         std::fill(dst, dst + numSamples, 0.0f);
+        if (soundId.m_index >= 0)
+        {
+            m_invalidChannelIdReads.fetch_add(1, std::memory_order_relaxed);
+        }
         if (instance)
         {
             UnlockSoundInstance(instance);
@@ -697,7 +713,7 @@ int SoundSystem::FindBestAvailableChannel( bool _music )
 
     for( int i = lowestChannel; i < highestChannel; ++i )
     {
-        SoundInstanceId soundId = m_channels[i];
+        SoundInstanceId soundId = LoadChannelId(i);
         SoundInstance *currentSound = GetSoundInstance( soundId );
 
         float channelPriority = 0.0f;
@@ -803,7 +819,7 @@ void SoundSystem::UnlockSoundInstance( SoundInstance *instance )
 
 void SoundSystem::TriggerEvent( SoundObjectId _objId, const char *_eventName )
 {
-    if( !m_channels ) return;
+    if( !m_channelPacked ) return;
 
 	START_PROFILE("TriggerEvent");
     
@@ -845,7 +861,7 @@ void SoundSystem::TriggerEvent( const char *_type, const char *_eventName )
 
 void SoundSystem::TriggerEvent( const char *_type, const char *_eventName, Vector3<float> const &_pos )
 {
-    if( !m_channels ) return;
+    if( !m_channelPacked ) return;
 
 	START_PROFILE("TriggerEvent");
     
@@ -927,7 +943,7 @@ int SoundSystem::IsSoundPlaying( SoundInstanceId _id )
 {
     for( int i = 0; i < m_numChannels; ++i )
     {            
-        SoundInstanceId soundId = m_channels[i];            
+        SoundInstanceId soundId = LoadChannelId(i);            
         if( _id == soundId )
         {
             return i;
@@ -944,7 +960,7 @@ int SoundSystem::NumInstancesPlaying( const char *_sampleName )
 
     for( int i = 0; i < m_numChannels; ++i )
     {            
-        SoundInstanceId soundId = m_channels[i];            
+        SoundInstanceId soundId = LoadChannelId(i);            
         SoundInstance *instance = GetSoundInstance(soundId);
         if( instance && 
             stricmp(instance->m_sampleName, _sampleName) == 0 )
@@ -963,7 +979,7 @@ int SoundSystem::NumInstancesPlaying( SoundObjectId _id, const char *_eventName 
 
     for( int i = 0; i < m_numChannels; ++i )
     {            
-        SoundInstanceId soundId = m_channels[i];            
+        SoundInstanceId soundId = LoadChannelId(i);            
         SoundInstance *instance = GetSoundInstance( soundId );
         bool instanceMatch = !_id.IsValid() || instance->m_objId == _id;
 
@@ -1015,7 +1031,7 @@ int SoundSystem::NumChannelsUsed()
     int numUsed = 0;
     for( int i = 0; i < m_numChannels; ++i )
     {
-        SoundInstanceId id = m_channels[i];
+        SoundInstanceId id = LoadChannelId(i);
         if( GetSoundInstance( id ) != NULL )
         {
             numUsed++;
@@ -1052,7 +1068,7 @@ int SoundInstanceCompare(const void *elem1, const void *elem2 )
 
 void SoundSystem::Advance()
 {
-    if( !m_channels )
+    if( !m_channelPacked )
 	{
 		return;
     }
@@ -1230,7 +1246,7 @@ void SoundSystem::Advance()
 
             START_PROFILE("Stop Old Sound" );
 			// Stop the old sound
-            SoundInstance *existingInstance = GetSoundInstance( m_channels[bestAvailableChannel] );
+            SoundInstance *existingInstance = GetSoundInstance( LoadChannelId(bestAvailableChannel) );
             if( existingInstance && !existingInstance->m_loopType )
             {
                 ShutdownSound( existingInstance );
@@ -1247,7 +1263,7 @@ void SoundSystem::Advance()
             bool success = newInstance->StartPlaying( bestAvailableChannel );
             if( success )
             {
-                m_channels[bestAvailableChannel] = newInstance->m_id;
+                StoreChannelId(bestAvailableChannel, newInstance->m_id);
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
                 // In push mode with timed scheduling, schedule start on audio timeline
                 SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
@@ -1278,7 +1294,7 @@ void SoundSystem::Advance()
         START_PROFILE("Advance All Channels" );
         for( int i = 0; i < m_numChannels; ++i )
         {            
-            SoundInstanceId soundId = m_channels[i];            
+            SoundInstanceId soundId = LoadChannelId(i);            
             SoundInstance *currentSound = GetSoundInstance( soundId );                         
             if( currentSound )
             {

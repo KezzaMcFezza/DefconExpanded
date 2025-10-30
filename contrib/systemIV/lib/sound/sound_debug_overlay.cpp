@@ -61,6 +61,11 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
         m_queuedCallbacksPerSec = 0.0;
         m_lastStatsSampleTime = GetHighResTime();
 #if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+        m_prevInvalidChannelReadsTotal = 0ULL;
+        m_invalidChannelReadsPerSec = 0.0;
+        m_invalidChannelReadsDelta = 0ULL;
+#endif
+#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
         m_resampleInstanceCount = 0;
         m_resampleWaitingForLoop = 0;
         m_resampleInvalidInstances = 0;
@@ -94,6 +99,11 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
         m_queuedCallbacksPerSec = 0.0;
         m_hasStats = true;
 #if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+        m_prevInvalidChannelReadsTotal = g_soundSystem ? g_soundSystem->GetInvalidChannelIdReadTotal() : 0ULL;
+        m_invalidChannelReadsPerSec = 0.0;
+        m_invalidChannelReadsDelta = 0ULL;
+#endif
+#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
         m_resampleSfxQuality = SoundResampler::GetSfxQuality();
         m_resampleMusicQuality = SoundResampler::GetMusicQuality();
         unsigned int bankCount = SoundResampler::GetKernelBankCount();
@@ -123,6 +133,17 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
     m_topupProcessedPerSec = static_cast<double>(diff(stats.topupCallbacksProcessed, m_previousStats.topupCallbacksProcessed)) / elapsed;
 
 #if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+    if (g_soundSystem)
+    {
+        unsigned long long total = g_soundSystem->GetInvalidChannelIdReadTotal();
+        unsigned long long d = diff(total, m_prevInvalidChannelReadsTotal);
+        m_invalidChannelReadsDelta = d;
+        m_invalidChannelReadsPerSec = static_cast<double>(d) / elapsed;
+        m_prevInvalidChannelReadsTotal = total;
+    }
+#endif
+
+#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
     m_resampleInstanceCount = 0;
     m_resampleWaitingForLoop = 0;
     m_resampleInvalidInstances = 0;
@@ -139,7 +160,7 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
     m_resampleBankUsageMusic.assign(bankCount, 0);
     m_resampleLinearInstances = 0;
 
-    if (g_soundSystem && g_soundSystem->m_channels && g_soundSystem->m_numChannels > 0)
+    if (g_soundSystem && g_soundSystem->m_numChannels > 0)
     {
         double stepMin = std::numeric_limits<double>::max();
         double stepMax = 0.0;
@@ -156,7 +177,7 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
 
         for (int i = 0; i < g_soundSystem->m_numChannels; ++i)
         {
-            SoundInstanceId instanceId = g_soundSystem->m_channels[i];
+            SoundInstanceId instanceId = g_soundSystem->GetChannelId(i);
             if (instanceId.m_index < 0)
             {
                 continue;
@@ -251,6 +272,13 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
             m_resampleCursorFracMax = fracMax;
             m_resampleCursorFracAvg = fracSum / static_cast<double>(fracCount);
         }
+    }
+#else
+    // When hardware resampling is enabled, still track invalid channel-read diagnostics
+    if (g_soundSystem)
+    {
+        // maintain last total on first pass
+        if (!m_hasStats) m_prevInvalidChannelReadsTotal = g_soundSystem->GetInvalidChannelIdReadTotal();
     }
 #endif
 
@@ -697,6 +725,21 @@ void SoundDebugOverlay::Render()
     rightY += sectionGap;
 
 #if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+    // Channel map integrity diagnostics
+    g_renderer->TextSimple(baseXRight, rightY, sectionColour, 12.0f, "Channel Map Health");
+    rightY += line;
+    if (g_soundSystem)
+    {
+        unsigned long long totalInvalid = (unsigned long long)g_soundSystem->GetInvalidChannelIdReadTotal();
+        snprintf(buffer, sizeof(buffer), "Invalid reads total : %llu  (%.2f/sec)",
+                 totalInvalid,
+                 m_invalidChannelReadsPerSec);
+        g_renderer->TextSimple(baseXRight, rightY,
+                               (m_invalidChannelReadsDelta > 0ULL) ? warnColour : textColour,
+                               11.0f, buffer);
+        rightY += line;
+    }
+
     g_renderer->TextSimple(baseXRight, rightY, sectionColour, 12.0f, "Software Resampler");
     rightY += line;
 

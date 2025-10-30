@@ -992,11 +992,7 @@ void SoundInstance::StopPlaying()
 
     for( int i = 0; i < g_soundSystem->m_numChannels; ++i )
     {
-        SoundInstanceId soundId = g_soundSystem->m_channels[i];
-        if( soundId == m_id )
-        {
-            g_soundSystem->m_channels[i].SetInvalid();
-        }
+        g_soundSystem->ClearChannelIfMatches(i, m_id);
     }
 }
 
@@ -1085,7 +1081,7 @@ int SoundInstance::GetChannelIndex()
         
     if( m_channelIndex >= 0 && 
         m_channelIndex < g_soundSystem->m_numChannels &&
-        g_soundSystem->m_channels[ m_channelIndex ] == m_id )
+        g_soundSystem->GetChannelId(m_channelIndex) == m_id )
     {
         return m_channelIndex;
     }

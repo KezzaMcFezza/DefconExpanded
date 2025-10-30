@@ -12,6 +12,8 @@
 #include "soundsystem_interface.h"
 #include "sound_blueprint_manager.h"
 
+#include <atomic>
+
 
 #if defined(TARGET_MSVC) && !defined(WINDOWS_SDL)
 #define SOUND_USE_DSOUND_FREQUENCY_STUFF                // Set DirectSound buffer frequencies directly
@@ -46,7 +48,11 @@ public:
     
     FastDArray              <SoundInstance *> m_sounds;						// All the sounds that want to play
 
+    // Deprecated direct channel map; left allocated to avoid breaking external code.
+    // Do not read this from audio threads. Use atomic packed map helpers instead.
     SoundInstanceId         *m_channels;
+    // Atomic channel map: each slot packs (index, uniqueId) into a 64-bit word
+    std::atomic<uint64_t>   *m_channelPacked;
     int                     m_numChannels;
     int                     m_numMusicChannels;
     
@@ -60,6 +66,10 @@ protected:
 
     NetMutex                *m_soundInstanceMutex;
     LList<SoundInstance *>   m_soundsPendingDelete;
+
+    // Mixer safety diagnostic: counts times a valid-looking channel id was unreadable
+    // (index >= 0) but GetSoundInstance returned NULL in the mixer thread.
+    std::atomic<uint64_t>    m_invalidChannelIdReads;
 
 public:
     SoundSystem();
@@ -107,6 +117,48 @@ public:
     SoundInstance *GetSoundInstance( SoundInstanceId _id );
     SoundInstance *LockSoundInstance( SoundInstanceId _id );
     void          UnlockSoundInstance( SoundInstance *_instance );
+
+    // Atomic channel map helpers
+    inline static uint64_t PackChannelId(const SoundInstanceId &id) {
+        // Pack two 32-bit signed ints into a 64-bit word: low=index, high=unique
+        uint64_t lo = (uint32_t)id.m_index;
+        uint64_t hi = (uint32_t)id.m_uniqueId;
+        return (hi << 32) | lo;
+    }
+    inline static SoundInstanceId UnpackChannelId(uint64_t v) {
+        SoundInstanceId id;
+        id.m_index = (int32_t)(v & 0xFFFFFFFFu);
+        id.m_uniqueId = (int32_t)((v >> 32) & 0xFFFFFFFFu);
+        return id;
+    }
+    inline static SoundInstanceId InvalidChannelId() {
+        SoundInstanceId id; id.m_index = -1; id.m_uniqueId = -1; return id;
+    }
+    inline SoundInstanceId LoadChannelId(int index) const {
+        if (!m_channelPacked || index < 0 || index >= m_numChannels) return InvalidChannelId();
+        uint64_t v = m_channelPacked[index].load(std::memory_order_acquire);
+        return UnpackChannelId(v);
+    }
+    inline void StoreChannelId(int index, const SoundInstanceId &id) {
+        if (!m_channelPacked || index < 0 || index >= m_numChannels) return;
+        m_channelPacked[index].store(PackChannelId(id), std::memory_order_release);
+        // Keep deprecated mirror updated for non-critical readers on main thread
+        if (m_channels) m_channels[index] = id;
+    }
+    inline void InvalidateChannelId(int index) {
+        StoreChannelId(index, InvalidChannelId());
+    }
+    inline bool ClearChannelIfMatches(int index, const SoundInstanceId &expected) {
+        if (!m_channelPacked || index < 0 || index >= m_numChannels) return false;
+        uint64_t exp = PackChannelId(expected);
+        uint64_t inv = PackChannelId(InvalidChannelId());
+        bool swapped = m_channelPacked[index].compare_exchange_strong(exp, inv, std::memory_order_acq_rel);
+        if (swapped && m_channels) m_channels[index].SetInvalid();
+        return swapped;
+    }
+    inline SoundInstanceId GetChannelId(int index) const { return LoadChannelId(index); }
+
+    inline uint64_t GetInvalidChannelIdReadTotal() const { return m_invalidChannelIdReads.load(std::memory_order_relaxed); }
 };
 
 

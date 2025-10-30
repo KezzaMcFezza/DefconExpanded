@@ -25,6 +25,10 @@ private:
     double      m_directCallbacksPerSec;
     double      m_wavCallbacksPerSec;
     double      m_topupProcessedPerSec;
+    // SoundSystem mixer safety diagnostics
+    unsigned long long m_prevInvalidChannelReadsTotal = 0ULL;
+    double      m_invalidChannelReadsPerSec = 0.0;
+    unsigned long long m_invalidChannelReadsDelta = 0ULL;
 #if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
     int         m_resampleInstanceCount;
     int         m_resampleWaitingForLoop;
