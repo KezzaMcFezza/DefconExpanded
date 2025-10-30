@@ -29,11 +29,6 @@ SoundRingMs = 55
 SoundTimedScheduling = 1
 SoundAudioClockedADSR = 1
 
-# Optional per-voice minimum fade-in to smooth starts (off by default)
-SoundMinFadeIn = 0
-SoundMinFadeInMs = 3.0
-SoundFadeInJitterMs = 0.75
-
 RenderSmoothLines = 0
 RenderCoastlines = 1
 RenderBorders = 1

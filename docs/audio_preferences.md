@@ -41,22 +41,6 @@ Push mode renders small slices in software and feeds them to SDL via `SDL_QueueA
 
 Keep the period small (64–128) for tight ADSR and adjust the device queue/ring horizons upward when underruns occur on slower CPUs.
 
-## Per-Voice Minimum Fade-In (SDL Software Mixer)
-
-Applies a short fade-in to newly started non-music voices to reduce correlated start transients when many sounds begin in the same frame (e.g., zooming into multiple nukes). Disabled by default.
-
-- `SoundMinFadeIn` (int; 0=off, 1=on; default `0`)
-  - Master switch. When enabled, each new channel gets a minimum fade envelope applied across successive mix buffers.
-- `SoundMinFadeInMs` (float, ms; default `3.0`)
-  - Base fade-in length. 2.0–5.0 ms preserves punch while smoothing clicks.
-- `SoundFadeInJitterMs` (float, ms; default `0.75`)
-  - Adds a deterministic per-channel jitter (± value) to decorrelate simultaneous starts.
-
-Notes:
-
-- The envelope multiplies the normal per-channel gain (ADSR, distance, pan); it doesn’t replace content Attack.
-- Deterministic jitter is derived from the channel index, so behaviour is stable run-to-run while still spreading onsets.
-
 ## Debug Overlay (F3)
 
 - **Sound Debug Overlay**
