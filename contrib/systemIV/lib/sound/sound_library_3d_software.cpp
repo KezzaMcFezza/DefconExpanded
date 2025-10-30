@@ -169,17 +169,6 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
     m_left = new float[m_allocatedSamples];
     m_right = new float[m_allocatedSamples];
     m_interleaved = new float[m_allocatedSamples * 2];
-
-    // Headroom defaults (can be overridden via prefs)
-    m_headroomDb = 12.0f;       // fixed headroom applied pre-mix
-    m_headroomEnabled = false;  // disabled by default (can be re-enabled via prefs)
-
-    if (g_preferences)
-    {
-        float v;
-        v = g_preferences->GetFloat("SoundHeadroomDb", -1.0f); if (v >= 0.0f) m_headroomDb = v;
-        int b = g_preferences->GetInt("SoundHeadroomEnabled", 0); m_headroomEnabled = (b != 0);
-    }
 }
 
 
@@ -360,8 +349,7 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
     // Map channel volume (0..10) + master (centi-dB) to linear gain using 10^(dB/20)
     float channelDb = -(5.0f - channel->m_volume * 0.5f) * 10.0f; // -50dB .. 0dB
     float masterDb = m_masterVolume * 0.01f;                      // centi-dB -> dB (<= 0)
-    float headroomDb = m_headroomEnabled ? m_headroomDb : 0.0f;
-    float totalDb = channelDb + masterDb - headroomDb; // apply fixed headroom
+    float totalDb = channelDb + masterDb;
     // Clamp within reasonable range
     if (totalDb < -100.0f) totalDb = -100.0f;
     if (totalDb > 0.0f) totalDb = 0.0f;

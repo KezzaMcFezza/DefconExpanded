@@ -30,7 +30,6 @@ class World;
 class RecordingFileDialog;
 class RendererDebugMenu;
 class SoundDebugOverlay;
-class SoundProtectionOverlay;
 
 class App
 {
@@ -58,7 +57,6 @@ public:                 // STARTUP OPTIONS
     bool        m_showFps;
     bool        m_showDebugMenu;
     bool        m_showSoundOverlay;
-    bool        m_showSoundProtection;
     int         m_currentFrames;
     int         m_framesPerSecond;
     float       m_frameCountTimer;
@@ -79,7 +77,6 @@ private:
     NetLib              *m_netLib;
     RendererDebugMenu   *m_debugMenu;
     SoundDebugOverlay   *m_soundOverlay;
-    SoundProtectionOverlay *m_soundProtectionOverlay;
     
     bool        m_mousePointerVisible;
 

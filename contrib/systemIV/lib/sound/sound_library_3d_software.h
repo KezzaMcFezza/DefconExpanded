@@ -29,10 +29,6 @@ protected:
 	
 	int						m_lastVolumeSet;				// consulted when un-muting
 
-    // Mix-bus headroom (software path only)
-    float                   m_headroomDb;       // fixed bus headroom in dB (e.g., 6.0)
-    bool                    m_headroomEnabled;  // preference: apply fixed headroom
-
 protected:
 	void GetChannelData		(float _duration, unsigned int _numSamples);
 	void ApplyDspFX			(float _duration, unsigned int _numSamples);
@@ -79,10 +75,6 @@ public:
 
 	void StartRecordToFile	(char const *_filename);
     void EndRecordToFile	();
-
-    // Runtime inspection (debug/overlay)
-    inline float GetHeadroomDb() const { return m_headroomDb; }
-    inline bool  GetHeadroomEnabled() const { return m_headroomEnabled; }
 };
 
 

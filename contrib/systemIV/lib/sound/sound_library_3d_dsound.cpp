@@ -8,7 +8,6 @@
 
 #include "lib/debug_utils.h"
 #include "lib/hi_res_time.h"
-#include "lib/preferences.h"
 //#include "lib/profiler.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/window_manager_win32.h"
@@ -173,16 +172,6 @@ SoundLibrary3dDirectSound::SoundLibrary3dDirectSound()
 	m_channels(NULL)
 {
 	m_directSound = new DirectSoundData;
-    // Fixed headroom defaults to -12 dB (1200 centi-dB), tunable via SoundHeadroomDb
-    m_fixedHeadroomCentiDb = 1200.0f;
-    m_headroomEnabled = false;
-    if (g_preferences)
-    {
-        float hd = g_preferences->GetFloat("SoundHeadroomDb", -1.0f);
-        if (hd >= 0.0f) m_fixedHeadroomCentiDb = hd * 100.0f;
-        int headroomInt = g_preferences->GetInt("SoundHeadroomEnabled", 0);
-        m_headroomEnabled = (headroomInt != 0);
-    }
 }
 
 
@@ -620,10 +609,6 @@ void SoundLibrary3dDirectSound::SetChannelVolume( int _channel, float _volume )
         float calculatedVolume = -(5.0f - _volume * 0.5f);
         calculatedVolume *= 1000.0f;                 // centi-dB
         calculatedVolume += m_masterVolume;          // apply master (centi-dB)
-        if (m_headroomEnabled)
-        {
-            calculatedVolume -= m_fixedHeadroomCentiDb;  // fixed headroom (centi-dB)
-        }
 
 		if( calculatedVolume < -10000.0f ) calculatedVolume = -10000.0f;
 		if( calculatedVolume > 0.0f ) calculatedVolume = 0.0f;

@@ -20,10 +20,6 @@ protected:
     DirectSoundChannel          *m_channels;
 	DirectSoundData		        *m_directSound;
 
-    // Fixed anti-clip attenuation (centi-dB)
-    float                        m_fixedHeadroomCentiDb; // fixed headroom in centi-dB
-    bool                         m_headroomEnabled;      // preference: apply fixed headroom
-            
 protected:
 	IDirectSoundBuffer          *CreateSecondaryBuffer(int _numSamples, int _numChannels);
     void RefreshCapabilities    ();
@@ -66,10 +62,6 @@ public:
                                  Vector3<float> const &_up, Vector3<float> const &_vel);
 
     void Advance                ();
-
-    // Runtime inspection (debug/overlay)
-    inline float GetFixedHeadroomDb() const { return m_fixedHeadroomCentiDb * 0.01f; }
-    inline bool  GetHeadroomEnabled() const { return m_headroomEnabled; }
 };
 
 
