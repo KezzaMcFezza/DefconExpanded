@@ -51,25 +51,6 @@ SoundMinFadeIn = 0
 SoundMinFadeInMs = 3.0
 SoundFadeInJitterMs = 0.75
 
-# DirectSound dynamic anti-clip (global attenuation) defaults
-# Enable or disable dynamic attenuation (default off)
-SoundDSDynEnabled = 0
-SoundDSDynLoudVolume = 7.0
-SoundDSDynStartCount = 2
-SoundDSDynDbPerExtra = 2.0
-SoundDSDynMaxDb = 12.0
-SoundDSDynAttack = 0.5
-SoundDSDynRelease = 0.1
-
-# SDL software mixer crowd attenuation defaults
-SoundSDLDynEnabled = 0
-SoundSDLDynLoudVolume = 7.0
-SoundSDLDynStartCount = 2
-SoundSDLDynDbPerExtra = 2.0
-SoundSDLDynMaxDb = 12.0
-SoundSDLDynAttack = 0.5
-SoundSDLDynRelease = 0.1
-
 RenderSmoothLines = 0
 RenderCoastlines = 1
 RenderBorders = 1

@@ -40,18 +40,6 @@ protected:
     float                   m_lastPeak;         // last measured pre-limit peak (PCM units)
     bool                    m_enableLimiter;    // preference: enable mix-bus limiter
 
-    // Dynamic "crowd" attenuation (SDL software path)
-    bool                    m_dynEnabled;           // preference: enable dynamic attenuation
-    float                   m_dynamicBusAttenDb;    // smoothed attenuation currently applied (dB)
-    float                   m_dynamicTargetDb;      // target attenuation based on loud-channel count (dB)
-    float                   m_dynAttack;            // smoothing when increasing attenuation (0..1)
-    float                   m_dynRelease;           // smoothing when decreasing attenuation (0..1)
-    float                   m_dynLoudVolThresh;     // channel volume considered "loud" (0..10)
-    int                     m_dynStartCount;        // loud channel count threshold before attenuation starts
-    float                   m_dynDbPerExtra;        // attenuation per extra loud channel (dB)
-    float                   m_dynMaxDb;             // maximum attenuation in dB
-    int                     m_dynLastLoudCount;     // cached loud-channel count from the previous block
-
 protected:
 	void GetChannelData		(float _duration, unsigned int _numSamples);
 	void ApplyDspFX			(float _duration, unsigned int _numSamples);
@@ -106,16 +94,6 @@ public:
     inline float GetLimiterBusGain() const { return m_busGain; }
     inline float GetLimiterLastPeak() const { return m_lastPeak; }
     inline bool  GetLimiterEnabled() const { return m_enableLimiter; }
-    inline bool  GetDynEnabled() const { return m_dynEnabled; }
-    inline float GetDynBusAttenDb() const { return m_dynamicBusAttenDb; }
-    inline float GetDynTargetDb() const { return m_dynamicTargetDb; }
-    inline float GetDynAttack() const { return m_dynAttack; }
-    inline float GetDynRelease() const { return m_dynRelease; }
-    inline float GetDynLoudVolThresh() const { return m_dynLoudVolThresh; }
-    inline int   GetDynStartCount() const { return m_dynStartCount; }
-    inline float GetDynDbPerExtra() const { return m_dynDbPerExtra; }
-    inline float GetDynMaxDb() const { return m_dynMaxDb; }
-    inline int   GetDynLoudCount() const { return m_dynLastLoudCount; }
 };
 
 

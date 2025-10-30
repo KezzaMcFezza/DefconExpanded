@@ -19,20 +19,10 @@ class SoundLibrary3dDirectSound: public SoundLibrary3d
 protected:    
     DirectSoundChannel          *m_channels;
 	DirectSoundData		        *m_directSound;
-    bool                         m_dynEnabled;        // preference: enable dynamic bus attenuation
 
-    // Fixed and dynamic anti-clip attenuation (centi-dB)
+    // Fixed anti-clip attenuation (centi-dB)
     float                        m_fixedHeadroomCentiDb; // fixed headroom in centi-dB
     bool                         m_headroomEnabled;      // preference: apply fixed headroom
-    float                        m_dynamicBusAtten;    // current smoothed attenuation
-    float                        m_dynamicTarget;      // target attenuation
-    float                        m_dynAttack;          // smoothing towards more attenuation
-    float                        m_dynRelease;         // smoothing back towards 0
-    // Dynamic attenuation heuristics (tunable)
-    float                        m_dynLoudVolThresh;   // channel volume >= threshold considered "loud" (0..10)
-    int                          m_dynStartCount;      // number of loud channels before attenuation starts
-    float                        m_dynDbPerExtra;      // dB attenuation per extra loud channel beyond start
-    float                        m_dynMaxDb;           // maximum dynamic attenuation in dB
             
 protected:
 	IDirectSoundBuffer          *CreateSecondaryBuffer(int _numSamples, int _numChannels);
@@ -80,13 +70,6 @@ public:
     // Runtime inspection (debug/overlay)
     inline float GetFixedHeadroomDb() const { return m_fixedHeadroomCentiDb * 0.01f; }
     inline bool  GetHeadroomEnabled() const { return m_headroomEnabled; }
-    inline float GetDynamicBusAttenDb() const { return m_dynamicBusAtten * 0.01f; }
-    inline float GetDynAttack() const { return m_dynAttack; }
-    inline float GetDynRelease() const { return m_dynRelease; }
-    inline float GetDynLoudVolThresh() const { return m_dynLoudVolThresh; }
-    inline int   GetDynStartCount() const { return m_dynStartCount; }
-    inline float GetDynDbPerExtra() const { return m_dynDbPerExtra; }
-    inline float GetDynMaxDb() const { return m_dynMaxDb; }
 };
 
 
