@@ -686,6 +686,10 @@ bool SoundSystem::InitialiseSound( SoundInstance *_instance )
         _instance->m_id.m_index = m_sounds.PutData( _instance );
         _instance->m_id.m_uniqueId = SoundInstanceId::GenerateUniqueId();
         _instance->m_restartAttempts = 3;
+        
+        // Memory fence to ensure instance is fully visible to audio/feeder threads
+        std::atomic_thread_fence(std::memory_order_release);
+        
         m_soundInstanceMutex->Unlock();
         return true;
     }
@@ -778,13 +782,22 @@ void SoundSystem::ShutdownSound( SoundInstance *_instance )
 
 SoundInstance *SoundSystem::GetSoundInstance( SoundInstanceId _id )
 {
+    // Lock-free read with memory barrier for thread safety
+    // Called from both main thread and feeder/audio threads
+    
     if( !m_sounds.ValidIndex(_id.m_index) )
     {
         return NULL;
     }
 
+    // Memory fence to ensure we see up-to-date pointer from any writes
+    std::atomic_thread_fence(std::memory_order_acquire);
+    
     SoundInstance *found = m_sounds[_id.m_index];
-    if( found->m_id == _id )
+    
+    // Validate pointer is non-null and ID matches before use
+    // The unique ID check prevents ABA problem if slot was reused
+    if( found && found->m_id == _id )
     {
         return found;
     }
