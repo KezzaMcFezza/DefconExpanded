@@ -46,6 +46,7 @@ private:
     unsigned        m_deviceQueueHighMs = 0;  // device queue high water mark
     int             m_timedScheduling = 1;    // enable timeline scheduling
     int             m_audioClockedADSR = 0;   // enable ADSR against audio clock
+    bool            m_lastQueueCritical = false;
     NetMutex        m_deviceStateLock;
 
 public:
@@ -67,7 +68,10 @@ public:
             periodFrames(0),
             queuedBytes(0),
             queuedMs(0.0),
-            usingPushMode(0)
+            usingPushMode(0),
+            deviceUnderruns(0),
+            deviceLowHits(0),
+            ringStarvations(0)
         {
             bufferedSamples[0] = 0;
             bufferedSamples[1] = 0;
@@ -92,6 +96,9 @@ public:
         uint32_t    queuedBytes;
         double      queuedMs;
         uint8_t     usingPushMode;
+        uint64_t    deviceUnderruns;
+        uint64_t    deviceLowHits;
+        uint64_t    ringStarvations;
     };
 
 public:

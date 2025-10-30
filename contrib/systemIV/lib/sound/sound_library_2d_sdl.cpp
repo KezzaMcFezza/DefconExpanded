@@ -266,6 +266,7 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	m_actualChannels(0),
 	m_actualFormat(0),
 	m_currentOutputDevice(),
+	m_lastQueueCritical(false),
 	m_stats(),
 	m_deviceId(0)
 {
@@ -541,7 +542,15 @@ void SoundLibrary2dSDL::GetRuntimeStats(RuntimeStats &_outStats)
         unsigned bpf = m_bytesPerFrame ? m_bytesPerFrame : (unsigned)((SDL_AUDIO_BITSIZE(s_audioSpec.format)/8) * s_audioSpec.channels);
         unsigned freq = GetActualFreq();
         _outStats.queuedBytes = q;
-        _outStats.queuedMs = (double)q / (double)bpf / (double)freq * 1000.0;
+        if (bpf > 0 && freq > 0) {
+            _outStats.queuedMs = (double)q / (double)bpf / (double)freq * 1000.0;
+        } else {
+            _outStats.queuedMs = 0.0;
+        }
+    } else if (!m_usePushMode) {
+        _outStats.deviceUnderruns = 0;
+        _outStats.deviceLowHits = 0;
+        _outStats.ringStarvations = 0;
     }
 }
 
@@ -563,6 +572,7 @@ void SoundLibrary2dSDL::Stop()
         SDL_WaitThread(m_feederThread, NULL);
         m_feederThread = NULL;
     }
+    m_lastQueueCritical = false;
 
     SDL_AudioDeviceID deviceToClose = 0;
 
@@ -713,6 +723,12 @@ int SoundLibrary2dSDL::FeederLoop()
     unsigned deviceLowFrames = MsToFrames(GetDeviceQueueLowMs());
     unsigned deviceHighFrames = MsToFrames(GetDeviceQueueHighMs());
     unsigned ringHorizonFrames = MsToFrames(m_ringMs);
+    unsigned criticalLowFrames = periodFrames / 2;
+    if (criticalLowFrames == 0) criticalLowFrames = 1;
+    unsigned deviceLowFramesSafe = std::max(1u, deviceLowFrames);
+    if (deviceLowFramesSafe > 0) {
+        criticalLowFrames = std::min(criticalLowFrames, deviceLowFramesSafe);
+    }
 
     //
     // Initial ring fill and device prefill
@@ -720,6 +736,7 @@ int SoundLibrary2dSDL::FeederLoop()
     EnsureMixedThrough(m_copyIndex + ringHorizonFrames);
     if (GetQueuedFrames() < deviceHighFrames) {
         unsigned need = deviceHighFrames - GetQueuedFrames();
+        bool ringStarvedPrefill = false;
 
         //
         // Ensure ring covers what we'll copy
@@ -727,18 +744,31 @@ int SoundLibrary2dSDL::FeederLoop()
         EnsureMixedThrough(m_copyIndex + need);
         while (need > 0 && m_feederRun) {
             unsigned copied = CopyFromRingToSDL(need);
-            if (copied == 0) { SDL_Delay(1); break; }
+            if (copied == 0) {
+                ringStarvedPrefill = true;
+                SDL_Delay(1);
+                break;
+            }
             need -= copied;
+        }
+
+        if (ringStarvedPrefill) {
+            m_statsLock.Lock();
+            m_stats.ringStarvations++;
+            m_statsLock.Unlock();
         }
     }
 
     //
     // Main loop
 
+    m_lastQueueCritical = false;
     while (m_feederRun) {
         Uint32 queuedBytes = SDL_GetQueuedAudioSize(s_audioDevice);
         unsigned queuedFrames = (unsigned)(queuedBytes / (Uint32)std::max(1u, bytesPerFrame));
         double queuedMs = (double)queuedFrames / (double)freq * 1000.0;
+        bool queueCritical = (queuedFrames <= criticalLowFrames);
+        bool queueWasCritical = m_lastQueueCritical;
 
         //
         // Update queued stats snapshot
@@ -748,11 +778,19 @@ int SoundLibrary2dSDL::FeederLoop()
         m_stats.queuedMs = queuedMs;
         m_stats.periodFrames = periodFrames;
         m_stats.usingPushMode = 1;
+        if (queuedFrames == 0) {
+            m_stats.deviceUnderruns++;
+        }
+        if (queueCritical && !queueWasCritical) {
+            m_stats.deviceLowHits++;
+        }
         m_statsLock.Unlock();
+        m_lastQueueCritical = queueCritical;
 
         if (queuedFrames < deviceLowFrames) {
             unsigned target = deviceHighFrames;
             unsigned need = (queuedFrames < target) ? (target - queuedFrames) : 0;
+            bool ringStarved = false;
 
             //
             // Ensure ring has enough mixed ahead for both need and ring horizon
@@ -761,8 +799,18 @@ int SoundLibrary2dSDL::FeederLoop()
             EnsureMixedThrough(ensureEnd);
             while (need > 0 && m_feederRun) {
                 unsigned copied = CopyFromRingToSDL(need);
-                if (copied == 0) { SDL_Delay(1); break; }
+                if (copied == 0) {
+                    ringStarved = true;
+                    SDL_Delay(1);
+                    break;
+                }
                 need -= copied;
+            }
+
+            if (ringStarved) {
+                m_statsLock.Lock();
+                m_stats.ringStarvations++;
+                m_statsLock.Unlock();
             }
         } else {
 
