@@ -28,6 +28,10 @@
 #include <mach/thread_act.h>
 #endif
 
+#ifdef TARGET_MSVC
+#include <windows.h>
+#endif
+
 static SDL_AudioSpec s_audioSpec;
 static SDL_AudioDeviceID s_audioDevice = 0;
 static int s_audioStarted = 0;
@@ -696,8 +700,27 @@ void SoundLibrary2dSDL::SetAudioThreadPriority()
         printf("[AUDIO THREAD] ✗ Failed to set time constraint policy\n");
         fflush(stdout);
     }
+#elif defined(TARGET_MSVC)
+    if (!m_feederThread) return;
+    
+    printf("[AUDIO THREAD] Attempting to set Windows thread priority...\n");
+    fflush(stdout);
+    
+    // Get the native Windows handle for the current thread
+    HANDLE hThread = GetCurrentThread();
+    
+    // Set to THREAD_PRIORITY_TIME_CRITICAL for real-time audio performance
+    // This is the highest priority level available for normal threads
+    if (SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL)) {
+        printf("[AUDIO THREAD] ✓ Set to THREAD_PRIORITY_TIME_CRITICAL\n");
+        fflush(stdout);
+    } else {
+        DWORD error = GetLastError();
+        printf("[AUDIO THREAD] ✗ Failed to set thread priority (error: %lu)\n", error);
+        fflush(stdout);
+    }
 #else
-    // Windows or other platforms - SDL's audio callback already runs at high priority
+    // Other platforms - SDL's audio callback already runs at high priority
     printf("[AUDIO THREAD] Priority boost not implemented for this platform\n");
     fflush(stdout);
 #endif
