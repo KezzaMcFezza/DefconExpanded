@@ -98,61 +98,77 @@ void SoundSystem::Initialise( SoundSystemInterface *_interface )
 void SoundSystem::RestartSoundLibrary()
 {
     //
-    // Shut down existing sound library
+    // Shut down existing sound library safely
+    //
 
-	delete [] m_channels;
-	delete g_soundLibrary3d;
-	g_soundLibrary3d = NULL;
+    // Disable callback quickly to reduce activity in callback mode
+    if (g_soundLibrary3d)
+    {
+        g_soundLibrary3d->EnableCallback(false);
+    }
+
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
-	delete g_soundLibrary2d;
-	g_soundLibrary2d = NULL;
+    // If using the SDL 2D backend, stop the device and feeder thread first
+    if (g_soundLibrary2d)
+    {
+        SoundLibrary2dSDL *sdl2d = dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d);
+        if (sdl2d)
+        {
+            sdl2d->Stop();
+        }
+    }
 #endif
 
-    //
-    // Make sure to stop all currently playing sounds before clearing the cache
+    // Make sure to stop all currently playing sounds before we clear caches
+    m_soundInstanceMutex->Lock();
+    for (int i = 0; i < m_sounds.Size(); ++i)
+    {
+        if (m_sounds.ValidIndex(i))
+        {
+            SoundInstance *instance = m_sounds[i];
+            instance->StopPlaying();
 
-	m_soundInstanceMutex->Lock();
-	for( int i = 0; i < m_sounds.Size(); ++i )
-	{
-		if( m_sounds.ValidIndex(i) )
-		{
-			SoundInstance *instance = m_sounds[i];
-			instance->StopPlaying();
+            delete instance->m_soundSampleHandle;
+            instance->m_soundSampleHandle = NULL;
+        }
+    }
+    m_soundInstanceMutex->Unlock();
 
-			delete instance->m_soundSampleHandle;
-			instance->m_soundSampleHandle = NULL;
-		}
-	}
-	m_soundInstanceMutex->Unlock();
+    // Now clear the sample cache
+    g_soundSampleBank->EmptyCache();
 
-	// 
-    // Now clear it
-    
-	g_soundSampleBank->EmptyCache();
+    // Delete the 3D and 2D libraries (3D first as its dtor references 2D)
+    delete g_soundLibrary3d;
+    g_soundLibrary3d = NULL;
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+    delete g_soundLibrary2d;
+    g_soundLibrary2d = NULL;
+#endif
+
+    // Finally, free the channel map used by the mixer
+    delete[] m_channels;
+    m_channels = NULL;
 
     //
     // Start up a new sound library
     SoundResampler::Initialise(g_preferences);
 
-	g_preferences->SetInt(PREFS_SOUND_MIXFREQ, 44100);
-	int mixrate         = 44100;
-	int volume          = g_preferences->GetInt("SoundMasterVolume", 255);
+    g_preferences->SetInt(PREFS_SOUND_MIXFREQ, 44100);
+    int mixrate = 44100;
+    int volume = g_preferences->GetInt("SoundMasterVolume", 255);
     int requestedChannels = g_preferences->GetInt("SoundChannels", 32);
-    m_numMusicChannels  = g_preferences->GetInt("SoundMusicChannels", 12 );
-    int hw3d            = g_preferences->GetInt("SoundHW3D", 0);
-    const char *libName       = g_preferences->GetString("SoundLibrary", "dsound");
+    m_numMusicChannels = g_preferences->GetInt("SoundMusicChannels", 12);
+    int hw3d = g_preferences->GetInt("SoundHW3D", 0);
+    const char *libName = g_preferences->GetString("SoundLibrary", "dsound");
 
 #if defined TARGET_MSVC && !defined WINDOWS_SDL
     m_numChannels = requestedChannels;
-	g_soundLibrary3d = new SoundLibrary3dDirectSound();
+    g_soundLibrary3d = new SoundLibrary3dDirectSound();
 #else
-	g_soundLibrary2d = new SoundLibrary2dSDL();
-	g_soundLibrary3d = new SoundLibrary3dSoftware();
+    g_soundLibrary2d = new SoundLibrary2dSDL();
+    g_soundLibrary3d = new SoundLibrary3dSoftware();
 
-    //
-    // Ensure preferences reflect the actual backend used by SDL builds.
-    // This avoids writing a misleading "dsound" entry inherited from defaults.
-
+    // Ensure preferences reflect the actual backend used by SDL builds
     g_preferences->SetString(PREFS_SOUND_LIBRARY, "software");
     m_numChannels = 64;
 
@@ -163,15 +179,15 @@ void SoundSystem::RestartSoundLibrary()
 
 #endif
 
-    g_soundLibrary3d->SetMasterVolume( volume );
-    g_soundLibrary3d->Initialise( mixrate, m_numChannels, m_numMusicChannels, hw3d );
-    g_soundLibrary3d->SetDopplerFactor( 0.0f );
+    g_soundLibrary3d->SetMasterVolume(volume);
+    g_soundLibrary3d->Initialise(mixrate, m_numChannels, m_numMusicChannels, hw3d);
+    g_soundLibrary3d->SetDopplerFactor(0.0f);
 
     m_numChannels = g_soundLibrary3d->GetNumChannels();
     m_numMusicChannels = g_soundLibrary3d->GetNumMusicChannels();
-    m_channels = new SoundInstanceId[m_numChannels];    
+    m_channels = new SoundInstanceId[m_numChannels];
 
-    g_soundLibrary3d->SetMainCallback( &SoundLibraryMainCallback );
+    g_soundLibrary3d->SetMainCallback(&SoundLibraryMainCallback);
 }
 
 
@@ -220,6 +236,20 @@ bool SoundSystem::SoundLibraryMainCallback( unsigned int _channel, signed short 
 
 bool SoundSystem::GenerateChannelSamplesShort(unsigned int channel, signed short *dst, unsigned int numSamples, int *silenceRemaining)
 {
+    // Defensive guard: mixer may be reinitialising
+    if (!m_channels || channel >= (unsigned)m_numChannels)
+    {
+        if (g_soundLibrary3d)
+        {
+            g_soundLibrary3d->WriteSilence(dst, numSamples);
+        }
+        else
+        {
+            memset(dst, 0, sizeof(signed short) * numSamples);
+        }
+        return false;
+    }
+
     SoundInstanceId soundId = m_channels[channel];
     SoundInstance *instance = LockSoundInstance(soundId);
     bool stereo = IsMusicChannel(channel);
@@ -442,6 +472,16 @@ bool SoundSystem::GenerateChannelSamplesShort(unsigned int channel, signed short
 #if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
 bool SoundSystem::GenerateChannelSamplesFloat(unsigned int channel, float *dst, unsigned int numSamples, int *silenceRemaining)
 {
+    // Defensive guard: mixer may be reinitialising
+    if (!m_channels || channel >= (unsigned)m_numChannels)
+    {
+        if (dst && numSamples > 0)
+        {
+            std::fill(dst, dst + numSamples, 0.0f);
+        }
+        return false;
+    }
+
     SoundInstanceId soundId = m_channels[channel];
     SoundInstance *instance = LockSoundInstance(soundId);
     bool stereo = IsMusicChannel(channel);
