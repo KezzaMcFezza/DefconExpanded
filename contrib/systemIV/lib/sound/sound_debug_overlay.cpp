@@ -379,6 +379,18 @@ void SoundDebugOverlay::Render()
                  g_preferences->GetInt("SoundAudioClockedADSR", 1) ? "on" : "off");
         g_renderer->TextSimple(baseXLeft, leftY, pushPrefColour, 11.0f, buffer);
         leftY += line;
+
+        // Deterministic per-channel fade-in with jitter (software 3D mixer)
+        int fadeEnabled = g_preferences->GetInt("SoundMinFadeIn", 0);
+        snprintf(buffer, sizeof(buffer), "Min fade-in         : %s", fadeEnabled ? "on" : "off");
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
+
+        float baseMs = g_preferences->GetFloat("SoundMinFadeInMs", 3.0f);
+        float jitterMs = g_preferences->GetFloat("SoundFadeInJitterMs", 0.75f);
+        snprintf(buffer, sizeof(buffer), "Fade-in base/jitter : %.2f / %.2f ms", baseMs, jitterMs);
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
     }
     else
     {
