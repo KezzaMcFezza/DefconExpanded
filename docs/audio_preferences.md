@@ -13,6 +13,31 @@ Quick toggles (default off)
 - SoundDSDynEnabled = 0
   - DirectSound dynamic attenuation. Set to 1 to keep the DS backend’s classic crowd attenuation behavior.
 
+## Software Resampler Modes (SDL software mixer)
+
+Per-voice resampling now uses a windowed-sinc FIR by default. Two preferences control the quality tier:
+
+- `SoundResamplerSfx` (default `sinc64`)
+  - Applies to non-music channels (typically many short SFX voices).
+- `SoundResamplerMusic` (default `sinc128`)
+  - Applies to music/ambience channels (higher quality, fewer voices).
+
+Accepted values:
+
+| Value     | Kernel | Phases | Notes |
+|-----------|--------|--------|-------|
+| `linear`  | 2 taps (lerp) | 1 | Legacy bilinear interpolation. Lowest CPU, weakest filtering. Useful only for debugging.
+| `sinc64`  | 64 taps | 256 | Blackman–Harris window, ≈90 dB stop-band. Balanced for dense SFX mixes.
+| `sinc96`  | 96 taps | 256 | Better transition band and stop-band. Good compromise if SFX aliasing is still audible.
+| `sinc128` | 128 taps | 512 | Highest quality / lowest aliasing. Intended for music, ambience or other exposed content.
+
+Additional implementation details:
+
+- Polyphase LUT with 256 or 512 fractional phases, symmetric kernel halves to minimise multiplies.
+- Three cutoff banks (0.90 / 0.70 / 0.50 Nyquist) cover down-sampling cases; the runtime picks the closest cutoff based on the current pitch ratio.
+- Preferences can be edited in `prefs_default.txt`, `prefs_testbed.txt`, or via the in-game config UI once exposed.
+- The Sound Debug Overlay (F3) now lists the active SFX/Music resampler tier, taps/phases, current bank usage, and any voices that fell back to linear interpolation.
+
 ## Overview
 
 - Fixed headroom (shared): Always applies a small attenuation to keep day‑to‑day mixes below full‑scale.

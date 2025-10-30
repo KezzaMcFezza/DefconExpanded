@@ -33,6 +33,8 @@
 #define PREFS_SOUND_BUFFERSIZE      "SoundBufferSize"
 #endif
 #define PREFS_RECORDING_LAST_FOLDER "RecordingLastFolder"
+#define PREFS_SOUND_RESAMPLER_SFX   "SoundResamplerSfx"
+#define PREFS_SOUND_RESAMPLER_MUSIC "SoundResamplerMusic"
 
 
 class PreferencesItem;

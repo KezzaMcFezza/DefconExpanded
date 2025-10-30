@@ -68,7 +68,7 @@ unsigned int SoundSampleHandle::GetFrameCount() const
 }
 
 
-void SoundSampleHandle::GetFrame(double _frame, bool _stereo, float &_outLeft, float &_outRight)
+void SoundSampleHandle::GetFrame(double _frame, bool _stereo, SoundResampler::Quality _quality, double _ratio, float &_outLeft, float &_outRight)
 {
     if (!m_soundSample)
     {
@@ -77,7 +77,7 @@ void SoundSampleHandle::GetFrame(double _frame, bool _stereo, float &_outLeft, f
         return;
     }
 
-    m_soundSample->GetFrame(_frame, _stereo, _outLeft, _outRight);
+    m_soundSample->GetFrame(_frame, _stereo, _quality, _ratio, _outLeft, _outRight);
 }
 
 

@@ -1,7 +1,10 @@
 #ifndef INCLUDED_SOUND_DEBUG_OVERLAY_H
 #define INCLUDED_SOUND_DEBUG_OVERLAY_H
 
+#include <vector>
+
 #include "lib/sound/sound_library_2d_sdl.h"
+#include "resampler_polyphase.h"
 
 class SoundDebugOverlay
 {
@@ -32,6 +35,11 @@ private:
     double      m_resampleCursorFracMin;
     double      m_resampleCursorFracMax;
     double      m_resampleCursorFracAvg;
+    SoundResampler::Quality m_resampleSfxQuality;
+    SoundResampler::Quality m_resampleMusicQuality;
+    unsigned int m_resampleLinearInstances;
+    std::vector<int> m_resampleBankUsageSfx;
+    std::vector<int> m_resampleBankUsageMusic;
 #endif
 };
 

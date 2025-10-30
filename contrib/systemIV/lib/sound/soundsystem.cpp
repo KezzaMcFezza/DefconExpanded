@@ -16,6 +16,7 @@
 #include "sound_library_3d.h"
 #include "sound_sample_decoder.h"
 #include "sound_blueprint_manager.h"
+#include "resampler_polyphase.h"
 
 #if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
     #include "sound_library_2d_sdl.h"
@@ -131,6 +132,7 @@ void SoundSystem::RestartSoundLibrary()
 
     //
     // Start up a new sound library
+    SoundResampler::Initialise(g_preferences);
 
 	g_preferences->SetInt(PREFS_SOUND_MIXFREQ, 44100);
 	int mixrate         = 44100;
@@ -289,6 +291,7 @@ bool SoundSystem::GenerateChannelSamplesShort(unsigned int channel, signed short
         double step = instance->m_resampleStep;
         unsigned int framesWritten = 0;
         bool waitingForLoop = false;
+        SoundResampler::Quality resampleQuality = stereo ? SoundResampler::GetMusicQuality() : SoundResampler::GetSfxQuality();
 
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
         do {
@@ -363,7 +366,7 @@ bool SoundSystem::GenerateChannelSamplesShort(unsigned int channel, signed short
 
             float outLeft = 0.0f;
             float outRight = 0.0f;
-            handle->GetFrame(cursor, stereo, outLeft, outRight);
+            handle->GetFrame(cursor, stereo, resampleQuality, step, outLeft, outRight);
 
             if (stereo)
             {
@@ -463,6 +466,7 @@ bool SoundSystem::GenerateChannelSamplesFloat(unsigned int channel, float *dst, 
         double step = instance->m_resampleStep;
         unsigned int framesWritten = 0;
         bool waitingForLoop = false;
+        SoundResampler::Quality resampleQuality = stereo ? SoundResampler::GetMusicQuality() : SoundResampler::GetSfxQuality();
 
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
         do {
@@ -530,7 +534,7 @@ bool SoundSystem::GenerateChannelSamplesFloat(unsigned int channel, float *dst, 
 
             float outLeft = 0.0f;
             float outRight = 0.0f;
-            handle->GetFrame(cursor, stereo, outLeft, outRight);
+            handle->GetFrame(cursor, stereo, resampleQuality, step, outLeft, outRight);
 
             if (stereo)
             {

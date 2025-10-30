@@ -12,6 +12,7 @@
 
 #include "soundsystem.h"
 #include "sound_sample_decoder.h"
+#include "resampler_polyphase.h"
 
 
 
@@ -81,7 +82,7 @@ unsigned int SoundSampleDecoder::GetFrameCount() const
 }
 
 
-void SoundSampleDecoder::GetFrame(double _frame, bool _stereo, float &_outLeft, float &_outRight)
+void SoundSampleDecoder::GetFrame(double _frame, bool _stereo, SoundResampler::Quality _quality, double _ratio, float &_outLeft, float &_outRight)
 {
     _outLeft = 0.0f;
     _outRight = 0.0f;
@@ -103,75 +104,171 @@ void SoundSampleDecoder::GetFrame(double _frame, bool _stereo, float &_outLeft, 
     }
 
     unsigned int baseFrame = (unsigned int)_frame;
-    double fraction = _frame - (double)baseFrame;
-    unsigned int nextFrame = baseFrame + 1;
-    if (nextFrame >= totalFrames)
-    {
-        nextFrame = baseFrame;
-        fraction = 0.0;
-    }
-
     unsigned int samplesPerFrame = m_numChannels ? m_numChannels : 1;
-    unsigned int sampleIndexBase = baseFrame * samplesPerFrame;
-    unsigned int sampleIndexNext = nextFrame * samplesPerFrame;
+    double fraction = _frame - (double)baseFrame;
+    double fractionForLinear = fraction;
 
-    unsigned int ensureEnd = sampleIndexNext + samplesPerFrame;
-    if (ensureEnd > m_numSamples)
+    auto linearSample = [&]()
     {
-        ensureEnd = m_numSamples;
-    }
-    EnsureCached(ensureEnd);
+        unsigned int nextFrame = baseFrame + 1;
+        double fractionLinear = fractionForLinear;
+        if (nextFrame >= totalFrames)
+        {
+            nextFrame = baseFrame;
+            fractionLinear = 0.0;
+        }
 
-    if (!m_sampleCache || m_amountCached == 0)
+        unsigned int sampleIndexBase = baseFrame * samplesPerFrame;
+        unsigned int sampleIndexNext = nextFrame * samplesPerFrame;
+
+        unsigned int ensureEndLinear = sampleIndexNext + samplesPerFrame;
+        if (ensureEndLinear > m_numSamples)
+        {
+            ensureEndLinear = m_numSamples;
+        }
+        EnsureCached(ensureEndLinear);
+
+        if (!m_sampleCache || m_amountCached == 0)
+        {
+            _outLeft = 0.0f;
+            _outRight = 0.0f;
+            return;
+        }
+
+        unsigned int baseIndex = sampleIndexBase;
+        if (baseIndex >= m_amountCached)
+        {
+            baseIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
+        }
+
+        unsigned int nextIndex = sampleIndexNext;
+        if (nextIndex >= m_amountCached)
+        {
+            nextIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
+        }
+
+        float sampleAtBase = (float)m_sampleCache[baseIndex];
+        float sampleAtNext = (float)m_sampleCache[nextIndex];
+
+        if (m_numChannels == 1)
+        {
+            float interpolated = sampleAtBase + (sampleAtNext - sampleAtBase) * (float)fractionLinear;
+
+            _outLeft = interpolated;
+            _outRight = interpolated;
+        }
+        else
+        {
+            unsigned int baseRightIndex = sampleIndexBase + 1;
+            if (baseRightIndex >= m_amountCached)
+            {
+                baseRightIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
+            }
+
+            unsigned int nextRightIndex = sampleIndexNext + 1;
+            if (nextRightIndex >= m_amountCached)
+            {
+                nextRightIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
+            }
+
+            float baseLeft = sampleAtBase;
+            float baseRight = (float)m_sampleCache[baseRightIndex];
+            float nextLeft = sampleAtNext;
+            float nextRight = (float)m_sampleCache[nextRightIndex];
+
+            float left = baseLeft + (nextLeft - baseLeft) * (float)fractionLinear;
+            float right = baseRight + (nextRight - baseRight) * (float)fractionLinear;
+
+            if (_stereo)
+            {
+                _outLeft = left;
+                _outRight = right;
+            }
+            else
+            {
+                float mono = (left + right) * 0.5f;
+                _outLeft = mono;
+                _outRight = mono;
+            }
+        }
+    };
+
+    if (_quality == SoundResampler::Quality::Linear || _ratio <= 0.0)
     {
-        _outLeft = 0.0f;
-        _outRight = 0.0f;
+        linearSample();
         return;
     }
 
-    unsigned int baseIndex = sampleIndexBase;
-    if (baseIndex >= m_amountCached)
+    SoundResampler::Selection selection = SoundResampler::SelectKernel(_quality, _ratio);
+    const SoundResampler::Kernel *kernel = selection.kernel;
+
+    if (!kernel || kernel->coeffs.empty() || kernel->taps == 0 || kernel->phases == 0)
     {
-        baseIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
+        linearSample();
+        return;
     }
 
-    unsigned int nextIndex = sampleIndexNext;
-    if (nextIndex >= m_amountCached)
+    unsigned int phaseIndex = (unsigned int)(fraction * kernel->phases + 0.5);
+    if (phaseIndex >= kernel->phases)
     {
-        nextIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
+        phaseIndex = kernel->phases - 1;
     }
 
-    float sampleAtBase = (float)m_sampleCache[baseIndex];
-    float sampleAtNext = (float)m_sampleCache[nextIndex];
+    const float *coeffs = &kernel->coeffs[phaseIndex * kernel->taps];
+    int centre = (int)(0.5 * (double)kernel->taps - 1.0);
+    int firstFrame = (int)baseFrame - centre;
+    int lastFrame = firstFrame + (int)kernel->taps - 1;
+
+    int cacheStartFrame = firstFrame < 0 ? 0 : firstFrame;
+    int cacheEndFrame = lastFrame + 1;
+    if (cacheEndFrame < 0) cacheEndFrame = 0;
+    if (cacheEndFrame > (int)totalFrames) cacheEndFrame = (int)totalFrames;
+
+    if (cacheEndFrame > cacheStartFrame)
+    {
+        unsigned int ensureEnd = (unsigned int)cacheEndFrame * samplesPerFrame;
+        if (ensureEnd > m_numSamples) ensureEnd = m_numSamples;
+        EnsureCached(ensureEnd);
+    }
+
+    auto fetchSample = [&](int frameIndex, unsigned int channel) -> float
+    {
+        if (frameIndex < 0 || frameIndex >= (int)totalFrames)
+        {
+            return 0.0f;
+        }
+
+        unsigned int sampleIndex = (unsigned int)frameIndex * samplesPerFrame + channel;
+        if (!m_sampleCache || sampleIndex >= m_amountCached)
+        {
+            return 0.0f;
+        }
+
+        return (float)m_sampleCache[sampleIndex];
+    };
+
+    auto filterChannel = [&](unsigned int channel) -> float
+    {
+        double sum = 0.0;
+        for (unsigned int tap = 0; tap < kernel->taps; ++tap)
+        {
+            int frameIndex = firstFrame + (int)tap;
+            float sample = fetchSample(frameIndex, channel < m_numChannels ? channel : 0);
+            sum += (double)coeffs[tap] * (double)sample;
+        }
+        return (float)sum;
+    };
 
     if (m_numChannels == 1)
     {
-        float interpolated = sampleAtBase + (sampleAtNext - sampleAtBase) * (float)fraction;
-
-        _outLeft = interpolated;
-        _outRight = interpolated;
+        float mono = filterChannel(0);
+        _outLeft = mono;
+        _outRight = mono;
     }
     else
     {
-        unsigned int baseRightIndex = sampleIndexBase + 1;
-        if (baseRightIndex >= m_amountCached)
-        {
-            baseRightIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
-        }
-
-        unsigned int nextRightIndex = sampleIndexNext + 1;
-        if (nextRightIndex >= m_amountCached)
-        {
-            nextRightIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
-        }
-
-        float baseLeft = sampleAtBase;
-        float baseRight = (float)m_sampleCache[baseRightIndex];
-        float nextLeft = sampleAtNext;
-        float nextRight = (float)m_sampleCache[nextRightIndex];
-
-        float left = baseLeft + (nextLeft - baseLeft) * (float)fraction;
-        float right = baseRight + (nextRight - baseRight) * (float)fraction;
+        float left = filterChannel(0);
+        float right = filterChannel(1);
 
         if (_stereo)
         {

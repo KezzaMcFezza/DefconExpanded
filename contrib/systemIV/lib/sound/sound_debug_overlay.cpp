@@ -37,7 +37,12 @@ SoundDebugOverlay::SoundDebugOverlay()
     m_resampleStepAvg(0.0),
     m_resampleCursorFracMin(0.0),
     m_resampleCursorFracMax(0.0),
-    m_resampleCursorFracAvg(0.0)
+    m_resampleCursorFracAvg(0.0),
+    m_resampleSfxQuality(SoundResampler::Quality::Linear),
+    m_resampleMusicQuality(SoundResampler::Quality::Linear),
+    m_resampleLinearInstances(0),
+    m_resampleBankUsageSfx(),
+    m_resampleBankUsageMusic()
 #endif
 {
 }
@@ -55,6 +60,22 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
         m_topupCallsPerSec = 0.0;
         m_queuedCallbacksPerSec = 0.0;
         m_lastStatsSampleTime = GetHighResTime();
+#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+        m_resampleInstanceCount = 0;
+        m_resampleWaitingForLoop = 0;
+        m_resampleInvalidInstances = 0;
+        m_resampleStepMin = 0.0;
+        m_resampleStepMax = 0.0;
+        m_resampleStepAvg = 0.0;
+        m_resampleCursorFracMin = 0.0;
+        m_resampleCursorFracMax = 0.0;
+        m_resampleCursorFracAvg = 0.0;
+        m_resampleSfxQuality = SoundResampler::Quality::Linear;
+        m_resampleMusicQuality = SoundResampler::Quality::Linear;
+        m_resampleLinearInstances = 0;
+        m_resampleBankUsageSfx.clear();
+        m_resampleBankUsageMusic.clear();
+#endif
         return;
     }
 
@@ -72,6 +93,14 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
         m_topupCallsPerSec = 0.0;
         m_queuedCallbacksPerSec = 0.0;
         m_hasStats = true;
+#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
+        m_resampleSfxQuality = SoundResampler::GetSfxQuality();
+        m_resampleMusicQuality = SoundResampler::GetMusicQuality();
+        unsigned int bankCount = SoundResampler::GetKernelBankCount();
+        m_resampleBankUsageSfx.assign(bankCount, 0);
+        m_resampleBankUsageMusic.assign(bankCount, 0);
+        m_resampleLinearInstances = 0;
+#endif
         return;
     }
 
@@ -103,6 +132,12 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
     m_resampleCursorFracMin = 0.0;
     m_resampleCursorFracMax = 0.0;
     m_resampleCursorFracAvg = 0.0;
+    m_resampleSfxQuality = SoundResampler::GetSfxQuality();
+    m_resampleMusicQuality = SoundResampler::GetMusicQuality();
+    unsigned int bankCount = SoundResampler::GetKernelBankCount();
+    m_resampleBankUsageSfx.assign(bankCount, 0);
+    m_resampleBankUsageMusic.assign(bankCount, 0);
+    m_resampleLinearInstances = 0;
 
     if (g_soundSystem && g_soundSystem->m_channels && g_soundSystem->m_numChannels > 0)
     {
@@ -170,6 +205,30 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
                 {
                     ++m_resampleInvalidInstances;
                 }
+
+                const int musicThreshold = g_soundSystem->m_numChannels - g_soundSystem->m_numMusicChannels;
+                const bool isMusicChannel = (g_soundSystem->m_numMusicChannels > 0) && (i >= musicThreshold);
+                SoundResampler::Quality quality = isMusicChannel ? m_resampleMusicQuality : m_resampleSfxQuality;
+                if (quality == SoundResampler::Quality::Linear || step <= 0.0)
+                {
+                    ++m_resampleLinearInstances;
+                }
+                else
+                {
+                    SoundResampler::Selection selection = SoundResampler::SelectKernel(quality, step);
+                    if (selection.kernel && selection.bankIndex < bankCount)
+                    {
+                        std::vector<int> &usage = isMusicChannel ? m_resampleBankUsageMusic : m_resampleBankUsageSfx;
+                        if (selection.bankIndex < usage.size())
+                        {
+                            usage[selection.bankIndex]++;
+                        }
+                    }
+                    else
+                    {
+                        ++m_resampleLinearInstances;
+                    }
+                }
             }
             else
             {
@@ -206,37 +265,40 @@ void SoundDebugOverlay::Render()
         return;
     }
 
-    float baseX = 25.0f;
+    float baseXLeft = 25.0f;
     if (g_windowManager)
     {
-        baseX = std::max(25.0f, static_cast<float>(g_windowManager->WindowW()) - 420.0f);
+        baseXLeft = std::max(25.0f, static_cast<float>(g_windowManager->WindowW()) - 570.0f);
     }
 
-    float y = 55.0f;
     const float line = 16.0f;
     const float sectionGap = 6.0f;
     char buffer[256];
 
-    g_renderer->TextSimple(baseX, y, Colour(255, 220, 80, 255), 14.0f, "Sound Debug Overlay (F3)");
-    y += line;
+    const float baseY = 55.0f;
+    float leftY = baseY;
+    float baseXRight = baseXLeft + 220.0f;
+
+    g_renderer->TextSimple(baseXLeft, leftY, Colour(255, 220, 80, 255), 14.0f, "Sound Debug Overlay (F3)");
+    leftY += line;
 
     Colour sectionColour(180, 220, 255, 255);
     Colour textColour(255, 255, 255, 255);
 
-    g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "Preferences");
-    y += line;
+    g_renderer->TextSimple(baseXLeft, leftY, sectionColour, 12.0f, "Preferences");
+    leftY += line;
 
     if (g_preferences)
     {
         snprintf(buffer, sizeof(buffer), "Sound enabled       : %s", g_preferences->GetInt("Sound", 1) ? "yes" : "no");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         // (SDL device callback state shown in SDL 2D section)
 
         snprintf(buffer, sizeof(buffer), "Master volume       : %d", g_preferences->GetInt("SoundMasterVolume", 255));
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         // Clarify callback-vs-push parameters in the Preferences view
         const int usePush = g_preferences->GetInt("SoundUsePushMode", 1);
@@ -247,29 +309,29 @@ void SoundDebugOverlay::Render()
             snprintf(buffer, sizeof(buffer), "Mix freq / buffer   : %d Hz / %d samples (callback mode)",
                      g_preferences->GetInt("SoundMixFreq", 44100),
                      g_preferences->GetInt("SoundBufferSize", 512));
-            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-            y += line;
+            g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+            leftY += line;
         }
 
         snprintf(buffer, sizeof(buffer), "Channels (total/music): %d / %d",
                  g_preferences->GetInt("SoundChannels", 32),
                  g_preferences->GetInt("SoundMusicChannels", 12));
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         const char *libName = g_preferences->GetString("SoundLibrary", "sdl");
         snprintf(buffer, sizeof(buffer), "Sound library       : %s", libName ? libName : "unknown");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         snprintf(buffer, sizeof(buffer), "Hardware 3D target  : %s", g_preferences->GetInt("SoundHW3D", 0) ? "enabled" : "disabled");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         // New push/queue and scheduling prefs
         snprintf(buffer, sizeof(buffer), "Use push mode       : %s", usePush ? "yes" : "no");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         // For push-only prefs, de-emphasize when push mode is off
         Colour pushPrefColour = usePush ? textColour : Colour(160,160,160,220);
@@ -278,15 +340,15 @@ void SoundDebugOverlay::Render()
                  "Period frames       : %d" :
                  "Period frames       : %d (push-mode only)",
                  g_preferences->GetInt("SoundPeriodFrames", 128));
-        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, pushPrefColour, 11.0f, buffer);
+        leftY += line;
 
         snprintf(buffer, sizeof(buffer), usePush ?
                  "Target latency      : %d ms" :
                  "Target latency      : %d ms (push-mode only)",
                  g_preferences->GetInt("SoundTargetLatencyMs", 80));
-        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, pushPrefColour, 11.0f, buffer);
+        leftY += line;
 
         // Device queue bounds and ring horizon
         snprintf(buffer, sizeof(buffer), usePush ?
@@ -294,112 +356,114 @@ void SoundDebugOverlay::Render()
                  "Device low/high     : %d / %d ms (push-mode only)",
                  g_preferences->GetInt("SoundDeviceQueueLowMs", 20),
                  g_preferences->GetInt("SoundDeviceQueueHighMs", 35));
-        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, pushPrefColour, 11.0f, buffer);
+        leftY += line;
 
         snprintf(buffer, sizeof(buffer), usePush ?
                  "Ring horizon        : %d ms" :
                  "Ring horizon        : %d ms (push-mode only)",
                  g_preferences->GetInt("SoundRingMs", 160));
-        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, pushPrefColour, 11.0f, buffer);
+        leftY += line;
 
         snprintf(buffer, sizeof(buffer), usePush ?
                  "Timed scheduling    : %s" :
                  "Timed scheduling    : %s (push-mode only)",
                  g_preferences->GetInt("SoundTimedScheduling", 1) ? "yes" : "no");
-        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, pushPrefColour, 11.0f, buffer);
+        leftY += line;
 
         snprintf(buffer, sizeof(buffer), usePush ?
                  "Audio-clocked ADSR  : %s" :
                  "Audio-clocked ADSR  : %s (push-mode only)",
                  g_preferences->GetInt("SoundAudioClockedADSR", 1) ? "on" : "off");
-        g_renderer->TextSimple(baseX, y, pushPrefColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, pushPrefColour, 11.0f, buffer);
+        leftY += line;
     }
     else
     {
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, "Preferences unavailable");
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, "Preferences unavailable");
+        leftY += line;
     }
 
-    y += sectionGap;
+    leftY += sectionGap;
 
-    g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "Sound System");
-    y += line;
+    g_renderer->TextSimple(baseXLeft, leftY, sectionColour, 12.0f, "Sound System");
+    leftY += line;
 
     if (g_soundSystem)
     {
         snprintf(buffer, sizeof(buffer), "Instances active    : %d", g_soundSystem->NumSoundInstances());
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         snprintf(buffer, sizeof(buffer), "Channels used       : %d / %d (music %d)",
                  g_soundSystem->NumChannelsUsed(),
                  g_soundSystem->m_numChannels,
                  g_soundSystem->m_numMusicChannels);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         snprintf(buffer, sizeof(buffer), "Sounds discarded    : %d", g_soundSystem->NumSoundsDiscarded());
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         double timeUntilSync = g_soundSystem->m_timeSync - GetHighResTime();
         snprintf(buffer, sizeof(buffer), "Time to next sync   : %.1f ms", timeUntilSync * 1000.0);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         snprintf(buffer, sizeof(buffer), "Blueprint propagate : %s", g_soundSystem->m_propagateBlueprints ? "yes" : "no");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
     }
     else
     {
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, "Sound system not initialised");
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, "Sound system not initialised");
+        leftY += line;
     }
 
-    y += sectionGap;
+    leftY += sectionGap;
 
-    g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "3D Library");
-    y += line;
+    g_renderer->TextSimple(baseXLeft, leftY, sectionColour, 12.0f, "3D Library");
+    leftY += line;
 
     if (g_soundLibrary3d)
     {
         snprintf(buffer, sizeof(buffer), "Sample rate         : %d Hz", g_soundLibrary3d->GetSampleRate());
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         snprintf(buffer, sizeof(buffer), "Master volume       : %d", g_soundLibrary3d->GetMasterVolume());
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         snprintf(buffer, sizeof(buffer), "Channels (total/music): %d / %d",
                  g_soundLibrary3d->GetNumChannels(),
                  g_soundLibrary3d->GetNumMusicChannels());
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         snprintf(buffer, sizeof(buffer), "Max channels        : %d", g_soundLibrary3d->GetMaxChannels());
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
 
         snprintf(buffer, sizeof(buffer), "CPU overhead        : %d%%", g_soundLibrary3d->GetCPUOverhead());
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
     }
     else
     {
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, "3D library not initialised");
-        y += line;
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, "3D library not initialised");
+        leftY += line;
     }
 
-    y += sectionGap;
+    leftY += sectionGap;
 
-    g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "SDL 2D Renderer");
-    y += line;
+    float rightY = baseY;
+
+    g_renderer->TextSimple(baseXRight, rightY, sectionColour, 12.0f, "SDL 2D Renderer");
+    rightY += line;
 
     SoundLibrary2dSDL *sdl = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
     if (sdl)
@@ -409,45 +473,45 @@ void SoundDebugOverlay::Render()
         snprintf(buffer, sizeof(buffer), "Audio started       : %s  Library mix callback: %s",
                  sdl->IsAudioStarted() ? "yes" : "no",
                  sdl->HasCallback() ? "set" : "unset");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         // Explicitly show whether SDL is using a device callback (off in push mode)
         snprintf(buffer, sizeof(buffer), "SDL device callback : %s", sdl->UsingPushMode() ? "off" : "on");
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         snprintf(buffer, sizeof(buffer), "Actual freq/buffer  : %u Hz / %u samples", actualFreq, actualBuffer);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         snprintf(buffer, sizeof(buffer), "Channels / format   : %u / 0x%04x",
                  sdl->GetActualChannels(),
                  sdl->GetActualFormat());
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         // Push mode details
         if (m_cachedStats.usingPushMode) {
             double periodMs = (actualFreq > 0) ? (1000.0 * (double)m_cachedStats.periodFrames / (double)actualFreq) : 0.0;
             snprintf(buffer, sizeof(buffer), "Push mode           : yes");
-            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-            y += line;
+            g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+            rightY += line;
 
             snprintf(buffer, sizeof(buffer), "Device period       : %u frames (%.2f ms)",
                      m_cachedStats.periodFrames, periodMs);
-            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-            y += line;
+            g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+            rightY += line;
 
             snprintf(buffer, sizeof(buffer), "Queued latency      : %u bytes (%.2f ms)",
                      m_cachedStats.queuedBytes, m_cachedStats.queuedMs);
-            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-            y += line;
+            g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+            rightY += line;
 
             snprintf(buffer, sizeof(buffer), "Slices generated    : %llu",
                      (unsigned long long)m_cachedStats.slicesGenerated);
-            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-            y += line;
+            g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+            rightY += line;
 
             // Extra ring/device queue stats
             SoundLibrary2dSDL *sdlInst = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
@@ -455,53 +519,53 @@ void SoundDebugOverlay::Render()
                 unsigned qFrames = sdlInst->GetQueuedFrames();
                 double qMs = (actualFreq > 0) ? (1000.0 * (double)qFrames / (double)actualFreq) : 0.0;
                 snprintf(buffer, sizeof(buffer), "Device queue        : %u frames (%.2f ms)", qFrames, qMs);
-                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-                y += line;
+                g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+                rightY += line;
 
                 uint64_t ringFillFrames = sdlInst->GetRingFillFrames();
                 double ringFillMs = (actualFreq > 0) ? (1000.0 * (double)ringFillFrames / (double)actualFreq) : 0.0;
                 snprintf(buffer, sizeof(buffer), "Ring fill/horizon   : %llu frames (%.2f ms) / %u ms",
                          (unsigned long long)ringFillFrames, ringFillMs, sdlInst->GetRingMs());
-                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-                y += line;
+                g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+                rightY += line;
 
                 snprintf(buffer, sizeof(buffer), "Device low/high     : %u / %u ms",
                          sdlInst->GetDeviceQueueLowMs(), sdlInst->GetDeviceQueueHighMs());
-                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-                y += line;
+                g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+                rightY += line;
 
                 // Target latency and scheduling/ADSR flags
                 snprintf(buffer, sizeof(buffer), "Target latency      : %u ms", sdlInst->GetTargetLatencyMs());
-                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-                y += line;
+                g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+                rightY += line;
 
                 snprintf(buffer, sizeof(buffer), "Timed scheduling    : %s", sdlInst->UsingTimedScheduling() ? "yes" : "no");
-                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-                y += line;
+                g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+                rightY += line;
 
                 snprintf(buffer, sizeof(buffer), "Audio-clocked ADSR  : %s", sdlInst->UsingAudioClockedADSR() ? "on" : "off");
-                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-                y += line;
+                g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+                rightY += line;
 
                 // Playback cursor and total queued frames since start
                 uint64_t playbackFrames = sdlInst->GetPlaybackSampleIndex();
                 double playbackMs = (actualFreq > 0) ? (1000.0 * (double)playbackFrames / (double)actualFreq) : 0.0;
                 snprintf(buffer, sizeof(buffer), "Playback cursor     : %llu frames (%.2f ms)",
                          (unsigned long long)playbackFrames, playbackMs);
-                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-                y += line;
+                g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+                rightY += line;
 
                 uint64_t totalQueued = sdlInst->GetTotalQueuedFrames();
                 double totalQueuedSec = (actualFreq > 0) ? ((double)totalQueued / (double)actualFreq) : 0.0;
                 snprintf(buffer, sizeof(buffer), "Total queued audio  : %llu frames (%.2f s)",
                          (unsigned long long)totalQueued, totalQueuedSec);
-                g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-                y += line;
+                g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+                rightY += line;
             }
         } else {
             snprintf(buffer, sizeof(buffer), "Push mode           : no");
-            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-            y += line;
+            g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+            rightY += line;
         }
 
         double audioSecondsMixed = (actualFreq > 0)
@@ -511,28 +575,28 @@ void SoundDebugOverlay::Render()
         snprintf(buffer, sizeof(buffer), "Audio callbacks     : %llu (%.1f/sec)",
                  static_cast<unsigned long long>(m_cachedStats.audioCallbacks),
                  m_audioCallbacksPerSec);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         snprintf(buffer, sizeof(buffer), "Direct callbacks    : %llu (%.1f/sec)",
                  static_cast<unsigned long long>(m_cachedStats.callbacksDirect),
                  m_directCallbacksPerSec);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         snprintf(buffer, sizeof(buffer), "Queued callbacks    : %llu (%.1f/sec) processed %llu (%.1f/sec)",
                  static_cast<unsigned long long>(m_cachedStats.callbacksQueued),
                  m_queuedCallbacksPerSec,
                  static_cast<unsigned long long>(m_cachedStats.topupCallbacksProcessed),
                  m_topupProcessedPerSec);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         snprintf(buffer, sizeof(buffer), "WAV callbacks       : %llu (%.1f/sec)",
                  static_cast<unsigned long long>(m_cachedStats.wavCallbacks),
                  m_wavCallbacksPerSec);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         double avgMs = m_cachedStats.avgCallbackInterval * 1000.0;
         double maxMs = m_cachedStats.maxCallbackInterval * 1000.0;
@@ -541,43 +605,43 @@ void SoundDebugOverlay::Render()
                                : 0.0;
         snprintf(buffer, sizeof(buffer), "Callback intervals  : avg %.2f ms  max %.2f ms  idle %.2f ms",
                  avgMs, maxMs, sinceLast);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         snprintf(buffer, sizeof(buffer), "Topup calls         : %llu (%.1f/sec)",
                  static_cast<unsigned long long>(m_cachedStats.topupCalls),
                  m_topupCallsPerSec);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         snprintf(buffer, sizeof(buffer), "Buffer thirst       : %d  pending [%u, %u]",
                  m_cachedStats.bufferIsThirsty,
                  m_cachedStats.bufferedSamples[0],
                  m_cachedStats.bufferedSamples[1]);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         snprintf(buffer, sizeof(buffer), "Last callback size  : %u samples", m_cachedStats.lastCallbackSamples);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         snprintf(buffer, sizeof(buffer), "Total mixed audio   : %llu samples (%.2f s)",
                  static_cast<unsigned long long>(m_cachedStats.totalSamplesMixed),
                  audioSecondsMixed);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
     }
     else
     {
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, "SDL library inactive");
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, "SDL library inactive");
+        rightY += line;
     }
 
-    y += sectionGap;
+    rightY += sectionGap;
 
 #if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
-    g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "Software Resampler");
-    y += line;
+    g_renderer->TextSimple(baseXRight, rightY, sectionColour, 12.0f, "Software Resampler");
+    rightY += line;
 
     if (m_resampleInstanceCount > 0)
     {
@@ -585,34 +649,94 @@ void SoundDebugOverlay::Render()
                  m_resampleInstanceCount,
                  m_resampleWaitingForLoop,
                  m_resampleInvalidInstances);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         snprintf(buffer, sizeof(buffer), "Resample step       : min %.4f  avg %.4f  max %.4f",
                  m_resampleStepMin,
                  m_resampleStepAvg,
                  m_resampleStepMax);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
 
         snprintf(buffer, sizeof(buffer), "Cursor progress     : min %.1f%%  avg %.1f%%  max %.1f%%",
                  m_resampleCursorFracMin * 100.0,
                  m_resampleCursorFracAvg * 100.0,
                  m_resampleCursorFracMax * 100.0);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
+
+        auto describeQuality = [&](SoundResampler::Quality quality, const char *label) {
+            const char *name = SoundResampler::QualityToString(quality);
+            if (quality == SoundResampler::Quality::Linear)
+            {
+                snprintf(buffer, sizeof(buffer), "%s resampler     : %s (linear interpolation)", label, name);
+            }
+            else
+            {
+                const SoundResampler::Kernel &kernel = SoundResampler::GetKernel(quality, 0);
+                snprintf(buffer, sizeof(buffer), "%s resampler     : %s (%u taps, %u phases)",
+                         label,
+                         name,
+                         kernel.taps,
+                         kernel.phases);
+            }
+            g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+            rightY += line;
+        };
+
+        describeQuality(m_resampleSfxQuality, "SFX");
+        describeQuality(m_resampleMusicQuality, "Music");
+
+        if (m_resampleLinearInstances > 0)
+        {
+            snprintf(buffer, sizeof(buffer), "Linear fallback     : %u instances", m_resampleLinearInstances);
+            g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+            rightY += line;
+        }
+
+        if (m_resampleSfxQuality != SoundResampler::Quality::Linear ||
+            m_resampleMusicQuality != SoundResampler::Quality::Linear)
+        {
+            const size_t bankCount = std::min(m_resampleBankUsageSfx.size(), m_resampleBankUsageMusic.size());
+            for (size_t bank = 0; bank < bankCount; ++bank)
+            {
+                int sfxCount = m_resampleBankUsageSfx[bank];
+                int musicCount = m_resampleBankUsageMusic[bank];
+
+                float cutoff = 0.0f;
+                if (m_resampleSfxQuality != SoundResampler::Quality::Linear)
+                {
+                    const SoundResampler::Kernel &kernel = SoundResampler::GetKernel(m_resampleSfxQuality, static_cast<unsigned int>(bank));
+                    cutoff = kernel.cutoff;
+                }
+                else if (m_resampleMusicQuality != SoundResampler::Quality::Linear)
+                {
+                    const SoundResampler::Kernel &kernel = SoundResampler::GetKernel(m_resampleMusicQuality, static_cast<unsigned int>(bank));
+                    cutoff = kernel.cutoff;
+                }
+
+                snprintf(buffer, sizeof(buffer), "Bank %u cutoff %.2f  SFX %d  Music %d",
+                         static_cast<unsigned int>(bank),
+                         cutoff,
+                         sfxCount,
+                         musicCount);
+                g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+                rightY += line;
+            }
+        }
     }
     else
     {
         snprintf(buffer, sizeof(buffer), "Instances active    : 0  missing data %d",
                  m_resampleInvalidInstances);
-        g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
-        y += line;
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
     }
 #else
-    g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "Software Resampler");
-    y += line;
-    g_renderer->TextSimple(baseX, y, textColour, 11.0f, "Disabled (hardware handles pitch)");
-    y += line;
+    g_renderer->TextSimple(baseXRight, rightY, sectionColour, 12.0f, "Software Resampler");
+    rightY += line;
+    g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, "Disabled (hardware handles pitch)");
+    rightY += line;
 #endif
 }

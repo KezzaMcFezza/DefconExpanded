@@ -30,11 +30,6 @@ void SoundProtectionOverlay::Render()
     if (!g_renderer) return;
 
     float baseX = 25.0f;
-    if (g_windowManager)
-    {
-        baseX = std::max(25.0f, static_cast<float>(g_windowManager->WindowW()) - 420.0f);
-    }
-
     float y = 55.0f;
     const float line = 16.0f;
     const float sectionGap = 6.0f;
