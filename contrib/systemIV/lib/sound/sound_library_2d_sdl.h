@@ -117,6 +117,7 @@ public:
     unsigned        CopyFromRingToSDL(unsigned framesToCopy);
     
     void			Stop();
+    void            SetAudioThreadPriority();  // Boost audio thread priority
 
     // Timeline tracking (frames)
     uint64_t        m_totalQueuedFrames = 0;     // cumulative frames ever queued to SDL

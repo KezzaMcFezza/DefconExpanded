@@ -4,6 +4,7 @@
 #include "lib/math/vector3.h"
 #include "sound_parameter.h"
 #include "soundsystem_interface.h"
+#include <atomic>
 
 
 class SoundInstance;
@@ -131,6 +132,10 @@ public:
 
     double              m_resampleCursor;           // fractional frame cursor used by software resampler
     double              m_resampleStep;             // source frames advanced per mixed frame
+    
+    // Per-instance spinlock for state protection (replaces global mutex)
+    // Using atomic_flag for minimal overhead - only held for microseconds
+    mutable std::atomic_flag m_stateLock;
         
     void    OpenStream  (bool _keepCurrentStream);  // Handles sound groups, file types etc
     
@@ -166,6 +171,17 @@ public:
     void    Lock();                                                             // Locked by audio thread.
     void    Unlock();
     bool    IsLocked();
+    
+    // Fast per-instance state locking (replaces global mutex)
+    inline void LockState() const {
+        while (m_stateLock.test_and_set(std::memory_order_acquire)) {
+            // Spin briefly - lock is only held for microseconds during state reads
+        }
+    }
+    
+    inline void UnlockState() const {
+        m_stateLock.clear(std::memory_order_release);
+    }
 
     SoundObjectId GetAttachedObject();
 

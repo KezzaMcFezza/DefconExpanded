@@ -12,6 +12,21 @@
 #include <algorithm>
 #include <cstring>
 #include <cstdio>   // snprintf when caching device/driver name
+#include <atomic>   // For memory fences in lock-free callback access
+
+// Platform-specific headers for thread priority
+#ifdef TARGET_OS_LINUX
+#include <pthread.h>
+#include <sched.h>
+#include <sys/resource.h>
+#include <errno.h>
+#endif
+
+#ifdef TARGET_OS_MACOSX
+#include <pthread.h>
+#include <mach/thread_policy.h>
+#include <mach/thread_act.h>
+#endif
 
 static SDL_AudioSpec s_audioSpec;
 static SDL_AudioDeviceID s_audioDevice = 0;
@@ -126,10 +141,11 @@ void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
         return;
     }
 
-    void (*callback)(StereoSample *, unsigned int) = NULL;
-    m_callbackLock.Lock();
-    callback = m_callback;
-    m_callbackLock.Unlock();
+    // No lock needed - callback pointer is effectively immutable after initialization
+    // Using memory fence to ensure we see the initialized value
+    std::atomic_thread_fence(std::memory_order_acquire);
+    void (*callback)(StereoSample *, unsigned int) = m_callback;
+    std::atomic_thread_fence(std::memory_order_acquire);
 
     if (!callback)
     {
@@ -446,6 +462,7 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 #endif
             m_feederRun = 0;
         }
+        // Note: Thread priority is boosted from within FeederLoop()
     } else {
 
         //
@@ -589,13 +606,15 @@ void SoundLibrary2dSDL::Stop()
 }
 
 //
-// Lock ensures that old callback won't still be running once this method exits
+// Callback pointer is set once during initialization and never changed
+// No lock needed - just memory fences to ensure visibility
 
 void SoundLibrary2dSDL::SetCallback(void (*_callback)(StereoSample *, unsigned int))
 {
-	m_callbackLock.Lock();
+	// Memory fence ensures the callback pointer write is visible to all threads
+	std::atomic_thread_fence(std::memory_order_release);
 	m_callback = _callback;
-	m_callbackLock.Unlock();
+	std::atomic_thread_fence(std::memory_order_release);
 }
 
 void SoundLibrary2dSDL::StartRecordToFile(char const *_filename)
@@ -611,8 +630,78 @@ void SoundLibrary2dSDL::EndRecordToFile()
 	m_wavOutput = NULL;
 }
 
+void SoundLibrary2dSDL::SetAudioThreadPriority()
+{
+#ifdef TARGET_OS_LINUX
+    if (!m_feederThread) return;
+    
+    printf("[AUDIO THREAD] Attempting to set priority...\n");
+    fflush(stdout);
+    
+    // Try real-time FIFO scheduling first (requires CAP_SYS_NICE or root)
+    struct sched_param param;
+    param.sched_priority = 80;  // High priority (1-99, higher = more priority)
+    
+    pthread_t current = pthread_self();
+    
+    if (pthread_setschedparam(current, SCHED_FIFO, &param) == 0) {
+        printf("[AUDIO THREAD] ✓ Set to SCHED_FIFO with priority %d\n", param.sched_priority);
+        fflush(stdout);
+    } else {
+        // Fallback to nice priority (always works without special privileges)
+        param.sched_priority = 0;
+        pthread_setschedparam(current, SCHED_OTHER, &param);
+        
+        // Set nice value to high priority (-20 is highest, but -15 is safer)
+        if (setpriority(PRIO_PROCESS, 0, -15) == 0) {
+            printf("[AUDIO THREAD] ✓ Set nice priority to -15\n");
+            fflush(stdout);
+        } else {
+            printf("[AUDIO THREAD] ✗ Failed to set priority (errno: %d)\n", errno);
+            fflush(stdout);
+        }
+    }
+#elif defined(TARGET_OS_MACOSX)
+    if (!m_feederThread) return;
+    
+    printf("[AUDIO THREAD] Attempting to set macOS time constraint policy...\n");
+    fflush(stdout);
+    
+    pthread_t current = pthread_self();
+    
+    // Set time constraint policy for real-time audio
+    thread_time_constraint_policy_data_t policy;
+    policy.period = 2902;  // ~2.9ms at 1MHz (approximate audio period)
+    policy.computation = 1451;  // 50% of period
+    policy.constraint = 2902;
+    policy.preemptible = 1;
+    
+    mach_port_t thread_port = pthread_mach_thread_np(current);
+    if (thread_policy_set(thread_port, THREAD_TIME_CONSTRAINT_POLICY,
+                         (thread_policy_t)&policy,
+                         THREAD_TIME_CONSTRAINT_POLICY_COUNT) == KERN_SUCCESS) {
+        printf("[AUDIO THREAD] ✓ Set to time constraint policy (real-time)\n");
+        fflush(stdout);
+    } else {
+        printf("[AUDIO THREAD] ✗ Failed to set time constraint policy\n");
+        fflush(stdout);
+    }
+#else
+    // Windows or other platforms - SDL's audio callback already runs at high priority
+    printf("[AUDIO THREAD] Priority boost not implemented for this platform\n");
+    fflush(stdout);
+#endif
+}
+
 int SoundLibrary2dSDL::FeederLoop()
 {
+    // Boost this thread's priority for real-time audio performance
+    SetAudioThreadPriority();
+    
+    // Visible confirmation that feeder thread started
+    printf("SDL Audio Feeder Thread Started (Thread ID: %lu)\n", (unsigned long)pthread_self());
+    fflush(stdout);
+    
     //
     // Maintain device queue short; ring horizon deep
 

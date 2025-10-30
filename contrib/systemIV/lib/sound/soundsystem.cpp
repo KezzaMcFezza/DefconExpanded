@@ -779,19 +779,25 @@ SoundInstance *SoundSystem::GetSoundInstance( SoundInstanceId _id )
 
 SoundInstance *SoundSystem::LockSoundInstance( SoundInstanceId _id )
 {
-    m_soundInstanceMutex->Lock();
+    // Use per-instance lock instead of global mutex
     SoundInstance *instance = GetSoundInstance( _id );
-    if( instance ) instance->Lock();
-    m_soundInstanceMutex->Unlock();
+    if( instance )
+    {
+        instance->LockState();  // Fast spinlock, only held for microseconds
+        instance->Lock();       // Legacy lock flag
+    }
     return instance;
 }
 
 
 void SoundSystem::UnlockSoundInstance( SoundInstance *instance )
 {
-    m_soundInstanceMutex->Lock();
-    instance->Unlock();
-    m_soundInstanceMutex->Unlock();
+    // Use per-instance lock instead of global mutex
+    if( instance )
+    {
+        instance->Unlock();         // Legacy lock flag
+        instance->UnlockState();    // Fast spinlock
+    }
 }
 
 
@@ -1077,9 +1083,8 @@ void SoundSystem::Advance()
         
         START_PROFILE("SoundSystem");        
 		
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
-		((SoundLibrary2dSDL *)g_soundLibrary2d)->m_callbackLock.Lock();
-#endif
+        // NOTE: Removed m_callbackLock - no longer needed with per-instance locks
+        // Audio thread can now mix sounds concurrently with game logic updates
 		
         //
         // Resync with blueprints (changed by editor)
@@ -1321,9 +1326,7 @@ void SoundSystem::Advance()
         RuntimeVerify();
 #endif
 
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
-		((SoundLibrary2dSDL *)g_soundLibrary2d)->m_callbackLock.Unlock();
-#endif
+        // NOTE: Removed m_callbackLock.Unlock() - no longer needed with per-instance locks
 
         END_PROFILE("SoundSystem");                    
     }
