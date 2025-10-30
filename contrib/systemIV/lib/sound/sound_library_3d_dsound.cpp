@@ -175,11 +175,14 @@ SoundLibrary3dDirectSound::SoundLibrary3dDirectSound()
 	m_directSound = new DirectSoundData;
     // Fixed headroom defaults to -12 dB (1200 centi-dB), tunable via SoundHeadroomDb
     m_fixedHeadroomCentiDb = 1200.0f;
+    m_headroomEnabled = false;
     m_dynEnabled = true;
     if (g_preferences)
     {
         float hd = g_preferences->GetFloat("SoundHeadroomDb", -1.0f);
         if (hd >= 0.0f) m_fixedHeadroomCentiDb = hd * 100.0f;
+        int headroomInt = g_preferences->GetInt("SoundHeadroomEnabled", 0);
+        m_headroomEnabled = (headroomInt != 0);
     }
     // Dynamic bus attenuation initial state and defaults (tunable via prefs)
     m_dynamicBusAtten = 0.0f;
@@ -644,7 +647,10 @@ void SoundLibrary3dDirectSound::SetChannelVolume( int _channel, float _volume )
         float calculatedVolume = -(5.0f - _volume * 0.5f);
         calculatedVolume *= 1000.0f;                 // centi-dB
         calculatedVolume += m_masterVolume;          // apply master (centi-dB)
-        calculatedVolume -= m_fixedHeadroomCentiDb;  // fixed headroom (centi-dB)
+        if (m_headroomEnabled)
+        {
+            calculatedVolume -= m_fixedHeadroomCentiDb;  // fixed headroom (centi-dB)
+        }
         calculatedVolume -= m_dynamicBusAtten;       // dynamic global anti-clip
 
 		if( calculatedVolume < -10000.0f ) calculatedVolume = -10000.0f;

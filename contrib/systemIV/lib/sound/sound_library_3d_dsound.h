@@ -23,6 +23,7 @@ protected:
 
     // Fixed and dynamic anti-clip attenuation (centi-dB)
     float                        m_fixedHeadroomCentiDb; // fixed headroom in centi-dB
+    bool                         m_headroomEnabled;      // preference: apply fixed headroom
     float                        m_dynamicBusAtten;    // current smoothed attenuation
     float                        m_dynamicTarget;      // target attenuation
     float                        m_dynAttack;          // smoothing towards more attenuation
@@ -78,6 +79,7 @@ public:
 
     // Runtime inspection (debug/overlay)
     inline float GetFixedHeadroomDb() const { return m_fixedHeadroomCentiDb * 0.01f; }
+    inline bool  GetHeadroomEnabled() const { return m_headroomEnabled; }
     inline float GetDynamicBusAttenDb() const { return m_dynamicBusAtten * 0.01f; }
     inline float GetDynAttack() const { return m_dynAttack; }
     inline float GetDynRelease() const { return m_dynRelease; }

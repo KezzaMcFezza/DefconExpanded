@@ -176,6 +176,7 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
     m_limiterRelease = 0.02f;   // quicker release back to unity
     m_peakThreshold = 28000.0f; // start limiting earlier to reduce artifacts
     m_headroomDb = 12.0f;       // fixed headroom applied pre-mix
+    m_headroomEnabled = false;  // disabled by default (can be re-enabled via prefs)
     m_lastPeak = 0.0f;
     m_enableLimiter = true;
     m_dynEnabled = true;
@@ -193,11 +194,12 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
     {
         float v;
         v = g_preferences->GetFloat("SoundHeadroomDb", -1.0f); if (v >= 0.0f) m_headroomDb = v;
+        int b = g_preferences->GetInt("SoundHeadroomEnabled", 0); m_headroomEnabled = (b != 0);
         v = g_preferences->GetFloat("SoundLimiterThreshold", -1.0f); if (v > 0.0f) m_peakThreshold = v;
         v = g_preferences->GetFloat("SoundLimiterAttack", -1.0f); if (v > 0.0f && v <= 1.0f) m_limiterAttack = v;
         v = g_preferences->GetFloat("SoundLimiterRelease", -1.0f); if (v > 0.0f && v <= 1.0f) m_limiterRelease = v;
         // on/off toggle (default on)
-        int b = g_preferences->GetInt("SoundLimiter", 1); m_enableLimiter = (b != 0);
+        b = g_preferences->GetInt("SoundLimiter", 1); m_enableLimiter = (b != 0);
         b = g_preferences->GetInt("SoundSDLDynEnabled", 1); m_dynEnabled = (b != 0);
         v = g_preferences->GetFloat("SoundSDLDynAttack", -1.0f); if (v > 0.0f && v <= 1.0f) m_dynAttack = v;
         v = g_preferences->GetFloat("SoundSDLDynRelease", -1.0f); if (v > 0.0f && v <= 1.0f) m_dynRelease = v;
@@ -382,7 +384,8 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
     float channelDb = -(5.0f - channel->m_volume * 0.5f) * 10.0f; // -50dB .. 0dB
     float masterDb = m_masterVolume * 0.01f;                      // centi-dB -> dB (<= 0)
     float dynamicDb = (m_dynEnabled ? m_dynamicBusAttenDb : 0.0f);
-    float totalDb = channelDb + masterDb - m_headroomDb - dynamicDb; // apply fixed + dynamic headroom
+    float headroomDb = m_headroomEnabled ? m_headroomDb : 0.0f;
+    float totalDb = channelDb + masterDb - headroomDb - dynamicDb; // apply fixed + dynamic headroom
     // Clamp within reasonable range
     if (totalDb < -100.0f) totalDb = -100.0f;
     if (totalDb > 0.0f) totalDb = 0.0f;

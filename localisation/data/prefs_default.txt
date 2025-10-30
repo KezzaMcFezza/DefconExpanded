@@ -19,7 +19,9 @@ SoundResamplerSfx = sinc64
 SoundResamplerMusic = sinc128
 
 # Mix-bus safety and limiter (shared/SDL)
-# Fixed headroom in dB applied before mixing (both backends)
+# Enable or disable fixed headroom (default off)
+SoundHeadroomEnabled = 0
+# Fixed headroom in dB applied before mixing (both backends, when enabled)
 SoundHeadroomDb = 12.00
 # Enable or disable SDL mix-bus limiter (default off)
 SoundLimiter = 0

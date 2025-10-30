@@ -46,7 +46,23 @@ void SoundProtectionOverlay::Render()
     g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "Headroom");
     y += line;
     float prefHeadroomDb = g_preferences ? g_preferences->GetFloat("SoundHeadroomDb", 12.0f) : 12.0f;
-    snprintf(buffer, sizeof(buffer), "SoundHeadroomDb     : %.1f dB", prefHeadroomDb);
+    bool prefHeadroomEnabled = g_preferences ? (g_preferences->GetInt("SoundHeadroomEnabled", 0) != 0) : false;
+    bool headroomEnabled = prefHeadroomEnabled;
+    if (g_soundLibrary3d)
+    {
+        if (SoundLibrary3dSoftware *sw = dynamic_cast<SoundLibrary3dSoftware *>(g_soundLibrary3d))
+        {
+            headroomEnabled = sw->GetHeadroomEnabled();
+        }
+#if defined(TARGET_MSVC) && !defined(WINDOWS_SDL)
+        else if (SoundLibrary3dDirectSound *ds = dynamic_cast<SoundLibrary3dDirectSound *>(g_soundLibrary3d))
+        {
+            headroomEnabled = ds->GetHeadroomEnabled();
+        }
+#endif
+    }
+    snprintf(buffer, sizeof(buffer), "SoundHeadroomDb     : %.1f dB%s",
+             prefHeadroomDb, headroomEnabled ? "" : " (disabled)");
     g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer);
     y += line;
 
@@ -74,7 +90,8 @@ void SoundProtectionOverlay::Render()
             g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
 
             // Show threshold adjusted for headroom (pre-headroom equivalent threshold)
-            float swHeadroomDb = sw->GetHeadroomDb();
+            bool swHeadroomEnabled = sw->GetHeadroomEnabled();
+            float swHeadroomDb = swHeadroomEnabled ? sw->GetHeadroomDb() : 0.0f;
             float headroomGain = powf(10.0f, -swHeadroomDb / 20.0f);
             float preHeadThr = (headroomGain > 0.0f) ? (thr / headroomGain) : thr;
             float marginToFS = 32767.0f - thr;
@@ -151,8 +168,9 @@ void SoundProtectionOverlay::Render()
             g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "DirectSound Anti-Clip");
             y += line;
 
+            bool dsHeadroomEnabled = ds->GetHeadroomEnabled();
             float fixHd = ds->GetFixedHeadroomDb();
-            snprintf(buffer, sizeof(buffer), "Fixed headroom      : %.1f dB", fixHd);
+            snprintf(buffer, sizeof(buffer), "Fixed headroom      : %.1f dB%s", fixHd, dsHeadroomEnabled ? "" : " (disabled)");
             g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
 
             float dynDb = ds->GetDynamicBusAttenDb();

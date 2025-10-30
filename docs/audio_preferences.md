@@ -2,10 +2,12 @@
 
 This project adds robust, consistent protection against clipping across SDL and DirectSound backends by combining a fixed headroom margin with backend‑specific peak protection.
 
-Use the settings below to tune behavior. The one knob that matters most for “don’t clip” is SoundHeadroomDb; the limiter (SDL) and dynamic attenuation (DirectSound) provide extra safety only when needed.
+Use the settings below to tune behavior. The shared headroom stage is now optional: enable it with `SoundHeadroomEnabled = 1` when you want a fixed safety margin applied everywhere. Once enabled, `SoundHeadroomDb` remains the primary “don’t clip” knob; the limiter (SDL) and dynamic attenuation (DirectSound) provide extra safety only when needed.
 
 Quick toggles (default off)
 
+- SoundHeadroomEnabled = 0
+  - Shared fixed headroom stage. Set to 1 when you want a constant pre-mix margin applied on both backends.
 - SoundLimiter = 0
   - SDL mix‑bus limiter. Set to 1 if you want automatic peak catching on the software mixer.
 - SoundSDLDynEnabled = 0
@@ -40,19 +42,21 @@ Additional implementation details:
 
 ## Overview
 
-- Fixed headroom (shared): Always applies a small attenuation to keep day‑to‑day mixes below full‑scale.
+- Fixed headroom (shared, optional): When `SoundHeadroomEnabled = 1`, applies a small attenuation to keep day‑to‑day mixes below full‑scale.
 - SDL mix‑bus limiter: Catches rare peaks that still exceed headroom when many loud sounds overlap.
 - SDL crowd attenuation: Pre‑emptively lowers the SDL software mix when many non‑music channels are running hot, mirroring the DirectSound heuristic.
 - DirectSound dynamic anti‑clip: Pre‑attenuates the whole mix when many channels are simultaneously loud (since the OS/driver performs the final mix).
 
-## Main Knob (Shared)
+## Shared Headroom Controls
 
+- SoundHeadroomEnabled (int, 0/1; default 0)
+  - Master toggle for the shared fixed headroom stage. When 0, channel levels are untouched and only the limiter/dynamic stages remain.
 - SoundHeadroomDb (float, dB; default 12)
-  - Fixed safety margin applied before mixing (SDL) or before setting per‑channel volume (DirectSound).
+  - Fixed safety margin applied before mixing (SDL) or before setting per‑channel volume (DirectSound) whenever the toggle above is enabled.
   - Higher values = more headroom (safer, slightly quieter overall). Lower values = louder, less margin.
   - Recommended: 12 to match empirical safe point on DS; 6–12 is a reasonable range.
-  - SoundHeadroomDb just offsets every channel downward before mixing, so raising it buys you more margin and keeps the limiter idle. Dropping headroom pushes the mix hotter; the limiter will engage more often and the soft‑clip curve will imprint itself on transients. That’s a subjective choice: if you like the punch the limiter adds, run with less headroom; if you want cleaner dynamics, keep the headroom high enough that Limiter bus gain stays near 1.0 except on true outliers.
-  - Hard clipping cannot occur on the SDL path because the limiter always pulls the bus gain down before samples exceed the threshold and the output stage applies a tanh soft clip before writing PCM.
+  - SoundHeadroomDb just offsets every channel downward before mixing, so raising it buys you more margin and keeps the limiter idle (as long as the toggle is enabled). Dropping headroom pushes the mix hotter; the limiter will engage more often and the soft‑clip curve will imprint itself on transients. That’s a subjective choice: if you like the punch the limiter adds, run with less headroom; if you want cleaner dynamics, keep the headroom high enough that Limiter bus gain stays near 1.0 except on true outliers.
+  - Hard clipping cannot occur on the SDL path because the limiter always pulls the bus gain down before samples exceed the threshold and the output stage applies a tanh soft clip before writing PCM (regardless of the headroom toggle).
 
 ## SDL Mix‑Bus Limiter (Extra Safety)
 
@@ -171,7 +175,8 @@ Notes:
 These defaults aim for robust protection with minimal audible side‑effects:
 
 - Quick toggles: SoundLimiter = 0, SoundSDLDynEnabled = 0, SoundDSDynEnabled = 0
-- SoundHeadroomDb = 12
+- SoundHeadroomEnabled = 0
+- SoundHeadroomDb = 12 (applies when the toggle above is enabled)
 - SDL: SoundLimiterThreshold = 28000, SoundLimiterAttack = 1.0, SoundLimiterRelease = 0.02
 - SDL crowd attenuation: SoundSDLDynLoudVolume = 7.0, SoundSDLDynStartCount = 2, SoundSDLDynDbPerExtra = 2.0, SoundSDLDynMaxDb = 12.0, SoundSDLDynAttack = 0.5, SoundSDLDynRelease = 0.1
 - DS: SoundDSDynLoudVolume = 7.0, SoundDSDynStartCount = 2, SoundDSDynDbPerExtra = 2.0, SoundDSDynMaxDb = 12.0, SoundDSDynAttack = 0.5, SoundDSDynRelease = 0.1
@@ -182,7 +187,7 @@ Common goals and the most relevant knobs:
 
 - “Just make clipping impossible”
 
-  - Increase SoundHeadroomDb (e.g., 14). This is the primary safety lever.
+  - Set SoundHeadroomEnabled = 1, then increase SoundHeadroomDb (e.g., 14). This remains the primary safety lever once the stage is active.
 
 - “Catch more peaks on SDL without killing dynamics”
 
@@ -195,7 +200,7 @@ Common goals and the most relevant knobs:
 
 - Why not just turn down the master volume?
 
-  - Lowering master works but penalizes loudness all the time. Headroom + limiter/attenuation preserves full loudness for normal play and intervenes only when necessary.
+  - Lowering master works but penalizes loudness all the time. Headroom (when enabled) plus limiter/attenuation preserves full loudness for normal play and intervenes only when necessary.
 
 - Why did SDL and DS have different “safe” master values before?
 
@@ -213,7 +218,7 @@ Common goals and the most relevant knobs:
 - F4: Sound Safety Overlay
   - Shows the safety knobs and whether protection is currently engaged. Only displays the values relevant to the active backend.
   - Shared
-    - SoundHeadroomDb (dB): main safety margin.
+    - SoundHeadroomDb (dB): main safety margin (overlay appends “(disabled)” when `SoundHeadroomEnabled = 0`).
   - SDL (software mixer active)
     - Limiter threshold (PCM), pre‑headroom equivalent threshold, and margin to full‑scale.
     - Limiter attack/release (smoothing).
