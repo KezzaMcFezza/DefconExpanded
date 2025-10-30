@@ -329,7 +329,15 @@ void SoundLibrary3dSoftware::GetChannelData(float _duration, unsigned int _numSa
 
 void SoundLibrary3dSoftware::ApplyDspFX(float _duration, unsigned int _numSamples)
 {
+	// DSP filters are not configurable and never used in the game or mods
+	// Disabling to improve audio performance and reduce crackling during heavy scenes
+	// No way to enable DSP exists: not in sounds.txt, not via scripting, no API calls
 	(void)_duration;
+	(void)_numSamples;
+	return;
+
+	// Original DSP code disabled below - kept for reference
+#if 0
 	//START_PROFILE2(m_profiler, "ApplyDspFX");
 	{
 		for (int i = 0; i < m_numChannels; ++i)
@@ -373,6 +381,7 @@ void SoundLibrary3dSoftware::ApplyDspFX(float _duration, unsigned int _numSample
 		}
 	}
 	// END_PROFILE2(m_profiler, "ApplyDspFX");
+#endif
 }
 
 
