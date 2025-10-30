@@ -297,10 +297,10 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 
     m_usePushMode = g_preferences->GetInt("SoundUsePushMode", 1);
     int periodPref = g_preferences->GetInt("SoundPeriodFrames", 128);
-    m_targetLatencyMs = g_preferences->GetInt("SoundTargetLatencyMs", 80);
-    m_ringMs = g_preferences->GetInt("SoundRingMs", 160);
-    m_deviceQueueLowMs = g_preferences->GetInt("SoundDeviceQueueLowMs", 20);
-    m_deviceQueueHighMs = g_preferences->GetInt("SoundDeviceQueueHighMs", 35);
+    m_targetLatencyMs = g_preferences->GetInt("SoundTargetLatencyMs", 180);
+    m_ringMs = g_preferences->GetInt("SoundRingMs", 150);
+    m_deviceQueueLowMs = g_preferences->GetInt("SoundDeviceQueueLowMs", 100);
+    m_deviceQueueHighMs = g_preferences->GetInt("SoundDeviceQueueHighMs", 150);
     m_timedScheduling = g_preferences->GetInt("SoundTimedScheduling", 1);
     m_audioClockedADSR = g_preferences->GetInt("SoundAudioClockedADSR", 1);
 

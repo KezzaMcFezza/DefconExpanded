@@ -40,24 +40,26 @@ All preferences live in `localisation/data/prefs_default.txt` and can be overrid
 - `SoundUsePushMode` (default: `1`)
   - 1 = push/queue mode, 0 = SDL callback mode.
 
-- `SoundPeriodFrames` (default: `64`)
+- `SoundPeriodFrames` (default: `128`)
   - Render quantum (frames) per slice. Smaller = crisper response and envelope shape; higher CPU and queue ops.
 
-- `SoundTargetLatencyMs` (default: `40`)
-  - Target audible latency for scheduling new onsets. Used to compute the earliest start time relative to the current playback cursor. This does not force the device queue size; see device low/high below.
+- `SoundTargetLatencyMs` (default: `180`)
+  - Target audible latency for scheduling new onsets. Used to compute the earliest start time relative to the current playback cursor. This does not force the device queue size; see device low/high below. The shipping default pairs with the ultra-safe queue profile to absorb long CPU spikes.
 
 
-- `SoundDeviceQueueLowMs` / `SoundDeviceQueueHighMs` (defaults: `15` / `30`)
-  - Device queue refill bounds used in push mode. Keep these small to get fast audible reaction. The feeder tops up to High when the queue drops below Low.
+- `SoundDeviceQueueLowMs` / `SoundDeviceQueueHighMs` (defaults: `100` / `150`)
+  - Device queue refill bounds used in push mode. The defaults favour stability on slow CPUs; reduce them if you can tolerate lower underrun headroom for faster audible reaction. The feeder tops up to High when the queue drops below Low.
 
-- `SoundRingMs` (default: `30`)
-  - Software ring buffer horizon to keep pre‑mixed ahead of `copyIndex`. This is your underrun safety margin that can still be rewritten until copied to the device.
+- `SoundRingMs` (default: `150`)
+  - Software ring buffer horizon to keep pre‑mixed ahead of `copyIndex`. This is your underrun safety margin that can still be rewritten until copied to the device. Shipping defaults keep the ring deep (matching High) to maximise safety.
 
 - `SoundTimedScheduling` (default: `1`)
   - Enables timestamped scheduling of new sound starts on the audio timeline (prevents missed onsets at high safety).
 
 - `SoundAudioClockedADSR` (default: `1`)
   - Drives ADSR against the audio playback clock instead of wall clock when push mode is active. Ensures the envelope you hear is aligned to playback, not to when the event was created.
+
+The defaults above mirror the **Ultra-Safe** preset described later. Expect higher baseline latency out of the box; dial the queue and ring values down once you have verified that your target machines can sustain push mode without underruns.
 
 Related (for callback mode):
 
@@ -107,12 +109,12 @@ Preset C — Small CPU, Latency OK (quality preserved)
 - `SoundRingMs = 90–140` (≈ High to avoid stale pre‑mix)
 - `SoundTargetLatencyMs = 120–160`
 
-Preset D — Ultra‑Safe (when spikes are severe)
-- `SoundPeriodFrames = 128` (only consider 256 if per‑slice overhead is a proven bottleneck)
-- `SoundDeviceQueueLowMs = 70–120`
-- `SoundDeviceQueueHighMs = 120–180`
-- `SoundRingMs = 120–180` (≈ High)
-- `SoundTargetLatencyMs = High + 20–40`
+Preset D — Ultra‑Safe (default shipping profile, when spikes are severe)
+- `SoundPeriodFrames = 128` (default shipping value; only consider 256 if per‑slice overhead is a proven bottleneck)
+- `SoundDeviceQueueLowMs = 70–120` (default 100)
+- `SoundDeviceQueueHighMs = 120–180` (default 150)
+- `SoundRingMs = 120–180` (default 150, keep ≈ High)
+- `SoundTargetLatencyMs = High + 20–40` (default 180)
 
 Tuning guidance:
 - Start from the closest preset and adjust Low/High upward if underruns occur. Keep `SoundPeriodFrames` small to preserve crispness.

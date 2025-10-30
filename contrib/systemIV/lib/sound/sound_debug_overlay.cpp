@@ -375,7 +375,7 @@ void SoundDebugOverlay::Render()
         snprintf(buffer, sizeof(buffer), usePush ?
                  "Target latency      : %d ms" :
                  "Target latency      : %d ms (push-mode only)",
-                 g_preferences->GetInt("SoundTargetLatencyMs", 80));
+                 g_preferences->GetInt("SoundTargetLatencyMs", 180));
         g_renderer->TextSimple(baseXLeft, leftY, pushPrefColour, 11.0f, buffer);
         leftY += line;
 
@@ -383,15 +383,15 @@ void SoundDebugOverlay::Render()
         snprintf(buffer, sizeof(buffer), usePush ?
                  "Device low/high     : %d / %d ms" :
                  "Device low/high     : %d / %d ms (push-mode only)",
-                 g_preferences->GetInt("SoundDeviceQueueLowMs", 20),
-                 g_preferences->GetInt("SoundDeviceQueueHighMs", 35));
+                 g_preferences->GetInt("SoundDeviceQueueLowMs", 100),
+                 g_preferences->GetInt("SoundDeviceQueueHighMs", 150));
         g_renderer->TextSimple(baseXLeft, leftY, pushPrefColour, 11.0f, buffer);
         leftY += line;
 
         snprintf(buffer, sizeof(buffer), usePush ?
                  "Ring horizon        : %d ms" :
                  "Ring horizon        : %d ms (push-mode only)",
-                 g_preferences->GetInt("SoundRingMs", 160));
+                 g_preferences->GetInt("SoundRingMs", 150));
         g_renderer->TextSimple(baseXLeft, leftY, pushPrefColour, 11.0f, buffer);
         leftY += line;
 

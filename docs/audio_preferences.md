@@ -6,18 +6,18 @@ Use the sections below as a quick reference when adjusting `localisation/data/pr
 
 ## Software Resampler Modes (SDL Software Mixer)
 
-Per-voice resampling uses a windowed-sinc FIR by default. Two preferences control the quality tier:
+Per-voice resampling uses a windowed-sinc FIR when enabled. Two preferences control the quality tier:
 
-- `SoundResamplerSfx` (default `sinc64`)
+- `SoundResamplerSfx` (default `linear`)
   - Applies to non-music channels (typically many short SFX voices).
-- `SoundResamplerMusic` (default `sinc128`)
+- `SoundResamplerMusic` (default `linear`)
   - Applies to music/ambience channels (higher quality, fewer voices).
 
 Accepted values:
 
 | Value     | Kernel | Phases | Notes |
 |-----------|--------|--------|-------|
-| `linear`  | 2 taps (lerp) | 1 | Legacy bilinear interpolation. Lowest CPU, weakest filtering. Useful only for debugging.
+| `linear`  | 2 taps (lerp) | 1 | Default baseline for minimum CPU and maximum compatibility. Expect audible aliasing on bright material.
 | `sinc64`  | 64 taps | 256 | Blackman–Harris window, ≈90 dB stop-band. Balanced for dense SFX mixes.
 | `sinc96`  | 96 taps | 256 | Better transition band and stop-band. Good compromise if SFX aliasing is still audible.
 | `sinc128` | 128 taps | 512 | Highest quality / lowest aliasing. Intended for music, ambience or other exposed content.
@@ -28,6 +28,8 @@ Implementation notes:
 - Three cutoff banks (0.90 / 0.70 / 0.50 Nyquist) cover down-sampling cases; the runtime picks the closest cutoff based on the current pitch ratio.
 - Preferences can be edited in `prefs_default.txt`, `prefs_testbed.txt`, or via the in-game config UI once exposed.
 - The Sound Debug Overlay (F3) lists the active SFX/Music resampler tier, taps/phases, current bank usage, and any voices that fell back to linear interpolation.
+
+Raise the preferences to `sinc64`/`sinc128` when sound quality is prioritised and CPU headroom allows. The default `linear` settings pair with the ultra-safe SDL push profile to favour stability on slower machines.
 
 ## SDL Push/Queue Mode Highlights
 
