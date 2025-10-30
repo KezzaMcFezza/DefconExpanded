@@ -14,6 +14,7 @@
 #define PREFS_SCREEN_Z_DEPTH		"ScreenZDepth"
 #define PREFS_SCREEN_WINDOWED		"ScreenWindowed"
 #define PREFS_SCREEN_BORDERLESS		"ScreenBorderless"
+#define PREFS_SCREEN_MAXIMIZED      "ScreenMaximized"
 #define PREFS_SCREEN_ANTIALIAS		"ScreenAntiAliasing"
 #define PREFS_SCREEN_UI_SCALE		"ScreenUIScale"
 #define PREFS_SCREEN_FPS_LIMIT		"ScreenFpsLimit"

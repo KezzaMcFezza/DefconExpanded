@@ -75,7 +75,8 @@ static int GetDefaultDisplayIndex()
 WindowManagerSDL::WindowManagerSDL()
 	:	m_tryingToCaptureMouse(false),
         m_window(NULL),
-        m_glContext(0)
+        m_glContext(0),
+        m_isMaximized(false)
 {
 	AppReleaseAssert(SDL_Init(SDL_INIT_VIDEO) == 0, "Couldn't initialise SDL");
 
@@ -238,6 +239,9 @@ void WindowManagerSDL::HandleResize(int newWidth, int newHeight)
     }
 
     Uint32 windowFlags = SDL_GetWindowFlags(m_window);
+
+    UpdateStoredMaximizedState();
+
     if (windowFlags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP))
     {
         return;
@@ -293,6 +297,7 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
 
     // Set the flags for creating the mode
     int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
+    bool requestMaximized = false;
     if (!_windowed)
     {
         
@@ -315,6 +320,11 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
     else {
         SDL_Rect usableBounds;
         SDL_GetDisplayUsableBounds( displayIndex, &usableBounds );
+        if (g_preferences && g_preferences->GetInt(PREFS_SCREEN_MAXIMIZED, 0))
+        {
+            flags |= SDL_WINDOW_MAXIMIZED;
+            requestMaximized = true;
+        }
 
 #ifdef TARGET_OS_MACOSX
         // Mac OS X will allow the window to go off the bottom of the screen
@@ -565,6 +575,16 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
     m_windowDisplayIndex = displayIndex;
     
     CalculateHighDPIScaleFactors();
+    UpdateStoredMaximizedState();
+
+    if (requestMaximized)
+    {
+        // SDL respects SDL_WINDOW_MAXIMIZED at creation time, but double-check
+        // in case we need to sync our cached dimensions after decoration logic.
+        SDL_GetWindowSize(m_window, &m_screenW, &m_screenH);
+        CalculateHighDPIScaleFactors();
+        UpdateStoredMaximizedState();
+    }
          
     //
     // Pass back the actual values to the Renderer
@@ -583,6 +603,30 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
         CaptureMouse();
 
     return true;
+}
+
+void WindowManagerSDL::UpdateStoredMaximizedState()
+{
+    if (!m_window || !g_preferences)
+    {
+        return;
+    }
+
+    Uint32 windowFlags = SDL_GetWindowFlags(m_window);
+    bool currentlyMaximized = false;
+
+    if (m_windowed && !(windowFlags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)))
+    {
+        currentlyMaximized = (windowFlags & SDL_WINDOW_MAXIMIZED) != 0;
+    }
+
+    if (currentlyMaximized == m_isMaximized)
+    {
+        return;
+    }
+
+    m_isMaximized = currentlyMaximized;
+    g_preferences->SetInt(PREFS_SCREEN_MAXIMIZED, m_isMaximized ? 1 : 0);
 }
 
 
