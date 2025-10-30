@@ -169,8 +169,13 @@ int SoundSampleBank::GetMemoryUsage()
         if( m_cache.ValidIndex(i) )
         {
             SoundSampleDecoder *sample = m_cache.GetData(i);
-            int sampleSize = sizeof(signed short) * sample->m_numChannels * sample->m_numSamples;
-            memoryUsage += sampleSize;           
+            int sampleSizeShort = sizeof(signed short) * sample->m_numChannels * sample->m_numSamples;
+            memoryUsage += sampleSizeShort;
+            if (sample->m_sampleCacheFloat)
+            {
+                int sampleSizeFloat = sizeof(float) * sample->m_numChannels * sample->m_numSamples;
+                memoryUsage += sampleSizeFloat;
+            }
         }
     }
 

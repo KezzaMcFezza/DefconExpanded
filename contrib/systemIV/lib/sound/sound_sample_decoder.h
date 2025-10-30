@@ -48,7 +48,8 @@ public:
 	unsigned int	m_freq;
 	unsigned int	m_numSamples;
 	
-    signed short	*m_sampleCache;             // Cache of all data read
+    signed short	*m_sampleCache;             // Cache of all data read (PCM in int16 units)
+    float       *m_sampleCacheFloat;        // Optional float cache (PCM units, i.e. +/-32768 range)
 	unsigned int	m_amountCached;				// Zero at first, ranging up to m_numSamples once sample has been read fully
 	
 public:

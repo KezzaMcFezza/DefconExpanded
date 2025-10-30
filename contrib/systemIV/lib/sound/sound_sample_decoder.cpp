@@ -24,7 +24,8 @@ SoundSampleDecoder::SoundSampleDecoder(BinaryReader *_in)
 	m_numSamples(0),
 	m_fileType(TypeUnknown),
     m_vorbisFile(NULL),
-    m_sampleCache(NULL)
+    m_sampleCache(NULL),
+    m_sampleCacheFloat(NULL)
 {
 	const char *fileType = _in->GetFileType();
 	if (stricmp(fileType, "wav") == 0)
@@ -67,6 +68,10 @@ SoundSampleDecoder::~SoundSampleDecoder()
     if( m_sampleCache )
     {
         delete[] m_sampleCache;
+    }
+    if( m_sampleCacheFloat )
+    {
+        delete[] m_sampleCacheFloat;
     }
 }
 
@@ -128,7 +133,7 @@ void SoundSampleDecoder::GetFrame(double _frame, bool _stereo, SoundResampler::Q
         }
         EnsureCached(ensureEndLinear);
 
-        if (!m_sampleCache || m_amountCached == 0)
+        if (m_amountCached == 0 || (!m_sampleCache && !m_sampleCacheFloat))
         {
             _outLeft = 0.0f;
             _outRight = 0.0f;
@@ -147,8 +152,8 @@ void SoundSampleDecoder::GetFrame(double _frame, bool _stereo, SoundResampler::Q
             nextIndex = m_amountCached > 0 ? m_amountCached - 1 : 0;
         }
 
-        float sampleAtBase = (float)m_sampleCache[baseIndex];
-        float sampleAtNext = (float)m_sampleCache[nextIndex];
+        float sampleAtBase = m_sampleCacheFloat ? m_sampleCacheFloat[baseIndex] : (m_sampleCache ? (float)m_sampleCache[baseIndex] : 0.0f);
+        float sampleAtNext = m_sampleCacheFloat ? m_sampleCacheFloat[nextIndex] : (m_sampleCache ? (float)m_sampleCache[nextIndex] : 0.0f);
 
         if (m_numChannels == 1)
         {
@@ -172,9 +177,9 @@ void SoundSampleDecoder::GetFrame(double _frame, bool _stereo, SoundResampler::Q
             }
 
             float baseLeft = sampleAtBase;
-            float baseRight = (float)m_sampleCache[baseRightIndex];
+            float baseRight = m_sampleCacheFloat ? m_sampleCacheFloat[baseRightIndex] : (m_sampleCache ? (float)m_sampleCache[baseRightIndex] : 0.0f);
             float nextLeft = sampleAtNext;
-            float nextRight = (float)m_sampleCache[nextRightIndex];
+            float nextRight = m_sampleCacheFloat ? m_sampleCacheFloat[nextRightIndex] : (m_sampleCache ? (float)m_sampleCache[nextRightIndex] : 0.0f);
 
             float left = baseLeft + (nextLeft - baseLeft) * (float)fractionLinear;
             float right = baseRight + (nextRight - baseRight) * (float)fractionLinear;
@@ -239,12 +244,19 @@ void SoundSampleDecoder::GetFrame(double _frame, bool _stereo, SoundResampler::Q
         }
 
         unsigned int sampleIndex = (unsigned int)frameIndex * samplesPerFrame + channel;
-        if (!m_sampleCache || sampleIndex >= m_amountCached)
+        if (sampleIndex >= m_amountCached)
         {
             return 0.0f;
         }
-
-        return (float)m_sampleCache[sampleIndex];
+        if (m_sampleCacheFloat)
+        {
+            return m_sampleCacheFloat[sampleIndex];
+        }
+        else if (m_sampleCache)
+        {
+            return (float)m_sampleCache[sampleIndex];
+        }
+        return 0.0f;
     };
 
     auto filterChannel = [&](unsigned int channel) -> float
@@ -449,31 +461,62 @@ unsigned int SoundSampleDecoder::ReadWavData(signed short *_data, unsigned int _
 
 unsigned int SoundSampleDecoder::ReadOggData(signed short *_data, unsigned int _numSamples)
 {
-	bool eof = false;
-	int samplesLeftToRead = _numSamples;
-	char *buf = (char *)_data;
+    // Ensure float cache exists for OGG so we can retain higher fidelity internally
+    if (!m_sampleCacheFloat)
+    {
+        m_sampleCacheFloat = new float[m_numSamples];
+        // Initialise to 0 for safety
+        memset(m_sampleCacheFloat, 0, sizeof(float) * m_numSamples);
+    }
 
-	while (samplesLeftToRead > 0 && !eof)
-	{
-		int currentSection;
-		int numBytesToRead = samplesLeftToRead * 2;
-		int bytesRead = ov_read(m_vorbisFile, buf, numBytesToRead, IS_BIG_ENDIAN,
-								2 /*16 bit*/, 1 /*signed*/, &currentSection);
-		AppReleaseAssert(bytesRead != OV_HOLE && bytesRead != OV_EBADLINK,
-			"Ogg file corrupt %s", m_in->m_filename.c_str());
+    unsigned int totalSamplesWritten = 0;
+    const float scale = 32767.0f; // store PCM units matching int16 range
 
-		if (bytesRead == 0)
-		{
-			eof = true;
-		}
+    while (totalSamplesWritten < _numSamples)
+    {
+        int framesRequested = (int)((_numSamples - totalSamplesWritten) / (m_numChannels ? m_numChannels : 1));
+        if (framesRequested <= 0)
+        {
+            break;
+        }
 
-		int samplesRead = bytesRead / 2;
-		samplesLeftToRead -= samplesRead;
+        float **pcm = NULL;
+        int currentSection = 0;
+        long framesRead = ov_read_float(m_vorbisFile, &pcm, framesRequested, &currentSection);
 
-		buf += bytesRead;
-	}
+        AppReleaseAssert(framesRead != OV_HOLE && framesRead != OV_EBADLINK,
+                         "Ogg file corrupt %s", m_in->m_filename.c_str());
 
-	return _numSamples - samplesLeftToRead;
+        if (framesRead <= 0)
+        {
+            // 0 indicates EOF, negative values are errors already handled above
+            break;
+        }
+
+        unsigned int samplesFromFrames = (unsigned int)framesRead * (m_numChannels ? m_numChannels : 1);
+
+        // Interleave and scale into both caches
+        for (long i = 0; i < framesRead; ++i)
+        {
+            for (unsigned int c = 0; c < m_numChannels; ++c)
+            {
+                unsigned int dstIndex = m_amountCached + totalSamplesWritten + (unsigned int)i * m_numChannels + c;
+                float v = pcm && pcm[c] ? (pcm[c][i] * scale) : 0.0f;
+                // Clamp to int16 range in PCM units
+                if (v > 32767.0f) v = 32767.0f;
+                if (v < -32768.0f) v = -32768.0f;
+                m_sampleCacheFloat[dstIndex] = v;
+                if (_data)
+                {
+                    _data[totalSamplesWritten + (unsigned int)i * m_numChannels + c] = (signed short)v;
+                }
+            }
+        }
+
+        totalSamplesWritten += samplesFromFrames;
+    }
+
+    return totalSamplesWritten;
 }
 
 
