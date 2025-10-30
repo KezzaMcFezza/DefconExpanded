@@ -62,6 +62,10 @@ void SoundProtectionOverlay::Render()
             g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "SDL Mix-Bus Limiter");
             y += line;
 
+            bool limiterEnabled = sw->GetLimiterEnabled();
+            snprintf(buffer, sizeof(buffer), "Limiter enabled     : %s", limiterEnabled ? "yes" : "no");
+            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
+
             float thr = sw->GetLimiterThreshold();
             float busGain = sw->GetLimiterBusGain();
             bool limiting = busGain < 0.999f;

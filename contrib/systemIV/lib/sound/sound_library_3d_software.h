@@ -102,6 +102,7 @@ public:
     inline float GetLimiterThreshold() const { return m_peakThreshold; }
     inline float GetLimiterBusGain() const { return m_busGain; }
     inline float GetLimiterLastPeak() const { return m_lastPeak; }
+    inline bool  GetLimiterEnabled() const { return m_enableLimiter; }
     inline bool  GetDynEnabled() const { return m_dynEnabled; }
     inline float GetDynBusAttenDb() const { return m_dynamicBusAttenDb; }
     inline float GetDynTargetDb() const { return m_dynamicTargetDb; }
