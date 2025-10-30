@@ -170,27 +170,15 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
     m_right = new float[m_allocatedSamples];
     m_interleaved = new float[m_allocatedSamples * 2];
 
-    // Limiter/headroom defaults (can be overridden via prefs)
-    m_busGain = 1.0f;
-    m_prevBusGain = 1.0f;
-    m_limiterAttack = 1.0f;     // instant attack towards target
-    m_limiterRelease = 0.02f;   // quicker release back to unity
-    m_peakThreshold = 28000.0f; // start limiting earlier to reduce artifacts
+    // Headroom defaults (can be overridden via prefs)
     m_headroomDb = 12.0f;       // fixed headroom applied pre-mix
     m_headroomEnabled = false;  // disabled by default (can be re-enabled via prefs)
-    m_lastPeak = 0.0f;
-    m_enableLimiter = true;
 
     if (g_preferences)
     {
         float v;
         v = g_preferences->GetFloat("SoundHeadroomDb", -1.0f); if (v >= 0.0f) m_headroomDb = v;
         int b = g_preferences->GetInt("SoundHeadroomEnabled", 0); m_headroomEnabled = (b != 0);
-        v = g_preferences->GetFloat("SoundLimiterThreshold", -1.0f); if (v > 0.0f) m_peakThreshold = v;
-        v = g_preferences->GetFloat("SoundLimiterAttack", -1.0f); if (v > 0.0f && v <= 1.0f) m_limiterAttack = v;
-        v = g_preferences->GetFloat("SoundLimiterRelease", -1.0f); if (v > 0.0f && v <= 1.0f) m_limiterRelease = v;
-        // on/off toggle (default on)
-        b = g_preferences->GetInt("SoundLimiter", 1); m_enableLimiter = (b != 0);
     }
 }
 
@@ -613,60 +601,16 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
 #endif
 	}
 
-    // Limiter and output mapping to [-1,1] for SDL float
+    // Output mapping to [-1,1] for SDL float
     const float invPcm = 1.0f / 32767.0f;
-    if (m_enableLimiter)
+    for (unsigned int i = 0; i < _numSamples; ++i)
     {
-        float peak = 0.0f;
-        for (unsigned int i = 0; i < _numSamples; ++i)
-        {
-            if (fabsf(m_left[i]) > peak) peak = fabsf(m_left[i]);
-            if (fabsf(m_right[i]) > peak) peak = fabsf(m_right[i]);
-        }
-        m_lastPeak = peak;
-
-        float desiredGain = 1.0f;
-        if (peak > m_peakThreshold && peak > 0.0f)
-        {
-            desiredGain = m_peakThreshold / peak;
-        }
-        float alpha = (desiredGain < m_busGain) ? m_limiterAttack : m_limiterRelease;
-        m_busGain += (desiredGain - m_busGain) * alpha;
-        if (m_busGain < 0.0f) m_busGain = 0.0f;
-        if (m_busGain > 1.0f) m_busGain = 1.0f;
-
-        // Intra-block ramp of bus gain to eliminate block-edge steps
-        float g0 = m_prevBusGain;
-        float g1 = m_busGain;
-        if (g0 < 0.0f) g0 = 0.0f; if (g0 > 1.0f) g0 = 1.0f;
-        if (g1 < 0.0f) g1 = 0.0f; if (g1 > 1.0f) g1 = 1.0f;
-        float step = (_numSamples > 0) ? ((g1 - g0) / (float)_numSamples) : 0.0f;
-        float g = g0;
-        for (unsigned int i = 0; i < _numSamples; ++i)
-        {
-            float l = m_left[i] * g;
-            float r = m_right[i] * g;
-            _outInterleaved[i * 2] = tanhf(l * invPcm);
-            _outInterleaved[i * 2 + 1] = tanhf(r * invPcm);
-            g += step;
-        }
-        m_prevBusGain = m_busGain;
-    }
-    else
-    {
-        // Limiter disabled: just scale to [-1,1] with clamp
-        m_lastPeak = 0.0f;
-        m_busGain = 1.0f;
-        m_prevBusGain = 1.0f;
-        for (unsigned int i = 0; i < _numSamples; ++i)
-        {
-            float l = m_left[i] * invPcm;
-            float r = m_right[i] * invPcm;
-            if (l < -1.0f) l = -1.0f; if (l > 1.0f) l = 1.0f;
-            if (r < -1.0f) r = -1.0f; if (r > 1.0f) r = 1.0f;
-            _outInterleaved[i * 2] = l;
-            _outInterleaved[i * 2 + 1] = r;
-        }
+        float l = m_left[i] * invPcm;
+        float r = m_right[i] * invPcm;
+        if (l < -1.0f) l = -1.0f; if (l > 1.0f) l = 1.0f;
+        if (r < -1.0f) r = -1.0f; if (r > 1.0f) r = 1.0f;
+        _outInterleaved[i * 2] = l;
+        _outInterleaved[i * 2 + 1] = r;
     }
 }
 

@@ -40,7 +40,6 @@ void SoundProtectionOverlay::Render()
 
     Colour sectionColour(180, 220, 255, 255);
     Colour textColour(255, 255, 255, 255);
-    Colour warnColour(255, 80, 80, 255);
 
     // Shared headroom (pref value)
     g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "Headroom");
@@ -75,49 +74,15 @@ void SoundProtectionOverlay::Render()
         if (dynamic_cast<SoundLibrary3dSoftware *>(g_soundLibrary3d))
         {
             SoundLibrary3dSoftware *sw = (SoundLibrary3dSoftware *)g_soundLibrary3d;
-            g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "SDL Mix-Bus Limiter");
+            g_renderer->TextSimple(baseX, y, sectionColour, 12.0f, "SDL Mixer");
             y += line;
 
-            bool limiterEnabled = sw->GetLimiterEnabled();
-            snprintf(buffer, sizeof(buffer), "Limiter enabled     : %s", limiterEnabled ? "yes" : "no");
-            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
-
-            float thr = sw->GetLimiterThreshold();
-            float busGain = sw->GetLimiterBusGain();
-            bool limiting = busGain < 0.999f;
-
-            snprintf(buffer, sizeof(buffer), "Limiter threshold   : %.0f (PCM)", thr);
-            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
-
-            // Show threshold adjusted for headroom (pre-headroom equivalent threshold)
             bool swHeadroomEnabled = sw->GetHeadroomEnabled();
             float swHeadroomDb = swHeadroomEnabled ? sw->GetHeadroomDb() : 0.0f;
-            float headroomGain = powf(10.0f, -swHeadroomDb / 20.0f);
-            float preHeadThr = (headroomGain > 0.0f) ? (thr / headroomGain) : thr;
-            float marginToFS = 32767.0f - thr;
-            snprintf(buffer, sizeof(buffer), "Thr pre-headroom    : %.0f (PCM)  margin to FS: %.0f",
-                     preHeadThr, marginToFS);
+            snprintf(buffer, sizeof(buffer), "Effective headroom  : %.1f dB%s",
+                     swHeadroomDb, swHeadroomEnabled ? "" : " (disabled)");
             g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
 
-            float atk = g_preferences ? g_preferences->GetFloat("SoundLimiterAttack", 1.0f) : 1.0f;
-            float rel = g_preferences ? g_preferences->GetFloat("SoundLimiterRelease", 0.02f) : 0.02f;
-            snprintf(buffer, sizeof(buffer), "Limiter attack/rel  : %.2f / %.2f", atk, rel);
-            g_renderer->TextSimple(baseX, y, textColour, 11.0f, buffer); y += line;
-
-            // Show last measured pre-limit peak vs threshold
-            float lastPeak = sw->GetLimiterLastPeak();
-            float diff = thr - lastPeak;
-            snprintf(buffer, sizeof(buffer), "Peak (pre-limit)    : %.0f  (thr-peak = %.0f)", lastPeak, diff);
-            g_renderer->TextSimple(baseX, y, (lastPeak > thr) ? warnColour : textColour, 11.0f, buffer); y += line;
-
-            snprintf(buffer, sizeof(buffer), "Limiter bus gain    : %.3f", busGain);
-            g_renderer->TextSimple(baseX, y, limiting ? warnColour : textColour, 11.0f, buffer); y += line;
-            if (limiting)
-            {
-                g_renderer->TextSimple(baseX, y, warnColour, 11.0f, "LIMITER ACTIVE"); y += line;
-            }
-
-            // SDL device snapshot
             SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
             if (sdl2d)
             {

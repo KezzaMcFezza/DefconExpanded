@@ -23,17 +23,11 @@ SoundResamplerMusic = sinc128
 # large bursts of identical waveforms (e.g. many rumbles) and reduce peak stacking.
 SoundRandomStartMs = 0.0
 
-# Mix-bus safety and limiter (shared/SDL)
+# Mix-bus headroom (shared/SDL)
 # Enable or disable fixed headroom (default off)
 SoundHeadroomEnabled = 0
 # Fixed headroom in dB applied before mixing (both backends, when enabled)
 SoundHeadroomDb = 12.00
-# Enable or disable SDL mix-bus limiter (default off)
-SoundLimiter = 0
-# SDL mix-bus limiter settings
-SoundLimiterThreshold = 28000
-SoundLimiterAttack = 1.0
-SoundLimiterRelease = 0.02
 
 # SDL push/queue audio mode defaults
 # Mid-range CPU, balanced preset (see docs/sdl_push_mode_guide.md)
