@@ -37,12 +37,14 @@ private:
     void        CalculateHighDPIScaleFactors();
     void        WindowHasMoved();
     void        HandleResize(int newWidth, int newHeight);
+    void        UpdateStoredMaximizedState();
     
 	bool		m_tryingToCaptureMouse;
     
     int         m_windowDisplayIndex;
     SDL_Window   *m_window;
     SDL_GLContext m_glContext;
+    bool         m_isMaximized;
 };
 
 #endif
