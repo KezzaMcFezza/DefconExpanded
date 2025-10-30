@@ -172,6 +172,7 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
 
     // Limiter/headroom defaults (can be overridden via prefs)
     m_busGain = 1.0f;
+    m_prevBusGain = 1.0f;
     m_limiterAttack = 1.0f;     // instant attack towards target
     m_limiterRelease = 0.02f;   // quicker release back to unity
     m_peakThreshold = 28000.0f; // start limiting earlier to reduce artifacts
@@ -587,17 +588,13 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
 		}
 #endif
 		
-		float volLeft, volRight;
-		CalcChannelVolumes(i, &volLeft, &volRight);
-		float deltaVolLeft  = 0.0f;
-		float deltaVolRight = 0.0f;
-		if (m_channels[i].m_forceVolumeJump)
-		{
-			deltaVolLeft  = volLeft  - m_channels[i].m_oldVolLeft;
-			deltaVolRight = volRight - m_channels[i].m_oldVolRight;
-		}
-		m_channels[i].m_forceVolumeJump = false;
-		float const maxDelta = 0.003f;
+        float volLeft, volRight;
+        CalcChannelVolumes(i, &volLeft, &volRight);
+        // Always compute deltas and ramp unless the change is negligible
+        float deltaVolLeft  = volLeft  - m_channels[i].m_oldVolLeft;
+        float deltaVolRight = volRight - m_channels[i].m_oldVolRight;
+        m_channels[i].m_forceVolumeJump = false;
+        float const maxDelta = 0.003f;
 
 		if (!m_channels[i].m_containsSilence) 
 		{
@@ -612,6 +609,8 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
 
             if( i >= m_numChannels - m_numMusicChannels )
             {
+                // Music channels: keep simple mixing using current block volume
+                // (we could ramp here as well, but it's typically unnecessary)
                 MixStereo(inBuf, _numSamples, volLeft, volRight);
             }
             else
@@ -648,7 +647,7 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
                                        volLeft, volRight);
                 }
             }
-		}
+        }
 
 		m_channels[i].m_oldVolLeft = volLeft;
 		m_channels[i].m_oldVolRight = volRight;
@@ -683,19 +682,29 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
         if (m_busGain < 0.0f) m_busGain = 0.0f;
         if (m_busGain > 1.0f) m_busGain = 1.0f;
 
+        // Intra-block ramp of bus gain to eliminate block-edge steps
+        float g0 = m_prevBusGain;
+        float g1 = m_busGain;
+        if (g0 < 0.0f) g0 = 0.0f; if (g0 > 1.0f) g0 = 1.0f;
+        if (g1 < 0.0f) g1 = 0.0f; if (g1 > 1.0f) g1 = 1.0f;
+        float step = (_numSamples > 0) ? ((g1 - g0) / (float)_numSamples) : 0.0f;
+        float g = g0;
         for (unsigned int i = 0; i < _numSamples; ++i)
         {
-            float l = m_left[i] * m_busGain;
-            float r = m_right[i] * m_busGain;
+            float l = m_left[i] * g;
+            float r = m_right[i] * g;
             _outInterleaved[i * 2] = tanhf(l * invPcm);
             _outInterleaved[i * 2 + 1] = tanhf(r * invPcm);
+            g += step;
         }
+        m_prevBusGain = m_busGain;
     }
     else
     {
         // Limiter disabled: just scale to [-1,1] with clamp
         m_lastPeak = 0.0f;
         m_busGain = 1.0f;
+        m_prevBusGain = 1.0f;
         for (unsigned int i = 0; i < _numSamples; ++i)
         {
             float l = m_left[i] * invPcm;

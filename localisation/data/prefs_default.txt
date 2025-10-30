@@ -18,6 +18,11 @@ SoundDSP = 0
 SoundResamplerSfx = sinc64
 SoundResamplerMusic = sinc128
 
+# Optional random start offset for non-music SFX (ms, default off)
+# Randomizes initial playback cursor up to this many milliseconds to de-correlate
+# large bursts of identical waveforms (e.g. many rumbles) and reduce peak stacking.
+SoundRandomStartMs = 0.0
+
 # Mix-bus safety and limiter (shared/SDL)
 # Enable or disable fixed headroom (default off)
 SoundHeadroomEnabled = 0

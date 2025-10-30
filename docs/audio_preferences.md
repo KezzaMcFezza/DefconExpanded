@@ -196,6 +196,11 @@ Common goals and the most relevant knobs:
 - “Be more proactive when many sounds stack (crowd attenuation)”
   - Lower SoundDSDynStartCount (and/or SoundSDLDynStartCount), or increase the per-extra and max dB values on the relevant backend to duck earlier and harder.
 
+## SFX De‑Correlation (Optional)
+
+- SoundRandomStartMs (float, ms; default 0.0)
+  - Applies only to non‑music sounds on the software mixer path. When > 0, each new SFX instance starts at a random offset up to this many milliseconds inside the sample. This de‑correlates large bursts of identical waveforms (for example, many rumble loops that start together), reducing phase‑coherent summing and limiter activity. Set to a small value like 2–5 ms if dense stacks still feel “tearing” under heavy load. Leave at 0.0 to preserve exact onsets.
+
 ## FAQ
 
 - Why not just turn down the master volume?

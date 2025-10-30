@@ -31,6 +31,7 @@ protected:
 
     // Mix-bus limiter and headroom (software path only)
     float                   m_busGain;          // smoothed limiter gain (0..1)
+    float                   m_prevBusGain;      // previous block's bus gain for intra-block ramp
     float                   m_limiterAttack;    // attack smoothing (0..1)
     float                   m_limiterRelease;   // release smoothing (0..1)
     float                   m_peakThreshold;    // peak threshold before limiting (PCM units)
