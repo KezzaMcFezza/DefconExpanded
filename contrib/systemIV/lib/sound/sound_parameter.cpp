@@ -93,8 +93,19 @@ void SoundParameter::Recalculate( float _input )
             }
             else
             {
-                float inputFraction = (_input - m_inputLower) / (m_inputUpper - m_inputLower);
-                m_desiredOutput = m_outputLower + inputFraction * (m_outputUpper - m_outputLower);
+                float inputRange = m_inputUpper - m_inputLower;
+                if (fabsf(inputRange) < 0.00001f)
+                {
+                    //
+                    // Input range is effectively zero, use midpoint output
+                    
+                    m_desiredOutput = (m_outputLower + m_outputUpper) * 0.5f;
+                }
+                else
+                {
+                    float inputFraction = (_input - m_inputLower) / inputRange;
+                    m_desiredOutput = m_outputLower + inputFraction * (m_outputUpper - m_outputLower);
+                }
             }
 			float smooth = GetSmooth();
             m_output = m_desiredOutput * (1.0f-smooth) + m_output * smooth;

@@ -299,7 +299,11 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	desired.samples = m_samplesPerBuffer;
 	desired.channels = 2;
 
+#ifndef TARGET_EMSCRIPTEN
     m_usePushMode = g_preferences->GetInt("SoundUsePushMode", 1);
+#else
+    m_usePushMode = 0;
+#endif
     int periodPref = g_preferences->GetInt("SoundPeriodFrames", 128);
     m_targetLatencyMs = g_preferences->GetInt("SoundTargetLatencyMs", 80);
     m_ringMs = g_preferences->GetInt("SoundRingMs", 160);
@@ -336,11 +340,6 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
     SDL_AudioSpec obtainedSpec;
     SDL_AudioSpec *obtainedPtr = &obtainedSpec;
 
-#ifdef TARGET_EMSCRIPTEN
-	// Request exact parameters by disallowing automatic changes.
-	obtainedPtr = NULL;
-#endif
-
     //
 	// Set period based on mode: in push mode, request the preferred small period
 
@@ -356,27 +355,7 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	}
 
 	m_currentOutputDevice.clear();
-
-#ifdef TARGET_EMSCRIPTEN
-	s_audioSpec = desired;
-#else
 	s_audioSpec = obtainedSpec;
-
-#ifdef TOGGLE_SOUND_TESTBED	
-
-    //
-	// Verify that SDL is actually using the requested number of samples
-
-	AppDebugOut("Audio samples verification: requested=%d, SDL is using=%d\n",
-		desired.samples, s_audioSpec.samples);
-
-	if (desired.samples != s_audioSpec.samples) {
-		AppDebugOut("WARNING: SDL changed samples per buffer from %d to %d\n",
-			desired.samples, s_audioSpec.samples);
-	}
-
-#endif
-#endif
 
     //
     // Snapshot the device id for tagging buffers

@@ -132,13 +132,7 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
 	
 	EnableCallback(true);
 
-#ifdef TARGET_EMSCRIPTEN
-	// main fix!
-	unsigned int baseSize = g_soundLibrary2d->GetSamplesPerBuffer();
-	m_allocatedSamples = baseSize * 4; // lets allocate 4x more samples than we need for safety
-#else
 	m_allocatedSamples = g_soundLibrary2d->GetSamplesPerBuffer();
-#endif
 
 	m_left = new float[m_allocatedSamples];
 	m_right = new float[m_allocatedSamples];
@@ -276,28 +270,49 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
 	if( calculatedVolume > 0.0f ) calculatedVolume = 0.0f;
 	calculatedVolume = expf(calculatedVolume);
 
-	if ( _channelIndex < m_numChannels - m_numMusicChannels )
-	{
-		Vector3<float> to = channel->m_pos - m_listenerPos;
-		float dist = to.Mag();
-		to /= dist;
-		float dotRight = to * m_listenerRight;
-		*_right = (dotRight + 1.0f) * 0.5f;
-		*_left = 1.0f - *_right;
+    if ( _channelIndex < m_numChannels - m_numMusicChannels )
+    {
+        Vector3<float> to = channel->m_pos - m_listenerPos;
+        float dist = to.Mag();
+        
+		//
+        // Clamp distance to prevent division by zero
+        // When listener is very close to sound source, clamp to minimum distance to avoid crackles
+		
+        if (dist < 0.01f) dist = 0.01f;
+        
+        to /= dist;
+        float dotRight = to * m_listenerRight;
+        *_right = (dotRight + 1.0f) * 0.5f;
+        *_left = 1.0f - *_right;
 
-		if (dist > channel->m_minDist) 
-		{
-			float dropOff = channel->m_minDist / dist;
-			*_left *= dropOff;
-			*_right *= dropOff;
-		}
-	}
-	
-	if ( _channelIndex >= m_numChannels - m_numMusicChannels )
-	{
-		*_left = 0.9f;
-		*_right = 0.9f;
-	}
+        //
+		// Apply distance attenuation with clamping
+        // Clamp minimum distance to at least 0.1f to avoid extreme volume spikes
+
+        float minDist = channel->m_minDist;
+        if (minDist < 0.01f) minDist = 0.01f;
+        
+        if (dist > minDist) 
+        {
+
+			//
+			// Clamp drop off to reasonable range (0.0 to 1.0)
+
+            float dropOff = minDist / dist;
+            if (dropOff > 1.0f) dropOff = 1.0f;
+            if (dropOff < 0.0f) dropOff = 0.0f;
+            
+            *_left *= dropOff;
+            *_right *= dropOff;
+        }
+    }
+    
+    if ( _channelIndex >= m_numChannels - m_numMusicChannels )
+    {
+        *_left = 0.9f;
+        *_right = 0.9f;
+    }
 
 	*_left *= calculatedVolume; 
 	*_right *= calculatedVolume; 
@@ -372,30 +387,10 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 		return;
 	}
 
-#ifdef TARGET_EMSCRIPTEN
-	// Fixes the frequency data loss, so now we store channel frequencies locally to prevent corruption in WebAssembly threading
-	static unsigned int channelFreqs[64]; // defcon supports upto 64 channels
-	for (int i = 0; i < m_numChannels && i < 64; ++i)
-	{
-		channelFreqs[i] = m_channels[i].m_freq;
-	}
-#endif
-
 	double duration = (double)_numSamples / (double)g_soundLibrary2d->GetFreq();
 
 	GetChannelData(duration, _numSamples);
 	ApplyDspFX(duration, _numSamples);
-
-#ifdef TARGET_EMSCRIPTEN
-	// restore channel frequencies after corruption
-	for (int i = 0; i < m_numChannels && i < 64; ++i)
-	{
-		if (m_channels[i].m_freq != channelFreqs[i])
-		{
-			m_channels[i].m_freq = channelFreqs[i];
-		}
-	}
-#endif
 
 	// START_PROFILE2(m_profiler, "Mix");
 	
@@ -419,13 +414,6 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 	// and modern Pentiums.
 	for (int i = 0; i < m_numChannels; ++i)
 	{
-#ifdef TARGET_EMSCRIPTEN
-		// re check frequency before each channel mix
-		if (m_channels[i].m_freq != channelFreqs[i])
-		{
-			m_channels[i].m_freq = channelFreqs[i];
-		}
-#endif
 		
 		float volLeft, volRight;
 		CalcChannelVolumes(i, &volLeft, &volRight);
@@ -445,24 +433,31 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 #ifdef TOGGLE_SOUND_TESTBED	
 			AppDebugOut("Channel: %d. freq = %u, 2dsoundfreq = %u\n", i, m_channels[i].m_freq, g_soundLibrary2d->GetFreq() );
 #endif
-            signed short *inBuf = m_channels[i].m_buffer;
-            
-            if (!inBuf)
-            {
-            	continue;
-            }
+			signed short *inBuf = m_channels[i].m_buffer;
+			
+			if (!inBuf)
+			{
+				continue;
+			}
 
+			//
 			// Determine which mixer function to use - some are faster than others
+			
 			if( i >= m_numChannels - m_numMusicChannels )
-            {
-                MixStereo(inBuf, _numSamples, volLeft, volRight);
-            }
-            else if (fabsf(deltaVolLeft) < maxDelta && fabsf(deltaVolRight) < maxDelta)
+			{
+				MixStereo(inBuf, _numSamples, volLeft, volRight);
+			}
+			else if (fabsf(deltaVolLeft) < maxDelta && fabsf(deltaVolRight) < maxDelta &&
+					 fabsf(volLeft - m_channels[i].m_oldVolLeft) < maxDelta && 
+					 fabsf(volRight - m_channels[i].m_oldVolRight) < maxDelta)
 			{
 				MixSameFreqFixedVol(inBuf, _numSamples, volLeft, volRight);
 			}
 			else
 			{
+				//
+				// Volume or pan is changing so use ramping to smooth the transition
+
 				MixSameFreqRampVol(inBuf, _numSamples, 
 								   m_channels[i].m_oldVolLeft, m_channels[i].m_oldVolRight,
 								   volLeft, volRight);
@@ -471,14 +466,6 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 
 		m_channels[i].m_oldVolLeft = volLeft;
 		m_channels[i].m_oldVolRight = volRight;
-		
-#ifdef TARGET_EMSCRIPTEN
-		// verify frequency hasnt been corrupted after mixing operations
-		if (m_channels[i].m_freq != channelFreqs[i])
-		{
-			m_channels[i].m_freq = channelFreqs[i];
-		}
-#endif
 	}
 
 	// Scan the left and right floating point versions of the output buffer to
@@ -494,7 +481,10 @@ void SoundLibrary3dSoftware::Callback(StereoSample *_buf, unsigned int _numSampl
 	float scale = 1.0f;
 	if (largest > 32766)
 	{
-		scale = 32766.0f / largest;
+		if (largest > 0.00001f)
+		{
+			scale = 32766.0f / largest;
+		}
 	}
 
 	if (scale > 1.0f)
@@ -616,6 +606,48 @@ void SoundLibrary3dSoftware::SetListenerPosition( Vector3<float> const &_pos,
 	m_listenerFront = _front;
 	m_listenerUp = _up;
 	m_listenerRight = m_listenerUp ^ m_listenerFront;
+	float rightMag = m_listenerRight.Mag();
+	
+	if (rightMag < 0.001f)
+	{
+
+		//
+		// Construct safe orthogonal vector
+		// Use a fallback based on front vector
+
+		float frontMagSq = (_front.x * _front.x) + (_front.y * _front.y) + (_front.z * _front.z);
+		if (frontMagSq < 0.001f)
+		{
+			//
+			// Front is basically zero, use default 
+			
+			m_listenerRight = Vector3<float>(1.0f, 0.0f, 0.0f);
+		}
+		else
+		{
+
+			//
+			// Try cross product with cardinal axis that's least parallel to front
+
+			if (fabsf(_front.x) < 0.9f)
+			{
+				m_listenerRight = Vector3<float>(1.0f, 0.0f, 0.0f) ^ _front;
+			}
+			else
+			{
+				m_listenerRight = Vector3<float>(0.0f, 1.0f, 0.0f) ^ _front;
+			}
+			rightMag = m_listenerRight.Mag();
+		}
+	}
+	
+	//
+	// Normalize to prevent extreme values
+	
+	if (rightMag > 0.001f)
+	{
+		m_listenerRight /= rightMag;
+	}
 }
 
 
