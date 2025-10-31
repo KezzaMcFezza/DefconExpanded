@@ -494,6 +494,13 @@ bool SoundSystem::GenerateChannelSamplesFloat(unsigned int channel, float *dst, 
         return false;
     }
 
+    // Safety: if destination buffer is not available (e.g. during device/library
+    // restart races) return silence without touching memory.
+    if (!dst || numSamples == 0)
+    {
+        return false;
+    }
+
     SoundInstanceId soundId = LoadChannelId((int)channel);
     SoundInstance *instance = LockSoundInstance(soundId);
     bool stereo = IsMusicChannel(channel);
@@ -637,7 +644,11 @@ bool SoundSystem::GenerateChannelSamplesFloat(unsigned int channel, float *dst, 
     }
     else
     {
-        std::fill(dst, dst + numSamples, 0.0f);
+        // Destination may be null if the output buffers haven't been allocated yet.
+        if (dst && numSamples > 0)
+        {
+            std::fill(dst, dst + numSamples, 0.0f);
+        }
         if (soundId.m_index >= 0)
         {
             m_invalidChannelIdReads.fetch_add(1, std::memory_order_relaxed);

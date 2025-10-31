@@ -247,7 +247,18 @@ void SoundLibrary3dSoftware::GetChannelData(float _duration, unsigned int _numSa
 #if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
             if (g_soundSystem)
             {
-                hasData = g_soundSystem->GenerateChannelSamplesFloat(i, m_channels[i].m_bufferFloat, samplesNeeded, &silenceRemaining);
+                // Guard against a race where per-channel buffers are not yet
+                // allocated during a sound library restart. In that case we
+                // simply report silence for this channel.
+                float *dst = m_channels[i].m_bufferFloat;
+                if (dst)
+                {
+                    hasData = g_soundSystem->GenerateChannelSamplesFloat(i, dst, samplesNeeded, &silenceRemaining);
+                }
+                else
+                {
+                    hasData = false;
+                }
             }
             else
 #endif

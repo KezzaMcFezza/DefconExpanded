@@ -139,7 +139,11 @@ void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
     SoundLibrary3dSoftware *software3d = nullptr;
     if (m_usingFloatDevice && g_soundLibrary3d)
     {
-        software3d = dynamic_cast<SoundLibrary3dSoftware *>(g_soundLibrary3d);
+        // Only render via the 3D software mixer once it's fully initialised
+        if (g_soundLibrary3d->GetNumChannels() > 0)
+        {
+            software3d = dynamic_cast<SoundLibrary3dSoftware *>(g_soundLibrary3d);
+        }
     }
 
     if (software3d)
