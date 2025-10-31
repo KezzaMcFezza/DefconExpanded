@@ -1,13 +1,31 @@
 #ifndef INCLUDED_RESAMPLER_POLYPHASE_H
 #define INCLUDED_RESAMPLER_POLYPHASE_H
 
+
+/*
+ *  Polyphase resampler
+ *
+ *  Uses windowed sinc interpolation with multiple quality levels
+ *  and automatically selects appropriate anti-aliasing filters
+ *
+ */
+
 #include <vector>
 #include <string>
 
 class Preferences;
 
+//*****************************************************************************
+// Namespace SoundResampler
+//*****************************************************************************
+
 namespace SoundResampler
 {
+    //
+    // Quality levels for resampling
+    // Linear = simple interpolation
+    // Sinc64/96/128 = windowed sinc with 64/96/128 tap filters
+    
     enum class Quality
     {
         Linear = 0,
@@ -16,6 +34,9 @@ namespace SoundResampler
         Sinc128
     };
 
+    //
+    // Kernel contains the filter coefficients for one cutoff frequency
+    
     struct Kernel
     {
         unsigned int taps;
@@ -24,12 +45,18 @@ namespace SoundResampler
         std::vector<float> coeffs;
     };
 
+    //
+    // KernelSet holds all filter banks for a given quality level
+    
     struct KernelSet
     {
         Quality quality;
         std::vector<Kernel> banks;
     };
 
+    //
+    // Selection returned by SelectKernel
+    
     struct Selection
     {
         const Kernel *kernel;
@@ -44,7 +71,7 @@ namespace SoundResampler
     void SetSfxQuality(Quality quality);
     void SetMusicQuality(Quality quality);
 
-    Selection SelectKernel(Quality quality, double ratio);
+    Selection SelectKernel(Quality quality, double ratio);               // Selects best kernel for the given resampling ratio
 
     const KernelSet &GetKernelSet(Quality quality);
     const Kernel &GetKernel(Quality quality, unsigned int bankIndex);

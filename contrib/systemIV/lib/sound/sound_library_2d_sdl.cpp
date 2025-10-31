@@ -14,7 +14,9 @@
 #include <cstdio>   // snprintf when caching device/driver name
 #include <atomic>   // For memory fences in lock-free callback access
 
+//
 // Platform-specific headers for thread priority
+
 #ifdef TARGET_OS_LINUX
 #include <pthread.h>
 #include <sched.h>
@@ -53,35 +55,18 @@ static int FeederThreadEntry(void *userdata)
 
 static void sdlAudioCallback(void *userdata, Uint8 *stream, int len)
 {
-#ifdef TOGGLE_SOUND_TESTBED	
-	AppDebugOut("sdlAudioCallback START: len=%d, started=%d, g_soundLibrary2d=%p\n", len, s_audioStarted, g_soundLibrary2d);
-#endif
-	
 	SoundLibrary2dSDL *self = static_cast<SoundLibrary2dSDL *>(userdata);
 	if (!s_audioStarted || !self) 
 	{
-#ifdef TOGGLE_SOUND_TESTBED	
-		AppDebugOut("sdlAudioCallback: aborting - not started or no library\n");
-#endif
 		return;
 	}
-#ifdef TOGGLE_SOUND_TESTBED	
-	AppDebugOut("sdlAudioCallback: calling AudioCallback with %d bytes\n", len);
-#endif
     unsigned bytesPerFrame = self ? self->GetBytesPerFrame() : 0;
     unsigned frames = (bytesPerFrame > 0) ? (unsigned)(len / bytesPerFrame) : 0;
     self->AudioCallback(reinterpret_cast<float *>(stream), frames);
-#ifdef TOGGLE_SOUND_TESTBED	
-	AppDebugOut("sdlAudioCallback END\n");
-#endif
 }
 
 void SoundLibrary2dSDL::AudioCallback(float *stream, unsigned numFrames)
 {
-#ifdef TOGGLE_SOUND_TESTBED	
-	AppDebugOut("SoundLibrary2dSDL::AudioCallback START: stream=%p, numFrames=%u\n", stream, numFrames);
-#endif
-
 	double now = GetHighResTime();
 
 	if (stream && numFrames > 0)
@@ -122,10 +107,6 @@ void SoundLibrary2dSDL::AudioCallback(float *stream, unsigned numFrames)
 	m_stats.bufferedSamples[1] = 0;
 
 	m_statsLock.Unlock();
-
-#ifdef TOGGLE_SOUND_TESTBED	
-	AppDebugOut("SoundLibrary2dSDL::AudioCallback END\n");
-#endif
 }
 
 void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
@@ -139,7 +120,9 @@ void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
     SoundLibrary3dSoftware *software3d = nullptr;
     if (m_usingFloatDevice && g_soundLibrary3d)
     {
+        //
         // Only render via the 3D software mixer once it's fully initialised
+
         if (g_soundLibrary3d->GetNumChannels() > 0)
         {
             software3d = dynamic_cast<SoundLibrary3dSoftware *>(g_soundLibrary3d);
@@ -149,7 +132,10 @@ void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
     if (software3d)
     {
         software3d->RenderToInterleavedFloat(dest, numFrames);
+
+        //
         // Record render timing
+        
         double dtMs = (GetHighResTime() - t0) * 1000.0;
         m_statsLock.Lock();
         m_stats.lastRenderMs = dtMs;
@@ -159,8 +145,10 @@ void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
         return;
     }
 
+    //
     // No lock needed - callback pointer is effectively immutable after initialization
     // Using memory fence to ensure we see the initialized value
+
     std::atomic_thread_fence(std::memory_order_acquire);
     void (*callback)(StereoSample *, unsigned int) = m_callback;
     std::atomic_thread_fence(std::memory_order_acquire);
@@ -168,7 +156,6 @@ void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
     if (!callback)
     {
         memset(dest, 0, sizeof(float) * numFrames * 2);
-        // Record render timing
         double dtMs = (GetHighResTime() - t0) * 1000.0;
         m_statsLock.Lock();
         m_stats.lastRenderMs = dtMs;
@@ -186,7 +173,6 @@ void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
     callback(m_tempShort.data(), numFrames);
     ConvertShortBlockToFloat(m_tempShort.data(), dest, numFrames);
 
-    // Record render timing
     double dtMs = (GetHighResTime() - t0) * 1000.0;
     m_statsLock.Lock();
     m_stats.lastRenderMs = dtMs;
@@ -232,9 +218,6 @@ void SoundLibrary2dSDL::ConvertFloatBlockToShort(const float *src, StereoSample 
 
 void SoundLibrary2dSDL::TopupBuffer()
 {
-#ifdef TOGGLE_SOUND_TESTBED	
-	AppDebugOut("SoundLibrary2dSDL::TopupBuffer START\n");
-#endif
 	uint64_t processedSamples = 0;
 	unsigned lastSamplesProcessed = 0;
 	bool wavCallback = false;
@@ -242,9 +225,6 @@ void SoundLibrary2dSDL::TopupBuffer()
 
 	if (m_wavOutput)
 	{
-#ifdef TOGGLE_SOUND_TESTBED	
-		AppDebugOut("SoundLibrary2dSDL::TopupBuffer: handling WAV output\n");
-#endif
 		static double nextOutputTime = -1.0;
 		if (nextOutputTime < 0.0) nextOutputTime = GetHighResTime();
 		
@@ -286,10 +266,6 @@ void SoundLibrary2dSDL::TopupBuffer()
 	m_stats.bufferedSamples[0] = 0;
 	m_stats.bufferedSamples[1] = 0;
 	m_statsLock.Unlock();
-
-#ifdef TOGGLE_SOUND_TESTBED	
-	AppDebugOut("SoundLibrary2dSDL::TopupBuffer END\n");
-#endif
 }
 SoundLibrary2dSDL::SoundLibrary2dSDL()
 :	m_callback(NULL),
@@ -311,13 +287,17 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 
 	AppDebugOut("Buffer size: %u\n", m_samplesPerBuffer);
 
+    //
 	// Initialise the output device
 
 	SDL_AudioSpec desired;
 	SDL_zero(desired);
 	
     desired.freq = m_freq;
+    
+    //
     // Request 32-bit float output so SDL performs the final quantisation.
+
     desired.format = AUDIO_F32SYS;
 	desired.samples = m_samplesPerBuffer;
 	desired.channels = 2;
@@ -332,7 +312,10 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
     m_audioClockedADSR = g_preferences->GetInt("SoundAudioClockedADSR", 1);
 
     desired.userdata = this;
+
+    //
     // In push/queue mode, we disable the SDL callback and feed via SDL_QueueAudio.
+
     desired.callback = m_usePushMode ? NULL : sdlAudioCallback;
 	
 	AppDebugOut("Initialising SDL Audio\n");
@@ -384,21 +367,6 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	s_audioSpec = desired;
 #else
 	s_audioSpec = obtainedSpec;
-
-#ifdef TOGGLE_SOUND_TESTBED	
-
-    //
-	// Verify that SDL is actually using the requested number of samples
-
-	AppDebugOut("Audio samples verification: requested=%d, SDL is using=%d\n",
-		desired.samples, s_audioSpec.samples);
-
-	if (desired.samples != s_audioSpec.samples) {
-		AppDebugOut("WARNING: SDL changed samples per buffer from %d to %d\n",
-			desired.samples, s_audioSpec.samples);
-	}
-
-#endif
 #endif
 
     // Enforce the float stereo contract expected by the mixer
@@ -462,17 +430,11 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
     m_ringFrames = nextPow2(ringFramesTarget);
     m_ringMask = m_ringFrames - 1;
     m_ring.assign(static_cast<size_t>(m_ringFrames) * s_audioSpec.channels, 0.0f);
+
     m_copyIndex = 0;
     m_fillIndex = 0;
-
-#ifdef TOGGLE_SOUND_TESTBED	
-	AppDebugOut("Frequency: %d\nFormat: %d\nChannels: %d\nSamples: %d\n", 
-		s_audioSpec.freq, s_audioSpec.format, s_audioSpec.channels, s_audioSpec.samples);
-	AppDebugOut("SDL float output bytes/frame: %u\n", m_bytesPerFrame);
-#endif
-	
 	s_audioStarted = 1;
-	
+
 	m_samplesPerBuffer = s_audioSpec.samples;
 	
     // Defer starting playback/threads until Start() is called after 3D init
@@ -522,13 +484,17 @@ void SoundLibrary2dSDL::Start()
 {
     if (m_started) return;
 
+    //
     // Start audio device if sound is enabled
+
     if (s_audioDevice && g_preferences->GetInt("Sound", 1))
     {
         SDL_PauseAudioDevice(s_audioDevice, 0);
     }
 
+    //
     // Start feeder in push mode
+
     if (m_usePushMode)
     {
         m_feederMutex = SDL_CreateMutex();
@@ -542,7 +508,10 @@ void SoundLibrary2dSDL::Start()
 #endif
             m_feederRun = 0;
         }
+
+        //
         // Note: Thread priority is boosted from within FeederLoop()
+
     }
 
     m_started = true;
@@ -656,7 +625,10 @@ void SoundLibrary2dSDL::Stop()
 
 void SoundLibrary2dSDL::SetCallback(void (*_callback)(StereoSample *, unsigned int))
 {
+    
+    //
 	// Memory fence ensures the callback pointer write is visible to all threads
+
 	std::atomic_thread_fence(std::memory_order_release);
 	m_callback = _callback;
 	std::atomic_thread_fence(std::memory_order_release);
@@ -680,18 +652,25 @@ void SoundLibrary2dSDL::SetAudioThreadPriority()
 #ifdef TARGET_OS_LINUX
     if (!m_feederThread) return;
 
+    //
     // Try real-time FIFO scheduling first (requires CAP_SYS_NICE or root)
+
     struct sched_param param;
     param.sched_priority = 80;  // High priority (1-99, higher = more priority)
     
     pthread_t current = pthread_self();
     
     if (pthread_setschedparam(current, SCHED_FIFO, &param) != 0) {
+
+        //
         // Fallback to nice priority (always works without special privileges)
+
         param.sched_priority = 0;
         pthread_setschedparam(current, SCHED_OTHER, &param);
         
+        //
         // Set nice value to high priority (-20 is highest, but -15 is safer)
+
         if (setpriority(PRIO_PROCESS, 0, -15) != 0) {
             printf("[AUDIO THREAD] ✗ Failed to set priority (errno: %d)\n", errno);
             fflush(stdout);
@@ -702,7 +681,9 @@ void SoundLibrary2dSDL::SetAudioThreadPriority()
 
     pthread_t current = pthread_self();
     
+    //
     // Set time constraint policy for real-time audio
+
     thread_time_constraint_policy_data_t policy;
     policy.period = 2902;  // ~2.9ms at 1MHz (approximate audio period)
     policy.computation = 1451;  // 50% of period
@@ -719,11 +700,15 @@ void SoundLibrary2dSDL::SetAudioThreadPriority()
 #elif defined(TARGET_MSVC)
     if (!m_feederThread) return;
 
+    //
     // Get the native Windows handle for the current thread
+
     HANDLE hThread = GetCurrentThread();
     
+    //
     // Set to THREAD_PRIORITY_TIME_CRITICAL for real-time audio performance
     // This is the highest priority level available for normal threads
+
     if (!SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL)) {
         DWORD error = GetLastError();
         printf("[AUDIO THREAD] ✗ Failed to set thread priority (error: %lu)\n", error);
@@ -739,25 +724,33 @@ void SoundLibrary2dSDL::PrecisionSleep(double milliseconds)
     if (milliseconds <= 0.0) return;
     
 #ifdef TARGET_MSVC
+
+    //
     // Windows: hybrid sleep + busy-wait for sub-millisecond precision
     // This matches the approach used in app.cpp for frame limiting
+
     if (milliseconds > 1.0) {
-        // Sleep for most of the time, leave 0.5ms for precision busy-wait
         Sleep((DWORD)(milliseconds - 0.5));
         double endTime = GetHighResTime() + 0.0005; // 0.5ms
         while (GetHighResTime() < endTime) {
             // Precision spin - we have THREAD_PRIORITY_TIME_CRITICAL so this is safe
         }
     } else {
+
+        //
         // For very short sleeps, just busy-wait with high-res timer
+
         double endTime = GetHighResTime() + (milliseconds / 1000.0);
         while (GetHighResTime() < endTime) {
             // Spin
         }
     }
 #else
+
+    ///
     // Unix/Linux/macOS: use nanosleep for sub-millisecond precision (like app.cpp)
     // nanosleep has much better precision than SDL_Delay on Linux (no 4ms granularity issue)
+
     struct timespec ts;
     ts.tv_sec = (time_t)(milliseconds / 1000.0);
     ts.tv_nsec = (long)(fmod(milliseconds, 1000.0) * 1000000.0);
@@ -767,7 +760,6 @@ void SoundLibrary2dSDL::PrecisionSleep(double milliseconds)
 
 int SoundLibrary2dSDL::FeederLoop()
 {
-    // Boost this thread's priority for real-time audio performance
     SetAudioThreadPriority();
     
     //
@@ -999,7 +991,9 @@ unsigned SoundLibrary2dSDL::GetQueuedFrames() const
     return (unsigned)(bytesQueued / (Uint32)std::max(1u, m_bytesPerFrame));
 }
 
+//
 // (Per-voice resampler load reporting removed)
+
 
 uint64_t SoundLibrary2dSDL::GetPlaybackSampleIndex() const
 {

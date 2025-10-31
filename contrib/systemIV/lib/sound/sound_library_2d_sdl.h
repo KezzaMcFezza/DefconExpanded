@@ -28,24 +28,24 @@ private:
     SDL_Thread *     m_feederThread = NULL;
     SDL_mutex *      m_feederMutex = NULL;
     volatile int     m_feederRun = 0;
-    unsigned         m_periodFrames = 0;   // device period in frames
-    unsigned         m_bytesPerFrame = 0;  // channels * bytes/sample
+    unsigned         m_periodFrames = 0;           // device period in frames
+    unsigned         m_bytesPerFrame = 0;          // channels * bytes/sample
     unsigned         m_targetLatencyMs = 0;
     int              m_usePushMode = 0;
     bool             m_usingFloatDevice = false;
-    // Ring buffer fields (push mode)
-    std::vector<float> m_ring;             // interleaved float stereo frames
+
+    std::vector<float> m_ring;                     // interleaved float stereo frames
     std::vector<float> m_sliceScratch;
     std::vector<StereoSample> m_tempShort;
-    uint32_t        m_ringFrames = 0;     // power-of-two length
+    uint32_t        m_ringFrames = 0;              // power-of-two length
     uint32_t        m_ringMask = 0;
-    uint64_t        m_copyIndex = 0;      // next frame to copy into SDL device
-    uint64_t        m_fillIndex = 0;      // ring mixed up to this frame (exclusive)
-    unsigned        m_ringMs = 0;         // target ring horizon in ms
-    unsigned        m_deviceQueueLowMs = 0;   // device queue low water mark
-    unsigned        m_deviceQueueHighMs = 0;  // device queue high water mark
-    int             m_timedScheduling = 1;    // enable timeline scheduling
-    int             m_audioClockedADSR = 0;   // enable ADSR against audio clock
+    uint64_t        m_copyIndex = 0;               // next frame to copy into SDL device
+    uint64_t        m_fillIndex = 0;               // ring mixed up to this frame (exclusive)
+    unsigned        m_ringMs = 0;                  // target ring horizon in ms
+    unsigned        m_deviceQueueLowMs = 0;        // device queue low water mark
+    unsigned        m_deviceQueueHighMs = 0;       // device queue high water mark
+    int             m_timedScheduling = 1;         // enable timeline scheduling
+    int             m_audioClockedADSR = 0;        // enable ADSR against audio clock
     bool            m_lastQueueCritical = false;
     NetMutex        m_deviceStateLock;
 
@@ -72,7 +72,6 @@ private:
             deviceUnderruns(0),
             deviceLowHits(0),
             ringStarvations(0),
-            // Timing metrics
             lastRenderMs(0.0),
             avgRenderMs(0.0),
             maxRenderMs(0.0),
@@ -98,7 +97,6 @@ private:
         unsigned	lastCallbackSamples;
         int			bufferIsThirsty;
         unsigned	bufferedSamples[2];
-        // Push mode runtime
         uint64_t    slicesGenerated;
         uint32_t    periodFrames;
         uint32_t    queuedBytes;
@@ -107,7 +105,6 @@ private:
         uint64_t    deviceUnderruns;
         uint64_t    deviceLowHits;
         uint64_t    ringStarvations;
-        // Timing metrics
         double      lastRenderMs;      // RenderFloatBlock duration of last call
         double      avgRenderMs;       // EMA of RenderFloatBlock duration
         double      maxRenderMs;
@@ -138,13 +135,10 @@ public:
     void            MixWindowToRing(uint64_t startFrame, unsigned frames);
     void            EnsureMixedThrough(uint64_t endFrame);
     unsigned        CopyFromRingToSDL(unsigned framesToCopy);
-    // Stats helpers (per-voice resampler load removed)
-    
     void			Stop();
-    void            SetAudioThreadPriority();  // Boost audio thread priority
+    void            SetAudioThreadPriority();             // Boost audio thread priority
     void            PrecisionSleep(double milliseconds);  // Platform-specific high-precision sleep
 
-    // Timeline tracking (frames)
     uint64_t        m_totalQueuedFrames = 0;     // cumulative frames ever queued to SDL
     uint64_t        m_lastSliceStartSample = 0;  // start sample index of the most recent slice we mixed
 	
@@ -170,7 +164,6 @@ public:
     void			GetRuntimeStats(RuntimeStats &_outStats);
     const char     *GetCurrentOutputDeviceName() const;
 
-    // Push/timeline helpers
     inline bool     UsingPushMode() const { return m_usePushMode != 0; }
     inline bool     UsingTimedScheduling() const { return m_usePushMode != 0 && m_timedScheduling != 0; }
     inline bool     UsingAudioClockedADSR() const { return m_audioClockedADSR != 0; }
@@ -183,13 +176,11 @@ public:
     inline uint64_t GetCurrentSliceStartSample() const { return m_lastSliceStartSample; }
     unsigned        MsToFrames(unsigned ms) const;
     uint64_t        SuggestScheduledStartFrames(unsigned safetyMs = 5) const;
-    // Ring/device accessors for debug/logic
     inline uint64_t GetRingFillFrames() const { return (m_fillIndex > m_copyIndex) ? (m_fillIndex - m_copyIndex) : 0; }
     inline unsigned GetRingMs() const { return m_ringMs; }
     inline unsigned GetDeviceQueueLowMs() const { return m_deviceQueueLowMs; }
     inline unsigned GetDeviceQueueHighMs() const { return m_deviceQueueHighMs; }
 
-    // Explicit start control to allow 3D mixer to fully initialise first
     void            Start();
     inline bool     Started() const { return m_started; }
 

@@ -16,6 +16,9 @@ namespace
 {
     using namespace SoundResampler;
 
+    //
+    // Kernel bank with lazy build support
+    
     struct KernelBank
     {
         Kernel kernel;
@@ -36,6 +39,9 @@ namespace
         unsigned int phases;
     };
 
+    //
+    // Global state for the resampler system
+    
     struct ManagerState
     {
         std::mutex buildMutex;
@@ -57,8 +63,14 @@ namespace
 
     ManagerState g_state;
 
+    //
+    // Multiple filter banks with different cutoffs for different resampling ratios
+
     const float kCutoffBanks[] = { 0.9f, 0.7f, 0.5f };
     const unsigned int kNumBanks = sizeof(kCutoffBanks) / sizeof(kCutoffBanks[0]);
+
+    //
+    // Returns taps and phases for each quality level
 
     QualityConfig GetQualityConfig(Quality quality)
     {
@@ -73,6 +85,9 @@ namespace
         }
     }
 
+    //
+    // Sinc function: sin(pi*x) / (pi*x)
+    
     float Sinc(float x)
     {
         if (fabsf(x) < 1e-6f)
@@ -82,6 +97,10 @@ namespace
         return sinf(M_PI * x) / (M_PI * x);
     }
 
+    //
+    // Blackman Harris()
+    // Window function that reduces filter ripple
+    
     float BlackmanHarris(unsigned int n, unsigned int taps)
     {
         if (taps <= 1)
@@ -100,6 +119,9 @@ namespace
              - a3 * cosf(3.0f * theta);
     }
 
+    //
+    // Builds a polyphase filter kernel with the given parameters
+    
     void BuildKernel(Kernel &kernel, unsigned int taps, unsigned int phases, float cutoff)
     {
         kernel.taps = taps;
@@ -108,6 +130,9 @@ namespace
         kernel.coeffs.assign(taps * phases, 0.0f);
 
         double centre = 0.5 * static_cast<double>(taps) - 1.0;
+
+        //
+        // Generate coefficients for each phase
 
         for (unsigned int phase = 0; phase < phases; ++phase)
         {
@@ -125,6 +150,9 @@ namespace
                 kernel.coeffs[index] = value;
                 sum += value;
             }
+
+            //
+            // Normalize coefficients so they sum to 1.0
 
             if (sum != 0.0)
             {
@@ -176,6 +204,9 @@ namespace
         }
     }
 
+    //
+    // Thread safe lazy kernel building
+    
     void EnsureKernelBuilt(Quality quality, unsigned int bankIndex)
     {
         std::vector<KernelBank> &banks = GetBanks(quality);
@@ -190,6 +221,9 @@ namespace
             return;
         }
 
+        //
+        // Ensure thread safe locking to avoid building the same kernel multiple times
+
         std::lock_guard<std::mutex> guard(g_state.buildMutex);
         if (bank.built)
         {
@@ -202,6 +236,10 @@ namespace
         bank.built = true;
     }
 
+    //
+    // Selects the best filter bank based on resampling ratio
+    // Higher ratios need lower cutoff to avoid aliasing
+    
     unsigned int FindBestBank(double ratio)
     {
         float targetCutoff = 0.9f;
@@ -233,6 +271,9 @@ namespace
 
 namespace SoundResampler
 {
+    //
+    // Load quality settings from preferences
+    
     static void UpdateQualityFromPrefs(const Preferences *prefs)
     {
         if (!prefs)
@@ -256,11 +297,16 @@ namespace SoundResampler
     {
         UpdateQualityFromPrefs(prefs);
 
-        // Pre-size kernel banks so the audio thread only needs to trigger builds.
+        //
+        // Pre-size kernel banks so the audio thread only needs to trigger builds
+        
         EnsureBanksPrepared(Quality::Sinc64);
         EnsureBanksPrepared(Quality::Sinc96);
         EnsureBanksPrepared(Quality::Sinc128);
         EnsureBanksPrepared(Quality::Linear);
+
+        //
+        // Build the most commonly used kernels up front
 
         Quality sfxQuality = g_state.sfxQuality;
         Quality musicQuality = g_state.musicQuality;
@@ -296,6 +342,10 @@ namespace SoundResampler
         g_state.musicQuality = quality;
     }
 
+    //
+    // Selects the best filter bank based on resampling ratio
+    // Higher ratios need lower cutoff to avoid aliasing
+    
     Selection SelectKernel(Quality quality, double ratio)
     {
         Selection result = { NULL, 0u };
@@ -318,6 +368,10 @@ namespace SoundResampler
         return result;
     }
 
+    //
+    // Returns all kernel banks for a quality level
+    // Each case uses a static to avoid reallocating on every call
+    
     const KernelSet &GetKernelSet(Quality quality)
     {
         EnsureBanksPrepared(quality);

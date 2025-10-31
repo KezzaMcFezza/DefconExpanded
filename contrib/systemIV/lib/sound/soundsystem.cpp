@@ -107,14 +107,19 @@ void SoundSystem::RestartSoundLibrary()
     // Shut down existing sound library safely
     //
 
+    //
     // Disable callback quickly to reduce activity in callback mode
+
     if (g_soundLibrary3d)
     {
         g_soundLibrary3d->EnableCallback(false);
     }
 
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
+
+    //
     // If using the SDL 2D backend, stop the device and feeder thread first
+
     if (g_soundLibrary2d)
     {
         SoundLibrary2dSDL *sdl2d = dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d);
@@ -125,7 +130,9 @@ void SoundSystem::RestartSoundLibrary()
     }
 #endif
 
+    //
     // Make sure to stop all currently playing sounds before we clear caches
+
     m_soundInstanceMutex->Lock();
     for (int i = 0; i < m_sounds.Size(); ++i)
     {
@@ -140,10 +147,14 @@ void SoundSystem::RestartSoundLibrary()
     }
     m_soundInstanceMutex->Unlock();
 
+    //
     // Now clear the sample cache
+
     g_soundSampleBank->EmptyCache();
 
+    //
     // Delete the 3D and 2D libraries (3D first as its dtor references 2D)
+
     delete g_soundLibrary3d;
     g_soundLibrary3d = NULL;
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
@@ -151,12 +162,15 @@ void SoundSystem::RestartSoundLibrary()
     g_soundLibrary2d = NULL;
 #endif
 
+    //
     // Finally, free the channel map used by the mixer
+
     delete[] m_channels;
     m_channels = NULL;
 
     //
     // Start up a new sound library
+
     SoundResampler::Initialise(g_preferences);
 
     g_preferences->SetInt(PREFS_SOUND_MIXFREQ, 44100);
@@ -174,7 +188,9 @@ void SoundSystem::RestartSoundLibrary()
     g_soundLibrary2d = new SoundLibrary2dSDL();
     g_soundLibrary3d = new SoundLibrary3dSoftware();
 
+    //
     // Ensure preferences reflect the actual backend used by SDL builds
+
     g_preferences->SetString(PREFS_SOUND_LIBRARY, "software");
     m_numChannels = 64;
 
@@ -201,7 +217,9 @@ void SoundSystem::RestartSoundLibrary()
 
     g_soundLibrary3d->SetMainCallback(&SoundLibraryMainCallback);
 
+    //
     // Now that 3D mixer is ready, start the 2D backend playback/feeder
+    
 #if !defined TARGET_MSVC || defined WINDOWS_SDL
     if (g_soundLibrary2d)
     {
