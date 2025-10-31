@@ -453,8 +453,8 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
     }
 
 #ifdef TARGET_EMSCRIPTEN
-	static unsigned int channelFreqs[64];
-	for (int i = 0; i < m_numChannels && i < 64; ++i)
+	static unsigned int channelFreqs[128];
+	for (int i = 0; i < m_numChannels && i < 128; ++i)
 	{
 		channelFreqs[i] = m_channels[i].m_freq;
 	}
@@ -474,7 +474,7 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
 	ApplyDspFX(duration, _numSamples);
 
 #ifdef TARGET_EMSCRIPTEN
-	for (int i = 0; i < m_numChannels && i < 64; ++i)
+	for (int i = 0; i < m_numChannels && i < 128; ++i)
 	{
 		if (m_channels[i].m_freq != channelFreqs[i])
 		{
@@ -601,7 +601,7 @@ bool SoundLibrary3dSoftware::Hardware3DSupport()
 
 int SoundLibrary3dSoftware::GetMaxChannels()
 {           
-    return 64;
+    return 128;
 }
 
 

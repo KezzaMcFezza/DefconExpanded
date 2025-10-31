@@ -73,8 +73,6 @@ SoundSystem::~SoundSystem()
     m_channels = NULL;
     delete[] m_channelPacked;
     m_channelPacked = NULL;
-    delete[] m_channelPacked;
-    m_channelPacked = NULL;
 
     delete g_soundSampleBank;
     g_soundSampleBank = NULL;
@@ -161,6 +159,18 @@ void SoundSystem::RestartSoundLibrary()
             instance->m_soundSampleHandle = NULL;
         }
     }
+
+    //
+    // Clean up any instances that were pending deletion
+    // Since the audio callback is now stopped, they won't be unlocked naturally
+
+    for (int i = 0; i < m_soundsPendingDelete.Size(); ++i)
+    {
+        SoundInstance *instance = m_soundsPendingDelete[i];
+        delete instance;
+    }
+
+    m_soundsPendingDelete.Empty();
     m_soundInstanceMutex->Unlock();
 
     //
@@ -183,6 +193,8 @@ void SoundSystem::RestartSoundLibrary()
 
     delete[] m_channels;
     m_channels = NULL;
+    delete[] m_channelPacked;
+    m_channelPacked = NULL;
 
     //
     // Start up a new sound library
@@ -208,7 +220,7 @@ void SoundSystem::RestartSoundLibrary()
     // Ensure preferences reflect the actual backend used by SDL builds
 
     g_preferences->SetString(PREFS_SOUND_LIBRARY, "software");
-    m_numChannels = 64;
+    m_numChannels = 128;
 
     if (requestedChannels != m_numChannels)
     {

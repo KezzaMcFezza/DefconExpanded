@@ -9,15 +9,15 @@ SoundLibrary = dsound
 SoundMixFreq = 44100
 SoundMasterVolume = 255
 SoundUpdatePeriod = 0.02
-SoundChannels = 32
+SoundChannels = 128
 SoundMusicChannels = 8
 SoundHW3D = 0
 SoundSwapStereo = 0
 SoundMemoryUsage = 1
 SoundBufferSize = 512
 SoundDSP = 0
-SoundResamplerSfx = sinc64
-SoundResamplerMusic = sinc128
+SoundResamplerSfx = linear
+SoundResamplerMusic = linear
 
 # SDL push/queue audio mode defaults
 # Small CPU, Balanced profile (see docs/sdl_push_mode_guide.md)
@@ -70,7 +70,7 @@ InterfaceStyle = default.txt
 InterfaceZoomSpeed = 1.0
 InterfaceTextLanguage = english
 
-PlayerName =
+PlayerName = NewPlayer
 ServerName1 = 
 ServerName2 =
 ServerName3 =
