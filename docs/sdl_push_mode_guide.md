@@ -62,10 +62,12 @@ All preferences live in `localisation/data/prefs_default.txt` and can be overrid
 - `SoundAudioClockedADSR` (default: `1`)
   - Drives ADSR against the audio playback clock instead of wall clock when push mode is active. Ensures the envelope you hear is aligned to playback, not to when the event was created.
 
-- `SoundResamplerSfx` (default: `sinc64`)
+- `SoundResamplerSfx` (default: `linear`)
+  - `linear` is the default interpolation that replaced nearest neighbor, a huge improvement but not perfect
   - Resampler kernel for sound effects; `sinc64` gives sharper reconstruction than linear without a large CPU hit.
 
-- `SoundResamplerMusic` (default: `sinc128`)
+- `SoundResamplerMusic` (default: `linear`)
+  - The same applies above for `linear`
   - Resampler kernel for music streams; `sinc128` favours higher fidelity for long-running content.
 
 The defaults above mirror the **Small CPU, Balanced** preset described later. Use it as the new baseline and adjust in either direction once you have validated underrun headroom on your target machines.

@@ -8,9 +8,9 @@ Use the sections below as a quick reference when adjusting `localisation/data/pr
 
 Per-voice resampling uses a windowed-sinc FIR when enabled. Two preferences control the quality tier:
 
-- `SoundResamplerSfx` (default `sinc64`)
+- `SoundResamplerSfx` (default `linear`)
   - Applies to non-music channels (typically many short SFX voices).
-- `SoundResamplerMusic` (default `sinc128`)
+- `SoundResamplerMusic` (default `linear`)
   - Applies to music/ambience channels (higher quality, fewer voices).
 
 Accepted values:
@@ -27,7 +27,7 @@ Implementation notes:
 - Polyphase LUT with 256 or 512 fractional phases, symmetric kernel halves to minimise multiplies.
 - Three cutoff banks (0.90 / 0.70 / 0.50 Nyquist) cover down-sampling cases; the runtime picks the closest cutoff based on the current pitch ratio.
 - Preferences can be edited in `prefs_default.txt`, `prefs_testbed.txt`, or via the in-game config UI once exposed.
-- The Sound Debug Overlay (F3) lists the active SFX/Music resampler tier, taps/phases, current bank usage, and any voices that fell back to linear interpolation.
+- The Sound Debug Overlay (F3) lists the active SFX/Music resampler tier, taps/phases, current bank usage, and any voices that fell back to linear interpolation if using polyphase.
 
 ## SDL Push/Queue Mode Highlights
 

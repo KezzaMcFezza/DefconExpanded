@@ -50,7 +50,7 @@ public:
                 SoundResampler::SetMusicQuality(SoundResampler::Quality::Sinc64);
                 break;
             case 2:
-                g_preferences->SetString(PREFS_SOUND_RESAMPLER_SFX, "sinc128");
+                g_preferences->SetString(PREFS_SOUND_RESAMPLER_SFX, "sinc64");
                 g_preferences->SetString(PREFS_SOUND_RESAMPLER_MUSIC, "sinc128");
                 SoundResampler::SetSfxQuality(SoundResampler::Quality::Sinc128);
                 SoundResampler::SetMusicQuality(SoundResampler::Quality::Sinc128);
