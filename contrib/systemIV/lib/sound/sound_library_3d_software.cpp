@@ -237,11 +237,11 @@ void SoundLibrary3dSoftware::GetChannelData(float _duration, unsigned int _numSa
 
 		int numActiveChannels = 0;
 		
-		for (int i = 0; i < m_numChannels; ++i)
-		{
-			int silenceRemaining = -1;	
-			unsigned int samplesNeeded = _numSamples;
-			if( i >= m_numChannels - m_numMusicChannels ) samplesNeeded *= 2;
+        for (int i = 0; i < m_numChannels; ++i)
+        {
+            int silenceRemaining = -1;
+            unsigned int samplesNeeded = _numSamples;
+            if( i >= m_numChannels - m_numMusicChannels ) samplesNeeded *= 2;
 
             bool hasData = false;
 #if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)

@@ -44,6 +44,7 @@ private:
     unsigned int m_resampleLinearInstances;
     std::vector<int> m_resampleBankUsageSfx;
     std::vector<int> m_resampleBankUsageMusic;
+    // (Per-voice resampler load indicator removed)
 #endif
 };
 

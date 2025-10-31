@@ -17,8 +17,8 @@ struct SDL_mutex;
 // Class SoundLibrary2dSDL
 //*****************************************************************************
 
-class SoundLibrary2dSDL : public SoundLibrary2d
-{
+    class SoundLibrary2dSDL : public SoundLibrary2d
+    {
 private:
     void			(*m_callback) (StereoSample *buf, unsigned int numSamples);
 	FILE            *m_wavOutput;
@@ -49,8 +49,8 @@ private:
     bool            m_lastQueueCritical = false;
     NetMutex        m_deviceStateLock;
 
-public:
-	struct RuntimeStats {
+    public:
+		struct RuntimeStats {
         RuntimeStats()
         :	audioCallbacks(0),
             callbacksQueued(0),
@@ -71,7 +71,15 @@ public:
             usingPushMode(0),
             deviceUnderruns(0),
             deviceLowHits(0),
-            ringStarvations(0)
+            ringStarvations(0),
+            // Timing metrics
+            lastRenderMs(0.0),
+            avgRenderMs(0.0),
+            maxRenderMs(0.0),
+            lastSliceMs(0.0),
+            avgSliceMs(0.0),
+            maxSliceMs(0.0),
+            sliceMixOverruns(0)
         {
             bufferedSamples[0] = 0;
             bufferedSamples[1] = 0;
@@ -99,6 +107,14 @@ public:
         uint64_t    deviceUnderruns;
         uint64_t    deviceLowHits;
         uint64_t    ringStarvations;
+        // Timing metrics
+        double      lastRenderMs;      // RenderFloatBlock duration of last call
+        double      avgRenderMs;       // EMA of RenderFloatBlock duration
+        double      maxRenderMs;
+        double      lastSliceMs;       // Per-slice RenderFloatBlock duration (push mode)
+        double      avgSliceMs;        // EMA of per-slice duration
+        double      maxSliceMs;
+        uint64_t    sliceMixOverruns;  // Count of slices exceeding expected period time
     };
 
 public:
@@ -122,6 +138,7 @@ public:
     void            MixWindowToRing(uint64_t startFrame, unsigned frames);
     void            EnsureMixedThrough(uint64_t endFrame);
     unsigned        CopyFromRingToSDL(unsigned framesToCopy);
+    // Stats helpers (per-voice resampler load removed)
     
     void			Stop();
     void            SetAudioThreadPriority();  // Boost audio thread priority

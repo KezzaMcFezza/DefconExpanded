@@ -134,6 +134,7 @@ void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
     {
         return;
     }
+    double t0 = GetHighResTime();
 
     SoundLibrary3dSoftware *software3d = nullptr;
     if (m_usingFloatDevice && g_soundLibrary3d)
@@ -144,6 +145,13 @@ void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
     if (software3d)
     {
         software3d->RenderToInterleavedFloat(dest, numFrames);
+        // Record render timing
+        double dtMs = (GetHighResTime() - t0) * 1000.0;
+        m_statsLock.Lock();
+        m_stats.lastRenderMs = dtMs;
+        if (m_stats.avgRenderMs <= 0.0) m_stats.avgRenderMs = dtMs; else m_stats.avgRenderMs = m_stats.avgRenderMs * 0.9 + dtMs * 0.1;
+        if (dtMs > m_stats.maxRenderMs) m_stats.maxRenderMs = dtMs;
+        m_statsLock.Unlock();
         return;
     }
 
@@ -156,6 +164,13 @@ void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
     if (!callback)
     {
         memset(dest, 0, sizeof(float) * numFrames * 2);
+        // Record render timing
+        double dtMs = (GetHighResTime() - t0) * 1000.0;
+        m_statsLock.Lock();
+        m_stats.lastRenderMs = dtMs;
+        if (m_stats.avgRenderMs <= 0.0) m_stats.avgRenderMs = dtMs; else m_stats.avgRenderMs = m_stats.avgRenderMs * 0.9 + dtMs * 0.1;
+        if (dtMs > m_stats.maxRenderMs) m_stats.maxRenderMs = dtMs;
+        m_statsLock.Unlock();
         return;
     }
 
@@ -166,6 +181,14 @@ void SoundLibrary2dSDL::RenderFloatBlock(float *dest, unsigned int numFrames)
 
     callback(m_tempShort.data(), numFrames);
     ConvertShortBlockToFloat(m_tempShort.data(), dest, numFrames);
+
+    // Record render timing
+    double dtMs = (GetHighResTime() - t0) * 1000.0;
+    m_statsLock.Lock();
+    m_stats.lastRenderMs = dtMs;
+    if (m_stats.avgRenderMs <= 0.0) m_stats.avgRenderMs = dtMs; else m_stats.avgRenderMs = m_stats.avgRenderMs * 0.9 + dtMs * 0.1;
+    if (dtMs > m_stats.maxRenderMs) m_stats.maxRenderMs = dtMs;
+    m_statsLock.Unlock();
 }
 
 void SoundLibrary2dSDL::ConvertShortBlockToFloat(const StereoSample *src, float *dst, unsigned int numFrames)
@@ -897,7 +920,24 @@ void SoundLibrary2dSDL::MixWindowToRing(uint64_t startFrame, unsigned frames)
     while (remaining > 0) {
         unsigned chunk = std::min(period, remaining);
         m_lastSliceStartSample = cursor;
+        double t0 = GetHighResTime();
         RenderFloatBlock(m_sliceScratch.data(), chunk);
+        double dtMs = (GetHighResTime() - t0) * 1000.0;
+        // Update per-slice timing stats and detect overruns
+        m_statsLock.Lock();
+        m_stats.lastSliceMs = dtMs;
+        if (m_stats.avgSliceMs <= 0.0) m_stats.avgSliceMs = dtMs; else m_stats.avgSliceMs = m_stats.avgSliceMs * 0.9 + dtMs * 0.1;
+        if (dtMs > m_stats.maxSliceMs) m_stats.maxSliceMs = dtMs;
+        m_statsLock.Unlock();
+        unsigned freq = GetActualFreq();
+        if (freq > 0) {
+            double expectedMs = 1000.0 * (double)chunk / (double)freq;
+            if (dtMs > expectedMs) {
+                m_statsLock.Lock();
+                m_stats.sliceMixOverruns++;
+                m_statsLock.Unlock();
+            }
+        }
         if (m_wavOutput) {
             if (m_tempShort.size() < (size_t)chunk) {
                 m_tempShort.resize(chunk);
@@ -979,6 +1019,8 @@ unsigned SoundLibrary2dSDL::GetQueuedFrames() const
     Uint32 bytesQueued = SDL_GetQueuedAudioSize(s_audioDevice);
     return (unsigned)(bytesQueued / (Uint32)std::max(1u, m_bytesPerFrame));
 }
+
+// (Per-voice resampler load reporting removed)
 
 uint64_t SoundLibrary2dSDL::GetPlaybackSampleIndex() const
 {

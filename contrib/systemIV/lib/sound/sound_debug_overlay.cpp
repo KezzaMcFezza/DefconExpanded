@@ -538,9 +538,17 @@ void SoundDebugOverlay::Render()
             uint32_t queuedBytes = m_cachedStats.queuedBytes;
             double queuedMs = m_cachedStats.queuedMs;
             bool queuedCritical = (queuedBytes == 0) || (queuedMs <= 2.0);
+            // Also flag if queued latency is far above the configured high-water mark (excess latency)
+            bool queuedTooHigh = false;
+            if (sdl) {
+                unsigned highMs = sdl->GetDeviceQueueHighMs();
+                if (highMs > 0 && queuedMs > (double)highMs * 1.25) {
+                    queuedTooHigh = true;
+                }
+            }
             snprintf(buffer, sizeof(buffer), "Queued latency      : %u bytes (%.2f ms)",
                      queuedBytes, queuedMs);
-            g_renderer->TextSimple(baseXRight, rightY, queuedCritical ? warnColour : textColour, 11.0f, buffer);
+            g_renderer->TextSimple(baseXRight, rightY, (queuedCritical || queuedTooHigh) ? warnColour : textColour, 11.0f, buffer);
             rightY += line;
 
             snprintf(buffer, sizeof(buffer), "Slices generated    : %llu",
@@ -576,6 +584,28 @@ void SoundDebugOverlay::Render()
                          sdl->GetDeviceQueueLowMs(), sdl->GetDeviceQueueHighMs());
                 g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
                 rightY += line;
+
+                // Slice mix timing (push mode)
+                double lastSlice = m_cachedStats.lastSliceMs;
+                double avgSlice = m_cachedStats.avgSliceMs;
+                double maxSlice = m_cachedStats.maxSliceMs;
+                bool sliceWarn = false;
+                if (expectedCallbackMs > 0.0) {
+                    if (lastSlice > expectedCallbackMs) sliceWarn = true;
+                    if (avgSlice > expectedCallbackMs * 0.8) sliceWarn = true;
+                    if (maxSlice > expectedCallbackMs * 1.5) sliceWarn = true;
+                }
+                snprintf(buffer, sizeof(buffer), "Slice mix time      : last %.2f ms  avg %.2f ms  max %.2f ms",
+                         lastSlice, avgSlice, maxSlice);
+                g_renderer->TextSimple(baseXRight, rightY, sliceWarn ? warnColour : textColour, 11.0f, buffer);
+                rightY += line;
+
+                if (m_cachedStats.sliceMixOverruns > 0) {
+                    snprintf(buffer, sizeof(buffer), "Slice overruns      : %llu",
+                             (unsigned long long)m_cachedStats.sliceMixOverruns);
+                    g_renderer->TextSimple(baseXRight, rightY, warnColour, 11.0f, buffer);
+                    rightY += line;
+                }
 
                 // Target latency and scheduling/ADSR flags
                 snprintf(buffer, sizeof(buffer), "Target latency      : %u ms", sdl->GetTargetLatencyMs());
@@ -633,6 +663,20 @@ void SoundDebugOverlay::Render()
             if (actualFreq > 0 && actualBuffer > 0) {
                 expectedCallbackMs = (1000.0 * (double)actualBuffer / (double)actualFreq);
             }
+            // Render timing (callback mode)
+            double lastRender = m_cachedStats.lastRenderMs;
+            double avgRender = m_cachedStats.avgRenderMs;
+            double maxRender = m_cachedStats.maxRenderMs;
+            bool renderWarn = false;
+            if (expectedCallbackMs > 0.0) {
+                if (lastRender > expectedCallbackMs) renderWarn = true;
+                if (avgRender > expectedCallbackMs * 0.8) renderWarn = true;
+                if (maxRender > expectedCallbackMs * 1.5) renderWarn = true;
+            }
+            snprintf(buffer, sizeof(buffer), "Render time         : last %.2f ms  avg %.2f ms  max %.2f ms",
+                     lastRender, avgRender, maxRender);
+            g_renderer->TextSimple(baseXRight, rightY, renderWarn ? warnColour : textColour, 11.0f, buffer);
+            rightY += line;
         }
 
         double audioSecondsMixed = (actualFreq > 0)
