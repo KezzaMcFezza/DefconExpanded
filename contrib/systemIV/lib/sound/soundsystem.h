@@ -42,6 +42,7 @@ public:
     SoundSystemInterface    *m_interface;
     
     float                   m_timeSync;   
+    float                   m_updatePeriod;
     bool                    m_propagateBlueprints;                          // If true, looping sounds will sync with blueprints
     Vector3<float>          m_editorPos;
     SoundInstanceId         m_editorInstanceId;

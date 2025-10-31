@@ -25,7 +25,11 @@
     #include "sound_library_3d_dsound.h"
 #endif
 
-#define SOUNDSYSTEM_UPDATEPERIOD    0.05f
+namespace
+{
+    const float kDefaultUpdatePeriod = 0.02f;
+    const float kMinUpdatePeriod = 0.001f;
+}
 
 //#define SOUNDSYSTEM_VERIFY                        // Define this to make the sound system
                                                     // Perform a series of (very slow)
@@ -47,6 +51,7 @@ static inline signed short FloatToPcmSample(float _value)
 
 SoundSystem::SoundSystem()
 :   m_timeSync(0.0f),
+    m_updatePeriod(kDefaultUpdatePeriod),
     m_channels(NULL),
     m_channelPacked(NULL),
     m_numChannels(0),
@@ -89,6 +94,12 @@ void SoundSystem::Initialise( SoundSystemInterface *_interface )
 {
     m_interface = _interface;
 
+    float prefUpdate = g_preferences ? g_preferences->GetFloat(PREFS_SOUND_UPDATEPERIOD, kDefaultUpdatePeriod) : kDefaultUpdatePeriod;
+    if (prefUpdate <= 0.0f) prefUpdate = kDefaultUpdatePeriod;
+    m_updatePeriod = std::max(kMinUpdatePeriod, prefUpdate);
+    if (g_preferences) g_preferences->SetFloat(PREFS_SOUND_UPDATEPERIOD, m_updatePeriod);
+    m_timeSync = 0.0f;
+
     g_soundSampleBank = new SoundSampleBank();
 
     m_blueprints.LoadEffects();
@@ -103,6 +114,11 @@ void SoundSystem::Initialise( SoundSystemInterface *_interface )
 
 void SoundSystem::RestartSoundLibrary()
 {
+    float prefUpdate = g_preferences ? g_preferences->GetFloat(PREFS_SOUND_UPDATEPERIOD, m_updatePeriod) : m_updatePeriod;
+    if (prefUpdate <= 0.0f) prefUpdate = kDefaultUpdatePeriod;
+    m_updatePeriod = std::max(kMinUpdatePeriod, prefUpdate);
+    if (g_preferences) g_preferences->SetFloat(PREFS_SOUND_UPDATEPERIOD, m_updatePeriod);
+
     //
     // Shut down existing sound library safely
     //
@@ -1149,7 +1165,7 @@ void SoundSystem::Advance()
     float timeNow = GetHighResTime();
     if( timeNow >= m_timeSync )
     {
-        m_timeSync = timeNow + SOUNDSYSTEM_UPDATEPERIOD;
+        m_timeSync = timeNow + m_updatePeriod;
         
         START_PROFILE("SoundSystem");        
 		

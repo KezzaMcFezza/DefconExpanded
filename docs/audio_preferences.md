@@ -38,6 +38,9 @@ Push mode renders small slices in software and feeds them to SDL via `SDL_QueueA
 - `SoundTargetLatencyMs`, `SoundDeviceQueueLowMs`, `SoundDeviceQueueHighMs`: tune audible latency vs. underrun safety.
 - `SoundRingMs`: software ring horizon premixed ahead of the device queue.
 - `SoundTimedScheduling` / `SoundAudioClockedADSR`: enable precise onset placement and audio-clocked envelopes.
+- `SoundUpdatePeriod` (default `0.02`): cadence for `SoundSystem::Advance`. Lower values let the main thread start/stop sounds and reposition the listener more frequently but increase channel-management overhead.
+
+Keep `SoundUpdatePeriod` comfortably below the total output latency while keeping it longer than a single push slice. As a rule of thumb, aim for an update period 3–8× the slice duration (`SoundPeriodFrames / sampleRate`). With 128-frame slices at 44.1 kHz (~2.9 ms each), a 20 ms update period means the mixer sees new channel assignments within roughly seven slices. Dropping to 64 frames halves the slice length, so trimming the update period toward ~10 ms preserves the benefit of the shorter quantum. Smaller periods improve responsiveness but raise CPU usage and contention with the audio threads.
 
 Keep the period small (64–128) for tight ADSR and adjust the device queue/ring horizons upward when underruns occur on slower CPUs.
 

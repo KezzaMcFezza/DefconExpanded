@@ -43,6 +43,9 @@ All preferences live in `localisation/data/prefs_default.txt` and can be overrid
 - `SoundPeriodFrames` (default: `128`)
   - Render quantum (frames) per slice. Smaller = crisper response and envelope shape; higher CPU and queue ops.
 
+- `SoundUpdatePeriod` (default: `0.02`)
+  - Interval between `SoundSystem::Advance` passes. Keep it longer than a single slice (e.g. ≥ 4–8 × `SoundPeriodFrames / sampleRate`) so the main thread can reshuffle channels before the queue dries up, while still staying comfortably below the overall latency target. Shorter periods reduce control latency but add main-thread work.
+
 - `SoundTargetLatencyMs` (default: `95`)
   - Target audible latency for scheduling new onsets. Used to compute the earliest start time relative to the current playback cursor. This does not force the device queue size; see device low/high below. The shipping default pairs with the balanced queue profile to cushion moderate CPU spikes without heavy latency.
 

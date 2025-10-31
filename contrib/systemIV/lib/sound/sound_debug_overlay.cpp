@@ -548,6 +548,15 @@ void SoundDebugOverlay::Render()
         leftY += line;
     }
 
+    if (g_soundSystem)
+    {
+        float applied = g_soundSystem->m_updatePeriod;
+        float pref = g_preferences ? g_preferences->GetFloat(PREFS_SOUND_UPDATEPERIOD, applied) : applied;
+        snprintf(buffer, sizeof(buffer), "Update period       : %.2f ms (pref %.2f ms)", applied * 1000.0f, pref * 1000.0f);
+        g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
+        leftY += line;
+    }
+
     leftY += sectionGap;
 
     float rightY = baseY;

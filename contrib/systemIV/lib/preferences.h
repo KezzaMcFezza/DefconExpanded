@@ -28,6 +28,7 @@
 #define PREFS_SOUND_DSPEFFECTS      "SoundDSP"
 #define PREFS_SOUND_MEMORY          "SoundMemoryUsage"
 #define PREFS_SOUND_MASTERVOLUME    "SoundMasterVolume"
+#define PREFS_SOUND_UPDATEPERIOD    "SoundUpdatePeriod"
 #define PREFS_SOUND_QUALITY         "SoundQuality"
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
 #define PREFS_SOUND_AUDIODRIVER     "SoundAudioDriver"
