@@ -4,6 +4,7 @@
 #include <limits>
 #include <stdio.h>
 #include <unordered_set>
+#include <deque>
 
 #include "lib/sound/sound_debug_overlay.h"
 
@@ -81,6 +82,10 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
         m_resampleBankUsageSfx.clear();
         m_resampleBankUsageMusic.clear();
 #endif
+        // Clear rolling windows when audio system is not available
+        m_sliceMixWindow.clear();
+        m_renderTimeWindow.clear();
+        m_overrunEvents.clear();
         return;
     }
 
@@ -89,6 +94,14 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
     m_cachedStats = stats;
 
     double now = GetHighResTime();
+
+    // If SDL audio is not started, reset rolling windows so stale data doesn't linger
+    if (!sdl->IsAudioStarted())
+    {
+        m_sliceMixWindow.clear();
+        m_renderTimeWindow.clear();
+        m_overrunEvents.clear();
+    }
 
     if (!m_hasStats)
     {
@@ -281,6 +294,53 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
         if (!m_hasStats) m_prevInvalidChannelReadsTotal = g_soundSystem->GetInvalidChannelIdReadTotal();
     }
 #endif
+
+    // Maintain rolling windows for last 10 seconds
+    const double windowSec = m_windowSeconds;
+
+    // Track overrun deltas (push mode stat, but safe to diff regardless)
+    {
+        uint64_t prev = m_previousStats.sliceMixOverruns;
+        uint64_t curr = stats.sliceMixOverruns;
+        uint64_t delta = (curr >= prev) ? (curr - prev) : 0ULL;
+        if (delta > 0ULL)
+        {
+            m_overrunEvents.emplace_back(now, delta);
+        }
+        // prune old overrun events
+        while (!m_overrunEvents.empty() && (now - m_overrunEvents.front().first) > windowSec)
+        {
+            m_overrunEvents.pop_front();
+        }
+    }
+
+    // Track sample durations for last 10s
+    if (stats.usingPushMode)
+    {
+        // Slice mix timing sample (only if audio running)
+        if (sdl->IsAudioStarted())
+        {
+            m_sliceMixWindow.emplace_back(now, stats.lastSliceMs);
+        }
+    }
+    else
+    {
+        // Render timing sample (only if audio running)
+        if (sdl->IsAudioStarted())
+        {
+            m_renderTimeWindow.emplace_back(now, stats.lastRenderMs);
+        }
+    }
+
+    // Prune timing windows
+    while (!m_sliceMixWindow.empty() && (now - m_sliceMixWindow.front().first) > windowSec)
+    {
+        m_sliceMixWindow.pop_front();
+    }
+    while (!m_renderTimeWindow.empty() && (now - m_renderTimeWindow.front().first) > windowSec)
+    {
+        m_renderTimeWindow.pop_front();
+    }
 
     m_previousStats = stats;
     m_lastStatsSampleTime = now;
@@ -585,25 +645,48 @@ void SoundDebugOverlay::Render()
                 g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
                 rightY += line;
 
-                // Slice mix timing (push mode)
+                // Slice mix timing (push mode) — avg/warn based on last 10s
                 double lastSlice = m_cachedStats.lastSliceMs;
-                double avgSlice = m_cachedStats.avgSliceMs;
-                double maxSlice = m_cachedStats.maxSliceMs;
+                double avgSlice10 = 0.0;
+                double maxSlice10 = 0.0;
+                if (!m_sliceMixWindow.empty()) {
+                    double sum = 0.0; size_t n = 0;
+                    double nowTs = GetHighResTime();
+                    // prune to be safe in render as well
+                    while (!m_sliceMixWindow.empty() && (nowTs - m_sliceMixWindow.front().first) > m_windowSeconds) {
+                        m_sliceMixWindow.pop_front();
+                    }
+                    for (const auto &p : m_sliceMixWindow) { sum += p.second; ++n; if (p.second > maxSlice10) maxSlice10 = p.second; }
+                    if (n > 0) avgSlice10 = sum / (double)n;
+                }
                 bool sliceWarn = false;
                 if (expectedCallbackMs > 0.0) {
-                    if (lastSlice > expectedCallbackMs) sliceWarn = true;
-                    if (avgSlice > expectedCallbackMs * 0.8) sliceWarn = true;
-                    if (maxSlice > expectedCallbackMs * 1.5) sliceWarn = true;
+                    // Warn if any sample in the last 10s exceeded the period, or avg10 high
+                    bool anyExceeded = false;
+                    for (const auto &p : m_sliceMixWindow) { if (p.second > expectedCallbackMs) { anyExceeded = true; break; } }
+                    if (anyExceeded) sliceWarn = true;
+                    if (avgSlice10 > expectedCallbackMs * 0.8) sliceWarn = true;
                 }
-                snprintf(buffer, sizeof(buffer), "Slice mix time      : last %.2f ms  avg %.2f ms  max %.2f ms",
-                         lastSlice, avgSlice, maxSlice);
+                snprintf(buffer, sizeof(buffer), "Slice mix time (10s) : last %.2f ms  avg %.2f ms  max %.2f ms",
+                         lastSlice, avgSlice10, maxSlice10);
                 g_renderer->TextSimple(baseXRight, rightY, sliceWarn ? warnColour : textColour, 11.0f, buffer);
                 rightY += line;
 
-                if (m_cachedStats.sliceMixOverruns > 0) {
-                    snprintf(buffer, sizeof(buffer), "Slice overruns      : %llu",
+                // Slice overruns — always visible, show 10s rolling avg and warn if any in last 10s
+                {
+                    // prune in render using current time
+                    double nowTs = GetHighResTime();
+                    while (!m_overrunEvents.empty() && (nowTs - m_overrunEvents.front().first) > m_windowSeconds) {
+                        m_overrunEvents.pop_front();
+                    }
+                    bool recentOverrun = !m_overrunEvents.empty();
+                    unsigned long long windowOverruns = 0ULL;
+                    for (const auto &ev : m_overrunEvents) windowOverruns += ev.second;
+                    double avgOverruns = (m_windowSeconds > 0.0) ? (double)windowOverruns / m_windowSeconds : 0.0;
+                    snprintf(buffer, sizeof(buffer), "Slice overruns (10s) : avg %.2f/s  total %llu",
+                             avgOverruns,
                              (unsigned long long)m_cachedStats.sliceMixOverruns);
-                    g_renderer->TextSimple(baseXRight, rightY, warnColour, 11.0f, buffer);
+                    g_renderer->TextSimple(baseXRight, rightY, recentOverrun ? warnColour : textColour, 11.0f, buffer);
                     rightY += line;
                 }
 
@@ -663,18 +746,28 @@ void SoundDebugOverlay::Render()
             if (actualFreq > 0 && actualBuffer > 0) {
                 expectedCallbackMs = (1000.0 * (double)actualBuffer / (double)actualFreq);
             }
-            // Render timing (callback mode)
+            // Render timing (callback mode) — avg/warn based on last 10s
             double lastRender = m_cachedStats.lastRenderMs;
-            double avgRender = m_cachedStats.avgRenderMs;
-            double maxRender = m_cachedStats.maxRenderMs;
+            double avgRender10 = 0.0;
+            double maxRender10 = 0.0;
+            if (!m_renderTimeWindow.empty()) {
+                double sum = 0.0; size_t n = 0;
+                double nowTs = GetHighResTime();
+                while (!m_renderTimeWindow.empty() && (nowTs - m_renderTimeWindow.front().first) > m_windowSeconds) {
+                    m_renderTimeWindow.pop_front();
+                }
+                for (const auto &p : m_renderTimeWindow) { sum += p.second; ++n; if (p.second > maxRender10) maxRender10 = p.second; }
+                if (n > 0) avgRender10 = sum / (double)n;
+            }
             bool renderWarn = false;
             if (expectedCallbackMs > 0.0) {
-                if (lastRender > expectedCallbackMs) renderWarn = true;
-                if (avgRender > expectedCallbackMs * 0.8) renderWarn = true;
-                if (maxRender > expectedCallbackMs * 1.5) renderWarn = true;
+                bool anyExceeded = false;
+                for (const auto &p : m_renderTimeWindow) { if (p.second > expectedCallbackMs) { anyExceeded = true; break; } }
+                if (anyExceeded) renderWarn = true;
+                if (avgRender10 > expectedCallbackMs * 0.8) renderWarn = true;
             }
-            snprintf(buffer, sizeof(buffer), "Render time         : last %.2f ms  avg %.2f ms  max %.2f ms",
-                     lastRender, avgRender, maxRender);
+            snprintf(buffer, sizeof(buffer), "Render time (10s)    : last %.2f ms  avg %.2f ms  max %.2f ms",
+                     lastRender, avgRender10, maxRender10);
             g_renderer->TextSimple(baseXRight, rightY, renderWarn ? warnColour : textColour, 11.0f, buffer);
             rightY += line;
         }

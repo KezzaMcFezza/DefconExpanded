@@ -2,6 +2,8 @@
 #define INCLUDED_SOUND_DEBUG_OVERLAY_H
 
 #include <vector>
+#include <deque>
+#include <utility>
 
 #include "lib/sound/sound_library_2d_sdl.h"
 #include "resampler_polyphase.h"
@@ -29,6 +31,11 @@ private:
     unsigned long long m_prevInvalidChannelReadsTotal = 0ULL;
     double      m_invalidChannelReadsPerSec = 0.0;
     unsigned long long m_invalidChannelReadsDelta = 0ULL;
+    // Rolling 10s windows for timing/overrun indicators
+    double      m_windowSeconds = 10.0;
+    std::deque<std::pair<double,double>> m_sliceMixWindow;   // (timestamp, milliseconds)
+    std::deque<std::pair<double,double>> m_renderTimeWindow; // (timestamp, milliseconds)
+    std::deque<std::pair<double,uint64_t>> m_overrunEvents;  // (timestamp, count delta)
 #if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
     int         m_resampleInstanceCount;
     int         m_resampleWaitingForLoop;
