@@ -679,39 +679,27 @@ void SoundLibrary2dSDL::SetAudioThreadPriority()
 {
 #ifdef TARGET_OS_LINUX
     if (!m_feederThread) return;
-    
-    printf("[AUDIO THREAD] Attempting to set priority...\n");
-    fflush(stdout);
-    
+
     // Try real-time FIFO scheduling first (requires CAP_SYS_NICE or root)
     struct sched_param param;
     param.sched_priority = 80;  // High priority (1-99, higher = more priority)
     
     pthread_t current = pthread_self();
     
-    if (pthread_setschedparam(current, SCHED_FIFO, &param) == 0) {
-        printf("[AUDIO THREAD] ✓ Set to SCHED_FIFO with priority %d\n", param.sched_priority);
-        fflush(stdout);
-    } else {
+    if (pthread_setschedparam(current, SCHED_FIFO, &param) != 0) {
         // Fallback to nice priority (always works without special privileges)
         param.sched_priority = 0;
         pthread_setschedparam(current, SCHED_OTHER, &param);
         
         // Set nice value to high priority (-20 is highest, but -15 is safer)
-        if (setpriority(PRIO_PROCESS, 0, -15) == 0) {
-            printf("[AUDIO THREAD] ✓ Set nice priority to -15\n");
-            fflush(stdout);
-        } else {
+        if (setpriority(PRIO_PROCESS, 0, -15) != 0) {
             printf("[AUDIO THREAD] ✗ Failed to set priority (errno: %d)\n", errno);
             fflush(stdout);
         }
     }
 #elif defined(TARGET_OS_MACOSX)
     if (!m_feederThread) return;
-    
-    printf("[AUDIO THREAD] Attempting to set macOS time constraint policy...\n");
-    fflush(stdout);
-    
+
     pthread_t current = pthread_self();
     
     // Set time constraint policy for real-time audio
@@ -724,36 +712,25 @@ void SoundLibrary2dSDL::SetAudioThreadPriority()
     mach_port_t thread_port = pthread_mach_thread_np(current);
     if (thread_policy_set(thread_port, THREAD_TIME_CONSTRAINT_POLICY,
                          (thread_policy_t)&policy,
-                         THREAD_TIME_CONSTRAINT_POLICY_COUNT) == KERN_SUCCESS) {
-        printf("[AUDIO THREAD] ✓ Set to time constraint policy (real-time)\n");
-        fflush(stdout);
-    } else {
+                         THREAD_TIME_CONSTRAINT_POLICY_COUNT) != KERN_SUCCESS) {
         printf("[AUDIO THREAD] ✗ Failed to set time constraint policy\n");
         fflush(stdout);
     }
 #elif defined(TARGET_MSVC)
     if (!m_feederThread) return;
-    
-    printf("[AUDIO THREAD] Attempting to set Windows thread priority...\n");
-    fflush(stdout);
-    
+
     // Get the native Windows handle for the current thread
     HANDLE hThread = GetCurrentThread();
     
     // Set to THREAD_PRIORITY_TIME_CRITICAL for real-time audio performance
     // This is the highest priority level available for normal threads
-    if (SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL)) {
-        printf("[AUDIO THREAD] ✓ Set to THREAD_PRIORITY_TIME_CRITICAL\n");
-        fflush(stdout);
-    } else {
+    if (!SetThreadPriority(hThread, THREAD_PRIORITY_TIME_CRITICAL)) {
         DWORD error = GetLastError();
         printf("[AUDIO THREAD] ✗ Failed to set thread priority (error: %lu)\n", error);
         fflush(stdout);
     }
 #else
     // Other platforms - SDL's audio callback already runs at high priority
-    printf("[AUDIO THREAD] Priority boost not implemented for this platform\n");
-    fflush(stdout);
 #endif
 }
 
