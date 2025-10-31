@@ -186,9 +186,6 @@ if(EMSCRIPTEN)
     
     set(PLATFORM_SPECIFIC_FILES
         ${ROOT_PATH}/source/lib/spawn.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/input_sdl.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/window_manager_sdl.cpp
-        ${SYSTEMIV_PATH}/lib/sound/sound_library_2d_sdl.cpp
         ${SYSTEMIV_PATH}/lib/debug_utils_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_lib_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
@@ -205,9 +202,7 @@ if(EMSCRIPTEN)
     
     set(FILES_TO_EXCLUDE
         ${ROOT_PATH}/source/app/trayicon.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/input_win32.cpp
         ${SYSTEMIV_PATH}/lib/gucci/win32library.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/window_manager_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_win32.cpp
@@ -228,9 +223,31 @@ elseif(MSVC)
     set(CMAKE_GENERATOR_PLATFORM Win32)
     set(CMAKE_GENERATOR_TOOLSET "v143")
     enable_language(RC)
+
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(ARCH_TYPE "lib64")
+        set(VORBIS_ARCH_LIB "oggvorbis64/lib")
+        set(VORBIS_ARCH_INCLUDE "oggvorbis64/include")
+    else()
+        set(ARCH_TYPE "lib32")
+        set(VORBIS_ARCH_LIB "oggvorbis/lib/vs2022")
+        set(VORBIS_ARCH_INCLUDE "oggvorbis/include")
+    endif()
+
+    set(SDL2_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/SDL2-2.32.10/windows")
+    set(SDL2_INCLUDE_DIRS ${SDL2_PATH}/include)
+    set(SDL2_LIBRARIES 
+        ${SDL2_PATH}/${ARCH_TYPE}/SDL2main.lib 
+        ${SDL2_PATH}/${ARCH_TYPE}/SDL2-static.lib
+    )
+    set(SDL2_FOUND TRUE)
+
+    if(NOT EXISTS ${SDL2_PATH}/${ARCH_TYPE})
+        message(FATAL_ERROR "SDL2 library not found at: ${SDL2_PATH}/${ARCH_TYPE}")
+    endif()
     
     add_definitions(-D_WIN32 -DWIN32 -DTARGET_MSVC)
-    add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
+    add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS -DWINDOWS_SDL)
 
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_definitions(-DTOGGLE_SOUND)
@@ -260,14 +277,11 @@ elseif(MSVC)
     
     set(PLATFORM_SPECIFIC_FILES
         ${ROOT_PATH}/source/app/trayicon.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/input_win32.cpp
         ${SYSTEMIV_PATH}/lib/gucci/win32library.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/window_manager_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_winxp.cpp
-        ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_dsound.cpp
         ${SYSTEMIV_PATH}/contrib/unrar/isnt.cpp
         ${SYSTEMIV_PATH}/contrib/unrar/motw.cpp
         ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
@@ -281,9 +295,6 @@ elseif(MSVC)
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/input_sdl.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/window_manager_sdl.cpp
-        ${SYSTEMIV_PATH}/lib/sound/sound_library_2d_sdl.cpp
         ${ROOT_PATH}/source/app/macutil.cpp
         ${ROOT_PATH}/source/app/dockicon.mm
     )
@@ -352,12 +363,9 @@ elseif(APPLE)
         ${ROOT_PATH}/source/lib/spawn.cpp
         ${ROOT_PATH}/source/app/macutil.cpp
         ${ROOT_PATH}/source/app/dockicon.mm
-        ${SYSTEMIV_PATH}/lib/gucci/input_sdl.cpp
         ${SYSTEMIV_PATH}/contrib/binreloc/binreloc.c
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/window_manager_sdl.cpp
-        ${SYSTEMIV_PATH}/lib/sound/sound_library_2d_sdl.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
         ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
         ${MACOS_SPECIFIC_SOURCES}
@@ -371,14 +379,11 @@ elseif(APPLE)
     set(FILES_TO_EXCLUDE
         ${ROOT_PATH}/source/lib/debug_utils_linux.cpp
         ${ROOT_PATH}/source/app/trayicon.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/input_win32.cpp
         ${SYSTEMIV_PATH}/lib/gucci/win32library.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/window_manager_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_winxp.cpp
-        ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_dsound.cpp
         ${SYSTEMIV_PATH}/contrib/unrar/isnt.cpp
         ${SYSTEMIV_PATH}/contrib/unrar/motw.cpp
     )
@@ -445,9 +450,6 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/input_sdl.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/window_manager_sdl.cpp
-        ${SYSTEMIV_PATH}/lib/sound/sound_library_2d_sdl.cpp
         ${SYSTEMIV_PATH}/contrib/binreloc/binreloc.c
         ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
     )
@@ -456,14 +458,11 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     
     set(FILES_TO_EXCLUDE
         ${ROOT_PATH}/source/app/trayicon.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/input_win32.cpp
         ${SYSTEMIV_PATH}/lib/gucci/win32library.cpp
-        ${SYSTEMIV_PATH}/lib/gucci/window_manager_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_winxp.cpp
-        ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_dsound.cpp
         ${SYSTEMIV_PATH}/contrib/unrar/isnt.cpp
         ${SYSTEMIV_PATH}/contrib/unrar/motw.cpp
         ${ROOT_PATH}/source/app/macutil.cpp
@@ -621,7 +620,9 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/metaserver/matchmaker.cpp
     ${SYSTEMIV_PATH}/lib/metaserver/metaserver.cpp
     ${SYSTEMIV_PATH}/lib/gucci/input.cpp
+    ${SYSTEMIV_PATH}/lib/gucci/input_sdl.cpp
     ${SYSTEMIV_PATH}/lib/gucci/window_manager.cpp
+    ${SYSTEMIV_PATH}/lib/gucci/window_manager_sdl.cpp
     ${SYSTEMIV_PATH}/lib/netlib/net_lib.cpp
     ${SYSTEMIV_PATH}/lib/netlib/net_socket.cpp
     ${SYSTEMIV_PATH}/lib/netlib/net_socket_listener.cpp
@@ -655,6 +656,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/sound/sound_instance.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_library_2d.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_library_3d.cpp
+    ${SYSTEMIV_PATH}/lib/sound/sound_library_2d_sdl.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_library_3d_software.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_debug_overlay.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_parameter.cpp
@@ -830,15 +832,17 @@ elseif(MSVC)
     )
     
     target_include_directories(${EXECUTABLE_NAME} PRIVATE
-        ${ROOT_PATH}/contrib/systemIV/contrib/oggvorbis/include/
+        ${ROOT_PATH}/contrib/systemIV/contrib/${VORBIS_ARCH_INCLUDE}
+        ${SDL2_INCLUDE_DIRS}
         ${ROOT_PATH}/contrib/ambx1.1/inc
     )
     
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE 
-        "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis/lib/vs2022/ogg.lib"
-        "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis/lib/vs2022/vorbis.lib"
-        "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/oggvorbis/lib/vs2022/vorbisfile.lib"
-        wsock32 opengl32 glu32 dsound dxguid dbghelp winmm Ws2_32
+        ${SDL2_LIBRARIES}
+        "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/${VORBIS_ARCH_LIB}/ogg.lib"
+        "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/${VORBIS_ARCH_LIB}/vorbis.lib"
+        "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/${VORBIS_ARCH_LIB}/vorbisfile.lib"
+        wsock32 opengl32 glu32 dbghelp winmm Ws2_32 setupapi version imm32 cfgmgr32
     )
     
     if(OpenMP_CXX_FOUND)

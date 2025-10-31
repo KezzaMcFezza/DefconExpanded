@@ -52,7 +52,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
-    <ProjectGuid>{58515771-3484-43F9-9D1B-4F800F7F0436}</ProjectGuid>
+    <ProjectGuid>{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}</ProjectGuid>
     <RootNamespace>Defcon</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -258,9 +258,9 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;WINDOWS_SDL;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -274,16 +274,17 @@
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <BrowseInformationFile />
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>TARGET_MSVC;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;setupapi.lib;version.lib;imm32.lib;cfgmgr32.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib32/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib32/SDL2-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Debug\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -307,8 +308,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;WINDOWS_SDL;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -330,10 +331,10 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libogg/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;setupapi.lib;version.lib;imm32.lib;cfgmgr32.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Debug\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -358,9 +359,9 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;WINDOWS_SDL;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -376,16 +377,17 @@
       <BrowseInformationFile>
       </BrowseInformationFile>
       <UndefinePreprocessorDefinitions>TARGET_EMSCRIPTEN;</UndefinePreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>TARGET_MSVC;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libogg/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;setupapi.lib;version.lib;imm32.lib;cfgmgr32.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib32/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib32/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\DebugRecParse\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -409,8 +411,8 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;WINDOWS_SDL;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -433,10 +435,10 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libogg/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/debug/libvorbis/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;setupapi.lib;version.lib;imm32.lib;cfgmgr32.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\DebugRecParse\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
@@ -466,8 +468,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;WINDOWS_SDL;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -486,19 +488,20 @@
       <BrowseInformationFile />
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib32/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib32/SDL2-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
@@ -532,8 +535,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;WINDOWS_SDL;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -553,19 +556,20 @@
       </BrowseInformationFile>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib32/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib32/SDL2-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
@@ -600,8 +604,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;RECORDING_PARSING;ENDGAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;WINDOWS_SDL;RECORDING_PARSING;ENDGAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -621,19 +625,20 @@
       </BrowseInformationFile>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib32/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib32/SDL2-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Endgame\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
@@ -667,8 +672,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;WINDOWS_SDL;RECORDING_PARSING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -695,13 +700,13 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
@@ -734,8 +739,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;SYNC_PRACTICE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;WINDOWS_SDL;SYNC_PRACTICE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -762,13 +767,13 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Sync Practice\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
@@ -801,8 +806,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;RECORDING_PARSING;ENDGAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;WINDOWS_SDL;RECORDING_PARSING;ENDGAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -829,13 +834,12 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ShowProgress>NotSet</ShowProgress>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Release Endgame\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
@@ -869,8 +873,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;RECORDING_PARSING;REPLAY_VIEWER;RECORDING_PARSING;REPLAY_VIEWER_DESKTOP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;WINDOWS_SDL;REPLAY_VIEWER;RECORDING_PARSING;REPLAY_VIEWER_DESKTOP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -890,19 +894,19 @@
       </BrowseInformationFile>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ShowProgress>NotSet</ShowProgress>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib32/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib32/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Release Replay Viewer\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
@@ -936,8 +940,8 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;$(DXSDK_DIR)\Include;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;RECORDING_PARSING;REPLAY_VIEWER;REPLAY_VIEWER_DESKTOP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;WINDOWS_SDL;RECORDING_PARSING;REPLAY_VIEWER;REPLAY_VIEWER_DESKTOP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -964,13 +968,13 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dsound.lib;dxguid.lib;dbghelp.lib;Ws2_32.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Replay Viewer\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
@@ -987,21 +991,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\glad\desktop\src\glad.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Endgame|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Endgame|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Replay Viewer|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Replay Viewer|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Recording Parsing|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug Recording Parsing|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\glad\desktop\src\wgl_ext.c" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\glad\desktop\src\glad.c" />
     <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\abort.cc" />
     <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\aligned_allocator.cc" />
     <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\nanobenchmark.cc" />
@@ -1112,10 +1102,10 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\text_file_writer.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\text_stream_readers.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\input.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\input_win32.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\input_sdl.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\gucci\win32library.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\window_manager.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\window_manager_win32.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\window_manager_sdl.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\hi_res_time.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\language_table.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\math\fixed_64.cpp" />
@@ -1130,13 +1120,13 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\metaserver\metaserver.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\netlib\condition_win32.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\netlib\condition_winxp.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_lib.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_mutex_win32.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_socket.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_socket_listener.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_socket_session.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_thread_win32.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_udp_packet.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_lib.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_mutex_win32.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_socket.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_socket_listener.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_socket_session.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_thread_win32.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_udp_packet.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\netlib\thread_controller.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\preferences.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\profiler.cpp" />
@@ -1162,17 +1152,19 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\image.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\resource.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\resource\sprite_atlas.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\soundsystem.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\soundsystem_interface.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_blueprint_manager.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_filter.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_instance.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_library_2d.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_library_3d.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_library_3d_dsound.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_parameter.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_sample_bank.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_sample_decoder.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\soundsystem.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\soundsystem_interface.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_blueprint_manager.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_filter.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_instance.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_2d.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_2d_sdl.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_3d.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_3d_software.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_parameter.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_sample_bank.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_sample_decoder.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\string_utils.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\tosser\directory.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\unicode\unicode_string.cpp" />
@@ -1296,10 +1288,10 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\text_file_writer.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\text_stream_readers.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\input.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\input_win32.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\input_sdl.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\gucci\win32library.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\window_manager.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\window_manager_win32.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\window_manager_sdl.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\hi_res_time.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\language_table.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\math\fixed.h" />
@@ -1314,17 +1306,17 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\metaserver\matchmaker.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\metaserver\metaserver.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\metaserver\metaserver_defines.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\bytestream.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\bytestream.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\netlib\condition.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\netlib\condition_winxp.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_lib.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_lib_win32.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_mutex.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_socket.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_socket_listener.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_socket_session.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_thread.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_udp_packet.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_lib.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_lib_win32.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_mutex.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_socket.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_socket_listener.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_socket_session.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_thread.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_udp_packet.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\netlib\thread_controller.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\preferences.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\profiler.h" />
@@ -1337,18 +1329,20 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\image.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\resource.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\soundsystem.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\soundsystem_interface.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_blueprint_manager.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_filter.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_instance.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_library_2d.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_library_2d_mode.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_library_3d.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_library_3d_dsound.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_parameter.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_sample_bank.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_sample_decoder.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\soundsystem.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\soundsystem_interface.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_blueprint_manager.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_filter.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_instance.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_2d.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_2d_mode.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_2d_sdl.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_3d.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_3d_software.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_parameter.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_sample_bank.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_sample_decoder.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\string_utils.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\bounded_array.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\btree.h" />

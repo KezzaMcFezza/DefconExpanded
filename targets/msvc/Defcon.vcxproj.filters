@@ -201,16 +201,10 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\input.cpp">
       <Filter>lib\gucci</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\input_win32.cpp">
-      <Filter>lib\gucci</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\gucci\win32library.cpp">
       <Filter>lib\gucci</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\window_manager.cpp">
-      <Filter>lib\gucci</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\window_manager_win32.cpp">
       <Filter>lib\gucci</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\math\fixed_64.cpp">
@@ -286,9 +280,6 @@
       <Filter>lib\sound</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_library_3d.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_library_3d_dsound.cpp">
       <Filter>lib\sound</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_parameter.cpp">
@@ -582,9 +573,6 @@
     <ClCompile Include="..\..\contrib\systemIV\contrib\glad\desktop\src\glad.c">
       <Filter>contrib\glad</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\glad\desktop\src\wgl_ext.c">
-      <Filter>contrib\glad</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\abort.cc">
       <Filter>contrib\highway</Filter>
     </ClCompile>
@@ -783,8 +771,24 @@
     <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\volume.cpp">
       <Filter>contrib\unrar</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_2d_sdl.cpp">
+      <Filter>lib\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_3d_software.cpp">
+      <Filter>lib\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\window_manager_sdl.cpp">
+      <Filter>lib\gucci</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\input_sdl.cpp">
+      <Filter>lib\gucci</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\log.cpp">
       <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\win32library.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.cpp">
+      <Filter>lib\sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -893,16 +897,10 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\input.h">
       <Filter>lib\gucci</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\input_win32.h">
-      <Filter>lib\gucci</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\gucci\win32library.h">
       <Filter>lib\gucci</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\window_manager.h">
-      <Filter>lib\gucci</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\window_manager_win32.h">
       <Filter>lib\gucci</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\math\fixed.h">
@@ -1014,9 +1012,6 @@
       <Filter>lib\sound</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_library_3d.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_library_3d_dsound.h">
       <Filter>lib\sound</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_parameter.h">
@@ -1287,6 +1282,22 @@
     </ClInclude>
     <ClInclude Include="..\..\source\interface\recording_file_dialog.h">
       <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_2d_sdl.h">
+      <Filter>lib\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_3d_software.h">
+      <Filter>lib\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\window_manager_sdl.h">
+      <Filter>lib\gucci</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\input_sdl.h">
+      <Filter>lib\gucci</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\win32library.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.h">
+      <Filter>lib\sound</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
