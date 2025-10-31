@@ -2,6 +2,7 @@
 #include "lib/sound/sound_library_3d.h"
 #include "lib/sound/sound_sample_bank.h"
 #include "lib/sound/soundsystem.h"
+#include "lib/sound/resampler_polyphase.h"
 #include "lib/render2d/renderer.h"
 #include "lib/language_table.h"
 #include "lib/preferences.h"
@@ -26,9 +27,35 @@ public:
         g_preferences->SetInt( PREFS_SOUND_DSPEFFECTS, parent->m_dspEffects );
         g_preferences->SetInt( PREFS_SOUND_MEMORY, parent->m_memoryUsage );
         g_preferences->SetInt( PREFS_SOUND_MASTERVOLUME, parent->m_masterVolume );
+        g_preferences->SetInt( PREFS_SOUND_QUALITY, parent->m_soundQuality );
 #ifdef WINDOWS_SDL
         g_preferences->SetInt( PREFS_SOUND_AUDIODRIVER, parent->m_audioDriver );
 #endif
+        
+        //
+        // Apply sound quality setting
+        
+        switch (parent->m_soundQuality)
+        {
+            case 0:
+                g_preferences->SetString(PREFS_SOUND_RESAMPLER_SFX, "linear");
+                g_preferences->SetString(PREFS_SOUND_RESAMPLER_MUSIC, "linear");
+                SoundResampler::SetSfxQuality(SoundResampler::Quality::Linear);
+                SoundResampler::SetMusicQuality(SoundResampler::Quality::Linear);
+                break;
+            case 1:
+                g_preferences->SetString(PREFS_SOUND_RESAMPLER_SFX, "sinc64");
+                g_preferences->SetString(PREFS_SOUND_RESAMPLER_MUSIC, "sinc64");
+                SoundResampler::SetSfxQuality(SoundResampler::Quality::Sinc64);
+                SoundResampler::SetMusicQuality(SoundResampler::Quality::Sinc64);
+                break;
+            case 2:
+                g_preferences->SetString(PREFS_SOUND_RESAMPLER_SFX, "sinc128");
+                g_preferences->SetString(PREFS_SOUND_RESAMPLER_MUSIC, "sinc128");
+                SoundResampler::SetSfxQuality(SoundResampler::Quality::Sinc128);
+                SoundResampler::SetMusicQuality(SoundResampler::Quality::Sinc128);
+                break;
+        }
         
         g_soundSystem->RestartSoundLibrary();
 
@@ -74,9 +101,9 @@ SoundOptionsWindow::SoundOptionsWindow()
 :   InterfaceWindow( "Sound", "dialog_soundoptions", true )
 {
 #ifdef WINDOWS_SDL
-    SetSize( 390, 240 );
+    SetSize( 390, 270 );
 #else
-    SetSize( 390, 210 );
+    SetSize( 390, 240 );
 #endif
 
     m_mixFreq       = 44100;
@@ -85,6 +112,7 @@ SoundOptionsWindow::SoundOptionsWindow()
     m_dspEffects    = g_preferences->GetInt( PREFS_SOUND_DSPEFFECTS, 1 );
     m_memoryUsage   = g_preferences->GetInt( PREFS_SOUND_MEMORY, 1 );
     m_masterVolume  = g_preferences->GetInt( PREFS_SOUND_MASTERVOLUME, 255 );
+    m_soundQuality = g_preferences->GetInt( PREFS_SOUND_QUALITY, 0 ); 
 #ifdef WINDOWS_SDL
     m_audioDriver   = g_preferences->GetInt( PREFS_SOUND_AUDIODRIVER, 0 );
 #endif
@@ -128,6 +156,14 @@ void SoundOptionsWindow::Create()
     swapStereo->RegisterInt( &m_swapStereo );
     RegisterButton( swapStereo );
 
+    DropDownMenu *soundQuality = new DropDownMenu();
+    soundQuality->SetProperties( "Sound Quality", x, y+=h, w, 20, "dialog_soundquality", " ", true, false );
+    soundQuality->AddOption( "dialog_soundquality_normal", 0, true );
+    soundQuality->AddOption( "dialog_soundquality_high", 1, true );
+    soundQuality->AddOption( "dialog_soundquality_veryhigh", 2, true );
+    soundQuality->RegisterInt( &m_soundQuality );
+    RegisterButton( soundQuality );
+
 #ifdef SOUNDOPTIONSWINDOW_USEDSPEFFECTS
     DropDownMenu *dspEffects = new DropDownMenu();
     dspEffects->SetProperties( "Realtime Effects", x, y+=h, w, 20, "dialog_realtimeeffects", " ", true, false );
@@ -163,6 +199,7 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_audiodriver") );
 #endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_swapstereo") );
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundquality") );
 
 #ifdef SOUNDOPTIONSWINDOW_USEDSPEFFECTS
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_realtimeeffects") );

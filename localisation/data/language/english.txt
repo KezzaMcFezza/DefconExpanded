@@ -156,6 +156,10 @@ dialog_4096samples                  4096 Samples
 dialog_8192samples                  8192 Samples
 dialog_memoryusage                  Memory Usage
 dialog_swapstereo                   Swap Stereo
+dialog_soundquality                 Sound Quality
+dialog_soundquality_normal          Normal
+dialog_soundquality_high            High
+dialog_soundquality_veryhigh        Very High
 dialog_hw3dsound                    Hardware3d Sound
 dialog_realtimeeffects              Realtime Effects
 dialog_mastervolume                 Master Volume
