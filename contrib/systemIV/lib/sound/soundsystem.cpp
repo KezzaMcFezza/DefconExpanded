@@ -200,6 +200,18 @@ void SoundSystem::RestartSoundLibrary()
     }
 
     g_soundLibrary3d->SetMainCallback(&SoundLibraryMainCallback);
+
+    // Now that 3D mixer is ready, start the 2D backend playback/feeder
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+    if (g_soundLibrary2d)
+    {
+        SoundLibrary2dSDL *sdl2d = dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d);
+        if (sdl2d && !sdl2d->Started())
+        {
+            sdl2d->Start();
+        }
+    }
+#endif
 }
 
 

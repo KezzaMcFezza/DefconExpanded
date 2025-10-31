@@ -189,6 +189,13 @@ public:
     inline unsigned GetDeviceQueueLowMs() const { return m_deviceQueueLowMs; }
     inline unsigned GetDeviceQueueHighMs() const { return m_deviceQueueHighMs; }
 
+    // Explicit start control to allow 3D mixer to fully initialise first
+    void            Start();
+    inline bool     Started() const { return m_started; }
+
+private:
+    bool            m_started = false;
+
 };
 
 

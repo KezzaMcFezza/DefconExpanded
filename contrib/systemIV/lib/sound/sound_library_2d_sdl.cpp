@@ -475,35 +475,7 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	
 	m_samplesPerBuffer = s_audioSpec.samples;
 	
-    //
-    // Start audio device
-
-    if (g_preferences->GetInt("Sound", 1)) {
-        SDL_PauseAudioDevice(s_audioDevice, 0);
-    }
-
-    //
-    // Start feeder thread if in push mode
-
-    if (m_usePushMode) {
-        m_feederMutex = SDL_CreateMutex();
-        m_feederRun = 1;
-        m_feederThread = SDL_CreateThread(FeederThreadEntry, "SDLFeeder", this);
-
-        if (!m_feederThread) {
-#ifdef TOGGLE_SOUND_TESTBED	
-            AppDebugOut("Failed to create SDL feeder thread: %s\n", SDL_GetError());
-#endif
-            m_feederRun = 0;
-        }
-        // Note: Thread priority is boosted from within FeederLoop()
-    } else {
-
-        //
-        // In callback mode, ensure callback is set
-
-        desired.callback = sdlAudioCallback;
-    }
+    // Defer starting playback/threads until Start() is called after 3D init
 }
 
 unsigned SoundLibrary2dSDL::GetSamplesPerBuffer()
@@ -544,6 +516,36 @@ bool SoundLibrary2dSDL::IsAudioStarted() const
 bool SoundLibrary2dSDL::HasCallback() const
 {
 	return m_callback != NULL;
+}
+
+void SoundLibrary2dSDL::Start()
+{
+    if (m_started) return;
+
+    // Start audio device if sound is enabled
+    if (s_audioDevice && g_preferences->GetInt("Sound", 1))
+    {
+        SDL_PauseAudioDevice(s_audioDevice, 0);
+    }
+
+    // Start feeder in push mode
+    if (m_usePushMode)
+    {
+        m_feederMutex = SDL_CreateMutex();
+        m_feederRun = 1;
+        m_feederThread = SDL_CreateThread(FeederThreadEntry, "SDLFeeder", this);
+
+        if (!m_feederThread)
+        {
+#ifdef TOGGLE_SOUND_TESTBED
+            AppDebugOut("Failed to create SDL feeder thread: %s\n", SDL_GetError());
+#endif
+            m_feederRun = 0;
+        }
+        // Note: Thread priority is boosted from within FeederLoop()
+    }
+
+    m_started = true;
 }
 
 bool SoundLibrary2dSDL::IsRecording() const
