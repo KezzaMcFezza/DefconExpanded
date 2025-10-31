@@ -143,7 +143,7 @@ SoundInstance::SoundInstance()
     m_resampleCursor(0.0),
     m_resampleStep(1.0),
     m_scheduledStartFrames(0),
-    m_stateLock(ATOMIC_FLAG_INIT)
+    m_stateLock()
 {
     SetSoundName( "[???]" );
 

@@ -12,6 +12,7 @@ class SoundSampleDecoder;
 class DspEffect;
 class DspHandle;
 class SoundSampleHandle;
+class SoundSystem;
 
 
 

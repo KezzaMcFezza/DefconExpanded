@@ -787,10 +787,6 @@ int SoundLibrary2dSDL::FeederLoop()
     // Boost this thread's priority for real-time audio performance
     SetAudioThreadPriority();
     
-    // Visible confirmation that feeder thread started
-    printf("SDL Audio Feeder Thread Started (Thread ID: %lu)\n", (unsigned long)pthread_self());
-    fflush(stdout);
-    
     //
     // Maintain device queue short; ring horizon deep
 

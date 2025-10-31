@@ -790,6 +790,9 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.cpp">
       <Filter>lib\sound</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.cpp">
+      <Filter>lib\sound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">
@@ -1297,6 +1300,9 @@
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\gucci\win32library.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.h">
+      <Filter>lib\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.h">
       <Filter>lib\sound</Filter>
     </ClInclude>
   </ItemGroup>

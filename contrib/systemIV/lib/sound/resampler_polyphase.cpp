@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <mutex>
 
+#include "lib/math/math_utils.h"
 #include "lib/debug_utils.h"
 #include "lib/hi_res_time.h"
 #include "lib/preferences.h"
@@ -244,8 +245,8 @@ namespace SoundResampler
             g_state.preferencesInitialised = true;
         }
 
-        const char *sfxPref = prefs->GetString(PREFS_SOUND_RESAMPLER_SFX, "sinc64");
-        const char *musicPref = prefs->GetString(PREFS_SOUND_RESAMPLER_MUSIC, "sinc128");
+        const char *sfxPref = g_preferences->GetString(PREFS_SOUND_RESAMPLER_SFX, "sinc64");
+        const char *musicPref = g_preferences->GetString(PREFS_SOUND_RESAMPLER_MUSIC, "sinc128");
 
         g_state.sfxQuality = QualityFromString(sfxPref, Quality::Sinc64);
         g_state.musicQuality = QualityFromString(musicPref, Quality::Sinc128);

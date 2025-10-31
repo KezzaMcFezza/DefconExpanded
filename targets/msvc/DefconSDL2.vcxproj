@@ -1152,6 +1152,7 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\image.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\resource.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\resource\sprite_atlas.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\soundsystem.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\soundsystem_interface.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_blueprint_manager.cpp" />
@@ -1329,6 +1330,7 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\image.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\resource.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\soundsystem.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\soundsystem_interface.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_blueprint_manager.h" />
