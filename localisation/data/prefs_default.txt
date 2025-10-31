@@ -15,17 +15,17 @@ SoundSwapStereo = 0
 SoundMemoryUsage = 1
 SoundBufferSize = 512
 SoundDSP = 0
-SoundResamplerSfx = linear
-SoundResamplerMusic = linear
+SoundResamplerSfx = sinc64
+SoundResamplerMusic = sinc128
 
 # SDL push/queue audio mode defaults
-# Ultra-safe CPU profile (see docs/sdl_push_mode_guide.md)
+# Small CPU, Balanced profile (see docs/sdl_push_mode_guide.md)
 SoundUsePushMode = 1
 SoundPeriodFrames = 128
-SoundTargetLatencyMs = 180
-SoundDeviceQueueLowMs = 100
-SoundDeviceQueueHighMs = 150
-SoundRingMs = 150
+SoundTargetLatencyMs = 95
+SoundDeviceQueueLowMs = 45
+SoundDeviceQueueHighMs = 70
+SoundRingMs = 80
 SoundTimedScheduling = 1
 SoundAudioClockedADSR = 1
 
