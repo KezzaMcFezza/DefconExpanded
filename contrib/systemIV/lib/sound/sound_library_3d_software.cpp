@@ -142,13 +142,7 @@ SoundLibrary3dSoftware::SoundLibrary3dSoftware()
 	
 	EnableCallback(true);
 
-#ifdef TARGET_EMSCRIPTEN
-	// main fix!
-	unsigned int baseSize = g_soundLibrary2d->GetSamplesPerBuffer();
-	m_allocatedSamples = baseSize * 4; // lets allocate 4x more samples than we need for safety
-#else
 	m_allocatedSamples = g_soundLibrary2d->GetSamplesPerBuffer();
-#endif
 
     m_left = new float[m_allocatedSamples];
     m_right = new float[m_allocatedSamples];
@@ -472,13 +466,7 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
         return;
     }
 
-#ifdef TARGET_EMSCRIPTEN
-	static unsigned int channelFreqs[128];
-	for (int i = 0; i < m_numChannels && i < 128; ++i)
-	{
-		channelFreqs[i] = m_channels[i].m_freq;
-	}
-#endif
+    // No Emscripten frequency snapshot needed in float push/pull pipeline
 
     unsigned actualRate = g_soundLibrary2d ? g_soundLibrary2d->GetFreq() : 44100;
     if (g_soundLibrary2d) {
@@ -493,15 +481,7 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
 	GetChannelData(duration, _numSamples);
 	ApplyDspFX(duration, _numSamples);
 
-#ifdef TARGET_EMSCRIPTEN
-	for (int i = 0; i < m_numChannels && i < 128; ++i)
-	{
-		if (m_channels[i].m_freq != channelFreqs[i])
-		{
-			m_channels[i].m_freq = channelFreqs[i];
-		}
-	}
-#endif
+    // No Emscripten frequency restore needed
 
 	if (_numSamples > m_allocatedSamples)
 	{
@@ -519,12 +499,6 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
 
 	for (int i = 0; i < m_numChannels; ++i)
 	{
-#ifdef TARGET_EMSCRIPTEN
-		if (m_channels[i].m_freq != channelFreqs[i])
-		{
-			m_channels[i].m_freq = channelFreqs[i];
-		}
-#endif
 		
         float volLeft, volRight;
         CalcChannelVolumes(i, &volLeft, &volRight);
@@ -550,7 +524,10 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
             }
             else
             {
-                if (fabsf(deltaVolLeft) < maxDelta && fabsf(deltaVolRight) < maxDelta)
+                if (fabsf(deltaVolLeft) < maxDelta &&
+                    fabsf(deltaVolRight) < maxDelta &&
+                    fabsf(volLeft  - m_channels[i].m_oldVolLeft)  < maxDelta &&
+                    fabsf(volRight - m_channels[i].m_oldVolRight) < maxDelta)
                 {
                     MixSameFreqFixedVol(inBuf, _numSamples, volLeft, volRight);
                 }
@@ -565,13 +542,6 @@ void SoundLibrary3dSoftware::RenderToInterleavedFloat(float *_outInterleaved, un
 
 		m_channels[i].m_oldVolLeft = volLeft;
 		m_channels[i].m_oldVolRight = volRight;
-		
-#ifdef TARGET_EMSCRIPTEN
-		if (m_channels[i].m_freq != channelFreqs[i])
-		{
-			m_channels[i].m_freq = channelFreqs[i];
-		}
-#endif
 	}
 
     // Output mapping to [-1,1] for SDL float
@@ -700,9 +670,35 @@ void SoundLibrary3dSoftware::SetListenerPosition( Vector3<float> const &_pos,
                                         Vector3<float> const &_vel )
 {   
 	m_listenerPos = _pos;
+	// Preserve handedness and ensure a stable, orthonormal basis for panning
+	// Normalize inputs defensively in case caller passes non-unit vectors
 	m_listenerFront = _front;
 	m_listenerUp = _up;
+
+	// Construct right = up x front; if degenerate, rebuild a safe basis
 	m_listenerRight = m_listenerUp ^ m_listenerFront;
+	float rightMag = m_listenerRight.Mag();
+	if (rightMag < 1e-5f)
+	{
+		// Front and up nearly colinear; choose an auxiliary up vector
+		Vector3<float> aux(0.0f, 1.0f, 0.0f);
+		// If aux ~ front, pick a different axis
+		if (fabsf(m_listenerFront.x) < 1e-3f && fabsf(m_listenerFront.z) < 1e-3f)
+		{
+			aux.Set(1.0f, 0.0f, 0.0f);
+		}
+		m_listenerRight = aux ^ m_listenerFront;
+	}
+
+	// Normalize the basis vectors
+	float invRight = m_listenerRight.Mag();
+	if (invRight > 1e-6f) m_listenerRight /= invRight;
+	float invFront = m_listenerFront.Mag();
+	if (invFront > 1e-6f) m_listenerFront /= invFront;
+	// Recompute 'up' to ensure orthonormality
+	m_listenerUp = m_listenerFront ^ m_listenerRight;
+	float invUp = m_listenerUp.Mag();
+	if (invUp > 1e-6f) m_listenerUp /= invUp;
 }
 
 

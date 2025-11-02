@@ -238,7 +238,7 @@ OBJECT Object_nuke
 		INSTANCETYPE       0
 		LOOPTYPE           0
 		MINDISTANCE        15.23
-		VOLUME             PARAMETER TypeFixedValue        9.00  UpdateConstantly
+		VOLUME             PARAMETER TypeFixedValue        6.00  UpdateConstantly
 	END
 	EVENT Detonate            
 		SOUNDNAME          fallout
@@ -247,7 +247,7 @@ OBJECT Object_nuke
 		INSTANCETYPE       0
 		LOOPTYPE           0
 		MINDISTANCE        5.05
-		VOLUME             PARAMETER TypeFixedValue       10.00  UpdateConstantly
+		VOLUME             PARAMETER TypeFixedValue       6.00  UpdateConstantly
 		FREQUENCY          PARAMETER TypeRangedRandom      0.67     0.99     0.67  UpdateOncePerLoop
 	END
 END

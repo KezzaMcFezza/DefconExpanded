@@ -302,7 +302,12 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	desired.samples = m_samplesPerBuffer;
 	desired.channels = 2;
 
+    // Select push/queue vs callback. On Emscripten, enforce callback mode for stability.
+#ifdef TARGET_EMSCRIPTEN
+    m_usePushMode = 0;
+#else
     m_usePushMode = g_preferences->GetInt("SoundUsePushMode", 1);
+#endif
     int periodPref = g_preferences->GetInt("SoundPeriodFrames", 128);
     m_targetLatencyMs = g_preferences->GetInt("SoundTargetLatencyMs", 180);
     m_ringMs = g_preferences->GetInt("SoundRingMs", 150);
@@ -343,11 +348,6 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
     SDL_AudioSpec obtainedSpec;
     SDL_AudioSpec *obtainedPtr = &obtainedSpec;
 
-#ifdef TARGET_EMSCRIPTEN
-	// Request exact parameters by disallowing automatic changes.
-	obtainedPtr = NULL;
-#endif
-
     //
 	// Set period based on mode: in push mode, request the preferred small period
 
@@ -363,11 +363,8 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	}
 
 
-#ifdef TARGET_EMSCRIPTEN
-	s_audioSpec = desired;
-#else
-	s_audioSpec = obtainedSpec;
-#endif
+    // Use the actual device spec for all platforms
+    s_audioSpec = obtainedSpec;
 
     // Enforce the float stereo contract expected by the mixer
     if (s_audioSpec.format != AUDIO_F32SYS || s_audioSpec.channels != 2)
