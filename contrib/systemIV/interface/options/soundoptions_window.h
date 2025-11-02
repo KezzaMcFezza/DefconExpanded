@@ -16,7 +16,8 @@ public:
 	int     m_dspEffects;
 	int     m_memoryUsage;
 	int     m_masterVolume;
-	int     m_soundQuality;
+	int     m_sfxQuality;
+	int     m_musicQuality;
 #ifdef WINDOWS_SDL
 	int     m_audioDriver;
 #endif
@@ -30,4 +31,3 @@ public:
 
 
 #endif
-

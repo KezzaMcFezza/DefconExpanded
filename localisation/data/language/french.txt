@@ -130,6 +130,8 @@ dialog_4096samples			4096 échantillons
 dialog_8192samples			8192 échantillons
 dialog_memoryusage			Utilisation m�moire
 dialog_swapstereo			St�r�o invers�e
+dialog_soundquality_sfx			Qualite des effets sonores
+dialog_soundquality_music			Qualite de la musique
 dialog_hw3dsound			Sons Hardware3d
 dialog_realtimeeffects			Effets en temps r�el
 dialog_mastervolume			Volume global

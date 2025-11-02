@@ -28,6 +28,7 @@ Implementation notes:
 - Three cutoff banks (0.90 / 0.70 / 0.50 Nyquist) cover down-sampling cases; the runtime picks the closest cutoff based on the current pitch ratio.
 - Preferences can be edited in `prefs_default.txt`, `prefs_testbed.txt`, or via the in-game config UI once exposed.
 - The Sound Debug Overlay (F3) lists the active SFX/Music resampler tier, taps/phases, current bank usage, and any voices that fell back to linear interpolation if using polyphase.
+- The in-game Sound Options menu exposes separate `Sound FX Quality` and `Music Quality` drop-downs. `Normal` selects `linear`, `High` selects `sinc64`, and `Very High` selects `sinc128`.
 
 ## SDL Push/Queue Mode Highlights
 

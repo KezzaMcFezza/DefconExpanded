@@ -130,6 +130,8 @@ dialog_4096samples			4096 campioni
 dialog_8192samples			8192 campioni
 dialog_memoryusage			Uso memoria
 dialog_swapstereo			Scambio stereo
+dialog_soundquality_sfx			Qualita effetti sonori
+dialog_soundquality_music			Qualita musica
 dialog_hw3dsound			Hardware3D sonoro
 dialog_realtimeeffects			Effetti realtime
 dialog_mastervolume			Volume master

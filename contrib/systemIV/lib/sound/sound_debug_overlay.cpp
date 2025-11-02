@@ -878,6 +878,30 @@ void SoundDebugOverlay::Render()
     g_renderer->TextSimple(baseXRight, rightY, sectionColour, 12.0f, "Software Resampler");
     rightY += line;
 
+    auto describeQuality = [&](SoundResampler::Quality quality, const char *label) {
+        const char *name = SoundResampler::QualityToString(quality);
+        if (quality == SoundResampler::Quality::Linear)
+        {
+            snprintf(buffer, sizeof(buffer), "%s resampler     : %s (linear interpolation)", label, name);
+        }
+        else
+        {
+            const SoundResampler::Kernel &kernel = SoundResampler::GetKernel(quality, 0);
+            snprintf(buffer, sizeof(buffer), "%s resampler     : %s (%u taps, %u phases)",
+                     label,
+                     name,
+                     kernel.taps,
+                     kernel.phases);
+        }
+        g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
+        rightY += line;
+    };
+
+    auto emitQualityLines = [&]() {
+        describeQuality(m_resampleSfxQuality, "SFX");
+        describeQuality(m_resampleMusicQuality, "Music");
+    };
+
     if (m_resampleInstanceCount > 0)
     {
         snprintf(buffer, sizeof(buffer), "Instances active    : %d  waiting loop %d  missing data %d",
@@ -901,27 +925,7 @@ void SoundDebugOverlay::Render()
         g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
         rightY += line;
 
-        auto describeQuality = [&](SoundResampler::Quality quality, const char *label) {
-            const char *name = SoundResampler::QualityToString(quality);
-            if (quality == SoundResampler::Quality::Linear)
-            {
-                snprintf(buffer, sizeof(buffer), "%s resampler     : %s (linear interpolation)", label, name);
-            }
-            else
-            {
-                const SoundResampler::Kernel &kernel = SoundResampler::GetKernel(quality, 0);
-                snprintf(buffer, sizeof(buffer), "%s resampler     : %s (%u taps, %u phases)",
-                         label,
-                         name,
-                         kernel.taps,
-                         kernel.phases);
-            }
-            g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
-            rightY += line;
-        };
-
-        describeQuality(m_resampleSfxQuality, "SFX");
-        describeQuality(m_resampleMusicQuality, "Music");
+        emitQualityLines();
 
         if (m_resampleLinearInstances > 0)
         {
@@ -967,6 +971,8 @@ void SoundDebugOverlay::Render()
                  m_resampleInvalidInstances);
         g_renderer->TextSimple(baseXRight, rightY, textColour, 11.0f, buffer);
         rightY += line;
+
+        emitQualityLines();
     }
 #else
     g_renderer->TextSimple(baseXRight, rightY, sectionColour, 12.0f, "Software Resampler");

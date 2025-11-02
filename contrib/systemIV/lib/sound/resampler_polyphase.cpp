@@ -54,8 +54,8 @@ namespace
         bool preferencesInitialised;
 
         ManagerState()
-        :   sfxQuality(Quality::Sinc64),
-            musicQuality(Quality::Sinc128),
+        :   sfxQuality(Quality::Linear),
+            musicQuality(Quality::Linear),
             preferencesInitialised(false)
         {
         }
@@ -286,11 +286,11 @@ namespace SoundResampler
             g_state.preferencesInitialised = true;
         }
 
-        const char *sfxPref = g_preferences->GetString(PREFS_SOUND_RESAMPLER_SFX, "sinc64");
-        const char *musicPref = g_preferences->GetString(PREFS_SOUND_RESAMPLER_MUSIC, "sinc128");
+        const char *sfxPref = g_preferences->GetString(PREFS_SOUND_RESAMPLER_SFX, "linear");
+        const char *musicPref = g_preferences->GetString(PREFS_SOUND_RESAMPLER_MUSIC, "linear");
 
-        g_state.sfxQuality = QualityFromString(sfxPref, Quality::Sinc64);
-        g_state.musicQuality = QualityFromString(musicPref, Quality::Sinc128);
+        g_state.sfxQuality = QualityFromString(sfxPref, Quality::Linear);
+        g_state.musicQuality = QualityFromString(musicPref, Quality::Linear);
     }
 
     void Initialise(const Preferences *prefs)
