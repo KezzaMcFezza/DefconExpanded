@@ -12,6 +12,7 @@
 
 #include "soundsystem.h"
 #include "sound_sample_decoder.h"
+#include <climits>
 #include "resampler_polyphase.h"
 
 
@@ -86,6 +87,21 @@ unsigned int SoundSampleDecoder::GetFrameCount() const
     return m_numSamples / m_numChannels;
 }
 
+
+// Defensive helper to validate a polyphase kernel before use
+static inline bool s_IsValidKernel(const SoundResampler::Kernel *k)
+{
+    if (!k) return false;
+    if (k->taps == 0 || k->phases == 0) return false;
+    // Guard against obviously corrupt values that would overflow/abort
+    const unsigned int kMaxTaps = 2048;      // well above our Sinc128 (128)
+    const unsigned int kMaxPhases = 8192;    // well above our typical 512
+    if (k->taps > kMaxTaps || k->phases > kMaxPhases) return false;
+
+    const size_t needed = (size_t)k->taps * (size_t)k->phases;
+    if (k->coeffs.size() < needed) return false;
+    return true;
+}
 
 void SoundSampleDecoder::GetFrame(double _frame, bool _stereo, SoundResampler::Quality _quality, double _ratio, float &_outLeft, float &_outRight)
 {
@@ -207,7 +223,8 @@ void SoundSampleDecoder::GetFrame(double _frame, bool _stereo, SoundResampler::Q
     SoundResampler::Selection selection = SoundResampler::SelectKernel(_quality, _ratio);
     const SoundResampler::Kernel *kernel = selection.kernel;
 
-    if (!kernel || kernel->coeffs.empty() || kernel->taps == 0 || kernel->phases == 0)
+    // Validate kernel thoroughly; fall back to linear if anything looks wrong
+    if (!s_IsValidKernel(kernel))
     {
         linearSample();
         return;
@@ -219,10 +236,21 @@ void SoundSampleDecoder::GetFrame(double _frame, bool _stereo, SoundResampler::Q
         phaseIndex = kernel->phases - 1;
     }
 
-    const float *coeffs = &kernel->coeffs[phaseIndex * kernel->taps];
+    // Re-check that the coefficient offset is in-range for safety
+    const size_t coeffOffset = (size_t)phaseIndex * (size_t)kernel->taps;
+    const size_t coeffEnd = coeffOffset + (size_t)kernel->taps;
+    if (coeffEnd > kernel->coeffs.size())
+    {
+        linearSample();
+        return;
+    }
+
+    const float *coeffs = &kernel->coeffs[coeffOffset];
     int centre = (int)(0.5 * (double)kernel->taps - 1.0);
     int firstFrame = (int)baseFrame - centre;
-    int lastFrame = firstFrame + (int)kernel->taps - 1;
+    // Use 64-bit for intermediate to avoid overflow on corrupted inputs
+    long long lastFrame64 = (long long)firstFrame + (long long)kernel->taps - 1;
+    int lastFrame = (lastFrame64 > INT_MAX) ? INT_MAX : (lastFrame64 < INT_MIN ? INT_MIN : (int)lastFrame64);
 
     int cacheStartFrame = firstFrame < 0 ? 0 : firstFrame;
     int cacheEndFrame = lastFrame + 1;
@@ -231,7 +259,10 @@ void SoundSampleDecoder::GetFrame(double _frame, bool _stereo, SoundResampler::Q
 
     if (cacheEndFrame > cacheStartFrame)
     {
-        unsigned int ensureEnd = (unsigned int)cacheEndFrame * samplesPerFrame;
+        // Compute ensureEnd using 64-bit, clamp to m_numSamples
+        unsigned long long ensureEnd64 = (unsigned long long)(unsigned int)cacheEndFrame * (unsigned long long)samplesPerFrame;
+        if (ensureEnd64 > (unsigned long long)m_numSamples) ensureEnd64 = (unsigned long long)m_numSamples;
+        unsigned int ensureEnd = (unsigned int)ensureEnd64;
         if (ensureEnd > m_numSamples) ensureEnd = m_numSamples;
         EnsureCached(ensureEnd);
     }

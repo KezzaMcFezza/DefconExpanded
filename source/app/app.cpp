@@ -1284,6 +1284,18 @@ void App::Shutdown()
     AppPrintMemoryLeaks( "memoryleaks.txt" );
 #endif
 
+#ifdef TOGGLE_SOUND
+    // Ensure the sound system and audio threads are fully torn down
+    // before we begin process exit and SDL video shutdown. This avoids
+    // races/use-after-free in the audio feeder against static teardown
+    // of resampler resources during exit().
+    if (g_soundSystem)
+    {
+        delete g_soundSystem;
+        g_soundSystem = NULL;
+    }
+#endif
+
     delete m_netLib;
     m_netLib = NULL;
 
