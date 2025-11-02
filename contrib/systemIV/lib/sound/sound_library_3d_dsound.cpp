@@ -607,8 +607,8 @@ void SoundLibrary3dDirectSound::SetChannelVolume( int _channel, float _volume )
 		channel->m_volume = _volume;
 
         float calculatedVolume = -(5.0f - _volume * 0.5f);
-        calculatedVolume *= 1000.0f;
-        calculatedVolume += m_masterVolume;
+        calculatedVolume *= 1000.0f;                 // centi-dB
+        calculatedVolume += m_masterVolume;          // apply master (centi-dB)
 
 		if( calculatedVolume < -10000.0f ) calculatedVolume = -10000.0f;
 		if( calculatedVolume > 0.0f ) calculatedVolume = 0.0f;

@@ -27,11 +27,15 @@
 #define PREFS_SOUND_DSPEFFECTS      "SoundDSP"
 #define PREFS_SOUND_MEMORY          "SoundMemoryUsage"
 #define PREFS_SOUND_MASTERVOLUME    "SoundMasterVolume"
+#define PREFS_SOUND_UPDATEPERIOD    "SoundUpdatePeriod"
+#define PREFS_SOUND_QUALITY         "SoundQuality"
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
 #define PREFS_SOUND_AUDIODRIVER     "SoundAudioDriver"
 #define PREFS_SOUND_BUFFERSIZE      "SoundBufferSize"
 #endif
 #define PREFS_RECORDING_LAST_FOLDER "RecordingLastFolder"
+#define PREFS_SOUND_RESAMPLER_SFX   "SoundResamplerSfx"
+#define PREFS_SOUND_RESAMPLER_MUSIC "SoundResamplerMusic"
 
 
 class PreferencesItem;

@@ -11,6 +11,8 @@
 // If the file contains 8 bit data it gets converted into 16 bit data. It 
 // assumes that 8 bit wav files are unsigned and that 16 bit wav files are signed.
 
+#include "resampler_polyphase.h"
+
 
 class BinaryReader;
 struct OggVorbis_File;
@@ -46,7 +48,8 @@ public:
 	unsigned int	m_freq;
 	unsigned int	m_numSamples;
 	
-    signed short	*m_sampleCache;             // Cache of all data read
+    signed short	*m_sampleCache;             // Cache of all data read (PCM in int16 units)
+    float       *m_sampleCacheFloat;        // Optional float cache (PCM units, i.e. +/-32768 range)
 	unsigned int	m_amountCached;				// Zero at first, ranging up to m_numSamples once sample has been read fully
 	
 public:
@@ -60,7 +63,7 @@ public:
               unsigned int _numSamples, bool _stereo, float _relFreq);
 
     unsigned int GetFrameCount() const;
-    void         GetFrame(double _frame, bool _stereo, float &_outLeft, float &_outRight);
+    void         GetFrame(double _frame, bool _stereo, SoundResampler::Quality _quality, double _ratio, float &_outLeft, float &_outRight);
 };
 
 

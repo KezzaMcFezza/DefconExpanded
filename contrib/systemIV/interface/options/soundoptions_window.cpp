@@ -2,6 +2,7 @@
 #include "lib/sound/sound_library_3d.h"
 #include "lib/sound/sound_sample_bank.h"
 #include "lib/sound/soundsystem.h"
+#include "lib/sound/resampler_polyphase.h"
 #include "lib/render2d/renderer.h"
 #include "lib/language_table.h"
 #include "lib/preferences.h"
@@ -11,6 +12,44 @@
 #include "interface/components/inputfield.h"
 
 #include "soundoptions_window.h"
+
+namespace
+{
+    using SoundResampler::Quality;
+
+    const char *SelectionToString(int selection)
+    {
+        switch (selection)
+        {
+            case 1: return "sinc64";
+            case 2: return "sinc128";
+            default: return "linear";
+        }
+    }
+
+    Quality SelectionToQuality(int selection)
+    {
+        switch (selection)
+        {
+            case 1: return Quality::Sinc64;
+            case 2: return Quality::Sinc128;
+            default: return Quality::Linear;
+        }
+    }
+
+    int QualityToSelection(Quality quality)
+    {
+        switch (quality)
+        {
+            case Quality::Sinc64:  return 1;
+            case Quality::Sinc128: return 2;
+            case Quality::Sinc96:  return 1;
+            case Quality::Linear:
+            default:
+                return 0;
+        }
+    }
+}
 
 class RestartSoundButton : public InterfaceButton
 {
@@ -26,9 +65,20 @@ public:
         g_preferences->SetInt( PREFS_SOUND_DSPEFFECTS, parent->m_dspEffects );
         g_preferences->SetInt( PREFS_SOUND_MEMORY, parent->m_memoryUsage );
         g_preferences->SetInt( PREFS_SOUND_MASTERVOLUME, parent->m_masterVolume );
+        g_preferences->SetInt( PREFS_SOUND_CHANNELS, parent->m_channelCount );
+        int targetMusicChannels = (parent->m_channelCount >= 128) ? 12 : 8;
+        g_preferences->SetInt( "SoundMusicChannels", targetMusicChannels );
 #ifdef WINDOWS_SDL
         g_preferences->SetInt( PREFS_SOUND_AUDIODRIVER, parent->m_audioDriver );
 #endif
+        
+        //
+        // Apply sound quality setting
+
+        g_preferences->SetString(PREFS_SOUND_RESAMPLER_SFX, SelectionToString(parent->m_sfxQuality));
+        g_preferences->SetString(PREFS_SOUND_RESAMPLER_MUSIC, SelectionToString(parent->m_musicQuality));
+        SoundResampler::SetSfxQuality(SelectionToQuality(parent->m_sfxQuality));
+        SoundResampler::SetMusicQuality(SelectionToQuality(parent->m_musicQuality));
         
         g_soundSystem->RestartSoundLibrary();
 
@@ -74,9 +124,9 @@ SoundOptionsWindow::SoundOptionsWindow()
 :   InterfaceWindow( "Sound", "dialog_soundoptions", true )
 {
 #ifdef WINDOWS_SDL
-    SetSize( 390, 240 );
+    SetSize( 390, 330 );
 #else
-    SetSize( 390, 210 );
+    SetSize( 390, 300 );
 #endif
 
     m_mixFreq       = 44100;
@@ -85,6 +135,36 @@ SoundOptionsWindow::SoundOptionsWindow()
     m_dspEffects    = g_preferences->GetInt( PREFS_SOUND_DSPEFFECTS, 1 );
     m_memoryUsage   = g_preferences->GetInt( PREFS_SOUND_MEMORY, 1 );
     m_masterVolume  = g_preferences->GetInt( PREFS_SOUND_MASTERVOLUME, 255 );
+    int prefChannels = g_preferences->GetInt( PREFS_SOUND_CHANNELS, 128 );
+    m_channelCount = (prefChannels <= 64) ? 64 : 128;
+
+    SoundResampler::Quality sfxQuality = SoundResampler::Quality::Linear;
+    SoundResampler::Quality musicQuality = SoundResampler::Quality::Linear;
+
+    if (g_preferences->DoesKeyExist(PREFS_SOUND_RESAMPLER_SFX))
+    {
+        const char *pref = g_preferences->GetString(PREFS_SOUND_RESAMPLER_SFX, "linear");
+        sfxQuality = SoundResampler::QualityFromString(pref, SoundResampler::Quality::Linear);
+    }
+    else if (g_preferences->DoesKeyExist(PREFS_SOUND_QUALITY))
+    {
+        int legacy = g_preferences->GetInt(PREFS_SOUND_QUALITY, 0);
+        sfxQuality = SelectionToQuality(legacy);
+    }
+
+    if (g_preferences->DoesKeyExist(PREFS_SOUND_RESAMPLER_MUSIC))
+    {
+        const char *pref = g_preferences->GetString(PREFS_SOUND_RESAMPLER_MUSIC, "linear");
+        musicQuality = SoundResampler::QualityFromString(pref, SoundResampler::Quality::Linear);
+    }
+    else if (g_preferences->DoesKeyExist(PREFS_SOUND_QUALITY))
+    {
+        int legacy = g_preferences->GetInt(PREFS_SOUND_QUALITY, 0);
+        musicQuality = SelectionToQuality(legacy);
+    }
+
+    m_sfxQuality = QualityToSelection(sfxQuality);
+    m_musicQuality = QualityToSelection(musicQuality);
 #ifdef WINDOWS_SDL
     m_audioDriver   = g_preferences->GetInt( PREFS_SOUND_AUDIODRIVER, 0 );
 #endif
@@ -128,6 +208,29 @@ void SoundOptionsWindow::Create()
     swapStereo->RegisterInt( &m_swapStereo );
     RegisterButton( swapStereo );
 
+    DropDownMenu *channelCount = new DropDownMenu();
+    channelCount->SetProperties( "Sound Channels", x, y+=h, w, 20, "dialog_numchannels", " ", true, false );
+    channelCount->AddOption( "64 Channels", 64, false );
+    channelCount->AddOption( "128 Channels", 128, false );
+    channelCount->RegisterInt( &m_channelCount );
+    RegisterButton( channelCount );
+
+    DropDownMenu *sfxQuality = new DropDownMenu();
+    sfxQuality->SetProperties( "Sound FX Quality", x, y+=h, w, 20, "dialog_soundquality_sfx", " ", true, false );
+    sfxQuality->AddOption( "dialog_soundquality_normal", 0, true );
+    sfxQuality->AddOption( "dialog_soundquality_high", 1, true );
+    sfxQuality->AddOption( "dialog_soundquality_veryhigh", 2, true );
+    sfxQuality->RegisterInt( &m_sfxQuality );
+    RegisterButton( sfxQuality );
+
+    DropDownMenu *musicQuality = new DropDownMenu();
+    musicQuality->SetProperties( "Music Quality", x, y+=h, w, 20, "dialog_soundquality_music", " ", true, false );
+    musicQuality->AddOption( "dialog_soundquality_normal", 0, true );
+    musicQuality->AddOption( "dialog_soundquality_high", 1, true );
+    musicQuality->AddOption( "dialog_soundquality_veryhigh", 2, true );
+    musicQuality->RegisterInt( &m_musicQuality );
+    RegisterButton( musicQuality );
+
 #ifdef SOUNDOPTIONSWINDOW_USEDSPEFFECTS
     DropDownMenu *dspEffects = new DropDownMenu();
     dspEffects->SetProperties( "Realtime Effects", x, y+=h, w, 20, "dialog_realtimeeffects", " ", true, false );
@@ -163,6 +266,9 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_audiodriver") );
 #endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_swapstereo") );
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_numchannels") );
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundquality_sfx") );
+    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundquality_music") );
 
 #ifdef SOUNDOPTIONSWINDOW_USEDSPEFFECTS
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_realtimeeffects") );

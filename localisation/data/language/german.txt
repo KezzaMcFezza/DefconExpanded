@@ -130,6 +130,8 @@ dialog_4096samples			4096 Samples
 dialog_8192samples			8192 Samples
 dialog_memoryusage			Speicherverbrauch
 dialog_swapstereo			Stereo tauschen
+dialog_soundquality_sfx			Soundeffekt-Qualit�t
+dialog_soundquality_music			Musikqualit�t
 dialog_hw3dsound			Hardware 3D-Sound
 dialog_realtimeeffects			Echtzeiteffekte
 dialog_mastervolume			Master-Lautst�rke

@@ -68,7 +68,7 @@ unsigned int SoundSampleHandle::GetFrameCount() const
 }
 
 
-void SoundSampleHandle::GetFrame(double _frame, bool _stereo, float &_outLeft, float &_outRight)
+void SoundSampleHandle::GetFrame(double _frame, bool _stereo, SoundResampler::Quality _quality, double _ratio, float &_outLeft, float &_outRight)
 {
     if (!m_soundSample)
     {
@@ -77,7 +77,7 @@ void SoundSampleHandle::GetFrame(double _frame, bool _stereo, float &_outLeft, f
         return;
     }
 
-    m_soundSample->GetFrame(_frame, _stereo, _outLeft, _outRight);
+    m_soundSample->GetFrame(_frame, _stereo, _quality, _ratio, _outLeft, _outRight);
 }
 
 
@@ -169,8 +169,13 @@ int SoundSampleBank::GetMemoryUsage()
         if( m_cache.ValidIndex(i) )
         {
             SoundSampleDecoder *sample = m_cache.GetData(i);
-            int sampleSize = sizeof(signed short) * sample->m_numChannels * sample->m_numSamples;
-            memoryUsage += sampleSize;           
+            int sampleSizeShort = sizeof(signed short) * sample->m_numChannels * sample->m_numSamples;
+            memoryUsage += sampleSizeShort;
+            if (sample->m_sampleCacheFloat)
+            {
+                int sampleSizeFloat = sizeof(float) * sample->m_numChannels * sample->m_numSamples;
+                memoryUsage += sampleSizeFloat;
+            }
         }
     }
 

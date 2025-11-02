@@ -130,6 +130,8 @@ dialog_4096samples			4096 muestras
 dialog_8192samples			8192 muestras
 dialog_memoryusage			Uso de Memoria
 dialog_swapstereo			Intercambiar en Est�reo
+dialog_soundquality_sfx			Calidad de efectos de sonido
+dialog_soundquality_music			Calidad de musica
 dialog_hw3dsound			Sonido Hardware3d
 dialog_realtimeeffects			Efectos en Tiempo Real
 dialog_mastervolume			Volumen General

@@ -21,6 +21,8 @@ protected:
 	float					*m_right;						
 	unsigned int			m_allocatedSamples;				// Actual allocated buffer size
 
+    float                  *m_interleaved;                 // Scratch interleaved output (L,R)
+
 	Vector3<float>			m_listenerFront;
 	Vector3<float>			m_listenerUp;
 	Vector3<float>			m_listenerRight;
@@ -31,9 +33,9 @@ protected:
 	void GetChannelData		(float _duration, unsigned int _numSamples);
 	void ApplyDspFX			(float _duration, unsigned int _numSamples);
     
-    void MixStereo          (signed short *in, unsigned int numSamples, float volL, float volR);
-	void MixSameFreqFixedVol(signed short *in, unsigned int numSamples, float volL, float volR);
-	void MixSameFreqRampVol (signed short *in, unsigned int num, float volL1, float volR1, float volL2, float volR2);
+    void MixStereo          (float *in, unsigned int numSamples, float volL, float volR);
+	void MixSameFreqFixedVol(float *in, unsigned int numSamples, float volL, float volR);
+	void MixSameFreqRampVol (float *in, unsigned int num, float volL1, float volR1, float volL2, float volR2);
 	void CalcChannelVolumes	(int _channelIndex, float *_left, float *_right);
 
 public:
@@ -46,6 +48,7 @@ public:
 	void SetMasterVolume    ( int _volume );
 	void EnableCallback     (bool _enabled);
     void Callback			(StereoSample *_buf, unsigned int _numSamples); // Called from SoundLibrary2d
+    void RenderToInterleavedFloat(float *_outInterleaved, unsigned int _numSamples);
 
     bool Hardware3DSupport	();
     int  GetMaxChannels		();
@@ -71,7 +74,7 @@ public:
                              Vector3<float> const &_up, Vector3<float> const &_vel);
 
 	void StartRecordToFile	(char const *_filename);
-	void EndRecordToFile	();
+    void EndRecordToFile	();
 };
 
 

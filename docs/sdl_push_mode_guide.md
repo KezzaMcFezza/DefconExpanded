@@ -40,24 +40,38 @@ All preferences live in `localisation/data/prefs_default.txt` and can be overrid
 - `SoundUsePushMode` (default: `1`)
   - 1 = push/queue mode, 0 = SDL callback mode.
 
-- `SoundPeriodFrames` (default: `64`)
+- `SoundPeriodFrames` (default: `128`)
   - Render quantum (frames) per slice. Smaller = crisper response and envelope shape; higher CPU and queue ops.
 
-- `SoundTargetLatencyMs` (default: `40`)
-  - Target audible latency for scheduling new onsets. Used to compute the earliest start time relative to the current playback cursor. This does not force the device queue size; see device low/high below.
+- `SoundUpdatePeriod` (default: `0.02`)
+  - Interval between `SoundSystem::Advance` passes. Keep it longer than a single slice (e.g. ≥ 4–8 × `SoundPeriodFrames / sampleRate`) so the main thread can reshuffle channels before the queue dries up, while still staying comfortably below the overall latency target. Shorter periods reduce control latency but add main-thread work.
+
+- `SoundTargetLatencyMs` (default: `95`)
+  - Target audible latency for scheduling new onsets. Used to compute the earliest start time relative to the current playback cursor. This does not force the device queue size; see device low/high below. The shipping default pairs with the balanced queue profile to cushion moderate CPU spikes without heavy latency.
 
 
-- `SoundDeviceQueueLowMs` / `SoundDeviceQueueHighMs` (defaults: `15` / `30`)
-  - Device queue refill bounds used in push mode. Keep these small to get fast audible reaction. The feeder tops up to High when the queue drops below Low.
+- `SoundDeviceQueueLowMs` / `SoundDeviceQueueHighMs` (defaults: `45` / `70`)
+  - Device queue refill bounds used in push mode. The defaults favour a balanced trade-off between underrun headroom and latency on modest CPUs; raise them if you encounter underruns or lower them to chase faster reaction. The feeder tops up to High when the queue drops below Low.
 
-- `SoundRingMs` (default: `30`)
-  - Software ring buffer horizon to keep pre‑mixed ahead of `copyIndex`. This is your underrun safety margin that can still be rewritten until copied to the device.
+- `SoundRingMs` (default: `80`)
+  - Software ring buffer horizon to keep pre‑mixed ahead of `copyIndex`. This is your underrun safety margin that can still be rewritten until copied to the device. Shipping defaults keep the ring slightly above the device queue high watermark to retain a rewrite window without letting large stale regions build.
 
 - `SoundTimedScheduling` (default: `1`)
   - Enables timestamped scheduling of new sound starts on the audio timeline (prevents missed onsets at high safety).
 
 - `SoundAudioClockedADSR` (default: `1`)
   - Drives ADSR against the audio playback clock instead of wall clock when push mode is active. Ensures the envelope you hear is aligned to playback, not to when the event was created.
+
+- `SoundResamplerSfx` (default: `linear`)
+  - `linear` is the default interpolation that replaced nearest neighbor, a huge improvement but not perfect
+  - Resampler kernel for sound effects; `sinc64` gives sharper reconstruction than linear without a large CPU hit.
+
+- `SoundResamplerMusic` (default: `linear`)
+  - The same applies above for `linear`
+  - Resampler kernel for music streams; `sinc128` favours higher fidelity for long-running content.
+  - In the Sound Options menu, `Sound FX Quality` and `Music Quality` expose these settings with `Normal` → `linear`, `High` → `sinc64`, and `Very High` → `sinc128`. A `Sound Channels` drop-down sits alongside them to toggle between 64 or 128 active voices, updating the `SoundChannels` preference and taking effect after restarting the sound library. The engine automatically reserves 8 music channels when 64 voices are selected and 12 when 128 are selected so the dedicated music pool scales with total capacity.
+
+The defaults above mirror the **Small CPU, Balanced** preset described later. Use it as the new baseline and adjust in either direction once you have validated underrun headroom on your target machines.
 
 Related (for callback mode):
 
@@ -84,40 +98,33 @@ Notes on the ring vs device queue:
 
 ### CPU‑Class Presets (current implementation)
 
-All presets keep quality features on: `SoundUsePushMode = 1`, `SoundTimedScheduling = 1`, `SoundAudioClockedADSR = 1`. They differ only in latency (device queue) and safety horizon (ring).
+All presets keep quality features on: `SoundUsePushMode = 1`, `SoundTimedScheduling = 1`, `SoundAudioClockedADSR = 1`. They differ only in latency (device queue) and safety horizon (ring). Each profile lists a single ready‑to‑use value per knob so you can copy it straight into prefs.
 
 Preset A — Fast CPU, Low Latency
-- `SoundPeriodFrames = 64–128`
-- `SoundDeviceQueueLowMs = 10–20`
-- `SoundDeviceQueueHighMs = 20–35`
-- `SoundRingMs = 20–40` (or ≈ High to keep the ring effectively minimal)
-- `SoundTargetLatencyMs = 30–50`
+- `SoundPeriodFrames = 64`
+- `SoundDeviceQueueLowMs = 12`
+- `SoundDeviceQueueHighMs = 24`
+- `SoundRingMs = 28` (kept a touch higher than High for a small rewrite window)
+- `SoundTargetLatencyMs = 40`
 
-Preset B — Mid‑Range CPU, Balanced
+Preset B — Small CPU, Balanced (default shipping profile)
 - `SoundPeriodFrames = 128`
-- `SoundDeviceQueueLowMs = 20–30`
-- `SoundDeviceQueueHighMs = 35–60`
-- `SoundRingMs = 35–70` (≈ High or a little higher)
-- `SoundTargetLatencyMs = 60–90`
+- `SoundDeviceQueueLowMs = 45`
+- `SoundDeviceQueueHighMs = 70`
+- `SoundRingMs = 80` (High + ~10 ms keeps a safety cushion without stale audio)
+- `SoundTargetLatencyMs = 95`
 
-Preset C — Small CPU, Latency OK (quality preserved)
-- `SoundPeriodFrames = 64–128` (keep small for crisp ADSR/onsets)
-- `SoundDeviceQueueLowMs = 50–80`
-- `SoundDeviceQueueHighMs = 90–140`
-- `SoundRingMs = 90–140` (≈ High to avoid stale pre‑mix)
-- `SoundTargetLatencyMs = 120–160`
-
-Preset D — Ultra‑Safe (when spikes are severe)
-- `SoundPeriodFrames = 128` (only consider 256 if per‑slice overhead is a proven bottleneck)
-- `SoundDeviceQueueLowMs = 70–120`
-- `SoundDeviceQueueHighMs = 120–180`
-- `SoundRingMs = 120–180` (≈ High)
-- `SoundTargetLatencyMs = High + 20–40`
+Preset C — Ultra‑Safe (fallback when spikes are severe)
+- `SoundPeriodFrames = 128`
+- `SoundDeviceQueueLowMs = 90`
+- `SoundDeviceQueueHighMs = 140`
+- `SoundRingMs = 160` (roughly High + 20 ms for maximum rewrite room)
+- `SoundTargetLatencyMs = 180`
 
 Tuning guidance:
 - Start from the closest preset and adjust Low/High upward if underruns occur. Keep `SoundPeriodFrames` small to preserve crispness.
 - Prefer increasing device Low/High (latency) over increasing period size on small CPUs. Only raise period to 256 if unavoidable.
-- Keeping `SoundRingMs` near High reduces or eliminates stale pre‑mixed audio while retaining a simple, robust pipeline.
+- Keep `SoundRingMs` slightly above High so you retain a rewrite window without letting a stale "future mix" build up.
 
 ## Overlay Diagnostics (F3)
 

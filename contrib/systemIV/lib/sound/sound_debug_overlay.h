@@ -1,7 +1,12 @@
 #ifndef INCLUDED_SOUND_DEBUG_OVERLAY_H
 #define INCLUDED_SOUND_DEBUG_OVERLAY_H
 
+#include <vector>
+#include <deque>
+#include <utility>
+
 #include "lib/sound/sound_library_2d_sdl.h"
+#include "resampler_polyphase.h"
 
 class SoundDebugOverlay
 {
@@ -22,6 +27,15 @@ private:
     double      m_directCallbacksPerSec;
     double      m_wavCallbacksPerSec;
     double      m_topupProcessedPerSec;
+    // SoundSystem mixer safety diagnostics
+    unsigned long long m_prevInvalidChannelReadsTotal = 0ULL;
+    double      m_invalidChannelReadsPerSec = 0.0;
+    unsigned long long m_invalidChannelReadsDelta = 0ULL;
+    // Rolling 10s windows for timing/overrun indicators
+    double      m_windowSeconds = 10.0;
+    std::deque<std::pair<double,double>> m_sliceMixWindow;   // (timestamp, milliseconds)
+    std::deque<std::pair<double,double>> m_renderTimeWindow; // (timestamp, milliseconds)
+    std::deque<std::pair<double,uint64_t>> m_overrunEvents;  // (timestamp, count delta)
 #if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
     int         m_resampleInstanceCount;
     int         m_resampleWaitingForLoop;
@@ -32,6 +46,12 @@ private:
     double      m_resampleCursorFracMin;
     double      m_resampleCursorFracMax;
     double      m_resampleCursorFracAvg;
+    SoundResampler::Quality m_resampleSfxQuality;
+    SoundResampler::Quality m_resampleMusicQuality;
+    unsigned int m_resampleLinearInstances;
+    std::vector<int> m_resampleBankUsageSfx;
+    std::vector<int> m_resampleBankUsageMusic;
+    // (Per-voice resampler load indicator removed)
 #endif
 };
 

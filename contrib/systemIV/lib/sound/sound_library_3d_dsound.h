@@ -19,7 +19,7 @@ class SoundLibrary3dDirectSound: public SoundLibrary3d
 protected:    
     DirectSoundChannel          *m_channels;
 	DirectSoundData		        *m_directSound;
-            
+
 protected:
 	IDirectSoundBuffer          *CreateSecondaryBuffer(int _numSamples, int _numChannels);
     void RefreshCapabilities    ();

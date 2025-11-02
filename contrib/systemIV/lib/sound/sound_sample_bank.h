@@ -9,6 +9,7 @@
  */
 
 #include "lib/tosser/hash_table.h"
+#include "resampler_polyphase.h"
 
 class SoundSampleHandle;
 class SoundSampleDecoder;
@@ -58,7 +59,7 @@ public:
 	unsigned int Read(signed short *_data, unsigned int _numSamples, bool _stereo, float _relFreq);
 
     unsigned int GetFrameCount() const;
-    void         GetFrame(double _frame, bool _stereo, float &_outLeft, float &_outRight);
+    void         GetFrame(double _frame, bool _stereo, SoundResampler::Quality _quality, double _ratio, float &_outLeft, float &_outRight);
 
     int NumSamplesRemaining();
     void Restart();

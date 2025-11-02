@@ -142,7 +142,8 @@ SoundInstance::SoundInstance()
     m_locked(false),
     m_resampleCursor(0.0),
     m_resampleStep(1.0),
-    m_scheduledStartFrames(0)
+    m_scheduledStartFrames(0),
+    m_stateLock()
 {
     SetSoundName( "[???]" );
 
@@ -594,6 +595,7 @@ void SoundInstance::OpenStream( bool _keepCurrentStream )
 	
     strcpy( m_sampleName, sampleName );
 	m_soundSampleHandle = g_soundSampleBank->GetSample(m_sampleName);
+
     ResetResamplerCursor();
     RecalculateResampleStep();
 }
@@ -991,11 +993,7 @@ void SoundInstance::StopPlaying()
 
     for( int i = 0; i < g_soundSystem->m_numChannels; ++i )
     {
-        SoundInstanceId soundId = g_soundSystem->m_channels[i];
-        if( soundId == m_id )
-        {
-            g_soundSystem->m_channels[i].SetInvalid();
-        }
+        g_soundSystem->ClearChannelIfMatches(i, m_id);
     }
 }
 
@@ -1037,7 +1035,20 @@ void SoundInstance::RecalculateResampleStep()
     double step = 1.0;
     if (g_soundLibrary3d && m_soundSampleHandle && m_soundSampleHandle->m_soundSample)
     {
+        // Prefer the actual SDL device rate when using the SDL 2D backend,
+        // otherwise fall back to the 3D library's configured sample rate.
         double mixRate = (double)g_soundLibrary3d->GetSampleRate();
+        do {
+            if (g_soundLibrary2d) {
+                SoundLibrary2dSDL *sdl2d = dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d);
+                if (sdl2d) {
+                    unsigned r = sdl2d->GetActualFreq();
+                    if (r > 0) {
+                        mixRate = (double)r;
+                    }
+                }
+            }
+        } while (0);
         double sourceRate = (double)m_soundSampleHandle->m_soundSample->m_freq;
         double freqScale = (double)m_freq.GetOutput();
 
@@ -1071,7 +1082,7 @@ int SoundInstance::GetChannelIndex()
         
     if( m_channelIndex >= 0 && 
         m_channelIndex < g_soundSystem->m_numChannels &&
-        g_soundSystem->m_channels[ m_channelIndex ] == m_id )
+        g_soundSystem->GetChannelId(m_channelIndex) == m_id )
     {
         return m_channelIndex;
     }

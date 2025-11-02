@@ -94,11 +94,9 @@ void SoundParameter::Recalculate( float _input )
             else
             {
                 float inputRange = m_inputUpper - m_inputLower;
-                if (fabsf(inputRange) < 0.00001f)
+                if (fabsf(inputRange) < 1e-5f)
                 {
-                    //
-                    // Input range is effectively zero, use midpoint output
-                    
+                    // Degenerate mapping: avoid divide-by-zero and pick a neutral midpoint
                     m_desiredOutput = (m_outputLower + m_outputUpper) * 0.5f;
                 }
                 else
