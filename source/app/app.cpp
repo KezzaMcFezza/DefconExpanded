@@ -843,14 +843,26 @@ void App::Update()
     //
     // F2 toggles debug menu
 
-    if( g_keys[KEY_F2] && g_keyDeltas[KEY_F2] ) m_showDebugMenu = !m_showDebugMenu;
+    if( g_keys[KEY_F2] && g_keyDeltas[KEY_F2] )
+    {
+        if( g_preferences && g_preferences->GetInt("DeveloperMode", 0) == 1 )
+        {
+            m_showDebugMenu = !m_showDebugMenu;
+        }
+    }
 
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
 
     //
     // F3 toggles sound overlay
 
-    if( g_keys[KEY_F3] && g_keyDeltas[KEY_F3] ) m_showSoundOverlay = !m_showSoundOverlay;
+    if( g_keys[KEY_F3] && g_keyDeltas[KEY_F3] )
+    {
+        if( g_preferences && g_preferences->GetInt("DeveloperMode", 0) == 1 )
+        {
+            m_showSoundOverlay = !m_showSoundOverlay;
+        }
+    }
 
     if( m_soundOverlay )
     {
