@@ -85,6 +85,9 @@ public:
     virtual void    SetChannelMinDistance       ( int _channel, float _minDistance) = 0;
     virtual void    SetChannelVolume            (int _channel, float _volume) = 0;	            // logarithmic, 0.0f - 10.0f
 
+    // DSP note: The software backend currently disables DSP processing until
+    // a 32-bit float rewrite lands. These entry points remain for API
+    // compatibility; enabling has no audible effect in the software mixer.
     virtual void    EnableDspFX                 (int _channel, int _numFilters, int const *_filterTypes) = 0;
     virtual void    UpdateDspFX                 (int _channel, int _filterType, int _numParams, float const *_params) = 0;
     virtual void    DisableDspFX                (int _channel) = 0;

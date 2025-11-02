@@ -5,6 +5,13 @@
 //*****************************************************************************
 // Class DspEffect
 //*****************************************************************************
+// Legacy 16-bit DSP interface:
+// - Current implementations operate on signed short (int16) buffers in-place.
+// - The rest of the mixer now uses a 32-bit float signal chain. To integrate
+//   DSP without lossy float<->int16 conversions, this interface should be
+//   migrated to float (e.g., Process(float *buf, unsigned numSamples[, layout])).
+// - Each effect then needs porting to float domain and must avoid allocations
+//   in the realtime path. This header remains unchanged until that rewrite.
 
 class DspEffect 
 {

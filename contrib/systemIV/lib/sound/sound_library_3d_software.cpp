@@ -274,14 +274,34 @@ void SoundLibrary3dSoftware::GetChannelData(float _duration, unsigned int _numSa
 
 void SoundLibrary3dSoftware::ApplyDspFX(float _duration, unsigned int _numSamples)
 {
-	// DSP filters are not configurable and never used in the game or mods
-	// Disabling to improve audio performance and reduce crackling during heavy scenes
-	// No way to enable DSP exists: not in sounds.txt, not via scripting, no API calls
-	(void)_duration;
-	(void)_numSamples;
-	return;
+    // Legacy DSP notice (currently disabled):
+    // - Effects can be defined in effects.txt and referenced via EFFECT blocks in sounds.txt,
+    //   but the current sounds.txt does not use them, so the old DSP chain is effectively idle.
+    // - The legacy implementation processes 16-bit PCM in-place (signed short), while the rest of
+    //   the mixer now runs fully in 32-bit float. The previous bridge converted float->int16,
+    //   ran DSP, then converted back to float, adding quantization noise and CPU overhead.
+    // - To avoid artifacts and simplify the realtime path, the DSP step is disabled for now.
+    //
+    // To migrate DSP to the 32-bit float pipeline, the following work is needed:
+    // 1) Change the DSP interface to operate on float buffers:
+    //    - Update DspEffect::Process to take float* (and length), using [-1.0, 1.0] range.
+    //    - Decide mono/stereo handling (separate left/right, or interleaved with stride).
+    // 2) Port each effect (ResonantLowPass, BitCrusher, Gargle, Echo, Reverb, Smoother):
+    //    - Remove int16 clamps/conversions; keep internal state/buffers in float.
+    //    - Make parameter math sample-rate aware (use current m_sampleRate).
+    // 3) Integrate at the correct point in the float chain:
+    //    - Run per-channel on m_channels[i].m_bufferFloat before mixing into m_left/m_right.
+    //    - Handle music channels (stereo interleaved) vs SFX (mono) consistently.
+    // 4) Re-enable here by iterating active channels and calling the new float Process.
+    // 5) RT safety/perf: no allocations in audio thread, maintain effect instances per channel,
+    //    and avoid locks in the hot path.
+    //
+    // Until that rewrite lands, effects remain disabled.
+    (void)_duration;
+    (void)_numSamples;
+    return;
 
-	// Original DSP code disabled below - kept for reference
+    // Original DSP code (16-bit) left below for reference
 #if 0
 	//START_PROFILE2(m_profiler, "ApplyDspFX");
 	{
