@@ -1112,18 +1112,11 @@ void SoundInstance::CalculatePerceivedVolume()
 
         float distance = ( m_pos - cameraPos ).Mag();
         
-        //
-        // When sound is very close to camera, clamp.
-
-        if (distance < 0.01f) distance = 0.01f;
-        
         float distanceFactor = 1.0f;
         if( distance > m_minDistance )
         {
-            distanceFactor = m_minDistance / distance;
-            if (distanceFactor > 1.0f) distanceFactor = 1.0f;
-            if (distanceFactor < 0.0f) distanceFactor = 0.0f;
-        }
+            distanceFactor = m_minDistance / distance;    
+        }        
 
         // NOTE : We could base this on m_channelVolume instead of m_volume,
         // in order to take into account ADSR automatically. However m_channelVolume

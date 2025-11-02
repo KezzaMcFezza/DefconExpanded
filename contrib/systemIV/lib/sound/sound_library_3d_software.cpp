@@ -343,7 +343,6 @@ void SoundLibrary3dSoftware::ApplyDspFX(float _duration, unsigned int _numSample
 #endif
 }
 
-
 void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex, 
 												float *_left, float *_right)
 {
@@ -358,56 +357,39 @@ void SoundLibrary3dSoftware::CalcChannelVolumes(int _channelIndex,
     if (totalDb > 0.0f) totalDb = 0.0f;
     float calculatedVolume = powf(10.0f, totalDb / 20.0f);
 
-    if ( _channelIndex < m_numChannels - m_numMusicChannels )
-    {
-        Vector3<float> to = channel->m_pos - m_listenerPos;
-        float dist = to.Mag();
-        
-		//
-        // Clamp distance to prevent division by zero
-        // When listener is very close to sound source, clamp to minimum distance to avoid crackles
-		
-        if (dist < 0.01f) dist = 0.01f;
-        
-        to /= dist;
-        float dotRight = to * m_listenerRight;
-        *_right = (dotRight + 1.0f) * 0.5f;
-        *_left = 1.0f - *_right;
+	if ( _channelIndex < m_numChannels - m_numMusicChannels )
+	{
+		Vector3<float> to = channel->m_pos - m_listenerPos;
+		float dist = to.Mag();
+		float dotRight = 0.0f;
+		if (dist > 1e-5f)
+		{
+			to /= dist;
+			dotRight = to * m_listenerRight;
+		}
+		Clamp(dotRight, -1.0f, 1.0f);
+		*_right = (dotRight + 1.0f) * 0.5f;
+		*_left = 1.0f - *_right;
 
-        //
-		// Apply distance attenuation with clamping
-        // Clamp minimum distance to at least 0.1f to avoid extreme volume spikes
-
-        float minDist = channel->m_minDist;
-        if (minDist < 0.01f) minDist = 0.01f;
-        
-        if (dist > minDist) 
-        {
-
-			//
-			// Clamp drop off to reasonable range (0.0 to 1.0)
-
-            float dropOff = minDist / dist;
-            if (dropOff > 1.0f) dropOff = 1.0f;
-            if (dropOff < 0.0f) dropOff = 0.0f;
-            
-            *_left *= dropOff;
-            *_right *= dropOff;
-        }
-    }
-    
-    if ( _channelIndex >= m_numChannels - m_numMusicChannels )
-    {
-        *_left = 0.9f;
-        *_right = 0.9f;
-    }
+		if (dist > channel->m_minDist) 
+		{
+			float dropOff = channel->m_minDist / dist;
+			*_left *= dropOff;
+			*_right *= dropOff;
+		}
+	}
+	
+	if ( _channelIndex >= m_numChannels - m_numMusicChannels )
+	{
+		*_left = 0.9f;
+		*_right = 0.9f;
+	}
 
 	*_left *= calculatedVolume; 
 	*_right *= calculatedVolume; 
 	Clamp(*_left, 0.0f, calculatedVolume);
 	Clamp(*_right, 0.0f, calculatedVolume);
 }
-
 
 void SoundLibrary3dSoftware::MixStereo(float *_inBuf, unsigned int _numSamples,
                                        float _volLeft, float _volRight)
@@ -694,47 +676,28 @@ void SoundLibrary3dSoftware::SetListenerPosition( Vector3<float> const &_pos,
 	// Construct right = up x front; if degenerate, rebuild a safe basis
 	m_listenerRight = m_listenerUp ^ m_listenerFront;
 	float rightMag = m_listenerRight.Mag();
-	
-	if (rightMag < 0.001f)
+
+	if (rightMag < 1e-5f)
 	{
-
-		//
-		// Construct safe orthogonal vector
-		// Use a fallback based on front vector
-
-		float frontMagSq = (_front.x * _front.x) + (_front.y * _front.y) + (_front.z * _front.z);
-		if (frontMagSq < 0.001f)
+		// Front and up nearly colinear; choose an auxiliary up vector
+		Vector3<float> aux(0.0f, 1.0f, 0.0f);
+		// If aux ~ front, pick a different axis
+		if (fabsf(m_listenerFront.x) < 1e-3f && fabsf(m_listenerFront.z) < 1e-3f)
 		{
-			//
-			// Front is basically zero, use default 
-			
-			m_listenerRight = Vector3<float>(1.0f, 0.0f, 0.0f);
+			aux.Set(1.0f, 0.0f, 0.0f);
 		}
-		else
-		{
-
-			//
-			// Try cross product with cardinal axis that's least parallel to front
-
-			if (fabsf(_front.x) < 0.9f)
-			{
-				m_listenerRight = Vector3<float>(1.0f, 0.0f, 0.0f) ^ _front;
-			}
-			else
-			{
-				m_listenerRight = Vector3<float>(0.0f, 1.0f, 0.0f) ^ _front;
-			}
-			rightMag = m_listenerRight.Mag();
-		}
+		m_listenerRight = aux ^ m_listenerFront;
 	}
-	
-	//
-	// Normalize to prevent extreme values
-	
-	if (rightMag > 0.001f)
-	{
-		m_listenerRight /= rightMag;
-	}
+
+	// Normalize the basis vectors
+	float invRight = m_listenerRight.Mag();
+	if (invRight > 1e-6f) m_listenerRight /= invRight;
+	float invFront = m_listenerFront.Mag();
+	if (invFront > 1e-6f) m_listenerFront /= invFront;
+	// Recompute 'up' to ensure orthonormality
+	m_listenerUp = m_listenerFront ^ m_listenerRight;
+	float invUp = m_listenerUp.Mag();
+	if (invUp > 1e-6f) m_listenerUp /= invUp;
 }
 
 
