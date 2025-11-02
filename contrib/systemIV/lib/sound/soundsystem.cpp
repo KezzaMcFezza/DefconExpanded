@@ -72,22 +72,46 @@ SoundSystem::SoundSystem()
 
 SoundSystem::~SoundSystem()
 {
+    // Ensure playback is fully stopped before tearing down mixers
     m_sounds.EmptyAndDelete();
 
+    // Free channel id maps first (not used by 2D/3D libs directly)
     delete[] m_channels;
     m_channels = NULL;
     delete[] m_channelPacked;
     m_channelPacked = NULL;
 
+    // Stop the 2D backend feeder thread (but keep the object alive) so it
+    // no longer calls into the 3D mixer while we tear it down.
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+    if (g_soundLibrary2d)
+    {
+        SoundLibrary2dSDL *sdl2d = dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d);
+        if (sdl2d)
+        {
+            sdl2d->Stop();
+        }
+    }
+#endif
+
+    // Tear down the 3D mixer first (its dtor disables the callback on 2D)
+    if (g_soundLibrary3d)
+    {
+        delete g_soundLibrary3d;
+        g_soundLibrary3d = NULL;
+    }
+
+    // Now free the 2D backend object itself
+#if !defined TARGET_MSVC || defined WINDOWS_SDL
+    if (g_soundLibrary2d)
+    {
+        delete g_soundLibrary2d;
+        g_soundLibrary2d = NULL;
+    }
+#endif
+
     delete g_soundSampleBank;
     g_soundSampleBank = NULL;
-
-    delete g_soundLibrary3d;
-    g_soundLibrary3d = NULL;
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
-	delete g_soundLibrary2d;
-	g_soundLibrary2d = NULL;
-#endif
 
     delete m_soundInstanceMutex;
 }
