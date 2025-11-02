@@ -301,11 +301,32 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
     desired.format = AUDIO_F32SYS;
 	desired.samples = m_samplesPerBuffer;
 	desired.channels = 2;
-
+ 
+#ifdef WINDOWS_SDL
+    int audioDriverPref = g_preferences->GetInt(PREFS_SOUND_AUDIODRIVER, 0);
+#endif
+    
 #ifndef TARGET_EMSCRIPTEN
-    m_usePushMode = g_preferences->GetInt("SoundUsePushMode", 1);
+    m_usePushMode = g_preferences->GetInt("SoundUsePushMode", 1); 
+#ifdef WINDOWS_SDL
+
+    //
+    // Force pull mode when using DirectSound to avoid 
+    // ungodly earrape and screeching, DSound hates ring buffers.
+
+    if (audioDriverPref == 1) 
+    {
+        m_usePushMode = 0;
+    }
+
+#endif  
 #else
+
+    //
+    // Emscripten just flat out refuses to work with push mode.
+
     m_usePushMode = 0;
+
 #endif
     int periodPref = g_preferences->GetInt("SoundPeriodFrames", 128);
     m_targetLatencyMs = g_preferences->GetInt("SoundTargetLatencyMs", 180);
@@ -325,7 +346,6 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	AppDebugOut("Initialising SDL Audio\n");
 	
 #ifdef WINDOWS_SDL
-	int audioDriverPref = g_preferences->GetInt(PREFS_SOUND_AUDIODRIVER, 0);
 	if (audioDriverPref == 1) {
 		SDL_setenv("SDL_AUDIODRIVER", "directsound", 1);
 		AppDebugOut("Using DirectSound audio driver\n");
