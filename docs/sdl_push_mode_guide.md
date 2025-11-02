@@ -69,7 +69,7 @@ All preferences live in `localisation/data/prefs_default.txt` and can be overrid
 - `SoundResamplerMusic` (default: `linear`)
   - The same applies above for `linear`
   - Resampler kernel for music streams; `sinc128` favours higher fidelity for long-running content.
-  - In the Sound Options menu, `Sound FX Quality` and `Music Quality` expose these settings with `Normal` → `linear`, `High` → `sinc64`, and `Very High` → `sinc128`.
+  - In the Sound Options menu, `Sound FX Quality` and `Music Quality` expose these settings with `Normal` → `linear`, `High` → `sinc64`, and `Very High` → `sinc128`. A `Sound Channels` drop-down sits alongside them to toggle between 64 or 128 active voices, updating the `SoundChannels` preference and taking effect after restarting the sound library. The engine automatically reserves 8 music channels when 64 voices are selected and 12 when 128 are selected so the dedicated music pool scales with total capacity.
 
 The defaults above mirror the **Small CPU, Balanced** preset described later. Use it as the new baseline and adjust in either direction once you have validated underrun headroom on your target machines.
 

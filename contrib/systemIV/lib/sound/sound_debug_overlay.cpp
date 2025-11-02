@@ -403,7 +403,7 @@ void SoundDebugOverlay::Render()
         }
 
         snprintf(buffer, sizeof(buffer), "Channels (total/music): %d / %d",
-                 g_preferences->GetInt("SoundChannels", 32),
+                 g_preferences->GetInt(PREFS_SOUND_CHANNELS, 128),
                  g_preferences->GetInt("SoundMusicChannels", 12));
         g_renderer->TextSimple(baseXLeft, leftY, textColour, 11.0f, buffer);
         leftY += line;

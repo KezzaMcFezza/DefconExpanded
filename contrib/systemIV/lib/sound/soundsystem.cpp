@@ -29,6 +29,11 @@ namespace
 {
     const float kDefaultUpdatePeriod = 0.02f;
     const float kMinUpdatePeriod = 0.001f;
+
+    int ClampChannelPreference(int requestedChannels)
+    {
+        return (requestedChannels <= 64) ? 64 : 128;
+    }
 }
 
 //#define SOUNDSYSTEM_VERIFY                        // Define this to make the sound system
@@ -204,8 +209,19 @@ void SoundSystem::RestartSoundLibrary()
     g_preferences->SetInt(PREFS_SOUND_MIXFREQ, 44100);
     int mixrate = 44100;
     int volume = g_preferences->GetInt("SoundMasterVolume", 255);
-    int requestedChannels = g_preferences->GetInt("SoundChannels", 32);
-    m_numMusicChannels = g_preferences->GetInt("SoundMusicChannels", 12);
+    int requestedChannelsPref = g_preferences->GetInt(PREFS_SOUND_CHANNELS, 128);
+    int requestedChannels = ClampChannelPreference(requestedChannelsPref);
+    if (requestedChannels != requestedChannelsPref)
+    {
+        g_preferences->SetInt(PREFS_SOUND_CHANNELS, requestedChannels);
+    }
+    int desiredMusicChannels = (requestedChannels >= 128) ? 12 : 8;
+    int musicPref = g_preferences->GetInt("SoundMusicChannels", desiredMusicChannels);
+    if (musicPref != desiredMusicChannels)
+    {
+        g_preferences->SetInt("SoundMusicChannels", desiredMusicChannels);
+    }
+    m_numMusicChannels = desiredMusicChannels;
     int hw3d = g_preferences->GetInt("SoundHW3D", 0);
     const char *libName = g_preferences->GetString("SoundLibrary", "dsound");
 
@@ -220,12 +236,7 @@ void SoundSystem::RestartSoundLibrary()
     // Ensure preferences reflect the actual backend used by SDL builds
 
     g_preferences->SetString(PREFS_SOUND_LIBRARY, "software");
-    m_numChannels = 128;
-
-    if (requestedChannels != m_numChannels)
-    {
-        g_preferences->SetInt("SoundChannels", m_numChannels);
-    }
+    m_numChannels = requestedChannels;
 
 #endif
 
@@ -235,6 +246,8 @@ void SoundSystem::RestartSoundLibrary()
 
     m_numChannels = g_soundLibrary3d->GetNumChannels();
     m_numMusicChannels = g_soundLibrary3d->GetNumMusicChannels();
+    g_preferences->SetInt(PREFS_SOUND_CHANNELS, m_numChannels);
+    g_preferences->SetInt("SoundMusicChannels", m_numMusicChannels);
     m_channels = new SoundInstanceId[m_numChannels];
     m_channelPacked = new std::atomic<uint64_t>[m_numChannels];
     for (int i = 0; i < m_numChannels; ++i)
