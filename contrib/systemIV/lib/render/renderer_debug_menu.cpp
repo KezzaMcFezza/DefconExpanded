@@ -110,7 +110,7 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     
     int totalDrawCalls, legacyTriangleCalls, legacyLineCalls;
     int textCalls;
-    int lineBatchedCalls, staticSpriteCalls, rotatingSpriteCalls;
+    int lineCalls, staticSpriteCalls, rotatingSpriteCalls;
     int effectsCircleFillCalls, effectsCircleOutlineCalls, effectsCircleOutlineThickCalls;
     int whiteboardCalls;
     int eclipseRectCalls, eclipseRectFillCalls, eclipseTriangleFillCalls, eclipseLineCalls, eclipseSpriteCalls;
@@ -123,20 +123,14 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     legacyTriangleCalls = m_renderer->GetLegacyTriangleCalls();
     legacyLineCalls = m_renderer->GetLegacyLineCalls();
     textCalls = m_renderer->GetTextCalls();
-    lineBatchedCalls = m_renderer->GetlineBatchedCalls();
+    lineCalls = m_renderer->GetLineCalls();
     staticSpriteCalls = m_renderer->GetStaticSpriteCalls();
     rotatingSpriteCalls = m_renderer->GetRotatingSpriteCalls();
-    effectsCircleFillCalls = m_renderer->GetEffectsCircleFillCalls();
-    effectsCircleOutlineCalls = m_renderer->GetEffectsCircleOutlineCalls();
-    effectsCircleOutlineThickCalls = m_renderer->GetEffectsCircleOutlineThickCalls();
-    whiteboardCalls = m_renderer->GetWhiteboardCalls();
     eclipseRectCalls = m_renderer->GetEclipseRectCalls();
     eclipseRectFillCalls = m_renderer->GetEclipseRectFillCalls();
     eclipseTriangleFillCalls = m_renderer->GetEclipseTriangleFillCalls();
     eclipseLineCalls = m_renderer->GetEclipseLineCalls();
     eclipseSpriteCalls = m_renderer->GetEclipseSpriteCalls();
-    totalUnitCalls = m_renderer->GetTotalUnitCalls();
-    totalEffectCalls = m_renderer->GetTotalEffectCalls();
 
     //
     // add 3D stats to combine them
@@ -146,10 +140,9 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
         legacyTriangleCalls += g_renderer3d->GetLegacyTriangleCalls();
         legacyLineCalls += g_renderer3d->GetLegacyLineCalls();
         textCalls += g_renderer3d->GetTextCalls();
-        lineBatchedCalls += g_renderer3d->GetlineBatchedCalls();
+        lineCalls += g_renderer3d->GetLineCalls();
         staticSpriteCalls += g_renderer3d->GetStaticSpriteCalls();
         rotatingSpriteCalls += g_renderer3d->GetRotatingSpriteCalls();
-        totalUnitCalls += g_renderer3d->GetTotalUnitCalls();
     }
     
     // Total draw calls header
@@ -179,26 +172,14 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     
     // Unit buffer details 
     snprintf(statsBuffer, sizeof(statsBuffer), "  Lines: %d  Static: %d Rotating: %d", 
-             lineBatchedCalls, staticSpriteCalls, rotatingSpriteCalls);
+             lineCalls, staticSpriteCalls, rotatingSpriteCalls);
     m_renderer->TextSimple(indentSmall, yPos, Colour(120, 170, 255, 255), 10.0f, statsBuffer);
     yPos += 14.0f;
-    
-    // Effects rendering buffers
-    m_renderer->TextSimple(25, yPos, Colour(255, 255, 100, 255), 11.0f, "Effects Buffers:");
-    snprintf(statsBuffer, sizeof(statsBuffer), "Total: %d", totalEffectCalls);
-    m_renderer->TextSimple(indentLarge, yPos, Colour(255, 255, 100, 255), 11.0f, statsBuffer);
-    yPos += lineHeight;
-    
-    snprintf(statsBuffer, sizeof(statsBuffer), "  Circles: Fill: %d  Outline: %d  Thick: %d Whiteboard: %d", 
-             effectsCircleFillCalls, effectsCircleOutlineCalls, 
-             effectsCircleOutlineThickCalls, whiteboardCalls);
-    m_renderer->TextSimple(indentSmall, yPos, Colour(255, 255, 120, 255), 10.0f, statsBuffer);
-    yPos += lineHeight;
     
     // Performance summary
     int legacyTotal = legacyTriangleCalls + legacyLineCalls;
     int eclipseUITotal = eclipseSpriteCalls + eclipseTriangleFillCalls + textCalls + eclipseRectCalls + eclipseRectFillCalls + eclipseLineCalls;
-    int batchedTotal = totalUnitCalls + totalEffectCalls + eclipseUITotal;
+    int batchedTotal = totalUnitCalls + eclipseUITotal;
     
     m_renderer->TextSimple(25, yPos, Colour(100, 255, 255, 255), 11.0f, "Conclusion:");
     yPos += lineHeight;

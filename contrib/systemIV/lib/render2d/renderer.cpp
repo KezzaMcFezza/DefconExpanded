@@ -208,22 +208,15 @@ Renderer::Renderer()
       m_textureLocation(-1),
       m_triangleVertexCount(0),
       m_lineVertexCount(0),
-      m_uiTriangleVertexCount(0),
-      m_uiLineVertexCount(0),
       m_currentFontBatchIndex(0),
       m_textVertices(NULL),
       m_textVertexCount(0),
       m_currentTextTexture(0),
-      m_lineBatchedVertexCount(0),
       m_staticSpriteVertexCount(0),
       m_currentStaticSpriteTexture(0),
       m_rotatingSpriteVertexCount(0),
       m_currentRotatingSpriteTexture(0),
-      m_effectsCircleFillVertexCount(0),
-      m_effectsCircleOutlineVertexCount(0),
-      m_effectsCircleOutlineThickVertexCount(0),
       m_healthBarVertexCount(0),
-      m_whiteboardVertexCount(0),
       m_eclipseRectVertexCount(0),
       m_eclipseRectFillVertexCount(0),
       m_eclipseTriangleFillVertexCount(0),
@@ -262,19 +255,16 @@ Renderer::Renderer()
       m_msaaDepthRBO(0),
       m_msaaWidth(0),
       m_msaaHeight(0) {
-      m_uiTriangleVertexCount = 0;
-      m_uiLineVertexCount = 0;
       m_currentFontBatchIndex = 0;
       m_textVertices = m_fontBatches[0].vertices;
       m_textVertexCount = 0;
       m_currentTextTexture = 0;
-      m_lineBatchedVertexCount = 0;
+      m_lineVertexCount = 0;
       m_staticSpriteVertexCount = 0;
       m_currentStaticSpriteTexture = 0;
       m_rotatingSpriteVertexCount = 0;
       m_currentRotatingSpriteTexture = 0;
       m_healthBarVertexCount = 0;
-      m_whiteboardVertexCount = 0;
       m_eclipseRectVertexCount = 0;
       m_eclipseRectFillVertexCount = 0;
       m_eclipseLineVertexCount = 0;
@@ -283,14 +273,11 @@ Renderer::Renderer()
       m_drawCallsPerFrame = 0;
       m_legacyTriangleCalls = 0;
       m_legacyLineCalls = 0;
-      m_uiTriangleCalls = 0;
-      m_uiLineCalls = 0;
       m_textCalls = 0;
-      m_lineBatchedCalls = 0;
+      m_lineCalls = 0;
       m_staticSpriteCalls = 0;
       m_rotatingSpriteCalls = 0;
       m_healthBarCalls = 0;
-      m_whiteboardCalls = 0;
       m_eclipseRectCalls = 0;
       m_eclipseRectFillCalls = 0;
       m_eclipseTriangleFillCalls = 0;
@@ -299,14 +286,11 @@ Renderer::Renderer()
       m_prevDrawCallsPerFrame = 0;
       m_prevLegacyTriangleCalls = 0;
       m_prevLegacyLineCalls = 0;
-      m_prevUiTriangleCalls = 0;
-      m_prevUiLineCalls = 0;
       m_prevTextCalls = 0;
-      m_prevlineBatchedCalls = 0;
+      m_prevLineCalls = 0;
       m_prevStaticSpriteCalls = 0;
       m_prevRotatingSpriteCalls = 0;
       m_prevHealthBarCalls = 0;
-      m_prevWhiteboardCalls = 0;
       m_prevEclipseRectCalls = 0;
       m_prevEclipseRectFillCalls = 0;
       m_prevEclipseTriangleFillCalls = 0;
@@ -414,6 +398,100 @@ Renderer::~Renderer() {
     }
 
     DestroyMSAAFramebuffer();
+}
+
+// ============================================================================
+// BLIT
+// ============================================================================
+
+void Renderer::Blit(Image *src, float x, float y, Colour const &col) {
+    float w = src->Width();
+    float h = src->Height();
+    Blit(src, x, y, w, h, col);
+}
+
+void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const &col) {    
+    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
+        FlushTriangles(true);
+    }
+    
+    float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
+    
+    SetActiveTexture(GL_TEXTURE0);
+    SetBoundTexture(src->m_textureID);
+    SetTextureParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    if (src->m_mipmapping) {
+        SetTextureParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        SetTextureParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    
+    // Get UV coordinates - atlas sprites use specific regions, others use full texture
+    float u1, v1, u2, v2;
+    GetImageUVCoords(src, u1, v1, u2, v2);
+    
+    // First triangle: TL, TR, BR
+    m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, u1, v2};
+    m_triangleVertices[m_triangleVertexCount++] = {x + w, y, r, g, b, a, u2, v2};
+    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
+    
+    // Second triangle: TL, BR, BL
+    m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, u1, v2};
+    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
+    m_triangleVertices[m_triangleVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
+    
+    FlushTriangles(true);
+}
+
+void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const &col, float angle) {    
+    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
+        FlushTriangles(true);
+    }
+    
+    // calculate rotated vertices
+    Vector3<float> vert1(-w, +h, 0);
+    Vector3<float> vert2(+w, +h, 0);
+    Vector3<float> vert3(+w, -h, 0);
+    Vector3<float> vert4(-w, -h, 0);
+
+    vert1.RotateAroundZ(angle);
+    vert2.RotateAroundZ(angle);
+    vert3.RotateAroundZ(angle);
+    vert4.RotateAroundZ(angle);
+
+    vert1 += Vector3<float>(x, y, 0);
+    vert2 += Vector3<float>(x, y, 0);
+    vert3 += Vector3<float>(x, y, 0);
+    vert4 += Vector3<float>(x, y, 0);
+
+    float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
+    
+    SetActiveTexture(GL_TEXTURE0);
+    SetBoundTexture(src->m_textureID);
+    SetTextureParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    if (src->m_mipmapping) {
+        SetTextureParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+        SetTextureParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    }
+    
+    // get UV coordinates, atlas sprites use specific regions, others use full texture
+    float u1, v1, u2, v2;
+    GetImageUVCoords(src, u1, v1, u2, v2);
+    
+    // first triangle: vert1, vert2, vert3
+    m_triangleVertices[m_triangleVertexCount++] = {vert1.x, vert1.y, r, g, b, a, u1, v2};
+    m_triangleVertices[m_triangleVertexCount++] = {vert2.x, vert2.y, r, g, b, a, u2, v2};
+    m_triangleVertices[m_triangleVertexCount++] = {vert3.x, vert3.y, r, g, b, a, u2, v1};
+    
+    // second triangle: vert1, vert3, vert4
+    m_triangleVertices[m_triangleVertexCount++] = {vert1.x, vert1.y, r, g, b, a, u1, v2};
+    m_triangleVertices[m_triangleVertexCount++] = {vert3.x, vert3.y, r, g, b, a, u2, v1};
+    m_triangleVertices[m_triangleVertexCount++] = {vert4.x, vert4.y, r, g, b, a, u1, v1};
+    
+    FlushTriangles(true);
 }
 
 // ============================================================================
@@ -1142,7 +1220,7 @@ void Renderer::SetupVertexArrays() {
     };
     
     //
-    // create Eclipse Lines VAO/VBO pair
+    // Create Eclipse Lines VAO/VBO pair
 
     glGenVertexArrays(1, &m_eclipseLinesVAO);
     glGenBuffers(1, &m_eclipseLinesVBO);
@@ -1152,7 +1230,7 @@ void Renderer::SetupVertexArrays() {
     setupVertexAttributes();
     
     //
-    // create Eclipse Fills VAO/VBO pair
+    // Create Eclipse Fills VAO/VBO pair
 
     glGenVertexArrays(1, &m_eclipseFillsVAO);
     glGenBuffers(1, &m_eclipseFillsVBO);
@@ -1162,7 +1240,7 @@ void Renderer::SetupVertexArrays() {
     setupVertexAttributes();
     
     //
-    // create Eclipse Sprites VAO/VBO pair
+    // Create Eclipse Sprites VAO/VBO pair
 
     glGenVertexArrays(1, &m_eclipseSpritesVAO);
     glGenBuffers(1, &m_eclipseSpritesVBO);
@@ -1171,17 +1249,7 @@ void Renderer::SetupVertexArrays() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_ECLIPSE_SPRITE_VERTICES, NULL, GL_STREAM_DRAW);
     setupVertexAttributes();
     
-    //
-    // create general UI VAO/VBO pair
-    
-    glGenVertexArrays(1, &m_uiVAO);
-    glGenBuffers(1, &m_uiVBO);
-    glBindVertexArray(m_uiVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_uiVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_UI_VERTICES, NULL, GL_STREAM_DRAW);
-    setupVertexAttributes();
-    
-    // create text VAO/VBO pair  
+    // Create text VAO/VBO pair  
 
     glGenVertexArrays(1, &m_textVAO);
     glGenBuffers(1, &m_textVBO);
@@ -1191,7 +1259,7 @@ void Renderer::SetupVertexArrays() {
     setupVertexAttributes();
     
     //
-    // create unit VAO/VBO pair
+    // Create sprite VAO/VBO pair
     
     glGenVertexArrays(1, &m_unitVAO);
     glGenBuffers(1, &m_unitVBO);
@@ -1201,17 +1269,17 @@ void Renderer::SetupVertexArrays() {
     setupVertexAttributes();
     
     //
-    // create effects VAO/VBO pair
+    // Create Line VAO/VBO pair
 
     glGenVertexArrays(1, &m_effectsVAO);
     glGenBuffers(1, &m_effectsVBO);
     glBindVertexArray(m_effectsVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_effectsVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_BATCHED_LINES_VERTICES * 2), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_LINE_VERTICES * 2), NULL, GL_DYNAMIC_DRAW);
     setupVertexAttributes();
     
     //
-    // create health VAO/VBO pair
+    // Create health VAO/VBO pair
 
     glGenVertexArrays(1, &m_healthVAO);
     glGenBuffers(1, &m_healthVBO);
@@ -1221,7 +1289,7 @@ void Renderer::SetupVertexArrays() {
     setupVertexAttributes();
     
     //
-    // create legacy VAO/VBO pair
+    // Create legacy VAO/VBO pair
 
     glGenVertexArrays(1, &m_legacyVAO);
     glGenBuffers(1, &m_legacyVBO);
@@ -1231,7 +1299,7 @@ void Renderer::SetupVertexArrays() {
     setupVertexAttributes();
     
     //
-    // old VAO/VBO
+    // Old VAO/VBO
 
     glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);
@@ -1396,17 +1464,11 @@ void Renderer::ResetFrameCounters() {
     m_prevDrawCallsPerFrame = m_drawCallsPerFrame;
     m_prevLegacyTriangleCalls = m_legacyTriangleCalls;
     m_prevLegacyLineCalls = m_legacyLineCalls;
-    m_prevUiTriangleCalls = m_uiTriangleCalls;
-    m_prevUiLineCalls = m_uiLineCalls;
     m_prevTextCalls = m_textCalls;
-    m_prevlineBatchedCalls = m_lineBatchedCalls;
+    m_prevLineCalls = m_lineCalls;
     m_prevStaticSpriteCalls = m_staticSpriteCalls;
     m_prevRotatingSpriteCalls = m_rotatingSpriteCalls;
-    m_prevEffectsCircleFillCalls = m_effectsCircleFillCalls;
-    m_prevEffectsCircleOutlineCalls = m_effectsCircleOutlineCalls;
-    m_prevEffectsCircleOutlineThickCalls = m_effectsCircleOutlineThickCalls;
     m_prevHealthBarCalls = m_healthBarCalls;
-    m_prevWhiteboardCalls = m_whiteboardCalls;
     m_prevEclipseRectCalls = m_eclipseRectCalls;
     m_prevEclipseRectFillCalls = m_eclipseRectFillCalls;
     m_prevEclipseTriangleFillCalls = m_eclipseTriangleFillCalls;
@@ -1419,17 +1481,11 @@ void Renderer::ResetFrameCounters() {
     m_drawCallsPerFrame = 0;
     m_legacyTriangleCalls = 0;
     m_legacyLineCalls = 0;
-    m_uiTriangleCalls = 0;
-    m_uiLineCalls = 0;
     m_textCalls = 0;
-    m_lineBatchedCalls = 0;
+    m_lineCalls = 0;
     m_staticSpriteCalls = 0;
     m_rotatingSpriteCalls = 0;
-    m_effectsCircleFillCalls = 0;
-    m_effectsCircleOutlineCalls = 0;
-    m_effectsCircleOutlineThickCalls = 0;
     m_healthBarCalls = 0;
-    m_whiteboardCalls = 0;
     m_eclipseRectCalls = 0;
     m_eclipseRectFillCalls = 0;
     m_eclipseTriangleFillCalls = 0;
@@ -1454,17 +1510,11 @@ void Renderer::IncrementDrawCall(const char* bufferType) {
     switch (hash(bufferType)) {
         case hash("legacy_triangles"): m_legacyTriangleCalls++; break;
         case hash("legacy_lines"): m_legacyLineCalls++; break;
-        case hash("ui_triangles"): m_uiTriangleCalls++; break;
-        case hash("ui_lines"): m_uiLineCalls++; break;
         case hash("text"): m_textCalls++; break;
-        case hash("batched_lines"): m_lineBatchedCalls++; break;
+        case hash("batched_lines"): m_lineCalls++; break;
         case hash("static_sprites"): m_staticSpriteCalls++; break;
         case hash("rotating_sprites"): m_rotatingSpriteCalls++; break;
-        case hash("effects_circle_fills"): m_effectsCircleFillCalls++; break;
-        case hash("effects_circle_outlines_thin"): m_effectsCircleOutlineCalls++; break;
-        case hash("effects_circle_outlines_thick"): m_effectsCircleOutlineThickCalls++; break;
         case hash("health_bars"): m_healthBarCalls++; break;
-        case hash("whiteboard"): m_whiteboardCalls++; break;
         case hash("eclipse_rects"): m_eclipseRectCalls++; break;
         case hash("eclipse_rectfills"): m_eclipseRectFillCalls++; break;
         case hash("eclipse_trianglefills"): m_eclipseTriangleFillCalls++; break;

@@ -40,7 +40,7 @@ void Renderer::BeginTextBatch() {
 }
 
 void Renderer::BeginLineBatch() {
-    m_lineBatchedVertexCount = 0;
+    m_lineVertexCount = 0;
 }
 
 void Renderer::BeginStaticSpriteBatch() {
@@ -51,12 +51,6 @@ void Renderer::BeginStaticSpriteBatch() {
 void Renderer::BeginRotatingSpriteBatch() {
     m_rotatingSpriteVertexCount = 0;
     m_currentRotatingSpriteTexture = 0;
-}
-
-void Renderer::BeginEffectsCircleBatch() {
-    m_effectsCircleFillVertexCount = 0;
-    m_effectsCircleOutlineVertexCount = 0;
-    m_effectsCircleOutlineThickVertexCount = 0;
 }
 
 void Renderer::BeginHealthBarBatch() {
@@ -115,8 +109,8 @@ void Renderer::EndTextBatch() {
 }
 
 void Renderer::EndLineBatch() {
-    if (m_lineBatchedVertexCount > 0) {
-        FlushLineBatched();
+    if (m_lineVertexCount > 0) {
+        FlushLines();
     }
 }
 
@@ -130,12 +124,6 @@ void Renderer::EndRotatingSpriteBatch() {
     if (m_rotatingSpriteVertexCount > 0) {
         FlushRotatingSprite();
     }
-}
-
-void Renderer::EndEffectsCircleBatch() {
-    FlushEffectsCircleFills();           
-    FlushEffectsCircleOutlinesThick();   
-    FlushEffectsCircleOutlines();        
 }
 
 void Renderer::EndHealthBarBatch() {
@@ -185,9 +173,9 @@ void Renderer::FlushTextBufferIfFull(int charactersNeeded) {
     }
 }
 
-void Renderer::FlushLineBatchedIfFull(int segmentsNeeded) {
-    if (m_lineBatchedVertexCount + segmentsNeeded > MAX_BATCHED_LINES_VERTICES) {
-        FlushLineBatched();
+void Renderer::FlushLinesIfFull(int segmentsNeeded) {
+    if (m_lineVertexCount + segmentsNeeded > MAX_LINE_VERTICES) {
+        FlushLines();
     }
 }
 
@@ -237,46 +225,6 @@ void Renderer::FlushEclipseSpritesIfFull(int verticesNeeded) {
 // CORE FLUSH FUNCTIONS
 // ============================================================================
 
-void Renderer::FlushUITriangles() {
-    if (m_uiTriangleVertexCount == 0) return;
-    
-    StartFlushTiming("UI_Triangles"); 
-    IncrementDrawCall("ui_triangles");
-    
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_uiVAO);
-    SetArrayBuffer(m_uiVBO);
-    UploadVertexDataToVBO(m_uiVBO, m_uiTriangleVertices, m_uiTriangleVertexCount, GL_STREAM_DRAW);
-        
-    glDrawArrays(GL_TRIANGLES, 0, m_uiTriangleVertexCount);
-    
-    m_uiTriangleVertexCount = 0;
-    
-    EndFlushTiming("UI_Triangles");
-}
-
-void Renderer::FlushUILines() {
-    if (m_uiLineVertexCount == 0) return;
-    
-    StartFlushTiming("UI_Lines");
-    IncrementDrawCall("ui_lines");
-    
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_uiVAO);
-    SetArrayBuffer(m_uiVBO);
-    UploadVertexDataToVBO(m_uiVBO, m_uiLineVertices, m_uiLineVertexCount, GL_STREAM_DRAW);
-           
-    glDrawArrays(GL_LINES, 0, m_uiLineVertexCount);
-    
-    m_uiLineVertexCount = 0;
-    
-    EndFlushTiming("UI_Lines");
-}
-
 void Renderer::FlushTriangles(bool useTexture) {
     if (m_triangleVertexCount == 0) return;
     
@@ -301,26 +249,6 @@ void Renderer::FlushTriangles(bool useTexture) {
     m_triangleVertexCount = 0;
     
     EndFlushTiming("Legacy_Triangles");
-}
-
-void Renderer::FlushLines() {
-    if (m_lineVertexCount == 0) return;
-    
-    StartFlushTiming("Legacy_Lines");
-    IncrementDrawCall("legacy_lines");
-    
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_legacyVAO);
-    SetArrayBuffer(m_legacyVBO);
-    UploadVertexDataToVBO(m_legacyVBO, m_lineVertices, m_lineVertexCount, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_LINES, 0, m_lineVertexCount);
-    
-    m_lineVertexCount = 0;
-    
-    EndFlushTiming("Legacy_Lines"); 
 }
 
 void Renderer::FlushTextBuffer() {
@@ -362,11 +290,11 @@ void Renderer::FlushTextBuffer() {
     EndFlushTiming("Text");
 }
 
-void Renderer::FlushLineBatched() {
-    if (m_lineBatchedVertexCount == 0) return;
+void Renderer::FlushLines() {
+    if (m_lineVertexCount == 0) return;
     
-    StartFlushTiming("Batched_Lines");
-    IncrementDrawCall("batched_lines");
+    StartFlushTiming("Lines");
+    IncrementDrawCall("lines");
     
 #ifndef TARGET_EMSCRIPTEN
     SetLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS)); 
@@ -377,13 +305,13 @@ void Renderer::FlushLineBatched() {
     
     SetVertexArray(m_effectsVAO);
     SetArrayBuffer(m_effectsVBO);
-    UploadVertexDataToVBO(m_effectsVBO, m_lineBatchedVertices, m_lineBatchedVertexCount, GL_DYNAMIC_DRAW); 
+    UploadVertexDataToVBO(m_effectsVBO, m_lineVertices, m_lineVertexCount, GL_DYNAMIC_DRAW); 
     
-    glDrawArrays(GL_LINES, 0, m_lineBatchedVertexCount);
+    glDrawArrays(GL_LINES, 0, m_lineVertexCount);
     
-    m_lineBatchedVertexCount = 0;
+    m_lineVertexCount = 0;
     
-    EndFlushTiming("Batched_Lines"); 
+    EndFlushTiming("Lines"); 
 }
 
 
@@ -436,74 +364,6 @@ void Renderer::FlushRotatingSprite() {
     m_rotatingSpriteVertexCount = 0;
     
     EndFlushTiming("Unit_Rotating");
-}
-
-void Renderer::FlushEffectsCircleFills() {
-    if (m_effectsCircleFillVertexCount == 0) return;
-    
-    IncrementDrawCall("effects_circle_fills");
-    StartFlushTiming("Effects_CircleFills");
-
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_effectsVAO);
-    SetArrayBuffer(m_effectsVBO);
-    UploadVertexDataToVBO(m_effectsVBO, m_radarFillVertices, m_effectsCircleFillVertexCount, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_effectsCircleFillVertexCount);
-    
-    m_effectsCircleFillVertexCount = 0;
-
-    EndFlushTiming("Effects_CircleFills");
-}
-
-void Renderer::FlushEffectsCircleOutlines() {
-    if (m_effectsCircleOutlineVertexCount == 0) return;
-    
-    IncrementDrawCall("effects_circle_outlines_thin");
-    StartFlushTiming("Effects_CircleOutlinesThin");
-
-#ifndef TARGET_EMSCRIPTEN
-    SetLineWidth(1.0f); 
-#endif
-    
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_effectsVAO);
-    SetArrayBuffer(m_effectsVBO);
-    UploadVertexDataToVBO(m_effectsVBO, m_effectsCircleOutlineVertices, m_effectsCircleOutlineVertexCount, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_LINES, 0, m_effectsCircleOutlineVertexCount);
-    
-    m_effectsCircleOutlineVertexCount = 0;
-
-    EndFlushTiming("Effects_CircleOutlinesThin");
-}
-
-void Renderer::FlushEffectsCircleOutlinesThick() {
-    if (m_effectsCircleOutlineThickVertexCount == 0) return;
-    
-    IncrementDrawCall("effects_circle_outlines_thick");
-    StartFlushTiming("Effects_CircleOutlinesThick");
-
-#ifndef TARGET_EMSCRIPTEN
-    SetLineWidth(3.0f); // Own radar thick lines
-#endif
-    
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_effectsVAO);
-    SetArrayBuffer(m_effectsVBO);
-    UploadVertexDataToVBO(m_effectsVBO, m_effectsCircleOutlineThickVertices, m_effectsCircleOutlineThickVertexCount, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_LINES, 0, m_effectsCircleOutlineThickVertexCount);
-    
-    m_effectsCircleOutlineThickVertexCount = 0;
-
-    EndFlushTiming("Effects_CircleOutlinesThick");
 }
 
 // flush the buffer
@@ -639,28 +499,4 @@ void Renderer::FlushEclipseSprites() {
     m_currentEclipseSpriteTexture = 0;
     
     EndFlushTiming("Eclipse_Sprites");
-}
-
-void Renderer::FlushWhiteboard() {
-    if (m_whiteboardVertexCount == 0) return;
-    
-    StartFlushTiming("Whiteboard");
-    IncrementDrawCall("whiteboard");
-    
-#ifndef TARGET_EMSCRIPTEN
-    SetLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_WHITEBOARD_THICKNESS));
-#endif
-    
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_legacyVAO);
-    SetArrayBuffer(m_legacyVBO);
-    UploadVertexDataToVBO(m_legacyVBO, m_whiteboardVertices, m_whiteboardVertexCount, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_LINES, 0, m_whiteboardVertexCount);
-    
-    m_whiteboardVertexCount = 0;
-    
-    EndFlushTiming("Whiteboard");
 }

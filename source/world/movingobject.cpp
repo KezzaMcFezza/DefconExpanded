@@ -696,7 +696,7 @@ void MovingObject::RenderHistory()
             lastPos += diff * 0.1f;
             colour.m_a = 255 - 255 * (float) i / (float) maxSize;
             
-            g_renderer->LineBatched( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
+            g_renderer->Line( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
             lastPos = historyPos;
         }
     }

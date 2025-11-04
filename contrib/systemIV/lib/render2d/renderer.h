@@ -61,7 +61,7 @@ private:
     BUFFER_UI_LINES,           // UI borders, grids, wireframes, not yet implemented with batching
     BUFFER_TEXT,               // all text rendering, not yet implemented with batching
     BUFFER_SPRITES,            // general sprites/images
-    BUFFER_BATCHED_LINES,      // movement history lines, 4000 draw call reductin when implemented with batching
+    BUFFER_LINES,              // movement history lines, 4000 draw call reductin when implemented with batching
     BUFFER_STATIC_SPRITES,     // main static unit sprites (ground/sea units)
     BUFFER_ROTATING_SPRITES,   // rotating sprites (aircraft/nukes)
     BUFFER_WHITEBOARD,         // whiteboard drawings
@@ -69,13 +69,11 @@ private:
   };
 
   static constexpr int MAX_VERTICES                 = 1000;
-  static constexpr int MAX_UI_VERTICES              = 5000;
   static constexpr int MAX_TEXT_VERTICES            = 28000;
-  static constexpr int MAX_BATCHED_LINES_VERTICES   = 30000;
+  static constexpr int MAX_LINE_VERTICES            = 30000;
   static constexpr int MAX_STATIC_SPRITE_VERTICES   = 30000;
   static constexpr int MAX_ROTATING_SPRITE_VERTICES = 15000;
   static constexpr int MAX_HEALTH_BAR_VERTICES      = 500;
-  static constexpr int MAX_WHITEBOARD_VERTICES      = 2000;
   static constexpr int MAX_ECLIPSE_RECT_VERTICES    = 2000;
   static constexpr int MAX_ECLIPSE_RECTFILL_VERTICES= 3000;
   static constexpr int MAX_ECLIPSE_TRIANGLEFILL_VERTICES = 3000;
@@ -124,22 +122,6 @@ protected:
   int m_textureLocation;
 
   //
-  // legacy vertex buffers
-
-  Vertex2D m_triangleVertices       [MAX_VERTICES];
-  int m_triangleVertexCount;
-  Vertex2D m_lineVertices           [MAX_VERTICES];
-  int m_lineVertexCount;
-
-  //
-  // ui/primitive buffers (lines, rects, circles - non-textured)
-
-  Vertex2D m_uiTriangleVertices     [MAX_UI_VERTICES];
-  int m_uiTriangleVertexCount;
-  Vertex2D m_uiLineVertices         [MAX_UI_VERTICES];
-  int m_uiLineVertexCount;
-
-  //
   // text/font buffer, textured with font-aware batching for multiple atlases
 
   static const int MAX_FONT_ATLASES = 4;  // bitlow, kremlin, lucon, zerothre
@@ -157,45 +139,36 @@ protected:
   int m_textVertexCount;              // current font batch vertex count  
   unsigned int m_currentTextTexture;  // current font batch texture ID
 
-  Vertex2D m_lineBatchedVertices      [MAX_BATCHED_LINES_VERTICES];
-  int m_lineBatchedVertexCount;
+  Vertex2D m_triangleVertices                [MAX_VERTICES];
+  int m_triangleVertexCount;
 
-  Vertex2D m_staticSpriteVertices       [MAX_STATIC_SPRITE_VERTICES];
+  Vertex2D m_lineVertices                    [MAX_LINE_VERTICES];
+  int m_lineVertexCount;
+
+  Vertex2D m_staticSpriteVertices            [MAX_STATIC_SPRITE_VERTICES];
   int m_staticSpriteVertexCount;
   unsigned int m_currentStaticSpriteTexture;
 
-  Vertex2D m_rotatingSpriteVertices   [MAX_ROTATING_SPRITE_VERTICES];
+  Vertex2D m_rotatingSpriteVertices          [MAX_ROTATING_SPRITE_VERTICES];
   int m_rotatingSpriteVertexCount;
   unsigned int m_currentRotatingSpriteTexture;
 
-  Vertex2D m_radarFillVertices      [MAX_STATIC_SPRITE_VERTICES];
-  int m_effectsCircleFillVertexCount;
-
-  Vertex2D m_effectsCircleOutlineVertices   [MAX_BATCHED_LINES_VERTICES];
-  int m_effectsCircleOutlineVertexCount;
-
-  Vertex2D m_effectsCircleOutlineThickVertices[MAX_BATCHED_LINES_VERTICES];
-  int m_effectsCircleOutlineThickVertexCount;
-
-  Vertex2D m_healthBarVertices      [MAX_HEALTH_BAR_VERTICES];
+  Vertex2D m_healthBarVertices               [MAX_HEALTH_BAR_VERTICES];
   int m_healthBarVertexCount;
 
-  Vertex2D m_whiteboardVertices     [MAX_WHITEBOARD_VERTICES];
-  int m_whiteboardVertexCount;
-
-  Vertex2D m_eclipseRectVertices    [MAX_ECLIPSE_RECT_VERTICES];
+  Vertex2D m_eclipseRectVertices             [MAX_ECLIPSE_RECT_VERTICES];
   int m_eclipseRectVertexCount;
 
-  Vertex2D m_eclipseRectFillVertices[MAX_ECLIPSE_RECTFILL_VERTICES];
+  Vertex2D m_eclipseRectFillVertices         [MAX_ECLIPSE_RECTFILL_VERTICES];
   int m_eclipseRectFillVertexCount;
 
-  Vertex2D m_eclipseTriangleFillVertices[MAX_ECLIPSE_TRIANGLEFILL_VERTICES];
+  Vertex2D m_eclipseTriangleFillVertices     [MAX_ECLIPSE_TRIANGLEFILL_VERTICES];
   int m_eclipseTriangleFillVertexCount;
 
-  Vertex2D m_eclipseLineVertices    [MAX_ECLIPSE_LINE_VERTICES];
+  Vertex2D m_eclipseLineVertices             [MAX_ECLIPSE_LINE_VERTICES];
   int m_eclipseLineVertexCount;
 
-  Vertex2D m_eclipseSpriteVertices  [MAX_ECLIPSE_SPRITE_VERTICES];
+  Vertex2D m_eclipseSpriteVertices           [MAX_ECLIPSE_SPRITE_VERTICES];
   int m_eclipseSpriteVertexCount;
   unsigned int m_currentEclipseSpriteTexture;
 
@@ -278,20 +251,12 @@ protected:
  
  
   void FlushIfTextureChanged(unsigned int newTextureID, bool useTexture);
-  bool ShouldFlushThisFrame();
   void FlushTriangles(bool useTexture);
-  void FlushLines();
-  void FlushUITriangles();
-  void FlushUILines();
   void FlushTextBuffer();
-  void FlushLineBatched();
+  void FlushLines();
   void FlushStaticSprites();
   void FlushRotatingSprite();
   void FlushHealthBars();
-  void FlushEffectsCircleFills();
-  void FlushEffectsCircleOutlines();
-  void FlushEffectsCircleOutlinesThick();
-  void FlushWhiteboard();
   void FlushEclipseRects();
   void FlushEclipseRectFills();
   void FlushEclipseTriangleFills();
@@ -394,17 +359,11 @@ public:
   int m_drawCallsPerFrame;
   int m_legacyTriangleCalls;
   int m_legacyLineCalls;
-  int m_uiTriangleCalls;
-  int m_uiLineCalls;
   int m_textCalls;
-  int m_lineBatchedCalls;
+  int m_lineCalls;
   int m_staticSpriteCalls;
   int m_rotatingSpriteCalls;
-  int m_effectsCircleFillCalls;
-  int m_effectsCircleOutlineCalls;
-  int m_effectsCircleOutlineThickCalls;
   int m_healthBarCalls;
-  int m_whiteboardCalls;
   int m_eclipseRectCalls;
   int m_eclipseRectFillCalls;
   int m_eclipseTriangleFillCalls;
@@ -413,17 +372,11 @@ public:
   int m_prevDrawCallsPerFrame;
   int m_prevLegacyTriangleCalls;
   int m_prevLegacyLineCalls;
-  int m_prevUiTriangleCalls;
-  int m_prevUiLineCalls;
   int m_prevTextCalls;
-  int m_prevlineBatchedCalls;
+  int m_prevLineCalls;
   int m_prevStaticSpriteCalls;
   int m_prevRotatingSpriteCalls;
-  int m_prevEffectsCircleFillCalls;
-  int m_prevEffectsCircleOutlineCalls;
-  int m_prevEffectsCircleOutlineThickCalls;
   int m_prevHealthBarCalls;
-  int m_prevWhiteboardCalls;
   int m_prevEclipseRectCalls;
   int m_prevEclipseRectFillCalls;
   int m_prevEclipseTriangleFillCalls;
@@ -442,59 +395,28 @@ public:
   int GetTotalDrawCalls         () const { return m_prevDrawCallsPerFrame; }
   int GetLegacyTriangleCalls    () const { return m_prevLegacyTriangleCalls; }
   int GetLegacyLineCalls        () const { return m_prevLegacyLineCalls; }
-  int GetUITriangleCalls        () const { return m_prevUiTriangleCalls; }
-  int GetUILineCalls            () const { return m_prevUiLineCalls; }
   int GetTextCalls              () const { return m_prevTextCalls; }
-  int GetlineBatchedCalls         () const { return m_prevlineBatchedCalls; }
-  int GetStaticSpriteCalls    () const { return m_prevStaticSpriteCalls; }
-  int GetRotatingSpriteCalls      () const { return m_prevRotatingSpriteCalls; }
-
-  int GetEffectsCircleFillCalls () const { return m_prevEffectsCircleFillCalls; }
-  int GetEffectsCircleOutlineCalls () const { return m_prevEffectsCircleOutlineCalls; }
-  int GetEffectsCircleOutlineThickCalls () const { return m_prevEffectsCircleOutlineThickCalls; }
+  int GetLineCalls              () const { return m_prevLineCalls; }
+  int GetStaticSpriteCalls      () const { return m_prevStaticSpriteCalls; }
+  int GetRotatingSpriteCalls    () const { return m_prevRotatingSpriteCalls; }
   int GetHealthBarCalls         () const { return m_prevHealthBarCalls; }
-  int GetWhiteboardCalls        () const { return m_prevWhiteboardCalls; }
   int GetEclipseRectCalls       () const { return m_prevEclipseRectCalls; }
   int GetEclipseRectFillCalls   () const { return m_prevEclipseRectFillCalls; }
   int GetEclipseTriangleFillCalls() const { return m_prevEclipseTriangleFillCalls; }
   int GetEclipseLineCalls       () const { return m_prevEclipseLineCalls; }
   int GetEclipseSpriteCalls     () const { return m_prevEclipseSpriteCalls; }
 
-  //
-  // combined draw call counters
-
-  int GetTotalUnitCalls() const {
-    return m_prevlineBatchedCalls + m_prevStaticSpriteCalls +
-           m_prevRotatingSpriteCalls + m_prevHealthBarCalls;
-  }
-  int GetTotalEffectCalls() const {
-    return m_prevEffectsCircleFillCalls + m_prevEffectsCircleOutlineCalls + 
-           m_prevEffectsCircleOutlineThickCalls + m_prevWhiteboardCalls;
-  }
-  int GetTotalSpecializedCalls() const {
-    return GetTotalUnitCalls() + GetTotalEffectCalls() + m_prevUiTriangleCalls +
-           m_prevUiLineCalls + m_prevTextCalls;
-  }
-
-  //
-  // get vertex counts
 
   int GetCurrentTextVertexCount() const { return m_textVertexCount; }
-  int GetCurrentLineBatchedVertexCount() const { return m_lineBatchedVertexCount; }
-  int GetCurrentUnitMainVertexCount() const { return m_staticSpriteVertexCount; }
+  int GetCurrentLineVertexCount() const { return m_lineVertexCount; }
+  int GetCurrentStaticSpriteVertexCount() const { return m_staticSpriteVertexCount; }
   int GetCurrentRotatingSpriteVertexCount() const { return m_rotatingSpriteVertexCount; }
-  int GetCurrentEffectsCircleFillVertexCount() const { return m_effectsCircleFillVertexCount; }
-  int GetCurrentEffectsCircleOutlineVertexCount() const { return m_effectsCircleOutlineVertexCount; }
-  int GetCurrentEffectsCircleOutlineThickVertexCount() const { return m_effectsCircleOutlineThickVertexCount; }
   int GetCurrentHealthBarVertexCount() const { return m_healthBarVertexCount; }
-  int GetCurrentWhiteboardVertexCount() const { return m_whiteboardVertexCount; }
   int GetCurrentEclipseRectVertexCount() const { return m_eclipseRectVertexCount; }
   int GetCurrentEclipseRectFillVertexCount() const { return m_eclipseRectFillVertexCount; }
   int GetCurrentEclipseTriangleFillVertexCount() const { return m_eclipseTriangleFillVertexCount; }
   int GetCurrentEclipseLineVertexCount() const { return m_eclipseLineVertexCount; }
   int GetCurrentEclipseSpriteVertexCount() const { return m_eclipseSpriteVertexCount; }
-  int GetCurrentUITriangleVertexCount() const { return m_uiTriangleVertexCount; }
-  int GetCurrentUILineVertexCount() const { return m_uiLineVertexCount; }
   int GetCurrentLegacyTriangleVertexCount() const { return m_triangleVertexCount; }
   int GetCurrentLegacyLineVertexCount() const { return m_lineVertexCount; }
   
@@ -502,13 +424,10 @@ public:
   // now get total current vertex count across all buffers
   
   int GetTotalCurrentVertexCount() const {
-    return m_textVertexCount + m_lineBatchedVertexCount + m_staticSpriteVertexCount + 
-           m_rotatingSpriteVertexCount + m_effectsCircleFillVertexCount +
-           m_effectsCircleOutlineVertexCount + m_effectsCircleOutlineThickVertexCount +
-           m_healthBarVertexCount + m_whiteboardVertexCount + m_eclipseRectVertexCount +
+    return m_textVertexCount + m_lineVertexCount + m_staticSpriteVertexCount + 
+           m_rotatingSpriteVertexCount + m_healthBarVertexCount + m_eclipseRectVertexCount +
            m_eclipseRectFillVertexCount + m_eclipseTriangleFillVertexCount + m_eclipseLineVertexCount +
-           m_eclipseSpriteVertexCount + m_uiTriangleVertexCount + m_uiLineVertexCount +
-           m_triangleVertexCount + m_lineVertexCount;
+           m_eclipseSpriteVertexCount + m_triangleVertexCount + m_lineVertexCount;
   }
 
   int GetMegaBufferVertexCount() const { return m_maxMegaVertices; }
@@ -661,8 +580,11 @@ public:
                          float lineWidth = 1.0f);
 
   void BeginLines       (Colour const &col, float lineWidth);
-  void Line             (float x, float y);
+  void Line             (float x1, float y1, float x2, float y2, Colour const &col);
   void EndLines         ();
+  void BeginLineBatch   ();
+  void EndLineBatch     ();
+  void FlushLinesIfFull (int segmentsNeeded);
 
   //
   // line strip rendering for continuous lines
@@ -692,13 +614,6 @@ public:
   void SetMegaVBOBufferSizes    (int vertexCount, int indexCount);
   void InvalidateAllVBOs        ();
 
-  //
-  // whiteboard batching system 
-
-  void BeginWhiteboardBatch     ();
-  void WhiteboardLine           (float x1, float y1, float x2, float y2, Colour const &col);
-  void EndWhiteboardBatch       ();
-
   void SetClip                  (int x, int y, int w, int h);
   void ResetClip                ();
 
@@ -714,30 +629,15 @@ public:
   void EndTextBatch();
   void FlushTextBufferIfFull    (int charactersNeeded);
 
-  //
-  // Batched lines 
-
-  void BeginLineBatch              ();
-  void LineBatched                 (float x1, float y1, float x2, float y2, Colour const &col);
-  void EndLineBatch                ();
-  void FlushLineBatchedIfFull      (int segmentsNeeded);
 
   //
   // main unit sprite rendering
 
   void BeginStaticSpriteBatch         ();
-  void StaticSprite             (Image *src, float x, float y, float w, float h,
-                                   Colour const &col);
+  void StaticSprite                   (Image *src, float x, float y, float w, float h,
+                                       Colour const &col);
   void EndStaticSpriteBatch           ();
-  void FlushStaticSpritesIfFull (int verticesNeeded);
-
-  //
-  // circle batched rendering
-
-  void    BeginEffectsCircleBatch ();
-  void    EndEffectsCircleBatch   ();
-  void    EffectsCircleFill       ( float x, float y, float radius, int segments, Colour const &col );
-  void    EffectsCircleOutline    ( float x, float y, float radius, int segments, Colour const &col, float lineWidth );
+  void FlushStaticSpritesIfFull       (int verticesNeeded);
 
   //
   // rotating sprite rendering (aircraft/nukes with rotation)

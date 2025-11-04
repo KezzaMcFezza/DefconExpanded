@@ -170,9 +170,9 @@ private:
     // ============================================
     
     // Unit trail rendering buffers
-    static constexpr int MAX_BATCHED_LINES_VERTICES_3D = 30000; 
-    Vertex3D m_lineBatchedVertices3D[MAX_BATCHED_LINES_VERTICES_3D];
-    int m_lineBatchedVertexCount3D;
+    static constexpr int MAX_LINE_VERTICES_3D = 30000; 
+    Vertex3D m_lineVertices3D[MAX_LINE_VERTICES_3D];
+    int m_lineVertexCount3D;
     
     // Static Sprite sprite rendering buffers
     static constexpr int MAX_STATIC_SPRITE_VERTICES_3D = 30000;
@@ -219,7 +219,7 @@ private:
     int m_drawCallsPerFrame3D;
     int m_legacyVertexCalls3D;        
     int m_legacyTriangleCalls3D;      
-    int m_lineBatchedCalls3D;
+    int m_lineCalls3D;
     int m_staticSpriteCalls3D;
     int m_rotatingSpriteCalls3D;
     int m_healthBarCalls3D;
@@ -231,7 +231,7 @@ private:
     int m_prevDrawCallsPerFrame3D;
     int m_prevLegacyVertexCalls3D;
     int m_prevLegacyTriangleCalls3D;
-    int m_prevlineBatchedCalls3D;
+    int m_prevLineCalls3D;
     int m_prevStaticSpriteCalls3D;
     int m_prevRotatingSpriteCalls3D;
     int m_prevHealthBarCalls3D;
@@ -356,7 +356,7 @@ public:
     int GetUITriangleCalls() const { return 0; }    
     int GetUILineCalls() const { return 0; }        
     int GetTextCalls() const { return m_prevTextCalls3D; }
-    int GetlineBatchedCalls() const { return m_prevlineBatchedCalls3D; }
+    int GetLineCalls() const { return m_prevLineCalls3D; }
     int GetStaticSpriteCalls() const { return m_prevStaticSpriteCalls3D; }
     int GetRotatingSpriteCalls() const { return m_prevRotatingSpriteCalls3D; }
     int GetHealthBarCalls() const { return m_prevHealthBarCalls3D; }
@@ -365,7 +365,7 @@ public:
     int GetGlobeSurfaceCalls() const { return m_prevGlobeSurfaceCalls3D; }
     
     int GetTotalUnitCalls() const { 
-        return m_prevlineBatchedCalls3D + m_prevStaticSpriteCalls3D + 
+        return m_prevLineCalls3D + m_prevStaticSpriteCalls3D + 
         m_prevRotatingSpriteCalls3D + m_prevHealthBarCalls3D; 
     }
     int GetTotalSpecializedCalls() const {
@@ -373,8 +373,8 @@ public:
     }
 
     int GetCurrentTextVertexCount() const { return m_textVertexCount3D; }
-    int GetCurrentLineBatchedVertexCount() const { return m_lineBatchedVertexCount3D; }
-    int GetCurrentUnitMainVertexCount() const { return m_staticSpriteVertexCount3D; }
+    int GetCurrentLineVertexCount() const { return m_lineVertexCount3D; }
+    int GetCurrentStaticSpriteVertexCount() const { return m_staticSpriteVertexCount3D; }
     int GetCurrentRotatingSpriteVertexCount() const { return m_rotatingSpriteVertexCount3D; }
     int GetCurrentHealthBarVertexCount() const { return m_healthBarVertexCount3D; }
     int GetCurrentNuke3DModelVertexCount() const { return m_nuke3DModelVertexCount3D; }
@@ -382,7 +382,7 @@ public:
     int GetCurrentGlobeSurfaceVertexCount() const { return m_globeSurfaceVertexCount3D; }
     
     int GetTotalCurrentVertexCount() const {
-        return m_textVertexCount3D + m_lineBatchedVertexCount3D + m_staticSpriteVertexCount3D + 
+        return m_textVertexCount3D + m_lineVertexCount3D + m_staticSpriteVertexCount3D + 
                m_rotatingSpriteVertexCount3D +
                m_healthBarVertexCount3D + m_nuke3DModelVertexCount3D +
                m_starFieldVertexCount3D + m_globeSurfaceVertexCount3D;
@@ -391,7 +391,7 @@ public:
     size_t GetTotalAllocatedBufferMemory() const {
         size_t total = 0;
         
-        int nonTexturedVertices = m_lineBatchedVertexCount3D + m_nuke3DModelVertexCount3D + m_globeSurfaceVertexCount3D;
+        int nonTexturedVertices = m_lineVertexCount3D + m_nuke3DModelVertexCount3D + m_globeSurfaceVertexCount3D;
         total += nonTexturedVertices * sizeof(Vertex3D);
         
         int texturedVertices = m_staticSpriteVertexCount3D + m_rotatingSpriteVertexCount3D +  

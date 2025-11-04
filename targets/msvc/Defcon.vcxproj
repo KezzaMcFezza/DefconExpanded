@@ -1135,7 +1135,6 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\primitive_buffers.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\sprite_buffers.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\text_buffers.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\primitives.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_vbo.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\operations_3d.cpp" />

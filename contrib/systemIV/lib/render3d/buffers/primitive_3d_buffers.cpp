@@ -18,8 +18,8 @@ void Renderer3D::LineBatched3D(float x1, float y1, float z1, float x2, float y2,
     
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
-    m_lineBatchedVertices3D[m_lineBatchedVertexCount3D++] = {x1, y1, z1, r, g, b, a};
-    m_lineBatchedVertices3D[m_lineBatchedVertexCount3D++] = {x2, y2, z2, r, g, b, a};
+    m_lineVertices3D[m_lineVertexCount3D++] = {x1, y1, z1, r, g, b, a};
+    m_lineVertices3D[m_lineVertexCount3D++] = {x2, y2, z2, r, g, b, a};
 }
 
 void Renderer3D::HealthBarRect3D(float x, float y, float z, float w, float h, Colour const &col) {

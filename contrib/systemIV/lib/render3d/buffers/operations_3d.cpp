@@ -146,7 +146,7 @@ void Renderer3D::EndGlobeSurfaceBatch3D() {
 // ============================================================================
 
 void Renderer3D::FlushLineBatched3DIfFull(int segmentsNeeded) {
-    if (m_lineBatchedVertexCount3D + segmentsNeeded > MAX_BATCHED_LINES_VERTICES_3D) {
+    if (m_lineVertexCount3D + segmentsNeeded > MAX_LINE_VERTICES_3D) {
         FlushLineBatched3D();
     }
 }
@@ -186,7 +186,7 @@ void Renderer3D::FlushNuke3DModels3DIfFull(int verticesNeeded) {
 // ============================================================================
 
 void Renderer3D::FlushLineBatched3D() {
-    if (m_lineBatchedVertexCount3D == 0) return;
+    if (m_lineVertexCount3D == 0) return;
 
     StartFlushTiming3D("Batched_Lines_3D");
     IncrementDrawCall3D("batched_lines");
@@ -200,11 +200,11 @@ void Renderer3D::FlushLineBatched3D() {
     Set3DShaderUniforms();
     
     m_renderer->SetVertexArray(m_effectsVAO3D);
-    UploadVertexDataTo3DVBO(m_effectsVBO3D, m_lineBatchedVertices3D, m_lineBatchedVertexCount3D, GL_STREAM_DRAW);
+    UploadVertexDataTo3DVBO(m_effectsVBO3D, m_lineVertices3D, m_lineVertexCount3D, GL_STREAM_DRAW);
     
-    glDrawArrays(GL_LINES, 0, m_lineBatchedVertexCount3D);
+    glDrawArrays(GL_LINES, 0, m_lineVertexCount3D);
     
-    m_lineBatchedVertexCount3D = 0;
+    m_lineVertexCount3D = 0;
     
     EndFlushTiming3D("Batched_Lines_3D");
 }

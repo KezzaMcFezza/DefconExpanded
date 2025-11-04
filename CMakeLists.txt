@@ -631,7 +631,6 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/netlib/thread_controller.cpp
     ${SYSTEMIV_PATH}/lib/render/colour.cpp
     ${SYSTEMIV_PATH}/lib/render2d/renderer.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/primitives.cpp
     ${SYSTEMIV_PATH}/lib/render2d/renderer_vbo.cpp
     ${SYSTEMIV_PATH}/lib/render2d/buffers/operations.cpp
     ${SYSTEMIV_PATH}/lib/render2d/buffers/primitive_buffers.cpp

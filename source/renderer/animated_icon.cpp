@@ -124,7 +124,7 @@ bool SonarPing::Render()
             float x2 = m_longitude + size * sinf(angle2);
             float y2 = m_latitude + size * cosf(angle2);
             
-            g_renderer->LineBatched( x1, y1, x2, y2, colour );
+            g_renderer->Line( x1, y1, x2, y2, colour );
         }
     }
 

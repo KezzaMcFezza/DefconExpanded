@@ -158,7 +158,7 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_megaIndex3DCount(0),
     m_lineConversionBuffer3D(NULL),
     m_lineConversionBufferSize3D(0),
-    m_lineBatchedVertexCount3D(0),
+    m_lineVertexCount3D(0),
     m_staticSpriteVertexCount3D(0),
     m_currentStaticSpriteTexture3D(0),
     m_rotatingSpriteVertexCount3D(0),
@@ -186,7 +186,7 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_drawCallsPerFrame3D = 0;
     m_legacyVertexCalls3D = 0;
     m_legacyTriangleCalls3D = 0;
-    m_lineBatchedCalls3D = 0;
+    m_lineCalls3D = 0;
     m_staticSpriteCalls3D = 0;
     m_rotatingSpriteCalls3D = 0;
     m_healthBarCalls3D = 0;
@@ -198,7 +198,7 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_prevDrawCallsPerFrame3D = 0;
     m_prevLegacyVertexCalls3D = 0;
     m_prevLegacyTriangleCalls3D = 0;
-    m_prevlineBatchedCalls3D = 0;
+    m_prevLineCalls3D = 0;
     m_prevStaticSpriteCalls3D = 0;
     m_prevRotatingSpriteCalls3D = 0;
     m_prevHealthBarCalls3D = 0;
@@ -384,7 +384,7 @@ void Renderer3D::Setup3DVertexArrays() {
     glGenBuffers(1, &m_effectsVBO3D);
     glBindVertexArray(m_effectsVAO3D);
     glBindBuffer(GL_ARRAY_BUFFER, m_effectsVBO3D);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * (MAX_BATCHED_LINES_VERTICES_3D), NULL, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * (MAX_LINE_VERTICES_3D), NULL, GL_STREAM_DRAW);
     setup3DVertexAttributes();
     
     // Create Globe VAO/VBO pair (non-textured surface triangles)
@@ -910,7 +910,7 @@ void Renderer3D::IncrementDrawCall3D(const char* bufferType) {
         case hash("legacy_triangles"): m_legacyTriangleCalls3D++; break;
         case hash("text"): m_textCalls3D++; break;
         case hash("mega_vbo"): m_megaVBOCalls3D++; break;
-        case hash("unit_trails"): m_lineBatchedCalls3D++; break;
+        case hash("unit_trails"): m_lineCalls3D++; break;
         case hash("Static_Sprite_sprites"): m_staticSpriteCalls3D++; break;
         case hash("unit_rotating"): m_rotatingSpriteCalls3D++; break;
         case hash("health_bars"): m_healthBarCalls3D++; break;
@@ -923,7 +923,7 @@ void Renderer3D::ResetFrameCounters3D() {
     m_prevDrawCallsPerFrame3D = m_drawCallsPerFrame3D;
     m_prevLegacyVertexCalls3D = m_legacyVertexCalls3D;
     m_prevLegacyTriangleCalls3D = m_legacyTriangleCalls3D;
-    m_prevlineBatchedCalls3D = m_lineBatchedCalls3D;
+    m_prevLineCalls3D = m_lineCalls3D;
     m_prevStaticSpriteCalls3D = m_staticSpriteCalls3D;
     m_prevRotatingSpriteCalls3D = m_rotatingSpriteCalls3D;
     m_prevHealthBarCalls3D = m_healthBarCalls3D;
@@ -935,7 +935,7 @@ void Renderer3D::ResetFrameCounters3D() {
     m_drawCallsPerFrame3D = 0;
     m_legacyVertexCalls3D = 0;
     m_legacyTriangleCalls3D = 0;
-    m_lineBatchedCalls3D = 0;
+    m_lineCalls3D = 0;
     m_staticSpriteCalls3D = 0;
     m_rotatingSpriteCalls3D = 0;
     m_healthBarCalls3D = 0;

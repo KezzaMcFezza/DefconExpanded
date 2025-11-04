@@ -253,8 +253,8 @@ void MapRenderer::Render()
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
         g_renderer->Blit( bmpBlur, -180, 100, 360, -200, blurColour );
 
-        g_renderer->LineBatched( -540, 100, 1080, 100, blurColour );
-        g_renderer->LineBatched( -540, -100, 1080, -100, blurColour );
+        g_renderer->Line( -540, 100, 1080, 100, blurColour );
+        g_renderer->Line( -540, -100, 1080, -100, blurColour );
            
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
@@ -2433,8 +2433,8 @@ void MapRenderer::RenderActionLine( float fromLong, float fromLat, float toLong,
         }
     }
 
-    g_renderer->LineBatched( fromLong, fromLat, toLong, toLat, col );
-    g_renderer->LineBatched( fromLong+GetLongitudeMod(), fromLat, toLong+GetLongitudeMod(), toLat, col );
+    g_renderer->Line( fromLong, fromLat, toLong, toLat, col );
+    g_renderer->Line( fromLong+GetLongitudeMod(), fromLat, toLong+GetLongitudeMod(), toLat, col );
 
     if( animate )
     {
@@ -2446,7 +2446,7 @@ void MapRenderer::RenderActionLine( float fromLong, float fromLat, float toLong,
         Vector3<float> fromVector = Vector3<float>(fromLong,fromLat,0) + lineVector * factor1;
         Vector3<float> toVector =  Vector3<float>(fromLong,fromLat,0) + lineVector * factor2;
 
-        g_renderer->LineBatched( fromVector.x, fromVector.y, toVector.x, toVector.y, col );
+        g_renderer->Line( fromVector.x, fromVector.y, toVector.x, toVector.y, col );
     }
 
 #endif
@@ -3430,7 +3430,7 @@ void MapRenderer::RenderNodes()
             for( int j = 0; j < node->m_routeTable.Size(); ++j )
             {
                 Node *nextNode = g_app->GetWorld()->m_nodes[node->m_routeTable[j]->m_nextNodeId];
-                g_renderer->LineBatched(node->m_longitude.DoubleValue(), 
+                g_renderer->Line(node->m_longitude.DoubleValue(), 
                                  node->m_latitude.DoubleValue(), 
                                  nextNode->m_longitude.DoubleValue(), 
                                  nextNode->m_latitude.DoubleValue(), 
