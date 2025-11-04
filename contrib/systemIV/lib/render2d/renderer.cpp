@@ -3,16 +3,12 @@
 #include <time.h>
 #include <stdarg.h>
 
-#include "lib/eclipse/eclipse.h"
 #include "lib/gucci/window_manager.h"
-#include "lib/gucci/input.h"
 #include "lib/resource/bitmapfont.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/resource/bitmap.h"
 #include "lib/resource/sprite_atlas.h"
-#include "lib/math/vector3.h"
-#include "lib/math/math_utils.h"
 #include "lib/hi_res_time.h"
 #include "lib/debug_utils.h"
 #include "lib/preferences.h"
@@ -1201,7 +1197,7 @@ void Renderer::SetupVertexArrays() {
     glGenBuffers(1, &m_unitVBO);
     glBindVertexArray(m_unitVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_unitVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_STATIC_SPRITE_VERTICES + MAX_ROTATING_SPRITE_VERTICES + MAX_UNIT_STATE_VERTICES), NULL, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_STATIC_SPRITE_VERTICES + MAX_ROTATING_SPRITE_VERTICES), NULL, GL_STREAM_DRAW);
     setupVertexAttributes();
     
     //

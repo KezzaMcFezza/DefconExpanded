@@ -10,7 +10,7 @@
 #include "lib/render/colour.h"
 
 #include "renderer/map_renderer.h"
-#include "../renderer_3d.h"
+#include "lib/render3d/renderer_3d.h"
 
 extern Renderer3D *g_renderer3d;
 

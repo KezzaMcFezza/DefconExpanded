@@ -1,5 +1,6 @@
-#include <stdarg.h>
 #include "lib/universal_include.h"
+
+#include <stdarg.h>
 
 #include "lib/resource/image.h"
 #include "lib/render/colour.h"

@@ -6,8 +6,6 @@
 
 #include "lib/debug_utils.h"
 #include "lib/hi_res_time.h"
-#include "lib/string_utils.h"
-#include "lib/preferences.h"
 #include "lib/render2d/renderer.h"
 #include "lib/resource/sprite_atlas.h"
 #include "lib/resource/image.h"

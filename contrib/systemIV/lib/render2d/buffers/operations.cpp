@@ -2,63 +2,13 @@
 
 #include <stdarg.h>
 
-#include "lib/debug_utils.h"
-#include "lib/resource/resource.h"
-#include "lib/resource/image.h"
 #include "lib/resource/bitmapfont.h"
-#include "lib/math/vector3.h"
-#include "lib/math/math_utils.h"
-#include "lib/string_utils.h"
-#include "lib/resource/sprite_atlas.h"
-#include "lib/render/colour.h"
 #include "lib/preferences.h"
 
 #include "renderer/map_renderer.h"
 #include "lib/render2d/renderer.h"
 
 extern Renderer *g_renderer;
-
-// ============================================================================
-// FLUSH ALL SPECIALIZED BUFFERS
-// ============================================================================
-
-void Renderer::FlushAllSpecializedBuffers() {
-    FlushUITriangles();
-    FlushUILines();
-    FlushTextBuffer();
-    FlushLineBatched();
-    FlushStaticSprites();
-    FlushRotatingSprite();
-    FlushHealthBars();
-    FlushEclipseRects();
-    FlushEclipseRectFills();
-    FlushEclipseLines();
-    FlushEclipseSprites();
-}
-
-void Renderer::FlushAllUnitBuffers() {
-    FlushLineBatched();
-    FlushStaticSprites();
-    FlushRotatingSprite();
-    FlushHealthBars();
-}
-
-void Renderer::FlushUIContext() {
-    FlushUITriangles();
-    FlushUILines();
-}
-
-void Renderer::FlushAllBuffers() {
-    FlushTriangles(false);
-    FlushLines();
-}
-
-void Renderer::FlushTextContext() {
-    FlushTextBuffer();
-}
-
-//
-// this function is problematic but necessary without a texture atlas
 
 void Renderer::FlushIfTextureChanged(unsigned int newTextureID, bool useTexture) {
     if (!m_batchingTextures) {
@@ -109,31 +59,8 @@ void Renderer::BeginEffectsCircleBatch() {
     m_effectsCircleOutlineThickVertexCount = 0;
 }
 
-void Renderer::BeginMapTextBatch() {
-    BeginTextBatch();
-}
-
-void Renderer::BeginFrameTextBatch() {
-    m_textVertexCount = 0;
-    m_currentTextTexture = 0;
-    BeginTextBatch();
-}
-
 void Renderer::BeginHealthBarBatch() {
     m_healthBarVertexCount = 0;
-}
-
-void Renderer::BeginUITriangleBatch() {
-    m_uiTriangleVertexCount = 0;
-}
-
-void Renderer::BeginUILineBatch() {
-    m_uiLineVertexCount = 0;
-}
-
-void Renderer::BeginUIBatch() {
-    BeginUITriangleBatch();
-    BeginUILineBatch();
 }
 
 void Renderer::BeginEclipseRectBatch() {
@@ -188,7 +115,9 @@ void Renderer::EndTextBatch() {
 }
 
 void Renderer::EndLineBatch() {
-    FlushLineBatched();
+    if (m_lineBatchedVertexCount > 0) {
+        FlushLineBatched();
+    }
 }
 
 void Renderer::EndStaticSpriteBatch() {
@@ -209,36 +138,10 @@ void Renderer::EndEffectsCircleBatch() {
     FlushEffectsCircleOutlines();        
 }
 
-void Renderer::EndMapTextBatch() {
-    EndTextBatch();
-}
-
-void Renderer::EndFrameTextBatch() {
-    // flush any remaining text at the end of the frame
-    EndTextBatch();
-}
-
 void Renderer::EndHealthBarBatch() {
     if (m_healthBarVertexCount > 0) {
         FlushHealthBars();
     }
-}
-
-void Renderer::EndUITriangleBatch() {
-    if (m_uiTriangleVertexCount > 0) {
-        FlushUITriangles();
-    }
-}
-
-void Renderer::EndUILineBatch() {
-    if (m_uiLineVertexCount > 0) {
-        FlushUILines();
-    }
-}
-
-void Renderer::EndUIBatch() {
-    EndUITriangleBatch();
-    EndUILineBatch();
 }
 
 void Renderer::EndEclipseRectBatch() {
@@ -333,14 +236,6 @@ void Renderer::FlushEclipseSpritesIfFull(int verticesNeeded) {
 // ============================================================================
 // CORE FLUSH FUNCTIONS
 // ============================================================================
-
-void Renderer::FlushVertices(unsigned int primitiveType, bool useTexture) {
-    if (primitiveType == GL_TRIANGLES) {
-        FlushTriangles(useTexture);
-    } else if (primitiveType == GL_LINES) {
-        FlushLines();
-    }
-}
 
 void Renderer::FlushUITriangles() {
     if (m_uiTriangleVertexCount == 0) return;

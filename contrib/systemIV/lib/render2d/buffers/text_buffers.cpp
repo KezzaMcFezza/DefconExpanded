@@ -1,23 +1,11 @@
 #include "lib/universal_include.h"
 
-#include <time.h>
 #include <stdarg.h>
 
-#include "lib/eclipse/eclipse.h"
-#include "lib/gucci/window_manager.h"
-#include "lib/gucci/input.h"
 #include "lib/resource/bitmapfont.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/resource/bitmap.h"
-#include "lib/math/vector3.h"
-#include "lib/math/math_utils.h"
-#include "lib/hi_res_time.h"
-#include "lib/debug_utils.h"
-#include "lib/preferences.h"
-#include "lib/string_utils.h"
-#include "lib/filesys/filesys_utils.h"
-#include "lib/language_table.h"
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/colour.h"
 

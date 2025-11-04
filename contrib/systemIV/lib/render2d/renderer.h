@@ -157,9 +157,6 @@ protected:
   int m_textVertexCount;              // current font batch vertex count  
   unsigned int m_currentTextTexture;  // current font batch texture ID
 
-  //
-  // unit rendering buffers
-
   Vertex2D m_lineBatchedVertices      [MAX_BATCHED_LINES_VERTICES];
   int m_lineBatchedVertexCount;
 
@@ -180,20 +177,11 @@ protected:
   Vertex2D m_effectsCircleOutlineThickVertices[MAX_BATCHED_LINES_VERTICES];
   int m_effectsCircleOutlineThickVertexCount;
 
-  //
-  // health bar rendering buffer
-
   Vertex2D m_healthBarVertices      [MAX_HEALTH_BAR_VERTICES];
   int m_healthBarVertexCount;
 
-  //
-  // whiteboard rendering buffer
-
   Vertex2D m_whiteboardVertices     [MAX_WHITEBOARD_VERTICES];
   int m_whiteboardVertexCount;
-
-  //
-  // eclipse UI primitive rendering buffers 
 
   Vertex2D m_eclipseRectVertices    [MAX_ECLIPSE_RECT_VERTICES];
   int m_eclipseRectVertexCount;
@@ -287,60 +275,34 @@ protected:
   void SetTextureShaderUniforms();
   void UploadVertexData(const Vertex2D* vertices, int vertexCount);
   void UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices, int vertexCount, unsigned int usageHint);
+ 
+ 
   void FlushIfTextureChanged(unsigned int newTextureID, bool useTexture);
   bool ShouldFlushThisFrame();
   void FlushTriangles(bool useTexture);
   void FlushLines();
-  void FlushAllBuffers();
-
-  //
-  // flush methods
-
   void FlushUITriangles();
   void FlushUILines();
   void FlushTextBuffer();
-  void FlushAllSpecializedBuffers();
-
-  //
-  // Unit rendering flush methods
-
   void FlushLineBatched();
   void FlushStaticSprites();
   void FlushRotatingSprite();
-
-  //
-  // effect rendering flush methods
-
   void FlushHealthBars();
   void FlushEffectsCircleFills();
   void FlushEffectsCircleOutlines();
   void FlushEffectsCircleOutlinesThick();
   void FlushWhiteboard();
-
-  //
-  // eclipse UI primitive flush methods
-  
   void FlushEclipseRects();
   void FlushEclipseRectFills();
   void FlushEclipseTriangleFills();
   void FlushEclipseLines();
   void FlushEclipseSprites();
-
-  //
-  // buffer overflow management
-
   void FlushEclipseRectsIfFull      (int segmentsNeeded);
   void FlushEclipseRectFillsIfFull  (int verticesNeeded);
   void FlushEclipseTriangleFillsIfFull(int verticesNeeded);
   void FlushEclipseLinesIfFull      (int segmentsNeeded);
   void FlushEclipseSpritesIfFull    (int verticesNeeded);
   void FlushRotatingSpritesIfFull    (int verticesNeeded);
-
-  //
-  // main flush methods
-
-  void FlushAllUnitBuffers();
-  void FlushAllEffectBuffers();
 
   // Buffer selection for drawing operations
   BufferType m_activeBuffer;
@@ -372,11 +334,6 @@ public:
   unsigned int GetEffectiveTextureID(Image *image);
 
   //
-  // flush method for font batching optimization
-
-  void FlushVertices                (unsigned int primitiveType, bool useTexture = false);
-
-  //
   // batching system controls
 
   void SetTextureBatching           (bool enabled) { m_batchingTextures = enabled; }
@@ -389,23 +346,6 @@ public:
   bool IsImmediateFlushEnabled      () const { return m_allowImmedateFlush; }
   void BeginFrame();
   void EndFrame();
-
-  //
-  // context switching, flush specific buffers when switching render contexts
-
-  void FlushUIContext();
-  void FlushTextContext();
-
-  //
-  // UI batching system - following map_renderer pattern
-  //
-  
-  void BeginUITriangleBatch();
-  void EndUITriangleBatch();
-  void BeginUILineBatch();
-  void EndUILineBatch();
-  void BeginUIBatch();
-  void EndUIBatch();
   
   //
   // eclipse UI primitive batching system
@@ -773,18 +713,6 @@ public:
   void BeginTextBatch();
   void EndTextBatch();
   void FlushTextBufferIfFull    (int charactersNeeded);
-
-  //
-  // map-specific text batching methods
-
-  void BeginMapTextBatch();
-  void EndMapTextBatch();
-
-  //
-  // frame-level text batching for entire scene
-
-  void BeginFrameTextBatch();
-  void EndFrameTextBatch();
 
   //
   // Batched lines 

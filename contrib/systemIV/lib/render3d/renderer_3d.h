@@ -1,12 +1,3 @@
-/*
- * ===========
- * RENDERER 3D
- * ===========
- *
- * Modern OpenGL 3.3 Core Profile 3D rendering system
- * Specifically designed for DEFCON's 3D globe rendering
- */
-
 #ifndef _included_renderer3d_h
 #define _included_renderer3d_h
 

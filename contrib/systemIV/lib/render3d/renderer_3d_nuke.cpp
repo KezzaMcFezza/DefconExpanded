@@ -2,7 +2,7 @@
 
 #include <math.h>
 
-#include "renderer_3d.h"
+#include "lib/render3d/renderer_3d.h"
 #include "lib/resource/image.h"
 #include "lib/render/colour.h"
 
