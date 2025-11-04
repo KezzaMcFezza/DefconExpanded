@@ -184,4 +184,3 @@ void PlacementIconButton::MouseUp()
     }
 }
 
-

@@ -179,56 +179,21 @@ private:
     // ============================================
     
     // Unit trail rendering buffers
-    static constexpr int MAX_UNIT_TRAIL_VERTICES_3D = 30000; 
-    Vertex3D m_unitTrailVertices3D[MAX_UNIT_TRAIL_VERTICES_3D];
-    int m_unitTrailVertexCount3D;
+    static constexpr int MAX_BATCHED_LINES_VERTICES_3D = 30000; 
+    Vertex3D m_lineBatchedVertices3D[MAX_BATCHED_LINES_VERTICES_3D];
+    int m_lineBatchedVertexCount3D;
     
-    // Unit main sprite rendering buffers
-    static constexpr int MAX_UNIT_MAIN_VERTICES_3D = 30000;
-    Vertex3DTextured m_unitMainVertices3D[MAX_UNIT_MAIN_VERTICES_3D];
-    int m_unitMainVertexCount3D;
-    unsigned int m_currentUnitMainTexture3D;
+    // Static Sprite sprite rendering buffers
+    static constexpr int MAX_STATIC_SPRITE_VERTICES_3D = 30000;
+    Vertex3DTextured m_staticSpriteVertices3D[MAX_STATIC_SPRITE_VERTICES_3D];
+    int m_staticSpriteVertexCount3D;
+    unsigned int m_currentStaticSpriteTexture3D;
     
-    // Unit rotating sprite rendering buffers  
-    static constexpr int MAX_UNIT_ROTATING_VERTICES_3D = 10000;
-    Vertex3DTextured m_unitRotatingVertices3D[MAX_UNIT_ROTATING_VERTICES_3D];
-    int m_unitRotatingVertexCount3D;
-    unsigned int m_currentUnitRotatingTexture3D;
-    
-    // Unit state icon rendering buffers
-    static constexpr int MAX_UNIT_STATE_VERTICES_3D = 7500;
-    Vertex3DTextured m_unitStateVertices3D[MAX_UNIT_STATE_VERTICES_3D];
-    int m_unitStateVertexCount3D;
-    unsigned int m_currentUnitStateTexture3D;
-    
-    // Unit counter text rendering buffers
-    static constexpr int MAX_UNIT_COUNTER_VERTICES_3D = 500;
-    Vertex3DTextured m_unitCounterVertices3D[MAX_UNIT_COUNTER_VERTICES_3D];
-    int m_unitCounterVertexCount3D;
-    unsigned int m_currentUnitCounterTexture3D;
-    
-    // Unit nuke icon rendering buffers
-    static constexpr int MAX_UNIT_NUKE_VERTICES_3D = 7500;
-    Vertex3DTextured m_unitNukeVertices3D[MAX_UNIT_NUKE_VERTICES_3D];
-    int m_unitNukeVertexCount3D;
-    unsigned int m_currentUnitNukeTexture3D;
-    
-    // Unit highlight rendering buffers
-    static constexpr int MAX_UNIT_HIGHLIGHT_VERTICES_3D = 500;
-    Vertex3DTextured m_unitHighlightVertices3D[MAX_UNIT_HIGHLIGHT_VERTICES_3D];
-    int m_unitHighlightVertexCount3D;
-    unsigned int m_currentUnitHighlightTexture3D;
-    
-    // Effects line rendering buffers
-    static constexpr int MAX_EFFECTS_LINE_VERTICES_3D = 50000;
-    Vertex3D m_effectsLineVertices3D[MAX_EFFECTS_LINE_VERTICES_3D];
-    int m_effectsLineVertexCount3D;
-    
-    // Effects sprite rendering buffers
-    static constexpr int MAX_EFFECTS_SPRITE_VERTICES_3D = 7500;
-    Vertex3DTextured m_effectsSpriteVertices3D[MAX_EFFECTS_SPRITE_VERTICES_3D];
-    int m_effectsSpriteVertexCount3D;
-    unsigned int m_currentEffectsSpriteTexture3D;
+    // Rotating Sprite sprite rendering buffers  
+    static constexpr int MAX_ROTATING_SPRITE_VERTICES_3D = 10000;
+    Vertex3DTextured m_rotatingSpriteVertices3D[MAX_ROTATING_SPRITE_VERTICES_3D];
+    int m_rotatingSpriteVertexCount3D;
+    unsigned int m_currentRotatingSpriteTexture3D;
     
     // Health bar rendering buffers
     static constexpr int MAX_HEALTH_BAR_VERTICES_3D = 500;
@@ -263,15 +228,9 @@ private:
     int m_drawCallsPerFrame3D;
     int m_legacyVertexCalls3D;        
     int m_legacyTriangleCalls3D;      
-    int m_unitTrailCalls3D;
-    int m_unitMainSpriteCalls3D;
-    int m_unitRotatingCalls3D;
-    int m_unitStateCalls3D;
-    int m_unitCounterCalls3D;
-    int m_unitNukeIconCalls3D;
-    int m_unitHighlightCalls3D;
-    int m_effectsLineCalls3D;
-    int m_effectsSpriteCalls3D;
+    int m_lineBatchedCalls3D;
+    int m_staticSpriteCalls3D;
+    int m_rotatingSpriteCalls3D;
     int m_healthBarCalls3D;
     int m_textCalls3D;
     int m_megaVBOCalls3D;
@@ -281,15 +240,9 @@ private:
     int m_prevDrawCallsPerFrame3D;
     int m_prevLegacyVertexCalls3D;
     int m_prevLegacyTriangleCalls3D;
-    int m_prevUnitTrailCalls3D;
-    int m_prevUnitMainSpriteCalls3D;
-    int m_prevUnitRotatingCalls3D;
-    int m_prevUnitStateCalls3D;
-    int m_prevUnitCounterCalls3D;
-    int m_prevUnitNukeIconCalls3D;
-    int m_prevUnitHighlightCalls3D;
-    int m_prevEffectsLineCalls3D;
-    int m_prevEffectsSpriteCalls3D;
+    int m_prevlineBatchedCalls3D;
+    int m_prevStaticSpriteCalls3D;
+    int m_prevRotatingSpriteCalls3D;
     int m_prevHealthBarCalls3D;
     int m_prevTextCalls3D;
     int m_prevMegaVBOCalls3D;
@@ -412,67 +365,46 @@ public:
     int GetUITriangleCalls() const { return 0; }    
     int GetUILineCalls() const { return 0; }        
     int GetTextCalls() const { return m_prevTextCalls3D; }
-    int GetUnitTrailCalls() const { return m_prevUnitTrailCalls3D; }
-    int GetUnitMainSpriteCalls() const { return m_prevUnitMainSpriteCalls3D; }
-    int GetUnitRotatingCalls() const { return m_prevUnitRotatingCalls3D; }
-    int GetUnitHighlightCalls() const { return m_prevUnitHighlightCalls3D; }
-    int GetUnitStateIconCalls() const { return m_prevUnitStateCalls3D; }
-    int GetUnitCounterCalls() const { return m_prevUnitCounterCalls3D; }
-    int GetUnitNukeIconCalls() const { return m_prevUnitNukeIconCalls3D; }
-    int GetEffectsLineCalls() const { return m_prevEffectsLineCalls3D; }
-    int GetEffectsSpriteCalls() const { return m_prevEffectsSpriteCalls3D; }
+    int GetlineBatchedCalls() const { return m_prevlineBatchedCalls3D; }
+    int GetStaticSpriteCalls() const { return m_prevStaticSpriteCalls3D; }
+    int GetRotatingSpriteCalls() const { return m_prevRotatingSpriteCalls3D; }
     int GetHealthBarCalls() const { return m_prevHealthBarCalls3D; }
     int GetNuke3DModelCalls() const { return m_prevNuke3DModelCalls3D; }
     int GetStarFieldCalls() const { return m_prevStarFieldCalls3D; }
     int GetGlobeSurfaceCalls() const { return m_prevGlobeSurfaceCalls3D; }
     
     int GetTotalUnitCalls() const { 
-        return m_prevUnitTrailCalls3D + m_prevUnitMainSpriteCalls3D + m_prevUnitRotatingCalls3D + 
-               m_prevUnitHighlightCalls3D + m_prevUnitStateCalls3D + m_prevUnitCounterCalls3D + 
-               m_prevUnitNukeIconCalls3D + m_prevHealthBarCalls3D; 
-    }
-    int GetTotalEffectCalls() const { 
-        return m_prevEffectsLineCalls3D + m_prevEffectsSpriteCalls3D; 
+        return m_prevlineBatchedCalls3D + m_prevStaticSpriteCalls3D + 
+        m_prevRotatingSpriteCalls3D + m_prevHealthBarCalls3D; 
     }
     int GetTotalSpecializedCalls() const {
-        return GetTotalUnitCalls() + GetTotalEffectCalls() + m_prevTextCalls3D + m_prevMegaVBOCalls3D;
+        return GetTotalUnitCalls() + m_prevTextCalls3D + m_prevMegaVBOCalls3D;
     }
 
     int GetCurrentTextVertexCount() const { return m_textVertexCount3D; }
-    int GetCurrentUnitTrailVertexCount() const { return m_unitTrailVertexCount3D; }
-    int GetCurrentUnitMainVertexCount() const { return m_unitMainVertexCount3D; }
-    int GetCurrentUnitRotatingVertexCount() const { return m_unitRotatingVertexCount3D; }
-    int GetCurrentUnitHighlightVertexCount() const { return m_unitHighlightVertexCount3D; }
-    int GetCurrentUnitStateVertexCount() const { return m_unitStateVertexCount3D; }
-    int GetCurrentUnitCounterVertexCount() const { return m_unitCounterVertexCount3D; }
-    int GetCurrentUnitNukeVertexCount() const { return m_unitNukeVertexCount3D; }
-    int GetCurrentEffectsLineVertexCount() const { return m_effectsLineVertexCount3D; }
-    int GetCurrentEffectsSpriteVertexCount() const { return m_effectsSpriteVertexCount3D; }
+    int GetCurrentLineBatchedVertexCount() const { return m_lineBatchedVertexCount3D; }
+    int GetCurrentUnitMainVertexCount() const { return m_staticSpriteVertexCount3D; }
+    int GetCurrentRotatingSpriteVertexCount() const { return m_rotatingSpriteVertexCount3D; }
     int GetCurrentHealthBarVertexCount() const { return m_healthBarVertexCount3D; }
     int GetCurrentNuke3DModelVertexCount() const { return m_nuke3DModelVertexCount3D; }
     int GetCurrentStarFieldVertexCount() const { return m_starFieldVertexCount3D; }
     int GetCurrentGlobeSurfaceVertexCount() const { return m_globeSurfaceVertexCount3D; }
     
     int GetTotalCurrentVertexCount() const {
-        return m_textVertexCount3D + m_unitTrailVertexCount3D + m_unitMainVertexCount3D + 
-               m_unitRotatingVertexCount3D + m_unitHighlightVertexCount3D + m_unitStateVertexCount3D +
-               m_unitCounterVertexCount3D + m_unitNukeVertexCount3D + m_effectsLineVertexCount3D +
-               m_effectsSpriteVertexCount3D + m_healthBarVertexCount3D + m_nuke3DModelVertexCount3D +
+        return m_textVertexCount3D + m_lineBatchedVertexCount3D + m_staticSpriteVertexCount3D + 
+               m_rotatingSpriteVertexCount3D +
+               m_healthBarVertexCount3D + m_nuke3DModelVertexCount3D +
                m_starFieldVertexCount3D + m_globeSurfaceVertexCount3D;
     }
 
     size_t GetTotalAllocatedBufferMemory() const {
         size_t total = 0;
         
-        int nonTexturedVertices = m_unitTrailVertexCount3D + m_effectsLineVertexCount3D + 
-                                 m_nuke3DModelVertexCount3D + m_globeSurfaceVertexCount3D;
+        int nonTexturedVertices = m_lineBatchedVertexCount3D + m_nuke3DModelVertexCount3D + m_globeSurfaceVertexCount3D;
         total += nonTexturedVertices * sizeof(Vertex3D);
         
-        int texturedVertices = m_unitMainVertexCount3D + m_unitRotatingVertexCount3D + 
-                              m_unitStateVertexCount3D + m_unitCounterVertexCount3D + 
-                              m_unitNukeVertexCount3D + m_unitHighlightVertexCount3D + 
-                              m_effectsSpriteVertexCount3D + m_healthBarVertexCount3D + 
-                              m_textVertexCount3D + m_starFieldVertexCount3D;
+        int texturedVertices = m_staticSpriteVertexCount3D + m_rotatingSpriteVertexCount3D +  
+                              m_healthBarVertexCount3D + m_textVertexCount3D + m_starFieldVertexCount3D;
         total += texturedVertices * sizeof(Vertex3DTextured);
         
         return total;
@@ -482,71 +414,27 @@ public:
     unsigned int GetEffectiveTextureID(Image* image);
     
     // Unit trail rendering
-    void UnitTrailLine3D(float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col);
-    void BeginUnitTrailBatch3D();
-    void EndUnitTrailBatch3D();
-    void FlushUnitTrails3D();
-    void FlushUnitTrails3DIfFull(int segmentsNeeded);
+    void LineBatched3D(float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col);
+    void BeginLineBatch3D();
+    void EndLineBatch3D();
+    void FlushLineBatched3D();
+    void FlushLineBatched3DIfFull(int segmentsNeeded);
     
-    // Unit main sprite rendering
-    void UnitMainSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col);
-    void UnitMainSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode);
-    void BeginUnitMainBatch3D();
-    void EndUnitMainBatch3D();
-    void FlushUnitMainSprites3D();
-    void FlushUnitMainSprites3DIfFull(int verticesNeeded);
+    // Static Sprite sprite rendering
+    void StaticSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col);
+    void StaticSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode);
+    void BeginStaticSpriteBatch3D();
+    void EndStaticSpriteBatch3D();
+    void FlushStaticSprites3D();
+    void FlushStaticSprites3DIfFull(int verticesNeeded);
     
-    // Unit rotating sprite rendering
-    void UnitRotating3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle);
-    void UnitRotating3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode);
-    void BeginUnitRotatingBatch3D();
-    void EndUnitRotatingBatch3D();
-    void FlushUnitRotating3D();
-    void FlushUnitRotating3DIfFull(int verticesNeeded);
-    
-    // Unit state icon rendering
-    void UnitStateIcon3D(Image *stateSrc, float x, float y, float z, float w, float h, Colour const &col);
-    void UnitStateIcon3D(Image *stateSrc, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode);
-    void BeginUnitStateBatch3D();
-    void EndUnitStateBatch3D();
-    void FlushUnitStateIcons3D();
-    void FlushUnitStateIcons3DIfFull(int verticesNeeded);
-    
-    // Unit counter text rendering
-    void UnitCounterText3D(float x, float y, float z, Colour const &col, float size, const char *text);
-    void BeginUnitCounterBatch3D();
-    void EndUnitCounterBatch3D();
-    void FlushUnitCounters3D();
-    
-    // Unit nuke icon rendering
-    void UnitNukeIcon3D(float x, float y, float z, float w, float h, Colour const &col);
-    void UnitNukeIcon3D(float x, float y, float z, float w, float h, Colour const &col, float angle);
-    void UnitNukeIcon3D(float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode);
-    void UnitNukeIcon3D(float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode);
-    void BeginUnitNukeBatch3D();
-    void EndUnitNukeBatch3D();
-    void FlushUnitNukeIcons3D();
-    void FlushUnitNukeIcons3DIfFull(int verticesNeeded);
-    
-    // Unit highlight rendering
-    void UnitHighlight3D(Image *blurSrc, float x, float y, float z, float w, float h, Colour const &col);
-    void BeginUnitHighlightBatch3D();
-    void EndUnitHighlightBatch3D();
-    void FlushUnitHighlights3D();
-    
-    // Effects line rendering
-    void EffectsLine3D(float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col);
-    void BeginEffectsLineBatch3D();
-    void EndEffectsLineBatch3D();
-    void FlushEffectsLines3D();
-    void FlushEffectsLines3DIfFull(int segmentsNeeded);
-    
-    // Effects sprite rendering
-    void EffectsSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col);
-    void EffectsSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode);
-    void BeginEffectsSpriteBatch3D();
-    void EndEffectsSpriteBatch3D();
-    void FlushEffectsSprites3D();
+    // Rotating Sprite sprite rendering
+    void RotatingSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle);
+    void RotatingSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode);
+    void BeginRotatingSpriteBatch3D();
+    void EndRotatingSpriteBatch3D();
+    void FlushRotatingSprite3D();
+    void FlushRotatingSprite3DIfFull(int verticesNeeded);
     
     // Health bar rendering
     void HealthBarRect3D(float x, float y, float z, float w, float h, Colour const &col);

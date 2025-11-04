@@ -25,47 +25,13 @@
 
 extern Renderer *g_renderer;
 
-void Renderer::UnitTrailLine(float x1, float y1, float x2, float y2, Colour const &col) {
-    FlushUnitTrailsIfFull(2);
+void Renderer::LineBatched(float x1, float y1, float x2, float y2, Colour const &col) {
+    FlushLineBatchedIfFull(2);
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
     
-    m_unitTrailVertices[m_unitTrailVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
-    m_unitTrailVertices[m_unitTrailVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
-}
-
-void Renderer::EffectsRect(float x, float y, float w, float h, Colour const &col, float lineWidth) {
-    FlushEffectsRectsIfFull(8);
-        
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-        
-    // create 4 lines to form rectangle outline
-    // top line
-    m_effectsRectVertices[m_effectsRectVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
-    m_effectsRectVertices[m_effectsRectVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
-
-    // right line
-    m_effectsRectVertices[m_effectsRectVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
-    m_effectsRectVertices[m_effectsRectVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
-
-    // bottom line
-    m_effectsRectVertices[m_effectsRectVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
-    m_effectsRectVertices[m_effectsRectVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
-
-    // left line
-    m_effectsRectVertices[m_effectsRectVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
-    m_effectsRectVertices[m_effectsRectVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
-        
-}
-
-void Renderer::EffectsLine(float x1, float y1, float x2, float y2, Colour const &col) {
-
-    FlushEffectsLinesIfFull(2);
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    m_effectsLineVertices[m_effectsLineVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
-    m_effectsLineVertices[m_effectsLineVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
+    m_lineBatchedVertices[m_lineBatchedVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
+    m_lineBatchedVertices[m_lineBatchedVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
 }
 
 void Renderer::HealthBarRect(float x, float y, float w, float h, Colour const &col) {
@@ -87,7 +53,7 @@ void Renderer::HealthBarRect(float x, float y, float w, float h, Colour const &c
 }
 
 void Renderer::EffectsCircleFill(float x, float y, float radius, int segments, Colour const &col) {
-    if (m_effectsCircleFillVertexCount + segments * 3 > MAX_EFFECTS_SPRITE_VERTICES) {
+    if (m_effectsCircleFillVertexCount + segments * 3 > MAX_STATIC_SPRITE_VERTICES) {
         FlushEffectsCircleFills();
     }
     
@@ -124,7 +90,7 @@ void Renderer::EffectsCircleOutline(float x, float y, float radius, int segments
 
         targetBuffer = m_effectsCircleOutlineThickVertices;
         targetCount = &m_effectsCircleOutlineThickVertexCount;
-        maxVertices = MAX_EFFECTS_LINE_VERTICES;
+        maxVertices = MAX_BATCHED_LINES_VERTICES;
     } else {
         
         //
@@ -132,7 +98,7 @@ void Renderer::EffectsCircleOutline(float x, float y, float radius, int segments
         
         targetBuffer = m_effectsCircleOutlineVertices;
         targetCount = &m_effectsCircleOutlineVertexCount;
-        maxVertices = MAX_EFFECTS_LINE_VERTICES;
+        maxVertices = MAX_BATCHED_LINES_VERTICES;
     }
     
     if (*targetCount + segments * 2 > maxVertices) {

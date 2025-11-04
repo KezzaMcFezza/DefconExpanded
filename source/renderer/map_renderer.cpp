@@ -246,23 +246,23 @@ void MapRenderer::Render()
         Colour desaturatedColour = g_styleTable->GetSecondaryColour( STYLE_WORLD_LAND );
         blurColour = blurColour * mapColourFader + desaturatedColour * (1-mapColourFader);
 
-        g_renderer->BeginEffectsLineBatch();
-        g_renderer->BeginEffectsSpriteBatch();
+        g_renderer->BeginStaticSpriteBatch();
+        g_renderer->BeginLineBatch();
         g_renderer->BeginTextBatch();
 
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
         g_renderer->Blit( bmpBlur, -180, 100, 360, -200, blurColour );
 
-        g_renderer->EffectsLine( -540, 100, 1080, 100, blurColour );
-        g_renderer->EffectsLine( -540, -100, 1080, -100, blurColour );
+        g_renderer->LineBatched( -540, 100, 1080, 100, blurColour );
+        g_renderer->LineBatched( -540, -100, 1080, -100, blurColour );
            
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
         RenderCountryControl();
         RenderWorldMessages();
 
-        g_renderer->EndEffectsSpriteBatch();
-        g_renderer->EndEffectsLineBatch();
+        g_renderer->EndStaticSpriteBatch();
+        g_renderer->EndLineBatch();
         g_renderer->EndTextBatch();
 
         bool showCoastlines = g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES );
@@ -284,15 +284,10 @@ void MapRenderer::Render()
         //
         // master scene batching, wrap the entire map rendering loop inside the buffers
 
-        g_renderer->BeginUnitMainBatch();       // Main unit sprites + city icons
-        g_renderer->BeginUnitRotatingBatch();   // Rotating sprites (aircraft, nukes)
-        g_renderer->BeginUnitTrailBatch();      // Unit movement trails
-        g_renderer->BeginUnitStateBatch();      // Unit state icons (fighters/bombers on units)
-        g_renderer->BeginUnitNukeBatch();       // Small nuke icons on units
-        g_renderer->BeginUnitHighlightBatch();  // Unit selection highlights
+        g_renderer->BeginStaticSpriteBatch();       // Main unit sprites + city icons
+        g_renderer->BeginRotatingSpriteBatch();   // Rotating sprites (aircraft, nukes)
+        g_renderer->BeginLineBatch();      // Unit movement trails
         g_renderer->BeginHealthBarBatch();      // Unit health bars
-        g_renderer->BeginEffectsLineBatch();    // All line effects (waypoints, radar, etc.)
-        g_renderer->BeginEffectsSpriteBatch();  // All sprite effects (explosions, nukesymbols, population, radiation, etc.)
         g_renderer->BeginWhiteboardBatch();     // Whiteboard drawings 
 
         if( m_showPopulation )          
@@ -337,7 +332,7 @@ void MapRenderer::Render()
                                     40+cosf(g_gameTime+i*1.5)*30,
                                     20+sinf(g_gameTime+i*1.1)*5);
                 Vector3<Fixed> *pos = (Vector3<Fixed> *)g_app->GetWorld()->m_radiation[i];
-                g_renderer->EffectsSprite( boom, pos->x.DoubleValue(), pos->y.DoubleValue(), 15.0f, 15.0f, col );
+                g_renderer->StaticSprite( boom, pos->x.DoubleValue(), pos->y.DoubleValue(), 15.0f, 15.0f, col );
             }
         }
 
@@ -352,16 +347,11 @@ void MapRenderer::Render()
         // master scene batching, end all batching systems and flush
         //
 
-        g_renderer->EndUnitMainBatch();         // Flush all main unit sprites + city icons 
-        g_renderer->EndUnitTrailBatch();        // Flush all unit trails
-        g_renderer->EndEffectsSpriteBatch();    // Flush all sprite effects (explosions, cities, nukesymbols, population, radiation)
-        g_renderer->EndEffectsLineBatch();      // Flush all line effects (waypoints, radar)
+        g_renderer->EndStaticSpriteBatch();         // Flush all main unit sprites + city icons 
+        g_renderer->EndLineBatch();        // Flush all unit trails
         g_renderer->EndWhiteboardBatch();       // Flush all whiteboard drawings
-        g_renderer->EndUnitHighlightBatch();    // Flush all unit selection highlights (restarted after radiation)
-        g_renderer->EndUnitNukeBatch();         // Flush all small nuke icons (restarted after radiation)
-        g_renderer->EndUnitStateBatch();        // Flush all unit state icons (restarted after radiation)
         g_renderer->EndHealthBarBatch();        // Flush all unit health bars
-        g_renderer->EndUnitRotatingBatch();     // Flush all rotating sprites
+        g_renderer->EndRotatingSpriteBatch();     // Flush all rotating sprites
 
         //
         // render radar outside of the main scene to
@@ -389,12 +379,11 @@ void MapRenderer::Render()
         // begin batching for cursor targets and mouse UI
         // this fixes the blend issue with the cursor target sprite
 
-        g_renderer->BeginEffectsLineBatch();
-        g_renderer->BeginEffectsSpriteBatch();
         g_renderer->BeginTextBatch();
+        g_renderer->BeginStaticSpriteBatch();
         g_renderer->BeginEclipseRectBatch();
         g_renderer->BeginEclipseRectFillBatch();
-        g_renderer->BeginUnitRotatingBatch();
+        g_renderer->BeginRotatingSpriteBatch();
         
         if( IsMouseInMapRenderer() )
         {
@@ -415,18 +404,16 @@ void MapRenderer::Render()
         g_renderer->EndEclipseRectFillBatch(); 
         
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );  // ensure correct blend mode for cursor targets
-        g_renderer->EndUnitRotatingBatch();
+        g_renderer->EndStaticSpriteBatch();
+        g_renderer->EndRotatingSpriteBatch();
         g_renderer->EndEclipseRectBatch();
         g_renderer->EndTextBatch();
-        g_renderer->EndEffectsSpriteBatch(); 
-        g_renderer->EndEffectsLineBatch();
 
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );    // reset blend mode after flush
         
         left += GetLongitudeMod();
         right += GetLongitudeMod();
     }
-
 
     END_PROFILE( "MapRenderer" );
 }
@@ -905,7 +892,7 @@ void MapRenderer::RenderTooltip( float *boxX, float *boxY, float *boxW, float *b
                 float iconY = *boxY + iconSize - 0.3f * m_drawScale ;
 
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                g_renderer->EffectsSprite( img, *boxX + *boxSep, iconY, iconSize, -iconSize, Colour(255,255,255,255*alpha) );
+                g_renderer->StaticSprite( img, *boxX + *boxSep, iconY, iconSize, -iconSize, Colour(255,255,255,255*alpha) );
                 thisLine += 5;
 
                 g_renderer->TextSimple( *boxX + *boxSep + 2 * m_drawScale, *boxY, fontCol, textSize*0.6f, thisLine );
@@ -1073,7 +1060,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
             Image *img = g_resource->GetImage( "graphics/fighter.bmp" );
             for( int i = 0; i < numFighters; ++i )
             {
-                g_renderer->UnitRotating( img, xPos+=gap, yPos, objSize, objSize, col, 0 );
+                g_renderer->RotatingSprite( img, xPos+=gap, yPos, objSize, objSize, col, 0 );
             }
             
             if( numFighters > 0 ) xPos += gap*0.5f;
@@ -1089,10 +1076,10 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
             Image *nuke = g_resource->GetImage( "graphics/nuke.bmp" );
             for( int i = 0; i < numBombers; ++i )
             {
-                g_renderer->UnitRotating( img, xPos+=gap, yPos, objSize*1.2f, objSize*1.2f, col, 0 );
+                g_renderer->RotatingSprite( img, xPos+=gap, yPos, objSize*1.2f, objSize*1.2f, col, 0 );
                 if( (i+1) <= numNukes )
                 {
-                    g_renderer->UnitRotating( nuke, xPos, yPos, objSize*0.65f, objSize*0.65f, col, 0 );
+                    g_renderer->RotatingSprite( nuke, xPos, yPos, objSize*0.65f, objSize*0.65f, col, 0 );
                 }
             }
             if( numBombers > 0 ) xPos += gap*0.5f;
@@ -1108,7 +1095,7 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
             Image *img = g_resource->GetImage( "graphics/nuke.bmp" );
             for( int i = 0; i < numNukes; ++i )
             {
-                g_renderer->UnitRotating( img, xPos+=gap*0.5f, yPos, objSize, objSize, col, 0 );
+                g_renderer->RotatingSprite( img, xPos+=gap*0.5f, yPos, objSize, objSize, col, 0 );
             }
         }
     }
@@ -1519,7 +1506,7 @@ void MapRenderer::RenderNukeSyncTarget()
                 float size = 4.0f;
                 Colour red(255, 0, 0, 255);
                 
-                g_renderer->EffectsSprite(targetCursor, targetLon - size/2, targetLat - size/2, size, size, red);
+                g_renderer->StaticSprite(targetCursor, targetLon - size/2, targetLat - size/2, size, size, red);
                 
                 Colour yellow(255, 255, 0, 255);
                 g_renderer->SetFont("kremlin", true);
@@ -1552,7 +1539,7 @@ void MapRenderer::RenderNukeSyncTarget()
         float size = 4.0f;  // Size of cursor
         Colour green(0, 255, 0, 255);
         
-        g_renderer->EffectsSprite(targetCursor, targetLon - size/2, targetLat - size/2, size, size, green);
+        g_renderer->StaticSprite(targetCursor, targetLon - size/2, targetLat - size/2, size, size, green);
     }
 }
 
@@ -1910,7 +1897,7 @@ void MapRenderer::RenderMouse()
         float screenW = (float)g_windowManager->WindowW();
         float pixelsPerDegree = (screenW / 360.0f) / m_zoomFactor; // divide by zoom to keep screen size constant
         float size = 48.0f / pixelsPerDegree; 
-        g_renderer->EffectsSprite( move, longitude - size/2, latitude - size/2, size, size, White );
+        g_renderer->StaticSprite( move, longitude - size/2, latitude - size/2, size, size, White );
     }
 
 
@@ -2031,7 +2018,7 @@ void MapRenderer::RenderMouse()
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
         Image *img = g_resource->GetImage( "graphics/cursor_target.bmp" );
-        g_renderer->UnitRotating( img, actionCursorLongitude, actionCursorLatitude, 
+        g_renderer->RotatingSprite( img, actionCursorLongitude, actionCursorLatitude, 
                                  actionCursorSize, actionCursorSize, 
                                  actionCursorCol, actionCursorAngle );
 
@@ -2100,7 +2087,7 @@ void MapRenderer::RenderMouse()
             if( lineY < 0.0f ) angle += M_PI;
 
             g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-            g_renderer->UnitRotating( img, actionCursorLongitude, actionCursorLatitude, 
+            g_renderer->RotatingSprite( img, actionCursorLongitude, actionCursorLatitude, 
                                      spawnUnitSize/2.0f, spawnUnitSize/2.0f, 
                                      spawnUnitCol, angle );           
         }
@@ -2446,8 +2433,8 @@ void MapRenderer::RenderActionLine( float fromLong, float fromLat, float toLong,
         }
     }
 
-    g_renderer->EffectsLine( fromLong, fromLat, toLong, toLat, col );
-    g_renderer->EffectsLine( fromLong+GetLongitudeMod(), fromLat, toLong+GetLongitudeMod(), toLat, col );
+    g_renderer->LineBatched( fromLong, fromLat, toLong, toLat, col );
+    g_renderer->LineBatched( fromLong+GetLongitudeMod(), fromLat, toLong+GetLongitudeMod(), toLat, col );
 
     if( animate )
     {
@@ -2459,8 +2446,7 @@ void MapRenderer::RenderActionLine( float fromLong, float fromLat, float toLong,
         Vector3<float> fromVector = Vector3<float>(fromLong,fromLat,0) + lineVector * factor1;
         Vector3<float> toVector =  Vector3<float>(fromLong,fromLat,0) + lineVector * factor2;
 
-        // Use batched EffectsLine for animated waypoint segments too
-        g_renderer->EffectsLine( fromVector.x, fromVector.y, toVector.x, toVector.y, col );
+        g_renderer->LineBatched( fromVector.x, fromVector.y, toVector.x, toVector.y, col );
     }
 
 #endif
@@ -2556,7 +2542,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 
             // Use rotating sprite system with proper rotation and sizing
             Image *img = g_resource->GetImage( "graphics/cursor_target.bmp" );
-            g_renderer->UnitRotating( img, TpredictedLongitude, TpredictedLatitude, 
+            g_renderer->RotatingSprite( img, TpredictedLongitude, TpredictedLatitude, 
                                 actionCursorSize, actionCursorSize, 
                                 actionCursorCol, actionCursorAngle );
 
@@ -2607,7 +2593,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 
                 // Use rotating sprite system with proper rotation and sizing
                 Image *img = g_resource->GetImage( "graphics/cursor_target.bmp" );
-                g_renderer->UnitRotating( img, actionCursorLongitude, actionCursorLatitude, 
+                g_renderer->RotatingSprite( img, actionCursorLongitude, actionCursorLatitude, 
                                     actionCursorSize, actionCursorSize, 
                                     actionCursorCol, actionCursorAngle );
 
@@ -2670,7 +2656,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     if( lineY < 0.0f ) angle += M_PI;
                 
                     // Use rotating sprite system with proper rotation and sizing
-                    g_renderer->UnitRotating( img, targetLongitude, targetLatitude, size, size, col, angle );
+                    g_renderer->RotatingSprite( img, targetLongitude, targetLatitude, size, size, col, angle );
                     RenderActionLine( predictedLongitude, predictedLatitude,
                                       targetLongitude, targetLatitude,
                                       col, 0.5f );
@@ -2701,15 +2687,15 @@ void MapRenderer::RenderUnitHighlight( int _objectId )
         col.m_a = 255;
         if( fmod((float)g_gameTime*2, 2.0f) < 1.0f ) col.m_a = 100;
 
-        g_renderer->EffectsLine(predictedLongitude - size/2 - 5.0f, predictedLatitude, 
+        g_renderer->EclipseLine(predictedLongitude - size/2 - 5.0f, predictedLatitude, 
                          predictedLongitude - size/2, predictedLatitude, col );
-        g_renderer->EffectsLine(predictedLongitude + size/2 + 5.0f, predictedLatitude, 
+        g_renderer->EclipseLine(predictedLongitude + size/2 + 5.0f, predictedLatitude, 
                          predictedLongitude + size/2, predictedLatitude, col );
-        g_renderer->EffectsLine(predictedLongitude, predictedLatitude + size/2 + 5.0f, 
+        g_renderer->EclipseLine(predictedLongitude, predictedLatitude + size/2 + 5.0f, 
                          predictedLongitude, predictedLatitude + size/2, col );
-        g_renderer->EffectsLine(predictedLongitude, predictedLatitude - size/2 - 5.0f, 
+        g_renderer->EclipseLine(predictedLongitude, predictedLatitude - size/2 - 5.0f, 
                          predictedLongitude, predictedLatitude - size/2, col );
-        g_renderer->EffectsRect( predictedLongitude - size/2, 
+        g_renderer->EclipseRect( predictedLongitude - size/2, 
                           predictedLatitude - size/2, size, size, col, 2.0f );
     }
 }
@@ -2965,7 +2951,7 @@ void MapRenderer::RenderObjects()
                     if( wobj->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer->UnitRotating( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
+                    g_renderer->RotatingSprite( img, wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(), iconSize, iconSize, col, 0 );
 
                     float yPos = wobj->m_latitude.DoubleValue()+1.6f;
                     if( wobj->m_numNukesInQueue )
@@ -3113,7 +3099,7 @@ void MapRenderer::RenderCities()
                 }                            
                 col.m_a = 200.0f * ( 1.0f - min(0.8f, m_zoomFactor) );
                             
-                g_renderer->UnitMainSprite( cityImg,
+                g_renderer->StaticSprite( cityImg,
                                            city->m_longitude.DoubleValue()-size/2, 
                                            city->m_latitude.DoubleValue()-size/2,
                                            size, size, col );
@@ -3132,7 +3118,7 @@ void MapRenderer::RenderCities()
                     if( city->m_numNukesInFlight ) iconSize += sinf(g_gameTime*10) * 0.2f;
 
                     Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-                    g_renderer->EffectsSprite( img, city->m_longitude.DoubleValue() - iconSize/2, city->m_latitude.DoubleValue() - iconSize/2, iconSize, iconSize, col );
+                    g_renderer->StaticSprite( img, city->m_longitude.DoubleValue() - iconSize/2, city->m_latitude.DoubleValue() - iconSize/2, iconSize, iconSize, col );
 
                     float yPos = city->m_latitude.DoubleValue()+1.6f;
                     if( city->m_numNukesInQueue )
@@ -3225,7 +3211,7 @@ void MapRenderer::RenderPopulationDensity()
                 Colour col = g_app->GetWorld()->GetTeam(city->m_teamId)->GetTeamColour();
                 col.m_a = 255.0f * min( 1.0f, city->m_population / 10000000.0f );
                                     
-                g_renderer->EffectsSprite( g_resource->GetImage( "graphics/population.bmp" ),
+                g_renderer->StaticSprite( g_resource->GetImage( "graphics/population.bmp" ),
                                                   city->m_longitude.DoubleValue()-size/2, city->m_latitude.DoubleValue()-size/2,
                                                   size, size, col );
             }
@@ -3444,7 +3430,7 @@ void MapRenderer::RenderNodes()
             for( int j = 0; j < node->m_routeTable.Size(); ++j )
             {
                 Node *nextNode = g_app->GetWorld()->m_nodes[node->m_routeTable[j]->m_nextNodeId];
-                g_renderer->EffectsLine(node->m_longitude.DoubleValue(), 
+                g_renderer->LineBatched(node->m_longitude.DoubleValue(), 
                                  node->m_latitude.DoubleValue(), 
                                  nextNode->m_longitude.DoubleValue(), 
                                  nextNode->m_latitude.DoubleValue(), 

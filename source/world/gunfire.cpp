@@ -132,7 +132,7 @@ void GunFire::Render()
 
         Vector3<float> diff = thisPos - lastPos;        
         colour.m_a = 255 - 255 * (float) i / (float) maxSize;
-        g_renderer->EffectsLine( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
+        g_renderer->LineBatched( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
     }
 
     if( m_history.Size() > 0 )
@@ -153,10 +153,10 @@ void GunFire::Render()
         }
 
         colour.m_a = 255;
-        g_renderer->EffectsLine( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
+        g_renderer->LineBatched( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
     }
 
-    g_renderer->EffectsLine( predictedLongitude, predictedLatitude, 
+    g_renderer->LineBatched( predictedLongitude, predictedLatitude, 
                                 predictedLongitude-m_vel.x.DoubleValue(), 
                                 predictedLatitude-m_vel.y.DoubleValue(), colour );
 }

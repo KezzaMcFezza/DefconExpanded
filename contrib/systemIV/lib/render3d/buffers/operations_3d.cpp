@@ -17,33 +17,18 @@ extern Renderer3D *g_renderer3d;
 void Renderer3D::FlushAllSpecializedBuffers3D() {
     FlushStarField3D();
     FlushGlobeSurface3D();
-    FlushUnitTrails3D();
-    FlushUnitMainSprites3D();
-    FlushUnitRotating3D();
-    FlushUnitStateIcons3D();
-    FlushUnitNukeIcons3D();
-    FlushUnitHighlights3D();
-    FlushUnitCounters3D();
-    FlushEffectsLines3D();
-    FlushEffectsSprites3D();
+    FlushLineBatched3D();
+    FlushStaticSprites3D();
+    FlushRotatingSprite3D();
     FlushHealthBars3D();
     FlushTextBuffer3D();
     FlushNuke3DModels3D();
 }
 
 void Renderer3D::FlushAllUnitBuffers3D() {
-    FlushUnitTrails3D();
-    FlushUnitMainSprites3D();
-    FlushUnitRotating3D();
-    FlushUnitStateIcons3D();
-    FlushUnitNukeIcons3D();
-    FlushUnitHighlights3D();
-    FlushUnitCounters3D();
-}
-
-void Renderer3D::FlushAllEffectBuffers3D() {
-    FlushEffectsLines3D();
-    FlushEffectsSprites3D();
+    FlushLineBatched3D();
+    FlushStaticSprites3D();
+    FlushRotatingSprite3D();
 }
 
 void Renderer3D::FlushAllNuke3DModelBuffers3D() {
@@ -54,47 +39,18 @@ void Renderer3D::FlushAllNuke3DModelBuffers3D() {
 // BEGIN SCENES
 // ============================================================================
 
-void Renderer3D::BeginUnitTrailBatch3D() {
-    // trail segments will be batched until EndUnitTrailBatch3D()
+void Renderer3D::BeginLineBatch3D() {
+    // trail segments will be batched until EndLineBatch3D()
 }
 
-void Renderer3D::BeginUnitMainBatch3D() {
-    m_unitMainVertexCount3D = 0;
-    m_currentUnitMainTexture3D = 0;
+void Renderer3D::BeginStaticSpriteBatch3D() {
+    m_staticSpriteVertexCount3D = 0;
+    m_currentStaticSpriteTexture3D = 0;
 }
 
-void Renderer3D::BeginUnitRotatingBatch3D() {
-    m_unitRotatingVertexCount3D = 0;
-    m_currentUnitRotatingTexture3D = 0;
-}
-
-void Renderer3D::BeginUnitStateBatch3D() {
-    m_unitStateVertexCount3D = 0;
-    m_currentUnitStateTexture3D = 0;
-}
-
-void Renderer3D::BeginUnitCounterBatch3D() {
-    m_unitCounterVertexCount3D = 0;
-    m_currentUnitCounterTexture3D = 0;
-}
-
-void Renderer3D::BeginUnitNukeBatch3D() {
-    m_unitNukeVertexCount3D = 0;
-    m_currentUnitNukeTexture3D = 0;
-}
-
-void Renderer3D::BeginEffectsLineBatch3D() {
-    // Effects line segments will be batched until EndEffectsLineBatch3D()
-}
-
-void Renderer3D::BeginEffectsSpriteBatch3D() {
-    m_effectsSpriteVertexCount3D = 0;
-    m_currentEffectsSpriteTexture3D = 0;
-}
-
-void Renderer3D::BeginUnitHighlightBatch3D() {
-    m_unitHighlightVertexCount3D = 0;
-    m_currentUnitHighlightTexture3D = 0;
+void Renderer3D::BeginRotatingSpriteBatch3D() {
+    m_rotatingSpriteVertexCount3D = 0;
+    m_currentRotatingSpriteTexture3D = 0;
 }
 
 void Renderer3D::BeginMapTextBatch3D() {
@@ -134,53 +90,19 @@ void Renderer3D::BeginGlobeSurfaceBatch3D() {
 // END SCENES
 // ============================================================================
 
-void Renderer3D::EndUnitTrailBatch3D() {
-    FlushUnitTrails3D();
+void Renderer3D::EndLineBatch3D() {
+    FlushLineBatched3D();
 }
 
-void Renderer3D::EndUnitMainBatch3D() {
-    if (m_unitMainVertexCount3D > 0) {
-        FlushUnitMainSprites3D();
+void Renderer3D::EndStaticSpriteBatch3D() {
+    if (m_staticSpriteVertexCount3D > 0) {
+        FlushStaticSprites3D();
     }
 }
 
-void Renderer3D::EndUnitRotatingBatch3D() {
-    if (m_unitRotatingVertexCount3D > 0) {
-        FlushUnitRotating3D();
-    }
-}
-
-void Renderer3D::EndUnitStateBatch3D() {
-    if (m_unitStateVertexCount3D > 0) {
-        FlushUnitStateIcons3D();
-    }
-}
-
-void Renderer3D::EndUnitCounterBatch3D() {
-    if (m_unitCounterVertexCount3D > 0) {
-        FlushUnitCounters3D();
-    }
-}
-
-void Renderer3D::EndUnitNukeBatch3D() {
-    if (m_unitNukeVertexCount3D > 0) {
-        FlushUnitNukeIcons3D();
-    }
-}
-
-void Renderer3D::EndEffectsLineBatch3D() {
-    FlushEffectsLines3D();
-}
-
-void Renderer3D::EndEffectsSpriteBatch3D() {
-    if (m_effectsSpriteVertexCount3D > 0) {
-        FlushEffectsSprites3D();
-    }
-}
-
-void Renderer3D::EndUnitHighlightBatch3D() {
-    if (m_unitHighlightVertexCount3D > 0) {
-        FlushUnitHighlights3D();
+void Renderer3D::EndRotatingSpriteBatch3D() {
+    if (m_rotatingSpriteVertexCount3D > 0) {
+        FlushRotatingSprite3D();
     }
 }
 
@@ -223,39 +145,21 @@ void Renderer3D::EndGlobeSurfaceBatch3D() {
 // FLUSH IF FULL
 // ============================================================================
 
-void Renderer3D::FlushUnitTrails3DIfFull(int segmentsNeeded) {
-    if (m_unitTrailVertexCount3D + segmentsNeeded > MAX_UNIT_TRAIL_VERTICES_3D) {
-        FlushUnitTrails3D();
+void Renderer3D::FlushLineBatched3DIfFull(int segmentsNeeded) {
+    if (m_lineBatchedVertexCount3D + segmentsNeeded > MAX_BATCHED_LINES_VERTICES_3D) {
+        FlushLineBatched3D();
     }
 }
 
-void Renderer3D::FlushUnitMainSprites3DIfFull(int verticesNeeded) {
-    if (m_unitMainVertexCount3D + verticesNeeded > MAX_UNIT_MAIN_VERTICES_3D) {
-        FlushUnitMainSprites3D();
+void Renderer3D::FlushStaticSprites3DIfFull(int verticesNeeded) {
+    if (m_staticSpriteVertexCount3D + verticesNeeded > MAX_STATIC_SPRITE_VERTICES_3D) {
+        FlushStaticSprites3D();
     }
 }
 
-void Renderer3D::FlushUnitRotating3DIfFull(int verticesNeeded) {
-    if (m_unitRotatingVertexCount3D + verticesNeeded > MAX_UNIT_ROTATING_VERTICES_3D) {
-        FlushUnitRotating3D();
-    }
-}
-
-void Renderer3D::FlushUnitStateIcons3DIfFull(int verticesNeeded) {
-    if (m_unitStateVertexCount3D + verticesNeeded > MAX_UNIT_STATE_VERTICES_3D) {
-        FlushUnitStateIcons3D();
-    }
-}
-
-void Renderer3D::FlushUnitNukeIcons3DIfFull(int verticesNeeded) {
-    if (m_unitNukeVertexCount3D + verticesNeeded > MAX_UNIT_NUKE_VERTICES_3D) {
-        FlushUnitNukeIcons3D();
-    }
-}
-
-void Renderer3D::FlushEffectsLines3DIfFull(int segmentsNeeded) {
-    if (m_effectsLineVertexCount3D + segmentsNeeded > MAX_EFFECTS_LINE_VERTICES_3D) {
-        FlushEffectsLines3D();
+void Renderer3D::FlushRotatingSprite3DIfFull(int verticesNeeded) {
+    if (m_rotatingSpriteVertexCount3D + verticesNeeded > MAX_ROTATING_SPRITE_VERTICES_3D) {
+        FlushRotatingSprite3D();
     }
 }
 
@@ -281,11 +185,11 @@ void Renderer3D::FlushNuke3DModels3DIfFull(int verticesNeeded) {
 // CORE FLUSH FUNCTIONS
 // ============================================================================
 
-void Renderer3D::FlushUnitTrails3D() {
-    if (m_unitTrailVertexCount3D == 0) return;
+void Renderer3D::FlushLineBatched3D() {
+    if (m_lineBatchedVertexCount3D == 0) return;
 
-    StartFlushTiming3D("Unit_Trails_3D");
-    IncrementDrawCall3D("unit_trails");
+    StartFlushTiming3D("Batched_Lines_3D");
+    IncrementDrawCall3D("batched_lines");
     
 #ifndef TARGET_EMSCRIPTEN
     glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_UNIT_TRAIL_THICKNESS, 1.0f));
@@ -296,44 +200,44 @@ void Renderer3D::FlushUnitTrails3D() {
     Set3DShaderUniforms();
     
     m_renderer->SetVertexArray(m_effectsVAO3D);
-    UploadVertexDataTo3DVBO(m_effectsVBO3D, m_unitTrailVertices3D, m_unitTrailVertexCount3D, GL_STREAM_DRAW);
+    UploadVertexDataTo3DVBO(m_effectsVBO3D, m_lineBatchedVertices3D, m_lineBatchedVertexCount3D, GL_STREAM_DRAW);
     
-    glDrawArrays(GL_LINES, 0, m_unitTrailVertexCount3D);
+    glDrawArrays(GL_LINES, 0, m_lineBatchedVertexCount3D);
     
-    m_unitTrailVertexCount3D = 0;
+    m_lineBatchedVertexCount3D = 0;
     
-    EndFlushTiming3D("Unit_Trails_3D");
+    EndFlushTiming3D("Batched_Lines_3D");
 }
 
-void Renderer3D::FlushUnitMainSprites3D() {
-    if (m_unitMainVertexCount3D == 0) return;
+void Renderer3D::FlushStaticSprites3D() {
+    if (m_staticSpriteVertexCount3D == 0) return;
     
-    StartFlushTiming3D("Unit_Main_3D");
-    IncrementDrawCall3D("unit_main_sprites");
+    StartFlushTiming3D("Static_Sprite_3D");
+    IncrementDrawCall3D("Static_Sprite_sprites");
     
     glDepthMask(GL_FALSE);
     
     m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
     
-    if (m_currentUnitMainTexture3D != 0) {
+    if (m_currentStaticSpriteTexture3D != 0) {
         m_renderer->SetActiveTexture(GL_TEXTURE0);
-        m_renderer->SetBoundTexture(m_currentUnitMainTexture3D);
+        m_renderer->SetBoundTexture(m_currentStaticSpriteTexture3D);
     }
     
     m_renderer->SetVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitMainVertices3D, m_unitMainVertexCount3D, GL_DYNAMIC_DRAW);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_staticSpriteVertices3D, m_staticSpriteVertexCount3D, GL_DYNAMIC_DRAW);
     
-    glDrawArrays(GL_TRIANGLES, 0, m_unitMainVertexCount3D);
+    glDrawArrays(GL_TRIANGLES, 0, m_staticSpriteVertexCount3D);
     glDepthMask(GL_TRUE);
     
-    m_unitMainVertexCount3D = 0;
+    m_staticSpriteVertexCount3D = 0;
     
-    EndFlushTiming3D("Unit_Main_3D");
+    EndFlushTiming3D("Static_Sprite_3D");
 }
 
-void Renderer3D::FlushUnitRotating3D() {
-    if (m_unitRotatingVertexCount3D == 0) return;
+void Renderer3D::FlushRotatingSprite3D() {
+    if (m_rotatingSpriteVertexCount3D == 0) return;
     
     StartFlushTiming3D("Unit_Rotating_3D");
     IncrementDrawCall3D("unit_rotating");
@@ -343,164 +247,20 @@ void Renderer3D::FlushUnitRotating3D() {
     m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
     
-    if (m_currentUnitRotatingTexture3D != 0) {
+    if (m_currentRotatingSpriteTexture3D != 0) {
         m_renderer->SetActiveTexture(GL_TEXTURE0);
-        m_renderer->SetBoundTexture(m_currentUnitRotatingTexture3D);
+        m_renderer->SetBoundTexture(m_currentRotatingSpriteTexture3D);
     }
     
     m_renderer->SetVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitRotatingVertices3D, m_unitRotatingVertexCount3D, GL_DYNAMIC_DRAW);
+    UploadVertexDataTo3DVBO(m_unitVBO3D, m_rotatingSpriteVertices3D, m_rotatingSpriteVertexCount3D, GL_DYNAMIC_DRAW);
     
-    glDrawArrays(GL_TRIANGLES, 0, m_unitRotatingVertexCount3D);
+    glDrawArrays(GL_TRIANGLES, 0, m_rotatingSpriteVertexCount3D);
     glDepthMask(GL_TRUE);
     
-    m_unitRotatingVertexCount3D = 0;
+    m_rotatingSpriteVertexCount3D = 0;
     
     EndFlushTiming3D("Unit_Rotating_3D");
-}
-
-void Renderer3D::FlushUnitStateIcons3D() {
-    if (m_unitStateVertexCount3D == 0) return;
-    
-    StartFlushTiming3D("Unit_StateIcons_3D");
-    IncrementDrawCall3D("unit_state_icons");
-    
-    glDepthMask(GL_FALSE);
-    
-    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
-    SetTextured3DShaderUniforms();
-    
-    if (m_currentUnitStateTexture3D != 0) {
-        m_renderer->SetActiveTexture(GL_TEXTURE0);
-        m_renderer->SetBoundTexture(m_currentUnitStateTexture3D);
-    }
-    
-    m_renderer->SetVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitStateVertices3D, m_unitStateVertexCount3D, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_unitStateVertexCount3D);
-    glDepthMask(GL_TRUE);
-    
-    m_unitStateVertexCount3D = 0;
-    
-    EndFlushTiming3D("Unit_StateIcons_3D");
-}
-
-void Renderer3D::FlushUnitCounters3D() {
-    if (m_unitCounterVertexCount3D == 0) return;
-    
-    StartFlushTiming3D("Unit_Counters_3D");
-    IncrementDrawCall3D("unit_counters");
-    
-    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
-    SetTextured3DShaderUniforms();
-    
-    m_renderer->SetVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitCounterVertices3D, m_unitCounterVertexCount3D, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_unitCounterVertexCount3D);
-    
-    m_unitCounterVertexCount3D = 0;
-    
-    EndFlushTiming3D("Unit_Counters_3D");
-}
-
-void Renderer3D::FlushUnitNukeIcons3D() {
-    if (m_unitNukeVertexCount3D == 0) return;
-    
-    StartFlushTiming3D("Unit_Nukes_3D");
-    IncrementDrawCall3D("unit_nuke_icons");
-    
-    glDepthMask(GL_FALSE);
-    
-    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
-    SetTextured3DShaderUniforms();
-    
-    if (m_currentUnitNukeTexture3D != 0) {
-        m_renderer->SetActiveTexture(GL_TEXTURE0);
-        m_renderer->SetBoundTexture(m_currentUnitNukeTexture3D);
-    }
-    
-    m_renderer->SetVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitNukeVertices3D, m_unitNukeVertexCount3D, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_unitNukeVertexCount3D);
-    glDepthMask(GL_TRUE);
-    
-    m_unitNukeVertexCount3D = 0;
-    
-    EndFlushTiming3D("Unit_Nukes_3D");
-}
-
-void Renderer3D::FlushEffectsLines3D() {
-    if (m_effectsLineVertexCount3D == 0) return;
-    
-    StartFlushTiming3D("Effects_Lines_3D");
-    IncrementDrawCall3D("effects_lines");
-    
-    m_renderer->SetShaderProgram(m_shader3DProgram);
-    Set3DShaderUniforms();
-    
-    m_renderer->SetVertexArray(m_effectsVAO3D);
-    UploadVertexDataTo3DVBO(m_effectsVBO3D, m_effectsLineVertices3D, m_effectsLineVertexCount3D, GL_STREAM_DRAW);
-    
-    glDrawArrays(GL_LINES, 0, m_effectsLineVertexCount3D);
-    
-    m_effectsLineVertexCount3D = 0;
-    
-    EndFlushTiming3D("Effects_Lines_3D");
-}
-
-void Renderer3D::FlushEffectsSprites3D() {
-    if (m_effectsSpriteVertexCount3D == 0) return;
-    
-    StartFlushTiming3D("Effects_Sprites_3D");
-    IncrementDrawCall3D("effects_sprites");
-    
-    glDepthMask(GL_FALSE);
-    
-    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
-    
-    SetTextured3DShaderUniforms();
-    
-    if (m_currentEffectsSpriteTexture3D != 0) {
-        m_renderer->SetActiveTexture(GL_TEXTURE0);
-        m_renderer->SetBoundTexture(m_currentEffectsSpriteTexture3D);
-    }
-    
-    m_renderer->SetVertexArray(m_starsVAO3D);
-    UploadVertexDataTo3DVBO(m_starsVBO3D, m_effectsSpriteVertices3D, m_effectsSpriteVertexCount3D, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_effectsSpriteVertexCount3D);
-    glDepthMask(GL_TRUE);
-    
-    m_effectsSpriteVertexCount3D = 0;
-    
-    EndFlushTiming3D("Effects_Sprites_3D");
-}
-
-void Renderer3D::FlushUnitHighlights3D() {
-    if (m_unitHighlightVertexCount3D == 0) return;
-    
-    StartFlushTiming3D("Unit_Highlights_3D");
-    IncrementDrawCall3D("unit_highlights");
-    
-    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
-    SetTextured3DShaderUniforms();
-    
-    if (m_currentUnitHighlightTexture3D != 0) {
-        m_renderer->SetActiveTexture(GL_TEXTURE0);
-        m_renderer->SetBoundTexture(m_currentUnitHighlightTexture3D);
-    }
-    
-    m_renderer->SetVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_unitHighlightVertices3D, m_unitHighlightVertexCount3D, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_unitHighlightVertexCount3D);
-    
-    m_unitHighlightVertexCount3D = 0;
-    
-    EndFlushTiming3D("Unit_Highlights_3D");
 }
 
 void Renderer3D::FlushHealthBars3D() {

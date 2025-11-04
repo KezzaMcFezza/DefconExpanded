@@ -25,18 +25,6 @@
 
 extern Renderer *g_renderer;
 
-void Renderer::UnitCounterText(float x, float y, Colour const &col, float size, const char *text) {
-    // Use the font system to render unit counter text
-    BitmapFont *font = GetBitmapFont();
-    if (!font) return;
-    
-    // Set font properties for unit counters
-    font->SetHoriztonalFlip(false);
-    font->SetFixedWidth(false);
-    
-    font->DrawText2DSimple(x, y, size, text, col);
-}
-
 void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float h, 
                         float texX, float texY, float texW, float texH, Colour const &col) {
     

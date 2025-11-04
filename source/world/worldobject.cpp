@@ -383,7 +383,7 @@ void WorldObject::Render ()
     Image *bmpImage = g_resource->GetImage( bmpImageFilename );
     if( bmpImage )
     {
-        g_renderer->UnitMainSprite( bmpImage, x, y, thisSize, size*-2, colour );        
+        g_renderer->StaticSprite( bmpImage, x, y, thisSize, size*-2, colour );        
     }
 
 
@@ -414,7 +414,7 @@ void WorldObject::Render ()
             if( selected || sameFleet )
             {
                 bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
-                g_renderer->UnitMainSprite( bmpImage, x, y, thisSize, size*-2, colour );        
+                g_renderer->StaticSprite( bmpImage, x, y, thisSize, size*-2, colour );        
             }
         }
         colour.m_a /= 2;
@@ -536,7 +536,7 @@ void WorldObject::RenderCounter( int counter )
         g_renderer->Text( predictedLongitude + ( size / 5 ) - xModifier, predictedLatitude + ( size ), 
                 White, size, num );
 
-        g_renderer->UnitNukeIcon( predictedLongitude - textWidth, predictedLatitude + ( size * 1.75f), size * 0.75f, size * -0.75f, White );
+        g_renderer->StaticSprite( bmp, predictedLongitude - textWidth, predictedLatitude + ( size * 1.75f), size * 0.75f, size * -0.75f, White );
     }
 
    // g_app->GetRenderer()->Text( m_longitude + ( size / 5 ) +  + g_app->GetRenderer()->GetMapRenderer()->GetLongitudeMod(), m_latitude + ( size / 5 ), 
@@ -701,7 +701,7 @@ void WorldObject::RenderGhost( int teamId )
             thisSize = size*-2;
         }       
 
-        g_renderer->UnitMainSprite( img, x, y, thisSize, size*-2, col );
+        g_renderer->StaticSprite( img, x, y, thisSize, size*-2, col );
     }
 }
 

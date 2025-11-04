@@ -138,7 +138,7 @@ void MapRenderer::RenderGlobeMouse()
             // same as map renderer static size that doesnt use preferences popupscale
             float cursorSize = 48.0f;
             
-            g_renderer->EffectsSprite(move, 
+            g_renderer->StaticSprite(move, 
                             mouseScreenX - cursorSize/2, 
                             mouseScreenY - cursorSize/2, 
                             cursorSize, cursorSize, White);
@@ -647,13 +647,10 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     //
     // begin scene main scene
 
+    g_renderer3d->BeginLineBatch3D();      // Unit movement trails
     g_renderer3d->BeginNuke3DModelBatch3D();    // 3D nuke models (replaces flat nuke sprites)
-    g_renderer3d->BeginUnitMainBatch3D();       // Main unit sprites + city icons
-    g_renderer3d->BeginUnitRotatingBatch3D();   // Rotating sprites (aircraft, but not nukes anymore)
-    g_renderer3d->BeginUnitStateBatch3D();      // Unit state icons (fighters/bombers on units)
-    g_renderer3d->BeginUnitNukeBatch3D();       // Small nuke icons on units
-    g_renderer3d->BeginEffectsLineBatch3D();    // All line effects (gunfire trails, etc.)
-    g_renderer3d->BeginEffectsSpriteBatch3D();  // All sprite effects (explosions, sonar pings, etc.)
+    g_renderer3d->BeginStaticSpriteBatch3D();       // Main unit sprites + city icons
+    g_renderer3d->BeginRotatingSpriteBatch3D();   // Rotating sprites (aircraft, but not nukes anymore)
 
     //
     // force additive blending after culling has been applied
@@ -678,14 +675,15 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     // to prevent z-fighting, dont write to depth buffer and set
     // blend mode to normal for unit trails
 
-    g_renderer3d->BeginUnitTrailBatch3D();      // Unit movement trails
+    g_renderer3d->EndLineBatch3D();        // Flush all unit trails
+    g_renderer3d->BeginLineBatch3D();      // Unit movement trails
 
     g_renderer->SetBlendMode(Renderer::BlendModeNormal);
     glDepthMask(GL_FALSE);
 
     Render3DNukeTrajectories();
 
-    g_renderer3d->EndUnitTrailBatch3D();        // Flush all unit trails
+    g_renderer3d->EndLineBatch3D();        // Flush all unit trails
 
     glDepthMask(GL_TRUE);
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
@@ -693,12 +691,8 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     //
     // now end the main scene and flush
     
-    g_renderer3d->EndEffectsSpriteBatch3D();    // Flush all sprite effects (explosions, sonar pings)
-    g_renderer3d->EndEffectsLineBatch3D();      // Flush all line effects (gunfire trails)
-    g_renderer3d->EndUnitNukeBatch3D();         // Flush all small nuke icons
-    g_renderer3d->EndUnitStateBatch3D();        // Flush all unit state icons
-    g_renderer3d->EndUnitRotatingBatch3D();     // Flush all rotating sprites (atlas batching!)
-    g_renderer3d->EndUnitMainBatch3D();         // Flush all main unit sprites + city icons (atlas batching!)
+    g_renderer3d->EndRotatingSpriteBatch3D();     // Flush all rotating sprites (atlas batching!)
+    g_renderer3d->EndStaticSpriteBatch3D();         // Flush all main unit sprites + city icons (atlas batching!)
     g_renderer3d->EndNuke3DModelBatch3D();      // Flush all 3D nuke models
 
 
@@ -707,15 +701,14 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
 
     // reset to 2d viewport
     g_renderer->Reset2DViewport();
-    
-    g_renderer->BeginEffectsSpriteBatch();
 
+    g_renderer->BeginStaticSpriteBatch();
     // render mouse cursor
     if (IsMouseInMapRenderer()) {
         RenderGlobeMouse();
     }
 
-    g_renderer->EndEffectsSpriteBatch();
+    g_renderer->EndStaticSpriteBatch();
     
     // end draw call tracking
     g_renderer3d->EndFrame3D();
@@ -1128,7 +1121,7 @@ void MapRenderer::Render3DGlobeCities()
         Vector3<float> normal = cityPos;
         normal.Normalise();
         
-        g_renderer3d->UnitMainSprite3D(cityImg, cityPos.x, cityPos.y, cityPos.z, size * 2.0f, size * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
+        g_renderer3d->StaticSprite3D(cityImg, cityPos.x, cityPos.y, cityPos.z, size * 2.0f, size * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
     }
     
     // currently not used, i had alot of issues with city names
@@ -1381,10 +1374,10 @@ void MapRenderer::Render3DUnits()
         unitPos += normal * elevation;
         
         if (info.isAirUnit) {
-            g_renderer3d->UnitRotating3D(unitImg, unitPos.x, unitPos.y, unitPos.z, 
+            g_renderer3d->RotatingSprite3D(unitImg, unitPos.x, unitPos.y, unitPos.z, 
                                         size * 2.0f, size * 2.0f, color, info.rotationAngle, BILLBOARD_SURFACE_ALIGNED);
         } else {
-            g_renderer3d->UnitMainSprite3D(unitImg, unitPos.x, unitPos.y, unitPos.z, 
+            g_renderer3d->StaticSprite3D(unitImg, unitPos.x, unitPos.y, unitPos.z, 
                                           size * 2.0f, size * 2.0f, color, BILLBOARD_SURFACE_ALIGNED);
         }
     }
@@ -1451,7 +1444,8 @@ void MapRenderer::Render3DUnits()
                     
                     Vector3<float> iconPos = startPos + tangent1 * (j * spacing);
                     
-                    g_renderer3d->UnitNukeIcon3D(iconPos.x, iconPos.y, iconPos.z,
+                    Image *nuke = g_resource->GetImage("graphics/smallnuke.bmp");
+                    g_renderer3d->StaticSprite3D(nuke, iconPos.x, iconPos.y, iconPos.z,
                                                 nukeIconSize, nukeIconSize, iconColor, BILLBOARD_SURFACE_ALIGNED);
                 }
             }
@@ -1496,7 +1490,8 @@ void MapRenderer::Render3DUnits()
                     
                     Vector3<float> iconPos = startPos - tangent1 * (j * spacing);
                     
-                    g_renderer3d->UnitNukeIcon3D(iconPos.x, iconPos.y, iconPos.z,
+                    Image *nuke = g_resource->GetImage("graphics/smallnuke.bmp");
+                    g_renderer3d->StaticSprite3D(nuke, iconPos.x, iconPos.y, iconPos.z,
                                                 nukeIconSize, nukeIconSize, iconColor, BILLBOARD_SURFACE_ALIGNED);
                 }
             }
@@ -1518,7 +1513,8 @@ void MapRenderer::Render3DUnits()
                 }
             }
             
-            g_renderer3d->UnitNukeIcon3D(unitPos.x, unitPos.y, unitPos.z,
+            Image *nuke = g_resource->GetImage("graphics/smallnuke.bmp");
+            g_renderer3d->RotatingSprite3D(nuke, unitPos.x, unitPos.y, unitPos.z,
                                         nukeIconSize, nukeIconSize, iconColor, bomberRotation, BILLBOARD_SURFACE_ALIGNED);
         }
         
@@ -1577,7 +1573,7 @@ void MapRenderer::Render3DUnits()
                         
                         Vector3<float> iconPos = startPos + tangent1 * (j * spacing);
                         
-                        g_renderer3d->UnitStateIcon3D(iconImg, iconPos.x, iconPos.y, iconPos.z,
+                        g_renderer3d->StaticSprite3D(iconImg, iconPos.x, iconPos.y, iconPos.z,
                                                      iconSize, iconSize, iconColor, BILLBOARD_SURFACE_ALIGNED);
                     }
                 }
@@ -1691,7 +1687,7 @@ void MapRenderer::Render3DUnitTrails()
                 Colour segmentColour = colour;
                 segmentColour.m_a = 255 - 255 * (float)j / (float)maxSize;
                 
-                g_renderer3d->UnitTrailLine3D(prevPos.x, prevPos.y, prevPos.z,
+                g_renderer3d->LineBatched3D(prevPos.x, prevPos.y, prevPos.z,
                                              pos3D.x, pos3D.y, pos3D.z, segmentColour);
                 prevPos = pos3D;
             }
@@ -1923,7 +1919,7 @@ void MapRenderer::Render3DNukeTrajectories()
                 Colour segmentColour = colour;
                 segmentColour.m_a = 255 - 255 * (float)j / (float)maxTrailLength;
                 
-                g_renderer3d->UnitTrailLine3D(prevPos.x, prevPos.y, prevPos.z,
+                g_renderer3d->LineBatched3D(prevPos.x, prevPos.y, prevPos.z,
                                              pos3D.x, pos3D.y, pos3D.z, segmentColour);
                 
                 prevPos = pos3D;
@@ -2063,7 +2059,7 @@ void MapRenderer::Render3DGunfire()
                 Colour segmentColour = colour;
                 segmentColour.m_a = 255 - (255 * (float)j / maxHistorySize);
                 
-                g_renderer3d->EffectsLine3D(lastPos3D.x, lastPos3D.y, lastPos3D.z,
+                g_renderer3d->LineBatched3D(lastPos3D.x, lastPos3D.y, lastPos3D.z,
                                            thisPos3D.x, thisPos3D.y, thisPos3D.z, segmentColour);
             }
             
@@ -2116,7 +2112,7 @@ void MapRenderer::Render3DGunfire()
                 Colour currentColour = colour;
                 currentColour.m_a = 255;
                 
-                g_renderer3d->EffectsLine3D(lastPos3D.x, lastPos3D.y, lastPos3D.z,
+                g_renderer3d->LineBatched3D(lastPos3D.x, lastPos3D.y, lastPos3D.z,
                                            gunfirePos3D.x, gunfirePos3D.y, gunfirePos3D.z, currentColour);
             }
         }
@@ -2190,7 +2186,7 @@ void MapRenderer::Render3DExplosions()
                 // Offset slightly above surface
                 explosionPos += normal * 0.002f;
 
-                g_renderer3d->EffectsSprite3D(explosionImg, explosionPos.x, explosionPos.y, explosionPos.z,
+                g_renderer3d->StaticSprite3D(explosionImg, explosionPos.x, explosionPos.y, explosionPos.z,
                                              explosionSize * 2.0f, explosionSize * 2.0f, colour, BILLBOARD_SURFACE_ALIGNED);
                 
             } else {
@@ -2203,7 +2199,7 @@ void MapRenderer::Render3DExplosions()
                 
                 explosionPos += normal * 0.002f;
                 
-                g_renderer3d->EffectsSprite3D(explosionImg, explosionPos.x, explosionPos.y, explosionPos.z,
+                g_renderer3d->StaticSprite3D(explosionImg, explosionPos.x, explosionPos.y, explosionPos.z,
                                              explosionSize * 2.0f, explosionSize * 2.0f, colour, BILLBOARD_SURFACE_ALIGNED);
             }
         }
@@ -2260,7 +2256,7 @@ void MapRenderer::Render3DNukeSymbols()
             Vector3<float> normal = objectPos;
             normal.Normalise();
             
-            g_renderer3d->EffectsSprite3D(nukeSymbolImg, objectPos.x, objectPos.y, objectPos.z,
+            g_renderer3d->StaticSprite3D(nukeSymbolImg, objectPos.x, objectPos.y, objectPos.z,
                                          nukeSymbolSize * 2.0f, nukeSymbolSize * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
         }
     }
@@ -2295,7 +2291,7 @@ void MapRenderer::Render3DNukeSymbols()
         Vector3<float> normal = cityPos;
         normal.Normalise();
         
-        g_renderer3d->EffectsSprite3D(nukeSymbolImg, cityPos.x, cityPos.y, cityPos.z,
+        g_renderer3d->StaticSprite3D(nukeSymbolImg, cityPos.x, cityPos.y, cityPos.z,
                                      nukeSymbolSize * 2.0f, nukeSymbolSize * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
     }
 }
@@ -2370,7 +2366,7 @@ void MapRenderer::Render3DWorldObjectTargets()
                 float actionCursorSize = 4.0f * 0.0075f; 
                 float actionCursorAngle = g_gameTime * -1.0f; 
                 
-                g_renderer3d->EffectsSprite3D(targetImg, targetPos.x, targetPos.y, targetPos.z,
+                g_renderer3d->RotatingSprite3D(targetImg, targetPos.x, targetPos.y, targetPos.z,
                                              actionCursorSize * 2.0f, actionCursorSize * 2.0f, actionCursorCol, BILLBOARD_SURFACE_ALIGNED);
                 
                 // render curved order line 
@@ -2415,7 +2411,7 @@ void MapRenderer::Render3DWorldObjectTargets()
                     
                     float actionCursorSize = 4.0f * 0.0075f; 
                     
-                    g_renderer3d->EffectsSprite3D(targetImg, targetPos.x, targetPos.y, targetPos.z,
+                    g_renderer3d->RotatingSprite3D(targetImg, targetPos.x, targetPos.y, targetPos.z,
                                                  actionCursorSize * 2.0f, actionCursorSize * 2.0f, actionCursorCol, BILLBOARD_SURFACE_ALIGNED);
                     
                     // render curved order line, but not for nukes in flight as they look odd in 3D
@@ -2486,7 +2482,7 @@ void MapRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vector
         currentPos = normal * 1.001f;
         
         // render line segment
-        g_renderer3d->EffectsLine3D(prevPos.x, prevPos.y, prevPos.z,
+        g_renderer3d->LineBatched3D(prevPos.x, prevPos.y, prevPos.z,
                                    currentPos.x, currentPos.y, currentPos.z, col);
         
         prevPos = currentPos;
@@ -2514,7 +2510,7 @@ void MapRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vector
         // render bright animated segment
         Colour brightCol = col;
         brightCol.m_a = 255;
-        g_renderer3d->EffectsLine3D(animPos1.x, animPos1.y, animPos1.z,
+        g_renderer3d->LineBatched3D(animPos1.x, animPos1.y, animPos1.z,
                                    animPos2.x, animPos2.y, animPos2.z, brightCol);
     }
 }
@@ -2670,7 +2666,7 @@ void MapRenderer::Render3DPopulationDensity()
                 normal.Normalise();
                 cityPos += normal * 0.003f;
                 
-                g_renderer3d->EffectsSprite3D(populationImg, cityPos.x, cityPos.y, cityPos.z,
+                g_renderer3d->StaticSprite3D(populationImg, cityPos.x, cityPos.y, cityPos.z,
                                             populationSize * 2.0f, populationSize * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
             }
         }
@@ -2786,25 +2782,25 @@ void MapRenderer::Render3DUnitHighlight(int objectId)
     // left line
     Vector3<float> leftStart = unitPos - tangent1 * (halfSize + extend);
     Vector3<float> leftEnd = unitPos - tangent1 * halfSize;
-    g_renderer3d->EffectsLine3D(leftStart.x, leftStart.y, leftStart.z,
+    g_renderer3d->LineBatched3D(leftStart.x, leftStart.y, leftStart.z,
                                leftEnd.x, leftEnd.y, leftEnd.z, col);
     
     // right line  
     Vector3<float> rightStart = unitPos + tangent1 * (halfSize + extend);
     Vector3<float> rightEnd = unitPos + tangent1 * halfSize;
-    g_renderer3d->EffectsLine3D(rightStart.x, rightStart.y, rightStart.z,
+    g_renderer3d->LineBatched3D(rightStart.x, rightStart.y, rightStart.z,
                                rightEnd.x, rightEnd.y, rightEnd.z, col);
     
     // top line
     Vector3<float> topStart = unitPos + tangent2 * (halfSize + extend);
     Vector3<float> topEnd = unitPos + tangent2 * halfSize;
-    g_renderer3d->EffectsLine3D(topStart.x, topStart.y, topStart.z,
+    g_renderer3d->LineBatched3D(topStart.x, topStart.y, topStart.z,
                                topEnd.x, topEnd.y, topEnd.z, col);
     
     // bottom line
     Vector3<float> bottomStart = unitPos - tangent2 * (halfSize + extend);
     Vector3<float> bottomEnd = unitPos - tangent2 * halfSize;
-    g_renderer3d->EffectsLine3D(bottomStart.x, bottomStart.y, bottomStart.z,
+    g_renderer3d->LineBatched3D(bottomStart.x, bottomStart.y, bottomStart.z,
                                bottomEnd.x, bottomEnd.y, bottomEnd.z, col);
     
     // render central square using 4 line segments
@@ -2815,13 +2811,13 @@ void MapRenderer::Render3DUnitHighlight(int objectId)
 
     // render it
     
-    g_renderer3d->EffectsLine3D(topLeft.x, topLeft.y, topLeft.z,
+    g_renderer3d->LineBatched3D(topLeft.x, topLeft.y, topLeft.z,
                                topRight.x, topRight.y, topRight.z, col);
-    g_renderer3d->EffectsLine3D(topRight.x, topRight.y, topRight.z,
+    g_renderer3d->LineBatched3D(topRight.x, topRight.y, topRight.z,
                                bottomRight.x, bottomRight.y, bottomRight.z, col);
-    g_renderer3d->EffectsLine3D(bottomRight.x, bottomRight.y, bottomRight.z,
+    g_renderer3d->LineBatched3D(bottomRight.x, bottomRight.y, bottomRight.z,
                                bottomLeft.x, bottomLeft.y, bottomLeft.z, col);
-    g_renderer3d->EffectsLine3D(bottomLeft.x, bottomLeft.y, bottomLeft.z,
+    g_renderer3d->LineBatched3D(bottomLeft.x, bottomLeft.y, bottomLeft.z,
                                topLeft.x, topLeft.y, topLeft.z, col);
 }
 
@@ -2947,7 +2943,7 @@ void MapRenderer::Render3DAnimations()
                     point = point * 1.001f;
                     
                     if (seg > 0) {
-                        g_renderer3d->EffectsLine3D(prevPoint.x, prevPoint.y, prevPoint.z,
+                        g_renderer3d->LineBatched3D(prevPoint.x, prevPoint.y, prevPoint.z,
                                                    point.x, point.y, point.z, colour);
                     }
                     prevPoint = point;
@@ -2983,7 +2979,7 @@ void MapRenderer::Render3DAnimations()
                         nukeSymbolSize = fmaxf(nukeSymbolSize, 0.005f);
                         nukeSymbolSize = fminf(nukeSymbolSize, 0.065f);
                         
-                        g_renderer3d->EffectsSprite3D(nukeSymbolImg, targetPos.x, targetPos.y, targetPos.z,
+                        g_renderer3d->StaticSprite3D(nukeSymbolImg, targetPos.x, targetPos.y, targetPos.z,
                                                      nukeSymbolSize * 2.0f, nukeSymbolSize * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
                     }
                 }

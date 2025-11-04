@@ -202,7 +202,7 @@ void Silo::Render()
                     colour.Set( 128,128,128,100 );
                 }
                 
-                g_renderer->UnitNukeIcon( x+i*nukeSize*0.5f, y, nukeSize, -nukeSize, colour );
+                g_renderer->StaticSprite( bmpImage, x+i*nukeSize*0.5f, y, nukeSize, -nukeSize, colour );
             }
         }
     }

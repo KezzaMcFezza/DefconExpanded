@@ -218,26 +218,14 @@ Renderer::Renderer()
       m_textVertices(NULL),
       m_textVertexCount(0),
       m_currentTextTexture(0),
-      m_unitTrailVertexCount(0),
-      m_unitMainVertexCount(0),
-      m_currentUnitMainTexture(0),
-      m_unitRotatingVertexCount(0),
-      m_currentUnitRotatingTexture(0),
+      m_lineBatchedVertexCount(0),
+      m_staticSpriteVertexCount(0),
+      m_currentStaticSpriteTexture(0),
+      m_rotatingSpriteVertexCount(0),
+      m_currentRotatingSpriteTexture(0),
       m_effectsCircleFillVertexCount(0),
       m_effectsCircleOutlineVertexCount(0),
       m_effectsCircleOutlineThickVertexCount(0),
-      m_unitHighlightVertexCount(0),
-      m_currentUnitHighlightTexture(0),
-      m_unitStateVertexCount(0),
-      m_currentUnitStateTexture(0),
-      m_unitCounterVertexCount(0),
-      m_currentUnitCounterTexture(0),
-      m_unitNukeVertexCount(0),
-      m_currentUnitNukeTexture(0),
-      m_effectsLineVertexCount(0),
-      m_effectsRectVertexCount(0),
-      m_effectsSpriteVertexCount(0),
-      m_currentEffectsSpriteTexture(0),
       m_healthBarVertexCount(0),
       m_whiteboardVertexCount(0),
       m_eclipseRectVertexCount(0),
@@ -284,23 +272,11 @@ Renderer::Renderer()
       m_textVertices = m_fontBatches[0].vertices;
       m_textVertexCount = 0;
       m_currentTextTexture = 0;
-      m_unitTrailVertexCount = 0;
-      m_unitMainVertexCount = 0;
-      m_currentUnitMainTexture = 0;
-      m_unitRotatingVertexCount = 0;
-      m_currentUnitRotatingTexture = 0;
-      m_unitHighlightVertexCount = 0;
-      m_currentUnitHighlightTexture = 0;
-      m_unitStateVertexCount = 0;
-      m_currentUnitStateTexture = 0;
-      m_unitCounterVertexCount = 0;
-      m_currentUnitCounterTexture = 0;
-      m_unitNukeVertexCount = 0;
-      m_currentUnitNukeTexture = 0;
-      m_effectsLineVertexCount = 0;
-      m_effectsRectVertexCount = 0;
-      m_effectsSpriteVertexCount = 0;
-      m_currentEffectsSpriteTexture = 0;
+      m_lineBatchedVertexCount = 0;
+      m_staticSpriteVertexCount = 0;
+      m_currentStaticSpriteTexture = 0;
+      m_rotatingSpriteVertexCount = 0;
+      m_currentRotatingSpriteTexture = 0;
       m_healthBarVertexCount = 0;
       m_whiteboardVertexCount = 0;
       m_eclipseRectVertexCount = 0;
@@ -314,16 +290,9 @@ Renderer::Renderer()
       m_uiTriangleCalls = 0;
       m_uiLineCalls = 0;
       m_textCalls = 0;
-      m_unitTrailCalls = 0;
-      m_unitMainSpriteCalls = 0;
-      m_unitRotatingCalls = 0;
-      m_unitHighlightCalls = 0;
-      m_unitStateIconCalls = 0;
-      m_unitCounterCalls = 0;
-      m_unitNukeIconCalls = 0;
-      m_effectsLineCalls = 0;
-      m_effectsRectCalls = 0;
-      m_effectsSpriteCalls = 0;
+      m_lineBatchedCalls = 0;
+      m_staticSpriteCalls = 0;
+      m_rotatingSpriteCalls = 0;
       m_healthBarCalls = 0;
       m_whiteboardCalls = 0;
       m_eclipseRectCalls = 0;
@@ -337,16 +306,9 @@ Renderer::Renderer()
       m_prevUiTriangleCalls = 0;
       m_prevUiLineCalls = 0;
       m_prevTextCalls = 0;
-      m_prevUnitTrailCalls = 0;
-      m_prevUnitMainSpriteCalls = 0;
-      m_prevUnitRotatingCalls = 0;
-      m_prevUnitHighlightCalls = 0;
-      m_prevUnitStateIconCalls = 0;
-      m_prevUnitCounterCalls = 0;
-      m_prevUnitNukeIconCalls = 0;
-      m_prevEffectsLineCalls = 0;
-      m_prevEffectsRectCalls = 0;
-      m_prevEffectsSpriteCalls = 0;
+      m_prevlineBatchedCalls = 0;
+      m_prevStaticSpriteCalls = 0;
+      m_prevRotatingSpriteCalls = 0;
       m_prevHealthBarCalls = 0;
       m_prevWhiteboardCalls = 0;
       m_prevEclipseRectCalls = 0;
@@ -1239,7 +1201,7 @@ void Renderer::SetupVertexArrays() {
     glGenBuffers(1, &m_unitVBO);
     glBindVertexArray(m_unitVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_unitVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_UNIT_MAIN_VERTICES + MAX_UNIT_ROTATING_VERTICES + MAX_UNIT_HIGHLIGHT_VERTICES + MAX_UNIT_STATE_VERTICES + MAX_UNIT_COUNTER_VERTICES + MAX_UNIT_NUKE_VERTICES), NULL, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_STATIC_SPRITE_VERTICES + MAX_ROTATING_SPRITE_VERTICES + MAX_UNIT_STATE_VERTICES), NULL, GL_STREAM_DRAW);
     setupVertexAttributes();
     
     //
@@ -1249,7 +1211,7 @@ void Renderer::SetupVertexArrays() {
     glGenBuffers(1, &m_effectsVBO);
     glBindVertexArray(m_effectsVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_effectsVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_UNIT_TRAIL_VERTICES + MAX_EFFECTS_LINE_VERTICES + MAX_EFFECTS_SPRITE_VERTICES * 2), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_BATCHED_LINES_VERTICES * 2), NULL, GL_DYNAMIC_DRAW);
     setupVertexAttributes();
     
     //
@@ -1441,16 +1403,9 @@ void Renderer::ResetFrameCounters() {
     m_prevUiTriangleCalls = m_uiTriangleCalls;
     m_prevUiLineCalls = m_uiLineCalls;
     m_prevTextCalls = m_textCalls;
-    m_prevUnitTrailCalls = m_unitTrailCalls;
-    m_prevUnitMainSpriteCalls = m_unitMainSpriteCalls;
-    m_prevUnitRotatingCalls = m_unitRotatingCalls;
-    m_prevUnitHighlightCalls = m_unitHighlightCalls;
-    m_prevUnitStateIconCalls = m_unitStateIconCalls;
-    m_prevUnitCounterCalls = m_unitCounterCalls;
-    m_prevUnitNukeIconCalls = m_unitNukeIconCalls;
-    m_prevEffectsLineCalls = m_effectsLineCalls;
-    m_prevEffectsRectCalls = m_effectsRectCalls;
-    m_prevEffectsSpriteCalls = m_effectsSpriteCalls;
+    m_prevlineBatchedCalls = m_lineBatchedCalls;
+    m_prevStaticSpriteCalls = m_staticSpriteCalls;
+    m_prevRotatingSpriteCalls = m_rotatingSpriteCalls;
     m_prevEffectsCircleFillCalls = m_effectsCircleFillCalls;
     m_prevEffectsCircleOutlineCalls = m_effectsCircleOutlineCalls;
     m_prevEffectsCircleOutlineThickCalls = m_effectsCircleOutlineThickCalls;
@@ -1471,16 +1426,9 @@ void Renderer::ResetFrameCounters() {
     m_uiTriangleCalls = 0;
     m_uiLineCalls = 0;
     m_textCalls = 0;
-    m_unitTrailCalls = 0;
-    m_unitMainSpriteCalls = 0;
-    m_unitRotatingCalls = 0;
-    m_unitHighlightCalls = 0;
-    m_unitStateIconCalls = 0;
-    m_unitCounterCalls = 0;
-    m_unitNukeIconCalls = 0;
-    m_effectsLineCalls = 0;
-    m_effectsRectCalls = 0;
-    m_effectsSpriteCalls = 0;
+    m_lineBatchedCalls = 0;
+    m_staticSpriteCalls = 0;
+    m_rotatingSpriteCalls = 0;
     m_effectsCircleFillCalls = 0;
     m_effectsCircleOutlineCalls = 0;
     m_effectsCircleOutlineThickCalls = 0;
@@ -1513,16 +1461,9 @@ void Renderer::IncrementDrawCall(const char* bufferType) {
         case hash("ui_triangles"): m_uiTriangleCalls++; break;
         case hash("ui_lines"): m_uiLineCalls++; break;
         case hash("text"): m_textCalls++; break;
-        case hash("unit_trails"): m_unitTrailCalls++; break;
-        case hash("unit_main_sprites"): m_unitMainSpriteCalls++; break;
-        case hash("unit_rotating"): m_unitRotatingCalls++; break;
-        case hash("unit_highlights"): m_unitHighlightCalls++; break;
-        case hash("unit_state_icons"): m_unitStateIconCalls++; break;
-        case hash("unit_counters"): m_unitCounterCalls++; break;
-        case hash("unit_nuke_icons"): m_unitNukeIconCalls++; break;
-        case hash("effects_lines"): m_effectsLineCalls++; break;
-        case hash("effects_rects"): m_effectsRectCalls++; break;
-        case hash("effects_sprites"): m_effectsSpriteCalls++; break;
+        case hash("batched_lines"): m_lineBatchedCalls++; break;
+        case hash("static_sprites"): m_staticSpriteCalls++; break;
+        case hash("rotating_sprites"): m_rotatingSpriteCalls++; break;
         case hash("effects_circle_fills"): m_effectsCircleFillCalls++; break;
         case hash("effects_circle_outlines_thin"): m_effectsCircleOutlineCalls++; break;
         case hash("effects_circle_outlines_thick"): m_effectsCircleOutlineThickCalls++; break;

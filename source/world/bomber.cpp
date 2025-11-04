@@ -498,7 +498,7 @@ void Bomber::Render()
 
         float size = GetSize().DoubleValue() * 0.4f;
         
-        g_renderer->UnitNukeIcon( predictedLongitude + m_vel.x.DoubleValue() * 4, 
+        g_renderer->RotatingSprite( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 4, 
                                   predictedLatitude + m_vel.y.DoubleValue() * 4,
                                   size/2, 
                                   size/2, 

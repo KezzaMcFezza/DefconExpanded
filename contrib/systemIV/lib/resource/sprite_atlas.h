@@ -78,6 +78,7 @@ public:
     virtual int Height();
     
     const AtlasCoord* GetAtlasCoord() const;
+    const char* GetFilename() const;
     
     unsigned int GetAtlasTextureID() const;
     

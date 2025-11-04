@@ -768,7 +768,7 @@ void Carrier::Render()
                     colour.Set( 128,128,128,100 );
                 }
                 
-                g_renderer->UnitStateIcon( bmpImage, x, y, size*0.9f, -size, colour );
+                g_renderer->StaticSprite( bmpImage, x, y, size*0.9f, -size, colour );
                 x += dx;
             }
         }

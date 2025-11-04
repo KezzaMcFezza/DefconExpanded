@@ -549,7 +549,7 @@ void MovingObject::Render()
         Image *bmpImage = g_resource->GetImage( bmpImageFilename );
         
         // BATCHING FIX: Use dedicated rotating buffer with rotation support for aircraft/nukes
-        g_renderer->UnitRotating( bmpImage, 
+        g_renderer->RotatingSprite( bmpImage, 
                           predictedLongitude + m_vel.x.DoubleValue() * 2, 
                           predictedLatitude + m_vel.y.DoubleValue() * 2, 
                           size/2, 
@@ -576,7 +576,7 @@ void MovingObject::Render()
             {
                 bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
                 // BATCHING FIX: Use rotating buffer for rotated selection highlights
-                g_renderer->UnitRotating( bmpImage, 
+                g_renderer->RotatingSprite( bmpImage, 
                                 predictedLongitude + m_vel.x.DoubleValue() * 2, 
                                 predictedLatitude + m_vel.y.DoubleValue() * 2, 
                                 size/2, 
@@ -696,7 +696,7 @@ void MovingObject::RenderHistory()
             lastPos += diff * 0.1f;
             colour.m_a = 255 - 255 * (float) i / (float) maxSize;
             
-            g_renderer->UnitTrailLine( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
+            g_renderer->LineBatched( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
             lastPos = historyPos;
         }
     }
@@ -755,7 +755,7 @@ void MovingObject::RenderGhost( int teamId )
 
             Image *bmpImage = g_resource->GetImage( bmpImageFilename );
             // BATCHING FIX: Use rotating buffer for rotated ghost sprites
-            g_renderer->UnitRotating( bmpImage, predictedLongitude, predictedLatitude, thisSize, size, col, angle);
+            g_renderer->RotatingSprite( bmpImage, predictedLongitude, predictedLatitude, thisSize, size, col, angle);
         }
         else
         {

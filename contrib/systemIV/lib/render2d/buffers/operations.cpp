@@ -26,17 +26,10 @@ void Renderer::FlushAllSpecializedBuffers() {
     FlushUITriangles();
     FlushUILines();
     FlushTextBuffer();
-    FlushUnitTrails();
-    FlushUnitMainSprites();
-    FlushUnitRotating();
-    FlushUnitHighlights();
-    FlushUnitStateIcons();
-    FlushUnitCounters();
-    FlushUnitNukeIcons();
+    FlushLineBatched();
+    FlushStaticSprites();
+    FlushRotatingSprite();
     FlushHealthBars();
-    FlushEffectsLines();
-    FlushEffectsRects();
-    FlushEffectsSprites();
     FlushEclipseRects();
     FlushEclipseRectFills();
     FlushEclipseLines();
@@ -44,20 +37,10 @@ void Renderer::FlushAllSpecializedBuffers() {
 }
 
 void Renderer::FlushAllUnitBuffers() {
-    FlushUnitTrails();
-    FlushUnitMainSprites();
-    FlushUnitRotating();
-    FlushUnitHighlights();
-    FlushUnitStateIcons();
-    FlushUnitCounters();
-    FlushUnitNukeIcons();
+    FlushLineBatched();
+    FlushStaticSprites();
+    FlushRotatingSprite();
     FlushHealthBars();
-}
-
-void Renderer::FlushAllEffectBuffers() {
-    FlushEffectsLines();
-    FlushEffectsRects();
-    FlushEffectsSprites();
 }
 
 void Renderer::FlushUIContext() {
@@ -106,53 +89,24 @@ void Renderer::BeginTextBatch() {
     m_currentTextTexture = 0;
 }
 
-void Renderer::BeginUnitTrailBatch() {
-    m_unitTrailVertexCount = 0;
+void Renderer::BeginLineBatch() {
+    m_lineBatchedVertexCount = 0;
 }
 
-void Renderer::BeginUnitMainBatch() {
-    m_unitMainVertexCount = 0;
-    m_currentUnitMainTexture = 0;
+void Renderer::BeginStaticSpriteBatch() {
+    m_staticSpriteVertexCount = 0;
+    m_currentStaticSpriteTexture = 0;
 }
 
-void Renderer::BeginUnitRotatingBatch() {
-    m_unitRotatingVertexCount = 0;
-    m_currentUnitRotatingTexture = 0;
+void Renderer::BeginRotatingSpriteBatch() {
+    m_rotatingSpriteVertexCount = 0;
+    m_currentRotatingSpriteTexture = 0;
 }
 
 void Renderer::BeginEffectsCircleBatch() {
     m_effectsCircleFillVertexCount = 0;
     m_effectsCircleOutlineVertexCount = 0;
     m_effectsCircleOutlineThickVertexCount = 0;
-}
-
-void Renderer::BeginUnitStateBatch() {
-    m_unitStateVertexCount = 0;
-    m_currentUnitStateTexture = 0;
-}
-
-void Renderer::BeginUnitCounterBatch() {
-    m_unitCounterVertexCount = 0;
-    m_currentUnitCounterTexture = 0;
-}
-
-void Renderer::BeginUnitNukeBatch() {
-    m_unitNukeVertexCount = 0;
-    m_currentUnitNukeTexture = 0;
-}
-
-void Renderer::BeginEffectsLineBatch() {
-    m_effectsLineVertexCount = 0;
-}
-
-void Renderer::BeginEffectsSpriteBatch() {
-    m_effectsSpriteVertexCount = 0;
-    m_currentEffectsSpriteTexture = 0;
-}
-
-void Renderer::BeginUnitHighlightBatch() {
-    m_unitHighlightVertexCount = 0;
-    m_currentUnitHighlightTexture = 0;
 }
 
 void Renderer::BeginMapTextBatch() {
@@ -233,19 +187,19 @@ void Renderer::EndTextBatch() {
     m_currentTextTexture = 0;
 }
 
-void Renderer::EndUnitTrailBatch() {
-    FlushUnitTrails();
+void Renderer::EndLineBatch() {
+    FlushLineBatched();
 }
 
-void Renderer::EndUnitMainBatch() {
-    if (m_unitMainVertexCount > 0) {
-        FlushUnitMainSprites();
+void Renderer::EndStaticSpriteBatch() {
+    if (m_staticSpriteVertexCount > 0) {
+        FlushStaticSprites();
     }
 }
 
-void Renderer::EndUnitRotatingBatch() {
-    if (m_unitRotatingVertexCount > 0) {
-        FlushUnitRotating();
+void Renderer::EndRotatingSpriteBatch() {
+    if (m_rotatingSpriteVertexCount > 0) {
+        FlushRotatingSprite();
     }
 }
 
@@ -253,41 +207,6 @@ void Renderer::EndEffectsCircleBatch() {
     FlushEffectsCircleFills();           
     FlushEffectsCircleOutlinesThick();   
     FlushEffectsCircleOutlines();        
-}
-
-void Renderer::EndUnitStateBatch() {
-    if (m_unitStateVertexCount > 0) {
-        FlushUnitStateIcons();
-    }
-}
-
-void Renderer::EndUnitCounterBatch() {
-    if (m_unitCounterVertexCount > 0) {
-        FlushUnitCounters();
-    }
-}
-
-void Renderer::EndUnitNukeBatch() {
-    if (m_unitNukeVertexCount > 0) {
-        FlushUnitNukeIcons();
-    }
-}
-
-void Renderer::EndEffectsLineBatch() {
-    FlushEffectsLines();
-    FlushEffectsRects();
-}
-
-void Renderer::EndEffectsSpriteBatch() {
-    if (m_effectsSpriteVertexCount > 0) {
-        FlushEffectsSprites();
-    }
-}
-
-void Renderer::EndUnitHighlightBatch() {
-    if (m_unitHighlightVertexCount > 0) {
-        FlushUnitHighlights();
-    }
 }
 
 void Renderer::EndMapTextBatch() {
@@ -363,45 +282,21 @@ void Renderer::FlushTextBufferIfFull(int charactersNeeded) {
     }
 }
 
-void Renderer::FlushUnitTrailsIfFull(int segmentsNeeded) {
-    if (m_unitTrailVertexCount + segmentsNeeded > MAX_UNIT_TRAIL_VERTICES) {
-        FlushUnitTrails();
+void Renderer::FlushLineBatchedIfFull(int segmentsNeeded) {
+    if (m_lineBatchedVertexCount + segmentsNeeded > MAX_BATCHED_LINES_VERTICES) {
+        FlushLineBatched();
     }
 }
 
-void Renderer::FlushUnitMainSpritesIfFull(int verticesNeeded) {
-    if (m_unitMainVertexCount + verticesNeeded > MAX_UNIT_MAIN_VERTICES) {
-        FlushUnitMainSprites();
+void Renderer::FlushStaticSpritesIfFull(int verticesNeeded) {
+    if (m_staticSpriteVertexCount + verticesNeeded > MAX_STATIC_SPRITE_VERTICES) {
+        FlushStaticSprites();
     }
 }
 
-void Renderer::FlushUnitRotatingIfFull(int verticesNeeded) {
-    if (m_unitRotatingVertexCount + verticesNeeded > MAX_UNIT_ROTATING_VERTICES) {
-        FlushUnitRotating();
-    }
-}
-
-void Renderer::FlushUnitStateIconsIfFull(int verticesNeeded) {
-    if (m_unitStateVertexCount + verticesNeeded > MAX_UNIT_STATE_VERTICES) {
-        FlushUnitStateIcons();
-    }
-}
-
-void Renderer::FlushUnitNukeIconsIfFull(int verticesNeeded) {
-    if (m_unitNukeVertexCount + verticesNeeded > MAX_UNIT_NUKE_VERTICES) {
-        FlushUnitNukeIcons();
-    }
-}
-
-void Renderer::FlushEffectsLinesIfFull(int segmentsNeeded) {
-    if (m_effectsLineVertexCount + segmentsNeeded > MAX_EFFECTS_LINE_VERTICES) {
-        FlushEffectsLines();
-    }
-}
-
-void Renderer::FlushEffectsRectsIfFull(int segmentsNeeded) {
-    if (m_effectsRectVertexCount + segmentsNeeded > MAX_EFFECTS_LINE_VERTICES) {
-        FlushEffectsRects();
+void Renderer::FlushRotatingSpritesIfFull(int verticesNeeded) {
+    if (m_rotatingSpriteVertexCount + verticesNeeded > MAX_ROTATING_SPRITE_VERTICES) {
+        FlushRotatingSprite();
     }
 }
 
@@ -572,11 +467,11 @@ void Renderer::FlushTextBuffer() {
     EndFlushTiming("Text");
 }
 
-void Renderer::FlushUnitTrails() {
-    if (m_unitTrailVertexCount == 0) return;
+void Renderer::FlushLineBatched() {
+    if (m_lineBatchedVertexCount == 0) return;
     
-    StartFlushTiming("Unit_Trails");
-    IncrementDrawCall("unit_trails");
+    StartFlushTiming("Batched_Lines");
+    IncrementDrawCall("batched_lines");
     
 #ifndef TARGET_EMSCRIPTEN
     SetLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS)); 
@@ -587,63 +482,63 @@ void Renderer::FlushUnitTrails() {
     
     SetVertexArray(m_effectsVAO);
     SetArrayBuffer(m_effectsVBO);
-    UploadVertexDataToVBO(m_effectsVBO, m_unitTrailVertices, m_unitTrailVertexCount, GL_DYNAMIC_DRAW); 
+    UploadVertexDataToVBO(m_effectsVBO, m_lineBatchedVertices, m_lineBatchedVertexCount, GL_DYNAMIC_DRAW); 
     
-    glDrawArrays(GL_LINES, 0, m_unitTrailVertexCount);
+    glDrawArrays(GL_LINES, 0, m_lineBatchedVertexCount);
     
-    m_unitTrailVertexCount = 0;
+    m_lineBatchedVertexCount = 0;
     
-    EndFlushTiming("Unit_Trails"); 
+    EndFlushTiming("Batched_Lines"); 
 }
 
 
-void Renderer::FlushUnitMainSprites() {
-    if (m_unitMainVertexCount == 0) return;
+void Renderer::FlushStaticSprites() {
+    if (m_staticSpriteVertexCount == 0) return;
     
-    StartFlushTiming("Unit_Main");
-    IncrementDrawCall("unit_main_sprites");
+    StartFlushTiming("Static_Sprite");
+    IncrementDrawCall("static_sprites");
     
     SetShaderProgram(m_textureShaderProgram);
     SetTextureShaderUniforms();
     
     // bind texture here during flush
-    if (m_currentUnitMainTexture != 0) {
+    if (m_currentStaticSpriteTexture != 0) {
         SetActiveTexture(GL_TEXTURE0);
-        SetBoundTexture(m_currentUnitMainTexture);
+        SetBoundTexture(m_currentStaticSpriteTexture);
     }
     
     SetVertexArray(m_unitVAO);
     SetArrayBuffer(m_unitVBO);
-    UploadVertexDataToVBO(m_unitVBO, m_unitMainVertices, m_unitMainVertexCount, GL_STREAM_DRAW);   
+    UploadVertexDataToVBO(m_unitVBO, m_staticSpriteVertices, m_staticSpriteVertexCount, GL_STREAM_DRAW);   
     
-    glDrawArrays(GL_TRIANGLES, 0, m_unitMainVertexCount);
+    glDrawArrays(GL_TRIANGLES, 0, m_staticSpriteVertexCount);
     
-    m_unitMainVertexCount = 0;
+    m_staticSpriteVertexCount = 0;
     
-    EndFlushTiming("Unit_Main");
+    EndFlushTiming("Static_Sprite");
 }
 
-void Renderer::FlushUnitRotating() {
-    if (m_unitRotatingVertexCount == 0) return;
+void Renderer::FlushRotatingSprite() {
+    if (m_rotatingSpriteVertexCount == 0) return;
     
     StartFlushTiming("Unit_Rotating");
-    IncrementDrawCall("unit_rotating");
+    IncrementDrawCall("rotating_sprites");
     
     SetShaderProgram(m_textureShaderProgram);
     SetTextureShaderUniforms();
     
-    if (m_currentUnitRotatingTexture != 0) {
+    if (m_currentRotatingSpriteTexture != 0) {
         SetActiveTexture(GL_TEXTURE0);
-        SetBoundTexture(m_currentUnitRotatingTexture);
+        SetBoundTexture(m_currentRotatingSpriteTexture);
     }
     
     SetVertexArray(m_unitVAO);
     SetArrayBuffer(m_unitVBO);
-    UploadVertexDataToVBO(m_unitVBO, m_unitRotatingVertices, m_unitRotatingVertexCount, GL_STREAM_DRAW);
+    UploadVertexDataToVBO(m_unitVBO, m_rotatingSpriteVertices, m_rotatingSpriteVertexCount, GL_STREAM_DRAW);
     
-    glDrawArrays(GL_TRIANGLES, 0, m_unitRotatingVertexCount);
+    glDrawArrays(GL_TRIANGLES, 0, m_rotatingSpriteVertexCount);
     
-    m_unitRotatingVertexCount = 0;
+    m_rotatingSpriteVertexCount = 0;
     
     EndFlushTiming("Unit_Rotating");
 }
@@ -714,174 +609,6 @@ void Renderer::FlushEffectsCircleOutlinesThick() {
     m_effectsCircleOutlineThickVertexCount = 0;
 
     EndFlushTiming("Effects_CircleOutlinesThick");
-}
-
-void Renderer::FlushUnitStateIcons() {
-    if (m_unitStateVertexCount == 0) return;
-    
-    StartFlushTiming("Unit_StateIcons");
-    IncrementDrawCall("unit_state_icons");
-
-    SetShaderProgram(m_textureShaderProgram);
-    SetTextureShaderUniforms();
-    
-    if (m_currentUnitStateTexture != 0) {
-        SetActiveTexture(GL_TEXTURE0);
-        SetBoundTexture(m_currentUnitStateTexture);
-    }
-    
-    SetVertexArray(m_unitVAO);
-    SetArrayBuffer(m_unitVBO);
-    UploadVertexDataToVBO(m_unitVBO, m_unitStateVertices, m_unitStateVertexCount, GL_STREAM_DRAW); 
-        
-    glDrawArrays(GL_TRIANGLES, 0, m_unitStateVertexCount);
-    
-    m_unitStateVertexCount = 0;
-    
-    EndFlushTiming("Unit_StateIcons");
-}
-
-void Renderer::FlushUnitCounters() {
-    if (m_unitCounterVertexCount == 0) return;
-    
-    StartFlushTiming("Unit_Counters");
-    IncrementDrawCall("unit_counters");
-    
-    SetShaderProgram(m_textureShaderProgram);
-    SetTextureShaderUniforms();
-    
-    SetVertexArray(m_unitVAO);
-    SetArrayBuffer(m_unitVBO);
-    UploadVertexDataToVBO(m_unitVBO, m_unitCounterVertices, m_unitCounterVertexCount, GL_STREAM_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_unitCounterVertexCount);
-    
-    m_unitCounterVertexCount = 0;
-    
-    EndFlushTiming("Unit_Counters");
-}
-
-void Renderer::FlushUnitNukeIcons() {
-    if (m_unitNukeVertexCount == 0) return;
-    
-    StartFlushTiming("Unit_Nukes");
-    IncrementDrawCall("unit_nuke_icons");
-    
-    SetShaderProgram(m_textureShaderProgram);
-    SetTextureShaderUniforms();
-
-    if (m_currentUnitNukeTexture != 0) {
-        SetActiveTexture(GL_TEXTURE0);
-        SetBoundTexture(m_currentUnitNukeTexture);
-    }
-    
-    SetVertexArray(m_unitVAO);
-    SetArrayBuffer(m_unitVBO);
-    UploadVertexDataToVBO(m_unitVBO, m_unitNukeVertices, m_unitNukeVertexCount, GL_STREAM_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_unitNukeVertexCount);
-    
-    m_unitNukeVertexCount = 0;
-    
-    EndFlushTiming("Unit_Nukes");
-}
-
-void Renderer::FlushEffectsLines() {
-    if (m_effectsLineVertexCount == 0) return;
-    
-    StartFlushTiming("Effects_Lines");
-    IncrementDrawCall("effects_lines");
-
-#ifndef TARGET_EMSCRIPTEN
-    SetLineWidth(1.0f);  // Set once during flush, not per line
-#endif
-    
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_effectsVAO);
-    SetArrayBuffer(m_effectsVBO);
-    UploadVertexDataToVBO(m_effectsVBO, m_effectsLineVertices, m_effectsLineVertexCount, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_LINES, 0, m_effectsLineVertexCount);
-    
-    m_effectsLineVertexCount = 0;
-    
-    EndFlushTiming("Effects_Lines");
-}
-
-void Renderer::FlushEffectsRects() {
-    if (m_effectsRectVertexCount == 0) return;
-    
-    StartFlushTiming("Effects_Rects");
-    IncrementDrawCall("effects_rects");
-
-#ifndef TARGET_EMSCRIPTEN
-    SetLineWidth(1.0f);
-#endif
-    
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_effectsVAO);
-    SetArrayBuffer(m_effectsVBO);
-    UploadVertexDataToVBO(m_effectsVBO, m_effectsRectVertices, m_effectsRectVertexCount, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_LINES, 0, m_effectsRectVertexCount);
-    
-    m_effectsRectVertexCount = 0;
-    
-    EndFlushTiming("Effects_Rects");
-}
-
-void Renderer::FlushEffectsSprites() {
-    if (m_effectsSpriteVertexCount == 0) return;
-    
-    StartFlushTiming("Effects_Sprites");
-    IncrementDrawCall("effects_sprites");
-    
-    SetShaderProgram(m_textureShaderProgram);
-    SetTextureShaderUniforms();
-    
-    if (m_currentEffectsSpriteTexture != 0) {
-        SetActiveTexture(GL_TEXTURE0);
-        SetBoundTexture(m_currentEffectsSpriteTexture);
-    }
-    
-    SetVertexArray(m_effectsVAO);
-    SetArrayBuffer(m_effectsVBO);
-    UploadVertexDataToVBO(m_effectsVBO, m_effectsSpriteVertices, m_effectsSpriteVertexCount, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_effectsSpriteVertexCount);
-    
-    m_effectsSpriteVertexCount = 0;
-    
-    EndFlushTiming("Effects_Sprites");
-}
-
-void Renderer::FlushUnitHighlights() {
-    if (m_unitHighlightVertexCount == 0) return;
-    
-    StartFlushTiming("Unit_Highlights");
-    IncrementDrawCall("unit_highlights");
-    
-    SetShaderProgram(m_textureShaderProgram);
-    SetTextureShaderUniforms();
-    
-    if (m_currentUnitHighlightTexture != 0) {
-        SetActiveTexture(GL_TEXTURE0);
-        SetBoundTexture(m_currentUnitHighlightTexture);
-    }
-    
-    SetVertexArray(m_unitVAO);
-    SetArrayBuffer(m_unitVBO);
-    UploadVertexDataToVBO(m_unitVBO, m_unitHighlightVertices, m_unitHighlightVertexCount, GL_STREAM_DRAW);
- 
-    glDrawArrays(GL_TRIANGLES, 0, m_unitHighlightVertexCount);
-    
-    m_unitHighlightVertexCount = 0;
-    
-    EndFlushTiming("Unit_Highlights");
 }
 
 // flush the buffer

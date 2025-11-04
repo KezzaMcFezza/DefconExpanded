@@ -56,29 +56,14 @@ private:
   ShaderUniforms m_colorShaderUniforms;
   ShaderUniforms m_textureShaderUniforms;
 
-
-  //
-  // micro batching system - allows the debug menu to track the number of draw
-  // calls per frame this system could be abolished, but realistically to
-  // maintain mod compatiblity its bet we keep it as mods do not contain texture
-  // atlases for the units. this ensures backwards compatibility without using
-  // the old blit system. to be honest claude done a good job with the micro
-  // batching system so i see no reason to optimise it anymore.
-
   enum BufferType {
     BUFFER_UI_TRIANGLES,       // UI rectangles, buttons, panels, not yet implemented with batching
     BUFFER_UI_LINES,           // UI borders, grids, wireframes, not yet implemented with batching
     BUFFER_TEXT,               // all text rendering, not yet implemented with batching
     BUFFER_SPRITES,            // general sprites/images
-    BUFFER_UNIT_TRAILS,        // movement history lines, 4000 draw call reductin when implemented with batching
-    BUFFER_UNIT_MAIN_SPRITES,  // main static unit sprites (ground/sea units)
-    BUFFER_UNIT_ROTATING,      // rotating sprites (aircraft/nukes)
-    BUFFER_UNIT_HIGHLIGHTS,    // selection/highlight
-    BUFFER_UNIT_STATE_ICONS,   // fighter/bomber/nuke state indicators
-    BUFFER_UNIT_COUNTERS,      // unit counter text
-    BUFFER_UNIT_NUKE_ICONS,    // small nuke icons
-    BUFFER_EFFECTS_LINES,      // gunfire trails, radar ranges
-    BUFFER_EFFECTS_SPRITES,    // explosions
+    BUFFER_BATCHED_LINES,      // movement history lines, 4000 draw call reductin when implemented with batching
+    BUFFER_STATIC_SPRITES,     // main static unit sprites (ground/sea units)
+    BUFFER_ROTATING_SPRITES,   // rotating sprites (aircraft/nukes)
     BUFFER_WHITEBOARD,         // whiteboard drawings
     BUFFER_LEGACY              // immediate mode rendering
   };
@@ -86,15 +71,9 @@ private:
   static constexpr int MAX_VERTICES                 = 1000;
   static constexpr int MAX_UI_VERTICES              = 5000;
   static constexpr int MAX_TEXT_VERTICES            = 28000;
-  static constexpr int MAX_UNIT_TRAIL_VERTICES      = 30000;
-  static constexpr int MAX_UNIT_MAIN_VERTICES       = 30000;
-  static constexpr int MAX_UNIT_ROTATING_VERTICES   = 10000;
-  static constexpr int MAX_UNIT_HIGHLIGHT_VERTICES  = 500;
-  static constexpr int MAX_UNIT_STATE_VERTICES      = 7500;
-  static constexpr int MAX_UNIT_COUNTER_VERTICES    = 100;
-  static constexpr int MAX_UNIT_NUKE_VERTICES       = 7500;
-  static constexpr int MAX_EFFECTS_LINE_VERTICES    = 50000;
-  static constexpr int MAX_EFFECTS_SPRITE_VERTICES  = 7500;
+  static constexpr int MAX_BATCHED_LINES_VERTICES   = 30000;
+  static constexpr int MAX_STATIC_SPRITE_VERTICES   = 30000;
+  static constexpr int MAX_ROTATING_SPRITE_VERTICES = 15000;
   static constexpr int MAX_HEALTH_BAR_VERTICES      = 500;
   static constexpr int MAX_WHITEBOARD_VERTICES      = 2000;
   static constexpr int MAX_ECLIPSE_RECT_VERTICES    = 2000;
@@ -181,54 +160,25 @@ protected:
   //
   // unit rendering buffers
 
-  Vertex2D m_unitTrailVertices      [MAX_UNIT_TRAIL_VERTICES];
-  int m_unitTrailVertexCount;
+  Vertex2D m_lineBatchedVertices      [MAX_BATCHED_LINES_VERTICES];
+  int m_lineBatchedVertexCount;
 
-  Vertex2D m_unitMainVertices       [MAX_UNIT_MAIN_VERTICES];
-  int m_unitMainVertexCount;
-  unsigned int m_currentUnitMainTexture;
+  Vertex2D m_staticSpriteVertices       [MAX_STATIC_SPRITE_VERTICES];
+  int m_staticSpriteVertexCount;
+  unsigned int m_currentStaticSpriteTexture;
 
-  Vertex2D m_unitRotatingVertices   [MAX_UNIT_ROTATING_VERTICES];
-  int m_unitRotatingVertexCount;
-  unsigned int m_currentUnitRotatingTexture;
+  Vertex2D m_rotatingSpriteVertices   [MAX_ROTATING_SPRITE_VERTICES];
+  int m_rotatingSpriteVertexCount;
+  unsigned int m_currentRotatingSpriteTexture;
 
-  Vertex2D m_radarFillVertices      [MAX_EFFECTS_SPRITE_VERTICES];
+  Vertex2D m_radarFillVertices      [MAX_STATIC_SPRITE_VERTICES];
   int m_effectsCircleFillVertexCount;
 
-  Vertex2D m_effectsCircleOutlineVertices   [MAX_EFFECTS_LINE_VERTICES];
+  Vertex2D m_effectsCircleOutlineVertices   [MAX_BATCHED_LINES_VERTICES];
   int m_effectsCircleOutlineVertexCount;
 
-  Vertex2D m_effectsCircleOutlineThickVertices[MAX_EFFECTS_LINE_VERTICES];
+  Vertex2D m_effectsCircleOutlineThickVertices[MAX_BATCHED_LINES_VERTICES];
   int m_effectsCircleOutlineThickVertexCount;
-
-  Vertex2D m_unitHighlightVertices  [MAX_UNIT_HIGHLIGHT_VERTICES];
-  int m_unitHighlightVertexCount;
-  unsigned int m_currentUnitHighlightTexture;
-
-  Vertex2D m_unitStateVertices      [MAX_UNIT_STATE_VERTICES];
-  int m_unitStateVertexCount;
-  unsigned int m_currentUnitStateTexture;
-
-  Vertex2D m_unitCounterVertices    [MAX_UNIT_COUNTER_VERTICES];
-  int m_unitCounterVertexCount;
-  unsigned int m_currentUnitCounterTexture;
-
-  Vertex2D m_unitNukeVertices       [MAX_UNIT_NUKE_VERTICES];
-  int m_unitNukeVertexCount;
-  unsigned int m_currentUnitNukeTexture;
-
-  //
-  // effect rendering buffers
-
-  Vertex2D m_effectsLineVertices    [MAX_EFFECTS_LINE_VERTICES];
-  int m_effectsLineVertexCount;
-
-  Vertex2D m_effectsRectVertices    [MAX_EFFECTS_LINE_VERTICES];
-  int m_effectsRectVertexCount;
-
-  Vertex2D m_effectsSpriteVertices  [MAX_EFFECTS_SPRITE_VERTICES];
-  int m_effectsSpriteVertexCount;
-  unsigned int m_currentEffectsSpriteTexture;
 
   //
   // health bar rendering buffer
@@ -354,20 +304,13 @@ protected:
   //
   // Unit rendering flush methods
 
-  void FlushUnitTrails();
-  void FlushUnitMainSprites();
-  void FlushUnitRotating();
-  void FlushUnitHighlights();
-  void FlushUnitStateIcons();
-  void FlushUnitCounters();
-  void FlushUnitNukeIcons();
+  void FlushLineBatched();
+  void FlushStaticSprites();
+  void FlushRotatingSprite();
 
   //
   // effect rendering flush methods
 
-  void FlushEffectsLines();
-  void FlushEffectsRects();
-  void FlushEffectsSprites();
   void FlushHealthBars();
   void FlushEffectsCircleFills();
   void FlushEffectsCircleOutlines();
@@ -386,16 +329,12 @@ protected:
   //
   // buffer overflow management
 
-  void FlushEffectsLinesIfFull      (int segmentsNeeded);
-  void FlushEffectsRectsIfFull      (int segmentsNeeded);
   void FlushEclipseRectsIfFull      (int segmentsNeeded);
   void FlushEclipseRectFillsIfFull  (int verticesNeeded);
   void FlushEclipseTriangleFillsIfFull(int verticesNeeded);
   void FlushEclipseLinesIfFull      (int segmentsNeeded);
   void FlushEclipseSpritesIfFull    (int verticesNeeded);
-  void FlushUnitStateIconsIfFull    (int verticesNeeded);
-  void FlushUnitNukeIconsIfFull     (int verticesNeeded);
-  void FlushUnitRotatingIfFull      (int verticesNeeded);
+  void FlushRotatingSpritesIfFull    (int verticesNeeded);
 
   //
   // main flush methods
@@ -518,16 +457,9 @@ public:
   int m_uiTriangleCalls;
   int m_uiLineCalls;
   int m_textCalls;
-  int m_unitTrailCalls;
-  int m_unitMainSpriteCalls;
-  int m_unitRotatingCalls;
-  int m_unitHighlightCalls;
-  int m_unitStateIconCalls;
-  int m_unitCounterCalls;
-  int m_unitNukeIconCalls;
-  int m_effectsLineCalls;
-  int m_effectsRectCalls;
-  int m_effectsSpriteCalls;
+  int m_lineBatchedCalls;
+  int m_staticSpriteCalls;
+  int m_rotatingSpriteCalls;
   int m_effectsCircleFillCalls;
   int m_effectsCircleOutlineCalls;
   int m_effectsCircleOutlineThickCalls;
@@ -544,16 +476,9 @@ public:
   int m_prevUiTriangleCalls;
   int m_prevUiLineCalls;
   int m_prevTextCalls;
-  int m_prevUnitTrailCalls;
-  int m_prevUnitMainSpriteCalls;
-  int m_prevUnitRotatingCalls;
-  int m_prevUnitHighlightCalls;
-  int m_prevUnitStateIconCalls;
-  int m_prevUnitCounterCalls;
-  int m_prevUnitNukeIconCalls;
-  int m_prevEffectsLineCalls;
-  int m_prevEffectsRectCalls;
-  int m_prevEffectsSpriteCalls;
+  int m_prevlineBatchedCalls;
+  int m_prevStaticSpriteCalls;
+  int m_prevRotatingSpriteCalls;
   int m_prevEffectsCircleFillCalls;
   int m_prevEffectsCircleOutlineCalls;
   int m_prevEffectsCircleOutlineThickCalls;
@@ -580,16 +505,10 @@ public:
   int GetUITriangleCalls        () const { return m_prevUiTriangleCalls; }
   int GetUILineCalls            () const { return m_prevUiLineCalls; }
   int GetTextCalls              () const { return m_prevTextCalls; }
-  int GetUnitTrailCalls         () const { return m_prevUnitTrailCalls; }
-  int GetUnitMainSpriteCalls    () const { return m_prevUnitMainSpriteCalls; }
-  int GetUnitRotatingCalls      () const { return m_prevUnitRotatingCalls; }
-  int GetUnitHighlightCalls     () const { return m_prevUnitHighlightCalls; }
-  int GetUnitStateIconCalls     () const { return m_prevUnitStateIconCalls; }
-  int GetUnitCounterCalls       () const { return m_prevUnitCounterCalls; }
-  int GetUnitNukeIconCalls      () const { return m_prevUnitNukeIconCalls; }
-  int GetEffectsLineCalls       () const { return m_prevEffectsLineCalls; }
-  int GetEffectsRectCalls       () const { return m_prevEffectsRectCalls; }
-  int GetEffectsSpriteCalls     () const { return m_prevEffectsSpriteCalls; }
+  int GetlineBatchedCalls         () const { return m_prevlineBatchedCalls; }
+  int GetStaticSpriteCalls    () const { return m_prevStaticSpriteCalls; }
+  int GetRotatingSpriteCalls      () const { return m_prevRotatingSpriteCalls; }
+
   int GetEffectsCircleFillCalls () const { return m_prevEffectsCircleFillCalls; }
   int GetEffectsCircleOutlineCalls () const { return m_prevEffectsCircleOutlineCalls; }
   int GetEffectsCircleOutlineThickCalls () const { return m_prevEffectsCircleOutlineThickCalls; }
@@ -605,14 +524,11 @@ public:
   // combined draw call counters
 
   int GetTotalUnitCalls() const {
-    return m_prevUnitTrailCalls + m_prevUnitMainSpriteCalls +
-           m_prevUnitRotatingCalls + m_prevUnitHighlightCalls +
-           m_prevUnitStateIconCalls + m_prevUnitCounterCalls +
-           m_prevUnitNukeIconCalls + m_prevHealthBarCalls;
+    return m_prevlineBatchedCalls + m_prevStaticSpriteCalls +
+           m_prevRotatingSpriteCalls + m_prevHealthBarCalls;
   }
   int GetTotalEffectCalls() const {
-    return m_prevEffectsLineCalls + m_prevEffectsRectCalls + m_prevEffectsSpriteCalls + 
-           m_prevEffectsCircleFillCalls + m_prevEffectsCircleOutlineCalls + 
+    return m_prevEffectsCircleFillCalls + m_prevEffectsCircleOutlineCalls + 
            m_prevEffectsCircleOutlineThickCalls + m_prevWhiteboardCalls;
   }
   int GetTotalSpecializedCalls() const {
@@ -624,16 +540,9 @@ public:
   // get vertex counts
 
   int GetCurrentTextVertexCount() const { return m_textVertexCount; }
-  int GetCurrentUnitTrailVertexCount() const { return m_unitTrailVertexCount; }
-  int GetCurrentUnitMainVertexCount() const { return m_unitMainVertexCount; }
-  int GetCurrentUnitRotatingVertexCount() const { return m_unitRotatingVertexCount; }
-  int GetCurrentUnitHighlightVertexCount() const { return m_unitHighlightVertexCount; }
-  int GetCurrentUnitStateVertexCount() const { return m_unitStateVertexCount; }
-  int GetCurrentUnitCounterVertexCount() const { return m_unitCounterVertexCount; }
-  int GetCurrentUnitNukeVertexCount() const { return m_unitNukeVertexCount; }
-  int GetCurrentEffectsLineVertexCount() const { return m_effectsLineVertexCount; }
-  int GetCurrentEffectsRectVertexCount() const { return m_effectsRectVertexCount; }
-  int GetCurrentEffectsSpriteVertexCount() const { return m_effectsSpriteVertexCount; }
+  int GetCurrentLineBatchedVertexCount() const { return m_lineBatchedVertexCount; }
+  int GetCurrentUnitMainVertexCount() const { return m_staticSpriteVertexCount; }
+  int GetCurrentRotatingSpriteVertexCount() const { return m_rotatingSpriteVertexCount; }
   int GetCurrentEffectsCircleFillVertexCount() const { return m_effectsCircleFillVertexCount; }
   int GetCurrentEffectsCircleOutlineVertexCount() const { return m_effectsCircleOutlineVertexCount; }
   int GetCurrentEffectsCircleOutlineThickVertexCount() const { return m_effectsCircleOutlineThickVertexCount; }
@@ -653,10 +562,8 @@ public:
   // now get total current vertex count across all buffers
   
   int GetTotalCurrentVertexCount() const {
-    return m_textVertexCount + m_unitTrailVertexCount + m_unitMainVertexCount + 
-           m_unitRotatingVertexCount + m_unitHighlightVertexCount + m_unitStateVertexCount +
-           m_unitCounterVertexCount + m_unitNukeVertexCount + m_effectsLineVertexCount +
-           m_effectsRectVertexCount + m_effectsSpriteVertexCount + m_effectsCircleFillVertexCount +
+    return m_textVertexCount + m_lineBatchedVertexCount + m_staticSpriteVertexCount + 
+           m_rotatingSpriteVertexCount + m_effectsCircleFillVertexCount +
            m_effectsCircleOutlineVertexCount + m_effectsCircleOutlineThickVertexCount +
            m_healthBarVertexCount + m_whiteboardVertexCount + m_eclipseRectVertexCount +
            m_eclipseRectFillVertexCount + m_eclipseTriangleFillVertexCount + m_eclipseLineVertexCount +
@@ -880,21 +787,21 @@ public:
   void EndFrameTextBatch();
 
   //
-  // unit trail/movement history rendering
+  // Batched lines 
 
-  void BeginUnitTrailBatch        ();
-  void UnitTrailLine              (float x1, float y1, float x2, float y2, Colour const &col);
-  void EndUnitTrailBatch          ();
-  void FlushUnitTrailsIfFull      (int segmentsNeeded);
+  void BeginLineBatch              ();
+  void LineBatched                 (float x1, float y1, float x2, float y2, Colour const &col);
+  void EndLineBatch                ();
+  void FlushLineBatchedIfFull      (int segmentsNeeded);
 
   //
   // main unit sprite rendering
 
-  void BeginUnitMainBatch         ();
-  void UnitMainSprite             (Image *src, float x, float y, float w, float h,
+  void BeginStaticSpriteBatch         ();
+  void StaticSprite             (Image *src, float x, float y, float w, float h,
                                    Colour const &col);
-  void EndUnitMainBatch           ();
-  void FlushUnitMainSpritesIfFull (int verticesNeeded);
+  void EndStaticSpriteBatch           ();
+  void FlushStaticSpritesIfFull (int verticesNeeded);
 
   //
   // circle batched rendering
@@ -907,59 +814,10 @@ public:
   //
   // rotating sprite rendering (aircraft/nukes with rotation)
 
-  void BeginUnitRotatingBatch     ();
-  void UnitRotating               (Image *src, float x, float y, float w, float h,
+  void BeginRotatingSpriteBatch     ();
+  void RotatingSprite               (Image *src, float x, float y, float w, float h,
                                    Colour const &col, float angle);
-  void EndUnitRotatingBatch       ();
-
-  //
-  // unit selection/highlight rendering
-
-  void BeginUnitHighlightBatch    ();
-  void UnitHighlight              (Image *blurSrc, float x, float y, float w, float h,
-                                   Colour const &col);
-  void EndUnitHighlightBatch      ();
-
-  //
-  // unit state indicator rendering
-  
-  void BeginUnitStateBatch        ();
-  void UnitStateIcon              (Image *stateSrc, float x, float y, float w, float h,
-                                   Colour const &col);
-  void EndUnitStateBatch          ();
-
-  //
-  // unit counter/text rendering
-  
-  void BeginUnitCounterBatch      ();
-  void UnitCounterText            (float x, float y, Colour const &col, float size,
-                                   const char *text);
-  void EndUnitCounterBatch        ();
-
-  //
-  // unit nuke supply icon rendering
-  
-  void BeginUnitNukeBatch         ();
-  void UnitNukeIcon               (float x, float y, float w, float h, Colour const &col);
-  void UnitNukeIcon               (float x, float y, float w, float h, Colour const &col,
-                                   float angle);
-  void EndUnitNukeBatch           ();
-
-  //
-  // effect lines (gunfire trails, radar ranges)
-  
-  void BeginEffectsLineBatch      ();
-  void EffectsLine                (float x1, float y1, float x2, float y2, Colour const &col);
-  void EffectsRect                (float x, float y, float w, float h, Colour const &col, float lineWidth);
-  void EndEffectsLineBatch        ();
-
-  //
-  // effect sprites (explosions)
-  
-  void BeginEffectsSpriteBatch    ();
-  void EffectsSprite              (Image *src, float x, float y, float w, float h,
-                                   Colour const &col);
-  void EndEffectsSpriteBatch      ();
+  void EndRotatingSpriteBatch       ();
 
   //
   // health bar rendering

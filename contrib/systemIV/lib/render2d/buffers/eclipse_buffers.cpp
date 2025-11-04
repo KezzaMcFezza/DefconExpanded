@@ -100,7 +100,7 @@ void Renderer::EclipseRect(float x, float y, float w, float h, Colour const &col
         
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
         
-    // Create 4 lines to form rectangle outline - same pattern as EffectsRect
+    // Create 4 lines to form rectangle outline 
     // Top line
     m_eclipseRectVertices[m_eclipseRectVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
     m_eclipseRectVertices[m_eclipseRectVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};

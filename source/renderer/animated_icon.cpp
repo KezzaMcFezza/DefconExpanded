@@ -66,7 +66,7 @@ bool ActionMarker::Render()
 
         Image *img = g_resource->GetImage( "graphics/cursor_target.bmp");
         // BATCHING FIX: Convert to effects sprite batching (rotation handled by effects system)
-        g_renderer->EffectsSprite( img, m_longitude - size/2, m_latitude - size/2, size, size, col );
+        g_renderer->StaticSprite( img, m_longitude - size/2, m_latitude - size/2, size, size, col );
     
         if( m_targetType > WorldObject::TargetTypeValid )
         {
@@ -81,7 +81,7 @@ bool ActionMarker::Render()
             if( img )
             {
                 // BATCHING FIX: Convert to effects sprite batching
-                g_renderer->EffectsSprite( img, m_longitude - size/4, m_latitude - size/4, size/2, size/2, col );
+                g_renderer->StaticSprite( img, m_longitude - size/4, m_latitude - size/4, size/2, size/2, col );
             }
         }
     }
@@ -110,8 +110,6 @@ bool SonarPing::Render()
         int alpha = 255 - 255 * (size / 5.0f);
         alpha *= 0.5f;
         
-        // BATCHING FIX: Convert Circle() to batched EffectsLine() calls
-        // Create circle using line segments for batched rendering
         Colour colour(255, 255, 255, alpha);
         int numPoints = 40;
         float angleStep = 2.0f * M_PI / (float)numPoints;
@@ -126,7 +124,7 @@ bool SonarPing::Render()
             float x2 = m_longitude + size * sinf(angle2);
             float y2 = m_latitude + size * cosf(angle2);
             
-            g_renderer->EffectsLine( x1, y1, x2, y2, colour );
+            g_renderer->LineBatched( x1, y1, x2, y2, colour );
         }
     }
 
@@ -214,7 +212,7 @@ bool NukePointer::Render()
         if( m_mode == 0 )
         {
             Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-            g_renderer->UnitRotating( img, obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue(), size*2, size*2, col, 0 );
+            g_renderer->RotatingSprite( img, obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue(), size*2, size*2, col, 0 );
         }
     }
 
@@ -258,7 +256,7 @@ bool NukePointer::Render()
         if( targetDir.y < 0.0f ) angle += M_PI;
 
         Image *img = g_resource->GetImage( "graphics/arrow.bmp" );
-        g_renderer->UnitRotating( img, m_longitude, m_latitude, size, size, col, angle );
+        g_renderer->RotatingSprite( img, m_longitude, m_latitude, size, size, col, angle );
     }
     
     return ( m_lifeTime <= 0.0f );

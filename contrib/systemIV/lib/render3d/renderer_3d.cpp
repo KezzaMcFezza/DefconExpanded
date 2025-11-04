@@ -160,22 +160,11 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_megaIndex3DCount(0),
     m_lineConversionBuffer3D(NULL),
     m_lineConversionBufferSize3D(0),
-    m_unitTrailVertexCount3D(0),
-    m_unitMainVertexCount3D(0),
-    m_currentUnitMainTexture3D(0),
-    m_unitRotatingVertexCount3D(0),
-    m_currentUnitRotatingTexture3D(0),
-    m_unitStateVertexCount3D(0),
-    m_currentUnitStateTexture3D(0),
-    m_unitCounterVertexCount3D(0),
-    m_currentUnitCounterTexture3D(0),
-    m_unitNukeVertexCount3D(0),
-    m_currentUnitNukeTexture3D(0),
-    m_unitHighlightVertexCount3D(0),
-    m_currentUnitHighlightTexture3D(0),
-    m_effectsLineVertexCount3D(0),
-    m_effectsSpriteVertexCount3D(0),
-    m_currentEffectsSpriteTexture3D(0),
+    m_lineBatchedVertexCount3D(0),
+    m_staticSpriteVertexCount3D(0),
+    m_currentStaticSpriteTexture3D(0),
+    m_rotatingSpriteVertexCount3D(0),
+    m_currentRotatingSpriteTexture3D(0),
     m_healthBarVertexCount3D(0),
     m_textVertexCount3D(0),
     m_currentTextTexture3D(0),
@@ -199,15 +188,9 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_drawCallsPerFrame3D = 0;
     m_legacyVertexCalls3D = 0;
     m_legacyTriangleCalls3D = 0;
-    m_unitTrailCalls3D = 0;
-    m_unitMainSpriteCalls3D = 0;
-    m_unitRotatingCalls3D = 0;
-    m_unitStateCalls3D = 0;
-    m_unitCounterCalls3D = 0;
-    m_unitNukeIconCalls3D = 0;
-    m_unitHighlightCalls3D = 0;
-    m_effectsLineCalls3D = 0;
-    m_effectsSpriteCalls3D = 0;
+    m_lineBatchedCalls3D = 0;
+    m_staticSpriteCalls3D = 0;
+    m_rotatingSpriteCalls3D = 0;
     m_healthBarCalls3D = 0;
     m_textCalls3D = 0;
     m_megaVBOCalls3D = 0;
@@ -217,15 +200,9 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_prevDrawCallsPerFrame3D = 0;
     m_prevLegacyVertexCalls3D = 0;
     m_prevLegacyTriangleCalls3D = 0;
-    m_prevUnitTrailCalls3D = 0;
-    m_prevUnitMainSpriteCalls3D = 0;
-    m_prevUnitRotatingCalls3D = 0;
-    m_prevUnitStateCalls3D = 0;
-    m_prevUnitCounterCalls3D = 0;
-    m_prevUnitNukeIconCalls3D = 0;
-    m_prevUnitHighlightCalls3D = 0;
-    m_prevEffectsLineCalls3D = 0;
-    m_prevEffectsSpriteCalls3D = 0;
+    m_prevlineBatchedCalls3D = 0;
+    m_prevStaticSpriteCalls3D = 0;
+    m_prevRotatingSpriteCalls3D = 0;
     m_prevHealthBarCalls3D = 0;
     m_prevTextCalls3D = 0;
     m_prevMegaVBOCalls3D = 0;
@@ -409,7 +386,7 @@ void Renderer3D::Setup3DVertexArrays() {
     glGenBuffers(1, &m_effectsVBO3D);
     glBindVertexArray(m_effectsVAO3D);
     glBindBuffer(GL_ARRAY_BUFFER, m_effectsVBO3D);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * (MAX_UNIT_TRAIL_VERTICES_3D + MAX_EFFECTS_LINE_VERTICES_3D), NULL, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * (MAX_BATCHED_LINES_VERTICES_3D), NULL, GL_STREAM_DRAW);
     setup3DVertexAttributes();
     
     // Create Globe VAO/VBO pair (non-textured surface triangles)
@@ -472,12 +449,12 @@ void Renderer3D::Setup3DTexturedVertexArrays() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * MAX_3D_TEXTURED_VERTICES, NULL, GL_DYNAMIC_DRAW);
     setup3DTexturedVertexAttributes();
     
-    // Create Unit VAO/VBO pair (sprites and highlights)
+    // Create Unit VAO/VBO pair
     glGenVertexArrays(1, &m_unitVAO3D);
     glGenBuffers(1, &m_unitVBO3D);
     glBindVertexArray(m_unitVAO3D);
     glBindBuffer(GL_ARRAY_BUFFER, m_unitVBO3D);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * (MAX_UNIT_MAIN_VERTICES_3D + MAX_UNIT_ROTATING_VERTICES_3D + MAX_UNIT_STATE_VERTICES_3D + MAX_UNIT_COUNTER_VERTICES_3D + MAX_UNIT_NUKE_VERTICES_3D + MAX_UNIT_HIGHLIGHT_VERTICES_3D), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * (MAX_STATIC_SPRITE_VERTICES_3D + MAX_ROTATING_SPRITE_VERTICES_3D), NULL, GL_DYNAMIC_DRAW);
     setup3DTexturedVertexAttributes();
     
     // Create Text VAO/VBO pair
@@ -495,7 +472,7 @@ void Renderer3D::Setup3DTexturedVertexArrays() {
     glGenBuffers(1, &m_starsVBO3D);
     glBindVertexArray(m_starsVAO3D);
     glBindBuffer(GL_ARRAY_BUFFER, m_starsVBO3D);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * (MAX_STAR_FIELD_VERTICES_3D + MAX_EFFECTS_SPRITE_VERTICES_3D), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * (MAX_STAR_FIELD_VERTICES_3D), NULL, GL_DYNAMIC_DRAW);
     setup3DTexturedVertexAttributes();
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -935,15 +912,9 @@ void Renderer3D::IncrementDrawCall3D(const char* bufferType) {
         case hash("legacy_triangles"): m_legacyTriangleCalls3D++; break;
         case hash("text"): m_textCalls3D++; break;
         case hash("mega_vbo"): m_megaVBOCalls3D++; break;
-        case hash("unit_trails"): m_unitTrailCalls3D++; break;
-        case hash("unit_main_sprites"): m_unitMainSpriteCalls3D++; break;
-        case hash("unit_rotating"): m_unitRotatingCalls3D++; break;
-        case hash("unit_highlights"): m_unitHighlightCalls3D++; break;
-        case hash("unit_state_icons"): m_unitStateCalls3D++; break;
-        case hash("unit_counters"): m_unitCounterCalls3D++; break;
-        case hash("unit_nuke_icons"): m_unitNukeIconCalls3D++; break;
-        case hash("effects_lines"): m_effectsLineCalls3D++; break;
-        case hash("effects_sprites"): m_effectsSpriteCalls3D++; break;
+        case hash("unit_trails"): m_lineBatchedCalls3D++; break;
+        case hash("Static_Sprite_sprites"): m_staticSpriteCalls3D++; break;
+        case hash("unit_rotating"): m_rotatingSpriteCalls3D++; break;
         case hash("health_bars"): m_healthBarCalls3D++; break;
         case hash("nuke_3d_models"): m_nuke3DModelCalls3D++; break;
     }
@@ -954,15 +925,9 @@ void Renderer3D::ResetFrameCounters3D() {
     m_prevDrawCallsPerFrame3D = m_drawCallsPerFrame3D;
     m_prevLegacyVertexCalls3D = m_legacyVertexCalls3D;
     m_prevLegacyTriangleCalls3D = m_legacyTriangleCalls3D;
-    m_prevUnitTrailCalls3D = m_unitTrailCalls3D;
-    m_prevUnitMainSpriteCalls3D = m_unitMainSpriteCalls3D;
-    m_prevUnitRotatingCalls3D = m_unitRotatingCalls3D;
-    m_prevUnitStateCalls3D = m_unitStateCalls3D;
-    m_prevUnitCounterCalls3D = m_unitCounterCalls3D;
-    m_prevUnitNukeIconCalls3D = m_unitNukeIconCalls3D;
-    m_prevUnitHighlightCalls3D = m_unitHighlightCalls3D;
-    m_prevEffectsLineCalls3D = m_effectsLineCalls3D;
-    m_prevEffectsSpriteCalls3D = m_effectsSpriteCalls3D;
+    m_prevlineBatchedCalls3D = m_lineBatchedCalls3D;
+    m_prevStaticSpriteCalls3D = m_staticSpriteCalls3D;
+    m_prevRotatingSpriteCalls3D = m_rotatingSpriteCalls3D;
     m_prevHealthBarCalls3D = m_healthBarCalls3D;
     m_prevTextCalls3D = m_textCalls3D;
     m_prevMegaVBOCalls3D = m_megaVBOCalls3D;
@@ -972,15 +937,9 @@ void Renderer3D::ResetFrameCounters3D() {
     m_drawCallsPerFrame3D = 0;
     m_legacyVertexCalls3D = 0;
     m_legacyTriangleCalls3D = 0;
-    m_unitTrailCalls3D = 0;
-    m_unitMainSpriteCalls3D = 0;
-    m_unitRotatingCalls3D = 0;
-    m_unitStateCalls3D = 0;
-    m_unitCounterCalls3D = 0;
-    m_unitNukeIconCalls3D = 0;
-    m_unitHighlightCalls3D = 0;
-    m_effectsLineCalls3D = 0;
-    m_effectsSpriteCalls3D = 0;
+    m_lineBatchedCalls3D = 0;
+    m_staticSpriteCalls3D = 0;
+    m_rotatingSpriteCalls3D = 0;
     m_healthBarCalls3D = 0;
     m_textCalls3D = 0;
     m_megaVBOCalls3D = 0;

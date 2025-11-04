@@ -110,9 +110,7 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     
     int totalDrawCalls, legacyTriangleCalls, legacyLineCalls;
     int textCalls;
-    int unitTrailCalls, unitMainSpriteCalls, unitRotatingCalls, unitHighlightCalls;
-    int unitStateIconCalls, unitCounterCalls, unitNukeIconCalls;
-    int effectsLineCalls, effectsRectCalls, effectsSpriteCalls;
+    int lineBatchedCalls, staticSpriteCalls, rotatingSpriteCalls;
     int effectsCircleFillCalls, effectsCircleOutlineCalls, effectsCircleOutlineThickCalls;
     int whiteboardCalls;
     int eclipseRectCalls, eclipseRectFillCalls, eclipseTriangleFillCalls, eclipseLineCalls, eclipseSpriteCalls;
@@ -125,16 +123,9 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     legacyTriangleCalls = m_renderer->GetLegacyTriangleCalls();
     legacyLineCalls = m_renderer->GetLegacyLineCalls();
     textCalls = m_renderer->GetTextCalls();
-    unitTrailCalls = m_renderer->GetUnitTrailCalls();
-    unitMainSpriteCalls = m_renderer->GetUnitMainSpriteCalls();
-    unitRotatingCalls = m_renderer->GetUnitRotatingCalls();
-    unitHighlightCalls = m_renderer->GetUnitHighlightCalls();
-    unitStateIconCalls = m_renderer->GetUnitStateIconCalls();
-    unitCounterCalls = m_renderer->GetUnitCounterCalls();
-    unitNukeIconCalls = m_renderer->GetUnitNukeIconCalls();
-    effectsLineCalls = m_renderer->GetEffectsLineCalls();
-    effectsRectCalls = m_renderer->GetEffectsRectCalls();
-    effectsSpriteCalls = m_renderer->GetEffectsSpriteCalls();
+    lineBatchedCalls = m_renderer->GetlineBatchedCalls();
+    staticSpriteCalls = m_renderer->GetStaticSpriteCalls();
+    rotatingSpriteCalls = m_renderer->GetRotatingSpriteCalls();
     effectsCircleFillCalls = m_renderer->GetEffectsCircleFillCalls();
     effectsCircleOutlineCalls = m_renderer->GetEffectsCircleOutlineCalls();
     effectsCircleOutlineThickCalls = m_renderer->GetEffectsCircleOutlineThickCalls();
@@ -155,17 +146,10 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
         legacyTriangleCalls += g_renderer3d->GetLegacyTriangleCalls();
         legacyLineCalls += g_renderer3d->GetLegacyLineCalls();
         textCalls += g_renderer3d->GetTextCalls();
-        unitTrailCalls += g_renderer3d->GetUnitTrailCalls();
-        unitMainSpriteCalls += g_renderer3d->GetUnitMainSpriteCalls();
-        unitRotatingCalls += g_renderer3d->GetUnitRotatingCalls();
-        unitHighlightCalls += g_renderer3d->GetUnitHighlightCalls();
-        unitStateIconCalls += g_renderer3d->GetUnitStateIconCalls();
-        unitCounterCalls += g_renderer3d->GetUnitCounterCalls();
-        unitNukeIconCalls += g_renderer3d->GetUnitNukeIconCalls();
-        effectsLineCalls += g_renderer3d->GetEffectsLineCalls();
-        effectsSpriteCalls += g_renderer3d->GetEffectsSpriteCalls();
+        lineBatchedCalls += g_renderer3d->GetlineBatchedCalls();
+        staticSpriteCalls += g_renderer3d->GetStaticSpriteCalls();
+        rotatingSpriteCalls += g_renderer3d->GetRotatingSpriteCalls();
         totalUnitCalls += g_renderer3d->GetTotalUnitCalls();
-        totalEffectCalls += g_renderer3d->GetTotalEffectCalls();
     }
     
     // Total draw calls header
@@ -194,17 +178,10 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     yPos += lineHeight;
     
     // Unit buffer details 
-    snprintf(statsBuffer, sizeof(statsBuffer), "  Trails: %d  Static: %d  Rotating: %d  Highlights: %d", 
-             unitTrailCalls, unitMainSpriteCalls, 
-             unitRotatingCalls, unitHighlightCalls);
+    snprintf(statsBuffer, sizeof(statsBuffer), "  Lines: %d  Static: %d Rotating: %d", 
+             lineBatchedCalls, staticSpriteCalls, rotatingSpriteCalls);
     m_renderer->TextSimple(indentSmall, yPos, Colour(120, 170, 255, 255), 10.0f, statsBuffer);
     yPos += 14.0f;
-    
-    snprintf(statsBuffer, sizeof(statsBuffer), "  UnitIcons: %d  Counters: %d  Nukes: %d", 
-             unitStateIconCalls, unitCounterCalls, 
-             unitNukeIconCalls);
-    m_renderer->TextSimple(indentSmall, yPos, Colour(120, 170, 255, 255), 10.0f, statsBuffer);
-    yPos += lineHeight;
     
     // Effects rendering buffers
     m_renderer->TextSimple(25, yPos, Colour(255, 255, 100, 255), 11.0f, "Effects Buffers:");
@@ -212,15 +189,9 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     m_renderer->TextSimple(indentLarge, yPos, Colour(255, 255, 100, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Effects buffer details
-    snprintf(statsBuffer, sizeof(statsBuffer), "  Lines: %d  Rects: %d  Sprites: %d  Whiteboard: %d",
-             effectsLineCalls, effectsRectCalls, effectsSpriteCalls, whiteboardCalls);
-    m_renderer->TextSimple(indentSmall, yPos, Colour(255, 255, 120, 255), 10.0f, statsBuffer);
-    yPos += 14.0f;
-    
-    snprintf(statsBuffer, sizeof(statsBuffer), "  Circles: Fill: %d  Outline: %d  Thick: %d", 
+    snprintf(statsBuffer, sizeof(statsBuffer), "  Circles: Fill: %d  Outline: %d  Thick: %d Whiteboard: %d", 
              effectsCircleFillCalls, effectsCircleOutlineCalls, 
-             effectsCircleOutlineThickCalls);
+             effectsCircleOutlineThickCalls, whiteboardCalls);
     m_renderer->TextSimple(indentSmall, yPos, Colour(255, 255, 120, 255), 10.0f, statsBuffer);
     yPos += lineHeight;
     
@@ -437,20 +408,14 @@ int RendererDebugMenu::EstimateTextureSwitches()
     
     // Each different type of textured call likely uses different textures
     if (m_renderer->GetTextCalls() > 0) switches++;
-    if (m_renderer->GetUnitMainSpriteCalls() > 0) switches += 8; // Different unit types
-    if (m_renderer->GetUnitRotatingCalls() > 0) switches += 3; // Aircraft/rotating nuke textures
-    if (m_renderer->GetUnitStateIconCalls() > 0) switches += 3; // Fighter, bomber, nuke icons
-    if (m_renderer->GetUnitNukeIconCalls() > 0) switches++;
-    if (m_renderer->GetEffectsSpriteCalls() > 0) switches += 3; // Different effect types
+    if (m_renderer->GetStaticSpriteCalls() > 0) switches += 8; // Different unit types
+    if (m_renderer->GetRotatingSpriteCalls() > 0) switches += 3; // Aircraft/rotating nuke textures
     
     // Add 3D renderer stats if available
     if (g_renderer3d) {
         if (g_renderer3d->GetTextCalls() > 0) switches++;
-        if (g_renderer3d->GetUnitMainSpriteCalls() > 0) switches += 8; // Different unit types
-        if (g_renderer3d->GetUnitRotatingCalls() > 0) switches += 3; // Aircraft/rotating nuke textures
-        if (g_renderer3d->GetUnitStateIconCalls() > 0) switches += 3; // Fighter, bomber, nuke icons
-        if (g_renderer3d->GetUnitNukeIconCalls() > 0) switches++;
-        if (g_renderer3d->GetEffectsSpriteCalls() > 0) switches += 3; // Different effect types
+        if (g_renderer3d->GetStaticSpriteCalls() > 0) switches += 8; // Different unit types
+        if (g_renderer3d->GetRotatingSpriteCalls() > 0) switches += 3; // Aircraft/rotating nuke textures
     }
     
     return switches;

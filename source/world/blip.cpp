@@ -206,7 +206,7 @@ void Blip::Render()
                 longitude += m_vel.x * Fixed::FromDouble(g_predictionTime);
                 latitude += m_vel.y * Fixed::FromDouble(g_predictionTime);
                 Image *img = g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[ member->m_type ] );
-                g_renderer->UnitMainSprite( img, m_longitude.DoubleValue() + longitude.DoubleValue() - size,
+                g_renderer->StaticSprite( img, m_longitude.DoubleValue() + longitude.DoubleValue() - size,
 								  m_latitude.DoubleValue() + latitude.DoubleValue() + size,
 								  size*2, size*-2, Colour(100,100,100,200) );
             }

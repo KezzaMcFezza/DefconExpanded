@@ -247,7 +247,7 @@ void Sub::Render()
                     colour.Set( 128,128,128,100 );
                 }
                 
-                g_renderer->UnitNukeIcon( x, y, nukeSize, -nukeSize, colour );
+                g_renderer->StaticSprite( bmpImage, x, y, nukeSize, -nukeSize, colour );
                 x -= dx;
             }
         }

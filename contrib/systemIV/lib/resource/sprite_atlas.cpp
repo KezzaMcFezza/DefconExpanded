@@ -526,6 +526,10 @@ unsigned int AtlasImage::GetAtlasTextureID() const {
     return m_atlas ? m_atlas->GetTextureID() : 0;
 }
 
+const char* AtlasImage::GetFilename() const {
+    return m_packedSprite ? m_packedSprite->filename : NULL;
+}
+
 SpriteAtlasManager::SpriteAtlasManager()
     : m_graphicsAtlas(NULL), m_guiAtlas(NULL), m_initialized(false) {
 }
