@@ -14,6 +14,7 @@
 extern Renderer *g_renderer;
 
 void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col) {
+    
     FlushLinesIfFull(2);
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
@@ -22,16 +23,31 @@ void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col) {
     m_lineVertices[m_lineVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
 }
 
+void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth) {
+    FlushLinesIfFull(2);
+
+#ifndef TARGET_EMSCRIPTEN
+    SetLineWidth(lineWidth);
+#endif
+    
+    if (m_lineVertexCount + 2 > MAX_LINE_VERTICES) {
+        FlushLines();
+    }
+    
+    float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
+    
+    m_lineVertices[m_lineVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
+    m_lineVertices[m_lineVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
+}
+
 void Renderer::Circle(float x, float y, float radius, int numPoints, Colour const &col, float lineWidth) {
+
+    FlushLinesIfFull(numPoints * 2);
 
 #ifndef TARGET_EMSCRIPTEN
     SetLineWidth(lineWidth);
 #endif
 
-    if (m_lineVertexCount + numPoints * 2 > MAX_VERTICES) {
-        FlushLines();
-    }
-    
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
     for (int i = 0; i < numPoints; ++i) {
@@ -46,15 +62,12 @@ void Renderer::Circle(float x, float y, float radius, int numPoints, Colour cons
         m_lineVertices[m_lineVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
         m_lineVertices[m_lineVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
     }
-    
-    FlushLines();
 }
 
 void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour const &col) {
-    if (m_triangleVertexCount + numPoints * 3 > MAX_VERTICES) {
-        FlushTriangles(false);
-    }
-    
+  
+    FlushCircleFillsIfFull(numPoints * 3);
+
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
     for (int i = 0; i < numPoints; ++i) {
@@ -67,12 +80,10 @@ void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour 
         float y2 = y + sinf(angle2) * radius;
         
         // triangle: center, point i, point i+1
-        m_triangleVertices[m_triangleVertexCount++] = {x, y, r, g, b, a, 0.5f, 0.5f};
-        m_triangleVertices[m_triangleVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
-        m_triangleVertices[m_triangleVertexCount++] = {x2, y2, r, g, b, a, 1.0f, 0.0f};
+        m_circleFillVertices[m_circleFillVertexCount++] = {x, y, r, g, b, a, 0.5f, 0.5f};
+        m_circleFillVertices[m_circleFillVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
+        m_circleFillVertices[m_circleFillVertexCount++] = {x2, y2, r, g, b, a, 1.0f, 0.0f};
     }
-    
-    FlushTriangles(false);
 }
 
 void Renderer::BeginLines(Colour const &col, float lineWidth) {
@@ -90,27 +101,21 @@ void Renderer::EndLines() {
         return;
     }
     
-    // convert line strip to individual line segments
-    int tempLineVertexCount = (m_lineVertexCount - 1) * 2;
-    Vertex2D* tempLineVertices = new Vertex2D[tempLineVertexCount];
+    int stripVertexCount = m_lineVertexCount;
     
-    int lineIndex = 0;
-    for (int i = 0; i < m_lineVertexCount - 1; i++) {
-        tempLineVertices[lineIndex++] = m_lineVertices[i];
-        tempLineVertices[lineIndex++] = m_lineVertices[i + 1];
+    for (int i = 0; i < stripVertexCount; i++) {
+        m_lineConversionBuffer[i] = m_lineVertices[i];
     }
     
     m_lineVertexCount = 0;
     
-    for (int i = 0; i < tempLineVertexCount; i++) {
-        if (m_lineVertexCount >= MAX_VERTICES) {
-            FlushLines();
-        }
-        m_lineVertices[m_lineVertexCount++] = tempLineVertices[i];
+    for (int i = 0; i < stripVertexCount - 1; i++) {
+        FlushLinesIfFull(2);
+        
+        m_lineVertices[m_lineVertexCount++] = m_lineConversionBuffer[i];
+        m_lineVertices[m_lineVertexCount++] = m_lineConversionBuffer[i + 1];
     }
     
-    delete[] tempLineVertices;
-    FlushLines();
 }
 
 void Renderer::BeginLineStrip2D(Colour const &col, float lineWidth) {
@@ -147,27 +152,21 @@ void Renderer::EndLineStrip2D() {
         return;
     }
     
-    // convert to line segments
-    int tempVertexCount = (m_lineVertexCount - 1) * 2;
-    Vertex2D* tempVertices = new Vertex2D[tempVertexCount];
+    int stripVertexCount = m_lineVertexCount;
     
-    int lineIndex = 0;
-    for (int i = 0; i < m_lineVertexCount - 1; i++) {
-        tempVertices[lineIndex++] = m_lineVertices[i];
-        tempVertices[lineIndex++] = m_lineVertices[i + 1];
+    for (int i = 0; i < stripVertexCount; i++) {
+        m_lineConversionBuffer[i] = m_lineVertices[i];
     }
     
     m_lineVertexCount = 0;
     
-    for (int i = 0; i < tempVertexCount; i++) {
-        if (m_lineVertexCount >= MAX_VERTICES) {
-            FlushLines();
-        }
-        m_lineVertices[m_lineVertexCount++] = tempVertices[i];
+    for (int i = 0; i < stripVertexCount - 1; i++) {
+        FlushLinesIfFull(2);
+        
+        m_lineVertices[m_lineVertexCount++] = m_lineConversionBuffer[i];
+        m_lineVertices[m_lineVertexCount++] = m_lineConversionBuffer[i + 1];
     }
     
-    delete[] tempVertices;
-    FlushLines();
     m_lineStripActive = false;
 }
 

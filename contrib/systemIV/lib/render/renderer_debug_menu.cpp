@@ -111,10 +111,8 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     int totalDrawCalls, legacyTriangleCalls, legacyLineCalls;
     int textCalls;
     int lineCalls, staticSpriteCalls, rotatingSpriteCalls;
-    int effectsCircleFillCalls, effectsCircleOutlineCalls, effectsCircleOutlineThickCalls;
-    int whiteboardCalls;
+    int circleFillCalls;
     int eclipseRectCalls, eclipseRectFillCalls, eclipseTriangleFillCalls, eclipseLineCalls, eclipseSpriteCalls;
-    int totalUnitCalls, totalEffectCalls;
     
     //
     // start with 2D renderer stats as base
@@ -126,6 +124,7 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     lineCalls = m_renderer->GetLineCalls();
     staticSpriteCalls = m_renderer->GetStaticSpriteCalls();
     rotatingSpriteCalls = m_renderer->GetRotatingSpriteCalls();
+    circleFillCalls = m_renderer->GetCircleFillCalls();
     eclipseRectCalls = m_renderer->GetEclipseRectCalls();
     eclipseRectFillCalls = m_renderer->GetEclipseRectFillCalls();
     eclipseTriangleFillCalls = m_renderer->GetEclipseTriangleFillCalls();
@@ -164,22 +163,17 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     m_renderer->TextSimple(100, yPos, Colour(100, 255, 100, 255), 11.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Unit rendering buffers
-    m_renderer->TextSimple(25, yPos, Colour(100, 150, 255, 255), 11.0f, "Unit Rendering Buffers:");
-    snprintf(statsBuffer, sizeof(statsBuffer), "Total: %d", totalUnitCalls);
-    m_renderer->TextSimple(indentLarge, yPos, Colour(100, 150, 255, 255), 11.0f, statsBuffer);
-    yPos += lineHeight;
-    
     // Unit buffer details 
-    snprintf(statsBuffer, sizeof(statsBuffer), "  Lines: %d  Static: %d Rotating: %d", 
-             lineCalls, staticSpriteCalls, rotatingSpriteCalls);
+    snprintf(statsBuffer, sizeof(statsBuffer), "  Lines: %d  Static: %d Rotating: %d CircleFill: %d", 
+             lineCalls, staticSpriteCalls, rotatingSpriteCalls, circleFillCalls);
     m_renderer->TextSimple(indentSmall, yPos, Colour(120, 170, 255, 255), 10.0f, statsBuffer);
     yPos += 14.0f;
     
     // Performance summary
     int legacyTotal = legacyTriangleCalls + legacyLineCalls;
     int eclipseUITotal = eclipseSpriteCalls + eclipseTriangleFillCalls + textCalls + eclipseRectCalls + eclipseRectFillCalls + eclipseLineCalls;
-    int batchedTotal = totalUnitCalls + eclipseUITotal;
+    int unitTotal = lineCalls + staticSpriteCalls + rotatingSpriteCalls + circleFillCalls;
+    int batchedTotal = unitTotal + eclipseUITotal;
     
     m_renderer->TextSimple(25, yPos, Colour(100, 255, 255, 255), 11.0f, "Conclusion:");
     yPos += lineHeight;

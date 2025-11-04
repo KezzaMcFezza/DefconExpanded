@@ -57,6 +57,10 @@ void Renderer::BeginHealthBarBatch() {
     m_healthBarVertexCount = 0;
 }
 
+void Renderer::BeginCircleFillBatch() {
+    m_circleFillVertexCount = 0;
+}
+
 void Renderer::BeginEclipseRectBatch() {
     m_eclipseRectVertexCount = 0;
 }
@@ -132,6 +136,12 @@ void Renderer::EndHealthBarBatch() {
     }
 }
 
+void Renderer::EndCircleFillBatch() {
+    if (m_circleFillVertexCount > 0) {
+        FlushCircleFills();
+    }
+}
+
 void Renderer::EndEclipseRectBatch() {
     if (m_eclipseRectVertexCount > 0) {
         FlushEclipseRects();
@@ -188,6 +198,12 @@ void Renderer::FlushStaticSpritesIfFull(int verticesNeeded) {
 void Renderer::FlushRotatingSpritesIfFull(int verticesNeeded) {
     if (m_rotatingSpriteVertexCount + verticesNeeded > MAX_ROTATING_SPRITE_VERTICES) {
         FlushRotatingSprite();
+    }
+}
+
+void Renderer::FlushCircleFillsIfFull(int verticesNeeded) {
+    if (m_circleFillVertexCount + verticesNeeded > MAX_CIRCLE_FILL_VERTICES) {
+        FlushCircleFills();
     }
 }
 
@@ -385,6 +401,26 @@ void Renderer::FlushHealthBars() {
     m_healthBarVertexCount = 0;
     
     EndFlushTiming("Health_Bars");
+}
+
+void Renderer::FlushCircleFills() {
+    if (m_circleFillVertexCount == 0) return;
+    
+    StartFlushTiming("Circle_Fills");
+    IncrementDrawCall("circle_fills");
+    
+    SetShaderProgram(m_colorShaderProgram);
+    SetColorShaderUniforms();
+    
+    SetVertexArray(m_circleFillVAO);
+    SetArrayBuffer(m_circleFillVBO);
+    UploadVertexDataToVBO(m_circleFillVBO, m_circleFillVertices, m_circleFillVertexCount, GL_DYNAMIC_DRAW);
+    
+    glDrawArrays(GL_TRIANGLES, 0, m_circleFillVertexCount);
+    
+    m_circleFillVertexCount = 0;
+    
+    EndFlushTiming("Circle_Fills");
 }
 
 void Renderer::FlushEclipseRects() {

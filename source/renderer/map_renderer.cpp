@@ -288,7 +288,6 @@ void MapRenderer::Render()
         g_renderer->BeginRotatingSpriteBatch();   // Rotating sprites (aircraft, nukes)
         g_renderer->BeginLineBatch();      // Unit movement trails
         g_renderer->BeginHealthBarBatch();      // Unit health bars
-        g_renderer->BeginWhiteboardBatch();     // Whiteboard drawings 
 
         if( m_showPopulation )          
         { 
@@ -349,7 +348,6 @@ void MapRenderer::Render()
 
         g_renderer->EndStaticSpriteBatch();         // Flush all main unit sprites + city icons 
         g_renderer->EndLineBatch();        // Flush all unit trails
-        g_renderer->EndWhiteboardBatch();       // Flush all whiteboard drawings
         g_renderer->EndHealthBarBatch();        // Flush all unit health bars
         g_renderer->EndRotatingSpriteBatch();     // Flush all rotating sprites
 
@@ -3232,8 +3230,8 @@ void MapRenderer::RenderRadar()
     //
     // begin radar micro batching (own radar)
 
-    g_renderer->BeginEffectsCircleBatch();
-    
+    g_renderer->BeginLineBatch();
+    g_renderer->BeginCircleFillBatch();
     //
     // Render our radar
 
@@ -3243,8 +3241,8 @@ void MapRenderer::RenderRadar()
     //
     // end it
 
-    g_renderer->EndEffectsCircleBatch();
-
+    g_renderer->EndLineBatch();
+    g_renderer->EndCircleFillBatch();
     //
     // check if we need allied radar
 
@@ -3265,7 +3263,8 @@ void MapRenderer::RenderRadar()
     //
     // begin allied radar micro batch
 
-    g_renderer->BeginEffectsCircleBatch();
+    g_renderer->BeginLineBatch();
+    g_renderer->BeginCircleFillBatch();
 
     if( sharingRadar )
     {
@@ -3276,8 +3275,9 @@ void MapRenderer::RenderRadar()
     //
     // end it
 
-    g_renderer->EndEffectsCircleBatch();
-
+    g_renderer->EndLineBatch();
+    g_renderer->EndCircleFillBatch();
+    
     //
     // darken the whole world not covered by radar (uses depth buffer as mask)
     // cannot use batching here as im having issues with depth and blend modes 
@@ -3327,9 +3327,9 @@ void MapRenderer::RenderRadar( bool _allies, bool _outlined )
                             lineWidth = 1.0f;
                         }
                         
-                        g_renderer->EffectsCircleOutline( predictedLongitude-360, predictedLatitude, size+0.1f, 30, col, lineWidth );
-                        g_renderer->EffectsCircleOutline( predictedLongitude,     predictedLatitude, size+0.1f, 30, col, lineWidth );
-                        g_renderer->EffectsCircleOutline( predictedLongitude+360, predictedLatitude, size+0.1f, 30, col, lineWidth );
+                        g_renderer->Circle( predictedLongitude-360, predictedLatitude, size+0.1f, 30, col, lineWidth );
+                        g_renderer->Circle( predictedLongitude,     predictedLatitude, size+0.1f, 30, col, lineWidth );
+                        g_renderer->Circle( predictedLongitude+360, predictedLatitude, size+0.1f, 30, col, lineWidth );
                     }
                     else
                     {
@@ -3339,9 +3339,9 @@ void MapRenderer::RenderRadar( bool _allies, bool _outlined )
                             col.m_a = 0;
                         }
  
-                        g_renderer->EffectsCircleFill( predictedLongitude-360, predictedLatitude, size, 30, col );
-                        g_renderer->EffectsCircleFill( predictedLongitude,     predictedLatitude, size, 30, col );
-                        g_renderer->EffectsCircleFill( predictedLongitude+360, predictedLatitude, size, 30, col );
+                        g_renderer->CircleFill( predictedLongitude-360, predictedLatitude, size, 30, col );
+                        g_renderer->CircleFill( predictedLongitude,     predictedLatitude, size, 30, col );
+                        g_renderer->CircleFill( predictedLongitude+360, predictedLatitude, size, 30, col );
                     }
                 }
             }
@@ -5861,9 +5861,9 @@ void MapRenderer::RenderWhiteBoard()
 						continue;
 					}
 
-					g_renderer->WhiteboardLine( prevPt->m_longitude, prevPt->m_latitude, 
-											   currPt->m_longitude, currPt->m_latitude, 
-											   colourBoard );
+					g_renderer->Line( prevPt->m_longitude, prevPt->m_latitude, 
+									  currPt->m_longitude, currPt->m_latitude, 
+									  colourBoard );
 					
 					prevPt = currPt;
 				}

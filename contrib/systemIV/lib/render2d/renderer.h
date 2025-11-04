@@ -74,6 +74,7 @@ private:
   static constexpr int MAX_STATIC_SPRITE_VERTICES   = 30000;
   static constexpr int MAX_ROTATING_SPRITE_VERTICES = 15000;
   static constexpr int MAX_HEALTH_BAR_VERTICES      = 500;
+  static constexpr int MAX_CIRCLE_FILL_VERTICES     = 3000;
   static constexpr int MAX_ECLIPSE_RECT_VERTICES    = 2000;
   static constexpr int MAX_ECLIPSE_RECTFILL_VERTICES= 3000;
   static constexpr int MAX_ECLIPSE_TRIANGLEFILL_VERTICES = 3000;
@@ -109,6 +110,7 @@ protected:
   unsigned int m_unitVAO, m_unitVBO;                      // unit sprites and highlights
   unsigned int m_effectsVAO, m_effectsVBO;                // effects and trails
   unsigned int m_healthVAO, m_healthVBO;                  // health bars
+  unsigned int m_circleFillVAO, m_circleFillVBO;          // circle fills
   unsigned int m_legacyVAO, m_legacyVBO;                  // triangle/line rendering
   
   bool m_bufferNeedsUpload;
@@ -155,6 +157,9 @@ protected:
 
   Vertex2D m_healthBarVertices               [MAX_HEALTH_BAR_VERTICES];
   int m_healthBarVertexCount;
+
+  Vertex2D m_circleFillVertices              [MAX_CIRCLE_FILL_VERTICES];
+  int m_circleFillVertexCount;
 
   Vertex2D m_eclipseRectVertices             [MAX_ECLIPSE_RECT_VERTICES];
   int m_eclipseRectVertexCount;
@@ -257,6 +262,7 @@ protected:
   void FlushStaticSprites();
   void FlushRotatingSprite();
   void FlushHealthBars();
+  void FlushCircleFills();
   void FlushEclipseRects();
   void FlushEclipseRectFills();
   void FlushEclipseTriangleFills();
@@ -268,6 +274,7 @@ protected:
   void FlushEclipseLinesIfFull      (int segmentsNeeded);
   void FlushEclipseSpritesIfFull    (int verticesNeeded);
   void FlushRotatingSpritesIfFull    (int verticesNeeded);
+  void FlushCircleFillsIfFull       (int verticesNeeded);
 
   // Buffer selection for drawing operations
   BufferType m_activeBuffer;
@@ -364,6 +371,7 @@ public:
   int m_staticSpriteCalls;
   int m_rotatingSpriteCalls;
   int m_healthBarCalls;
+  int m_circleFillCalls;
   int m_eclipseRectCalls;
   int m_eclipseRectFillCalls;
   int m_eclipseTriangleFillCalls;
@@ -377,6 +385,7 @@ public:
   int m_prevStaticSpriteCalls;
   int m_prevRotatingSpriteCalls;
   int m_prevHealthBarCalls;
+  int m_prevCircleFillCalls;
   int m_prevEclipseRectCalls;
   int m_prevEclipseRectFillCalls;
   int m_prevEclipseTriangleFillCalls;
@@ -400,6 +409,7 @@ public:
   int GetStaticSpriteCalls      () const { return m_prevStaticSpriteCalls; }
   int GetRotatingSpriteCalls    () const { return m_prevRotatingSpriteCalls; }
   int GetHealthBarCalls         () const { return m_prevHealthBarCalls; }
+  int GetCircleFillCalls        () const { return m_prevCircleFillCalls; }
   int GetEclipseRectCalls       () const { return m_prevEclipseRectCalls; }
   int GetEclipseRectFillCalls   () const { return m_prevEclipseRectFillCalls; }
   int GetEclipseTriangleFillCalls() const { return m_prevEclipseTriangleFillCalls; }
@@ -412,6 +422,7 @@ public:
   int GetCurrentStaticSpriteVertexCount() const { return m_staticSpriteVertexCount; }
   int GetCurrentRotatingSpriteVertexCount() const { return m_rotatingSpriteVertexCount; }
   int GetCurrentHealthBarVertexCount() const { return m_healthBarVertexCount; }
+  int GetCurrentCircleFillVertexCount() const { return m_circleFillVertexCount; }
   int GetCurrentEclipseRectVertexCount() const { return m_eclipseRectVertexCount; }
   int GetCurrentEclipseRectFillVertexCount() const { return m_eclipseRectFillVertexCount; }
   int GetCurrentEclipseTriangleFillVertexCount() const { return m_eclipseTriangleFillVertexCount; }
@@ -425,9 +436,9 @@ public:
   
   int GetTotalCurrentVertexCount() const {
     return m_textVertexCount + m_lineVertexCount + m_staticSpriteVertexCount + 
-           m_rotatingSpriteVertexCount + m_healthBarVertexCount + m_eclipseRectVertexCount +
-           m_eclipseRectFillVertexCount + m_eclipseTriangleFillVertexCount + m_eclipseLineVertexCount +
-           m_eclipseSpriteVertexCount + m_triangleVertexCount + m_lineVertexCount;
+           m_rotatingSpriteVertexCount + m_healthBarVertexCount + m_circleFillVertexCount +
+           m_eclipseRectVertexCount + m_eclipseRectFillVertexCount + m_eclipseTriangleFillVertexCount +
+           m_eclipseLineVertexCount + m_eclipseSpriteVertexCount + m_triangleVertexCount + m_lineVertexCount;
   }
 
   int GetMegaBufferVertexCount() const { return m_maxMegaVertices; }
@@ -576,11 +587,11 @@ public:
                          Colour const &col);
   void TriangleFill     (float x1, float y1, float x2, float y2, float x3, float y3,
                          Colour const &col);
+  void Line             (float x1, float y1, float x2, float y2, Colour const &col);
   void Line             (float x1, float y1, float x2, float y2, Colour const &col,
-                         float lineWidth = 1.0f);
+                         float lineWidth);
 
   void BeginLines       (Colour const &col, float lineWidth);
-  void Line             (float x1, float y1, float x2, float y2, Colour const &col);
   void EndLines         ();
   void BeginLineBatch   ();
   void EndLineBatch     ();
@@ -653,6 +664,12 @@ public:
   void BeginHealthBarBatch        ();
   void HealthBarRect              (float x, float y, float w, float h, Colour const &col);
   void EndHealthBarBatch          ();
+
+  //
+  // circle fill rendering
+  
+  void BeginCircleFillBatch       ();
+  void EndCircleFillBatch         ();
 
   //
   // flush timing system for performance monitoring
