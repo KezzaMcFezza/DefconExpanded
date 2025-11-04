@@ -201,6 +201,8 @@ Renderer::Renderer()
       m_healthVBO(0),
       m_circleFillVAO(0), 
       m_circleFillVBO(0),
+      m_rectFillVAO(0), 
+      m_rectFillVBO(0),
       m_legacyVAO(0), 
       m_legacyVBO(0),
       m_bufferNeedsUpload(true),
@@ -220,6 +222,7 @@ Renderer::Renderer()
       m_currentRotatingSpriteTexture(0),
       m_healthBarVertexCount(0),
       m_circleFillVertexCount(0),
+      m_rectFillVertexCount(0),
       m_eclipseRectVertexCount(0),
       m_eclipseRectFillVertexCount(0),
       m_eclipseTriangleFillVertexCount(0),
@@ -269,6 +272,7 @@ Renderer::Renderer()
       m_currentRotatingSpriteTexture = 0;
       m_healthBarVertexCount = 0;
       m_circleFillVertexCount = 0;
+      m_rectFillVertexCount = 0;
       m_eclipseRectVertexCount = 0;
       m_eclipseRectFillVertexCount = 0;
       m_eclipseLineVertexCount = 0;
@@ -283,6 +287,7 @@ Renderer::Renderer()
       m_rotatingSpriteCalls = 0;
       m_healthBarCalls = 0;
       m_circleFillCalls = 0;
+      m_rectFillCalls = 0;
       m_eclipseRectCalls = 0;
       m_eclipseRectFillCalls = 0;
       m_eclipseTriangleFillCalls = 0;
@@ -297,6 +302,7 @@ Renderer::Renderer()
       m_prevRotatingSpriteCalls = 0;
       m_prevHealthBarCalls = 0;
       m_prevCircleFillCalls = 0;
+      m_prevRectFillCalls = 0;
       m_prevEclipseRectCalls = 0;
       m_prevEclipseRectFillCalls = 0;
       m_prevEclipseTriangleFillCalls = 0;
@@ -377,6 +383,8 @@ Renderer::~Renderer() {
     if (m_healthVBO) glDeleteBuffers(1, &m_healthVBO);
     if (m_circleFillVAO) glDeleteVertexArrays(1, &m_circleFillVAO);
     if (m_circleFillVBO) glDeleteBuffers(1, &m_circleFillVBO);
+    if (m_rectFillVAO) glDeleteVertexArrays(1, &m_rectFillVAO);
+    if (m_rectFillVBO) glDeleteBuffers(1, &m_rectFillVBO);
     if (m_legacyVAO) glDeleteVertexArrays(1, &m_legacyVAO);
     if (m_legacyVBO) glDeleteBuffers(1, &m_legacyVBO);
     
@@ -500,46 +508,6 @@ void Renderer::Blit(Image *src, float x, float y, float w, float h, Colour const
     m_triangleVertices[m_triangleVertexCount++] = {vert4.x, vert4.y, r, g, b, a, u1, v1};
     
     FlushTriangles(true);
-}
-
-// ============================================================================
-// RECT FILL
-// ============================================================================
-
-void Renderer::RectFill(float x, float y, float w, float h, Colour const &col) {
-    RectFill(x, y, w, h, col, col, col, col);
-}
-
-void Renderer::RectFill(float x, float y, float w, float h, Colour const &col1, Colour const &col2, bool horizontal) {
-    if (horizontal) {
-        RectFill(x, y, w, h, col1, col1, col2, col2);
-    } else {
-        RectFill(x, y, w, h, col1, col2, col2, col1);
-    }
-}
-
-void Renderer::RectFill(float x, float y, float w, float h, Colour const &colTL, Colour const &colTR, 
-                        Colour const &colBR, Colour const &colBL) {
-    if (m_triangleVertexCount + 6 > MAX_VERTICES) {
-        FlushTriangles(false);
-    }
-    
-    float rTL = colTL.GetRFloat(), gTL = colTL.GetGFloat(), bTL = colTL.GetBFloat(), aTL = colTL.GetAFloat();
-    float rTR = colTR.GetRFloat(), gTR = colTR.GetGFloat(), bTR = colTR.GetBFloat(), aTR = colTR.GetAFloat();
-    float rBR = colBR.GetRFloat(), gBR = colBR.GetGFloat(), bBR = colBR.GetBFloat(), aBR = colBR.GetAFloat();
-    float rBL = colBL.GetRFloat(), gBL = colBL.GetGFloat(), bBL = colBL.GetBFloat(), aBL = colBL.GetAFloat();
-    
-    // first triangle: TL, TR, BR
-    m_triangleVertices[m_triangleVertexCount++] = {x, y, rTL, gTL, bTL, aTL, 0.0f, 0.0f};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y, rTR, gTR, bTR, aTR, 1.0f, 0.0f};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, rBR, gBR, bBR, aBR, 1.0f, 1.0f};
-    
-    // second triangle: TL, BR, BL
-    m_triangleVertices[m_triangleVertexCount++] = {x, y, rTL, gTL, bTL, aTL, 0.0f, 0.0f};
-    m_triangleVertices[m_triangleVertexCount++] = {x + w, y + h, rBR, gBR, bBR, aBR, 1.0f, 1.0f};
-    m_triangleVertices[m_triangleVertexCount++] = {x, y + h, rBL, gBL, bBL, aBL, 0.0f, 1.0f};
-    
-    FlushTriangles(false);
 }
 
 // ============================================================================
@@ -1347,6 +1315,16 @@ void Renderer::SetupVertexArrays() {
     setupVertexAttributes();
     
     //
+    // Create rect fill VAO/VBO pair
+
+    glGenVertexArrays(1, &m_rectFillVAO);
+    glGenBuffers(1, &m_rectFillVBO);
+    glBindVertexArray(m_rectFillVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_rectFillVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_RECT_FILL_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    setupVertexAttributes();
+    
+    //
     // Create legacy VAO/VBO pair
 
     glGenVertexArrays(1, &m_legacyVAO);
@@ -1528,6 +1506,7 @@ void Renderer::ResetFrameCounters() {
     m_prevRotatingSpriteCalls = m_rotatingSpriteCalls;
     m_prevHealthBarCalls = m_healthBarCalls;
     m_prevCircleFillCalls = m_circleFillCalls;
+    m_prevRectFillCalls = m_rectFillCalls;
     m_prevEclipseRectCalls = m_eclipseRectCalls;
     m_prevEclipseRectFillCalls = m_eclipseRectFillCalls;
     m_prevEclipseTriangleFillCalls = m_eclipseTriangleFillCalls;
@@ -1546,6 +1525,7 @@ void Renderer::ResetFrameCounters() {
     m_rotatingSpriteCalls = 0;
     m_healthBarCalls = 0;
     m_circleFillCalls = 0;
+    m_rectFillCalls = 0;
     m_eclipseRectCalls = 0;
     m_eclipseRectFillCalls = 0;
     m_eclipseTriangleFillCalls = 0;
@@ -1571,11 +1551,12 @@ void Renderer::IncrementDrawCall(const char* bufferType) {
         case hash("legacy_triangles"): m_legacyTriangleCalls++; break;
         case hash("legacy_lines"): m_legacyLineCalls++; break;
         case hash("text"): m_textCalls++; break;
-        case hash("batched_lines"): m_lineCalls++; break;
+        case hash("lines"): m_lineCalls++; break;
         case hash("static_sprites"): m_staticSpriteCalls++; break;
         case hash("rotating_sprites"): m_rotatingSpriteCalls++; break;
         case hash("health_bars"): m_healthBarCalls++; break;
         case hash("circle_fills"): m_circleFillCalls++; break;
+        case hash("rect_fills"): m_rectFillCalls++; break;
         case hash("eclipse_rects"): m_eclipseRectCalls++; break;
         case hash("eclipse_rectfills"): m_eclipseRectFillCalls++; break;
         case hash("eclipse_trianglefills"): m_eclipseTriangleFillCalls++; break;

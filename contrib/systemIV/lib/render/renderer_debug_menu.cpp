@@ -111,7 +111,7 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     int totalDrawCalls, legacyTriangleCalls, legacyLineCalls;
     int textCalls;
     int lineCalls, staticSpriteCalls, rotatingSpriteCalls;
-    int circleFillCalls;
+    int circleFillCalls, rectFillCalls;
     int eclipseRectCalls, eclipseRectFillCalls, eclipseTriangleFillCalls, eclipseLineCalls, eclipseSpriteCalls;
     
     //
@@ -125,6 +125,7 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     staticSpriteCalls = m_renderer->GetStaticSpriteCalls();
     rotatingSpriteCalls = m_renderer->GetRotatingSpriteCalls();
     circleFillCalls = m_renderer->GetCircleFillCalls();
+    rectFillCalls = m_renderer->GetRectFillCalls();
     eclipseRectCalls = m_renderer->GetEclipseRectCalls();
     eclipseRectFillCalls = m_renderer->GetEclipseRectFillCalls();
     eclipseTriangleFillCalls = m_renderer->GetEclipseTriangleFillCalls();
@@ -164,15 +165,15 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     yPos += lineHeight;
     
     // Unit buffer details 
-    snprintf(statsBuffer, sizeof(statsBuffer), "  Lines: %d  Static: %d Rotating: %d CircleFill: %d", 
-             lineCalls, staticSpriteCalls, rotatingSpriteCalls, circleFillCalls);
+    snprintf(statsBuffer, sizeof(statsBuffer), "  Lines: %d  Static: %d Rotating: %d CircleFill: %d RectFill: %d", 
+             lineCalls, staticSpriteCalls, rotatingSpriteCalls, circleFillCalls, rectFillCalls);
     m_renderer->TextSimple(indentSmall, yPos, Colour(120, 170, 255, 255), 10.0f, statsBuffer);
     yPos += 14.0f;
     
     // Performance summary
     int legacyTotal = legacyTriangleCalls + legacyLineCalls;
     int eclipseUITotal = eclipseSpriteCalls + eclipseTriangleFillCalls + textCalls + eclipseRectCalls + eclipseRectFillCalls + eclipseLineCalls;
-    int unitTotal = lineCalls + staticSpriteCalls + rotatingSpriteCalls + circleFillCalls;
+    int unitTotal = lineCalls + staticSpriteCalls + rotatingSpriteCalls + circleFillCalls + rectFillCalls;
     int batchedTotal = unitTotal + eclipseUITotal;
     
     m_renderer->TextSimple(25, yPos, Colour(100, 255, 255, 255), 11.0f, "Conclusion:");

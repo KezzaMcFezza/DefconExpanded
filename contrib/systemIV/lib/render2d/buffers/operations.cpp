@@ -61,6 +61,10 @@ void Renderer::BeginCircleFillBatch() {
     m_circleFillVertexCount = 0;
 }
 
+void Renderer::BeginRectFillBatch() {
+    m_rectFillVertexCount = 0;
+}
+
 void Renderer::BeginEclipseRectBatch() {
     m_eclipseRectVertexCount = 0;
 }
@@ -142,6 +146,12 @@ void Renderer::EndCircleFillBatch() {
     }
 }
 
+void Renderer::EndRectFillBatch() {
+    if (m_rectFillVertexCount > 0) {
+        FlushRectFills();
+    }
+}
+
 void Renderer::EndEclipseRectBatch() {
     if (m_eclipseRectVertexCount > 0) {
         FlushEclipseRects();
@@ -204,6 +214,12 @@ void Renderer::FlushRotatingSpritesIfFull(int verticesNeeded) {
 void Renderer::FlushCircleFillsIfFull(int verticesNeeded) {
     if (m_circleFillVertexCount + verticesNeeded > MAX_CIRCLE_FILL_VERTICES) {
         FlushCircleFills();
+    }
+}
+
+void Renderer::FlushRectFillsIfFull(int verticesNeeded) {
+    if (m_rectFillVertexCount + verticesNeeded > MAX_RECT_FILL_VERTICES) {
+        FlushRectFills();
     }
 }
 
@@ -421,6 +437,26 @@ void Renderer::FlushCircleFills() {
     m_circleFillVertexCount = 0;
     
     EndFlushTiming("Circle_Fills");
+}
+
+void Renderer::FlushRectFills() {
+    if (m_rectFillVertexCount == 0) return;
+    
+    StartFlushTiming("Rect_Fills");
+    IncrementDrawCall("rect_fills");
+    
+    SetShaderProgram(m_colorShaderProgram);
+    SetColorShaderUniforms();
+    
+    SetVertexArray(m_rectFillVAO);
+    SetArrayBuffer(m_rectFillVBO);
+    UploadVertexDataToVBO(m_rectFillVBO, m_rectFillVertices, m_rectFillVertexCount, GL_DYNAMIC_DRAW);
+    
+    glDrawArrays(GL_TRIANGLES, 0, m_rectFillVertexCount);
+    
+    m_rectFillVertexCount = 0;
+    
+    EndFlushTiming("Rect_Fills");
 }
 
 void Renderer::FlushEclipseRects() {

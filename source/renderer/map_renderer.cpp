@@ -3232,6 +3232,7 @@ void MapRenderer::RenderRadar()
 
     g_renderer->BeginLineBatch();
     g_renderer->BeginCircleFillBatch();
+    
     //
     // Render our radar
 
@@ -3243,6 +3244,7 @@ void MapRenderer::RenderRadar()
 
     g_renderer->EndLineBatch();
     g_renderer->EndCircleFillBatch();
+    
     //
     // check if we need allied radar
 
@@ -3283,9 +3285,13 @@ void MapRenderer::RenderRadar()
     // cannot use batching here as im having issues with depth and blend modes 
     // when flushing
 
+    g_renderer->BeginRectFillBatch();
+
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );        
     g_renderer->RectFill( -180, -100, 360, 200, Colour(0,0,0,150) );
     g_renderer->SetDepthBuffer( false, false );
+
+    g_renderer->EndRectFillBatch();
     
     END_PROFILE( "Radar" );
 }

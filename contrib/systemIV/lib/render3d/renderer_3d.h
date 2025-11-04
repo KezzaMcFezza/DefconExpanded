@@ -405,11 +405,11 @@ public:
     unsigned int GetEffectiveTextureID(Image* image);
     
     // Unit trail rendering
-    void LineBatched3D(float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col);
+    void Line3D(float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col);
     void BeginLineBatch3D();
     void EndLineBatch3D();
-    void FlushLineBatched3D();
-    void FlushLineBatched3DIfFull(int segmentsNeeded);
+    void FlushLine3D();
+    void FlushLine3DIfFull(int segmentsNeeded);
     
     // Static Sprite sprite rendering
     void StaticSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col);

@@ -17,7 +17,7 @@ extern Renderer3D *g_renderer3d;
 void Renderer3D::FlushAllSpecializedBuffers3D() {
     FlushStarField3D();
     FlushGlobeSurface3D();
-    FlushLineBatched3D();
+    FlushLine3D();
     FlushStaticSprites3D();
     FlushRotatingSprite3D();
     FlushHealthBars3D();
@@ -26,7 +26,7 @@ void Renderer3D::FlushAllSpecializedBuffers3D() {
 }
 
 void Renderer3D::FlushAllUnitBuffers3D() {
-    FlushLineBatched3D();
+    FlushLine3D();
     FlushStaticSprites3D();
     FlushRotatingSprite3D();
 }
@@ -91,7 +91,7 @@ void Renderer3D::BeginGlobeSurfaceBatch3D() {
 // ============================================================================
 
 void Renderer3D::EndLineBatch3D() {
-    FlushLineBatched3D();
+    FlushLine3D();
 }
 
 void Renderer3D::EndStaticSpriteBatch3D() {
@@ -145,9 +145,9 @@ void Renderer3D::EndGlobeSurfaceBatch3D() {
 // FLUSH IF FULL
 // ============================================================================
 
-void Renderer3D::FlushLineBatched3DIfFull(int segmentsNeeded) {
+void Renderer3D::FlushLine3DIfFull(int segmentsNeeded) {
     if (m_lineVertexCount3D + segmentsNeeded > MAX_LINE_VERTICES_3D) {
-        FlushLineBatched3D();
+        FlushLine3D();
     }
 }
 
@@ -185,7 +185,7 @@ void Renderer3D::FlushNuke3DModels3DIfFull(int verticesNeeded) {
 // CORE FLUSH FUNCTIONS
 // ============================================================================
 
-void Renderer3D::FlushLineBatched3D() {
+void Renderer3D::FlushLine3D() {
     if (m_lineVertexCount3D == 0) return;
 
     StartFlushTiming3D("Batched_Lines_3D");

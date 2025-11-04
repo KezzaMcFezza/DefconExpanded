@@ -1687,7 +1687,7 @@ void MapRenderer::Render3DUnitTrails()
                 Colour segmentColour = colour;
                 segmentColour.m_a = 255 - 255 * (float)j / (float)maxSize;
                 
-                g_renderer3d->LineBatched3D(prevPos.x, prevPos.y, prevPos.z,
+                g_renderer3d->Line3D(prevPos.x, prevPos.y, prevPos.z,
                                              pos3D.x, pos3D.y, pos3D.z, segmentColour);
                 prevPos = pos3D;
             }
@@ -1919,7 +1919,7 @@ void MapRenderer::Render3DNukeTrajectories()
                 Colour segmentColour = colour;
                 segmentColour.m_a = 255 - 255 * (float)j / (float)maxTrailLength;
                 
-                g_renderer3d->LineBatched3D(prevPos.x, prevPos.y, prevPos.z,
+                g_renderer3d->Line3D(prevPos.x, prevPos.y, prevPos.z,
                                              pos3D.x, pos3D.y, pos3D.z, segmentColour);
                 
                 prevPos = pos3D;
@@ -2059,7 +2059,7 @@ void MapRenderer::Render3DGunfire()
                 Colour segmentColour = colour;
                 segmentColour.m_a = 255 - (255 * (float)j / maxHistorySize);
                 
-                g_renderer3d->LineBatched3D(lastPos3D.x, lastPos3D.y, lastPos3D.z,
+                g_renderer3d->Line3D(lastPos3D.x, lastPos3D.y, lastPos3D.z,
                                            thisPos3D.x, thisPos3D.y, thisPos3D.z, segmentColour);
             }
             
@@ -2112,7 +2112,7 @@ void MapRenderer::Render3DGunfire()
                 Colour currentColour = colour;
                 currentColour.m_a = 255;
                 
-                g_renderer3d->LineBatched3D(lastPos3D.x, lastPos3D.y, lastPos3D.z,
+                g_renderer3d->Line3D(lastPos3D.x, lastPos3D.y, lastPos3D.z,
                                            gunfirePos3D.x, gunfirePos3D.y, gunfirePos3D.z, currentColour);
             }
         }
@@ -2482,7 +2482,7 @@ void MapRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vector
         currentPos = normal * 1.001f;
         
         // render line segment
-        g_renderer3d->LineBatched3D(prevPos.x, prevPos.y, prevPos.z,
+        g_renderer3d->Line3D(prevPos.x, prevPos.y, prevPos.z,
                                    currentPos.x, currentPos.y, currentPos.z, col);
         
         prevPos = currentPos;
@@ -2510,7 +2510,7 @@ void MapRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vector
         // render bright animated segment
         Colour brightCol = col;
         brightCol.m_a = 255;
-        g_renderer3d->LineBatched3D(animPos1.x, animPos1.y, animPos1.z,
+        g_renderer3d->Line3D(animPos1.x, animPos1.y, animPos1.z,
                                    animPos2.x, animPos2.y, animPos2.z, brightCol);
     }
 }
@@ -2782,25 +2782,25 @@ void MapRenderer::Render3DUnitHighlight(int objectId)
     // left line
     Vector3<float> leftStart = unitPos - tangent1 * (halfSize + extend);
     Vector3<float> leftEnd = unitPos - tangent1 * halfSize;
-    g_renderer3d->LineBatched3D(leftStart.x, leftStart.y, leftStart.z,
+    g_renderer3d->Line3D(leftStart.x, leftStart.y, leftStart.z,
                                leftEnd.x, leftEnd.y, leftEnd.z, col);
     
     // right line  
     Vector3<float> rightStart = unitPos + tangent1 * (halfSize + extend);
     Vector3<float> rightEnd = unitPos + tangent1 * halfSize;
-    g_renderer3d->LineBatched3D(rightStart.x, rightStart.y, rightStart.z,
+    g_renderer3d->Line3D(rightStart.x, rightStart.y, rightStart.z,
                                rightEnd.x, rightEnd.y, rightEnd.z, col);
     
     // top line
     Vector3<float> topStart = unitPos + tangent2 * (halfSize + extend);
     Vector3<float> topEnd = unitPos + tangent2 * halfSize;
-    g_renderer3d->LineBatched3D(topStart.x, topStart.y, topStart.z,
+    g_renderer3d->Line3D(topStart.x, topStart.y, topStart.z,
                                topEnd.x, topEnd.y, topEnd.z, col);
     
     // bottom line
     Vector3<float> bottomStart = unitPos - tangent2 * (halfSize + extend);
     Vector3<float> bottomEnd = unitPos - tangent2 * halfSize;
-    g_renderer3d->LineBatched3D(bottomStart.x, bottomStart.y, bottomStart.z,
+    g_renderer3d->Line3D(bottomStart.x, bottomStart.y, bottomStart.z,
                                bottomEnd.x, bottomEnd.y, bottomEnd.z, col);
     
     // render central square using 4 line segments
@@ -2811,13 +2811,13 @@ void MapRenderer::Render3DUnitHighlight(int objectId)
 
     // render it
     
-    g_renderer3d->LineBatched3D(topLeft.x, topLeft.y, topLeft.z,
+    g_renderer3d->Line3D(topLeft.x, topLeft.y, topLeft.z,
                                topRight.x, topRight.y, topRight.z, col);
-    g_renderer3d->LineBatched3D(topRight.x, topRight.y, topRight.z,
+    g_renderer3d->Line3D(topRight.x, topRight.y, topRight.z,
                                bottomRight.x, bottomRight.y, bottomRight.z, col);
-    g_renderer3d->LineBatched3D(bottomRight.x, bottomRight.y, bottomRight.z,
+    g_renderer3d->Line3D(bottomRight.x, bottomRight.y, bottomRight.z,
                                bottomLeft.x, bottomLeft.y, bottomLeft.z, col);
-    g_renderer3d->LineBatched3D(bottomLeft.x, bottomLeft.y, bottomLeft.z,
+    g_renderer3d->Line3D(bottomLeft.x, bottomLeft.y, bottomLeft.z,
                                topLeft.x, topLeft.y, topLeft.z, col);
 }
 
@@ -2943,7 +2943,7 @@ void MapRenderer::Render3DAnimations()
                     point = point * 1.001f;
                     
                     if (seg > 0) {
-                        g_renderer3d->LineBatched3D(prevPoint.x, prevPoint.y, prevPoint.z,
+                        g_renderer3d->Line3D(prevPoint.x, prevPoint.y, prevPoint.z,
                                                    point.x, point.y, point.z, colour);
                     }
                     prevPoint = point;

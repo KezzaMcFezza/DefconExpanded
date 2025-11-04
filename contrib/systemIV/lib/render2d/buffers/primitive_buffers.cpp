@@ -14,7 +14,6 @@
 extern Renderer *g_renderer;
 
 void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col) {
-    
     FlushLinesIfFull(2);
     
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
@@ -41,7 +40,6 @@ void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, f
 }
 
 void Renderer::Circle(float x, float y, float radius, int numPoints, Colour const &col, float lineWidth) {
-
     FlushLinesIfFull(numPoints * 2);
 
 #ifndef TARGET_EMSCRIPTEN
@@ -65,7 +63,6 @@ void Renderer::Circle(float x, float y, float radius, int numPoints, Colour cons
 }
 
 void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour const &col) {
-  
     FlushCircleFillsIfFull(numPoints * 3);
 
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
@@ -84,6 +81,65 @@ void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour 
         m_circleFillVertices[m_circleFillVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
         m_circleFillVertices[m_circleFillVertexCount++] = {x2, y2, r, g, b, a, 1.0f, 0.0f};
     }
+}
+
+void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float lineWidth) {
+    FlushLinesIfFull(8);
+
+#ifndef TARGET_EMSCRIPTEN
+    SetLineWidth(lineWidth);
+#endif
+    
+    float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
+    
+    // top line
+    m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
+    m_lineVertices[m_lineVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
+
+    // right line
+    m_lineVertices[m_lineVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
+    m_lineVertices[m_lineVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
+
+    // bottom line
+    m_lineVertices[m_lineVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
+    m_lineVertices[m_lineVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
+    
+    // left line
+    m_lineVertices[m_lineVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
+    m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
+}
+
+
+void Renderer::RectFill(float x, float y, float w, float h, Colour const &col) {
+    RectFill(x, y, w, h, col, col, col, col);
+}
+
+void Renderer::RectFill(float x, float y, float w, float h, Colour const &col1, Colour const &col2, bool horizontal) {
+    if (horizontal) {
+        RectFill(x, y, w, h, col1, col1, col2, col2);
+    } else {
+        RectFill(x, y, w, h, col1, col2, col2, col1);
+    }
+}
+
+void Renderer::RectFill(float x, float y, float w, float h, Colour const &colTL, Colour const &colTR, 
+                        Colour const &colBR, Colour const &colBL) {
+    FlushRectFillsIfFull(6);
+    
+    float rTL = colTL.GetRFloat(), gTL = colTL.GetGFloat(), bTL = colTL.GetBFloat(), aTL = colTL.GetAFloat();
+    float rTR = colTR.GetRFloat(), gTR = colTR.GetGFloat(), bTR = colTR.GetBFloat(), aTR = colTR.GetAFloat();
+    float rBR = colBR.GetRFloat(), gBR = colBR.GetGFloat(), bBR = colBR.GetBFloat(), aBR = colBR.GetAFloat();
+    float rBL = colBL.GetRFloat(), gBL = colBL.GetGFloat(), bBL = colBL.GetBFloat(), aBL = colBL.GetAFloat();
+    
+    // first triangle: TL, TR, BR
+    m_rectFillVertices[m_rectFillVertexCount++] = {x, y, rTL, gTL, bTL, aTL, 0.0f, 0.0f};
+    m_rectFillVertices[m_rectFillVertexCount++] = {x + w, y, rTR, gTR, bTR, aTR, 1.0f, 0.0f};
+    m_rectFillVertices[m_rectFillVertexCount++] = {x + w, y + h, rBR, gBR, bBR, aBR, 1.0f, 1.0f};
+    
+    // second triangle: TL, BR, BL
+    m_rectFillVertices[m_rectFillVertexCount++] = {x, y, rTL, gTL, bTL, aTL, 0.0f, 0.0f};
+    m_rectFillVertices[m_rectFillVertexCount++] = {x + w, y + h, rBR, gBR, bBR, aBR, 1.0f, 1.0f};
+    m_rectFillVertices[m_rectFillVertexCount++] = {x, y + h, rBL, gBL, bBL, aBL, 0.0f, 1.0f};
 }
 
 void Renderer::BeginLines(Colour const &col, float lineWidth) {

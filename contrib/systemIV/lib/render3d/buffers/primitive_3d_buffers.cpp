@@ -13,8 +13,8 @@ extern Renderer3D *g_renderer3d;
 // PRIMITIVE RENDERING FUNCTIONS
 // ============================================================================
 
-void Renderer3D::LineBatched3D(float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col) {
-    FlushLineBatched3DIfFull(2);
+void Renderer3D::Line3D(float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col) {
+    FlushLine3DIfFull(2);
     
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
