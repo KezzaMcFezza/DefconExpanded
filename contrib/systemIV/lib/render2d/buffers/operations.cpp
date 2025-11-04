@@ -65,6 +65,10 @@ void Renderer::BeginRectFillBatch() {
     m_rectFillVertexCount = 0;
 }
 
+void Renderer::BeginTriangleFillBatch() {
+    m_triangleFillVertexCount = 0;
+}
+
 void Renderer::BeginEclipseRectBatch() {
     m_eclipseRectVertexCount = 0;
 }
@@ -152,6 +156,12 @@ void Renderer::EndRectFillBatch() {
     }
 }
 
+void Renderer::EndTriangleFillBatch() {
+    if (m_triangleFillVertexCount > 0) {
+        FlushTriangleFills();
+    }
+}
+
 void Renderer::EndEclipseRectBatch() {
     if (m_eclipseRectVertexCount > 0) {
         FlushEclipseRects();
@@ -220,6 +230,12 @@ void Renderer::FlushCircleFillsIfFull(int verticesNeeded) {
 void Renderer::FlushRectFillsIfFull(int verticesNeeded) {
     if (m_rectFillVertexCount + verticesNeeded > MAX_RECT_FILL_VERTICES) {
         FlushRectFills();
+    }
+}
+
+void Renderer::FlushTriangleFillsIfFull(int verticesNeeded) {
+    if (m_triangleFillVertexCount + verticesNeeded > MAX_TRIANGLE_FILL_VERTICES) {
+        FlushTriangleFills();
     }
 }
 
@@ -457,6 +473,26 @@ void Renderer::FlushRectFills() {
     m_rectFillVertexCount = 0;
     
     EndFlushTiming("Rect_Fills");
+}
+
+void Renderer::FlushTriangleFills() {
+    if (m_triangleFillVertexCount == 0) return;
+    
+    StartFlushTiming("Triangle_Fills");
+    IncrementDrawCall("triangle_fills");
+    
+    SetShaderProgram(m_colorShaderProgram);
+    SetColorShaderUniforms();
+    
+    SetVertexArray(m_triangleFillVAO);
+    SetArrayBuffer(m_triangleFillVBO);
+    UploadVertexDataToVBO(m_triangleFillVBO, m_triangleFillVertices, m_triangleFillVertexCount, GL_DYNAMIC_DRAW);
+    
+    glDrawArrays(GL_TRIANGLES, 0, m_triangleFillVertexCount);
+    
+    m_triangleFillVertexCount = 0;
+    
+    EndFlushTiming("Triangle_Fills");
 }
 
 void Renderer::FlushEclipseRects() {

@@ -142,6 +142,16 @@ void Renderer::RectFill(float x, float y, float w, float h, Colour const &colTL,
     m_rectFillVertices[m_rectFillVertexCount++] = {x, y + h, rBL, gBL, bBL, aBL, 0.0f, 1.0f};
 }
 
+void Renderer::TriangleFill(float x1, float y1, float x2, float y2, float x3, float y3, Colour const &col) {
+    FlushTriangleFillsIfFull(3);
+    
+    float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
+    
+    m_triangleFillVertices[m_triangleFillVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
+    m_triangleFillVertices[m_triangleFillVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
+    m_triangleFillVertices[m_triangleFillVertexCount++] = {x3, y3, r, g, b, a, 0.0f, 0.0f};
+}
+
 void Renderer::BeginLines(Colour const &col, float lineWidth) {
 
 #ifndef TARGET_EMSCRIPTEN

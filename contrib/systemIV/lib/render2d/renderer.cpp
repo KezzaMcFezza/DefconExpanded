@@ -203,6 +203,8 @@ Renderer::Renderer()
       m_circleFillVBO(0),
       m_rectFillVAO(0), 
       m_rectFillVBO(0),
+      m_triangleFillVAO(0), 
+      m_triangleFillVBO(0),
       m_legacyVAO(0), 
       m_legacyVBO(0),
       m_bufferNeedsUpload(true),
@@ -223,6 +225,7 @@ Renderer::Renderer()
       m_healthBarVertexCount(0),
       m_circleFillVertexCount(0),
       m_rectFillVertexCount(0),
+      m_triangleFillVertexCount(0),
       m_eclipseRectVertexCount(0),
       m_eclipseRectFillVertexCount(0),
       m_eclipseTriangleFillVertexCount(0),
@@ -273,6 +276,7 @@ Renderer::Renderer()
       m_healthBarVertexCount = 0;
       m_circleFillVertexCount = 0;
       m_rectFillVertexCount = 0;
+      m_triangleFillVertexCount = 0;
       m_eclipseRectVertexCount = 0;
       m_eclipseRectFillVertexCount = 0;
       m_eclipseLineVertexCount = 0;
@@ -288,6 +292,7 @@ Renderer::Renderer()
       m_healthBarCalls = 0;
       m_circleFillCalls = 0;
       m_rectFillCalls = 0;
+      m_triangleFillCalls = 0;
       m_eclipseRectCalls = 0;
       m_eclipseRectFillCalls = 0;
       m_eclipseTriangleFillCalls = 0;
@@ -303,6 +308,7 @@ Renderer::Renderer()
       m_prevHealthBarCalls = 0;
       m_prevCircleFillCalls = 0;
       m_prevRectFillCalls = 0;
+      m_prevTriangleFillCalls = 0;
       m_prevEclipseRectCalls = 0;
       m_prevEclipseRectFillCalls = 0;
       m_prevEclipseTriangleFillCalls = 0;
@@ -385,6 +391,8 @@ Renderer::~Renderer() {
     if (m_circleFillVBO) glDeleteBuffers(1, &m_circleFillVBO);
     if (m_rectFillVAO) glDeleteVertexArrays(1, &m_rectFillVAO);
     if (m_rectFillVBO) glDeleteBuffers(1, &m_rectFillVBO);
+    if (m_triangleFillVAO) glDeleteVertexArrays(1, &m_triangleFillVAO);
+    if (m_triangleFillVBO) glDeleteBuffers(1, &m_triangleFillVBO);
     if (m_legacyVAO) glDeleteVertexArrays(1, &m_legacyVAO);
     if (m_legacyVBO) glDeleteBuffers(1, &m_legacyVBO);
     
@@ -1325,6 +1333,16 @@ void Renderer::SetupVertexArrays() {
     setupVertexAttributes();
     
     //
+    // Create triangle fill VAO/VBO pair
+
+    glGenVertexArrays(1, &m_triangleFillVAO);
+    glGenBuffers(1, &m_triangleFillVBO);
+    glBindVertexArray(m_triangleFillVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_triangleFillVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_TRIANGLE_FILL_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    setupVertexAttributes();
+    
+    //
     // Create legacy VAO/VBO pair
 
     glGenVertexArrays(1, &m_legacyVAO);
@@ -1507,6 +1525,7 @@ void Renderer::ResetFrameCounters() {
     m_prevHealthBarCalls = m_healthBarCalls;
     m_prevCircleFillCalls = m_circleFillCalls;
     m_prevRectFillCalls = m_rectFillCalls;
+    m_prevTriangleFillCalls = m_triangleFillCalls;
     m_prevEclipseRectCalls = m_eclipseRectCalls;
     m_prevEclipseRectFillCalls = m_eclipseRectFillCalls;
     m_prevEclipseTriangleFillCalls = m_eclipseTriangleFillCalls;
@@ -1526,6 +1545,7 @@ void Renderer::ResetFrameCounters() {
     m_healthBarCalls = 0;
     m_circleFillCalls = 0;
     m_rectFillCalls = 0;
+    m_triangleFillCalls = 0;
     m_eclipseRectCalls = 0;
     m_eclipseRectFillCalls = 0;
     m_eclipseTriangleFillCalls = 0;
@@ -1557,6 +1577,7 @@ void Renderer::IncrementDrawCall(const char* bufferType) {
         case hash("health_bars"): m_healthBarCalls++; break;
         case hash("circle_fills"): m_circleFillCalls++; break;
         case hash("rect_fills"): m_rectFillCalls++; break;
+        case hash("triangle_fills"): m_triangleFillCalls++; break;
         case hash("eclipse_rects"): m_eclipseRectCalls++; break;
         case hash("eclipse_rectfills"): m_eclipseRectFillCalls++; break;
         case hash("eclipse_trianglefills"): m_eclipseTriangleFillCalls++; break;
