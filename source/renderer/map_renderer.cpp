@@ -275,7 +275,9 @@ void MapRenderer::Render()
         right += GetLongitudeMod();
     }
 
+    //
     // Now go through and render objects on top of the landscape.
+
     GetWindowBounds( &left, &right, &top, &bottom );
     for( int x = 0; x < 2; ++x )
     {
@@ -284,10 +286,11 @@ void MapRenderer::Render()
         //
         // master scene batching, wrap the entire map rendering loop inside the buffers
 
-        g_renderer->BeginStaticSpriteBatch();       // Main unit sprites + city icons
+        g_renderer->BeginStaticSpriteBatch();
         g_renderer->BeginRectFillBatch();
-        g_renderer->BeginRotatingSpriteBatch();   // Rotating sprites (aircraft, nukes)
-        g_renderer->BeginLineBatch();      // Unit movement trails
+        g_renderer->BeginRectBatch();
+        g_renderer->BeginRotatingSpriteBatch();
+        g_renderer->BeginLineBatch();
 
         if( m_showPopulation )          
         { 
@@ -347,9 +350,10 @@ void MapRenderer::Render()
         //
 
         g_renderer->EndRectFillBatch();
-        g_renderer->EndStaticSpriteBatch();         // Flush all main unit sprites + city icons 
-        g_renderer->EndLineBatch();                 // Flush all unit trails
-        g_renderer->EndRotatingSpriteBatch();       // Flush all rotating sprites
+        g_renderer->EndRectBatch();
+        g_renderer->EndStaticSpriteBatch();
+        g_renderer->EndLineBatch();
+        g_renderer->EndRotatingSpriteBatch();
 
         //
         // render radar outside of the main scene to

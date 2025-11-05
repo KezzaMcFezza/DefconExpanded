@@ -698,6 +698,9 @@ void Renderer::EndMSAARendering() {
 // ============================================================================
 
 void Renderer::SetBlendMode(int _blendMode) {
+    if (m_blendMode != _blendMode && m_staticSpriteVertexCount > 0) {
+        FlushStaticSprites();
+    }
 
     m_blendMode = _blendMode;
     
