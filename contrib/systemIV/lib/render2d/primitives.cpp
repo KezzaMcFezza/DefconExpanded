@@ -39,8 +39,19 @@ void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, f
     m_lineVertices[m_lineVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
 }
 
+void Renderer::Line(float x, float y) {
+    FlushLinesIfFull(1);
+    
+    float r = m_currentLineColor.GetRFloat();
+    float g = m_currentLineColor.GetGFloat();
+    float b = m_currentLineColor.GetBFloat();
+    float a = m_currentLineColor.GetAFloat();
+    
+    m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
+}
+
 void Renderer::Circle(float x, float y, float radius, int numPoints, Colour const &col, float lineWidth) {
-    FlushLinesIfFull(numPoints * 2);
+    FlushCirclesIfFull(numPoints * 2);
 
 #ifndef TARGET_EMSCRIPTEN
     SetLineWidth(lineWidth);
@@ -57,8 +68,8 @@ void Renderer::Circle(float x, float y, float radius, int numPoints, Colour cons
         float x2 = x + cosf(angle2) * radius;
         float y2 = y + sinf(angle2) * radius;
         
-        m_lineVertices[m_lineVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
-        m_lineVertices[m_lineVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
+        m_circleVertices[m_circleVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
+        m_circleVertices[m_circleVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
     }
 }
 
@@ -84,7 +95,7 @@ void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour 
 }
 
 void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float lineWidth) {
-    FlushLinesIfFull(8);
+    FlushRectsIfFull(8);
 
 #ifndef TARGET_EMSCRIPTEN
     SetLineWidth(lineWidth);
@@ -93,20 +104,20 @@ void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
     // top line
-    m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
-    m_lineVertices[m_lineVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
+    m_rectVertices[m_rectVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
+    m_rectVertices[m_rectVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
 
     // right line
-    m_lineVertices[m_lineVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
-    m_lineVertices[m_lineVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
+    m_rectVertices[m_rectVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
+    m_rectVertices[m_rectVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
 
     // bottom line
-    m_lineVertices[m_lineVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
-    m_lineVertices[m_lineVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
+    m_rectVertices[m_rectVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
+    m_rectVertices[m_rectVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
     
     // left line
-    m_lineVertices[m_lineVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
-    m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
+    m_rectVertices[m_rectVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
+    m_rectVertices[m_rectVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
 }
 
 
@@ -234,22 +245,4 @@ void Renderer::EndLineStrip2D() {
     }
     
     m_lineStripActive = false;
-}
-
-void Renderer::HealthBarRect(float x, float y, float w, float h, Colour const &col) {
-    if (m_healthBarVertexCount + 6 > MAX_HEALTH_BAR_VERTICES) {
-        FlushHealthBars();
-    }
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    // First triangle: TL, TR, BR
-    m_healthBarVertices[m_healthBarVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
-    m_healthBarVertices[m_healthBarVertexCount++] = {x + w, y, r, g, b, a, 0.0f, 0.0f};
-    m_healthBarVertices[m_healthBarVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
-    
-    // Second triangle: TL, BR, BL
-    m_healthBarVertices[m_healthBarVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
-    m_healthBarVertices[m_healthBarVertexCount++] = {x + w, y + h, r, g, b, a, 0.0f, 0.0f};
-    m_healthBarVertices[m_healthBarVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
 }

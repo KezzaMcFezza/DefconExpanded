@@ -411,13 +411,13 @@ void PlaybackControlWindow::Render(bool _hasFocus)
     float progressH = 10;  
     
     // Background
-    g_renderer->EclipseRectFill(progressX, progressY, progressW, progressH, Colour(50, 50, 50, 200));
+    g_renderer->RectFill(progressX, progressY, progressW, progressH, Colour(50, 50, 50, 200));
     
     // Progress fill
     if (m_totalSeqIds > 0) {
         float progress = (float)m_currentSeqId / (float)m_totalSeqIds;
         float fillW = progressW * progress;
-        g_renderer->EclipseRectFill(progressX, progressY, fillW, progressH, Colour(100, 150, 255, 200));
+        g_renderer->RectFill(progressX, progressY, fillW, progressH, Colour(100, 150, 255, 200));
     }
     
     // Progress text centered on the progress bar
@@ -705,11 +705,11 @@ void SpeedSlider::Render(int realX, int realY, bool highlighted, bool clicked)
     Colour trackCol = Colour(80, 80, 80, 255);
     Colour thumbCol = highlighted ? Colour(150, 150, 255, 255) : Colour(120, 120, 200, 255);
     
-    g_renderer->EclipseRectFill(realX, realY + m_h/2 - 3, m_w, 6, trackCol);
+    g_renderer->RectFill(realX, realY + m_h/2 - 3, m_w, 6, trackCol);
     
     // Slider thumb
     float thumbX = realX + (m_value * (m_w - 10));
-    g_renderer->EclipseRectFill(thumbX, realY, 10, m_h, thumbCol);
+    g_renderer->RectFill(thumbX, realY, 10, m_h, thumbCol);
 
     g_renderer->TextSimple(realX, realY - 12, Colour(180, 180, 180, 255), 8.0f, "1x");
     g_renderer->TextSimple(realX + m_w - 25, realY - 12, Colour(180, 180, 180, 255), 10.0f, "100x");
@@ -805,11 +805,11 @@ void SeekBar::Render(int realX, int realY, bool highlighted, bool clicked)
         thumbCol = Colour(120, 200, 120, 255); // Normal green
     }
     
-    g_renderer->EclipseRectFill(realX, realY + m_h/2 - 3, m_w, 6, trackCol);
+    g_renderer->RectFill(realX, realY + m_h/2 - 3, m_w, 6, trackCol);
     
     // Seek thumb (thinner for precise clicking)
     float thumbX = realX + (m_value * (m_w - 6));
-    g_renderer->EclipseRectFill(thumbX, realY, 6, m_h, thumbCol);
+    g_renderer->RectFill(thumbX, realY, 6, m_h, thumbCol);
 }
 
 void SeekBar::Update()
@@ -894,19 +894,19 @@ void PlayerPerspectiveButton::Render( int realX, int realY, bool highlighted, bo
     {
         // selected button is brighter
         buttonCol.m_a = 255;
-        g_renderer->EclipseRectFill(realX, realY, m_w, m_h, buttonCol);
+        g_renderer->RectFill(realX, realY, m_w, m_h, buttonCol);
     }
     else if( highlighted || clicked )
     {
         // highlighted button
         buttonCol.m_a = 200;
-        g_renderer->EclipseRectFill(realX, realY, m_w, m_h, buttonCol);
+        g_renderer->RectFill(realX, realY, m_w, m_h, buttonCol);
     }
     else
     {
         // normal button
         buttonCol.m_a = 150;
-        g_renderer->EclipseRectFill(realX, realY, m_w, m_h, buttonCol);
+        g_renderer->RectFill(realX, realY, m_w, m_h, buttonCol);
     }
     
     // button text

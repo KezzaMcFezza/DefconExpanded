@@ -530,8 +530,8 @@ public:
         {
             if( highlighted || clicked )
             {
-                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-                g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
+                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
             }
         }
 
@@ -1759,8 +1759,8 @@ class ShowNetworkingHelpButton : public TextButton
     {
         if( highlighted || clicked )
         {
-            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-            g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
+            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
         }
 
         TextButton::Render( realX, realY, highlighted, clicked );

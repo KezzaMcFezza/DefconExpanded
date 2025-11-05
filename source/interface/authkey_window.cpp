@@ -125,11 +125,11 @@ public:
         Colour borderA = g_styleTable->GetPrimaryColour(STYLE_INPUT_BORDER);
         Colour borderB = g_styleTable->GetSecondaryColour(STYLE_INPUT_BORDER);
 
-        g_renderer->EclipseRectFill    ( realX, realY, m_w, m_h, background );
-        g_renderer->EclipseLine        ( realX, realY, realX + m_w, realY, borderA );
-        g_renderer->EclipseLine        ( realX, realY, realX, realY + m_h, borderA );
-        g_renderer->EclipseLine        ( realX + m_w, realY, realX + m_w, realY + m_h, borderB );
-        g_renderer->EclipseLine        ( realX, realY + m_h, realX + m_w, realY + m_h, borderB );
+        g_renderer->RectFill( realX, realY, m_w, m_h, background );
+        g_renderer->Line( realX, realY, realX + m_w, realY, borderA );
+        g_renderer->Line( realX, realY, realX, realY + m_h, borderA );
+        g_renderer->Line( realX + m_w, realY, realX + m_w, realY + m_h, borderB );
+        g_renderer->Line( realX, realY + m_h, realX + m_w, realY + m_h, borderB );
 
         //
         // Caption
@@ -165,7 +165,7 @@ public:
 
             Colour lineCol(255,255,255,20);
             if( i % 7 >= 5 ) lineCol.m_a = 100;
-            g_renderer->EclipseLine( xPos+16, realY+1, xPos+16, realY+m_h-1, lineCol );
+            g_renderer->Line( xPos+16, realY+1, xPos+16, realY+m_h-1, lineCol );
 
             xPos += fontSize * 1.0f;
         }
@@ -183,12 +183,12 @@ public:
                 GetHighResTime() < m_lastKeyPressTimer+1.0f )
             {
                 float cursorX = realX + 5 + strlen(m_buf) * fontSize;
-                g_renderer->EclipseRectFill( cursorX, realY + 5, 10, 20, White );
+                g_renderer->RectFill( cursorX, realY + 5, 10, 20, White );
             }
         }
 
 
-        g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,10) );
+        g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,10) );
     }
 
     void Keypress( int keyCode, bool shift, bool ctrl, bool alt, unsigned char ascii )

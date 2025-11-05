@@ -183,24 +183,16 @@ Renderer::Renderer()
       m_textureShaderProgram(0),
       m_VAO(0), 
       m_VBO(0),
-      m_eclipseLinesVAO(0), 
-      m_eclipseLinesVBO(0),
-      m_eclipseFillsVAO(0), 
-      m_eclipseFillsVBO(0),
-      m_eclipseSpritesVAO(0), 
-      m_eclipseSpritesVBO(0),
-      m_uiVAO(0), 
-      m_uiVBO(0),
       m_textVAO(0), 
       m_textVBO(0), 
-      m_unitVAO(0), 
-      m_unitVBO(0),
-      m_effectsVAO(0), 
-      m_effectsVBO(0),
-      m_healthVAO(0), 
-      m_healthVBO(0),
+      m_spriteVAO(0), 
+      m_spriteVBO(0),
+      m_circleVAO(0), 
+      m_circleVBO(0),
       m_circleFillVAO(0), 
       m_circleFillVBO(0),
+      m_rectVAO(0), 
+      m_rectVBO(0),
       m_rectFillVAO(0), 
       m_rectFillVBO(0),
       m_triangleFillVAO(0), 
@@ -222,21 +214,15 @@ Renderer::Renderer()
       m_currentStaticSpriteTexture(0),
       m_rotatingSpriteVertexCount(0),
       m_currentRotatingSpriteTexture(0),
-      m_healthBarVertexCount(0),
+      m_circleVertexCount(0),
       m_circleFillVertexCount(0),
+      m_rectVertexCount(0),
       m_rectFillVertexCount(0),
       m_triangleFillVertexCount(0),
-      m_eclipseRectVertexCount(0),
-      m_eclipseRectFillVertexCount(0),
-      m_eclipseTriangleFillVertexCount(0),
-      m_eclipseLineVertexCount(0),
-      m_eclipseSpriteVertexCount(0),
-      m_currentEclipseSpriteTexture(0),
       m_allowImmedateFlush(true),
       m_lineConversionBuffer(NULL),
       m_lineConversionBufferSize(0),
       m_currentLineColor(0, 0, 0, 0),
-      m_currentEclipseLineColor(0, 0, 0, 0),
       m_lineStripActive(false),
       m_lineStripColor(0, 0, 0, 0),
       m_lineStripWidth(1.0f),
@@ -273,15 +259,11 @@ Renderer::Renderer()
       m_currentStaticSpriteTexture = 0;
       m_rotatingSpriteVertexCount = 0;
       m_currentRotatingSpriteTexture = 0;
-      m_healthBarVertexCount = 0;
+      m_circleVertexCount = 0;
       m_circleFillVertexCount = 0;
+      m_rectVertexCount = 0;
       m_rectFillVertexCount = 0;
       m_triangleFillVertexCount = 0;
-      m_eclipseRectVertexCount = 0;
-      m_eclipseRectFillVertexCount = 0;
-      m_eclipseLineVertexCount = 0;
-      m_eclipseSpriteVertexCount = 0;
-      m_currentEclipseSpriteTexture = 0;
       m_drawCallsPerFrame = 0;
       m_legacyTriangleCalls = 0;
       m_legacyLineCalls = 0;
@@ -289,15 +271,11 @@ Renderer::Renderer()
       m_lineCalls = 0;
       m_staticSpriteCalls = 0;
       m_rotatingSpriteCalls = 0;
-      m_healthBarCalls = 0;
+      m_circleCalls = 0;
       m_circleFillCalls = 0;
+      m_rectCalls = 0;
       m_rectFillCalls = 0;
       m_triangleFillCalls = 0;
-      m_eclipseRectCalls = 0;
-      m_eclipseRectFillCalls = 0;
-      m_eclipseTriangleFillCalls = 0;
-      m_eclipseLineCalls = 0;
-      m_eclipseSpriteCalls = 0;
       m_prevDrawCallsPerFrame = 0;
       m_prevLegacyTriangleCalls = 0;
       m_prevLegacyLineCalls = 0;
@@ -305,15 +283,11 @@ Renderer::Renderer()
       m_prevLineCalls = 0;
       m_prevStaticSpriteCalls = 0;
       m_prevRotatingSpriteCalls = 0;
-      m_prevHealthBarCalls = 0;
+      m_prevCircleCalls = 0;
       m_prevCircleFillCalls = 0;
+      m_prevRectCalls = 0;
       m_prevRectFillCalls = 0;
       m_prevTriangleFillCalls = 0;
-      m_prevEclipseRectCalls = 0;
-      m_prevEclipseRectFillCalls = 0;
-      m_prevEclipseTriangleFillCalls = 0;
-      m_prevEclipseLineCalls = 0;
-      m_prevEclipseSpriteCalls = 0;
       m_flushTimingCount = 0;
       m_currentFlushStartTime = 0.0;
 
@@ -336,7 +310,7 @@ Renderer::Renderer()
     m_megaVertices = new Vertex2D[m_maxMegaVertices];
     m_megaIndices = new unsigned int[m_maxMegaIndices];
     
-    m_lineConversionBufferSize = std::max(MAX_ECLIPSE_LINE_VERTICES * 2, MAX_VERTICES * 2);
+    m_lineConversionBufferSize = std::max(MAX_VERTICES * 2, MAX_LINE_VERTICES * 2);
     m_lineConversionBuffer = new Vertex2D[m_lineConversionBufferSize];
     
     int msaaSamples = g_preferences ? g_preferences->GetInt(PREFS_SCREEN_ANTIALIAS, 0) : 0;
@@ -371,24 +345,16 @@ Renderer::~Renderer() {
     if (m_textureShaderProgram) glDeleteProgram(m_textureShaderProgram);
     if (m_VAO) glDeleteVertexArrays(1, &m_VAO);
     if (m_VBO) glDeleteBuffers(1, &m_VBO);
-    if (m_eclipseLinesVAO) glDeleteVertexArrays(1, &m_eclipseLinesVAO);
-    if (m_eclipseLinesVBO) glDeleteBuffers(1, &m_eclipseLinesVBO);
-    if (m_eclipseFillsVAO) glDeleteVertexArrays(1, &m_eclipseFillsVAO);
-    if (m_eclipseFillsVBO) glDeleteBuffers(1, &m_eclipseFillsVBO);
-    if (m_eclipseSpritesVAO) glDeleteVertexArrays(1, &m_eclipseSpritesVAO);
-    if (m_eclipseSpritesVBO) glDeleteBuffers(1, &m_eclipseSpritesVBO);
-    if (m_uiVAO) glDeleteVertexArrays(1, &m_uiVAO);
-    if (m_uiVBO) glDeleteBuffers(1, &m_uiVBO);
     if (m_textVAO) glDeleteVertexArrays(1, &m_textVAO);
     if (m_textVBO) glDeleteBuffers(1, &m_textVBO);
-    if (m_unitVAO) glDeleteVertexArrays(1, &m_unitVAO);
-    if (m_unitVBO) glDeleteBuffers(1, &m_unitVBO);
-    if (m_effectsVAO) glDeleteVertexArrays(1, &m_effectsVAO);
-    if (m_effectsVBO) glDeleteBuffers(1, &m_effectsVBO);
-    if (m_healthVAO) glDeleteVertexArrays(1, &m_healthVAO);
-    if (m_healthVBO) glDeleteBuffers(1, &m_healthVBO);
+    if (m_spriteVAO) glDeleteVertexArrays(1, &m_spriteVAO);
+    if (m_spriteVBO) glDeleteBuffers(1, &m_spriteVBO);
+    if (m_circleVAO) glDeleteVertexArrays(1, &m_circleVAO);
+    if (m_circleVBO) glDeleteBuffers(1, &m_circleVBO);
     if (m_circleFillVAO) glDeleteVertexArrays(1, &m_circleFillVAO);
     if (m_circleFillVBO) glDeleteBuffers(1, &m_circleFillVBO);
+    if (m_rectVAO) glDeleteVertexArrays(1, &m_rectVAO);
+    if (m_rectVBO) glDeleteBuffers(1, &m_rectVBO);
     if (m_rectFillVAO) glDeleteVertexArrays(1, &m_rectFillVAO);
     if (m_rectFillVBO) glDeleteBuffers(1, &m_rectFillVBO);
     if (m_triangleFillVAO) glDeleteVertexArrays(1, &m_triangleFillVAO);
@@ -733,10 +699,6 @@ void Renderer::EndMSAARendering() {
 
 void Renderer::SetBlendMode(int _blendMode) {
 
-    if (m_blendMode != _blendMode && m_eclipseSpriteVertexCount > 0) {
-        FlushEclipseSprites();
-    }
-
     m_blendMode = _blendMode;
     
     switch (_blendMode) {
@@ -1034,11 +996,11 @@ void Renderer::SetClip(int x, int y, int w, int h) {
     //
     // we increase draw calls by around 10 percent with this method :(
     
-    EndEclipseRectFillBatch();
-    EndEclipseTriangleFillBatch();
-    EndEclipseSpriteBatch(); 
-    EndEclipseLineBatch();
-    EndEclipseRectBatch();
+    EndRectFillBatch();
+    EndTriangleFillBatch();
+    EndStaticSpriteBatch(); 
+    EndLineBatch();
+    EndRectBatch();
     EndTextBatch();
 
     //
@@ -1068,11 +1030,11 @@ void Renderer::SetClip(int x, int y, int w, int h) {
 
 void Renderer::ResetClip() {
 
-    EndEclipseRectFillBatch();
-    EndEclipseTriangleFillBatch();
-    EndEclipseSpriteBatch(); 
-    EndEclipseLineBatch();
-    EndEclipseRectBatch();
+    EndRectFillBatch();
+    EndTriangleFillBatch();
+    EndStaticSpriteBatch(); 
+    EndLineBatch();
+    EndRectBatch();
     EndTextBatch();
     
     SetScissorTest(false);
@@ -1243,36 +1205,6 @@ void Renderer::SetupVertexArrays() {
         glEnableVertexAttribArray(2);
     };
     
-    //
-    // Create Eclipse Lines VAO/VBO pair
-
-    glGenVertexArrays(1, &m_eclipseLinesVAO);
-    glGenBuffers(1, &m_eclipseLinesVBO);
-    glBindVertexArray(m_eclipseLinesVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_eclipseLinesVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_ECLIPSE_RECT_VERTICES + MAX_ECLIPSE_LINE_VERTICES), NULL, GL_STREAM_DRAW);
-    setupVertexAttributes();
-    
-    //
-    // Create Eclipse Fills VAO/VBO pair
-
-    glGenVertexArrays(1, &m_eclipseFillsVAO);
-    glGenBuffers(1, &m_eclipseFillsVBO);
-    glBindVertexArray(m_eclipseFillsVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_eclipseFillsVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_ECLIPSE_RECTFILL_VERTICES + MAX_ECLIPSE_TRIANGLEFILL_VERTICES), NULL, GL_STREAM_DRAW);
-    setupVertexAttributes();
-    
-    //
-    // Create Eclipse Sprites VAO/VBO pair
-
-    glGenVertexArrays(1, &m_eclipseSpritesVAO);
-    glGenBuffers(1, &m_eclipseSpritesVBO);
-    glBindVertexArray(m_eclipseSpritesVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_eclipseSpritesVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_ECLIPSE_SPRITE_VERTICES, NULL, GL_STREAM_DRAW);
-    setupVertexAttributes();
-    
     // Create text VAO/VBO pair  
 
     glGenVertexArrays(1, &m_textVAO);
@@ -1285,33 +1217,33 @@ void Renderer::SetupVertexArrays() {
     //
     // Create sprite VAO/VBO pair
     
-    glGenVertexArrays(1, &m_unitVAO);
-    glGenBuffers(1, &m_unitVBO);
-    glBindVertexArray(m_unitVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_unitVBO);
+    glGenVertexArrays(1, &m_spriteVAO);
+    glGenBuffers(1, &m_spriteVBO);
+    glBindVertexArray(m_spriteVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_spriteVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_STATIC_SPRITE_VERTICES + MAX_ROTATING_SPRITE_VERTICES), NULL, GL_STREAM_DRAW);
     setupVertexAttributes();
     
     //
     // Create Line VAO/VBO pair
 
-    glGenVertexArrays(1, &m_effectsVAO);
-    glGenBuffers(1, &m_effectsVBO);
-    glBindVertexArray(m_effectsVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_effectsVBO);
+    glGenVertexArrays(1, &m_lineVAO);
+    glGenBuffers(1, &m_lineVBO);
+    glBindVertexArray(m_lineVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_LINE_VERTICES * 2), NULL, GL_DYNAMIC_DRAW);
     setupVertexAttributes();
     
     //
-    // Create health VAO/VBO pair
+    // Create circle VAO/VBO pair
 
-    glGenVertexArrays(1, &m_healthVAO);
-    glGenBuffers(1, &m_healthVBO);
-    glBindVertexArray(m_healthVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_healthVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_HEALTH_BAR_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    glGenVertexArrays(1, &m_circleVAO);
+    glGenBuffers(1, &m_circleVBO);
+    glBindVertexArray(m_circleVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_circleVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_CIRCLE_VERTICES, NULL, GL_DYNAMIC_DRAW);
     setupVertexAttributes();
-    
+
     //
     // Create circle fill VAO/VBO pair
 
@@ -1322,6 +1254,16 @@ void Renderer::SetupVertexArrays() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_CIRCLE_FILL_VERTICES, NULL, GL_DYNAMIC_DRAW);
     setupVertexAttributes();
     
+    //
+    // Create rect VAO/VBO pair
+
+    glGenVertexArrays(1, &m_rectVAO);
+    glGenBuffers(1, &m_rectVBO);
+    glBindVertexArray(m_rectVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_rectVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_RECT_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    setupVertexAttributes();
+
     //
     // Create rect fill VAO/VBO pair
 
@@ -1522,15 +1464,11 @@ void Renderer::ResetFrameCounters() {
     m_prevLineCalls = m_lineCalls;
     m_prevStaticSpriteCalls = m_staticSpriteCalls;
     m_prevRotatingSpriteCalls = m_rotatingSpriteCalls;
-    m_prevHealthBarCalls = m_healthBarCalls;
+    m_prevCircleCalls = m_circleCalls;
     m_prevCircleFillCalls = m_circleFillCalls;
+    m_prevRectCalls = m_rectCalls;
     m_prevRectFillCalls = m_rectFillCalls;
     m_prevTriangleFillCalls = m_triangleFillCalls;
-    m_prevEclipseRectCalls = m_eclipseRectCalls;
-    m_prevEclipseRectFillCalls = m_eclipseRectFillCalls;
-    m_prevEclipseTriangleFillCalls = m_eclipseTriangleFillCalls;
-    m_prevEclipseLineCalls = m_eclipseLineCalls;
-    m_prevEclipseSpriteCalls = m_eclipseSpriteCalls;
     
     //
     // reset current frame counters
@@ -1542,15 +1480,11 @@ void Renderer::ResetFrameCounters() {
     m_lineCalls = 0;
     m_staticSpriteCalls = 0;
     m_rotatingSpriteCalls = 0;
-    m_healthBarCalls = 0;
+    m_circleCalls = 0;
     m_circleFillCalls = 0;
+    m_rectCalls = 0;
     m_rectFillCalls = 0;
     m_triangleFillCalls = 0;
-    m_eclipseRectCalls = 0;
-    m_eclipseRectFillCalls = 0;
-    m_eclipseTriangleFillCalls = 0;
-    m_eclipseLineCalls = 0;
-    m_eclipseSpriteCalls = 0;
 }
 
 //
@@ -1574,14 +1508,10 @@ void Renderer::IncrementDrawCall(const char* bufferType) {
         case hash("lines"): m_lineCalls++; break;
         case hash("static_sprites"): m_staticSpriteCalls++; break;
         case hash("rotating_sprites"): m_rotatingSpriteCalls++; break;
-        case hash("health_bars"): m_healthBarCalls++; break;
+        case hash("circles"): m_circleCalls++; break;
         case hash("circle_fills"): m_circleFillCalls++; break;
+        case hash("rects"): m_rectCalls++; break;
         case hash("rect_fills"): m_rectFillCalls++; break;
         case hash("triangle_fills"): m_triangleFillCalls++; break;
-        case hash("eclipse_rects"): m_eclipseRectCalls++; break;
-        case hash("eclipse_rectfills"): m_eclipseRectFillCalls++; break;
-        case hash("eclipse_trianglefills"): m_eclipseTriangleFillCalls++; break;
-        case hash("eclipse_lines"): m_eclipseLineCalls++; break;
-        case hash("eclipse_sprites"): m_eclipseSpriteCalls++; break;
     }
 }

@@ -59,6 +59,12 @@ void Renderer::StaticSprite(Image *src, float x, float y, float w, float h, Colo
     m_staticSpriteVertices[m_staticSpriteVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
 }
 
+void Renderer::StaticSprite(Image *src, float x, float y, Colour const &col) {
+    float w = src->Width();
+    float h = src->Height();
+    StaticSprite(src, x, y, w, h, col);
+}
+
 void Renderer::RotatingSprite(Image *src, float x, float y, float w, float h, Colour const &col, float angle) {
     FlushRotatingSpritesIfFull(6);
     

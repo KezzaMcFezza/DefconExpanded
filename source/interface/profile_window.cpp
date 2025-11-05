@@ -172,13 +172,13 @@ void ProfileWindow::RenderElementProfile(ProfiledElement *_pe, unsigned int _ind
                 {
                     // Convert GL_LINES to modern Rect() function for outlined rectangle
                     Colour lineColor(150, 150, 250, brightness);
-                    g_renderer->EclipseRect( lineLeft, lineY, lineWidth, lineHeight, lineColor );
+                    g_renderer->Rect( lineLeft, lineY, lineWidth, lineHeight, lineColor );
                 }
                 else            
                 {
                     // Convert GL_QUADS to modern RectFill() function for filled rectangle
                     Colour fillColor(150, 150, 250, brightness);
-                    g_renderer->EclipseRectFill( lineLeft, lineY, lineWidth, lineHeight, fillColor );
+                    g_renderer->RectFill( lineLeft, lineY, lineWidth, lineHeight, fillColor );
                 }
                 
 			    if (child->m_isExpanded && child->m_children.NumUsed() > 0)
@@ -202,17 +202,17 @@ void ProfileWindow::RenderFrameTimes( float x, float y, float w, float h )
 		char caption[128];
         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_fps") );
 		LPREPLACEINTEGERFLAG( 'F', 5, caption );
-        g_renderer->EclipseLine( x, y, x + w, y, Colour(255,255,255,100), 1.0f );
+        g_renderer->Line( x, y, x + w, y, Colour(255,255,255,100), 1.0f );
         g_renderer->Text( x, y-10, White, 10, caption );
 
         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_fps") );
 		LPREPLACEINTEGERFLAG( 'F', 10, caption );
-        g_renderer->EclipseLine( x, y + h/2, x + w, y + h/2, Colour(255,255,255,100), 1.0f );
+        g_renderer->Line( x, y + h/2, x + w, y + h/2, Colour(255,255,255,100), 1.0f );
         g_renderer->Text( x, y + h/2 -10, White, 10, caption );
 
         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_fps") );
 		LPREPLACEINTEGERFLAG( 'F', 20, caption );
-        g_renderer->EclipseLine( x, y + h * 3/4, x + w, y + h * 3/4, Colour(255,255,255,100), 1.0f );
+        g_renderer->Line( x, y + h * 3/4, x + w, y + h * 3/4, Colour(255,255,255,100), 1.0f );
         g_renderer->Text( x, y + h * 3/4 -10, White, 10, caption );
 
         // Color now passed directly to Line() - modern OpenGL renderer
@@ -230,7 +230,7 @@ void ProfileWindow::RenderFrameTimes( float x, float y, float w, float h )
             float frameHeight = 0.5f * (thisFrameTime / 100.0f) * h;
 
             // Draw each frame time as individual line using modern renderer
-            g_renderer->EclipseLine( xPos, y + h, xPos, y + h - frameHeight, frameLineColor );
+            g_renderer->Line( xPos, y + h, xPos, y + h - frameHeight, frameLineColor );
 
             xPos -= wPerFrame;
         }

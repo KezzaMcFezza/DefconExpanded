@@ -162,9 +162,9 @@ void DemoWindow::Create()
 void DemoWindow::Render( bool _hasFocus )
 {
     g_renderer->BeginTextBatch();
-    g_renderer->BeginEclipseRectFillBatch();
+    g_renderer->BeginRectFillBatch();
     InterfaceWindow::Render( _hasFocus );
-    g_renderer->EndEclipseRectFillBatch();
+    g_renderer->EndRectFillBatch();
     g_renderer->EndTextBatch();
 
     char *filename = "gui/demo.bmp";
@@ -188,10 +188,10 @@ void DemoWindow::Render( bool _hasFocus )
 
     Image *img = g_resource->GetImage( filename );
 
-    g_renderer->BeginEclipseSpriteBatch();
-    g_renderer->EclipseSprite( img, m_x + 10, m_y + 30, White );
-    g_renderer->EndEclipseSpriteBatch();
-    g_renderer->EclipseRect( m_x + 10, m_y + 30, img->Width(), img->Height(), Colour(0,0,0,255) );
+    g_renderer->BeginStaticSpriteBatch();
+    g_renderer->StaticSprite( img, m_x + 10, m_y + 30, White );
+    g_renderer->EndStaticSpriteBatch();
+    g_renderer->Rect( m_x + 10, m_y + 30, img->Width(), img->Height(), Colour(0,0,0,255) );
 
 	//g_renderer->SetFont( "lucon" );
 

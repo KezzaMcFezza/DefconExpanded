@@ -175,8 +175,8 @@ void Interface::TooltipRender( EclWindow *_window, EclButton *_button, float _ti
         // Render the box
 
        
-        g_renderer->EclipseRectFill ( boxX, boxY, boxW, boxH, windowColP, windowColP, windowColS, windowColS );
-        g_renderer->EclipseRect     ( boxX, boxY, boxW, boxH, borderCol);
+        g_renderer->RectFill ( boxX, boxY, boxW, boxH, windowColP, windowColP, windowColS, windowColS );
+        g_renderer->Rect     ( boxX, boxY, boxW, boxH, borderCol);
 
 
         //
@@ -599,7 +599,7 @@ void Interface::Render()
                 int red = totalBad*12;
                 int green = 255 - red;
                 col.Set(red,green,0,255);
-                g_renderer->EclipseRectFill( 5, 5, 13, 13, col );
+                g_renderer->RectFill( 5, 5, 13, 13, col );
 
                 g_renderer->SetFont();
 

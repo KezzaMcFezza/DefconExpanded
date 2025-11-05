@@ -132,8 +132,8 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_shader3DTexturedProgram(0),
     m_VAO3D(0), m_VBO3D(0),
     m_VAO3DTextured(0), m_VBO3DTextured(0),
-    m_unitVAO3D(0), m_unitVBO3D(0),
-    m_effectsVAO3D(0), m_effectsVBO3D(0),
+    m_spriteVAO3D(0), m_spriteVBO3D(0),
+    m_lineVAO3D(0), m_lineVBO3D(0),
     m_globeVAO3D(0), m_globeVBO3D(0),
     m_starsVAO3D(0), m_starsVBO3D(0),
     m_healthVAO3D(0), m_healthVBO3D(0),
@@ -163,7 +163,6 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_currentStaticSpriteTexture3D(0),
     m_rotatingSpriteVertexCount3D(0),
     m_currentRotatingSpriteTexture3D(0),
-    m_healthBarVertexCount3D(0),
     m_textVertexCount3D(0),
     m_currentTextTexture3D(0),
     m_nuke3DModelVertexCount3D(0)
@@ -189,7 +188,6 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_lineCalls3D = 0;
     m_staticSpriteCalls3D = 0;
     m_rotatingSpriteCalls3D = 0;
-    m_healthBarCalls3D = 0;
     m_textCalls3D = 0;
     m_megaVBOCalls3D = 0;
     m_nuke3DModelCalls3D = 0;
@@ -201,7 +199,6 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_prevLineCalls3D = 0;
     m_prevStaticSpriteCalls3D = 0;
     m_prevRotatingSpriteCalls3D = 0;
-    m_prevHealthBarCalls3D = 0;
     m_prevTextCalls3D = 0;
     m_prevMegaVBOCalls3D = 0;
     m_prevNuke3DModelCalls3D = 0;
@@ -246,10 +243,10 @@ void Renderer3D::Shutdown() {
     }
     
     // Clean up specialized 3D VAOs and VBOs
-    if (m_unitVAO3D) glDeleteVertexArrays(1, &m_unitVAO3D);
-    if (m_unitVBO3D) glDeleteBuffers(1, &m_unitVBO3D);
-    if (m_effectsVAO3D) glDeleteVertexArrays(1, &m_effectsVAO3D);
-    if (m_effectsVBO3D) glDeleteBuffers(1, &m_effectsVBO3D);
+    if (m_spriteVAO3D) glDeleteVertexArrays(1, &m_spriteVAO3D);
+    if (m_spriteVBO3D) glDeleteBuffers(1, &m_spriteVBO3D);
+    if (m_lineVAO3D) glDeleteVertexArrays(1, &m_lineVAO3D);
+    if (m_lineVBO3D) glDeleteBuffers(1, &m_lineVBO3D);
     if (m_globeVAO3D) glDeleteVertexArrays(1, &m_globeVAO3D);
     if (m_globeVBO3D) glDeleteBuffers(1, &m_globeVBO3D);
     if (m_starsVAO3D) glDeleteVertexArrays(1, &m_starsVAO3D);
@@ -380,10 +377,10 @@ void Renderer3D::Setup3DVertexArrays() {
     setup3DVertexAttributes();
     
     // Create Effects VAO/VBO pair (trails and lines)
-    glGenVertexArrays(1, &m_effectsVAO3D);
-    glGenBuffers(1, &m_effectsVBO3D);
-    glBindVertexArray(m_effectsVAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_effectsVBO3D);
+    glGenVertexArrays(1, &m_lineVAO3D);
+    glGenBuffers(1, &m_lineVBO3D);
+    glBindVertexArray(m_lineVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO3D);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * (MAX_LINE_VERTICES_3D), NULL, GL_STREAM_DRAW);
     setup3DVertexAttributes();
     
@@ -401,14 +398,6 @@ void Renderer3D::Setup3DVertexArrays() {
     glBindVertexArray(m_nukeVAO3D);
     glBindBuffer(GL_ARRAY_BUFFER, m_nukeVBO3D);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_NUKE_3D_MODEL_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
-    setup3DVertexAttributes();
-    
-    // Create Health VAO/VBO pair (health bars use non-textured Vertex3D)
-    glGenVertexArrays(1, &m_healthVAO3D);
-    glGenBuffers(1, &m_healthVBO3D);
-    glBindVertexArray(m_healthVAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_healthVBO3D);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_HEALTH_BAR_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
     setup3DVertexAttributes();
     
     // Create Legacy VAO/VBO pair (keep original behavior)
@@ -448,10 +437,10 @@ void Renderer3D::Setup3DTexturedVertexArrays() {
     setup3DTexturedVertexAttributes();
     
     // Create Unit VAO/VBO pair
-    glGenVertexArrays(1, &m_unitVAO3D);
-    glGenBuffers(1, &m_unitVBO3D);
-    glBindVertexArray(m_unitVAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_unitVBO3D);
+    glGenVertexArrays(1, &m_spriteVAO3D);
+    glGenBuffers(1, &m_spriteVBO3D);
+    glBindVertexArray(m_spriteVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_spriteVBO3D);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * (MAX_STATIC_SPRITE_VERTICES_3D + MAX_ROTATING_SPRITE_VERTICES_3D), NULL, GL_DYNAMIC_DRAW);
     setup3DTexturedVertexAttributes();
     
@@ -913,7 +902,6 @@ void Renderer3D::IncrementDrawCall3D(const char* bufferType) {
         case hash("unit_trails"): m_lineCalls3D++; break;
         case hash("Static_Sprite_sprites"): m_staticSpriteCalls3D++; break;
         case hash("unit_rotating"): m_rotatingSpriteCalls3D++; break;
-        case hash("health_bars"): m_healthBarCalls3D++; break;
         case hash("nuke_3d_models"): m_nuke3DModelCalls3D++; break;
     }
 }
@@ -926,7 +914,6 @@ void Renderer3D::ResetFrameCounters3D() {
     m_prevLineCalls3D = m_lineCalls3D;
     m_prevStaticSpriteCalls3D = m_staticSpriteCalls3D;
     m_prevRotatingSpriteCalls3D = m_rotatingSpriteCalls3D;
-    m_prevHealthBarCalls3D = m_healthBarCalls3D;
     m_prevTextCalls3D = m_textCalls3D;
     m_prevMegaVBOCalls3D = m_megaVBOCalls3D;
     m_prevNuke3DModelCalls3D = m_nuke3DModelCalls3D;
@@ -938,7 +925,6 @@ void Renderer3D::ResetFrameCounters3D() {
     m_lineCalls3D = 0;
     m_staticSpriteCalls3D = 0;
     m_rotatingSpriteCalls3D = 0;
-    m_healthBarCalls3D = 0;
     m_textCalls3D = 0;
     m_megaVBOCalls3D = 0;
     m_nuke3DModelCalls3D = 0;

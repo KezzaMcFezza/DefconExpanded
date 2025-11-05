@@ -285,9 +285,9 @@ void MapRenderer::Render()
         // master scene batching, wrap the entire map rendering loop inside the buffers
 
         g_renderer->BeginStaticSpriteBatch();       // Main unit sprites + city icons
+        g_renderer->BeginRectFillBatch();
         g_renderer->BeginRotatingSpriteBatch();   // Rotating sprites (aircraft, nukes)
         g_renderer->BeginLineBatch();      // Unit movement trails
-        g_renderer->BeginHealthBarBatch();      // Unit health bars
 
         if( m_showPopulation )          
         { 
@@ -346,10 +346,10 @@ void MapRenderer::Render()
         // master scene batching, end all batching systems and flush
         //
 
+        g_renderer->EndRectFillBatch();
         g_renderer->EndStaticSpriteBatch();         // Flush all main unit sprites + city icons 
-        g_renderer->EndLineBatch();        // Flush all unit trails
-        g_renderer->EndHealthBarBatch();        // Flush all unit health bars
-        g_renderer->EndRotatingSpriteBatch();     // Flush all rotating sprites
+        g_renderer->EndLineBatch();                 // Flush all unit trails
+        g_renderer->EndRotatingSpriteBatch();       // Flush all rotating sprites
 
         //
         // render radar outside of the main scene to
@@ -379,8 +379,9 @@ void MapRenderer::Render()
 
         g_renderer->BeginTextBatch();
         g_renderer->BeginStaticSpriteBatch();
-        g_renderer->BeginEclipseRectBatch();
-        g_renderer->BeginEclipseRectFillBatch();
+        g_renderer->BeginLineBatch();
+        g_renderer->BeginRectBatch();
+        g_renderer->BeginRectFillBatch();
         g_renderer->BeginRotatingSpriteBatch();
         
         if( IsMouseInMapRenderer() )
@@ -399,12 +400,13 @@ void MapRenderer::Render()
         //
         // end background fill before setting blend mode
 
-        g_renderer->EndEclipseRectFillBatch(); 
+        g_renderer->EndRectFillBatch(); 
         
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );  // ensure correct blend mode for cursor targets
         g_renderer->EndStaticSpriteBatch();
         g_renderer->EndRotatingSpriteBatch();
-        g_renderer->EndEclipseRectBatch();
+        g_renderer->EndLineBatch();
+        g_renderer->EndRectBatch();
         g_renderer->EndTextBatch();
 
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );    // reset blend mode after flush
@@ -461,8 +463,8 @@ void MapRenderer::RenderPlacementDetails()
 
 
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-        g_renderer->EclipseRectFill( boxX, boxY, boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
-        g_renderer->EclipseRect( boxX, boxY, boxW, totalBoxH, windowBorder );
+        g_renderer->RectFill( boxX, boxY, boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
+        g_renderer->Rect( boxX, boxY, boxW, totalBoxH, windowBorder );
 
 
         g_renderer->SetFont( "kremlin", true );
@@ -779,8 +781,8 @@ void MapRenderer::RenderCityObjectDetails( WorldObject *wobj, float *boxX, float
 
     *boxY += *boxH;
 
-    g_renderer->EclipseRectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
-    g_renderer->EclipseRect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
+    g_renderer->RectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
+    g_renderer->Rect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
     float timeSize = 1.5f * m_drawScale;
 
 
@@ -978,8 +980,8 @@ void MapRenderer::RenderFriendlyObjectDetails( WorldObject *wobj, float *boxX, f
     //
     // Render main box
 
-    g_renderer->EclipseRectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
-    g_renderer->EclipseRect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
+    g_renderer->RectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
+    g_renderer->Rect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
 
 
     *boxY -= *boxH;
@@ -1160,8 +1162,8 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
     //
     // Render main box
 
-    g_renderer->EclipseRectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
-    g_renderer->EclipseRect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
+    g_renderer->RectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
+    g_renderer->Rect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
     
 
 
@@ -1176,7 +1178,7 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
 
         if( m_currentStateId == CLEARQUEUE_STATEID )
         {
-            g_renderer->EclipseRectFill( stateX+inset, 
+            g_renderer->RectFill( stateX+inset, 
                                   stateY+inset, 
                                   stateW-inset*2, 
                                   stateH-inset*2, 
@@ -1205,7 +1207,7 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
             state->m_numTimesPermitted != 0 &&
             state->m_defconPermitted >= g_app->GetWorld()->GetDefcon())
         {
-            g_renderer->EclipseRectFill( stateX+inset, 
+            g_renderer->RectFill( stateX+inset, 
                                   stateY+inset, 
                                   stateW-inset*2, 
                                   stateH-inset*2, 
@@ -1216,14 +1218,14 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
         
         if( i == wobj->m_currentState )
         {
-            g_renderer->EclipseRectFill( stateX+inset, 
+            g_renderer->RectFill( stateX+inset, 
                                   stateY+inset, 
                                   stateW-inset*2, 
                                   stateH-inset*2, 
                                   selectedSecondary, 
                                   selectedPrimary, 
                                   selectOrientation );
-            g_renderer->EclipseRect( stateX+inset, 
+            g_renderer->Rect( stateX+inset, 
                               stateY+inset, 
                               stateW-inset*2, 
                               stateH-inset*2,
@@ -1289,13 +1291,13 @@ void MapRenderer::RenderFriendlyObjectMenu( WorldObject *wobj, float *boxX, floa
         {
             if( state->m_numTimesPermitted == 0 )
             {
-                g_renderer->EclipseRectFill( stateX, stateY, stateW, stateH, Colour(0,0,0,100) );
+                g_renderer->RectFill( stateX, stateY, stateW, stateH, Colour(0,0,0,100) );
                 strcpy( caption, LANGUAGEPHRASE("dialog_mapr_empty") );
                 g_renderer->TextCentre( stateX + stateW/2, textYPos, Colour(255,0,0,255), textSize, caption );
             }
             else if( state->m_defconPermitted < g_app->GetWorld()->GetDefcon())
             {                
-                g_renderer->EclipseRectFill( stateX, stateY, stateW, stateH, Colour(0,0,0,100) );
+                g_renderer->RectFill( stateX, stateY, stateW, stateH, Colour(0,0,0,100) );
                 strcpy( caption, LANGUAGEPHRASE("dialog_mapr_not_before_defcon_x") );
 				LPREPLACEINTEGERFLAG( 'D', state->m_defconPermitted, caption );
                 g_renderer->TextCentre( stateX + stateW/2, textYPos, Colour(255,0,0,255), textSize, caption );
@@ -1384,8 +1386,8 @@ void MapRenderer::RenderEnemyObjectDetails( WorldObject *wobj, float *boxX, floa
             // Render title
 
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-            g_renderer->EclipseRectFill( *boxX, *boxY, *boxW, *boxH, windowColPrimary, windowColSecondary, windowOrientation );
-            g_renderer->EclipseRect    ( *boxX, *boxY, *boxW, *boxH, windowBorder );
+            g_renderer->RectFill( *boxX, *boxY, *boxW, *boxH, windowColPrimary, windowColSecondary, windowOrientation );
+            g_renderer->Rect    ( *boxX, *boxY, *boxW, *boxH, windowBorder );
             
             char *titleFont = g_styleTable->GetStyle( FONTSTYLE_POPUP )->m_fontName;
             g_renderer->SetFont( titleFont, true );
@@ -1421,8 +1423,8 @@ void MapRenderer::RenderEnemyObjectDetails( WorldObject *wobj, float *boxX, floa
                 totalBoxH += m_tooltip->Size() * -(*boxH) * 0.6f;
             }
 
-			g_renderer->EclipseRectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
-			g_renderer->EclipseRect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
+			g_renderer->RectFill( *boxX, *boxY, *boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
+			g_renderer->Rect( *boxX, *boxY, *boxW, totalBoxH, windowBorder );
             
 			int attackOdds = g_app->GetWorld()->GetAttackOdds( ourObj->m_type, wobj->m_type, ourObj->m_objectId );
 				        
@@ -2301,8 +2303,8 @@ void MapRenderer::RenderEmptySpaceDetails( float _mouseX, float _mouseY )
         totalBoxH += m_tooltip->Size() * -boxH * 0.6f;
 
 
-        g_renderer->EclipseRectFill( boxX, boxY, boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
-        g_renderer->EclipseRect( boxX, boxY, boxW, totalBoxH, windowBorder );
+        g_renderer->RectFill( boxX, boxY, boxW, totalBoxH, windowColPrimary, windowColSecondary, windowOrientation );
+        g_renderer->Rect( boxX, boxY, boxW, totalBoxH, windowBorder );
 
 
         //
@@ -2386,8 +2388,8 @@ void MapRenderer::RenderTooltip( char *_tooltip )
         windowColS.m_a *= alpha;
         borderCol.m_a *= alpha;
 
-        g_renderer->EclipseRectFill ( boxX, boxY, boxW, boxH, windowColS, windowColP, alignment );
-        g_renderer->EclipseRect     ( boxX, boxY, boxW, boxH, borderCol);
+        g_renderer->RectFill ( boxX, boxY, boxW, boxH, windowColS, windowColP, alignment );
+        g_renderer->Rect     ( boxX, boxY, boxW, boxH, borderCol);
 
     
         //
@@ -2685,15 +2687,15 @@ void MapRenderer::RenderUnitHighlight( int _objectId )
         col.m_a = 255;
         if( fmod((float)g_gameTime*2, 2.0f) < 1.0f ) col.m_a = 100;
 
-        g_renderer->EclipseLine(predictedLongitude - size/2 - 5.0f, predictedLatitude, 
+        g_renderer->Line(predictedLongitude - size/2 - 5.0f, predictedLatitude, 
                          predictedLongitude - size/2, predictedLatitude, col );
-        g_renderer->EclipseLine(predictedLongitude + size/2 + 5.0f, predictedLatitude, 
+        g_renderer->Line(predictedLongitude + size/2 + 5.0f, predictedLatitude, 
                          predictedLongitude + size/2, predictedLatitude, col );
-        g_renderer->EclipseLine(predictedLongitude, predictedLatitude + size/2 + 5.0f, 
+        g_renderer->Line(predictedLongitude, predictedLatitude + size/2 + 5.0f, 
                          predictedLongitude, predictedLatitude + size/2, col );
-        g_renderer->EclipseLine(predictedLongitude, predictedLatitude - size/2 - 5.0f, 
+        g_renderer->Line(predictedLongitude, predictedLatitude - size/2 - 5.0f, 
                          predictedLongitude, predictedLatitude - size/2, col );
-        g_renderer->EclipseRect( predictedLongitude - size/2, 
+        g_renderer->Rect( predictedLongitude - size/2, 
                           predictedLatitude - size/2, size, size, col, 2.0f );
     }
 }

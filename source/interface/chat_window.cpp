@@ -345,7 +345,7 @@ void ChatWindow::RenderTeams()
                     mouseY > y - 2 && 
                     mouseY < y + 15 )
                 {
-                    g_renderer->EclipseRectFill( x, y - 2, width + 6, 15, Colour(50,50,150,200));
+                    g_renderer->RectFill( x, y - 2, width + 6, 15, Colour(50,50,150,200));
                     if( g_inputManager->m_lmbUnClicked )
                     {
                         m_channel = team->m_teamId;
@@ -354,7 +354,7 @@ void ChatWindow::RenderTeams()
 
                 if( m_channel == team->m_teamId )
                 {
-                    g_renderer->EclipseRectFill( x, y - 2, width + 6, 15, Colour(150,150,150,100));
+                    g_renderer->RectFill( x, y - 2, width + 6, 15, Colour(150,150,150,100));
                 }
 
                 Colour col = team->GetTeamColour();
@@ -371,7 +371,7 @@ void ChatWindow::RenderTeams()
 
                 if( !g_app->GetWorld()->IsChatMessageVisible( team->m_teamId, m_channel, false ) )
                 {
-                    g_renderer->EclipseLine( x, y+6, x+width, y+6, Colour(255,255,255,100) );
+                    g_renderer->Line( x, y+6, x+width, y+6, Colour(255,255,255,100) );
                 }
 
                 y+= 16;
@@ -409,7 +409,7 @@ void ChatWindow::RenderTeams()
 
                 if( m_channel < CHATCHANNEL_PUBLIC )
                 {
-                    g_renderer->EclipseLine( x, y+5, x+70, y+5, Colour(255,255,255,100) );
+                    g_renderer->Line( x, y+5, x+70, y+5, Colour(255,255,255,100) );
                 }
 
                 y += 11;
@@ -702,7 +702,7 @@ void ChatInputField::Render( int realX, int realY, bool highlighted, bool clicke
     if( EclMouseInButton(m_parent,this) )
     {
         Colour col(255,255,200,100);
-        g_renderer->EclipseRect( realX, realY, m_w, m_h, col, 1.0f );
+        g_renderer->Rect( realX, realY, m_w, m_h, col, 1.0f );
     }
 
     ChatWindow *parent = (ChatWindow *) m_parent;
@@ -710,7 +710,7 @@ void ChatInputField::Render( int realX, int realY, bool highlighted, bool clicke
     {
         int alpha = 100 + 155 * fabs(sinf(g_gameTime*3));
         Colour col(255,255,200,alpha);
-        g_renderer->EclipseRect( realX, realY, m_w, m_h, col, 1.0f );
+        g_renderer->Rect( realX, realY, m_w, m_h, col, 1.0f );
     }
 }
 

@@ -477,14 +477,14 @@ void WorldObject::RenderHealthBar()
     }
     
     Colour bgColour(0, 0, 0, 180);
-    g_renderer->HealthBarRect(barX, barY, barWidth, barHeight, bgColour);
+    g_renderer->RectFill(barX, barY, barWidth, barHeight, bgColour);
     
     float damagePercentage = 1.0f - healthPercentage;
     if( damagePercentage > 0 )
     {
         float damageBarWidth = barWidth * damagePercentage;
         Colour damageColour(255, 0, 0, 200); // red for damage
-        g_renderer->HealthBarRect(barX + barWidth - damageBarWidth, barY, damageBarWidth, barHeight, damageColour);
+        g_renderer->RectFill(barX + barWidth - damageBarWidth, barY, damageBarWidth, barHeight, damageColour);
     }
     
     if( healthPercentage > 0 )
@@ -501,7 +501,7 @@ void WorldObject::RenderHealthBar()
             healthColour.Set(255, 255, 0, 200); // yellow for if the health is not 100 percent
         }
         
-        g_renderer->HealthBarRect(barX, barY, healthBarWidth, barHeight, healthColour);
+        g_renderer->RectFill(barX, barY, healthBarWidth, barHeight, healthColour);
     }
 }
 

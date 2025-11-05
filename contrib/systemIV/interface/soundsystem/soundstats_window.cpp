@@ -112,7 +112,7 @@ void SoundStatsWindow::Render( bool hasFocus )
             float green = health;
             float red = 1.0f-health;
                         
-            g_renderer->EclipseRectFill( x-13, yPos, 10, 10, Colour(red*255,green*255,5,255) );                        
+            g_renderer->RectFill( x-13, yPos, 10, 10, Colour(red*255,green*255,5,255) );                        
             g_renderer->Text( x, yPos, White, 11, "%2d", channelIndex );
 
             SoundInstanceId soundId = g_soundSystem->m_channels[channelIndex];
@@ -131,7 +131,7 @@ void SoundStatsWindow::Render( bool hasFocus )
                 Colour rectFill = col;
                 rectFill.m_a = 50;
 
-                g_renderer->EclipseRectFill( m_x+20, yPos, m_w-40, yDif, rectFill );
+                g_renderer->RectFill( m_x+20, yPos, m_w-40, yDif, rectFill );
                 g_renderer->TextSimple( x + 20, yPos, col, 11, instance->GetDescriptor() );                
             }
         }
@@ -139,8 +139,8 @@ void SoundStatsWindow::Render( bool hasFocus )
         yPos += yDif;
         if( channelIndex == g_soundSystem->m_numChannels-g_soundSystem->m_numMusicChannels-1 )
         {
-            g_renderer->EclipseLine( m_x+20, yPos+3, x+m_w-50, yPos+3, White );
-            g_renderer->EclipseLine( m_x+20, yPos+18, x+m_w-50, yPos+18, White );
+            g_renderer->Line( m_x+20, yPos+3, x+m_w-50, yPos+3, White );
+            g_renderer->Line( m_x+20, yPos+18, x+m_w-50, yPos+18, White );
             g_renderer->TextSimple( x+100, yPos+5, White, 12, "Music Channels" );
             yPos+=yDif*2;
         }

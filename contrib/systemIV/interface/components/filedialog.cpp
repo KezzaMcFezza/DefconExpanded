@@ -89,12 +89,12 @@ public:
 		{        
             if( fd->IsFileSelected(index) != -1 )
             {
-				g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(77, 77, 255, 128) );
+				g_renderer->RectFill( realX, realY, m_w, m_h, Colour(77, 77, 255, 128) );
             }
 
 			if( clicked || highlighted )
 			{
-				g_renderer->EclipseRect( realX, realY, m_w, m_h, White );
+				g_renderer->Rect( realX, realY, m_w, m_h, White );
 			}
 
 			char *fileName = fd->m_files->GetData( index );

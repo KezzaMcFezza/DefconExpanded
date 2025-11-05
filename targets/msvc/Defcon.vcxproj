@@ -1130,13 +1130,12 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\netlib\thread_controller.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\preferences.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\profiler.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\eclipse_buffers.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\operations.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\primitive_buffers.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\sprite_buffers.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\text_buffers.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\operations.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\primitives.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_vbo.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\sprites.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\text.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\operations_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\primitive_3d_buffers.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\sprite_3d_buffers.cpp" />

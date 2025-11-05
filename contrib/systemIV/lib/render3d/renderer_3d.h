@@ -97,8 +97,8 @@ private:
     unsigned int m_VBO3DTextured;            // VBO for textured quads
     
     // Specialized 3D VAOs and VBOs for different rendering groups
-    unsigned int m_unitVAO3D, m_unitVBO3D;           // Unit sprites and highlights
-    unsigned int m_effectsVAO3D, m_effectsVBO3D;     // Effects lines and trails (non-textured)
+    unsigned int m_spriteVAO3D, m_spriteVBO3D;           // Unit sprites and highlights
+    unsigned int m_lineVAO3D, m_lineVBO3D;     // Effects lines and trails (non-textured)
     unsigned int m_globeVAO3D, m_globeVBO3D;         // Globe surface (non-textured)
     unsigned int m_starsVAO3D, m_starsVBO3D;         // Stars and effects sprites (textured)
     unsigned int m_healthVAO3D, m_healthVBO3D;       // Health bars
@@ -186,11 +186,6 @@ private:
     int m_rotatingSpriteVertexCount3D;
     unsigned int m_currentRotatingSpriteTexture3D;
     
-    // Health bar rendering buffers
-    static constexpr int MAX_HEALTH_BAR_VERTICES_3D = 500;
-    Vertex3DTextured m_healthBarVertices3D[MAX_HEALTH_BAR_VERTICES_3D];
-    int m_healthBarVertexCount3D;
-    
     // Text rendering buffers
     static constexpr int MAX_TEXT_VERTICES_3D = 1000;
     Vertex3DTextured m_textVertices3D[MAX_TEXT_VERTICES_3D];
@@ -222,7 +217,6 @@ private:
     int m_lineCalls3D;
     int m_staticSpriteCalls3D;
     int m_rotatingSpriteCalls3D;
-    int m_healthBarCalls3D;
     int m_textCalls3D;
     int m_megaVBOCalls3D;
     int m_nuke3DModelCalls3D;
@@ -234,7 +228,6 @@ private:
     int m_prevLineCalls3D;
     int m_prevStaticSpriteCalls3D;
     int m_prevRotatingSpriteCalls3D;
-    int m_prevHealthBarCalls3D;
     int m_prevTextCalls3D;
     int m_prevMegaVBOCalls3D;
     int m_prevNuke3DModelCalls3D;
@@ -359,14 +352,13 @@ public:
     int GetLineCalls() const { return m_prevLineCalls3D; }
     int GetStaticSpriteCalls() const { return m_prevStaticSpriteCalls3D; }
     int GetRotatingSpriteCalls() const { return m_prevRotatingSpriteCalls3D; }
-    int GetHealthBarCalls() const { return m_prevHealthBarCalls3D; }
     int GetNuke3DModelCalls() const { return m_prevNuke3DModelCalls3D; }
     int GetStarFieldCalls() const { return m_prevStarFieldCalls3D; }
     int GetGlobeSurfaceCalls() const { return m_prevGlobeSurfaceCalls3D; }
     
     int GetTotalUnitCalls() const { 
         return m_prevLineCalls3D + m_prevStaticSpriteCalls3D + 
-        m_prevRotatingSpriteCalls3D + m_prevHealthBarCalls3D; 
+        m_prevRotatingSpriteCalls3D; 
     }
     int GetTotalSpecializedCalls() const {
         return GetTotalUnitCalls() + m_prevTextCalls3D + m_prevMegaVBOCalls3D;
@@ -376,15 +368,13 @@ public:
     int GetCurrentLineVertexCount() const { return m_lineVertexCount3D; }
     int GetCurrentStaticSpriteVertexCount() const { return m_staticSpriteVertexCount3D; }
     int GetCurrentRotatingSpriteVertexCount() const { return m_rotatingSpriteVertexCount3D; }
-    int GetCurrentHealthBarVertexCount() const { return m_healthBarVertexCount3D; }
     int GetCurrentNuke3DModelVertexCount() const { return m_nuke3DModelVertexCount3D; }
     int GetCurrentStarFieldVertexCount() const { return m_starFieldVertexCount3D; }
     int GetCurrentGlobeSurfaceVertexCount() const { return m_globeSurfaceVertexCount3D; }
     
     int GetTotalCurrentVertexCount() const {
         return m_textVertexCount3D + m_lineVertexCount3D + m_staticSpriteVertexCount3D + 
-               m_rotatingSpriteVertexCount3D +
-               m_healthBarVertexCount3D + m_nuke3DModelVertexCount3D +
+               m_rotatingSpriteVertexCount3D + m_nuke3DModelVertexCount3D +
                m_starFieldVertexCount3D + m_globeSurfaceVertexCount3D;
     }
 
@@ -395,7 +385,7 @@ public:
         total += nonTexturedVertices * sizeof(Vertex3D);
         
         int texturedVertices = m_staticSpriteVertexCount3D + m_rotatingSpriteVertexCount3D +  
-                              m_healthBarVertexCount3D + m_textVertexCount3D + m_starFieldVertexCount3D;
+                               m_textVertexCount3D + m_starFieldVertexCount3D;
         total += texturedVertices * sizeof(Vertex3DTextured);
         
         return total;
@@ -426,13 +416,7 @@ public:
     void EndRotatingSpriteBatch3D();
     void FlushRotatingSprite3D();
     void FlushRotatingSprite3DIfFull(int verticesNeeded);
-    
-    // Health bar rendering
-    void HealthBarRect3D(float x, float y, float z, float w, float h, Colour const &col);
-    void BeginHealthBarBatch3D();
-    void EndHealthBarBatch3D();
-    void FlushHealthBars3D();
-    
+
     // Text batching convenience methods
     void BeginMapTextBatch3D();
     void EndMapTextBatch3D();

@@ -79,9 +79,6 @@
     <Filter Include="lib\unicode">
       <UniqueIdentifier>{b9b21fe4-158c-47ac-88e4-dd0d932a7b4d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\render2d\buffers">
-      <UniqueIdentifier>{333a230f-85f8-4b76-9c8f-f616a5a65284}</UniqueIdentifier>
-    </Filter>
     <Filter Include="lib\render3d\buffers">
       <UniqueIdentifier>{3e379d61-1966-45b3-8ef0-ae5b5ef76dd8}</UniqueIdentifier>
     </Filter>
@@ -552,21 +549,6 @@
     <ClCompile Include="..\..\source\interface\recording_file_dialog.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\primitive_buffers.cpp">
-      <Filter>lib\render2d\buffers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\sprite_buffers.cpp">
-      <Filter>lib\render2d\buffers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\text_buffers.cpp">
-      <Filter>lib\render2d\buffers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\operations.cpp">
-      <Filter>lib\render2d\buffers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\buffers\eclipse_buffers.cpp">
-      <Filter>lib\render2d\buffers</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\contrib\glad\desktop\src\glad.c">
       <Filter>contrib\glad</Filter>
     </ClCompile>
@@ -789,6 +771,18 @@
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.cpp">
       <Filter>lib\sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\operations.cpp">
+      <Filter>lib\render2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\primitives.cpp">
+      <Filter>lib\render2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\sprites.cpp">
+      <Filter>lib\render2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\text.cpp">
+      <Filter>lib\render2d</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

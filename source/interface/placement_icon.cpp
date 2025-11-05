@@ -103,7 +103,7 @@ void PlacementIconButton::Render( int realX, int realY, bool highlighted, bool c
 	if( bmpImage )
 	{
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-		g_renderer->EclipseSprite( bmpImage, realX, realY, size, size, colour );
+		g_renderer->StaticSprite( bmpImage, realX, realY, size, size, colour );
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	}
 

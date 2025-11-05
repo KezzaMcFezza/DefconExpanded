@@ -53,12 +53,16 @@ void Renderer::BeginRotatingSpriteBatch() {
     m_currentRotatingSpriteTexture = 0;
 }
 
-void Renderer::BeginHealthBarBatch() {
-    m_healthBarVertexCount = 0;
+void Renderer::BeginCircleBatch() {
+    m_circleVertexCount = 0;
 }
 
 void Renderer::BeginCircleFillBatch() {
     m_circleFillVertexCount = 0;
+}
+
+void Renderer::BeginRectBatch() {
+    m_rectVertexCount = 0;
 }
 
 void Renderer::BeginRectFillBatch() {
@@ -67,27 +71,6 @@ void Renderer::BeginRectFillBatch() {
 
 void Renderer::BeginTriangleFillBatch() {
     m_triangleFillVertexCount = 0;
-}
-
-void Renderer::BeginEclipseRectBatch() {
-    m_eclipseRectVertexCount = 0;
-}
-
-void Renderer::BeginEclipseRectFillBatch() {
-    m_eclipseRectFillVertexCount = 0;
-}
-
-void Renderer::BeginEclipseTriangleFillBatch() {
-    m_eclipseTriangleFillVertexCount = 0;
-}
-
-void Renderer::BeginEclipseLineBatch() {
-    m_eclipseLineVertexCount = 0;
-}
-
-void Renderer::BeginEclipseSpriteBatch() {
-    m_eclipseSpriteVertexCount = 0;
-    m_currentEclipseSpriteTexture = 0;
 }
 
 // ============================================================================
@@ -138,15 +121,21 @@ void Renderer::EndRotatingSpriteBatch() {
     }
 }
 
-void Renderer::EndHealthBarBatch() {
-    if (m_healthBarVertexCount > 0) {
-        FlushHealthBars();
+void Renderer::EndCircleBatch() {
+    if (m_circleVertexCount > 0) {
+        FlushCircles();
     }
 }
 
 void Renderer::EndCircleFillBatch() {
     if (m_circleFillVertexCount > 0) {
         FlushCircleFills();
+    }
+}
+
+void Renderer::EndRectBatch() {
+    if (m_rectVertexCount > 0) {
+        FlushRects();
     }
 }
 
@@ -159,36 +148,6 @@ void Renderer::EndRectFillBatch() {
 void Renderer::EndTriangleFillBatch() {
     if (m_triangleFillVertexCount > 0) {
         FlushTriangleFills();
-    }
-}
-
-void Renderer::EndEclipseRectBatch() {
-    if (m_eclipseRectVertexCount > 0) {
-        FlushEclipseRects();
-    }
-}
-
-void Renderer::EndEclipseRectFillBatch() {
-    if (m_eclipseRectFillVertexCount > 0) {
-        FlushEclipseRectFills();
-    }
-}
-
-void Renderer::EndEclipseTriangleFillBatch() {
-    if (m_eclipseTriangleFillVertexCount > 0) {
-        FlushEclipseTriangleFills();
-    }
-}
-
-void Renderer::EndEclipseLineBatch() {
-    if (m_eclipseLineVertexCount > 0) {
-        FlushEclipseLines();
-    }
-}
-
-void Renderer::EndEclipseSpriteBatch() {
-    if (m_eclipseSpriteVertexCount > 0) {
-        FlushEclipseSprites();
     }
 }
 
@@ -221,9 +180,21 @@ void Renderer::FlushRotatingSpritesIfFull(int verticesNeeded) {
     }
 }
 
+void Renderer::FlushCirclesIfFull(int verticesNeeded) {
+    if (m_circleVertexCount + verticesNeeded > MAX_CIRCLE_VERTICES) {
+        FlushCircles();
+    }
+}
+
 void Renderer::FlushCircleFillsIfFull(int verticesNeeded) {
     if (m_circleFillVertexCount + verticesNeeded > MAX_CIRCLE_FILL_VERTICES) {
         FlushCircleFills();
+    }
+}
+
+void Renderer::FlushRectsIfFull(int verticesNeeded) {
+    if (m_rectVertexCount + verticesNeeded > MAX_RECT_VERTICES) {
+        FlushRects();
     }
 }
 
@@ -236,36 +207,6 @@ void Renderer::FlushRectFillsIfFull(int verticesNeeded) {
 void Renderer::FlushTriangleFillsIfFull(int verticesNeeded) {
     if (m_triangleFillVertexCount + verticesNeeded > MAX_TRIANGLE_FILL_VERTICES) {
         FlushTriangleFills();
-    }
-}
-
-void Renderer::FlushEclipseRectsIfFull(int segmentsNeeded) {
-    if (m_eclipseRectVertexCount + segmentsNeeded > MAX_ECLIPSE_RECT_VERTICES) {
-        FlushEclipseRects();
-    }
-}
-
-void Renderer::FlushEclipseRectFillsIfFull(int verticesNeeded) {
-    if (m_eclipseRectFillVertexCount + verticesNeeded > MAX_ECLIPSE_RECTFILL_VERTICES) {
-        FlushEclipseRectFills();
-    }
-}
-
-void Renderer::FlushEclipseTriangleFillsIfFull(int verticesNeeded) {
-    if (m_eclipseTriangleFillVertexCount + verticesNeeded > MAX_ECLIPSE_TRIANGLEFILL_VERTICES) {
-        FlushEclipseTriangleFills();
-    }
-}
-
-void Renderer::FlushEclipseLinesIfFull(int segmentsNeeded) {
-    if (m_eclipseLineVertexCount + segmentsNeeded > MAX_ECLIPSE_LINE_VERTICES) {
-        FlushEclipseLines();
-    }
-}
-
-void Renderer::FlushEclipseSpritesIfFull(int verticesNeeded) {
-    if (m_eclipseSpriteVertexCount + verticesNeeded > MAX_ECLIPSE_SPRITE_VERTICES) {
-        FlushEclipseSprites();
     }
 }
 
@@ -351,9 +292,9 @@ void Renderer::FlushLines() {
     SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    SetVertexArray(m_effectsVAO);
-    SetArrayBuffer(m_effectsVBO);
-    UploadVertexDataToVBO(m_effectsVBO, m_lineVertices, m_lineVertexCount, GL_DYNAMIC_DRAW); 
+    SetVertexArray(m_lineVAO);
+    SetArrayBuffer(m_lineVBO);
+    UploadVertexDataToVBO(m_lineVBO, m_lineVertices, m_lineVertexCount, GL_DYNAMIC_DRAW); 
     
     glDrawArrays(GL_LINES, 0, m_lineVertexCount);
     
@@ -378,9 +319,9 @@ void Renderer::FlushStaticSprites() {
         SetBoundTexture(m_currentStaticSpriteTexture);
     }
     
-    SetVertexArray(m_unitVAO);
-    SetArrayBuffer(m_unitVBO);
-    UploadVertexDataToVBO(m_unitVBO, m_staticSpriteVertices, m_staticSpriteVertexCount, GL_STREAM_DRAW);   
+    SetVertexArray(m_spriteVAO);
+    SetArrayBuffer(m_spriteVBO);
+    UploadVertexDataToVBO(m_spriteVBO, m_staticSpriteVertices, m_staticSpriteVertexCount, GL_STREAM_DRAW);   
     
     glDrawArrays(GL_TRIANGLES, 0, m_staticSpriteVertexCount);
     
@@ -403,9 +344,9 @@ void Renderer::FlushRotatingSprite() {
         SetBoundTexture(m_currentRotatingSpriteTexture);
     }
     
-    SetVertexArray(m_unitVAO);
-    SetArrayBuffer(m_unitVBO);
-    UploadVertexDataToVBO(m_unitVBO, m_rotatingSpriteVertices, m_rotatingSpriteVertexCount, GL_STREAM_DRAW);
+    SetVertexArray(m_spriteVAO);
+    SetArrayBuffer(m_spriteVBO);
+    UploadVertexDataToVBO(m_spriteVBO, m_rotatingSpriteVertices, m_rotatingSpriteVertexCount, GL_STREAM_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_rotatingSpriteVertexCount);
     
@@ -414,25 +355,24 @@ void Renderer::FlushRotatingSprite() {
     EndFlushTiming("Unit_Rotating");
 }
 
-// flush the buffer
-void Renderer::FlushHealthBars() {
-    if (m_healthBarVertexCount == 0) return;
+void Renderer::FlushCircles() {
+    if (m_circleVertexCount == 0) return;
     
-    StartFlushTiming("Health_Bars");
-    IncrementDrawCall("health_bars");
+    StartFlushTiming("Circles");
+    IncrementDrawCall("circles");
     
     SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
-    SetVertexArray(m_healthVAO);
-    SetArrayBuffer(m_healthVBO);
-    UploadVertexDataToVBO(m_healthVBO, m_healthBarVertices, m_healthBarVertexCount, GL_DYNAMIC_DRAW);
+    SetVertexArray(m_circleVAO);
+    SetArrayBuffer(m_circleVBO);
+    UploadVertexDataToVBO(m_circleVBO, m_circleVertices, m_circleVertexCount, GL_DYNAMIC_DRAW);
     
-    glDrawArrays(GL_TRIANGLES, 0, m_healthBarVertexCount);
+    glDrawArrays(GL_LINES, 0, m_circleVertexCount);
     
-    m_healthBarVertexCount = 0;
+    m_circleVertexCount = 0;
     
-    EndFlushTiming("Health_Bars");
+    EndFlushTiming("Circles");
 }
 
 void Renderer::FlushCircleFills() {
@@ -453,6 +393,26 @@ void Renderer::FlushCircleFills() {
     m_circleFillVertexCount = 0;
     
     EndFlushTiming("Circle_Fills");
+}
+
+void Renderer::FlushRects() {
+    if (m_rectVertexCount == 0) return;
+    
+    StartFlushTiming("Rects");
+    IncrementDrawCall("rects");
+    
+    SetShaderProgram(m_colorShaderProgram);
+    SetColorShaderUniforms();
+    
+    SetVertexArray(m_rectVAO);
+    SetArrayBuffer(m_rectVBO);
+    UploadVertexDataToVBO(m_rectVBO, m_rectVertices, m_rectVertexCount, GL_DYNAMIC_DRAW);
+    
+    glDrawArrays(GL_LINES, 0, m_rectVertexCount);
+    
+    m_rectVertexCount = 0;
+    
+    EndFlushTiming("Rects");
 }
 
 void Renderer::FlushRectFills() {
@@ -493,118 +453,4 @@ void Renderer::FlushTriangleFills() {
     m_triangleFillVertexCount = 0;
     
     EndFlushTiming("Triangle_Fills");
-}
-
-void Renderer::FlushEclipseRects() {
-    if (m_eclipseRectVertexCount == 0) return;
-    
-    StartFlushTiming("Eclipse_Rects");
-    IncrementDrawCall("eclipse_rects");
-    
-#ifndef TARGET_EMSCRIPTEN
-    SetLineWidth(1.0f);
-#endif
-    
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_eclipseLinesVAO);
-    SetArrayBuffer(m_eclipseLinesVBO);
-    UploadVertexDataToVBO(m_eclipseLinesVBO, m_eclipseRectVertices, m_eclipseRectVertexCount, GL_STREAM_DRAW);
-    
-    glDrawArrays(GL_LINES, 0, m_eclipseRectVertexCount);
-    
-    m_eclipseRectVertexCount = 0;
-    
-    EndFlushTiming("Eclipse_Rects");
-}
-
-void Renderer::FlushEclipseRectFills() {
-    if (m_eclipseRectFillVertexCount == 0) return;
-    
-    StartFlushTiming("Eclipse_RectFills");
-    IncrementDrawCall("eclipse_rectfills");
-    
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_eclipseFillsVAO);
-    SetArrayBuffer(m_eclipseFillsVBO);
-    UploadVertexDataToVBO(m_eclipseFillsVBO, m_eclipseRectFillVertices, m_eclipseRectFillVertexCount, GL_STREAM_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_eclipseRectFillVertexCount);
-    
-    m_eclipseRectFillVertexCount = 0;
-    
-    EndFlushTiming("Eclipse_RectFills");
-}
-
-void Renderer::FlushEclipseTriangleFills() {
-    if (m_eclipseTriangleFillVertexCount == 0) return;
-    
-    StartFlushTiming("Eclipse_TriangleFills");
-    IncrementDrawCall("eclipse_trianglefills");
-    
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_eclipseFillsVAO);
-    SetArrayBuffer(m_eclipseFillsVBO);
-    UploadVertexDataToVBO(m_eclipseFillsVBO, m_eclipseTriangleFillVertices, m_eclipseTriangleFillVertexCount, GL_STREAM_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_eclipseTriangleFillVertexCount);
-    
-    m_eclipseTriangleFillVertexCount = 0;
-    
-    EndFlushTiming("Eclipse_TriangleFills");
-}
-
-void Renderer::FlushEclipseLines() {
-    if (m_eclipseLineVertexCount == 0) return;
-    
-    StartFlushTiming("Eclipse_Lines");
-    IncrementDrawCall("eclipse_lines");
-    
-#ifndef TARGET_EMSCRIPTEN
-    SetLineWidth(1.0f);  // Set once during flush
-#endif
-    
-    SetShaderProgram(m_colorShaderProgram);
-    SetColorShaderUniforms();
-    
-    SetVertexArray(m_eclipseLinesVAO);
-    SetArrayBuffer(m_eclipseLinesVBO);
-    UploadVertexDataToVBO(m_eclipseLinesVBO, m_eclipseLineVertices, m_eclipseLineVertexCount, GL_STREAM_DRAW);
-    
-    glDrawArrays(GL_LINES, 0, m_eclipseLineVertexCount);
-    
-    m_eclipseLineVertexCount = 0;
-    
-    EndFlushTiming("Eclipse_Lines");
-}
-
-void Renderer::FlushEclipseSprites() {
-    if (m_eclipseSpriteVertexCount == 0) return;
-    
-    StartFlushTiming("Eclipse_Sprites");
-    IncrementDrawCall("eclipse_sprites");
-    
-    SetShaderProgram(m_textureShaderProgram);
-    SetTextureShaderUniforms();
-    
-    if (m_currentEclipseSpriteTexture != 0) {
-        SetActiveTexture(GL_TEXTURE0);
-        SetBoundTexture(m_currentEclipseSpriteTexture);
-    }
-    
-    SetVertexArray(m_eclipseSpritesVAO);
-    SetArrayBuffer(m_eclipseSpritesVBO);
-    UploadVertexDataToVBO(m_eclipseSpritesVBO, m_eclipseSpriteVertices, m_eclipseSpriteVertexCount, GL_STREAM_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_eclipseSpriteVertexCount);
-    
-    m_eclipseSpriteVertexCount = 0;
-    m_currentEclipseSpriteTexture = 0;
-    
-    EndFlushTiming("Eclipse_Sprites");
 }

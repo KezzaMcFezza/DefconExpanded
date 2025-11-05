@@ -133,8 +133,8 @@ public:
         
         //
         // Render guidelines - Convert to modern renderer Line calls
-        g_renderer->EclipseLine( realX + 10, realY + m_h/2, realX + m_w - 10, realY + m_h/2, Colour(255, 255, 255, 128) );
-        g_renderer->EclipseLine( realX + m_w/2, realY + 10, realX + m_w/2, realY + m_h - 10, Colour(255, 255, 255, 128) );
+        g_renderer->Line        ( realX + 10, realY + m_h/2, realX + m_w - 10, realY + m_h/2, Colour(255, 255, 255, 128) );
+        g_renderer->Line        ( realX + m_w/2, realY + 10, realX + m_w/2, realY + m_h - 10, Colour(255, 255, 255, 128) );
 
         
         //
@@ -148,7 +148,7 @@ public:
         float scale = 5.0f;
         float size = 5.0f;
 
-        g_renderer->EclipseRect( midX + soundPos.x/scale - size, midY + soundPos.z/scale - size, 
+        g_renderer->Rect( midX + soundPos.x/scale - size, midY + soundPos.z/scale - size, 
                          size * 2, size * 2, White );
 
 
@@ -812,7 +812,7 @@ void SoundEditorWindow::Render( bool hasFocus )
     g_renderer->TextSimple( m_x + 190, m_y + 275, White, 11, "MinDistance" );
     
     // Convert glBegin(GL_LINES) to modern renderer Line
-    g_renderer->EclipseLine( m_x + 170, m_y + 30, m_x + 170, m_y + m_h - 20, Colour(255, 255, 255, 128) );
+    g_renderer->Line( m_x + 170, m_y + 30, m_x + 170, m_y + m_h - 20, Colour(255, 255, 255, 128) );
 
 
     //

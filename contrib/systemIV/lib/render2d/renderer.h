@@ -71,14 +71,11 @@ private:
   static constexpr int MAX_STATIC_SPRITE_VERTICES   = 10000;
   static constexpr int MAX_ROTATING_SPRITE_VERTICES = 15000;
   static constexpr int MAX_HEALTH_BAR_VERTICES      = 500;
+  static constexpr int MAX_CIRCLE_VERTICES          = 5000;
   static constexpr int MAX_CIRCLE_FILL_VERTICES     = 5000;
+  static constexpr int MAX_RECT_VERTICES            = 3000;
   static constexpr int MAX_RECT_FILL_VERTICES       = 3000;
   static constexpr int MAX_TRIANGLE_FILL_VERTICES   = 3000;
-  static constexpr int MAX_ECLIPSE_RECT_VERTICES    = 2000;
-  static constexpr int MAX_ECLIPSE_RECTFILL_VERTICES= 3000;
-  static constexpr int MAX_ECLIPSE_TRIANGLEFILL_VERTICES = 3000;
-  static constexpr int MAX_ECLIPSE_LINE_VERTICES    = 2000;
-  static constexpr int MAX_ECLIPSE_SPRITE_VERTICES  = 1500; 
 
 protected:
   char *m_defaultFontName;
@@ -100,16 +97,12 @@ protected:
   unsigned int m_textureShaderProgram;
   unsigned int m_VAO;
   unsigned int m_VBO; 
-
-  unsigned int m_eclipseLinesVAO, m_eclipseLinesVBO;      // eclipse rects + lines (line primitives)
-  unsigned int m_eclipseFillsVAO, m_eclipseFillsVBO;      // eclipse rectfills + trianglefills (filled primitives)
-  unsigned int m_eclipseSpritesVAO, m_eclipseSpritesVBO;  // eclipse sprites (textured, high texture switching)
-  unsigned int m_uiVAO, m_uiVBO;                          // general UI triangles and lines (non-Eclipse)
+  unsigned int m_spriteVAO, m_spriteVBO;                      // unit sprites and highlights
+  unsigned int m_lineVAO, m_lineVBO;                      // line rendering
   unsigned int m_textVAO, m_textVBO;                      // text rendering
-  unsigned int m_unitVAO, m_unitVBO;                      // unit sprites and highlights
-  unsigned int m_effectsVAO, m_effectsVBO;                // effects and trails
-  unsigned int m_healthVAO, m_healthVBO;                  // health bars
+  unsigned int m_circleVAO, m_circleVBO;                  // circle outlines
   unsigned int m_circleFillVAO, m_circleFillVBO;          // circle fills
+  unsigned int m_rectVAO, m_rectVBO;                      // rect outlines
   unsigned int m_rectFillVAO, m_rectFillVBO;              // rect fills
   unsigned int m_triangleFillVAO, m_triangleFillVBO;      // triangle fills
   unsigned int m_legacyVAO, m_legacyVBO;                  // triangle/line rendering
@@ -156,33 +149,20 @@ protected:
   int m_rotatingSpriteVertexCount;
   unsigned int m_currentRotatingSpriteTexture;
 
-  Vertex2D m_healthBarVertices               [MAX_HEALTH_BAR_VERTICES];
-  int m_healthBarVertexCount;
+  Vertex2D m_circleVertices                  [MAX_CIRCLE_VERTICES];
+  int m_circleVertexCount;
 
   Vertex2D m_circleFillVertices              [MAX_CIRCLE_FILL_VERTICES];
   int m_circleFillVertexCount;
+
+  Vertex2D m_rectVertices                    [MAX_RECT_VERTICES];
+  int m_rectVertexCount;
 
   Vertex2D m_rectFillVertices                [MAX_RECT_FILL_VERTICES];
   int m_rectFillVertexCount;
 
   Vertex2D m_triangleFillVertices            [MAX_TRIANGLE_FILL_VERTICES];
   int m_triangleFillVertexCount;
-
-  Vertex2D m_eclipseRectVertices             [MAX_ECLIPSE_RECT_VERTICES];
-  int m_eclipseRectVertexCount;
-
-  Vertex2D m_eclipseRectFillVertices         [MAX_ECLIPSE_RECTFILL_VERTICES];
-  int m_eclipseRectFillVertexCount;
-
-  Vertex2D m_eclipseTriangleFillVertices     [MAX_ECLIPSE_TRIANGLEFILL_VERTICES];
-  int m_eclipseTriangleFillVertexCount;
-
-  Vertex2D m_eclipseLineVertices             [MAX_ECLIPSE_LINE_VERTICES];
-  int m_eclipseLineVertexCount;
-
-  Vertex2D m_eclipseSpriteVertices           [MAX_ECLIPSE_SPRITE_VERTICES];
-  int m_eclipseSpriteVertexCount;
-  unsigned int m_currentEclipseSpriteTexture;
 
   //
   // flush control, more of a global way to disable batching
@@ -196,7 +176,6 @@ protected:
   // line rendering state
 
   Colour m_currentLineColor;
-  Colour m_currentEclipseLineColor;
 
   //
   // line strip rendering state
@@ -268,22 +247,15 @@ protected:
   void FlushLines();
   void FlushStaticSprites();
   void FlushRotatingSprite();
-  void FlushHealthBars();
+  void FlushCircles();
   void FlushCircleFills();
+  void FlushRects();
   void FlushRectFills();
   void FlushTriangleFills();
-  void FlushEclipseRects();
-  void FlushEclipseRectFills();
-  void FlushEclipseTriangleFills();
-  void FlushEclipseLines();
-  void FlushEclipseSprites();
-  void FlushEclipseRectsIfFull      (int segmentsNeeded);
-  void FlushEclipseRectFillsIfFull  (int verticesNeeded);
-  void FlushEclipseTriangleFillsIfFull(int verticesNeeded);
-  void FlushEclipseLinesIfFull      (int segmentsNeeded);
-  void FlushEclipseSpritesIfFull    (int verticesNeeded);
   void FlushRotatingSpritesIfFull    (int verticesNeeded);
+  void FlushCirclesIfFull           (int verticesNeeded);
   void FlushCircleFillsIfFull       (int verticesNeeded);
+  void FlushRectsIfFull             (int verticesNeeded);
   void FlushRectFillsIfFull         (int verticesNeeded);
   void FlushTriangleFillsIfFull     (int verticesNeeded);
 
@@ -329,47 +301,6 @@ public:
   bool IsImmediateFlushEnabled      () const { return m_allowImmedateFlush; }
   void BeginFrame();
   void EndFrame();
-  
-  //
-  // eclipse UI primitive batching system
-  
-  void BeginEclipseRectBatch();
-  void EndEclipseRectBatch();
-  void BeginEclipseRectFillBatch();
-  void EndEclipseRectFillBatch();
-  void BeginEclipseTriangleFillBatch();
-  void EndEclipseTriangleFillBatch();
-  void BeginEclipseLineBatch();
-  void EndEclipseLineBatch();
-  void BeginEclipseSpriteBatch();
-  void EndEclipseSpriteBatch();
-  
-  //
-  // eclipse primitive rendering (non-textured)
-
-  void EclipseRect(float x, float y, float w, float h, Colour const &col, float lineWidth = 1.0f);
-  void EclipseRectFill(float x, float y, float w, float h, Colour const &col);
-  void EclipseRectFill(float x, float y, float w, float h, Colour const &colTL, Colour const &colTR, 
-                       Colour const &colBR, Colour const &colBL);
-  void EclipseRectFill(float x, float y, float w, float h, Colour const &col1, 
-                       Colour const &col2, bool horizontal);
-
-  void EclipseTriangleFill(float x1, float y1, float x2, float y2, float x3, float y3, Colour const &col);
-  void EclipseTriangleFill(float x1, float y1, float x2, float y2, float x3, float y3, 
-                          Colour const &col1, Colour const &col2, Colour const &col3);
-
-  void EclipseLine(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth = 1.0f);
-  
-  void BeginEclipseLines(Colour const &col, float lineWidth);
-  void EclipseLine(float x, float y);
-  void EndEclipseLines();
-  
-  //
-  // Eclipse sprite rendering (textured)
-  
-  void EclipseSprite(Image *src, float x, float y, Colour const &col);
-  void EclipseSprite(Image *src, float x, float y, float w, float h, Colour const &col);
-  void EclipseSprite(Image *src, float x, float y, float w, float h, Colour const &col, float angle);
 
   //
   // performance tracking, draw call counters per frame
@@ -381,15 +312,11 @@ public:
   int m_lineCalls;
   int m_staticSpriteCalls;
   int m_rotatingSpriteCalls;
-  int m_healthBarCalls;
+  int m_circleCalls;
   int m_circleFillCalls;
+  int m_rectCalls;
   int m_rectFillCalls;
   int m_triangleFillCalls;
-  int m_eclipseRectCalls;
-  int m_eclipseRectFillCalls;
-  int m_eclipseTriangleFillCalls;
-  int m_eclipseLineCalls;
-  int m_eclipseSpriteCalls;
   int m_prevDrawCallsPerFrame;
   int m_prevLegacyTriangleCalls;
   int m_prevLegacyLineCalls;
@@ -397,15 +324,11 @@ public:
   int m_prevLineCalls;
   int m_prevStaticSpriteCalls;
   int m_prevRotatingSpriteCalls;
-  int m_prevHealthBarCalls;
+  int m_prevCircleCalls;
   int m_prevCircleFillCalls;
+  int m_prevRectCalls;
   int m_prevRectFillCalls;
   int m_prevTriangleFillCalls;
-  int m_prevEclipseRectCalls;
-  int m_prevEclipseRectFillCalls;
-  int m_prevEclipseTriangleFillCalls;
-  int m_prevEclipseLineCalls;
-  int m_prevEclipseSpriteCalls;
 
   //
   // start over
@@ -423,30 +346,22 @@ public:
   int GetLineCalls              () const { return m_prevLineCalls; }
   int GetStaticSpriteCalls      () const { return m_prevStaticSpriteCalls; }
   int GetRotatingSpriteCalls    () const { return m_prevRotatingSpriteCalls; }
-  int GetHealthBarCalls         () const { return m_prevHealthBarCalls; }
+  int GetCircleCalls            () const { return m_prevCircleCalls; }
   int GetCircleFillCalls        () const { return m_prevCircleFillCalls; }
+  int GetRectCalls              () const { return m_prevRectCalls; }
   int GetRectFillCalls          () const { return m_prevRectFillCalls; }
   int GetTriangleFillCalls      () const { return m_prevTriangleFillCalls; }
-  int GetEclipseRectCalls       () const { return m_prevEclipseRectCalls; }
-  int GetEclipseRectFillCalls   () const { return m_prevEclipseRectFillCalls; }
-  int GetEclipseTriangleFillCalls() const { return m_prevEclipseTriangleFillCalls; }
-  int GetEclipseLineCalls       () const { return m_prevEclipseLineCalls; }
-  int GetEclipseSpriteCalls     () const { return m_prevEclipseSpriteCalls; }
 
 
   int GetCurrentTextVertexCount() const { return m_textVertexCount; }
   int GetCurrentLineVertexCount() const { return m_lineVertexCount; }
   int GetCurrentStaticSpriteVertexCount() const { return m_staticSpriteVertexCount; }
   int GetCurrentRotatingSpriteVertexCount() const { return m_rotatingSpriteVertexCount; }
-  int GetCurrentHealthBarVertexCount() const { return m_healthBarVertexCount; }
+  int GetCurrentCircleVertexCount() const { return m_circleVertexCount; }
   int GetCurrentCircleFillVertexCount() const { return m_circleFillVertexCount; }
+  int GetCurrentRectVertexCount() const { return m_rectVertexCount; }
   int GetCurrentRectFillVertexCount() const { return m_rectFillVertexCount; }
   int GetCurrentTriangleFillVertexCount() const { return m_triangleFillVertexCount; }
-  int GetCurrentEclipseRectVertexCount() const { return m_eclipseRectVertexCount; }
-  int GetCurrentEclipseRectFillVertexCount() const { return m_eclipseRectFillVertexCount; }
-  int GetCurrentEclipseTriangleFillVertexCount() const { return m_eclipseTriangleFillVertexCount; }
-  int GetCurrentEclipseLineVertexCount() const { return m_eclipseLineVertexCount; }
-  int GetCurrentEclipseSpriteVertexCount() const { return m_eclipseSpriteVertexCount; }
   int GetCurrentLegacyTriangleVertexCount() const { return m_triangleVertexCount; }
   int GetCurrentLegacyLineVertexCount() const { return m_lineVertexCount; }
   
@@ -455,10 +370,9 @@ public:
   
   int GetTotalCurrentVertexCount() const {
     return m_textVertexCount + m_lineVertexCount + m_staticSpriteVertexCount + 
-           m_rotatingSpriteVertexCount + m_healthBarVertexCount + m_circleFillVertexCount +
-           m_rectFillVertexCount + m_triangleFillVertexCount + m_eclipseRectVertexCount +
-           m_eclipseRectFillVertexCount + m_eclipseTriangleFillVertexCount + m_eclipseLineVertexCount +
-           m_eclipseSpriteVertexCount + m_triangleVertexCount + m_lineVertexCount;
+           m_rotatingSpriteVertexCount + m_circleVertexCount + m_circleFillVertexCount +
+           m_rectVertexCount + m_rectFillVertexCount + m_triangleFillVertexCount + 
+           m_triangleVertexCount + m_lineVertexCount;
   }
 
   int GetMegaBufferVertexCount() const { return m_maxMegaVertices; }
@@ -610,6 +524,7 @@ public:
   void Line             (float x1, float y1, float x2, float y2, Colour const &col);
   void Line             (float x1, float y1, float x2, float y2, Colour const &col,
                          float lineWidth);
+  void Line             (float x, float y);
 
   void BeginLines       (Colour const &col, float lineWidth);
   void EndLines         ();
@@ -667,6 +582,7 @@ public:
   void BeginStaticSpriteBatch         ();
   void StaticSprite                   (Image *src, float x, float y, float w, float h,
                                        Colour const &col);
+  void StaticSprite                   (Image *src, float x, float y, Colour const &col);
   void EndStaticSpriteBatch           ();
   void FlushStaticSpritesIfFull       (int verticesNeeded);
 
@@ -679,17 +595,22 @@ public:
   void EndRotatingSpriteBatch       ();
 
   //
-  // health bar rendering
+  // circle rendering
   
-  void BeginHealthBarBatch        ();
-  void HealthBarRect              (float x, float y, float w, float h, Colour const &col);
-  void EndHealthBarBatch          ();
+  void BeginCircleBatch           ();
+  void EndCircleBatch             ();
 
   //
   // circle fill rendering
   
   void BeginCircleFillBatch       ();
   void EndCircleFillBatch         ();
+
+  //
+  // rect rendering
+  
+  void BeginRectBatch             ();
+  void EndRectBatch               ();
 
   //
   // rect fill rendering

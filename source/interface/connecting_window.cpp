@@ -191,8 +191,8 @@ void ConnectingWindow::Render( bool _hasFocus )
 
     if( fraction > 0.0f )
     {
-        g_renderer->EclipseRectFill( m_x + 30, yPos, (m_w-60)*fraction, 20, col );
-        g_renderer->EclipseRect( m_x+30, yPos, (m_w-60), 20, White );
+        g_renderer->RectFill( m_x + 30, yPos, (m_w-60)*fraction, 20, col );
+        g_renderer->Rect( m_x+30, yPos, (m_w-60), 20, White );
 
         int numConnectionAttempts = g_app->GetClientToServer()->m_connectionAttempts;
         if( fraction < 1.0f && numConnectionAttempts > 0 )
@@ -225,8 +225,8 @@ void ConnectingWindow::Render( bool _hasFocus )
             progress = std::min(progress, 1.0f);
             
             Colour progressCol(0, 255, 255, 255);  // Cyan for fast-forward
-            g_renderer->EclipseRectFill( m_x + 30, yPos, (m_w-60)*progress, 15, progressCol );
-            g_renderer->EclipseRect( m_x+30, yPos, (m_w-60), 15, White );
+            g_renderer->RectFill( m_x + 30, yPos, (m_w-60)*progress, 15, progressCol );
+            g_renderer->Rect( m_x+30, yPos, (m_w-60), 15, White );
             
             yPos += 20;
             
@@ -279,8 +279,8 @@ void ConnectingWindow::Render( bool _hasFocus )
 
         yPos += 20;
     
-        g_renderer->EclipseRectFill( m_x+30, yPos, (m_w-60)*fraction, 20, col );
-        g_renderer->EclipseRect( m_x+30, yPos, (m_w-60), 20, White );
+        g_renderer->RectFill( m_x+30, yPos, (m_w-60)*fraction, 20, col );
+        g_renderer->Rect( m_x+30, yPos, (m_w-60), 20, White );
 
         if( m_stage == 1 )
         {
@@ -321,8 +321,8 @@ void ConnectingWindow::Render( bool _hasFocus )
 
             yPos += 20;
     
-            g_renderer->EclipseRectFill( m_x+30, yPos, (m_w-60)*fraction, 20, col );
-            g_renderer->EclipseRect( m_x+30, yPos, (m_w-60), 20, White );
+            g_renderer->RectFill( m_x+30, yPos, (m_w-60)*fraction, 20, col );
+            g_renderer->Rect( m_x+30, yPos, (m_w-60), 20, White );
 
             if( m_stage == 2 )
             {

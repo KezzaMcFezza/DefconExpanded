@@ -20,7 +20,6 @@ void Renderer3D::FlushAllSpecializedBuffers3D() {
     FlushLine3D();
     FlushStaticSprites3D();
     FlushRotatingSprite3D();
-    FlushHealthBars3D();
     FlushTextBuffer3D();
     FlushNuke3DModels3D();
 }
@@ -62,10 +61,6 @@ void Renderer3D::BeginFrameTextBatch3D() {
     m_textVertexCount3D = 0;
     m_currentTextTexture3D = 0;
     BeginTextBatch3D();
-}
-
-void Renderer3D::BeginHealthBarBatch3D() {
-    m_healthBarVertexCount3D = 0;
 }
 
 void Renderer3D::BeginTextBatch3D() {
@@ -113,12 +108,6 @@ void Renderer3D::EndMapTextBatch3D() {
 void Renderer3D::EndFrameTextBatch3D() {
     // flush any remaining text at the end of the frame
     EndTextBatch3D();
-}
-
-void Renderer3D::EndHealthBarBatch3D() {
-    if (m_healthBarVertexCount3D > 0) {
-        FlushHealthBars3D();
-    }
 }
 
 void Renderer3D::EndTextBatch3D() {
@@ -199,8 +188,8 @@ void Renderer3D::FlushLine3D() {
     m_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
     
-    m_renderer->SetVertexArray(m_effectsVAO3D);
-    UploadVertexDataTo3DVBO(m_effectsVBO3D, m_lineVertices3D, m_lineVertexCount3D, GL_STREAM_DRAW);
+    m_renderer->SetVertexArray(m_lineVAO3D);
+    UploadVertexDataTo3DVBO(m_lineVBO3D, m_lineVertices3D, m_lineVertexCount3D, GL_STREAM_DRAW);
     
     glDrawArrays(GL_LINES, 0, m_lineVertexCount3D);
     
@@ -225,8 +214,8 @@ void Renderer3D::FlushStaticSprites3D() {
         m_renderer->SetBoundTexture(m_currentStaticSpriteTexture3D);
     }
     
-    m_renderer->SetVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_staticSpriteVertices3D, m_staticSpriteVertexCount3D, GL_DYNAMIC_DRAW);
+    m_renderer->SetVertexArray(m_spriteVAO3D);
+    UploadVertexDataTo3DVBO(m_spriteVBO3D, m_staticSpriteVertices3D, m_staticSpriteVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_staticSpriteVertexCount3D);
     glDepthMask(GL_TRUE);
@@ -252,8 +241,8 @@ void Renderer3D::FlushRotatingSprite3D() {
         m_renderer->SetBoundTexture(m_currentRotatingSpriteTexture3D);
     }
     
-    m_renderer->SetVertexArray(m_unitVAO3D);
-    UploadVertexDataTo3DVBO(m_unitVBO3D, m_rotatingSpriteVertices3D, m_rotatingSpriteVertexCount3D, GL_DYNAMIC_DRAW);
+    m_renderer->SetVertexArray(m_spriteVAO3D);
+    UploadVertexDataTo3DVBO(m_spriteVBO3D, m_rotatingSpriteVertices3D, m_rotatingSpriteVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_rotatingSpriteVertexCount3D);
     glDepthMask(GL_TRUE);
@@ -261,25 +250,6 @@ void Renderer3D::FlushRotatingSprite3D() {
     m_rotatingSpriteVertexCount3D = 0;
     
     EndFlushTiming3D("Unit_Rotating_3D");
-}
-
-void Renderer3D::FlushHealthBars3D() {
-    if (m_healthBarVertexCount3D == 0) return;
-    
-    StartFlushTiming3D("Health_Bars_3D");
-    IncrementDrawCall3D("health_bars");
-    
-    m_renderer->SetShaderProgram(m_shader3DProgram);
-    Set3DShaderUniforms();
-    
-    m_renderer->SetVertexArray(m_healthVAO3D);
-    UploadVertexDataTo3DVBO(m_healthVBO3D, m_healthBarVertices3D, m_healthBarVertexCount3D, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_healthBarVertexCount3D);
-    
-    m_healthBarVertexCount3D = 0;
-    
-    EndFlushTiming3D("Health_Bars_3D");
 }
 
 void Renderer3D::FlushTextBuffer3D() {

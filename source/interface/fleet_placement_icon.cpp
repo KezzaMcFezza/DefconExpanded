@@ -199,7 +199,7 @@ void FleetPlacementIconButton::Render( int realX, int realY, bool highlighted, b
 	    if( bmpImage )
 	    {
             g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-		    g_renderer->EclipseSprite( bmpImage, x, y, size, size, colour );
+		    g_renderer->StaticSprite( bmpImage, x, y, size, size, colour );
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	    }
     }

@@ -19,7 +19,7 @@ void MapEditorWindow::Create()
 void MapEditorWindow::Render(bool _hasFocus)
 {
     InterfaceWindow::Render( _hasFocus );
-    g_renderer->EclipseRectFill( 0, 0, m_w, m_h, Colour(100,100,200,100) );
+    g_renderer->RectFill( 0, 0, m_w, m_h, Colour(100,100,200,100) );
 };
 
 

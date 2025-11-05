@@ -56,12 +56,12 @@ public:
     {
         if( highlighted )
         {
-            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(100,100,200,100) );
+            g_renderer->RectFill ( realX, realY, m_w, m_h, Colour(100,100,200,100) );
         }
 
         if( strcmp(EclGetCurrentButton(), m_name) == 0 )
         {
-            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(100,100,200,200) );
+            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,200,200) );
             TextButton::Render( realX, realY, highlighted, true );
         }
         else
@@ -219,8 +219,8 @@ public:
 
         if( team && team->m_allianceId == m_allianceId )
         {
-            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(100,100,200,200) );
-            g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,155) );
+            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,200,200) );
+            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,155) );
         }
 
         LobbyOptionsButton::Render( realX, realY, highlighted, clicked );
@@ -239,8 +239,8 @@ public:
         float colourH = m_h - 6;
 
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-        g_renderer->EclipseRectFill( colourX, colourY, colourW, colourH, allianceCol, darker, false );
-        g_renderer->EclipseRect( colourX, colourY, colourW, colourH, Colour(255,255,255,55), 0.5f );
+        g_renderer->RectFill( colourX, colourY, colourW, colourH, allianceCol, darker, false );
+        g_renderer->Rect( colourX, colourY, colourW, colourH, Colour(255,255,255,55), 0.5f );
     }
 
     void MouseUp()
@@ -428,12 +428,12 @@ public:
 
         LobbyWindow *lobby = (LobbyWindow *) m_parent;
 
-        g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(15,15,15,100) );            
-        g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,30), 0.5f );
+        g_renderer->RectFill( realX, realY, m_w, m_h, Colour(15,15,15,100) );            
+        g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,30), 0.5f );
 
         if( highlighted && g_app->HasServerPrivileges() )
         {
-            g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,100), 1 );
+            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100), 1 );
         }
 
         int maxTeams = g_app->GetGame()->GetOptionValue("MaxTeams");
@@ -472,8 +472,8 @@ public:
         }
         else
         {
-            g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,20) );            
-            g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,30), 1 );
+            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,20) );            
+            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,30), 1 );
 
             int teamId = lobby->m_teamOrder[m_teamIndex];
             Team *team = g_app->GetWorld()->GetTeam(teamId);
@@ -513,8 +513,8 @@ public:
                 teamColDark.m_g *= 0.2f;
                 teamColDark.m_b *= 0.2f;
 
-                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, colour, teamColDark, teamColDark, colour );            
-                g_renderer->EclipseRect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
+                g_renderer->RectFill( realX, realY, m_w, m_h, colour, teamColDark, teamColDark, colour );            
+                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
 
                 const char *teamName = team->GetTeamName();
 
@@ -560,7 +560,7 @@ public:
 
                 if( lobby->m_selectionId == team->m_teamId )
                 {
-                    g_renderer->EclipseRect( realX-2, realY-2, m_w+4, m_h+4, Colour(255,255,255,255), 1.5f );
+                    g_renderer->Rect( realX-2, realY-2, m_w+4, m_h+4, Colour(255,255,255,255), 1.5f );
                 }
 
                 //
@@ -568,22 +568,22 @@ public:
 
                 if( TeamOptionsAvailable() )
                 {
-                    g_renderer->EndEclipseRectFillBatch();
-                    g_renderer->BeginEclipseSpriteBatch();
+                    g_renderer->EndRectFillBatch();
+                    g_renderer->BeginStaticSpriteBatch();
 
                     int optionsX, optionsY, optionsW, optionsH;
                     GetTeamOptionsButton( optionsX, optionsY, optionsW, optionsH );
                     
                     Image *img = g_resource->GetImage("gui/arrow.bmp");
                     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                    g_renderer->EclipseSprite( img, realX+optionsX, realY+optionsY, optionsW, optionsH, Colour(255,255,255,150) );
+                    g_renderer->StaticSprite( img, realX+optionsX, realY+optionsY, optionsW, optionsH, Colour(255,255,255,150) );
                     
                     if( MouseInTeamOptionsButton() )
                     {
-                        g_renderer->EclipseSprite( img, realX+optionsX, realY+optionsY, optionsW, optionsH, Colour(255,255,255,250) );                    
+                        g_renderer->StaticSprite( img, realX+optionsX, realY+optionsY, optionsW, optionsH, Colour(255,255,255,250) );                    
                     }
                     
-                    g_renderer->EndEclipseSpriteBatch();
+                    g_renderer->EndStaticSpriteBatch();
                     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
                 }
 
@@ -760,7 +760,7 @@ public:
                 option->m_currentValue != option->m_default &&
                 optionEditable )
             {
-                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, Colour(255,255,255,20) );
+                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,20) );
                 g_renderer->TextRight( realX+m_w, realY+m_h-8, Colour(255,0,0,200), 8, LANGUAGEPHRASE("dialog_edited") );
             }
             
@@ -786,7 +786,7 @@ public:
                 float fraction = m_changeTimer / 2.0f;
                 Clamp( fraction, 0.0f, 1.0f );
                 Colour col( 255, 255, 255, fraction*155 );
-                g_renderer->EclipseRectFill( realX, realY, m_w, m_h, col );
+                g_renderer->RectFill( realX, realY, m_w, m_h, col );
             }
         }
     }
@@ -1138,9 +1138,9 @@ public:
     {
         //
         // this ensures the map is rendered ontop of rectfill
-        
-        g_renderer->EndEclipseRectFillBatch();
-        g_renderer->BeginEclipseRectFillBatch();
+            
+        g_renderer->EndRectFillBatch();
+        g_renderer->BeginRectFillBatch();
         
         //
         // Render the world map
@@ -1154,8 +1154,8 @@ public:
         int worldMapY = realY;
 
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-        g_renderer->EclipseSprite( bmpWorldMap, worldMapX, worldMapY, worldMapW, worldMapH, White );
-        g_renderer->EclipseRect( worldMapX, worldMapY, worldMapW, worldMapH, Colour(100,100,200,255) );
+        g_renderer->StaticSprite( bmpWorldMap, worldMapX, worldMapY, worldMapW, worldMapH, White );
+        g_renderer->Rect( worldMapX, worldMapY, worldMapW, worldMapH, Colour(100,100,200,255) );
 
         //
         // Caption : select territories
@@ -1207,11 +1207,11 @@ public:
                     Image *img = g_app->GetMapRenderer()->GetTerritoryImage(territoryId);
                     Colour col = team->GetTeamColour();
                     col.m_a = 200;
-                    g_renderer->EclipseSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col );
+                    g_renderer->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col );
                     if( team->m_teamId == ((LobbyWindow *)m_parent)->m_selectionId )
                     {
                         col.Set(255,255,255,70);
-                        g_renderer->EclipseSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col );
+                        g_renderer->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col );
                     }
                 }
             }
@@ -1257,7 +1257,7 @@ public:
                 {
                     if( selectedTeam )
                     {
-                        g_renderer->EclipseSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col );
+                        g_renderer->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col );
                     }
                 }   
 
@@ -2075,12 +2075,12 @@ void LobbyWindow::Render( bool _hasFocus )
                         strcpy( specName, spec->m_name );
                     }
 
-                    g_renderer->EclipseRectFill( specX, specY, specW, specH-gap, Colour(155,155,155,30), Colour(55,55,55,30), false );            
+                    g_renderer->RectFill( specX, specY, specW, specH-gap, Colour(155,155,155,30), Colour(55,55,55,30), false );            
                     g_renderer->Text( specX+10, specY+(specH-gap)/2-6, Colour(255,255,255,128), 11, specName );
 
                     if( spec->m_clientId == g_app->GetClientToServer()->m_clientId )
                     {
-                        g_renderer->EclipseRect( specX, specY, specW, specH-gap, Colour(255,255,255,100), 1.0f );
+                        g_renderer->Rect( specX, specY, specW, specH-gap, Colour(255,255,255,100), 1.0f );
                     }
                 }
 

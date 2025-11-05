@@ -17,6 +17,6 @@ WorldObjectWindow::WorldObjectWindow( char *name )
 
 void WorldObjectWindow::Render( bool hasFocus )
 {
-    g_renderer->EclipseRect( m_x, m_y, m_w, m_h, White );
+    g_renderer->Rect( m_x, m_y, m_w, m_h, White );
 }
 

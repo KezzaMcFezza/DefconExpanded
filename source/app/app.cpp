@@ -1166,7 +1166,7 @@ void App::RenderTitleScreen()
 
         float bombSize = 500;
         Colour col(255,155,155, 255*(bombTimer-GetHighResTime())/10 );
-        g_renderer->EclipseSprite( blur, bombX, baseLine-300, bombSize, bombSize, col );
+        g_renderer->StaticSprite( blur, bombX, baseLine-300, bombSize, bombSize, col );
     }
 
 
@@ -1179,14 +1179,14 @@ void App::RenderTitleScreen()
     
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );        
 
-    g_renderer->EclipseRectFill( 0, baseLine, windowW, windowH-baseLine, Black );
+    g_renderer->RectFill( 0, baseLine, windowW, windowH-baseLine, Black );
 
     while( x < windowW )
     {        
         float thisW = 50+sfrand(30);
         float thisH = 40+frand(140);
 
-        g_renderer->EclipseRectFill( x, baseLine - thisH, thisW, thisH, Black );
+        g_renderer->RectFill( x, baseLine - thisH, thisW, thisH, Black );
 
         x += thisW;
     }

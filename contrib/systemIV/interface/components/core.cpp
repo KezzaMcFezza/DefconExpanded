@@ -182,11 +182,11 @@ void InterfaceWindow::Render ( bool hasFocus )
     bool titleBarAlignment = g_styleTable->GetStyle(STYLE_WINDOW_TITLEBAR)->m_horizontal;
     bool windowAlignment   = g_styleTable->GetStyle(STYLE_WINDOW_BACKGROUND)->m_horizontal;
 
-    g_renderer->EclipseRectFill ( m_x, m_y, m_w, 20, titleBarColA, titleBarColB, titleBarAlignment );
-    g_renderer->EclipseRectFill ( m_x, m_y+20, m_w, m_h-21, windowColA, windowColB, windowAlignment );
+    g_renderer->RectFill ( m_x, m_y, m_w, 20, titleBarColA, titleBarColB, titleBarAlignment );
+    g_renderer->RectFill ( m_x, m_y+20, m_w, m_h-21, windowColA, windowColB, windowAlignment );
 
-    g_renderer->EclipseRect     ( m_x, m_y, m_w-1, m_h-1, borderCol );
-    g_renderer->EclipseRect     ( m_x+1, m_y+20, m_w-4, m_h-22, innerBorder );
+    g_renderer->Rect     ( m_x, m_y, m_w-1, m_h-1, borderCol );
+    g_renderer->Rect     ( m_x+1, m_y+20, m_w-4, m_h-22, innerBorder );
   
 
     //
@@ -228,8 +228,8 @@ void InterfaceWindow::Render ( bool hasFocus )
     //
     // Resizer widget bottom right
 
-    g_renderer->EclipseLine    ( m_x+m_w-2, m_y+m_h-12, m_x+m_w-12, m_y+m_h-2, borderCol );
-    g_renderer->EclipseLine    ( m_x+m_w-2, m_y+m_h-8, m_x+m_w-8, m_y+m_h-2, borderCol );
+    g_renderer->Line    ( m_x+m_w-2, m_y+m_h-12, m_x+m_w-12, m_y+m_h-2, borderCol );
+    g_renderer->Line    ( m_x+m_w-2, m_y+m_h-8, m_x+m_w-8, m_y+m_h-2, borderCol );
 
     //
     // Draw the buttons
@@ -250,7 +250,7 @@ void InterfaceWindow::Render ( bool hasFocus )
     if( hasFocus )
     {
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-        g_renderer->EclipseRect( m_x-2, m_y-2, m_w+3, m_h+3, Colour(255,255,255,100), 1.0f );        
+        g_renderer->Rect( m_x-2, m_y-2, m_w+3, m_h+3, Colour(255,255,255,100), 1.0f );        
     }
 }
 
@@ -268,9 +268,9 @@ void InterfaceWindow::RenderWindowShadow( float _x, float _y, float _h, float _w
     Colour strong(0,0,0,_alpha*255);
     Colour weak(0,0,0,0);
 
-    g_renderer->EclipseRectFill( _x, _y+_size, _size, _h-_size, strong, weak, weak, strong );
-    g_renderer->EclipseRectFill( _x, _y+_h, _size, _size, strong, weak, weak, weak );
-    g_renderer->EclipseRectFill( _x-_w+_size, _y+_h, _w-_size, _size, strong, strong, weak, weak );
+    g_renderer->RectFill( _x, _y+_size, _size, _h-_size, strong, weak, weak, strong );
+    g_renderer->RectFill( _x, _y+_h, _size, _size, strong, weak, weak, weak );
+    g_renderer->RectFill( _x-_w+_size, _y+_h, _w-_size, _size, strong, strong, weak, weak );
 }
 
 
@@ -293,12 +293,12 @@ void InterfaceButton::Render( int realX, int realY, bool highlighted, bool click
     
     bool colourAlignment    = g_styleTable->GetStyle(styleName)->m_horizontal;
 
-    g_renderer->EclipseRectFill    ( realX, realY, m_w, m_h, primaryCol, secondaryCol, colourAlignment );
+    g_renderer->RectFill    ( realX, realY, m_w, m_h, primaryCol, secondaryCol, colourAlignment );
 
-    g_renderer->EclipseLine        ( realX, realY, realX+m_w, realY, borderPrimary );
-    g_renderer->EclipseLine        ( realX, realY, realX, realY+m_h, borderPrimary );
-    g_renderer->EclipseLine        ( realX, realY+m_h, realX+m_w, realY+m_h, borderSeconary );
-    g_renderer->EclipseLine        ( realX+m_w, realY, realX+m_w, realY+m_h, borderSeconary );
+    g_renderer->Line        ( realX, realY, realX+m_w, realY, borderPrimary );
+    g_renderer->Line        ( realX, realY, realX, realY+m_h, borderPrimary );
+    g_renderer->Line        ( realX, realY+m_h, realX+m_w, realY+m_h, borderSeconary );
+    g_renderer->Line        ( realX+m_w, realY, realX+m_w, realY+m_h, borderSeconary );
     
 
     //
@@ -481,10 +481,10 @@ void InvertedBox::Render( int realX, int realY, bool highlighted, bool clicked )
     
     bool alignment = g_styleTable->GetStyle(STYLE_BOX_BACKGROUND)->m_horizontal;
 
-    g_renderer->EclipseRectFill( realX, realY, m_w, m_h, fillCol, fillColS, alignment );
+    g_renderer->RectFill( realX, realY, m_w, m_h, fillCol, fillColS, alignment );
     
-    g_renderer->EclipseLine    ( realX, realY, realX+m_w, realY, borderPrimary );                  // top
-    g_renderer->EclipseLine    ( realX, realY, realX, realY+m_h, borderPrimary );                  // left
-    g_renderer->EclipseLine    ( realX+m_w, realY, realX+m_w, realY+m_h, borderSecondary );        // right
-    g_renderer->EclipseLine    ( realX, realY+m_h, realX+m_w, realY+m_h, borderSecondary );        // bottom
+    g_renderer->Line    ( realX, realY, realX+m_w, realY, borderPrimary );                  // top
+    g_renderer->Line    ( realX, realY, realX, realY+m_h, borderPrimary );                  // left
+    g_renderer->Line    ( realX+m_w, realY, realX+m_w, realY+m_h, borderSecondary );        // right
+    g_renderer->Line    ( realX, realY+m_h, realX+m_w, realY+m_h, borderSecondary );        // bottom
 }

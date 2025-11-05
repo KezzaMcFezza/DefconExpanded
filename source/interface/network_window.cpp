@@ -73,7 +73,7 @@ void NetworkWindow::Render( bool hasFocus )
 		LPREPLACESTRINGFLAG( 'R', number, caption );
 		g_renderer->TextSimple( m_x + 10, y+=h, White, 12, caption );
 
-        g_renderer->EclipseLine( m_x + 10, y + 20, m_x + m_w - 10, y + 20, White, 1 );
+        g_renderer->Line( m_x + 10, y + 20, m_x + m_w - 10, y + 20, White, 1 );
         
         int clientX = m_x + 20;
         int ipX = clientX + 60;
@@ -206,14 +206,14 @@ void NetworkWindow::Render( bool hasFocus )
         {
             if( i != 0 )
             {
-                g_renderer->EclipseRectFill( xPos, yPos-5, width-gap, 20, Colour(20,20,50,255) );
+                g_renderer->RectFill( xPos, yPos-5, width-gap, 20, Colour(20,20,50,255) );
 
                 if( g_app->GetClientToServer()->IsSequenceIdInQueue( g_lastProcessedSequenceId+i ) )
                 {
-                    g_renderer->EclipseRectFill( xPos, yPos-5, width-gap, 20, Colour(0,255,0,255) );
+                    g_renderer->RectFill( xPos, yPos-5, width-gap, 20, Colour(0,255,0,255) );
                 }
 
-                g_renderer->EclipseRect( xPos, yPos-5, width-gap, 20, Colour(255,255,255,100) );
+                g_renderer->Rect( xPos, yPos-5, width-gap, 20, Colour(255,255,255,100) );
             }
 
             if( i == 0 )

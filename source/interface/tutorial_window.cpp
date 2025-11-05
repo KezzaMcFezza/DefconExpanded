@@ -114,8 +114,8 @@ void TutorialWindow::Render( bool _hasFocus )
     Colour windowColB  = g_styleTable->GetSecondaryColour( STYLE_WINDOW_BACKGROUND );
     Colour borderCol   = g_styleTable->GetPrimaryColour( STYLE_WINDOW_OUTERBORDER );
 
-    g_renderer->EclipseRectFill ( m_x, m_y, m_w, m_h, windowColA, windowColA, windowColB, windowColB );
-    g_renderer->EclipseRect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
+    g_renderer->RectFill ( m_x, m_y, m_w, m_h, windowColA, windowColA, windowColB, windowColB );
+    g_renderer->Rect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
 
     EclWindow::Render( _hasFocus );
 
@@ -264,13 +264,13 @@ void TutorialWindow::Render( bool _hasFocus )
         if( highlightFound )
         {
             float alpha = 55 + fabs(sinf(g_gameTime*2)) * 200;
-            g_renderer->EclipseRect( x-10, y-10, w+20, h+20, Colour(255,255,0,alpha), 5 );
+            g_renderer->Rect( x-10, y-10, w+20, h+20, Colour(255,255,0,alpha), 5 );
                             
-            g_renderer->BeginEclipseLines( Colour(255,255,0,alpha), 1 );
-            g_renderer->EclipseLine( xPos-7, yPos+8 );
-            g_renderer->EclipseLine( xPos-7, y+h/2 );
-            g_renderer->EclipseLine( x-5, y+h/2 );
-            g_renderer->EndEclipseLines();
+            g_renderer->BeginLines( Colour(255,255,0,alpha), 1 );
+            g_renderer->Line( xPos-7, yPos+8 );
+            g_renderer->Line( xPos-7, y+h/2 );
+            g_renderer->Line( x-5, y+h/2 );
+            g_renderer->EndLines();
         }
     }
 }

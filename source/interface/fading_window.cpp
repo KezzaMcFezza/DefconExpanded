@@ -65,8 +65,8 @@ void FadingWindow::Render( bool _hasFocus, bool _renderButtons )
 
     bool alignment = g_styleTable->GetStyle(STYLE_WINDOW_BACKGROUND)->m_horizontal;
     
-    g_renderer->EclipseRectFill ( m_x, m_y, m_w, m_h, windowColA, windowColB, alignment );
-    g_renderer->EclipseRect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
+    g_renderer->RectFill ( m_x, m_y, m_w, m_h, windowColA, windowColB, alignment );
+    g_renderer->Rect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
 
     g_renderer->SetClip( m_x, m_y, m_w, m_h );
 
