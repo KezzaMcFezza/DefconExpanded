@@ -7,6 +7,13 @@
 #ifndef _included_renderer_h
 #define _included_renderer_h
 
+//
+// more for testing, we get 20k draw calls with immediate mode enabled
+// set to 1 to disable batching and flush after every draw call
+// set to 0 to enable batching
+
+#define IMMEDIATE_MODE 0
+
 #include "lib/math/vector3.h"
 #include "lib/render/colour.h"
 #include "lib/tosser/btree.h"
@@ -69,7 +76,7 @@ private:
   static constexpr int MAX_TEXT_VERTICES            = 7500;
   static constexpr int MAX_LINE_VERTICES            = 15000;
   static constexpr int MAX_STATIC_SPRITE_VERTICES   = 10000;
-  static constexpr int MAX_ROTATING_SPRITE_VERTICES = 15000;
+  static constexpr int MAX_ROTATING_SPRITE_VERTICES = 20000;
   static constexpr int MAX_HEALTH_BAR_VERTICES      = 500;
   static constexpr int MAX_CIRCLE_VERTICES          = 5000;
   static constexpr int MAX_CIRCLE_FILL_VERTICES     = 5000;
@@ -521,9 +528,8 @@ public:
                          Colour const &col);
   void TriangleFill     (float x1, float y1, float x2, float y2, float x3, float y3,
                          Colour const &col);
-  void Line             (float x1, float y1, float x2, float y2, Colour const &col);
   void Line             (float x1, float y1, float x2, float y2, Colour const &col,
-                         float lineWidth);
+                         float lineWidth = 1.0f);
   void Line             (float x, float y);
 
   void BeginLines       (Colour const &col, float lineWidth);

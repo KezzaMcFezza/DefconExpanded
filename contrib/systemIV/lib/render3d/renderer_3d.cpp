@@ -139,6 +139,11 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_healthVAO3D(0), m_healthVBO3D(0),
     m_textVAO3D(0), m_textVBO3D(0),
     m_nukeVAO3D(0), m_nukeVBO3D(0),
+    m_circleVAO3D(0), m_circleVBO3D(0),
+    m_circleFillVAO3D(0), m_circleFillVBO3D(0),
+    m_rectVAO3D(0), m_rectVBO3D(0),
+    m_rectFillVAO3D(0), m_rectFillVBO3D(0),
+    m_triangleFillVAO3D(0), m_triangleFillVBO3D(0),
     m_legacyVAO3D(0), m_legacyVBO3D(0),
     m_currentShaderProgram3D(0),
     m_matrices3DNeedUpdate(true),
@@ -165,7 +170,15 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_currentRotatingSpriteTexture3D(0),
     m_textVertexCount3D(0),
     m_currentTextTexture3D(0),
-    m_nuke3DModelVertexCount3D(0)
+    m_nuke3DModelVertexCount3D(0),
+    m_starFieldVertexCount3D(0),
+    m_currentStarFieldTexture3D(0),
+    m_globeSurfaceVertexCount3D(0),
+    m_circleVertexCount3D(0),
+    m_circleFillVertexCount3D(0),
+    m_rectVertexCount3D(0),
+    m_rectFillVertexCount3D(0),
+    m_triangleFillVertexCount3D(0)
 {
     // Initialize fog parameters
     m_fogEnabled = false;
@@ -191,6 +204,13 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_textCalls3D = 0;
     m_megaVBOCalls3D = 0;
     m_nuke3DModelCalls3D = 0;
+    m_starFieldCalls3D = 0;
+    m_globeSurfaceCalls3D = 0;
+    m_circleCalls3D = 0;
+    m_circleFillCalls3D = 0;
+    m_rectCalls3D = 0;
+    m_rectFillCalls3D = 0;
+    m_triangleFillCalls3D = 0;
     
     // Initialize previous frame data
     m_prevDrawCallsPerFrame3D = 0;
@@ -202,6 +222,13 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_prevTextCalls3D = 0;
     m_prevMegaVBOCalls3D = 0;
     m_prevNuke3DModelCalls3D = 0;
+    m_prevStarFieldCalls3D = 0;
+    m_prevGlobeSurfaceCalls3D = 0;
+    m_prevCircleCalls3D = 0;
+    m_prevCircleFillCalls3D = 0;
+    m_prevRectCalls3D = 0;
+    m_prevRectFillCalls3D = 0;
+    m_prevTriangleFillCalls3D = 0;
     m_flushTimingCount3D = 0;
     m_currentFlushStartTime3D = 0.0;
     
@@ -257,6 +284,16 @@ void Renderer3D::Shutdown() {
     if (m_textVBO3D) glDeleteBuffers(1, &m_textVBO3D);
     if (m_nukeVAO3D) glDeleteVertexArrays(1, &m_nukeVAO3D);
     if (m_nukeVBO3D) glDeleteBuffers(1, &m_nukeVBO3D);
+    if (m_circleVAO3D) glDeleteVertexArrays(1, &m_circleVAO3D);
+    if (m_circleVBO3D) glDeleteBuffers(1, &m_circleVBO3D);
+    if (m_circleFillVAO3D) glDeleteVertexArrays(1, &m_circleFillVAO3D);
+    if (m_circleFillVBO3D) glDeleteBuffers(1, &m_circleFillVBO3D);
+    if (m_rectVAO3D) glDeleteVertexArrays(1, &m_rectVAO3D);
+    if (m_rectVBO3D) glDeleteBuffers(1, &m_rectVBO3D);
+    if (m_rectFillVAO3D) glDeleteVertexArrays(1, &m_rectFillVAO3D);
+    if (m_rectFillVBO3D) glDeleteBuffers(1, &m_rectFillVBO3D);
+    if (m_triangleFillVAO3D) glDeleteVertexArrays(1, &m_triangleFillVAO3D);
+    if (m_triangleFillVBO3D) glDeleteBuffers(1, &m_triangleFillVBO3D);
     if (m_legacyVAO3D) glDeleteVertexArrays(1, &m_legacyVAO3D);
     if (m_legacyVBO3D) glDeleteBuffers(1, &m_legacyVBO3D);
     if (m_shader3DProgram) {
@@ -398,6 +435,46 @@ void Renderer3D::Setup3DVertexArrays() {
     glBindVertexArray(m_nukeVAO3D);
     glBindBuffer(GL_ARRAY_BUFFER, m_nukeVBO3D);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_NUKE_3D_MODEL_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
+    setup3DVertexAttributes();
+    
+    // Create Circle VAO/VBO pair
+    glGenVertexArrays(1, &m_circleVAO3D);
+    glGenBuffers(1, &m_circleVBO3D);
+    glBindVertexArray(m_circleVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_circleVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_CIRCLE_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
+    setup3DVertexAttributes();
+    
+    // Create Circle Fill VAO/VBO pair
+    glGenVertexArrays(1, &m_circleFillVAO3D);
+    glGenBuffers(1, &m_circleFillVBO3D);
+    glBindVertexArray(m_circleFillVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_circleFillVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_CIRCLE_FILL_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
+    setup3DVertexAttributes();
+    
+    // Create Rect VAO/VBO pair
+    glGenVertexArrays(1, &m_rectVAO3D);
+    glGenBuffers(1, &m_rectVBO3D);
+    glBindVertexArray(m_rectVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_rectVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_RECT_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
+    setup3DVertexAttributes();
+    
+    // Create Rect Fill VAO/VBO pair
+    glGenVertexArrays(1, &m_rectFillVAO3D);
+    glGenBuffers(1, &m_rectFillVBO3D);
+    glBindVertexArray(m_rectFillVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_rectFillVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_RECT_FILL_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
+    setup3DVertexAttributes();
+    
+    // Create Triangle Fill VAO/VBO pair
+    glGenVertexArrays(1, &m_triangleFillVAO3D);
+    glGenBuffers(1, &m_triangleFillVBO3D);
+    glBindVertexArray(m_triangleFillVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_triangleFillVBO3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_TRIANGLE_FILL_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
     setup3DVertexAttributes();
     
     // Create Legacy VAO/VBO pair (keep original behavior)
@@ -709,24 +786,50 @@ void Renderer3D::SetFogUniforms3D(unsigned int shaderProgram) {
     glUniform3f(cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
 }
 
-void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3D* vertices, int vertexCount, unsigned int usageHint) {
+void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo,
+                                         const Vertex3D* vertices,
+                                         int vertexCount,
+                                         unsigned int usageHint)
+{
     if (vertexCount <= 0 || !vertices) return;
-    
+
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    
-    const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3D);
-    
-    glBufferData(GL_ARRAY_BUFFER, bytes, vertices, usageHint);
+
+    const GLsizeiptr bytes =
+        static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3D);
+
+    if (usageHint == GL_STATIC_DRAW)
+    {
+        glBufferData(GL_ARRAY_BUFFER, bytes, vertices, usageHint);
+    }
+    else
+    {
+        glBufferData(GL_ARRAY_BUFFER, bytes, nullptr, usageHint);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+    }
 }
 
-void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount, unsigned int usageHint) {
+void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo,
+                                         const Vertex3DTextured* vertices,
+                                         int vertexCount,
+                                         unsigned int usageHint)
+{
     if (vertexCount <= 0 || !vertices) return;
-    
+
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    
-    const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3DTextured);
-    
-    glBufferData(GL_ARRAY_BUFFER, bytes, vertices, usageHint);
+
+    const GLsizeiptr bytes =
+        static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3DTextured);
+
+    if (usageHint == GL_STATIC_DRAW)
+    {
+        glBufferData(GL_ARRAY_BUFFER, bytes, vertices, usageHint);
+    }
+    else
+    {
+        glBufferData(GL_ARRAY_BUFFER, bytes, nullptr, usageHint);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+    }
 }
 
 void Renderer3D::EnableDistanceFog(float start, float end, float density, float r, float g, float b, float a) {
@@ -900,9 +1003,17 @@ void Renderer3D::IncrementDrawCall3D(const char* bufferType) {
         case hash("text"): m_textCalls3D++; break;
         case hash("mega_vbo"): m_megaVBOCalls3D++; break;
         case hash("unit_trails"): m_lineCalls3D++; break;
+        case hash("batched_lines"): m_lineCalls3D++; break;
         case hash("Static_Sprite_sprites"): m_staticSpriteCalls3D++; break;
         case hash("unit_rotating"): m_rotatingSpriteCalls3D++; break;
         case hash("nuke_3d_models"): m_nuke3DModelCalls3D++; break;
+        case hash("star_field"): m_starFieldCalls3D++; break;
+        case hash("globe_surface"): m_globeSurfaceCalls3D++; break;
+        case hash("circles"): m_circleCalls3D++; break;
+        case hash("circle_fills"): m_circleFillCalls3D++; break;
+        case hash("rects"): m_rectCalls3D++; break;
+        case hash("rect_fills"): m_rectFillCalls3D++; break;
+        case hash("triangle_fills"): m_triangleFillCalls3D++; break;
     }
 }
 
@@ -917,6 +1028,13 @@ void Renderer3D::ResetFrameCounters3D() {
     m_prevTextCalls3D = m_textCalls3D;
     m_prevMegaVBOCalls3D = m_megaVBOCalls3D;
     m_prevNuke3DModelCalls3D = m_nuke3DModelCalls3D;
+    m_prevStarFieldCalls3D = m_starFieldCalls3D;
+    m_prevGlobeSurfaceCalls3D = m_globeSurfaceCalls3D;
+    m_prevCircleCalls3D = m_circleCalls3D;
+    m_prevCircleFillCalls3D = m_circleFillCalls3D;
+    m_prevRectCalls3D = m_rectCalls3D;
+    m_prevRectFillCalls3D = m_rectFillCalls3D;
+    m_prevTriangleFillCalls3D = m_triangleFillCalls3D;
     
     // reset current frame counters
     m_drawCallsPerFrame3D = 0;
@@ -928,6 +1046,13 @@ void Renderer3D::ResetFrameCounters3D() {
     m_textCalls3D = 0;
     m_megaVBOCalls3D = 0;
     m_nuke3DModelCalls3D = 0;
+    m_starFieldCalls3D = 0;
+    m_globeSurfaceCalls3D = 0;
+    m_circleCalls3D = 0;
+    m_circleFillCalls3D = 0;
+    m_rectCalls3D = 0;
+    m_rectFillCalls3D = 0;
+    m_triangleFillCalls3D = 0;
 }
 
 void Renderer3D::BeginFrame3D() {

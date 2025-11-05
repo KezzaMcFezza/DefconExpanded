@@ -16,10 +16,14 @@ extern Renderer *g_renderer;
 void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float h, 
                         float texX, float texY, float texW, float texH, Colour const &col) {
     
+    //
     // find the font batch for this texture ID, or find an empty one
+
     int targetBatch = -1;
     
+    //
     // check if we already have a batch for this texture
+
     for (int i = 0; i < MAX_FONT_ATLASES; i++) {
         if (m_fontBatches[i].textureID == textureID && m_fontBatches[i].vertexCount > 0) {
             targetBatch = i;
@@ -27,7 +31,9 @@ void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float
         }
     }
     
-    // ff not found, find the first empty batch
+    //
+    // if not found, find the first empty batch
+
     if (targetBatch == -1) {
         for (int i = 0; i < MAX_FONT_ATLASES; i++) {
             if (m_fontBatches[i].vertexCount == 0) {
@@ -38,7 +44,9 @@ void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float
         }
     }
     
+    //
     // if no empty batch found, use the current one
+    
     if (targetBatch == -1) {
         targetBatch = m_currentFontBatchIndex;
     }
@@ -70,6 +78,11 @@ void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float
     m_textVertices = batch->vertices;
     m_textVertexCount = batch->vertexCount;
     m_currentTextTexture = batch->textureID;
+    
+#if IMMEDIATE_MODE
+    FlushTextBuffer();
+    batch->vertexCount = 0;
+#endif
 }
 
 // ============================================================================

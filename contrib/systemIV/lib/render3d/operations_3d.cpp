@@ -11,35 +11,11 @@
 extern Renderer3D *g_renderer3d;
 
 // ============================================================================
-// FLUSH ALL SPECIALIZED BUFFERS
-// ============================================================================
-
-void Renderer3D::FlushAllSpecializedBuffers3D() {
-    FlushStarField3D();
-    FlushGlobeSurface3D();
-    FlushLine3D();
-    FlushStaticSprites3D();
-    FlushRotatingSprite3D();
-    FlushTextBuffer3D();
-    FlushNuke3DModels3D();
-}
-
-void Renderer3D::FlushAllUnitBuffers3D() {
-    FlushLine3D();
-    FlushStaticSprites3D();
-    FlushRotatingSprite3D();
-}
-
-void Renderer3D::FlushAllNuke3DModelBuffers3D() {
-    FlushNuke3DModels3D();
-}
-
-// ============================================================================
 // BEGIN SCENES
 // ============================================================================
 
 void Renderer3D::BeginLineBatch3D() {
-    // trail segments will be batched until EndLineBatch3D()
+    m_lineVertexCount3D = 0;
 }
 
 void Renderer3D::BeginStaticSpriteBatch3D() {
@@ -50,17 +26,6 @@ void Renderer3D::BeginStaticSpriteBatch3D() {
 void Renderer3D::BeginRotatingSpriteBatch3D() {
     m_rotatingSpriteVertexCount3D = 0;
     m_currentRotatingSpriteTexture3D = 0;
-}
-
-void Renderer3D::BeginMapTextBatch3D() {
-    BeginTextBatch3D();
-}
-
-void Renderer3D::BeginFrameTextBatch3D() {
-    // reset text buffer for the new frame
-    m_textVertexCount3D = 0;
-    m_currentTextTexture3D = 0;
-    BeginTextBatch3D();
 }
 
 void Renderer3D::BeginTextBatch3D() {
@@ -81,12 +46,34 @@ void Renderer3D::BeginGlobeSurfaceBatch3D() {
     m_globeSurfaceVertexCount3D = 0;
 }
 
+void Renderer3D::BeginCircleBatch3D() {
+    m_circleVertexCount3D = 0;
+}
+
+void Renderer3D::BeginCircleFillBatch3D() {
+    m_circleFillVertexCount3D = 0;
+}
+
+void Renderer3D::BeginRectBatch3D() {
+    m_rectVertexCount3D = 0;
+}
+
+void Renderer3D::BeginRectFillBatch3D() {
+    m_rectFillVertexCount3D = 0;
+}
+
+void Renderer3D::BeginTriangleFillBatch3D() {
+    m_triangleFillVertexCount3D = 0;
+}
+
 // ============================================================================
 // END SCENES
 // ============================================================================
 
 void Renderer3D::EndLineBatch3D() {
-    FlushLine3D();
+    if (m_lineVertexCount3D > 0) {
+        FlushLine3D();
+    }
 }
 
 void Renderer3D::EndStaticSpriteBatch3D() {
@@ -101,21 +88,16 @@ void Renderer3D::EndRotatingSpriteBatch3D() {
     }
 }
 
-void Renderer3D::EndMapTextBatch3D() {
-    EndTextBatch3D();
-}
-
-void Renderer3D::EndFrameTextBatch3D() {
-    // flush any remaining text at the end of the frame
-    EndTextBatch3D();
-}
-
 void Renderer3D::EndTextBatch3D() {
-    FlushTextContext3D();
+    if (m_textVertexCount3D > 0) {
+        FlushTextBuffer3D();
+    }
 }
 
 void Renderer3D::EndNuke3DModelBatch3D() {
-    FlushNuke3DModels3D();
+    if (m_nuke3DModelVertexCount3D > 0) {
+        FlushNuke3DModels3D();
+    }
 }
 
 void Renderer3D::EndStarFieldBatch3D() {
@@ -127,6 +109,36 @@ void Renderer3D::EndStarFieldBatch3D() {
 void Renderer3D::EndGlobeSurfaceBatch3D() {
     if (m_globeSurfaceVertexCount3D > 0) {
         FlushGlobeSurface3D();
+    }
+}
+
+void Renderer3D::EndCircleBatch3D() {
+    if (m_circleVertexCount3D > 0) {
+        FlushCircles3D();
+    }
+}
+
+void Renderer3D::EndCircleFillBatch3D() {
+    if (m_circleFillVertexCount3D > 0) {
+        FlushCircleFills3D();
+    }
+}
+
+void Renderer3D::EndRectBatch3D() {
+    if (m_rectVertexCount3D > 0) {
+        FlushRects3D();
+    }
+}
+
+void Renderer3D::EndRectFillBatch3D() {
+    if (m_rectFillVertexCount3D > 0) {
+        FlushRectFills3D();
+    }
+}
+
+void Renderer3D::EndTriangleFillBatch3D() {
+    if (m_triangleFillVertexCount3D > 0) {
+        FlushTriangleFills3D();
     }
 }
 
@@ -167,6 +179,36 @@ void Renderer3D::FlushGlobeSurface3DIfFull(int verticesNeeded) {
 void Renderer3D::FlushNuke3DModels3DIfFull(int verticesNeeded) {
     if (m_nuke3DModelVertexCount3D + verticesNeeded >= MAX_NUKE_3D_MODEL_VERTICES_3D) {
         FlushNuke3DModels3D();
+    }
+}
+
+void Renderer3D::FlushCircles3DIfFull(int verticesNeeded) {
+    if (m_circleVertexCount3D + verticesNeeded > MAX_CIRCLE_VERTICES_3D) {
+        FlushCircles3D();
+    }
+}
+
+void Renderer3D::FlushCircleFills3DIfFull(int verticesNeeded) {
+    if (m_circleFillVertexCount3D + verticesNeeded > MAX_CIRCLE_FILL_VERTICES_3D) {
+        FlushCircleFills3D();
+    }
+}
+
+void Renderer3D::FlushRects3DIfFull(int verticesNeeded) {
+    if (m_rectVertexCount3D + verticesNeeded > MAX_RECT_VERTICES_3D) {
+        FlushRects3D();
+    }
+}
+
+void Renderer3D::FlushRectFills3DIfFull(int verticesNeeded) {
+    if (m_rectFillVertexCount3D + verticesNeeded > MAX_RECT_FILL_VERTICES_3D) {
+        FlushRectFills3D();
+    }
+}
+
+void Renderer3D::FlushTriangleFills3DIfFull(int verticesNeeded) {
+    if (m_triangleFillVertexCount3D + verticesNeeded > MAX_TRIANGLE_FILL_VERTICES_3D) {
+        FlushTriangleFills3D();
     }
 }
 
@@ -354,6 +396,101 @@ void Renderer3D::FlushGlobeSurface3D() {
     EndFlushTiming3D("Globe_Surface_3D");
 }
 
+void Renderer3D::FlushCircles3D() {
+    if (m_circleVertexCount3D == 0) return;
+    
+    StartFlushTiming3D("Circles_3D");
+    IncrementDrawCall3D("circles");
+    
+    m_renderer->SetShaderProgram(m_shader3DProgram);
+    Set3DShaderUniforms();
+    
+    m_renderer->SetVertexArray(m_circleVAO3D);
+    UploadVertexDataTo3DVBO(m_circleVBO3D, m_circleVertices3D, m_circleVertexCount3D, GL_DYNAMIC_DRAW);
+    
+    glDrawArrays(GL_LINES, 0, m_circleVertexCount3D);
+    
+    m_circleVertexCount3D = 0;
+    
+    EndFlushTiming3D("Circles_3D");
+}
+
+void Renderer3D::FlushCircleFills3D() {
+    if (m_circleFillVertexCount3D == 0) return;
+    
+    StartFlushTiming3D("Circle_Fills_3D");
+    IncrementDrawCall3D("circle_fills");
+    
+    m_renderer->SetShaderProgram(m_shader3DProgram);
+    Set3DShaderUniforms();
+    
+    m_renderer->SetVertexArray(m_circleFillVAO3D);
+    UploadVertexDataTo3DVBO(m_circleFillVBO3D, m_circleFillVertices3D, m_circleFillVertexCount3D, GL_DYNAMIC_DRAW);
+    
+    glDrawArrays(GL_TRIANGLES, 0, m_circleFillVertexCount3D);
+    
+    m_circleFillVertexCount3D = 0;
+    
+    EndFlushTiming3D("Circle_Fills_3D");
+}
+
+void Renderer3D::FlushRects3D() {
+    if (m_rectVertexCount3D == 0) return;
+    
+    StartFlushTiming3D("Rects_3D");
+    IncrementDrawCall3D("rects");
+    
+    m_renderer->SetShaderProgram(m_shader3DProgram);
+    Set3DShaderUniforms();
+    
+    m_renderer->SetVertexArray(m_rectVAO3D);
+    UploadVertexDataTo3DVBO(m_rectVBO3D, m_rectVertices3D, m_rectVertexCount3D, GL_DYNAMIC_DRAW);
+    
+    glDrawArrays(GL_LINES, 0, m_rectVertexCount3D);
+    
+    m_rectVertexCount3D = 0;
+    
+    EndFlushTiming3D("Rects_3D");
+}
+
+void Renderer3D::FlushRectFills3D() {
+    if (m_rectFillVertexCount3D == 0) return;
+    
+    StartFlushTiming3D("Rect_Fills_3D");
+    IncrementDrawCall3D("rect_fills");
+    
+    m_renderer->SetShaderProgram(m_shader3DProgram);
+    Set3DShaderUniforms();
+    
+    m_renderer->SetVertexArray(m_rectFillVAO3D);
+    UploadVertexDataTo3DVBO(m_rectFillVBO3D, m_rectFillVertices3D, m_rectFillVertexCount3D, GL_DYNAMIC_DRAW);
+    
+    glDrawArrays(GL_TRIANGLES, 0, m_rectFillVertexCount3D);
+    
+    m_rectFillVertexCount3D = 0;
+    
+    EndFlushTiming3D("Rect_Fills_3D");
+}
+
+void Renderer3D::FlushTriangleFills3D() {
+    if (m_triangleFillVertexCount3D == 0) return;
+    
+    StartFlushTiming3D("Triangle_Fills_3D");
+    IncrementDrawCall3D("triangle_fills");
+    
+    m_renderer->SetShaderProgram(m_shader3DProgram);
+    Set3DShaderUniforms();
+    
+    m_renderer->SetVertexArray(m_triangleFillVAO3D);
+    UploadVertexDataTo3DVBO(m_triangleFillVBO3D, m_triangleFillVertices3D, m_triangleFillVertexCount3D, GL_DYNAMIC_DRAW);
+    
+    glDrawArrays(GL_TRIANGLES, 0, m_triangleFillVertexCount3D);
+    
+    m_triangleFillVertexCount3D = 0;
+    
+    EndFlushTiming3D("Triangle_Fills_3D");
+}
+
 void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
     if (m_vertex3DCount == 0) return;
     
@@ -432,8 +569,4 @@ void Renderer3D::Flush3DTexturedVertices() {
     m_vertex3DTexturedCount = 0;
     
     EndFlushTiming3D("Legacy_Triangles_3D");
-}
-
-void Renderer3D::FlushTextContext3D() {
-    FlushTextBuffer3D();
 }

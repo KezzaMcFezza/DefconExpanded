@@ -13,30 +13,21 @@
 
 extern Renderer *g_renderer;
 
-void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col) {
-    FlushLinesIfFull(2);
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    m_lineVertices[m_lineVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
-    m_lineVertices[m_lineVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
-}
-
 void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth) {
     FlushLinesIfFull(2);
-
+   
 #ifndef TARGET_EMSCRIPTEN
-    SetLineWidth(lineWidth);
+    SetLineWidth(1.0f);
 #endif
-    
-    if (m_lineVertexCount + 2 > MAX_LINE_VERTICES) {
-        FlushLines();
-    }
-    
+
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
     m_lineVertices[m_lineVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
     m_lineVertices[m_lineVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
+    
+#if IMMEDIATE_MODE
+    FlushLines();
+#endif
 }
 
 void Renderer::Line(float x, float y) {
@@ -54,7 +45,7 @@ void Renderer::Circle(float x, float y, float radius, int numPoints, Colour cons
     FlushCirclesIfFull(numPoints * 2);
 
 #ifndef TARGET_EMSCRIPTEN
-    SetLineWidth(lineWidth);
+    SetLineWidth(1.0f);
 #endif
 
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
@@ -71,10 +62,18 @@ void Renderer::Circle(float x, float y, float radius, int numPoints, Colour cons
         m_circleVertices[m_circleVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
         m_circleVertices[m_circleVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
     }
+    
+#if IMMEDIATE_MODE
+    FlushCircles();
+#endif
 }
 
 void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour const &col) {
     FlushCircleFillsIfFull(numPoints * 3);
+
+#ifndef TARGET_EMSCRIPTEN
+    SetLineWidth(1.0f);
+#endif
 
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
@@ -92,15 +91,19 @@ void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour 
         m_circleFillVertices[m_circleFillVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
         m_circleFillVertices[m_circleFillVertexCount++] = {x2, y2, r, g, b, a, 1.0f, 0.0f};
     }
+    
+#if IMMEDIATE_MODE
+    FlushCircleFills();
+#endif
 }
 
 void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float lineWidth) {
     FlushRectsIfFull(8);
-
-#ifndef TARGET_EMSCRIPTEN
-    SetLineWidth(lineWidth);
-#endif
     
+#ifndef TARGET_EMSCRIPTEN
+    SetLineWidth(1.0f);
+#endif
+
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
     // top line
@@ -118,6 +121,10 @@ void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float
     // left line
     m_rectVertices[m_rectVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
     m_rectVertices[m_rectVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
+    
+#if IMMEDIATE_MODE
+    FlushRects();
+#endif
 }
 
 
@@ -151,6 +158,10 @@ void Renderer::RectFill(float x, float y, float w, float h, Colour const &colTL,
     m_rectFillVertices[m_rectFillVertexCount++] = {x, y, rTL, gTL, bTL, aTL, 0.0f, 0.0f};
     m_rectFillVertices[m_rectFillVertexCount++] = {x + w, y + h, rBR, gBR, bBR, aBR, 1.0f, 1.0f};
     m_rectFillVertices[m_rectFillVertexCount++] = {x, y + h, rBL, gBL, bBL, aBL, 0.0f, 1.0f};
+    
+#if IMMEDIATE_MODE
+    FlushRectFills();
+#endif
 }
 
 void Renderer::TriangleFill(float x1, float y1, float x2, float y2, float x3, float y3, Colour const &col) {
@@ -161,12 +172,16 @@ void Renderer::TriangleFill(float x1, float y1, float x2, float y2, float x3, fl
     m_triangleFillVertices[m_triangleFillVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
     m_triangleFillVertices[m_triangleFillVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
     m_triangleFillVertices[m_triangleFillVertexCount++] = {x3, y3, r, g, b, a, 0.0f, 0.0f};
+    
+#if IMMEDIATE_MODE
+    FlushTriangleFills();
+#endif
 }
 
 void Renderer::BeginLines(Colour const &col, float lineWidth) {
 
 #ifndef TARGET_EMSCRIPTEN
-    SetLineWidth(lineWidth);
+    SetLineWidth(1.0f);
 #endif
 
     m_currentLineColor = col;
@@ -202,8 +217,9 @@ void Renderer::BeginLineStrip2D(Colour const &col, float lineWidth) {
     m_lineVertexCount = 0;
 
 #ifndef TARGET_EMSCRIPTEN
-    SetLineWidth(lineWidth);
+    SetLineWidth(1.0f);
 #endif
+
 }
 
 void Renderer::LineStripVertex2D(float x, float y) {

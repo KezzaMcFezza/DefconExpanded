@@ -1136,12 +1136,12 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_vbo.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\sprites.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\text.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\operations_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\primitive_3d_buffers.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\sprite_3d_buffers.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\operations_3d.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\primitives_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_nuke.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_vbo.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\sprites_3d.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\colour.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\styletable.cpp" />

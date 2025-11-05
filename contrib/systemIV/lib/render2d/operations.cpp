@@ -285,10 +285,6 @@ void Renderer::FlushLines() {
     StartFlushTiming("Lines");
     IncrementDrawCall("lines");
     
-//#ifndef TARGET_EMSCRIPTEN
-//    SetLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS)); 
-//#endif
-    
     SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     

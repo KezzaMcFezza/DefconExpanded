@@ -27,6 +27,10 @@ void Renderer::StaticSprite(Image *src, float x, float y, float w, float h, Colo
     
     AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(src);
     
+    //
+    // This goes against tradition for seperating engien code from app code...
+    // but for now lets keep it i will find a better way.
+    
     if (atlasImage) {
         const char* filename = atlasImage->GetFilename();
         if (filename && strstr(filename, "smallnuke.bmp")) {
@@ -57,6 +61,10 @@ void Renderer::StaticSprite(Image *src, float x, float y, float w, float h, Colo
     m_staticSpriteVertices[m_staticSpriteVertexCount++] = {x, y, r, g, b, a, u1, v2};
     m_staticSpriteVertices[m_staticSpriteVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
     m_staticSpriteVertices[m_staticSpriteVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
+    
+#if IMMEDIATE_MODE
+    FlushStaticSprites();
+#endif
 }
 
 void Renderer::StaticSprite(Image *src, float x, float y, Colour const &col) {
@@ -77,6 +85,11 @@ void Renderer::RotatingSprite(Image *src, float x, float y, float w, float h, Co
     
     AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(src);
     
+
+    //
+    // This goes against tradition for seperating engien code from app code...
+    // but for now lets keep it i will find a better way.
+
     if (atlasImage) {
         const char* filename = atlasImage->GetFilename();
         if (filename && strstr(filename, "smallnuke.bmp")) {
@@ -124,4 +137,8 @@ void Renderer::RotatingSprite(Image *src, float x, float y, float w, float h, Co
     m_rotatingSpriteVertices[m_rotatingSpriteVertexCount++] = {vert1.x, vert1.y, r, g, b, a, u1, v2};
     m_rotatingSpriteVertices[m_rotatingSpriteVertexCount++] = {vert3.x, vert3.y, r, g, b, a, u2, v1};
     m_rotatingSpriteVertices[m_rotatingSpriteVertexCount++] = {vert4.x, vert4.y, r, g, b, a, u1, v1};
+    
+#if IMMEDIATE_MODE
+    FlushRotatingSprite();
+#endif
 }

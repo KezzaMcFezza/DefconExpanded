@@ -5,12 +5,13 @@
 #include "lib/math/vector3.h"
 #include "lib/render/colour.h"
 
-// Forward declarations
 class Renderer;
 class Image;
 class BitmapFont;
 
+//
 // Billboard modes for different sprite types
+
 enum BillboardMode3D {
     BILLBOARD_SURFACE_ALIGNED,  // Lay flat on globe surface (units, cities)
     BILLBOARD_CAMERA_FACING,    // Face camera (nukes, air units)  
@@ -83,20 +84,16 @@ private:
     Shader3DUniforms m_shader3DUniforms;
     Shader3DUniforms m_shader3DTexturedUniforms;
     
-    // Uniform state caching to eliminate redundant uploads
     unsigned int m_currentShaderProgram3D;
     bool m_matrices3DNeedUpdate;
     bool m_fog3DNeedsUpdate;
-    
-    // 3D-specific OpenGL objects
+
     unsigned int m_shader3DProgram;
     unsigned int m_shader3DTexturedProgram;  // Textured shader for quads
     unsigned int m_VAO3D;
     unsigned int m_VBO3D;
     unsigned int m_VAO3DTextured;            // VAO for textured quads
     unsigned int m_VBO3DTextured;            // VBO for textured quads
-    
-    // Specialized 3D VAOs and VBOs for different rendering groups
     unsigned int m_spriteVAO3D, m_spriteVBO3D;           // Unit sprites and highlights
     unsigned int m_lineVAO3D, m_lineVBO3D;     // Effects lines and trails (non-textured)
     unsigned int m_globeVAO3D, m_globeVBO3D;         // Globe surface (non-textured)
@@ -104,6 +101,11 @@ private:
     unsigned int m_healthVAO3D, m_healthVBO3D;       // Health bars
     unsigned int m_textVAO3D, m_textVBO3D;           // Text rendering
     unsigned int m_nukeVAO3D, m_nukeVBO3D;           // 3D nuke models
+    unsigned int m_circleVAO3D, m_circleVBO3D;       // Circle outlines
+    unsigned int m_circleFillVAO3D, m_circleFillVBO3D;  // Circle fills
+    unsigned int m_rectVAO3D, m_rectVBO3D;           // Rect outlines
+    unsigned int m_rectFillVAO3D, m_rectFillVBO3D;   // Rect fills
+    unsigned int m_triangleFillVAO3D, m_triangleFillVBO3D;  // Triangle fills
     unsigned int m_legacyVAO3D, m_legacyVBO3D;       // Legacy rendering
     
     // 3D matrices
@@ -208,6 +210,31 @@ private:
     Vertex3D m_globeSurfaceVertices3D[MAX_GLOBE_SURFACE_VERTICES_3D];
     int m_globeSurfaceVertexCount3D;
     
+    // Circle rendering buffers
+    static constexpr int MAX_CIRCLE_VERTICES_3D = 5000;
+    Vertex3D m_circleVertices3D[MAX_CIRCLE_VERTICES_3D];
+    int m_circleVertexCount3D;
+    
+    // Circle fill rendering buffers
+    static constexpr int MAX_CIRCLE_FILL_VERTICES_3D = 5000;
+    Vertex3D m_circleFillVertices3D[MAX_CIRCLE_FILL_VERTICES_3D];
+    int m_circleFillVertexCount3D;
+    
+    // Rect rendering buffers
+    static constexpr int MAX_RECT_VERTICES_3D = 3000;
+    Vertex3D m_rectVertices3D[MAX_RECT_VERTICES_3D];
+    int m_rectVertexCount3D;
+    
+    // Rect fill rendering buffers
+    static constexpr int MAX_RECT_FILL_VERTICES_3D = 3000;
+    Vertex3D m_rectFillVertices3D[MAX_RECT_FILL_VERTICES_3D];
+    int m_rectFillVertexCount3D;
+    
+    // Triangle fill rendering buffers
+    static constexpr int MAX_TRIANGLE_FILL_VERTICES_3D = 3000;
+    Vertex3D m_triangleFillVertices3D[MAX_TRIANGLE_FILL_VERTICES_3D];
+    int m_triangleFillVertexCount3D;
+    
     //
     // draw call tracking
     
@@ -222,6 +249,11 @@ private:
     int m_nuke3DModelCalls3D;
     int m_starFieldCalls3D;
     int m_globeSurfaceCalls3D;
+    int m_circleCalls3D;
+    int m_circleFillCalls3D;
+    int m_rectCalls3D;
+    int m_rectFillCalls3D;
+    int m_triangleFillCalls3D;
     int m_prevDrawCallsPerFrame3D;
     int m_prevLegacyVertexCalls3D;
     int m_prevLegacyTriangleCalls3D;
@@ -233,6 +265,11 @@ private:
     int m_prevNuke3DModelCalls3D;
     int m_prevStarFieldCalls3D;
     int m_prevGlobeSurfaceCalls3D;
+    int m_prevCircleCalls3D;
+    int m_prevCircleFillCalls3D;
+    int m_prevRectCalls3D;
+    int m_prevRectFillCalls3D;
+    int m_prevTriangleFillCalls3D;
     
     static constexpr int MAX_FLUSH_TYPES_3D = 50;
     
@@ -355,6 +392,11 @@ public:
     int GetNuke3DModelCalls() const { return m_prevNuke3DModelCalls3D; }
     int GetStarFieldCalls() const { return m_prevStarFieldCalls3D; }
     int GetGlobeSurfaceCalls() const { return m_prevGlobeSurfaceCalls3D; }
+    int GetCircleCalls() const { return m_prevCircleCalls3D; }
+    int GetCircleFillCalls() const { return m_prevCircleFillCalls3D; }
+    int GetRectCalls() const { return m_prevRectCalls3D; }
+    int GetRectFillCalls() const { return m_prevRectFillCalls3D; }
+    int GetTriangleFillCalls() const { return m_prevTriangleFillCalls3D; }
     
     int GetTotalUnitCalls() const { 
         return m_prevLineCalls3D + m_prevStaticSpriteCalls3D + 
@@ -371,17 +413,26 @@ public:
     int GetCurrentNuke3DModelVertexCount() const { return m_nuke3DModelVertexCount3D; }
     int GetCurrentStarFieldVertexCount() const { return m_starFieldVertexCount3D; }
     int GetCurrentGlobeSurfaceVertexCount() const { return m_globeSurfaceVertexCount3D; }
+    int GetCurrentCircleVertexCount() const { return m_circleVertexCount3D; }
+    int GetCurrentCircleFillVertexCount() const { return m_circleFillVertexCount3D; }
+    int GetCurrentRectVertexCount() const { return m_rectVertexCount3D; }
+    int GetCurrentRectFillVertexCount() const { return m_rectFillVertexCount3D; }
+    int GetCurrentTriangleFillVertexCount() const { return m_triangleFillVertexCount3D; }
     
     int GetTotalCurrentVertexCount() const {
         return m_textVertexCount3D + m_lineVertexCount3D + m_staticSpriteVertexCount3D + 
                m_rotatingSpriteVertexCount3D + m_nuke3DModelVertexCount3D +
-               m_starFieldVertexCount3D + m_globeSurfaceVertexCount3D;
+               m_starFieldVertexCount3D + m_globeSurfaceVertexCount3D +
+               m_circleVertexCount3D + m_circleFillVertexCount3D +
+               m_rectVertexCount3D + m_rectFillVertexCount3D + m_triangleFillVertexCount3D;
     }
 
     size_t GetTotalAllocatedBufferMemory() const {
         size_t total = 0;
         
-        int nonTexturedVertices = m_lineVertexCount3D + m_nuke3DModelVertexCount3D + m_globeSurfaceVertexCount3D;
+        int nonTexturedVertices = m_lineVertexCount3D + m_nuke3DModelVertexCount3D + m_globeSurfaceVertexCount3D +
+                                  m_circleVertexCount3D + m_circleFillVertexCount3D +
+                                  m_rectVertexCount3D + m_rectFillVertexCount3D + m_triangleFillVertexCount3D;
         total += nonTexturedVertices * sizeof(Vertex3D);
         
         int texturedVertices = m_staticSpriteVertexCount3D + m_rotatingSpriteVertexCount3D +  
@@ -449,6 +500,41 @@ public:
     void EndGlobeSurfaceBatch3D();
     void FlushGlobeSurface3D();
     void FlushGlobeSurface3DIfFull(int verticesNeeded);
+    
+    // Circle rendering
+    void Circle3D(float x, float y, float z, float radius, int numPoints, Colour const &col);
+    void BeginCircleBatch3D();
+    void EndCircleBatch3D();
+    void FlushCircles3D();
+    void FlushCircles3DIfFull(int verticesNeeded);
+    
+    // Circle fill rendering
+    void CircleFill3D(float x, float y, float z, float radius, int numPoints, Colour const &col);
+    void BeginCircleFillBatch3D();
+    void EndCircleFillBatch3D();
+    void FlushCircleFills3D();
+    void FlushCircleFills3DIfFull(int verticesNeeded);
+    
+    // Rect rendering
+    void Rect3D(float x, float y, float z, float w, float h, Colour const &col);
+    void BeginRectBatch3D();
+    void EndRectBatch3D();
+    void FlushRects3D();
+    void FlushRects3DIfFull(int verticesNeeded);
+    
+    // Rect fill rendering
+    void RectFill3D(float x, float y, float z, float w, float h, Colour const &col);
+    void BeginRectFillBatch3D();
+    void EndRectFillBatch3D();
+    void FlushRectFills3D();
+    void FlushRectFills3DIfFull(int verticesNeeded);
+    
+    // Triangle fill rendering
+    void TriangleFill3D(float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, Colour const &col);
+    void BeginTriangleFillBatch3D();
+    void EndTriangleFillBatch3D();
+    void FlushTriangleFills3D();
+    void FlushTriangleFills3DIfFull(int verticesNeeded);
     
     // Buffer management
     void FlushAllSpecializedBuffers3D();

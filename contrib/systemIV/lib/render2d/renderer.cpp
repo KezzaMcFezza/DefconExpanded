@@ -492,24 +492,21 @@ void Renderer::Set2DViewport(float l, float r, float b, float t, int x, int y, i
     m_modelViewMatrix.LoadIdentity();
     m_projectionMatrix.Ortho(l - 0.325f, r - 0.325f, b - 0.325f, t - 0.325f, -1.0f, 1.0f);
 
-#if !defined(TARGET_OS_MACOSX ) && (!defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN))
+    //
     // Calculate scale factors between logical and physical resolution
+
     float scaleX = (float)g_windowManager->PhysicalWindowW() / (float)g_windowManager->WindowW();
     float scaleY = (float)g_windowManager->PhysicalWindowH() / (float)g_windowManager->WindowH();
     
+    //
     // Apply scaling to convert logical coordinates to physical viewport coordinates
+    
     int physicalX = (int)(x * scaleX);
     int physicalY = (int)((g_windowManager->WindowH() - h - y) * scaleY);
     int physicalW = (int)(w * scaleX);
     int physicalH = (int)(h * scaleY);
 
     SetViewport(physicalX, physicalY, physicalW, physicalH);
-#else
-    float scaleX = g_windowManager->GetHighDPIScaleX();
-    float scaleY = g_windowManager->GetHighDPIScaleY();
-
-    SetViewport(scaleX * x, scaleY * (g_windowManager->WindowH() - h - y), scaleX * w, scaleY * h);
-#endif
 }
 
 void Renderer::Reset2DViewport() {
@@ -1224,7 +1221,7 @@ void Renderer::SetupVertexArrays() {
     glGenBuffers(1, &m_spriteVBO);
     glBindVertexArray(m_spriteVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_spriteVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_STATIC_SPRITE_VERTICES + MAX_ROTATING_SPRITE_VERTICES), NULL, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_STATIC_SPRITE_VERTICES + MAX_ROTATING_SPRITE_VERTICES), NULL, GL_DYNAMIC_DRAW);
     setupVertexAttributes();
     
     //
@@ -1332,13 +1329,22 @@ void Renderer::UploadVertexData(const Vertex2D* vertices, int vertexCount) {
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertexCount * sizeof(Vertex2D), vertices);
 }
 
-void Renderer::UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices, int vertexCount, unsigned int usageHint) {
+void Renderer::UploadVertexDataToVBO(unsigned int vbo,
+                                     const Vertex2D* vertices,
+                                     int vertexCount,
+                                     unsigned int usageHint)
+{
     if (vertexCount <= 0 || !vertices) return;
-    
-    const GLsizeiptr bytes = static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex2D);
-    
-    glBufferData(GL_ARRAY_BUFFER, bytes, vertices, usageHint);
- 
+
+    const GLsizeiptr bytes =
+        static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex2D);
+
+    if (usageHint == GL_STATIC_DRAW) {
+        glBufferData(GL_ARRAY_BUFFER, bytes, vertices, usageHint);
+    } else {
+        glBufferData(GL_ARRAY_BUFFER, bytes, NULL, usageHint);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, bytes, vertices);
+    }
 }
 
 // ============================================================================

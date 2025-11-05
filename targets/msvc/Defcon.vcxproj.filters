@@ -79,9 +79,6 @@
     <Filter Include="lib\unicode">
       <UniqueIdentifier>{b9b21fe4-158c-47ac-88e4-dd0d932a7b4d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib\render3d\buffers">
-      <UniqueIdentifier>{3e379d61-1966-45b3-8ef0-ae5b5ef76dd8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="contrib\unrar">
       <UniqueIdentifier>{e35ff38c-1916-4287-b2bc-a97198032d69}</UniqueIdentifier>
     </Filter>
@@ -576,14 +573,14 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_vbo.cpp">
       <Filter>lib\render2d</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\operations_3d.cpp">
-      <Filter>lib\render3d\buffers</Filter>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\operations_3d.cpp">
+      <Filter>lib\render3d</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\primitive_3d_buffers.cpp">
-      <Filter>lib\render3d\buffers</Filter>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\primitives_3d.cpp">
+      <Filter>lib\render3d</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\buffers\sprite_3d_buffers.cpp">
-      <Filter>lib\render3d\buffers</Filter>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\sprites_3d.cpp">
+      <Filter>lib\render3d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_nuke.cpp">
       <Filter>lib\render3d</Filter>
