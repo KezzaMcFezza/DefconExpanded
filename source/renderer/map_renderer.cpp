@@ -3236,7 +3236,7 @@ void MapRenderer::RenderRadar()
     //
     // begin radar micro batching (own radar)
 
-    g_renderer->BeginLineBatch();
+    g_renderer->BeginCircleBatch();
     g_renderer->BeginCircleFillBatch();
     
     //
@@ -3248,8 +3248,8 @@ void MapRenderer::RenderRadar()
     //
     // end it
 
-    g_renderer->EndLineBatch();
     g_renderer->EndCircleFillBatch();
+    g_renderer->EndCircleBatch();
     
     //
     // check if we need allied radar
@@ -3271,7 +3271,7 @@ void MapRenderer::RenderRadar()
     //
     // begin allied radar micro batch
 
-    g_renderer->BeginLineBatch();
+    g_renderer->BeginCircleBatch();
     g_renderer->BeginCircleFillBatch();
 
     if( sharingRadar )
@@ -3283,21 +3283,17 @@ void MapRenderer::RenderRadar()
     //
     // end it
 
-    g_renderer->EndLineBatch();
     g_renderer->EndCircleFillBatch();
+    g_renderer->EndCircleBatch();
     
     //
     // darken the whole world not covered by radar (uses depth buffer as mask)
     // cannot use batching here as im having issues with depth and blend modes 
     // when flushing
 
-    g_renderer->BeginRectFillBatch();
-
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );        
     g_renderer->RectFill( -180, -100, 360, 200, Colour(0,0,0,150), true );
     g_renderer->SetDepthBuffer( false, false );
-
-    g_renderer->EndRectFillBatch();
     
     END_PROFILE( "Radar" );
 }

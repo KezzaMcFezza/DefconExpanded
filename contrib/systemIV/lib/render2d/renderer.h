@@ -75,10 +75,10 @@ private:
   static constexpr int MAX_LINE_VERTICES            = 20000;
   static constexpr int MAX_STATIC_SPRITE_VERTICES   = 15000;
   static constexpr int MAX_ROTATING_SPRITE_VERTICES = 20000;
-  static constexpr int MAX_CIRCLE_VERTICES          = 5000;
-  static constexpr int MAX_CIRCLE_FILL_VERTICES     = 5000;
-  static constexpr int MAX_RECT_VERTICES            = 3000;
-  static constexpr int MAX_RECT_FILL_VERTICES       = 3000;
+  static constexpr int MAX_CIRCLE_VERTICES          = 50000;
+  static constexpr int MAX_CIRCLE_FILL_VERTICES     = 20000;
+  static constexpr int MAX_RECT_VERTICES            = 5000;
+  static constexpr int MAX_RECT_FILL_VERTICES       = 5000;
   static constexpr int MAX_TRIANGLE_FILL_VERTICES   = 3000;
 
 protected:
