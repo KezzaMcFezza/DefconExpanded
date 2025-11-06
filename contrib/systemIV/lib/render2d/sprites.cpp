@@ -15,7 +15,7 @@
 
 extern Renderer *g_renderer;
 
-void Renderer::StaticSprite(Image *src, float x, float y, float w, float h, Colour const &col) {
+void Renderer::StaticSprite(Image *src, float x, float y, float w, float h, Colour const &col, bool immediateFlush) {
     FlushStaticSpritesIfFull(6);
     
     unsigned int effectiveTextureID = GetEffectiveTextureID(src);
@@ -62,18 +62,22 @@ void Renderer::StaticSprite(Image *src, float x, float y, float w, float h, Colo
     m_staticSpriteVertices[m_staticSpriteVertexCount++] = {x + w, y + h, r, g, b, a, u2, v1};
     m_staticSpriteVertices[m_staticSpriteVertexCount++] = {x, y + h, r, g, b, a, u1, v1};
     
-#if IMMEDIATE_MODE
+#if IMMEDIATE_MODE_2D
     FlushStaticSprites();
+#else
+    if (immediateFlush) {
+        FlushStaticSprites();
+    }
 #endif
 }
 
-void Renderer::StaticSprite(Image *src, float x, float y, Colour const &col) {
+void Renderer::StaticSprite(Image *src, float x, float y, Colour const &col, bool immediateFlush) {
     float w = src->Width();
     float h = src->Height();
-    StaticSprite(src, x, y, w, h, col);
+    StaticSprite(src, x, y, w, h, col, immediateFlush);
 }
 
-void Renderer::RotatingSprite(Image *src, float x, float y, float w, float h, Colour const &col, float angle) {
+void Renderer::RotatingSprite(Image *src, float x, float y, float w, float h, Colour const &col, float angle, bool immediateFlush) {
     FlushRotatingSpritesIfFull(6);
     
     unsigned int effectiveTextureID = GetEffectiveTextureID(src);
@@ -138,7 +142,11 @@ void Renderer::RotatingSprite(Image *src, float x, float y, float w, float h, Co
     m_rotatingSpriteVertices[m_rotatingSpriteVertexCount++] = {vert3.x, vert3.y, r, g, b, a, u2, v1};
     m_rotatingSpriteVertices[m_rotatingSpriteVertexCount++] = {vert4.x, vert4.y, r, g, b, a, u1, v1};
     
-#if IMMEDIATE_MODE
+#if IMMEDIATE_MODE_2D
     FlushRotatingSprite();
+#else
+    if (immediateFlush) {
+        FlushRotatingSprite();
+    }
 #endif
 }

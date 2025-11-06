@@ -13,7 +13,7 @@
 
 extern Renderer *g_renderer;
 
-void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth) {
+void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth, bool immediateFlush) {
     FlushLinesIfFull(2);
    
 #ifndef TARGET_EMSCRIPTEN
@@ -25,8 +25,12 @@ void Renderer::Line(float x1, float y1, float x2, float y2, Colour const &col, f
     m_lineVertices[m_lineVertexCount++] = {x1, y1, r, g, b, a, 0.0f, 0.0f};
     m_lineVertices[m_lineVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
     
-#if IMMEDIATE_MODE
+#if IMMEDIATE_MODE_2D
     FlushLines();
+#else
+    if (immediateFlush) {
+        FlushLines();
+    }
 #endif
 }
 
@@ -41,7 +45,7 @@ void Renderer::Line(float x, float y) {
     m_lineVertices[m_lineVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
 }
 
-void Renderer::Circle(float x, float y, float radius, int numPoints, Colour const &col, float lineWidth) {
+void Renderer::Circle(float x, float y, float radius, int numPoints, Colour const &col, float lineWidth, bool immediateFlush) {
     FlushCirclesIfFull(numPoints * 2);
 
 #ifndef TARGET_EMSCRIPTEN
@@ -63,12 +67,16 @@ void Renderer::Circle(float x, float y, float radius, int numPoints, Colour cons
         m_circleVertices[m_circleVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
     }
     
-#if IMMEDIATE_MODE
+#if IMMEDIATE_MODE_2D
     FlushCircles();
+#else
+    if (immediateFlush) {
+        FlushCircles();
+    }
 #endif
 }
 
-void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour const &col) {
+void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour const &col, bool immediateFlush) {
     FlushCircleFillsIfFull(numPoints * 3);
 
 #ifndef TARGET_EMSCRIPTEN
@@ -92,12 +100,16 @@ void Renderer::CircleFill(float x, float y, float radius, int numPoints, Colour 
         m_circleFillVertices[m_circleFillVertexCount++] = {x2, y2, r, g, b, a, 1.0f, 0.0f};
     }
     
-#if IMMEDIATE_MODE
+#if IMMEDIATE_MODE_2D
     FlushCircleFills();
+#else
+    if (immediateFlush) {
+        FlushCircleFills();
+    }
 #endif
 }
 
-void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float lineWidth) {
+void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float lineWidth, bool immediateFlush) {
     FlushRectsIfFull(8);
     
 #ifndef TARGET_EMSCRIPTEN
@@ -122,26 +134,30 @@ void Renderer::Rect(float x, float y, float w, float h, Colour const &col, float
     m_rectVertices[m_rectVertexCount++] = {x, y + h, r, g, b, a, 0.0f, 0.0f};
     m_rectVertices[m_rectVertexCount++] = {x, y, r, g, b, a, 0.0f, 0.0f};
     
-#if IMMEDIATE_MODE
+#if IMMEDIATE_MODE_2D
     FlushRects();
+#else
+    if (immediateFlush) {
+        FlushRects();
+    }
 #endif
 }
 
 
-void Renderer::RectFill(float x, float y, float w, float h, Colour const &col) {
-    RectFill(x, y, w, h, col, col, col, col);
+void Renderer::RectFill(float x, float y, float w, float h, Colour const &col, bool immediateFlush) {
+    RectFill(x, y, w, h, col, col, col, col, immediateFlush);
 }
 
-void Renderer::RectFill(float x, float y, float w, float h, Colour const &col1, Colour const &col2, bool horizontal) {
+void Renderer::RectFill(float x, float y, float w, float h, Colour const &col1, Colour const &col2, bool horizontal, bool immediateFlush) {
     if (horizontal) {
-        RectFill(x, y, w, h, col1, col1, col2, col2);
+        RectFill(x, y, w, h, col1, col1, col2, col2, immediateFlush);
     } else {
-        RectFill(x, y, w, h, col1, col2, col2, col1);
+        RectFill(x, y, w, h, col1, col2, col2, col1, immediateFlush);
     }
 }
 
 void Renderer::RectFill(float x, float y, float w, float h, Colour const &colTL, Colour const &colTR, 
-                        Colour const &colBR, Colour const &colBL) {
+                        Colour const &colBR, Colour const &colBL, bool immediateFlush) {
     FlushRectFillsIfFull(6);
     
     float rTL = colTL.GetRFloat(), gTL = colTL.GetGFloat(), bTL = colTL.GetBFloat(), aTL = colTL.GetAFloat();
@@ -159,12 +175,16 @@ void Renderer::RectFill(float x, float y, float w, float h, Colour const &colTL,
     m_rectFillVertices[m_rectFillVertexCount++] = {x + w, y + h, rBR, gBR, bBR, aBR, 1.0f, 1.0f};
     m_rectFillVertices[m_rectFillVertexCount++] = {x, y + h, rBL, gBL, bBL, aBL, 0.0f, 1.0f};
     
-#if IMMEDIATE_MODE
+#if IMMEDIATE_MODE_2D
     FlushRectFills();
+#else
+    if (immediateFlush) {
+        FlushRectFills();
+    }
 #endif
 }
 
-void Renderer::TriangleFill(float x1, float y1, float x2, float y2, float x3, float y3, Colour const &col) {
+void Renderer::TriangleFill(float x1, float y1, float x2, float y2, float x3, float y3, Colour const &col, bool immediateFlush) {
     FlushTriangleFillsIfFull(3);
     
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
@@ -173,8 +193,12 @@ void Renderer::TriangleFill(float x1, float y1, float x2, float y2, float x3, fl
     m_triangleFillVertices[m_triangleFillVertexCount++] = {x2, y2, r, g, b, a, 0.0f, 0.0f};
     m_triangleFillVertices[m_triangleFillVertexCount++] = {x3, y3, r, g, b, a, 0.0f, 0.0f};
     
-#if IMMEDIATE_MODE
+#if IMMEDIATE_MODE_2D
     FlushTriangleFills();
+#else
+    if (immediateFlush) {
+        FlushTriangleFills();
+    }
 #endif
 }
 

@@ -14,12 +14,12 @@
 
 extern Renderer3D *g_renderer3d;
 
-void Renderer3D::StaticSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col) {
+void Renderer3D::StaticSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, bool immediateFlush) {
     // surface aligned billboard for units
-    StaticSprite3D(src, x, y, z, w, h, col, BILLBOARD_SURFACE_ALIGNED);
+    StaticSprite3D(src, x, y, z, w, h, col, BILLBOARD_SURFACE_ALIGNED, immediateFlush);
 }
 
-void Renderer3D::StaticSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode) {
+void Renderer3D::StaticSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode, bool immediateFlush) {
     FlushStaticSprites3DIfFull(6);
     
     unsigned int effectiveTextureID = GetEffectiveTextureID(src);
@@ -77,13 +77,21 @@ void Renderer3D::StaticSprite3D(Image *src, float x, float y, float z, float w, 
     for (int i = 0; i < 6; i++) {
         m_staticSpriteVertices3D[m_staticSpriteVertexCount3D++] = billboardVertices[i];
     }
+    
+#if IMMEDIATE_MODE_3D
+    FlushStaticSprites3D();
+#else
+    if (immediateFlush) {
+        FlushStaticSprites3D();
+    }
+#endif
 }
 
-void Renderer3D::RotatingSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle) {
-    RotatingSprite3D(src, x, y, z, w, h, col, angle, BILLBOARD_CAMERA_FACING);
+void Renderer3D::RotatingSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, bool immediateFlush) {
+    RotatingSprite3D(src, x, y, z, w, h, col, angle, BILLBOARD_CAMERA_FACING, immediateFlush);
 }
 
-void Renderer3D::RotatingSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode) {
+void Renderer3D::RotatingSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode, bool immediateFlush) {
     FlushRotatingSprite3DIfFull(6);
     
     unsigned int effectiveTextureID = GetEffectiveTextureID(src);
@@ -155,4 +163,12 @@ void Renderer3D::RotatingSprite3D(Image *src, float x, float y, float z, float w
     for (int i = 0; i < 6; i++) {
         m_rotatingSpriteVertices3D[m_rotatingSpriteVertexCount3D++] = billboardVertices[i];
     }
+    
+#if IMMEDIATE_MODE_3D
+    FlushRotatingSprite3D();
+#else
+    if (immediateFlush) {
+        FlushRotatingSprite3D();
+    }
+#endif
 }

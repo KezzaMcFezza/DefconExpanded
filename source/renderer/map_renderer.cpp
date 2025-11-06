@@ -3294,7 +3294,7 @@ void MapRenderer::RenderRadar()
     g_renderer->BeginRectFillBatch();
 
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );        
-    g_renderer->RectFill( -180, -100, 360, 200, Colour(0,0,0,150) );
+    g_renderer->RectFill( -180, -100, 360, 200, Colour(0,0,0,150), true );
     g_renderer->SetDepthBuffer( false, false );
 
     g_renderer->EndRectFillBatch();

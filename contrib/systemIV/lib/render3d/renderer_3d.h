@@ -7,6 +7,12 @@
 #ifndef _included_renderer3d_h
 #define _included_renderer3d_h
 
+//
+// Set to 1 to disable batching and flush after every 3D draw call
+// Set to 0 to enable batching
+
+#define IMMEDIATE_MODE_3D 0
+
 #include "lib/tosser/btree.h"
 #include "lib/math/vector3.h"
 #include "lib/render/colour.h"
@@ -400,21 +406,21 @@ public:
     void GetImageUVCoords             (Image* image, float& u1, float& v1, float& u2, float& v2);
     unsigned int GetEffectiveTextureID(Image* image);
     
-    void Line3D           (float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col);
+    void Line3D           (float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col, bool immediateFlush = false);
     void BeginLineBatch3D ();
     void EndLineBatch3D   ();
     void FlushLine3D      ();
     void FlushLine3DIfFull(int segmentsNeeded);
     
-    void StaticSprite3D            (Image *src, float x, float y, float z, float w, float h, Colour const &col);
-    void StaticSprite3D            (Image *src, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode);
+    void StaticSprite3D            (Image *src, float x, float y, float z, float w, float h, Colour const &col, bool immediateFlush = false);
+    void StaticSprite3D            (Image *src, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode, bool immediateFlush = false);
     void BeginStaticSpriteBatch3D  ();
     void EndStaticSpriteBatch3D    ();
     void FlushStaticSprites3D      ();
     void FlushStaticSprites3DIfFull(int verticesNeeded);
     
-    void RotatingSprite3D           (Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle);
-    void RotatingSprite3D           (Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode);
+    void RotatingSprite3D           (Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, bool immediateFlush = false);
+    void RotatingSprite3D           (Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode, bool immediateFlush = false);
     void BeginRotatingSpriteBatch3D ();
     void EndRotatingSpriteBatch3D   ();
     void FlushRotatingSprite3D      ();
@@ -431,31 +437,31 @@ public:
     void FlushNuke3DModels3D       ();
     void FlushNuke3DModels3DIfFull (int verticesNeeded);
     
-    void Circle3D                  (float x, float y, float z, float radius, int numPoints, Colour const &col);
+    void Circle3D                  (float x, float y, float z, float radius, int numPoints, Colour const &col, bool immediateFlush = false);
     void BeginCircleBatch3D        ();
     void EndCircleBatch3D          ();
     void FlushCircles3D            ();
     void FlushCircles3DIfFull      (int verticesNeeded);
     
-    void CircleFill3D              (float x, float y, float z, float radius, int numPoints, Colour const &col);
+    void CircleFill3D              (float x, float y, float z, float radius, int numPoints, Colour const &col, bool immediateFlush = false);
     void BeginCircleFillBatch3D    ();
     void EndCircleFillBatch3D      ();
     void FlushCircleFills3D        ();
     void FlushCircleFills3DIfFull  (int verticesNeeded);
     
-    void Rect3D                    (float x, float y, float z, float w, float h, Colour const &col);
+    void Rect3D                    (float x, float y, float z, float w, float h, Colour const &col, bool immediateFlush = false);
     void BeginRectBatch3D          ();
     void EndRectBatch3D            ();
     void FlushRects3D              ();
     void FlushRects3DIfFull        (int verticesNeeded);
     
-    void RectFill3D                (float x, float y, float z, float w, float h, Colour const &col);
+    void RectFill3D                (float x, float y, float z, float w, float h, Colour const &col, bool immediateFlush = false);
     void BeginRectFillBatch3D      ();
     void EndRectFillBatch3D        ();
     void FlushRectFills3D          ();
     void FlushRectFills3DIfFull    (int verticesNeeded);
     
-    void TriangleFill3D            (float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, Colour const &col);
+    void TriangleFill3D            (float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, Colour const &col, bool immediateFlush = false);
     void BeginTriangleFillBatch3D  ();
     void EndTriangleFillBatch3D    ();
     void FlushTriangleFills3D      ();

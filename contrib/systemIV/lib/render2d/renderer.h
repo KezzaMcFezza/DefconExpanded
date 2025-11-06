@@ -12,7 +12,7 @@
 // Set to 1 to disable batching and flush after every draw call
 // Set to 0 to enable batching
 
-#define IMMEDIATE_MODE 0
+#define IMMEDIATE_MODE_2D 0
 
 #include "lib/math/vector3.h"
 #include "lib/render/colour.h"
@@ -449,11 +449,11 @@ public:
   void TextRight                (float x, float y, Colour const &col, float size,
                                  const char *text, ...);
   void TextSimple               (float x, float y, Colour const &col, float size,
-                                 const char *text);
+                                 const char *text, bool immediateFlush = false);
   void TextCentreSimple         (float x, float y, Colour const &col, float size,
-                                 const char *text);
+                                 const char *text, bool immediateFlush = false);
   void TextRightSimple          (float x, float y, Colour const &col, float size,
-                                 const char *text);
+                                 const char *text, bool immediateFlush = false);
 
   float TextWidth               (const char *text, float size);
   float TextWidth               (const char *text, unsigned int textLen, float size,
@@ -463,37 +463,39 @@ public:
   
   void BeginRectBatch();
   void Rect             (float x, float y, float w, float h, Colour const &col,
-                         float lineWidth = 1.0f);
+                         float lineWidth = 1.0f, bool immediateFlush = false);
   void EndRectBatch();
 
   void BeginRectFillBatch();
-  void RectFill         (float x, float y, float w, float h, Colour const &col);
+  void RectFill         (float x, float y, float w, float h, Colour const &col, 
+                         bool immediateFlush = false);
   void RectFill         (float x, float y, float w, float h, Colour const &colTL,
-                         Colour const &colTR, Colour const &colBR, Colour const &colBL);
+                         Colour const &colTR, Colour const &colBR, Colour const &colBL,
+                         bool immediateFlush = false);
   void RectFill         (float x, float y, float w, float h, Colour const &col1,
-                         Colour const &col2, bool horizontal);
+                         Colour const &col2, bool horizontal, bool immediateFlush = false);
   void EndRectFillBatch ();
 
   void BeginCircleBatch();
   void Circle           (float x, float y, float radius, int numPoints, Colour const &col,
-                         float lineWidth = 1.0f);
+                         float lineWidth = 1.0f, bool immediateFlush = false);
   void EndCircleBatch();
 
   void BeginCircleFillBatch();
   void CircleFill       (float x, float y, float radius, int numPoints,
-                         Colour const &col);
+                         Colour const &col, bool immediateFlush = false);
   void EndCircleFillBatch();
 
   void BeginTriangleFillBatch();
   void TriangleFill     (float x1, float y1, float x2, float y2, float x3, float y3,
-                         Colour const &col);
+                         Colour const &col, bool immediateFlush = false);
   void EndTriangleFillBatch();
 
   void BeginLines       (Colour const &col, float lineWidth);
   void EndLines         ();
   void BeginLineBatch   ();
   void Line             (float x1, float y1, float x2, float y2, Colour const &col,
-                         float lineWidth = 1.0f);
+                         float lineWidth = 1.0f, bool immediateFlush = false);
   void Line             (float x, float y);
   void EndLineBatch     ();
   void FlushLinesIfFull (int segmentsNeeded);
@@ -529,18 +531,19 @@ public:
                                  float angle);
   void BlitChar                 (unsigned int textureID, float x, float y, float w, float h,
                                  float texX, float texY, float texW, float texH,
-                                 Colour const &col);
+                                 Colour const &col, bool immediateFlush = false);
 
   void BeginStaticSpriteBatch    ();
   void StaticSprite              (Image *src, float x, float y, float w, float h,
-                                  Colour const &col);
-  void StaticSprite              (Image *src, float x, float y, Colour const &col);
+                                  Colour const &col, bool immediateFlush = false);
+  void StaticSprite              (Image *src, float x, float y, Colour const &col, 
+                                  bool immediateFlush = false);
   void EndStaticSpriteBatch      ();
   void FlushStaticSpritesIfFull  (int verticesNeeded);
 
   void BeginRotatingSpriteBatch  ();
   void RotatingSprite            (Image *src, float x, float y, float w, float h,
-                                  Colour const &col, float angle);
+                                  Colour const &col, float angle, bool immediateFlush = false);
   void EndRotatingSpriteBatch    ();
 
   static const int MAX_FLUSH_TYPES = 50;

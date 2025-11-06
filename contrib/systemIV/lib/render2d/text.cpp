@@ -14,7 +14,7 @@
 extern Renderer *g_renderer;
 
 void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float h, 
-                        float texX, float texY, float texW, float texH, Colour const &col) {
+                        float texX, float texY, float texW, float texH, Colour const &col, bool immediateFlush) {
     
     //
     // find the font batch for this texture ID, or find an empty one
@@ -79,9 +79,14 @@ void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float
     m_textVertexCount = batch->vertexCount;
     m_currentTextTexture = batch->textureID;
     
-#if IMMEDIATE_MODE
+#if IMMEDIATE_MODE_2D
     FlushTextBuffer();
     batch->vertexCount = 0;
+#else
+    if (immediateFlush) {
+        FlushTextBuffer();
+        batch->vertexCount = 0;
+    }
 #endif
 }
 
@@ -115,7 +120,7 @@ void Renderer::TextRight(float x, float y, Colour const &col, float size, const 
     TextSimple(actualX, y, col, size, buf);
 }
 
-void Renderer::TextSimple(float x, float y, Colour const &col, float size, const char *text) {
+void Renderer::TextSimple(float x, float y, Colour const &col, float size, const char *text, bool immediateFlush) {
     BitmapFont *font = g_resource->GetBitmapFont(m_currentFontFilename);
     if (font) {
         font->SetSpacing(GetFontSpacing(m_currentFontName));
@@ -131,17 +136,29 @@ void Renderer::TextSimple(float x, float y, Colour const &col, float size, const
         font->SetFixedWidth(m_fixedWidth);
         
         font->DrawText2DSimple(x, y, size, text, col);
+        
+        if (immediateFlush) {
+            for (int i = 0; i < MAX_FONT_ATLASES; i++) {
+                if (m_fontBatches[i].vertexCount > 0) {
+                    m_textVertices = m_fontBatches[i].vertices;
+                    m_textVertexCount = m_fontBatches[i].vertexCount;
+                    m_currentTextTexture = m_fontBatches[i].textureID;
+                    FlushTextBuffer();
+                    m_fontBatches[i].vertexCount = 0;
+                }
+            }
+        }
     }
 }
 
-void Renderer::TextCentreSimple(float x, float y, Colour const &col, float size, const char *text) {
+void Renderer::TextCentreSimple(float x, float y, Colour const &col, float size, const char *text, bool immediateFlush) {
     float actualX = x - TextWidth(text, size) / 2.0f;
-    TextSimple(actualX, y, col, size, text);
+    TextSimple(actualX, y, col, size, text, immediateFlush);
 }
 
-void Renderer::TextRightSimple(float x, float y, Colour const &col, float size, const char *text) {
+void Renderer::TextRightSimple(float x, float y, Colour const &col, float size, const char *text, bool immediateFlush) {
     float actualX = x - TextWidth(text, size);
-    TextSimple(actualX, y, col, size, text);
+    TextSimple(actualX, y, col, size, text, immediateFlush);
 }
 
 float Renderer::TextWidth(const char *text, float size) {
