@@ -266,3 +266,39 @@ void Renderer3D::SetMegaVBO3DBufferSizes(int vertexCount, int indexCount) {
     m_megaVertices3D = new Vertex3D[m_maxMegaVertices3D];
     m_megaIndices3D = new unsigned int[m_maxMegaIndices3D];
 }
+
+// ============================================================================
+// VBO CACHE STATISTICS
+// ============================================================================
+
+int Renderer3D::GetCached3DVBOCount() {
+    int count = 0;
+    
+    DArray<char*> *keys = m_cached3DVBOs.ConvertIndexToDArray();
+    
+    for (int i = 0; i < keys->Size(); ++i) {
+        BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(keys->GetData(i));
+        if (tree && tree->data && tree->data->isValid) {
+            count++;
+        }
+    }
+    
+    delete keys;
+    return count;
+}
+
+int Renderer3D::GetCached3DVBOVertexCount(const char *cacheKey) {
+    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
+    if (tree && tree->data && tree->data->isValid) {
+        return tree->data->vertexCount;
+    }
+    return 0;
+}
+
+int Renderer3D::GetCached3DVBOIndexCount(const char *cacheKey) {
+    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
+    if (tree && tree->data && tree->data->isValid) {
+        return tree->data->indexCount;
+    }
+    return 0;
+}

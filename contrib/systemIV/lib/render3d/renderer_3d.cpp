@@ -47,22 +47,31 @@ void Matrix4f3D::Perspective(float fovy, float aspect, float nearZ, float farZ) 
 void Matrix4f3D::LookAt(float eyeX, float eyeY, float eyeZ,
                         float centerX, float centerY, float centerZ,
                         float upX, float upY, float upZ) {
+    
+    //
     // Calculate look direction (from eye to center)
+    
     float fx = centerX - eyeX;
     float fy = centerY - eyeY;
     float fz = centerZ - eyeZ;
     Normalize(fx, fy, fz);
     
+    //
     // Calculate right vector (forward cross up)
+    
     float sx, sy, sz;
     Cross(fx, fy, fz, upX, upY, upZ, sx, sy, sz);
     Normalize(sx, sy, sz);
     
+    //
     // Calculate up vector (right cross forward)
+    
     float ux, uy, uz;
     Cross(sx, sy, sz, fx, fy, fz, ux, uy, uz);
     
+    //
     // Build view matrix exactly like gluLookAt (column-major order)
+    
     LoadIdentity();
     
     // Column 0
@@ -134,17 +143,13 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_VAO3DTextured(0), m_VBO3DTextured(0),
     m_spriteVAO3D(0), m_spriteVBO3D(0),
     m_lineVAO3D(0), m_lineVBO3D(0),
-    m_globeVAO3D(0), m_globeVBO3D(0),
-    m_starsVAO3D(0), m_starsVBO3D(0),
-    m_healthVAO3D(0), m_healthVBO3D(0),
-    m_textVAO3D(0), m_textVBO3D(0),
     m_nukeVAO3D(0), m_nukeVBO3D(0),
     m_circleVAO3D(0), m_circleVBO3D(0),
     m_circleFillVAO3D(0), m_circleFillVBO3D(0),
     m_rectVAO3D(0), m_rectVBO3D(0),
     m_rectFillVAO3D(0), m_rectFillVBO3D(0),
     m_triangleFillVAO3D(0), m_triangleFillVBO3D(0),
-    m_legacyVAO3D(0), m_legacyVBO3D(0),
+    m_immediateVAO3D(0), m_immediateVBO3D(0),
     m_currentShaderProgram3D(0),
     m_matrices3DNeedUpdate(true),
     m_fog3DNeedsUpdate(true),
@@ -153,8 +158,8 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_lineStrip3DActive(false),
     m_texturedQuad3DActive(false),
     m_currentTexture3D(0),
-    m_maxMegaVertices3D(2500000),
-    m_maxMegaIndices3D(5000000),
+    m_maxMegaVertices3D(1500000),
+    m_maxMegaIndices3D(1500000),
     m_megaVBO3DActive(false),
     m_currentMegaVBO3DKey(NULL),
     m_megaVertices3D(NULL),
@@ -171,9 +176,6 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_textVertexCount3D(0),
     m_currentTextTexture3D(0),
     m_nuke3DModelVertexCount3D(0),
-    m_starFieldVertexCount3D(0),
-    m_currentStarFieldTexture3D(0),
-    m_globeSurfaceVertexCount3D(0),
     m_circleVertexCount3D(0),
     m_circleFillVertexCount3D(0),
     m_rectVertexCount3D(0),
@@ -193,37 +195,30 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_cameraPos[0] = 0.0f; // X
     m_cameraPos[1] = 0.0f; // Y
     m_cameraPos[2] = 0.0f; // Z
-    
-    // Initialize 3D draw call tracking counters (matching 2D system)
+
     m_drawCallsPerFrame3D = 0;
-    m_legacyVertexCalls3D = 0;
-    m_legacyTriangleCalls3D = 0;
+    m_immediateVertexCalls3D = 0;
+    m_immediateTriangleCalls3D = 0;
     m_lineCalls3D = 0;
     m_staticSpriteCalls3D = 0;
     m_rotatingSpriteCalls3D = 0;
     m_textCalls3D = 0;
     m_megaVBOCalls3D = 0;
     m_nuke3DModelCalls3D = 0;
-    m_starFieldCalls3D = 0;
-    m_globeSurfaceCalls3D = 0;
     m_circleCalls3D = 0;
     m_circleFillCalls3D = 0;
     m_rectCalls3D = 0;
     m_rectFillCalls3D = 0;
     m_triangleFillCalls3D = 0;
-    
-    // Initialize previous frame data
     m_prevDrawCallsPerFrame3D = 0;
-    m_prevLegacyVertexCalls3D = 0;
-    m_prevLegacyTriangleCalls3D = 0;
+    m_prevImmediateLineCalls3D = 0;
+    m_prevImmediateTriangleCalls3D = 0;
     m_prevLineCalls3D = 0;
     m_prevStaticSpriteCalls3D = 0;
     m_prevRotatingSpriteCalls3D = 0;
     m_prevTextCalls3D = 0;
     m_prevMegaVBOCalls3D = 0;
     m_prevNuke3DModelCalls3D = 0;
-    m_prevStarFieldCalls3D = 0;
-    m_prevGlobeSurfaceCalls3D = 0;
     m_prevCircleCalls3D = 0;
     m_prevCircleFillCalls3D = 0;
     m_prevRectCalls3D = 0;
@@ -238,7 +233,7 @@ Renderer3D::Renderer3D(Renderer* renderer)
     Setup3DTexturedVertexArrays();
     
     //
-    // allocate mega vertex and index buffers for 3D coastlines and borders
+    // Allocate mega vertex and index buffers for 3D coastlines and borders
 
     m_megaVertices3D = new Vertex3D[m_maxMegaVertices3D];
     m_megaIndices3D = new unsigned int[m_maxMegaIndices3D];
@@ -269,17 +264,13 @@ void Renderer3D::Shutdown() {
         m_VAO3DTextured = 0;
     }
     
-    // Clean up specialized 3D VAOs and VBOs
+    //
+    // Clean up 3D VAOs and VBOs
+
     if (m_spriteVAO3D) glDeleteVertexArrays(1, &m_spriteVAO3D);
     if (m_spriteVBO3D) glDeleteBuffers(1, &m_spriteVBO3D);
     if (m_lineVAO3D) glDeleteVertexArrays(1, &m_lineVAO3D);
     if (m_lineVBO3D) glDeleteBuffers(1, &m_lineVBO3D);
-    if (m_globeVAO3D) glDeleteVertexArrays(1, &m_globeVAO3D);
-    if (m_globeVBO3D) glDeleteBuffers(1, &m_globeVBO3D);
-    if (m_starsVAO3D) glDeleteVertexArrays(1, &m_starsVAO3D);
-    if (m_starsVBO3D) glDeleteBuffers(1, &m_starsVBO3D);
-    if (m_healthVAO3D) glDeleteVertexArrays(1, &m_healthVAO3D);
-    if (m_healthVBO3D) glDeleteBuffers(1, &m_healthVBO3D);
     if (m_textVAO3D) glDeleteVertexArrays(1, &m_textVAO3D);
     if (m_textVBO3D) glDeleteBuffers(1, &m_textVBO3D);
     if (m_nukeVAO3D) glDeleteVertexArrays(1, &m_nukeVAO3D);
@@ -294,8 +285,8 @@ void Renderer3D::Shutdown() {
     if (m_rectFillVBO3D) glDeleteBuffers(1, &m_rectFillVBO3D);
     if (m_triangleFillVAO3D) glDeleteVertexArrays(1, &m_triangleFillVAO3D);
     if (m_triangleFillVBO3D) glDeleteBuffers(1, &m_triangleFillVBO3D);
-    if (m_legacyVAO3D) glDeleteVertexArrays(1, &m_legacyVAO3D);
-    if (m_legacyVBO3D) glDeleteBuffers(1, &m_legacyVBO3D);
+    if (m_immediateVAO3D) glDeleteVertexArrays(1, &m_immediateVAO3D);
+    if (m_immediateVBO3D) glDeleteBuffers(1, &m_immediateVBO3D);
     if (m_shader3DProgram) {
         glDeleteProgram(m_shader3DProgram);
         m_shader3DProgram = 0;
@@ -305,7 +296,9 @@ void Renderer3D::Shutdown() {
         m_shader3DTexturedProgram = 0;
     }
     
+    //
     // Clean up mega vertex and index buffers
+    
     if (m_megaVertices3D) {
         delete[] m_megaVertices3D;
         m_megaVertices3D = NULL;
@@ -324,7 +317,9 @@ void Renderer3D::Shutdown() {
         m_lineConversionBuffer3D = NULL;
     }
     
+    //
     // Clean up cached VBOs
+
     DArray<char*> *keys = m_cached3DVBOs.ConvertIndexToDArray();
     for (int i = 0; i < keys->Size(); i++) {
         Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(keys->GetData(i));
@@ -339,20 +334,20 @@ void Renderer3D::Shutdown() {
 }
 
 //
-// create 3D shader programs using shader sources from .glsl.h headers
+// Create 3D shader programs using shader sources from .glsl.h headers
 
 void Renderer3D::Initialize3DShaders() {
     m_shader3DProgram = m_renderer->CreateShader(VERTEX_3D_SHADER_SOURCE, FRAGMENT_3D_SHADER_SOURCE);
     
     //
-    // create 3D shader program
+    // Create 3D shader program
 
     if (m_shader3DProgram == 0) {
         AppDebugOut("Renderer3D: Failed to create 3D shader program\n");
     }
     
     //
-    // create textured 3D shader program
+    // Create textured 3D shader program
 
     m_shader3DTexturedProgram = m_renderer->CreateShader(TEXTURED_VERTEX_3D_SHADER_SOURCE, TEXTURED_FRAGMENT_3D_SHADER_SOURCE);
     
@@ -361,11 +356,16 @@ void Renderer3D::Initialize3DShaders() {
     }
 }
 
-// get UV coordinates for an image from the atlas
+//
+// Get UV coordinates for an image from the atlas
+
 void Renderer3D::GetImageUVCoords(Image* image, float& u1, float& v1, float& u2, float& v2) {
     AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(image);
     if (atlasImage) {
-        // use atlas coordinates
+
+        //
+        // Use atlas coordinates
+
         const AtlasCoord* coord = atlasImage->GetAtlasCoord();
         if (coord) {
             u1 = coord->u1;
@@ -376,7 +376,9 @@ void Renderer3D::GetImageUVCoords(Image* image, float& u1, float& v1, float& u2,
         }
     }
     
-    // regular image, use full texture with edge padding
+    //
+    // Regular image, use full texture with edge padding
+
     float onePixelW = 1.0f / (float) image->Width();
     float onePixelH = 1.0f / (float) image->Height();
     u1 = onePixelW;
@@ -385,7 +387,9 @@ void Renderer3D::GetImageUVCoords(Image* image, float& u1, float& v1, float& u2,
     v2 = 1.0f - onePixelH;
 }
 
-// get texture ID for batching
+//
+// Get texture ID for batching
+
 unsigned int Renderer3D::GetEffectiveTextureID(Image* image) {
     AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(image);
     if (atlasImage) {
@@ -395,17 +399,18 @@ unsigned int Renderer3D::GetEffectiveTextureID(Image* image) {
 }
 
 void Renderer3D::Setup3DVertexArrays() {
-    // Helper function to set up vertex attributes for non-textured 3D rendering
     auto setup3DVertexAttributes = []() {
-        // Position attribute (location 0) - 3 components
+
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)0);
         glEnableVertexAttribArray(0);
-        // Color attribute (location 1) - 4 components
+
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
     };
     
-    // Generate VAO and VBO for legacy 3D rendering
+    //
+    // Generate VAO and VBO for immediate 3D rendering
+
     glGenVertexArrays(1, &m_VAO3D);
     glGenBuffers(1, &m_VBO3D);
     glBindVertexArray(m_VAO3D);
@@ -413,23 +418,19 @@ void Renderer3D::Setup3DVertexArrays() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_3D_VERTICES, NULL, GL_DYNAMIC_DRAW);
     setup3DVertexAttributes();
     
-    // Create Effects VAO/VBO pair (trails and lines)
+    //
+    // Create Line VAO/VBO pair
+
     glGenVertexArrays(1, &m_lineVAO3D);
     glGenBuffers(1, &m_lineVBO3D);
     glBindVertexArray(m_lineVAO3D);
     glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO3D);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * (MAX_LINE_VERTICES_3D), NULL, GL_STREAM_DRAW);
-    setup3DVertexAttributes();
+    setup3DVertexAttributes(); 
     
-    // Create Globe VAO/VBO pair (non-textured surface triangles)
-    glGenVertexArrays(1, &m_globeVAO3D);
-    glGenBuffers(1, &m_globeVBO3D);
-    glBindVertexArray(m_globeVAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_globeVBO3D);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_GLOBE_SURFACE_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
-    setup3DVertexAttributes();
-    
+    //
     // Create Nuke 3D Models VAO/VBO pair
+
     glGenVertexArrays(1, &m_nukeVAO3D);
     glGenBuffers(1, &m_nukeVBO3D);
     glBindVertexArray(m_nukeVAO3D);
@@ -437,7 +438,9 @@ void Renderer3D::Setup3DVertexArrays() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_NUKE_3D_MODEL_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
     setup3DVertexAttributes();
     
+    //
     // Create Circle VAO/VBO pair
+
     glGenVertexArrays(1, &m_circleVAO3D);
     glGenBuffers(1, &m_circleVBO3D);
     glBindVertexArray(m_circleVAO3D);
@@ -445,7 +448,9 @@ void Renderer3D::Setup3DVertexArrays() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_CIRCLE_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
     setup3DVertexAttributes();
     
+    //
     // Create Circle Fill VAO/VBO pair
+
     glGenVertexArrays(1, &m_circleFillVAO3D);
     glGenBuffers(1, &m_circleFillVBO3D);
     glBindVertexArray(m_circleFillVAO3D);
@@ -453,7 +458,9 @@ void Renderer3D::Setup3DVertexArrays() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_CIRCLE_FILL_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
     setup3DVertexAttributes();
     
+    //
     // Create Rect VAO/VBO pair
+
     glGenVertexArrays(1, &m_rectVAO3D);
     glGenBuffers(1, &m_rectVBO3D);
     glBindVertexArray(m_rectVAO3D);
@@ -461,7 +468,9 @@ void Renderer3D::Setup3DVertexArrays() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_RECT_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
     setup3DVertexAttributes();
     
+    //
     // Create Rect Fill VAO/VBO pair
+
     glGenVertexArrays(1, &m_rectFillVAO3D);
     glGenBuffers(1, &m_rectFillVBO3D);
     glBindVertexArray(m_rectFillVAO3D);
@@ -469,7 +478,9 @@ void Renderer3D::Setup3DVertexArrays() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_RECT_FILL_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
     setup3DVertexAttributes();
     
+    //
     // Create Triangle Fill VAO/VBO pair
+
     glGenVertexArrays(1, &m_triangleFillVAO3D);
     glGenBuffers(1, &m_triangleFillVBO3D);
     glBindVertexArray(m_triangleFillVAO3D);
@@ -477,11 +488,13 @@ void Renderer3D::Setup3DVertexArrays() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_TRIANGLE_FILL_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
     setup3DVertexAttributes();
     
-    // Create Legacy VAO/VBO pair (keep original behavior)
-    glGenVertexArrays(1, &m_legacyVAO3D);
-    glGenBuffers(1, &m_legacyVBO3D);
-    glBindVertexArray(m_legacyVAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_legacyVBO3D);
+    //
+    // Create Immediate VAO/VBO pair
+
+    glGenVertexArrays(1, &m_immediateVAO3D);
+    glGenBuffers(1, &m_immediateVBO3D);
+    glBindVertexArray(m_immediateVAO3D);
+    glBindBuffer(GL_ARRAY_BUFFER, m_immediateVBO3D);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_3D_VERTICES, NULL, GL_DYNAMIC_DRAW);
     setup3DVertexAttributes();
     
@@ -492,20 +505,21 @@ void Renderer3D::Setup3DVertexArrays() {
 }
 
 void Renderer3D::Setup3DTexturedVertexArrays() {
-    // Helper function to set up vertex attributes for textured 3D rendering
     auto setup3DTexturedVertexAttributes = []() {
-        // Position attribute (location 0) - 3 components
+
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)0);
         glEnableVertexAttribArray(0);
-        // Color attribute (location 1) - 4 components
+
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
-        // Texture coordinate attribute (location 2) - 2 components
+
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(7 * sizeof(float)));
         glEnableVertexAttribArray(2);
     };
     
-    // Generate VAO and VBO for legacy textured 3D rendering
+    //
+    // Generate VAO and VBO for immediate textured 3D rendering
+
     glGenVertexArrays(1, &m_VAO3DTextured);
     glGenBuffers(1, &m_VBO3DTextured);
     glBindVertexArray(m_VAO3DTextured);
@@ -513,7 +527,9 @@ void Renderer3D::Setup3DTexturedVertexArrays() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * MAX_3D_TEXTURED_VERTICES, NULL, GL_DYNAMIC_DRAW);
     setup3DTexturedVertexAttributes();
     
-    // Create Unit VAO/VBO pair
+    //
+    // Create Sprite VAO/VBO pair
+
     glGenVertexArrays(1, &m_spriteVAO3D);
     glGenBuffers(1, &m_spriteVBO3D);
     glBindVertexArray(m_spriteVAO3D);
@@ -527,16 +543,6 @@ void Renderer3D::Setup3DTexturedVertexArrays() {
     glBindVertexArray(m_textVAO3D);
     glBindBuffer(GL_ARRAY_BUFFER, m_textVBO3D);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * MAX_TEXT_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
-    setup3DTexturedVertexAttributes();
-    
-    // Note: Health bars will be set up with non-textured attributes in Setup3DVertexArrays()
-    
-    // Create Stars VAO/VBO pair (stars and effects sprites - textured)
-    glGenVertexArrays(1, &m_starsVAO3D);
-    glGenBuffers(1, &m_starsVBO3D);
-    glBindVertexArray(m_starsVAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_starsVBO3D);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3DTextured) * (MAX_STAR_FIELD_VERTICES_3D), NULL, GL_DYNAMIC_DRAW);
     setup3DTexturedVertexAttributes();
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -566,19 +572,22 @@ void Renderer3D::BeginLineStrip3D(Colour const &col) {
 void Renderer3D::LineStripVertex3D(float x, float y, float z) {
     if (!m_lineStrip3DActive) return;
     
+    //
     // Check buffer overflow
+
     if (m_vertex3DCount >= MAX_3D_VERTICES) {
         AppDebugOut("Renderer3D: 3D vertex buffer overflow\n");
         return;
     }
     
+    //
     // Convert color to float
+
     float r = m_lineStrip3DColor.GetRFloat();
     float g = m_lineStrip3DColor.GetGFloat();
     float b = m_lineStrip3DColor.GetBFloat();
     float a = m_lineStrip3DColor.GetAFloat();
     
-    // Add vertex to buffer
     m_vertices3D[m_vertex3DCount] = Vertex3D(x, y, z, r, g, b, a);
     m_vertex3DCount++;
 }
@@ -599,12 +608,17 @@ void Renderer3D::EndLineStrip3D() {
     
     int lineIndex = 0;
     for (int i = 0; i < m_vertex3DCount - 1; i++) {
+
+        //
         // Line from vertex i to vertex i+1
+
         lineVertices[lineIndex++] = m_vertices3D[i];
         lineVertices[lineIndex++] = m_vertices3D[i + 1];
     }
     
+    //
     // Clear current buffer and add line segments
+
     m_vertex3DCount = 0;
     for (int i = 0; i < lineVertexCount; i++) {
         if (m_vertex3DCount >= MAX_3D_VERTICES) break;
@@ -635,13 +649,14 @@ void Renderer3D::EndLineLoop3D() {
         return;
     }
     
+    //
     // For line loop, add a final line from last vertex back to first
+
     Vertex3D firstVertex = m_vertices3D[0];
     if (m_vertex3DCount < MAX_3D_VERTICES) {
         m_vertices3D[m_vertex3DCount++] = firstVertex;
     }
     
-    // Now render as line strip
     EndLineStrip3D();
 }
 
@@ -655,19 +670,16 @@ void Renderer3D::BeginTexturedQuad3D(unsigned int textureID, Colour const &col) 
 void Renderer3D::TexturedQuadVertex3D(float x, float y, float z, float u, float v) {
     if (!m_texturedQuad3DActive) return;
     
-    // Check buffer overflow
     if (m_vertex3DTexturedCount >= MAX_3D_TEXTURED_VERTICES) {
         AppDebugOut("Renderer3D: Textured 3D vertex buffer overflow\n");
         return;
     }
-    
-    // Convert color to float
+
     float r = m_texturedQuad3DColor.GetRFloat();
     float g = m_texturedQuad3DColor.GetGFloat();
     float b = m_texturedQuad3DColor.GetBFloat();
     float a = m_texturedQuad3DColor.GetAFloat();
     
-    // Add vertex to buffer
     m_vertices3DTextured[m_vertex3DTexturedCount] = Vertex3DTextured(x, y, z, r, g, b, a, u, v);
     m_vertex3DTexturedCount++;
 }
@@ -683,9 +695,7 @@ void Renderer3D::EndTexturedQuad3D() {
         return;
     }
     
-    // Render the textured quad (should have exactly 4 vertices)
     Flush3DTexturedVertices();
-    
     m_texturedQuad3DActive = false;
 }
 
@@ -724,13 +734,18 @@ void Renderer3D::Cache3DUniformLocations() {
 }
 
 void Renderer3D::Set3DShaderUniforms() {
+
+    //
     // Only upload matrices if they changed or we switched shaders
+
     if (m_matrices3DNeedUpdate || m_currentShaderProgram3D != m_shader3DProgram) {
         glUniformMatrix4fv(m_shader3DUniforms.projectionLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
         glUniformMatrix4fv(m_shader3DUniforms.modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
     }
     
+    //
     // Only upload fog uniforms if they changed or we switched shaders  
+
     if (m_fog3DNeedsUpdate || m_currentShaderProgram3D != m_shader3DProgram) {
         glUniform1i(m_shader3DUniforms.fogEnabledLoc, m_fogEnabled ? 1 : 0);
         glUniform1i(m_shader3DUniforms.fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
@@ -740,21 +755,25 @@ void Renderer3D::Set3DShaderUniforms() {
         glUniform3f(m_shader3DUniforms.cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
     }
     
-    // Track current shader and reset dirty flags
     m_currentShaderProgram3D = m_shader3DProgram;
     m_matrices3DNeedUpdate = false;
     m_fog3DNeedsUpdate = false;
 }
 
 void Renderer3D::SetTextured3DShaderUniforms() {
+
+    //
     // Only upload matrices if they changed or we switched shaders
+
     if (m_matrices3DNeedUpdate || m_currentShaderProgram3D != m_shader3DTexturedProgram) {
         glUniformMatrix4fv(m_shader3DTexturedUniforms.projectionLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
         glUniformMatrix4fv(m_shader3DTexturedUniforms.modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
         glUniform1i(m_shader3DTexturedUniforms.textureLoc, 0);
     }
     
+    //
     // Only upload fog uniforms if they changed or we switched shaders
+
     if (m_fog3DNeedsUpdate || m_currentShaderProgram3D != m_shader3DTexturedProgram) {
         glUniform1i(m_shader3DTexturedUniforms.fogEnabledLoc, m_fogEnabled ? 1 : 0);
         glUniform1i(m_shader3DTexturedUniforms.fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
@@ -764,7 +783,6 @@ void Renderer3D::SetTextured3DShaderUniforms() {
         glUniform3f(m_shader3DTexturedUniforms.cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
     }
     
-    // Track current shader and reset dirty flags
     m_currentShaderProgram3D = m_shader3DTexturedProgram;
     m_matrices3DNeedUpdate = false;
     m_fog3DNeedsUpdate = false;
@@ -873,29 +891,35 @@ void Renderer3D::SetCameraPosition(float x, float y, float z) {
 void Renderer3D::CreateSurfaceAlignedBillboard(const Vector3<float>& position, float width, float height, 
                                                Vertex3DTextured* vertices, float u1, float v1, float u2, float v2, 
                                                float r, float g, float b, float a, float rotation) {
-    // Create billboard that lays flat on the globe surface
+
+    //
+    // Create billboard that lays flat
+
     Vector3<float> normal = position;
     normal.Normalise();
     
-    // Create consistent "up" direction relative to globe north pole
-    Vector3<float> globeUp = Vector3<float>(0.0f, 1.0f, 0.0f);
-    
-    // For positions right at poles, use a stable tangent
+    //
+    // Create consistent up direction relative surface
+
+    Vector3<float> up = Vector3<float>(0.0f, 1.0f, 0.0f);
+
     Vector3<float> tangent1;
     if (fabsf(normal.y) > 0.98f) {
-        // At poles, use east direction
         tangent1 = Vector3<float>(1.0f, 0.0f, 0.0f);
     } else {
-        // Create tangent pointing "east" (perpendicular to north and surface normal)
-        tangent1 = globeUp ^ normal;
+        tangent1 = up ^ normal;
         tangent1.Normalise();
     }
     
-    // Create tangent pointing "north" (always toward globe north pole)
+    //
+    // Create tangent pointing north
+
     Vector3<float> tangent2 = normal ^ tangent1;
     tangent2.Normalise();
     
+    //
     // Apply rotation if specified
+    
     if (rotation != 0.0f) {
         Vector3<float> rotatedTangent1 = tangent1 * cosf(rotation) + tangent2 * sinf(rotation);
         Vector3<float> rotatedTangent2 = tangent2 * cosf(rotation) - tangent1 * sinf(rotation);
@@ -903,7 +927,6 @@ void Renderer3D::CreateSurfaceAlignedBillboard(const Vector3<float>& position, f
         tangent2 = rotatedTangent2;
     }
     
-    // Create quad vertices with proper orientation
     float halfWidth = width * 0.5f;
     float halfHeight = height * 0.5f;
     
@@ -933,19 +956,23 @@ void Renderer3D::CreateSurfaceAlignedBillboard(const Vector3<float>& position, f
 void Renderer3D::CreateCameraFacingBillboard(const Vector3<float>& position, float width, float height,
                                              Vertex3DTextured* vertices, float u1, float v1, float u2, float v2,
                                              float r, float g, float b, float a, float rotation) {
+
+    //
     // Create billboard that faces the camera
+
     Vector3<float> cameraPos(m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
     Vector3<float> cameraDir = cameraPos - position;
     cameraDir.Normalise();
     
+    //
     // Create billboard facing camera
+
     Vector3<float> up = Vector3<float>(0.0f, 1.0f, 0.0f);
     Vector3<float> right = up ^ cameraDir;
     right.Normalise();
     up = cameraDir ^ right;
     up.Normalise();
     
-    // Apply rotation if specified
     if (rotation != 0.0f) {
         float cosRot = cosf(rotation);
         float sinRot = sinf(rotation);
@@ -955,7 +982,6 @@ void Renderer3D::CreateCameraFacingBillboard(const Vector3<float>& position, flo
         up = rotatedUp;
     }
     
-    // Create quad vertices for camera-facing billboard
     float halfWidth = width * 0.5f;
     float halfHeight = height * 0.5f;
     
@@ -984,7 +1010,7 @@ void Renderer3D::CreateCameraFacingBillboard(const Vector3<float>& position, flo
 
 
 //
-// increment draw calls for the 3d renderer
+// Increment draw calls for the 3d renderer
 
 void Renderer3D::IncrementDrawCall3D(const char* bufferType) {
     m_drawCallsPerFrame3D++;
@@ -998,17 +1024,15 @@ void Renderer3D::IncrementDrawCall3D(const char* bufferType) {
     };
     
     switch (hash(bufferType)) {
-        case hash("legacy_vertices"): m_legacyVertexCalls3D++; break;
-        case hash("legacy_triangles"): m_legacyTriangleCalls3D++; break;
+        case hash("immediate_vertices"): m_immediateVertexCalls3D++; break;
+        case hash("immediate_triangles"): m_immediateTriangleCalls3D++; break;
         case hash("text"): m_textCalls3D++; break;
         case hash("mega_vbo"): m_megaVBOCalls3D++; break;
-        case hash("unit_trails"): m_lineCalls3D++; break;
+        case hash("lines"): m_lineCalls3D++; break;
         case hash("batched_lines"): m_lineCalls3D++; break;
-        case hash("Static_Sprite_sprites"): m_staticSpriteCalls3D++; break;
-        case hash("unit_rotating"): m_rotatingSpriteCalls3D++; break;
+        case hash("static_sprites"): m_staticSpriteCalls3D++; break;
+        case hash("rotating_sprites"): m_rotatingSpriteCalls3D++; break;
         case hash("nuke_3d_models"): m_nuke3DModelCalls3D++; break;
-        case hash("star_field"): m_starFieldCalls3D++; break;
-        case hash("globe_surface"): m_globeSurfaceCalls3D++; break;
         case hash("circles"): m_circleCalls3D++; break;
         case hash("circle_fills"): m_circleFillCalls3D++; break;
         case hash("rects"): m_rectCalls3D++; break;
@@ -1018,36 +1042,34 @@ void Renderer3D::IncrementDrawCall3D(const char* bufferType) {
 }
 
 void Renderer3D::ResetFrameCounters3D() {
-    // store the previous frames data for debug menu 
     m_prevDrawCallsPerFrame3D = m_drawCallsPerFrame3D;
-    m_prevLegacyVertexCalls3D = m_legacyVertexCalls3D;
-    m_prevLegacyTriangleCalls3D = m_legacyTriangleCalls3D;
+    m_prevImmediateVertexCalls3D = m_immediateVertexCalls3D;
+    m_prevImmediateTriangleCalls3D = m_immediateTriangleCalls3D;
+    m_prevImmediateLineCalls3D = m_lineCalls3D;
     m_prevLineCalls3D = m_lineCalls3D;
     m_prevStaticSpriteCalls3D = m_staticSpriteCalls3D;
     m_prevRotatingSpriteCalls3D = m_rotatingSpriteCalls3D;
     m_prevTextCalls3D = m_textCalls3D;
     m_prevMegaVBOCalls3D = m_megaVBOCalls3D;
     m_prevNuke3DModelCalls3D = m_nuke3DModelCalls3D;
-    m_prevStarFieldCalls3D = m_starFieldCalls3D;
-    m_prevGlobeSurfaceCalls3D = m_globeSurfaceCalls3D;
     m_prevCircleCalls3D = m_circleCalls3D;
     m_prevCircleFillCalls3D = m_circleFillCalls3D;
     m_prevRectCalls3D = m_rectCalls3D;
     m_prevRectFillCalls3D = m_rectFillCalls3D;
     m_prevTriangleFillCalls3D = m_triangleFillCalls3D;
     
-    // reset current frame counters
+    //
+    // Reset current frame counters
+
     m_drawCallsPerFrame3D = 0;
-    m_legacyVertexCalls3D = 0;
-    m_legacyTriangleCalls3D = 0;
+    m_immediateVertexCalls3D = 0;
+    m_immediateTriangleCalls3D = 0;
     m_lineCalls3D = 0;
     m_staticSpriteCalls3D = 0;
     m_rotatingSpriteCalls3D = 0;
     m_textCalls3D = 0;
     m_megaVBOCalls3D = 0;
     m_nuke3DModelCalls3D = 0;
-    m_starFieldCalls3D = 0;
-    m_globeSurfaceCalls3D = 0;
     m_circleCalls3D = 0;
     m_circleFillCalls3D = 0;
     m_rectCalls3D = 0;

@@ -78,8 +78,12 @@ void Renderer::BeginTriangleFillBatch() {
 // ============================================================================
 
 void Renderer::EndTextBatch() {
+    int activeBatches = 0;
+    
     for (int i = 0; i < MAX_FONT_ATLASES; i++) {
         if (m_fontBatches[i].vertexCount > 0) {
+            
+            activeBatches++;
             
             //
             // temporarily switch for flushing
@@ -95,6 +99,13 @@ void Renderer::EndTextBatch() {
 
             m_fontBatches[i].vertexCount = 0;
         }
+    }
+    
+    //
+    // Track max active font batches this frame
+    
+    if (activeBatches > m_activeFontBatches) {
+        m_activeFontBatches = activeBatches;
     }
     
     m_currentFontBatchIndex = 0;
@@ -217,8 +228,8 @@ void Renderer::FlushTriangleFillsIfFull(int verticesNeeded) {
 void Renderer::FlushTriangles(bool useTexture) {
     if (m_triangleVertexCount == 0) return;
     
-    StartFlushTiming("Legacy_Triangles"); 
-    IncrementDrawCall("legacy_triangles");
+    StartFlushTiming("Immediate_Triangles"); 
+    IncrementDrawCall("immediate_triangles");
     
     unsigned int shaderToUse = useTexture ? m_textureShaderProgram : m_colorShaderProgram;
     SetShaderProgram(shaderToUse);
@@ -229,15 +240,15 @@ void Renderer::FlushTriangles(bool useTexture) {
         SetColorShaderUniforms();
     }
     
-    SetVertexArray(m_legacyVAO);    
-    SetArrayBuffer(m_legacyVBO);
-    UploadVertexDataToVBO(m_legacyVBO, m_triangleVertices, m_triangleVertexCount, GL_DYNAMIC_DRAW);
+    SetVertexArray(m_immediateVAO);    
+    SetArrayBuffer(m_immediateVBO);
+    UploadVertexDataToVBO(m_immediateVBO, m_triangleVertices, m_triangleVertexCount, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_triangleVertexCount);
     
     m_triangleVertexCount = 0;
     
-    EndFlushTiming("Legacy_Triangles");
+    EndFlushTiming("Immediate_Triangles");
 }
 
 void Renderer::FlushTextBuffer() {

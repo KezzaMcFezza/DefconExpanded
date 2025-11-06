@@ -24,6 +24,18 @@
 #include <sys/sysctl.h>
 #endif
 
+//
+// Common colors used throughout debug menu
+
+static const Colour white(255, 255, 255, 255);
+static const Colour grey(200, 200, 200, 255);
+static const Colour red(255, 100, 100, 255);
+static const Colour green(100, 255, 100, 255);
+static const Colour yellow(255, 255, 100, 255);
+static const Colour orange(255, 200, 100, 255);
+static const Colour cyan(120, 255, 255, 255);
+static const Colour lightcyan(100, 255, 255, 255);
+
 RendererDebugMenu::RendererDebugMenu(Renderer* renderer)
     : m_renderer(renderer)
     , m_showBufferStats(true)
@@ -48,13 +60,13 @@ RendererDebugMenu::~RendererDebugMenu()
 void RendererDebugMenu::Update(double frameTime)
 {
     //
-    // update frame time history for smoothed averages
+    // Update frame time history for smoothed averages
 
     m_frameTimeHistory[m_frameTimeIndex] = frameTime;
     m_frameTimeIndex = (m_frameTimeIndex + 1) % FRAME_TIME_HISTORY_SIZE;
     
     //
-    // calculate rolling average
+    // Calculate rolling average
 
     double sum = 0.0;
     int validFrames = 0;
@@ -66,7 +78,7 @@ void RendererDebugMenu::Update(double frameTime)
     }
     
     //
-    // only update average if we have valid frames
+    // Only update average if we have valid frames
 
     if (validFrames > 0) {
         m_averageFrameTime = sum / validFrames;
@@ -77,11 +89,11 @@ void RendererDebugMenu::RenderDebugMenu()
 {
     if (!m_renderer) return;
     
-    float baseY = 55.0f;  // Move debug menu down to avoid FPS overlap
+    float baseY = 55.0f;  // Move debug menu down to avoid FPS overlap with FPS counter 
     float yPos = baseY;
     
     //
-    // render it
+    // Render it
 
     RenderBufferStatistics(yPos);
     yPos += 2.0f; 
@@ -91,6 +103,10 @@ void RendererDebugMenu::RenderDebugMenu()
 #endif
     RenderSystemInformation(yPos);
     yPos += 2.0f;
+    RenderVBOCacheStatistics(yPos);
+    yPos += 2.0f;
+    RenderTextureAndFontStatistics(yPos);
+    yPos += 2.0f;
 }
 
 void RendererDebugMenu::RenderBufferStatistics(float& yPos)
@@ -99,26 +115,23 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     
     char statsBuffer[512];
     float lineHeight = 18.0f;
-    float indentSmall = 20.0f;
+    float indentSmall = 35.0f;
     float indentLarge = 200.0f;
     
     //
-    // render text for both 2d and 3d
+    // Render text for both 2d and 3d
 
-    m_renderer->TextSimple(25, yPos, Colour(255, 255, 255, 255), 13.0f, "Global Buffer Statistics");
+    m_renderer->TextSimple(25, yPos, white, 13.0f, "Global Buffer Statistics");
     yPos += lineHeight;
     
-    int totalDrawCalls, legacyTriangleCalls, legacyLineCalls;
+    int totalDrawCalls, immediateTriangleCalls, immediateLineCalls;
     int textCalls;
     int lineCalls, staticSpriteCalls, rotatingSpriteCalls;
     int circleCalls, circleFillCalls, rectCalls, rectFillCalls, triangleFillCalls;
     
-    //
-    // start with 2D renderer stats as base
-    
     totalDrawCalls = m_renderer->GetTotalDrawCalls();
-    legacyTriangleCalls = m_renderer->GetLegacyTriangleCalls();
-    legacyLineCalls = m_renderer->GetLegacyLineCalls();
+    immediateTriangleCalls = m_renderer->GetImmediateTriangleCalls();
+    immediateLineCalls = m_renderer->GetImmediateLineCalls();
     textCalls = m_renderer->GetTextCalls();
     lineCalls = m_renderer->GetLineCalls();
     staticSpriteCalls = m_renderer->GetStaticSpriteCalls();
@@ -129,48 +142,65 @@ void RendererDebugMenu::RenderBufferStatistics(float& yPos)
     rectFillCalls = m_renderer->GetRectFillCalls();
     triangleFillCalls = m_renderer->GetTriangleFillCalls();
 
-    //
-    // add 3D stats to combine them
-
     if (g_renderer3d) {
         totalDrawCalls += g_renderer3d->GetTotalDrawCalls();
-        legacyTriangleCalls += g_renderer3d->GetLegacyTriangleCalls();
-        legacyLineCalls += g_renderer3d->GetLegacyLineCalls();
+        immediateTriangleCalls += g_renderer3d->GetImmediateTriangleCalls();
+        immediateLineCalls += g_renderer3d->GetImmediateLineCalls();
         textCalls += g_renderer3d->GetTextCalls();
         lineCalls += g_renderer3d->GetLineCalls();
         staticSpriteCalls += g_renderer3d->GetStaticSpriteCalls();
         rotatingSpriteCalls += g_renderer3d->GetRotatingSpriteCalls();
+        circleCalls += g_renderer3d->GetCircleCalls();
+        circleFillCalls += g_renderer3d->GetCircleFillCalls();
+        rectCalls += g_renderer3d->GetRectCalls();
+        rectFillCalls += g_renderer3d->GetRectFillCalls();
+        triangleFillCalls += g_renderer3d->GetTriangleFillCalls();
     }
     
+    //
     // Total draw calls header
+
     snprintf(statsBuffer, sizeof(statsBuffer), "Total Draw Calls: %d", totalDrawCalls);
-    m_renderer->TextSimple(25, yPos, Colour(255, 255, 255, 255), 12.0f, statsBuffer);
+    m_renderer->TextSimple(25, yPos, white, 12.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Legacy immediate mode buffers 
-    m_renderer->TextSimple(25, yPos, Colour(255, 100, 100, 255), 11.0f, "Immediate Mode:");
+    //
+    // Immediate mode
+
+    m_renderer->TextSimple(25, yPos, red, 11.0f, "Immediate Mode:");
     snprintf(statsBuffer, sizeof(statsBuffer), "Triangles: %d  Lines: %d", 
-             legacyTriangleCalls, legacyLineCalls);
-    m_renderer->TextSimple(indentLarge, yPos, Colour(255, 100, 100, 255), 11.0f, statsBuffer);
+             immediateTriangleCalls, immediateLineCalls);
+    m_renderer->TextSimple(indentLarge, yPos, red, 11.0f, statsBuffer);
     yPos += lineHeight;
     
-    // Unit buffer details 
-    snprintf(statsBuffer, sizeof(statsBuffer), "  Lines: %d  Static: %d Rotating: %d Circle: %d CircleFill: %d Rect: %d RectFill: %d TriangleFill: %d", 
-             lineCalls, staticSpriteCalls, rotatingSpriteCalls, circleCalls, circleFillCalls, rectCalls, rectFillCalls, triangleFillCalls);
-    m_renderer->TextSimple(indentSmall, yPos, Colour(120, 170, 255, 255), 10.0f, statsBuffer);
+    //
+    // All buffers
+
+    // First section
+    snprintf(statsBuffer, sizeof(statsBuffer), "  Lines: %d  Static: %d Rotating: %d Text: %d", 
+             lineCalls, staticSpriteCalls, rotatingSpriteCalls, textCalls);
+    m_renderer->TextSimple(indentSmall, yPos, cyan, 11.0f, statsBuffer);
+    yPos += 14.0f;
+
+    // Second section
+    snprintf(statsBuffer, sizeof(statsBuffer), "  Circle: %d CircleFill: %d Rect: %d RectFill: %d TriangleFill: %d", 
+             circleCalls, circleFillCalls, rectCalls, rectFillCalls, triangleFillCalls);
+    m_renderer->TextSimple(indentSmall, yPos, cyan, 11.0f, statsBuffer);
     yPos += 14.0f;
     
+    //
     // Performance summary
-    int legacyTotal = legacyTriangleCalls + legacyLineCalls;
-    int unitTotal = lineCalls + staticSpriteCalls + rotatingSpriteCalls + circleCalls + circleFillCalls + rectCalls + rectFillCalls + triangleFillCalls;
-    int batchedTotal = unitTotal;
+
+    int immediateTotal = immediateTriangleCalls + immediateLineCalls;
+    int bufferTotal = textCalls + lineCalls + staticSpriteCalls + rotatingSpriteCalls + circleCalls + circleFillCalls + rectCalls + rectFillCalls + triangleFillCalls;
+    int batchedTotal = bufferTotal;
     
-    m_renderer->TextSimple(25, yPos, Colour(100, 255, 255, 255), 11.0f, "Conclusion:");
+    m_renderer->TextSimple(25, yPos, white, 13.0f, "Conclusion:");
     yPos += lineHeight;
     
-    snprintf(statsBuffer, sizeof(statsBuffer), "  Batched: %d  Legacy: %d", 
-             batchedTotal, legacyTotal);
-    m_renderer->TextSimple(35, yPos, Colour(100, 255, 255, 255), 11.0f, statsBuffer);
+    snprintf(statsBuffer, sizeof(statsBuffer), "  Batched: %d  Immediate: %d", 
+             batchedTotal, immediateTotal);
+    m_renderer->TextSimple(35, yPos, lightcyan, 11.0f, statsBuffer);
     yPos += 14.0f;
     
 }
@@ -187,7 +217,7 @@ void RendererDebugMenu::RenderFlushTimings(float& yPos)
     if (timingCount == 0) return;
     
     //
-    // copy and sort by total time in a descending order
+    // Copy and sort by total time in a descending order
 
     Renderer::FlushTiming sorted[50];
     for (int i = 0; i < timingCount; i++) {
@@ -195,7 +225,7 @@ void RendererDebugMenu::RenderFlushTimings(float& yPos)
     }
     
     //
-    // use bubble sort to make things simple
+    // Use bubble sort to make things simple
 
     for (int i = 0; i < timingCount - 1; i++) {
         for (int j = 0; j < timingCount - i - 1; j++) {
@@ -210,11 +240,11 @@ void RendererDebugMenu::RenderFlushTimings(float& yPos)
     float lineHeight = 16.0f;
     char buffer[256];
     
-    m_renderer->TextSimple(25, yPos, Colour(255, 200, 100, 255), 13.0f, "Flush Timings (Top 5)");
+    m_renderer->TextSimple(25, yPos, orange, 13.0f, "Flush Timings (Top 5)");
     yPos += lineHeight;
     
     //
-    // show top 5 flush functions
+    // Show top 5 flush functions
 
     for (int i = 0; i < 5 && i < timingCount; i++) {
         if (sorted[i].callCount == 0) continue;
@@ -225,10 +255,10 @@ void RendererDebugMenu::RenderFlushTimings(float& yPos)
         snprintf(buffer, sizeof(buffer), "  %s: CPU %.3fms | GPU %.3fms (%d calls)",
                  sorted[i].name, avgCpuMs, avgGpuMs, sorted[i].callCount);
         
+        //          
         // Color code based on which is higher
-        Colour col = (avgGpuMs > avgCpuMs) ? 
-            Colour(255, 100, 100, 255) :  // Red if GPU bound
-            Colour(100, 255, 100, 255);   // Green if CPU bound
+
+        Colour col = (avgGpuMs > avgCpuMs) ? red : green;  // red if GPU bound, green if CPU bound
         
         m_renderer->TextSimple(35, yPos, col, 11.0f, buffer);
         yPos += 14.0f;
@@ -242,53 +272,57 @@ void RendererDebugMenu::RenderSystemInformation(float& yPos)
     char infoBuffer[256];
     float lineHeight = 18.0f;
     
+    //
     // Header
-    m_renderer->TextSimple(25, yPos, Colour(255, 255, 255, 255), 13.0f, "General Information");
+
+    m_renderer->TextSimple(25, yPos, white, 13.0f, "General Information");
     yPos += lineHeight;
     
+    //
     // Frame timing information
+
     if (m_showFrameTiming) {
-        m_renderer->TextSimple(25, yPos, Colour(255, 200, 100, 255), 12.0f, "Frame Times:");
+        m_renderer->TextSimple(25, yPos, orange, 12.0f, "Frame Times:");
         yPos += lineHeight;
         
         if (m_averageFrameTime > 0.0) {
             snprintf(infoBuffer, sizeof(infoBuffer), "  Average Frame Time: %.2f ms", m_averageFrameTime * 1000.0);
-            m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
+            m_renderer->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
             yPos += 14.0f;
             
             double fps = 1.0 / m_averageFrameTime;
             snprintf(infoBuffer, sizeof(infoBuffer), "  Average FPS: %.1f", fps);
-            m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
+            m_renderer->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
         } else {
             snprintf(infoBuffer, sizeof(infoBuffer), "  Frame Time: Collecting data...");
-            m_renderer->TextSimple(35, yPos, Colour(255, 255, 100, 255), 11.0f, infoBuffer);
+            m_renderer->TextSimple(35, yPos, yellow, 11.0f, infoBuffer);
             yPos += 14.0f;
             
             snprintf(infoBuffer, sizeof(infoBuffer), "  FPS: Collecting data...");
-            m_renderer->TextSimple(35, yPos, Colour(255, 255, 100, 255), 11.0f, infoBuffer);
+            m_renderer->TextSimple(35, yPos, yellow, 11.0f, infoBuffer);
         }
         yPos += lineHeight;
     }
     
     //
-    // buffer memory breakdown
+    // Buffer memory breakdown
 
     if (m_showMemoryInfo) {
-        m_renderer->TextSimple(25, yPos, Colour(100, 255, 200, 255), 12.0f, "Buffer Memory Breakdown:");
+        m_renderer->TextSimple(25, yPos, white, 12.0f, "Buffer Memory Breakdown:");
         yPos += lineHeight;
         
         //
-        // current vertex buffer usage
+        // Current vertex buffer usage
 
         int currentVertices = GetActualBufferVertexCount();
         float currentMemoryMB = (currentVertices * sizeof(Vertex2D)) / (1024.0f * 1024.0f);
         snprintf(infoBuffer, sizeof(infoBuffer), "  Current Usage: %.2f MB", 
                  currentMemoryMB);
-        m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
+        m_renderer->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
         yPos += 14.0f;
         
         //
-        // total allocated memory
+        // Total allocated memory
 
         size_t totalAllocated = m_renderer->GetTotalAllocatedBufferMemory();
         if (g_renderer3d) {
@@ -296,56 +330,158 @@ void RendererDebugMenu::RenderSystemInformation(float& yPos)
         }
         float totalMemoryMB = totalAllocated / (1024.0f * 1024.0f);
         snprintf(infoBuffer, sizeof(infoBuffer), "  Total Allocated: %.2f MB", totalMemoryMB);
-        m_renderer->TextSimple(35, yPos, Colour(200, 200, 200, 255), 11.0f, infoBuffer);
+        m_renderer->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
         yPos += 14.0f;
         
         //
-        // mega buffer memory (coastline and borders)
+        // Mega buffer memory, include both 2D and 3D VBOs
 
-        int megaVertices = m_renderer->GetMegaBufferVertexCount();
-        int megaIndices = m_renderer->GetMegaBufferIndexCount();
-        float megaMemoryMB = ((megaVertices * sizeof(Vertex2D)) + (megaIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+        float totalVBOMemoryMB = 0.0f;
+        
+        //
+        // Calculate 2D VBO memory
+
+        int coastline2DVertices = m_renderer->GetCachedVBOVertexCount("all_coastlines");
+        int coastline2DIndices = m_renderer->GetCachedVBOIndexCount("all_coastlines");
+        totalVBOMemoryMB += ((coastline2DVertices * sizeof(Vertex2D)) + (coastline2DIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+        
+        int border2DVertices = m_renderer->GetCachedVBOVertexCount("all_borders");
+        int border2DIndices = m_renderer->GetCachedVBOIndexCount("all_borders");
+        totalVBOMemoryMB += ((border2DVertices * sizeof(Vertex2D)) + (border2DIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+        
+        //
+        // Calculate 3D VBO memory
+
+        if (g_renderer3d) {
+            int globeCoastlineVertices = g_renderer3d->GetCached3DVBOVertexCount("GlobeCoastlines");
+            int globeCoastlineIndices = g_renderer3d->GetCached3DVBOIndexCount("GlobeCoastlines");
+            totalVBOMemoryMB += ((globeCoastlineVertices * sizeof(Vertex3D)) + (globeCoastlineIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+            
+            int globeBorderVertices = g_renderer3d->GetCached3DVBOVertexCount("GlobeBorders");
+            int globeBorderIndices = g_renderer3d->GetCached3DVBOIndexCount("GlobeBorders");
+            totalVBOMemoryMB += ((globeBorderVertices * sizeof(Vertex3D)) + (globeBorderIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+            
+            int globeGridlineVertices = g_renderer3d->GetCached3DVBOVertexCount("GlobeGridlines");
+            int globeGridlineIndices = g_renderer3d->GetCached3DVBOIndexCount("GlobeGridlines");
+            totalVBOMemoryMB += ((globeGridlineVertices * sizeof(Vertex3D)) + (globeGridlineIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+        }
+        
+        //
+        // Print the results
+
         snprintf(infoBuffer, sizeof(infoBuffer), "  Coastlines and Borders: %.2f MB", 
-                 megaMemoryMB);
-        m_renderer->TextSimple(35, yPos, Colour(255, 200, 100, 255), 11.0f, infoBuffer);
+                 totalVBOMemoryMB);
+        m_renderer->TextSimple(35, yPos, orange, 11.0f, infoBuffer);
         yPos += 14.0f;
     }
 }
 
-
-
-size_t RendererDebugMenu::GetMemoryUsage()
+void RendererDebugMenu::RenderVBOCacheStatistics(float& yPos)
 {
-#ifdef TARGET_OS_WINDOWS
-    PROCESS_MEMORY_COUNTERS pmc;
-    if (GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc))) {
-        return pmc.WorkingSetSize;
+    if (!m_renderer) return;
+    
+    char infoBuffer[256];
+    float lineHeight = 18.0f;
+    const int MAX_VBO_VERTICES = 1500000;
+    
+    m_renderer->TextSimple(25, yPos, white, 13.0f, "VBO Cache Statistics");
+    yPos += lineHeight;
+    
+    //
+    // Count total cached VBOs from both 2D and 3D renderers
+    
+    int cached2DVBOCount = m_renderer->GetCachedVBOCount();
+    int cached3DVBOCount = g_renderer3d ? g_renderer3d->GetCached3DVBOCount() : 0;
+    int totalCachedVBOs = cached2DVBOCount + cached3DVBOCount;
+    
+    snprintf(infoBuffer, sizeof(infoBuffer), "  Total Cached VBOs: %d", totalCachedVBOs);
+    m_renderer->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
+    yPos += 14.0f;
+    
+    //
+    // Change color depending on how much of the max defined verts/indicies are used
+    //
+    // Color code: 
+    //   Grey < 20%
+    //   Yellow >= 20%
+    //   Red >= 40%
+    
+    auto renderVBOStat = [&](const char* label, int vertices, int indices, size_t vertexSize, bool is3D = false) {
+        if (vertices <= 0) return;
+        
+        float vertexPercent = (float)vertices / (float)MAX_VBO_VERTICES * 100.0f;
+        Colour vboColor = (vertexPercent >= 40.0f) ? red :
+                          (vertexPercent >= 20.0f) ? yellow : grey;
+        
+        float vboMB = ((vertices * vertexSize) + (indices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+        snprintf(infoBuffer, sizeof(infoBuffer), "  %s: %d Vertices, %d Indices (%.2f MB)", 
+                 label, vertices, indices, vboMB);
+        m_renderer->TextSimple(35, yPos, vboColor, 11.0f, infoBuffer);
+        yPos += 14.0f;
+    };
+    
+    //
+    // 2D VBO stats
+    
+    renderVBOStat("2D Coastlines", 
+                  m_renderer->GetCachedVBOVertexCount("all_coastlines"),
+                  m_renderer->GetCachedVBOIndexCount("all_coastlines"),
+                  sizeof(Vertex2D));
+    
+    renderVBOStat("2D Borders", 
+                  m_renderer->GetCachedVBOVertexCount("all_borders"),
+                  m_renderer->GetCachedVBOIndexCount("all_borders"),
+                  sizeof(Vertex2D));
+    
+    //
+    // 3D VBO stats
+    
+    if (g_renderer3d) {
+        renderVBOStat("3D Coastlines",
+                      g_renderer3d->GetCached3DVBOVertexCount("GlobeCoastlines"),
+                      g_renderer3d->GetCached3DVBOIndexCount("GlobeCoastlines"),
+                      sizeof(Vertex3D), true);
+        
+        renderVBOStat("3D Borders",
+                      g_renderer3d->GetCached3DVBOVertexCount("GlobeBorders"),
+                      g_renderer3d->GetCached3DVBOIndexCount("GlobeBorders"),
+                      sizeof(Vertex3D), true);
+        
+        renderVBOStat("3D Gridlines",
+                      g_renderer3d->GetCached3DVBOVertexCount("GlobeGridlines"),
+                      g_renderer3d->GetCached3DVBOIndexCount("GlobeGridlines"),
+                      sizeof(Vertex3D), true);
     }
-#endif
+}
 
-#ifdef TARGET_OS_LINUX
-    std::ifstream file("/proc/self/status");
-    std::string line;
-    while (std::getline(file, line)) {
-        if (line.substr(0, 6) == "VmRSS:") {
-            std::istringstream iss(line);
-            std::string key, value, unit;
-            iss >> key >> value >> unit;
-            return std::stoi(value) * 1024; // Convert from KB to bytes
-        }
-    }
-#endif
-
-#ifdef TARGET_OS_MACOSX
-    task_info_data_t tinfo;
-    mach_msg_type_number_t task_info_count = TASK_INFO_MAX;
-    if (task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)tinfo, &task_info_count) == KERN_SUCCESS) {
-        task_basic_info_t basic_info = (task_basic_info_t)tinfo;
-        return basic_info->resident_size;
-    }
-#endif
-
-    return 0; // Unable to determine
+void RendererDebugMenu::RenderTextureAndFontStatistics(float& yPos)
+{
+    if (!m_renderer) return;
+    
+    char infoBuffer[256];
+    float lineHeight = 18.0f;
+    
+    m_renderer->TextSimple(25, yPos, white, 13.0f, "Font Statistics");
+    yPos += lineHeight;
+    
+    //
+    // Texture switches per frame
+    
+    int textureSwitches = m_renderer->GetTextureSwitches();
+    snprintf(infoBuffer, sizeof(infoBuffer), "  Texture Switches: %d", textureSwitches);
+    
+    //
+    // Add color codes based on texture switch count
+    
+    Colour switchColor = (textureSwitches > 100) ? red : green;  // red if too many switches, green if okay
+    
+    m_renderer->TextSimple(35, yPos, switchColor, 11.0f, infoBuffer);
+    yPos += 14.0f;
+    
+    int fontBatches = m_renderer->GetActiveFontBatches();
+    snprintf(infoBuffer, sizeof(infoBuffer), "  Active Font Batches: %d", fontBatches);
+    m_renderer->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
+    yPos += 14.0f;
 }
 
 int RendererDebugMenu::GetActualBufferVertexCount()
@@ -353,9 +489,6 @@ int RendererDebugMenu::GetActualBufferVertexCount()
     if (!m_renderer) return 0;
     
     int totalVertices = m_renderer->GetTotalCurrentVertexCount();
-    
-    //
-    // add 3D renderer stats if available
 
     if (g_renderer3d) {
         totalVertices += g_renderer3d->GetTotalCurrentVertexCount();
@@ -368,19 +501,17 @@ int RendererDebugMenu::EstimateTextureSwitches()
 {
     if (!m_renderer) return 0;
     
-    // Rough estimation based on different texture types
     int switches = 0;
     
-    // Each different type of textured call likely uses different textures
     if (m_renderer->GetTextCalls() > 0) switches++;
-    if (m_renderer->GetStaticSpriteCalls() > 0) switches += 8; // Different unit types
-    if (m_renderer->GetRotatingSpriteCalls() > 0) switches += 3; // Aircraft/rotating nuke textures
+    if (m_renderer->GetStaticSpriteCalls() > 0) switches += 8;
+    if (m_renderer->GetRotatingSpriteCalls() > 0) switches += 3; 
     
     // Add 3D renderer stats if available
     if (g_renderer3d) {
         if (g_renderer3d->GetTextCalls() > 0) switches++;
-        if (g_renderer3d->GetStaticSpriteCalls() > 0) switches += 8; // Different unit types
-        if (g_renderer3d->GetRotatingSpriteCalls() > 0) switches += 3; // Aircraft/rotating nuke textures
+        if (g_renderer3d->GetStaticSpriteCalls() > 0) switches += 8;
+        if (g_renderer3d->GetRotatingSpriteCalls() > 0) switches += 3;
     }
     
     return switches;

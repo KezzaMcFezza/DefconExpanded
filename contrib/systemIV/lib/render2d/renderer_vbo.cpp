@@ -390,3 +390,42 @@ void Renderer::SetMegaVBOBufferSizes(int vertexCount, int indexCount) {
     m_megaVertices = new Vertex2D[m_maxMegaVertices];
     m_megaIndices = new unsigned int[m_maxMegaIndices];
 }
+
+// ============================================================================
+// VBO CACHE STATISTICS
+// ============================================================================
+
+int Renderer::GetCachedVBOCount() {
+    int count = 0;
+    
+    //
+    // Iterate through cached VBOs and count valid ones
+    
+    DArray<char*> *keys = m_cachedVBOs.ConvertIndexToDArray();
+    
+    for (int i = 0; i < keys->Size(); ++i) {
+        BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(keys->GetData(i));
+        if (tree && tree->data && tree->data->isValid) {
+            count++;
+        }
+    }
+    
+    delete keys;
+    return count;
+}
+
+int Renderer::GetCachedVBOVertexCount(const char *cacheKey) {
+    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(cacheKey);
+    if (tree && tree->data && tree->data->isValid) {
+        return tree->data->vertexCount;
+    }
+    return 0;
+}
+
+int Renderer::GetCachedVBOIndexCount(const char *cacheKey) {
+    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(cacheKey);
+    if (tree && tree->data && tree->data->isValid) {
+        return tree->data->indexCount;
+    }
+    return 0;
+}

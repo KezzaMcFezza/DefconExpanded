@@ -197,8 +197,8 @@ Renderer::Renderer()
       m_rectFillVBO(0),
       m_triangleFillVAO(0), 
       m_triangleFillVBO(0),
-      m_legacyVAO(0), 
-      m_legacyVBO(0),
+      m_immediateVAO(0), 
+      m_immediateVBO(0),
       m_bufferNeedsUpload(true),
       m_projMatrixLocation(-1),
       m_modelViewMatrixLocation(-1),
@@ -219,7 +219,6 @@ Renderer::Renderer()
       m_rectVertexCount(0),
       m_rectFillVertexCount(0),
       m_triangleFillVertexCount(0),
-      m_allowImmedateFlush(true),
       m_lineConversionBuffer(NULL),
       m_lineConversionBufferSize(0),
       m_currentLineColor(0, 0, 0, 0),
@@ -230,8 +229,8 @@ Renderer::Renderer()
       m_currentCacheKey(NULL),
       m_cachedLineStripColor(0, 0, 0, 0),
       m_cachedLineStripWidth(1.0f),
-      m_maxMegaVertices(2500000),
-      m_maxMegaIndices(5000000),
+      m_maxMegaVertices(1500000),
+      m_maxMegaIndices(1500000),
       m_megaVBOActive(false),
       m_currentMegaVBOKey(NULL),
       m_megaVBOColor(0, 0, 0, 0),
@@ -265,8 +264,8 @@ Renderer::Renderer()
       m_rectFillVertexCount = 0;
       m_triangleFillVertexCount = 0;
       m_drawCallsPerFrame = 0;
-      m_legacyTriangleCalls = 0;
-      m_legacyLineCalls = 0;
+      m_immediateTriangleCalls = 0;
+      m_immediateLineCalls = 0;
       m_textCalls = 0;
       m_lineCalls = 0;
       m_staticSpriteCalls = 0;
@@ -277,8 +276,8 @@ Renderer::Renderer()
       m_rectFillCalls = 0;
       m_triangleFillCalls = 0;
       m_prevDrawCallsPerFrame = 0;
-      m_prevLegacyTriangleCalls = 0;
-      m_prevLegacyLineCalls = 0;
+      m_prevImmediateTriangleCalls = 0;
+      m_prevImmediateLineCalls = 0;
       m_prevTextCalls = 0;
       m_prevLineCalls = 0;
       m_prevStaticSpriteCalls = 0;
@@ -290,9 +289,13 @@ Renderer::Renderer()
       m_prevTriangleFillCalls = 0;
       m_flushTimingCount = 0;
       m_currentFlushStartTime = 0.0;
+      m_textureSwitches = 0;
+      m_prevTextureSwitches = 0;
+      m_activeFontBatches = 0;
+      m_prevActiveFontBatches = 0;
 
       //
-      // initialize font-aware batching system
+      // Initialize font-aware batching system
 
       for (int i = 0; i < MAX_FONT_ATLASES; i++) {
           m_fontBatches[i].vertexCount = 0;
@@ -300,7 +303,7 @@ Renderer::Renderer()
       }
     
       //
-      // initialize OpenGL components
+      // Initialize OpenGL components
 
       InitializeShaders();
       CacheUniformLocations();
@@ -316,9 +319,9 @@ Renderer::Renderer()
     int msaaSamples = g_preferences ? g_preferences->GetInt(PREFS_SCREEN_ANTIALIAS, 0) : 0;
     
     //
-    // ensure the FBO is applied to the correct screen dimensions
+    // Ensure the FBO is applied to the correct screen dimensions
     //
-    // use physical dimensions to prevent logical resolution scaling
+    // Use physical dimensions to prevent logical resolution scaling
     // from being applied to the framebuffer and causing clipping
     
 #ifndef TARGET_EMSCRIPTEN
@@ -339,8 +342,6 @@ Renderer::~Renderer() {
     if (m_currentFontFilename) delete[] m_currentFontFilename;
     if (m_defaultFontName) delete[] m_defaultFontName;
     if (m_defaultFontFilename) delete[] m_defaultFontFilename;
-    
-    // Clean up OpenGL resources
     if (m_colorShaderProgram) glDeleteProgram(m_colorShaderProgram);
     if (m_textureShaderProgram) glDeleteProgram(m_textureShaderProgram);
     if (m_VAO) glDeleteVertexArrays(1, &m_VAO);
@@ -359,8 +360,8 @@ Renderer::~Renderer() {
     if (m_rectFillVBO) glDeleteBuffers(1, &m_rectFillVBO);
     if (m_triangleFillVAO) glDeleteVertexArrays(1, &m_triangleFillVAO);
     if (m_triangleFillVBO) glDeleteBuffers(1, &m_triangleFillVBO);
-    if (m_legacyVAO) glDeleteVertexArrays(1, &m_legacyVAO);
-    if (m_legacyVBO) glDeleteBuffers(1, &m_legacyVBO);
+    if (m_immediateVAO) glDeleteVertexArrays(1, &m_immediateVAO);
+    if (m_immediateVBO) glDeleteBuffers(1, &m_immediateVBO);
     
     for (int i = 0; i < m_flushTimingCount; i++) {
         if (m_flushTimings[i].queryObject != 0) {
@@ -943,6 +944,7 @@ void Renderer::SetBoundTexture(GLuint texture) {
     if (m_currentBoundTexture != texture) {
         glBindTexture(GL_TEXTURE_2D, texture);
         m_currentBoundTexture = texture;
+        m_textureSwitches++;
     }
 }
 
@@ -1285,12 +1287,12 @@ void Renderer::SetupVertexArrays() {
     setupVertexAttributes();
     
     //
-    // Create legacy VAO/VBO pair
+    // Create immediate VAO/VBO pair
 
-    glGenVertexArrays(1, &m_legacyVAO);
-    glGenBuffers(1, &m_legacyVBO);
-    glBindVertexArray(m_legacyVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_legacyVBO);
+    glGenVertexArrays(1, &m_immediateVAO);
+    glGenBuffers(1, &m_immediateVBO);
+    glBindVertexArray(m_immediateVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_immediateVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_VERTICES, NULL, GL_DYNAMIC_DRAW);
     setupVertexAttributes();
     
@@ -1467,8 +1469,8 @@ void Renderer::ResetFrameCounters() {
     // store previous frames data
 
     m_prevDrawCallsPerFrame = m_drawCallsPerFrame;
-    m_prevLegacyTriangleCalls = m_legacyTriangleCalls;
-    m_prevLegacyLineCalls = m_legacyLineCalls;
+    m_prevImmediateTriangleCalls = m_immediateTriangleCalls;
+    m_prevImmediateLineCalls = m_immediateLineCalls;
     m_prevTextCalls = m_textCalls;
     m_prevLineCalls = m_lineCalls;
     m_prevStaticSpriteCalls = m_staticSpriteCalls;
@@ -1478,13 +1480,15 @@ void Renderer::ResetFrameCounters() {
     m_prevRectCalls = m_rectCalls;
     m_prevRectFillCalls = m_rectFillCalls;
     m_prevTriangleFillCalls = m_triangleFillCalls;
+    m_prevTextureSwitches = m_textureSwitches;
+    m_prevActiveFontBatches = m_activeFontBatches;
     
     //
     // reset current frame counters
 
     m_drawCallsPerFrame = 0;
-    m_legacyTriangleCalls = 0;
-    m_legacyLineCalls = 0;
+    m_immediateTriangleCalls = 0;
+    m_immediateLineCalls = 0;
     m_textCalls = 0;
     m_lineCalls = 0;
     m_staticSpriteCalls = 0;
@@ -1494,6 +1498,8 @@ void Renderer::ResetFrameCounters() {
     m_rectCalls = 0;
     m_rectFillCalls = 0;
     m_triangleFillCalls = 0;
+    m_textureSwitches = 0;
+    m_activeFontBatches = 0;
 }
 
 //
@@ -1511,8 +1517,8 @@ void Renderer::IncrementDrawCall(const char* bufferType) {
     };
     
     switch (hash(bufferType)) {
-        case hash("legacy_triangles"): m_legacyTriangleCalls++; break;
-        case hash("legacy_lines"): m_legacyLineCalls++; break;
+        case hash("immediate_triangles"): m_immediateTriangleCalls++; break;
+        case hash("immediate_lines"): m_immediateLineCalls++; break;
         case hash("text"): m_textCalls++; break;
         case hash("lines"): m_lineCalls++; break;
         case hash("static_sprites"): m_staticSpriteCalls++; break;

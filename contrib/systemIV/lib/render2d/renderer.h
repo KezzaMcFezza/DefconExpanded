@@ -8,9 +8,9 @@
 #define _included_renderer_h
 
 //
-// more for testing, we get 20k draw calls with immediate mode enabled
-// set to 1 to disable batching and flush after every draw call
-// set to 0 to enable batching
+// More for testing, we get 20k draw calls with immediate mode enabled
+// Set to 1 to disable batching and flush after every draw call
+// Set to 0 to enable batching
 
 #define IMMEDIATE_MODE 0
 
@@ -21,21 +21,18 @@
 class Image;
 class BitmapFont;
 
-static const Colour White{255, 255, 255};
-static const Colour Black{0, 0, 0};
-static const Colour LightGray{200, 200, 200};
-static const Colour DarkGray{100, 100, 100};
-
-//
-// modern OpenGL support structures
+static const Colour White       {255, 255, 255};
+static const Colour Black       {0, 0, 0};
+static const Colour LightGray   {200, 200, 200};
+static const Colour DarkGray    {100, 100, 100};
 
 struct Matrix4f {
   float m[16];
 
   constexpr Matrix4f();
   constexpr void LoadIdentity();
-  void Ortho(float left, float right, float bottom, float top, float nearZ,
-             float farZ);
+  void Ortho             (float left, float right, float bottom, float top, float nearZ,
+                          float farZ);
   constexpr void Multiply(const Matrix4f &other);
 };
 
@@ -44,11 +41,12 @@ struct Vertex2D {
   float r, g, b, a;
   float u, v; // texture coordinates
   
-  constexpr Vertex2D() : x(0), y(0), r(1), g(1), b(1), a(1), u(0), v(0) {}
-  constexpr Vertex2D(float px, float py, float pr, float pg, float pb, float pa, float pu, float pv) 
-    : x(px), y(py), r(pr), g(pg), b(pb), a(pa), u(pu), v(pv) {}
-  constexpr Vertex2D(float px, float py, const Colour& color, float pu, float pv)
-    : x(px), y(py), r(color.GetRFloat()), g(color.GetGFloat()), b(color.GetBFloat()), a(color.GetAFloat()), u(pu), v(pv) {}
+  constexpr Vertex2D     () : x(0), y(0), r(1), g(1), b(1), a(1), u(0), v(0) {}
+  constexpr Vertex2D     (float px, float py, float pr, float pg, float pb, float pa, float pu, float pv) 
+                         : x(px), y(py), r(pr), g(pg), b(pb), a(pa), u(pu), v(pv) {}
+  constexpr Vertex2D     (float px, float py, const Colour& color, float pu, float pv)
+                         : x(px), y(py), r(color.GetRFloat()), g(color.GetGFloat()), 
+                          b(color.GetBFloat()), a(color.GetAFloat()), u(pu), v(pv) {}
 };
 
 class Renderer {
@@ -64,20 +62,19 @@ private:
   ShaderUniforms m_textureShaderUniforms;
 
   enum BufferType {
-    BUFFER_TEXT,               // all text rendering, not yet implemented with batching
-    BUFFER_SPRITES,            // general sprites/images
-    BUFFER_LINES,              // movement history lines, 4000 draw call reductin when implemented with batching
-    BUFFER_STATIC_SPRITES,     // main static unit sprites (ground/sea units)
-    BUFFER_ROTATING_SPRITES,   // rotating sprites (aircraft/nukes)
-    BUFFER_LEGACY              // immediate mode rendering
+    BUFFER_TEXT,
+    BUFFER_SPRITES,
+    BUFFER_LINES,
+    BUFFER_STATIC_SPRITES,
+    BUFFER_ROTATING_SPRITES,
+    BUFFER_LEGACY              
   };
 
   static constexpr int MAX_VERTICES                 = 5000;
-  static constexpr int MAX_TEXT_VERTICES            = 7500;
-  static constexpr int MAX_LINE_VERTICES            = 15000;
-  static constexpr int MAX_STATIC_SPRITE_VERTICES   = 10000;
+  static constexpr int MAX_TEXT_VERTICES            = 20000;
+  static constexpr int MAX_LINE_VERTICES            = 20000;
+  static constexpr int MAX_STATIC_SPRITE_VERTICES   = 15000;
   static constexpr int MAX_ROTATING_SPRITE_VERTICES = 20000;
-  static constexpr int MAX_HEALTH_BAR_VERTICES      = 500;
   static constexpr int MAX_CIRCLE_VERTICES          = 5000;
   static constexpr int MAX_CIRCLE_FILL_VERTICES     = 5000;
   static constexpr int MAX_RECT_VERTICES            = 3000;
@@ -96,23 +93,20 @@ protected:
   bool m_negative;
   BTree<float> m_fontSpacings;
 
-  //
-  // OpenGL 3.3 Core profile support
-
   unsigned int m_shaderProgram;
   unsigned int m_colorShaderProgram;
   unsigned int m_textureShaderProgram;
   unsigned int m_VAO;
   unsigned int m_VBO; 
-  unsigned int m_spriteVAO, m_spriteVBO;                      // unit sprites and highlights
-  unsigned int m_lineVAO, m_lineVBO;                      // line rendering
-  unsigned int m_textVAO, m_textVBO;                      // text rendering
-  unsigned int m_circleVAO, m_circleVBO;                  // circle outlines
-  unsigned int m_circleFillVAO, m_circleFillVBO;          // circle fills
-  unsigned int m_rectVAO, m_rectVBO;                      // rect outlines
-  unsigned int m_rectFillVAO, m_rectFillVBO;              // rect fills
-  unsigned int m_triangleFillVAO, m_triangleFillVBO;      // triangle fills
-  unsigned int m_legacyVAO, m_legacyVBO;                  // triangle/line rendering
+  unsigned int m_spriteVAO, m_spriteVBO;
+  unsigned int m_lineVAO, m_lineVBO;
+  unsigned int m_textVAO, m_textVBO;
+  unsigned int m_circleVAO, m_circleVBO;
+  unsigned int m_circleFillVAO, m_circleFillVBO;
+  unsigned int m_rectVAO, m_rectVBO;
+  unsigned int m_rectFillVAO, m_rectFillVBO;
+  unsigned int m_triangleFillVAO, m_triangleFillVBO;
+  unsigned int m_immediateVAO, m_immediateVBO;
   
   bool m_bufferNeedsUpload;
 
@@ -125,7 +119,7 @@ protected:
   int m_textureLocation;
 
   //
-  // text/font buffer, textured with font-aware batching for multiple atlases
+  // Text/Font buffer, font-aware batching for multiple font atlases
 
   static const int MAX_FONT_ATLASES = 4;  // bitlow, kremlin, lucon, zerothre
   
@@ -138,15 +132,9 @@ protected:
   FontBatch m_fontBatches[MAX_FONT_ATLASES];
   int m_currentFontBatchIndex;
   
-  Vertex2D *m_textVertices;           // points to current font batch vertices
-  int m_textVertexCount;              // current font batch vertex count  
-  unsigned int m_currentTextTexture;  // current font batch texture ID
-
-  Vertex2D m_triangleVertices                [MAX_VERTICES];
-  int m_triangleVertexCount;
-
-  Vertex2D m_lineVertices                    [MAX_LINE_VERTICES];
-  int m_lineVertexCount;
+  Vertex2D *m_textVertices;                  // points to current font batch vertices
+  int m_textVertexCount;                     // current font batch vertex count  
+  unsigned int m_currentTextTexture;         // current font batch texture ID
 
   Vertex2D m_staticSpriteVertices            [MAX_STATIC_SPRITE_VERTICES];
   int m_staticSpriteVertexCount;
@@ -155,6 +143,12 @@ protected:
   Vertex2D m_rotatingSpriteVertices          [MAX_ROTATING_SPRITE_VERTICES];
   int m_rotatingSpriteVertexCount;
   unsigned int m_currentRotatingSpriteTexture;
+
+  Vertex2D m_triangleVertices                [MAX_VERTICES];
+  int m_triangleVertexCount;
+
+  Vertex2D m_lineVertices                    [MAX_LINE_VERTICES];
+  int m_lineVertexCount;
 
   Vertex2D m_circleVertices                  [MAX_CIRCLE_VERTICES];
   int m_circleVertexCount;
@@ -171,36 +165,19 @@ protected:
   Vertex2D m_triangleFillVertices            [MAX_TRIANGLE_FILL_VERTICES];
   int m_triangleFillVertexCount;
 
-  //
-  // flush control, more of a global way to disable batching
-
-  bool m_allowImmedateFlush;
-
   Vertex2D* m_lineConversionBuffer;
   int m_lineConversionBufferSize;
 
-  //
-  // line rendering state
-
   Colour m_currentLineColor;
-
-  //
-  // line strip rendering state
 
   bool m_lineStripActive;
   Colour m_lineStripColor;
   float m_lineStripWidth;
 
-  //
-  // cached line strip state
-
   bool m_cachedLineStripActive;
   char *m_currentCacheKey;
   Colour m_cachedLineStripColor;
   float m_cachedLineStripWidth;
-
-  //
-  // megavbo state for large geometry
 
   int m_maxMegaVertices;
   int m_maxMegaIndices;
@@ -215,7 +192,7 @@ protected:
   int m_megaIndexCount;
 
   //
-  // vbo caching system for coastlines and borders, replaced display lists
+  // VBO caching system for coastlines and borders, replaced display lists
 
   struct CachedVBO {
     unsigned int VBO;
@@ -230,26 +207,22 @@ protected:
 
   BTree<CachedVBO *> m_cachedVBOs;
 
-  //
-  // font/texture batching state
+  BufferType m_activeBuffer;
 
   unsigned int m_currentBoundTexture;
   bool m_batchingTextures;
 
-  //
-  // methods for modern OpenGL
-
-  void InitializeShaders();
-  void CacheUniformLocations();
-  void SetupVertexArrays();
-  void SetColorShaderUniforms();
+  void InitializeShaders       ();
+  void CacheUniformLocations   ();
+  void SetupVertexArrays       ();
+  void SetColorShaderUniforms  ();
   void SetTextureShaderUniforms();
-  void UploadVertexData(const Vertex2D* vertices, int vertexCount);
-  void UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices, int vertexCount, unsigned int usageHint);
+  void UploadVertexData        (const Vertex2D* vertices, int vertexCount);
+  void UploadVertexDataToVBO   (unsigned int vbo, const Vertex2D* vertices, int vertexCount, unsigned int usageHint);
  
  
-  void FlushIfTextureChanged(unsigned int newTextureID, bool useTexture);
-  void FlushTriangles(bool useTexture);
+  void FlushIfTextureChanged   (unsigned int newTextureID, bool useTexture);
+  void FlushTriangles          (bool useTexture);
   void FlushTextBuffer();
   void FlushLines();
   void FlushStaticSprites();
@@ -260,19 +233,16 @@ protected:
   void FlushRectFills();
   void FlushTriangleFills();
   void FlushRotatingSpritesIfFull    (int verticesNeeded);
-  void FlushCirclesIfFull           (int verticesNeeded);
-  void FlushCircleFillsIfFull       (int verticesNeeded);
-  void FlushRectsIfFull             (int verticesNeeded);
-  void FlushRectFillsIfFull         (int verticesNeeded);
-  void FlushTriangleFillsIfFull     (int verticesNeeded);
-
-  // Buffer selection for drawing operations
-  BufferType m_activeBuffer;
+  void FlushCirclesIfFull            (int verticesNeeded);
+  void FlushCircleFillsIfFull        (int verticesNeeded);
+  void FlushRectsIfFull              (int verticesNeeded);
+  void FlushRectFillsIfFull          (int verticesNeeded);
+  void FlushTriangleFillsIfFull      (int verticesNeeded);
 
 public:
 
   //
-  // shader creation for 3D renderer
+  // Shader creation for 3D renderer
 
   unsigned int CreateShader         (const char *vertexSource,
                                      const char *fragmentSource);
@@ -289,32 +259,21 @@ public:
   void SetScissor                   (int x, int y, int width, int height);
   void SetTextureParameter          (GLenum pname, GLint param);
 
-  //
-  // atlas sprite support helpers
-
   void GetImageUVCoords             (Image *image, float &u1, float &v1, float &u2,float &v2);
   unsigned int GetEffectiveTextureID(Image *image);
-
-  //
-  // batching system controls
 
   void SetTextureBatching           (bool enabled) { m_batchingTextures = enabled; }
   bool IsTextureBatchingEnabled     () const { return m_batchingTextures; }
 
   //
-  // Frame management
-
-  void SetImmediateFlush            (bool enabled) { m_allowImmedateFlush = enabled; }
-  bool IsImmediateFlushEnabled      () const { return m_allowImmedateFlush; }
+  // Track draw calls, used in app::render()
+  
   void BeginFrame();
   void EndFrame();
 
-  //
-  // performance tracking, draw call counters per frame
-
   int m_drawCallsPerFrame;
-  int m_legacyTriangleCalls;
-  int m_legacyLineCalls;
+  int m_immediateTriangleCalls;
+  int m_immediateLineCalls;
   int m_textCalls;
   int m_lineCalls;
   int m_staticSpriteCalls;
@@ -325,8 +284,8 @@ public:
   int m_rectFillCalls;
   int m_triangleFillCalls;
   int m_prevDrawCallsPerFrame;
-  int m_prevLegacyTriangleCalls;
-  int m_prevLegacyLineCalls;
+  int m_prevImmediateTriangleCalls;
+  int m_prevImmediateLineCalls;
   int m_prevTextCalls;
   int m_prevLineCalls;
   int m_prevStaticSpriteCalls;
@@ -336,19 +295,17 @@ public:
   int m_prevRectCalls;
   int m_prevRectFillCalls;
   int m_prevTriangleFillCalls;
+  int m_textureSwitches;
+  int m_prevTextureSwitches;
+  int m_activeFontBatches;
+  int m_prevActiveFontBatches;
 
-  //
-  // start over
-
-  void ResetFrameCounters();
-  void IncrementDrawCall(const char *bufferType);
-
-  //
-  // performance monitoring getters
+  void ResetFrameCounters       ();
+  void IncrementDrawCall        (const char *bufferType);
 
   int GetTotalDrawCalls         () const { return m_prevDrawCallsPerFrame; }
-  int GetLegacyTriangleCalls    () const { return m_prevLegacyTriangleCalls; }
-  int GetLegacyLineCalls        () const { return m_prevLegacyLineCalls; }
+  int GetImmediateTriangleCalls () const { return m_prevImmediateTriangleCalls; }
+  int GetImmediateLineCalls     () const { return m_prevImmediateLineCalls; }
   int GetTextCalls              () const { return m_prevTextCalls; }
   int GetLineCalls              () const { return m_prevLineCalls; }
   int GetStaticSpriteCalls      () const { return m_prevStaticSpriteCalls; }
@@ -358,22 +315,21 @@ public:
   int GetRectCalls              () const { return m_prevRectCalls; }
   int GetRectFillCalls          () const { return m_prevRectFillCalls; }
   int GetTriangleFillCalls      () const { return m_prevTriangleFillCalls; }
+  int GetTextureSwitches        () const { return m_prevTextureSwitches; }
+  int GetActiveFontBatches      () const { return m_prevActiveFontBatches; }
 
 
-  int GetCurrentTextVertexCount() const { return m_textVertexCount; }
-  int GetCurrentLineVertexCount() const { return m_lineVertexCount; }
-  int GetCurrentStaticSpriteVertexCount() const { return m_staticSpriteVertexCount; }
-  int GetCurrentRotatingSpriteVertexCount() const { return m_rotatingSpriteVertexCount; }
-  int GetCurrentCircleVertexCount() const { return m_circleVertexCount; }
-  int GetCurrentCircleFillVertexCount() const { return m_circleFillVertexCount; }
-  int GetCurrentRectVertexCount() const { return m_rectVertexCount; }
-  int GetCurrentRectFillVertexCount() const { return m_rectFillVertexCount; }
-  int GetCurrentTriangleFillVertexCount() const { return m_triangleFillVertexCount; }
-  int GetCurrentLegacyTriangleVertexCount() const { return m_triangleVertexCount; }
-  int GetCurrentLegacyLineVertexCount() const { return m_lineVertexCount; }
-  
-  //
-  // now get total current vertex count across all buffers
+  int GetCurrentTextVertexCount             () const { return m_textVertexCount; }
+  int GetCurrentLineVertexCount             () const { return m_lineVertexCount; }
+  int GetCurrentStaticSpriteVertexCount     () const { return m_staticSpriteVertexCount; }
+  int GetCurrentRotatingSpriteVertexCount   () const { return m_rotatingSpriteVertexCount; }
+  int GetCurrentCircleVertexCount           () const { return m_circleVertexCount; }
+  int GetCurrentCircleFillVertexCount       () const { return m_circleFillVertexCount; }
+  int GetCurrentRectVertexCount             () const { return m_rectVertexCount; }
+  int GetCurrentRectFillVertexCount         () const { return m_rectFillVertexCount; }
+  int GetCurrentTriangleFillVertexCount     () const { return m_triangleFillVertexCount; }
+  int GetCurrentImmediateTriangleVertexCount() const { return m_triangleVertexCount; }
+  int GetCurrentImmediateLineVertexCount    () const { return m_lineVertexCount; } 
   
   int GetTotalCurrentVertexCount() const {
     return m_textVertexCount + m_lineVertexCount + m_staticSpriteVertexCount + 
@@ -382,12 +338,9 @@ public:
            m_triangleVertexCount + m_lineVertexCount;
   }
 
-  int GetMegaBufferVertexCount() const { return m_maxMegaVertices; }
-  int GetMegaBufferIndexCount() const { return m_maxMegaIndices; }
+  int GetMegaBufferVertexCount   () const { return m_maxMegaVertices; }
+  int GetMegaBufferIndexCount    () const { return m_maxMegaIndices; }
   int GetLineConversionBufferSize() const { return m_lineConversionBufferSize; }
-  
-  //
-  // now get total allocated memory
 
   size_t GetTotalAllocatedBufferMemory() const {
     size_t total = 0;
@@ -445,11 +398,11 @@ public:
   int m_msaaWidth;
   int m_msaaHeight;
   
-  void InitializeMSAAFramebuffer(int width, int height, int samples);
-  void ResizeMSAAFramebuffer(int width, int height);
   void DestroyMSAAFramebuffer();
   void BeginMSAARendering();
   void EndMSAARendering();
+  void InitializeMSAAFramebuffer(int width, int height, int samples);
+  void ResizeMSAAFramebuffer    (int width, int height);
 
   enum {
     BlendModeDisabled,
@@ -473,15 +426,9 @@ public:
 
   void SaveScreenshot ();
 
-  //
-  // rendering modes
-
   void SetBlendMode   (int _blendMode);
   void SetBlendFunc   (int srcFactor, int dstFactor);
   void SetDepthBuffer (bool _enabled, bool _clearNow);
-
-  //
-  // text output
 
   void SetDefaultFont           (const char *font, const char *_langName = NULL);
   void SetFontSpacing           (const char *font, float _spacing);
@@ -494,6 +441,7 @@ public:
   bool IsFontLanguageSpecific   ();
   BitmapFont *GetBitmapFont     ();
 
+  void BeginTextBatch();
   void Text                     (float x, float y, Colour const &col, float size, 
                                  const char *text, ...);
   void TextCentre               (float x, float y, Colour const &col, float size,
@@ -510,43 +458,49 @@ public:
   float TextWidth               (const char *text, float size);
   float TextWidth               (const char *text, unsigned int textLen, float size,
                                  BitmapFont *bitmapFont);
-
-  //
-  // drawing primitives
-
+  void EndTextBatch();
+  void FlushTextBufferIfFull     (int charactersNeeded);
+  
+  void BeginRectBatch();
   void Rect             (float x, float y, float w, float h, Colour const &col,
                          float lineWidth = 1.0f);
+  void EndRectBatch();
+
+  void BeginRectFillBatch();
   void RectFill         (float x, float y, float w, float h, Colour const &col);
   void RectFill         (float x, float y, float w, float h, Colour const &colTL,
                          Colour const &colTR, Colour const &colBR, Colour const &colBL);
   void RectFill         (float x, float y, float w, float h, Colour const &col1,
                          Colour const &col2, bool horizontal);
+  void EndRectFillBatch ();
 
+  void BeginCircleBatch();
   void Circle           (float x, float y, float radius, int numPoints, Colour const &col,
                          float lineWidth = 1.0f);
+  void EndCircleBatch();
+
+  void BeginCircleFillBatch();
   void CircleFill       (float x, float y, float radius, int numPoints,
                          Colour const &col);
+  void EndCircleFillBatch();
+
+  void BeginTriangleFillBatch();
   void TriangleFill     (float x1, float y1, float x2, float y2, float x3, float y3,
                          Colour const &col);
-  void Line             (float x1, float y1, float x2, float y2, Colour const &col,
-                         float lineWidth = 1.0f);
-  void Line             (float x, float y);
+  void EndTriangleFillBatch();
 
   void BeginLines       (Colour const &col, float lineWidth);
   void EndLines         ();
   void BeginLineBatch   ();
+  void Line             (float x1, float y1, float x2, float y2, Colour const &col,
+                         float lineWidth = 1.0f);
+  void Line             (float x, float y);
   void EndLineBatch     ();
   void FlushLinesIfFull (int segmentsNeeded);
-
-  //
-  // line strip rendering for continuous lines
 
   void BeginLineStrip2D         (Colour const &col, float lineWidth);
   void LineStripVertex2D        (float x, float y);
   void EndLineStrip2D           ();
-
-  //
-  // VBO caching system for coastlines and borders
 
   void BeginCachedLineStrip     (const char *cacheKey, Colour const &col,
                                  float lineWidth);
@@ -555,9 +509,6 @@ public:
   void RenderCachedLineStrip    (const char *cacheKey);
   void InvalidateCachedVBO      (const char *cacheKey);
 
-  //
-  // megavbo batching system that combines borders and coastlines into a single draw call
-
   void BeginMegaVBO             (const char *megaVBOKey, Colour const &col);
   void AddLineStripToMegaVBO    (float *vertices, int vertexCount);
   void EndMegaVBO               ();
@@ -565,6 +516,9 @@ public:
   bool IsMegaVBOValid           (const char *megaVBOKey);
   void SetMegaVBOBufferSizes    (int vertexCount, int indexCount);
   void InvalidateAllVBOs        ();
+  int GetCachedVBOCount         ();
+  int GetCachedVBOVertexCount   (const char *cacheKey);
+  int GetCachedVBOIndexCount    (const char *cacheKey);
 
   void SetClip                  (int x, int y, int w, int h);
   void ResetClip                ();
@@ -577,61 +531,17 @@ public:
                                  float texX, float texY, float texW, float texH,
                                  Colour const &col);
 
-  void BeginTextBatch();
-  void EndTextBatch();
-  void FlushTextBufferIfFull    (int charactersNeeded);
+  void BeginStaticSpriteBatch    ();
+  void StaticSprite              (Image *src, float x, float y, float w, float h,
+                                  Colour const &col);
+  void StaticSprite              (Image *src, float x, float y, Colour const &col);
+  void EndStaticSpriteBatch      ();
+  void FlushStaticSpritesIfFull  (int verticesNeeded);
 
-
-  //
-  // main unit sprite rendering
-
-  void BeginStaticSpriteBatch         ();
-  void StaticSprite                   (Image *src, float x, float y, float w, float h,
-                                       Colour const &col);
-  void StaticSprite                   (Image *src, float x, float y, Colour const &col);
-  void EndStaticSpriteBatch           ();
-  void FlushStaticSpritesIfFull       (int verticesNeeded);
-
-  //
-  // rotating sprite rendering (aircraft/nukes with rotation)
-
-  void BeginRotatingSpriteBatch     ();
-  void RotatingSprite               (Image *src, float x, float y, float w, float h,
-                                   Colour const &col, float angle);
-  void EndRotatingSpriteBatch       ();
-
-  //
-  // circle rendering
-  
-  void BeginCircleBatch           ();
-  void EndCircleBatch             ();
-
-  //
-  // circle fill rendering
-  
-  void BeginCircleFillBatch       ();
-  void EndCircleFillBatch         ();
-
-  //
-  // rect rendering
-  
-  void BeginRectBatch             ();
-  void EndRectBatch               ();
-
-  //
-  // rect fill rendering
-  
-  void BeginRectFillBatch         ();
-  void EndRectFillBatch           ();
-
-  //
-  // triangle fill rendering
-  
-  void BeginTriangleFillBatch     ();
-  void EndTriangleFillBatch       ();
-
-  //
-  // flush timing system for performance monitoring
+  void BeginRotatingSpriteBatch  ();
+  void RotatingSprite            (Image *src, float x, float y, float w, float h,
+                                  Colour const &col, float angle);
+  void EndRotatingSpriteBatch    ();
 
   static const int MAX_FLUSH_TYPES = 50;
 
@@ -648,10 +558,10 @@ public:
   int m_flushTimingCount;
   double m_currentFlushStartTime;
 
-  void StartFlushTiming(const char* name);
-  void EndFlushTiming(const char* name);
-  void UpdateGpuTimings();
-  void ResetFlushTimings();
+  void StartFlushTiming  (const char* name);
+  void EndFlushTiming    (const char* name);
+  void UpdateGpuTimings  ();
+  void ResetFlushTimings ();
   const FlushTiming* GetFlushTimings(int& count) const;
 
 protected:

@@ -156,29 +156,3 @@ void Renderer3D::RotatingSprite3D(Image *src, float x, float y, float z, float w
         m_rotatingSpriteVertices3D[m_rotatingSpriteVertexCount3D++] = billboardVertices[i];
     }
 }
-
-void Renderer3D::StarFieldSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col) {
-    FlushStarField3DIfFull(6);
-    
-    unsigned int effectiveTextureID = GetEffectiveTextureID(src);
-    
-    if (m_starFieldVertexCount3D > 0 && m_currentStarFieldTexture3D != effectiveTextureID) {
-        FlushStarField3D();
-    }
-    
-    m_currentStarFieldTexture3D = effectiveTextureID;
-    
-    float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
-    
-    float u1, v1, u2, v2;
-    GetImageUVCoords(src, u1, v1, u2, v2);
-    
-    // create camera facing billboard for star sprites
-    Vector3<float> position(x, y, z);
-    Vertex3DTextured billboardVertices[6];
-    CreateCameraFacingBillboard(position, w, h, billboardVertices, u1, v1, u2, v2, r, g, b, a);
-    
-    for (int i = 0; i < 6; i++) {
-        m_starFieldVertices3D[m_starFieldVertexCount3D++] = billboardVertices[i];
-    }
-}

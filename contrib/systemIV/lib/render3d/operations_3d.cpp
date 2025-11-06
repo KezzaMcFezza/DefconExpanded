@@ -37,15 +37,6 @@ void Renderer3D::BeginNuke3DModelBatch3D() {
     m_nuke3DModelVertexCount3D = 0;
 }
 
-void Renderer3D::BeginStarFieldBatch3D() {
-    m_starFieldVertexCount3D = 0;
-    m_currentStarFieldTexture3D = 0;
-}
-
-void Renderer3D::BeginGlobeSurfaceBatch3D() {
-    m_globeSurfaceVertexCount3D = 0;
-}
-
 void Renderer3D::BeginCircleBatch3D() {
     m_circleVertexCount3D = 0;
 }
@@ -100,18 +91,6 @@ void Renderer3D::EndNuke3DModelBatch3D() {
     }
 }
 
-void Renderer3D::EndStarFieldBatch3D() {
-    if (m_starFieldVertexCount3D > 0) {
-        FlushStarField3D();
-    }
-}
-
-void Renderer3D::EndGlobeSurfaceBatch3D() {
-    if (m_globeSurfaceVertexCount3D > 0) {
-        FlushGlobeSurface3D();
-    }
-}
-
 void Renderer3D::EndCircleBatch3D() {
     if (m_circleVertexCount3D > 0) {
         FlushCircles3D();
@@ -161,18 +140,6 @@ void Renderer3D::FlushStaticSprites3DIfFull(int verticesNeeded) {
 void Renderer3D::FlushRotatingSprite3DIfFull(int verticesNeeded) {
     if (m_rotatingSpriteVertexCount3D + verticesNeeded > MAX_ROTATING_SPRITE_VERTICES_3D) {
         FlushRotatingSprite3D();
-    }
-}
-
-void Renderer3D::FlushStarField3DIfFull(int verticesNeeded) {
-    if (m_starFieldVertexCount3D + verticesNeeded > MAX_STAR_FIELD_VERTICES_3D) {
-        FlushStarField3D();
-    }
-}
-
-void Renderer3D::FlushGlobeSurface3DIfFull(int verticesNeeded) {
-    if (m_globeSurfaceVertexCount3D + verticesNeeded > MAX_GLOBE_SURFACE_VERTICES_3D) {
-        FlushGlobeSurface3D();
     }
 }
 
@@ -345,57 +312,6 @@ void Renderer3D::FlushNuke3DModels3D() {
     EndFlushTiming3D("Nuke_3D_Models");
 }
 
-void Renderer3D::FlushStarField3D() {
-    if (m_starFieldVertexCount3D == 0) return;
-    
-    StartFlushTiming3D("Star_Field_3D");
-    IncrementDrawCall3D("star_field");
-    
-    glDepthMask(GL_FALSE);  // dont write to depth buffer for stars
-    
-    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
-    
-    SetTextured3DShaderUniforms();
-    
-    if (m_currentStarFieldTexture3D != 0) {
-        m_renderer->SetActiveTexture(GL_TEXTURE0);
-        m_renderer->SetBoundTexture(m_currentStarFieldTexture3D);
-    }
-    
-    m_renderer->SetVertexArray(m_starsVAO3D);
-    UploadVertexDataTo3DVBO(m_starsVBO3D, m_starFieldVertices3D, m_starFieldVertexCount3D, GL_DYNAMIC_DRAW);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_starFieldVertexCount3D);
-    glDepthMask(GL_TRUE);
-    
-    m_starFieldVertexCount3D = 0;
-    
-    EndFlushTiming3D("Star_Field_3D");
-}
-
-void Renderer3D::FlushGlobeSurface3D() {
-    if (m_globeSurfaceVertexCount3D == 0) return;
-    
-    StartFlushTiming3D("Globe_Surface_3D");
-    IncrementDrawCall3D("globe_surface");
-    
-    m_renderer->SetShaderProgram(m_shader3DProgram);
-    Set3DShaderUniforms();
-    
-    m_renderer->SetVertexArray(m_globeVAO3D);
-    UploadVertexDataTo3DVBO(m_globeVBO3D, m_globeSurfaceVertices3D, m_globeSurfaceVertexCount3D, GL_DYNAMIC_DRAW);
-    
-    m_renderer->SetBlendMode(Renderer::BlendModeNormal);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_globeSurfaceVertexCount3D);
-    
-    m_renderer->SetBlendMode(Renderer::BlendModeDisabled);
-    
-    m_globeSurfaceVertexCount3D = 0;
-    
-    EndFlushTiming3D("Globe_Surface_3D");
-}
-
 void Renderer3D::FlushCircles3D() {
     if (m_circleVertexCount3D == 0) return;
     
@@ -510,8 +426,8 @@ void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
     Set3DShaderUniforms();
     
     // Upload vertex data
-    m_renderer->SetVertexArray(m_legacyVAO3D);
-    UploadVertexDataTo3DVBO(m_legacyVBO3D, m_vertices3D, m_vertex3DCount, GL_DYNAMIC_DRAW);
+    m_renderer->SetVertexArray(m_immediateVAO3D);
+    UploadVertexDataTo3DVBO(m_immediateVBO3D, m_vertices3D, m_vertex3DCount, GL_DYNAMIC_DRAW);
     
     // Draw
     glDrawArrays(primitiveType, 0, m_vertex3DCount);

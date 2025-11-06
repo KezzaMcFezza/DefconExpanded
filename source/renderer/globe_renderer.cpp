@@ -329,7 +329,7 @@ void MapRenderer::Render3DStarField()
             starColor.Set(255, 180, 150, alpha);
         }
         
-        g_renderer3d->StarFieldSprite3D(cityImg, 
+        g_renderer3d->StaticSprite3D(cityImg, 
                                        star.position.x, star.position.y, star.position.z,
                                        star.size, star.size, 
                                        starColor);
@@ -632,8 +632,8 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     //
     // begin star field and globe surface scene
 
-    g_renderer3d->BeginStarFieldBatch3D();      // Star field batching
-    g_renderer3d->BeginGlobeSurfaceBatch3D();   // Globe surface batching
+    g_renderer3d->BeginStaticSpriteBatch3D();      // Star field batching
+    g_renderer3d->BeginTriangleFillBatch3D();   // Globe surface batching
     
     Render3DGlobeCulling();
     Render3DStarField();
@@ -641,8 +641,8 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     //
     // end the globe surface scene
 
-    g_renderer3d->EndGlobeSurfaceBatch3D();     // Flush globe surface triangles
-    g_renderer3d->EndStarFieldBatch3D();        // Flush star sprites
+    g_renderer3d->EndTriangleFillBatch3D();     // Flush globe surface triangles
+    g_renderer3d->EndStaticSpriteBatch3D();        // Flush star sprites
     
     //
     // begin scene main scene
@@ -953,12 +953,12 @@ void MapRenderer::Render3DGlobeCulling(bool inLobbyMode)
             float z4 = radius * cosf(theta2) * sinf(phi1);
             
             // First triangle: 1, 2, 3
-            g_renderer3d->GlobeSurfaceTriangle3D(center.x + x1, center.y + y1, center.z + z1,
+            g_renderer3d->TriangleFill3D(center.x + x1, center.y + y1, center.z + z1,
                                                center.x + x2, center.y + y2, center.z + z2,
                                                center.x + x3, center.y + y3, center.z + z3, invisibleColor);
             
             // Second triangle: 1, 3, 4
-            g_renderer3d->GlobeSurfaceTriangle3D(center.x + x1, center.y + y1, center.z + z1,
+            g_renderer3d->TriangleFill3D(center.x + x1, center.y + y1, center.z + z1,
                                                center.x + x3, center.y + y3, center.z + z3,
                                                center.x + x4, center.y + y4, center.z + z4, invisibleColor);
         }
