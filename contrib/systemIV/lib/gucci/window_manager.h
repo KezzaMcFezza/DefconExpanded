@@ -45,6 +45,9 @@ public:
     
     int         		PhysicalWindowW		() { return m_screenW; } // Physical window dimensions (actual pixels)
     int         		PhysicalWindowH		() { return m_screenH; }
+
+	int                 DrawableWidth       ()  const { return int(m_screenW * m_highDPIScaleX); }
+    int                 DrawableHeight      ()  const { return int(m_screenH * m_highDPIScaleY); }
     
     int         		GetLogicalWidth		();                      // Logical window dimensions (what the game thinks the resolution is)
     int         		GetLogicalHeight	();					     // ^^^^^^^^^^^^^^

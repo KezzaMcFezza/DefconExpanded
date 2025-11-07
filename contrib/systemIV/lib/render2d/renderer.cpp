@@ -324,13 +324,8 @@ Renderer::Renderer()
     // Use physical dimensions to prevent logical resolution scaling
     // from being applied to the framebuffer and causing clipping
     
-#ifndef TARGET_EMSCRIPTEN
-    int screenW = (int)(g_windowManager->PhysicalWindowW() * g_windowManager->GetHighDPIScaleX());
-    int screenH = (int)(g_windowManager->PhysicalWindowH() * g_windowManager->GetHighDPIScaleY());
-#else
-    int screenW = g_windowManager->WindowW();
-    int screenH = g_windowManager->WindowH();
-#endif
+    int screenW = g_windowManager->DrawableWidth();
+    int screenH = g_windowManager->DrawableHeight();
 
     InitializeMSAAFramebuffer(screenW, screenH, msaaSamples);
     
@@ -496,8 +491,8 @@ void Renderer::Set2DViewport(float l, float r, float b, float t, int x, int y, i
     //
     // Calculate scale factors between logical and physical resolution
 
-    float scaleX = (float)g_windowManager->PhysicalWindowW() / (float)g_windowManager->WindowW();
-    float scaleY = (float)g_windowManager->PhysicalWindowH() / (float)g_windowManager->WindowH();
+    float scaleX = (float)g_windowManager->DrawableWidth()  / (float)g_windowManager->WindowW();
+    float scaleY = (float)g_windowManager->DrawableHeight() / (float)g_windowManager->WindowH();
     
     //
     // Apply scaling to convert logical coordinates to physical viewport coordinates
@@ -517,13 +512,9 @@ void Renderer::Reset2DViewport() {
 }
 
 void Renderer::HandleWindowResize() {
-#ifndef TARGET_EMSCRIPTEN
-    int screenW = (int)(g_windowManager->PhysicalWindowW() * g_windowManager->GetHighDPIScaleX());
-    int screenH = (int)(g_windowManager->PhysicalWindowH() * g_windowManager->GetHighDPIScaleY());
-#else
-    int screenW = g_windowManager->WindowW();
-    int screenH = g_windowManager->WindowH();
-#endif
+
+    int screenW = g_windowManager->DrawableWidth();
+    int screenH = g_windowManager->DrawableHeight();
 
     ResizeMSAAFramebuffer(screenW, screenH);
     Reset2DViewport();
@@ -1008,25 +999,15 @@ void Renderer::SetClip(int x, int y, int w, int h) {
     //
     // calculate scale factors between logical and physical resolution
 
-#if !defined(TARGET_OS_MACOSX) && (!defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN))
-    float scaleX = (float)g_windowManager->PhysicalWindowW() / (float)g_windowManager->WindowW();
-    float scaleY = (float)g_windowManager->PhysicalWindowH() / (float)g_windowManager->WindowH();
-    
-    //
-    // apply scaling to convert logical coordinates to physical clipping coordinates  
+    float scaleX = (float)g_windowManager->DrawableWidth()  / (float)g_windowManager->WindowW();
+    float scaleY = (float)g_windowManager->DrawableHeight() / (float)g_windowManager->WindowH();
 
-    int physicalX = (int)(x * scaleX);
-    int physicalY = (int)((g_windowManager->WindowH() - h - y) * scaleY);
-    int physicalW = (int)(w * scaleX);
-    int physicalH = (int)(h * scaleY);
-    
-    SetScissor(physicalX, physicalY, physicalW, physicalH);
-#else
-    float scaleX = g_windowManager->GetHighDPIScaleX();
-    float scaleY = g_windowManager->GetHighDPIScaleY();
+    int sx = int(x * scaleX);
+    int sy = int((g_windowManager->WindowH() - h - y) * scaleY);
+    int sw = int(w * scaleX);
+    int sh = int(h * scaleY);
 
-    SetScissor(scaleX * x, scaleY * (g_windowManager->WindowH() - h - y), scaleX * w, scaleY * h);
-#endif
+    SetScissor(sx, sy, sw, sh);
     SetScissorTest(true);
 }
 
@@ -1046,14 +1027,8 @@ void Renderer::SaveScreenshot() {
     float timeNow = GetHighResTime();
     char *screenshotsDir = ScreenshotsDirectory();
 
-#if !defined(TARGET_OS_LINUX) || !defined(TARGET_EMSCRIPTEN)
-    // Screenshot should capture the actual physical resolution, not logical
-    int screenW = g_windowManager->PhysicalWindowW();
-    int screenH = g_windowManager->PhysicalWindowH();
-#else
-    int screenW = g_windowManager->GetHighDPIScaleX() * g_windowManager->WindowW();
-    int screenH = g_windowManager->GetHighDPIScaleY() * g_windowManager->WindowH();
-#endif
+    int screenW = g_windowManager->DrawableWidth();
+    int screenH = g_windowManager->DrawableHeight();
     
     unsigned char *screenBuffer = new unsigned char[screenW * screenH * 3];
     glReadPixels(0, 0, screenW, screenH, GL_RGB, GL_UNSIGNED_BYTE, screenBuffer);
