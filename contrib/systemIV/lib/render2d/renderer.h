@@ -67,7 +67,7 @@ private:
     BUFFER_LINES,
     BUFFER_STATIC_SPRITES,
     BUFFER_ROTATING_SPRITES,
-    BUFFER_LEGACY              
+    BUFFER_IMMEDIATE              
   };
 
   static constexpr int MAX_VERTICES                 = 5000;

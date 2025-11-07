@@ -1300,8 +1300,9 @@ void DefconMain()
             lastRenderTime = GetHighResTime();
             g_app->Update();
             g_app->Render();
-            
+#ifdef TOGGLE_SOUND
             g_soundSystem->Advance();
+#endif
             if( g_profiler ) g_profiler->Advance();
         }
     }
