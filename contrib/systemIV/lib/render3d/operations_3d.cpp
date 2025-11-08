@@ -189,10 +189,6 @@ void Renderer3D::FlushLine3D() {
     StartFlushTiming3D("Batched_Lines_3D");
     IncrementDrawCall3D("batched_lines");
     
-#ifndef TARGET_EMSCRIPTEN
-    glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_UNIT_TRAIL_THICKNESS, 1.0f));
-#endif
-    
     // use 3D shader program
     m_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
@@ -410,79 +406,58 @@ void Renderer3D::FlushTriangleFills3D() {
 void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
     if (m_vertex3DCount == 0) return;
     
-    StartFlushTiming3D("Legacy_Vertices_3D");
-    // Track legacy draw call for debug menu
-    IncrementDrawCall3D("legacy_vertices");
+    StartFlushTiming3D("Immediate_Vertices_3D");
+    IncrementDrawCall3D("immediate_vertices");
     
-    // Set line width for whiteboard rendering in 3D globe mode
-#ifndef TARGET_EMSCRIPTEN
-    if (primitiveType == GL_LINES) {
-        glLineWidth(g_preferences->GetFloat(PREFS_GLOBE_WHITEBOARD_THICKNESS, 1.0f));
-    }
-#endif
-    
-    // Use 3D shader program
     m_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
     
-    // Upload vertex data
     m_renderer->SetVertexArray(m_immediateVAO3D);
     UploadVertexDataTo3DVBO(m_immediateVBO3D, m_vertices3D, m_vertex3DCount, GL_DYNAMIC_DRAW);
     
-    // Draw
     glDrawArrays(primitiveType, 0, m_vertex3DCount);
     
-    // Reset vertex count
     m_vertex3DCount = 0;
     
-    EndFlushTiming3D("Legacy_Vertices_3D");
+    EndFlushTiming3D("Immediate_Vertices_3D");
 }
 
 void Renderer3D::Flush3DTexturedVertices() {
     if (m_vertex3DTexturedCount == 0) return;
     
-    StartFlushTiming3D("Legacy_Triangles_3D");
-    // Track legacy draw call for debug menu
-    IncrementDrawCall3D("legacy_triangles");
+    StartFlushTiming3D("Immediate_Triangles_3D");
+    IncrementDrawCall3D("immediate_triangles");
     
-    // Use textured 3D shader program
     m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
     
-    // Bind texture
     m_renderer->SetActiveTexture(GL_TEXTURE0);
     m_renderer->SetBoundTexture(m_currentTexture3D);
     
-    // Upload vertex data
     m_renderer->SetVertexArray(m_VAO3DTextured);
     UploadVertexDataTo3DVBO(m_VBO3DTextured, m_vertices3DTextured, m_vertex3DTexturedCount, GL_DYNAMIC_DRAW);
     
-    // Draw as triangles (convert quad to two triangles with proper winding)
     if (m_vertex3DTexturedCount == 4) {
-        // Ensure counter-clockwise winding order for proper face culling
-        // Expected vertex order: 0=bottom-left, 1=bottom-right, 2=top-right, 3=top-left
         Vertex3DTextured triangleVertices[6];
         
-        // First triangle: bottom-left -> bottom-right -> top-right
+        // First triangle
         triangleVertices[0] = m_vertices3DTextured[0]; // bottom-left
         triangleVertices[1] = m_vertices3DTextured[1]; // bottom-right  
         triangleVertices[2] = m_vertices3DTextured[2]; // top-right
         
-        // Second triangle: bottom-left -> top-right -> top-left
+        // Second triangle
         triangleVertices[3] = m_vertices3DTextured[0]; // bottom-left
         triangleVertices[4] = m_vertices3DTextured[2]; // top-right
         triangleVertices[5] = m_vertices3DTextured[3]; // top-left
         
-        // Upload triangle data
+
         UploadVertexDataTo3DVBO(m_VBO3DTextured, triangleVertices, 6, GL_DYNAMIC_DRAW);
         glDrawArrays(GL_TRIANGLES, 0, 6);
     } else {
-        // Draw as triangle fan for other polygon types
         glDrawArrays(GL_TRIANGLE_FAN, 0, m_vertex3DTexturedCount);
     }
     
-    // Reset vertex count
     m_vertex3DTexturedCount = 0;
     
-    EndFlushTiming3D("Legacy_Triangles_3D");
+    EndFlushTiming3D("Immediate_Triangles_3D");
 }

@@ -576,7 +576,6 @@ void Renderer3D::LineStripVertex3D(float x, float y, float z) {
     // Check buffer overflow
 
     if (m_vertex3DCount >= MAX_3D_VERTICES) {
-        AppDebugOut("Renderer3D: 3D vertex buffer overflow\n");
         return;
     }
     
@@ -671,7 +670,6 @@ void Renderer3D::TexturedQuadVertex3D(float x, float y, float z, float u, float 
     if (!m_texturedQuad3DActive) return;
     
     if (m_vertex3DTexturedCount >= MAX_3D_TEXTURED_VERTICES) {
-        AppDebugOut("Renderer3D: Textured 3D vertex buffer overflow\n");
         return;
     }
 

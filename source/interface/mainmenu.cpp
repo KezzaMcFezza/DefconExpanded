@@ -1170,10 +1170,6 @@ class ApplyGraphicsButton : public InterfaceButton
         g_preferences->SetInt( PREFS_GRAPHICS_WATER, gow->m_water );
         g_preferences->SetInt( PREFS_GRAPHICS_RADIATION, gow->m_radiation );
         g_preferences->SetInt( PREFS_GRAPHICS_TRAILS, gow->m_trails );
-#ifndef TARGET_EMSCRIPTEN
-        g_preferences->SetFloat( PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS, gow->m_unitTrailThickness );
-        g_preferences->SetFloat( PREFS_GRAPHICS_WHITEBOARD_THICKNESS, gow->m_whiteboardThickness );
-#endif
         g_preferences->SetInt( PREFS_GRAPHICS_LOBBYEFFECTS, gow->m_lobbyEffects );
         
         g_app->GetEarthData()->LoadCoastlines();
@@ -1186,8 +1182,14 @@ class ApplyGraphicsButton : public InterfaceButton
 GraphicsOptionsWindow::GraphicsOptionsWindow()
 :   InterfaceWindow( "Graphics", "dialog_graphicsoptions", true )
 {
-    SetSize( 390, 480 );
+#ifndef TARGET_EMSCRIPTEN
+    SetSize( 390, 440 );
+#else
+    SetSize( 390, 400 );
+#endif
+
     Centralise();
+    
     m_coastlines         = g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES );
 #ifndef TARGET_EMSCRIPTEN
     m_coastlineThickness = g_preferences->GetFloat( PREFS_GRAPHICS_COASTLINE_THICKNESS );
@@ -1201,10 +1203,6 @@ GraphicsOptionsWindow::GraphicsOptionsWindow()
     m_water              = g_preferences->GetInt( PREFS_GRAPHICS_WATER );
     m_radiation          = g_preferences->GetInt( PREFS_GRAPHICS_RADIATION );
     m_trails             = g_preferences->GetInt( PREFS_GRAPHICS_TRAILS );
-#ifndef TARGET_EMSCRIPTEN
-    m_unitTrailThickness = g_preferences->GetFloat( PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS );
-    m_whiteboardThickness = g_preferences->GetFloat( PREFS_GRAPHICS_WHITEBOARD_THICKNESS );
-#endif
     m_lobbyEffects  = g_preferences->GetInt( PREFS_GRAPHICS_LOBBYEFFECTS );
 }
 
@@ -1281,11 +1279,6 @@ void GraphicsOptionsWindow::Create()
     dropDown->RegisterInt( &m_trails );
     RegisterButton(dropDown);
 
-#ifndef TARGET_EMSCRIPTEN
-    CreateValueControl( "Unit Trail Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_unitTrailThickness, 0.1f, 1.0f, 9.0f, NULL, " ", false );
-    CreateValueControl( "Whiteboard Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_whiteboardThickness, 0.1f, 0.1f, 9.0f, NULL, " ", false );
-#endif
-
     dropDown = new DropDownMenu();
     dropDown->SetProperties( "Lobby Effects", x, y+=h, w, 20, "dialog_lobbyeffects", " ", true, false );
     dropDown->AddOption( "dialog_enabled", 1, true );
@@ -1326,10 +1319,6 @@ void GraphicsOptionsWindow::Render( bool _hasFocus )
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_water") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_radiation") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_objecttrails") );
-#ifndef TARGET_EMSCRIPTEN
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_unittrailthickness") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_whiteboardthickness") );
-#endif
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_lobbyeffects") );
 }
 
@@ -1371,10 +1360,6 @@ class ApplyGlobeButton : public InterfaceButton
         }
         g_preferences->SetFloat( PREFS_GLOBE_LAND_UNIT_SIZE, gow->m_globeLandUnitSize );
         g_preferences->SetFloat( PREFS_GLOBE_NAVAL_UNIT_SIZE, gow->m_globeNavalUnitSize );
-#ifndef TARGET_EMSCRIPTEN
-        g_preferences->SetFloat( PREFS_GLOBE_WHITEBOARD_THICKNESS, gow->m_globeWhiteboardThickness );
-        g_preferences->SetFloat( PREFS_GLOBE_UNIT_TRAIL_THICKNESS, gow->m_globeUnitTrailThickness );
-#endif
 
         g_preferences->Save();
     }
@@ -1384,9 +1369,14 @@ class ApplyGlobeButton : public InterfaceButton
 GlobeOptionsWindow::GlobeOptionsWindow()
 :   InterfaceWindow( "Globe", "dialog_globeoptions", true )
 {
-    SetSize( 420, 480 );
+#ifndef TARGET_EMSCRIPTEN
+    SetSize( 420, 400 );
+#else
+    SetSize( 420, 360 );
+#endif
+
     Centralise();
-    
+
     m_globeSize              = g_preferences->GetFloat( PREFS_GLOBE_SIZE, 1.0f );
 #ifndef TARGET_EMSCRIPTEN
     m_globeCoastThickness    = g_preferences->GetFloat( PREFS_GLOBE_COAST_THICKNESS, 1.0f );
@@ -1398,10 +1388,6 @@ GlobeOptionsWindow::GlobeOptionsWindow()
     m_globeStarDensity       = g_preferences->GetInt( PREFS_GLOBE_STAR_DENSITY, 1200 );
     m_globeLandUnitSize      = g_preferences->GetFloat( PREFS_GLOBE_LAND_UNIT_SIZE, 1.0f );
     m_globeNavalUnitSize     = g_preferences->GetFloat( PREFS_GLOBE_NAVAL_UNIT_SIZE, 1.0f );
-#ifndef TARGET_EMSCRIPTEN
-    m_globeWhiteboardThickness = g_preferences->GetFloat( PREFS_GLOBE_WHITEBOARD_THICKNESS, 1.0f );
-    m_globeUnitTrailThickness = g_preferences->GetFloat( PREFS_GLOBE_UNIT_TRAIL_THICKNESS, 1.0f );
-#endif
 }
 
 
@@ -1436,10 +1422,6 @@ void GlobeOptionsWindow::Create()
     CreateValueControl( "Star Density", x, y+=h, w, 20, InputField::TypeInt, &m_globeStarDensity, 50, 100, 20000, NULL, " ", false );
     CreateValueControl( "Land Unit Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeLandUnitSize, 0.1f, 0.1f, 7.0f, NULL, " ", false );
     CreateValueControl( "Naval Unit Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeNavalUnitSize, 0.1f, 0.1f, 7.0f, NULL, " ", false );
-#ifndef TARGET_EMSCRIPTEN
-    CreateValueControl( "Whiteboard Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_globeWhiteboardThickness, 0.1f, 0.1f, 10.0f, NULL, " ", false );
-    CreateValueControl( "Unit Trail Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_globeUnitTrailThickness, 0.1f, 0.1f, 10.0f, NULL, " ", false );
-#endif
 
     CloseButton *cancel = new CloseButton();
     cancel->SetProperties( "Close", 10, m_h - 30, m_w / 2 - 15, 20, "dialog_close", " ", true, false );
@@ -1471,10 +1453,6 @@ void GlobeOptionsWindow::Render( bool _hasFocus )
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestardensity") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globelandunitsize") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globenavalunitsize") );
-#ifndef TARGET_EMSCRIPTEN
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globewhiteboardthickness") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globeunittrailthickness") );
-#endif
 }
 
 

@@ -16,8 +16,6 @@ class AnimatedIcon;
 
 #define    PREFS_GRAPHICS_COASTLINE_THICKNESS         "RenderCoastlineThickness"
 #define    PREFS_GRAPHICS_BORDER_THICKNESS            "RenderBorderThickness"
-#define    PREFS_GRAPHICS_UNIT_TRAIL_THICKNESS        "RenderUnitTrailThickness"
-#define    PREFS_GRAPHICS_WHITEBOARD_THICKNESS        "RenderWhiteboardThickness"
 #define    PREFS_GRAPHICS_COASTLINES                  "RenderCoastlines"
 #define    PREFS_GRAPHICS_BORDERS                     "RenderBorders"
 #define    PREFS_GRAPHICS_CITYNAMES                   "RenderCityNames"
@@ -43,8 +41,6 @@ class AnimatedIcon;
 #define    PREFS_GLOBE_STAR_DENSITY                   "GlobeStarDensity"
 #define    PREFS_GLOBE_LAND_UNIT_SIZE                 "GlobeLandUnitSize"
 #define    PREFS_GLOBE_NAVAL_UNIT_SIZE                "GlobeNavalUnitSize"
-#define    PREFS_GLOBE_WHITEBOARD_THICKNESS           "GlobeWhiteboardThickness"
-#define    PREFS_GLOBE_UNIT_TRAIL_THICKNESS           "GlobeUnitTrailThickness"
 
 #define    PREFS_INTERFACE_TOOLTIPS                   "InterfaceTooltips"
 #define    PREFS_INTERFACE_POPUPSCALE                 "InterfacePopupScale"
