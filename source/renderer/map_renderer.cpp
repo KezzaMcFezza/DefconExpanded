@@ -384,6 +384,8 @@ void MapRenderer::Render()
         g_renderer->BeginTextBatch();
         g_renderer->BeginStaticSpriteBatch();
         g_renderer->BeginLineBatch();
+        g_renderer->BeginCircleFillBatch();
+        g_renderer->BeginCircleBatch();
         g_renderer->BeginRectBatch();
         g_renderer->BeginRectFillBatch();
         g_renderer->BeginRotatingSpriteBatch();
@@ -407,6 +409,8 @@ void MapRenderer::Render()
         g_renderer->EndRectFillBatch(); 
         
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );  // ensure correct blend mode for cursor targets
+        g_renderer->EndCircleBatch();
+        g_renderer->EndCircleFillBatch();
         g_renderer->EndStaticSpriteBatch();
         g_renderer->EndRotatingSpriteBatch();
         g_renderer->EndLineBatch();
