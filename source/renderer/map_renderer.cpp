@@ -620,7 +620,7 @@ void MapRenderer::RenderCountryControl()
                             !wobj->IsMovingObject() )
                         {
                             g_renderer->CircleFill( wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue(),
-													maxDistance, 40, Colour(0,0,0,30) );
+													maxDistance, 40, Colour(0,0,0,30), true );
                         }
                     }
                 }

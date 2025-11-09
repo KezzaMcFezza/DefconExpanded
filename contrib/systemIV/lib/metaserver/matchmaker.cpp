@@ -339,7 +339,13 @@ void MatchMaker_RequestConnection( char *_targetIp, int _targetPort, const Direc
 
     NetSocket socket;   
     NetRetCode result = socket.Connect( s_matchMakerIp, s_matchMakerPort );
-    AppAssert( result == NetOk );
+    
+    if( result != NetOk )
+    {
+        AppDebugOut( "Could not connect to matchmaker at %s:%d (error code %d)\n", 
+                     s_matchMakerIp, s_matchMakerPort, result );
+        return;
+    }
 
     MetaServer_SendDirectory( &request, &socket );
 #endif
