@@ -232,6 +232,7 @@ void FleetPlacementIconButton::MouseUp()
         // create a new fleet for the actual placement
 
         int newFleetId = team->m_fleets.Size();
+        g_app->GetClientToServer()->RequestFleet( team->m_teamId );
         
         for( int i = 0; i < team->m_fleets[m_fleetId]->m_memberType.Size(); ++i )
         {

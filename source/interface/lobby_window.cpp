@@ -1207,7 +1207,7 @@ public:
                     Image *img = g_app->GetMapRenderer()->GetTerritoryImage(territoryId);
                     Colour col = team->GetTeamColour();
                     col.m_a = 200;
-                    g_renderer->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col );
+                    g_renderer->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col, true );
                     if( team->m_teamId == ((LobbyWindow *)m_parent)->m_selectionId )
                     {
                         col.Set(255,255,255,70);
