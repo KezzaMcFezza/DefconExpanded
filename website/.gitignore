@@ -10,3 +10,4 @@
 **/private.key
 /node_modules
 /website/node.js/database-backups
+/website/node.js/debug.txt
