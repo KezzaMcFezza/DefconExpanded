@@ -337,6 +337,44 @@ void FleetPlacementIconButton::MouseUp()
                 sidepanel->m_currentFleetId = -1;
             }
         }
+        else
+        {
+            
+            SidePanel *sidepanel = (SidePanel *)EclGetWindow("Side Panel");
+            if( sidepanel )
+            {
+                //
+                // Store the old template composition before creating new fleet
+                
+                Fleet *oldTemplate = team->m_fleets[m_fleetId];
+                LList<int> savedComposition;
+                for( int i = 0; i < oldTemplate->m_memberType.Size(); ++i )
+                {
+                    savedComposition.PutData( oldTemplate->m_memberType[i] );
+                }
+                
+                //
+                // Create new template fleet
+                
+                int nextTemplateId = team->m_fleets.Size();
+                g_app->GetClientToServer()->RequestFleet( team->m_teamId );
+                
+                //
+                // Copy composition to new template locally
+                
+                Fleet *newTemplate = team->m_fleets[nextTemplateId];
+                for( int i = 0; i < savedComposition.Size(); ++i )
+                {
+                    newTemplate->m_memberType.PutData( savedComposition[i] );
+                }
+                
+                //
+                // Update side panel and this window to use new template
+                
+                sidepanel->m_currentFleetId = nextTemplateId;
+                m_fleetId = nextTemplateId;
+            }
+        }
     }
     else
     {

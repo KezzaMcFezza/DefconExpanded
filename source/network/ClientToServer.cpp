@@ -27,6 +27,8 @@
 #include "network/network_defines.h"
 
 #include "world/world.h"
+#include "world/team.h"
+#include "world/fleet.h"
 
 #include <memory>
 
@@ -1196,6 +1198,18 @@ void ClientToServer::RequestTerritory( unsigned char teamId, unsigned char terri
 
 void ClientToServer::RequestFleet( unsigned char teamId )
 {
+    //
+    // Create fleet immediately
+    
+    Team *team = g_app->GetWorld()->GetTeam( teamId );
+    if( team )
+    {
+        team->CreateFleet();
+    }
+    
+    //
+    // Send network message to keep all clients in sync
+    
     Directory *letter = new Directory();
 
     letter->CreateData( NET_DEFCON_COMMAND,     NET_DEFCON_REQUEST_FLEET );
@@ -1763,9 +1777,36 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
             }
             else if( strcmp( cmd, NET_DEFCON_REQUEST_FLEET ) == 0 )
             {
-                Team *team = g_app->GetWorld()->GetTeam( update->GetDataUChar(NET_DEFCON_TEAMID) );
+                int teamId = update->GetDataUChar(NET_DEFCON_TEAMID);
+                Team *team = g_app->GetWorld()->GetTeam( teamId );
                 AppAssert(team);
-                team->CreateFleet();
+                
+                //
+                // Only skip creation if this is our team, we already created it locally.
+                // And if we are not synchronizing, during sync/reconnect we need to create
+                // all fleets to match client expectations, dont look at me like that, you
+                // know its genius.
+                
+                bool needsCreation = true;
+                if( teamId == g_app->GetWorld()->m_myTeamId && 
+                    team->m_fleets.Size() > 0 &&
+                    !m_synchronising )
+                {
+                    Fleet *lastFleet = team->m_fleets[ team->m_fleets.Size() - 1 ];
+                    if( !lastFleet->m_active )
+                    {
+
+                        //
+                        // This is our team and last fleet is a template, we created it locally
+                        
+                        needsCreation = false;
+                    }
+                }
+                
+                if( needsCreation )
+                {
+                    team->CreateFleet();
+                }
             }
             else if( strcmp( cmd, NET_DEFCON_FLEETMOVE ) == 0 )
             {
