@@ -260,47 +260,75 @@ async function sendDemoToDiscord(demo, logData) {
 }
 
 async function createTerritoryMap(players, territoryImages, usingAlliances, teamColors, allianceColors) {
-    try {
-        const { createCanvas, loadImage } = require('canvas');
+  try {
+    const { createCanvas, loadImage } = require('canvas');
 
-        const canvas = createCanvas(800, 400);
-        const ctx = canvas.getContext('2d');
+    function drawImageWithAlpha(dstCtx, img, dx, dy, dw, dh, alpha) {
+      const w = dw ?? img.width;
+      const h = dh ?? img.height;
 
-        const isUKMod = players.some(player => {
-            return ['Northern Ireland', 'Southern Ireland', 'South West England', 
-                   'South East England', 'Midlands', 'Scotland', 'Ireland', 'Wales', 'South England', 'N. Ireland'].includes(player.territory);
-        });
+      const off = createCanvas(w, h);
+      const ox = off.getContext('2d', { alpha: true });
+      ox.drawImage(img, 0, 0, w, h);
 
-        const baseMapFile = isUKMod ? 'basemapuk.png' : 'base_map.png';
-        const baseMap = await loadImage(path.join(publicDir, 'images', baseMapFile));
-        ctx.drawImage(baseMap, 0, 0, 800, 400);
+      const imgData = ox.getImageData(0, 0, w, h);
+      const data = imgData.data;
+      const aMul = Math.max(0, Math.min(1, alpha));
+      for (let i = 3; i < data.length; i += 4) {
+        data[i] = (data[i] * aMul) | 0; 
+      }
+      ox.putImageData(imgData, 0, 0);
 
-        ctx.globalAlpha = 0.7;
-
-        for (const player of players) {
-            const territory = territoryImages[player.territory];
-            if (!territory) continue;
-
-            const colorSystem = allianceColors;
-            const color = colorSystem[player.alliance]?.color || '#00bf00';
-            const colorHex = color.replace('#', '');
-
-            try {
-                const overlayPath = path.join(publicDir, 'images', `${territory}${colorHex}.png`);
-                const overlay = await loadImage(overlayPath);
-                ctx.drawImage(overlay, 0, 0, 800, 400);
-            } catch (err) {
-                console.error(`Error loading territory overlay for ${territory}:`, err);
-            }
-        }
-
-        ctx.globalAlpha = 1.0;
-
-        return canvas.toBuffer();
-    } catch (error) {
-        console.error('Error creating territory map:', error);
-        return null;
+      dstCtx.drawImage(off, dx, dy, w, h);
     }
+
+    const canvas = createCanvas(800, 400);
+    const ctx = canvas.getContext('2d', { alpha: true });
+    ctx.globalCompositeOperation = 'source-over';
+
+    const isUKMod = players.some(player => {
+      return [
+        'Northern Ireland',
+        'Southern Ireland',
+        'South West England',
+        'South East England',
+        'Midlands',
+        'Scotland',
+        'Ireland',
+        'Wales',
+        'South England',
+        'N. Ireland'
+      ].includes(player.territory);
+    });
+
+    const baseMapFile = isUKMod ? 'basemapuk.png' : 'base_map.png';
+    const baseMap = await loadImage(path.join(publicDir, 'images', baseMapFile));
+    ctx.drawImage(baseMap, 0, 0, 800, 400);
+
+    const OVERLAY_ALPHA = 0.70;
+
+    for (const player of players) {
+      const territory = territoryImages[player.territory];
+      if (!territory) continue;
+
+      const colorSystem = allianceColors || {};
+      const color = colorSystem[player.alliance]?.color || '#00bf00';
+      const colorHex = color.replace('#', '');
+
+      try {
+        const overlayPath = path.join(publicDir, 'images', `${territory}${colorHex}.png`);
+        const overlay = await loadImage(overlayPath);
+        drawImageWithAlpha(ctx, overlay, 0, 0, 800, 400, OVERLAY_ALPHA);
+      } catch (err) {
+        console.error(`Error loading territory overlay for ${territory}:`, err);
+      }
+    }
+
+    return canvas.toBuffer('image/png');
+  } catch (error) {
+    console.error('Error creating territory map:', error);
+    return null;
+  }
 }
 
 module.exports = {

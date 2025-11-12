@@ -520,7 +520,7 @@ async function createDatabaseBackup() {
             // use xampp path since we do not have mysql in our path on windows
             const mysqldumpPath = process.platform === 'win32' 
                 ? 'C:\\xampp\\mysql\\bin\\mysqldump.exe'
-                : '/Applications/XAMPP/xamppfiles/bin/mysqldump';
+                : '/usr/bin/mysqldump';
             
             const mysqldumpProcess = spawn(mysqldumpPath, mysqldumpArgs, {
                 stdio: ['ignore', 'pipe', 'pipe']
