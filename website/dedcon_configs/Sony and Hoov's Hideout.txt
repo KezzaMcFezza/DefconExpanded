@@ -7,20 +7,20 @@ RCONTimeoutWindow 0
 RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
 RCONPort 8818
 RCONEncryption 1
-ServerPort 5010
 AllianceSize 0
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
 SlowestSpeed 0
-TotalBandwidth 6000000
-PlayerBandwidth 2750000
-SpectatorBandwidth 1000000
 LogLevel 2
 HostName SonyHoovBot
 AcceptC2 1
 MaxIdleRunTime 2500
 MinRunTime 900
 CaseSensitive 0
+TotalBandwidth 15000000      # 150 Mbps total
+PlayerBandwidth 800000       # 8 Mbps per player (8 MB/s = 1 MB/s)
+SpectatorBandwidth 400000    # 4 Mbps per spectator
+MinBandwidth 10000          # 1 Mbps minimum for anyone
 EventFile dedcon_game_events/game_events_Sony_and_Hoovs_Hideout.log
 OutFile dedcon_server_logs/server_output_Sony_and_Hoovs_Hideout.log
 PlayerLog keyids_with_names.log
@@ -37,8 +37,8 @@ Admin Uu~~1~nopnopnop
 Admin hoov~~1~nopnopnop
 
 #ANTI-CHEAT
-GhostProtection 2
-MaxResyncAttempts 3
+GhostProtection 1
+MaxResyncAttempts 10
 
 #SPEED BUDGET
 IdleTime 300

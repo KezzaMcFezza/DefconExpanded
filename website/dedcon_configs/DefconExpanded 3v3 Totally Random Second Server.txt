@@ -8,12 +8,8 @@ RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985
 RCONPort 8821
 RCONEncryption 1
 GameMode 0
-ServerPort 5010
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
-TotalBandwidth 6000000
-PlayerBandwidth 2750000
-SpectatorBandwidth 1000000
 LogLevel 2
 CaseSensitive 0
 SlowestSpeed 0
@@ -21,6 +17,10 @@ HostName DefconExpanded
 AcceptC2 1
 MaxIdleRunTime 2500
 MinRunTime 900
+TotalBandwidth 15000000      # 150 Mbps total
+PlayerBandwidth 800000       # 8 Mbps per player (8 MB/s = 1 MB/s)
+SpectatorBandwidth 400000    # 4 Mbps per spectator
+MinBandwidth 10000          # 1 Mbps minimum for anyone
 EventFile dedcon_game_events/game_events_DefconExpanded_3v3_Totally_Random_Second_Server.log
 OutFile dedcon_server_logs/server_output_DefconExpanded_3v3_Totally_Random_Second_Server.log
 PlayerLog keyids_with_names.log
@@ -32,8 +32,8 @@ PlayerLog keyids_with_names.log
 # Record
 
 #ANTI-CHEAT
-GhostProtection 2
-MaxResyncAttempts 3
+GhostProtection 1
+MaxResyncAttempts 10
 
 #SPEED BUDGET
 IdleTime 300
@@ -58,7 +58,7 @@ KicksToBan 3
 #GAME OPTIONS 
 AdvertisePlayers 6
 MaxSpectators 15 
-MinTeams 3
+MinTeams 6
 MaxTeams 6
 ReadyVoteDelay 90
 ReadyVoteMaxRemove 1

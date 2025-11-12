@@ -7,18 +7,18 @@ RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985
 RCONPort 8814
 RCONEncryption 1
 GameMode 0
-ServerPort 5010
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
-TotalBandwidth 6000000
-PlayerBandwidth 2750000
-SpectatorBandwidth 1000000
 ServerVersion 1.60.1.5 MINICOM
 LogLevel 2
 IdleTime 300
 HostName Server Bot
 AcceptC2 1
 CaseSensitive 0
+TotalBandwidth 15000000      # 150 Mbps total
+PlayerBandwidth 800000       # 8 Mbps per player (8 MB/s = 1 MB/s)
+SpectatorBandwidth 400000    # 4 Mbps per spectator
+MinBandwidth 10000          # 1 Mbps minimum for anyone
 EventFile dedcon_game_events/game_events_MURICON_1v1_Totally_Random_2_8_15.log
 OutFile dedcon_server_logs/server_output_MURICON_1v1_Totally_Random_2_8_15.log
 PlayerLog keyids_with_names.log
@@ -35,8 +35,8 @@ Admin Sievert~~1~dancefloor
 Admin Lord Haw Haw~~1~TangoFoxtrot39
 
 #ANTI-CHEAT
-GhostProtection 2
-MaxResyncAttempts 3
+GhostProtection 1
+MaxResyncAttempts 10
 
 #KICK VOTES 
 KickVoteMin 2

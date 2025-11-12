@@ -8,14 +8,14 @@ RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985
 RCONPort 8833
 RCONEncryption 1
 GameMode 3
-ServerPort 5010
 AdvertiseOnInternet 1
 AdvertiseOnLAN 1
-TotalBandwidth 6000000
-PlayerBandwidth 2750000
-SpectatorBandwidth 2500000
 ServerVersion 1.60.1.5 MINICOM
 LogLevel 2
+TotalBandwidth 15000000      # 150 Mbps total
+PlayerBandwidth 800000       # 8 Mbps per player (8 MB/s = 1 MB/s)
+SpectatorBandwidth 400000    # 4 Mbps per spectator
+MinBandwidth 10000          # 1 Mbps minimum for anyone
 EventFile dedcon_game_events/game_events_DefconExpanded_10_Player_Diplomacy.log
 OutFile dedcon_server_logs/server_output_DefconExpanded_10_Player_Diplomacy.log
 PlayerLog keyids_with_names.log
@@ -27,8 +27,9 @@ AcceptC2 1
 AdvertisePlayers 10
 MaxSpectators 15 
 
-GhostProtection 2
-MaxResyncAttempts 3
+#ANTI-CHEAT
+GhostProtection 1
+MaxResyncAttempts 10
 
 #SPEED BUDGET
 IdleTime 300
