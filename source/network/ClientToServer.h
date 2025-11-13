@@ -33,6 +33,25 @@ public:
     int                 m_nextChatMessageId;
     float               m_chatResetTimer;
 
+    struct PendingFleetMember
+    {
+        unsigned char m_unitType;
+        Fixed          m_longitude;
+        Fixed          m_latitude;
+    };
+
+    struct PendingFleetPlacement
+    {
+        unsigned char m_teamId;
+        int           m_fleetId;
+        LList<PendingFleetMember *> m_members;
+    };
+
+    LList<PendingFleetPlacement *> m_pendingFleetPlacements;
+
+    PendingFleetPlacement *GetPendingFleetPlacement( unsigned char teamId, int fleetId, bool createIfMissing );
+    void FlushPendingFleetPlacement( unsigned char teamId );
+
     int                 m_lastValidSequenceIdFromServer;                    // eg if we have 11,12,13,15,18 then this is 13
     int                 m_serverSequenceId;
     float               m_sendRate;
@@ -88,6 +107,7 @@ public:
     void RequestGameSpeed       ( unsigned char teamId, unsigned char gameSpeed );
     
     void RequestPlacement       ( unsigned char teamId, unsigned char unitType, Fixed longitude, Fixed latitude, unsigned char fleetId = 255 );
+    void QueueFleetPlacement    ( unsigned char teamId, int fleetId, unsigned char unitType, Fixed longitude, Fixed latitude );
     void RequestStateChange     ( int objId, unsigned char state );
     void RequestAction          ( int objId, int targetObjectId, Fixed longitude, Fixed latitude );
     void RequestSpecialAction   ( int objId, int targetObjectId, unsigned char specialActionType );

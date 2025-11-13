@@ -253,10 +253,11 @@ void FleetPlacementIconButton::MouseUp()
             }
 
             //
-            // place units in the new fleet, not the template fleet
+            // queue the placement locally so we can send it only after
+            // the server acknowledges the new fleet
 
-            g_app->GetClientToServer()->RequestPlacement( team->m_teamId, team->m_fleets[m_fleetId]->m_memberType[i],
-                                                          thisLong, thisLat, newFleetId );
+            g_app->GetClientToServer()->QueueFleetPlacement( team->m_teamId, newFleetId, team->m_fleets[m_fleetId]->m_memberType[i],
+                                                             thisLong, thisLat );
         }
         
         //

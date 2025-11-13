@@ -109,6 +109,23 @@ ClientToServer::~ClientToServer()
     if( m_listener ) m_listener->StopListening( &m_listenerThread );
     delete m_listener;
     m_listener = NULL;
+
+    //
+    // Tidy any pending fleet placement buffers
+
+    for( int i = 0; i < m_pendingFleetPlacements.Size(); ++i )
+    {
+        PendingFleetPlacement *pending = m_pendingFleetPlacements[i];
+        if( pending )
+        {
+            for( int j = 0; j < pending->m_members.Size(); ++j )
+            {
+                delete pending->m_members[j];
+            }
+        }
+        delete pending;
+    }
+    m_pendingFleetPlacements.Empty();
 }
 
 
@@ -475,6 +492,78 @@ void ClientToServer::SendChatMessageReliably( unsigned char teamId, unsigned cha
     // Send it right now
 
     g_app->GetClientToServer()->SendChatMessage( teamId, channel, msg, messageId, spectator );
+}
+
+
+ClientToServer::PendingFleetPlacement *ClientToServer::GetPendingFleetPlacement( unsigned char teamId, int fleetId, bool createIfMissing )
+{
+    //
+    // Look for existing buffer for this team/fleet pair
+
+    for( int i = 0; i < m_pendingFleetPlacements.Size(); ++i )
+    {
+        PendingFleetPlacement *pending = m_pendingFleetPlacements[i];
+        if( pending->m_teamId == teamId &&
+            pending->m_fleetId == fleetId )
+        {
+            return pending;
+        }
+    }
+
+    if( !createIfMissing )
+    {
+        return NULL;
+    }
+
+    //
+    // Create a new empty buffer
+
+    PendingFleetPlacement *pending = new PendingFleetPlacement();
+    pending->m_teamId = teamId;
+    pending->m_fleetId = fleetId;
+    m_pendingFleetPlacements.PutData( pending );
+    return pending;
+}
+
+
+void ClientToServer::FlushPendingFleetPlacement( unsigned char teamId )
+{
+    //
+    // Destroy the first pending placement buffer for this team
+    // Assume placements are queued in the same order as RequestFleet calls
+
+    for( int i = 0; i < m_pendingFleetPlacements.Size(); ++i )
+    {
+        PendingFleetPlacement *pending = m_pendingFleetPlacements[i];
+        if( pending->m_teamId == teamId )
+        {
+            for( int j = 0; j < pending->m_members.Size(); ++j )
+            {
+                PendingFleetMember *member = pending->m_members[j];
+                RequestPlacement( teamId, member->m_unitType, member->m_longitude, member->m_latitude, pending->m_fleetId );
+                delete member;
+            }
+            pending->m_members.Empty();
+
+            m_pendingFleetPlacements.RemoveData(i);
+            delete pending;
+            return;
+        }
+    }
+}
+
+
+void ClientToServer::QueueFleetPlacement( unsigned char teamId, int fleetId, unsigned char unitType, Fixed longitude, Fixed latitude )
+{
+    //
+    // Store placement until we see the matching RequestFleet broadcast
+
+    PendingFleetPlacement *pending = GetPendingFleetPlacement( teamId, fleetId, true );
+    PendingFleetMember *member = new PendingFleetMember();
+    member->m_unitType = unitType;
+    member->m_longitude = longitude;
+    member->m_latitude = latitude;
+    pending->m_members.PutData( member );
 }
 
 
@@ -1792,13 +1881,21 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
                     team->m_fleets.Size() > 0 &&
                     !m_synchronising )
                 {
-                    Fleet *lastFleet = team->m_fleets[ team->m_fleets.Size() - 1 ];
-                    if( !lastFleet->m_active )
-                    {
+                    //
+                    // This is an ACK for our own RequestFleet call
+                    // Flush any queued placements before we bail out
 
-                        //
+                    FlushPendingFleetPlacement( teamId );
+
+                    Fleet *lastFleet = NULL;
+                    if( team->m_fleets.Size() > 0 )
+                    {
+                        lastFleet = team->m_fleets[ team->m_fleets.Size() - 1 ];
+                    }
+
+                    if( lastFleet && !lastFleet->m_active )
+                    {
                         // This is our team and last fleet is a template, we created it locally
-                        
                         needsCreation = false;
                     }
                 }
@@ -1893,6 +1990,21 @@ void ClientToServer::Resynchronise()
     //m_clientId = -1;
 
     m_resynchronising = GetHighResTime();
+
+    //
+    // Drop any queued placements
+    // Trust the server to resend world state
+
+    while( m_pendingFleetPlacements.Size() > 0 )
+    {
+        PendingFleetPlacement *pending = m_pendingFleetPlacements[0];
+        for( int i = 0; i < pending->m_members.Size(); ++i )
+        {
+            delete pending->m_members[i];
+        }
+        m_pendingFleetPlacements.RemoveData(0);
+        delete pending;
+    }
 }
 
 
