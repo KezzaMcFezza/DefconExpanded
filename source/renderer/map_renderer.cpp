@@ -2905,6 +2905,11 @@ void MapRenderer::RenderObjects()
     // set font once for all status text
 
     g_renderer->SetFont( "kremlin", true );
+
+    //
+    // set blend mode once for all objects
+
+    g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
      
     for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
     {
@@ -2912,11 +2917,6 @@ void MapRenderer::RenderObjects()
         {            
             WorldObject *wobj = g_app->GetWorld()->m_objects[i];
             START_PROFILE( WorldObject::GetName(wobj->m_type) );
-
-            //
-            // set blend mode for each object
-
-            g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
             bool onScreen = IsOnScreen( wobj->m_longitude.DoubleValue(), wobj->m_latitude.DoubleValue() );
             if( onScreen || wobj->m_type == WorldObject::TypeNuke )

@@ -14,24 +14,15 @@ extern Renderer *g_renderer;
 // ============================================================================
 
 void Renderer::BeginCachedLineStrip(const char* cacheKey, Colour const &col, float lineWidth) {
-    // Check if this VBO already exists and is valid
     BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(cacheKey);
     if (tree && tree->data && tree->data->isValid) {
-        return; // VBO already exists, no need to rebuild
+        return;
     }
     
-    // Store cache key for building
-    if (m_currentCacheKey) {
+    if (m_cachedLineStripActive && m_currentCacheKey) {
         delete[] m_currentCacheKey;
     }
     
-    if (m_currentMegaVBOKey) {
-        delete[] m_currentMegaVBOKey;
-    }
-    
-    if (m_megaVertices) {
-        delete[] m_megaVertices;
-    }
     m_currentCacheKey = newStr(cacheKey);
     
     // Store cached line strip state
@@ -47,7 +38,7 @@ void Renderer::CachedLineStripVertex(float x, float y) {
     if (!m_cachedLineStripActive) return;
     
     // Check for buffer overflow
-    if (m_lineVertexCount >= MAX_VERTICES) {
+    if (m_lineVertexCount >= MAX_LINE_VERTICES) {
         AppDebugOut("Warning: Cached line strip exceeded vertex buffer size\n");
         return;
     }
@@ -202,6 +193,17 @@ void Renderer::BeginMegaVBO(const char* megaVBOKey, Colour const &col) {
 
 void Renderer::AddLineStripToMegaVBO(float* vertices, int vertexCount) {
     if (!m_megaVBOActive || vertexCount < 2) return;
+
+    //
+    // check for buffer overflow
+    
+    if (m_megaVertexCount + vertexCount > m_maxMegaVertices ||
+        m_megaIndexCount + vertexCount + 1 > m_maxMegaIndices) {
+        AppDebugOut("Warning: Coastlines/Borders VBO overflow: Vertices: %d/%d, Indices: %d/%d\n",
+                    m_megaVertexCount + vertexCount, m_maxMegaVertices,
+                    m_megaIndexCount + vertexCount + 1, m_maxMegaIndices);
+        return;
+    }
     
     //
     // convert color to float

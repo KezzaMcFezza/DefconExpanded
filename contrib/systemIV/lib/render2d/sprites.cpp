@@ -19,6 +19,12 @@ void Renderer::StaticSprite(Image *src, float x, float y, float w, float h, Colo
     FlushStaticSpritesIfFull(6);
     
     unsigned int effectiveTextureID = GetEffectiveTextureID(src);
+
+    if (m_staticSpriteVertexCount > 0 && 
+        m_currentStaticSpriteTexture != effectiveTextureID && 
+        m_currentStaticSpriteTexture != 0) {
+        FlushStaticSprites();
+    }
     
     m_currentStaticSpriteTexture = effectiveTextureID;
     
@@ -81,6 +87,12 @@ void Renderer::RotatingSprite(Image *src, float x, float y, float w, float h, Co
     FlushRotatingSpritesIfFull(6);
     
     unsigned int effectiveTextureID = GetEffectiveTextureID(src);
+
+    if (m_rotatingSpriteVertexCount > 0 && 
+        m_currentRotatingSpriteTexture != effectiveTextureID &&
+        m_currentRotatingSpriteTexture != 0) {
+        FlushRotatingSprite();
+    }
     
     m_currentRotatingSpriteTexture = effectiveTextureID;
 

@@ -340,7 +340,7 @@ void Renderer::FlushStaticSprites() {
 void Renderer::FlushRotatingSprite() {
     if (m_rotatingSpriteVertexCount == 0) return;
     
-    StartFlushTiming("Unit_Rotating");
+    StartFlushTiming("Rotating_Sprite");
     IncrementDrawCall("rotating_sprites");
     
     SetShaderProgram(m_textureShaderProgram);
@@ -351,15 +351,15 @@ void Renderer::FlushRotatingSprite() {
         SetBoundTexture(m_currentRotatingSpriteTexture);
     }
     
-    SetVertexArray(m_spriteVAO);
-    SetArrayBuffer(m_spriteVBO);
-    UploadVertexDataToVBO(m_spriteVBO, m_rotatingSpriteVertices, m_rotatingSpriteVertexCount, GL_STREAM_DRAW);
+    SetVertexArray(m_rotatingSpriteVAO);
+    SetArrayBuffer(m_rotatingSpriteVBO);
+    UploadVertexDataToVBO(m_rotatingSpriteVBO, m_rotatingSpriteVertices, m_rotatingSpriteVertexCount, GL_STREAM_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_rotatingSpriteVertexCount);
     
     m_rotatingSpriteVertexCount = 0;
     
-    EndFlushTiming("Unit_Rotating");
+    EndFlushTiming("Rotating_Sprite");
 }
 
 void Renderer::FlushCircles() {

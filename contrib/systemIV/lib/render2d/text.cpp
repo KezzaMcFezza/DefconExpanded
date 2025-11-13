@@ -98,7 +98,8 @@ void Renderer::Text(float x, float y, Colour const &col, float size, const char 
     char buf[1024];
     va_list ap;
     va_start(ap, text);
-    vsprintf(buf, text, ap);
+    vsnprintf(buf, sizeof(buf), text, ap);
+    buf[sizeof(buf) - 1] = '\0';
     TextSimple(x, y, col, size, buf);
 }
 
@@ -106,7 +107,8 @@ void Renderer::TextCentre(float x, float y, Colour const &col, float size, const
     char buf[1024];
     va_list ap;
     va_start(ap, text);
-    vsprintf(buf, text, ap);
+    vsnprintf(buf, sizeof(buf), text, ap);
+    buf[sizeof(buf) - 1] = '\0';
     float actualX = x - TextWidth(buf, size) / 2.0f;
     TextSimple(actualX, y, col, size, buf);
 }
@@ -115,7 +117,8 @@ void Renderer::TextRight(float x, float y, Colour const &col, float size, const 
     char buf[1024];
     va_list ap;
     va_start(ap, text);
-    vsprintf(buf, text, ap);
+    vsnprintf(buf, sizeof(buf), text, ap);
+    buf[sizeof(buf) - 1] = '\0';
     float actualX = x - TextWidth(buf, size);
     TextSimple(actualX, y, col, size, buf);
 }

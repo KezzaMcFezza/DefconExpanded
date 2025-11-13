@@ -99,6 +99,7 @@ protected:
   unsigned int m_VAO;
   unsigned int m_VBO; 
   unsigned int m_spriteVAO, m_spriteVBO;
+  unsigned int m_rotatingSpriteVAO, m_rotatingSpriteVBO;
   unsigned int m_lineVAO, m_lineVBO;
   unsigned int m_textVAO, m_textVBO;
   unsigned int m_circleVAO, m_circleVBO;

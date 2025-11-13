@@ -187,6 +187,8 @@ Renderer::Renderer()
       m_textVBO(0), 
       m_spriteVAO(0), 
       m_spriteVBO(0),
+      m_rotatingSpriteVAO(0),
+      m_rotatingSpriteVBO(0),
       m_circleVAO(0), 
       m_circleVBO(0),
       m_circleFillVAO(0), 
@@ -313,7 +315,7 @@ Renderer::Renderer()
     m_megaVertices = new Vertex2D[m_maxMegaVertices];
     m_megaIndices = new unsigned int[m_maxMegaIndices];
     
-    m_lineConversionBufferSize = std::max(MAX_VERTICES * 2, MAX_LINE_VERTICES * 2);
+    m_lineConversionBufferSize = std::max(MAX_VERTICES * 2, MAX_LINE_VERTICES);
     m_lineConversionBuffer = new Vertex2D[m_lineConversionBufferSize];
     
     int msaaSamples = g_preferences ? g_preferences->GetInt(PREFS_SCREEN_ANTIALIAS, 0) : 0;
@@ -345,6 +347,8 @@ Renderer::~Renderer() {
     if (m_textVBO) glDeleteBuffers(1, &m_textVBO);
     if (m_spriteVAO) glDeleteVertexArrays(1, &m_spriteVAO);
     if (m_spriteVBO) glDeleteBuffers(1, &m_spriteVBO);
+    if (m_rotatingSpriteVAO) glDeleteVertexArrays(1, &m_rotatingSpriteVAO);
+    if (m_rotatingSpriteVBO) glDeleteBuffers(1, &m_rotatingSpriteVBO);
     if (m_circleVAO) glDeleteVertexArrays(1, &m_circleVAO);
     if (m_circleVBO) glDeleteBuffers(1, &m_circleVBO);
     if (m_circleFillVAO) glDeleteVertexArrays(1, &m_circleFillVAO);
@@ -687,8 +691,16 @@ void Renderer::EndMSAARendering() {
 // ============================================================================
 
 void Renderer::SetBlendMode(int _blendMode) {
+
+    //
+    // flush any existing sprites if the blend mode changes
+    
     if (m_blendMode != _blendMode && m_staticSpriteVertexCount > 0) {
         FlushStaticSprites();
+    }
+    
+    if (m_blendMode != _blendMode && m_rotatingSpriteVertexCount > 0) {
+        FlushRotatingSprite();
     }
 
     m_blendMode = _blendMode;
@@ -1198,7 +1210,17 @@ void Renderer::SetupVertexArrays() {
     glGenBuffers(1, &m_spriteVBO);
     glBindVertexArray(m_spriteVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_spriteVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_STATIC_SPRITE_VERTICES + MAX_ROTATING_SPRITE_VERTICES), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_STATIC_SPRITE_VERTICES), NULL, GL_STREAM_DRAW);
+    setupVertexAttributes();
+
+    //
+    // Rotating sprites
+
+    glGenVertexArrays(1, &m_rotatingSpriteVAO);
+    glGenBuffers(1, &m_rotatingSpriteVBO);
+    glBindVertexArray(m_rotatingSpriteVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_rotatingSpriteVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_ROTATING_SPRITE_VERTICES, NULL, GL_STREAM_DRAW);
     setupVertexAttributes();
     
     //
@@ -1208,7 +1230,7 @@ void Renderer::SetupVertexArrays() {
     glGenBuffers(1, &m_lineVBO);
     glBindVertexArray(m_lineVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_LINE_VERTICES * 2), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * (MAX_LINE_VERTICES), NULL, GL_STREAM_DRAW);
     setupVertexAttributes();
     
     //
@@ -1218,7 +1240,7 @@ void Renderer::SetupVertexArrays() {
     glGenBuffers(1, &m_circleVBO);
     glBindVertexArray(m_circleVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_circleVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_CIRCLE_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_CIRCLE_VERTICES, NULL, GL_STREAM_DRAW);
     setupVertexAttributes();
 
     //
@@ -1268,7 +1290,7 @@ void Renderer::SetupVertexArrays() {
     glGenBuffers(1, &m_immediateVBO);
     glBindVertexArray(m_immediateVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_immediateVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_VERTICES, NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex2D) * MAX_VERTICES, NULL, GL_STREAM_DRAW);
     setupVertexAttributes();
     
     //
