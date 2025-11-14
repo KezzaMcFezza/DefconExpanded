@@ -197,6 +197,8 @@
 	#else
 		#define APP_SYSTEM "Mac (Intel)"
 	#endif
+    // XCode unhelpfully defines TARGET_OS_LINUX
+    #undef TARGET_OS_LINUX
 #endif
 #ifdef TARGET_OS_LINUX
     #define APP_SYSTEM "Linux"

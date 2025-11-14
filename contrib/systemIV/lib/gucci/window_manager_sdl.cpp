@@ -1,4 +1,3 @@
-
 #include "lib/universal_include.h"
 #include <SDL2/SDL.h>
 
@@ -7,6 +6,9 @@
 #include "spawn.h"
 #endif
 
+#ifdef TARGET_OS_MACOSX
+#include "macosxlibrary.h"
+#endif
 
 #include <limits.h>
 #include <string.h>
@@ -30,10 +32,6 @@
 #include "file_tool.h"
 #include "interface_tool.h"
 #include "platform.h"
-#endif
-
-#ifdef TARGET_OS_MACOSX
-#include <ApplicationServices/ApplicationServices.h>
 #endif
 
 static int GetDisplayIndexForPoint( int x, int y )
@@ -194,8 +192,9 @@ void WindowManagerSDL::SaveDesktop()
     m_desktopRefresh = desktopMode.refresh_rate;
 
 #if defined(TARGET_OS_MACOSX)
-        CGRect rect = CGDisplayBounds( CGMainDisplayID() );
-        printf("macOS native resolution verification: %dx%d\n", (int)rect.size.width, (int)rect.size.height);
+    int width = 0, height = 0;
+    GetMainDisplayResolution( width, height );
+    AppDebugOut("macOS native resolution verification: %dx%d\n", width, height );
 #endif
 }
 
@@ -784,10 +783,7 @@ void WindowManagerSDL::OpenWebsite( const char *_url )
 void WindowManagerSDL::HideWin()
 {
 #ifdef TARGET_OS_MACOSX
-	ProcessSerialNumber me;
-	
-	GetCurrentProcess(&me);
-	ShowHideProcess(&me, false);
+    MacOSXHideWin();
 #endif
 }
 
