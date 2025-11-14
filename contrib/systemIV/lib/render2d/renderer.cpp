@@ -698,10 +698,6 @@ void Renderer::SetBlendMode(int _blendMode) {
     if (m_blendMode != _blendMode && m_staticSpriteVertexCount > 0) {
         FlushStaticSprites();
     }
-    
-    if (m_blendMode != _blendMode && m_rotatingSpriteVertexCount > 0) {
-        FlushRotatingSprite();
-    }
 
     m_blendMode = _blendMode;
     
