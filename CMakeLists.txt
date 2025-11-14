@@ -367,6 +367,7 @@ elseif(APPLE)
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
+        ${SYSTEMIV_PATH}/lib/gucci/macosxlibrary.cpp
         ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
         ${MACOS_SPECIFIC_SOURCES}
     )
