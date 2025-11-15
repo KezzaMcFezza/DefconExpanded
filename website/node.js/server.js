@@ -222,6 +222,16 @@ app.use((req, res, next) => {
     next();
 });
 
+// block direct access to html files, only routes should serve them
+app.use((req, res, next) => {
+    if (req.path && req.path.toLowerCase().endsWith('.html')) {
+        return res
+            .status(404)
+            .sendFile(path.join(publicDir, '404.html'));
+    }
+    next();
+});
+
 app.use((req, res, next) => {
     if (req.headers['x-forwarded-proto'] === 'https') {
         res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
