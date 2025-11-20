@@ -112,6 +112,7 @@ const resourcesAdminRoutes = require('./apis/admin/resources');
 const usersAdminRoutes = require('./apis/admin/users');
 const rconRoutes = require('./apis/admin/rcon');
 const consoleRoutes = require('./apis/admin/console');
+const crashpadRoutes = require('./apis/admin/crashpad');
 const demosRoutes = require('./apis/demos/demos');
 const demoFiltersRoutes = require('./apis/demos/filters');
 const demoReportingRoutes = require('./apis/demos/reporting');
@@ -186,6 +187,7 @@ app.use((err, req, res, next) => {
     }
     next(err);
 });
+
 
 // i actually finally added proper CORS, i never worried about security until the replay viewer was added
 app.use((req, res, next) => {
@@ -313,6 +315,7 @@ app.use(resourcesAdminRoutes);
 app.use(usersAdminRoutes);
 app.use(rconRoutes);
 app.use(consoleRoutes);
+app.use(crashpadRoutes);
 app.use(demosRoutes);
 app.use(demoFiltersRoutes);
 app.use(demoReportingRoutes);
@@ -578,7 +581,6 @@ async function createDatabaseBackup() {
 app.get('*', (req, res) => {
   const requestedPath = path.join(publicDir, req.path);
   
-  // use async instead, should be faster
   fs.promises.access(requestedPath)
     .then(async () => {
       const stats = await fs.promises.stat(requestedPath);
