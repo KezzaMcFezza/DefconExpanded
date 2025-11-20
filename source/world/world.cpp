@@ -571,6 +571,10 @@ void World::AssignCities()
     //{
     //    g_app->GetMapRenderer()->m_renderEverything = true;
     //}
+
+#ifdef ENABLE_SANTA_EASTEREGG
+    GenerateSantaPath();
+#endif
 }
 
 
@@ -1436,10 +1440,6 @@ void World::CreateExplosion ( int teamId, Fixed longitude, Fixed latitude, Fixed
 			if( range <= 3 )
 			{
 				g_app->GetWorld()->m_santaAlive = false;
-				if( !g_app->m_achievementTracker->HasAchievement( AchievementTracker::MerryChristmas ) && teamId == g_app->GetWorld()->m_myTeamId )
-				{
-					g_app->m_achievementTracker->GiveAchievement( AchievementTracker::MerryChristmas );
-				}
 			}
 		}
 #endif
@@ -3613,12 +3613,25 @@ void WorldMessage::SetMessage( const char *_message )
 
 void World::GenerateSantaPath()
 {
+
+//
+// Santa can spawn in two ways, he can either spawn between
+// December 18th - 2nd January or he can spawn on always when
+// isChristmas is true.
+
 #ifdef ENABLE_SANTA_EASTEREGG
-	time_t now = time(NULL);
-	tm *theTime = localtime( &now );
-		
+#ifdef SANTA_EASTEREGG_DATE
+
+    time_t now = time(NULL);
+    tm *theTime = localtime( &now );
+
 	if ( ( theTime->tm_mon == 11 && theTime->tm_mday >= 18 ) ||
 		( theTime->tm_mon == 0 && theTime->tm_mday <= 2 ) )
+#else
+    bool isChristmas = true;
+
+	if ( isChristmas )
+#endif
 	{
 		FastRandom random;
 		int randSeed = 0;

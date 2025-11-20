@@ -40,6 +40,8 @@
 #include "world/fleet.h"
 #include "world/whiteboard.h"
 
+#include "curves.h"
+
 // ******************************************************************************************************************************
 //                                              Globe Options Menu Value Conversion Functions
 // ******************************************************************************************************************************
@@ -668,6 +670,7 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     Render3DWhiteBoard();
     Render3DPopulationDensity();
     Render3DAnimations();
+    Render3DSanta();
     Render3DNuke();
 
 
@@ -2986,6 +2989,177 @@ void MapRenderer::Render3DAnimations()
             }
         }
     }
+}
+
+//
+// Render Santa on the 3D globe
+// identical logic to map renderer but adapted for 3D coordinates
+
+void MapRenderer::Render3DSanta()
+{
+#ifdef ENABLE_SANTA_EASTEREGG
+	if ( !m_3DGlobeMode ) return;
+	
+	if ( g_app->GetWorld()->m_santaAlive )
+	{
+        
+		Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+		Fixed currentTime = g_app->GetWorld()->m_theDate.m_theDate + predictionTime;
+		if ( currentTime > g_app->GetWorld()->m_santaRouteTotal )
+		{
+			while ( currentTime > g_app->GetWorld()->m_santaRouteTotal )
+			{
+				currentTime -= g_app->GetWorld()->m_santaRouteTotal;
+			}
+		}
+        
+        while ( g_app->GetWorld()->m_santaRouteLength.ValidIndex( g_app->GetWorld()->m_santaCurrent ) &&
+                g_app->GetWorld()->m_santaRouteLength[ g_app->GetWorld()->m_santaCurrent ] < currentTime )
+        {
+            ++g_app->GetWorld()->m_santaCurrent;
+		}
+
+        float size = 3.0f;
+		float x;
+		float y;
+		float thisSize = size*2;
+
+        if( g_app->GetWorld()->m_santaCurrent >= g_app->GetWorld()->m_santaRoute.Size() ) 
+        {
+            g_app->GetWorld()->m_santaAlive = false;
+            return;
+        }
+        
+		//if index is odd then we are inside a city so don't render santa
+		if ( g_app->GetWorld()->m_santaCurrent % 2 == 0 )
+		{
+			City *cityStart;
+			City *cityEnd;
+
+			int index = g_app->GetWorld()->m_santaCurrent / 2;
+			cityStart = g_app->GetWorld()->m_santaRoute.GetData( index );
+			if ( index == g_app->GetWorld()->m_santaRoute.Size() - 1 )
+			{
+				cityEnd =  g_app->GetWorld()->m_santaRoute.GetData( 0 );
+			}
+			else
+			{
+				cityEnd =  g_app->GetWorld()->m_santaRoute.GetData( index + 1 );
+			}
+
+			Fixed prevTime;
+			if ( g_app->GetWorld()->m_santaCurrent == 0 )
+			{
+				prevTime = 0;
+			}
+			else
+			{
+				prevTime = g_app->GetWorld()->m_santaRouteLength.GetData( g_app->GetWorld()->m_santaCurrent - 1 );
+			}
+			Fixed endTime = g_app->GetWorld()->m_santaRouteLength.GetData( g_app->GetWorld()->m_santaCurrent );
+
+			Fixed dist = currentTime - prevTime;
+			Fixed totalDist = endTime - prevTime;
+			
+			x = BezierCurve( ( dist / totalDist ).DoubleValue(), cityEnd->m_longitude.DoubleValue(), cityEnd->m_longitude.DoubleValue(), 
+									cityStart->m_longitude.DoubleValue(), cityStart->m_longitude.DoubleValue() );
+			y = BezierCurve( ( dist / totalDist ).DoubleValue(), cityEnd->m_latitude.DoubleValue(), cityEnd->m_latitude.DoubleValue(), 
+									cityStart->m_latitude.DoubleValue(), cityStart->m_latitude.DoubleValue() );
+
+			g_app->GetWorld()->m_santaLongitude = Fixed::FromDouble( x );
+			g_app->GetWorld()->m_santaLatitude = Fixed::FromDouble( y );
+
+            if( cityStart->m_longitude <= cityEnd->m_longitude )
+            {
+				g_app->GetWorld()->m_santaPrevFlipped = false;
+            }
+            else
+            {
+				g_app->GetWorld()->m_santaPrevFlipped = true;
+            }
+
+			Colour colour = White;
+			colour.m_a = 255;
+
+			Image *bmpImage = g_resource->GetImage( "graphics/santa.bmp" );
+			if( bmpImage )
+			{
+				// convert 2D coordinates to 3D globe position
+				Vector3<float> santaPos = ConvertLongLatTo3DPosition(x, y);
+				
+				// position above globe surface like other units
+				Vector3<float> normal = santaPos;
+				normal.Normalise();
+				float elevation = 0.002f;
+				santaPos += normal * elevation;
+				
+				// convert 2D size to 3D world scale
+				float santaSize = thisSize * 0.0075f;
+				santaSize = fmaxf(santaSize, 0.005f);
+				santaSize = fminf(santaSize, 0.1f);
+				
+				g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
+				if ( g_app->GetWorld()->m_santaPrevFlipped )
+				{
+					g_renderer3d->RotatingSprite3D( bmpImage, santaPos.x, santaPos.y, santaPos.z, -santaSize * 2.0f, santaSize * 2.0f, colour, 0, BILLBOARD_SURFACE_ALIGNED );
+				}
+				else
+				{
+					g_renderer3d->RotatingSprite3D( bmpImage, santaPos.x, santaPos.y, santaPos.z, santaSize * 2.0f, santaSize * 2.0f, colour, 0, BILLBOARD_SURFACE_ALIGNED );
+				}
+				g_renderer->SetBlendMode( Renderer::BlendModeNormal );				
+			}
+		}
+		else
+		{
+			City *city;
+
+			int index = ( g_app->GetWorld()->m_santaCurrent + 1 )/ 2;
+			city = g_app->GetWorld()->m_santaRoute.GetData( index );
+
+			Fixed testx = city->m_longitude;
+			Fixed testy = city->m_latitude;
+
+			float x = testx.DoubleValue();
+			float y = testy.DoubleValue();
+
+			Colour colour = White;
+			colour.m_a = 255;
+
+			Image *bmpImage = g_resource->GetImage( "graphics/santa.bmp" );
+			if( bmpImage )
+			{
+				// convert 2D coordinates to 3D globe position
+				Vector3<float> santaPos = ConvertLongLatTo3DPosition(x, y);
+				
+				// position above globe surface like other units
+				Vector3<float> normal = santaPos;
+				normal.Normalise();
+				float elevation = 0.002f;
+				santaPos += normal * elevation;
+				
+				// convert 2D size to 3D world scale
+				float santaSize = thisSize * 0.0075f;
+				santaSize = fmaxf(santaSize, 0.005f);
+				santaSize = fminf(santaSize, 0.1f);
+				
+				g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
+				if ( g_app->GetWorld()->m_santaPrevFlipped )
+				{
+					g_renderer3d->RotatingSprite3D( bmpImage, santaPos.x, santaPos.y, santaPos.z, -santaSize * 2.0f, santaSize * 2.0f, colour, 0, BILLBOARD_SURFACE_ALIGNED );
+				}
+				else
+				{
+					g_renderer3d->RotatingSprite3D( bmpImage, santaPos.x, santaPos.y, santaPos.z, santaSize * 2.0f, santaSize * 2.0f, colour, 0, BILLBOARD_SURFACE_ALIGNED );
+				}
+				g_renderer->SetBlendMode( Renderer::BlendModeNormal );				
+			}		
+		}
+		
+	}
+
+    //Nuke Santa and thereby end Christmas for everyone, for ever more
+#endif
 }
 
 // ******************************************************************************************************************************

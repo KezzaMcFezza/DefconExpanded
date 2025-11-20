@@ -369,6 +369,7 @@ public:
     void    Render3DWorldObjectTargets();
     void    Render3DNukeHighlights();
     void    Render3DAnimations();
+    void    Render3DSanta();
     void    Render3DGlobeCulling(bool inLobbyMode = false);
     void    Render3DWhiteBoard();
     void    Render3DPopulationDensity();

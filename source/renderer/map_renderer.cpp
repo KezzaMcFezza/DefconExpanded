@@ -6002,11 +6002,11 @@ void MapRenderer::RenderSanta()
 				g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 				if ( g_app->GetWorld()->m_santaPrevFlipped )
 				{
-					g_renderer->Blit( bmpImage, x, y, -thisSize, thisSize, colour, 0 );
+					g_renderer->RotatingSprite( bmpImage, x, y, -thisSize, thisSize, colour, 0 );
 				}
 				else
 				{
-					g_renderer->Blit( bmpImage, x, y, thisSize, thisSize, colour, 0 );
+					g_renderer->RotatingSprite( bmpImage, x, y, thisSize, thisSize, colour, 0 );
 				}
 				g_renderer->SetBlendMode( Renderer::BlendModeNormal );				
 			}
@@ -6033,11 +6033,11 @@ void MapRenderer::RenderSanta()
 				g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 				if ( g_app->GetWorld()->m_santaPrevFlipped )
 				{
-					g_renderer->Blit( bmpImage, x, y, -thisSize, thisSize, colour, 0 );
+					g_renderer->RotatingSprite( bmpImage, x, y, -thisSize, thisSize, colour, 0 );
 				}
 				else
 				{
-					g_renderer->Blit( bmpImage, x, y, thisSize, thisSize, colour, 0 );
+					g_renderer->RotatingSprite( bmpImage, x, y, thisSize, thisSize, colour, 0 );
 				}
 				g_renderer->SetBlendMode( Renderer::BlendModeNormal );				
 			}		
