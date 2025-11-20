@@ -781,6 +781,7 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\text.cpp">
       <Filter>lib\render2d</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\crashpad.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">
@@ -1293,6 +1294,7 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.h">
       <Filter>lib\sound</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\crashpad.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\docs\ai specifications.txt">

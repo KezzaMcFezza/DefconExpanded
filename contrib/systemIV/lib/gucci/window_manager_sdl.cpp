@@ -19,6 +19,7 @@
 #include "lib/preferences.h"
 #include "window_manager_sdl.h"
 #include "input.h"
+#include "crashpad.h"
 #include "app/app.h"
 #include "app/globals.h"
 
@@ -820,6 +821,14 @@ void ChangeToProgramDir(const char *program)
 extern "C" int main(int argc, char **argv)
 
 {
+
+//
+// Catch every error known to man
+
+#ifdef USE_CRASHREPORTING
+    InitializeCrashpad();
+#endif
+
 #if TARGET_OS_LINUX && !defined(TARGET_EMSCRIPTEN)
     BrInitError error;
     if (!br_init (&error)) {
@@ -851,7 +860,6 @@ extern "C" int main(int argc, char **argv)
 			return 0;
 		}
 	}
-	
     
     SDL_version linkedVersion, compiledVersion;
     SDL_VERSION(&compiledVersion);

@@ -1,48 +1,30 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.6.33815.320
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Defcon", "Defcon.vcxproj", "{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug Recording Parsing|Win32 = Debug Recording Parsing|Win32
 		Debug Recording Parsing|x64 = Debug Recording Parsing|x64
-		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
-		Release Endgame|Win32 = Release Endgame|Win32
 		Release Endgame|x64 = Release Endgame|x64
-		Release Replay Viewer|Win32 = Release Replay Viewer|Win32
 		Release Replay Viewer|x64 = Release Replay Viewer|x64
-		Release Sync Practice|Win32 = Release Sync Practice|Win32
 		Release Sync Practice|x64 = Release Sync Practice|x64
-		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Debug Recording Parsing|Win32.ActiveCfg = Debug Recording Parsing|Win32
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Debug Recording Parsing|Win32.Build.0 = Debug Recording Parsing|Win32
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Debug Recording Parsing|x64.ActiveCfg = Debug Recording Parsing|x64
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Debug Recording Parsing|x64.Build.0 = Debug Recording Parsing|x64
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Debug|Win32.Build.0 = Debug|Win32
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Debug|x64.ActiveCfg = Debug|x64
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Debug|x64.Build.0 = Debug|x64
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Endgame|Win32.ActiveCfg = Release Endgame|Win32
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Endgame|Win32.Build.0 = Release Endgame|Win32
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Endgame|x64.ActiveCfg = Release Endgame|x64
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Endgame|x64.Build.0 = Release Endgame|x64
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Replay Viewer|Win32.ActiveCfg = Release Replay Viewer|Win32
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Replay Viewer|Win32.Build.0 = Release Replay Viewer|Win32
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Replay Viewer|x64.ActiveCfg = Release Replay Viewer|x64
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Replay Viewer|x64.Build.0 = Release Replay Viewer|x64
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Sync Practice|Win32.ActiveCfg = Release Sync Practice|Win32
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Sync Practice|Win32.Build.0 = Release Sync Practice|Win32
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Sync Practice|x64.ActiveCfg = Release Sync Practice|x64
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Sync Practice|x64.Build.0 = Release Sync Practice|x64
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release|Win32.ActiveCfg = Release|Win32
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release|Win32.Build.0 = Release|Win32
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release|x64.ActiveCfg = Release|x64
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
