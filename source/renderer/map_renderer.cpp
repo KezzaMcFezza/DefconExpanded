@@ -1498,6 +1498,8 @@ void MapRenderer::RenderNukeSyncTarget()
 {
     //
     // if we have no silos, show a warning
+
+    g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
     
     if (m_wrongSiloId == -2)
     {
