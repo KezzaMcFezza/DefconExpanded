@@ -7,7 +7,6 @@
 #include "lib/eclipse/eclipse.h"
 #include "lib/gucci/window_manager.h"
 #ifdef TARGET_MSVC
-#include "lib/gucci/window_manager_win32.h"
 #include <windows.h>
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
@@ -755,18 +754,6 @@ void App::InitialiseWindow()
         g_preferences->SetInt( PREFS_SCREEN_REFRESH, screenRefresh );
         g_preferences->Save();
     }    
-
-#if defined(TARGET_MSVC) && !defined(WINDOWS_SDL)
-	WindowManagerWin32 *wm32 = (WindowManagerWin32*) g_windowManager;
-
-	DWORD dwStyle = GetWindowLong( wm32->m_hWnd, GWL_STYLE );
-	dwStyle &= ~(WS_MAXIMIZEBOX);
-	SetWindowLong( wm32->m_hWnd, GWL_STYLE, dwStyle );
-
-	HICON hIcon = LoadIcon( wm32->GethInstance(), MAKEINTRESOURCE(IDI_ICON1) );
-	//SendMessage( wm32->m_hWnd, (UINT)WM_SETICON, ICON_SMALL, (LPARAM)hIcon );
-	SendMessage( wm32->m_hWnd, (UINT)WM_SETICON, ICON_BIG, (LPARAM)hIcon );
-#endif
 
     g_windowManager->HideMousePointer();
 	SetMousePointerVisible(true);

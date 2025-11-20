@@ -7,7 +7,8 @@
 #define APP_NAME        "Defcon"
 #define	APP_VERSION		"1.64 STEAM"
 
-// #define ENABLE_SANTA_EASTEREGG
+#define ENABLE_SANTA_EASTEREGG
+//#define SANTA_EASTEREGG_DATE
 
 //#define APP_VERSION     "1.5 fr rtl" // Defcon 1.5 Codemasters french build, use TARGET_RETAIL_MULTI_LANGUAGE_FRENCH
 //#define APP_VERSION     "1.5 de rtl" // Defcon 1.5 german build, use TARGET_RETAIL_MULTI_LANGUAGE_GERMAN
@@ -189,7 +190,7 @@
 #include <math.h>
 
 #ifdef TARGET_MSVC
-    #define APP_SYSTEM "PC"
+    #define APP_SYSTEM "Windows"
 #endif
 #ifdef TARGET_OS_MACOSX
 	#ifdef __ppc__
@@ -215,16 +216,21 @@
 #define MESSAGE_LINENUMBER(linenumber)			MESSAGE_LINENUMBERTOSTRING(linenumber)
 #define MESSAGE(x) message (__FILE__ "(" MESSAGE_LINENUMBER(__LINE__) "): "x)
 
-//#define USE_CRASHREPORTING
 
 #include <crtdbg.h>
 #define snprintf _snprintf
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
+
 #ifdef USE_CRASHREPORTING
-#define _WIN32_WINDOWS 0x0500	// for IsDebuggerPresent
-#endif
+#ifdef TARGET_MSVC
+#include "client/crashpad_client.h"
+#include "base/files/file_path.h"
+#include "util/file/file_io.h"
+#endif // TARGET_MSVC
+#endif // USE_CRASHREPORTING
+
 #include <windows.h>
 
 //Fall back for getaddrinfo on older platform, see end of

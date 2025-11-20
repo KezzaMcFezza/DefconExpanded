@@ -3,7 +3,6 @@
 #include "statusicon.h"
 
 #if defined(WIN32)
-#include "lib/gucci/window_manager_win32.h"
 #include "trayicon.h"
 #elif defined(TARGET_OS_MACOSX)
 #include "dockicon.h"
@@ -14,7 +13,6 @@
 StatusIcon *StatusIcon::Create()
 {
 #if defined(WIN32)
-    GetWindowManagerWin32()->RegisterMessageHandler( TrayIcon::EventHandler );
     return new TrayIcon();
 #elif defined(TARGET_OS_MACOSX)
     return new DockIcon();
