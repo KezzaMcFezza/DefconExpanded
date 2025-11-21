@@ -470,9 +470,9 @@ void LobbyRenderer::RenderBorder()
 void LobbyRenderer::RenderVersionInfo()
 {
 #if defined(SYNC_PRACTICE)
-    char currentVersion[256] = "BETA" "  " "1.16";
+    char currentVersion[256] = "BETA" "  " "1.16.1";
 #elif defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-    char currentVersion[256] = "RELEASE" "  " "1.25.3";
+    char currentVersion[256] = "RELEASE" "  " "1.25.5";
 #else
     char currentVersion[256] = APP_NAME "  " APP_VERSION;
 #endif

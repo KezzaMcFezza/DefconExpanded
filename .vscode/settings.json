@@ -1,24 +1,12 @@
 {
     "cmake.configureSettings": {
         "CMAKE_CONFIGURATION_TYPES": "Release Defcon, Debug Defcon",
-        "CMAKE_GENERATOR_TOOLSET": "v143",
-        "CMAKE_CXX_FLAGS": "/MP /Zm2000 /Zf",
-        "CMAKE_GENERATOR_PLATFORM": "Win32",
-        "CMAKE_UNITY_BUILD": "OFF",
-        "CMAKE_UNITY_BUILD_BATCH_SIZE": "16"
     },
     "cmake.buildDirectory": "${workspaceFolder}/build/${buildType}",
     "cmake.configureOnOpen": true,
     "cmake.configureArgs": [
         "-DCMAKE_BUILD_TYPE=${buildType}",
         "-DCMAKE_CXX_FLAGS=/MP /Zm2000 /Zf"
-    ],
-    "cmake.generator": "Visual Studio 17 2022",
-    "cmake.preferredGenerators": [
-        "Visual Studio 17 2022",
-        "Visual Studio 16 2019",
-        "Visual Studio 15 2017",
-        "Ninja"
     ],
     "cmake.defaultVariants": {
         "buildType": {
@@ -43,7 +31,7 @@
     "cmake.buildBeforeRun": true,
     "cmake.parallelJobs": 0,
     "cmake.useCMakePresets": "never",
-    "cmake.sourceDirectory": "C:/xampp/htdocs",
+    "cmake.sourceDirectory": "${workspaceFolder}",
     "files.associations": {
         "fstream": "cpp",
         "algorithm": "cpp",
@@ -123,6 +111,9 @@
         "-I${workspaceFolder}/source/app",
         "-I${workspaceFolder}/contrib/systemIV",
         "-I${workspaceFolder}/contrib/systemIV/contrib",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/crashpad/windows/include",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/crashpad/crashpad/third_party/mini_chromium/mini_chromium",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/SDL2-2.32.10/windows/include",
         "-I${workspaceFolder}/contrib/systemIV/contrib/highway-1.3.0",
         "-I${workspaceFolder}/contrib/systemIV/contrib/unrar",
         "-I${workspaceFolder}/contrib/systemIV/contrib/binreloc",
@@ -136,6 +127,8 @@
         "-I${workspaceFolder}/contrib/systemIV/lib/eclipse",
         "-I${workspaceFolder}/resources",
         "-DWIN32",
+        "-DUSE_CRASHREPORTING",
+        "-DRECORDING_PARSING",
         "-D_WIN32",
         "-DTARGET_MSVC",
         "-D_WINSOCK_DEPRECATED_NO_WARNINGS",
