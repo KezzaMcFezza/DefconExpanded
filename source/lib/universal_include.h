@@ -1,11 +1,26 @@
 #ifndef INCLUDED_UNIVERSAL_INCLUDE_H
 #define INCLUDED_UNIVERSAL_INCLUDE_H
 
-// its worth noting that using this version string alongside the gunfire and
-// retarget patch violates the license agreement! what ever you do, do not try
+//
+// It's worth noting that using this version string alongside the gunfire and
+// retarget patch violates the license agreement! What ever you do, do not try
 // to connect to a steam lobby when building the desktop client!
+
+//
+// To make version control easier, we now have a "real version" string, which
+// is used to match crashes or bugs to an internal string. Because APP_VERSION
+// is never changed so cannot be used here.
+
 #define APP_NAME        "Defcon"
 #define	APP_VERSION		"1.64 STEAM"
+
+#if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
+    #define REAL_VERSION    "1.25.5_replay_viewer"
+#elif defined(SYNC_PRACTICE)
+    #define REAL_VERSION    "1.16.1_sync_practice"
+#else
+    #define REAL_VERSION    "1.25.5_defcon_full"
+#endif
 
 #define ENABLE_SANTA_EASTEREGG
 //#define SANTA_EASTEREGG_DATE

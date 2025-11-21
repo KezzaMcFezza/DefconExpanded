@@ -79,7 +79,7 @@ bool InitializeCrashpad(const char* apiUrl)
 
     base::FilePath handlerPath =
         exeDir.Append(FILE_PATH_LITERAL("crashpad_handler"));
-        
+
 #endif
 
     //
@@ -97,8 +97,9 @@ bool InitializeCrashpad(const char* apiUrl)
     // Crash description, identifies crashes in the console
 
     std::map<std::string, std::string> annotations;
-    annotations["Version"]    = APP_VERSION;
-    annotations["Platform"]   = APP_SYSTEM;
+    annotations["Version"]         = APP_VERSION;
+    annotations["InternalVersion"] = REAL_VERSION;
+    annotations["Platform"]        = APP_SYSTEM;
 
     //
     // Dont use compression, reduces API complexity
