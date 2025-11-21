@@ -416,6 +416,7 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     endif()
     
     set(VORBIS_LIBRARIES ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY} ${OGG_LIBRARY})
+    set(CRASHPAD_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/crashpad/linux")
     
     add_definitions(-DTARGET_OS_LINUX -DENABLE_BINRELOC -DGUI -DSILENT)
     
@@ -448,6 +449,7 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     set(PLATFORM_SPECIFIC_FILES
         ${ROOT_PATH}/source/lib/debug_utils_linux.cpp
         ${ROOT_PATH}/source/lib/spawn.cpp
+        ${SYSTEMIV_PATH}/lib/gucci/crashpad.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
@@ -887,16 +889,30 @@ else()
         RUNTIME_OUTPUT_DIRECTORY "${MAIN_EXE_OUTPUT_DIR}"
     )
     
+    set(CRASHPAD_INCLUDE_DIRS 
+        ${CRASHPAD_PATH}/include
+        ${CRASHPAD_PATH}/include/third_party/mini_chromium/mini_chromium
+    )
+    
     target_include_directories(${EXECUTABLE_NAME} PUBLIC 
         ${SDL2_INCLUDE_DIRS}
         ${OPENGL_INCLUDE_DIRS}
         ${VORBIS_INCLUDE_DIRS}
+        ${CRASHPAD_INCLUDE_DIRS}
+    )
+    
+    set(CRASHPAD_LIBRARIES
+        ${CRASHPAD_PATH}/lib/libclient.a
+        ${CRASHPAD_PATH}/lib/libcommon.a
+        ${CRASHPAD_PATH}/lib/libutil.a
+        ${CRASHPAD_PATH}/lib/libbase.a
     )
     
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE 
         ${SDL2_LIBRARIES}
         ${OPENGL_LIBRARIES}
         ${VORBIS_LIBRARIES}
+        ${CRASHPAD_LIBRARIES}
         dl
         pthread
     )
@@ -941,6 +957,12 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
         COMMAND ${CMAKE_SOURCE_DIR}/targets/linux/bundle_sdl.sh ${MAIN_EXE_OUTPUT_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_SOURCE_DIR}/targets/linux/launch_cmake.sh ${MAIN_EXE_OUTPUT_DIR}/launch.sh
     )
+    
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        add_custom_command(TARGET ${EXECUTABLE_NAME} POST_BUILD 
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CRASHPAD_PATH}/crashpad_handler" "${MAIN_EXE_OUTPUT_DIR}/crashpad_handler"
+        )
+    endif()
 
 elseif(APPLE)
     add_custom_command(TARGET ${EXECUTABLE_NAME} PRE_BUILD 

@@ -870,9 +870,17 @@ extern "C" int main(int argc, char **argv)
         linkedVersion.major, linkedVersion.minor, linkedVersion.patch);
 
 #if TARGET_OS_LINUX
+
+    //
 	// Setup illegal memory access handler
 	// See debug_utils_gcc.cpp
+
+    //
+	// Skip custom handlers if crashpad is enabled
+    
+#ifndef USE_CRASHREPORTING
 	SetupMemoryAccessHandlers();
+#endif
 #endif
 
     g_argc = argc;

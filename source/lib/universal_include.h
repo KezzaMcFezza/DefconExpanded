@@ -223,14 +223,6 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 
-#ifdef USE_CRASHREPORTING
-#ifdef TARGET_MSVC
-#include "client/crashpad_client.h"
-#include "base/files/file_path.h"
-#include "util/file/file_io.h"
-#endif // TARGET_MSVC
-#endif // USE_CRASHREPORTING
-
 #include <windows.h>
 
 //Fall back for getaddrinfo on older platform, see end of
