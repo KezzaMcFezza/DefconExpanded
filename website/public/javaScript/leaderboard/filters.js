@@ -97,6 +97,89 @@ export async function applyUrlParameters() {
     }
     
     initializeFilterElements();
+    updateTournamentButtonVisibility();
+    updateTournamentButtonState();
+    
+    if (isTournamentMode()) {
+        leaderboardFilters.minGames = '1';
+        const minGamesFilter = document.getElementById('min-games-filter');
+        if (minGamesFilter) {
+            minGamesFilter.value = '1';
+        }
+    }
+}
+
+export function getChristmasTournamentDates() {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+    const currentDay = today.getDate();
+    
+    let startYear = currentYear;
+    let endYear = currentYear + 1;
+    
+    if (currentMonth < 10 || (currentMonth === 10 && currentDay < 28)) {
+        startYear = currentYear - 1;
+        endYear = currentYear;
+    }
+    
+    const startDate = new Date(startYear, 10, 28);
+    const endDate = new Date(endYear, 0, 1);
+    
+    return {
+        startDate: startDate.toISOString().split('T')[0],
+        endDate: endDate.toISOString().split('T')[0]
+    };
+}
+
+export function isInTournamentPeriod() {
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentDay = today.getDate();
+    
+    if (currentMonth === 10 && currentDay >= 28) {
+        return true;
+    }
+    
+    if (currentMonth === 0 && currentDay <= 1) {
+        return true;
+    }
+    
+    return false;
+}
+
+export function isTournamentMode() {
+    return leaderboardFilters.serverName === 'DefconExpanded | Christmas Tournament' &&
+           leaderboardFilters.startDate && leaderboardFilters.endDate &&
+           leaderboardFilters.startDate.includes('-11-28') &&
+           leaderboardFilters.endDate.includes('-01-01');
+}
+
+export function updateTournamentButtonVisibility() {
+    const tournamentToggle = document.getElementById('tournament-toggle');
+    if (!tournamentToggle) return;
+    
+    const tournamentToggleGroup = tournamentToggle.closest('.filter-group');
+    if (!tournamentToggleGroup) return;
+    
+    if (isInTournamentPeriod()) {
+        tournamentToggleGroup.style.display = '';
+    } else {
+        tournamentToggleGroup.style.display = 'none';
+    }
+}
+
+export function updateTournamentButtonState() {
+    const tournamentToggle = document.getElementById('tournament-toggle');
+    if (!tournamentToggle) return;
+    
+    if (isTournamentMode()) {
+        tournamentToggle.classList.add('active');
+        tournamentToggle.innerHTML = '<i class="fas fa-trophy"></i> Leaderboard';
+    } else {
+        tournamentToggle.classList.remove('active');
+        tournamentToggle.innerHTML = '<i class="fas fa-trophy"></i> Tournament';
+    }
 }
 
 export function updateURL() {

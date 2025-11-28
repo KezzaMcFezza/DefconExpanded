@@ -11,8 +11,8 @@
 // Last Edited 19-09-2025
 
 import { leaderboardFilters, serverPlaylists } from './constants.js';
-import { setupCurrentSeason, checkSeasonEndingSoon, applySeasonFilter, toggleCustomDateInputs } from './seasons.js';
-import { initializeFilterElements, initializePlaylistDropdown, applyUrlParameters, updateURL } from './filters.js';
+import { setupCurrentSeason, checkSeasonEndingSoon, applySeasonFilter, toggleCustomDateInputs, getCurrentSeason } from './seasons.js';
+import { initializeFilterElements, initializePlaylistDropdown, applyUrlParameters, updateURL, updateTournamentButtonState, updateTournamentButtonVisibility, isTournamentMode, getChristmasTournamentDates } from './filters.js';
 import { fetchLeaderboard, fetchAllTimeMostActivePlayers, fetchPreviousSeasonWinners } from './api.js';
 
 export async function initializeLeaderboard() {
@@ -31,6 +31,8 @@ export async function initializeLeaderboard() {
     await applyUrlParameters();
     setupEventListeners();
     checkSeasonEndingSoon();
+    updateTournamentButtonVisibility();
+    updateTournamentButtonState();
     
     fetchLeaderboard();
     fetchAllTimeMostActivePlayers();
@@ -155,4 +157,82 @@ function setupEventListeners() {
             window.location.href = '/leaderboard';
         });
     }
+
+    const tournamentToggle = document.getElementById('tournament-toggle');
+    if (tournamentToggle) {
+        tournamentToggle.addEventListener('click', () => {
+            toggleTournamentMode();
+        });
+    }
+}
+
+async function toggleTournamentMode() {
+    if (isTournamentMode()) {
+        exitTournamentMode();
+    } else {
+        enterTournamentMode();
+    }
+    
+    updateTournamentButtonState();
+    updateURL();
+    fetchLeaderboard();
+}
+
+function exitTournamentMode() {
+    const currentSeason = getCurrentSeason();
+    
+    leaderboardFilters.serverName = '';
+    leaderboardFilters.startDate = currentSeason.startDate;
+    leaderboardFilters.endDate = currentSeason.endDate;
+    leaderboardFilters.minGames = '3';
+    delete leaderboardFilters.playlist;
+    
+    const seasonSelect = document.getElementById('season-select');
+    if (seasonSelect) seasonSelect.value = 'current';
+    
+    const serverFilter = document.getElementById('server-filter');
+    if (serverFilter) serverFilter.value = '';
+    
+    const playlistFilter = document.getElementById('playlist-filter');
+    if (playlistFilter) playlistFilter.value = 'all';
+    
+    const minGamesFilter = document.getElementById('min-games-filter');
+    if (minGamesFilter) minGamesFilter.value = '3';
+    
+    toggleCustomDateInputs(false);
+    
+    const seasonIndicator = document.getElementById('season-indicator');
+    const currentSeasonSpan = document.getElementById('current-season');
+    if (seasonIndicator && currentSeasonSpan) {
+        seasonIndicator.innerHTML = `Current Season: <span id="current-season">${currentSeason.displayName}</span>`;
+    }
+}
+
+function enterTournamentMode() {
+    const dates = getChristmasTournamentDates();
+    
+    leaderboardFilters.serverName = 'DefconExpanded | Christmas Tournament';
+    leaderboardFilters.startDate = dates.startDate;
+    leaderboardFilters.endDate = dates.endDate;
+    leaderboardFilters.minGames = '1';
+    delete leaderboardFilters.playlist;
+    
+    const seasonSelect = document.getElementById('season-select');
+    if (seasonSelect) seasonSelect.value = 'custom';
+    
+    const serverFilter = document.getElementById('server-filter');
+    if (serverFilter) serverFilter.value = '';
+    
+    const playlistFilter = document.getElementById('playlist-filter');
+    if (playlistFilter) playlistFilter.value = 'all';
+    
+    const minGamesFilter = document.getElementById('min-games-filter');
+    if (minGamesFilter) minGamesFilter.value = '1';
+    
+    const startDateInput = document.getElementById('start-date');
+    const endDateInput = document.getElementById('end-date');
+    if (startDateInput) startDateInput.value = dates.startDate;
+    if (endDateInput) endDateInput.value = dates.endDate;
+    
+    toggleCustomDateInputs(true);
 }

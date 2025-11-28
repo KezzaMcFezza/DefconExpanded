@@ -253,7 +253,11 @@
                             </div>
                         </div>
 
-                        <div class="toggle-container">
+                        <div class="toggle-container" style="display: flex; gap: 10px;">
+                            <button id="tournament-toggle" class="tournament-toggle-btn">
+                                <i class="fas fa-trophy"></i> Tournament
+                            </button>
+
                             <button id="filters-toggle" class="filters-toggle-btn">
                                 More Filters <i class="fas fa-chevron-down"></i>
                             </button>
@@ -281,12 +285,13 @@
                                       <option value="509 CG | 1v1 | Totally Random | 2.8.15">509 CG | 1v1 | Totally Random | 2.8.15</option>
                                       <option value="509 CG | 1v1 | Totally Random | 2.8.14.1">509 CG | 1v1 | Totally Random | 2.8.14.1</option>
                                       <option value="Raizer's Russia vs USA | Totally Random">Raizer's Russia vs USA | Totally Random</option>
+                                      <option value="DefconExpanded | Christmas Tournament">DefconExpanded | Christmas Tournament 2025</option>
                                     </optgroup>
                                     
                                     <optgroup label="2v2 Servers">
                                       <option value="DefconExpanded | 2v2 | Totally Random">DefconExpanded | 2v2 | Totally Random</option>
                                       <option value="DefconExpanded | 2v2 | UK and Ireland">DefconExpanded | 2v2 | UK and Ireland</option>
-                                      <option value="DefconExpanded | 2v2 | Tournament">DefconExpanded | 2v2 | Tournament</option>
+                                      <option value="DefconExpanded | 2v2 | Tournament">DefconExpanded | 2v2 | Tournament 2024</option>
                                       <option value="DefconExpanded | 2v2 | Max Cities - Pop">DefconExpanded | 2v2 | Max Cities - Pop</option>
                                       <option value="DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random">DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random</option>
                                       <option value="509 CG | 2v2 | Totally Random | 2.8.15">509 CG | 2v2 Totally Random | 2.8.15</option>
@@ -333,6 +338,7 @@
                             <div class="filter-group">
                                 <label for="min-games-filter">Min Games:</label>
                                 <select id="min-games-filter">
+                                    <option value="1">1</option>
                                     <option value="3">3</option>
                                     <option value="5">5</option>
                                     <option value="10">10</option>

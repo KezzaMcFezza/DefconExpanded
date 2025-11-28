@@ -109,14 +109,18 @@ export function updateLeaderboardMetadata(data) {
     let headerText = 'DEFCON EXPANDED LEADERBOARD';
     let shouldWaitForAsyncOperation = false;
 
-    if (leaderboardFilters.serverName) {
+    if (leaderboardFilters.serverName === 'DefconExpanded | Christmas Tournament') {
+        headerText = 'CHRISTMAS TOURNAMENT LEADERBOARD';
+    } else if (leaderboardFilters.serverName) {
         headerText = `${leaderboardFilters.serverName} LEADERBOARD`;
     } else if (leaderboardFilters.playlist && serverPlaylists[leaderboardFilters.playlist]) {
         headerText = `${serverPlaylists[leaderboardFilters.playlist].name.toUpperCase()} LEADERBOARD`;
     }
 
+    const isTournament = leaderboardFilters.serverName === 'DefconExpanded | Christmas Tournament';
+    
     const seasonSelect = document.getElementById('season-select');
-    if (seasonSelect) {
+    if (seasonSelect && !isTournament) {
         const selectedValue = seasonSelect.value;
 
         if (selectedValue === 'current') {
@@ -166,6 +170,19 @@ export function updateLeaderboardMetadata(data) {
     const qualifyLabel = document.querySelector('.qualifylabel');
     if (qualifyLabel) {
         qualifyLabel.textContent = `You need ${leaderboardFilters.minGames} game${leaderboardFilters.minGames > 1 ? 's' : ''} played`;
+    }
+
+    const seasonIndicator = document.getElementById('season-indicator');
+    const currentSeasonSpan = document.getElementById('current-season');
+    if (seasonIndicator && currentSeasonSpan) {
+        if (leaderboardFilters.serverName === 'DefconExpanded | Christmas Tournament' && 
+            leaderboardFilters.startDate && leaderboardFilters.endDate) {
+            const startDate = new Date(leaderboardFilters.startDate);
+            const endDate = new Date(leaderboardFilters.endDate);
+            const startStr = startDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+            const endStr = endDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            seasonIndicator.innerHTML = `Tournament Period: <span id="current-season">${startStr} - ${endStr}</span>`;
+        }
     }
 }
 
