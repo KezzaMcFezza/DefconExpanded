@@ -149,7 +149,7 @@ export function isInTournamentPeriod() {
 }
 
 export function isTournamentMode() {
-    return leaderboardFilters.serverName === 'DefconExpanded | Christmas Tournament' &&
+    return leaderboardFilters.serverName === 'Christmas Tournament 2025' &&
            leaderboardFilters.startDate && leaderboardFilters.endDate &&
            leaderboardFilters.startDate.includes('-11-28') &&
            leaderboardFilters.endDate.includes('-01-01');

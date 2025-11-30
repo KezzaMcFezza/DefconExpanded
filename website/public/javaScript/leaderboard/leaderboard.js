@@ -211,7 +211,7 @@ function exitTournamentMode() {
 function enterTournamentMode() {
     const dates = getChristmasTournamentDates();
     
-    leaderboardFilters.serverName = 'DefconExpanded | Christmas Tournament';
+    leaderboardFilters.serverName = 'Christmas Tournament 2025';
     leaderboardFilters.startDate = dates.startDate;
     leaderboardFilters.endDate = dates.endDate;
     leaderboardFilters.minGames = '1';

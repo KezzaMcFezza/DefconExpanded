@@ -109,7 +109,7 @@ export function updateLeaderboardMetadata(data) {
     let headerText = 'DEFCON EXPANDED LEADERBOARD';
     let shouldWaitForAsyncOperation = false;
 
-    if (leaderboardFilters.serverName === 'DefconExpanded | Christmas Tournament') {
+    if (leaderboardFilters.serverName === 'Christmas Tournament 2025') {
         headerText = 'CHRISTMAS TOURNAMENT LEADERBOARD';
     } else if (leaderboardFilters.serverName) {
         headerText = `${leaderboardFilters.serverName} LEADERBOARD`;
@@ -117,7 +117,7 @@ export function updateLeaderboardMetadata(data) {
         headerText = `${serverPlaylists[leaderboardFilters.playlist].name.toUpperCase()} LEADERBOARD`;
     }
 
-    const isTournament = leaderboardFilters.serverName === 'DefconExpanded | Christmas Tournament';
+    const isTournament = leaderboardFilters.serverName === 'Christmas Tournament 2025';
     
     const seasonSelect = document.getElementById('season-select');
     if (seasonSelect && !isTournament) {
@@ -175,7 +175,7 @@ export function updateLeaderboardMetadata(data) {
     const seasonIndicator = document.getElementById('season-indicator');
     const currentSeasonSpan = document.getElementById('current-season');
     if (seasonIndicator && currentSeasonSpan) {
-        if (leaderboardFilters.serverName === 'DefconExpanded | Christmas Tournament' && 
+        if (leaderboardFilters.serverName === 'Christmas Tournament 2025' && 
             leaderboardFilters.startDate && leaderboardFilters.endDate) {
             const startDate = new Date(leaderboardFilters.startDate);
             const endDate = new Date(leaderboardFilters.endDate);

@@ -1,11 +1,11 @@
 Include ConfigVersion-1.43-beta1
 Include admins
 ServerName Christmas Tournament 2025
-ServerKey PXZDRJ-UQRJBH-GGDUWU-TSGCBL-TLM
+ServerKey CMSJUH-IATEPK-VUFIDU-QZWVMP-XUP
 RCONEnabled 1
 RCONTimeoutWindow 0
 RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
-RCONPort 8870
+RCONPort 8871
 RCONEncryption 1
 GameMode 0
 AdvertiseOnInternet 1
@@ -21,8 +21,8 @@ TotalBandwidth 15000000      # 150 Mbps total
 PlayerBandwidth 800000       # 8 Mbps per player (8 MB/s = 1 MB/s)
 SpectatorBandwidth 400000    # 4 Mbps per spectator
 MinBandwidth 10000          # 1 Mbps minimum for anyone
-EventFile dedcon_game_events/game_events_DefconExpanded_1v1_Christmas_Tournament.log
-OutFile dedcon_server_logs/server_output_DefconExpanded_1v1_Christmas_Tournament.log
+EventFile dedcon_game_events/game_events_DefconExpanded_1v1_Christmas_Tournament_Second_Server.log
+OutFile dedcon_server_logs/server_output_DefconExpanded_1v1_Christmas_Tournament_Second_Server.log
 PlayerLog keyids_with_names.log
 
 # Whatever you do, DO NOT change these lines....
