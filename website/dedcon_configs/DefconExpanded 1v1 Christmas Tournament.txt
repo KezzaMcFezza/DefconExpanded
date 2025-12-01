@@ -72,6 +72,49 @@ PermitDefection 1
 RadarSharing 1
 SpectatorChatChannel 1
 
+#TERRITORY SETS
+RBegin pair1
+Territory1 NA
+Territory2 EU
+REnd
+
+RBegin pair2
+Territory1 SA
+Territory2 RU
+REnd
+
+RBegin pair3
+Territory1 NA
+Territory2 AF
+REnd
+
+RBegin pair4
+Territory1 RU
+Territory2 NA
+REnd
+
+RBegin pair5
+Territory1 SA
+Territory2 EU
+REnd
+
+RBegin pair6
+Territory1 RU
+Territory2 EU
+REnd
+
+RBegin pair7
+Territory1 AF
+Territory2 AS
+REnd
+
+RBegin pair8
+Territory1 AF
+Territory2 SA
+REnd
+
+Rotate rotation_log_christmas1.txt
+
 WaitClient
 Say Welcome to the Defcon Christmas tournament of 2025!
 Say Anyone can play on here, there is no skill cap for players to participate.
