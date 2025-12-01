@@ -114,6 +114,24 @@ STYLE WorldLand
 	HORIZONTAL        0
 END
 
+STYLE GlobeCoastlines
+	PRIMARYCOL        00ff00ff
+	SECONDARYCOL      00ff00ff
+	HORIZONTAL        0
+END
+
+STYLE GlobeBorders
+	PRIMARYCOL        00ff0047
+	SECONDARYCOL      00ff0047
+	HORIZONTAL        0
+END
+
+STYLE GlobeGridlines
+	PRIMARYCOL        4dff4d33
+	SECONDARYCOL      4dff4d33
+	HORIZONTAL        0
+END
+
 STYLE TooltipBackground
 	PRIMARYCOL        737373ff
 	SECONDARYCOL      7d7d32ff

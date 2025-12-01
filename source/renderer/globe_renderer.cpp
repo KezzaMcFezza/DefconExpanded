@@ -11,6 +11,7 @@
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/colour.h"
 #include "lib/preferences.h"
+#include "lib/render/styletable.h"
 #include "lib/math/math_utils.h"
 #include "lib/math/random_number.h"
 #include "lib/hi_res_time.h"
@@ -361,6 +362,143 @@ void GlobeRenderer::Render3DStarField()
     }
 }
 
+void GlobeRenderer::AddLineStrip(const DArray<Vector3<float>> &vertices) const
+{
+    if (vertices.Size() <= 0) {
+        return;
+    }
+
+    Vector3<float> *vertexArray = new Vector3<float>[vertices.Size()];
+    for (int i = 0; i < vertices.Size(); ++i) {
+        vertexArray[i] = vertices.GetData(i);
+    }
+    
+    g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, vertices.Size());
+    delete[] vertexArray;
+}
+
+void GlobeRenderer::GlobeCoastlines()
+{
+    if (g_preferences->GetInt(PREFS_GRAPHICS_GLOBE_COASTLINES) == 1) {
+        if (!g_renderer3d->IsMegaVBO3DValid("GlobeCoastlines")) {
+#ifndef TARGET_EMSCRIPTEN
+            g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
+#endif
+            g_renderer3d->BeginMegaVBO3D("GlobeCoastlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_COASTLINES ));
+
+            for( int i = 0; i < g_app->GetEarthData()->m_islands.Size(); ++i )
+            {
+                Island *island = g_app->GetEarthData()->m_islands[i];
+                AppDebugAssert( island );
+
+                DArray<Vector3<float>> coastlineVertices;
+                for( int j = 0; j < island->m_points.Size(); j++ )
+                {
+                    Vector3<float> *thePoint = island->m_points[j];
+
+                    coastlineVertices.PutData(ConvertLongLatTo3DPosition(thePoint->x, thePoint->y));
+                }
+                AddLineStrip(coastlineVertices);
+            }
+            
+            g_renderer3d->EndMegaVBO3D();
+
+        }
+    }
+
+    //
+    // Build it
+
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
+#endif
+
+    g_renderer3d->RenderMegaVBO3D("GlobeCoastlines");
+}
+
+void GlobeRenderer::GlobeBorders()
+{
+    if (g_preferences->GetInt(PREFS_GRAPHICS_GLOBE_BORDERS) == 1) {
+        if (!g_renderer3d->IsMegaVBO3DValid("GlobeBorders")) {
+#ifndef TARGET_EMSCRIPTEN
+            g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
+#endif
+            g_renderer3d->BeginMegaVBO3D("GlobeBorders", g_styleTable->GetPrimaryColour( STYLE_GLOBE_BORDERS ));
+
+            for( int i = 0; i < g_app->GetEarthData()->m_borders.Size(); ++i )
+            {
+                Island *island = g_app->GetEarthData()->m_borders[i];
+                AppDebugAssert( island );
+
+                DArray<Vector3<float>> borderVertices;
+                for( int j = 0; j < island->m_points.Size(); j++ )
+                {
+                    Vector3<float> *thePoint = island->m_points[j];
+
+                    borderVertices.PutData(ConvertLongLatTo3DPosition(thePoint->x, thePoint->y));
+                }
+                AddLineStrip(borderVertices);
+            }
+
+            g_renderer3d->EndMegaVBO3D();
+
+        }
+    }
+
+    //
+    // Build it
+
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
+#endif
+
+    g_renderer3d->RenderMegaVBO3D("GlobeBorders");
+}
+
+void GlobeRenderer::GlobeGridlines()
+{
+    if (g_preferences->GetInt(PREFS_GRAPHICS_GLOBE_GRIDLINES) == 1) {
+        if (!g_renderer3d->IsMegaVBO3DValid("GlobeGridlines")) {
+            g_renderer3d->BeginMegaVBO3D("GlobeGridlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_GRIDLINES ));
+        
+        //
+        // Longitudinal lines (meridians)
+
+        for( float x = -180; x < 180; x += 10 )
+        {
+            DArray<Vector3<float>> lineVertices;
+            for( float y = -90; y < 90; y += 2.0f )
+            {
+                lineVertices.PutData(ConvertLongLatTo3DPosition(x, y));
+            }
+            AddLineStrip(lineVertices);
+        }
+
+        //
+        // Latitudinal lines (parallels)
+
+        for( float y = -90; y <= 90; y += 10 )
+        {
+            DArray<Vector3<float>> lineVertices;
+            for( float x = -180; x <= 180; x += 2.0f )
+            {
+                lineVertices.PutData(ConvertLongLatTo3DPosition(x, y));
+            }
+            AddLineStrip(lineVertices);
+        }
+        
+        g_renderer3d->EndMegaVBO3D();
+
+        }
+    }
+
+    //
+    // Build it
+
+    g_renderer3d->RenderMegaVBO3D("GlobeGridlines");
+
+}
+
 //
 // handle globe initialisation
 
@@ -474,180 +612,12 @@ void GlobeRenderer::Render(bool inLobbyMode)
                                           fogCameraPos.z);
     }
 
-    //
-    // Check validity of coastlines, borders and gridlines vbo
-
-    if (inLobbyMode) {
+    if(inLobbyMode) {
+        GlobeGridlines();
+    }
     
-    // Build globe geometry if not cached
-    if (!g_renderer3d->IsMegaVBO3DValid("GlobeGridlines")) {
-        // Build gridlines mega-VBO
-        g_renderer3d->BeginMegaVBO3D("GlobeGridlines", Colour(77, 255, 77, 51)); // 0.15f, 0.25f, 0.15f, 0.2f
-        
-        // Longitudinal lines (meridians)
-        for( float x = -180; x < 180; x += 10 )
-        {
-            DArray<Vector3<float>> lineVertices;
-            for( float y = -90; y < 90; y += 2.0f )
-            {
-                Vector3<float> thisPoint(0,0,1);
-                thisPoint.RotateAroundY( x/180.0f * M_PI );
-                Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
-                right.Normalise();
-                thisPoint.RotateAround( right * y/180.0f * M_PI );
-
-                lineVertices.PutData(thisPoint);
-            }
-            if (lineVertices.Size() > 0) {
-                Vector3<float>* vertexArray = new Vector3<float>[lineVertices.Size()];
-                for (int i = 0; i < lineVertices.Size(); i++) {
-                    vertexArray[i] = lineVertices.GetData(i);
-            }
-                g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, lineVertices.Size());
-                delete[] vertexArray;
-        }
-        }
-
-        // Latitudinal lines (parallels)
-        for( float y = -90; y <= 90; y += 10 )
-        {
-            DArray<Vector3<float>> lineVertices;
-            for( float x = -180; x <= 180; x += 2.0f )
-            {
-                Vector3<float> thisPoint(0,0,1);
-                thisPoint.RotateAroundY( x/180.0f * M_PI );
-                Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
-                right.Normalise();
-                thisPoint.RotateAround( right * y/180.0f * M_PI );
-
-                lineVertices.PutData(thisPoint);
-            }
-            if (lineVertices.Size() > 0) {
-                Vector3<float>* vertexArray = new Vector3<float>[lineVertices.Size()];
-                for (int i = 0; i < lineVertices.Size(); i++) {
-                    vertexArray[i] = lineVertices.GetData(i);
-                }
-                g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, lineVertices.Size());
-                delete[] vertexArray;
-            }
-        }
-        
-        g_renderer3d->EndMegaVBO3D();
-        }
-
-        // Build it
-        g_renderer3d->RenderMegaVBO3D("GlobeGridlines");
-    }
-
-    //
-    // Coastlines VBO
-
-    if (g_preferences->GetInt(PREFS_GRAPHICS_COASTLINES) == 1) {
-        if (!g_renderer3d->IsMegaVBO3DValid("GlobeCoastlines")) {
-#ifndef TARGET_EMSCRIPTEN
-            g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
-#endif
-            g_renderer3d->BeginMegaVBO3D("GlobeCoastlines", Colour(0, 255, 0, 255));
-
-            float globeRadius = inLobbyMode ? 1.0f : g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
-
-            for( int i = 0; i < g_app->GetEarthData()->m_islands.Size(); ++i )
-            {
-                Island *island = g_app->GetEarthData()->m_islands[i];
-                AppDebugAssert( island );
-
-                DArray<Vector3<float>> coastlineVertices;
-                for( int j = 0; j < island->m_points.Size(); j++ )
-                {
-                    Vector3<float> *thePoint = island->m_points[j];
-
-                    Vector3<float> thisPoint(0,0,globeRadius);
-                    thisPoint.RotateAroundY( thePoint->x/180.0f * M_PI );
-                    Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
-                    right.Normalise();
-                    thisPoint.RotateAround( right * thePoint->y/180.0f * M_PI );
-
-                    coastlineVertices.PutData(thisPoint);
-                }
-                if (coastlineVertices.Size() > 0) {
-                    Vector3<float>* vertexArray = new Vector3<float>[coastlineVertices.Size()];
-                    for (int k = 0; k < coastlineVertices.Size(); k++) {
-                        vertexArray[k] = coastlineVertices.GetData(k);
-                    }
-                    g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, coastlineVertices.Size());
-                    delete[] vertexArray;
-                }
-            }
-            
-            g_renderer3d->EndMegaVBO3D();
-            AppDebugOut("Rebuilt globe coastlines VBO during gameplay with %d islands\n", g_app->GetEarthData()->m_islands.Size());
-        }
-    }
-
-    // Build it
-#ifndef TARGET_EMSCRIPTEN
-    g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
-#endif
-    g_renderer3d->RenderMegaVBO3D("GlobeCoastlines");
-    
-    //
-    // Borders VBO
-
-    if (g_preferences->GetInt(PREFS_GRAPHICS_BORDERS) == 1) {
-        if (!g_renderer3d->IsMegaVBO3DValid("GlobeBorders")) {
-#ifndef TARGET_EMSCRIPTEN
-            g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
-#endif
-            g_renderer3d->BeginMegaVBO3D("GlobeBorders", Colour(0, 255, 0, 71));
-
-            //
-            // get globe size preference, only apply in non lobby mode
-            
-            float globeRadius = inLobbyMode ? 1.0f : g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
-
-            for( int i = 0; i < g_app->GetEarthData()->m_borders.Size(); ++i )
-            {
-                Island *island = g_app->GetEarthData()->m_borders[i];
-                AppDebugAssert( island );
-
-                DArray<Vector3<float>> borderVertices;
-                for( int j = 0; j < island->m_points.Size(); j++ )
-                {
-                    Vector3<float> *thePoint = island->m_points[j];
-
-                    Vector3<float> thisPoint(0,0,globeRadius);
-                    thisPoint.RotateAroundY( thePoint->x/180.0f * M_PI );
-                    Vector3<float> right = thisPoint ^ Vector3<float>::UpVector();
-                    right.Normalise();
-                    thisPoint.RotateAround( right * thePoint->y/180.0f * M_PI );
-
-                    borderVertices.PutData(thisPoint);
-                }
-                if (borderVertices.Size() > 0) {
-                    Vector3<float>* vertexArray = new Vector3<float>[borderVertices.Size()];
-                    for (int k = 0; k < borderVertices.Size(); k++) {
-                        vertexArray[k] = borderVertices.GetData(k);
-                    }
-                    g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, borderVertices.Size());
-                    delete[] vertexArray;
-                }
-            }
-
-            g_renderer3d->EndMegaVBO3D();
-            AppDebugOut("Rebuilt globe borders VBO during gameplay with %d border segments\n", g_app->GetEarthData()->m_borders.Size());
-        }
-        
-        // Build it
-#ifndef TARGET_EMSCRIPTEN
-        g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
-#endif
-        g_renderer3d->RenderMegaVBO3D("GlobeBorders");
-    }
-  
-    //
-    // master scene batching, pretty much identical to map renderer
-    // if it aint broke dont fix it, since im good at breaking shit
-    //
+    GlobeCoastlines();
+    GlobeBorders();
 
     //
     // disable fog before rendering main scene

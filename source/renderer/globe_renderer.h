@@ -9,6 +9,14 @@ class Image;
 class WorldObject;
 class AnimatedIcon;
 
+#define    STYLE_GLOBE_COASTLINES                     "GlobeCoastlines"
+#define    STYLE_GLOBE_BORDERS                        "GlobeBorders"
+#define    STYLE_GLOBE_GRIDLINES                      "GlobeGridlines"
+
+#define    PREFS_GRAPHICS_GLOBE_COASTLINES            "RenderGlobeCoastlines"
+#define    PREFS_GRAPHICS_GLOBE_BORDERS               "RenderGlobeBorders"
+#define    PREFS_GRAPHICS_GLOBE_GRIDLINES             "RenderGlobeGridlines"
+
 #define    PREFS_GLOBE_SIZE                           "GlobeSize"
 #define    PREFS_GLOBE_COAST_THICKNESS                "GlobeCoastThickness"
 #define    PREFS_GLOBE_BORDER_THICKNESS               "GlobeBorderThickness"
@@ -62,6 +70,12 @@ public:
     ~GlobeRenderer();
     void    Init();
     void    Reset();
+    void    Render(bool inLobbyMode = false);
+
+    void    AddLineStrip(const DArray<Vector3<float>> &vertices) const;
+    void    GlobeGridlines();
+    void    GlobeCoastlines();
+    void    GlobeBorders();
 
     bool m_3DGlobeMode;
 
@@ -85,7 +99,6 @@ public:
 
     void    Toggle3DGlobeMode();
     bool    Is3DGlobeModeEnabled() const { return m_3DGlobeMode; }
-    void    Render(bool inLobbyMode = false);
     void    RenderGlobeMouse();
     void    SetupCamera3d();
     void    Update3DGlobeCamera();
