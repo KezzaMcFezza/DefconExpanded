@@ -295,7 +295,6 @@ async def monitor_game_events(log_file, game_state):
     while True:
         try:
             while not os.path.exists(log_file):
-                print(f"Waiting for log file: {log_file}")
                 await asyncio.sleep(5)
                 continue
 
@@ -353,7 +352,6 @@ async def monitor_server_output(output_file, bot):
     while True:
         try:
             if not os.path.exists(output_file):
-                print(f"Waiting for output file: {output_file}")
                 await asyncio.sleep(5)
                 continue
 

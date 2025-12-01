@@ -1,7 +1,7 @@
 Include ConfigVersion-1.43-beta1
 Include admins
 ServerName Christmas Tournament 2025
-ServerKey PXZDRJ-UQRJBH-GGDUWU-TSGCBL-TLM
+ServerKey OQZARH-ATGJXO-PRIXNL-ZMYECQ-BQX
 RCONEnabled 1
 RCONTimeoutWindow 0
 RCONPassword 3498ry3uh9873y4t89734hgtvu9gh3987yt3ghbeuirgy3948th3irufh3r98th3985gh39458g
