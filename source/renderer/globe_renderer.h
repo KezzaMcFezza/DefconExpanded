@@ -31,53 +31,55 @@ class GlobeRenderer
 {
 protected:
 
-    struct Globe3DCamera {
-        float m_cameraDistance;     // Distance from globe center
-        float m_cameraTheta;        // Horizontal rotation (longitude)
-        float m_cameraPhi;          // Vertical rotation (latitude) 
-        
-        Vector3<float> m_cameraPos;
-        Vector3<float> m_cameraTarget;
-        Vector3<float> m_cameraUp;
-        
-        // Mouse interaction
-        bool m_isDragging;
-        float m_lastMouseX, m_lastMouseY;
-        
-        float m_dragVelocityX, m_dragVelocityY;
-        
-        // track if the camera has been initialized
-        bool m_initialized;
-        
-        Globe3DCamera() : 
-            m_cameraDistance(3.0f),
-            m_cameraTheta(0.0f),
-            m_cameraPhi(0.0f),
-            m_isDragging(false),
-            m_lastMouseX(0), m_lastMouseY(0),
-            m_dragVelocityX(0.0f), m_dragVelocityY(0.0f),
-            m_initialized(false) {
-            
-            m_cameraPos = Vector3<float>(0.0f, 0.5f, m_cameraDistance);
-            m_cameraTarget = Vector3<float>(0.0f, 0.0f, 0.0f);
-            m_cameraUp = Vector3<float>(0.0f, 1.0f, 0.0f);
-        }
-    } m_globe3DCamera;
+    float   m_zoomFactor;
+    float   m_middleX;
+    float   m_middleY;
+
+    float	m_drawScale;
+
+    bool    m_lockCamControl;
+    bool    m_lockCommands;
+    bool    m_draggingCamera;
+
+    void DragCamera();
+    void UpdateCameraControl();
+    void RenderDragIcon();
+
+    void GameCamera();
+    void LobbyCamera();
 
 public:
-
     GlobeRenderer();
     ~GlobeRenderer();
+
     void    Init();
     void    Reset();
-    void    Render(bool inLobbyMode = false);
+    void    Update();
+    void    Render();
 
     void    AddLineStrip(const DArray<Vector3<float>> &vertices) const;
     void    GlobeGridlines();
     void    GlobeCoastlines();
     void    GlobeBorders();
 
-    bool m_3DGlobeMode;
+    void    RenderCities();
+
+    void    GetWindowBounds  ( float *left, float *right, float *top, float *bottom );
+    void    GetCameraPosition( float &longitude, float &latitude, float &distance );
+    void    SetCameraPosition( float longitude, float latitude, float distance );
+    void    IsCameraIdle     (float oldLongitude, float oldLatitude);
+
+    bool m_renderEverything;
+
+    float   m_maxCameraDistance;
+    float   m_minCameraDistance;
+    float   m_maxZoomFactor;
+    float   m_minZoomFactor;
+    float   m_cameraLongitude;
+    float   m_cameraLatitude;
+    float   m_cameraDistance;
+    float   m_targetCameraDistance;
+    float   m_cameraIdleTime;
 
     Vector3  <float> m_camUp;
     Vector3  <float> m_camFront;
@@ -97,12 +99,6 @@ public:
     void    RenderAnimations();
     int     CreateAnimation( int animationType, int _fromObjectId, float longitude, float latitude );
 
-    void    Toggle3DGlobeMode();
-    bool    Is3DGlobeModeEnabled() const { return m_3DGlobeMode; }
-    void    RenderGlobeMouse();
-    void    SetupCamera3d();
-    void    Update3DGlobeCamera();
-    void    Render3DGlobeCities();
     void    Render3DUnits();          
     void    Render3DUnitTrails();
     void    Render3DNukeTrajectories();
@@ -121,7 +117,6 @@ public:
     void    Render3DActionLine                            (const Vector3<float>& fromPos, const Vector3<float>& toPos, const Colour& col, bool animate);
     float   CalculateUnitElevation                        (WorldObject* wobj);
     float   CalculateBallisticHeight                      (float totalDistanceRadians, float progress);
-    Vector3<float> Project3DToScreen                      (const Vector3<float>& worldPos);
     Vector3<float> ConvertLongLatTo3DPosition             (float longitude, float latitude);
     Vector3<float> ScreenToGlobePosition                  (int screenX, int screenY);
     Vector3<float> CalculateGreatCirclePosition           (float startLon, float startLat, float endLon, float endLat, float progress);

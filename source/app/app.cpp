@@ -123,6 +123,7 @@ App::App()
     m_gameRunning(false),
     m_hidden(false),
     m_gameStartTimer(-1.0),
+    m_globeMode(false),
     m_tutorial(NULL),
     m_mapRenderer(NULL),
     m_globeRenderer(NULL),
@@ -927,8 +928,22 @@ void App::Render()
 #endif
         if( render )
         {
-            GetMapRenderer()->Update();
-            GetMapRenderer()->Render();
+            if( m_globeMode )
+            {
+                //
+                // Render 3D globe
+
+                GetGlobeRenderer()->Update();
+                GetGlobeRenderer()->Render();
+            }
+            else
+            {
+                //
+                // Render 2D map
+
+                GetMapRenderer()->Update();
+                GetMapRenderer()->Render();
+            }
         }
     }
 
@@ -1472,14 +1487,6 @@ void App::ShutdownCurrentGame()
 
     //
     // If there is a client, shut it down now
-    //
-    // be sure to toggle globe mode off first
-    // to prevent an m_world assertion :)
-
-    if( g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled() )
-    {
-        g_app->GetGlobeRenderer()->Toggle3DGlobeMode();
-    }
 
     if( m_world )
     {
@@ -1505,6 +1512,11 @@ void App::ShutdownCurrentGame()
         m_server->Shutdown();
         delete m_server;
         m_server = NULL;
+    }
+
+    if( m_globeMode )
+    {
+        m_globeMode = false;
     }
 
     if( m_tutorial )
@@ -1533,6 +1545,8 @@ void App::ShutdownCurrentGame()
     m_globeRenderer->Reset();
 
     m_mapRenderer->m_renderEverything = false;
+    m_globeRenderer->m_renderEverything = false;
+
     m_gameStartTimer = -1.0f;
 	GetInterface()->SetMouseCursor();
 	SetMousePointerVisible(true);
@@ -1694,6 +1708,11 @@ void App::InitStatusIcon()
     m_statusIcon = StatusIcon::Create();
     if ( m_statusIcon )
 		m_statusIcon->SetCaption( "" );
+}
+
+bool App::IsGlobeMode()
+{
+    return m_globeMode;
 }
 
 bool App::MousePointerIsVisible()

@@ -2,7 +2,6 @@
 
 #include <math.h>
 
-#include "lib/eclipse/eclipse.h"
 #include "lib/gucci/input.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/resource.h"
@@ -11,6 +10,7 @@
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/colour.h"
 #include "lib/preferences.h"
+#include "lib/profiler.h"
 #include "lib/render/styletable.h"
 #include "lib/math/math_utils.h"
 #include "lib/math/random_number.h"
@@ -26,7 +26,6 @@
 #endif
 
 #include "interface/interface.h"
-#include "interface/toolbar.h"
 
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
@@ -45,8 +44,24 @@
 #include "curves.h"
 
 GlobeRenderer::GlobeRenderer()
-:   m_3DGlobeMode(false)
+:   m_zoomFactor(1),
+    m_middleX(0.0f),
+    m_middleY(0.0f),
+    m_lockCommands(false),
+    m_draggingCamera(false),
+    m_renderEverything(false),
+    m_maxCameraDistance(3.0f),
+    m_minCameraDistance(1.2f),
+    m_maxZoomFactor(1.0f),
+    m_minZoomFactor(0.35f),
+    m_cameraLongitude(0.0f),
+    m_cameraLatitude(0.0f),
+    m_cameraDistance(3.0f),
+    m_targetCameraDistance(3.0f),
+    m_cameraIdleTime(0.0f)
 {
+    SetCameraPosition(m_cameraLongitude, m_cameraLatitude, m_cameraDistance);
+    m_targetCameraDistance = m_cameraDistance;
 }
 
 GlobeRenderer::~GlobeRenderer()
@@ -59,75 +74,41 @@ void GlobeRenderer::Init()
     Reset();
 }
 
+void GlobeRenderer::Update()
+{
+    if(g_app->IsGlobeMode()) {
+        UpdateCameraControl();
+    }
+}
 
 void GlobeRenderer::Reset()
 {
     m_animations.EmptyAndDelete();
-
 }
-
-// ******************************************************************************************************************************
-//                                              Globe Options Menu Value Conversion Functions
-// ******************************************************************************************************************************
 
 //
-// these functions convert between menu values and internal values
+// This is the function that makes it all happen, we convert 2D coordinates to 3D coordinates.
+// The only issue with this which is pretty unavoidable is that the closer we get to the poles
+// the units get squashed, it's literally an unsolvable problem.
 
-float GlobeRenderer::ConvertMenuToLandUnitSize(float menuValue) {
-    float baseValue = 0.0075f;
-    float scaleFactor = 0.002f;
-    return baseValue + (menuValue - 1.0f) * scaleFactor;
+Vector3<float> GlobeRenderer::ConvertLongLatTo3DPosition(float longitude, float latitude)
+{
+    
+    float lonRad = longitude * M_PI / 180.0f;
+    float latRad = latitude * M_PI / 180.0f;
+    
+    //
+    // Spherical to cartesian conversion
+
+    float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
+    Vector3<float> pos(0, 0, globeRadius);
+    pos.RotateAroundY(lonRad);
+    Vector3<float> right = pos ^ Vector3<float>(0, 1, 0);
+    right.Normalise();
+    pos.RotateAround(right * latRad);
+    
+    return pos;
 }
-
-float GlobeRenderer::ConvertLandUnitSizeToMenu(float internalValue) {
-    float baseValue = 0.0075f;
-    float scaleFactor = 0.002f;
-    return 1.0f + (internalValue - baseValue) / scaleFactor;
-}
-
-float GlobeRenderer::ConvertMenuToNavalUnitSize(float menuValue) {
-    float baseValue = 0.015f;
-    float scaleFactor = 0.005f;
-    return baseValue + (menuValue - 1.0f) * scaleFactor;
-}
-
-float GlobeRenderer::ConvertNavalUnitSizeToMenu(float internalValue) {
-    float baseValue = 0.015f;
-    float scaleFactor = 0.005f;
-    return 1.0f + (internalValue - baseValue) / scaleFactor;
-}
-
-float GlobeRenderer::ConvertMenuToFogDensity(float menuValue) {
-    float baseValue = 0.03f;
-    float scaleFactor = 0.03f;
-    return baseValue + (menuValue - 1.0f) * scaleFactor;
-}
-
-float GlobeRenderer::ConvertFogDensityToMenu(float internalValue) {
-    float baseValue = 0.03f;
-    float scaleFactor = 0.03f;
-    return 1.0f + (internalValue - baseValue) / scaleFactor;
-}
-
-float GlobeRenderer::ConvertMenuToStarSize(float menuValue) {
-    float baseValue = 0.032f;
-    float scaleFactor = 0.005f;
-    return baseValue + (menuValue - 1.0f) * scaleFactor;
-}
-
-float GlobeRenderer::ConvertStarSizeToMenu(float internalValue) {
-    float baseValue = 0.032f;
-    float scaleFactor = 0.005f;
-    return 1.0f + (internalValue - baseValue) / scaleFactor;
-}
-
-// ******************************************************************************************************************************
-//                                              Globe initialisation and camera controls
-// ******************************************************************************************************************************
-
-//
-// star field data structure for background stars, i think in combination
-// with the black globe surface overlay this makes the globe look more realistic
 
 struct Star3D {
     Vector3<float> position;
@@ -137,111 +118,8 @@ struct Star3D {
 
 static DArray<Star3D> g_starField3D;
 static bool g_starField3DInitialized = false;
-
-// ******************************************************************************************************************************
-//                                              3D globe mouse rendering and calculations
-// ******************************************************************************************************************************
-
 //
-// render mouse cursor and UI elements for 3D globe mode
-
-void GlobeRenderer::RenderGlobeMouse()
-{
-    if (!Is3DGlobeModeEnabled()) return;
-    
-    // get mouse screen position
-    int mouseScreenX = g_inputManager->m_mouseX;
-    int mouseScreenY = g_inputManager->m_mouseY;
-    
-    // convert screen coordinates to 3D world position on globe surface
-    // we need to intersect the mouse ray with the globe surface
-    Vector3<float> mouseWorldPos = ScreenToGlobePosition(mouseScreenX, mouseScreenY);
-    
-    // render move cursor when dragging camera
-    if (m_globe3DCamera.m_isDragging) {
-        Image *move = g_resource->GetImage("gui/move.bmp");
-        if (move) {
-            // same as map renderer static size that doesnt use preferences popupscale
-            float cursorSize = 48.0f;
-            
-            g_renderer->StaticSprite(move, 
-                            mouseScreenX - cursorSize/2, 
-                            mouseScreenY - cursorSize/2, 
-                            cursorSize, cursorSize, White);
-        }
-    }
-}
-
-//
-// convert screen coordinates to globe surface position
-// simplified approach using basic raysphere intersection
-
-Vector3<float> GlobeRenderer::ScreenToGlobePosition(int screenX, int screenY)
-{
-    if (!Is3DGlobeModeEnabled()) {
-        return Vector3<float>(0, 0, 0);
-    }
-    
-    // convert screen coordinates to normalized device coordinates
-    float screenW = (float)g_windowManager->WindowW();
-    float screenH = (float)g_windowManager->WindowH();
-    
-    float ndcX = (2.0f * screenX) / screenW - 1.0f;
-    float ndcY = 1.0f - (2.0f * screenY) / screenH;
-    
-    // approximate the ray direction
-    // this is less accurate but uses only available math functions
-    Vector3<float> rayStart = m_globe3DCamera.m_cameraPos;
-    Vector3<float> cameraForward = m_globe3DCamera.m_cameraTarget - m_globe3DCamera.m_cameraPos;
-    cameraForward.Normalise();
-    
-    // create right and up vectors for camera space
-    Vector3<float> right = cameraForward ^ Vector3<float>(0, 1, 0);
-    right.Normalise();
-    Vector3<float> up = right ^ cameraForward;
-    up.Normalise();
-    
-    // calculate approximate ray direction based on mouse offset from center
-    float fovRadians = 60.0f * M_PI / 180.0f;
-    float aspect = screenW / screenH;
-    float halfFovTan = tanf(fovRadians * 0.5f);
-    
-    Vector3<float> rayDir = cameraForward + 
-                           right * (ndcX * halfFovTan * aspect) + 
-                           up * (ndcY * halfFovTan);
-    rayDir.Normalise();
-    
-    // yea bro i did not write this
-    float a = rayDir * rayDir;
-    float b = 2.0f * (rayStart * rayDir);
-    float c = (rayStart * rayStart) - 1.0f;
-    
-    float discriminant = b * b - 4 * a * c;
-    
-    if (discriminant < 0) {
-        Vector3<float> forward = m_globe3DCamera.m_cameraTarget - m_globe3DCamera.m_cameraPos;
-        forward.Normalise();
-        return forward;
-    }
-    
-    // find nearest intersection point
-    float t1 = (-b - sqrtf(discriminant)) / (2 * a);
-    float t2 = (-b + sqrtf(discriminant)) / (2 * a);
-    
-    float t = (t1 > 0) ? t1 : t2; 
-    
-    Vector3<float> intersection = rayStart + rayDir * t;
-    intersection.Normalise();
-    
-    return intersection;
-}
-
-// ******************************************************************************************************************************
-//                                                    Star field rendering
-// ******************************************************************************************************************************
-
-//
-// generate random star field around the globe
+// Generate random star field around the globe
 
 void GlobeRenderer::Generate3DStarField()
 {
@@ -499,160 +377,68 @@ void GlobeRenderer::GlobeGridlines()
 
 }
 
-//
-// handle globe initialisation
-
-void GlobeRenderer::Toggle3DGlobeMode()
-{
-    m_3DGlobeMode = !m_3DGlobeMode;
-    
-    if (Is3DGlobeModeEnabled()) {
-
-        //
-        // only initialize 3D camera position the first time its used
-        // this preserves camera position when switching between 2D and 3D modes
-        // we save the camera position during runtime just like the 2D map renderer
-
-        if (!m_globe3DCamera.m_initialized) {
-            float globeSize = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
-            m_globe3DCamera.m_cameraDistance = 3.0f * globeSize;
-            m_globe3DCamera.m_cameraTheta = 0.0f;
-            m_globe3DCamera.m_cameraPhi = 0.0f;
-            
-            // default camera position for the camera when we load up
-            m_globe3DCamera.m_cameraPos = Vector3<float>(0.0f, 0.5f, m_globe3DCamera.m_cameraDistance);
-            m_globe3DCamera.m_cameraTarget = Vector3<float>(0.0f, 0.0f, 0.0f);
-            m_globe3DCamera.m_cameraUp = Vector3<float>(0.0f, 1.0f, 0.0f);
-            
-            m_globe3DCamera.m_initialized = true;
-        }
-        
-        AppDebugOut("3D Globe Mode: ENABLED\n");
-    } else {
-        Cleanup3DStarField();
-        AppDebugOut("3D Globe Mode: DISABLED\n");
-    }
-    
-    //
-    // disable the radar and territory buttons in globe mode for now
-    // territory button most likely will be permanant but radar
-    // might be enabled if i can figure out how to get depth testing
-    // working for the radar circles
-
-    EclWindow *toolbar = EclGetWindow("Toolbar");
-    if (toolbar) {
-        ToolbarButton *radar = (ToolbarButton*)toolbar->GetButton("Radar");
-        if (radar) {
-            radar->m_disabled = Is3DGlobeModeEnabled();
-        }
-
-        ToolbarButton *territory = (ToolbarButton*)toolbar->GetButton("Territory");
-        if (territory) {
-            territory->m_disabled = Is3DGlobeModeEnabled();
-        }
-    }
-}
-
-// ******************************************************************************************************************************
-//                                              Main 3D globe rendering
-// ******************************************************************************************************************************
-
-//
-// main rendering for the 3D globe
-
-void GlobeRenderer::Render(bool inLobbyMode)
+void GlobeRenderer::Render()
 {
     //
-    // begin draw call tracking
+    // Render the scene
+
+    START_PROFILE("GlobeRenderer");
 
     g_renderer3d->BeginFrame3D();
-    
-    float aspect = (float)g_windowManager->WindowW() / (float)g_windowManager->WindowH();
-    g_renderer3d->SetPerspective(60.0f, aspect, 0.1f, 100.0f);
-    
-    if (!inLobbyMode) {
-        g_renderer3d->SetLookAt(
-            m_globe3DCamera.m_cameraPos.x, m_globe3DCamera.m_cameraPos.y, m_globe3DCamera.m_cameraPos.z,
-            m_globe3DCamera.m_cameraTarget.x, m_globe3DCamera.m_cameraTarget.y, m_globe3DCamera.m_cameraTarget.z,
-            m_globe3DCamera.m_cameraUp.x, m_globe3DCamera.m_cameraUp.y, m_globe3DCamera.m_cameraUp.z
-        );
-        
-        //
-        // set camera position for billboard calculations
 
-        g_renderer3d->SetCameraPosition(m_globe3DCamera.m_cameraPos.x, 
-                                       m_globe3DCamera.m_cameraPos.y, 
-                                       m_globe3DCamera.m_cameraPos.z);
-    }
+    float popupScale = g_preferences->GetFloat(PREFS_INTERFACE_POPUPSCALE);
+    m_drawScale = g_app->GetMapRenderer()->m_zoomFactor / (1.0f-popupScale*0.1f);
+
+    float resScale = g_windowManager->WindowH() / 800.0f;
+    m_drawScale /= resScale;
     
     //
-    // enable depth testing for 3D sprites
+    // Enable depth testing for 3D sprites
 
-    glEnable(GL_DEPTH_TEST);
-    glClear(GL_DEPTH_BUFFER_BIT);
-    
-    //
-    // enable fog for the main scene
+    g_renderer->SetDepthBuffer(true, false);
 
-    if (!inLobbyMode) {
-        float fogDistanceSetting = (float)g_preferences->GetInt(PREFS_GLOBE_FOG_DISTANCE, 20);
-        float distanceMultiplier = (fogDistanceSetting / 20.0f - 1.0f) * 2.0f + 1.0f;
-        
-        //
-        // scale the camera distance for fog calculations
-        // we pass in fake camera values here to make the
-        // fog render further or closer to the real camera
-        
-        Vector3<float> fogCameraPos = m_globe3DCamera.m_cameraPos;
-        fogCameraPos = fogCameraPos * distanceMultiplier;
-        
-        g_renderer3d->EnableOrientationFog(0.03f, 0.03f, 0.03f, 20.0f,
-                                          fogCameraPos.x,
-                                          fogCameraPos.y,
-                                          fogCameraPos.z);
-    }
+    if(!g_app->IsGlobeMode()) {
+        LobbyCamera();
 
-    if(inLobbyMode) {
+        START_PROFILE("Gridlines");
         GlobeGridlines();
+        END_PROFILE("Gridlines");
     }
-    
+    else 
+    {
+        GameCamera();
+    }
+
+    START_PROFILE("Coastlines");
     GlobeCoastlines();
+    END_PROFILE("Coastlines");
+
+    START_PROFILE("Borders");
     GlobeBorders();
+    END_PROFILE("Borders");
 
     //
-    // disable fog before rendering main scene
+    // Disable fog before rendering main scene
 
     g_renderer3d->DisableFog();
 
-    //
-    // begin star field and globe surface scene
-
+    START_PROFILE("Starfield");
     g_renderer3d->BeginStaticSpriteBatch3D();      // Star field batching
-    g_renderer3d->BeginTriangleFillBatch3D();   // Globe surface batching
-    
-    Render3DGlobeCulling();
     Render3DStarField();
-
-    //
-    // end the globe surface scene
-
-    g_renderer3d->EndTriangleFillBatch3D();     // Flush globe surface triangles
     g_renderer3d->EndStaticSpriteBatch3D();        // Flush star sprites
+    END_PROFILE("Starfield");
     
     //
-    // begin scene main scene
+    // Begin scene main scene
 
-    g_renderer3d->BeginLineBatch3D();      // Unit movement trails
-    g_renderer3d->BeginNuke3DModelBatch3D();    // 3D nuke models (replaces flat nuke sprites)
-    g_renderer3d->BeginStaticSpriteBatch3D();       // Main unit sprites + city icons
-    g_renderer3d->BeginRotatingSpriteBatch3D();   // Rotating sprites (aircraft, but not nukes anymore)
-
-    //
-    // force additive blending after culling has been applied
+    g_renderer3d->BeginLineBatch3D();              // Unit movement trails
+    g_renderer3d->BeginNuke3DModelBatch3D();       // 3D nuke models (replaces flat nuke sprites)
+    g_renderer3d->BeginStaticSpriteBatch3D();      // Main unit sprites + city icons
+    g_renderer3d->BeginRotatingSpriteBatch3D();    // Rotating sprites (aircraft, but not nukes anymore)
 
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
 
-    Render3DGlobeCities();
+    RenderCities();
     Render3DUnits();
     Render3DUnitTrails();
     Render3DGunfire();
@@ -666,9 +452,8 @@ void GlobeRenderer::Render(bool inLobbyMode)
     Render3DSanta();
     Render3DNuke();
 
-
     //
-    // to prevent z-fighting, dont write to depth buffer and set
+    // To prevent z-fighting, dont write to depth buffer and set
     // blend mode to normal for unit trails
 
     g_renderer3d->EndLineBatch3D();        // Flush all unit trails
@@ -685,30 +470,327 @@ void GlobeRenderer::Render(bool inLobbyMode)
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
     
     //
-    // now end the main scene and flush
+    // Now end the main scene and flush
     
     g_renderer3d->EndRotatingSpriteBatch3D();     // Flush all rotating sprites (atlas batching!)
-    g_renderer3d->EndStaticSpriteBatch3D();         // Flush all main unit sprites + city icons (atlas batching!)
-    g_renderer3d->EndNuke3DModelBatch3D();      // Flush all 3D nuke models
+    g_renderer3d->EndStaticSpriteBatch3D();       // Flush all main unit sprites + city icons (atlas batching!)
+    g_renderer3d->EndNuke3DModelBatch3D();        // Flush all 3D nuke models
 
-
-    glDisable(GL_DEPTH_TEST);
+    g_renderer->SetDepthBuffer(false, false);
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
+    
+    RenderDragIcon();
 
-    // reset to 2d viewport
+    g_renderer3d->EndFrame3D();
+
+    END_PROFILE("GlobeRenderer");
+}
+
+void GlobeRenderer::RenderDragIcon()
+{
+    if( !m_draggingCamera ) return;
+    
+    Image *move = g_resource->GetImage( "gui/move.bmp" );
+    if( !move ) return;
+    
     g_renderer->Reset2DViewport();
+    g_renderer->SetBlendMode( Renderer::BlendModeNormal );
+    
+    float iconSize = 48.0f;
+    float iconX = g_inputManager->m_mouseX - iconSize * 0.5f;
+    float iconY = g_inputManager->m_mouseY - iconSize * 0.5f;
+    
+    g_renderer->Blit( move, iconX, iconY, iconSize, iconSize, White );
+}
 
-    g_renderer->BeginStaticSpriteBatch();
-    // render mouse cursor
-    if (g_app->GetMapRenderer()->IsMouseInMapRenderer()) {
-        RenderGlobeMouse();
+void GlobeRenderer::GetWindowBounds( float *left, float *right, float *top, float *bottom )
+{
+    float width = 360.0f * m_zoomFactor;    
+    float aspect = (float) g_windowManager->WindowH() / (float) g_windowManager->WindowW();
+    float height = (360.0f * aspect) * m_zoomFactor;
+
+    *left = m_middleX - width/2.0f;
+    *top = m_middleY + height/2.0f;
+    *right = *left+width;
+    *bottom = *top-height;
+}
+
+void GlobeRenderer::GetCameraPosition( float &longitude, float &latitude, float &distance )
+{
+    longitude = m_cameraLongitude;
+    latitude = m_cameraLatitude;
+    distance = m_cameraDistance;
+}
+
+void GlobeRenderer::SetCameraPosition( float longitude, float latitude, float distance )
+{
+    m_cameraLongitude = longitude;
+    m_cameraLatitude = latitude;
+    m_cameraDistance = distance;
+    
+    //
+    // Clamp values to valid ranges
+
+    Clamp( m_cameraLatitude, -89.0f, 89.0f );
+    Clamp( m_cameraDistance, m_minCameraDistance, m_maxCameraDistance );
+    
+    //
+    // Wrap longitude
+
+    if( m_cameraLongitude < -180.0f ) m_cameraLongitude += 360.0f;
+    if( m_cameraLongitude > 180.0f ) m_cameraLongitude -= 360.0f;
+    
+    float normalizedDistance = (m_cameraDistance - m_minCameraDistance) / (m_maxCameraDistance - m_minCameraDistance);
+    normalizedDistance = fmaxf(0.0f, fminf(1.0f, normalizedDistance));
+    m_zoomFactor = m_minZoomFactor + normalizedDistance * (m_maxZoomFactor - m_minZoomFactor);
+}
+
+void GlobeRenderer::IsCameraIdle(float oldLongitude, float oldLatitude)
+{
+    //
+    // Is the camera idle?
+    
+    if( m_cameraLongitude == oldLongitude && 
+        m_cameraLatitude == oldLatitude )
+    {
+        m_cameraIdleTime += g_advanceTime;
+    }
+    else
+    {
+        m_cameraIdleTime = 0.0f;
+    }
+}
+
+void GlobeRenderer::DragCamera()
+{
+    if( g_inputManager->m_mmb )
+    {
+        g_app->SetMousePointerVisible ( false );
+        
+        float dragSensitivity = 0.15f * (m_zoomFactor / m_maxZoomFactor);
+        m_cameraLongitude -= g_inputManager->m_mouseVelX * dragSensitivity;
+        m_cameraLatitude  += g_inputManager->m_mouseVelY * dragSensitivity;
+        Clamp( m_cameraLatitude, -89.0f, 89.0f );
+        
+        m_draggingCamera = true;
+        m_lockCommands = true;
+    }
+    else if( g_inputManager->m_mmbUnClicked && m_draggingCamera )
+    {
+        m_lockCommands = true;
+    }
+    else
+    {
+        if( !g_app->MousePointerIsVisible() )
+        {
+            g_app->SetMousePointerVisible ( true );
+        }
+        m_draggingCamera = false;
+    }
+}
+
+//
+// Handle keyboard input for camera movement
+
+void GlobeRenderer::UpdateCameraControl()
+{
+    
+    bool ignoreKeys = g_app->GetInterface()->UsingChatWindow();
+    if( ignoreKeys ) return;
+    
+    int keyboardLayout = g_preferences->GetInt( PREFS_INTERFACE_KEYBOARDLAYOUT );
+    int KeyQ = KEY_Q, KeyW = KEY_W, KeyE = KEY_E, KeyA = KEY_A, KeyS = KEY_S, KeyD = KEY_D;
+    
+    switch ( keyboardLayout) {
+    case 2:         // AZERTY
+        KeyQ = KEY_A;
+        KeyW = KEY_Z;
+        KeyA = KEY_Q;
+        break;
+    case 3:         // QZERTY
+        KeyW = KEY_Z;
+        break;
+    case 4:         // DVORAK
+        KeyQ = KEY_QUOTE;
+        KeyW = KEY_COMMA;
+        KeyE = KEY_STOP;
+        KeyS = KEY_O;
+        KeyD = KEY_E;
+        break;
+    default:        // QWERTY/QWERTZ (1) or invalid pref - do nothing
+        break;
+    }
+    
+    //
+    // Handle zoom with Q and E
+    
+    float zoomSpeed = 3.0f * g_advanceTime;
+    if( g_keys[KeyE] && !ignoreKeys ) m_targetCameraDistance += zoomSpeed;
+    if( g_keys[KeyQ] && !ignoreKeys ) m_targetCameraDistance -= zoomSpeed;
+    
+    float mouseWheelDelta = g_inputManager->m_mouseVelZ;
+    if( fabsf(mouseWheelDelta) > 0.001f )
+    {
+        float zoomPreference = g_preferences->GetFloat( PREFS_INTERFACE_ZOOM_SPEED, 1.0f );
+        m_targetCameraDistance -= mouseWheelDelta * zoomPreference * 0.15f;
     }
 
-    g_renderer->EndStaticSpriteBatch();
+    Clamp( m_targetCameraDistance, m_minCameraDistance, m_maxCameraDistance );
+
+    float oldLongitude = m_cameraLongitude;
+    float oldLatitude = m_cameraLatitude;
+
+    IsCameraIdle(oldLongitude, oldLatitude);
+
+    if( g_preferences->GetInt( PREFS_INTERFACE_CAMDRAGGING ) == 1 )
+    {
+        DragCamera();
+    }
+    else
+    {
+        if( !g_app->MousePointerIsVisible() )
+        {
+            g_app->SetMousePointerVisible ( true );
+        }
+    }
     
-    // end draw call tracking
-    g_renderer3d->EndFrame3D();
+    //
+    // Handle rotation with WASD (rotate around globe)
+    
+    float rotationSpeed = 48.0f * g_advanceTime; // degrees per second
+    
+    if( (g_keys[KeyA] || g_keys[KEY_LEFT]) && !ignoreKeys )
+    {
+        m_cameraLongitude -= rotationSpeed;
+    }
+    if( (g_keys[KeyD] || g_keys[KEY_RIGHT]) && !ignoreKeys )
+    {
+        m_cameraLongitude += rotationSpeed;
+    }
+    if( (g_keys[KeyW] || g_keys[KEY_UP]) && !ignoreKeys )
+    {
+        m_cameraLatitude += rotationSpeed;
+    }
+    if( (g_keys[KeyS] || g_keys[KEY_DOWN]) && !ignoreKeys )
+    {
+        m_cameraLatitude -= rotationSpeed;
+    }
+    
+    float distanceDiff = m_targetCameraDistance - m_cameraDistance;
+    if( fabsf(distanceDiff) > 0.0001f )
+    {
+        float factor1 = g_advanceTime * 5.0f;
+        factor1 = fminf(factor1, 1.0f);
+        float factor2 = 1.0f - factor1;
+        m_cameraDistance = m_targetCameraDistance * factor1 + m_cameraDistance * factor2;
+    }
+    else
+    {
+        m_cameraDistance = m_targetCameraDistance;
+    }
+
+    SetCameraPosition(m_cameraLongitude, m_cameraLatitude, m_cameraDistance);  
 }
+
+void GlobeRenderer::GameCamera()
+{
+    float fov = 60.0f;
+    float nearPlane = 0.1f;
+    float farPlane = 10000.0f;
+    float screenW = g_windowManager->WindowW();
+    float screenH = g_windowManager->WindowH();
+
+    g_renderer3d->SetPerspective(fov, screenW / screenH, nearPlane, farPlane);
+
+    //
+    // Convert longitude/latitude to 3D position on sphere
+    // Camera orbits around globe center at distance m_cameraDistance
+    
+    Vector3<float> spherePoint = ConvertLongLatTo3DPosition(m_cameraLongitude, m_cameraLatitude);
+    
+    //
+    // Camera position is spherePoint scaled by distance
+    // Looking at origin (globe center)
+    
+    Vector3<float> cameraPos = spherePoint * m_cameraDistance;
+    Vector3<float> lookAt(0.0f, 0.0f, 0.0f);
+    
+    //
+    // Calculate up vector (always point "north" relative to camera)
+    // Up is perpendicular to camera direction, pointing towards north pole
+    
+    Vector3<float> forward = lookAt - cameraPos;
+    forward.Normalise();
+    
+    Vector3<float> north(0.0f, 1.0f, 0.0f);
+    Vector3<float> right = forward ^ north;
+    right.Normalise();
+    Vector3<float> up = right ^ forward;
+    up.Normalise();
+    
+    m_camFront = forward;
+    m_camUp = up;
+    
+    g_renderer3d->SetLookAt(cameraPos.x, cameraPos.y, cameraPos.z,
+              lookAt.x, lookAt.y, lookAt.z,
+              up.x, up.y, up.z);
+
+    glDisable( GL_CULL_FACE );
+    g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
+    glDisable( GL_DEPTH_TEST );
+
+    g_renderer3d->EnableOrientationFog(0.03f, 0.03f, 0.03f, 20.0f, cameraPos.x, cameraPos.y, cameraPos.z);
+}
+
+void GlobeRenderer::LobbyCamera()
+{
+    float fov = 60.0f;
+    float nearPlane = 0.1f;
+    float farPlane = 10000.0f;
+    float screenW = g_windowManager->WindowW();
+    float screenH = g_windowManager->WindowH();
+
+    g_renderer3d->SetPerspective(fov, screenW / screenH, nearPlane, farPlane);
+
+    static float timeVal = 0.0f;
+    timeVal += g_advanceTime * 1;
+
+    float timeNow = timeVal;
+    float camDist = 1.7f;
+    float camHeight = 0.5f + cosf(timeNow*0.2f) * 0.2f;
+
+    Vector3<float> pos(0.0f,camHeight, camDist);
+    pos.RotateAroundY( timeNow * -0.1f );
+	Vector3<float> requiredFront = pos * -1.0f;
+
+    static Vector3<float> front = Vector3<float>::ZeroVector();
+    float timeFactor = g_advanceTime * 0.3f;
+    front = requiredFront * timeFactor + front * (1-timeFactor);
+
+	Vector3<float> right = front ^ Vector3<float>::UpVector();
+    Vector3<float> up = right ^ front;
+    Vector3<float> forwards = pos + front * 100;
+
+    m_camFront = front;
+    m_camUp = up;
+
+    m_camFront.Normalise();
+    m_camUp.Normalise();
+
+    g_renderer3d->SetLookAt(pos.x, pos.y, pos.z,
+              forwards.x, forwards.y, forwards.z,
+              up.x, up.y, up.z);
+
+    glDisable( GL_CULL_FACE );
+    g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
+    glDisable( GL_DEPTH_TEST );
+
+    g_renderer3d->EnableDistanceFog(camDist/2.0f, camDist*2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.25f);
+}
+
+// ******************************************************************************************************************************
+//                                              Main object rendering functions
+// ******************************************************************************************************************************
 
 void GlobeRenderer::RenderAnimations()
 {
@@ -749,347 +831,16 @@ int GlobeRenderer::CreateAnimation( int animationType, int _fromObjectId, float 
     return index;
 }
 
-
-//
-// camera controls for the 3d globe, to preserve muscle memory
-// we use default DEFCON controls for globe mode
-// and for the lobby remains unchanged
-
-void GlobeRenderer::SetupCamera3d()
+void GlobeRenderer::RenderCities()
 {
-    float fov = 60.0f;
-    float nearPlane = 0.1f;
-    float farPlane = 10000.0f;
-    float screenW = g_windowManager->WindowW();
-    float screenH = g_windowManager->WindowH();
-
-    // replace deprecated matrix operations with 3D renderer
-    g_renderer3d->SetPerspective(fov, screenW / screenH, nearPlane, farPlane);
-
-    static float timeVal = 0.0f;
-    timeVal += g_advanceTime * 1;
-    float timeNow = timeVal;
-    float camDist = 1.7f;       //+sinf(timeNow*0.2f)*0.5f;
-    float camHeight = 0.5f + cosf(timeNow*0.2f) * 0.2f;
-    Vector3<float> pos(0.0f,camHeight, camDist);
-    pos.RotateAroundY( timeNow * -0.1f );
-	Vector3<float> requiredFront = pos * -1.0f;
-
-    static Vector3<float> front = Vector3<float>::ZeroVector();
-    float timeFactor = g_advanceTime * 0.3f;
-    front = requiredFront * timeFactor + front * (1-timeFactor);
-
-	Vector3<float> right = front ^ Vector3<float>::UpVector();
-    Vector3<float> up = right ^ front;
-    Vector3<float> forwards = pos + front * 100;
-
-    m_camFront = front;
-    m_camUp = up;
-
-    m_camFront.Normalise();
-    m_camUp.Normalise();
-
-    // replace gluLookAt with 3D renderer
-    g_renderer3d->SetLookAt(pos.x, pos.y, pos.z,
-              forwards.x, forwards.y, forwards.z,
-              up.x, up.y, up.z);
-
-    // OpenGL 3.3 state management
-    glDisable( GL_CULL_FACE );
-    g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
-    glDisable( GL_DEPTH_TEST );
-
-    // changed function name to enableDistanceFog, as now we have two fog modes
-    // this function remains unchanged but the name has changed for easier differentiation
-    // between fogFactor and fogDistance
-    g_renderer3d->EnableDistanceFog(camDist/2.0f, camDist*2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.25f);
-}
-
-void GlobeRenderer::Update3DGlobeCamera()
-{
-    if (!Is3DGlobeModeEnabled()) return;
-    
-    bool ignoreKeys = g_app->GetInterface()->UsingChatWindow();
-    
-    // handle keyboard layout variations, same as 2d mode
-    int keyboardLayout = g_preferences->GetInt(PREFS_INTERFACE_KEYBOARDLAYOUT);
-    int KeyQ = KEY_Q, KeyW = KEY_W, KeyE = KEY_E, KeyA = KEY_A, KeyS = KEY_S, KeyD = KEY_D;
-    
-    switch (keyboardLayout) {
-        case 2:  // AZERTY
-            KeyQ = KEY_A;
-            KeyW = KEY_Z;
-            KeyA = KEY_Q;
-            break;
-        case 3:  // QZERTY
-            KeyW = KEY_Z;
-            break;
-        case 4:  // DVORAK
-            KeyQ = KEY_QUOTE;
-            KeyW = KEY_COMMA;
-            KeyE = KEY_STOP;
-            KeyS = KEY_O;
-            KeyD = KEY_E;
-            break;
-        default:  // QWERTY/QWERTZ (1) or invalid pref - do nothing
-            break;
-    }
-    
-    // WASD camera rotation
-    if (!ignoreKeys) {
-        float rotationSpeed = 0.75f * g_advanceTime;  // smooth rotation speed
-        
-        if (g_keys[KeyA] || g_keys[KEY_LEFT]) {
-            m_globe3DCamera.m_cameraTheta -= rotationSpeed;
-        }
-        if (g_keys[KeyD] || g_keys[KEY_RIGHT]) {
-            m_globe3DCamera.m_cameraTheta += rotationSpeed;
-        }
-        if (g_keys[KeyW] || g_keys[KEY_UP]) {
-            m_globe3DCamera.m_cameraPhi += rotationSpeed;
-        }
-        if (g_keys[KeyS] || g_keys[KEY_DOWN]) {
-            m_globe3DCamera.m_cameraPhi -= rotationSpeed;
-        }
-        
-        // Q and E for zoom, dont flip these next time :)
-        if (g_keys[KeyE]) {
-            m_globe3DCamera.m_cameraDistance += 5.0f * g_advanceTime;
-        }
-        if (g_keys[KeyQ]) {
-            m_globe3DCamera.m_cameraDistance -= 5.0f * g_advanceTime;
-        }
-        
-        //
-        // clamp vertical rotation and zoom distance according
-        // to the globe size set inside preferences
-
-        m_globe3DCamera.m_cameraPhi = fmaxf(-M_PI/2.0f + 0.1f, fminf(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
-        float globeSize = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
-        float minDistance = 1.5f * globeSize;
-        float maxDistance = 3.0f * globeSize;
-        m_globe3DCamera.m_cameraDistance = fmaxf(minDistance, fminf(maxDistance, m_globe3DCamera.m_cameraDistance));
-        
-        //
-        // update camera position
-        m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
-        m_globe3DCamera.m_cameraPos.y = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraPhi);
-        m_globe3DCamera.m_cameraPos.z = m_globe3DCamera.m_cameraDistance * cos(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
-    }
-    
-    // globe dragging with middle mouse button
-    if (g_inputManager->m_mmb && g_app->GetMapRenderer()->IsMouseInMapRenderer()) {
-        if (!m_globe3DCamera.m_isDragging) {
-            m_globe3DCamera.m_isDragging = true;
-            g_app->SetMousePointerVisible(false);
-        }
-        
-        // use same approach as 2D map renderer
-        // adaptive sensitivity based on zoom level - closer = more sensitive
-        float zoomSensitivity = 1.0f / (m_globe3DCamera.m_cameraDistance * 0.8f + 0.2f);
-        float baseSensitivity = 0.003f * zoomSensitivity;
-        
-        m_globe3DCamera.m_cameraTheta -= g_inputManager->m_mouseVelX * baseSensitivity;
-        m_globe3DCamera.m_cameraPhi += g_inputManager->m_mouseVelY * baseSensitivity;
-        
-        // clamp vertical rotation
-        m_globe3DCamera.m_cameraPhi = fmaxf(-M_PI/2.0f + 0.1f, fminf(M_PI/2.0f - 0.1f, m_globe3DCamera.m_cameraPhi));
-        
-        // update camera position
-        m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sinf(m_globe3DCamera.m_cameraTheta) * cosf(m_globe3DCamera.m_cameraPhi);
-        m_globe3DCamera.m_cameraPos.y = m_globe3DCamera.m_cameraDistance * sinf(m_globe3DCamera.m_cameraPhi);
-        m_globe3DCamera.m_cameraPos.z = m_globe3DCamera.m_cameraDistance * cosf(m_globe3DCamera.m_cameraTheta) * cosf(m_globe3DCamera.m_cameraPhi);
-    } else {
-        if (m_globe3DCamera.m_isDragging) {
-            // show system mouse pointer again when dragging stops
-            if (!g_app->MousePointerIsVisible()) {
-                g_app->SetMousePointerVisible(true);
-            }
-        }
-        m_globe3DCamera.m_isDragging = false;
-    }
-    
-    // mouse wheel zoom
-    if (g_app->GetMapRenderer()->IsMouseInMapRenderer() && g_inputManager->m_mouseVelZ != 0) {
-        m_globe3DCamera.m_cameraDistance += g_inputManager->m_mouseVelZ * -0.1f;
-        float globeSize = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
-        float minDistance = 1.5f * globeSize;
-        float maxDistance = 3.0f * globeSize;
-        m_globe3DCamera.m_cameraDistance = fmaxf(minDistance, fminf(maxDistance, m_globe3DCamera.m_cameraDistance));
-        
-        m_globe3DCamera.m_cameraPos.x = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
-        m_globe3DCamera.m_cameraPos.y = m_globe3DCamera.m_cameraDistance * sin(m_globe3DCamera.m_cameraPhi);
-        m_globe3DCamera.m_cameraPos.z = m_globe3DCamera.m_cameraDistance * cos(m_globe3DCamera.m_cameraTheta) * cos(m_globe3DCamera.m_cameraPhi);
-    }
-}
-
-//
-// this is the function that makes it all happen, we convert 2d coordinates to 3d coordinates
-// the only issue with this which is pretty unavoidable is that the closer we get to the poles
-// the units get squashed, its literally an unsolvable problem.
-
-Vector3<float> GlobeRenderer::ConvertLongLatTo3DPosition(float longitude, float latitude)
-{
-    
-    float lonRad = longitude * M_PI / 180.0f;
-    float latRad = latitude * M_PI / 180.0f;
-    
-    // spherical to cartesian conversion
-    float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
-    Vector3<float> pos(0, 0, globeRadius);
-    pos.RotateAroundY(lonRad);
-    Vector3<float> right = pos ^ Vector3<float>(0, 1, 0);
-    right.Normalise();
-    pos.RotateAround(right * latRad);
-    
-    return pos;
-}
-
-//
-// simple culling writes depth values but no color, creating an invisible mask
-
-void GlobeRenderer::Render3DGlobeCulling(bool inLobbyMode)
-{
-    // disable color writing, we only want to write to depth buffer
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-    glDepthMask(GL_TRUE);
-    
-    // use a transparent color 
-    Colour invisibleColor(0, 0, 0, 0);
-    
-    // render the same globe geometry as the visible surface
-    int segments = 32; 
-    float radius = (inLobbyMode ? 1.0f : g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f)) * 0.998f;
-    Vector3<float> center(0.0f, 0.0f, 0.0f);
-    
-    // render filled sphere using 3D renderer triangle system
-    for (int lat = 0; lat < segments; ++lat) {
-        float theta1 = M_PI * lat / segments - M_PI/2;
-        float theta2 = M_PI * (lat + 1) / segments - M_PI/2;
-        
-        for (int lon = 0; lon < segments; ++lon) {
-            float phi1 = 2.0f * M_PI * lon / segments;
-            float phi2 = 2.0f * M_PI * (lon + 1) / segments;
-            
-            // Calculate the 4 vertices of this quad
-            float x1 = radius * cosf(theta1) * cosf(phi1);
-            float y1 = radius * sinf(theta1);
-            float z1 = radius * cosf(theta1) * sinf(phi1);
-            
-            float x2 = radius * cosf(theta1) * cosf(phi2);
-            float y2 = radius * sinf(theta1);
-            float z2 = radius * cosf(theta1) * sinf(phi2);
-            
-            float x3 = radius * cosf(theta2) * cosf(phi2);
-            float y3 = radius * sinf(theta2);
-            float z3 = radius * cosf(theta2) * sinf(phi2);
-            
-            float x4 = radius * cosf(theta2) * cosf(phi1);
-            float y4 = radius * sinf(theta2);
-            float z4 = radius * cosf(theta2) * sinf(phi1);
-            
-            // First triangle: 1, 2, 3
-            g_renderer3d->TriangleFill3D(center.x + x1, center.y + y1, center.z + z1,
-                                               center.x + x2, center.y + y2, center.z + z2,
-                                               center.x + x3, center.y + y3, center.z + z3, invisibleColor);
-            
-            // Second triangle: 1, 3, 4
-            g_renderer3d->TriangleFill3D(center.x + x1, center.y + y1, center.z + z1,
-                                               center.x + x3, center.y + y3, center.z + z3,
-                                               center.x + x4, center.y + y4, center.z + z4, invisibleColor);
-        }
-    }
-    
-    // re-enable color writing
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-}
-
-//
-// create the same projection matrix as g_renderer3d->SetPerspective
-// and the same view matrix as g_renderer3d->SetLookAt
-
-Vector3<float> GlobeRenderer::Project3DToScreen(const Vector3<float>& worldPos)
-{
-    float aspect = (float)g_windowManager->WindowW() / (float)g_windowManager->WindowH();
-    
-    Matrix4f3D projection;
-    projection.Perspective(60.0f, aspect, 0.1f, 100.0f);
-     
-    Matrix4f3D modelView;
-    modelView.LookAt(
-        m_globe3DCamera.m_cameraPos.x, m_globe3DCamera.m_cameraPos.y, m_globe3DCamera.m_cameraPos.z,
-        m_globe3DCamera.m_cameraTarget.x, m_globe3DCamera.m_cameraTarget.y, m_globe3DCamera.m_cameraTarget.z,
-        m_globe3DCamera.m_cameraUp.x, m_globe3DCamera.m_cameraUp.y, m_globe3DCamera.m_cameraUp.z
-    );
-    
-    // transform by model-view matrix
-    Vector3<float> viewPos;
-    viewPos.x = modelView.m[0] * worldPos.x + modelView.m[4] * worldPos.y + modelView.m[8] * worldPos.z + modelView.m[12];
-    viewPos.y = modelView.m[1] * worldPos.x + modelView.m[5] * worldPos.y + modelView.m[9] * worldPos.z + modelView.m[13];
-    viewPos.z = modelView.m[2] * worldPos.x + modelView.m[6] * worldPos.y + modelView.m[10] * worldPos.z + modelView.m[14];
-    float w = modelView.m[3] * worldPos.x + modelView.m[7] * worldPos.y + modelView.m[11] * worldPos.z + modelView.m[15];
-    
-    // transform by projection matrix
-    Vector3<float> clipPos;
-    float clipW;
-    clipPos.x = projection.m[0] * viewPos.x + projection.m[4] * viewPos.y + projection.m[8] * viewPos.z + projection.m[12] * w;
-    clipPos.y = projection.m[1] * viewPos.x + projection.m[5] * viewPos.y + projection.m[9] * viewPos.z + projection.m[13] * w;
-    clipPos.z = projection.m[2] * viewPos.x + projection.m[6] * viewPos.y + projection.m[10] * viewPos.z + projection.m[14] * w;
-    clipW = projection.m[3] * viewPos.x + projection.m[7] * viewPos.y + projection.m[11] * viewPos.z + projection.m[15] * w;
-    
-    // check if point is behind camera
-    if (clipW <= 0.001f) {
-        return Vector3<float>(-1000, -1000, -1);
-    }
-    
-    Vector3<float> ndcPos;
-    ndcPos.x = clipPos.x / clipW;
-    ndcPos.y = clipPos.y / clipW;
-    ndcPos.z = clipPos.z / clipW;
-     
-    if (ndcPos.x < -1.0f || ndcPos.x > 1.0f || ndcPos.y < -1.0f || ndcPos.y > 1.0f) {
-        return Vector3<float>(-1000, -1000, -1);
-    }
-    
-    // convert NDC to screen coordinates
-    int screenW = g_windowManager->WindowW();
-    int screenH = g_windowManager->WindowH();
-    
-    float screenX = (ndcPos.x + 1.0f) * 0.5f * screenW;
-    float screenY = (ndcPos.y + 1.0f) * 0.5f * screenH;
-    
-    screenY = screenH - screenY;
-    
-    return Vector3<float>(screenX, screenY, -viewPos.z);
-}
-
-// ******************************************************************************************************************************
-//                                              Main object rendering functions
-// ******************************************************************************************************************************
-
-void GlobeRenderer::Render3DGlobeCities()
-{
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     Image *cityImg = g_resource->GetImage("graphics/city.bmp");
     if (!cityImg) return;
     
-    // these are added but not actually used, i had alot of issues with city names
-    bool showCityNames = g_preferences->GetInt(PREFS_GRAPHICS_CITYNAMES);
-    bool showCountryNames = g_preferences->GetInt(PREFS_GRAPHICS_COUNTRYNAMES);
-    
-    // zoom does not affect city size
-    float normalizedDistance = (m_globe3DCamera.m_cameraDistance - 1.5f) / 8.5f;
-    float equivalent2DZoom = 1.0f - normalizedDistance;
-    equivalent2DZoom = fmaxf(0.05f, fminf(1.0f, equivalent2DZoom));
-    
-    // fade based on zoom 
-    float zoomFactorEquivalent = 1.0f - equivalent2DZoom;
-    Colour cityNameColor(120, 180, 255, 255);
-    Colour countryNameColor(150, 255, 150, 255);
-    cityNameColor.m_a = 200.0f * (1.0f - sqrtf(zoomFactorEquivalent));
-    countryNameColor.m_a = 200.0f * (1.0f - sqrtf(zoomFactorEquivalent));
-    
+    // derive current camera world position from the globe camera state
+    Vector3<float> camSpherePoint = ConvertLongLatTo3DPosition(m_cameraLongitude, m_cameraLatitude);
+    Vector3<float> cameraPos = camSpherePoint * m_cameraDistance;
     
     struct CityRenderInfo {
         City* city;
@@ -1120,11 +871,10 @@ void GlobeRenderer::Render3DGlobeCities()
             Colour col(100, 100, 100, 200);
             if (city->m_teamId > -1) {
                 col = g_app->GetWorld()->GetTeam(city->m_teamId)->GetTeamColour();
-                float alphaZoomFactor = fminf(0.8f, zoomFactorEquivalent);
-                col.m_a = 200.0f * (1.0f - alphaZoomFactor);
+                col.m_a = 200.0f * (1.0f);
             }
             
-            Vector3<float> cameraToCity = cityPos - m_globe3DCamera.m_cameraPos;
+            Vector3<float> cameraToCity = cityPos - cameraPos;
             float distance = cameraToCity.Mag();
             
             CityRenderInfo info;
@@ -1159,39 +909,6 @@ void GlobeRenderer::Render3DGlobeCities()
         
         g_renderer3d->StaticSprite3D(cityImg, cityPos.x, cityPos.y, cityPos.z, size * 2.0f, size * 2.0f, col, BILLBOARD_SURFACE_ALIGNED);
     }
-    
-    // currently not used, i had alot of issues with city names
-    if ((showCityNames || showCountryNames) && cityNameColor.m_a > 10.0f) {
-        float textSize = 12.0f;
-        if (equivalent2DZoom > 0.5f) {
-            textSize = 12.0f + (equivalent2DZoom - 0.5f) * 16.0f;
-        }
-        textSize = fminf(textSize, 24.0f);
-        
-        float worldTextSize = textSize * 0.0008f;
-        
-        for (int i = 0; i < visibleCities.Size(); i++) {
-            CityRenderInfo& info = visibleCities[i];
-            City* city = info.city;
-            Vector3<float> cityPos = info.worldPos;
-            
-            Vector3<float> normal = cityPos;
-            normal.Normalise();
-            
-            Vector3<float> up = Vector3<float>(0.0f, 1.0f, 0.0f);
-            if (fabsf(normal.y) > 0.9f) {
-                up = Vector3<float>(1.0f, 0.0f, 0.0f);
-            }
-            
-            Vector3<float> tangent1 = normal ^ up;
-            tangent1.Normalise();
-            Vector3<float> tangent2 = normal ^ tangent1;
-            tangent2.Normalise();
-            
-            Vector3<float> textBasePos = cityPos + normal * 0.003f - tangent2 * (info.size + worldTextSize);
-            
-        }
-    }
 }
 
 //
@@ -1200,7 +917,10 @@ void GlobeRenderer::Render3DGlobeCities()
 
 void GlobeRenderer::Render3DUnits()
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
+    
+    Vector3<float> camSpherePoint = ConvertLongLatTo3DPosition(m_cameraLongitude, m_cameraLatitude);
+    Vector3<float> cameraPos = camSpherePoint * m_cameraDistance;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -1232,13 +952,13 @@ void GlobeRenderer::Render3DUnits()
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
-                               g_app->GetMapRenderer()->GetRenderEverything());
+                               m_renderEverything);
             
             bool renderAsGhost = false;
             if (!shouldRender) {
                 // Render as ghost if our team has seen this unit before
                 if (myTeamId != -1 &&
-                    !g_app->GetMapRenderer()->GetRenderEverything() &&
+                    !m_renderEverything &&
                     wobj->m_lastSeenTime[myTeamId] > 0)
                 {
                     renderAsGhost = true;
@@ -1360,7 +1080,7 @@ void GlobeRenderer::Render3DUnits()
             }
             
             // calculate distance to the camera for sorting
-            Vector3<float> cameraToUnit = unitPos - m_globe3DCamera.m_cameraPos;
+            Vector3<float> cameraToUnit = unitPos - cameraPos;
             float distance = cameraToUnit.Mag();
             
             UnitRenderInfo info;
@@ -1625,7 +1345,7 @@ void GlobeRenderer::Render3DUnits()
 
 void GlobeRenderer::Render3DUnitTrails()
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     if (g_preferences->GetInt(PREFS_GRAPHICS_TRAILS) != 1) return;
     
@@ -1647,7 +1367,7 @@ void GlobeRenderer::Render3DUnitTrails()
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
-                               g_app->GetMapRenderer()->GetRenderEverything());
+                               m_renderEverything);
             
             if (!shouldRender) continue;
             
@@ -1738,7 +1458,10 @@ void GlobeRenderer::Render3DUnitTrails()
 //
 void GlobeRenderer::Render3DNuke()
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
+    
+    Vector3<float> camSpherePoint = ConvertLongLatTo3DPosition(m_cameraLongitude, m_cameraLatitude);
+    Vector3<float> cameraPos = camSpherePoint * m_cameraDistance;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -1767,7 +1490,7 @@ void GlobeRenderer::Render3DNuke()
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
-                               g_app->GetMapRenderer()->GetRenderEverything());
+                               m_renderEverything);
             
             if (!shouldRender) continue;
             
@@ -1788,7 +1511,7 @@ void GlobeRenderer::Render3DNuke()
             }
             
             // calculate distance to the camera for sorting
-            Vector3<float> cameraToUnit = unitPos - m_globe3DCamera.m_cameraPos;
+            Vector3<float> cameraToUnit = unitPos - cameraPos;
             float distance = cameraToUnit.Mag();
             
             NukeRenderInfo info;
@@ -1864,7 +1587,7 @@ void GlobeRenderer::Render3DNuke()
 
 void GlobeRenderer::Render3DNukeTrajectories()
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     if (g_preferences->GetInt(PREFS_GRAPHICS_TRAILS) != 1) return;
     
@@ -1885,7 +1608,7 @@ void GlobeRenderer::Render3DNukeTrajectories()
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
-                               g_app->GetMapRenderer()->GetRenderEverything());
+                               m_renderEverything);
             
             if (!shouldRender) continue;
             
@@ -1972,7 +1695,7 @@ void GlobeRenderer::Render3DNukeTrajectories()
 
 void GlobeRenderer::Render3DGunfire()
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -1984,7 +1707,7 @@ void GlobeRenderer::Render3DGunfire()
             bool shouldRender = (myTeamId == -1 ||
                                gunfire->m_teamId == myTeamId ||
                                gunfire->m_visible[myTeamId] ||
-                               g_app->GetMapRenderer()->GetRenderEverything());
+                               m_renderEverything);
             
             if (!shouldRender) continue;
             
@@ -2163,7 +1886,7 @@ void GlobeRenderer::Render3DGunfire()
 
 void GlobeRenderer::Render3DExplosions()
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -2173,7 +1896,7 @@ void GlobeRenderer::Render3DExplosions()
             
             bool shouldRender = (myTeamId == -1 ||
                                explosion->m_visible[myTeamId] ||
-                               g_app->GetMapRenderer()->GetRenderEverything());
+                               m_renderEverything);
             
             if (!shouldRender) continue;
             
@@ -2249,7 +1972,7 @@ void GlobeRenderer::Render3DExplosions()
 
 void GlobeRenderer::Render3DNukeSymbols()
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -2340,7 +2063,7 @@ void GlobeRenderer::Render3DNukeSymbols()
 
 void GlobeRenderer::Render3DWorldObjectTargets()
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     // check if orders overlay is enabled
     if (!g_app->GetMapRenderer()->m_showOrders) return;
@@ -2466,7 +2189,7 @@ void GlobeRenderer::Render3DWorldObjectTargets()
 
 void GlobeRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vector3<float>& toPos, const Colour& col, bool animate)
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     // convert 3D positions back to longitude/latitude for proper great circle calculation
     Vector3<float> fromNorm = fromPos;
@@ -2557,7 +2280,7 @@ void GlobeRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vect
 
 void GlobeRenderer::Render3DWhiteBoard()
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     if (!g_app->GetMapRenderer()->GetShowWhiteBoard() && !g_app->GetMapRenderer()->GetEditWhiteBoard()) {
         return;
@@ -2668,7 +2391,7 @@ void GlobeRenderer::Render3DWhiteBoard()
 
 void GlobeRenderer::Render3DPopulationDensity()
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     if (!g_app->GetMapRenderer()->m_showPopulation) return;
     
@@ -2715,7 +2438,7 @@ void GlobeRenderer::Render3DPopulationDensity()
 
 void GlobeRenderer::Render3DNukeHighlights()
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     if (!g_app->GetMapRenderer()->m_showNukeUnits) return;
     
@@ -2767,7 +2490,7 @@ void GlobeRenderer::Render3DNukeHighlights()
 
 void GlobeRenderer::Render3DUnitHighlight(int objectId)
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     WorldObject *obj = g_app->GetWorld()->GetWorldObject(objectId);
     if (!obj) return;
@@ -2865,7 +2588,7 @@ void GlobeRenderer::Render3DUnitHighlight(int objectId)
 
 void GlobeRenderer::Render3DAnimations()
 {
-    if (!Is3DGlobeModeEnabled()) return;
+    if (!g_app->IsGlobeMode()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -3031,7 +2754,7 @@ void GlobeRenderer::Render3DAnimations()
 void GlobeRenderer::Render3DSanta()
 {
 #ifdef ENABLE_SANTA_EASTEREGG
-	if ( !Is3DGlobeModeEnabled() ) return;
+	if ( !g_app->IsGlobeMode()) return;
 	
 	if ( g_app->GetWorld()->m_santaAlive )
 	{
@@ -3293,7 +3016,7 @@ float GlobeRenderer::CalculateBallisticHeight(float totalDistanceRadians, float 
 
 float GlobeRenderer::CalculateUnitElevation(WorldObject* wobj)
 {
-    if (!Is3DGlobeModeEnabled() || !wobj) return 0.0f;
+    if (!g_app->IsGlobeMode() || !wobj) return 0.0f;
     
     return 0.002f;
 }
@@ -3303,7 +3026,7 @@ float GlobeRenderer::CalculateUnitElevation(WorldObject* wobj)
 
 Vector3<float> GlobeRenderer::CalculateNuke3DPosition(Nuke* nuke)
 {
-    if (!Is3DGlobeModeEnabled() || !nuke) {
+    if (!g_app->IsGlobeMode() || !nuke) {
         return Vector3<float>(0, 0, 0);
     }
     
@@ -3378,7 +3101,7 @@ Vector3<float> GlobeRenderer::CalculateNuke3DPosition(Nuke* nuke)
 
 Vector3<float> GlobeRenderer::CalculateHistoricalNuke3DPosition(Nuke* nuke, const Vector3<Fixed>& historicalPos)
 {
-    if (!Is3DGlobeModeEnabled() || !nuke) {
+    if (!g_app->IsGlobeMode() || !nuke) {
         return Vector3<float>(0, 0, 0);
     }
     
@@ -3444,7 +3167,7 @@ Vector3<float> GlobeRenderer::CalculateHistoricalNuke3DPosition(Nuke* nuke, cons
 
 Vector3<float> GlobeRenderer::CalculateGunfire3DPosition(GunFire* gunfire)
 {
-    if (!Is3DGlobeModeEnabled() || !gunfire) {
+    if (!g_app->IsGlobeMode() || !gunfire) {
         return Vector3<float>(0, 0, 0);
     }
     
@@ -3511,7 +3234,7 @@ Vector3<float> GlobeRenderer::CalculateGunfire3DPosition(GunFire* gunfire)
 
 Vector3<float> GlobeRenderer::CalculateHistoricalNuke3DPositionByAge(Nuke* nuke, const Vector3<Fixed>& historicalPos, float historicalProgress)
 {
-    if (!Is3DGlobeModeEnabled() || !nuke) {
+    if (!g_app->IsGlobeMode() || !nuke) {
         return Vector3<float>(0, 0, 0);
     }
     
@@ -3557,4 +3280,55 @@ Vector3<float> GlobeRenderer::CalculateHistoricalNuke3DPositionByAge(Nuke* nuke,
     normal.Normalise();
     
     return surfacePos + normal * height;
+}
+
+//
+// these functions convert between menu values and internal values
+
+float GlobeRenderer::ConvertMenuToLandUnitSize(float menuValue) {
+    float baseValue = 0.0075f;
+    float scaleFactor = 0.002f;
+    return baseValue + (menuValue - 1.0f) * scaleFactor;
+}
+
+float GlobeRenderer::ConvertLandUnitSizeToMenu(float internalValue) {
+    float baseValue = 0.0075f;
+    float scaleFactor = 0.002f;
+    return 1.0f + (internalValue - baseValue) / scaleFactor;
+}
+
+float GlobeRenderer::ConvertMenuToNavalUnitSize(float menuValue) {
+    float baseValue = 0.015f;
+    float scaleFactor = 0.005f;
+    return baseValue + (menuValue - 1.0f) * scaleFactor;
+}
+
+float GlobeRenderer::ConvertNavalUnitSizeToMenu(float internalValue) {
+    float baseValue = 0.015f;
+    float scaleFactor = 0.005f;
+    return 1.0f + (internalValue - baseValue) / scaleFactor;
+}
+
+float GlobeRenderer::ConvertMenuToFogDensity(float menuValue) {
+    float baseValue = 0.03f;
+    float scaleFactor = 0.03f;
+    return baseValue + (menuValue - 1.0f) * scaleFactor;
+}
+
+float GlobeRenderer::ConvertFogDensityToMenu(float internalValue) {
+    float baseValue = 0.03f;
+    float scaleFactor = 0.03f;
+    return 1.0f + (internalValue - baseValue) / scaleFactor;
+}
+
+float GlobeRenderer::ConvertMenuToStarSize(float menuValue) {
+    float baseValue = 0.032f;
+    float scaleFactor = 0.005f;
+    return baseValue + (menuValue - 1.0f) * scaleFactor;
+}
+
+float GlobeRenderer::ConvertStarSizeToMenu(float internalValue) {
+    float baseValue = 0.032f;
+    float scaleFactor = 0.005f;
+    return 1.0f + (internalValue - baseValue) / scaleFactor;
 }

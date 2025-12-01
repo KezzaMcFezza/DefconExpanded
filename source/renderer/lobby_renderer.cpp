@@ -100,8 +100,7 @@ void LobbyRenderer::InitialiseLanguage()
 
 void LobbyRenderer::Render3DScene()
 {
-    g_app->GetGlobeRenderer()->Render(true);
-    g_app->GetGlobeRenderer()->SetupCamera3d();
+    g_app->GetGlobeRenderer()->Render();
 }
 
 void LobbyRenderer::Render()
@@ -123,14 +122,7 @@ void LobbyRenderer::Render()
 
     if( g_preferences->GetInt(PREFS_GRAPHICS_LOBBYEFFECTS) == 1 )
     {
-
-        START_PROFILE( "Lobby Globe" );
         Render3DScene();
-        END_PROFILE( "Lobby Globe" );
-
-        //START_PROFILE( "CityDetails" );
-        //RenderCityDetails();
-        //END_PROFILE( "CityDetails" );
     }
 
     g_renderer->Reset2DViewport();

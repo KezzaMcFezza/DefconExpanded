@@ -40,7 +40,6 @@
 #include "renderer/globe_renderer.h"
 #include "renderer/animated_icon.h"
 
-
 #include "world/world.h"
 #include "world/earthdata.h"
 #include "world/worldobject.h"
@@ -193,15 +192,6 @@ void MapRenderer::Render()
     //
     // Render it!
 
-    // for 3d globe mode we switch rendering contexts
-    // its amazing how quickly this happens
-    if (g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled()) {
-        g_app->GetGlobeRenderer()->Render(false);
-        END_PROFILE( "MapRenderer" );
-        return;
-    }
-
-    // Standard 2D map rendering continues below
     float mapColourFader = 1.0f;
     Team *myTeam = g_app->GetWorld()->GetMyTeam();
     if( myTeam ) mapColourFader = myTeam->m_teamColourFader;
@@ -4030,12 +4020,6 @@ void MapRenderer::Update()
         }
     }
 #endif
-    
-    // Update 3D camera if in globe mode
-    if( g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled() ) {
-        g_app->GetGlobeRenderer()->Update3DGlobeCamera();
-        return;
-    }
 
     UpdateMouseIdleTime();
 

@@ -71,9 +71,7 @@ bool MovingObject::Update()
     //
     // Update history, but first check if we are in 3D globe mode
     
-    bool is3DGlobeMode = g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled();
-    
-    if (is3DGlobeMode) {
+    if (g_app->IsGlobeMode()) {
         float samplingRate = 0.5f; 
         if (m_type == WorldObject::TypeNuke) {
             samplingRate = 0.5f;  // reduced from 0.25f to match other units for performance reasons
@@ -609,15 +607,13 @@ void MovingObject::RenderHistory()
     int sizeCap = (int)(80 * g_app->GetMapRenderer()->GetZoomFactor() );
     sizeCap /= World::GetGameScale().DoubleValue();
 
-    bool is3DGlobeMode = g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled();
-
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
     {
         switch( m_type )
         {
             case TypeNuke:
                 sizeCap = 12 * g_app->GetMapRenderer()->GetZoomFactor();
-                if (is3DGlobeMode) {
+                if (g_app->IsGlobeMode()) {
                     sizeCap *= 4;
                 }
                 if( g_app->GetMapRenderer()->GetZoomFactor() < 0.25f )
@@ -629,7 +625,7 @@ void MovingObject::RenderHistory()
             case TypeBattleShip:
             case TypeCarrier:
             case TypeSub:
-                if (is3DGlobeMode) {
+                if (g_app->IsGlobeMode()) {
                     sizeCap *= 4;
                 }
                 break;
@@ -642,7 +638,7 @@ void MovingObject::RenderHistory()
     }
     else
     {
-        if (is3DGlobeMode) {
+        if (g_app->IsGlobeMode()) {
             if( m_type == TypeNuke )
             {
                 sizeCap *= 4;
@@ -673,7 +669,7 @@ void MovingObject::RenderHistory()
         myTeamId < g_app->GetWorld()->m_teams.Size() &&
         g_app->GetWorld()->GetTeam(myTeamId)->m_type != Team::TypeUnassigned )
     {
-        if (is3DGlobeMode) {
+        if (g_app->IsGlobeMode()) {
             int enemyTrailLimit = (m_type == TypeNuke) ? 16 : 16;  
             maxSize = min( maxSize, enemyTrailLimit );
         } else {

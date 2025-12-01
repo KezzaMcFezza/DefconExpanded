@@ -46,6 +46,7 @@ public:                 // STARTUP OPTIONS
     float       m_gameStartTimer;
     bool        m_hidden;
     bool        m_inited;
+    bool        m_globeMode;
 
     World       *m_world;
 
@@ -107,6 +108,7 @@ public:
     void    ReinitialiseWindow();                   // Window already exists, destroy first
     void    OnWindowResized(int newWidth, int newHeight, int oldWidth, int oldHeight);
     void    InitStatusIcon();
+    bool    IsGlobeMode();
     void    InitFonts();
     void    InitialiseTestBed();
 	void    RestartAmbienceMusic();                 // Restart the Ambience sounds and Music if necessary (call after applying mods)

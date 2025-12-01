@@ -310,14 +310,13 @@ class InfoWindowButton : public ToolbarButton
 class ToggleGlobeButton : public ToolbarButton
 {
     void Render( int realX, int realY, bool highlighted, bool clicked )
-    {
-        m_toggle = g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled();
-        
+    {  
+        m_toggle = g_app->m_globeMode;
         ToolbarButton::Render( realX, realY, highlighted, clicked );
     }
     void MouseUp()
     {
-        g_app->GetGlobeRenderer()->Toggle3DGlobeMode();
+        g_app->m_globeMode = !g_app->m_globeMode;
     }
 };
 
@@ -563,7 +562,7 @@ void Toolbar::Create()
     ToggleBoolButton *radar = new ToggleBoolButton();
     radar->SetProperties( "Radar", x+=gap, y, iconSize, iconSize, "dialog_toolbar_radar", "tooltip_toolbar_radar", true, true );  
     radar->m_value = &g_app->GetMapRenderer()->m_showRadar;
-    radar->m_disabled = g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled(); // disabled for now in globe mode
+    radar->m_disabled = g_app->m_globeMode;
     strcpy(radar->m_iconFilename, "gui/tb_radar.bmp");
     RegisterButton( radar );
 
@@ -582,7 +581,7 @@ void Toolbar::Create()
     ToggleBoolButton *territory = new ToggleBoolButton();
     territory->SetProperties( "Territory", x+=gap, y, iconSize, iconSize, "dialog_toolbar_territory", "tooltip_toolbar_territory", true, true );
     territory->m_value = &g_app->GetMapRenderer()->m_showAllTeams;
-    territory->m_disabled = g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled(); // disabled for now in globe mode
+    territory->m_disabled = g_app->m_globeMode;
     strcpy(territory->m_iconFilename, "gui/tb_territory.bmp");
     RegisterButton( territory );
 

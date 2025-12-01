@@ -248,7 +248,6 @@ public:
     bool    GetShowWhiteBoard() { return m_showWhiteBoard; }
     bool    GetEditWhiteBoard() { return m_editWhiteBoard; }
     bool    ShowAllWhiteBoards() { return m_showAllWhiteBoards; }
-    bool    GetRenderEverything() { return m_renderEverything; }
 
     void    GetPosition( float &_middleX, float &_middleY );
 
