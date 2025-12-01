@@ -31,6 +31,7 @@
 
 #include "lobby_renderer.h"
 #include "map_renderer.h"
+#include "globe_renderer.h"
 
 
 LobbyRenderer::LobbyRenderer()
@@ -99,8 +100,8 @@ void LobbyRenderer::InitialiseLanguage()
 
 void LobbyRenderer::Render3DScene()
 {
-    g_app->GetMapRenderer()->Render3DGlobe(true);
-    g_app->GetMapRenderer()->SetupCamera3d();
+    g_app->GetGlobeRenderer()->Render(true);
+    g_app->GetGlobeRenderer()->SetupCamera3d();
 }
 
 void LobbyRenderer::Render()

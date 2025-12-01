@@ -28,6 +28,7 @@
 #include "interface/toolbar.h"
 
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 #include "renderer/animated_icon.h"
 
 #include "lib/render/renderer_debug_menu.h"
@@ -42,6 +43,28 @@
 
 #include "curves.h"
 
+GlobeRenderer::GlobeRenderer()
+:   m_3DGlobeMode(false)
+{
+}
+
+GlobeRenderer::~GlobeRenderer()
+{
+    Reset();
+}
+
+void GlobeRenderer::Init()
+{
+    Reset();
+}
+
+
+void GlobeRenderer::Reset()
+{
+    m_animations.EmptyAndDelete();
+
+}
+
 // ******************************************************************************************************************************
 //                                              Globe Options Menu Value Conversion Functions
 // ******************************************************************************************************************************
@@ -49,49 +72,49 @@
 //
 // these functions convert between menu values and internal values
 
-float MapRenderer::ConvertMenuToLandUnitSize(float menuValue) {
+float GlobeRenderer::ConvertMenuToLandUnitSize(float menuValue) {
     float baseValue = 0.0075f;
     float scaleFactor = 0.002f;
     return baseValue + (menuValue - 1.0f) * scaleFactor;
 }
 
-float MapRenderer::ConvertLandUnitSizeToMenu(float internalValue) {
+float GlobeRenderer::ConvertLandUnitSizeToMenu(float internalValue) {
     float baseValue = 0.0075f;
     float scaleFactor = 0.002f;
     return 1.0f + (internalValue - baseValue) / scaleFactor;
 }
 
-float MapRenderer::ConvertMenuToNavalUnitSize(float menuValue) {
+float GlobeRenderer::ConvertMenuToNavalUnitSize(float menuValue) {
     float baseValue = 0.015f;
     float scaleFactor = 0.005f;
     return baseValue + (menuValue - 1.0f) * scaleFactor;
 }
 
-float MapRenderer::ConvertNavalUnitSizeToMenu(float internalValue) {
+float GlobeRenderer::ConvertNavalUnitSizeToMenu(float internalValue) {
     float baseValue = 0.015f;
     float scaleFactor = 0.005f;
     return 1.0f + (internalValue - baseValue) / scaleFactor;
 }
 
-float MapRenderer::ConvertMenuToFogDensity(float menuValue) {
+float GlobeRenderer::ConvertMenuToFogDensity(float menuValue) {
     float baseValue = 0.03f;
     float scaleFactor = 0.03f;
     return baseValue + (menuValue - 1.0f) * scaleFactor;
 }
 
-float MapRenderer::ConvertFogDensityToMenu(float internalValue) {
+float GlobeRenderer::ConvertFogDensityToMenu(float internalValue) {
     float baseValue = 0.03f;
     float scaleFactor = 0.03f;
     return 1.0f + (internalValue - baseValue) / scaleFactor;
 }
 
-float MapRenderer::ConvertMenuToStarSize(float menuValue) {
+float GlobeRenderer::ConvertMenuToStarSize(float menuValue) {
     float baseValue = 0.032f;
     float scaleFactor = 0.005f;
     return baseValue + (menuValue - 1.0f) * scaleFactor;
 }
 
-float MapRenderer::ConvertStarSizeToMenu(float internalValue) {
+float GlobeRenderer::ConvertStarSizeToMenu(float internalValue) {
     float baseValue = 0.032f;
     float scaleFactor = 0.005f;
     return 1.0f + (internalValue - baseValue) / scaleFactor;
@@ -121,9 +144,9 @@ static bool g_starField3DInitialized = false;
 //
 // render mouse cursor and UI elements for 3D globe mode
 
-void MapRenderer::RenderGlobeMouse()
+void GlobeRenderer::RenderGlobeMouse()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     // get mouse screen position
     int mouseScreenX = g_inputManager->m_mouseX;
@@ -152,9 +175,9 @@ void MapRenderer::RenderGlobeMouse()
 // convert screen coordinates to globe surface position
 // simplified approach using basic raysphere intersection
 
-Vector3<float> MapRenderer::ScreenToGlobePosition(int screenX, int screenY)
+Vector3<float> GlobeRenderer::ScreenToGlobePosition(int screenX, int screenY)
 {
-    if (!m_3DGlobeMode) {
+    if (!Is3DGlobeModeEnabled()) {
         return Vector3<float>(0, 0, 0);
     }
     
@@ -219,7 +242,7 @@ Vector3<float> MapRenderer::ScreenToGlobePosition(int screenX, int screenY)
 //
 // generate random star field around the globe
 
-void MapRenderer::Generate3DStarField()
+void GlobeRenderer::Generate3DStarField()
 {
     if (g_starField3DInitialized) return;
     
@@ -242,7 +265,7 @@ void MapRenderer::Generate3DStarField()
         star.position.z = starSphereRadius * cos(theta) * cos(phi);
         
         float menuStarSize = g_preferences->GetFloat(PREFS_GLOBE_STAR_SIZE, 1.0f);
-        float internalStarSize = MapRenderer::ConvertMenuToStarSize(menuStarSize);
+        float internalStarSize = GlobeRenderer::ConvertMenuToStarSize(menuStarSize);
         float sizeVariation = internalStarSize * 0.5f;
         star.size = internalStarSize + frand(sizeVariation) - (sizeVariation * 0.5f); 
         
@@ -264,14 +287,14 @@ void MapRenderer::Generate3DStarField()
 //
 // clean up star field 
 
-void MapRenderer::Cleanup3DStarField()
+void GlobeRenderer::Cleanup3DStarField()
 {
     g_starField3D.Empty();
     g_starField3DInitialized = false;
     AppDebugOut("3D Star Field: Cleaned up star field\n");
 }
 
-void MapRenderer::Regenerate3DStarField()
+void GlobeRenderer::Regenerate3DStarField()
 {
     Cleanup3DStarField();
     Generate3DStarField();
@@ -281,7 +304,7 @@ void MapRenderer::Regenerate3DStarField()
 //
 // render the star field background
 
-void MapRenderer::Render3DStarField()
+void GlobeRenderer::Render3DStarField()
 {
     //
     // first lets check if starfield is enabled in preferences
@@ -341,11 +364,11 @@ void MapRenderer::Render3DStarField()
 //
 // handle globe initialisation
 
-void MapRenderer::Toggle3DGlobeMode()
+void GlobeRenderer::Toggle3DGlobeMode()
 {
     m_3DGlobeMode = !m_3DGlobeMode;
     
-    if (m_3DGlobeMode) {
+    if (Is3DGlobeModeEnabled()) {
 
         //
         // only initialize 3D camera position the first time its used
@@ -382,12 +405,12 @@ void MapRenderer::Toggle3DGlobeMode()
     if (toolbar) {
         ToolbarButton *radar = (ToolbarButton*)toolbar->GetButton("Radar");
         if (radar) {
-            radar->m_disabled = m_3DGlobeMode;
+            radar->m_disabled = Is3DGlobeModeEnabled();
         }
 
         ToolbarButton *territory = (ToolbarButton*)toolbar->GetButton("Territory");
         if (territory) {
-            territory->m_disabled = m_3DGlobeMode;
+            territory->m_disabled = Is3DGlobeModeEnabled();
         }
     }
 }
@@ -399,7 +422,7 @@ void MapRenderer::Toggle3DGlobeMode()
 //
 // main rendering for the 3D globe
 
-void MapRenderer::Render3DGlobe(bool inLobbyMode)
+void GlobeRenderer::Render(bool inLobbyMode)
 {
     //
     // begin draw call tracking
@@ -707,7 +730,7 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
 
     g_renderer->BeginStaticSpriteBatch();
     // render mouse cursor
-    if (IsMouseInMapRenderer()) {
+    if (g_app->GetMapRenderer()->IsMouseInMapRenderer()) {
         RenderGlobeMouse();
     }
 
@@ -717,12 +740,52 @@ void MapRenderer::Render3DGlobe(bool inLobbyMode)
     g_renderer3d->EndFrame3D();
 }
 
+void GlobeRenderer::RenderAnimations()
+{
+    
+    for( int i = 0; i < m_animations.Size(); ++i )
+    {
+        if( m_animations.ValidIndex(i) )
+        {
+            AnimatedIcon *anim = m_animations[i];
+            if( anim->Render() )
+            {
+                m_animations.RemoveData(i);
+                delete anim;
+            }
+        }
+    }
+    
+}
+
+int GlobeRenderer::CreateAnimation( int animationType, int _fromObjectId, float longitude, float latitude )
+{
+    AnimatedIcon *anim = NULL;
+    switch( animationType )
+    {
+        case AnimationTypeActionMarker  : anim = new ActionMarker();    break;
+        case AnimationTypeSonarPing     : anim = new SonarPing();       break; 
+        case AnimationTypeNukePointer   : anim = new NukePointer();     break;
+
+        default: return -1;
+    }
+
+    anim->m_longitude = longitude;
+    anim->m_latitude = latitude;
+    anim->m_fromObjectId = _fromObjectId;
+    anim->m_animationType = animationType;
+    
+    int index = m_animations.PutData( anim );
+    return index;
+}
+
+
 //
 // camera controls for the 3d globe, to preserve muscle memory
 // we use default DEFCON controls for globe mode
 // and for the lobby remains unchanged
 
-void MapRenderer::SetupCamera3d()
+void GlobeRenderer::SetupCamera3d()
 {
     float fov = 60.0f;
     float nearPlane = 0.1f;
@@ -772,9 +835,9 @@ void MapRenderer::SetupCamera3d()
     g_renderer3d->EnableDistanceFog(camDist/2.0f, camDist*2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.25f);
 }
 
-void MapRenderer::Update3DGlobeCamera()
+void GlobeRenderer::Update3DGlobeCamera()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     bool ignoreKeys = g_app->GetInterface()->UsingChatWindow();
     
@@ -845,7 +908,7 @@ void MapRenderer::Update3DGlobeCamera()
     }
     
     // globe dragging with middle mouse button
-    if (g_inputManager->m_mmb && IsMouseInMapRenderer()) {
+    if (g_inputManager->m_mmb && g_app->GetMapRenderer()->IsMouseInMapRenderer()) {
         if (!m_globe3DCamera.m_isDragging) {
             m_globe3DCamera.m_isDragging = true;
             g_app->SetMousePointerVisible(false);
@@ -877,7 +940,7 @@ void MapRenderer::Update3DGlobeCamera()
     }
     
     // mouse wheel zoom
-    if (IsMouseInMapRenderer() && g_inputManager->m_mouseVelZ != 0) {
+    if (g_app->GetMapRenderer()->IsMouseInMapRenderer() && g_inputManager->m_mouseVelZ != 0) {
         m_globe3DCamera.m_cameraDistance += g_inputManager->m_mouseVelZ * -0.1f;
         float globeSize = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
         float minDistance = 1.5f * globeSize;
@@ -895,7 +958,7 @@ void MapRenderer::Update3DGlobeCamera()
 // the only issue with this which is pretty unavoidable is that the closer we get to the poles
 // the units get squashed, its literally an unsolvable problem.
 
-Vector3<float> MapRenderer::ConvertLongLatTo3DPosition(float longitude, float latitude)
+Vector3<float> GlobeRenderer::ConvertLongLatTo3DPosition(float longitude, float latitude)
 {
     
     float lonRad = longitude * M_PI / 180.0f;
@@ -915,7 +978,7 @@ Vector3<float> MapRenderer::ConvertLongLatTo3DPosition(float longitude, float la
 //
 // simple culling writes depth values but no color, creating an invisible mask
 
-void MapRenderer::Render3DGlobeCulling(bool inLobbyMode)
+void GlobeRenderer::Render3DGlobeCulling(bool inLobbyMode)
 {
     // disable color writing, we only want to write to depth buffer
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -975,7 +1038,7 @@ void MapRenderer::Render3DGlobeCulling(bool inLobbyMode)
 // create the same projection matrix as g_renderer3d->SetPerspective
 // and the same view matrix as g_renderer3d->SetLookAt
 
-Vector3<float> MapRenderer::Project3DToScreen(const Vector3<float>& worldPos)
+Vector3<float> GlobeRenderer::Project3DToScreen(const Vector3<float>& worldPos)
 {
     float aspect = (float)g_windowManager->WindowW() / (float)g_windowManager->WindowH();
     
@@ -1034,9 +1097,9 @@ Vector3<float> MapRenderer::Project3DToScreen(const Vector3<float>& worldPos)
 //                                              Main object rendering functions
 // ******************************************************************************************************************************
 
-void MapRenderer::Render3DGlobeCities()
+void GlobeRenderer::Render3DGlobeCities()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     Image *cityImg = g_resource->GetImage("graphics/city.bmp");
     if (!cityImg) return;
@@ -1165,9 +1228,9 @@ void MapRenderer::Render3DGlobeCities()
 // function to render units on the globe
 // i will refactor this once i have a better understanding of the code that claude generated
 
-void MapRenderer::Render3DUnits()
+void GlobeRenderer::Render3DUnits()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -1199,13 +1262,13 @@ void MapRenderer::Render3DUnits()
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
-                               m_renderEverything);
+                               g_app->GetMapRenderer()->GetRenderEverything());
             
             bool renderAsGhost = false;
             if (!shouldRender) {
                 // Render as ghost if our team has seen this unit before
                 if (myTeamId != -1 &&
-                    !m_renderEverything &&
+                    !g_app->GetMapRenderer()->GetRenderEverything() &&
                     wobj->m_lastSeenTime[myTeamId] > 0)
                 {
                     renderAsGhost = true;
@@ -1590,9 +1653,9 @@ void MapRenderer::Render3DUnits()
 
 // changed to look different than 2d trails as i think it looks better
 
-void MapRenderer::Render3DUnitTrails()
+void GlobeRenderer::Render3DUnitTrails()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     if (g_preferences->GetInt(PREFS_GRAPHICS_TRAILS) != 1) return;
     
@@ -1614,7 +1677,7 @@ void MapRenderer::Render3DUnitTrails()
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
-                               m_renderEverything);
+                               g_app->GetMapRenderer()->GetRenderEverything());
             
             if (!shouldRender) continue;
             
@@ -1703,9 +1766,9 @@ void MapRenderer::Render3DUnitTrails()
 //
 // dedicated function for nuke 3D model rendering with proper direction calculation
 //
-void MapRenderer::Render3DNuke()
+void GlobeRenderer::Render3DNuke()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -1734,7 +1797,7 @@ void MapRenderer::Render3DNuke()
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
-                               m_renderEverything);
+                               g_app->GetMapRenderer()->GetRenderEverything());
             
             if (!shouldRender) continue;
             
@@ -1829,9 +1892,9 @@ void MapRenderer::Render3DNuke()
 //
 // render 3D nuke trajectories and trails
 
-void MapRenderer::Render3DNukeTrajectories()
+void GlobeRenderer::Render3DNukeTrajectories()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     if (g_preferences->GetInt(PREFS_GRAPHICS_TRAILS) != 1) return;
     
@@ -1852,7 +1915,7 @@ void MapRenderer::Render3DNukeTrajectories()
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
-                               m_renderEverything);
+                               g_app->GetMapRenderer()->GetRenderEverything());
             
             if (!shouldRender) continue;
             
@@ -1937,9 +2000,9 @@ void MapRenderer::Render3DNukeTrajectories()
 // remains the same as 2d gunfire trails but gunfire can now shoot
 // at nukes above the globe!
 
-void MapRenderer::Render3DGunfire()
+void GlobeRenderer::Render3DGunfire()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -1951,7 +2014,7 @@ void MapRenderer::Render3DGunfire()
             bool shouldRender = (myTeamId == -1 ||
                                gunfire->m_teamId == myTeamId ||
                                gunfire->m_visible[myTeamId] ||
-                               m_renderEverything);
+                               g_app->GetMapRenderer()->GetRenderEverything());
             
             if (!shouldRender) continue;
             
@@ -2128,9 +2191,9 @@ void MapRenderer::Render3DGunfire()
 // we now curve the explosion texture to follow the globe surface
 // to prevent the texture from being stretched out in the x direction
 
-void MapRenderer::Render3DExplosions()
+void GlobeRenderer::Render3DExplosions()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -2140,7 +2203,7 @@ void MapRenderer::Render3DExplosions()
             
             bool shouldRender = (myTeamId == -1 ||
                                explosion->m_visible[myTeamId] ||
-                               m_renderEverything);
+                               g_app->GetMapRenderer()->GetRenderEverything());
             
             if (!shouldRender) continue;
             
@@ -2214,9 +2277,9 @@ void MapRenderer::Render3DExplosions()
 //
 // render nukesymbol.bmp for world objects and cities that have nukes in flight or queue
 
-void MapRenderer::Render3DNukeSymbols()
+void GlobeRenderer::Render3DNukeSymbols()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -2305,12 +2368,12 @@ void MapRenderer::Render3DNukeSymbols()
 // render cursor_target.bmp at order destinations and curved order lines along globe surface
 // follows the same visibility and animation logic as 2D orders overlay
 
-void MapRenderer::Render3DWorldObjectTargets()
+void GlobeRenderer::Render3DWorldObjectTargets()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     // check if orders overlay is enabled
-    if (!m_showOrders) return;
+    if (!g_app->GetMapRenderer()->m_showOrders) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -2431,9 +2494,9 @@ void MapRenderer::Render3DWorldObjectTargets()
 // render curved action line along globe surface with animation
 // uses same great circle math as nuke trajectories to avoid coordinate wrapping/pole issues
 
-void MapRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vector3<float>& toPos, const Colour& col, bool animate)
+void GlobeRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vector3<float>& toPos, const Colour& col, bool animate)
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     // convert 3D positions back to longitude/latitude for proper great circle calculation
     Vector3<float> fromNorm = fromPos;
@@ -2522,16 +2585,16 @@ void MapRenderer::Render3DActionLine(const Vector3<float>& fromPos, const Vector
 // render whiteboard drawings on the 3D globe surface
 // follows same logic as 2D whiteboard but converts coordinates to 3D positions
 
-void MapRenderer::Render3DWhiteBoard()
+void GlobeRenderer::Render3DWhiteBoard()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
-    if (!m_showWhiteBoard && !m_editWhiteBoard) {
+    if (!g_app->GetMapRenderer()->GetShowWhiteBoard() && !g_app->GetMapRenderer()->GetEditWhiteBoard()) {
         return;
     }
 
     // get team for whiteboard viewing, use perspective team if set. otherwise use myTeam
-    Team *effectiveTeam = GetEffectiveWhiteBoardTeam();
+    Team *effectiveTeam = g_app->GetMapRenderer()->GetEffectiveWhiteBoardTeam();
     if (!effectiveTeam) {
         return;
     }
@@ -2540,7 +2603,7 @@ void MapRenderer::Render3DWhiteBoard()
     for (int i = 0; i < sizeteams; ++i) {
         Team *team = g_app->GetWorld()->m_teams[i];
 
-        if ((m_showAllWhiteBoards && g_app->GetWorld()->IsFriend(effectiveTeam->m_teamId, team->m_teamId)) || 
+        if ((g_app->GetMapRenderer()->ShowAllWhiteBoards() && g_app->GetWorld()->IsFriend(effectiveTeam->m_teamId, team->m_teamId)) || 
             effectiveTeam->m_teamId == team->m_teamId) {
             
             WhiteBoard *whiteBoard = &g_app->GetWorld()->m_whiteBoards[team->m_teamId];
@@ -2633,11 +2696,11 @@ void MapRenderer::Render3DWhiteBoard()
 // render population density on the 3D globe surface
 // follows same logic as 2D population density but converts coordinates to 3D positions
 
-void MapRenderer::Render3DPopulationDensity()
+void GlobeRenderer::Render3DPopulationDensity()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
-    if (!m_showPopulation) return;
+    if (!g_app->GetMapRenderer()->m_showPopulation) return;
     
     Image *populationImg = g_resource->GetImage("graphics/population.bmp");
     if (!populationImg) return;
@@ -2680,11 +2743,11 @@ void MapRenderer::Render3DPopulationDensity()
 // render nuke units overlay on the 3D globe
 // again the functionality is idential to 2d but converted to 3d coordinates
 
-void MapRenderer::Render3DNukeHighlights()
+void GlobeRenderer::Render3DNukeHighlights()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
-    if (!m_showNukeUnits) return;
+    if (!g_app->GetMapRenderer()->m_showNukeUnits) return;
     
     Team *team = g_app->GetWorld()->GetMyTeam();
     if (!team) return;
@@ -2732,9 +2795,9 @@ void MapRenderer::Render3DNukeHighlights()
 // render 3D unit highlight
 // equivalent of the 2D RenderUnitHighlight but adapted for 3D globe
 
-void MapRenderer::Render3DUnitHighlight(int objectId)
+void GlobeRenderer::Render3DUnitHighlight(int objectId)
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     WorldObject *obj = g_app->GetWorld()->GetWorldObject(objectId);
     if (!obj) return;
@@ -2830,9 +2893,9 @@ void MapRenderer::Render3DUnitHighlight(int objectId)
 // curve the textures to follow the globe surface
 // to prevent the texture from being stretched out in the x direction
 
-void MapRenderer::Render3DAnimations()
+void GlobeRenderer::Render3DAnimations()
 {
-    if (!m_3DGlobeMode) return;
+    if (!Is3DGlobeModeEnabled()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
@@ -2844,7 +2907,7 @@ void MapRenderer::Render3DAnimations()
             // check if animation should be removed
             bool shouldRemove = false;
             
-            if (anim->m_animationType == AnimationTypeNukePointer) {
+            if (anim->m_animationType == g_app->GetMapRenderer()->AnimationTypeNukePointer) {
                 NukePointer *nukePtr = (NukePointer*)anim;
                 WorldObject *targetObj = g_app->GetWorld()->GetWorldObject(nukePtr->m_targetId);
                 
@@ -2877,10 +2940,10 @@ void MapRenderer::Render3DAnimations()
             }
             
             bool shouldRender = true;
-            if (anim->m_animationType == AnimationTypeSonarPing) {
+            if (anim->m_animationType == g_app->GetMapRenderer()->AnimationTypeSonarPing) {
                 SonarPing *ping = (SonarPing*)anim;
                 shouldRender = (myTeamId == -1 || ping->m_visible[myTeamId]);
-            } else if (anim->m_animationType == AnimationTypeNukePointer) {
+            } else if (anim->m_animationType == g_app->GetMapRenderer()->AnimationTypeNukePointer) {
                 NukePointer *nukePtr = (NukePointer*)anim;
                 WorldObject *targetObj = g_app->GetWorld()->GetWorldObject(nukePtr->m_targetId);
                 if (targetObj) {
@@ -2892,7 +2955,7 @@ void MapRenderer::Render3DAnimations()
             
             if (!shouldRender) continue;
             
-            if (anim->m_animationType == AnimationTypeSonarPing) {
+            if (anim->m_animationType == g_app->GetMapRenderer()->AnimationTypeSonarPing) {
                 
                 SonarPing *ping = (SonarPing*)anim;
                 
@@ -2951,7 +3014,7 @@ void MapRenderer::Render3DAnimations()
                     }
                     prevPoint = point;
                 }                             
-            } else if (anim->m_animationType == AnimationTypeNukePointer) {
+            } else if (anim->m_animationType == g_app->GetMapRenderer()->AnimationTypeNukePointer) {
                 
                 NukePointer *nukePtr = (NukePointer*)anim;
                 WorldObject *targetObj = g_app->GetWorld()->GetWorldObject(nukePtr->m_targetId);
@@ -2995,10 +3058,10 @@ void MapRenderer::Render3DAnimations()
 // Render Santa on the 3D globe
 // identical logic to map renderer but adapted for 3D coordinates
 
-void MapRenderer::Render3DSanta()
+void GlobeRenderer::Render3DSanta()
 {
 #ifdef ENABLE_SANTA_EASTEREGG
-	if ( !m_3DGlobeMode ) return;
+	if ( !Is3DGlobeModeEnabled() ) return;
 	
 	if ( g_app->GetWorld()->m_santaAlive )
 	{
@@ -3175,7 +3238,7 @@ void MapRenderer::Render3DSanta()
 // 
 // calculate great circle route between two points on the sphere
 
-Vector3<float> MapRenderer::CalculateGreatCirclePosition(float startLon, float startLat, 
+Vector3<float> GlobeRenderer::CalculateGreatCirclePosition(float startLon, float startLat, 
                                                          float endLon, float endLat, 
                                                          float progress)
 {
@@ -3231,7 +3294,7 @@ Vector3<float> MapRenderer::CalculateGreatCirclePosition(float startLon, float s
 //
 // calculate realistic ballistic arc height based on distance and progress
 
-float MapRenderer::CalculateBallisticHeight(float totalDistanceRadians, float progress)
+float GlobeRenderer::CalculateBallisticHeight(float totalDistanceRadians, float progress)
 {
     float arcFactor = 4.0f * progress * (1.0f - progress);
     
@@ -3258,9 +3321,9 @@ float MapRenderer::CalculateBallisticHeight(float totalDistanceRadians, float pr
 // right now it just returns the default but down the line i might add different
 // elevations for different units
 
-float MapRenderer::CalculateUnitElevation(WorldObject* wobj)
+float GlobeRenderer::CalculateUnitElevation(WorldObject* wobj)
 {
-    if (!m_3DGlobeMode || !wobj) return 0.0f;
+    if (!Is3DGlobeModeEnabled() || !wobj) return 0.0f;
     
     return 0.002f;
 }
@@ -3268,9 +3331,9 @@ float MapRenderer::CalculateUnitElevation(WorldObject* wobj)
 //
 // calculate 3D nuke position using great circle + ballistic arc
 
-Vector3<float> MapRenderer::CalculateNuke3DPosition(Nuke* nuke)
+Vector3<float> GlobeRenderer::CalculateNuke3DPosition(Nuke* nuke)
 {
-    if (!m_3DGlobeMode || !nuke) {
+    if (!Is3DGlobeModeEnabled() || !nuke) {
         return Vector3<float>(0, 0, 0);
     }
     
@@ -3343,9 +3406,9 @@ Vector3<float> MapRenderer::CalculateNuke3DPosition(Nuke* nuke)
 //
 // calculate historical nuke position for trail rendering
 
-Vector3<float> MapRenderer::CalculateHistoricalNuke3DPosition(Nuke* nuke, const Vector3<Fixed>& historicalPos)
+Vector3<float> GlobeRenderer::CalculateHistoricalNuke3DPosition(Nuke* nuke, const Vector3<Fixed>& historicalPos)
 {
-    if (!m_3DGlobeMode || !nuke) {
+    if (!Is3DGlobeModeEnabled() || !nuke) {
         return Vector3<float>(0, 0, 0);
     }
     
@@ -3409,9 +3472,9 @@ Vector3<float> MapRenderer::CalculateHistoricalNuke3DPosition(Nuke* nuke, const 
 // the gunfire shots curve and warp towards the nuke
 // but their actual trajectory doesnt change
 
-Vector3<float> MapRenderer::CalculateGunfire3DPosition(GunFire* gunfire)
+Vector3<float> GlobeRenderer::CalculateGunfire3DPosition(GunFire* gunfire)
 {
-    if (!m_3DGlobeMode || !gunfire) {
+    if (!Is3DGlobeModeEnabled() || !gunfire) {
         return Vector3<float>(0, 0, 0);
     }
     
@@ -3476,9 +3539,9 @@ Vector3<float> MapRenderer::CalculateGunfire3DPosition(GunFire* gunfire)
 // this solves the issue of the nuke trajectory becoming corrupted
 // and resetting to a vertical line half way through big arcs
 
-Vector3<float> MapRenderer::CalculateHistoricalNuke3DPositionByAge(Nuke* nuke, const Vector3<Fixed>& historicalPos, float historicalProgress)
+Vector3<float> GlobeRenderer::CalculateHistoricalNuke3DPositionByAge(Nuke* nuke, const Vector3<Fixed>& historicalPos, float historicalProgress)
 {
-    if (!m_3DGlobeMode || !nuke) {
+    if (!Is3DGlobeModeEnabled() || !nuke) {
         return Vector3<float>(0, 0, 0);
     }
     

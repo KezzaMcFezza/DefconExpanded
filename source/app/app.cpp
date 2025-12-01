@@ -62,6 +62,7 @@
 #endif
 
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 #include "renderer/lobby_renderer.h"
 
 #include "network/ClientToServer.h"
@@ -124,6 +125,7 @@ App::App()
     m_gameStartTimer(-1.0),
     m_tutorial(NULL),
     m_mapRenderer(NULL),
+    m_globeRenderer(NULL),
     m_lobbyRenderer(NULL),
     m_earthData(NULL),
     m_netLib(NULL),
@@ -164,6 +166,7 @@ App::~App()
 	delete m_interface;
 	delete m_lobbyRenderer;
 	delete m_mapRenderer;
+	delete m_globeRenderer;
 	delete m_server;
 	delete m_tutorial;
 	delete m_statusIcon;
@@ -435,6 +438,9 @@ void App::MinimalInit()
 
     m_mapRenderer = new MapRenderer();
     m_mapRenderer->Init();
+
+    m_globeRenderer = new GlobeRenderer();
+    m_globeRenderer->Init();
 
     m_lobbyRenderer = new LobbyRenderer();
     m_lobbyRenderer->Initialise();
@@ -788,6 +794,7 @@ void App::ReinitialiseWindow()
 #endif
 
     m_mapRenderer->Init();
+    m_globeRenderer->Init();
     m_interface->Init(); 
     
 }
@@ -1469,9 +1476,9 @@ void App::ShutdownCurrentGame()
     // be sure to toggle globe mode off first
     // to prevent an m_world assertion :)
 
-    if( m_mapRenderer->m_3DGlobeMode )
+    if( g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled() )
     {
-        m_mapRenderer->m_3DGlobeMode = false;
+        g_app->GetGlobeRenderer()->Toggle3DGlobeMode();
     }
 
     if( m_world )
@@ -1523,6 +1530,8 @@ void App::ShutdownCurrentGame()
 #endif
 
     m_mapRenderer->Reset();
+    m_globeRenderer->Reset();
+
     m_mapRenderer->m_renderEverything = false;
     m_gameStartTimer = -1.0f;
 	GetInterface()->SetMouseCursor();
@@ -1545,6 +1554,11 @@ MapRenderer *App::GetMapRenderer()
     return m_mapRenderer;
 }
 
+GlobeRenderer *App::GetGlobeRenderer()
+{
+    AppAssert( m_globeRenderer );
+    return m_globeRenderer;
+}
 
 LobbyRenderer *App::GetLobbyRenderer()
 {

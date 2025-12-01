@@ -20,6 +20,7 @@ class Game;
 class Interface;
 class LobbyRenderer;
 class MapRenderer;
+class GlobeRenderer;
 class NetLib;
 class NetMutex;
 class Server;
@@ -64,6 +65,7 @@ public:                 // STARTUP OPTIONS
 
 private:
     MapRenderer         *m_mapRenderer;
+    GlobeRenderer       *m_globeRenderer;
     LobbyRenderer       *m_lobbyRenderer;
     Interface           *m_interface;
     Game                *m_game;
@@ -113,6 +115,7 @@ public:
     void    RenderTitleScreen();
 
     MapRenderer     *GetMapRenderer();
+    GlobeRenderer   *GetGlobeRenderer();
     LobbyRenderer   *GetLobbyRenderer();
     Interface       *GetInterface();
     Server          *GetServer();

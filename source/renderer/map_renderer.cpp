@@ -37,6 +37,7 @@
 #include "interface/worldobject_window.h"
 
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 #include "renderer/animated_icon.h"
 
 
@@ -99,10 +100,9 @@ MapRenderer::MapRenderer()
 	m_erasingPlanning(false),
 	m_drawingPlanningTime(0.0f),
 	m_longitudePlanningOld(0.0f),
-	m_latitudePlanningOld(0.0f),
+	m_latitudePlanningOld(0.0f)
 #ifdef SYNC_PRACTICE
-	m_3DGlobeMode(false),
-	m_nukeTravelTimeEnabled(false),
+	, m_nukeTravelTimeEnabled(false),
 	m_nukeTravelTargetLongitude(0),
 	m_nukeTravelTargetLatitude(0),
 	m_lastClickTime(0.0f),
@@ -112,8 +112,6 @@ MapRenderer::MapRenderer()
 	m_wrongSiloId(-1),
 	m_wrongSiloTime(0.0f),
 	m_wrongSiloWasFirst(false)
-#else
-    m_3DGlobeMode(false)
 #endif
 {
     for( int i = 0; i < MAX_TEAMS; ++i )
@@ -197,8 +195,8 @@ void MapRenderer::Render()
 
     // for 3d globe mode we switch rendering contexts
     // its amazing how quickly this happens
-    if (m_3DGlobeMode) {
-        Render3DGlobe(false);
+    if (g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled()) {
+        g_app->GetGlobeRenderer()->Render(false);
         END_PROFILE( "MapRenderer" );
         return;
     }
@@ -4034,8 +4032,8 @@ void MapRenderer::Update()
 #endif
     
     // Update 3D camera if in globe mode
-    if( m_3DGlobeMode ) {
-        Update3DGlobeCamera();
+    if( g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled() ) {
+        g_app->GetGlobeRenderer()->Update3DGlobeCamera();
         return;
     }
 

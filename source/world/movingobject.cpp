@@ -15,6 +15,7 @@
 #include "app/game.h"
 
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "network/ClientToServer.h"
 
@@ -70,7 +71,7 @@ bool MovingObject::Update()
     //
     // Update history, but first check if we are in 3D globe mode
     
-    bool is3DGlobeMode = g_app->GetMapRenderer()->Is3DGlobeModeEnabled();
+    bool is3DGlobeMode = g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled();
     
     if (is3DGlobeMode) {
         float samplingRate = 0.5f; 
@@ -608,7 +609,7 @@ void MovingObject::RenderHistory()
     int sizeCap = (int)(80 * g_app->GetMapRenderer()->GetZoomFactor() );
     sizeCap /= World::GetGameScale().DoubleValue();
 
-    bool is3DGlobeMode = g_app->GetMapRenderer()->Is3DGlobeModeEnabled();
+    bool is3DGlobeMode = g_app->GetGlobeRenderer()->Is3DGlobeModeEnabled();
 
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
     {

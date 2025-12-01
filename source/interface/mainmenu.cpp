@@ -45,6 +45,7 @@
 #include "world/earthdata.h"
 
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 #include "renderer/lobby_renderer.h"
 
 #include "mainmenu.h"
@@ -1355,8 +1356,8 @@ class ApplyGlobeButton : public InterfaceButton
         //
         // regenerate starfield when star settings change
 
-        if (g_app && g_app->GetMapRenderer()) {
-            g_app->GetMapRenderer()->Regenerate3DStarField();
+        if (g_app && g_app->GetGlobeRenderer()) {
+            g_app->GetGlobeRenderer()->Regenerate3DStarField();
         }
         g_preferences->SetFloat( PREFS_GLOBE_LAND_UNIT_SIZE, gow->m_globeLandUnitSize );
         g_preferences->SetFloat( PREFS_GLOBE_NAVAL_UNIT_SIZE, gow->m_globeNavalUnitSize );
