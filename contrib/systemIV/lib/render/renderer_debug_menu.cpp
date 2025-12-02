@@ -312,16 +312,6 @@ void RendererDebugMenu::RenderSystemInformation(float& yPos)
         yPos += lineHeight;
         
         //
-        // Current vertex buffer usage
-
-        int currentVertices = GetActualBufferVertexCount();
-        float currentMemoryMB = (currentVertices * sizeof(Vertex2D)) / (1024.0f * 1024.0f);
-        snprintf(infoBuffer, sizeof(infoBuffer), "  Current Usage: %.2f MB", 
-                 currentMemoryMB);
-        m_renderer->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
-        yPos += 14.0f;
-        
-        //
         // Total allocated memory
 
         size_t totalAllocated = m_renderer->GetTotalAllocatedBufferMemory();
@@ -332,45 +322,42 @@ void RendererDebugMenu::RenderSystemInformation(float& yPos)
         snprintf(infoBuffer, sizeof(infoBuffer), "  Total Allocated: %.2f MB", totalMemoryMB);
         m_renderer->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
         yPos += 14.0f;
-        
-        //
-        // Mega buffer memory, include both 2D and 3D VBOs
 
-        float totalVBOMemoryMB = 0.0f;
-        
         //
-        // Calculate 2D VBO memory
+        // Print coastlines and borders breakdown
 
-        int coastline2DVertices = m_renderer->GetCachedVBOVertexCount("all_coastlines");
-        int coastline2DIndices = m_renderer->GetCachedVBOIndexCount("all_coastlines");
-        totalVBOMemoryMB += ((coastline2DVertices * sizeof(Vertex2D)) + (coastline2DIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
-        
-        int border2DVertices = m_renderer->GetCachedVBOVertexCount("all_borders");
-        int border2DIndices = m_renderer->GetCachedVBOIndexCount("all_borders");
-        totalVBOMemoryMB += ((border2DVertices * sizeof(Vertex2D)) + (border2DIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
-        
-        //
-        // Calculate 3D VBO memory
-
+        float coastlinesBordersMemory = 0.0f;
         if (g_renderer3d) {
             int globeCoastlineVertices = g_renderer3d->GetCached3DVBOVertexCount("GlobeCoastlines");
             int globeCoastlineIndices = g_renderer3d->GetCached3DVBOIndexCount("GlobeCoastlines");
-            totalVBOMemoryMB += ((globeCoastlineVertices * sizeof(Vertex3D)) + (globeCoastlineIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+            coastlinesBordersMemory += ((globeCoastlineVertices * sizeof(Vertex3D)) + (globeCoastlineIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
             
             int globeBorderVertices = g_renderer3d->GetCached3DVBOVertexCount("GlobeBorders");
             int globeBorderIndices = g_renderer3d->GetCached3DVBOIndexCount("GlobeBorders");
-            totalVBOMemoryMB += ((globeBorderVertices * sizeof(Vertex3D)) + (globeBorderIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+            coastlinesBordersMemory += ((globeBorderVertices * sizeof(Vertex3D)) + (globeBorderIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
             
             int globeGridlineVertices = g_renderer3d->GetCached3DVBOVertexCount("GlobeGridlines");
             int globeGridlineIndices = g_renderer3d->GetCached3DVBOIndexCount("GlobeGridlines");
-            totalVBOMemoryMB += ((globeGridlineVertices * sizeof(Vertex3D)) + (globeGridlineIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+            coastlinesBordersMemory += ((globeGridlineVertices * sizeof(Vertex3D)) + (globeGridlineIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
         }
-        
-        //
-        // Print the results
 
         snprintf(infoBuffer, sizeof(infoBuffer), "  Coastlines and Borders: %.2f MB", 
-                 totalVBOMemoryMB);
+                 coastlinesBordersMemory);
+        m_renderer->TextSimple(35, yPos, orange, 11.0f, infoBuffer);
+        yPos += 14.0f;
+        
+        //
+        // Print starfield statistics too
+        
+        float starfieldMemory = 0.0f;
+        if (g_renderer3d) {
+            int starfieldVertices = g_renderer3d->GetCached3DVBOVertexCount("Starfield");
+            int starfieldIndices = g_renderer3d->GetCached3DVBOIndexCount("Starfield");
+            starfieldMemory = ((starfieldVertices * sizeof(Vertex3DTextured)) + (starfieldIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+        }
+        
+        snprintf(infoBuffer, sizeof(infoBuffer), "  Starfield: %.2f MB", 
+                 starfieldMemory);
         m_renderer->TextSimple(35, yPos, orange, 11.0f, infoBuffer);
         yPos += 14.0f;
     }
@@ -451,6 +438,11 @@ void RendererDebugMenu::RenderVBOCacheStatistics(float& yPos)
                       g_renderer3d->GetCached3DVBOVertexCount("GlobeGridlines"),
                       g_renderer3d->GetCached3DVBOIndexCount("GlobeGridlines"),
                       sizeof(Vertex3D), true);
+        
+        renderVBOStat("3D Starfield",
+                      g_renderer3d->GetCached3DVBOVertexCount("Starfield"),
+                      g_renderer3d->GetCached3DVBOIndexCount("Starfield"),
+                      sizeof(Vertex3DTextured), true);
     }
 }
 
