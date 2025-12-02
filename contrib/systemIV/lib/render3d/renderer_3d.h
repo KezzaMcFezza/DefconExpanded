@@ -189,6 +189,16 @@ private:
     unsigned int* m_megaIndices3D;
     int m_megaIndex3DCount;
     
+    bool m_megaVBO3DTexturedActive;
+    char* m_currentMegaVBO3DTexturedKey;
+    unsigned int m_currentMegaVBO3DTextureID;
+    int m_maxMegaTexturedVertices3D;
+    int m_maxMegaTexturedIndices3D;
+    Vertex3DTextured* m_megaTexturedVertices3D;
+    int m_megaTexturedVertex3DCount;
+    unsigned int* m_megaTexturedIndices3D;
+    int m_megaTexturedIndex3DCount;
+    
     //
     // VBO caching system for 3D geometry (replaces display lists)
 
@@ -282,6 +292,12 @@ private:
     void UploadVertexDataTo3DVBO     (unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount, unsigned int usageHint);
     void InvalidateMatrices3D        () { m_matrices3DNeedUpdate = true; }
     void InvalidateFog3D             () { m_fog3DNeedsUpdate = true; }
+    void CreateNukeModel3D                (const Vector3<float>& position, const Vector3<float>& direction, 
+                                           float length, float radius, Colour const &col, Vertex3D* vertices, int& vertexCount);
+
+public:
+    Renderer3D(Renderer* renderer);
+    ~Renderer3D();
     
     void CreateSurfaceAlignedBillboard    (const Vector3<float>& position, float width, float height, 
                                            Vertex3DTextured* vertices, float u1, float v1, float u2, float v2, 
@@ -289,13 +305,6 @@ private:
     void CreateCameraFacingBillboard      (const Vector3<float>& position, float width, float height,
                                            Vertex3DTextured* vertices, float u1, float v1, float u2, float v2,
                                            float r, float g, float b, float a, float rotation = 0.0f);
-    
-    void CreateNukeModel3D                (const Vector3<float>& position, const Vector3<float>& direction, 
-                                           float length, float radius, Colour const &col, Vertex3D* vertices, int& vertexCount);
-
-public:
-    Renderer3D(Renderer* renderer);
-    ~Renderer3D();
     
     void Shutdown();
     
@@ -333,6 +342,14 @@ public:
     void RenderMegaVBO3D           (const char* megaVBOKey);
     bool IsMegaVBO3DValid          (const char* megaVBOKey);
     void SetMegaVBO3DBufferSizes   (int vertexCount, int indexCount);
+    
+    void BeginTexturedMegaVBO3D        (const char* megaVBOKey, unsigned int textureID);
+    void AddTexturedQuadsToMegaVBO3D   (const Vertex3DTextured* vertices, int vertexCount, int quadCount);
+    void EndTexturedMegaVBO3D          ();
+    void RenderTexturedMegaVBO3D       (const char* megaVBOKey);
+    bool IsTexturedMegaVBO3DValid      (const char* megaVBOKey);
+    void SetTexturedMegaVBO3DBufferSizes (int vertexCount, int indexCount);
+    
     void InvalidateAll3DVBOs       ();
     int GetCached3DVBOCount        ();
     int GetCached3DVBOVertexCount  (const char *cacheKey);

@@ -158,14 +158,23 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_lineStrip3DActive(false),
     m_texturedQuad3DActive(false),
     m_currentTexture3D(0),
-    m_maxMegaVertices3D(1500000),
-    m_maxMegaIndices3D(1500000),
+    m_maxMegaVertices3D(100),
+    m_maxMegaIndices3D(100),
     m_megaVBO3DActive(false),
     m_currentMegaVBO3DKey(NULL),
     m_megaVertices3D(NULL),
     m_megaVertex3DCount(0),
     m_megaIndices3D(NULL),
     m_megaIndex3DCount(0),
+    m_megaVBO3DTexturedActive(false),
+    m_currentMegaVBO3DTexturedKey(NULL),
+    m_currentMegaVBO3DTextureID(0),
+    m_maxMegaTexturedVertices3D(100),
+    m_maxMegaTexturedIndices3D(100),
+    m_megaTexturedVertices3D(NULL),
+    m_megaTexturedVertex3DCount(0),
+    m_megaTexturedIndices3D(NULL),
+    m_megaTexturedIndex3DCount(0),
     m_lineConversionBuffer3D(NULL),
     m_lineConversionBufferSize3D(0),
     m_lineVertexCount3D(0),
@@ -233,10 +242,20 @@ Renderer3D::Renderer3D(Renderer* renderer)
     Setup3DTexturedVertexArrays();
     
     //
-    // Allocate mega vertex and index buffers for 3D coastlines and borders
+    // Allocate mega vertex and index buffers
 
-    m_megaVertices3D = new Vertex3D[m_maxMegaVertices3D];
-    m_megaIndices3D = new unsigned int[m_maxMegaIndices3D];
+    if (m_maxMegaVertices3D > 0) {
+        m_megaVertices3D = new Vertex3D[m_maxMegaVertices3D];
+        m_megaIndices3D = new unsigned int[m_maxMegaIndices3D];
+    }
+
+    //
+    // Allocate textured mega vertex and index buffers
+
+    if (m_maxMegaTexturedVertices3D > 0) {
+        m_megaTexturedVertices3D = new Vertex3DTextured[m_maxMegaTexturedVertices3D];
+        m_megaTexturedIndices3D = new unsigned int[m_maxMegaTexturedIndices3D];
+    }
     
     m_lineConversionBufferSize3D = MAX_3D_VERTICES * 2;
     m_lineConversionBuffer3D = new Vertex3D[m_lineConversionBufferSize3D];
@@ -310,6 +329,19 @@ void Renderer3D::Shutdown() {
     if (m_currentMegaVBO3DKey) {
         delete[] m_currentMegaVBO3DKey;
         m_currentMegaVBO3DKey = NULL;
+    }
+    
+    if (m_megaTexturedVertices3D) {
+        delete[] m_megaTexturedVertices3D;
+        m_megaTexturedVertices3D = NULL;
+    }
+    if (m_megaTexturedIndices3D) {
+        delete[] m_megaTexturedIndices3D;
+        m_megaTexturedIndices3D = NULL;
+    }
+    if (m_currentMegaVBO3DTexturedKey) {
+        delete[] m_currentMegaVBO3DTexturedKey;
+        m_currentMegaVBO3DTexturedKey = NULL;
     }
     
     if (m_lineConversionBuffer3D) {
