@@ -88,6 +88,8 @@ include_directories(
     ${SYSTEMIV_PATH}/lib/gucci
     ${SYSTEMIV_PATH}/lib/netlib
     ${SYSTEMIV_PATH}/lib/eclipse
+    ${SYSTEMIV_PATH}/contrib/crashpad/linux/include
+    ${SYSTEMIV_PATH}/contrib/crashpad/linux/include/third_party/mini_chromium/mini_chromium
     ${GLAD_INCLUDE_DIR}
     ${HIGHWAY_PATH}
 )

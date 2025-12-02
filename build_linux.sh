@@ -10,6 +10,219 @@ BUILD_TYPE="Release"
 INSTALL_DEPS=false
 BUILD_PACKAGE=false
 TARBALL_NAME=""
+LINUX_DISTRO=""
+
+# FDetect Linux distribution
+detect_distro() {
+    if [ -f "/etc/os-release" ]; then
+        . /etc/os-release
+        if [[ "$ID" == "debian" || "$ID" == "ubuntu" || "$ID_LIKE" == *"debian"* ]]; then
+            LINUX_DISTRO="debian"
+        elif [[ "$ID" == "arch" || "$ID_LIKE" == *"arch"* ]]; then
+            LINUX_DISTRO="arch"
+        elif [[ "$ID" == "fedora" || "$ID" == "rhel" || "$ID_LIKE" == *"fedora"* ]]; then
+            LINUX_DISTRO="fedora"
+        fi
+    fi
+}
+
+# Display distro selection menu
+show_distro_menu() {
+    echo ""
+    echo "========================================"
+    echo "Select Your Linux Distribution"
+    echo "========================================"
+    echo "1) Debian / Ubuntu"
+    echo "2) Arch Linux"
+    echo "3) Fedora / RHEL"
+    echo "========================================"
+    echo ""
+    
+    if [ -n "$LINUX_DISTRO" ]; then
+        case "$LINUX_DISTRO" in
+            debian)
+                echo "Detected: Debian / Ubuntu"
+                DEFAULT_CHOICE="1"
+                ;;
+            arch)
+                echo "Detected: Arch Linux"
+                DEFAULT_CHOICE="2"
+                ;;
+            fedora)
+                echo "Detected: Fedora / RHEL"
+                DEFAULT_CHOICE="3"
+                ;;
+        esac
+        echo "Press Enter to confirm, or select a different option (1-3):"
+    else
+        echo "Could not auto-detect your distribution."
+        echo "Please select your distribution (1-3):"
+    fi
+    
+    read -r DISTRO_CHOICE
+    
+    # Use default if Enter is pressed without input
+    DISTRO_CHOICE="${DISTRO_CHOICE:-$DEFAULT_CHOICE}"
+    
+    case "$DISTRO_CHOICE" in
+        1)
+            LINUX_DISTRO="debian"
+            echo "Selected: Debian / Ubuntu"
+            ;;
+        2)
+            LINUX_DISTRO="arch"
+            echo "Selected: Arch Linux"
+            ;;
+        3)
+            LINUX_DISTRO="fedora"
+            echo "Selected: Fedora / RHEL"
+            ;;
+        *)
+            echo "Invalid selection. Please run the script again and select 1, 2, or 3."
+            exit 1
+            ;;
+    esac
+}
+
+#
+# Functions to install dependencies based on distro
+
+install_dependencies_debian() {
+    echo "Installing dependencies for Debian/Ubuntu..."
+    
+    sudo apt-get update
+    
+    sudo apt-get install -y \
+        build-essential \
+        cmake \
+        libgl1-mesa-dev \
+        libglu1-mesa-dev \
+        libasound2-dev \
+        libpulse-dev \
+        pkg-config \
+        libpkgconf-dev \
+        libvorbis-dev \
+        libogg-dev \
+        libomp-dev \
+        mesa-common-dev \
+        git \
+        wget \
+        gpg \
+        software-properties-common
+    
+    echo "Dependencies installed successfully!"
+}
+
+install_dependencies_arch() {
+    echo "Installing dependencies for Arch Linux..."
+    
+    sudo pacman -Syu --noconfirm
+    
+    sudo pacman -S --noconfirm \
+        base-devel \
+        cmake \
+        mesa \
+        libgl \
+        alsa-lib \
+        pulseaudio \
+        pkg-config \
+        libvorbis \
+        libogg \
+        openmp \
+        git \
+        wget \
+        gnupg
+    
+    echo "Dependencies installed successfully!"
+}
+
+install_dependencies_fedora() {
+    echo "Installing dependencies for Fedora/RHEL..."
+    
+    sudo dnf check-update || true
+    
+    sudo dnf install -y \
+        gcc \
+        gcc-c++ \
+        make \
+        cmake \
+        mesa-libGL-devel \
+        mesa-libGLU-devel \
+        alsa-lib-devel \
+        pulseaudio-libs-devel \
+        pkgconfig \
+        libvorbis-devel \
+        libogg-devel \
+        libomp-devel \
+        mesa-dri-drivers \
+        git \
+        wget \
+        gnupg \
+        diffutils
+    
+    echo "Dependencies installed successfully!"
+}
+
+#
+# Functions to install CMake based on distro
+
+install_cmake_debian() {
+    # Check if CMake is already installed and recent enough
+    if command -v cmake &> /dev/null; then
+        CMAKE_VERSION=$(cmake --version | head -n1 | cut -d' ' -f3)
+        echo "Found CMake version: $CMAKE_VERSION"
+        
+        # Check if version is >= 3.16
+        if [ "$(printf '%s\n' "3.16" "$CMAKE_VERSION" | sort -V | head -n1)" = "3.16" ]; then
+            echo "CMake version is sufficient (>= 3.16)"
+            return
+        else
+            echo "CMake version is too old, installing newer version..."
+        fi
+    else
+        echo "CMake not found, installing..."
+    fi
+    
+    # Try to install modern CMake from Kitware repository
+    if wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null; then
+        sudo apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" -y
+        sudo apt-get update
+        sudo apt-get install -y cmake
+    else
+        echo "Failed to add Kitware repository, using default CMake from apt..."
+        sudo apt-get install -y cmake
+    fi
+}
+
+install_cmake_arch() {
+    if command -v cmake &> /dev/null; then
+        CMAKE_VERSION=$(cmake --version | head -n1 | cut -d' ' -f3)
+        echo "Found CMake version: $CMAKE_VERSION"
+        
+        if [ "$(printf '%s\n' "3.16" "$CMAKE_VERSION" | sort -V | head -n1)" = "3.16" ]; then
+            echo "CMake version is sufficient (>= 3.16)"
+            return
+        fi
+    fi
+    
+    echo "Installing/upgrading CMake..."
+    sudo pacman -S --noconfirm cmake
+}
+
+install_cmake_fedora() {
+    if command -v cmake &> /dev/null; then
+        CMAKE_VERSION=$(cmake --version | head -n1 | cut -d' ' -f3)
+        echo "Found CMake version: $CMAKE_VERSION"
+        
+        if [ "$(printf '%s\n' "3.16" "$CMAKE_VERSION" | sort -V | head -n1)" = "3.16" ]; then
+            echo "CMake version is sufficient (>= 3.16)"
+            return
+        fi
+    fi
+    
+    echo "Installing/upgrading CMake..."
+    sudo dnf install -y cmake
+}
 
 # Parse command line arguments
 show_help() {
@@ -17,7 +230,7 @@ show_help() {
     echo ""
     echo "Options:"
     echo "  -d, --debug           Build in Debug mode (default: Release)"
-    echo "  -i, --install-deps    Install dependencies via apt-get (default: skip)"
+    echo "  -i, --install-deps    Install dependencies (will prompt for your Linux distro)"
     echo "  -p, --package         Create release tar.bz2 package (default: skip)"
     echo "  -h, --help            Show this help message"
     echo ""
@@ -26,8 +239,8 @@ show_help() {
     echo "Examples:"
     echo "  $0                    # Build Release (no package)"
     echo "  $0 --debug            # Build Debug without installing deps"
-    echo "  $0 --install-deps     # Build Release and install deps"
-    echo "  $0 -d -i              # Build Debug and install deps"
+    echo "  $0 --install-deps     # Build Release and install deps (with distro menu)"
+    echo "  $0 -d -i              # Build Debug and install deps (with distro menu)"
     echo "  $0 --package          # Build Release and create tar.bz2"
     exit 0
 }
@@ -60,8 +273,18 @@ done
 echo "========================================"
 echo "Kezza and Bert's Linux Build Script"
 echo "========================================"
+
+# Detect the distro if installing dependencies
+if [ "$INSTALL_DEPS" = true ]; then
+    detect_distro
+    show_distro_menu
+fi
+
 echo "Build Type: $BUILD_TYPE"
 echo "Install Dependencies: $INSTALL_DEPS"
+if [ -n "$LINUX_DISTRO" ]; then
+    echo "Detected Distro: $LINUX_DISTRO"
+fi
 echo "Create Package:       $BUILD_PACKAGE"
 echo "========================================"
 
@@ -150,61 +373,37 @@ if [ "$INSTALL_DEPS" = true ]; then
     echo "Step 2: Installing Dependencies..."
     echo "====================================="
 
-    # Update package list
-    sudo apt-get update
-
-    sudo apt-get install -y \
-        build-essential \
-        cmake \
-        libgl1-mesa-dev \
-        libglu1-mesa-dev \
-        libasound2-dev \
-        libpulse-dev \
-        pkg-config \
-        libpkgconf-dev \
-        libvorbis-dev \
-        libogg-dev \
-        libomp-dev \
-        mesa-common-dev \
-        git \
-        wget \
-        gpg \
-        software-properties-common
-
-    echo "Dependencies installed successfully!"
+    case "$LINUX_DISTRO" in
+        debian)
+            install_dependencies_debian
+            ;;
+        arch)
+            install_dependencies_arch
+            ;;
+        fedora)
+            install_dependencies_fedora
+            ;;
+        *)
+            echo "Error: Unknown distribution: $LINUX_DISTRO"
+            exit 1
+            ;;
+    esac
 
     echo ""
     echo "Step 3: Installing Modern CMake..."
     echo "=================================="
 
-    # Check if CMake is already installed and recent enough
-    if command -v cmake &> /dev/null; then
-        CMAKE_VERSION=$(cmake --version | head -n1 | cut -d' ' -f3)
-        echo "Found CMake version: $CMAKE_VERSION"
-        
-        # Check if version is >= 3.16
-        if [ "$(printf '%s\n' "3.16" "$CMAKE_VERSION" | sort -V | head -n1)" = "3.16" ]; then
-            echo "CMake version is sufficient (>= 3.16)"
-        else
-            echo "CMake version is too old, installing newer version..."
-            INSTALL_CMAKE=true
-        fi
-    else
-        echo "CMake not found, installing..."
-        INSTALL_CMAKE=true
-    fi
-
-    if [ "$INSTALL_CMAKE" = true ]; then
-        # Try to install modern CMake from Kitware repository
-        if wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null; then
-            sudo apt-add-repository "deb https://apt.kitware.com/ubuntu/ $(lsb_release -cs) main" -y
-            sudo apt-get update
-            sudo apt-get install -y cmake
-        else
-            echo "Failed to add Kitware repository, using default CMake from apt..."
-            sudo apt-get install -y cmake
-        fi
-    fi
+    case "$LINUX_DISTRO" in
+        debian)
+            install_cmake_debian
+            ;;
+        arch)
+            install_cmake_arch
+            ;;
+        fedora)
+            install_cmake_fedora
+            ;;
+    esac
 
     echo "Final CMake version:"
     cmake --version
