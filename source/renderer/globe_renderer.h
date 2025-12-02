@@ -13,10 +13,6 @@ class AnimatedIcon;
 #define    STYLE_GLOBE_BORDERS                        "GlobeBorders"
 #define    STYLE_GLOBE_GRIDLINES                      "GlobeGridlines"
 
-#define    PREFS_GRAPHICS_GLOBE_COASTLINES            "RenderGlobeCoastlines"
-#define    PREFS_GRAPHICS_GLOBE_BORDERS               "RenderGlobeBorders"
-#define    PREFS_GRAPHICS_GLOBE_GRIDLINES             "RenderGlobeGridlines"
-
 #define    PREFS_GLOBE_SIZE                           "GlobeSize"
 #define    PREFS_GLOBE_COAST_THICKNESS                "GlobeCoastThickness"
 #define    PREFS_GLOBE_BORDER_THICKNESS               "GlobeBorderThickness"
@@ -64,10 +60,14 @@ public:
 
     void    RenderCities();
 
+    bool    IsPointVisible   (const Vector3<float>& globePoint, const Vector3<float>& cameraPos, float globeRadius);
+    float   CullingThreshold (float cameraDistance, float globeRadius);
     void    GetWindowBounds  ( float *left, float *right, float *top, float *bottom );
     void    GetCameraPosition( float &longitude, float &latitude, float &distance );
     void    SetCameraPosition( float longitude, float latitude, float distance );
     void    IsCameraIdle     (float oldLongitude, float oldLatitude);
+
+    Vector3<float> GetCameraPosition();
 
     bool m_renderEverything;
 
@@ -95,7 +95,7 @@ public:
     void    Render3DNukeHighlights();
     void    Render3DAnimations();
     void    Render3DSanta();
-    void    Render3DGlobeCulling(bool inLobbyMode = false);
+    void    Render3DGlobeCulling();
     void    Render3DWhiteBoard();
     void    Render3DPopulationDensity();
     void    Render3DUnitHighlight                         (int objectId);
@@ -118,11 +118,21 @@ public:
     static  float ConvertMenuToStarSize                   (float menuValue);
     static  float ConvertStarSizeToMenu                   (float internalValue);
     
-    // 3D star field functionality
-    void    Generate3DStarField    ();
-    void    Cleanup3DStarField     ();
-    void    Regenerate3DStarField  ();
-    void    Render3DStarField      ();
+    struct Star3D {
+        Vector3<float> position;
+        float size;
+        float brightness;
+    };
+
+    DArray<Star3D> g_starField3D;
+    bool g_starField3DInitialized = false;
+
+    void    GenerateStarField();
+    void    CleanupStarField();
+    void    RegenerateStarField();
+    void    BuildStarfieldVBO();
+    void    GenerateStarSkybox();
+    void    RenderStarField();
 };
 
 #endif

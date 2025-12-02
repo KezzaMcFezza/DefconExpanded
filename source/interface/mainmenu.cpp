@@ -1358,7 +1358,7 @@ class ApplyGlobeButton : public InterfaceButton
         // regenerate starfield when star settings change
 
         if (g_app && g_app->GetGlobeRenderer()) {
-            g_app->GetGlobeRenderer()->Regenerate3DStarField();
+            g_app->GetGlobeRenderer()->RegenerateStarField();
         }
         g_preferences->SetFloat( PREFS_GLOBE_LAND_UNIT_SIZE, gow->m_globeLandUnitSize );
         g_preferences->SetFloat( PREFS_GLOBE_NAVAL_UNIT_SIZE, gow->m_globeNavalUnitSize );

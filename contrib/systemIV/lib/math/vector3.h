@@ -146,6 +146,18 @@ public:
 		return *this;
 	}
 
+	Vector3<T> Normalized() const
+	{
+		Vector3<T> result = *this;
+		result.Normalise();
+		return result;
+	}
+
+	constexpr T Dot(Vector3<T> const &b) const
+	{
+		return x*b.x + y*b.y + z*b.z;
+	}
+
 	Vector3 const &SetLength(T _len)
 	{
 		T mag = Mag();
