@@ -27,6 +27,7 @@
 
 #include "interface/interface.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 #include "renderer/animated_icon.h"
@@ -83,7 +84,7 @@ void GlobeRenderer::Update()
 
 void GlobeRenderer::Reset()
 {
-    m_animations.EmptyAndDelete();
+    g_app->GetWorldRenderer()->Reset();
 }
 
 //
@@ -786,49 +787,6 @@ void GlobeRenderer::LobbyCamera()
     glDisable( GL_DEPTH_TEST );
 
     g_renderer3d->EnableDistanceFog(camDist/2.0f, camDist*2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.25f);
-}
-
-// ******************************************************************************************************************************
-//                                              Main object rendering functions
-// ******************************************************************************************************************************
-
-void GlobeRenderer::RenderAnimations()
-{
-    
-    for( int i = 0; i < m_animations.Size(); ++i )
-    {
-        if( m_animations.ValidIndex(i) )
-        {
-            AnimatedIcon *anim = m_animations[i];
-            if( anim->Render() )
-            {
-                m_animations.RemoveData(i);
-                delete anim;
-            }
-        }
-    }
-    
-}
-
-int GlobeRenderer::CreateAnimation( int animationType, int _fromObjectId, float longitude, float latitude )
-{
-    AnimatedIcon *anim = NULL;
-    switch( animationType )
-    {
-        case AnimationTypeActionMarker  : anim = new ActionMarker();    break;
-        case AnimationTypeSonarPing     : anim = new SonarPing();       break; 
-        case AnimationTypeNukePointer   : anim = new NukePointer();     break;
-
-        default: return -1;
-    }
-
-    anim->m_longitude = longitude;
-    anim->m_latitude = latitude;
-    anim->m_fromObjectId = _fromObjectId;
-    anim->m_animationType = animationType;
-    
-    int index = m_animations.PutData( anim );
-    return index;
 }
 
 void GlobeRenderer::RenderCities()
@@ -2593,14 +2551,14 @@ void GlobeRenderer::Render3DAnimations()
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
     // render all animations
-    for (int i = 0; i < m_animations.Size(); ++i) {
-        if (m_animations.ValidIndex(i)) {
-            AnimatedIcon *anim = m_animations[i];
+    for (int i = 0; i < g_app->GetWorldRenderer()->GetAnimations().Size(); ++i) {
+        if (g_app->GetWorldRenderer()->GetAnimations().ValidIndex(i)) {
+            AnimatedIcon *anim = g_app->GetWorldRenderer()->GetAnimations()[i];
             
             // check if animation should be removed
             bool shouldRemove = false;
             
-            if (anim->m_animationType == g_app->GetMapRenderer()->AnimationTypeNukePointer) {
+            if (anim->m_animationType == g_app->GetWorldRenderer()->AnimationTypeNukePointer) {
                 NukePointer *nukePtr = (NukePointer*)anim;
                 WorldObject *targetObj = g_app->GetWorld()->GetWorldObject(nukePtr->m_targetId);
                 
@@ -2627,16 +2585,16 @@ void GlobeRenderer::Render3DAnimations()
             
             // remove expired animations
             if (shouldRemove) {
-                m_animations.RemoveData(i);
+                g_app->GetWorldRenderer()->GetAnimations().RemoveData(i);
                 delete anim;
                 continue;
             }
             
             bool shouldRender = true;
-            if (anim->m_animationType == g_app->GetMapRenderer()->AnimationTypeSonarPing) {
+            if (anim->m_animationType == g_app->GetWorldRenderer()->AnimationTypeSonarPing) {
                 SonarPing *ping = (SonarPing*)anim;
                 shouldRender = (myTeamId == -1 || ping->m_visible[myTeamId]);
-            } else if (anim->m_animationType == g_app->GetMapRenderer()->AnimationTypeNukePointer) {
+            } else if (anim->m_animationType == g_app->GetWorldRenderer()->AnimationTypeNukePointer) {
                 NukePointer *nukePtr = (NukePointer*)anim;
                 WorldObject *targetObj = g_app->GetWorld()->GetWorldObject(nukePtr->m_targetId);
                 if (targetObj) {
@@ -2648,7 +2606,7 @@ void GlobeRenderer::Render3DAnimations()
             
             if (!shouldRender) continue;
             
-            if (anim->m_animationType == g_app->GetMapRenderer()->AnimationTypeSonarPing) {
+            if (anim->m_animationType == g_app->GetWorldRenderer()->AnimationTypeSonarPing) {
                 
                 SonarPing *ping = (SonarPing*)anim;
                 
@@ -2707,7 +2665,7 @@ void GlobeRenderer::Render3DAnimations()
                     }
                     prevPoint = point;
                 }                             
-            } else if (anim->m_animationType == g_app->GetMapRenderer()->AnimationTypeNukePointer) {
+            } else if (anim->m_animationType == g_app->GetWorldRenderer()->AnimationTypeNukePointer) {
                 
                 NukePointer *nukePtr = (NukePointer*)anim;
                 WorldObject *targetObj = g_app->GetWorld()->GetWorldObject(nukePtr->m_targetId);

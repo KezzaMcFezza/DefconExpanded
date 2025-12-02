@@ -48,6 +48,7 @@
 
 #include "interface/interface.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "random_object.h"
@@ -1125,12 +1126,12 @@ void World::LaunchNuke( int teamId, int objId, Fixed longitude, Fixed latitude, 
                 char msg[64];
                 sprintf( msg, "%s", LANGUAGEPHRASE("message_nukelaunch") );
                 AddWorldMessage( fromLongitude, fromLatitude, teamId, msg, WorldMessage::TypeLaunch );
-                int id = g_app->GetMapRenderer()->CreateAnimation( MapRenderer::AnimationTypeNukePointer, objId,
+                int id = g_app->GetWorldRenderer()->CreateAnimation( WorldRenderer::AnimationTypeNukePointer, objId,
 																   from->m_longitude.DoubleValue(), from->m_latitude.DoubleValue() );
-                if( g_app->GetMapRenderer()->m_animations.ValidIndex( id ) )
+                if( g_app->GetWorldRenderer()->GetAnimations().ValidIndex( id ) )
                 {
-                    NukePointer *pointer = (NukePointer *)g_app->GetMapRenderer()->m_animations[id];
-                    if( pointer->m_animationType == MapRenderer::AnimationTypeNukePointer )
+                    NukePointer *pointer = (NukePointer *)g_app->GetWorldRenderer()->GetAnimations()[id];
+                    if( pointer->m_animationType == WorldRenderer::AnimationTypeNukePointer )
                     {
                         pointer->m_targetId = from->m_objectId;
                         pointer->Merge();
@@ -2049,21 +2050,21 @@ void World::Update()
     // just sit there and accumulate. Sonar pings would slowly but surely use more and more main 
     // thread as it iterated over 10s of thousands of null indexes. Eventually almost 90 percent
     // of the thread time was spent in this loop.
-    
-    for( int i = 0; i < g_app->GetMapRenderer()->m_animations.Size(); ++i )
+
+    for( int i = 0; i < g_app->GetWorldRenderer()->GetAnimations().Size(); ++i )
     {
-        if( g_app->GetMapRenderer()->m_animations.ValidIndex(i) )
+        if( g_app->GetWorldRenderer()->GetAnimations().ValidIndex(i) )
         {
-            AnimatedIcon *anim = g_app->GetMapRenderer()->m_animations[i];
+            AnimatedIcon *anim = g_app->GetWorldRenderer()->GetAnimations()[i];
             float timePassed = GetHighResTime() - anim->m_startTime;
-            
-            bool expired = ( anim->m_animationType == MapRenderer::AnimationTypeSonarPing && timePassed * 2.5f >= 5.0f ) ||
-                           ( anim->m_animationType == MapRenderer::AnimationTypeActionMarker && timePassed >= 0.5f ) ||
-                           ( anim->m_animationType == MapRenderer::AnimationTypeNukePointer && timePassed >= 10.0f );
+
+            bool expired = ( anim->m_animationType == WorldRenderer::AnimationTypeSonarPing && timePassed * 2.5f >= 5.0f ) ||
+                           ( anim->m_animationType == WorldRenderer::AnimationTypeActionMarker && timePassed >= 0.5f ) ||
+                           ( anim->m_animationType == WorldRenderer::AnimationTypeNukePointer && timePassed >= 10.0f );
             
             if( expired )
             {
-                g_app->GetMapRenderer()->m_animations.RemoveData(i);
+                g_app->GetWorldRenderer()->GetAnimations().RemoveData(i);
                 delete anim;
             }
         }
@@ -2074,9 +2075,9 @@ void World::Update()
     //
     // Now compact if fragmentation has reached the threshold
 
-    if( g_app->GetMapRenderer()->m_animations.ShouldCompact( animationCompactCounter, 20 ) )
+    if( g_app->GetWorldRenderer()->GetAnimations().ShouldCompact( animationCompactCounter, 20 ) )
     {
-        g_app->GetMapRenderer()->m_animations.Compact();
+        g_app->GetWorldRenderer()->GetAnimations().Compact();
     }
 
     START_PROFILE( "Radar Coverage" );
@@ -2348,12 +2349,12 @@ void World::UpdateRadar()
     // Update animation visibility
     
     START_PROFILE( "Sonar Ping Visibility" );
-    for( int j = 0; j < g_app->GetMapRenderer()->m_animations.Size(); ++j )
+    for( int j = 0; j < g_app->GetWorldRenderer()->GetAnimations().Size(); ++j )
     {
-        if( g_app->GetMapRenderer()->m_animations.ValidIndex(j) )
+        if( g_app->GetWorldRenderer()->GetAnimations().ValidIndex(j) )
         {
-            SonarPing *ping = (SonarPing *)g_app->GetMapRenderer()->m_animations[j];
-            if( ping->m_animationType == MapRenderer::AnimationTypeSonarPing )
+            SonarPing *ping = (SonarPing *)g_app->GetWorldRenderer()->GetAnimations()[j];
+            if( ping->m_animationType == WorldRenderer::AnimationTypeSonarPing )
             {
                 Fixed fixedLong = Fixed::FromDouble(ping->m_longitude);
                 Fixed fixedLat = Fixed::FromDouble(ping->m_latitude);

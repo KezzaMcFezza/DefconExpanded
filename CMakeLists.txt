@@ -525,6 +525,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/app/game_history.cpp
     ${ROOT_PATH}/source/lib/multiline_text.cpp
     ${ROOT_PATH}/source/lib/universal_include.cpp
+    ${ROOT_PATH}/source/renderer/world_renderer.cpp
     ${ROOT_PATH}/source/renderer/map_renderer.cpp
     ${ROOT_PATH}/source/renderer/globe_renderer.cpp
     ${ROOT_PATH}/source/renderer/animated_icon.cpp

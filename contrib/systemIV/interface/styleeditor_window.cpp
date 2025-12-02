@@ -12,6 +12,7 @@
 #include "interface/components/scrollbar.h"
 #include "interface/components/message_dialog.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "styleeditor_window.h"

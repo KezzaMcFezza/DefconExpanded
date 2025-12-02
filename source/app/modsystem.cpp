@@ -16,6 +16,7 @@
 #include "lib/preferences.h"
 #include "lib/language_table.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "interface/interface.h"

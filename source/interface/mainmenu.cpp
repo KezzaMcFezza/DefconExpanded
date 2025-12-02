@@ -44,6 +44,7 @@
 
 #include "world/earthdata.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 #include "renderer/lobby_renderer.h"

@@ -36,6 +36,7 @@
 #include "interface/interface.h"
 #include "interface/worldobject_window.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 #include "renderer/animated_icon.h"
@@ -163,7 +164,7 @@ void MapRenderer::Init()
 
 void MapRenderer::Reset()
 {
-    m_animations.EmptyAndDelete();
+    g_app->GetWorldRenderer()->Reset();
 
     delete m_tooltip;
     m_tooltip = NULL;
@@ -505,14 +506,14 @@ void MapRenderer::RenderExplosions()
 void MapRenderer::RenderAnimations()
 {
     
-    for( int i = 0; i < m_animations.Size(); ++i )
+    for( int i = 0; i <  g_app->GetWorldRenderer()->GetAnimations().Size(); ++i )
     {
-        if( m_animations.ValidIndex(i) )
+        if(  g_app->GetWorldRenderer()->GetAnimations().ValidIndex(i) )
         {
-            AnimatedIcon *anim = m_animations[i];
+            AnimatedIcon *anim =  g_app->GetWorldRenderer()->GetAnimations()[i];
             if( anim->Render() )
             {
-                m_animations.RemoveData(i);
+                 g_app->GetWorldRenderer()->GetAnimations().RemoveData(i);
                 delete anim;
             }
         }
@@ -3659,7 +3660,7 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
             if( selectionLandable && underMouseLandable )
             {
                 g_app->GetClientToServer()->RequestSpecialAction( m_currentSelectionId, _underMouseId, World::SpecialActionLandingAircraft );
-                CreateAnimation( AnimationTypeActionMarker, selection->m_objectId,
+                g_app->GetWorldRenderer()->CreateAnimation(  WorldRenderer::AnimationTypeActionMarker, selection->m_objectId,
 								 undermouse->m_longitude.DoubleValue(), undermouse->m_latitude.DoubleValue() );
                 SetCurrentSelectionId(-1);
                 landed = true;
@@ -3865,8 +3866,8 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
                     g_app->GetClientToServer()->RequestAction( m_currentSelectionId, underMouseId,
                                                                targetLong, targetLat ); 
 
-                    int animid = CreateAnimation( AnimationTypeActionMarker, m_currentSelectionId, targetLong.DoubleValue(), targetLat.DoubleValue() );
-                    ActionMarker *action = (ActionMarker *) m_animations[animid];
+                    int animid = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, m_currentSelectionId, targetLong.DoubleValue(), targetLat.DoubleValue() );
+                    ActionMarker *action = (ActionMarker *) g_app->GetWorldRenderer()->GetAnimations()[animid];
 
                     if( !underMouse )
                     {
@@ -3948,10 +3949,10 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY )
                         Fixed offsetX = 0;
                         Fixed offsetY = 0;
                         fleet->GetFormationPosition( fleet->m_fleetMembers.Size(), i, &offsetX, &offsetY );
-                        int index = CreateAnimation( AnimationTypeActionMarker, thisShip->m_objectId,
+                        int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, thisShip->m_objectId,
 													 _mouseX+offsetX.DoubleValue(),
 													 _mouseY+offsetY.DoubleValue() );  
-                        ActionMarker *marker = (ActionMarker *)m_animations[index];
+                        ActionMarker *marker = (ActionMarker *)g_app->GetWorldRenderer()->GetAnimations()[index];
                         marker->m_targetType = WorldObject::TargetTypeValid;
                         g_soundSystem->TriggerEvent( "Interface", "SetMovementTarget" );
                     }
@@ -3970,8 +3971,8 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY )
 
             g_app->GetClientToServer()->RequestSetWaypoint( m_currentSelectionId,
 															Fixed::FromDouble(_mouseX), Fixed::FromDouble(_mouseY) );
-            int index = CreateAnimation( AnimationTypeActionMarker, m_currentSelectionId, _mouseX, _mouseY );  
-            ActionMarker *marker = (ActionMarker *)m_animations[index];
+            int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, m_currentSelectionId, _mouseX, _mouseY );  
+            ActionMarker *marker = (ActionMarker *)g_app->GetWorldRenderer()->GetAnimations()[index];
             marker->m_targetType = WorldObject::TargetTypeValid;
             g_soundSystem->TriggerEvent( "Interface", "SetMovementTarget" );
             SetCurrentSelectionId(-1);
@@ -5034,28 +5035,6 @@ void MapRenderer::CameraCut( float longitude, float latitude, int zoom )
     m_cameraZoom = zoom;
 }
 
-int MapRenderer::CreateAnimation( int animationType, int _fromObjectId, float longitude, float latitude )
-{
-    AnimatedIcon *anim = NULL;
-    switch( animationType )
-    {
-        case AnimationTypeActionMarker  : anim = new ActionMarker();    break;
-        case AnimationTypeSonarPing     : anim = new SonarPing();       break; 
-        case AnimationTypeNukePointer   : anim = new NukePointer();     break;
-
-        default: return -1;
-    }
-
-    anim->m_longitude = longitude;
-    anim->m_latitude = latitude;
-    anim->m_fromObjectId = _fromObjectId;
-    anim->m_animationType = animationType;
-    
-    int index = m_animations.PutData( anim );
-    return index;
-}
-    
-
 void MapRenderer::FindScreenEdge( Vector3<float> const &_line, float *_posX, float *_posY )
 {
 //    y = mx + c
@@ -5215,15 +5194,15 @@ void MapRenderer::AutoCam()
 
             }
 
-            for( int i = 0; i < m_animations.Size(); ++i )
+            for( int i = 0; i < g_app->GetWorldRenderer()->GetAnimations().Size(); ++i )
             {
-                if( m_animations.ValidIndex(i) )
+                if( g_app->GetWorldRenderer()->GetAnimations().ValidIndex(i) )
                 {
-                    if( m_animations[i]->m_animationType == AnimationTypeNukePointer )
+                    if( g_app->GetWorldRenderer()->GetAnimations()[i]->m_animationType == g_app->GetWorldRenderer()->AnimationTypeNukePointer )
                     {
-                        areasOfInterest.PutData( new Vector3<Fixed>( Fixed::FromDouble(m_animations[i]->m_longitude),
-																	 Fixed::FromDouble(m_animations[i]->m_latitude),
-																	 Fixed::FromDouble(15 + 5 * sfrand()) ) );
+                        areasOfInterest.PutData( new Vector3<Fixed>( Fixed::FromDouble(g_app->GetWorldRenderer()->GetAnimations()[i]->m_longitude),
+						 Fixed::FromDouble(g_app->GetWorldRenderer()->GetAnimations()[i]->m_latitude),
+						 Fixed::FromDouble(15 + 5 * sfrand()) ) );
                     }
                 }
             }

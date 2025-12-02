@@ -10,6 +10,7 @@
 #include "lib/resource/resource.h"
 #include "lib/gucci/input.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/animated_icon.h"
 
@@ -152,12 +153,12 @@ void NukePointer::Merge()
     // Delete all nuke pointers currently at this location
     // (this new one will take over now)
 
-    for( int i = 0; i < g_app->GetMapRenderer()->m_animations.Size(); ++i )
+    for( int i = 0; i < g_app->GetWorldRenderer()->GetAnimations().Size(); ++i )
     {
-        if( g_app->GetMapRenderer()->m_animations.ValidIndex(i) )
+        if( g_app->GetWorldRenderer()->GetAnimations().ValidIndex(i) )
         {
-            NukePointer *anim = (NukePointer *)g_app->GetMapRenderer()->m_animations[i];
-            if( anim->m_animationType == MapRenderer::AnimationTypeNukePointer &&
+            NukePointer *anim = (NukePointer *)g_app->GetWorldRenderer()->GetAnimations()[i];
+            if( anim->m_animationType == WorldRenderer::AnimationTypeNukePointer &&
                 anim != this &&
                 anim->m_targetId == m_targetId )
             {

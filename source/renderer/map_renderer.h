@@ -11,9 +11,6 @@ class AnimatedIcon;
 
 #define    CLEARQUEUE_STATEID  255
 
-//
-// 2D map rendering preferences
-
 #define    PREFS_GRAPHICS_COASTLINE_THICKNESS         "RenderCoastlineThickness"
 #define    PREFS_GRAPHICS_BORDER_THICKNESS            "RenderBorderThickness"
 #define    PREFS_GRAPHICS_COASTLINES                  "RenderCoastlines"
@@ -28,26 +25,6 @@ class AnimatedIcon;
 #define    STYLE_WORLD_BORDERS                        "WorldBorders"
 #define    STYLE_WORLD_WATER                          "WorldWater"
 #define    STYLE_WORLD_LAND                           "WorldLand"
-
-#define    PREFS_INTERFACE_TOOLTIPS                   "InterfaceTooltips"
-#define    PREFS_INTERFACE_POPUPSCALE                 "InterfacePopupScale"
-#define    PREFS_INTERFACE_SIDESCROLL                 "InterfaceSideScrolling"
-#define    PREFS_INTERFACE_CAMDRAGGING                "InterfaceCameraDragging"
-#define    PREFS_INTERFACE_PANICKEY                   "InterfacePanicKey"
-#define    PREFS_INTERFACE_STYLE                      "InterfaceStyle"
-#define    PREFS_INTERFACE_KEYBOARDLAYOUT             "InterfaceKeyboard"
-#define    PREFS_INTERFACE_ZOOM_SPEED                 "InterfaceZoomSpeed"
-
-#define    STYLE_POPUP_BACKGROUND                     "PopupBackground"
-#define    STYLE_POPUP_TITLEBAR                       "PopupTitleBar"
-#define    STYLE_POPUP_BORDER                         "PopupBorder"
-#define    STYLE_POPUP_HIGHLIGHT                      "PopupHighlight"
-#define    STYLE_POPUP_SELECTION                      "PopupSelection"
-#define    FONTSTYLE_POPUP_TITLE                      "FontPopupTitle"
-#define    FONTSTYLE_POPUP                            "FontPopup"
-
-
-
 
 class MapRenderer
 {
@@ -123,16 +100,6 @@ protected:
 	float   m_latitudePlanningOld;
 
 public:
-    enum
-    {
-        AnimationTypeActionMarker,
-        AnimationTypeSonarPing,
-        AnimationTypeAttackMarker,
-        AnimationTypeNukePointer,
-        AnimationTypeNukeMarker,
-        NumAnimations
-    };
-
     bool    m_showRadar;
     bool    m_showPopulation;
     bool    m_showOrders;
@@ -155,7 +122,6 @@ public:
 
 	char	m_imageFiles[WorldObject::NumObjectTypes][256];
 
-    DArray  <AnimatedIcon *>    m_animations;
     LList   <const char *>     *m_tooltip;
 
     float   m_mouseIdleTime;
@@ -276,7 +242,6 @@ public:
     void    CenterViewport( int objectId, int zoom = 20, int camSpeed = 200 );
     void    CameraCut     ( float longitude, float latitude, int zoom = 10 );
 
-    int     CreateAnimation( int animationType, int _fromObjectId, float longitude, float latitude );
     void    FindScreenEdge( Vector3<float> const &_line, float *_posX, float *_posY );
 
     void    UpdateMouseIdleTime();

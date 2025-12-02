@@ -14,6 +14,7 @@
 #include "app/app.h"
 #include "app/game.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 
@@ -1033,9 +1034,9 @@ void MovingObject::Retaliate( int attackerId )
 
 void MovingObject::Ping()
 {   
-    int animId = g_app->GetMapRenderer()->CreateAnimation( MapRenderer::AnimationTypeSonarPing, m_objectId,
+    int animId = g_app->GetWorldRenderer()->CreateAnimation( WorldRenderer::AnimationTypeSonarPing, m_objectId,
 														   m_longitude.DoubleValue(), m_latitude.DoubleValue() );
-    AnimatedIcon *icon = g_app->GetMapRenderer()->m_animations[animId];
+    AnimatedIcon *icon = g_app->GetWorldRenderer()->GetAnimations()[animId];
     ((SonarPing *)icon)->m_teamId = m_teamId;
     
     if( g_app->GetWorld()->m_myTeamId == -1 ||

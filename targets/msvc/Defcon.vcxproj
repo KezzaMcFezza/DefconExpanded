@@ -745,6 +745,7 @@
     <ClCompile Include="..\..\source\renderer\globe_renderer.cpp" />
     <ClCompile Include="..\..\source\renderer\lobby_renderer.cpp" />
     <ClCompile Include="..\..\source\renderer\map_renderer.cpp" />
+    <ClCompile Include="..\..\source\renderer\world_renderer.cpp" />
     <ClCompile Include="..\..\source\world\airbase.cpp" />
     <ClCompile Include="..\..\source\world\battleship.cpp" />
     <ClCompile Include="..\..\source\world\blip.cpp" />
@@ -919,6 +920,7 @@
     <ClInclude Include="..\..\source\renderer\animated_icon.h" />
     <ClInclude Include="..\..\source\renderer\lobby_renderer.h" />
     <ClInclude Include="..\..\source\renderer\map_renderer.h" />
+    <ClInclude Include="..\..\source\renderer\world_renderer.h" />
     <ClInclude Include="..\..\source\world\airbase.h" />
     <ClInclude Include="..\..\source\world\battleship.h" />
     <ClInclude Include="..\..\source\world\blip.h" />

@@ -28,6 +28,7 @@
 #include "lib/multiline_text.h"
 #include "app/tutorial.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "world/world.h"

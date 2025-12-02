@@ -61,6 +61,7 @@
 #include "interface/chat_window.h"
 #endif
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 #include "renderer/lobby_renderer.h"
@@ -125,6 +126,7 @@ App::App()
     m_gameStartTimer(-1.0),
     m_globeMode(false),
     m_tutorial(NULL),
+    m_worldRenderer(NULL),
     m_mapRenderer(NULL),
     m_globeRenderer(NULL),
     m_lobbyRenderer(NULL),
@@ -166,6 +168,7 @@ App::~App()
 	delete m_earthData;
 	delete m_interface;
 	delete m_lobbyRenderer;
+    delete m_worldRenderer;
 	delete m_mapRenderer;
 	delete m_globeRenderer;
 	delete m_server;
@@ -436,6 +439,9 @@ void App::MinimalInit()
     delete m_soundOverlay;
     m_soundOverlay = new SoundDebugOverlay();
 #endif
+
+    m_worldRenderer = new WorldRenderer();
+    m_worldRenderer->Init();
 
     m_mapRenderer = new MapRenderer();
     m_mapRenderer->Init();
@@ -794,6 +800,7 @@ void App::ReinitialiseWindow()
     m_soundOverlay = new SoundDebugOverlay();
 #endif
 
+    m_worldRenderer->Init();
     m_mapRenderer->Init();
     m_globeRenderer->Init();
     m_interface->Init(); 
@@ -1541,6 +1548,7 @@ void App::ShutdownCurrentGame()
     g_soundSystem->StopAllSounds( SoundObjectId(), "StartMusic StartMusic" );
 #endif
 
+    m_worldRenderer->Reset();
     m_mapRenderer->Reset();
     m_globeRenderer->Reset();
 
@@ -1561,6 +1569,11 @@ void App::InitWorld()
     m_world->Init();
 }
 
+WorldRenderer *App::GetWorldRenderer()
+{
+    AppAssert( m_worldRenderer );
+    return m_worldRenderer;
+}
 
 MapRenderer *App::GetMapRenderer()
 {

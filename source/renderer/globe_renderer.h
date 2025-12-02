@@ -84,21 +84,6 @@ public:
     Vector3  <float> m_camUp;
     Vector3  <float> m_camFront;
 
-    DArray  <AnimatedIcon *>    m_animations;
-
-    enum
-    {
-        AnimationTypeActionMarker,
-        AnimationTypeSonarPing,
-        AnimationTypeAttackMarker,
-        AnimationTypeNukePointer,
-        AnimationTypeNukeMarker,
-        NumAnimations
-    };
-
-    void    RenderAnimations();
-    int     CreateAnimation( int animationType, int _fromObjectId, float longitude, float latitude );
-
     void    Render3DUnits();          
     void    Render3DUnitTrails();
     void    Render3DNukeTrajectories();

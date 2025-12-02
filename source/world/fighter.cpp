@@ -9,6 +9,7 @@
 #include "app/app.h"
 #include "app/globals.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "interface/interface.h"
@@ -62,7 +63,7 @@ void Fighter::Action( int targetObjectId, Fixed longitude, Fixed latitude )
     if( m_teamId == g_app->GetWorld()->m_myTeamId &&
         targetObjectId == -1 )
     {
-        g_app->GetMapRenderer()->CreateAnimation( MapRenderer::AnimationTypeActionMarker, m_objectId,
+        g_app->GetWorldRenderer()->CreateAnimation( WorldRenderer::AnimationTypeActionMarker, m_objectId,
 												  longitude.DoubleValue(), latitude.DoubleValue() );
     }
 

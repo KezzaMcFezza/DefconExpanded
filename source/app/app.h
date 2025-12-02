@@ -18,6 +18,7 @@ class ClientToServer;
 class EarthData;
 class Game;
 class Interface;
+class WorldRenderer;
 class LobbyRenderer;
 class MapRenderer;
 class GlobeRenderer;
@@ -65,6 +66,7 @@ public:                 // STARTUP OPTIONS
     float       m_frameCountTimer;
 
 private:
+    WorldRenderer       *m_worldRenderer;
     MapRenderer         *m_mapRenderer;
     GlobeRenderer       *m_globeRenderer;
     LobbyRenderer       *m_lobbyRenderer;
@@ -116,6 +118,7 @@ public:
     void    RenderOwner();
     void    RenderTitleScreen();
 
+    WorldRenderer   *GetWorldRenderer();
     MapRenderer     *GetMapRenderer();
     GlobeRenderer   *GetGlobeRenderer();
     LobbyRenderer   *GetLobbyRenderer();
