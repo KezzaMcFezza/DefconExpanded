@@ -72,6 +72,9 @@ GlobeRenderer::~GlobeRenderer()
 void GlobeRenderer::Init()
 {
     Reset();
+
+
+
 }
 
 void GlobeRenderer::Update()
@@ -100,8 +103,7 @@ Vector3<float> GlobeRenderer::ConvertLongLatTo3DPosition(float longitude, float 
     //
     // Spherical to cartesian conversion
 
-    float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
-    Vector3<float> pos(0, 0, globeRadius);
+    Vector3<float> pos(0, 0, GLOBE_RADIUS);
     pos.RotateAroundY(lonRad);
     Vector3<float> right = pos ^ Vector3<float>(0, 1, 0);
     right.Normalise();
@@ -119,7 +121,7 @@ void GlobeRenderer::GenerateStarField()
     //
     // Generate random stars on a large sphere around the globe
 
-    int numStars = g_preferences->GetInt(PREFS_GLOBE_STAR_DENSITY, 2400); 
+    int numStars = g_preferences->GetInt(PREFS_GLOBE_STAR_DENSITY, 12500); 
     float starSphereRadius = 20.0f;
     
     for (int i = 0; i < numStars; i++) {
@@ -138,7 +140,7 @@ void GlobeRenderer::GenerateStarField()
         star.position.y = starSphereRadius * sin(phi);
         star.position.z = starSphereRadius * cos(theta) * cos(phi);
         
-        float menuStarSize = g_preferences->GetFloat(PREFS_GLOBE_STAR_SIZE, 1.0f);
+        float menuStarSize = g_preferences->GetFloat(PREFS_GLOBE_STAR_SIZE, 1.5f);
         float internalStarSize = GlobeRenderer::ConvertMenuToStarSize(menuStarSize);
         float sizeVariation = internalStarSize * 0.5f;
         star.size = internalStarSize + frand(sizeVariation) - (sizeVariation * 0.5f); 
@@ -166,12 +168,12 @@ void GlobeRenderer::CleanupStarField()
 }
 
 void GlobeRenderer::RegenerateStarField()
-{
-    CleanupStarField();
-    
-    g_renderer3d->InvalidateCached3DVBO("Starfield");
-    
-    GenerateStarField();
+{ 
+    if (g_preferences->GetInt(PREFS_GLOBE_STARFIELD, 1)) {
+        CleanupStarField();
+        GenerateStarField();
+        BuildStarfieldVBO();
+    }
 }
 
 void GlobeRenderer::BuildStarfieldVBO()
@@ -262,35 +264,115 @@ void GlobeRenderer::BuildStarfieldVBO()
 }
 
 void GlobeRenderer::RenderStarField()
-{
-    //
-    // First lets check if starfield is enabled in preferences
-    
-    if (!g_preferences->GetInt(PREFS_GLOBE_STARFIELD, 1)) {
-        return;
+{ 
+    if (!g_renderer3d->IsTexturedMegaVBO3DValid("Starfield")) {
+        if (g_preferences->GetInt(PREFS_GLOBE_STARFIELD, 1)) {
+            if (!g_starField3DInitialized) {
+                GenerateStarField();
+            }
+            BuildStarfieldVBO();
+        }
     }
-
-    // Render it
-    
-    GenerateStarField();
-    BuildStarfieldVBO();
     
     g_renderer3d->RenderTexturedMegaVBO3D("Starfield");
 }
 
-void GlobeRenderer::AddLineStrip(const DArray<Vector3<float>> &vertices) const
+//
+// Render invisible culling sphere inside the globe
+// Renders to depth buffer only to cull objects behind the globe
+
+void GlobeRenderer::BuildCullSphereVBO()
 {
-    if (vertices.Size() <= 0) {
+    if (g_renderer3d->IsTriangleMegaVBO3DValid("CullingSphere")) {
         return;
     }
-
-    Vector3<float> *vertexArray = new Vector3<float>[vertices.Size()];
-    for (int i = 0; i < vertices.Size(); ++i) {
-        vertexArray[i] = vertices.GetData(i);
+    
+    float cullRadius = GLOBE_RADIUS * GLOBE_CULL_RADIUS;
+    
+    const int numLatitudeSegments = 128;
+    const int numLongitudeSegments = 128;
+    
+    //
+    // Calculate buffer sizes: each quad = 2 triangles = 6 vertices
+    
+    int totalTriangles = numLatitudeSegments * numLongitudeSegments * 2;
+    int totalVertices = totalTriangles * 3;
+    
+    g_renderer3d->SetTriangleMegaVBO3DBufferSizes(totalVertices, totalVertices);
+    
+    Colour cullColor(255, 255, 255, 255);
+    g_renderer3d->BeginTriangleMegaVBO3D("CullingSphere", cullColor);
+    
+    //
+    // Generate sphere triangles
+    
+    for (int lat = 0; lat < numLatitudeSegments; ++lat) {
+        float lat1 = -M_PI / 2.0f + M_PI * lat / numLatitudeSegments;
+        float lat2 = -M_PI / 2.0f + M_PI * (lat + 1) / numLatitudeSegments;
+        
+        for (int lon = 0; lon < numLongitudeSegments; ++lon) {
+            float lon1 = 2.0f * M_PI * lon / numLongitudeSegments;
+            float lon2 = 2.0f * M_PI * (lon + 1) / numLongitudeSegments;
+            
+            //
+            // Calculate 4 vertices for quad (will split into 2 triangles)
+            
+            Vector3<float> v1(cullRadius * cosf(lat1) * cosf(lon1),
+                              cullRadius * sinf(lat1),
+                              cullRadius * cosf(lat1) * sinf(lon1));
+            
+            Vector3<float> v2(cullRadius * cosf(lat1) * cosf(lon2),
+                              cullRadius * sinf(lat1),
+                              cullRadius * cosf(lat1) * sinf(lon2));
+            
+            Vector3<float> v3(cullRadius * cosf(lat2) * cosf(lon2),
+                              cullRadius * sinf(lat2),
+                              cullRadius * cosf(lat2) * sinf(lon2));
+            
+            Vector3<float> v4(cullRadius * cosf(lat2) * cosf(lon1),
+                              cullRadius * sinf(lat2),
+                              cullRadius * cosf(lat2) * sinf(lon1));
+            
+            //
+            // Add 2 triangles per quad (6 vertices total)
+            
+            Vector3<float> triangleVerts[6] = { v1, v2, v3, v1, v3, v4 };
+            g_renderer3d->AddTrianglesToMegaVBO3D(triangleVerts, 6);
+        }
     }
     
-    g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, vertices.Size());
-    delete[] vertexArray;
+    g_renderer3d->EndTriangleMegaVBO3D();
+}
+
+void GlobeRenderer::RenderCullSphere()
+{
+    if (!g_renderer3d->IsTriangleMegaVBO3DValid("CullingSphere")) {
+        BuildCullSphereVBO();
+    }
+    
+    //
+    // Ensure depth testing and depth writes are enabled
+    
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    
+    //
+    // Disable color writes
+    
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    
+    //
+    // Disable backface culling so both sides of sphere write to depth buffer
+    
+    glDisable(GL_CULL_FACE);
+    
+    g_renderer3d->RenderTriangleMegaVBO3D("CullingSphere");
+    
+    //
+    // Re enable color writes and restore culling state
+    
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glDisable(GL_CULL_FACE);
 }
 
 void GlobeRenderer::GlobeCoastlines()
@@ -413,6 +495,21 @@ void GlobeRenderer::GlobeGridlines()
 
 }
 
+void GlobeRenderer::AddLineStrip(const DArray<Vector3<float>> &vertices) const
+{
+    if (vertices.Size() <= 0) {
+        return;
+    }
+
+    Vector3<float> *vertexArray = new Vector3<float>[vertices.Size()];
+    for (int i = 0; i < vertices.Size(); ++i) {
+        vertexArray[i] = vertices.GetData(i);
+    }
+    
+    g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, vertices.Size());
+    delete[] vertexArray;
+}
+
 void GlobeRenderer::Render()
 {
     //
@@ -446,6 +543,19 @@ void GlobeRenderer::Render()
         GameCamera();
     }
 
+    //
+    // If in globe mode, cull the coastlines and borders
+
+    if (g_app->IsGlobeMode()) {
+
+        g_renderer->ClearScreen(false, true);
+            
+        START_PROFILE("Culling Sphere");
+        RenderCullSphere();
+        END_PROFILE("Culling Sphere");
+        
+    }
+
     START_PROFILE("Coastlines");
     GlobeCoastlines();
     END_PROFILE("Coastlines");
@@ -453,6 +563,19 @@ void GlobeRenderer::Render()
     START_PROFILE("Borders");
     GlobeBorders();
     END_PROFILE("Borders");
+
+    //
+    // In the lobby, we only want to cull the starfield
+        
+    if (!g_app->IsGlobeMode()) 
+    {
+        g_renderer->ClearScreen(false, true);
+        
+        START_PROFILE("Culling Sphere");
+        RenderCullSphere();
+        END_PROFILE("Culling Sphere");
+
+    }
 
     //
     // Disable fog before rendering main scene
@@ -807,7 +930,21 @@ void GlobeRenderer::GameCamera()
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
     glDisable( GL_DEPTH_TEST );
 
-    g_renderer3d->EnableOrientationFog(0.03f, 0.03f, 0.03f, 20.0f, cameraPos.x, cameraPos.y, cameraPos.z);
+    float fogDistanceSetting = (float)g_preferences->GetInt(PREFS_GLOBE_FOG_DISTANCE, 25);
+    float distanceMultiplier = (fogDistanceSetting / 20.0f - 1.0f) * 2.0f + 1.0f;
+        
+    //
+    // Scale the camera distance for fog calculations.
+    // We pass in fake camera values here to make the
+    // fog render further or closer to the real camera.
+        
+    Vector3<float> fogCameraPos = cameraPos;
+    fogCameraPos = fogCameraPos * distanceMultiplier;
+        
+    g_renderer3d->EnableOrientationFog(0.03f, 0.03f, 0.03f, 25.0f,
+                                          fogCameraPos.x,
+                                          fogCameraPos.y,
+                                          fogCameraPos.z);
 }
 
 void GlobeRenderer::LobbyCamera()
@@ -875,8 +1012,6 @@ void GlobeRenderer::RenderCities()
     
     DArray<CityRenderInfo> visibleCities;
     
-    float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
-    
     for (int i = 0; i < g_app->GetWorld()->m_cities.Size(); ++i) {
         City *city = g_app->GetWorld()->m_cities.GetData(i);
         
@@ -886,7 +1021,7 @@ void GlobeRenderer::RenderCities()
                 city->m_latitude.DoubleValue()
             );
             
-            if (!IsPointVisible(cityPos, cameraPos, globeRadius)) {
+            if (!IsPointVisible(cityPos, cameraPos, GLOBE_RADIUS)) {
                 continue;
             }
             
@@ -1038,8 +1173,7 @@ void GlobeRenderer::Render3DUnits()
                 );
             }
             
-            float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
-            if (!IsPointVisible(unitPos, cameraPos, globeRadius)) {
+            if (!IsPointVisible(unitPos, cameraPos, GLOBE_RADIUS)) {
                 continue;
             }
             
@@ -1382,7 +1516,6 @@ void GlobeRenderer::Render3DUnitTrails()
     if (g_preferences->GetInt(PREFS_GRAPHICS_TRAILS) != 1) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
-    float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
     Vector3<float> cameraPos = GetCameraPosition();
     
     // render trails for all moving objects
@@ -1445,7 +1578,7 @@ void GlobeRenderer::Render3DUnitTrails()
             
             Vector3<float> currentPos = ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
             
-            if (!IsPointVisible(currentPos, cameraPos, globeRadius)) {
+            if (!IsPointVisible(currentPos, cameraPos, GLOBE_RADIUS)) {
                 continue;
             }
             
@@ -1734,7 +1867,6 @@ void GlobeRenderer::Render3DGunfire()
     if (!g_app->IsGlobeMode()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
-    float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
     Vector3<float> cameraPos = GetCameraPosition();
     
     // render gunfire for all objects
@@ -1756,7 +1888,7 @@ void GlobeRenderer::Render3DGunfire()
             // calculate gunfires 3D position 
             Vector3<float> gunfirePos3D = CalculateGunfire3DPosition(gunfire);
             
-            if (!IsPointVisible(gunfirePos3D, cameraPos, globeRadius)) {
+            if (!IsPointVisible(gunfirePos3D, cameraPos, GLOBE_RADIUS)) {
                 continue;
             }
             
@@ -1931,7 +2063,6 @@ void GlobeRenderer::Render3DExplosions()
     if (!g_app->IsGlobeMode()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
-    float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
     Vector3<float> cameraPos = GetCameraPosition();
     
     for (int i = 0; i < g_app->GetWorld()->m_explosions.Size(); ++i) {
@@ -1956,7 +2087,7 @@ void GlobeRenderer::Render3DExplosions()
                 explosion->m_latitude.DoubleValue()
             );
             
-            if (!IsPointVisible(explosionPos, cameraPos, globeRadius)) {
+            if (!IsPointVisible(explosionPos, cameraPos, GLOBE_RADIUS)) {
                 continue;
             }
             
@@ -2023,7 +2154,6 @@ void GlobeRenderer::Render3DNukeSymbols()
     if (!g_app->IsGlobeMode()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
-    float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
     Vector3<float> cameraPos = GetCameraPosition();
     
     Image *nukeSymbolImg = g_resource->GetImage("graphics/nukesymbol.bmp");
@@ -2045,7 +2175,7 @@ void GlobeRenderer::Render3DNukeSymbols()
                 wobj->m_latitude.DoubleValue()
             );
             
-            if (!IsPointVisible(objectPos, cameraPos, globeRadius)) {
+            if (!IsPointVisible(objectPos, cameraPos, GLOBE_RADIUS)) {
                 continue;
             }
             
@@ -2089,7 +2219,7 @@ void GlobeRenderer::Render3DNukeSymbols()
             city->m_latitude.DoubleValue()
         );
         
-        if (!IsPointVisible(cityPos, cameraPos, globeRadius)) {
+        if (!IsPointVisible(cityPos, cameraPos, GLOBE_RADIUS)) {
             continue;
         }
         
@@ -2127,7 +2257,6 @@ void GlobeRenderer::Render3DWorldObjectTargets()
     if (!g_app->GetMapRenderer()->m_showOrders) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
-    float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
     Vector3<float> cameraPos = GetCameraPosition();
     
     Image *targetImg = g_resource->GetImage("graphics/cursor_target.bmp");
@@ -2153,7 +2282,7 @@ void GlobeRenderer::Render3DWorldObjectTargets()
                 predictedLatitude.DoubleValue()
             );
             
-            if (!IsPointVisible(unitPos, cameraPos, globeRadius)) {
+            if (!IsPointVisible(unitPos, cameraPos, GLOBE_RADIUS)) {
                 continue;
             }
             
@@ -2655,7 +2784,6 @@ void GlobeRenderer::Render3DAnimations()
     if (!g_app->IsGlobeMode()) return;
     
     int myTeamId = g_app->GetWorld()->m_myTeamId;
-    float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
     Vector3<float> cameraPos = GetCameraPosition();
     
     // render all animations
@@ -2728,7 +2856,7 @@ void GlobeRenderer::Render3DAnimations()
                     ping->m_latitude
                 );
                 
-                if (!IsPointVisible(pingPos, cameraPos, globeRadius)) continue;
+                if (!IsPointVisible(pingPos, cameraPos, GLOBE_RADIUS)) continue;
                 
                 int alpha = 255 - 255 * (pingSize / 5.0f);
                 alpha *= 0.5f;
@@ -2787,7 +2915,7 @@ void GlobeRenderer::Render3DAnimations()
                         targetObj->m_latitude.DoubleValue()
                     );
                     
-                    if (!IsPointVisible(targetPos, cameraPos, globeRadius)) continue;
+                    if (!IsPointVisible(targetPos, cameraPos, GLOBE_RADIUS)) continue;
                     
                     // position above surface like other effects
                     Vector3<float> normal = targetPos;
@@ -2826,7 +2954,6 @@ void GlobeRenderer::Render3DSanta()
 #ifdef ENABLE_SANTA_EASTEREGG
 	if ( !g_app->IsGlobeMode()) return;
 	
-	float globeRadius = g_preferences->GetFloat(PREFS_GLOBE_SIZE, 1.0f);
 	Vector3<float> cameraPos = GetCameraPosition();
 	
 	if ( g_app->GetWorld()->m_santaAlive )
@@ -2916,7 +3043,7 @@ void GlobeRenderer::Render3DSanta()
 				// convert 2D coordinates to 3D globe position
 				Vector3<float> santaPos = ConvertLongLatTo3DPosition(x, y);
 				
-				if (!IsPointVisible(santaPos, cameraPos, globeRadius)) {
+				if (!IsPointVisible(santaPos, cameraPos, GLOBE_RADIUS)) {
 					return;
 				}
 				
@@ -2965,7 +3092,7 @@ void GlobeRenderer::Render3DSanta()
 				// convert 2D coordinates to 3D globe position
 				Vector3<float> santaPos = ConvertLongLatTo3DPosition(x, y);
 				
-				if (!IsPointVisible(santaPos, cameraPos, globeRadius)) {
+				if (!IsPointVisible(santaPos, cameraPos, GLOBE_RADIUS)) {
 					return;
 				}
 				

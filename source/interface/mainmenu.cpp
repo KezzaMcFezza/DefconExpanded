@@ -1335,31 +1335,24 @@ class ApplyGlobeButton : public InterfaceButton
     {
         GlobeOptionsWindow *gow = (GlobeOptionsWindow *) m_parent;
         
-        g_preferences->SetFloat( PREFS_GLOBE_SIZE, gow->m_globeSize );
 #ifndef TARGET_EMSCRIPTEN
         g_preferences->SetFloat( PREFS_GLOBE_COAST_THICKNESS, gow->m_globeCoastThickness );
         g_preferences->SetFloat( PREFS_GLOBE_BORDER_THICKNESS, gow->m_globeBorderThickness );
 #endif
         
         //
-        // invalidate globe VBOs so they rebuild with new thickness
+        // invalidate vbos so they rebuild with new settings
 
-        if (g_renderer3d) {
-            g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
-            g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
-        }
+        g_renderer3d->InvalidateCached3DVBO("Starfield");
+        g_renderer3d->InvalidateCached3DVBO("CullingSphere");
+        g_renderer3d->InvalidateCached3DVBO("GlobeGridlines");
+        g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
+        g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
 
         g_preferences->SetInt( PREFS_GLOBE_FOG_DISTANCE, gow->m_globeFogDistance );
         g_preferences->SetInt( PREFS_GLOBE_STARFIELD, gow->m_globeStarfield );
         g_preferences->SetFloat( PREFS_GLOBE_STAR_SIZE, gow->m_globeStarSize );
         g_preferences->SetInt( PREFS_GLOBE_STAR_DENSITY, gow->m_globeStarDensity );
-        
-        //
-        // regenerate starfield when star settings change
-
-        if (g_app && g_app->GetGlobeRenderer()) {
-            g_app->GetGlobeRenderer()->RegenerateStarField();
-        }
         g_preferences->SetFloat( PREFS_GLOBE_LAND_UNIT_SIZE, gow->m_globeLandUnitSize );
         g_preferences->SetFloat( PREFS_GLOBE_NAVAL_UNIT_SIZE, gow->m_globeNavalUnitSize );
 
@@ -1372,22 +1365,21 @@ GlobeOptionsWindow::GlobeOptionsWindow()
 :   InterfaceWindow( "Globe", "dialog_globeoptions", true )
 {
 #ifndef TARGET_EMSCRIPTEN
-    SetSize( 420, 400 );
+    SetSize( 420, 380 );
 #else
-    SetSize( 420, 360 );
+    SetSize( 420, 340 );
 #endif
 
     Centralise();
 
-    m_globeSize              = g_preferences->GetFloat( PREFS_GLOBE_SIZE, 1.0f );
 #ifndef TARGET_EMSCRIPTEN
     m_globeCoastThickness    = g_preferences->GetFloat( PREFS_GLOBE_COAST_THICKNESS, 1.0f );
     m_globeBorderThickness   = g_preferences->GetFloat( PREFS_GLOBE_BORDER_THICKNESS, 1.0f );
 #endif
-    m_globeFogDistance       = g_preferences->GetInt( PREFS_GLOBE_FOG_DISTANCE, 20 );
+    m_globeFogDistance       = g_preferences->GetInt( PREFS_GLOBE_FOG_DISTANCE, 25 );
     m_globeStarfield         = g_preferences->GetInt( PREFS_GLOBE_STARFIELD, 1 );
-    m_globeStarSize          = g_preferences->GetFloat( PREFS_GLOBE_STAR_SIZE, 1.0f );
-    m_globeStarDensity       = g_preferences->GetInt( PREFS_GLOBE_STAR_DENSITY, 1200 );
+    m_globeStarSize          = g_preferences->GetFloat( PREFS_GLOBE_STAR_SIZE, 1.5f );
+    m_globeStarDensity       = g_preferences->GetInt( PREFS_GLOBE_STAR_DENSITY, 12500 );
     m_globeLandUnitSize      = g_preferences->GetFloat( PREFS_GLOBE_LAND_UNIT_SIZE, 1.0f );
     m_globeNavalUnitSize     = g_preferences->GetFloat( PREFS_GLOBE_NAVAL_UNIT_SIZE, 1.0f );
 }
@@ -1406,7 +1398,6 @@ void GlobeOptionsWindow::Create()
     box->SetProperties( "invert", 10, 50, m_w - 20, m_h - 110, " ", " ", false, false );        
     RegisterButton( box );
 
-    CreateValueControl( "Globe Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeSize, 0.1f, 1.0f, 2.0f, NULL, " ", false );
 #ifndef TARGET_EMSCRIPTEN
     CreateValueControl( "Coast Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_globeCoastThickness, 0.1f, 0.1f, 10.0f, NULL, " ", false );
     CreateValueControl( "Border Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_globeBorderThickness, 0.1f, 0.1f, 10.0f, NULL, " ", false );
@@ -1421,7 +1412,7 @@ void GlobeOptionsWindow::Create()
     RegisterButton(dropDown);
 
     CreateValueControl( "Star Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeStarSize, 0.1f, 0.1f, 20.0f, NULL, " ", false );
-    CreateValueControl( "Star Density", x, y+=h, w, 20, InputField::TypeInt, &m_globeStarDensity, 50, 100, 20000, NULL, " ", false );
+    CreateValueControl( "Star Density", x, y+=h, w, 20, InputField::TypeInt, &m_globeStarDensity, 50, 100, 75000, NULL, " ", false );
     CreateValueControl( "Land Unit Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeLandUnitSize, 0.1f, 0.1f, 7.0f, NULL, " ", false );
     CreateValueControl( "Naval Unit Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeNavalUnitSize, 0.1f, 0.1f, 7.0f, NULL, " ", false );
 
@@ -1444,7 +1435,6 @@ void GlobeOptionsWindow::Render( bool _hasFocus )
     int h = 30;
     int size = 13;
 
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globesize") );
 #ifndef TARGET_EMSCRIPTEN
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globecoastthickness") );
     g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globeborderthickness") );

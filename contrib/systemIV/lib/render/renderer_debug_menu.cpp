@@ -360,6 +360,21 @@ void RendererDebugMenu::RenderSystemInformation(float& yPos)
                  starfieldMemory);
         m_renderer->TextSimple(35, yPos, orange, 11.0f, infoBuffer);
         yPos += 14.0f;
+        
+        //
+        // And print culling sphere statistics
+        
+        float cullingSphereMemory = 0.0f;
+        if (g_renderer3d) {
+            int cullingSphereVertices = g_renderer3d->GetCached3DVBOVertexCount("CullingSphere");
+            int cullingSphereIndices = g_renderer3d->GetCached3DVBOIndexCount("CullingSphere");
+            cullingSphereMemory = ((cullingSphereVertices * sizeof(Vertex3D)) + (cullingSphereIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+        }
+        
+        snprintf(infoBuffer, sizeof(infoBuffer), "  Culling Sphere: %.2f MB", 
+                 cullingSphereMemory);
+        m_renderer->TextSimple(35, yPos, orange, 11.0f, infoBuffer);
+        yPos += 14.0f;
     }
 }
 
@@ -411,13 +426,13 @@ void RendererDebugMenu::RenderVBOCacheStatistics(float& yPos)
     // 2D VBO stats
     
     renderVBOStat("2D Coastlines", 
-                  m_renderer->GetCachedVBOVertexCount("all_coastlines"),
-                  m_renderer->GetCachedVBOIndexCount("all_coastlines"),
+                  m_renderer->GetCachedVBOVertexCount("MapCoastlines"),
+                  m_renderer->GetCachedVBOIndexCount("MapCoastlines"),
                   sizeof(Vertex2D));
     
     renderVBOStat("2D Borders", 
-                  m_renderer->GetCachedVBOVertexCount("all_borders"),
-                  m_renderer->GetCachedVBOIndexCount("all_borders"),
+                  m_renderer->GetCachedVBOVertexCount("MapBorders"),
+                  m_renderer->GetCachedVBOIndexCount("MapBorders"),
                   sizeof(Vertex2D));
     
     //
@@ -443,6 +458,11 @@ void RendererDebugMenu::RenderVBOCacheStatistics(float& yPos)
                       g_renderer3d->GetCached3DVBOVertexCount("Starfield"),
                       g_renderer3d->GetCached3DVBOIndexCount("Starfield"),
                       sizeof(Vertex3DTextured), true);
+        
+        renderVBOStat("3D Culling Sphere",
+                      g_renderer3d->GetCached3DVBOVertexCount("CullingSphere"),
+                      g_renderer3d->GetCached3DVBOIndexCount("CullingSphere"),
+                      sizeof(Vertex3D), true);
     }
 }
 

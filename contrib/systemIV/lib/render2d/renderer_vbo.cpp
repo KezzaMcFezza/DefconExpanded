@@ -372,8 +372,8 @@ void Renderer::SetMegaVBOBufferSizes(int vertexCount, int indexCount) {
     //
     // delete all mega-VBO GPU/CPU resources when resizing
 
-    InvalidateCachedVBO("all_coastlines");
-    InvalidateCachedVBO("all_borders");
+    InvalidateCachedVBO("MapCoastlines");
+    InvalidateCachedVBO("MapBorders");
     
     //
     // free existing CPU buffers

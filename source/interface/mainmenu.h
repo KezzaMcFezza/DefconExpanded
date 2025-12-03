@@ -82,7 +82,6 @@ public:
 class GlobeOptionsWindow : public InterfaceWindow
 {
 public:
-    float   m_globeSize;
     float   m_globeCoastThickness;
     float   m_globeBorderThickness;
     int     m_globeFogDistance;

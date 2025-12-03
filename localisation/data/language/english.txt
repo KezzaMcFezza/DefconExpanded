@@ -114,7 +114,6 @@ dialog_objecttrails                 Show Object Trails
 dialog_lobbyeffects                 Lobby Effects
 
 dialog_globeoptions                 Globe Options
-dialog_globesize                    Globe Size
 dialog_globecoastthickness          Coastline Thickness
 dialog_globeborderthickness         Border Thickness
 dialog_globecoastcolor              Coastline Color

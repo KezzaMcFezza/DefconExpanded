@@ -2773,22 +2773,24 @@ void MapRenderer::RenderCoastlines()
     g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_COASTLINE_THICKNESS));
 #endif
 
+    //
     // Check if VBO exists and is valid, if not build it
-    if (!g_renderer->IsMegaVBOValid("all_coastlines")) {
-        // Build ALL coastlines into single mega-VBO (once only, like display lists)
+
+    if (!g_renderer->IsMegaVBOValid("MapCoastlines")) {
         LList<Island *> *list = &g_app->GetEarthData()->m_islands;
 
         Colour coastlineColor = g_styleTable->GetPrimaryColour( STYLE_WORLD_COASTLINES );
         
-        // Begin mega-VBO for all coastlines (using 1.5f width like original OpenGL 1.2 system)
-        g_renderer->BeginMegaVBO( "all_coastlines", coastlineColor );
+        g_renderer->BeginMegaVBO( "MapCoastlines", coastlineColor );
         
         for( int i = 0; i < list->Size(); ++i )
         {
             Island *island = list->GetData(i);
             AppDebugAssert( island );
 
+            //
             // Convert island points to vertex array
+
             int pointCount = island->m_points.Size();
             if (pointCount >= 2) {
                 float* vertices = new float[pointCount * 2];
@@ -2799,18 +2801,18 @@ void MapRenderer::RenderCoastlines()
                     vertices[j * 2 + 1] = thePoint.y;
                 }
                 
+                //
                 // Add this island's line strip to the mega-VBO
+
                 g_renderer->AddLineStripToMegaVBO( vertices, pointCount );
                 delete[] vertices;
             }
         }
         
         g_renderer->EndMegaVBO();
-        AppDebugOut("Rebuilt coastlines VBO with %d islands\n", list->Size());
     }
     
-    // Render ALL coastlines with single draw call
-    g_renderer->RenderMegaVBO( "all_coastlines" );
+    g_renderer->RenderMegaVBO( "MapCoastlines" );
 
     END_PROFILE( "Coastlines" );
 }
@@ -2827,31 +2829,27 @@ void MapRenderer::RenderBorders()
     Colour desaturatedColour = g_styleTable->GetSecondaryColour( STYLE_WORLD_BORDERS );
     lineColour = lineColour * mapColourFader + desaturatedColour * (1-mapColourFader);
 
-#ifdef TARGET_OS_MACOSX
-	// Because we have disabled line smooth on Mac builds
-	// Reduce the intensity of the border colour to compensate
-	lineColour.m_a *= 0.5f;
-#endif
-
 #ifndef TARGET_EMSCRIPTEN
     g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GRAPHICS_BORDER_THICKNESS));
 #endif
     
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     
+    //
     // Check if VBO exists and is valid, if not build it
-    if (!g_renderer->IsMegaVBOValid("all_borders")) {
-        // Build ALL borders into single mega-VBO (once only, like display lists)
+
+    if (!g_renderer->IsMegaVBOValid("MapBorders")) {
         
-        // Begin mega-VBO for all borders
-        g_renderer->BeginMegaVBO( "all_borders", lineColour );
+        g_renderer->BeginMegaVBO( "MapBorders", lineColour );
         
         for( int i = 0; i < g_app->GetEarthData()->m_borders.Size(); ++i )
         {
             Island *island = g_app->GetEarthData()->m_borders[i];
             AppDebugAssert( island );
 
+            //
             // Convert border points to vertex array
+
             int pointCount = island->m_points.Size();
             if (pointCount >= 2) {
                 float* vertices = new float[pointCount * 2];
@@ -2862,18 +2860,15 @@ void MapRenderer::RenderBorders()
                     vertices[j * 2 + 1] = thePoint.y;
                 }
                 
-                // Add this border's line strip to the mega-VBO
                 g_renderer->AddLineStripToMegaVBO( vertices, pointCount );
                 delete[] vertices;
             }
         }
         
         g_renderer->EndMegaVBO();
-        AppDebugOut("Rebuilt borders VBO with %d border segments\n", g_app->GetEarthData()->m_borders.Size());
     }
-    
-    // Render ALL borders with single draw call
-    g_renderer->RenderMegaVBO( "all_borders" );
+
+    g_renderer->RenderMegaVBO( "MapBorders" );
 
     END_PROFILE( "Borders" );
 }

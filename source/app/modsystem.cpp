@@ -18,6 +18,7 @@
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "interface/interface.h"
 #include "interface/components/message_dialog.h"
@@ -799,21 +800,24 @@ void ModSystem::Commit()
         g_resource->Restart();
         g_app->InitFonts();
         g_app->GetMapRenderer()->Init();
+        g_app->GetGlobeRenderer()->Init();
 
-        // Update geography-affecting mods list
         UpdateGeographyAffectingMods();
 
-        // VBO rebuilding, only if geography data changed
         bool geographyChanged = false;
         
+        //
         // Check if the set of geography-affecting mods changed
+
         if (previousGeographyMods.Size() != m_geographyAffectingMods.Size())
         {
             geographyChanged = true;
         }
         else
         {
+            //
             // Same count, check if contents are different
+
             for (int i = 0; i < previousGeographyMods.Size(); ++i)
             {
                 bool found = false;
@@ -835,27 +839,20 @@ void ModSystem::Commit()
 
         if (geographyChanged)
         {
-            AppDebugOut("Geography data changed, rebuilding VBOs\n");
-            
-            if (g_renderer) {
-                g_renderer->InvalidateCachedVBO("all_coastlines");
-                g_renderer->InvalidateCachedVBO("all_borders");
-                AppDebugOut("Pre-invalidated 2D coastlines and borders VBOs\n");
-            }
-            if (g_renderer3d) {
-                g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
-                g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
-                g_renderer3d->InvalidateCached3DVBO("GlobeGridlines");
-                AppDebugOut("Pre-invalidated 3D globe VBOs\n");
-            }
+            //
+            // Invalidate VBOs so they rebuild with new settings
+
+            g_renderer->InvalidateCachedVBO("MapCoastlines");
+            g_renderer->InvalidateCachedVBO("MapBorders");
+            g_renderer3d->InvalidateCached3DVBO("Starfield");
+            g_renderer3d->InvalidateCached3DVBO("CullingSphere");
+            g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
+            g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
+            g_renderer3d->InvalidateCached3DVBO("GlobeGridlines");
             
             g_app->GetEarthData()->LoadCoastlines();
             g_app->GetEarthData()->LoadBorders();
             g_app->GetEarthData()->CalculateAndSetBufferSizes();
-        }
-        else
-        {
-            AppDebugOut("No geography data changes, keeping existing VBOs\n");
         }
 
         if( !g_app->m_gameRunning )
