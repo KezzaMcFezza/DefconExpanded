@@ -1552,8 +1552,7 @@ void App::ShutdownCurrentGame()
     m_mapRenderer->Reset();
     m_globeRenderer->Reset();
 
-    m_mapRenderer->m_renderEverything = false;
-    m_globeRenderer->m_renderEverything = false;
+    GetWorldRenderer()->SetRenderEverything( false );
 
     m_gameStartTimer = -1.0f;
 	GetInterface()->SetMouseCursor();

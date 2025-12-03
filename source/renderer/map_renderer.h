@@ -108,7 +108,6 @@ public:
     bool    m_showAllTeams;
     bool    m_showNodes;
     bool    m_hideMouse;
-    bool    m_renderEverything;
     bool    m_showNukeUnits;
 
     int     m_highlightUnit;

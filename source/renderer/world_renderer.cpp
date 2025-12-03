@@ -8,6 +8,7 @@
 #include "renderer/animated_icon.h"
 
 WorldRenderer::WorldRenderer()
+:   m_renderEverything(false)
 {
 }
 
@@ -28,6 +29,11 @@ void WorldRenderer::Init()
 void WorldRenderer::Reset()
 {
     m_animations.EmptyAndDelete();
+}
+
+void WorldRenderer::SetRenderEverything( bool _renderEverything )
+{
+    m_renderEverything = _renderEverything;
 }
 
 int WorldRenderer::CreateAnimation( int animationType, int _fromObjectId, float longitude, float latitude )

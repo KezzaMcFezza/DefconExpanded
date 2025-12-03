@@ -70,7 +70,6 @@ MapRenderer::MapRenderer()
     m_oldMouseX(0.0f),
     m_oldMouseY(0.0f),
     m_mouseIdleTime(0.0f),
-    m_renderEverything(false),
     m_radarLocked(false),
     m_stateRenderTime(0.0f),
     m_highlightUnit(-1),
@@ -490,7 +489,7 @@ void MapRenderer::RenderExplosions()
             {
                 if( myTeamId == -1 ||
                     explosion->m_visible[myTeamId] || 
-                    m_renderEverything )
+                    g_app->GetWorldRenderer()->CanRenderEverything() )
                 {
                     g_app->GetWorld()->m_explosions[i]->Render();
                 }
@@ -637,7 +636,7 @@ void MapRenderer::RenderGunfire()
                 (gunFire->m_teamId == myTeamId ||
                  myTeamId == -1 ||
                  gunFire->m_visible[myTeamId] ||
-                 m_renderEverything ) )
+                 g_app->GetWorldRenderer()->CanRenderEverything() ) )
             {
                 g_app->GetWorld()->m_gunfire[i]->Render();
             }
@@ -2915,7 +2914,7 @@ void MapRenderer::RenderObjects()
                 if( myTeamId == -1 ||
                     wobj->m_teamId == myTeamId ||
                     wobj->m_visible[myTeamId] ||
-                    m_renderEverything )
+                    g_app->GetWorldRenderer()->CanRenderEverything() )
                 {
                     wobj->Render();
                 }

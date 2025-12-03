@@ -2180,7 +2180,7 @@ void World::Update()
             if( g_keys[KEY_5] )    m_myTeamId = 4;
             if( g_keys[KEY_6] )    m_myTeamId = 5;
             if( g_keys[KEY_7] )    m_myTeamId = 6;
-            if( g_keys[KEY_8] )    g_app->GetMapRenderer()->m_renderEverything = !g_app->GetMapRenderer()->m_renderEverything;
+            if( g_keys[KEY_8] )    g_app->GetWorldRenderer()->SetRenderEverything( !g_app->GetWorldRenderer()->CanRenderEverything() );
 
             if( m_myTeamId >= m_teams.Size() )
             {

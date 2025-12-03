@@ -36,6 +36,10 @@ public:
     DArray  <AnimatedIcon *>    m_animations;
     DArray  <AnimatedIcon *>   &GetAnimations() { return m_animations; }
 
+    bool m_renderEverything;
+    bool CanRenderEverything() { return m_renderEverything; }
+    void SetRenderEverything( bool _renderEverything );
+
     enum
     {
         AnimationTypeActionMarker,

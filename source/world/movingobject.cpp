@@ -1041,7 +1041,7 @@ void MovingObject::Ping()
     
     if( g_app->GetWorld()->m_myTeamId == -1 ||
         g_app->GetWorld()->m_myTeamId == m_teamId ||
-        g_app->GetMapRenderer()->m_renderEverything ||
+        g_app->GetWorldRenderer()->CanRenderEverything() ||
         g_app->GetWorld()->IsVisible( m_longitude, m_latitude, g_app->GetWorld()->m_myTeamId) )
     {
 #ifdef TOGGLE_SOUND

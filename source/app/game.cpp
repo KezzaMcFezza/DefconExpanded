@@ -18,7 +18,7 @@
 #include "app/tutorial.h"
 #include "app/statusicon.h"
 
-#include "renderer/map_renderer.h"
+#include "renderer/world_renderer.h"
 
 #include "world/world.h"
 #include "world/fleet.h"
@@ -581,7 +581,7 @@ void Game::Update()
                 strupr(msg);
                 g_app->GetInterface()->ShowMessage( 0, 0, m_winner, msg, true );
 
-                g_app->GetMapRenderer()->m_renderEverything = true;
+                g_app->GetWorldRenderer()->SetRenderEverything( true );
                 for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
                 {
                     g_app->GetWorld()->m_teams[i]->m_desiredGameSpeed = 0;

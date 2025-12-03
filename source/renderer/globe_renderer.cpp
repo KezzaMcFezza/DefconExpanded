@@ -50,7 +50,6 @@ GlobeRenderer::GlobeRenderer()
     m_middleY(0.0f),
     m_lockCommands(false),
     m_draggingCamera(false),
-    m_renderEverything(false),
     m_maxCameraDistance(3.0f),
     m_minCameraDistance(1.2f),
     m_maxZoomFactor(1.0f),
@@ -980,13 +979,13 @@ void GlobeRenderer::Render3DUnits()
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
-                               m_renderEverything);
+                               g_app->GetWorldRenderer()->CanRenderEverything());
             
             bool renderAsGhost = false;
             if (!shouldRender) {
                 // Render as ghost if our team has seen this unit before
                 if (myTeamId != -1 &&
-                    !m_renderEverything &&
+                    !g_app->GetWorldRenderer()->CanRenderEverything() &&
                     wobj->m_lastSeenTime[myTeamId] > 0)
                 {
                     renderAsGhost = true;
@@ -1402,7 +1401,7 @@ void GlobeRenderer::Render3DUnitTrails()
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
-                               m_renderEverything);
+                               g_app->GetWorldRenderer()->CanRenderEverything());
             
             if (!shouldRender) continue;
             
@@ -1527,7 +1526,7 @@ void GlobeRenderer::Render3DNuke()
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
-                               m_renderEverything);
+                               g_app->GetWorldRenderer()->CanRenderEverything());
             
             if (!shouldRender) continue;
             
@@ -1645,7 +1644,7 @@ void GlobeRenderer::Render3DNukeTrajectories()
             bool shouldRender = (myTeamId == -1 ||
                                wobj->m_teamId == myTeamId ||
                                wobj->m_visible[myTeamId] ||
-                               m_renderEverything);
+                               g_app->GetWorldRenderer()->CanRenderEverything());
             
             if (!shouldRender) continue;
             
@@ -1746,7 +1745,7 @@ void GlobeRenderer::Render3DGunfire()
             bool shouldRender = (myTeamId == -1 ||
                                gunfire->m_teamId == myTeamId ||
                                gunfire->m_visible[myTeamId] ||
-                               m_renderEverything);
+                               g_app->GetWorldRenderer()->CanRenderEverything());
             
             if (!shouldRender) continue;
             
@@ -1941,7 +1940,7 @@ void GlobeRenderer::Render3DExplosions()
             
             bool shouldRender = (myTeamId == -1 ||
                                explosion->m_visible[myTeamId] ||
-                               m_renderEverything);
+                               g_app->GetWorldRenderer()->CanRenderEverything());
             
             if (!shouldRender) continue;
             

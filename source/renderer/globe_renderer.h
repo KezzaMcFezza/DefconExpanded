@@ -69,8 +69,6 @@ public:
 
     Vector3<float> GetCameraPosition();
 
-    bool m_renderEverything;
-
     float   m_maxCameraDistance;
     float   m_minCameraDistance;
     float   m_maxZoomFactor;
