@@ -16,7 +16,6 @@
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
-#include "renderer/globe_renderer.h"
 
 #include "network/ClientToServer.h"
 
@@ -70,29 +69,16 @@ void MovingObject::InitialiseTimers()
 bool MovingObject::Update()
 {
     //
-    // Update history, but first check if we are in 3D globe mode
-    
-    if (g_app->IsGlobeMode()) {
-        float samplingRate = 0.5f; 
-        if (m_type == WorldObject::TypeNuke) {
-            samplingRate = 0.5f;  // reduced from 0.25f to match other units for performance reasons
-                                  // this is a bit uglier but its essential as we get an extra 70 fps
-        }
-        
-        m_historyTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor() / 10;
-        if( m_historyTimer <= 0 )
-        {
-            m_history.PutDataAtStart( new Vector3<Fixed>(m_longitude, m_latitude, 0) );
-            m_historyTimer = Fixed::FromDouble(samplingRate); // proper fixed point math usage
-        }
-    } else {
-        m_historyTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor() / 10;
-        if( m_historyTimer <= 0 )
-        {
-            m_history.PutDataAtStart( new Vector3<Fixed>(m_longitude, m_latitude, 0) );
-            m_historyTimer = 2; 
-        }
+    // Update history
+
+
+    m_historyTimer -= SERVER_ADVANCE_PERIOD * g_app->GetWorld()->GetTimeScaleFactor() / 10;
+    if( m_historyTimer <= 0 )
+    {
+        m_history.PutDataAtStart( new Vector3<Fixed>(m_longitude, m_latitude, 0) );
+        m_historyTimer = 2; 
     }
+    
 
     while( m_maxHistorySize != -1 && 
            m_history.ValidIndex(m_maxHistorySize) )
@@ -614,9 +600,6 @@ void MovingObject::RenderHistory()
         {
             case TypeNuke:
                 sizeCap = 12 * g_app->GetMapRenderer()->GetZoomFactor();
-                if (g_app->IsGlobeMode()) {
-                    sizeCap *= 4;
-                }
                 if( g_app->GetMapRenderer()->GetZoomFactor() < 0.25f )
                 {
                     return;
@@ -626,9 +609,6 @@ void MovingObject::RenderHistory()
             case TypeBattleShip:
             case TypeCarrier:
             case TypeSub:
-                if (g_app->IsGlobeMode()) {
-                    sizeCap *= 4;
-                }
                 break;
 
             default:
@@ -636,19 +616,6 @@ void MovingObject::RenderHistory()
         }
 
         if( sizeCap < 2 ) return;
-    }
-    else
-    {
-        if (g_app->IsGlobeMode()) {
-            if( m_type == TypeNuke )
-            {
-                sizeCap *= 4;
-            }
-            else
-            {
-                sizeCap *= 4;
-            }
-        }
     }
 
     maxSize = ( maxSize > sizeCap ? sizeCap : maxSize );
@@ -670,12 +637,7 @@ void MovingObject::RenderHistory()
         myTeamId < g_app->GetWorld()->m_teams.Size() &&
         g_app->GetWorld()->GetTeam(myTeamId)->m_type != Team::TypeUnassigned )
     {
-        if (g_app->IsGlobeMode()) {
-            int enemyTrailLimit = (m_type == TypeNuke) ? 16 : 16;  
-            maxSize = min( maxSize, enemyTrailLimit );
-        } else {
-            maxSize = min( maxSize, 4 );
-        }
+        maxSize = min( maxSize, 4 ); 
     }
 
     if( m_history.Size() > 0 )
