@@ -2965,6 +2965,10 @@ void GlobeRenderer::Render3DSanta()
 				// convert 2D coordinates to 3D globe position
 				Vector3<float> santaPos = ConvertLongLatTo3DPosition(x, y);
 				
+				if (!IsPointVisible(santaPos, cameraPos, globeRadius)) {
+					return;
+				}
+				
 				// position above globe surface like other units
 				Vector3<float> normal = santaPos;
 				normal.Normalise();
