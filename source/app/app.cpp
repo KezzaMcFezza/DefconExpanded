@@ -788,6 +788,10 @@ void App::ReinitialiseWindow()
     
     g_renderer = new Renderer();
     
+    if (m_earthData) {
+        m_earthData->CalculateAndSetBufferSizes();
+    }
+    
     g_resource->Restart();
     
     InitFonts();
