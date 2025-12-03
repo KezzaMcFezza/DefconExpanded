@@ -89,13 +89,6 @@ protected:
 
     float   m_tooltipTimer;
 
-	bool    m_showWhiteBoard;			// Used to show the white board(s) without editing the player white board
-	bool	m_editWhiteBoard;			// Used to show the white board panel
-	bool    m_showPlanning;				// Used to edit the player white board
-	bool	m_showAllWhiteBoards;		// Used to toggle between showing only the player whiteboard or all whiteboard in the alliance
-	bool    m_drawingPlanning;			// Used to indicate the player is currently drawing
-	bool    m_erasingPlanning;			// Used to indicate the player is currently erasing
-	double  m_drawingPlanningTime;
 	float   m_longitudePlanningOld;
 	float   m_latitudePlanningOld;
 
@@ -210,10 +203,6 @@ public:
     float   GetZoomFactor();
     float   GetDrawScale();
 
-    bool    GetShowWhiteBoard() { return m_showWhiteBoard; }
-    bool    GetEditWhiteBoard() { return m_editWhiteBoard; }
-    bool    ShowAllWhiteBoards() { return m_showAllWhiteBoards; }
-
     void    GetPosition( float &_middleX, float &_middleY );
 
     int     GetLongitudeMod();
@@ -257,17 +246,7 @@ public:
     void    MoveCam();
 
     bool    IsOnScreen( float _longitude, float _latitude, float _expandScreen = 2.0f );
-
-	bool	GetShowWhiteBoard() const;
-	void	SetShowWhiteBoard( bool showWhiteBoard );
-	bool	GetEditWhiteBoard() const;
-	void	SetEditWhiteBoard( bool showPlanning );
-	bool    GetShowPlanning() const;
-	void    SetShowPlanning( bool showPlanning );
-	bool	GetShowAllWhiteBoards() const;
-	void	SetShowAllWhiteBoards( bool showAllWhiteBoards );
-	void    RenderWhiteBoard();
-	Team*   GetEffectiveWhiteBoardTeam();  // getter for perspective based whiteboard viewing
+    void    RenderWhiteBoard();
 };
 
 

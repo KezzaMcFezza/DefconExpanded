@@ -2346,12 +2346,12 @@ void GlobeRenderer::Render3DWhiteBoard()
 {
     if (!g_app->IsGlobeMode()) return;
     
-    if (!g_app->GetMapRenderer()->GetShowWhiteBoard() && !g_app->GetMapRenderer()->GetEditWhiteBoard()) {
+    if (!g_app->GetWorldRenderer()->GetShowWhiteBoard() && !g_app->GetWorldRenderer()->GetEditWhiteBoard()) {
         return;
     }
 
     // get team for whiteboard viewing, use perspective team if set. otherwise use myTeam
-    Team *effectiveTeam = g_app->GetMapRenderer()->GetEffectiveWhiteBoardTeam();
+    Team *effectiveTeam = g_app->GetWorldRenderer()->GetEffectiveWhiteBoardTeam();
     if (!effectiveTeam) {
         return;
     }
@@ -2360,7 +2360,7 @@ void GlobeRenderer::Render3DWhiteBoard()
     for (int i = 0; i < sizeteams; ++i) {
         Team *team = g_app->GetWorld()->m_teams[i];
 
-        if ((g_app->GetMapRenderer()->ShowAllWhiteBoards() && g_app->GetWorld()->IsFriend(effectiveTeam->m_teamId, team->m_teamId)) || 
+        if ((g_app->GetWorldRenderer()->ShowAllWhiteBoards() && g_app->GetWorld()->IsFriend(effectiveTeam->m_teamId, team->m_teamId)) || 
             effectiveTeam->m_teamId == team->m_teamId) {
             
             WhiteBoard *whiteBoard = &g_app->GetWorld()->m_whiteBoards[team->m_teamId];

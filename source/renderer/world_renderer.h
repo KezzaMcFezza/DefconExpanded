@@ -2,6 +2,7 @@
 #define _included_worldrenderer_h
 
 #include "world/world.h"
+#include "world/team.h"
 
 class AnimatedIcon;
 
@@ -25,6 +26,17 @@ class AnimatedIcon;
 class WorldRenderer
 {
 protected:
+    bool m_renderEverything;
+
+    bool    m_showWhiteBoard;			// Used to show the white board(s) without editing the player white board
+	bool	m_editWhiteBoard;			// Used to show the white board panel
+	bool    m_showPlanning;				// Used to edit the player white board
+	bool	m_showAllWhiteBoards;		// Used to toggle between showing only the player whiteboard or all whiteboard in the alliance
+	bool    m_drawingPlanning;			// Used to indicate the player is currently drawing
+	bool    m_erasingPlanning;			// Used to indicate the player is currently erasing
+	double  m_drawingPlanningTime;      // Used to track the time the player has been drawing
+
+    DArray  <AnimatedIcon *>    m_animations;
 
 public:
     WorldRenderer();
@@ -33,12 +45,31 @@ public:
     void    Init();
     void    Reset();
 
-    DArray  <AnimatedIcon *>    m_animations;
     DArray  <AnimatedIcon *>   &GetAnimations() { return m_animations; }
 
-    bool m_renderEverything;
-    bool CanRenderEverything() { return m_renderEverything; }
-    void SetRenderEverything( bool _renderEverything );
+    bool    CanRenderEverything() { return m_renderEverything; }
+    void    SetRenderEverything( bool _renderEverything );
+
+    bool	GetShowWhiteBoard()     const;
+    bool    GetShowPlanning()       const;
+    bool	GetEditWhiteBoard()     const;
+    bool	GetShowAllWhiteBoards() const;
+    bool    GetShowWhiteBoard()     { return m_showWhiteBoard; }
+    bool    GetEditWhiteBoard()     { return m_editWhiteBoard; }
+    bool    GetDrawingPlanning()    { return m_drawingPlanning; }
+    bool    GetErasingPlanning()    { return m_erasingPlanning; }
+    double  GetDrawingPlanningTime(){ return m_drawingPlanningTime; }
+
+	void	SetShowWhiteBoard     ( bool showWhiteBoard );
+	void	SetEditWhiteBoard     ( bool showPlanning );
+	void    SetShowPlanning       ( bool showPlanning );
+	void	SetShowAllWhiteBoards ( bool showAllWhiteBoards );
+    void    SetDrawingPlanningTime( double drawingPlanningTime );
+    void    SetDrawingPlanning    ( bool drawingPlanning );
+    void    SetErasingPlanning    ( bool erasingPlanning );
+    bool    ShowAllWhiteBoards()  { return m_showAllWhiteBoards; }
+
+    Team*   GetEffectiveWhiteBoardTeam();  // getter for perspective based whiteboard viewing
 
     enum
     {

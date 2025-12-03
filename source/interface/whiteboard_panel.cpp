@@ -8,6 +8,7 @@
 #include "interface/toolbar.h"
 #include "interface/whiteboard_panel.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "world/world.h"
@@ -18,7 +19,7 @@ class PlanningButton : public ToolbarButton
 {
     void Render( int realX, int realY, bool highlighted, bool clicked )
     {
-        m_toggle = g_app->GetMapRenderer()->GetShowPlanning();
+        m_toggle = g_app->GetWorldRenderer()->GetShowPlanning();
         
         ToolbarButton::Render( realX, realY, highlighted, clicked );
     }
@@ -26,7 +27,7 @@ class PlanningButton : public ToolbarButton
     {
 		ToolbarButton::MouseUp();
 
-		g_app->GetMapRenderer()->SetShowPlanning( !g_app->GetMapRenderer()->GetShowPlanning() );
+		g_app->GetWorldRenderer()->SetShowPlanning( !g_app->GetWorldRenderer()->GetShowPlanning() );
     }
 };
 
@@ -53,7 +54,7 @@ class ToggleShowAllWhiteBoardsButton : public ToolbarButton
 {
     void Render( int realX, int realY, bool highlighted, bool clicked )
     {
-        m_toggle = g_app->GetMapRenderer()->GetShowAllWhiteBoards();
+        m_toggle = g_app->GetWorldRenderer()->GetShowAllWhiteBoards();
         
         ToolbarButton::Render( realX, realY, highlighted, clicked );
     }
@@ -61,7 +62,7 @@ class ToggleShowAllWhiteBoardsButton : public ToolbarButton
     {
 		ToolbarButton::MouseUp();
 
-		g_app->GetMapRenderer()->SetShowAllWhiteBoards( !m_toggle );
+		g_app->GetWorldRenderer()->SetShowAllWhiteBoards( !m_toggle );
     }
 };
 

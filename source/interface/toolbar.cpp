@@ -13,6 +13,7 @@
 #include "interface/info_window.h"
 #include "interface/whiteboard_panel.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 
@@ -404,11 +405,11 @@ public:
     {
 		if ( !m_disabled )
 		{
-			m_toggleValue = g_app->GetMapRenderer()->GetShowWhiteBoard();
+			m_toggleValue = g_app->GetWorldRenderer()->GetShowWhiteBoard();
 	        
 			ToggleBoolButton::Render( realX, realY, highlighted, clicked );
 
-			g_app->GetMapRenderer()->SetShowWhiteBoard ( m_toggleValue );
+			g_app->GetWorldRenderer()->SetShowWhiteBoard ( m_toggleValue );
 		}
 		else
 		{
@@ -422,16 +423,16 @@ public:
 		{
 			ToggleBoolButton::MouseUp();
 
-			g_app->GetMapRenderer()->SetShowWhiteBoard ( m_toggleValue );
+			g_app->GetWorldRenderer()->SetShowWhiteBoard ( m_toggleValue );
 			
 			// disable editing during replay mode, its important its read only because
             // that would be stupid if it wasnt
 			bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
 			if( !isReplayMode )
 			{
-				g_app->GetMapRenderer()->SetEditWhiteBoard ( !g_app->GetMapRenderer()->GetEditWhiteBoard() );
+				g_app->GetWorldRenderer()->SetEditWhiteBoard ( !g_app->GetWorldRenderer()->GetEditWhiteBoard() );
 
-				if ( g_app->GetMapRenderer()->GetEditWhiteBoard() )
+				if ( g_app->GetWorldRenderer()->GetEditWhiteBoard() )
 				{
 					if( !EclGetWindow( "WhiteBoardPanel" ) )
 					{
@@ -449,7 +450,7 @@ public:
 			else
 			{
 				// during replay, just toggle showing the whiteboard without enabling editing
-				g_app->GetMapRenderer()->SetEditWhiteBoard( false );
+				g_app->GetWorldRenderer()->SetEditWhiteBoard( false );
 				if( EclGetWindow( "WhiteBoardPanel" ) )
 				{
 					EclRemoveWindow( "WhiteBoardPanel" );

@@ -91,13 +91,6 @@ MapRenderer::MapRenderer()
     m_draggingCamera(false),
     m_tooltip(NULL),
     m_tooltipTimer(0.0f),
-	m_showWhiteBoard(false),
-	m_editWhiteBoard(false),
-	m_showPlanning(false),
-	m_showAllWhiteBoards(true),
-	m_drawingPlanning(false),
-	m_erasingPlanning(false),
-	m_drawingPlanningTime(0.0f),
 	m_longitudePlanningOld(0.0f),
 	m_latitudePlanningOld(0.0f)
 #ifdef SYNC_PRACTICE
@@ -5513,75 +5506,6 @@ bool MapRenderer::IsOnScreen( float _longitude, float _latitude, float _expandSc
     return false;
 }
 
-bool MapRenderer::GetShowWhiteBoard() const
-{
-	return m_showWhiteBoard;
-}
-
-void MapRenderer::SetShowWhiteBoard( bool showWhiteBoard )
-{
-	m_showWhiteBoard = showWhiteBoard;
-}
-
-bool MapRenderer::GetEditWhiteBoard() const
-{
-	return m_editWhiteBoard;
-}
-
-void MapRenderer::SetEditWhiteBoard( bool editWhiteBoard )
-{
-	if ( m_editWhiteBoard != editWhiteBoard )
-	{
-		m_editWhiteBoard = editWhiteBoard;
-		if ( m_editWhiteBoard )
-		{
-			if ( m_showPlanning )
-			{
-				g_app->GetInterface()->SetMouseCursor( "gui/pen.bmp" );
-			}
-		}
-		else
-		{
-			g_app->GetInterface()->SetMouseCursor();
-		}
-		m_drawingPlanning = false;
-		m_erasingPlanning = false;
-	}
-}
-
-bool MapRenderer::GetShowPlanning() const
-{
-	return m_showPlanning;
-}
-
-void MapRenderer::SetShowPlanning( bool showPlanning )
-{
-	if ( m_showPlanning != showPlanning )
-	{
-		m_showPlanning = showPlanning;
-		if ( m_showPlanning )
-		{
-			g_app->GetInterface()->SetMouseCursor( "gui/pen.bmp" );
-		}
-		else
-		{
-			g_app->GetInterface()->SetMouseCursor();
-		}
-		m_drawingPlanning = false;
-		m_erasingPlanning = false;
-	}
-}
-
-bool MapRenderer::GetShowAllWhiteBoards() const
-{
-	return m_showAllWhiteBoards;
-}
-
-void MapRenderer::SetShowAllWhiteBoards( bool showAllWhiteBoards )
-{
-	m_showAllWhiteBoards = showAllWhiteBoards;
-}
-
 static float GetDistancePoint( float longitude1, float latitude1, float longitude2, float latitude2 )
 {
 	float distdx = 0.0f;
@@ -5626,33 +5550,33 @@ static float GetDistancePoint( float longitude1, float latitude1, float longitud
 
 bool MapRenderer::UpdatePlanning( float longitude, float latitude )
 {
-	if( !m_editWhiteBoard || !m_showPlanning )
+	if( !g_app->GetWorldRenderer()->GetEditWhiteBoard() || !g_app->GetWorldRenderer()->GetShowPlanning() )
 	{
-		m_drawingPlanning = false;
-		m_erasingPlanning = false;
+		g_app->GetWorldRenderer()->SetDrawingPlanning( false );
+		g_app->GetWorldRenderer()->SetErasingPlanning( false );
 		return false;
 	}
 
-    if( GetShowPlanning() && g_keys[KEY_SPACE] )
+    if( g_app->GetWorldRenderer()->GetShowPlanning() && g_keys[KEY_SPACE] )
     {
-		m_drawingPlanning = false;
-		m_erasingPlanning = false;
-		SetShowPlanning( false );
+		g_app->GetWorldRenderer()->SetDrawingPlanning( false );
+		g_app->GetWorldRenderer()->SetErasingPlanning( false );
+		g_app->GetWorldRenderer()->SetShowPlanning( false );
 		return false;
     }
 
 	Team *myTeam = g_app->GetWorld()->GetMyTeam();
 	if ( !myTeam )
 	{
-		m_drawingPlanning = false;
-		m_erasingPlanning = false;
+		g_app->GetWorldRenderer()->SetDrawingPlanning( false );
+		g_app->GetWorldRenderer()->SetErasingPlanning( false );
 		return false;
 	}
 
 	if ( !IsMouseInMapRenderer() )
 	{
-		m_drawingPlanning = false;
-		m_erasingPlanning = false;
+		g_app->GetWorldRenderer()->SetDrawingPlanning( false );
+		g_app->GetWorldRenderer()->SetErasingPlanning( false );
 		return true;
 	}
 
@@ -5662,23 +5586,23 @@ bool MapRenderer::UpdatePlanning( float longitude, float latitude )
     if( longitude > 180.0f ) longitude -= 360.0f;
 
 	// Drawing part
-	if( g_inputManager->m_lmbClicked || ( g_inputManager->m_lmb && !m_drawingPlanning ) )
+	if( g_inputManager->m_lmbClicked || ( g_inputManager->m_lmb && !g_app->GetWorldRenderer()->GetDrawingPlanning() ) )
 	{
-		m_erasingPlanning = false;
-		m_drawingPlanning = true;
-		m_drawingPlanningTime = 0.0f;
+		g_app->GetWorldRenderer()->SetErasingPlanning( false );
+		g_app->GetWorldRenderer()->SetDrawingPlanning( true );
+		g_app->GetWorldRenderer()->SetDrawingPlanningTime( 0.0f );
 		whiteBoard->RequestStartLine( longitude, latitude );
 		m_longitudePlanningOld = longitude;
 		m_latitudePlanningOld = latitude;
 	}
-	else if( g_inputManager->m_lmb || ( g_inputManager->m_lmbUnClicked && m_drawingPlanning ) )
+	else if( g_inputManager->m_lmb || ( g_inputManager->m_lmbUnClicked && g_app->GetWorldRenderer()->GetDrawingPlanning() ) )
 	{
-		m_erasingPlanning = false;
-		m_drawingPlanningTime += g_advanceTime;
-		if ( m_drawingPlanningTime >= 0.03333f || g_inputManager->m_lmbUnClicked || 
-		     ( m_drawingPlanningTime >= 0.01667f && GetDistancePoint ( m_longitudePlanningOld, m_latitudePlanningOld, longitude, latitude ) >= WhiteBoard::LINE_LENGTH_MAX ) )
+		g_app->GetWorldRenderer()->SetErasingPlanning( false );
+		g_app->GetWorldRenderer()->SetDrawingPlanningTime( g_app->GetWorldRenderer()->GetDrawingPlanningTime() + g_advanceTime );
+		if ( g_app->GetWorldRenderer()->GetDrawingPlanningTime() >= 0.03333f || g_inputManager->m_lmbUnClicked || 
+		     ( g_app->GetWorldRenderer()->GetDrawingPlanningTime() >= 0.01667f && GetDistancePoint ( m_longitudePlanningOld, m_latitudePlanningOld, longitude, latitude ) >= WhiteBoard::LINE_LENGTH_MAX ) )
 		{
-			m_drawingPlanningTime = 0.0f;
+			g_app->GetWorldRenderer()->SetDrawingPlanningTime( 0.0f );
 			if ( m_longitudePlanningOld != longitude || m_latitudePlanningOld != latitude )
 			{
 				if ( -90.0f >= m_longitudePlanningOld && longitude >= 90.0f )
@@ -5719,25 +5643,25 @@ bool MapRenderer::UpdatePlanning( float longitude, float latitude )
 
 		if ( g_inputManager->m_lmbUnClicked )
 		{
-			m_drawingPlanning = false;
+			g_app->GetWorldRenderer()->SetDrawingPlanning( false );
 		}
 	}
 	// Erasing part
-	else if( g_inputManager->m_rmbClicked || ( g_inputManager->m_rmb && !m_erasingPlanning ) )
+	else if( g_inputManager->m_rmbClicked || ( g_inputManager->m_rmb && !g_app->GetWorldRenderer()->GetErasingPlanning() ) )
 	{
-		m_drawingPlanning = false;
-		m_erasingPlanning = true;
-		m_drawingPlanningTime = 0.0f;
+		g_app->GetWorldRenderer()->SetDrawingPlanning( false );
+		g_app->GetWorldRenderer()->SetErasingPlanning( true );
+		g_app->GetWorldRenderer()->SetDrawingPlanningTime( 0.0f );
 		m_longitudePlanningOld = longitude;
 		m_latitudePlanningOld = latitude;
 	}
-	else if( g_inputManager->m_rmb || ( g_inputManager->m_rmbUnClicked && m_erasingPlanning ) )
+	else if( g_inputManager->m_rmb || ( g_inputManager->m_rmbUnClicked && g_app->GetWorldRenderer()->GetErasingPlanning() ) )
 	{
-		m_drawingPlanning = false;
-		m_drawingPlanningTime += g_advanceTime;
-		if ( m_drawingPlanningTime >= 0.03333f || g_inputManager->m_rmbUnClicked )
+		g_app->GetWorldRenderer()->SetDrawingPlanning( false );
+		g_app->GetWorldRenderer()->SetDrawingPlanningTime( g_app->GetWorldRenderer()->GetDrawingPlanningTime() + g_advanceTime );
+		if ( g_app->GetWorldRenderer()->GetDrawingPlanningTime() >= 0.03333f || g_inputManager->m_rmbUnClicked )
 		{
-			m_drawingPlanningTime = 0.0f;
+			g_app->GetWorldRenderer()->SetDrawingPlanningTime( 0.0f );
 			if ( -90.0f >= m_longitudePlanningOld && longitude >= 90.0f )
 			{
 				float dx1 = -180.0f - m_longitudePlanningOld;
@@ -5773,13 +5697,13 @@ bool MapRenderer::UpdatePlanning( float longitude, float latitude )
 
 		if ( g_inputManager->m_rmbUnClicked )
 		{
-			m_erasingPlanning = false;
+			g_app->GetWorldRenderer()->SetErasingPlanning( false );
 		}
 	}
 	else
 	{
-		m_drawingPlanning = false;
-		m_erasingPlanning = false;
+		g_app->GetWorldRenderer()->SetDrawingPlanning( false );
+		g_app->GetWorldRenderer()->SetErasingPlanning( false );
 	}
 
 	return true;
@@ -5787,13 +5711,13 @@ bool MapRenderer::UpdatePlanning( float longitude, float latitude )
 
 void MapRenderer::RenderWhiteBoard()
 {
-	if ( !m_showWhiteBoard && !m_editWhiteBoard ) 
+	if ( !g_app->GetWorldRenderer()->GetShowWhiteBoard() && !g_app->GetWorldRenderer()->GetEditWhiteBoard() ) 
 	{
 		return;
 	}
 
 	// Get effective team for whiteboard viewing - use perspective team if set, otherwise myTeam
-	Team *effectiveTeam = GetEffectiveWhiteBoardTeam();
+	Team *effectiveTeam = g_app->GetWorldRenderer()->GetEffectiveWhiteBoardTeam();
 	if( !effectiveTeam )
 	{
 		return;
@@ -5806,7 +5730,7 @@ void MapRenderer::RenderWhiteBoard()
     {
         Team *team = g_app->GetWorld()->m_teams[ i ];
 
-		if ( ( m_showAllWhiteBoards && g_app->GetWorld()->IsFriend ( effectiveTeam->m_teamId, team->m_teamId ) ) || 
+		if ( ( g_app->GetWorldRenderer()->GetShowAllWhiteBoards() && g_app->GetWorld()->IsFriend ( effectiveTeam->m_teamId, team->m_teamId ) ) || 
 		     effectiveTeam->m_teamId == team->m_teamId )
 		{
 			WhiteBoard *whiteBoard = &g_app->GetWorld()->m_whiteBoards[ team->m_teamId ];
@@ -5846,30 +5770,6 @@ void MapRenderer::RenderWhiteBoard()
 	}
 
 	END_PROFILE( "WhiteBoard" );
-}
-
-Team* MapRenderer::GetEffectiveWhiteBoardTeam()
-{
-#if RECORDING_PARSING
-	// during replay mode use selected perspective team if available
-	if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
-	{
-		// lets grab the global variable from playback control window
-		extern int g_desiredPerspectiveTeamId;
-		
-		if( g_desiredPerspectiveTeamId != -1 )
-		{
-			Team *perspectiveTeam = g_app->GetWorld()->GetTeam(g_desiredPerspectiveTeamId);
-			if( perspectiveTeam )
-			{
-				return perspectiveTeam;
-			}
-		}
-	}
-#endif
-
-	// fall back to normal behavior, use myTeam
-	return g_app->GetWorld()->GetMyTeam();
 }
 
 void MapRenderer::RenderSanta()
