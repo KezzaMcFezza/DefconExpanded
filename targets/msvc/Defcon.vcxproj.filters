@@ -73,7 +73,16 @@
     <Filter Include="lib\render2d">
       <UniqueIdentifier>{d250ba42-f338-4ff3-997e-cd40accd41d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\render2d\shaders">
+      <UniqueIdentifier>{87654321-90ab-cdef-1234-567890abcdef}</UniqueIdentifier>
+    </Filter>
     <Filter Include="lib\render3d">
+      <UniqueIdentifier>{3341bb2c-4d0f-44be-b226-455c25df5fd9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\render3d\megavbo">
+      <UniqueIdentifier>{756648e2-3496-447a-8172-1b2c45678901}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\render3d\shaders">
       <UniqueIdentifier>{3341bb2c-4d0f-44be-b226-455c25df5fd9}</UniqueIdentifier>
     </Filter>
     <Filter Include="lib\unicode">
@@ -531,6 +540,18 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp">
       <Filter>lib\render3d</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\megavbo.cpp">
+      <Filter>lib\render3d\megavbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\quads.cpp">
+      <Filter>lib\render3d\megavbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\linestrips.cpp">
+      <Filter>lib\render3d\megavbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\triangles.cpp">
+      <Filter>lib\render3d\megavbo</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\resource\sprite_atlas.cpp">
       <Filter>lib\resource</Filter>
     </ClCompile>
@@ -583,9 +604,6 @@
       <Filter>lib\render3d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_nuke.cpp">
-      <Filter>lib\render3d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_vbo.cpp">
       <Filter>lib\render3d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unrar.cpp">
@@ -781,7 +799,10 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\text.cpp">
       <Filter>lib\render2d</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\crashpad.cpp" />
+    <ClCompile Include="..\..\source\renderer\world_renderer.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\crashpad.cpp">
+      <Filter>lib\gucci</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">
@@ -1294,7 +1315,31 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.h">
       <Filter>lib\sound</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\crashpad.h" />
+    <ClInclude Include="..\..\source\renderer\world_renderer.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\color_fragment.glsl.h">
+      <Filter>lib\render2d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\texture_fragment.glsl.h">
+      <Filter>lib\render2d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\vertex.glsl.h">
+      <Filter>lib\render2d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\fragment.glsl.h">
+      <Filter>lib\render3d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\textured_fragment.glsl.h">
+      <Filter>lib\render3d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\textured_vertex.glsl.h">
+      <Filter>lib\render3d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\vertex.glsl.h">
+      <Filter>lib\render3d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\crashpad.h">
+      <Filter>lib\gucci</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\..\docs\ai specifications.txt">

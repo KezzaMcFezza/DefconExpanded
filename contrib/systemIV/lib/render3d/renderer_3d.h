@@ -199,6 +199,16 @@ private:
     unsigned int* m_megaTexturedIndices3D;
     int m_megaTexturedIndex3DCount;
     
+    bool m_megaVBO3DTrianglesActive;
+    char* m_currentMegaVBO3DTrianglesKey;
+    Colour m_megaVBO3DTrianglesColor;
+    int m_maxMegaTriangleVertices3D;
+    int m_maxMegaTriangleIndices3D;
+    Vertex3D* m_megaTriangleVertices3D;
+    int m_megaTriangleVertex3DCount;
+    unsigned int* m_megaTriangleIndices3D;
+    int m_megaTriangleIndex3DCount;
+    
     //
     // VBO caching system for 3D geometry (replaces display lists)
 
@@ -328,13 +338,8 @@ public:
     void TexturedQuadVertex3D    (float x, float y, float z, float u, float v);
     void TexturedQuadVertex3D    (const Vector3<float>& vertex, float u, float v);
     void EndTexturedQuad3D       ();
-    
-    void BeginCachedGeometry3D   (const char* cacheKey, Colour const &col);
-    void CachedLineStrip3D       (const Vector3<float>* vertices, int vertexCount);
-    void EndCachedGeometry3D     ();
-    void RenderCachedGeometry3D  (const char* cacheKey);
+
     void InvalidateCached3DVBO   (const char* cacheKey);
-    bool IsCachedGeometry3DValid (const char* cacheKey);
     
     void BeginMegaVBO3D            (const char* megaVBOKey, Colour const &col);
     void AddLineStripToMegaVBO3D   (const Vector3<float>* vertices, int vertexCount);
@@ -349,6 +354,13 @@ public:
     void RenderTexturedMegaVBO3D       (const char* megaVBOKey);
     bool IsTexturedMegaVBO3DValid      (const char* megaVBOKey);
     void SetTexturedMegaVBO3DBufferSizes (int vertexCount, int indexCount);
+    
+    void BeginTriangleMegaVBO3D        (const char* megaVBOKey, Colour const &col);
+    void AddTrianglesToMegaVBO3D       (const Vector3<float>* vertices, int vertexCount);
+    void EndTriangleMegaVBO3D          ();
+    void RenderTriangleMegaVBO3D       (const char* megaVBOKey);
+    bool IsTriangleMegaVBO3DValid      (const char* megaVBOKey);
+    void SetTriangleMegaVBO3DBufferSizes (int vertexCount, int indexCount);
     
     void InvalidateAll3DVBOs       ();
     int GetCached3DVBOCount        ();
@@ -408,14 +420,13 @@ public:
     size_t GetTotalAllocatedBufferMemory() const {
         size_t total = 0;
         
-        int nonTexturedVertices = m_lineVertexCount3D + m_nuke3DModelVertexCount3D +
-                                  m_circleVertexCount3D + m_circleFillVertexCount3D +
-                                  m_rectVertexCount3D + m_rectFillVertexCount3D + m_triangleFillVertexCount3D;
-        total += nonTexturedVertices * sizeof(Vertex3D);
-        
-        int texturedVertices = m_staticSpriteVertexCount3D + m_rotatingSpriteVertexCount3D + m_textVertexCount3D;
-
-        total += texturedVertices * sizeof(Vertex3DTextured);
+        total += GetTotalCurrentVertexCount() * sizeof(Vertex3D);
+        total += m_maxMegaVertices3D * sizeof(Vertex3D);
+        total += m_maxMegaIndices3D * sizeof(unsigned int);
+        total += m_maxMegaTexturedVertices3D * sizeof(Vertex3DTextured);
+        total += m_maxMegaTexturedIndices3D * sizeof(unsigned int);
+        total += m_maxMegaTriangleVertices3D * sizeof(Vertex3D);
+        total += m_maxMegaTriangleIndices3D * sizeof(unsigned int);
         
         return total;
     }

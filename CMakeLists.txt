@@ -647,7 +647,10 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/render3d/primitives_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/sprites_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_nuke.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_vbo.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/megavbo/megavbo.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/megavbo/quads.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/megavbo/linestrips.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/megavbo/triangles.cpp
     ${SYSTEMIV_PATH}/lib/render/renderer_debug_menu.cpp
     ${SYSTEMIV_PATH}/lib/render/styletable.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmap.cpp

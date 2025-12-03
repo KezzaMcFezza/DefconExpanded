@@ -175,6 +175,14 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_megaTexturedVertex3DCount(0),
     m_megaTexturedIndices3D(NULL),
     m_megaTexturedIndex3DCount(0),
+    m_megaVBO3DTrianglesActive(false),
+    m_currentMegaVBO3DTrianglesKey(NULL),
+    m_maxMegaTriangleVertices3D(100),
+    m_maxMegaTriangleIndices3D(100),
+    m_megaTriangleVertices3D(NULL),
+    m_megaTriangleVertex3DCount(0),
+    m_megaTriangleIndices3D(NULL),
+    m_megaTriangleIndex3DCount(0),
     m_lineConversionBuffer3D(NULL),
     m_lineConversionBufferSize3D(0),
     m_lineVertexCount3D(0),
@@ -256,6 +264,14 @@ Renderer3D::Renderer3D(Renderer* renderer)
         m_megaTexturedVertices3D = new Vertex3DTextured[m_maxMegaTexturedVertices3D];
         m_megaTexturedIndices3D = new unsigned int[m_maxMegaTexturedIndices3D];
     }
+
+    //
+    // Allocate triangle mega vertex and index buffers
+
+    if (m_maxMegaTriangleVertices3D > 0) {
+        m_megaTriangleVertices3D = new Vertex3D[m_maxMegaTriangleVertices3D];
+        m_megaTriangleIndices3D = new unsigned int[m_maxMegaTriangleIndices3D];
+    }
     
     m_lineConversionBufferSize3D = MAX_3D_VERTICES * 2;
     m_lineConversionBuffer3D = new Vertex3D[m_lineConversionBufferSize3D];
@@ -306,6 +322,7 @@ void Renderer3D::Shutdown() {
     if (m_triangleFillVBO3D) glDeleteBuffers(1, &m_triangleFillVBO3D);
     if (m_immediateVAO3D) glDeleteVertexArrays(1, &m_immediateVAO3D);
     if (m_immediateVBO3D) glDeleteBuffers(1, &m_immediateVBO3D);
+    
     if (m_shader3DProgram) {
         glDeleteProgram(m_shader3DProgram);
         m_shader3DProgram = 0;
@@ -342,6 +359,19 @@ void Renderer3D::Shutdown() {
     if (m_currentMegaVBO3DTexturedKey) {
         delete[] m_currentMegaVBO3DTexturedKey;
         m_currentMegaVBO3DTexturedKey = NULL;
+    }
+    
+    if (m_megaTriangleVertices3D) {
+        delete[] m_megaTriangleVertices3D;
+        m_megaTriangleVertices3D = NULL;
+    }
+    if (m_megaTriangleIndices3D) {
+        delete[] m_megaTriangleIndices3D;
+        m_megaTriangleIndices3D = NULL;
+    }
+    if (m_currentMegaVBO3DTrianglesKey) {
+        delete[] m_currentMegaVBO3DTrianglesKey;
+        m_currentMegaVBO3DTrianglesKey = NULL;
     }
     
     if (m_lineConversionBuffer3D) {

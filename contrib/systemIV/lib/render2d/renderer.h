@@ -349,7 +349,6 @@ public:
     total += GetTotalCurrentVertexCount() * sizeof(Vertex2D);
     total += m_maxMegaVertices * sizeof(Vertex2D);
     total += m_maxMegaIndices * sizeof(unsigned int);
-    total += m_lineConversionBufferSize * sizeof(Vertex2D);
     
     return total;
   }
