@@ -871,7 +871,7 @@ void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo,
 {
     if (vertexCount <= 0 || !vertices) return;
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    m_renderer->SetArrayBuffer(vbo);
 
     const GLsizeiptr bytes =
         static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3D);
@@ -894,7 +894,7 @@ void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo,
 {
     if (vertexCount <= 0 || !vertices) return;
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    m_renderer->SetArrayBuffer(vbo);
 
     const GLsizeiptr bytes =
         static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3DTextured);

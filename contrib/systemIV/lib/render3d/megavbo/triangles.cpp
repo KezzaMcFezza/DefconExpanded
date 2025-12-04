@@ -96,7 +96,7 @@ void Renderer3D::EndTriangleMegaVBO3D() {
         glGenBuffers(1, &cachedVBO->IBO);
         
         glBindVertexArray(cachedVBO->VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+        m_renderer->SetArrayBuffer(cachedVBO->VBO);
         
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)0);
         glEnableVertexAttribArray(0);
@@ -106,7 +106,7 @@ void Renderer3D::EndTriangleMegaVBO3D() {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     } else {
         glBindVertexArray(cachedVBO->VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, cachedVBO->VBO);
+        m_renderer->SetArrayBuffer(cachedVBO->VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     }
     
