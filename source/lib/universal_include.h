@@ -24,7 +24,6 @@
 #endif
 
 #define ENABLE_SANTA_EASTEREGG
-//#define SANTA_EASTEREGG_DATE
 
 //#define APP_VERSION     "1.5 fr rtl" // Defcon 1.5 Codemasters french build, use TARGET_RETAIL_MULTI_LANGUAGE_FRENCH
 //#define APP_VERSION     "1.5 de rtl" // Defcon 1.5 german build, use TARGET_RETAIL_MULTI_LANGUAGE_GERMAN

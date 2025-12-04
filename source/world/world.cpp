@@ -3617,22 +3617,14 @@ void World::GenerateSantaPath()
 
 //
 // Santa can spawn in two ways, he can either spawn between
-// December 18th - 2nd January or he can spawn on always when
-// isChristmas is true.
+// November 18th - 2nd January
 
 #ifdef ENABLE_SANTA_EASTEREGG
-#ifdef SANTA_EASTEREGG_DATE
-
     time_t now = time(NULL);
     tm *theTime = localtime( &now );
 
-	if ( ( theTime->tm_mon == 11 && theTime->tm_mday >= 18 ) ||
-		( theTime->tm_mon == 0 && theTime->tm_mday <= 2 ) )
-#else
-    bool isChristmas = true;
-
-	if ( isChristmas )
-#endif
+    if ( ( theTime->tm_mon == 10 && theTime->tm_mday >= 18 ) ||
+    ( theTime->tm_mon == 11 ) || ( theTime->tm_mon == 0 && theTime->tm_mday <= 2 ) )
 	{
 		FastRandom random;
 		int randSeed = 0;
