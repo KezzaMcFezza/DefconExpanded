@@ -309,6 +309,9 @@
     <ClCompile Include="..\..\source\renderer\map_renderer.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\renderer\world_renderer.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\source\network\ClientToServer.cpp">
       <Filter>network</Filter>
     </ClCompile>
@@ -436,6 +439,9 @@
       <Filter>interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\interface\interface.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\version_popup.cpp">
       <Filter>interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\interface\lobby_window.cpp">
@@ -1051,6 +1057,9 @@
     <ClInclude Include="..\..\source\renderer\map_renderer.h">
       <Filter>renderer</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\renderer\world_renderer.h">
+      <Filter>renderer</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\source\network\ClientToServer.h">
       <Filter>network</Filter>
     </ClInclude>
@@ -1184,6 +1193,9 @@
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\interface\interface.h">
+      <Filter>interface</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\interface\version_popup.h">
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\interface\lobby_window.h">

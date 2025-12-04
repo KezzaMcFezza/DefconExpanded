@@ -727,6 +727,7 @@
     <ClCompile Include="..\..\source\interface\side_panel.cpp" />
     <ClCompile Include="..\..\source\interface\toolbar.cpp" />
     <ClCompile Include="..\..\source\interface\tutorial_window.cpp" />
+    <ClCompile Include="..\..\source\interface\version_popup.cpp" />
     <ClCompile Include="..\..\source\interface\whiteboard_panel.cpp" />
     <ClCompile Include="..\..\source\interface\worldobject_window.cpp" />
     <ClCompile Include="..\..\source\interface\worldstatus_window.cpp" />
@@ -915,6 +916,7 @@
     <ClInclude Include="..\..\source\interface\side_panel.h" />
     <ClInclude Include="..\..\source\interface\toolbar.h" />
     <ClInclude Include="..\..\source\interface\tutorial_window.h" />
+    <ClInclude Include="..\..\source\interface\version_popup.h" />
     <ClInclude Include="..\..\source\interface\whiteboard_panel.h" />
     <ClInclude Include="..\..\source\interface\worldobject_window.h" />
     <ClInclude Include="..\..\source\interface\worldstatus_window.h" />

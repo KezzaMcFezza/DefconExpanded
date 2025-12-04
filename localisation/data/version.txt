@@ -1,0 +1,5 @@
+VERSION: 1.26
+
+# This version is tied to the internal build number of DEFCON.
+# So if your DEFCON client does not match the VERSION string then DEFCON will warn you
+# that your main.dat is out of date and you need to update it.

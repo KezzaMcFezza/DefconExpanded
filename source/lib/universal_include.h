@@ -13,13 +13,14 @@
 
 #define APP_NAME        "Defcon"
 #define	APP_VERSION		"1.64 STEAM"
+#define APP_BUILD_NUMBER "1.26"
 
 #if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-    #define REAL_VERSION    "1.25.5_replay_viewer"
+    #define REAL_VERSION    APP_BUILD_NUMBER"_replay_viewer"
 #elif defined(SYNC_PRACTICE)
     #define REAL_VERSION    "1.16.1_sync_practice"
 #else
-    #define REAL_VERSION    "1.25.5_defcon_full"
+    #define REAL_VERSION    APP_BUILD_NUMBER"_defcon_full"
 #endif
 
 #define ENABLE_SANTA_EASTEREGG

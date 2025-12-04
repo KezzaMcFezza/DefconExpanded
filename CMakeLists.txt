@@ -577,6 +577,7 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/interface/authkey_window.cpp
     ${ROOT_PATH}/source/interface/alliances_window.cpp
     ${ROOT_PATH}/source/interface/resynchronise_window.cpp
+    ${ROOT_PATH}/source/interface/version_popup.cpp
     ${ROOT_PATH}/source/interface/fleet_placement_icon.cpp
     ${ROOT_PATH}/source/interface/casualties_window.cpp
     ${ROOT_PATH}/source/interface/serverbrowser_window.cpp

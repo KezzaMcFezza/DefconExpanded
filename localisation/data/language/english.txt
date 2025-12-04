@@ -1043,6 +1043,9 @@ style_WorldCoastlines               World Coastlines
 style_WorldBorders                  World Borders
 style_WorldWater                    World Water
 style_WorldLand                     World Land
+style_GlobeCoastlines               Globe Coastlines
+style_GlobeBorders                  Globe Borders
+style_GlobeGridlines                Globe Gridlines
 style_TooltipBackground             Tooltip Background
 style_TooltipBorder                 Tooltip Border
 style_FontTooltip                   Font Tooltip

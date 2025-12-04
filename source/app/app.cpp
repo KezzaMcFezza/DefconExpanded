@@ -61,6 +61,8 @@
 #include "interface/chat_window.h"
 #endif
 
+#include "interface/version_popup.h"
+
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
@@ -466,6 +468,17 @@ void App::FinishInit()
 
     m_interface = new Interface();
     m_interface->Init();
+
+    //
+    // If the main.dat version is different from the 
+    // client version then show the popup
+    
+    if( !CheckMainDatVersion() )
+    {
+        VersionPopupWindow *versionPopup = new VersionPopupWindow();
+        EclRegisterWindow( versionPopup );
+    }
+
     // Need to query the metaserver to know if we should show the Buy Now button
     InitMetaServer();
     if (EclGetWindows()->Size() == 0)
