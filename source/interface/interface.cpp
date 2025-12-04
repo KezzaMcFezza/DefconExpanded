@@ -518,6 +518,15 @@ void Interface::Render()
             
             if( !g_app->m_gameRunning ) s_connProblemDetected = -1.0f;
 
+            if( g_app->GetServer() )
+            {
+                // When we're playing back a recording we don't actually send any
+                // further messages to the client past the end of the recorded
+                // history.
+                if( g_app->GetServer()->m_replayingRecording )
+                    estimatedLatency = 0.0;
+            }
+
             if( s_connectionProblem == 0 &&
                 estimatedLatency > 5.0f )
             {
