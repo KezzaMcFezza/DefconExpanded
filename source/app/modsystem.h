@@ -26,6 +26,9 @@ public:
     void Initialise();        
     void LoadInstalledMods();
     
+    bool PathContainsModContent         ( const char *_path );                          // Check for mod.txt
+    bool FindActualModPath              ( const char *_basePath, char *_resultPath, int _maxDepth ); // Is the mod in a subdirectory?
+    
     LList<char *>  *ParseModPath        ( char *_modPath );                             // _modPath is modified        
 
     bool    CanSetModPath               ( char *_modPath );                             // Are all the mods installed?

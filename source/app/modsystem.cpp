@@ -49,6 +49,7 @@ ModSystem::~ModSystem()
 {
 	delete[] m_modsDir;
 
+    m_mods.EmptyAndDelete();
     m_criticalFiles.EmptyAndDeleteArray();
     ClearModGraphicsCache();
     m_geographyAffectingMods.EmptyAndDeleteArray();
@@ -99,6 +100,67 @@ void ModSystem::Initialise()
 }
 
 
+bool ModSystem::PathContainsModContent( const char *_path )
+{
+    //
+    // Check for mod.txt
+
+    char modTxtPath[512];
+    sprintf( modTxtPath, "%smod.txt", _path );
+    if( DoesFileExist( modTxtPath ) ) return true;
+
+    //
+    // Check for data directory with content
+
+    char dataPath[512];
+    sprintf( dataPath, "%sdata/", _path );
+    if( IsDirectory( dataPath ) ) return true;
+
+    return false;
+}
+
+
+bool ModSystem::FindActualModPath( const char *_basePath, char *_resultPath, int _maxDepth )
+{
+    //
+    // Check if current path contains mod content
+
+    if( PathContainsModContent( _basePath ) )
+    {
+        strncpy( _resultPath, _basePath, 1023 );
+        _resultPath[1023] = '\0';
+        return true;
+    }
+
+    if( _maxDepth <= 0 ) return false;
+
+    //
+    // Search subdirectories recursively
+    
+    LList<char *> *subDirs = ListSubDirectoryNames( _basePath );
+    bool found = false;
+
+    for( int i = 0; i < subDirs->Size(); ++i )
+    {
+        char *subDir = subDirs->GetData(i);
+        
+        char subPath[1024];
+        sprintf( subPath, "%s%s/", _basePath, subDir );
+
+        if( FindActualModPath( subPath, _resultPath, _maxDepth - 1 ) )
+        {
+            found = true;
+            break;
+        }
+    }
+
+    subDirs->EmptyAndDeleteArray();
+    delete subDirs;
+
+    return found;
+}
+
+
 void ModSystem::LoadInstalledMods()
 {
     //
@@ -116,9 +178,23 @@ void ModSystem::LoadInstalledMods()
     {
         char *thisSubDir = subDirs->GetData(i);
 
+        char basePath[1024];
+        sprintf( basePath, "%s/%s/", m_modsDir, thisSubDir );
+
+        //
+        // Search up to 3 levels deep to prevent infinite recursion
+
+        char actualModPath[1024];
+        if( !FindActualModPath( basePath, actualModPath, 3 ) )
+        {
+            AppDebugOut( "Skipping '%s' - no mod content found (searched 3 levels deep)\n", basePath );
+            continue;
+        }
+
         InstalledMod *mod = new InstalledMod();
         strcpy( mod->m_name, thisSubDir );
-        sprintf( mod->m_path, "%s/%s/", m_modsDir, thisSubDir );
+        strncpy( mod->m_path, actualModPath, sizeof(mod->m_path) - 1 );
+        mod->m_path[sizeof(mod->m_path) - 1] = '\0';
         sprintf( mod->m_version, "v1.0" );
 
         LoadModData( mod, mod->m_path );
@@ -137,11 +213,23 @@ void ModSystem::LoadInstalledMods()
         {
             m_mods.PutData( mod );
 
-            AppDebugOut( "Found installed mod '%s %s' in '%s' %s\n", 
-                            mod->m_name, 
-                            mod->m_version, 
-                            mod->m_path,
-                            mod->m_critical ? "(CRITICAL)" : " " );
+            if( strcmp( basePath, actualModPath ) != 0 )
+            {
+                AppDebugOut( "Found installed mod '%s %s' in '%s' (nested from '%s') %s\n", 
+                                mod->m_name, 
+                                mod->m_version, 
+                                mod->m_path,
+                                basePath,
+                                mod->m_critical ? "(CRITICAL)" : " " );
+            }
+            else
+            {
+                AppDebugOut( "Found installed mod '%s %s' in '%s' %s\n", 
+                                mod->m_name, 
+                                mod->m_version, 
+                                mod->m_path,
+                                mod->m_critical ? "(CRITICAL)" : " " );
+            }
         }
     }
 
@@ -167,6 +255,14 @@ LList<char *> *ModSystem::ParseModPath( char *_modPath )
         *endPoint = '\x0';            
         tokens->PutData( currentToken );
         currentToken = endPoint+1;
+    }
+
+    //
+    // Include any remaining content after the last semicolon
+
+    if( currentToken && *currentToken != '\x0' )
+    {
+        tokens->PutData( currentToken );
     }
 
     return tokens;
@@ -290,11 +386,31 @@ void ModSystem::LoadModData( InstalledMod *_mod, char *_path )
 
             if( fieldName && restOfLine )
             {
-                if      ( stricmp( fieldName, "Name" ) == 0 )               strcpy( _mod->m_name, reader.GetRestOfLine() );
-                else if ( stricmp( fieldName, "Version" ) == 0 )            strcpy( _mod->m_version, reader.GetRestOfLine() );
-                else if ( stricmp( fieldName, "Author" ) == 0 )             strcpy( _mod->m_author, reader.GetRestOfLine() );
-                else if ( stricmp( fieldName, "Website" ) == 0 )            strcpy( _mod->m_website, reader.GetRestOfLine() );            
-                else if ( stricmp( fieldName, "Comment" ) == 0 )            strcpy( _mod->m_comment, reader.GetRestOfLine() );            
+                if( stricmp( fieldName, "Name" ) == 0 )
+                {
+                    strncpy( _mod->m_name, reader.GetRestOfLine(), sizeof(_mod->m_name) - 1 );
+                    _mod->m_name[sizeof(_mod->m_name) - 1] = '\0';
+                }
+                else if( stricmp( fieldName, "Version" ) == 0 )
+                {
+                    strncpy( _mod->m_version, reader.GetRestOfLine(), sizeof(_mod->m_version) - 1 );
+                    _mod->m_version[sizeof(_mod->m_version) - 1] = '\0';
+                }
+                else if( stricmp( fieldName, "Author" ) == 0 )
+                {
+                    strncpy( _mod->m_author, reader.GetRestOfLine(), sizeof(_mod->m_author) - 1 );
+                    _mod->m_author[sizeof(_mod->m_author) - 1] = '\0';
+                }
+                else if( stricmp( fieldName, "Website" ) == 0 )
+                {
+                    strncpy( _mod->m_website, reader.GetRestOfLine(), sizeof(_mod->m_website) - 1 );
+                    _mod->m_website[sizeof(_mod->m_website) - 1] = '\0';
+                }
+                else if( stricmp( fieldName, "Comment" ) == 0 )
+                {
+                    strncpy( _mod->m_comment, reader.GetRestOfLine(), sizeof(_mod->m_comment) - 1 );
+                    _mod->m_comment[sizeof(_mod->m_comment) - 1] = '\0';
+                }
                 else
                 {
                     AppDebugOut( "Error parsing '%s' : unrecognised field name '%s'\n", fullFilename, fieldName );
@@ -343,8 +459,8 @@ void ModSystem::ActivateMod( char *_mod, char *_version )
     {
         InstalledMod *mod = m_mods[i];
 
-        if( strcmp( mod->m_name, _mod ) == 0 && 
-            strcmp( mod->m_version, _version ) == 0 )
+        if( stricmp( mod->m_name, _mod ) == 0 && 
+            stricmp( mod->m_version, _version ) == 0 )
         {
             mod->m_active = true;
             if( i != 0 )
@@ -371,8 +487,8 @@ void ModSystem::MoveMod( char *_mod, char *_version, int _move )
     {
         InstalledMod *mod = m_mods[i];
 
-        if( strcmp( mod->m_name, _mod ) == 0 && 
-            strcmp( mod->m_version, _version ) == 0 )
+        if( stricmp( mod->m_name, _mod ) == 0 && 
+            stricmp( mod->m_version, _version ) == 0 )
         {
             if( m_mods.ValidIndex(i+_move) &&
                 m_mods[i+_move]->m_active != mod->m_active )
@@ -405,7 +521,7 @@ void ModSystem::DeActivateMod( char *_mod )
     {
         InstalledMod *mod = m_mods[i];
 
-        if( strcmp( mod->m_name, _mod ) == 0 && mod->m_active )
+        if( stricmp( mod->m_name, _mod ) == 0 && mod->m_active )
         {
             mod->m_active = false;
 
@@ -470,8 +586,8 @@ InstalledMod *ModSystem::GetMod( char *_mod, char *_version )
     {
         InstalledMod *mod = m_mods[i];
 
-        if( strcmp( mod->m_name, _mod ) == 0 && 
-            strcmp( mod->m_version, _version ) == 0 )
+        if( stricmp( mod->m_name, _mod ) == 0 && 
+            stricmp( mod->m_version, _version ) == 0 )
         {
             return mod;
         }
@@ -715,13 +831,43 @@ void ModSystem::Commit()
     char authKey[256];
     Authentication_GetKey( authKey );
     bool demoUser = Authentication_IsDemoKey(authKey);
-
-    // Store previous affecting mods for comparison
+    
     LList<char*> previousGeographyMods;
     for (int i = 0; i < m_geographyAffectingMods.Size(); ++i)
     {
         previousGeographyMods.PutData(newStr(m_geographyAffectingMods[i]));
     }
+    
+    UpdateGeographyAffectingMods();
+    
+    bool geographyChanged = false;
+    
+    if (previousGeographyMods.Size() != m_geographyAffectingMods.Size())
+    {
+        geographyChanged = true;
+    }
+    else
+    {
+        for (int i = 0; i < previousGeographyMods.Size(); ++i)
+        {
+            bool found = false;
+            for (int j = 0; j < m_geographyAffectingMods.Size(); ++j)
+            {
+                if (strcmp(previousGeographyMods[i], m_geographyAffectingMods[j]) == 0)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                geographyChanged = true;
+                break;
+            }
+        }
+    }
+    
+    previousGeographyMods.EmptyAndDeleteArray();
     
     ClearModGraphicsCache();
 
@@ -768,6 +914,8 @@ void ModSystem::Commit()
         }   
     }
 
+    ScanModGraphics();
+
     if( g_languageTable && g_windowManager )
     {
         if( numActivated == 0 )
@@ -797,59 +945,32 @@ void ModSystem::Commit()
         g_languageTable->LoadLanguages();
         g_languageTable->LoadCurrentLanguage();
 
+        //
+        // Protect VBOs from InvalidateAllVBOs if geography hasnt changed
+        // since resource restart will invalidate all VBOs
+        
+        if (!geographyChanged)
+        {
+            g_renderer->ProtectVBO("MapCoastlines");
+            g_renderer->ProtectVBO("MapBorders");
+            g_renderer3d->Protect3DVBO("Starfield");
+            g_renderer3d->Protect3DVBO("CullingSphere");
+            g_renderer3d->Protect3DVBO("GlobeCoastlines");
+            g_renderer3d->Protect3DVBO("GlobeBorders");
+            g_renderer3d->Protect3DVBO("GlobeGridlines");
+        }
+
         g_resource->Restart();
+        
+        g_renderer->ClearVBOProtection();
+        g_renderer3d->Clear3DVBOProtection();
+        
         g_app->InitFonts();
         g_app->GetMapRenderer()->Init();
         g_app->GetGlobeRenderer()->Init();
 
-        UpdateGeographyAffectingMods();
-
-        bool geographyChanged = false;
-        
-        //
-        // Check if the set of geography-affecting mods changed
-
-        if (previousGeographyMods.Size() != m_geographyAffectingMods.Size())
-        {
-            geographyChanged = true;
-        }
-        else
-        {
-            //
-            // Same count, check if contents are different
-
-            for (int i = 0; i < previousGeographyMods.Size(); ++i)
-            {
-                bool found = false;
-                for (int j = 0; j < m_geographyAffectingMods.Size(); ++j)
-                {
-                    if (strcmp(previousGeographyMods[i], m_geographyAffectingMods[j]) == 0)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    geographyChanged = true;
-                    break;
-                }
-            }
-        }
-
         if (geographyChanged)
         {
-            //
-            // Invalidate VBOs so they rebuild with new settings
-
-            g_renderer->InvalidateCachedVBO("MapCoastlines");
-            g_renderer->InvalidateCachedVBO("MapBorders");
-            g_renderer3d->InvalidateCached3DVBO("Starfield");
-            g_renderer3d->InvalidateCached3DVBO("CullingSphere");
-            g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
-            g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
-            g_renderer3d->InvalidateCached3DVBO("GlobeGridlines");
-            
             g_app->GetEarthData()->LoadCoastlines();
             g_app->GetEarthData()->LoadBorders();
             g_app->GetEarthData()->CalculateAndSetBufferSizes();
@@ -875,10 +996,7 @@ void ModSystem::Commit()
 
         g_styleTable->Load( "default.txt" );
         g_styleTable->Load( g_preferences->GetString(PREFS_INTERFACE_STYLE) );        
-    }    
-
-    // Clean up comparison list
-    previousGeographyMods.EmptyAndDeleteArray();
+    }
         
     if( msgDialog )
     {

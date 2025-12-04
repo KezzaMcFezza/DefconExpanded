@@ -72,9 +72,6 @@ GlobeRenderer::~GlobeRenderer()
 void GlobeRenderer::Init()
 {
     Reset();
-
-
-
 }
 
 void GlobeRenderer::Update()

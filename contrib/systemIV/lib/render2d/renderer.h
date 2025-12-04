@@ -17,6 +17,7 @@
 #include "lib/math/vector3.h"
 #include "lib/render/colour.h"
 #include "lib/tosser/btree.h"
+#include "lib/tosser/llist.h"
 
 class Image;
 class BitmapFont;
@@ -207,6 +208,7 @@ protected:
   };
 
   BTree<CachedVBO *> m_cachedVBOs;
+  LList<char*> m_protectedVBOKeys;
 
   BufferType m_activeBuffer;
 
@@ -518,6 +520,12 @@ public:
   bool IsMegaVBOValid           (const char *megaVBOKey);
   void SetMegaVBOBufferSizes    (int vertexCount, int indexCount);
   void InvalidateAllVBOs        ();
+
+  void ProtectVBO               (const char* key);
+  void UnprotectVBO             (const char* key);
+  void ClearVBOProtection       ();
+  bool IsVBOProtected           (const char* key);
+  
   int GetCachedVBOCount         ();
   int GetCachedVBOVertexCount   (const char *cacheKey);
   int GetCachedVBOIndexCount    (const char *cacheKey);

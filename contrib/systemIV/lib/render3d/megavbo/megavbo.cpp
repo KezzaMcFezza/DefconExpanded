@@ -6,10 +6,46 @@ void Renderer3D::InvalidateAll3DVBOs() {
     DArray<char*> *keys = m_cached3DVBOs.ConvertIndexToDArray();
     
     for (int i = 0; i < keys->Size(); ++i) {
-        InvalidateCached3DVBO(keys->GetData(i));
+        if (!Is3DVBOProtected(keys->GetData(i))) {
+            InvalidateCached3DVBO(keys->GetData(i));
+        }
     }
     
     delete keys;
+}
+
+void Renderer3D::Protect3DVBO(const char* key) {
+    if (!key) return;
+    if (Is3DVBOProtected(key)) return;
+    m_protected3DVBOKeys.PutData(newStr(key));
+}
+
+void Renderer3D::Unprotect3DVBO(const char* key) {
+    if (!key) return;
+    for (int i = 0; i < m_protected3DVBOKeys.Size(); ++i) {
+        if (strcmp(m_protected3DVBOKeys[i], key) == 0) {
+            delete[] m_protected3DVBOKeys[i];
+            m_protected3DVBOKeys.RemoveData(i);
+            return;
+        }
+    }
+}
+
+void Renderer3D::Clear3DVBOProtection() {
+    for (int i = 0; i < m_protected3DVBOKeys.Size(); ++i) {
+        delete[] m_protected3DVBOKeys[i];
+    }
+    m_protected3DVBOKeys.Empty();
+}
+
+bool Renderer3D::Is3DVBOProtected(const char* key) {
+    if (!key) return false;
+    for (int i = 0; i < m_protected3DVBOKeys.Size(); ++i) {
+        if (strcmp(m_protected3DVBOKeys[i], key) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Renderer3D::InvalidateCached3DVBO(const char* cacheKey) {

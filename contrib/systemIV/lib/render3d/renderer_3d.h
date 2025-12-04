@@ -14,6 +14,7 @@
 #define IMMEDIATE_MODE_3D 0
 
 #include "lib/tosser/btree.h"
+#include "lib/tosser/llist.h"
 #include "lib/math/vector3.h"
 #include "lib/render/colour.h"
 
@@ -223,6 +224,7 @@ private:
     };
     
     BTree<Cached3DVBO*> m_cached3DVBOs;
+    LList<char*> m_protected3DVBOKeys;
     
     Vertex3D* m_lineConversionBuffer3D;
     int m_lineConversionBufferSize3D;
@@ -363,6 +365,12 @@ public:
     void SetTriangleMegaVBO3DBufferSizes (int vertexCount, int indexCount);
     
     void InvalidateAll3DVBOs       ();
+
+    void Protect3DVBO              (const char* key);
+    void Unprotect3DVBO            (const char* key);
+    void Clear3DVBOProtection      ();
+    bool Is3DVBOProtected          (const char* key);
+    
     int GetCached3DVBOCount        ();
     int GetCached3DVBOVertexCount  (const char *cacheKey);
     int GetCached3DVBOIndexCount   (const char *cacheKey);
