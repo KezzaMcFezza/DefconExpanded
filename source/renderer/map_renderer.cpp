@@ -239,18 +239,18 @@ void MapRenderer::Render()
            
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
+        bool showCoastlines = g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES );
+        bool showBorders    = g_preferences->GetInt( PREFS_GRAPHICS_BORDERS );
+
+        if( showBorders ) RenderBorders();
+        if( showCoastlines ) RenderCoastlines();
+
         RenderCountryControl();
         RenderWorldMessages();
 
         g_renderer->EndStaticSpriteBatch();
         g_renderer->EndLineBatch();
         g_renderer->EndTextBatch();
-
-        bool showCoastlines = g_preferences->GetInt( PREFS_GRAPHICS_COASTLINES );
-        bool showBorders    = g_preferences->GetInt( PREFS_GRAPHICS_BORDERS );
-
-        if( showBorders ) RenderBorders();
-        if( showCoastlines ) RenderCoastlines();
 		
         left += GetLongitudeMod();
         right += GetLongitudeMod();
