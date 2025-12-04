@@ -1871,13 +1871,17 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
                 AppAssert(team);
                 
                 //
-                // Only skip creation if this is our team, we already created it locally.
-                // And if we are not synchronizing, during sync/reconnect we need to create
-                // all fleets to match client expectations, dont look at me like that, you
-                // know its genius.
+                // Only skip creation if we actually OWN this team (not just viewing it).
+                // In player perspective mode m_myTeamId changes to the viewed team,
+                // so we must verify ownership via team type and client ID.
+                
+                bool isRecordingPlayback = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode());
+                bool isOurOwnTeam = !isRecordingPlayback && 
+                                    (team->m_type == Team::TypeLocalPlayer && 
+                                     team->m_clientId == m_clientId);
                 
                 bool needsCreation = true;
-                if( teamId == g_app->GetWorld()->m_myTeamId && 
+                if( isOurOwnTeam && 
                     team->m_fleets.Size() > 0 &&
                     !m_synchronising )
                 {
