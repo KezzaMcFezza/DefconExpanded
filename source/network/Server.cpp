@@ -2037,6 +2037,38 @@ void Server::Advance()
         if( recordedLetter && recordedLetter->m_data )
         {
             //
+            // Save spectator commands from the live letter before replacing
+
+            LList<Directory *> spectatorCommands;
+            for( int i = 0; i < letter->m_data->m_subDirectories.Size(); ++i )
+            {
+                if( letter->m_data->m_subDirectories.ValidIndex(i) )
+                {
+                    Directory *subDir = letter->m_data->m_subDirectories[i];
+                    if( subDir && subDir->HasData( NET_DEFCON_COMMAND, DIRECTORY_TYPE_STRING ) )
+                    {
+                        char *cmd = subDir->GetDataString( NET_DEFCON_COMMAND );
+                        bool isSpectatorCommand = false;
+
+                        if( strcmp( cmd, NET_DEFCON_SETTEAMNAME ) == 0 &&
+                            subDir->HasData( NET_DEFCON_SPECTATOR ) )
+                        {
+                            isSpectatorCommand = true;
+                        }
+                        else if( strcmp( cmd, NET_DEFCON_CHATMESSAGE ) == 0 )
+                        {
+                            isSpectatorCommand = true;
+                        }
+
+                        if( isSpectatorCommand )
+                        {
+                            spectatorCommands.PutData( new Directory( *subDir ) );
+                        }
+                    }
+                }
+            }
+
+            //
             // Clone the recorded message data
 
             Directory *recordedData = new Directory( *recordedLetter->m_data );
@@ -2046,6 +2078,14 @@ void Server::Advance()
 
             delete letter->m_data;
             letter->m_data = recordedData;
+
+            //
+            // Add saved spectator commands back to the letter
+
+            for( int i = 0; i < spectatorCommands.Size(); ++i )
+            {
+                letter->m_data->AddDirectory( spectatorCommands[i] );
+            }
             
             //
             // Advance to next recorded message
