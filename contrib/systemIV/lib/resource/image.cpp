@@ -57,6 +57,9 @@ Image::~Image()
     {
         glDeleteTextures( 1, (GLuint *) &m_textureID );
     }
+    
+    delete m_bitmap;
+    m_bitmap = NULL;
 }
 
 int Image::Width()

@@ -111,6 +111,26 @@ void Resource::Shutdown()
 }
 
 
+void Resource::UnloadImage( const char *filename )
+{
+    if( !filename ) return;
+    
+    char fullFilename[512];
+    sprintf( fullFilename, "data/%s", filename );
+    
+    Image *image = m_imageCache.GetData( fullFilename );
+    if( image )
+    {
+        delete image;
+        m_imageCache.RemoveData( fullFilename );
+    }
+    
+#ifndef NO_UNRAR
+    g_fileSystem->UnloadArchiveFile( fullFilename );
+#endif
+}
+
+
 Image *Resource::GetImage( const char *filename )
 {   
     if( !filename ) return NULL;

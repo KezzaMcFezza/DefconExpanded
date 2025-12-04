@@ -454,11 +454,6 @@ void ModWindow::SelectMod( char *_name, char *_version )
     {
         delete m_image;
         m_image = NULL;
-    }
-
-    if( m_bitmap )
-    {
-        delete m_bitmap;
         m_bitmap = NULL;
     }
 

@@ -270,6 +270,21 @@ BinaryReader *FileSystem::GetBinaryReader(const char *_filename)
 }
 
 
+void FileSystem::UnloadArchiveFile( const char *_filename )
+{
+#ifndef NO_UNRAR
+    m_archiveMutex->Lock();
+    MemMappedFile *mmfile = m_archiveFiles.GetData(_filename);
+    if( mmfile )
+    {
+        m_archiveFiles.RemoveData(_filename);
+        delete mmfile;
+    }
+    m_archiveMutex->Unlock();
+#endif
+}
+
+
 
 int WildCmp(char const *wild, char const *string) 
 {

@@ -39,6 +39,7 @@ public:
     void            Shutdown();
 
     Image           *GetImage           ( const char *_filename );
+    void            UnloadImage         ( const char *_filename );
     BitmapFont      *GetBitmapFont      ( const char *_filename );
     bool            TestBitmapFont      ( const char *_filename );
 };
