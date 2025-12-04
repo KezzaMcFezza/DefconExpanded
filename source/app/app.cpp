@@ -1736,7 +1736,7 @@ void App::SetMousePointerVisible(bool visible)
 void App::SaveGameName()
 {
 	// Check m_server to be sure it's a game created by us.
-	if( m_server && m_game )
+	if( m_server && m_game && !(m_server->IsRecordingPlaybackMode()) )
 	{
 		int serverNameIndex = m_game->GetOptionIndex( "ServerName" );
 		if( serverNameIndex != -1 )

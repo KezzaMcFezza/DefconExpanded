@@ -1801,7 +1801,8 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
 
                         strcpy( spec->m_name, teamName );        
 
-                        if( teamId == m_clientId )
+                        bool isRecordingPlayback = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode());
+                        if( teamId == m_clientId && !isRecordingPlayback )
                         {
                             if( strcmp( teamName, LANGUAGEPHRASE("gameoption_PlayerName") ) == 0 )
                             {
@@ -1840,7 +1841,8 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
 
                         team->SetTeamName( teamName );
 
-                        if( teamId == g_app->GetWorld()->m_myTeamId )
+                        bool isRecordingPlayback = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode());
+                        if( teamId == g_app->GetWorld()->m_myTeamId && !isRecordingPlayback )
                         {
                             if( strcmp( teamName, LANGUAGEPHRASE("gameoption_PlayerName") ) == 0 )
                             {
