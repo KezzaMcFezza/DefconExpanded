@@ -73,6 +73,9 @@
     <Filter Include="lib\render2d">
       <UniqueIdentifier>{d250ba42-f338-4ff3-997e-cd40accd41d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lib\render2d\megavbo">
+      <UniqueIdentifier>{756648e2-3496-447a-8172-1b2c45678901}</UniqueIdentifier>
+    </Filter>
     <Filter Include="lib\render2d\shaders">
       <UniqueIdentifier>{87654321-90ab-cdef-1234-567890abcdef}</UniqueIdentifier>
     </Filter>
@@ -546,16 +549,16 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp">
       <Filter>lib\render3d</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\megavbo.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\megavbo_3d.cpp">
       <Filter>lib\render3d\megavbo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\quads.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\quads_3d.cpp">
       <Filter>lib\render3d\megavbo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\linestrips.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\linestrips_3d.cpp">
       <Filter>lib\render3d\megavbo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\triangles.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\triangles_3d.cpp">
       <Filter>lib\render3d\megavbo</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\resource\sprite_atlas.cpp">
@@ -597,8 +600,17 @@
     <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\timer.cc">
       <Filter>contrib\highway</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_vbo.cpp">
-      <Filter>lib\render2d</Filter>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\megavbo.cpp">
+      <Filter>lib\render2d\megavbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\quads.cpp">
+      <Filter>lib\render2d\megavbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\linestrips.cpp">
+      <Filter>lib\render2d\megavbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\triangles.cpp">
+      <Filter>lib\render2d\megavbo</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\operations_3d.cpp">
       <Filter>lib\render3d</Filter>

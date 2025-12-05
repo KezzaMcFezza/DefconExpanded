@@ -176,10 +176,7 @@ protected:
   Colour m_lineStripColor;
   float m_lineStripWidth;
 
-  bool m_cachedLineStripActive;
-  char *m_currentCacheKey;
-  Colour m_cachedLineStripColor;
-  float m_cachedLineStripWidth;
+
 
   int m_maxMegaVertices;
   int m_maxMegaIndices;
@@ -192,6 +189,26 @@ protected:
   int m_megaVertexCount;
   unsigned int *m_megaIndices;
   int m_megaIndexCount;
+
+  bool m_megaVBOTexturedActive;
+  char *m_currentMegaVBOTexturedKey;
+  unsigned int m_currentMegaVBOTextureID;
+  int m_maxMegaTexturedVertices;
+  int m_maxMegaTexturedIndices;
+  Vertex2D *m_megaTexturedVertices;
+  int m_megaTexturedVertexCount;
+  unsigned int *m_megaTexturedIndices;
+  int m_megaTexturedIndexCount;
+
+  bool m_megaVBOTrianglesActive;
+  char *m_currentMegaVBOTrianglesKey;
+  Colour m_megaVBOTrianglesColor;
+  int m_maxMegaTriangleVertices;
+  int m_maxMegaTriangleIndices;
+  Vertex2D *m_megaTriangleVertices;
+  int m_megaTriangleVertexCount;
+  unsigned int *m_megaTriangleIndices;
+  int m_megaTriangleIndexCount;
 
   //
   // VBO caching system for coastlines and borders, replaced display lists
@@ -506,11 +523,6 @@ public:
   void LineStripVertex2D        (float x, float y);
   void EndLineStrip2D           ();
 
-  void BeginCachedLineStrip     (const char *cacheKey, Colour const &col,
-                                 float lineWidth);
-  void CachedLineStripVertex    (float x, float y);
-  void EndCachedLineStrip       ();
-  void RenderCachedLineStrip    (const char *cacheKey);
   void InvalidateCachedVBO      (const char *cacheKey);
 
   void BeginMegaVBO             (const char *megaVBOKey, Colour const &col);
@@ -519,6 +531,21 @@ public:
   void RenderMegaVBO            (const char *megaVBOKey);
   bool IsMegaVBOValid           (const char *megaVBOKey);
   void SetMegaVBOBufferSizes    (int vertexCount, int indexCount);
+
+  void BeginTexturedMegaVBO          (const char *megaVBOKey, unsigned int textureID);
+  void AddTexturedQuadsToMegaVBO     (const Vertex2D *vertices, int vertexCount, int quadCount);
+  void EndTexturedMegaVBO            ();
+  void RenderTexturedMegaVBO         (const char *megaVBOKey);
+  bool IsTexturedMegaVBOValid        (const char *megaVBOKey);
+  void SetTexturedMegaVBOBufferSizes (int vertexCount, int indexCount);
+
+  void BeginTriangleMegaVBO          (const char *megaVBOKey, Colour const &col);
+  void AddTrianglesToMegaVBO         (const float *vertices, int vertexCount);
+  void EndTriangleMegaVBO            ();
+  void RenderTriangleMegaVBO         (const char *megaVBOKey);
+  bool IsTriangleMegaVBOValid         (const char *megaVBOKey);
+  void SetTriangleMegaVBOBufferSizes (int vertexCount, int indexCount);
+  
   void InvalidateAllVBOs        ();
 
   void ProtectVBO               (const char* key);
