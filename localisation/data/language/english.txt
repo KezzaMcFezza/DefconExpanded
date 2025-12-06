@@ -78,7 +78,6 @@ dialog_yes_l                        yes
 dialog_no                           No
 dialog_no_l                         no
 dialog_ok                           Ok
-dialog_back		            Back
 dialog_cancel                       Cancel
 dialog_cancel_seeking               Cancel seeking and return to normal playback
 dialog_save                         Save
@@ -805,6 +804,7 @@ tooltip_defcon1                     DEFCON 1\nNuclear combat authorised
 tooltip_toolbar_whiteboard          Toggle White Board
 tooltip_toolbar_whiteboard_disabled White Board is disabled due to the older version of the host
 tooltip_toolbar_radar               Toggle Radar Coverage
+tooltip_toolbar_globe               Toggle Globe Mode
 tooltip_toolbar_pop                 Toggle Population Density
 tooltip_toolbar_alliances           Show Alliances window
 tooltip_toolbar_units               Show Unit Panel
