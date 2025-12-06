@@ -326,6 +326,31 @@ void Renderer::SetDepthBuffer(bool _enabled, bool _clearNow) {
     }
 }
 
+void Renderer::SetDepthMask(bool enabled) {
+    if (m_depthMaskEnabled != enabled) {
+        glDepthMask(enabled ? GL_TRUE : GL_FALSE);
+        m_depthMaskEnabled = enabled;
+    }
+}
+
+void Renderer::SetCullFace(bool enabled, GLenum mode) {
+    if (enabled) {
+        if (!m_cullFaceEnabled) {
+            glEnable(GL_CULL_FACE);
+            m_cullFaceEnabled = true;
+        }
+        if (m_cullFaceMode != mode) {
+            glCullFace(mode);
+            m_cullFaceMode = mode;
+        }
+    } else {
+        if (m_cullFaceEnabled) {
+            glDisable(GL_CULL_FACE);
+            m_cullFaceEnabled = false;
+        }
+    }
+}
+
 // ============================================================================
 // SHADER SETUP
 // ============================================================================

@@ -64,7 +64,9 @@ private:
     int m_textureSwitches;
     int m_prevTextureSwitches;
 
-    
+    bool m_cullFaceEnabled;
+    GLenum m_cullFaceMode;
+ 
 public:
     Renderer();
     ~Renderer();
@@ -90,6 +92,8 @@ public:
     void SetBlendMode   (int _blendMode);
     void SetBlendFunc   (int srcFactor, int dstFactor);
     void SetDepthBuffer (bool _enabled, bool _clearNow);
+    void SetDepthMask   (bool enabled);
+    void SetCullFace    (bool enabled, GLenum mode = GL_BACK);
 
     void UpdateGpuTimings();
     void ResetFlushTimings();

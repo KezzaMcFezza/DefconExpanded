@@ -210,7 +210,7 @@ void Renderer3D::FlushStaticSprites3D() {
     StartFlushTiming3D("Static_Sprite_3D");
     IncrementDrawCall3D("Static_Sprite_sprites");
     
-    glDepthMask(GL_FALSE);
+    g_renderer->SetDepthMask(false);
     
     g_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
@@ -224,7 +224,7 @@ void Renderer3D::FlushStaticSprites3D() {
     UploadVertexDataTo3DVBO(m_spriteVBO3D, m_staticSpriteVertices3D, m_staticSpriteVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_staticSpriteVertexCount3D);
-    glDepthMask(GL_TRUE);
+    g_renderer->SetDepthMask(true);
     
     m_staticSpriteVertexCount3D = 0;
     
@@ -295,14 +295,15 @@ void Renderer3D::FlushNuke3DModels3D() {
     g_renderer->SetVertexArray(m_nukeVAO3D);
     UploadVertexDataTo3DVBO(m_nukeVBO3D, m_nuke3DModelVertices3D, m_nuke3DModelVertexCount3D, GL_DYNAMIC_DRAW);
     
-    // enable face culling for proper 3D model rendering
-    glEnable(GL_CULL_FACE);
+    //
+    // Enable face culling for proper 3D model rendering
+
+    g_renderer->SetCullFace(true, GL_BACK);
     glCullFace(GL_BACK);
     
-    // draw as triangles
     glDrawArrays(GL_TRIANGLES, 0, m_nuke3DModelVertexCount3D);
     
-    glDisable(GL_CULL_FACE);
+    g_renderer->SetCullFace(false, GL_BACK);
     
     m_nuke3DModelVertexCount3D = 0;
     
