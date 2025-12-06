@@ -111,6 +111,7 @@
         "-I${workspaceFolder}/source/app",
         "-I${workspaceFolder}/contrib/systemIV",
         "-I${workspaceFolder}/contrib/systemIV/contrib",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/tinygltf-2.9.7",
         "-I${workspaceFolder}/contrib/systemIV/contrib/crashpad/windows/include",
         "-I${workspaceFolder}/contrib/systemIV/contrib/crashpad/crashpad/third_party/mini_chromium/mini_chromium",
         "-I${workspaceFolder}/contrib/systemIV/contrib/SDL2-2.32.10/windows/include",
