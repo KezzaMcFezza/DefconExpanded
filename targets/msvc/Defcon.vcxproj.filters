@@ -100,6 +100,9 @@
     <Filter Include="contrib\highway">
       <UniqueIdentifier>{f12ab456-3c8d-4e9f-a1b2-d8e9f4a5b6c7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="contrib\tinygltf">
+      <UniqueIdentifier>{34567890-1234-5678-9012-345678901234}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\app\app.cpp">
@@ -603,6 +606,9 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\megavbo_2d.cpp">
       <Filter>lib\render2d\megavbo</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.cc">
+      <Filter>contrib\tinygltf</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\quads_2d.cpp">
       <Filter>lib\render2d\megavbo</Filter>
     </ClCompile>
@@ -1062,6 +1068,18 @@
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\sound\soundsystem_interface.h">
       <Filter>lib\sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.h">
+      <Filter>contrib\tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\json.hpp">
+      <Filter>contrib\tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\stb_image.h">
+      <Filter>contrib\tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\stb_image_write.h">
+      <Filter>contrib\tinygltf</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\renderer\animated_icon.h">
       <Filter>renderer</Filter>

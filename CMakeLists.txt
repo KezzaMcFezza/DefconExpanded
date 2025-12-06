@@ -6,6 +6,7 @@ set(ROOT_PATH ".")
 set(SYSTEMIV_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV" CACHE PATH "Location of the SystemIV base")
 set(GLAD_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/glad")
 set(HIGHWAY_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/highway-1.3.0")
+set(TINYGLTF_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/tinygltf-2.9.7")
 set(RESOURCES_DIR "${ROOT_PATH}/resources")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/result/Debug")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/result/Release")
@@ -92,6 +93,7 @@ include_directories(
     ${SYSTEMIV_PATH}/contrib/crashpad/linux/include/third_party/mini_chromium/mini_chromium
     ${GLAD_INCLUDE_DIR}
     ${HIGHWAY_PATH}
+    ${TINYGLTF_PATH}
 )
 
 set(RESOURCE_FILES
@@ -752,14 +754,19 @@ set(HIGHWAY_SOURCE
     ${HIGHWAY_PATH}/hwy/timer.cc
 )
 
+set(TINYGLTF_SOURCE
+    ${TINYGLTF_PATH}/tiny_gltf.cc
+)
+
 foreach(FILE ${FILES_TO_EXCLUDE})
     list(REMOVE_ITEM DEFCON_SOURCE ${FILE})
     list(REMOVE_ITEM SYSTEMIV_SOURCE ${FILE})
     list(REMOVE_ITEM UNRAR_SOURCE ${FILE})
     list(REMOVE_ITEM HIGHWAY_SOURCE ${FILE})
+    list(REMOVE_ITEM TINYGLTF_SOURCE ${FILE})
 endforeach()
 
-set(ALL_SOURCES ${DEFCON_SOURCE} ${SYSTEMIV_SOURCE} ${UNRAR_SOURCE} ${HIGHWAY_SOURCE} ${PLATFORM_SPECIFIC_FILES} ${RESOURCE_FILES} ${GLAD_SOURCE_FILE})
+set(ALL_SOURCES ${DEFCON_SOURCE} ${SYSTEMIV_SOURCE} ${UNRAR_SOURCE} ${HIGHWAY_SOURCE} ${TINYGLTF_SOURCE} ${PLATFORM_SPECIFIC_FILES} ${RESOURCE_FILES} ${GLAD_SOURCE_FILE})
 
 if(REPLAY_VIEWER_BUILD)
     set(EXECUTABLE_NAME "replay_viewer_${REPLAY_VIEWER_VERSION}")
@@ -848,6 +855,7 @@ elseif(MSVC)
         ${ROOT_PATH}/contrib/systemIV/contrib/${VORBIS_ARCH_INCLUDE}
         ${SDL2_INCLUDE_DIRS}
         ${ROOT_PATH}/contrib/ambx1.1/inc
+        ${TINYGLTF_PATH}
     )
     
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE 
@@ -942,6 +950,7 @@ target_include_directories(${EXECUTABLE_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/resources
     ${ROOT_PATH}/source
     ${SYSTEMIV_PATH}
+    ${TINYGLTF_PATH}
 )
 
 
