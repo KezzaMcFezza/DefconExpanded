@@ -1,8 +1,106 @@
 #include "lib/universal_include.h"
 
 #include "lib/render3d/renderer_3d.h"
+#include "lib/render3d/megavbo/megavbo_3d.h"
+#include "lib/string_utils.h"
 
-void Renderer3D::InvalidateAll3DVBOs() {
+Renderer3DVBO *g_renderer3dvbo = NULL;
+
+Renderer3DVBO::Renderer3DVBO()
+:   m_maxMegaVertices3D(100),
+    m_maxMegaIndices3D(100),
+    m_megaVBO3DActive(false),
+    m_currentMegaVBO3DKey(NULL),
+    m_megaVBO3DColor(0, 0, 0, 0),
+    m_megaVertices3D(NULL),
+    m_megaVertex3DCount(0),
+    m_megaIndices3D(NULL),
+    m_megaIndex3DCount(0),
+    m_megaVBO3DTexturedActive(false),
+    m_currentMegaVBO3DTexturedKey(NULL),
+    m_currentMegaVBO3DTextureID(0),
+    m_maxMegaTexturedVertices3D(100),
+    m_maxMegaTexturedIndices3D(100),
+    m_megaTexturedVertices3D(NULL),
+    m_megaTexturedVertex3DCount(0),
+    m_megaTexturedIndices3D(NULL),
+    m_megaTexturedIndex3DCount(0),
+    m_megaVBO3DTrianglesActive(false),
+    m_currentMegaVBO3DTrianglesKey(NULL),
+    m_megaVBO3DTrianglesColor(0, 0, 0, 0),
+    m_maxMegaTriangleVertices3D(100),
+    m_maxMegaTriangleIndices3D(100),
+    m_megaTriangleVertices3D(NULL),
+    m_megaTriangleVertex3DCount(0),
+    m_megaTriangleIndices3D(NULL),
+    m_megaTriangleIndex3DCount(0),
+    m_cached3DVBOs(),
+    m_protected3DVBOKeys()
+{
+    m_megaVertices3D = new Vertex3D[m_maxMegaVertices3D];
+    m_megaIndices3D = new unsigned int[m_maxMegaIndices3D];
+    
+    m_megaTexturedVertices3D = new Vertex3DTextured[m_maxMegaTexturedVertices3D];
+    m_megaTexturedIndices3D = new unsigned int[m_maxMegaTexturedIndices3D];
+    
+    m_megaTriangleVertices3D = new Vertex3D[m_maxMegaTriangleVertices3D];
+    m_megaTriangleIndices3D = new unsigned int[m_maxMegaTriangleIndices3D];
+}
+
+Renderer3DVBO::~Renderer3DVBO() 
+{
+    InvalidateAll3DVBOs();
+    
+    if (m_megaVertices3D) {
+        delete[] m_megaVertices3D;
+        m_megaVertices3D = NULL;
+    }
+    
+    if (m_megaIndices3D) {
+        delete[] m_megaIndices3D;
+        m_megaIndices3D = NULL;
+    }
+    
+    if (m_megaTexturedVertices3D) {
+        delete[] m_megaTexturedVertices3D;
+        m_megaTexturedVertices3D = NULL;
+    }
+    
+    if (m_megaTexturedIndices3D) {
+        delete[] m_megaTexturedIndices3D;
+        m_megaTexturedIndices3D = NULL;
+    }
+    
+    if (m_megaTriangleVertices3D) {
+        delete[] m_megaTriangleVertices3D;
+        m_megaTriangleVertices3D = NULL;
+    }
+    
+    if (m_megaTriangleIndices3D) {
+        delete[] m_megaTriangleIndices3D;
+        m_megaTriangleIndices3D = NULL;
+    }
+    
+    if (m_currentMegaVBO3DKey) {
+        delete[] m_currentMegaVBO3DKey;
+        m_currentMegaVBO3DKey = NULL;
+    }
+    
+    if (m_currentMegaVBO3DTexturedKey) {
+        delete[] m_currentMegaVBO3DTexturedKey;
+        m_currentMegaVBO3DTexturedKey = NULL;
+    }
+    
+    if (m_currentMegaVBO3DTrianglesKey) {
+        delete[] m_currentMegaVBO3DTrianglesKey;
+        m_currentMegaVBO3DTrianglesKey = NULL;
+    }
+    
+    Clear3DVBOProtection();
+}
+
+
+void Renderer3DVBO::InvalidateAll3DVBOs() {
     DArray<char*> *keys = m_cached3DVBOs.ConvertIndexToDArray();
     
     for (int i = 0; i < keys->Size(); ++i) {
@@ -14,13 +112,13 @@ void Renderer3D::InvalidateAll3DVBOs() {
     delete keys;
 }
 
-void Renderer3D::Protect3DVBO(const char* key) {
+void Renderer3DVBO::Protect3DVBO(const char* key) {
     if (!key) return;
     if (Is3DVBOProtected(key)) return;
     m_protected3DVBOKeys.PutData(newStr(key));
 }
 
-void Renderer3D::Unprotect3DVBO(const char* key) {
+void Renderer3DVBO::Unprotect3DVBO(const char* key) {
     if (!key) return;
     for (int i = 0; i < m_protected3DVBOKeys.Size(); ++i) {
         if (strcmp(m_protected3DVBOKeys[i], key) == 0) {
@@ -31,14 +129,14 @@ void Renderer3D::Unprotect3DVBO(const char* key) {
     }
 }
 
-void Renderer3D::Clear3DVBOProtection() {
+void Renderer3DVBO::Clear3DVBOProtection() {
     for (int i = 0; i < m_protected3DVBOKeys.Size(); ++i) {
         delete[] m_protected3DVBOKeys[i];
     }
     m_protected3DVBOKeys.Empty();
 }
 
-bool Renderer3D::Is3DVBOProtected(const char* key) {
+bool Renderer3DVBO::Is3DVBOProtected(const char* key) {
     if (!key) return false;
     for (int i = 0; i < m_protected3DVBOKeys.Size(); ++i) {
         if (strcmp(m_protected3DVBOKeys[i], key) == 0) {
@@ -48,7 +146,7 @@ bool Renderer3D::Is3DVBOProtected(const char* key) {
     return false;
 }
 
-void Renderer3D::InvalidateCached3DVBO(const char* cacheKey) {
+void Renderer3DVBO::InvalidateCached3DVBO(const char* cacheKey) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
     if (tree && tree->data) {
         Cached3DVBO* cachedVBO = tree->data;
@@ -71,7 +169,7 @@ void Renderer3D::InvalidateCached3DVBO(const char* cacheKey) {
     }
 }
 
-int Renderer3D::GetCached3DVBOCount() {
+int Renderer3DVBO::GetCached3DVBOCount() {
     int count = 0;
     
     DArray<char*> *keys = m_cached3DVBOs.ConvertIndexToDArray();
@@ -87,7 +185,7 @@ int Renderer3D::GetCached3DVBOCount() {
     return count;
 }
 
-int Renderer3D::GetCached3DVBOVertexCount(const char *cacheKey) {
+int Renderer3DVBO::GetCached3DVBOVertexCount(const char *cacheKey) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
     if (tree && tree->data && tree->data->isValid) {
         return tree->data->vertexCount;
@@ -95,7 +193,7 @@ int Renderer3D::GetCached3DVBOVertexCount(const char *cacheKey) {
     return 0;
 }
 
-int Renderer3D::GetCached3DVBOIndexCount(const char *cacheKey) {
+int Renderer3DVBO::GetCached3DVBOIndexCount(const char *cacheKey) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
     if (tree && tree->data && tree->data->isValid) {
         return tree->data->indexCount;

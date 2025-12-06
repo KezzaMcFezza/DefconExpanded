@@ -1,5 +1,6 @@
 #include "lib/universal_include.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/language_table.h"
 
 #include "lib/multiline_text.h"
@@ -71,7 +72,7 @@ void BadKeyWindow::Render( bool _hasFocus )
         for( int i = 0; i < wrapped.Size(); ++i )
         {
             char *thisLine = wrapped[i];
-            g_renderer->TextCentreSimple( m_x + m_w/2, yPos+=gap, White, size, thisLine );
+            g_renderer2d->TextCentreSimple( m_x + m_w/2, yPos+=gap, White, size, thisLine );
         }
 
         yPos += gap*2;
@@ -83,7 +84,7 @@ void BadKeyWindow::Render( bool _hasFocus )
 
     if( m_offerDemo )
     {
-        g_renderer->TextCentreSimple( m_x + m_w/2, m_y + m_h - 60, White, size, LANGUAGEPHRASE("dialog_may_play_as_demo_user") );
+        g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + m_h - 60, White, size, LANGUAGEPHRASE("dialog_may_play_as_demo_user") );
     }
 }
 

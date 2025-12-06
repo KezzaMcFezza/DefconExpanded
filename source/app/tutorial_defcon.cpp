@@ -2956,14 +2956,14 @@ void TutorialPopup::Render( bool _hasFocus )
         //
         // Render the window
 
-        g_renderer->RectFill ( m_x, m_y, m_w, m_h, windowColP, windowColS, alignment );
-        g_renderer->Rect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
+        g_renderer2d->RectFill ( m_x, m_y, m_w, m_h, windowColP, windowColS, alignment );
+        g_renderer2d->Rect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
 
 
         //
         // Render the shadow
 
-        InterfaceWindow::RenderWindowShadow( m_x+m_w, m_y, m_h, m_w, 15, g_renderer->m_alpha*0.5f );
+        InterfaceWindow::RenderWindowShadow( m_x+m_w, m_y, m_h, m_w, 15, g_renderer2d->m_alpha*0.5f );
 
 
         //
@@ -2984,7 +2984,7 @@ void TutorialPopup::Render( bool _hasFocus )
 				float x = m_x + 5;
 				float y = m_y + 5 + i * (fontSize+gapSize);
 				
-				g_renderer->TextSimple( x, y, White, fontSize, thisLine );
+				g_renderer2d->TextSimple( x, y, White, fontSize, thisLine );
 			}
 
 			float newWidth = 200;
@@ -3046,7 +3046,7 @@ void TutorialPopup::Render( bool _hasFocus )
                     {
                         targetScreenX = window->m_x + button->m_x + button->m_w/2;
                         targetScreenY = window->m_y + button->m_y + button->m_h/2;
-                        g_renderer->Rect( window->m_x + button->m_x-outSize, 
+                        g_renderer2d->Rect( window->m_x + button->m_x-outSize, 
                                           window->m_y + button->m_y-outSize, 
                                           button->m_w+outSize*2, 
                                           button->m_h+outSize*2, borderCol, 3.0f );
@@ -3055,7 +3055,7 @@ void TutorialPopup::Render( bool _hasFocus )
                     {
                         targetScreenX = window->m_x + window->m_w/2;
                         targetScreenY = window->m_y + window->m_h/2;
-                        g_renderer->Rect( window->m_x-outSize, 
+                        g_renderer2d->Rect( window->m_x-outSize, 
                                           window->m_y-outSize, 
                                           window->m_w+outSize*2, 
                                           window->m_h+outSize*2, borderCol, 3.0f );
@@ -3076,7 +3076,7 @@ void TutorialPopup::Render( bool _hasFocus )
                 bool offScreen = !g_app->GetMapRenderer()->IsOnScreen(worldLongitude, worldLatitude);
                 if( !offScreen )
                 {
-                    g_renderer->Circle( targetScreenX, targetScreenY, radius, 40, borderCol, 4.0f );
+                    g_renderer2d->Circle( targetScreenX, targetScreenY, radius, 40, borderCol, 4.0f );
                 }
                 else if( offScreen )
                 {
@@ -3113,7 +3113,7 @@ void TutorialPopup::Render( bool _hasFocus )
                     col.m_a = 255;
                     float size = 30 * ( 1.0f + sinf(g_gameTime*5) * 0.1f );
                     g_renderer->SetBlendMode(Renderer::BlendModeAdditive );
-                    g_renderer->RotatingSprite( img, targetScreenX, targetScreenY, size, size, col, angle );
+                    g_renderer2d->RotatingSprite( img, targetScreenX, targetScreenY, size, size, col, angle );
                     g_renderer->SetBlendMode(Renderer::BlendModeNormal);
                 }
             }

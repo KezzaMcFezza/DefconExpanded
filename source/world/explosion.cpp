@@ -78,7 +78,7 @@ void Explosion::Render()
         float predictedLongitude = m_longitude.DoubleValue();
         float predictedLatitude = m_latitude.DoubleValue();
 
-        g_renderer->StaticSprite( bmpImage, predictedLongitude-size, predictedLatitude-size,
+        g_renderer2d->StaticSprite( bmpImage, predictedLongitude-size, predictedLatitude-size,
                                     size*2, size*2, colour );
     }      
 }

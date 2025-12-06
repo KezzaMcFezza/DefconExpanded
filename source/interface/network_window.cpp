@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include <algorithm>
 
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/hi_res_time.h"
 #include "lib/metaserver/authentication.h"
 #include "lib/language_table.h"
@@ -61,19 +62,19 @@ void NetworkWindow::Render( bool hasFocus )
 		char number[32];
         strcpy( caption, LANGUAGEPHRASE("dialog_network_server_seqid") );
 		LPREPLACEINTEGERFLAG( 'S', g_app->GetServer()->m_sequenceId, caption );
-        g_renderer->TextSimple( m_x + 10, y+=h, White, 12, caption );
+        g_renderer2d->TextSimple( m_x + 10, y+=h, White, 12, caption );
 
         strcpy( caption, LANGUAGEPHRASE("dialog_network_server_send") );
 		sprintf( number, "%2.1f", g_app->GetServer()->m_sendRate/1024.0f );
 		LPREPLACESTRINGFLAG( 'R', number, caption );
-		g_renderer->TextSimple( m_x + 10, y+=h, White, 12, caption );
+		g_renderer2d->TextSimple( m_x + 10, y+=h, White, 12, caption );
 
         strcpy( caption, LANGUAGEPHRASE("dialog_network_server_receive") );
 		sprintf( number, "%2.1f", g_app->GetServer()->m_receiveRate/1024.0f );
 		LPREPLACESTRINGFLAG( 'R', number, caption );
-		g_renderer->TextSimple( m_x + 10, y+=h, White, 12, caption );
+		g_renderer2d->TextSimple( m_x + 10, y+=h, White, 12, caption );
 
-        g_renderer->Line( m_x + 10, y + 20, m_x + m_w - 10, y + 20, White, 1 );
+        g_renderer2d->Line( m_x + 10, y + 20, m_x + m_w - 10, y + 20, White, 1 );
         
         int clientX = m_x + 20;
         int ipX = clientX + 60;
@@ -84,11 +85,11 @@ void NetworkWindow::Render( bool hasFocus )
 
         y+=h*2;
 
-        g_renderer->TextSimple( clientX, y, White, 14, LANGUAGEPHRASE("dialog_network_id") );
-        g_renderer->TextSimple( ipX, y, White, 14, LANGUAGEPHRASE("dialog_network_ip_port") );
-        g_renderer->TextSimple( seqX, y, White, 14, LANGUAGEPHRASE("dialog_network_seqid") );
-        g_renderer->TextSimple( playerX, y, White, 14, LANGUAGEPHRASE("dialog_network_name") );
-        g_renderer->TextSimple( lagX, y, White, 14, LANGUAGEPHRASE("dialog_network_status") );
+        g_renderer2d->TextSimple( clientX, y, White, 14, LANGUAGEPHRASE("dialog_network_id") );
+        g_renderer2d->TextSimple( ipX, y, White, 14, LANGUAGEPHRASE("dialog_network_ip_port") );
+        g_renderer2d->TextSimple( seqX, y, White, 14, LANGUAGEPHRASE("dialog_network_seqid") );
+        g_renderer2d->TextSimple( playerX, y, White, 14, LANGUAGEPHRASE("dialog_network_name") );
+        g_renderer2d->TextSimple( lagX, y, White, 14, LANGUAGEPHRASE("dialog_network_status") );
         
         y+=h*2;
 
@@ -160,28 +161,28 @@ void NetworkWindow::Render( bool hasFocus )
                     }
                 }
 
-                g_renderer->Text( clientX, y, normalCol, 12, "%d", sToc->m_clientId );
+                g_renderer2d->Text( clientX, y, normalCol, 12, "%d", sToc->m_clientId );
                 if( playerName )
                 {
-                    g_renderer->TextSimple( playerX, y, normalCol, 12, playerName );
+                    g_renderer2d->TextSimple( playerX, y, normalCol, 12, playerName );
                 }
-                g_renderer->TextSimple( ipX, y, normalCol, 12, netLocation );
-                g_renderer->Text( seqX, y, normalCol, 12, "%d", sToc->m_lastKnownSequenceId );                
-                g_renderer->TextSimple( lagX, y, col, 12, caption );
+                g_renderer2d->TextSimple( ipX, y, normalCol, 12, netLocation );
+                g_renderer2d->Text( seqX, y, normalCol, 12, "%d", sToc->m_lastKnownSequenceId );                
+                g_renderer2d->TextSimple( lagX, y, col, 12, caption );
 
                 if( sToc->m_spectator )
                 {
-                    g_renderer->TextSimple( clientX+10, y, normalCol, 12, LANGUAGEPHRASE("dialog_network_spec") );
+                    g_renderer2d->TextSimple( clientX+10, y, normalCol, 12, LANGUAGEPHRASE("dialog_network_spec") );
                 }
 
                 if( sToc->m_syncErrorSeqId != -1 )
                 {
-                    g_renderer->Text( syncX, y, Colour(255,0,0,255), 12, LANGUAGEPHRASE("dialog_worldstatus_out_of_sync_2") );
+                    g_renderer2d->Text( syncX, y, Colour(255,0,0,255), 12, LANGUAGEPHRASE("dialog_worldstatus_out_of_sync_2") );
                 }
             }
             else
             {
-                g_renderer->Text( clientX, y, Colour(255,255,255,50), 12, LANGUAGEPHRASE("dialog_network_empty") );
+                g_renderer2d->Text( clientX, y, Colour(255,255,255,50), 12, LANGUAGEPHRASE("dialog_network_empty") );
             }
             
             y += 20;
@@ -196,7 +197,7 @@ void NetworkWindow::Render( bool hasFocus )
     {
         float yPos = m_y + m_h - 25;
 
-        g_renderer->TextSimple( m_x + 10, yPos-25, White, 13, LANGUAGEPHRASE("dialog_network_sequence_msg_queue") );
+        g_renderer2d->TextSimple( m_x + 10, yPos-25, White, 13, LANGUAGEPHRASE("dialog_network_sequence_msg_queue") );
 
         float xPos = m_x + 10;
         float width = (m_w - 120) / 10;
@@ -206,14 +207,14 @@ void NetworkWindow::Render( bool hasFocus )
         {
             if( i != 0 )
             {
-                g_renderer->RectFill( xPos, yPos-5, width-gap, 20, Colour(20,20,50,255) );
+                g_renderer2d->RectFill( xPos, yPos-5, width-gap, 20, Colour(20,20,50,255) );
 
                 if( g_app->GetClientToServer()->IsSequenceIdInQueue( g_lastProcessedSequenceId+i ) )
                 {
-                    g_renderer->RectFill( xPos, yPos-5, width-gap, 20, Colour(0,255,0,255) );
+                    g_renderer2d->RectFill( xPos, yPos-5, width-gap, 20, Colour(0,255,0,255) );
                 }
 
-                g_renderer->Rect( xPos, yPos-5, width-gap, 20, Colour(255,255,255,100) );
+                g_renderer2d->Rect( xPos, yPos-5, width-gap, 20, Colour(255,255,255,100) );
             }
 
             if( i == 0 )
@@ -221,7 +222,7 @@ void NetworkWindow::Render( bool hasFocus )
 				char caption[128];
                 strcpy( caption, LANGUAGEPHRASE("dialog_network_seqid_number") );
 				LPREPLACEINTEGERFLAG( 'S', g_lastProcessedSequenceId, caption );
-                g_renderer->TextSimple( xPos, yPos, White, 13, caption );
+                g_renderer2d->TextSimple( xPos, yPos, White, 13, caption );
                 xPos += width * 1;
             }
             
@@ -239,33 +240,33 @@ void NetworkWindow::Render( bool hasFocus )
         {
             strcpy( caption, LANGUAGEPHRASE("dialog_network_svr_known_seqid") );
 			LPREPLACEINTEGERFLAG( 'S', g_app->GetClientToServer()->m_serverSequenceId, caption );
-            g_renderer->TextSimple( m_x + 10, y+=h, White, 12, caption );
+            g_renderer2d->TextSimple( m_x + 10, y+=h, White, 12, caption );
 
             strcpy( caption, LANGUAGEPHRASE("dialog_network_svr_estimated_seqid") );
 			LPREPLACEINTEGERFLAG( 'S', g_app->GetClientToServer()->GetEstimatedServerSeqId(), caption );
-            g_renderer->TextSimple( m_x + 10, y+=h, White, 12, caption );
+            g_renderer2d->TextSimple( m_x + 10, y+=h, White, 12, caption );
 
             strcpy( caption, LANGUAGEPHRASE("dialog_network_estimated_latency") );
 			sprintf( number, "%2.1f", g_app->GetClientToServer()->GetEstimatedLatency() );
 			LPREPLACESTRINGFLAG( 'L', number, caption );
-            g_renderer->TextCentreSimple( m_x + m_w/2, y+40, White, 15, caption );
+            g_renderer2d->TextCentreSimple( m_x + m_w/2, y+40, White, 15, caption );
         }
 
         y = m_y + 15;
 
         strcpy( caption, LANGUAGEPHRASE("dialog_network_client_seqid") );
 		LPREPLACEINTEGERFLAG( 'S', g_app->GetClientToServer()->m_lastValidSequenceIdFromServer, caption );
-        g_renderer->TextSimple( m_x + 250, y+=h, White, 12, caption );
+        g_renderer2d->TextSimple( m_x + 250, y+=h, White, 12, caption );
 
         strcpy( caption, LANGUAGEPHRASE("dialog_network_client_send") );
 		sprintf( number, "%2.1f", g_app->GetClientToServer()->m_sendRate/1024.0f );
 		LPREPLACESTRINGFLAG( 'R', number, caption );
-        g_renderer->TextSimple( m_x + 250, y+=h, White, 12, caption );
+        g_renderer2d->TextSimple( m_x + 250, y+=h, White, 12, caption );
 
         strcpy( caption, LANGUAGEPHRASE("dialog_network_client_receive") );
 		sprintf( number, "%2.1f", g_app->GetClientToServer()->m_receiveRate/1024.0f );
 		LPREPLACESTRINGFLAG( 'R', number, caption );
-        g_renderer->TextSimple( m_x + 250, y+=h, White, 12, caption );
+        g_renderer2d->TextSimple( m_x + 250, y+=h, White, 12, caption );
     }
 }
 

@@ -1,5 +1,6 @@
 #include "lib/universal_include.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -17,6 +18,6 @@ WorldObjectWindow::WorldObjectWindow( char *name )
 
 void WorldObjectWindow::Render( bool hasFocus )
 {
-    g_renderer->Rect( m_x, m_y, m_w, m_h, White );
+    g_renderer2d->Rect( m_x, m_y, m_w, m_h, White );
 }
 

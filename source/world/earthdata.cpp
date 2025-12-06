@@ -4,8 +4,11 @@
 #include "lib/math/vector3.h"
 #include "lib/hi_res_time.h"
 #include "lib/preferences.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
+#include "lib/render2d/megavbo/megavbo_2d.h"
+#include "lib/render3d/megavbo/megavbo_3d.h"
 
 #include "city.h"
 #include "earthdata.h"
@@ -221,11 +224,11 @@ void EarthData::CalculateAndSetBufferSizes()
     // set buffer sizes for both 2D and 3D renderers
     // both renderers use the same data
 
-    if (g_renderer) {
-        g_renderer->SetMegaVBOBufferSizes(totalVertices, totalIndices);
+    if (g_renderer2d) {
+        g_renderer2dvbo->SetMegaVBOBufferSizes(totalVertices, totalIndices);
     }
     if (g_renderer3d) {
-        g_renderer3d->SetMegaVBO3DBufferSizes(totalVertices, totalIndices);
+        g_renderer3dvbo->SetMegaVBO3DBufferSizes(totalVertices, totalIndices);
     }
 }
 

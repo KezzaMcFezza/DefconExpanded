@@ -1,7 +1,8 @@
 #include "lib/universal_include.h"
 #include "lib/gucci/input.h"
 #include "lib/math/math_utils.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render/styletable.h"
 #include "lib/preferences.h"
 
@@ -65,28 +66,28 @@ void FadingWindow::Render( bool _hasFocus, bool _renderButtons )
 
     bool alignment = g_styleTable->GetStyle(STYLE_WINDOW_BACKGROUND)->m_horizontal;
     
-    g_renderer->RectFill ( m_x, m_y, m_w, m_h, windowColA, windowColB, alignment );
-    g_renderer->Rect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
+    g_renderer2d->RectFill ( m_x, m_y, m_w, m_h, windowColA, windowColB, alignment );
+    g_renderer2d->Rect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
 
-    g_renderer->SetClip( m_x, m_y, m_w, m_h );
+    g_renderer2d->SetClip( m_x, m_y, m_w, m_h );
 
     //
     // Draw the buttons if we are focused
 
-    float oldAlpha = g_renderer->m_alpha;
-    g_renderer->m_alpha = m_alpha;
+    float oldAlpha = g_renderer2d->m_alpha;
+    g_renderer2d->m_alpha = m_alpha;
 
     EclWindow::Render( _hasFocus );
 
-    g_renderer->m_alpha = oldAlpha;
+    g_renderer2d->m_alpha = oldAlpha;
     
-    g_renderer->ResetClip();
+    g_renderer2d->ResetClip();
 
 
     //
     // Drop shadow
 
-    InterfaceWindow::RenderWindowShadow( m_x+m_w, m_y, m_h, m_w, 10, g_renderer->m_alpha*0.4f*m_alpha );
+    InterfaceWindow::RenderWindowShadow( m_x+m_w, m_y, m_h, m_w, 10, g_renderer2d->m_alpha*0.4f*m_alpha );
 }
 
 

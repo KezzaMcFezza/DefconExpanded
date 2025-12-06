@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/language_table.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render/styletable.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/input.h"
@@ -411,18 +412,18 @@ void PlaybackControlWindow::Render(bool _hasFocus)
     float progressH = 10;  
     
     // Background
-    g_renderer->RectFill(progressX, progressY, progressW, progressH, Colour(50, 50, 50, 200));
+    g_renderer2d->RectFill(progressX, progressY, progressW, progressH, Colour(50, 50, 50, 200));
     
     // Progress fill
     if (m_totalSeqIds > 0) {
         float progress = (float)m_currentSeqId / (float)m_totalSeqIds;
         float fillW = progressW * progress;
-        g_renderer->RectFill(progressX, progressY, fillW, progressH, Colour(100, 150, 255, 200));
+        g_renderer2d->RectFill(progressX, progressY, fillW, progressH, Colour(100, 150, 255, 200));
     }
     
     // Progress text centered on the progress bar
     float progressCenterX = progressX + progressW / 2;
-    g_renderer->TextCentreSimple(progressCenterX, progressY, Colour(200, 200, 200, 255), 11.0f, m_cachedProgressText);
+    g_renderer2d->TextCentreSimple(progressCenterX, progressY, Colour(200, 200, 200, 255), 11.0f, m_cachedProgressText);
     
     
     // radar perspective label
@@ -439,7 +440,7 @@ void PlaybackControlWindow::Render(bool _hasFocus)
     {
         sprintf(perspectiveText, "Player Perspective: Unknown");
     }
-    g_renderer->TextSimple(m_x + 95, m_y + 110, Colour(180, 180, 180, 255), 10.0f, perspectiveText);
+    g_renderer2d->TextSimple(m_x + 95, m_y + 110, Colour(180, 180, 180, 255), 10.0f, perspectiveText);
 }
 
 void PlaybackControlWindow::Update()
@@ -705,14 +706,14 @@ void SpeedSlider::Render(int realX, int realY, bool highlighted, bool clicked)
     Colour trackCol = Colour(80, 80, 80, 255);
     Colour thumbCol = highlighted ? Colour(150, 150, 255, 255) : Colour(120, 120, 200, 255);
     
-    g_renderer->RectFill(realX, realY + m_h/2 - 3, m_w, 6, trackCol);
+    g_renderer2d->RectFill(realX, realY + m_h/2 - 3, m_w, 6, trackCol);
     
     // Slider thumb
     float thumbX = realX + (m_value * (m_w - 10));
-    g_renderer->RectFill(thumbX, realY, 10, m_h, thumbCol);
+    g_renderer2d->RectFill(thumbX, realY, 10, m_h, thumbCol);
 
-    g_renderer->TextSimple(realX, realY - 12, Colour(180, 180, 180, 255), 8.0f, "1x");
-    g_renderer->TextSimple(realX + m_w - 25, realY - 12, Colour(180, 180, 180, 255), 10.0f, "100x");
+    g_renderer2d->TextSimple(realX, realY - 12, Colour(180, 180, 180, 255), 8.0f, "1x");
+    g_renderer2d->TextSimple(realX + m_w - 25, realY - 12, Colour(180, 180, 180, 255), 10.0f, "100x");
 }
 
 void SpeedSlider::Update()
@@ -805,11 +806,11 @@ void SeekBar::Render(int realX, int realY, bool highlighted, bool clicked)
         thumbCol = Colour(120, 200, 120, 255); // Normal green
     }
     
-    g_renderer->RectFill(realX, realY + m_h/2 - 3, m_w, 6, trackCol);
+    g_renderer2d->RectFill(realX, realY + m_h/2 - 3, m_w, 6, trackCol);
     
     // Seek thumb (thinner for precise clicking)
     float thumbX = realX + (m_value * (m_w - 6));
-    g_renderer->RectFill(thumbX, realY, 6, m_h, thumbCol);
+    g_renderer2d->RectFill(thumbX, realY, 6, m_h, thumbCol);
 }
 
 void SeekBar::Update()
@@ -894,24 +895,24 @@ void PlayerPerspectiveButton::Render( int realX, int realY, bool highlighted, bo
     {
         // selected button is brighter
         buttonCol.m_a = 255;
-        g_renderer->RectFill(realX, realY, m_w, m_h, buttonCol);
+        g_renderer2d->RectFill(realX, realY, m_w, m_h, buttonCol);
     }
     else if( highlighted || clicked )
     {
         // highlighted button
         buttonCol.m_a = 200;
-        g_renderer->RectFill(realX, realY, m_w, m_h, buttonCol);
+        g_renderer2d->RectFill(realX, realY, m_w, m_h, buttonCol);
     }
     else
     {
         // normal button
         buttonCol.m_a = 150;
-        g_renderer->RectFill(realX, realY, m_w, m_h, buttonCol);
+        g_renderer2d->RectFill(realX, realY, m_w, m_h, buttonCol);
     }
     
     // button text
     Colour textCol = m_isSelected ? Colour(255, 255, 255, 255) : Colour(220, 220, 220, 255);
-    g_renderer->TextCentreSimple(realX + m_w/2, realY + m_h/2 - 6, textCol, 9.0f, m_caption);
+    g_renderer2d->TextCentreSimple(realX + m_w/2, realY + m_h/2 - 6, textCol, 9.0f, m_caption);
 }
 
 // ============================================================================

@@ -1,5 +1,6 @@
 #include "lib/universal_include.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/language_table.h"
 
@@ -69,7 +70,7 @@ void MessageDialog::Render(bool _hasFocus)
 	
 	for (int i = 0; i < m_numLines; ++i)
 	{
-		g_renderer->TextSimple(m_x + 15, m_y + 35 + i * 12, White, 12, m_messageLines[i]);
+		g_renderer2d->TextSimple(m_x + 15, m_y + 35 + i * 12, White, 12, m_messageLines[i]);
 	}
 }
 

@@ -11,7 +11,8 @@
 #include "lib/gucci/window_manager_win32.h"
 #include "lib/gucci/input.h"
 #include "lib/gucci/input_win32.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 
 
 void AppMain()
@@ -29,7 +30,7 @@ void AppMain()
     {
         g_renderer->ClearScreen(true, true);
         g_renderer->Set2DViewport( 0, windowW, windowH, 0, 0, 0, 0, windowW, windowH );
-        g_renderer->RectFill( 100, 100, 100, 100, White );
+        g_renderer2d->RectFill( 100, 100, 100, 100, White );
 
         g_inputManager->Advance();
         g_windowManager->Flip();

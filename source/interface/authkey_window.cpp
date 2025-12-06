@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/metaserver/authentication.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render/styletable.h"
 #include "lib/hi_res_time.h"
 #include "lib/language_table.h"
@@ -125,11 +126,11 @@ public:
         Colour borderA = g_styleTable->GetPrimaryColour(STYLE_INPUT_BORDER);
         Colour borderB = g_styleTable->GetSecondaryColour(STYLE_INPUT_BORDER);
 
-        g_renderer->RectFill( realX, realY, m_w, m_h, background );
-        g_renderer->Line( realX, realY, realX + m_w, realY, borderA );
-        g_renderer->Line( realX, realY, realX, realY + m_h, borderA );
-        g_renderer->Line( realX + m_w, realY, realX + m_w, realY + m_h, borderB );
-        g_renderer->Line( realX, realY + m_h, realX + m_w, realY + m_h, borderB );
+        g_renderer2d->RectFill( realX, realY, m_w, m_h, background );
+        g_renderer2d->Line( realX, realY, realX + m_w, realY, borderA );
+        g_renderer2d->Line( realX, realY, realX, realY + m_h, borderA );
+        g_renderer2d->Line( realX + m_w, realY, realX + m_w, realY + m_h, borderB );
+        g_renderer2d->Line( realX, realY + m_h, realX + m_w, realY + m_h, borderB );
 
         //
         // Caption
@@ -140,11 +141,11 @@ public:
         strupr( m_buf );
 
         float fontSize = 20;
-        //float textWidth = g_renderer->TextWidth(m_buf, fontSize);
+        //float textWidth = g_renderer2d->TextWidth(m_buf, fontSize);
         //float fieldX = realX + m_w/2 - textWidth/2;
         //float yPos = realY + m_h/2 - fontSize/2;
 
-        //g_renderer->TextSimple( fieldX, yPos, White, fontSize, m_buf );
+        //g_renderer2d->TextSimple( fieldX, yPos, White, fontSize, m_buf );
 
         float xPos = realX + 5;
         float yPos = realY + 5;
@@ -160,12 +161,12 @@ public:
                     thisChar = m_buf[i];
                 }
 
-                g_renderer->Text( xPos, yPos, White, fontSize, "%c", thisChar );
+                g_renderer2d->Text( xPos, yPos, White, fontSize, "%c", thisChar );
             }
 
             Colour lineCol(255,255,255,20);
             if( i % 7 >= 5 ) lineCol.m_a = 100;
-            g_renderer->Line( xPos+16, realY+1, xPos+16, realY+m_h-1, lineCol );
+            g_renderer2d->Line( xPos+16, realY+1, xPos+16, realY+m_h-1, lineCol );
 
             xPos += fontSize * 1.0f;
         }
@@ -183,12 +184,12 @@ public:
                 GetHighResTime() < m_lastKeyPressTimer+1.0f )
             {
                 float cursorX = realX + 5 + strlen(m_buf) * fontSize;
-                g_renderer->RectFill( cursorX, realY + 5, 10, 20, White );
+                g_renderer2d->RectFill( cursorX, realY + 5, 10, 20, White );
             }
         }
 
 
-        g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,10) );
+        g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,10) );
     }
 
     void Keypress( int keyCode, bool shift, bool ctrl, bool alt, unsigned char ascii )
@@ -379,8 +380,8 @@ void AuthKeyWindow::Render( bool _hasFocus )
     if( stricmp( authKey, "authkey not found" ) == 0 ||
         strlen(authKey) < 3 )
     {
-        g_renderer->TextCentreSimple( m_x + m_w/2, m_y + 130, White, 18, LANGUAGEPHRASE("dialog_type_authkey_or_demo_1") );
-        g_renderer->TextCentreSimple( m_x + m_w/2, m_y + 160, White, 18, LANGUAGEPHRASE("dialog_type_authkey_or_demo_2") );
+        g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + 130, White, 18, LANGUAGEPHRASE("dialog_type_authkey_or_demo_1") );
+        g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + 160, White, 18, LANGUAGEPHRASE("dialog_type_authkey_or_demo_2") );
     }
     else
     {
@@ -427,14 +428,14 @@ void AuthKeyWindow::Render( bool _hasFocus )
         }
 
         g_renderer->SetFont( "kremlin" );
-        g_renderer->TextCentreSimple( m_x+m_w/2, m_y+140, mainText, 20, LANGUAGEPHRASE("dialog_auth_status") );
-        g_renderer->TextCentreSimple( m_x+m_w/2, m_y+160, subtext, 30, authStatusString );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+140, mainText, 20, LANGUAGEPHRASE("dialog_auth_status") );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+160, subtext, 30, authStatusString );
         g_renderer->SetFont();
 
         if( authStatus == AuthenticationWrongPlatform )
         {
         #if defined TARGET_MSVC
-			g_renderer->TextCentreSimple( m_x+m_w/2, m_y+195, subtext, 14, LANGUAGEPHRASE("dialog_cannot_use_mac_key_on_pc") );
+			g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+195, subtext, 14, LANGUAGEPHRASE("dialog_cannot_use_mac_key_on_pc") );
         #endif
 
         }

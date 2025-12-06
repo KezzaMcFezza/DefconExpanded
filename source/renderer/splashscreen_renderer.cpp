@@ -13,7 +13,8 @@
 #include "macutil.h"
 #include "app/globals.h"
 
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/bitmap.h"
 #include "lib/hi_res_time.h"
@@ -88,5 +89,5 @@ void SplashScreenRenderer::Render()
 	g_renderer->Reset2DViewport();
 	g_renderer->SetBlendMode(Renderer::BlendModeNormal);
 	g_renderer->ClearScreen(true, true);
-	g_renderer->Blit(m_logo, x, y, m_colour);
+	g_renderer2d->Blit(m_logo, x, y, m_colour);
 }

@@ -1,7 +1,8 @@
 #include "lib/universal_include.h"
 #include "lib/hi_res_time.h"
 #include "lib/gucci/window_manager.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/preferences.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
@@ -32,7 +33,7 @@ class ExitGameButton : public InterfaceButton
             strcpy( caption, LANGUAGEPHRASE("dialog_exit_game_time") );
 			LPREPLACEINTEGERFLAG( 'T', 5-(int)timeSinceOpen, caption );
 
-            g_renderer->m_alpha = 0.5f;
+            g_renderer2d->m_alpha = 0.5f;
             highlighted = false;
             clicked = false;
         }
@@ -44,7 +45,7 @@ class ExitGameButton : public InterfaceButton
 
         InterfaceButton::Render( realX, realY, highlighted, clicked );
 
-        g_renderer->m_alpha = 1.0f;
+        g_renderer2d->m_alpha = 1.0f;
     }
 
     void MouseUp()
@@ -161,11 +162,11 @@ void DemoWindow::Create()
 
 void DemoWindow::Render( bool _hasFocus )
 {
-    g_renderer->BeginTextBatch();
-    g_renderer->BeginRectFillBatch();
+    g_renderer2d->BeginTextBatch();
+    g_renderer2d->BeginRectFillBatch();
     InterfaceWindow::Render( _hasFocus );
-    g_renderer->EndRectFillBatch();
-    g_renderer->EndTextBatch();
+    g_renderer2d->EndRectFillBatch();
+    g_renderer2d->EndTextBatch();
 
     char *filename = "gui/demo.bmp";
 
@@ -188,25 +189,25 @@ void DemoWindow::Render( bool _hasFocus )
 
     Image *img = g_resource->GetImage( filename );
 
-    g_renderer->BeginStaticSpriteBatch();
-    g_renderer->StaticSprite( img, m_x + 10, m_y + 30, White );
-    g_renderer->EndStaticSpriteBatch();
-    g_renderer->Rect( m_x + 10, m_y + 30, img->Width(), img->Height(), Colour(0,0,0,255) );
+    g_renderer2d->BeginStaticSpriteBatch();
+    g_renderer2d->StaticSprite( img, m_x + 10, m_y + 30, White );
+    g_renderer2d->EndStaticSpriteBatch();
+    g_renderer2d->Rect( m_x + 10, m_y + 30, img->Width(), img->Height(), Colour(0,0,0,255) );
 
 	//g_renderer->SetFont( "lucon" );
 
 	int oldBlendMode = g_renderer->m_blendMode;
 	g_renderer->SetBlendMode( Renderer::BlendModeSubtractive );
 
-    g_renderer->BeginTextBatch();
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 168, Colour( 220, 220, 220, 0 ), 18, LANGUAGEPHRASE("demo_top1") );
+    g_renderer2d->BeginTextBatch();
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 168, Colour( 220, 220, 220, 0 ), 18, LANGUAGEPHRASE("demo_top1") );
 
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 200, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle1") );
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 220, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle2") );
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 240, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle3") );
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 260, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle4") );
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 280, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle5") );
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 300, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle6") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 200, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle1") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 220, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle2") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 240, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle3") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 260, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle4") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 280, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle5") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 300, Colour( 220, 220, 220, 0 ), 15, LANGUAGEPHRASE("demo_middle6") );
 
 
     char metaserverPrice[512];
@@ -214,20 +215,20 @@ void DemoWindow::Render( bool _hasFocus )
 
 
 #if defined(RETAIL) && defined(RETAIL_BRANDING_UK)
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 340, Colour( 220, 220, 220, 0 ), 17, LANGUAGEPHRASE("demo_bottom1_retail_uk") );
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 380, Colour( 220, 220, 220, 0 ), 17, LANGUAGEPHRASE("demo_bottom2_retail_uk") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 340, Colour( 220, 220, 220, 0 ), 17, LANGUAGEPHRASE("demo_bottom1_retail_uk") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 380, Colour( 220, 220, 220, 0 ), 17, LANGUAGEPHRASE("demo_bottom2_retail_uk") );
 #elif defined(RETAIL)
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 340, Colour( 220, 220, 220, 0 ), 17, LANGUAGEPHRASE("demo_bottom1_retail") );
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 380, Colour( 220, 220, 220, 0 ), 17, LANGUAGEPHRASE("demo_bottom2_retail") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 340, Colour( 220, 220, 220, 0 ), 17, LANGUAGEPHRASE("demo_bottom1_retail") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 380, Colour( 220, 220, 220, 0 ), 17, LANGUAGEPHRASE("demo_bottom2_retail") );
 #elif defined(TARGET_OS_MACOSX) && defined(AMBROSIA_REGISTRATION)
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 340, Colour( 220, 220, 220, 0 ), 30, LANGUAGEPHRASE("demo_bottom1_macosx") );
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 380, Colour( 220, 220, 220, 0 ), 30, LANGUAGEPHRASE("demo_bottom2_macosx") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 340, Colour( 220, 220, 220, 0 ), 30, LANGUAGEPHRASE("demo_bottom1_macosx") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 380, Colour( 220, 220, 220, 0 ), 30, LANGUAGEPHRASE("demo_bottom2_macosx") );
 #else
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 340, Colour( 220, 220, 220, 0 ), 30, LANGUAGEPHRASE("demo_bottom1") );
-    g_renderer->TextCentreSimple( m_x + m_w / 2, m_y + 380, Colour( 220, 220, 220, 0 ), 30, metaserverPrice );    
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 340, Colour( 220, 220, 220, 0 ), 30, LANGUAGEPHRASE("demo_bottom1") );
+    g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y + 380, Colour( 220, 220, 220, 0 ), 30, metaserverPrice );    
 #endif
 
-    g_renderer->EndTextBatch();
+    g_renderer2d->EndTextBatch();
 
 	g_renderer->SetBlendMode( oldBlendMode );
 
@@ -272,7 +273,7 @@ void WelcomeToDemoWindow::Render( bool _hasFocus )
 {
     InterfaceWindow::Render( _hasFocus );
 
-    g_renderer->TextCentreSimple( m_x + m_w/2, m_y + 40, White, 16, LANGUAGEPHRASE("dialog_welcome_to_demo_defcon") );
+    g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + 40, White, 16, LANGUAGEPHRASE("dialog_welcome_to_demo_defcon") );
 
     //
     // Extra message
@@ -313,7 +314,7 @@ void WelcomeToDemoWindow::Render( bool _hasFocus )
     for( int i = 0; i < wrapped.Size(); ++i )
     {
         char *thisLine = wrapped[i];
-        g_renderer->TextCentreSimple( m_x + m_w/2, yPos+=gap, White, size, thisLine );
+        g_renderer2d->TextCentreSimple( m_x + m_w/2, yPos+=gap, White, size, thisLine );
     }
 
     yPos += gap*2;

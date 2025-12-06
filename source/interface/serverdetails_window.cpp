@@ -3,7 +3,8 @@
 #include "lib/tosser/directory.h"
 #include "lib/metaserver/metaserver.h"
 #include "lib/metaserver/metaserver_defines.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/language_table.h"
 
 #include "interface/serverbrowser_window.h"
@@ -114,14 +115,14 @@ void ServerDetailsWindow::Render( bool _hasFocus )
         //
         // Render the basic server details
 
-        g_renderer->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_server_name") );
-        g_renderer->TextSimple( x+w, y, dataColour, h, serverName );
+        g_renderer2d->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_server_name") );
+        g_renderer2d->TextSimple( x+w, y, dataColour, h, serverName );
 
-        g_renderer->TextSimple( x, y+=h+g, titleColour, h,  LANGUAGEPHRASE("dialog_server_identity_address") );
-        g_renderer->Text( x+w, y, dataColour, h, "%s : %d", m_serverIp, m_serverPort );
+        g_renderer2d->TextSimple( x, y+=h+g, titleColour, h,  LANGUAGEPHRASE("dialog_server_identity_address") );
+        g_renderer2d->Text( x+w, y, dataColour, h, "%s : %d", m_serverIp, m_serverPort );
 
-        g_renderer->TextSimple( x, y+=h+g, titleColour, h,  LANGUAGEPHRASE("dialog_server_game_name") );
-        g_renderer->Text( x+w, y, dataColour, h, "%s %s", gameName, gameVer );
+        g_renderer2d->TextSimple( x, y+=h+g, titleColour, h,  LANGUAGEPHRASE("dialog_server_game_name") );
+        g_renderer2d->Text( x+w, y, dataColour, h, "%s %s", gameName, gameVer );
 
 
         if( m_details->HasData( NET_METASERVER_GAMEMODE, DIRECTORY_TYPE_CHAR ) )
@@ -136,8 +137,8 @@ void ServerDetailsWindow::Render( bool _hasFocus )
                 strcpy( gameModeName, GameOption::TranslateValue( option->m_subOptions[gameMode] ) );
             }
 
-            g_renderer->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_server_game_mode") );
-            g_renderer->TextSimple( x+w, y, dataColour, h, gameModeName );
+            g_renderer2d->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_server_game_mode") );
+            g_renderer2d->TextSimple( x+w, y, dataColour, h, gameModeName );
         }
 
 
@@ -153,17 +154,17 @@ void ServerDetailsWindow::Render( bool _hasFocus )
                 strcpy( scoreModeName, GameOption::TranslateValue( option->m_subOptions[gameMode] ) );
             }
 
-            g_renderer->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_server_score_mode") );
-            g_renderer->TextSimple( x+w, y, dataColour, h, scoreModeName );
+            g_renderer2d->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_server_score_mode") );
+            g_renderer2d->TextSimple( x+w, y, dataColour, h, scoreModeName );
         }
 
 
         const char *inProgressString = ( inProgress == 1 ? LANGUAGEPHRASE("dialog_server_started") : inProgress == 2 ? LANGUAGEPHRASE("dialog_server_ended") : LANGUAGEPHRASE("dialog_server_not_yet_started") );
-        g_renderer->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_server_browser_teams") );
-        g_renderer->Text( x+w, y, dataColour, h, "%d/%d  %s", numTeams, maxTeams, inProgressString );
+        g_renderer2d->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_server_browser_teams") );
+        g_renderer2d->Text( x+w, y, dataColour, h, "%d/%d  %s", numTeams, maxTeams, inProgressString );
 
-        g_renderer->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_spectators") );
-        g_renderer->Text( x+w, y, dataColour, h, "%d/%d", numSpectators, maxSpectators );
+        g_renderer2d->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_spectators") );
+        g_renderer2d->Text( x+w, y, dataColour, h, "%d/%d", numSpectators, maxSpectators );
         
 
         if( m_details->HasData( NET_METASERVER_GAMETIME, DIRECTORY_TYPE_INT ) )
@@ -171,8 +172,8 @@ void ServerDetailsWindow::Render( bool _hasFocus )
             Date date;
             date.AdvanceTime( m_details->GetDataInt(NET_METASERVER_GAMETIME) );
 
-            g_renderer->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_server_game_time") );
-            g_renderer->TextSimple( x+w, y, dataColour, h, date.GetTheDate() );
+            g_renderer2d->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_server_game_time") );
+            g_renderer2d->TextSimple( x+w, y, dataColour, h, date.GetTheDate() );
         }
 
 
@@ -183,7 +184,7 @@ void ServerDetailsWindow::Render( bool _hasFocus )
         if( playerNames )
         {            
             y+=h;
-            g_renderer->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_server_scores") );
+            g_renderer2d->TextSimple( x, y+=h+g, titleColour, h, LANGUAGEPHRASE("dialog_server_scores") );
 
             for( int i = 0; i < playerNames->m_subDirectories.Size(); ++i )
             {
@@ -198,8 +199,8 @@ void ServerDetailsWindow::Render( bool _hasFocus )
 
                     Colour allianceCol = World::GetAllianceColour( alliance );
 
-                    g_renderer->TextSimple( x+10, y, allianceCol, h, playerName );                    
-                    g_renderer->Text( x + m_w - 60, y, allianceCol, h, "%d", score );
+                    g_renderer2d->TextSimple( x+10, y, allianceCol, h, playerName );                    
+                    g_renderer2d->Text( x + m_w - 60, y, allianceCol, h, "%d", score );
                 }
             }
         }
@@ -208,7 +209,7 @@ void ServerDetailsWindow::Render( bool _hasFocus )
             y+=h;
             Colour col = titleColour;
             if( fmodf(GetHighResTime()*2, 2) < 1.0f ) col.m_a = 100;
-            g_renderer->TextSimple( x, y+=h+g, col, h, LANGUAGEPHRASE("dialog_retrieving_scores") );
+            g_renderer2d->TextSimple( x, y+=h+g, col, h, LANGUAGEPHRASE("dialog_retrieving_scores") );
         }
     }
 }

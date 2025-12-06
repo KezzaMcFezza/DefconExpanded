@@ -1,11 +1,5 @@
-/*
- * ========
- * RENDERER
- * ========
- */
-
-#ifndef _included_renderer_h
-#define _included_renderer_h
+#ifndef _included_renderer2d_h
+#define _included_renderer2d_h
 
 //
 // More for testing, we get 20k draw calls with immediate mode enabled
@@ -50,7 +44,13 @@ struct Vertex2D {
                           b(color.GetBFloat()), a(color.GetAFloat()), u(pu), v(pv) {}
 };
 
-class Renderer {
+class Renderer2DVBO;
+
+class Renderer2D {
+
+  friend class Renderer;
+  friend class Renderer2DVBO;
+
 private:
 
   struct ShaderUniforms {
@@ -71,6 +71,8 @@ private:
     BUFFER_IMMEDIATE              
   };
 
+protected:
+
   static constexpr int MAX_VERTICES                 = 5000;
   static constexpr int MAX_TEXT_VERTICES            = 20000;
   static constexpr int MAX_LINE_VERTICES            = 20000;
@@ -81,18 +83,6 @@ private:
   static constexpr int MAX_RECT_VERTICES            = 5000;
   static constexpr int MAX_RECT_FILL_VERTICES       = 5000;
   static constexpr int MAX_TRIANGLE_FILL_VERTICES   = 3000;
-
-protected:
-  char *m_defaultFontName;
-  char *m_defaultFontFilename;
-  bool m_defaultFontLanguageSpecific;
-  char *m_currentFontName;
-  char *m_currentFontFilename;
-  bool m_currentFontLanguageSpecific;
-  bool m_horizFlip;
-  bool m_fixedWidth;
-  bool m_negative;
-  BTree<float> m_fontSpacings;
 
   unsigned int m_shaderProgram;
   unsigned int m_colorShaderProgram;
@@ -176,66 +166,13 @@ protected:
   Colour m_lineStripColor;
   float m_lineStripWidth;
 
-
-
-  int m_maxMegaVertices;
-  int m_maxMegaIndices;
-
-  bool m_megaVBOActive;
-  char *m_currentMegaVBOKey;
-  Colour m_megaVBOColor;
-  float m_megaVBOWidth;
-  Vertex2D *m_megaVertices;
-  int m_megaVertexCount;
-  unsigned int *m_megaIndices;
-  int m_megaIndexCount;
-
-  bool m_megaVBOTexturedActive;
-  char *m_currentMegaVBOTexturedKey;
-  unsigned int m_currentMegaVBOTextureID;
-  int m_maxMegaTexturedVertices;
-  int m_maxMegaTexturedIndices;
-  Vertex2D *m_megaTexturedVertices;
-  int m_megaTexturedVertexCount;
-  unsigned int *m_megaTexturedIndices;
-  int m_megaTexturedIndexCount;
-
-  bool m_megaVBOTrianglesActive;
-  char *m_currentMegaVBOTrianglesKey;
-  Colour m_megaVBOTrianglesColor;
-  int m_maxMegaTriangleVertices;
-  int m_maxMegaTriangleIndices;
-  Vertex2D *m_megaTriangleVertices;
-  int m_megaTriangleVertexCount;
-  unsigned int *m_megaTriangleIndices;
-  int m_megaTriangleIndexCount;
-
-  //
-  // VBO caching system for coastlines and borders, replaced display lists
-
-  struct CachedVBO {
-    unsigned int VBO;
-    unsigned int VAO;
-    unsigned int IBO;           // Index buffer for indexed drawing
-    int vertexCount;            // Number of actual vertices (no duplication)
-    int indexCount;             // Number of indices
-    Colour color;
-    float lineWidth;
-    bool isValid;
-  };
-
-  BTree<CachedVBO *> m_cachedVBOs;
-  LList<char*> m_protectedVBOKeys;
-
   BufferType m_activeBuffer;
 
-  unsigned int m_currentBoundTexture;
   bool m_batchingTextures;
 
   void InitializeShaders       ();
   void CacheUniformLocations   ();
   void SetupVertexArrays       ();
-  void SetColorShaderUniforms  ();
   void SetTextureShaderUniforms();
   void UploadVertexData        (const Vertex2D* vertices, int vertexCount);
   void UploadVertexDataToVBO   (unsigned int vbo, const Vertex2D* vertices, int vertexCount, unsigned int usageHint);
@@ -261,26 +198,7 @@ protected:
 
 public:
 
-  //
-  // Shader creation for 3D renderer
-
-  unsigned int CreateShader         (const char *vertexSource,
-                                     const char *fragmentSource);
-
-  void SetViewport                  (int x, int y, int width, int height);
-  void SetActiveTexture             (GLenum texture);
-  void SetShaderProgram             (GLuint program);
-  void SetVertexArray               (GLuint vao);
-  void SetArrayBuffer               (GLuint buffer);
-  void SetElementBuffer             (GLuint buffer);
-  void SetLineWidth                 (GLfloat width);
-  void SetBoundTexture              (GLuint texture);
-  void SetScissorTest               (bool enabled);
-  void SetScissor                   (int x, int y, int width, int height);
-  void SetTextureParameter          (GLenum pname, GLint param);
-
-  void GetImageUVCoords             (Image *image, float &u1, float &v1, float &u2,float &v2);
-  unsigned int GetEffectiveTextureID(Image *image);
+  void SetColorShaderUniforms  ();
 
   void SetTextureBatching           (bool enabled) { m_batchingTextures = enabled; }
   bool IsTextureBatchingEnabled     () const { return m_batchingTextures; }
@@ -288,8 +206,8 @@ public:
   //
   // Track draw calls, used in app::render()
   
-  void BeginFrame();
-  void EndFrame();
+  void BeginFrame2D();
+  void EndFrame2D();
 
   int m_drawCallsPerFrame;
   int m_immediateTriangleCalls;
@@ -315,8 +233,6 @@ public:
   int m_prevRectCalls;
   int m_prevRectFillCalls;
   int m_prevTriangleFillCalls;
-  int m_textureSwitches;
-  int m_prevTextureSwitches;
   int m_activeFontBatches;
   int m_prevActiveFontBatches;
 
@@ -335,7 +251,6 @@ public:
   int GetRectCalls              () const { return m_prevRectCalls; }
   int GetRectFillCalls          () const { return m_prevRectFillCalls; }
   int GetTriangleFillCalls      () const { return m_prevTriangleFillCalls; }
-  int GetTextureSwitches        () const { return m_prevTextureSwitches; }
   int GetActiveFontBatches      () const { return m_prevActiveFontBatches; }
 
 
@@ -350,6 +265,7 @@ public:
   int GetCurrentTriangleFillVertexCount     () const { return m_triangleFillVertexCount; }
   int GetCurrentImmediateTriangleVertexCount() const { return m_triangleVertexCount; }
   int GetCurrentImmediateLineVertexCount    () const { return m_lineVertexCount; } 
+  int GetLineConversionBufferSize           () const { return m_lineConversionBufferSize; }
   
   int GetTotalCurrentVertexCount() const {
     return m_textVertexCount + m_lineVertexCount + m_staticSpriteVertexCount + 
@@ -358,107 +274,20 @@ public:
            m_triangleVertexCount + m_lineVertexCount;
   }
 
-  int GetMegaBufferVertexCount   () const { return m_maxMegaVertices; }
-  int GetMegaBufferIndexCount    () const { return m_maxMegaIndices; }
-  int GetLineConversionBufferSize() const { return m_lineConversionBufferSize; }
-
-  size_t GetTotalAllocatedBufferMemory() const {
-    size_t total = 0;
-    
-    total += GetTotalCurrentVertexCount() * sizeof(Vertex2D);
-    total += m_maxMegaVertices * sizeof(Vertex2D);
-    total += m_maxMegaIndices * sizeof(unsigned int);
-    
-    return total;
-  }
-
-protected:
-  char *ScreenshotsDirectory();
-
 public:
   float m_alpha;
   int m_colourDepth;
   int m_mouseMode;
-  int m_blendMode;
-  int m_blendSrcFactor;
-  int m_blendDstFactor;
-  
-  bool m_blendEnabled;
-  bool m_depthTestEnabled;
-  bool m_depthMaskEnabled;
-  bool m_scissorTestEnabled;
-
-  int m_currentBlendSrcFactor;
-  int m_currentBlendDstFactor;
-  int m_currentViewportX;
-  int m_currentViewportY;
-  int m_currentViewportWidth;
-  int m_currentViewportHeight;
-  int m_currentScissorX;
-  int m_currentScissorY;
-  int m_currentScissorWidth;
-  int m_currentScissorHeight;
-
-  GLenum m_currentActiveTexture;
-  GLfloat m_currentLineWidth;
-  GLuint m_currentShaderProgram;
-  GLuint m_currentVAO;
-  GLuint m_currentArrayBuffer;
-  GLuint m_currentElementBuffer;
-  GLint m_currentTextureMagFilter;
-  GLint m_currentTextureMinFilter;
-  
-  GLuint m_msaaFBO;
-  GLuint m_msaaColorRBO;
-  GLuint m_msaaDepthRBO;
-  
-  bool m_msaaEnabled;
-  int m_msaaSamples;
-  int m_msaaWidth;
-  int m_msaaHeight;
-  
-  void DestroyMSAAFramebuffer();
-  void BeginMSAARendering();
-  void EndMSAARendering();
-  void InitializeMSAAFramebuffer(int width, int height, int samples);
-  void ResizeMSAAFramebuffer    (int width, int height);
-
-  enum {
-    BlendModeDisabled,
-    BlendModeNormal,
-    BlendModeAdditive,
-    BlendModeSubtractive
-  };
 
 public:
-  Renderer();
-  virtual ~Renderer();
+  Renderer2D();
+  virtual ~Renderer2D();
 
   void Shutdown();
 
   void Set2DViewport  (float l, float r, float b, float t, int x, int y, int w,int h);
   void Reset2DViewport();
-  void HandleWindowResize();
 
-  void BeginScene     ();
-  void ClearScreen    (bool _colour, bool _depth);
-
-  void SaveScreenshot ();
-
-  void SetBlendMode   (int _blendMode);
-  void SetBlendFunc   (int srcFactor, int dstFactor);
-  void SetDepthBuffer (bool _enabled, bool _clearNow);
-
-  void SetDefaultFont           (const char *font, const char *_langName = NULL);
-  void SetFontSpacing           (const char *font, float _spacing);
-  float GetFontSpacing          (const char *font);
-  void SetFont                  (const char *font = NULL, bool horizFlip = false,
-                                 bool negative = false, bool fixedWidth = false,
-                                 const char *_langName = NULL);
-
-  void SetFont                  (const char *font, const char *_langName);
-  bool IsFontLanguageSpecific   ();
-  BitmapFont *GetBitmapFont     ();
 
   void BeginTextBatch();
   void Text                     (float x, float y, Colour const &col, float size, 
@@ -523,40 +352,6 @@ public:
   void LineStripVertex2D        (float x, float y);
   void EndLineStrip2D           ();
 
-  void InvalidateCachedVBO      (const char *cacheKey);
-
-  void BeginMegaVBO             (const char *megaVBOKey, Colour const &col);
-  void AddLineStripToMegaVBO    (float *vertices, int vertexCount);
-  void EndMegaVBO               ();
-  void RenderMegaVBO            (const char *megaVBOKey);
-  bool IsMegaVBOValid           (const char *megaVBOKey);
-  void SetMegaVBOBufferSizes    (int vertexCount, int indexCount);
-
-  void BeginTexturedMegaVBO          (const char *megaVBOKey, unsigned int textureID);
-  void AddTexturedQuadsToMegaVBO     (const Vertex2D *vertices, int vertexCount, int quadCount);
-  void EndTexturedMegaVBO            ();
-  void RenderTexturedMegaVBO         (const char *megaVBOKey);
-  bool IsTexturedMegaVBOValid        (const char *megaVBOKey);
-  void SetTexturedMegaVBOBufferSizes (int vertexCount, int indexCount);
-
-  void BeginTriangleMegaVBO          (const char *megaVBOKey, Colour const &col);
-  void AddTrianglesToMegaVBO         (const float *vertices, int vertexCount);
-  void EndTriangleMegaVBO            ();
-  void RenderTriangleMegaVBO         (const char *megaVBOKey);
-  bool IsTriangleMegaVBOValid         (const char *megaVBOKey);
-  void SetTriangleMegaVBOBufferSizes (int vertexCount, int indexCount);
-  
-  void InvalidateAllVBOs        ();
-
-  void ProtectVBO               (const char* key);
-  void UnprotectVBO             (const char* key);
-  void ClearVBOProtection       ();
-  bool IsVBOProtected           (const char* key);
-  
-  int GetCachedVBOCount         ();
-  int GetCachedVBOVertexCount   (const char *cacheKey);
-  int GetCachedVBOIndexCount    (const char *cacheKey);
-
   void SetClip                  (int x, int y, int w, int h);
   void ResetClip                ();
 
@@ -581,30 +376,12 @@ public:
                                   Colour const &col, float angle, bool immediateFlush = false);
   void EndRotatingSpriteBatch    ();
 
-  static const int MAX_FLUSH_TYPES = 50;
-
-  struct FlushTiming {
-    const char* name;
-    double totalTime;
-    double totalGpuTime;
-    int callCount;
-    unsigned int queryObject;
-    bool queryPending;
-  };
-
-  FlushTiming m_flushTimings[MAX_FLUSH_TYPES];
-  int m_flushTimingCount;
-  double m_currentFlushStartTime;
-
-  void StartFlushTiming  (const char* name);
-  void EndFlushTiming    (const char* name);
-  void UpdateGpuTimings  ();
-  void ResetFlushTimings ();
-  const FlushTiming* GetFlushTimings(int& count) const;
 
 protected:
 };
 
-extern Renderer *g_renderer;
+class Renderer2D;
+
+extern Renderer2D *g_renderer2d;
 
 #endif

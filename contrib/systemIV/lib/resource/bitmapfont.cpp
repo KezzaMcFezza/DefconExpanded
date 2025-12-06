@@ -11,7 +11,8 @@
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/file_system.h"
 #include "lib/render/colour.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/debug_utils.h"
 #include "lib/string_utils.h"
 
@@ -237,7 +238,7 @@ void BitmapFont::DrawText2DSimple(float _x, float _y, float _size, char const *_
     
     unsigned numChars = (unsigned) strlen(_text);
     
-    g_renderer->FlushTextBufferIfFull(numChars);
+    g_renderer2d->FlushTextBufferIfFull(numChars);
     
     float currentX = _x;
     
@@ -261,7 +262,7 @@ void BitmapFont::DrawText2DSimple(float _x, float _y, float _size, char const *_
             finalTexH = -texH;
         }
 
-        g_renderer->BlitChar(m_textureID, currentX, _y, horiSize, _size, 
+        g_renderer2d->BlitChar(m_textureID, currentX, _y, horiSize, _size, 
                            texX, finalTexY, texW, finalTexH, _col);
 
         currentX += horiSize;                

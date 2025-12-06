@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/render/styletable.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/debug_utils.h"
 #include "lib/preferences.h"
 #include "lib/language_table.h"
@@ -82,17 +83,17 @@ public:
         InterfaceWindow::Render( _hasFocus );
         
         Style *style = g_styleTable->m_styles[m_styleIndex];
-        g_renderer->TextSimple( m_x+10, m_y+30, White, 15, style->m_name );
-        g_renderer->TextRightSimple( m_x+m_w-10, m_y+30, White, 15, m_primary ? LANGUAGEPHRASE("dialog_style_primary") : LANGUAGEPHRASE("dialog_style_secondary") );
+        g_renderer2d->TextSimple( m_x+10, m_y+30, White, 15, style->m_name );
+        g_renderer2d->TextRightSimple( m_x+m_w-10, m_y+30, White, 15, m_primary ? LANGUAGEPHRASE("dialog_style_primary") : LANGUAGEPHRASE("dialog_style_secondary") );
         
         int xPos = m_x+20;
         int yPos = m_y+35;
         int height = 24;
         
-        g_renderer->TextSimple( xPos, yPos+=height, White, 12, LANGUAGEPHRASE("dialog_style_red") );
-        g_renderer->TextSimple( xPos, yPos+=height, White, 12, LANGUAGEPHRASE("dialog_style_green") );
-        g_renderer->TextSimple( xPos, yPos+=height, White, 12, LANGUAGEPHRASE("dialog_style_blue") );
-        g_renderer->TextSimple( xPos, yPos+=height, White, 12, LANGUAGEPHRASE("dialog_style_alpha") );
+        g_renderer2d->TextSimple( xPos, yPos+=height, White, 12, LANGUAGEPHRASE("dialog_style_red") );
+        g_renderer2d->TextSimple( xPos, yPos+=height, White, 12, LANGUAGEPHRASE("dialog_style_green") );
+        g_renderer2d->TextSimple( xPos, yPos+=height, White, 12, LANGUAGEPHRASE("dialog_style_blue") );
+        g_renderer2d->TextSimple( xPos, yPos+=height, White, 12, LANGUAGEPHRASE("dialog_style_alpha") );
 
     }
 };
@@ -138,14 +139,14 @@ public:
                 g_renderer->SetBlendMode( Renderer::BlendModeSubtractive );
             }
 
-            g_renderer->RectFill( realX, realY, m_w, m_h, col );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, col );
 
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
             
             Colour borderCol(255,255,255,100);
             if( highlighted || clicked ) borderCol.m_a = 255;
 
-            g_renderer->Rect( realX, realY, m_w, m_h, borderCol );
+            g_renderer2d->Rect( realX, realY, m_w, m_h, borderCol );
         }
     }
 
@@ -289,7 +290,7 @@ public:
             if( style->m_font )
             {
                 InterfaceButton::Render( realX, realY, highlighted, clicked );
-                g_renderer->TextSimple( realX+10, realY+5, White, 12, style->m_fontName );
+                g_renderer2d->TextSimple( realX+10, realY+5, White, 12, style->m_fontName );
             }
         }
     }
@@ -540,13 +541,13 @@ void StyleEditorWindow::Render( bool _hasFocus )
 {
     InterfaceWindow::Render( _hasFocus );
 
-    g_renderer->TextSimple( m_x+210, m_y+40, White, 14, LANGUAGEPHRASE("dialog_style_col_primary") );
-    g_renderer->TextSimple( m_x+310, m_y+40, White, 14, LANGUAGEPHRASE("dialog_style_col_secondary") );
-    g_renderer->TextSimple( m_x+410, m_y+43, White, 10, LANGUAGEPHRASE("dialog_style_col_horiz") );
-    g_renderer->TextSimple( m_x+450, m_y+43, White, 10, LANGUAGEPHRASE("dialog_style_col_ngtive") );
-    g_renderer->TextSimple( m_x+490, m_y+43, White, 10, LANGUAGEPHRASE("dialog_style_col_caps") );
-    g_renderer->TextSimple( m_x+540, m_y+40, White, 14, LANGUAGEPHRASE("dialog_style_col_size") );
-    g_renderer->TextSimple( m_x+640, m_y+40, White, 14, LANGUAGEPHRASE("dialog_style_col_font"));
+    g_renderer2d->TextSimple( m_x+210, m_y+40, White, 14, LANGUAGEPHRASE("dialog_style_col_primary") );
+    g_renderer2d->TextSimple( m_x+310, m_y+40, White, 14, LANGUAGEPHRASE("dialog_style_col_secondary") );
+    g_renderer2d->TextSimple( m_x+410, m_y+43, White, 10, LANGUAGEPHRASE("dialog_style_col_horiz") );
+    g_renderer2d->TextSimple( m_x+450, m_y+43, White, 10, LANGUAGEPHRASE("dialog_style_col_ngtive") );
+    g_renderer2d->TextSimple( m_x+490, m_y+43, White, 10, LANGUAGEPHRASE("dialog_style_col_caps") );
+    g_renderer2d->TextSimple( m_x+540, m_y+40, White, 14, LANGUAGEPHRASE("dialog_style_col_size") );
+    g_renderer2d->TextSimple( m_x+640, m_y+40, White, 14, LANGUAGEPHRASE("dialog_style_col_font"));
     
 
     int yPos = m_y+70;
@@ -566,11 +567,11 @@ void StyleEditorWindow::Render( bool _hasFocus )
 			styleLanguagePhrase[ sizeof(styleLanguagePhrase) - 1 ] = '\0';
 			if( g_languageTable->DoesTranslationExist( styleLanguagePhrase ) || g_languageTable->DoesPhraseExist( styleLanguagePhrase ) )
 			{
-				g_renderer->TextSimple( xPos, yPos, White, 12, LANGUAGEPHRASE(styleLanguagePhrase) );
+				g_renderer2d->TextSimple( xPos, yPos, White, 12, LANGUAGEPHRASE(styleLanguagePhrase) );
 			}
 			else
 			{
-				g_renderer->TextSimple( xPos, yPos, White, 12, style->m_name );
+				g_renderer2d->TextSimple( xPos, yPos, White, 12, style->m_name );
 			}
 
             yPos += height;

@@ -105,7 +105,7 @@ void ResynchroniseWindow::Render( bool _hasFocus )
     for( int i = 0; i < wrapped.Size(); ++i )
     {
         char *thisLine = wrapped[i];
-        g_renderer->TextSimple( m_x + button->m_x + 10, yPos, White, 13, thisLine );
+        g_renderer2d->TextSimple( m_x + button->m_x + 10, yPos, White, 13, thisLine );
 
         yPos += h;
     }

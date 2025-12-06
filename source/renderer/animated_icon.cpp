@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/render/colour.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/math/math_utils.h"
 #include "lib/hi_res_time.h"
 
@@ -13,8 +14,6 @@
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/animated_icon.h"
-
- 
 
 AnimatedIcon::AnimatedIcon()
 :   m_longitude(0.0f),
@@ -66,8 +65,7 @@ bool ActionMarker::Render()
         }
 
         Image *img = g_resource->GetImage( "graphics/cursor_target.bmp");
-        // BATCHING FIX: Convert to effects sprite batching (rotation handled by effects system)
-        g_renderer->StaticSprite( img, m_longitude - size/2, m_latitude - size/2, size, size, col );
+        g_renderer2d->StaticSprite( img, m_longitude - size/2, m_latitude - size/2, size, size, col );
     
         if( m_targetType > WorldObject::TargetTypeValid )
         {
@@ -81,8 +79,7 @@ bool ActionMarker::Render()
 
             if( img )
             {
-                // BATCHING FIX: Convert to effects sprite batching
-                g_renderer->StaticSprite( img, m_longitude - size/4, m_latitude - size/4, size/2, size/2, col );
+                g_renderer2d->StaticSprite( img, m_longitude - size/4, m_latitude - size/4, size/2, size/2, col );
             }
         }
     }
@@ -125,7 +122,7 @@ bool SonarPing::Render()
             float x2 = m_longitude + size * sinf(angle2);
             float y2 = m_latitude + size * cosf(angle2);
             
-            g_renderer->Line( x1, y1, x2, y2, colour );
+            g_renderer2d->Line( x1, y1, x2, y2, colour );
         }
     }
 
@@ -213,7 +210,7 @@ bool NukePointer::Render()
         if( m_mode == 0 )
         {
             Image *img = g_resource->GetImage( "graphics/nukesymbol.bmp" );
-            g_renderer->RotatingSprite( img, obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue(), size*2, size*2, col, 0 );
+            g_renderer2d->RotatingSprite( img, obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue(), size*2, size*2, col, 0 );
         }
     }
 
@@ -257,7 +254,7 @@ bool NukePointer::Render()
         if( targetDir.y < 0.0f ) angle += M_PI;
 
         Image *img = g_resource->GetImage( "graphics/arrow.bmp" );
-        g_renderer->RotatingSprite( img, m_longitude, m_latitude, size, size, col, angle );
+        g_renderer2d->RotatingSprite( img, m_longitude, m_latitude, size, size, col, angle );
     }
     
     return ( m_lifeTime <= 0.0f );

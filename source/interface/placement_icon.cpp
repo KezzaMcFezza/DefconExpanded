@@ -103,7 +103,7 @@ void PlacementIconButton::Render( int realX, int realY, bool highlighted, bool c
 	if( bmpImage )
 	{
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-		g_renderer->StaticSprite( bmpImage, realX, realY, size, size, colour );
+		g_renderer2d->StaticSprite( bmpImage, realX, realY, size, size, colour );
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	}
 
@@ -111,7 +111,7 @@ void PlacementIconButton::Render( int realX, int realY, bool highlighted, bool c
     int numRemaining = team->m_unitsAvailable[m_unitType];
     
     g_renderer->SetFont( "kremlin", false );
-    g_renderer->Text( realX-5, realY, White, 20, "%d", numRemaining );
+    g_renderer2d->Text( realX-5, realY, White, 20, "%d", numRemaining );
     g_renderer->SetFont();
 
     if( g_keys[KEY_SPACE] )

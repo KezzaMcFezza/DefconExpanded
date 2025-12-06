@@ -5,7 +5,8 @@
 #include "lib/gucci/window_manager.h"
 #include "lib/sound/sound_library_3d.h"
 #include "lib/sound/soundsystem.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 
 #include "interface/components/scrollbar.h"
 
@@ -75,22 +76,22 @@ void SoundStatsWindow::Render( bool hasFocus )
     
     g_renderer->SetFont( "zerothre", false, false, true );
 
-    g_renderer->Text( m_x + 10, yPos += yDif, White, 12, "CPU Usage               : %d", cpuUsage );
-    g_renderer->Text( m_x + 10, yPos += yDif, White, 12, "Channels Max            : %d", maxChannels );
-    g_renderer->Text( m_x + 10, yPos += yDif, White, 12, "Channels Used           : %d", currentChannelsUsed );       
-    g_renderer->Text( m_x + 10, yPos += yDif, White, 12, "Sounds Total            : %d", currentSoundInstances );
-    g_renderer->Text( m_x + 10, yPos += yDif, White, 12, "Sounds Discarded        : %d", numSoundsDiscarded );    
-    g_renderer->Text( m_x + 10, yPos += yDif, White, 12, "Hardware 3D Sound       : %s", hw3d );
+    g_renderer2d->Text( m_x + 10, yPos += yDif, White, 12, "CPU Usage               : %d", cpuUsage );
+    g_renderer2d->Text( m_x + 10, yPos += yDif, White, 12, "Channels Max            : %d", maxChannels );
+    g_renderer2d->Text( m_x + 10, yPos += yDif, White, 12, "Channels Used           : %d", currentChannelsUsed );       
+    g_renderer2d->Text( m_x + 10, yPos += yDif, White, 12, "Sounds Total            : %d", currentSoundInstances );
+    g_renderer2d->Text( m_x + 10, yPos += yDif, White, 12, "Sounds Discarded        : %d", numSoundsDiscarded );    
+    g_renderer2d->Text( m_x + 10, yPos += yDif, White, 12, "Hardware 3D Sound       : %s", hw3d );
 
     yPos = m_y + 115;
 
     float titleX = m_x;
-    g_renderer->TextSimple( titleX+=50, yPos, White, 10, "SoundName" );
-    g_renderer->TextSimple( titleX+=100, yPos, White, 10, "Sample" );
-    g_renderer->TextSimple( titleX+=100, yPos, White, 10, "Volume" );
-    g_renderer->TextSimple( titleX+=70, yPos, White, 10, "LoopType" );
-    g_renderer->TextSimple( titleX+=80, yPos, White, 10, "Position" );
-    g_renderer->TextSimple( titleX+=90, yPos, White, 10, "TimeLeft" );
+    g_renderer2d->TextSimple( titleX+=50, yPos, White, 10, "SoundName" );
+    g_renderer2d->TextSimple( titleX+=100, yPos, White, 10, "Sample" );
+    g_renderer2d->TextSimple( titleX+=100, yPos, White, 10, "Volume" );
+    g_renderer2d->TextSimple( titleX+=70, yPos, White, 10, "LoopType" );
+    g_renderer2d->TextSimple( titleX+=80, yPos, White, 10, "Position" );
+    g_renderer2d->TextSimple( titleX+=90, yPos, White, 10, "TimeLeft" );
 
     yPos = m_y + 135;
 
@@ -112,8 +113,8 @@ void SoundStatsWindow::Render( bool hasFocus )
             float green = health;
             float red = 1.0f-health;
                         
-            g_renderer->RectFill( x-13, yPos, 10, 10, Colour(red*255,green*255,5,255) );                        
-            g_renderer->Text( x, yPos, White, 11, "%2d", channelIndex );
+            g_renderer2d->RectFill( x-13, yPos, 10, 10, Colour(red*255,green*255,5,255) );                        
+            g_renderer2d->Text( x, yPos, White, 11, "%2d", channelIndex );
 
             SoundInstanceId soundId = g_soundSystem->m_channels[channelIndex];
             SoundInstance *instance = g_soundSystem->GetSoundInstance( soundId );
@@ -131,17 +132,17 @@ void SoundStatsWindow::Render( bool hasFocus )
                 Colour rectFill = col;
                 rectFill.m_a = 50;
 
-                g_renderer->RectFill( m_x+20, yPos, m_w-40, yDif, rectFill );
-                g_renderer->TextSimple( x + 20, yPos, col, 11, instance->GetDescriptor() );                
+                g_renderer2d->RectFill( m_x+20, yPos, m_w-40, yDif, rectFill );
+                g_renderer2d->TextSimple( x + 20, yPos, col, 11, instance->GetDescriptor() );                
             }
         }
 
         yPos += yDif;
         if( channelIndex == g_soundSystem->m_numChannels-g_soundSystem->m_numMusicChannels-1 )
         {
-            g_renderer->Line( m_x+20, yPos+3, x+m_w-50, yPos+3, White );
-            g_renderer->Line( m_x+20, yPos+18, x+m_w-50, yPos+18, White );
-            g_renderer->TextSimple( x+100, yPos+5, White, 12, "Music Channels" );
+            g_renderer2d->Line( m_x+20, yPos+3, x+m_w-50, yPos+3, White );
+            g_renderer2d->Line( m_x+20, yPos+18, x+m_w-50, yPos+18, White );
+            g_renderer2d->TextSimple( x+100, yPos+5, White, 12, "Music Channels" );
             yPos+=yDif*2;
         }
     }    

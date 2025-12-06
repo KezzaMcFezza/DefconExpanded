@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/gucci/window_manager.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/math/math_utils.h"
 #include "lib/hi_res_time.h"
 #include "lib/language_table.h"
@@ -185,14 +186,14 @@ void ConnectingWindow::Render( bool _hasFocus )
             break;
     }
 
-    g_renderer->TextCentreSimple( m_x+m_w/2, yPos, col, 20, caption );
+    g_renderer2d->TextCentreSimple( m_x+m_w/2, yPos, col, 20, caption );
 
     yPos += 20;
 
     if( fraction > 0.0f )
     {
-        g_renderer->RectFill( m_x + 30, yPos, (m_w-60)*fraction, 20, col );
-        g_renderer->Rect( m_x+30, yPos, (m_w-60), 20, White );
+        g_renderer2d->RectFill( m_x + 30, yPos, (m_w-60)*fraction, 20, col );
+        g_renderer2d->Rect( m_x+30, yPos, (m_w-60), 20, White );
 
         int numConnectionAttempts = g_app->GetClientToServer()->m_connectionAttempts;
         if( fraction < 1.0f && numConnectionAttempts > 0 )
@@ -200,7 +201,7 @@ void ConnectingWindow::Render( bool _hasFocus )
 			char caption[512];
             strcpy( caption, LANGUAGEPHRASE("dialog_state_attempts") );
 			LPREPLACEINTEGERFLAG( 'A', numConnectionAttempts, caption );
-            g_renderer->TextCentreSimple( m_x + m_w/2, m_y + m_h - 60, White, 14, caption );
+            g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + m_h - 60, White, 14, caption );
         }
     }
 
@@ -216,7 +217,7 @@ void ConnectingWindow::Render( bool _hasFocus )
     if( m_fastForwardMode )
     {
         const char* fastForwardText = m_isSeekMode ? "I'm goiNg as Fast as I caN!" : "Fast FoRWaRdiNg to gamE staRt...";
-        g_renderer->TextCentreSimple( m_x+m_w/2, yPos, White, 16, fastForwardText );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, yPos, White, 16, fastForwardText );
         yPos += 20;
         
         if( m_fastForwardTarget > 0 )
@@ -225,15 +226,15 @@ void ConnectingWindow::Render( bool _hasFocus )
             progress = std::min(progress, 1.0f);
             
             Colour progressCol(0, 255, 255, 255);  // Cyan for fast-forward
-            g_renderer->RectFill( m_x + 30, yPos, (m_w-60)*progress, 15, progressCol );
-            g_renderer->Rect( m_x+30, yPos, (m_w-60), 15, White );
+            g_renderer2d->RectFill( m_x + 30, yPos, (m_w-60)*progress, 15, progressCol );
+            g_renderer2d->Rect( m_x+30, yPos, (m_w-60), 15, White );
             
             yPos += 20;
             
             char progressText[128];
             sprintf( progressText, "SEquENcE %d / %d (%.1f%%)", 
                     m_fastForwardCurrent, m_fastForwardTarget, progress * 100.0f );
-            g_renderer->TextCentreSimple( m_x+m_w/2, yPos, White, 12, progressText );
+            g_renderer2d->TextCentreSimple( m_x+m_w/2, yPos, White, 12, progressText );
         }
         
         yPos += 30;
@@ -275,12 +276,12 @@ void ConnectingWindow::Render( bool _hasFocus )
         col.Set( (1-fraction)*255, fraction*255, 0, 255 );
 
         const char *caption = numRemaining > 5 ? LANGUAGEPHRASE("dialog_state_receiving") : LANGUAGEPHRASE("dialog_state_received");
-        g_renderer->TextCentreSimple( m_x+m_w/2, yPos, col, 20, caption );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, yPos, col, 20, caption );
 
         yPos += 20;
     
-        g_renderer->RectFill( m_x+30, yPos, (m_w-60)*fraction, 20, col );
-        g_renderer->Rect( m_x+30, yPos, (m_w-60), 20, White );
+        g_renderer2d->RectFill( m_x+30, yPos, (m_w-60)*fraction, 20, col );
+        g_renderer2d->Rect( m_x+30, yPos, (m_w-60), 20, White );
 
         if( m_stage == 1 )
         {
@@ -317,12 +318,12 @@ void ConnectingWindow::Render( bool _hasFocus )
             col.Set( (1-fraction)*255, fraction*255, 0, 255 );
 
             const char *caption = lagRemaining > 5 ? LANGUAGEPHRASE("dialog_state_synchronising") : LANGUAGEPHRASE("dialog_state_synchronised");
-            g_renderer->TextCentreSimple( m_x+m_w/2, yPos, col, 20, caption );
+            g_renderer2d->TextCentreSimple( m_x+m_w/2, yPos, col, 20, caption );
 
             yPos += 20;
     
-            g_renderer->RectFill( m_x+30, yPos, (m_w-60)*fraction, 20, col );
-            g_renderer->Rect( m_x+30, yPos, (m_w-60), 20, White );
+            g_renderer2d->RectFill( m_x+30, yPos, (m_w-60)*fraction, 20, col );
+            g_renderer2d->Rect( m_x+30, yPos, (m_w-60), 20, White );
 
             if( m_stage == 2 )
             {
@@ -413,7 +414,7 @@ void ConnectingWindow::RenderTimeRemaining( float _fractionDone )
 		char number[32];
 		sprintf( number, "%02d", seconds );
 		LPREPLACESTRINGFLAG( 'S', number, caption );
-        g_renderer->TextCentreSimple( m_x + m_w/2, m_y + m_h - 60, White, 14, caption );
+        g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + m_h - 60, White, 14, caption );
     }
 }
 

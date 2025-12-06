@@ -6,7 +6,8 @@
 
 #include "lib/debug_utils.h"
 #include "lib/hi_res_time.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/resource/sprite_atlas.h"
 #include "lib/resource/image.h"
 #include "renderer/map_renderer.h"
@@ -135,9 +136,8 @@ constexpr void Matrix4f3D::Cross(float ax, float ay, float az, float bx, float b
 // Renderer3D Implementation
 // ================================
 
-Renderer3D::Renderer3D(Renderer* renderer)
-:   m_renderer(renderer),
-    m_shader3DProgram(0),
+Renderer3D::Renderer3D()
+:   m_shader3DProgram(0),
     m_shader3DTexturedProgram(0),
     m_VAO3D(0), m_VBO3D(0),
     m_VAO3DTextured(0), m_VBO3DTextured(0),
@@ -158,31 +158,6 @@ Renderer3D::Renderer3D(Renderer* renderer)
     m_lineStrip3DActive(false),
     m_texturedQuad3DActive(false),
     m_currentTexture3D(0),
-    m_maxMegaVertices3D(100),
-    m_maxMegaIndices3D(100),
-    m_megaVBO3DActive(false),
-    m_currentMegaVBO3DKey(NULL),
-    m_megaVertices3D(NULL),
-    m_megaVertex3DCount(0),
-    m_megaIndices3D(NULL),
-    m_megaIndex3DCount(0),
-    m_megaVBO3DTexturedActive(false),
-    m_currentMegaVBO3DTexturedKey(NULL),
-    m_currentMegaVBO3DTextureID(0),
-    m_maxMegaTexturedVertices3D(100),
-    m_maxMegaTexturedIndices3D(100),
-    m_megaTexturedVertices3D(NULL),
-    m_megaTexturedVertex3DCount(0),
-    m_megaTexturedIndices3D(NULL),
-    m_megaTexturedIndex3DCount(0),
-    m_megaVBO3DTrianglesActive(false),
-    m_currentMegaVBO3DTrianglesKey(NULL),
-    m_maxMegaTriangleVertices3D(100),
-    m_maxMegaTriangleIndices3D(100),
-    m_megaTriangleVertices3D(NULL),
-    m_megaTriangleVertex3DCount(0),
-    m_megaTriangleIndices3D(NULL),
-    m_megaTriangleIndex3DCount(0),
     m_lineConversionBuffer3D(NULL),
     m_lineConversionBufferSize3D(0),
     m_lineVertexCount3D(0),
@@ -249,30 +224,6 @@ Renderer3D::Renderer3D(Renderer* renderer)
     Setup3DVertexArrays();
     Setup3DTexturedVertexArrays();
     
-    //
-    // Allocate mega vertex and index buffers
-
-    if (m_maxMegaVertices3D > 0) {
-        m_megaVertices3D = new Vertex3D[m_maxMegaVertices3D];
-        m_megaIndices3D = new unsigned int[m_maxMegaIndices3D];
-    }
-
-    //
-    // Allocate textured mega vertex and index buffers
-
-    if (m_maxMegaTexturedVertices3D > 0) {
-        m_megaTexturedVertices3D = new Vertex3DTextured[m_maxMegaTexturedVertices3D];
-        m_megaTexturedIndices3D = new unsigned int[m_maxMegaTexturedIndices3D];
-    }
-
-    //
-    // Allocate triangle mega vertex and index buffers
-
-    if (m_maxMegaTriangleVertices3D > 0) {
-        m_megaTriangleVertices3D = new Vertex3D[m_maxMegaTriangleVertices3D];
-        m_megaTriangleIndices3D = new unsigned int[m_maxMegaTriangleIndices3D];
-    }
-    
     m_lineConversionBufferSize3D = MAX_3D_VERTICES * 2;
     m_lineConversionBuffer3D = new Vertex3D[m_lineConversionBufferSize3D];
 }
@@ -332,74 +283,17 @@ void Renderer3D::Shutdown() {
         m_shader3DTexturedProgram = 0;
     }
     
-    //
-    // Clean up mega vertex and index buffers
-    
-    if (m_megaVertices3D) {
-        delete[] m_megaVertices3D;
-        m_megaVertices3D = NULL;
-    }
-    if (m_megaIndices3D) {
-        delete[] m_megaIndices3D;
-        m_megaIndices3D = NULL;
-    }
-    if (m_currentMegaVBO3DKey) {
-        delete[] m_currentMegaVBO3DKey;
-        m_currentMegaVBO3DKey = NULL;
-    }
-    
-    if (m_megaTexturedVertices3D) {
-        delete[] m_megaTexturedVertices3D;
-        m_megaTexturedVertices3D = NULL;
-    }
-    if (m_megaTexturedIndices3D) {
-        delete[] m_megaTexturedIndices3D;
-        m_megaTexturedIndices3D = NULL;
-    }
-    if (m_currentMegaVBO3DTexturedKey) {
-        delete[] m_currentMegaVBO3DTexturedKey;
-        m_currentMegaVBO3DTexturedKey = NULL;
-    }
-    
-    if (m_megaTriangleVertices3D) {
-        delete[] m_megaTriangleVertices3D;
-        m_megaTriangleVertices3D = NULL;
-    }
-    if (m_megaTriangleIndices3D) {
-        delete[] m_megaTriangleIndices3D;
-        m_megaTriangleIndices3D = NULL;
-    }
-    if (m_currentMegaVBO3DTrianglesKey) {
-        delete[] m_currentMegaVBO3DTrianglesKey;
-        m_currentMegaVBO3DTrianglesKey = NULL;
-    }
-    
     if (m_lineConversionBuffer3D) {
         delete[] m_lineConversionBuffer3D;
         m_lineConversionBuffer3D = NULL;
     }
-    
-    //
-    // Clean up cached VBOs
-
-    DArray<char*> *keys = m_cached3DVBOs.ConvertIndexToDArray();
-    for (int i = 0; i < keys->Size(); i++) {
-        Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(keys->GetData(i));
-        if (cachedVBO) {
-            if (cachedVBO->VBO) glDeleteBuffers(1, &cachedVBO->VBO);
-            if (cachedVBO->VAO) glDeleteVertexArrays(1, &cachedVBO->VAO);
-            delete cachedVBO;
-        }
-    }
-    delete keys;
-    m_cached3DVBOs.Empty();
 }
 
 //
 // Create 3D shader programs using shader sources from .glsl.h headers
 
 void Renderer3D::Initialize3DShaders() {
-    m_shader3DProgram = m_renderer->CreateShader(VERTEX_3D_SHADER_SOURCE, FRAGMENT_3D_SHADER_SOURCE);
+    m_shader3DProgram = g_renderer->CreateShader(VERTEX_3D_SHADER_SOURCE, FRAGMENT_3D_SHADER_SOURCE);
     
     //
     // Create 3D shader program
@@ -411,53 +305,11 @@ void Renderer3D::Initialize3DShaders() {
     //
     // Create textured 3D shader program
 
-    m_shader3DTexturedProgram = m_renderer->CreateShader(TEXTURED_VERTEX_3D_SHADER_SOURCE, TEXTURED_FRAGMENT_3D_SHADER_SOURCE);
+    m_shader3DTexturedProgram = g_renderer->CreateShader(TEXTURED_VERTEX_3D_SHADER_SOURCE, TEXTURED_FRAGMENT_3D_SHADER_SOURCE);
     
     if (m_shader3DTexturedProgram == 0) {
         AppDebugOut("Renderer3D: Failed to create textured 3D shader program\n");
     }
-}
-
-//
-// Get UV coordinates for an image from the atlas
-
-void Renderer3D::GetImageUVCoords(Image* image, float& u1, float& v1, float& u2, float& v2) {
-    AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(image);
-    if (atlasImage) {
-
-        //
-        // Use atlas coordinates
-
-        const AtlasCoord* coord = atlasImage->GetAtlasCoord();
-        if (coord) {
-            u1 = coord->u1;
-            v1 = coord->v1;
-            u2 = coord->u2;
-            v2 = coord->v2;
-            return;
-        }
-    }
-    
-    //
-    // Regular image, use full texture with edge padding
-
-    float onePixelW = 1.0f / (float) image->Width();
-    float onePixelH = 1.0f / (float) image->Height();
-    u1 = onePixelW;
-    v1 = onePixelH;
-    u2 = 1.0f - onePixelW;
-    v2 = 1.0f - onePixelH;
-}
-
-//
-// Get texture ID for batching
-
-unsigned int Renderer3D::GetEffectiveTextureID(Image* image) {
-    AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(image);
-    if (atlasImage) {
-        return atlasImage->GetAtlasTextureID();
-    }
-    return image->m_textureID;
 }
 
 void Renderer3D::Setup3DVertexArrays() {
@@ -871,7 +723,7 @@ void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo,
 {
     if (vertexCount <= 0 || !vertices) return;
 
-    m_renderer->SetArrayBuffer(vbo);
+    g_renderer->SetArrayBuffer(vbo);
 
     const GLsizeiptr bytes =
         static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3D);
@@ -894,7 +746,7 @@ void Renderer3D::UploadVertexDataTo3DVBO(unsigned int vbo,
 {
     if (vertexCount <= 0 || !vertices) return;
 
-    m_renderer->SetArrayBuffer(vbo);
+    g_renderer->SetArrayBuffer(vbo);
 
     const GLsizeiptr bytes =
         static_cast<GLsizeiptr>(vertexCount) * sizeof(Vertex3DTextured);

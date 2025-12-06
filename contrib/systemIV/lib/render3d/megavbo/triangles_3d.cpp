@@ -1,11 +1,12 @@
 #include "lib/universal_include.h"
 
+#include "lib/debug_utils.h"
 #include "lib/string_utils.h"
-#include "lib/render2d/renderer.h"
-
+#include "lib/render/renderer.h"
 #include "lib/render3d/renderer_3d.h"
+#include "lib/render3d/megavbo/megavbo_3d.h"
 
-void Renderer3D::BeginTriangleMegaVBO3D(const char* megaVBOKey, Colour const &col) {
+void Renderer3DVBO::BeginTriangleMegaVBO3D(const char* megaVBOKey, Colour const &col) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
     if (tree && tree->data && tree->data->isValid) {
         return;
@@ -23,7 +24,7 @@ void Renderer3D::BeginTriangleMegaVBO3D(const char* megaVBOKey, Colour const &co
     m_megaTriangleIndex3DCount = 0;
 }
 
-void Renderer3D::AddTrianglesToMegaVBO3D(const Vector3<float>* vertices, int vertexCount) {
+void Renderer3DVBO::AddTrianglesToMegaVBO3D(const Vector3<float>* vertices, int vertexCount) {
     if (!m_megaVBO3DTrianglesActive || vertexCount < 3) return;
 
     if (m_megaTriangleVertex3DCount + vertexCount > m_maxMegaTriangleVertices3D ||
@@ -63,7 +64,7 @@ void Renderer3D::AddTrianglesToMegaVBO3D(const Vector3<float>* vertices, int ver
     }
 }
 
-void Renderer3D::EndTriangleMegaVBO3D() {
+void Renderer3DVBO::EndTriangleMegaVBO3D() {
     if (!m_megaVBO3DTrianglesActive || !m_currentMegaVBO3DTrianglesKey) return;
     
     if (m_megaTriangleVertex3DCount < 3) {
@@ -95,8 +96,8 @@ void Renderer3D::EndTriangleMegaVBO3D() {
         glGenBuffers(1, &cachedVBO->VBO);
         glGenBuffers(1, &cachedVBO->IBO);
         
-        glBindVertexArray(cachedVBO->VAO);
-        m_renderer->SetArrayBuffer(cachedVBO->VBO);
+        g_renderer->SetVertexArray(cachedVBO->VAO);
+        g_renderer->SetArrayBuffer(cachedVBO->VBO);
         
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)0);
         glEnableVertexAttribArray(0);
@@ -105,8 +106,8 @@ void Renderer3D::EndTriangleMegaVBO3D() {
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     } else {
-        glBindVertexArray(cachedVBO->VAO);
-        m_renderer->SetArrayBuffer(cachedVBO->VBO);
+        g_renderer->SetVertexArray(cachedVBO->VAO);
+        g_renderer->SetArrayBuffer(cachedVBO->VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     }
     
@@ -123,29 +124,27 @@ void Renderer3D::EndTriangleMegaVBO3D() {
     m_megaVBO3DTrianglesActive = false;
 }
 
-void Renderer3D::RenderTriangleMegaVBO3D(const char* megaVBOKey) {
+void Renderer3DVBO::RenderTriangleMegaVBO3D(const char* megaVBOKey) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
     if (!tree || !tree->data || !tree->data->isValid) {
         return;
     }
     
-    IncrementDrawCall3D("mega_vbo");
-    
     Cached3DVBO* cachedVBO = tree->data;
     
-    m_renderer->SetShaderProgram(m_shader3DProgram);
-    Set3DShaderUniforms();
+    g_renderer->SetShaderProgram(g_renderer3d->m_shader3DProgram);
+    g_renderer3d->Set3DShaderUniforms();
     
-    m_renderer->SetVertexArray(cachedVBO->VAO);
+    g_renderer->SetVertexArray(cachedVBO->VAO);
     glDrawElements(GL_TRIANGLES, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
 }
 
-bool Renderer3D::IsTriangleMegaVBO3DValid(const char* megaVBOKey) {
+bool Renderer3DVBO::IsTriangleMegaVBO3DValid(const char* megaVBOKey) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
     return (tree && tree->data && tree->data->isValid);
 }
 
-void Renderer3D::SetTriangleMegaVBO3DBufferSizes(int vertexCount, int indexCount) {
+void Renderer3DVBO::SetTriangleMegaVBO3DBufferSizes(int vertexCount, int indexCount) {
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
     

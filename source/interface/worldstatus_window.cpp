@@ -41,26 +41,26 @@ public:
 
         if( speedControllable )
         {
-            float oldAlpha = g_renderer->m_alpha;            
+            float oldAlpha = g_renderer2d->m_alpha;            
 
             if( g_app->GetWorld()->GetTimeScaleFactor() == m_timeScale )
             {
-                g_renderer->m_alpha = 1.0f;
+                g_renderer2d->m_alpha = 1.0f;
                 InterfaceButton::Render( realX, realY, highlighted, true );
             }
             else
             {
-                g_renderer->m_alpha = 0.6f;
+                g_renderer2d->m_alpha = 0.6f;
                 InterfaceButton::Render( realX, realY, highlighted, clicked );
             }
 
-            g_renderer->m_alpha = oldAlpha;
+            g_renderer2d->m_alpha = oldAlpha;
         }
         else
         {
             if( g_app->GetWorld()->GetTimeScaleFactor() == m_timeScale )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,100) );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,100) );
             }
         }
 
@@ -94,8 +94,8 @@ public:
             float arrowX = realX + m_w/2;
             float arrowY = realY + m_h/2;
 
-            g_renderer->RectFill( arrowX - 5, arrowY-4, 3, 9, White );
-            g_renderer->RectFill( arrowX + 2, arrowY-4, 3, 9, White );
+            g_renderer2d->RectFill( arrowX - 5, arrowY-4, 3, 9, White );
+            g_renderer2d->RectFill( arrowX + 2, arrowY-4, 3, 9, White );
         }
         else
         {
@@ -109,7 +109,7 @@ public:
 
             for( int i = 0; i < numArrows; ++i )
             {
-                g_renderer->TriangleFill( arrowX, arrowY-5,// Top vertex
+                g_renderer2d->TriangleFill( arrowX, arrowY-5,// Top vertex
                                          arrowX+5, arrowY,        // Right vertex  
                                          arrowX, arrowY+5,        // Bottom vertex
                                          White );
@@ -134,7 +134,7 @@ public:
                 {
                     Colour col = team->GetTeamColour();
                     int x = realX + 1 + validTeams*2;                
-                    g_renderer->Line( x, realY, x, realY+m_h, col, 2 );
+                    g_renderer2d->Line( x, realY, x, realY+m_h, col, 2 );
                     validTeams++;
 
                     strcat( newTooltip, "\n- " );                    
@@ -177,28 +177,28 @@ public:
         int defcon = g_app->GetWorld()->GetDefcon();
         if( m_defcon != defcon )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,100) );
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(200,200,200,100) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,100) );
+            g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(200,200,200,100) );
 			if( m_captionIsLanguagePhrase )
 			{
-				g_renderer->Text( realX + 5, realY + 2, Colour(200,200,200,100), 15, LANGUAGEPHRASE(m_caption) );
+				g_renderer2d->Text( realX + 5, realY + 2, Colour(200,200,200,100), 15, LANGUAGEPHRASE(m_caption) );
 			}
 			else
 			{
-				g_renderer->Text( realX + 5, realY + 2, Colour(200,200,200,100), 15, m_caption );
+				g_renderer2d->Text( realX + 5, realY + 2, Colour(200,200,200,100), 15, m_caption );
 			}
         }
         else
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(50,50,255,255));
-            g_renderer->Rect( realX, realY, m_w, m_h, White);
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(50,50,255,255));
+            g_renderer2d->Rect( realX, realY, m_w, m_h, White);
 			if( m_captionIsLanguagePhrase )
 			{
-				g_renderer->TextSimple( realX + 5, realY + 2, White, 15, LANGUAGEPHRASE(m_caption) );
+				g_renderer2d->TextSimple( realX + 5, realY + 2, White, 15, LANGUAGEPHRASE(m_caption) );
 			}
 			else
 			{
-				g_renderer->TextSimple( realX + 5, realY + 2, White, 15, m_caption );
+				g_renderer2d->TextSimple( realX + 5, realY + 2, White, 15, m_caption );
 			}
         }
     }
@@ -289,7 +289,7 @@ void WorldStatusWindow::Create()
 
 void WorldStatusWindow::Render( bool hasFocus )
 {
-    int transparency = g_renderer->m_alpha * 255;
+    int transparency = g_renderer2d->m_alpha * 255;
 
     FadingWindow::Render( hasFocus, true );
         
@@ -298,7 +298,7 @@ void WorldStatusWindow::Render( bool hasFocus )
     // Render defcon
 
     g_renderer->SetFont( "kremlin" );
-    g_renderer->TextSimple( m_x + 5, m_y + 4,  White, 15, LANGUAGEPHRASE("dialog_worldstatus_defcon") );
+    g_renderer2d->TextSimple( m_x + 5, m_y + 4,  White, 15, LANGUAGEPHRASE("dialog_worldstatus_defcon") );
     g_renderer->SetFont();
     int defCon = g_app->GetWorld()->GetDefcon();
 
@@ -324,7 +324,7 @@ void WorldStatusWindow::Render( bool hasFocus )
 
     Date *theDate = &g_app->GetWorld()->m_theDate;
 
-    g_renderer->TextSimple( m_x + 190, m_y + 4, White, 15, theDate->GetTheDate() );
+    g_renderer2d->TextSimple( m_x + 190, m_y + 4, White, 15, theDate->GetTheDate() );
 
 
     //
@@ -361,7 +361,7 @@ void WorldStatusWindow::Render( bool hasFocus )
             col.Set(255,0,0,255);
         }
 
-        g_renderer->TextCentreSimple( m_x+m_w/2, m_y + 30, col, 14, caption );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y + 30, col, 14, caption );
     }
 
 }
@@ -450,11 +450,11 @@ void ScoresWindow::Render( bool _hasFocus )
     float size = 13;
 
     GameOption *scoreMode = g_app->GetGame()->GetOption("ScoreMode");
-    g_renderer->TextSimple( m_x + 10, yPos+2, LightGray, 11, LANGUAGEPHRASE("dialog_worldstatus_scoremode") );
-	g_renderer->TextRightSimple( m_x + m_w - 10, yPos+2, White, 11, GameOption::TranslateValue( scoreMode->m_subOptions[scoreMode->m_currentValue] ) );
+    g_renderer2d->TextSimple( m_x + 10, yPos+2, LightGray, 11, LANGUAGEPHRASE("dialog_worldstatus_scoremode") );
+	g_renderer2d->TextRightSimple( m_x + m_w - 10, yPos+2, White, 11, GameOption::TranslateValue( scoreMode->m_subOptions[scoreMode->m_currentValue] ) );
     yPos += 15;
 
-    g_renderer->Line( m_x + 10, yPos, m_x + m_w - 10, yPos, LightGray, 1.0f );
+    g_renderer2d->Line( m_x + 10, yPos, m_x + m_w - 10, yPos, LightGray, 1.0f );
 
     yPos += 3;
 
@@ -491,13 +491,13 @@ void ScoresWindow::Render( bool _hasFocus )
             }
         }
 
-        g_renderer->TextSimple( m_x+10, yPos, col, size, teamName );
-        g_renderer->TextRight( xPos, yPos, White, size + 1, "%d", score );
+        g_renderer2d->TextSimple( m_x+10, yPos, col, size, teamName );
+        g_renderer2d->TextRight( xPos, yPos, White, size + 1, "%d", score );
         
         if( team->m_type != Team::TypeAI &&
             !g_app->GetClientToServer()->IsSynchronised(team->m_clientId) )
         {
-            g_renderer->Text( xPos - 225, yPos, Colour(255,0,0,255), size, LANGUAGEPHRASE("dialog_worldstatus_out_of_sync") );
+            g_renderer2d->Text( xPos - 225, yPos, Colour(255,0,0,255), size, LANGUAGEPHRASE("dialog_worldstatus_out_of_sync") );
         }
 
 #ifdef _DEBUG
@@ -506,7 +506,7 @@ void ScoresWindow::Render( bool _hasFocus )
             ServerToClient *client = g_app->GetServer()->GetClient( team->m_clientId );
             if ( client )
             {
-                g_renderer->TextRight( m_x, yPos, Colour(255,255,255,150), size, client->m_system );
+                g_renderer2d->TextRight( m_x, yPos, Colour(255,255,255,150), size, client->m_system );
             }
         }
 #endif
@@ -521,7 +521,7 @@ void ScoresWindow::Render( bool _hasFocus )
     if( g_app->GetWorld()->m_spectators.Size() > 0 )
     {
         yPos += 15;
-        g_renderer->TextSimple( m_x+10, yPos, White, 13, LANGUAGEPHRASE("dialog_spectators") );
+        g_renderer2d->TextSimple( m_x+10, yPos, White, 13, LANGUAGEPHRASE("dialog_spectators") );
 
         for( int i = 0; i < g_app->GetWorld()->m_spectators.Size(); ++i )
         {
@@ -544,11 +544,11 @@ void ScoresWindow::Render( bool _hasFocus )
                 strcpy( fullName, spec->m_name );
             }
 
-            g_renderer->Text( m_x+10, yPos, Colour(255,255,255,128), 12, fullName );
+            g_renderer2d->Text( m_x+10, yPos, Colour(255,255,255,128), 12, fullName );
 
             if( !g_app->GetClientToServer()->IsSynchronised(spec->m_clientId) )
             {
-                g_renderer->Text( xPos - 225, yPos, Colour(255,0,0,255), size, LANGUAGEPHRASE("dialog_worldstatus_out_of_sync_2") );
+                g_renderer2d->Text( xPos - 225, yPos, Colour(255,0,0,255), size, LANGUAGEPHRASE("dialog_worldstatus_out_of_sync_2") );
             }
 
         }
@@ -602,22 +602,22 @@ void StatsWindow::Render( bool hasFocus )
 
     int yPos = m_y + 25;
 
-    g_renderer->TextSimple( superPowerX,  yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_superpower") );
-    g_renderer->TextSimple( killsX,       yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_kills") );
-    g_renderer->TextSimple( deathsX,      yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_deaths") );
-    g_renderer->TextSimple( survivorsX,   yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_survivors") );
-    g_renderer->TextSimple( collatoralX,  yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_collateral") );
-    g_renderer->TextSimple( nukesX,       yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_nukes") );
-    g_renderer->TextSimple( scoreX,       yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_score") );
+    g_renderer2d->TextSimple( superPowerX,  yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_superpower") );
+    g_renderer2d->TextSimple( killsX,       yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_kills") );
+    g_renderer2d->TextSimple( deathsX,      yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_deaths") );
+    g_renderer2d->TextSimple( survivorsX,   yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_survivors") );
+    g_renderer2d->TextSimple( collatoralX,  yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_collateral") );
+    g_renderer2d->TextSimple( nukesX,       yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_nukes") );
+    g_renderer2d->TextSimple( scoreX,       yPos, White, titleSize, LANGUAGEPHRASE("dialog_worldstatus_score") );
         
     yPos = m_y + m_h - 20;
 
-    g_renderer->TextSimple( superPowerX,  yPos, White, textSize, LANGUAGEPHRASE("dialog_worldstatus_points_value") );
-    g_renderer->Text( killsX,       yPos, White, textSize, "%d", g_app->GetGame()->m_pointsPerKill );
-    g_renderer->Text( deathsX,      yPos, White, textSize, "%d", g_app->GetGame()->m_pointsPerDeath );
-    g_renderer->Text( survivorsX,   yPos, White, textSize, "%d", g_app->GetGame()->m_pointsPerSurvivor );
-    g_renderer->Text( collatoralX,  yPos, White, textSize, "%d", g_app->GetGame()->m_pointsPerCollatoral );
-    g_renderer->Text( nukesX,       yPos, White, textSize, "%d", g_app->GetGame()->m_pointsPerNuke );
+    g_renderer2d->TextSimple( superPowerX,  yPos, White, textSize, LANGUAGEPHRASE("dialog_worldstatus_points_value") );
+    g_renderer2d->Text( killsX,       yPos, White, textSize, "%d", g_app->GetGame()->m_pointsPerKill );
+    g_renderer2d->Text( deathsX,      yPos, White, textSize, "%d", g_app->GetGame()->m_pointsPerDeath );
+    g_renderer2d->Text( survivorsX,   yPos, White, textSize, "%d", g_app->GetGame()->m_pointsPerSurvivor );
+    g_renderer2d->Text( collatoralX,  yPos, White, textSize, "%d", g_app->GetGame()->m_pointsPerCollatoral );
+    g_renderer2d->Text( nukesX,       yPos, White, textSize, "%d", g_app->GetGame()->m_pointsPerNuke );
 
 
     //
@@ -717,13 +717,13 @@ void StatsWindow::Render( bool hasFocus )
             strcpy( nukes, LANGUAGEPHRASE("dialog_worldstatus_classified") );
         }
 
-        g_renderer->TextSimple( superPowerX,  yPos, col, textSize, teamName );
-        g_renderer->TextSimple( killsX,       yPos, col, textSize, kills );
-        g_renderer->TextSimple( deathsX,      yPos, col, textSize, deaths );
-        g_renderer->TextSimple( survivorsX,   yPos, col, textSize, survivors );
-        g_renderer->TextSimple( collatoralX,  yPos, col, textSize, collatoral );
-        g_renderer->TextSimple( nukesX,       yPos, col, textSize, nukes );
-        g_renderer->TextSimple( scoreX,       yPos, col, textSize, score );
+        g_renderer2d->TextSimple( superPowerX,  yPos, col, textSize, teamName );
+        g_renderer2d->TextSimple( killsX,       yPos, col, textSize, kills );
+        g_renderer2d->TextSimple( deathsX,      yPos, col, textSize, deaths );
+        g_renderer2d->TextSimple( survivorsX,   yPos, col, textSize, survivors );
+        g_renderer2d->TextSimple( collatoralX,  yPos, col, textSize, collatoral );
+        g_renderer2d->TextSimple( nukesX,       yPos, col, textSize, nukes );
+        g_renderer2d->TextSimple( scoreX,       yPos, col, textSize, score );
 
         yPos += 25;
     }    

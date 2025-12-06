@@ -4,7 +4,8 @@
 
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
 #include "lib/sound/soundsystem.h"
@@ -58,7 +59,7 @@ void DepthCharge::Render()
     
     float angle = sinf(g_gameTime*1.5f) * 0.2f;
     Image *bmpImage = g_resource->GetImage( bmpImageFilename );
-    g_renderer->RotatingSprite( bmpImage, m_longitude.DoubleValue(), m_latitude.DoubleValue(), size, size, colour, angle);
+    g_renderer2d->RotatingSprite( bmpImage, m_longitude.DoubleValue(), m_latitude.DoubleValue(), size, size, colour, angle);
 }
 
 void DepthCharge::Impact()

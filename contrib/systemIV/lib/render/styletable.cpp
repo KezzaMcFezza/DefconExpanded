@@ -6,7 +6,8 @@
 #include "lib/filesys/filesys_utils.h"
 
 #include "styletable.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 
 
 StyleTable *g_styleTable = NULL;
@@ -161,7 +162,7 @@ Colour StyleTable::GetPrimaryColour( const char *_name )
     }
 
     Colour result = style->m_primaryColour;
-    result.m_a *= g_renderer->m_alpha;
+    result.m_a *= g_renderer2d->m_alpha;
 
     return result;
 }
@@ -177,7 +178,7 @@ Colour StyleTable::GetSecondaryColour( const char *_name )
     }
 
     Colour result = style->m_secondaryColour;
-    result.m_a *= g_renderer->m_alpha;
+    result.m_a *= g_renderer2d->m_alpha;
 
     return result;
 }

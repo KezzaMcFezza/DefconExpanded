@@ -9,7 +9,8 @@
 
 #include "lib/debug_utils.h"
 #include "lib/hi_res_time.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render/styletable.h"
 #include "lib/gucci/input.h"
 #include "lib/string_utils.h"
@@ -53,11 +54,11 @@ void InputField::Render( int realX, int realY, bool highlighted, bool clicked )
     Colour borderA = g_styleTable->GetPrimaryColour(STYLE_INPUT_BORDER);
     Colour borderB = g_styleTable->GetSecondaryColour(STYLE_INPUT_BORDER);
 
-    g_renderer->RectFill    ( realX, realY, m_w, m_h, background );
-    g_renderer->Line        ( realX, realY, realX + m_w, realY, borderA );
-    g_renderer->Line        ( realX, realY, realX, realY + m_h, borderA );
-    g_renderer->Line        ( realX + m_w, realY, realX + m_w, realY + m_h, borderB );
-    g_renderer->Line        ( realX, realY + m_h, realX + m_w, realY + m_h, borderB );
+    g_renderer2d->RectFill    ( realX, realY, m_w, m_h, background );
+    g_renderer2d->Line        ( realX, realY, realX + m_w, realY, borderA );
+    g_renderer2d->Line        ( realX, realY, realX, realY + m_h, borderA );
+    g_renderer2d->Line        ( realX + m_w, realY, realX + m_w, realY + m_h, borderB );
+    g_renderer2d->Line        ( realX, realY + m_h, realX + m_w, realY + m_h, borderB );
 
 	if (!highlighted)
 	{
@@ -70,7 +71,7 @@ void InputField::Render( int realX, int realY, bool highlighted, bool clicked )
 	    }
     }
 
-    float textWidth = g_renderer->TextWidth(m_buf, 12);
+    float textWidth = g_renderer2d->TextWidth(m_buf, 12);
     bool tooWide = textWidth > m_w && m_type == TypeString;
 
     float fieldX = -1;
@@ -81,9 +82,9 @@ void InputField::Render( int realX, int realY, bool highlighted, bool clicked )
 
     float yPos = realY + (m_h-10)/2;
 
-    g_renderer->SetClip( realX, realY, m_w, m_h );
+    g_renderer2d->SetClip( realX, realY, m_w, m_h );
 
-    g_renderer->TextSimple( fieldX, yPos, White, 12, m_buf );
+    g_renderer2d->TextSimple( fieldX, yPos, White, 12, m_buf );
 
     const char *focus = EclGetCurrentFocus();
 	if (focus &&
@@ -95,11 +96,11 @@ void InputField::Render( int realX, int realY, bool highlighted, bool clicked )
             GetHighResTime() < m_lastKeyPressTimer+1.0f )
 		{
 			float cursorX = fieldX + textWidth + 1;
-            g_renderer->Line( cursorX, realY + 2, cursorX, realY + m_h - 2, White );
+            g_renderer2d->Line( cursorX, realY + 2, cursorX, realY + m_h - 2, White );
 		}
 	}
 
-    g_renderer->ResetClip();
+    g_renderer2d->ResetClip();
 }
 
 
@@ -334,13 +335,13 @@ void InputScroller::Render( int realX, int realY, bool highlighted, bool clicked
     float midPoint = realY + m_h/2;
     if( m_change < 0 )
     {
-        g_renderer->TriangleFill( realX + 6, midPoint,
+        g_renderer2d->TriangleFill( realX + 6, midPoint,
                                   realX + 14, midPoint-4,
                                   realX + 14, midPoint+4, White );
     }
     else
     {
-        g_renderer->TriangleFill( realX + m_w - 14, midPoint-4,
+        g_renderer2d->TriangleFill( realX + m_w - 14, midPoint-4,
                                   realX + m_w - 6, midPoint,
                                   realX + m_w - 14, midPoint + 4, White );
     }

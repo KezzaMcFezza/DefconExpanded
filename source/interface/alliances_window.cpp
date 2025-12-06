@@ -175,7 +175,7 @@ void ShareRadarWindow::Render( bool hasFocus )
         LPREPLACESTRINGFLAG('T', g_app->GetWorld()->GetTeam( m_teamId )->GetTeamName(), msg );
         helpMessage = LANGUAGEPHRASE("tooltip_radarshare_enable" );
     }
-    g_renderer->TextCentreSimple( m_x+m_w/2, m_y+25, White, 15, msg );
+    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+25, White, 15, msg );
 
 
     //
@@ -190,7 +190,7 @@ void ShareRadarWindow::Render( bool hasFocus )
     for( int i = 0; i < wrapped.Size(); ++i )
     {
         char *thisString = wrapped[i];
-        g_renderer->TextSimple( xPos, yPos+=13, White, 11, thisString );
+        g_renderer2d->TextSimple( xPos, yPos+=13, White, 11, thisString );
     }
 }
 
@@ -254,7 +254,7 @@ void CeaseFireWindow::Render( bool hasFocus )
         LPREPLACESTRINGFLAG('T', g_app->GetWorld()->GetTeam( m_teamId )->GetTeamName(), msg );
         helpMessage = LANGUAGEPHRASE("tooltip_ceasefire_enable" );
     }
-    g_renderer->TextCentreSimple( m_x+m_w/2, m_y+25, White, 17, msg );
+    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+25, White, 17, msg );
 
 
     //
@@ -269,7 +269,7 @@ void CeaseFireWindow::Render( bool hasFocus )
     for( int i = 0; i < wrapped.Size(); ++i )
     {
         char *thisString = wrapped[i];
-        g_renderer->TextSimple( xPos, yPos+=13, White, 11, thisString );
+        g_renderer2d->TextSimple( xPos, yPos+=13, White, 11, thisString );
     }
 }
 
@@ -295,21 +295,21 @@ public:
             {       
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
-                g_renderer->RectFill ( realX, realY, m_w, m_h, Colour(100,100,100,50) );
+                g_renderer2d->RectFill ( realX, realY, m_w, m_h, Colour(100,100,100,50) );
 
                 if( highlighted || clicked )
                 {
-                    g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,150) );
-                    g_renderer->StaticSprite( img, realX+8, realY+2, 15, 15, Colour(255,255,255,20) );
+                    g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,150) );
+                    g_renderer2d->StaticSprite( img, realX+8, realY+2, 15, 15, Colour(255,255,255,20) );
                 }
 
                 if( vote->GetCurrentVote( myTeam->m_teamId ) == m_vote )
                 {
-                    g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,150) );
-                    g_renderer->StaticSprite( img, realX+8, realY+2, 15, 15, White );
+                    g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,100,150) );
+                    g_renderer2d->StaticSprite( img, realX+8, realY+2, 15, 15, White );
                 }
 
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(100,100,100,100) );
+                g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(100,100,100,100) );
 
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
             }
@@ -386,11 +386,11 @@ void VotingWindow::Render( bool _hasFocus )
                 if( myTeam->m_teamId == vote->m_createTeamId )
                 {
                     const char *allianceName = g_app->GetWorld()->GetAllianceName(vote->m_voteData);
-                    g_renderer->TextCentreSimple( m_x+m_w/2, m_y+30, White, 20, LANGUAGEPHRASE("dialog_you_requested_alliance_1") );
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+30, White, 20, LANGUAGEPHRASE("dialog_you_requested_alliance_1") );
 					char caption[512];
                     strcpy( caption, LANGUAGEPHRASE("dialog_you_requested_alliance_2") );
 					LPREPLACESTRINGFLAG( 'A', allianceName, caption );
-                    g_renderer->TextCentreSimple( m_x+m_w/2, m_y+50, White, 20, caption );
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+50, White, 20, caption );
                 }
                 else if( myTeam->m_allianceId == vote->m_voteData )
                 {
@@ -398,8 +398,8 @@ void VotingWindow::Render( bool _hasFocus )
 					char caption[512];
                     strcpy( caption, LANGUAGEPHRASE("dialog_requested_alliance_1") );
 					LPREPLACESTRINGFLAG( 'T', team->m_name, caption );
-					g_renderer->TextCentreSimple( m_x+m_w/2, m_y+30, White, 20, caption );
-                    g_renderer->TextCentreSimple( m_x+m_w/2, m_y+50, White, 20, LANGUAGEPHRASE("dialog_requested_alliance_2") );
+					g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+30, White, 20, caption );
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+50, White, 20, LANGUAGEPHRASE("dialog_requested_alliance_2") );
                 }
                 break;
 
@@ -408,11 +408,11 @@ void VotingWindow::Render( bool _hasFocus )
                 Team *kickTeam = g_app->GetWorld()->GetTeam(vote->m_voteData);
                 if( myTeam->m_teamId == vote->m_createTeamId )
                 {
-                    g_renderer->TextCentreSimple( m_x+m_w/2, m_y+30, White, 20, LANGUAGEPHRASE("dialog_you_requested_kick_1") );
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+30, White, 20, LANGUAGEPHRASE("dialog_you_requested_kick_1") );
 					char caption[512];
                     strcpy( caption, LANGUAGEPHRASE("dialog_you_requested_kick_2") );
 					LPREPLACESTRINGFLAG( 'T', kickTeam->m_name, caption );
-                    g_renderer->TextCentreSimple( m_x+m_w/2, m_y+50, White, 20, caption );
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+50, White, 20, caption );
                 }
                 else if( myTeam->m_allianceId == kickTeam->m_allianceId &&
                          myTeam->m_teamId != kickTeam->m_teamId )
@@ -421,10 +421,10 @@ void VotingWindow::Render( bool _hasFocus )
 					char caption[512];
                     strcpy( caption, LANGUAGEPHRASE("dialog_requested_kick_1") );
 					LPREPLACESTRINGFLAG( 'T', team->m_name, caption );
-                    g_renderer->TextCentreSimple( m_x+m_w/2, m_y+30, White, 20, caption );
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+30, White, 20, caption );
                     strcpy( caption, LANGUAGEPHRASE("dialog_requested_kick_2") );
 					LPREPLACESTRINGFLAG( 'T', kickTeam->m_name, caption );
-                    g_renderer->TextCentreSimple( m_x+m_w/2, m_y+50, White, 20, caption );
+                    g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+50, White, 20, caption );
                 }
                 break;
             }
@@ -432,40 +432,40 @@ void VotingWindow::Render( bool _hasFocus )
 
 
         g_renderer->SetFont( "kremlin" );
-        g_renderer->TextCentreSimple( m_x + m_w/2, m_y + 90, White, 20, LANGUAGEPHRASE("dialog_vote_yes") );
-        g_renderer->TextCentreSimple( m_x + m_w/2, m_y + 120, White, 20, LANGUAGEPHRASE("dialog_vote_no") );
-        g_renderer->TextCentreSimple( m_x + m_w/2, m_y + 150, White, 20, LANGUAGEPHRASE("dialog_vote_abstain") );
+        g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + 90, White, 20, LANGUAGEPHRASE("dialog_vote_yes") );
+        g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + 120, White, 20, LANGUAGEPHRASE("dialog_vote_no") );
+        g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + 150, White, 20, LANGUAGEPHRASE("dialog_vote_abstain") );
         g_renderer->SetFont();
 
         int yes, no, abstain;
         vote->GetCurrentVote( &yes, &no, &abstain );
 
-        g_renderer->Text( m_x + m_w - 40, m_y + 90, White, 20, "%d", yes );
-        g_renderer->Text( m_x + m_w - 40, m_y + 120, White, 20, "%d", no );
-        g_renderer->Text( m_x + m_w - 40, m_y + 150, White, 20, "%d", abstain );
+        g_renderer2d->Text( m_x + m_w - 40, m_y + 90, White, 20, "%d", yes );
+        g_renderer2d->Text( m_x + m_w - 40, m_y + 120, White, 20, "%d", no );
+        g_renderer2d->Text( m_x + m_w - 40, m_y + 150, White, 20, "%d", abstain );
 
         if( vote->m_result == Vote::VoteUnknown )
         {
 			char caption[512];
             strcpy( caption, LANGUAGEPHRASE("dialog_vote_seconds_to_vote") );
 			LPREPLACEINTEGERFLAG( 'S', (int) vote->m_timer, caption );
-            g_renderer->TextCentreSimple( m_x + m_w/2, m_y + m_h - 70, White, 15, caption );
+            g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + m_h - 70, White, 15, caption );
             
             int votesRequired = vote->GetVotesRequired();
             strcpy( caption, LANGUAGEPHRASE("dialog_vote_number_votes_required") );
 			LPREPLACEINTEGERFLAG( 'V', votesRequired, caption );
-            g_renderer->TextCentreSimple( m_x+m_w/2, m_y + m_h - 50, White, 15, caption );
+            g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y + m_h - 50, White, 15, caption );
         }
         else if( vote->m_result == Vote::VoteYes )
         {
             g_renderer->SetFont( "kremlin" );
-            g_renderer->TextCentreSimple( m_x+m_w/2, m_y + m_h - 70, White, 30, LANGUAGEPHRASE("dialog_vote_succeeded") );
+            g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y + m_h - 70, White, 30, LANGUAGEPHRASE("dialog_vote_succeeded") );
             g_renderer->SetFont();
         }
         else if( vote->m_result == Vote::VoteNo )
         {
             g_renderer->SetFont( "kremlin" );
-            g_renderer->TextCentreSimple( m_x+m_w/2, m_y + m_h - 70, White, 30, LANGUAGEPHRASE("dialog_vote_failed") );
+            g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y + m_h - 70, White, 30, LANGUAGEPHRASE("dialog_vote_failed") );
             g_renderer->SetFont();
         }
     }       
@@ -490,19 +490,19 @@ public:
             myTeam &&
             team != myTeam )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,100) );
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200));
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,100) );
+            g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200));
 
             if( highlighted || clicked )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,55));
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,55));
             }
 
             if( myTeam->m_ceaseFire[teamId] )
             {
                 Image *img = g_resource->GetImage( "gui/tick.bmp" );
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                g_renderer->StaticSprite( img, realX + 2, realY+2, 15, 15, White );
+                g_renderer2d->StaticSprite( img, realX + 2, realY+2, 15, 15, White );
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
             }
@@ -541,19 +541,19 @@ public:
         if( team &&
             team != myTeam )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,100) );
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200));
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,100) );
+            g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200));
 
             if( highlighted || clicked )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,55));
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,55));
             }
 
             if( myTeam->m_sharingRadar[teamId] )
             {
                 Image *img = g_resource->GetImage( "gui/tick.bmp" );
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                g_renderer->StaticSprite( img, realX + 2, realY+2, 15, 15, White );
+                g_renderer2d->StaticSprite( img, realX + 2, realY+2, 15, 15, White );
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );                
             }
         }
@@ -598,18 +598,18 @@ public:
             teamColDark.m_g *= 0.2f;
             teamColDark.m_b *= 0.2f;
 
-            g_renderer->RectFill( realX, realY, m_w, m_h, teamCol, teamColDark, teamColDark, teamCol );
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, teamCol, teamColDark, teamColDark, teamCol );
+            g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
             
-            g_renderer->RectFill( realX + m_w-180, realY, 60, m_h, Colour(0,0,0,50) );
-            g_renderer->RectFill( realX + m_w-60, realY, 60, m_h, Colour(0,0,0,50) );
+            g_renderer2d->RectFill( realX + m_w-180, realY, 60, m_h, Colour(0,0,0,50) );
+            g_renderer2d->RectFill( realX + m_w-60, realY, 60, m_h, Colour(0,0,0,50) );
 
             if( teamId == g_app->GetWorld()->m_myTeamId )
             {
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,255) );
-                g_renderer->TextCentreSimple( realX+180, realY+10, White, 15, "-" );
-                g_renderer->TextCentreSimple( realX+240, realY+10, White, 15, "-" );
-                g_renderer->TextCentreSimple( realX+305, realY+10, White, 15, "-" );
+                g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,255) );
+                g_renderer2d->TextCentreSimple( realX+180, realY+10, White, 15, "-" );
+                g_renderer2d->TextCentreSimple( realX+240, realY+10, White, 15, "-" );
+                g_renderer2d->TextCentreSimple( realX+305, realY+10, White, 15, "-" );
             }
             else
             {
@@ -619,7 +619,7 @@ public:
                 if( myTeamId != -1 &&
                     team->m_sharingRadar[myTeamId] )
                 {
-                    g_renderer->StaticSprite( img, realX+175, realY+8, 15, 15, White );
+                    g_renderer2d->StaticSprite( img, realX+175, realY+8, 15, 15, White );
                 }           
 
                 int sharingRadar = g_app->GetGame()->GetOptionValue("RadarSharing");
@@ -627,7 +627,7 @@ public:
                     g_app->GetWorld()->GetMyTeam() &&
                     g_app->GetWorld()->GetMyTeam()->m_sharingRadar[teamId] )                    
                 {
-                    g_renderer->StaticSprite( img, realX+235, realY+8, 15, 15, White );
+                    g_renderer2d->StaticSprite( img, realX+235, realY+8, 15, 15, White );
                 }
 
                 int permitDefection = g_app->GetGame()->GetOptionValue("PermitDefection");
@@ -635,7 +635,7 @@ public:
                     g_app->GetWorld()->GetMyTeam() &&
                     g_app->GetWorld()->GetMyTeam()->m_ceaseFire[teamId] )
                 {
-                    g_renderer->StaticSprite( img, realX+320, realY+8, 15, 15, White );
+                    g_renderer2d->StaticSprite( img, realX+320, realY+8, 15, 15, White );
                 }
 
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
@@ -643,10 +643,10 @@ public:
 
             if( teamId == parent->m_selectionTeamId )
             {
-                g_renderer->Rect( realX-2, realY-2, m_w+4, m_h+4, Colour(255,255,255,255) );
+                g_renderer2d->Rect( realX-2, realY-2, m_w+4, m_h+4, Colour(255,255,255,255) );
             }
             
-            g_renderer->TextSimple( realX+10, realY+6, White, 20, team->m_name );                                   
+            g_renderer2d->TextSimple( realX+10, realY+6, White, 20, team->m_name );                                   
 
         }
     }
@@ -674,15 +674,15 @@ public:
         
         if( vote )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,200) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(10,10,50,200) );
             
             Colour borderCol(255,255,255,100);
             if( highlighted || clicked ) 
             {
                 borderCol.m_a = 255;
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,150,100) );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,150,100) );
             }
-            g_renderer->Rect( realX, realY, m_w, m_h, borderCol );
+            g_renderer2d->Rect( realX, realY, m_w, m_h, borderCol );
 
             switch( vote->m_voteType )
             {
@@ -690,11 +690,11 @@ public:
                     if( myTeam->m_teamId == vote->m_createTeamId )
                     {
                         const char *allianceName = g_app->GetWorld()->GetAllianceName(vote->m_voteData);
-                        g_renderer->TextSimple( realX+10, realY+5, White, 14, LANGUAGEPHRASE("dialog_you_requested_alliance_1") );
+                        g_renderer2d->TextSimple( realX+10, realY+5, White, 14, LANGUAGEPHRASE("dialog_you_requested_alliance_1") );
 						char caption[512];
                         strcpy( caption, LANGUAGEPHRASE("dialog_you_requested_alliance_2") );
 						LPREPLACESTRINGFLAG( 'A', allianceName, caption );
-                        g_renderer->TextSimple( realX+10, realY+20, White, 14, caption );
+                        g_renderer2d->TextSimple( realX+10, realY+20, White, 14, caption );
                     }
                     else 
                     {
@@ -702,8 +702,8 @@ public:
 						char caption[512];
                         strcpy( caption, LANGUAGEPHRASE("dialog_requested_alliance_1") );
 						LPREPLACESTRINGFLAG( 'T', team->m_name, caption );
-                        g_renderer->TextSimple( realX+10, realY+5, White, 15, caption );
-                        g_renderer->TextSimple( realX+10, realY+20, White, 15, LANGUAGEPHRASE("dialog_requested_alliance_2") );
+                        g_renderer2d->TextSimple( realX+10, realY+5, White, 15, caption );
+                        g_renderer2d->TextSimple( realX+10, realY+20, White, 15, LANGUAGEPHRASE("dialog_requested_alliance_2") );
                     }
                     break;
 
@@ -712,11 +712,11 @@ public:
                     Team *kickTeam = g_app->GetWorld()->GetTeam(vote->m_voteData);
                     if( myTeam->m_teamId == vote->m_createTeamId )
                     {
-                        g_renderer->TextSimple( realX+10, realY+5, White, 15, LANGUAGEPHRASE("dialog_you_requested_kick_1") );
+                        g_renderer2d->TextSimple( realX+10, realY+5, White, 15, LANGUAGEPHRASE("dialog_you_requested_kick_1") );
 						char caption[512];
                         strcpy( caption, LANGUAGEPHRASE("dialog_you_requested_kick_2") );
 						LPREPLACESTRINGFLAG( 'T', kickTeam->m_name, caption );
-                        g_renderer->TextSimple( realX+10, realY+20, White, 15, caption );
+                        g_renderer2d->TextSimple( realX+10, realY+20, White, 15, caption );
                     }
                     else
                     {
@@ -724,10 +724,10 @@ public:
 						char caption[512];
                         strcpy( caption, LANGUAGEPHRASE("dialog_requested_kick_1") );
 						LPREPLACESTRINGFLAG( 'T', team->m_name, caption );
-                        g_renderer->TextSimple( realX+10, realY+5, White, 15, caption );
+                        g_renderer2d->TextSimple( realX+10, realY+5, White, 15, caption );
                         strcpy( caption, LANGUAGEPHRASE("dialog_requested_kick_2") );
 						LPREPLACESTRINGFLAG( 'T', kickTeam->m_name, caption );
-                        g_renderer->TextSimple( realX+10, realY+20, White, 15, caption );
+                        g_renderer2d->TextSimple( realX+10, realY+20, White, 15, caption );
                     }
                     break;
                 }
@@ -736,15 +736,15 @@ public:
             int yes, no, abstain;
             vote->GetCurrentVote( &yes, &no, &abstain );
 
-            g_renderer->Text( realX + 190, realY + 12, White, 17, "%ds", int(vote->m_timer) );
+            g_renderer2d->Text( realX + 190, realY + 12, White, 17, "%ds", int(vote->m_timer) );
             
-            g_renderer->TextSimple( realX + m_w - 70, realY + 5, White, 10,  LANGUAGEPHRASE("dialog_vote_yes") );
-            g_renderer->TextSimple( realX + m_w - 70, realY + 15, White, 10, LANGUAGEPHRASE("dialog_vote_no") );
-            g_renderer->TextSimple( realX + m_w - 70, realY + 25, White, 10, LANGUAGEPHRASE("dialog_vote_abstain") );
+            g_renderer2d->TextSimple( realX + m_w - 70, realY + 5, White, 10,  LANGUAGEPHRASE("dialog_vote_yes") );
+            g_renderer2d->TextSimple( realX + m_w - 70, realY + 15, White, 10, LANGUAGEPHRASE("dialog_vote_no") );
+            g_renderer2d->TextSimple( realX + m_w - 70, realY + 25, White, 10, LANGUAGEPHRASE("dialog_vote_abstain") );
 
-            g_renderer->Text( realX + m_w - 20, realY + 5, White, 10,  "%d", yes );
-            g_renderer->Text( realX + m_w - 20, realY + 15, White, 10, "%d", no );
-            g_renderer->Text( realX + m_w - 20, realY + 25, White, 10, "%d", abstain );
+            g_renderer2d->Text( realX + m_w - 20, realY + 5, White, 10,  "%d", yes );
+            g_renderer2d->Text( realX + m_w - 20, realY + 15, White, 10, "%d", no );
+            g_renderer2d->Text( realX + m_w - 20, realY + 25, White, 10, "%d", abstain );
         }
     }
 
@@ -974,16 +974,16 @@ void AlliancesWindow::Render( bool _hasFocus )
 {
     InterfaceWindow::Render( _hasFocus );
 
-    g_renderer->TextSimple( m_x + 30, m_y + 25, White, 20, LANGUAGEPHRASE("dialog_alliance_player") );
+    g_renderer2d->TextSimple( m_x + 30, m_y + 25, White, 20, LANGUAGEPHRASE("dialog_alliance_player") );
 
-    g_renderer->TextCentreSimple( m_x+200, m_y+22, White, 12, LANGUAGEPHRASE("dialog_alliance_receiving") );
-    g_renderer->TextCentreSimple( m_x+200, m_y+34, White, 12, LANGUAGEPHRASE("dialog_alliance_radar") );
+    g_renderer2d->TextCentreSimple( m_x+200, m_y+22, White, 12, LANGUAGEPHRASE("dialog_alliance_receiving") );
+    g_renderer2d->TextCentreSimple( m_x+200, m_y+34, White, 12, LANGUAGEPHRASE("dialog_alliance_radar") );
 
-    g_renderer->TextCentreSimple( m_x+260, m_y+22, White, 12, LANGUAGEPHRASE("dialog_alliance_sending") );
-    g_renderer->TextCentreSimple( m_x+260, m_y+34, White, 12, LANGUAGEPHRASE("dialog_alliance_radar") );
+    g_renderer2d->TextCentreSimple( m_x+260, m_y+22, White, 12, LANGUAGEPHRASE("dialog_alliance_sending") );
+    g_renderer2d->TextCentreSimple( m_x+260, m_y+34, White, 12, LANGUAGEPHRASE("dialog_alliance_radar") );
 
-    g_renderer->TextCentreSimple( m_x+320, m_y+22, White, 12, LANGUAGEPHRASE("dialog_alliance_cease") );
-    g_renderer->TextCentreSimple( m_x+320, m_y+34, White, 12, LANGUAGEPHRASE("dialog_alliance_fire") );
+    g_renderer2d->TextCentreSimple( m_x+320, m_y+22, White, 12, LANGUAGEPHRASE("dialog_alliance_cease") );
+    g_renderer2d->TextCentreSimple( m_x+320, m_y+34, White, 12, LANGUAGEPHRASE("dialog_alliance_fire") );
 
 
     GameOption *defection = g_app->GetGame()->GetOption("PermitDefection");
@@ -995,11 +995,11 @@ void AlliancesWindow::Render( bool _hasFocus )
     //
     // Render the main rules
 
-    g_renderer->Text( xPos, yPos, White, 14, "%s :", GameOption::TranslateValue( defection->m_name ) );
-    g_renderer->Text( xPos+160, yPos, White, 14, "[%s]", GameOption::TranslateValue( defection->m_subOptions[defection->m_currentValue] ) );
+    g_renderer2d->Text( xPos, yPos, White, 14, "%s :", GameOption::TranslateValue( defection->m_name ) );
+    g_renderer2d->Text( xPos+160, yPos, White, 14, "[%s]", GameOption::TranslateValue( defection->m_subOptions[defection->m_currentValue] ) );
 
-    g_renderer->Text( xPos, yPos+=17, White, 14, "%s :", GameOption::TranslateValue( radarShare->m_name ) );
-    g_renderer->Text( xPos+160, yPos, White, 14, "[%s]", GameOption::TranslateValue( radarShare->m_subOptions[radarShare->m_currentValue] ) );
+    g_renderer2d->Text( xPos, yPos+=17, White, 14, "%s :", GameOption::TranslateValue( radarShare->m_name ) );
+    g_renderer2d->Text( xPos+160, yPos, White, 14, "[%s]", GameOption::TranslateValue( radarShare->m_subOptions[radarShare->m_currentValue] ) );
 
 
     //
@@ -1020,7 +1020,7 @@ void AlliancesWindow::Render( bool _hasFocus )
         for( int i = 0; i < wrapped.Size(); ++i )
         {
             char *thisString = wrapped[i];
-            g_renderer->TextSimple( xPos, yPos+=12, White, 10, thisString );
+            g_renderer2d->TextSimple( xPos, yPos+=12, White, 10, thisString );
         }
     }
 
@@ -1041,7 +1041,7 @@ void AlliancesWindow::Render( bool _hasFocus )
         for( int i = 0; i < wrapped.Size(); ++i )
         {
             char *thisString = wrapped[i];
-            g_renderer->TextSimple( xPos, yPos+=12, White, 10, thisString );
+            g_renderer2d->TextSimple( xPos, yPos+=12, White, 10, thisString );
         }
     }
 

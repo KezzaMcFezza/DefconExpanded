@@ -22,7 +22,7 @@ void Renderer3D::StaticSprite3D(Image *src, float x, float y, float z, float w, 
 void Renderer3D::StaticSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode, bool immediateFlush) {
     FlushStaticSprites3DIfFull(6);
     
-    unsigned int effectiveTextureID = GetEffectiveTextureID(src);
+    unsigned int effectiveTextureID = g_renderer->GetEffectiveTextureID(src);
     
     if (m_staticSpriteVertexCount3D > 0 && m_currentStaticSpriteTexture3D != effectiveTextureID) {
         FlushStaticSprites3D();
@@ -38,7 +38,7 @@ void Renderer3D::StaticSprite3D(Image *src, float x, float y, float z, float w, 
     if (atlasImage) {
         const char* filename = atlasImage->GetFilename();
         if (filename && strstr(filename, "smallnuke.bmp")) {
-            GetImageUVCoords(src, u1, v1, u2, v2);
+            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
 
             //
             // shrink to match the old look of smallnuke
@@ -50,10 +50,10 @@ void Renderer3D::StaticSprite3D(Image *src, float x, float y, float z, float w, 
             v1 += shrinkY;
             v2 -= shrinkY;
         } else {
-            GetImageUVCoords(src, u1, v1, u2, v2);
+            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
         }
     } else {
-        GetImageUVCoords(src, u1, v1, u2, v2);
+        g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
     }
     
     // create billboard vertices based on the mode
@@ -94,7 +94,7 @@ void Renderer3D::RotatingSprite3D(Image *src, float x, float y, float z, float w
 void Renderer3D::RotatingSprite3D(Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode, bool immediateFlush) {
     FlushRotatingSprite3DIfFull(6);
     
-    unsigned int effectiveTextureID = GetEffectiveTextureID(src);
+    unsigned int effectiveTextureID = g_renderer->GetEffectiveTextureID(src);
     
     if (m_rotatingSpriteVertexCount3D > 0 && m_currentRotatingSpriteTexture3D != effectiveTextureID) {
         FlushRotatingSprite3D();
@@ -110,7 +110,7 @@ void Renderer3D::RotatingSprite3D(Image *src, float x, float y, float z, float w
     if (atlasImage) {
         const char* filename = atlasImage->GetFilename();
         if (filename && strstr(filename, "smallnuke.bmp")) {
-            GetImageUVCoords(src, u1, v1, u2, v2);
+            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
 
             //
             // shrink to match the old look of smallnuke
@@ -122,10 +122,10 @@ void Renderer3D::RotatingSprite3D(Image *src, float x, float y, float z, float w
             v1 += shrinkY;
             v2 -= shrinkY;
         } else {
-            GetImageUVCoords(src, u1, v1, u2, v2);
+            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
         }
     } else {
-        GetImageUVCoords(src, u1, v1, u2, v2);
+        g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
     }
     
     Vector3<float> position(x, y, z);

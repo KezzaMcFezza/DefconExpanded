@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/language_table.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render/styletable.h"
 #include "lib/gucci/window_manager.h"
 
@@ -115,15 +116,15 @@ void InfoWindow::Render( bool _hasFocus )
     
     if( m_infoType != -1 && m_infoType != WorldObject::TypeCity )
     {
-        g_renderer->SetClip( m_x, m_y, m_w, m_h );
+        g_renderer2d->SetClip( m_x, m_y, m_w, m_h );
 
         Image *img = g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[ m_infoType ]);
         if( img )
         {
             g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-            g_renderer->StaticSprite ( img, m_x+5, m_y+5, 30.0f, 30.0f, White );                       
-            g_renderer->StaticSprite( img, m_x+m_w-200, m_y, 180.0f, 180.0f, Colour(155,155,255,50));           
-            g_renderer->StaticSprite( img, m_x+m_w-230, m_y-50, 240.0f, 240.0f, Colour(155,155,255,5));           
+            g_renderer2d->StaticSprite ( img, m_x+5, m_y+5, 30.0f, 30.0f, White );                       
+            g_renderer2d->StaticSprite( img, m_x+m_w-200, m_y, 180.0f, 180.0f, Colour(155,155,255,50));           
+            g_renderer2d->StaticSprite( img, m_x+m_w-230, m_y-50, 240.0f, 240.0f, Colour(155,155,255,5));           
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
         }
         
@@ -143,7 +144,7 @@ void InfoWindow::Render( bool _hasFocus )
         strupr( unitName );
 
         g_renderer->SetFont( "kremlin" );        
-        g_renderer->TextCentreSimple( m_x + m_w/2, m_y + 10, White, 16.0f, unitName );
+        g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + 10, White, 16.0f, unitName );
         g_renderer->SetFont();
         
         char infoId[256];
@@ -166,26 +167,26 @@ void InfoWindow::Render( bool _hasFocus )
             
             if( thisLine[0] == '+' )
             {
-                g_renderer->CircleFill( xPos+2, yPos+5, 4, 10, Colour(0,255,0,255) );
+                g_renderer2d->CircleFill( xPos+2, yPos+5, 4, 10, Colour(0,255,0,255) );
                 textCol.Set(50,255,50,255);                
             }
 
             if( thisLine[0] == '-')
             {
-                g_renderer->CircleFill( xPos+2, yPos+5, 4, 10, Colour(255,0,0,255) );
+                g_renderer2d->CircleFill( xPos+2, yPos+5, 4, 10, Colour(255,0,0,255) );
                 textCol.Set(255,50,50,255);
             }
 
-            g_renderer->TextSimple( xPos, yPos, textCol, 11, thisLine );
+            g_renderer2d->TextSimple( xPos, yPos, textCol, 11, thisLine );
         }
 
-        g_renderer->ResetClip();
+        g_renderer2d->ResetClip();
     }
     else
     {
         Colour col(255,255,255,m_alpha*255);
-        g_renderer->TextCentreSimple( m_x+m_w/2, m_y+m_h/3, col, 14, LANGUAGEPHRASE("unitinfo_title") );
-        g_renderer->TextCentreSimple( m_x+m_w/2, m_y+m_h/3+20, col, 14, LANGUAGEPHRASE("unitinfo_title2") );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+m_h/3, col, 14, LANGUAGEPHRASE("unitinfo_title") );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+m_h/3+20, col, 14, LANGUAGEPHRASE("unitinfo_title2") );
     }
 }
 

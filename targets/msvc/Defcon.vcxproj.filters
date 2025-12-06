@@ -534,7 +534,7 @@
     <ClCompile Include="..\..\source\curves.cpp" />
     <ClCompile Include="..\..\source\defcon.cpp" />
     <ClCompile Include="..\..\source\random_object.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_overlay.cpp">
       <Filter>lib\render</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\interface\playback_control_window.cpp">
@@ -543,7 +543,7 @@
     <ClCompile Include="..\..\source\interface\recording_selection.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_2d.cpp">
       <Filter>lib\render2d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp">
@@ -600,16 +600,16 @@
     <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\timer.cc">
       <Filter>contrib\highway</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\megavbo.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\megavbo_2d.cpp">
       <Filter>lib\render2d\megavbo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\quads.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\quads_2d.cpp">
       <Filter>lib\render2d\megavbo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\linestrips.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\linestrips_2d.cpp">
       <Filter>lib\render2d\megavbo</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\triangles.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\triangles_2d.cpp">
       <Filter>lib\render2d\megavbo</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\operations_3d.cpp">
@@ -805,21 +805,24 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.cpp">
       <Filter>lib\sound</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\operations.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\primitives_2d.cpp">
       <Filter>lib\render2d</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\primitives.cpp">
-      <Filter>lib\render2d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\sprites.cpp">
-      <Filter>lib\render2d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\text.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\text_2d.cpp">
       <Filter>lib\render2d</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\renderer\world_renderer.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\gucci\crashpad.cpp">
       <Filter>lib\gucci</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\operations_2d.cpp">
+      <Filter>lib\render2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\sprites_2d.cpp">
+      <Filter>lib\render2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer.cpp">
+      <Filter>lib\render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1296,7 +1299,7 @@
     </ClInclude>
     <ClInclude Include="..\..\source\curves.h" />
     <ClInclude Include="..\..\source\random_object.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_debug_menu.h">
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_overlay.h">
       <Filter>lib\render</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\interface\playback_control_window.h">
@@ -1305,7 +1308,7 @@
     <ClInclude Include="..\..\source\interface\recording_selection.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\renderer.h">
+    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\renderer_2d.h">
       <Filter>lib\render2d</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.h">
@@ -1363,6 +1366,9 @@
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\gucci\crashpad.h">
       <Filter>lib\gucci</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer.h">
+      <Filter>lib\render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

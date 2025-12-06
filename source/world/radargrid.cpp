@@ -265,7 +265,7 @@ void RadarGrid::Render()
     // Render it to screen
     
     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-    g_renderer->StaticSprite( &image, -180, 100, 360, -200, White );
+    g_renderer2d->StaticSprite( &image, -180, 100, 360, -200, White );
     
     END_PROFILE( "RadarGrid" );
 }

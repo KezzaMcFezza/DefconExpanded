@@ -9,11 +9,10 @@
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/colour.h"
 
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 
-extern Renderer *g_renderer;
-
-void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float h, 
+void Renderer2D::BlitChar(unsigned int textureID, float x, float y, float w, float h, 
                         float texX, float texY, float texW, float texH, Colour const &col, bool immediateFlush) {
     
     //
@@ -94,7 +93,7 @@ void Renderer::BlitChar(unsigned int textureID, float x, float y, float w, float
 // SIMPLE TEXT RENDERING FUNCTIONS
 // ============================================================================
 
-void Renderer::Text(float x, float y, Colour const &col, float size, const char *text, ...) {   
+void Renderer2D::Text(float x, float y, Colour const &col, float size, const char *text, ...) {   
     char buf[1024];
     va_list ap;
     va_start(ap, text);
@@ -103,7 +102,7 @@ void Renderer::Text(float x, float y, Colour const &col, float size, const char 
     TextSimple(x, y, col, size, buf);
 }
 
-void Renderer::TextCentre(float x, float y, Colour const &col, float size, const char *text, ...) {
+void Renderer2D::TextCentre(float x, float y, Colour const &col, float size, const char *text, ...) {
     char buf[1024];
     va_list ap;
     va_start(ap, text);
@@ -113,7 +112,7 @@ void Renderer::TextCentre(float x, float y, Colour const &col, float size, const
     TextSimple(actualX, y, col, size, buf);
 }
 
-void Renderer::TextRight(float x, float y, Colour const &col, float size, const char *text, ...) {
+void Renderer2D::TextRight(float x, float y, Colour const &col, float size, const char *text, ...) {
     char buf[1024];
     va_list ap;
     va_start(ap, text);
@@ -123,20 +122,20 @@ void Renderer::TextRight(float x, float y, Colour const &col, float size, const 
     TextSimple(actualX, y, col, size, buf);
 }
 
-void Renderer::TextSimple(float x, float y, Colour const &col, float size, const char *text, bool immediateFlush) {
-    BitmapFont *font = g_resource->GetBitmapFont(m_currentFontFilename);
+void Renderer2D::TextSimple(float x, float y, Colour const &col, float size, const char *text, bool immediateFlush) {
+    BitmapFont *font = g_resource->GetBitmapFont(g_renderer->GetCurrentFontFilename());
     if (font) {
-        font->SetSpacing(GetFontSpacing(m_currentFontName));
+        font->SetSpacing(g_renderer->GetFontSpacing(g_renderer->GetCurrentFontName()));
     } else {
-        font = g_resource->GetBitmapFont(m_defaultFontFilename);
+        font = g_resource->GetBitmapFont(g_renderer->GetDefaultFontFilename());
         if (font) {
-            font->SetSpacing(GetFontSpacing(m_defaultFontName));
+            font->SetSpacing(g_renderer->GetFontSpacing(g_renderer->GetDefaultFontName()));
         }
     }
 
     if (font) {    
-        font->SetHoriztonalFlip(m_horizFlip);
-        font->SetFixedWidth(m_fixedWidth);
+        font->SetHoriztonalFlip(g_renderer->GetHorizFlip());
+        font->SetFixedWidth(g_renderer->GetFixedWidth());
         
         font->DrawText2DSimple(x, y, size, text, col);
         
@@ -154,35 +153,35 @@ void Renderer::TextSimple(float x, float y, Colour const &col, float size, const
     }
 }
 
-void Renderer::TextCentreSimple(float x, float y, Colour const &col, float size, const char *text, bool immediateFlush) {
+void Renderer2D::TextCentreSimple(float x, float y, Colour const &col, float size, const char *text, bool immediateFlush) {
     float actualX = x - TextWidth(text, size) / 2.0f;
     TextSimple(actualX, y, col, size, text, immediateFlush);
 }
 
-void Renderer::TextRightSimple(float x, float y, Colour const &col, float size, const char *text, bool immediateFlush) {
+void Renderer2D::TextRightSimple(float x, float y, Colour const &col, float size, const char *text, bool immediateFlush) {
     float actualX = x - TextWidth(text, size);
     TextSimple(actualX, y, col, size, text, immediateFlush);
 }
 
-float Renderer::TextWidth(const char *text, float size) {
-    BitmapFont *font = g_resource->GetBitmapFont(m_currentFontFilename);
+float Renderer2D::TextWidth(const char *text, float size) {
+    BitmapFont *font = g_resource->GetBitmapFont(g_renderer->GetCurrentFontFilename());
     if (font) {
-        font->SetSpacing(GetFontSpacing(m_currentFontName));
+        font->SetSpacing(g_renderer->GetFontSpacing(g_renderer->GetCurrentFontName()));
     } else {
-        font = g_resource->GetBitmapFont(m_defaultFontFilename);
+        font = g_resource->GetBitmapFont(g_renderer->GetDefaultFontFilename());
         if (font) {
-            font->SetSpacing(GetFontSpacing(m_defaultFontName));
+            font->SetSpacing(g_renderer->GetFontSpacing(g_renderer->GetDefaultFontName()));
         }
     }
 
     if (!font) return -1;
 
-    font->SetHoriztonalFlip(m_horizFlip);
-    font->SetFixedWidth(m_fixedWidth);
+    font->SetHoriztonalFlip(g_renderer->GetHorizFlip());
+    font->SetFixedWidth(g_renderer->GetFixedWidth());
     return font->GetTextWidth(text, size);
 }
 
-float Renderer::TextWidth(const char *text, unsigned int textLen, float size, BitmapFont *bitmapFont) {
+float Renderer2D::TextWidth(const char *text, unsigned int textLen, float size, BitmapFont *bitmapFont) {
     if (!bitmapFont) return -1;
     return bitmapFont->GetTextWidth(text, textLen, size);
 }

@@ -383,7 +383,7 @@ void WorldObject::Render ()
     Image *bmpImage = g_resource->GetImage( bmpImageFilename );
     if( bmpImage )
     {
-        g_renderer->StaticSprite( bmpImage, x, y, thisSize, size*-2, colour );        
+        g_renderer2d->StaticSprite( bmpImage, x, y, thisSize, size*-2, colour );        
     }
 
 
@@ -414,7 +414,7 @@ void WorldObject::Render ()
             if( selected || sameFleet )
             {
                 bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
-                g_renderer->StaticSprite( bmpImage, x, y, thisSize, size*-2, colour );        
+                g_renderer2d->StaticSprite( bmpImage, x, y, thisSize, size*-2, colour );        
             }
         }
         colour.m_a /= 2;
@@ -477,14 +477,14 @@ void WorldObject::RenderHealthBar()
     }
     
     Colour bgColour(0, 0, 0, 180);
-    g_renderer->RectFill(barX, barY, barWidth, barHeight, bgColour);
+    g_renderer2d->RectFill(barX, barY, barWidth, barHeight, bgColour);
     
     float damagePercentage = 1.0f - healthPercentage;
     if( damagePercentage > 0 )
     {
         float damageBarWidth = barWidth * damagePercentage;
         Colour damageColour(255, 0, 0, 200); // red for damage
-        g_renderer->RectFill(barX + barWidth - damageBarWidth, barY, damageBarWidth, barHeight, damageColour);
+        g_renderer2d->RectFill(barX + barWidth - damageBarWidth, barY, damageBarWidth, barHeight, damageColour);
     }
     
     if( healthPercentage > 0 )
@@ -501,7 +501,7 @@ void WorldObject::RenderHealthBar()
             healthColour.Set(255, 255, 0, 200); // yellow for if the health is not 100 percent
         }
         
-        g_renderer->RectFill(barX, barY, healthBarWidth, barHeight, healthColour);
+        g_renderer2d->RectFill(barX, barY, healthBarWidth, barHeight, healthColour);
     }
 }
 
@@ -520,7 +520,7 @@ void WorldObject::RenderCounter( int counter )
 
     g_renderer->SetFont( "kremlin", true );
 
-    g_renderer->Text( predictedLongitude + ( size / 5 ), predictedLatitude + ( size / 5 ), 
+    g_renderer2d->Text( predictedLongitude + ( size / 5 ), predictedLatitude + ( size / 5 ), 
                         White, size, count);
 
 
@@ -530,13 +530,13 @@ void WorldObject::RenderCounter( int counter )
         char num[8];
         Image *bmp = g_resource->GetImage( "graphics/nukesymbol.bmp");
         sprintf( num, "%d", m_nukeSupply );
-        float textWidth = g_renderer->TextWidth( num, size );
+        float textWidth = g_renderer2d->TextWidth( num, size );
         float xModifier = textWidth/2;
         if( m_nukeSupply < 10 ) xModifier = 0;
-        g_renderer->Text( predictedLongitude + ( size / 5 ) - xModifier, predictedLatitude + ( size ), 
+        g_renderer2d->Text( predictedLongitude + ( size / 5 ) - xModifier, predictedLatitude + ( size ), 
                 White, size, num );
 
-        g_renderer->StaticSprite( bmp, predictedLongitude - textWidth, predictedLatitude + ( size * 1.75f), size * 0.75f, size * -0.75f, White );
+        g_renderer2d->StaticSprite( bmp, predictedLongitude - textWidth, predictedLatitude + ( size * 1.75f), size * 0.75f, size * -0.75f, White );
     }
 
    // g_app->GetRenderer()->Text( m_longitude + ( size / 5 ) +  + g_app->GetRenderer()->GetMapRenderer()->GetLongitudeMod(), m_latitude + ( size / 5 ), 
@@ -701,7 +701,7 @@ void WorldObject::RenderGhost( int teamId )
             thisSize = size*-2;
         }       
 
-        g_renderer->StaticSprite( img, x, y, thisSize, size*-2, col );
+        g_renderer2d->StaticSprite( img, x, y, thisSize, size*-2, col );
     }
 }
 

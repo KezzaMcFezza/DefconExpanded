@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/language_table.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render/styletable.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/sound/soundsystem.h"
@@ -114,8 +115,8 @@ void TutorialWindow::Render( bool _hasFocus )
     Colour windowColB  = g_styleTable->GetSecondaryColour( STYLE_WINDOW_BACKGROUND );
     Colour borderCol   = g_styleTable->GetPrimaryColour( STYLE_WINDOW_OUTERBORDER );
 
-    g_renderer->RectFill ( m_x, m_y, m_w, m_h, windowColA, windowColA, windowColB, windowColB );
-    g_renderer->Rect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
+    g_renderer2d->RectFill ( m_x, m_y, m_w, m_h, windowColA, windowColA, windowColB, windowColB );
+    g_renderer2d->Rect     ( m_x, m_y, m_w-1, m_h-1, borderCol);
 
     EclWindow::Render( _hasFocus );
 
@@ -123,7 +124,7 @@ void TutorialWindow::Render( bool _hasFocus )
     //
     // Render the shadow
 
-    InterfaceWindow::RenderWindowShadow( m_x+m_w, m_y, m_h, m_w, 15, g_renderer->m_alpha*0.5f );
+    InterfaceWindow::RenderWindowShadow( m_x+m_w, m_y, m_h, m_w, 15, g_renderer2d->m_alpha*0.5f );
 
 
     
@@ -140,7 +141,7 @@ void TutorialWindow::Render( bool _hasFocus )
         strupr( fullTitle );
 
         g_renderer->SetFont( "kremlin" );
-        g_renderer->TextCentreSimple( m_x+m_w/2, m_y+5, White, 16.0f, fullTitle );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+5, White, 16.0f, fullTitle );
         g_renderer->SetFont();
         
 
@@ -175,7 +176,7 @@ void TutorialWindow::Render( bool _hasFocus )
 				if (maxChars - charsSoFar < strlen( wrapped[i] ))
 					wrapped[ i ][ maxChars - charsSoFar ] = '\0';
 					
-                g_renderer->TextSimple( xPos, yPos, White, 11, wrapped[i] );
+                g_renderer2d->TextSimple( xPos, yPos, White, 11, wrapped[i] );
 
                 charsSoFar += strlen( wrapped[i] );
                 if( charsSoFar >= maxChars ) break;
@@ -264,13 +265,13 @@ void TutorialWindow::Render( bool _hasFocus )
         if( highlightFound )
         {
             float alpha = 55 + fabs(sinf(g_gameTime*2)) * 200;
-            g_renderer->Rect( x-10, y-10, w+20, h+20, Colour(255,255,0,alpha), 5 );
+            g_renderer2d->Rect( x-10, y-10, w+20, h+20, Colour(255,255,0,alpha), 5 );
                             
-            g_renderer->BeginLines( Colour(255,255,0,alpha), 1 );
-            g_renderer->Line( xPos-7, yPos+8 );
-            g_renderer->Line( xPos-7, y+h/2 );
-            g_renderer->Line( x-5, y+h/2 );
-            g_renderer->EndLines();
+            g_renderer2d->BeginLines( Colour(255,255,0,alpha), 1 );
+            g_renderer2d->Line( xPos-7, yPos+8 );
+            g_renderer2d->Line( xPos-7, y+h/2 );
+            g_renderer2d->Line( x-5, y+h/2 );
+            g_renderer2d->EndLines();
         }
     }
 }

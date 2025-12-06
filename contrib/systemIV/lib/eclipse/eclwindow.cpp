@@ -5,7 +5,8 @@
 
 #include "lib/debug_utils.h"
 
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "eclipse.h"
 #include "eclwindow.h"
 

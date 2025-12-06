@@ -13,10 +13,11 @@
 #endif
 #include "lib/gucci/input.h"
 #include "lib/resource/resource.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/styletable.h"
-#include "lib/render/renderer_debug_menu.h"
+#include "lib/render/renderer_overlay.h"
 #include "lib/debug_utils.h"
 #include "lib/profiler.h"
 #include "lib/hi_res_time.h"
@@ -140,7 +141,7 @@ App::App()
     m_debugPrintClientLetters(false),
     m_renderingEnabled(true),
     m_showFps(false),
-    m_showDebugMenu(false),
+    m_showRendererOverlay(false),
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     m_showSoundOverlay(false),
 #endif
@@ -148,10 +149,10 @@ App::App()
     m_framesPerSecond(0),
     m_frameCountTimer(1.0f),
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-    m_debugMenu(NULL),
+    m_rendererOverlay(NULL),
     m_soundOverlay(NULL)
 #else
-    m_debugMenu(NULL)
+    m_rendererOverlay(NULL)
 #endif
 {
     //
@@ -187,7 +188,7 @@ App::~App()
 #ifdef TOGGLE_SOUND
 	delete g_soundSystem;
 #endif
-	delete m_debugMenu;
+	delete m_rendererOverlay;
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
 	delete m_soundOverlay;
 #endif
@@ -435,7 +436,7 @@ void App::MinimalInit()
     
     g_resource->InitializeAtlases();
 
-    m_debugMenu = new RendererDebugMenu(g_renderer);
+    m_rendererOverlay = new RendererOverlay();
 
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     delete m_soundOverlay;
@@ -809,8 +810,8 @@ void App::ReinitialiseWindow()
     
     InitFonts();
 
-    delete m_debugMenu;
-    m_debugMenu = new RendererDebugMenu(g_renderer);
+    delete m_rendererOverlay;
+    m_rendererOverlay = new RendererOverlay();
 
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     delete m_soundOverlay;
@@ -866,7 +867,7 @@ void App::Update()
     {
         if( g_preferences && g_preferences->GetInt("DeveloperMode", 0) == 1 )
         {
-            m_showDebugMenu = !m_showDebugMenu;
+            m_showRendererOverlay = !m_showRendererOverlay;
         }
     }
 
@@ -981,7 +982,7 @@ void App::Render()
     }
 
 
-    g_renderer->Reset2DViewport();
+    g_renderer2d->Reset2DViewport();
     g_renderer->BeginScene();
 
     //
@@ -1004,9 +1005,9 @@ void App::Render()
     // update frame timing when either FPS counter or debug menu is shown
 
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-    if( m_showFps || m_showDebugMenu || m_showSoundOverlay )
+    if( m_showFps || m_showRendererOverlay || m_showSoundOverlay )
 #else
-    if( m_showFps || m_showDebugMenu )
+    if( m_showFps || m_showRendererOverlay )
 #endif
     {
         static double s_lastRender = 0;
@@ -1026,7 +1027,7 @@ void App::Render()
             s_biggest = 0;
         }
         
-        g_renderer->BeginTextBatch();
+        g_renderer2d->BeginTextBatch();
 
         //
         // show FPS counter if F1 was pressed
@@ -1036,16 +1037,16 @@ void App::Render()
             char fps[64];
             strcpy( fps, LANGUAGEPHRASE("dialog_mapr_fps") );
             LPREPLACEINTEGERFLAG( 'F', m_framesPerSecond, fps );
-            g_renderer->TextSimple( 25, 25, White, 20.0f, fps );
+            g_renderer2d->TextSimple( 25, 25, White, 20.0f, fps );
         }
         
         //
         // Show debug menu if F2 was pressed
 
-        if( m_showDebugMenu && m_debugMenu )
+        if( m_showRendererOverlay && m_rendererOverlay )
         {
-            m_debugMenu->Update(lastFrame);
-            m_debugMenu->RenderDebugMenu();
+            m_rendererOverlay->Update(lastFrame);
+            m_rendererOverlay->RenderDebugMenu();
         }
         
 #if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
@@ -1059,7 +1060,7 @@ void App::Render()
         }
 #endif
 
-        g_renderer->EndTextBatch();
+        g_renderer2d->EndTextBatch();
     }
     
     
@@ -1199,7 +1200,7 @@ void App::RenderTitleScreen()
 
         float bombSize = 500;
         Colour col(255,155,155, 255*(bombTimer-GetHighResTime())/10 );
-        g_renderer->StaticSprite( blur, bombX, baseLine-300, bombSize, bombSize, col );
+        g_renderer2d->StaticSprite( blur, bombX, baseLine-300, bombSize, bombSize, col );
     }
 
 
@@ -1212,14 +1213,14 @@ void App::RenderTitleScreen()
     
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );        
 
-    g_renderer->RectFill( 0, baseLine, windowW, windowH-baseLine, Black );
+    g_renderer2d->RectFill( 0, baseLine, windowW, windowH-baseLine, Black );
 
     while( x < windowW )
     {        
         float thisW = 50+sfrand(30);
         float thisH = 40+frand(140);
 
-        g_renderer->RectFill( x, baseLine - thisH, thisW, thisH, Black );
+        g_renderer2d->RectFill( x, baseLine - thisH, thisW, thisH, Black );
 
         x += thisW;
     }
@@ -1262,7 +1263,7 @@ void App::RenderOwner()
         s_dealtWith = true;
     }
 
-    g_renderer->Text( 10, g_windowManager->WindowH() - 20, Colour(255,50,50,255), 20, s_message );
+    g_renderer2d->Text( 10, g_windowManager->WindowH() - 20, Colour(255,50,50,255), 20, s_message );
 }
 
 
@@ -1280,7 +1281,7 @@ void App::Shutdown()
     delete m_interface;
     m_interface = NULL;
 
-    g_renderer->Shutdown();
+    g_renderer2d->Shutdown();
     delete g_renderer;
     g_renderer = NULL;
   

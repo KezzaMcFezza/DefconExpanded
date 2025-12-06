@@ -1,5 +1,6 @@
 #include "lib/universal_include.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/file_system.h"
 #include "lib/filesys/binary_stream_readers.h"
@@ -58,7 +59,7 @@ public:
 
         if( actualIndex < totalItems )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,10), Colour(255,255,255,50), false );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,10), Colour(255,255,255,50), false );
 
             char *displayText = NULL;
             bool isDirectory = false;
@@ -113,19 +114,19 @@ public:
             
             if( isSelected )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(0,255,0,50) );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(0,255,0,50) );
             }
 
             if( highlighted )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+                g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
             }
             
             if( isSelected )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+                g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
             }
 
             Colour textColour( 255, 255, 255, 200 );
@@ -153,7 +154,7 @@ public:
                     TruncateText(displayName, displayText, 25, 5);
                 }
                 
-                g_renderer->TextSimple( realX + 10, realY + 3, textColour, 12, displayName );
+                g_renderer2d->TextSimple( realX + 10, realY + 3, textColour, 12, displayName );
                 
                 //
                 // show date for files
@@ -185,7 +186,7 @@ public:
                         strftime(dateStr, sizeof(dateStr), "%m/%d/%y %H:%M", timeinfo);
                         
                         Colour dateColour(200, 200, 200, 150);
-                        g_renderer->TextRightSimple( realX + m_w - 10, realY + 3, dateColour, 10, dateStr );
+                        g_renderer2d->TextRightSimple( realX + m_w - 10, realY + 3, dateColour, 10, dateStr );
                     }
                 }
             }
@@ -321,18 +322,18 @@ public:
     {      
         RecordingFileDialog *parent = (RecordingFileDialog *)m_parent;
 
-        g_renderer->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,20) );
+        g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,20) );
 
         if( highlighted ) 
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,50) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,50) );
         }
 
         //
         // Render the caption based on current sort type
 
         const char* caption = (parent->m_sortType == RecordingFileDialog::SortTypeName) ? "Name" : "Date";
-        g_renderer->Text( realX + 10, realY+3, Colour(200,200,255,255), 12, caption );
+        g_renderer2d->Text( realX + 10, realY+3, Colour(200,200,255,255), 12, caption );
     }
 };
 
@@ -360,18 +361,18 @@ public:
     {      
         RecordingFileDialog *parent = (RecordingFileDialog *)m_parent;
 
-        g_renderer->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,20) );
+        g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,20) );
 
         if( highlighted ) 
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,50) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,50) );
         }
 
         //
         // Render the caption based on current show order
 
         const char* caption = (parent->m_showOrder == RecordingFileDialog::ShowFoldersFirst) ? "Folders" : "Dcrecs";
-        g_renderer->Text( realX + 10, realY+3, Colour(200,200,255,255), 12, caption );
+        g_renderer2d->Text( realX + 10, realY+3, Colour(200,200,255,255), 12, caption );
     }
 };
 
@@ -1092,14 +1093,14 @@ void RecordingFileDialog::Render( bool _hasFocus )
 
     if( m_image )
     {
-        g_renderer->StaticSprite( m_image, xPos, m_y + 30, w, 118, White );
+        g_renderer2d->StaticSprite( m_image, xPos, m_y + 30, w, 118, White );
     }
     else
     {
-        g_renderer->TextCentreSimple( xPos+w/2, m_y + 60, White, 14, LANGUAGEPHRASE("dialog_mod_screenshot_not_found") );
+        g_renderer2d->TextCentreSimple( xPos+w/2, m_y + 60, White, 14, LANGUAGEPHRASE("dialog_mod_screenshot_not_found") );
     }
 
-    g_renderer->Rect( xPos, m_y + 30, w, 118, Colour(200,200,255,200) );
+    g_renderer2d->Rect( xPos, m_y + 30, w, 118, Colour(200,200,255,200) );
 
     //
     // directory and file information 
@@ -1112,7 +1113,7 @@ void RecordingFileDialog::Render( bool _hasFocus )
     //
     // Current folder info, show folder name and not path
 
-    g_renderer->TextSimple( xPos, yPos, nameColour, fontSize, "Current Folder:" );
+    g_renderer2d->TextSimple( xPos, yPos, nameColour, fontSize, "Current Folder:" );
     if (m_currentPath)
     {
         // get folder name
@@ -1147,7 +1148,7 @@ void RecordingFileDialog::Render( bool _hasFocus )
         char displayFolderName[64];
         TruncateText(displayFolderName, folderName, 40, 0);
         
-        g_renderer->TextRightSimple( xPos + w, yPos, White, fontSize, displayFolderName );
+        g_renderer2d->TextRightSimple( xPos + w, yPos, White, fontSize, displayFolderName );
     }
     yPos += gap;
 
@@ -1157,16 +1158,16 @@ void RecordingFileDialog::Render( bool _hasFocus )
     int numDirs = m_directories ? m_directories->Size() : 0;
     int numFiles = m_files ? m_files->Size() : 0;
     
-    g_renderer->TextSimple( xPos, yPos, nameColour, fontSize, "Folders:" );
+    g_renderer2d->TextSimple( xPos, yPos, nameColour, fontSize, "Folders:" );
     char dirCountStr[32];
     sprintf(dirCountStr, "%d", numDirs);
-    g_renderer->TextRightSimple( xPos + w, yPos, White, fontSize, dirCountStr );
+    g_renderer2d->TextRightSimple( xPos + w, yPos, White, fontSize, dirCountStr );
     yPos += gap;
     
-    g_renderer->TextSimple( xPos, yPos, nameColour, fontSize, "Recordings:" );
+    g_renderer2d->TextSimple( xPos, yPos, nameColour, fontSize, "Recordings:" );
     char fileCountStr[32];
     sprintf(fileCountStr, "%d", numFiles);
-    g_renderer->TextRightSimple( xPos + w, yPos, Colour(0,255,0,200), fontSize, fileCountStr );
+    g_renderer2d->TextRightSimple( xPos + w, yPos, Colour(0,255,0,200), fontSize, fileCountStr );
     yPos += gap;
 
     //
@@ -1174,16 +1175,16 @@ void RecordingFileDialog::Render( bool _hasFocus )
 
     if (m_selectedFile)
     {
-        g_renderer->TextSimple( xPos, yPos, nameColour, fontSize, "Selected:" );
+        g_renderer2d->TextSimple( xPos, yPos, nameColour, fontSize, "Selected:" );
         
 
         char displaySelectedName[32];
         TruncateText(displaySelectedName, m_selectedFile, 25, 5);
         
-        g_renderer->TextRightSimple( xPos + w, yPos, Colour(0,255,0,200), fontSize - 1, displaySelectedName );
+        g_renderer2d->TextRightSimple( xPos + w, yPos, Colour(0,255,0,200), fontSize - 1, displaySelectedName );
     }
     else
     {
-        g_renderer->TextSimple( xPos, yPos, Colour(150,150,150,200), fontSize, "No file selected" );
+        g_renderer2d->TextSimple( xPos, yPos, Colour(150,150,150,200), fontSize, "No file selected" );
     }
 }

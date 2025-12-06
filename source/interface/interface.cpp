@@ -154,7 +154,7 @@ void Interface::TooltipRender( EclWindow *_window, EclButton *_button, float _ti
         int numLines = wrapped.Size();
         for( int i = 0; i < numLines; ++i )
         {
-            float thisWidth = g_renderer->TextWidth( wrapped[i], fontSize );
+            float thisWidth = g_renderer2d->TextWidth( wrapped[i], fontSize );
             widestLine = max( widestLine, thisWidth );
         }
 
@@ -176,8 +176,8 @@ void Interface::TooltipRender( EclWindow *_window, EclButton *_button, float _ti
         // Render the box
 
        
-        g_renderer->RectFill ( boxX, boxY, boxW, boxH, windowColP, windowColP, windowColS, windowColS );
-        g_renderer->Rect     ( boxX, boxY, boxW, boxH, borderCol);
+        g_renderer2d->RectFill ( boxX, boxY, boxW, boxH, windowColP, windowColP, windowColS, windowColS );
+        g_renderer2d->Rect     ( boxX, boxY, boxW, boxH, borderCol);
 
 
         //
@@ -186,7 +186,7 @@ void Interface::TooltipRender( EclWindow *_window, EclButton *_button, float _ti
         for( int i = 0; i < numLines; ++i )
         {
             float thisAlpha = alpha;            
-            g_renderer->TextSimple( boxX+5, boxY+2+i*(fontSize+2), fontCol, fontSize, wrapped[i] );
+            g_renderer2d->TextSimple( boxX+5, boxY+2+i*(fontSize+2), fontCol, fontSize, wrapped[i] );
         }
 
 
@@ -196,7 +196,7 @@ void Interface::TooltipRender( EclWindow *_window, EclButton *_button, float _ti
         //
         // Drop shadow
 
-        InterfaceWindow::RenderWindowShadow( boxX+boxW+0.5f, boxY, boxH+0.5f, boxW, 10, g_renderer->m_alpha*0.5f );
+        InterfaceWindow::RenderWindowShadow( boxX+boxW+0.5f, boxY, boxH+0.5f, boxW, 10, g_renderer2d->m_alpha*0.5f );
     }
 }
 
@@ -473,7 +473,7 @@ void Interface::Update()
 
 void Interface::Render()
 {
-    g_renderer->BeginTextBatch();
+    g_renderer2d->BeginTextBatch();
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     g_renderer->SetFont( "kremlin" );    
 
@@ -492,7 +492,7 @@ void Interface::Render()
             float size = ( g_windowManager->WindowW() / 20.0f );
             float xPos = g_windowManager->WindowW()/2.0f;
             float yPos = g_windowManager->WindowH()*0.2f;
-            g_renderer->TextCentreSimple( xPos, yPos, col, size, LANGUAGEPHRASE("dialog_synchronisation_error") );
+            g_renderer2d->TextCentreSimple( xPos, yPos, col, size, LANGUAGEPHRASE("dialog_synchronisation_error") );
 
             if( !EclGetWindow("Resynchronise" ))
             {
@@ -552,7 +552,7 @@ void Interface::Render()
 						char caption[512];
                         strcpy( caption, LANGUAGEPHRASE("dialog_connection_problem_seconds") );
 						LPREPLACEINTEGERFLAG( 'S', int(estimatedLatency), caption );
-                        g_renderer->TextCentreSimple( xPos, yPos, col, size, caption );                            
+                        g_renderer2d->TextCentreSimple( xPos, yPos, col, size, caption );                            
                     }
 
                     s_maxLatency = max( s_maxLatency, estimatedLatency );
@@ -600,20 +600,20 @@ void Interface::Render()
                 int red = totalBad*12;
                 int green = 255 - red;
                 col.Set(red,green,0,255);
-                g_renderer->RectFill( 5, 5, 13, 13, col, true );
+                g_renderer2d->RectFill( 5, 5, 13, 13, col, true );
 
                 g_renderer->SetFont();
 
                 float yPos = 20;
                 if( estimatedLatency > 1.0f )
                 {
-                    g_renderer->Text( 5, yPos, Colour(255,0,0,255), 12, LANGUAGEPHRASE("dialog_high_latency") );
+                    g_renderer2d->Text( 5, yPos, Colour(255,0,0,255), 12, LANGUAGEPHRASE("dialog_high_latency") );
                     yPos += 13;
                 }
 
                 if( packetLoss > 2 )
                 {
-                    g_renderer->Text( 5, yPos, Colour(255,0,0,255), 12, LANGUAGEPHRASE("dialog_high_packet_loss") );
+                    g_renderer2d->Text( 5, yPos, Colour(255,0,0,255), 12, LANGUAGEPHRASE("dialog_high_packet_loss") );
                 }
 
                 g_renderer->SetFont( "kremlin" );
@@ -641,15 +641,15 @@ void Interface::Render()
                 float xPos = g_windowManager->WindowW()/2.0f;
                 float yPos = g_windowManager->WindowH()*0.8f;            
 
-                float textWidth = g_renderer->TextWidth( m_message, size );
+                float textWidth = g_renderer2d->TextWidth( m_message, size );
                 if( textWidth > g_windowManager->WindowW() )
                 {
                     // message is longer than the window size, rescale it
                     size *= g_windowManager->WindowW() / textWidth * 0.95f;
-                    textWidth = g_renderer->TextWidth( m_message, size );
+                    textWidth = g_renderer2d->TextWidth( m_message, size );
                 }
 
-                g_renderer->TextSimple( xPos-textWidth/2.0f, yPos, col, size, msg );
+                g_renderer2d->TextSimple( xPos-textWidth/2.0f, yPos, col, size, msg );
             }
             else
             {
@@ -686,7 +686,7 @@ void Interface::Render()
             float yPos = g_windowManager->WindowH()*0.8f;
             float size = ( g_windowManager->WindowW() / 30.0f );
 
-            g_renderer->TextCentre(xPos, yPos, Colour(255,0,0,255), size, msg );
+            g_renderer2d->TextCentre(xPos, yPos, Colour(255,0,0,255), size, msg );
 
             // If Defcon 3 is nearly here and we still have units left, give us some prompting
 
@@ -705,7 +705,7 @@ void Interface::Render()
                     {
                         yPos += size;
                         size *= 0.35f;
-                        g_renderer->TextCentre( xPos, yPos, Colour(255,0,0,255), size, LANGUAGEPHRASE("message_placeunits") );
+                        g_renderer2d->TextCentre( xPos, yPos, Colour(255,0,0,255), size, LANGUAGEPHRASE("message_placeunits") );
                     }
                 }
             }
@@ -732,7 +732,7 @@ void Interface::Render()
 			sprintf( number, "%02d", seconds );
 			LPREPLACESTRINGFLAG( 'S', number, caption );
 
-            g_renderer->TextCentre( xPos, yPos, Colour(255,0,0,255), size, caption );
+            g_renderer2d->TextCentre( xPos, yPos, Colour(255,0,0,255), size, caption );
         }
         else if( victoryTimer == 0.0f )
         {
@@ -740,7 +740,7 @@ void Interface::Render()
             float yPos = g_windowManager->WindowH()*0.75f;
             float size = ( g_windowManager->WindowW() / 30.0f );
 
-            g_renderer->TextCentre( xPos, yPos, Colour(255,0,0,255), size, LANGUAGEPHRASE("dialog_gameover") );
+            g_renderer2d->TextCentre( xPos, yPos, Colour(255,0,0,255), size, LANGUAGEPHRASE("dialog_gameover") );
         }
 
         if( g_app->m_gameRunning )
@@ -751,13 +751,13 @@ void Interface::Render()
                 float yPos = g_windowManager->WindowH()*0.5f;
                 float size = ( g_windowManager->WindowW() / 20.0f );
 
-                g_renderer->TextCentreSimple( xPos, yPos, White, size, LANGUAGEPHRASE("dialog_paused") );
+                g_renderer2d->TextCentreSimple( xPos, yPos, White, size, LANGUAGEPHRASE("dialog_paused") );
             }
         }
 
         if( g_app->m_gameRunning && g_app->GetMapRenderer()->GetAutoCam() )
         {
-            g_renderer->TextSimple( 10.0f, 10.0f, White, 20, LANGUAGEPHRASE("dialog_autocam") );
+            g_renderer2d->TextSimple( 10.0f, 10.0f, White, 20, LANGUAGEPHRASE("dialog_autocam") );
         }
     }
 
@@ -774,14 +774,14 @@ void Interface::Render()
 
         char *modPath = g_preferences->GetString( "ModPath" );
 
-        g_renderer->TextCentreSimple( xPos, yPos, White, size, "SERVER" );
-        g_renderer->TextCentreSimple( xPos, yPos+size, White, size/3, modPath );
+        g_renderer2d->TextCentreSimple( xPos, yPos, White, size, "SERVER" );
+        g_renderer2d->TextCentreSimple( xPos, yPos+size, White, size/3, modPath );
 
         ProfiledElement *element = g_profiler->m_rootElement->m_children.GetData( "Server Main Loop" );
         if( element && element->m_lastNumCalls > 0 )
         {
             float percent = element->m_lastNumCalls * 10.0f;
-            g_renderer->TextCentre( xPos, yPos + size*3, White, size, "%d%%", (int)percent );
+            g_renderer2d->TextCentre( xPos, yPos + size*3, White, size, "%d%%", (int)percent );
         }
 
     }
@@ -795,26 +795,26 @@ void Interface::Render()
     //{
     //    char caption[256];
     //    sprintf( caption, "%s %s", APP_NAME, APP_VERSION );
-    //    float width = g_renderer->TextWidth( caption, 12 );
+    //    float width = g_renderer2d->TextWidth( caption, 12 );
 
-    //    g_renderer->RectFill( 18, 3, 4+width, 15, Colour(0,0,0,150) );
+    //    g_renderer2d->RectFill( 18, 3, 4+width, 15, Colour(0,0,0,150) );
     //    g_renderer->SetFont();
-    //    g_renderer->TextSimple( 20, 5, White, 12, caption );
+    //    g_renderer2d->TextSimple( 20, 5, White, 12, caption );
 
     //    g_renderer->SetFont( "kremlin" );
     //}
 
 #ifdef NON_PLAYABLE
-    g_renderer->Text( 10, 40,Colour(255,50,50,255), 20, LANGUAGEPHRASE("dialog_non_playable_demo") );
+    g_renderer2d->Text( 10, 40,Colour(255,50,50,255), 20, LANGUAGEPHRASE("dialog_non_playable_demo") );
 #endif
 
     if( g_preferences->GetInt( PREFS_NETWORKTRACKSYNCRAND ))
     {
-        g_renderer->Text( 10, 60, Colour(255,50,50,255), 20, LANGUAGEPHRASE("dialog_tracking_synchronisation") );
+        g_renderer2d->Text( 10, 60, Colour(255,50,50,255), 20, LANGUAGEPHRASE("dialog_tracking_synchronisation") );
     }
 
     g_renderer->SetFont();
-    g_renderer->EndTextBatch();
+    g_renderer2d->EndTextBatch();
 }
 
 
@@ -850,7 +850,7 @@ void Interface::RenderMouse()
 			mouse = g_resource->GetImage( "gui/mouse.bmp" );
         }
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-        g_renderer->Blit( mouse, mouseX-8, mouseY-8, White );
+        g_renderer2d->Blit( mouse, mouseX-8, mouseY-8, White );
     }
 }
 

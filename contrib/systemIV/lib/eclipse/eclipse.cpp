@@ -9,11 +9,10 @@
 #include "lib/hi_res_time.h"
 #include "lib/debug_utils.h"
 #include "lib/profiler.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 
 #include "eclipse.h"
-
-extern Renderer *g_renderer;
 
 // ============================================================================
 
@@ -321,26 +320,26 @@ void EclRender ()
             //
             // begin all batches for the maximized window
 
-            g_renderer->BeginRectBatch();
-            g_renderer->BeginLineBatch();
-            g_renderer->BeginTextBatch();
-            g_renderer->BeginCircleBatch();
-            g_renderer->BeginCircleFillBatch();
-            g_renderer->BeginTriangleFillBatch();
-            g_renderer->BeginRectFillBatch();
+            g_renderer2d->BeginRectBatch();
+            g_renderer2d->BeginLineBatch();
+            g_renderer2d->BeginTextBatch();
+            g_renderer2d->BeginCircleBatch();
+            g_renderer2d->BeginCircleFillBatch();
+            g_renderer2d->BeginTriangleFillBatch();
+            g_renderer2d->BeginRectFillBatch();
 
             maximised->Render( true );
 
             //
             // now end all batches in correct z-order 
             
-            g_renderer->EndRectFillBatch();
-            g_renderer->EndCircleBatch();
-            g_renderer->EndCircleFillBatch();
-            g_renderer->EndTriangleFillBatch();
-            g_renderer->EndLineBatch();
-            g_renderer->EndRectBatch();
-            g_renderer->EndTextBatch();   
+            g_renderer2d->EndRectFillBatch();
+            g_renderer2d->EndCircleBatch();
+            g_renderer2d->EndCircleFillBatch();
+            g_renderer2d->EndTriangleFillBatch();
+            g_renderer2d->EndLineBatch();
+            g_renderer2d->EndRectBatch();
+            g_renderer2d->EndTextBatch();   
 
             maximiseRender = true;
         }
@@ -365,28 +364,28 @@ void EclRender ()
             //
             // begin
 
-            g_renderer->BeginRectBatch();
-            g_renderer->BeginLineBatch();
-            g_renderer->BeginTextBatch();
-            g_renderer->BeginCircleBatch();
-            g_renderer->BeginCircleFillBatch();
-            g_renderer->BeginTriangleFillBatch();
-            g_renderer->BeginRectFillBatch();
-            g_renderer->BeginStaticSpriteBatch();
+            g_renderer2d->BeginRectBatch();
+            g_renderer2d->BeginLineBatch();
+            g_renderer2d->BeginTextBatch();
+            g_renderer2d->BeginCircleBatch();
+            g_renderer2d->BeginCircleFillBatch();
+            g_renderer2d->BeginTriangleFillBatch();
+            g_renderer2d->BeginRectFillBatch();
+            g_renderer2d->BeginStaticSpriteBatch();
 
             window->Render( hasFocus );
 
             //
             // end it
 
-            g_renderer->EndRectFillBatch();  
-            g_renderer->EndCircleBatch();
-            g_renderer->EndCircleFillBatch();
-            g_renderer->EndTriangleFillBatch();
-            g_renderer->EndStaticSpriteBatch();          
-            g_renderer->EndLineBatch();     
-            g_renderer->EndRectBatch();  
-            g_renderer->EndTextBatch();     
+            g_renderer2d->EndRectFillBatch();  
+            g_renderer2d->EndCircleBatch();
+            g_renderer2d->EndCircleFillBatch();
+            g_renderer2d->EndTriangleFillBatch();
+            g_renderer2d->EndStaticSpriteBatch();          
+            g_renderer2d->EndLineBatch();     
+            g_renderer2d->EndRectBatch();  
+            g_renderer2d->EndTextBatch();     
 
             END_PROFILE( window->m_name );
         }
@@ -407,13 +406,13 @@ void EclRender ()
                     //
                     // begin
 
-                    g_renderer->BeginRectBatch();
-                    g_renderer->BeginLineBatch();
-                    g_renderer->BeginTextBatch();
-                    g_renderer->BeginCircleBatch();
-                    g_renderer->BeginCircleFillBatch();
-                    g_renderer->BeginTriangleFillBatch();
-                    g_renderer->BeginRectFillBatch();
+                    g_renderer2d->BeginRectBatch();
+                    g_renderer2d->BeginLineBatch();
+                    g_renderer2d->BeginTextBatch();
+                    g_renderer2d->BeginCircleBatch();
+                    g_renderer2d->BeginCircleFillBatch();
+                    g_renderer2d->BeginTriangleFillBatch();
+                    g_renderer2d->BeginRectFillBatch();
 
                     float timer = GetHighResTime() - tooltipTimer;
                     tooltipCallback( window, button, timer );
@@ -421,13 +420,13 @@ void EclRender ()
                     //
                     // end it
 
-                    g_renderer->EndRectFillBatch();
-                    g_renderer->EndCircleBatch();
-                    g_renderer->EndCircleFillBatch();
-                    g_renderer->EndTriangleFillBatch();
-                    g_renderer->EndLineBatch();
-                    g_renderer->EndRectBatch();
-                    g_renderer->EndTextBatch();
+                    g_renderer2d->EndRectFillBatch();
+                    g_renderer2d->EndCircleBatch();
+                    g_renderer2d->EndCircleFillBatch();
+                    g_renderer2d->EndTriangleFillBatch();
+                    g_renderer2d->EndLineBatch();
+                    g_renderer2d->EndRectBatch();
+                    g_renderer2d->EndTextBatch();
                 }
             }
         }

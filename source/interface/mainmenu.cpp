@@ -6,8 +6,11 @@
 #include "lib/language_table.h"
 #include "lib/preferences.h"
 #include "lib/resource/resource.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
+#include "lib/render2d/megavbo/megavbo_2d.h"
+#include "lib/render3d/megavbo/megavbo_3d.h"
 #include "lib/netlib/net_lib.h"
 #include "lib/math/random_number.h"
 #include "lib/hi_res_time.h"
@@ -274,7 +277,7 @@ public:
     void Render( bool hasFocus )
     {
         InterfaceWindow::Render( hasFocus );
-        g_renderer->TextCentreSimple( m_x+m_w/2, m_y+30, White, 15.0f, LANGUAGEPHRASE("dialog_exit_defcon") );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+30, White, 15.0f, LANGUAGEPHRASE("dialog_exit_defcon") );
     }
 };
 
@@ -364,7 +367,7 @@ public:
     void Render( bool hasFocus )
     {
         InterfaceWindow::Render( hasFocus );
-        g_renderer->TextCentreSimple( m_x+m_w/2, m_y+30, White, 15.0f, LANGUAGEPHRASE("dialog_leave_this_game") );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+30, White, 15.0f, LANGUAGEPHRASE("dialog_leave_this_game") );
     }
 };
 
@@ -532,8 +535,8 @@ public:
         {
             if( highlighted || clicked )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+                g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
             }
         }
 
@@ -545,12 +548,12 @@ public:
         strcpy( caption, LANGUAGEPHRASE("dialog_chapter") );
 		LPREPLACEINTEGERFLAG( 'C', m_chapter, caption );
 
-        g_renderer->TextCentre( realX+m_w/2, realY, Colour(255,255,255,alpha), 16, caption );
+        g_renderer2d->TextCentre( realX+m_w/2, realY, Colour(255,255,255,alpha), 16, caption );
 
         char stringId[256];
         sprintf( stringId, "tutorial_levelname_%d", m_chapter );
         const char *description = LANGUAGEPHRASE(stringId);
-        g_renderer->TextCentre( realX+m_w/2, realY+15, Colour(200,200,255,alpha), 12, description );
+        g_renderer2d->TextCentre( realX+m_w/2, realY+15, Colour(200,200,255,alpha), 12, description );
     }
 
 #ifndef NON_PLAYABLE
@@ -997,10 +1000,10 @@ class PlayerNameOptionsButton : public InterfaceButton
 		}
 		else
 		{
-			float originalAlpha = g_renderer->m_alpha;
-			g_renderer->m_alpha *= 0.667f;
+			float originalAlpha = g_renderer2d->m_alpha;
+			g_renderer2d->m_alpha *= 0.667f;
 			InterfaceButton::Render( realX, realY, false, false );
-			g_renderer->m_alpha = originalAlpha;
+			g_renderer2d->m_alpha = originalAlpha;
 		}
 	}
 };
@@ -1308,20 +1311,20 @@ void GraphicsOptionsWindow::Render( bool _hasFocus )
     int h = 30;
     int size = 13;
 
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_coastlines") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_coastlines") );
 #ifndef TARGET_EMSCRIPTEN
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_coastlinethickness") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_coastlinethickness") );
 #endif
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_borders") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_borders") );
 #ifndef TARGET_EMSCRIPTEN
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_borderthickness") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_borderthickness") );
 #endif
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_citynames") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_countrynames") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_water") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_radiation") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_objecttrails") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_lobbyeffects") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_citynames") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_countrynames") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_water") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_radiation") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_objecttrails") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_lobbyeffects") );
 }
 
 
@@ -1343,11 +1346,11 @@ class ApplyGlobeButton : public InterfaceButton
         //
         // invalidate vbos so they rebuild with new settings
 
-        g_renderer3d->InvalidateCached3DVBO("Starfield");
-        g_renderer3d->InvalidateCached3DVBO("CullingSphere");
-        g_renderer3d->InvalidateCached3DVBO("GlobeGridlines");
-        g_renderer3d->InvalidateCached3DVBO("GlobeCoastlines");
-        g_renderer3d->InvalidateCached3DVBO("GlobeBorders");
+        g_renderer3dvbo->InvalidateCached3DVBO("Starfield");
+        g_renderer3dvbo->InvalidateCached3DVBO("CullingSphere");
+        g_renderer3dvbo->InvalidateCached3DVBO("GlobeGridlines");
+        g_renderer3dvbo->InvalidateCached3DVBO("GlobeCoastlines");
+        g_renderer3dvbo->InvalidateCached3DVBO("GlobeBorders");
 
         g_preferences->SetInt( PREFS_GLOBE_FOG_DISTANCE, gow->m_globeFogDistance );
         g_preferences->SetInt( PREFS_GLOBE_STARFIELD, gow->m_globeStarfield );
@@ -1436,15 +1439,15 @@ void GlobeOptionsWindow::Render( bool _hasFocus )
     int size = 13;
 
 #ifndef TARGET_EMSCRIPTEN
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globecoastthickness") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globeborderthickness") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globecoastthickness") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globeborderthickness") );
 #endif
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globefogdistance") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestarfield") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestarsize") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestardensity") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globelandunitsize") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globenavalunitsize") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globefogdistance") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestarfield") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestarsize") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestardensity") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globelandunitsize") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globenavalunitsize") );
 }
 
 
@@ -1629,16 +1632,16 @@ void ControlOptionsWindow::Render( bool _hasFocus )
     int h = 30;
     int size = 13;
 
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_sidescrolling") );
-	g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_zoomspeed") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_camdragging") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_tooltips") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_panickey") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_popupscale") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_keyboardlayout") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_playername") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_sidescrolling") );
+	g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_zoomspeed") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_camdragging") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_tooltips") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_panickey") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_popupscale") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_keyboardlayout") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_playername") );
 
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_language") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_language") );
 }
 
 
@@ -1729,8 +1732,8 @@ class ShowNetworkingHelpButton : public TextButton
     {
         if( highlighted || clicked )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+            g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
         }
 
         TextButton::Render( realX, realY, highlighted, clicked );
@@ -1837,18 +1840,18 @@ void NetworkOptionsWindow::Render( bool _hasFocus )
     int h = 30;
     int size = 13;
 
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_networkserverport") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_networkclientport") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_networkmetaserverport") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_networkuseportforwarding") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_networkserverport") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_networkclientport") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_networkmetaserverport") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_networkuseportforwarding") );
 
 #ifdef TRACK_SYNC_RAND
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_networktracksync") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_networktracksync") );
 #endif
 
     if( g_app->GetClientToServer()->IsConnected() )
     {
-        g_renderer->TextCentreSimple( m_x+m_w/2, m_y+m_h-60, White, 12, LANGUAGEPHRASE("dialog_no_change_while_in_game_1") );
-        g_renderer->TextCentreSimple( m_x+m_w/2, m_y+m_h-45, White, 12, LANGUAGEPHRASE("dialog_no_change_while_in_game_2") );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+m_h-60, White, 12, LANGUAGEPHRASE("dialog_no_change_while_in_game_1") );
+        g_renderer2d->TextCentreSimple( m_x+m_w/2, m_y+m_h-45, White, 12, LANGUAGEPHRASE("dialog_no_change_while_in_game_2") );
     }
 }

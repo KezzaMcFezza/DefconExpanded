@@ -1,11 +1,12 @@
 #include "lib/universal_include.h"
 
+#include "lib/debug_utils.h"
 #include "lib/string_utils.h"
-#include "lib/render2d/renderer.h"
-
+#include "lib/render/renderer.h"
 #include "lib/render3d/renderer_3d.h"
+#include "lib/render3d/megavbo/megavbo_3d.h"
 
-void Renderer3D::BeginMegaVBO3D(const char* megaVBOKey, Colour const &col) {
+void Renderer3DVBO::BeginMegaVBO3D(const char* megaVBOKey, Colour const &col) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
     if (tree && tree->data && tree->data->isValid) {
         return;
@@ -23,7 +24,7 @@ void Renderer3D::BeginMegaVBO3D(const char* megaVBOKey, Colour const &col) {
     m_megaIndex3DCount = 0;
 }
 
-void Renderer3D::AddLineStripToMegaVBO3D(const Vector3<float>* vertices, int vertexCount) {
+void Renderer3DVBO::AddLineStripToMegaVBO3D(const Vector3<float>* vertices, int vertexCount) {
     if (!m_megaVBO3DActive || vertexCount < 2) return;
 
     if (m_megaVertex3DCount + vertexCount > m_maxMegaVertices3D ||
@@ -68,7 +69,7 @@ void Renderer3D::AddLineStripToMegaVBO3D(const Vector3<float>* vertices, int ver
     m_megaIndices3D[m_megaIndex3DCount++] = 0xFFFFFFFF;
 }
 
-void Renderer3D::EndMegaVBO3D() {
+void Renderer3DVBO::EndMegaVBO3D() {
     if (!m_megaVBO3DActive || !m_currentMegaVBO3DKey) return;
     
     if (m_megaVertex3DCount < 2) {
@@ -100,18 +101,21 @@ void Renderer3D::EndMegaVBO3D() {
         glGenBuffers(1, &cachedVBO->VBO);
         glGenBuffers(1, &cachedVBO->IBO);
         
-        glBindVertexArray(cachedVBO->VAO);
-        m_renderer->SetArrayBuffer(cachedVBO->VBO);
+        g_renderer->SetVertexArray(cachedVBO->VAO);
+        g_renderer->SetArrayBuffer(cachedVBO->VBO);
         
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)0);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
         
+        //
+        // Bind index buffer to VAO
+        
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     } else {
-        glBindVertexArray(cachedVBO->VAO);
-        m_renderer->SetArrayBuffer(cachedVBO->VBO);
+        g_renderer->SetVertexArray(cachedVBO->VAO);
+        g_renderer->SetArrayBuffer(cachedVBO->VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     }
     
@@ -128,24 +132,26 @@ void Renderer3D::EndMegaVBO3D() {
     m_megaVBO3DActive = false;
 }
 
-void Renderer3D::RenderMegaVBO3D(const char* megaVBOKey) {
+void Renderer3DVBO::RenderMegaVBO3D(const char* megaVBOKey) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
     if (!tree || !tree->data || !tree->data->isValid) {
         return;
     }
     
-    IncrementDrawCall3D("mega_vbo");
-    
     Cached3DVBO* cachedVBO = tree->data;
     
-    m_renderer->SetShaderProgram(m_shader3DProgram);
-    Set3DShaderUniforms();
+    g_renderer->SetShaderProgram(g_renderer3d->m_shader3DProgram);
+    g_renderer3d->Set3DShaderUniforms();
     
 #ifndef TARGET_EMSCRIPTEN
     glEnable(GL_PRIMITIVE_RESTART);
     glPrimitiveRestartIndex(0xFFFFFFFF);
 #endif
-    m_renderer->SetVertexArray(cachedVBO->VAO);
+    
+    //
+    // Render the mega-VBO with indexed drawing for emscripten
+
+    g_renderer->SetVertexArray(cachedVBO->VAO);
     glDrawElements(GL_LINE_STRIP, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
     
 #ifndef TARGET_EMSCRIPTEN
@@ -153,19 +159,26 @@ void Renderer3D::RenderMegaVBO3D(const char* megaVBOKey) {
 #endif
 }
 
-bool Renderer3D::IsMegaVBO3DValid(const char* megaVBOKey) {
+bool Renderer3DVBO::IsMegaVBO3DValid(const char* megaVBOKey) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
     return (tree && tree->data && tree->data->isValid);
 }
 
-void Renderer3D::SetMegaVBO3DBufferSizes(int vertexCount, int indexCount) {
+void Renderer3DVBO::SetMegaVBO3DBufferSizes(int vertexCount, int indexCount) {
+
+    //
+    // Calculate new sizes with 10% safety margin
+
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
-    
+
     InvalidateCached3DVBO("GlobeCoastlines");
     InvalidateCached3DVBO("GlobeBorders");
     InvalidateCached3DVBO("GlobeGridlines");
     
+    //
+    // free existing CPU buffers
+
     if (m_megaVertices3D) {
         delete[] m_megaVertices3D;
         m_megaVertices3D = NULL;

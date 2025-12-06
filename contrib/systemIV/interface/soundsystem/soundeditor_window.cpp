@@ -5,7 +5,8 @@
 #include "lib/sound/sound_library_3d.h"
 #include "lib/gucci/input.h"
 #include "lib/filesys/filesys_utils.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/debug_utils.h"
 
 #include "interface/components/drop_down_menu.h"
@@ -133,8 +134,8 @@ public:
         
         //
         // Render guidelines - Convert to modern renderer Line calls
-        g_renderer->Line        ( realX + 10, realY + m_h/2, realX + m_w - 10, realY + m_h/2, Colour(255, 255, 255, 128) );
-        g_renderer->Line        ( realX + m_w/2, realY + 10, realX + m_w/2, realY + m_h - 10, Colour(255, 255, 255, 128) );
+        g_renderer2d->Line        ( realX + 10, realY + m_h/2, realX + m_w - 10, realY + m_h/2, Colour(255, 255, 255, 128) );
+        g_renderer2d->Line        ( realX + m_w/2, realY + 10, realX + m_w/2, realY + m_h - 10, Colour(255, 255, 255, 128) );
 
         
         //
@@ -148,7 +149,7 @@ public:
         float scale = 5.0f;
         float size = 5.0f;
 
-        g_renderer->Rect( midX + soundPos.x/scale - size, midY + soundPos.z/scale - size, 
+        g_renderer2d->Rect( midX + soundPos.x/scale - size, midY + soundPos.z/scale - size, 
                          size * 2, size * 2, White );
 
 
@@ -280,7 +281,7 @@ public:
         if( sew )
         {
             SoundInstanceBlueprint *seb = sew->GetSoundInstanceBlueprint();
-            g_renderer->TextRightSimple( realX + m_w - 10, realY + 3, White, 14, seb->m_instance->m_soundName );
+            g_renderer2d->TextRightSimple( realX + m_w - 10, realY + 3, White, 14, seb->m_instance->m_soundName );
         }
     }
 
@@ -799,20 +800,20 @@ void SoundEditorWindow::Render( bool hasFocus )
 {
     InterfaceWindow::Render( hasFocus );
     
-    g_renderer->TextSimple( m_x + 10, m_y + 30, White, 20, "SOUND SOURCE" );
-    g_renderer->TextSimple( m_x + 10, m_y + 115, White, 20, "EVENTS" );
-    g_renderer->TextSimple( m_x + 200, m_y + 30, White, 20, "PARAMETERS" );
-    g_renderer->TextSimple( m_x + 200, m_y + 430, White, 20, "EFFECTS" );
+    g_renderer2d->TextSimple( m_x + 10, m_y + 30, White, 20, "SOUND SOURCE" );
+    g_renderer2d->TextSimple( m_x + 10, m_y + 115, White, 20, "EVENTS" );
+    g_renderer2d->TextSimple( m_x + 200, m_y + 30, White, 20, "PARAMETERS" );
+    g_renderer2d->TextSimple( m_x + 200, m_y + 430, White, 20, "EFFECTS" );
 
-    g_renderer->TextSimple( m_x + 190, m_y + 175, White, 11, "Sample" );
-    g_renderer->TextSimple( m_x + 190, m_y + 195, White, 11, "Position" );
-    g_renderer->TextSimple( m_x + 190, m_y + 215, White, 11, "LoopType" );
-    g_renderer->TextSimple( m_x + 190, m_y + 235, White, 11, "InstanceType" );
-    g_renderer->TextSimple( m_x + 190, m_y + 255, White, 11, "SourceType" );
-    g_renderer->TextSimple( m_x + 190, m_y + 275, White, 11, "MinDistance" );
+    g_renderer2d->TextSimple( m_x + 190, m_y + 175, White, 11, "Sample" );
+    g_renderer2d->TextSimple( m_x + 190, m_y + 195, White, 11, "Position" );
+    g_renderer2d->TextSimple( m_x + 190, m_y + 215, White, 11, "LoopType" );
+    g_renderer2d->TextSimple( m_x + 190, m_y + 235, White, 11, "InstanceType" );
+    g_renderer2d->TextSimple( m_x + 190, m_y + 255, White, 11, "SourceType" );
+    g_renderer2d->TextSimple( m_x + 190, m_y + 275, White, 11, "MinDistance" );
     
     // Convert glBegin(GL_LINES) to modern renderer Line
-    g_renderer->Line( m_x + 170, m_y + 30, m_x + 170, m_y + m_h - 20, Colour(255, 255, 255, 128) );
+    g_renderer2d->Line( m_x + 170, m_y + 30, m_x + 170, m_y + m_h - 20, Colour(255, 255, 255, 128) );
 
 
     //
@@ -859,7 +860,7 @@ void SoundEditorWindow::Render( bool hasFocus )
     glDepthMask     ( true );
     glDisable       ( GL_TEXTURE_2D );
     
-    g_app->m_renderer->SetupMatricesFor2D();
+    g_app->g_renderer->SetupMatricesFor2D();
 */
 
 }
@@ -1356,7 +1357,7 @@ void SampleGroupEditor::Render( bool _hasFocus )
             if( group->m_samples.ValidIndex(index) )
             {
                 char *thisSample = group->m_samples[index];
-                g_renderer->TextSimple( m_x + 90, m_y + 107 + i * 20, White, 14, thisSample );
+                g_renderer2d->TextSimple( m_x + 90, m_y + 107 + i * 20, White, 14, thisSample );
             }
         }
     }
@@ -1501,7 +1502,7 @@ void PurgeSoundsWindow::Render( bool _hasFocus )
 {
     InterfaceWindow::Render( _hasFocus );
     
-    g_renderer->TextCentreSimple( m_x + m_w/2, m_y + 25, White, 16, "Unused Sounds : " );
+    g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + 25, White, 16, "Unused Sounds : " );
 
     int baseOffset = m_scrollBar->m_currentValue;
     int numSlots = m_scrollBar->m_winSize;
@@ -1512,7 +1513,7 @@ void PurgeSoundsWindow::Render( bool _hasFocus )
         if( m_fileList.ValidIndex(index) )
         {
             char *filename = m_fileList[index];
-            g_renderer->TextSimple( m_x + 80, m_y + 50 + i * 16, White, 13, filename );
+            g_renderer2d->TextSimple( m_x + 80, m_y + 50 + i * 16, White, 13, filename );
         }
     }
 }

@@ -4,7 +4,8 @@
 
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
 #include "lib/math/math_utils.h"
@@ -132,7 +133,7 @@ void GunFire::Render()
 
         Vector3<float> diff = thisPos - lastPos;        
         colour.m_a = 255 - 255 * (float) i / (float) maxSize;
-        g_renderer->Line( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
+        g_renderer2d->Line( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
     }
 
     if( m_history.Size() > 0 )
@@ -153,10 +154,10 @@ void GunFire::Render()
         }
 
         colour.m_a = 255;
-        g_renderer->Line( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
+        g_renderer2d->Line( lastPos.x, lastPos.y, thisPos.x, thisPos.y, colour );
     }
 
-    g_renderer->Line( predictedLongitude, predictedLatitude, 
+    g_renderer2d->Line( predictedLongitude, predictedLatitude, 
                                 predictedLongitude-m_vel.x.DoubleValue(), 
                                 predictedLatitude-m_vel.y.DoubleValue(), colour );
 }

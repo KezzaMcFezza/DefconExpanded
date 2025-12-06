@@ -6,8 +6,10 @@
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
+#include "lib/render3d/megavbo/megavbo_3d.h"
 #include "lib/render/colour.h"
 #include "lib/preferences.h"
 #include "lib/profiler.h"
@@ -32,7 +34,7 @@
 #include "renderer/globe_renderer.h"
 #include "renderer/animated_icon.h"
 
-#include "lib/render/renderer_debug_menu.h"
+#include "lib/render/renderer_overlay.h"
 
 #include "world/world.h"
 #include "world/earthdata.h"
@@ -175,7 +177,7 @@ void GlobeRenderer::RegenerateStarField()
 
 void GlobeRenderer::BuildStarfieldVBO()
 {
-    if (g_renderer3d->IsTexturedMegaVBO3DValid("Starfield")) {
+    if (g_renderer3dvbo->IsTexturedMegaVBO3DValid("Starfield")) {
         return;
     }
     
@@ -192,15 +194,15 @@ void GlobeRenderer::BuildStarfieldVBO()
     //
     // Set buffer sizes with padding (10% extra)
 
-    g_renderer3d->SetTexturedMegaVBO3DBufferSizes(verticesNeeded, indicesNeeded);
+    g_renderer3dvbo->SetTexturedMegaVBO3DBufferSizes(verticesNeeded, indicesNeeded);
     
     float u1, v1, u2, v2;
-    g_renderer3d->GetImageUVCoords(cityImg, u1, v1, u2, v2);
+    g_renderer->GetImageUVCoords(cityImg, u1, v1, u2, v2);
     
     //
     // Build it
 
-    g_renderer3d->BeginTexturedMegaVBO3D("Starfield", g_renderer3d->GetEffectiveTextureID(cityImg));
+    g_renderer3dvbo->BeginTexturedMegaVBO3D("Starfield", g_renderer->GetEffectiveTextureID(cityImg));
     
     //
     // Build all billboards at once
@@ -253,16 +255,16 @@ void GlobeRenderer::BuildStarfieldVBO()
                                                     billboardVertices, u1, v1, u2, v2, 
                                                     r, g, b, a);
         
-        g_renderer3d->AddTexturedQuadsToMegaVBO3D(billboardVertices, 6, 1);
+        g_renderer3dvbo->AddTexturedQuadsToMegaVBO3D(billboardVertices, 6, 1);
     }
     
-    g_renderer3d->EndTexturedMegaVBO3D();
+    g_renderer3dvbo->EndTexturedMegaVBO3D();
 
 }
 
 void GlobeRenderer::RenderStarField()
 { 
-    if (!g_renderer3d->IsTexturedMegaVBO3DValid("Starfield")) {
+    if (!g_renderer3dvbo->IsTexturedMegaVBO3DValid("Starfield")) {
         if (g_preferences->GetInt(PREFS_GLOBE_STARFIELD, 1)) {
             if (!g_starField3DInitialized) {
                 GenerateStarField();
@@ -271,7 +273,7 @@ void GlobeRenderer::RenderStarField()
         }
     }
     
-    g_renderer3d->RenderTexturedMegaVBO3D("Starfield");
+    g_renderer3dvbo->RenderTexturedMegaVBO3D("Starfield");
 }
 
 //
@@ -280,7 +282,7 @@ void GlobeRenderer::RenderStarField()
 
 void GlobeRenderer::BuildCullSphereVBO()
 {
-    if (g_renderer3d->IsTriangleMegaVBO3DValid("CullingSphere")) {
+    if (g_renderer3dvbo->IsTriangleMegaVBO3DValid("CullingSphere")) {
         return;
     }
     
@@ -295,10 +297,10 @@ void GlobeRenderer::BuildCullSphereVBO()
     int totalTriangles = numLatitudeSegments * numLongitudeSegments * 2;
     int totalVertices = totalTriangles * 3;
     
-    g_renderer3d->SetTriangleMegaVBO3DBufferSizes(totalVertices, totalVertices);
+    g_renderer3dvbo->SetTriangleMegaVBO3DBufferSizes(totalVertices, totalVertices);
     
     Colour cullColor(255, 255, 255, 255);
-    g_renderer3d->BeginTriangleMegaVBO3D("CullingSphere", cullColor);
+    g_renderer3dvbo->BeginTriangleMegaVBO3D("CullingSphere", cullColor);
     
     //
     // Generate sphere triangles
@@ -334,16 +336,16 @@ void GlobeRenderer::BuildCullSphereVBO()
             // Add 2 triangles per quad (6 vertices total)
             
             Vector3<float> triangleVerts[6] = { v1, v2, v3, v1, v3, v4 };
-            g_renderer3d->AddTrianglesToMegaVBO3D(triangleVerts, 6);
+            g_renderer3dvbo->AddTrianglesToMegaVBO3D(triangleVerts, 6);
         }
     }
     
-    g_renderer3d->EndTriangleMegaVBO3D();
+    g_renderer3dvbo->EndTriangleMegaVBO3D();
 }
 
 void GlobeRenderer::RenderCullSphere()
 {
-    if (!g_renderer3d->IsTriangleMegaVBO3DValid("CullingSphere")) {
+    if (!g_renderer3dvbo->IsTriangleMegaVBO3DValid("CullingSphere")) {
         BuildCullSphereVBO();
     }
     
@@ -363,7 +365,7 @@ void GlobeRenderer::RenderCullSphere()
     
     glDisable(GL_CULL_FACE);
     
-    g_renderer3d->RenderTriangleMegaVBO3D("CullingSphere");
+    g_renderer3dvbo->RenderTriangleMegaVBO3D("CullingSphere");
     
     //
     // Re enable color writes and restore culling state
@@ -375,11 +377,11 @@ void GlobeRenderer::RenderCullSphere()
 void GlobeRenderer::GlobeCoastlines()
 {
     if (g_preferences->GetInt(PREFS_GRAPHICS_COASTLINES) == 1) {
-        if (!g_renderer3d->IsMegaVBO3DValid("GlobeCoastlines")) {
+        if (!g_renderer3dvbo->IsMegaVBO3DValid("GlobeCoastlines")) {
 #ifndef TARGET_EMSCRIPTEN
             g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
 #endif
-            g_renderer3d->BeginMegaVBO3D("GlobeCoastlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_COASTLINES ));
+            g_renderer3dvbo->BeginMegaVBO3D("GlobeCoastlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_COASTLINES ));
 
             for( int i = 0; i < g_app->GetEarthData()->m_islands.Size(); ++i )
             {
@@ -396,7 +398,7 @@ void GlobeRenderer::GlobeCoastlines()
                 AddLineStrip(coastlineVertices);
             }
             
-            g_renderer3d->EndMegaVBO3D();
+            g_renderer3dvbo->EndMegaVBO3D();
 
         }
     }
@@ -408,17 +410,17 @@ void GlobeRenderer::GlobeCoastlines()
     g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
 #endif
 
-    g_renderer3d->RenderMegaVBO3D("GlobeCoastlines");
+    g_renderer3dvbo->RenderMegaVBO3D("GlobeCoastlines");
 }
 
 void GlobeRenderer::GlobeBorders()
 {
     if (g_preferences->GetInt(PREFS_GRAPHICS_BORDERS) == 1) {
-        if (!g_renderer3d->IsMegaVBO3DValid("GlobeBorders")) {
+        if (!g_renderer3dvbo->IsMegaVBO3DValid("GlobeBorders")) {
 #ifndef TARGET_EMSCRIPTEN
             g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
 #endif
-            g_renderer3d->BeginMegaVBO3D("GlobeBorders", g_styleTable->GetPrimaryColour( STYLE_GLOBE_BORDERS ));
+            g_renderer3dvbo->BeginMegaVBO3D("GlobeBorders", g_styleTable->GetPrimaryColour( STYLE_GLOBE_BORDERS ));
 
             for( int i = 0; i < g_app->GetEarthData()->m_borders.Size(); ++i )
             {
@@ -435,7 +437,7 @@ void GlobeRenderer::GlobeBorders()
                 AddLineStrip(borderVertices);
             }
 
-            g_renderer3d->EndMegaVBO3D();
+            g_renderer3dvbo->EndMegaVBO3D();
 
         }
     }
@@ -447,13 +449,13 @@ void GlobeRenderer::GlobeBorders()
     g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
 #endif
 
-    g_renderer3d->RenderMegaVBO3D("GlobeBorders");
+    g_renderer3dvbo->RenderMegaVBO3D("GlobeBorders");
 }
 
 void GlobeRenderer::GlobeGridlines()
 {
-    if (!g_renderer3d->IsMegaVBO3DValid("GlobeGridlines")) {
-        g_renderer3d->BeginMegaVBO3D("GlobeGridlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_GRIDLINES ));
+    if (!g_renderer3dvbo->IsMegaVBO3DValid("GlobeGridlines")) {
+        g_renderer3dvbo->BeginMegaVBO3D("GlobeGridlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_GRIDLINES ));
         
     //
     // Longitudinal lines (meridians)
@@ -481,14 +483,14 @@ void GlobeRenderer::GlobeGridlines()
             AddLineStrip(lineVertices);
     }
         
-    g_renderer3d->EndMegaVBO3D();
+    g_renderer3dvbo->EndMegaVBO3D();
 
     }
 
     //
     // Build it
 
-    g_renderer3d->RenderMegaVBO3D("GlobeGridlines");
+    g_renderer3dvbo->RenderMegaVBO3D("GlobeGridlines");
 
 }
 
@@ -503,7 +505,7 @@ void GlobeRenderer::AddLineStrip(const DArray<Vector3<float>> &vertices) const
         vertexArray[i] = vertices.GetData(i);
     }
     
-    g_renderer3d->AddLineStripToMegaVBO3D(vertexArray, vertices.Size());
+    g_renderer3dvbo->AddLineStripToMegaVBO3D(vertexArray, vertices.Size());
     delete[] vertexArray;
 }
 
@@ -650,14 +652,14 @@ void GlobeRenderer::RenderDragIcon()
     Image *move = g_resource->GetImage( "gui/move.bmp" );
     if( !move ) return;
     
-    g_renderer->Reset2DViewport();
+    g_renderer2d->Reset2DViewport();
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     
     float iconSize = 48.0f;
     float iconX = g_inputManager->m_mouseX - iconSize * 0.5f;
     float iconY = g_inputManager->m_mouseY - iconSize * 0.5f;
     
-    g_renderer->Blit( move, iconX, iconY, iconSize, iconSize, White );
+    g_renderer2d->Blit( move, iconX, iconY, iconSize, iconSize, White );
 }
 
 //

@@ -2,9 +2,11 @@
 
 #include "lib/debug_utils.h"
 #include "lib/string_utils.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
+#include "lib/render2d/megavbo/megavbo_2d.h"
 
-void Renderer::BeginTexturedMegaVBO(const char* megaVBOKey, unsigned int textureID) {
+void Renderer2DVBO::BeginTexturedMegaVBO(const char* megaVBOKey, unsigned int textureID) {
     BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(megaVBOKey);
     if (tree && tree->data && tree->data->isValid) {
         return;
@@ -23,7 +25,7 @@ void Renderer::BeginTexturedMegaVBO(const char* megaVBOKey, unsigned int texture
     m_megaTexturedIndexCount = 0;
 }
 
-void Renderer::AddTexturedQuadsToMegaVBO(const Vertex2D* vertices, int vertexCount, int quadCount) {
+void Renderer2DVBO::AddTexturedQuadsToMegaVBO(const Vertex2D* vertices, int vertexCount, int quadCount) {
     if (!m_megaVBOTexturedActive || vertexCount < 4) return;
 
     int indicesNeeded = quadCount * 6;
@@ -66,7 +68,7 @@ void Renderer::AddTexturedQuadsToMegaVBO(const Vertex2D* vertices, int vertexCou
     }
 }
 
-void Renderer::EndTexturedMegaVBO() {
+void Renderer2DVBO::EndTexturedMegaVBO() {
     if (!m_megaVBOTexturedActive || !m_currentMegaVBOTexturedKey) return;
     
     if (m_megaTexturedVertexCount < 4) {
@@ -98,8 +100,8 @@ void Renderer::EndTexturedMegaVBO() {
         glGenBuffers(1, &cachedVBO->VBO);
         glGenBuffers(1, &cachedVBO->IBO);
         
-        SetVertexArray(cachedVBO->VAO);
-        SetArrayBuffer(cachedVBO->VBO);
+        g_renderer->SetVertexArray(cachedVBO->VAO);
+        g_renderer->SetArrayBuffer(cachedVBO->VBO);
         
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
         glEnableVertexAttribArray(0);
@@ -110,8 +112,8 @@ void Renderer::EndTexturedMegaVBO() {
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     } else {
-        SetVertexArray(cachedVBO->VAO);
-        SetArrayBuffer(cachedVBO->VBO);
+        g_renderer->SetVertexArray(cachedVBO->VAO);
+        g_renderer->SetArrayBuffer(cachedVBO->VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     }
     
@@ -132,7 +134,7 @@ void Renderer::EndTexturedMegaVBO() {
     m_megaVBOTexturedActive = false;
 }
 
-void Renderer::RenderTexturedMegaVBO(const char* megaVBOKey) {
+void Renderer2DVBO::RenderTexturedMegaVBO(const char* megaVBOKey) {
     BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(megaVBOKey);
     if (!tree || !tree->data || !tree->data->isValid) {
         return;
@@ -148,24 +150,24 @@ void Renderer::RenderTexturedMegaVBO(const char* megaVBOKey) {
                              ((unsigned int)cachedVBO->color.m_b << 8) |
                              ((unsigned int)cachedVBO->color.m_a);
     
-    SetShaderProgram(m_textureShaderProgram);
-    SetTextureShaderUniforms();
+    g_renderer->SetShaderProgram(g_renderer2d->m_textureShaderProgram);
+    g_renderer2d->SetTextureShaderUniforms();
     
     if (textureID != 0) {
-        SetActiveTexture(GL_TEXTURE0);
-        SetBoundTexture(textureID);
+        g_renderer->SetActiveTexture(GL_TEXTURE0);
+        g_renderer->SetBoundTexture(textureID);
     }
     
-    SetVertexArray(cachedVBO->VAO);
+    g_renderer->SetVertexArray(cachedVBO->VAO);
     glDrawElements(GL_TRIANGLES, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
 }
 
-bool Renderer::IsTexturedMegaVBOValid(const char* megaVBOKey) {
+bool Renderer2DVBO::IsTexturedMegaVBOValid(const char* megaVBOKey) {
     BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(megaVBOKey);
     return (tree && tree->data && tree->data->isValid);
 }
 
-void Renderer::SetTexturedMegaVBOBufferSizes(int vertexCount, int indexCount) {
+void Renderer2DVBO::SetTexturedMegaVBOBufferSizes(int vertexCount, int indexCount) {
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
     

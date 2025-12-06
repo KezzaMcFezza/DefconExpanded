@@ -1,5 +1,6 @@
 #include "lib/universal_include.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/metaserver/metaserver.h"
 #include "lib/metaserver/authentication.h"
 #include "lib/metaserver/metaserver_defines.h"
@@ -125,7 +126,7 @@ void ServerPasswordWindow::Create()
 void ServerPasswordWindow::Render( bool hasFocus )
 {
     InterfaceWindow::Render( hasFocus );
-    g_renderer->TextCentreSimple( m_x + m_w/2, m_y+30, White, 15.0f, LANGUAGEPHRASE("dialog_enterpassword"));
+    g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y+30, White, 15.0f, LANGUAGEPHRASE("dialog_enterpassword"));
 }
 
 
@@ -169,19 +170,19 @@ void RenderPlayerSlots( int _x, int _y, int _w, int _h, int _numTeams, int _numH
 
         if( _numHumanTeams > i )
         {            
-            g_renderer->RectFill( x, y, slotW, h, Colour(0,255,0,255) );
+            g_renderer2d->RectFill( x, y, slotW, h, Colour(0,255,0,255) );
         }
         else if( _numTeams > i )
         {
-            g_renderer->RectFill( x, y, slotW, h, Colour(0,200,0,100) );
+            g_renderer2d->RectFill( x, y, slotW, h, Colour(0,200,0,100) );
         }
         else if( _maxTeams > i && _inProgress == 0 )
         {
-            g_renderer->RectFill( x, y, slotW, h, Colour(255,255,255,60) );
+            g_renderer2d->RectFill( x, y, slotW, h, Colour(255,255,255,60) );
         }
         else
         {
-            //g_renderer->RectFill( x, y, slotW, h, Colour(255,255,255,10) );
+            //g_renderer2d->RectFill( x, y, slotW, h, Colour(255,255,255,10) );
         }
     }
 
@@ -206,12 +207,12 @@ public:
             char caption[128];
             strcpy( caption, LANGUAGEPHRASE("dialog_number_server_found") );
             LPREPLACEINTEGERFLAG( 'N', realIndex-1, caption );
-            g_renderer->TextCentreSimple( realX + m_w/2, realY-10, DarkGray, 12, caption );
+            g_renderer2d->TextCentreSimple( realX + m_w/2, realY-10, DarkGray, 12, caption );
         }
 
         if( !sbw->m_serverList && m_index == 0 )
         {
-            g_renderer->TextCentreSimple( realX + m_w/2, realY + 10, DarkGray, 12, LANGUAGEPHRASE("dialog_retrieving_server_list") );
+            g_renderer2d->TextCentreSimple( realX + m_w/2, realY + 10, DarkGray, 12, LANGUAGEPHRASE("dialog_retrieving_server_list") );
         }
 
         if( sbw->m_serverList &&
@@ -221,11 +222,11 @@ public:
 
             if( sbw->m_selection == realIndex )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(50,50,80,80), Colour(150,150,200,80), true );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(50,50,80,80), Colour(150,150,200,80), true );
             }
 
 
-            //g_renderer->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,5) );
+            //g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,5) );
 
             Directory *server = sbw->m_serverList->GetData(realIndex);
 
@@ -253,7 +254,7 @@ public:
             if( hasJoinedGame > 0 && sbw->m_listType != ServerBrowserWindow::ListTypeRecent )
             {
                 int alpha = 30;
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(155,155,255,alpha) );                
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(155,155,255,alpha) );                
             }
 
             bool password = false;
@@ -454,28 +455,28 @@ public:
             START_PROFILE( "RenderText" );
 
             float fontSize = 11;
-            //g_renderer->TextSimple( realX + 5, realY+2, col, fontSize, netLocation );
-            g_renderer->TextSimple( realX + 15, realY+2, col, fontSize, serverNameFull );            
-            //g_renderer->TextSimple( realX + m_w - 330, realY+2, col, fontSize, gameNameVer );
-            g_renderer->TextSimple( realX + m_w - 410, realY+2, col, fontSize, gameModeString );
-            g_renderer->TextSimple( realX + m_w - 300, realY+2, col, fontSize, modPath );
-            g_renderer->TextSimple( realX + m_w - 180, realY+2, col, fontSize, inProgressString );
-            //g_renderer->TextSimple( realX + m_w - 120, realY+2, col, fontSize, spectatorsFull );
+            //g_renderer2d->TextSimple( realX + 5, realY+2, col, fontSize, netLocation );
+            g_renderer2d->TextSimple( realX + 15, realY+2, col, fontSize, serverNameFull );            
+            //g_renderer2d->TextSimple( realX + m_w - 330, realY+2, col, fontSize, gameNameVer );
+            g_renderer2d->TextSimple( realX + m_w - 410, realY+2, col, fontSize, gameModeString );
+            g_renderer2d->TextSimple( realX + m_w - 300, realY+2, col, fontSize, modPath );
+            g_renderer2d->TextSimple( realX + m_w - 180, realY+2, col, fontSize, inProgressString );
+            //g_renderer2d->TextSimple( realX + m_w - 120, realY+2, col, fontSize, spectatorsFull );
 
 
             if( password )
             {
-                g_renderer->EndRectFillBatch();
+                g_renderer2d->EndRectFillBatch();
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
                 Image *lock = g_resource->GetImage( "gui/locked.bmp");
-                g_renderer->StaticSprite( lock, realX, realY, 14, 14, White );
+                g_renderer2d->StaticSprite( lock, realX, realY, 14, 14, White );
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-                g_renderer->BeginRectFillBatch();
+                g_renderer2d->BeginRectFillBatch();
             }
 
             if( highlighted || clicked )
             {
-                g_renderer->Rect( realX, realY, m_w, m_h, White );
+                g_renderer2d->Rect( realX, realY, m_w, m_h, White );
             }
     
             END_PROFILE( "RenderText" );
@@ -704,16 +705,16 @@ public:
     {      
         ServerBrowserWindow *parent = (ServerBrowserWindow *)m_parent;                        
 
-        g_renderer->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,20) );
+        g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,20) );
 
         if( highlighted ) 
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,50) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,50) );
         }
 
         if( parent->m_sortType == m_sortType )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,100) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(200,200,255,100) );
         }
 
 
@@ -722,11 +723,11 @@ public:
 
 		if( m_captionIsLanguagePhrase )
 		{
-	        g_renderer->Text( realX + 10, realY+3, Colour(200,200,255,255), 12, LANGUAGEPHRASE(m_caption) );
+	        g_renderer2d->Text( realX + 10, realY+3, Colour(200,200,255,255), 12, LANGUAGEPHRASE(m_caption) );
 		}
 		else
 		{
-	        g_renderer->Text( realX + 10, realY+3, Colour(200,200,255,255), 12, m_caption );
+	        g_renderer2d->Text( realX + 10, realY+3, Colour(200,200,255,255), 12, m_caption );
 		}
 
 
@@ -743,7 +744,7 @@ public:
                 float x2 = realX + m_w - 4,  y2 = midPointY + 5;  // Bottom right  
                 float x3 = realX + m_w - 10, y3 = midPointY - 5;  // Top center
                 
-                g_renderer->TriangleFill( x1, y1, x2, y2, x3, y3, arrowColor );
+                g_renderer2d->TriangleFill( x1, y1, x2, y2, x3, y3, arrowColor );
             }
             else
             {
@@ -751,7 +752,7 @@ public:
                 float x2 = realX + m_w - 4,  y2 = midPointY - 5;  // Top right
                 float x3 = realX + m_w - 10, y3 = midPointY + 5;  // Bottom center
                 
-                g_renderer->TriangleFill( x1, y1, x2, y2, x3, y3, arrowColor );
+                g_renderer2d->TriangleFill( x1, y1, x2, y2, x3, y3, arrowColor );
             }
         }
     }
@@ -1774,8 +1775,8 @@ void EnterIPManuallyWindow::Render( bool _hasFocus )
 {
     InterfaceWindow::Render( _hasFocus );
 
-    g_renderer->TextSimple( m_x+15, m_y+45, White, 13, LANGUAGEPHRASE("dialog_server_ip") );
-    g_renderer->TextSimple( m_x+15, m_y+75, White, 13, LANGUAGEPHRASE("dialog_server_port") );
+    g_renderer2d->TextSimple( m_x+15, m_y+45, White, 13, LANGUAGEPHRASE("dialog_server_ip") );
+    g_renderer2d->TextSimple( m_x+15, m_y+75, White, 13, LANGUAGEPHRASE("dialog_server_port") );
 }
 
 
@@ -1865,9 +1866,9 @@ void FiltersWindow::Render( bool _hasFocus )
     int y = m_y + 23;
     int h = 20;
 
-    g_renderer->TextSimple( x, y+=h, White, 12, LANGUAGEPHRASE("dialog_show_single_player_games") );
-    g_renderer->TextSimple( x, y+=h, White, 12, LANGUAGEPHRASE("dialog_show_demo_games") );
-    g_renderer->TextSimple( x, y+=h, White, 12, LANGUAGEPHRASE("dialog_show_default_named_games") );
+    g_renderer2d->TextSimple( x, y+=h, White, 12, LANGUAGEPHRASE("dialog_show_single_player_games") );
+    g_renderer2d->TextSimple( x, y+=h, White, 12, LANGUAGEPHRASE("dialog_show_demo_games") );
+    g_renderer2d->TextSimple( x, y+=h, White, 12, LANGUAGEPHRASE("dialog_show_default_named_games") );
 }
 
 

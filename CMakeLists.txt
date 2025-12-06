@@ -637,15 +637,16 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/netlib/net_udp_packet.cpp
     ${SYSTEMIV_PATH}/lib/netlib/thread_controller.cpp
     ${SYSTEMIV_PATH}/lib/render/colour.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/renderer.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/megavbo/megavbo.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/megavbo/linestrips.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/megavbo/quads.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/megavbo/triangles.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/operations.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/primitives.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/sprites.cpp
-    ${SYSTEMIV_PATH}/lib/render2d/text.cpp
+    ${SYSTEMIV_PATH}/lib/render/renderer.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/renderer_2d.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/megavbo/megavbo_2d.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/megavbo/linestrips_2d.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/megavbo/quads_2d.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/megavbo/triangles_2d.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/operations_2d.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/primitives_2d.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/sprites_2d.cpp
+    ${SYSTEMIV_PATH}/lib/render2d/text_2d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/renderer_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/operations_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/primitives_3d.cpp
@@ -655,7 +656,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/quads_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/linestrips_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/triangles_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render/renderer_debug_menu.cpp
+    ${SYSTEMIV_PATH}/lib/render/renderer_overlay.cpp
     ${SYSTEMIV_PATH}/lib/render/styletable.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmap.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmapfont.cpp

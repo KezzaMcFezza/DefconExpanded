@@ -1,7 +1,8 @@
 #include "lib/universal_include.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/input.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render/styletable.h"
 #include "lib/math/math_utils.h"
 #include "lib/language_table.h"
@@ -345,7 +346,7 @@ void ChatWindow::RenderTeams()
                     mouseY > y - 2 && 
                     mouseY < y + 15 )
                 {
-                    g_renderer->RectFill( x, y - 2, width + 6, 15, Colour(50,50,150,200));
+                    g_renderer2d->RectFill( x, y - 2, width + 6, 15, Colour(50,50,150,200));
                     if( g_inputManager->m_lmbUnClicked )
                     {
                         m_channel = team->m_teamId;
@@ -354,7 +355,7 @@ void ChatWindow::RenderTeams()
 
                 if( m_channel == team->m_teamId )
                 {
-                    g_renderer->RectFill( x, y - 2, width + 6, 15, Colour(150,150,150,100));
+                    g_renderer2d->RectFill( x, y - 2, width + 6, 15, Colour(150,150,150,100));
                 }
 
                 Colour col = team->GetTeamColour();
@@ -367,11 +368,11 @@ void ChatWindow::RenderTeams()
 
 			TruncateText(name, name, 8, 0);
 				
-                g_renderer->TextSimple( x, y, col, 14.0f, name );
+                g_renderer2d->TextSimple( x, y, col, 14.0f, name );
 
                 if( !g_app->GetWorld()->IsChatMessageVisible( team->m_teamId, m_channel, false ) )
                 {
-                    g_renderer->Line( x, y+6, x+width, y+6, Colour(255,255,255,100) );
+                    g_renderer2d->Line( x, y+6, x+width, y+6, Colour(255,255,255,100) );
                 }
 
                 y+= 16;
@@ -385,7 +386,7 @@ void ChatWindow::RenderTeams()
         if( g_app->GetWorld()->m_spectators.Size() > 0 )
         {
             y += 15;
-            g_renderer->Text( x, y, Colour(255,255,255,255*m_alpha), 12, LANGUAGEPHRASE("dialog_chat_spectators") );
+            g_renderer2d->Text( x, y, Colour(255,255,255,255*m_alpha), 12, LANGUAGEPHRASE("dialog_chat_spectators") );
             y += 13;
 
             for( int i = 0; i < g_app->GetWorld()->m_spectators.Size(); ++i )
@@ -405,11 +406,11 @@ void ChatWindow::RenderTeams()
                 
                 TruncateText(specName, specName, 13, 0);
                 
-                g_renderer->TextSimple( x, y, col, 10, specName );
+                g_renderer2d->TextSimple( x, y, col, 10, specName );
 
                 if( m_channel < CHATCHANNEL_PUBLIC )
                 {
-                    g_renderer->Line( x, y+5, x+70, y+5, Colour(255,255,255,100) );
+                    g_renderer2d->Line( x, y+5, x+70, y+5, Colour(255,255,255,100) );
                 }
 
                 y += 11;
@@ -453,7 +454,7 @@ void ChatWindow::RenderMessages()
         clipH = m_y+m_h;
     }
 
-    g_renderer->SetClip( m_x+clip->m_x, clipYMin, clip->m_w, clipH );
+    g_renderer2d->SetClip( m_x+clip->m_x, clipYMin, clip->m_w, clipH );
 
     float clipYMax = clipYMin + clipH + h;
     clipYMin -= h;
@@ -520,7 +521,7 @@ void ChatWindow::RenderMessages()
             }
 
             char *channelName = GetChannelName(chatMsg->m_channel, false);
-            float channelNameTextWidth = g_renderer->TextWidth( channelName, 12 );
+            float channelNameTextWidth = g_renderer2d->TextWidth( channelName, 12 );
 
             float teamW = 0;    
             teamW += channelNameTextWidth + 5;
@@ -530,7 +531,7 @@ void ChatWindow::RenderMessages()
             int width = GetButton("Invert")->m_w;
             if( !action )
             {
-                playerNameTextWidth = g_renderer->TextWidth( chatMsg->m_playerName, 12 );
+                playerNameTextWidth = g_renderer2d->TextWidth( chatMsg->m_playerName, 12 );
                 width -= teamW;
                 width -= playerNameTextWidth;
             }
@@ -554,7 +555,7 @@ void ChatWindow::RenderMessages()
                 if( y >= clipYMin && y <= clipYMax && i >= minProcess )
                 {
                     done = true;
-                    g_renderer->TextSimple( xPos, y, teamCol, 12, wrapped[w] );
+                    g_renderer2d->TextSimple( xPos, y, teamCol, 12, wrapped[w] );
                 }
 
                 if( w>0) y -= h;
@@ -566,14 +567,14 @@ void ChatWindow::RenderMessages()
             {                
                 if( channelName[0] != '\x0' )
                 {
-                    g_renderer->TextSimple( x, y, White, 12, channelName );
+                    g_renderer2d->TextSimple( x, y, White, 12, channelName );
                     textX += channelNameTextWidth;
                     textX += 5;
                 }
 
                 if( !action )
                 {
-                    g_renderer->Text( textX, y, teamCol, 12, "%s:", chatMsg->m_playerName );
+                    g_renderer2d->Text( textX, y, teamCol, 12, "%s:", chatMsg->m_playerName );
                 }
             }
             
@@ -595,7 +596,7 @@ void ChatWindow::RenderMessages()
         }
     }
 
-    g_renderer->ResetClip();
+    g_renderer2d->ResetClip();
     
     if( g_keys[KEY_ENTER] && g_keyDeltas[KEY_ENTER])
     {
@@ -675,7 +676,7 @@ void ChatWindow::Render( bool _hasFocus )
     if( strlen(m_message) < 1 )
     {
         EclButton *input = GetButton("Msg");
-        g_renderer->Text( m_x + input->m_x + 5, 
+        g_renderer2d->Text( m_x + input->m_x + 5, 
                           m_y + input->m_y + 3 ,
                           Colour(255,255,255,50),
                           14, GetChannelName(m_channel,true) );
@@ -702,7 +703,7 @@ void ChatInputField::Render( int realX, int realY, bool highlighted, bool clicke
     if( EclMouseInButton(m_parent,this) )
     {
         Colour col(255,255,200,100);
-        g_renderer->Rect( realX, realY, m_w, m_h, col, 1.0f );
+        g_renderer2d->Rect( realX, realY, m_w, m_h, col, 1.0f );
     }
 
     ChatWindow *parent = (ChatWindow *) m_parent;
@@ -710,7 +711,7 @@ void ChatInputField::Render( int realX, int realY, bool highlighted, bool clicke
     {
         int alpha = 100 + 155 * fabs(sinf(g_gameTime*3));
         Colour col(255,255,200,alpha);
-        g_renderer->Rect( realX, realY, m_w, m_h, col, 1.0f );
+        g_renderer2d->Rect( realX, realY, m_w, m_h, col, 1.0f );
     }
 }
 

@@ -4,7 +4,8 @@
 #include <string.h>
 
 #include "lib/gucci/input.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/profiler.h"
 #include "lib/language_table.h"
 
@@ -155,7 +156,7 @@ void ProfileWindow::RenderElementProfile(ProfiledElement *_pe, unsigned int _ind
 				    }
 			    }
                 
-                g_renderer->TextSimple( left, m_yPos+=12, Colour(brightness,brightness,brightness), 12, caption );
+                g_renderer2d->TextSimple( left, m_yPos+=12, Colour(brightness,brightness,brightness), 12, caption );
 
                 int lineLeft = left + 310;
                 int lineY = m_yPos;
@@ -172,13 +173,13 @@ void ProfileWindow::RenderElementProfile(ProfiledElement *_pe, unsigned int _ind
                 {
                     // Convert GL_LINES to modern Rect() function for outlined rectangle
                     Colour lineColor(150, 150, 250, brightness);
-                    g_renderer->Rect( lineLeft, lineY, lineWidth, lineHeight, lineColor );
+                    g_renderer2d->Rect( lineLeft, lineY, lineWidth, lineHeight, lineColor );
                 }
                 else            
                 {
                     // Convert GL_QUADS to modern RectFill() function for filled rectangle
                     Colour fillColor(150, 150, 250, brightness);
-                    g_renderer->RectFill( lineLeft, lineY, lineWidth, lineHeight, fillColor );
+                    g_renderer2d->RectFill( lineLeft, lineY, lineWidth, lineHeight, fillColor );
                 }
                 
 			    if (child->m_isExpanded && child->m_children.NumUsed() > 0)
@@ -202,18 +203,18 @@ void ProfileWindow::RenderFrameTimes( float x, float y, float w, float h )
 		char caption[128];
         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_fps") );
 		LPREPLACEINTEGERFLAG( 'F', 5, caption );
-        g_renderer->Line( x, y, x + w, y, Colour(255,255,255,100), 1.0f );
-        g_renderer->Text( x, y-10, White, 10, caption );
+        g_renderer2d->Line( x, y, x + w, y, Colour(255,255,255,100), 1.0f );
+        g_renderer2d->Text( x, y-10, White, 10, caption );
 
         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_fps") );
 		LPREPLACEINTEGERFLAG( 'F', 10, caption );
-        g_renderer->Line( x, y + h/2, x + w, y + h/2, Colour(255,255,255,100), 1.0f );
-        g_renderer->Text( x, y + h/2 -10, White, 10, caption );
+        g_renderer2d->Line( x, y + h/2, x + w, y + h/2, Colour(255,255,255,100), 1.0f );
+        g_renderer2d->Text( x, y + h/2 -10, White, 10, caption );
 
         strcpy( caption, LANGUAGEPHRASE("dialog_mapr_fps") );
 		LPREPLACEINTEGERFLAG( 'F', 20, caption );
-        g_renderer->Line( x, y + h * 3/4, x + w, y + h * 3/4, Colour(255,255,255,100), 1.0f );
-        g_renderer->Text( x, y + h * 3/4 -10, White, 10, caption );
+        g_renderer2d->Line( x, y + h * 3/4, x + w, y + h * 3/4, Colour(255,255,255,100), 1.0f );
+        g_renderer2d->Text( x, y + h * 3/4 -10, White, 10, caption );
 
         // Color now passed directly to Line() - modern OpenGL renderer
 
@@ -230,7 +231,7 @@ void ProfileWindow::RenderFrameTimes( float x, float y, float w, float h )
             float frameHeight = 0.5f * (thisFrameTime / 100.0f) * h;
 
             // Draw each frame time as individual line using modern renderer
-            g_renderer->Line( xPos, y + h, xPos, y + h - frameHeight, frameLineColor );
+            g_renderer2d->Line( xPos, y + h, xPos, y + h - frameHeight, frameLineColor );
 
             xPos -= wPerFrame;
         }
@@ -244,11 +245,11 @@ void ProfileWindow::Render( bool hasFocus )
     
     if (g_profiler->m_doGlFinish)
 	{
-        g_renderer->TextSimple( m_x+160, m_y+28, White, 12, LANGUAGEPHRASE("dialog_yes") );
+        g_renderer2d->TextSimple( m_x+160, m_y+28, White, 12, LANGUAGEPHRASE("dialog_yes") );
 	}
 	else
 	{
-        g_renderer->TextSimple( m_x+160, m_y+28, White, 12, LANGUAGEPHRASE("dialog_no") );
+        g_renderer2d->TextSimple( m_x+160, m_y+28, White, 12, LANGUAGEPHRASE("dialog_no") );
 	}
 
     ProfiledElement *root = g_profiler->m_rootElement;

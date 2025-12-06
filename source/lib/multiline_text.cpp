@@ -13,7 +13,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/debug_utils.h"
 
 #include "app/globals.h"
@@ -64,7 +65,7 @@ MultiLineText::MultiLineText( const char *string, float lineSize, float fontSize
 		sourceLineLen = endOfLine - startOfLine;
 		
 		// Is the line too long to fit?
-		if( wrapToWindow && g_renderer->TextWidth( startOfLine, sourceLineLen, fontSize, bitmapFont ) > lineSize )
+		if( wrapToWindow && g_renderer2d->TextWidth( startOfLine, sourceLineLen, fontSize, bitmapFont ) > lineSize )
 		{
 			AddWrappedLines( startOfLine, sourceLineLen, lineSize, fontSize, bitmapFont );
 		}
@@ -120,7 +121,7 @@ void MultiLineText::AddWrappedLines( char *sourceLine, unsigned int sourceLineSi
 			// Added by Chris to condition below : || wrappedLineLen == 0
 			// This means a single word has been found that is too long to ever wrap properly
 			// So just put the whole word in and be done with it
-			cumulativeWidth += g_renderer->TextWidth( wordStart, wordLen, fontSize, bitmapFont );
+			cumulativeWidth += g_renderer2d->TextWidth( wordStart, wordLen, fontSize, bitmapFont );
 			if( cumulativeWidth < lineSize || wrappedLineLen == 0 )
 			{
 				wrappedLineLen += wordLen;

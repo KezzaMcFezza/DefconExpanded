@@ -3,7 +3,8 @@
 #include "lib/sound/sound_sample_bank.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/sound/resampler_polyphase.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/language_table.h"
 #include "lib/preferences.h"
 #include "lib/profiler.h"
@@ -261,20 +262,20 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     int h = 30;
     int size = 13;
 
-    //g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_memoryusage") );
+    //g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_memoryusage") );
 #ifdef WINDOWS_SDL
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_audiodriver") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_audiodriver") );
 #endif
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_swapstereo") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_numchannels") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundquality_sfx") );
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundquality_music") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_swapstereo") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_numchannels") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundquality_sfx") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_soundquality_music") );
 
 #ifdef SOUNDOPTIONSWINDOW_USEDSPEFFECTS
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_realtimeeffects") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_realtimeeffects") );
 #endif
 
-    g_renderer->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_mastervolume") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_mastervolume") );
     
 
     //
@@ -287,11 +288,11 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     //    
     //    Colour colour = White;
     //    if( occup > 15 ) colour.Set( 255, 50, 50 );
-    //    g_renderer->TextCentre( m_x + m_w/2, m_y + m_h - 50, colour, 17, "%s %d%%", LANGUAGEPHRASE("dialog_cpuusage"), int(occup) );
+    //    g_renderer2d->TextCentre( m_x + m_w/2, m_y + m_h - 50, colour, 17, "%s %d%%", LANGUAGEPHRASE("dialog_cpuusage"), int(occup) );
     //}
     //else
     //{
-    //    g_renderer->TextCentreSimple( m_x + m_w/2, m_y + m_h - 50, Colour(255,50,50), size, LANGUAGEPHRASE("dialog_cpuusageunknown") );
+    //    g_renderer2d->TextCentreSimple( m_x + m_w/2, m_y + m_h - 50, Colour(255,50,50), size, LANGUAGEPHRASE("dialog_cpuusageunknown") );
     //}
 
 
@@ -302,5 +303,5 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     float memoryUsage = g_soundSampleBank->GetMemoryUsage();
     memoryUsage /= 1024.0f;
     memoryUsage /= 1024.0f;
-    g_renderer->TextCentre( m_x + m_w/2, m_y + m_h - 70, White, size, "%s %2.1f Mb", LANGUAGEPHRASE("dialog_memoryusage"), memoryUsage );
+    g_renderer2d->TextCentre( m_x + m_w/2, m_y + m_h - 70, White, size, "%s %2.1f Mb", LANGUAGEPHRASE("dialog_memoryusage"), memoryUsage );
 }

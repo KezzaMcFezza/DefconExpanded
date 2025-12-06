@@ -30,7 +30,7 @@ class StatusIcon;
 class Tutorial;
 class World;
 class RecordingFileDialog;
-class RendererDebugMenu;
+class RendererOverlay;
 class SoundDebugOverlay;
 
 extern bool g_hideUI;
@@ -59,7 +59,7 @@ public:                 // STARTUP OPTIONS
     char        m_replayFilename[512];
     
     bool        m_showFps;
-    bool        m_showDebugMenu;
+    bool        m_showRendererOverlay;
     bool        m_showSoundOverlay;
     int         m_currentFrames;
     int         m_framesPerSecond;
@@ -78,7 +78,7 @@ private:
     StatusIcon			*m_statusIcon;
     Tutorial            *m_tutorial;
     NetLib              *m_netLib;
-    RendererDebugMenu   *m_debugMenu;
+    RendererOverlay     *m_rendererOverlay;
     SoundDebugOverlay   *m_soundOverlay;
     
     bool        m_mousePointerVisible;

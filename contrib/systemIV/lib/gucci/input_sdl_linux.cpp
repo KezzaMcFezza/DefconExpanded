@@ -104,7 +104,7 @@ void InputManagerSDL::ResetWindowHandle()
 {
 }
 
-// Temporarily disabled until I find where m_renderer has run off to in Defcon. -- Steven
+// Temporarily disabled until I find where g_renderer has run off to in Defcon. -- Steven
 #if defined TARGET_OS_LINUX && 0
 static void AdjustForBuggyXinerama(int &_xrel, int &_yrel)
 {
@@ -116,12 +116,12 @@ static void AdjustForBuggyXinerama(int &_xrel, int &_yrel)
 	static int screenW = 0, screenH = 0;
 	static int frameCount = 0;
 
-	if (screenW != g_app->m_renderer->ScreenW() ||
-		screenH != g_app->m_renderer->ScreenH()) {
+	if (screenW != g_app->g_renderer->ScreenW() ||
+		screenH != g_app->g_renderer->ScreenH()) {
 		// Resolution changed
 
-		screenW = g_app->m_renderer->ScreenW();
-		screenH = g_app->m_renderer->ScreenH();
+		screenW = g_app->g_renderer->ScreenW();
+		screenH = g_app->g_renderer->ScreenH();
 
 		// We want to skip the first few mouse events
 		// As we can get some funny behaviour after a resolution change
@@ -215,7 +215,7 @@ int InputManagerSDL::EventHandler(unsigned int message, long long wParam, int lP
 				int xrel = sdlEvent->motion.xrel;
 				int yrel = sdlEvent->motion.yrel;
 
-// Temporarily disabled until I find where m_renderer is in Defcon. -- Steven
+// Temporarily disabled until I find where g_renderer is in Defcon. -- Steven
 #if defined TARGET_OS_LINUX && 0
 				if (m_xineramaOffsetHack) 
 					AdjustForBuggyXinerama(xrel, yrel);

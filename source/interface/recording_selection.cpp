@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/gucci/window_manager.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/language_table.h"
 #include "lib/hi_res_time.h"
 #include "lib/netlib/net_lib.h"
@@ -37,12 +38,12 @@ void PlayFromLobbyButton::Render( int realX, int realY, bool highlighted, bool c
     
     bool colourAlignment    = g_styleTable->GetStyle(styleName)->m_horizontal;
 
-    g_renderer->RectFill    ( realX, realY, m_w, m_h, primaryCol, secondaryCol, colourAlignment );
+    g_renderer2d->RectFill    ( realX, realY, m_w, m_h, primaryCol, secondaryCol, colourAlignment );
 
-    g_renderer->Line        ( realX, realY, realX+m_w, realY, borderPrimary );
-    g_renderer->Line        ( realX, realY, realX, realY+m_h, borderPrimary );
-    g_renderer->Line        ( realX, realY+m_h, realX+m_w, realY+m_h, borderSeconary );
-    g_renderer->Line        ( realX+m_w, realY, realX+m_w, realY+m_h, borderSeconary );
+    g_renderer2d->Line        ( realX, realY, realX+m_w, realY, borderPrimary );
+    g_renderer2d->Line        ( realX, realY, realX, realY+m_h, borderPrimary );
+    g_renderer2d->Line        ( realX, realY+m_h, realX+m_w, realY+m_h, borderSeconary );
+    g_renderer2d->Line        ( realX+m_w, realY, realX+m_w, realY+m_h, borderSeconary );
     
     // Render our custom larger text
     Colour fontColour = g_styleTable->GetPrimaryColour(FONTSTYLE_BUTTON);
@@ -60,7 +61,7 @@ void PlayFromLobbyButton::Render( int realX, int realY, bool highlighted, bool c
     caption[sizeof(caption) - 1] = '\0';
     
     // Center the text in the button
-    g_renderer->TextCentre( realX + m_w/2, 
+    g_renderer2d->TextCentre( realX + m_w/2, 
                             realY + m_h/2 - fontSize/2, 
                             fontColour, 
                             fontSize, 
@@ -168,12 +169,12 @@ void PlayFromGameStartButton::Render( int realX, int realY, bool highlighted, bo
     
     bool colourAlignment    = g_styleTable->GetStyle(styleName)->m_horizontal;
 
-    g_renderer->RectFill    ( realX, realY, m_w, m_h, primaryCol, secondaryCol, colourAlignment );
+    g_renderer2d->RectFill    ( realX, realY, m_w, m_h, primaryCol, secondaryCol, colourAlignment );
 
-    g_renderer->Line        ( realX, realY, realX+m_w, realY, borderPrimary );
-    g_renderer->Line        ( realX, realY, realX, realY+m_h, borderPrimary );
-    g_renderer->Line        ( realX, realY+m_h, realX+m_w, realY+m_h, borderSeconary );
-    g_renderer->Line        ( realX+m_w, realY, realX+m_w, realY+m_h, borderSeconary );
+    g_renderer2d->Line        ( realX, realY, realX+m_w, realY, borderPrimary );
+    g_renderer2d->Line        ( realX, realY, realX, realY+m_h, borderPrimary );
+    g_renderer2d->Line        ( realX, realY+m_h, realX+m_w, realY+m_h, borderSeconary );
+    g_renderer2d->Line        ( realX+m_w, realY, realX+m_w, realY+m_h, borderSeconary );
     
     // Render our custom larger text
     Colour fontColour = g_styleTable->GetPrimaryColour(FONTSTYLE_BUTTON);
@@ -191,7 +192,7 @@ void PlayFromGameStartButton::Render( int realX, int realY, bool highlighted, bo
     caption[sizeof(caption) - 1] = '\0';
     
     // Center the text in the button
-    g_renderer->TextCentre( realX + m_w/2, 
+    g_renderer2d->TextCentre( realX + m_w/2, 
                             realY + m_h/2 - fontSize/2, 
                             fontColour, 
                             fontSize, 
@@ -435,20 +436,20 @@ void RecordingSelectionWindow::Render(bool _hasFocus)
     InterfaceWindow::Render(_hasFocus);
 
     // Title text
-    g_renderer->TextCentreSimple(m_x + m_w/2, m_y + 55, White, 18.0f, "Where would you like to start watching?");
-    g_renderer->TextCentreSimple(m_x + m_w/2, m_y + 75, Colour(200,200,200,255), 14.0f, "Choose your preferred starting point for playback");
+    g_renderer2d->TextCentreSimple(m_x + m_w/2, m_y + 55, White, 18.0f, "Where would you like to start watching?");
+    g_renderer2d->TextCentreSimple(m_x + m_w/2, m_y + 75, Colour(200,200,200,255), 14.0f, "Choose your preferred starting point for playback");
 
     // Current file display with source indicator
-    g_renderer->TextSimple(m_x + 55, m_y + 195, Colour(180,180,180,255), 12.0f, "Current file:");
+    g_renderer2d->TextSimple(m_x + 55, m_y + 195, Colour(180,180,180,255), 12.0f, "Current file:");
     
     // Use different color for error state
     Colour filenameColor = (strcmp(m_recordingFilename, "NO FILE SPECIFIED") == 0) ? 
                            Colour(255,100,100,255) : Colour(255,255,150,255);
-    g_renderer->TextSimple(m_x + 55, m_y + 210, filenameColor, 12.0f, m_recordingFilename);
+    g_renderer2d->TextSimple(m_x + 55, m_y + 210, filenameColor, 12.0f, m_recordingFilename);
 
     // Help text
-    g_renderer->TextCentreSimple(m_x + m_w/2, m_y + m_h-70, Colour(150,150,150,255), 11.0f, 
+    g_renderer2d->TextCentreSimple(m_x + m_w/2, m_y + m_h-70, Colour(150,150,150,255), 11.0f, 
                                 "Lobby: Watch the pre-game setup");
-    g_renderer->TextCentreSimple(m_x + m_w/2, m_y + m_h-55, Colour(150,150,150,255), 11.0f, 
+    g_renderer2d->TextCentreSimple(m_x + m_w/2, m_y + m_h-55, Colour(150,150,150,255), 11.0f, 
                                 "Game: Skip directly to when the game begins");
 } 

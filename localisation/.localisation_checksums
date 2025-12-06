@@ -99,12 +99,12 @@
   "gui/tb_territory.bmp": "dab0b4090021fdf52e9d866736fc4e1db83ff9a4e88f8858268d5e6a155d340f",
   "gui/tb_units.bmp": "05e9518ffcc0e18282381c4c40184ff632729c30d22d38727a8b287192ec4505",
   "gui/tick.bmp": "5b7aa75bbd2fb1db8d11538512dad33098e90c0b3143283738f991e9affce606",
-  "language/english.txt": "638a3b03751c45660efd93687975731e933643dd64e30846032ae0c1fe38f3e8",
+  "language/english.txt": "b0ede9526243fc917df385b0256a879234622bbe7cf355e5054c44185457f625",
   "language/french.txt": "bfe65008982777f06951cca41e4ad09c3761de93b2085f8b4b15e094c7b16412",
   "language/german.txt": "01fe1f5b3b529a9cb3693dfb44393a29ea471ac75bd91a791af92c8a72c29116",
   "language/italian.txt": "b2e30eb9d58f869cb679e52634e480e0df0a07a48db5770633e2b58164ebfe61",
   "language/spanish.txt": "c5e7c6e2fdbe479195dff130f6b0ac1ebb6bc86106771bcbff24e8022426fd57",
-  "prefs_default.txt": "6c02e9f1ae4436ba2cd1255c93e4d39b57b466c3b04647c6810a6174b7039e5b",
+  "prefs_default.txt": "0001aebb97fd99ccc6e29c80f8b122d315462695e909e6f7d4ecb4c281339a51",
   "prefs_default_french.txt": "16e96ce573b852abaa849f172017c290591cd7056bfb90f9b12eef9491d0a7a8",
   "prefs_default_macosx.txt": "0b15f1733889d9ec81662aabcfe301f8b80170bdbb7e6044ca190e50e0b52b52",
   "prefs_testbed.txt": "d72f89dacda4a730c50521c3e6771a189c996b7a325b4f860cfb469bbf17778e",
@@ -117,5 +117,6 @@
   "styles/light.txt": "ba3cb7fbc8b2a3d8c130ce21c2602c67d68ced8b18cb90b4eeab0abf6b257137",
   "styles/red.txt": "aba7a3d1ebc3bb00b4db861f25038901316fe137e0785de47d10dd4cc9db4606",
   "tutorial.txt": "5214c3de6e1d6b9c6414dcafd40f987e02ce17914effbf9bdaeb4f5a4a3b6674",
+  "version.txt": "58ab89daafa439c03507dd66725362609c4706329eb001e09aadb8ca7bca5983",
   "world.dat": "d782b69f61bb55684f0e0558ee62ab302ec8427e49cd3959ed9d9fc4699825dc"
 }

@@ -1,7 +1,8 @@
 #include "lib/universal_include.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
 #include "lib/math/math_utils.h"
@@ -498,7 +499,7 @@ void Bomber::Render()
 
         float size = GetSize().DoubleValue() * 0.4f;
         
-        g_renderer->RotatingSprite( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 4, 
+        g_renderer2d->RotatingSprite( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 4, 
                                   predictedLatitude + m_vel.y.DoubleValue() * 4,
                                   size/2, 
                                   size/2, 

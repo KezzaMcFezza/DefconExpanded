@@ -3,7 +3,8 @@
 #include <time.h>
 
 #include "lib/resource/image.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/netlib/net_lib.h"
 #include "lib/debug_utils.h"
 #include "lib/hi_res_time.h"
@@ -56,12 +57,12 @@ public:
     {
         if( highlighted )
         {
-            g_renderer->RectFill ( realX, realY, m_w, m_h, Colour(100,100,200,100) );
+            g_renderer2d->RectFill ( realX, realY, m_w, m_h, Colour(100,100,200,100) );
         }
 
         if( strcmp(EclGetCurrentButton(), m_name) == 0 )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,200,200) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,200,200) );
             TextButton::Render( realX, realY, highlighted, true );
         }
         else
@@ -219,8 +220,8 @@ public:
 
         if( team && team->m_allianceId == m_allianceId )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,200,200) );
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,155) );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,200,200) );
+            g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,155) );
         }
 
         LobbyOptionsButton::Render( realX, realY, highlighted, clicked );
@@ -239,8 +240,8 @@ public:
         float colourH = m_h - 6;
 
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-        g_renderer->RectFill( colourX, colourY, colourW, colourH, allianceCol, darker, false );
-        g_renderer->Rect( colourX, colourY, colourW, colourH, Colour(255,255,255,55), 0.5f );
+        g_renderer2d->RectFill( colourX, colourY, colourW, colourH, allianceCol, darker, false );
+        g_renderer2d->Rect( colourX, colourY, colourW, colourH, Colour(255,255,255,55), 0.5f );
     }
 
     void MouseUp()
@@ -428,12 +429,12 @@ public:
 
         LobbyWindow *lobby = (LobbyWindow *) m_parent;
 
-        g_renderer->RectFill( realX, realY, m_w, m_h, Colour(15,15,15,100) );            
-        g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,30), 0.5f );
+        g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(15,15,15,100) );            
+        g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,30), 0.5f );
 
         if( highlighted && g_app->HasServerPrivileges() )
         {
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100), 1 );
+            g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100), 1 );
         }
 
         int maxTeams = g_app->GetGame()->GetOptionValue("MaxTeams");
@@ -446,34 +447,34 @@ public:
         {
             // This is a closed slot
             Colour col(255,255,255,50);
-            g_renderer->TextSimple( realX + 10, realY + m_h/2 - 6, col, 12, LANGUAGEPHRASE("dialog_closed") );
+            g_renderer2d->TextSimple( realX + 10, realY + m_h/2 - 6, col, 12, LANGUAGEPHRASE("dialog_closed") );
                     
             if( g_app->HasServerPrivileges() )
             {
                 if( g_app->GetClientToServer()->AmIDemoClient() &&
                     m_teamIndex >= maxDemoSize )
                 {
-                    g_renderer->TextSimple( realX + 120, realY + m_h/2 - 8, col, 11, LANGUAGEPHRASE("dialog_demo_user") );
+                    g_renderer2d->TextSimple( realX + 120, realY + m_h/2 - 8, col, 11, LANGUAGEPHRASE("dialog_demo_user") );
 
 					char caption[256];
                     strcpy( caption, LANGUAGEPHRASE("dialog_number_players_max") );
 					LPREPLACEINTEGERFLAG( 'N', maxDemoSize, caption );
 
-                    g_renderer->TextSimple( realX + 120, realY + m_h/2 + 2, col, 9, caption );
+                    g_renderer2d->TextSimple( realX + 120, realY + m_h/2 + 2, col, 9, caption );
 
                     SetTooltip( "tooltip_lobby_demo_max_player", true );
                 }
                 else
                 {
-                    g_renderer->TextSimple( realX + 120, realY + m_h/2 - 5, col, 11, LANGUAGEPHRASE("dialog_click_to_open") );
+                    g_renderer2d->TextSimple( realX + 120, realY + m_h/2 - 5, col, 11, LANGUAGEPHRASE("dialog_click_to_open") );
                     SetTooltip( "tooltip_lobby_click_open_slot", true );
                 }
             }
         }
         else
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,20) );            
-            g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,30), 1 );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,20) );            
+            g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,30), 1 );
 
             int teamId = lobby->m_teamOrder[m_teamIndex];
             Team *team = g_app->GetWorld()->GetTeam(teamId);
@@ -486,12 +487,12 @@ public:
                 {
                     col.m_a *= 0.3f;
                 }
-                g_renderer->TextSimple( realX + 10, realY + m_h/2 - 6, col, 12, LANGUAGEPHRASE("dialog_awaiting_player") );
+                g_renderer2d->TextSimple( realX + 10, realY + m_h/2 - 6, col, 12, LANGUAGEPHRASE("dialog_awaiting_player") );
 
                 if( g_app->HasServerPrivileges() )
                 {
                     Colour col(255,255,255,50);
-                    g_renderer->TextSimple( realX + 120, realY + m_h/2 - 5, col, 11, LANGUAGEPHRASE("dialog_click_to_close") );
+                    g_renderer2d->TextSimple( realX + 120, realY + m_h/2 - 5, col, 11, LANGUAGEPHRASE("dialog_click_to_close") );
                     SetTooltip( "tooltip_lobby_click_close_slot", true );
                 }
             }
@@ -513,8 +514,8 @@ public:
                 teamColDark.m_g *= 0.2f;
                 teamColDark.m_b *= 0.2f;
 
-                g_renderer->RectFill( realX, realY, m_w, m_h, colour, teamColDark, teamColDark, colour );            
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, colour, teamColDark, teamColDark, colour );            
+                g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100) );
 
                 const char *teamName = team->GetTeamName();
 
@@ -544,14 +545,14 @@ public:
 					sprintf( teamNameFull, "%s", teamName );
 				}
                 
-                g_renderer->TextSimple( realX + 10, realY+m_h/2-6, White, 12, teamNameFull );
+                g_renderer2d->TextSimple( realX + 10, realY+m_h/2-6, White, 12, teamNameFull );
 
                 //
                 // Ready status
 
                 if( team->m_readyToStart )
                 {
-                    g_renderer->TextSimple( realX + 130, realY+m_h/2-5, White, 11, LANGUAGEPHRASE("dialog_ready") );
+                    g_renderer2d->TextSimple( realX + 130, realY+m_h/2-5, White, 11, LANGUAGEPHRASE("dialog_ready") );
                 }
 
 
@@ -560,7 +561,7 @@ public:
 
                 if( lobby->m_selectionId == team->m_teamId )
                 {
-                    g_renderer->Rect( realX-2, realY-2, m_w+4, m_h+4, Colour(255,255,255,255), 1.5f );
+                    g_renderer2d->Rect( realX-2, realY-2, m_w+4, m_h+4, Colour(255,255,255,255), 1.5f );
                 }
 
                 //
@@ -568,22 +569,22 @@ public:
 
                 if( TeamOptionsAvailable() )
                 {
-                    g_renderer->EndRectFillBatch();
-                    g_renderer->BeginStaticSpriteBatch();
+                    g_renderer2d->EndRectFillBatch();
+                    g_renderer2d->BeginStaticSpriteBatch();
 
                     int optionsX, optionsY, optionsW, optionsH;
                     GetTeamOptionsButton( optionsX, optionsY, optionsW, optionsH );
                     
                     Image *img = g_resource->GetImage("gui/arrow.bmp");
                     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                    g_renderer->StaticSprite( img, realX+optionsX, realY+optionsY, optionsW, optionsH, Colour(255,255,255,150) );
+                    g_renderer2d->StaticSprite( img, realX+optionsX, realY+optionsY, optionsW, optionsH, Colour(255,255,255,150) );
                     
                     if( MouseInTeamOptionsButton() )
                     {
-                        g_renderer->StaticSprite( img, realX+optionsX, realY+optionsY, optionsW, optionsH, Colour(255,255,255,250) );                    
+                        g_renderer2d->StaticSprite( img, realX+optionsX, realY+optionsY, optionsW, optionsH, Colour(255,255,255,250) );                    
                     }
                     
-                    g_renderer->EndStaticSpriteBatch();
+                    g_renderer2d->EndStaticSpriteBatch();
                     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
                 }
 
@@ -760,16 +761,16 @@ public:
                 option->m_currentValue != option->m_default &&
                 optionEditable )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,20) );
-                g_renderer->TextRight( realX+m_w, realY+m_h-8, Colour(255,0,0,200), 8, LANGUAGEPHRASE("dialog_edited") );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,20) );
+                g_renderer2d->TextRight( realX+m_w, realY+m_h-8, Colour(255,0,0,200), 8, LANGUAGEPHRASE("dialog_edited") );
             }
             
             if( !optionEditable )
             {
-                g_renderer->TextRight( realX+m_w, realY+m_h-8, Colour(255,0,0,200), 8, LANGUAGEPHRASE("dialog_locked") );
+                g_renderer2d->TextRight( realX+m_w, realY+m_h-8, Colour(255,0,0,200), 8, LANGUAGEPHRASE("dialog_locked") );
             }
 
-            g_renderer->TextCentreSimple( realX + m_w/2, realY + 4, colour, 12, caption);
+            g_renderer2d->TextCentreSimple( realX + m_w/2, realY + 4, colour, 12, caption);
 
             //
             // Has this option changed since last frame?
@@ -786,7 +787,7 @@ public:
                 float fraction = m_changeTimer / 2.0f;
                 Clamp( fraction, 0.0f, 1.0f );
                 Colour col( 255, 255, 255, fraction*155 );
-                g_renderer->RectFill( realX, realY, m_w, m_h, col );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, col );
             }
         }
     }
@@ -886,10 +887,10 @@ public:
 			}
 			else
 			{
-				float originalAlpha = g_renderer->m_alpha;
-				g_renderer->m_alpha *= 0.667f;
+				float originalAlpha = g_renderer2d->m_alpha;
+				g_renderer2d->m_alpha *= 0.667f;
 				InterfaceButton::Render( realX, realY, false, false );
-				g_renderer->m_alpha = originalAlpha;
+				g_renderer2d->m_alpha = originalAlpha;
 			}
         }
     }
@@ -1139,8 +1140,8 @@ public:
         //
         // this ensures the map is rendered ontop of rectfill
             
-        g_renderer->EndRectFillBatch();
-        g_renderer->BeginRectFillBatch();
+        g_renderer2d->EndRectFillBatch();
+        g_renderer2d->BeginRectFillBatch();
         
         //
         // Render the world map
@@ -1154,8 +1155,8 @@ public:
         int worldMapY = realY;
 
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-        g_renderer->StaticSprite( bmpWorldMap, worldMapX, worldMapY, worldMapW, worldMapH, White );
-        g_renderer->Rect( worldMapX, worldMapY, worldMapW, worldMapH, Colour(100,100,200,255) );
+        g_renderer2d->StaticSprite( bmpWorldMap, worldMapX, worldMapY, worldMapW, worldMapH, White );
+        g_renderer2d->Rect( worldMapX, worldMapY, worldMapW, worldMapH, Colour(100,100,200,255) );
 
         //
         // Caption : select territories
@@ -1179,14 +1180,14 @@ public:
 			LPREPLACEINTEGERFLAG( 'T', numTerritories, caption );
 			LPREPLACEINTEGERFLAG( 'M', maxTerritories, caption );
 
-            g_renderer->TextCentreSimple( realX+m_w/2, realY+m_h-15, col, 15, caption );
+            g_renderer2d->TextCentreSimple( realX+m_w/2, realY+m_h-15, col, 15, caption );
             g_renderer->SetFont();
         }
 
         if( randomTerritories )
         {
             g_renderer->SetFont( "kremlin" );
-            g_renderer->TextCentre( realX+m_w/2, realY+m_h-15, Colour(200,200,255,100), 15, LANGUAGEPHRASE("dialog_random_territories") );
+            g_renderer2d->TextCentre( realX+m_w/2, realY+m_h-15, Colour(200,200,255,100), 15, LANGUAGEPHRASE("dialog_random_territories") );
             g_renderer->SetFont();
         }
 
@@ -1207,11 +1208,11 @@ public:
                     Image *img = g_app->GetMapRenderer()->GetTerritoryImage(territoryId);
                     Colour col = team->GetTeamColour();
                     col.m_a = 200;
-                    g_renderer->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col, true );
+                    g_renderer2d->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col, true );
                     if( team->m_teamId == ((LobbyWindow *)m_parent)->m_selectionId )
                     {
                         col.Set(255,255,255,70);
-                        g_renderer->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col, true );
+                        g_renderer2d->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col, true );
                     }
                 }
             }
@@ -1257,7 +1258,7 @@ public:
                 {
                     if( selectedTeam )
                     {
-                        g_renderer->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col );
+                        g_renderer2d->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col );
                     }
                 }   
 
@@ -1589,7 +1590,7 @@ void LobbyOptionsWindow::Render( bool _hasFocus )
 
         if( g_languageTable->DoesPhraseExist( stringId ) )
         {
-            g_renderer->TextSimple( x, y, White, 14, GameOption::TranslateValue( paramName ) );
+            g_renderer2d->TextSimple( x, y, White, 14, GameOption::TranslateValue( paramName ) );
             y+= 20;
 
             const char *fullString = LANGUAGEPHRASE(stringId);
@@ -1599,7 +1600,7 @@ void LobbyOptionsWindow::Render( bool _hasFocus )
             for( int i = 0; i < wrapped.Size(); ++i )
             {
                 char *thisString = wrapped[i];
-                g_renderer->TextSimple( x, y+=13, White, 11, thisString );
+                g_renderer2d->TextSimple( x, y+=13, White, 11, thisString );
             }
         }
 
@@ -1611,13 +1612,13 @@ void LobbyOptionsWindow::Render( bool _hasFocus )
             Authentication_GetKey( authKey );
             if( Authentication_IsDemoKey(authKey) )
             {
-                g_renderer->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_demo_1") );
-                g_renderer->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_demo_2") );
+                g_renderer2d->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_demo_1") );
+                g_renderer2d->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_demo_2") );
             }
             else
             {
-                g_renderer->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_game_mode_1") );
-                g_renderer->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_game_mode_2") );
+                g_renderer2d->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_game_mode_1") );
+                g_renderer2d->TextSimple( x, y+=13, White, 11, LANGUAGEPHRASE("dialog_option_locked_game_mode_2") );
             }
         }
     }
@@ -2037,7 +2038,7 @@ void LobbyWindow::Render( bool _hasFocus )
         strcpy( caption, LANGUAGEPHRASE("dialog_spectators_number") );
 		LPREPLACEINTEGERFLAG( 'N', maxSpectators, caption );
 
-        g_renderer->Text( specX+10, specY, Colour(255,255,255,130), 18, caption );
+        g_renderer2d->Text( specX+10, specY, Colour(255,255,255,130), 18, caption );
         g_renderer->SetFont();
 
         specY += 20;
@@ -2048,7 +2049,7 @@ void LobbyWindow::Render( bool _hasFocus )
             {
                 Colour col(100,100,100,200);
                 if( fmodf(GetHighResTime()*2, 2) < 1.0f ) col.m_a *= 0.6f;
-                g_renderer->TextSimple( specX+10, specY+10, col, 11, LANGUAGEPHRASE("dialog_awaiting_spectators") );
+                g_renderer2d->TextSimple( specX+10, specY+10, col, 11, LANGUAGEPHRASE("dialog_awaiting_spectators") );
             }
         }   
         else
@@ -2075,12 +2076,12 @@ void LobbyWindow::Render( bool _hasFocus )
                         strcpy( specName, spec->m_name );
                     }
 
-                    g_renderer->RectFill( specX, specY, specW, specH-gap, Colour(155,155,155,30), Colour(55,55,55,30), false );            
-                    g_renderer->Text( specX+10, specY+(specH-gap)/2-6, Colour(255,255,255,128), 11, specName );
+                    g_renderer2d->RectFill( specX, specY, specW, specH-gap, Colour(155,155,155,30), Colour(55,55,55,30), false );            
+                    g_renderer2d->Text( specX+10, specY+(specH-gap)/2-6, Colour(255,255,255,128), 11, specName );
 
                     if( spec->m_clientId == g_app->GetClientToServer()->m_clientId )
                     {
-                        g_renderer->Rect( specX, specY, specW, specH-gap, Colour(255,255,255,100), 1.0f );
+                        g_renderer2d->Rect( specX, specY, specW, specH-gap, Colour(255,255,255,100), 1.0f );
                     }
                 }
 
@@ -2112,11 +2113,11 @@ void LobbyWindow::Render( bool _hasFocus )
             strcpy( caption, LANGUAGEPHRASE("unknown") );
 		}
 #if SYNC_PRACTICE
-        g_renderer->TextSimple( m_x+275, m_y+232, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
-        g_renderer->TextCentreSimple( m_x+440, m_y+232, White, 11, caption );
+        g_renderer2d->TextSimple( m_x+275, m_y+232, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
+        g_renderer2d->TextCentreSimple( m_x+440, m_y+232, White, 11, caption );
 #else
-		g_renderer->TextSimple( m_x+275, m_y+272, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
-        g_renderer->TextCentreSimple( m_x+440, m_y+272, White, 11, caption );
+		g_renderer2d->TextSimple( m_x+275, m_y+272, col, 11, LANGUAGEPHRASE("dialog_internet_identity") );
+        g_renderer2d->TextCentreSimple( m_x+440, m_y+272, White, 11, caption );
 #endif
 
 
@@ -2128,11 +2129,11 @@ void LobbyWindow::Render( bool _hasFocus )
 		LPREPLACESTRINGFLAG( 'I', localIp, caption );
 		LPREPLACEINTEGERFLAG( 'P', localPort, caption );
 #if SYNC_PRACTICE
-		g_renderer->TextSimple( m_x+275, m_y+252, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
-        g_renderer->TextCentreSimple( m_x+440, m_y+252, White, 11, caption );  
+		g_renderer2d->TextSimple( m_x+275, m_y+252, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
+        g_renderer2d->TextCentreSimple( m_x+440, m_y+252, White, 11, caption );  
 #else    
-		g_renderer->TextSimple( m_x+275, m_y+292, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
-        g_renderer->TextCentreSimple( m_x+440, m_y+292, White, 11, caption );   
+		g_renderer2d->TextSimple( m_x+275, m_y+292, col, 11, LANGUAGEPHRASE("dialog_lan_identity") );
+        g_renderer2d->TextCentreSimple( m_x+440, m_y+292, White, 11, caption );   
 #endif
     }
     else
@@ -2148,8 +2149,8 @@ void LobbyWindow::Render( bool _hasFocus )
 		LPREPLACESTRINGFLAG( 'I', serverIp, caption );
 		LPREPLACEINTEGERFLAG( 'P', serverPort, caption );
 
-        g_renderer->TextSimple( m_x+275, m_y+272, col, 11, LANGUAGEPHRASE("dialog_server_identity") );
-        g_renderer->TextCentreSimple( m_x+440, m_y+272, White, 11, caption );       
+        g_renderer2d->TextSimple( m_x+275, m_y+272, col, 11, LANGUAGEPHRASE("dialog_server_identity") );
+        g_renderer2d->TextCentreSimple( m_x+440, m_y+272, White, 11, caption );       
 
     }
 
@@ -2190,7 +2191,7 @@ void LobbyWindow::Render( bool _hasFocus )
     {
 #ifndef SYNC_PRACTICE
         char *thisLine = wrapped[i];
-        g_renderer->Text( m_x+captionX, captionY-=gap, Colour(255,255,255,128), 10, thisLine );
+        g_renderer2d->Text( m_x+captionX, captionY-=gap, Colour(255,255,255,128), 10, thisLine );
 #endif
     }
 
@@ -2206,7 +2207,7 @@ void LobbyWindow::Render( bool _hasFocus )
         sprintf( timeLeft, "%d", int(g_app->m_gameStartTimer)+1 );
 		LPREPLACESTRINGFLAG( 'X', timeLeft, caption );
                 
-        g_renderer->TextSimple( m_x+captionX, m_y + m_h - 60, White, 17, caption );        
+        g_renderer2d->TextSimple( m_x+captionX, m_y + m_h - 60, White, 17, caption );        
     }
     else
     {
@@ -2225,7 +2226,7 @@ void LobbyWindow::Render( bool _hasFocus )
         if( youLeft ) caption = LANGUAGEPHRASE("dialog_gamestart_youready");
         else          caption = LANGUAGEPHRASE("dialog_gamestart_whenready");
 
-        g_renderer->Text( m_x+captionX, m_y + m_h - 55, Colour(255,255,255,220), 10, caption );
+        g_renderer2d->Text( m_x+captionX, m_y + m_h - 55, Colour(255,255,255,220), 10, caption );
     }
 
 
@@ -2257,7 +2258,7 @@ void LobbyWindow::Render( bool _hasFocus )
     //    }
 
     //    //g_renderer->SetFont( "kremlin" );
-    //    g_renderer->TextCentreSimple( m_x+m_w*3/4, m_y+204, col, 12, caption );
+    //    g_renderer2d->TextCentreSimple( m_x+m_w*3/4, m_y+204, col, 12, caption );
 
 
     //    //
@@ -2269,7 +2270,7 @@ void LobbyWindow::Render( bool _hasFocus )
 
     //    sprintf( caption, "LAN Identity : %s : %d", localIp, localPort );
     //    col.Set(0,255,0,255);
-    //    g_renderer->TextCentreSimple( m_x+m_w*3/4, m_y+220, col, 12, caption );
+    //    g_renderer2d->TextCentreSimple( m_x+m_w*3/4, m_y+220, col, 12, caption );
 
     //    g_renderer->SetFont();    
     //}
@@ -2413,10 +2414,10 @@ void RenameTeamWindow::Render( bool hasFocus )
 
 	if( m_teamId == -1 )
 	{
-		g_renderer->TextCentreSimple( m_x + m_w / 2, m_y+30, White, 15.0f, LANGUAGEPHRASE("dialog_setplayername") );
+		g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y+30, White, 15.0f, LANGUAGEPHRASE("dialog_setplayername") );
 	}
 	else
 	{
-		g_renderer->TextCentreSimple( m_x + m_w / 2, m_y+30, White, 15.0f, LANGUAGEPHRASE("dialog_setteamname") );
+		g_renderer2d->TextCentreSimple( m_x + m_w / 2, m_y+30, White, 15.0f, LANGUAGEPHRASE("dialog_setteamname") );
 	}
 }

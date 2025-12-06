@@ -4,7 +4,8 @@
 
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/file_system.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/gucci/input.h"
 #include "lib/resource/resource.h"
 #include "lib/eclipse/eclipse.h"
@@ -89,16 +90,16 @@ public:
 		{        
             if( fd->IsFileSelected(index) != -1 )
             {
-				g_renderer->RectFill( realX, realY, m_w, m_h, Colour(77, 77, 255, 128) );
+				g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(77, 77, 255, 128) );
             }
 
 			if( clicked || highlighted )
 			{
-				g_renderer->Rect( realX, realY, m_w, m_h, White );
+				g_renderer2d->Rect( realX, realY, m_w, m_h, White );
 			}
 
 			char *fileName = fd->m_files->GetData( index );
-			g_renderer->TextSimple( realX + 30, realY + 0, White, 11, fileName);
+			g_renderer2d->TextSimple( realX + 30, realY + 0, White, 11, fileName);
 		}
 	}
 };

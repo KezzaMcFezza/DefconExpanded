@@ -2,7 +2,8 @@
 
 #include <stdlib.h>
 
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/filesys/text_stream_readers.h"
 #include "lib/filesys/file_system.h"
@@ -57,7 +58,7 @@ void VersionPopupWindow::Render( bool _hasFocus )
     
     for( int i = 0; i < s_numLines; i++ )
     {
-        g_renderer->TextSimple( m_x + 15, m_y + 35 + i * 14, White, 12, s_lines[i] );
+        g_renderer2d->TextSimple( m_x + 15, m_y + 35 + i * 14, White, 12, s_lines[i] );
     }
 }
 

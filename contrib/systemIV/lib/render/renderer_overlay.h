@@ -4,15 +4,14 @@
 #include "lib/render/colour.h"
 
 class Renderer;
-class RendererDebugMenu
+class RendererOverlay
 
 {
 public:
     static const int FRAME_TIME_HISTORY_SIZE = 60;
 
 private:
-    Renderer* m_renderer;
-    
+
     bool m_showBufferStats;
     bool m_showMemoryInfo;
     bool m_showOpenGLInfo;
@@ -24,8 +23,8 @@ private:
     double m_averageFrameTime;
 
 public:
-    RendererDebugMenu(Renderer* renderer);
-    ~RendererDebugMenu();
+    RendererOverlay();
+    ~RendererOverlay();
     
     void Update(double frameTime);
     void RenderDebugMenu();

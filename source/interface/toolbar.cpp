@@ -46,7 +46,7 @@ void ToolbarButton::Render( int realX, int realY, bool highlighted, bool clicked
         {
             for( int y = -1; y <= 1; ++y )
             {
-                g_renderer->StaticSprite( image, realX+x, realY+y, m_w, m_h, col );
+                g_renderer2d->StaticSprite( image, realX+x, realY+y, m_w, m_h, col );
             }
         }
 
@@ -61,7 +61,7 @@ void ToolbarButton::Render( int realX, int realY, bool highlighted, bool clicked
 				{
 					for( int y = -size; y <= size; y++ )
 					{
-						g_renderer->StaticSprite( image, realX+x, realY+y, m_w, m_h, col );
+						g_renderer2d->StaticSprite( image, realX+x, realY+y, m_w, m_h, col );
 					}
 				}
 			}
@@ -70,8 +70,8 @@ void ToolbarButton::Render( int realX, int realY, bool highlighted, bool clicked
 			{
 				FadingWindow *parent = (FadingWindow *)m_parent;
 	            
-				g_renderer->RectFill( realX-2, realY-2, m_w+4, m_h+4, Colour(255,255,255,50.0f*parent->m_alpha) );
-				g_renderer->Rect( realX-2, realY-2, m_w+4, m_h+4, Colour(200,200,255,200.0f*parent->m_alpha) );
+				g_renderer2d->RectFill( realX-2, realY-2, m_w+4, m_h+4, Colour(255,255,255,50.0f*parent->m_alpha) );
+				g_renderer2d->Rect( realX-2, realY-2, m_w+4, m_h+4, Colour(200,200,255,200.0f*parent->m_alpha) );
 			}
 		}
 
@@ -83,13 +83,13 @@ void ToolbarButton::Render( int realX, int realY, bool highlighted, bool clicked
 		{
 	        col.Set(200,200,255,200);
 		}
-        g_renderer->StaticSprite( image, realX, realY, m_w, m_h, col );
+        g_renderer2d->StaticSprite( image, realX, realY, m_w, m_h, col );
 
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     }
     else
     {
-        g_renderer->RectFill( realX, realY, m_w, m_h, Colour(50,50,100,100) );
+        g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(50,50,100,100) );
     }
 
    
@@ -107,11 +107,11 @@ void ToolbarButton::Render( int realX, int realY, bool highlighted, bool clicked
 
 			if( m_captionIsLanguagePhrase )
 			{
-	            g_renderer->TextCentreSimple( realX+m_w/2, realY+m_h+2, col, fontSize, LANGUAGEPHRASE(m_caption) );
+	            g_renderer2d->TextCentreSimple( realX+m_w/2, realY+m_h+2, col, fontSize, LANGUAGEPHRASE(m_caption) );
 			}
 			else
 			{
-				g_renderer->TextCentreSimple( realX+m_w/2, realY+m_h+2, col, fontSize, m_caption );
+				g_renderer2d->TextCentreSimple( realX+m_w/2, realY+m_h+2, col, fontSize, m_caption );
 			}
         }
     }

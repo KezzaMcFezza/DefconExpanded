@@ -4,7 +4,8 @@
 
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
 
@@ -119,7 +120,7 @@ void Tornado::Render()
     m_angle += 0.05f;
 
     Image *bmpImage = g_resource->GetImage( bmpImageFilename );
-    g_renderer->Blit( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 10,
+    g_renderer2d->Blit( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 10,
 					  predictedLatitude + m_vel.y.DoubleValue() * 10, m_size.DoubleValue()/2, m_size.DoubleValue()/2,
 					  colour, m_angle );
 }

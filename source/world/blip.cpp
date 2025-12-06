@@ -4,7 +4,8 @@
 
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/math/vector3.h"
  
 #include "app/app.h"
@@ -206,7 +207,7 @@ void Blip::Render()
                 longitude += m_vel.x * Fixed::FromDouble(g_predictionTime);
                 latitude += m_vel.y * Fixed::FromDouble(g_predictionTime);
                 Image *img = g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[ member->m_type ] );
-                g_renderer->StaticSprite( img, m_longitude.DoubleValue() + longitude.DoubleValue() - size,
+                g_renderer2d->StaticSprite( img, m_longitude.DoubleValue() + longitude.DoubleValue() - size,
 								  m_latitude.DoubleValue() + latitude.DoubleValue() + size,
 								  size*2, size*-2, Colour(100,100,100,200) );
             }

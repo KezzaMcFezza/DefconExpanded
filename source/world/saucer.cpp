@@ -1,7 +1,8 @@
 #include "lib/universal_include.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
 #include "lib/language_table.h"
@@ -165,12 +166,12 @@ void Saucer::Render()
     // BATCHING FIX: Use rotating buffer for saucer sprite (has rotation)
     if( m_currentState == 0 )
     {  
-        g_renderer->RotatingSprite( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 2,
+        g_renderer2d->RotatingSprite( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 2,
 						  predictedLatitude + m_vel.y.DoubleValue() * 2, size/2, size/2, colour, m_angle );
     }
     else
     {
-        g_renderer->RotatingSprite( bmpImage, m_longitude.DoubleValue(), m_latitude.DoubleValue(), size/2, size/2, colour, m_angle );
+        g_renderer2d->RotatingSprite( bmpImage, m_longitude.DoubleValue(), m_latitude.DoubleValue(), size/2, size/2, colour, m_angle );
     }
     
     if( m_currentState == 1 )
@@ -179,7 +180,7 @@ void Saucer::Render()
 		float explosionSize = m_explosionSize.DoubleValue();
 		Colour fire = Colour (200, 100, 100, 255 );
 
-        g_renderer->StaticSprite( explosion, m_longitude.DoubleValue() - explosionSize/4,
+        g_renderer2d->StaticSprite( explosion, m_longitude.DoubleValue() - explosionSize/4,
 						  m_latitude.DoubleValue() - explosionSize/4, explosionSize/2, explosionSize/2, fire);
     }
 

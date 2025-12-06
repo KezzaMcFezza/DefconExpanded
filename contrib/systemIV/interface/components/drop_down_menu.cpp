@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/gucci/window_manager.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 
 #include <string.h>
 
@@ -272,7 +273,7 @@ void DropDownMenu::Render( int realX, int realY, bool highlighted, bool clicked 
         
     float midPointY = realY + m_h/2.0f;
 
-    g_renderer->TriangleFill( realX + m_w - 14, midPointY-4,
+    g_renderer2d->TriangleFill( realX + m_w - 14, midPointY-4,
                               realX + m_w - 6, midPointY-4,
                               realX + m_w - 10, midPointY+4, White );
 }
@@ -396,12 +397,12 @@ void DropDownMenuOption::Render( int realX, int realY, bool highlighted, bool cl
 
             if( highlighted )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,200,100) );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,200,100) );
             }
 
             if( menu->GetSelectionValue() == m_value )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(100,100,200,200) );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(100,100,200,200) );
                 TextButton::Render( realX, realY, highlighted, true );
             }
             else

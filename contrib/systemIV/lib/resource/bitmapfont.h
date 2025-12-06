@@ -11,6 +11,7 @@ class Colour;
 class BitmapFont
 {
     friend class Renderer;
+    friend class Renderer2D;
 
 public:
     char            *m_filename;

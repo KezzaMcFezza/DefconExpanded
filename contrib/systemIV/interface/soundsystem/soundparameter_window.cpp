@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/gucci/input.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/sound/sound_parameter.h"
 #include "lib/sound/sound_instance.h"
 #include "lib/sound/soundsystem.h"
@@ -28,16 +29,16 @@ SoundParameterButton::SoundParameterButton()
 void SoundParameterButton::Render( int realX, int realY, bool highlighted,  bool clicked )
 {
     float editAreaWidth = m_w - 100;
-    g_renderer->RectFill( realX + m_w - editAreaWidth, realY, editAreaWidth, m_h, Colour(25, 0, 0, 128) );
+    g_renderer2d->RectFill( realX + m_w - editAreaWidth, realY, editAreaWidth, m_h, Colour(25, 0, 0, 128) );
 
     // Top line
-    g_renderer->Line( realX + m_w - editAreaWidth, realY, realX + m_w, realY, Colour(0, 0, 0, 255) );
+    g_renderer2d->Line( realX + m_w - editAreaWidth, realY, realX + m_w, realY, Colour(0, 0, 0, 255) );
     // Left line
-    g_renderer->Line( realX + m_w - editAreaWidth, realY, realX + m_w - editAreaWidth, realY+m_h, Colour(0, 0, 0, 255) );
+    g_renderer2d->Line( realX + m_w - editAreaWidth, realY, realX + m_w - editAreaWidth, realY+m_h, Colour(0, 0, 0, 255) );
     // Right line
-    g_renderer->Line( realX + m_w, realY, realX + m_w, realY + m_h, Colour(229, 76, 76, 76) );
+    g_renderer2d->Line( realX + m_w, realY, realX + m_w, realY + m_h, Colour(229, 76, 76, 76) );
     // Bottom line
-    g_renderer->Line( realX + m_w - editAreaWidth, realY+m_h, realX + m_w, realY + m_h, Colour(100, 34, 34, 150) );
+    g_renderer2d->Line( realX + m_w - editAreaWidth, realY+m_h, realX + m_w, realY + m_h, Colour(100, 34, 34, 150) );
 
 
     TextButton::Render( realX, realY, highlighted, clicked );
@@ -48,26 +49,26 @@ void SoundParameterButton::Render( int realX, int realY, bool highlighted,  bool
     {
         case SoundParameter::TypeFixedValue:
         {
-            g_renderer->TextRight( realX + m_w - 10, realY+4, White, 12, "Fixed at %2.2f", value );
+            g_renderer2d->TextRight( realX + m_w - 10, realY+4, White, 12, "Fixed at %2.2f", value );
             break;
         }
 
         case SoundParameter::TypeRangedRandom:
         {
-            g_renderer->TextRight( realX + m_w - 5, realY+4, White, 12, "From %2.2f to %2.2f", 
+            g_renderer2d->TextRight( realX + m_w - 5, realY+4, White, 12, "From %2.2f to %2.2f", 
                                             m_parameter->m_outputLower, m_parameter->m_outputUpper );
             break;
         }
 
         case SoundParameter::TypeLinked:
         {
-            g_renderer->TextRight( realX + m_w - 10, realY+4, White, 12, "Linked To %s", 
+            g_renderer2d->TextRight( realX + m_w - 10, realY+4, White, 12, "Linked To %s", 
                                             m_parameter->GetLinkName( m_parameter->m_link ) );
             break;
         }
         
         default:
-            g_renderer->TextRightSimple( realX + m_w - 10, realY+4, White, 12, "[???]" );
+            g_renderer2d->TextRightSimple( realX + m_w - 10, realY+4, White, 12, "[???]" );
     }
 }
 
@@ -269,25 +270,25 @@ void SoundParameterGraph::RenderAxis( int realX, int realY )
 
     // Convert axis rendering to modern renderer Line calls
     // Main horizontal axis line
-    g_renderer->Line( realX + x1, realY + y, realX + x2, realY + y, White );
+    g_renderer2d->Line( realX + x1, realY + y, realX + x2, realY + y, White );
     
     // Vertical axis line (if linked parameter)
     if( m_parameter->m_type == SoundParameter::TypeLinked )
     {
-        g_renderer->Line( realX + x, realY + y1, realX + x, realY + y2, White );
+        g_renderer2d->Line( realX + x, realY + y1, realX + x, realY + y2, White );
     }
 
-    g_renderer->Text( realX + x1, realY + y + 20, White, 10, "%2.2f", m_minOutput );
-    g_renderer->Text( realX + x2, realY + y + 20, White, 10, "%2.2f", m_maxOutput );
+    g_renderer2d->Text( realX + x1, realY + y + 20, White, 10, "%2.2f", m_minOutput );
+    g_renderer2d->Text( realX + x2, realY + y + 20, White, 10, "%2.2f", m_maxOutput );
 
     if( m_parameter->m_type == SoundParameter::TypeLinked )
     {
         char caption[256];
         sprintf( caption, "%2.2f", m_maxInput );
-        g_renderer->TextSimple( realX + x, realY + y1, White, 10, caption );
+        g_renderer2d->TextSimple( realX + x, realY + y1, White, 10, caption );
 
         sprintf( caption, "%2.2f", m_minInput );
-        g_renderer->TextSimple( realX + x, realY + y2, White, 10, caption );
+        g_renderer2d->TextSimple( realX + x, realY + y2, White, 10, caption );
     }
 
 	
@@ -303,7 +304,7 @@ void SoundParameterGraph::RenderAxis( int realX, int realY )
 		{
 			float output = m_minOutput + (float)i * 0.1f * (m_maxOutput - m_minOutput);
 			GetPosition( output, 0, &x1, &y );
-			g_renderer->Line( realX + x1, realY + y1, realX + x1, realY + y2, Colour(60, 60, 70, 255) );
+			g_renderer2d->Line( realX + x1, realY + y1, realX + x1, realY + y2, Colour(60, 60, 70, 255) );
 		}
 	}
 }
@@ -319,8 +320,8 @@ void SoundParameterGraph::RenderValues( int realX, int realY )
             GetPosition( m_parameter->m_outputLower, m_minInput, &x, &y1 );
             GetPosition( m_parameter->m_outputLower, m_maxInput, &x, &y2 );
             // Convert fixed value line to modern renderer
-            g_renderer->Line( realX + x, realY + y1, realX + x, realY + y2, Colour(179, 204, 255, 179) );
-            g_renderer->Text( realX + x, realY + y1 + 10, White, 10, "%2.2f", m_parameter->m_outputLower );
+            g_renderer2d->Line( realX + x, realY + y1, realX + x, realY + y2, Colour(179, 204, 255, 179) );
+            g_renderer2d->Text( realX + x, realY + y1 + 10, White, 10, "%2.2f", m_parameter->m_outputLower );
             break;
         }
 
@@ -332,14 +333,14 @@ void SoundParameterGraph::RenderValues( int realX, int realY )
             GetPosition( m_parameter->m_outputUpper, m_minInput, &x2, NULL );
 
             // Convert ranged random visualization to modern renderer
-            g_renderer->RectFill( realX + x1, realY + y1, x2 - x1, y2 - y1, Colour(128, 128, 255, 76) );
+            g_renderer2d->RectFill( realX + x1, realY + y1, x2 - x1, y2 - y1, Colour(128, 128, 255, 76) );
             
             // Border lines
-            g_renderer->Line( realX + x1, realY + y1, realX + x1, realY + y2, Colour(128, 128, 255, 179) );
-            g_renderer->Line( realX + x2, realY + y1, realX + x2, realY + y2, Colour(128, 128, 255, 179) );
+            g_renderer2d->Line( realX + x1, realY + y1, realX + x1, realY + y2, Colour(128, 128, 255, 179) );
+            g_renderer2d->Line( realX + x2, realY + y1, realX + x2, realY + y2, Colour(128, 128, 255, 179) );
 
-            g_renderer->TextCentre( realX + x1, realY + y1 + 10, White, 10, "%2.2f", m_parameter->m_outputLower );
-            g_renderer->TextCentre( realX + x2, realY + y1 + 10, White, 10, "%2.2f", m_parameter->m_outputUpper );
+            g_renderer2d->TextCentre( realX + x1, realY + y1 + 10, White, 10, "%2.2f", m_parameter->m_outputLower );
+            g_renderer2d->TextCentre( realX + x2, realY + y1 + 10, White, 10, "%2.2f", m_parameter->m_outputUpper );
 
             break;
         }
@@ -355,22 +356,22 @@ void SoundParameterGraph::RenderValues( int realX, int realY )
             
             // Convert linked parameter visualization to modern renderer
             // Main connection line
-            g_renderer->Line( realX + x1, realY + y1, realX + x2, realY + y2, Colour(128, 128, 255, 230) );
+            g_renderer2d->Line( realX + x1, realY + y1, realX + x2, realY + y2, Colour(128, 128, 255, 230) );
             
             // Vertical indicator lines
             if( y1 >= y2 ) {
-                g_renderer->Line( realX + x1, realY + y1, realX + x1, realY + minY, Colour(128, 128, 255, 230) );
-                g_renderer->Line( realX + x2, realY + y2, realX + x2, realY + maxY, Colour(128, 128, 255, 230) );
+                g_renderer2d->Line( realX + x1, realY + y1, realX + x1, realY + minY, Colour(128, 128, 255, 230) );
+                g_renderer2d->Line( realX + x2, realY + y2, realX + x2, realY + maxY, Colour(128, 128, 255, 230) );
             } else {
-                g_renderer->Line( realX + x1, realY + y1, realX + x1, realY + maxY, Colour(128, 128, 255, 230) );
-                g_renderer->Line( realX + x2, realY + y2, realX + x2, realY + minY, Colour(128, 128, 255, 230) );
+                g_renderer2d->Line( realX + x1, realY + y1, realX + x1, realY + maxY, Colour(128, 128, 255, 230) );
+                g_renderer2d->Line( realX + x2, realY + y2, realX + x2, realY + minY, Colour(128, 128, 255, 230) );
             }
 
-            g_renderer->TextCentre( realX + x1, realY + minY + 10, White, 10, "%2.2f", m_parameter->m_outputLower );
-            g_renderer->TextCentre( realX + x2, realY + minY + 10, White, 10, "%2.2f", m_parameter->m_outputUpper );
+            g_renderer2d->TextCentre( realX + x1, realY + minY + 10, White, 10, "%2.2f", m_parameter->m_outputLower );
+            g_renderer2d->TextCentre( realX + x2, realY + minY + 10, White, 10, "%2.2f", m_parameter->m_outputUpper );
 
-            g_renderer->TextCentre( realX + minX, realY + y1, White, 10, "%2.2f", m_parameter->m_inputLower );
-            g_renderer->TextCentre( realX + minX, realY + y2, White, 10, "%2.2f", m_parameter->m_inputUpper );
+            g_renderer2d->TextCentre( realX + minX, realY + y1, White, 10, "%2.2f", m_parameter->m_inputLower );
+            g_renderer2d->TextCentre( realX + minX, realY + y2, White, 10, "%2.2f", m_parameter->m_inputUpper );
             break;
         }
     }
@@ -392,12 +393,12 @@ void SoundParameterGraph::RenderOutput( int realX, int realY )
         GetPosition( output, m_minInput, &x, &minY );
         GetPosition( output, m_maxInput, &x, &maxY );
         // Convert output visualization to modern renderer
-        g_renderer->Line( realX + x, realY + minY, realX + x, realY + maxY, Colour(128, 255, 128, 191) );
+        g_renderer2d->Line( realX + x, realY + minY, realX + x, realY + maxY, Colour(128, 255, 128, 191) );
 
         float desiredOutput = m_parameter->m_desiredOutput;
         GetPosition( desiredOutput, m_minInput, &x, &minY );
         GetPosition( desiredOutput, m_maxInput, &x, &maxY );
-        g_renderer->Line( realX + x, realY + minY, realX + x, realY + maxY, Colour(128, 255, 128, 89) );
+        g_renderer2d->Line( realX + x, realY + minY, realX + x, realY + maxY, Colour(128, 255, 128, 89) );
     }
     else if( m_parameter->m_type == SoundParameter::TypeLinked )
     {
@@ -429,8 +430,8 @@ void SoundParameterGraph::RenderOutput( int realX, int realY )
 //            glVertex2f( realX + 2, realY + minY + 5 );
 //        glEnd();
 //
-//        g_renderer->TextRight( realX + minX, realY + minY, White, 10, "%2.2f", input );
-//        g_renderer->TextRight( realX + maxX, realY + maxY + 10, White, 10, "%2.2f", output );
+//        g_renderer2d->TextRight( realX + minX, realY + minY, White, 10, "%2.2f", input );
+//        g_renderer2d->TextRight( realX + maxX, realY + maxY + 10, White, 10, "%2.2f", output );
 
         float desiredOutput = m_parameter->m_desiredOutput;
 
@@ -438,8 +439,8 @@ void SoundParameterGraph::RenderOutput( int realX, int realY )
         GetPosition( desiredOutput, m_minInput, &maxX, &maxY );
         
         // Convert linked output visualization to modern renderer
-        g_renderer->Line( realX + minX, realY + minY, realX + maxX, realY + minY, Colour(128, 255, 128, 89) );
-        g_renderer->Line( realX + maxX, realY + minY, realX + maxX, realY + maxY, Colour(128, 255, 128, 89) );
+        g_renderer2d->Line( realX + minX, realY + minY, realX + maxX, realY + minY, Colour(128, 255, 128, 89) );
+        g_renderer2d->Line( realX + maxX, realY + minY, realX + maxX, realY + maxY, Colour(128, 255, 128, 89) );
     }
 }
 
@@ -449,11 +450,11 @@ void SoundParameterGraph::Render( int realX, int realY, bool highlighted, bool c
     InvertedBox::Render( realX, realY, false, false );
 
     // Removed glColor4f - color is handled by the modern renderer system
-    g_renderer->TextSimple( realX + m_w/2, realY + m_h - 10, White, 16, m_parent->m_name );
+    g_renderer2d->TextSimple( realX + m_w/2, realY + m_h - 10, White, 16, m_parent->m_name );
     
     if( m_parameter->m_type == SoundParameter::TypeLinked )
     {
-        g_renderer->TextSimple( realX + 10, realY + 10, White, 16, m_parameter->GetLinkName( m_parameter->m_link ) );
+        g_renderer2d->TextSimple( realX + 10, realY + 10, White, 16, m_parameter->GetLinkName( m_parameter->m_link ) );
     }
 
     RescaleAxis     ();

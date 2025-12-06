@@ -7,7 +7,8 @@
 #include "lib/eclipse/eclipse.h"
 #include "lib/gucci/input.h"
 #include "lib/gucci/window_manager.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render/styletable.h"
 #include "lib/language_table.h"
 #include "lib/hi_res_time.h"
@@ -166,7 +167,7 @@ void InterfaceWindow::RemoveValueControl( char *name )
 
 void InterfaceWindow::Render ( bool hasFocus )
 {
-    g_renderer->SetClip( m_x, m_y, m_w, m_h );
+    g_renderer2d->SetClip( m_x, m_y, m_w, m_h );
 
 
     //
@@ -182,11 +183,11 @@ void InterfaceWindow::Render ( bool hasFocus )
     bool titleBarAlignment = g_styleTable->GetStyle(STYLE_WINDOW_TITLEBAR)->m_horizontal;
     bool windowAlignment   = g_styleTable->GetStyle(STYLE_WINDOW_BACKGROUND)->m_horizontal;
 
-    g_renderer->RectFill ( m_x, m_y, m_w, 20, titleBarColA, titleBarColB, titleBarAlignment );
-    g_renderer->RectFill ( m_x, m_y+20, m_w, m_h-21, windowColA, windowColB, windowAlignment );
+    g_renderer2d->RectFill ( m_x, m_y, m_w, 20, titleBarColA, titleBarColB, titleBarAlignment );
+    g_renderer2d->RectFill ( m_x, m_y+20, m_w, m_h-21, windowColA, windowColB, windowAlignment );
 
-    g_renderer->Rect     ( m_x, m_y, m_w-1, m_h-1, borderCol );
-    g_renderer->Rect     ( m_x+1, m_y+20, m_w-4, m_h-22, innerBorder );
+    g_renderer2d->Rect     ( m_x, m_y, m_w-1, m_h-1, borderCol );
+    g_renderer2d->Rect     ( m_x+1, m_y+20, m_w-4, m_h-22, innerBorder );
   
 
     //
@@ -217,7 +218,7 @@ void InterfaceWindow::Render ( bool hasFocus )
 
     if( titleFont->m_uppercase ) strupr(caption);
 
-    g_renderer->Text( m_x + 10, 
+    g_renderer2d->Text( m_x + 10, 
                       m_y + 11 - titleFont->m_size/2, 
                       titleFont->m_primaryColour, 
                       titleFont->m_size, 
@@ -228,21 +229,21 @@ void InterfaceWindow::Render ( bool hasFocus )
     //
     // Resizer widget bottom right
 
-    g_renderer->Line    ( m_x+m_w-2, m_y+m_h-12, m_x+m_w-12, m_y+m_h-2, borderCol );
-    g_renderer->Line    ( m_x+m_w-2, m_y+m_h-8, m_x+m_w-8, m_y+m_h-2, borderCol );
+    g_renderer2d->Line    ( m_x+m_w-2, m_y+m_h-12, m_x+m_w-12, m_y+m_h-2, borderCol );
+    g_renderer2d->Line    ( m_x+m_w-2, m_y+m_h-8, m_x+m_w-8, m_y+m_h-2, borderCol );
 
     //
     // Draw the buttons
 
     EclWindow::Render( hasFocus );
     
-    g_renderer->ResetClip();
+    g_renderer2d->ResetClip();
 
 
     //
     // Window shadow
 
-    RenderWindowShadow( m_x+m_w, m_y, m_h, m_w, 15, g_renderer->m_alpha*0.7f );
+    RenderWindowShadow( m_x+m_w, m_y, m_h, m_w, 15, g_renderer2d->m_alpha*0.7f );
 
     //
     // Focus glow
@@ -250,7 +251,7 @@ void InterfaceWindow::Render ( bool hasFocus )
     if( hasFocus )
     {
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-        g_renderer->Rect( m_x-2, m_y-2, m_w+3, m_h+3, Colour(255,255,255,100), 1.0f );        
+        g_renderer2d->Rect( m_x-2, m_y-2, m_w+3, m_h+3, Colour(255,255,255,100), 1.0f );        
     }
 }
 
@@ -268,9 +269,9 @@ void InterfaceWindow::RenderWindowShadow( float _x, float _y, float _h, float _w
     Colour strong(0,0,0,_alpha*255);
     Colour weak(0,0,0,0);
 
-    g_renderer->RectFill( _x, _y+_size, _size, _h-_size, strong, weak, weak, strong );
-    g_renderer->RectFill( _x, _y+_h, _size, _size, strong, weak, weak, weak );
-    g_renderer->RectFill( _x-_w+_size, _y+_h, _w-_size, _size, strong, strong, weak, weak );
+    g_renderer2d->RectFill( _x, _y+_size, _size, _h-_size, strong, weak, weak, strong );
+    g_renderer2d->RectFill( _x, _y+_h, _size, _size, strong, weak, weak, weak );
+    g_renderer2d->RectFill( _x-_w+_size, _y+_h, _w-_size, _size, strong, strong, weak, weak );
 }
 
 
@@ -293,12 +294,12 @@ void InterfaceButton::Render( int realX, int realY, bool highlighted, bool click
     
     bool colourAlignment    = g_styleTable->GetStyle(styleName)->m_horizontal;
 
-    g_renderer->RectFill    ( realX, realY, m_w, m_h, primaryCol, secondaryCol, colourAlignment );
+    g_renderer2d->RectFill    ( realX, realY, m_w, m_h, primaryCol, secondaryCol, colourAlignment );
 
-    g_renderer->Line        ( realX, realY, realX+m_w, realY, borderPrimary );
-    g_renderer->Line        ( realX, realY, realX, realY+m_h, borderPrimary );
-    g_renderer->Line        ( realX, realY+m_h, realX+m_w, realY+m_h, borderSeconary );
-    g_renderer->Line        ( realX+m_w, realY, realX+m_w, realY+m_h, borderSeconary );
+    g_renderer2d->Line        ( realX, realY, realX+m_w, realY, borderPrimary );
+    g_renderer2d->Line        ( realX, realY, realX, realY+m_h, borderPrimary );
+    g_renderer2d->Line        ( realX, realY+m_h, realX+m_w, realY+m_h, borderSeconary );
+    g_renderer2d->Line        ( realX+m_w, realY, realX+m_w, realY+m_h, borderSeconary );
     
 
     //
@@ -331,7 +332,7 @@ void InterfaceButton::Render( int realX, int realY, bool highlighted, bool click
 
     if( buttonFont->m_uppercase ) strupr(caption);
 
-    g_renderer->TextCentre( realX + m_w/2, 
+    g_renderer2d->TextCentre( realX + m_w/2, 
                             realY + m_h/2 - buttonFont->m_size/2, 
                             fontColour, 
                             buttonFont->m_size, 
@@ -342,7 +343,7 @@ void InterfaceButton::Render( int realX, int realY, bool highlighted, bool click
     //
     // Drop shadow
 
-    InterfaceWindow::RenderWindowShadow( realX + m_w, realY, m_h, m_w, 4, g_renderer->m_alpha * 0.3f );
+    InterfaceWindow::RenderWindowShadow( realX + m_w, realY, m_h, m_w, 4, g_renderer2d->m_alpha * 0.3f );
 }
 
 
@@ -397,7 +398,7 @@ void TextButton::Render( int realX, int realY, bool highlighted, bool clicked )
 
 	if( m_captionIsLanguagePhrase )
 	{
-		g_renderer->TextSimple ( realX + 5, 
+		g_renderer2d->TextSimple ( realX + 5, 
 		                         realY + m_h/2 - m_fontSize/2, 
 		                         m_fontCol, 
 		                         m_fontSize, 
@@ -405,7 +406,7 @@ void TextButton::Render( int realX, int realY, bool highlighted, bool clicked )
 	}
 	else
 	{
-		g_renderer->TextSimple ( realX + 5, 
+		g_renderer2d->TextSimple ( realX + 5, 
 		                         realY + m_h/2 - m_fontSize/2, 
 		                         m_fontCol, 
 		                         m_fontSize, 
@@ -481,10 +482,10 @@ void InvertedBox::Render( int realX, int realY, bool highlighted, bool clicked )
     
     bool alignment = g_styleTable->GetStyle(STYLE_BOX_BACKGROUND)->m_horizontal;
 
-    g_renderer->RectFill( realX, realY, m_w, m_h, fillCol, fillColS, alignment );
+    g_renderer2d->RectFill( realX, realY, m_w, m_h, fillCol, fillColS, alignment );
     
-    g_renderer->Line    ( realX, realY, realX+m_w, realY, borderPrimary );                  // top
-    g_renderer->Line    ( realX, realY, realX, realY+m_h, borderPrimary );                  // left
-    g_renderer->Line    ( realX+m_w, realY, realX+m_w, realY+m_h, borderSecondary );        // right
-    g_renderer->Line    ( realX, realY+m_h, realX+m_w, realY+m_h, borderSecondary );        // bottom
+    g_renderer2d->Line    ( realX, realY, realX+m_w, realY, borderPrimary );                  // top
+    g_renderer2d->Line    ( realX, realY, realX, realY+m_h, borderPrimary );                  // left
+    g_renderer2d->Line    ( realX+m_w, realY, realX+m_w, realY+m_h, borderSecondary );        // right
+    g_renderer2d->Line    ( realX, realY+m_h, realX+m_w, realY+m_h, borderSecondary );        // bottom
 }

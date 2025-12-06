@@ -563,7 +563,7 @@ void AirBase::Render()
                     colour.Set( 128,128,128,100 );
                 }
                 
-                g_renderer->StaticSprite( bmpImage, x, y, size*0.9f, -size, colour );
+                g_renderer2d->StaticSprite( bmpImage, x, y, size*0.9f, -size, colour );
                 x += dx;
             }
         }

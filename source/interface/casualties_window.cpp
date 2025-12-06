@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/render/colour.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/language_table.h"
 
 #include "app/app.h"
@@ -42,7 +43,7 @@ void CasualtiesWindow::Render( bool hasFocus )
 {
     InterfaceWindow::Render( hasFocus );
     
-    g_renderer->SetClip( m_x, m_y+20, m_w, m_h-20 );
+    g_renderer2d->SetClip( m_x, m_y+20, m_w, m_h-20 );
 
     int x = m_x + 10;
     int y = m_y + 30;
@@ -51,9 +52,9 @@ void CasualtiesWindow::Render( bool hasFocus )
 
     y-= m_scrollbar->m_currentValue;
     
-    g_renderer->TextSimple( x, y, White, titleSize, LANGUAGEPHRASE("dialog_casualties_city") );
-    g_renderer->TextSimple( x+200, y, White, titleSize, LANGUAGEPHRASE("dialog_casualties_strikes") );
-    g_renderer->TextSimple( x+300, y, White, titleSize, LANGUAGEPHRASE("dialog_casualties_deaths") );
+    g_renderer2d->TextSimple( x, y, White, titleSize, LANGUAGEPHRASE("dialog_casualties_city") );
+    g_renderer2d->TextSimple( x+200, y, White, titleSize, LANGUAGEPHRASE("dialog_casualties_strikes") );
+    g_renderer2d->TextSimple( x+300, y, White, titleSize, LANGUAGEPHRASE("dialog_casualties_deaths") );
 
     y+=20;
 
@@ -75,16 +76,16 @@ void CasualtiesWindow::Render( bool hasFocus )
 				sprintf( number, "%.1f", city->m_dead / 1000000.0f );
 				LPREPLACESTRINGFLAG( 'C', number, deaths );
 
-                g_renderer->TextSimple( x, y+=18, White, textSize, LANGUAGEPHRASEADDITIONAL(city->m_name) );
-                g_renderer->TextSimple( x+200, y, White, textSize, strikes );
-                g_renderer->TextSimple( x+300, y, White, textSize, deaths );
+                g_renderer2d->TextSimple( x, y+=18, White, textSize, LANGUAGEPHRASEADDITIONAL(city->m_name) );
+                g_renderer2d->TextSimple( x+200, y, White, textSize, strikes );
+                g_renderer2d->TextSimple( x+300, y, White, textSize, deaths );
 
                 ++numEntries;
             }
         }
     }
 
-    g_renderer->ResetClip();
+    g_renderer2d->ResetClip();
 
     m_scrollbar->SetNumRows( (numEntries+1) * 18 );
 }

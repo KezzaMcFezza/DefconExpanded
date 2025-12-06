@@ -11,14 +11,13 @@
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/colour.h"
 
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 
-extern Renderer *g_renderer;
-
-void Renderer::StaticSprite(Image *src, float x, float y, float w, float h, Colour const &col, bool immediateFlush) {
+void Renderer2D::StaticSprite(Image *src, float x, float y, float w, float h, Colour const &col, bool immediateFlush) {
     FlushStaticSpritesIfFull(6);
     
-    unsigned int effectiveTextureID = GetEffectiveTextureID(src);
+    unsigned int effectiveTextureID = g_renderer->GetEffectiveTextureID(src);
 
     if (m_staticSpriteVertexCount > 0 && 
         m_currentStaticSpriteTexture != effectiveTextureID && 
@@ -40,7 +39,7 @@ void Renderer::StaticSprite(Image *src, float x, float y, float w, float h, Colo
     if (atlasImage) {
         const char* filename = atlasImage->GetFilename();
         if (filename && strstr(filename, "smallnuke.bmp")) {
-            GetImageUVCoords(src, u1, v1, u2, v2);
+            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
 
             //
             // shrink to match the old look of smallnuke
@@ -52,10 +51,10 @@ void Renderer::StaticSprite(Image *src, float x, float y, float w, float h, Colo
             v1 += shrinkY;
             v2 -= shrinkY;
         } else {
-            GetImageUVCoords(src, u1, v1, u2, v2);
+            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
         }
     } else {
-        GetImageUVCoords(src, u1, v1, u2, v2);
+        g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
     }
     
     // First triangle: TL, TR, BR
@@ -77,16 +76,16 @@ void Renderer::StaticSprite(Image *src, float x, float y, float w, float h, Colo
 #endif
 }
 
-void Renderer::StaticSprite(Image *src, float x, float y, Colour const &col, bool immediateFlush) {
+void Renderer2D::StaticSprite(Image *src, float x, float y, Colour const &col, bool immediateFlush) {
     float w = src->Width();
     float h = src->Height();
     StaticSprite(src, x, y, w, h, col, immediateFlush);
 }
 
-void Renderer::RotatingSprite(Image *src, float x, float y, float w, float h, Colour const &col, float angle, bool immediateFlush) {
+void Renderer2D::RotatingSprite(Image *src, float x, float y, float w, float h, Colour const &col, float angle, bool immediateFlush) {
     FlushRotatingSpritesIfFull(6);
     
-    unsigned int effectiveTextureID = GetEffectiveTextureID(src);
+    unsigned int effectiveTextureID = g_renderer->GetEffectiveTextureID(src);
 
     if (m_rotatingSpriteVertexCount > 0 && 
         m_currentRotatingSpriteTexture != effectiveTextureID &&
@@ -109,7 +108,7 @@ void Renderer::RotatingSprite(Image *src, float x, float y, float w, float h, Co
     if (atlasImage) {
         const char* filename = atlasImage->GetFilename();
         if (filename && strstr(filename, "smallnuke.bmp")) {
-            GetImageUVCoords(src, u1, v1, u2, v2);
+            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
 
             //
             // shrink to match the old look of smallnuke
@@ -121,10 +120,10 @@ void Renderer::RotatingSprite(Image *src, float x, float y, float w, float h, Co
             v1 += shrinkY;
             v2 -= shrinkY;
         } else {
-            GetImageUVCoords(src, u1, v1, u2, v2);
+            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
         }
     } else {
-        GetImageUVCoords(src, u1, v1, u2, v2);
+        g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
     }
     
     // Calculate rotated vertices

@@ -1,11 +1,12 @@
 #include "lib/universal_include.h"
 
+#include "lib/debug_utils.h"
 #include "lib/string_utils.h"
-#include "lib/render2d/renderer.h"
-
+#include "lib/render/renderer.h"
 #include "lib/render3d/renderer_3d.h"
+#include "lib/render3d/megavbo/megavbo_3d.h"
 
-void Renderer3D::BeginTexturedMegaVBO3D(const char* megaVBOKey, unsigned int textureID) {
+void Renderer3DVBO::BeginTexturedMegaVBO3D(const char* megaVBOKey, unsigned int textureID) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
     if (tree && tree->data && tree->data->isValid) {
         return;
@@ -24,7 +25,7 @@ void Renderer3D::BeginTexturedMegaVBO3D(const char* megaVBOKey, unsigned int tex
     m_megaTexturedIndex3DCount = 0;
 }
 
-void Renderer3D::AddTexturedQuadsToMegaVBO3D(const Vertex3DTextured* vertices, int vertexCount, int quadCount) {
+void Renderer3DVBO::AddTexturedQuadsToMegaVBO3D(const Vertex3DTextured* vertices, int vertexCount, int quadCount) {
     if (!m_megaVBO3DTexturedActive || vertexCount < 4) return;
 
     int indicesNeeded = quadCount * 6;
@@ -53,7 +54,7 @@ void Renderer3D::AddTexturedQuadsToMegaVBO3D(const Vertex3DTextured* vertices, i
     // Add indices for triangles (6 indices per quad = 2 triangles)
 
     for (int q = 0; q < quadCount; q++) {
-        int baseIdx = startIndex + (q * 6);
+        int baseIdx = startIndex + (q * 4);
         
         // First triangle
         m_megaTexturedIndices3D[m_megaTexturedIndex3DCount++] = baseIdx + 0;
@@ -61,13 +62,13 @@ void Renderer3D::AddTexturedQuadsToMegaVBO3D(const Vertex3DTextured* vertices, i
         m_megaTexturedIndices3D[m_megaTexturedIndex3DCount++] = baseIdx + 2;
         
         // Second triangle
+        m_megaTexturedIndices3D[m_megaTexturedIndex3DCount++] = baseIdx + 0;
+        m_megaTexturedIndices3D[m_megaTexturedIndex3DCount++] = baseIdx + 2;
         m_megaTexturedIndices3D[m_megaTexturedIndex3DCount++] = baseIdx + 3;
-        m_megaTexturedIndices3D[m_megaTexturedIndex3DCount++] = baseIdx + 4;
-        m_megaTexturedIndices3D[m_megaTexturedIndex3DCount++] = baseIdx + 5;
     }
 }
 
-void Renderer3D::EndTexturedMegaVBO3D() {
+void Renderer3DVBO::EndTexturedMegaVBO3D() {
     if (!m_megaVBO3DTexturedActive || !m_currentMegaVBO3DTexturedKey) return;
     
     if (m_megaTexturedVertex3DCount < 4) {
@@ -99,8 +100,8 @@ void Renderer3D::EndTexturedMegaVBO3D() {
         glGenBuffers(1, &cachedVBO->VBO);
         glGenBuffers(1, &cachedVBO->IBO);
         
-        glBindVertexArray(cachedVBO->VAO);
-        m_renderer->SetArrayBuffer(cachedVBO->VBO);
+        g_renderer->SetVertexArray(cachedVBO->VAO);
+        g_renderer->SetArrayBuffer(cachedVBO->VBO);
         
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)0);
         glEnableVertexAttribArray(0);
@@ -113,8 +114,8 @@ void Renderer3D::EndTexturedMegaVBO3D() {
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     } else {
-        glBindVertexArray(cachedVBO->VAO);
-        m_renderer->SetArrayBuffer(cachedVBO->VBO);
+        g_renderer->SetVertexArray(cachedVBO->VAO);
+        g_renderer->SetArrayBuffer(cachedVBO->VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     }
     
@@ -135,13 +136,11 @@ void Renderer3D::EndTexturedMegaVBO3D() {
     m_megaVBO3DTexturedActive = false;
 }
 
-void Renderer3D::RenderTexturedMegaVBO3D(const char* megaVBOKey) {
+void Renderer3DVBO::RenderTexturedMegaVBO3D(const char* megaVBOKey) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
     if (!tree || !tree->data || !tree->data->isValid) {
         return;
     }
-    
-    IncrementDrawCall3D("mega_vbo_textured");
     
     Cached3DVBO* cachedVBO = tree->data;
     
@@ -153,28 +152,24 @@ void Renderer3D::RenderTexturedMegaVBO3D(const char* megaVBOKey) {
                              ((unsigned int)cachedVBO->color.m_b << 8) |
                              ((unsigned int)cachedVBO->color.m_a);
     
-    glDepthMask(GL_FALSE);
-    
-    m_renderer->SetShaderProgram(m_shader3DTexturedProgram);
-    SetTextured3DShaderUniforms();
+    g_renderer->SetShaderProgram(g_renderer3d->m_shader3DTexturedProgram);
+    g_renderer3d->SetTextured3DShaderUniforms();
     
     if (textureID != 0) {
-        m_renderer->SetActiveTexture(GL_TEXTURE0);
-        m_renderer->SetBoundTexture(textureID);
+        g_renderer->SetActiveTexture(GL_TEXTURE0);
+        g_renderer->SetBoundTexture(textureID);
     }
     
-    m_renderer->SetVertexArray(cachedVBO->VAO);
+    g_renderer->SetVertexArray(cachedVBO->VAO);
     glDrawElements(GL_TRIANGLES, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
-    
-    glDepthMask(GL_TRUE);
 }
 
-bool Renderer3D::IsTexturedMegaVBO3DValid(const char* megaVBOKey) {
+bool Renderer3DVBO::IsTexturedMegaVBO3DValid(const char* megaVBOKey) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
     return (tree && tree->data && tree->data->isValid);
 }
 
-void Renderer3D::SetTexturedMegaVBO3DBufferSizes(int vertexCount, int indexCount) {
+void Renderer3DVBO::SetTexturedMegaVBO3DBufferSizes(int vertexCount, int indexCount) {
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
     

@@ -1,5 +1,6 @@
 #include "lib/universal_include.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/resource/bitmap.h"
@@ -19,7 +20,7 @@ void MapEditorWindow::Create()
 void MapEditorWindow::Render(bool _hasFocus)
 {
     InterfaceWindow::Render( _hasFocus );
-    g_renderer->RectFill( 0, 0, m_w, m_h, Colour(100,100,200,100) );
+    g_renderer2d->RectFill( 0, 0, m_w, m_h, Colour(100,100,200,100) );
 };
 
 

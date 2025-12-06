@@ -7,8 +7,11 @@
 #include "lib/resource/sprite_atlas.h"
 #include "lib/metaserver/authentication.h"
 #include "lib/render/styletable.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
+#include "lib/render2d/megavbo/megavbo_2d.h"
+#include "lib/render3d/megavbo/megavbo_3d.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/sound/sound_sample_bank.h"
 #include "lib/debug_utils.h"
@@ -951,19 +954,19 @@ void ModSystem::Commit()
         
         if (!geographyChanged)
         {
-            g_renderer->ProtectVBO("MapCoastlines");
-            g_renderer->ProtectVBO("MapBorders");
-            g_renderer3d->Protect3DVBO("Starfield");
-            g_renderer3d->Protect3DVBO("CullingSphere");
-            g_renderer3d->Protect3DVBO("GlobeCoastlines");
-            g_renderer3d->Protect3DVBO("GlobeBorders");
-            g_renderer3d->Protect3DVBO("GlobeGridlines");
+            g_renderer2dvbo->ProtectVBO("MapCoastlines");
+            g_renderer2dvbo->ProtectVBO("MapBorders");
+            g_renderer3dvbo->Protect3DVBO("Starfield");
+            g_renderer3dvbo->Protect3DVBO("CullingSphere");
+            g_renderer3dvbo->Protect3DVBO("GlobeCoastlines");
+            g_renderer3dvbo->Protect3DVBO("GlobeBorders");
+            g_renderer3dvbo->Protect3DVBO("GlobeGridlines");
         }
 
         g_resource->Restart();
         
-        g_renderer->ClearVBOProtection();
-        g_renderer3d->Clear3DVBOProtection();
+        g_renderer2dvbo->ClearVBOProtection();
+        g_renderer3dvbo->Clear3DVBOProtection();
         
         g_app->InitFonts();
         g_app->GetMapRenderer()->Init();

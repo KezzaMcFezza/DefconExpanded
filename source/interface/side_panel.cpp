@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 #include "lib/render/colour.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/resource/image.h"
 #include "lib/language_table.h"
 #include "lib/gucci/input.h"
@@ -163,7 +164,7 @@ void SidePanel::Render( bool hasFocus )
         case ModeUnitPlacement:     strcpy(text, LANGUAGEPHRASE("dialog_placeunit"));   break;
         case ModeFleetPlacement:    strcpy(text, LANGUAGEPHRASE("dialog_createfleet"));  break;
     }
-    g_renderer->TextCentreSimple(m_x+50, m_y+10, White, m_fontsize, text );
+    g_renderer2d->TextCentreSimple(m_x+50, m_y+10, White, m_fontsize, text );
 
     if( m_mode == ModeFleetPlacement )
     {
@@ -231,8 +232,8 @@ void SidePanel::Render( bool hasFocus )
 
                     for( int i = 0; i < 6; ++i )
                     {
-                        g_renderer->RectFill( x, y, 40, 40, Colour(90,90,170,200) );
-                        g_renderer->Rect(x, y, 40, 40, White );
+                        g_renderer2d->RectFill( x, y, 40, 40, Colour(90,90,170,200) );
+                        g_renderer2d->Rect(x, y, 40, 40, White );
                         y += yMod;
                     }
                     y = m_y+20;
@@ -247,15 +248,15 @@ void SidePanel::Render( bool hasFocus )
                 //
                 // end rect fill batch and begin sprite batch to ensure sprites render on top
 
-                g_renderer->EndRectFillBatch();
-                g_renderer->BeginStaticSpriteBatch();
+                g_renderer2d->EndRectFillBatch();
+                g_renderer2d->BeginStaticSpriteBatch();
                 
                 for( int i = 0; i < myTeam->m_fleets[ m_currentFleetId ]->m_memberType.Size(); ++i )
                 {
                     int type = myTeam->m_fleets[ m_currentFleetId ]->m_memberType[i];
                     Image *bmpImage	= g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[type] );
                     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                    g_renderer->StaticSprite( bmpImage, x+3, y, 35, 35, myTeam->GetTeamColour() );
+                    g_renderer2d->StaticSprite( bmpImage, x+3, y, 35, 35, myTeam->GetTeamColour() );
                     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
                     y += yMod;
                 }
@@ -271,10 +272,10 @@ void SidePanel::Render( bool hasFocus )
             char msg[128];
             strcpy( msg, LANGUAGEPHRASE("dialog_credits_1") );
             LPREPLACEINTEGERFLAG( 'C', myTeam->m_unitCredits, msg );
-            g_renderer->TextCentreSimple( m_x+50, m_y+m_h-28, col, m_fontsize, msg );
+            g_renderer2d->TextCentreSimple( m_x+50, m_y+m_h-28, col, m_fontsize, msg );
 
             strcpy( msg, LANGUAGEPHRASE("dialog_credits_2"));
-            g_renderer->TextCentreSimple( m_x+50, m_y+m_h-15, col, m_fontsize, msg );
+            g_renderer2d->TextCentreSimple( m_x+50, m_y+m_h-15, col, m_fontsize, msg );
         }
 
         int totalUnits = 0;
@@ -441,7 +442,7 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
     {
         for( int y = -1; y <= 1; ++y )
         {
-            g_renderer->StaticSprite( bmpImage, realX+x, realY+y, m_w, m_h, col );
+            g_renderer2d->StaticSprite( bmpImage, realX+x, realY+y, m_w, m_h, col );
         }
     }
     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
@@ -487,7 +488,7 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
 	//float size = 32.0f;
 	if( bmpImage )
 	{
-		g_renderer->StaticSprite( bmpImage, realX, realY, m_w, m_h, colour );
+		g_renderer2d->StaticSprite( bmpImage, realX, realY, m_w, m_h, colour );
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	}
 
@@ -507,7 +508,7 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
     {
         textCol = Colour(50,50,50,255);
     }
-	g_renderer->TextCentreSimple( realX + m_w/2, realY+m_h, textCol, parent->m_fontsize, caption );
+	g_renderer2d->TextCentreSimple( realX + m_w/2, realY+m_h, textCol, parent->m_fontsize, caption );
 
     int variableTeamUnits = g_app->GetGame()->GetOptionValue("VariableUnitCounts");
     if( variableTeamUnits == 1 )
@@ -516,7 +517,7 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
         sprintf( caption, "%d", g_app->GetWorld()->GetUnitValue( m_unitType ));
         Colour col = Colour(255,255,0,255);
 
-	    g_renderer->TextCentreSimple( realX + m_w/2, realY+m_h+14, col, parent->m_fontsize, caption );
+	    g_renderer2d->TextCentreSimple( realX + m_w/2, realY+m_h+14, col, parent->m_fontsize, caption );
     }
 
     if( highlighted || clicked )
@@ -605,7 +606,7 @@ void PanelModeButton::Render(int realX, int realY, bool highlighted, bool clicke
         {
             for( int y = -1; y <= 1; ++y )
             {
-                g_renderer->StaticSprite( bmpImage, realX+x, realY+y, m_w, m_h, col );
+                g_renderer2d->StaticSprite( bmpImage, realX+x, realY+y, m_w, m_h, col );
             }
         }
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
@@ -633,7 +634,7 @@ void PanelModeButton::Render(int realX, int realY, bool highlighted, bool clicke
 	    float size = 32.0f;
 	    if( bmpImage )
 	    {
-		    g_renderer->StaticSprite( bmpImage, realX, realY, m_w, m_h, colour );
+		    g_renderer2d->StaticSprite( bmpImage, realX, realY, m_w, m_h, colour );
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	    }
         Colour textCol = White;
@@ -644,11 +645,11 @@ void PanelModeButton::Render(int realX, int realY, bool highlighted, bool clicke
 
 		if( m_captionIsLanguagePhrase )
 		{
-			g_renderer->TextCentreSimple( realX + m_w/2, realY+m_h, textCol, parent->m_fontsize, LANGUAGEPHRASE(m_caption) );
+			g_renderer2d->TextCentreSimple( realX + m_w/2, realY+m_h, textCol, parent->m_fontsize, LANGUAGEPHRASE(m_caption) );
 		}
 		else
 		{
-			g_renderer->TextCentreSimple( realX + m_w/2, realY+m_h, textCol, parent->m_fontsize, m_caption );
+			g_renderer2d->TextCentreSimple( realX + m_w/2, realY+m_h, textCol, parent->m_fontsize, m_caption );
 		}
     }
     else
@@ -701,7 +702,7 @@ void AddToFleetButton::Render( int realX, int realY, bool highlighted, bool clic
         {
             for( int y = -1; y <= 1; ++y )
             {
-                g_renderer->StaticSprite( bmpImage, realX+x, realY+y, m_w, m_h, col );
+                g_renderer2d->StaticSprite( bmpImage, realX+x, realY+y, m_w, m_h, col );
             }
         }
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
@@ -737,7 +738,7 @@ void AddToFleetButton::Render( int realX, int realY, bool highlighted, bool clic
 	    //float size = 32.0f;
 	    if( bmpImage )
 	    {
-		    g_renderer->StaticSprite( bmpImage, realX, realY, m_w, m_h, colour );
+		    g_renderer2d->StaticSprite( bmpImage, realX, realY, m_w, m_h, colour );
             g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 	    }
 
@@ -757,7 +758,7 @@ void AddToFleetButton::Render( int realX, int realY, bool highlighted, bool clic
         {
             textCol = Colour(50,50,50,255);
         }
-	    g_renderer->TextCentreSimple( realX + m_w/2, realY+m_h, textCol, parent->m_fontsize, caption );
+	    g_renderer2d->TextCentreSimple( realX + m_w/2, realY+m_h, textCol, parent->m_fontsize, caption );
 
         int variableTeamUnits = g_app->GetGame()->GetOptionValue("VariableUnitCounts");
         if( variableTeamUnits == 1 )
@@ -766,7 +767,7 @@ void AddToFleetButton::Render( int realX, int realY, bool highlighted, bool clic
             sprintf( caption, "%d", g_app->GetWorld()->GetUnitValue( m_unitType ));
             Colour col = Colour(255,255,0,255);
 
-	        g_renderer->TextCentreSimple( realX + m_w/2, realY+m_h+14, col, parent->m_fontsize, caption );
+	        g_renderer2d->TextCentreSimple( realX + m_w/2, realY+m_h+14, col, parent->m_fontsize, caption );
         }
         if( highlighted || clicked )
         {
@@ -863,7 +864,7 @@ void RemoveUnitButton::Render( int realX, int realY, bool highlighted, bool clic
         m_disabled = true;
     }
 
-    //g_renderer->RectFill( m_x, m_y, m_w, m_h, Colour(255,0,0,255) );
+    //g_renderer2d->RectFill( m_x, m_y, m_w, m_h, Colour(255,0,0,255) );
 }
 
 void RemoveUnitButton::MouseUp()
@@ -907,7 +908,7 @@ void NewFleetButton::Render( int realX, int realY, bool highlighted, bool clicke
 {
     SidePanel *parent = (SidePanel *)m_parent;
 
-    int transparency = g_renderer->m_alpha * 255;
+    int transparency = g_renderer2d->m_alpha * 255;
     if( highlighted || clicked ) transparency = 255;
     
     Colour col = Colour(50,50,170, transparency);
@@ -921,16 +922,16 @@ void NewFleetButton::Render( int realX, int realY, bool highlighted, bool clicke
     if( m_disabled )    col = Colour(100,100,100, transparency);
 
     
-    g_renderer->RectFill ( realX, realY, m_w, m_h, col );
-    g_renderer->Rect     ( realX, realY, m_w, m_h, Colour(150,150,200,transparency) );   
+    g_renderer2d->RectFill ( realX, realY, m_w, m_h, col );
+    g_renderer2d->Rect     ( realX, realY, m_w, m_h, Colour(150,150,200,transparency) );   
 
 	if( m_captionIsLanguagePhrase )
 	{
-	    g_renderer->TextCentre ( realX + m_w/2, realY + m_h/5, Colour(255,255,255,transparency), parent->m_fontsize, LANGUAGEPHRASE(m_caption) );
+	    g_renderer2d->TextCentre ( realX + m_w/2, realY + m_h/5, Colour(255,255,255,transparency), parent->m_fontsize, LANGUAGEPHRASE(m_caption) );
 	}
 	else
 	{
-	    g_renderer->TextCentre ( realX + m_w/2, realY + m_h/5, Colour(255,255,255,transparency), parent->m_fontsize, m_caption );
+	    g_renderer2d->TextCentre ( realX + m_w/2, realY + m_h/5, Colour(255,255,255,transparency), parent->m_fontsize, m_caption );
 	}
 }
 
@@ -959,7 +960,7 @@ void FleetPlacementButton::Render( int realX, int realY, bool highlighted, bool 
 {
     SidePanel *parent = (SidePanel *)m_parent;
 
-    g_renderer->SetClip( realX, realY, m_w, m_h );
+    g_renderer2d->SetClip( realX, realY, m_w, m_h );
     Team *myTeam = g_app->GetWorld()->GetTeam( g_app->GetWorld()->m_myTeamId );
     int currentFleetId = parent->m_currentFleetId;
     m_disabled = false;
@@ -991,10 +992,10 @@ void FleetPlacementButton::Render( int realX, int realY, bool highlighted, bool 
 
         Image *img = g_resource->GetImage( "graphics/cursor_target.bmp" );
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-        g_renderer->StaticSprite( img, realX, realY, m_w, m_h, col );
+        g_renderer2d->StaticSprite( img, realX, realY, m_w, m_h, col );
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
     }
-    g_renderer->ResetClip();
+    g_renderer2d->ResetClip();
 }
     
 

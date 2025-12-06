@@ -1,5 +1,6 @@
 #include "lib/universal_include.h"
-#include "lib/render2d/renderer.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/resource/bitmap.h"
@@ -32,27 +33,27 @@ public:
 
         if( g_modSystem->m_mods.ValidIndex(actualIndex) )
         {
-            g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,10), Colour(255,255,255,50), false );
+            g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,10), Colour(255,255,255,50), false );
 
             InstalledMod *mod = g_modSystem->m_mods[actualIndex];
             
             if( mod->m_active )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(0,255,0,50) );
-                g_renderer->TextRightSimple( realX + m_w - 10, realY + 3, White, 14, LANGUAGEPHRASE("dialog_mod_active") );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(0,255,0,50) );
+                g_renderer2d->TextRightSimple( realX + m_w - 10, realY + 3, White, 14, LANGUAGEPHRASE("dialog_mod_active") );
             }
 
             if( highlighted )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+                g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
             }
             
             if( strcmp( mod->m_name, parent->m_selectionName ) == 0 &&
                 strcmp( mod->m_version, parent->m_selectionVersion ) == 0 )
             {
-                g_renderer->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
-                g_renderer->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
+                g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(255,255,255,50) );
+                g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,200) );
             }
 
             Colour textColour( 255, 255, 255, 200 );
@@ -62,8 +63,8 @@ public:
                 textColour.Set( 255, 0, 0, 255 );
             }
 
-            g_renderer->TextSimple( realX + 10, realY + 3, textColour, 12, mod->m_name );
-            g_renderer->TextSimple( realX + 180, realY + 4, textColour, 12, mod->m_version );
+            g_renderer2d->TextSimple( realX + 10, realY + 3, textColour, 12, mod->m_name );
+            g_renderer2d->TextSimple( realX + 180, realY + 4, textColour, 12, mod->m_version );
         }
     }
 
@@ -235,10 +236,10 @@ class FindMoreModsButton : public EclButton
     {
         if( highlighted )
         {
-            g_renderer->Rect( realX, realY, m_w, m_h, White );
+            g_renderer2d->Rect( realX, realY, m_w, m_h, White );
         }
 
-        g_renderer->TextCentre( realX+m_w/2, realY+5, Colour(200,200,255,200), 12, LANGUAGEPHRASE("dialog_mod_click_download_mods") );
+        g_renderer2d->TextCentre( realX+m_w/2, realY+5, Colour(200,200,255,200), 12, LANGUAGEPHRASE("dialog_mod_click_download_mods") );
     }
 
     void MouseUp()
@@ -291,17 +292,17 @@ class VisitModWebsiteButton : public EclButton
         {
             if( highlighted )
             {
-                //g_renderer->Rect( realX, realY, m_w, m_h, White );
-                g_renderer->Line( realX+m_w/2 - 9, realY+m_h, realX+m_w, realY+m_h, White );
+                //g_renderer2d->Rect( realX, realY, m_w, m_h, White );
+                g_renderer2d->Line( realX+m_w/2 - 9, realY+m_h, realX+m_w, realY+m_h, White );
             }
 
-            g_renderer->TextSimple( realX+m_w/2 - 6, realY+5, White, 11, LANGUAGEPHRASE("dialog_mod_click_here") );
+            g_renderer2d->TextSimple( realX+m_w/2 - 6, realY+5, White, 11, LANGUAGEPHRASE("dialog_mod_click_here") );
 
             SetTooltip( validUrl, false );
         }
         else
         {
-            g_renderer->TextSimple( realX+m_w/2 - 1, realY+5, White, 11, LANGUAGEPHRASE("unknown") );
+            g_renderer2d->TextSimple( realX+m_w/2 - 1, realY+5, White, 11, LANGUAGEPHRASE("unknown") );
             SetTooltip( " ", false );
         }
     }
@@ -499,22 +500,22 @@ void ModWindow::Render( bool _hasFocus )
 
     if( m_image )
     {
-        g_renderer->StaticSprite( m_image, xPos, m_y + 30, w, 118, White );
+        g_renderer2d->StaticSprite( m_image, xPos, m_y + 30, w, 118, White );
     }
     else
     {
         if( !mod )
         {
-            g_renderer->TextCentreSimple( xPos+w/2, m_y + 60, White, 14, LANGUAGEPHRASE("dialog_mod_no_mod_selected") );
+            g_renderer2d->TextCentreSimple( xPos+w/2, m_y + 60, White, 14, LANGUAGEPHRASE("dialog_mod_no_mod_selected") );
         }
         else
         {
-            g_renderer->TextCentreSimple( xPos+w/2, m_y + 60, White, 14, LANGUAGEPHRASE("dialog_mod_screenshot_not_found") );
-            g_renderer->TextCentre( xPos+w/2, m_y + 80, White, 10, "%sscreenshot.bmp", mod->m_path );
+            g_renderer2d->TextCentreSimple( xPos+w/2, m_y + 60, White, 14, LANGUAGEPHRASE("dialog_mod_screenshot_not_found") );
+            g_renderer2d->TextCentre( xPos+w/2, m_y + 80, White, 10, "%sscreenshot.bmp", mod->m_path );
         }
     }
 
-    g_renderer->Rect( xPos, m_y + 30, w, w*9/16.0f, Colour(200,200,255,200) );
+    g_renderer2d->Rect( xPos, m_y + 30, w, w*9/16.0f, Colour(200,200,255,200) );
 
 
     //
@@ -527,26 +528,26 @@ void ModWindow::Render( bool _hasFocus )
         int gap = 15;
         Colour nameColour(200,200,255,200);
 
-        g_renderer->TextSimple( xPos, yPos, nameColour, fontSize, LANGUAGEPHRASE("dialog_mod_install_dir") );
-        g_renderer->TextRightSimple( xPos + w, yPos, White, fontSize,
+        g_renderer2d->TextSimple( xPos, yPos, nameColour, fontSize, LANGUAGEPHRASE("dialog_mod_install_dir") );
+        g_renderer2d->TextRightSimple( xPos + w, yPos, White, fontSize,
                                      m_truncatePaths ? mod->m_name : mod->m_path ); // m_name was generated from dir name
 
         yPos += gap;
 
-        g_renderer->TextSimple( xPos, yPos, nameColour, fontSize, LANGUAGEPHRASE("dialog_mod_author") );
+        g_renderer2d->TextSimple( xPos, yPos, nameColour, fontSize, LANGUAGEPHRASE("dialog_mod_author") );
         if( strcmp( mod->m_author, "unknown" ) != 0 )
 		{
-			g_renderer->TextRightSimple( xPos + w, yPos, White, fontSize, mod->m_author );
+			g_renderer2d->TextRightSimple( xPos + w, yPos, White, fontSize, mod->m_author );
 		}
 		else
 		{
-			g_renderer->TextRightSimple( xPos + w, yPos, White, fontSize, LANGUAGEPHRASE("unknown") );
+			g_renderer2d->TextRightSimple( xPos + w, yPos, White, fontSize, LANGUAGEPHRASE("unknown") );
 		}
 
         yPos += gap;
 
-        g_renderer->TextSimple( xPos, yPos, nameColour, fontSize, LANGUAGEPHRASE("dialog_mod_website") );
-        //g_renderer->TextRightSimple( xPos + w, yPos, White, fontSize, mod->m_website );
+        g_renderer2d->TextSimple( xPos, yPos, nameColour, fontSize, LANGUAGEPHRASE("dialog_mod_website") );
+        //g_renderer2d->TextRightSimple( xPos + w, yPos, White, fontSize, mod->m_website );
 
         yPos += gap;
 
@@ -560,7 +561,7 @@ void ModWindow::Render( bool _hasFocus )
             for( int i = 0; i < wrapped.Size(); ++i )
             {
                 char *thisLine = wrapped[i];
-                g_renderer->Text( xPos, yPos += 12, Colour(200,200,255,200), 10, thisLine );
+                g_renderer2d->Text( xPos, yPos += 12, Colour(200,200,255,200), 10, thisLine );
             }
         }
     }
@@ -571,7 +572,7 @@ void ModWindow::Render( bool _hasFocus )
 
     if( mod && mod->m_critical )
     {
-        g_renderer->TextCentre( xPos+w/2, m_y + m_h - 50, Colour(255,0,0,255), 12, LANGUAGEPHRASE("dialog_mod_required_all_players") );
+        g_renderer2d->TextCentre( xPos+w/2, m_y + m_h - 50, Colour(255,0,0,255), 12, LANGUAGEPHRASE("dialog_mod_required_all_players") );
     }
 
 }

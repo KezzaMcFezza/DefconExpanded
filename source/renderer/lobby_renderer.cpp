@@ -15,6 +15,8 @@
 #include "lib/metaserver/metaserver.h"
 #include "lib/metaserver/metaserver_defines.h"
 #include "lib/eclipse/eclipse.h"
+#include "lib/render/renderer.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
 
 #include "network/ClientToServer.h"
@@ -107,7 +109,7 @@ void LobbyRenderer::Render()
 {
     START_PROFILE( "LobbyRenderer" );
 
-    g_renderer->BeginTextBatch();
+    g_renderer2d->BeginTextBatch();
 
     if( g_languageTable->m_lang && ( !m_lastLanguage || stricmp( g_languageTable->m_lang->m_name, m_lastLanguage ) != 0 ) )
     {
@@ -125,7 +127,7 @@ void LobbyRenderer::Render()
         Render3DScene();
     }
 
-    g_renderer->Reset2DViewport();
+    g_renderer2d->Reset2DViewport();
 
     START_PROFILE( "Border" );
     RenderBorder();
@@ -141,15 +143,15 @@ void LobbyRenderer::Render()
         END_PROFILE( "Test Hours" );
     #endif
 
-    g_renderer->BeginRectBatch();
-    g_renderer->BeginRectFillBatch();
+    g_renderer2d->BeginRectBatch();
+    g_renderer2d->BeginRectFillBatch();
 
     START_PROFILE( "VersionInfo" );
     RenderVersionInfo();
     END_PROFILE( "VersionInfo" );
 
-    g_renderer->EndRectFillBatch();
-    g_renderer->EndRectBatch();
+    g_renderer2d->EndRectFillBatch();
+    g_renderer2d->EndRectBatch();
 
 #if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN) && !defined(SYNC_PRACTICE)
 
@@ -157,15 +159,15 @@ void LobbyRenderer::Render()
     RenderAuthStatus();
     END_PROFILE( "AuthStatus" );
 
-    g_renderer->BeginRectBatch();
-    g_renderer->BeginRectFillBatch();
+    g_renderer2d->BeginRectBatch();
+    g_renderer2d->BeginRectFillBatch();
 
     START_PROFILE( "Motd" );
     RenderMotd();
     END_PROFILE( "Motd" );
 
-    g_renderer->EndRectFillBatch();
-    g_renderer->EndRectBatch();
+    g_renderer2d->EndRectFillBatch();
+    g_renderer2d->EndRectBatch();
 
     START_PROFILE( "DemoLimits" );
     RenderDemoLimits();
@@ -180,17 +182,17 @@ void LobbyRenderer::Render()
 #if TARGET_EMSCRIPTEN
         // Disable lobby overlays completely for replay mode
 #else
-        g_renderer->BeginRectFillBatch();
+        g_renderer2d->BeginRectFillBatch();
 
         START_PROFILE( "Overlay" );
         RenderOverlay();
         END_PROFILE( "Overlay" );
 
-        g_renderer->EndRectFillBatch();
+        g_renderer2d->EndRectFillBatch();
 #endif
     }
 
-    g_renderer->EndTextBatch();
+    g_renderer2d->EndTextBatch();
 
     END_PROFILE( "LobbyRenderer" );
 
@@ -200,7 +202,7 @@ void LobbyRenderer::Render()
 void LobbyRenderer::RenderTitle()
 {
     g_renderer->SetFont( "kremlin" );
-    g_renderer->TextRight( g_windowManager->WindowW() - 64,
+    g_renderer2d->TextRight( g_windowManager->WindowW() - 64,
                            50,
                            Colour(0,230,0,220),
                            100,
@@ -242,13 +244,13 @@ void LobbyRenderer::RenderTitle()
 		}
 	}
 
-    g_renderer->TextRight( g_windowManager->WindowW() - 64,
+    g_renderer2d->TextRight( g_windowManager->WindowW() - 64,
                            130,
                            Colour(0,200,0,220),
                            23,
                            website );
 #else
-    g_renderer->Text( g_windowManager->WindowW() - 410,
+    g_renderer2d->Text( g_windowManager->WindowW() - 410,
         130,
         Colour(0,200,0,220),
         20,
@@ -365,7 +367,7 @@ void LobbyRenderer::RenderOverlay()
     float gapSize = 2;
     bool cursor = false;
 
-    g_renderer->SetClip( 0, 0, g_windowManager->WindowW() - 420, g_windowManager->WindowH() );
+    g_renderer2d->SetClip( 0, 0, g_windowManager->WindowW() - 420, g_windowManager->WindowH() );
 
     for( int i = m_maxStrings+1; i > 0; --i )
     {
@@ -403,14 +405,14 @@ void LobbyRenderer::RenderOverlay()
                     else                            thisLineCopy[lastLineChars] = '\x0';
                 }
 
-                g_renderer->TextSimple( xPos, yPos, thisCol, fontSize, thisLineCopyP );
+                g_renderer2d->TextSimple( xPos, yPos, thisCol, fontSize, thisLineCopyP );
 
                 if( !cursor )
                 {
                     cursor = true;
                     if( lastLineChars != -1 || fmod(timeNow,1.0f) < 0.5f )
                     {
-                        g_renderer->RectFill( xPos+g_renderer->TextWidth(thisLineCopyP, fontSize)+5,
+                        g_renderer2d->RectFill( xPos+g_renderer2d->TextWidth(thisLineCopyP, fontSize)+5,
                                               yPos, 10, 15, Colour(0,255,0,255) );
                     }
                 }
@@ -423,7 +425,7 @@ void LobbyRenderer::RenderOverlay()
 
     g_renderer->SetFontSpacing( "kremlin", kremlinFontSpacingOld );
     g_renderer->SetFont();
-    g_renderer->ResetClip();
+    g_renderer2d->ResetClip();
 }
 
 
@@ -438,26 +440,26 @@ void LobbyRenderer::RenderBorder()
 
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
-    g_renderer->BeginRectFillBatch();
+    g_renderer2d->BeginRectFillBatch();
 
-    g_renderer->RectFill( 0, 0, windowW, borderSize, fillCol );
-    g_renderer->RectFill( 0, windowH-borderSize, windowW, borderSize, fillCol );
-    g_renderer->RectFill( 0, borderSize, borderSize, windowH-borderSize*2, fillCol );
-    g_renderer->RectFill( windowW-borderSize, borderSize, borderSize, windowH-borderSize*2, fillCol );
+    g_renderer2d->RectFill( 0, 0, windowW, borderSize, fillCol );
+    g_renderer2d->RectFill( 0, windowH-borderSize, windowW, borderSize, fillCol );
+    g_renderer2d->RectFill( 0, borderSize, borderSize, windowH-borderSize*2, fillCol );
+    g_renderer2d->RectFill( windowW-borderSize, borderSize, borderSize, windowH-borderSize*2, fillCol );
 
-    g_renderer->EndRectFillBatch();
+    g_renderer2d->EndRectFillBatch();
 
-    g_renderer->BeginLineBatch();
+    g_renderer2d->BeginLineBatch();
 
-    g_renderer->BeginLines( lineCol, 1 );
-    g_renderer->Line( borderSize, borderSize );
-    g_renderer->Line( windowW-borderSize, borderSize );
-    g_renderer->Line( windowW-borderSize, windowH-borderSize );
-    g_renderer->Line( borderSize, windowH-borderSize );
-    g_renderer->Line( borderSize, borderSize );
-    g_renderer->EndLines();
+    g_renderer2d->BeginLines( lineCol, 1 );
+    g_renderer2d->Line( borderSize, borderSize );
+    g_renderer2d->Line( windowW-borderSize, borderSize );
+    g_renderer2d->Line( windowW-borderSize, windowH-borderSize );
+    g_renderer2d->Line( borderSize, windowH-borderSize );
+    g_renderer2d->Line( borderSize, borderSize );
+    g_renderer2d->EndLines();
 
-    g_renderer->EndLineBatch();
+    g_renderer2d->EndLineBatch();
 }
 
 void LobbyRenderer::RenderVersionInfo()
@@ -479,19 +481,19 @@ void LobbyRenderer::RenderVersionInfo()
     g_renderer->SetFont( "kremlin" );
 
 #if defined(SYNC_PRACTICE)
-    g_renderer->TextSimple( xPos, yPos, fontBold, 20, "SYNC PRACTICE CLIENT:" );
+    g_renderer2d->TextSimple( xPos, yPos, fontBold, 20, "SYNC PRACTICE CLIENT:" );
 #elif defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-    g_renderer->TextSimple( xPos, yPos, fontBold, 20, "REPLAY VIEWER:" );
+    g_renderer2d->TextSimple( xPos, yPos, fontBold, 20, "REPLAY VIEWER:" );
 #else
-    g_renderer->TextSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_version") );
+    g_renderer2d->TextSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_version") );
 #endif
 
 #if defined(SYNC_PRACTICE)
-    g_renderer->TextSimple( xPos + 220, yPos, fontNormal, 20, currentVersion );
+    g_renderer2d->TextSimple( xPos + 220, yPos, fontNormal, 20, currentVersion );
 #elif defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-    g_renderer->TextSimple( xPos + 160, yPos, fontNormal, 20, currentVersion );
+    g_renderer2d->TextSimple( xPos + 160, yPos, fontNormal, 20, currentVersion );
 #else
-    g_renderer->TextSimple( xPos + 100, yPos, fontNormal, 20, currentVersion );
+    g_renderer2d->TextSimple( xPos + 100, yPos, fontNormal, 20, currentVersion );
 #endif
 
     g_renderer->SetFont();
@@ -509,7 +511,7 @@ void LobbyRenderer::RenderVersionInfo()
 		float curVersionFloat = VersionManager::VersionStringToNumber( APP_VERSION );
         if( strcmp( latestVersionString, APP_VERSION ) == 0 || curVersionFloat >= latestVersionFloat )
         {
-            g_renderer->TextSimple( xPos, yPos + 33, fontNormal, 12, LANGUAGEPHRASE("dialog_lobby_have_latest_version") );
+            g_renderer2d->TextSimple( xPos, yPos + 33, fontNormal, 12, LANGUAGEPHRASE("dialog_lobby_have_latest_version") );
         }
         else
         {
@@ -521,10 +523,10 @@ void LobbyRenderer::RenderVersionInfo()
 			char caption[512];
             strcpy( caption, LANGUAGEPHRASE("dialog_lobby_newer_version") );
 			LPREPLACESTRINGFLAG( 'V', latestVersionString, caption );
-            g_renderer->TextSimple( xPos, yPos + 20, col, 12, caption );
+            g_renderer2d->TextSimple( xPos, yPos + 20, col, 12, caption );
             if( updateUrl )
             {
-                g_renderer->TextSimple( xPos, yPos + 33, col, 12, LANGUAGEPHRASE("dialog_lobby_click_to_download") );
+                g_renderer2d->TextSimple( xPos, yPos + 33, col, 12, LANGUAGEPHRASE("dialog_lobby_click_to_download") );
 
                 float areaWidth = 250;
                 bool mouseInArea = g_inputManager->m_mouseX > xPos &&
@@ -537,8 +539,8 @@ void LobbyRenderer::RenderVersionInfo()
 
                 if( mouseInArea )
                 {
-                    g_renderer->RectFill( xPos, yPos, areaWidth, 45, Colour(0,255,0,20) );
-                    g_renderer->Rect( xPos, yPos, areaWidth, 45, fontBold );
+                    g_renderer2d->RectFill( xPos, yPos, areaWidth, 45, Colour(0,255,0,20) );
+                    g_renderer2d->Rect( xPos, yPos, areaWidth, 45, fontBold );
 
                     if( g_inputManager->m_lmbUnClicked )
                     {
@@ -594,8 +596,8 @@ void LobbyRenderer::RenderAuthStatus()
     float xPos = g_windowManager->WindowW()/2.0f;
     float yPos = g_windowManager->WindowH() - 47;
 
-    g_renderer->TextCentreSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_auth_status") );
-    g_renderer->TextCentreSimple( xPos, yPos+20, fontNormal, 30, authStatusString );
+    g_renderer2d->TextCentreSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_auth_status") );
+    g_renderer2d->TextCentreSimple( xPos, yPos+20, fontNormal, 30, authStatusString );
 
 	g_renderer->SetFont();
 }
@@ -617,8 +619,8 @@ void LobbyRenderer::RenderMotd()
         static float boxY = 99999;
         float boxH = g_windowManager->WindowH() - 60 - boxY;
         float boxW = 350;
-        g_renderer->RectFill( boxX, boxY, boxW, boxH, fillCol );
-        g_renderer->Rect( boxX, boxY, boxW, boxH, lineCol );
+        g_renderer2d->RectFill( boxX, boxY, boxW, boxH, fillCol );
+        g_renderer2d->Rect( boxX, boxY, boxW, boxH, lineCol );
 
 		char *fullString = motd->GetDataString( NET_METASERVER_DATA_MOTD );
         g_renderer->SetFont("zerothre");
@@ -637,7 +639,7 @@ void LobbyRenderer::RenderMotd()
                 fontSize = 20;
             }
 
-            g_renderer->TextSimple( xPos, yPos, col, fontSize, thisLine );
+            g_renderer2d->TextSimple( xPos, yPos, col, fontSize, thisLine );
 
             boxY = yPos-10;
 
@@ -668,23 +670,23 @@ void LobbyRenderer::RenderDemoLimits()
         float yPos = g_windowManager->WindowH() - 47;
 
         g_renderer->SetFont( "kremlin" );
-        g_renderer->TextSimple( xPos, yPos, fontBold, 15, LANGUAGEPHRASE("dialog_lobby_demo_limitations") );
+        g_renderer2d->TextSimple( xPos, yPos, fontBold, 15, LANGUAGEPHRASE("dialog_lobby_demo_limitations") );
 
         g_renderer->SetFont();
-        g_renderer->TextSimple( xPos, yPos+15, fontNormal, 10, LANGUAGEPHRASE("dialog_lobby_max_demo_game_size") );
-        g_renderer->TextSimple( xPos, yPos+25, fontNormal, 10, LANGUAGEPHRASE("dialog_lobby_max_demo_players") );
-        g_renderer->TextSimple( xPos, yPos+35, fontNormal, 10, LANGUAGEPHRASE("dialog_lobby_demo_servers_permitted") );
+        g_renderer2d->TextSimple( xPos, yPos+15, fontNormal, 10, LANGUAGEPHRASE("dialog_lobby_max_demo_game_size") );
+        g_renderer2d->TextSimple( xPos, yPos+25, fontNormal, 10, LANGUAGEPHRASE("dialog_lobby_max_demo_players") );
+        g_renderer2d->TextSimple( xPos, yPos+35, fontNormal, 10, LANGUAGEPHRASE("dialog_lobby_demo_servers_permitted") );
 
 		char caption[512];
         strcpy( caption, LANGUAGEPHRASE("dialog_lobby_number_players") );
 		LPREPLACEINTEGERFLAG( 'P', maxDemoGameSize, caption );
-        g_renderer->TextSimple( xPos+200, yPos+15, fontNormal, 10, caption );
+        g_renderer2d->TextSimple( xPos+200, yPos+15, fontNormal, 10, caption );
 
         strcpy( caption, LANGUAGEPHRASE("dialog_lobby_number_players") );
 		LPREPLACEINTEGERFLAG( 'P', maxDemoPlayers, caption );
-        g_renderer->TextSimple( xPos+200, yPos+25, fontNormal, 10, caption );
+        g_renderer2d->TextSimple( xPos+200, yPos+25, fontNormal, 10, caption );
 
-        g_renderer->TextSimple( xPos+200, yPos+35, fontNormal, 10, allowDemoServers ? LANGUAGEPHRASE("dialog_yes_l") : LANGUAGEPHRASE("dialog_no_l") );
+        g_renderer2d->TextSimple( xPos+200, yPos+35, fontNormal, 10, allowDemoServers ? LANGUAGEPHRASE("dialog_yes_l") : LANGUAGEPHRASE("dialog_no_l") );
 
 
         //
@@ -728,7 +730,7 @@ void LobbyRenderer::RenderTestHours()
         Colour fontNormal( 0, 255, 0, 155 );
 
         g_renderer->SetFont( "kremlin" );
-        g_renderer->TextSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_metaserver_time") );
+        g_renderer2d->TextSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_metaserver_time") );
 
 		char caption[512];
         strcpy( caption, LANGUAGEPHRASE("dialog_lobby_time_gmt") );
@@ -738,7 +740,7 @@ void LobbyRenderer::RenderTestHours()
 		LPREPLACESTRINGFLAG( 'M', number, caption );
 		LPREPLACESTRINGFLAG( 'A', amPm, caption );
 
-        g_renderer->TextSimple( xPos, yPos+20, fontNormal, 30, caption );
+        g_renderer2d->TextSimple( xPos, yPos+20, fontNormal, 30, caption );
 
         time_t timeNow = time(NULL);
         tm *localTime = localtime(&timeNow);
@@ -749,7 +751,7 @@ void LobbyRenderer::RenderTestHours()
 
         xPos = g_windowManager->WindowW()/2 - 100;
 
-        g_renderer->TextSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_test_hours_start_at") );
+        g_renderer2d->TextSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_test_hours_start_at") );
 
         int testHour = 0;
         int closestHour = 99;
@@ -766,7 +768,7 @@ void LobbyRenderer::RenderTestHours()
 
             const char *amPm = (thisTestHour >= 12 ? LANGUAGEPHRASE("dialog_time_pm") : LANGUAGEPHRASE("dialog_time_am") );
             if( thisTestHour > 12 ) thisTestHour -= 12;
-            g_renderer->Text( xPos + 60*i, yPos+20, fontNormal, 30, "%d%s", thisTestHour, amPm );
+            g_renderer2d->Text( xPos + 60*i, yPos+20, fontNormal, 30, "%d%s", thisTestHour, amPm );
 
             if( hourDif < closestHour )
             {
@@ -785,18 +787,18 @@ void LobbyRenderer::RenderTestHours()
 
         if( closestHour >= 5 )
         {
-            g_renderer->TextRightSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_scheduled_test_hour") );
-            g_renderer->TextRightSimple( xPos, yPos+20, fontNormal, 30, LANGUAGEPHRASE("dialog_lobby_occurring_now") );
+            g_renderer2d->TextRightSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_scheduled_test_hour") );
+            g_renderer2d->TextRightSimple( xPos, yPos+20, fontNormal, 30, LANGUAGEPHRASE("dialog_lobby_occurring_now") );
         }
         else
         {
-            g_renderer->TextRightSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_next_test_hour_begins") );
+            g_renderer2d->TextRightSimple( xPos, yPos, fontBold, 20, LANGUAGEPHRASE("dialog_lobby_next_test_hour_begins") );
             if( closestHour == 0 )
             {
 				char caption[512];
                 strcpy( caption, LANGUAGEPHRASE("dialog_lobby_minutes") );
 				LPREPLACEINTEGERFLAG( 'M', closestMinute, caption );
-                g_renderer->TextRightSimple( xPos, yPos+20, fontNormal, 30, caption );
+                g_renderer2d->TextRightSimple( xPos, yPos+20, fontNormal, 30, caption );
             }
             else
             {
@@ -804,7 +806,7 @@ void LobbyRenderer::RenderTestHours()
                 strcpy( caption, LANGUAGEPHRASE("dialog_lobby_hours_minutes") );
 				LPREPLACEINTEGERFLAG( 'H', closestHour, caption );
 				LPREPLACEINTEGERFLAG( 'M', closestMinute, caption );
-                g_renderer->TextRightSimple( xPos, yPos+20, fontNormal, 30, caption );
+                g_renderer2d->TextRight( xPos, yPos+20, fontNormal, 30, caption );
             }
         }
 
@@ -886,7 +888,7 @@ void LobbyRenderer::RenderNetworkIdentity()
     else if( authStatus == 0 )  col.Set(200,200,30,255);
     else                        col.Set(0,255,0,255);
 
-    g_renderer->TextSimple( 60, 60, col, 14, caption );
+    g_renderer2d->TextSimple( 60, 60, col, 14, caption );
 
 
     //
@@ -911,7 +913,7 @@ void LobbyRenderer::RenderNetworkIdentity()
             col.Set(200,200,30,255);
         }
 
-        g_renderer->TextSimple( 60, 75, col, 14, caption );
+        g_renderer2d->TextSimple( 60, 75, col, 14, caption );
     }
 
 
@@ -940,7 +942,7 @@ void LobbyRenderer::RenderNetworkIdentity()
             col.Set(200,200,30,255);
         }
 
-        g_renderer->TextCentreSimple( 60, 85, col, 14, caption );
+        g_renderer2d->TextCentreSimple( 60, 85, col, 14, caption );
     }
 
     g_renderer->SetFont();
