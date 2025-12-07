@@ -3011,6 +3011,7 @@ void GlobeRenderer::Render3DSanta()
 			{
 				currentTime -= g_app->GetWorld()->m_santaRouteTotal;
 			}
+			g_app->GetWorld()->m_santaCurrent = 0;
 		}
         
         while ( g_app->GetWorld()->m_santaRouteLength.ValidIndex( g_app->GetWorld()->m_santaCurrent ) &&
@@ -3024,7 +3025,7 @@ void GlobeRenderer::Render3DSanta()
 		float y;
 		float thisSize = size*2;
 
-        if( g_app->GetWorld()->m_santaCurrent >= g_app->GetWorld()->m_santaRoute.Size() ) 
+        if( g_app->GetWorld()->m_santaCurrent >= g_app->GetWorld()->m_santaRouteLength.Size() ) 
         {
             g_app->GetWorld()->m_santaAlive = false;
             return;
@@ -3119,6 +3120,10 @@ void GlobeRenderer::Render3DSanta()
 			City *city;
 
 			int index = ( g_app->GetWorld()->m_santaCurrent + 1 )/ 2;
+			if (index >= g_app->GetWorld()->m_santaRoute.Size())
+			{
+				index = 0;
+			}
 			city = g_app->GetWorld()->m_santaRoute.GetData( index );
 
 			Fixed testx = city->m_longitude;
