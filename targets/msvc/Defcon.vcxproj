@@ -629,6 +629,7 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\math\fixed_float.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\math\hash_data.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\math\math_utils.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\math\matrix4f.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\math\random_number.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\math\vector3.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\memory_leak.cpp" />
@@ -663,7 +664,6 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\operations_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\primitives_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_nuke.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\sprites_3d.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\colour.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer.cpp" />
@@ -672,6 +672,7 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmap.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\image.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\resource\model3d.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\resource.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\resource\sprite_atlas.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.cpp" />
@@ -823,6 +824,7 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\math\fixed_float.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\math\hash_data.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\math\math_utils.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\math\matrix4f.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\math\random_number.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\math\vector3.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\memory_leak.h" />
@@ -860,6 +862,7 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmap.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\image.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\resource\model3d.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\resource.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\sound\soundsystem.h" />

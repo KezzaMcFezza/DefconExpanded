@@ -16,6 +16,7 @@
 #include "lib/tosser/btree.h"
 #include "lib/tosser/llist.h"
 #include "lib/math/vector3.h"
+#include "lib/math/matrix4f.h"
 #include "lib/render/colour.h"
 
 class Renderer;
@@ -57,26 +58,6 @@ struct Vertex3DTextured {
                                     b(color.GetBFloat()), a(color.GetAFloat()), u(pu), v(pv) {}
 };
 
-// Extended Matrix4f with 3D operations
-class Matrix4f3D {
-public:
-    float m[16];
-    
-    constexpr Matrix4f3D() : m{1,0,0,0,  0,1,0,0,  0,0,1,0,  0,0,0,1} {}
-    constexpr void LoadIdentity();
-    void Perspective        (float fovy, float aspect, float nearZ, float farZ);
-    void LookAt             (float eyeX, float eyeY, float eyeZ,
-                             float centerX, float centerY, float centerZ,
-                             float upX, float upY, float upZ);
-    constexpr void Multiply (const Matrix4f3D& other);
-    void Copy               (float* dest) const;
-    
-private:
-    void Normalize          (float& x, float& y, float& z);
-    constexpr void Cross    (float ax, float ay, float az, float bx, float by, float bz, 
-                             float& cx, float& cy, float& cz);
-};
-
 class Renderer3DVBO;
 
 class Renderer3D
@@ -113,7 +94,6 @@ private:
     unsigned int m_spriteVAO3D, m_spriteVBO3D;              // Unit sprites and highlights
     unsigned int m_lineVAO3D, m_lineVBO3D;                  // Effects lines and trails (non-textured)
     unsigned int m_textVAO3D, m_textVBO3D;                  // Text rendering
-    unsigned int m_nukeVAO3D, m_nukeVBO3D;                  // 3D nuke models
     unsigned int m_circleVAO3D, m_circleVBO3D;              // Circle outlines
     unsigned int m_circleFillVAO3D, m_circleFillVBO3D;      // Circle fills
     unsigned int m_rectVAO3D, m_rectVBO3D;                  // Rect outlines
@@ -121,8 +101,8 @@ private:
     unsigned int m_triangleFillVAO3D, m_triangleFillVBO3D;  // Triangle fills
     unsigned int m_immediateVAO3D, m_immediateVBO3D;        // Immediate rendering
     
-    Matrix4f3D m_projectionMatrix3D;
-    Matrix4f3D m_modelViewMatrix3D;
+    Matrix4f m_projectionMatrix3D;
+    Matrix4f m_modelViewMatrix3D;
 
     static constexpr int MAX_3D_VERTICES                   = 4200;
     static constexpr int MAX_3D_TEXTURED_VERTICES          = 3000;
@@ -130,7 +110,6 @@ private:
     static constexpr int MAX_STATIC_SPRITE_VERTICES_3D     = 30000;
     static constexpr int MAX_ROTATING_SPRITE_VERTICES_3D   = 10000;
     static constexpr int MAX_TEXT_VERTICES_3D              = 1000;
-    static constexpr int MAX_NUKE_3D_MODEL_VERTICES_3D     = 7500;
     static constexpr int MAX_CIRCLE_VERTICES_3D            = 5000;
     static constexpr int MAX_CIRCLE_FILL_VERTICES_3D       = 5000;
     static constexpr int MAX_RECT_VERTICES_3D              = 3000;
@@ -157,9 +136,6 @@ private:
 
     Vertex3D m_lineVertices3D                     [MAX_LINE_VERTICES_3D];
     int m_lineVertexCount3D;
-
-    Vertex3D m_nuke3DModelVertices3D              [MAX_NUKE_3D_MODEL_VERTICES_3D];
-    int m_nuke3DModelVertexCount3D;
 
     Vertex3D m_circleVertices3D                   [MAX_CIRCLE_VERTICES_3D];
     int m_circleVertexCount3D;
@@ -208,7 +184,6 @@ private:
     int m_rotatingSpriteCalls3D;
     int m_textCalls3D;
     int m_megaVBOCalls3D;
-    int m_nuke3DModelCalls3D;
     int m_circleCalls3D;
     int m_circleFillCalls3D;
     int m_rectCalls3D;
@@ -223,7 +198,6 @@ private:
     int m_prevRotatingSpriteCalls3D;
     int m_prevTextCalls3D;
     int m_prevMegaVBOCalls3D;
-    int m_prevNuke3DModelCalls3D;
     int m_prevCircleCalls3D;
     int m_prevCircleFillCalls3D;
     int m_prevRectCalls3D;
@@ -261,8 +235,6 @@ private:
     void UploadVertexDataTo3DVBO     (unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount, unsigned int usageHint);
     void InvalidateMatrices3D        () { m_matrices3DNeedUpdate = true; }
     void InvalidateFog3D             () { m_fog3DNeedsUpdate = true; }
-    void CreateNukeModel3D                (const Vector3<float>& position, const Vector3<float>& direction, 
-                                           float length, float radius, Colour const &col, Vertex3D* vertices, int& vertexCount);
 
 public:
     Renderer3D();
@@ -316,7 +288,6 @@ public:
     int GetLineCalls                () const { return m_prevLineCalls3D; }
     int GetStaticSpriteCalls        () const { return m_prevStaticSpriteCalls3D; }
     int GetRotatingSpriteCalls      () const { return m_prevRotatingSpriteCalls3D; }
-    int GetNuke3DModelCalls         () const { return m_prevNuke3DModelCalls3D; }
     int GetCircleCalls              () const { return m_prevCircleCalls3D; }
     int GetCircleFillCalls          () const { return m_prevCircleFillCalls3D; }
     int GetRectCalls                () const { return m_prevRectCalls3D; }
@@ -335,7 +306,6 @@ public:
     int GetCurrentLineVertexCount             () const { return m_lineVertexCount3D; }
     int GetCurrentStaticSpriteVertexCount     () const { return m_staticSpriteVertexCount3D; }
     int GetCurrentRotatingSpriteVertexCount   () const { return m_rotatingSpriteVertexCount3D; }
-    int GetCurrentNuke3DModelVertexCount      () const { return m_nuke3DModelVertexCount3D; }
     int GetCurrentCircleVertexCount           () const { return m_circleVertexCount3D; }
     int GetCurrentCircleFillVertexCount       () const { return m_circleFillVertexCount3D; }
     int GetCurrentRectVertexCount             () const { return m_rectVertexCount3D; }
@@ -344,9 +314,8 @@ public:
     
     int GetTotalCurrentVertexCount() const {
         return m_textVertexCount3D + m_lineVertexCount3D + m_staticSpriteVertexCount3D + 
-               m_rotatingSpriteVertexCount3D + m_nuke3DModelVertexCount3D +
-               m_circleVertexCount3D + m_circleFillVertexCount3D + m_rectVertexCount3D + 
-               m_rectFillVertexCount3D + m_triangleFillVertexCount3D;
+               m_rotatingSpriteVertexCount3D + m_circleVertexCount3D + m_circleFillVertexCount3D + 
+               m_rectVertexCount3D + m_rectFillVertexCount3D + m_triangleFillVertexCount3D;
     }
     
     void Line3D           (float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col, bool immediateFlush = false);
@@ -372,13 +341,6 @@ public:
     void BeginTextBatch3D();
     void EndTextBatch3D();
     void FlushTextBuffer3D();
-    
-    void Nuke3DModel               (const Vector3<float>& position, const Vector3<float>& direction, 
-                                    float length, float radius, Colour const &col);
-    void BeginNuke3DModelBatch3D   ();
-    void EndNuke3DModelBatch3D     ();
-    void FlushNuke3DModels3D       ();
-    void FlushNuke3DModels3DIfFull (int verticesNeeded);
     
     void Circle3D                  (float x, float y, float z, float radius, int numPoints, Colour const &col, bool immediateFlush = false);
     void BeginCircleBatch3D        ();

@@ -8,9 +8,11 @@
 class Image;
 class WorldObject;
 class AnimatedIcon;
+class Model3D;
 
 #define    GLOBE_RADIUS                                1.0f     // default globe radius
 #define    GLOBE_CULL_RADIUS                           0.995f   // culling sphere radius (inside the globe)
+#define    GLOBE_NUKE_MODEL_SIZE                       0.75f    // nuke model scale
 
 #define    STYLE_GLOBE_COASTLINES                     "GlobeCoastlines"
 #define    STYLE_GLOBE_BORDERS                        "GlobeBorders"
@@ -37,6 +39,8 @@ protected:
 
     DArray<Star3D> g_starField3D;
     bool g_starField3DInitialized = false;
+
+    Model3D *m_nukeModel;
 
     float   m_zoomFactor;
     float   m_middleX;

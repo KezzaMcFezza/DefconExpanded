@@ -8,6 +8,7 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/bitmapfont.h"
 #include "lib/resource/image.h"
+#include "lib/resource/model3d.h"
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/filesys/file_system.h"
 #include "lib/render/renderer.h"
@@ -108,6 +109,18 @@ void Resource::Shutdown()
     // TestBitmapFont cache
 
     m_testBitmapFontCache.Empty();
+
+    //
+    // Model3D cache
+
+    DArray<Model3D *> *models = m_model3DCache.ConvertToDArray();
+    for( int i = 0; i < models->Size(); ++i )
+    {
+        Model3D *model = models->GetData(i);
+        delete model;
+    }
+    delete models;
+    m_model3DCache.Empty();
 }
 
 
@@ -227,4 +240,48 @@ bool Resource::TestBitmapFont ( const char *filename )
     }
     m_testBitmapFontCache.PutData( fullFilename, true );
     return false;
+}
+
+Model3D *Resource::GetModel3D( const char *filename )
+{
+    if( !filename ) return NULL;
+    
+    char fullFilename[512];
+    sprintf( fullFilename, "data/models/%s", filename );
+    
+    Model3D *model = m_model3DCache.GetData( fullFilename );
+    if( model )
+    {
+        return model;
+    }
+    
+    model = new Model3D( fullFilename );
+    
+    if( !model->IsLoaded() )
+    {
+        AppDebugOut("Model3D: Failed to load model: %s\n", fullFilename);
+    }
+    
+    m_model3DCache.PutData( fullFilename, model );
+    return model;
+}
+
+
+void Resource::UnloadModel3D( const char *filename )
+{
+    if( !filename ) return;
+    
+    char fullFilename[512];
+    sprintf( fullFilename, "data/models/%s", filename );
+    
+    Model3D *model = m_model3DCache.GetData( fullFilename );
+    if( model )
+    {
+        delete model;
+        m_model3DCache.RemoveData( fullFilename );
+    }
+    
+#ifndef NO_UNRAR
+    g_fileSystem->UnloadArchiveFile( fullFilename );
+#endif
 }

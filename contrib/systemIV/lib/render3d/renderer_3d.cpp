@@ -10,6 +10,7 @@
 #include "lib/render2d/renderer_2d.h"
 #include "lib/resource/sprite_atlas.h"
 #include "lib/resource/image.h"
+#include "lib/math/matrix4f.h"
 #include "renderer/map_renderer.h"
 #include "shaders/vertex.glsl.h"
 #include "shaders/fragment.glsl.h"
@@ -20,121 +21,9 @@
 
 Renderer3D *g_renderer3d = NULL;
 
-// ================================
-// Matrix4f3D Implementation
-// ================================
-
-constexpr void Matrix4f3D::LoadIdentity() {
-    m[0] = 1.0f; m[1] = 0.0f; m[2] = 0.0f; m[3] = 0.0f;
-    m[4] = 0.0f; m[5] = 1.0f; m[6] = 0.0f; m[7] = 0.0f;
-    m[8] = 0.0f; m[9] = 0.0f; m[10] = 1.0f; m[11] = 0.0f;
-    m[12] = 0.0f; m[13] = 0.0f; m[14] = 0.0f; m[15] = 1.0f;
-}
-
-void Matrix4f3D::Perspective(float fovy, float aspect, float nearZ, float farZ) {
-    float rad = fovy * M_PI / 180.0f;
-    float f = 1.0f / tanf(rad / 2.0f);
-    
-    LoadIdentity();
-    
-    m[0] = f / aspect;
-    m[5] = f;
-    m[10] = (farZ + nearZ) / (nearZ - farZ);
-    m[11] = -1.0f;
-    m[14] = (2.0f * farZ * nearZ) / (nearZ - farZ);
-    m[15] = 0.0f;
-}
-
-void Matrix4f3D::LookAt(float eyeX, float eyeY, float eyeZ,
-                        float centerX, float centerY, float centerZ,
-                        float upX, float upY, float upZ) {
-    
-    //
-    // Calculate look direction (from eye to center)
-    
-    float fx = centerX - eyeX;
-    float fy = centerY - eyeY;
-    float fz = centerZ - eyeZ;
-    Normalize(fx, fy, fz);
-    
-    //
-    // Calculate right vector (forward cross up)
-    
-    float sx, sy, sz;
-    Cross(fx, fy, fz, upX, upY, upZ, sx, sy, sz);
-    Normalize(sx, sy, sz);
-    
-    //
-    // Calculate up vector (right cross forward)
-    
-    float ux, uy, uz;
-    Cross(sx, sy, sz, fx, fy, fz, ux, uy, uz);
-    
-    //
-    // Build view matrix exactly like gluLookAt (column-major order)
-    
-    LoadIdentity();
-    
-    // Column 0
-    m[0] = sx;
-    m[1] = ux; 
-    m[2] = -fx;
-    m[3] = 0.0f;
-    
-    // Column 1
-    m[4] = sy;
-    m[5] = uy;
-    m[6] = -fy;
-    m[7] = 0.0f;
-    
-    // Column 2
-    m[8] = sz;
-    m[9] = uz;
-    m[10] = -fz;
-    m[11] = 0.0f;
-    
-    // Column 3 (translation)
-    m[12] = -(sx * eyeX + sy * eyeY + sz * eyeZ);
-    m[13] = -(ux * eyeX + uy * eyeY + uz * eyeZ);
-    m[14] = -(-fx * eyeX + -fy * eyeY + -fz * eyeZ);
-    m[15] = 1.0f;
-}
-
-constexpr void Matrix4f3D::Multiply(const Matrix4f3D& other) {
-    Matrix4f3D result;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            result.m[i * 4 + j] = 0.0f;
-            for (int k = 0; k < 4; k++) {
-                result.m[i * 4 + j] += m[i * 4 + k] * other.m[k * 4 + j];
-            }
-        }
-    }
-    *this = result;
-}
-
-void Matrix4f3D::Copy(float* dest) const {
-    memcpy(dest, m, sizeof(m));
-}
-
-void Matrix4f3D::Normalize(float& x, float& y, float& z) {
-    float length = sqrtf(x * x + y * y + z * z);
-    if (length > 0.0f) {
-        x /= length;
-        y /= length;
-        z /= length;
-    }
-}
-
-constexpr void Matrix4f3D::Cross(float ax, float ay, float az, float bx, float by, float bz, float& cx, float& cy, float& cz) {
-    cx = ay * bz - az * by;
-    cy = az * bx - ax * bz;
-    cz = ax * by - ay * bx;
-}
-
-// ================================
-// Renderer3D Implementation
-// ================================
+// ============================================================================
+// CONSTRUCTOR & DESTRUCTOR
+// ============================================================================
 
 Renderer3D::Renderer3D()
 :   m_shader3DProgram(0),
@@ -143,7 +32,6 @@ Renderer3D::Renderer3D()
     m_VAO3DTextured(0), m_VBO3DTextured(0),
     m_spriteVAO3D(0), m_spriteVBO3D(0),
     m_lineVAO3D(0), m_lineVBO3D(0),
-    m_nukeVAO3D(0), m_nukeVBO3D(0),
     m_circleVAO3D(0), m_circleVBO3D(0),
     m_circleFillVAO3D(0), m_circleFillVBO3D(0),
     m_rectVAO3D(0), m_rectVBO3D(0),
@@ -167,7 +55,6 @@ Renderer3D::Renderer3D()
     m_currentRotatingSpriteTexture3D(0),
     m_textVertexCount3D(0),
     m_currentTextTexture3D(0),
-    m_nuke3DModelVertexCount3D(0),
     m_circleVertexCount3D(0),
     m_circleFillVertexCount3D(0),
     m_rectVertexCount3D(0),
@@ -196,7 +83,6 @@ Renderer3D::Renderer3D()
     m_rotatingSpriteCalls3D = 0;
     m_textCalls3D = 0;
     m_megaVBOCalls3D = 0;
-    m_nuke3DModelCalls3D = 0;
     m_circleCalls3D = 0;
     m_circleFillCalls3D = 0;
     m_rectCalls3D = 0;
@@ -210,7 +96,6 @@ Renderer3D::Renderer3D()
     m_prevRotatingSpriteCalls3D = 0;
     m_prevTextCalls3D = 0;
     m_prevMegaVBOCalls3D = 0;
-    m_prevNuke3DModelCalls3D = 0;
     m_prevCircleCalls3D = 0;
     m_prevCircleFillCalls3D = 0;
     m_prevRectCalls3D = 0;
@@ -259,8 +144,6 @@ void Renderer3D::Shutdown() {
     if (m_lineVBO3D) glDeleteBuffers(1, &m_lineVBO3D);
     if (m_textVAO3D) glDeleteVertexArrays(1, &m_textVAO3D);
     if (m_textVBO3D) glDeleteBuffers(1, &m_textVBO3D);
-    if (m_nukeVAO3D) glDeleteVertexArrays(1, &m_nukeVAO3D);
-    if (m_nukeVBO3D) glDeleteBuffers(1, &m_nukeVBO3D);
     if (m_circleVAO3D) glDeleteVertexArrays(1, &m_circleVAO3D);
     if (m_circleVBO3D) glDeleteBuffers(1, &m_circleVBO3D);
     if (m_circleFillVAO3D) glDeleteVertexArrays(1, &m_circleFillVAO3D);
@@ -341,16 +224,6 @@ void Renderer3D::Setup3DVertexArrays() {
     glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO3D);
     glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * (MAX_LINE_VERTICES_3D), NULL, GL_STREAM_DRAW);
     setup3DVertexAttributes(); 
-    
-    //
-    // Create Nuke 3D Models VAO/VBO pair
-
-    glGenVertexArrays(1, &m_nukeVAO3D);
-    glGenBuffers(1, &m_nukeVBO3D);
-    glBindVertexArray(m_nukeVAO3D);
-    glBindBuffer(GL_ARRAY_BUFFER, m_nukeVBO3D);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex3D) * MAX_NUKE_3D_MODEL_VERTICES_3D, NULL, GL_DYNAMIC_DRAW);
-    setup3DVertexAttributes();
     
     //
     // Create Circle VAO/VBO pair
@@ -944,7 +817,6 @@ void Renderer3D::IncrementDrawCall3D(const char* bufferType) {
         case hash("batched_lines"): m_lineCalls3D++; break;
         case hash("static_sprites"): m_staticSpriteCalls3D++; break;
         case hash("rotating_sprites"): m_rotatingSpriteCalls3D++; break;
-        case hash("nuke_3d_models"): m_nuke3DModelCalls3D++; break;
         case hash("circles"): m_circleCalls3D++; break;
         case hash("circle_fills"): m_circleFillCalls3D++; break;
         case hash("rects"): m_rectCalls3D++; break;
@@ -963,7 +835,6 @@ void Renderer3D::ResetFrameCounters3D() {
     m_prevRotatingSpriteCalls3D = m_rotatingSpriteCalls3D;
     m_prevTextCalls3D = m_textCalls3D;
     m_prevMegaVBOCalls3D = m_megaVBOCalls3D;
-    m_prevNuke3DModelCalls3D = m_nuke3DModelCalls3D;
     m_prevCircleCalls3D = m_circleCalls3D;
     m_prevCircleFillCalls3D = m_circleFillCalls3D;
     m_prevRectCalls3D = m_rectCalls3D;
@@ -981,7 +852,6 @@ void Renderer3D::ResetFrameCounters3D() {
     m_rotatingSpriteCalls3D = 0;
     m_textCalls3D = 0;
     m_megaVBOCalls3D = 0;
-    m_nuke3DModelCalls3D = 0;
     m_circleCalls3D = 0;
     m_circleFillCalls3D = 0;
     m_rectCalls3D = 0;

@@ -6,6 +6,7 @@
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
+#include "lib/resource/model3d.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
@@ -47,7 +48,8 @@
 #include "curves.h"
 
 GlobeRenderer::GlobeRenderer()
-:   m_zoomFactor(1),
+:   m_nukeModel(NULL),
+    m_zoomFactor(1),
     m_middleX(0.0f),
     m_middleY(0.0f),
     m_lockCommands(false),
@@ -68,12 +70,19 @@ GlobeRenderer::GlobeRenderer()
 
 GlobeRenderer::~GlobeRenderer()
 {
+    if (m_nukeModel) {
+        g_resource->UnloadModel3D("nuke.glb");
+        m_nukeModel = NULL;
+    }
+    
     Reset();
 }
 
 void GlobeRenderer::Init()
 {
     Reset();
+
+    m_nukeModel = g_resource->GetModel3D("nuke.glb");
 }
 
 void GlobeRenderer::Update()
@@ -591,7 +600,7 @@ void GlobeRenderer::Render()
     // Begin scene main scene
 
     g_renderer3d->BeginLineBatch3D();              // Unit movement trails
-    g_renderer3d->BeginNuke3DModelBatch3D();       // 3D nuke models (replaces flat nuke sprites)
+    g_renderer3d->BeginTriangleFillBatch3D();      // 3D models
     g_renderer3d->BeginStaticSpriteBatch3D();      // Main unit sprites + city icons
     g_renderer3d->BeginRotatingSpriteBatch3D();    // Rotating sprites (aircraft, but not nukes anymore)
 
@@ -633,7 +642,7 @@ void GlobeRenderer::Render()
     
     g_renderer3d->EndRotatingSpriteBatch3D();     // Flush all rotating sprites (atlas batching!)
     g_renderer3d->EndStaticSpriteBatch3D();       // Flush all main unit sprites + city icons (atlas batching!)
-    g_renderer3d->EndNuke3DModelBatch3D();        // Flush all 3D nuke models
+    g_renderer3d->EndTriangleFillBatch3D();       // Flush all 3D models
 
     g_renderer->SetDepthBuffer(false, false);
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
@@ -1739,14 +1748,50 @@ void GlobeRenderer::Render3DNuke()
             Vector3<Fixed>* olderHistoryPos = history[1];
             Vector3<float> olderPos = CalculateHistoricalNuke3DPosition(nuke, *olderHistoryPos);
             
+            //
             // direction = where we are MOVING not going
+
             direction = currentPos - olderPos;
             direction.Normalise();
         }
         
-        float nukeLength = size * 1.2f;  
-        float nukeRadius = size * 0.24f;  
-        g_renderer3d->Nuke3DModel(unitPos, direction, nukeLength, nukeRadius, color);
+        if (m_nukeModel && m_nukeModel->IsLoaded()) {
+            Vector3<float> forward = direction;
+            forward.Normalise();
+            
+            Vector3<float> up = Vector3<float>(0.0f, 1.0f, 0.0f);
+            if (fabsf(forward.y) > 0.9f) {
+                up = Vector3<float>(1.0f, 0.0f, 0.0f);
+            }
+            
+            Vector3<float> right = up ^ forward;
+            right.Normalise();
+            up = forward ^ right;
+            up.Normalise();
+            
+            float modelRadius = m_nukeModel->GetBoundsRadius();
+            float scale = (size * GLOBE_NUKE_MODEL_SIZE) / modelRadius;
+            
+            for (int meshIdx = 0; meshIdx < m_nukeModel->GetMeshCount(); meshIdx++) {
+                const Model3DMesh* mesh = m_nukeModel->GetMesh(meshIdx);
+                
+                for (size_t i = 0; i < mesh->indices.size(); i += 3) {
+                    unsigned int i0 = mesh->indices[i + 0];
+                    unsigned int i1 = mesh->indices[i + 1];
+                    unsigned int i2 = mesh->indices[i + 2];
+                    
+                    Vector3<float> v0(mesh->positions[i0*3+0], mesh->positions[i0*3+1], mesh->positions[i0*3+2]);
+                    Vector3<float> v1(mesh->positions[i1*3+0], mesh->positions[i1*3+1], mesh->positions[i1*3+2]);
+                    Vector3<float> v2(mesh->positions[i2*3+0], mesh->positions[i2*3+1], mesh->positions[i2*3+2]);
+                    
+                    v0 = unitPos + (right * v0.x + up * v0.y + forward * v0.z) * scale;
+                    v1 = unitPos + (right * v1.x + up * v1.y + forward * v1.z) * scale;
+                    v2 = unitPos + (right * v2.x + up * v2.y + forward * v2.z) * scale;
+                    
+                    g_renderer3d->TriangleFill3D(v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, color);
+                }
+            }
+        }
     }
 }
 

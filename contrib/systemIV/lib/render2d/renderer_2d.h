@@ -9,6 +9,7 @@
 #define IMMEDIATE_MODE_2D 0
 
 #include "lib/math/vector3.h"
+#include "lib/math/matrix4f.h"
 #include "lib/render/colour.h"
 #include "lib/tosser/btree.h"
 #include "lib/tosser/llist.h"
@@ -20,16 +21,6 @@ static const Colour White       {255, 255, 255};
 static const Colour Black       {0, 0, 0};
 static const Colour LightGray   {200, 200, 200};
 static const Colour DarkGray    {100, 100, 100};
-
-struct Matrix4f {
-  float m[16];
-
-  constexpr Matrix4f();
-  constexpr void LoadIdentity();
-  void Ortho             (float left, float right, float bottom, float top, float nearZ,
-                          float farZ);
-  constexpr void Multiply(const Matrix4f &other);
-};
 
 struct Vertex2D {
   float x, y;

@@ -621,6 +621,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/math/fixed_float.cpp
     ${SYSTEMIV_PATH}/lib/math/fixed_64.cpp
     ${SYSTEMIV_PATH}/lib/math/hash_data.cpp
+    ${SYSTEMIV_PATH}/lib/math/Matrix4f.cpp
     ${SYSTEMIV_PATH}/lib/math/math_utils.cpp
     ${SYSTEMIV_PATH}/lib/math/random_number.cpp
     ${SYSTEMIV_PATH}/lib/math/vector2.cpp
@@ -653,7 +654,6 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/render3d/operations_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/primitives_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/sprites_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_nuke.cpp
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/megavbo_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/quads_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/linestrips_3d.cpp
@@ -663,6 +663,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/resource/bitmap.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmapfont.cpp
     ${SYSTEMIV_PATH}/lib/resource/image.cpp
+    ${SYSTEMIV_PATH}/lib/resource/model3d.cpp
     ${SYSTEMIV_PATH}/lib/resource/resource.cpp
     ${SYSTEMIV_PATH}/lib/resource/sprite_atlas.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_blueprint_manager.cpp

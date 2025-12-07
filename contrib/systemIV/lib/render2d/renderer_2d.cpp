@@ -17,6 +17,7 @@
 #include "lib/filesys/filesys_utils.h"
 #include "lib/language_table.h"
 #include "lib/render3d/renderer_3d.h"
+#include "lib/math/matrix4f.h"
 #include "lib/render/colour.h"
 #include "shaders/vertex.glsl.h"
 #include "shaders/color_fragment.glsl.h"
@@ -27,50 +28,6 @@
 #include "megavbo/megavbo_2d.h"
 
 Renderer2D *g_renderer2d = NULL;
-
-// ============================================================================
-// MATRIX4F IMPLEMENTATION
-// ============================================================================
-
-constexpr Matrix4f::Matrix4f() 
-    : m{1,0,0,0,  0,1,0,0,  0,0,1,0,  0,0,0,1}
-{
-}
-
-constexpr void Matrix4f::LoadIdentity() {
-    m[0] = 1.0f; m[1] = 0.0f; m[2] = 0.0f; m[3] = 0.0f;
-    m[4] = 0.0f; m[5] = 1.0f; m[6] = 0.0f; m[7] = 0.0f;
-    m[8] = 0.0f; m[9] = 0.0f; m[10] = 1.0f; m[11] = 0.0f;
-    m[12] = 0.0f; m[13] = 0.0f; m[14] = 0.0f; m[15] = 1.0f;
-}
-
-void Matrix4f::Ortho(float left, float right, float bottom, float top, float nearZ, float farZ) {
-    LoadIdentity();
-    
-    float tx = -(right + left) / (right - left);
-    float ty = -(top + bottom) / (top - bottom);
-    float tz = -(farZ + nearZ) / (farZ - nearZ);
-    
-    m[0] = 2.0f / (right - left);
-    m[5] = 2.0f / (top - bottom);
-    m[10] = -2.0f / (farZ - nearZ);
-    m[12] = tx;
-    m[13] = ty;
-    m[14] = tz;
-}
-
-constexpr void Matrix4f::Multiply(const Matrix4f& other) {
-    Matrix4f result;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            result.m[i * 4 + j] = 0.0f;
-            for (int k = 0; k < 4; k++) {
-                result.m[i * 4 + j] += m[i * 4 + k] * other.m[k * 4 + j];
-            }
-        }
-    }
-    *this = result;
-}
 
 // ============================================================================
 // CONSTRUCTOR & DESTRUCTOR

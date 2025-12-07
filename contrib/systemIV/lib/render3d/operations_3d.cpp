@@ -34,10 +34,6 @@ void Renderer3D::BeginTextBatch3D() {
     m_currentTextTexture3D = 0;
 }
 
-void Renderer3D::BeginNuke3DModelBatch3D() {
-    m_nuke3DModelVertexCount3D = 0;
-}
-
 void Renderer3D::BeginCircleBatch3D() {
     m_circleVertexCount3D = 0;
 }
@@ -83,12 +79,6 @@ void Renderer3D::EndRotatingSpriteBatch3D() {
 void Renderer3D::EndTextBatch3D() {
     if (m_textVertexCount3D > 0) {
         FlushTextBuffer3D();
-    }
-}
-
-void Renderer3D::EndNuke3DModelBatch3D() {
-    if (m_nuke3DModelVertexCount3D > 0) {
-        FlushNuke3DModels3D();
     }
 }
 
@@ -141,12 +131,6 @@ void Renderer3D::FlushStaticSprites3DIfFull(int verticesNeeded) {
 void Renderer3D::FlushRotatingSprite3DIfFull(int verticesNeeded) {
     if (m_rotatingSpriteVertexCount3D + verticesNeeded > MAX_ROTATING_SPRITE_VERTICES_3D) {
         FlushRotatingSprite3D();
-    }
-}
-
-void Renderer3D::FlushNuke3DModels3DIfFull(int verticesNeeded) {
-    if (m_nuke3DModelVertexCount3D + verticesNeeded >= MAX_NUKE_3D_MODEL_VERTICES_3D) {
-        FlushNuke3DModels3D();
     }
 }
 
@@ -283,33 +267,6 @@ void Renderer3D::FlushTextBuffer3D() {
     EndFlushTiming3D("Text_3D");
 }
 
-void Renderer3D::FlushNuke3DModels3D() {
-    if (m_nuke3DModelVertexCount3D == 0) return;
-    
-    StartFlushTiming3D("Nuke_3D_Models");
-    IncrementDrawCall3D("nuke_3d_models");
-    
-    g_renderer->SetShaderProgram(m_shader3DProgram);
-    Set3DShaderUniforms();
-    
-    g_renderer->SetVertexArray(m_nukeVAO3D);
-    UploadVertexDataTo3DVBO(m_nukeVBO3D, m_nuke3DModelVertices3D, m_nuke3DModelVertexCount3D, GL_DYNAMIC_DRAW);
-    
-    //
-    // Enable face culling for proper 3D model rendering
-
-    g_renderer->SetCullFace(true, GL_BACK);
-    glCullFace(GL_BACK);
-    
-    glDrawArrays(GL_TRIANGLES, 0, m_nuke3DModelVertexCount3D);
-    
-    g_renderer->SetCullFace(false, GL_BACK);
-    
-    m_nuke3DModelVertexCount3D = 0;
-    
-    EndFlushTiming3D("Nuke_3D_Models");
-}
-
 void Renderer3D::FlushCircles3D() {
     if (m_circleVertexCount3D == 0) return;
     
@@ -392,13 +349,21 @@ void Renderer3D::FlushTriangleFills3D() {
     StartFlushTiming3D("Triangle_Fills_3D");
     IncrementDrawCall3D("triangle_fills");
     
+    g_renderer->SetDepthMask(false);
+    
     g_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
     
     g_renderer->SetVertexArray(m_triangleFillVAO3D);
     UploadVertexDataTo3DVBO(m_triangleFillVBO3D, m_triangleFillVertices3D, m_triangleFillVertexCount3D, GL_DYNAMIC_DRAW);
     
+    g_renderer->SetCullFace(true, GL_BACK);
+    glCullFace(GL_BACK);
+    
     glDrawArrays(GL_TRIANGLES, 0, m_triangleFillVertexCount3D);
+    
+    g_renderer->SetCullFace(false, GL_BACK);
+    g_renderer->SetDepthMask(true);
     
     m_triangleFillVertexCount3D = 0;
     
