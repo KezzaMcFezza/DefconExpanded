@@ -187,6 +187,39 @@
 .server-checkbox[onclick*="defcon_10p_diplo"] {
     border-left: 3px solid #8b008b;
 }
+.server-checkbox[onclick*="defcon_training"] {
+    border-left: 3px solid #7dd87d;
+}
+.server-checkbox[onclick*="defcon_test"] {
+    border-left: 3px solid #c0c0c0;
+}
+.server-checkbox[onclick*="defcon_lots_units"] {
+    border-left: 3px solid #ff8c00;
+}
+.server-checkbox[onclick*="defcon_1v1_uk"] {
+    border-left: 3px solid #4682b4;
+}
+.server-checkbox[onclick*="christmas_tournament_2025"] {
+    border-left: 3px solid #ff6b6b;
+}
+.server-checkbox[onclick*="defcon_2v2_uk"] {
+    border-left: 3px solid #5f9ea0;
+}
+.server-checkbox[onclick*="defcon_2v2_max_cities"] {
+    border-left: 3px solid #8a2be2;
+}
+.server-checkbox[onclick*="muricon_uk"] {
+    border-left: 3px solid #b8860b;
+}
+.server-checkbox[onclick*="defcon_diplo_uk"] {
+    border-left: 3px solid #6495ed;
+}
+.server-checkbox[onclick*="defcon_5v5_ffa"] {
+    border-left: 3px solid #2e8b57;
+}
+.server-checkbox[onclick*="defcon_16p"] {
+    border-left: 3px solid #778899;
+}
 
 .popularterritories .server-checkbox[onclick*="na"],
 div[onclick*="toggleTerritory"][onclick*="na"] {
