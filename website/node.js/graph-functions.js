@@ -39,19 +39,29 @@ function processTotalHoursData(rows) {
         const serverTypeMapping = {
             'New Player Server': 'new_player',
             'New Player Server - Training Game': 'training',
+            'DefconExpanded | Training Server': 'defcon_training',
+            'DefconExpanded Test Server': 'defcon_test',
             'DefconExpanded | 1v1 | Totally Random': 'defcon_random',
             'DefconExpanded | 1v1 | Best Setups Only!': 'defcon_best',
             'DefconExpanded | 1v1 | Cursed Setups Only!': 'defcon_cursed',
+            'DefconExpanded | 1v1 | Lots of Units!': 'defcon_lots_units',
+            'DefconExpanded | 1v1 | UK and Ireland': 'defcon_1v1_uk',
             'Raizer\'s Russia vs USA | Totally Random': 'defcon_raizer',
             'DefconExpanded | 1v1 | AF vs AS | Totally Random': 'defcon_afas',
             'DefconExpanded | 1v1 | EU vs SA | Totally Random': 'defcon_eusa',
             'DefconExpanded | 1v1 | Default': 'defcon_default',
+            'Christmas Tournament 2025': 'christmas_tournament_2025',
             'DefconExpanded | 2v2 | Totally Random': 'defcon_2v2',
+            'DefconExpanded | 2v2 | UK and Ireland': 'defcon_2v2_uk',
+            '2v2 Tournament': 'defcon_2v2_tournament',
+            'DefconExpanded | 2v2 | Max Cities / Pop': 'defcon_2v2_max_cities',
             '2v2 Tournament': 'tournament_2v2',
             'DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random': 'defcon_2v2_special',
             'Mojo\'s 2v2 Arena - Quick Victory': 'mojo_2v2',
             'Sony and Hoov\'s Hideout': 'sony_hoov',
             'DefconExpanded | 3v3 | Totally Random': 'defcon_3v3',
+            'MURICON | UK Mod': 'muricon_uk',
+            'DefconExpanded | Diplomacy | UK and Ireland': 'defcon_diplo_uk',
             'MURICON | 1v1 Default | 2.8.15': 'muricon',
             'MURICON | 1V1 | Totally Random | 2.8.15': 'muricon_random',
             '509 CG | 2v2 | Totally Random | 2.8.15': 'cg_2v2_2815',
@@ -62,7 +72,9 @@ function processTotalHoursData(rows) {
             'DefconExpanded | 8 Player | Diplomacy': 'defcon_8p_diplo',
             'DefconExpanded | 8 Player | Diplomacy ': 'defcon_8p_diplo',
             'DefconExpanded | 4V4 | Totally Random': 'defcon_4v4',
-            'DefconExpanded | 10 Player | Diplomacy': 'defcon_10p_diplo'
+            'DefconExpanded | 5v5 | Totally Random': 'defcon_5v5_ffa',
+            'DefconExpanded | 10 Player | Diplomacy': 'defcon_10p_diplo',
+            'DefconExpanded | 16 Player | Test Server': 'defcon_16p'
         };
 
         const diagnostics = {
@@ -327,7 +339,19 @@ function processIndividualServersData(rows) {
                     defcon_ffa: 0,
                     defcon_8p_diplo: 0,
                     defcon_4v4: 0,
+                    defcon_5v5_ffa: 0,
                     defcon_10p_diplo: 0,
+                    defcon_16p: 0,
+                    defcon_training: 0,
+                    defcon_test: 0,
+                    defcon_lots_units: 0,
+                    defcon_1v1_uk: 0,
+                    christmas_tournament_2025: 0,
+                    defcon_2v2_uk: 0,
+                    defcon_2v2_tournament: 0,
+                    defcon_2v2_max_cities: 0,
+                    muricon_uk: 0,
+                    defcon_diplo_uk: 0,
                 };
             }
 
@@ -349,10 +373,24 @@ function processIndividualServersData(rows) {
                 gamesByDate[date].defcon_eusa++;
             } else if (row.game_type.toLowerCase() === 'defconexpanded | 1v1 | default'.toLowerCase()) {
                 gamesByDate[date].defcon_default++;
+            } else if (row.game_type.toLowerCase() === 'defconexpanded | 1v1 | lots of units!'.toLowerCase()) {
+                gamesByDate[date].defcon_lots_units++;
+            } else if (row.game_type.toLowerCase() === 'defconexpanded | 1v1 | uk and ireland'.toLowerCase()) {
+                gamesByDate[date].defcon_1v1_uk++;
+            } else if (row.game_type.toLowerCase() === 'defconexpanded test server'.toLowerCase()) {
+                gamesByDate[date].defcon_test++;
+            } else if (row.game_type.toLowerCase() === 'defconexpanded | training server'.toLowerCase()) {
+                gamesByDate[date].defcon_training++;
             } else if (row.game_type.toLowerCase() === 'defconexpanded | 2v2 | totally random'.toLowerCase()) {
                 gamesByDate[date].defcon_2v2++;
             } else if (row.game_type.toLowerCase() === '2v2 tournament'.toLowerCase()) {
                 gamesByDate[date].tournament_2v2++;
+            } else if (row.game_type.toLowerCase() === 'defconexpanded | 2v2 | uk and ireland'.toLowerCase()) {
+                gamesByDate[date].defcon_2v2_uk++;
+            } else if (row.game_type.toLowerCase() === '2v2 tournament'.toLowerCase()) {
+                gamesByDate[date].defcon_2v2_tournament++;
+            } else if (row.game_type.toLowerCase() === 'defconexpanded | 2v2 | max cities / pop'.toLowerCase()) {
+                gamesByDate[date].defcon_2v2_max_cities++;
             } else if (row.game_type.toLowerCase() === 'defconexpanded | 2v2 | na-sa-eu-af | totally random'.toLowerCase()) {
                 gamesByDate[date].defcon_2v2_special++;
             } else if (row.game_type.toLowerCase() === 'mojo\'s 2v2 arena - quick victory'.toLowerCase()) {
@@ -361,6 +399,10 @@ function processIndividualServersData(rows) {
                 gamesByDate[date].sony_hoov++;
             } else if (row.game_type.toLowerCase() === 'defconexpanded | 3v3 | totally random'.toLowerCase()) {
                 gamesByDate[date].defcon_3v3++;
+            } else if (row.game_type.toLowerCase() === 'muricon | uk mod'.toLowerCase()) {
+                gamesByDate[date].muricon_uk++;
+            } else if (row.game_type.toLowerCase() === 'defconexpanded | diplomacy | uk and ireland'.toLowerCase()) {
+                gamesByDate[date].defcon_diplo_uk++;
             } else if (row.game_type.toLowerCase() === 'muricon | 1v1 default | 2.8.15'.toLowerCase()) {
                 gamesByDate[date].muricon++;
             } else if (row.game_type.toLowerCase() === 'muricon | 1V1 | totally random | 2.8.15'.toLowerCase()) {
@@ -379,10 +421,14 @@ function processIndividualServersData(rows) {
                 gamesByDate[date].defcon_8p_diplo++;
             } else if (row.game_type.toLowerCase() === 'defconexpanded | 4v4 | totally random'.toLowerCase()) {
                 gamesByDate[date].defcon_4v4++;
+            } else if (row.game_type.toLowerCase() === 'defconexpanded | 5v5 | ffa | totally random'.toLowerCase()) {
+                gamesByDate[date].defcon_5v5_ffa++;
             } else if (row.game_type.toLowerCase() === 'defconexpanded | 10 player | diplomacy'.toLowerCase()) {
                 gamesByDate[date].defcon_10p_diplo++;
             } else if (row.game_type.toLowerCase() === 'defconexpanded | 16 player | test server'.toLowerCase()) {
                 gamesByDate[date].defcon_16p++;
+            } else if (row.game_type.toLowerCase() === 'christmas tournament 2025'.toLowerCase()) {
+                gamesByDate[date].christmas_tournament_2025++;
             }
         });
 

@@ -46,19 +46,29 @@ router.get('/api/games-timeline', async (req, res) => {
         let baseQuery = ` FROM demos WHERE game_type IN (
         'New Player Server',
         'New Player Server - Training Game',
+        'DefconExpanded | Training Server',
+        'DefconExpanded Test Server',
         'DefconExpanded | 1v1 | Totally Random',
         'DefconExpanded | 1V1 | Best Setups Only!',
         'DefconExpanded | 1v1 | Cursed Setups Only!',
+        'DefconExpanded | 1v1 | Lots of Units!',
+        'DefconExpanded | 1v1 | UK and Ireland',
         'Raizer\\'s Russia vs USA | Totally Random',
         'DefconExpanded | 1v1 | AF vs AS | Totally Random',
         'DefconExpanded | 1v1 | EU vs SA | Totally Random',
         'DefconExpanded | 1v1 | Default',
+        'Christmas Tournament 2025',
         'DefconExpanded | 2v2 | Totally Random',
+        'DefconExpanded | 2v2 | UK and Ireland',
+        '2v2 Tournament',
+        'DefconExpanded | 2v2 | Max Cities / Pop',
         '2v2 Tournament',
         'DefconExpanded | 2v2 | NA-SA-EU-AF | Totally Random',
         'Mojo\\'s 2v2 Arena - Quick Victory',
         'Sony and Hoov\\'s Hideout',
         'DefconExpanded | 3v3 | Totally Random',
+        'MURICON | UK Mod',
+        'DefconExpanded | Diplomacy | UK and Ireland',
         'MURICON | 1v1 Default | 2.8.15',
         'MURICON | 1V1 | Totally Random | 2.8.15',
         '509 CG | 2v2 | Totally Random | 2.8.15',
@@ -68,7 +78,9 @@ router.get('/api/games-timeline', async (req, res) => {
         'DefconExpanded | Free For All | Random Cities',
         'DefconExpanded | 8 Player | Diplomacy',
         'DefconExpanded | 4V4 | Totally Random',
-        'DefconExpanded | 10 Player | Diplomacy'
+        'DefconExpanded | 5v5 | Totally Random',
+        'DefconExpanded | 10 Player | Diplomacy',
+        'DefconExpanded | 16 Player | Test Server'
       )`;
 
         query += baseQuery;

@@ -475,19 +475,19 @@
                                             </div>
 
                                             <div class="server-checkbox selected"
+                                               onclick="toggleServer(this, 'christmas_tournament_2025')">
+                                                <input type="checkbox" name="server" value="christmas_tournament_2025" checked
+                                                    style="display: none;">
+                                                <span class="server-name">Christmas Tournament 2025</span>
+                                                <span class="game-count" id="count-christmas_tournament_2025">0 games</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
                                                 onclick="toggleServer(this, 'defcon_cursed')">
                                                 <input type="checkbox" name="server" value="defcon_cursed" checked
                                                     style="display: none;">
                                                 <span class="server-name">1v1 Cursed Setups</span>
                                                 <span class="game-count" id="count-defcon_cursed">0 games</span>
-                                            </div>
-
-                                            <div class="server-checkbox selected"
-                                                onclick="toggleServer(this, 'defcon_raizer')">
-                                                <input type="checkbox" name="server" value="defcon_raizer" checked
-                                                    style="display: none;">
-                                                <span class="server-name">1v1 Raizer</span>
-                                                <span class="game-count" id="count-defcon_raizer">0 games</span>
                                             </div>
 
                                             <div class="server-checkbox selected"
@@ -504,6 +504,30 @@
                                                     style="display: none;">
                                                 <span class="server-name">EU vs SA</span>
                                                 <span class="game-count" id="count-defcon_eusa">0 games</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleServer(this, 'defcon_training')">
+                                                <input type="checkbox" name="server" value="defcon_training" checked
+                                                    style="display: none;">
+                                                <span class="server-name">DefconExpanded Training</span>
+                                                <span class="game-count" id="count-defcon_training">0 games</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleServer(this, 'defcon_lots_units')">
+                                                <input type="checkbox" name="server" value="defcon_lots_units" checked
+                                                    style="display: none;">
+                                                <span class="server-name">1v1 Lots of Units</span>
+                                                <span class="game-count" id="count-defcon_lots_units">0 games</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleServer(this, 'defcon_1v1_uk')">
+                                                <input type="checkbox" name="server" value="defcon_1v1_uk" checked
+                                                    style="display: none;">
+                                                <span class="server-name">1v1 UK and Ireland</span>
+                                                <span class="game-count" id="count-defcon_1v1_uk">0 games</span>
                                             </div>
                                         </div>
 
@@ -525,6 +549,22 @@
                                             </div>
 
                                             <div class="server-checkbox selected"
+                                               onclick="toggleServer(this, 'defcon_default')">
+                                               <input type="checkbox" name="server" value="defcon_default" checked
+                                                   style="display: none;">
+                                               <span class="server-name">1v1 Default</span>
+                                               <span class="game-count" id="count-defcon_default">0 games</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                               onclick="toggleServer(this, 'sony_hoov')">
+                                               <input type="checkbox" name="server" value="sony_hoov" checked
+                                                   style="display: none;">
+                                               <span class="server-name">Sony & Hoov's</span>
+                                               <span class="game-count" id="count-sony_hoov">0 games</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
                                                 onclick="toggleServer(this, 'defcon_2v2_special')">
                                                 <input type="checkbox" name="server" value="defcon_2v2_special" checked
                                                     style="display: none;">
@@ -541,22 +581,6 @@
                                             </div>
 
                                             <div class="server-checkbox selected"
-                                                onclick="toggleServer(this, 'sony_hoov')">
-                                                <input type="checkbox" name="server" value="sony_hoov" checked
-                                                    style="display: none;">
-                                                <span class="server-name">Sony & Hoov's</span>
-                                                <span class="game-count" id="count-sony_hoov">0 games</span>
-                                            </div>
-
-                                            <div class="server-checkbox selected"
-                                                onclick="toggleServer(this, 'defcon_3v3')">
-                                                <input type="checkbox" name="server" value="defcon_3v3" checked
-                                                    style="display: none;">
-                                                <span class="server-name">3v3 Random</span>
-                                                <span class="game-count" id="count-defcon_3v3">0 games</span>
-                                            </div>
-
-                                            <div class="server-checkbox selected"
                                                 onclick="toggleServer(this, 'defcon_4v4')">
                                                 <input type="checkbox" name="server" value="defcon_4v4" checked
                                                     style="display: none;">
@@ -565,15 +589,56 @@
                                             </div>
 
                                             <div class="server-checkbox selected"
-                                                onclick="toggleServer(this, 'defcon_default')">
-                                                <input type="checkbox" name="server" value="defcon_default" checked
+                                                onclick="toggleServer(this, 'defcon_2v2_uk')">
+                                                <input type="checkbox" name="server" value="defcon_2v2_uk" checked
                                                     style="display: none;">
-                                                <span class="server-name">1v1 Default</span>
-                                                <span class="game-count" id="count-defcon_default">0 games</span>
+                                                <span class="server-name">2v2 UK and Ireland</span>
+                                                <span class="game-count" id="count-defcon_2v2_uk">0 games</span>
                                             </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleServer(this, 'defcon_2v2_max_cities')">
+                                                <input type="checkbox" name="server" value="defcon_2v2_max_cities" checked
+                                                    style="display: none;">
+                                                <span class="server-name">2v2 Max Cities</span>
+                                                <span class="game-count" id="count-defcon_2v2_max_cities">0 games</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleServer(this, 'defcon_ffa')">
+                                                <input type="checkbox" name="server" value="defcon_ffa" checked
+                                                    style="display: none;">
+                                                <span class="server-name">FFA Random</span>
+                                                <span class="game-count" id="count-defcon_ffa">0 games</span>
+                                            </div>
+
+                                        <div class="server-checkbox selected"
+                                            onclick="toggleServer(this, 'cg_1v1_2815')">
+                                            <input type="checkbox" name="server" value="cg_1v1_2815" checked
+                                                style="display: none;">
+                                            <span class="server-name">CG | 1v1 2.8.15</span>
+                                            <span class="game-count" id="count-cg_1v1_2815">0 games</span>
+                                        </div>
+
+                                        <div class="server-checkbox selected"
+                                            onclick="toggleServer(this, 'cg_1v1_28141')">
+                                            <input type="checkbox" name="server" value="cg_1v1_28141" checked
+                                                style="display: none;">
+                                            <span class="server-name">CG | 1v1 2.8.14.1</span>
+                                            <span class="game-count" id="count-cg_1v1_28141">0 games</span>
+                                        </div>
+
                                         </div>
 
                                         <div class="checkbox-column">
+                                            <div class="server-checkbox selected"
+                                               onclick="toggleServer(this, 'defcon_3v3')">
+                                               <input type="checkbox" name="server" value="defcon_3v3" checked
+                                                   style="display: none;">
+                                               <span class="server-name">3v3 Random</span>
+                                               <span class="game-count" id="count-defcon_3v3">0 games</span>
+                                            </div>
+
                                             <div class="server-checkbox selected"
                                                 onclick="toggleServer(this, 'muricon')">
                                                 <input type="checkbox" name="server" value="muricon" checked
@@ -583,43 +648,11 @@
                                             </div>
 
                                             <div class="server-checkbox selected"
-                                                onclick="toggleServer(this, 'muricon_random')">
-                                                <input type="checkbox" name="server" value="muricon_random" checked
-                                                    style="display: none;">
-                                                <span class="server-name">MURICON Random</span>
-                                                <span class="game-count" id="count-muricon_random">0 games</span>
-                                            </div>
-
-                                            <div class="server-checkbox selected"
-                                                onclick="toggleServer(this, 'cg_2v2_2815')">
-                                                <input type="checkbox" name="server" value="cg_2v2_2815" checked
-                                                    style="display: none;">
-                                                <span class="server-name">CG | 2v2 2.8.15</span>
-                                                <span class="game-count" id="count-cg_2v2_2815">0 games</span>
-                                            </div>
-
-                                            <div class="server-checkbox selected"
-                                                onclick="toggleServer(this, 'cg_2v2_28141')">
-                                                <input type="checkbox" name="server" value="cg_2v2_28141" checked
-                                                    style="display: none;">
-                                                <span class="server-name">CG | 2v2 2.8.14.1</span>
-                                                <span class="game-count" id="count-cg_2v2_28141">0 games</span>
-                                            </div>
-
-                                            <div class="server-checkbox selected"
-                                                onclick="toggleServer(this, 'cg_1v1_2815')">
-                                                <input type="checkbox" name="server" value="cg_1v1_2815" checked
-                                                    style="display: none;">
-                                                <span class="server-name">CG | 1v1 2.8.15</span>
-                                                <span class="game-count" id="count-cg_1v1_2815">0 games</span>
-                                            </div>
-
-                                            <div class="server-checkbox selected"
-                                                onclick="toggleServer(this, 'cg_1v1_28141')">
-                                                <input type="checkbox" name="server" value="cg_1v1_28141" checked
-                                                    style="display: none;">
-                                                <span class="server-name">CG | 1v1 2.8.14.1</span>
-                                                <span class="game-count" id="count-cg_1v1_28141">0 games</span>
+                                               onclick="toggleServer(this, 'defcon_raizer')">
+                                               <input type="checkbox" name="server" value="defcon_raizer" checked
+                                                   style="display: none;">
+                                               <span class="server-name">1v1 Raizer</span>
+                                               <span class="game-count" id="count-defcon_raizer">0 games</span>
                                             </div>
 
                                             <div class="server-checkbox selected"
@@ -637,6 +670,63 @@
                                                 <span class="server-name">10P Diplomacy</span>
                                                 <span class="game-count" id="count-defcon_10p_diplo">0 games</span>
                                             </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleServer(this, 'muricon_uk')">
+                                                <input type="checkbox" name="server" value="muricon_uk" checked
+                                                    style="display: none;">
+                                                <span class="server-name">MURICON UK Mod</span>
+                                                <span class="game-count" id="count-muricon_uk">0 games</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleServer(this, 'defcon_diplo_uk')">
+                                                <input type="checkbox" name="server" value="defcon_diplo_uk" checked
+                                                    style="display: none;">
+                                                <span class="server-name">Diplomacy UK and Ireland</span>
+                                                <span class="game-count" id="count-defcon_diplo_uk">0 games</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleServer(this, 'defcon_5v5_ffa')">
+                                                <input type="checkbox" name="server" value="defcon_5v5_ffa" checked
+                                                    style="display: none;">
+                                                <span class="server-name">5v5 FFA</span>
+                                                <span class="game-count" id="count-defcon_5v5_ffa">0 games</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                                onclick="toggleServer(this, 'defcon_16p')">
+                                                <input type="checkbox" name="server" value="defcon_16p" checked
+                                                    style="display: none;">
+                                                <span class="server-name">16 Player Test</span>
+                                                <span class="game-count" id="count-defcon_16p">0 games</span>
+                                            </div>
+
+                                            <div class="server-checkbox selected"
+                                            onclick="toggleServer(this, 'muricon_random')">
+                                            <input type="checkbox" name="server" value="muricon_random" checked
+                                                style="display: none;">
+                                            <span class="server-name">MURICON Random</span>
+                                            <span class="game-count" id="count-muricon_random">0 games</span>
+                                        </div>
+
+                                        <div class="server-checkbox selected"
+                                            onclick="toggleServer(this, 'cg_2v2_2815')">
+                                            <input type="checkbox" name="server" value="cg_2v2_2815" checked
+                                                style="display: none;">
+                                            <span class="server-name">CG | 2v2 2.8.15</span>
+                                            <span class="game-count" id="count-cg_2v2_2815">0 games</span>
+                                        </div>
+
+                                        <div class="server-checkbox selected"
+                                            onclick="toggleServer(this, 'cg_2v2_28141')">
+                                            <input type="checkbox" name="server" value="cg_2v2_28141" checked
+                                                style="display: none;">
+                                            <span class="server-name">CG | 2v2 2.8.14.1</span>
+                                            <span class="game-count" id="count-cg_2v2_28141">0 games</span>
+                                        </div>
+
                                         </div>
                                     </div>
                                 </div>

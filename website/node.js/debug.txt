@@ -1,0 +1,2 @@
+[2025-12-08T21:23:47.302Z] [ERROR] (node:5244) DeprecationWarning: The ready event has been renamed to clientReady to distinguish it from the gateway READY event and will only emit under that name in v15. Please use clientReady instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)

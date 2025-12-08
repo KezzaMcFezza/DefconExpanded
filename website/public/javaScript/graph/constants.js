@@ -11,11 +11,12 @@
 //Last Edited 16-04-2025
 
 export const SERVER_TYPES = [
-    'new_player', 'training', 'defcon_random', 'defcon_best', 'defcon_cursed', 'defcon_raizer', 'defcon_afas',
-    'defcon_eusa', 'defcon_default', 'defcon_2v2', 'tournament_2v2',
-    'defcon_2v2_special', 'mojo_2v2', 'sony_hoov', 'defcon_3v3', 'defcon_4v4',
-    'muricon', 'muricon_random', 'cg_2v2_2815', 'cg_2v2_28141', 'cg_1v1_2815', 'cg_1v1_28141',
-    'defcon_8p_diplo', 'defcon_10p_diplo'
+    'new_player', 'training', 'defcon_training', 'defcon_test', 'defcon_random', 'defcon_best', 'defcon_cursed',
+    'defcon_lots_units', 'defcon_1v1_uk', 'defcon_raizer', 'defcon_afas', 'defcon_eusa', 'defcon_default',
+    'christmas_tournament_2025', 'defcon_2v2', 'defcon_2v2_uk', 'defcon_2v2_max_cities',
+    'tournament_2v2', 'defcon_2v2_special', 'mojo_2v2', 'sony_hoov', 'defcon_3v3', 'muricon_uk',
+    'defcon_diplo_uk', 'muricon', 'muricon_random', 'cg_2v2_2815', 'cg_2v2_28141', 'cg_1v1_2815', 'cg_1v1_28141',
+    'defcon_ffa', 'defcon_8p_diplo', 'defcon_4v4', 'defcon_5v5_ffa', 'defcon_10p_diplo', 'defcon_16p'
 ];
 
 export const TERRITORY_TYPES = [
@@ -28,19 +29,28 @@ export const GRAPH_CONFIGS = {
         serverTypes: [
             { key: "new_player", name: "New Player Server", color: "#8884d8" },
             { key: "training", name: "Training Game", color: "#82ca9d" },
+            { key: "defcon_training", name: "DefconExpanded Training", color: "#82ca9d" },
+            { key: "defcon_test", name: "DefconExpanded Test", color: "#a0a0a0" },
             { key: "defcon_random", name: "1v1 Random", color: "#ffc658" },
             { key: "defcon_best", name: "1v1 Best Setups", color: "#ff8042" },
             { key: "defcon_cursed", name: "1v1 Cursed Setups", color: "#42ff62" },
+            { key: "defcon_lots_units", name: "1v1 Lots of Units", color: "#ffa500" },
+            { key: "defcon_1v1_uk", name: "1v1 UK and Ireland", color: "#87ceeb" },
             { key: "defcon_raizer", name: "1v1 Raizer", color: "#dc2dff" },
             { key: "defcon_afas", name: "AF vs AS", color: "#0088fe" },
             { key: "defcon_eusa", name: "EU vs SA", color: "#00C49F" },
             { key: "defcon_default", name: "1v1 Default", color: "#FFBB28" },
+            { key: "christmas_tournament_2025", name: "Christmas Tournament 2025", color: "#ff6b6b" },
             { key: "defcon_2v2", name: "2v2 Random", color: "#FF8042" },
+            { key: "defcon_2v2_uk", name: "2v2 UK and Ireland", color: "#87ceeb" },
             { key: "tournament_2v2", name: "2v2 Tournament", color: "#c71585" },
+            { key: "defcon_2v2_max_cities", name: "2v2 Max Cities", color: "#9370db" },
             { key: "defcon_2v2_special", name: "2v2 NA-SA-EU-AF", color: "#ba55d3" },
             { key: "mojo_2v2", name: "Mojo's 2v2", color: "#4b0082" },
             { key: "sony_hoov", name: "Sony & Hoov's", color: "#00ced1" },
             { key: "defcon_3v3", name: "3v3 Random", color: "#98fb98" },
+            { key: "muricon_uk", name: "MURICON UK Mod", color: "#daa520" },
+            { key: "defcon_diplo_uk", name: "Diplomacy UK and Ireland", color: "#87ceeb" },
             { key: "muricon", name: "MURICON", color: "#f0e68c" },
             { key: "muricon_random", name: "MURICON Random", color: "#9e68f5" },
             { key: "cg_2v2_2815", name: "CG | 2v2 2.8.15", color: "#dda0dd" },
@@ -50,7 +60,9 @@ export const GRAPH_CONFIGS = {
             { key: "defcon_ffa", name: "FFA Random", color: "#556b2f" },
             { key: "defcon_8p_diplo", name: "8P Diplomacy", color: "#483d8b" },
             { key: "defcon_4v4", name: "4v4 Random", color: "#008b8b" },
-            { key: "defcon_10p_diplo", name: "10P Diplomacy", color: "#8b008b" }
+            { key: "defcon_5v5_ffa", name: "5v5 Random", color: "#20b2aa" },
+            { key: "defcon_10p_diplo", name: "10P Diplomacy", color: "#8b008b" },
+            { key: "defcon_16p", name: "16 Player Test", color: "#708090" }
         ],
         yAxisLabel: "Number of Games"
     },
