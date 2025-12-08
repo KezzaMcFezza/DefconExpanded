@@ -654,6 +654,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/render3d/operations_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/primitives_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/sprites_3d.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/text_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/megavbo_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/quads_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/linestrips_3d.cpp

@@ -8,6 +8,7 @@
 
 #define IMMEDIATE_MODE_2D 0
 
+#include "lib/render/renderer.h"
 #include "lib/math/vector3.h"
 #include "lib/math/matrix4f.h"
 #include "lib/render/colour.h"
@@ -103,8 +104,6 @@ protected:
 
   //
   // Text/Font buffer, font-aware batching for multiple font atlases
-
-  static const int MAX_FONT_ATLASES = 4;  // bitlow, kremlin, lucon, zerothre
   
   struct FontBatch {
     Vertex2D vertices[MAX_TEXT_VERTICES];
@@ -112,7 +111,7 @@ protected:
     unsigned int textureID;
   };
   
-  FontBatch m_fontBatches[MAX_FONT_ATLASES];
+  FontBatch m_fontBatches[Renderer::MAX_FONT_ATLASES];
   int m_currentFontBatchIndex;
   
   Vertex2D *m_textVertices;                  // points to current font batch vertices

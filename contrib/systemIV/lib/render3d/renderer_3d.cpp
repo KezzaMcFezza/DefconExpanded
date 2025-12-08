@@ -55,6 +55,8 @@ Renderer3D::Renderer3D()
     m_currentRotatingSpriteTexture3D(0),
     m_textVertexCount3D(0),
     m_currentTextTexture3D(0),
+    m_currentFontBatchIndex3D(0),
+    m_textVertices3D(nullptr),
     m_circleVertexCount3D(0),
     m_circleFillVertexCount3D(0),
     m_rectVertexCount3D(0),
@@ -101,6 +103,8 @@ Renderer3D::Renderer3D()
     m_prevRectCalls3D = 0;
     m_prevRectFillCalls3D = 0;
     m_prevTriangleFillCalls3D = 0;
+    m_activeFontBatches3D = 0;
+    m_prevActiveFontBatches3D = 0;
     m_flushTimingCount3D = 0;
     m_currentFlushStartTime3D = 0.0;
     
@@ -111,6 +115,19 @@ Renderer3D::Renderer3D()
     
     m_lineConversionBufferSize3D = MAX_3D_VERTICES * 2;
     m_lineConversionBuffer3D = new Vertex3D[m_lineConversionBufferSize3D];
+    
+    //
+    // Initialize font-aware batching system
+
+    for (int i = 0; i < Renderer::MAX_FONT_ATLASES; i++) {
+        m_fontBatches3D[i].vertexCount = 0;
+        m_fontBatches3D[i].textureID = 0;
+    }
+    
+    m_currentFontBatchIndex3D = 0;
+    m_textVertices3D = m_fontBatches3D[0].vertices;
+    m_textVertexCount3D = 0;
+    m_currentTextTexture3D = 0;
 }
 
 Renderer3D::~Renderer3D() {
@@ -791,6 +808,23 @@ void Renderer3D::CreateCameraFacingBillboard(const Vector3<float>& position, flo
                    position.y - right.y * halfWidth - up.y * halfHeight,
                    position.z - right.z * halfWidth - up.z * halfHeight,
                    r, g, b, a, u1, v1};
+}
+
+void Renderer3D::CalculateSphericalTangents(const Vector3<float>& position, Vector3<float>& outEast, Vector3<float>& outNorth) {
+    Vector3<float> normal = position;
+    normal.Normalise();
+    
+    Vector3<float> worldNorth(0.0f, 1.0f, 0.0f);
+    
+    if (fabsf(normal.y) > 0.999f) {
+        outEast = Vector3<float>(1.0f, 0.0f, 0.0f);
+    } else {
+        outEast = worldNorth ^ normal;
+        outEast.Normalise();
+    }
+    
+    outNorth = normal ^ outEast;
+    outNorth.Normalise();
 } 
 
 
@@ -840,6 +874,7 @@ void Renderer3D::ResetFrameCounters3D() {
     m_prevRectCalls3D = m_rectCalls3D;
     m_prevRectFillCalls3D = m_rectFillCalls3D;
     m_prevTriangleFillCalls3D = m_triangleFillCalls3D;
+    m_prevActiveFontBatches3D = m_activeFontBatches3D;
     
     //
     // Reset current frame counters
@@ -857,6 +892,7 @@ void Renderer3D::ResetFrameCounters3D() {
     m_rectCalls3D = 0;
     m_rectFillCalls3D = 0;
     m_triangleFillCalls3D = 0;
+    m_activeFontBatches3D = 0;
 }
 
 void Renderer3D::BeginFrame3D() {

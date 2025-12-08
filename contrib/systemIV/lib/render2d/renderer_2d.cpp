@@ -135,7 +135,7 @@ Renderer2D::Renderer2D()
       //
       // Initialize font-aware batching system
 
-      for (int i = 0; i < MAX_FONT_ATLASES; i++) {
+      for (int i = 0; i < Renderer::MAX_FONT_ATLASES; i++) {
           m_fontBatches[i].vertexCount = 0;
           m_fontBatches[i].textureID = 0;
       }

@@ -23,7 +23,7 @@ void Renderer2D::BlitChar(unsigned int textureID, float x, float y, float w, flo
     //
     // check if we already have a batch for this texture
 
-    for (int i = 0; i < MAX_FONT_ATLASES; i++) {
+    for (int i = 0; i < Renderer::MAX_FONT_ATLASES; i++) {
         if (m_fontBatches[i].textureID == textureID && m_fontBatches[i].vertexCount > 0) {
             targetBatch = i;
             break;
@@ -34,7 +34,7 @@ void Renderer2D::BlitChar(unsigned int textureID, float x, float y, float w, flo
     // if not found, find the first empty batch
 
     if (targetBatch == -1) {
-        for (int i = 0; i < MAX_FONT_ATLASES; i++) {
+        for (int i = 0; i < Renderer::MAX_FONT_ATLASES; i++) {
             if (m_fontBatches[i].vertexCount == 0) {
                 targetBatch = i;
                 m_fontBatches[i].textureID = textureID;
@@ -140,7 +140,7 @@ void Renderer2D::TextSimple(float x, float y, Colour const &col, float size, con
         font->DrawText2DSimple(x, y, size, text, col);
         
         if (immediateFlush) {
-            for (int i = 0; i < MAX_FONT_ATLASES; i++) {
+            for (int i = 0; i < Renderer::MAX_FONT_ATLASES; i++) {
                 if (m_fontBatches[i].vertexCount > 0) {
                     m_textVertices = m_fontBatches[i].vertices;
                     m_textVertexCount = m_fontBatches[i].vertexCount;

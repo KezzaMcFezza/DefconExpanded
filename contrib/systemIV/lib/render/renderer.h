@@ -24,6 +24,9 @@ struct AtlasCoord;
 
 class Renderer
 {
+public:
+    static const int MAX_FONT_ATLASES = 4;  // bitlow, kremlin, lucon, zerothre
+
 protected:
 
     char *m_defaultFontName;

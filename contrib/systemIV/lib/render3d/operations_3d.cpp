@@ -30,6 +30,13 @@ void Renderer3D::BeginRotatingSpriteBatch3D() {
 }
 
 void Renderer3D::BeginTextBatch3D() {
+    for (int i = 0; i < Renderer::MAX_FONT_ATLASES; i++) {
+        m_fontBatches3D[i].vertexCount = 0;
+        m_fontBatches3D[i].textureID = 0;
+    }
+    
+    m_currentFontBatchIndex3D = 0;
+    m_textVertices3D = m_fontBatches3D[0].vertices;
     m_textVertexCount3D = 0;
     m_currentTextTexture3D = 0;
 }
@@ -77,9 +84,30 @@ void Renderer3D::EndRotatingSpriteBatch3D() {
 }
 
 void Renderer3D::EndTextBatch3D() {
-    if (m_textVertexCount3D > 0) {
-        FlushTextBuffer3D();
+    int activeBatches = 0;
+    
+    for (int i = 0; i < Renderer::MAX_FONT_ATLASES; i++) {
+        if (m_fontBatches3D[i].vertexCount > 0) {
+            activeBatches++;
+            
+            m_textVertices3D = m_fontBatches3D[i].vertices;
+            m_textVertexCount3D = m_fontBatches3D[i].vertexCount;
+            m_currentTextTexture3D = m_fontBatches3D[i].textureID;
+            
+            FlushTextBuffer3D();
+            
+            m_fontBatches3D[i].vertexCount = 0;
+        }
     }
+    
+    if (activeBatches > m_activeFontBatches3D) {
+        m_activeFontBatches3D = activeBatches;
+    }
+    
+    m_currentFontBatchIndex3D = 0;
+    m_textVertices3D = m_fontBatches3D[0].vertices;
+    m_textVertexCount3D = 0;
+    m_currentTextTexture3D = 0;
 }
 
 void Renderer3D::EndCircleBatch3D() {
@@ -248,6 +276,24 @@ void Renderer3D::FlushTextBuffer3D() {
     StartFlushTiming3D("Text_3D");
     IncrementDrawCall3D("text");
     
+    //
+    // save current blend state
+
+    int currentBlendSrc = g_renderer->m_currentBlendSrcFactor;
+    int currentBlendDst = g_renderer->m_currentBlendDstFactor;
+    
+    //
+    // disable depth mask for transparent text rendering
+
+    g_renderer->SetDepthMask(false);
+    
+    //
+    // set correct blend mode for text rendering (additive for smooth fonts)
+
+    if (g_renderer->m_blendMode != Renderer::BlendModeSubtractive) {
+        g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
+    }
+    
     g_renderer->SetShaderProgram(m_shader3DTexturedProgram);
     SetTextured3DShaderUniforms();
     
@@ -261,8 +307,13 @@ void Renderer3D::FlushTextBuffer3D() {
     
     glDrawArrays(GL_TRIANGLES, 0, m_textVertexCount3D);
     
+    //
+    // restore previous blend state
+
+    g_renderer->SetBlendFunc(currentBlendSrc, currentBlendDst);
+    
     m_textVertexCount3D = 0;
-    m_currentTextTexture3D = 0;  // reset texture tracking
+    m_currentTextTexture3D = 0;
     
     EndFlushTiming3D("Text_3D");
 }

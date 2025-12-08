@@ -493,6 +493,9 @@ void RendererOverlay::RenderTextureAndFontStatistics(float& yPos)
     yPos += 14.0f;
     
     int fontBatches = g_renderer2d->GetActiveFontBatches();
+    if (g_renderer3d) {
+        fontBatches += g_renderer3d->GetActiveFontBatches();
+    }
     snprintf(infoBuffer, sizeof(infoBuffer), "  Active Font Batches: %d", fontBatches);
     g_renderer2d->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
     yPos += 14.0f;

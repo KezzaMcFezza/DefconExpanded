@@ -665,6 +665,7 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\primitives_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\sprites_3d.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\text_3d.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\colour.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_overlay.cpp" />

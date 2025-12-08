@@ -833,6 +833,9 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer.cpp">
       <Filter>lib\render</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\text_3d.cpp">
+      <Filter>lib\render3d</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">

@@ -13,6 +13,7 @@
 
 #define IMMEDIATE_MODE_3D 0
 
+#include "lib/render/renderer.h"
 #include "lib/tosser/btree.h"
 #include "lib/tosser/llist.h"
 #include "lib/math/vector3.h"
@@ -123,8 +124,17 @@ private:
     Vertex3DTextured m_rotatingSpriteVertices3D   [MAX_ROTATING_SPRITE_VERTICES_3D];
     int m_rotatingSpriteVertexCount3D;
     unsigned int m_currentRotatingSpriteTexture3D;
-
-    Vertex3DTextured m_textVertices3D             [MAX_TEXT_VERTICES_3D];
+    
+    struct FontBatch3D {
+        Vertex3DTextured vertices[MAX_TEXT_VERTICES_3D];
+        int vertexCount;
+        unsigned int textureID;
+    };
+    
+    FontBatch3D m_fontBatches3D[Renderer::MAX_FONT_ATLASES];
+    int m_currentFontBatchIndex3D;
+    
+    Vertex3DTextured *m_textVertices3D;
     int m_textVertexCount3D;
     unsigned int m_currentTextTexture3D;
 
@@ -203,6 +213,8 @@ private:
     int m_prevRectCalls3D;
     int m_prevRectFillCalls3D;
     int m_prevTriangleFillCalls3D;
+    int m_activeFontBatches3D;
+    int m_prevActiveFontBatches3D;
     
     static constexpr int MAX_FLUSH_TYPES_3D = 50;
     
@@ -246,6 +258,8 @@ public:
     void CreateCameraFacingBillboard      (const Vector3<float>& position, float width, float height,
                                            Vertex3DTextured* vertices, float u1, float v1, float u2, float v2,
                                            float r, float g, float b, float a, float rotation = 0.0f);
+    static void CalculateSphericalTangents(const Vector3<float>& position, Vector3<float>& outEast, 
+                                           Vector3<float>& outNorth);
     
     void Shutdown();
     
@@ -293,6 +307,7 @@ public:
     int GetRectCalls                () const { return m_prevRectCalls3D; }
     int GetRectFillCalls            () const { return m_prevRectFillCalls3D; }
     int GetTriangleFillCalls        () const { return m_prevTriangleFillCalls3D; }
+    int GetActiveFontBatches        () const { return m_prevActiveFontBatches3D; }
     
     int GetTotalUnitCalls() const { 
         return m_prevLineCalls3D + m_prevStaticSpriteCalls3D + 
@@ -338,9 +353,27 @@ public:
     void FlushRotatingSprite3D      ();
     void FlushRotatingSprite3DIfFull(int verticesNeeded);
 
+    void BlitChar3D                 (unsigned int textureID, const Vector3<float>& position, float width, float height,
+                                     float texX, float texY, float texW, float texH, Colour const &col, 
+                                     BillboardMode3D mode, bool immediateFlush = false);
+    
+    void Text3D                      (float x, float y, float z, Colour const &col, float size, const char *text, ...);
+    void TextCentre3D                (float x, float y, float z, Colour const &col, float size, const char *text, ...);
+    void TextRight3D                 (float x, float y, float z, Colour const &col, float size, const char *text, ...);
+    void TextSimple3D                (float x, float y, float z, Colour const &col, float size, const char *text, 
+                                     BillboardMode3D mode = BILLBOARD_CAMERA_FACING, bool immediateFlush = false);
+    void TextCentreSimple3D          (float x, float y, float z, Colour const &col, float size, const char *text,
+                                     BillboardMode3D mode = BILLBOARD_CAMERA_FACING, bool immediateFlush = false);
+    void TextRightSimple3D           (float x, float y, float z, Colour const &col, float size, const char *text,
+                                     BillboardMode3D mode = BILLBOARD_CAMERA_FACING, bool immediateFlush = false);
+    
+    float TextWidth3D                (const char *text, float size);
+    float TextWidth3D                (const char *text, unsigned int textLen, float size, BitmapFont *bitmapFont);
+    
     void BeginTextBatch3D();
     void EndTextBatch3D();
     void FlushTextBuffer3D();
+    void FlushTextBuffer3DIfFull     (int charactersNeeded);
     
     void Circle3D                  (float x, float y, float z, float radius, int numPoints, Colour const &col, bool immediateFlush = false);
     void BeginCircleBatch3D        ();

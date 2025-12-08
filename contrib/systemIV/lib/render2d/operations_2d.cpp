@@ -25,7 +25,7 @@ void Renderer2D::FlushIfTextureChanged(unsigned int newTextureID, bool useTextur
 // ============================================================================
 
 void Renderer2D::BeginTextBatch() {
-    for (int i = 0; i < MAX_FONT_ATLASES; i++) {
+    for (int i = 0; i < Renderer::MAX_FONT_ATLASES; i++) {
         m_fontBatches[i].vertexCount = 0;
         m_fontBatches[i].textureID = 0;
     }
@@ -77,7 +77,7 @@ void Renderer2D::BeginTriangleFillBatch() {
 void Renderer2D::EndTextBatch() {
     int activeBatches = 0;
     
-    for (int i = 0; i < MAX_FONT_ATLASES; i++) {
+    for (int i = 0; i < Renderer::MAX_FONT_ATLASES; i++) {
         if (m_fontBatches[i].vertexCount > 0) {
             
             activeBatches++;

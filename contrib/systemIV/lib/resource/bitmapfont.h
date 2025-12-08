@@ -12,10 +12,14 @@ class BitmapFont
 {
     friend class Renderer;
     friend class Renderer2D;
+    friend class Renderer3D;
 
 public:
     char            *m_filename;
     static const float DEFAULT_SPACING;
+
+    #define TEX_WIDTH			1.0f / 16.0f
+    #define TEX_HEIGHT			1.0f / 16.0f
 
 protected:
     unsigned int    m_textureID;
