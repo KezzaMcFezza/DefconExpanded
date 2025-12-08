@@ -263,7 +263,7 @@ void Renderer3D::FlushRotatingSprite3D() {
     UploadVertexDataTo3DVBO(m_spriteVBO3D, m_rotatingSpriteVertices3D, m_rotatingSpriteVertexCount3D, GL_DYNAMIC_DRAW);
     
     glDrawArrays(GL_TRIANGLES, 0, m_rotatingSpriteVertexCount3D);
-    glDepthMask(GL_TRUE);
+    g_renderer->SetDepthMask(true);
     
     m_rotatingSpriteVertexCount3D = 0;
     
