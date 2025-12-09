@@ -85,9 +85,12 @@ Renderer2D::Renderer2D()
       m_lineConversionBuffer(NULL),
       m_lineConversionBufferSize(0),
       m_currentLineColor(0, 0, 0, 0),
+      m_currentLineWidth(1.0f),
       m_lineStripActive(false),
       m_lineStripColor(0, 0, 0, 0),
       m_lineStripWidth(1.0f),
+      m_currentCircleWidth(1.0f),
+      m_currentRectWidth(1.0f),
       m_activeBuffer(BUFFER_IMMEDIATE),
       m_batchingTextures(true)
 {

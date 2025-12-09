@@ -14,10 +14,16 @@
 
 void Renderer2D::Line(float x1, float y1, float x2, float y2, Colour const &col, float lineWidth, bool immediateFlush) {
     FlushLinesIfFull(2);
+    
+    if (m_lineVertexCount > 0 && m_currentLineWidth != lineWidth) {
+        FlushLines();
+    }
    
 #ifndef TARGET_EMSCRIPTEN
-    g_renderer->SetLineWidth(1.0f);
+    g_renderer->SetLineWidth(lineWidth);
 #endif
+    
+    m_currentLineWidth = lineWidth;
 
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
@@ -46,10 +52,16 @@ void Renderer2D::Line(float x, float y) {
 
 void Renderer2D::Circle(float x, float y, float radius, int numPoints, Colour const &col, float lineWidth, bool immediateFlush) {
     FlushCirclesIfFull(numPoints * 2);
+    
+    if (m_circleVertexCount > 0 && m_currentCircleWidth != lineWidth) {
+        FlushCircles();
+    }
 
 #ifndef TARGET_EMSCRIPTEN
-    g_renderer->SetLineWidth(1.0f);
+    g_renderer->SetLineWidth(lineWidth);
 #endif
+    
+    m_currentCircleWidth = lineWidth;
 
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
@@ -77,10 +89,6 @@ void Renderer2D::Circle(float x, float y, float radius, int numPoints, Colour co
 
 void Renderer2D::CircleFill(float x, float y, float radius, int numPoints, Colour const &col, bool immediateFlush) {
     FlushCircleFillsIfFull(numPoints * 3);
-
-#ifndef TARGET_EMSCRIPTEN
-    g_renderer->SetLineWidth(1.0f);
-#endif
 
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
@@ -111,9 +119,15 @@ void Renderer2D::CircleFill(float x, float y, float radius, int numPoints, Colou
 void Renderer2D::Rect(float x, float y, float w, float h, Colour const &col, float lineWidth, bool immediateFlush) {
     FlushRectsIfFull(8);
     
+    if (m_rectVertexCount > 0 && m_currentRectWidth != lineWidth) {
+        FlushRects();
+    }
+    
 #ifndef TARGET_EMSCRIPTEN
-    g_renderer->SetLineWidth(1.0f);
+    g_renderer->SetLineWidth(lineWidth);
 #endif
+    
+    m_currentRectWidth = lineWidth;
 
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
@@ -202,12 +216,16 @@ void Renderer2D::TriangleFill(float x1, float y1, float x2, float y2, float x3, 
 }
 
 void Renderer2D::BeginLines(Colour const &col, float lineWidth) {
+    if (m_lineVertexCount > 0 && m_currentLineWidth != lineWidth) {
+        FlushLines();
+    }
 
 #ifndef TARGET_EMSCRIPTEN
-    g_renderer->SetLineWidth(1.0f);
+    g_renderer->SetLineWidth(lineWidth);
 #endif
 
     m_currentLineColor = col;
+    m_currentLineWidth = lineWidth;
 }
 
 void Renderer2D::EndLines() {
@@ -240,7 +258,7 @@ void Renderer2D::BeginLineStrip2D(Colour const &col, float lineWidth) {
     m_lineVertexCount = 0;
 
 #ifndef TARGET_EMSCRIPTEN
-    g_renderer->SetLineWidth(1.0f);
+    g_renderer->SetLineWidth(lineWidth);
 #endif
 
 }

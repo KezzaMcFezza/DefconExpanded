@@ -151,10 +151,14 @@ protected:
   int m_lineConversionBufferSize;
 
   Colour m_currentLineColor;
+  float m_currentLineWidth;
 
   bool m_lineStripActive;
   Colour m_lineStripColor;
   float m_lineStripWidth;
+  
+  float m_currentCircleWidth;
+  float m_currentRectWidth;
 
   BufferType m_activeBuffer;
 

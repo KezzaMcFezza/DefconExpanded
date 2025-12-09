@@ -44,6 +44,10 @@ Renderer3D::Renderer3D()
     m_vertex3DCount(0),
     m_vertex3DTexturedCount(0),
     m_lineStrip3DActive(false),
+    m_lineStrip3DWidth(1.0f),
+    m_currentLineWidth3D(1.0f),
+    m_currentCircleWidth3D(1.0f),
+    m_currentRectWidth3D(1.0f),
     m_texturedQuad3DActive(false),
     m_currentTexture3D(0),
     m_lineConversionBuffer3D(NULL),
@@ -367,10 +371,15 @@ void Renderer3D::SetLookAt(float eyeX, float eyeY, float eyeZ,
     InvalidateMatrices3D();
 }
 
-void Renderer3D::BeginLineStrip3D(Colour const &col) {
+void Renderer3D::BeginLineStrip3D(Colour const &col, float lineWidth) {
     m_lineStrip3DActive = true;
     m_lineStrip3DColor = col;
+    m_lineStrip3DWidth = lineWidth;
     m_vertex3DCount = 0;
+
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(lineWidth);
+#endif
 }
 
 void Renderer3D::LineStripVertex3D(float x, float y, float z) {
@@ -428,13 +437,17 @@ void Renderer3D::EndLineStrip3D() {
         m_vertices3D[m_vertex3DCount++] = lineVertices[i];
     }  
 
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(m_lineStrip3DWidth);
+#endif
+
     Flush3DVertices(GL_LINES);
     
     m_lineStrip3DActive = false;
 }
 
-void Renderer3D::BeginLineLoop3D(Colour const &col) {
-    BeginLineStrip3D(col);
+void Renderer3D::BeginLineLoop3D(Colour const &col, float lineWidth) {
+    BeginLineStrip3D(col, lineWidth);
 }
 
 void Renderer3D::LineLoopVertex3D(float x, float y, float z) {

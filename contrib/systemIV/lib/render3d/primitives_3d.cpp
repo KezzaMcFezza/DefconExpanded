@@ -8,13 +8,24 @@
 #include "lib/render3d/renderer_3d.h"
 
 extern Renderer3D *g_renderer3d;
+extern Renderer *g_renderer;
 
 // ============================================================================
 // PRIMITIVE RENDERING FUNCTIONS
 // ============================================================================
 
-void Renderer3D::Line3D(float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col, bool immediateFlush) {
+void Renderer3D::Line3D(float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col, float lineWidth, bool immediateFlush) {
     FlushLine3DIfFull(2);
+    
+    if (m_lineVertexCount3D > 0 && m_currentLineWidth3D != lineWidth) {
+        FlushLine3D();
+    }
+    
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(lineWidth);
+#endif
+    
+    m_currentLineWidth3D = lineWidth;
     
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
@@ -30,8 +41,18 @@ void Renderer3D::Line3D(float x1, float y1, float z1, float x2, float y2, float 
 #endif
 }
 
-void Renderer3D::Circle3D(float x, float y, float z, float radius, int numPoints, Colour const &col, bool immediateFlush) {
+void Renderer3D::Circle3D(float x, float y, float z, float radius, int numPoints, Colour const &col, float lineWidth, bool immediateFlush) {
     FlushCircles3DIfFull(numPoints * 2);
+    
+    if (m_circleVertexCount3D > 0 && m_currentCircleWidth3D != lineWidth) {
+        FlushCircles3D();
+    }
+    
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(lineWidth);
+#endif
+    
+    m_currentCircleWidth3D = lineWidth;
     
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     
@@ -86,8 +107,18 @@ void Renderer3D::CircleFill3D(float x, float y, float z, float radius, int numPo
 #endif
 }
 
-void Renderer3D::Rect3D(float x, float y, float z, float w, float h, Colour const &col, bool immediateFlush) {
+void Renderer3D::Rect3D(float x, float y, float z, float w, float h, Colour const &col, float lineWidth, bool immediateFlush) {
     FlushRects3DIfFull(8);
+    
+    if (m_rectVertexCount3D > 0 && m_currentRectWidth3D != lineWidth) {
+        FlushRects3D();
+    }
+    
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(lineWidth);
+#endif
+    
+    m_currentRectWidth3D = lineWidth;
     
     float r = col.GetRFloat(), g = col.GetGFloat(), b = col.GetBFloat(), a = col.GetAFloat();
     

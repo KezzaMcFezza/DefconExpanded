@@ -38,6 +38,7 @@ void Renderer2D::BeginTextBatch() {
 
 void Renderer2D::BeginLineBatch() {
     m_lineVertexCount = 0;
+    m_currentLineWidth = 1.0f;
 }
 
 void Renderer2D::BeginStaticSpriteBatch() {
@@ -52,6 +53,7 @@ void Renderer2D::BeginRotatingSpriteBatch() {
 
 void Renderer2D::BeginCircleBatch() {
     m_circleVertexCount = 0;
+    m_currentCircleWidth = 1.0f;
 }
 
 void Renderer2D::BeginCircleFillBatch() {
@@ -60,6 +62,7 @@ void Renderer2D::BeginCircleFillBatch() {
 
 void Renderer2D::BeginRectBatch() {
     m_rectVertexCount = 0;
+    m_currentRectWidth = 1.0f;
 }
 
 void Renderer2D::BeginRectFillBatch() {
@@ -293,6 +296,10 @@ void Renderer2D::FlushLines() {
     g_renderer->StartFlushTiming("Lines");
     IncrementDrawCall("lines");
     
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(m_currentLineWidth);
+#endif
+    
     g_renderer->SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
@@ -365,6 +372,10 @@ void Renderer2D::FlushCircles() {
     g_renderer->StartFlushTiming("Circles");
     IncrementDrawCall("circles");
     
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(m_currentCircleWidth);
+#endif
+    
     g_renderer->SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();
     
@@ -404,6 +415,10 @@ void Renderer2D::FlushRects() {
     
     g_renderer->StartFlushTiming("Rects");
     IncrementDrawCall("rects");
+    
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(m_currentRectWidth);
+#endif
     
     g_renderer->SetShaderProgram(m_colorShaderProgram);
     SetColorShaderUniforms();

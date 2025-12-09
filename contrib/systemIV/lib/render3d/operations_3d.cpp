@@ -17,6 +17,7 @@ extern Renderer3D *g_renderer3d;
 
 void Renderer3D::BeginLineBatch3D() {
     m_lineVertexCount3D = 0;
+    m_currentLineWidth3D = 1.0f;
 }
 
 void Renderer3D::BeginStaticSpriteBatch3D() {
@@ -43,6 +44,7 @@ void Renderer3D::BeginTextBatch3D() {
 
 void Renderer3D::BeginCircleBatch3D() {
     m_circleVertexCount3D = 0;
+    m_currentCircleWidth3D = 1.0f;
 }
 
 void Renderer3D::BeginCircleFillBatch3D() {
@@ -51,6 +53,7 @@ void Renderer3D::BeginCircleFillBatch3D() {
 
 void Renderer3D::BeginRectBatch3D() {
     m_rectVertexCount3D = 0;
+    m_currentRectWidth3D = 1.0f;
 }
 
 void Renderer3D::BeginRectFillBatch3D() {
@@ -202,6 +205,10 @@ void Renderer3D::FlushLine3D() {
     StartFlushTiming3D("Batched_Lines_3D");
     IncrementDrawCall3D("batched_lines");
     
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(m_currentLineWidth3D);
+#endif
+    
     // use 3D shader program
     g_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
@@ -324,6 +331,10 @@ void Renderer3D::FlushCircles3D() {
     StartFlushTiming3D("Circles_3D");
     IncrementDrawCall3D("circles");
     
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(m_currentCircleWidth3D);
+#endif
+    
     g_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();
     
@@ -361,6 +372,10 @@ void Renderer3D::FlushRects3D() {
     
     StartFlushTiming3D("Rects_3D");
     IncrementDrawCall3D("rects");
+    
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(m_currentRectWidth3D);
+#endif
     
     g_renderer->SetShaderProgram(m_shader3DProgram);
     Set3DShaderUniforms();

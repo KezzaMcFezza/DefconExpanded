@@ -164,6 +164,11 @@ private:
     
     bool m_lineStrip3DActive;
     Colour m_lineStrip3DColor;
+    float m_lineStrip3DWidth;
+    
+    float m_currentLineWidth3D;
+    float m_currentCircleWidth3D;
+    float m_currentRectWidth3D;
     
     bool m_texturedQuad3DActive;
     Colour m_texturedQuad3DColor;
@@ -269,12 +274,12 @@ public:
                               float centerX, float centerY, float centerZ,
                               float upX, float upY, float upZ);
     
-    void BeginLineStrip3D    (Colour const &col);
+    void BeginLineStrip3D    (Colour const &col, float lineWidth = 1.0f);
     void LineStripVertex3D   (float x, float y, float z);
     void LineStripVertex3D   (const Vector3<float>& vertex);
     void EndLineStrip3D      ();
 
-    void BeginLineLoop3D     (Colour const &col);
+    void BeginLineLoop3D     (Colour const &col, float lineWidth = 1.0f);
     void LineLoopVertex3D    (float x, float y, float z);
     void LineLoopVertex3D    (const Vector3<float>& vertex);
     void EndLineLoop3D       ();
@@ -333,7 +338,7 @@ public:
                m_rectVertexCount3D + m_rectFillVertexCount3D + m_triangleFillVertexCount3D;
     }
     
-    void Line3D           (float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col, bool immediateFlush = false);
+    void Line3D           (float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col, float lineWidth = 1.0f, bool immediateFlush = false);
     void BeginLineBatch3D ();
     void EndLineBatch3D   ();
     void FlushLine3D      ();
@@ -375,7 +380,7 @@ public:
     void FlushTextBuffer3D();
     void FlushTextBuffer3DIfFull     (int charactersNeeded);
     
-    void Circle3D                  (float x, float y, float z, float radius, int numPoints, Colour const &col, bool immediateFlush = false);
+    void Circle3D                  (float x, float y, float z, float radius, int numPoints, Colour const &col, float lineWidth = 1.0f, bool immediateFlush = false);
     void BeginCircleBatch3D        ();
     void EndCircleBatch3D          ();
     void FlushCircles3D            ();
@@ -387,7 +392,7 @@ public:
     void FlushCircleFills3D        ();
     void FlushCircleFills3DIfFull  (int verticesNeeded);
     
-    void Rect3D                    (float x, float y, float z, float w, float h, Colour const &col, bool immediateFlush = false);
+    void Rect3D                    (float x, float y, float z, float w, float h, Colour const &col, float lineWidth = 1.0f, bool immediateFlush = false);
     void BeginRectBatch3D          ();
     void EndRectBatch3D            ();
     void FlushRects3D              ();
