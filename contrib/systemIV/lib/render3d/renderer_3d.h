@@ -17,6 +17,7 @@
 #include "lib/tosser/btree.h"
 #include "lib/tosser/llist.h"
 #include "lib/math/vector3.h"
+#include "lib/math/vector2.h"
 #include "lib/math/matrix4f.h"
 #include "lib/render/colour.h"
 
@@ -110,7 +111,7 @@ private:
     static constexpr int MAX_LINE_VERTICES_3D              = 30000; 
     static constexpr int MAX_STATIC_SPRITE_VERTICES_3D     = 30000;
     static constexpr int MAX_ROTATING_SPRITE_VERTICES_3D   = 10000;
-    static constexpr int MAX_TEXT_VERTICES_3D              = 1000;
+    static constexpr int MAX_TEXT_VERTICES_3D              = 20000;
     static constexpr int MAX_CIRCLE_VERTICES_3D            = 5000;
     static constexpr int MAX_CIRCLE_FILL_VERTICES_3D       = 5000;
     static constexpr int MAX_RECT_VERTICES_3D              = 3000;
@@ -381,30 +382,35 @@ public:
     void FlushTextBuffer3DIfFull     (int charactersNeeded);
     
     void Circle3D                  (float x, float y, float z, float radius, int numPoints, Colour const &col, float lineWidth = 1.0f, bool immediateFlush = false);
+    void Circle3D                  (const Vector3<float>& pos, const Vector3<float>& tangent1, const Vector3<float>& tangent2, float radius, int numPoints, Colour const &col, float lineWidth = 1.0f, bool immediateFlush = false);
     void BeginCircleBatch3D        ();
     void EndCircleBatch3D          ();
     void FlushCircles3D            ();
     void FlushCircles3DIfFull      (int verticesNeeded);
     
     void CircleFill3D              (float x, float y, float z, float radius, int numPoints, Colour const &col, bool immediateFlush = false);
+    void CircleFill3D              (const Vector3<float>& pos, const Vector3<float>& tangent1, const Vector3<float>& tangent2, float radius, int numPoints, Colour const &col, bool immediateFlush = false);
     void BeginCircleFillBatch3D    ();
     void EndCircleFillBatch3D      ();
     void FlushCircleFills3D        ();
     void FlushCircleFills3DIfFull  (int verticesNeeded);
     
     void Rect3D                    (float x, float y, float z, float w, float h, Colour const &col, float lineWidth = 1.0f, bool immediateFlush = false);
+    void Rect3D                    (const Vector3<float>& pos, const Vector3<float>& tangent1, const Vector3<float>& tangent2, float w, float h, Colour const &col, float lineWidth = 1.0f, bool immediateFlush = false);
     void BeginRectBatch3D          ();
     void EndRectBatch3D            ();
     void FlushRects3D              ();
     void FlushRects3DIfFull        (int verticesNeeded);
     
     void RectFill3D                (float x, float y, float z, float w, float h, Colour const &col, bool immediateFlush = false);
+    void RectFill3D                (const Vector3<float>& pos, const Vector3<float>& tangent1, const Vector3<float>& tangent2, float w, float h, Colour const &col, bool immediateFlush = false);
     void BeginRectFillBatch3D      ();
     void EndRectFillBatch3D        ();
     void FlushRectFills3D          ();
     void FlushRectFills3DIfFull    (int verticesNeeded);
     
     void TriangleFill3D            (float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, Colour const &col, bool immediateFlush = false);
+    void TriangleFill3D            (const Vector3<float>& pos, const Vector3<float>& tangent1, const Vector3<float>& tangent2, const Vector2& v1Offset, const Vector2& v2Offset, const Vector2& v3Offset, Colour const &col, bool immediateFlush = false);
     void BeginTriangleFillBatch3D  ();
     void EndTriangleFillBatch3D    ();
     void FlushTriangleFills3D      ();
