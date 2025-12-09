@@ -1,5 +1,6 @@
 #include "lib/universal_include.h"
 #include "lib/language_table.h"
+#include "lib/preferences.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/math/math_utils.h"
 
@@ -186,9 +187,14 @@ bool Nuke::Update()
     return MovingObject::Update();
 }
 
-void Nuke::Render()
+void Nuke::Render2D()
 {
-    MovingObject::Render();
+    MovingObject::Render2D();
+}
+
+void Nuke::Render3D()
+{
+    MovingObject::Render3D();
 }
 
 void Nuke::FindTarget( int team, int targetTeam, int launchedBy, Fixed range, Fixed *longitude, Fixed *latitude )

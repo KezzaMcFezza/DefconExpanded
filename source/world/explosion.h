@@ -16,8 +16,10 @@ public:
 public:
     Explosion();
 
+    void Render2D();
+    void Render3D();
+
     bool Update();
-    void Render();
 
     bool IsActionable() { return false; }
 

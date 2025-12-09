@@ -26,7 +26,8 @@ public:
 
     void    Action          ( int targetObjectId, Fixed longitude, Fixed latitude );
     bool    Update          ();
-    void    Render          ();
+    void    Render2D        ();
+    void    Render3D        ();
 
     void    SetWaypoint     ( Fixed longitude, Fixed latitude );
     

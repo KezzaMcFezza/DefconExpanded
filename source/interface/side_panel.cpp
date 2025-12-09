@@ -16,6 +16,7 @@
 #include "interface/fleet_placement_icon.h"
 #include "interface/info_window.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "world/world.h"
@@ -552,7 +553,7 @@ void UnitPlacementButton::MouseUp()
 			g_app->GetMapRenderer()->m_showTeam[ g_app->GetWorld()->m_myTeamId ] = true;
             if( m_unitType == WorldObject::TypeRadarStation )
             {
-                g_app->GetMapRenderer()->m_showRadar = true;
+                g_app->GetWorldRenderer()->m_showRadar = true;
             }
             InfoWindow *info = (InfoWindow *)EclGetWindow("Info");
             if( info )

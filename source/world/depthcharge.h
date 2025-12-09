@@ -15,7 +15,8 @@ public:
     DepthCharge( Fixed range );
 
     bool    Update          ();
-    void    Render          ();
+    void    Render2D        ();
+    void    Render3D        ();
     void    Impact();
 }; 
 

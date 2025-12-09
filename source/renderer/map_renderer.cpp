@@ -60,19 +60,16 @@ MapRenderer::MapRenderer()
 :   m_middleX(0.0f),
     m_middleY(0.0f),
     m_zoomFactor(1),
+    m_seamIteration(0),
     m_currentHighlightId(-1),
     m_currentSelectionId(-1),
-    m_showRadar(false),
     m_showNodes(true),
-    m_showPopulation(false),
-    m_showOrders(false),
     bmpRadar(NULL),
     m_highlightTime(0.0f),
     m_totalZoom(0),
     m_oldMouseX(0.0f),
     m_oldMouseY(0.0f),
     m_mouseIdleTime(0.0f),
-    m_radarLocked(false),
     m_stateRenderTime(0.0f),
     m_highlightUnit(-1),
     m_showAllTeams(false),
@@ -88,7 +85,6 @@ MapRenderer::MapRenderer()
     m_camAtTarget(true),
     m_autoCamTimer(20.0f),
     m_lockCamControl(false),
-    m_showNukeUnits(false),
     m_lockCommands(false),
     m_draggingCamera(false),
     m_tooltip(NULL),
@@ -192,7 +188,7 @@ void MapRenderer::Render()
     if( myTeam ) mapColourFader = myTeam->m_teamColourFader;
 
     float popupScale = g_preferences->GetFloat(PREFS_INTERFACE_POPUPSCALE);
-    m_drawScale = g_app->GetMapRenderer()->m_zoomFactor / (1.0f-popupScale*0.1f);
+    m_drawScale = m_zoomFactor / (1.0f-popupScale*0.1f);
 
     float resScale = g_windowManager->WindowH() / 800.0f;
     m_drawScale /= resScale;
@@ -228,6 +224,7 @@ void MapRenderer::Render()
         Colour blurColour = g_styleTable->GetPrimaryColour( STYLE_WORLD_LAND );
         Colour desaturatedColour = g_styleTable->GetSecondaryColour( STYLE_WORLD_LAND );
         blurColour = blurColour * mapColourFader + desaturatedColour * (1-mapColourFader);
+        float lineWidth = 1.0f;
 
         g_renderer2d->BeginStaticSpriteBatch();
         g_renderer2d->BeginLineBatch();
@@ -236,8 +233,8 @@ void MapRenderer::Render()
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
         g_renderer2d->Blit( bmpBlur, -180, 100, 360, -200, blurColour );
 
-        g_renderer2d->Line( -540, 100, 1080, 100, blurColour );
-        g_renderer2d->Line( -540, -100, 1080, -100, blurColour );
+        g_renderer2d->Line( -540, 100, 1080, 100, blurColour, lineWidth );
+        g_renderer2d->Line( -540, -100, 1080, -100, blurColour, lineWidth );
            
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );
 
@@ -264,6 +261,7 @@ void MapRenderer::Render()
     GetWindowBounds( &left, &right, &top, &bottom );
     for( int x = 0; x < 2; ++x )
     {
+        m_seamIteration = x;  // Track which iteration we're in for seam wrapping
         g_renderer2d->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
 
         //
@@ -275,11 +273,11 @@ void MapRenderer::Render()
         g_renderer2d->BeginRotatingSpriteBatch();
         g_renderer2d->BeginLineBatch();
 
-        if( m_showPopulation )          
+        if( g_app->GetWorldRenderer()->m_showPopulation )          
         { 
             RenderPopulationDensity();
         }
-        if( m_showNukeUnits )           
+        if( g_app->GetWorldRenderer()->m_showNukeUnits )           
         {
             RenderNukeUnits();
         }
@@ -330,7 +328,6 @@ void MapRenderer::Render()
 
         //
         // master scene batching, end all batching systems and flush
-        //
 
         g_renderer2d->EndRectFillBatch();
         g_renderer2d->EndRectBatch();
@@ -340,10 +337,10 @@ void MapRenderer::Render()
 
         //
         // render radar outside of the main scene to
-        // render it in front of everything the radar 
+        // render it in front of everything, the radar 
         // system batches internally anyway
 
-        if( m_showRadar )               
+        if( g_app->GetWorldRenderer()->m_showRadar )               
         {
             RenderRadar();
         }
@@ -358,6 +355,7 @@ void MapRenderer::Render()
     GetWindowBounds( &left, &right, &top, &bottom );
     for( int x = 0; x < 2; ++x )
     {
+        m_seamIteration = x;  // Track which iteration we're in for seam wrapping
         g_renderer2d->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
         
         //
@@ -486,7 +484,7 @@ void MapRenderer::RenderExplosions()
                     explosion->m_visible[myTeamId] || 
                     g_app->GetWorldRenderer()->CanRenderEverything() )
                 {
-                    g_app->GetWorld()->m_explosions[i]->Render();
+                    g_app->GetWorld()->m_explosions[i]->Render2D();
                 }
             }
         }
@@ -505,7 +503,10 @@ void MapRenderer::RenderAnimations()
         if(  g_app->GetWorldRenderer()->GetAnimations().ValidIndex(i) )
         {
             AnimatedIcon *anim =  g_app->GetWorldRenderer()->GetAnimations()[i];
-            if( anim->Render() )
+            anim->Update();
+            anim->Render2D();
+            
+            if( anim->IsFinished() )
             {
                  g_app->GetWorldRenderer()->GetAnimations().RemoveData(i);
                 delete anim;
@@ -632,7 +633,7 @@ void MapRenderer::RenderGunfire()
                  gunFire->m_visible[myTeamId] ||
                  g_app->GetWorldRenderer()->CanRenderEverything() ) )
             {
-                g_app->GetWorld()->m_gunfire[i]->Render();
+                g_app->GetWorld()->m_gunfire[i]->Render2D();
             }
         }
     }
@@ -2425,8 +2426,14 @@ void MapRenderer::RenderActionLine( float fromLong, float fromLat, float toLong,
         }
     }
 
-    g_renderer2d->Line( fromLong, fromLat, toLong, toLat, col );
-    g_renderer2d->Line( fromLong+GetLongitudeMod(), fromLat, toLong+GetLongitudeMod(), toLat, col );
+    bool isFirstIteration = (m_seamIteration == 0);
+
+    g_renderer2d->Line( fromLong, fromLat, toLong, toLat, col, width );
+    
+    if( isFirstIteration )
+    {
+        g_renderer2d->Line( fromLong+GetLongitudeMod(), fromLat, toLong+GetLongitudeMod(), toLat, col, width );
+    }
 
     if( animate )
     {
@@ -2438,7 +2445,7 @@ void MapRenderer::RenderActionLine( float fromLong, float fromLat, float toLong,
         Vector3<float> fromVector = Vector3<float>(fromLong,fromLat,0) + lineVector * factor1;
         Vector3<float> toVector =  Vector3<float>(fromLong,fromLat,0) + lineVector * factor2;
 
-        g_renderer2d->Line( fromVector.x, fromVector.y, toVector.x, toVector.y, col );
+        g_renderer2d->Line( fromVector.x, fromVector.y, toVector.x, toVector.y, col, width );
     }
 
 #endif
@@ -2647,8 +2654,9 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     float angle = atan( -lineX / lineY );
                     if( lineY < 0.0f ) angle += M_PI;
                 
-                    // Use rotating sprite system with proper rotation and sizing
-                    g_renderer2d->RotatingSprite( img, targetLongitude, targetLatitude, size, size, col, angle );
+                    g_renderer2d->RotatingSprite( img, targetLongitude, targetLatitude,
+                                                  size, size, col, angle );
+                                                  
                     RenderActionLine( predictedLongitude, predictedLatitude,
                                       targetLongitude, targetLatitude,
                                       col, 0.5f );
@@ -2677,18 +2685,21 @@ void MapRenderer::RenderUnitHighlight( int _objectId )
 
         Colour col = g_app->GetWorld()->GetTeam( obj->m_teamId )->GetTeamColour();
         col.m_a = 255;
+        float rectWidth = 2.0f;
+        float lineWidth = 1.0f;
+
         if( fmod((float)g_gameTime*2, 2.0f) < 1.0f ) col.m_a = 100;
 
         g_renderer2d->Line(predictedLongitude - size/2 - 5.0f, predictedLatitude, 
-                         predictedLongitude - size/2, predictedLatitude, col );
+                         predictedLongitude - size/2, predictedLatitude, col, lineWidth );
         g_renderer2d->Line(predictedLongitude + size/2 + 5.0f, predictedLatitude, 
-                         predictedLongitude + size/2, predictedLatitude, col );
+                         predictedLongitude + size/2, predictedLatitude, col, lineWidth );
         g_renderer2d->Line(predictedLongitude, predictedLatitude + size/2 + 5.0f, 
-                         predictedLongitude, predictedLatitude + size/2, col );
+                         predictedLongitude, predictedLatitude + size/2, col, lineWidth );
         g_renderer2d->Line(predictedLongitude, predictedLatitude - size/2 - 5.0f, 
-                         predictedLongitude, predictedLatitude - size/2, col );
+                         predictedLongitude, predictedLatitude - size/2, col, lineWidth );
         g_renderer2d->Rect( predictedLongitude - size/2, 
-                          predictedLatitude - size/2, size, size, col, 2.0f );
+                          predictedLatitude - size/2, size, size, col, rectWidth );
     }
 }
 
@@ -2905,16 +2916,16 @@ void MapRenderer::RenderObjects()
                     wobj->m_visible[myTeamId] ||
                     g_app->GetWorldRenderer()->CanRenderEverything() )
                 {
-                    wobj->Render();
+                    wobj->Render2D();
                 }
                 else
                 {
-                    wobj->RenderGhost(myTeamId);
+                    wobj->RenderGhost2D(myTeamId);
                 }
             }
 
 #ifndef NON_PLAYABLE
-            if( m_showOrders )
+            if( g_app->GetWorldRenderer()->m_showOrders )
             {
                 if(myTeamId == -1 || wobj->m_teamId == myTeamId )                
                 {
@@ -3277,6 +3288,7 @@ void MapRenderer::RenderRadar()
     g_renderer->SetBlendMode( Renderer::BlendModeNormal );        
     g_renderer2d->RectFill( -180, -100, 360, 200, Colour(0,0,0,150), true );
     g_renderer->SetDepthBuffer( false, false );
+    g_renderer->SetBlendMode( Renderer::BlendModeAdditive );      
     
     END_PROFILE( "Radar" );
 }
@@ -3421,11 +3433,13 @@ void MapRenderer::RenderNodes()
             for( int j = 0; j < node->m_routeTable.Size(); ++j )
             {
                 Node *nextNode = g_app->GetWorld()->m_nodes[node->m_routeTable[j]->m_nextNodeId];
+                float lineWidth = 1.5f;
+
                 g_renderer2d->Line(node->m_longitude.DoubleValue(), 
                                  node->m_latitude.DoubleValue(), 
                                  nextNode->m_longitude.DoubleValue(), 
                                  nextNode->m_latitude.DoubleValue(), 
-                                 Colour(255,255,255,35));
+                                 Colour(255,255,255,35), lineWidth );
             }
         }
     }
@@ -5111,17 +5125,6 @@ void MapRenderer::UpdateMouseIdleTime()
     }
 }
 
-void MapRenderer::LockRadarRenderer()
-{
-    m_radarLocked = true;
-    m_showRadar = false;
-}
-
-void MapRenderer::UnlockRadarRenderer()
-{
-    m_radarLocked = false;
-}
-
 void MapRenderer::AutoCam()
 {
     // automatically moves the camera to areas of interest every 10 seconds, or zooms out if nothing is happening
@@ -5745,6 +5748,7 @@ void MapRenderer::RenderWhiteBoard()
 				for ( int j = 1; j < sizePoints; j++ )
 				{
 					WhiteBoardPoint *currPt = points->GetData( j );
+                    float lineWidth = 2.0f;
 
                     //
 					// if this is a start point, skip the line from previous point
@@ -5757,7 +5761,7 @@ void MapRenderer::RenderWhiteBoard()
 
 					g_renderer2d->Line( prevPt->m_longitude, prevPt->m_latitude, 
 									  currPt->m_longitude, currPt->m_latitude, 
-									  colourBoard );
+									  colourBoard, lineWidth );
 					
 					prevPt = currPt;
 				}
@@ -5858,7 +5862,6 @@ void MapRenderer::RenderSanta()
 			Image *bmpImage = g_resource->GetImage( "graphics/santa.bmp" );
 			if( bmpImage )
 			{
-				g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 				if ( g_app->GetWorld()->m_santaPrevFlipped )
 				{
 					g_renderer2d->RotatingSprite( bmpImage, x, y, -thisSize, thisSize, colour, 0 );
@@ -5866,8 +5869,7 @@ void MapRenderer::RenderSanta()
 				else
 				{
 					g_renderer2d->RotatingSprite( bmpImage, x, y, thisSize, thisSize, colour, 0 );
-				}
-				g_renderer->SetBlendMode( Renderer::BlendModeNormal );				
+				}			
 			}
 		}
 		else
@@ -5893,7 +5895,6 @@ void MapRenderer::RenderSanta()
 			Image *bmpImage = g_resource->GetImage( "graphics/santa.bmp" );
 			if( bmpImage )
 			{
-				g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 				if ( g_app->GetWorld()->m_santaPrevFlipped )
 				{
 					g_renderer2d->RotatingSprite( bmpImage, x, y, -thisSize, thisSize, colour, 0 );
@@ -5901,8 +5902,7 @@ void MapRenderer::RenderSanta()
 				else
 				{
 					g_renderer2d->RotatingSprite( bmpImage, x, y, thisSize, thisSize, colour, 0 );
-				}
-				g_renderer->SetBlendMode( Renderer::BlendModeNormal );				
+				}		
 			}		
 		}
 		

@@ -192,9 +192,14 @@ bool Fighter::Update()
     return amIDead;
 }
 
-void Fighter::Render()
+void Fighter::Render2D()
 {
-    MovingObject::Render();
+    MovingObject::Render2D();
+}
+
+void Fighter::Render3D()
+{
+    MovingObject::Render3D();
 }
 
 void Fighter::RunAI()

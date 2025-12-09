@@ -12,9 +12,11 @@ public:
 
     BattleShip();
 
+    void    Render2D        ();
+    void    Render3D        ();
+
     void    Action          ( int targetObjectId, Fixed longitude, Fixed latitude ); 
-    bool    Update          ();
-    void    Render          ();    
+    bool    Update          (); 
     void    RunAI           ();
     int     GetAttackState();
     bool    UsingGuns       ();

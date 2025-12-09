@@ -53,9 +53,13 @@ public:
 
     bool            IsValidPosition ( Fixed longitude, Fixed latitude );
     bool            MoveToWaypoint  ();                                   // returns true upon arrival
-    void            Render          ();
+    void            Render2D        ();
+    void            Render3D        ();
     void            RenderGhost     ( int teamId );
-    void            RenderHistory   ();
+    void            RenderGhost2D   ( int teamId );
+    void            RenderGhost3D   ( int teamId );
+    void            RenderHistory2D();
+    void            RenderHistory3D();
 
     virtual void    SetWaypoint     ( Fixed longitude, Fixed latitude );
 

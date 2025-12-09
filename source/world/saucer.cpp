@@ -157,7 +157,7 @@ void Saucer::Render()
     Colour colour       = COLOUR_SPECIALOBJECTS;
     if( m_currentState == 0 )
     {
-        RenderHistory(); 
+        //RenderHistory(); 
     }
     
     m_angle += 0.01f;

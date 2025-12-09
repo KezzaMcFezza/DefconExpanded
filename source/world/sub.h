@@ -17,10 +17,12 @@ public:
 
     Sub();
 
+    void    Render2D        ();
+    void    Render3D        ();
+
     void    Action          ( int targetObjectId, Fixed longitude, Fixed latitude );
     bool    IsHiddenFrom    ();
     bool    Update          ();
-    void    Render          ();   
     void    RunAI           ();
     int     GetAttackState  ();
     bool    IsIdle          ();

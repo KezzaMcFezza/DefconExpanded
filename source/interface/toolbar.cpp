@@ -562,20 +562,20 @@ void Toolbar::Create()
 
     ToggleBoolButton *radar = new ToggleBoolButton();
     radar->SetProperties( "Radar", x+=gap, y, iconSize, iconSize, "dialog_toolbar_radar", "tooltip_toolbar_radar", true, true );  
-    radar->m_value = &g_app->GetMapRenderer()->m_showRadar;
+    radar->m_value = &g_app->GetWorldRenderer()->m_showRadar;
     radar->m_disabled = g_app->m_globeMode;
     strcpy(radar->m_iconFilename, "gui/tb_radar.bmp");
     RegisterButton( radar );
 
     ToggleBoolButton *population = new ToggleBoolButton();
     population->SetProperties( "Population", x+=gap, y, iconSize, iconSize, "dialog_toolbar_people", "tooltip_toolbar_pop", true, true );
-    population->m_value = &g_app->GetMapRenderer()->m_showPopulation;
+    population->m_value = &g_app->GetWorldRenderer()->m_showPopulation;
     strcpy(population->m_iconFilename, "gui/tb_population.bmp");
     RegisterButton( population );
 
     ToggleBoolButton *orders = new ToggleBoolButton();
     orders->SetProperties( "Orders", x+=gap, y, iconSize, iconSize, "dialog_toolbar_orders", "tooltip_toolbar_orders", true, true );
-    orders->m_value = &g_app->GetMapRenderer()->m_showOrders;
+    orders->m_value = &g_app->GetWorldRenderer()->m_showOrders;
     strcpy(orders->m_iconFilename, "gui/tb_orders.bmp");
     RegisterButton( orders );
 
@@ -593,7 +593,7 @@ void Toolbar::Create()
 
     ToggleBoolButton *nukes = new ToggleBoolButton();
     nukes->SetProperties( "Nukes", x+=gap, y, iconSize, iconSize, "dialog_toolbar_nukes", "tooltip_toolbar_nukes", true, true );
-    nukes->m_value = &g_app->GetMapRenderer()->m_showNukeUnits;
+    nukes->m_value = &g_app->GetWorldRenderer()->m_showNukeUnits;
     strcpy(nukes->m_iconFilename, "gui/tb_nukes.bmp");
     RegisterButton( nukes );
 

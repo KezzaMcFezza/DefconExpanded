@@ -2,6 +2,9 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/language_table.h"
+#include "lib/preferences.h"
+#include "lib/render3d/renderer_3d.h"
+#include "lib/render2d/renderer_2d.h"
 #include "lib/math/random_number.h"
 #include "lib/sound/soundsystem.h"
 
@@ -10,6 +13,7 @@
 #include "app/game.h"
 
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "world/world.h"
 #include "world/carrier.h"
@@ -721,13 +725,9 @@ int Carrier::CountIncomingFighters()
 }
 
 
-void Carrier::Render()
+void Carrier::Render2D()
 {
-    MovingObject::Render();
-
-
-    //
-    // Render count
+    MovingObject::Render2D();
 
     if( m_teamId == g_app->GetWorld()->m_myTeamId ||
         g_app->GetWorld()->m_myTeamId == -1 ||
@@ -770,6 +770,74 @@ void Carrier::Render()
                 
                 g_renderer2d->StaticSprite( bmpImage, x, y, size*0.9f, -size, colour );
                 x += dx;
+            }
+        }
+    }        
+}
+
+void Carrier::Render3D()
+{
+    MovingObject::Render3D();
+
+    if( m_teamId == g_app->GetWorld()->m_myTeamId ||
+        g_app->GetWorld()->m_myTeamId == -1 ||
+        g_app->GetGame()->m_winner != -1 )
+    {   
+        int numInStore = m_states[m_currentState]->m_numTimesPermitted;
+        int numInQueue = m_actionQueue.Size();
+
+        Team *team = g_app->GetWorld()->GetTeam(m_teamId);
+        Colour colour = team->GetTeamColour();            
+        colour.m_a = 150;
+
+        Image *bmpImage = g_resource->GetImage("graphics/smallbomber.bmp");
+        if( m_currentState == 0 ) bmpImage = g_resource->GetImage("graphics/smallfighter.bmp" );
+
+        Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+        float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
+        float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
+
+        if( bmpImage )
+        {
+            GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+            if( globeRenderer )
+            {
+                float baseSize = GetSize3D().DoubleValue();
+                float iconSize = baseSize * GLOBE_UNIT_ICON_SIZE;
+
+                Vector3<float> basePos = globeRenderer->ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
+                Vector3<float> normal = basePos.Normalized();
+                basePos = globeRenderer->GetElevatedPosition(basePos);
+                
+                Vector3<float> tangent1, tangent2;
+                globeRenderer->GetSurfaceTangents(normal, tangent1, tangent2);
+
+                float size3D = GetSize3D().DoubleValue();
+                
+                float iconSpacing = size3D * GLOBE_UNIT_ICON_SIZE * 0.9f;
+                float iconSizeHalf = iconSize * 0.5f;
+                
+                Vector3<float> offset = -tangent1 * size3D * 0.85f - tangent2 * size3D * 0.25f;
+                offset += tangent1 * iconSizeHalf - tangent2 * iconSizeHalf;
+
+                if( team->m_territories[0] >= 3 )
+                {
+                    offset += tangent1 * size3D * 1.4f;
+                    iconSpacing *= -1;
+                }
+
+                for( int i = 0; i < numInStore; ++i )
+                {
+                    if( i >= (numInStore-numInQueue) )
+                    {
+                        colour.Set( 128,128,128,100 );
+                    }
+                    
+                    Vector3<float> iconPos = basePos + offset + tangent1 * (i * iconSpacing);
+                    
+                    g_renderer3d->StaticSprite3D( bmpImage, iconPos.x, iconPos.y, iconPos.z, 
+                                                  iconSize * 0.9f, iconSize, colour, BILLBOARD_SURFACE_ALIGNED );
+                }
             }
         }
     }        

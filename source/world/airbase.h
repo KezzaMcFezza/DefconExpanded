@@ -14,6 +14,9 @@ protected:
 public:
     AirBase();
 
+    void Render2D();
+    void Render3D();
+
     void RequestAction( ActionOrder *_order );
     void Action( int targetObjectId, Fixed longitude, Fixed latitude );
     void RunAI();
@@ -21,7 +24,6 @@ public:
     bool UsingNukes();
     void NukeStrike();
     bool Update();
-    void Render();
     bool CanLaunchFighter();
     bool CanLaunchBomber();
     

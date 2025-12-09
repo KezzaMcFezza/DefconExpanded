@@ -13,6 +13,7 @@
 #include "lib/preferences.h"
 #include "lib/resource/resource.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "network/Server.h"
@@ -1319,7 +1320,7 @@ void Tutorial::SetupCurrentChapter()
 
         g_app->GetGame()->m_lockVictoryTimer = true;
         EclRemoveWindow("Side Panel");
-        g_app->GetMapRenderer()->LockRadarRenderer();
+        g_app->GetWorldRenderer()->LockRadarRenderer();
 
         g_app->GetWorld()->ClearWorld();
         g_app->GetWorld()->GetTeam(0)->m_territories.PutData( World::TerritoryRussia );
@@ -1387,7 +1388,7 @@ void Tutorial::SetupCurrentChapter()
         SetCurrentLevelName( "tutorial_levelname_2" );
 
         g_app->GetGame()->m_lockVictoryTimer = true;
-        g_app->GetMapRenderer()->LockRadarRenderer();
+        g_app->GetWorldRenderer()->LockRadarRenderer();
         
         g_app->GetWorld()->ClearWorld();
         g_app->GetWorld()->GetTeam(0)->m_territories.PutData( World::TerritoryRussia );
@@ -1465,7 +1466,7 @@ void Tutorial::SetupCurrentChapter()
         SetCurrentLevelName( "tutorial_levelname_3" );
 
         g_app->GetGame()->m_lockVictoryTimer = true;
-        g_app->GetMapRenderer()->UnlockRadarRenderer();
+        g_app->GetWorldRenderer()->UnlockRadarRenderer();
         g_app->GetWorld()->ClearWorld();        
         g_app->GetWorld()->GetTeam(0)->m_territories.PutData( World::TerritoryRussia );
         g_app->GetWorld()->GetTeam(1)->m_territories.PutData( World::TerritoryEurope );
@@ -1581,7 +1582,7 @@ void Tutorial::SetupCurrentChapter()
 
         g_app->GetGame()->m_lockVictoryTimer = true;
         g_app->GetWorld()->ClearWorld();
-        g_app->GetMapRenderer()->UnlockRadarRenderer();
+        g_app->GetWorldRenderer()->UnlockRadarRenderer();
         
         g_app->GetWorld()->GetTeam(0)->m_territories.PutData( World::TerritoryRussia );
         g_app->GetWorld()->GetTeam(1)->m_territories.PutData( World::TerritoryEurope );
@@ -1674,7 +1675,7 @@ void Tutorial::SetupCurrentChapter()
 
     if( InChapter("M4LaunchBombers") )
     {
-        g_app->GetMapRenderer()->m_showRadar = false;
+        g_app->GetWorldRenderer()->m_showRadar = false;
     }
 
     if( InChapter("Mission5Start") )
@@ -1684,7 +1685,7 @@ void Tutorial::SetupCurrentChapter()
         g_app->GetGame()->m_lockVictoryTimer = true;
         EclRemoveWindow("Side Panel");
         g_app->GetWorld()->ClearWorld();
-        g_app->GetMapRenderer()->UnlockRadarRenderer();
+        g_app->GetWorldRenderer()->UnlockRadarRenderer();
 
         g_app->GetWorld()->GetTeam(1)->m_territories.PutData( World::TerritoryEurope );
         g_app->GetWorld()->GetTeam(0)->m_territories.PutData( World::TerritoryRussia );
@@ -1789,7 +1790,7 @@ void Tutorial::SetupCurrentChapter()
 
         EclRemoveWindow("Side Panel");
         g_app->GetWorld()->ClearWorld();
-        g_app->GetMapRenderer()->UnlockRadarRenderer();
+        g_app->GetWorldRenderer()->UnlockRadarRenderer();
 
         g_app->GetWorld()->GetTeam(0)->m_territories.PutData( World::TerritorySouthAsia );
         g_app->GetWorld()->GetTeam(1)->m_territories.PutData( World::TerritoryNorthAmerica );
@@ -1963,7 +1964,7 @@ void Tutorial::SetupCurrentChapter()
 
         EclRemoveWindow("Side Panel");
         g_app->GetWorld()->ClearWorld();
-        g_app->GetMapRenderer()->UnlockRadarRenderer();
+        g_app->GetWorldRenderer()->UnlockRadarRenderer();
         
 #ifdef _DEBUG
         g_app->GetGame()->SetOptionValue( "TeamSwitching", 1 );

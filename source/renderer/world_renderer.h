@@ -50,6 +50,15 @@ public:
     bool    CanRenderEverything() { return m_renderEverything; }
     void    SetRenderEverything( bool _renderEverything );
 
+    void    LockRadarRenderer();
+    void    UnlockRadarRenderer();
+
+    bool    m_showRadar;
+    bool    m_radarLocked;
+    bool    m_showPopulation;
+    bool    m_showOrders;
+    bool    m_showNukeUnits;
+
     bool	GetShowWhiteBoard()     const;
     bool    GetShowPlanning()       const;
     bool	GetEditWhiteBoard()     const;

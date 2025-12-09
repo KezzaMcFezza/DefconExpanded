@@ -3,10 +3,12 @@
 #include "lib/resource/image.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
+#include "lib/render3d/renderer_3d.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
 #include "lib/math/math_utils.h"
 #include "lib/language_table.h"
+#include "lib/preferences.h"
  
 #include "app/app.h"
 #include "app/globals.h"
@@ -15,6 +17,7 @@
 #include "network/ClientToServer.h"
 
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "interface/interface.h"
 
@@ -471,13 +474,9 @@ void Bomber::CeaseFire( int teamId )
 }
 
 
-void Bomber::Render()
+void Bomber::Render2D()
 {
-    MovingObject::Render();
-
-
-    //
-    // Render our Nuke
+    MovingObject::Render2D();
 
     if( (m_teamId == g_app->GetWorld()->m_myTeamId ||
         g_app->GetWorld()->m_myTeamId == -1 ||
@@ -505,6 +504,48 @@ void Bomber::Render()
                                   size/2, 
                                   colour, 
                                   angle );
+    }
+}
+
+void Bomber::Render3D()
+{
+    MovingObject::Render3D();
+
+    if( (m_teamId == g_app->GetWorld()->m_myTeamId ||
+        g_app->GetWorld()->m_myTeamId == -1 ||
+        g_app->GetGame()->m_winner != -1 ) &&
+        m_states[1]->m_numTimesPermitted > 0 )
+    {
+        Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+        float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
+        float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
+    
+        float angle = atan( -m_vel.x.DoubleValue() / m_vel.y.DoubleValue() );
+        if( m_vel.y < 0 ) angle += M_PI;
+    
+        Team *team = g_app->GetWorld()->GetTeam(m_teamId);
+        Colour colour = team->GetTeamColour();            
+        colour.m_a = 150;
+
+        Image *bmpImage = g_resource->GetImage( "graphics/smallnuke.bmp" );
+
+        GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+        if( globeRenderer && bmpImage )
+        {
+            float size = GetSize3D().DoubleValue();
+            float iconSize = size * 0.4f;
+
+            float offsetLon = predictedLongitude + m_vel.x.DoubleValue() * 4;
+            float offsetLat = predictedLatitude + m_vel.y.DoubleValue() * 4;
+            
+            Vector3<float> spritePos = globeRenderer->ConvertLongLatTo3DPosition(offsetLon, offsetLat);
+            Vector3<float> normal = spritePos;
+            normal.Normalise();
+            spritePos += normal * GLOBE_ELEVATION;
+            
+            g_renderer3d->RotatingSprite3D( bmpImage, spritePos.x, spritePos.y, spritePos.z,
+                                            iconSize, iconSize, colour, angle, BILLBOARD_SURFACE_ALIGNED );
+        }
     }
 }
 

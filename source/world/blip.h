@@ -27,10 +27,11 @@ public:
 public:
     Blip();
 
+    void Render2D();
+
     Fixed GetSize();
     bool Update();
     void SetWaypoint( Fixed longitude, Fixed latitude );
-    void Render();
 }; 
 
 #endif

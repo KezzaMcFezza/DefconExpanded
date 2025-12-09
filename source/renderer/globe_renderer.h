@@ -4,15 +4,21 @@
 #include "world/worldobject.h"
 #include "world/world.h"
 #include "world/nuke.h"
+#include "world/blip.h"
 
 class Image;
 class WorldObject;
 class AnimatedIcon;
 class Model3D;
+class Blip;
 
 #define    GLOBE_RADIUS                                1.0f     // default globe radius
 #define    GLOBE_CULL_RADIUS                           0.995f   // culling sphere radius (inside the globe)
+#define    GLOBE_ELEVATION                             0.0f     // no elevation, but here incase we do need elevation 
 #define    GLOBE_NUKE_MODEL_SIZE                       0.75f    // nuke model scale
+#define    GLOBE_ANIMATED_ICON_SIZE                    0.06f    // base size of animated icons
+#define    GLOBE_OBJECT_SIZE                           0.0075f  // base size for objects on the globe
+#define    GLOBE_UNIT_ICON_SIZE                        0.35f    // base size for unit icons (smallfighter.bmp etc)
 
 #define    STYLE_GLOBE_COASTLINES                     "GlobeCoastlines"
 #define    STYLE_GLOBE_BORDERS                        "GlobeBorders"
@@ -29,7 +35,15 @@ class Model3D;
 
 class GlobeRenderer
 {
-protected:
+public:
+
+    Vector3<float> ConvertLongLatTo3DPosition(float longitude, float latitude);
+    Vector3<float> GetNormalizedFromLongLat (float longitude, float latitude);
+    Vector3<float> GetElevatedPosition       (const Vector3<float>& position);
+    Vector3<float> SlerpNormal               (const Vector3<float>& fromNormal, const Vector3<float>
+                                              & toNormal, float t);
+    void           GetSurfaceTangents        (const Vector3<float>& normal, Vector3<float>
+                                              & tangent1, Vector3<float>& tangent2);
 
     struct Star3D {
         Vector3<float> position;
@@ -43,13 +57,13 @@ protected:
     Model3D *m_nukeModel;
 
     float   m_zoomFactor;
-    float   m_middleX;
-    float   m_middleY;
 
     float	m_drawScale;
 
-    bool    m_lockCamControl;
-    bool    m_lockCommands;
+    int     m_currentHighlightId;
+    int     m_currentSelectionId;
+    int     m_currentStateId;
+
     bool    m_draggingCamera;
 
     float   m_maxCameraDistance;
@@ -65,6 +79,7 @@ protected:
     Vector3  <float> m_camUp;
     Vector3  <float> m_camFront;
 
+protected:
     void DragCamera();
     void UpdateCameraControl();
     void RenderDragIcon();
@@ -97,47 +112,32 @@ public:
 
     void    AddLineStrip(const DArray<Vector3<float>> &vertices) const;
 
+    void    RenderObjects();
+    void    RenderGunfire();
+    void    RenderExplosions();
+    void    RenderAnimations();
+    void    RenderPopulationDensity();
+    void    RenderNukeUnits();
+    void    RenderUnitHighlight( int _objectId );
+    void    RenderWhiteBoard();
     void    RenderCities();
-    void    Render3DUnits();          
-    void    Render3DUnitTrails();
-    void    Render3DNukeTrajectories();
-    void    Render3DNuke();
-    void    Render3DGunfire();       
-    void    Render3DExplosions();     
-    void    Render3DNukeSymbols();
-    void    Render3DWorldObjectTargets();
-    void    Render3DNukeHighlights();
-    void    Render3DAnimations();
-    void    Render3DSanta();
-    void    Render3DWhiteBoard();
-    void    Render3DPopulationDensity();
+    void    RenderSanta();
 
     bool    IsPointVisible   (const Vector3<float>& globePoint, const Vector3<float>& cameraPos, float globeRadius);
     float   CullingThreshold (float cameraDistance, float globeRadius);
-    void    GetWindowBounds  ( float *left, float *right, float *top, float *bottom );
     void    GetCameraPosition( float &longitude, float &latitude, float &distance );
     void    SetCameraPosition( float longitude, float latitude, float distance );
     void    IsCameraIdle     (float oldLongitude, float oldLatitude);
+    
+    float   GetZoomFactor();
+    float   GetDrawScale();
 
+    void    RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges );
+    void    RenderActionLine           ( float fromLong, float fromLat, float toLong, float toLat,
+                                        Colour col, float width, bool animate=true );
+    
     Vector3<float> GetCameraPosition();
 
-    void    Render3DUnitHighlight                         (int objectId);
-    void    Render3DActionLine                            (const Vector3<float>& fromPos, const Vector3<float>& toPos, const Colour& col, bool animate);
-    float   CalculateUnitElevation                        (WorldObject* wobj);
-    float   CalculateBallisticHeight                      (float totalDistanceRadians, float progress);
-    
-    Vector3<float> ConvertLongLatTo3DPosition             (float longitude, float latitude);
-    Vector3<float> ScreenToGlobePosition                  (int screenX, int screenY);
-    Vector3<float> CalculateGreatCirclePosition           (float startLon, float startLat, float endLon, float endLat, float progress);
-    Vector3<float> CalculateNuke3DPosition                (Nuke* nuke);
-    Vector3<float> CalculateHistoricalNuke3DPosition      (Nuke* nuke, const Vector3<Fixed>& historicalPos);
-    Vector3<float> CalculateHistoricalNuke3DPositionByAge (Nuke* nuke, const Vector3<Fixed>& historicalPos, float historicalProgress);
-    Vector3<float> CalculateGunfire3DPosition             (GunFire* gunfire);
-
-    static  float ConvertMenuToLandUnitSize               (float menuValue);
-    static  float ConvertLandUnitSizeToMenu               (float internalValue);
-    static  float ConvertMenuToNavalUnitSize              (float menuValue);
-    static  float ConvertNavalUnitSizeToMenu              (float internalValue);
     static  float ConvertMenuToFogDensity                 (float menuValue);
     static  float ConvertFogDensityToMenu                 (float internalValue);
     static  float ConvertMenuToStarSize                   (float menuValue);

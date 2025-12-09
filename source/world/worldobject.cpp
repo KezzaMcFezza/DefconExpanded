@@ -20,6 +20,8 @@
 #include "interface/interface.h"
 
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
+#include "lib/render3d/renderer_3d.h"
 
 #include "world/radarstation.h"
 #include "world/silo.h"
@@ -359,37 +361,34 @@ char *WorldObject::GetBmpBlurFilename()
 }
 
 
-void WorldObject::Render ()
+void WorldObject::Render2D()
 {
     Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
     float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
     float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
+
+    Team *team = g_app->GetWorld()->GetTeam(m_teamId);
+    Colour colour = team->GetTeamColour();            
+    colour.m_a = 255;
+
+    Image *bmpImage = g_resource->GetImage( bmpImageFilename );
+
     float size = GetSize().DoubleValue();
 
     float x = predictedLongitude-size;
     float y = predictedLatitude+size;
     float thisSize = size*2;
 
-    Team *team = g_app->GetWorld()->GetTeam(m_teamId);
     if( team->m_territories[0] >= 3 )
     {
         x = predictedLongitude+size;
         thisSize = size*-2;
     }       
 
-    Colour colour       = team->GetTeamColour();            
-    colour.m_a = 255;
-
-    Image *bmpImage = g_resource->GetImage( bmpImageFilename );
     if( bmpImage )
     {
         g_renderer2d->StaticSprite( bmpImage, x, y, thisSize, size*-2, colour );        
     }
-
-
-
-    //
-    // Current selection?
 
     colour.Set(255,255,255,255);
     int selectionId = g_app->GetMapRenderer()->GetCurrentSelectionId();
@@ -421,44 +420,117 @@ void WorldObject::Render ()
     }
 
 #if RECORDING_PARSING
-    RenderHealthBar();
+    RenderHealthBar2D();
 #endif
+}
 
+void WorldObject::Render3D()
+{
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
+    float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
+
+    Team *team = g_app->GetWorld()->GetTeam(m_teamId);
+    Colour colour = team->GetTeamColour();            
+    colour.m_a = 255;
+
+    Image *bmpImage = g_resource->GetImage( bmpImageFilename );
+
+    GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+    if( globeRenderer && bmpImage )
+    {
+        float size = GetSize3D().DoubleValue();
+
+        Vector3<float> objPos = globeRenderer->ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
+        Vector3<float> normal = objPos;
+        normal.Normalise();
+        float elevation = GLOBE_ELEVATION;
+        Vector3<float> renderPos = objPos + normal * elevation;
+
+        bool flipped = (team->m_territories[0] >= 3);
+        float spriteSize = size * 2.0f;
+
+        g_renderer3d->StaticSprite3D( bmpImage, renderPos.x, renderPos.y, renderPos.z, 
+                                      flipped ? -spriteSize : spriteSize, spriteSize, colour, BILLBOARD_SURFACE_ALIGNED );
+
+        colour.Set(255,255,255,255);
+        int selectionId = g_app->GetMapRenderer()->GetCurrentSelectionId();
+        for( int i = 0; i < 2; ++i )
+        {
+            if( i == 1 )
+            {
+                int highlightId = g_app->GetMapRenderer()->GetCurrentHighlightId();
+                if( highlightId == selectionId ) break;
+                selectionId = highlightId;
+            }
+            WorldObject *selection = g_app->GetWorld()->GetWorldObject(selectionId);
+
+            if( selection )
+            {
+                bool selected = selection == this;
+                bool sameFleet = i == 0 &&
+                                 selection->m_teamId == m_teamId &&
+                                 selection->m_fleetId != -1 &&
+                                 selection->m_fleetId == m_fleetId;
+
+                if( selected || sameFleet )
+                {
+                    bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
+                    g_renderer3d->StaticSprite3D( bmpImage, renderPos.x, renderPos.y, renderPos.z, 
+                                                  flipped ? -spriteSize : spriteSize, spriteSize, colour, BILLBOARD_SURFACE_ALIGNED );
+                }
+            }
+            colour.m_a /= 2;
+        }
+    }
+#if RECORDING_PARSING
+    RenderHealthBar3D();
+#endif
 }
 
 #if RECORDING_PARSING
-void WorldObject::RenderHealthBar()
+void WorldObject::RenderHealthBar2D()
 {
-    // only render if the user has enabled the health bars
+    //
+    // Only render if the user has enabled the health bars
+
     extern bool g_healthBarsEnabled;
     if( !g_healthBarsEnabled )
     {
         return;
     }
 
-    // Only render health bar if the unit is alive and has an m_maxLife value, and its m_life is greater than 1
+    //
+    // Only render health bar if the unit is alive and has 
+    // an m_maxLife value, and its m_life is greater than 1
+
     if( m_life <= 0 || m_type == TypeCity || m_maxLife <= 1 )
     {
         return;
     }
 
-    // calculate health percentage
     float healthPercentage = (float)m_life / (float)m_maxLife;
     if( healthPercentage > 1.0f ) healthPercentage = 1.0f;
 
-    // get unit position and size
+    //
+    // Get unit position and size
+
     Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
     float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
     float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
     float unitSize = GetSize().DoubleValue();
 
-    // health bar positioned below the unit
+    //
+    // Health bar positioned below the unit
+
     float barWidth = unitSize * 1.5f;
     float barHeight = unitSize * 0.15f; 
     float barX = predictedLongitude - barWidth * 0.5f;
     float barY = predictedLatitude - unitSize * 0.8f; 
     
-    // adjust positioning for specific unit types
+    //
+    // Adjust positioning for specific unit types
+    
     if( m_type == TypeBattleShip )
     {
         barY -= 0.1f; // slightly lower for battleships
@@ -502,6 +574,95 @@ void WorldObject::RenderHealthBar()
         }
         
         g_renderer2d->RectFill(barX, barY, healthBarWidth, barHeight, healthColour);
+    }
+}
+
+void WorldObject::RenderHealthBar3D()
+{
+    extern bool g_healthBarsEnabled;
+    if( !g_healthBarsEnabled )
+    {
+        return;
+    }
+
+    if( m_life <= 0 || m_type == TypeCity || m_maxLife <= 1 )
+    {
+        return;
+    }
+
+    float healthPercentage = (float)m_life / (float)m_maxLife;
+    if( healthPercentage > 1.0f ) healthPercentage = 1.0f;
+
+    GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+    if( !globeRenderer )
+    {
+        return;
+    }
+
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float predictedLongitude = (m_longitude + m_vel.x * predictionTime).DoubleValue();
+    float predictedLatitude = (m_latitude + m_vel.y * predictionTime).DoubleValue(); 
+    float unitSize = GetSize3D().DoubleValue();
+
+    Vector3<float> unitPos = globeRenderer->ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
+    Vector3<float> normal = unitPos;
+    normal.Normalise();
+    unitPos = globeRenderer->GetElevatedPosition(unitPos);
+
+    Vector3<float> tangent1, tangent2;
+    globeRenderer->GetSurfaceTangents(normal, tangent1, tangent2);
+
+    float barWidth = unitSize * 1.5f;
+    float barHeight = unitSize * 0.15f;
+    
+    float offsetY = unitSize * 0.8f;
+    if( m_type == TypeBattleShip )
+    {
+        offsetY += unitSize * 0.05f;
+    }
+    else if( m_type == TypeSilo )
+    {
+        offsetY += unitSize * 0.65f;
+    }
+    else if( m_type == TypeCarrier )
+    {
+        offsetY += unitSize * 0.12f;
+    }
+    else if ( m_type == TypeAirBase )
+    {
+        offsetY += unitSize * 0.2f;
+    }
+
+    Vector3<float> barPos = unitPos - tangent2 * offsetY;
+
+    Colour bgColour(0, 0, 0, 180);
+    g_renderer3d->RectFill3D(barPos, tangent1, tangent2, barWidth, barHeight, bgColour);
+    
+    float damagePercentage = 1.0f - healthPercentage;
+    if( damagePercentage > 0 )
+    {
+        float damageBarWidth = barWidth * damagePercentage;
+        Colour damageColour(255, 0, 0, 200);
+        Vector3<float> damageBarPos = barPos + tangent1 * (barWidth * 0.5f - damageBarWidth * 0.5f);
+        g_renderer3d->RectFill3D(damageBarPos, tangent1, tangent2, damageBarWidth, barHeight, damageColour);
+    }
+    
+    if( healthPercentage > 0 )
+    {
+        float healthBarWidth = barWidth * healthPercentage;
+        Colour healthColour(0, 255, 0, 200);
+        
+        if( healthPercentage < 0.3f )
+        {
+            healthColour.Set(255, 128, 0, 200);
+        }
+        else if( healthPercentage < 0.6f )
+        {
+            healthColour.Set(255, 255, 0, 200);
+        }
+        
+        Vector3<float> healthBarPos = barPos - tangent1 * (barWidth * 0.5f - healthBarWidth * 0.5f);
+        g_renderer3d->RectFill3D(healthBarPos, tangent1, tangent2, healthBarWidth, barHeight, healthColour);
     }
 }
 
@@ -567,14 +728,21 @@ Fixed WorldObject::GetSize()
 
 Fixed WorldObject::GetSize3D()
 {
-    // zoom scaling for the 3d globe looked strange so now we have 
-    // fixed sizes for all units regardless of zoom level
-    Fixed size = 2;
+
+    //
+    // Returns size in 3D world coordinates
+
+    Fixed size = Fixed::FromDouble(0.5f);
 
     if( m_type == TypeFighter || 
-        m_type == TypeBomber )
+        m_type == TypeBomber  ||
+        m_type == TypeNuke )
     {
-        size *= 1;
+        size *= Fixed::FromDouble(0.05f);
+    }
+    else
+    {
+        size *= Fixed::FromDouble(0.06f);
     }
 
     size /= g_app->GetWorld()->GetGameScale();
@@ -679,7 +847,7 @@ void WorldObject::RunAI()
 
 }
 
-void WorldObject::RenderGhost( int teamId )
+void WorldObject::RenderGhost2D( int teamId )
 {
     if( m_lastSeenTime[teamId] != 0)
     {
@@ -702,6 +870,38 @@ void WorldObject::RenderGhost( int teamId )
         }       
 
         g_renderer2d->StaticSprite( img, x, y, thisSize, size*-2, col );
+    }
+}
+
+void WorldObject::RenderGhost3D( int teamId )
+{
+    if( m_lastSeenTime[teamId] != 0)
+    {
+        GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+        if( globeRenderer )
+        {
+            float size = GetSize3D().DoubleValue();
+
+            int transparency = (255 * ( m_lastSeenTime[teamId] / m_ghostFadeTime ) ).IntValue();
+            Colour col = Colour(150, 150, 150, transparency);
+            Image *img = GetBmpImage( m_lastSeenState[ teamId ] );
+
+            float longitude = m_lastKnownPosition[teamId].x.DoubleValue();
+            float latitude = m_lastKnownPosition[teamId].y.DoubleValue();
+            
+            Vector3<float> objPos = globeRenderer->ConvertLongLatTo3DPosition(longitude, latitude);
+            Vector3<float> normal = objPos;
+            normal.Normalise();
+            float elevation = GLOBE_ELEVATION;
+            Vector3<float> renderPos = objPos + normal * elevation;
+
+            Team *team = g_app->GetWorld()->GetTeam(m_teamId);
+            bool flipped = (team->m_territories[0] >= 3);
+            float spriteSize = size * 2.0f;
+
+            g_renderer3d->StaticSprite3D( img, renderPos.x, renderPos.y, renderPos.z, 
+                                          flipped ? -spriteSize : spriteSize, spriteSize, col, BILLBOARD_SURFACE_ALIGNED );
+        }
     }
 }
 

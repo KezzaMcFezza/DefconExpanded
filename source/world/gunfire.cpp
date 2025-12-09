@@ -6,6 +6,7 @@
 #include "lib/resource/image.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
+#include "lib/render3d/renderer_3d.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
 #include "lib/math/math_utils.h"
@@ -14,6 +15,7 @@
 #include "app/globals.h"
 
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "world/world.h"
 #include "world/gunfire.h"
@@ -91,7 +93,7 @@ bool GunFire::Update()
     return MoveToWaypoint();
 }
 
-void GunFire::Render()
+void GunFire::Render2D()
 {
     Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
     float predictedLongitude = (m_longitude + m_vel.x * Fixed(predictionTime)).DoubleValue();
@@ -104,15 +106,9 @@ void GunFire::Render()
     float angle = atan( -m_vel.x.DoubleValue() / m_vel.y.DoubleValue() );
     if( m_vel.y < 0 ) angle += M_PI;
 
-    //g_app->4()->Blit( bmpImage, predictedLongitude, predictedLatitude, size/2, size/2, g_app->GetWorld()->GetTeam( m_teamId )->GetTeamColour(), angle );
-    //g_app->GetRenderer()->CircleFill( predictedLongitude, predictedLatitude, 0.3f * size, 8, White );
-    //MovingObject::Render();
-
     Team *team = g_app->GetWorld()->GetTeam(m_teamId);
     Colour colour = team->GetTeamColour();            
     float maxSize = 10;
-    
-    //g_app->GetRenderer()->CircleFill( predictedLongitude, predictedLatitude, 0.2f * size, 8, colour );
 
     for( int i = 1; i < m_history.Size(); ++i )
     {
@@ -160,6 +156,101 @@ void GunFire::Render()
     g_renderer2d->Line( predictedLongitude, predictedLatitude, 
                                 predictedLongitude-m_vel.x.DoubleValue(), 
                                 predictedLatitude-m_vel.y.DoubleValue(), colour );
+}
+
+void GunFire::Render3D()
+{
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float predictedLongitude = (m_longitude + m_vel.x * Fixed(predictionTime)).DoubleValue();
+    float predictedLatitude = (m_latitude + m_vel.y * Fixed(predictionTime)).DoubleValue(); 
+
+    Team *team = g_app->GetWorld()->GetTeam(m_teamId);
+    Colour colour = team->GetTeamColour();            
+    float maxSize = 10;
+    
+    GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+    
+    for( int i = 1; i < m_history.Size(); ++i )
+    {
+        Vector3<float> lastPos, thisPos;
+        
+        lastPos = *m_history[i-1];
+        thisPos = *m_history[i];
+
+        if( lastPos.x < -170 && thisPos.x > 170 )
+        {
+            thisPos.x = -180 - ( 180 - thisPos.x );
+        }
+
+        if( lastPos.x > 170 && thisPos.x < -170 )
+        {
+            thisPos.x = 180 + ( 180 - fabs(thisPos.x) );
+        }
+
+        Vector3<float> lastPos3D = globeRenderer->ConvertLongLatTo3DPosition(lastPos.x, lastPos.y);
+        Vector3<float> thisPos3D = globeRenderer->ConvertLongLatTo3DPosition(thisPos.x, thisPos.y);
+        
+        Vector3<float> lastNormal = lastPos3D;
+        lastNormal.Normalise();
+        lastPos3D += lastNormal * GLOBE_ELEVATION;
+        
+        Vector3<float> thisNormal = thisPos3D;
+        thisNormal.Normalise();
+        thisPos3D += thisNormal * GLOBE_ELEVATION;
+        
+        colour.m_a = 255 - 255 * (float) i / (float) maxSize;
+        g_renderer3d->Line3D( lastPos3D.x, lastPos3D.y, lastPos3D.z, 
+                              thisPos3D.x, thisPos3D.y, thisPos3D.z, colour );
+    }
+
+    if( m_history.Size() > 0 )
+    {
+        Vector3<float> lastPos, thisPos;
+        
+        lastPos = *m_history[ 0 ];
+        thisPos = Vector3<float>( predictedLongitude, predictedLatitude, 0 );
+        
+        if( lastPos.x < -170 && thisPos.x > 170 )
+        {
+            thisPos.x = -180 - ( 180 - thisPos.x );
+        }
+
+        if( lastPos.x > 170 && thisPos.x < -170 )
+        {
+            thisPos.x = 180 + ( 180 - fabs(thisPos.x) );
+        }
+
+        Vector3<float> lastPos3D = globeRenderer->ConvertLongLatTo3DPosition(lastPos.x, lastPos.y);
+        Vector3<float> thisPos3D = globeRenderer->ConvertLongLatTo3DPosition(thisPos.x, thisPos.y);
+        
+        Vector3<float> lastNormal = lastPos3D;
+        lastNormal.Normalise();
+        lastPos3D += lastNormal * GLOBE_ELEVATION;
+        
+        Vector3<float> thisNormal = thisPos3D;
+        thisNormal.Normalise();
+        thisPos3D += thisNormal * GLOBE_ELEVATION;
+        
+        colour.m_a = 255;
+        g_renderer3d->Line3D( lastPos3D.x, lastPos3D.y, lastPos3D.z, 
+                              thisPos3D.x, thisPos3D.y, thisPos3D.z, colour );
+    }
+
+    Vector3<float> endPos = Vector3<float>( predictedLongitude-m_vel.x.DoubleValue(), 
+                                             predictedLatitude-m_vel.y.DoubleValue(), 0 );
+    Vector3<float> startPos3D = globeRenderer->ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
+    Vector3<float> endPos3D = globeRenderer->ConvertLongLatTo3DPosition(endPos.x, endPos.y);
+    
+    Vector3<float> startNormal = startPos3D;
+    startNormal.Normalise();
+    startPos3D += startNormal * GLOBE_ELEVATION;
+    
+    Vector3<float> endNormal = endPos3D;
+    endNormal.Normalise();
+    endPos3D += endNormal * GLOBE_ELEVATION;
+    
+    g_renderer3d->Line3D( startPos3D.x, startPos3D.y, startPos3D.z, 
+                          endPos3D.x, endPos3D.y, endPos3D.z, colour );
 }
 
 bool GunFire::MoveToWaypoint()

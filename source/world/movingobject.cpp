@@ -9,6 +9,7 @@
 #include "lib/sound/soundsystem.h"
 #include "lib/preferences.h"
 #include "lib/gucci/input.h"
+#include "lib/render3d/renderer_3d.h"
 
 #include "app/globals.h"
 #include "app/app.h"
@@ -16,6 +17,7 @@
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "network/ClientToServer.h"
 
@@ -509,15 +511,13 @@ void MovingObject::CrossSeam()
     }
 }
 
-void MovingObject::Render()
-{    
-    //
-    // Render history
+void MovingObject::Render2D()
+{
     if( g_preferences->GetInt( PREFS_GRAPHICS_TRAILS ) == 1 )
     {
-        RenderHistory();
+        RenderHistory2D();
     }
-    
+
     if( m_movementType == MovementTypeAir )
     {
         float angle = atan( -m_vel.x.DoubleValue() / m_vel.y.DoubleValue() );
@@ -533,26 +533,21 @@ void MovingObject::Render()
         colour.m_a = 255;
         
         Image *bmpImage = g_resource->GetImage( bmpImageFilename );
-        
-        // BATCHING FIX: Use dedicated rotating buffer with rotation support for aircraft/nukes
-        g_renderer2d->RotatingSprite( bmpImage, 
-                          predictedLongitude + m_vel.x.DoubleValue() * 2, 
-                          predictedLatitude + m_vel.y.DoubleValue() * 2, 
-                          size/2, 
-                          size/2, 
-                          colour, 
+
+        g_renderer2d->RotatingSprite( bmpImage,
+                          predictedLongitude + m_vel.x.DoubleValue() * 2,
+                          predictedLatitude + m_vel.y.DoubleValue() * 2,
+                          size/2,
+                          size/2,
+                          colour,
                           angle );
-
-
-        //
-        // Current selection?
 
         colour.Set(255,255,255,255);
         int selectionId = g_app->GetMapRenderer()->GetCurrentSelectionId();
         for( int i = 0; i < 2; ++i )
         {
-            if( i == 1 ) 
-            {            
+            if( i == 1 )
+            {
                 int highlightId = g_app->GetMapRenderer()->GetCurrentHighlightId();
                 if( highlightId == selectionId ) break;
                 selectionId = highlightId;
@@ -561,29 +556,92 @@ void MovingObject::Render()
             if( selectionId == m_objectId )
             {
                 bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
-                // BATCHING FIX: Use rotating buffer for rotated selection highlights
-                g_renderer2d->RotatingSprite( bmpImage, 
-                                predictedLongitude + m_vel.x.DoubleValue() * 2, 
-                                predictedLatitude + m_vel.y.DoubleValue() * 2, 
-                                size/2, 
-                                size/2, 
-                                colour, 
+                g_renderer2d->RotatingSprite( bmpImage,
+                                predictedLongitude + m_vel.x.DoubleValue() * 2,
+                                predictedLatitude + m_vel.y.DoubleValue() * 2,
+                                size/2,
+                                size/2,
+                                colour,
                                 angle );
             }
             colour.m_a *= 0.5f;
         }
 #if RECORDING_PARSING
-        // enable rendering for all the units
-        RenderHealthBar();
+        RenderHealthBar2D();
 #endif
     }
     else
     {
-        WorldObject::Render();
+        WorldObject::Render2D();
     }
 }
 
-void MovingObject::RenderHistory()
+void MovingObject::Render3D()
+{
+    if( g_preferences->GetInt( PREFS_GRAPHICS_TRAILS ) == 1 )
+    {
+        RenderHistory3D();
+    }
+
+    if( m_movementType == MovementTypeAir )
+    {
+        float angle = atan( -m_vel.x.DoubleValue() / m_vel.y.DoubleValue() );
+        if( m_vel.y < 0 ) angle += M_PI;
+        
+        Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+        float predictedLongitude = (m_longitude + m_vel.x * Fixed(predictionTime)).DoubleValue();
+        float predictedLatitude = (m_latitude + m_vel.y * Fixed(predictionTime)).DoubleValue();
+        float size = GetSize3D().DoubleValue();
+
+        Team *team = g_app->GetWorld()->GetTeam(m_teamId);
+        Colour colour = team->GetTeamColour();
+        colour.m_a = 255;
+        
+        Image *bmpImage = g_resource->GetImage( bmpImageFilename );
+
+        GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+        
+        float offsetLon = predictedLongitude + m_vel.x.DoubleValue() * 2;
+        float offsetLat = predictedLatitude + m_vel.y.DoubleValue() * 2;
+        
+        Vector3<float> spritePos = globeRenderer->ConvertLongLatTo3DPosition(offsetLon, offsetLat);
+        Vector3<float> normal = spritePos;
+        normal.Normalise();
+        spritePos += normal * GLOBE_ELEVATION;
+        
+        g_renderer3d->RotatingSprite3D( bmpImage, spritePos.x, spritePos.y, spritePos.z,
+                                        size, size, colour, angle, BILLBOARD_SURFACE_ALIGNED );
+
+        colour.Set(255,255,255,255);
+        int selectionId = g_app->GetMapRenderer()->GetCurrentSelectionId();
+        for( int i = 0; i < 2; ++i )
+        {
+            if( i == 1 )
+            {
+                int highlightId = g_app->GetMapRenderer()->GetCurrentHighlightId();
+                if( highlightId == selectionId ) break;
+                selectionId = highlightId;
+            }
+
+            if( selectionId == m_objectId )
+            {
+                bmpImage = g_resource->GetImage( GetBmpBlurFilename() );
+                g_renderer3d->RotatingSprite3D( bmpImage, spritePos.x, spritePos.y, spritePos.z,
+                                                size, size, colour, angle, BILLBOARD_SURFACE_ALIGNED );
+            }
+            colour.m_a *= 0.5f;
+        }
+#if RECORDING_PARSING
+        RenderHealthBar3D();
+#endif
+    }
+    else
+    {
+        WorldObject::Render3D();
+    }
+}
+
+void MovingObject::RenderHistory2D()
 {
     Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
     float predictedLongitude = (m_longitude + m_vel.x * Fixed(predictionTime)).DoubleValue();
@@ -662,6 +720,103 @@ void MovingObject::RenderHistory()
     }
 }
 
+void MovingObject::RenderHistory3D()
+{
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float predictedLongitude = (m_longitude + m_vel.x * Fixed(predictionTime)).DoubleValue();
+    float predictedLatitude = (m_latitude + m_vel.y * Fixed(predictionTime)).DoubleValue();
+
+    int maxSize = m_history.Size();
+    
+    int sizeCap = (int)(80 * g_app->GetMapRenderer()->GetZoomFactor() );
+    sizeCap /= World::GetGameScale().DoubleValue();
+
+    if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
+    {
+        switch( m_type )
+        {
+            case TypeNuke:
+                sizeCap = 12 * g_app->GetMapRenderer()->GetZoomFactor();
+                if( g_app->GetMapRenderer()->GetZoomFactor() < 0.25f )
+                {
+                    return;
+                }
+                break;
+
+            case TypeBattleShip:
+            case TypeCarrier:
+            case TypeSub:
+                break;
+
+            default:
+                return;
+        }
+
+        if( sizeCap < 2 ) return;
+    }
+
+    maxSize = ( maxSize > sizeCap ? sizeCap : maxSize );
+        
+    Team *team = g_app->GetWorld()->GetTeam(m_teamId);
+    Colour colour;
+    if( team )
+    {
+        colour = team->GetTeamColour();
+    }
+    else
+    {
+        colour = COLOUR_SPECIALOBJECTS;
+    }
+
+    int myTeamId = g_app->GetWorld()->m_myTeamId;
+    if( m_teamId != myTeamId &&
+        myTeamId != -1 &&
+        myTeamId < g_app->GetWorld()->m_teams.Size() &&
+        g_app->GetWorld()->GetTeam(myTeamId)->m_type != Team::TypeUnassigned )
+    {
+        maxSize = min( maxSize, 4 );
+    }
+
+    if( m_history.Size() > 0 )
+    {
+        GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+        Vector3<float> lastPos2D( predictedLongitude, predictedLatitude, 0 );
+        Vector3<float> lastPos3D = globeRenderer->ConvertLongLatTo3DPosition(lastPos2D.x, lastPos2D.y);
+        Vector3<float> lastNormal = lastPos3D;
+        lastNormal.Normalise();
+        lastPos3D += lastNormal * GLOBE_ELEVATION;
+
+        for( int i = 0; i < maxSize; ++i )
+        {
+            Vector3<float> historyPos2D, thisPos2D;
+            thisPos2D = historyPos2D = *m_history[i];
+
+            if( lastPos2D.x < -170 && thisPos2D.x > 170 )       thisPos2D.x = -180 - ( 180 - thisPos2D.x );
+            if( lastPos2D.x > 170 && thisPos2D.x < -170 )       thisPos2D.x = 180 + ( 180 - fabs(thisPos2D.x) );
+
+            Vector3<float> diff = thisPos2D - lastPos2D;
+            lastPos2D += diff * 0.1f;
+            
+            Vector3<float> lineStart3D = globeRenderer->ConvertLongLatTo3DPosition(lastPos2D.x, lastPos2D.y);
+            Vector3<float> lineEnd3D = globeRenderer->ConvertLongLatTo3DPosition(thisPos2D.x, thisPos2D.y);
+            
+            Vector3<float> startNormal = lineStart3D;
+            startNormal.Normalise();
+            lineStart3D += startNormal * GLOBE_ELEVATION;
+            
+            Vector3<float> endNormal = lineEnd3D;
+            endNormal.Normalise();
+            lineEnd3D += endNormal * GLOBE_ELEVATION;
+            
+            colour.m_a = 255 - 255 * (float) i / (float) maxSize;
+
+            g_renderer3d->Line3D( lineStart3D.x, lineStart3D.y, lineStart3D.z, 
+                                  lineEnd3D.x, lineEnd3D.y, lineEnd3D.z, colour );
+            lastPos2D = historyPos2D;
+        }
+    }
+}
+
 
 int MovingObject::GetAttackState()
 {
@@ -677,8 +832,7 @@ bool MovingObject::IsIdle()
     else return false;
 }
 
-
-void MovingObject::RenderGhost( int teamId )
+void MovingObject::RenderGhost2D( int teamId )
 {
     if( m_lastSeenTime[teamId] != 0)
     {
@@ -714,12 +868,69 @@ void MovingObject::RenderGhost( int teamId )
             }
 
             Image *bmpImage = g_resource->GetImage( bmpImageFilename );
-            // BATCHING FIX: Use rotating buffer for rotated ghost sprites
             g_renderer2d->RotatingSprite( bmpImage, predictedLongitude, predictedLatitude, thisSize, size, col, angle);
         }
         else
         {
-            WorldObject::RenderGhost( teamId );
+            WorldObject::RenderGhost2D( teamId );
+        }
+    }
+}
+
+void MovingObject::RenderGhost3D( int teamId )
+{
+    if( m_lastSeenTime[teamId] != 0)
+    {
+        GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+        if( globeRenderer )
+        {
+            if( m_movementType == MovementTypeAir ||
+                m_movementType == MovementTypeSea )
+            {		
+                Fixed predictionTime = m_ghostFadeTime - m_lastSeenTime[teamId];
+                predictionTime += Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+                float predictedLongitude = (m_lastKnownPosition[teamId].x + m_lastKnownVelocity[teamId].x * predictionTime).DoubleValue();
+                float predictedLatitude = (m_lastKnownPosition[teamId].y + m_lastKnownVelocity[teamId].y * predictionTime).DoubleValue();
+
+                float size = GetSize3D().DoubleValue();
+
+                int transparency = int(255 * ( m_lastSeenTime[teamId] / m_ghostFadeTime ).DoubleValue() );
+                Colour col = Colour(150, 150, 150, transparency);
+                float angle = 0.0f;
+
+                Vector3<float> objPos = globeRenderer->ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
+                Vector3<float> normal = objPos;
+                normal.Normalise();
+                float elevation = GLOBE_ELEVATION;
+                Vector3<float> renderPos = objPos + normal * elevation;
+
+                if( m_movementType == MovementTypeAir )            
+                {
+                    angle = atan( -m_lastKnownVelocity[teamId].x.DoubleValue() / m_lastKnownVelocity[teamId].y.DoubleValue() );
+                    if( m_lastKnownVelocity[teamId].y < 0 ) angle += M_PI;
+                    size *= 0.5f;
+                }
+
+                Image *bmpImage = g_resource->GetImage( bmpImageFilename );
+                float spriteSize = size * 2.0f;
+
+                if( m_movementType == MovementTypeAir )
+                {
+                    g_renderer3d->RotatingSprite3D( bmpImage, renderPos.x, renderPos.y, renderPos.z, 
+                                                     spriteSize, spriteSize, col, angle, BILLBOARD_SURFACE_ALIGNED );
+                }
+                else
+                {
+                    Team *team = g_app->GetWorld()->GetTeam(m_teamId);
+                    bool flipped = (team->m_territories[0] >= 3);
+                    g_renderer3d->StaticSprite3D( bmpImage, renderPos.x, renderPos.y, renderPos.z, 
+                                                   flipped ? -spriteSize : spriteSize, spriteSize, col, BILLBOARD_SURFACE_ALIGNED );
+                }
+            }
+            else
+            {
+                WorldObject::RenderGhost3D( teamId );
+            }
         }
     }
 }

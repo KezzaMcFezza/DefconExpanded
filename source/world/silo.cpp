@@ -2,6 +2,8 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/language_table.h"
+#include "lib/render3d/renderer_3d.h"
+#include "renderer/globe_renderer.h"
 #include "lib/math/random_number.h"
 #include "lib/gucci/input.h"
 
@@ -12,6 +14,7 @@
 #include "lib/profiler.h"
 
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "interface/interface.h"
 
@@ -168,13 +171,9 @@ bool Silo::Update()
     return WorldObject::Update();
 }
 
-void Silo::Render()
+void Silo::Render2D()
 {
-    WorldObject::Render();
-
-
-    //
-    // Render nuke count under the silo
+    WorldObject::Render2D();
 
     if( m_teamId == g_app->GetWorld()->m_myTeamId ||
         g_app->GetWorld()->m_myTeamId == -1 ||
@@ -203,6 +202,62 @@ void Silo::Render()
                 }
                 
                 g_renderer2d->StaticSprite( bmpImage, x+i*nukeSize*0.5f, y, nukeSize, -nukeSize, colour );
+            }
+        }
+    }
+}
+
+void Silo::Render3D()
+{
+    WorldObject::Render3D();
+
+    if( m_teamId == g_app->GetWorld()->m_myTeamId ||
+        g_app->GetWorld()->m_myTeamId == -1 ||
+        g_app->GetGame()->m_winner != -1 )
+    {   
+        int numNukesInStore = m_states[0]->m_numTimesPermitted;
+        int numNukesInQueue = m_actionQueue.Size();
+
+        Team *team = g_app->GetWorld()->GetTeam(m_teamId);
+        Colour colour = team->GetTeamColour();            
+        colour.m_a = 150;
+
+        Image *bmpImage = g_resource->GetImage("graphics/smallnuke.bmp");
+        if( bmpImage )
+        {
+            GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+            if( globeRenderer )
+            {
+                float baseSize = GetSize3D().DoubleValue();
+                float nukeSize = baseSize * GLOBE_UNIT_ICON_SIZE;
+
+                Vector3<float> basePos = globeRenderer->ConvertLongLatTo3DPosition(m_longitude.DoubleValue(), m_latitude.DoubleValue());
+                Vector3<float> normal = basePos.Normalized();
+                basePos = globeRenderer->GetElevatedPosition(basePos);
+                
+                Vector3<float> tangent1, tangent2;
+                globeRenderer->GetSurfaceTangents(normal, tangent1, tangent2);
+
+                float size3D = GetSize3D().DoubleValue();
+                
+                float iconSpacing = size3D * GLOBE_UNIT_ICON_SIZE * 0.5f;
+                float nukeSizeHalf = nukeSize * 0.5f;
+                
+                Vector3<float> offset = -tangent1 * size3D * 0.95f - tangent2 * size3D * 0.9f;
+                offset += tangent1 * nukeSizeHalf - tangent2 * nukeSizeHalf;
+
+                for( int i = 0; i < numNukesInStore; ++i )
+                {
+                    if( i >= (numNukesInStore-numNukesInQueue) )
+                    {
+                        colour.Set( 128,128,128,100 );
+                    }
+                    
+                    Vector3<float> iconPos = basePos + offset + tangent1 * (i * iconSpacing);
+                    
+                    g_renderer3d->StaticSprite3D( bmpImage, iconPos.x, iconPos.y, iconPos.z, 
+                                                  nukeSize, nukeSize, colour, BILLBOARD_SURFACE_ALIGNED );
+                }
             }
         }
     }

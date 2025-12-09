@@ -99,6 +99,9 @@ public:
     WorldObject();
     virtual ~WorldObject();
 
+    virtual void        Render2D        ();
+    virtual void        Render3D        ();
+
     virtual void        InitialiseTimers();
 
     void                SetType         ( int type );
@@ -121,18 +124,19 @@ public:
     virtual bool        IsHiddenFrom    ();
 
     virtual bool        Update          ();
-    virtual void        Render          ();
 #if RECORDING_PARSING
-    virtual void        RenderHealthBar ();
+    virtual void        RenderHealthBar2D ();
+    virtual void        RenderHealthBar3D ();
 #endif
     
 	virtual void		RunAI			();
 
-    void                RenderCounter   ( int counter );
-    virtual void        RenderGhost     ( int teamId );
+    void                RenderCounter    ( int counter );
+    virtual void        RenderGhost2D    ( int teamId );
+    virtual void        RenderGhost3D    ( int teamId );
 
     virtual Fixed       GetSize         ();
-    virtual Fixed       GetSize3D       ();  // 3d globe rendering specific getsize function
+    virtual Fixed       GetSize3D       ();
     bool                CheckCurrentState();
     bool                IsMovingObject  ();
 

@@ -13,6 +13,7 @@
 
 #include "network/ClientToServer.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "interface/interface.h"
@@ -92,7 +93,7 @@ void PlacementIconButton::Render( int realX, int realY, bool highlighted, bool c
         g_app->GetMapRenderer()->m_showTeam[ g_app->GetWorld()->m_myTeamId ] = false;
         if( m_unitType == WorldObject::TypeRadarStation )
         {
-            g_app->GetMapRenderer()->m_showRadar = false;
+            g_app->GetWorldRenderer()->m_showRadar = false;
         }
 		EclRemoveWindow( "Placement" );
         return;
@@ -119,7 +120,7 @@ void PlacementIconButton::Render( int realX, int realY, bool highlighted, bool c
         g_app->GetMapRenderer()->m_showTeam[ g_app->GetWorld()->m_myTeamId ] = false;
         if( m_unitType == WorldObject::TypeRadarStation )
         {
-            g_app->GetMapRenderer()->m_showRadar = false;
+            g_app->GetWorldRenderer()->m_showRadar = false;
         }
         EclRemoveWindow( "Placement" );
     }
@@ -164,7 +165,7 @@ void PlacementIconButton::MouseUp()
                 g_app->GetMapRenderer()->m_showTeam[ g_app->GetWorld()->m_myTeamId ] = false;
                 if( m_unitType == WorldObject::TypeRadarStation )
                 {
-                    g_app->GetMapRenderer()->m_showRadar = false;
+                    g_app->GetWorldRenderer()->m_showRadar = false;
                 }
                 EclRemoveWindow( "Placement" );
             }

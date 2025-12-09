@@ -115,9 +115,14 @@ bool BattleShip::Update()
     return amIDead;
 }
 
-void BattleShip::Render()
+void BattleShip::Render2D()
 {
-    MovingObject::Render();
+    MovingObject::Render2D();
+}
+
+void BattleShip::Render3D()
+{
+    MovingObject::Render3D();
 }
 
 void BattleShip::RunAI()

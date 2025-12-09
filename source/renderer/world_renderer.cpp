@@ -18,7 +18,12 @@ WorldRenderer::WorldRenderer()
     m_showAllWhiteBoards(true),
     m_drawingPlanning(false),
     m_erasingPlanning(false),
-    m_drawingPlanningTime(0.0f)
+    m_drawingPlanningTime(0.0f),
+	m_showRadar(false),
+	m_radarLocked(false),
+	m_showPopulation(false),
+	m_showOrders(false),
+	m_showNukeUnits(false)
 {
 }
 
@@ -44,6 +49,17 @@ void WorldRenderer::Reset()
 void WorldRenderer::SetRenderEverything( bool _renderEverything )
 {
     m_renderEverything = _renderEverything;
+}
+
+void WorldRenderer::LockRadarRenderer()
+{
+    m_radarLocked = true;
+    m_showRadar = false;
+}
+
+void WorldRenderer::UnlockRadarRenderer()
+{
+    m_radarLocked = false;
 }
 
 int WorldRenderer::CreateAnimation( int animationType, int _fromObjectId, float longitude, float latitude )

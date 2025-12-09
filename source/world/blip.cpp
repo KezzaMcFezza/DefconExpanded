@@ -100,7 +100,8 @@ bool Blip::Update()
         }
     }
 
-    Render();
+    Render2D();
+    
     m_pathCheckTimer -= SERVER_ADVANCE_PERIOD;
     if( m_pathCheckTimer <= 0 )
     {
@@ -186,10 +187,9 @@ Fixed Blip::GetSize()
     return MovingObject::GetSize() / 2;
 }
 
-
-void Blip::Render()
+void Blip::Render2D()
 {
-    MovingObject::Render();
+    MovingObject::Render2D();
 
     Team *team = g_app->GetWorld()->GetMyTeam();
     Fleet *fleet = team->GetFleet( m_origin );

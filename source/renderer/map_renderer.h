@@ -68,8 +68,6 @@ protected:
     float   m_oldMouseX;  // Used for mouse idle time
     float   m_oldMouseY;
 
-    bool    m_radarLocked;
-
     float   m_cameraLongitude;
     float   m_cameraLatitude;
     float   m_speedRatioX;
@@ -93,21 +91,18 @@ protected:
 	float   m_latitudePlanningOld;
 
 public:
-    bool    m_showRadar;
-    bool    m_showPopulation;
-    bool    m_showOrders;
     
     bool    m_showTeam[MAX_TEAMS];
     bool    m_showAllTeams;
     bool    m_showNodes;
     bool    m_hideMouse;
-    bool    m_showNukeUnits;
 
     int     m_highlightUnit;
     
     float   m_middleX;
     float   m_middleY;
     float   m_zoomFactor;
+    int     m_seamIteration;
 
     Vector3  <float> m_camUp;
     Vector3  <float> m_camFront;
@@ -234,9 +229,6 @@ public:
 
     void    UpdateMouseIdleTime();
     bool    IsMouseInMapRenderer();
-
-    void    LockRadarRenderer();
-    void    UnlockRadarRenderer();
 
     void    AutoCam();
     void    ToggleAutoCam();

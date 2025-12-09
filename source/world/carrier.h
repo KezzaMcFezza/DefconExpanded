@@ -15,10 +15,12 @@ public:
 
     Carrier();
 
+    void    Render2D            ();
+    void    Render3D            ();
+
     void    RequestAction       (ActionOrder *_action);
     void    Action              ( int targetObjectId, Fixed longitude, Fixed latitude );
     bool    Update              ();
-    void    Render              ();
     void    RunAI               ();
     bool    IsActionQueueable   ();
     int     FindTarget          ();

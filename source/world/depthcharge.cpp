@@ -6,6 +6,7 @@
 #include "lib/resource/image.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
+#include "lib/render3d/renderer_3d.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
 #include "lib/sound/soundsystem.h"
@@ -14,6 +15,7 @@
 #include "app/globals.h"
 
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "world/world.h"
 #include "world/explosion.h"
@@ -43,7 +45,7 @@ bool DepthCharge::Update()
     return (m_timer == 0);
 }
 
-void DepthCharge::Render()
+void DepthCharge::Render2D()
 {
     float predictedTimer = m_timer.DoubleValue() - g_app->GetWorld()->GetTimeScaleFactor().DoubleValue() * g_predictionTime;
 
@@ -60,6 +62,42 @@ void DepthCharge::Render()
     float angle = sinf(g_gameTime*1.5f) * 0.2f;
     Image *bmpImage = g_resource->GetImage( bmpImageFilename );
     g_renderer2d->RotatingSprite( bmpImage, m_longitude.DoubleValue(), m_latitude.DoubleValue(), size, size, colour, angle);
+}
+
+void DepthCharge::Render3D()
+{
+    float predictedTimer = m_timer.DoubleValue() - g_app->GetWorld()->GetTimeScaleFactor().DoubleValue() * g_predictionTime;
+
+    float size = (predictedTimer+30)/60.0f;
+    if( g_app->GetMapRenderer()->GetZoomFactor() <=0.25f )
+    {
+        size *= g_app->GetMapRenderer()->GetZoomFactor() * 4;
+    }
+    
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    float predictedLongitude = (m_longitude + m_vel.x * Fixed(predictionTime)).DoubleValue();
+    float predictedLatitude = (m_latitude + m_vel.y * Fixed(predictionTime)).DoubleValue();
+    
+    Colour colour = g_app->GetWorld()->GetTeam( m_teamId )->GetTeamColour();
+    colour.m_a = 200 * ( predictedTimer / 40.0f );
+    colour.m_a = max(colour.m_a, (unsigned char) 50);
+    
+    float angle = sinf(g_gameTime*1.5f) * 0.2f;
+    Image *bmpImage = g_resource->GetImage( bmpImageFilename );
+    
+    GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+    if( globeRenderer )
+    {
+        Vector3<float> spritePos = globeRenderer->ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
+        Vector3<float> normal = spritePos;
+        normal.Normalise();
+        spritePos += normal * GLOBE_ELEVATION;
+        
+        float size3D = size * (M_PI / 180.0f);
+        
+        g_renderer3d->RotatingSprite3D( bmpImage, spritePos.x, spritePos.y, spritePos.z,
+                                        size3D, size3D, colour, angle, BILLBOARD_SURFACE_ALIGNED );
+    }
 }
 
 void DepthCharge::Impact()
