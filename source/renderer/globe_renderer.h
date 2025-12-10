@@ -30,8 +30,6 @@ class Blip;
 #define    PREFS_GLOBE_STARFIELD                      "GlobeStarfield"
 #define    PREFS_GLOBE_STAR_SIZE                      "GlobeStarSize"
 #define    PREFS_GLOBE_STAR_DENSITY                   "GlobeStarDensity"
-#define    PREFS_GLOBE_LAND_UNIT_SIZE                 "GlobeLandUnitSize"
-#define    PREFS_GLOBE_NAVAL_UNIT_SIZE                "GlobeNavalUnitSize"
 
 class GlobeRenderer
 {

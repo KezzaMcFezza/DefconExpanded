@@ -195,7 +195,7 @@ void GlobeRenderer::GenerateStarField()
         star.position.y = starSphereRadius * sin(phi);
         star.position.z = starSphereRadius * cos(theta) * cos(phi);
         
-        float menuStarSize = g_preferences->GetFloat(PREFS_GLOBE_STAR_SIZE, 1.5f);
+        float menuStarSize = g_preferences->GetFloat(PREFS_GLOBE_STAR_SIZE, 2.5f);
         float internalStarSize = GlobeRenderer::ConvertMenuToStarSize(menuStarSize);
         float sizeVariation = internalStarSize * 0.5f;
         star.size = internalStarSize + frand(sizeVariation) - (sizeVariation * 0.5f); 
@@ -435,7 +435,7 @@ void GlobeRenderer::GlobeCoastlines()
     if (g_preferences->GetInt(PREFS_GRAPHICS_COASTLINES) == 1) {
         if (!g_renderer3dvbo->IsMegaVBO3DValid("GlobeCoastlines")) {
 #ifndef TARGET_EMSCRIPTEN
-            g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
+            g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.5f));
 #endif
             g_renderer3dvbo->BeginMegaVBO3D("GlobeCoastlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_COASTLINES ));
 
@@ -463,7 +463,7 @@ void GlobeRenderer::GlobeCoastlines()
     // Build it
 
 #ifndef TARGET_EMSCRIPTEN
-    g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.0f));
+    g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.5f));
 #endif
 
     g_renderer3dvbo->RenderMegaVBO3D("GlobeCoastlines");

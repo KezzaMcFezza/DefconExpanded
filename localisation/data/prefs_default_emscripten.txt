@@ -1,0 +1,3 @@
+ScreenAntiAliasing = 0
+ScreenWindowed = 0
+ScreenMaximized = 0

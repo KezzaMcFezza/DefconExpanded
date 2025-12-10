@@ -1343,21 +1343,39 @@ class ApplyGlobeButton : public InterfaceButton
         g_preferences->SetFloat( PREFS_GLOBE_BORDER_THICKNESS, gow->m_globeBorderThickness );
 #endif
         
+        g_preferences->SetInt( PREFS_GLOBE_FOG_DISTANCE, gow->m_globeFogDistance );
+        
         //
         // invalidate vbos so they rebuild with new settings
-
+        
+        int oldStarfield = g_preferences->GetInt( PREFS_GLOBE_STARFIELD, 1 );
+        float oldStarSize = g_preferences->GetFloat( PREFS_GLOBE_STAR_SIZE, 1.5f );
+        int oldStarDensity = g_preferences->GetInt( PREFS_GLOBE_STAR_DENSITY, 12500 );
+        
+        bool starfieldChanged = (oldStarfield != gow->m_globeStarfield ||
+                                 oldStarSize != gow->m_globeStarSize ||
+                                 oldStarDensity != gow->m_globeStarDensity);
+        
+        g_preferences->SetInt( PREFS_GLOBE_STARFIELD, gow->m_globeStarfield );
+        g_preferences->SetFloat( PREFS_GLOBE_STAR_SIZE, gow->m_globeStarSize );
+        g_preferences->SetInt( PREFS_GLOBE_STAR_DENSITY, gow->m_globeStarDensity );
+        
+        //
+        // Regenerate starfield if settings changed
+        
+        if( starfieldChanged && g_app->GetGlobeRenderer() )
+        {
+            g_app->GetGlobeRenderer()->RegenerateStarField();
+        }
+        
+        //
+        // Invalidate VBOs so they rebuild with new settings
+        
         g_renderer3dvbo->InvalidateCached3DVBO("Starfield");
         g_renderer3dvbo->InvalidateCached3DVBO("CullingSphere");
         g_renderer3dvbo->InvalidateCached3DVBO("GlobeGridlines");
         g_renderer3dvbo->InvalidateCached3DVBO("GlobeCoastlines");
         g_renderer3dvbo->InvalidateCached3DVBO("GlobeBorders");
-
-        g_preferences->SetInt( PREFS_GLOBE_FOG_DISTANCE, gow->m_globeFogDistance );
-        g_preferences->SetInt( PREFS_GLOBE_STARFIELD, gow->m_globeStarfield );
-        g_preferences->SetFloat( PREFS_GLOBE_STAR_SIZE, gow->m_globeStarSize );
-        g_preferences->SetInt( PREFS_GLOBE_STAR_DENSITY, gow->m_globeStarDensity );
-        g_preferences->SetFloat( PREFS_GLOBE_LAND_UNIT_SIZE, gow->m_globeLandUnitSize );
-        g_preferences->SetFloat( PREFS_GLOBE_NAVAL_UNIT_SIZE, gow->m_globeNavalUnitSize );
 
         g_preferences->Save();
     }
@@ -1368,9 +1386,9 @@ GlobeOptionsWindow::GlobeOptionsWindow()
 :   InterfaceWindow( "Globe", "dialog_globeoptions", true )
 {
 #ifndef TARGET_EMSCRIPTEN
-    SetSize( 420, 380 );
+    SetSize( 420, 320 );
 #else
-    SetSize( 420, 340 );
+    SetSize( 420, 280 );
 #endif
 
     Centralise();
@@ -1383,8 +1401,6 @@ GlobeOptionsWindow::GlobeOptionsWindow()
     m_globeStarfield         = g_preferences->GetInt( PREFS_GLOBE_STARFIELD, 1 );
     m_globeStarSize          = g_preferences->GetFloat( PREFS_GLOBE_STAR_SIZE, 1.5f );
     m_globeStarDensity       = g_preferences->GetInt( PREFS_GLOBE_STAR_DENSITY, 12500 );
-    m_globeLandUnitSize      = g_preferences->GetFloat( PREFS_GLOBE_LAND_UNIT_SIZE, 1.0f );
-    m_globeNavalUnitSize     = g_preferences->GetFloat( PREFS_GLOBE_NAVAL_UNIT_SIZE, 1.0f );
 }
 
 
@@ -1416,8 +1432,6 @@ void GlobeOptionsWindow::Create()
 
     CreateValueControl( "Star Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeStarSize, 0.1f, 0.1f, 20.0f, NULL, " ", false );
     CreateValueControl( "Star Density", x, y+=h, w, 20, InputField::TypeInt, &m_globeStarDensity, 50, 100, 75000, NULL, " ", false );
-    CreateValueControl( "Land Unit Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeLandUnitSize, 0.1f, 0.1f, 7.0f, NULL, " ", false );
-    CreateValueControl( "Naval Unit Size", x, y+=h, w, 20, InputField::TypeFloat, &m_globeNavalUnitSize, 0.1f, 0.1f, 7.0f, NULL, " ", false );
 
     CloseButton *cancel = new CloseButton();
     cancel->SetProperties( "Close", 10, m_h - 30, m_w / 2 - 15, 20, "dialog_close", " ", true, false );
@@ -1446,8 +1460,6 @@ void GlobeOptionsWindow::Render( bool _hasFocus )
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestarfield") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestarsize") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestardensity") );
-    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globelandunitsize") );
-    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globenavalunitsize") );
 }
 
 

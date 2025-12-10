@@ -374,6 +374,9 @@ void App::MinimalInit()
 #ifdef TARGET_OS_MACOSX
 	g_preferences->Load( "data/prefs_default_macosx.txt" );
 #endif
+#ifdef TARGET_EMSCRIPTEN
+	g_preferences->Load( "data/prefs_default_emscripten.txt" );
+#endif
 #if defined(LANG_DEFAULT) && defined(PREF_LANG)
 	g_preferences->Load( "data/prefs_default_" LANG_DEFAULT ".txt" );
 #endif
