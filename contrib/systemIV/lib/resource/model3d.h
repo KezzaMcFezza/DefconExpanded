@@ -31,13 +31,16 @@ public:
     int GetMeshCount() const;
     const Model3DMesh* GetMesh(int index) const;
     
-    void GetBounds(Vector3<float>& outMin, Vector3<float>& outMax) const;
+    void  GetBounds      (Vector3<float>& outMin, Vector3<float>& outMax) const;
     float GetBoundsRadius() const;
     
+    void BuildModelVBO();
+    
 private:
-    bool LoadFromGLTF(const char *filepath);
-    void CalculateBounds();
-    void ProcessNode(const tinygltf::Model& model, int nodeIndex, const float* parentTransform);
+    bool LoadFromGLTF     (const char *filepath);
+    void CalculateBounds  ();
+    void ProcessNode      (const tinygltf::Model& model, int nodeIndex, const float* parentTransform);
+    char* GetModelCacheKey() const;
 };
 
 #endif

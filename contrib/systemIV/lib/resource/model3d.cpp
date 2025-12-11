@@ -10,6 +10,8 @@
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/render3d/renderer_3d.h"
+#include "lib/render3d/megavbo/megavbo_3d.h"
+#include "lib/render/colour.h"
 #include "model3d.h"
 
 
@@ -264,4 +266,104 @@ void Model3D::CalculateBounds()
             }
         }
     }
+}
+
+//
+// The cachekey for this VBO is the filename without the extension
+// Allows for dynamic VBO creation without hardcoding keys for each model
+// which would go against the separation of concerns between app and engine
+
+char* Model3D::GetModelCacheKey() const {
+    char* filenamePart = GetFilenamePart(m_filename);
+    if (!filenamePart) {
+        return newStr("unknown");
+    }
+    
+    char* key = RemoveExtension(filenamePart);
+    return newStr(key);
+}
+
+//
+// Build the VBO for this model
+
+void Model3D::BuildModelVBO() {
+    if (!m_loaded || m_meshes.empty()) {
+        return;
+    }
+    
+    char* cacheKey = GetModelCacheKey();
+    if (!cacheKey) {
+        return;
+    }
+    
+    if (g_renderer3dvbo->IsTriangleMegaVBO3DValid(cacheKey)) {
+        delete[] cacheKey;
+        return;
+    }
+    
+    //
+    // Calculate total vertex and index counts
+    
+    int totalVertices = 0;
+    int totalIndices = 0;
+    
+    for (size_t i = 0; i < m_meshes.size(); i++) {
+        totalVertices += (int)m_meshes[i].positions.size() / 3;
+        totalIndices += (int)m_meshes[i].indices.size();
+    }
+    
+    if (totalVertices == 0 || totalIndices == 0) {
+        delete[] cacheKey;
+        return;
+    }
+    
+    //
+    // Set buffer sizes if needed
+    
+    int currentMaxVertices = g_renderer3dvbo->GetMegaTriangleBufferVertexCount3D();
+    int currentMaxIndices = g_renderer3dvbo->GetMegaTriangleBufferIndexCount3D();
+    
+    if (totalVertices > currentMaxVertices || totalIndices > currentMaxIndices) {
+        g_renderer3dvbo->SetTriangleMegaVBO3DBufferSizes(totalVertices, totalIndices);
+    }
+    
+    //
+    // Begin building VBO, color will be set per-instance at render time.
+    // The default color is white
+    
+    Colour defaultColor(255, 255, 255, 255);
+    g_renderer3dvbo->BeginTriangleMegaVBO3D(cacheKey, defaultColor);
+    
+    //
+    // Add all meshes to VBO using models index buffers
+    
+    for (size_t i = 0; i < m_meshes.size(); i++) {
+        const Model3DMesh& mesh = m_meshes[i];
+        
+        if (mesh.positions.empty() || mesh.indices.empty()) {
+            continue;
+        }
+        
+        int vertexCount = (int)mesh.positions.size() / 3;
+        int indexCount = (int)mesh.indices.size();
+        
+        Vector3<float>* vertices = new Vector3<float>[vertexCount];
+        
+        for (int j = 0; j < vertexCount; j++) {
+            vertices[j].x = mesh.positions[j * 3 + 0];
+            vertices[j].y = mesh.positions[j * 3 + 1];
+            vertices[j].z = mesh.positions[j * 3 + 2];
+        }
+        
+        //
+        // Use models index buffer to properly reference vertices
+        
+        g_renderer3dvbo->AddTrianglesToMegaVBO3DWithIndices(vertices, vertexCount, &mesh.indices[0], indexCount);
+        
+        delete[] vertices;
+    }
+    
+    g_renderer3dvbo->EndTriangleMegaVBO3D();
+    
+    delete[] cacheKey;
 }

@@ -80,8 +80,26 @@ private:
         int cameraPosLoc;
     };
     
+    struct Shader3DModelUniforms {
+        int projectionLoc;
+        int modelViewLoc;
+        int modelMatrixLoc;
+        int modelColorLoc;
+        int modelMatricesLoc;
+        int modelColorsLoc;
+        int instanceCountLoc;
+        int useInstancingLoc;
+        int fogEnabledLoc;
+        int fogOrientationLoc;
+        int fogStartLoc;
+        int fogEndLoc;
+        int fogColorLoc;
+        int cameraPosLoc;
+    };
+    
     Shader3DUniforms m_shader3DUniforms;
     Shader3DUniforms m_shader3DTexturedUniforms;
+    Shader3DModelUniforms m_shader3DModelUniforms;
     
     unsigned int m_currentShaderProgram3D;
     bool m_matrices3DNeedUpdate;
@@ -89,6 +107,7 @@ private:
 
     unsigned int m_shader3DProgram;
     unsigned int m_shader3DTexturedProgram;                 // Textured shader for quads
+    unsigned int m_shader3DModelProgram;                    // Model shader with per-instance transforms
     unsigned int m_VAO3D;
     unsigned int m_VBO3D;
     unsigned int m_VAO3DTextured;                           // VAO for textured quads
@@ -116,7 +135,8 @@ private:
     static constexpr int MAX_CIRCLE_FILL_VERTICES_3D       = 5000;
     static constexpr int MAX_RECT_VERTICES_3D              = 3000;
     static constexpr int MAX_RECT_FILL_VERTICES_3D         = 3000;
-    static constexpr int MAX_TRIANGLE_FILL_VERTICES_3D     = 3000;
+    static constexpr int MAX_TRIANGLE_FILL_VERTICES_3D     = 10000;
+    static constexpr int MAX_INSTANCES                     = 64;
 
     Vertex3DTextured m_staticSpriteVertices3D     [MAX_STATIC_SPRITE_VERTICES_3D];
     int m_staticSpriteVertexCount3D;
@@ -249,10 +269,13 @@ private:
     void SetFogUniforms3D            (unsigned int shaderProgram);
     void Set3DShaderUniforms         ();
     void SetTextured3DShaderUniforms ();
-    void UploadVertexDataTo3DVBO     (unsigned int vbo, const Vertex3D* vertices, int vertexCount, unsigned int usageHint);
-    void UploadVertexDataTo3DVBO     (unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount, unsigned int usageHint);
-    void InvalidateMatrices3D        () { m_matrices3DNeedUpdate = true; }
-    void InvalidateFog3D             () { m_fog3DNeedsUpdate = true; }
+    
+    void Set3DModelShaderUniforms          (const Matrix4f& modelMatrix, const Colour& modelColor);
+    void Set3DModelShaderUniformsInstanced (const Matrix4f* modelMatrices, const Colour* modelColors, int instanceCount);
+    void UploadVertexDataTo3DVBO           (unsigned int vbo, const Vertex3D* vertices, int vertexCount, unsigned int usageHint);
+    void UploadVertexDataTo3DVBO           (unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount, unsigned int usageHint);
+    void InvalidateMatrices3D              () { m_matrices3DNeedUpdate = true; }
+    void InvalidateFog3D                   () { m_fog3DNeedsUpdate = true; }
 
 public:
     Renderer3D();
@@ -314,6 +337,7 @@ public:
     int GetRectFillCalls            () const { return m_prevRectFillCalls3D; }
     int GetTriangleFillCalls        () const { return m_prevTriangleFillCalls3D; }
     int GetActiveFontBatches        () const { return m_prevActiveFontBatches3D; }
+    int GetInstanceCount            () const { return MAX_INSTANCES; }
     
     int GetTotalUnitCalls() const { 
         return m_prevLineCalls3D + m_prevStaticSpriteCalls3D + 

@@ -16,6 +16,7 @@
 #include "shaders/fragment.glsl.h"
 #include "shaders/textured_vertex.glsl.h"
 #include "shaders/textured_fragment.glsl.h"
+#include "shaders/model_vertex.glsl.h"
 
 #include "renderer_3d.h"
 
@@ -28,6 +29,7 @@ Renderer3D *g_renderer3d = NULL;
 Renderer3D::Renderer3D()
 :   m_shader3DProgram(0),
     m_shader3DTexturedProgram(0),
+    m_shader3DModelProgram(0),
     m_VAO3D(0), m_VBO3D(0),
     m_VAO3DTextured(0), m_VBO3DTextured(0),
     m_spriteVAO3D(0), m_spriteVBO3D(0),
@@ -187,6 +189,11 @@ void Renderer3D::Shutdown() {
         m_shader3DTexturedProgram = 0;
     }
     
+    if (m_shader3DModelProgram) {
+        glDeleteProgram(m_shader3DModelProgram);
+        m_shader3DModelProgram = 0;
+    }
+    
     if (m_lineConversionBuffer3D) {
         delete[] m_lineConversionBuffer3D;
         m_lineConversionBuffer3D = NULL;
@@ -213,6 +220,15 @@ void Renderer3D::Initialize3DShaders() {
     
     if (m_shader3DTexturedProgram == 0) {
         AppDebugOut("Renderer3D: Failed to create textured 3D shader program\n");
+    }
+    
+    //
+    // Create model 3D shader program with per-instance transforms
+
+    m_shader3DModelProgram = g_renderer->CreateShader(MODEL_VERTEX_3D_SHADER_SOURCE, FRAGMENT_3D_SHADER_SOURCE);
+    
+    if (m_shader3DModelProgram == 0) {
+        AppDebugOut("Renderer3D: Failed to create model 3D shader program\n");
     }
 }
 
@@ -546,6 +562,24 @@ void Renderer3D::Cache3DUniformLocations() {
     m_shader3DTexturedUniforms.fogEndLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogEnd");
     m_shader3DTexturedUniforms.fogColorLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uFogColor");
     m_shader3DTexturedUniforms.cameraPosLoc = glGetUniformLocation(m_shader3DTexturedProgram, "uCameraPos");
+    
+    //
+    // cache uniform locations for 3D model shader
+
+    m_shader3DModelUniforms.projectionLoc = glGetUniformLocation(m_shader3DModelProgram, "uProjection");
+    m_shader3DModelUniforms.modelViewLoc = glGetUniformLocation(m_shader3DModelProgram, "uModelView");
+    m_shader3DModelUniforms.modelMatrixLoc = glGetUniformLocation(m_shader3DModelProgram, "uModelMatrix");
+    m_shader3DModelUniforms.modelColorLoc = glGetUniformLocation(m_shader3DModelProgram, "uModelColor");
+    m_shader3DModelUniforms.modelMatricesLoc = glGetUniformLocation(m_shader3DModelProgram, "uModelMatrices");
+    m_shader3DModelUniforms.modelColorsLoc = glGetUniformLocation(m_shader3DModelProgram, "uModelColors");
+    m_shader3DModelUniforms.instanceCountLoc = glGetUniformLocation(m_shader3DModelProgram, "uInstanceCount");
+    m_shader3DModelUniforms.useInstancingLoc = glGetUniformLocation(m_shader3DModelProgram, "uUseInstancing");
+    m_shader3DModelUniforms.fogEnabledLoc = glGetUniformLocation(m_shader3DModelProgram, "uFogEnabled");
+    m_shader3DModelUniforms.fogOrientationLoc = glGetUniformLocation(m_shader3DModelProgram, "uFogOrientationBased");
+    m_shader3DModelUniforms.fogStartLoc = glGetUniformLocation(m_shader3DModelProgram, "uFogStart");
+    m_shader3DModelUniforms.fogEndLoc = glGetUniformLocation(m_shader3DModelProgram, "uFogEnd");
+    m_shader3DModelUniforms.fogColorLoc = glGetUniformLocation(m_shader3DModelProgram, "uFogColor");
+    m_shader3DModelUniforms.cameraPosLoc = glGetUniformLocation(m_shader3DModelProgram, "uCameraPos");
 }
 
 void Renderer3D::Set3DShaderUniforms() {
@@ -577,17 +611,11 @@ void Renderer3D::Set3DShaderUniforms() {
 
 void Renderer3D::SetTextured3DShaderUniforms() {
 
-    //
-    // Only upload matrices if they changed or we switched shaders
-
     if (m_matrices3DNeedUpdate || m_currentShaderProgram3D != m_shader3DTexturedProgram) {
         glUniformMatrix4fv(m_shader3DTexturedUniforms.projectionLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
         glUniformMatrix4fv(m_shader3DTexturedUniforms.modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
         glUniform1i(m_shader3DTexturedUniforms.textureLoc, 0);
     }
-    
-    //
-    // Only upload fog uniforms if they changed or we switched shaders
 
     if (m_fog3DNeedsUpdate || m_currentShaderProgram3D != m_shader3DTexturedProgram) {
         glUniform1i(m_shader3DTexturedUniforms.fogEnabledLoc, m_fogEnabled ? 1 : 0);
@@ -599,6 +627,77 @@ void Renderer3D::SetTextured3DShaderUniforms() {
     }
     
     m_currentShaderProgram3D = m_shader3DTexturedProgram;
+    m_matrices3DNeedUpdate = false;
+    m_fog3DNeedsUpdate = false;
+}
+
+void Renderer3D::Set3DModelShaderUniforms(const Matrix4f& modelMatrix, const Colour& modelColor) {
+
+    if (m_matrices3DNeedUpdate || m_currentShaderProgram3D != m_shader3DModelProgram) {
+        glUniformMatrix4fv(m_shader3DModelUniforms.projectionLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
+        glUniformMatrix4fv(m_shader3DModelUniforms.modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
+    }
+    
+    glUniformMatrix4fv(m_shader3DModelUniforms.modelMatrixLoc, 1, GL_FALSE, modelMatrix.m);
+    
+    glUniform4f(m_shader3DModelUniforms.modelColorLoc, 
+                modelColor.GetRFloat(), 
+                modelColor.GetGFloat(), 
+                modelColor.GetBFloat(), 
+                modelColor.GetAFloat());
+
+    if (m_fog3DNeedsUpdate || m_currentShaderProgram3D != m_shader3DModelProgram) {
+        glUniform1i(m_shader3DModelUniforms.fogEnabledLoc, m_fogEnabled ? 1 : 0);
+        glUniform1i(m_shader3DModelUniforms.fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
+        glUniform1f(m_shader3DModelUniforms.fogStartLoc, m_fogStart);
+        glUniform1f(m_shader3DModelUniforms.fogEndLoc, m_fogEnd);
+        glUniform4f(m_shader3DModelUniforms.fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
+        glUniform3f(m_shader3DModelUniforms.cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
+    }
+    
+    m_currentShaderProgram3D = m_shader3DModelProgram;
+    m_matrices3DNeedUpdate = false;
+    m_fog3DNeedsUpdate = false;
+}
+
+void Renderer3D::Set3DModelShaderUniformsInstanced(const Matrix4f* modelMatrices, const Colour* modelColors, int instanceCount) {
+    
+    int maxInstances = GetInstanceCount();
+    
+    if (instanceCount > maxInstances) {
+        instanceCount = maxInstances;
+    }
+    
+    if (m_matrices3DNeedUpdate || m_currentShaderProgram3D != m_shader3DModelProgram) {
+        glUniformMatrix4fv(m_shader3DModelUniforms.projectionLoc, 1, GL_FALSE, m_projectionMatrix3D.m);
+        glUniformMatrix4fv(m_shader3DModelUniforms.modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
+    }
+    
+    glUniform1i(m_shader3DModelUniforms.useInstancingLoc, 1);
+    glUniform1i(m_shader3DModelUniforms.instanceCountLoc, instanceCount);
+    
+    glUniformMatrix4fv(m_shader3DModelUniforms.modelMatricesLoc, instanceCount, GL_FALSE, (const float*)modelMatrices);
+    
+    float* colorArray = new float[instanceCount * 4];
+    for (int i = 0; i < instanceCount; i++) {
+        colorArray[i * 4 + 0] = modelColors[i].GetRFloat();
+        colorArray[i * 4 + 1] = modelColors[i].GetGFloat();
+        colorArray[i * 4 + 2] = modelColors[i].GetBFloat();
+        colorArray[i * 4 + 3] = modelColors[i].GetAFloat();
+    }
+    glUniform4fv(m_shader3DModelUniforms.modelColorsLoc, instanceCount, colorArray);
+    delete[] colorArray;
+    
+    if (m_fog3DNeedsUpdate || m_currentShaderProgram3D != m_shader3DModelProgram) {
+        glUniform1i(m_shader3DModelUniforms.fogEnabledLoc, m_fogEnabled ? 1 : 0);
+        glUniform1i(m_shader3DModelUniforms.fogOrientationLoc, m_fogOrientationBased ? 1 : 0);
+        glUniform1f(m_shader3DModelUniforms.fogStartLoc, m_fogStart);
+        glUniform1f(m_shader3DModelUniforms.fogEndLoc, m_fogEnd);
+        glUniform4f(m_shader3DModelUniforms.fogColorLoc, m_fogColor[0], m_fogColor[1], m_fogColor[2], m_fogColor[3]);
+        glUniform3f(m_shader3DModelUniforms.cameraPosLoc, m_cameraPos[0], m_cameraPos[1], m_cameraPos[2]);
+    }
+    
+    m_currentShaderProgram3D = m_shader3DModelProgram;
     m_matrices3DNeedUpdate = false;
     m_fog3DNeedsUpdate = false;
 }

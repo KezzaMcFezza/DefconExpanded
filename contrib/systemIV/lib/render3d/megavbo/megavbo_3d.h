@@ -78,12 +78,15 @@ public:
   bool IsTexturedMegaVBO3DValid        (const char *megaVBOKey);
   void SetTexturedMegaVBO3DBufferSizes (int vertexCount, int indexCount);
 
-  void BeginTriangleMegaVBO3D          (const char *megaVBOKey, Colour const &col);
-  void AddTrianglesToMegaVBO3D         (const Vector3<float> *vertices, int vertexCount);
-  void EndTriangleMegaVBO3D            ();
-  void RenderTriangleMegaVBO3D         (const char *megaVBOKey);
-  bool IsTriangleMegaVBO3DValid         (const char *megaVBOKey);
-  void SetTriangleMegaVBO3DBufferSizes (int vertexCount, int indexCount);
+  void BeginTriangleMegaVBO3D             (const char *megaVBOKey, Colour const &col);
+  void AddTrianglesToMegaVBO3D            (const Vector3<float> *vertices, int vertexCount);
+  void AddTrianglesToMegaVBO3DWithIndices (const Vector3<float> *vertices, int vertexCount, const unsigned int *indices, int indexCount);
+  void EndTriangleMegaVBO3D               ();
+  void RenderTriangleMegaVBO3D            (const char *megaVBOKey);
+  void RenderTriangleMegaVBO3DWithMatrix  (const char *megaVBOKey, const Matrix4f& modelMatrix, const Colour& modelColor);
+  void RenderTriangleMegaVBO3DInstanced   (const char *megaVBOKey, const Matrix4f* modelMatrices, const Colour* modelColors, int instanceCount);
+  bool IsTriangleMegaVBO3DValid           (const char *megaVBOKey);
+  void SetTriangleMegaVBO3DBufferSizes    (int vertexCount, int indexCount);
   
   void InvalidateAll3DVBOs        ();
 
@@ -98,6 +101,11 @@ public:
 
   int GetMegaBufferVertexCount3D   () const { return m_maxMegaVertices3D; }
   int GetMegaBufferIndexCount3D    () const { return m_maxMegaIndices3D; }
+  
+  int GetMegaTriangleBufferVertexCount3D () const { return m_maxMegaTriangleVertices3D; }
+  int GetMegaTriangleBufferIndexCount3D  () const { return m_maxMegaTriangleIndices3D; }
+
+  
 
   size_t GetTotalAllocatedBufferMemory() const {
     size_t total = 0;

@@ -261,6 +261,10 @@ Model3D *Resource::GetModel3D( const char *filename )
     {
         AppDebugOut("Model3D: Failed to load model: %s\n", fullFilename);
     }
+    else
+    { 
+        model->BuildModelVBO();
+    }
     
     m_model3DCache.PutData( fullFilename, model );
     return model;
