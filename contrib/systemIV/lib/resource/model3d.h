@@ -21,6 +21,7 @@ public:
     
     bool m_loaded;
     char m_filename[512];
+    char* m_cacheKey;
     
 public:
     Model3D( const char *filename );
@@ -35,6 +36,7 @@ public:
     float GetBoundsRadius() const;
     
     void BuildModelVBO();
+    const char* GetCacheKey() const;
     
 private:
     bool LoadFromGLTF     (const char *filepath);

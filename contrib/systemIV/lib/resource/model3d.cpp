@@ -18,7 +18,8 @@
 Model3D::Model3D( const char *filename )
 :   m_boundsMin(0,0,0),
     m_boundsMax(0,0,0),
-    m_loaded(false)
+    m_loaded(false),
+    m_cacheKey(NULL)
 {
     strncpy(m_filename, filename, sizeof(m_filename) - 1);
     m_filename[sizeof(m_filename) - 1] = '\0';
@@ -33,6 +34,11 @@ Model3D::Model3D( const char *filename )
 Model3D::~Model3D()
 {
     m_meshes.clear();
+    
+    if (m_cacheKey) {
+        delete[] m_cacheKey;
+        m_cacheKey = NULL;
+    }
 }
 
 bool Model3D::IsLoaded() const
@@ -269,18 +275,15 @@ void Model3D::CalculateBounds()
 }
 
 //
-// The cachekey for this VBO is the filename without the extension
-// Allows for dynamic VBO creation without hardcoding keys for each model
-// which would go against the separation of concerns between app and engine
+// The cachekey for this VBO is the full filename path
+// This allows mods to have models with the same name without conflicts
 
 char* Model3D::GetModelCacheKey() const {
-    char* filenamePart = GetFilenamePart(m_filename);
-    if (!filenamePart) {
-        return newStr("unknown");
-    }
-    
-    char* key = RemoveExtension(filenamePart);
-    return newStr(key);
+    return newStr(m_filename);
+}
+
+const char* Model3D::GetCacheKey() const {
+    return m_cacheKey ? m_cacheKey : "";
 }
 
 //
@@ -291,13 +294,18 @@ void Model3D::BuildModelVBO() {
         return;
     }
     
-    char* cacheKey = GetModelCacheKey();
-    if (!cacheKey) {
+    //
+    // Generate and store cache key if not already set
+    
+    if (!m_cacheKey) {
+        m_cacheKey = GetModelCacheKey();
+    }
+    
+    if (!m_cacheKey) {
         return;
     }
     
-    if (g_renderer3dvbo->IsTriangleMegaVBO3DValid(cacheKey)) {
-        delete[] cacheKey;
+    if (g_renderer3dvbo->IsTriangleMegaVBO3DValid(m_cacheKey)) {
         return;
     }
     
@@ -313,7 +321,6 @@ void Model3D::BuildModelVBO() {
     }
     
     if (totalVertices == 0 || totalIndices == 0) {
-        delete[] cacheKey;
         return;
     }
     
@@ -332,7 +339,7 @@ void Model3D::BuildModelVBO() {
     // The default color is white
     
     Colour defaultColor(255, 255, 255, 255);
-    g_renderer3dvbo->BeginTriangleMegaVBO3D(cacheKey, defaultColor);
+    g_renderer3dvbo->BeginTriangleMegaVBO3D(m_cacheKey, defaultColor);
     
     //
     // Add all meshes to VBO using models index buffers
@@ -364,6 +371,4 @@ void Model3D::BuildModelVBO() {
     }
     
     g_renderer3dvbo->EndTriangleMegaVBO3D();
-    
-    delete[] cacheKey;
 }

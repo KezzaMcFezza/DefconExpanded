@@ -246,27 +246,24 @@ Model3D *Resource::GetModel3D( const char *filename )
 {
     if( !filename ) return NULL;
     
-    char fullFilename[512];
-    sprintf( fullFilename, "data/models/%s", filename );
-    
-    Model3D *model = m_model3DCache.GetData( fullFilename );
+    Model3D *model = m_model3DCache.GetData( filename );
     if( model )
     {
         return model;
     }
     
-    model = new Model3D( fullFilename );
+    model = new Model3D( filename );
     
     if( !model->IsLoaded() )
     {
-        AppDebugOut("Model3D: Failed to load model: %s\n", fullFilename);
+        AppDebugOut("Model3D: Failed to load model: %s\n", filename);
     }
     else
     { 
         model->BuildModelVBO();
     }
     
-    m_model3DCache.PutData( fullFilename, model );
+    m_model3DCache.PutData( filename, model );
     return model;
 }
 
@@ -275,17 +272,14 @@ void Resource::UnloadModel3D( const char *filename )
 {
     if( !filename ) return;
     
-    char fullFilename[512];
-    sprintf( fullFilename, "data/models/%s", filename );
-    
-    Model3D *model = m_model3DCache.GetData( fullFilename );
+    Model3D *model = m_model3DCache.GetData( filename );
     if( model )
     {
         delete model;
-        m_model3DCache.RemoveData( fullFilename );
+        m_model3DCache.RemoveData( filename );
     }
     
 #ifndef NO_UNRAR
-    g_fileSystem->UnloadArchiveFile( fullFilename );
+    g_fileSystem->UnloadArchiveFile( filename );
 #endif
 }
