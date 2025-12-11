@@ -196,33 +196,6 @@ void Renderer3DVBO::RenderTriangleMegaVBO3DWithMatrix(const char* megaVBOKey, co
     g_renderer3d->IncrementDrawCall3D("triangle_vbo");
 }
 
-void Renderer3DVBO::RenderTriangleMegaVBO3DInstanced(const char* megaVBOKey, const Matrix4f* modelMatrices, const Colour* modelColors, int instanceCount) {
-    if (instanceCount <= 0) return;
-    
-    int maxInstances = g_renderer3d->GetInstanceCount();
-    if (instanceCount > maxInstances) {
-        instanceCount = maxInstances;
-    }
-    
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    if (!tree || !tree->data || !tree->data->isValid) {
-        return;
-    }
-    
-    Cached3DVBO* cachedVBO = tree->data;
-    
-    g_renderer->StartFlushTiming("MegaVBO_Triangles_Instanced_3D");
-    
-    g_renderer->SetShaderProgram(g_renderer3d->m_shader3DModelProgram);
-    g_renderer3d->Set3DModelShaderUniformsInstanced(modelMatrices, modelColors, instanceCount);
-    
-    g_renderer->SetVertexArray(cachedVBO->VAO);
-    glDrawElementsInstanced(GL_TRIANGLES, cachedVBO->indexCount, GL_UNSIGNED_INT, 0, instanceCount);
-    
-    g_renderer->EndFlushTiming("MegaVBO_Triangles_Instanced_3D");
-    g_renderer3d->IncrementDrawCall3D("triangle_vbo");
-}
-
 bool Renderer3DVBO::IsTriangleMegaVBO3DValid(const char* megaVBOKey) {
     BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
     return (tree && tree->data && tree->data->isValid);

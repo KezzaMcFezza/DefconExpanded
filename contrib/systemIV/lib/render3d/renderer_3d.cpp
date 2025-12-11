@@ -642,6 +642,9 @@ void Renderer3D::Set3DModelShaderUniforms(const Matrix4f& modelMatrix, const Col
         glUniformMatrix4fv(m_shader3DModelUniforms.modelViewLoc, 1, GL_FALSE, m_modelViewMatrix3D.m);
     }
     
+    glUniform1i(m_shader3DModelUniforms.useInstancingLoc, 0);
+    glUniform1i(m_shader3DModelUniforms.instanceCountLoc, 0);
+
     glUniformMatrix4fv(m_shader3DModelUniforms.modelMatrixLoc, 1, GL_FALSE, modelMatrix.m);
     
     glUniform4f(m_shader3DModelUniforms.modelColorLoc, 
@@ -666,7 +669,7 @@ void Renderer3D::Set3DModelShaderUniforms(const Matrix4f& modelMatrix, const Col
 
 void Renderer3D::Set3DModelShaderUniformsInstanced(const Matrix4f* modelMatrices, const Colour* modelColors, int instanceCount) {
     
-    int maxInstances = GetInstanceCount();
+    int maxInstances = MAX_INSTANCES;
     
     if (instanceCount > maxInstances) {
         instanceCount = maxInstances;

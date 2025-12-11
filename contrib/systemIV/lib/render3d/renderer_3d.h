@@ -331,7 +331,6 @@ public:
     int GetQuadVBOCalls             () const { return m_prevQuadVBOCalls3D; }
     int GetTriangleVBOCalls         () const { return m_prevTriangleVBOCalls3D; }
     int GetActiveFontBatches        () const { return m_prevActiveFontBatches3D; }
-    int GetInstanceCount            () const { return MAX_INSTANCES; }
     
     int GetTotalUnitCalls() const { 
         return m_prevLineCalls3D + m_prevStaticSpriteCalls3D + 

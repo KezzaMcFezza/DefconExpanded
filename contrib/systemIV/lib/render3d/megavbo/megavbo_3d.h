@@ -41,6 +41,14 @@ protected:
   int m_megaTriangleVertex3DCount;
   unsigned int *m_megaTriangleIndices3D;
   int m_megaTriangleIndex3DCount;
+  
+  bool m_instancedMegaVBOActive;
+  char *m_currentInstancedBatchKey;
+  char *m_currentInstancedMeshKey;
+  int m_maxInstances;
+  Matrix4f *m_instanceMatrices;
+  Colour *m_instanceColors;
+  int m_instanceCount;
 
   //
   // VBO caching system for 3D geometry, replaced display lists
@@ -54,8 +62,18 @@ protected:
     Colour color;
     bool isValid;
   };
+  
+  struct CachedInstanceBatch {
+    char *meshKey;
+    Matrix4f *matrices;
+    Colour *colors;
+    int instanceCount;
+    int maxInstances;
+    bool isValid;
+  };
 
   BTree<Cached3DVBO*> m_cached3DVBOs;
+  BTree<CachedInstanceBatch*> m_cachedInstanceBatches;
   DArray<char*> m_protected3DVBOKeys;
 
 public:
@@ -84,11 +102,25 @@ public:
   void EndTriangleMegaVBO3D               ();
   void RenderTriangleMegaVBO3D            (const char *megaVBOKey);
   void RenderTriangleMegaVBO3DWithMatrix  (const char *megaVBOKey, const Matrix4f& modelMatrix, const Colour& modelColor);
-  void RenderTriangleMegaVBO3DInstanced   (const char *megaVBOKey, const Matrix4f* modelMatrices, const Colour* modelColors, int instanceCount);
   bool IsTriangleMegaVBO3DValid           (const char *megaVBOKey);
   void SetTriangleMegaVBO3DBufferSizes    (int vertexCount, int indexCount);
   
-  void InvalidateAll3DVBOs        ();
+  void BeginInstancedMegaVBO              (const char *batchKey, const char *meshKey);
+  bool AddInstance                        (const Matrix4f& matrix, const Colour& color);
+  bool AddInstanceIfNotFull               (const Matrix4f& matrix, const Colour& color);
+  void EndInstancedMegaVBO                ();
+
+  void RenderInstancedMegaVBO3D           (const char *batchKey);
+  bool IsInstancedMegaVBOValid            (const char *batchKey);
+  void InvalidateInstancedMegaVBO         (const char *batchKey);
+
+  int  GetMaxInstances                    () const { return m_maxInstances; }
+  int  GetCurrentInstanceCount            () const { return m_instanceCount; }
+  bool IsInstancedMegaVBOActive           () const { return m_instancedMegaVBOActive; }
+  void InvalidateInstanceBatchPrefix      (const char* batchKeyPrefix);
+  
+  void InvalidateAll3DVBOs();
+  void InvalidateAllInstanceBatches();
 
   void Protect3DVBO               (const char* key);
   void Unprotect3DVBO             (const char* key);
@@ -98,6 +130,7 @@ public:
   int GetCached3DVBOCount         ();
   int GetCached3DVBOVertexCount   (const char *cacheKey);
   int GetCached3DVBOIndexCount    (const char *cacheKey);
+  int GetCachedInstanceBatchCount ();
 
   int GetMegaBufferVertexCount3D   () const { return m_maxMegaVertices3D; }
   int GetMegaBufferIndexCount3D    () const { return m_maxMegaIndices3D; }
@@ -116,6 +149,8 @@ public:
     total += m_maxMegaTexturedIndices3D * sizeof(unsigned int);
     total += m_maxMegaTriangleVertices3D * sizeof(Vertex3D);
     total += m_maxMegaTriangleIndices3D * sizeof(unsigned int);
+    total += m_maxInstances * sizeof(Matrix4f);
+    total += m_maxInstances * sizeof(Colour);
     
     return total;
   }

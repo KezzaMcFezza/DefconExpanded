@@ -392,7 +392,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;../../contrib/systemIV/contrib/crashpad/windows/include;../../contrib/systemIV/contrib/crashpad/windows/include/third_party/mini_chromium/mini_chromium;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../source/;../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;../../contrib/systemIV/contrib/crashpad/windows/include;../../contrib/systemIV/contrib/crashpad/windows/include/third_party/mini_chromium/mini_chromium;../../contrib/systemIV/contrib/tinygltf-2.9.7;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;WINDOWS_SDL;RECORDING_PARSING;ENDGAME;USE_CRASHREPORTING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -657,6 +657,7 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_2d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\sprites_2d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\text_2d.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\instancing_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\linestrips_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\megavbo_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\quads_3d.cpp" />

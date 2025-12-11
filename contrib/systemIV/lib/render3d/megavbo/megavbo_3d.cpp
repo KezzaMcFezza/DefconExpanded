@@ -34,7 +34,15 @@ Renderer3DVBO::Renderer3DVBO()
     m_megaTriangleVertex3DCount(0),
     m_megaTriangleIndices3D(NULL),
     m_megaTriangleIndex3DCount(0),
+    m_instancedMegaVBOActive(false),
+    m_currentInstancedBatchKey(NULL),
+    m_currentInstancedMeshKey(NULL),
+    m_maxInstances(Renderer3D::MAX_INSTANCES),
+    m_instanceMatrices(NULL),
+    m_instanceColors(NULL),
+    m_instanceCount(0),
     m_cached3DVBOs(),
+    m_cachedInstanceBatches(),
     m_protected3DVBOKeys()
 {
     m_megaVertices3D = new Vertex3D[m_maxMegaVertices3D];
@@ -45,11 +53,15 @@ Renderer3DVBO::Renderer3DVBO()
     
     m_megaTriangleVertices3D = new Vertex3D[m_maxMegaTriangleVertices3D];
     m_megaTriangleIndices3D = new unsigned int[m_maxMegaTriangleIndices3D];
+    
+    m_instanceMatrices = new Matrix4f[m_maxInstances];
+    m_instanceColors = new Colour[m_maxInstances];
 }
 
 Renderer3DVBO::~Renderer3DVBO() 
 {
     InvalidateAll3DVBOs();
+    InvalidateAllInstanceBatches();
     
     if (m_megaVertices3D) {
         delete[] m_megaVertices3D;
@@ -81,6 +93,16 @@ Renderer3DVBO::~Renderer3DVBO()
         m_megaTriangleIndices3D = NULL;
     }
     
+    if (m_instanceMatrices) {
+        delete[] m_instanceMatrices;
+        m_instanceMatrices = NULL;
+    }
+    
+    if (m_instanceColors) {
+        delete[] m_instanceColors;
+        m_instanceColors = NULL;
+    }
+    
     if (m_currentMegaVBO3DKey) {
         delete[] m_currentMegaVBO3DKey;
         m_currentMegaVBO3DKey = NULL;
@@ -94,6 +116,16 @@ Renderer3DVBO::~Renderer3DVBO()
     if (m_currentMegaVBO3DTrianglesKey) {
         delete[] m_currentMegaVBO3DTrianglesKey;
         m_currentMegaVBO3DTrianglesKey = NULL;
+    }
+    
+    if (m_currentInstancedBatchKey) {
+        delete[] m_currentInstancedBatchKey;
+        m_currentInstancedBatchKey = NULL;
+    }
+    
+    if (m_currentInstancedMeshKey) {
+        delete[] m_currentInstancedMeshKey;
+        m_currentInstancedMeshKey = NULL;
     }
     
     Clear3DVBOProtection();

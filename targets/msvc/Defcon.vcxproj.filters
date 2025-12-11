@@ -836,6 +836,9 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\text_3d.cpp">
       <Filter>lib\render3d</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\instancing_3d.cpp">
+      <Filter>lib\render3d\megavbo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">

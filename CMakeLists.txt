@@ -70,7 +70,7 @@ else()
     set(GLAD_SOURCE_FILE "${GLAD_PATH}/desktop/src/glad.c")
 endif()
 
-set(REPLAY_VIEWER_VERSION "R1.26.3" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "R1.28" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 set(SYNC_PRACTICE_VERSION "B1.16.1" CACHE STRING "Version prefix for silo practice client (e.g., B1.0, B1.1)")
 
 # build mode is now determined by preprocessor definitions passed via CMAKE_CXX_FLAGS
@@ -659,6 +659,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/quads_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/linestrips_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/triangles_3d.cpp
+    ${SYSTEMIV_PATH}/lib/render3d/megavbo/instancing_3d.cpp
     ${SYSTEMIV_PATH}/lib/render/renderer_overlay.cpp
     ${SYSTEMIV_PATH}/lib/render/styletable.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmap.cpp
