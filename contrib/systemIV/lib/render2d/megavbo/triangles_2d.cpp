@@ -135,11 +135,16 @@ void Renderer2DVBO::RenderTriangleMegaVBO(const char* megaVBOKey) {
     
     CachedVBO* cachedVBO = tree->data;
     
+    g_renderer->StartFlushTiming("MegaVBO_Triangles_2D");
+    
     g_renderer->SetShaderProgram(g_renderer2d->m_colorShaderProgram);
     g_renderer2d->SetColorShaderUniforms();
     
     g_renderer->SetVertexArray(cachedVBO->VAO);
     glDrawElements(GL_TRIANGLES, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
+    
+    g_renderer->EndFlushTiming("MegaVBO_Triangles_2D");
+    g_renderer2d->IncrementDrawCall("triangle_vbo");
 }
 
 bool Renderer2DVBO::IsTriangleMegaVBOValid(const char* megaVBOKey) {

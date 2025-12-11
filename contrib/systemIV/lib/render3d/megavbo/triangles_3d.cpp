@@ -164,11 +164,16 @@ void Renderer3DVBO::RenderTriangleMegaVBO3D(const char* megaVBOKey) {
     
     Cached3DVBO* cachedVBO = tree->data;
     
+    g_renderer->StartFlushTiming("MegaVBO_Triangles_3D");
+    
     g_renderer->SetShaderProgram(g_renderer3d->m_shader3DProgram);
     g_renderer3d->Set3DShaderUniforms();
     
     g_renderer->SetVertexArray(cachedVBO->VAO);
     glDrawElements(GL_TRIANGLES, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
+    
+    g_renderer->EndFlushTiming("MegaVBO_Triangles_3D");
+    g_renderer3d->IncrementDrawCall3D("triangle_vbo");
 }
 
 void Renderer3DVBO::RenderTriangleMegaVBO3DWithMatrix(const char* megaVBOKey, const Matrix4f& modelMatrix, const Colour& modelColor) {
@@ -179,11 +184,16 @@ void Renderer3DVBO::RenderTriangleMegaVBO3DWithMatrix(const char* megaVBOKey, co
     
     Cached3DVBO* cachedVBO = tree->data;
     
+    g_renderer->StartFlushTiming("MegaVBO_Triangles_Matrix_3D");
+    
     g_renderer->SetShaderProgram(g_renderer3d->m_shader3DModelProgram);
     g_renderer3d->Set3DModelShaderUniforms(modelMatrix, modelColor);
     
     g_renderer->SetVertexArray(cachedVBO->VAO);
     glDrawElements(GL_TRIANGLES, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
+    
+    g_renderer->EndFlushTiming("MegaVBO_Triangles_Matrix_3D");
+    g_renderer3d->IncrementDrawCall3D("triangle_vbo");
 }
 
 void Renderer3DVBO::RenderTriangleMegaVBO3DInstanced(const char* megaVBOKey, const Matrix4f* modelMatrices, const Colour* modelColors, int instanceCount) {
@@ -201,11 +211,16 @@ void Renderer3DVBO::RenderTriangleMegaVBO3DInstanced(const char* megaVBOKey, con
     
     Cached3DVBO* cachedVBO = tree->data;
     
+    g_renderer->StartFlushTiming("MegaVBO_Triangles_Instanced_3D");
+    
     g_renderer->SetShaderProgram(g_renderer3d->m_shader3DModelProgram);
     g_renderer3d->Set3DModelShaderUniformsInstanced(modelMatrices, modelColors, instanceCount);
     
     g_renderer->SetVertexArray(cachedVBO->VAO);
     glDrawElementsInstanced(GL_TRIANGLES, cachedVBO->indexCount, GL_UNSIGNED_INT, 0, instanceCount);
+    
+    g_renderer->EndFlushTiming("MegaVBO_Triangles_Instanced_3D");
+    g_renderer3d->IncrementDrawCall3D("triangle_vbo");
 }
 
 bool Renderer3DVBO::IsTriangleMegaVBO3DValid(const char* megaVBOKey) {

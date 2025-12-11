@@ -137,6 +137,8 @@ void Renderer2DVBO::RenderMegaVBO(const char* megaVBOKey) {
     }
     
     CachedVBO* cachedVBO = tree->data;
+
+    g_renderer->StartFlushTiming("MegaVBO_2D");
     
     g_renderer->SetShaderProgram(g_renderer2d->m_colorShaderProgram);
     g_renderer2d->SetColorShaderUniforms();
@@ -155,6 +157,9 @@ void Renderer2DVBO::RenderMegaVBO(const char* megaVBOKey) {
 #ifndef TARGET_EMSCRIPTEN
     glDisable(GL_PRIMITIVE_RESTART);
 #endif
+    
+    g_renderer->EndFlushTiming("MegaVBO_2D");
+    g_renderer2d->IncrementDrawCall("line_vbo");
 }
 
 bool Renderer2DVBO::IsMegaVBOValid(const char* megaVBOKey) {

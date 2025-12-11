@@ -96,6 +96,9 @@ Renderer3D::Renderer3D()
     m_rectCalls3D = 0;
     m_rectFillCalls3D = 0;
     m_triangleFillCalls3D = 0;
+    m_lineVBOCalls3D = 0;
+    m_quadVBOCalls3D = 0;
+    m_triangleVBOCalls3D = 0;
     m_prevDrawCallsPerFrame3D = 0;
     m_prevImmediateLineCalls3D = 0;
     m_prevImmediateTriangleCalls3D = 0;
@@ -109,10 +112,11 @@ Renderer3D::Renderer3D()
     m_prevRectCalls3D = 0;
     m_prevRectFillCalls3D = 0;
     m_prevTriangleFillCalls3D = 0;
+    m_prevLineVBOCalls3D = 0;
+    m_prevQuadVBOCalls3D = 0;
+    m_prevTriangleVBOCalls3D = 0;
     m_activeFontBatches3D = 0;
     m_prevActiveFontBatches3D = 0;
-    m_flushTimingCount3D = 0;
-    m_currentFlushStartTime3D = 0.0;
     
     Initialize3DShaders();
     Cache3DUniformLocations();
@@ -968,6 +972,9 @@ void Renderer3D::IncrementDrawCall3D(const char* bufferType) {
         case hash("rects"): m_rectCalls3D++; break;
         case hash("rect_fills"): m_rectFillCalls3D++; break;
         case hash("triangle_fills"): m_triangleFillCalls3D++; break;
+        case hash("line_vbo"): m_lineVBOCalls3D++; break;
+        case hash("quad_vbo"): m_quadVBOCalls3D++; break;
+        case hash("triangle_vbo"): m_triangleVBOCalls3D++; break;
     }
 }
 
@@ -986,6 +993,9 @@ void Renderer3D::ResetFrameCounters3D() {
     m_prevRectCalls3D = m_rectCalls3D;
     m_prevRectFillCalls3D = m_rectFillCalls3D;
     m_prevTriangleFillCalls3D = m_triangleFillCalls3D;
+    m_prevLineVBOCalls3D = m_lineVBOCalls3D;
+    m_prevQuadVBOCalls3D = m_quadVBOCalls3D;
+    m_prevTriangleVBOCalls3D = m_triangleVBOCalls3D;
     m_prevActiveFontBatches3D = m_activeFontBatches3D;
     
     //
@@ -1004,61 +1014,16 @@ void Renderer3D::ResetFrameCounters3D() {
     m_rectCalls3D = 0;
     m_rectFillCalls3D = 0;
     m_triangleFillCalls3D = 0;
+    m_lineVBOCalls3D = 0;
+    m_quadVBOCalls3D = 0;
+    m_triangleVBOCalls3D = 0;
     m_activeFontBatches3D = 0;
 }
 
 void Renderer3D::BeginFrame3D() {
     ResetFrameCounters3D();
-    ResetFlushTimings3D();
 }
 
 void Renderer3D::EndFrame3D() {
-    g_renderer->UpdateGpuTimings();
+
 }
-
-// ============================================================================
-// DEBUG MENU FUNCTIONS
-// ============================================================================
-
-void Renderer3D::StartFlushTiming3D(const char* name) {
-    
-    m_currentFlushStartTime3D = GetHighResTime();
-    
-    for (int i = 0; i < m_flushTimingCount3D; i++) {
-        if (strcmp(m_flushTimings3D[i].name, name) == 0) {
-            return;
-        }
-    }
-    
-    if (m_flushTimingCount3D < MAX_FLUSH_TYPES_3D) {
-        m_flushTimings3D[m_flushTimingCount3D].name = name;
-        m_flushTimings3D[m_flushTimingCount3D].totalTime = 0.0;
-        m_flushTimings3D[m_flushTimingCount3D].callCount = 0;
-        m_flushTimingCount3D++;
-    }
-}
-
-void Renderer3D::EndFlushTiming3D(const char* name) {
-    double endTime = GetHighResTime();
-    double elapsed = endTime - m_currentFlushStartTime3D;
-    
-    for (int i = 0; i < m_flushTimingCount3D; i++) {
-        if (strcmp(m_flushTimings3D[i].name, name) == 0) {
-            m_flushTimings3D[i].totalTime += elapsed;
-            m_flushTimings3D[i].callCount++;
-            return;
-        }
-    }
-}
-
-void Renderer3D::ResetFlushTimings3D() {
-    for (int i = 0; i < m_flushTimingCount3D; i++) {
-        m_flushTimings3D[i].totalTime = 0.0;
-        m_flushTimings3D[i].callCount = 0;
-    }
-}
-
-const Renderer3D::FlushTiming3D* Renderer3D::GetFlushTimings3D(int& count) const {
-    count = m_flushTimingCount3D;
-    return m_flushTimings3D;
-} 

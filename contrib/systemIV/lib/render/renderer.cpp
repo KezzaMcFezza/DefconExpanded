@@ -458,13 +458,8 @@ unsigned int Renderer::GetEffectiveTextureID(Image* image) {
 
 void Renderer::BeginFrame() {
 
-    if (g_renderer2d) {
-        g_renderer2d->BeginFrame2D();
-    }
-    
-    if (g_renderer3d) {
-        g_renderer3d->BeginFrame3D();
-    }
+    g_renderer2d->BeginFrame2D();
+    g_renderer3d->BeginFrame3D();
     
     ResetFlushTimings();
     m_textureSwitches = 0;
@@ -472,13 +467,8 @@ void Renderer::BeginFrame() {
 
 void Renderer::EndFrame() {
     
-    if (g_renderer2d) {
-        g_renderer2d->EndFrame2D();
-    }
-    
-    if (g_renderer3d) {
-        g_renderer3d->EndFrame3D();
-    }
+    g_renderer2d->EndFrame2D();
+    g_renderer3d->EndFrame3D();
     
     UpdateGpuTimings();
     

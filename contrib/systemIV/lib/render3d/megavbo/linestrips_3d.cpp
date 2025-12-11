@@ -140,6 +140,8 @@ void Renderer3DVBO::RenderMegaVBO3D(const char* megaVBOKey) {
     
     Cached3DVBO* cachedVBO = tree->data;
     
+    g_renderer->StartFlushTiming("MegaVBO_3D");
+    
     g_renderer->SetShaderProgram(g_renderer3d->m_shader3DProgram);
     g_renderer3d->Set3DShaderUniforms();
     
@@ -157,6 +159,9 @@ void Renderer3DVBO::RenderMegaVBO3D(const char* megaVBOKey) {
 #ifndef TARGET_EMSCRIPTEN
     glDisable(GL_PRIMITIVE_RESTART);
 #endif
+    
+    g_renderer->EndFlushTiming("MegaVBO_3D");
+    g_renderer3d->IncrementDrawCall3D("line_vbo");
 }
 
 bool Renderer3DVBO::IsMegaVBO3DValid(const char* megaVBOKey) {

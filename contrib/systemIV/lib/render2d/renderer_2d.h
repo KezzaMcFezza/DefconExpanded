@@ -215,6 +215,9 @@ public:
   int m_rectCalls;
   int m_rectFillCalls;
   int m_triangleFillCalls;
+  int m_lineVBOCalls;
+  int m_quadVBOCalls;
+  int m_triangleVBOCalls;
   int m_prevDrawCallsPerFrame;
   int m_prevImmediateTriangleCalls;
   int m_prevImmediateLineCalls;
@@ -227,6 +230,9 @@ public:
   int m_prevRectCalls;
   int m_prevRectFillCalls;
   int m_prevTriangleFillCalls;
+  int m_prevLineVBOCalls;
+  int m_prevQuadVBOCalls;
+  int m_prevTriangleVBOCalls;
   int m_activeFontBatches;
   int m_prevActiveFontBatches;
 
@@ -245,6 +251,9 @@ public:
   int GetRectCalls              () const { return m_prevRectCalls; }
   int GetRectFillCalls          () const { return m_prevRectFillCalls; }
   int GetTriangleFillCalls      () const { return m_prevTriangleFillCalls; }
+  int GetLineVBOCalls           () const { return m_prevLineVBOCalls; }
+  int GetQuadVBOCalls           () const { return m_prevQuadVBOCalls; }
+  int GetTriangleVBOCalls       () const { return m_prevTriangleVBOCalls; }
   int GetActiveFontBatches      () const { return m_prevActiveFontBatches; }
 
 

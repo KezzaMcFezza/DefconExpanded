@@ -120,6 +120,9 @@ Renderer2D::Renderer2D()
       m_rectCalls = 0;
       m_rectFillCalls = 0;
       m_triangleFillCalls = 0;
+      m_lineVBOCalls = 0;
+      m_quadVBOCalls = 0;
+      m_triangleVBOCalls = 0;
       m_prevDrawCallsPerFrame = 0;
       m_prevImmediateTriangleCalls = 0;
       m_prevImmediateLineCalls = 0;
@@ -132,6 +135,9 @@ Renderer2D::Renderer2D()
       m_prevRectCalls = 0;
       m_prevRectFillCalls = 0;
       m_prevTriangleFillCalls = 0;
+      m_prevLineVBOCalls = 0;
+      m_prevQuadVBOCalls = 0;
+      m_prevTriangleVBOCalls = 0;
       m_activeFontBatches = 0;
       m_prevActiveFontBatches = 0;
 
@@ -332,12 +338,10 @@ void Renderer2D::Reset2DViewport() {
 
 void Renderer2D::BeginFrame2D() {
     ResetFrameCounters();
-    g_renderer->ResetFlushTimings(); 
-    m_bufferNeedsUpload = true; // mark buffer as needing upload for new frame
 }
 
 void Renderer2D::EndFrame2D() {
-    g_renderer->UpdateGpuTimings();
+
 }
 
 void Renderer2D::Shutdown() {
@@ -624,6 +628,9 @@ void Renderer2D::ResetFrameCounters() {
     m_prevRectCalls = m_rectCalls;
     m_prevRectFillCalls = m_rectFillCalls;
     m_prevTriangleFillCalls = m_triangleFillCalls;
+    m_prevLineVBOCalls = m_lineVBOCalls;
+    m_prevQuadVBOCalls = m_quadVBOCalls;
+    m_prevTriangleVBOCalls = m_triangleVBOCalls;
     m_prevActiveFontBatches = m_activeFontBatches;
     
     //
@@ -641,6 +648,9 @@ void Renderer2D::ResetFrameCounters() {
     m_rectCalls = 0;
     m_rectFillCalls = 0;
     m_triangleFillCalls = 0;
+    m_lineVBOCalls = 0;
+    m_quadVBOCalls = 0;
+    m_triangleVBOCalls = 0;
     m_activeFontBatches = 0;
 }
 
@@ -670,5 +680,8 @@ void Renderer2D::IncrementDrawCall(const char* bufferType) {
         case hash("rects"): m_rectCalls++; break;
         case hash("rect_fills"): m_rectFillCalls++; break;
         case hash("triangle_fills"): m_triangleFillCalls++; break;
+        case hash("line_vbo"): m_lineVBOCalls++; break;
+        case hash("quad_vbo"): m_quadVBOCalls++; break;
+        case hash("triangle_vbo"): m_triangleVBOCalls++; break;
     }
 }

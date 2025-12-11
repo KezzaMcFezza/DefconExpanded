@@ -202,7 +202,7 @@ void Renderer3D::FlushTriangleFills3DIfFull(int verticesNeeded) {
 void Renderer3D::FlushLine3D() {
     if (m_lineVertexCount3D == 0) return;
 
-    StartFlushTiming3D("Batched_Lines_3D");
+    g_renderer->StartFlushTiming("Batched_Lines_3D");
     IncrementDrawCall3D("batched_lines");
     
 #ifndef TARGET_EMSCRIPTEN
@@ -220,14 +220,14 @@ void Renderer3D::FlushLine3D() {
     
     m_lineVertexCount3D = 0;
     
-    EndFlushTiming3D("Batched_Lines_3D");
+    g_renderer->EndFlushTiming("Batched_Lines_3D");
 }
 
 void Renderer3D::FlushStaticSprites3D() {
     if (m_staticSpriteVertexCount3D == 0) return;
     
-    StartFlushTiming3D("Static_Sprite_3D");
-    IncrementDrawCall3D("Static_Sprite_sprites");
+    g_renderer->StartFlushTiming("Static_Sprite_3D");
+    IncrementDrawCall3D("static_sprites");
     
     g_renderer->SetDepthMask(false);
     
@@ -247,14 +247,14 @@ void Renderer3D::FlushStaticSprites3D() {
     
     m_staticSpriteVertexCount3D = 0;
     
-    EndFlushTiming3D("Static_Sprite_3D");
+    g_renderer->EndFlushTiming("Static_Sprite_3D");
 }
 
 void Renderer3D::FlushRotatingSprite3D() {
     if (m_rotatingSpriteVertexCount3D == 0) return;
     
-    StartFlushTiming3D("Unit_Rotating_3D");
-    IncrementDrawCall3D("unit_rotating");
+    g_renderer->StartFlushTiming("Unit_Rotating_3D");
+    IncrementDrawCall3D("rotating_sprites");
     
     glDepthMask(GL_FALSE);
     
@@ -274,13 +274,13 @@ void Renderer3D::FlushRotatingSprite3D() {
     
     m_rotatingSpriteVertexCount3D = 0;
     
-    EndFlushTiming3D("Unit_Rotating_3D");
+    g_renderer->EndFlushTiming("Unit_Rotating_3D");
 }
 
 void Renderer3D::FlushTextBuffer3D() {
     if (m_textVertexCount3D == 0) return;
     
-    StartFlushTiming3D("Text_3D");
+    g_renderer->StartFlushTiming("Text_3D");
     IncrementDrawCall3D("text");
     
     //
@@ -322,13 +322,13 @@ void Renderer3D::FlushTextBuffer3D() {
     m_textVertexCount3D = 0;
     m_currentTextTexture3D = 0;
     
-    EndFlushTiming3D("Text_3D");
+    g_renderer->EndFlushTiming("Text_3D");
 }
 
 void Renderer3D::FlushCircles3D() {
     if (m_circleVertexCount3D == 0) return;
     
-    StartFlushTiming3D("Circles_3D");
+    g_renderer->StartFlushTiming("Circles_3D");
     IncrementDrawCall3D("circles");
     
 #ifndef TARGET_EMSCRIPTEN
@@ -345,13 +345,13 @@ void Renderer3D::FlushCircles3D() {
     
     m_circleVertexCount3D = 0;
     
-    EndFlushTiming3D("Circles_3D");
+    g_renderer->EndFlushTiming("Circles_3D");
 }
 
 void Renderer3D::FlushCircleFills3D() {
     if (m_circleFillVertexCount3D == 0) return;
     
-    StartFlushTiming3D("Circle_Fills_3D");
+    g_renderer->StartFlushTiming("Circle_Fills_3D");
     IncrementDrawCall3D("circle_fills");
     
     g_renderer->SetShaderProgram(m_shader3DProgram);
@@ -364,13 +364,13 @@ void Renderer3D::FlushCircleFills3D() {
     
     m_circleFillVertexCount3D = 0;
     
-    EndFlushTiming3D("Circle_Fills_3D");
+    g_renderer->EndFlushTiming("Circle_Fills_3D");
 }
 
 void Renderer3D::FlushRects3D() {
     if (m_rectVertexCount3D == 0) return;
     
-    StartFlushTiming3D("Rects_3D");
+    g_renderer->StartFlushTiming("Rects_3D");
     IncrementDrawCall3D("rects");
     
 #ifndef TARGET_EMSCRIPTEN
@@ -387,13 +387,13 @@ void Renderer3D::FlushRects3D() {
     
     m_rectVertexCount3D = 0;
     
-    EndFlushTiming3D("Rects_3D");
+    g_renderer->EndFlushTiming("Rects_3D");
 }
 
 void Renderer3D::FlushRectFills3D() {
     if (m_rectFillVertexCount3D == 0) return;
     
-    StartFlushTiming3D("Rect_Fills_3D");
+    g_renderer->StartFlushTiming("Rect_Fills_3D");
     IncrementDrawCall3D("rect_fills");
     
     g_renderer->SetShaderProgram(m_shader3DProgram);
@@ -406,13 +406,13 @@ void Renderer3D::FlushRectFills3D() {
     
     m_rectFillVertexCount3D = 0;
     
-    EndFlushTiming3D("Rect_Fills_3D");
+    g_renderer->EndFlushTiming("Rect_Fills_3D");
 }
 
 void Renderer3D::FlushTriangleFills3D() {
     if (m_triangleFillVertexCount3D == 0) return;
     
-    StartFlushTiming3D("Triangle_Fills_3D");
+    g_renderer->StartFlushTiming("Triangle_Fills_3D");
     IncrementDrawCall3D("triangle_fills");
     
     g_renderer->SetDepthMask(false);
@@ -433,13 +433,13 @@ void Renderer3D::FlushTriangleFills3D() {
     
     m_triangleFillVertexCount3D = 0;
     
-    EndFlushTiming3D("Triangle_Fills_3D");
+    g_renderer->EndFlushTiming("Triangle_Fills_3D");
 }
 
 void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
     if (m_vertex3DCount == 0) return;
     
-    StartFlushTiming3D("Immediate_Vertices_3D");
+    g_renderer->StartFlushTiming("Immediate_Vertices_3D");
     IncrementDrawCall3D("immediate_vertices");
     
     g_renderer->SetShaderProgram(m_shader3DProgram);
@@ -452,13 +452,13 @@ void Renderer3D::Flush3DVertices(unsigned int primitiveType) {
     
     m_vertex3DCount = 0;
     
-    EndFlushTiming3D("Immediate_Vertices_3D");
+    g_renderer->EndFlushTiming("Immediate_Vertices_3D");
 }
 
 void Renderer3D::Flush3DTexturedVertices() {
     if (m_vertex3DTexturedCount == 0) return;
     
-    StartFlushTiming3D("Immediate_Triangles_3D");
+    g_renderer->StartFlushTiming("Immediate_Triangles_3D");
     IncrementDrawCall3D("immediate_triangles");
     
     g_renderer->SetShaderProgram(m_shader3DTexturedProgram);
@@ -492,5 +492,5 @@ void Renderer3D::Flush3DTexturedVertices() {
     
     m_vertex3DTexturedCount = 0;
     
-    EndFlushTiming3D("Immediate_Triangles_3D");
+    g_renderer->EndFlushTiming("Immediate_Triangles_3D");
 }

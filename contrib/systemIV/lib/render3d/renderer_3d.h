@@ -66,6 +66,7 @@ class Renderer3D
 {
     friend class Renderer;
     friend class Renderer3DVBO;
+    
 private:
 
     struct Shader3DUniforms {
@@ -225,6 +226,9 @@ private:
     int m_rectCalls3D;
     int m_rectFillCalls3D;
     int m_triangleFillCalls3D;
+    int m_lineVBOCalls3D;
+    int m_quadVBOCalls3D;
+    int m_triangleVBOCalls3D;
     int m_prevDrawCallsPerFrame3D;
     int m_prevImmediateVertexCalls3D;
     int m_prevImmediateTriangleCalls3D;
@@ -239,27 +243,14 @@ private:
     int m_prevRectCalls3D;
     int m_prevRectFillCalls3D;
     int m_prevTriangleFillCalls3D;
+    int m_prevLineVBOCalls3D;
+    int m_prevQuadVBOCalls3D;
+    int m_prevTriangleVBOCalls3D;
     int m_activeFontBatches3D;
     int m_prevActiveFontBatches3D;
-    
-    static constexpr int MAX_FLUSH_TYPES_3D = 50;
-    
-    struct FlushTiming3D {
-        const char* name;
-        double totalTime;
-        int callCount;
-    };
-    
-    FlushTiming3D m_flushTimings3D[MAX_FLUSH_TYPES_3D];
-    const FlushTiming3D* GetFlushTimings3D(int& count) const;
-    int m_flushTimingCount3D;
-    double m_currentFlushStartTime3D;
 
     void IncrementDrawCall3D         (const char* bufferType);
     void ResetFrameCounters3D        ();
-    void StartFlushTiming3D          (const char* name);
-    void EndFlushTiming3D            (const char* name);
-    void ResetFlushTimings3D         ();
     void Initialize3DShaders         ();
     void Cache3DUniformLocations     ();
     void Setup3DVertexArrays         ();
@@ -336,6 +327,9 @@ public:
     int GetRectCalls                () const { return m_prevRectCalls3D; }
     int GetRectFillCalls            () const { return m_prevRectFillCalls3D; }
     int GetTriangleFillCalls        () const { return m_prevTriangleFillCalls3D; }
+    int GetLineVBOCalls             () const { return m_prevLineVBOCalls3D; }
+    int GetQuadVBOCalls             () const { return m_prevQuadVBOCalls3D; }
+    int GetTriangleVBOCalls         () const { return m_prevTriangleVBOCalls3D; }
     int GetActiveFontBatches        () const { return m_prevActiveFontBatches3D; }
     int GetInstanceCount            () const { return MAX_INSTANCES; }
     

@@ -144,6 +144,8 @@ void Renderer3DVBO::RenderTexturedMegaVBO3D(const char* megaVBOKey) {
     
     Cached3DVBO* cachedVBO = tree->data;
     
+    g_renderer->StartFlushTiming("MegaVBO_Textured_3D");
+    
     //
     // Extract texture ID from color storage
 
@@ -162,6 +164,9 @@ void Renderer3DVBO::RenderTexturedMegaVBO3D(const char* megaVBOKey) {
     
     g_renderer->SetVertexArray(cachedVBO->VAO);
     glDrawElements(GL_TRIANGLES, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
+    
+    g_renderer->EndFlushTiming("MegaVBO_Textured_3D");
+    g_renderer3d->IncrementDrawCall3D("quad_vbo");
 }
 
 bool Renderer3DVBO::IsTexturedMegaVBO3DValid(const char* megaVBOKey) {

@@ -144,20 +144,18 @@ void RendererOverlay::RenderBufferStatistics(float& yPos)
     rectFillCalls = g_renderer2d->GetRectFillCalls();
     triangleFillCalls = g_renderer2d->GetTriangleFillCalls();
 
-    if (g_renderer3d) {
-        totalDrawCalls += g_renderer3d->GetTotalDrawCalls();
-        immediateTriangleCalls += g_renderer3d->GetImmediateTriangleCalls();
-        immediateLineCalls += g_renderer3d->GetImmediateLineCalls();
-        textCalls += g_renderer3d->GetTextCalls();
-        lineCalls += g_renderer3d->GetLineCalls();
-        staticSpriteCalls += g_renderer3d->GetStaticSpriteCalls();
-        rotatingSpriteCalls += g_renderer3d->GetRotatingSpriteCalls();
-        circleCalls += g_renderer3d->GetCircleCalls();
-        circleFillCalls += g_renderer3d->GetCircleFillCalls();
-        rectCalls += g_renderer3d->GetRectCalls();
-        rectFillCalls += g_renderer3d->GetRectFillCalls();
-        triangleFillCalls += g_renderer3d->GetTriangleFillCalls();
-    }
+    totalDrawCalls += g_renderer3d->GetTotalDrawCalls();
+    immediateTriangleCalls += g_renderer3d->GetImmediateTriangleCalls();
+    immediateLineCalls += g_renderer3d->GetImmediateLineCalls();
+    textCalls += g_renderer3d->GetTextCalls();
+    lineCalls += g_renderer3d->GetLineCalls();
+    staticSpriteCalls += g_renderer3d->GetStaticSpriteCalls();
+    rotatingSpriteCalls += g_renderer3d->GetRotatingSpriteCalls();
+    circleCalls += g_renderer3d->GetCircleCalls();
+    circleFillCalls += g_renderer3d->GetCircleFillCalls();
+    rectCalls += g_renderer3d->GetRectCalls();
+    rectFillCalls += g_renderer3d->GetRectFillCalls();
+    triangleFillCalls += g_renderer3d->GetTriangleFillCalls();
     
     //
     // Total draw calls header
@@ -191,11 +189,24 @@ void RendererOverlay::RenderBufferStatistics(float& yPos)
     yPos += 14.0f;
     
     //
+    // Third section
+
+    int lineVBOCalls = g_renderer2d->GetLineVBOCalls() + g_renderer3d->GetLineVBOCalls();
+    int quadVBOCalls = g_renderer2d->GetQuadVBOCalls() + g_renderer3d->GetQuadVBOCalls();
+    int triangleVBOCalls = g_renderer2d->GetTriangleVBOCalls() + g_renderer3d->GetTriangleVBOCalls();
+    
+    snprintf(statsBuffer, sizeof(statsBuffer), "  LineVBO: %d QuadVBO: %d TriangleVBO: %d", 
+             lineVBOCalls, quadVBOCalls, triangleVBOCalls);
+    g_renderer2d->TextSimple(indentSmall, yPos, lightcyan, 11.0f, statsBuffer);
+    yPos += 14.0f;
+    
+    //
     // Performance summary
 
     int immediateTotal = immediateTriangleCalls + immediateLineCalls;
     int bufferTotal = textCalls + lineCalls + staticSpriteCalls + rotatingSpriteCalls + circleCalls + circleFillCalls + rectCalls + rectFillCalls + triangleFillCalls;
-    int batchedTotal = bufferTotal;
+    int vboTotal = lineVBOCalls + quadVBOCalls + triangleVBOCalls;
+    int batchedTotal = bufferTotal + vboTotal;
     
     g_renderer2d->TextSimple(25, yPos, white, 13.0f, "Conclusion:");
     yPos += lineHeight;
@@ -317,9 +328,8 @@ void RendererOverlay::RenderSystemInformation(float& yPos)
         // Total allocated memory
 
         size_t totalAllocated = g_renderer2dvbo->GetTotalAllocatedBufferMemory();
-        if (g_renderer3d) {
-            totalAllocated += g_renderer3dvbo->GetTotalAllocatedBufferMemory();
-        }
+               totalAllocated += g_renderer3dvbo->GetTotalAllocatedBufferMemory();
+               
         float totalMemoryMB = totalAllocated / (1024.0f * 1024.0f);
         snprintf(infoBuffer, sizeof(infoBuffer), "  Total Allocated: %.2f MB", totalMemoryMB);
         g_renderer2d->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
@@ -329,19 +339,18 @@ void RendererOverlay::RenderSystemInformation(float& yPos)
         // Print coastlines and borders breakdown
 
         float coastlinesBordersMemory = 0.0f;
-        if (g_renderer3d) {
-            int globeCoastlineVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeCoastlines");
-            int globeCoastlineIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeCoastlines");
-            coastlinesBordersMemory += ((globeCoastlineVertices * sizeof(Vertex3D)) + (globeCoastlineIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+
+        int globeCoastlineVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeCoastlines");
+        int globeCoastlineIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeCoastlines");
+        coastlinesBordersMemory += ((globeCoastlineVertices * sizeof(Vertex3D)) + (globeCoastlineIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
             
-            int globeBorderVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeBorders");
-            int globeBorderIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeBorders");
-            coastlinesBordersMemory += ((globeBorderVertices * sizeof(Vertex3D)) + (globeBorderIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
+        int globeBorderVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeBorders");
+        int globeBorderIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeBorders");
+        coastlinesBordersMemory += ((globeBorderVertices * sizeof(Vertex3D)) + (globeBorderIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
             
-            int globeGridlineVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeGridlines");
-            int globeGridlineIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeGridlines");
-            coastlinesBordersMemory += ((globeGridlineVertices * sizeof(Vertex3D)) + (globeGridlineIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
-        }
+        int globeGridlineVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeGridlines");
+        int globeGridlineIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeGridlines");
+        coastlinesBordersMemory += ((globeGridlineVertices * sizeof(Vertex3D)) + (globeGridlineIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
 
         snprintf(infoBuffer, sizeof(infoBuffer), "  Coastlines and Borders: %.2f MB", 
                  coastlinesBordersMemory);
@@ -352,11 +361,10 @@ void RendererOverlay::RenderSystemInformation(float& yPos)
         // Print starfield statistics too
         
         float starfieldMemory = 0.0f;
-        if (g_renderer3d) {
-            int starfieldVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("Starfield");
-            int starfieldIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("Starfield");
-            starfieldMemory = ((starfieldVertices * sizeof(Vertex3DTextured)) + (starfieldIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
-        }
+
+        int starfieldVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("Starfield");
+        int starfieldIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("Starfield");
+        starfieldMemory = ((starfieldVertices * sizeof(Vertex3DTextured)) + (starfieldIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
         
         snprintf(infoBuffer, sizeof(infoBuffer), "  Starfield: %.2f MB", 
                  starfieldMemory);
@@ -367,11 +375,10 @@ void RendererOverlay::RenderSystemInformation(float& yPos)
         // And print culling sphere statistics
         
         float cullingSphereMemory = 0.0f;
-        if (g_renderer3d) {
-            int cullingSphereVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("CullingSphere");
-            int cullingSphereIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("CullingSphere");
-            cullingSphereMemory = ((cullingSphereVertices * sizeof(Vertex3D)) + (cullingSphereIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
-        }
+
+        int cullingSphereVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("CullingSphere");
+        int cullingSphereIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("CullingSphere");
+        cullingSphereMemory = ((cullingSphereVertices * sizeof(Vertex3D)) + (cullingSphereIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
         
         snprintf(infoBuffer, sizeof(infoBuffer), "  Culling Sphere: %.2f MB", 
                  cullingSphereMemory);
@@ -440,32 +447,30 @@ void RendererOverlay::RenderVBOCacheStatistics(float& yPos)
     //
     // 3D VBO stats
     
-    if (g_renderer3d) {
-        renderVBOStat("3D Coastlines",
-                      g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeCoastlines"),
-                      g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeCoastlines"),
-                      sizeof(Vertex3D), true);
+    renderVBOStat("3D Coastlines",
+                    g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeCoastlines"),
+                    g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeCoastlines"),
+                    sizeof(Vertex3D), true);
         
-        renderVBOStat("3D Borders",
-                      g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeBorders"),
-                      g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeBorders"),
-                      sizeof(Vertex3D), true);
+    renderVBOStat("3D Borders",
+                    g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeBorders"),
+                    g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeBorders"),
+                    sizeof(Vertex3D), true);
         
-        renderVBOStat("3D Gridlines",
-                      g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeGridlines"),
-                      g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeGridlines"),
-                      sizeof(Vertex3D), true);
+    renderVBOStat("3D Gridlines",
+                    g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeGridlines"),
+                    g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeGridlines"),
+                    sizeof(Vertex3D), true);
         
-        renderVBOStat("3D Starfield",
-                      g_renderer3dvbo->GetCached3DVBOVertexCount("Starfield"),
-                      g_renderer3dvbo->GetCached3DVBOIndexCount("Starfield"),
-                      sizeof(Vertex3DTextured), true);
+    renderVBOStat("3D Starfield",
+                    g_renderer3dvbo->GetCached3DVBOVertexCount("Starfield"),
+                    g_renderer3dvbo->GetCached3DVBOIndexCount("Starfield"),
+                    sizeof(Vertex3DTextured), true);
         
-        renderVBOStat("3D Culling Sphere",
-                      g_renderer3dvbo->GetCached3DVBOVertexCount("CullingSphere"),
-                      g_renderer3dvbo->GetCached3DVBOIndexCount("CullingSphere"),
-                      sizeof(Vertex3D), true);
-    }
+    renderVBOStat("3D Culling Sphere",
+                    g_renderer3dvbo->GetCached3DVBOVertexCount("CullingSphere"),
+                    g_renderer3dvbo->GetCached3DVBOIndexCount("CullingSphere"),
+                    sizeof(Vertex3D), true);
 }
 
 void RendererOverlay::RenderTextureAndFontStatistics(float& yPos)
@@ -493,9 +498,8 @@ void RendererOverlay::RenderTextureAndFontStatistics(float& yPos)
     yPos += 14.0f;
     
     int fontBatches = g_renderer2d->GetActiveFontBatches();
-    if (g_renderer3d) {
         fontBatches += g_renderer3d->GetActiveFontBatches();
-    }
+
     snprintf(infoBuffer, sizeof(infoBuffer), "  Active Font Batches: %d", fontBatches);
     g_renderer2d->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
     yPos += 14.0f;
@@ -506,10 +510,7 @@ int RendererOverlay::GetActualBufferVertexCount()
     if (!g_renderer) return 0;
     
     int totalVertices = g_renderer2d->GetTotalCurrentVertexCount();
-
-    if (g_renderer3d) {
         totalVertices += g_renderer3d->GetTotalCurrentVertexCount();
-    }
     
     return totalVertices;
 }
@@ -524,12 +525,10 @@ int RendererOverlay::EstimateTextureSwitches()
     if (g_renderer2d->GetStaticSpriteCalls() > 0) switches += 8;
     if (g_renderer2d->GetRotatingSpriteCalls() > 0) switches += 3; 
     
-    // Add 3D renderer stats if available
-    if (g_renderer3d) {
-        if (g_renderer3d->GetTextCalls() > 0) switches++;
-        if (g_renderer3d->GetStaticSpriteCalls() > 0) switches += 8;
-        if (g_renderer3d->GetRotatingSpriteCalls() > 0) switches += 3;
-    }
+    if (g_renderer3d->GetTextCalls() > 0) switches++;
+    if (g_renderer3d->GetStaticSpriteCalls() > 0) switches += 8;
+    if (g_renderer3d->GetRotatingSpriteCalls() > 0) switches += 3;
+
     
     return switches;
 }
