@@ -79,6 +79,15 @@ bool MovingObject::Update()
     {
         m_history.PutDataAtStart( new Vector3<Fixed>(m_longitude, m_latitude, 0) );
         m_historyTimer = 2; 
+
+        GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+        if( globeRenderer && globeRenderer->ShouldUse3DNukeTrajectories() )
+        {
+            if( m_type == WorldObject::TypeNuke )
+            {
+                m_historyTimer = 1;
+            }
+        }
     }
     
 
@@ -578,6 +587,15 @@ void MovingObject::Render2D()
 
 void MovingObject::Render3D()
 {
+    if( m_type == WorldObject::TypeNuke && g_app->IsGlobeMode() )
+    {
+        GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+        if( globeRenderer && globeRenderer->ShouldUse3DNukeTrajectories() )
+        {
+            return;
+        }
+    }
+
     if( g_preferences->GetInt( PREFS_GRAPHICS_TRAILS ) == 1 )
     {
         RenderHistory3D();
@@ -722,6 +740,13 @@ void MovingObject::RenderHistory2D()
 
 void MovingObject::RenderHistory3D()
 {
+    if (m_type == WorldObject::TypeNuke && g_app->IsGlobeMode()) {
+        GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+        if (globeRenderer && globeRenderer->ShouldUse3DNukeTrajectories()) {
+            return;
+        }
+    }
+
     Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
     float predictedLongitude = (m_longitude + m_vel.x * Fixed(predictionTime)).DoubleValue();
     float predictedLatitude = (m_latitude + m_vel.y * Fixed(predictionTime)).DoubleValue();

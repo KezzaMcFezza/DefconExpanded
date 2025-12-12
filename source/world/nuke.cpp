@@ -18,6 +18,7 @@
 #include "app/globals.h"
 
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "world/world.h"
 #include "world/nuke.h"
@@ -194,6 +195,13 @@ void Nuke::Render2D()
 
 void Nuke::Render3D()
 {
+    if (g_app->IsGlobeMode()) {
+        GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+        if (globeRenderer && globeRenderer->ShouldUse3DNukeTrajectories()) {
+            return;
+        }
+    }
+    
     MovingObject::Render3D();
 }
 

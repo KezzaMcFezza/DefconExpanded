@@ -12,6 +12,7 @@
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render3d/megavbo/megavbo_3d.h"
 #include "lib/render/colour.h"
+#include "lib/math/matrix4f.h"
 #include "lib/language_table.h"
 #include "lib/preferences.h"
 #include "lib/profiler.h"
@@ -41,6 +42,7 @@
 #include "world/world.h"
 #include "world/earthdata.h"
 #include "world/worldobject.h"
+#include "world/movingobject.h"
 #include "world/city.h"
 #include "world/nuke.h"
 #include "world/fleet.h"
@@ -49,7 +51,7 @@
 #include "curves.h"
 
 GlobeRenderer::GlobeRenderer()
-:   m_nukeModel(NULL),
+:   nukeModel(NULL),
     m_zoomFactor(1),
     m_currentHighlightId(-1),
     m_currentSelectionId(-1),
@@ -71,10 +73,8 @@ GlobeRenderer::GlobeRenderer()
 
 GlobeRenderer::~GlobeRenderer()
 {
-    if (m_nukeModel) {
-        g_resource->UnloadModel3D("nuke.glb");
-        m_nukeModel = NULL;
-    }
+    g_resource->UnloadModel3D("data/models/nuke.glb");
+    nukeModel = NULL;
     
     Reset();
 }
@@ -83,7 +83,7 @@ void GlobeRenderer::Init()
 {
     Reset();
 
-    m_nukeModel = g_resource->GetModel3D("nuke.glb");
+    nukeModel = g_resource->GetModel3D("data/models/nuke.glb");
 }
 
 void GlobeRenderer::Update()
@@ -165,6 +165,270 @@ Vector3<float> GlobeRenderer::SlerpNormal(const Vector3<float>& fromNormal, cons
     Vector3<float> result = fromNormal * w1 + toNormal * w2;
     result.Normalise();
     return result;
+}
+
+//
+// Get nuke launch position from history or current position
+
+void GlobeRenderer::GetNukeLaunchPosition(Nuke* nuke, float& outLon, float& outLat)
+{
+    LList<Vector3<Fixed> *>& history = nuke->GetHistory();
+    if (history.Size() > 0) {
+        Vector3<Fixed> *launchPos = history[history.Size() - 1];
+        outLon = launchPos->x.DoubleValue();
+        outLat = launchPos->y.DoubleValue();
+    } else {
+        outLon = nuke->m_longitude.DoubleValue();
+        outLat = nuke->m_latitude.DoubleValue();
+    }
+}
+
+//
+// Normalize longitude for great circle calculation (handle wrapping)
+
+void GlobeRenderer::NormalizeLongitudeForGreatCircle(float& lon1, float& lon2)
+{
+    float lonDiff = lon2 - lon1;
+    if (lonDiff > M_PI) lon2 -= 2.0f * M_PI;
+    else if (lonDiff < -M_PI) lon2 += 2.0f * M_PI;
+}
+
+//
+// Calculate great circle distance between two points
+
+void GlobeRenderer::CalculateGreatCircleDistance(float lat1, float lon1, float lat2, float lon2,
+                                                 float& outDistance, float& outSinDistance)
+{
+    float deltaLon = lon2 - lon1;
+    float a = sinf(lat1) * sinf(lat2) + cosf(lat1) * cosf(lat2) * cosf(deltaLon);
+    outDistance = acosf(fmaxf(-1.0f, fminf(1.0f, a)));
+    outSinDistance = (outDistance < 0.001f) ? 1.0f : sinf(outDistance);
+}
+
+//
+// Convert lat/lon to cartesian coordinates on unit sphere
+
+void GlobeRenderer::CalculateCartesianCoordinates(float lat, float lon, float& outX, float& outY, float& outZ)
+{
+    float cosLat = cosf(lat);
+    outX = cosLat * cosf(lon);
+    outY = cosLat * sinf(lon);
+    outZ = sinf(lat);
+}
+
+//
+// Calculate trajectory height scale based on distance
+
+float GlobeRenderer::CalculateTrajectoryHeightScale(float distanceRadians)
+{
+    float normalizedDistance = distanceRadians / M_PI;
+    float scaledDistance = sqrtf(normalizedDistance);
+    return 0.03f + (0.19f * scaledDistance);
+}
+
+//
+// Pre calculate constants for great circle interpolation
+
+void GlobeRenderer::CalculateGreatCircleConstants(float launchLon, float launchLat, float targetLon, float targetLat,
+                                                   GreatCircleConstants& outConstants)
+{
+    outConstants.lat1 = launchLat * M_PI / 180.0f;
+    outConstants.lon1 = launchLon * M_PI / 180.0f;
+    float lat2 = targetLat * M_PI / 180.0f;
+    float lon2 = targetLon * M_PI / 180.0f;
+    
+    NormalizeLongitudeForGreatCircle(outConstants.lon1, lon2);
+    
+    outConstants.lon2 = lon2;
+    outConstants.lat2 = lat2;
+    
+    CalculateGreatCircleDistance(outConstants.lat1, outConstants.lon1, lat2, lon2,
+                                 outConstants.totalDistanceRadians, outConstants.sinDistance);
+    
+    CalculateCartesianCoordinates(outConstants.lat1, outConstants.lon1, 
+                                  outConstants.x1, outConstants.y1, outConstants.z1);
+    CalculateCartesianCoordinates(lat2, lon2, 
+                                  outConstants.x2, outConstants.y2, outConstants.z2);
+    
+    outConstants.trajectoryHeightScale = CalculateTrajectoryHeightScale(outConstants.totalDistanceRadians);
+}
+
+//
+// Calculate surface position along great circle trajectory
+
+Vector3<float> GlobeRenderer::CalculateTrajectorySurfacePosition(const GreatCircleConstants& constants, float progress)
+{
+    if (constants.totalDistanceRadians < 0.001f) {
+        float lat = constants.lat1 + (constants.lat2 - constants.lat1) * progress;
+        float lon = constants.lon1 + (constants.lon2 - constants.lon1) * progress;
+        return ConvertLongLatTo3DPosition(lon * 180.0f / M_PI, lat * 180.0f / M_PI);
+    }
+    
+    float A = sinf((1.0f - progress) * constants.totalDistanceRadians) / constants.sinDistance;
+    float B = sinf(progress * constants.totalDistanceRadians) / constants.sinDistance;
+    
+    float x = A * constants.x1 + B * constants.x2;
+    float y = A * constants.y1 + B * constants.y2;
+    float z = A * constants.z1 + B * constants.z2;
+    
+    float lat = asinf(z);
+    float lon = atan2f(y, x);
+    return ConvertLongLatTo3DPosition(lon * 180.0f / M_PI, lat * 180.0f / M_PI);
+}
+
+//
+// Calculate ballistic arc height at given progress
+
+float GlobeRenderer::CalculateTrajectoryArcHeight(const GreatCircleConstants& constants, float progress)
+{
+    float arcFactor = 4.0f * progress * (1.0f - progress);
+    return constants.trajectoryHeightScale * arcFactor;
+}
+
+//
+// Calculate 3D trajectory point from constants and progress
+
+Vector3<float> GlobeRenderer::CalculateTrajectoryPointFromConstants(const GreatCircleConstants& constants, float progress)
+{
+    Vector3<float> surfacePos = CalculateTrajectorySurfacePosition(constants, progress);
+    float height = CalculateTrajectoryArcHeight(constants, progress);
+    return surfacePos + surfacePos.Normalized() * height;
+}
+
+//
+// Calculate and cache great circle constants for nuke trajectory
+
+bool GlobeRenderer::CalculateNukeTrajectoryConstants(Nuke* nuke, GreatCircleConstants& outConstants)
+{
+    if (!nuke || nuke->m_totalDistance <= 0) {
+        return false;
+    }
+    
+    float launchLon, launchLat;
+    GetNukeLaunchPosition(nuke, launchLon, launchLat);
+    
+    float targetLon = nuke->m_targetLongitude.DoubleValue();
+    float targetLat = nuke->m_targetLatitude.DoubleValue();
+    
+    CalculateGreatCircleConstants(launchLon, launchLat, targetLon, targetLat, outConstants);
+    return true;
+}
+
+//
+// Calculate nuke trajectory point at given progress
+
+Vector3<float> GlobeRenderer::CalculateNukeTrajectoryPoint(Nuke* nuke, float progress)
+{
+    if (!g_app->IsGlobeMode() || !nuke) {
+        return Vector3<float>(0, 0, 0);
+    }
+    
+    GreatCircleConstants constants;
+    if (!CalculateNukeTrajectoryConstants(nuke, constants)) {
+        return Vector3<float>(0, 0, 0);
+    }
+    
+    return CalculateTrajectoryPointFromConstants(constants, progress);
+}
+
+//
+// Calculate progress along trajectory from a given position
+
+float GlobeRenderer::CalculateNukeProgressFromPosition(Nuke* nuke, const Vector3<Fixed>& pos)
+{
+    if (!nuke || nuke->m_totalDistance <= 0) {
+        return 0.0f;
+    }
+    
+    Vector3<Fixed> target(nuke->m_targetLongitude, nuke->m_targetLatitude, 0);
+    Fixed remainingDistance = (target - pos).Mag();
+    return fmaxf(0.0f, fminf(1.0f, (1 - remainingDistance / nuke->m_totalDistance).DoubleValue()));
+}
+
+//
+// Get predicted progress along nuke trajectory
+
+float GlobeRenderer::CalculateNukePredictedProgress(Nuke* nuke)
+{
+    if (!nuke || nuke->m_totalDistance <= 0) {
+        return 0.0f;
+    }
+    
+    Vector3<Fixed> pos(nuke->m_longitude, nuke->m_latitude, 0);
+    float currentProgress = CalculateNukeProgressFromPosition(nuke, pos);
+    
+    Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+    Fixed currentSpeed = nuke->m_vel.Mag();
+    Fixed distanceTraveled = currentSpeed * predictionTime;
+    float progressIncrement = (distanceTraveled / nuke->m_totalDistance).DoubleValue();
+    
+    return fmaxf(0.0f, fminf(1.0f, currentProgress + progressIncrement));
+}
+
+//
+// Calculate 3D nuke position using great circle and ballistic arc
+
+Vector3<float> GlobeRenderer::CalculateNuke3DPosition(Nuke* nuke)
+{
+    if (!g_app->IsGlobeMode() || !nuke) {
+        return Vector3<float>(0, 0, 0);
+    }
+    
+    Vector3<Fixed> pos(nuke->m_longitude, nuke->m_latitude, 0);
+    if (nuke->m_totalDistance <= 0) {
+        Fixed predictionTime = Fixed::FromDouble(g_predictionTime) * g_app->GetWorld()->GetTimeScaleFactor();
+        float predictedLongitude = (nuke->m_longitude + nuke->m_vel.x * predictionTime).DoubleValue();
+        float predictedLatitude = (nuke->m_latitude + nuke->m_vel.y * predictionTime).DoubleValue();
+        return ConvertLongLatTo3DPosition(predictedLongitude, predictedLatitude);
+    }
+    
+    float predictedProgress = CalculateNukePredictedProgress(nuke);
+    return CalculateNukeTrajectoryPoint(nuke, predictedProgress);
+}
+
+//
+// Calculate historical nuke position for trail rendering
+
+Vector3<float> GlobeRenderer::CalculateHistoricalNuke3DPosition(Nuke* nuke, const Vector3<Fixed>& historicalPos)
+{
+    if (!g_app->IsGlobeMode() || !nuke) {
+        return Vector3<float>(0, 0, 0);
+    }
+    
+    if (nuke->m_totalDistance <= 0) {
+        return ConvertLongLatTo3DPosition(historicalPos.x.DoubleValue(), historicalPos.y.DoubleValue());
+    }
+    
+    float progress = CalculateNukeProgressFromPosition(nuke, historicalPos);
+    return CalculateNukeTrajectoryPoint(nuke, progress);
+}
+
+//
+// Calculate historical nuke position using age-based progress
+
+Vector3<float> GlobeRenderer::CalculateHistoricalNuke3DPositionByAge(Nuke* nuke, const Vector3<Fixed>& historicalPos, float historicalProgress)
+{ 
+    if (!g_app->IsGlobeMode() || !nuke) {
+        return Vector3<float>(0, 0, 0);
+    }
+    
+    if (nuke->m_totalDistance <= 0) {
+        return ConvertLongLatTo3DPosition(historicalPos.x.DoubleValue(), historicalPos.y.DoubleValue());
+    }
+    
+    return CalculateNukeTrajectoryPoint(nuke, historicalProgress);
+}
+
+bool GlobeRenderer::ShouldUse3DNukeTrajectories()
+{
+    if (!g_app->IsGlobeMode()) return false;
+
+    
+    if (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode()) {
+        return true;
+    }
+    
+    return (g_app->GetWorld()->m_myTeamId == -1);
 }
 
 void GlobeRenderer::GenerateStarField()
@@ -572,8 +836,6 @@ void GlobeRenderer::Render()
 
     START_PROFILE("GlobeRenderer");
 
-    g_renderer3d->BeginFrame3D();
-
     float popupScale = g_preferences->GetFloat(PREFS_INTERFACE_POPUPSCALE);
     m_drawScale = m_zoomFactor / (1.0f-popupScale*0.1f);
 
@@ -642,6 +904,12 @@ void GlobeRenderer::Render()
     RenderStarField();
     g_renderer3d->EndStaticSpriteBatch3D();        // Flush star sprites
     END_PROFILE("Starfield");
+
+    if (!g_app->IsGlobeMode()) {
+        g_renderer->SetDepthBuffer(false, false);
+        END_PROFILE("GlobeRenderer");
+        return;
+    }
     
     //
     // Begin scene main scene
@@ -659,10 +927,31 @@ void GlobeRenderer::Render()
     { 
         RenderPopulationDensity();
     }
+
     if( g_app->GetWorldRenderer()->m_showNukeUnits )           
     {
         RenderNukeUnits();
     }
+
+    if (ShouldUse3DNukeTrajectories()) {
+
+        //
+        // Set blend mode to normal and disable depth writes for nuke trajectories
+        // to prevent trail segments from being visible when using alpha blending
+
+        g_renderer->SetBlendMode(Renderer::BlendModeNormal);
+        glDepthMask(GL_FALSE);
+    
+        Render3DNukeTrajectories();
+    
+        g_renderer3d->EndLineBatch3D();
+    
+        glDepthMask(GL_TRUE);
+        
+        Render3DNukes();
+    }
+
+    g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
 
     RenderCities();
     RenderObjects();
@@ -686,8 +975,6 @@ void GlobeRenderer::Render()
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
     
     RenderDragIcon();
-
-    g_renderer3d->EndFrame3D();
 
     END_PROFILE("GlobeRenderer");
 }
@@ -1034,8 +1321,6 @@ void GlobeRenderer::RenderObjects()
 {
     START_PROFILE( "Objects" );
 
-    if (!g_app->IsGlobeMode()) return;
-
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
     g_renderer->SetFont( "kremlin", true );
@@ -1129,11 +1414,292 @@ void GlobeRenderer::RenderObjects()
     END_PROFILE( "Objects" );
 }
 
+void GlobeRenderer::Render3DNukes()
+{
+    if (!ShouldUse3DNukeTrajectories()) return;
+
+    START_PROFILE("3D Nukes");
+    
+    Model3D *nukeModel = GetNukeModel();
+    if (!nukeModel || !nukeModel->IsLoaded()) {
+        END_PROFILE("3D Nukes");
+        return;
+    }
+    
+    int myTeamId = g_app->GetWorld()->m_myTeamId;
+    
+    //
+    // Get cache key from model
+    
+    const char* cacheKey = nukeModel->GetCacheKey();
+    if (!cacheKey || !cacheKey[0]) {
+        g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
+        END_PROFILE("3D Nukes");
+        return;
+    }
+    
+    if (!g_renderer3dvbo->IsTriangleMegaVBO3DValid(cacheKey)) {
+        g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
+        END_PROFILE("3D Nukes");
+        return;
+    }
+    
+    //
+    // Clear all sub batches from previous frame
+    
+    const char* baseBatchKey = "nuke_instances";
+    g_renderer3dvbo->InvalidateInstanceBatchPrefix(baseBatchKey);
+    
+    //
+    // Begin instanced batch for nukes
+    
+    int batchIndex = 0;
+    char currentBatchKey[256];
+    sprintf(currentBatchKey, "%s_%d", baseBatchKey, batchIndex);
+    
+    g_renderer3dvbo->BeginInstancedMegaVBO(currentBatchKey, cacheKey);
+    
+    //
+    // Collect all visible nukes as instances
+    
+    for (int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i) {
+        if (g_app->GetWorld()->m_objects.ValidIndex(i)) {
+            WorldObject *wobj = g_app->GetWorld()->m_objects[i];
+            
+            if (wobj->m_type != WorldObject::TypeNuke) continue;
+            if (!wobj->IsMovingObject()) continue;
+            
+            Nuke* nuke = (Nuke*)wobj;
+            
+            bool shouldRender = (myTeamId == -1 ||
+                               wobj->m_teamId == myTeamId ||
+                               wobj->m_visible[myTeamId] ||
+                               g_app->GetWorldRenderer()->CanRenderEverything());
+            
+            if (!shouldRender) continue;
+            
+            Vector3<float> unitPos = CalculateNuke3DPosition(nuke);
+            
+            //
+            // Calculate size
+            
+            float baseSize = nuke->GetSize3D().DoubleValue();
+            float size = baseSize * GLOBE_NUKE_MODEL_SIZE;
+            
+            //
+            // Calculate orientation using trajectory derivative
+            
+            Vector3<float> direction(0, 0, 1);
+            
+            if (nuke->m_totalDistance > 0) {
+
+                //
+                // Get predicted progress and sample slightly ahead for direction
+                
+                float predictedProgress = CalculateNukePredictedProgress(nuke);
+                float deltaProgress = 0.01f;
+                float aheadProgress = fminf(1.0f, predictedProgress + deltaProgress);
+                
+                Vector3<float> aheadPos = CalculateNukeTrajectoryPoint(nuke, aheadProgress);
+                
+                direction = aheadPos - unitPos;
+                direction.Normalise();
+            } else {
+
+                //
+                // Fallback to history if trajectory shits itself
+                
+                LList<Vector3<Fixed> *>& history = nuke->GetHistory();
+                if (history.Size() > 1) {
+                    Vector3<float> currentPos = unitPos;
+                    Vector3<Fixed>* olderHistoryPos = history[1];
+                    Vector3<float> olderPos = CalculateHistoricalNuke3DPosition(nuke, *olderHistoryPos);
+                    direction = currentPos - olderPos;
+                    direction.Normalise();
+                }
+            }
+            
+            Vector3<float> forward = direction;
+            forward.Normalise();
+            
+            Vector3<float> up = Vector3<float>(0.0f, 1.0f, 0.0f);
+            if (fabsf(forward.y) > 0.9f) {
+                up = Vector3<float>(1.0f, 0.0f, 0.0f);
+            }
+            
+            Vector3<float> right = up ^ forward;
+            right.Normalise();
+            up = forward ^ right;
+            up.Normalise();
+            
+            float modelRadius = nukeModel->GetBoundsRadius();
+            float scale = size / modelRadius;
+            
+            //
+            // Build model matrix from position, orientation, and scale
+            
+            Matrix4f modelMatrix;
+            modelMatrix.m[0] = right.x * scale;
+            modelMatrix.m[1] = right.y * scale;
+            modelMatrix.m[2] = right.z * scale;
+            modelMatrix.m[3] = 0.0f;
+            
+            modelMatrix.m[4] = up.x * scale;
+            modelMatrix.m[5] = up.y * scale;
+            modelMatrix.m[6] = up.z * scale;
+            modelMatrix.m[7] = 0.0f;
+            
+            modelMatrix.m[8] = forward.x * scale;
+            modelMatrix.m[9] = forward.y * scale;
+            modelMatrix.m[10] = forward.z * scale;
+            modelMatrix.m[11] = 0.0f;
+            
+            modelMatrix.m[12] = unitPos.x;
+            modelMatrix.m[13] = unitPos.y;
+            modelMatrix.m[14] = unitPos.z;
+            modelMatrix.m[15] = 1.0f;
+            
+            //
+            // Get team color for this nuke
+            
+            Team *team = g_app->GetWorld()->GetTeam(nuke->m_teamId);
+            Colour color = team ? team->GetTeamColour() : White;
+            
+            if (!g_renderer3dvbo->AddInstanceIfNotFull(modelMatrix, color)) {
+                g_renderer3dvbo->EndInstancedMegaVBO();
+                g_renderer3dvbo->RenderInstancedMegaVBO3D(currentBatchKey);
+                
+                batchIndex++;
+                sprintf(currentBatchKey, "%s_%d", baseBatchKey, batchIndex);
+                
+                g_renderer3dvbo->BeginInstancedMegaVBO(currentBatchKey, cacheKey);
+                g_renderer3dvbo->AddInstance(modelMatrix, color);
+            }
+        }
+    }
+    
+    g_renderer3dvbo->EndInstancedMegaVBO();
+    g_renderer3dvbo->RenderInstancedMegaVBO3D(currentBatchKey);
+    
+    g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
+    
+    END_PROFILE("3D Nukes");
+}
+
+
+//
+// render 3D nuke trajectories and trails
+
+void GlobeRenderer::Render3DNukeTrajectories()
+{
+    if (g_preferences->GetInt(PREFS_GRAPHICS_TRAILS) != 1) return;
+    if (!ShouldUse3DNukeTrajectories()) return;
+
+    START_PROFILE("3D Nuke Trajectories");
+    
+    int myTeamId = g_app->GetWorld()->m_myTeamId;
+
+    for (int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i) {
+        if (g_app->GetWorld()->m_objects.ValidIndex(i)) {
+            WorldObject *wobj = g_app->GetWorld()->m_objects[i];
+            
+            //
+            // Make sure to only process nukes
+
+            if (wobj->m_type != WorldObject::TypeNuke) continue;
+            if (!wobj->IsMovingObject()) continue;
+            
+            MovingObject *mobj = (MovingObject*)wobj;
+            Nuke* nuke = (Nuke*)wobj;
+            
+            bool shouldRender = (myTeamId == -1 ||
+                               wobj->m_teamId == myTeamId ||
+                               wobj->m_visible[myTeamId] ||
+                               g_app->GetWorldRenderer()->CanRenderEverything());
+            
+            if (!shouldRender) continue;
+            
+            //
+            // Check if history exists
+
+            LList<Vector3<Fixed> *>& history = mobj->GetHistory();
+            if (history.Size() == 0) continue;
+            
+            Team *team = g_app->GetWorld()->GetTeam(mobj->m_teamId);
+            Colour colour;
+            if (team) {
+                colour = team->GetTeamColour();
+            } else {
+                colour = COLOUR_SPECIALOBJECTS;
+            }
+            
+            //
+            // Calculate trail length based on zoom 
+
+            int maxSize = history.Size();
+            int sizeCap = (int)(80 * 0.5f); 
+            
+            //
+            // Account for increased sampling rate to maintain trail length
+
+            sizeCap *= 4;
+            
+            sizeCap /= World::GetGameScale().DoubleValue();
+            maxSize = (maxSize > sizeCap ? sizeCap : maxSize);
+            
+            if (maxSize <= 0) continue;
+            
+            Vector3<float> currentPos = CalculateNuke3DPosition(nuke);
+            Vector3<Fixed> pos(nuke->m_longitude, nuke->m_latitude, 0);
+            float currentProgress = CalculateNukeProgressFromPosition(nuke, pos);
+            
+            GreatCircleConstants trajectoryConstants;
+            bool hasTrajectory = CalculateNukeTrajectoryConstants(nuke, trajectoryConstants);
+            
+            //
+            // Use 4x more segments to match renderhistory sampling rate
+            
+            int maxTrailLength = fmaxf(4, fminf(maxSize, 128));
+            Vector3<float> prevPos = currentPos;
+            float lineWidth = 1.5f;
+            float invMaxTrailLength = 1.0f / (float)maxTrailLength;
+            
+            for (int j = 0; j < maxTrailLength; ++j) {
+
+                //
+                // Work backwards: j=0 is newest, j=maxTrailLength-1 is oldest
+
+                float jNorm = (float)j * invMaxTrailLength;
+                float historicalProgress = currentProgress * (1.0f - jNorm);
+                historicalProgress = fmaxf(0.0f, fminf(1.0f, historicalProgress));
+                
+                Vector3<float> pos3D;
+                if (!hasTrajectory) {
+                    int actualHistoryIndex = (j * maxSize) / maxTrailLength;
+                    if (actualHistoryIndex >= history.Size()) break;
+                    Vector3<Fixed> *historyPos = history[actualHistoryIndex];
+                    pos3D = ConvertLongLatTo3DPosition(historyPos->x.DoubleValue(), historyPos->y.DoubleValue());
+                } else {
+                    pos3D = CalculateTrajectoryPointFromConstants(trajectoryConstants, historicalProgress);
+                }
+                
+                Colour segmentColour = colour;
+                segmentColour.m_a = (unsigned char)(255.0f * (1.0f - jNorm));
+                
+                g_renderer3d->Line3D(prevPos.x, prevPos.y, prevPos.z,
+                                             pos3D.x, pos3D.y, pos3D.z, segmentColour, lineWidth );
+                
+                prevPos = pos3D;
+            }
+        }
+    }
+
+    END_PROFILE("3D Nuke Trajectories");
+}
+
 void GlobeRenderer::RenderGunfire()
 {
     START_PROFILE( "Gunfire" );
-
-    if (!g_app->IsGlobeMode()) return;
 
     int myTeamId = g_app->GetWorld()->m_myTeamId;
 
@@ -1161,8 +1727,6 @@ void GlobeRenderer::RenderExplosions()
 {
     START_PROFILE( "Explosions" );
 
-    if (!g_app->IsGlobeMode()) return;
-
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
     for( int i = 0; i < g_app->GetWorld()->m_explosions.Size(); ++i )
@@ -1189,8 +1753,6 @@ void GlobeRenderer::RenderExplosions()
 void GlobeRenderer::RenderPopulationDensity()
 {
     START_PROFILE( "Population Density" );
-
-    if (!g_app->IsGlobeMode()) return;
 
     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
     
@@ -1233,8 +1795,6 @@ void GlobeRenderer::RenderPopulationDensity()
 
 void GlobeRenderer::RenderNukeUnits()
 {
-    if (!g_app->IsGlobeMode()) return;
-
     Team *team = g_app->GetWorld()->GetMyTeam();
     if( team )
     {
@@ -1287,8 +1847,6 @@ void GlobeRenderer::RenderNukeUnits()
 
 void GlobeRenderer::RenderUnitHighlight( int _objectId )
 {
-    if (!g_app->IsGlobeMode()) return;
-
     WorldObject *obj = g_app->GetWorld()->GetWorldObject( _objectId );
     if( obj )
     {
@@ -1433,8 +1991,6 @@ void GlobeRenderer::RenderWhiteBoard()
 
 void GlobeRenderer::RenderAnimations()
 {
-    if (!g_app->IsGlobeMode()) return;
-
     for( int i = 0; i <  g_app->GetWorldRenderer()->GetAnimations().Size(); ++i )
     {
         if(  g_app->GetWorldRenderer()->GetAnimations().ValidIndex(i) )
@@ -1456,8 +2012,6 @@ void GlobeRenderer::RenderAnimations()
 void GlobeRenderer::RenderCities()
 {
     START_PROFILE( "Cities" );
-
-    if (!g_app->IsGlobeMode()) return;
 
     g_renderer->SetFont( "kremlin", true );
 
@@ -1615,8 +2169,6 @@ void GlobeRenderer::RenderCities()
 void GlobeRenderer::RenderSanta()
 {
 #ifdef ENABLE_SANTA_EASTEREGG
-	if ( !g_app->IsGlobeMode()) return;
-	
 	Vector3<float> cameraPos = GetCameraPosition();
 	
 	if ( g_app->GetWorld()->m_santaAlive )

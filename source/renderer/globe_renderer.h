@@ -13,9 +13,9 @@ class Model3D;
 class Blip;
 
 #define    GLOBE_RADIUS                                1.0f     // default globe radius
-#define    GLOBE_CULL_RADIUS                           0.995f   // culling sphere radius (inside the globe)
+#define    GLOBE_CULL_RADIUS                           0.997f   // culling sphere radius (inside the globe)
 #define    GLOBE_ELEVATION                             0.0f     // no elevation, but here incase we do need elevation 
-#define    GLOBE_NUKE_MODEL_SIZE                       0.75f    // nuke model scale
+#define    GLOBE_NUKE_MODEL_SIZE                       0.65f    // nuke model scale
 #define    GLOBE_ANIMATED_ICON_SIZE                    0.06f    // base size of animated icons
 #define    GLOBE_OBJECT_SIZE                           0.0075f  // base size for objects on the globe
 #define    GLOBE_UNIT_ICON_SIZE                        0.35f    // base size for unit icons (smallfighter.bmp etc)
@@ -42,6 +42,43 @@ public:
                                               & toNormal, float t);
     void           GetSurfaceTangents        (const Vector3<float>& normal, Vector3<float>
                                               & tangent1, Vector3<float>& tangent2);
+    Vector3<float> GetCameraPosition();
+
+    Model3D *GetNukeModel() { return nukeModel; }
+
+    struct GreatCircleConstants {
+        float lat1, lon1;            // Launch position in radians
+        float lat2, lon2;            // Target position in radians (wrapped)
+        float totalDistanceRadians;  // Distance in radians
+        float sinDistance;           // sin(distance) for interpolation
+        float x1, y1, z1;            // Launch point in cartesian
+        float x2, y2, z2;            // Target point in cartesian
+        float trajectoryHeightScale; // Pre-calculated height scaling factor
+    };
+
+    bool   ShouldUse3DNukeTrajectories();
+    
+    void   GetNukeLaunchPosition                         (Nuke* nuke, float& outLon, float& outLat);
+    void   NormalizeLongitudeForGreatCircle              (float& lon1, float& lon2);
+    void   CalculateGreatCircleDistance                  (float lat1, float lon1, float lat2, float lon2, 
+                                                          float& outDistance, float& outSinDistance);
+    void   CalculateCartesianCoordinates                 (float lat, float lon, float& outX, float& outY, float& outZ);
+    void   CalculateGreatCircleConstants                 (float launchLon, float launchLat, 
+                                                          float targetLon, float targetLat, 
+                                                          GreatCircleConstants& outConstants);
+    Vector3<float> CalculateTrajectorySurfacePosition    (const GreatCircleConstants& constants, float progress);
+    Vector3<float> CalculateTrajectoryPointFromConstants (const GreatCircleConstants& constants, float progress);
+    Vector3<float> CalculateNukeTrajectoryPoint          (Nuke* nuke, float progress);
+    Vector3<float> CalculateNuke3DPosition               (Nuke* nuke);
+    Vector3<float> CalculateHistoricalNuke3DPosition     (Nuke* nuke, const Vector3<Fixed>& historicalPos);
+    Vector3<float> CalculateHistoricalNuke3DPositionByAge(Nuke* nuke, const Vector3<Fixed>& historicalPos, 
+                                                          float historicalProgress);
+
+    bool           CalculateNukeTrajectoryConstants      (Nuke* nuke, GreatCircleConstants& outConstants);
+    float          CalculateTrajectoryHeightScale        (float distanceRadians);
+    float          CalculateTrajectoryArcHeight          (const GreatCircleConstants& constants, float progress);
+    float          CalculateNukeProgressFromPosition     (Nuke* nuke, const Vector3<Fixed>& pos);
+    float          CalculateNukePredictedProgress        (Nuke* nuke);
 
     struct Star3D {
         Vector3<float> position;
@@ -52,7 +89,7 @@ public:
     DArray<Star3D> g_starField3D;
     bool g_starField3DInitialized = false;
 
-    Model3D *m_nukeModel;
+    Model3D *nukeModel;
 
     float   m_zoomFactor;
 
@@ -111,6 +148,8 @@ public:
     void    AddLineStrip(const DArray<Vector3<float>> &vertices) const;
 
     void    RenderObjects();
+    void    Render3DNukeTrajectories();
+    void    Render3DNukes();
     void    RenderGunfire();
     void    RenderExplosions();
     void    RenderAnimations();
@@ -133,8 +172,6 @@ public:
     void    RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges );
     void    RenderActionLine           ( float fromLong, float fromLat, float toLong, float toLat,
                                         Colour col, float width, bool animate=true );
-    
-    Vector3<float> GetCameraPosition();
 
     static  float ConvertMenuToFogDensity                 (float menuValue);
     static  float ConvertFogDensityToMenu                 (float internalValue);
