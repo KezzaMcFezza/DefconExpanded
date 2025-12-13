@@ -416,8 +416,12 @@ void App::MinimalInit()
     
     g_resource = new Resource();
     g_styleTable = new StyleTable();
-    g_styleTable->Load( "default.txt" );
-    bool success = g_styleTable->Load( g_preferences->GetString(PREFS_INTERFACE_STYLE) );
+    
+    //
+    // Load styles and maybe merge if mods are activated
+    // Base styles first, then mod styles merge on top, then user preference
+    
+    MergeStyles();
 
     m_clientToServer = new ClientToServer();
     m_clientToServer->OpenConnections();
@@ -1228,6 +1232,64 @@ void App::RenderTitleScreen()
         x += thisW;
     }
 
+}
+
+void App::MergeStyles()
+{
+    if( !g_styleTable )
+    {
+        return;
+    }
+
+    LList<char *> savedSearchPath;
+    for( int i = 0; i < g_fileSystem->m_searchPath.Size(); ++i )
+    {
+        savedSearchPath.PutData( newStr( g_fileSystem->m_searchPath[i] ) );
+    }
+
+    g_fileSystem->ClearSearchPath();
+
+    //
+    // Load base game default.txt FIRST before mod paths are added
+    // This ensures all base styles exist in memory
+
+    g_styleTable->Load( "default.txt" );
+
+    for( int i = 0; i < savedSearchPath.Size(); ++i )
+    {
+        g_fileSystem->AddSearchPath( savedSearchPath[i] );
+    }
+
+    //
+    // Load each mods style file individually to merge on top of base styles
+
+    for( int i = 0; i < g_modSystem->m_mods.Size(); ++i )
+    {
+        InstalledMod *mod = g_modSystem->m_mods[i];
+        if( mod->m_active )
+        {
+            char stylePath[512];
+            sprintf( stylePath, "%sdata/styles/default.txt", mod->m_path );
+            if( DoesFileExist( stylePath ) )
+            {
+                g_fileSystem->ClearSearchPath();
+                g_fileSystem->AddSearchPath( mod->m_path );
+                g_styleTable->Load( "default.txt" );
+            }
+        }
+    }
+
+    g_fileSystem->ClearSearchPath();
+    for( int i = 0; i < savedSearchPath.Size(); ++i )
+    {
+        g_fileSystem->AddSearchPath( savedSearchPath[i] );
+    }
+    savedSearchPath.EmptyAndDeleteArray();
+
+    //
+    // Finally load users preferred style file
+
+    g_styleTable->Load( g_preferences->GetString(PREFS_INTERFACE_STYLE) );
 }
 
 

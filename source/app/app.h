@@ -117,6 +117,7 @@ public:
     
     void    RenderOwner();
     void    RenderTitleScreen();
+    void    MergeStyles ();                         // Loads base styles, then merges mod styles, then user preference
 
     WorldRenderer   *GetWorldRenderer();
     MapRenderer     *GetMapRenderer();

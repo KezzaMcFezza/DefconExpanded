@@ -876,6 +876,17 @@ void ModSystem::Commit()
 
     g_fileSystem->ClearSearchPath();
 
+    //
+    // Load base game default.txt FIRST before mod paths are added
+
+    if( g_styleTable )
+    {
+        g_styleTable->Load( "default.txt" );
+    }
+
+    // This ensures all base styles exist in memory
+    // Mod styles will merge on top of these later
+
     char fullModPath[4096];
     char modDescription[8192];
     char temp[1024];
@@ -948,19 +959,40 @@ void ModSystem::Commit()
         g_languageTable->LoadLanguages();
         g_languageTable->LoadCurrentLanguage();
 
+        bool stylesChanged = false;
+        for( int i = 0; i < m_mods.Size(); ++i )
+        {
+            InstalledMod *mod = m_mods[i];
+            if( mod->m_active )
+            {
+                char stylePath[512];
+                sprintf( stylePath, "%sdata/styles/default.txt", mod->m_path );
+                if( DoesFileExist( stylePath ) )
+                {
+                    stylesChanged = true;
+                    break;
+                }
+            }
+        }
+
         //
         // Protect VBOs from InvalidateAllVBOs if geography hasnt changed
-        // since resource restart will invalidate all VBOs
+        // since resource restart will invalidate all VBOs.
+        // But dont protect VBOs if styles changed
         
         if (!geographyChanged)
         {
-            g_renderer2dvbo->ProtectVBO("MapCoastlines");
-            g_renderer2dvbo->ProtectVBO("MapBorders");
             g_renderer3dvbo->Protect3DVBO("Starfield");
             g_renderer3dvbo->Protect3DVBO("CullingSphere");
-            g_renderer3dvbo->Protect3DVBO("GlobeCoastlines");
-            g_renderer3dvbo->Protect3DVBO("GlobeBorders");
-            g_renderer3dvbo->Protect3DVBO("GlobeGridlines");
+
+            if (!stylesChanged)
+            {
+                g_renderer2dvbo->ProtectVBO("MapCoastlines");
+                g_renderer2dvbo->ProtectVBO("MapBorders");
+                g_renderer3dvbo->Protect3DVBO("GlobeCoastlines");
+                g_renderer3dvbo->Protect3DVBO("GlobeBorders");
+                g_renderer3dvbo->Protect3DVBO("GlobeGridlines");
+            }
         }
 
         g_resource->Restart();
@@ -997,8 +1029,23 @@ void ModSystem::Commit()
         g_soundSystem->EnableCallback(true);
 #endif
 
-        g_styleTable->Load( "default.txt" );
-        g_styleTable->Load( g_preferences->GetString(PREFS_INTERFACE_STYLE) );        
+
+        if( g_styleTable )
+        {
+            g_app->MergeStyles();
+
+            //
+            // If styles changed, invalidate VBOs so they rebuild with new colors
+
+            if( stylesChanged )
+            {
+                g_renderer2dvbo->InvalidateCachedVBO("MapCoastlines");
+                g_renderer2dvbo->InvalidateCachedVBO("MapBorders");
+                g_renderer3dvbo->InvalidateCached3DVBO("GlobeCoastlines");
+                g_renderer3dvbo->InvalidateCached3DVBO("GlobeBorders");
+                g_renderer3dvbo->InvalidateCached3DVBO("GlobeGridlines");
+            }
+        }
     }
         
     if( msgDialog )
