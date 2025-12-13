@@ -207,26 +207,27 @@ void SonarPing::Render3D()
         Vector3<float> centerNormal = centerPos;
         centerNormal.Normalise();
         
+        Vector3<float> tangent1, tangent2;
+        globeRenderer->GetSurfaceTangents(centerNormal, tangent1, tangent2);
+        
+        float size3D = size * (M_PI / 180.0f) * GLOBE_RADIUS;
+        
         for( int i = 0; i < numPoints; ++i )
         {
             float angle1 = (float)i * angleStep;
             float angle2 = (float)(i + 1) * angleStep;
             
-            float x1 = m_longitude + size * sinf(angle1);
-            float y1 = m_latitude + size * cosf(angle1);
-            float x2 = m_longitude + size * sinf(angle2);
-            float y2 = m_latitude + size * cosf(angle2);
+            Vector3<float> offset1 = tangent1 * (size3D * cosf(angle1)) + tangent2 * (size3D * sinf(angle1));
+            Vector3<float> offset2 = tangent1 * (size3D * cosf(angle2)) + tangent2 * (size3D * sinf(angle2));
             
-            Vector3<float> pos1 = globeRenderer->ConvertLongLatTo3DPosition(x1, y1);
-            Vector3<float> pos2 = globeRenderer->ConvertLongLatTo3DPosition(x2, y2);
+            Vector3<float> pos1 = centerPos + offset1;
+            Vector3<float> pos2 = centerPos + offset2;
             
-            Vector3<float> normal1 = pos1;
-            normal1.Normalise();
-            pos1 += normal1 * GLOBE_ELEVATION;
+            pos1.Normalise();
+            pos1 = pos1 * GLOBE_RADIUS + pos1 * GLOBE_ELEVATION;
             
-            Vector3<float> normal2 = pos2;
-            normal2.Normalise();
-            pos2 += normal2 * GLOBE_ELEVATION;
+            pos2.Normalise();
+            pos2 = pos2 * GLOBE_RADIUS + pos2 * GLOBE_ELEVATION;
             
             g_renderer3d->Line3D( pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z, colour );
         }
