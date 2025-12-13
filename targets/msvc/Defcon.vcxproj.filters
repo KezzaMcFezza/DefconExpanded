@@ -453,9 +453,6 @@
     <ClCompile Include="..\..\source\interface\interface.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\interface\version_popup.cpp">
-      <Filter>interface</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\interface\lobby_window.cpp">
       <Filter>interface</Filter>
     </ClCompile>
@@ -1241,9 +1238,6 @@
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\interface\interface.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\interface\version_popup.h">
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\interface\lobby_window.h">

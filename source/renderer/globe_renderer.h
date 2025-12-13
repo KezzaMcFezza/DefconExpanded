@@ -62,10 +62,12 @@ public:
     void   NormalizeLongitudeForGreatCircle              (float& lon1, float& lon2);
     void   CalculateGreatCircleDistance                  (float lat1, float lon1, float lat2, float lon2, 
                                                           float& outDistance, float& outSinDistance);
+                                                          
     void   CalculateCartesianCoordinates                 (float lat, float lon, float& outX, float& outY, float& outZ);
     void   CalculateGreatCircleConstants                 (float launchLon, float launchLat, 
                                                           float targetLon, float targetLat, 
                                                           GreatCircleConstants& outConstants);
+
     Vector3<float> CalculateTrajectorySurfacePosition    (const GreatCircleConstants& constants, float progress);
     Vector3<float> CalculateTrajectoryPointFromConstants (const GreatCircleConstants& constants, float progress);
     Vector3<float> CalculateNukeTrajectoryPoint          (Nuke* nuke, float progress);

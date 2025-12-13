@@ -62,7 +62,6 @@
 #include "interface/chat_window.h"
 #endif
 
-#include "interface/version_popup.h"
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
@@ -466,6 +465,47 @@ void App::MinimalInit()
 
 }
 
+static bool CheckMainDatVersion()
+{
+    TextReader *reader = g_fileSystem->GetTextReader( "data/version.txt" );
+    
+    if( !reader || !reader->IsOpen() )
+    {
+        delete reader;
+        return false;
+    }
+
+    float datVersion = 0.0f;
+    bool found = false;
+
+    while( reader->ReadLine() )
+    {
+        char *line = reader->m_line;
+        if( !line ) continue;
+        
+        if( strnicmp( line, "VERSION", 7 ) == 0 )
+        {
+            const char *p = line;
+            while( *p && !( *p >= '0' && *p <= '9' ) ) p++;
+            
+            if( *p )
+            {
+                datVersion = (float)atof( p );
+                found = true;
+            }
+            break;
+        }
+    }
+
+    delete reader;
+
+    if( !found ) return false;
+
+    float clientVersion = (float)atof( APP_BUILD_NUMBER );
+
+    return datVersion >= clientVersion;
+}
+
 void App::FinishInit()
 {
 #ifdef TOGGLE_SOUND
@@ -483,8 +523,9 @@ void App::FinishInit()
     
     if( !CheckMainDatVersion() )
     {
-        VersionPopupWindow *versionPopup = new VersionPopupWindow();
-        EclRegisterWindow( versionPopup );
+        char *message = "Your data folder or main.dat is out of date.\n\nYou can ignore this message and play anyway but\nexpect broken text rendering or graphical bugs.";
+        MessageDialog *versionDialog = new MessageDialog( "Version Warning", message, false, "DATA FILES OUT OF DATE", false );
+        EclRegisterWindow( versionDialog );
     }
 
     // Need to query the metaserver to know if we should show the Buy Now button
