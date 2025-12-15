@@ -34,10 +34,8 @@
 #include "network/ServerToClient.h"
 #include "network/ClientToServer.h"
 #include "network/network_defines.h"
-#if RECORDING_PARSING
 #include "network/recordingparser.h"
 #include "interface/connecting_window.h" 
-#endif
 
 #include <fstream>
 #include <memory>
@@ -230,8 +228,6 @@ bool Server::Initialise()
     return true;
 #endif
 }
-
-#if RECORDING_PARSING
 bool Server::LoadRecording( const std::string &filename, bool debugPrint )
 {
     std::ifstream in(filename.c_str(), std::ios::binary|std::ios::in);
@@ -523,7 +519,6 @@ void Server::SetRecordingSpeed( float speed )
     }
     
 }
-#endif
 
 void Server::DebugDumpHistory()
 {
@@ -2013,7 +2008,6 @@ void Server::Advance()
         incoming = NULL;
     }
 
-#if RECORDING_PARSING
     //
     // Inject recorded messages instead of processing live messages
 
@@ -2094,10 +2088,11 @@ void Server::Advance()
             
         }
     }
-#endif
 
+    //
     // Always send letters through the normal path for proper sequence ID management
     // Recording playback now injects recorded data into the normal flow
+
     SendLetter( letter );
 
 

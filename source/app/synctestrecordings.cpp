@@ -18,8 +18,6 @@
 #include <string.h>
 #include <memory>
 
-#if RECORDING_PARSING
-
 void DumpSyncLogs( const char *syncId, bool force );
 
 SyncTestRecordings::SyncTestRecordings()
@@ -206,4 +204,3 @@ void SyncTestRecordings::Update()
     }
     
 }
-#endif

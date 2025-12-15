@@ -137,7 +137,7 @@ start_build() {
     if [[ "$project_type" == "replay" ]]; then
         BUILD_DIR="wasm-replay-$build_type"
         CMAKE_BUILD_FLAG="-DREPLAY_VIEWER_BUILD=ON"
-        CMAKE_DEFINES="-DRECORDING_PARSING=1 -DREPLAY_VIEWER=1"
+        CMAKE_DEFINES="-DREPLAY_VIEWER=1"
         TARGET_DIR="replay_viewer"
         UPDATE_SCRIPT="update_replay_viewer_version.py"
     else

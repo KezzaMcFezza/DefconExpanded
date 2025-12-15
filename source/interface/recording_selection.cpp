@@ -110,25 +110,26 @@ void PlayFromLobbyButton::MouseUp()
 
     if( success )
     {
+        //
         // Copy filename to avoid corruption when window is destroyed
+
         char recordingFilename[512];
         strncpy( recordingFilename, parent->m_recordingFilename, sizeof(recordingFilename) - 1 );
         recordingFilename[sizeof(recordingFilename) - 1] = '\0';
         
+        //
         // Close main menu and recording selection window BEFORE doing anything else
+        
         EclRemoveWindow( "Main Menu" );
         EclRemoveWindow( parent->m_name );
         
-#if RECORDING_PARSING
-        
+        //
         // Start recording server using the copied filename
+
         bool recordingLoaded = g_app->GetServer()->StartRecordingPlaybackServer( recordingFilename );
 
         if( recordingLoaded )
         {
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-            AppDebugOut("Started recording playback from lobby\n");
-#endif
             int ourPort = g_app->GetServer()->GetLocalPort();
             g_app->GetClientToServer()->ClientJoin( ourIp, ourPort );
 
@@ -145,12 +146,6 @@ void PlayFromLobbyButton::MouseUp()
                                                     false, "dialog_recording_failed", true );
             EclRegisterWindow( msg );
         }
-#else
-        MessageDialog *msg = new MessageDialog( "RECORDING NOT SUPPORTED",
-                                                "Recording playback is not available in this build.", 
-                                                false, "dialog_recording_not_supported", true );
-        EclRegisterWindow( msg );
-#endif
     }
 }
 
@@ -259,7 +254,6 @@ void PlayFromGameStartButton::MouseUp()
         EclRemoveWindow( "Main Menu" );
         EclRemoveWindow( parent->m_name );
         
-#if RECORDING_PARSING
         g_app->InitWorld();
         
         // Start recording server using the copied filename
@@ -272,9 +266,6 @@ void PlayFromGameStartButton::MouseUp()
             if( gameStartSeqId > 0 )
             {
                 g_app->GetServer()->EnableFastForward( gameStartSeqId, 500.0f );
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-                AppDebugOut("Enabled fast-forward to sequence %d for 'Play from Game Start'\n", gameStartSeqId);
-#endif
             }
             
             int ourPort = g_app->GetServer()->GetLocalPort();
@@ -284,10 +275,6 @@ void PlayFromGameStartButton::MouseUp()
             connectingWindow->m_popupLobbyAtEnd = true;                         // Skip lobby and go straight to game
             connectingWindow->SetFastForwardMode( true, gameStartSeqId );       // Enable fast-forward display
             EclRegisterWindow( connectingWindow );
-            
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-            AppDebugOut("Started recording playback from game start\n");
-#endif
         }
         else
         {
@@ -296,12 +283,6 @@ void PlayFromGameStartButton::MouseUp()
                                                     false, "dialog_recording_failed", true );
             EclRegisterWindow( msg );
         }
-#else
-        MessageDialog *msg = new MessageDialog( "RECORDING NOT SUPPORTED",
-                                                "Recording playback is not available in this build.", 
-                                                false, "dialog_recording_not_supported", true );
-        EclRegisterWindow( msg );
-#endif
     }
 }
 

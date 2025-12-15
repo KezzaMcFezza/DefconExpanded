@@ -124,10 +124,8 @@ public:
     virtual bool        IsHiddenFrom    ();
 
     virtual bool        Update          ();
-#if RECORDING_PARSING
     virtual void        RenderHealthBar2D ();
     virtual void        RenderHealthBar3D ();
-#endif
     
 	virtual void		RunAI			();
 

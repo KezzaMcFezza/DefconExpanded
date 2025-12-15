@@ -18,9 +18,6 @@
 #include "world/team.h"
 #include "app/globals.h"
 #include "network/Server.h"
-#include "renderer/map_renderer.h"
-
-#if RECORDING_PARSING
 
 class HideUIConfirmCloseButton : public InterfaceButton
 {
@@ -929,5 +926,3 @@ void HideUIButton::Render(int realX, int realY, bool highlighted, bool clicked)
 {
     InterfaceButton::Render(realX, realY, highlighted, clicked);
 }
-
-#endif

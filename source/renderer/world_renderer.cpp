@@ -170,7 +170,6 @@ void WorldRenderer::SetShowAllWhiteBoards( bool showAllWhiteBoards )
 
 Team* WorldRenderer::GetEffectiveWhiteBoardTeam()
 {
-#if RECORDING_PARSING
 	if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
 	{
 		extern int g_desiredPerspectiveTeamId;
@@ -184,7 +183,6 @@ Team* WorldRenderer::GetEffectiveWhiteBoardTeam()
 			}
 		}
 	}
-#endif
 
 	return g_app->GetWorld()->GetMyTeam();
 }

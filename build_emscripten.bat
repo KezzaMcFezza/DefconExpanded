@@ -115,7 +115,7 @@ set NINJA_PATH=%ORIGINAL_DIR%\tools\bin\ninja.exe
 if "%PROJECT_TYPE%"=="replay" (
     set BUILD_DIR=wasm-replay-%BUILD_TYPE%
     set CMAKE_BUILD_FLAG=-DREPLAY_VIEWER_BUILD=ON
-    set CMAKE_DEFINES=-DRECORDING_PARSING=1 -DREPLAY_VIEWER=1
+    set CMAKE_DEFINES=-DREPLAY_VIEWER=1
     set TARGET_DIR=replay_viewer
     set UPDATE_SCRIPT=update_replay_viewer_version.py
 ) else (

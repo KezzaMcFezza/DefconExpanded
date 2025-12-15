@@ -992,7 +992,6 @@ void Interface::OpenGameWindows()
         EclRegisterWindow( new TutorialWindow() );
     }   
 
-#if RECORDING_PARSING
     //
     // If we're in recording playback mode, open the playback control window
 
@@ -1000,7 +999,6 @@ void Interface::OpenGameWindows()
     {
         EclRegisterWindow( new PlaybackControlWindow() );
     }
-#endif
 }
 
 

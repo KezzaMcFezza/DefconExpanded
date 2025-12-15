@@ -147,7 +147,7 @@ class MainMenuNewGameButton : public InterfaceButton
 
 
 
-#if !defined(RECORDING_PARSING) || !defined(REPLAY_VIEWER_DESKTOP) 
+#if !defined(REPLAY_VIEWER_DESKTOP) 
 class MainMenuPlaybackRecordingButton : public InterfaceButton
 {
 public:
@@ -189,21 +189,8 @@ public:
             return;
         }
 
-#if RECORDING_PARSING
-        // Show the recording selection window instead of directly starting playback
-#ifdef EMSCRIPTEN_PLAYBACK_TESTBED
-        AppDebugOut("Opening recording selection window\n");
-#endif
-        
-        // NEW: Constructor will automatically check for command line arguments
         RecordingSelectionWindow *selectionWindow = new RecordingSelectionWindow();
         EclRegisterWindow( selectionWindow );
-#else
-        MessageDialog *msg = new MessageDialog( "RECORDING NOT SUPPORTED",
-                                                "Recording playback is not available in this build.", 
-                                                false, "dialog_recording_not_supported", true );
-        EclRegisterWindow( msg );
-#endif
     }
 
     void Render( int realX, int realY, bool highlighted, bool clicked )
@@ -823,14 +810,9 @@ MainMenu::MainMenu()
 void MainMenu::Create()
 {
 #if TARGET_EMSCRIPTEN
-    // REPLAY VIEWER MODE: Don't create any buttons, just return immediately
-#ifdef EMSCRIPTEN_DEBUG
-    AppDebugOut("WebAssembly Replay Viewer: MainMenu::Create() blocked - no buttons created\n");
-#endif
     // Don't even call InterfaceWindow::Create() to avoid any initialization
     return;
 #else
-    // NORMAL MODE: Create the main menu interface
     InterfaceWindow::Create();
     
     int y = 5;
@@ -838,13 +820,11 @@ void MainMenu::Create()
     int g = 6;
 
     InterfaceButton *button = NULL;
-    // ========================================================================
-    // NORMAL MODE - All menu buttons
-    // ========================================================================
     
     //
     // New Game
-#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(SYNC_PRACTICE)
+
+#if !defined(SYNC_PRACTICE)
     if( !g_app->m_gameRunning )
     {
         button = new MainMenuNewGameButton();
@@ -856,7 +836,8 @@ void MainMenu::Create()
 
     //
     // Play back recording.
-#if defined(RECORDING_PARSING) && !defined(SYNC_PRACTICE) && !defined(REPLAY_VIEWER_DESKTOP)
+
+#if !defined(SYNC_PRACTICE) 
     if( !g_app->m_gameRunning )
     {
         button = new MainMenuPlaybackRecordingButton();
@@ -867,7 +848,8 @@ void MainMenu::Create()
 
     //
     // Join Game
-#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(SYNC_PRACTICE)
+
+#if !defined(SYNC_PRACTICE)
     button = new MainMenuJoinGameButton();
     button->SetProperties( "Join Game", 10, y+=h+g, m_w-20, h, "dialog_joingame", " ", true, false );
     RegisterButton( button );
@@ -884,7 +866,8 @@ void MainMenu::Create()
     //
     // Tutorial
     // Rolling Demo
-#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(SYNC_PRACTICE)
+
+#if !defined(SYNC_PRACTICE)
     if( !g_app->m_gameRunning )
     {
 #ifndef NON_PLAYABLE

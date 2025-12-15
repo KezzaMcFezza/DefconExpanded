@@ -14,8 +14,6 @@
 #include <memory>
 #include <fstream>
 
-#if RECORDING_PARSING
-
 inline void reverseCopy( char *_dest, const char *_src, size_t count )
 {
 	_src += count;
@@ -345,5 +343,3 @@ bool RecordingParser::ParseToHistory()
 
     return true;
 }
-
-#endif

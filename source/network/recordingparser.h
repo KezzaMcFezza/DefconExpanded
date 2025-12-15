@@ -2,8 +2,6 @@
 #include <string>
 #include <fstream> 
 
-#if RECORDING_PARSING
-
 class Directory;
 class Server;
 
@@ -28,5 +26,3 @@ private:
     void AddToHistory          ( Directory *dir );
     int  ExtractGameStartFromHeader  ();                                // Extract game start from DCGR header
 };
-
-#endif

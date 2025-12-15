@@ -419,9 +419,7 @@ void WorldObject::Render2D()
         colour.m_a /= 2;
     }
 
-#if RECORDING_PARSING
     RenderHealthBar2D();
-#endif
 }
 
 void WorldObject::Render3D()
@@ -483,12 +481,9 @@ void WorldObject::Render3D()
             colour.m_a /= 2;
         }
     }
-#if RECORDING_PARSING
     RenderHealthBar3D();
-#endif
 }
 
-#if RECORDING_PARSING
 void WorldObject::RenderHealthBar2D()
 {
     //
@@ -665,8 +660,6 @@ void WorldObject::RenderHealthBar3D()
         g_renderer3d->RectFill3D(healthBarPos, tangent1, tangent2, healthBarWidth, barHeight, healthColour);
     }
 }
-
-#endif
 
 void WorldObject::RenderCounter( int counter )
 {

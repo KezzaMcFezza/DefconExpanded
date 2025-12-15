@@ -35,9 +35,6 @@
 #include "app/app.h"
 #include "app/game.h"
 #include "app/modsystem.h"
-#if RECORDING_PARSING
-
-#endif
 #include "app/version_manager.h"
 
 #include "network/ClientToServer.h"
@@ -406,7 +403,6 @@ bool ProcessServerLetters( Directory *letter )
         int clientId = letter->GetDataInt(NET_DEFCON_CLIENTID);        
         int teamId   = letter->GetDataInt(NET_DEFCON_TEAMID);
         int teamType = letter->GetDataInt(NET_DEFCON_TEAMTYPE);
-#if RECORDING_PARSING
 
         //
         // override teamId if we are in replay mode, this way we can manipulate 
@@ -419,7 +415,7 @@ bool ProcessServerLetters( Directory *letter )
                 teamId = g_desiredPerspectiveTeamId;
             }
         }
-#endif
+
         if( teamType != Team::TypeAI &&
             clientId != g_app->GetClientToServer()->m_clientId )
         {
@@ -829,13 +825,12 @@ void EmscriptenMainLoop()
                     float timeToAdd = SERVER_ADVANCE_PERIOD.DoubleValue();
                     if( !g_app->m_gameRunning ) timeToAdd *= 5.0f;
                     
-#if RECORDING_PARSING
                     if( g_app->GetServer()->IsRecordingPlaybackMode() )
                     {
                         float speedMultiplier = g_app->GetServer()->GetRecordingAdvanceSpeedMultiplier();
                         timeToAdd /= speedMultiplier;
                     }
-#endif                 
+               
                     g_nextServerAdvanceTime += timeToAdd;
                     if (timeNow > g_nextServerAdvanceTime)
                     {
@@ -1157,13 +1152,13 @@ void DefconMain()
                     g_app->GetServer()->Advance();
                     float timeToAdd = SERVER_ADVANCE_PERIOD.DoubleValue();
                     if( !g_app->m_gameRunning ) timeToAdd *= 5.0f;
-#if RECORDING_PARSING
+
                     if( g_app->GetServer()->IsRecordingPlaybackMode() )
                     {
                         float speedMultiplier = g_app->GetServer()->GetRecordingAdvanceSpeedMultiplier();
                         timeToAdd /= speedMultiplier;
                     }
-#endif
+
                     nextServerAdvanceTime += timeToAdd;
                     if (timeNow > nextServerAdvanceTime)
                     {

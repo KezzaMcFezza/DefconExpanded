@@ -354,15 +354,16 @@ void ConnectingWindow::Render( bool _hasFocus )
                     lobbyY = std::max( lobbyY, 0.0f );
                     lobby->SetPosition(lobbyX, lobbyY);
                     EclRegisterWindow( lobby );
-#if RECORDING_PARSING
+
+                    //
                     // If we're in recording playback mode, also register the playback control window
                     // This allows seeking and speed control during lobby phase of recordings
+                    
                     if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() && 
                         !EclGetWindow( "Playback Controls" ) )
                     {
                         EclRegisterWindow( new PlaybackControlWindow() );
                     }
-#endif
                 }
             }
 

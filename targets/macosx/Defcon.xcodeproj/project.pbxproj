@@ -1719,7 +1719,6 @@
 					GUI,
 					SILENT,
 					TOGGLE_SOUND,
-					RECORDING_PARSING,
 				);
 				HEADER_SEARCH_PATHS = (
 					../../contrib/steam/public,
@@ -1814,7 +1813,6 @@
 					GUI,
 					SILENT,
 					TOGGLE_SOUND,
-					RECORDING_PARSING,
 				);
 				HEADER_SEARCH_PATHS = (
 					../../contrib/steam/public,
@@ -1864,7 +1862,6 @@
 					GUI,
 					SILENT,
 					TOGGLE_SOUND,
-					RECORDING_PARSING,
 				);
 				HEADER_SEARCH_PATHS = (
 					../../contrib/steam/public,
@@ -1913,7 +1910,6 @@
 					GUI,
 					SILENT,
 					TOGGLE_SOUND,
-					RECORDING_PARSING,
 				);
 				HEADER_SEARCH_PATHS = (
 					../../contrib/steam/public,

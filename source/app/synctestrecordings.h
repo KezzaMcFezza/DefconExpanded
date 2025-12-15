@@ -2,8 +2,6 @@
 #include <queue>
 #include <string>
 
-#if RECORDING_PARSING
-
 /*
  * Class that will manage testing the compatibility of a set of DEDCON recordings against
  * the Defcon executable.
@@ -26,5 +24,3 @@ public:
     void Update();
 
 };
-
-#endif

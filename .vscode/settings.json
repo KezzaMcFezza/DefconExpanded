@@ -129,7 +129,6 @@
         "-I${workspaceFolder}/resources",
         "-DWIN32",
         "-DUSE_CRASHREPORTING",
-        "-DRECORDING_PARSING",
         "-D_WIN32",
         "-DTARGET_MSVC",
         "-D_WINSOCK_DEPRECATED_NO_WARNINGS",
