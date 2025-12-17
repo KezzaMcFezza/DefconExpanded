@@ -22,9 +22,6 @@
 #include "input_sdl.h"
 #include "window_manager.h"
 
-#include "app/app.h"
-#include "app/globals.h"
-
 // Uncomment for lots of output
 // #define VERBOSE_DEBUG
 

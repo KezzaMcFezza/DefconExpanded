@@ -31,35 +31,35 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Endgame|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Replay Viewer|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -91,25 +91,25 @@
     <_ProjectFileVersion>17.0.33815.168</_ProjectFileVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\Defcon\</IntDir>
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>Defcon Result\Debug</OutDir>
+    <OutDir>Defcon Result\Debug\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\Defcon\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>Defcon Result\Release</OutDir>
+    <OutDir>Defcon Result\Release\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|x64'">
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\Defcon\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Endgame|x64'">
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\Defcon\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Replay Viewer|x64'">
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(Platform)\$(Configuration)\Defcon\</IntDir>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -146,9 +146,10 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;setupapi.lib;version.lib;imm32.lib;cfgmgr32.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;setupapi.lib;version.lib;imm32.lib;cfgmgr32.lib;SystemIV.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Debug\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
+      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
@@ -209,11 +210,11 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -279,7 +280,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Sync Practice\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -349,7 +350,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Release Endgame\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -418,7 +419,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Replay Viewer\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -444,178 +445,6 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\glad\desktop\src\glad.c" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\abort.cc" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\aligned_allocator.cc" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\nanobenchmark.cc" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\per_target.cc" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\print.cc" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\targets.cc" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\timer.cc" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.cc" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\log.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unrar.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\archive.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\arcread.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\blake2s.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\cmddata.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\consio.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\crc.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\crypt.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\encname.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\errhnd.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\extinfo.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\extract.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\filcreat.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\file.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\filefn.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\filestr.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\find.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\getbits.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\global.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Endgame|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Replay Viewer|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\hash.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\headers.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\isnt.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\largepage.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\list.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\match.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\motw.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\options.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\pathfn.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\qopen.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rar.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rarpch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Endgame|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Replay Viewer|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rarvm.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rawread.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rdwrfn.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\recvol.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\resourcerar.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rijndael.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rs.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rs16.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\scantree.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\secpassword.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\sha1.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\sha256.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\smallfn.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\strfn.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\strlist.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\system.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\threadpool.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\timefn.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\ui.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unicode.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unpack.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\volume.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\debug_utils.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\eclipse\components\checkbox.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\eclipse\components\core.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\eclipse\components\drop_down_menu.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\eclipse\components\filedialog.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\eclipse\components\inputfield.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\eclipse\components\message_dialog.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\eclipse\components\scrollbar.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\eclbutton.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\eclipse.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\eclwindow.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\binary_stream_readers.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\filesys_utils.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\file_system.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\text_file_writer.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\text_stream_readers.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\crashpad.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\input.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\input_sdl.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\win32library.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\window_manager.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\window_manager_sdl.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\hi_res_time.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\language_table.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\math\fixed_64.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\math\fixed_float.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\math\hash_data.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\math\math_utils.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\math\matrix4f.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\math\random_number.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\math\vector3.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\memory_leak.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\metaserver\authentication.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\metaserver\matchmaker.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\metaserver\metaserver.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\condition_win32.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\condition_winxp.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_lib.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_mutex_win32.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_socket.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_socket_listener.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_socket_session.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_thread_win32.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\net_udp_packet.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\thread_controller.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\preferences.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\profiler.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\linestrips_2d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\megavbo_2d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\quads_2d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\triangles_2d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\operations_2d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\primitives_2d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_2d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\sprites_2d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\text_2d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\instancing_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\linestrips_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\megavbo_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\quads_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\triangles_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\operations_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\primitives_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\sprites_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\text_3d.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\render\colour.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_overlay.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\render\styletable.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmap.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\resource\image.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\resource\model3d.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\resource\resource.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\resource\sprite_atlas.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\soundsystem.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\soundsystem_interface.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_blueprint_manager.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_filter.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_instance.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_2d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_2d_sdl.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_3d_software.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_parameter.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_sample_bank.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_sample_decoder.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\string_utils.cpp" />
-    <ClCompile Include="..\..\contrib\SystemIV\lib\tosser\directory.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\unicode\unicode_string.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\unicode\unicode_text_stream_reader.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\systemiv.cpp" />
     <ClCompile Include="..\..\source\app\app.cpp" />
     <ClCompile Include="..\..\source\app\defcon_soundinterface.cpp" />
     <ClCompile Include="..\..\source\app\game.cpp" />
@@ -665,13 +494,12 @@
     <ClCompile Include="..\..\source\interface\whiteboard_panel.cpp" />
     <ClCompile Include="..\..\source\interface\worldobject_window.cpp" />
     <ClCompile Include="..\..\source\interface\worldstatus_window.cpp" />
-    <ClCompile Include="..\..\source\lib\multiline_text.cpp" />
     <ClCompile Include="..\..\source\lib\universal_include.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Endgame|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Endgame|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Replay Viewer|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release Sync Practice|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\source\network\ClientToServer.cpp" />
     <ClCompile Include="..\..\source\network\recordingparser.cpp" />
@@ -712,106 +540,6 @@
     <ClCompile Include="..\..\source\world\worldobject.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\json.hpp" />
-    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\stb_image.h" />
-    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\stb_image_write.h" />
-    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\debug_utils.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\eclipse\components\checkbox.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\eclipse\components\core.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\eclipse\components\drop_down_menu.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\eclipse\components\filedialog.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\eclipse\components\inputfield.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\eclipse\components\message_dialog.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\eclipse\components\scrollbar.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\eclbutton.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\eclipse.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\eclwindow.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\binary_stream_readers.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\filesys_utils.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\file_system.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\text_file_writer.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\text_stream_readers.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\crashpad.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\input.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\input_sdl.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\win32library.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\window_manager.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\window_manager_sdl.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\hi_res_time.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\language_table.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\fixed.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\fixed_64.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\fixed_float.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\math\hash_data.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\math_utils.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\math\matrix4f.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\random_number.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\vector3.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\memory_leak.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\metaserver\authentication.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\metaserver\matchmaker.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\metaserver\metaserver.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\metaserver\metaserver_defines.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\bytestream.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\condition.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\condition_winxp.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_lib.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_lib_win32.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_mutex.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_socket.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_socket_listener.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_socket_session.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_thread.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\net_udp_packet.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\thread_controller.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\preferences.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\profiler.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\renderer_2d.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\color_fragment.glsl.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\texture_fragment.glsl.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\vertex.glsl.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\fragment.glsl.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\textured_fragment.glsl.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\textured_vertex.glsl.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\vertex.glsl.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\render\colour.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_overlay.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\render\styletable.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmap.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\resource\image.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\resource\model3d.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\resource\resource.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\soundsystem.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\soundsystem_interface.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_blueprint_manager.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_filter.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_instance.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_2d.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_2d_mode.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_2d_sdl.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_3d.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_3d_software.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_parameter.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_sample_bank.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_sample_decoder.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\string_utils.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\bounded_array.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\btree.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\darray.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\directory.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\fast_darray.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\hash_table.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\llist.h" />
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\sorting_hash_table.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\unicode\unicode_string.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\unicode\unicode_text_stream_reader.h" />
-    <ClInclude Include="..\..\contrib\systemIV\systemiv.h" />
     <ClInclude Include="..\..\source\app\app.h" />
     <ClInclude Include="..\..\source\app\defcon_soundinterface.h" />
     <ClInclude Include="..\..\source\app\game.h" />
@@ -860,7 +588,6 @@
     <ClInclude Include="..\..\source\interface\whiteboard_panel.h" />
     <ClInclude Include="..\..\source\interface\worldobject_window.h" />
     <ClInclude Include="..\..\source\interface\worldstatus_window.h" />
-    <ClInclude Include="..\..\source\lib\multiline_text.h" />
     <ClInclude Include="..\..\source\lib\universal_include.h" />
     <ClInclude Include="..\..\source\network\ClientToServer.h" />
     <ClInclude Include="..\..\source\network\network_defines.h" />
@@ -939,9 +666,9 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\contrib\systemIV\contrib\oggvorbis\lib\vs2022\ogg.lib" />
-    <Library Include="..\..\contrib\systemIV\contrib\oggvorbis\lib\vs2022\vorbis.lib" />
-    <Library Include="..\..\contrib\systemIV\contrib\oggvorbis\lib\vs2022\vorbisfile.lib" />
+    <ProjectReference Include="SystemIV.vcxproj">
+      <Project>{061e89ed-5e01-4813-9e63-0766da413a1d}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

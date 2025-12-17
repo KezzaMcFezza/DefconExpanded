@@ -7,10 +7,6 @@
 #include "lib/render/renderer_overlay.h"
 #include "lib/resource/resource.h"
 #include "lib/hi_res_time.h"
-#include "app/globals.h"
-#include "app/app.h"
-#include "interface/interface.h"
-#include "renderer/map_renderer.h"
 
 #ifdef TARGET_OS_WINDOWS
 #include <windows.h>

@@ -183,6 +183,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "systemiv.h"
 
 #ifdef TARGET_MSVC
     #define APP_SYSTEM "Windows"
@@ -241,31 +242,6 @@
 #define strnicmp strncasecmp
 #define Sleep(x) usleep( 1000 * x)
 
-// String function definitions - handle Emscripten specially
-#ifdef TARGET_EMSCRIPTEN
-    // Emscripten provides these functions in its compatibility layer
-    // Include string.h to get the declarations
-    #include <string.h>
-    // Note: strlwr and strupr are declared in Emscripten's compat/string.h
-    // but we need to avoid redefinition conflicts
-    #ifndef __EMSCRIPTEN_STRLWR_DEFINED__
-        extern char* strlwr(char *);
-        extern char* strupr(char *);
-        #define __EMSCRIPTEN_STRLWR_DEFINED__
-    #endif
-#else
-    // Original inline implementations for macOS and Linux
-    inline char * strlwr(char *s) {
-        for (char *p = s; *p; p++)
-            *p = tolower(*p);
-        return s;
-    }
-    inline char * strupr(char *s) {
-        for (char *p = s; *p; p++)
-            *p = toupper(*p);
-        return s;
-    }
-#endif
 
 #if __GNUC__ == 3
 #define sinf sin

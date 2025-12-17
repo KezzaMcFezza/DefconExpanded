@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #ifdef WIN32
 #include <io.h>
@@ -13,14 +13,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "lib/render/renderer.h"
-#include "lib/render2d/renderer_2d.h"
-#include "lib/debug_utils.h"
+#include "render/renderer.h"
+#include "render2d/renderer_2d.h"
+#include "debug_utils.h"
 
-#include "app/globals.h"
-#include "app/app.h"
-#include "lib/multiline_text.h"
-#include "lib/string_utils.h"
+#include "multiline_text.h"
+#include "string_utils.h"
 
 static char *Substring( const char *string, unsigned int length )
 {
