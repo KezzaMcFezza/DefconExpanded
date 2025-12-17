@@ -127,6 +127,9 @@
 .server-checkbox[onclick*="defcon_cursed"] {
     border-left: 3px solid #42ff62;
 }
+.server-checkbox[onclick*="defcon_quick_match"] {
+    border-left: 3px solid #ffb347;
+}
 .server-checkbox[onclick*="defcon_raizer"] {
     border-left: 3px solid #dc2dff;
 }

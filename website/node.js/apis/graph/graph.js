@@ -53,6 +53,7 @@ router.get('/api/games-timeline', async (req, res) => {
         'DefconExpanded | 1v1 | Cursed Setups Only!',
         'DefconExpanded | 1v1 | Lots of Units!',
         'DefconExpanded | 1v1 | UK and Ireland',
+        'DefconExpanded | 1v1 | Quick Match',
         'Raizer\\'s Russia vs USA | Totally Random',
         'DefconExpanded | 1v1 | AF vs AS | Totally Random',
         'DefconExpanded | 1v1 | EU vs SA | Totally Random',

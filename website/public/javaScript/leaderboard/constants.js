@@ -27,6 +27,7 @@ export const serverPlaylists = {
             "New Player Server",
             "New Player Server - Training Game",
             "DefconExpanded | 1v1 | Totally Random",
+            "DefconExpanded | 1v1 | Quick Match",
             "DefconExpanded | 1V1 | Best Setups Only!",
             "DefconExpanded | 1v1 | AF vs AS | Totally Random",
             "DefconExpanded | 1v1 | EU vs SA | Totally Random",

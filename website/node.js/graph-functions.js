@@ -46,6 +46,7 @@ function processTotalHoursData(rows) {
             'DefconExpanded | 1v1 | Cursed Setups Only!': 'defcon_cursed',
             'DefconExpanded | 1v1 | Lots of Units!': 'defcon_lots_units',
             'DefconExpanded | 1v1 | UK and Ireland': 'defcon_1v1_uk',
+            'DefconExpanded | 1v1 | Quick Match': 'defcon_quick_match',
             'Raizer\'s Russia vs USA | Totally Random': 'defcon_raizer',
             'DefconExpanded | 1v1 | AF vs AS | Totally Random': 'defcon_afas',
             'DefconExpanded | 1v1 | EU vs SA | Totally Random': 'defcon_eusa',
@@ -346,6 +347,7 @@ function processIndividualServersData(rows) {
                     defcon_test: 0,
                     defcon_lots_units: 0,
                     defcon_1v1_uk: 0,
+                    defcon_quick_match: 0,
                     christmas_tournament_2025: 0,
                     defcon_2v2_uk: 0,
                     defcon_2v2_tournament: 0,
@@ -365,6 +367,8 @@ function processIndividualServersData(rows) {
                 gamesByDate[date].defcon_best++;
             } else if (row.game_type.toLowerCase() === 'defconexpanded | 1v1 | cursed setups only!'.toLowerCase()) {
                 gamesByDate[date].defcon_cursed++;
+            } else if (row.game_type.toLowerCase() === 'defconexpanded | 1v1 | quick match'.toLowerCase()) {
+                gamesByDate[date].defcon_quick_match++;
             } else if (row.game_type.toLowerCase() === 'raizer\'s russia vs usa | totally random'.toLowerCase()) {
                 gamesByDate[date].defcon_raizer++;
             } else if (row.game_type.toLowerCase() === 'defconexpanded | 1v1 | af vs as | totally random'.toLowerCase()) {
