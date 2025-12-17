@@ -14,7 +14,8 @@ public:
     LList<InstalledMod *> m_mods;
     LList<char *> m_criticalFiles;
     LList<char*> m_modGraphicsFiles;        
-    LList<char*> m_geographyAffectingMods;  
+    LList<char*> m_geographyAffectingMods;
+    LList<char*> m_styleAffectingMods;  
 	
 protected:
     char *m_modsDir;
@@ -41,6 +42,8 @@ public:
     void    ClearModGraphicsCache       ();
     bool    ModContainsGeographyData    (const char* modPath);
     void    UpdateGeographyAffectingMods();
+    bool    ModContainsStyleData        (const char* modPath);
+    void    UpdateStyleAffectingMods    ();
 
     void    LoadModData         ( InstalledMod *_mod, char *_path );
 

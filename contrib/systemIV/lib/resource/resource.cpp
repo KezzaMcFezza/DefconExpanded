@@ -16,7 +16,6 @@
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render2d/megavbo/megavbo_2d.h"
 #include "lib/render3d/megavbo/megavbo_3d.h"
-#include "app/modsystem.h"
 
 #include "sprite_atlas.h"
 
@@ -176,15 +175,12 @@ Image *Resource::TryLoadFromAtlas( const char *filename, float uvAdjustX, float 
 {
     if( !filename ) return NULL;
     
-    extern class ModSystem *g_modSystem;
-    bool isModGraphic = g_modSystem && g_modSystem->IsModGraphic(filename);
-    
-    //
-    // Try runtime atlas ONLY if not a mod graphic and atlas is initialized
-    
-    if (!isModGraphic && g_spriteAtlasManager && g_spriteAtlasManager->IsInitialized()) {
+    if (g_spriteAtlasManager && g_spriteAtlasManager->IsInitialized()) {
+        char dataPath[512];
+        sprintf(dataPath, "data/%s", filename);
+        
         RuntimeTextureAtlas* atlas = NULL;
-        const PackedSprite* sprite = g_spriteAtlasManager->GetSpriteFromAnyAtlas(filename, &atlas);
+        const PackedSprite* sprite = g_spriteAtlasManager->GetSpriteFromAnyAtlas(dataPath, &atlas);
         
         if (sprite && atlas) {
             AtlasImage* atlasImage = new AtlasImage((PackedSprite*)sprite, atlas);

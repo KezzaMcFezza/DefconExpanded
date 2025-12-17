@@ -56,6 +56,7 @@ ModSystem::~ModSystem()
     m_criticalFiles.EmptyAndDeleteArray();
     ClearModGraphicsCache();
     m_geographyAffectingMods.EmptyAndDeleteArray();
+    m_styleAffectingMods.EmptyAndDeleteArray();
 }
 
 
@@ -98,7 +99,8 @@ void ModSystem::Initialise()
     if( !demoUser )
     {
         SetModPath( g_preferences->GetString( "ModPath" ) );
-        UpdateGeographyAffectingMods();      
+        UpdateGeographyAffectingMods();
+        UpdateStyleAffectingMods();
     }
 }
 
@@ -796,13 +798,11 @@ void ModSystem::ClearModGraphicsCache()
 bool ModSystem::ModContainsGeographyData(const char* modPath)
 {
     if (!modPath) return false;
-    
-    // Check for coastlines.dat
+
     char coastlinesPath[512];
     sprintf(coastlinesPath, "%sdata/earth/coastlines.dat", modPath);
     if (DoesFileExist(coastlinesPath)) return true;
-    
-    // Check for international.dat  
+
     char internationalPath[512];
     sprintf(internationalPath, "%sdata/earth/international.dat", modPath);
     if (DoesFileExist(internationalPath)) return true;
@@ -812,10 +812,8 @@ bool ModSystem::ModContainsGeographyData(const char* modPath)
 
 void ModSystem::UpdateGeographyAffectingMods()
 {
-    // Clear previous list
     m_geographyAffectingMods.EmptyAndDeleteArray();
     
-    // Build new list of geography-affecting mods
     for (int i = 0; i < m_mods.Size(); ++i)
     {
         InstalledMod *mod = m_mods[i];
@@ -823,6 +821,30 @@ void ModSystem::UpdateGeographyAffectingMods()
         {
             m_geographyAffectingMods.PutData(newStr(mod->m_path));
             AppDebugOut("Geography-affecting mod: %s\n", mod->m_name);
+        }
+    }
+}
+
+bool ModSystem::ModContainsStyleData(const char* modPath)
+{
+    if (!modPath) return false;
+    
+    char stylePath[512];
+    sprintf(stylePath, "%sdata/styles/default.txt", modPath);
+    return DoesFileExist(stylePath);
+}
+
+void ModSystem::UpdateStyleAffectingMods()
+{
+    m_styleAffectingMods.EmptyAndDeleteArray();
+    
+    for (int i = 0; i < m_mods.Size(); ++i)
+    {
+        InstalledMod *mod = m_mods[i];
+        if (mod->m_active && ModContainsStyleData(mod->m_path))
+        {
+            m_styleAffectingMods.PutData(newStr(mod->m_path));
+            AppDebugOut("Style-affecting mod: %s\n", mod->m_name);
         }
     }
 }
@@ -841,7 +863,14 @@ void ModSystem::Commit()
         previousGeographyMods.PutData(newStr(m_geographyAffectingMods[i]));
     }
     
+    LList<char*> previousStyleMods;
+    for (int i = 0; i < m_styleAffectingMods.Size(); ++i)
+    {
+        previousStyleMods.PutData(newStr(m_styleAffectingMods[i]));
+    }
+    
     UpdateGeographyAffectingMods();
+    UpdateStyleAffectingMods();
     
     bool geographyChanged = false;
     
@@ -870,7 +899,35 @@ void ModSystem::Commit()
         }
     }
     
+    bool stylesChanged = false;
+    
+    if (previousStyleMods.Size() != m_styleAffectingMods.Size())
+    {
+        stylesChanged = true;
+    }
+    else
+    {
+        for (int i = 0; i < previousStyleMods.Size(); ++i)
+        {
+            bool found = false;
+            for (int j = 0; j < m_styleAffectingMods.Size(); ++j)
+            {
+                if (strcmp(previousStyleMods[i], m_styleAffectingMods[j]) == 0)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                stylesChanged = true;
+                break;
+            }
+        }
+    }
+    
     previousGeographyMods.EmptyAndDeleteArray();
+    previousStyleMods.EmptyAndDeleteArray();
     
     ClearModGraphicsCache();
 
@@ -958,22 +1015,6 @@ void ModSystem::Commit()
     {
         g_languageTable->LoadLanguages();
         g_languageTable->LoadCurrentLanguage();
-
-        bool stylesChanged = false;
-        for( int i = 0; i < m_mods.Size(); ++i )
-        {
-            InstalledMod *mod = m_mods[i];
-            if( mod->m_active )
-            {
-                char stylePath[512];
-                sprintf( stylePath, "%sdata/styles/default.txt", mod->m_path );
-                if( DoesFileExist( stylePath ) )
-                {
-                    stylesChanged = true;
-                    break;
-                }
-            }
-        }
 
         //
         // Protect VBOs from InvalidateAllVBOs if geography hasnt changed

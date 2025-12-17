@@ -216,7 +216,7 @@ void RuntimeTextureAtlas::LoadSprites(
                 // and writes to a unique array index
                 
                 PackedSprite* sprite = new PackedSprite();
-                sprite->filename = newStr(fullPath);
+                sprite->filename = newStr(dataPath);
                 sprite->sourceBitmap = bmp;
                 sprites[i] = sprite;
             } else {
@@ -268,7 +268,7 @@ void RuntimeTextureAtlas::LoadSprites(
             
             if (bmp->m_width > 0 && bmp->m_height > 0) {
                 PackedSprite* sprite = new PackedSprite();
-                sprite->filename = newStr(fullPath);
+                sprite->filename = newStr(dataPath);
                 sprite->sourceBitmap = bmp;
                 sprites[i] = sprite;
             } else {
