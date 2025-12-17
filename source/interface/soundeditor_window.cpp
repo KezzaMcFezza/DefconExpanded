@@ -9,10 +9,10 @@
 #include "lib/render2d/renderer_2d.h"
 #include "lib/debug_utils.h"
 
-#include "interface/components/drop_down_menu.h"
-#include "interface/components/filedialog.h"
-#include "interface/components/inputfield.h"
-#include "interface/components/scrollbar.h"
+#include "lib/eclipse/components/drop_down_menu.h"
+#include "lib/eclipse/components/filedialog.h"
+#include "lib/eclipse/components/inputfield.h"
+#include "lib/eclipse/components/scrollbar.h"
 
 #include "soundeditor_window.h"
 #include "soundparameter_window.h"

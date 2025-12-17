@@ -2,7 +2,7 @@
 #ifndef _included_networkinterface_h
 #define _included_networkinterface_h
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 
 
 class NetworkWindow : public InterfaceWindow

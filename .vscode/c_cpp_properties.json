@@ -13,7 +13,8 @@
         "${workspaceFolder}/contrib/systemIV/contrib/binreloc",
         "${workspaceFolder}/contrib/systemIV/lib/gucci",
         "${workspaceFolder}/contrib/systemIV/lib/netlib",
-        "${workspaceFolder}/contrib/systemIV/lib/eclipse"
+        "${workspaceFolder}/contrib/systemIV/lib/eclipse",
+        "${workspaceFolder}/contrib/systemIV/lib/eclipse/components"
       ],
       "defines": [
         "TARGET_OS_LINUX",
@@ -42,7 +43,8 @@
         "${workspaceFolder}/contrib/linux/include",
         "${workspaceFolder}/contrib/systemIV/lib/gucci",
         "${workspaceFolder}/contrib/systemIV/lib/netlib",
-        "${workspaceFolder}/contrib/systemIV/lib/eclipse"
+        "${workspaceFolder}/contrib/systemIV/lib/eclipse",
+        "${workspaceFolder}/contrib/systemIV/lib/eclipse/components"
       ],
       "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
       "windowsSdkVersion": "10.0.26100.0",

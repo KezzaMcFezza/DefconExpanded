@@ -1,7 +1,7 @@
 #ifndef _included_profilewindow_h
 #define _included_profilewindow_h
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 
 
 class ProfiledElement;

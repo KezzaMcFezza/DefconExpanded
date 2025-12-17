@@ -584,25 +584,25 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/interface/worldobject_window.cpp
     ${ROOT_PATH}/source/interface/info_window.cpp
     ${ROOT_PATH}/source/interface/placement_icon.cpp
+    ${ROOT_PATH}/source/interface/screenoptions_window.cpp
+    ${ROOT_PATH}/source/interface/soundoptions_window.cpp
+    ${ROOT_PATH}/source/interface/soundeditor_window.cpp
+    ${ROOT_PATH}/source/interface/soundparameter_window.cpp
+    ${ROOT_PATH}/source/interface/soundstats_window.cpp
+    ${ROOT_PATH}/source/interface/styleeditor_window.cpp
     ${ROOT_PATH}/source/network/recordingparser.cpp
     ${ROOT_PATH}/source/interface/recording_selection.cpp
     ${ROOT_PATH}/source/interface/recording_file_dialog.cpp
 )
 
 set(SYSTEMIV_SOURCE
-    ${SYSTEMIV_PATH}/interface/components/checkbox.cpp
-    ${SYSTEMIV_PATH}/interface/components/core.cpp
-    ${SYSTEMIV_PATH}/interface/components/drop_down_menu.cpp
-    ${SYSTEMIV_PATH}/interface/components/filedialog.cpp
-    ${SYSTEMIV_PATH}/interface/components/inputfield.cpp
-    ${SYSTEMIV_PATH}/interface/components/message_dialog.cpp
-    ${SYSTEMIV_PATH}/interface/components/scrollbar.cpp
-    ${SYSTEMIV_PATH}/interface/options/screenoptions_window.cpp
-    ${SYSTEMIV_PATH}/interface/options/soundoptions_window.cpp
-    ${SYSTEMIV_PATH}/interface/soundsystem/soundeditor_window.cpp
-    ${SYSTEMIV_PATH}/interface/soundsystem/soundstats_window.cpp
-    ${SYSTEMIV_PATH}/interface/soundsystem/soundparameter_window.cpp
-    ${SYSTEMIV_PATH}/interface/styleeditor_window.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/checkbox.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/core.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/drop_down_menu.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/filedialog.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/inputfield.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/message_dialog.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/scrollbar.cpp
     ${SYSTEMIV_PATH}/lib/eclipse/eclbutton.cpp
     ${SYSTEMIV_PATH}/lib/eclipse/eclwindow.cpp
     ${SYSTEMIV_PATH}/lib/eclipse/eclipse.cpp

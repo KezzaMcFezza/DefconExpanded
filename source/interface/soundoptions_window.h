@@ -3,7 +3,7 @@
 #define _included_soundoptionswindow_h
 
 #include "systemiv.h"
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 
 //#define SOUNDOPTIONSWINDOW_USEDSPEFFECTS
 

@@ -50,7 +50,7 @@
 #include "interface/authkey_window.h"
 #include "interface/connecting_window.h"
 
-#include "interface/components/message_dialog.h"
+#include "lib/eclipse/components/message_dialog.h"
 #include "interface/demo_window.h"
 
 #if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)

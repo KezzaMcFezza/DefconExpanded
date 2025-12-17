@@ -8,7 +8,7 @@
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 
-#include "interface/components/scrollbar.h"
+#include "lib/eclipse/components/scrollbar.h"
 
 #include "soundstats_window.h"
 

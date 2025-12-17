@@ -9,8 +9,8 @@
 #include "lib/preferences.h"
 #include "lib/profiler.h"
 
-#include "interface/components/drop_down_menu.h"
-#include "interface/components/inputfield.h"
+#include "lib/eclipse/components/drop_down_menu.h"
+#include "lib/eclipse/components/inputfield.h"
 
 #include "soundoptions_window.h"
 

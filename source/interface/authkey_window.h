@@ -1,7 +1,7 @@
 #ifndef _included_authkeywindow_h
 #define _included_authkeywindow_h
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 
 
 #if !defined(RETAIL_DEMO)

@@ -2,7 +2,7 @@
 #define _included_connectingwindow_h
 
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 
 
 

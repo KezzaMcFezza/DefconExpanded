@@ -9,7 +9,7 @@
 #include "app/app.h"
 #include "interface/interface.h"
 
-#include "interface/components/drop_down_menu.h"
+#include "lib/eclipse/components/drop_down_menu.h"
 #include "screenoptions_window.h"
 
 class ScreenResDropDownMenu : public DropDownMenu
@@ -212,7 +212,8 @@ class SetScreenButton : public InterfaceButton
 
 void ScreenOptionsWindow::RestartWindowManager()
 {
-};
+    g_app->ReinitialiseWindow();
+}
 
 
 ScreenOptionsWindow::ScreenOptionsWindow()

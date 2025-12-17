@@ -6,12 +6,12 @@
 #include "lib/preferences.h"
 #include "lib/language_table.h"
 
-#include "interface/components/drop_down_menu.h"
-#include "interface/components/inputfield.h"
-#include "interface/components/checkbox.h"
-#include "interface/components/filedialog.h"
-#include "interface/components/scrollbar.h"
-#include "interface/components/message_dialog.h"
+#include "lib/eclipse/components/drop_down_menu.h"
+#include "lib/eclipse/components/inputfield.h"
+#include "lib/eclipse/components/checkbox.h"
+#include "lib/eclipse/components/filedialog.h"
+#include "lib/eclipse/components/scrollbar.h"
+#include "lib/eclipse/components/message_dialog.h"
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"

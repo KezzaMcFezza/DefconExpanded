@@ -7,7 +7,7 @@
 #include "lib/language_table.h"
 #include "lib/gucci/input.h"
 
-#include "interface/components/inputfield.h"
+#include "lib/eclipse/components/inputfield.h"
 
 #include "authkey_window.h"
 #include "demo_window.h"

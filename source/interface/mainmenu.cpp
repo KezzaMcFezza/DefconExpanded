@@ -18,13 +18,13 @@
 #include "lib/metaserver/metaserver_defines.h"
 #include "lib/metaserver/authentication.h"
 
-#include "interface/components/drop_down_menu.h"
-#include "interface/components/message_dialog.h"
+#include "lib/eclipse/components/drop_down_menu.h"
+#include "lib/eclipse/components/message_dialog.h"
 #include "interface/serverbrowser_window.h"
 #include "interface/lobby_window.h"
-#include "interface/options/soundoptions_window.h"
+#include "interface/soundoptions_window.h"
 #include "interface/recording_selection.h"
-#include "interface/options/screenoptions_window.h"
+#include "interface/screenoptions_window.h"
 #include "interface/debug_window.h"
 #include "interface/chat_window.h"
 #include "interface/connecting_window.h"
@@ -949,22 +949,6 @@ void MainMenu::Create()
 }
 
 
-// ***************************************************************************
-// Class DefconScreenOptionsWindow
-// ***************************************************************************
-
-class DefconScreenOptionsWindow : public ScreenOptionsWindow
-{    
-    void RestartWindowManager()
-    {
-        g_app->ReinitialiseWindow();
-    }
-};
-
-
-// ============================================================================
-
-
 class PlayerNameOptionsButton : public InterfaceButton
 {
     void MouseUp()
@@ -996,7 +980,7 @@ class ScreenOptionsButton : public InterfaceButton
 {
     void MouseUp()
     {
-        DefconScreenOptionsWindow *window = new DefconScreenOptionsWindow();
+        ScreenOptionsWindow *window = new ScreenOptionsWindow();
 		EclRegisterWindow( window );
         window->Centralise();
     }

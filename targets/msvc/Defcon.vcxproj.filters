@@ -61,7 +61,7 @@
     <Filter Include="interface">
       <UniqueIdentifier>{a277b185-d081-4d9b-9089-b5c844f7a859}</UniqueIdentifier>
     </Filter>
-    <Filter Include="interface\components">
+    <Filter Include="lib\eclipse\components">
       <UniqueIdentifier>{700da96e-b10e-435c-88c8-07f0c461b385}</UniqueIdentifier>
     </Filter>
     <Filter Include="interface\soundsystem">
@@ -468,6 +468,24 @@
     <ClCompile Include="..\..\source\interface\placement_icon.cpp">
       <Filter>interface</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\interface\screenoptions_window.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\soundoptions_window.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\soundeditor_window.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\soundparameter_window.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\soundstats_window.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\styleeditor_window.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\source\interface\profile_window.cpp">
       <Filter>interface</Filter>
     </ClCompile>
@@ -481,9 +499,6 @@
       <Filter>interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\interface\side_panel.cpp">
-      <Filter>interface</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\styleeditor_window.cpp">
       <Filter>interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\interface\toolbar.cpp">
@@ -501,41 +516,26 @@
     <ClCompile Include="..\..\source\interface\worldstatus_window.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\checkbox.cpp">
-      <Filter>interface\components</Filter>
+    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\components\checkbox.cpp">
+      <Filter>lib\eclipse\components</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\core.cpp">
-      <Filter>interface\components</Filter>
+    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\components\core.cpp">
+      <Filter>lib\eclipse\components</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\drop_down_menu.cpp">
-      <Filter>interface\components</Filter>
+    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\components\drop_down_menu.cpp">
+      <Filter>lib\eclipse\components</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\filedialog.cpp">
-      <Filter>interface\components</Filter>
+    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\components\filedialog.cpp">
+      <Filter>lib\eclipse\components</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\inputfield.cpp">
-      <Filter>interface\components</Filter>
+    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\components\inputfield.cpp">
+      <Filter>lib\eclipse\components</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\message_dialog.cpp">
-      <Filter>interface\components</Filter>
+    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\components\message_dialog.cpp">
+      <Filter>lib\eclipse\components</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\scrollbar.cpp">
-      <Filter>interface\components</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\soundsystem\soundeditor_window.cpp">
-      <Filter>interface\soundsystem</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\soundsystem\soundparameter_window.cpp">
-      <Filter>interface\soundsystem</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\soundsystem\soundstats_window.cpp">
-      <Filter>interface\soundsystem</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\options\screenoptions_window.cpp">
-      <Filter>interface\options</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\options\soundoptions_window.cpp">
-      <Filter>interface\options</Filter>
+    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\components\scrollbar.cpp">
+      <Filter>lib\eclipse\components</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\curves.cpp" />
     <ClCompile Include="..\..\source\defcon.cpp" />
@@ -1270,7 +1270,7 @@
     <ClInclude Include="..\..\source\interface\side_panel.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\styleeditor_window.h">
+    <ClInclude Include="..\..\source\interface\styleeditor_window.h">
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\interface\toolbar.h">
@@ -1288,41 +1288,41 @@
     <ClInclude Include="..\..\source\interface\worldstatus_window.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\checkbox.h">
-      <Filter>interface\components</Filter>
+    <ClInclude Include="..\..\source\interface\screenoptions_window.h">
+      <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\core.h">
-      <Filter>interface\components</Filter>
+    <ClInclude Include="..\..\source\interface\soundoptions_window.h">
+      <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\drop_down_menu.h">
-      <Filter>interface\components</Filter>
+    <ClInclude Include="..\..\source\interface\soundeditor_window.h">
+      <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\filedialog.h">
-      <Filter>interface\components</Filter>
+    <ClInclude Include="..\..\source\interface\soundparameter_window.h">
+      <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\inputfield.h">
-      <Filter>interface\components</Filter>
+    <ClInclude Include="..\..\source\interface\soundstats_window.h">
+      <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\message_dialog.h">
-      <Filter>interface\components</Filter>
+    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\components\checkbox.h">
+      <Filter>lib\eclipse\components</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\scrollbar.h">
-      <Filter>interface\components</Filter>
+    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\components\core.h">
+      <Filter>lib\eclipse\components</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\soundsystem\soundeditor_window.h">
-      <Filter>interface\soundsystem</Filter>
+    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\components\drop_down_menu.h">
+      <Filter>lib\eclipse\components</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\soundsystem\soundparameter_window.h">
-      <Filter>interface\soundsystem</Filter>
+    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\components\filedialog.h">
+      <Filter>lib\eclipse\components</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\soundsystem\soundstats_window.h">
-      <Filter>interface\soundsystem</Filter>
+    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\components\inputfield.h">
+      <Filter>lib\eclipse\components</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\options\screenoptions_window.h">
-      <Filter>interface\options</Filter>
+    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\components\message_dialog.h">
+      <Filter>lib\eclipse\components</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\options\soundoptions_window.h">
-      <Filter>interface\options</Filter>
+    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\components\scrollbar.h">
+      <Filter>lib\eclipse\components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\curves.h" />
     <ClInclude Include="..\..\source\random_object.h" />

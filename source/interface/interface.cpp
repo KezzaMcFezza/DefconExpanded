@@ -33,8 +33,8 @@
 
 #include "world/world.h"
 
-#include "interface/components/core.h"
-#include "interface/components/message_dialog.h"
+#include "lib/eclipse/components/core.h"
+#include "lib/eclipse/components/message_dialog.h"
 #include "interface/interface.h"
 #include "interface/network_window.h"
 #include "interface/profile_window.h"
@@ -43,7 +43,7 @@
 #include "interface/mainmenu.h"
 #include "interface/side_panel.h"
 #include "interface/chat_window.h"
-#include "interface/soundsystem/soundeditor_window.h"
+#include "interface/soundeditor_window.h"
 #include "interface/toolbar.h"
 #include "interface/tutorial_window.h"
 #include "interface/info_window.h"

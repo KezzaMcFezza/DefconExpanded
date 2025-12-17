@@ -2,7 +2,7 @@
 #ifndef _included_placementwindow_h
 #define _included_placementwindow_h
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 
 
 class PlacementIconWindow : public InterfaceWindow

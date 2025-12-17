@@ -16,11 +16,11 @@
 
 #include "network/Server.h"
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 #include "interface/network_window.h"
 #include "interface/profile_window.h"
-#include "interface/soundsystem/soundeditor_window.h"
-#include "interface/soundsystem/soundstats_window.h"
+#include "interface/soundeditor_window.h"
+#include "interface/soundstats_window.h"
 #include "interface/debug_window.h"
 #include "interface/tutorial_window.h"
 #include "interface/styleeditor_window.h"

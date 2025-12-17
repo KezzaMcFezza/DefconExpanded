@@ -2,7 +2,7 @@
 #ifndef _included_prefsscreenwindow_h
 #define _included_prefsscreenwindow_h
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 
 
 class ScreenOptionsWindow : public InterfaceWindow
@@ -24,7 +24,7 @@ public:
     void Render( bool _hasFocus );
 
 
-    virtual void RestartWindowManager();                        // override me
+    void RestartWindowManager();
 };
 
 

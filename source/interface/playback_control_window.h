@@ -1,7 +1,7 @@
 #ifndef _included_playback_control_window_h
 #define _included_playback_control_window_h
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 #include "interface/fading_window.h"
 #include "world/world.h"
 

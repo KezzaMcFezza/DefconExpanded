@@ -6,8 +6,8 @@
 #include "lib/sound/sound_instance.h"
 #include "lib/sound/soundsystem.h"
 
-#include "interface/components/drop_down_menu.h"
-#include "interface/components/inputfield.h"
+#include "lib/eclipse/components/drop_down_menu.h"
+#include "lib/eclipse/components/inputfield.h"
 
 #include "soundparameter_window.h"
 

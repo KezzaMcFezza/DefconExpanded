@@ -8,7 +8,7 @@
 #include "lib/language_table.h"
 
 #include "interface/serverbrowser_window.h"
-#include "interface/components/message_dialog.h"
+#include "lib/eclipse/components/message_dialog.h"
 #include "interface/connecting_window.h"
 #include "interface/badkey_window.h"
 

@@ -11,7 +11,7 @@
 #include "world/city.h"
 
 #include "interface/casualties_window.h"
-#include "interface/components/scrollbar.h"
+#include "lib/eclipse/components/scrollbar.h"
 
 
 

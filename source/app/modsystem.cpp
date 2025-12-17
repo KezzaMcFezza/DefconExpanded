@@ -24,7 +24,7 @@
 #include "renderer/globe_renderer.h"
 
 #include "interface/interface.h"
-#include "interface/components/message_dialog.h"
+#include "lib/eclipse/components/message_dialog.h"
 
 #include "globals.h"
 #include "app.h"

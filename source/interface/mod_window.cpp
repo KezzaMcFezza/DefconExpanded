@@ -9,8 +9,8 @@
 #include "lib/preferences.h"
 #include "lib/language_table.h"
 
-#include "interface/components/message_dialog.h"
-#include "interface/components/scrollbar.h"
+#include "lib/eclipse/components/message_dialog.h"
+#include "lib/eclipse/components/scrollbar.h"
 
 #include "interface/mod_window.h"
 
