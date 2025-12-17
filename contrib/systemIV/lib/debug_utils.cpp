@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -183,7 +183,7 @@ void AppGenerateBlackBox( const char *_filename, const char *_msg )
         fprintf( _file, "=   BLACK BOX REPORT    =\n" );
         fprintf( _file, "=========================\n\n" );
 
-        fprintf( _file, "%s %s built %s\n", APP_NAME, APP_VERSION, __DATE__  );
+        fprintf( _file, "%s %s built %s\n", GetAppName(), GetAppVersion(), __DATE__  );
 
         time_t timet = time(NULL);
         tm *thetime = localtime(&timet);

@@ -2,7 +2,7 @@
 #ifndef _included_soundoptionswindow_h
 #define _included_soundoptionswindow_h
 
-#include "lib/universal_include.h"
+#include "systemiv.h"
 #include "interface/components/core.h"
 
 //#define SOUNDOPTIONSWINDOW_USEDSPEFFECTS

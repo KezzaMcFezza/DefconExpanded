@@ -181,11 +181,9 @@ void DebugWindow::Create()
     network->SetProperties( "Network Data", 10, y+=h+gap, m_w-20, h, "dialog_network_title", " ", true, false );
     RegisterButton( network );
 
-#ifdef PROFILER_ENABLED
     ProfileButton *profiler = new ProfileButton();
     profiler->SetProperties( "Profiler", 10, y+=h+gap, m_w-20, h, "dialog_profile_title", " ", true, false );
     RegisterButton( profiler );
-#endif
 
 #ifdef SOUND_EDITOR_ENABLED
     SoundStatsButton *soundStats = new SoundStatsButton();

@@ -621,6 +621,7 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\tosser\directory.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\unicode\unicode_string.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\unicode\unicode_text_stream_reader.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\systemiv.cpp" />
     <ClCompile Include="..\..\source\app\app.cpp" />
     <ClCompile Include="..\..\source\app\defcon_soundinterface.cpp" />
     <ClCompile Include="..\..\source\app\game.cpp" />
@@ -816,6 +817,7 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\sorting_hash_table.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\unicode\unicode_string.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\unicode\unicode_text_stream_reader.h" />
+    <ClInclude Include="..\..\contrib\systemIV\systemiv.h" />
     <ClInclude Include="..\..\source\app\app.h" />
     <ClInclude Include="..\..\source\app\defcon_soundinterface.h" />
     <ClInclude Include="..\..\source\app\game.h" />

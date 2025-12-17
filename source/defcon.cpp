@@ -1309,6 +1309,12 @@ void DefconMain()
 
 void AppMain()
 {
+    SetAppName(APP_NAME);
+    SetAppVersion(APP_VERSION);
+    SetAppBuildNumber(APP_BUILD_NUMBER);
+    SetRealVersion(REAL_VERSION);
+    SetAppSystem(APP_SYSTEM);
+    
     DefconMain();
 }
 

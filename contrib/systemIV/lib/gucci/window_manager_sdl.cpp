@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 #include <SDL2/SDL.h>
 
 #ifdef TARGET_OS_LINUX
@@ -849,7 +849,7 @@ extern "C" int main(int argc, char **argv)
 
 	if (argc > 1) {
 		if (strncmp(argv[1], "-v", 2) == 0) {
-			puts(APP_VERSION);
+			puts(GetAppVersion());
 			return 0;
 		}
 	}

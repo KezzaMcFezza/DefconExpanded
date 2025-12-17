@@ -152,53 +152,33 @@
 #endif
 
 #ifdef TARGET_FINAL
-    #define HAVE_DSOUND
-    #define WAN_PLAY_ENABLED
-    #define LAN_PLAY_ENABLED
     #define DUMP_DEBUG_LOG
     #define TOOLS_ENABLED
-    #define PROFILER_ENABLED
     #define AUTHENTICATION_LEVEL 1
-    #define FLOAT_NUMERICS
-    #define TRACK_GL_ERRORS
     //#define TRACK_SYNC_RAND
     //#define TRACK_SYNC_RAND_EXTRA_VALIDATION     // Warning: Changes sync value calculation.
-    #define TRACK_LANGUAGEPHRASE_ERRORS
 #endif
 
 #ifdef TARGET_DEBUG
-    #define HAVE_DSOUND
-    #define WAN_PLAY_ENABLED
-    #define LAN_PLAY_ENABLED
     //#define TRACK_SYNC_RAND
     //#define TRACK_SYNC_RAND_EXTRA_VALIDATION     // Warning: Changes sync value calculation.
     #define TOOLS_ENABLED
     #define SOUND_EDITOR_ENABLED
-    #define PROFILER_ENABLED
     //#define DUMP_DEBUG_LOG
     //#define NON_PLAYABLE
     //#define SHOW_TEST_HOURS
     #define AUTHENTICATION_LEVEL 1
-    #define FLOAT_NUMERICS
-    #define TRACK_LANGUAGEPHRASE_ERRORS
 #endif
 
 #ifdef TARGET_TESTBED
-    #define HAVE_DSOUND
-    #define WAN_PLAY_ENABLED
-    #define LAN_PLAY_ENABLED
     #define TRACK_SYNC_RAND
     #define TRACK_SYNC_RAND_EXTRA_VALIDATION     // Warning: Changes sync value calculation.
     #define TOOLS_ENABLED
-    #define PROFILER_ENABLED
     #define NON_PLAYABLE
     #define DUMP_DEBUG_LOG
     #define TESTBED
     #define AUTHENTICATION_LEVEL 3
-    #define FLOAT_NUMERICS
 #endif
-
-//#define TRACK_MEMORY_LEAKS
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -297,37 +277,5 @@
 #endif
 
 #endif
-
-// Include library headers
-#ifdef TARGET_OS_MACOSX
-#include <glad/glad.h>
-#include <hwy/highway.h>
-#include <SDL2/SDL.h>
-#undef TARGET_OS_LINUX
-#undef TARGET_OS_WINDOWS
-#elif defined(TARGET_MSVC)
-#include <glad/glad.h>
-#include <glad/wgl_ext.h>
-#include <hwy/highway.h>
-#elif defined(TARGET_EMSCRIPTEN)
-#include <emscripten.h>
-#include <glad/glad.h>
-#include <hwy/highway.h>
-#include <SDL2/SDL.h>
-#else
-#include <glad/glad.h>
-#include <hwy/highway.h>
-#endif
-
-#ifdef OPENMP
-#include <omp.h>
-#endif
-
-// Include pthread for Emscripten threading support
-#ifdef TARGET_EMSCRIPTEN
-#include <pthread.h>
-#include <sys/time.h>
-#endif
-
 
 #endif

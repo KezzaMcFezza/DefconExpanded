@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include <BASETSD.H>
 #include <MMSYSTEM.H>

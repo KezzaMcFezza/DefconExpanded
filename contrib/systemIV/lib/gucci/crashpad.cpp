@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include "client/crash_report_database.h"
 #include "client/settings.h"
@@ -97,9 +97,9 @@ bool InitializeCrashpad(const char* apiUrl)
     // Crash description, identifies crashes in the console
 
     std::map<std::string, std::string> annotations;
-    annotations["Version"]         = APP_VERSION;
-    annotations["InternalVersion"] = REAL_VERSION;
-    annotations["Platform"]        = APP_SYSTEM;
+    annotations["Version"]         = GetAppVersion();
+    annotations["InternalVersion"] = GetRealVersion();
+    annotations["Platform"]        = GetAppSystem();
 
     //
     // Dont use compression, reduces API complexity

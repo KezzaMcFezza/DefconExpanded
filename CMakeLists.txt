@@ -680,6 +680,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/unicode/unicode_text_stream_reader.cpp
     ${SYSTEMIV_PATH}/lib/debug_utils.cpp
     ${SYSTEMIV_PATH}/lib/hi_res_time.cpp
+    ${SYSTEMIV_PATH}/systemiv.cpp
     ${SYSTEMIV_PATH}/lib/language_table.cpp
     ${SYSTEMIV_PATH}/lib/preferences.cpp
     ${SYSTEMIV_PATH}/lib/profiler.cpp

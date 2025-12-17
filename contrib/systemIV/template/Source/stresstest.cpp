@@ -6,7 +6,7 @@
  *
  */
 
-#include "lib/universal_include.h"
+#include "systemiv.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/window_manager_win32.h"
 #include "lib/gucci/input.h"
