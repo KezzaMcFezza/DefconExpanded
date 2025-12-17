@@ -14,17 +14,6 @@
 
 // Windows Specific options
 #ifdef TARGET_MSVC
-#include "../../resources/resource.h"
-
-#pragma warning( disable : 4244 4305 4800 4018 )
-// Defines that will enable you to double click on a #pragma message
-// in the Visual Studio output window.
-#define MESSAGE_LINENUMBERTOSTRING(linenumber)	#linenumber
-#define MESSAGE_LINENUMBER(linenumber)			MESSAGE_LINENUMBERTOSTRING(linenumber)
-#ifndef MESSAGE
-#define MESSAGE(x) message (__FILE__ "(" MESSAGE_LINENUMBER(__LINE__) "): " x)
-#endif
-
 
 #include <crtdbg.h>
 #define snprintf _snprintf
@@ -39,10 +28,7 @@
 #include <ws2tcpip.h>
 #include <wspiapi.h>
 
-#ifdef TRACK_MEMORY_LEAKS
-#include "lib/memory_leak.h"
 #endif
-#endif // TARGET_MSVC
 
 // Mac OS X Specific Settings
 #if defined ( TARGET_OS_MACOSX ) || defined ( TARGET_OS_LINUX )

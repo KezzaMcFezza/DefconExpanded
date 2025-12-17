@@ -140,6 +140,7 @@
       <BrowseInformationFile>
       </BrowseInformationFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4244;4305;4800;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>TARGET_MSVC;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -204,6 +205,7 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4244;4305;4800;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -274,6 +276,7 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4244;4305;4800;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -344,6 +347,7 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4244;4305;4800;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -413,6 +417,7 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4244;4305;4800;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>

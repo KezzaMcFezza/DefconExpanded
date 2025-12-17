@@ -205,14 +205,6 @@
 #ifdef TARGET_MSVC
 #include "../../resources/resource.h"
 
-#pragma warning( disable : 4244 4305 4800 4018 )
-// Defines that will enable you to double click on a #pragma message
-// in the Visual Studio output window.
-#define MESSAGE_LINENUMBERTOSTRING(linenumber)	#linenumber
-#define MESSAGE_LINENUMBER(linenumber)			MESSAGE_LINENUMBERTOSTRING(linenumber)
-#define MESSAGE(x) message (__FILE__ "(" MESSAGE_LINENUMBER(__LINE__) "): "x)
-
-
 #include <crtdbg.h>
 #define snprintf _snprintf
 
