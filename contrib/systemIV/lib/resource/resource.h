@@ -32,6 +32,8 @@ protected:
 
     SpriteAtlasManager* m_spriteAtlasManager;
 
+    Image   *TryLoadFromAtlas   ( const char *_filename, float uvAdjustX = 0.0f, float uvAdjustY = 0.0f );
+
 public:
     Resource();
     ~Resource();
@@ -41,7 +43,9 @@ public:
     void            Shutdown();
 
     Image           *GetImage           ( const char *_filename );
+    Image           *GetImage           ( const char *_filename, float uvAdjustX, float uvAdjustY );
     void            UnloadImage         ( const char *_filename );
+    void            UnloadImage         ( const char *_filename, float uvAdjustX, float uvAdjustY );
     BitmapFont      *GetBitmapFont      ( const char *_filename );
     bool            TestBitmapFont      ( const char *_filename );
     

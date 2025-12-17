@@ -5,7 +5,6 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
 #include "lib/resource/bitmapfont.h"
-#include "lib/resource/sprite_atlas.h"
 #include "lib/math/vector3.h"
 #include "lib/render/colour.h"
 
@@ -33,28 +32,7 @@ void Renderer3D::StaticSprite3D(Image *src, float x, float y, float z, float w, 
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
     float u1, v1, u2, v2;
     
-    AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(src);
-    
-    if (atlasImage) {
-        const char* filename = atlasImage->GetFilename();
-        if (filename && strstr(filename, "smallnuke.bmp")) {
-            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
-
-            //
-            // shrink to match the old look of smallnuke
-
-            float shrinkX = (u2 - u1) * 0.0625f;
-            float shrinkY = (v2 - v1) * 0.10f;
-            u1 += shrinkX;
-            u2 -= shrinkX;
-            v1 += shrinkY;
-            v2 -= shrinkY;
-        } else {
-            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
-        }
-    } else {
-        g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
-    }
+    g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
     
     // create billboard vertices based on the mode
     Vector3<float> position(x, y, z);
@@ -105,28 +83,7 @@ void Renderer3D::RotatingSprite3D(Image *src, float x, float y, float z, float w
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
     float u1, v1, u2, v2;
     
-    AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(src);
-    
-    if (atlasImage) {
-        const char* filename = atlasImage->GetFilename();
-        if (filename && strstr(filename, "smallnuke.bmp")) {
-            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
-
-            //
-            // shrink to match the old look of smallnuke
-
-            float shrinkX = (u2 - u1) * 0.0625f;
-            float shrinkY = (v2 - v1) * 0.10f;
-            u1 += shrinkX;
-            u2 -= shrinkX;
-            v1 += shrinkY;
-            v2 -= shrinkY;
-        } else {
-            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
-        }
-    } else {
-        g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
-    }
+    g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
     
     Vector3<float> position(x, y, z);
     Vertex3DTextured billboardVertices[6];

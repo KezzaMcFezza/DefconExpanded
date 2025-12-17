@@ -143,6 +143,58 @@ void Resource::UnloadImage( const char *filename )
 #endif
 }
 
+void Resource::UnloadImage( const char *filename, float uvAdjustX, float uvAdjustY )
+{
+    if( !filename ) return;
+    
+    char fullFilename[512];
+    sprintf( fullFilename, "data/%s", filename );
+    
+    char cacheKey[512];
+    if( uvAdjustX != 0.0f || uvAdjustY != 0.0f )
+    {
+        sprintf( cacheKey, "%s|uv%.6f|uv%.6f", fullFilename, uvAdjustX, uvAdjustY );
+    }
+    else
+    {
+        strcpy( cacheKey, fullFilename );
+    }
+    
+    Image *image = m_imageCache.GetData( cacheKey );
+    if( image )
+    {
+        delete image;
+        m_imageCache.RemoveData( cacheKey );
+    }
+    
+#ifndef NO_UNRAR
+    g_fileSystem->UnloadArchiveFile( fullFilename );
+#endif
+}
+
+Image *Resource::TryLoadFromAtlas( const char *filename, float uvAdjustX, float uvAdjustY )
+{
+    if( !filename ) return NULL;
+    
+    extern class ModSystem *g_modSystem;
+    bool isModGraphic = g_modSystem && g_modSystem->IsModGraphic(filename);
+    
+    //
+    // Try runtime atlas ONLY if not a mod graphic and atlas is initialized
+    
+    if (!isModGraphic && g_spriteAtlasManager && g_spriteAtlasManager->IsInitialized()) {
+        RuntimeTextureAtlas* atlas = NULL;
+        const PackedSprite* sprite = g_spriteAtlasManager->GetSpriteFromAnyAtlas(filename, &atlas);
+        
+        if (sprite && atlas) {
+            AtlasImage* atlasImage = new AtlasImage((PackedSprite*)sprite, atlas);
+            atlasImage->SetUVAdjust( uvAdjustX, uvAdjustY );
+            return atlasImage;
+        }
+    }
+    
+    return NULL;
+}
 
 Image *Resource::GetImage( const char *filename )
 {   
@@ -157,35 +209,62 @@ Image *Resource::GetImage( const char *filename )
         return image;
     }
     
-    //
-    // check if this is a mod graphic
-    
-    extern class ModSystem *g_modSystem;
-    bool isModGraphic = g_modSystem && g_modSystem->IsModGraphic(filename);
-    
-    //
-    // try runtime atlas ONLY if not a mod graphic and atlas is initialized
-    
-    if (!isModGraphic && g_spriteAtlasManager && g_spriteAtlasManager->IsInitialized()) {
-        RuntimeTextureAtlas* atlas = NULL;
-        const PackedSprite* sprite = g_spriteAtlasManager->GetSpriteFromAnyAtlas(filename, &atlas);
-        
-        if (sprite && atlas) {
-
-            //
-            // create AtlasImage from runtime-packed sprite
-            
-            AtlasImage* atlasImage = new AtlasImage((PackedSprite*)sprite, atlas);
-            image = atlasImage;
-            
-            m_imageCache.PutData( fullFilename, image );
-            return image;
-        }
+    image = TryLoadFromAtlas( filename );
+    if( image )
+    {
+        m_imageCache.PutData( fullFilename, image );
+        return image;
     }
     
     image = new Image( fullFilename );
     m_imageCache.PutData( fullFilename, image );
     image->MakeTexture( true, true );
+    return image;
+}
+
+Image *Resource::GetImage( const char *filename, float uvAdjustX, float uvAdjustY )
+{   
+    if( !filename ) return NULL;
+    
+    //
+    // Create cache key that includes UV adjustments
+    // Images with different UV adjustments are cached separately
+    
+    char fullFilename[512];
+    sprintf( fullFilename, "data/%s", filename );
+    
+    char cacheKey[512];
+    if( uvAdjustX != 0.0f || uvAdjustY != 0.0f )
+    {
+        sprintf( cacheKey, "%s|uv%.6f|uv%.6f", fullFilename, uvAdjustX, uvAdjustY );
+    }
+    else
+    {
+        strcpy( cacheKey, fullFilename );
+    }
+    
+    Image *image = m_imageCache.GetData( cacheKey );
+    if( image )
+    {
+        return image;
+    }
+    
+    if( uvAdjustX == 0.0f && uvAdjustY == 0.0f )
+    {
+        return GetImage( filename );
+    }
+    
+    image = TryLoadFromAtlas( filename, uvAdjustX, uvAdjustY );
+    if( image )
+    {
+        m_imageCache.PutData( cacheKey, image );
+        return image;
+    }
+    
+    image = new Image( fullFilename );
+    image->MakeTexture( true, true );
+    image->SetUVAdjust( uvAdjustX, uvAdjustY );
+    m_imageCache.PutData( cacheKey, image );
     return image;
 }
 

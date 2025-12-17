@@ -26,6 +26,8 @@ public:
     Bitmap      *m_bitmap;
     unsigned int m_textureID;
     bool        m_mipmapping;
+    float       m_uvAdjustX;
+    float       m_uvAdjustY;
     
 public:
     Image( char *filename );
@@ -38,6 +40,8 @@ public:
     void    MakeTexture( bool mipmapping, bool masked );
     
     Colour  GetColour( int pixelX, int pixelY );
+    
+    void    SetUVAdjust(float adjustX, float adjustY) { m_uvAdjustX = adjustX; m_uvAdjustY = adjustY; }
 };
 
 #endif

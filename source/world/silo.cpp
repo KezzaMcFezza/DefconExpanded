@@ -186,7 +186,7 @@ void Silo::Render2D()
         Colour colour = team->GetTeamColour();            
         colour.m_a = 150;
 
-        Image *bmpImage = g_resource->GetImage("graphics/smallnuke.bmp");
+        Image *bmpImage = g_resource->GetImage("graphics/smallnuke.bmp", 0.0625f, 0.10f);
         if( bmpImage )
         {
             float x = m_longitude.DoubleValue();
@@ -222,7 +222,7 @@ void Silo::Render3D()
         Colour colour = team->GetTeamColour();            
         colour.m_a = 150;
 
-        Image *bmpImage = g_resource->GetImage("graphics/smallnuke.bmp");
+        Image *bmpImage = g_resource->GetImage("graphics/smallnuke.bmp", 0.0625f, 0.10f);
         if( bmpImage )
         {
             GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();

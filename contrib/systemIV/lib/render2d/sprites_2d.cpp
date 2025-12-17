@@ -30,32 +30,7 @@ void Renderer2D::StaticSprite(Image *src, float x, float y, float w, float h, Co
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
     float u1, v1, u2, v2;
     
-    AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(src);
-    
-    //
-    // This goes against tradition for seperating engien code from app code...
-    // but for now lets keep it i will find a better way.
-    
-    if (atlasImage) {
-        const char* filename = atlasImage->GetFilename();
-        if (filename && strstr(filename, "smallnuke.bmp")) {
-            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
-
-            //
-            // shrink to match the old look of smallnuke
-
-            float shrinkX = (u2 - u1) * 0.0625f;
-            float shrinkY = (v2 - v1) * 0.10f;
-            u1 += shrinkX;
-            u2 -= shrinkX;
-            v1 += shrinkY;
-            v2 -= shrinkY;
-        } else {
-            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
-        }
-    } else {
-        g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
-    }
+    g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
     
     // First triangle: TL, TR, BR
     m_staticSpriteVertices[m_staticSpriteVertexCount++] = {x, y, r, g, b, a, u1, v2};
@@ -98,33 +73,7 @@ void Renderer2D::RotatingSprite(Image *src, float x, float y, float w, float h, 
     float r = col.m_r / 255.0f, g = col.m_g / 255.0f, b = col.m_b / 255.0f, a = col.m_a / 255.0f;
     float u1, v1, u2, v2;
     
-    AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(src);
-    
-
-    //
-    // This goes against tradition for seperating engien code from app code...
-    // but for now lets keep it i will find a better way.
-
-    if (atlasImage) {
-        const char* filename = atlasImage->GetFilename();
-        if (filename && strstr(filename, "smallnuke.bmp")) {
-            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
-
-            //
-            // shrink to match the old look of smallnuke
-
-            float shrinkX = (u2 - u1) * 0.0625f;
-            float shrinkY = (v2 - v1) * 0.10f;
-            u1 += shrinkX;
-            u2 -= shrinkX;
-            v1 += shrinkY;
-            v2 -= shrinkY;
-        } else {
-            g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
-        }
-    } else {
-        g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
-    }
+    g_renderer->GetImageUVCoords(src, u1, v1, u2, v2);
     
     // Calculate rotated vertices
     Vector3<float> vert1(-w, +h, 0);

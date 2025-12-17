@@ -418,30 +418,57 @@ unsigned int Renderer::CreateShader(const char* vertexSource, const char* fragme
 
 void Renderer::GetImageUVCoords(Image* image, float& u1, float& v1, float& u2, float& v2) {
     AtlasImage* atlasImage = dynamic_cast<AtlasImage*>(image);
-    if (atlasImage) {
+    if (atlasImage) 
+    {
 
         //
         // Use atlas coordinates
         
         const AtlasCoord* coord = atlasImage->GetAtlasCoord();
-        if (coord) {
+        if (coord) 
+        {
             u1 = coord->u1;
             v1 = coord->v1;
             u2 = coord->u2;
             v2 = coord->v2;
+        } 
+        else 
+        {
             return;
         }
+    } 
+    else 
+    {
+        //
+        // Regular image, use full texture with edge padding
+        
+        float onePixelW = 1.0f / (float) image->Width();
+        float onePixelH = 1.0f / (float) image->Height();
+        u1 = onePixelW;
+        v1 = onePixelH;
+        u2 = 1.0f - onePixelW;
+        v2 = 1.0f - onePixelH;
     }
     
     //
-    // Regular image, use full texture with edge padding
+    // Apply UV adjustments if set
+    //
+    // Positive values shrink  (reduce UV range)
+    // Negative values stretch (increase UV range)
     
-    float onePixelW = 1.0f / (float) image->Width();
-    float onePixelH = 1.0f / (float) image->Height();
-    u1 = onePixelW;
-    v1 = onePixelH;
-    u2 = 1.0f - onePixelW;
-    v2 = 1.0f - onePixelH;
+    if (image->m_uvAdjustX != 0.0f) 
+    {
+        float shrinkX = (u2 - u1) * image->m_uvAdjustX;
+        u1 += shrinkX;
+        u2 -= shrinkX;
+    }
+    
+    if (image->m_uvAdjustY != 0.0f) 
+    {
+        float shrinkY = (v2 - v1) * image->m_uvAdjustY;
+        v1 += shrinkY;
+        v2 -= shrinkY;
+    }
 }
 
 unsigned int Renderer::GetEffectiveTextureID(Image* image) {

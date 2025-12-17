@@ -494,7 +494,7 @@ void Bomber::Render2D()
         Colour colour = team->GetTeamColour();            
         colour.m_a = 150;
 
-        Image *bmpImage = g_resource->GetImage( "graphics/smallnuke.bmp" );
+        Image *bmpImage = g_resource->GetImage( "graphics/smallnuke.bmp", 0.0625f, 0.10f );
 
         float size = GetSize().DoubleValue() * 0.4f;
         
@@ -527,7 +527,7 @@ void Bomber::Render3D()
         Colour colour = team->GetTeamColour();            
         colour.m_a = 150;
 
-        Image *bmpImage = g_resource->GetImage( "graphics/smallnuke.bmp" );
+        Image *bmpImage = g_resource->GetImage( "graphics/smallnuke.bmp", 0.0625f, 0.10f );
 
         GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
         if( globeRenderer && bmpImage )

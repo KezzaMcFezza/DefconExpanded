@@ -13,7 +13,9 @@
 
 Image::Image( char *filename )
 :   m_textureID(-1),
-    m_mipmapping(false)
+    m_mipmapping(false),
+    m_uvAdjustX(0.0f),
+    m_uvAdjustY(0.0f)
 {
     BinaryReader *in = g_fileSystem->GetBinaryReader(filename);
 
@@ -47,7 +49,9 @@ Image::Image( char *filename )
 Image::Image( Bitmap *_bitmap )
 :   m_bitmap(_bitmap),
     m_textureID(-1),
-    m_mipmapping(false)
+    m_mipmapping(false),
+    m_uvAdjustX(0.0f),
+    m_uvAdjustY(0.0f)
 {
 }
 
