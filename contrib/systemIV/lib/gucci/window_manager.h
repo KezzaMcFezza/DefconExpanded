@@ -7,6 +7,7 @@
 class WindowResolution;
 
 typedef long (*SecondaryEventHandler )(unsigned int, long, long long);
+typedef void (*WindowResizeHandler)(int newWidth, int newHeight, int oldWidth, int oldHeight);
 
 // ****************************************************************************
 // Class WindowManager
@@ -66,6 +67,9 @@ public:
 
     void        		RegisterMessageHandler (SecondaryEventHandler _messageHandler );
     SecondaryEventHandler GetSecondaryMessageHandler();
+    
+    void                RegisterWindowResizeHandler(WindowResizeHandler _handler);
+    WindowResizeHandler GetWindowResizeHandler();
 
 public:
     LList		<WindowResolution *> m_resolutions;
@@ -92,6 +96,7 @@ protected:
     float       m_highDPIScaleY;
 
     SecondaryEventHandler m_secondaryMessageHandler;
+    WindowResizeHandler m_windowResizeHandler;
 };
 
 

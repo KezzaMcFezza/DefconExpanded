@@ -25,22 +25,6 @@ SoundLibrary2d *g_soundLibrary2d = NULL;
 #include "sound/soundsystem.h"
 #include "lib/hi_res_time.h"
 
-/*
-void CALLBACK WaveOutProc(HWAVEOUT _dev, UINT _msg, DWORD _userData, DWORD _param1, DWORD _param2)
-{
-	if (_msg != WOM_DONE) return;
-	if (!s_device)	return;
-	if (!g_soundLibrary2d || !g_soundLibrary2d->m_callback) return;
-
-	g_soundLibrary2d->m_bufferIsThirsty++;
-	tim = GetHighResTime();
-
-	if (g_app->m_soundSystem && !g_app->m_soundSystem->m_advancing)
-	{
-		g_soundLibrary2d->TopupBuffer();
-	}
-}
-*/
 
 void SoundLibrary2d::TopupBuffer()
 {

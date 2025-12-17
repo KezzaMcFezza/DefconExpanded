@@ -278,6 +278,11 @@ static void InitialiseFloatingPointUnit()
 #endif
 }
 
+static void WindowResizeCallback(int newWidth, int newHeight, int oldWidth, int oldHeight)
+{
+    g_app->OnWindowResized(newWidth, newHeight, oldWidth, oldHeight);
+}
+
 
 #if defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
 static const std::string &GetHomeDirectory()
@@ -430,6 +435,8 @@ void App::MinimalInit()
     m_earthData = new EarthData();
     
     g_windowManager = WindowManager::Create();
+    g_windowManager->RegisterWindowResizeHandler(WindowResizeCallback);
+    
     InitialiseWindow();
 #ifdef TARGET_OS_MACOSX
     // closeRetinaDisplaySupport();

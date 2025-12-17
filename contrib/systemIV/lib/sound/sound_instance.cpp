@@ -911,44 +911,6 @@ bool SoundInstance::Update3DPosition()
 void SoundInstance::ForceParameter( SoundParameter &_param, float value )
 {
     
-/*
-    switch( _param.m_link )
-    {
-        case SoundParameter::LinkedToHeightAboveGround:
-        {
-//            float landHeight = 0.0f;
-//            if( g_app->m_location ) landHeight = g_app->m_location->m_landscape.m_heightMap->GetValue(m_pos.x, m_pos.z);
-//            m_pos.y = landHeight + value;
-            break;
-        }       
-
-        case SoundParameter::LinkedToXpos:
-            m_pos.x = value;
-            break;
-
-        case SoundParameter::LinkedToYpos:
-            m_pos.y = value;
-            break;
-
-        case SoundParameter::LinkedToZpos:
-            m_pos.z = value;
-            break;
-            
-        case SoundParameter::LinkedToVelocity:
-            m_vel.Set( 0.0f, 0.0f, value );
-            break;
-    
-        case SoundParameter::LinkedToCameraDistance:
-        {
-//            if( g_app->m_camera )
-//            {
-//                m_pos = g_app->m_camera->GetPos() + 
-//                        g_app->m_camera->GetFront() * value;
-//            }
-            break;
-        }
-    }*/
-
 }
 
 
