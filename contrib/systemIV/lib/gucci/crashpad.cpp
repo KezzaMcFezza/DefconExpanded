@@ -32,11 +32,26 @@ bool InitializeCrashpad(const char* apiUrl)
     //
     // API URL, but can literally be anything
 
-    const char* kDefaultApiUrl = "https://defconexpanded.com/api/defcon-crashpad";
-    if (!apiUrl || !apiUrl[0])
+    const char* prefsUrl = nullptr;
+    if (g_preferences)
     {
-        apiUrl = kDefaultApiUrl;
+        prefsUrl = g_preferences->GetString(PREFS_CRASHPAD_URL, 0);
     }
+
+
+    const char* finalUrl = apiUrl;
+    if (!finalUrl || !finalUrl[0])
+    {
+        finalUrl = prefsUrl;
+    }
+
+    if (!finalUrl || !finalUrl[0])
+    {
+        AppDebugOut("Crashpad: No CrashpadURL configured in preferences\n");
+        return false;
+    }
+
+    apiUrl = finalUrl;
 
     base::FilePath exeFilePath;
     base::FilePath exeDir;

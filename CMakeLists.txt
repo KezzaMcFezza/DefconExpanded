@@ -70,7 +70,7 @@ else()
     set(GLAD_SOURCE_FILE "${GLAD_PATH}/desktop/src/glad.c")
 endif()
 
-set(REPLAY_VIEWER_VERSION "R1.28" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "R1.28.7" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 set(SYNC_PRACTICE_VERSION "B1.16.1" CACHE STRING "Version prefix for silo practice client (e.g., B1.0, B1.1)")
 
 # build mode is now determined by preprocessor definitions passed via CMAKE_CXX_FLAGS
