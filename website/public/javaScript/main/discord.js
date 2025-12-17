@@ -45,9 +45,9 @@ function formatDateForEvent(date) {
 function getDiscordEvent() {
   const nextSunday = getNextSunday();
   return {
-    title: "Halloween Tournament Starts...",
-    date: `Monday`,
-    time: "October 27th"
+    title: "Christmas Tournament has started!",
+    date: `Ends on...`,
+    time: "January 12th 2026"
   };
 }
 
