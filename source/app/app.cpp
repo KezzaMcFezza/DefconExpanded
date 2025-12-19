@@ -341,11 +341,17 @@ static std::string GetLogFilePath()
 
 void App::MinimalInit()
 {
+    SetAppName(APP_NAME);
+    SetAppVersion(APP_VERSION);
+    SetAppBuildNumber(APP_BUILD_NUMBER);
+    SetRealVersion(REAL_VERSION);
+    SetAppSystem(APP_SYSTEM);
+
 #ifdef DUMP_DEBUG_LOG
     AppDebugOutRedirect( GetLogFilePath().c_str() );
 #endif
     AppDebugOut("Defcon %s built %s\n", APP_VERSION, __DATE__ );
-		
+    
     //
     // Turn everything on
 
@@ -357,6 +363,18 @@ void App::MinimalInit()
     InitialiseHighResTime();
 
     g_fileSystem = new FileSystem();
+
+    SetDataRoot("data");
+
+    static const char *graphicsExcludes[] = {
+        "graphics/blur.bmp",
+        "graphics/map.bmp",
+        "graphics/water.bmp",
+        "graphics/water_shaded.bmp",
+        "graphics/territory.bmp",
+        "graphics/defconatlas.bmp",
+        "gui/defconuiatlas.bmp"
+    };
     
     //
     // load main.dat and sounds.dat in parallel
@@ -371,6 +389,10 @@ void App::MinimalInit()
 
     g_fileSystem->ParseArchivesParallel( &archivesToLoad );
     archivesToLoad.EmptyAndDeleteArray();
+
+    AddResourceDir("graphics", graphicsExcludes,
+            sizeof(graphicsExcludes) / sizeof(char *));
+    AddResourceDir("gui", NULL, 0);
 
     g_preferences = new Preferences();
 

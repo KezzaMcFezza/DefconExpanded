@@ -99,19 +99,19 @@ RuntimeTextureAtlas::~RuntimeTextureAtlas() {
 
 void RuntimeTextureAtlas::LoadSprites(
     const char* directory,
-    const char** excludeList, int excludeCount,
+    const char* const *excludeList, int excludeCount,
     PackedSprite*** outSprites, int* outCount) {
     
     //
     // list all BMP files in directory
 
     char searchPath[512];
-    snprintf(searchPath, sizeof(searchPath), "data/%s", directory);
+    snprintf(searchPath, sizeof(searchPath), "%s/%s/", GetDataRoot(), directory);
     searchPath[sizeof(searchPath) - 1] = '\0';
     
     LList<char*>* files = g_fileSystem->ListArchive(searchPath, "*.bmp", false);
     if (!files || files->Size() == 0) {
-        AppDebugOut("WARNING: No sprites found in %s\n", directory);
+        AppDebugOut("WARNING: No sprites found in %s (searched path: %s)\n", directory, searchPath);
         *outSprites = NULL;
         *outCount = 0;
         if (files) {
@@ -141,7 +141,7 @@ void RuntimeTextureAtlas::LoadSprites(
         char* filename = files->GetData(i);
         
         char fullPath[512];
-        snprintf(fullPath, sizeof(fullPath), "%s%s", directory, filename);
+        snprintf(fullPath, sizeof(fullPath), "%s/%s", directory, filename);
         fullPath[sizeof(fullPath) - 1] = '\0';
         
         //
@@ -191,12 +191,13 @@ void RuntimeTextureAtlas::LoadSprites(
         // build paths with thread-local stack variables
         
         char* filename = files->GetData(i);
+        
         char fullPath[512];
-        snprintf(fullPath, sizeof(fullPath), "%s%s", directory, filename);
+        snprintf(fullPath, sizeof(fullPath), "%s/%s", directory, filename);
         fullPath[sizeof(fullPath) - 1] = '\0';
         
         char dataPath[512];
-        snprintf(dataPath, sizeof(dataPath), "data/%s", fullPath);
+        snprintf(dataPath, sizeof(dataPath), "%s/%s", GetDataRoot(), fullPath);
         dataPath[sizeof(dataPath) - 1] = '\0';
         
         //
@@ -254,11 +255,11 @@ void RuntimeTextureAtlas::LoadSprites(
         
         char* filename = files->GetData(i);
         char fullPath[512];
-        snprintf(fullPath, sizeof(fullPath), "%s%s", directory, filename);
+        snprintf(fullPath, sizeof(fullPath), "%s/%s", directory, filename);
         fullPath[sizeof(fullPath) - 1] = '\0';
         
         char dataPath[512];
-        snprintf(dataPath, sizeof(dataPath), "data/%s", fullPath);
+        snprintf(dataPath, sizeof(dataPath), "%s/%s", GetDataRoot(), fullPath);
         dataPath[sizeof(dataPath) - 1] = '\0';
         
         BinaryReader* reader = g_fileSystem->GetBinaryReader(dataPath);
@@ -439,8 +440,8 @@ void RuntimeTextureAtlas::CreateGLTexture() {
 }
 
 bool RuntimeTextureAtlas::BuildFromDirectory(const char* directory,
-                                              const char** excludeList,
-                                              int excludeCount) {
+                                             const char* const *excludeList,
+                                             int excludeCount) {
     
     //
     // load all sprites from directory
@@ -531,7 +532,7 @@ const char* AtlasImage::GetFilename() const {
 }
 
 SpriteAtlasManager::SpriteAtlasManager()
-    : m_graphicsAtlas(NULL), m_guiAtlas(NULL), m_initialized(false) {
+    : m_initialized(false) {
 }
 
 SpriteAtlasManager::~SpriteAtlasManager() {
@@ -542,56 +543,37 @@ bool SpriteAtlasManager::Initialize() {
     if (m_initialized) {
         return true;
     }
-    
-    //
-    // define excluded data textures that cannot be atlased
-    
-        const char* excludedGraphics[] = {
-        "graphics/blur.bmp",
-        "graphics/map.bmp",
-        "graphics/water.bmp",
-        "graphics/water_shaded.bmp",
-        "graphics/territory.bmp",
-        "graphics/defconatlas.bmp",
-        "gui/defconuiatlas.bmp"
-    };
-
-    int excludeCount = sizeof(excludedGraphics) / sizeof(char*);
-    
 
     //
-    // build graphics atlas
-    
-    m_graphicsAtlas = new RuntimeTextureAtlas("Graphics");
-    if (!m_graphicsAtlas->BuildFromDirectory("graphics/", excludedGraphics, excludeCount)) {
-        delete m_graphicsAtlas;
-        m_graphicsAtlas = NULL;
-        return false;
-    }
-    
-    //
-    // build interface atlas
-    
-    m_guiAtlas = new RuntimeTextureAtlas("Interface");
-    if (!m_guiAtlas->BuildFromDirectory("gui/", NULL, 0)) {
-        delete m_guiAtlas;
-        m_guiAtlas = NULL;
-        return false;
-    }
-    
-    //
-    // calculate and display total sprites loaded
-    
+    // Build one atlas per registered resource directory
+
+    int numDirs = GetResourceDirCount();
     int totalSprites = 0;
-    if (m_graphicsAtlas) {
-        totalSprites += m_graphicsAtlas->GetSpriteCount();
+
+    for (int i = 0; i < numDirs; ++i) {
+        const char *dir = GetResourceDir(i);
+        if (!dir) continue;
+
+        int excludeCount = 0;
+        const char * const *excludes = GetResourceDirExclusions(i, &excludeCount);
+
+        RuntimeTextureAtlas *atlas = new RuntimeTextureAtlas(dir);
+        if (!atlas->BuildFromDirectory(dir, excludes, excludeCount)) {
+            delete atlas;
+            continue;
+        }
+
+        totalSprites += atlas->GetSpriteCount();
+        m_atlases.PutData(atlas);
     }
-    if (m_guiAtlas) {
-        totalSprites += m_guiAtlas->GetSpriteCount();
+
+    if (m_atlases.Size() == 0) {
+        AppDebugOut("SpriteAtlasManager: No atlases were built (no directories or sprites were found)\n");
+        return false;
     }
-    
+
     AppDebugOut("Total sprites loaded: %d\n", totalSprites);
-    
+
     m_initialized = true; 
     return true;
 }
@@ -602,63 +584,47 @@ void SpriteAtlasManager::Rebuild() {
 }
 
 void SpriteAtlasManager::Shutdown() {
-    if (m_graphicsAtlas) {
-        delete m_graphicsAtlas;
-        m_graphicsAtlas = NULL;
+    for (int i = 0; i < m_atlases.Size(); ++i) {
+        RuntimeTextureAtlas *atlas = m_atlases.GetData(i);
+        delete atlas;
     }
-    
-    if (m_guiAtlas) {
-        delete m_guiAtlas;
-        m_guiAtlas = NULL;
-    }
-    
+    m_atlases.Empty();
+
     m_initialized = false;
 }
 
 bool SpriteAtlasManager::IsAtlasSprite(const char* filename) const {
     if (!m_initialized) return false;
-    
-    if (m_graphicsAtlas && m_graphicsAtlas->HasSprite(filename)) {
-        return true;
+
+    for (int i = 0; i < m_atlases.Size(); ++i) {
+        RuntimeTextureAtlas *atlas = m_atlases.GetData(i);
+        if (atlas && atlas->HasSprite(filename)) {
+            return true;
+        }
     }
-    
-    if (m_guiAtlas && m_guiAtlas->HasSprite(filename)) {
-        return true;
-    }
-    
+
     return false;
 }
 
 const PackedSprite* SpriteAtlasManager::GetSpriteFromAnyAtlas(
     const char* filename, RuntimeTextureAtlas** outAtlas) const {
-    
+
     if (!m_initialized) {
         if (outAtlas) *outAtlas = NULL;
         return NULL;
     }
-    
-    //
-    // check graphics atlas first
-    
-    if (m_graphicsAtlas) {
-        const PackedSprite* sprite = m_graphicsAtlas->GetSprite(filename);
+
+    for (int i = 0; i < m_atlases.Size(); ++i) {
+        RuntimeTextureAtlas *atlas = m_atlases.GetData(i);
+        if (!atlas) continue;
+
+        const PackedSprite* sprite = atlas->GetSprite(filename);
         if (sprite) {
-            if (outAtlas) *outAtlas = m_graphicsAtlas;
+            if (outAtlas) *outAtlas = atlas;
             return sprite;
         }
     }
-    
-    //
-    // now check interface atlas
-    
-    if (m_guiAtlas) {
-        const PackedSprite* sprite = m_guiAtlas->GetSprite(filename);
-        if (sprite) {
-            if (outAtlas) *outAtlas = m_guiAtlas;
-            return sprite;
-        }
-    }
-    
+
     if (outAtlas) *outAtlas = NULL;
     return NULL;
 }

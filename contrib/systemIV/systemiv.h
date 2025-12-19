@@ -12,7 +12,6 @@
 #define TRACK_LANGUAGEPHRASE_ERRORS
 #define TRACK_GL_ERRORS
 
-// Windows Specific options
 #ifdef TARGET_MSVC
 
 #include <crtdbg.h>
@@ -30,7 +29,6 @@
 
 #endif
 
-// Mac OS X Specific Settings
 #if defined ( TARGET_OS_MACOSX ) || defined ( TARGET_OS_LINUX )
 #undef HAVE_DSOUND
 
@@ -41,20 +39,22 @@
 #define strnicmp strncasecmp
 #define Sleep(x) usleep( 1000 * x)
 
-// String function definitions - handle Emscripten specially
+//
+// String function definitions, handle Emscripten specially
+
 #ifdef TARGET_EMSCRIPTEN
-    // Emscripten provides these functions in its compatibility layer
-    // Include string.h to get the declarations
     #include <string.h>
+
+    //
     // Note: strlwr and strupr are declared in Emscripten's compat/string.h
     // but we need to avoid redefinition conflicts
+
     #ifndef __EMSCRIPTEN_STRLWR_DEFINED__
         extern char* strlwr(char *);
         extern char* strupr(char *);
         #define __EMSCRIPTEN_STRLWR_DEFINED__
     #endif
 #else
-    // Original inline implementations for macOS and Linux
     inline char * strlwr(char *s) {
         for (char *p = s; *p; p++)
             *p = tolower(*p);
@@ -79,7 +79,7 @@
 #endif
 
 #ifdef Round
-#undef Round
+    #undef Round
 #endif
 
 #include <glad/glad.h>
@@ -87,7 +87,7 @@
 #include <SDL2/SDL.h>
 
 #ifdef OPENMP
-#include <omp.h>
+    #include <omp.h>
 #endif
 
 const char *GetAppName();
@@ -95,29 +95,38 @@ const char *GetAppVersion();
 const char *GetAppBuildNumber();
 const char *GetRealVersion();
 const char *GetAppSystem();
+const char *GetDataRoot();
 
-void SetAppName(const char *name);
-void SetAppVersion(const char *version);
+void SetAppName       (const char *name);
+void SetAppVersion    (const char *version);
 void SetAppBuildNumber(const char *buildNumber);
-void SetRealVersion(const char *realVersion);
-void SetAppSystem(const char *system);
+void SetRealVersion   (const char *realVersion);
+void SetAppSystem     (const char *system);
+void SetDataRoot      (const char *path);
 
-// Include library headers
+const char *GetResourceDir                  (int index);
+const char * const *GetResourceDirExclusions(int index, int *count);
+
+void        AddResourceDir                  (const char *path,
+                                             const char * const *excludeList = NULL,
+                                             int excludeCount = 0);
+int         GetResourceDirCount();
+
 #ifdef TARGET_OS_MACOSX
-#undef TARGET_OS_LINUX
-#undef TARGET_OS_WINDOWS
-#undef TARGET_EMSCRIPTEN
+    #undef TARGET_OS_LINUX
+    #undef TARGET_OS_WINDOWS
+    #undef TARGET_EMSCRIPTEN
 #elif defined(TARGET_MSVC)
-#undef TARGET_OS_LINUX
-#undef TARGET_OS_MACOSX
-#undef TARGET_EMSCRIPTEN
-#include <glad/wgl_ext.h>
+    #undef TARGET_OS_LINUX
+    #undef TARGET_OS_MACOSX
+    #undef TARGET_EMSCRIPTEN
+    #include <glad/wgl_ext.h>
 #elif defined(TARGET_EMSCRIPTEN)
-#undef TARGET_OS_MACOSX
-#undef TARGET_OS_WINDOWS
-#include <emscripten.h>
-#include <pthread.h>
-#include <sys/time.h>
+    #undef TARGET_OS_MACOSX
+    #undef TARGET_OS_WINDOWS
+    #include <emscripten.h>
+    #include <pthread.h>
+    #include <sys/time.h>
 #endif
 
 #endif

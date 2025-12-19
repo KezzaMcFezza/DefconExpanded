@@ -73,7 +73,7 @@ GlobeRenderer::GlobeRenderer()
 
 GlobeRenderer::~GlobeRenderer()
 {
-    g_resource->UnloadModel3D("data/models/nuke.glb");
+    g_resource->UnloadModel3D("models/nuke.glb");
     nukeModel = NULL;
     
     Reset();
@@ -83,7 +83,7 @@ void GlobeRenderer::Init()
 {
     Reset();
 
-    nukeModel = g_resource->GetModel3D("data/models/nuke.glb");
+    nukeModel = g_resource->GetModel3D("models/nuke.glb");
 }
 
 void GlobeRenderer::Update()

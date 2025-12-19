@@ -1,9 +1,12 @@
 #include "systemiv.h"
+#include "lib/tosser/llist.h"
 
-static const char *s_appName = "SystemIV";
-static const char *s_appVersion = "1.37";
+// ============================================================================
+
+static const char *s_appName        = "SystemIV";
+static const char *s_appVersion     = "1.37";
 static const char *s_appBuildNumber = "1.64";
-static const char *s_realVersion = "1.64_systemiv";
+static const char *s_realVersion    = "1.64_systemiv";
 static const char *s_appSystem = 
 #ifdef TARGET_MSVC
     "Windows"
@@ -72,3 +75,72 @@ void SetAppSystem(const char *system)
     s_appSystem = system;
 }
 
+
+// ============================================================================
+
+
+static const char *s_dataRoot    = NULL;
+
+struct ResourceDirConfig
+{
+    const char *path;
+    const char * const *excludeList;
+    int excludeCount;
+};
+
+static LList<ResourceDirConfig> s_resourceDirs;
+
+const char *GetDataRoot()
+{
+    return s_dataRoot;
+}
+
+void SetDataRoot(const char *path)
+{
+    if( path ) s_dataRoot = path;
+}
+
+void AddResourceDir(const char *path,
+                    const char * const *excludeList,
+                    int excludeCount)
+{
+    if( !path || !path[0] ) return;
+
+    ResourceDirConfig cfg;
+    cfg.path        = path;
+    cfg.excludeList = excludeList;
+    cfg.excludeCount= excludeCount;
+    
+    s_resourceDirs.PutData(cfg);
+}
+
+int GetResourceDirCount()
+{
+    return s_resourceDirs.Size();
+}
+
+const char *GetResourceDir(int index)
+{
+    if( index < 0 || index >= s_resourceDirs.Size() ) return NULL;
+    ResourceDirConfig *cfg = s_resourceDirs.GetPointer(index);
+    return cfg ? cfg->path : NULL;
+}
+
+const char * const *GetResourceDirExclusions(int index, int *count)
+{
+    if( index < 0 || index >= s_resourceDirs.Size() )
+    {
+        if( count ) *count = 0;
+        return NULL;
+    }
+
+    ResourceDirConfig *cfg = s_resourceDirs.GetPointer(index);
+    if( !cfg )
+    {
+        if( count ) *count = 0;
+        return NULL;
+    }
+    
+    if( count ) *count = cfg->excludeCount;
+    return cfg->excludeList;
+}
