@@ -88,6 +88,7 @@ void Renderer3DVBO::EndTexturedMegaVBO3D() {
         cachedVBO->IBO = 0;
         cachedVBO->vertexCount = 0;
         cachedVBO->indexCount = 0;
+        cachedVBO->vertexType = VBO_VERTEX_3D_TEXTURED;
         cachedVBO->isValid = false;
         m_cached3DVBOs.PutData(m_currentMegaVBO3DTexturedKey, cachedVBO);
     } else {
@@ -124,6 +125,7 @@ void Renderer3DVBO::EndTexturedMegaVBO3D() {
 
     cachedVBO->vertexCount = m_megaTexturedVertex3DCount;
     cachedVBO->indexCount = m_megaTexturedIndex3DCount;
+    cachedVBO->vertexType = VBO_VERTEX_3D_TEXTURED;
     cachedVBO->isValid = true;
 
     cachedVBO->color.m_r = (m_currentMegaVBO3DTextureID >> 24) & 0xFF;
@@ -174,11 +176,13 @@ bool Renderer3DVBO::IsTexturedMegaVBO3DValid(const char* megaVBOKey) {
     return (tree && tree->data && tree->data->isValid);
 }
 
-void Renderer3DVBO::SetTexturedMegaVBO3DBufferSizes(int vertexCount, int indexCount) {
+void Renderer3DVBO::SetTexturedMegaVBO3DBufferSizes(int vertexCount, int indexCount, const char *cacheKey) {
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
     
-    InvalidateCached3DVBO("Starfield");
+    if (cacheKey) {
+        InvalidateCached3DVBO(cacheKey);
+    }
     
     if (m_megaTexturedVertices3D) {
         delete[] m_megaTexturedVertices3D;

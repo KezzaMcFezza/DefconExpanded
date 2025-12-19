@@ -514,7 +514,7 @@ void GlobeRenderer::BuildStarfieldVBO()
     //
     // Set buffer sizes with padding (10% extra)
 
-    g_renderer3dvbo->SetTexturedMegaVBO3DBufferSizes(verticesNeeded, indicesNeeded);
+    g_renderer3dvbo->SetTexturedMegaVBO3DBufferSizes(verticesNeeded, indicesNeeded, "Starfield");
     
     float u1, v1, u2, v2;
     g_renderer->GetImageUVCoords(cityImg, u1, v1, u2, v2);
@@ -617,7 +617,7 @@ void GlobeRenderer::BuildCullSphereVBO()
     int totalTriangles = numLatitudeSegments * numLongitudeSegments * 2;
     int totalVertices = totalTriangles * 3;
     
-    g_renderer3dvbo->SetTriangleMegaVBO3DBufferSizes(totalVertices, totalVertices);
+    g_renderer3dvbo->SetTriangleMegaVBO3DBufferSizes(totalVertices, totalVertices, "CullingSphere");
     
     Colour cullColor(255, 255, 255, 255);
     g_renderer3dvbo->BeginTriangleMegaVBO3D("CullingSphere", cullColor);

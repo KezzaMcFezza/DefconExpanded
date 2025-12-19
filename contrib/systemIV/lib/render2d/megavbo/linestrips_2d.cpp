@@ -81,6 +81,7 @@ void Renderer2DVBO::EndMegaVBO() {
         cachedVBO->IBO = 0;
         cachedVBO->vertexCount = 0;
         cachedVBO->indexCount = 0;
+        cachedVBO->vertexType = VBO_VERTEX_2D;
         cachedVBO->isValid = false;
         m_cachedVBOs.PutData(m_currentMegaVBOKey, cachedVBO);
     } else {
@@ -123,6 +124,7 @@ void Renderer2DVBO::EndMegaVBO() {
     cachedVBO->indexCount = m_megaIndexCount;
     cachedVBO->color = m_megaVBOColor;
     cachedVBO->lineWidth = m_megaVBOWidth;
+    cachedVBO->vertexType = VBO_VERTEX_2D;
     cachedVBO->isValid = true;
     
     m_megaVertexCount = 0;
@@ -167,7 +169,7 @@ bool Renderer2DVBO::IsMegaVBOValid(const char* megaVBOKey) {
     return (tree && tree->data && tree->data->isValid);
 }
 
-void Renderer2DVBO::SetMegaVBOBufferSizes(int vertexCount, int indexCount) {
+void Renderer2DVBO::SetMegaVBOBufferSizes(int vertexCount, int indexCount, const char *cacheKey) {
 
     //
     // Calculate new sizes with 10% safety margin
@@ -175,8 +177,9 @@ void Renderer2DVBO::SetMegaVBOBufferSizes(int vertexCount, int indexCount) {
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
 
-    InvalidateCachedVBO("MapCoastlines");
-    InvalidateCachedVBO("MapBorders");
+    if (cacheKey) {
+        InvalidateCachedVBO(cacheKey);
+    }
     
     //
     // free existing CPU buffers

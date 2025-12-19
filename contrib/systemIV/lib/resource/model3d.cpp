@@ -331,7 +331,7 @@ void Model3D::BuildModelVBO() {
     int currentMaxIndices = g_renderer3dvbo->GetMegaTriangleBufferIndexCount3D();
     
     if (totalVertices > currentMaxVertices || totalIndices > currentMaxIndices) {
-        g_renderer3dvbo->SetTriangleMegaVBO3DBufferSizes(totalVertices, totalIndices);
+        g_renderer3dvbo->SetTriangleMegaVBO3DBufferSizes(totalVertices, totalIndices, m_cacheKey);
     }
     
     //

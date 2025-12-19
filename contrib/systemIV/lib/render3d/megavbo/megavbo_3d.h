@@ -53,6 +53,11 @@ protected:
   //
   // VBO caching system for 3D geometry, replaced display lists
 
+  enum VBOVertexType {
+    VBO_VERTEX_3D,              // Vertex3D
+    VBO_VERTEX_3D_TEXTURED      // Vertex3DTextured
+  };
+
   struct Cached3DVBO {
     unsigned int VBO;
     unsigned int VAO;
@@ -60,6 +65,7 @@ protected:
     int vertexCount;            // Number of actual vertices (no duplication)
     int indexCount;             // Number of indices
     Colour color;
+    VBOVertexType vertexType;
     bool isValid;
   };
   
@@ -87,14 +93,14 @@ public:
   void EndMegaVBO3D               ();
   void RenderMegaVBO3D            (const char *megaVBOKey);
   bool IsMegaVBO3DValid           (const char *megaVBOKey);
-  void SetMegaVBO3DBufferSizes    (int vertexCount, int indexCount);
+  void SetMegaVBO3DBufferSizes    (int vertexCount, int indexCount, const char *cacheKey);
 
   void BeginTexturedMegaVBO3D          (const char *megaVBOKey, unsigned int textureID);
   void AddTexturedQuadsToMegaVBO3D     (const Vertex3DTextured *vertices, int vertexCount, int quadCount);
   void EndTexturedMegaVBO3D            ();
   void RenderTexturedMegaVBO3D         (const char *megaVBOKey);
   bool IsTexturedMegaVBO3DValid        (const char *megaVBOKey);
-  void SetTexturedMegaVBO3DBufferSizes (int vertexCount, int indexCount);
+  void SetTexturedMegaVBO3DBufferSizes (int vertexCount, int indexCount, const char *cacheKey);
 
   void BeginTriangleMegaVBO3D             (const char *megaVBOKey, Colour const &col);
   void AddTrianglesToMegaVBO3D            (const Vector3<float> *vertices, int vertexCount);
@@ -103,7 +109,7 @@ public:
   void RenderTriangleMegaVBO3D            (const char *megaVBOKey);
   void RenderTriangleMegaVBO3DWithMatrix  (const char *megaVBOKey, const Matrix4f& modelMatrix, const Colour& modelColor);
   bool IsTriangleMegaVBO3DValid           (const char *megaVBOKey);
-  void SetTriangleMegaVBO3DBufferSizes    (int vertexCount, int indexCount);
+  void SetTriangleMegaVBO3DBufferSizes    (int vertexCount, int indexCount, const char *cacheKey);
   
   void BeginInstancedMegaVBO              (const char *batchKey, const char *meshKey);
   bool AddInstance                        (const Matrix4f& matrix, const Colour& color);
@@ -130,6 +136,7 @@ public:
   int GetCached3DVBOCount         ();
   int GetCached3DVBOVertexCount   (const char *cacheKey);
   int GetCached3DVBOIndexCount    (const char *cacheKey);
+  size_t GetCached3DVBOVertexSize (const char *cacheKey);
   int GetCachedInstanceBatchCount ();
 
   int GetMegaBufferVertexCount3D   () const { return m_maxMegaVertices3D; }

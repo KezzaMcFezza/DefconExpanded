@@ -89,6 +89,7 @@ void Renderer3DVBO::EndMegaVBO3D() {
         cachedVBO->IBO = 0;
         cachedVBO->vertexCount = 0;
         cachedVBO->indexCount = 0;
+        cachedVBO->vertexType = VBO_VERTEX_3D;
         cachedVBO->isValid = false;
         m_cached3DVBOs.PutData(m_currentMegaVBO3DKey, cachedVBO);
     } else {
@@ -125,6 +126,7 @@ void Renderer3DVBO::EndMegaVBO3D() {
     cachedVBO->vertexCount = m_megaVertex3DCount;
     cachedVBO->indexCount = m_megaIndex3DCount;
     cachedVBO->color = m_megaVBO3DColor;
+    cachedVBO->vertexType = VBO_VERTEX_3D;
     cachedVBO->isValid = true;
     
     m_megaVertex3DCount = 0;
@@ -169,7 +171,7 @@ bool Renderer3DVBO::IsMegaVBO3DValid(const char* megaVBOKey) {
     return (tree && tree->data && tree->data->isValid);
 }
 
-void Renderer3DVBO::SetMegaVBO3DBufferSizes(int vertexCount, int indexCount) {
+void Renderer3DVBO::SetMegaVBO3DBufferSizes(int vertexCount, int indexCount, const char *cacheKey) {
 
     //
     // Calculate new sizes with 10% safety margin
@@ -177,9 +179,9 @@ void Renderer3DVBO::SetMegaVBO3DBufferSizes(int vertexCount, int indexCount) {
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
 
-    InvalidateCached3DVBO("GlobeCoastlines");
-    InvalidateCached3DVBO("GlobeBorders");
-    InvalidateCached3DVBO("GlobeGridlines");
+    if (cacheKey) {
+        InvalidateCached3DVBO(cacheKey);
+    }
     
     //
     // free existing CPU buffers

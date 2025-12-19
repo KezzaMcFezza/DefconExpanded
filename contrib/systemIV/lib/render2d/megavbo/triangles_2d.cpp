@@ -85,6 +85,7 @@ void Renderer2DVBO::EndTriangleMegaVBO() {
         cachedVBO->IBO = 0;
         cachedVBO->vertexCount = 0;
         cachedVBO->indexCount = 0;
+        cachedVBO->vertexType = VBO_VERTEX_2D;
         cachedVBO->isValid = false;
         m_cachedVBOs.PutData(m_currentMegaVBOTrianglesKey, cachedVBO);
     } else {
@@ -120,6 +121,7 @@ void Renderer2DVBO::EndTriangleMegaVBO() {
     cachedVBO->vertexCount = m_megaTriangleVertexCount;
     cachedVBO->indexCount = m_megaTriangleIndexCount;
     cachedVBO->color = m_megaVBOTrianglesColor;
+    cachedVBO->vertexType = VBO_VERTEX_2D;
     cachedVBO->isValid = true;
     
     m_megaTriangleVertexCount = 0;
@@ -152,11 +154,13 @@ bool Renderer2DVBO::IsTriangleMegaVBOValid(const char* megaVBOKey) {
     return (tree && tree->data && tree->data->isValid);
 }
 
-void Renderer2DVBO::SetTriangleMegaVBOBufferSizes(int vertexCount, int indexCount) {
+void Renderer2DVBO::SetTriangleMegaVBOBufferSizes(int vertexCount, int indexCount, const char *cacheKey) {
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
     
-    InvalidateCachedVBO("Triangles");
+    if (cacheKey) {
+        InvalidateCachedVBO(cacheKey);
+    }
     
     if (m_megaTriangleVertices) {
         delete[] m_megaTriangleVertices;

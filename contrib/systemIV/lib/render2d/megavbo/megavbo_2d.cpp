@@ -211,3 +211,11 @@ int Renderer2DVBO::GetCachedVBOIndexCount(const char *cacheKey) {
     }
     return 0;
 }
+
+size_t Renderer2DVBO::GetCachedVBOVertexSize(const char *cacheKey) {
+    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(cacheKey);
+    if (tree && tree->data && tree->data->isValid) {
+        return sizeof(Vertex2D);
+    }
+    return 0;
+}

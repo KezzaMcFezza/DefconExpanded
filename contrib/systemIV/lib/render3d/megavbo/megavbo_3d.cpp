@@ -232,3 +232,18 @@ int Renderer3DVBO::GetCached3DVBOIndexCount(const char *cacheKey) {
     }
     return 0;
 }
+
+size_t Renderer3DVBO::GetCached3DVBOVertexSize(const char *cacheKey) {
+    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
+    if (tree && tree->data && tree->data->isValid) {
+        switch (tree->data->vertexType) {
+            case VBO_VERTEX_3D:
+                return sizeof(Vertex3D);
+            case VBO_VERTEX_3D_TEXTURED:
+                return sizeof(Vertex3DTextured);
+            default:
+                return 0;
+        }
+    }
+    return 0;
+}

@@ -46,6 +46,12 @@ protected:
   //
   // VBO caching system for coastlines and borders, replaced display lists
 
+  enum VBOVertexType {
+    VBO_VERTEX_2D,              // Vertex2D
+    VBO_VERTEX_3D,              // Vertex3D
+    VBO_VERTEX_3D_TEXTURED      // Vertex3DTextured
+  };
+
   struct CachedVBO {
     unsigned int VBO;
     unsigned int VAO;
@@ -54,6 +60,7 @@ protected:
     int indexCount;             // Number of indices
     Colour color;
     float lineWidth;
+    VBOVertexType vertexType;
     bool isValid;
   };
 
@@ -71,21 +78,21 @@ public:
   void EndMegaVBO               ();
   void RenderMegaVBO            (const char *megaVBOKey);
   bool IsMegaVBOValid           (const char *megaVBOKey);
-  void SetMegaVBOBufferSizes    (int vertexCount, int indexCount);
+  void SetMegaVBOBufferSizes    (int vertexCount, int indexCount, const char *cacheKey);
 
   void BeginTexturedMegaVBO          (const char *megaVBOKey, unsigned int textureID);
   void AddTexturedQuadsToMegaVBO     (const Vertex2D *vertices, int vertexCount, int quadCount);
   void EndTexturedMegaVBO            ();
   void RenderTexturedMegaVBO         (const char *megaVBOKey);
   bool IsTexturedMegaVBOValid        (const char *megaVBOKey);
-  void SetTexturedMegaVBOBufferSizes (int vertexCount, int indexCount);
+  void SetTexturedMegaVBOBufferSizes (int vertexCount, int indexCount, const char *cacheKey);
 
   void BeginTriangleMegaVBO          (const char *megaVBOKey, Colour const &col);
   void AddTrianglesToMegaVBO         (const float *vertices, int vertexCount);
   void EndTriangleMegaVBO            ();
   void RenderTriangleMegaVBO         (const char *megaVBOKey);
-  bool IsTriangleMegaVBOValid         (const char *megaVBOKey);
-  void SetTriangleMegaVBOBufferSizes (int vertexCount, int indexCount);
+  bool IsTriangleMegaVBOValid        (const char *megaVBOKey);
+  void SetTriangleMegaVBOBufferSizes (int vertexCount, int indexCount, const char *cacheKey);
   
   void InvalidateAllVBOs        ();
 
@@ -97,6 +104,7 @@ public:
   int GetCachedVBOCount         ();
   int GetCachedVBOVertexCount   (const char *cacheKey);
   int GetCachedVBOIndexCount    (const char *cacheKey);
+  size_t GetCachedVBOVertexSize (const char *cacheKey);
 
   int GetMegaBufferVertexCount   () const { return m_maxMegaVertices; }
   int GetMegaBufferIndexCount    () const { return m_maxMegaIndices; }

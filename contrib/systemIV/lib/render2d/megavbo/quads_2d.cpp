@@ -88,6 +88,7 @@ void Renderer2DVBO::EndTexturedMegaVBO() {
         cachedVBO->IBO = 0;
         cachedVBO->vertexCount = 0;
         cachedVBO->indexCount = 0;
+        cachedVBO->vertexType = VBO_VERTEX_2D;
         cachedVBO->isValid = false;
         m_cachedVBOs.PutData(m_currentMegaVBOTexturedKey, cachedVBO);
     } else {
@@ -122,6 +123,7 @@ void Renderer2DVBO::EndTexturedMegaVBO() {
 
     cachedVBO->vertexCount = m_megaTexturedVertexCount;
     cachedVBO->indexCount = m_megaTexturedIndexCount;
+    cachedVBO->vertexType = VBO_VERTEX_2D;
     cachedVBO->isValid = true;
 
     cachedVBO->color.m_r = (m_currentMegaVBOTextureID >> 24) & 0xFF;
@@ -172,11 +174,13 @@ bool Renderer2DVBO::IsTexturedMegaVBOValid(const char* megaVBOKey) {
     return (tree && tree->data && tree->data->isValid);
 }
 
-void Renderer2DVBO::SetTexturedMegaVBOBufferSizes(int vertexCount, int indexCount) {
+void Renderer2DVBO::SetTexturedMegaVBOBufferSizes(int vertexCount, int indexCount, const char *cacheKey) {
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
     
-    InvalidateCachedVBO("TexturedQuads");
+    if (cacheKey) {
+        InvalidateCachedVBO(cacheKey);
+    }
     
     if (m_megaTexturedVertices) {
         delete[] m_megaTexturedVertices;

@@ -116,6 +116,7 @@ void Renderer3DVBO::EndTriangleMegaVBO3D() {
         cachedVBO->IBO = 0;
         cachedVBO->vertexCount = 0;
         cachedVBO->indexCount = 0;
+        cachedVBO->vertexType = VBO_VERTEX_3D;
         cachedVBO->isValid = false;
         m_cached3DVBOs.PutData(m_currentMegaVBO3DTrianglesKey, cachedVBO);
     } else {
@@ -149,6 +150,7 @@ void Renderer3DVBO::EndTriangleMegaVBO3D() {
     cachedVBO->vertexCount = m_megaTriangleVertex3DCount;
     cachedVBO->indexCount = m_megaTriangleIndex3DCount;
     cachedVBO->color = m_megaVBO3DTrianglesColor;
+    cachedVBO->vertexType = VBO_VERTEX_3D;
     cachedVBO->isValid = true;
     
     m_megaTriangleVertex3DCount = 0;
@@ -201,11 +203,13 @@ bool Renderer3DVBO::IsTriangleMegaVBO3DValid(const char* megaVBOKey) {
     return (tree && tree->data && tree->data->isValid);
 }
 
-void Renderer3DVBO::SetTriangleMegaVBO3DBufferSizes(int vertexCount, int indexCount) {
+void Renderer3DVBO::SetTriangleMegaVBO3DBufferSizes(int vertexCount, int indexCount, const char *cacheKey) {
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
     
-    InvalidateCached3DVBO("CullingSphere");
+    if (cacheKey) {
+        InvalidateCached3DVBO(cacheKey);
+    }
     
     if (m_megaTriangleVertices3D) {
         delete[] m_megaTriangleVertices3D;
