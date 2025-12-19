@@ -72,9 +72,6 @@
     <ClCompile Include="..\..\source\renderer\map_renderer.cpp">
       <Filter>renderer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\renderer\world_renderer.cpp">
-      <Filter>renderer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\network\ClientToServer.cpp">
       <Filter>network</Filter>
     </ClCompile>
@@ -286,6 +283,9 @@
     <ClCompile Include="..\..\source\lib\universal_include.cpp">
       <Filter>lib</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\renderer\world_renderer.cpp">
+      <Filter>renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\app\app.h">
@@ -328,9 +328,6 @@
       <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\renderer\map_renderer.h">
-      <Filter>renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\renderer\world_renderer.h">
       <Filter>renderer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\network\ClientToServer.h">
@@ -545,6 +542,9 @@
     <ClInclude Include="..\..\source\renderer\world_renderer.h" />
     <ClInclude Include="..\..\source\lib\universal_include.h">
       <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\renderer\world_renderer.h">
+      <Filter>renderer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
