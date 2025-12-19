@@ -179,8 +179,8 @@ bool MovingObject::IsValidPosition ( Fixed longitude, Fixed latitude )
 {
     bool validWaypoint = false;
 
-    if( m_movementType == MovementTypeLand && !g_app->GetMapRenderer()->IsValidTerritory( -1, longitude, latitude, false ) ) validWaypoint = true;
-    if( m_movementType == MovementTypeSea && g_app->GetMapRenderer()->IsValidTerritory( -1, longitude, latitude, true ) ) validWaypoint = true;
+    if( m_movementType == MovementTypeLand && !g_app->GetWorldRenderer()->IsValidTerritory( -1, longitude, latitude, false ) ) validWaypoint = true;
+    if( m_movementType == MovementTypeSea && g_app->GetWorldRenderer()->IsValidTerritory( -1, longitude, latitude, true ) ) validWaypoint = true;
     if( m_movementType == MovementTypeAir ) validWaypoint = true;
 
     return validWaypoint;
@@ -552,12 +552,12 @@ void MovingObject::Render2D()
                           angle );
 
         colour.Set(255,255,255,255);
-        int selectionId = g_app->GetMapRenderer()->GetCurrentSelectionId();
+        int selectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
         for( int i = 0; i < 2; ++i )
         {
             if( i == 1 )
             {
-                int highlightId = g_app->GetMapRenderer()->GetCurrentHighlightId();
+                int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
                 if( highlightId == selectionId ) break;
                 selectionId = highlightId;
             }
@@ -629,12 +629,12 @@ void MovingObject::Render3D()
                                         size, size, colour, angle, BILLBOARD_SURFACE_ALIGNED );
 
         colour.Set(255,255,255,255);
-        int selectionId = g_app->GetMapRenderer()->GetCurrentSelectionId();
+        int selectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
         for( int i = 0; i < 2; ++i )
         {
             if( i == 1 )
             {
-                int highlightId = g_app->GetMapRenderer()->GetCurrentHighlightId();
+                int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
                 if( highlightId == selectionId ) break;
                 selectionId = highlightId;
             }
@@ -663,7 +663,11 @@ void MovingObject::RenderHistory2D()
 
     int maxSize = m_history.Size();
     
-    int sizeCap = (int)(80 * g_app->GetMapRenderer()->GetZoomFactor() );
+    int sizeCap = 80;
+    if( g_app->GetMapRenderer() )
+    {
+        sizeCap = (int)(80 * g_app->GetMapRenderer()->GetZoomFactor() );
+    }
     sizeCap /= World::GetGameScale().DoubleValue();
 
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
@@ -671,8 +675,11 @@ void MovingObject::RenderHistory2D()
         switch( m_type )
         {
             case TypeNuke:
-                sizeCap = 12 * g_app->GetMapRenderer()->GetZoomFactor();
-                if( g_app->GetMapRenderer()->GetZoomFactor() < 0.25f )
+                if( g_app->GetMapRenderer() )
+                {
+                    sizeCap = 12 * g_app->GetMapRenderer()->GetZoomFactor();
+                }
+                if( g_app->GetMapRenderer() && g_app->GetMapRenderer()->GetZoomFactor() < 0.25f )
                 {
                     return;
                 }
@@ -681,6 +688,8 @@ void MovingObject::RenderHistory2D()
             case TypeBattleShip:
             case TypeCarrier:
             case TypeSub:
+            case TypeFighter:
+            case TypeBomber:
                 break;
 
             default:
@@ -749,7 +758,11 @@ void MovingObject::RenderHistory3D()
 
     int maxSize = m_history.Size();
     
-    int sizeCap = (int)(80 * g_app->GetMapRenderer()->GetZoomFactor() );
+    int sizeCap = 80;
+    if( g_app->GetMapRenderer() )
+    {
+        sizeCap = (int)(80 * g_app->GetMapRenderer()->GetZoomFactor() );
+    }
     sizeCap /= World::GetGameScale().DoubleValue();
 
     if( g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_BIGWORLD )
@@ -757,8 +770,11 @@ void MovingObject::RenderHistory3D()
         switch( m_type )
         {
             case TypeNuke:
-                sizeCap = 12 * g_app->GetMapRenderer()->GetZoomFactor();
-                if( g_app->GetMapRenderer()->GetZoomFactor() < 0.25f )
+                if( g_app->GetMapRenderer() )
+                {
+                    sizeCap = 12 * g_app->GetMapRenderer()->GetZoomFactor();
+                }
+                if( g_app->GetMapRenderer() && g_app->GetMapRenderer()->GetZoomFactor() < 0.25f )
                 {
                     return;
                 }
@@ -767,6 +783,8 @@ void MovingObject::RenderHistory3D()
             case TypeBattleShip:
             case TypeCarrier:
             case TypeSub:
+            case TypeFighter:
+            case TypeBomber:
                 break;
 
             default:

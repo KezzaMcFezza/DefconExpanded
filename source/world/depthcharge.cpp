@@ -50,7 +50,7 @@ void DepthCharge::Render2D()
     float predictedTimer = m_timer.DoubleValue() - g_app->GetWorld()->GetTimeScaleFactor().DoubleValue() * g_predictionTime;
 
     float size = (predictedTimer+30)/60.0f;
-    if( g_app->GetMapRenderer()->GetZoomFactor() <=0.25f )
+    if( g_app->GetMapRenderer() && g_app->GetMapRenderer()->GetZoomFactor() <=0.25f )
     {
         size *= g_app->GetMapRenderer()->GetZoomFactor() * 4;
     }
@@ -69,7 +69,7 @@ void DepthCharge::Render3D()
     float predictedTimer = m_timer.DoubleValue() - g_app->GetWorld()->GetTimeScaleFactor().DoubleValue() * g_predictionTime;
 
     float size = (predictedTimer+30)/60.0f;
-    if( g_app->GetMapRenderer()->GetZoomFactor() <=0.25f )
+    if( g_app->GetMapRenderer() && g_app->GetMapRenderer()->GetZoomFactor() <=0.25f )
     {
         size *= g_app->GetMapRenderer()->GetZoomFactor() * 4;
     }

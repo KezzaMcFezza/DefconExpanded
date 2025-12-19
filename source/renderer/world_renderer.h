@@ -1,10 +1,14 @@
 #ifndef _included_worldrenderer_h
 #define _included_worldrenderer_h
 
+#include "lib/math/fixed.h"
+#include "lib/tosser/fast_darray.h"
 #include "world/world.h"
-#include "world/team.h"
+#include "world/worldobject.h"
 
 class AnimatedIcon;
+class Image;
+class Team;
 
 #define    PREFS_INTERFACE_TOOLTIPS                   "InterfaceTooltips"
 #define    PREFS_INTERFACE_POPUPSCALE                 "InterfacePopupScale"
@@ -37,6 +41,16 @@ protected:
 	double  m_drawingPlanningTime;      // Used to track the time the player has been drawing
 
     DArray  <AnimatedIcon *>    m_animations;
+
+    Image   *m_territories[World::NumTerritories];
+    Image   *m_bmpSailableWater;
+    Image   *m_bmpTravelNodes;
+
+    char    m_imageFiles[WorldObject::NumObjectTypes][256]; 
+
+    int     m_currentSelectionId;
+    int     m_currentHighlightId;
+    int     m_previousSelectionId;
 
 public:
     WorldRenderer();
@@ -90,7 +104,21 @@ public:
         NumAnimations
     };
     
-    int     CreateAnimation( int animationType, int _fromObjectId, float longitude, float latitude );
+    int     CreateAnimation      ( int animationType, int _fromObjectId, float longitude, float latitude );
+
+    bool    IsValidTerritory     ( int teamId, Fixed longitude, Fixed latitude, bool seaUnit );
+    int     GetTerritory         ( Fixed longitude, Fixed latitude, bool seaArea );
+    int     GetTerritoryId       ( Fixed longitude, Fixed latitude );
+    int     GetTerritoryIdUnique ( Fixed longitude, Fixed latitude );
+    bool    IsCoastline          ( Fixed longitude, Fixed latitude );
+    Image   *GetTerritoryImage   ( int territoryId );
+    Image   *GetTravelNodesImage ();
+    const char *GetImageFile     ( int objectType );
+
+    int     GetCurrentSelectionId();
+    void    SetCurrentSelectionId( int id );
+    int     GetCurrentHighlightId();
+    void    SetCurrentHighlightId( int id );
 };
 
 #endif

@@ -11,6 +11,7 @@
 #include "app/app.h"
 #include "app/globals.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "world/world.h"
@@ -45,13 +46,13 @@ bool Blip::Update()
     m_speed = 4 / g_app->GetWorld()->GetTimeScaleFactor();
     m_turnRate = 40 / g_app->GetWorld()->GetTimeScaleFactor();
     if( m_type == BlipTypeSelect &&
-        m_origin != g_app->GetMapRenderer()->GetCurrentSelectionId() )
+        m_origin != g_app->GetWorldRenderer()->GetCurrentSelectionId() )
     {
         return true;
     }
     if( m_type == BlipTypeHighlight )
     {
-        WorldObject *highlight = g_app->GetWorld()->GetWorldObject( g_app->GetMapRenderer()->GetCurrentHighlightId() );
+        WorldObject *highlight = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentHighlightId() );
         if( highlight )
         {
             if( m_origin != highlight->m_fleetId )
@@ -60,7 +61,7 @@ bool Blip::Update()
             }
         }
 
-        WorldObject *obj = g_app->GetWorld()->GetWorldObject( g_app->GetMapRenderer()->GetCurrentSelectionId() );
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
         if( obj )
         {
             if( m_origin != obj->m_fleetId )
@@ -69,8 +70,8 @@ bool Blip::Update()
             }
         }
 
-        if( g_app->GetMapRenderer()->GetCurrentSelectionId() == -1 &&
-            g_app->GetMapRenderer()->GetCurrentHighlightId() == -1 )
+        if( g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 &&
+            g_app->GetWorldRenderer()->GetCurrentHighlightId() == -1 )
         {
             return true;
         }
@@ -81,7 +82,7 @@ bool Blip::Update()
         {
             return true;
         }
-        WorldObject *obj = g_app->GetWorld()->GetWorldObject( g_app->GetMapRenderer()->GetCurrentSelectionId() );
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
         if( !obj ||
             obj->m_fleetId != m_origin )
         {
@@ -206,7 +207,7 @@ void Blip::Render2D()
                 fleet->GetFormationPosition( fleet->m_fleetMembers.Size(), i, &longitude, &latitude );
                 longitude += m_vel.x * Fixed::FromDouble(g_predictionTime);
                 latitude += m_vel.y * Fixed::FromDouble(g_predictionTime);
-                Image *img = g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[ member->m_type ] );
+                Image *img = g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile( member->m_type ) );
                 g_renderer2d->StaticSprite( img, m_longitude.DoubleValue() + longitude.DoubleValue() - size,
 								  m_latitude.DoubleValue() + latitude.DoubleValue() + size,
 								  size*2, size*-2, Colour(100,100,100,200) );

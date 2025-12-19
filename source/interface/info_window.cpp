@@ -14,6 +14,7 @@
 
 #include "lib/resource/resource.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "world/world.h"
@@ -70,8 +71,8 @@ void InfoWindow::Render( bool _hasFocus )
     //
     // Find out what is selected
 
-    int selectionId = g_app->GetMapRenderer()->GetCurrentSelectionId();
-    int highlightId = g_app->GetMapRenderer()->GetCurrentHighlightId();
+    int selectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
+    int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
     if( selectionId != -1 || highlightId != -1 )
     {
         WorldObject *selection = g_app->GetWorld()->GetWorldObject( selectionId );
@@ -118,7 +119,7 @@ void InfoWindow::Render( bool _hasFocus )
     {
         g_renderer2d->SetClip( m_x, m_y, m_w, m_h );
 
-        Image *img = g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[ m_infoType ]);
+        Image *img = g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile( m_infoType ));
         if( img )
         {
             g_renderer->SetBlendMode( Renderer::BlendModeAdditive );

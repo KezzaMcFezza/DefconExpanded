@@ -14,6 +14,7 @@
 
 #include "network/ClientToServer.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "interface/interface.h"
@@ -170,7 +171,7 @@ void FleetPlacementIconButton::Render( int realX, int realY, bool highlighted, b
     for( int i = 0; i < team->m_fleets[m_fleetId]->m_memberType.Size(); ++i )
     {
         int unitType = team->m_fleets[m_fleetId]->m_memberType[i];
-        bmpImage = g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[unitType] );
+        bmpImage = g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(unitType) );
         float size = 32.0f;
 
         Fixed exactX = 0;

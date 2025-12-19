@@ -29,6 +29,7 @@
 #include "interface/interface.h"
 #endif
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "network/Server.h"
@@ -1205,7 +1206,7 @@ public:
                 for( int i = 0; i <  team->m_territories.Size(); ++i )
                 {
                     int territoryId = team->m_territories[i];
-                    Image *img = g_app->GetMapRenderer()->GetTerritoryImage(territoryId);
+                    Image *img = g_app->GetWorldRenderer()->GetTerritoryImage(territoryId);
                     Colour col = team->GetTeamColour();
                     col.m_a = 200;
                     g_renderer2d->StaticSprite( img,  worldMapX, worldMapY, worldMapW, worldMapH, col, true );
@@ -1232,7 +1233,7 @@ public:
 
                 for( int i = 0; i < World::NumTerritories; ++i )
                 {
-                    Image *img = g_app->GetMapRenderer()->GetTerritoryImage(i);
+                    Image *img = g_app->GetWorldRenderer()->GetTerritoryImage(i);
 
                     int pixelX = img->Width() * fractionX;
                     int pixelY = img->Height() * (1.0f - fractionY);
@@ -1246,7 +1247,7 @@ public:
 
             if( m_selectionId != -1 )
             {
-                Image *img = g_app->GetMapRenderer()->GetTerritoryImage(m_selectionId);
+                Image *img = g_app->GetWorldRenderer()->GetTerritoryImage(m_selectionId);
 
                 Colour col = selectedTeam ? selectedTeam->GetTeamColour() : Colour(255,255,255,255);            
                 col.m_a = 100 + fabs(sinf(GetHighResTime()*10)) * 100;

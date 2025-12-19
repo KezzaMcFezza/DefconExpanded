@@ -36,8 +36,6 @@ protected:
 
     float   m_totalZoom;
 
-    int     m_currentHighlightId;
-    int     m_currentSelectionId;
     int     m_currentStateId;
     float   m_highlightTime;
 
@@ -54,16 +52,11 @@ protected:
     float   m_lastClickX;
     float   m_lastClickY;
     
-    Image   *m_territories[World::NumTerritories];
-    
     Image   *bmpRadar;    
     Image   *bmpBlur;    
     Image   *bmpWater;
     Image   *bmpExplosion;
     Image   *bmpPopulation;
-
-    Image   *bmpTravelNodes;
-    Image   *bmpSailableWater;
 
     float   m_oldMouseX;  // Used for mouse idle time
     float   m_oldMouseY;
@@ -106,8 +99,6 @@ public:
 
     Vector3  <float> m_camUp;
     Vector3  <float> m_camFront;
-
-	char	m_imageFiles[WorldObject::NumObjectTypes][256];
 
     LList   <const char *>     *m_tooltip;
 
@@ -191,23 +182,12 @@ public:
     void    ConvertPixelsToAngle        ( float pixelX, float pixelY, float *longitude, float *latitude,  bool absoluteLongitude = false );
     void    ConvertAngleToPixels        ( float longitude, float latitude, float *pixelX, float *pixelY );
 
-    bool    IsValidTerritory            ( int teamId, Fixed longitude, Fixed latitude, bool seaUnit );
-    int     GetTerritory                ( Fixed longitude, Fixed latitide, bool seaArea = false );
-    bool    IsCoastline                 ( Fixed longitude, Fixed latitude );
-
     float   GetZoomFactor();
     float   GetDrawScale();
 
     void    GetPosition( float &_middleX, float &_middleY );
 
     int     GetLongitudeMod();
-
-    Image   *GetTerritoryImage( int territoryId );
-    int     GetTerritoryId( Fixed longitude, Fixed latitude );
-    int     GetTerritoryIdUnique( Fixed longitude, Fixed latitude );
-
-    int     GetCurrentSelectionId();
-    void    SetCurrentSelectionId( int id );
     
     Fixed   GetCachedFlightTime(int objectId);
     Fixed   GetLaunchCountdown(int siloId);
@@ -219,8 +199,6 @@ public:
     int     GetSiloRank(int siloId);
     const char* GetNukeDirection(int siloId);
 
-    int     GetCurrentHighlightId();
-
     void    CenterViewport( float longitude, float latitude, int zoom = 20, int camSpeed = 200 );
     void    CenterViewport( int objectId, int zoom = 20, int camSpeed = 200 );
     void    CameraCut     ( float longitude, float latitude, int zoom = 10 );
@@ -229,6 +207,8 @@ public:
 
     void    UpdateMouseIdleTime();
     bool    IsMouseInMapRenderer();
+
+    void    UpdateSelectionAnimation( int id );
 
     void    AutoCam();
     void    ToggleAutoCam();

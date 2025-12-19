@@ -95,7 +95,7 @@ class Mission1SiloSelectPopup : public TutorialPopup
                 WorldObject *wobj = g_app->GetWorld()->GetWorldObject(m_objectId);
 
                 if( wobj && wobj->m_currentState == 0 &&
-                    g_app->GetMapRenderer()->GetCurrentSelectionId() != m_objectId )
+                    g_app->GetWorldRenderer()->GetCurrentSelectionId() != m_objectId )
                 {
                     TutorialPopup::Render(_hasFocus);
                 }
@@ -110,7 +110,7 @@ class Mission1Deselect : public TutorialPopup
     // Press space to deselect
     void Render( bool _hasFocus )
     {
-        if( g_app->GetMapRenderer()->GetCurrentSelectionId() == m_objectId )
+        if( g_app->GetWorldRenderer()->GetCurrentSelectionId() == m_objectId )
         {
             int numAlive = 0;
 
@@ -145,7 +145,7 @@ class Mission1RadarTarget : public TutorialPopup
         WorldObject *silo = g_app->GetWorld()->GetWorldObject(siloId);
         if( silo && 
             silo->m_currentState == 0 &&
-            g_app->GetMapRenderer()->GetCurrentSelectionId() == siloId )
+            g_app->GetWorldRenderer()->GetCurrentSelectionId() == siloId )
         {
             WorldObject *wobj = g_app->GetWorld()->GetWorldObject(m_objectId);
             if( wobj )
@@ -317,7 +317,7 @@ class SilosIntoNukeModePopup : public TutorialPopup
 
         if( found &&
             g_app->GetWorld()->GetDefcon() == 1 &&
-            g_app->GetMapRenderer()->GetCurrentSelectionId() == -1 )
+            g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 )
         {
             TutorialPopup::Render( _hasFocus );
         }
@@ -335,7 +335,7 @@ class NukeEnemySiloPopup : public TutorialPopup
 
         if( inChapter  &&
             g_app->GetWorld()->GetWorldObject(m_objectId) &&
-            g_app->GetMapRenderer()->GetCurrentSelectionId() != -1 )
+            g_app->GetWorldRenderer()->GetCurrentSelectionId() != -1 )
         {
             int numInFlight;
             int numInQueue;
@@ -360,7 +360,7 @@ class NukeEnemyAirBasePopup : public TutorialPopup
 
         if( inChapter &&
             g_app->GetWorld()->GetWorldObject(m_objectId) &&
-            g_app->GetMapRenderer()->GetCurrentSelectionId() != -1 )
+            g_app->GetWorldRenderer()->GetCurrentSelectionId() != -1 )
         {
             int numInFlight=10;
             int numInQueue=10;
@@ -395,7 +395,7 @@ class NukeEnemyCitiesPopup : public TutorialPopup
                          g_app->GetTutorial()->InChapter("m3silostaketime");
 
         if( inChapter &&
-            g_app->GetMapRenderer()->GetCurrentSelectionId() != -1 )
+            g_app->GetWorldRenderer()->GetCurrentSelectionId() != -1 )
         {            
             int siloId = g_app->GetTutorial()->m_objectIds[0];
             int airbase1Id = g_app->GetTutorial()->m_objectIds[1];
@@ -471,7 +471,7 @@ class ClickOnAirbasePopup : public TutorialPopup
 
         if( inChapter &&
             g_app->GetWorld()->GetTeam(1)->m_unitsAvailable[WorldObject::TypeAirBase] == 0 &&
-            g_app->GetMapRenderer()->GetCurrentSelectionId() == -1 )
+            g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 )
         {
             m_objectId = -1;
             
@@ -509,7 +509,7 @@ class ScoutFightersHerePopup : public TutorialPopup
 
         if( inChapter )
         {
-            int selectionId = g_app->GetMapRenderer()->GetCurrentSelectionId();
+            int selectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
             WorldObject *wobj = g_app->GetWorld()->GetWorldObject(selectionId);
 
             if( wobj &&
@@ -598,7 +598,7 @@ class ClickOnAirbaseBomberPopup : public TutorialPopup
 
         if( inChapter &&
             numDealtWith < 3 &&
-            g_app->GetMapRenderer()->GetCurrentSelectionId() == -1 )
+            g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 )
         {
             m_objectId = -1;
             
@@ -635,7 +635,7 @@ class NukeEnemyBuildingPopup : public TutorialPopup
                          g_app->GetTutorial()->InChapter("M4BomberInfo") ||
                          g_app->GetTutorial()->InChapter("M4NukesLaunched");
 
-        int selectionId = g_app->GetMapRenderer()->GetCurrentSelectionId();
+        int selectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
         WorldObject *wobj = g_app->GetWorld()->GetWorldObject(selectionId);
 
         if( inChapter && 
@@ -717,7 +717,7 @@ class SelectDeployedFleetPopup : public TutorialPopup
     void Render( bool _hasFocus )
     {
         if( g_app->GetTutorial()->InChapter( "M5BattleshipInfo") &&
-            g_app->GetMapRenderer()->GetCurrentSelectionId() == -1 )
+            g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 )
         {
             //
             // Look for a target
@@ -748,7 +748,7 @@ class MoveFleetSouthPopup : public TutorialPopup
     void Render( bool _hasFocus )
     {
         if( g_app->GetTutorial()->InChapter( "M5BattleshipInfo") &&
-            g_app->GetMapRenderer()->GetCurrentSelectionId() != -1 )
+            g_app->GetWorldRenderer()->GetCurrentSelectionId() != -1 )
         {
             TutorialPopup::Render( _hasFocus );
         }
@@ -865,7 +865,7 @@ class SelectSubsPopup : public TutorialPopup
     void Render( bool _hasFocus )
     {
         if( g_app->GetTutorial()->InChapter( "M6SubInfo") &&
-            g_app->GetMapRenderer()->GetCurrentSelectionId() == -1 )
+            g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 )
         {
             //
             // Look for a target
@@ -895,7 +895,7 @@ class MoveSubsToChinaPopup : public TutorialPopup
 {
     void Render( bool _hasFocus )
     {
-        if( g_app->GetMapRenderer()->GetCurrentSelectionId() != -1 )
+        if( g_app->GetWorldRenderer()->GetCurrentSelectionId() != -1 )
         {
             if( g_app->GetTutorial()->InChapter( "M6SubInfo" ) ||
                 g_app->GetTutorial()->InChapter( "M6MoveSubs" ) )
@@ -1018,7 +1018,7 @@ class SwitchSubsToNukeModePopup : public TutorialPopup
             }
 
             if( m_objectId != -1 &&
-                g_app->GetMapRenderer()->GetCurrentSelectionId() == -1 &&
+                g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 &&
                 numInMode < 3 )
             {
                 TutorialPopup::Render( _hasFocus );
@@ -1035,7 +1035,7 @@ class SubNukeEnemySiloPopup : public TutorialPopup
         if( g_app->GetTutorial()->InChapter("M6EnemyLaunch") ||
             g_app->GetTutorial()->InChapter("M6LaunchExplanation") )
         {
-            WorldObject *wobj = g_app->GetWorld()->GetWorldObject( g_app->GetMapRenderer()->GetCurrentSelectionId() );
+            WorldObject *wobj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
             if( wobj && 
                 wobj->m_type == WorldObject::TypeSub &&
                 g_app->GetWorld()->GetWorldObject(m_objectId) )
@@ -2267,7 +2267,7 @@ void Tutorial::UpdateLevel3()
 
     if( InChapter("M3DestroyEnemy") )
     {
-        if( g_app->GetMapRenderer()->GetCurrentSelectionId() == -1 )
+        if( g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 )
         {
             int nukeCount = 0;
             for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )

@@ -359,7 +359,7 @@ void World::AssignCities()
     for( int i = 0; i < g_app->GetEarthData()->m_cities.Size(); ++i )
     {
         City *city = g_app->GetEarthData()->m_cities[i];
-        city->m_teamId = g_app->GetMapRenderer()->GetTerritory( city->m_longitude, city->m_latitude );        
+        city->m_teamId = g_app->GetWorldRenderer()->GetTerritory( city->m_longitude, city->m_latitude, false );        
     }
 
     // take the 20 most populated cities (or capitals) from each territory and discard the rest
@@ -381,7 +381,7 @@ void World::AssignCities()
         City *city = g_app->GetEarthData()->m_cities[i];
         if( city->m_teamId == -1 ) continue;
 
-        int territoryId = g_app->GetMapRenderer()->GetTerritoryIdUnique( city->m_longitude, city->m_latitude );
+        int territoryId = g_app->GetWorldRenderer()->GetTerritoryIdUnique( city->m_longitude, city->m_latitude );
         if( territoryId != -1 )
         {
             // Nearest city in this territory?
@@ -467,7 +467,7 @@ void World::AssignCities()
         Fixed totalLat = 0;
         for( int j = 0; j < tempList[i].Size(); ++j )
         {
-            if( g_app->GetMapRenderer()->GetTerritory( tempList[i][j]->m_longitude, tempList[i][j]->m_latitude ) != -1 )
+            if( g_app->GetWorldRenderer()->GetTerritory( tempList[i][j]->m_longitude, tempList[i][j]->m_latitude, false ) != -1 )
             {
                 m_cities.PutData( tempList[i][j] );
                 totalLong += tempList[i][j]->m_longitude;
@@ -1211,7 +1211,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
         case WorldObject::TypeSilo:      
         case WorldObject::TypeRadarStation:
         {
-            if( g_app->GetMapRenderer()->IsValidTerritory( teamId, longitude, latitude, false ) )
+            if( g_app->GetWorldRenderer()->IsValidTerritory( teamId, longitude, latitude, false ) )
             {
                 int nearestIndex = GetNearestObject( teamId, longitude, latitude );
                 if( nearestIndex == -1 ) return true;
@@ -1236,7 +1236,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
         case WorldObject::TypeRadarStation:
         case WorldObject::TypeAirBase:
         {
-            if( g_app->GetMapRenderer()->IsValidTerritory( teamId, longitude, latitude, false ) )
+            if( g_app->GetWorldRenderer()->IsValidTerritory( teamId, longitude, latitude, false ) )
             {
                 int nearestIndex = GetNearestObject( teamId, longitude, latitude );
                 if( nearestIndex == -1 ) return true;
@@ -1255,7 +1255,7 @@ bool World::IsValidPlacement( int teamId, Fixed longitude, Fixed latitude, int o
         case WorldObject::TypeBattleShip:
         case WorldObject::TypeCarrier:
         {
-            if( g_app->GetMapRenderer()->IsValidTerritory( teamId, longitude, latitude, true ) )
+            if( g_app->GetWorldRenderer()->IsValidTerritory( teamId, longitude, latitude, true ) )
             {
                 int nearestIndex = GetNearestObject( teamId, longitude, latitude );
                 if( nearestIndex == -1 ) return true;
@@ -1519,14 +1519,14 @@ void World::ObjectAction( int objectId, int targetObjectId, Fixed longitude, Fix
         // If that was the last possible action deselect this unit now
         // (assuming we have it selected)
 
-        if( g_app->GetMapRenderer()->GetCurrentSelectionId() == objectId )
+        if( g_app->GetWorldRenderer()->GetCurrentSelectionId() == objectId )
         {
             int numTimesRemaining = wobj->m_states[wobj->m_currentState]->m_numTimesPermitted;
             if( numTimesRemaining > -1 ) numTimesRemaining -= wobj->m_actionQueue.Size();
 
             if( numTimesRemaining <= 0)
             {
-                g_app->GetMapRenderer()->SetCurrentSelectionId(-1);
+                g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
             }
         }
     }
@@ -2452,7 +2452,7 @@ void World::UpdateRadar()
                             {
                                 if( wobj->m_type == WorldObject::TypeSub )
                                 {
-                                    if( g_app->GetMapRenderer()->IsValidTerritory( team->m_teamId, wobj->m_longitude, wobj->m_latitude, true ) )
+                                    if( g_app->GetWorldRenderer()->IsValidTerritory( team->m_teamId, wobj->m_longitude, wobj->m_latitude, true ) )
                                     {
                                         team->AddEvent(Event::TypeEnemyIncursion, wobj->m_objectId, wobj->m_teamId, wobj->m_fleetId, wobj->m_longitude, wobj->m_latitude );
                                     }
@@ -2464,7 +2464,7 @@ void World::UpdateRadar()
                                 else if (wobj->m_type == WorldObject::TypeFighter ||
                                          wobj->m_type == WorldObject::TypeBomber )
                                 {
-                                    if( g_app->GetMapRenderer()->IsValidTerritory( team->m_teamId, wobj->m_longitude, wobj->m_latitude, false ) )
+                                    if( g_app->GetWorldRenderer()->IsValidTerritory( team->m_teamId, wobj->m_longitude, wobj->m_latitude, false ) )
                                     {
                                         team->AddEvent( Event::TypeIncomingAircraft, wobj->m_objectId, wobj->m_teamId, wobj->m_fleetId, wobj->m_longitude, wobj->m_latitude );                                         
                                     }
@@ -2473,7 +2473,7 @@ void World::UpdateRadar()
                                           wobj->m_type == WorldObject::TypeSub ||
                                           wobj->m_type == WorldObject::TypeCarrier )
                                 {
-                                    if( g_app->GetMapRenderer()->IsValidTerritory( team->m_teamId, wobj->m_longitude, wobj->m_latitude, true ) )
+                                    if( g_app->GetWorldRenderer()->IsValidTerritory( team->m_teamId, wobj->m_longitude, wobj->m_latitude, true ) )
                                     {
                                         team->AddEvent(Event::TypeEnemyIncursion, wobj->m_objectId, wobj->m_teamId, wobj->m_fleetId, wobj->m_longitude, wobj->m_latitude );
                                     }
@@ -2619,7 +2619,7 @@ bool World::IsSailable( Fixed const &fromLongitude, Fixed const &fromLatitude, F
         // For debugging purposes
         //glVertex2f( longitude.DoubleValue(), latitude.DoubleValue() );
 
-        if( !g_app->GetMapRenderer()->IsValidTerritory( -1, longitude, latitude, false ) )
+        if( !g_app->GetWorldRenderer()->IsValidTerritory( -1, longitude, latitude, false ) )
         {
             return false;
         }
@@ -2674,7 +2674,7 @@ bool World::IsSailableSlow( Fixed const &fromLongitude, Fixed const &fromLatitud
         // Debugging vertex removed - no longer needed for OpenGL 3.3 Core
         // glVertex2f( longitude.DoubleValue(), latitude.DoubleValue() );
 
-        if(!g_app->GetMapRenderer()->IsValidTerritory( -1, longitude, latitude, false ) )
+        if(!g_app->GetWorldRenderer()->IsValidTerritory( -1, longitude, latitude, false ) )
         {
             END_PROFILE( "IsSailable" );
             return false;

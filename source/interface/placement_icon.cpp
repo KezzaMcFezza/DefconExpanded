@@ -65,7 +65,7 @@ PlacementIconButton::PlacementIconButton( int unitType )
 
 void PlacementIconButton::Render( int realX, int realY, bool highlighted, bool clicked )
 { 
-	bmpImage			= g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[m_unitType] );
+	bmpImage			= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(m_unitType) );
     Team *team          = g_app->GetWorld()->GetTeam(g_app->GetWorld()->m_myTeamId);
 	Colour colour       = team->GetTeamColour();
 

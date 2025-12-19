@@ -7,6 +7,16 @@
 
 #include "interface/interface.h"
 
+#include "lib/resource/resource.h"
+#include "lib/resource/image.h"
+#include "lib/render/colour.h"
+#ifdef TOGGLE_SOUND
+#include "lib/sound/soundsystem.h"
+#endif
+
+#include "world/world.h"
+#include "world/worldobject.h"
+
 #include "renderer/world_renderer.h"
 #include "renderer/animated_icon.h"
 
@@ -19,6 +29,12 @@ WorldRenderer::WorldRenderer()
     m_drawingPlanning(false),
     m_erasingPlanning(false),
     m_drawingPlanningTime(0.0f),
+    m_territories{},
+    m_bmpSailableWater(NULL),
+    m_bmpTravelNodes(NULL),
+    m_currentSelectionId(-1),
+    m_currentHighlightId(-1),
+    m_previousSelectionId(-1),
 	m_showRadar(false),
 	m_radarLocked(false),
 	m_showPopulation(false),
@@ -38,7 +54,25 @@ WorldRenderer::~WorldRenderer()
 
 void WorldRenderer::Init()
 {
-    
+    m_territories[World::TerritoryNorthAmerica] = g_resource->GetImage( "earth/northamerica.bmp" );
+    m_territories[World::TerritorySouthAmerica] = g_resource->GetImage( "earth/southamerica.bmp" );
+    m_territories[World::TerritoryEurope]       = g_resource->GetImage( "earth/europe.bmp" );
+    m_territories[World::TerritoryRussia]       = g_resource->GetImage( "earth/russia.bmp" );
+    m_territories[World::TerritorySouthAsia]    = g_resource->GetImage( "earth/southasia.bmp" );
+    m_territories[World::TerritoryAfrica]       = g_resource->GetImage( "earth/africa.bmp" );    
+
+    m_bmpSailableWater = g_resource->GetImage( "earth/sailable.bmp" );
+    m_bmpTravelNodes = g_resource->GetImage( "earth/travel_nodes.bmp" );
+
+    sprintf(m_imageFiles[WorldObject::TypeSilo], "graphics/silo.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeRadarStation], "graphics/radarstation.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeSub], "graphics/sub.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeAirBase], "graphics/airbase.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeCarrier], "graphics/carrier.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeBattleShip], "graphics/battleship.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeFighter], "graphics/fighter.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeBomber], "graphics/bomber.bmp");
+    sprintf(m_imageFiles[WorldObject::TypeNuke], "graphics/nuke.bmp");
 }
 
 void WorldRenderer::Reset()
@@ -185,4 +219,203 @@ Team* WorldRenderer::GetEffectiveWhiteBoardTeam()
 	}
 
 	return g_app->GetWorld()->GetMyTeam();
+}
+
+bool WorldRenderer::IsValidTerritory( int teamId, Fixed longitude, Fixed latitude, bool seaUnit )
+{    
+    if( latitude > 100 || latitude < -100 )
+    {
+        return false;
+    }
+
+    if( longitude < -180 )
+    {
+        longitude = -180;
+    }
+    else if( longitude > 180 )
+    {
+        longitude = 179;
+    }    
+    if( teamId == -1 )
+    {
+        int pixelX = ( m_bmpSailableWater->Width() * (longitude+180)/360 ).IntValue();
+        int pixelY = ( m_bmpSailableWater->Height() * (latitude+100)/200 ).IntValue();
+        Colour theCol = m_bmpSailableWater->GetColour( pixelX, pixelY );
+
+        return ( theCol.m_r > 20 && 
+                 theCol.m_g > 20 &&
+                 theCol.m_b > 20 );
+    }
+    else
+    {
+        bool isValid = false;
+        Team *team = g_app->GetWorld()->GetTeam(teamId);
+        for( int i = 0; i < team->m_territories.Size(); ++i )
+        {
+            Image *img = m_territories[team->m_territories[i]];            
+            AppDebugAssert( img );
+
+            int pixelX = ( img->Width() * (longitude+180)/360 ).IntValue();
+            int pixelY = ( img->Height() * (latitude+100)/200 ).IntValue();
+
+            Colour theCol = img->GetColour( pixelX, pixelY );
+            Colour sailableCol = m_bmpSailableWater->GetColour( pixelX, pixelY );
+            int landthreshold = 130;
+            int waterthreshold = 60;
+            if( !seaUnit )
+            {
+                if ( theCol.m_r > landthreshold && 
+                     theCol.m_g > landthreshold &&
+                     theCol.m_b > landthreshold &&
+                     sailableCol.m_r <= waterthreshold && 
+                     sailableCol.m_g <= waterthreshold &&
+                     sailableCol.m_b <= waterthreshold )
+                {
+                    isValid = true;
+                }
+            }
+            else
+            {
+                if ( theCol.m_r > waterthreshold && 
+                     theCol.m_g > waterthreshold &&
+                     theCol.m_b > waterthreshold &&
+                     sailableCol.m_r > waterthreshold && 
+                     sailableCol.m_g > waterthreshold &&
+                     sailableCol.m_b > waterthreshold )
+                {
+                    isValid = true;
+                }
+
+            }
+        }
+        return isValid;
+    }
+    return false;
+}
+
+bool WorldRenderer::IsCoastline( Fixed longitude, Fixed latitude )
+{
+    Image *img = g_resource->GetImage( "earth/coastlines.bmp" );
+    int pixelX = ( img->Width() * (longitude+180)/360 ).IntValue();
+    int pixelY = ( img->Height() * (latitude+100)/200 ).IntValue();
+
+    Colour theCol = img->GetColour( pixelX, pixelY );
+
+    return ( theCol.m_r > 20 &&
+             theCol.m_g > 20 &&
+             theCol.m_b > 20 );
+}
+
+int WorldRenderer::GetTerritory( Fixed longitude, Fixed latitude, bool seaArea )
+{
+    for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
+    {
+        Team *team = g_app->GetWorld()->m_teams[i];
+        if( IsValidTerritory( team->m_teamId, longitude, latitude, seaArea ) )
+        {
+            return team->m_teamId;
+        }
+    }
+    return -1;
+}
+
+int WorldRenderer::GetTerritoryId( Fixed longitude, Fixed latitude )
+{
+    for( int i = 0; i < World::NumTerritories; ++i )
+    {
+        Image *img = m_territories[i];
+        
+        AppDebugAssert( img );
+
+        int pixelX = ( img->Width() * (longitude+180)/360 ).IntValue();
+        int pixelY = ( img->Height() * (latitude+100)/200 ).IntValue();
+
+        Colour theCol = img->GetColour( pixelX, pixelY );
+        if ( theCol.m_r > 20 && 
+             theCol.m_g > 20 &&
+             theCol.m_b > 20 )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int WorldRenderer::GetTerritoryIdUnique( Fixed longitude, Fixed latitude )
+{
+    int prevTerritory = -1;
+    for( int i = 0; i < World::NumTerritories; ++i )
+    {
+        Image *img = m_territories[i];
+        
+        AppDebugAssert( img );
+
+        int pixelX = ( img->Width() * (longitude+180)/360 ).IntValue();
+        int pixelY = ( img->Height() * (latitude+100)/200 ).IntValue();
+
+        Colour theCol = img->GetColour( pixelX, pixelY );
+        if ( theCol.m_r > 20 && 
+             theCol.m_g > 20 &&
+             theCol.m_b > 20 )
+        {
+            if( prevTerritory != -1 )
+            {
+                return -1;
+            }
+            prevTerritory = i;
+        }
+    }
+    return prevTerritory;
+}
+
+Image *WorldRenderer::GetTerritoryImage( int territoryId )
+{
+    return m_territories[territoryId];
+}
+
+int WorldRenderer::GetCurrentSelectionId()
+{
+    return m_currentSelectionId; 
+}
+
+void WorldRenderer::SetCurrentSelectionId( int id )
+{
+    if( m_currentSelectionId != -1 && id == -1 )
+    {
+#ifdef TOGGLE_SOUND
+        g_soundSystem->TriggerEvent( "Interface", "DeselectObject" );
+#endif
+    }
+    else if( id != -1 )
+    {
+#ifdef TOGGLE_SOUND
+        g_soundSystem->TriggerEvent( "Interface", "SelectObject" );
+#endif
+    }
+
+    if( m_currentSelectionId != -1 )
+    {
+        m_previousSelectionId = m_currentSelectionId;
+    }
+    m_currentSelectionId = id;
+}
+
+int WorldRenderer::GetCurrentHighlightId()
+{
+    return m_currentHighlightId;
+}
+
+void WorldRenderer::SetCurrentHighlightId( int id )
+{
+    m_currentHighlightId = id;
+}
+
+Image *WorldRenderer::GetTravelNodesImage()
+{
+    return m_bmpTravelNodes;
+}
+
+const char *WorldRenderer::GetImageFile( int objectType )
+{
+    return m_imageFiles[objectType];
 }

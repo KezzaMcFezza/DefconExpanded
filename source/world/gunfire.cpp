@@ -99,7 +99,7 @@ void GunFire::Render2D()
     float predictedLongitude = (m_longitude + m_vel.x * Fixed(predictionTime)).DoubleValue();
     float predictedLatitude = (m_latitude + m_vel.y * Fixed(predictionTime)).DoubleValue(); 
     float size = 2;
-    if( g_app->GetMapRenderer()->GetZoomFactor() <= 0.25f )
+    if( g_app->GetMapRenderer() && g_app->GetMapRenderer()->GetZoomFactor() <= 0.25f )
     {
         size *= g_app->GetMapRenderer()->GetZoomFactor() * 4;
     }

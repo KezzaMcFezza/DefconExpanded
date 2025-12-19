@@ -17,6 +17,7 @@
 #include "app/app.h"
 #include "app/globals.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 
@@ -376,7 +377,7 @@ int Nuke::CountTargetedNukes( int teamId, Fixed longitude, Fixed latitude )
 
 void Nuke::CeaseFire( int teamId )
 {
-    if( g_app->GetMapRenderer()->IsValidTerritory( teamId, m_targetLongitude, m_targetLatitude, false ) )
+    if( g_app->GetWorldRenderer()->IsValidTerritory( teamId, m_targetLongitude, m_targetLatitude, false ) )
     {
         SetState(1);
     }

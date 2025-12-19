@@ -107,7 +107,7 @@ void SidePanel::Create()
 
 void SidePanel::Render( bool hasFocus )
 {
-    int currentSelectionId = g_app->GetMapRenderer()->GetCurrentSelectionId();
+    int currentSelectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
     if( currentSelectionId == -1 )
     {
         if( m_mode != ModeUnitPlacement &&
@@ -255,7 +255,7 @@ void SidePanel::Render( bool hasFocus )
                 for( int i = 0; i < myTeam->m_fleets[ m_currentFleetId ]->m_memberType.Size(); ++i )
                 {
                     int type = myTeam->m_fleets[ m_currentFleetId ]->m_memberType[i];
-                    Image *bmpImage	= g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[type] );
+                    Image *bmpImage	= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(type) );
                     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
                     g_renderer2d->StaticSprite( bmpImage, x+3, y, 35, 35, myTeam->GetTeamColour() );
                     g_renderer->SetBlendMode( Renderer::BlendModeNormal );
@@ -436,7 +436,7 @@ void UnitPlacementButton::Render( int realX, int realY, bool highlighted, bool c
     }
 #endif
 
-	Image *bmpImage			= g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[m_unitType] );
+	Image *bmpImage			= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(m_unitType) );
     g_renderer->SetBlendMode( Renderer::BlendModeSubtractive );
     Colour col(30,30,30,0);
     for( int x = -1; x <= 1; ++x )
@@ -696,7 +696,7 @@ void AddToFleetButton::Render( int realX, int realY, bool highlighted, bool clic
     if( parent->m_mode == SidePanel::ModeFleetPlacement )
     {
 	    m_disabled = false;
-	    Image *bmpImage		= g_resource->GetImage( g_app->GetMapRenderer()->m_imageFiles[m_unitType] );
+	    Image *bmpImage		= g_resource->GetImage( g_app->GetWorldRenderer()->GetImageFile(m_unitType) );
         g_renderer->SetBlendMode( Renderer::BlendModeSubtractive );
         Colour col(30,30,30,0);
         for( int x = -1; x <= 1; ++x )

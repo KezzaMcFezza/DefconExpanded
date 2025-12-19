@@ -10,6 +10,7 @@
 
 #include "network/ClientToServer.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "world/team.h"
@@ -586,7 +587,7 @@ bool Fleet::IsValidFleetPosition( Fixed longitude, Fixed latitude )
         Fixed thisLat = latitude;
         GetFormationPosition( m_fleetMembers.Size(), i, &thisLong, &thisLat );
 
-	    if( !g_app->GetMapRenderer()->IsValidTerritory( -1, thisLong, thisLat, true ) )
+	    if( !g_app->GetWorldRenderer()->IsValidTerritory( -1, thisLong, thisLat, true ) )
         {
             return false;
         }

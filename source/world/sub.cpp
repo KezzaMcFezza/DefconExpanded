@@ -11,6 +11,7 @@
 #include "app/globals.h"
 #include "app/game.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 
@@ -541,9 +542,9 @@ void Sub::ChangePosition()
     {
         Fixed longitude = syncsfrand(360);
         Fixed latitude = syncsfrand(180);
-        if( !g_app->GetMapRenderer()->IsValidTerritory( m_teamId, longitude, latitude, true ) &&
-            g_app->GetMapRenderer()->IsValidTerritory( -1, longitude, latitude, false ) &&
-            g_app->GetMapRenderer()->GetTerritory( longitude, latitude, true ) != -1 )
+        if( !g_app->GetWorldRenderer()->IsValidTerritory( m_teamId, longitude, latitude, true ) &&
+            g_app->GetWorldRenderer()->IsValidTerritory( -1, longitude, latitude, false ) &&
+            g_app->GetWorldRenderer()->GetTerritory( longitude, latitude, true ) != -1 )
         {
             SetWaypoint( longitude, latitude );
             break;

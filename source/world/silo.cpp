@@ -13,6 +13,7 @@
 
 #include "lib/profiler.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 
@@ -466,7 +467,7 @@ void Silo::CeaseFire( int teamId )
     for( int i = 0; i < m_actionQueue.Size(); ++i )
     {
         ActionOrder *action = m_actionQueue[i];
-        if(g_app->GetMapRenderer()->IsValidTerritory( teamId, action->m_longitude, action->m_latitude, false ) )
+        if(g_app->GetWorldRenderer()->IsValidTerritory( teamId, action->m_longitude, action->m_latitude, false ) )
         {
             m_actionQueue.RemoveData(i);
             delete action;

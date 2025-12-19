@@ -16,6 +16,7 @@
 
 #include "network/ClientToServer.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 
@@ -462,7 +463,7 @@ void Bomber::CeaseFire( int teamId )
 {
     if( m_nukeTargetLongitude != 0 && m_nukeTargetLatitude != 0)
     {
-        if( g_app->GetMapRenderer()->IsValidTerritory( teamId, m_targetLongitude, m_targetLatitude, false ) )
+        if( g_app->GetWorldRenderer()->IsValidTerritory( teamId, m_targetLongitude, m_targetLatitude, false ) )
         {
             m_nukeTargetLongitude = 0;
             m_nukeTargetLatitude = 0;

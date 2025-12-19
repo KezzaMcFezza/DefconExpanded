@@ -20,6 +20,7 @@
 #include "interface/interface.h"
 
 #include "renderer/map_renderer.h"
+#include "renderer/world_renderer.h"
 #include "renderer/globe_renderer.h"
 #include "lib/render3d/renderer_3d.h"
 
@@ -391,12 +392,12 @@ void WorldObject::Render2D()
     }
 
     colour.Set(255,255,255,255);
-    int selectionId = g_app->GetMapRenderer()->GetCurrentSelectionId();
+    int selectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
     for( int i = 0; i < 2; ++i )
     {
         if( i == 1 )
         {
-            int highlightId = g_app->GetMapRenderer()->GetCurrentHighlightId();
+            int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
             if( highlightId == selectionId ) break;
             selectionId = highlightId;
         }
@@ -452,12 +453,12 @@ void WorldObject::Render3D()
                                       flipped ? -spriteSize : spriteSize, spriteSize, colour, BILLBOARD_SURFACE_ALIGNED );
 
         colour.Set(255,255,255,255);
-        int selectionId = g_app->GetMapRenderer()->GetCurrentSelectionId();
+        int selectionId = g_app->GetWorldRenderer()->GetCurrentSelectionId();
         for( int i = 0; i < 2; ++i )
         {
             if( i == 1 )
             {
-                int highlightId = g_app->GetMapRenderer()->GetCurrentHighlightId();
+                int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
                 if( highlightId == selectionId ) break;
                 selectionId = highlightId;
             }
@@ -709,7 +710,7 @@ Fixed WorldObject::GetSize()
         size *= 1;
     }
 
-    if( g_app->GetMapRenderer()->GetZoomFactor() <= 0.25f )
+    if( g_app->GetMapRenderer() && g_app->GetMapRenderer()->GetZoomFactor() <= 0.25f )
     {
         size *= Fixed::FromDouble(g_app->GetMapRenderer()->GetZoomFactor()) * 4;
     }

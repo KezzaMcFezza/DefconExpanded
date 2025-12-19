@@ -1042,6 +1042,7 @@ void ModSystem::Commit()
         g_renderer3dvbo->Clear3DVBOProtection();
         
         g_app->InitFonts();
+        g_app->GetWorldRenderer()->Init();
         g_app->GetMapRenderer()->Init();
         g_app->GetGlobeRenderer()->Init();
 

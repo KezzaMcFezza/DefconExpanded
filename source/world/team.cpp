@@ -11,6 +11,7 @@
 
 #include "network/ClientToServer.h"
 
+#include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
 #include "world/team.h"
@@ -502,7 +503,7 @@ void Team::PlacementAI()
                 for( int i = 0; i < g_app->GetWorld()->m_aiPlacementPoints.Size(); ++i )
                 {
                     Vector3<Fixed> *point = g_app->GetWorld()->m_aiPlacementPoints[i];
-                    if( g_app->GetMapRenderer()->GetTerritory( point->x, point->y, true ) == m_teamId )
+                    if( g_app->GetWorldRenderer()->GetTerritory( point->x, point->y, true ) == m_teamId )
                     {
                         //Fixed distance = Fixed::MAX;
                         //for( int j = 0; j < m_fleets.Size(); ++j )
@@ -653,8 +654,8 @@ void Team::PlacementAI()
                         }
                         
                         if( g_app->GetWorld()->IsValidPlacement( m_teamId, longitude, latitude, objectPriority ) &&
-                            g_app->GetMapRenderer()->IsCoastline( longitude, latitude ) &&
-                            g_app->GetMapRenderer()->IsValidTerritory( m_teamId, longitude, latitude, false ))
+                            g_app->GetWorldRenderer()->IsCoastline( longitude, latitude ) &&
+                            g_app->GetWorldRenderer()->IsValidTerritory( m_teamId, longitude, latitude, false ))
                         {
                             if( g_app->GetWorld()->GetDistanceSqd( longitude, latitude, 
                                                                     g_app->GetWorld()->m_populationCenter[randTerritory].x, 
@@ -1014,7 +1015,7 @@ bool Team::GetUncoveredArea( bool radar, Fixed *longitude, Fixed *latitude )
 
         if( obj )
         {
-            if( g_app->GetMapRenderer()->IsValidTerritory( m_teamId, randLong, randLat, false ) &&
+            if( g_app->GetWorldRenderer()->IsValidTerritory( m_teamId, randLong, randLat, false ) &&
                 g_app->GetWorld()->GetDistance( randLong, randLat, obj->m_longitude, obj->m_latitude ) > distance )
             {
                 *longitude = randLong;

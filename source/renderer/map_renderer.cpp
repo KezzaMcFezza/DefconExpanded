@@ -61,8 +61,6 @@ MapRenderer::MapRenderer()
     m_middleY(0.0f),
     m_zoomFactor(1),
     m_seamIteration(0),
-    m_currentHighlightId(-1),
-    m_currentSelectionId(-1),
     m_showNodes(true),
     bmpRadar(NULL),
     m_highlightTime(0.0f),
@@ -108,11 +106,6 @@ MapRenderer::MapRenderer()
     {
         m_showTeam[i] = false;
     }
-
-    for( int i = 0; i < World::NumTerritories; ++i )
-    {
-        m_territories[i] = NULL;
-    }
 }
 
 MapRenderer::~MapRenderer()
@@ -129,26 +122,6 @@ void MapRenderer::Init()
     bmpWater        = g_resource->GetImage( "graphics/water.bmp" );
     bmpExplosion    = g_resource->GetImage( "graphics/explosion.bmp" );
     bmpPopulation    = g_resource->GetImage( "graphics/population.bmp" );
-    
-    m_territories[World::TerritoryNorthAmerica] = g_resource->GetImage( "earth/northamerica.bmp" );
-    m_territories[World::TerritoryRussia]       = g_resource->GetImage( "earth/russia.bmp" );
-    m_territories[World::TerritorySouthAsia]    = g_resource->GetImage( "earth/southasia.bmp" );
-    m_territories[World::TerritorySouthAmerica] = g_resource->GetImage( "earth/southamerica.bmp" );
-    m_territories[World::TerritoryEurope]       = g_resource->GetImage( "earth/europe.bmp" );
-    m_territories[World::TerritoryAfrica]       = g_resource->GetImage( "earth/africa.bmp" );    
-
-    bmpTravelNodes = g_resource->GetImage( "earth/travel_nodes.bmp");
-    bmpSailableWater = g_resource->GetImage( "earth/sailable.bmp" );
-  
-	sprintf(m_imageFiles[WorldObject::TypeSilo], "graphics/silo.bmp");
-	sprintf(m_imageFiles[WorldObject::TypeRadarStation], "graphics/radarstation.bmp");
-	sprintf(m_imageFiles[WorldObject::TypeSub], "graphics/sub.bmp");
-	sprintf(m_imageFiles[WorldObject::TypeAirBase], "graphics/airbase.bmp");
-	sprintf(m_imageFiles[WorldObject::TypeCarrier], "graphics/carrier.bmp");
-	sprintf(m_imageFiles[WorldObject::TypeBattleShip], "graphics/battleship.bmp");
-	sprintf(m_imageFiles[WorldObject::TypeFighter], "graphics/fighter.bmp");
-	sprintf(m_imageFiles[WorldObject::TypeBomber], "graphics/bomber.bmp");
-    sprintf(m_imageFiles[WorldObject::TypeNuke], "graphics/nuke.bmp");
 }
 
 
@@ -563,7 +536,7 @@ void MapRenderer::RenderCountryControl()
             col.m_a = 120;
             for( int j = 0; j < team->m_territories.Size(); ++j )
             {
-                Image *img = m_territories[team->m_territories[j]];
+                Image *img = g_app->GetWorldRenderer()->GetTerritoryImage( team->m_territories[j] );
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
                 g_renderer2d->Blit( img, -180, topY, 360, -worldHeight, col );
 
@@ -1371,7 +1344,7 @@ void MapRenderer::RenderEnemyObjectDetails( WorldObject *wobj, float *boxX, floa
         windowBorder.m_a        *= originalAlpha;
         fontCol.m_a             *= originalAlpha;
 
-        if( m_currentSelectionId == -1 )
+        if( g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 )
         {
             //
             // Render title
@@ -1403,7 +1376,7 @@ void MapRenderer::RenderEnemyObjectDetails( WorldObject *wobj, float *boxX, floa
         //
         // If we are targeting it then bring up some statistics
 
-        WorldObject *ourObj = g_app->GetWorld()->GetWorldObject( m_currentSelectionId );
+        WorldObject *ourObj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
 		if( ourObj)
 		{
 			float totalBoxH = 1 * -(*boxH);
@@ -1894,8 +1867,8 @@ void MapRenderer::RenderMouse()
     }
 
 
-    WorldObject *selection = g_app->GetWorld()->GetWorldObject( m_currentSelectionId );
-    WorldObject *highlight = g_app->GetWorld()->GetWorldObject( m_currentHighlightId );
+    WorldObject *selection = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
+    WorldObject *highlight = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentHighlightId() );
 
     if( selection && selection->m_teamId == TEAMID_SPECIALOBJECTS ) selection = NULL;
     if( highlight && highlight->m_teamId == TEAMID_SPECIALOBJECTS ) highlight = NULL;
@@ -1945,7 +1918,7 @@ void MapRenderer::RenderMouse()
             spawnUnitSize *= GetZoomFactor() * 4;
         }
 
-        int validCombatTarget = selection->IsValidCombatTarget( m_currentHighlightId );
+        int validCombatTarget = selection->IsValidCombatTarget( g_app->GetWorldRenderer()->GetCurrentHighlightId() );
         int validMovementTarget = selection->IsValidMovementTarget( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) );
 
         bool fleetValidMovement = true;
@@ -2473,7 +2446,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
             float range = wobj->GetActionRange().DoubleValue();
             if( m_currentStateId != -1 )
             {
-                WorldObject *obj = g_app->GetWorld()->GetWorldObject( m_currentHighlightId );
+                WorldObject *obj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentHighlightId() );
                 if( obj )
                 {
                     if( obj->m_states.ValidIndex( m_currentStateId ) )
@@ -2981,7 +2954,7 @@ void MapRenderer::RenderObjects()
     g_renderer->SetFont();
 
 #ifndef NON_PLAYABLE
-    WorldObject *selection = g_app->GetWorld()->GetWorldObject(m_currentSelectionId);
+    WorldObject *selection = g_app->GetWorld()->GetWorldObject(g_app->GetWorldRenderer()->GetCurrentSelectionId());
 
     if( selection  )
     {
@@ -2994,7 +2967,7 @@ void MapRenderer::RenderObjects()
                 MovingObject *mobj = (MovingObject *)selection;
                 if( mobj->m_movementType == MovingObject::MovementTypeSea &&
                     mobj->IsValidPosition( Fixed::FromDouble(longitude), Fixed::FromDouble(latitude) ) &&
-                    m_currentSelectionId != m_currentHighlightId)
+                    g_app->GetWorldRenderer()->GetCurrentSelectionId() != g_app->GetWorldRenderer()->GetCurrentHighlightId())
                 {
                     Fleet *fleet = g_app->GetWorld()->GetTeam( mobj->m_teamId )->GetFleet( mobj->m_fleetId );
                     if( fleet )
@@ -3006,11 +2979,11 @@ void MapRenderer::RenderObjects()
         }
     }
 
-    WorldObject *highlight = g_app->GetWorld()->GetWorldObject( m_currentHighlightId );
+    WorldObject *highlight = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentHighlightId() );
  
     if( highlight  )
     {
-        if(m_currentHighlightId != m_currentSelectionId )
+        if(g_app->GetWorldRenderer()->GetCurrentHighlightId() != g_app->GetWorldRenderer()->GetCurrentSelectionId() )
         {
             if( highlight->m_teamId == myTeamId )
             {
@@ -3577,7 +3550,7 @@ int MapRenderer::GetNearestObjectToMouse( float _mouseX, float _mouseY )
     int underMouseId = -1;
 
     Fixed nearest = 5;
-    if( m_currentSelectionId != -1 )
+    if( g_app->GetWorldRenderer()->GetCurrentSelectionId() != -1 )
     {
         nearest = 2;
     }
@@ -3635,9 +3608,9 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
     bool landed = false;
     bool selected = false;
 
-    if( _underMouseId != m_currentSelectionId )
+    if( _underMouseId != g_app->GetWorldRenderer()->GetCurrentSelectionId() )
     {
-        WorldObject *selection = g_app->GetWorld()->GetWorldObject(m_currentSelectionId);
+        WorldObject *selection = g_app->GetWorld()->GetWorldObject(g_app->GetWorldRenderer()->GetCurrentSelectionId());
         WorldObject *undermouse = g_app->GetWorld()->GetWorldObject(_underMouseId);
 
         if( undermouse->m_teamId != g_app->GetWorld()->m_myTeamId )
@@ -3661,10 +3634,11 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
 
             if( selectionLandable && underMouseLandable )
             {
-                g_app->GetClientToServer()->RequestSpecialAction( m_currentSelectionId, _underMouseId, World::SpecialActionLandingAircraft );
+                g_app->GetClientToServer()->RequestSpecialAction( g_app->GetWorldRenderer()->GetCurrentSelectionId(), _underMouseId, World::SpecialActionLandingAircraft );
                 g_app->GetWorldRenderer()->CreateAnimation(  WorldRenderer::AnimationTypeActionMarker, selection->m_objectId,
 								 undermouse->m_longitude.DoubleValue(), undermouse->m_latitude.DoubleValue() );
-                SetCurrentSelectionId(-1);
+                g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+                UpdateSelectionAnimation(-1);
                 landed = true;
             }
         }
@@ -3680,7 +3654,8 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
             selectable &&
             undermouse->m_type != WorldObject::TypeNuke )
         {
-            SetCurrentSelectionId(_underMouseId);
+            g_app->GetWorldRenderer()->SetCurrentSelectionId(_underMouseId);
+            UpdateSelectionAnimation(_underMouseId);
             selected = true;
         }
     }
@@ -3688,14 +3663,15 @@ void MapRenderer::HandleSelectObject( int _underMouseId )
 
     if( !landed && !selected )
     {
-        SetCurrentSelectionId(-1);
+        g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+        UpdateSelectionAnimation(-1);
     }
 }
 
 
 void MapRenderer::HandleClickStateMenu()
 {
-    WorldObject *highlight = g_app->GetWorld()->GetWorldObject(m_currentHighlightId);
+    WorldObject *highlight = g_app->GetWorld()->GetWorldObject(g_app->GetWorldRenderer()->GetCurrentHighlightId());
     if( highlight )
     {
         if( g_keys[KEY_SHIFT] &&
@@ -3742,12 +3718,12 @@ void MapRenderer::HandleClickStateMenu()
                 //
                 // Clear action queue clicked
 
-                g_app->GetClientToServer()->RequestClearActionQueue( m_currentHighlightId );
+                g_app->GetClientToServer()->RequestClearActionQueue( g_app->GetWorldRenderer()->GetCurrentHighlightId() );
                 g_soundSystem->TriggerEvent( "Interface", "SelectObjectState" );           
             }
             else
             {
-                g_app->GetClientToServer()->RequestStateChange( m_currentHighlightId, m_currentStateId );
+                g_app->GetClientToServer()->RequestStateChange( g_app->GetWorldRenderer()->GetCurrentHighlightId(), m_currentStateId );
 
                 //
                 // Select the object if it can spawn/do stuff
@@ -3761,7 +3737,9 @@ void MapRenderer::HandleClickStateMenu()
 
                         if( highlight->m_states[m_currentStateId]->m_isActionable )
                         {
-                            SetCurrentSelectionId( m_currentHighlightId );                             
+                            int highlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
+                            g_app->GetWorldRenderer()->SetCurrentSelectionId( highlightId );
+                            UpdateSelectionAnimation( highlightId );                             
                         }
                     }
                     else
@@ -3782,9 +3760,9 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
 {
     WorldObject *underMouse = g_app->GetWorld()->GetWorldObject(underMouseId);
 
-    if( m_currentSelectionId != -1 )
+    if( g_app->GetWorldRenderer()->GetCurrentSelectionId() != -1 )
     {
-        WorldObject *obj = g_app->GetWorld()->GetWorldObject( m_currentSelectionId );
+        WorldObject *obj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
         if( obj )
         {
             int numTimesRemaining = obj->m_states[obj->m_currentState]->m_numTimesPermitted;
@@ -3792,7 +3770,8 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
 
             if( numTimesRemaining == 0 )
             {
-                SetCurrentSelectionId(-1);
+                g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+                UpdateSelectionAnimation(-1);
             }
             else if( numTimesRemaining == -1 || numTimesRemaining > 0 )
             {
@@ -3862,13 +3841,13 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
                 {
                     if( obj->SetWaypointOnAction() )
                     {
-                        g_app->GetClientToServer()->RequestSetWaypoint( m_currentSelectionId, targetLong,
+                        g_app->GetClientToServer()->RequestSetWaypoint( g_app->GetWorldRenderer()->GetCurrentSelectionId(), targetLong,
                                                                         targetLat );
                     }
-                    g_app->GetClientToServer()->RequestAction( m_currentSelectionId, underMouseId,
+                    g_app->GetClientToServer()->RequestAction( g_app->GetWorldRenderer()->GetCurrentSelectionId(), underMouseId,
                                                                targetLong, targetLat ); 
 
-                    int animid = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, m_currentSelectionId, targetLong.DoubleValue(), targetLat.DoubleValue() );
+                    int animid = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, g_app->GetWorldRenderer()->GetCurrentSelectionId(), targetLong.DoubleValue(), targetLat.DoubleValue() );
                     ActionMarker *action = (ActionMarker *) g_app->GetWorldRenderer()->GetAnimations()[animid];
 
                     if( !underMouse )
@@ -3904,7 +3883,8 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
                     if( !obj->IsActionQueueable() ||
                         numTimesRemaining - 1 <= 0 )
                     {
-                        SetCurrentSelectionId(-1);
+                        g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+                        UpdateSelectionAnimation(-1);
                     }
 
                     if( underMouse ) underMouse->m_nukeCountTimer = GetHighResTime() + 0.1f;
@@ -3913,7 +3893,8 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
         }
         else
         {
-            SetCurrentSelectionId(-1);;
+            g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+            UpdateSelectionAnimation(-1);
         }
     }
 }
@@ -3921,7 +3902,7 @@ void MapRenderer::HandleObjectAction( float _mouseX, float _mouseY, int underMou
 
 void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY )
 {
-    MovingObject *obj = (MovingObject*)g_app->GetWorld()->GetWorldObject( m_currentSelectionId );
+    MovingObject *obj = (MovingObject*)g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentSelectionId() );
 
     if( obj && obj->IsMovingObject() )
     {
@@ -3959,7 +3940,8 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY )
                         g_soundSystem->TriggerEvent( "Interface", "SetMovementTarget" );
                     }
                 }
-                SetCurrentSelectionId(-1);
+                g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+                UpdateSelectionAnimation(-1);
             }
             else
             {
@@ -3971,13 +3953,14 @@ void MapRenderer::HandleSetWaypoint( float _mouseX, float _mouseY )
             //
             // Moving a single object
 
-            g_app->GetClientToServer()->RequestSetWaypoint( m_currentSelectionId,
+            g_app->GetClientToServer()->RequestSetWaypoint( g_app->GetWorldRenderer()->GetCurrentSelectionId(),
 															Fixed::FromDouble(_mouseX), Fixed::FromDouble(_mouseY) );
-            int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, m_currentSelectionId, _mouseX, _mouseY );  
+            int index = g_app->GetWorldRenderer()->CreateAnimation( g_app->GetWorldRenderer()->AnimationTypeActionMarker, g_app->GetWorldRenderer()->GetCurrentSelectionId(), _mouseX, _mouseY );  
             ActionMarker *marker = (ActionMarker *)g_app->GetWorldRenderer()->GetAnimations()[index];
             marker->m_targetType = WorldObject::TargetTypeValid;
             g_soundSystem->TriggerEvent( "Interface", "SetMovementTarget" );
-            SetCurrentSelectionId(-1);
+            g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+            UpdateSelectionAnimation(-1);
         }
     }
 
@@ -4187,7 +4170,7 @@ void MapRenderer::Update()
                     HandleClickStateMenu();
                 }
                 else if( underMouse &&
-                         underMouseId == m_currentHighlightId )                             
+                         underMouseId == g_app->GetWorldRenderer()->GetCurrentHighlightId() )                             
                 {                
                     HandleSelectObject(underMouseId);
                 }
@@ -4205,7 +4188,7 @@ void MapRenderer::Update()
                 HandleClickStateMenu();
             }
             else if( underMouse &&
-                     underMouseId == m_currentHighlightId )                             
+                     underMouseId == g_app->GetWorldRenderer()->GetCurrentHighlightId() )                             
             {                
                 HandleSelectObject(underMouseId);
             }
@@ -4218,16 +4201,16 @@ void MapRenderer::Update()
 
         if( g_inputManager->m_rmbUnClicked )                                        // RIGHT MOUSE UNCLICKED
         {
-            if( m_currentSelectionId != -1 )
+            if( g_app->GetWorldRenderer()->GetCurrentSelectionId() != -1 )
             {
-                WorldObject *obj = g_app->GetWorld()->GetWorldObject(m_currentSelectionId);
+                WorldObject *obj = g_app->GetWorld()->GetWorldObject(g_app->GetWorldRenderer()->GetCurrentSelectionId());
                 if( obj &&
                     obj->m_fleetId != -1 &&
                     underMouse &&
                     underMouse->m_fleetId == obj->m_fleetId )
                 {
                     // Dont set waypoint if we just clicked on a ship in the same fleet
-                    m_currentSelectionId = -1;
+                    g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
                 }
                 else
                 {
@@ -4240,7 +4223,7 @@ void MapRenderer::Update()
                 WorldObject *obj = g_app->GetWorld()->GetWorldObject(underMouseId);
                 if( obj &&
                     obj->m_teamId == g_app->GetWorld()->m_myTeamId &&
-                    m_currentSelectionId == -1 )
+                    g_app->GetWorldRenderer()->GetCurrentSelectionId() == -1 )
                 {
                     m_stateRenderTime = 10.0f;
                     m_stateObjectId = underMouseId;
@@ -4251,27 +4234,27 @@ void MapRenderer::Update()
             {
                 m_stateRenderTime = 0.0f;
                 m_stateObjectId = -1;
-                m_currentHighlightId = -1;
+                g_app->GetWorldRenderer()->SetCurrentHighlightId(-1);
             }           
         }
     }
 #endif
 
 
-    int oldHighlightId = m_currentHighlightId;
-    m_currentHighlightId = -1;
+    int oldHighlightId = g_app->GetWorldRenderer()->GetCurrentHighlightId();
+    g_app->GetWorldRenderer()->SetCurrentHighlightId(-1);
     if( g_inputManager->m_lmbClicked )
     {
         if( underMouse &&
             underMouse->m_teamId == g_app->GetWorld()->m_myTeamId )                 // Mouse down on one of our own
         {
-            m_currentHighlightId = underMouseId;
+            g_app->GetWorldRenderer()->SetCurrentHighlightId(underMouseId);
             m_highlightTime = 0.0f;
         }
     }
     else if( g_inputManager->m_lmbUnClicked )                                // Mouse up
     {
-        m_currentHighlightId = -1;
+        g_app->GetWorldRenderer()->SetCurrentHighlightId(-1);
         m_stateRenderTime = 0.0f;
         m_stateObjectId = -1;
     }
@@ -4286,7 +4269,7 @@ void MapRenderer::Update()
             underMouse->m_visible[g_app->GetWorld()->m_myTeamId] ||
             underMouse->m_lastSeenTime[g_app->GetWorld()->m_myTeamId] > 0 )
         {
-            m_currentHighlightId = underMouseId;
+            g_app->GetWorldRenderer()->SetCurrentHighlightId(underMouseId);
             if( oldHighlightId != underMouseId )
             {
                 m_highlightTime = 1.0f;
@@ -4295,7 +4278,7 @@ void MapRenderer::Update()
     }
     else if( g_inputManager->m_lmb && underMouseId != -1 )
     {
-        m_currentHighlightId = oldHighlightId;
+        g_app->GetWorldRenderer()->SetCurrentHighlightId(oldHighlightId);
     }
              
     int oldStateId = m_currentStateId;
@@ -4304,7 +4287,7 @@ void MapRenderer::Update()
     {
         m_stateRenderTime -= g_advanceTime;
         m_highlightTime = 0.0f;
-        m_currentHighlightId = m_stateObjectId;     
+        g_app->GetWorldRenderer()->SetCurrentHighlightId(m_stateObjectId);     
     }
     if( m_stateRenderTime <= 0.0f && m_stateObjectId != -1)
     {
@@ -4313,12 +4296,12 @@ void MapRenderer::Update()
     }
 
     if( m_stateRenderTime > 0.0f &&                                              // Player is choosing state changes
-        m_currentHighlightId != -1 )
+        g_app->GetWorldRenderer()->GetCurrentHighlightId() != -1 )
     {
     if( longitude < -180.0f ) longitude += 360.0f;
     if( longitude >180.0f ) longitude -= 360.0f;
 
-        WorldObject *wobj = g_app->GetWorld()->GetWorldObject( m_currentHighlightId );
+        WorldObject *wobj = g_app->GetWorld()->GetWorldObject( g_app->GetWorldRenderer()->GetCurrentHighlightId() );
         if( wobj )
         {
             for( int i = 0; i < wobj->m_states.Size(); ++i )
@@ -4353,7 +4336,8 @@ void MapRenderer::Update()
 
     if( g_keys[KEY_SPACE] )
     {
-        SetCurrentSelectionId(-1);
+        g_app->GetWorldRenderer()->SetCurrentSelectionId(-1);
+        UpdateSelectionAnimation(-1);
         m_stateRenderTime = 0.0f;
     }
 
@@ -4428,104 +4412,6 @@ void MapRenderer::GetWindowBounds( float *left, float *right, float *top, float 
     *bottom = *top-height;
 }
 
-bool MapRenderer::IsValidTerritory( int teamId, Fixed longitude, Fixed latitude, bool seaUnit )
-{    
-    if( latitude > 100 || latitude < -100 )
-    {
-        return false;
-    }
-
-    if( longitude < -180 )
-    {
-        longitude = -180;
-    }
-    else if( longitude > 180 )
-    {
-        longitude = 179;
-    }    
-    if( teamId == -1 )
-    {
-        int pixelX = ( bmpSailableWater->Width() * (longitude+180)/360 ).IntValue();
-        int pixelY = ( bmpSailableWater->Height() * (latitude+100)/200 ).IntValue();
-        Colour theCol = bmpSailableWater->GetColour( pixelX, pixelY );
-
-        return ( theCol.m_r > 20 && 
-                 theCol.m_g > 20 &&
-                 theCol.m_b > 20 );
-    }
-    else
-    {
-        bool isValid = false;
-        Team *team = g_app->GetWorld()->GetTeam(teamId);
-        for( int i = 0; i < team->m_territories.Size(); ++i )
-        {
-            Image *img = m_territories[team->m_territories[i]];            
-            AppDebugAssert( img );
-
-            int pixelX = ( img->Width() * (longitude+180)/360 ).IntValue();
-            int pixelY = ( img->Height() * (latitude+100)/200 ).IntValue();
-
-            Colour theCol = img->GetColour( pixelX, pixelY );
-            Colour sailableCol = bmpSailableWater->GetColour( pixelX, pixelY );
-            int landthreshold = 130;
-            int waterthreshold = 60;
-            if( !seaUnit )
-            {
-                if ( theCol.m_r > landthreshold && 
-                     theCol.m_g > landthreshold &&
-                     theCol.m_b > landthreshold &&
-                     sailableCol.m_r <= waterthreshold && 
-                     sailableCol.m_g <= waterthreshold &&
-                     sailableCol.m_b <= waterthreshold )
-                {
-                    isValid = true;
-                }
-            }
-            else
-            {
-                if ( theCol.m_r > waterthreshold && 
-                     theCol.m_g > waterthreshold &&
-                     theCol.m_b > waterthreshold &&
-                     sailableCol.m_r > waterthreshold && 
-                     sailableCol.m_g > waterthreshold &&
-                     sailableCol.m_b > waterthreshold )
-                {
-                    isValid = true;
-                }
-
-            }
-        }
-        return isValid;
-    }
-    return false;
-}
-
-bool MapRenderer::IsCoastline(Fixed longitude, Fixed latitude )
-{
-    Image *img = g_resource->GetImage( "earth/coastlines.bmp" );
-    int pixelX = ( img->Width() * (longitude+180)/360 ).IntValue();
-    int pixelY = ( img->Height() * (latitude+100)/200 ).IntValue();
-
-    Colour theCol = img->GetColour( pixelX, pixelY );
-
-    return ( theCol.m_r > 20 &&
-             theCol.m_g > 20 &&
-             theCol.m_b > 20 );
-}
-
-int MapRenderer::GetTerritory( Fixed longitude, Fixed latitide, bool seaArea )
-{
-    for( int i = 0; i < g_app->GetWorld()->m_teams.Size(); ++i )
-    {
-        Team *team = g_app->GetWorld()->m_teams[i];
-        if( IsValidTerritory( team->m_teamId, longitude, latitide, seaArea ) )
-        {
-            return team->m_teamId;
-        }
-    }
-    return -1;
-}
-
 float MapRenderer::GetZoomFactor()
 {
     return m_zoomFactor;
@@ -4556,37 +4442,8 @@ int MapRenderer::GetLongitudeMod()
     }
 }
 
-Image *MapRenderer::GetTerritoryImage( int territoryId )
+void MapRenderer::UpdateSelectionAnimation( int id )
 {
-    return m_territories[territoryId];
-}
-
-int MapRenderer::GetCurrentSelectionId()
-{
-    return m_currentSelectionId; 
-}
-
-int MapRenderer::GetCurrentHighlightId()
-{
-    return m_currentHighlightId;
-}
-
-void MapRenderer::SetCurrentSelectionId( int id )
-{
-    if( m_currentSelectionId != -1 && id == -1 )
-    {
-        g_soundSystem->TriggerEvent( "Interface", "DeselectObject" );
-    }
-    else if( id != -1 )
-    {
-        g_soundSystem->TriggerEvent( "Interface", "SelectObject" );
-    }
-
-    if( m_currentSelectionId != -1 )
-    {
-        m_previousSelectionId = m_currentSelectionId;
-    }
-    m_currentSelectionId = id;
     m_selectTime = 1.0f;
     if( id == -1 )
     {
@@ -4949,55 +4806,6 @@ const char* MapRenderer::GetNukeDirection(int siloId)
 }
 
 #endif
-
-int MapRenderer::GetTerritoryId( Fixed longitude, Fixed latitude )
-{
-    for( int i = 0; i < World::NumTerritories; ++i )
-    {
-        Image *img = m_territories[i];
-        
-        AppDebugAssert( img );
-
-        int pixelX = ( img->Width() * (longitude+180)/360 ).IntValue();
-        int pixelY = ( img->Height() * (latitude+100)/200 ).IntValue();
-
-        Colour theCol = img->GetColour( pixelX, pixelY );
-        if ( theCol.m_r > 20 && 
-             theCol.m_g > 20 &&
-             theCol.m_b > 20 )
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
-int MapRenderer::GetTerritoryIdUnique( Fixed longitude, Fixed latitude )
-{
-    int prevTerritory = -1;
-    for( int i = 0; i < World::NumTerritories; ++i )
-    {
-        Image *img = m_territories[i];
-        
-        AppDebugAssert( img );
-
-        int pixelX = ( img->Width() * (longitude+180)/360 ).IntValue();
-        int pixelY = ( img->Height() * (latitude+100)/200 ).IntValue();
-
-        Colour theCol = img->GetColour( pixelX, pixelY );
-        if ( theCol.m_r > 20 && 
-             theCol.m_g > 20 &&
-             theCol.m_b > 20 )
-        {
-            if( prevTerritory != -1 )
-            {
-                return -1;
-            }
-            prevTerritory = i;
-        }
-    }
-    return prevTerritory;
-}
 
 void MapRenderer::CenterViewport( float longitude, float latitude, int zoom, int camSpeed )
 {
