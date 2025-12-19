@@ -1,0 +1,5 @@
+Name		High Resolution Defcon
+Version		v0.7
+Author		Sievert, KezzaMcFezza
+Comment		32K Texture Resolution
+Website		https://www.youtube.com/@megasievert

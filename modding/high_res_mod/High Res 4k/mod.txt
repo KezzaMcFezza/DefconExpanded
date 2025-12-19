@@ -1,0 +1,5 @@
+Name		High Resolution
+Version		v0.7
+Author		Sievert, KezzaMcFezza
+Comment		4K Resoltion, and 1:10 meter coastlines
+Website		https://www.youtube.com/@megasievert
