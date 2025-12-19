@@ -70,7 +70,7 @@ else()
     set(GLAD_SOURCE_FILE "${GLAD_PATH}/desktop/src/glad.c")
 endif()
 
-set(REPLAY_VIEWER_VERSION "R1.28" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
+set(REPLAY_VIEWER_VERSION "R1.28.7" CACHE STRING "Version prefix for replay viewer (e.g., A1.04, B1.6, R1.0)")
 set(SYNC_PRACTICE_VERSION "B1.16.1" CACHE STRING "Version prefix for silo practice client (e.g., B1.0, B1.1)")
 
 # build mode is now determined by preprocessor definitions passed via CMAKE_CXX_FLAGS
@@ -189,7 +189,7 @@ if(EMSCRIPTEN)
     endif()
     
     set(PLATFORM_SPECIFIC_FILES
-        ${ROOT_PATH}/source/lib/spawn.cpp
+        ${SYSTEMIV_PATH}/lib/spawn.cpp
         ${SYSTEMIV_PATH}/lib/debug_utils_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_lib_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
@@ -213,7 +213,6 @@ if(EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/netlib/condition_winxp.cpp
         ${ROOT_PATH}/source/app/macutil.cpp
         ${ROOT_PATH}/source/app/dockicon.mm
-        ${ROOT_PATH}/source/lib/debug_utils_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_lib.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_socket.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_socket_listener.cpp
@@ -292,8 +291,6 @@ elseif(MSVC)
     set(EXE_TYPE WIN32)
     
     set(FILES_TO_EXCLUDE
-        ${ROOT_PATH}/source/lib/debug_utils_linux.cpp 
-        ${ROOT_PATH}/source/lib/spawn.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
@@ -360,9 +357,9 @@ elseif(APPLE)
     )
     
     set(PLATFORM_SPECIFIC_FILES
-        ${ROOT_PATH}/source/lib/spawn.cpp
         ${ROOT_PATH}/source/app/macutil.cpp
         ${ROOT_PATH}/source/app/dockicon.mm
+        ${SYSTEMIV_PATH}/lib/spawn.cpp
         ${SYSTEMIV_PATH}/contrib/binreloc/binreloc.c
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
@@ -378,7 +375,6 @@ elseif(APPLE)
     set(EXE_TYPE MACOSX_BUNDLE)
     
     set(FILES_TO_EXCLUDE
-        ${ROOT_PATH}/source/lib/debug_utils_linux.cpp
         ${ROOT_PATH}/source/app/trayicon.cpp
         ${SYSTEMIV_PATH}/lib/gucci/win32library.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_win32.cpp
@@ -445,8 +441,8 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma -mbmi2")
     
     set(PLATFORM_SPECIFIC_FILES
-        ${ROOT_PATH}/source/lib/debug_utils_linux.cpp
-        ${ROOT_PATH}/source/lib/spawn.cpp
+        ${SYSTEMIV_PATH}/lib/spawn.cpp
+        ${SYSTEMIV_PATH}/lib/debug_utils_linux.cpp
         ${SYSTEMIV_PATH}/lib/gucci/crashpad.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
@@ -519,7 +515,6 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/app/statusicon.cpp
     ${ROOT_PATH}/source/app/x11icon.cpp
     ${ROOT_PATH}/source/app/game_history.cpp
-    ${ROOT_PATH}/source/lib/multiline_text.cpp
     ${ROOT_PATH}/source/lib/universal_include.cpp
     ${ROOT_PATH}/source/renderer/world_renderer.cpp
     ${ROOT_PATH}/source/renderer/map_renderer.cpp
@@ -584,25 +579,25 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/interface/worldobject_window.cpp
     ${ROOT_PATH}/source/interface/info_window.cpp
     ${ROOT_PATH}/source/interface/placement_icon.cpp
+    ${ROOT_PATH}/source/interface/screenoptions_window.cpp
+    ${ROOT_PATH}/source/interface/soundoptions_window.cpp
+    ${ROOT_PATH}/source/interface/soundeditor_window.cpp
+    ${ROOT_PATH}/source/interface/soundparameter_window.cpp
+    ${ROOT_PATH}/source/interface/soundstats_window.cpp
+    ${ROOT_PATH}/source/interface/styleeditor_window.cpp
     ${ROOT_PATH}/source/network/recordingparser.cpp
     ${ROOT_PATH}/source/interface/recording_selection.cpp
     ${ROOT_PATH}/source/interface/recording_file_dialog.cpp
 )
 
 set(SYSTEMIV_SOURCE
-    ${SYSTEMIV_PATH}/interface/components/checkbox.cpp
-    ${SYSTEMIV_PATH}/interface/components/core.cpp
-    ${SYSTEMIV_PATH}/interface/components/drop_down_menu.cpp
-    ${SYSTEMIV_PATH}/interface/components/filedialog.cpp
-    ${SYSTEMIV_PATH}/interface/components/inputfield.cpp
-    ${SYSTEMIV_PATH}/interface/components/message_dialog.cpp
-    ${SYSTEMIV_PATH}/interface/components/scrollbar.cpp
-    ${SYSTEMIV_PATH}/interface/options/screenoptions_window.cpp
-    ${SYSTEMIV_PATH}/interface/options/soundoptions_window.cpp
-    ${SYSTEMIV_PATH}/interface/soundsystem/soundeditor_window.cpp
-    ${SYSTEMIV_PATH}/interface/soundsystem/soundstats_window.cpp
-    ${SYSTEMIV_PATH}/interface/soundsystem/soundparameter_window.cpp
-    ${SYSTEMIV_PATH}/interface/styleeditor_window.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/checkbox.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/core.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/drop_down_menu.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/filedialog.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/inputfield.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/message_dialog.cpp
+    ${SYSTEMIV_PATH}/lib/eclipse/components/scrollbar.cpp
     ${SYSTEMIV_PATH}/lib/eclipse/eclbutton.cpp
     ${SYSTEMIV_PATH}/lib/eclipse/eclwindow.cpp
     ${SYSTEMIV_PATH}/lib/eclipse/eclipse.cpp
@@ -680,10 +675,12 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/unicode/unicode_text_stream_reader.cpp
     ${SYSTEMIV_PATH}/lib/debug_utils.cpp
     ${SYSTEMIV_PATH}/lib/hi_res_time.cpp
+    ${SYSTEMIV_PATH}/lib/multiline_text.cpp
     ${SYSTEMIV_PATH}/lib/language_table.cpp
     ${SYSTEMIV_PATH}/lib/preferences.cpp
     ${SYSTEMIV_PATH}/lib/profiler.cpp
     ${SYSTEMIV_PATH}/lib/string_utils.cpp
+    ${SYSTEMIV_PATH}/systemiv.cpp
 )
 
 set(UNRAR_SOURCE 

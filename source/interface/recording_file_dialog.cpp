@@ -12,8 +12,8 @@
 #include "lib/language_table.h"
 #include "lib/preferences.h"
 
-#include "interface/components/message_dialog.h"
-#include "interface/components/scrollbar.h"
+#include "lib/eclipse/components/message_dialog.h"
+#include "lib/eclipse/components/scrollbar.h"
 
 #include "interface/recording_file_dialog.h"
 #include "interface/recording_selection.h"

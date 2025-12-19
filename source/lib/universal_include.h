@@ -13,7 +13,7 @@
 
 #define APP_NAME        "Defcon"
 #define	APP_VERSION		"1.64 STEAM"
-#define APP_BUILD_NUMBER "1.28"
+#define APP_BUILD_NUMBER "1.28.7"
 
 #if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
     #define REAL_VERSION    APP_BUILD_NUMBER"_replay_viewer"
@@ -152,57 +152,38 @@
 #endif
 
 #ifdef TARGET_FINAL
-    #define HAVE_DSOUND
-    #define WAN_PLAY_ENABLED
-    #define LAN_PLAY_ENABLED
     #define DUMP_DEBUG_LOG
     #define TOOLS_ENABLED
-    #define PROFILER_ENABLED
     #define AUTHENTICATION_LEVEL 1
-    #define FLOAT_NUMERICS
-    #define TRACK_GL_ERRORS
     //#define TRACK_SYNC_RAND
     //#define TRACK_SYNC_RAND_EXTRA_VALIDATION     // Warning: Changes sync value calculation.
-    #define TRACK_LANGUAGEPHRASE_ERRORS
 #endif
 
 #ifdef TARGET_DEBUG
-    #define HAVE_DSOUND
-    #define WAN_PLAY_ENABLED
-    #define LAN_PLAY_ENABLED
     //#define TRACK_SYNC_RAND
     //#define TRACK_SYNC_RAND_EXTRA_VALIDATION     // Warning: Changes sync value calculation.
     #define TOOLS_ENABLED
     #define SOUND_EDITOR_ENABLED
-    #define PROFILER_ENABLED
     //#define DUMP_DEBUG_LOG
     //#define NON_PLAYABLE
     //#define SHOW_TEST_HOURS
     #define AUTHENTICATION_LEVEL 1
-    #define FLOAT_NUMERICS
-    #define TRACK_LANGUAGEPHRASE_ERRORS
 #endif
 
 #ifdef TARGET_TESTBED
-    #define HAVE_DSOUND
-    #define WAN_PLAY_ENABLED
-    #define LAN_PLAY_ENABLED
     #define TRACK_SYNC_RAND
     #define TRACK_SYNC_RAND_EXTRA_VALIDATION     // Warning: Changes sync value calculation.
     #define TOOLS_ENABLED
-    #define PROFILER_ENABLED
     #define NON_PLAYABLE
     #define DUMP_DEBUG_LOG
     #define TESTBED
     #define AUTHENTICATION_LEVEL 3
-    #define FLOAT_NUMERICS
 #endif
-
-//#define TRACK_MEMORY_LEAKS
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "systemiv.h"
 
 #ifdef TARGET_MSVC
     #define APP_SYSTEM "Windows"
@@ -223,14 +204,6 @@
 // Windows Specific options
 #ifdef TARGET_MSVC
 #include "../../resources/resource.h"
-
-#pragma warning( disable : 4244 4305 4800 4018 )
-// Defines that will enable you to double click on a #pragma message
-// in the Visual Studio output window.
-#define MESSAGE_LINENUMBERTOSTRING(linenumber)	#linenumber
-#define MESSAGE_LINENUMBER(linenumber)			MESSAGE_LINENUMBERTOSTRING(linenumber)
-#define MESSAGE(x) message (__FILE__ "(" MESSAGE_LINENUMBER(__LINE__) "): "x)
-
 
 #include <crtdbg.h>
 #define snprintf _snprintf
@@ -261,31 +234,6 @@
 #define strnicmp strncasecmp
 #define Sleep(x) usleep( 1000 * x)
 
-// String function definitions - handle Emscripten specially
-#ifdef TARGET_EMSCRIPTEN
-    // Emscripten provides these functions in its compatibility layer
-    // Include string.h to get the declarations
-    #include <string.h>
-    // Note: strlwr and strupr are declared in Emscripten's compat/string.h
-    // but we need to avoid redefinition conflicts
-    #ifndef __EMSCRIPTEN_STRLWR_DEFINED__
-        extern char* strlwr(char *);
-        extern char* strupr(char *);
-        #define __EMSCRIPTEN_STRLWR_DEFINED__
-    #endif
-#else
-    // Original inline implementations for macOS and Linux
-    inline char * strlwr(char *s) {
-        for (char *p = s; *p; p++)
-            *p = tolower(*p);
-        return s;
-    }
-    inline char * strupr(char *s) {
-        for (char *p = s; *p; p++)
-            *p = toupper(*p);
-        return s;
-    }
-#endif
 
 #if __GNUC__ == 3
 #define sinf sin
@@ -297,37 +245,5 @@
 #endif
 
 #endif
-
-// Include library headers
-#ifdef TARGET_OS_MACOSX
-#include <glad/glad.h>
-#include <hwy/highway.h>
-#include <SDL2/SDL.h>
-#undef TARGET_OS_LINUX
-#undef TARGET_OS_WINDOWS
-#elif defined(TARGET_MSVC)
-#include <glad/glad.h>
-#include <glad/wgl_ext.h>
-#include <hwy/highway.h>
-#elif defined(TARGET_EMSCRIPTEN)
-#include <emscripten.h>
-#include <glad/glad.h>
-#include <hwy/highway.h>
-#include <SDL2/SDL.h>
-#else
-#include <glad/glad.h>
-#include <hwy/highway.h>
-#endif
-
-#ifdef OPENMP
-#include <omp.h>
-#endif
-
-// Include pthread for Emscripten threading support
-#ifdef TARGET_EMSCRIPTEN
-#include <pthread.h>
-#include <sys/time.h>
-#endif
-
 
 #endif

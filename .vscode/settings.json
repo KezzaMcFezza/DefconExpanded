@@ -126,6 +126,7 @@
         "-I${workspaceFolder}/contrib/systemIV/lib/gucci",
         "-I${workspaceFolder}/contrib/systemIV/lib/netlib",
         "-I${workspaceFolder}/contrib/systemIV/lib/eclipse",
+        "-I${workspaceFolder}/contrib/systemIV/lib/eclipse/components",
         "-I${workspaceFolder}/resources",
         "-DWIN32",
         "-DUSE_CRASHREPORTING",

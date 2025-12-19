@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include <stdarg.h>
 
@@ -7,8 +7,6 @@
 #include "lib/resource/bitmapfont.h"
 #include "lib/math/vector3.h"
 #include "lib/render/colour.h"
-
-#include "renderer/map_renderer.h"
 #include "lib/render3d/renderer_3d.h"
 
 extern Renderer3D *g_renderer3d;

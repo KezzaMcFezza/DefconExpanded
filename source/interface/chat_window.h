@@ -3,7 +3,7 @@
 
 #include "lib/tosser/bounded_array.h"
 
-#include "interface/components/inputfield.h"
+#include "lib/eclipse/components/inputfield.h"
 #include "interface/fading_window.h"
 
 class ChatMessage;

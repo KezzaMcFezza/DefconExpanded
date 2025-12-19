@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include <limits.h>
 
@@ -19,7 +19,8 @@ WindowManager::WindowManager()
 	m_mouseCaptured(false),
     m_highDPIScaleX(1.0f),
     m_highDPIScaleY(1.0f),
-    m_secondaryMessageHandler(NULL)
+    m_secondaryMessageHandler(NULL),
+    m_windowResizeHandler(NULL)
 {
 }
 
@@ -101,6 +102,18 @@ void WindowManager::RegisterMessageHandler( SecondaryEventHandler _messageHandle
 SecondaryEventHandler WindowManager::GetSecondaryMessageHandler()
 {
     return m_secondaryMessageHandler;
+}
+
+
+void WindowManager::RegisterWindowResizeHandler(WindowResizeHandler _handler)
+{
+    m_windowResizeHandler = _handler;
+}
+
+
+WindowResizeHandler WindowManager::GetWindowResizeHandler()
+{
+    return m_windowResizeHandler;
 }
 
 //

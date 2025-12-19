@@ -1,7 +1,7 @@
 #ifndef _included_resynchronisewindow_h
 #define _included_resynchronisewindow_h
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 
 
 class ResynchroniseWindow : public InterfaceWindow

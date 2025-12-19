@@ -2,7 +2,7 @@
 #define _included_recording_file_dialog_h
 
 #include "lib/universal_include.h"
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 #include "lib/tosser/llist.h"
 
 //

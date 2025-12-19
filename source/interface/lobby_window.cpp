@@ -37,9 +37,9 @@
 
 #include "world/world.h"
 
-#include "interface/components/inputfield.h"
-#include "interface/components/drop_down_menu.h"
-#include "interface/components/message_dialog.h"
+#include "lib/eclipse/components/inputfield.h"
+#include "lib/eclipse/components/drop_down_menu.h"
+#include "lib/eclipse/components/message_dialog.h"
 #include "interface/demo_window.h"
 #include "interface/badkey_window.h"
 

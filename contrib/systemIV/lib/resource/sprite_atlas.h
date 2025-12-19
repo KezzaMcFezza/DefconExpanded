@@ -2,6 +2,7 @@
 #define _included_sprite_atlas_h
 
 #include "lib/tosser/btree.h"
+#include "lib/tosser/llist.h"
 #include "lib/resource/image.h"
 
 class Bitmap;
@@ -41,7 +42,7 @@ private:
     void BlitSpritesToAtlas       (PackedSprite** sprites, int spriteCount);
     void CreateGLTexture          ();
     void LoadSprites (const char* directory, 
-                                   const char** excludeList, int excludeCount,
+                                   const char* const *excludeList, int excludeCount,
                                    PackedSprite*** outSprites, int* outCount);
     
 public:
@@ -49,7 +50,7 @@ public:
     ~RuntimeTextureAtlas          ();
     
     bool BuildFromDirectory       (const char* directory, 
-                                   const char** excludeList = nullptr,
+                                   const char* const *excludeList = nullptr,
                                    int excludeCount = 0);
     
     const PackedSprite* GetSprite (const char* filename) const;
@@ -90,8 +91,7 @@ public:
 
 class SpriteAtlasManager {
 private:
-    RuntimeTextureAtlas* m_graphicsAtlas;
-    RuntimeTextureAtlas* m_guiAtlas;
+    LList<RuntimeTextureAtlas*> m_atlases;
     bool m_initialized;
     
 public:
@@ -105,9 +105,6 @@ public:
 
     const PackedSprite* GetSpriteFromAnyAtlas(const char* filename, 
                                                RuntimeTextureAtlas** outAtlas) const;
-    
-    RuntimeTextureAtlas* GetGraphicsAtlas    () const { return m_graphicsAtlas; }
-    RuntimeTextureAtlas* GetGUIAtlas         () const { return m_guiAtlas; }
     
     bool IsInitialized                       () const { return m_initialized; }
 };

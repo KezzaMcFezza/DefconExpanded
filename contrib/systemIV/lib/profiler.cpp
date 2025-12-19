@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include <math.h>
 #include <float.h>
@@ -211,7 +211,6 @@ void Profiler::Stop()
 // *** Advance
 void Profiler::Advance()
 {
-#ifdef PROFILER_ENABLED
 	double timeNow = GetHighResTime();
 	if (timeNow > m_endOfSecond)
 	{
@@ -230,7 +229,6 @@ void Profiler::Advance()
     while( m_frameTimes.ValidIndex(200) )
         m_frameTimes.RemoveData(200);
     m_lastFrameStart = timeNow;
-#endif
 }
 
 

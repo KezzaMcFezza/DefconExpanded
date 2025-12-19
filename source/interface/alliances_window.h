@@ -1,7 +1,7 @@
 #ifndef _included_allianceswindow_h
 #define _included_allianceswindow_h
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 
 #include "world/world.h"
 

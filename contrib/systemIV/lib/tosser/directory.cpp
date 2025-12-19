@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include <sstream>
 #include <algorithm>
@@ -17,7 +17,9 @@
 #define DIRECTORY_MAXSTRINGLENGTH   10240
 #define DIRECTORY_MAXDIRSIZE        1024
 
+#ifndef _DEBUG
 #define _DEBUG
+#endif
 
 using namespace std;
 

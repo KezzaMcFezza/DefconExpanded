@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include <ctime>
 #include <SDL2/SDL.h>
@@ -21,9 +21,6 @@
 #include "lib/language_table.h"
 #include "input_sdl.h"
 #include "window_manager.h"
-
-#include "app/app.h"
-#include "app/globals.h"
 
 // Uncomment for lots of output
 // #define VERBOSE_DEBUG

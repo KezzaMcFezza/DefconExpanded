@@ -1,11 +1,10 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include <stdarg.h>
 
 #include "lib/resource/bitmapfont.h"
 #include "lib/preferences.h"
 
-#include "renderer/map_renderer.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 

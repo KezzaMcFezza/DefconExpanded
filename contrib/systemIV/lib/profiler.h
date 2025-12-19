@@ -47,14 +47,8 @@ public:
 
 extern Profiler *g_profiler;
 
-
-#ifdef PROFILER_ENABLED
-    #define START_PROFILE(itemName)             if(g_profiler) g_profiler->StartProfile(itemName)
-    #define END_PROFILE(itemName)               if(g_profiler) g_profiler->EndProfile(itemName)
-#else
-    #define START_PROFILE(itemName)
-    #define END_PROFILE(itemName)
-#endif
+#define START_PROFILE(itemName)             if(g_profiler) g_profiler->StartProfile(itemName)
+#define END_PROFILE(itemName)               if(g_profiler) g_profiler->EndProfile(itemName)
 
 
 //*****************************************************************************

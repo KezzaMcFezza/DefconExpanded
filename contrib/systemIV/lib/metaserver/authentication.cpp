@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 #include "lib/math/hash_data.h"
 
 #include "authentication.h"
@@ -375,8 +375,8 @@ static void AuthenticationThread(ThreadFunctions *threadFunctions)
                     directory.CreateData( NET_METASERVER_COMMAND, NET_METASERVER_REQUEST_AUTH );
                     directory.CreateData( NET_METASERVER_AUTHKEY, unknownKey );
                     directory.CreateData( NET_METASERVER_AUTHKEYID, keyId );
-                    directory.CreateData( NET_METASERVER_GAMENAME, APP_NAME );
-                    directory.CreateData( NET_METASERVER_GAMEVERSION, APP_VERSION );
+                    directory.CreateData( NET_METASERVER_GAMENAME, GetAppName() );
+                    directory.CreateData( NET_METASERVER_GAMEVERSION, GetAppVersion() );
                     
                     if( strcmp(clientIp, "unknown") != 0 )
                     {

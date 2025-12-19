@@ -76,3 +76,5 @@ ServerName5 =
 TutorialCompleted = 0
 RenderNodes = 0
 AmbxEnabled = 0
+
+CrashpadURL = https://defconexpanded.com/api/defcon-crashpad

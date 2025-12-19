@@ -19,7 +19,7 @@
 #include "network/Server.h"
 #include "network/ServerToClient.h"
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 #include "interface/network_window.h"
 
 

@@ -5,7 +5,7 @@
 #include "lib/tosser/bounded_array.h"
 #include "lib/tosser/directory.h"
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 
 #include "world/world.h"
 

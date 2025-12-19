@@ -16,11 +16,11 @@
 
 #include "network/Server.h"
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 #include "interface/network_window.h"
 #include "interface/profile_window.h"
-#include "interface/soundsystem/soundeditor_window.h"
-#include "interface/soundsystem/soundstats_window.h"
+#include "interface/soundeditor_window.h"
+#include "interface/soundstats_window.h"
 #include "interface/debug_window.h"
 #include "interface/tutorial_window.h"
 #include "interface/styleeditor_window.h"
@@ -181,11 +181,9 @@ void DebugWindow::Create()
     network->SetProperties( "Network Data", 10, y+=h+gap, m_w-20, h, "dialog_network_title", " ", true, false );
     RegisterButton( network );
 
-#ifdef PROFILER_ENABLED
     ProfileButton *profiler = new ProfileButton();
     profiler->SetProperties( "Profiler", 10, y+=h+gap, m_w-20, h, "dialog_profile_title", " ", true, false );
     RegisterButton( profiler );
-#endif
 
 #ifdef SOUND_EDITOR_ENABLED
     SoundStatsButton *soundStats = new SoundStatsButton();

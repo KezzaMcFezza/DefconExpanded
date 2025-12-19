@@ -8,8 +8,8 @@
 #include "lib/language_table.h"
 #include "lib/string_utils.h"
 
-#include "interface/components/inputfield.h"
-#include "interface/components/scrollbar.h"
+#include "lib/eclipse/components/inputfield.h"
+#include "lib/eclipse/components/scrollbar.h"
 
 #include "chat_window.h"
 #include "interface/interface.h"

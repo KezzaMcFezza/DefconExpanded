@@ -1,5 +1,5 @@
 //#define _CRT_SECURE_NO_DEPRECATE
-#include "lib/universal_include.h"
+#include "systemiv.h"
 #include "lib/string_utils.h"
 
 #ifndef NO_UNRAR
@@ -370,12 +370,13 @@ void OrderedInsert( LList<char *> *_llist, const char *_newString )
 // or false for "blah.bmp"
 LList<char *> *FileSystem::ListArchive(char *_dir, char *_filter, bool fullFilename)
 {
-    LList<char *> *results = NULL;
-
     //
     // List the base data directory
 
-    results = ListDirectory(_dir, _filter, fullFilename);
+    LList<char *> *results = ListDirectory(_dir, _filter, fullFilename);
+    if (!results) {
+        results = new LList<char *>();
+    }
 
 
 #ifndef NO_UNRAR

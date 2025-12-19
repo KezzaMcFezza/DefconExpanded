@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 #include <SDL2/SDL.h>
 
 #ifdef TARGET_OS_LINUX
@@ -20,8 +20,6 @@
 #include "window_manager_sdl.h"
 #include "input.h"
 #include "crashpad.h"
-#include "app/app.h"
-#include "app/globals.h"
 
 #ifdef TARGET_OS_LINUX
 #include "binreloc.h"
@@ -273,9 +271,9 @@ void WindowManagerSDL::HandleResize(int newWidth, int newHeight)
         m_resolutions.PutData(res);
     }
 
-    if (g_app)
+    if (m_windowResizeHandler)
     {
-        g_app->OnWindowResized(newWidth, newHeight, oldWidth, oldHeight);
+        m_windowResizeHandler(newWidth, newHeight, oldWidth, oldHeight);
     }
 }
 
@@ -849,7 +847,7 @@ extern "C" int main(int argc, char **argv)
 
 	if (argc > 1) {
 		if (strncmp(argv[1], "-v", 2) == 0) {
-			puts(APP_VERSION);
+			puts(GetAppVersion());
 			return 0;
 		}
 	}

@@ -1,7 +1,7 @@
 #ifndef _included_demowindow_h
 #define _included_demowindow_h
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 
 
 // ============================================================================

@@ -1,10 +1,9 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include <stdarg.h>
 
 #include "lib/preferences.h"
 
-#include "renderer/map_renderer.h"
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"

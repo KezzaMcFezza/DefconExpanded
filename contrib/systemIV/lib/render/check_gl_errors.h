@@ -1,7 +1,7 @@
 #ifndef CHECK_GL_ERRORS_H
 #define CHECK_GL_ERRORS_H
 
-#include "lib/universal_include.h"
+#include "systemiv.h"
 #include "lib/debug_utils.h"
 
 #include <stdio.h>

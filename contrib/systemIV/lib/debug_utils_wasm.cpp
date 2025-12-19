@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #ifdef TARGET_EMSCRIPTEN
 
@@ -100,7 +100,7 @@ void AppGenerateBlackBox( const char *_filename, const char *_msg )
     printf("=   BLACK BOX REPORT    =\n");
     printf("=========================\n\n");
     
-    printf("%s %s built %s\n", APP_NAME, APP_VERSION, __DATE__);
+    printf("%s %s built %s\n", GetAppName(), GetAppVersion(), __DATE__);
     
     time_t timet = time(NULL);
     tm *thetime = localtime(&timet);

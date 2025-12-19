@@ -10,7 +10,7 @@
 #ifndef _included_renderer_h
 #define _included_renderer_h
 
-#include "lib/universal_include.h"
+#include "systemiv.h"
 #include "lib/tosser/btree.h"
 #include "lib/tosser/llist.h"
 

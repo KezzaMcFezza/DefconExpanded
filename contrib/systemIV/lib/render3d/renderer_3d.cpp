@@ -1,5 +1,5 @@
 #include "lib/resource/image.h"
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include <math.h>
 #include <string.h>
@@ -11,7 +11,6 @@
 #include "lib/resource/sprite_atlas.h"
 #include "lib/resource/image.h"
 #include "lib/math/matrix4f.h"
-#include "renderer/map_renderer.h"
 #include "shaders/vertex.glsl.h"
 #include "shaders/fragment.glsl.h"
 #include "shaders/textured_vertex.glsl.h"

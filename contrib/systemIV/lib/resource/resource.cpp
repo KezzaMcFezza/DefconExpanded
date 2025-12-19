@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include <stdio.h>
 #include <fstream>
@@ -16,7 +16,6 @@
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render2d/megavbo/megavbo_2d.h"
 #include "lib/render3d/megavbo/megavbo_3d.h"
-#include "app/modsystem.h"
 
 #include "sprite_atlas.h"
 
@@ -129,7 +128,7 @@ void Resource::UnloadImage( const char *filename )
     if( !filename ) return;
     
     char fullFilename[512];
-    sprintf( fullFilename, "data/%s", filename );
+    sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
     
     Image *image = m_imageCache.GetData( fullFilename );
     if( image )
@@ -148,7 +147,7 @@ void Resource::UnloadImage( const char *filename, float uvAdjustX, float uvAdjus
     if( !filename ) return;
     
     char fullFilename[512];
-    sprintf( fullFilename, "data/%s", filename );
+    sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
     
     char cacheKey[512];
     if( uvAdjustX != 0.0f || uvAdjustY != 0.0f )
@@ -176,15 +175,12 @@ Image *Resource::TryLoadFromAtlas( const char *filename, float uvAdjustX, float 
 {
     if( !filename ) return NULL;
     
-    extern class ModSystem *g_modSystem;
-    bool isModGraphic = g_modSystem && g_modSystem->IsModGraphic(filename);
-    
-    //
-    // Try runtime atlas ONLY if not a mod graphic and atlas is initialized
-    
-    if (!isModGraphic && g_spriteAtlasManager && g_spriteAtlasManager->IsInitialized()) {
+    if (g_spriteAtlasManager && g_spriteAtlasManager->IsInitialized()) {
+        char dataPath[512];
+        sprintf(dataPath, "%s/%s", GetDataRoot(), filename);
+        
         RuntimeTextureAtlas* atlas = NULL;
-        const PackedSprite* sprite = g_spriteAtlasManager->GetSpriteFromAnyAtlas(filename, &atlas);
+        const PackedSprite* sprite = g_spriteAtlasManager->GetSpriteFromAnyAtlas(dataPath, &atlas);
         
         if (sprite && atlas) {
             AtlasImage* atlasImage = new AtlasImage((PackedSprite*)sprite, atlas);
@@ -201,7 +197,7 @@ Image *Resource::GetImage( const char *filename )
     if( !filename ) return NULL;
     
     char fullFilename[512];
-    sprintf( fullFilename, "data/%s", filename );
+    sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
 
     Image *image = m_imageCache.GetData( fullFilename );
     if( image )
@@ -231,7 +227,7 @@ Image *Resource::GetImage( const char *filename, float uvAdjustX, float uvAdjust
     // Images with different UV adjustments are cached separately
     
     char fullFilename[512];
-    sprintf( fullFilename, "data/%s", filename );
+    sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
     
     char cacheKey[512];
     if( uvAdjustX != 0.0f || uvAdjustY != 0.0f )
@@ -274,7 +270,7 @@ BitmapFont *Resource::GetBitmapFont ( const char *filename )
     if( !filename ) return NULL;
 
     char fullFilename[512];
-    snprintf( fullFilename, sizeof(fullFilename), "data/%s", filename );
+    snprintf( fullFilename, sizeof(fullFilename), "%s/%s", GetDataRoot(), filename );
     fullFilename[ sizeof(fullFilename) - 1 ] = '\x0';
 
     BitmapFont *font = m_bitmapFontCache.GetData( fullFilename );
@@ -296,7 +292,7 @@ bool Resource::TestBitmapFont ( const char *filename )
     if( !filename ) return false;
 
     char fullFilename[512];
-    snprintf( fullFilename, sizeof(fullFilename), "data/%s", filename );
+    snprintf( fullFilename, sizeof(fullFilename), "%s/%s", GetDataRoot(), filename );
     fullFilename[ sizeof(fullFilename) - 1 ] = '\x0';
 
     BitmapFont *font = m_bitmapFontCache.GetData( fullFilename );
@@ -325,24 +321,28 @@ Model3D *Resource::GetModel3D( const char *filename )
 {
     if( !filename ) return NULL;
     
-    Model3D *model = m_model3DCache.GetData( filename );
+    char fullFilename[512];
+    snprintf( fullFilename, sizeof(fullFilename), "%s/%s", GetDataRoot(), filename );
+    fullFilename[ sizeof(fullFilename) - 1 ] = '\x0';
+    
+    Model3D *model = m_model3DCache.GetData( fullFilename );
     if( model )
     {
         return model;
     }
     
-    model = new Model3D( filename );
+    model = new Model3D( fullFilename );
     
     if( !model->IsLoaded() )
     {
-        AppDebugOut("Model3D: Failed to load model: %s\n", filename);
+        AppDebugOut("Model3D: Failed to load model: %s\n", fullFilename);
     }
     else
     { 
         model->BuildModelVBO();
     }
     
-    m_model3DCache.PutData( filename, model );
+    m_model3DCache.PutData( fullFilename, model );
     return model;
 }
 
@@ -351,11 +351,15 @@ void Resource::UnloadModel3D( const char *filename )
 {
     if( !filename ) return;
     
-    Model3D *model = m_model3DCache.GetData( filename );
+    char fullFilename[512];
+    snprintf( fullFilename, sizeof(fullFilename), "%s/%s", GetDataRoot(), filename );
+    fullFilename[ sizeof(fullFilename) - 1 ] = '\x0';
+    
+    Model3D *model = m_model3DCache.GetData( fullFilename );
     if( model )
     {
         delete model;
-        m_model3DCache.RemoveData( filename );
+        m_model3DCache.RemoveData( fullFilename );
     }
     
 #ifndef NO_UNRAR

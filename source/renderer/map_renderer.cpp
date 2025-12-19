@@ -34,7 +34,7 @@
 
 #include "network/ClientToServer.h"
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 #include "interface/interface.h"
 #include "interface/worldobject_window.h"
 

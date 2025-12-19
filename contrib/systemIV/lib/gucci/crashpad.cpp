@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include "client/crash_report_database.h"
 #include "client/settings.h"
@@ -32,11 +32,26 @@ bool InitializeCrashpad(const char* apiUrl)
     //
     // API URL, but can literally be anything
 
-    const char* kDefaultApiUrl = "https://defconexpanded.com/api/defcon-crashpad";
-    if (!apiUrl || !apiUrl[0])
+    const char* prefsUrl = nullptr;
+    if (g_preferences)
     {
-        apiUrl = kDefaultApiUrl;
+        prefsUrl = g_preferences->GetString(PREFS_CRASHPAD_URL, 0);
     }
+
+
+    const char* finalUrl = apiUrl;
+    if (!finalUrl || !finalUrl[0])
+    {
+        finalUrl = prefsUrl;
+    }
+
+    if (!finalUrl || !finalUrl[0])
+    {
+        AppDebugOut("Crashpad: No CrashpadURL configured in preferences\n");
+        return false;
+    }
+
+    apiUrl = finalUrl;
 
     base::FilePath exeFilePath;
     base::FilePath exeDir;
@@ -97,9 +112,9 @@ bool InitializeCrashpad(const char* apiUrl)
     // Crash description, identifies crashes in the console
 
     std::map<std::string, std::string> annotations;
-    annotations["Version"]         = APP_VERSION;
-    annotations["InternalVersion"] = REAL_VERSION;
-    annotations["Platform"]        = APP_SYSTEM;
+    annotations["Version"]         = GetAppVersion();
+    annotations["InternalVersion"] = GetRealVersion();
+    annotations["Platform"]        = GetAppSystem();
 
     //
     // Dont use compression, reduces API complexity

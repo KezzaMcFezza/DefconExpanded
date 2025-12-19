@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include <time.h>
 #include <SDL.h>
@@ -103,52 +103,6 @@ constexpr int SignOf(int x) {
 void InputManagerSDL::ResetWindowHandle()
 {
 }
-
-// Temporarily disabled until I find where g_renderer has run off to in Defcon. -- Steven
-#if defined TARGET_OS_LINUX && 0
-static void AdjustForBuggyXinerama(int &_xrel, int &_yrel)
-{
-	/* Linux has buggy multiple screen support which causes the
-	   mouse events to be all screwed up */
-
-	// Xinerama offset
-	static int offsetX = 0, offsetY = 0;
-	static int screenW = 0, screenH = 0;
-	static int frameCount = 0;
-
-	if (screenW != g_app->g_renderer->ScreenW() ||
-		screenH != g_app->g_renderer->ScreenH()) {
-		// Resolution changed
-
-		screenW = g_app->g_renderer->ScreenW();
-		screenH = g_app->g_renderer->ScreenH();
-
-		// We want to skip the first few mouse events
-		// As we can get some funny behaviour after a resolution change
-		frameCount = 3;
-	}
-	
-	if (frameCount >= 0)
-		frameCount--;
-	
-	if (frameCount == 0) {
-		// Guess Xinerama offset
-		int hypot = sqrt(_xrel*_xrel + _yrel*_yrel);
-		if (hypot >= 550) {
-			offsetX = (_xrel + SignOf(_xrel)*32) / 64 * 64;
-			offsetY = (_yrel + SignOf(_yrel)*32) / 64 * 64;
-		}
-		else {
-			offsetX = 0;
-			offsetY = 0;
-		}
-		AppDebugOut("XINERAMA offset guess: %d, %d\n", offsetX, offsetY);
-	}
-
-	_xrel -= offsetX;
-	_yrel -= offsetY;
-}
-#endif // TARGET_OS_LINUX
 
 static void BoundMouseXY(int &_x, int &_y)
 {

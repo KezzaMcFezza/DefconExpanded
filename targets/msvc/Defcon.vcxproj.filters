@@ -4,39 +4,6 @@
     <Filter Include="app">
       <UniqueIdentifier>{697a96ac-bc76-4898-8264-2ef6e04b71c3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib">
-      <UniqueIdentifier>{38a8964c-915f-4fa7-ae04-3205436b65c7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\resource">
-      <UniqueIdentifier>{d05d7ee1-617e-43ed-9f47-eb2653032b59}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\render">
-      <UniqueIdentifier>{90eda58c-84e5-4db6-b8fe-63fb265d4a3c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\eclipse">
-      <UniqueIdentifier>{2c40d8b0-3f12-4182-bd46-26710f4a5bb2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\filesys">
-      <UniqueIdentifier>{ccec5289-ab89-4c6a-bb37-1dc675915e4c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\gucci">
-      <UniqueIdentifier>{0171f567-e811-437a-99ae-101f7ac4d72d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\math">
-      <UniqueIdentifier>{1c38c3bb-ef35-4a34-ab08-aa440bf438d2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\netlib">
-      <UniqueIdentifier>{600dc4ad-3356-4da6-9e44-e39468e2cde7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\tosser">
-      <UniqueIdentifier>{eba03baa-f223-4f79-8cac-324684e546a7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\metaserver">
-      <UniqueIdentifier>{47a5087e-6db7-4a0c-a983-3be86d30d94c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\sound">
-      <UniqueIdentifier>{91ed6ee4-bc1f-42e1-ab94-75bbe1563a1b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="renderer">
       <UniqueIdentifier>{3a8a8b77-6698-4104-b970-7c8947fe003e}</UniqueIdentifier>
     </Filter>
@@ -49,9 +16,6 @@
     <Filter Include="docs">
       <UniqueIdentifier>{80cf1dfe-de49-48ee-998d-48db4cd8d1ff}</UniqueIdentifier>
     </Filter>
-    <Filter Include="contrib">
-      <UniqueIdentifier>{bad6fa13-2112-4544-9c5a-7333f44a613b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="data">
       <UniqueIdentifier>{3da388da-90fb-4ae5-b237-1b48cd3fa2c2}</UniqueIdentifier>
     </Filter>
@@ -61,47 +25,8 @@
     <Filter Include="interface">
       <UniqueIdentifier>{a277b185-d081-4d9b-9089-b5c844f7a859}</UniqueIdentifier>
     </Filter>
-    <Filter Include="interface\components">
-      <UniqueIdentifier>{700da96e-b10e-435c-88c8-07f0c461b385}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="interface\soundsystem">
-      <UniqueIdentifier>{dff747ea-13eb-4ff8-bb4c-552fd9c67681}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="interface\options">
-      <UniqueIdentifier>{1229f82e-d028-408a-8846-e3570b6fbb89}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\render2d">
-      <UniqueIdentifier>{d250ba42-f338-4ff3-997e-cd40accd41d7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\render2d\megavbo">
-      <UniqueIdentifier>{756648e2-3496-447a-8172-1b2c45678901}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\render2d\shaders">
-      <UniqueIdentifier>{87654321-90ab-cdef-1234-567890abcdef}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\render3d">
-      <UniqueIdentifier>{3341bb2c-4d0f-44be-b226-455c25df5fd9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\render3d\megavbo">
-      <UniqueIdentifier>{756648e2-3496-447a-8172-1b2c45678901}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\render3d\shaders">
-      <UniqueIdentifier>{3341bb2c-4d0f-44be-b226-455c25df5fd9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\unicode">
-      <UniqueIdentifier>{b9b21fe4-158c-47ac-88e4-dd0d932a7b4d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="contrib\unrar">
-      <UniqueIdentifier>{e35ff38c-1916-4287-b2bc-a97198032d69}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="contrib\glad">
-      <UniqueIdentifier>{e35ff38c-1916-4287-b2bc-a97198032d69}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="contrib\highway">
-      <UniqueIdentifier>{f12ab456-3c8d-4e9f-a1b2-d8e9f4a5b6c7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="contrib\tinygltf">
-      <UniqueIdentifier>{34567890-1234-5678-9012-345678901234}</UniqueIdentifier>
+    <Filter Include="lib">
+      <UniqueIdentifier>{9bea68fa-cae6-4a59-a17a-ac26d370d6d1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -137,180 +62,6 @@
     </ClCompile>
     <ClCompile Include="..\..\source\app\version_manager.cpp">
       <Filter>app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\debug_utils.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\hi_res_time.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\language_table.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\memory_leak.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\lib\multiline_text.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\preferences.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\profiler.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\string_utils.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\lib\universal_include.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmap.cpp">
-      <Filter>lib\resource</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.cpp">
-      <Filter>lib\resource</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\resource\image.cpp">
-      <Filter>lib\resource</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\resource\model3d.cpp">
-      <Filter>lib\resource</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\resource\resource.cpp">
-      <Filter>lib\resource</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\render\colour.cpp">
-      <Filter>lib\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\render\styletable.cpp">
-      <Filter>lib\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\eclbutton.cpp">
-      <Filter>lib\eclipse</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\eclipse.cpp">
-      <Filter>lib\eclipse</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\eclipse\eclwindow.cpp">
-      <Filter>lib\eclipse</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\binary_stream_readers.cpp">
-      <Filter>lib\filesys</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\file_system.cpp">
-      <Filter>lib\filesys</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\filesys_utils.cpp">
-      <Filter>lib\filesys</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\text_file_writer.cpp">
-      <Filter>lib\filesys</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\filesys\text_stream_readers.cpp">
-      <Filter>lib\filesys</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\input.cpp">
-      <Filter>lib\gucci</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\win32library.cpp">
-      <Filter>lib\gucci</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\window_manager.cpp">
-      <Filter>lib\gucci</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\math\fixed_64.cpp">
-      <Filter>lib\math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\math\hash_data.cpp">
-      <Filter>lib\math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\math\matrix4f.cpp">
-      <Filter>lib\math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\math\fixed_float.cpp">
-      <Filter>lib\math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\math\math_utils.cpp">
-      <Filter>lib\math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\math\random_number.cpp">
-      <Filter>lib\math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\math\vector3.cpp">
-      <Filter>lib\math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\condition_win32.cpp">
-      <Filter>lib\netlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\condition_winxp.cpp">
-      <Filter>lib\netlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_lib.cpp">
-      <Filter>lib\netlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_mutex_win32.cpp">
-      <Filter>lib\netlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_socket.cpp">
-      <Filter>lib\netlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_socket_listener.cpp">
-      <Filter>lib\netlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_socket_session.cpp">
-      <Filter>lib\netlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_thread_win32.cpp">
-      <Filter>lib\netlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\netlib\net_udp_packet.cpp">
-      <Filter>lib\netlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\netlib\thread_controller.cpp">
-      <Filter>lib\netlib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\tosser\directory.cpp">
-      <Filter>lib\tosser</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\metaserver\authentication.cpp">
-      <Filter>lib\metaserver</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\metaserver\matchmaker.cpp">
-      <Filter>lib\metaserver</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\metaserver\metaserver.cpp">
-      <Filter>lib\metaserver</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_blueprint_manager.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_filter.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_instance.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_library_2d.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_library_3d.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_parameter.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_sample_bank.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\sound_sample_decoder.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\soundsystem.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\sound\soundsystem_interface.cpp">
-      <Filter>lib\sound</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\renderer\animated_icon.cpp">
       <Filter>renderer</Filter>
@@ -468,6 +219,24 @@
     <ClCompile Include="..\..\source\interface\placement_icon.cpp">
       <Filter>interface</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\interface\screenoptions_window.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\soundoptions_window.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\soundeditor_window.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\soundparameter_window.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\soundstats_window.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\interface\styleeditor_window.cpp">
+      <Filter>interface</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\source\interface\profile_window.cpp">
       <Filter>interface</Filter>
     </ClCompile>
@@ -481,9 +250,6 @@
       <Filter>interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\interface\side_panel.cpp">
-      <Filter>interface</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\styleeditor_window.cpp">
       <Filter>interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\interface\toolbar.cpp">
@@ -501,340 +267,24 @@
     <ClCompile Include="..\..\source\interface\worldstatus_window.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\checkbox.cpp">
-      <Filter>interface\components</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\core.cpp">
-      <Filter>interface\components</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\drop_down_menu.cpp">
-      <Filter>interface\components</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\filedialog.cpp">
-      <Filter>interface\components</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\inputfield.cpp">
-      <Filter>interface\components</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\message_dialog.cpp">
-      <Filter>interface\components</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\components\scrollbar.cpp">
-      <Filter>interface\components</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\soundsystem\soundeditor_window.cpp">
-      <Filter>interface\soundsystem</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\soundsystem\soundparameter_window.cpp">
-      <Filter>interface\soundsystem</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\soundsystem\soundstats_window.cpp">
-      <Filter>interface\soundsystem</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\options\screenoptions_window.cpp">
-      <Filter>interface\options</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\interface\options\soundoptions_window.cpp">
-      <Filter>interface\options</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\curves.cpp" />
     <ClCompile Include="..\..\source\defcon.cpp" />
     <ClCompile Include="..\..\source\random_object.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_overlay.cpp">
-      <Filter>lib\render</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\interface\playback_control_window.cpp">
       <Filter>interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\interface\recording_selection.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_2d.cpp">
-      <Filter>lib\render2d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp">
-      <Filter>lib\render3d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\megavbo_3d.cpp">
-      <Filter>lib\render3d\megavbo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\quads_3d.cpp">
-      <Filter>lib\render3d\megavbo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\linestrips_3d.cpp">
-      <Filter>lib\render3d\megavbo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\triangles_3d.cpp">
-      <Filter>lib\render3d\megavbo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\resource\sprite_atlas.cpp">
-      <Filter>lib\resource</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\renderer\globe_renderer.cpp">
       <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\unicode\unicode_string.cpp">
-      <Filter>lib\unicode</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\unicode\unicode_text_stream_reader.cpp">
-      <Filter>lib\unicode</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\interface\recording_file_dialog.cpp">
       <Filter>interface</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\glad\desktop\src\glad.c">
-      <Filter>contrib\glad</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\abort.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\aligned_allocator.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\nanobenchmark.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\per_target.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\print.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\targets.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\timer.cc">
-      <Filter>contrib\highway</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\megavbo_2d.cpp">
-      <Filter>lib\render2d\megavbo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.cc">
-      <Filter>contrib\tinygltf</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\quads_2d.cpp">
-      <Filter>lib\render2d\megavbo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\linestrips_2d.cpp">
-      <Filter>lib\render2d\megavbo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\megavbo\triangles_2d.cpp">
-      <Filter>lib\render2d\megavbo</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\operations_3d.cpp">
-      <Filter>lib\render3d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\primitives_3d.cpp">
-      <Filter>lib\render3d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\sprites_3d.cpp">
-      <Filter>lib\render3d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unrar.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\archive.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\arcread.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\blake2s.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\cmddata.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\consio.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\crc.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\crypt.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\encname.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\errhnd.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\extinfo.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\extract.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\filcreat.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\file.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\filefn.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\filestr.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\find.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\getbits.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\global.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\hash.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\headers.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\isnt.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\largepage.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\list.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\match.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\motw.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\options.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\pathfn.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\qopen.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rar.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rarpch.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rarvm.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rawread.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rdwrfn.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\recvol.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\resourcerar.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rijndael.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rs.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rs16.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\scantree.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\secpassword.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\sha1.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\sha256.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\smallfn.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\strfn.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\strlist.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\system.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\threadpool.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\timefn.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\ui.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unicode.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unpack.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\volume.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_2d_sdl.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_library_3d_software.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\window_manager_sdl.cpp">
-      <Filter>lib\gucci</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\input_sdl.cpp">
-      <Filter>lib\gucci</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\log.cpp">
-      <Filter>contrib\unrar</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\win32library.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.cpp">
-      <Filter>lib\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\primitives_2d.cpp">
-      <Filter>lib\render2d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\text_2d.cpp">
-      <Filter>lib\render2d</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\renderer\world_renderer.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\crashpad.cpp">
-      <Filter>lib\gucci</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\operations_2d.cpp">
-      <Filter>lib\render2d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\sprites_2d.cpp">
-      <Filter>lib\render2d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer.cpp">
-      <Filter>lib\render</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\text_3d.cpp">
-      <Filter>lib\render3d</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\megavbo\instancing_3d.cpp">
-      <Filter>lib\render3d\megavbo</Filter>
+    <ClCompile Include="..\..\source\lib\universal_include.cpp">
+      <Filter>lib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -870,228 +320,6 @@
     </ClInclude>
     <ClInclude Include="..\..\source\app\version_manager.h">
       <Filter>app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\debug_utils.h">
-      <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\hi_res_time.h">
-      <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\language_table.h">
-      <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\memory_leak.h">
-      <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\lib\multiline_text.h">
-      <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\preferences.h">
-      <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\profiler.h">
-      <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\string_utils.h">
-      <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\lib\universal_include.h">
-      <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmap.h">
-      <Filter>lib\resource</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.h">
-      <Filter>lib\resource</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\resource\image.h">
-      <Filter>lib\resource</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\resource\model3d.h">
-      <Filter>lib\resource</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\resource\resource.h">
-      <Filter>lib\resource</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\render\colour.h">
-      <Filter>lib\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\render\styletable.h">
-      <Filter>lib\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\eclbutton.h">
-      <Filter>lib\eclipse</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\eclipse.h">
-      <Filter>lib\eclipse</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\eclipse\eclwindow.h">
-      <Filter>lib\eclipse</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\binary_stream_readers.h">
-      <Filter>lib\filesys</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\file_system.h">
-      <Filter>lib\filesys</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\filesys_utils.h">
-      <Filter>lib\filesys</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\text_file_writer.h">
-      <Filter>lib\filesys</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\filesys\text_stream_readers.h">
-      <Filter>lib\filesys</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\input.h">
-      <Filter>lib\gucci</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\win32library.h">
-      <Filter>lib\gucci</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\window_manager.h">
-      <Filter>lib\gucci</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\fixed.h">
-      <Filter>lib\math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\hash_data.h">
-      <Filter>lib\math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\matrix4f.h">
-      <Filter>lib\math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\fixed_64.h">
-      <Filter>lib\math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\fixed_float.h">
-      <Filter>lib\math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\math_utils.h">
-      <Filter>lib\math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\random_number.h">
-      <Filter>lib\math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\math\vector3.h">
-      <Filter>lib\math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\bytestream.h">
-      <Filter>lib\netlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\condition.h">
-      <Filter>lib\netlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\condition_winxp.h">
-      <Filter>lib\netlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_lib.h">
-      <Filter>lib\netlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_lib_win32.h">
-      <Filter>lib\netlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_mutex.h">
-      <Filter>lib\netlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_socket.h">
-      <Filter>lib\netlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_socket_listener.h">
-      <Filter>lib\netlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_socket_session.h">
-      <Filter>lib\netlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_thread.h">
-      <Filter>lib\netlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\netlib\net_udp_packet.h">
-      <Filter>lib\netlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\netlib\thread_controller.h">
-      <Filter>lib\netlib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\bounded_array.h">
-      <Filter>lib\tosser</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\btree.h">
-      <Filter>lib\tosser</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\darray.h">
-      <Filter>lib\tosser</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\directory.h">
-      <Filter>lib\tosser</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\fast_darray.h">
-      <Filter>lib\tosser</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\hash_table.h">
-      <Filter>lib\tosser</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\llist.h">
-      <Filter>lib\tosser</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\tosser\sorting_hash_table.h">
-      <Filter>lib\tosser</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\metaserver\authentication.h">
-      <Filter>lib\metaserver</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\metaserver\matchmaker.h">
-      <Filter>lib\metaserver</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\metaserver\metaserver.h">
-      <Filter>lib\metaserver</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\metaserver\metaserver_defines.h">
-      <Filter>lib\metaserver</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_blueprint_manager.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_filter.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_instance.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_library_2d.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_library_2d_mode.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_library_3d.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_parameter.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_sample_bank.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\sound_sample_decoder.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\soundsystem.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\sound\soundsystem_interface.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.h">
-      <Filter>contrib\tinygltf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\json.hpp">
-      <Filter>contrib\tinygltf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\stb_image.h">
-      <Filter>contrib\tinygltf</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\stb_image_write.h">
-      <Filter>contrib\tinygltf</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\renderer\animated_icon.h">
       <Filter>renderer</Filter>
@@ -1270,7 +498,7 @@
     <ClInclude Include="..\..\source\interface\side_panel.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\styleeditor_window.h">
+    <ClInclude Include="..\..\source\interface\styleeditor_window.h">
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\interface\toolbar.h">
@@ -1288,114 +516,35 @@
     <ClInclude Include="..\..\source\interface\worldstatus_window.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\checkbox.h">
-      <Filter>interface\components</Filter>
+    <ClInclude Include="..\..\source\interface\screenoptions_window.h">
+      <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\core.h">
-      <Filter>interface\components</Filter>
+    <ClInclude Include="..\..\source\interface\soundoptions_window.h">
+      <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\drop_down_menu.h">
-      <Filter>interface\components</Filter>
+    <ClInclude Include="..\..\source\interface\soundeditor_window.h">
+      <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\filedialog.h">
-      <Filter>interface\components</Filter>
+    <ClInclude Include="..\..\source\interface\soundparameter_window.h">
+      <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\inputfield.h">
-      <Filter>interface\components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\message_dialog.h">
-      <Filter>interface\components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\components\scrollbar.h">
-      <Filter>interface\components</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\soundsystem\soundeditor_window.h">
-      <Filter>interface\soundsystem</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\soundsystem\soundparameter_window.h">
-      <Filter>interface\soundsystem</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\soundsystem\soundstats_window.h">
-      <Filter>interface\soundsystem</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\options\screenoptions_window.h">
-      <Filter>interface\options</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\interface\options\soundoptions_window.h">
-      <Filter>interface\options</Filter>
+    <ClInclude Include="..\..\source\interface\soundstats_window.h">
+      <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\curves.h" />
     <ClInclude Include="..\..\source\random_object.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_overlay.h">
-      <Filter>lib\render</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\interface\playback_control_window.h">
       <Filter>interface</Filter>
     </ClInclude>
     <ClInclude Include="..\..\source\interface\recording_selection.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\renderer_2d.h">
-      <Filter>lib\render2d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.h">
-      <Filter>lib\render3d</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\unicode\unicode_string.h">
-      <Filter>lib\unicode</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\unicode\unicode_text_stream_reader.h">
-      <Filter>lib\unicode</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\interface\recording_file_dialog.h">
       <Filter>interface</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_2d_sdl.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_library_3d_software.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\window_manager_sdl.h">
-      <Filter>lib\gucci</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\input_sdl.h">
-      <Filter>lib\gucci</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\win32library.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\sound_debug_overlay.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\sound\resampler_polyphase.h">
-      <Filter>lib\sound</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\renderer\world_renderer.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\color_fragment.glsl.h">
-      <Filter>lib\render2d\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\texture_fragment.glsl.h">
-      <Filter>lib\render2d\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\vertex.glsl.h">
-      <Filter>lib\render2d\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\fragment.glsl.h">
-      <Filter>lib\render3d\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\textured_fragment.glsl.h">
-      <Filter>lib\render3d\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\textured_vertex.glsl.h">
-      <Filter>lib\render3d\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\vertex.glsl.h">
-      <Filter>lib\render3d\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\crashpad.h">
-      <Filter>lib\gucci</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer.h">
-      <Filter>lib\render</Filter>
+    <ClInclude Include="..\..\source\lib\universal_include.h">
+      <Filter>lib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1474,16 +623,5 @@
     <ResourceCompile Include="..\..\resources\Script1.rc">
       <Filter>resources</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\..\contrib\systemIV\contrib\oggvorbis\lib\vs2022\ogg.lib">
-      <Filter>contrib</Filter>
-    </Library>
-    <Library Include="..\..\contrib\systemIV\contrib\oggvorbis\lib\vs2022\vorbis.lib">
-      <Filter>contrib</Filter>
-    </Library>
-    <Library Include="..\..\contrib\systemIV\contrib\oggvorbis\lib\vs2022\vorbisfile.lib">
-      <Filter>contrib</Filter>
-    </Library>
   </ItemGroup>
 </Project>

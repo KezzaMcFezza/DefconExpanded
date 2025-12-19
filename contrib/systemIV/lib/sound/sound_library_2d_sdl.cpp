@@ -1,4 +1,4 @@
-#include "lib/universal_include.h"
+#include "systemiv.h"
 
 #include "lib/debug_utils.h"
 #include "lib/preferences.h"
@@ -41,7 +41,6 @@ static SDL_AudioDeviceID s_audioDevice = 0;
 static int s_audioStarted = 0;
 static bool s_audioSubsystemInitialisedByLibrary = false;
 
-#include "app/app.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/hi_res_time.h"
 

@@ -2,7 +2,7 @@
 #ifndef _included_fleetplacementwindow_h
 #define _included_fleetplacementwindow_h
 
-#include "interface/components/core.h"
+#include "lib/eclipse/components/core.h"
 
 
 class FleetPlacementIconWindow : public InterfaceWindow

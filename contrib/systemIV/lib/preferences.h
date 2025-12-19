@@ -36,6 +36,7 @@
 #define PREFS_RECORDING_LAST_FOLDER "RecordingLastFolder"
 #define PREFS_SOUND_RESAMPLER_SFX   "SoundResamplerSfx"
 #define PREFS_SOUND_RESAMPLER_MUSIC "SoundResamplerMusic"
+#define PREFS_CRASHPAD_URL          "CrashpadURL"
 
 
 class PreferencesItem;

@@ -50,7 +50,7 @@
 #include "interface/authkey_window.h"
 #include "interface/connecting_window.h"
 
-#include "interface/components/message_dialog.h"
+#include "lib/eclipse/components/message_dialog.h"
 #include "interface/demo_window.h"
 
 #if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
@@ -278,6 +278,11 @@ static void InitialiseFloatingPointUnit()
 #endif
 }
 
+static void WindowResizeCallback(int newWidth, int newHeight, int oldWidth, int oldHeight)
+{
+    g_app->OnWindowResized(newWidth, newHeight, oldWidth, oldHeight);
+}
+
 
 #if defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
 static const std::string &GetHomeDirectory()
@@ -336,11 +341,17 @@ static std::string GetLogFilePath()
 
 void App::MinimalInit()
 {
+    SetAppName(APP_NAME);
+    SetAppVersion(APP_VERSION);
+    SetAppBuildNumber(APP_BUILD_NUMBER);
+    SetRealVersion(REAL_VERSION);
+    SetAppSystem(APP_SYSTEM);
+
 #ifdef DUMP_DEBUG_LOG
     AppDebugOutRedirect( GetLogFilePath().c_str() );
 #endif
     AppDebugOut("Defcon %s built %s\n", APP_VERSION, __DATE__ );
-		
+    
     //
     // Turn everything on
 
@@ -352,6 +363,18 @@ void App::MinimalInit()
     InitialiseHighResTime();
 
     g_fileSystem = new FileSystem();
+
+    SetDataRoot("data");
+
+    static const char *graphicsExcludes[] = {
+        "graphics/blur.bmp",
+        "graphics/map.bmp",
+        "graphics/water.bmp",
+        "graphics/water_shaded.bmp",
+        "graphics/territory.bmp",
+        "graphics/defconatlas.bmp",
+        "gui/defconuiatlas.bmp"
+    };
     
     //
     // load main.dat and sounds.dat in parallel
@@ -366,6 +389,10 @@ void App::MinimalInit()
 
     g_fileSystem->ParseArchivesParallel( &archivesToLoad );
     archivesToLoad.EmptyAndDeleteArray();
+
+    AddResourceDir("graphics", graphicsExcludes,
+            sizeof(graphicsExcludes) / sizeof(char *));
+    AddResourceDir("gui", NULL, 0);
 
     g_preferences = new Preferences();
 
@@ -430,6 +457,8 @@ void App::MinimalInit()
     m_earthData = new EarthData();
     
     g_windowManager = WindowManager::Create();
+    g_windowManager->RegisterWindowResizeHandler(WindowResizeCallback);
+    
     InitialiseWindow();
 #ifdef TARGET_OS_MACOSX
     // closeRetinaDisplaySupport();
