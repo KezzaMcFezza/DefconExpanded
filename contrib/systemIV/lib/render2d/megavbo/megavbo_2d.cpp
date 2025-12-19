@@ -219,3 +219,18 @@ size_t Renderer2DVBO::GetCachedVBOVertexSize(const char *cacheKey) {
     }
     return 0;
 }
+
+DArray<char*> *Renderer2DVBO::GetAllCachedVBOKeys() {
+    DArray<char*> *allKeys = m_cachedVBOs.ConvertIndexToDArray();
+    DArray<char*> *validKeys = new DArray<char*>();
+    
+    for (int i = 0; i < allKeys->Size(); ++i) {
+        BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(allKeys->GetData(i));
+        if (tree && tree->data && tree->data->isValid) {
+            validKeys->PutData(allKeys->GetData(i));
+        }
+    }
+    
+    delete allKeys;
+    return validKeys;
+}

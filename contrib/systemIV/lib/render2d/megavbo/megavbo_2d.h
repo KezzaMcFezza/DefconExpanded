@@ -105,6 +105,8 @@ public:
   int GetCachedVBOVertexCount   (const char *cacheKey);
   int GetCachedVBOIndexCount    (const char *cacheKey);
   size_t GetCachedVBOVertexSize (const char *cacheKey);
+  
+  DArray<char*> *GetAllCachedVBOKeys();
 
   int GetMegaBufferVertexCount   () const { return m_maxMegaVertices; }
   int GetMegaBufferIndexCount    () const { return m_maxMegaIndices; }

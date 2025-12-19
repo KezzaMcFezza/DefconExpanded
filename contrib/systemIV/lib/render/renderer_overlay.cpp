@@ -103,8 +103,6 @@ void RendererOverlay::RenderDebugMenu()
     yPos += 2.0f;
     RenderVBOCacheStatistics(yPos);
     yPos += 2.0f;
-    RenderTextureAndFontStatistics(yPos);
-    yPos += 2.0f;
 }
 
 void RendererOverlay::RenderBufferStatistics(float& yPos)
@@ -287,6 +285,27 @@ void RendererOverlay::RenderSystemInformation(float& yPos)
     g_renderer2d->TextSimple(25, yPos, white, 13.0f, "General Information");
     yPos += lineHeight;
     
+    int fontBatches = g_renderer2d->GetActiveFontBatches();
+        fontBatches += g_renderer3d->GetActiveFontBatches();
+
+    snprintf(infoBuffer, sizeof(infoBuffer), "  Active Font Batches: %d", fontBatches);
+    g_renderer2d->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
+    yPos += 14.0f;
+
+    //
+    // Texture switches per frame
+    
+    int textureSwitches = g_renderer->GetTextureSwitches();
+    snprintf(infoBuffer, sizeof(infoBuffer), "  Texture Switches: %d", textureSwitches);
+    
+    //
+    // Add color codes based on texture switch count
+    
+    Colour switchColor = (textureSwitches > 100) ? red : green;  // red if too many switches, green if okay
+    
+    g_renderer2d->TextSimple(35, yPos, switchColor, 11.0f, infoBuffer);
+    yPos += 14.0f;
+    
     //
     // Frame timing information
 
@@ -330,56 +349,6 @@ void RendererOverlay::RenderSystemInformation(float& yPos)
         snprintf(infoBuffer, sizeof(infoBuffer), "  Total Allocated: %.2f MB", totalMemoryMB);
         g_renderer2d->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
         yPos += 14.0f;
-
-        //
-        // Print coastlines and borders breakdown
-
-        float coastlinesBordersMemory = 0.0f;
-
-        int globeCoastlineVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeCoastlines");
-        int globeCoastlineIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeCoastlines");
-        coastlinesBordersMemory += ((globeCoastlineVertices * sizeof(Vertex3D)) + (globeCoastlineIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
-            
-        int globeBorderVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeBorders");
-        int globeBorderIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeBorders");
-        coastlinesBordersMemory += ((globeBorderVertices * sizeof(Vertex3D)) + (globeBorderIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
-            
-        int globeGridlineVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeGridlines");
-        int globeGridlineIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeGridlines");
-        coastlinesBordersMemory += ((globeGridlineVertices * sizeof(Vertex3D)) + (globeGridlineIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
-
-        snprintf(infoBuffer, sizeof(infoBuffer), "  Coastlines and Borders: %.2f MB", 
-                 coastlinesBordersMemory);
-        g_renderer2d->TextSimple(35, yPos, orange, 11.0f, infoBuffer);
-        yPos += 14.0f;
-        
-        //
-        // Print starfield statistics too
-        
-        float starfieldMemory = 0.0f;
-
-        int starfieldVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("Starfield");
-        int starfieldIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("Starfield");
-        starfieldMemory = ((starfieldVertices * sizeof(Vertex3DTextured)) + (starfieldIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
-        
-        snprintf(infoBuffer, sizeof(infoBuffer), "  Starfield: %.2f MB", 
-                 starfieldMemory);
-        g_renderer2d->TextSimple(35, yPos, orange, 11.0f, infoBuffer);
-        yPos += 14.0f;
-        
-        //
-        // And print culling sphere statistics
-        
-        float cullingSphereMemory = 0.0f;
-
-        int cullingSphereVertices = g_renderer3dvbo->GetCached3DVBOVertexCount("CullingSphere");
-        int cullingSphereIndices = g_renderer3dvbo->GetCached3DVBOIndexCount("CullingSphere");
-        cullingSphereMemory = ((cullingSphereVertices * sizeof(Vertex3D)) + (cullingSphereIndices * sizeof(unsigned int))) / (1024.0f * 1024.0f);
-        
-        snprintf(infoBuffer, sizeof(infoBuffer), "  Culling Sphere: %.2f MB", 
-                 cullingSphereMemory);
-        g_renderer2d->TextSimple(35, yPos, orange, 11.0f, infoBuffer);
-        yPos += 14.0f;
     }
 }
 
@@ -413,7 +382,7 @@ void RendererOverlay::RenderVBOCacheStatistics(float& yPos)
     //   Yellow >= 20%
     //   Red >= 40%
     
-    auto renderVBOStat = [&](const char* label, int vertices, int indices, size_t vertexSize, bool is3D = false) {
+    auto renderVBOStat = [&](const char* label, int vertices, int indices, size_t vertexSize) {
         if (vertices <= 0) return;
         
         float vertexPercent = (float)vertices / (float)MAX_VBO_VERTICES * 100.0f;
@@ -428,77 +397,38 @@ void RendererOverlay::RenderVBOCacheStatistics(float& yPos)
     };
     
     //
-    // 2D VBO stats
+    // Enumerate and display all 2D VBOs
     
-    renderVBOStat("2D Coastlines", 
-                  g_renderer2dvbo->GetCachedVBOVertexCount("MapCoastlines"),
-                  g_renderer2dvbo->GetCachedVBOIndexCount("MapCoastlines"),
-                  sizeof(Vertex2D));
-    
-    renderVBOStat("2D Borders", 
-                  g_renderer2dvbo->GetCachedVBOVertexCount("MapBorders"),
-                  g_renderer2dvbo->GetCachedVBOIndexCount("MapBorders"),
-                  sizeof(Vertex2D));
+    DArray<char*> *keys2D = g_renderer2dvbo->GetAllCachedVBOKeys();
+    for (int i = 0; i < keys2D->Size(); ++i) {
+        const char* key = keys2D->GetData(i);
+        int vertices = g_renderer2dvbo->GetCachedVBOVertexCount(key);
+        int indices = g_renderer2dvbo->GetCachedVBOIndexCount(key);
+        size_t vertexSize = g_renderer2dvbo->GetCachedVBOVertexSize(key);
+        
+        char label[256];
+        snprintf(label, sizeof(label), "2D: %s", key);
+        renderVBOStat(label, vertices, indices, vertexSize);
+    }
+    delete keys2D;
     
     //
-    // 3D VBO stats
+    // Enumerate and display all 3D VBOs
     
-    renderVBOStat("3D Coastlines",
-                    g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeCoastlines"),
-                    g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeCoastlines"),
-                    sizeof(Vertex3D), true);
-        
-    renderVBOStat("3D Borders",
-                    g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeBorders"),
-                    g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeBorders"),
-                    sizeof(Vertex3D), true);
-        
-    renderVBOStat("3D Gridlines",
-                    g_renderer3dvbo->GetCached3DVBOVertexCount("GlobeGridlines"),
-                    g_renderer3dvbo->GetCached3DVBOIndexCount("GlobeGridlines"),
-                    sizeof(Vertex3D), true);
-        
-    renderVBOStat("3D Starfield",
-                    g_renderer3dvbo->GetCached3DVBOVertexCount("Starfield"),
-                    g_renderer3dvbo->GetCached3DVBOIndexCount("Starfield"),
-                    sizeof(Vertex3DTextured), true);
-        
-    renderVBOStat("3D Culling Sphere",
-                    g_renderer3dvbo->GetCached3DVBOVertexCount("CullingSphere"),
-                    g_renderer3dvbo->GetCached3DVBOIndexCount("CullingSphere"),
-                    sizeof(Vertex3D), true);
-}
-
-void RendererOverlay::RenderTextureAndFontStatistics(float& yPos)
-{
-    if (!g_renderer) return;
-    
-    char infoBuffer[256];
-    float lineHeight = 18.0f;
-    
-    g_renderer2d->TextSimple(25, yPos, white, 13.0f, "Font Statistics");
-    yPos += lineHeight;
-    
-    //
-    // Texture switches per frame
-    
-    int textureSwitches = g_renderer->GetTextureSwitches();
-    snprintf(infoBuffer, sizeof(infoBuffer), "  Texture Switches: %d", textureSwitches);
-    
-    //
-    // Add color codes based on texture switch count
-    
-    Colour switchColor = (textureSwitches > 100) ? red : green;  // red if too many switches, green if okay
-    
-    g_renderer2d->TextSimple(35, yPos, switchColor, 11.0f, infoBuffer);
-    yPos += 14.0f;
-    
-    int fontBatches = g_renderer2d->GetActiveFontBatches();
-        fontBatches += g_renderer3d->GetActiveFontBatches();
-
-    snprintf(infoBuffer, sizeof(infoBuffer), "  Active Font Batches: %d", fontBatches);
-    g_renderer2d->TextSimple(35, yPos, grey, 11.0f, infoBuffer);
-    yPos += 14.0f;
+    if (g_renderer3d) {
+        DArray<char*> *keys3D = g_renderer3dvbo->GetAllCached3DVBOKeys();
+        for (int i = 0; i < keys3D->Size(); ++i) {
+            const char* key = keys3D->GetData(i);
+            int vertices = g_renderer3dvbo->GetCached3DVBOVertexCount(key);
+            int indices = g_renderer3dvbo->GetCached3DVBOIndexCount(key);
+            size_t vertexSize = g_renderer3dvbo->GetCached3DVBOVertexSize(key);
+            
+            char label[256];
+            snprintf(label, sizeof(label), "3D: %s", key);
+            renderVBOStat(label, vertices, indices, vertexSize);
+        }
+        delete keys3D;
+    }
 }
 
 int RendererOverlay::GetActualBufferVertexCount()

@@ -247,3 +247,18 @@ size_t Renderer3DVBO::GetCached3DVBOVertexSize(const char *cacheKey) {
     }
     return 0;
 }
+
+DArray<char*> *Renderer3DVBO::GetAllCached3DVBOKeys() {
+    DArray<char*> *allKeys = m_cached3DVBOs.ConvertIndexToDArray();
+    DArray<char*> *validKeys = new DArray<char*>();
+    
+    for (int i = 0; i < allKeys->Size(); ++i) {
+        BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(allKeys->GetData(i));
+        if (tree && tree->data && tree->data->isValid) {
+            validKeys->PutData(allKeys->GetData(i));
+        }
+    }
+    
+    delete allKeys;
+    return validKeys;
+}

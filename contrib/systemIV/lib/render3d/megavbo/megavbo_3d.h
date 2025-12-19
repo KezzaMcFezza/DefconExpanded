@@ -139,6 +139,8 @@ public:
   size_t GetCached3DVBOVertexSize (const char *cacheKey);
   int GetCachedInstanceBatchCount ();
 
+  DArray<char*> *GetAllCached3DVBOKeys();
+
   int GetMegaBufferVertexCount3D   () const { return m_maxMegaVertices3D; }
   int GetMegaBufferIndexCount3D    () const { return m_maxMegaIndices3D; }
   

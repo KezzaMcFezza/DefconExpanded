@@ -46,7 +46,6 @@ private:
     void RenderFlushTimings(float& yPos);
     void RenderSystemInformation(float& yPos);
     void RenderVBOCacheStatistics(float& yPos);
-    void RenderTextureAndFontStatistics(float& yPos);
     
     int GetActualBufferVertexCount();
     int EstimateTextureSwitches();
