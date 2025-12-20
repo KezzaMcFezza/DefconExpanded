@@ -53,10 +53,9 @@ export class IndividualServersGraph extends BaseGraph {
 
         if (selectedServers.length === 0) return Promise.resolve();
 
-        const queryParams = new URLSearchParams({
-            graphType: 'individualServers',
+        const queryParams = {
             playerName
-        });
+        };
 
         let data = await this.fetchData(queryParams);
         if (!data) return Promise.resolve();
@@ -225,10 +224,9 @@ export class CombinedServersGraph extends BaseGraph {
         const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
         const playerName = this.getPlayerName();
 
-        const queryParams = new URLSearchParams({
-            graphType: 'combinedServers',
+        const queryParams = {
             playerName
-        });
+        };
 
         let data = await this.fetchData(queryParams);
         if (!data) return Promise.resolve();
@@ -400,11 +398,10 @@ export class TotalHoursGraph extends BaseGraph {
 
         if (selectedServers.length === 0) return Promise.resolve();
 
-        const queryParams = new URLSearchParams({
-            graphType: 'totalHoursPlayed',
-            byServer: 'true',
+        const queryParams = {
+            byServer: true,
             playerName
-        });
+        };
 
         let data = await this.fetchData(queryParams);
         if (!data) return Promise.resolve();
@@ -643,10 +640,9 @@ export class PopularTerritoriesGraph extends BaseGraph {
 
         if (selectedTerritories.length === 0) return Promise.resolve();
 
-        const queryParams = new URLSearchParams({
-            graphType: 'popularTerritories',
+        const queryParams = {
             playerName
-        });
+        };
 
         let data = await this.fetchData(queryParams);
         if (!data) return Promise.resolve();
@@ -871,12 +867,11 @@ export class SetupStatisticsGraph extends BaseGraph {
         const yAxisMax = parseInt(document.getElementById('yAxisMax').value);
         const playerName = this.getPlayerName();
 
-        const queryParams = new URLSearchParams({
-            graphType: '1v1setupStatistics',
+        const queryParams = {
             playerName,
             startDate: startDate.toISOString().split('T')[0],
             endDate: endDate.toISOString().split('T')[0]
-        });
+        };
 
         if (!this.setupData) {
             const data = await this.fetchData(queryParams);
