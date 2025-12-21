@@ -48,6 +48,9 @@ public:
     int			m_mouseVelX;
     int			m_mouseVelY;
     int			m_mouseVelZ;
+    
+    int			m_mouseRelX;			// Accumulated relative motion deltas for this frame
+    int			m_mouseRelY;
 
 public:
     InputManager			();

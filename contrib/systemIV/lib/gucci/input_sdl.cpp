@@ -316,6 +316,9 @@ int InputManagerSDL::EventHandler(unsigned int message, long long wParam, int lP
 				int xrel = sdlEvent->motion.xrel;
 				int yrel = sdlEvent->motion.yrel;
 
+				m_mouseRelX += xrel;
+				m_mouseRelY += yrel;
+
 				m_mouseX += xrel;
 				m_mouseY += yrel;
 

@@ -175,6 +175,9 @@ int InputManagerSDL::EventHandler(unsigned int message, long long wParam, int lP
 					AdjustForBuggyXinerama(xrel, yrel);
 #endif // TARGET_OS_LINUX
 
+				m_mouseRelX += xrel;
+				m_mouseRelY += yrel;
+
 				m_mouseX += xrel;
 				m_mouseY += yrel;
 

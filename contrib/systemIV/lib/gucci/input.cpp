@@ -40,6 +40,8 @@ InputManager::InputManager()
     m_mouseVelX(0),
     m_mouseVelY(0),
     m_mouseVelZ(0),
+    m_mouseRelX(0),
+    m_mouseRelY(0),
     m_altTabBound(false),
 	m_quitRequested(false)
 {
@@ -78,6 +80,9 @@ void InputManager::Advance()
 	m_mouseOldX = m_mouseX;
 	m_mouseOldY = m_mouseY;
 	m_mouseOldZ = m_mouseZ;
+	
+	m_mouseRelX = 0;
+	m_mouseRelY = 0;
 	
 }
 
