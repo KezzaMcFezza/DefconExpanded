@@ -29,7 +29,7 @@ void Renderer3DVBO::BeginInstancedMegaVBO(const char* batchKey, const char* mesh
     //
     // Verify the mesh exists
     
-    if (!IsTriangleMegaVBO3DValid(meshKey)) {
+    if (!IsAny3DVBOValid(meshKey)) {
         // Continue anyway, mesh might be created later
     }
     
@@ -162,7 +162,7 @@ void Renderer3DVBO::RenderInstancedMegaVBO3D(const char* batchKey) {
     
     CachedInstanceBatch* batch = tree->data;
     
-    if (!IsTriangleMegaVBO3DValid(batch->meshKey)) {
+    if (!IsAny3DVBOValid(batch->meshKey)) {
         return;
     }
     
@@ -183,6 +183,25 @@ void Renderer3DVBO::RenderInstancedMegaVBO3D(const char* batchKey) {
     g_renderer3d->Set3DModelShaderUniformsInstanced(batch->matrices, batch->colors, batch->instanceCount);
     
     g_renderer->SetVertexArray(cachedVBO->VAO);
+    g_renderer->SetArrayBuffer(cachedVBO->VBO);
+    
+    //
+    // For textured VBOs, we need to remap.
+    // location 0 = position, location 1 = color (from location 2)
+    
+    if (cachedVBO->vertexType == VBO_VERTEX_3D_TEXTURED) {
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)0);
+        glEnableVertexAttribArray(0);
+        
+        glDisableVertexAttribArray(1);
+        
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        
+        glDisableVertexAttribArray(3);
+    }
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     glDrawElementsInstanced(GL_TRIANGLES, cachedVBO->indexCount, GL_UNSIGNED_INT, 0, batch->instanceCount);
     
     g_renderer->EndFlushTiming("MegaVBO_Instanced_3D");

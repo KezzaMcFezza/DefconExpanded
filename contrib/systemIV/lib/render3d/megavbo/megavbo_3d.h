@@ -97,6 +97,7 @@ public:
 
   void BeginTexturedMegaVBO3D          (const char *megaVBOKey, unsigned int textureID);
   void AddTexturedQuadsToMegaVBO3D     (const Vertex3DTextured *vertices, int vertexCount, int quadCount);
+  void AddTexturedTrianglesToMegaVBO3DWithIndices (const Vertex3DTextured *vertices, int vertexCount, const unsigned int *indices, int indexCount);
   void EndTexturedMegaVBO3D            ();
   void RenderTexturedMegaVBO3D         (const char *megaVBOKey);
   bool IsTexturedMegaVBO3DValid        (const char *megaVBOKey);
@@ -110,6 +111,7 @@ public:
   void RenderTriangleMegaVBO3DWithMatrix  (const char *megaVBOKey, const Matrix4f& modelMatrix, const Colour& modelColor);
   bool IsTriangleMegaVBO3DValid           (const char *megaVBOKey);
   void SetTriangleMegaVBO3DBufferSizes    (int vertexCount, int indexCount, const char *cacheKey);
+  bool IsAny3DVBOValid                    (const char *cacheKey);
   
   void BeginInstancedMegaVBO              (const char *batchKey, const char *meshKey);
   bool AddInstance                        (const Matrix4f& matrix, const Colour& color);

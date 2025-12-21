@@ -6,7 +6,7 @@
 #include "lib/gucci/window_manager.h"
 #include "lib/resource/resource.h"
 #include "lib/resource/image.h"
-#include "lib/resource/model3d.h"
+#include "lib/resource/tinygltf/model.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
@@ -73,7 +73,7 @@ GlobeRenderer::GlobeRenderer()
 
 GlobeRenderer::~GlobeRenderer()
 {
-    g_resource->UnloadModel3D("models/nuke.glb");
+    g_resource->UnloadModel("models/nuke.glb");
     nukeModel = NULL;
     
     Reset();
@@ -83,7 +83,7 @@ void GlobeRenderer::Init()
 {
     Reset();
 
-    nukeModel = g_resource->GetModel3D("models/nuke.glb");
+    nukeModel = g_resource->GetModel("models/nuke.glb");
 }
 
 void GlobeRenderer::Update()
@@ -1420,7 +1420,7 @@ void GlobeRenderer::Render3DNukes()
 
     START_PROFILE("3D Nukes");
     
-    Model3D *nukeModel = GetNukeModel();
+    Model *nukeModel = GetNukeModel();
     if (!nukeModel || !nukeModel->IsLoaded()) {
         END_PROFILE("3D Nukes");
         return;
@@ -1429,16 +1429,22 @@ void GlobeRenderer::Render3DNukes()
     int myTeamId = g_app->GetWorld()->m_myTeamId;
     
     //
-    // Get cache key from model
+    // Get first VBO cache key from model
     
-    const char* cacheKey = nukeModel->GetCacheKey();
+    if (nukeModel->GetVBOCount() == 0) {
+        g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
+        END_PROFILE("3D Nukes");
+        return;
+    }
+    
+    const char* cacheKey = nukeModel->GetVBOCacheKey(0);
     if (!cacheKey || !cacheKey[0]) {
         g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
         END_PROFILE("3D Nukes");
         return;
     }
     
-    if (!g_renderer3dvbo->IsTriangleMegaVBO3DValid(cacheKey)) {
+    if (!g_renderer3dvbo->IsAny3DVBOValid(cacheKey)) {
         g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
         END_PROFILE("3D Nukes");
         return;

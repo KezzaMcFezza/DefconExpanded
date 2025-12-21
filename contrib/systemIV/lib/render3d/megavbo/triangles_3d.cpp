@@ -203,6 +203,11 @@ bool Renderer3DVBO::IsTriangleMegaVBO3DValid(const char* megaVBOKey) {
     return (tree && tree->data && tree->data->isValid);
 }
 
+bool Renderer3DVBO::IsAny3DVBOValid(const char* cacheKey) {
+    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
+    return (tree && tree->data && tree->data->isValid);
+}
+
 void Renderer3DVBO::SetTriangleMegaVBO3DBufferSizes(int vertexCount, int indexCount, const char *cacheKey) {
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);

@@ -653,7 +653,10 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/resource/bitmap.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmapfont.cpp
     ${SYSTEMIV_PATH}/lib/resource/image.cpp
-    ${SYSTEMIV_PATH}/lib/resource/model3d.cpp
+    ${SYSTEMIV_PATH}/lib/resource/tinygltf/model.cpp
+    ${SYSTEMIV_PATH}/lib/resource/tinygltf/model_builder.cpp
+    ${SYSTEMIV_PATH}/lib/resource/tinygltf/model_loader.cpp
+    ${SYSTEMIV_PATH}/lib/resource/tinygltf/model_material.cpp
     ${SYSTEMIV_PATH}/lib/resource/resource.cpp
     ${SYSTEMIV_PATH}/lib/resource/sprite_atlas.cpp
     ${SYSTEMIV_PATH}/lib/sound/sound_blueprint_manager.cpp

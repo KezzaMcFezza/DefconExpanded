@@ -19,6 +19,7 @@ public:
     
     static void Multiply            (const float* a, const float* b, float* result);
     static void TransformVertex     (const float* matrix, float* vertex);
+    static void TransformNormal     (const float* matrix, float* normal);
     static void BuildTransformMatrix(const std::vector<double>& translation,
                                      const std::vector<double>& rotation,
                                      const std::vector<double>& scale,

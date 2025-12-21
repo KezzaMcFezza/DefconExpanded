@@ -48,16 +48,34 @@ struct Vertex3D {
 
 struct Vertex3DTextured {
     float x, y, z;      // 3D position
+    float nx, ny, nz;   // Normal (NEW!)
     float r, g, b, a;   // Color
     float u, v;         // Texture coordinates
     
-    constexpr Vertex3DTextured     () : x(0), y(0), z(0), r(1), g(1), b(1), a(1), u(0), v(0) {}
-    constexpr Vertex3DTextured     (float px, float py, float pz, float pr, float pg, float pb, 
-                                    float pa, float pu, float pv) 
-                                   : x(px), y(py), z(pz), r(pr), g(pg), b(pb), a(pa), u(pu), v(pv) {}
-    constexpr Vertex3DTextured     (float px, float py, float pz, const Colour& color, float pu, float pv)
-                                   : x(px), y(py), z(pz), r(color.GetRFloat()), g(color.GetGFloat()), 
-                                    b(color.GetBFloat()), a(color.GetAFloat()), u(pu), v(pv) {}
+    constexpr Vertex3DTextured() 
+        : x(0), y(0), z(0), 
+          nx(0), ny(1), nz(0),  // Default up normal
+          r(1), g(1), b(1), a(1), 
+          u(0), v(0) {}
+    
+    constexpr Vertex3DTextured(float px, float py, float pz, 
+                               float pnx, float pny, float pnz,
+                               float pr, float pg, float pb, float pa, 
+                               float pu, float pv) 
+        : x(px), y(py), z(pz), 
+          nx(pnx), ny(pny), nz(pnz),
+          r(pr), g(pg), b(pb), a(pa), 
+          u(pu), v(pv) {}
+    
+    constexpr Vertex3DTextured(float px, float py, float pz, 
+                               float pnx, float pny, float pnz,
+                               const Colour& color, 
+                               float pu, float pv)
+        : x(px), y(py), z(pz), 
+          nx(pnx), ny(pny), nz(pnz),
+          r(color.GetRFloat()), g(color.GetGFloat()), 
+          b(color.GetBFloat()), a(color.GetAFloat()), 
+          u(pu), v(pv) {}
 };
 
 class Renderer3DVBO;

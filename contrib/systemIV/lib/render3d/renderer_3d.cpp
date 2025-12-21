@@ -337,11 +337,14 @@ void Renderer3D::Setup3DTexturedVertexArrays() {
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)0);
         glEnableVertexAttribArray(0);
 
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(7 * sizeof(float)));
+        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(2);
+
+        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(10 * sizeof(float)));
+        glEnableVertexAttribArray(3);
     };
     
     //
@@ -514,7 +517,7 @@ void Renderer3D::TexturedQuadVertex3D(float x, float y, float z, float u, float 
     float b = m_texturedQuad3DColor.GetBFloat();
     float a = m_texturedQuad3DColor.GetAFloat();
     
-    m_vertices3DTextured[m_vertex3DTexturedCount] = Vertex3DTextured(x, y, z, r, g, b, a, u, v);
+    m_vertices3DTextured[m_vertex3DTexturedCount] = Vertex3DTextured(x, y, z, 0.0f, 1.0f, 0.0f, r, g, b, a, u, v);
     m_vertex3DTexturedCount++;
 }
 
@@ -851,26 +854,34 @@ void Renderer3D::CreateSurfaceAlignedBillboard(const Vector3<float>& position, f
     float halfHeight = height * 0.5f;
     
     // First triangle: TL, TR, BR
-    vertices[0] = {position.x - tangent1.x * halfWidth + tangent2.x * halfHeight,
-                   position.y - tangent1.y * halfWidth + tangent2.y * halfHeight,
-                   position.z - tangent1.z * halfWidth + tangent2.z * halfHeight,
-                   r, g, b, a, u1, v2};
-    vertices[1] = {position.x + tangent1.x * halfWidth + tangent2.x * halfHeight,
-                   position.y + tangent1.y * halfWidth + tangent2.y * halfHeight,
-                   position.z + tangent1.z * halfWidth + tangent2.z * halfHeight,
-                   r, g, b, a, u2, v2};
-    vertices[2] = {position.x + tangent1.x * halfWidth - tangent2.x * halfHeight,
-                   position.y + tangent1.y * halfWidth - tangent2.y * halfHeight,
-                   position.z + tangent1.z * halfWidth - tangent2.z * halfHeight,
-                   r, g, b, a, u2, v1};
+    vertices[0] = Vertex3DTextured(
+        position.x - tangent1.x * halfWidth + tangent2.x * halfHeight,
+        position.y - tangent1.y * halfWidth + tangent2.y * halfHeight,
+        position.z - tangent1.z * halfWidth + tangent2.z * halfHeight,
+        normal.x, normal.y, normal.z,
+        r, g, b, a, u1, v2);
+    vertices[1] = Vertex3DTextured(
+        position.x + tangent1.x * halfWidth + tangent2.x * halfHeight,
+        position.y + tangent1.y * halfWidth + tangent2.y * halfHeight,
+        position.z + tangent1.z * halfWidth + tangent2.z * halfHeight,
+        normal.x, normal.y, normal.z,
+        r, g, b, a, u2, v2);
+    vertices[2] = Vertex3DTextured(
+        position.x + tangent1.x * halfWidth - tangent2.x * halfHeight,
+        position.y + tangent1.y * halfWidth - tangent2.y * halfHeight,
+        position.z + tangent1.z * halfWidth - tangent2.z * halfHeight,
+        normal.x, normal.y, normal.z,
+        r, g, b, a, u2, v1);
     
     // Second triangle: TL, BR, BL
     vertices[3] = vertices[0]; // TL
     vertices[4] = vertices[2]; // BR
-    vertices[5] = {position.x - tangent1.x * halfWidth - tangent2.x * halfHeight,
-                   position.y - tangent1.y * halfWidth - tangent2.y * halfHeight,
-                   position.z - tangent1.z * halfWidth - tangent2.z * halfHeight,
-                   r, g, b, a, u1, v1};
+    vertices[5] = Vertex3DTextured(
+        position.x - tangent1.x * halfWidth - tangent2.x * halfHeight,
+        position.y - tangent1.y * halfWidth - tangent2.y * halfHeight,
+        position.z - tangent1.z * halfWidth - tangent2.z * halfHeight,
+        normal.x, normal.y, normal.z,
+        r, g, b, a, u1, v1);
 }
 
 void Renderer3D::CreateCameraFacingBillboard(const Vector3<float>& position, float width, float height,
@@ -906,26 +917,34 @@ void Renderer3D::CreateCameraFacingBillboard(const Vector3<float>& position, flo
     float halfHeight = height * 0.5f;
     
     // First triangle: TL, TR, BR
-    vertices[0] = {position.x - right.x * halfWidth + up.x * halfHeight,
-                   position.y - right.y * halfWidth + up.y * halfHeight,
-                   position.z - right.z * halfWidth + up.z * halfHeight,
-                   r, g, b, a, u1, v2};
-    vertices[1] = {position.x + right.x * halfWidth + up.x * halfHeight,
-                   position.y + right.y * halfWidth + up.y * halfHeight,
-                   position.z + right.z * halfWidth + up.z * halfHeight,
-                   r, g, b, a, u2, v2};
-    vertices[2] = {position.x + right.x * halfWidth - up.x * halfHeight,
-                   position.y + right.y * halfWidth - up.y * halfHeight,
-                   position.z + right.z * halfWidth - up.z * halfHeight,
-                   r, g, b, a, u2, v1};
+    vertices[0] = Vertex3DTextured(
+        position.x - right.x * halfWidth + up.x * halfHeight,
+        position.y - right.y * halfWidth + up.y * halfHeight,
+        position.z - right.z * halfWidth + up.z * halfHeight,
+        cameraDir.x, cameraDir.y, cameraDir.z,
+        r, g, b, a, u1, v2);
+    vertices[1] = Vertex3DTextured(
+        position.x + right.x * halfWidth + up.x * halfHeight,
+        position.y + right.y * halfWidth + up.y * halfHeight,
+        position.z + right.z * halfWidth + up.z * halfHeight,
+        cameraDir.x, cameraDir.y, cameraDir.z,
+        r, g, b, a, u2, v2);
+    vertices[2] = Vertex3DTextured(
+        position.x + right.x * halfWidth - up.x * halfHeight,
+        position.y + right.y * halfWidth - up.y * halfHeight,
+        position.z + right.z * halfWidth - up.z * halfHeight,
+        cameraDir.x, cameraDir.y, cameraDir.z,
+        r, g, b, a, u2, v1);
     
     // Second triangle: TL, BR, BL
     vertices[3] = vertices[0]; // TL
     vertices[4] = vertices[2]; // BR
-    vertices[5] = {position.x - right.x * halfWidth - up.x * halfHeight,
-                   position.y - right.y * halfWidth - up.y * halfHeight,
-                   position.z - right.z * halfWidth - up.z * halfHeight,
-                   r, g, b, a, u1, v1};
+    vertices[5] = Vertex3DTextured(
+        position.x - right.x * halfWidth - up.x * halfHeight,
+        position.y - right.y * halfWidth - up.y * halfHeight,
+        position.z - right.z * halfWidth - up.z * halfHeight,
+        cameraDir.x, cameraDir.y, cameraDir.z,
+        r, g, b, a, u1, v1);
 }
 
 void Renderer3D::CalculateSphericalTangents(const Vector3<float>& position, Vector3<float>& outEast, Vector3<float>& outNorth) {

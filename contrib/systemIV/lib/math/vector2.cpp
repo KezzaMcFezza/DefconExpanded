@@ -25,26 +25,10 @@ constexpr bool Vector2::Compare(Vector2 const &b) const
 //  Public Functions
 // ******************
 
-// Constructor
-constexpr Vector2::Vector2()
-:	x(0.0f),
-	y(0.0f) 
-{
-}
-
-
-// Constructor
-constexpr Vector2::Vector2(Vector3<float> const &v)
+// Constructor from Vector3
+Vector2::Vector2(Vector3<float> const &v)
 :	x(v.x),
 	y(v.z)
-{
-}
-
-
-// Constructor
-constexpr Vector2::Vector2(float _x, float _y)
-:	x(_x),
-	y(_y) 
 {
 }
 

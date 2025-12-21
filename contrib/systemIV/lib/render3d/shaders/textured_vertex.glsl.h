@@ -14,14 +14,16 @@ static const char* TEXTURED_VERTEX_3D_SHADER_SOURCE = R"(#version 300 es
 precision highp float;
 
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec4 aColor;
-layout (location = 2) in vec2 aTexCoord;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec4 aColor;
+layout (location = 3) in vec2 aTexCoord;
 
 uniform mat4 uProjection;
 uniform mat4 uModelView;
 uniform vec3 uCameraPos;
 uniform bool uFogOrientationBased;
 
+out vec3 Normal;
 out vec4 vertexColor;
 out vec2 texCoord;
 out float fogFactor;
@@ -30,6 +32,10 @@ out float fogDistance;
 void main() {
     vec4 viewPos = uModelView * vec4(aPos, 1.0);
     gl_Position = uProjection * viewPos;
+    
+    mat3 normalMatrix = mat3(transpose(inverse(uModelView)));
+    Normal = normalize(normalMatrix * aNormal);
+    
     vertexColor = aColor;
     texCoord = aTexCoord;
     
@@ -54,6 +60,7 @@ void main() {
 static const char* TEXTURED_VERTEX_3D_SHADER_SOURCE = R"(#version 150 core
 
 in vec3 aPos;
+in vec3 aNormal;
 in vec4 aColor;
 in vec2 aTexCoord;
 
@@ -62,6 +69,7 @@ uniform mat4 uModelView;
 uniform vec3 uCameraPos;
 uniform bool uFogOrientationBased;
 
+out vec3 Normal;
 out vec4 vertexColor;
 out vec2 texCoord;
 out float fogFactor;
@@ -70,6 +78,10 @@ out float fogDistance;
 void main() {
     vec4 viewPos = uModelView * vec4(aPos, 1.0);
     gl_Position = uProjection * viewPos;
+    
+    mat3 normalMatrix = mat3(transpose(inverse(uModelView)));
+    Normal = normalize(normalMatrix * aNormal);
+    
     vertexColor = aColor;
     texCoord = aTexCoord;
     
@@ -94,14 +106,16 @@ void main() {
 static const char* TEXTURED_VERTEX_3D_SHADER_SOURCE = R"(#version 330 core
 
 layout (location = 0) in vec3 aPos;
-layout (location = 1) in vec4 aColor;
-layout (location = 2) in vec2 aTexCoord;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec4 aColor;
+layout (location = 3) in vec2 aTexCoord;
 
 uniform mat4 uProjection;
 uniform mat4 uModelView;
 uniform vec3 uCameraPos;
 uniform bool uFogOrientationBased;
 
+out vec3 Normal;
 out vec4 vertexColor;
 out vec2 texCoord;
 out float fogFactor;
@@ -110,6 +124,10 @@ out float fogDistance;
 void main() {
     vec4 viewPos = uModelView * vec4(aPos, 1.0);
     gl_Position = uProjection * viewPos;
+    
+    mat3 normalMatrix = mat3(transpose(inverse(uModelView)));
+    Normal = normalize(normalMatrix * aNormal);
+    
     vertexColor = aColor;
     texCoord = aTexCoord;
     

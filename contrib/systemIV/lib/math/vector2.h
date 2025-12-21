@@ -11,9 +11,9 @@ private:
 public:
 	float x, y;
 
-	constexpr Vector2();
-	constexpr Vector2(Vector3<float> const &);
-	constexpr Vector2(float _x, float _y);
+	constexpr Vector2() : x(0.0f), y(0.0f) {}
+	Vector2(Vector3<float> const &v);
+	constexpr Vector2(float _x, float _y) : x(_x), y(_y) {}
 
 	constexpr void	Zero();
     constexpr void	Set	(float _x, float _y);

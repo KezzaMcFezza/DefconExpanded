@@ -13,6 +13,7 @@
 static const char* TEXTURED_FRAGMENT_3D_SHADER_SOURCE = R"(#version 300 es
 precision mediump float;
 
+in vec3 Normal;
 in vec4 vertexColor;
 in vec2 texCoord;
 in float fogFactor;
@@ -59,6 +60,7 @@ void main() {
 
 static const char* TEXTURED_FRAGMENT_3D_SHADER_SOURCE = R"(#version 150 core
 
+in vec3 Normal;
 in vec4 vertexColor;
 in vec2 texCoord;
 in float fogFactor;
@@ -105,6 +107,7 @@ void main() {
 
 static const char* TEXTURED_FRAGMENT_3D_SHADER_SOURCE = R"(#version 330 core
 
+in vec3 Normal;
 in vec4 vertexColor;
 in vec2 texCoord;
 in float fogFactor;

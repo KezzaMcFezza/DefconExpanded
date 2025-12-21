@@ -112,6 +112,23 @@ void Matrix4f::TransformVertex(const float* matrix, float* vertex) {
     vertex[2] = matrix[2] * x + matrix[6] * y + matrix[10] * z + matrix[14];
 }
 
+void Matrix4f::TransformNormal(const float* matrix, float* normal) {
+    float x = normal[0];
+    float y = normal[1];
+    float z = normal[2];
+    
+    normal[0] = matrix[0] * x + matrix[4] * y + matrix[8] * z;
+    normal[1] = matrix[1] * x + matrix[5] * y + matrix[9] * z;
+    normal[2] = matrix[2] * x + matrix[6] * y + matrix[10] * z;
+    
+    float length = sqrtf(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+    if (length > 0.0f) {
+        normal[0] /= length;
+        normal[1] /= length;
+        normal[2] /= length;
+    }
+}
+
 void Matrix4f::BuildTransformMatrix(const std::vector<double>& translation,
                                       const std::vector<double>& rotation,
                                       const std::vector<double>& scale,

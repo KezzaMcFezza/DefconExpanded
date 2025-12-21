@@ -42,12 +42,12 @@ void Renderer3D::StaticSprite3D(Image *src, float x, float y, float z, float w, 
         CreateCameraFacingBillboard(position, w, h, billboardVertices, u1, v1, u2, v2, r, g, b, a);
     } else {
         // old immediate mode rendering, would be used if we overflow
-        billboardVertices[0] = {x - w/2, y + h/2, z, r, g, b, a, u1, v2};
-        billboardVertices[1] = {x + w/2, y + h/2, z, r, g, b, a, u2, v2};
-        billboardVertices[2] = {x + w/2, y - h/2, z, r, g, b, a, u2, v1};
-        billboardVertices[3] = {x - w/2, y + h/2, z, r, g, b, a, u1, v2};
-        billboardVertices[4] = {x + w/2, y - h/2, z, r, g, b, a, u2, v1};
-        billboardVertices[5] = {x - w/2, y - h/2, z, r, g, b, a, u1, v1};
+        billboardVertices[0] = Vertex3DTextured(x - w/2, y + h/2, z, 0.0f, 0.0f, 1.0f, r, g, b, a, u1, v2);
+        billboardVertices[1] = Vertex3DTextured(x + w/2, y + h/2, z, 0.0f, 0.0f, 1.0f, r, g, b, a, u2, v2);
+        billboardVertices[2] = Vertex3DTextured(x + w/2, y - h/2, z, 0.0f, 0.0f, 1.0f, r, g, b, a, u2, v1);
+        billboardVertices[3] = Vertex3DTextured(x - w/2, y + h/2, z, 0.0f, 0.0f, 1.0f, r, g, b, a, u1, v2);
+        billboardVertices[4] = Vertex3DTextured(x + w/2, y - h/2, z, 0.0f, 0.0f, 1.0f, r, g, b, a, u2, v1);
+        billboardVertices[5] = Vertex3DTextured(x - w/2, y - h/2, z, 0.0f, 0.0f, 1.0f, r, g, b, a, u1, v1);
     }
     
     for (int i = 0; i < 6; i++) {
@@ -107,12 +107,12 @@ void Renderer3D::RotatingSprite3D(Image *src, float x, float y, float z, float w
         vert3 += Vector3<float>(x, y, z);
         vert4 += Vector3<float>(x, y, z);
         
-        billboardVertices[0] = {vert1.x, vert1.y, vert1.z, r, g, b, a, u1, v2};
-        billboardVertices[1] = {vert2.x, vert2.y, vert2.z, r, g, b, a, u2, v2};
-        billboardVertices[2] = {vert3.x, vert3.y, vert3.z, r, g, b, a, u2, v1};
-        billboardVertices[3] = {vert1.x, vert1.y, vert1.z, r, g, b, a, u1, v2};
-        billboardVertices[4] = {vert3.x, vert3.y, vert3.z, r, g, b, a, u2, v1};
-        billboardVertices[5] = {vert4.x, vert4.y, vert4.z, r, g, b, a, u1, v1};
+        billboardVertices[0] = Vertex3DTextured(vert1.x, vert1.y, vert1.z, 0.0f, 0.0f, 1.0f, r, g, b, a, u1, v2);
+        billboardVertices[1] = Vertex3DTextured(vert2.x, vert2.y, vert2.z, 0.0f, 0.0f, 1.0f, r, g, b, a, u2, v2);
+        billboardVertices[2] = Vertex3DTextured(vert3.x, vert3.y, vert3.z, 0.0f, 0.0f, 1.0f, r, g, b, a, u2, v1);
+        billboardVertices[3] = Vertex3DTextured(vert1.x, vert1.y, vert1.z, 0.0f, 0.0f, 1.0f, r, g, b, a, u1, v2);
+        billboardVertices[4] = Vertex3DTextured(vert3.x, vert3.y, vert3.z, 0.0f, 0.0f, 1.0f, r, g, b, a, u2, v1);
+        billboardVertices[5] = Vertex3DTextured(vert4.x, vert4.y, vert4.z, 0.0f, 0.0f, 1.0f, r, g, b, a, u1, v1);
     }
     
     for (int i = 0; i < 6; i++) {

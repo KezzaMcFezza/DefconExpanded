@@ -9,7 +9,7 @@
 class Image;
 class WorldObject;
 class AnimatedIcon;
-class Model3D;
+class Model;
 class Blip;
 
 #define    GLOBE_RADIUS                                1.0f     // default globe radius
@@ -44,7 +44,7 @@ public:
                                               & tangent1, Vector3<float>& tangent2);
     Vector3<float> GetCameraPosition();
 
-    Model3D *GetNukeModel() { return nukeModel; }
+    Model *GetNukeModel() { return nukeModel; }
 
     struct GreatCircleConstants {
         float lat1, lon1;            // Launch position in radians
@@ -91,7 +91,7 @@ public:
     DArray<Star3D> g_starField3D;
     bool g_starField3DInitialized = false;
 
-    Model3D *nukeModel;
+    Model *nukeModel;
 
     float   m_zoomFactor;
 

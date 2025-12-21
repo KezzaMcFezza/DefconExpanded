@@ -68,6 +68,29 @@ void Renderer3DVBO::AddTexturedQuadsToMegaVBO3D(const Vertex3DTextured* vertices
     }
 }
 
+void Renderer3DVBO::AddTexturedTrianglesToMegaVBO3DWithIndices(const Vertex3DTextured* vertices, int vertexCount, const unsigned int* indices, int indexCount) {
+    if (!m_megaVBO3DTexturedActive || vertexCount < 3 || indexCount < 3) return;
+
+    if (m_megaTexturedVertex3DCount + vertexCount > m_maxMegaTexturedVertices3D ||
+        m_megaTexturedIndex3DCount + indexCount > m_maxMegaTexturedIndices3D) {
+        AppDebugOut("Warning: 3D Textured Triangle MegaVBO overflow: Vertices: %d/%d, Indices: %d/%d\n",
+                    m_megaTexturedVertex3DCount + vertexCount, m_maxMegaTexturedVertices3D,
+                    m_megaTexturedIndex3DCount + indexCount, m_maxMegaTexturedIndices3D);
+        return;
+    }
+
+    unsigned int startIndex = m_megaTexturedVertex3DCount;
+    
+    for (int i = 0; i < vertexCount; i++) {
+        m_megaTexturedVertices3D[m_megaTexturedVertex3DCount] = vertices[i];
+        m_megaTexturedVertex3DCount++;
+    }
+
+    for (int i = 0; i < indexCount; i++) {
+        m_megaTexturedIndices3D[m_megaTexturedIndex3DCount++] = startIndex + indices[i];
+    }
+}
+
 void Renderer3DVBO::EndTexturedMegaVBO3D() {
     if (!m_megaVBO3DTexturedActive || !m_currentMegaVBO3DTexturedKey) return;
     
@@ -107,11 +130,14 @@ void Renderer3DVBO::EndTexturedMegaVBO3D() {
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)0);
         glEnableVertexAttribArray(0);
         
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
         
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(7 * sizeof(float)));
+        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(2);
+        
+        glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(10 * sizeof(float)));
+        glEnableVertexAttribArray(3);
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     } else {

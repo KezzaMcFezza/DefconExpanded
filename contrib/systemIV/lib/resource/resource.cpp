@@ -8,7 +8,9 @@
 #include "lib/resource/resource.h"
 #include "lib/resource/bitmapfont.h"
 #include "lib/resource/image.h"
-#include "lib/resource/model3d.h"
+#include "lib/resource/tinygltf/model.h"
+#include "lib/resource/tinygltf/model_loader.h"
+#include "lib/resource/tinygltf/model_builder.h"
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/filesys/file_system.h"
 #include "lib/render/renderer.h"
@@ -110,16 +112,16 @@ void Resource::Shutdown()
     m_testBitmapFontCache.Empty();
 
     //
-    // Model3D cache
+    // Model cache
 
-    DArray<Model3D *> *models = m_model3DCache.ConvertToDArray();
+    DArray<Model *> *models = m_modelCache.ConvertToDArray();
     for( int i = 0; i < models->Size(); ++i )
     {
-        Model3D *model = models->GetData(i);
+        Model *model = models->GetData(i);
         delete model;
     }
     delete models;
-    m_model3DCache.Empty();
+    m_modelCache.Empty();
 }
 
 
@@ -317,7 +319,7 @@ bool Resource::TestBitmapFont ( const char *filename )
     return false;
 }
 
-Model3D *Resource::GetModel3D( const char *filename )
+Model *Resource::GetModel( const char *filename )
 {
     if( !filename ) return NULL;
     
@@ -325,29 +327,29 @@ Model3D *Resource::GetModel3D( const char *filename )
     snprintf( fullFilename, sizeof(fullFilename), "%s/%s", GetDataRoot(), filename );
     fullFilename[ sizeof(fullFilename) - 1 ] = '\x0';
     
-    Model3D *model = m_model3DCache.GetData( fullFilename );
+    Model *model = m_modelCache.GetData( fullFilename );
     if( model )
     {
         return model;
     }
     
-    model = new Model3D( fullFilename );
+    model = new Model( fullFilename );
     
-    if( !model->IsLoaded() )
+    if( !ModelLoader::LoadFromGLTF( model, fullFilename ) )
     {
-        AppDebugOut("Model3D: Failed to load model: %s\n", fullFilename);
+        AppDebugOut("Model: Failed to load model: %s\n", fullFilename);
     }
     else
     { 
-        model->BuildModelVBO();
+        ModelBuilder::BuildModelVBO( model );
     }
     
-    m_model3DCache.PutData( fullFilename, model );
+    m_modelCache.PutData( fullFilename, model );
     return model;
 }
 
 
-void Resource::UnloadModel3D( const char *filename )
+void Resource::UnloadModel( const char *filename )
 {
     if( !filename ) return;
     
@@ -355,11 +357,11 @@ void Resource::UnloadModel3D( const char *filename )
     snprintf( fullFilename, sizeof(fullFilename), "%s/%s", GetDataRoot(), filename );
     fullFilename[ sizeof(fullFilename) - 1 ] = '\x0';
     
-    Model3D *model = m_model3DCache.GetData( fullFilename );
+    Model *model = m_modelCache.GetData( fullFilename );
     if( model )
     {
         delete model;
-        m_model3DCache.RemoveData( fullFilename );
+        m_modelCache.RemoveData( fullFilename );
     }
     
 #ifndef NO_UNRAR

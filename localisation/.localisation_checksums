@@ -105,9 +105,10 @@
   "language/italian.txt": "b2e30eb9d58f869cb679e52634e480e0df0a07a48db5770633e2b58164ebfe61",
   "language/spanish.txt": "c5e7c6e2fdbe479195dff130f6b0ac1ebb6bc86106771bcbff24e8022426fd57",
   "models/nuke.glb": "81bc2961038fb5ddc905db5c8a91827e928b22a2dc12d57f884bb873ce1ccc88",
-  "prefs_default.txt": "0001aebb97fd99ccc6e29c80f8b122d315462695e909e6f7d4ecb4c281339a51",
+  "prefs_default.txt": "4d239011398559a962df60108000f669fa1a599ad440eaeaa7291a8a55fde0e9",
+  "prefs_default_emscripten.txt": "55fb8b60540ea74119233de3ca2abfb56a59c17d68a71acab2cbfd3852d0eb25",
   "prefs_default_french.txt": "16e96ce573b852abaa849f172017c290591cd7056bfb90f9b12eef9491d0a7a8",
-  "prefs_default_macosx.txt": "0b15f1733889d9ec81662aabcfe301f8b80170bdbb7e6044ca190e50e0b52b52",
+  "prefs_default_macosx.txt": "ae609264c4b253e8db1fc0f87fd86bc4ee1ad0681d57a935fde1162e26cfe4ef",
   "prefs_testbed.txt": "d72f89dacda4a730c50521c3e6771a189c996b7a325b4f860cfb469bbf17778e",
   "sounds.txt": "42e530b4fd9d414b89ebe0fa9f663fe686f19bce6868eaa7a63789e19a80f77f",
   "sounds_minimal.txt": "098f44e1f5b32a5e758d0fd80ca8bb24171d5b97f1f96d932b8f573549ff55bd",
@@ -118,6 +119,6 @@
   "styles/light.txt": "ba3cb7fbc8b2a3d8c130ce21c2602c67d68ced8b18cb90b4eeab0abf6b257137",
   "styles/red.txt": "aba7a3d1ebc3bb00b4db861f25038901316fe137e0785de47d10dd4cc9db4606",
   "tutorial.txt": "5214c3de6e1d6b9c6414dcafd40f987e02ce17914effbf9bdaeb4f5a4a3b6674",
-  "version.txt": "58ab89daafa439c03507dd66725362609c4706329eb001e09aadb8ca7bca5983",
+  "version.txt": "5de02bd5c615f87b208811d61dec2dab083ab0a07cb64d36c8d829f962c26376",
   "world.dat": "d782b69f61bb55684f0e0558ee62ab302ec8427e49cd3959ed9d9fc4699825dc"
 }

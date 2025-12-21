@@ -221,9 +221,6 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\image.cpp">
       <Filter>lib\resource</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\resource\model3d.cpp">
-      <Filter>lib\resource</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\resource.cpp">
       <Filter>lib\resource</Filter>
     </ClCompile>
@@ -476,6 +473,18 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\multiline_text.cpp">
       <Filter>lib</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\resource\tinygltf\model.cpp">
+      <Filter>lib\resource\tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\resource\tinygltf\model_builder.cpp">
+      <Filter>lib\resource\tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\resource\tinygltf\model_loader.cpp">
+      <Filter>lib\resource\tinygltf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\resource\tinygltf\model_material.cpp">
+      <Filter>lib\resource\tinygltf</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\contrib\systemIV\systemiv.h" />
@@ -519,9 +528,6 @@
       <Filter>lib\resource</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\image.h">
-      <Filter>lib\resource</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\resource\model3d.h">
       <Filter>lib\resource</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\resource.h">
@@ -779,6 +785,18 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\multiline_text.h">
       <Filter>lib</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\resource\tinygltf\model.h">
+      <Filter>lib\resource\tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\resource\tinygltf\model_builder.h">
+      <Filter>lib\resource\tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\resource\tinygltf\model_loader.h">
+      <Filter>lib\resource\tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\resource\tinygltf\model_material.h">
+      <Filter>lib\resource\tinygltf</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="contrib">
@@ -852,6 +870,9 @@
     </Filter>
     <Filter Include="lib\unicode">
       <UniqueIdentifier>{5469ecda-7332-4fe5-a925-35fdbc1a960e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\resource\tinygltf">
+      <UniqueIdentifier>{b9e5912b-5be3-492e-852b-d09f076b7da7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

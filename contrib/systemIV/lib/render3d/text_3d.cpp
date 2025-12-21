@@ -84,12 +84,12 @@ void Renderer3D::BlitChar3D(unsigned int textureID, const Vector3<float>& positi
         float halfWidth = width * 0.5f;
         float halfHeight = height * 0.5f;
         
-        vertices[0] = {position.x - halfWidth, position.y + halfHeight, position.z, r, g, b, a, u1, v2};
-        vertices[1] = {position.x + halfWidth, position.y + halfHeight, position.z, r, g, b, a, u2, v2};
-        vertices[2] = {position.x + halfWidth, position.y - halfHeight, position.z, r, g, b, a, u2, v1};
+        vertices[0] = Vertex3DTextured(position.x - halfWidth, position.y + halfHeight, position.z, 0.0f, 0.0f, 1.0f, r, g, b, a, u1, v2);
+        vertices[1] = Vertex3DTextured(position.x + halfWidth, position.y + halfHeight, position.z, 0.0f, 0.0f, 1.0f, r, g, b, a, u2, v2);
+        vertices[2] = Vertex3DTextured(position.x + halfWidth, position.y - halfHeight, position.z, 0.0f, 0.0f, 1.0f, r, g, b, a, u2, v1);
         vertices[3] = vertices[0];
         vertices[4] = vertices[2];
-        vertices[5] = {position.x - halfWidth, position.y - halfHeight, position.z, r, g, b, a, u1, v1};
+        vertices[5] = Vertex3DTextured(position.x - halfWidth, position.y - halfHeight, position.z, 0.0f, 0.0f, 1.0f, r, g, b, a, u1, v1);
     }
     
     //
