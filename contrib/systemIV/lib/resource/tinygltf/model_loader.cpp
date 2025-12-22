@@ -334,20 +334,20 @@ static void LoadTexCoords(ModelMesh& meshData, const tinygltf::Model& gltfModel,
             const unsigned char* basePtr = &buffer.data[bufferView.byteOffset + accessor.byteOffset + (k * byteStride)];
             const float* texCoord = reinterpret_cast<const float*>(basePtr);
             meshData.texCoords[k * 2 + 0] = texCoord[0];
-            meshData.texCoords[k * 2 + 1] = Model::FlipVCoordinate(texCoord[1]);
+            meshData.texCoords[k * 2 + 1] = texCoord[1];
         }
     } else if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE && accessor.normalized) {
         for (size_t k = 0; k < accessor.count; k++) {
             const unsigned char* basePtr = &buffer.data[bufferView.byteOffset + accessor.byteOffset + (k * byteStride)];
             meshData.texCoords[k * 2 + 0] = basePtr[0] / 255.0f;
-            meshData.texCoords[k * 2 + 1] = Model::FlipVCoordinate(basePtr[1] / 255.0f);
+            meshData.texCoords[k * 2 + 1] = basePtr[1] / 255.0f;
         }
     } else if (accessor.componentType == TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT && accessor.normalized) {
         for (size_t k = 0; k < accessor.count; k++) {
             const unsigned char* basePtr = &buffer.data[bufferView.byteOffset + accessor.byteOffset + (k * byteStride)];
             const unsigned short* texCoord = reinterpret_cast<const unsigned short*>(basePtr);
             meshData.texCoords[k * 2 + 0] = texCoord[0] / 65535.0f;
-            meshData.texCoords[k * 2 + 1] = Model::FlipVCoordinate(texCoord[1] / 65535.0f);
+            meshData.texCoords[k * 2 + 1] = texCoord[1] / 65535.0f;
         }
     }
 }

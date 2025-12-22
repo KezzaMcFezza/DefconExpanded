@@ -49,7 +49,7 @@ static void CreateTexturedVertices(const ModelMesh& mesh, Vertex3DTextured* outV
         float u = 0.0f, v = 0.0f;
         if (meshHasTexCoords) {
             u = mesh.texCoords[j * 2 + 0];
-            v = mesh.texCoords[j * 2 + 1];
+            v = Model::FlipVCoordinate(mesh.texCoords[j * 2 + 1]);
         }
         
         outVertices[j] = Vertex3DTextured(x, y, z, nx, ny, nz, materialColor, u, v);
