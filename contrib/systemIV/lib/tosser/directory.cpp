@@ -60,25 +60,20 @@ ostream &writeNetworkValue( ostream &output, T v )
 }
 
 Directory::Directory()
-:   m_name(NULL)
 {
     SetName("NewDirectory");
 }
 
 
 Directory::Directory( const Directory &_copyMe )
-:   m_name(NULL)
+:   m_name(_copyMe.m_name)
 {
-    SetName( _copyMe.m_name );
     CopyData( &_copyMe, false, true );
 }
 
 
 Directory::~Directory()
 {
-    delete[] m_name;
-    m_name = NULL;
-
     m_data.EmptyAndDelete();
     m_subDirectories.EmptyAndDelete();    
 }
@@ -88,12 +83,7 @@ void Directory::SetName ( const char *newName )
 {    
     if( newName && strlen(newName) > 0 )
     {
-        if ( m_name )
-        {
-            delete[] m_name;
-            m_name = NULL;
-        }
-        m_name = newStr(newName);
+        m_name = newName;
     }
 }
 
@@ -102,10 +92,10 @@ Directory *Directory::GetDirectory ( const char *dirName ) const
 {
     AppAssert( dirName );
 
-    char *firstSubDir = GetFirstSubDir ( dirName );
+    std::string firstSubDir = GetFirstSubDir ( dirName );
     const char *otherSubDirs = GetOtherSubDirs ( dirName );
 
-    if ( firstSubDir )
+    if ( !firstSubDir.empty() )
     {
         Directory *subDir = NULL;
 
@@ -118,15 +108,13 @@ Directory *Directory::GetDirectory ( const char *dirName ) const
             {
                 Directory *thisDir = m_subDirectories[i];
                 AppAssert( thisDir );
-                if ( strcmp ( thisDir->m_name, firstSubDir ) == 0 )
+                if ( thisDir->m_name == firstSubDir )
                 {
                     subDir = thisDir;
                     break;
                 }
             }
         }
-
-		delete[] firstSubDir;
 
         if ( !otherSubDirs )
         {
@@ -135,7 +123,7 @@ Directory *Directory::GetDirectory ( const char *dirName ) const
         else
         {
             return subDir->GetDirectory( otherSubDirs );
-        }                       
+        }
     }
     else
     {
@@ -152,7 +140,7 @@ void Directory::RemoveDirectory( const char *dirName )
         if( m_subDirectories.ValidIndex(i) )
         {
             Directory *subDir = m_subDirectories[i];
-            if( strcmp(subDir->m_name, dirName ) == 0 )
+            if( subDir->m_name == dirName )
             {
                 m_subDirectories.RemoveData(i);             
             }
@@ -165,10 +153,10 @@ Directory *Directory::AddDirectory ( const char *dirName )
 {
     AppAssert( dirName );
 
-    char *firstSubDir = GetFirstSubDir ( dirName );
+    std::string firstSubDir = GetFirstSubDir ( dirName );
     const char *otherSubDirs = GetOtherSubDirs ( dirName );
 
-    if ( firstSubDir )
+    if ( !firstSubDir.empty() )
     {
         Directory *subDir = NULL;
 
@@ -181,7 +169,7 @@ Directory *Directory::AddDirectory ( const char *dirName )
             {
                 Directory *thisDir = m_subDirectories[i];
                 AppAssert( thisDir );
-                if ( strcmp ( thisDir->m_name, firstSubDir ) == 0 )
+                if ( thisDir->m_name == firstSubDir )
                 {
                     subDir = thisDir;
                     break;
@@ -194,12 +182,9 @@ Directory *Directory::AddDirectory ( const char *dirName )
         if ( !subDir )
         {
             subDir = new Directory();
-            subDir->SetName( firstSubDir );
+            subDir->SetName( firstSubDir.c_str() );
             m_subDirectories.PutData( subDir );
         }
-
-        delete[] firstSubDir;
-        firstSubDir = NULL;
 
         //
         // Have we finished building directories?
@@ -212,14 +197,14 @@ Directory *Directory::AddDirectory ( const char *dirName )
         else
         {
             return subDir->AddDirectory( otherSubDirs );
-        }                       
+        }
 
     }
     else
     {
         AppReleaseAssert(false, "Failed to get first SubDir from %s", dirName );
         return NULL;
-    }    
+    }
 }
 
 
@@ -244,7 +229,7 @@ void Directory::CopyData ( const Directory *dir, bool overWrite, bool directorie
             DirectoryData *data = dir->m_data[i];
             AppAssert(data);
 
-            DirectoryData *existing = GetData( data->m_name );
+            DirectoryData *existing = GetData( data->m_name.c_str() );
             if( existing && overWrite )
             {
                 existing->SetData( data );            
@@ -278,13 +263,13 @@ void Directory::CopyData ( const Directory *dir, bool overWrite, bool directorie
 }
 
 
-char *Directory::GetFirstSubDir ( const char *dirName )
+std::string Directory::GetFirstSubDir ( const char *dirName )
 {
     AppAssert( dirName );
 
     //
     // Is there a starting slash
-    
+
     const char *startPoint = dirName;
     if ( dirName[0] == '/' )
     {
@@ -297,7 +282,7 @@ char *Directory::GetFirstSubDir ( const char *dirName )
     const char *endPoint = strchr( startPoint, '/' );
 
     int dirSize;
-    
+
     if ( endPoint )
     {
         dirSize = (endPoint - startPoint);
@@ -309,14 +294,11 @@ char *Directory::GetFirstSubDir ( const char *dirName )
 
     if ( dirSize == 0 )
     {
-        return NULL;
+        return std::string();
     }
     else
     {
-        char *result = new char[dirSize+1];
-        strncpy ( result, startPoint, dirSize );
-        result[dirSize] = '\x0';
-        return result;
+        return std::string(startPoint, dirSize);
     }
 }
 
@@ -546,14 +528,14 @@ char *Directory::GetDataString ( const char *dataName ) const
 {
     DirectoryData *data = GetData( dataName );
 
-    if ( data && data->IsString() && data->m_string )
+    if ( data && data->IsString() )
     {
-        return data->m_string;
+        return newStr(data->m_string.c_str());
     }
     else
     {
         AppDebugOut( "String Data not found : %s\n", dataName );
-        return DIRECTORY_SAFESTRING;
+        return const_cast<char*>(DIRECTORY_SAFESTRING);
     }
 }
 
@@ -574,19 +556,20 @@ bool Directory::GetDataBool ( const char *dataName ) const
 }
 
 
-void *Directory::GetDataVoid( const char *dataName, int *_dataLen ) const
+const void *Directory::GetDataVoid( const char *dataName, int *_dataLen ) const
 {
     DirectoryData *data = GetData( dataName );
-    
+
     if( data && data->IsVoid() )
     {
-        *_dataLen = data->m_voidLen;
-        return data->m_void;
+        *_dataLen = static_cast<int>(data->m_void.size());
+        return data->m_void.data();
     }
     else
     {
         AppDebugOut( "Void data not found : %s\n", dataName );
-        return const_cast<char *>(DIRECTORY_SAFESTRING);
+        *_dataLen = 0;
+        return nullptr;
     }
 }
 
@@ -600,7 +583,7 @@ DirectoryData *Directory::GetData ( const char *dataName ) const
         {
             DirectoryData *data = m_data[i];
             AppAssert (data);
-            if ( strcmp(data->m_name, dataName) == 0 )
+            if ( data->m_name == dataName )
             {
                 return data;
             }
@@ -615,7 +598,7 @@ void Directory::CreateData ( const char *dataName, DArray <int> *darray )
 {
     if ( GetData( dataName ) )
     {
-        AppReleaseAssert(false, "Attempted to create duplicate data %s at location\n%s", dataName, m_name);
+        AppReleaseAssert(false, "Attempted to create duplicate data %s at location\n%s", dataName, m_name.c_str());
     }
     else
     {
@@ -648,7 +631,7 @@ void Directory::CreateData ( const char *dataName, LList <Directory *> *llist )
 {
     if ( GetData( dataName ) )
     {
-        AppReleaseAssert(false,"Attempted to create duplicate data %s at location\n%s", dataName, m_name);
+        AppReleaseAssert(false,"Attempted to create duplicate data %s at location\n%s", dataName, m_name.c_str());
     }
     else
     {
@@ -674,7 +657,7 @@ void Directory::CreateData ( const char *dataName, LList<int> *llist )
 {
     if( GetData( dataName ) )
     {
-        AppReleaseAssert(false, "Attempted to create duplicate data %s at location\n%s", dataName, m_name);
+        AppReleaseAssert(false, "Attempted to create duplicate data %s at location\n%s", dataName, m_name.c_str());
     }
     else
     {
@@ -849,7 +832,7 @@ void Directory::RemoveData( const char *dataName )
         if( m_data.ValidIndex(i) )
         {
             DirectoryData *data = m_data[i];
-            if( strcmp( data->m_name, dataName ) == 0 )
+            if( data->m_name == dataName )
             {
                 m_data.RemoveData(i);                
                 delete data;
@@ -935,7 +918,7 @@ void Directory::DebugPrint ( int indent ) const
         AppDebugOut( "    " );
     }
     AppDebugOut ( "+===" );
-    AppDebugOut ( "%s\n", m_name );
+    AppDebugOut ( "%s\n", m_name.c_str() );
 
     //
     // Print our data
@@ -1021,11 +1004,6 @@ bool Directory::Read ( istream &input )
     //
     // Our own information
 
-    if ( m_name )
-    {
-        delete[] m_name;
-        m_name = NULL;
-    }
     m_name = ReadDynamicString( input );
     
     //
@@ -1201,41 +1179,37 @@ char *Directory::Write( int &length ) const
 }
 
 
-char *Directory::ReadDynamicString ( istream &input )
+std::string Directory::ReadDynamicString ( istream &input )
 {
 	int size = ReadPackedInt(input);
 
-	char *string;
-
-	if ( size == -1 ) 
+	if ( size == -1 )
     {
-		string = NULL;
+		return std::string();
 	}
     else if ( size < 0 ||
               size > DIRECTORY_MAXSTRINGLENGTH )
-    {        
-        string = newStr(DIRECTORY_SAFESTRING);        
-    }    
-	else 
     {
-		string = new char [size+1];
-		input.read( string, size );
-		string[size] = '\x0';
+        return std::string(DIRECTORY_SAFESTRING);
+    }
+	else
+    {
+		std::string result(size, '\0');
+		input.read( &result[0], size );
+		return result;
 	}
-
-	return string;
 }
 
 
-void Directory::WriteDynamicString ( ostream &output, char *string )
+void Directory::WriteDynamicString ( ostream &output, const std::string &string )
 {
-	if ( string ) 
+	if ( !string.empty() )
     {
-		int size = (int) strlen(string);
+		int size = (int) string.length();
 		WritePackedInt(output, size);
-        output.write( string, size );
+        output.write( string.c_str(), size );
 	}
-	else 
+	else
     {
 		int size = -1;
 		WritePackedInt(output, size);
@@ -1246,8 +1220,8 @@ void Directory::WriteDynamicString ( ostream &output, char *string )
 int Directory::GetByteSize() const
 {
     int result = 0;
-    
-    result += (int) strlen(m_name);
+
+    result += (int) m_name.length();
     result += sizeof(m_data);
     result += sizeof(m_subDirectories);
 
@@ -1257,9 +1231,9 @@ int Directory::GetByteSize() const
         {
             DirectoryData *data = m_data[i];
             result += sizeof(data);
-            result += (int) strlen(data->m_name);
-            if( data->m_string ) result += (int) strlen(data->m_string);
-            if( data->m_void ) result += data->m_voidLen;
+            result += (int) data->m_name.length();
+            result += (int) data->m_string.length();
+            result += (int) data->m_void.size();
         }
     }
 
@@ -1277,18 +1251,19 @@ int Directory::GetByteSize() const
 }
 
 
-void Directory::WriteVoidData( std::ostream &output, void *data, int dataLen )
+void Directory::WriteVoidData( std::ostream &output, const void *data, int dataLen )
 {
     writeNetworkValue( output, dataLen );
-    output.write( (char *)data, dataLen );    
+    output.write( (const char *)data, dataLen );
 }
 
-void *Directory::ReadVoidData( std::istream &input, int *dataLen )
+std::vector<char> Directory::ReadVoidData( std::istream &input )
 {
-    readNetworkValue( input, *dataLen );
-    
-    void *data = new char[*dataLen];
-    input.read( (char *)data, *dataLen );
+    int dataLen;
+    readNetworkValue( input, dataLen );
+
+    std::vector<char> data(dataLen);
+    input.read( data.data(), dataLen );
 
     return data;
 }
@@ -1296,15 +1271,11 @@ void *Directory::ReadVoidData( std::istream &input, int *dataLen )
 
 
 DirectoryData::DirectoryData()
-:   m_name(NULL),
-    m_type(DIRECTORY_TYPE_UNKNOWN),
+:   m_type(DIRECTORY_TYPE_UNKNOWN),
     m_int(-1),
     m_float(-1.0),
     m_char('?'),
-    m_string(NULL),
-    m_bool(false),
-    m_void(NULL),
-    m_voidLen(0)
+    m_bool(false)
 {
     SetName("NewData" );
 }
@@ -1312,24 +1283,19 @@ DirectoryData::DirectoryData()
 
 DirectoryData::~DirectoryData()
 {
-    delete[] m_name;
-    delete[] m_string;
-    delete[] (char *) m_void;
-
-    m_name = NULL;
-    m_string = NULL;
-    m_void = NULL;
 }
 
 
 void DirectoryData::SetName ( const char *newName )
 {
-    if ( m_name )
+    if ( newName )
     {
-        delete[] m_name;
-        m_name = NULL;
+        m_name = newName;
     }
-    m_name = newStr( newName );
+    else
+    {
+        m_name.clear();
+    }
 }
 
 
@@ -1369,14 +1335,13 @@ void DirectoryData::SetData ( const char *newData )
 {
     m_type = DIRECTORY_TYPE_STRING;
 
-    if( newData /*&& strlen(newData) > 0*/ )
+    if( newData )
     {
-        if ( m_string )
-        {
-            delete[] m_string;
-            m_string = NULL;
-        }
-        m_string = newStr( newData );
+        m_string = newData;
+    }
+    else
+    {
+        m_string.clear();
     }
 }
 
@@ -1385,15 +1350,11 @@ void DirectoryData::SetData ( const void *newData, int dataLen )
 {
     m_type = DIRECTORY_TYPE_VOID;
 
-    if( m_void )
+    m_void.resize(dataLen);
+    if (dataLen > 0)
     {
-        delete[] (char *) m_void;
-        m_void = NULL;
+        memcpy( m_void.data(), newData, dataLen );
     }
-
-    m_voidLen = dataLen;
-    m_void = new char[m_voidLen];
-    memcpy( m_void, newData, m_voidLen );
 }
 
 
@@ -1409,43 +1370,15 @@ void DirectoryData::SetData ( const DirectoryData *data )
 {
     AppAssert( data );
 
-    if( m_name )
-    {
-        delete[] m_name;
-        m_name = NULL;
-    }
-
-    if( m_string )
-    {
-		delete[] m_string;
-        m_string = NULL;
-    }
-
-    if( m_void )
-    {
-        delete[] (char *) m_void;
-        m_void = NULL;
-    }
-
-    m_name = newStr( data->m_name );
+    m_name = data->m_name;
     m_type = data->m_type;
     m_int = data->m_int;
     m_float = data->m_float;
 	m_fixed = data->m_fixed;
     m_char = data->m_char;
     m_bool = data->m_bool;
-
-    if( data->m_string )
-    {
-        m_string = newStr(data->m_string);
-    }
-
-    if( data->m_void )
-    {
-        m_voidLen = data->m_voidLen;
-        m_void = new char[m_voidLen];
-        memcpy( m_void, data->m_void, m_voidLen );
-    }
+    m_string = data->m_string;
+    m_void = data->m_void;
 }
 
 static void WriteXMLString( ostream &o, const char *x )
@@ -1486,7 +1419,7 @@ void DirectoryData::WriteXML( ostream &o, int indent )
         case DIRECTORY_TYPE_INT  :          o << m_int;            			    break;
         case DIRECTORY_TYPE_FLOAT :         o << m_float;          		        break;
         case DIRECTORY_TYPE_CHAR  :         o << m_char;           				break;
-        case DIRECTORY_TYPE_STRING  :       WriteXMLString(o, m_string);    	break;
+        case DIRECTORY_TYPE_STRING  :       WriteXMLString(o, m_string.c_str());    	break;
         case DIRECTORY_TYPE_BOOL  :         o << (m_bool ? "true" : "false"); 	break;
     }
 
@@ -1502,7 +1435,7 @@ void DirectoryData::DebugPrint ( int indent )
         AppDebugOut( "    " );
     }
     AppDebugOut ( "+---" );
-    AppDebugOut ( "%s : ", m_name );
+    AppDebugOut ( "%s : ", m_name.c_str() );
 
     switch ( m_type )
     {
@@ -1515,12 +1448,12 @@ void DirectoryData::DebugPrint ( int indent )
 		case DIRECTORY_TYPE_FIXED :         AppDebugOut ( "%f\n", Fixed::Fixed(m_fixed).DoubleValue() );	break;
 #endif
         case DIRECTORY_TYPE_CHAR  :         AppDebugOut ( "(val=%d)\n", (int)m_char );                      break;
-        case DIRECTORY_TYPE_STRING  :       AppDebugOut ( "'%s'\n", m_string );                             break;
+        case DIRECTORY_TYPE_STRING  :       AppDebugOut ( "'%s'\n", m_string.c_str() );                             break;
         case DIRECTORY_TYPE_BOOL  :         AppDebugOut ( "[%s]\n", m_bool ? 
                                                             "true" : "false" );                             break;
-        case DIRECTORY_TYPE_VOID :          
-            AppDebugOut( "Raw Data, Length %d bytes", m_voidLen );        
-            AppDebugOutData( m_void, m_voidLen );
+        case DIRECTORY_TYPE_VOID :
+            AppDebugOut( "Raw Data, Length %d bytes", (int)m_void.size() );
+            AppDebugOutData( m_void.data(), (int)m_void.size() );
             break;
     }
 #else
@@ -1531,22 +1464,16 @@ void DirectoryData::DebugPrint ( int indent )
 
 bool DirectoryData::Read ( istream &input )
 {
-    if ( m_name )
-    {
-        delete[] m_name;
-        m_name = NULL;
-    }
-	
 	if (!input)
 		return false;
-		
+
     m_name = Directory::ReadDynamicString( input );
 
 	if (!input)
 		return false;
-		
+
 	m_type = input.get();
-    
+
     switch ( m_type )
     {
         case    DIRECTORY_TYPE_INT   :   readNetworkValue( input, m_int );						break;
@@ -1554,23 +1481,13 @@ bool DirectoryData::Read ( istream &input )
 		case    DIRECTORY_TYPE_FIXED :   readNetworkValue( input, m_fixed );					break;
         case    DIRECTORY_TYPE_CHAR  :   input.read( (char *) &m_char, sizeof(m_char) );        break;
         case    DIRECTORY_TYPE_BOOL  :   m_bool = input.get();        break;
-        
+
         case DIRECTORY_TYPE_STRING:
-            if ( m_string )
-            {
-                delete[] m_string;
-                m_string = NULL;
-            }
             m_string = Directory::ReadDynamicString( input );
             break;
-           
+
         case DIRECTORY_TYPE_VOID:
-            if( m_void )
-            {
-                delete[] (char *) m_void;
-                m_void = NULL;
-            }
-            m_void = (char *)Directory::ReadVoidData( input, &m_voidLen );
+            m_void = Directory::ReadVoidData( input );
             break;
 
         default:
@@ -1588,9 +1505,9 @@ void DirectoryData::Write ( ostream &output ) const
     // Our own information
 
     Directory::WriteDynamicString( output, m_name );
-    
+
 	output.put((unsigned char) m_type);
-        
+
     switch ( m_type )
     {
         case    DIRECTORY_TYPE_INT   :   writeNetworkValue( output, m_int );					break;
@@ -1598,13 +1515,13 @@ void DirectoryData::Write ( ostream &output ) const
 		case    DIRECTORY_TYPE_FIXED :   writeNetworkValue( output, m_fixed );					break;
         case    DIRECTORY_TYPE_CHAR  :   output.write( (char *) &m_char, sizeof(m_char) );      break;
         case    DIRECTORY_TYPE_BOOL  :   output.put( m_bool ? 1 : 0 );      break;
-        
+
         case DIRECTORY_TYPE_STRING:
-            Directory::WriteDynamicString(output, m_string); 
+            Directory::WriteDynamicString(output, m_string );
             break;
 
-        case DIRECTORY_TYPE_VOID:   
-            Directory::WriteVoidData(output, m_void, m_voidLen);
+        case DIRECTORY_TYPE_VOID:
+            Directory::WriteVoidData(output, m_void.data(), (int)m_void.size());
             break;
     }
 

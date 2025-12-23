@@ -15,6 +15,7 @@
 #define _included_genericdirectory_h
 
 #include <iostream>
+#include <string>
 
 #include "lib/math/fixed.h"
 #include "lib/tosser/darray.h"
@@ -25,7 +26,7 @@ class DirectoryData;
 class Directory
 {
 public:
-    char        *m_name;
+    std::string  m_name;
     DArray      <Directory *>       m_subDirectories;
     DArray      <DirectoryData *>   m_data;
 
@@ -55,7 +56,7 @@ public:
     char            GetDataChar         ( const char *dataName ) const;
     char            *GetDataString      ( const char *dataName ) const;                       // You should strdup this
     bool            GetDataBool         ( const char *dataName ) const;
-    void            *GetDataVoid        ( const char *dataName, int *_dataLen ) const;
+    const void      *GetDataVoid        ( const char *dataName, int *_dataLen ) const;
 
     void    RemoveData      ( const char *dataName );
     bool    HasData         ( const char *dataName, int _mustBeType =-1 ) const;
@@ -94,25 +95,25 @@ public:
     bool Read   ( const char *input, int length );
     char *Write ( int &length ) const ;                                                     // Creates new string
 
-    static void WriteDynamicString ( std::ostream &output, char *string );   				// Works with NULL
-    static char *ReadDynamicString ( std::istream &input );									// Assigns space for string
-    
+    static void WriteDynamicString ( std::ostream &output, const std::string &string );
+    static std::string ReadDynamicString ( std::istream &input );
+
     static void WritePackedInt     ( std::ostream &output, int _value );
     static int  ReadPackedInt      ( std::istream &input );
 
-    static void WriteVoidData      ( std::ostream &output, void *data, int dataLen );       
-    static void *ReadVoidData      ( std::istream &input, int *dataLen );				    // Assigns space for data
+    static void WriteVoidData      ( std::ostream &output, const void *data, int dataLen );
+    static std::vector<char> ReadVoidData ( std::istream &input );
 
 
     //
-    // Other 
+    // Other
 
     void DebugPrint ( int indent ) const;
     void WriteXML ( std::ostream &o, int indent = 0 ) const;
 
     int  GetByteSize() const;
 
-    static char     *GetFirstSubDir     ( const char *dirName );                      // eg returns "bob" from "bob/hello/poo". Caller must delete.
+    static std::string GetFirstSubDir     ( const char *dirName );                      // eg returns "bob" from "bob/hello/poo"
     static const char *GetOtherSubDirs    ( const char *dirName );                      // eg returns "hello/poo" from above.  Doesn't create new data.
 
 };
@@ -144,22 +145,21 @@ public:
 class DirectoryData
 {
 public:
-    char    *m_name;
+    std::string  m_name;
     int     m_type;
     
     int     m_int;                  // type 1
     float   m_float;                // type 2
     char    m_char;                 // type 3
-    char    *m_string;              // type 4
+    std::string  m_string;          // type 4
     bool    m_bool;                 // type 5
-    char    *m_void;                // type 6  
-	
+    std::vector<char> m_void;       // type 6
+
 #ifdef FLOAT_NUMERICS
 	double  m_fixed;                // type 7 (stored as raw double to guarantee memory representation)
 #elif defined(FIXED64_NUMERICS)
 	long long m_fixed;
 #endif
-    int     m_voidLen;
 
 public:
     DirectoryData();

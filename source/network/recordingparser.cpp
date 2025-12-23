@@ -128,7 +128,7 @@ bool RecordingParser::ReadHeaderPacket( Directory &matchHeader )
     AppDebugOut("ReadHeaderPacket: Successfully read packet, name='%s'\n", matchHeader.m_name);
 #endif
 
-    if( strcmp( matchHeader.m_name, "DCGR" ) != 0 )
+    if( strcmp( matchHeader.m_name.c_str(), "DCGR" ) != 0 )
     {
 #ifdef _DEBUG
         AppDebugOut("ReadHeaderPacket: Invalid header name '%s', expected 'DCGR'\n", matchHeader.m_name);
@@ -241,7 +241,7 @@ bool RecordingParser::ParseToHistory()
         Directory dir;
         if( !ReadPacket( dir, zeroMarker ) ) break;
 
-        if( strcmp( dir.m_name, "sq" ) == 0 )
+        if( strcmp( dir.m_name.c_str(), "sq" ) == 0 )
         {
             suppressUpdate = false;
 
@@ -279,7 +279,7 @@ bool RecordingParser::ParseToHistory()
         }
         else
         {
-            if( strcmp( dir.m_name, NET_DEFCON_MESSAGE ) == 0 )
+            if( strcmp( dir.m_name.c_str(), NET_DEFCON_MESSAGE ) == 0 )
             {
                 if( dir.HasData( NET_DEFCON_COMMAND ) )
                 {

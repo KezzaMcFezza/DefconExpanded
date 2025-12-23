@@ -242,10 +242,10 @@ void Renderer3DVBO::InvalidateInstancedMegaVBO(const char* batchKey) {
 }
 
 void Renderer3DVBO::InvalidateAllInstanceBatches() {
-    DArray<char*>* keys = m_cachedInstanceBatches.ConvertIndexToDArray();
+    DArray<std::string>* keys = m_cachedInstanceBatches.ConvertIndexToDArray();
     
     for (int i = 0; i < keys->Size(); ++i) {
-        InvalidateInstancedMegaVBO(keys->GetData(i));
+        InvalidateInstancedMegaVBO(keys->GetData(i).c_str());
     }
     
     delete keys;
@@ -254,13 +254,13 @@ void Renderer3DVBO::InvalidateAllInstanceBatches() {
 void Renderer3DVBO::InvalidateInstanceBatchPrefix(const char* batchKeyPrefix) {
     if (!batchKeyPrefix) return;
     
-    DArray<char*>* keys = m_cachedInstanceBatches.ConvertIndexToDArray();
-    int prefixLen = strlen(batchKeyPrefix);
+    DArray<std::string>* keys = m_cachedInstanceBatches.ConvertIndexToDArray();
+    size_t prefixLen = strlen(batchKeyPrefix);
     
     for (int i = 0; i < keys->Size(); ++i) {
-        const char* key = keys->GetData(i);
-        if (strncmp(key, batchKeyPrefix, prefixLen) == 0) {
-            InvalidateInstancedMegaVBO(key);
+        const std::string &key = keys->GetData(i);
+        if (strncmp(key.c_str(), batchKeyPrefix, prefixLen) == 0) {
+            InvalidateInstancedMegaVBO(key.c_str());
         }
     }
     
@@ -270,10 +270,10 @@ void Renderer3DVBO::InvalidateInstanceBatchPrefix(const char* batchKeyPrefix) {
 int Renderer3DVBO::GetCachedInstanceBatchCount() {
     int count = 0;
     
-    DArray<char*>* keys = m_cachedInstanceBatches.ConvertIndexToDArray();
+    DArray<std::string>* keys = m_cachedInstanceBatches.ConvertIndexToDArray();
     
     for (int i = 0; i < keys->Size(); ++i) {
-        BTree<CachedInstanceBatch*>* tree = m_cachedInstanceBatches.LookupTree(keys->GetData(i));
+        BTree<CachedInstanceBatch*>* tree = m_cachedInstanceBatches.LookupTree(keys->GetData(i).c_str());
         if (tree && tree->data && tree->data->isValid) {
             count++;
         }

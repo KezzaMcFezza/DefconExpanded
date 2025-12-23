@@ -1,6 +1,7 @@
 #include "lib/universal_include.h"
 
 #include <time.h>
+#include "lib/hi_res_time.h"
 
 #include "lib/gucci/window_manager.h"
 #include "lib/math/vector3.h"

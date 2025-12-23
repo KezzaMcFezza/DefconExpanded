@@ -1,71 +1,262 @@
 #ifndef INCLUDED_HASH_TABLE_H
 #define INCLUDED_HASH_TABLE_H
 
+#include <vector>
+#include <string>
+#include <string_view>
+#include <optional>
+#include <algorithm>
+#include <cctype>
+#include <type_traits>
 
-// Implements a simple hash table with null terminated char arrays for keys.
-// - You can initialise it to any size greater than 1. 
-// - PutData() checks if the table is more than half full. If it is the table 
-//	 size is doubled and the data is re-indexed. 
-// - The table never shrinks. 
-// - The hash collision rule is just to increment through the table until
-//   a free slot is found
-// - Looking up a key is O(1) even when key does not exist
+//=================================================================
+// Hash Table with case-insensitive string keys
+//
+// Uses open addressing with linear probing
+// Keys are case-insensitive 
+// Automatically grows when load factor exceeds 50%
+//=================================================================
 
-// *** Note on memory usage ***
-// This class is optimised for speed not memory usage. The RAM used by m_data
-// will always be between (2 x num slots used x sizeof(T)) and 
-// (4 x num slots used x sizeof(T))
-
+inline bool PortableCaseInsensitiveEqual(std::string_view a, std::string_view b) noexcept {
+    if (a.size() != b.size()) return false;
+    
+    return std::equal(a.begin(), a.end(), b.begin(),
+        [](char ca, char cb) {
+            return std::tolower(static_cast<unsigned char>(ca)) == 
+                   std::tolower(static_cast<unsigned char>(cb));
+        });
+}
 
 template <class T>
 class HashTable
 {
 protected:
-	char					**m_keys;
-	T						*m_data;
-	unsigned int			m_slotsFree;
-	unsigned int			m_size;
-	unsigned int			m_mask;
-	mutable unsigned int	m_numCollisions;						// In the current data set
+    std::vector<std::string> m_keys;
+    std::vector<T> m_data;
+    unsigned int m_slotsFree;
+    unsigned int m_size;
+    unsigned int m_mask;
+    mutable unsigned int m_numCollisions;
+    
+    [[nodiscard]] unsigned int HashFunc    ( std::string_view key ) const noexcept;
+    [[nodiscard]] bool CaseInsensitiveEqual( std::string_view a, std::string_view b ) const noexcept;
 
-	unsigned int	HashFunc	(char const *_key) const;
-	void			Grow		();
-    unsigned int	GetInsertPos(char const *_key) const;			// Returns the index of the position where _key should be placed
+    void Grow();
+    void Rebuild();
+
+    [[nodiscard]] unsigned int GetInsertPos( std::string_view key ) const;
 
 public:
-	HashTable		();
-	~HashTable		();
+    HashTable();
+    HashTable            ( const HashTable& ) = default;
+    HashTable            ( HashTable&& ) noexcept = default;
+    ~HashTable();
+    
+    HashTable& operator= ( const HashTable& ) = default;
+    HashTable& operator= ( HashTable&& ) noexcept = default;
+    
+    [[nodiscard]] int GetIndex ( std::string_view key ) const;
+    [[nodiscard]] int GetIndex ( const char* key ) const {
+        return GetIndex        ( std::string_view(key ? key : "") );
+    }
+    
+    int PutData( std::string_view key, const T& data );
+    int PutData( std::string_view key, T&& data );  // Move version
+    
+    int PutData( const char* key, const T& data ) {
+        return PutData( std::string_view(key ? key : ""), data);
+    }
+    int PutData( const char* key, T&& data ) {
+        return PutData( std::string_view(key ? key : ""), std::move(data) );
+    }
+    
+	//
+    // Returns pointer, but returns nullptr if not found
 
-	int				GetIndex	(char const *_key) const;			                    // Returns -1 if key isn't present
+    [[nodiscard]] T* GetPointer           ( std::string_view key ) const;
+    [[nodiscard]] T* GetPointer           ( unsigned int index ) const;
+    [[nodiscard]] const T* GetPointerConst( std::string_view key ) const;
+    [[nodiscard]] const T* GetPointerConst( unsigned int index ) const;
+    
+    [[nodiscard]] T* GetPointer( const char* key ) const {
+        return GetPointer( std::string_view(key ? key : "") );
+    }
+    [[nodiscard]] const T* GetPointerConst( const char* key ) const {
+        return GetPointerConst( std::string_view(key ? key : "") );
+    }
+    
+	//
+    // Returns value with default
 
-	int				PutData		(char const *_key, T const &_data);                     // Returns slot used
+    [[nodiscard]] T GetData( std::string_view key, const T& defaultValue = T() ) const;
+    [[nodiscard]] T GetData( unsigned int index ) const;
+    [[nodiscard]] T GetData( const char* key, const T& defaultValue = T() ) const {
+        return GetData     ( std::string_view(key ? key : ""), defaultValue );
+    }
+    
+    [[nodiscard]] std::optional<T> GetDataOptional( std::string_view key ) const;
+    [[nodiscard]] std::optional<T> GetDataOptional( const char* key ) const {
+        return GetDataOptional( std::string_view(key ? key : "") );
+    }
+    
+    void RemoveData( std::string_view key );
+    void RemoveData( unsigned int index );
+    
+    void RemoveData ( const char* key ) {
+        RemoveData  ( std::string_view(key ? key : "") );
+    }
+    
+    void MarkNotUsed( unsigned int index );
+    
+    void Empty();
+    
+    template<typename U = T>
+    std::enable_if_t<std::is_pointer_v<U>> EmptyAndDelete() {
+        for (unsigned int i = 0; i < m_size; ++i) {
+            if (!m_keys[i].empty()) {
+                delete m_data[i];
+                m_data[i] = nullptr;
+            }
+        }
+        Empty();
+    }
+    
+    template<typename U = T>
+    std::enable_if_t<std::is_pointer_v<U>> EmptyAndDeleteArray() {
+        for (unsigned int i = 0; i < m_size; ++i) {
+            if (!m_keys[i].empty()) {
+                delete[] m_data[i];
+                m_data[i] = nullptr;
+            }
+        }
+        Empty();
+    }
+    
+    [[nodiscard]] bool ValidIndex( unsigned int index ) const noexcept;
+    [[nodiscard]] constexpr unsigned int Size() const noexcept { return m_size; }
+    [[nodiscard]] constexpr unsigned int NumUsed() const noexcept { return m_size - m_slotsFree; }
+    [[nodiscard]] constexpr float LoadFactor() const noexcept { 
+        return m_size > 0 ? static_cast<float>(NumUsed()) / m_size : 0.0f; 
+    }
+    
+    void Reserve(unsigned int capacity);
+    
+    [[nodiscard]] T operator[]( unsigned int index ) const;
+    [[nodiscard]] const char* GetName( unsigned int index ) const;
+    [[nodiscard]] const std::string& GetNameString( unsigned int index ) const;
+    
+    void DumpKeys() const;
+    
+    class iterator;
+    class const_iterator;
+    
+    [[nodiscard]] iterator begin();
+    [[nodiscard]] iterator end();
+    [[nodiscard]] const_iterator begin() const;
+    [[nodiscard]] const_iterator end() const;
+    [[nodiscard]] const_iterator cbegin() const;
+    [[nodiscard]] const_iterator cend() const;
+};
 
-    T				GetData		(char const *_key, T const &_default = NULL) const;
-	T				GetData		(unsigned int _index) const;
-	T *				GetPointer	(char const *_key) const;
-	T *				GetPointer  (unsigned int _index) const;
 
-    void			RemoveData	(char const *_key);					                    // SLOW. Client still MUST delete if data is a pointer
-	void			RemoveData	(unsigned int _index);				                    // SLOW. Client still MUST delete if data is a pointer
+//=================================================================
+// Iterator that skips empty slots
 
-    void            MarkNotUsed (unsigned int _index);                                  // FAST, but you MUST call Rebuild afterwords or it will break
-    void            Rebuild     ();
 
-	void			Empty		();
-	void			EmptyAndDelete();
+template <class T>
+class HashTable<T>::iterator
+{
+    friend class HashTable<T>;
+    HashTable<T>* parent;
+    unsigned int index;
+    
+    iterator(HashTable<T>* p, unsigned int idx) : parent(p), index(idx) {
+        while (index < parent->m_size && parent->m_keys[index].empty()) {
+            ++index;
+        }
+    }
+    
+    void advance() {
+        if (parent && index < parent->m_size) {
+            ++index;
+            while (index < parent->m_size && parent->m_keys[index].empty()) {
+                ++index;
+            }
+        }
+    }
+    
+public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T*;
+    using reference = T&;
+    
+    iterator& operator++() { advance(); return *this; }
+    iterator operator++(int) { iterator tmp = *this; advance(); return tmp; }
+    
+    reference operator*() const { return parent->m_data[index]; }
+    pointer operator->() const { return &parent->m_data[index]; }
+    
+    [[nodiscard]] bool operator==(const iterator& other) const noexcept { 
+        return parent == other.parent && index == other.index; 
+    }
+    [[nodiscard]] bool operator!=(const iterator& other) const noexcept { 
+        return !(*this == other); 
+    }
+    
+    [[nodiscard]] unsigned int get_index() const noexcept { return index; }
+    [[nodiscard]] const std::string& get_key() const { return parent->m_keys[index]; }
+};
 
-	bool			ValidIndex	(unsigned int _x) const;
-	unsigned int	Size		() const;							                    // Returns total table size, NOT number of slots used
-	unsigned int	NumUsed		() const;
 
-	T				operator [] (unsigned int _index) const;
-	char const *	GetName		(unsigned int _index) const;
-
-	void			DumpKeys	() const;
+template <class T>
+class HashTable<T>::const_iterator
+{
+    friend class HashTable<T>;
+    const HashTable<T>* parent;
+    unsigned int index;
+    
+    const_iterator(const HashTable<T>* p, unsigned int idx) : parent(p), index(idx) {
+        while (index < parent->m_size && parent->m_keys[index].empty()) {
+            ++index;
+        }
+    }
+    
+    void advance() {
+        if (parent && index < parent->m_size) {
+            ++index;
+            while (index < parent->m_size && parent->m_keys[index].empty()) {
+                ++index;
+            }
+        }
+    }
+    
+public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const T*;
+    using reference = const T&;
+    
+    const_iterator& operator++() { advance(); return *this; }
+    const_iterator operator++(int) { const_iterator tmp = *this; advance(); return tmp; }
+    
+    reference operator*() const { return parent->m_data[index]; }
+    pointer operator->() const { return &parent->m_data[index]; }
+    
+    [[nodiscard]] bool operator==(const const_iterator& other) const noexcept { 
+        return parent == other.parent && index == other.index; 
+    }
+    [[nodiscard]] bool operator!=(const const_iterator& other) const noexcept { 
+        return !(*this == other); 
+    }
+    
+    [[nodiscard]] unsigned int get_index() const noexcept { return index; }
+    [[nodiscard]] const std::string& get_key() const { return parent->m_keys[index]; }
 };
 
 
 #include "hash_table.cpp"
-
 
 #endif

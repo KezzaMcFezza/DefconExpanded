@@ -1,6 +1,8 @@
 #ifndef _included_renderer3dvbo_h
 #define _included_renderer3dvbo_h
 
+#include <string>
+
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/colour.h"
 #include "lib/tosser/btree.h"
@@ -141,7 +143,7 @@ public:
   size_t GetCached3DVBOVertexSize (const char *cacheKey);
   int GetCachedInstanceBatchCount ();
 
-  DArray<char*> *GetAllCached3DVBOKeys();
+  DArray<std::string> *GetAllCached3DVBOKeys();
 
   int GetMegaBufferVertexCount3D   () const { return m_maxMegaVertices3D; }
   int GetMegaBufferIndexCount3D    () const { return m_maxMegaIndices3D; }

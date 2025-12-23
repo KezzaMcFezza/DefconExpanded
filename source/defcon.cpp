@@ -316,7 +316,7 @@ void RestartTestBed( int result, char *notes )
 
 bool ProcessServerLetters( Directory *letter )
 {
-    if( strcmp( letter->m_name, NET_DEFCON_MESSAGE ) != 0 ||
+    if( strcmp( letter->m_name.c_str(), NET_DEFCON_MESSAGE ) != 0 ||
         !letter->HasData( NET_DEFCON_COMMAND ) )
     { 
         AppDebugOut( "Client received bogus message, discarded (4)\n" );
@@ -582,8 +582,12 @@ bool ProcessServerLetters( Directory *letter )
 
                 for( int i = 0; i < tokens->Size(); i+=2 )
                 {
+                    if( i+1 >= tokens->Size() ) break;
+                    
                     char *modName = tokens->GetData(i);
                     char *version = tokens->GetData(i+1);
+                    
+                    if( !modName || !version ) break;
 
                     strcat( reason, modName );
                     strcat( reason, " " );
@@ -895,8 +899,7 @@ void EmscriptenMainLoop()
                 letter->DebugPrint(0);
             }
 
-            // #### DODGY LOGIC HERE !strcmp == ####
-            if( !strcmp(letter->m_name, NET_DEFCON_MESSAGE) == 0 ||
+            if( letter->m_name != NET_DEFCON_MESSAGE ||
                 !letter->HasData(NET_DEFCON_SEQID, DIRECTORY_TYPE_INT) )
             {
                 AppDebugOut( "Client received bogus message, discarded (5)\n" );
@@ -1221,8 +1224,7 @@ void DefconMain()
                     letter->DebugPrint(0);
                 }
 
-                // #### DODGY LOGIC HERE !strcmp == ####
-                if( !strcmp(letter->m_name, NET_DEFCON_MESSAGE) == 0 ||
+                if( letter->m_name != NET_DEFCON_MESSAGE ||
                     !letter->HasData(NET_DEFCON_SEQID, DIRECTORY_TYPE_INT) )
                 {
                     AppDebugOut( "Client received bogus message, discarded (5)\n" );

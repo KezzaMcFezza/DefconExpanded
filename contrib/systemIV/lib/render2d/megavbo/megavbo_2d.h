@@ -1,6 +1,8 @@
 #ifndef _included_renderervbo_h
 #define _included_renderervbo_h
 
+#include <string>
+
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render/colour.h"
 #include "lib/tosser/btree.h"
@@ -106,7 +108,7 @@ public:
   int GetCachedVBOIndexCount    (const char *cacheKey);
   size_t GetCachedVBOVertexSize (const char *cacheKey);
   
-  DArray<char*> *GetAllCachedVBOKeys();
+  DArray<std::string> *GetAllCachedVBOKeys();
 
   int GetMegaBufferVertexCount   () const { return m_maxMegaVertices; }
   int GetMegaBufferIndexCount    () const { return m_maxMegaIndices; }

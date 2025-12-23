@@ -391,23 +391,23 @@ LList<char *> *FileSystem::ListArchive(char *_dir, char *_filter, bool fullFilen
         }
 
         m_archiveMutex->Lock();
-        DArray <char *> *unfilteredResults = m_archiveFiles.ConvertIndexToDArray();
+        DArray <std::string> *unfilteredResults = m_archiveFiles.ConvertIndexToDArray();
         m_archiveMutex->Unlock();
 
         for (unsigned int i = 0; i < unfilteredResults->Size(); ++i)
         {
             if (!unfilteredResults->ValidIndex(i)) continue;
 
-            char *fullname = unfilteredResults->GetData(i);
-            char *dirPart = (char *) GetDirectoryPart( fullname );
+            const std::string &fullname = unfilteredResults->GetData(i);
+            char *dirPart = (char *) GetDirectoryPart( fullname.c_str() );
             if( stricmp( dirPart, _dir ) == 0 )
             {
-                char *filePart = (char *) GetFilenamePart( fullname );
+                char *filePart = (char *) GetFilenamePart( fullname.c_str() );
                 int result = WildCmp(_filter, filePart);
                 if (result != 0)
                 {
-                    if( fullname )      OrderedInsert(results, filePart);				
-                    else   			    OrderedInsert(results, fullname);				
+                    if( !fullname.empty() )      OrderedInsert(results, filePart);
+                    else   			    OrderedInsert(results, fullname.c_str());
                 }
             }
         }

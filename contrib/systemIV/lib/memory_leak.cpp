@@ -103,21 +103,21 @@ void ParseMemoryLeakFile ( char *_inputFilename, char *_outputFilename )
     //
 
     DArray <int> *sizes = combined.ConvertToDArray ();
-    DArray <char *> *sources = combined.ConvertIndexToDArray ();
-    LList <char *> sorted;
+    DArray <std::string> *sources = combined.ConvertIndexToDArray ();
+    LList <std::string> sorted;
     int totalsize = 0;
 
     for ( int i = 0; i < sources->Size (); ++i )
     {
-        char *newsource = sources->GetData (i);
+        const std::string &newsource = sources->GetData (i);
         int newsize = sizes->GetData (i);
         totalsize += newsize;
         bool inserted = false;
 
         for ( int j = 0; j < sorted.Size (); ++j ) {
 
-            char *existingsource = sorted.GetData (j);
-            int existingsize = combined.GetData ( existingsource );
+            const std::string &existingsource = sorted.GetData (j);
+            int existingsize = combined.GetData ( existingsource.c_str() );
 
             if ( newsize <= existingsize ) {
 
@@ -146,20 +146,20 @@ void ParseMemoryLeakFile ( char *_inputFilename, char *_outputFilename )
     fprintf ( output, "Total recognised memory leaks   : %d Kbytes\n", int(totalsize/1024)  );
     fprintf ( output, "Total unrecognised memory leaks : %d Kbytes\n\n", int(unrecognised/1024) );
     
-    for ( int k = sorted.Size () - 1; k >= 0; --k ) 
+    for ( int k = sorted.Size () - 1; k >= 0; --k )
     {
 
-        char *source = sorted.GetData (k);
-        int size = combined.GetData ( source );
-        int freq = frequency.GetData ( source );
+        const std::string &source = sorted.GetData (k);
+        int size = combined.GetData ( source.c_str() );
+        int freq = frequency.GetData ( source.c_str() );
 
         if( size > 2048 )
         {
-            fprintf ( output, "%-95s (%d Kbytes in %d leaks)\n", source, int(size/1024), freq );
+            fprintf ( output, "%-95s (%d Kbytes in %d leaks)\n", source.c_str(), int(size/1024), freq );
         }
         else
         {
-            fprintf ( output, "%-95s (%d  bytes in %d leaks)\n", source, size, freq );
+            fprintf ( output, "%-95s (%d  bytes in %d leaks)\n", source.c_str(), size, freq );
         }
     }
 

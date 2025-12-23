@@ -106,14 +106,14 @@ Renderer2DVBO::~Renderer2DVBO()
 
 void Renderer2DVBO::InvalidateAllVBOs() {
     
-    DArray<char*> *keys = m_cachedVBOs.ConvertIndexToDArray();
+    DArray<std::string> *keys = m_cachedVBOs.ConvertIndexToDArray();
     
     //
     // Delete each VBO, but skip protected ones
 
     for (int i = 0; i < keys->Size(); ++i) {
-        if (!IsVBOProtected(keys->GetData(i))) {
-            InvalidateCachedVBO(keys->GetData(i));
+        if (!IsVBOProtected(keys->GetData(i).c_str())) {
+            InvalidateCachedVBO(keys->GetData(i).c_str());
         }
     }
     
@@ -183,10 +183,10 @@ int Renderer2DVBO::GetCachedVBOCount() {
     //
     // Iterate through cached VBOs and count valid ones
     
-    DArray<char*> *keys = m_cachedVBOs.ConvertIndexToDArray();
+    DArray<std::string> *keys = m_cachedVBOs.ConvertIndexToDArray();
     
     for (int i = 0; i < keys->Size(); ++i) {
-        BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(keys->GetData(i));
+        BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(keys->GetData(i).c_str());
         if (tree && tree->data && tree->data->isValid) {
             count++;
         }
@@ -220,12 +220,12 @@ size_t Renderer2DVBO::GetCachedVBOVertexSize(const char *cacheKey) {
     return 0;
 }
 
-DArray<char*> *Renderer2DVBO::GetAllCachedVBOKeys() {
-    DArray<char*> *allKeys = m_cachedVBOs.ConvertIndexToDArray();
-    DArray<char*> *validKeys = new DArray<char*>();
+DArray<std::string> *Renderer2DVBO::GetAllCachedVBOKeys() {
+    DArray<std::string> *allKeys = m_cachedVBOs.ConvertIndexToDArray();
+    DArray<std::string> *validKeys = new DArray<std::string>();
     
     for (int i = 0; i < allKeys->Size(); ++i) {
-        BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(allKeys->GetData(i));
+        BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(allKeys->GetData(i).c_str());
         if (tree && tree->data && tree->data->isValid) {
             validKeys->PutData(allKeys->GetData(i));
         }

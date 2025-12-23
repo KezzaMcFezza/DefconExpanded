@@ -2,13 +2,17 @@
 //                        BINARY TREE                            //
 //                                                               //
 //                   By Christopher Delay                        //
+//                   Modernized for C++17                        //
 //                           V1.3                                //
 //===============================================================//
 
 #ifndef _included_binary_tree_h
 #define _included_binary_tree_h
 
-
+#include <memory>
+#include <string>
+#include <string_view>
+#include <optional>
 #include "darray.h"
 
 
@@ -17,51 +21,73 @@
 // Use : A sorted dynamic data structure
 // Every data item has a string id which is used for ordering
 // Allows very fast data lookups
+//=================================================================
 
 template <class T>
 class BTree
 {
 protected:
-    BTree *ltree;
-    BTree *rtree;
-
-	bool m_caseSensitive;
-		
-    void RecursiveConvertToDArray ( DArray <T> *darray, BTree <T> *btree );
-    void RecursiveConvertIndexToDArray ( DArray <char *> *darray, BTree <T> *btree );
+    std::unique_ptr<BTree> ltree;
+    std::unique_ptr<BTree> rtree;
     
-    void AppendRight ( BTree <T> *tempright );                            // Used by Remove
+    void RecursiveConvertToDArray      ( DArray <T> *darray, BTree <T> *btree );
+    void RecursiveConvertIndexToDArray ( DArray <std::string> *darray, BTree <T> *btree );
+    void AppendRight                   ( std::unique_ptr<BTree> tempright );
+    
+    static int CompareNoCase(std::string_view a, std::string_view b) noexcept;
     
 public:
-    char *id;
+    std::string id;
     T data;
 
-    BTree ();
-    BTree ( const char *newid, const T &newdata );
-    BTree ( const BTree<T> &copy );
+    BTree          ();
+    BTree          ( const BTree<T> &copy );
+    BTree          ( BTree<T> &&other ) noexcept;
+    explicit BTree ( std::string_view newid, const T &newdata );
 
     ~BTree ();
-    void Copy( const BTree<T> &copy );
+    
+    BTree& operator=( const BTree<T> &copy );
+    BTree& operator=( BTree<T> &&other ) noexcept;
+    
+    void Copy       ( const BTree<T> &copy );
+    void PutData    ( std::string_view newid, const T &newdata );
+    void RemoveData ( std::string_view newid );
+    
+    //
+    // Returns optional for safety
 
-    void PutData ( const char *newid, const T &newdata );
-    void RemoveData ( const char *newid );                     // Requires a solid copy constructor in T class
-    T GetData ( const char *searchid );
+    [[nodiscard]] std::optional<T> GetDataOpt ( std::string_view searchid ) const;
+    
+    //
+    // Returns T() on failure
 
-    BTree *LookupTree( const char *searchid );
+    [[nodiscard]] T GetData              ( std::string_view searchid ) const;
+    [[nodiscard]] BTree *LookupTree      ( std::string_view searchid );
+    [[nodiscard]] const BTree *LookupTree( std::string_view searchid ) const;
     
-    void Empty ();
+    void Empty () noexcept;
     
-    int Size () const;							 // Returns the size in elements
+    [[nodiscard]] int Size () const noexcept;
     
-    void Print ();                              // Prints this tree to stdout
+    void Print () const;
     
-    inline BTree *Left () const;
-    inline BTree *Right () const;
+    [[nodiscard]] constexpr BTree *Left      () const noexcept { return ltree.get(); }
+    [[nodiscard]] constexpr BTree *Right     () const noexcept { return rtree.get(); }
+    [[nodiscard]] constexpr const char *GetId() const noexcept { return id.c_str(); }
+
+    //
+    // Returns unique_ptr for safer ownership
+
+    [[nodiscard]] std::unique_ptr<DArray<T>> ConvertToDArraySafe();
+    [[nodiscard]] std::unique_ptr<DArray<std::string>> ConvertIndexToDArraySafe();
     
-    DArray <T> *ConvertToDArray ();
-    DArray <char *> *ConvertIndexToDArray ();
+    //
+    // To maintain compatibility, caller owns pointer
+
+    [[nodiscard]] DArray<T> *ConvertToDArray();
+    [[nodiscard]] DArray<std::string> *ConvertIndexToDArray();
 };
-
 
 
 //  ===================================================================

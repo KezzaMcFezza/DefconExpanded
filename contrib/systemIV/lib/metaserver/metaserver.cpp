@@ -207,7 +207,7 @@ void ReceiveMetaServerData( Directory const &_directory )
 
 void ReceiveDirectory( Directory const &_directory )
 {
-    if( strcmp(_directory.m_name, NET_METASERVER_MESSAGE) != 0 ||
+    if( strcmp(_directory.m_name.c_str(), NET_METASERVER_MESSAGE) != 0 ||
         !_directory.HasData(NET_METASERVER_COMMAND, DIRECTORY_TYPE_STRING) )
     {
         AppDebugOut( "Received bogus message, discarded (6)\n" );
@@ -247,9 +247,9 @@ void ReceiveDirectory( Directory const &_directory )
                 if( data->IsVoid() )
                 {
                     Directory result;
-                    bool success = result.Read( data->m_void, data->m_voidLen );
+                    bool success = result.Read( data->m_void.data(), static_cast<int>(data->m_void.size()) );
                     if( success )
-                    {                
+                    {
                         ReceiveDirectory( result );
                     }
                 }

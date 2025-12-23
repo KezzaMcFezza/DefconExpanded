@@ -348,7 +348,7 @@ void MatchMaker_RequestConnection( char *_targetIp, int _targetPort, const Direc
 
 bool MatchMaker_ReceiveMessage( NetSocketListener *_listener, const Directory &_message )
 {
-    AppAssert( strcmp(_message.m_name, NET_MATCHMAKER_MESSAGE) == 0 );
+    AppAssert( strcmp(_message.m_name.c_str(), NET_MATCHMAKER_MESSAGE) == 0 );
     AppAssert( _message.HasData( NET_METASERVER_COMMAND, DIRECTORY_TYPE_STRING ) );
 
     char *cmd = _message.GetDataString( NET_METASERVER_COMMAND );

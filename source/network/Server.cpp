@@ -1086,7 +1086,7 @@ void Server::ReceiveLetter( Directory *update, char *fromIP, int _fromPort )
     update->CreateData( NET_DEFCON_FROMIP, fromIP );
     update->CreateData( NET_DEFCON_FROMPORT, _fromPort );
     
-    if( strcmp( update->m_name, NET_MATCHMAKER_MESSAGE ) == 0 )
+    if( strcmp( update->m_name.c_str(), NET_MATCHMAKER_MESSAGE ) == 0 )
     {
         MatchMaker_ReceiveMessage( m_listener, *update );
         delete update;
@@ -1837,7 +1837,7 @@ void Server::Advance()
         //
         // Sanity check the message
 
-        if( strcmp(incoming->m_name, NET_DEFCON_MESSAGE) != 0 ||
+        if( strcmp(incoming->m_name.c_str(), NET_DEFCON_MESSAGE) != 0 ||
             !incoming->HasData( NET_DEFCON_COMMAND, DIRECTORY_TYPE_STRING ) )
         {
             AppDebugOut( "Server received bogus message, discarded (12)\n" );

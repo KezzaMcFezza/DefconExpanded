@@ -726,7 +726,7 @@ void ClientToServer::ReceiveLetter( Directory *_letter )
     //
     // Is this part of the MatchMaker service?
 
-    if( strcmp( letter->m_name, NET_MATCHMAKER_MESSAGE ) == 0 )
+    if( strcmp( letter->m_name.c_str(), NET_MATCHMAKER_MESSAGE ) == 0 )
     {
         MatchMaker_ReceiveMessage( m_listener, *letter );
         return;
@@ -745,7 +745,7 @@ void ClientToServer::ReceiveLetter( Directory *_letter )
     //
     // Ensure the message looks valid
 
-    if( strcmp( letter->m_name, NET_DEFCON_MESSAGE ) != 0 )
+    if( strcmp( letter->m_name.c_str(), NET_DEFCON_MESSAGE ) != 0 )
     {
         AppDebugOut( "Client received bogus data, discarded (2)\n" );
         return;
@@ -1607,7 +1607,7 @@ void ClientToServer::GetPurchaseUrl( char *_purchaseUrl )
 
 void ClientToServer::ProcessServerUpdates( Directory *letter )
 {
-    if( strcmp(letter->m_name, NET_DEFCON_MESSAGE) != 0 ||
+    if( strcmp(letter->m_name.c_str(), NET_DEFCON_MESSAGE) != 0 ||
         !letter->HasData(NET_DEFCON_COMMAND, DIRECTORY_TYPE_STRING) )
     {
         AppDebugOut( "ClientToServer received bogus message, discarded (8)\n" );
@@ -1657,7 +1657,7 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
         if( letter->m_subDirectories.ValidIndex(i) )
         {
             Directory *update = letter->m_subDirectories[i];
-            AppAssert( strcmp(update->m_name, NET_DEFCON_MESSAGE) == 0 );
+            AppAssert( strcmp(update->m_name.c_str(), NET_DEFCON_MESSAGE) == 0 );
             AppAssert( update->HasData( NET_DEFCON_COMMAND, DIRECTORY_TYPE_STRING ) );
     
             char *cmd = update->GetDataString( NET_DEFCON_COMMAND );

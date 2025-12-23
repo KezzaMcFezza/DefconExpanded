@@ -133,11 +133,11 @@ Renderer3DVBO::~Renderer3DVBO()
 
 
 void Renderer3DVBO::InvalidateAll3DVBOs() {
-    DArray<char*> *keys = m_cached3DVBOs.ConvertIndexToDArray();
+    DArray<std::string> *keys = m_cached3DVBOs.ConvertIndexToDArray();
     
     for (int i = 0; i < keys->Size(); ++i) {
-        if (!Is3DVBOProtected(keys->GetData(i))) {
-            InvalidateCached3DVBO(keys->GetData(i));
+        if (!Is3DVBOProtected(keys->GetData(i).c_str())) {
+            InvalidateCached3DVBO(keys->GetData(i).c_str());
         }
     }
     
@@ -204,10 +204,10 @@ void Renderer3DVBO::InvalidateCached3DVBO(const char* cacheKey) {
 int Renderer3DVBO::GetCached3DVBOCount() {
     int count = 0;
     
-    DArray<char*> *keys = m_cached3DVBOs.ConvertIndexToDArray();
+    DArray<std::string> *keys = m_cached3DVBOs.ConvertIndexToDArray();
     
     for (int i = 0; i < keys->Size(); ++i) {
-        BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(keys->GetData(i));
+        BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(keys->GetData(i).c_str());
         if (tree && tree->data && tree->data->isValid) {
             count++;
         }
@@ -248,12 +248,12 @@ size_t Renderer3DVBO::GetCached3DVBOVertexSize(const char *cacheKey) {
     return 0;
 }
 
-DArray<char*> *Renderer3DVBO::GetAllCached3DVBOKeys() {
-    DArray<char*> *allKeys = m_cached3DVBOs.ConvertIndexToDArray();
-    DArray<char*> *validKeys = new DArray<char*>();
+DArray<std::string> *Renderer3DVBO::GetAllCached3DVBOKeys() {
+    DArray<std::string> *allKeys = m_cached3DVBOs.ConvertIndexToDArray();
+    DArray<std::string> *validKeys = new DArray<std::string>();
     
     for (int i = 0; i < allKeys->Size(); ++i) {
-        BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(allKeys->GetData(i));
+        BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(allKeys->GetData(i).c_str());
         if (tree && tree->data && tree->data->isValid) {
             validKeys->PutData(allKeys->GetData(i));
         }

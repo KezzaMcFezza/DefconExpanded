@@ -1,4 +1,6 @@
 #include "systemiv.h"
+#include <string>
+
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
@@ -399,15 +401,15 @@ void RendererOverlay::RenderVBOCacheStatistics(float& yPos)
     //
     // Enumerate and display all 2D VBOs
     
-    DArray<char*> *keys2D = g_renderer2dvbo->GetAllCachedVBOKeys();
+    DArray<std::string> *keys2D = g_renderer2dvbo->GetAllCachedVBOKeys();
     for (int i = 0; i < keys2D->Size(); ++i) {
-        const char* key = keys2D->GetData(i);
-        int vertices = g_renderer2dvbo->GetCachedVBOVertexCount(key);
-        int indices = g_renderer2dvbo->GetCachedVBOIndexCount(key);
-        size_t vertexSize = g_renderer2dvbo->GetCachedVBOVertexSize(key);
+        const std::string &key = keys2D->GetData(i);
+        int vertices = g_renderer2dvbo->GetCachedVBOVertexCount(key.c_str());
+        int indices = g_renderer2dvbo->GetCachedVBOIndexCount(key.c_str());
+        size_t vertexSize = g_renderer2dvbo->GetCachedVBOVertexSize(key.c_str());
         
         char label[256];
-        snprintf(label, sizeof(label), "2D: %s", key);
+        snprintf(label, sizeof(label), "2D: %s", key.c_str());
         renderVBOStat(label, vertices, indices, vertexSize);
     }
     delete keys2D;
@@ -416,15 +418,15 @@ void RendererOverlay::RenderVBOCacheStatistics(float& yPos)
     // Enumerate and display all 3D VBOs
     
     if (g_renderer3d) {
-        DArray<char*> *keys3D = g_renderer3dvbo->GetAllCached3DVBOKeys();
+        DArray<std::string> *keys3D = g_renderer3dvbo->GetAllCached3DVBOKeys();
         for (int i = 0; i < keys3D->Size(); ++i) {
-            const char* key = keys3D->GetData(i);
-            int vertices = g_renderer3dvbo->GetCached3DVBOVertexCount(key);
-            int indices = g_renderer3dvbo->GetCached3DVBOIndexCount(key);
-            size_t vertexSize = g_renderer3dvbo->GetCached3DVBOVertexSize(key);
+            const std::string &key = keys3D->GetData(i);
+            int vertices = g_renderer3dvbo->GetCached3DVBOVertexCount(key.c_str());
+            int indices = g_renderer3dvbo->GetCached3DVBOIndexCount(key.c_str());
+            size_t vertexSize = g_renderer3dvbo->GetCached3DVBOVertexSize(key.c_str());
             
             char label[256];
-            snprintf(label, sizeof(label), "3D: %s", key);
+            snprintf(label, sizeof(label), "3D: %s", key.c_str());
             renderVBOStat(label, vertices, indices, vertexSize);
         }
         delete keys3D;

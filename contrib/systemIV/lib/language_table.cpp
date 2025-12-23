@@ -418,16 +418,16 @@ void LanguageTable::LoadTranslation(const char *_filename)
     LoadLanguage( _filename, m_translation );
 
 #ifdef _DEBUG
-    DArray<char *> *keys = m_baseLanguage.ConvertIndexToDArray();
+    DArray<std::string> *keys = m_baseLanguage.ConvertIndexToDArray();
 
     for( int i = 0; i < keys->Size(); ++i )
     {
         if( keys->ValidIndex(i) )
         {
-            char *key = keys->GetData(i);
-			if( !m_translation.GetData( key ) )
+            const std::string &key = keys->GetData(i);
+			if( !m_translation.GetData( key.c_str() ) )
 			{
-				AppDebugOut( "Warning : base language key '%s' with no translation in language file %s\n", key, _filename );
+				AppDebugOut( "Warning : base language key '%s' with no translation in language file %s\n", key.c_str(), _filename );
 			}
         }
     }
@@ -558,27 +558,27 @@ void LanguageTable::TestTranslation( const char *_logFilename )
     
     //
     // Look for strings in the base that are not in the translation
-    
-    DArray<char *> *basePhraseIndex = m_baseLanguage.ConvertIndexToDArray();
+
+    DArray<std::string> *basePhraseIndex = m_baseLanguage.ConvertIndexToDArray();
     DArray<char *> *basePhrases = m_baseLanguage.ConvertToDArray();
 
     for( int i = 0; i < basePhraseIndex->Size(); ++i )
     {
         if( basePhraseIndex->ValidIndex(i) )
         {
-            char *baseIndex = basePhraseIndex->GetData(i);
+            const std::string &baseIndex = basePhraseIndex->GetData(i);
             char *basePhrase = basePhrases->GetData(i);
 
-            if( !DoesTranslationExist( baseIndex ) )
+            if( !DoesTranslationExist( baseIndex.c_str() ) )
             {
-                fprintf( output, "ERROR : Failed to find translation for string ID '%s'\n", baseIndex );
+                fprintf( output, "ERROR : Failed to find translation for string ID '%s'\n", baseIndex.c_str() );
             }
             else
             {
-                char *translatedPhrase = m_translation.GetData( baseIndex );
+                char *translatedPhrase = m_translation.GetData( baseIndex.c_str() );
                 if( strcmp( basePhrase, translatedPhrase ) == 0 )
                 {
-                    fprintf( output, "Warning : String ID appears not to be translated : '%s'\n", baseIndex );
+                    fprintf( output, "Warning : String ID appears not to be translated : '%s'\n", baseIndex.c_str() );
                 }
             }
         }
@@ -591,17 +591,17 @@ void LanguageTable::TestTranslation( const char *_logFilename )
     //
     // Look for phrases in the translation that are not in the base
 
-    DArray<char *> *translatedIndex = m_translation.ConvertIndexToDArray();
+    DArray<std::string> *translatedIndex = m_translation.ConvertIndexToDArray();
 
     for( int i = 0; i < translatedIndex->Size(); ++i )
     {
         if( translatedIndex->ValidIndex(i) )
         {
-            char *index = translatedIndex->GetData(i);
+            const std::string &index = translatedIndex->GetData(i);
 
-            if( !DoesPhraseExist( index ) )
+            if( !DoesPhraseExist( index.c_str() ) )
             {
-                fprintf( output, "Warning : Found new string ID not present in original English : '%s'\n", index );               
+                fprintf( output, "Warning : Found new string ID not present in original English : '%s'\n", index.c_str() );
             }
         }
     }
