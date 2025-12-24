@@ -11,7 +11,8 @@
 // INSTANCING SYSTEM
 // ============================================================================
 
-void Renderer3DVBO::BeginInstancedMegaVBO(const char* batchKey, const char* meshKey) {
+void MegaVBO3D::BeginInstancedMegaVBO(const char* batchKey, const char* meshKey) 
+{
     if (!batchKey || !meshKey) {
         return;
     }
@@ -20,8 +21,8 @@ void Renderer3DVBO::BeginInstancedMegaVBO(const char* batchKey, const char* mesh
     // Only skip building if we are not currently building
     
     if (!m_instancedMegaVBOActive) {
-        BTree<CachedInstanceBatch*>* tree = m_cachedInstanceBatches.LookupTree(batchKey);
-        if (tree && tree->data && tree->data->isValid) {
+        CachedInstanceBatch* batch = m_cachedInstanceBatches.GetData(batchKey, nullptr);
+        if (batch && batch->isValid) {
             return;
         }
     }
@@ -49,7 +50,8 @@ void Renderer3DVBO::BeginInstancedMegaVBO(const char* batchKey, const char* mesh
     m_instanceCount = 0;
 }
 
-bool Renderer3DVBO::AddInstance(const Matrix4f& matrix, const Colour& color) {
+bool MegaVBO3D::AddInstance(const Matrix4f& matrix, const Colour& color) 
+{
     if (!m_instancedMegaVBOActive) {
         return false;
     }
@@ -65,7 +67,8 @@ bool Renderer3DVBO::AddInstance(const Matrix4f& matrix, const Colour& color) {
     return true;
 }
 
-bool Renderer3DVBO::AddInstanceIfNotFull(const Matrix4f& matrix, const Colour& color) {
+bool MegaVBO3D::AddInstanceIfNotFull(const Matrix4f& matrix, const Colour& color) 
+{
     if (!m_instancedMegaVBOActive) {
         return false;
     }
@@ -81,7 +84,8 @@ bool Renderer3DVBO::AddInstanceIfNotFull(const Matrix4f& matrix, const Colour& c
     return true;
 }
 
-void Renderer3DVBO::EndInstancedMegaVBO() {
+void MegaVBO3D::EndInstancedMegaVBO() 
+{
     if (!m_instancedMegaVBOActive || !m_currentInstancedBatchKey) {
         return;
     }
@@ -94,10 +98,10 @@ void Renderer3DVBO::EndInstancedMegaVBO() {
     //
     // Create or get cached instance batch
     
-    BTree<CachedInstanceBatch*>* tree = m_cachedInstanceBatches.LookupTree(m_currentInstancedBatchKey);
-    CachedInstanceBatch* batch = NULL;
+    CachedInstanceBatch* batch = m_cachedInstanceBatches.GetData(m_currentInstancedBatchKey, nullptr);
     
-    if (!tree || !tree->data) {
+    if (!batch) {
+
         //
         // Create new batch
         
@@ -110,12 +114,10 @@ void Renderer3DVBO::EndInstancedMegaVBO() {
         batch->isValid = false;
         
         m_cachedInstanceBatches.PutData(m_currentInstancedBatchKey, batch);
-    } else {
+    } 
+    else 
+    {
 
-        //
-        // Update existing batch
-        
-        batch = tree->data;
         
         //
         // If mesh changed, update it
@@ -150,17 +152,16 @@ void Renderer3DVBO::EndInstancedMegaVBO() {
     m_instancedMegaVBOActive = false;
 }
 
-void Renderer3DVBO::RenderInstancedMegaVBO3D(const char* batchKey) {
+void MegaVBO3D::RenderInstancedMegaVBO3D(const char* batchKey) 
+{
     if (!batchKey) {
         return;
     }
     
-    BTree<CachedInstanceBatch*>* tree = m_cachedInstanceBatches.LookupTree(batchKey);
-    if (!tree || !tree->data || !tree->data->isValid) {
+    CachedInstanceBatch* batch = m_cachedInstanceBatches.GetData(batchKey, nullptr);
+    if (!batch || !batch->isValid) {
         return;
     }
-    
-    CachedInstanceBatch* batch = tree->data;
     
     if (!IsAny3DVBOValid(batch->meshKey)) {
         return;
@@ -170,12 +171,10 @@ void Renderer3DVBO::RenderInstancedMegaVBO3D(const char* batchKey) {
         return;
     }
     
-    BTree<Cached3DVBO*>* vboTree = m_cached3DVBOs.LookupTree(batch->meshKey);
-    if (!vboTree || !vboTree->data || !vboTree->data->isValid) {
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(batch->meshKey, nullptr);
+    if (!cachedVBO || !cachedVBO->isValid) {
         return;
     }
-    
-    Cached3DVBO* cachedVBO = vboTree->data;
     
     g_renderer->StartFlushTiming("MegaVBO_Instanced_3D");
     
@@ -208,23 +207,24 @@ void Renderer3DVBO::RenderInstancedMegaVBO3D(const char* batchKey) {
     g_renderer3d->IncrementDrawCall3D("triangle_vbo");
 }
 
-bool Renderer3DVBO::IsInstancedMegaVBOValid(const char* batchKey) {
+bool MegaVBO3D::IsInstancedMegaVBOValid(const char* batchKey) 
+{
     if (!batchKey) {
         return false;
     }
     
-    BTree<CachedInstanceBatch*>* tree = m_cachedInstanceBatches.LookupTree(batchKey);
-    return (tree && tree->data && tree->data->isValid);
+    CachedInstanceBatch* batch = m_cachedInstanceBatches.GetData(batchKey, nullptr);
+    return (batch && batch->isValid);
 }
 
-void Renderer3DVBO::InvalidateInstancedMegaVBO(const char* batchKey) {
+void MegaVBO3D::InvalidateInstancedMegaVBO(const char* batchKey) 
+{
     if (!batchKey) {
         return;
     }
     
-    BTree<CachedInstanceBatch*>* tree = m_cachedInstanceBatches.LookupTree(batchKey);
-    if (tree && tree->data) {
-        CachedInstanceBatch* batch = tree->data;
+    CachedInstanceBatch* batch = m_cachedInstanceBatches.GetData(batchKey, nullptr);
+    if (batch) {
         
         if (batch->meshKey) {
             delete[] batch->meshKey;
@@ -241,44 +241,37 @@ void Renderer3DVBO::InvalidateInstancedMegaVBO(const char* batchKey) {
     }
 }
 
-void Renderer3DVBO::InvalidateAllInstanceBatches() {
-    DArray<std::string>* keys = m_cachedInstanceBatches.ConvertIndexToDArray();
-    
-    for (int i = 0; i < keys->Size(); ++i) {
-        InvalidateInstancedMegaVBO(keys->GetData(i).c_str());
+void MegaVBO3D::InvalidateAllInstanceBatches() 
+{
+    for (auto it = m_cachedInstanceBatches.begin(); it != m_cachedInstanceBatches.end(); ++it) {
+        InvalidateInstancedMegaVBO(it.get_key().c_str());
     }
-    
-    delete keys;
 }
 
-void Renderer3DVBO::InvalidateInstanceBatchPrefix(const char* batchKeyPrefix) {
+void MegaVBO3D::InvalidateInstanceBatchPrefix(const char* batchKeyPrefix) 
+{
     if (!batchKeyPrefix) return;
     
-    DArray<std::string>* keys = m_cachedInstanceBatches.ConvertIndexToDArray();
     size_t prefixLen = strlen(batchKeyPrefix);
     
-    for (int i = 0; i < keys->Size(); ++i) {
-        const std::string &key = keys->GetData(i);
+    for (auto it = m_cachedInstanceBatches.begin(); it != m_cachedInstanceBatches.end(); ++it) {
+        const std::string &key = it.get_key();
         if (strncmp(key.c_str(), batchKeyPrefix, prefixLen) == 0) {
             InvalidateInstancedMegaVBO(key.c_str());
         }
     }
-    
-    delete keys;
 }
 
-int Renderer3DVBO::GetCachedInstanceBatchCount() {
+int MegaVBO3D::GetCachedInstanceBatchCount() 
+{
     int count = 0;
     
-    DArray<std::string>* keys = m_cachedInstanceBatches.ConvertIndexToDArray();
-    
-    for (int i = 0; i < keys->Size(); ++i) {
-        BTree<CachedInstanceBatch*>* tree = m_cachedInstanceBatches.LookupTree(keys->GetData(i).c_str());
-        if (tree && tree->data && tree->data->isValid) {
+    for (auto it = m_cachedInstanceBatches.begin(); it != m_cachedInstanceBatches.end(); ++it) {
+        CachedInstanceBatch* batch = *it;
+        if (batch && batch->isValid) {
             count++;
         }
     }
     
-    delete keys;
     return count;
 }

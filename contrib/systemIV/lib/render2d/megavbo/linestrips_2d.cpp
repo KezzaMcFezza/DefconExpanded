@@ -6,9 +6,10 @@
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render2d/megavbo/megavbo_2d.h"
 
-void Renderer2DVBO::BeginMegaVBO(const char* megaVBOKey, Colour const &col) {
-    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(megaVBOKey);
-    if (tree && tree->data && tree->data->isValid) {
+void MegaVBO2D::BeginMegaVBO(const char* megaVBOKey, Colour const &col) 
+{
+    CachedVBO* cachedVBO = m_cachedVBOs.GetData(megaVBOKey, nullptr);
+    if (cachedVBO && cachedVBO->isValid) {
         return;
     }
     
@@ -24,7 +25,8 @@ void Renderer2DVBO::BeginMegaVBO(const char* megaVBOKey, Colour const &col) {
     m_megaIndexCount = 0;
 }
 
-void Renderer2DVBO::AddLineStripToMegaVBO(float* vertices, int vertexCount) {
+void MegaVBO2D::AddLineStripToMegaVBO(float* vertices, int vertexCount) 
+{
     if (!m_megaVBOActive || vertexCount < 2) return;
 
     if (m_megaVertexCount + vertexCount > m_maxMegaVertices ||
@@ -61,7 +63,8 @@ void Renderer2DVBO::AddLineStripToMegaVBO(float* vertices, int vertexCount) {
     m_megaIndices[m_megaIndexCount++] = 0xFFFFFFFF;
 }
 
-void Renderer2DVBO::EndMegaVBO() {
+void MegaVBO2D::EndMegaVBO() 
+{
     if (!m_megaVBOActive || !m_currentMegaVBOKey) return;
     
     if (m_megaVertexCount < 2) {
@@ -72,9 +75,8 @@ void Renderer2DVBO::EndMegaVBO() {
     //
     // Create or get cached Mega-VBO
 
-    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(m_currentMegaVBOKey);
-    CachedVBO* cachedVBO = NULL;
-    if (!tree || !tree->data) {
+    CachedVBO* cachedVBO = m_cachedVBOs.GetData(m_currentMegaVBOKey, nullptr);
+    if (!cachedVBO) {
         cachedVBO = new CachedVBO();
         cachedVBO->VBO = 0;
         cachedVBO->VAO = 0;
@@ -84,8 +86,6 @@ void Renderer2DVBO::EndMegaVBO() {
         cachedVBO->vertexType = VBO_VERTEX_2D;
         cachedVBO->isValid = false;
         m_cachedVBOs.PutData(m_currentMegaVBOKey, cachedVBO);
-    } else {
-        cachedVBO = tree->data;
     }
     
     bool isNewVBO = (cachedVBO->VBO == 0);
@@ -108,7 +108,9 @@ void Renderer2DVBO::EndMegaVBO() {
         // Bind index buffer to VAO
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
-    } else {
+    } 
+    else 
+    {
         g_renderer->SetVertexArray(cachedVBO->VAO);
         g_renderer->SetArrayBuffer(cachedVBO->VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
@@ -132,13 +134,12 @@ void Renderer2DVBO::EndMegaVBO() {
     m_megaVBOActive = false;
 }
 
-void Renderer2DVBO::RenderMegaVBO(const char* megaVBOKey) {
-    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(megaVBOKey);
-    if (!tree || !tree->data || !tree->data->isValid) {
+void MegaVBO2D::RenderMegaVBO(const char* megaVBOKey) 
+{
+    CachedVBO* cachedVBO = m_cachedVBOs.GetData(megaVBOKey, nullptr);
+    if (!cachedVBO || !cachedVBO->isValid) {
         return;
     }
-    
-    CachedVBO* cachedVBO = tree->data;
 
     g_renderer->StartFlushTiming("MegaVBO_2D");
     
@@ -164,12 +165,13 @@ void Renderer2DVBO::RenderMegaVBO(const char* megaVBOKey) {
     g_renderer2d->IncrementDrawCall("line_vbo");
 }
 
-bool Renderer2DVBO::IsMegaVBOValid(const char* megaVBOKey) {
-    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(megaVBOKey);
-    return (tree && tree->data && tree->data->isValid);
+bool MegaVBO2D::IsMegaVBOValid(const char* megaVBOKey) {
+    CachedVBO* cachedVBO = m_cachedVBOs.GetData(megaVBOKey, nullptr);
+    return (cachedVBO && cachedVBO->isValid);
 }
 
-void Renderer2DVBO::SetMegaVBOBufferSizes(int vertexCount, int indexCount, const char *cacheKey) {
+void MegaVBO2D::SetMegaVBOBufferSizes(int vertexCount, int indexCount, const char *cacheKey) 
+{
 
     //
     // Calculate new sizes with 10% safety margin

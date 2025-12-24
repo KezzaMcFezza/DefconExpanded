@@ -1,4 +1,4 @@
-VERSION: 1.28.8
+VERSION: 1.29
 
 # This version is tied to the internal build number of DEFCON.
 # So if your DEFCON client does not match the VERSION string then DEFCON will warn you

@@ -6,9 +6,10 @@
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render2d/megavbo/megavbo_2d.h"
 
-void Renderer2DVBO::BeginTriangleMegaVBO(const char* megaVBOKey, Colour const &col) {
-    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(megaVBOKey);
-    if (tree && tree->data && tree->data->isValid) {
+void MegaVBO2D::BeginTriangleMegaVBO(const char* megaVBOKey, Colour const &col) 
+{
+    CachedVBO* cachedVBO = m_cachedVBOs.GetData(megaVBOKey, nullptr);
+    if (cachedVBO && cachedVBO->isValid) {
         return;
     }
 
@@ -24,7 +25,8 @@ void Renderer2DVBO::BeginTriangleMegaVBO(const char* megaVBOKey, Colour const &c
     m_megaTriangleIndexCount = 0;
 }
 
-void Renderer2DVBO::AddTrianglesToMegaVBO(const float* vertices, int vertexCount) {
+void MegaVBO2D::AddTrianglesToMegaVBO(const float* vertices, int vertexCount) 
+{
     if (!m_megaVBOTrianglesActive || vertexCount < 3) return;
 
     if (m_megaTriangleVertexCount + vertexCount > m_maxMegaTriangleVertices ||
@@ -65,7 +67,8 @@ void Renderer2DVBO::AddTrianglesToMegaVBO(const float* vertices, int vertexCount
     }
 }
 
-void Renderer2DVBO::EndTriangleMegaVBO() {
+void MegaVBO2D::EndTriangleMegaVBO() 
+{
     if (!m_megaVBOTrianglesActive || !m_currentMegaVBOTrianglesKey) return;
     
     if (m_megaTriangleVertexCount < 3) {
@@ -76,9 +79,8 @@ void Renderer2DVBO::EndTriangleMegaVBO() {
     //
     // Create or get cached Mega-VBO
 
-    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(m_currentMegaVBOTrianglesKey);
-    CachedVBO* cachedVBO = NULL;
-    if (!tree || !tree->data) {
+    CachedVBO* cachedVBO = m_cachedVBOs.GetData(m_currentMegaVBOTrianglesKey, nullptr);
+    if (!cachedVBO) {
         cachedVBO = new CachedVBO();
         cachedVBO->VBO = 0;
         cachedVBO->VAO = 0;
@@ -88,8 +90,6 @@ void Renderer2DVBO::EndTriangleMegaVBO() {
         cachedVBO->vertexType = VBO_VERTEX_2D;
         cachedVBO->isValid = false;
         m_cachedVBOs.PutData(m_currentMegaVBOTrianglesKey, cachedVBO);
-    } else {
-        cachedVBO = tree->data;
     }
     
     bool isNewVBO = (cachedVBO->VBO == 0);
@@ -109,7 +109,9 @@ void Renderer2DVBO::EndTriangleMegaVBO() {
         glEnableVertexAttribArray(2);
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
-    } else {
+    } 
+    else 
+    {
         g_renderer->SetVertexArray(cachedVBO->VAO);
         g_renderer->SetArrayBuffer(cachedVBO->VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
@@ -129,13 +131,12 @@ void Renderer2DVBO::EndTriangleMegaVBO() {
     m_megaVBOTrianglesActive = false;
 }
 
-void Renderer2DVBO::RenderTriangleMegaVBO(const char* megaVBOKey) {
-    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(megaVBOKey);
-    if (!tree || !tree->data || !tree->data->isValid) {
+void MegaVBO2D::RenderTriangleMegaVBO(const char* megaVBOKey) 
+{
+    CachedVBO* cachedVBO = m_cachedVBOs.GetData(megaVBOKey, nullptr);
+    if (!cachedVBO || !cachedVBO->isValid) {
         return;
     }
-    
-    CachedVBO* cachedVBO = tree->data;
     
     g_renderer->StartFlushTiming("MegaVBO_Triangles_2D");
     
@@ -149,12 +150,16 @@ void Renderer2DVBO::RenderTriangleMegaVBO(const char* megaVBOKey) {
     g_renderer2d->IncrementDrawCall("triangle_vbo");
 }
 
-bool Renderer2DVBO::IsTriangleMegaVBOValid(const char* megaVBOKey) {
-    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(megaVBOKey);
-    return (tree && tree->data && tree->data->isValid);
+bool MegaVBO2D::IsTriangleMegaVBOValid(const char* megaVBOKey) 
+{
+    CachedVBO* cachedVBO = m_cachedVBOs.GetData(megaVBOKey, nullptr);
+    return (cachedVBO && cachedVBO->isValid);
 }
 
-void Renderer2DVBO::SetTriangleMegaVBOBufferSizes(int vertexCount, int indexCount, const char *cacheKey) {
+void MegaVBO2D::SetTriangleMegaVBOBufferSizes(int vertexCount, 
+                                                  int indexCount, 
+                                                  const char *cacheKey) 
+{
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
     

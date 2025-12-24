@@ -2761,12 +2761,12 @@ void MapRenderer::RenderCoastlines()
     //
     // Check if VBO exists and is valid, if not build it
 
-    if (!g_renderer2dvbo->IsMegaVBOValid("MapCoastlines")) {
+    if (!g_megavbo2d->IsMegaVBOValid("MapCoastlines")) {
         LList<Island *> *list = &g_app->GetEarthData()->m_islands;
 
         Colour coastlineColor = g_styleTable->GetPrimaryColour( STYLE_WORLD_COASTLINES );
         
-        g_renderer2dvbo->BeginMegaVBO( "MapCoastlines", coastlineColor );
+        g_megavbo2d->BeginMegaVBO( "MapCoastlines", coastlineColor );
         
         for( int i = 0; i < list->Size(); ++i )
         {
@@ -2789,15 +2789,15 @@ void MapRenderer::RenderCoastlines()
                 //
                 // Add this island's line strip to the mega-VBO
 
-                g_renderer2dvbo->AddLineStripToMegaVBO( vertices, pointCount );
+                g_megavbo2d->AddLineStripToMegaVBO( vertices, pointCount );
                 delete[] vertices;
             }
         }
         
-        g_renderer2dvbo->EndMegaVBO();
+        g_megavbo2d->EndMegaVBO();
     }
     
-    g_renderer2dvbo->RenderMegaVBO( "MapCoastlines" );
+    g_megavbo2d->RenderMegaVBO( "MapCoastlines" );
 
     END_PROFILE( "Coastlines" );
 }
@@ -2823,9 +2823,9 @@ void MapRenderer::RenderBorders()
     //
     // Check if VBO exists and is valid, if not build it
 
-    if (!g_renderer2dvbo->IsMegaVBOValid("MapBorders")) {
+    if (!g_megavbo2d->IsMegaVBOValid("MapBorders")) {
         
-        g_renderer2dvbo->BeginMegaVBO( "MapBorders", lineColour );
+        g_megavbo2d->BeginMegaVBO( "MapBorders", lineColour );
         
         for( int i = 0; i < g_app->GetEarthData()->m_borders.Size(); ++i )
         {
@@ -2845,15 +2845,15 @@ void MapRenderer::RenderBorders()
                     vertices[j * 2 + 1] = thePoint.y;
                 }
                 
-                g_renderer2dvbo->AddLineStripToMegaVBO( vertices, pointCount );
+                g_megavbo2d->AddLineStripToMegaVBO( vertices, pointCount );
                 delete[] vertices;
             }
         }
         
-        g_renderer2dvbo->EndMegaVBO();
+        g_megavbo2d->EndMegaVBO();
     }
 
-    g_renderer2dvbo->RenderMegaVBO( "MapBorders" );
+    g_megavbo2d->RenderMegaVBO( "MapBorders" );
 
     END_PROFILE( "Borders" );
 }

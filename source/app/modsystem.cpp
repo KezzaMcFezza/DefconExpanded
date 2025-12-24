@@ -1023,23 +1023,23 @@ void ModSystem::Commit()
         
         if (!geographyChanged)
         {
-            g_renderer3dvbo->Protect3DVBO("Starfield");
-            g_renderer3dvbo->Protect3DVBO("CullingSphere");
+            g_megavbo3d->Protect3DVBO("Starfield");
+            g_megavbo3d->Protect3DVBO("CullingSphere");
 
             if (!stylesChanged)
             {
-                g_renderer2dvbo->ProtectVBO("MapCoastlines");
-                g_renderer2dvbo->ProtectVBO("MapBorders");
-                g_renderer3dvbo->Protect3DVBO("GlobeCoastlines");
-                g_renderer3dvbo->Protect3DVBO("GlobeBorders");
-                g_renderer3dvbo->Protect3DVBO("GlobeGridlines");
+                g_megavbo2d->ProtectVBO("MapCoastlines");
+                g_megavbo2d->ProtectVBO("MapBorders");
+                g_megavbo3d->Protect3DVBO("GlobeCoastlines");
+                g_megavbo3d->Protect3DVBO("GlobeBorders");
+                g_megavbo3d->Protect3DVBO("GlobeGridlines");
             }
         }
 
         g_resource->Restart();
         
-        g_renderer2dvbo->ClearVBOProtection();
-        g_renderer3dvbo->Clear3DVBOProtection();
+        g_megavbo2d->ClearVBOProtection();
+        g_megavbo3d->Clear3DVBOProtection();
         
         g_app->InitFonts();
         g_app->GetWorldRenderer()->Init();
@@ -1081,11 +1081,11 @@ void ModSystem::Commit()
 
             if( stylesChanged )
             {
-                g_renderer2dvbo->InvalidateCachedVBO("MapCoastlines");
-                g_renderer2dvbo->InvalidateCachedVBO("MapBorders");
-                g_renderer3dvbo->InvalidateCached3DVBO("GlobeCoastlines");
-                g_renderer3dvbo->InvalidateCached3DVBO("GlobeBorders");
-                g_renderer3dvbo->InvalidateCached3DVBO("GlobeGridlines");
+                g_megavbo2d->InvalidateCachedVBO("MapCoastlines");
+                g_megavbo2d->InvalidateCachedVBO("MapBorders");
+                g_megavbo3d->InvalidateCached3DVBO("GlobeCoastlines");
+                g_megavbo3d->InvalidateCached3DVBO("GlobeBorders");
+                g_megavbo3d->InvalidateCached3DVBO("GlobeGridlines");
             }
         }
     }

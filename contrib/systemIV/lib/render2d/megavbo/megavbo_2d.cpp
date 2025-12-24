@@ -7,9 +7,9 @@
 #include "lib/render2d/megavbo/megavbo_2d.h"
 #include "lib/string_utils.h"
 
-Renderer2DVBO *g_renderer2dvbo = NULL;
+MegaVBO2D *g_megavbo2d = NULL;
 
-Renderer2DVBO::Renderer2DVBO()
+MegaVBO2D::MegaVBO2D()
 :   m_maxMegaVertices(100),
     m_maxMegaIndices(100),
     m_megaVBOActive(false),
@@ -51,7 +51,7 @@ Renderer2DVBO::Renderer2DVBO()
     m_megaTriangleIndices = new unsigned int[m_maxMegaTriangleIndices];
 }
 
-Renderer2DVBO::~Renderer2DVBO() 
+MegaVBO2D::~MegaVBO2D() 
 {
     InvalidateAllVBOs();
     
@@ -104,29 +104,29 @@ Renderer2DVBO::~Renderer2DVBO()
 }
 
 
-void Renderer2DVBO::InvalidateAllVBOs() {
-    
-    DArray<std::string> *keys = m_cachedVBOs.ConvertIndexToDArray();
+void MegaVBO2D::InvalidateAllVBOs() 
+{
     
     //
     // Delete each VBO, but skip protected ones
 
-    for (int i = 0; i < keys->Size(); ++i) {
-        if (!IsVBOProtected(keys->GetData(i).c_str())) {
-            InvalidateCachedVBO(keys->GetData(i).c_str());
+    for (auto it = m_cachedVBOs.begin(); it != m_cachedVBOs.end(); ++it) {
+        const std::string& key = it.get_key();
+        if (!IsVBOProtected(key.c_str())) {
+            InvalidateCachedVBO(key.c_str());
         }
     }
-    
-    delete keys;
 }
 
-void Renderer2DVBO::ProtectVBO(const char* key) {
+void MegaVBO2D::ProtectVBO(const char* key) 
+{
     if (!key) return;
     if (IsVBOProtected(key)) return;
     m_protectedVBOKeys.PutData(newStr(key));
 }
 
-void Renderer2DVBO::UnprotectVBO(const char* key) {
+void MegaVBO2D::UnprotectVBO(const char* key) 
+{
     if (!key) return;
     for (int i = 0; i < m_protectedVBOKeys.Size(); ++i) {
         if (strcmp(m_protectedVBOKeys[i], key) == 0) {
@@ -137,14 +137,16 @@ void Renderer2DVBO::UnprotectVBO(const char* key) {
     }
 }
 
-void Renderer2DVBO::ClearVBOProtection() {
+void MegaVBO2D::ClearVBOProtection() 
+{
     for (int i = 0; i < m_protectedVBOKeys.Size(); ++i) {
         delete[] m_protectedVBOKeys[i];
     }
     m_protectedVBOKeys.Empty();
 }
 
-bool Renderer2DVBO::IsVBOProtected(const char* key) {
+bool MegaVBO2D::IsVBOProtected(const char* key) 
+{
     if (!key) return false;
     for (int i = 0; i < m_protectedVBOKeys.Size(); ++i) {
         if (strcmp(m_protectedVBOKeys[i], key) == 0) {
@@ -154,10 +156,10 @@ bool Renderer2DVBO::IsVBOProtected(const char* key) {
     return false;
 }
 
-void Renderer2DVBO::InvalidateCachedVBO(const char* cacheKey) {
-    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(cacheKey);
-    if (tree && tree->data) {
-        CachedVBO* cachedVBO = tree->data;
+void MegaVBO2D::InvalidateCachedVBO(const char* cacheKey) 
+{
+    CachedVBO* cachedVBO = m_cachedVBOs.GetData(cacheKey, nullptr);
+    if (cachedVBO) {
 
         if (cachedVBO->VBO != 0) {
             glDeleteBuffers(1, &cachedVBO->VBO);
@@ -177,60 +179,60 @@ void Renderer2DVBO::InvalidateCachedVBO(const char* cacheKey) {
     }
 }
 
-int Renderer2DVBO::GetCachedVBOCount() {
+int MegaVBO2D::GetCachedVBOCount() 
+{
     int count = 0;
     
     //
     // Iterate through cached VBOs and count valid ones
     
-    DArray<std::string> *keys = m_cachedVBOs.ConvertIndexToDArray();
-    
-    for (int i = 0; i < keys->Size(); ++i) {
-        BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(keys->GetData(i).c_str());
-        if (tree && tree->data && tree->data->isValid) {
+    for (auto it = m_cachedVBOs.begin(); it != m_cachedVBOs.end(); ++it) {
+        CachedVBO* cachedVBO = *it;
+        if (cachedVBO && cachedVBO->isValid) {
             count++;
         }
     }
     
-    delete keys;
     return count;
 }
 
-int Renderer2DVBO::GetCachedVBOVertexCount(const char *cacheKey) {
-    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(cacheKey);
-    if (tree && tree->data && tree->data->isValid) {
-        return tree->data->vertexCount;
+int MegaVBO2D::GetCachedVBOVertexCount(const char *cacheKey) 
+{
+    CachedVBO* cachedVBO = m_cachedVBOs.GetData(cacheKey, nullptr);
+    if (cachedVBO && cachedVBO->isValid) {
+        return cachedVBO->vertexCount;
     }
     return 0;
 }
 
-int Renderer2DVBO::GetCachedVBOIndexCount(const char *cacheKey) {
-    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(cacheKey);
-    if (tree && tree->data && tree->data->isValid) {
-        return tree->data->indexCount;
+int MegaVBO2D::GetCachedVBOIndexCount(const char *cacheKey) 
+{
+    CachedVBO* cachedVBO = m_cachedVBOs.GetData(cacheKey, nullptr);
+    if (cachedVBO && cachedVBO->isValid) {
+        return cachedVBO->indexCount;
     }
     return 0;
 }
 
-size_t Renderer2DVBO::GetCachedVBOVertexSize(const char *cacheKey) {
-    BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(cacheKey);
-    if (tree && tree->data && tree->data->isValid) {
+size_t MegaVBO2D::GetCachedVBOVertexSize(const char *cacheKey) 
+{
+    CachedVBO* cachedVBO = m_cachedVBOs.GetData(cacheKey, nullptr);
+    if (cachedVBO && cachedVBO->isValid) {
         return sizeof(Vertex2D);
     }
     return 0;
 }
 
-DArray<std::string> *Renderer2DVBO::GetAllCachedVBOKeys() {
-    DArray<std::string> *allKeys = m_cachedVBOs.ConvertIndexToDArray();
+DArray<std::string> *MegaVBO2D::GetAllCachedVBOKeys() 
+{
     DArray<std::string> *validKeys = new DArray<std::string>();
     
-    for (int i = 0; i < allKeys->Size(); ++i) {
-        BTree<CachedVBO*>* tree = m_cachedVBOs.LookupTree(allKeys->GetData(i).c_str());
-        if (tree && tree->data && tree->data->isValid) {
-            validKeys->PutData(allKeys->GetData(i));
+    for (auto it = m_cachedVBOs.begin(); it != m_cachedVBOs.end(); ++it) {
+        CachedVBO* cachedVBO = *it;
+        if (cachedVBO && cachedVBO->isValid) {
+            validKeys->PutData(it.get_key());
         }
     }
     
-    delete allKeys;
     return validKeys;
 }

@@ -59,12 +59,12 @@ void Resource::Restart()
     // invalidate VBOs when resources restart
 
     if (g_renderer2d) {
-        g_renderer2dvbo->InvalidateAllVBOs();
+        g_megavbo2d->InvalidateAllVBOs();
         AppDebugOut("Resource restart: Invalidated all 2D VBOs for mod loading\n");
     }
 
     if (g_renderer3d) {
-        g_renderer3dvbo->InvalidateAll3DVBOs();
+        g_megavbo3d->InvalidateAll3DVBOs();
         AppDebugOut("Resource restart: Invalidated all 3D VBOs for mod loading\n");
     }
 }

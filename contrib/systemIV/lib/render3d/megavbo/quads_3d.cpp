@@ -6,9 +6,10 @@
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render3d/megavbo/megavbo_3d.h"
 
-void Renderer3DVBO::BeginTexturedMegaVBO3D(const char* megaVBOKey, unsigned int textureID) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    if (tree && tree->data && tree->data->isValid) {
+void MegaVBO3D::BeginTexturedMegaVBO3D(const char* megaVBOKey, unsigned int textureID) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(megaVBOKey, nullptr);
+    if (cachedVBO && cachedVBO->isValid) {
         return;
     }
     
@@ -25,7 +26,9 @@ void Renderer3DVBO::BeginTexturedMegaVBO3D(const char* megaVBOKey, unsigned int 
     m_megaTexturedIndex3DCount = 0;
 }
 
-void Renderer3DVBO::AddTexturedQuadsToMegaVBO3D(const Vertex3DTextured* vertices, int vertexCount, int quadCount) {
+void MegaVBO3D::AddTexturedQuadsToMegaVBO3D(const Vertex3DTextured* vertices, 
+                                                int vertexCount, int quadCount) 
+{
     if (!m_megaVBO3DTexturedActive || vertexCount < 4) return;
 
     int indicesNeeded = quadCount * 6;
@@ -68,7 +71,11 @@ void Renderer3DVBO::AddTexturedQuadsToMegaVBO3D(const Vertex3DTextured* vertices
     }
 }
 
-void Renderer3DVBO::AddTexturedTrianglesToMegaVBO3DWithIndices(const Vertex3DTextured* vertices, int vertexCount, const unsigned int* indices, int indexCount) {
+void MegaVBO3D::AddTexturedTrianglesToMegaVBO3DWithIndices(const Vertex3DTextured* vertices, 
+                                                               int vertexCount, 
+                                                               const unsigned int* indices, 
+                                                               int indexCount) 
+{
     if (!m_megaVBO3DTexturedActive || vertexCount < 3 || indexCount < 3) return;
 
     if (m_megaTexturedVertex3DCount + vertexCount > m_maxMegaTexturedVertices3D ||
@@ -91,7 +98,8 @@ void Renderer3DVBO::AddTexturedTrianglesToMegaVBO3DWithIndices(const Vertex3DTex
     }
 }
 
-void Renderer3DVBO::EndTexturedMegaVBO3D() {
+void MegaVBO3D::EndTexturedMegaVBO3D() 
+{
     if (!m_megaVBO3DTexturedActive || !m_currentMegaVBO3DTexturedKey) return;
     
     if (m_megaTexturedVertex3DCount < 4) {
@@ -102,9 +110,8 @@ void Renderer3DVBO::EndTexturedMegaVBO3D() {
     //
     // Create or get cached Mega-VBO
 
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(m_currentMegaVBO3DTexturedKey);
-    Cached3DVBO* cachedVBO = NULL;
-    if (!tree || !tree->data) {
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(m_currentMegaVBO3DTexturedKey, nullptr);
+    if (!cachedVBO) {
         cachedVBO = new Cached3DVBO();
         cachedVBO->VBO = 0;
         cachedVBO->VAO = 0;
@@ -114,8 +121,6 @@ void Renderer3DVBO::EndTexturedMegaVBO3D() {
         cachedVBO->vertexType = VBO_VERTEX_3D_TEXTURED;
         cachedVBO->isValid = false;
         m_cached3DVBOs.PutData(m_currentMegaVBO3DTexturedKey, cachedVBO);
-    } else {
-        cachedVBO = tree->data;
     }
     
     bool isNewVBO = (cachedVBO->VBO == 0);
@@ -140,7 +145,9 @@ void Renderer3DVBO::EndTexturedMegaVBO3D() {
         glEnableVertexAttribArray(3);
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
-    } else {
+    } 
+    else 
+    {
         g_renderer->SetVertexArray(cachedVBO->VAO);
         g_renderer->SetArrayBuffer(cachedVBO->VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
@@ -164,13 +171,12 @@ void Renderer3DVBO::EndTexturedMegaVBO3D() {
     m_megaVBO3DTexturedActive = false;
 }
 
-void Renderer3DVBO::RenderTexturedMegaVBO3D(const char* megaVBOKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    if (!tree || !tree->data || !tree->data->isValid) {
+void MegaVBO3D::RenderTexturedMegaVBO3D(const char* megaVBOKey) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(megaVBOKey, nullptr);
+    if (!cachedVBO || !cachedVBO->isValid) {
         return;
     }
-    
-    Cached3DVBO* cachedVBO = tree->data;
     
     g_renderer->StartFlushTiming("MegaVBO_Textured_3D");
     
@@ -197,12 +203,15 @@ void Renderer3DVBO::RenderTexturedMegaVBO3D(const char* megaVBOKey) {
     g_renderer3d->IncrementDrawCall3D("quad_vbo");
 }
 
-bool Renderer3DVBO::IsTexturedMegaVBO3DValid(const char* megaVBOKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    return (tree && tree->data && tree->data->isValid);
+bool MegaVBO3D::IsTexturedMegaVBO3DValid(const char* megaVBOKey) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(megaVBOKey, nullptr);
+    return (cachedVBO && cachedVBO->isValid);
 }
 
-void Renderer3DVBO::SetTexturedMegaVBO3DBufferSizes(int vertexCount, int indexCount, const char *cacheKey) {
+void MegaVBO3D::SetTexturedMegaVBO3DBufferSizes(int vertexCount, int indexCount, 
+                                                    const char *cacheKey) 
+{
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
     

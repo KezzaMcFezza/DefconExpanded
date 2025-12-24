@@ -225,12 +225,12 @@ void EarthData::CalculateAndSetBufferSizes()
     // both renderers use the same data
 
     if (g_renderer2d) {
-        g_renderer2dvbo->SetMegaVBOBufferSizes(totalVertices, totalIndices, "MapCoastlines");
-        g_renderer2dvbo->SetMegaVBOBufferSizes(totalVertices, totalIndices, "MapBorders");
+        g_megavbo2d->SetMegaVBOBufferSizes(totalVertices, totalIndices, "MapCoastlines");
+        g_megavbo2d->SetMegaVBOBufferSizes(totalVertices, totalIndices, "MapBorders");
     }
     if (g_renderer3d) {
-        g_renderer3dvbo->SetMegaVBO3DBufferSizes(totalVertices, totalIndices, "GlobeCoastlines");
-        g_renderer3dvbo->SetMegaVBO3DBufferSizes(totalVertices, totalIndices, "GlobeBorders");
+        g_megavbo3d->SetMegaVBO3DBufferSizes(totalVertices, totalIndices, "GlobeCoastlines");
+        g_megavbo3d->SetMegaVBO3DBufferSizes(totalVertices, totalIndices, "GlobeBorders");
     }
 }
 

@@ -344,8 +344,8 @@ void RendererOverlay::RenderSystemInformation(float& yPos)
         //
         // Total allocated memory
 
-        size_t totalAllocated = g_renderer2dvbo->GetTotalAllocatedBufferMemory();
-               totalAllocated += g_renderer3dvbo->GetTotalAllocatedBufferMemory();
+        size_t totalAllocated = g_megavbo2d->GetTotalAllocatedBufferMemory();
+               totalAllocated += g_megavbo3d->GetTotalAllocatedBufferMemory();
                
         float totalMemoryMB = totalAllocated / (1024.0f * 1024.0f);
         snprintf(infoBuffer, sizeof(infoBuffer), "  Total Allocated: %.2f MB", totalMemoryMB);
@@ -368,8 +368,8 @@ void RendererOverlay::RenderVBOCacheStatistics(float& yPos)
     //
     // Count total cached VBOs from both 2D and 3D renderers
     
-    int cached2DVBOCount = g_renderer2dvbo->GetCachedVBOCount();
-    int cached3DVBOCount = g_renderer3d ? g_renderer3dvbo->GetCached3DVBOCount() : 0;
+    int cached2DVBOCount = g_megavbo2d->GetCachedVBOCount();
+    int cached3DVBOCount = g_renderer3d ? g_megavbo3d->GetCached3DVBOCount() : 0;
     int totalCachedVBOs = cached2DVBOCount + cached3DVBOCount;
     
     snprintf(infoBuffer, sizeof(infoBuffer), "  Total Cached VBOs: %d", totalCachedVBOs);
@@ -401,12 +401,12 @@ void RendererOverlay::RenderVBOCacheStatistics(float& yPos)
     //
     // Enumerate and display all 2D VBOs
     
-    DArray<std::string> *keys2D = g_renderer2dvbo->GetAllCachedVBOKeys();
+    DArray<std::string> *keys2D = g_megavbo2d->GetAllCachedVBOKeys();
     for (int i = 0; i < keys2D->Size(); ++i) {
         const std::string &key = keys2D->GetData(i);
-        int vertices = g_renderer2dvbo->GetCachedVBOVertexCount(key.c_str());
-        int indices = g_renderer2dvbo->GetCachedVBOIndexCount(key.c_str());
-        size_t vertexSize = g_renderer2dvbo->GetCachedVBOVertexSize(key.c_str());
+        int vertices = g_megavbo2d->GetCachedVBOVertexCount(key.c_str());
+        int indices = g_megavbo2d->GetCachedVBOIndexCount(key.c_str());
+        size_t vertexSize = g_megavbo2d->GetCachedVBOVertexSize(key.c_str());
         
         char label[256];
         snprintf(label, sizeof(label), "2D: %s", key.c_str());
@@ -418,12 +418,12 @@ void RendererOverlay::RenderVBOCacheStatistics(float& yPos)
     // Enumerate and display all 3D VBOs
     
     if (g_renderer3d) {
-        DArray<std::string> *keys3D = g_renderer3dvbo->GetAllCached3DVBOKeys();
+        DArray<std::string> *keys3D = g_megavbo3d->GetAllCached3DVBOKeys();
         for (int i = 0; i < keys3D->Size(); ++i) {
             const std::string &key = keys3D->GetData(i);
-            int vertices = g_renderer3dvbo->GetCached3DVBOVertexCount(key.c_str());
-            int indices = g_renderer3dvbo->GetCached3DVBOIndexCount(key.c_str());
-            size_t vertexSize = g_renderer3dvbo->GetCached3DVBOVertexSize(key.c_str());
+            int vertices = g_megavbo3d->GetCached3DVBOVertexCount(key.c_str());
+            int indices = g_megavbo3d->GetCached3DVBOIndexCount(key.c_str());
+            size_t vertexSize = g_megavbo3d->GetCached3DVBOVertexSize(key.c_str());
             
             char label[256];
             snprintf(label, sizeof(label), "3D: %s", key.c_str());

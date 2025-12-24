@@ -77,15 +77,15 @@ static void BuildVBOForGroup(Model* model, const std::vector<size_t>& meshIndice
                              int totalVertices, int totalIndices, const char* vboCacheKey, bool useTexturedVBO)
 {
     if (useTexturedVBO) {
-        if (g_renderer3dvbo->IsTexturedMegaVBO3DValid(vboCacheKey)) {
+        if (g_megavbo3d->IsTexturedMegaVBO3DValid(vboCacheKey)) {
             model->AddVBOCacheKey(vboCacheKey);
             return;
         }
         
-        g_renderer3dvbo->SetTexturedMegaVBO3DBufferSizes(totalVertices, totalIndices, vboCacheKey);
+        g_megavbo3d->SetTexturedMegaVBO3DBufferSizes(totalVertices, totalIndices, vboCacheKey);
         
         unsigned int textureID = material->GetBaseColorTextureID();
-        g_renderer3dvbo->BeginTexturedMegaVBO3D(vboCacheKey, textureID);
+        g_megavbo3d->BeginTexturedMegaVBO3D(vboCacheKey, textureID);
         
         Colour materialColor = material->baseColorFactor;
         
@@ -98,27 +98,27 @@ static void BuildVBOForGroup(Model* model, const std::vector<size_t>& meshIndice
             Vertex3DTextured* vertices = new Vertex3DTextured[vertexCount];
             CreateTexturedVertices(mesh, vertices, materialColor);
             
-            g_renderer3dvbo->AddTexturedTrianglesToMegaVBO3DWithIndices(vertices, vertexCount, &mesh.indices[0], indexCount);
+            g_megavbo3d->AddTexturedTrianglesToMegaVBO3DWithIndices(vertices, vertexCount, &mesh.indices[0], indexCount);
             
             delete[] vertices;
         }
         
-        g_renderer3dvbo->EndTexturedMegaVBO3D();
+        g_megavbo3d->EndTexturedMegaVBO3D();
     } else {
-        if (g_renderer3dvbo->IsTriangleMegaVBO3DValid(vboCacheKey)) {
+        if (g_megavbo3d->IsTriangleMegaVBO3DValid(vboCacheKey)) {
             model->AddVBOCacheKey(vboCacheKey);
             return;
         }
         
-        int currentMaxVertices = g_renderer3dvbo->GetMegaTriangleBufferVertexCount3D();
-        int currentMaxIndices = g_renderer3dvbo->GetMegaTriangleBufferIndexCount3D();
+        int currentMaxVertices = g_megavbo3d->GetMegaTriangleBufferVertexCount3D();
+        int currentMaxIndices = g_megavbo3d->GetMegaTriangleBufferIndexCount3D();
         
         if (totalVertices > currentMaxVertices || totalIndices > currentMaxIndices) {
-            g_renderer3dvbo->SetTriangleMegaVBO3DBufferSizes(totalVertices, totalIndices, vboCacheKey);
+            g_megavbo3d->SetTriangleMegaVBO3DBufferSizes(totalVertices, totalIndices, vboCacheKey);
         }
         
         Colour materialColor = material->baseColorFactor;
-        g_renderer3dvbo->BeginTriangleMegaVBO3D(vboCacheKey, materialColor);
+        g_megavbo3d->BeginTriangleMegaVBO3D(vboCacheKey, materialColor);
         
         for (size_t i = 0; i < meshIndices.size(); i++) {
             const ModelMesh& mesh = model->m_meshes[meshIndices[i]];
@@ -129,12 +129,12 @@ static void BuildVBOForGroup(Model* model, const std::vector<size_t>& meshIndice
             Vector3<float>* vertices = new Vector3<float>[vertexCount];
             CreateNonTexturedVertices(mesh, vertices);
             
-            g_renderer3dvbo->AddTrianglesToMegaVBO3DWithIndices(vertices, vertexCount, &mesh.indices[0], indexCount);
+            g_megavbo3d->AddTrianglesToMegaVBO3DWithIndices(vertices, vertexCount, &mesh.indices[0], indexCount);
             
             delete[] vertices;
         }
         
-        g_renderer3dvbo->EndTriangleMegaVBO3D();
+        g_megavbo3d->EndTriangleMegaVBO3D();
     }
     
     model->AddVBOCacheKey(vboCacheKey);
@@ -234,10 +234,10 @@ void ModelBuilder::GenerateVBOCacheKey(const Model* model, const MaterialGroup& 
 
 void ModelBuilder::BuildTexturedVBO(Model* model, const MaterialGroup& group, const char* vboCacheKey)
 {
-    g_renderer3dvbo->SetTexturedMegaVBO3DBufferSizes(group.totalVertices, group.totalIndices, vboCacheKey);
+    g_megavbo3d->SetTexturedMegaVBO3DBufferSizes(group.totalVertices, group.totalIndices, vboCacheKey);
     
     unsigned int textureID = group.material->GetBaseColorTextureID();
-    g_renderer3dvbo->BeginTexturedMegaVBO3D(vboCacheKey, textureID);
+    g_megavbo3d->BeginTexturedMegaVBO3D(vboCacheKey, textureID);
     
     Colour materialColor = group.material->baseColorFactor;
     
@@ -250,25 +250,25 @@ void ModelBuilder::BuildTexturedVBO(Model* model, const MaterialGroup& group, co
         Vertex3DTextured* vertices = new Vertex3DTextured[vertexCount];
         CreateTexturedVertices(mesh, vertices, materialColor);
         
-        g_renderer3dvbo->AddTexturedTrianglesToMegaVBO3DWithIndices(vertices, vertexCount, &mesh.indices[0], indexCount);
+        g_megavbo3d->AddTexturedTrianglesToMegaVBO3DWithIndices(vertices, vertexCount, &mesh.indices[0], indexCount);
         
         delete[] vertices;
     }
     
-    g_renderer3dvbo->EndTexturedMegaVBO3D();
+    g_megavbo3d->EndTexturedMegaVBO3D();
 }
 
 void ModelBuilder::BuildNonTexturedVBO(Model* model, const MaterialGroup& group, const char* vboCacheKey)
 { 
-    int currentMaxVertices = g_renderer3dvbo->GetMegaTriangleBufferVertexCount3D();
-    int currentMaxIndices = g_renderer3dvbo->GetMegaTriangleBufferIndexCount3D();
+    int currentMaxVertices = g_megavbo3d->GetMegaTriangleBufferVertexCount3D();
+    int currentMaxIndices = g_megavbo3d->GetMegaTriangleBufferIndexCount3D();
     
     if (group.totalVertices > currentMaxVertices || group.totalIndices > currentMaxIndices) {
-        g_renderer3dvbo->SetTriangleMegaVBO3DBufferSizes(group.totalVertices, group.totalIndices, vboCacheKey);
+        g_megavbo3d->SetTriangleMegaVBO3DBufferSizes(group.totalVertices, group.totalIndices, vboCacheKey);
     }
     
     Colour materialColor = group.material->baseColorFactor;
-    g_renderer3dvbo->BeginTriangleMegaVBO3D(vboCacheKey, materialColor);
+    g_megavbo3d->BeginTriangleMegaVBO3D(vboCacheKey, materialColor);
     
     for (size_t i = 0; i < group.meshIndices.size(); i++) {
         const ModelMesh& mesh = model->m_meshes[group.meshIndices[i]];
@@ -279,12 +279,12 @@ void ModelBuilder::BuildNonTexturedVBO(Model* model, const MaterialGroup& group,
         Vector3<float>* vertices = new Vector3<float>[vertexCount];
         CreateNonTexturedVertices(mesh, vertices);
         
-        g_renderer3dvbo->AddTrianglesToMegaVBO3DWithIndices(vertices, vertexCount, &mesh.indices[0], indexCount);
+        g_megavbo3d->AddTrianglesToMegaVBO3DWithIndices(vertices, vertexCount, &mesh.indices[0], indexCount);
         
         delete[] vertices;
     }
     
-    g_renderer3dvbo->EndTriangleMegaVBO3D();
+    g_megavbo3d->EndTriangleMegaVBO3D();
 }
 
 char* ModelBuilder::GetModelCacheKey(const Model* model)

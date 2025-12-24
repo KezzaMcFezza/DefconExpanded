@@ -1,15 +1,15 @@
-#ifndef _included_renderer3dvbo_h
-#define _included_renderer3dvbo_h
+#ifndef _included_MegaVBO3D_h
+#define _included_MegaVBO3D_h
 
 #include <string>
 
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/colour.h"
-#include "lib/tosser/btree.h"
+#include "lib/tosser/hash_table.h"
 #include "lib/tosser/llist.h"
 #include "lib/tosser/darray.h"
 
-class Renderer3DVBO {
+class MegaVBO3D {
 
 protected:
 
@@ -80,13 +80,13 @@ protected:
     bool isValid;
   };
 
-  BTree<Cached3DVBO*> m_cached3DVBOs;
-  BTree<CachedInstanceBatch*> m_cachedInstanceBatches;
+  HashTable<Cached3DVBO*> m_cached3DVBOs;
+  HashTable<CachedInstanceBatch*> m_cachedInstanceBatches;
   DArray<char*> m_protected3DVBOKeys;
 
 public:
-  Renderer3DVBO();
-  virtual ~Renderer3DVBO();
+  MegaVBO3D();
+  virtual ~MegaVBO3D();
 
   void InvalidateCached3DVBO      (const char *cacheKey);
 
@@ -169,6 +169,6 @@ public:
   }
 };
 
-extern Renderer3DVBO *g_renderer3dvbo;
+extern MegaVBO3D *g_megavbo3d;
 
 #endif

@@ -497,7 +497,7 @@ void GlobeRenderer::RegenerateStarField()
 
 void GlobeRenderer::BuildStarfieldVBO()
 {
-    if (g_renderer3dvbo->IsTexturedMegaVBO3DValid("Starfield")) {
+    if (g_megavbo3d->IsTexturedMegaVBO3DValid("Starfield")) {
         return;
     }
     
@@ -514,7 +514,7 @@ void GlobeRenderer::BuildStarfieldVBO()
     //
     // Set buffer sizes with padding (10% extra)
 
-    g_renderer3dvbo->SetTexturedMegaVBO3DBufferSizes(verticesNeeded, indicesNeeded, "Starfield");
+    g_megavbo3d->SetTexturedMegaVBO3DBufferSizes(verticesNeeded, indicesNeeded, "Starfield");
     
     float u1, v1, u2, v2;
     g_renderer->GetImageUVCoords(cityImg, u1, v1, u2, v2);
@@ -522,7 +522,7 @@ void GlobeRenderer::BuildStarfieldVBO()
     //
     // Build it
 
-    g_renderer3dvbo->BeginTexturedMegaVBO3D("Starfield", g_renderer->GetEffectiveTextureID(cityImg));
+    g_megavbo3d->BeginTexturedMegaVBO3D("Starfield", g_renderer->GetEffectiveTextureID(cityImg));
     
     //
     // Build all billboards at once
@@ -575,16 +575,16 @@ void GlobeRenderer::BuildStarfieldVBO()
                                                     billboardVertices, u1, v1, u2, v2, 
                                                     r, g, b, a);
         
-        g_renderer3dvbo->AddTexturedQuadsToMegaVBO3D(billboardVertices, 6, 1);
+        g_megavbo3d->AddTexturedQuadsToMegaVBO3D(billboardVertices, 6, 1);
     }
     
-    g_renderer3dvbo->EndTexturedMegaVBO3D();
+    g_megavbo3d->EndTexturedMegaVBO3D();
 
 }
 
 void GlobeRenderer::RenderStarField()
 { 
-    if (!g_renderer3dvbo->IsTexturedMegaVBO3DValid("Starfield")) {
+    if (!g_megavbo3d->IsTexturedMegaVBO3DValid("Starfield")) {
         if (g_preferences->GetInt(PREFS_GLOBE_STARFIELD, 1)) {
             if (!g_starField3DInitialized) {
                 GenerateStarField();
@@ -593,7 +593,7 @@ void GlobeRenderer::RenderStarField()
         }
     }
     
-    g_renderer3dvbo->RenderTexturedMegaVBO3D("Starfield");
+    g_megavbo3d->RenderTexturedMegaVBO3D("Starfield");
 }
 
 //
@@ -602,7 +602,7 @@ void GlobeRenderer::RenderStarField()
 
 void GlobeRenderer::BuildCullSphereVBO()
 {
-    if (g_renderer3dvbo->IsTriangleMegaVBO3DValid("CullingSphere")) {
+    if (g_megavbo3d->IsTriangleMegaVBO3DValid("CullingSphere")) {
         return;
     }
     
@@ -617,10 +617,10 @@ void GlobeRenderer::BuildCullSphereVBO()
     int totalTriangles = numLatitudeSegments * numLongitudeSegments * 2;
     int totalVertices = totalTriangles * 3;
     
-    g_renderer3dvbo->SetTriangleMegaVBO3DBufferSizes(totalVertices, totalVertices, "CullingSphere");
+    g_megavbo3d->SetTriangleMegaVBO3DBufferSizes(totalVertices, totalVertices, "CullingSphere");
     
     Colour cullColor(255, 255, 255, 255);
-    g_renderer3dvbo->BeginTriangleMegaVBO3D("CullingSphere", cullColor);
+    g_megavbo3d->BeginTriangleMegaVBO3D("CullingSphere", cullColor);
     
     //
     // Generate sphere triangles
@@ -656,16 +656,16 @@ void GlobeRenderer::BuildCullSphereVBO()
             // Add 2 triangles per quad (6 vertices total)
             
             Vector3<float> triangleVerts[6] = { v1, v2, v3, v1, v3, v4 };
-            g_renderer3dvbo->AddTrianglesToMegaVBO3D(triangleVerts, 6);
+            g_megavbo3d->AddTrianglesToMegaVBO3D(triangleVerts, 6);
         }
     }
     
-    g_renderer3dvbo->EndTriangleMegaVBO3D();
+    g_megavbo3d->EndTriangleMegaVBO3D();
 }
 
 void GlobeRenderer::RenderCullSphere()
 {
-    if (!g_renderer3dvbo->IsTriangleMegaVBO3DValid("CullingSphere")) {
+    if (!g_megavbo3d->IsTriangleMegaVBO3DValid("CullingSphere")) {
         BuildCullSphereVBO();
     }
     
@@ -685,7 +685,7 @@ void GlobeRenderer::RenderCullSphere()
     
     glDisable(GL_CULL_FACE);
     
-    g_renderer3dvbo->RenderTriangleMegaVBO3D("CullingSphere");
+    g_megavbo3d->RenderTriangleMegaVBO3D("CullingSphere");
     
     //
     // Re enable color writes and restore culling state
@@ -697,11 +697,11 @@ void GlobeRenderer::RenderCullSphere()
 void GlobeRenderer::GlobeCoastlines()
 {
     if (g_preferences->GetInt(PREFS_GRAPHICS_COASTLINES) == 1) {
-        if (!g_renderer3dvbo->IsMegaVBO3DValid("GlobeCoastlines")) {
+        if (!g_megavbo3d->IsMegaVBO3DValid("GlobeCoastlines")) {
 #ifndef TARGET_EMSCRIPTEN
             g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.5f));
 #endif
-            g_renderer3dvbo->BeginMegaVBO3D("GlobeCoastlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_COASTLINES ));
+            g_megavbo3d->BeginMegaVBO3D("GlobeCoastlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_COASTLINES ));
 
             for( int i = 0; i < g_app->GetEarthData()->m_islands.Size(); ++i )
             {
@@ -718,7 +718,7 @@ void GlobeRenderer::GlobeCoastlines()
                 AddLineStrip(coastlineVertices);
             }
             
-            g_renderer3dvbo->EndMegaVBO3D();
+            g_megavbo3d->EndMegaVBO3D();
 
         }
     }
@@ -730,17 +730,17 @@ void GlobeRenderer::GlobeCoastlines()
     g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_COAST_THICKNESS, 1.5f));
 #endif
 
-    g_renderer3dvbo->RenderMegaVBO3D("GlobeCoastlines");
+    g_megavbo3d->RenderMegaVBO3D("GlobeCoastlines");
 }
 
 void GlobeRenderer::GlobeBorders()
 {
     if (g_preferences->GetInt(PREFS_GRAPHICS_BORDERS) == 1) {
-        if (!g_renderer3dvbo->IsMegaVBO3DValid("GlobeBorders")) {
+        if (!g_megavbo3d->IsMegaVBO3DValid("GlobeBorders")) {
 #ifndef TARGET_EMSCRIPTEN
             g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
 #endif
-            g_renderer3dvbo->BeginMegaVBO3D("GlobeBorders", g_styleTable->GetPrimaryColour( STYLE_GLOBE_BORDERS ));
+            g_megavbo3d->BeginMegaVBO3D("GlobeBorders", g_styleTable->GetPrimaryColour( STYLE_GLOBE_BORDERS ));
 
             for( int i = 0; i < g_app->GetEarthData()->m_borders.Size(); ++i )
             {
@@ -757,7 +757,7 @@ void GlobeRenderer::GlobeBorders()
                 AddLineStrip(borderVertices);
             }
 
-            g_renderer3dvbo->EndMegaVBO3D();
+            g_megavbo3d->EndMegaVBO3D();
 
         }
     }
@@ -769,13 +769,13 @@ void GlobeRenderer::GlobeBorders()
     g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_BORDER_THICKNESS, 1.0f));
 #endif
 
-    g_renderer3dvbo->RenderMegaVBO3D("GlobeBorders");
+    g_megavbo3d->RenderMegaVBO3D("GlobeBorders");
 }
 
 void GlobeRenderer::GlobeGridlines()
 {
-    if (!g_renderer3dvbo->IsMegaVBO3DValid("GlobeGridlines")) {
-        g_renderer3dvbo->BeginMegaVBO3D("GlobeGridlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_GRIDLINES ));
+    if (!g_megavbo3d->IsMegaVBO3DValid("GlobeGridlines")) {
+        g_megavbo3d->BeginMegaVBO3D("GlobeGridlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_GRIDLINES ));
         
     //
     // Longitudinal lines (meridians)
@@ -803,14 +803,14 @@ void GlobeRenderer::GlobeGridlines()
             AddLineStrip(lineVertices);
     }
         
-    g_renderer3dvbo->EndMegaVBO3D();
+    g_megavbo3d->EndMegaVBO3D();
 
     }
 
     //
     // Build it
 
-    g_renderer3dvbo->RenderMegaVBO3D("GlobeGridlines");
+    g_megavbo3d->RenderMegaVBO3D("GlobeGridlines");
 
 }
 
@@ -825,7 +825,7 @@ void GlobeRenderer::AddLineStrip(const DArray<Vector3<float>> &vertices) const
         vertexArray[i] = vertices.GetData(i);
     }
     
-    g_renderer3dvbo->AddLineStripToMegaVBO3D(vertexArray, vertices.Size());
+    g_megavbo3d->AddLineStripToMegaVBO3D(vertexArray, vertices.Size());
     delete[] vertexArray;
 }
 
@@ -1444,7 +1444,7 @@ void GlobeRenderer::Render3DNukes()
         return;
     }
     
-    if (!g_renderer3dvbo->IsAny3DVBOValid(cacheKey)) {
+    if (!g_megavbo3d->IsAny3DVBOValid(cacheKey)) {
         g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
         END_PROFILE("3D Nukes");
         return;
@@ -1454,7 +1454,7 @@ void GlobeRenderer::Render3DNukes()
     // Clear all sub batches from previous frame
     
     const char* baseBatchKey = "nuke_instances";
-    g_renderer3dvbo->InvalidateInstanceBatchPrefix(baseBatchKey);
+    g_megavbo3d->InvalidateInstanceBatchPrefix(baseBatchKey);
     
     //
     // Begin instanced batch for nukes
@@ -1463,7 +1463,7 @@ void GlobeRenderer::Render3DNukes()
     char currentBatchKey[256];
     sprintf(currentBatchKey, "%s_%d", baseBatchKey, batchIndex);
     
-    g_renderer3dvbo->BeginInstancedMegaVBO(currentBatchKey, cacheKey);
+    g_megavbo3d->BeginInstancedMegaVBO(currentBatchKey, cacheKey);
     
     //
     // Collect all visible nukes as instances
@@ -1571,21 +1571,21 @@ void GlobeRenderer::Render3DNukes()
             Team *team = g_app->GetWorld()->GetTeam(nuke->m_teamId);
             Colour color = team ? team->GetTeamColour() : White;
             
-            if (!g_renderer3dvbo->AddInstanceIfNotFull(modelMatrix, color)) {
-                g_renderer3dvbo->EndInstancedMegaVBO();
-                g_renderer3dvbo->RenderInstancedMegaVBO3D(currentBatchKey);
+            if (!g_megavbo3d->AddInstanceIfNotFull(modelMatrix, color)) {
+                g_megavbo3d->EndInstancedMegaVBO();
+                g_megavbo3d->RenderInstancedMegaVBO3D(currentBatchKey);
                 
                 batchIndex++;
                 sprintf(currentBatchKey, "%s_%d", baseBatchKey, batchIndex);
                 
-                g_renderer3dvbo->BeginInstancedMegaVBO(currentBatchKey, cacheKey);
-                g_renderer3dvbo->AddInstance(modelMatrix, color);
+                g_megavbo3d->BeginInstancedMegaVBO(currentBatchKey, cacheKey);
+                g_megavbo3d->AddInstance(modelMatrix, color);
             }
         }
     }
     
-    g_renderer3dvbo->EndInstancedMegaVBO();
-    g_renderer3dvbo->RenderInstancedMegaVBO3D(currentBatchKey);
+    g_megavbo3d->EndInstancedMegaVBO();
+    g_megavbo3d->RenderInstancedMegaVBO3D(currentBatchKey);
     
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
     

@@ -6,9 +6,10 @@
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render3d/megavbo/megavbo_3d.h"
 
-void Renderer3DVBO::BeginMegaVBO3D(const char* megaVBOKey, Colour const &col) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    if (tree && tree->data && tree->data->isValid) {
+void MegaVBO3D::BeginMegaVBO3D(const char* megaVBOKey, Colour const &col) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(megaVBOKey, nullptr);
+    if (cachedVBO && cachedVBO->isValid) {
         return;
     }
 
@@ -24,7 +25,8 @@ void Renderer3DVBO::BeginMegaVBO3D(const char* megaVBOKey, Colour const &col) {
     m_megaIndex3DCount = 0;
 }
 
-void Renderer3DVBO::AddLineStripToMegaVBO3D(const Vector3<float>* vertices, int vertexCount) {
+void MegaVBO3D::AddLineStripToMegaVBO3D(const Vector3<float>* vertices, int vertexCount) 
+{
     if (!m_megaVBO3DActive || vertexCount < 2) return;
 
     if (m_megaVertex3DCount + vertexCount > m_maxMegaVertices3D ||
@@ -69,7 +71,8 @@ void Renderer3DVBO::AddLineStripToMegaVBO3D(const Vector3<float>* vertices, int 
     m_megaIndices3D[m_megaIndex3DCount++] = 0xFFFFFFFF;
 }
 
-void Renderer3DVBO::EndMegaVBO3D() {
+void MegaVBO3D::EndMegaVBO3D() 
+{
     if (!m_megaVBO3DActive || !m_currentMegaVBO3DKey) return;
     
     if (m_megaVertex3DCount < 2) {
@@ -80,9 +83,8 @@ void Renderer3DVBO::EndMegaVBO3D() {
     //
     // Create or get cached Mega-VBO
 
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(m_currentMegaVBO3DKey);
-    Cached3DVBO* cachedVBO = NULL;
-    if (!tree || !tree->data) {
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(m_currentMegaVBO3DKey, nullptr);
+    if (!cachedVBO) {
         cachedVBO = new Cached3DVBO();
         cachedVBO->VBO = 0;
         cachedVBO->VAO = 0;
@@ -92,8 +94,6 @@ void Renderer3DVBO::EndMegaVBO3D() {
         cachedVBO->vertexType = VBO_VERTEX_3D;
         cachedVBO->isValid = false;
         m_cached3DVBOs.PutData(m_currentMegaVBO3DKey, cachedVBO);
-    } else {
-        cachedVBO = tree->data;
     }
     
     bool isNewVBO = (cachedVBO->VBO == 0);
@@ -114,7 +114,9 @@ void Renderer3DVBO::EndMegaVBO3D() {
         // Bind index buffer to VAO
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
-    } else {
+    } 
+    else 
+    {
         g_renderer->SetVertexArray(cachedVBO->VAO);
         g_renderer->SetArrayBuffer(cachedVBO->VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
@@ -134,13 +136,12 @@ void Renderer3DVBO::EndMegaVBO3D() {
     m_megaVBO3DActive = false;
 }
 
-void Renderer3DVBO::RenderMegaVBO3D(const char* megaVBOKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    if (!tree || !tree->data || !tree->data->isValid) {
+void MegaVBO3D::RenderMegaVBO3D(const char* megaVBOKey) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(megaVBOKey, nullptr);
+    if (!cachedVBO || !cachedVBO->isValid) {
         return;
     }
-    
-    Cached3DVBO* cachedVBO = tree->data;
     
     g_renderer->StartFlushTiming("MegaVBO_3D");
     
@@ -166,12 +167,14 @@ void Renderer3DVBO::RenderMegaVBO3D(const char* megaVBOKey) {
     g_renderer3d->IncrementDrawCall3D("line_vbo");
 }
 
-bool Renderer3DVBO::IsMegaVBO3DValid(const char* megaVBOKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    return (tree && tree->data && tree->data->isValid);
+bool MegaVBO3D::IsMegaVBO3DValid(const char* megaVBOKey) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(megaVBOKey, nullptr);
+    return (cachedVBO && cachedVBO->isValid);
 }
 
-void Renderer3DVBO::SetMegaVBO3DBufferSizes(int vertexCount, int indexCount, const char *cacheKey) {
+void MegaVBO3D::SetMegaVBO3DBufferSizes(int vertexCount, int indexCount, const char *cacheKey) 
+{
 
     //
     // Calculate new sizes with 10% safety margin

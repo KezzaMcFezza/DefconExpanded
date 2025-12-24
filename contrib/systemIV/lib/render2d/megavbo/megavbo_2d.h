@@ -5,11 +5,11 @@
 
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render/colour.h"
-#include "lib/tosser/btree.h"
+#include "lib/tosser/hash_table.h"
 #include "lib/tosser/llist.h"
 #include "lib/tosser/darray.h"
 
-class Renderer2DVBO {
+class MegaVBO2D {
 
 protected:
 
@@ -66,12 +66,12 @@ protected:
     bool isValid;
   };
 
-  BTree<CachedVBO*> m_cachedVBOs;
+  HashTable<CachedVBO*> m_cachedVBOs;
   DArray<char*> m_protectedVBOKeys;
 
 public:
-  Renderer2DVBO();
-  virtual ~Renderer2DVBO();
+  MegaVBO2D();
+  virtual ~MegaVBO2D();
 
   void InvalidateCachedVBO      (const char *cacheKey);
 
@@ -127,8 +127,8 @@ public:
   }
 };
 
-class Renderer2DVBO;
+class MegaVBO2D;
 
-extern Renderer2DVBO *g_renderer2dvbo;
+extern MegaVBO2D *g_megavbo2d;
 
 #endif

@@ -7,9 +7,10 @@
 #include "lib/render3d/megavbo/megavbo_3d.h"
 #include "lib/math/matrix4f.h"
 
-void Renderer3DVBO::BeginTriangleMegaVBO3D(const char* megaVBOKey, Colour const &col) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    if (tree && tree->data && tree->data->isValid) {
+void MegaVBO3D::BeginTriangleMegaVBO3D(const char* megaVBOKey, Colour const &col) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(megaVBOKey, nullptr);
+    if (cachedVBO && cachedVBO->isValid) {
         return;
     }
 
@@ -25,7 +26,8 @@ void Renderer3DVBO::BeginTriangleMegaVBO3D(const char* megaVBOKey, Colour const 
     m_megaTriangleIndex3DCount = 0;
 }
 
-void Renderer3DVBO::AddTrianglesToMegaVBO3D(const Vector3<float>* vertices, int vertexCount) {
+void MegaVBO3D::AddTrianglesToMegaVBO3D(const Vector3<float>* vertices, int vertexCount) 
+{
     if (!m_megaVBO3DTrianglesActive || vertexCount < 3) return;
 
     if (m_megaTriangleVertex3DCount + vertexCount > m_maxMegaTriangleVertices3D ||
@@ -65,7 +67,11 @@ void Renderer3DVBO::AddTrianglesToMegaVBO3D(const Vector3<float>* vertices, int 
     }
 }
 
-void Renderer3DVBO::AddTrianglesToMegaVBO3DWithIndices(const Vector3<float>* vertices, int vertexCount, const unsigned int* indices, int indexCount) {
+void MegaVBO3D::AddTrianglesToMegaVBO3DWithIndices(const Vector3<float>* vertices, 
+                                                       int vertexCount, 
+                                                       const unsigned int* indices, 
+                                                       int indexCount) 
+{
     if (!m_megaVBO3DTrianglesActive || vertexCount < 3 || indexCount < 3) return;
 
     if (m_megaTriangleVertex3DCount + vertexCount > m_maxMegaTriangleVertices3D ||
@@ -96,7 +102,8 @@ void Renderer3DVBO::AddTrianglesToMegaVBO3DWithIndices(const Vector3<float>* ver
     }
 }
 
-void Renderer3DVBO::EndTriangleMegaVBO3D() {
+void MegaVBO3D::EndTriangleMegaVBO3D() 
+{
     if (!m_megaVBO3DTrianglesActive || !m_currentMegaVBO3DTrianglesKey) return;
     
     if (m_megaTriangleVertex3DCount < 3) {
@@ -107,9 +114,8 @@ void Renderer3DVBO::EndTriangleMegaVBO3D() {
     //
     // Create or get cached Mega-VBO
 
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(m_currentMegaVBO3DTrianglesKey);
-    Cached3DVBO* cachedVBO = NULL;
-    if (!tree || !tree->data) {
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(m_currentMegaVBO3DTrianglesKey, nullptr);
+    if (!cachedVBO) {
         cachedVBO = new Cached3DVBO();
         cachedVBO->VBO = 0;
         cachedVBO->VAO = 0;
@@ -119,8 +125,6 @@ void Renderer3DVBO::EndTriangleMegaVBO3D() {
         cachedVBO->vertexType = VBO_VERTEX_3D;
         cachedVBO->isValid = false;
         m_cached3DVBOs.PutData(m_currentMegaVBO3DTrianglesKey, cachedVBO);
-    } else {
-        cachedVBO = tree->data;
     }
     
     bool isNewVBO = (cachedVBO->VBO == 0);
@@ -138,7 +142,9 @@ void Renderer3DVBO::EndTriangleMegaVBO3D() {
         glEnableVertexAttribArray(1);
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
-    } else {
+    } 
+    else 
+    {
         g_renderer->SetVertexArray(cachedVBO->VAO);
         g_renderer->SetArrayBuffer(cachedVBO->VBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
@@ -158,13 +164,12 @@ void Renderer3DVBO::EndTriangleMegaVBO3D() {
     m_megaVBO3DTrianglesActive = false;
 }
 
-void Renderer3DVBO::RenderTriangleMegaVBO3D(const char* megaVBOKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    if (!tree || !tree->data || !tree->data->isValid) {
+void MegaVBO3D::RenderTriangleMegaVBO3D(const char* megaVBOKey) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(megaVBOKey, nullptr);
+    if (!cachedVBO || !cachedVBO->isValid) {
         return;
     }
-    
-    Cached3DVBO* cachedVBO = tree->data;
     
     g_renderer->StartFlushTiming("MegaVBO_Triangles_3D");
     
@@ -178,13 +183,14 @@ void Renderer3DVBO::RenderTriangleMegaVBO3D(const char* megaVBOKey) {
     g_renderer3d->IncrementDrawCall3D("triangle_vbo");
 }
 
-void Renderer3DVBO::RenderTriangleMegaVBO3DWithMatrix(const char* megaVBOKey, const Matrix4f& modelMatrix, const Colour& modelColor) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    if (!tree || !tree->data || !tree->data->isValid) {
+void MegaVBO3D::RenderTriangleMegaVBO3DWithMatrix(const char* megaVBOKey, 
+                                                      const Matrix4f& modelMatrix, 
+                                                      const Colour& modelColor) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(megaVBOKey, nullptr);
+    if (!cachedVBO || !cachedVBO->isValid) {
         return;
     }
-    
-    Cached3DVBO* cachedVBO = tree->data;
     
     g_renderer->StartFlushTiming("MegaVBO_Triangles_Matrix_3D");
     
@@ -198,17 +204,22 @@ void Renderer3DVBO::RenderTriangleMegaVBO3DWithMatrix(const char* megaVBOKey, co
     g_renderer3d->IncrementDrawCall3D("triangle_vbo");
 }
 
-bool Renderer3DVBO::IsTriangleMegaVBO3DValid(const char* megaVBOKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(megaVBOKey);
-    return (tree && tree->data && tree->data->isValid);
+bool MegaVBO3D::IsTriangleMegaVBO3DValid(const char* megaVBOKey) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(megaVBOKey, nullptr);
+    return (cachedVBO && cachedVBO->isValid);
 }
 
-bool Renderer3DVBO::IsAny3DVBOValid(const char* cacheKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
-    return (tree && tree->data && tree->data->isValid);
+bool MegaVBO3D::IsAny3DVBOValid(const char* cacheKey) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(cacheKey, nullptr);
+    return (cachedVBO && cachedVBO->isValid);
 }
 
-void Renderer3DVBO::SetTriangleMegaVBO3DBufferSizes(int vertexCount, int indexCount, const char *cacheKey) {
+void MegaVBO3D::SetTriangleMegaVBO3DBufferSizes(int vertexCount, 
+                                                    int indexCount, 
+                                                    const char *cacheKey) 
+{
     int newMaxVertices = (int)(vertexCount * 1.1f);
     int newMaxIndices = (int)(indexCount * 1.1f);
     

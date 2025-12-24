@@ -4,9 +4,9 @@
 #include "lib/render3d/megavbo/megavbo_3d.h"
 #include "lib/string_utils.h"
 
-Renderer3DVBO *g_renderer3dvbo = NULL;
+MegaVBO3D *g_megavbo3d = NULL;
 
-Renderer3DVBO::Renderer3DVBO()
+MegaVBO3D::MegaVBO3D()
 :   m_maxMegaVertices3D(100),
     m_maxMegaIndices3D(100),
     m_megaVBO3DActive(false),
@@ -58,7 +58,7 @@ Renderer3DVBO::Renderer3DVBO()
     m_instanceColors = new Colour[m_maxInstances];
 }
 
-Renderer3DVBO::~Renderer3DVBO() 
+MegaVBO3D::~MegaVBO3D() 
 {
     InvalidateAll3DVBOs();
     InvalidateAllInstanceBatches();
@@ -132,25 +132,25 @@ Renderer3DVBO::~Renderer3DVBO()
 }
 
 
-void Renderer3DVBO::InvalidateAll3DVBOs() {
-    DArray<std::string> *keys = m_cached3DVBOs.ConvertIndexToDArray();
-    
-    for (int i = 0; i < keys->Size(); ++i) {
-        if (!Is3DVBOProtected(keys->GetData(i).c_str())) {
-            InvalidateCached3DVBO(keys->GetData(i).c_str());
+void MegaVBO3D::InvalidateAll3DVBOs() 
+{
+    for (auto it = m_cached3DVBOs.begin(); it != m_cached3DVBOs.end(); ++it) {
+        const std::string& key = it.get_key();
+        if (!Is3DVBOProtected(key.c_str())) {
+            InvalidateCached3DVBO(key.c_str());
         }
     }
-    
-    delete keys;
 }
 
-void Renderer3DVBO::Protect3DVBO(const char* key) {
+void MegaVBO3D::Protect3DVBO(const char* key) 
+{
     if (!key) return;
     if (Is3DVBOProtected(key)) return;
     m_protected3DVBOKeys.PutData(newStr(key));
 }
 
-void Renderer3DVBO::Unprotect3DVBO(const char* key) {
+void MegaVBO3D::Unprotect3DVBO(const char* key) 
+{
     if (!key) return;
     for (int i = 0; i < m_protected3DVBOKeys.Size(); ++i) {
         if (strcmp(m_protected3DVBOKeys[i], key) == 0) {
@@ -161,14 +161,16 @@ void Renderer3DVBO::Unprotect3DVBO(const char* key) {
     }
 }
 
-void Renderer3DVBO::Clear3DVBOProtection() {
+void MegaVBO3D::Clear3DVBOProtection() 
+{
     for (int i = 0; i < m_protected3DVBOKeys.Size(); ++i) {
         delete[] m_protected3DVBOKeys[i];
     }
     m_protected3DVBOKeys.Empty();
 }
 
-bool Renderer3DVBO::Is3DVBOProtected(const char* key) {
+bool MegaVBO3D::Is3DVBOProtected(const char* key) 
+{
     if (!key) return false;
     for (int i = 0; i < m_protected3DVBOKeys.Size(); ++i) {
         if (strcmp(m_protected3DVBOKeys[i], key) == 0) {
@@ -178,10 +180,10 @@ bool Renderer3DVBO::Is3DVBOProtected(const char* key) {
     return false;
 }
 
-void Renderer3DVBO::InvalidateCached3DVBO(const char* cacheKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
-    if (tree && tree->data) {
-        Cached3DVBO* cachedVBO = tree->data;
+void MegaVBO3D::InvalidateCached3DVBO(const char* cacheKey) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(cacheKey, nullptr);
+    if (cachedVBO) {
 
         if (cachedVBO->VBO != 0) {
             glDeleteBuffers(1, &cachedVBO->VBO);
@@ -201,42 +203,43 @@ void Renderer3DVBO::InvalidateCached3DVBO(const char* cacheKey) {
     }
 }
 
-int Renderer3DVBO::GetCached3DVBOCount() {
+int MegaVBO3D::GetCached3DVBOCount() 
+{
     int count = 0;
     
-    DArray<std::string> *keys = m_cached3DVBOs.ConvertIndexToDArray();
-    
-    for (int i = 0; i < keys->Size(); ++i) {
-        BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(keys->GetData(i).c_str());
-        if (tree && tree->data && tree->data->isValid) {
+    for (auto it = m_cached3DVBOs.begin(); it != m_cached3DVBOs.end(); ++it) {
+        Cached3DVBO* cachedVBO = *it;
+        if (cachedVBO && cachedVBO->isValid) {
             count++;
         }
     }
     
-    delete keys;
     return count;
 }
 
-int Renderer3DVBO::GetCached3DVBOVertexCount(const char *cacheKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
-    if (tree && tree->data && tree->data->isValid) {
-        return tree->data->vertexCount;
+int MegaVBO3D::GetCached3DVBOVertexCount(const char *cacheKey) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(cacheKey, nullptr);
+    if (cachedVBO && cachedVBO->isValid) {
+        return cachedVBO->vertexCount;
     }
     return 0;
 }
 
-int Renderer3DVBO::GetCached3DVBOIndexCount(const char *cacheKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
-    if (tree && tree->data && tree->data->isValid) {
-        return tree->data->indexCount;
+int MegaVBO3D::GetCached3DVBOIndexCount(const char *cacheKey) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(cacheKey, nullptr);
+    if (cachedVBO && cachedVBO->isValid) {
+        return cachedVBO->indexCount;
     }
     return 0;
 }
 
-size_t Renderer3DVBO::GetCached3DVBOVertexSize(const char *cacheKey) {
-    BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(cacheKey);
-    if (tree && tree->data && tree->data->isValid) {
-        switch (tree->data->vertexType) {
+size_t MegaVBO3D::GetCached3DVBOVertexSize(const char *cacheKey) 
+{
+    Cached3DVBO* cachedVBO = m_cached3DVBOs.GetData(cacheKey, nullptr);
+    if (cachedVBO && cachedVBO->isValid) {
+        switch (cachedVBO->vertexType) {
             case VBO_VERTEX_3D:
                 return sizeof(Vertex3D);
             case VBO_VERTEX_3D_TEXTURED:
@@ -248,17 +251,16 @@ size_t Renderer3DVBO::GetCached3DVBOVertexSize(const char *cacheKey) {
     return 0;
 }
 
-DArray<std::string> *Renderer3DVBO::GetAllCached3DVBOKeys() {
-    DArray<std::string> *allKeys = m_cached3DVBOs.ConvertIndexToDArray();
+DArray<std::string> *MegaVBO3D::GetAllCached3DVBOKeys() 
+{
     DArray<std::string> *validKeys = new DArray<std::string>();
     
-    for (int i = 0; i < allKeys->Size(); ++i) {
-        BTree<Cached3DVBO*>* tree = m_cached3DVBOs.LookupTree(allKeys->GetData(i).c_str());
-        if (tree && tree->data && tree->data->isValid) {
-            validKeys->PutData(allKeys->GetData(i));
+    for (auto it = m_cached3DVBOs.begin(); it != m_cached3DVBOs.end(); ++it) {
+        Cached3DVBO* cachedVBO = *it;
+        if (cachedVBO && cachedVBO->isValid) {
+            validKeys->PutData(it.get_key());
         }
     }
     
-    delete allKeys;
     return validKeys;
 }

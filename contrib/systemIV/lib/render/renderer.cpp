@@ -84,9 +84,9 @@ Renderer::Renderer()
     g_renderer = this;
     
     g_renderer2d = new Renderer2D();
-    g_renderer2dvbo = new Renderer2DVBO();
+    g_megavbo2d = new MegaVBO2D();
     g_renderer3d = new Renderer3D();
-    g_renderer3dvbo = new Renderer3DVBO();
+    g_megavbo3d = new MegaVBO3D();
     
     //
     // Initialize flush timings
@@ -121,9 +121,9 @@ Renderer::~Renderer()
         g_renderer3d = NULL;
     }
     
-    if (g_renderer3dvbo) {
-        delete g_renderer3dvbo;
-        g_renderer3dvbo = NULL;
+    if (g_megavbo3d) {
+        delete g_megavbo3d;
+        g_megavbo3d = NULL;
     }
     
     if (g_renderer2d) {
@@ -131,9 +131,9 @@ Renderer::~Renderer()
         g_renderer2d = NULL;
     }
     
-    if (g_renderer2dvbo) {
-        delete g_renderer2dvbo;
-        g_renderer2dvbo = NULL;
+    if (g_megavbo2d) {
+        delete g_megavbo2d;
+        g_megavbo2d = NULL;
     }
 }
 

@@ -36,12 +36,12 @@ struct Vertex2D {
                           b(color.GetBFloat()), a(color.GetAFloat()), u(pu), v(pv) {}
 };
 
-class Renderer2DVBO;
+class MegaVBO2D;
 
 class Renderer2D {
 
   friend class Renderer;
-  friend class Renderer2DVBO;
+  friend class MegaVBO2D;
 
 private:
 

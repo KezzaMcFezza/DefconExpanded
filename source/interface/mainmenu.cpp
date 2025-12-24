@@ -1338,11 +1338,11 @@ class ApplyGlobeButton : public InterfaceButton
         //
         // Invalidate VBOs so they rebuild with new settings
         
-        g_renderer3dvbo->InvalidateCached3DVBO("Starfield");
-        g_renderer3dvbo->InvalidateCached3DVBO("CullingSphere");
-        g_renderer3dvbo->InvalidateCached3DVBO("GlobeGridlines");
-        g_renderer3dvbo->InvalidateCached3DVBO("GlobeCoastlines");
-        g_renderer3dvbo->InvalidateCached3DVBO("GlobeBorders");
+        g_megavbo3d->InvalidateCached3DVBO("Starfield");
+        g_megavbo3d->InvalidateCached3DVBO("CullingSphere");
+        g_megavbo3d->InvalidateCached3DVBO("GlobeGridlines");
+        g_megavbo3d->InvalidateCached3DVBO("GlobeCoastlines");
+        g_megavbo3d->InvalidateCached3DVBO("GlobeBorders");
 
         g_preferences->Save();
     }

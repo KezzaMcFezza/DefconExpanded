@@ -78,12 +78,12 @@ struct Vertex3DTextured {
           u(pu), v(pv) {}
 };
 
-class Renderer3DVBO;
+class MegaVBO3D;
 
 class Renderer3D
 {
     friend class Renderer;
-    friend class Renderer3DVBO;
+    friend class MegaVBO3D;
     
 private:
 
