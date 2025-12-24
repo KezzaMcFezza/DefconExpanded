@@ -8,18 +8,16 @@
 #include <time.h>
 #include <string.h>
 #include <string>
+#include <sstream>
 #include <emscripten/console.h>
+#include <emscripten.h>
 #include "lib/debug_utils.h"
-
-// WebAssembly debug utilities stubs
-// These provide basic functionality without execinfo.h dependencies
 
 static std::string s_debugOutRedirect;
 
 void AppDebugOutRedirect(const char *_filename)
 {
 #ifdef EMSCRIPTEN_DEBUG_OUTPUT
-    // Simple implementation for WASM - just store the filename
     if( !_filename || strcmp( _filename, "" ) == 0 )
     {
         s_debugOutRedirect.clear();
@@ -35,9 +33,9 @@ void AppDebugOut(const char *_msg, ...)
     char buf[512];
     va_list ap;
     va_start (ap, _msg);
-    vsprintf(buf, _msg, ap);
+    vsnprintf(buf, sizeof(buf), _msg, ap);
+    va_end(ap);
     
-    // For WebAssembly, just output to console
     emscripten_console_log( buf );
 #endif
 }
@@ -62,7 +60,6 @@ void AppDebugAssert(bool _condition)
 {
     if(!_condition)
     {
-        // For WebAssembly, just abort
         abort();
     }
 }
@@ -73,14 +70,24 @@ void AppReleaseAssertFailed(char const *_msg, ...)
     char buf[512];
     va_list ap;
     va_start (ap, _msg);
-    vsprintf(buf, _msg, ap);
+    vsnprintf(buf, sizeof(buf), _msg, ap);
+    va_end(ap);
+    
+    std::ostringstream fullMessage;
+    fullMessage << buf;
+    std::string fullMsg = fullMessage.str();
 
-    // Output error message
-    emscripten_console_log( buf );
+    emscripten_console_error(fullMsg.c_str());
+    
+    //
+    // Show alert dialog in browser
+
+    EM_ASM({
+        alert(UTF8ToString($0));
+    }, fullMsg.c_str());
 
 #ifndef _DEBUG
-    AppGenerateBlackBox("blackbox.txt", buf);
-    // For WebAssembly, just abort instead of throw
+    AppGenerateBlackBox("blackbox.txt", fullMsg.c_str());
     abort();
 #else
     abort();
@@ -89,13 +96,14 @@ void AppReleaseAssertFailed(char const *_msg, ...)
 
 unsigned *getRetAddress(unsigned *mBP)
 {
+    //
     // Not supported in WebAssembly
+
     return NULL;
 }
 
 void AppGenerateBlackBox( const char *_filename, const char *_msg )
 {
-    // Simplified version for WebAssembly
     printf("=========================\n");
     printf("=   BLACK BOX REPORT    =\n");
     printf("=========================\n\n");
@@ -107,20 +115,21 @@ void AppGenerateBlackBox( const char *_filename, const char *_msg )
     printf("Date %d:%d, %d/%d/%d\n\n", thetime->tm_hour, thetime->tm_min, 
            thetime->tm_mday, thetime->tm_mon+1, thetime->tm_year+1900);
     
-    if( _msg ) printf("ERROR : '%s'\n", _msg);
-    
-    printf("Stack trace not available in WebAssembly\n");
+    if( _msg ) printf("%s\n", _msg);
 }
 
 void SetupPathToProgram(const char *program)
 {
-    // No-op for WebAssembly - path setup not needed in browser environment
-    (void)program; // Suppress unused parameter warning
+    //
+    // Path setup not needed in browser environment
+
+    (void)program; 
 }
 
 void SetupMemoryAccessHandlers()
 {
-    // No-op for WebAssembly - memory access handlers not supported
+    //
+    // Memory access handlers not supported
 }
 
-#endif // TARGET_EMSCRIPTEN 
+#endif // TARGET_EMSCRIPTEN

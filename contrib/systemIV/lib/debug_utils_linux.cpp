@@ -9,6 +9,7 @@
 #include <sys/ucontext.h>
 #include <unistd.h>
 #include <errno.h>
+#include <execinfo.h>
 
 #include "app.h"
 #include "lib/debug_utils.h"
@@ -22,22 +23,46 @@ static char *s_pathToProgram = 0;
 
 void SetupPathToProgram(const char *program)
 {
-	// binreloc gives us the full path
+	//
+	// Binreloc gives us the full path
+
 	s_pathToProgram = strcpy(new char[strlen(program)+1], program);
 }
 
 static void fatalSignal(int signum, siginfo_t *siginfo, void *arg)
 {
-	static char msg[64];
-	sprintf(msg, "Got a fatal signal: %d\n", signum);
+	static char msg[256];
+	sprintf(msg, "Got a fatal signal: %d (", signum);
+	
+	switch(signum)
+	{
+		case SIGSEGV: strcat(msg, "SIGSEGV - Segmentation Fault"); break;
+		case SIGBUS: strcat(msg, "SIGBUS - Bus Error"); break;
+		case SIGFPE: strcat(msg, "SIGFPE - Floating Point Exception"); break;
+		case SIGILL: strcat(msg, "SIGILL - Illegal Instruction"); break;
+		default: strcat(msg, "Unknown Signal"); break;
+	}
+	strcat(msg, ")");
+	
 	ucontext_t *u = (ucontext_t *) arg;
 
-	AppGenerateBlackBox("blackbox.txt", 0);
+	AppGenerateBlackBox("blackbox.txt", msg);
+	
+	fprintf(stderr, "\n\n========================================\n");
+	fprintf(stderr, "FATAL ERROR\n");
+	fprintf(stderr, "========================================\n");
+	fprintf(stderr, "%s\n\n", msg);
+	
+	//
+	// Print stack trace to stderr
+	
+	std::string stackTrace = AppCaptureStackTrace(2, 32);
+	fprintf(stderr, "%s\n", stackTrace.c_str());
 
 	fprintf(stderr, 
-			"\n\nDefcon has unexpectedly encountered a fatal error.\n"
+			"\n\nThe application has unexpectedly encountered a fatal error.\n"
 			"A full description of the error can be found in the file\n"
-			"/tmp/blackbox.txt\n\n");
+			"blackbox.txt\n\n");
 
 #ifndef NO_WINDOW_MANAGER		
 	g_windowManager->UncaptureMouse();
@@ -45,6 +70,11 @@ static void fatalSignal(int signum, siginfo_t *siginfo, void *arg)
 	SDL_Quit();
 #endif
 
+	//	
+	// Re raise signal to get default behavior 
+
+	signal(signum, SIG_DFL);
+	raise(signum);
 }
 
 
@@ -58,4 +88,6 @@ void SetupMemoryAccessHandlers()
 	
 	sigaction(SIGSEGV, &sa, 0);
 	sigaction(SIGBUS, &sa, 0);
+	sigaction(SIGFPE, &sa, 0);
+	sigaction(SIGILL, &sa, 0);
 }

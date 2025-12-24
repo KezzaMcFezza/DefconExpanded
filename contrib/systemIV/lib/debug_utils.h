@@ -1,6 +1,7 @@
 #ifndef DEBUG_UTILS_H
 #define DEBUG_UTILS_H
 
+#include <string>
 
 void    AppDebugOut            (const char *_msg, ...);                                           // Outputs to Devstudio output pane
 
@@ -16,6 +17,8 @@ void    AppDebugAssert         (bool _condition);                               
 void    AppReleaseAssertFailed (char const *_fmt, ...);                    // Same as DebugAssert in Debug builds
 
 void    AppGenerateBlackBox    (const char *_filename, const char *_msg );
+
+std::string AppCaptureStackTrace(int skipFrames = 0, int maxFrames = 32);
 
 #ifdef TARGET_MSVC
 #define AppReleaseAssert(cond, ...) \
