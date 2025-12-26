@@ -25,7 +25,7 @@
       ],
       "compilerPath": "/usr/bin/gcc",
       "cStandard": "c11",
-      "cppStandard": "c++14",
+      "cppStandard": "c++23",
       "intelliSenseMode": "linux-gcc-x64",
       "configurationProvider": "ms-vscode.cmake-tools"
     },
@@ -50,7 +50,7 @@
       "windowsSdkVersion": "10.0.26100.0",
       "compilerPath": "cl.exe",
       "cStandard": "c17",
-      "cppStandard": "c++17",
+      "cppStandard": "c++23",
       "intelliSenseMode": "windows-msvc-x64",
       "configurationProvider": "ms-vscode.cmake-tools"
     }

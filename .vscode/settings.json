@@ -105,7 +105,7 @@
         "--suggest-missing-includes"
     ],
     "clangd.fallbackFlags": [
-        "-std=c++17",
+        "-std=c++23",
         "-Wall",
         "-I${workspaceFolder}/source",
         "-I${workspaceFolder}/source/app",

@@ -438,7 +438,7 @@ cd build
 # Configure CMake
 cmake .. \
     -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
-    -DCMAKE_CXX_STANDARD="17" \
+    -DCMAKE_CXX_STANDARD="23" \
     -DCMAKE_CXX_FLAGS="-w" \
     -DCMAKE_C_FLAGS="-w"
 
