@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{67237266-5380-41d4-88e2-9a30b553475f}</ProjectGuid>
+    <RootNamespace>Unrar</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>Unrar Result\Release\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\Unrar\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>Unrar Result\Debug\</OutDir>
+    <IntDir>$(Platform)\$(Configuration)\Unrar\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <PreprocessorDefinitions>TARGET_MSVC;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TypeLibraryName>.\Debug/Unrar.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>../../contrib/SystemIV/;../../contrib/SystemIV/contrib/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <SmallerTypeCheck>false</SmallerTypeCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OpenMPSupport>true</OpenMPSupport>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <WarningLevel>Level2</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <LanguageStandard>stdcpp23</LanguageStandard>
+      <DisableSpecificWarnings>4244;4305;4800;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>TARGET_MSVC;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0809</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)Unrar.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <PostBuildEvent>
+    </PostBuildEvent>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>$(IntDir)$(TargetName).bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TypeLibraryName>.\Release/Unrar.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>../../contrib/SystemIV/;../../contrib/SystemIV/contrib/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;USE_CRASHREPORTING;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OpenMPSupport>true</OpenMPSupport>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BrowseInformationFile>
+      </BrowseInformationFile>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+      <LanguageStandard>stdcpp23</LanguageStandard>
+      <DisableSpecificWarnings>4244;4305;4800;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0809</Culture>
+    </ResourceCompile>
+    <Lib>
+      <OutputFile>$(OutDir)Unrar.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <PostBuildEvent>
+    </PostBuildEvent>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\archive.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\arcread.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\blake2s.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\cmddata.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\consio.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\crc.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\crypt.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\encname.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\errhnd.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\extinfo.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\extract.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\filcreat.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\file.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\filefn.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\filestr.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\find.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\getbits.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\global.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\hash.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\headers.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\isnt.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\largepage.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\list.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\log.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\match.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\motw.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\options.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\pathfn.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\qopen.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rar.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rarpch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rarvm.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rawread.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rdwrfn.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\recvol.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\resourcerar.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rijndael.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rs.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rs16.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\scantree.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\secpassword.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\sha1.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\sha256.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\smallfn.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\strfn.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\strlist.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\system.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\threadpool.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\timefn.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\ui.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unicode.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unpack.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unrar.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\volume.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

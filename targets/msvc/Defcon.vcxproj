@@ -147,10 +147,10 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;setupapi.lib;version.lib;imm32.lib;cfgmgr32.lib;SystemIV.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;wsock32.lib;opengl32.lib;glu32.lib;dbghelp.lib;winmm.lib;Ws2_32.lib;setupapi.lib;version.lib;imm32.lib;cfgmgr32.lib;SystemIV.lib;Unrar.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Debug\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Debug;$(ProjectDir)Unrar Result/Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>../../Defcon.pdb</ProgramDatabaseFile>
@@ -212,11 +212,11 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV.lib;Unrar.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;$(ProjectDir)Unrar Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -283,7 +283,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;Unrar Result/Release/Unrar.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Sync Practice\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -354,7 +354,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;Unrar Result/Release/Unrar.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Release Endgame\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -424,7 +424,7 @@
       <Culture>0x0809</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;Unrar Result/Release/Unrar.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Replay Viewer\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -673,6 +673,9 @@
   <ItemGroup>
     <ProjectReference Include="SystemIV.vcxproj">
       <Project>{061e89ed-5e01-4813-9e63-0766da413a1d}</Project>
+    </ProjectReference>
+    <ProjectReference Include="Unrar.vcxproj">
+      <Project>{67237266-5380-41d4-88e2-9a30b553475f}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

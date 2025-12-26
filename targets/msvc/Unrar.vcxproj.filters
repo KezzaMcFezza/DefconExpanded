@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\log.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unrar.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\archive.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\arcread.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\blake2s.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\cmddata.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\consio.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\crc.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\crypt.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\encname.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\errhnd.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\extinfo.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\extract.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\filcreat.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\file.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\filefn.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\filestr.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\find.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\getbits.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\global.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\hash.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\headers.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\isnt.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\largepage.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\list.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\match.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\motw.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\options.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\pathfn.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\qopen.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rar.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rarpch.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rarvm.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rawread.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rdwrfn.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\recvol.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\resourcerar.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rijndael.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rs.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\rs16.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\scantree.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\secpassword.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\sha1.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\sha256.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\smallfn.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\strfn.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\strlist.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\system.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\threadpool.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\timefn.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\ui.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unicode.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\unpack.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\contrib\unrar\volume.cpp">
+      <Filter>contrib\unrar</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="contrib">
+      <UniqueIdentifier>{397e79d5-9e68-4ec5-97eb-96df216f6004}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="contrib\unrar">
+      <UniqueIdentifier>{d3fc5479-53f6-454b-bed5-841ed34356b5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
