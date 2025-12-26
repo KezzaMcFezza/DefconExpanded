@@ -124,7 +124,7 @@ void Game::ResetOptions()
 }
 
 
-GameOption *Game::GetOption( char *_name )
+GameOption *Game::GetOption( const char *_name )
 {
     for( int i = 0; i < m_options.Size(); ++i )
     {
@@ -139,7 +139,7 @@ GameOption *Game::GetOption( char *_name )
 }
 
 
-int Game::GetOptionIndex( char *_name )
+int Game::GetOptionIndex( const char *_name )
 {
     for( int i = 0; i < m_options.Size(); ++i )
     {
@@ -154,7 +154,7 @@ int Game::GetOptionIndex( char *_name )
 }
 
 
-int Game::GetOptionValue( char *_name )
+int Game::GetOptionValue( const char *_name )
 {
     GameOption *option = GetOption(_name);
     if( option )
@@ -166,7 +166,7 @@ int Game::GetOptionValue( char *_name )
 }
 
 
-void Game::SetOptionValue( char *_name, int _value )
+void Game::SetOptionValue( const char *_name, int _value )
 {
     GameOption *option = GetOption(_name);
     if( option )

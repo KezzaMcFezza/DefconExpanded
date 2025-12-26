@@ -348,7 +348,7 @@ static NetCallBackRetType MetaserverListenThread(void *ignored)
 }
 
 
-void MetaServer_Connect( char *_metaServerIp, int _metaserverPort, int _listenPort )
+void MetaServer_Connect( const char *_metaServerIp, int _metaserverPort, int _listenPort )
 {
     if( s_connectedToWAN )
     {

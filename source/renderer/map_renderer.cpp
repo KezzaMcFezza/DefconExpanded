@@ -172,7 +172,7 @@ void MapRenderer::Render()
         g_renderer2d->Text( 10, 10, White, 13, "Visible = %d", myTeam->m_targetsVisible );
         g_renderer2d->Text( 10, 30, White, 13, "MaxVisible = %d", myTeam->m_maxTargetsSeen );
 
-        char *state = "";
+        const char *state = "";
         switch( myTeam->m_currentState )
         {
             case Team::StatePlacement:      state = "Placement";    break;

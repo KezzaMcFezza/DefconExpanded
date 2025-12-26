@@ -247,7 +247,7 @@ void App::InitMetaServer()
     //
     // Connect to the MetaServer
 
-    char *metaServerLocation = "metaserver.introversion.co.uk";
+    const char *metaServerLocation = "metaserver.introversion.co.uk";
     //metaServerLocation = "10.0.0.4";
     int port = g_preferences->GetInt( PREFS_NETWORKMETASERVER );
 
@@ -552,7 +552,7 @@ void App::FinishInit()
     
     if( !CheckMainDatVersion() )
     {
-        char *message = "Your data folder or main.dat is out of date.\n\nYou can ignore this message and play anyway but\nexpect broken text rendering or graphical bugs.";
+        const char *message = "Your data folder or main.dat is out of date.\n\nYou can ignore this message and play anyway but\nexpect broken text rendering or graphical bugs.";
         MessageDialog *versionDialog = new MessageDialog( "Version Warning", message, false, "DATA FILES OUT OF DATE", false );
         EclRegisterWindow( versionDialog );
     }

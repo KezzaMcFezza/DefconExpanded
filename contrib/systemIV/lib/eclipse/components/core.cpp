@@ -151,7 +151,7 @@ void InterfaceWindow::CreateValueControl( const char *name, int x, int y, int w,
     }
 }
 
-void InterfaceWindow::RemoveValueControl( char *name )
+void InterfaceWindow::RemoveValueControl( const char *name )
 {
     RemoveButton( name );
 

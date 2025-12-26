@@ -35,7 +35,7 @@ bool    MetaServer_SendDirectory                ( Directory *_directory, NetSock
 bool    MetaServer_SendDirectory                ( Directory *_directory, NetSocketSession *_socket );
 bool    MetaServer_SendToMetaServer             ( Directory *_directory );
 
-void    MetaServer_Connect                      ( char *_metaServerIp, int _metaserverPort, int _listenPort );
+void    MetaServer_Connect                      ( const char *_metaServerIp, int _metaserverPort, int _listenPort );
 void    MetaServer_Disconnect                   ();
 bool    MetaServer_IsConnected                  ();
 

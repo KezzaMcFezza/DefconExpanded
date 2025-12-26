@@ -8,7 +8,7 @@
 
 #include <cstring>
 
-float VersionManager::VersionStringToNumber( char *_version )
+float VersionManager::VersionStringToNumber( const char *_version )
 {
     return atof(_version);
 }

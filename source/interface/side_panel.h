@@ -30,7 +30,7 @@ public:
     };
 
 public:
-    SidePanel( char *name );
+    SidePanel( const char *name );
     ~SidePanel();
 
     void Create();

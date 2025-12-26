@@ -248,7 +248,7 @@ class FontFileDialog : public FileDialog
 public:
     int m_styleIndex;
 
-    FontFileDialog( char *_name )
+    FontFileDialog( const char *_name )
         : FileDialog(_name)
     {
     }

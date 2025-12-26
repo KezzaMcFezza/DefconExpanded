@@ -73,10 +73,10 @@ public:
     void    SetCurrentLevel         ( int _level );
     int     GetCurrentLevel         ();   
     int     GetCurrentChapter       ();
-    int     GetChapterId            ( char *_name );
-    bool    InChapter               ( char *_name );
+    int     GetChapterId            ( const char *_name );
+    bool    InChapter               ( const char *_name );
 
-    void    SetCurrentLevelName     ( char *_stringId );
+    void    SetCurrentLevelName     ( const char *_stringId );
     const char    *GetCurrentLevelName    ();
 
 };

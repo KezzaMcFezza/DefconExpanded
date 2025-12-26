@@ -15,7 +15,7 @@
 // Class MessageDialog
 //*****************************************************************************
 
-MessageDialog::MessageDialog(char *_name, char *_message, bool _messageIsLanguagePhrase, char *_title, bool _titleIsLanguagePhrase)
+MessageDialog::MessageDialog(const char *_name, const char *_message, bool _messageIsLanguagePhrase, const char *_title, bool _titleIsLanguagePhrase)
 :	InterfaceWindow(_name, _title, _titleIsLanguagePhrase),
 	m_numLines(0),
 	m_messageIsLanguagePhrase(_messageIsLanguagePhrase),

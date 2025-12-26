@@ -74,7 +74,7 @@ Tutorial::Tutorial( int _startChapter )
 }
 
 
-int Tutorial::GetChapterId( char *_name )
+int Tutorial::GetChapterId( const char *_name )
 {
     for( int i = 0; i < m_chapters.Size(); ++i )
     {
@@ -99,7 +99,7 @@ int Tutorial::GetCurrentChapter()
 }
 
 
-bool Tutorial::InChapter( char *_name )
+bool Tutorial::InChapter( const char *_name )
 {
     if( !m_chapters.ValidIndex(m_currentChapter) )
     {
@@ -289,7 +289,7 @@ int Tutorial::GetButtonHighlight( char *_windowName, char *_buttonName )
 }
 
 
-void Tutorial::SetCurrentLevelName( char *_stringId )
+void Tutorial::SetCurrentLevelName( const char *_stringId )
 {
     strcpy( m_levelName, _stringId );
 }

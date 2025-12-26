@@ -34,11 +34,11 @@ public:
     ScrollBar   *m_scrollBar;
 
 public:
-    FileDialog( char *_name );
+    FileDialog( const char *_name );
     ~FileDialog();
 
-    void Init( char *parent, 
-               char *path=NULL, char *filter=NULL,
+    void Init( const char *parent, 
+               const char *path=NULL, const char *filter=NULL,
                bool allowMultiSelect=false );
 
     void Create();

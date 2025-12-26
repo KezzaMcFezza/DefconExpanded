@@ -23,9 +23,9 @@ bool DefconSoundInterface::ListObjectTypes( LList<char *> *_list )
         _list->PutData( strdup(fullName) );
     }
 
-    _list->PutData( "Music" );
-    _list->PutData( "Bunker" );
-    _list->PutData( "Interface" );
+    _list->PutData( newStr("Music") );
+    _list->PutData( newStr("Bunker") );
+    _list->PutData( newStr("Interface") );
 
     return true;
 }
@@ -35,46 +35,46 @@ bool DefconSoundInterface::ListObjectEvents( LList<char *> *_list, char *_objTyp
 {
     if( stricmp( _objType, "Music" ) == 0 )
     {
-        _list->PutData( "StartMusic" );
+        _list->PutData( newStr("StartMusic") );
     }
 
     if( stricmp( _objType, "Bunker" ) == 0 )
     {
-        _list->PutData( "StartAmbience" );
+        _list->PutData( newStr("StartAmbience") );
     }
 
     if( stricmp( _objType, "Interface" ) == 0 )
     {
-        _list->PutData( "HighlightObject" );
-        _list->PutData( "HighlightObjectState" );
-        _list->PutData( "SelectObjectState" );
-        _list->PutData( "SelectObject" );
-        _list->PutData( "DeselectObject" );
-        _list->PutData( "SetMovementTarget" );
-        _list->PutData( "SetCombatTarget" );
-        _list->PutData( "Error" );
-        _list->PutData( "Text" );
-        _list->PutData( "DefconChange" );
-        _list->PutData( "GameOver" );
-        _list->PutData( "FirstLaunch" );
-        _list->PutData( "ReceiveChatMessage" );
-        _list->PutData( "SendChatMessage" );
+        _list->PutData( newStr("HighlightObject") );
+        _list->PutData( newStr("HighlightObjectState") );
+        _list->PutData( newStr("SelectObjectState") );
+        _list->PutData( newStr("SelectObject") );
+        _list->PutData( newStr("DeselectObject") );
+        _list->PutData( newStr("SetMovementTarget") );
+        _list->PutData( newStr("SetCombatTarget") );
+        _list->PutData( newStr("Error") );
+        _list->PutData( newStr("Text") );
+        _list->PutData( newStr("DefconChange") );
+        _list->PutData( newStr("GameOver") );
+        _list->PutData( newStr("FirstLaunch") );
+        _list->PutData( newStr("ReceiveChatMessage") );
+        _list->PutData( newStr("SendChatMessage") );
     }
 
     if( stricmp( _objType, "Object_Sub" ) == 0 )
     {
-        _list->PutData( "SonarPing" );
+        _list->PutData( newStr("SonarPing") );
     }
 
     if( stricmp( _objType, "Object_Carrier" ) == 0 )
     {
-        _list->PutData( "SonarPing" );
-        _list->PutData( "DepthCharge" );
+        _list->PutData( newStr("SonarPing") );
+        _list->PutData( newStr("DepthCharge") );
     }
 
     if( stricmp( _objType, "Object_Nuke" ) == 0 )
     {
-        _list->PutData( "Detonate" );
+        _list->PutData( newStr("Detonate") );
     }
 
     return true;
@@ -142,16 +142,16 @@ bool DefconSoundInterface::GetCameraPosition( Vector3<float> &_pos, Vector3<floa
 
 bool DefconSoundInterface::ListProperties( LList<char *> *_list )
 {
-    _list->PutData( "Object_Longitude" );
-    _list->PutData( "Object_Latitude" );
-    _list->PutData( "Object_Velocity" );
+    _list->PutData( newStr("Object_Longitude") );
+    _list->PutData( newStr("Object_Latitude") );
+    _list->PutData( newStr("Object_Velocity") );
 
-    _list->PutData( "Camera_Distance" );
+    _list->PutData( newStr("Camera_Distance") );
 
-    _list->PutData( "Team_Survivors" );
-    _list->PutData( "Team_Kills" );
+    _list->PutData( newStr("Team_Survivors") );
+    _list->PutData( newStr("Team_Kills") );
 
-    _list->PutData( "World_NumExplosions" );
+    _list->PutData( newStr("World_NumExplosions") );
 
     return true;
 }

@@ -23,7 +23,7 @@
 #include "interface/network_window.h"
 
 
-NetworkWindow::NetworkWindow( char *name, char *title, bool titleIsLanguagePhrase )
+NetworkWindow::NetworkWindow( const char *name, const char *title, bool titleIsLanguagePhrase )
 :   InterfaceWindow( name, title, titleIsLanguagePhrase )
 {
     SetSize( 600, 200 );

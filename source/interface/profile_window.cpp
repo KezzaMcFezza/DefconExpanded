@@ -53,7 +53,7 @@ public:
 
 static int s_refCount = 0;
 
-ProfileWindow::ProfileWindow( char *name, char *title, bool titleIsLanguagePhrase )
+ProfileWindow::ProfileWindow( const char *name, const char *title, bool titleIsLanguagePhrase )
 :   InterfaceWindow( name, title, titleIsLanguagePhrase )
 {
     SetSize( 500, 500 );

@@ -168,7 +168,7 @@ void DemoWindow::Render( bool _hasFocus )
     g_renderer2d->EndRectFillBatch();
     g_renderer2d->EndTextBatch();
 
-    char *filename = "gui/demo.bmp";
+    const char *filename = "gui/demo.bmp";
 
 	//char filenameLang[512];
 	//if( g_languageTable->m_lang && stricmp( g_languageTable->m_lang->m_name, "english" ) != 0 )

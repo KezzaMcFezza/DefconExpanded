@@ -20,8 +20,8 @@ protected:
 	void    GetLines();
 
 public:
-	MessageDialog(char *_name, char *_message, bool _messageIsLanguagePhrase = false,
-	              char *_title = NULL, bool _titleIsLanguagePhrase = false);
+	MessageDialog(const char *_name, const char *_message, bool _messageIsLanguagePhrase = false,
+	              const char *_title = NULL, bool _titleIsLanguagePhrase = false);
 	~MessageDialog();
 
 	void Create();

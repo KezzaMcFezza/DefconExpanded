@@ -32,7 +32,7 @@ public:
                              InterfaceButton *callback = NULL, const char *tooltip = NULL, bool tooltipIsLanguagePhrase = false,
                              bool _inputNoExtendedCharacters = false );
 
-    void RemoveValueControl( char *name );
+    void RemoveValueControl( const char *name );
 
     static void RenderWindowShadow( float _x, float _y, float _h, float _w, float _size, float _alpha );
 };

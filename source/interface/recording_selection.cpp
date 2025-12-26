@@ -26,7 +26,7 @@
 void PlayFromLobbyButton::Render( int realX, int realY, bool highlighted, bool clicked )
 {
     // Render button background and borders (copied from InterfaceButton::Render but without text)
-    char *styleName             = STYLE_BUTTON_BACKGROUND;
+    const char *styleName       = STYLE_BUTTON_BACKGROUND;
     if( highlighted ) styleName = STYLE_BUTTON_HIGHLIGHTED;
     if( clicked ) styleName     = STYLE_BUTTON_CLICKED;
 
@@ -152,7 +152,7 @@ void PlayFromLobbyButton::MouseUp()
 void PlayFromGameStartButton::Render( int realX, int realY, bool highlighted, bool clicked )
 {
     // Render button background and borders (copied from InterfaceButton::Render but without text)
-    char *styleName             = STYLE_BUTTON_BACKGROUND;
+    const char *styleName       = STYLE_BUTTON_BACKGROUND;
     if( highlighted ) styleName = STYLE_BUTTON_HIGHLIGHTED;
     if( clicked ) styleName     = STYLE_BUTTON_CLICKED;
 

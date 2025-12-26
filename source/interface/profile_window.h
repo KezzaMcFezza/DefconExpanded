@@ -22,7 +22,7 @@ protected:
 	int m_yPos;
     
 public:
-    ProfileWindow( char *name, char *title = NULL, bool titleIsLanguagePhrase = false );
+    ProfileWindow( const char *name, const char *title = NULL, bool titleIsLanguagePhrase = false );
     ~ProfileWindow();
 
     void Render( bool hasFocus );

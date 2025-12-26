@@ -9,7 +9,7 @@ class FleetPlacementIconWindow : public InterfaceWindow
 {
 
 public:
-    FleetPlacementIconWindow( char *name, int fleetId );
+    FleetPlacementIconWindow( const char *name, int fleetId );
 
 	void Create();
     void Render( bool hasFocus );

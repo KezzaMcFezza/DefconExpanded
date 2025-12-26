@@ -243,7 +243,7 @@ public:
 class SoundSelector : public FileDialog
 {
 public:
-    SoundSelector( char *_name )
+    SoundSelector( const char *_name )
         :   FileDialog( _name )
     {
     }
@@ -919,7 +919,7 @@ void SoundEditorWindow::GetSelectionName(char *_buf)
 
 
 void SoundEditorWindow::CreateSoundParameterButton( InterfaceWindow *_window,
-                                                    char *name, SoundParameter *parameter, int y, 
+                                                    const char *name, SoundParameter *parameter, int y, 
 							                        float _minOutput, float _maxOutput,
                                                     InterfaceButton *callback, int x, int w )
 {
@@ -935,7 +935,7 @@ void SoundEditorWindow::CreateSoundParameterButton( InterfaceWindow *_window,
 }
 
 
-void SoundEditorWindow::RemoveSoundParameterButton( InterfaceWindow *_window, char *name )
+void SoundEditorWindow::RemoveSoundParameterButton( InterfaceWindow *_window, const char *name )
 {
     _window->RemoveButton( name );
 }
@@ -1003,7 +1003,7 @@ class DspEffectTypeMenu : public DropDownMenu
 // Class DspEffectEditor
 //*****************************************************************************
 
-DspEffectEditor::DspEffectEditor( char *_name )
+DspEffectEditor::DspEffectEditor( const char *_name )
 :   InterfaceWindow(_name),
     m_effect(NULL)
 {
@@ -1040,7 +1040,7 @@ public:
     SampleGroup *m_group;
     int m_index;
 	
-    SampleGroupFileDialog( char *name)
+    SampleGroupFileDialog( const char *name)
     :   FileDialog( name )
     {
     }
@@ -1203,7 +1203,7 @@ class RenameSampleGroupCommit : public InterfaceButton
 };
 
 
-RenameSampleGroupWindow::RenameSampleGroupWindow( char *_name )
+RenameSampleGroupWindow::RenameSampleGroupWindow( const char *_name )
 :   InterfaceWindow( _name )
 {
     SetSize( 250, 120 );
@@ -1246,7 +1246,7 @@ class RenameSampleGroupButton : public InterfaceButton
 };
 
 
-SampleGroupEditor::SampleGroupEditor( char *_name )
+SampleGroupEditor::SampleGroupEditor( const char *_name )
 :   InterfaceWindow( _name ),
     m_seb(NULL),
     m_scrollbar(NULL)
@@ -1450,7 +1450,7 @@ class DeleteAllButton : public InterfaceButton
 };
 
 
-PurgeSoundsWindow::PurgeSoundsWindow( char *_name )
+PurgeSoundsWindow::PurgeSoundsWindow( const char *_name )
 :   InterfaceWindow( _name ),
     m_scrollBar(NULL)
 {

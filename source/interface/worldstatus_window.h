@@ -11,7 +11,7 @@ protected:
     int m_lastKnownDefcon;
         
 public:
-    WorldStatusWindow( char *name );
+    WorldStatusWindow( const char *name );
     ~WorldStatusWindow();
 
     void Create();

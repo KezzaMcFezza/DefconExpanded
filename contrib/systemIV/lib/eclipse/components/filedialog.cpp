@@ -147,7 +147,7 @@ class SelectedButton : public InterfaceButton
 // Class FileDialog
 //*****************************************************************************
 
-FileDialog::FileDialog( char *name )
+FileDialog::FileDialog( const char *name )
 :   InterfaceWindow( name ),
     m_files(NULL),
     m_path(NULL),
@@ -159,8 +159,8 @@ FileDialog::FileDialog( char *name )
 }
 
 
-void FileDialog::Init( char *parent, 
-                       char *path, char *filter,
+void FileDialog::Init( const char *parent, 
+                       const char *path, const char *filter,
                        bool allowMultiSelect)
 {
     SetFilter( filter ? filter : "*" );

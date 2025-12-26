@@ -24,7 +24,7 @@
 #include "world/fleet.h"
 
 
-SidePanel::SidePanel( char *name )
+SidePanel::SidePanel( const char *name )
 :   FadingWindow(name),
     m_expanded(false),
     m_moving(false),

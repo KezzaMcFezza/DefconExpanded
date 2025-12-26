@@ -205,7 +205,7 @@ public:
 };
 
 
-WorldStatusWindow::WorldStatusWindow( char *name )
+WorldStatusWindow::WorldStatusWindow( const char *name )
 :   FadingWindow( name ),
     m_lastKnownDefcon(4)
 {

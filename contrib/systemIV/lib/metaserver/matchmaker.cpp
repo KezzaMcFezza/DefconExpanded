@@ -54,7 +54,7 @@ static NetMutex                     s_listenersMutex;
 // ============================================================================
 
 
-void MatchMaker_LocateService( char *_matchMakerIp, int _port )
+void MatchMaker_LocateService( const char *_matchMakerIp, int _port )
 {
     if( s_matchMakerIp )
     {

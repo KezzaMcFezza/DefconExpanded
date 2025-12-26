@@ -963,7 +963,7 @@ bool ServerBrowserWindow::ConnectToServer( Directory *_server, const char *_serv
     }
     else
     {
-        serverName = "unknown";
+        serverName = newStr("unknown");
     }
 
 

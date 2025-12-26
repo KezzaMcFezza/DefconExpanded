@@ -30,7 +30,7 @@
 #include "world/fleet.h"
 
 
-FleetPlacementIconWindow::FleetPlacementIconWindow( char *name, int fleetId )
+FleetPlacementIconWindow::FleetPlacementIconWindow( const char *name, int fleetId )
 :   InterfaceWindow( name )
 {
 	m_fleetId = fleetId;

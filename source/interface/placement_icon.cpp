@@ -27,7 +27,7 @@
 #include "world/carrier.h"
 
 
-PlacementIconWindow::PlacementIconWindow( char *name, int unitType )
+PlacementIconWindow::PlacementIconWindow( const char *name, int unitType )
 :   InterfaceWindow( name )
 {
 	m_unitType = unitType;

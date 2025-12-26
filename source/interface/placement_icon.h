@@ -11,7 +11,7 @@ public:
     int m_unitType;
 
 public:
-    PlacementIconWindow( char *name, int unitType );
+    PlacementIconWindow( const char *name, int unitType );
 
 	void Create();
     void Render( bool hasFocus );

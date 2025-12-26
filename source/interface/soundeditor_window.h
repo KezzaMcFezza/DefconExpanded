@@ -36,10 +36,10 @@ public:
     void StopPlayback();
 
     static void CreateSoundParameterButton( InterfaceWindow *_window,
-                                             char *name, SoundParameter *parameter, int y, 
+                                             const char *name, SoundParameter *parameter, int y, 
 							                 float _minOutput, float _maxOutput,
                                              InterfaceButton *callback=NULL, int x=-1, int w=-1 );
-    static void RemoveSoundParameterButton( InterfaceWindow *_window, char *name );
+    static void RemoveSoundParameterButton( InterfaceWindow *_window, const char *name );
 
     SoundEventBlueprint *GetSoundEventBlueprint();
     SoundInstanceBlueprint *GetSoundInstanceBlueprint();
@@ -57,7 +57,7 @@ public:
     DspHandle *m_effect;
 
 public:
-    DspEffectEditor( char *_name );
+    DspEffectEditor( const char *_name );
 
     void Create();
 };
@@ -73,7 +73,7 @@ public:
     ScrollBar *m_scrollbar;
     
 public:
-    SampleGroupEditor( char *_name );
+    SampleGroupEditor( const char *_name );
 
     void SelectSampleGroup( char *_group );
 
@@ -93,7 +93,7 @@ public:
     char m_newName[256];
 
 public:
-    RenameSampleGroupWindow( char *_name );
+    RenameSampleGroupWindow( const char *_name );
     void Create();
 };
 
@@ -110,7 +110,7 @@ public:
     ScrollBar *m_scrollBar;
     
 public:
-    PurgeSoundsWindow( char *_name );
+    PurgeSoundsWindow( const char *_name );
     
     void Create();
     void Remove();

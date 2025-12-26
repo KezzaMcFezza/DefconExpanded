@@ -222,7 +222,7 @@ void RestartTestBed( int result, char *notes )
         FILE *file = fopen("testbed-results.txt", "a");
         if( file )
         {
-            char *resultString = NULL;
+            const char *resultString = NULL;
             switch( result )
             {
                 case -1:    resultString = "FAILED";            break;
@@ -470,8 +470,8 @@ bool ProcessServerLetters( Directory *letter )
 
             g_app->GetInterface()->OpenSetupWindows();
 
-            char *reason;
-			char *reasonLanguagePhrase;
+            const char *reason;
+			const char *reasonLanguagePhrase;
             int reasonDisconnectInt = letter->GetDataInt(NET_DEFCON_DISCONNECT);
             switch( reasonDisconnectInt )
             {
