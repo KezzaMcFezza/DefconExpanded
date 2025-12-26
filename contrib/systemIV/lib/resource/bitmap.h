@@ -41,11 +41,11 @@ public:
 	Bitmap      ();
 	Bitmap      (Bitmap &_other);
 	Bitmap      (int _width, int _height);
-	Bitmap      (BinaryReader *_reader, char *_type);
+	Bitmap      (BinaryReader *_reader, const char *_type);
 	~Bitmap     ();
 
 	void        Initialise              (int _width, int _height);
-	void        Initialise              (BinaryReader *_reader, char *_type);
+	void        Initialise              (BinaryReader *_reader, const char *_type);
     
     void        Clear                   ( Colour const &colour );
 

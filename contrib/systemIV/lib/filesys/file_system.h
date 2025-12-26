@@ -55,7 +55,7 @@ public:
 	BinaryReader	*GetBinaryReader    ( const char *_filename );	                    // Caller must delete the BinaryReader when done
     void            UnloadArchiveFile   ( const char *_filename );                      // Free a cached file from memory
 
-    LList<char *>   *ListArchive        (char *_dir, char *_filter, bool fullFilename = true);
+    LList<char *>   *ListArchive        (const char *_dir, const char *_filter, bool fullFilename = true);
 
 
     void            ClearSearchPath     ();

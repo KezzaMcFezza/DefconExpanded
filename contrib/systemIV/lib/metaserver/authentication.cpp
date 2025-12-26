@@ -357,7 +357,7 @@ static void AuthenticationThread(ThreadFunctions *threadFunctions)
                 {
                     // The key is in the wrong format
                     Authentication_SetStatus( unknownKey, keyId, basicResult );
-                    char *resultString = Authentication_GetStatusString(basicResult);
+                    const char *resultString = Authentication_GetStatusString(basicResult);
                     AppDebugOut( "Key failed basic check : %s (result=%s)\n", unknownKey, resultString );
                 }
                 else if( Authentication_IsDemoKey(unknownKey) )
@@ -514,7 +514,7 @@ void Authentication_SetStatus( char *_key, int _keyId, int _status )
 
     if( result->m_authResult != _status )
     {
-        char *authString = Authentication_GetStatusString(_status);
+        const char *authString = Authentication_GetStatusString(_status);
         AppDebugOut( "Received Authentication : %s : (keyID %d) : %s\n", _key, _keyId, authString );
     }
 
@@ -525,7 +525,7 @@ void Authentication_SetStatus( char *_key, int _keyId, int _status )
 }
 
 
-char *Authentication_GetStatusString ( int _status )
+const char *Authentication_GetStatusString ( int _status )
 {
     switch( _status )
     {
@@ -545,7 +545,7 @@ char *Authentication_GetStatusString ( int _status )
 }
 
 
-char *Authentication_GetStatusStringLanguagePhrase ( int _status )
+const char *Authentication_GetStatusStringLanguagePhrase ( int _status )
 {
     switch( _status )
     {

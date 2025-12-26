@@ -102,7 +102,7 @@ void InputManager::SetMousePos(int x, int y)
 #define META_KEY_NAME "META" 
 #endif 
 
-static char *s_keyNames[] = 
+static const char *s_keyNames[] = 
 {
 	"unknown 0",
 	"unknown 1",

@@ -634,7 +634,7 @@ void MetaServer_StartRegisteringOverLAN()
         // Open a socket session to send to the LAN
 
         int port = PORT_METASERVER_CLIENT_LISTEN;
-        char *host = "255.255.255.255";
+        const char *host = "255.255.255.255";
         s_socketToLAN = new NetSocketSession( *s_socketListener, host, port );
 
         s_registeringOverLAN.Start( ServerRegisterLANThread );

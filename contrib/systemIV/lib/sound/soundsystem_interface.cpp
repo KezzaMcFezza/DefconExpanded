@@ -20,7 +20,7 @@ bool SoundObjectId::IsValid()
 }
 
 
-bool SoundObjectId::operator == (SoundObjectId const &w)
+bool SoundObjectId::operator == (SoundObjectId const &w) const
 {
 	return( m_data == w.m_data );
 }

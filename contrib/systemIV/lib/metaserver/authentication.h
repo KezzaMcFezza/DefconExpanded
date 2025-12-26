@@ -89,8 +89,8 @@ int     Authentication_GetStatus        ( char *_key );
 void    Authentication_SetStatus        ( char *_key, int _keyId, int _status );
 
 
-char    *Authentication_GetStatusString ( int _status );
-char    *Authentication_GetStatusStringLanguagePhrase ( int _status );
+const char    *Authentication_GetStatusString ( int _status );
+const char    *Authentication_GetStatusStringLanguagePhrase ( int _status );
 
 void    Authentication_Shutdown         ();
 

@@ -69,7 +69,7 @@ TextFileWriter::operator bool() const
 	return m_canWrite;
 }
 
-int TextFileWriter::printf(char *_fmt, ...)
+int TextFileWriter::printf(const char *_fmt, ...)
 {
 	char buf[10240];
     va_list ap;
@@ -112,7 +112,7 @@ TextMemoryWriter::operator bool() const
     return m_stringStream.good();
 }
 
-int TextMemoryWriter::printf(char *_fmt, ...)
+int TextMemoryWriter::printf(const char *_fmt, ...)
 {
     char buf[10240];
     va_list ap;

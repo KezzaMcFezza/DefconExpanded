@@ -368,7 +368,7 @@ void OrderedInsert( LList<char *> *_llist, const char *_newString )
 // Filter can be NULL or "" or "*.bmp" or "map_*" or "map_*.txt"
 // Set _longResults to true if you want results like "textures/blah.bmp" 
 // or false for "blah.bmp"
-LList<char *> *FileSystem::ListArchive(char *_dir, char *_filter, bool fullFilename)
+LList<char *> *FileSystem::ListArchive(const char *_dir, const char *_filter, bool fullFilename)
 {
     //
     // List the base data directory
@@ -385,9 +385,10 @@ LList<char *> *FileSystem::ListArchive(char *_dir, char *_filter, bool fullFilen
 
     if (m_archiveFiles.Size() > 0)
     {
-        if(_filter == NULL || _filter[0] == '\0')
+        const char *filter = _filter;
+        if(filter == NULL || filter[0] == '\0')
         {
-            _filter = "*";
+            filter = "*";
         }
 
         m_archiveMutex->Lock();
@@ -403,7 +404,7 @@ LList<char *> *FileSystem::ListArchive(char *_dir, char *_filter, bool fullFilen
             if( stricmp( dirPart, _dir ) == 0 )
             {
                 char *filePart = (char *) GetFilenamePart( fullname.c_str() );
-                int result = WildCmp(_filter, filePart);
+                int result = WildCmp(filter, filePart);
                 if (result != 0)
                 {
                     if( !fullname.empty() )      OrderedInsert(results, filePart);

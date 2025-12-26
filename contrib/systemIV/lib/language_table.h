@@ -26,7 +26,7 @@ protected:
     void        LoadBaseLanguage    (const char *_filename);
     void        LoadTranslation     (const char *_filename);
 
-	void        LoadLanguage        (const char *_filename, BTree<char *> &_langTable, bool _facultative = false, char *_separators = NULL);
+	void        LoadLanguage        (const char *_filename, BTree<char *> &_langTable, bool _facultative = false, const char *_separators = NULL);
 
     bool        LoadLanguageCaption (Language *lang);
 

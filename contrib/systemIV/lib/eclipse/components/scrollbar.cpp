@@ -157,7 +157,7 @@ void ScrollBarButton::Render( int realX, int realY, bool highlighted, bool click
     //
     // Bar
 
-    char *styleName             = STYLE_BUTTON_BACKGROUND;
+    const char *styleName       = STYLE_BUTTON_BACKGROUND;
     if( highlighted ) styleName = STYLE_BUTTON_HIGHLIGHTED;
     if( clicked ) styleName     = STYLE_BUTTON_CLICKED;
 

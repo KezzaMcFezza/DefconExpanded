@@ -282,7 +282,7 @@ void InterfaceWindow::RenderWindowShadow( float _x, float _y, float _h, float _w
 void InterfaceButton::Render( int realX, int realY, bool highlighted, bool clicked )
 {    
 
-    char *styleName             = STYLE_BUTTON_BACKGROUND;
+    const char *styleName       = STYLE_BUTTON_BACKGROUND;
     if( highlighted ) styleName = STYLE_BUTTON_HIGHLIGHTED;
     if( clicked ) styleName     = STYLE_BUTTON_CLICKED;
 

@@ -69,11 +69,11 @@ void ParseMemoryLeakFile ( char *_inputFilename, char *_outputFilename )
             // Put the result into our BTree
 
             BTree <int> *btree = combined.LookupTree ( lowercasesourcelocation );
-            if ( btree ) ((int) btree->data) += size;
+            if ( btree ) btree->data += size;
             else combined.PutData ( lowercasesourcelocation, size );
             
             BTree <int> *freq = frequency.LookupTree ( lowercasesourcelocation );
-            if ( freq ) ((int) freq->data) ++;
+            if ( freq ) freq->data++;
             else frequency.PutData ( lowercasesourcelocation, 1 );
 
             delete lowercasesourcelocation;

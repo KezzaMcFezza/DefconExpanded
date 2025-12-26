@@ -298,7 +298,7 @@ void LanguageTable::SetLanguageSelectable( const char *_name, bool _selectable )
 }
 
 
-void LanguageTable::LoadLanguage( const char *_filename, BTree<char *> &_langTable, bool _facultative, char *_separators )
+void LanguageTable::LoadLanguage( const char *_filename, BTree<char *> &_langTable, bool _facultative, const char *_separators )
 {
     TextReader *in = g_fileSystem->GetTextReader(_filename);
 	if( !_facultative )

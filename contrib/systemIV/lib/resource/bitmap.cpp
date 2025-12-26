@@ -483,7 +483,7 @@ Bitmap::Bitmap(int width, int height)
 
 
 // *** Constructor: Load from a BinaryReader
-Bitmap::Bitmap(BinaryReader *_reader, char *_type)
+Bitmap::Bitmap(BinaryReader *_reader, const char *_type)
 :	m_width(-1),
 	m_height(-1),
 	m_pixels(NULL),
@@ -522,7 +522,7 @@ void Bitmap::Initialise(int width, int height)
 }
 
 
-void Bitmap::Initialise(BinaryReader *_reader, char *_type)
+void Bitmap::Initialise(BinaryReader *_reader, const char *_type)
 {
 	AppAssert(stricmp(_type, "bmp") == 0);
 	LoadBmp(_reader);

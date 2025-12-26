@@ -31,7 +31,7 @@ public:
     SoundObjectId(int _data);
 
     bool IsValid();
-	bool operator == (SoundObjectId const &w);		
+	bool operator == (SoundObjectId const &w) const;		
 };
 
 

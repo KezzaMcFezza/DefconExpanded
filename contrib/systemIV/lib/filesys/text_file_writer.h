@@ -19,7 +19,7 @@ public:
     virtual ~TextWriter() {};
 
     virtual operator bool() const;    
-    virtual int printf( char *fmt, ... ) = 0;
+    virtual int printf( const char *fmt, ... ) = 0;
 };
 
 class TextFileWriter : public TextWriter
@@ -37,7 +37,7 @@ public:
 
 	virtual operator bool() const;
 
-	virtual int printf  (char *fmt, ...);
+	virtual int printf  (const char *fmt, ...);
 };
 
 class TextMemoryWriter : public TextWriter 
@@ -48,7 +48,7 @@ public:
     TextMemoryWriter();
 
     virtual operator bool() const;
-    virtual int printf( char *_fmt, ... );
+    virtual int printf( const char *_fmt, ... );
 
     std::ostringstream *GetStream();
 };
