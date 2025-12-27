@@ -26,19 +26,6 @@ Matrix34::Matrix34(int _ignored)
 }
 
 
-Matrix34::Matrix34( Matrix34 const &_other )
-{
-    memcpy(this, &_other, sizeof(Matrix34));
-}
-
-
-Matrix34::Matrix34( Matrix33 const &_or, Vector3<float> const &_pos )
-:	r(_or.r),
-    u(_or.u),
-    f(_or.f),
-    pos(_pos)
-{
-}
 
 
 Matrix34::Matrix34( Vector3<float> const &_f, Vector3<float> const &_u, Vector3<float> const &_pos )
@@ -437,7 +424,7 @@ void Matrix34::SetToIdentity()
 	f.z = 1.0f;
 }
 
-bool Matrix34::IsNormalised()
+bool Matrix34::IsNormalised() const
 {
     float lenR = r.MagSquared();
     if (lenR < 0.999f || lenR > 1.001f) return false;
@@ -462,13 +449,6 @@ void Matrix34::Normalise()
 }
 
 
-Vector3<float>	Matrix34::InverseMultiplyVector(Vector3<float> const &s) const
-{
-	Vector3<float> v = s - pos;
-	return Vector3<float>(r.x*v.x + u.x*v.y + f.x*v.z,
-			   r.y*v.x + u.y*v.y + f.y*v.z,
-			   r.z*v.x + u.z*v.y + f.z*v.z);
-}
 
 
 void Matrix34::WriteToDebugStream()
@@ -531,33 +511,12 @@ float *Matrix34::ConvertToOpenGLFormat() const
 }
 
 
-Matrix33 Matrix34::GetOr() const
-{
-    Matrix33 orientation;
-    orientation.f = f;
-    orientation.r = r;
-    orientation.u = u;
-
-    return orientation;
-}
 
 
 // ****************************************************************************
 // Operators
 // ****************************************************************************
 
-bool Matrix34::operator == (Matrix34 const &_b) const
-{
-	if (r == _b.r &&
-		u == _b.u &&
-		f == _b.f &&
-		pos == _b.pos)
-	{
-		return true;
-	}
-
-	return false;
-}
 
 
 // Multiply this matrix by another and write the result back to ourself
@@ -586,7 +545,3 @@ Matrix34 const &Matrix34::operator *= ( Matrix34 const &o )
 }
 
 
-Matrix34 Matrix34::operator *  ( Matrix34 const &b ) const
-{
-    return Matrix34(*this) *= b;
-}

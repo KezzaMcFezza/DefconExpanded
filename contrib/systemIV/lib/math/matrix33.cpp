@@ -16,28 +16,9 @@ Matrix33 const g_identityMatrix33(0);
 // Constructors
 // ****************************************************************************
 
-Matrix33::Matrix33()
-{
-}
-
-
 Matrix33::Matrix33(int _ignored)
 {
 	SetToIdentity();
-}
-
-
-Matrix33::Matrix33( Matrix33 const &_other )
-{
-	memcpy(this, &_other, sizeof(Matrix33));
-}
-
-
-Matrix33::Matrix33( Vector3<float> const &_f, Vector3<float> const &_u )
-:	f(_f),
-	u(_u),
-	r(_u ^ _f)
-{
 }
 
 
@@ -47,14 +28,6 @@ Matrix33::Matrix33( float _yaw, float _dive, float _roll )
 	RotateAroundZ( _roll );
 	RotateAroundX( _dive );
 	RotateAroundY( _yaw );
-}
-
-
-Matrix33::Matrix33( float _rx, float _ry, float _rz, float _ux, float _uy, float _uz, float _fx, float _fy, float _fz )
-:	f(_fx,_fy,_fz),
-	u(_ux,_uy,_uz),
-	r(_rx,_ry,_rz)	
-{
 }
 
 
@@ -434,13 +407,6 @@ void Matrix33::Normalise()
 	u = f ^ r;
 }
 
-Vector3<float>	Matrix33::InverseMultiplyVector(Vector3<float> const &s) const
-{
-	Vector3<float> const &v = s;
-	return Vector3<float>(r.x*v.x + u.x*v.y + f.x*v.z,
-			   r.y*v.x + u.y*v.y + f.y*v.z,
-			   r.z*v.x + u.z*v.y + f.z*v.z);
-}
 
 void Matrix33::OutputToDebugStream()
 {
@@ -513,32 +479,4 @@ Matrix33 const &Matrix33::operator *= ( Matrix33 const &_o )
 }
 
 
-// Multiply matrix by matrix
-Matrix33 Matrix33::operator * (Matrix33 const &_o) const
-{
-	return Matrix33(
-			r.x*_o.r.x + r.y*_o.u.x + r.z*_o.f.x,
-			r.x*_o.r.y + r.y*_o.u.y + r.z*_o.f.y,
-			r.x*_o.r.z + r.y*_o.u.z + r.z*_o.f.z,
 
-			u.x*_o.r.x + u.y*_o.u.x + u.z*_o.f.x,
-			u.x*_o.r.y + u.y*_o.u.y + u.z*_o.f.y,
-			u.x*_o.r.z + u.y*_o.u.z + u.z*_o.f.z,
-
-			f.x*_o.r.x + f.y*_o.u.x + f.z*_o.f.x,
-			f.x*_o.r.y + f.y*_o.u.y + f.z*_o.f.y,
-			f.x*_o.r.z + f.y*_o.u.z + f.z*_o.f.z);
-}
-
-
-bool Matrix33::operator == (Matrix33 const &_b) const
-{
-    if (r == _b.r &&
-        u == _b.u &&
-        f == _b.f )
-    {
-        return true;
-    }
-
-    return false;
-}
