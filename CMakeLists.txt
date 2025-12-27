@@ -608,6 +608,9 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/filesys/text_stream_readers.cpp
     ${SYSTEMIV_PATH}/lib/math/fixed_float.cpp
     ${SYSTEMIV_PATH}/lib/math/fixed_64.cpp
+    ${SYSTEMIV_PATH}/lib/math/matrix33.cpp
+    ${SYSTEMIV_PATH}/lib/math/matrix34.cpp
+    ${SYSTEMIV_PATH}/lib/math/invert_matrix.cpp
     ${SYSTEMIV_PATH}/lib/math/hash_data.cpp
     ${SYSTEMIV_PATH}/lib/math/Matrix4f.cpp
     ${SYSTEMIV_PATH}/lib/math/math_utils.cpp

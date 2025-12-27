@@ -323,6 +323,15 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\resource\tinygltf\model_material.cpp">
       <Filter>lib\resource\tinygltf</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\math\matrix33.cpp">
+      <Filter>lib\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\math\matrix34.cpp">
+      <Filter>lib\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\math\invert_matrix.cpp">
+      <Filter>lib\math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\contrib\systemIV\systemiv.h" />
@@ -634,6 +643,15 @@
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\resource\tinygltf\model_material.h">
       <Filter>lib\resource\tinygltf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\math\matrix33.h">
+      <Filter>lib\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\math\matrix34.h">
+      <Filter>lib\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\math\invert_matrix.h">
+      <Filter>lib\math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
