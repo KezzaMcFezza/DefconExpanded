@@ -141,18 +141,12 @@ App::App()
     m_renderingEnabled(true),
     m_showFps(false),
     m_showRendererOverlay(false),
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     m_showSoundOverlay(false),
-#endif
     m_currentFrames(0),
     m_framesPerSecond(0),
     m_frameCountTimer(1.0f),
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     m_rendererOverlay(NULL),
     m_soundOverlay(NULL)
-#else
-    m_rendererOverlay(NULL)
-#endif
 {
     //
     // Initialize replay filename to empty
@@ -188,9 +182,7 @@ App::~App()
 	delete g_soundSystem;
 #endif
 	delete m_rendererOverlay;
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
 	delete m_soundOverlay;
-#endif
 }
 
 void App::InitMetaServer()
@@ -473,10 +465,8 @@ void App::MinimalInit()
 
     m_rendererOverlay = new RendererOverlay();
 
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     delete m_soundOverlay;
     m_soundOverlay = new SoundDebugOverlay();
-#endif
 
     m_worldRenderer = new WorldRenderer();
     m_worldRenderer->Init();
@@ -890,10 +880,8 @@ void App::ReinitialiseWindow()
     delete m_rendererOverlay;
     m_rendererOverlay = new RendererOverlay();
 
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     delete m_soundOverlay;
     m_soundOverlay = new SoundDebugOverlay();
-#endif
 
     m_worldRenderer->Init();
     m_mapRenderer->Init();
@@ -948,8 +936,6 @@ void App::Update()
         }
     }
 
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
-
     //
     // F3 toggles sound overlay
 
@@ -965,7 +951,6 @@ void App::Update()
     {
         m_soundOverlay->Update(g_advanceTime);
     }
-#endif  
 
     //
     // Update the interface
@@ -1081,11 +1066,7 @@ void App::Render()
     //
     // update frame timing when either FPS counter or debug menu is shown
 
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
     if( m_showFps || m_showRendererOverlay || m_showSoundOverlay )
-#else
-    if( m_showFps || m_showRendererOverlay )
-#endif
     {
         static double s_lastRender = 0;
         static double s_biggest = 0;
@@ -1125,8 +1106,6 @@ void App::Render()
             m_rendererOverlay->Update(lastFrame);
             m_rendererOverlay->RenderDebugMenu();
         }
-        
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
 
         //
         // Show sound overlay if F3 was pressed
@@ -1135,7 +1114,6 @@ void App::Render()
         {
             m_soundOverlay->Render();
         }
-#endif
 
         g_renderer2d->EndTextBatch();
     }

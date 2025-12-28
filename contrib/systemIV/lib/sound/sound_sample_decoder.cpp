@@ -688,11 +688,7 @@ void SoundSampleDecoder::Read(signed short *_data, unsigned int _startSample, un
 
     if( stereoMatch )
     {
-#ifdef SOUND_USE_DSOUND_FREQUENCY_STUFF
-        memcpy( _data, &m_sampleCache[_startSample], sizeof(signed short) * _numSamples);               
-#else
         InterpolateSamples( _data, _startSample, _numSamples, _stereo, _relFreq );
-#endif
     }
     else if( m_numChannels == 1 && _stereo )
     {

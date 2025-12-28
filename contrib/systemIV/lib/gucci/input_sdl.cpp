@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 #include <cstring>
 
-#ifndef WINDOWS_SDL
+#ifndef TARGET_MSVC
 #include <iconv.h>
 #endif
 
@@ -215,7 +215,7 @@ static LString ToUTF32( const char *str /* UTF8 */ )
     }
 
     return convertedString;
-#elif defined(WINDOWS_SDL)
+#elif defined(TARGET_MSVC)
 
 	//
     // windows implementation using Windows API for UTF-8 to UTF-32 conversion

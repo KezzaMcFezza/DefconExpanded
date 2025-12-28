@@ -17,13 +17,8 @@
 #include "sound_sample_decoder.h"
 #include "sound_blueprint_manager.h"
 #include "resampler_polyphase.h"
-
-#if defined(WINDOWS_SDL) || defined(TARGET_OS_MACOSX) || defined(TARGET_OS_LINUX)
-    #include "sound_library_2d_sdl.h"
-    #include "sound_library_3d_software.h"
-#elif defined(TARGET_MSVC)
-    #include "sound_library_3d_dsound.h"
-#endif
+#include "sound_library_2d_sdl.h"
+#include "sound_library_3d_software.h"
 
 namespace
 {
@@ -83,7 +78,7 @@ SoundSystem::~SoundSystem()
 
     // Stop the 2D backend feeder thread (but keep the object alive) so it
     // no longer calls into the 3D mixer while we tear it down.
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
+
     if (g_soundLibrary2d)
     {
         SoundLibrary2dSDL *sdl2d = dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d);
@@ -92,7 +87,6 @@ SoundSystem::~SoundSystem()
             sdl2d->Stop();
         }
     }
-#endif
 
     // Tear down the 3D mixer first (its dtor disables the callback on 2D)
     if (g_soundLibrary3d)
@@ -102,13 +96,11 @@ SoundSystem::~SoundSystem()
     }
 
     // Now free the 2D backend object itself
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
     if (g_soundLibrary2d)
     {
         delete g_soundLibrary2d;
         g_soundLibrary2d = NULL;
     }
-#endif
 
     delete g_soundSampleBank;
     g_soundSampleBank = NULL;
@@ -132,9 +124,7 @@ void SoundSystem::Initialise( SoundSystemInterface *_interface )
     m_blueprints.LoadEffects();
     m_blueprints.LoadBlueprints();
 
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
 	g_soundLibrary2d = NULL;
-#endif
     RestartSoundLibrary();
 }
 
@@ -158,8 +148,6 @@ void SoundSystem::RestartSoundLibrary()
         g_soundLibrary3d->EnableCallback(false);
     }
 
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
-
     //
     // If using the SDL 2D backend, stop the device and feeder thread first
 
@@ -171,7 +159,6 @@ void SoundSystem::RestartSoundLibrary()
             sdl2d->Stop();
         }
     }
-#endif
 
     //
     // Make sure to stop all currently playing sounds before we clear caches
@@ -212,10 +199,9 @@ void SoundSystem::RestartSoundLibrary()
 
     delete g_soundLibrary3d;
     g_soundLibrary3d = NULL;
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
+
     delete g_soundLibrary2d;
     g_soundLibrary2d = NULL;
-#endif
 
     //
     // Finally, free the channel map used by the mixer
@@ -249,10 +235,6 @@ void SoundSystem::RestartSoundLibrary()
     int hw3d = g_preferences->GetInt("SoundHW3D", 0);
     const char *libName = g_preferences->GetString("SoundLibrary", "dsound");
 
-#if defined TARGET_MSVC && !defined WINDOWS_SDL
-    m_numChannels = requestedChannels;
-    g_soundLibrary3d = new SoundLibrary3dDirectSound();
-#else
     g_soundLibrary2d = new SoundLibrary2dSDL();
     g_soundLibrary3d = new SoundLibrary3dSoftware();
 
@@ -261,8 +243,6 @@ void SoundSystem::RestartSoundLibrary()
 
     g_preferences->SetString(PREFS_SOUND_LIBRARY, "software");
     m_numChannels = requestedChannels;
-
-#endif
 
     g_soundLibrary3d->SetMasterVolume(volume);
     g_soundLibrary3d->Initialise(mixrate, m_numChannels, m_numMusicChannels, hw3d);
@@ -285,7 +265,6 @@ void SoundSystem::RestartSoundLibrary()
     //
     // Now that 3D mixer is ready, start the 2D backend playback/feeder
     
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
     if (g_soundLibrary2d)
     {
         SoundLibrary2dSDL *sdl2d = dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d);
@@ -294,7 +273,6 @@ void SoundSystem::RestartSoundLibrary()
             sdl2d->Start();
         }
     }
-#endif
 }
 
 
@@ -363,53 +341,6 @@ bool SoundSystem::GenerateChannelSamplesShort(unsigned int channel, signed short
 
     if (instance && instance->m_soundSampleHandle)
     {
-#if defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
-        float relFreq = g_soundLibrary3d->GetChannelRelFreq(channel);
-        int numSamplesWritten = instance->m_soundSampleHandle->Read(dst, numSamples, stereo, relFreq);
-
-        if (numSamplesWritten < (int)numSamples)
-        {
-            signed short *loopStart = dst + numSamplesWritten;
-            unsigned int numSamplesRemaining = numSamples - numSamplesWritten;
-
-            if (instance->m_loopType == SoundInstance::Looped ||
-                instance->m_loopType == SoundInstance::LoopedADSR)
-            {
-                while (numSamplesRemaining > 0)
-                {
-                    bool looped = instance->AdvanceLoop();
-                    if (looped)
-                    {
-                        unsigned int numWritten = instance->m_soundSampleHandle->Read(loopStart, numSamplesRemaining, stereo, relFreq);
-                        loopStart += numWritten;
-                        numSamplesRemaining -= numWritten;
-                    }
-                    else
-                    {
-                        g_soundLibrary3d->WriteSilence(loopStart, numSamplesRemaining);
-                        numSamplesRemaining = 0;
-                    }
-                }
-            }
-            else if (instance->m_loopType == SoundInstance::SinglePlay)
-            {
-                if (numSamplesWritten > 0)
-                {
-                    g_soundLibrary3d->WriteSilence(loopStart, numSamplesRemaining);
-                    *silenceRemaining = g_soundLibrary3d->GetChannelBufSize(channel) - numSamplesRemaining;
-                }
-                else
-                {
-                    g_soundLibrary3d->WriteSilence(loopStart, numSamplesRemaining);
-                    *silenceRemaining -= numSamplesRemaining;
-                    if (*silenceRemaining <= 0)
-                    {
-                        instance->BeginRelease(false);
-                    }
-                }
-            }
-        }
-#else
         instance->RecalculateResampleStep();
 
         unsigned int requestedSamples = numSamples;
@@ -430,7 +361,6 @@ bool SoundSystem::GenerateChannelSamplesShort(unsigned int channel, signed short
         bool waitingForLoop = false;
         SoundResampler::Quality resampleQuality = stereo ? SoundResampler::GetMusicQuality() : SoundResampler::GetSfxQuality();
 
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
         do {
             SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
             uint64_t scheduled = instance->GetScheduledStartFrames();
@@ -457,7 +387,6 @@ bool SoundSystem::GenerateChannelSamplesShort(unsigned int channel, signed short
                 }
             }
         } while (0);
-#endif
 
         while (framesWritten < framesRequested)
         {
@@ -553,7 +482,6 @@ bool SoundSystem::GenerateChannelSamplesShort(unsigned int channel, signed short
                 }
             }
         }
-#endif
 
         UnlockSoundInstance(instance);
         return true;
@@ -576,7 +504,6 @@ bool SoundSystem::GenerateChannelSamplesShort(unsigned int channel, signed short
     }
 }
 
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
 bool SoundSystem::GenerateChannelSamplesFloat(unsigned int channel, float *dst, unsigned int numSamples, int *silenceRemaining)
 {
     // Defensive guard: mixer may be reinitialising
@@ -622,7 +549,6 @@ bool SoundSystem::GenerateChannelSamplesFloat(unsigned int channel, float *dst, 
         bool waitingForLoop = false;
         SoundResampler::Quality resampleQuality = stereo ? SoundResampler::GetMusicQuality() : SoundResampler::GetSfxQuality();
 
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
         do {
             SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
             uint64_t scheduled = instance->GetScheduledStartFrames();
@@ -642,7 +568,6 @@ bool SoundSystem::GenerateChannelSamplesFloat(unsigned int channel, float *dst, 
                 }
             }
         } while (0);
-#endif
 
         while (framesWritten < framesRequested)
         {
@@ -755,7 +680,6 @@ bool SoundSystem::GenerateChannelSamplesFloat(unsigned int channel, float *dst, 
         return false;
     }
 }
-#endif
 
 
 bool SoundSystem::InitialiseSound( SoundInstance *_instance )
@@ -1383,7 +1307,6 @@ void SoundSystem::Advance()
             if( success )
             {
                 StoreChannelId(bestAvailableChannel, newInstance->m_id);
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
                 // In push mode with timed scheduling, schedule start on audio timeline
                 SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
                 if (sdl2d && sdl2d->UsingTimedScheduling())
@@ -1391,7 +1314,6 @@ void SoundSystem::Advance()
                     uint64_t startFrames = sdl2d->SuggestScheduledStartFrames(5);
                     newInstance->SetScheduledStartFrames(startFrames);
                 }
-#endif
             }
             else
             {

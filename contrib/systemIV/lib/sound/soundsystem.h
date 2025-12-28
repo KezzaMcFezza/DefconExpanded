@@ -14,12 +14,6 @@
 
 #include <atomic>
 
-
-#if defined(TARGET_MSVC) && !defined(WINDOWS_SDL)
-#define SOUND_USE_DSOUND_FREQUENCY_STUFF                // Set DirectSound buffer frequencies directly
-                                                         // If not set, our sound library will do the Frequency adjustments in software
-#endif
-
 class TextReader;
 class SoundInstance;
 class TextFileWriter;
@@ -93,9 +87,7 @@ public:
 	void EnableCallback         ( bool _enabled );
 
     bool GenerateChannelSamplesShort(unsigned int channel, signed short *dst, unsigned int numSamples, int *silenceRemaining);
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
     bool GenerateChannelSamplesFloat(unsigned int channel, float *dst, unsigned int numSamples, int *silenceRemaining);
-#endif
 
     void StopAllDSPEffects      ();
 

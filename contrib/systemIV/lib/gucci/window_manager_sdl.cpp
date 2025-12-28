@@ -530,7 +530,7 @@ bool WindowManagerSDL::CreateWin(int _width, int _height, bool _windowed, int _c
     
     printf("GLAD initialized successfully\n");
 
-#elif defined(WINDOWS_SDL)
+#elif defined(TARGET_MSVC)
     printf("Initializing GLAD...\n");
     fflush(stdout);
     

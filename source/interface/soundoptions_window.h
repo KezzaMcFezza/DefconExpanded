@@ -19,7 +19,7 @@ public:
 	int     m_sfxQuality;
 	int     m_musicQuality;
 	int     m_channelCount;
-#ifdef WINDOWS_SDL
+#ifdef TARGET_MSVC
 	int     m_audioDriver;
 #endif
 

@@ -29,9 +29,8 @@ SoundDebugOverlay::SoundDebugOverlay()
     m_queuedCallbacksPerSec(0.0),
     m_directCallbacksPerSec(0.0),
     m_wavCallbacksPerSec(0.0),
-    m_topupProcessedPerSec(0.0)
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
-    ,m_resampleInstanceCount(0),
+    m_topupProcessedPerSec(0.0),
+    m_resampleInstanceCount(0),
     m_resampleWaitingForLoop(0),
     m_resampleInvalidInstances(0),
     m_resampleStepMin(0.0),
@@ -45,7 +44,6 @@ SoundDebugOverlay::SoundDebugOverlay()
     m_resampleLinearInstances(0),
     m_resampleBankUsageSfx(),
     m_resampleBankUsageMusic()
-#endif
 {
 }
 
@@ -62,12 +60,9 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
         m_topupCallsPerSec = 0.0;
         m_queuedCallbacksPerSec = 0.0;
         m_lastStatsSampleTime = GetHighResTime();
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
         m_prevInvalidChannelReadsTotal = 0ULL;
         m_invalidChannelReadsPerSec = 0.0;
         m_invalidChannelReadsDelta = 0ULL;
-#endif
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
         m_resampleInstanceCount = 0;
         m_resampleWaitingForLoop = 0;
         m_resampleInvalidInstances = 0;
@@ -82,8 +77,6 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
         m_resampleLinearInstances = 0;
         m_resampleBankUsageSfx.clear();
         m_resampleBankUsageMusic.clear();
-#endif
-        // Clear rolling windows when audio system is not available
         m_sliceMixWindow.clear();
         m_renderTimeWindow.clear();
         m_overrunEvents.clear();
@@ -112,19 +105,15 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
         m_topupCallsPerSec = 0.0;
         m_queuedCallbacksPerSec = 0.0;
         m_hasStats = true;
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
         m_prevInvalidChannelReadsTotal = g_soundSystem ? g_soundSystem->GetInvalidChannelIdReadTotal() : 0ULL;
         m_invalidChannelReadsPerSec = 0.0;
         m_invalidChannelReadsDelta = 0ULL;
-#endif
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
         m_resampleSfxQuality = SoundResampler::GetSfxQuality();
         m_resampleMusicQuality = SoundResampler::GetMusicQuality();
         unsigned int bankCount = SoundResampler::GetKernelBankCount();
         m_resampleBankUsageSfx.assign(bankCount, 0);
         m_resampleBankUsageMusic.assign(bankCount, 0);
         m_resampleLinearInstances = 0;
-#endif
         return;
     }
 
@@ -146,7 +135,6 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
     m_wavCallbacksPerSec = static_cast<double>(diff(stats.wavCallbacks, m_previousStats.wavCallbacks)) / elapsed;
     m_topupProcessedPerSec = static_cast<double>(diff(stats.topupCallbacksProcessed, m_previousStats.topupCallbacksProcessed)) / elapsed;
 
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
     if (g_soundSystem)
     {
         unsigned long long total = g_soundSystem->GetInvalidChannelIdReadTotal();
@@ -155,9 +143,6 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
         m_invalidChannelReadsPerSec = static_cast<double>(d) / elapsed;
         m_prevInvalidChannelReadsTotal = total;
     }
-#endif
-
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
     m_resampleInstanceCount = 0;
     m_resampleWaitingForLoop = 0;
     m_resampleInvalidInstances = 0;
@@ -287,14 +272,6 @@ void SoundDebugOverlay::Update(double /*frameTime*/)
             m_resampleCursorFracAvg = fracSum / static_cast<double>(fracCount);
         }
     }
-#else
-    // When hardware resampling is enabled, still track invalid channel-read diagnostics
-    if (g_soundSystem)
-    {
-        // maintain last total on first pass
-        if (!m_hasStats) m_prevInvalidChannelReadsTotal = g_soundSystem->GetInvalidChannelIdReadTotal();
-    }
-#endif
 
     // Maintain rolling windows for last 10 seconds
     const double windowSec = m_windowSeconds;
@@ -860,7 +837,6 @@ void SoundDebugOverlay::Render()
 
     rightY += sectionGap;
 
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
     // Channel map integrity diagnostics
     g_renderer2d->TextSimple(baseXRight, rightY, sectionColour, 12.0f, "Channel Map Health");
     rightY += line;
@@ -975,10 +951,4 @@ void SoundDebugOverlay::Render()
 
         emitQualityLines();
     }
-#else
-    g_renderer2d->TextSimple(baseXRight, rightY, sectionColour, 12.0f, "Software Resampler");
-    rightY += line;
-    g_renderer2d->TextSimple(baseXRight, rightY, textColour, 11.0f, "Disabled (hardware handles pitch)");
-    rightY += line;
-#endif
 }

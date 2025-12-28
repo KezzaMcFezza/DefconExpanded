@@ -225,8 +225,6 @@
 
 // Mac OS X Specific Settings
 #if defined ( TARGET_OS_MACOSX ) || defined ( TARGET_OS_LINUX )
-#undef HAVE_DSOUND
-
 #include <ctype.h>
 #include <unistd.h>
 

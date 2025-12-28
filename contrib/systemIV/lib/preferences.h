@@ -29,7 +29,7 @@
 #define PREFS_SOUND_MASTERVOLUME    "SoundMasterVolume"
 #define PREFS_SOUND_UPDATEPERIOD    "SoundUpdatePeriod"
 #define PREFS_SOUND_QUALITY         "SoundQuality"
-#if !defined(TARGET_MSVC) || defined(WINDOWS_SDL)
+#if defined(TARGET_MSVC)
 #define PREFS_SOUND_AUDIODRIVER     "SoundAudioDriver"
 #define PREFS_SOUND_BUFFERSIZE      "SoundBufferSize"
 #endif

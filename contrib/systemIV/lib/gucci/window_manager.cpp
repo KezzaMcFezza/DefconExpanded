@@ -7,6 +7,7 @@
 
 #include "input.h"
 #include "window_manager.h"
+#include "window_manager_sdl.h"
 
 
 WindowManager *g_windowManager = NULL;
@@ -165,19 +166,9 @@ class DeleteWindowManagerOnExit {
 
 static DeleteWindowManagerOnExit please;
 
-#if defined TARGET_OS_MACOSX || TARGET_OS_LINUX || WINDOWS_SDL
-#include "window_manager_sdl.h"
-#else
-#include "window_manager_win32.h"
-#endif 
-
 WindowManager *WindowManager::Create()
 {
-#if defined TARGET_OS_MACOSX || TARGET_OS_LINUX || WINDOWS_SDL
 	return new WindowManagerSDL();
-#else
-	return new WindowManagerWin32();
-#endif 
 }
 
 

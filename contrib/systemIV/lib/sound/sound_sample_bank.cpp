@@ -41,7 +41,6 @@ unsigned int SoundSampleHandle::Read(signed short *_data, unsigned int _numSampl
     
 	m_soundSample->Read(_data, m_nextSampleIndex, _numSamples, _stereo, relFreq);
 
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
     if( _stereo )
     {
         int actualNumSamples = _numSamples * relFreq;
@@ -49,7 +48,6 @@ unsigned int SoundSampleHandle::Read(signed short *_data, unsigned int _numSampl
         m_nextSampleIndex += actualNumSamples;
     }
     else
-#endif
     {
         m_nextSampleIndex += _numSamples;
     }

@@ -301,13 +301,13 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	desired.samples = m_samplesPerBuffer;
 	desired.channels = 2;
  
-#ifdef WINDOWS_SDL
+#ifdef TARGET_MSVC
     int audioDriverPref = g_preferences->GetInt(PREFS_SOUND_AUDIODRIVER, 0);
 #endif
     
 #ifndef TARGET_EMSCRIPTEN
     m_usePushMode = g_preferences->GetInt("SoundUsePushMode", 1); 
-#ifdef WINDOWS_SDL
+#ifdef TARGET_MSVC
 
     //
     // Force pull mode when using DirectSound to avoid 
@@ -344,7 +344,7 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	
 	AppDebugOut("Initialising SDL Audio\n");
 	
-#ifdef WINDOWS_SDL
+#ifdef TARGET_MSVC
 	if (audioDriverPref == 1) {
 		SDL_setenv("SDL_AUDIODRIVER", "directsound", 1);
 		AppDebugOut("Using DirectSound audio driver\n");

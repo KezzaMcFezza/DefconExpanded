@@ -431,7 +431,6 @@ void SoundInstance::PropagateBlueprints( bool _forceRestart )
 bool SoundInstance::UpdateChannelVolume()
 {
     auto audio_now = []() -> double {
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
         SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
         if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1)) {
             unsigned freq = sdl2d->GetActualFreq();
@@ -439,9 +438,9 @@ bool SoundInstance::UpdateChannelVolume()
                 return (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
             }
         }
-#endif
         return GetHighResTime();
     };
+
     UpdateParameter( m_attack );
     UpdateParameter( m_sustain );
     UpdateParameter( m_release );
@@ -527,14 +526,13 @@ void SoundInstance::BeginRelease( bool _final )
         m_adsrState = StateRelease;
         // Switch timer to appropriate clock
         {
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
             SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
             if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1)) {
                 unsigned freq = sdl2d->GetActualFreq();
                 if (freq > 0) m_adsrTimer = (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
                 else m_adsrTimer = GetHighResTime();
-            } else
-#endif
+            } 
+            else
             {
                 m_adsrTimer = GetHighResTime();
             }
@@ -626,7 +624,6 @@ bool SoundInstance::AdvanceLoop()
         {
             float loopFinish = m_loopDelayTimer + m_loopDelay.GetOutput();
             double now = GetHighResTime();
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
             {
                 SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
                 if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1)) {
@@ -634,7 +631,6 @@ bool SoundInstance::AdvanceLoop()
                     if (freq > 0) now = (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
                 }
             }
-#endif
             if( now >= loopFinish )
             {
                 g_soundSystem->TriggerDuplicateSound( this );
@@ -666,7 +662,6 @@ bool SoundInstance::AdvanceLoop()
         {
             float loopFinish = m_loopDelayTimer + m_loopDelay.GetOutput();
             double now = GetHighResTime();
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
             {
                 SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
                 if (sdl2d && sdl2d->UsingPushMode() && g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1)) {
@@ -674,7 +669,6 @@ bool SoundInstance::AdvanceLoop()
                     if (freq > 0) now = (double)sdl2d->GetPlaybackSampleIndex() / (double)freq;
                 }
             }
-#endif
             if( now >= loopFinish )
             {
                 OpenStream( false );
@@ -750,7 +744,6 @@ bool SoundInstance::StartPlaying( int _channelIndex )
     RecalculateResampleStep();
 
     // Set ADSR timer baseline to audio timeline at scheduled start if enabled
-#if !defined TARGET_MSVC || defined WINDOWS_SDL
     if (g_preferences && g_preferences->GetInt("SoundAudioClockedADSR", 1))
     {
         SoundLibrary2dSDL *sdl2d = g_soundLibrary2d ? dynamic_cast<SoundLibrary2dSDL *>(g_soundLibrary2d) : NULL;
@@ -766,7 +759,6 @@ bool SoundInstance::StartPlaying( int _channelIndex )
             }
         }
     }
-#endif
 
     bool done = UpdateChannelVolume();
 
@@ -979,21 +971,16 @@ void SoundInstance::Unlock()
 
 void SoundInstance::ResetResamplerCursor(double _cursor)
 {
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
     if (_cursor < 0.0)
     {
         _cursor = 0.0;
     }
     m_resampleCursor = _cursor;
-#else
-    m_resampleCursor = 0.0;
-#endif
 }
 
 
 void SoundInstance::RecalculateResampleStep()
 {
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
     double step = 1.0;
     if (g_soundLibrary3d && m_soundSampleHandle && m_soundSampleHandle->m_soundSample)
     {
@@ -1023,9 +1010,6 @@ void SoundInstance::RecalculateResampleStep()
     if (step < 1e-6) step = 1e-6;
     if (step > 5.0) step = 5.0;
     m_resampleStep = step;
-#else
-    m_resampleStep = 1.0;
-#endif
 }
 
 

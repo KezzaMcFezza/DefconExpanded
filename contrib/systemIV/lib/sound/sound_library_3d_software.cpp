@@ -223,7 +223,6 @@ void SoundLibrary3dSoftware::GetChannelData(float _duration, unsigned int _numSa
             if( i >= m_numChannels - m_numMusicChannels ) samplesNeeded *= 2;
 
             bool hasData = false;
-#if !defined(SOUND_USE_DSOUND_FREQUENCY_STUFF)
             if (g_soundSystem)
             {
                 // Guard against a race where per-channel buffers are not yet
@@ -239,9 +238,7 @@ void SoundLibrary3dSoftware::GetChannelData(float _duration, unsigned int _numSa
                     hasData = false;
                 }
             }
-            else
-#endif
-            if (m_mainCallback)
+            else if (m_mainCallback)
             {
                 hasData = m_mainCallback(i, m_channels[i].m_buffer, samplesNeeded, &silenceRemaining);
                 if (hasData)

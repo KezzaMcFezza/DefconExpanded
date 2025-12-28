@@ -69,7 +69,7 @@ public:
         g_preferences->SetInt( PREFS_SOUND_CHANNELS, parent->m_channelCount );
         int targetMusicChannels = (parent->m_channelCount >= 128) ? 12 : 8;
         g_preferences->SetInt( "SoundMusicChannels", targetMusicChannels );
-#ifdef WINDOWS_SDL
+#ifdef TARGET_MSVC
         g_preferences->SetInt( PREFS_SOUND_AUDIODRIVER, parent->m_audioDriver );
 #endif
         
@@ -124,7 +124,7 @@ public:
 SoundOptionsWindow::SoundOptionsWindow()
 :   InterfaceWindow( "Sound", "dialog_soundoptions", true )
 {
-#ifdef WINDOWS_SDL
+#ifdef TARGET_MSVC
     SetSize( 390, 330 );
 #else
     SetSize( 390, 300 );
@@ -166,7 +166,7 @@ SoundOptionsWindow::SoundOptionsWindow()
 
     m_sfxQuality = QualityToSelection(sfxQuality);
     m_musicQuality = QualityToSelection(musicQuality);
-#ifdef WINDOWS_SDL
+#ifdef TARGET_MSVC
     m_audioDriver   = g_preferences->GetInt( PREFS_SOUND_AUDIODRIVER, 0 );
 #endif
 }
@@ -193,7 +193,7 @@ void SoundOptionsWindow::Create()
     //memoryUsage->RegisterInt( &m_memoryUsage );
     //RegisterButton( memoryUsage );
 
-#ifdef WINDOWS_SDL
+#ifdef TARGET_MSVC
     DropDownMenu *audioDriver = new DropDownMenu();
     audioDriver->SetProperties( "Audio Driver", x, y+=h, w, 20, "dialog_audiodriver", " ", true, false );
     audioDriver->AddOption( "dialog_audiodriver_wasapi", 0, true );
@@ -263,7 +263,7 @@ void SoundOptionsWindow::Render( bool _hasFocus )
     int size = 13;
 
     //g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_memoryusage") );
-#ifdef WINDOWS_SDL
+#ifdef TARGET_MSVC
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_audiodriver") );
 #endif
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_swapstereo") );
