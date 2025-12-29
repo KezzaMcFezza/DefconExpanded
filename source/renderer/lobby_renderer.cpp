@@ -125,7 +125,7 @@ void LobbyRenderer::Render()
 
     if( g_preferences->GetInt(PREFS_GRAPHICS_LOBBYEFFECTS) == 1 )
     {
-        Render3DScene();
+        //Render3DScene();
     }
 
     g_renderer2d->Reset2DViewport();

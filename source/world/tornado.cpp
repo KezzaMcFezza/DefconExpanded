@@ -120,9 +120,9 @@ void Tornado::Render()
     m_angle += 0.05f;
 
     Image *bmpImage = g_resource->GetImage( bmpImageFilename );
-    g_renderer2d->Blit( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 10,
+    g_renderer2d->RotatingSprite( bmpImage, predictedLongitude + m_vel.x.DoubleValue() * 10,
 					  predictedLatitude + m_vel.y.DoubleValue() * 10, m_size.DoubleValue()/2, m_size.DoubleValue()/2,
-					  colour, m_angle );
+					  colour, m_angle, true );
 }
 
 Fixed Tornado::GetSize()

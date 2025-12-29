@@ -993,7 +993,7 @@ void GlobeRenderer::RenderDragIcon()
     float iconX = g_inputManager->m_mouseX - iconSize * 0.5f;
     float iconY = g_inputManager->m_mouseY - iconSize * 0.5f;
     
-    g_renderer2d->Blit( move, iconX, iconY, iconSize, iconSize, White );
+    g_renderer2d->StaticSprite( move, iconX, iconY, iconSize, iconSize, White, true );
 }
 
 //
