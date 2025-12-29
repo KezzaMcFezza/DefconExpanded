@@ -1,3 +1,5 @@
+#ifdef RENDERER_OPENGL
+
 #include "systemiv.h"
 #include <SDL2/SDL.h>
 
@@ -888,3 +890,5 @@ extern "C" int main(int argc, char **argv)
 	
 	return 0;
 }
+
+#endif // RENDERER_OPENGL

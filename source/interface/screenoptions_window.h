@@ -16,6 +16,7 @@ public:
     int		m_antiAlias;
     int     m_uiScale;
     int     m_fpsLimit;
+    int     m_renderer;
 	
 public:
     ScreenOptionsWindow();

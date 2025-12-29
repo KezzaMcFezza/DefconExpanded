@@ -58,7 +58,7 @@ static void AddFileOrDirectory( const char *path, std::queue<std::string> &paths
 
 static void DisableVSync()
 {
-#ifdef TARGET_MSVC
+#ifndef RENDERER_DIRECTX11
 	typedef GLboolean(APIENTRY *FuncTypeWglSwapIntervalEXT)(GLint interval);
 
 	FuncTypeWglSwapIntervalEXT setSwapInterval = (FuncTypeWglSwapIntervalEXT) wglGetProcAddress("wglSwapIntervalEXT");

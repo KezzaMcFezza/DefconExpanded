@@ -1,5 +1,6 @@
 #include "systemiv.h"
 #include "lib/tosser/llist.h"
+#include "lib/debug_utils.h"
 
 // ============================================================================
 
@@ -73,6 +74,83 @@ void SetRealVersion(const char *realVersion)
 void SetAppSystem(const char *system)
 {
     s_appSystem = system;
+}
+
+
+// ============================================================================
+
+
+static RendererType s_rendererType = RENDERER_TYPE_OPENGL;
+static bool s_rendererTypeSet = false;
+
+void SetRendererType(RendererType type)
+{
+    //
+    // Validate that the requested renderer is available on this platform
+    
+    if (!IsRendererAvailable(type))
+    {
+        const char *typeName = GetRendererTypeName(type);
+        AppDebugOut("ERROR: Renderer type '%s' is not available on this platform\n", typeName);
+        
+#if !defined(RENDERER_OPENGL) && !defined(RENDERER_DIRECTX11)
+        AppDebugOut("ERROR: No renderer backends compiled into this build!\n");
+        AppDebugOut("Please define RENDERER_OPENGL or RENDERER_DIRECTX11 in your build system.\n");
+#endif
+        
+        exit(1);
+    }
+    
+    s_rendererType = type;
+    s_rendererTypeSet = true;
+}
+
+RendererType GetRendererType()
+{
+    //
+    // SetRendererType() must be called before GetRendererType()
+    // If not set, we exit immediately
+    
+    if (!s_rendererTypeSet)
+    {
+        AppDebugOut("ERROR: Renderer type not set! Call SetRendererType() before creating WindowManager.\n");
+        exit(1);
+    }
+    
+    return s_rendererType;
+}
+
+bool IsRendererAvailable(RendererType type)
+{
+    switch (type)
+    {
+        case RENDERER_TYPE_OPENGL:
+#ifdef RENDERER_OPENGL
+            return true;
+#else
+            return false;
+#endif
+            
+        case RENDERER_TYPE_DIRECTX11:
+#ifdef RENDERER_DIRECTX11
+            return true;
+#else
+            return false;
+#endif
+            
+        default:
+            return false;
+    }
+}
+
+const char *GetRendererTypeName(RendererType type)
+{
+    switch (type)
+    {
+        case RENDERER_TYPE_OPENGL:    return "OpenGL";
+        case RENDERER_TYPE_DIRECTX11: return "DirectX11";
+        default:                      return "Unknown";
+    }
 }
 
 

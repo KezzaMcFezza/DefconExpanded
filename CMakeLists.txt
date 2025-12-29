@@ -114,6 +114,7 @@ if(EMSCRIPTEN)
     add_definitions(-DSDL_MAIN_HANDLED -DGUI -DSILENT)
     add_definitions(-D__EMSCRIPTEN_PTHREADS__)
     add_definitions(-D_GNU_SOURCE)
+    add_definitions(-DRENDERER_OPENGL)
     
     # WebAssembly debug output control (only enabled for Debug builds)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -251,6 +252,8 @@ elseif(MSVC)
     
     add_definitions(-D_WIN32 -DWIN32 -DTARGET_MSVC)
     add_definitions(-D_WINSOCK_DEPRECATED_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS)
+    add_definitions(-DRENDERER_OPENGL)
+    add_definitions(-DRENDERER_DIRECTX11)
 
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_definitions(-DTOGGLE_SOUND)
@@ -322,6 +325,7 @@ elseif(APPLE)
     
     add_definitions(-DSDL_MAIN_HANDLED)
     add_definitions(-D_DARWIN -DMACOS -DTARGET_OS_MACOSX -DGUI -DSILENT)
+    add_definitions(-DRENDERER_OPENGL)
 
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_definitions(-DTOGGLE_SOUND)
@@ -415,6 +419,7 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     set(CRASHPAD_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/crashpad/linux")
     
     add_definitions(-DTARGET_OS_LINUX -DENABLE_BINRELOC -DGUI -DSILENT)
+    add_definitions(-DRENDERER_OPENGL)
     
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_definitions(-DTOGGLE_SOUND)
@@ -624,6 +629,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/gucci/input_sdl.cpp
     ${SYSTEMIV_PATH}/lib/gucci/window_manager.cpp
     ${SYSTEMIV_PATH}/lib/gucci/window_manager_sdl.cpp
+    ${SYSTEMIV_PATH}/lib/gucci/window_manager_d3d11.cpp
     ${SYSTEMIV_PATH}/lib/netlib/net_lib.cpp
     ${SYSTEMIV_PATH}/lib/netlib/net_socket.cpp
     ${SYSTEMIV_PATH}/lib/netlib/net_socket_listener.cpp
@@ -862,8 +868,10 @@ elseif(MSVC)
         "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/${VORBIS_ARCH_LIB}/ogg.lib"
         "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/${VORBIS_ARCH_LIB}/vorbis.lib"
         "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/${VORBIS_ARCH_LIB}/vorbisfile.lib"
-        wsock32 opengl32 glu32 dbghelp winmm Ws2_32 setupapi version imm32 cfgmgr32
+        wsock32 dbghelp winmm Ws2_32 setupapi version imm32 cfgmgr32
     )
+    
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE d3d11 dxgi d3dcompiler opengl32 glu32)
     
     if(OpenMP_CXX_FOUND)
         target_link_libraries(${EXECUTABLE_NAME} PRIVATE OpenMP::OpenMP_CXX)

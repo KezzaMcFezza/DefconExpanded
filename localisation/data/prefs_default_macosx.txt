@@ -1,3 +1,4 @@
 UseOneButtonMouseModifiers = 1
 SoundLibrary = software
 ScreenAntiAliasing = 0
+ScreenRenderer = 0

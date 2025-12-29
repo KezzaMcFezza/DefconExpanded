@@ -102,6 +102,16 @@ void SetRealVersion   (const char *realVersion);
 void SetAppSystem     (const char *system);
 void SetDataRoot      (const char *path);
 
+enum RendererType {
+    RENDERER_TYPE_OPENGL,
+    RENDERER_TYPE_DIRECTX11
+};
+
+void         SetRendererType      (RendererType type);
+RendererType GetRendererType      ();
+bool         IsRendererAvailable  (RendererType type);
+const char  *GetRendererTypeName  (RendererType type);
+
 const char *GetResourceDir                  (int index);
 const char * const *GetResourceDirExclusions(int index, int *count);
 
@@ -118,7 +128,9 @@ int         GetResourceDirCount();
     #undef TARGET_OS_LINUX
     #undef TARGET_OS_MACOSX
     #undef TARGET_EMSCRIPTEN
+    #ifndef RENDERER_DIRECTX11
     #include <glad/wgl_ext.h>
+    #endif
 #elif defined(TARGET_EMSCRIPTEN)
     #undef TARGET_OS_MACOSX
     #undef TARGET_OS_WINDOWS

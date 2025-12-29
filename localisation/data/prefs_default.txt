@@ -6,6 +6,7 @@ ScreenColourDepth = 0
 ScreenRefresh = 0
 ScreenZDepth = 24
 ScreenAntiAliasing = 4
+ScreenRenderer = 0
 
 SoundLibrary = dsound
 SoundMixFreq = 44100

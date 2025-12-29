@@ -198,6 +198,9 @@ dialog_fpslimit_240fps              240 FPS
 dialog_fpslimit_480fps              480 FPS
 dialog_fpslimit_1000fps             1000 FPS
 dialog_windowscaling                Window Scaling
+dialog_renderer                     Renderer
+dialog_renderer_opengl              OpenGL
+dialog_renderer_directx11           DirectX11
 dialog_networkoptions               Network
 dialog_networkclientport            Client Port
 dialog_networkserverport            Server Port

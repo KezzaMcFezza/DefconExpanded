@@ -7,8 +7,8 @@
 
 #include "input.h"
 #include "window_manager.h"
+#include "window_manager_d3d11.h"
 #include "window_manager_sdl.h"
-
 
 WindowManager *g_windowManager = NULL;
 int g_argc = 0;
@@ -168,7 +168,29 @@ static DeleteWindowManagerOnExit please;
 
 WindowManager *WindowManager::Create()
 {
-	return new WindowManagerSDL();
+#if !defined(RENDERER_OPENGL) && !defined(RENDERER_DIRECTX11)
+#error "No renderer selected, please define RENDERER_OPENGL or RENDERER_DIRECTX11"
+#endif
+
+    RendererType requestedType = GetRendererType();
+    
+#ifdef RENDERER_DIRECTX11
+    if (requestedType == RENDERER_TYPE_DIRECTX11)
+    {
+        return new WindowManagerD3D11();
+    }
+#endif
+    
+#ifdef RENDERER_OPENGL
+    if (requestedType == RENDERER_TYPE_OPENGL)
+    {
+        return new WindowManagerSDL();
+    }
+#endif
+    
+    AppReleaseAssert(false, "Failed to create window manager for renderer type: %s", 
+                     GetRendererTypeName(requestedType));
+    return NULL;
 }
 
 

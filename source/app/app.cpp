@@ -448,6 +448,10 @@ void App::MinimalInit()
 
     m_earthData = new EarthData();
     
+    RendererType rendererType = SelectRendererFromPreferences(g_preferences);
+    SetRendererType(rendererType);
+    AppDebugOut("Initializing with renderer: %s\n", GetRendererTypeName(rendererType));
+    
     g_windowManager = WindowManager::Create();
     g_windowManager->RegisterWindowResizeHandler(WindowResizeCallback);
     
@@ -854,17 +858,51 @@ void App::InitialiseWindow()
 }
 
 
+RendererType App::SelectRendererFromPreferences(Preferences* prefs)
+{
+    int preferredRenderer = prefs->GetInt(PREFS_SCREEN_RENDERER, PREFS_RENDERER_OPENGL);
+    RendererType rendererType = (preferredRenderer == PREFS_RENDERER_DIRECTX11) 
+        ? RENDERER_TYPE_DIRECTX11 
+        : RENDERER_TYPE_OPENGL;
+    
+    if (!IsRendererAvailable(rendererType))
+    {
+        AppDebugOut("Requested renderer '%s' not available, falling back to OpenGL\n", 
+                    GetRendererTypeName(rendererType));
+        rendererType = RENDERER_TYPE_OPENGL;
+        prefs->SetInt(PREFS_SCREEN_RENDERER, PREFS_RENDERER_OPENGL);
+    }
+    
+    return rendererType;
+}
+
+
 void App::ReinitialiseWindow()
 {
-	g_windowManager->DestroyWin();
-
-    //
-    // The old OpenGL context was destroyed, so we need to recreate 
-    // the Renderer with fresh shaders, VAO, VBO for the new context
+    RendererType oldRendererType = GetRendererType();
+    RendererType newRendererType = SelectRendererFromPreferences(g_preferences);
+    
+    bool rendererChanged = (oldRendererType != newRendererType);
+    
+    g_windowManager->DestroyWin();
+    delete g_windowManager;
+    g_windowManager = NULL;
 
     delete g_renderer;
     g_renderer = NULL;
 
+    
+    if (rendererChanged)
+    {
+        AppDebugOut("Switching renderer from %s to %s\n", 
+                    GetRendererTypeName(oldRendererType),
+                    GetRendererTypeName(newRendererType));
+    }
+    
+    SetRendererType(newRendererType);
+    g_windowManager = WindowManager::Create();
+    g_windowManager->RegisterWindowResizeHandler(WindowResizeCallback);
+    
     InitialiseWindow();
     
     g_renderer = new Renderer();

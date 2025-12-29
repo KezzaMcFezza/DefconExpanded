@@ -132,6 +132,8 @@
         "-DUSE_CRASHREPORTING",
         "-D_WIN32",
         "-DTARGET_MSVC",
+        "-DRENDERER_DIRECTX11",
+        "-DRENDERER_OPENGL",
         "-D_WINSOCK_DEPRECATED_NO_WARNINGS",
         "-D_CRT_SECURE_NO_WARNINGS",
         "-Wno-writable-strings"

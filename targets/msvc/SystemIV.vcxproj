@@ -120,7 +120,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;../../contrib/systemIV/contrib/crashpad/windows/include;../../contrib/systemIV/contrib/crashpad/windows/include/third_party/mini_chromium/mini_chromium;../../contrib/systemIV/contrib/tinygltf-2.9.7;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;D_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TARGET_MSVC;D_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;RENDERER_OPENGL;RENDERER_DIRECTX11;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -171,7 +171,7 @@
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <AdditionalIncludeDirectories>../../contrib/SystemIV/;../../contrib/SystemIV/contrib/oggvorbis64/include/;../../contrib/SystemIV/contrib/;../../contrib/ambx1.1/inc;../../contrib/steam/public/;../../contrib/systemIV/contrib/glad/desktop/include;../../contrib/systemIV/contrib/highway-1.3.0;../../contrib/systemIV/contrib/SDL2-2.32.10/windows;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;../../contrib/systemIV/contrib/crashpad/windows/include;../../contrib/systemIV/contrib/crashpad/windows/include/third_party/mini_chromium/mini_chromium;../../contrib/systemIV/contrib/tinygltf-2.9.7;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;USE_CRASHREPORTING;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;TOGGLE_SOUND; _CRT_NONSTDC_NO_DEPRECATE;OPENMP;USE_CRASHREPORTING;RENDERER_OPENGL;RENDERER_DIRECTX11;_WINSOCK_DEPRECATED_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -240,6 +240,7 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\gucci\win32library.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\window_manager.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\gucci\window_manager_sdl.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\window_manager_d3d11.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\hi_res_time.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\language_table.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\math\fixed_64.cpp" />
@@ -348,6 +349,7 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\gucci\win32library.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\window_manager.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\gucci\window_manager_sdl.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\window_manager_d3d11.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\hi_res_time.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\language_table.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\math\fixed.h" />

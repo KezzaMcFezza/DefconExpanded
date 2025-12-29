@@ -168,6 +168,7 @@ class SetScreenButton : public InterfaceButton
         g_preferences->SetInt( PREFS_SCREEN_UI_SCALE, parent->m_uiScale );
         g_preferences->SetInt( PREFS_SCREEN_ANTIALIAS, parent->m_antiAlias );
         g_preferences->SetInt( PREFS_SCREEN_FPS_LIMIT, parent->m_fpsLimit );
+        g_preferences->SetInt( PREFS_SCREEN_RENDERER, parent->m_renderer );
 		
         if( resolution && g_app && g_app->GetInterface() )
         {
@@ -203,6 +204,7 @@ class SetScreenButton : public InterfaceButton
         parent->m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
         parent->m_antiAlias     = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
         parent->m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
+        parent->m_renderer      = g_preferences->GetInt( PREFS_SCREEN_RENDERER, PREFS_RENDERER_OPENGL );
 
         parent->Remove();
         parent->Create();
@@ -219,7 +221,11 @@ void ScreenOptionsWindow::RestartWindowManager()
 ScreenOptionsWindow::ScreenOptionsWindow()
 :   InterfaceWindow( "ScreenOptions", "dialog_screenoptions", true )
 {
-	int height = 360;
+#ifdef TARGET_MSVC
+	int height = 400;
+#else
+    int height = 360;
+#endif
 
     m_resId = g_windowManager->GetResolutionId( g_preferences->GetInt(PREFS_SCREEN_WIDTH),
                                                 g_preferences->GetInt(PREFS_SCREEN_HEIGHT) );
@@ -240,6 +246,7 @@ ScreenOptionsWindow::ScreenOptionsWindow()
     m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
 	m_antiAlias		= g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
     m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
+    m_renderer      = g_preferences->GetInt( PREFS_SCREEN_RENDERER, PREFS_RENDERER_OPENGL );
 	
     SetSize( 390, height );
 }
@@ -340,6 +347,15 @@ void ScreenOptionsWindow::Create()
     fpsLimit->AddOption( "dialog_fpslimit_1000fps", 1000, true );
     fpsLimit->RegisterInt( &m_fpsLimit );
     RegisterButton( fpsLimit );
+    
+#ifdef TARGET_MSVC
+    DropDownMenu *renderer = new DropDownMenu();
+    renderer->SetProperties( "Renderer", x, y+=h, w, 20, "dialog_renderer", " ", true, false );
+    renderer->AddOption( "dialog_renderer_opengl", PREFS_RENDERER_OPENGL, true );
+    renderer->AddOption( "dialog_renderer_directx11", PREFS_RENDERER_DIRECTX11, true );
+    renderer->RegisterInt( &m_renderer );
+    RegisterButton( renderer );
+#endif
 
 	CloseButton *cancel = new CloseButton();
     cancel->SetProperties( "Close", 10, m_h - 30, m_w / 2 - 15, 20, "dialog_close", " ", true, false );
@@ -367,5 +383,8 @@ void ScreenOptionsWindow::Render( bool _hasFocus )
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_zbufferdepth") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_windowscaling") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_antialias") );
-    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_fpslimit") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_fpslimit") );    
+#ifdef TARGET_MSVC
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_renderer") );
+#endif
 }

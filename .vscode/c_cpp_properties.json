@@ -19,6 +19,7 @@
       "defines": [
         "TARGET_OS_LINUX",
         "ENABLE_BINRELOC",
+        "RENDERER_OPENGL",
         "GUI",
         "SILENT",
         "_DEBUG"
@@ -46,7 +47,14 @@
         "${workspaceFolder}/contrib/systemIV/lib/eclipse",
         "${workspaceFolder}/contrib/systemIV/lib/eclipse/components"
       ],
-      "defines": ["_DEBUG", "UNICODE", "_UNICODE"],
+      "defines": [
+        "_DEBUG", 
+        "UNICODE", 
+        "_UNICODE", 
+        "RENDERER_DIRECTX11",
+        "RENDERER_OPENGL", 
+        "TARGET_MSVC"
+      ],
       "windowsSdkVersion": "10.0.26100.0",
       "compilerPath": "cl.exe",
       "cStandard": "c17",

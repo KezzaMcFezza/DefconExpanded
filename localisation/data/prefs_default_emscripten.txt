@@ -1,3 +1,4 @@
 ScreenAntiAliasing = 0
 ScreenWindowed = 0
 ScreenMaximized = 0
+ScreenRenderer = 0

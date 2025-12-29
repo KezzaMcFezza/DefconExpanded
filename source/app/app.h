@@ -12,6 +12,7 @@
 #define _included_app_h
 
 #include "network/Server.h"
+#include "lib/preferences.h"
 
 class AchievementTracker;
 class ClientToServer;
@@ -106,9 +107,12 @@ public:
 
     void    ShutdownCurrentGame();                  // Closes everything, ie client, server, world etc
 
+    static  RendererType SelectRendererFromPreferences(Preferences* prefs);
+    
     void    InitialiseWindow();                     // First time
     void    ReinitialiseWindow();                   // Window already exists, destroy first
     void    OnWindowResized(int newWidth, int newHeight, int oldWidth, int oldHeight);
+    
     void    InitStatusIcon();
     bool    IsGlobeMode();
     void    InitFonts();

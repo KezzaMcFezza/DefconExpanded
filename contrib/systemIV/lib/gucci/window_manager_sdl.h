@@ -1,6 +1,8 @@
 #ifndef INCLUDED_WINDOW_MANAGER_SDL_H
 #define INCLUDED_WINDOW_MANAGER_SDL_H
 
+#ifdef RENDERER_OPENGL
+
 #include <SDL2/SDL.h>
 #include "window_manager.h"
 
@@ -47,4 +49,5 @@ private:
     bool         m_isMaximized;
 };
 
-#endif
+#endif // INCLUDED_WINDOW_MANAGER_SDL_H
+#endif // RENDERER_OPENGL

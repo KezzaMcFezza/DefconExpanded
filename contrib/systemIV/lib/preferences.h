@@ -18,6 +18,9 @@
 #define PREFS_SCREEN_ANTIALIAS		"ScreenAntiAliasing"
 #define PREFS_SCREEN_UI_SCALE		"ScreenUIScale"
 #define PREFS_SCREEN_FPS_LIMIT		"ScreenFpsLimit"
+#define PREFS_SCREEN_RENDERER		"ScreenRenderer"
+#define PREFS_RENDERER_OPENGL       0
+#define PREFS_RENDERER_DIRECTX11    1
 
 #define PREFS_SOUND_LIBRARY         "SoundLibrary"
 #define PREFS_SOUND_MIXFREQ         "SoundMixFreq"
