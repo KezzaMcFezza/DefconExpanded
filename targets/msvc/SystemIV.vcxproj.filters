@@ -691,6 +691,33 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_opengl.h">
       <Filter>lib\render3d</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\color_fragment.hlsl.h">
+      <Filter>lib\render2d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\texture_fragment.hlsl.h">
+      <Filter>lib\render2d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\vertex.hlsl.h">
+      <Filter>lib\render2d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\fragment.hlsl.h">
+      <Filter>lib\render3d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\model_vertex.glsl.h">
+      <Filter>lib\render3d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\model_vertex.hlsl.h">
+      <Filter>lib\render3d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\textured_fragment.hlsl.h">
+      <Filter>lib\render3d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\textured_vertex.hlsl.h">
+      <Filter>lib\render3d\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\vertex.hlsl.h">
+      <Filter>lib\render3d\shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="contrib">
