@@ -339,6 +339,18 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_opengl.cpp">
       <Filter>lib\render</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_2d_directx11.cpp">
+      <Filter>lib\render2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_2d_opengl.cpp">
+      <Filter>lib\render2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_directx11.cpp">
+      <Filter>lib\render3d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_opengl.cpp">
+      <Filter>lib\render3d</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\contrib\systemIV\systemiv.h" />
@@ -666,6 +678,18 @@
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_opengl.h">
       <Filter>lib\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\renderer_2d_directx11.h">
+      <Filter>lib\render2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\renderer_2d_opengl.h">
+      <Filter>lib\render2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_directx11.h">
+      <Filter>lib\render3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_opengl.h">
+      <Filter>lib\render3d</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

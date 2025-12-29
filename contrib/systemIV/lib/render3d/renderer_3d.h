@@ -85,7 +85,7 @@ class Renderer3D
     friend class Renderer;
     friend class MegaVBO3D;
     
-private:
+protected:
 
     struct Shader3DUniforms {
         int projectionLoc;
@@ -156,7 +156,15 @@ private:
     static constexpr int MAX_RECT_FILL_VERTICES_3D         = 3000;
     static constexpr int MAX_TRIANGLE_FILL_VERTICES_3D     = 10000;
     static constexpr int MAX_INSTANCES                     = 64;
-
+    
+    bool m_fogEnabled;
+    bool m_fogOrientationBased;  // true = orientation-based, false = distance-based
+    float m_fogStart;            // Distance-based fog start
+    float m_fogEnd;              // Distance-based fog end
+    float m_fogDensity;          // Distance-based fog density
+    float m_fogColor[4];         // R, G, B, A
+    float m_cameraPos[3];        // X, Y, Z for orientation-based fog
+    
     Vertex3DTextured m_staticSpriteVertices3D     [MAX_STATIC_SPRITE_VERTICES_3D];
     int m_staticSpriteVertexCount3D;
     unsigned int m_currentStaticSpriteTexture3D;
@@ -202,31 +210,25 @@ private:
     Vertex3D m_triangleFillVertices3D             [MAX_TRIANGLE_FILL_VERTICES_3D];
     int m_triangleFillVertexCount3D;
     
-    bool m_lineStrip3DActive;
-    Colour m_lineStrip3DColor;
-    float m_lineStrip3DWidth;
+    void IncrementDrawCall3D         (const char* bufferType);
+    void ResetFrameCounters3D        ();
     
     float m_currentLineWidth3D;
     float m_currentCircleWidth3D;
     float m_currentRectWidth3D;
+    unsigned int m_currentTexture3D;
+
+private:
+    
+    bool m_lineStrip3DActive;
+    Colour m_lineStrip3DColor;
+    float m_lineStrip3DWidth;
     
     bool m_texturedQuad3DActive;
     Colour m_texturedQuad3DColor;
-    unsigned int m_currentTexture3D;
     
     Vertex3D* m_lineConversionBuffer3D;
     int m_lineConversionBufferSize3D;
-    
-    //
-    // Fog parameters
-
-    bool m_fogEnabled;
-    bool m_fogOrientationBased;  // true = orientation-based, false = distance-based
-    float m_fogStart;            // Distance-based fog start
-    float m_fogEnd;              // Distance-based fog end
-    float m_fogDensity;          // Distance-based fog density
-    float m_fogColor[4];         // R, G, B, A
-    float m_cameraPos[3];        // X, Y, Z for orientation-based fog
     
     //
     // Draw call tracking
@@ -267,24 +269,38 @@ private:
     int m_activeFontBatches3D;
     int m_prevActiveFontBatches3D;
 
-    void IncrementDrawCall3D         (const char* bufferType);
-    void ResetFrameCounters3D        ();
-    void Initialize3DShaders         ();
-    void Cache3DUniformLocations     ();
-    void Setup3DVertexArrays         ();
-    void Setup3DTexturedVertexArrays ();
-    void Flush3DVertices             (unsigned int primitiveType);
-    void Flush3DTexturedVertices     ();
-    void SetFogUniforms3D            (unsigned int shaderProgram);
-    void Set3DShaderUniforms         ();
-    void SetTextured3DShaderUniforms ();
+    void InvalidateMatrices3D        () { m_matrices3DNeedUpdate = true; }
+    void InvalidateFog3D             () { m_fog3DNeedsUpdate = true; }
     
-    void Set3DModelShaderUniforms          (const Matrix4f& modelMatrix, const Colour& modelColor);
-    void Set3DModelShaderUniformsInstanced (const Matrix4f* modelMatrices, const Colour* modelColors, int instanceCount);
-    void UploadVertexDataTo3DVBO           (unsigned int vbo, const Vertex3D* vertices, int vertexCount, unsigned int usageHint);
-    void UploadVertexDataTo3DVBO           (unsigned int vbo, const Vertex3DTextured* vertices, int vertexCount, unsigned int usageHint);
-    void InvalidateMatrices3D              () { m_matrices3DNeedUpdate = true; }
-    void InvalidateFog3D                   () { m_fog3DNeedsUpdate = true; }
+    virtual void Initialize3DShaders          () = 0;
+    virtual void Cache3DUniformLocations      () = 0;
+    virtual void Setup3DVertexArrays          () = 0;
+    virtual void Setup3DTexturedVertexArrays  () = 0;
+    virtual void Set3DShaderUniforms          () = 0;
+    virtual void SetTextured3DShaderUniforms  () = 0;
+
+    virtual void SetFogUniforms3D                 (unsigned int shaderProgram) = 0;
+    virtual void Set3DModelShaderUniforms         (const Matrix4f& modelMatrix, const Colour& modelColor) = 0;
+    virtual void Set3DModelShaderUniformsInstanced(const Matrix4f* modelMatrices, const Colour* modelColors, 
+                                                   int instanceCount) = 0;
+    virtual void UploadVertexDataTo3DVBO          (unsigned int vbo, const Vertex3D* vertices, 
+                                                   int vertexCount, unsigned int usageHint) = 0;
+    virtual void UploadVertexDataTo3DVBO          (unsigned int vbo, const Vertex3DTextured* vertices, 
+                                                   int vertexCount, unsigned int usageHint) = 0;
+    
+    virtual void Flush3DVertices              (unsigned int primitiveType) = 0;
+    virtual void Flush3DTexturedVertices      () = 0;
+    virtual void FlushLine3D                  () = 0;
+    virtual void FlushStaticSprites3D         () = 0;
+    virtual void FlushRotatingSprite3D        () = 0;
+    virtual void FlushTextBuffer3D            () = 0;
+    virtual void FlushCircles3D               () = 0;
+    virtual void FlushCircleFills3D           () = 0;
+    virtual void FlushRects3D                 () = 0;
+    virtual void FlushRectFills3D             () = 0;
+    virtual void FlushTriangleFills3D         () = 0;
+    
+    virtual void CleanupBuffers3D             () = 0;
 
 public:
     Renderer3D();
@@ -377,21 +393,18 @@ public:
     void Line3D           (float x1, float y1, float z1, float x2, float y2, float z2, Colour const &col, float lineWidth = 1.0f, bool immediateFlush = false);
     void BeginLineBatch3D ();
     void EndLineBatch3D   ();
-    void FlushLine3D      ();
     void FlushLine3DIfFull(int segmentsNeeded);
     
     void StaticSprite3D            (Image *src, float x, float y, float z, float w, float h, Colour const &col, bool immediateFlush = false);
     void StaticSprite3D            (Image *src, float x, float y, float z, float w, float h, Colour const &col, BillboardMode3D mode, bool immediateFlush = false);
     void BeginStaticSpriteBatch3D  ();
     void EndStaticSpriteBatch3D    ();
-    void FlushStaticSprites3D      ();
     void FlushStaticSprites3DIfFull(int verticesNeeded);
     
     void RotatingSprite3D           (Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, bool immediateFlush = false);
     void RotatingSprite3D           (Image *src, float x, float y, float z, float w, float h, Colour const &col, float angle, BillboardMode3D mode, bool immediateFlush = false);
     void BeginRotatingSpriteBatch3D ();
     void EndRotatingSpriteBatch3D   ();
-    void FlushRotatingSprite3D      ();
     void FlushRotatingSprite3DIfFull(int verticesNeeded);
 
     void BlitChar3D                 (unsigned int textureID, const Vector3<float>& position, float width, float height,
@@ -413,42 +426,36 @@ public:
     
     void BeginTextBatch3D();
     void EndTextBatch3D();
-    void FlushTextBuffer3D();
     void FlushTextBuffer3DIfFull     (int charactersNeeded);
     
     void Circle3D                  (float x, float y, float z, float radius, int numPoints, Colour const &col, float lineWidth = 1.0f, bool immediateFlush = false);
     void Circle3D                  (const Vector3<float>& pos, const Vector3<float>& tangent1, const Vector3<float>& tangent2, float radius, int numPoints, Colour const &col, float lineWidth = 1.0f, bool immediateFlush = false);
     void BeginCircleBatch3D        ();
     void EndCircleBatch3D          ();
-    void FlushCircles3D            ();
     void FlushCircles3DIfFull      (int verticesNeeded);
     
     void CircleFill3D              (float x, float y, float z, float radius, int numPoints, Colour const &col, bool immediateFlush = false);
     void CircleFill3D              (const Vector3<float>& pos, const Vector3<float>& tangent1, const Vector3<float>& tangent2, float radius, int numPoints, Colour const &col, bool immediateFlush = false);
     void BeginCircleFillBatch3D    ();
     void EndCircleFillBatch3D      ();
-    void FlushCircleFills3D        ();
     void FlushCircleFills3DIfFull  (int verticesNeeded);
     
     void Rect3D                    (float x, float y, float z, float w, float h, Colour const &col, float lineWidth = 1.0f, bool immediateFlush = false);
     void Rect3D                    (const Vector3<float>& pos, const Vector3<float>& tangent1, const Vector3<float>& tangent2, float w, float h, Colour const &col, float lineWidth = 1.0f, bool immediateFlush = false);
     void BeginRectBatch3D          ();
     void EndRectBatch3D            ();
-    void FlushRects3D              ();
     void FlushRects3DIfFull        (int verticesNeeded);
     
     void RectFill3D                (float x, float y, float z, float w, float h, Colour const &col, bool immediateFlush = false);
     void RectFill3D                (const Vector3<float>& pos, const Vector3<float>& tangent1, const Vector3<float>& tangent2, float w, float h, Colour const &col, bool immediateFlush = false);
     void BeginRectFillBatch3D      ();
     void EndRectFillBatch3D        ();
-    void FlushRectFills3D          ();
     void FlushRectFills3DIfFull    (int verticesNeeded);
     
     void TriangleFill3D            (float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, Colour const &col, bool immediateFlush = false);
     void TriangleFill3D            (const Vector3<float>& pos, const Vector3<float>& tangent1, const Vector3<float>& tangent2, const Vector2& v1Offset, const Vector2& v2Offset, const Vector2& v3Offset, Colour const &col, bool immediateFlush = false);
     void BeginTriangleFillBatch3D  ();
     void EndTriangleFillBatch3D    ();
-    void FlushTriangleFills3D      ();
     void FlushTriangleFills3DIfFull(int verticesNeeded);
     
     void FlushAllSpecializedBuffers3D();

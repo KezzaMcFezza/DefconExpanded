@@ -18,7 +18,9 @@
 #include "lib/filesys/filesys_utils.h"
 #include "lib/render/colour.h"
 #include "lib/render2d/renderer_2d.h"
+#include "lib/render2d/renderer_2d_opengl.h"
 #include "lib/render3d/renderer_3d.h"
+#include "lib/render3d/renderer_3d_opengl.h"
 #include "lib/render2d/megavbo/megavbo_2d.h"
 #include "lib/render3d/megavbo/megavbo_3d.h"
 
@@ -84,9 +86,9 @@ RendererOpenGL::RendererOpenGL()
     m_msaaWidth = 0;
     m_msaaHeight = 0;
     
-    g_renderer2d = new Renderer2D();
+    g_renderer2d = new Renderer2DOpenGL();
     g_megavbo2d = new MegaVBO2D();
-    g_renderer3d = new Renderer3D();
+    g_renderer3d = new Renderer3DOpenGL();
     g_megavbo3d = new MegaVBO3D();
 }
 

@@ -43,7 +43,7 @@ class Renderer2D {
   friend class Renderer;
   friend class MegaVBO2D;
 
-private:
+protected:
 
   struct ShaderUniforms {
     int projectionLoc;
@@ -53,6 +53,8 @@ private:
 
   ShaderUniforms m_colorShaderUniforms;
   ShaderUniforms m_textureShaderUniforms;
+
+private:
 
   enum BufferType {
     BUFFER_TEXT,
@@ -164,25 +166,29 @@ protected:
 
   bool m_batchingTextures;
 
-  void InitializeShaders       ();
-  void CacheUniformLocations   ();
-  void SetupVertexArrays       ();
-  void SetTextureShaderUniforms();
-  void UploadVertexData        (const Vertex2D* vertices, int vertexCount);
-  void UploadVertexDataToVBO   (unsigned int vbo, const Vertex2D* vertices, int vertexCount, unsigned int usageHint);
- 
- 
-  void FlushIfTextureChanged   (unsigned int newTextureID, bool useTexture);
-  void FlushTriangles          (bool useTexture);
-  void FlushTextBuffer();
-  void FlushLines();
-  void FlushStaticSprites();
-  void FlushRotatingSprite();
-  void FlushCircles();
-  void FlushCircleFills();
-  void FlushRects();
-  void FlushRectFills();
-  void FlushTriangleFills();
+  virtual void InitializeShaders       () = 0;
+  virtual void CacheUniformLocations   () = 0;
+  virtual void SetupVertexArrays       () = 0;
+  virtual void SetColorShaderUniforms  () = 0;
+  virtual void SetTextureShaderUniforms() = 0;
+  virtual void UploadVertexData        (const Vertex2D* vertices, int vertexCount) = 0;
+  virtual void UploadVertexDataToVBO   (unsigned int vbo, const Vertex2D* vertices, 
+                                        int vertexCount, unsigned int usageHint) = 0;
+  
+  virtual void FlushTriangles          (bool useTexture) = 0;
+  virtual void FlushTextBuffer         () = 0;
+  virtual void FlushLines              () = 0;
+  virtual void FlushStaticSprites      () = 0;
+  virtual void FlushRotatingSprite     () = 0;
+  virtual void FlushCircles            () = 0;
+  virtual void FlushCircleFills        () = 0;
+  virtual void FlushRects              () = 0;
+  virtual void FlushRectFills          () = 0;
+  virtual void FlushTriangleFills      () = 0;
+  
+  virtual void CleanupBuffers          () = 0;
+  
+  void FlushIfTextureChanged         (unsigned int newTextureID, bool useTexture);
   void FlushRotatingSpritesIfFull    (int verticesNeeded);
   void FlushCirclesIfFull            (int verticesNeeded);
   void FlushCircleFillsIfFull        (int verticesNeeded);
@@ -191,8 +197,6 @@ protected:
   void FlushTriangleFillsIfFull      (int verticesNeeded);
 
 public:
-
-  void SetColorShaderUniforms  ();
 
   void SetTextureBatching           (bool enabled) { m_batchingTextures = enabled; }
   bool IsTextureBatchingEnabled     () const { return m_batchingTextures; }
