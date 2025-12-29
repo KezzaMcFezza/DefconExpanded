@@ -282,6 +282,8 @@ elseif(MSVC)
     set(PLATFORM_SPECIFIC_FILES
         ${ROOT_PATH}/source/app/trayicon.cpp
         ${SYSTEMIV_PATH}/lib/gucci/win32library.cpp
+        ${SYSTEMIV_PATH}/lib/gucci/window_manager_d3d11.cpp
+        ${SYSTEMIV_PATH}/lib/render/renderer_d3d11.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_win32.cpp
@@ -629,7 +631,6 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/gucci/input_sdl.cpp
     ${SYSTEMIV_PATH}/lib/gucci/window_manager.cpp
     ${SYSTEMIV_PATH}/lib/gucci/window_manager_sdl.cpp
-    ${SYSTEMIV_PATH}/lib/gucci/window_manager_d3d11.cpp
     ${SYSTEMIV_PATH}/lib/netlib/net_lib.cpp
     ${SYSTEMIV_PATH}/lib/netlib/net_socket.cpp
     ${SYSTEMIV_PATH}/lib/netlib/net_socket_listener.cpp
@@ -638,6 +639,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/netlib/thread_controller.cpp
     ${SYSTEMIV_PATH}/lib/render/colour.cpp
     ${SYSTEMIV_PATH}/lib/render/renderer.cpp
+    ${SYSTEMIV_PATH}/lib/render/renderer_opengl.cpp
     ${SYSTEMIV_PATH}/lib/render2d/renderer_2d.cpp
     ${SYSTEMIV_PATH}/lib/render2d/megavbo/megavbo_2d.cpp
     ${SYSTEMIV_PATH}/lib/render2d/megavbo/linestrips_2d.cpp

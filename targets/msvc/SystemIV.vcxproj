@@ -291,6 +291,8 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\text_3d.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\colour.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_d3d11.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_opengl.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_overlay.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\styletable.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmap.cpp" />
@@ -394,6 +396,8 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\vertex.glsl.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\colour.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_d3d11.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_opengl.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_overlay.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\styletable.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmap.h" />

@@ -214,7 +214,7 @@ class SetScreenButton : public InterfaceButton
 
 void ScreenOptionsWindow::RestartWindowManager()
 {
-    g_app->ReinitialiseWindow();
+    g_app->RequestWindowReinit();
 }
 
 

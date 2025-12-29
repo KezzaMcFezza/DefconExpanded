@@ -332,6 +332,13 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\math\invert_matrix.cpp">
       <Filter>lib\math</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\window_manager_d3d11.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_d3d11.cpp">
+      <Filter>lib\render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_opengl.cpp">
+      <Filter>lib\render</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\contrib\systemIV\systemiv.h" />
@@ -652,6 +659,13 @@
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\math\invert_matrix.h">
       <Filter>lib\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\window_manager_d3d11.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_d3d11.h">
+      <Filter>lib\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_opengl.h">
+      <Filter>lib\render</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

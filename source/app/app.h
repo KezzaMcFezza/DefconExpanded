@@ -65,6 +65,7 @@ public:                 // STARTUP OPTIONS
     int         m_currentFrames;
     int         m_framesPerSecond;
     float       m_frameCountTimer;
+    bool        m_pendingWindowReinit;
 
 private:
     WorldRenderer       *m_worldRenderer;
@@ -111,6 +112,7 @@ public:
     
     void    InitialiseWindow();                     // First time
     void    ReinitialiseWindow();                   // Window already exists, destroy first
+    void    RequestWindowReinit();                  // Request deferred window recreation 
     void    OnWindowResized(int newWidth, int newHeight, int oldWidth, int oldHeight);
     
     void    InitStatusIcon();

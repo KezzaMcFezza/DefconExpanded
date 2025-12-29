@@ -771,7 +771,15 @@ void EmscriptenMainLoop()
     //
     // Poll input events first to minimize latency
     
-    g_windowManager->PollForMessages();
+    if (g_windowManager)
+    {
+        g_windowManager->PollForMessages();
+    }
+    
+    if (g_app->m_pendingWindowReinit)
+    {
+        g_app->ReinitialiseWindow();
+    }
     
     //
     // Get the time
@@ -1096,7 +1104,15 @@ void DefconMain()
         //
         // poll input events first to minimize latency
         
-        g_windowManager->PollForMessages();
+        if (g_windowManager)
+        {
+            g_windowManager->PollForMessages();
+        }
+        
+        if (g_app->m_pendingWindowReinit)
+        {
+            g_app->ReinitialiseWindow();
+        }
         
         //
         // Get the time

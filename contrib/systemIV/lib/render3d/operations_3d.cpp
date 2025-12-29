@@ -285,8 +285,8 @@ void Renderer3D::FlushTextBuffer3D() {
     //
     // save current blend state
 
-    int currentBlendSrc = g_renderer->m_currentBlendSrcFactor;
-    int currentBlendDst = g_renderer->m_currentBlendDstFactor;
+    int currentBlendSrc = g_renderer->GetCurrentBlendSrcFactor();
+    int currentBlendDst = g_renderer->GetCurrentBlendDstFactor();
     
     //
     // disable depth mask for transparent text rendering
@@ -296,7 +296,7 @@ void Renderer3D::FlushTextBuffer3D() {
     //
     // set correct blend mode for text rendering (additive for smooth fonts)
 
-    if (g_renderer->m_blendMode != Renderer::BlendModeSubtractive) {
+    if (g_renderer->GetBlendMode() != Renderer::BlendModeSubtractive) {
         g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
     }
     
@@ -422,12 +422,11 @@ void Renderer3D::FlushTriangleFills3D() {
     g_renderer->SetVertexArray(m_triangleFillVAO3D);
     UploadVertexDataTo3DVBO(m_triangleFillVBO3D, m_triangleFillVertices3D, m_triangleFillVertexCount3D, GL_DYNAMIC_DRAW);
     
-    g_renderer->SetCullFace(true, GL_BACK);
-    glCullFace(GL_BACK);
+    g_renderer->SetCullFace(true, CULL_FACE_BACK);
     
     glDrawArrays(GL_TRIANGLES, 0, m_triangleFillVertexCount3D);
     
-    g_renderer->SetCullFace(false, GL_BACK);
+    g_renderer->SetCullFace(false, CULL_FACE_BACK);
     g_renderer->SetDepthMask(true);
     
     m_triangleFillVertexCount3D = 0;

@@ -257,11 +257,11 @@ void Renderer2D::FlushTextBuffer() {
     IncrementDrawCall("text");
     
     // save current blend state
-    int currentBlendSrc = g_renderer->m_currentBlendSrcFactor;
-    int currentBlendDst = g_renderer->m_currentBlendDstFactor;
+    int currentBlendSrc = g_renderer->GetCurrentBlendSrcFactor();
+    int currentBlendDst = g_renderer->GetCurrentBlendDstFactor();
     
     // set correct blend mode for text rendering (additive for smooth fonts)
-    if (g_renderer->m_blendMode != Renderer::BlendModeSubtractive) {
+    if (g_renderer->GetBlendMode() != Renderer::BlendModeSubtractive) {
         g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
     }
     

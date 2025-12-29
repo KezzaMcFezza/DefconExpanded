@@ -196,7 +196,7 @@ void DemoWindow::Render( bool _hasFocus )
 
 	//g_renderer->SetFont( "lucon" );
 
-	int oldBlendMode = g_renderer->m_blendMode;
+	int oldBlendMode = g_renderer->GetBlendMode();
 	g_renderer->SetBlendMode( Renderer::BlendModeSubtractive );
 
     g_renderer2d->BeginTextBatch();

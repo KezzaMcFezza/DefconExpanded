@@ -135,6 +135,7 @@ App::App()
     m_earthData(NULL),
     m_netLib(NULL),
 	m_mousePointerVisible(false),
+	m_pendingWindowReinit(false),
 	m_inited(false),
     m_achievementTracker(NULL),
     m_debugPrintClientLetters(false),
@@ -460,7 +461,7 @@ void App::MinimalInit()
     // closeRetinaDisplaySupport();
 #endif
     
-    g_renderer = new Renderer();
+    g_renderer = Renderer::Create();
     InitFonts();
 
     m_earthData->Initialise();
@@ -877,8 +878,16 @@ RendererType App::SelectRendererFromPreferences(Preferences* prefs)
 }
 
 
+void App::RequestWindowReinit()
+{
+    m_pendingWindowReinit = true;
+}
+
+
 void App::ReinitialiseWindow()
 {
+    m_pendingWindowReinit = false;
+    
     RendererType oldRendererType = GetRendererType();
     RendererType newRendererType = SelectRendererFromPreferences(g_preferences);
     
@@ -905,7 +914,7 @@ void App::ReinitialiseWindow()
     
     InitialiseWindow();
     
-    g_renderer = new Renderer();
+    g_renderer = Renderer::Create();
     
     if (m_earthData) {
         m_earthData->CalculateAndSetBufferSizes();
