@@ -79,28 +79,28 @@ Renderer::~Renderer()
     if (m_defaultFontName) delete[] m_defaultFontName;
     if (m_defaultFontFilename) delete[] m_defaultFontFilename;
     
-    if (g_renderer3d) 
-    {
-        delete g_renderer3d;
-        g_renderer3d = NULL;
-    }
-    
     if (g_megavbo3d) 
     {
         delete g_megavbo3d;
         g_megavbo3d = NULL;
     }
     
-    if (g_renderer2d) 
+    if (g_renderer3d) 
     {
-        delete g_renderer2d;
-        g_renderer2d = NULL;
+        delete g_renderer3d;
+        g_renderer3d = NULL;
     }
     
     if (g_megavbo2d) 
     {
         delete g_megavbo2d;
         g_megavbo2d = NULL;
+    }
+    
+    if (g_renderer2d) 
+    {
+        delete g_renderer2d;
+        g_renderer2d = NULL;
     }
 }
 
