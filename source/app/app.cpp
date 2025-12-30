@@ -479,7 +479,7 @@ void App::MinimalInit()
     m_mapRenderer = new MapRenderer();
     m_mapRenderer->Init();
 
-    //m_globeRenderer = new GlobeRenderer();
+    m_globeRenderer = new GlobeRenderer();
     //m_globeRenderer->Init();
 
     m_lobbyRenderer = new LobbyRenderer();
@@ -893,6 +893,8 @@ void App::ReinitialiseWindow()
     
     bool rendererChanged = (oldRendererType != newRendererType);
     
+    g_resource->Shutdown();
+
     g_windowManager->DestroyWin();
     delete g_windowManager;
     g_windowManager = NULL;
