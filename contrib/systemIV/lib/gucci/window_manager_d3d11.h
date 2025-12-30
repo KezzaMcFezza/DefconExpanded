@@ -8,6 +8,7 @@
 #include <windows.h>
 #include <d3d11.h>
 #include <dxgi.h>
+#include <SDL2/SDL.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -41,8 +42,9 @@ public:
     ID3D11DepthStencilView* GetDepthStencilView() const { return m_depthStencilView; }
 
 private:
-    HWND m_hwnd;
-    HINSTANCE m_hInstance;
+    HWND m_hwnd;                    // Native Windows handle (extracted from SDL)
+    HINSTANCE m_hInstance;          // Windows instance handle
+    SDL_Window* m_sdlWindow;        // SDL window (primary window manager)
     
     ID3D11Device          * m_device;
     ID3D11DeviceContext   * m_deviceContext;
@@ -55,19 +57,24 @@ private:
     
     bool m_tryingToCaptureMouse;
     bool m_vsyncEnabled;
+    int  m_windowDisplayIndex;
+    bool m_isMaximized;
     
-    void ListAllDisplayModes();
+    void ListAllDisplayModes(int displayIndex);
     void SaveDesktop();
     void RestoreDesktop();
     void ShutdownDirectX();
-    bool CreateRenderTargetView();
 
+    bool CreateRenderTargetView();
+    
     bool CreateDepthStencilView(int width, int height);
     void HandleResize          (int newWidth, int newHeight);
     bool InitializeDirectX     (int width, int height, bool windowed, int msaaSamples);
-    
-    static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    LRESULT HandleMessage             (HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+    void CalculateHighDPIScaleFactors();
+    void WindowHasMoved();
+    void UpdateStoredMaximizedState();
+    int  GetDefaultDisplayIndex();
 };
 
 #endif // RENDERER_DIRECTX11
