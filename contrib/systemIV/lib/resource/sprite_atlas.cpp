@@ -11,6 +11,7 @@
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/resource/bitmap.h"
 #include "lib/resource/image.h"
+#include "lib/render/renderer.h"
 #include "lib/string_utils.h"
 #include "lib/tosser/llist.h"
 #include "sprite_atlas.h"
@@ -81,10 +82,10 @@ RuntimeTextureAtlas::~RuntimeTextureAtlas() {
     }
 
     //
-    // clean up OpenGL texture
+    // clean up texture through renderer
 
-    if (m_textureID > 0) {
-        glDeleteTextures(1, (GLuint*)&m_textureID);
+    if (m_textureID > 0 && g_renderer) {
+        g_renderer->DeleteTexture(m_textureID);
         m_textureID = 0;
     }
     
