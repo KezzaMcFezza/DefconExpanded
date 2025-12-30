@@ -96,31 +96,21 @@ void MegaVBO2D::EndTexturedMegaVBO()
     
     bool isNewVBO = (cachedVBO->VBO == 0);
     if (isNewVBO) {
-        glGenVertexArrays(1, &cachedVBO->VAO);
-        glGenBuffers(1, &cachedVBO->VBO);
-        glGenBuffers(1, &cachedVBO->IBO);
+        cachedVBO->VAO = g_renderer2d->CreateMegaVBOVertexArray();
+        cachedVBO->VBO = g_renderer2d->CreateMegaVBOVertexBuffer(m_megaTexturedVertexCount * sizeof(Vertex2D), BUFFER_USAGE_STATIC_DRAW);
+        cachedVBO->IBO = g_renderer2d->CreateMegaVBOIndexBuffer(m_megaTexturedIndexCount * sizeof(unsigned int), BUFFER_USAGE_STATIC_DRAW);
         
-        g_renderer->SetVertexArray(cachedVBO->VAO);
-        g_renderer->SetArrayBuffer(cachedVBO->VBO);
-        
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(2 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
+        g_renderer2d->SetupMegaVBOVertexAttributes2D(cachedVBO->VAO, cachedVBO->VBO, cachedVBO->IBO);
     } 
     else 
     {
         g_renderer->SetVertexArray(cachedVBO->VAO);
         g_renderer->SetArrayBuffer(cachedVBO->VBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     }
     
-    glBufferData(GL_ARRAY_BUFFER, m_megaTexturedVertexCount * sizeof(Vertex2D), m_megaTexturedVertices, GL_STATIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_megaTexturedIndexCount * sizeof(unsigned int), m_megaTexturedIndices, GL_STATIC_DRAW);
+    g_renderer->SetVertexArray(cachedVBO->VAO);
+    g_renderer2d->UploadMegaVBOVertexData(cachedVBO->VBO, m_megaTexturedVertices, m_megaTexturedVertexCount, BUFFER_USAGE_STATIC_DRAW);
+    g_renderer2d->UploadMegaVBOIndexData(cachedVBO->IBO, m_megaTexturedIndices, m_megaTexturedIndexCount, BUFFER_USAGE_STATIC_DRAW);
 
     cachedVBO->vertexCount = m_megaTexturedVertexCount;
     cachedVBO->indexCount = m_megaTexturedIndexCount;
@@ -163,7 +153,7 @@ void MegaVBO2D::RenderTexturedMegaVBO(const char* megaVBOKey)
     }
     
     g_renderer->SetVertexArray(cachedVBO->VAO);
-    glDrawElements(GL_TRIANGLES, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
+    g_renderer2d->DrawMegaVBOIndexed(PRIMITIVE_TRIANGLES, cachedVBO->indexCount);
     
     g_renderer->EndFlushTiming("MegaVBO_Textured_2D");
     g_renderer2d->IncrementDrawCall("quad_vbo");

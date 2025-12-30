@@ -17,6 +17,7 @@
 #include "lib/string_utils.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/render/colour.h"
+#include "lib/resource/bitmap.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render2d/renderer_2d_opengl.h"
 #include "lib/render3d/renderer_3d.h"
@@ -871,6 +872,45 @@ void RendererOpenGL::SaveScreenshot()
 
     float timeTaken = GetHighResTime() - timeNow;
     AppDebugOut("Screenshot %dms\n", int(timeTaken*1000));
+}
+
+// ============================================================================
+// TEXTURE MANAGEMENT
+// ============================================================================
+
+unsigned int RendererOpenGL::CreateTexture(int width, int height, const Colour* pixels, bool mipmapping)
+{
+    GLuint texId;
+    
+    glGenTextures(1, &texId);
+    glBindTexture(GL_TEXTURE_2D, texId);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    if (mipmapping) 
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } 
+    else 
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    }
+    
+    return (unsigned int)texId;
+}
+
+void RendererOpenGL::DeleteTexture(unsigned int textureID)
+{
+    if (textureID > 0) 
+    {
+        GLuint glTexId = (GLuint)textureID;
+        glDeleteTextures(1, &glTexId);
+    }
 }
 
 #endif // RENDERER_OPENGL

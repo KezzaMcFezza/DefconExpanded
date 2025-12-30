@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "lib/render/colour.h"
+#include "lib/render/renderer.h"
 #include "lib/filesys/file_system.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/binary_stream_readers.h"
@@ -57,9 +58,9 @@ Image::Image( Bitmap *_bitmap )
 
 Image::~Image()
 {
-    if( m_textureID > -1 )
+    if( m_textureID > -1 && g_renderer )
     {
-        glDeleteTextures( 1, (GLuint *) &m_textureID );
+        g_renderer->DeleteTexture(m_textureID);
     }
     
     delete m_bitmap;

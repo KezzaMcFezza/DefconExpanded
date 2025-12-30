@@ -7,6 +7,7 @@
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/file_system.h"
 #include "lib/render/colour.h"
+#include "lib/render/renderer.h"
 #include "lib/debug_utils.h"
 
 #include "bitmap.h"
@@ -982,26 +983,8 @@ void Bitmap::Clear( Colour const &colour )
 
 int Bitmap::ConvertToTexture(bool _mipmapping) 
 {
-	GLuint texId;
-
-	glGenTextures	(1, &texId);
-	glBindTexture	(GL_TEXTURE_2D, texId);
-    
-    glTexParameteri	(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-    glTexParameteri	(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-	glTexParameteri	(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	glTexParameteri	(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+	AppAssert(g_renderer);
 	
-    if (_mipmapping)
-	{
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pixels);
-        glGenerateMipmap(GL_TEXTURE_2D);
-	}
-    else
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pixels);
-	}
-
-	return (int) texId;
+	return (int)g_renderer->CreateTexture(m_width, m_height, m_pixels, _mipmapping);
 }
 

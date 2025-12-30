@@ -36,6 +36,18 @@ struct Vertex2D {
                           b(color.GetBFloat()), a(color.GetAFloat()), u(pu), v(pv) {}
 };
 
+enum BufferUsageHint {
+    BUFFER_USAGE_STATIC_DRAW = 0,   // Data set once, used many times
+    BUFFER_USAGE_DYNAMIC_DRAW = 1,  // Data modified repeatedly, used many times
+    BUFFER_USAGE_STREAM_DRAW = 2    // Data modified repeatedly, used a few times
+};
+
+enum PrimitiveType {
+    PRIMITIVE_TRIANGLES = 0,
+    PRIMITIVE_LINE_STRIP = 1,
+    PRIMITIVE_LINES = 2
+};
+
 class MegaVBO2D;
 
 class Renderer2D {
@@ -187,6 +199,25 @@ protected:
   virtual void FlushTriangleFills      () = 0;
   
   virtual void CleanupBuffers          () = 0;
+  
+  virtual unsigned int CreateMegaVBOVertexBuffer (size_t size, BufferUsageHint usageHint) = 0;
+  virtual unsigned int CreateMegaVBOIndexBuffer  (size_t size, BufferUsageHint usageHint) = 0;
+  virtual unsigned int CreateMegaVBOVertexArray  () = 0;
+ 
+  virtual void DeleteMegaVBOVertexBuffer  (unsigned int buffer) = 0;
+  virtual void DeleteMegaVBOIndexBuffer   (unsigned int buffer) = 0;
+  virtual void DeleteMegaVBOVertexArray   (unsigned int vao) = 0;
+  
+  virtual void SetupMegaVBOVertexAttributes2D(unsigned int vao, unsigned int vbo, unsigned int ibo) = 0; 
+ 
+  virtual void UploadMegaVBOIndexData (unsigned int ibo, const unsigned int* indices, 
+                                        int indexCount, BufferUsageHint usageHint) = 0;
+  virtual void UploadMegaVBOVertexData(unsigned int vbo, const Vertex2D* vertices,
+                                        int vertexCount, BufferUsageHint usageHint) = 0;
+  virtual void DrawMegaVBOIndexed     (PrimitiveType primitiveType, unsigned int indexCount) = 0;
+  
+  virtual void EnableMegaVBOPrimitiveRestart (unsigned int restartIndex) = 0;
+  virtual void DisableMegaVBOPrimitiveRestart() = 0;
   
   void FlushIfTextureChanged         (unsigned int newTextureID, bool useTexture);
   void FlushRotatingSpritesIfFull    (int verticesNeeded);
@@ -362,10 +393,6 @@ public:
   void SetClip                  (int x, int y, int w, int h);
   void ResetClip                ();
 
-  void Blit                     (Image *src, float x, float y, Colour const &col);
-  void Blit                     (Image *src, float x, float y, float w, float h, Colour const &col);
-  void Blit                     (Image *src, float x, float y, float w, float h, Colour const &col,
-                                 float angle);
   void BlitChar                 (unsigned int textureID, float x, float y, float w, float h,
                                  float texX, float texY, float texW, float texH,
                                  Colour const &col, bool immediateFlush = false);

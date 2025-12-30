@@ -93,6 +93,9 @@ public:
     
     virtual void SaveScreenshot() override;
     
+    virtual unsigned int CreateTexture(int width, int height, const Colour* pixels, bool mipmapping) override;
+    virtual void DeleteTexture        (unsigned int textureID) override;
+    
     virtual unsigned int GetCurrentBoundTexture() const override { return m_currentBoundTexture; }
     virtual int GetCurrentBlendSrcFactor       () const override { return m_currentBlendSrcFactor; }
     virtual int GetCurrentBlendDstFactor       () const override { return m_currentBlendDstFactor; }

@@ -34,6 +34,25 @@ protected:
     virtual void FlushTriangleFills      () override;
     
     virtual void CleanupBuffers          () override;
+    
+    virtual unsigned int CreateMegaVBOVertexBuffer (size_t size, BufferUsageHint usageHint) override;
+    virtual unsigned int CreateMegaVBOIndexBuffer  (size_t size, BufferUsageHint usageHint) override;
+    virtual unsigned int CreateMegaVBOVertexArray  () override;
+ 
+    virtual void DeleteMegaVBOVertexBuffer (unsigned int buffer) override;
+    virtual void DeleteMegaVBOIndexBuffer  (unsigned int buffer) override;
+    virtual void DeleteMegaVBOVertexArray  (unsigned int vao)    override;
+ 
+    virtual void SetupMegaVBOVertexAttributes2D(unsigned int vao, unsigned int vbo, unsigned int ibo) override;
+ 
+    virtual void UploadMegaVBOIndexData (unsigned int ibo, const unsigned int* indices, 
+                                         int indexCount, BufferUsageHint usageHint) override;
+    virtual void UploadMegaVBOVertexData(unsigned int vbo, const Vertex2D* vertices,
+                                         int vertexCount, BufferUsageHint usageHint) override;
+ 
+    virtual void DrawMegaVBOIndexed            (PrimitiveType primitiveType, unsigned int indexCount) override;
+    virtual void EnableMegaVBOPrimitiveRestart (unsigned int restartIndex) override;
+    virtual void DisableMegaVBOPrimitiveRestart() override;
 };
 
 #endif // RENDERER_OPENGL

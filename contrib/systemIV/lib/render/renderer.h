@@ -20,6 +20,7 @@ class Renderer2D;
 class Renderer2DVBO;
 class Renderer3D;
 class Image;
+class Bitmap;
 class BitmapFont;
 class AtlasImage;
 struct AtlasCoord;
@@ -27,6 +28,7 @@ class RendererOpenGL;
 class RendererD3D11;
 class Renderer;
 struct RendererFlushTiming;
+class Colour;
 
 enum TextureParameter {
     TEXTURE_MAG_FILTER = 0,
@@ -159,6 +161,9 @@ public:
     virtual void ResetFlushTimings() = 0;
     
     virtual void SaveScreenshot() = 0;
+    
+    virtual unsigned int CreateTexture(int width, int height, const Colour* pixels, bool mipmapping) = 0;
+    virtual void DeleteTexture        (unsigned int textureID) = 0;
     
     void GetImageUVCoords             (Image* image, float& u1, float& v1, float& u2, float& v2);
     unsigned int GetEffectiveTextureID(Image* image);

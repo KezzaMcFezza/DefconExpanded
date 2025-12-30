@@ -35,12 +35,8 @@ BitmapFont::BitmapFont(char *_filename)
 
     BinaryReader *reader = g_fileSystem->GetBinaryReader(m_filename);
     Bitmap bmp(reader, (char *)GetExtensionPart(m_filename) );
-    m_textureID = bmp.ConvertToTexture();
+    m_textureID = bmp.ConvertToTexture(true);  // Use mipmapping
     delete reader;
-
-    glBindTexture   ( GL_TEXTURE_2D, m_textureID );    
-    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
 
     //
     // Attempt to determine the left and right margins for each letter

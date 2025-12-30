@@ -509,6 +509,159 @@ void Renderer2DOpenGL::FlushTriangleFills()
 }
 
 // ============================================================================
+// MEGAVBO BUFFER MANAGEMENT
+// ============================================================================
+
+unsigned int Renderer2DOpenGL::CreateMegaVBOVertexBuffer(size_t size, BufferUsageHint usageHint)
+{
+    GLenum glUsage;
+
+    switch (usageHint) 
+    {
+        case BUFFER_USAGE_STATIC_DRAW:  glUsage = GL_STATIC_DRAW; break;
+        case BUFFER_USAGE_DYNAMIC_DRAW: glUsage = GL_DYNAMIC_DRAW; break;
+        case BUFFER_USAGE_STREAM_DRAW:  glUsage = GL_STREAM_DRAW; break;
+        default: glUsage = GL_STATIC_DRAW; break;
+    }
+    
+    unsigned int vbo;
+    glGenBuffers(1, &vbo);
+    g_renderer->SetArrayBuffer(vbo);
+    glBufferData(GL_ARRAY_BUFFER, size, NULL, glUsage);
+    g_renderer->SetArrayBuffer(0);
+    return vbo;
+}
+
+unsigned int Renderer2DOpenGL::CreateMegaVBOIndexBuffer(size_t size, BufferUsageHint usageHint)
+{
+    GLenum glUsage;
+    switch (usageHint) 
+    {
+        case BUFFER_USAGE_STATIC_DRAW:  glUsage = GL_STATIC_DRAW; break;
+        case BUFFER_USAGE_DYNAMIC_DRAW: glUsage = GL_DYNAMIC_DRAW; break;
+        case BUFFER_USAGE_STREAM_DRAW:  glUsage = GL_STREAM_DRAW; break;
+        default: glUsage = GL_STATIC_DRAW; break;
+    }
+    
+    unsigned int ibo;
+    glGenBuffers(1, &ibo);
+    return ibo;
+}
+
+unsigned int Renderer2DOpenGL::CreateMegaVBOVertexArray()
+{
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    return vao;
+}
+
+void Renderer2DOpenGL::DeleteMegaVBOVertexBuffer(unsigned int buffer)
+{
+    if (buffer != 0) 
+    {
+        glDeleteBuffers(1, &buffer);
+    }
+}
+
+void Renderer2DOpenGL::DeleteMegaVBOIndexBuffer(unsigned int buffer)
+{
+    if (buffer != 0) 
+    {
+        glDeleteBuffers(1, &buffer);
+    }
+}
+
+void Renderer2DOpenGL::DeleteMegaVBOVertexArray(unsigned int vao)
+{
+    if (vao != 0) 
+    {
+        glDeleteVertexArrays(1, &vao);
+    }
+}
+
+void Renderer2DOpenGL::SetupMegaVBOVertexAttributes2D(unsigned int vao, unsigned int vbo, unsigned int ibo)
+{
+    g_renderer->SetVertexArray(vao);
+    g_renderer->SetArrayBuffer(vbo);
+    
+    // Position attribute (x, y)
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    // Color attribute (r, g, b, a)
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    
+    // Texture coordinate attribute (u, v)
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex2D), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    
+    // Bind index buffer to VAO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+}
+
+void Renderer2DOpenGL::UploadMegaVBOIndexData(unsigned int ibo, const unsigned int* indices,
+                                             int indexCount, BufferUsageHint usageHint)
+{
+    GLenum glUsage;
+    switch (usageHint) 
+    {
+        case BUFFER_USAGE_STATIC_DRAW:  glUsage = GL_STATIC_DRAW; break;
+        case BUFFER_USAGE_DYNAMIC_DRAW: glUsage = GL_DYNAMIC_DRAW; break;
+        case BUFFER_USAGE_STREAM_DRAW:  glUsage = GL_STREAM_DRAW; break;
+        default: glUsage = GL_STATIC_DRAW; break;
+    }
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, glUsage);
+}
+
+void Renderer2DOpenGL::UploadMegaVBOVertexData(unsigned int vbo, const Vertex2D* vertices,
+                                               int vertexCount, BufferUsageHint usageHint)
+{
+    GLenum glUsage;
+    switch (usageHint) 
+    {
+        case BUFFER_USAGE_STATIC_DRAW:  glUsage = GL_STATIC_DRAW; break;
+        case BUFFER_USAGE_DYNAMIC_DRAW: glUsage = GL_DYNAMIC_DRAW; break;
+        case BUFFER_USAGE_STREAM_DRAW:  glUsage = GL_STREAM_DRAW; break;
+        default: glUsage = GL_STATIC_DRAW; break;
+    }
+    
+    g_renderer->SetArrayBuffer(vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex2D), vertices, glUsage);
+}
+
+void Renderer2DOpenGL::DrawMegaVBOIndexed(PrimitiveType primitiveType, unsigned int indexCount)
+{
+    GLenum glPrimitive;
+    switch (primitiveType) 
+    {
+        case PRIMITIVE_TRIANGLES:   glPrimitive = GL_TRIANGLES; break;
+        case PRIMITIVE_LINE_STRIP:  glPrimitive = GL_LINE_STRIP; break;
+        case PRIMITIVE_LINES:       glPrimitive = GL_LINES; break;
+        default: glPrimitive = GL_TRIANGLES; break;
+    }
+    
+    glDrawElements(glPrimitive, indexCount, GL_UNSIGNED_INT, 0);
+}
+
+void Renderer2DOpenGL::EnableMegaVBOPrimitiveRestart(unsigned int restartIndex)
+{
+#ifndef TARGET_EMSCRIPTEN
+    glEnable(GL_PRIMITIVE_RESTART);
+    glPrimitiveRestartIndex(restartIndex);
+#endif
+}
+
+void Renderer2DOpenGL::DisableMegaVBOPrimitiveRestart()
+{
+#ifndef TARGET_EMSCRIPTEN
+    glDisable(GL_PRIMITIVE_RESTART);
+#endif
+}
+
+// ============================================================================
 // CLEANUP
 // ============================================================================
 
