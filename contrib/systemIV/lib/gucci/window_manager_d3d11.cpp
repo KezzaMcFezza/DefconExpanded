@@ -317,15 +317,14 @@ bool WindowManagerD3D11::InitializeDirectX(int width, int height, bool windowed,
     swapChainDesc.BufferDesc.Width = width;
     swapChainDesc.BufferDesc.Height = height;
     swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
-    swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+    swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
+    swapChainDesc.BufferDesc.RefreshRate.Denominator = 0;
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swapChainDesc.OutputWindow = m_hwnd;
     swapChainDesc.SampleDesc.Count = 1;
     swapChainDesc.SampleDesc.Quality = 0;
     swapChainDesc.Windowed = windowed ? TRUE : FALSE;
     swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
     
     hr = dxgiFactory->CreateSwapChain(m_device, &swapChainDesc, &m_swapChain);
     
@@ -642,15 +641,75 @@ bool WindowManagerD3D11::CreateWin(int _width, int _height, bool _windowed, int 
     
     m_windowDisplayIndex = displayIndex;
     
+    int actualW, actualH;
+    SDL_GetWindowSize(m_sdlWindow, &actualW, &actualH);
+    
+    if (actualW != m_screenW || actualH != m_screenH) 
+    {
+        #ifdef _DEBUG
+        AppDebugOut("Window size adjusted from requested %dx%d to actual %dx%d\n", 
+                    m_screenW, m_screenH, actualW, actualH);
+        #endif
+        
+        m_screenW = actualW;
+        m_screenH = actualH;
+        
+        //
+        // Recreate DirectX resources with correct size
+        // This prevents black bar at the bottom of the screen
+        
+        if (m_renderTargetView) 
+        {
+            m_renderTargetView->Release();
+            m_renderTargetView = nullptr;
+        }
+        if (m_depthStencilView) 
+        {
+            m_depthStencilView->Release();
+            m_depthStencilView = nullptr;
+        }
+        if (m_depthStencilBuffer) 
+        {
+            m_depthStencilBuffer->Release();
+            m_depthStencilBuffer = nullptr;
+        }
+        
+        HRESULT hr = m_swapChain->ResizeBuffers(
+            0,
+            actualW, actualH,
+            DXGI_FORMAT_UNKNOWN,
+            DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH
+        );
+        
+        if (FAILED(hr)) 
+        {
+            #ifdef _DEBUG
+            AppDebugOut("Failed to resize swap chain buffers after window creation, error: 0x%08X\n", hr);
+            #endif
+        }
+        else 
+        {
+            CreateRenderTargetView();
+            CreateDepthStencilView(actualW, actualH);
+            
+            m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+            
+            //
+            // Update viewport to match new size
+            
+            D3D11_VIEWPORT viewport = {};
+            viewport.TopLeftX = 0;
+            viewport.TopLeftY = 0;
+            viewport.Width = static_cast<float>(actualW);
+            viewport.Height = static_cast<float>(actualH);
+            viewport.MinDepth = 0.0f;
+            viewport.MaxDepth = 1.0f;
+            m_deviceContext->RSSetViewports(1, &viewport);
+        }
+    }
+    
     CalculateHighDPIScaleFactors();
     UpdateStoredMaximizedState();
-    
-    if (requestMaximized)
-    {
-        SDL_GetWindowSize(m_sdlWindow, &m_screenW, &m_screenH);
-        CalculateHighDPIScaleFactors();
-        UpdateStoredMaximizedState();
-    }
 
     if (!m_mousePointerVisible)
         HideMousePointer();
