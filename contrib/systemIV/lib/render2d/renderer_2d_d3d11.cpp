@@ -1,6 +1,6 @@
 #ifdef RENDERER_DIRECTX11
 
-#include "renderer_2d_directx11.h"
+#include "renderer_2d_d3d11.h"
 #include "lib/render/renderer.h"
 #include "lib/render/renderer_d3d11.h"
 #include "lib/gucci/window_manager.h"
@@ -19,7 +19,7 @@
 // CONSTRUCTOR & DESTRUCTOR
 // ============================================================================
 
-Renderer2DDirectX11::Renderer2DDirectX11()
+Renderer2DD3D11::Renderer2DD3D11()
     : m_device(nullptr),
       m_deviceContext(nullptr),
       m_colorVertexShader(nullptr),
@@ -51,7 +51,7 @@ Renderer2DDirectX11::Renderer2DDirectX11()
     g_renderer->InitializeMSAAFramebuffer(screenW, screenH, msaaSamples);
 }
 
-Renderer2DDirectX11::~Renderer2DDirectX11()
+Renderer2DD3D11::~Renderer2DD3D11()
 {
     CleanupBuffers();
 }
@@ -60,7 +60,7 @@ Renderer2DDirectX11::~Renderer2DDirectX11()
 // DEVICE & CONTEXT
 // ============================================================================
 
-void Renderer2DDirectX11::GetDeviceAndContext()
+void Renderer2DD3D11::GetDeviceAndContext()
 {
     WindowManagerD3D11* windowManager = dynamic_cast<WindowManagerD3D11*>(g_windowManager);
     if (windowManager) 
@@ -77,12 +77,12 @@ void Renderer2DDirectX11::GetDeviceAndContext()
 // HELPER METHODS
 // ============================================================================
 
-bool Renderer2DDirectX11::CheckHR(HRESULT hr, const char* operation)
+bool Renderer2DD3D11::CheckHR(HRESULT hr, const char* operation)
 {
     return RendererD3D11::CheckHRResult(hr, operation);
 }
 
-bool Renderer2DDirectX11::CheckHR(HRESULT hr, const char* operation, ID3DBlob* errorBlob)
+bool Renderer2DD3D11::CheckHR(HRESULT hr, const char* operation, ID3DBlob* errorBlob)
 {
     return RendererD3D11::CheckHRResult(hr, operation, errorBlob);
 }
@@ -91,7 +91,7 @@ bool Renderer2DDirectX11::CheckHR(HRESULT hr, const char* operation, ID3DBlob* e
 // SHADER MANAGEMENT
 // ============================================================================
 
-void Renderer2DDirectX11::InitializeShaders()
+void Renderer2DD3D11::InitializeShaders()
 {
     if (!m_device) 
     {
@@ -202,13 +202,13 @@ void Renderer2DDirectX11::InitializeShaders()
     m_shaderProgram = m_colorShaderProgram;
 }
 
-void Renderer2DDirectX11::CacheUniformLocations()
+void Renderer2DD3D11::CacheUniformLocations()
 {
     // Uniforms are in constant buffers, not individual locations
     // The constant buffer is bound at slot 0 (register b0)
 }
 
-void Renderer2DDirectX11::SetColorShaderUniforms()
+void Renderer2DD3D11::SetColorShaderUniforms()
 {
     UpdateConstantBuffer();
     
@@ -227,7 +227,7 @@ void Renderer2DDirectX11::SetColorShaderUniforms()
     }
 }
 
-void Renderer2DDirectX11::SetTextureShaderUniforms()
+void Renderer2DD3D11::SetTextureShaderUniforms()
 {
     UpdateConstantBuffer();
     
@@ -257,7 +257,7 @@ void Renderer2DDirectX11::SetTextureShaderUniforms()
 // CONSTANT BUFFER
 // ============================================================================
 
-void Renderer2DDirectX11::CreateConstantBuffer()
+void Renderer2DD3D11::CreateConstantBuffer()
 {
     if (!m_device) return;
     
@@ -271,7 +271,7 @@ void Renderer2DDirectX11::CreateConstantBuffer()
     CheckHR(hr, "create constant buffer");
 }
 
-void Renderer2DDirectX11::UpdateConstantBuffer()
+void Renderer2DD3D11::UpdateConstantBuffer()
 {
     if (!m_deviceContext || !m_transformConstantBuffer) return;
     
@@ -295,12 +295,12 @@ void Renderer2DDirectX11::UpdateConstantBuffer()
 // BUFFER MANAGEMENT
 // ============================================================================
 
-void Renderer2DDirectX11::SetupVertexArrays()
+void Renderer2DD3D11::SetupVertexArrays()
 {
     SetupVBOs();
 }
 
-void Renderer2DDirectX11::SetupVBOs()
+void Renderer2DD3D11::SetupVBOs()
 {
     if (!m_device) return;
     
@@ -341,7 +341,7 @@ void Renderer2DDirectX11::SetupVBOs()
     m_VAO = createAndRegisterVBO(sizeof(Vertex2D) * MAX_VERTICES, D3D11_USAGE_DYNAMIC);
 }
 
-void Renderer2DDirectX11::RegisterVBO(unsigned int vboId, ID3D11Buffer* buffer)
+void Renderer2DD3D11::RegisterVBO(unsigned int vboId, ID3D11Buffer* buffer)
 {
     if (buffer) 
     {
@@ -349,12 +349,12 @@ void Renderer2DDirectX11::RegisterVBO(unsigned int vboId, ID3D11Buffer* buffer)
     }
 }
 
-void Renderer2DDirectX11::UploadVertexData(const Vertex2D* vertices, int vertexCount)
+void Renderer2DD3D11::UploadVertexData(const Vertex2D* vertices, int vertexCount)
 {
 
 }
 
-void Renderer2DDirectX11::UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices,
+void Renderer2DD3D11::UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices,
                                                  int vertexCount, unsigned int usageHint)
 {
     if (!m_deviceContext || vertexCount <= 0 || !vertices) return;
@@ -372,7 +372,7 @@ void Renderer2DDirectX11::UploadVertexDataToVBO(unsigned int vbo, const Vertex2D
     }
 }
 
-ID3D11Buffer* Renderer2DDirectX11::GetVBOFromID(unsigned int vbo)
+ID3D11Buffer* Renderer2DD3D11::GetVBOFromID(unsigned int vbo)
 {
     auto it = m_vboMap.find(vbo);
 
@@ -383,7 +383,7 @@ ID3D11Buffer* Renderer2DDirectX11::GetVBOFromID(unsigned int vbo)
     return nullptr;
 }
 
-void Renderer2DDirectX11::RegisterIBO(unsigned int iboId, ID3D11Buffer* buffer)
+void Renderer2DD3D11::RegisterIBO(unsigned int iboId, ID3D11Buffer* buffer)
 {
     if (buffer) 
     {
@@ -391,7 +391,7 @@ void Renderer2DDirectX11::RegisterIBO(unsigned int iboId, ID3D11Buffer* buffer)
     }
 }
 
-ID3D11Buffer* Renderer2DDirectX11::GetIBOFromID(unsigned int ibo)
+ID3D11Buffer* Renderer2DD3D11::GetIBOFromID(unsigned int ibo)
 {
     auto it = m_iboMap.find(ibo);
 
@@ -406,7 +406,7 @@ ID3D11Buffer* Renderer2DDirectX11::GetIBOFromID(unsigned int ibo)
 // TEXTURE BINDING
 // ============================================================================
 
-void Renderer2DDirectX11::BindTexture(unsigned int textureID)
+void Renderer2DD3D11::BindTexture(unsigned int textureID)
 {
     if (m_currentTextureID == textureID && m_currentTextureSRV) 
     {
@@ -421,7 +421,7 @@ void Renderer2DDirectX11::BindTexture(unsigned int textureID)
 // DRAWING
 // ============================================================================
 
-void Renderer2DDirectX11::DrawVertices(ID3D11Buffer* vertexBuffer, int vertexCount, bool useTexture)
+void Renderer2DD3D11::DrawVertices(ID3D11Buffer* vertexBuffer, int vertexCount, bool useTexture)
 {
     if (!m_deviceContext || !vertexBuffer || vertexCount == 0) return;
     
@@ -449,7 +449,7 @@ void Renderer2DDirectX11::DrawVertices(ID3D11Buffer* vertexBuffer, int vertexCou
 // CORE FLUSH FUNCTIONS
 // ============================================================================
 
-void Renderer2DDirectX11::FlushTriangles(bool useTexture)
+void Renderer2DD3D11::FlushTriangles(bool useTexture)
 {
     if (m_triangleVertexCount == 0) return;
     
@@ -476,7 +476,7 @@ void Renderer2DDirectX11::FlushTriangles(bool useTexture)
     g_renderer->EndFlushTiming("Immediate_Triangles");
 }
 
-void Renderer2DDirectX11::FlushTextBuffer()
+void Renderer2DD3D11::FlushTextBuffer()
 {
     if (m_textVertexCount == 0) return;
     
@@ -519,7 +519,7 @@ void Renderer2DDirectX11::FlushTextBuffer()
     g_renderer->EndFlushTiming("Text");
 }
 
-void Renderer2DDirectX11::FlushLines()
+void Renderer2DD3D11::FlushLines()
 {
     if (m_lineVertexCount == 0) return;
     
@@ -547,7 +547,7 @@ void Renderer2DDirectX11::FlushLines()
     g_renderer->EndFlushTiming("Lines");
 }
 
-void Renderer2DDirectX11::FlushStaticSprites()
+void Renderer2DD3D11::FlushStaticSprites()
 {
     if (m_staticSpriteVertexCount == 0) return;
     
@@ -579,7 +579,7 @@ void Renderer2DDirectX11::FlushStaticSprites()
     g_renderer->EndFlushTiming("Static_Sprite");
 }
 
-void Renderer2DDirectX11::FlushRotatingSprite()
+void Renderer2DD3D11::FlushRotatingSprite()
 {
     if (m_rotatingSpriteVertexCount == 0) return;
     
@@ -611,7 +611,7 @@ void Renderer2DDirectX11::FlushRotatingSprite()
     g_renderer->EndFlushTiming("Rotating_Sprite");
 }
 
-void Renderer2DDirectX11::FlushCircles()
+void Renderer2DD3D11::FlushCircles()
 {
     if (m_circleVertexCount == 0) return;
     
@@ -636,7 +636,7 @@ void Renderer2DDirectX11::FlushCircles()
     g_renderer->EndFlushTiming("Circles");
 }
 
-void Renderer2DDirectX11::FlushCircleFills()
+void Renderer2DD3D11::FlushCircleFills()
 {
     if (m_circleFillVertexCount == 0) return;
     
@@ -656,7 +656,7 @@ void Renderer2DDirectX11::FlushCircleFills()
     g_renderer->EndFlushTiming("Circle_Fills");
 }
 
-void Renderer2DDirectX11::FlushRects()
+void Renderer2DD3D11::FlushRects()
 {
     if (m_rectVertexCount == 0) return;
     
@@ -681,7 +681,7 @@ void Renderer2DDirectX11::FlushRects()
     g_renderer->EndFlushTiming("Rects");
 }
 
-void Renderer2DDirectX11::FlushRectFills()
+void Renderer2DD3D11::FlushRectFills()
 {
     if (m_rectFillVertexCount == 0) return;
     
@@ -701,7 +701,7 @@ void Renderer2DDirectX11::FlushRectFills()
     g_renderer->EndFlushTiming("Rect_Fills");
 }
 
-void Renderer2DDirectX11::FlushTriangleFills()
+void Renderer2DD3D11::FlushTriangleFills()
 {
     if (m_triangleFillVertexCount == 0) return;
     
@@ -725,7 +725,7 @@ void Renderer2DDirectX11::FlushTriangleFills()
 // CLEANUP
 // ============================================================================
 
-void Renderer2DDirectX11::CleanupBuffers()
+void Renderer2DD3D11::CleanupBuffers()
 {
     if (m_colorVertexShader) { m_colorVertexShader->Release(); m_colorVertexShader = nullptr; }
     if (m_colorPixelShader) { m_colorPixelShader->Release(); m_colorPixelShader = nullptr; }
@@ -790,7 +790,7 @@ void Renderer2DDirectX11::CleanupBuffers()
 // MEGAVBO BUFFER MANAGEMENT
 // ============================================================================
 
-unsigned int Renderer2DDirectX11::CreateMegaVBOVertexBuffer(size_t size, BufferUsageHint usageHint)
+unsigned int Renderer2DD3D11::CreateMegaVBOVertexBuffer(size_t size, BufferUsageHint usageHint)
 {
     if (!m_device) return 0;
     
@@ -835,7 +835,7 @@ unsigned int Renderer2DDirectX11::CreateMegaVBOVertexBuffer(size_t size, BufferU
     return vboId;
 }
 
-unsigned int Renderer2DDirectX11::CreateMegaVBOIndexBuffer(size_t size, BufferUsageHint usageHint)
+unsigned int Renderer2DD3D11::CreateMegaVBOIndexBuffer(size_t size, BufferUsageHint usageHint)
 {
     if (!m_device) return 0;
 
@@ -877,12 +877,12 @@ unsigned int Renderer2DDirectX11::CreateMegaVBOIndexBuffer(size_t size, BufferUs
     return iboId;
 }
 
-unsigned int Renderer2DDirectX11::CreateMegaVBOVertexArray()
+unsigned int Renderer2DD3D11::CreateMegaVBOVertexArray()
 {
     return m_nextVBOId++;
 }
 
-void Renderer2DDirectX11::DeleteMegaVBOVertexBuffer(unsigned int buffer)
+void Renderer2DD3D11::DeleteMegaVBOVertexBuffer(unsigned int buffer)
 {
     if (buffer == 0) return;
     
@@ -908,7 +908,7 @@ void Renderer2DDirectX11::DeleteMegaVBOVertexBuffer(unsigned int buffer)
     }
 }
 
-void Renderer2DDirectX11::DeleteMegaVBOIndexBuffer(unsigned int buffer)
+void Renderer2DD3D11::DeleteMegaVBOIndexBuffer(unsigned int buffer)
 {
     ID3D11Buffer* d3dBuffer = GetIBOFromID(buffer);
     if (d3dBuffer) 
@@ -920,7 +920,7 @@ void Renderer2DDirectX11::DeleteMegaVBOIndexBuffer(unsigned int buffer)
     }
 }
 
-void Renderer2DDirectX11::DeleteMegaVBOVertexArray(unsigned int vao)
+void Renderer2DD3D11::DeleteMegaVBOVertexArray(unsigned int vao)
 {
     if (vao == 0) return;
     
@@ -931,7 +931,7 @@ void Renderer2DDirectX11::DeleteMegaVBOVertexArray(unsigned int vao)
     }
 }
 
-void Renderer2DDirectX11::SetupMegaVBOVertexAttributes2D(unsigned int vao, unsigned int vbo, unsigned int ibo)
+void Renderer2DD3D11::SetupMegaVBOVertexAttributes2D(unsigned int vao, unsigned int vbo, unsigned int ibo)
 {
     //
     // DirectX11 uses input layout set at shader creation
@@ -947,7 +947,7 @@ void Renderer2DDirectX11::SetupMegaVBOVertexAttributes2D(unsigned int vao, unsig
     m_currentVAO = vao;
 }
 
-void Renderer2DDirectX11::UpdateCurrentVAO(unsigned int vao)
+void Renderer2DD3D11::UpdateCurrentVAO(unsigned int vao)
 {
     if (m_vaoMap.find(vao) != m_vaoMap.end()) 
     {
@@ -955,7 +955,7 @@ void Renderer2DDirectX11::UpdateCurrentVAO(unsigned int vao)
     }
 }
 
-void Renderer2DDirectX11::UploadMegaVBOIndexData(unsigned int ibo, const unsigned int* indices,
+void Renderer2DD3D11::UploadMegaVBOIndexData(unsigned int ibo, const unsigned int* indices,
                                                   int indexCount, BufferUsageHint usageHint)
 {
     if (!m_deviceContext || indexCount <= 0 || !indices) return;
@@ -1041,7 +1041,7 @@ void Renderer2DDirectX11::UploadMegaVBOIndexData(unsigned int ibo, const unsigne
     }
 }
 
-void Renderer2DDirectX11::UploadMegaVBOVertexData(unsigned int vbo, const Vertex2D* vertices,
+void Renderer2DD3D11::UploadMegaVBOVertexData(unsigned int vbo, const Vertex2D* vertices,
                                                   int vertexCount, BufferUsageHint usageHint)
 {
     if (!m_deviceContext || vertexCount <= 0 || !vertices) return;
@@ -1098,7 +1098,7 @@ void Renderer2DDirectX11::UploadMegaVBOVertexData(unsigned int vbo, const Vertex
     }
 }
 
-void Renderer2DDirectX11::DrawMegaVBOIndexed(PrimitiveType primitiveType, unsigned int indexCount)
+void Renderer2DD3D11::DrawMegaVBOIndexed(PrimitiveType primitiveType, unsigned int indexCount)
 {
     if (!m_deviceContext || indexCount == 0) return;
     
@@ -1172,13 +1172,13 @@ void Renderer2DDirectX11::DrawMegaVBOIndexed(PrimitiveType primitiveType, unsign
     }
 }
 
-void Renderer2DDirectX11::EnableMegaVBOPrimitiveRestart(unsigned int restartIndex)
+void Renderer2DD3D11::EnableMegaVBOPrimitiveRestart(unsigned int restartIndex)
 {
     m_primitiveRestartEnabled = true;
     m_primitiveRestartIndex = restartIndex;
 }
 
-void Renderer2DDirectX11::DisableMegaVBOPrimitiveRestart()
+void Renderer2DD3D11::DisableMegaVBOPrimitiveRestart()
 {
     m_primitiveRestartEnabled = false;
     m_primitiveRestartIndex = 0;

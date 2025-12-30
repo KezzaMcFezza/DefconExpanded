@@ -1,5 +1,5 @@
-#ifndef _included_renderer2d_directx11_h
-#define _included_renderer2d_directx11_h
+#ifndef _included_renderer2d_d3d11_h
+#define _included_renderer2d_d3d11_h
 
 #ifdef RENDERER_DIRECTX11
 
@@ -8,7 +8,7 @@
 #include <map>
 #include <vector>
 
-class Renderer2DDirectX11 : public Renderer2D
+class Renderer2DD3D11 : public Renderer2D
 {
 private:
     ID3D11Device* m_device;
@@ -66,8 +66,8 @@ private:
     ID3D11Buffer* GetIBOFromID(unsigned int ibo);
     
 public:
-    Renderer2DDirectX11();
-    virtual ~Renderer2DDirectX11();
+    Renderer2DD3D11();
+    virtual ~Renderer2DD3D11();
 
     void UpdateCurrentVAO(unsigned int vao);
     
@@ -127,4 +127,4 @@ private:
 };
 
 #endif // RENDERER_DIRECTX11
-#endif // _included_renderer2d_directx11_h
+#endif // _included_renderer2d_d3d11_h

@@ -284,8 +284,8 @@ elseif(MSVC)
         ${SYSTEMIV_PATH}/lib/gucci/win32library.cpp
         ${SYSTEMIV_PATH}/lib/gucci/window_manager_d3d11.cpp
         ${SYSTEMIV_PATH}/lib/render/renderer_d3d11.cpp
-        ${SYSTEMIV_PATH}/lib/render2d/renderer_2d_directx11.cpp
-        ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_directx11.cpp
+        ${SYSTEMIV_PATH}/lib/render2d/renderer_2d_d3d11.cpp
+        ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_d3d11.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_win32.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_win32.cpp

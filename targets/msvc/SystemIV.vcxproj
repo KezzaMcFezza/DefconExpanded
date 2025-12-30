@@ -277,7 +277,7 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\operations_2d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\primitives_2d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_2d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_2d_directx11.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_2d_d3d11.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\renderer_2d_opengl.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\sprites_2d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render2d\text_2d.cpp" />
@@ -289,7 +289,7 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\operations_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\primitives_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_directx11.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_d3d11.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_opengl.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\sprites_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\text_3d.cpp" />
@@ -390,7 +390,7 @@
     <ClInclude Include="..\..\contrib\SystemIV\lib\preferences.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\profiler.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render2d\renderer_2d.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\renderer_2d_directx11.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render2d\renderer_2d_d3d11.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render2d\renderer_2d_opengl.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\color_fragment.glsl.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\color_fragment.hlsl.h" />
@@ -399,7 +399,7 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\vertex.glsl.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render2d\shaders\vertex.hlsl.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_directx11.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_d3d11.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_opengl.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\fragment.glsl.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\fragment.hlsl.h" />

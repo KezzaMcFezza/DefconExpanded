@@ -1,15 +1,15 @@
-#ifndef _included_renderer3d_directx11_h
-#define _included_renderer3d_directx11_h
+#ifndef _included_renderer3d_d3d11_h
+#define _included_renderer3d_d3d11_h
 
 #ifdef RENDERER_DIRECTX11
 
 #include "renderer_3d.h"
 
-class Renderer3DDirectX11 : public Renderer3D
+class Renderer3DD3D11 : public Renderer3D
 {
 public:
-    Renderer3DDirectX11();
-    virtual ~Renderer3DDirectX11();
+    Renderer3DD3D11();
+    virtual ~Renderer3DD3D11();
     
 protected:
     virtual void Initialize3DShaders          () override;

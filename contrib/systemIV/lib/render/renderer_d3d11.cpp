@@ -17,12 +17,11 @@
 #include "lib/render/colour.h"
 #include "lib/resource/bitmap.h"
 #include "lib/render2d/renderer_2d.h"
-#include "lib/render2d/renderer_2d_directx11.h"
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render2d/megavbo/megavbo_2d.h"
 #include "lib/render3d/megavbo/megavbo_3d.h"
-#include "lib/render2d/renderer_2d_directx11.h"
-#include "lib/render3d/renderer_3d_directx11.h"
+#include "lib/render2d/renderer_2d_d3d11.h"
+#include "lib/render3d/renderer_3d_d3d11.h"
 
 #include "renderer.h"
 #include "renderer_d3d11.h"
@@ -111,9 +110,9 @@ RendererD3D11::RendererD3D11()
     m_msaaWidth = 0;
     m_msaaHeight = 0;
     
-    g_renderer2d = new Renderer2DDirectX11();
+    g_renderer2d = new Renderer2DD3D11();
     g_megavbo2d = new MegaVBO2D();
-    g_renderer3d = new Renderer3DDirectX11();
+    g_renderer3d = new Renderer3DD3D11();
     g_megavbo3d = new MegaVBO3D();
 }
 
@@ -588,7 +587,7 @@ void RendererD3D11::SetVertexArray(unsigned int vao)
     
     if (g_renderer2d) 
     {
-        Renderer2DDirectX11* renderer2dD3D11 = dynamic_cast<Renderer2DDirectX11*>(g_renderer2d);
+        Renderer2DD3D11* renderer2dD3D11 = dynamic_cast<Renderer2DD3D11*>(g_renderer2d);
         if (renderer2dD3D11) {
             renderer2dD3D11->UpdateCurrentVAO(vao);
         }
