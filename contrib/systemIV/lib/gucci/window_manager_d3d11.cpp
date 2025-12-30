@@ -24,7 +24,7 @@ WindowManagerD3D11::WindowManagerD3D11()
       m_depthStencilView(nullptr),
       m_featureLevel(D3D_FEATURE_LEVEL_11_0),
       m_tryingToCaptureMouse(false),
-      m_vsyncEnabled(true),
+      m_vsyncEnabled(false),
       m_windowDisplayIndex(0),
       m_isMaximized(false)
 {
@@ -193,7 +193,7 @@ void WindowManagerD3D11::CalculateHighDPIScaleFactors()
     SDL_GetWindowSize(m_sdlWindow, &clientW, &clientH);
     
     int drawableW, drawableH;
-    SDL_GetWindowSize(m_sdlWindow, &drawableW, &drawableH);
+    SDL_GL_GetDrawableSize(m_sdlWindow, &drawableW, &drawableH);
     
     m_highDPIScaleX = (float)drawableW / clientW;
     m_highDPIScaleY = (float)drawableH / clientH;
@@ -313,7 +313,7 @@ bool WindowManagerD3D11::InitializeDirectX(int width, int height, bool windowed,
     // Create swap chain
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
-    swapChainDesc.BufferCount = 2;
+    swapChainDesc.BufferCount = 3;
     swapChainDesc.BufferDesc.Width = width;
     swapChainDesc.BufferDesc.Height = height;
     swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
