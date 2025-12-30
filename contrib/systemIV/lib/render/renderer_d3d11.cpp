@@ -53,6 +53,10 @@ RendererD3D11::RendererD3D11()
       m_depthMaskEnabled(false),
       m_cullFaceEnabled(false),
       m_cullFaceMode(0),
+      m_colorMaskR(true),
+      m_colorMaskG(true),
+      m_colorMaskB(true),
+      m_colorMaskA(true),
       m_currentLineWidth(-1.0f),
       m_device(nullptr),
       m_deviceContext(nullptr),
@@ -525,6 +529,77 @@ ID3D11RasterizerState* RendererD3D11::SelectRasterizerState(bool scissorEnabled,
     }
 }
 
+UINT RendererD3D11::CalculateColorWriteMask(bool r, bool g, bool b, bool a) const
+{
+    UINT writeMask = 0;
+    if (r) writeMask |= D3D11_COLOR_WRITE_ENABLE_RED;
+    if (g) writeMask |= D3D11_COLOR_WRITE_ENABLE_GREEN;
+    if (b) writeMask |= D3D11_COLOR_WRITE_ENABLE_BLUE;
+    if (a) writeMask |= D3D11_COLOR_WRITE_ENABLE_ALPHA;
+    return writeMask;
+}
+
+void RendererD3D11::SetupBlendDescForMode(D3D11_BLEND_DESC& blendDesc, int blendMode, UINT writeMask)
+{
+    blendDesc.RenderTarget[0].RenderTargetWriteMask = writeMask;
+    
+    switch (blendMode) 
+    {
+        case BlendModeDisabled:
+            blendDesc.RenderTarget[0].BlendEnable = FALSE;
+            break;
+        case BlendModeNormal:
+            blendDesc.RenderTarget[0].BlendEnable = TRUE;
+            blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+            blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+            blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+            blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+            blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+            blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+            break;
+        case BlendModeAdditive:
+            blendDesc.RenderTarget[0].BlendEnable = TRUE;
+            blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+            blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+            blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+            blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+            blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+            blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+            break;
+        case BlendModeSubtractive:
+            blendDesc.RenderTarget[0].BlendEnable = TRUE;
+            blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+            blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_COLOR;
+            blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+            blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+            blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+            blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+            break;
+    }
+}
+
+void RendererD3D11::CreateAndSetBlendState(const D3D11_BLEND_DESC& blendDesc)
+{
+    if (!m_device) return;
+    
+    ID3D11BlendState* newBlendState = nullptr;
+    HRESULT hr = m_device->CreateBlendState(&blendDesc, &newBlendState);
+    if (SUCCEEDED(hr) && newBlendState) 
+    {
+        //
+        // Release old temporary blend state if its not one of the standard ones
+
+        if (m_currentBlendState && m_currentBlendState != m_blendStateDisabled &&
+            m_currentBlendState != m_blendStateNormal && m_currentBlendState != m_blendStateAdditive &&
+            m_currentBlendState != m_blendStateSubtractive) 
+        {
+            m_currentBlendState->Release();
+        }
+        
+        m_currentBlendState = newBlendState;
+    }
+}
+
 // ============================================================================
 // STATE MANAGEMENT
 // ============================================================================
@@ -590,6 +665,14 @@ void RendererD3D11::SetVertexArray(unsigned int vao)
         Renderer2DD3D11* renderer2dD3D11 = dynamic_cast<Renderer2DD3D11*>(g_renderer2d);
         if (renderer2dD3D11) {
             renderer2dD3D11->UpdateCurrentVAO(vao);
+        }
+    }
+    
+    if (g_renderer3d) 
+    {
+        Renderer3DD3D11* renderer3dD3D11 = dynamic_cast<Renderer3DD3D11*>(g_renderer3d);
+        if (renderer3dD3D11) {
+            renderer3dD3D11->UpdateCurrentVAO(vao);
         }
     }
 }
@@ -686,27 +769,68 @@ void RendererD3D11::SetBlendMode(int _blendMode)
 
     m_blendMode = _blendMode;
     
-    switch (_blendMode) 
+    //
+    // Apply color mask when setting blend mode
+    
+    UINT writeMask = CalculateColorWriteMask(m_colorMaskR, m_colorMaskG, m_colorMaskB, m_colorMaskA);
+    
+    if (writeMask == D3D11_COLOR_WRITE_ENABLE_ALL) 
     {
-        case BlendModeDisabled:
-            m_currentBlendState = m_blendStateDisabled;
-            m_blendEnabled = false;
-            break;
-        case BlendModeNormal:
-            SetBlendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
-            m_currentBlendState = m_blendStateNormal;
-            m_blendEnabled = true;
-            break;
-        case BlendModeAdditive:
-            SetBlendFunc(BLEND_SRC_ALPHA, BLEND_ONE);
-            m_currentBlendState = m_blendStateAdditive;
-            m_blendEnabled = true;
-            break;
-        case BlendModeSubtractive:
-            SetBlendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_COLOR);
-            m_currentBlendState = m_blendStateSubtractive;
-            m_blendEnabled = true;
-            break;
+        //
+        // Use standard blend states when color mask is all enabled
+
+        switch (_blendMode) 
+        {
+            case BlendModeDisabled:
+                m_currentBlendState = m_blendStateDisabled;
+                m_blendEnabled = false;
+                break;
+            case BlendModeNormal:
+                SetBlendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
+                m_currentBlendState = m_blendStateNormal;
+                m_blendEnabled = true;
+                break;
+            case BlendModeAdditive:
+                SetBlendFunc(BLEND_SRC_ALPHA, BLEND_ONE);
+                m_currentBlendState = m_blendStateAdditive;
+                m_blendEnabled = true;
+                break;
+            case BlendModeSubtractive:
+                SetBlendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_COLOR);
+                m_currentBlendState = m_blendStateSubtractive;
+                m_blendEnabled = true;
+                break;
+        }
+    } 
+    else 
+    {
+        //
+        // Create custom blend state with color mask
+        
+        D3D11_BLEND_DESC blendDesc = {};
+        SetupBlendDescForMode(blendDesc, _blendMode, writeMask);
+        
+        //
+        // Set blend enabled flag based on mode
+
+        m_blendEnabled = (_blendMode != BlendModeDisabled);
+        if (m_blendEnabled) 
+        {
+            switch (_blendMode) 
+            {
+                case BlendModeNormal:
+                    SetBlendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
+                    break;
+                case BlendModeAdditive:
+                    SetBlendFunc(BLEND_SRC_ALPHA, BLEND_ONE);
+                    break;
+                case BlendModeSubtractive:
+                    SetBlendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_COLOR);
+                    break;
+            }
+        }
+        
+        CreateAndSetBlendState(blendDesc);
     }
     
     UpdateBlendState();
@@ -798,6 +922,27 @@ void RendererD3D11::SetCullFace(bool enabled, int mode)
         m_currentRasterizerState = newState;
         UpdateRasterizerState();
     }
+}
+
+void RendererD3D11::SetColorMask(bool r, bool g, bool b, bool a)
+{
+    m_colorMaskR = r;
+    m_colorMaskG = g;
+    m_colorMaskB = b;
+    m_colorMaskA = a;
+    
+    if (!m_device) return;
+    
+    //
+    // Create a blend state with the color mask based on current blend mode
+    
+    UINT writeMask = CalculateColorWriteMask(r, g, b, a);
+    
+    D3D11_BLEND_DESC blendDesc = {};
+    SetupBlendDescForMode(blendDesc, m_blendMode, writeMask);
+    
+    CreateAndSetBlendState(blendDesc);
+    UpdateBlendState();
 }
 
 // ============================================================================

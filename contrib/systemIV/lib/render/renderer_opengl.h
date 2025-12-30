@@ -41,6 +41,10 @@ private:
     bool m_blendEnabled;
     bool m_depthTestEnabled;
     bool m_depthMaskEnabled;
+    bool m_colorMaskR;
+    bool m_colorMaskG;
+    bool m_colorMaskB;
+    bool m_colorMaskA;
     int m_currentBlendSrcFactor;
     int m_currentBlendDstFactor;
 
@@ -69,6 +73,7 @@ public:
     virtual void SetDepthBuffer     (bool enabled, bool clearNow)         override;
     virtual void SetDepthMask       (bool enabled)                        override;
     virtual void SetCullFace        (bool enabled, int mode)              override;
+    virtual void SetColorMask       (bool r, bool g, bool b, bool a)      override;
     
     virtual unsigned int CreateShader(const char* vertexSource, const char* fragmentSource) override;
     

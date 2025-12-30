@@ -43,6 +43,35 @@ protected:
     virtual void FlushTriangleFills3D         () override;
     
     virtual void CleanupBuffers3D             () override;
+    
+    virtual unsigned int CreateMegaVBOVertexBuffer3D (size_t size, BufferUsageHint usageHint) override;
+    virtual unsigned int CreateMegaVBOIndexBuffer3D  (size_t size, BufferUsageHint usageHint) override;
+    virtual unsigned int CreateMegaVBOVertexArray3D  () override;
+    
+    virtual void DeleteMegaVBOVertexBuffer3D  (unsigned int buffer) override;
+    virtual void DeleteMegaVBOIndexBuffer3D   (unsigned int buffer) override;
+    virtual void DeleteMegaVBOVertexArray3D   (unsigned int vao) override;
+    
+    virtual void SetupMegaVBOVertexAttributes3D        (unsigned int vao, unsigned int vbo, unsigned int ibo) override;
+    virtual void SetupMegaVBOVertexAttributes3DTextured(unsigned int vao, unsigned int vbo, unsigned int ibo) override;
+    
+    virtual void UploadMegaVBOIndexData3D (unsigned int ibo, const unsigned int* indices, 
+                                           int indexCount, BufferUsageHint usageHint) override;
+    virtual void UploadMegaVBOVertexData3D(unsigned int vbo, const Vertex3D* vertices,
+                                           int vertexCount, BufferUsageHint usageHint) override;
+
+    virtual void UploadMegaVBOVertexData3DTextured(unsigned int vbo, const Vertex3DTextured* vertices,
+                                                   int vertexCount, BufferUsageHint usageHint) override;
+    
+    virtual void DrawMegaVBOIndexed3D          (PrimitiveType primitiveType, unsigned int indexCount) override;
+    virtual void DrawMegaVBOIndexedInstanced3D (PrimitiveType primitiveType, unsigned int indexCount, 
+                                                unsigned int instanceCount) override;
+    
+    virtual void SetupMegaVBOInstancedVertexAttributes3DTextured(unsigned int vao, unsigned int vbo, 
+                                                                 unsigned int ibo) override;
+    
+    virtual void EnableMegaVBOPrimitiveRestart3D (unsigned int restartIndex) override;
+    virtual void DisableMegaVBOPrimitiveRestart3D() override;
 };
 
 #endif // RENDERER_OPENGL

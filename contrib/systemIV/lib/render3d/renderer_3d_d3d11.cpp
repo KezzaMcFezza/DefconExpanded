@@ -133,5 +133,114 @@ void Renderer3DD3D11::CleanupBuffers3D()
 
 }
 
+unsigned int Renderer3DD3D11::CreateMegaVBOVertexBuffer3D(size_t size, BufferUsageHint usageHint)
+{
+    (void)size;
+    (void)usageHint;
+    return 0;
+}
+
+unsigned int Renderer3DD3D11::CreateMegaVBOIndexBuffer3D(size_t size, BufferUsageHint usageHint)
+{
+    (void)size;
+    (void)usageHint;
+    return 0;
+}
+
+unsigned int Renderer3DD3D11::CreateMegaVBOVertexArray3D()
+{
+    return 0;
+}
+
+void Renderer3DD3D11::DeleteMegaVBOVertexBuffer3D(unsigned int buffer)
+{
+    (void)buffer;
+}
+
+void Renderer3DD3D11::DeleteMegaVBOIndexBuffer3D(unsigned int buffer)
+{
+    (void)buffer;
+}
+
+void Renderer3DD3D11::DeleteMegaVBOVertexArray3D(unsigned int vao)
+{
+    (void)vao;
+}
+
+void Renderer3DD3D11::SetupMegaVBOVertexAttributes3D(unsigned int vao, unsigned int vbo, unsigned int ibo)
+{
+    (void)vao;
+    (void)vbo;
+    (void)ibo;
+}
+
+void Renderer3DD3D11::SetupMegaVBOVertexAttributes3DTextured(unsigned int vao, unsigned int vbo, unsigned int ibo)
+{
+    (void)vao;
+    (void)vbo;
+    (void)ibo;
+}
+
+void Renderer3DD3D11::UploadMegaVBOIndexData3D(unsigned int ibo, const unsigned int* indices, 
+                                               int indexCount, BufferUsageHint usageHint)
+{
+    (void)ibo;
+    (void)indices;
+    (void)indexCount;
+    (void)usageHint;
+}
+
+void Renderer3DD3D11::UploadMegaVBOVertexData3D(unsigned int vbo, const Vertex3D* vertices,
+                                                 int vertexCount, BufferUsageHint usageHint)
+{
+    (void)vbo;
+    (void)vertices;
+    (void)vertexCount;
+    (void)usageHint;
+}
+
+void Renderer3DD3D11::UploadMegaVBOVertexData3DTextured(unsigned int vbo, const Vertex3DTextured* vertices,
+                                                         int vertexCount, BufferUsageHint usageHint)
+{
+    (void)vbo;
+    (void)vertices;
+    (void)vertexCount;
+    (void)usageHint;
+}
+
+void Renderer3DD3D11::DrawMegaVBOIndexed3D(PrimitiveType primitiveType, unsigned int indexCount)
+{
+    (void)primitiveType;
+    (void)indexCount;
+}
+
+void Renderer3DD3D11::DrawMegaVBOIndexedInstanced3D(PrimitiveType primitiveType, unsigned int indexCount, unsigned int instanceCount)
+{
+    (void)primitiveType;
+    (void)indexCount;
+    (void)instanceCount;
+}
+
+void Renderer3DD3D11::SetupMegaVBOInstancedVertexAttributes3DTextured(unsigned int vao, unsigned int vbo, unsigned int ibo)
+{
+    (void)vao;
+    (void)vbo;
+    (void)ibo;
+}
+
+void Renderer3DD3D11::UpdateCurrentVAO(unsigned int vao)
+{
+    (void)vao;
+}
+
+void Renderer3DD3D11::EnableMegaVBOPrimitiveRestart3D(unsigned int restartIndex)
+{
+    (void)restartIndex;
+}
+
+void Renderer3DD3D11::DisableMegaVBOPrimitiveRestart3D()
+{
+}
+
 #endif // RENDERER_DIRECTX11
 

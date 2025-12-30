@@ -56,6 +56,10 @@ RendererOpenGL::RendererOpenGL()
       m_blendEnabled(false),
       m_depthTestEnabled(false),
       m_depthMaskEnabled(false),
+      m_colorMaskR(true),
+      m_colorMaskG(true),
+      m_colorMaskB(true),
+      m_colorMaskA(true),
       m_currentBlendSrcFactor(-1),
       m_currentBlendDstFactor(-1),
       m_msaaFBO(0),
@@ -435,6 +439,22 @@ void RendererOpenGL::SetCullFace(bool enabled, int mode)
             glDisable(GL_CULL_FACE);
             m_cullFaceEnabled = false;
         }
+    }
+}
+
+void RendererOpenGL::SetColorMask(bool r, bool g, bool b, bool a)
+{
+    if (m_colorMaskR != r || m_colorMaskG != g || m_colorMaskB != b || m_colorMaskA != a)
+    {
+        glColorMask(r ? GL_TRUE : GL_FALSE, 
+                    g ? GL_TRUE : GL_FALSE, 
+                    b ? GL_TRUE : GL_FALSE, 
+                    a ? GL_TRUE : GL_FALSE);
+        
+        m_colorMaskR = r;
+        m_colorMaskG = g;
+        m_colorMaskB = b;
+        m_colorMaskA = a;
     }
 }
 

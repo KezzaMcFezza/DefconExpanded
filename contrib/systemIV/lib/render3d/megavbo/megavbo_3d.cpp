@@ -186,15 +186,15 @@ void MegaVBO3D::InvalidateCached3DVBO(const char* cacheKey)
     if (cachedVBO) {
 
         if (cachedVBO->VBO != 0) {
-            glDeleteBuffers(1, &cachedVBO->VBO);
+            g_renderer3d->DeleteMegaVBOVertexBuffer3D(cachedVBO->VBO);
             cachedVBO->VBO = 0;
         }
         if (cachedVBO->IBO != 0) {
-            glDeleteBuffers(1, &cachedVBO->IBO);
+            g_renderer3d->DeleteMegaVBOIndexBuffer3D(cachedVBO->IBO);
             cachedVBO->IBO = 0;
         }
         if (cachedVBO->VAO != 0) {
-            glDeleteVertexArrays(1, &cachedVBO->VAO);
+            g_renderer3d->DeleteMegaVBOVertexArray3D(cachedVBO->VAO);
             cachedVBO->VAO = 0;
         }
         

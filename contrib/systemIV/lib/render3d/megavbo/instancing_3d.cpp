@@ -181,27 +181,26 @@ void MegaVBO3D::RenderInstancedMegaVBO3D(const char* batchKey)
     g_renderer->SetShaderProgram(g_renderer3d->m_shader3DModelProgram);
     g_renderer3d->Set3DModelShaderUniformsInstanced(batch->matrices, batch->colors, batch->instanceCount);
     
-    g_renderer->SetVertexArray(cachedVBO->VAO);
-    g_renderer->SetArrayBuffer(cachedVBO->VBO);
-    
     //
-    // For textured VBOs, we need to remap.
+    // For textured VBOs, we need to remap vertex attributes for instanced rendering.
     // location 0 = position, location 1 = color (from location 2)
     
-    if (cachedVBO->vertexType == VBO_VERTEX_3D_TEXTURED) {
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)0);
-        glEnableVertexAttribArray(0);
-        
-        glDisableVertexAttribArray(1);
-        
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        
-        glDisableVertexAttribArray(3);
+    if (cachedVBO->vertexType == VBO_VERTEX_3D_TEXTURED) 
+    {
+        g_renderer3d->SetupMegaVBOInstancedVertexAttributes3DTextured(cachedVBO->VAO, cachedVBO->VBO, cachedVBO->IBO);
+    } 
+    else 
+    {
+        //
+        // For non-textured VBOs, use standard setup
+
+        g_renderer->SetVertexArray(cachedVBO->VAO);
+        g_renderer->SetArrayBuffer(cachedVBO->VBO);
+        g_renderer3d->SetupMegaVBOVertexAttributes3D(cachedVBO->VAO, cachedVBO->VBO, cachedVBO->IBO);
     }
     
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
-    glDrawElementsInstanced(GL_TRIANGLES, cachedVBO->indexCount, GL_UNSIGNED_INT, 0, batch->instanceCount);
+    g_renderer->SetVertexArray(cachedVBO->VAO);
+    g_renderer3d->DrawMegaVBOIndexedInstanced3D(PRIMITIVE_TRIANGLES, cachedVBO->indexCount, batch->instanceCount);
     
     g_renderer->EndFlushTiming("MegaVBO_Instanced_3D");
     g_renderer3d->IncrementDrawCall3D("triangle_vbo");

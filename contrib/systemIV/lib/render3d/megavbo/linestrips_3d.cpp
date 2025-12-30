@@ -98,32 +98,21 @@ void MegaVBO3D::EndMegaVBO3D()
     
     bool isNewVBO = (cachedVBO->VBO == 0);
     if (isNewVBO) {
-        glGenVertexArrays(1, &cachedVBO->VAO);
-        glGenBuffers(1, &cachedVBO->VBO);
-        glGenBuffers(1, &cachedVBO->IBO);
+        cachedVBO->VAO = g_renderer3d->CreateMegaVBOVertexArray3D();
+        cachedVBO->VBO = g_renderer3d->CreateMegaVBOVertexBuffer3D(m_megaVertex3DCount * sizeof(Vertex3D), BUFFER_USAGE_STATIC_DRAW);
+        cachedVBO->IBO = g_renderer3d->CreateMegaVBOIndexBuffer3D(m_megaIndex3DCount * sizeof(unsigned int), BUFFER_USAGE_STATIC_DRAW);
         
-        g_renderer->SetVertexArray(cachedVBO->VAO);
-        g_renderer->SetArrayBuffer(cachedVBO->VBO);
-        
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        
-        //
-        // Bind index buffer to VAO
-        
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
+        g_renderer3d->SetupMegaVBOVertexAttributes3D(cachedVBO->VAO, cachedVBO->VBO, cachedVBO->IBO);
     } 
     else 
     {
         g_renderer->SetVertexArray(cachedVBO->VAO);
         g_renderer->SetArrayBuffer(cachedVBO->VBO);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cachedVBO->IBO);
     }
     
-    glBufferData(GL_ARRAY_BUFFER, m_megaVertex3DCount * sizeof(Vertex3D), m_megaVertices3D, GL_STATIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_megaIndex3DCount * sizeof(unsigned int), m_megaIndices3D, GL_STATIC_DRAW);
+    g_renderer->SetVertexArray(cachedVBO->VAO);
+    g_renderer3d->UploadMegaVBOVertexData3D(cachedVBO->VBO, m_megaVertices3D, m_megaVertex3DCount, BUFFER_USAGE_STATIC_DRAW);
+    g_renderer3d->UploadMegaVBOIndexData3D(cachedVBO->IBO, m_megaIndices3D, m_megaIndex3DCount, BUFFER_USAGE_STATIC_DRAW);
 
     cachedVBO->vertexCount = m_megaVertex3DCount;
     cachedVBO->indexCount = m_megaIndex3DCount;
@@ -148,20 +137,15 @@ void MegaVBO3D::RenderMegaVBO3D(const char* megaVBOKey)
     g_renderer->SetShaderProgram(g_renderer3d->m_shader3DProgram);
     g_renderer3d->Set3DShaderUniforms();
     
-#ifndef TARGET_EMSCRIPTEN
-    glEnable(GL_PRIMITIVE_RESTART);
-    glPrimitiveRestartIndex(0xFFFFFFFF);
-#endif
+    g_renderer3d->EnableMegaVBOPrimitiveRestart3D(0xFFFFFFFF);
     
     //
-    // Render the mega-VBO with indexed drawing for emscripten
+    // Render the mega-VBO with indexed drawing
 
     g_renderer->SetVertexArray(cachedVBO->VAO);
-    glDrawElements(GL_LINE_STRIP, cachedVBO->indexCount, GL_UNSIGNED_INT, 0);
+    g_renderer3d->DrawMegaVBOIndexed3D(PRIMITIVE_LINE_STRIP, cachedVBO->indexCount);
     
-#ifndef TARGET_EMSCRIPTEN
-    glDisable(GL_PRIMITIVE_RESTART);
-#endif
+    g_renderer3d->DisableMegaVBOPrimitiveRestart3D();
     
     g_renderer->EndFlushTiming("MegaVBO_3D");
     g_renderer3d->IncrementDrawCall3D("line_vbo");

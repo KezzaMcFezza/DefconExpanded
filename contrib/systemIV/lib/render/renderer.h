@@ -60,6 +60,18 @@ enum BlendFactor {
     BLEND_ONE_MINUS_SRC_COLOR = 4
 };
 
+enum BufferUsageHint {
+    BUFFER_USAGE_STATIC_DRAW = 0,   // Data set once, used many times
+    BUFFER_USAGE_DYNAMIC_DRAW = 1,  // Data modified repeatedly, used many times
+    BUFFER_USAGE_STREAM_DRAW = 2    // Data modified repeatedly, used a few times
+};
+
+enum PrimitiveType {
+    PRIMITIVE_TRIANGLES = 0,
+    PRIMITIVE_LINE_STRIP = 1,
+    PRIMITIVE_LINES = 2
+};
+
 struct RendererFlushTiming {
     const char* name;
     double totalTime;
@@ -138,6 +150,7 @@ public:
     virtual void SetDepthBuffer (bool enabled, bool clearNow) = 0;
     virtual void SetDepthMask   (bool enabled) = 0;
     virtual void SetCullFace    (bool enabled, int mode) = 0;
+    virtual void SetColorMask   (bool r, bool g, bool b, bool a) = 0;
 
     virtual unsigned int CreateShader(const char* vertexSource, const char* fragmentSource) = 0;
     

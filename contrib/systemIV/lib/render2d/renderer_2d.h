@@ -36,18 +36,6 @@ struct Vertex2D {
                           b(color.GetBFloat()), a(color.GetAFloat()), u(pu), v(pv) {}
 };
 
-enum BufferUsageHint {
-    BUFFER_USAGE_STATIC_DRAW = 0,   // Data set once, used many times
-    BUFFER_USAGE_DYNAMIC_DRAW = 1,  // Data modified repeatedly, used many times
-    BUFFER_USAGE_STREAM_DRAW = 2    // Data modified repeatedly, used a few times
-};
-
-enum PrimitiveType {
-    PRIMITIVE_TRIANGLES = 0,
-    PRIMITIVE_LINE_STRIP = 1,
-    PRIMITIVE_LINES = 2
-};
-
 class MegaVBO2D;
 
 class Renderer2D {

@@ -672,26 +672,25 @@ void GlobeRenderer::RenderCullSphere()
     //
     // Ensure depth testing and depth writes are enabled
     
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    g_renderer->SetDepthBuffer(true, false);
     
     //
     // Disable color writes
     
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    g_renderer->SetColorMask(false, false, false, false);
     
     //
     // Disable backface culling so both sides of sphere write to depth buffer
     
-    glDisable(GL_CULL_FACE);
+    g_renderer->SetCullFace(false, 0);
     
     g_megavbo3d->RenderTriangleMegaVBO3D("CullingSphere");
     
     //
     // Re enable color writes and restore culling state
     
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glDisable(GL_CULL_FACE);
+    g_renderer->SetColorMask(true, true, true, true);
+    g_renderer->SetCullFace(false, 0);
 }
 
 void GlobeRenderer::GlobeCoastlines()
@@ -899,6 +898,11 @@ void GlobeRenderer::Render()
 
     g_renderer3d->DisableFog();
 
+    //
+    // Ensure depth is enabled for starfield rendering
+
+    g_renderer->SetDepthBuffer(true, false);
+    
     START_PROFILE("Starfield");
     g_renderer3d->BeginStaticSpriteBatch3D();      // Star field batching
     RenderStarField();
@@ -940,13 +944,13 @@ void GlobeRenderer::Render()
         // to prevent trail segments from being visible when using alpha blending
 
         g_renderer->SetBlendMode(Renderer::BlendModeNormal);
-        glDepthMask(GL_FALSE);
+        g_renderer->SetDepthMask(false);
     
         Render3DNukeTrajectories();
     
         g_renderer3d->EndLineBatch3D();
     
-        glDepthMask(GL_TRUE);
+        g_renderer->SetDepthMask(true);
         
         Render3DNukes();
     }
@@ -1252,8 +1256,7 @@ void GlobeRenderer::GameCamera()
               lookAt.x, lookAt.y, lookAt.z,
               up.x, up.y, up.z);
 
-    glDisable( GL_CULL_FACE );
-    glDisable( GL_DEPTH_TEST );
+    g_renderer->SetCullFace(false, 0);
 
     float fogDistanceSetting = (float)g_preferences->GetInt(PREFS_GLOBE_FOG_DISTANCE, 25);
     float distanceMultiplier = (fogDistanceSetting / 20.0f - 1.0f) * 2.0f + 1.0f;
@@ -1311,8 +1314,7 @@ void GlobeRenderer::LobbyCamera()
               forwards.x, forwards.y, forwards.z,
               up.x, up.y, up.z);
 
-    glDisable( GL_CULL_FACE );
-    glDisable( GL_DEPTH_TEST );
+    g_renderer->SetCullFace(false, 0);
 
     g_renderer3d->EnableDistanceFog(camDist/2.0f, camDist*2.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.25f);
 }

@@ -43,6 +43,10 @@
      bool m_depthMaskEnabled;
      bool m_cullFaceEnabled;
      int m_cullFaceMode;
+     bool m_colorMaskR;
+     bool m_colorMaskG;
+     bool m_colorMaskB;
+     bool m_colorMaskA;
      
      // Line width doesnt work in DirectX11 :(
      float m_currentLineWidth;
@@ -121,6 +125,7 @@
      virtual void SetDepthBuffer (bool enabled, bool clearNow)  override;
      virtual void SetDepthMask   (bool enabled)                 override;
      virtual void SetCullFace    (bool enabled, int mode)       override;
+     virtual void SetColorMask   (bool r, bool g, bool b, bool a) override;
      
      virtual unsigned int CreateShader(const char* vertexSource, const char* fragmentSource) override;
      
@@ -153,25 +158,29 @@
      virtual int GetCurrentBlendSrcFactor       () const override;
      virtual int GetCurrentBlendDstFactor       () const override;
      
-     static bool CheckHRResult(HRESULT hr, const char* operation);
-     static bool CheckHRResult(HRESULT hr, const char* operation, ID3DBlob* errorBlob);
-     
- protected:
-     bool CheckHR(HRESULT hr, const char* operation);
-     bool CheckHR(HRESULT hr, const char* operation, ID3DBlob* errorBlob);
- 
- private:
-     void CreateStateObjects();
-     void ReleaseStateObjects();
-     void GetDeviceAndContext();
-     
-     D3D11_BLEND ConvertBlendFactor(int factor);
- 
-     void UpdateBlendState();
-     void UpdateDepthState();
-     void UpdateRasterizerState();
-     
-     ID3D11RasterizerState* SelectRasterizerState(bool scissorEnabled, bool cullEnabled, int cullMode);
+    static bool CheckHRResult(HRESULT hr, const char* operation);
+    static bool CheckHRResult(HRESULT hr, const char* operation, ID3DBlob* errorBlob);
+    
+    void UpdateBlendState();
+    void UpdateDepthState();
+    void UpdateRasterizerState();
+    
+protected:
+    bool CheckHR(HRESULT hr, const char* operation);
+    bool CheckHR(HRESULT hr, const char* operation, ID3DBlob* errorBlob);
+
+private:
+    void CreateStateObjects();
+    void ReleaseStateObjects();
+    void GetDeviceAndContext();
+    
+    D3D11_BLEND ConvertBlendFactor(int factor);
+    
+    ID3D11RasterizerState* SelectRasterizerState(bool scissorEnabled, bool cullEnabled, int cullMode);
+    
+    UINT CalculateColorWriteMask(bool r, bool g, bool b, bool a) const;
+    void SetupBlendDescForMode(D3D11_BLEND_DESC& blendDesc, int blendMode, UINT writeMask);
+    void CreateAndSetBlendState(const D3D11_BLEND_DESC& blendDesc);
  };
  
  #endif // RENDERER_DIRECTX11

@@ -793,5 +793,228 @@ void Renderer3DOpenGL::CleanupBuffers3D()
     if (m_shader3DModelProgram) glDeleteProgram(m_shader3DModelProgram);
 }
 
+// ============================================================================
+// MEGAVBO BUFFER MANAGEMENT
+// ============================================================================
+
+unsigned int Renderer3DOpenGL::CreateMegaVBOVertexBuffer3D(size_t size, BufferUsageHint usageHint)
+{
+    GLenum glUsage;
+    switch (usageHint) 
+    {
+        case BUFFER_USAGE_STATIC_DRAW:  glUsage = GL_STATIC_DRAW; break;
+        case BUFFER_USAGE_DYNAMIC_DRAW: glUsage = GL_DYNAMIC_DRAW; break;
+        case BUFFER_USAGE_STREAM_DRAW:  glUsage = GL_STREAM_DRAW; break;
+        default: glUsage = GL_STATIC_DRAW; break;
+    }
+    
+    unsigned int vbo;
+    glGenBuffers(1, &vbo);
+    g_renderer->SetArrayBuffer(vbo);
+    glBufferData(GL_ARRAY_BUFFER, size, NULL, glUsage);
+    g_renderer->SetArrayBuffer(0);
+    return vbo;
+}
+
+unsigned int Renderer3DOpenGL::CreateMegaVBOIndexBuffer3D(size_t size, BufferUsageHint usageHint)
+{
+    (void)usageHint;
+    (void)size;
+    
+    unsigned int ibo;
+    glGenBuffers(1, &ibo);
+    return ibo;
+}
+
+unsigned int Renderer3DOpenGL::CreateMegaVBOVertexArray3D()
+{
+    unsigned int vao;
+    glGenVertexArrays(1, &vao);
+    return vao;
+}
+
+void Renderer3DOpenGL::DeleteMegaVBOVertexBuffer3D(unsigned int buffer)
+{
+    if (buffer != 0) 
+    {
+        glDeleteBuffers(1, &buffer);
+    }
+}
+
+void Renderer3DOpenGL::DeleteMegaVBOIndexBuffer3D(unsigned int buffer)
+{
+    if (buffer != 0) 
+    {
+        glDeleteBuffers(1, &buffer);
+    }
+}
+
+void Renderer3DOpenGL::DeleteMegaVBOVertexArray3D(unsigned int vao)
+{
+    if (vao != 0) 
+    {
+        glDeleteVertexArrays(1, &vao);
+    }
+}
+
+void Renderer3DOpenGL::SetupMegaVBOVertexAttributes3D(unsigned int vao, unsigned int vbo, unsigned int ibo)
+{
+    g_renderer->SetVertexArray(vao);
+    g_renderer->SetArrayBuffer(vbo);
+    
+    // Position attribute (x, y, z)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    // Color attribute (r, g, b, a)
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3D), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    
+    // Bind index buffer to VAO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+}
+
+void Renderer3DOpenGL::SetupMegaVBOVertexAttributes3DTextured(unsigned int vao, unsigned int vbo, unsigned int ibo)
+{
+    g_renderer->SetVertexArray(vao);
+    g_renderer->SetArrayBuffer(vbo);
+    
+    // Position attribute (x, y, z)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    // Normal attribute (nx, ny, nz)
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    
+    // Color attribute (r, g, b, a)
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    
+    // Texture coordinate attribute (u, v)
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(10 * sizeof(float)));
+    glEnableVertexAttribArray(3);
+    
+    // Bind index buffer to VAO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+}
+
+void Renderer3DOpenGL::UploadMegaVBOIndexData3D(unsigned int ibo, const unsigned int* indices,
+                                                int indexCount, BufferUsageHint usageHint)
+{
+    GLenum glUsage;
+    switch (usageHint) 
+    {
+        case BUFFER_USAGE_STATIC_DRAW:  glUsage = GL_STATIC_DRAW; break;
+        case BUFFER_USAGE_DYNAMIC_DRAW: glUsage = GL_DYNAMIC_DRAW; break;
+        case BUFFER_USAGE_STREAM_DRAW:  glUsage = GL_STREAM_DRAW; break;
+        default: glUsage = GL_STATIC_DRAW; break;
+    }
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, glUsage);
+}
+
+void Renderer3DOpenGL::UploadMegaVBOVertexData3D(unsigned int vbo, const Vertex3D* vertices,
+                                                int vertexCount, BufferUsageHint usageHint)
+{
+    GLenum glUsage;
+    switch (usageHint) 
+    {
+        case BUFFER_USAGE_STATIC_DRAW:  glUsage = GL_STATIC_DRAW; break;
+        case BUFFER_USAGE_DYNAMIC_DRAW: glUsage = GL_DYNAMIC_DRAW; break;
+        case BUFFER_USAGE_STREAM_DRAW:  glUsage = GL_STREAM_DRAW; break;
+        default: glUsage = GL_STATIC_DRAW; break;
+    }
+    
+    g_renderer->SetArrayBuffer(vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex3D), vertices, glUsage);
+}
+
+void Renderer3DOpenGL::UploadMegaVBOVertexData3DTextured(unsigned int vbo, const Vertex3DTextured* vertices,
+                                                         int vertexCount, BufferUsageHint usageHint)
+{
+    GLenum glUsage;
+    switch (usageHint) 
+    {
+        case BUFFER_USAGE_STATIC_DRAW:  glUsage = GL_STATIC_DRAW; break;
+        case BUFFER_USAGE_DYNAMIC_DRAW: glUsage = GL_DYNAMIC_DRAW; break;
+        case BUFFER_USAGE_STREAM_DRAW:  glUsage = GL_STREAM_DRAW; break;
+        default: glUsage = GL_STATIC_DRAW; break;
+    }
+    
+    g_renderer->SetArrayBuffer(vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex3DTextured), vertices, glUsage);
+}
+
+void Renderer3DOpenGL::DrawMegaVBOIndexed3D(PrimitiveType primitiveType, unsigned int indexCount)
+{
+    GLenum glPrimitive;
+    switch (primitiveType) 
+    {
+        case PRIMITIVE_TRIANGLES:   glPrimitive = GL_TRIANGLES; break;
+        case PRIMITIVE_LINE_STRIP:  glPrimitive = GL_LINE_STRIP; break;
+        case PRIMITIVE_LINES:       glPrimitive = GL_LINES; break;
+        default: glPrimitive = GL_TRIANGLES; break;
+    }
+    
+    glDrawElements(glPrimitive, indexCount, GL_UNSIGNED_INT, 0);
+}
+
+void Renderer3DOpenGL::DrawMegaVBOIndexedInstanced3D(PrimitiveType primitiveType, unsigned int indexCount, unsigned int instanceCount)
+{
+    GLenum glPrimitive;
+    switch (primitiveType) 
+    {
+        case PRIMITIVE_TRIANGLES:   glPrimitive = GL_TRIANGLES; break;
+        case PRIMITIVE_LINE_STRIP:  glPrimitive = GL_LINE_STRIP; break;
+        case PRIMITIVE_LINES:       glPrimitive = GL_LINES; break;
+        default: glPrimitive = GL_TRIANGLES; break;
+    }
+    
+    glDrawElementsInstanced(glPrimitive, indexCount, GL_UNSIGNED_INT, 0, instanceCount);
+}
+
+void Renderer3DOpenGL::SetupMegaVBOInstancedVertexAttributes3DTextured(unsigned int vao, unsigned int vbo, unsigned int ibo)
+{
+    g_renderer->SetVertexArray(vao);
+    g_renderer->SetArrayBuffer(vbo);
+    
+    // For instanced rendering with textured VBOs, we need to remap:
+    // location 0 = position, location 1 = color (from location 2)
+    
+    // Position attribute (x, y, z) - location 0
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    // Disable normal attribute (location 1)
+    glDisableVertexAttribArray(1);
+    
+    // Color attribute (r, g, b, a) - location 1 (remapped from location 2)
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex3DTextured), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    
+    // Disable texture coordinate attribute (location 3)
+    glDisableVertexAttribArray(3);
+    
+    // Bind index buffer to VAO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+}
+
+void Renderer3DOpenGL::EnableMegaVBOPrimitiveRestart3D(unsigned int restartIndex)
+{
+#ifndef TARGET_EMSCRIPTEN
+    glEnable(GL_PRIMITIVE_RESTART);
+    glPrimitiveRestartIndex(restartIndex);
+#endif
+}
+
+void Renderer3DOpenGL::DisableMegaVBOPrimitiveRestart3D()
+{
+#ifndef TARGET_EMSCRIPTEN
+    glDisable(GL_PRIMITIVE_RESTART);
+#endif
+}
+
 #endif // RENDERER_OPENGL
 

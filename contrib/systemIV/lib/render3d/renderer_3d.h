@@ -301,6 +301,35 @@ private:
     virtual void FlushTriangleFills3D         () = 0;
     
     virtual void CleanupBuffers3D             () = 0;
+    
+    virtual unsigned int CreateMegaVBOVertexBuffer3D (size_t size, BufferUsageHint usageHint) = 0;
+    virtual unsigned int CreateMegaVBOIndexBuffer3D  (size_t size, BufferUsageHint usageHint) = 0;
+    virtual unsigned int CreateMegaVBOVertexArray3D  () = 0;
+    
+    virtual void DeleteMegaVBOVertexBuffer3D  (unsigned int buffer) = 0;
+    virtual void DeleteMegaVBOIndexBuffer3D   (unsigned int buffer) = 0;
+    virtual void DeleteMegaVBOVertexArray3D   (unsigned int vao) = 0;
+    
+    virtual void SetupMegaVBOVertexAttributes3D        (unsigned int vao, unsigned int vbo, unsigned int ibo) = 0;
+    virtual void SetupMegaVBOVertexAttributes3DTextured(unsigned int vao, unsigned int vbo, unsigned int ibo) = 0;
+    
+    virtual void UploadMegaVBOIndexData3D (unsigned int ibo, const unsigned int* indices, 
+                                           int indexCount, BufferUsageHint usageHint) = 0;
+    virtual void UploadMegaVBOVertexData3D(unsigned int vbo, const Vertex3D* vertices,
+                                           int vertexCount, BufferUsageHint usageHint) = 0;
+
+    virtual void UploadMegaVBOVertexData3DTextured(unsigned int vbo, const Vertex3DTextured* vertices,
+                                                   int vertexCount, BufferUsageHint usageHint) = 0;
+    
+    virtual void DrawMegaVBOIndexed3D          (PrimitiveType primitiveType, unsigned int indexCount) = 0;
+    virtual void DrawMegaVBOIndexedInstanced3D (PrimitiveType primitiveType, unsigned int indexCount, 
+                                                unsigned int instanceCount) = 0;
+    
+    virtual void SetupMegaVBOInstancedVertexAttributes3DTextured(unsigned int vao, unsigned int vbo, 
+                                                                 unsigned int ibo) = 0;
+    
+    virtual void EnableMegaVBOPrimitiveRestart3D (unsigned int restartIndex) = 0;
+    virtual void DisableMegaVBOPrimitiveRestart3D() = 0;
 
 public:
     Renderer3D();
