@@ -148,7 +148,7 @@ void MegaVBO2D::RenderTexturedMegaVBO(const char* megaVBOKey)
     g_renderer2d->SetTextureShaderUniforms();
     
     if (textureID != 0) {
-        g_renderer->SetActiveTexture(GL_TEXTURE0);
+        g_renderer->SetActiveTexture(0);
         g_renderer->SetBoundTexture(textureID);
     }
     
