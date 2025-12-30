@@ -1094,7 +1094,6 @@ void App::Render()
 
 
     g_renderer2d->Reset2DViewport();
-    g_renderer->BeginScene();
 
     //
     // eclipse buttons and windows, but first check if UI should be hidden

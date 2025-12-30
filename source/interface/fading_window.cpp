@@ -52,6 +52,9 @@ void FadingWindow::Render( bool _hasFocus, bool _renderButtons )
 
     Clamp( m_alpha, 0.0f, 1.0f );
 
+    int oldBlendMode = g_renderer->GetBlendMode();
+    g_renderer->SetBlendMode( Renderer::BlendModeNormal );
+
     //
     // Render the window
     // Draw the window bars first
@@ -78,7 +81,7 @@ void FadingWindow::Render( bool _hasFocus, bool _renderButtons )
     g_renderer2d->m_alpha = m_alpha;
 
     EclWindow::Render( _hasFocus );
-
+    
     g_renderer2d->m_alpha = oldAlpha;
     
     g_renderer2d->ResetClip();
@@ -88,6 +91,8 @@ void FadingWindow::Render( bool _hasFocus, bool _renderButtons )
     // Drop shadow
 
     InterfaceWindow::RenderWindowShadow( m_x+m_w, m_y, m_h, m_w, 10, g_renderer2d->m_alpha*0.4f*m_alpha );
+    
+    g_renderer->SetBlendMode( oldBlendMode );
 }
 
 

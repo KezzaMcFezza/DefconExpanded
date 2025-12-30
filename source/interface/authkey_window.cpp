@@ -119,6 +119,9 @@ class AuthInputField : public InputField
 public:
     void Render( int realX, int realY, bool highlighted, bool clicked )
     {
+        int oldBlendMode = g_renderer->GetBlendMode();
+        g_renderer->SetBlendMode( Renderer::BlendModeNormal );
+
         //
         // Background
 
@@ -190,6 +193,8 @@ public:
 
 
         g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,10) );
+        
+        g_renderer->SetBlendMode( oldBlendMode );
     }
 
     void Keypress( int keyCode, bool shift, bool ctrl, bool alt, unsigned char ascii )

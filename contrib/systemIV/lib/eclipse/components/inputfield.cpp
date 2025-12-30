@@ -50,6 +50,9 @@ void InputField::SetCallback(InterfaceButton *button)
 
 void InputField::Render( int realX, int realY, bool highlighted, bool clicked )
 {
+    int oldBlendMode = g_renderer->GetBlendMode();
+    g_renderer->SetBlendMode( Renderer::BlendModeNormal );
+
     Colour background = g_styleTable->GetPrimaryColour(STYLE_INPUT_BACKGROUND);
     Colour borderA = g_styleTable->GetPrimaryColour(STYLE_INPUT_BORDER);
     Colour borderB = g_styleTable->GetSecondaryColour(STYLE_INPUT_BORDER);
@@ -101,6 +104,8 @@ void InputField::Render( int realX, int realY, bool highlighted, bool clicked )
 	}
 
     g_renderer2d->ResetClip();
+    
+    g_renderer->SetBlendMode( oldBlendMode );
 }
 
 
