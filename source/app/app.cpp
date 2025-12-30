@@ -480,7 +480,7 @@ void App::MinimalInit()
     m_mapRenderer->Init();
 
     m_globeRenderer = new GlobeRenderer();
-    //m_globeRenderer->Init();
+    m_globeRenderer->Init();
 
     m_lobbyRenderer = new LobbyRenderer();
     m_lobbyRenderer->Initialise();
@@ -934,7 +934,7 @@ void App::ReinitialiseWindow()
 
     m_worldRenderer->Init();
     m_mapRenderer->Init();
-    //m_globeRenderer->Init();
+    m_globeRenderer->Init();
     m_interface->Init(); 
     
 }
@@ -1069,8 +1069,8 @@ void App::Render()
                 //
                 // Render 3D globe
 
-                //GetGlobeRenderer()->Update();
-                //GetGlobeRenderer()->Render();
+                GetGlobeRenderer()->Update();
+                GetGlobeRenderer()->Render();
             }
             else
             {
@@ -1721,7 +1721,7 @@ void App::ShutdownCurrentGame()
 
     m_worldRenderer->Reset();
     m_mapRenderer->Reset();
-    //m_globeRenderer->Reset();
+    m_globeRenderer->Reset();
 
     GetWorldRenderer()->SetRenderEverything( false );
 
