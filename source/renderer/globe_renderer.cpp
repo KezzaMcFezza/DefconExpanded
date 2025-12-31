@@ -673,6 +673,7 @@ void GlobeRenderer::RenderCullSphere()
     // Ensure depth testing and depth writes are enabled
     
     g_renderer->SetDepthBuffer(true, false);
+    g_renderer->SetDepthMask(true);
     
     //
     // Disable color writes
@@ -841,14 +842,12 @@ void GlobeRenderer::Render()
     float resScale = g_windowManager->WindowH() / 800.0f;
     m_drawScale /= resScale;
     
-    //
-    // Enable depth testing for 3D sprites
-
-    g_renderer->SetDepthBuffer(true, false);
-
-    if(!g_app->IsGlobeMode()) {
+    if(!g_app->IsGlobeMode()) 
+    {
 
         LobbyCamera(); 
+        
+        g_renderer->SetDepthBuffer(false, false);
 
         START_PROFILE("Gridlines");
         GlobeGridlines();
@@ -857,19 +856,13 @@ void GlobeRenderer::Render()
     else 
     {
         GameCamera();
-    }
 
-    //
-    // If in globe mode, cull the coastlines and borders
-
-    if (g_app->IsGlobeMode()) {
-
+        g_renderer->SetDepthBuffer(true, false);
         g_renderer->ClearScreen(false, true);
             
         START_PROFILE("Culling Sphere");
         RenderCullSphere();
         END_PROFILE("Culling Sphere");
-        
     }
 
     START_PROFILE("Coastlines");
@@ -885,6 +878,7 @@ void GlobeRenderer::Render()
         
     if (!g_app->IsGlobeMode()) 
     {
+        g_renderer->SetDepthBuffer(true, false);
         g_renderer->ClearScreen(false, true);
         
         START_PROFILE("Culling Sphere");
