@@ -311,11 +311,13 @@ void RendererD3D11::CreateStateObjects()
     samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
     samplerDesc.MinLOD = 0;
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    samplerDesc.MipLODBias = 0.0f;
     
     //
     // Linear for non mipmapped textures
 
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+    samplerDesc.MaxAnisotropy = 1;
     hr = m_device->CreateSamplerState(&samplerDesc, &m_samplerStateLinear);
     CheckHR(hr, "create linear sampler state");
     
@@ -323,6 +325,7 @@ void RendererD3D11::CreateStateObjects()
     // Linear Mip Linear for mipmapped textures
 
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    samplerDesc.MaxAnisotropy = 1;
     hr = m_device->CreateSamplerState(&samplerDesc, &m_samplerStateLinearMipLinear);
     CheckHR(hr, "create linear mip linear sampler state");
     
@@ -751,6 +754,56 @@ void RendererD3D11::SetScissor(int x, int y, int width, int height)
 
 void RendererD3D11::SetTextureParameter(unsigned int pname, int param)
 {
+    if (!m_deviceContext) return;
+    
+    if (pname == TEXTURE_MIN_FILTER || pname == GL_TEXTURE_MIN_FILTER) 
+    {
+        ID3D11SamplerState* newSampler = nullptr;
+        
+        switch (param) 
+        {
+            case TEXTURE_FILTER_LINEAR_MIPMAP_LINEAR:
+            case GL_LINEAR_MIPMAP_LINEAR:
+                newSampler = m_samplerStateLinearMipLinear;
+                break;
+                
+            case TEXTURE_FILTER_NEAREST_MIPMAP_LINEAR:
+            case GL_NEAREST_MIPMAP_LINEAR:
+                newSampler = m_samplerStateLinearMipLinear;
+                break;
+                
+            case TEXTURE_FILTER_LINEAR_MIPMAP_NEAREST:
+            case GL_LINEAR_MIPMAP_NEAREST:
+                newSampler = m_samplerStateLinear;
+                break;
+                
+            case TEXTURE_FILTER_NEAREST_MIPMAP_NEAREST:
+            case GL_NEAREST_MIPMAP_NEAREST:
+                newSampler = m_samplerStateLinear;
+                break;
+                
+            case TEXTURE_FILTER_LINEAR:
+            case GL_LINEAR:
+                newSampler = m_samplerStateLinear;
+                break;
+                
+            case TEXTURE_FILTER_NEAREST:
+            case GL_NEAREST:
+                // DirectX11 doesnt have a separate nearest sampler
+                newSampler = m_samplerStateLinear;
+                break;
+                
+            default:
+                newSampler = m_samplerStateLinear;
+                break;
+        }
+        
+        if (newSampler && newSampler != m_currentSamplerState) 
+        {
+            m_currentSamplerState = newSampler;
+            m_deviceContext->PSSetSamplers(0, 1, &m_currentSamplerState);
+        }
+    }
 }
 
 // ============================================================================
@@ -1766,6 +1819,15 @@ unsigned int RendererD3D11::CreateTexture(int width, int height, const Colour* p
     if (mipmapLevel > 0) 
     {
         m_deviceContext->GenerateMips(srv);
+        
+        if (m_samplerStateLinearMipLinear && m_currentSamplerState != m_samplerStateLinearMipLinear) 
+        {
+            m_currentSamplerState = m_samplerStateLinearMipLinear;
+            if (m_deviceContext) 
+            {
+                m_deviceContext->PSSetSamplers(0, 1, &m_currentSamplerState);
+            }
+        }
     }
     
     return (unsigned int)(uintptr_t)srv;
