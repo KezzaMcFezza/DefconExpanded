@@ -205,6 +205,7 @@ public:
         
         double timeNow = GetHighResTime();
         double timeDelta = timeNow - m_lastClickTime;
+        m_lastClickTime = timeNow;
         
         int numDirectories = parent->m_directories ? parent->m_directories->Size() : 0;
         int numFiles = parent->m_files ? parent->m_files->Size() : 0;
@@ -237,6 +238,7 @@ public:
                     if (timeDelta < 0.3)
                     {
                         parent->FileSelected(fileInfo->filename);
+                        return;
                     }
                     else
                     {
@@ -259,6 +261,7 @@ public:
                     if (timeDelta < 0.3)
                     {
                         parent->FileSelected(fileInfo->filename);
+                        return;
                     }
                     else
                     {
@@ -292,8 +295,6 @@ public:
                 }
             }
         }
-        
-        m_lastClickTime = timeNow;
     }
 };
 

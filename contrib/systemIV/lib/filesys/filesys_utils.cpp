@@ -17,10 +17,13 @@
 #include <stdlib.h>                     // needed for errno definition
 #include <ctype.h>
 #include <stdarg.h>
+#include <filesystem>
+#include <algorithm>
 
-#include "lib/debug_utils.h"
 #include "lib/string_utils.h"
 #include "filesys_utils.h"
+
+namespace fs = std::filesystem;
 
 #ifdef TARGET_MSVC
 #pragma warning( disable : 4996 )
@@ -83,42 +86,51 @@ LList <char *> *ListDirectory( const char *_dir, const char *_filter, bool _full
 
     // Now add on all files found locally
 #ifdef WIN32
-    char searchstring [256];
-    AppAssert(strlen(_dir) + strlen(_filter) < sizeof(searchstring) - 1);
-
-	sprintf( searchstring, 
-		"%s%s", _dir, _filter );
-
-    _finddata_t thisfile;
-    long fileindex = _findfirst( searchstring, &thisfile );
-
-    int exitmeplease = 0;
-
-    while( fileindex != -1 && !exitmeplease ) 
+    try
     {
-        if( strcmp( thisfile.name, "." ) != 0 &&
-            strcmp( thisfile.name, ".." ) != 0 &&
-            !(thisfile.attrib & _A_SUBDIR) )
+        fs::path dirPath(_dir ? _dir : ".");
+        if (!fs::exists(dirPath) || !fs::is_directory(dirPath))
         {
-            char *newname = NULL;
-            if( _fullFilename ) 
-            {
-                size_t len = strlen(_dir) + strlen(thisfile.name);
-                newname = new char [len + 1];
-                sprintf( newname, "%s%s", _dir, thisfile.name );      
-            }
-            else
-            {
-                size_t len = strlen(thisfile.name);
-                newname = new char [len + 1];
-                sprintf( newname, "%s", thisfile.name );
-            }
-
-            result->PutData( newname );
+            return result;
         }
 
-        exitmeplease = _findnext( fileindex, &thisfile );
+        for (const auto& entry : fs::directory_iterator(dirPath))
+        {
+            if (entry.is_regular_file())
+            {
+                std::string filename = entry.path().filename().string();
+                
+                //
+                // Skip . and ..
+
+                if (filename == "." || filename == "..")
+                    continue;
+
+                if (!FilterMatch(filename.c_str(), _filter))
+                    continue;
+
+                char *newname = NULL;
+                if (_fullFilename)
+                {
+                    std::string fullPath = (_dir ? _dir : ".");
+                    if (!fullPath.empty() && fullPath.back() != '/' && fullPath.back() != '\\')
+                    {
+                        fullPath += "/";
+                    }
+                    fullPath += filename;
+                    std::replace(fullPath.begin(), fullPath.end(), '\\', '/');
+                    newname = newStr(fullPath.c_str());
+                }
+                else
+                {
+                    newname = newStr(filename.c_str());
+                }
+
+                result->PutData(newname);
+            }
+        }
     }
+    catch (const fs::filesystem_error&){}
 #else
     DIR *dir = opendir(_dir[0] ? _dir : ".");
     if (dir == NULL)
@@ -148,28 +160,28 @@ LList <char *> *ListSubDirectoryNames(const char *_dir)
     LList<char *> *result = new LList<char *>();
 
 #ifdef WIN32
-    _finddata_t thisfile;
-    long fileindex;
-	char *dir = ConcatPaths( _dir, "*.*", NULL );
-	
-	fileindex = _findfirst( dir, &thisfile );
-
-    int exitmeplease = 0;
-
-    while( fileindex != -1 && !exitmeplease ) 
+    try
     {
-        if( strcmp( thisfile.name, "." ) != 0 &&
-            strcmp( thisfile.name, ".." ) != 0 &&
-            (thisfile.attrib & _A_SUBDIR) )
+        fs::path dirPath(_dir ? _dir : ".");
+        if (!fs::exists(dirPath) || !fs::is_directory(dirPath))
         {
-            char *newname = newStr( thisfile.name );   
-            result->PutData( newname );
+            return result;
         }
 
-        exitmeplease = _findnext( fileindex, &thisfile );
+        for (const auto& entry : fs::directory_iterator(dirPath))
+        {
+            if (entry.is_directory())
+            {
+                std::string dirname = entry.path().filename().string();
+                if (dirname == "." || dirname == "..")
+                    continue;
+
+                char *newname = newStr(dirname.c_str());
+                result->PutData(newname);
+            }
+        }
     }
-	
-	delete[] dir;
+    catch (const fs::filesystem_error&){}
 #else
 
     DIR *dir = opendir(_dir);
