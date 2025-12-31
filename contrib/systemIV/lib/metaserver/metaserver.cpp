@@ -158,8 +158,9 @@ void MetaServer_Initialise()
 
 void ReceiveMetaServerData( Directory const &_directory )
 {
-    char *thisDataType = _directory.GetDataString( NET_METASERVER_DATATYPE );
- 
+    DirectoryData *dataTypeData = _directory.GetData( NET_METASERVER_DATATYPE );
+    const char *thisDataType = dataTypeData && dataTypeData->IsString() ? dataTypeData->m_string.c_str() : NULL;
+
     AppDebugOut( "Received data from MetaServer : %s\n", thisDataType );
 
     

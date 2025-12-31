@@ -15,6 +15,7 @@
 #include "lib/metaserver/authentication.h"
 #include "lib/metaserver/metaserver.h"
 #include "lib/metaserver/metaserver_defines.h"
+#include "lib/tosser/directory.h"
 #include "lib/eclipse/eclipse.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
@@ -501,20 +502,23 @@ void LobbyRenderer::RenderVersionInfo()
 
 
     Directory *latestVersion = MetaServer_RequestData( NET_METASERVER_DATA_LATESTVERSION );
+    Directory *updateUrlDir = NULL;
     if( latestVersion )
     {
-        char *latestVersionString = latestVersion->GetDataString( NET_METASERVER_DATA_LATESTVERSION );
+        DirectoryData *latestVersionData = latestVersion->GetData( NET_METASERVER_DATA_LATESTVERSION );
+        const char *latestVersionString = latestVersionData && latestVersionData->IsString() ? latestVersionData->m_string.c_str() : NULL;
 
-        Directory *updateUrlDir = MetaServer_RequestData( NET_METASERVER_DATA_UPDATEURL );
-        char *updateUrl = updateUrlDir ? updateUrlDir->GetDataString( NET_METASERVER_DATA_UPDATEURL ) : NULL;
+        updateUrlDir = MetaServer_RequestData( NET_METASERVER_DATA_UPDATEURL );
+        DirectoryData *updateUrlData = updateUrlDir ? updateUrlDir->GetData( NET_METASERVER_DATA_UPDATEURL ) : NULL;
+        const char *updateUrl = updateUrlData && updateUrlData->IsString() ? updateUrlData->m_string.c_str() : NULL;
 
-		float latestVersionFloat = VersionManager::VersionStringToNumber( latestVersionString );
+		float latestVersionFloat = latestVersionString ? VersionManager::VersionStringToNumber( latestVersionString ) : 0.0f;
 		float curVersionFloat = VersionManager::VersionStringToNumber( APP_VERSION );
-        if( strcmp( latestVersionString, APP_VERSION ) == 0 || curVersionFloat >= latestVersionFloat )
+        if( latestVersionString && (strcmp( latestVersionString, APP_VERSION ) == 0 || curVersionFloat >= latestVersionFloat) )
         {
             g_renderer2d->TextSimple( xPos, yPos + 33, fontNormal, 12, LANGUAGEPHRASE("dialog_lobby_have_latest_version") );
         }
-        else
+        else if( latestVersionString )
         {
             Colour col = fontBold;
             if( fmodf( GetHighResTime() * 2, 2 ) > 1.0f )
@@ -563,11 +567,12 @@ void LobbyRenderer::RenderVersionInfo()
                 }
             }
         }
-
+    }
+    
+    if( latestVersion )
         delete latestVersion;
-		if ( updateUrlDir )
-			delete updateUrlDir;
-    } 
+    if( updateUrlDir )
+        delete updateUrlDir; 
 }
 
 #if !defined(REPLAY_VIEWER_DESKTOP) && !defined(TARGET_EMSCRIPTEN) && !defined(SYNC_PRACTICE)
@@ -623,7 +628,8 @@ void LobbyRenderer::RenderMotd()
         g_renderer2d->RectFill( boxX, boxY, boxW, boxH, fillCol );
         g_renderer2d->Rect( boxX, boxY, boxW, boxH, lineCol );
 
-		char *fullString = motd->GetDataString( NET_METASERVER_DATA_MOTD );
+		DirectoryData *motdData = motd->GetData( NET_METASERVER_DATA_MOTD );
+		const char *fullString = motdData && motdData->IsString() ? motdData->m_string.c_str() : NULL;
         g_renderer->SetFont("zerothre");
 		MultiLineText wrapped( fullString, boxW-10, 15 );
 

@@ -10,6 +10,7 @@
 #include "lib/metaserver/metaserver_defines.h"
 #include "lib/metaserver/authentication.h"
 #include "lib/metaserver/metaserver.h"
+#include "lib/tosser/directory.h"
 #include "lib/hi_res_time.h"
 #include "lib/gucci/input.h"
 #include "lib/debug_utils.h"
@@ -1576,8 +1577,11 @@ void ClientToServer::GetPurchasePrice( char *_prices )
 		if( prices &&
             prices->HasData( NET_METASERVER_DATA_DEMOPRICES, DIRECTORY_TYPE_STRING ) )
         {
-            char *msprices = prices->GetDataString( NET_METASERVER_DATA_DEMOPRICES );
-            strcpy( _prices, msprices );
+            DirectoryData *priceData = prices->GetData( NET_METASERVER_DATA_DEMOPRICES );
+            if( priceData && priceData->IsString() )
+            {
+                strcpy( _prices, priceData->m_string.c_str() );
+            }
         }
     }
 
@@ -1596,8 +1600,11 @@ void ClientToServer::GetPurchaseUrl( char *_purchaseUrl )
         if( purchaseUrl &&
             purchaseUrl->HasData( NET_METASERVER_DATA_BUYURL, DIRECTORY_TYPE_STRING ) )
         {
-            char *msPurchaseUrl = purchaseUrl->GetDataString( NET_METASERVER_DATA_BUYURL );
-            strcpy( _purchaseUrl, msPurchaseUrl );
+            DirectoryData *urlData = purchaseUrl->GetData( NET_METASERVER_DATA_BUYURL );
+            if( urlData && urlData->IsString() )
+            {
+                strcpy( _purchaseUrl, urlData->m_string.c_str() );
+            }
         }
     }
 
