@@ -35,7 +35,7 @@ BitmapFont::BitmapFont(char *_filename)
 
     BinaryReader *reader = g_fileSystem->GetBinaryReader(m_filename);
     Bitmap bmp(reader, (char *)GetExtensionPart(m_filename) );
-    m_textureID = bmp.ConvertToTexture(true);  // Use mipmapping
+    m_textureID = bmp.ConvertToTexture();
     delete reader;
 
     //

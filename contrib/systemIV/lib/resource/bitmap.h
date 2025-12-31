@@ -65,7 +65,7 @@ public:
 
 	void        ConvertPinkToTransparent    ();
 	void        ConvertColourToAlpha        ();	                                    // Luminance of rgb data is copied into the alpha channel and the rgb data is set to 255,255,255
-	int         ConvertToTexture            (bool _mipmapping = true);
+	int         ConvertToTexture            (int _mipmapLevel = -1);
 
 	void        SaveBmp                     (char *_filename);
 };

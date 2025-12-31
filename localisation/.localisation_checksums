@@ -99,13 +99,13 @@
   "gui/tb_territory.bmp": "dab0b4090021fdf52e9d866736fc4e1db83ff9a4e88f8858268d5e6a155d340f",
   "gui/tb_units.bmp": "05e9518ffcc0e18282381c4c40184ff632729c30d22d38727a8b287192ec4505",
   "gui/tick.bmp": "5b7aa75bbd2fb1db8d11538512dad33098e90c0b3143283738f991e9affce606",
-  "language/english.txt": "ac909e9eef6e92c014ca3ccbee6d8d83335223f4982368c1eafd1d93f4b86e27",
+  "language/english.txt": "ac6154c5ae83745e74621aeddedf851ef115a95ac7eb3155def63bdd4b828751",
   "language/french.txt": "bfe65008982777f06951cca41e4ad09c3761de93b2085f8b4b15e094c7b16412",
   "language/german.txt": "01fe1f5b3b529a9cb3693dfb44393a29ea471ac75bd91a791af92c8a72c29116",
   "language/italian.txt": "b2e30eb9d58f869cb679e52634e480e0df0a07a48db5770633e2b58164ebfe61",
   "language/spanish.txt": "c5e7c6e2fdbe479195dff130f6b0ac1ebb6bc86106771bcbff24e8022426fd57",
   "models/nuke.glb": "81bc2961038fb5ddc905db5c8a91827e928b22a2dc12d57f884bb873ce1ccc88",
-  "prefs_default.txt": "4eb3da3e3cbcf13324dd124d57a947d2c53b53fbb9c8dcada1650ba48ce1bb14",
+  "prefs_default.txt": "255eb13255fe1806a3005c7202173d6273cd8f805f2967cc846c947dac040dd8",
   "prefs_default_emscripten.txt": "c419e0e6968bec09a48f6fcfe14eb4de2fbee2d90d9260122383b0830e74bf60",
   "prefs_default_french.txt": "16e96ce573b852abaa849f172017c290591cd7056bfb90f9b12eef9491d0a7a8",
   "prefs_default_macosx.txt": "cc085ea6b7bf7e86e0dfd64b67dabf30d576ce7131c581554b3b04b07c4fdf98",
@@ -119,6 +119,6 @@
   "styles/light.txt": "ba3cb7fbc8b2a3d8c130ce21c2602c67d68ced8b18cb90b4eeab0abf6b257137",
   "styles/red.txt": "aba7a3d1ebc3bb00b4db861f25038901316fe137e0785de47d10dd4cc9db4606",
   "tutorial.txt": "5214c3de6e1d6b9c6414dcafd40f987e02ce17914effbf9bdaeb4f5a4a3b6674",
-  "version.txt": "de2542f038d1a19e6e9e4d7a817b1348423eab2934f0c6593c6add60f60fac08",
+  "version.txt": "ca5c2ba2435787055849dd173900ecc405eebf82f6f3c20d49cda39a66c4978c",
   "world.dat": "d782b69f61bb55684f0e0558ee62ab302ec8427e49cd3959ed9d9fc4699825dc"
 }

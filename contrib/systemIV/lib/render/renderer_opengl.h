@@ -98,7 +98,7 @@ public:
     
     virtual void SaveScreenshot() override;
     
-    virtual unsigned int CreateTexture(int width, int height, const Colour* pixels, bool mipmapping) override;
+    virtual unsigned int CreateTexture(int width, int height, const Colour* pixels, int mipmapLevel) override;
     virtual void DeleteTexture        (unsigned int textureID) override;
     
     virtual unsigned int GetCurrentBoundTexture() const override { return m_currentBoundTexture; }

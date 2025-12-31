@@ -84,7 +84,8 @@ void Image::MakeTexture( bool mipmapping, bool masked )
     {
         m_mipmapping = mipmapping;
         if( masked ) m_bitmap->ConvertPinkToTransparent();
-        m_textureID = m_bitmap->ConvertToTexture(mipmapping);
+        int mipmapLevel = mipmapping ? -1 : 0;
+        m_textureID = m_bitmap->ConvertToTexture(mipmapLevel);
     }
 }
 

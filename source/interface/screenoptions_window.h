@@ -17,6 +17,7 @@ public:
     int     m_uiScale;
     int     m_fpsLimit;
     int     m_renderer;
+    int     m_mipmapLevel;
 	
 public:
     ScreenOptionsWindow();

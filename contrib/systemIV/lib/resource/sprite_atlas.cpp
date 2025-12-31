@@ -437,7 +437,7 @@ void RuntimeTextureAtlas::BlitSpritesToAtlas(PackedSprite** sprites, int spriteC
 
 void RuntimeTextureAtlas::CreateGLTexture() {
     m_atlasBitmap->ConvertPinkToTransparent();
-    m_textureID = m_atlasBitmap->ConvertToTexture(true);
+    m_textureID = m_atlasBitmap->ConvertToTexture();
 }
 
 bool RuntimeTextureAtlas::BuildFromDirectory(const char* directory,

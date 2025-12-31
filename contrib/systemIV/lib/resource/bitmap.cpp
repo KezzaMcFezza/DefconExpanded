@@ -9,6 +9,7 @@
 #include "lib/render/colour.h"
 #include "lib/render/renderer.h"
 #include "lib/debug_utils.h"
+#include "lib/preferences.h"
 
 #include "bitmap.h"
 
@@ -981,10 +982,24 @@ void Bitmap::Clear( Colour const &colour )
 }
 
 
-int Bitmap::ConvertToTexture(bool _mipmapping) 
+int Bitmap::ConvertToTexture(int _mipmapLevel) 
 {
 	AppAssert(g_renderer);
 	
-	return (int)g_renderer->CreateTexture(m_width, m_height, m_pixels, _mipmapping);
+	int mipmapLevel = _mipmapLevel;
+	if (mipmapLevel == -1) 
+	{
+		extern Preferences *g_preferences;
+		if (g_preferences) 
+		{
+			mipmapLevel = g_preferences->GetInt(PREFS_SCREEN_MIPMAP_LEVEL, 4);
+		} 
+		else 
+		{
+			mipmapLevel = 4; // Default to 4 if preferences set
+		}
+	}
+	
+	return (int)g_renderer->CreateTexture(m_width, m_height, m_pixels, mipmapLevel);
 }
 

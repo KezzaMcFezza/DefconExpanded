@@ -1677,7 +1677,7 @@ int RendererD3D11::GetCurrentBlendDstFactor() const
 // TEXTURE MANAGEMENT
 // ============================================================================
 
-unsigned int RendererD3D11::CreateTexture(int width, int height, const Colour* pixels, bool mipmapping)
+unsigned int RendererD3D11::CreateTexture(int width, int height, const Colour* pixels, int mipmapLevel)
 {
     if (!m_device || !m_deviceContext) {
         GetDeviceAndContext();
@@ -1696,15 +1696,24 @@ unsigned int RendererD3D11::CreateTexture(int width, int height, const Colour* p
     D3D11_TEXTURE2D_DESC desc = {};
     desc.Width = width;
     desc.Height = height;
-    desc.MipLevels = mipmapping ? 0 : 1; // 0 = generate all mip levels
+
+    if (mipmapLevel == 0) 
+    {
+        desc.MipLevels = 1; 
+    } 
+    else 
+    {
+        desc.MipLevels = mipmapLevel + 1; 
+    }
+
     desc.ArraySize = 1;
     desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     desc.SampleDesc.Count = 1;
     desc.SampleDesc.Quality = 0;
     desc.Usage = D3D11_USAGE_DEFAULT;
-    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | (mipmapping ? D3D11_BIND_RENDER_TARGET : 0);
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | (mipmapLevel > 0 ? D3D11_BIND_RENDER_TARGET : 0);
     desc.CPUAccessFlags = 0;
-    desc.MiscFlags = mipmapping ? D3D11_RESOURCE_MISC_GENERATE_MIPS : 0;
+    desc.MiscFlags = mipmapLevel > 0 ? D3D11_RESOURCE_MISC_GENERATE_MIPS : 0;
     
     //
     // Create initial data structure
@@ -1723,7 +1732,7 @@ unsigned int RendererD3D11::CreateTexture(int width, int height, const Colour* p
     // When using D3D11_RESOURCE_MISC_GENERATE_MIPS, we cant provide initial data
     // Create without data, then upload base level separately
 
-    hr = m_device->CreateTexture2D(&desc, mipmapping ? nullptr : &initData, &texture);
+    hr = m_device->CreateTexture2D(&desc, mipmapLevel > 0 ? nullptr : &initData, &texture);
     if (!CheckHR(hr, "create texture")) 
     {
         return 0;
@@ -1732,7 +1741,7 @@ unsigned int RendererD3D11::CreateTexture(int width, int height, const Colour* p
     //
     // If mipmapping, upload base level data
 
-    if (mipmapping) 
+    if (mipmapLevel > 0) 
     {
         m_deviceContext->UpdateSubresource(texture, 0, nullptr, pixels, width * 4, 0);
     }
@@ -1743,7 +1752,7 @@ unsigned int RendererD3D11::CreateTexture(int width, int height, const Colour* p
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
     srvDesc.Format = desc.Format;
     srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels = mipmapping ? -1 : 1; 
+    srvDesc.Texture2D.MipLevels = mipmapLevel > 0 ? desc.MipLevels : 1; 
     srvDesc.Texture2D.MostDetailedMip = 0;
     
     ID3D11ShaderResourceView* srv = nullptr;
@@ -1754,7 +1763,7 @@ unsigned int RendererD3D11::CreateTexture(int width, int height, const Colour* p
         return 0;
     }
     
-    if (mipmapping) 
+    if (mipmapLevel > 0) 
     {
         m_deviceContext->GenerateMips(srv);
     }

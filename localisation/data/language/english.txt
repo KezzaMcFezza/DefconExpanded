@@ -197,6 +197,12 @@ dialog_fpslimit_144fps              144 FPS
 dialog_fpslimit_240fps              240 FPS
 dialog_fpslimit_480fps              480 FPS
 dialog_fpslimit_1000fps             1000 FPS
+dialog_mipmaplevel                  Mipmaping
+dialog_mipmaplevel_0                No Mipmapping
+dialog_mipmaplevel_2                2 Levels
+dialog_mipmaplevel_4                4 Levels
+dialog_mipmaplevel_6                6 Levels
+dialog_mipmaplevel_8                8 Levels
 dialog_windowscaling                Window Scaling
 dialog_renderer                     Renderer
 dialog_renderer_opengl              OpenGL

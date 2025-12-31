@@ -175,7 +175,7 @@ public:
     
     virtual void SaveScreenshot() = 0;
     
-    virtual unsigned int CreateTexture(int width, int height, const Colour* pixels, bool mipmapping) = 0;
+    virtual unsigned int CreateTexture(int width, int height, const Colour* pixels, int mipmapLevel) = 0;
     virtual void DeleteTexture        (unsigned int textureID) = 0;
     
     void GetImageUVCoords             (Image* image, float& u1, float& v1, float& u2, float& v2);

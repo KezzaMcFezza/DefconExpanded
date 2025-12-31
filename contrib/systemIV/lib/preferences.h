@@ -19,6 +19,7 @@
 #define PREFS_SCREEN_UI_SCALE		"ScreenUIScale"
 #define PREFS_SCREEN_FPS_LIMIT		"ScreenFpsLimit"
 #define PREFS_SCREEN_RENDERER		"ScreenRenderer"
+#define PREFS_SCREEN_MIPMAP_LEVEL	"ScreenMipmapLevel"
 #define PREFS_RENDERER_OPENGL       0
 #define PREFS_RENDERER_DIRECTX11    1
 

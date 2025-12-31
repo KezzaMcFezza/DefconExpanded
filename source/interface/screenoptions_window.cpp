@@ -169,6 +169,7 @@ class SetScreenButton : public InterfaceButton
         g_preferences->SetInt( PREFS_SCREEN_ANTIALIAS, parent->m_antiAlias );
         g_preferences->SetInt( PREFS_SCREEN_FPS_LIMIT, parent->m_fpsLimit );
         g_preferences->SetInt( PREFS_SCREEN_RENDERER, parent->m_renderer );
+        g_preferences->SetInt( PREFS_SCREEN_MIPMAP_LEVEL, parent->m_mipmapLevel );
 		
         if( resolution && g_app && g_app->GetInterface() )
         {
@@ -205,6 +206,7 @@ class SetScreenButton : public InterfaceButton
         parent->m_antiAlias     = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
         parent->m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
         parent->m_renderer      = g_preferences->GetInt( PREFS_SCREEN_RENDERER, PREFS_RENDERER_OPENGL );
+        parent->m_mipmapLevel   = g_preferences->GetInt( PREFS_SCREEN_MIPMAP_LEVEL, 4 );
 
         parent->Remove();
         parent->Create();
@@ -222,9 +224,9 @@ ScreenOptionsWindow::ScreenOptionsWindow()
 :   InterfaceWindow( "ScreenOptions", "dialog_screenoptions", true )
 {
 #ifdef TARGET_MSVC
-	int height = 400;
+	int height = 430;
 #else
-    int height = 360;
+    int height = 390;
 #endif
 
     m_resId = g_windowManager->GetResolutionId( g_preferences->GetInt(PREFS_SCREEN_WIDTH),
@@ -247,6 +249,7 @@ ScreenOptionsWindow::ScreenOptionsWindow()
 	m_antiAlias		= g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
     m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
     m_renderer      = g_preferences->GetInt( PREFS_SCREEN_RENDERER, PREFS_RENDERER_OPENGL );
+    m_mipmapLevel   = g_preferences->GetInt( PREFS_SCREEN_MIPMAP_LEVEL, 4 );
 	
     SetSize( 390, height );
 }
@@ -311,6 +314,16 @@ void ScreenOptionsWindow::Create()
     zDepth->AddOption( "dialog_colourdepth_24", 24, true );
     zDepth->RegisterInt( &m_zDepth );
     RegisterButton( zDepth );
+
+    DropDownMenu *mipmapLevel = new DropDownMenu();
+    mipmapLevel->SetProperties( "Mipmap Level", x, y+=h, w, 20, "dialog_mipmaplevel", " ", true, false );
+    mipmapLevel->AddOption( "dialog_mipmaplevel_0", 0, true );
+    mipmapLevel->AddOption( "dialog_mipmaplevel_2", 2, true );
+    mipmapLevel->AddOption( "dialog_mipmaplevel_4", 4, true );
+    mipmapLevel->AddOption( "dialog_mipmaplevel_6", 6, true );
+    mipmapLevel->AddOption( "dialog_mipmaplevel_8", 8, true );
+    mipmapLevel->RegisterInt( &m_mipmapLevel );
+    RegisterButton( mipmapLevel );
 
     DropDownMenu *uiScale = new DropDownMenu();
     uiScale->SetProperties( "UI Scale", x, y+=h, w, 20, "dialog_windowscaling", " ", true, false );
@@ -381,9 +394,10 @@ void ScreenOptionsWindow::Render( bool _hasFocus )
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_refreshrate") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_colourdepth") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_zbufferdepth") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_mipmaplevel") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_windowscaling") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_antialias") );
-    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_fpslimit") );    
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_fpslimit") );
 #ifdef TARGET_MSVC
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_renderer") );
 #endif
