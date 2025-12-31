@@ -1210,7 +1210,7 @@ void GlobeRenderer::UpdateCameraControl()
 void GlobeRenderer::GameCamera()
 {
     float fov = 60.0f;
-    float nearPlane = 0.1f;
+    float nearPlane = 0.01f;
     float farPlane = 10000.0f;
     float screenW = g_windowManager->WindowW();
     float screenH = g_windowManager->WindowH();
@@ -1272,7 +1272,7 @@ void GlobeRenderer::GameCamera()
 void GlobeRenderer::LobbyCamera()
 {
     float fov = 60.0f;
-    float nearPlane = 0.1f;
+    float nearPlane = 0.01f;
     float farPlane = 10000.0f;
     float screenW = g_windowManager->WindowW();
     float screenH = g_windowManager->WindowH();

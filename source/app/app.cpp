@@ -1179,7 +1179,7 @@ void App::Render()
     //
     // Flip with FPS limiting
 
-    START_PROFILE( "GL Flip" );
+    START_PROFILE( "Flip" );
     
     static double s_lastFlipTime = 0.0;
     int fpsLimit = g_preferences->GetInt(PREFS_SCREEN_FPS_LIMIT, 0);
@@ -1259,7 +1259,7 @@ void App::Render()
     g_renderer->EndMSAARendering();
     
     g_windowManager->Flip();
-    END_PROFILE( "GL Flip" );   
+    END_PROFILE( "Flip" );   
     
     //
     // End frame for global draw call tracking
