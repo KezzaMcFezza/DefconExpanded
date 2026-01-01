@@ -917,10 +917,17 @@ void RendererD3D11::SetDepthBuffer(bool _enabled, bool _clearNow)
     if (_clearNow && m_deviceContext) 
     {
         WindowManagerD3D11* windowManager = dynamic_cast<WindowManagerD3D11*>(g_windowManager);
-        if (windowManager && windowManager->GetDepthStencilView()) 
+        if (windowManager) 
         {
-            m_deviceContext->ClearDepthStencilView(windowManager->GetDepthStencilView(), 
-                                                   D3D11_CLEAR_DEPTH, 1.0f, 0);
+            ID3D11DepthStencilView* depthStencil = m_msaaEnabled && m_msaaDepthStencilView
+                ? m_msaaDepthStencilView
+                : windowManager->GetDepthStencilView();
+            
+            if (depthStencil)
+            {
+                m_deviceContext->ClearDepthStencilView(depthStencil, 
+                                                       D3D11_CLEAR_DEPTH, 1.0f, 0);
+            }
         }
     }
 }
