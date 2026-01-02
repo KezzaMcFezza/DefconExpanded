@@ -7,7 +7,7 @@ ScreenRefresh = 0
 ScreenZDepth = 24
 ScreenAntiAliasing = 4
 ScreenMipmapLevel = 4
-ScreenRenderer = 0
+ScreenRenderer = 1
 
 SoundLibrary = dsound
 SoundMixFreq = 44100

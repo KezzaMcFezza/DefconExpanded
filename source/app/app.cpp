@@ -393,6 +393,9 @@ void App::MinimalInit()
 #ifdef TARGET_OS_MACOSX
 	g_preferences->Load( "data/prefs_default_macosx.txt" );
 #endif
+#ifdef TARGET_OS_LINUX
+	g_preferences->Load( "data/prefs_default_linux.txt" );
+#endif
 #ifdef TARGET_EMSCRIPTEN
 	g_preferences->Load( "data/prefs_default_emscripten.txt" );
 #endif
