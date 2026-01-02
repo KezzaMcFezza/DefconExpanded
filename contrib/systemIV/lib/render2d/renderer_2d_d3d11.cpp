@@ -28,6 +28,16 @@ Renderer2DD3D11::Renderer2DD3D11()
       m_texturePixelShader(nullptr),
       m_inputLayout(nullptr),
       m_transformConstantBuffer(nullptr),
+      m_lineBuffer(nullptr),
+      m_staticSpriteBuffer(nullptr),
+      m_rotatingSpriteBuffer(nullptr),
+      m_textBuffer(nullptr),
+      m_circleBuffer(nullptr),
+      m_circleFillBuffer(nullptr),
+      m_rectBuffer(nullptr),
+      m_rectFillBuffer(nullptr),
+      m_triangleFillBuffer(nullptr),
+      m_immediateBuffer(nullptr),
       m_currentTextureSRV(nullptr),
       m_currentTextureID(0),
       m_nextVBOId(1),
@@ -304,41 +314,103 @@ void Renderer2DD3D11::SetupVBOs()
 {
     if (!m_device) return;
     
-    auto createAndRegisterVBO = [this](int size, D3D11_USAGE usage) -> unsigned int 
-    {
-        ID3D11Buffer* buffer = nullptr;
-        D3D11_BUFFER_DESC desc = {};
-        desc.Usage = usage;
-        desc.ByteWidth = size;
-        desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-        desc.CPUAccessFlags = (usage == D3D11_USAGE_DYNAMIC) ? D3D11_CPU_ACCESS_WRITE : 0;
-        
-        HRESULT hr = m_device->CreateBuffer(&desc, nullptr, &buffer);
-
-        if (!CheckHR(hr, "create vertex buffer")) 
-        {
-            return 0;
-        }
-        
-        unsigned int vboId = m_nextVBOId++;
-        RegisterVBO(vboId, buffer);
-        return vboId;
-    };
+    //
+    // Create persistent buffers
+    
+    D3D11_BUFFER_DESC desc = {};
+    desc.Usage = D3D11_USAGE_DYNAMIC;
+    desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     
     //
-    // Create and register vertex buffers for each primitive type
+    // Line buffer
+    
+    desc.ByteWidth = sizeof(Vertex2D) * MAX_LINE_VERTICES;
+    HRESULT hr = m_device->CreateBuffer(&desc, nullptr, &m_lineBuffer);
+    CheckHR(hr, "create line buffer");
+    
+    //
+    // Static sprite buffer
+    
+    desc.ByteWidth = sizeof(Vertex2D) * MAX_STATIC_SPRITE_VERTICES;
+    hr = m_device->CreateBuffer(&desc, nullptr, &m_staticSpriteBuffer);
+    CheckHR(hr, "create static sprite buffer");
+    
+    //
+    // Rotating sprite buffer
+    
+    desc.ByteWidth = sizeof(Vertex2D) * MAX_ROTATING_SPRITE_VERTICES;
+    hr = m_device->CreateBuffer(&desc, nullptr, &m_rotatingSpriteBuffer);
+    CheckHR(hr, "create rotating sprite buffer");
+    
+    //
+    // Text buffer
+    
+    desc.ByteWidth = sizeof(Vertex2D) * MAX_TEXT_VERTICES;
+    hr = m_device->CreateBuffer(&desc, nullptr, &m_textBuffer);
+    CheckHR(hr, "create text buffer");
+    
+    //
+    // Circle buffer
+    
+    desc.ByteWidth = sizeof(Vertex2D) * MAX_CIRCLE_VERTICES;
+    hr = m_device->CreateBuffer(&desc, nullptr, &m_circleBuffer);
+    CheckHR(hr, "create circle buffer");
+    
+    //
+    // Circle fill buffer
+    
+    desc.ByteWidth = sizeof(Vertex2D) * MAX_CIRCLE_FILL_VERTICES;
+    hr = m_device->CreateBuffer(&desc, nullptr, &m_circleFillBuffer);
+    CheckHR(hr, "create circle fill buffer");
+    
+    //
+    // Rect buffer
+    
+    desc.ByteWidth = sizeof(Vertex2D) * MAX_RECT_VERTICES;
+    hr = m_device->CreateBuffer(&desc, nullptr, &m_rectBuffer);
+    CheckHR(hr, "create rect buffer");
+    
+    //
+    // Rect fill buffer
+    
+    desc.ByteWidth = sizeof(Vertex2D) * MAX_RECT_FILL_VERTICES;
+    hr = m_device->CreateBuffer(&desc, nullptr, &m_rectFillBuffer);
+    CheckHR(hr, "create rect fill buffer");
+    
+    //
+    // Triangle fill buffer
+    
+    desc.ByteWidth = sizeof(Vertex2D) * MAX_TRIANGLE_FILL_VERTICES;
+    hr = m_device->CreateBuffer(&desc, nullptr, &m_triangleFillBuffer);
+    CheckHR(hr, "create triangle fill buffer");
+    
+    //
+    // Immediate mode buffer
+    
+    desc.ByteWidth = sizeof(Vertex2D) * MAX_VERTICES;
+    hr = m_device->CreateBuffer(&desc, nullptr, &m_immediateBuffer);
+    CheckHR(hr, "create immediate buffer");
+}
 
-    m_textVBO = createAndRegisterVBO(sizeof(Vertex2D) * MAX_TEXT_VERTICES, D3D11_USAGE_DYNAMIC);
-    m_spriteVBO = createAndRegisterVBO(sizeof(Vertex2D) * MAX_STATIC_SPRITE_VERTICES, D3D11_USAGE_DYNAMIC);
-    m_rotatingSpriteVBO = createAndRegisterVBO(sizeof(Vertex2D) * MAX_ROTATING_SPRITE_VERTICES, D3D11_USAGE_DYNAMIC);
-    m_lineVBO = createAndRegisterVBO(sizeof(Vertex2D) * MAX_LINE_VERTICES, D3D11_USAGE_DYNAMIC);
-    m_circleVBO = createAndRegisterVBO(sizeof(Vertex2D) * MAX_CIRCLE_VERTICES, D3D11_USAGE_DYNAMIC);
-    m_circleFillVBO = createAndRegisterVBO(sizeof(Vertex2D) * MAX_CIRCLE_FILL_VERTICES, D3D11_USAGE_DYNAMIC);
-    m_rectVBO = createAndRegisterVBO(sizeof(Vertex2D) * MAX_RECT_VERTICES, D3D11_USAGE_DYNAMIC);
-    m_rectFillVBO = createAndRegisterVBO(sizeof(Vertex2D) * MAX_RECT_FILL_VERTICES, D3D11_USAGE_DYNAMIC);
-    m_triangleFillVBO = createAndRegisterVBO(sizeof(Vertex2D) * MAX_TRIANGLE_FILL_VERTICES, D3D11_USAGE_DYNAMIC);
-    m_immediateVBO = createAndRegisterVBO(sizeof(Vertex2D) * MAX_VERTICES, D3D11_USAGE_DYNAMIC);
-    m_VAO = createAndRegisterVBO(sizeof(Vertex2D) * MAX_VERTICES, D3D11_USAGE_DYNAMIC);
+bool Renderer2DD3D11::UpdateBufferData(ID3D11Buffer* buffer, const Vertex2D* vertices, int vertexCount)
+{
+    if (!m_deviceContext || !buffer || vertexCount <= 0 || !vertices) 
+    {
+        return false;
+    }
+    
+    D3D11_MAPPED_SUBRESOURCE mapped;
+    HRESULT hr = m_deviceContext->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+    
+    if (SUCCEEDED(hr)) 
+    {
+        memcpy(mapped.pData, vertices, vertexCount * sizeof(Vertex2D));
+        m_deviceContext->Unmap(buffer, 0);
+        return true;
+    }
+    
+    return false;
 }
 
 void Renderer2DD3D11::RegisterVBO(unsigned int vboId, ID3D11Buffer* buffer)
@@ -357,19 +429,7 @@ void Renderer2DD3D11::UploadVertexData(const Vertex2D* vertices, int vertexCount
 void Renderer2DD3D11::UploadVertexDataToVBO(unsigned int vbo, const Vertex2D* vertices,
                                                  int vertexCount, unsigned int usageHint)
 {
-    if (!m_deviceContext || vertexCount <= 0 || !vertices) return;
-    
-    ID3D11Buffer* buffer = GetVBOFromID(vbo);
-    if (!buffer) return;
-    
-    D3D11_MAPPED_SUBRESOURCE mapped;
-    HRESULT hr = m_deviceContext->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
-    
-    if (SUCCEEDED(hr)) 
-    {
-        memcpy(mapped.pData, vertices, vertexCount * sizeof(Vertex2D));
-        m_deviceContext->Unmap(buffer, 0);
-    }
+
 }
 
 ID3D11Buffer* Renderer2DD3D11::GetVBOFromID(unsigned int vbo)
@@ -456,19 +516,9 @@ void Renderer2DD3D11::FlushTriangles(bool useTexture)
     g_renderer->StartFlushTiming("Immediate_Triangles");
     IncrementDrawCall("immediate_triangles");
     
-    //
-    // Upload vertex data
-
-    UploadVertexDataToVBO(m_immediateVBO, m_triangleVertices, m_triangleVertexCount, 0);
-    
-    //
-    // Draw
-
-    ID3D11Buffer* buffer = GetVBOFromID(m_immediateVBO);
-
-    if (buffer) 
+    if (m_immediateBuffer && UpdateBufferData(m_immediateBuffer, m_triangleVertices, m_triangleVertexCount)) 
     {
-        DrawVertices(buffer, m_triangleVertexCount, useTexture);
+        DrawVertices(m_immediateBuffer, m_triangleVertexCount, useTexture);
     }
     
     m_triangleVertexCount = 0;
@@ -503,12 +553,9 @@ void Renderer2DD3D11::FlushTextBuffer()
         m_currentTextureID = 0;
     }
     
-    UploadVertexDataToVBO(m_textVBO, m_textVertices, m_textVertexCount, 0);
-    
-    ID3D11Buffer* buffer = GetVBOFromID(m_textVBO);
-    if (buffer) 
+    if (m_textBuffer && UpdateBufferData(m_textBuffer, m_textVertices, m_textVertexCount)) 
     {
-        DrawVertices(buffer, m_textVertexCount, true);
+        DrawVertices(m_textBuffer, m_textVertexCount, true);
     }
     
     g_renderer->SetBlendFunc(currentBlendSrc, currentBlendDst);
@@ -526,18 +573,12 @@ void Renderer2DD3D11::FlushLines()
     g_renderer->StartFlushTiming("Lines");
     IncrementDrawCall("lines");
     
-    UploadVertexDataToVBO(m_lineVBO, m_lineVertices, m_lineVertexCount, 0);
-    
-    //
-    // Set line topology
-
-    ID3D11Buffer* buffer = GetVBOFromID(m_lineVBO);
-    if (m_deviceContext && buffer) 
+    if (m_lineBuffer && UpdateBufferData(m_lineBuffer, m_lineVertices, m_lineVertexCount)) 
     {
         SetColorShaderUniforms();
         UINT stride = sizeof(Vertex2D);
         UINT offset = 0;
-        m_deviceContext->IASetVertexBuffers(0, 1, &buffer, &stride, &offset);
+        m_deviceContext->IASetVertexBuffers(0, 1, &m_lineBuffer, &stride, &offset);
         m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
         m_deviceContext->Draw(m_lineVertexCount, 0);
     }
@@ -566,12 +607,9 @@ void Renderer2DD3D11::FlushStaticSprites()
         m_currentTextureID = 0;
     }
     
-    UploadVertexDataToVBO(m_spriteVBO, m_staticSpriteVertices, m_staticSpriteVertexCount, 0);
-    
-    ID3D11Buffer* buffer = GetVBOFromID(m_spriteVBO);
-    if (buffer) 
+    if (m_staticSpriteBuffer && UpdateBufferData(m_staticSpriteBuffer, m_staticSpriteVertices, m_staticSpriteVertexCount)) 
     {
-        DrawVertices(buffer, m_staticSpriteVertexCount, true);
+        DrawVertices(m_staticSpriteBuffer, m_staticSpriteVertexCount, true);
     }
     
     m_staticSpriteVertexCount = 0;
@@ -598,12 +636,9 @@ void Renderer2DD3D11::FlushRotatingSprite()
         m_currentTextureID = 0;
     }
     
-    UploadVertexDataToVBO(m_rotatingSpriteVBO, m_rotatingSpriteVertices, m_rotatingSpriteVertexCount, 0);
-    
-    ID3D11Buffer* buffer = GetVBOFromID(m_rotatingSpriteVBO);
-    if (buffer) 
+    if (m_rotatingSpriteBuffer && UpdateBufferData(m_rotatingSpriteBuffer, m_rotatingSpriteVertices, m_rotatingSpriteVertexCount)) 
     {
-        DrawVertices(buffer, m_rotatingSpriteVertexCount, true);
+        DrawVertices(m_rotatingSpriteBuffer, m_rotatingSpriteVertexCount, true);
     }
     
     m_rotatingSpriteVertexCount = 0;
@@ -618,15 +653,12 @@ void Renderer2DD3D11::FlushCircles()
     g_renderer->StartFlushTiming("Circles");
     IncrementDrawCall("circles");
     
-    UploadVertexDataToVBO(m_circleVBO, m_circleVertices, m_circleVertexCount, 0);
-    
-    ID3D11Buffer* buffer = GetVBOFromID(m_circleVBO);
-    if (m_deviceContext && buffer) 
+    if (m_circleBuffer && UpdateBufferData(m_circleBuffer, m_circleVertices, m_circleVertexCount)) 
     {
         SetColorShaderUniforms();
         UINT stride = sizeof(Vertex2D);
         UINT offset = 0;
-        m_deviceContext->IASetVertexBuffers(0, 1, &buffer, &stride, &offset);
+        m_deviceContext->IASetVertexBuffers(0, 1, &m_circleBuffer, &stride, &offset);
         m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
         m_deviceContext->Draw(m_circleVertexCount, 0);
     }
@@ -643,12 +675,9 @@ void Renderer2DD3D11::FlushCircleFills()
     g_renderer->StartFlushTiming("Circle_Fills");
     IncrementDrawCall("circle_fills");
     
-    UploadVertexDataToVBO(m_circleFillVBO, m_circleFillVertices, m_circleFillVertexCount, 0);
-    
-    ID3D11Buffer* buffer = GetVBOFromID(m_circleFillVBO);
-    if (buffer) 
+    if (m_circleFillBuffer && UpdateBufferData(m_circleFillBuffer, m_circleFillVertices, m_circleFillVertexCount)) 
     {
-        DrawVertices(buffer, m_circleFillVertexCount, false);
+        DrawVertices(m_circleFillBuffer, m_circleFillVertexCount, false);
     }
     
     m_circleFillVertexCount = 0;
@@ -663,15 +692,12 @@ void Renderer2DD3D11::FlushRects()
     g_renderer->StartFlushTiming("Rects");
     IncrementDrawCall("rects");
     
-    UploadVertexDataToVBO(m_rectVBO, m_rectVertices, m_rectVertexCount, 0);
-    
-    ID3D11Buffer* buffer = GetVBOFromID(m_rectVBO);
-    if (m_deviceContext && buffer)
+    if (m_rectBuffer && UpdateBufferData(m_rectBuffer, m_rectVertices, m_rectVertexCount)) 
     {
         SetColorShaderUniforms();
         UINT stride = sizeof(Vertex2D);
         UINT offset = 0;
-        m_deviceContext->IASetVertexBuffers(0, 1, &buffer, &stride, &offset);
+        m_deviceContext->IASetVertexBuffers(0, 1, &m_rectBuffer, &stride, &offset);
         m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
         m_deviceContext->Draw(m_rectVertexCount, 0);
     }
@@ -688,12 +714,9 @@ void Renderer2DD3D11::FlushRectFills()
     g_renderer->StartFlushTiming("Rect_Fills");
     IncrementDrawCall("rect_fills");
     
-    UploadVertexDataToVBO(m_rectFillVBO, m_rectFillVertices, m_rectFillVertexCount, 0);
-    
-    ID3D11Buffer* buffer = GetVBOFromID(m_rectFillVBO);
-    if (buffer) 
+    if (m_rectFillBuffer && UpdateBufferData(m_rectFillBuffer, m_rectFillVertices, m_rectFillVertexCount)) 
     {
-        DrawVertices(buffer, m_rectFillVertexCount, false);
+        DrawVertices(m_rectFillBuffer, m_rectFillVertexCount, false);
     }
     
     m_rectFillVertexCount = 0;
@@ -708,12 +731,9 @@ void Renderer2DD3D11::FlushTriangleFills()
     g_renderer->StartFlushTiming("Triangle_Fills");
     IncrementDrawCall("triangle_fills");
     
-    UploadVertexDataToVBO(m_triangleFillVBO, m_triangleFillVertices, m_triangleFillVertexCount, 0);
-    
-    ID3D11Buffer* buffer = GetVBOFromID(m_triangleFillVBO);
-    if (buffer) 
+    if (m_triangleFillBuffer && UpdateBufferData(m_triangleFillBuffer, m_triangleFillVertices, m_triangleFillVertexCount)) 
     {
-        DrawVertices(buffer, m_triangleFillVertexCount, false);
+        DrawVertices(m_triangleFillBuffer, m_triangleFillVertexCount, false);
     }
     
     m_triangleFillVertexCount = 0;
@@ -742,6 +762,20 @@ void Renderer2DD3D11::CleanupBuffers()
     if (m_transformConstantBuffer) { m_transformConstantBuffer->Release(); m_transformConstantBuffer = nullptr; }
     
     //
+    // Release persistent buffers
+    
+    if (m_lineBuffer) { m_lineBuffer->Release(); m_lineBuffer = nullptr; }
+    if (m_staticSpriteBuffer) { m_staticSpriteBuffer->Release(); m_staticSpriteBuffer = nullptr; }
+    if (m_rotatingSpriteBuffer) { m_rotatingSpriteBuffer->Release(); m_rotatingSpriteBuffer = nullptr; }
+    if (m_textBuffer) { m_textBuffer->Release(); m_textBuffer = nullptr; }
+    if (m_circleBuffer) { m_circleBuffer->Release(); m_circleBuffer = nullptr; }
+    if (m_circleFillBuffer) { m_circleFillBuffer->Release(); m_circleFillBuffer = nullptr; }
+    if (m_rectBuffer) { m_rectBuffer->Release(); m_rectBuffer = nullptr; }
+    if (m_rectFillBuffer) { m_rectFillBuffer->Release(); m_rectFillBuffer = nullptr; }
+    if (m_triangleFillBuffer) { m_triangleFillBuffer->Release(); m_triangleFillBuffer = nullptr; }
+    if (m_immediateBuffer) { m_immediateBuffer->Release(); m_immediateBuffer = nullptr; }
+    
+    //
     // Release all VBOs from map
 
     for (auto& pair : m_vboMap) 
@@ -766,21 +800,6 @@ void Renderer2DD3D11::CleanupBuffers()
     m_iboMap.clear();
     
     m_vaoMap.clear();
-    
-    //
-    // VBOs are just IDs and not pointers
-
-    m_textVBO = 0;
-    m_spriteVBO = 0;
-    m_rotatingSpriteVBO = 0;
-    m_lineVBO = 0;
-    m_circleVBO = 0;
-    m_circleFillVBO = 0;
-    m_rectVBO = 0;
-    m_rectFillVBO = 0;
-    m_triangleFillVBO = 0;
-    m_immediateVBO = 0;
-    m_VAO = 0;
     
     if (m_device) { m_device->Release(); m_device = nullptr; }
     if (m_deviceContext) { m_deviceContext->Release(); m_deviceContext = nullptr; }

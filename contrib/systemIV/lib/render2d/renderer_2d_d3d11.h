@@ -27,6 +27,16 @@ private:
     };
 
     ID3D11Buffer* m_transformConstantBuffer;
+    ID3D11Buffer* m_lineBuffer;
+    ID3D11Buffer* m_staticSpriteBuffer;
+    ID3D11Buffer* m_rotatingSpriteBuffer;
+    ID3D11Buffer* m_textBuffer;
+    ID3D11Buffer* m_circleBuffer;
+    ID3D11Buffer* m_circleFillBuffer;
+    ID3D11Buffer* m_rectBuffer;
+    ID3D11Buffer* m_rectFillBuffer;
+    ID3D11Buffer* m_triangleFillBuffer;
+    ID3D11Buffer* m_immediateBuffer;
 
     struct LineStripSegment 
     {
@@ -121,6 +131,7 @@ private:
 
     ID3D11Buffer* GetVBOFromID(unsigned int vbo);
     void SetupVBOs();
+    bool UpdateBufferData(ID3D11Buffer* buffer, const Vertex2D* vertices, int vertexCount);
     
     bool CheckHR(HRESULT hr, const char* operation);
     bool CheckHR(HRESULT hr, const char* operation, ID3DBlob* errorBlob);
