@@ -214,10 +214,10 @@ void RendererD3D11::CreateStateObjects()
     blendDesc.RenderTarget[0].BlendEnable = TRUE;
     blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
     blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].BlendOp = ConvertBlendOperation(BLEND_OP_ADD);
     blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
     blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-    blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+    blendDesc.RenderTarget[0].BlendOpAlpha = ConvertBlendOperation(BLEND_OP_ADD);
     hr = m_device->CreateBlendState(&blendDesc, &m_blendStateNormal);
     CheckHR(hr, "create normal blend state");
     
@@ -242,7 +242,7 @@ void RendererD3D11::CreateStateObjects()
     
     depthDesc.DepthEnable = TRUE;
     depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-    depthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+    depthDesc.DepthFunc = ConvertDepthComparisonFunc(DEPTH_COMPARISON_LESS);
     depthDesc.StencilEnable = FALSE;
     hr = m_device->CreateDepthStencilState(&depthDesc, &m_depthStateEnabled);
     CheckHR(hr, "create enabled depth state");
@@ -305,10 +305,10 @@ void RendererD3D11::CreateStateObjects()
     // Create sampler states
     
     D3D11_SAMPLER_DESC samplerDesc = {};
-    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-    samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    samplerDesc.AddressU = ConvertTextureAddressMode(TEXTURE_ADDRESS_CLAMP);
+    samplerDesc.AddressV = ConvertTextureAddressMode(TEXTURE_ADDRESS_CLAMP);
+    samplerDesc.AddressW = ConvertTextureAddressMode(TEXTURE_ADDRESS_CLAMP);
+    samplerDesc.ComparisonFunc = ConvertDepthComparisonFunc(DEPTH_COMPARISON_NEVER);
     samplerDesc.MinLOD = 0;
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
     samplerDesc.MipLODBias = 0.0f;
@@ -366,7 +366,7 @@ void RendererD3D11::ReleaseStateObjects()
 }
 
 // ============================================================================
-// HELPERS
+// DEBUG 
 // ============================================================================
 
 bool RendererD3D11::CheckHRResult(HRESULT hr, const char* operation)
@@ -437,9 +437,14 @@ bool RendererD3D11::CheckHR(HRESULT hr, const char* operation, ID3DBlob* errorBl
     return true;
 }
 
+// ============================================================================
+// ABSTRACTION HELPERS
+// ============================================================================
+
 D3D11_BLEND RendererD3D11::ConvertBlendFactor(int factor)
 {
-    switch (factor) {
+    switch (factor) 
+    {
         case BLEND_ZERO: return D3D11_BLEND_ZERO;
         case BLEND_ONE: return D3D11_BLEND_ONE;
         case BLEND_SRC_ALPHA: return D3D11_BLEND_SRC_ALPHA;
@@ -448,6 +453,52 @@ D3D11_BLEND RendererD3D11::ConvertBlendFactor(int factor)
         default: return D3D11_BLEND_ONE;
     }
 }
+
+D3D11_TEXTURE_ADDRESS_MODE RendererD3D11::ConvertTextureAddressMode(int mode)
+{
+    switch (mode) 
+    {
+        case TEXTURE_ADDRESS_CLAMP: return D3D11_TEXTURE_ADDRESS_CLAMP;
+        case TEXTURE_ADDRESS_REPEAT: return D3D11_TEXTURE_ADDRESS_WRAP;
+        case TEXTURE_ADDRESS_MIRROR: return D3D11_TEXTURE_ADDRESS_MIRROR;
+        case TEXTURE_ADDRESS_MIRROR_ONCE: return D3D11_TEXTURE_ADDRESS_MIRROR_ONCE;
+        case TEXTURE_ADDRESS_BORDER: return D3D11_TEXTURE_ADDRESS_BORDER;
+        default: return D3D11_TEXTURE_ADDRESS_CLAMP;
+    }
+}
+
+D3D11_COMPARISON_FUNC RendererD3D11::ConvertDepthComparisonFunc(int func)
+{
+    switch (func) 
+    {
+        case DEPTH_COMPARISON_NEVER: return D3D11_COMPARISON_NEVER;
+        case DEPTH_COMPARISON_LESS: return D3D11_COMPARISON_LESS;
+        case DEPTH_COMPARISON_EQUAL: return D3D11_COMPARISON_EQUAL;
+        case DEPTH_COMPARISON_LESS_EQUAL: return D3D11_COMPARISON_LESS_EQUAL;
+        case DEPTH_COMPARISON_GREATER: return D3D11_COMPARISON_GREATER;
+        case DEPTH_COMPARISON_NOT_EQUAL: return D3D11_COMPARISON_NOT_EQUAL;
+        case DEPTH_COMPARISON_GREATER_EQUAL: return D3D11_COMPARISON_GREATER_EQUAL;
+        case DEPTH_COMPARISON_ALWAYS: return D3D11_COMPARISON_ALWAYS;
+        default: return D3D11_COMPARISON_LESS;
+    }
+}
+
+D3D11_BLEND_OP RendererD3D11::ConvertBlendOperation(int op)
+{
+    switch (op) 
+    {
+        case BLEND_OP_ADD: return D3D11_BLEND_OP_ADD;
+        case BLEND_OP_SUBTRACT: return D3D11_BLEND_OP_SUBTRACT;
+        case BLEND_OP_REV_SUBTRACT: return D3D11_BLEND_OP_REV_SUBTRACT;
+        case BLEND_OP_MIN: return D3D11_BLEND_OP_MIN;
+        case BLEND_OP_MAX: return D3D11_BLEND_OP_MAX;
+        default: return D3D11_BLEND_OP_ADD;
+    }
+}
+
+// ============================================================================
+// BLEND MODES AND DEPTH
+// ============================================================================
 
 void RendererD3D11::UpdateBlendState()
 {
@@ -555,28 +606,28 @@ void RendererD3D11::SetupBlendDescForMode(D3D11_BLEND_DESC& blendDesc, int blend
             blendDesc.RenderTarget[0].BlendEnable = TRUE;
             blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
             blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-            blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+            blendDesc.RenderTarget[0].BlendOp = ConvertBlendOperation(BLEND_OP_ADD);
             blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
             blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-            blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+            blendDesc.RenderTarget[0].BlendOpAlpha = ConvertBlendOperation(BLEND_OP_ADD);
             break;
         case BlendModeAdditive:
             blendDesc.RenderTarget[0].BlendEnable = TRUE;
             blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
             blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
-            blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+            blendDesc.RenderTarget[0].BlendOp = ConvertBlendOperation(BLEND_OP_ADD);
             blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
             blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-            blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+            blendDesc.RenderTarget[0].BlendOpAlpha = ConvertBlendOperation(BLEND_OP_ADD);
             break;
         case BlendModeSubtractive:
             blendDesc.RenderTarget[0].BlendEnable = TRUE;
             blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
             blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_COLOR;
-            blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+            blendDesc.RenderTarget[0].BlendOp = ConvertBlendOperation(BLEND_OP_ADD);
             blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
             blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-            blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+            blendDesc.RenderTarget[0].BlendOpAlpha = ConvertBlendOperation(BLEND_OP_ADD);
             break;
     }
 }
@@ -945,7 +996,7 @@ void RendererD3D11::SetDepthMask(bool enabled)
             D3D11_DEPTH_STENCIL_DESC desc = {};
             desc.DepthEnable = m_depthTestEnabled;
             desc.DepthWriteMask = enabled ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
-            desc.DepthFunc = D3D11_COMPARISON_LESS;
+            desc.DepthFunc = ConvertDepthComparisonFunc(DEPTH_COMPARISON_LESS);
             desc.StencilEnable = FALSE;
             
             ID3D11DepthStencilState* newState = nullptr;

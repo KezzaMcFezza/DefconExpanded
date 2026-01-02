@@ -174,7 +174,10 @@ private:
     void ReleaseStateObjects();
     void GetDeviceAndContext();
     
-    D3D11_BLEND ConvertBlendFactor(int factor);
+    D3D11_BLEND                ConvertBlendFactor(int factor);
+    D3D11_TEXTURE_ADDRESS_MODE ConvertTextureAddressMode(int mode);
+    D3D11_COMPARISON_FUNC      ConvertDepthComparisonFunc(int func);
+    D3D11_BLEND_OP             ConvertBlendOperation(int op);
     
     ID3D11RasterizerState* SelectRasterizerState(bool scissorEnabled, bool cullEnabled, int cullMode);
     

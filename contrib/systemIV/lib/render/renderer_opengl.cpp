@@ -895,6 +895,45 @@ void RendererOpenGL::SaveScreenshot()
 }
 
 // ============================================================================
+// ABSTRACTION HELPERS
+// ============================================================================
+
+GLenum RendererOpenGL::ConvertTextureAddressMode(int mode)
+{
+    switch (mode) 
+    {
+        case TEXTURE_ADDRESS_CLAMP: return GL_CLAMP_TO_EDGE;
+        case TEXTURE_ADDRESS_REPEAT: return GL_REPEAT;
+        case TEXTURE_ADDRESS_MIRROR: return GL_MIRRORED_REPEAT;
+        case TEXTURE_ADDRESS_MIRROR_ONCE: 
+            // GL_MIRROR_CLAMP_TO_EDGE requires OpenGL 4.4+, fallback to GL_MIRRORED_REPEAT
+            #ifdef GL_MIRROR_CLAMP_TO_EDGE
+            return GL_MIRROR_CLAMP_TO_EDGE;
+            #else
+            return GL_MIRRORED_REPEAT;
+            #endif
+        case TEXTURE_ADDRESS_BORDER: return GL_CLAMP_TO_BORDER;
+        default: return GL_CLAMP_TO_EDGE;
+    }
+}
+
+GLenum RendererOpenGL::ConvertDepthComparisonFunc(int func)
+{
+    switch (func) 
+    {
+        case DEPTH_COMPARISON_NEVER: return GL_NEVER;
+        case DEPTH_COMPARISON_LESS: return GL_LESS;
+        case DEPTH_COMPARISON_EQUAL: return GL_EQUAL;
+        case DEPTH_COMPARISON_LESS_EQUAL: return GL_LEQUAL;
+        case DEPTH_COMPARISON_GREATER: return GL_GREATER;
+        case DEPTH_COMPARISON_NOT_EQUAL: return GL_NOTEQUAL;
+        case DEPTH_COMPARISON_GREATER_EQUAL: return GL_GEQUAL;
+        case DEPTH_COMPARISON_ALWAYS: return GL_ALWAYS;
+        default: return GL_LESS;
+    }
+}
+
+// ============================================================================
 // TEXTURE MANAGEMENT
 // ============================================================================
 
@@ -905,8 +944,8 @@ unsigned int RendererOpenGL::CreateTexture(int width, int height, const Colour* 
     glGenTextures(1, &texId);
     glBindTexture(GL_TEXTURE_2D, texId);
     
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ConvertTextureAddressMode(TEXTURE_ADDRESS_CLAMP));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ConvertTextureAddressMode(TEXTURE_ADDRESS_CLAMP));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     if (mipmapLevel > 0) 

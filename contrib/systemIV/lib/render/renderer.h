@@ -72,6 +72,33 @@ enum PrimitiveType {
     PRIMITIVE_LINES = 2
 };
 
+enum TextureAddressMode {
+    TEXTURE_ADDRESS_CLAMP = 0,
+    TEXTURE_ADDRESS_REPEAT = 1,
+    TEXTURE_ADDRESS_MIRROR = 2,
+    TEXTURE_ADDRESS_MIRROR_ONCE = 3,
+    TEXTURE_ADDRESS_BORDER = 4
+};
+
+enum DepthComparisonFunc {
+    DEPTH_COMPARISON_NEVER = 0,
+    DEPTH_COMPARISON_LESS = 1,
+    DEPTH_COMPARISON_EQUAL = 2,
+    DEPTH_COMPARISON_LESS_EQUAL = 3,
+    DEPTH_COMPARISON_GREATER = 4,
+    DEPTH_COMPARISON_NOT_EQUAL = 5,
+    DEPTH_COMPARISON_GREATER_EQUAL = 6,
+    DEPTH_COMPARISON_ALWAYS = 7
+};
+
+enum BlendOperation {
+    BLEND_OP_ADD = 0,
+    BLEND_OP_SUBTRACT = 1,
+    BLEND_OP_REV_SUBTRACT = 2,
+    BLEND_OP_MIN = 3,
+    BLEND_OP_MAX = 4
+};
+
 struct RendererFlushTiming {
     const char* name;
     double totalTime;

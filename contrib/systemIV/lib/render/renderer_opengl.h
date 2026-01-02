@@ -52,6 +52,9 @@ private:
     GLuint m_msaaColorRBO;
     GLuint m_msaaDepthRBO;
 
+    GLenum ConvertTextureAddressMode(int mode);
+    GLenum ConvertDepthComparisonFunc(int func);
+
 public:
     RendererOpenGL();
     virtual ~RendererOpenGL();
