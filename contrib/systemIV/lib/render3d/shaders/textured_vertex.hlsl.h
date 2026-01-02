@@ -27,8 +27,16 @@ struct VSOutput {
 cbuffer TransformBuffer : register(b0) {
     float4x4 uProjection;
     float4x4 uModelView;
-    float3 uCameraPos;
+};
+
+cbuffer FogBuffer : register(b1) {
+    bool uFogEnabled;
     bool uFogOrientationBased;
+    float uFogStart;
+    float uFogEnd;
+    float4 uFogColor;
+    float3 uCameraPos;
+    float padding;
 };
 
 VSOutput main(VSInput input) {

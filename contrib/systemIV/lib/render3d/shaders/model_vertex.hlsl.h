@@ -23,17 +23,27 @@ struct VSOutput {
 cbuffer TransformBuffer : register(b0) {
     float4x4 uProjection;
     float4x4 uModelView;
-    float4x4 uModelMatrix;
-    float4 uModelColor;
-    float3 uCameraPos;
-    bool uFogOrientationBased;
 };
 
-cbuffer InstanceBuffer : register(b1) {
+cbuffer FogBuffer : register(b1) {
+    int uFogEnabled;
+    int uFogOrientationBased;
+    float uFogStart;
+    float uFogEnd;
+    float4 uFogColor;
+    float3 uCameraPos;
+    float padding;
+};
+
+cbuffer ModelBuffer : register(b2) {
+    float4x4 uModelMatrix;
+    float4 uModelColor;
+    int uUseInstancing;
+    int uInstanceCount;
+    float padding1;
+    float padding2;
     float4x4 uModelMatrices[64];
     float4 uModelColors[64];
-    int uInstanceCount;
-    bool uUseInstancing;
 };
 
 VSOutput main(VSInput input, uint instanceID : SV_InstanceID) {
@@ -55,7 +65,7 @@ VSOutput main(VSInput input, uint instanceID : SV_InstanceID) {
     output.position = mul(uProjection, viewPos);
     output.vertexColor = input.aColor * modelColor;
     
-    if (uFogOrientationBased) {
+    if (uFogOrientationBased != 0) {
         float3 surfaceNormal = normalize(worldPos.xyz);
         float3 cameraDir = normalize(uCameraPos - worldPos.xyz);
         float dotProduct = dot(surfaceNormal, cameraDir);
