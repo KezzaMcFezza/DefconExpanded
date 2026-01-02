@@ -912,7 +912,14 @@ GLenum RendererOpenGL::ConvertTextureAddressMode(int mode)
             #else
             return GL_MIRRORED_REPEAT;
             #endif
-        case TEXTURE_ADDRESS_BORDER: return GL_CLAMP_TO_BORDER;
+        case TEXTURE_ADDRESS_BORDER: 
+            // GL_CLAMP_TO_BORDER is not available in OpenGL ES
+            // Fall back to GL_CLAMP_TO_EDGE which clamps to edge pixels
+            #ifdef GL_CLAMP_TO_BORDER
+            return GL_CLAMP_TO_BORDER;
+            #else
+            return GL_CLAMP_TO_EDGE;
+            #endif
         default: return GL_CLAMP_TO_EDGE;
     }
 }
