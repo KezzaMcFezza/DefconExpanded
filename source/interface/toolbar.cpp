@@ -347,7 +347,7 @@ public:
         float mouseX = g_inputManager->m_mouseX;
         float mouseY = g_inputManager->m_mouseY;
 
-        if( mouseX >= realX && mouseY >= realY &&
+        if( !m_disabled && mouseX >= realX && mouseY >= realY &&
             mouseX <= realX+m_w &&
             mouseY <= realY+m_h )
         {
@@ -369,6 +369,11 @@ public:
     }
     void MouseUp()
     {
+        if( m_disabled )
+        {
+            return;
+        }
+
         if( m_hoverToggle )
         {
             *m_value = false;
@@ -385,6 +390,26 @@ public:
         {
             *m_value = true;        
         }
+    }
+};
+
+
+class RadarButton : public ToggleBoolButton
+{
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {
+        m_disabled = g_app->m_globeMode;
+        ToggleBoolButton::Render( realX, realY, highlighted, clicked );
+    }
+};
+
+
+class TerritoryButton : public ToggleBoolButton
+{
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {
+        m_disabled = g_app->m_globeMode;
+        ToggleBoolButton::Render( realX, realY, highlighted, clicked );
     }
 };
 
@@ -560,10 +585,9 @@ void Toolbar::Create()
     strcpy(scores->m_iconFilename, "gui/tb_scores.bmp" );
     RegisterButton( scores );
 
-    ToggleBoolButton *radar = new ToggleBoolButton();
+    RadarButton *radar = new RadarButton();
     radar->SetProperties( "Radar", x+=gap, y, iconSize, iconSize, "dialog_toolbar_radar", "tooltip_toolbar_radar", true, true );  
     radar->m_value = &g_app->GetWorldRenderer()->m_showRadar;
-    radar->m_disabled = g_app->m_globeMode;
     strcpy(radar->m_iconFilename, "gui/tb_radar.bmp");
     RegisterButton( radar );
 
@@ -579,10 +603,9 @@ void Toolbar::Create()
     strcpy(orders->m_iconFilename, "gui/tb_orders.bmp");
     RegisterButton( orders );
 
-    ToggleBoolButton *territory = new ToggleBoolButton();
+    TerritoryButton *territory = new TerritoryButton();
     territory->SetProperties( "Territory", x+=gap, y, iconSize, iconSize, "dialog_toolbar_territory", "tooltip_toolbar_territory", true, true );
     territory->m_value = &g_app->GetMapRenderer()->m_showAllTeams;
-    territory->m_disabled = g_app->m_globeMode;
     strcpy(territory->m_iconFilename, "gui/tb_territory.bmp");
     RegisterButton( territory );
 
