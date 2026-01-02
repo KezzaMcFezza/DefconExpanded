@@ -4,7 +4,10 @@
 #include "window_manager_d3d11.h"
 #include "lib/debug_utils.h"
 #include "lib/preferences.h"
+#include "lib/profiler.h"
 #include "input.h"
+
+#include "lib/render/renderer_d3d11.h"
 
 #include <stdio.h>
 #include <shellapi.h>
@@ -840,16 +843,16 @@ void WindowManagerD3D11::HandleResize(int newWidth, int newHeight)
     m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
     
     //
-    // Update viewport
+    // Resize MSAA framebuffer if the renderer is using it
 
-    D3D11_VIEWPORT viewport = {};
-    viewport.TopLeftX = 0;
-    viewport.TopLeftY = 0;
-    viewport.Width = static_cast<float>(newWidth);
-    viewport.Height = static_cast<float>(newHeight);
-    viewport.MinDepth = 0.0f;
-    viewport.MaxDepth = 1.0f;
-    m_deviceContext->RSSetViewports(1, &viewport);
+    if (g_renderer) 
+    {
+        RendererD3D11* rendererD3D11 = dynamic_cast<RendererD3D11*>(g_renderer);
+        if (rendererD3D11)
+        {
+            rendererD3D11->ResizeMSAAFramebuffer(newWidth, newHeight);
+        }
+    }
     
     //
     // Call user resize handler
