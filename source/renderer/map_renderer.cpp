@@ -191,7 +191,8 @@ void MapRenderer::Render()
     GetWindowBounds( &left, &right, &top, &bottom );
 
     // Render the landscape first to avoid object clipping at map edges
-    for( int x = 0; x < 2; ++x )
+    int iterations = GetSeamIterationCount( left, right );
+    for( int x = 0; x < iterations; ++x )
     {
         g_renderer2d->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
         Colour blurColour = g_styleTable->GetPrimaryColour( STYLE_WORLD_LAND );
@@ -224,15 +225,20 @@ void MapRenderer::Render()
         g_renderer2d->EndLineBatch();
         g_renderer2d->EndTextBatch();
 		
-        left += GetLongitudeMod();
-        right += GetLongitudeMod();
+        if( x < iterations - 1 )
+        {
+            left += GetLongitudeMod();
+            right += GetLongitudeMod();
+        }
     }
 
     //
     // Now go through and render objects on top of the landscape.
 
     GetWindowBounds( &left, &right, &top, &bottom );
-    for( int x = 0; x < 2; ++x )
+    iterations = GetSeamIterationCount( left, right );
+    
+    for( int x = 0; x < iterations; ++x )
     {
         m_seamIteration = x;  // Track which iteration we're in for seam wrapping
         g_renderer2d->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
@@ -318,15 +324,20 @@ void MapRenderer::Render()
             RenderRadar();
         }
 
-        left += GetLongitudeMod();
-        right += GetLongitudeMod();
+        if( x < iterations - 1 )
+        {
+            left += GetLongitudeMod();
+            right += GetLongitudeMod();
+        }
     }    
 
     //
     // render mouse seperately to prevent object info boxes being covered by territory areas
 
     GetWindowBounds( &left, &right, &top, &bottom );
-    for( int x = 0; x < 2; ++x )
+    iterations = GetSeamIterationCount( left, right );
+    
+    for( int x = 0; x < iterations; ++x )
     {
         m_seamIteration = x;  // Track which iteration we're in for seam wrapping
         g_renderer2d->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
@@ -373,8 +384,11 @@ void MapRenderer::Render()
 
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );    // reset blend mode after flush
         
-        left += GetLongitudeMod();
-        right += GetLongitudeMod();
+        if( x < iterations - 1 )
+        {
+            left += GetLongitudeMod();
+            right += GetLongitudeMod();
+        }
     }
 
     END_PROFILE( "MapRenderer" );
@@ -4440,6 +4454,18 @@ int MapRenderer::GetLongitudeMod()
     {
         return -360;
     }
+}
+
+int MapRenderer::GetSeamIterationCount( float left, float right )
+{
+    //
+    // Check if viewport crosses the -180/+180 longitude seam
+    // If it does, we need 2 iterations for proper seam wrapping
+    // Otherwise, only 1 iteration is needed to avoid unnecessary 
+    // draw calls and driver overhead
+
+    bool needsSeamWrap = (left < -180.0f) || (right > 180.0f);
+    return needsSeamWrap ? 2 : 1;
 }
 
 void MapRenderer::UpdateSelectionAnimation( int id )
