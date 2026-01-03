@@ -632,7 +632,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/gucci/input.cpp
     ${SYSTEMIV_PATH}/lib/gucci/input_sdl.cpp
     ${SYSTEMIV_PATH}/lib/gucci/window_manager.cpp
-    ${SYSTEMIV_PATH}/lib/gucci/window_manager_sdl.cpp
+    ${SYSTEMIV_PATH}/lib/gucci/window_manager_opengl.cpp
     ${SYSTEMIV_PATH}/lib/netlib/net_lib.cpp
     ${SYSTEMIV_PATH}/lib/netlib/net_socket.cpp
     ${SYSTEMIV_PATH}/lib/netlib/net_socket_listener.cpp

@@ -7,8 +7,6 @@
 #include "lib/profiler.h"
 #include "input.h"
 
-#include "lib/render/renderer_d3d11.h"
-
 #include <stdio.h>
 #include <shellapi.h>
 #include <SDL2/SDL.h>
@@ -18,7 +16,6 @@
 WindowManagerD3D11::WindowManagerD3D11()
     : m_hwnd(nullptr),
       m_hInstance(nullptr),
-      m_sdlWindow(nullptr),
       m_device(nullptr),
       m_deviceContext(nullptr),
       m_swapChain(nullptr),
@@ -26,213 +23,15 @@ WindowManagerD3D11::WindowManagerD3D11()
       m_depthStencilBuffer(nullptr),
       m_depthStencilView(nullptr),
       m_featureLevel(D3D_FEATURE_LEVEL_11_0),
-      m_tryingToCaptureMouse(false),
-      m_vsyncEnabled(false),
-      m_windowDisplayIndex(0),
-      m_isMaximized(false)
+      m_vsyncEnabled(false)
 {
     m_hInstance = GetModuleHandle(nullptr);
-    
-    AppReleaseAssert(SDL_Init(SDL_INIT_VIDEO) == 0, "Couldn't initialise SDL");
-    
-    m_windowDisplayIndex = GetDefaultDisplayIndex();
-    ListAllDisplayModes(m_windowDisplayIndex);
-    SaveDesktop();
 }
 
 WindowManagerD3D11::~WindowManagerD3D11()
 {
     DestroyWin();
-    
-    while (m_resolutions.ValidIndex(0))
-    {
-        WindowResolution *res = m_resolutions.GetData(0);
-        delete res;
-        m_resolutions.RemoveData(0);
-    }
-    m_resolutions.EmptyAndDelete();
-    
-    SDL_Quit();
 }
-
-
-static int GetDisplayIndexForPoint(int x, int y)
-{
-    int numVideoDisplays = SDL_GetNumVideoDisplays();
-    
-    for (int displayIndex = 0; displayIndex < numVideoDisplays; ++displayIndex)
-    {
-        SDL_Rect bounds;
-        SDL_GetDisplayBounds(displayIndex, &bounds);
-        
-        SDL_Point mouse = { x, y };
-        if (SDL_PointInRect(&mouse, &bounds))
-        {
-            return displayIndex;
-        }
-    }
-    
-#ifdef _DEBUG
-    AppDebugOut("GetDisplayIndexForPoint() could not determine which display is under (%d, %d), returning first display.\n", x, y);
-#endif
-    return 0;
-}
-
-
-int WindowManagerD3D11::GetDefaultDisplayIndex()
-{
-    int x, y;
-    SDL_GetGlobalMouseState(&x, &y);
-    
-    return GetDisplayIndexForPoint(x, y);
-}
-
-
-void WindowManagerD3D11::ListAllDisplayModes(int displayIndex)
-{
-    SDL_Rect bounds;
-    SDL_GetDisplayBounds(displayIndex, &bounds);
-    
-    m_resolutions.EmptyAndDelete();
-    
-    for (int modeIndex = 0; modeIndex < SDL_GetNumDisplayModes(displayIndex); ++modeIndex)
-    {
-        SDL_DisplayMode mode;
-        SDL_GetDisplayMode(displayIndex, modeIndex, &mode);
-        
-        //
-        // Skip low quality modes
-
-        if (SDL_BITSPERPIXEL(mode.format) < 15 || mode.w < 640 || mode.h < 480)
-            continue;
-        
-        //
-        // Skip high DPI resolutions
-
-        if (mode.w > bounds.w || mode.h > bounds.h)
-            continue;
-        
-        int resId = GetResolutionId(mode.w, mode.h);
-        WindowResolution *res;
-        
-        if (resId == -1)
-        {
-            res = new WindowResolution(mode.w, mode.h);
-            m_resolutions.PutData(res);
-        }
-        else
-        {
-            res = m_resolutions[resId];
-        }
-        
-        if (mode.refresh_rate != 0)
-        {
-            //
-            // Only add if this refresh rate isn't already in the list
-
-            if (res->m_refreshRates.FindData(mode.refresh_rate) == -1)
-            {
-                res->m_refreshRates.PutDataAtEnd(mode.refresh_rate);
-            }
-        }
-    }
-}
-
-
-void WindowManagerD3D11::SaveDesktop()
-{
-    int displayIndex = GetDefaultDisplayIndex();
-    
-    SDL_DisplayMode desktopMode;
-    if (SDL_GetDesktopDisplayMode(displayIndex, &desktopMode) != 0)
-    {
-        #ifdef _DEBUG
-        AppDebugOut("Couldn't get desktop display mode for display: %d, error: %s\n", displayIndex, SDL_GetError());
-        #endif
-
-        SDL_Rect displayBounds;
-        if (SDL_GetDisplayBounds(displayIndex, &displayBounds) != 0)
-        {
-            #ifdef _DEBUG
-            AppDebugOut("Still couldn't get display bounds, error: %s\n", SDL_GetError());
-            AppDebugOut("Using 1024x768 as fallback resolution\n");
-            #endif
-            m_desktopScreenW = 1024;
-            m_desktopScreenH = 768;
-        }
-        else
-        {
-            m_desktopScreenW = displayBounds.w;
-            m_desktopScreenH = displayBounds.h;
-            #ifdef _DEBUG
-            AppDebugOut("Successfully got display bounds: %dx%d\n", m_desktopScreenW, m_desktopScreenH);
-            #endif
-        }
-    }
-    else
-    {
-        m_desktopScreenW = desktopMode.w;
-        m_desktopScreenH = desktopMode.h;
-        AppDebugOut("Desktop resolution determined to be: %dx%d\n", m_desktopScreenW, m_desktopScreenH);
-    }
-    
-    m_desktopColourDepth = SDL_BITSPERPIXEL(desktopMode.format);
-    m_desktopRefresh = desktopMode.refresh_rate;
-}
-
-
-void WindowManagerD3D11::RestoreDesktop()
-{
-    // SDL handles this
-}
-
-
-void WindowManagerD3D11::CalculateHighDPIScaleFactors()
-{
-    if (!m_sdlWindow)
-        return;
-    
-    int clientW, clientH;
-    SDL_GetWindowSize(m_sdlWindow, &clientW, &clientH);
-    
-    int drawableW, drawableH;
-    SDL_GL_GetDrawableSize(m_sdlWindow, &drawableW, &drawableH);
-    
-    m_highDPIScaleX = (float)drawableW / clientW;
-    m_highDPIScaleY = (float)drawableH / clientH;
-}
-
-
-void WindowManagerD3D11::WindowHasMoved()
-{
-    CalculateHighDPIScaleFactors();
-    
-    m_windowDisplayIndex = SDL_GetWindowDisplayIndex(m_sdlWindow);
-    ListAllDisplayModes(m_windowDisplayIndex);
-}
-
-
-void WindowManagerD3D11::UpdateStoredMaximizedState()
-{
-    if (!m_sdlWindow || !g_preferences)
-        return;
-    
-    Uint32 windowFlags = SDL_GetWindowFlags(m_sdlWindow);
-    bool currentlyMaximized = false;
-    
-    if (m_windowed && !(windowFlags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)))
-    {
-        currentlyMaximized = (windowFlags & SDL_WINDOW_MAXIMIZED) != 0;
-    }
-    
-    if (currentlyMaximized == m_isMaximized)
-        return;
-    
-    m_isMaximized = currentlyMaximized;
-    g_preferences->SetInt(PREFS_SCREEN_MAXIMIZED, m_isMaximized ? 1 : 0);
-}
-
-
 
 bool WindowManagerD3D11::InitializeDirectX(int width, int height, bool windowed, int msaaSamples)
 {
@@ -512,12 +311,12 @@ bool WindowManagerD3D11::CreateWin(int _width, int _height, bool _windowed, int 
     SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
     
     m_windowed = _windowed;
-    
+
     SDL_Rect displayBounds;
     SDL_GetDisplayBounds(displayIndex, &displayBounds);
-    
+
     //
-    // Set flags for creating the window
+    // Set the flags for creating the mode
 
     int flags = SDL_WINDOW_ALLOW_HIGHDPI;
     bool requestMaximized = false;
@@ -526,7 +325,7 @@ bool WindowManagerD3D11::CreateWin(int _width, int _height, bool _windowed, int 
     {
         //
         // Fullscreen mode
-
+        
         if (_borderless)
         {
             flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -711,8 +510,13 @@ bool WindowManagerD3D11::CreateWin(int _width, int _height, bool _windowed, int 
         }
     }
     
-    CalculateHighDPIScaleFactors();
     UpdateStoredMaximizedState();
+
+    if (requestMaximized)
+    {
+        SDL_GetWindowSize(m_sdlWindow, &m_screenW, &m_screenH);
+        UpdateStoredMaximizedState();
+    }
 
     if (!m_mousePointerVisible)
         HideMousePointer();
@@ -768,8 +572,6 @@ void WindowManagerD3D11::HandleResize(int newWidth, int newHeight)
     
     Uint32 windowFlags = SDL_GetWindowFlags(m_sdlWindow);
     
-    UpdateStoredMaximizedState();
-    
     //
     // Dont resize in fullscreen mode
 
@@ -779,35 +581,8 @@ void WindowManagerD3D11::HandleResize(int newWidth, int newHeight)
     if (newWidth == m_screenW && newHeight == m_screenH)
         return;
     
-    int oldWidth = m_screenW;
-    int oldHeight = m_screenH;
-    
-    m_screenW = newWidth;
-    m_screenH = newHeight;
-    
-    CalculateHighDPIScaleFactors();
-    
     //
-    // Check if window moved to a different display
-
-    int newDisplayIndex = SDL_GetWindowDisplayIndex(m_sdlWindow);
-    if (newDisplayIndex >= 0 && newDisplayIndex != m_windowDisplayIndex)
-    {
-        m_windowDisplayIndex = newDisplayIndex;
-        ListAllDisplayModes(m_windowDisplayIndex);
-    }
-    
-    //
-    // Add current resolution to list if not present
-
-    if (GetResolutionId(newWidth, newHeight) == -1)
-    {
-        WindowResolution *res = new WindowResolution(newWidth, newHeight);
-        m_resolutions.PutData(res);
-    }
-    
-    //
-    // Release old DirectX resources
+    // Release render targets before resizing
 
     if (m_renderTargetView)
     {
@@ -834,177 +609,13 @@ void WindowManagerD3D11::HandleResize(int newWidth, int newHeight)
         return;
     }
     
-    //
-    // Recreate render target and depth stencil views
-
     CreateRenderTargetView();
     CreateDepthStencilView(newWidth, newHeight);
-    
     m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
     
-    //
-    // Resize MSAA framebuffer if the renderer is using it
-
-    if (g_renderer) 
-    {
-        RendererD3D11* rendererD3D11 = dynamic_cast<RendererD3D11*>(g_renderer);
-        if (rendererD3D11)
-        {
-            rendererD3D11->ResizeMSAAFramebuffer(newWidth, newHeight);
-        }
-    }
-    
-    //
-    // Call user resize handler
-
-    if (m_windowResizeHandler)
-    {
-        m_windowResizeHandler(newWidth, newHeight, oldWidth, oldHeight);
-    }
+    WindowManager::HandleResize(newWidth, newHeight);
 }
 
 
-void WindowManagerD3D11::PollForMessages()
-{
-    SDL_Event sdlEvent;
-    
-    while (SDL_PollEvent(&sdlEvent))
-    {
-        if (sdlEvent.type == SDL_WINDOWEVENT)
-        {
-            switch (sdlEvent.window.event)
-            {
-                case SDL_WINDOWEVENT_MOVED:
-                    WindowHasMoved();
-                    break;
-                
-                case SDL_WINDOWEVENT_SIZE_CHANGED:
-                case SDL_WINDOWEVENT_RESIZED:
-                case SDL_WINDOWEVENT_MAXIMIZED:
-                case SDL_WINDOWEVENT_RESTORED:
-                    HandleResize(sdlEvent.window.data1, sdlEvent.window.data2);
-                    break;
-                
-                default:
-                    break;
-            }
-        }
-            
-        //
-        // Quit event
-
-        if (sdlEvent.type == SDL_QUIT)
-        {
-            if (g_inputManager)
-            {
-                g_inputManager->m_quitRequested = true;
-            }
-        }
-        
-        //
-        // Pass all SDL events to input manager
-
-        if (g_inputManager)
-        {
-            int result = g_inputManager->EventHandler(sdlEvent.type, (long long)&sdlEvent, 0);
-            
-            if (result == -1 && m_secondaryMessageHandler)
-            {
-                m_secondaryMessageHandler(sdlEvent.type, (long long)&sdlEvent, 0);
-            }
-        }
-    }
-    
-    if (m_tryingToCaptureMouse)
-    {
-        CaptureMouse();
-    }
-}
-
-
-void WindowManagerD3D11::SetMousePos(int x, int y)
-{
-    if (!m_sdlWindow)
-        return;
-    
-    float scaleX = (float)PhysicalWindowW() / (float)WindowW();
-    float scaleY = (float)PhysicalWindowH() / (float)WindowH();
-    
-    int physicalX = (int)(x * scaleX);
-    int physicalY = (int)(y * scaleY);
-    
-    SDL_WarpMouseInWindow(m_sdlWindow, physicalX, physicalY);
-}
-
-
-void WindowManagerD3D11::CaptureMouse()
-{
-    //
-    // Dont grab if we don't have focus
-
-    if (!g_inputManager || !g_inputManager->m_windowHasFocus)
-    {
-        m_tryingToCaptureMouse = true;
-        return;
-    }
-    
-    if (!m_sdlWindow)
-        return;
-    
-    //
-    // Dont grab until mouse is in the window
-
-    int windowFlags = SDL_GetWindowFlags(m_sdlWindow);
-    if (!(windowFlags & SDL_WINDOW_MOUSE_FOCUS))
-    {
-        m_tryingToCaptureMouse = true;
-        return;
-    }
-    
-    SDL_SetRelativeMouseMode(SDL_TRUE);
-    m_mouseCaptured = true;
-    m_tryingToCaptureMouse = false;
-}
-
-
-void WindowManagerD3D11::UncaptureMouse()
-{
-    if (m_sdlWindow)
-    {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-    }
-    
-    m_mouseCaptured = false;
-    m_tryingToCaptureMouse = false;
-}
-
-
-void WindowManagerD3D11::HideMousePointer()
-{
-    SDL_ShowCursor(SDL_DISABLE);
-    m_mousePointerVisible = false;
-}
-
-
-void WindowManagerD3D11::UnhideMousePointer()
-{
-    SDL_ShowCursor(SDL_ENABLE);
-    m_mousePointerVisible = true;
-}
-
-
-void WindowManagerD3D11::HideWin()
-{
-    if (m_sdlWindow)
-    {
-        SDL_HideWindow(m_sdlWindow);
-    }
-}
-
-
-void WindowManagerD3D11::OpenWebsite(const char *_url)
-{
-    ShellExecute(nullptr, "open", _url, nullptr, nullptr, SW_SHOWNORMAL);
-}
 
 #endif // RENDERER_DIRECTX11

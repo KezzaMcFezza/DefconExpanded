@@ -2,7 +2,7 @@
 #define INCLUDED_WINDOW_MANAGER_H
 
 #include "lib/tosser/llist.h"
-
+#include <SDL2/SDL.h>
 
 class WindowResolution;
 
@@ -27,19 +27,21 @@ public:
 											 int _antiAlias, bool _borderless,
 		                                     const char *_title ) = 0;
 
-	virtual void		HideWin				() = 0;
+	virtual void		HideWin				();
+	virtual void        CalculateHighDPIScaleFactors();
 	virtual void        DestroyWin          () = 0;
 	virtual void        Flip                () = 0;
-	virtual void        PollForMessages     () = 0;
-	virtual void        SetMousePos         (int x, int y) = 0;
+	virtual void        PollForMessages     ();
+	virtual void        SetMousePos         (int x, int y);
+	virtual void        HandleResize        (int newWidth, int newHeight);
 
-	virtual void        CaptureMouse        () = 0;
-	virtual void        UncaptureMouse      () = 0;
+	virtual void        CaptureMouse        ();
+	virtual void        UncaptureMouse      ();
 
-	virtual void        HideMousePointer    () = 0;
-	virtual void        UnhideMousePointer  () = 0;
+	virtual void        HideMousePointer    ();
+	virtual void        UnhideMousePointer  ();
 
-    virtual void        OpenWebsite			( const char *_url ) = 0;
+    virtual void        OpenWebsite			(const char *_url);
 
     int         		WindowW				() { return GetLogicalWidth(); }
     int         		WindowH				() { return GetLogicalHeight(); }
@@ -70,11 +72,20 @@ public:
     
     void                RegisterWindowResizeHandler(WindowResizeHandler _handler);
     WindowResizeHandler GetWindowResizeHandler();
+    
+    void        SaveDesktop         ();
+    void        RestoreDesktop      ();
+    void        ListAllDisplayModes (int displayIndex);
+    void        WindowHasMoved      ();
+    void        UpdateStoredMaximizedState();
+    int         GetDefaultDisplayIndex();
 
-public:
     LList		<WindowResolution *> m_resolutions;
 
 protected:
+	void        InitializeSDL       ();
+	void        CleanupResolutions  ();
+
 	int			m_screenW;	
 	int			m_screenH;	
 	bool        m_windowed; 
@@ -95,8 +106,15 @@ protected:
     float       m_highDPIScaleX;
     float       m_highDPIScaleY;
 
+	static int  GetDisplayIndexForPoint(int x, int y);
+
     SecondaryEventHandler m_secondaryMessageHandler;
     WindowResizeHandler m_windowResizeHandler;
+    
+    SDL_Window* m_sdlWindow;
+    int         m_windowDisplayIndex;
+    bool        m_isMaximized;
+    bool        m_tryingToCaptureMouse;
 };
 
 

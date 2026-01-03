@@ -137,9 +137,6 @@
     <ClCompile Include="..\..\contrib\SystemIV\lib\gucci\window_manager.cpp">
       <Filter>lib\gucci</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\window_manager_sdl.cpp">
-      <Filter>lib\gucci</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\math\fixed_64.cpp">
       <Filter>lib\math</Filter>
     </ClCompile>
@@ -332,7 +329,6 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\math\invert_matrix.cpp">
       <Filter>lib\math</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\window_manager_d3d11.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_d3d11.cpp">
       <Filter>lib\render</Filter>
     </ClCompile>
@@ -350,6 +346,12 @@
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_d3d11.cpp">
       <Filter>lib\render3d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\window_manager_opengl.cpp">
+      <Filter>lib\gucci</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\gucci\window_manager_d3d11.cpp">
+      <Filter>lib\gucci</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -469,9 +471,6 @@
       <Filter>lib\gucci</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\gucci\window_manager.h">
-      <Filter>lib\gucci</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\window_manager_sdl.h">
       <Filter>lib\gucci</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\math\fixed.h">
@@ -672,7 +671,6 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\math\invert_matrix.h">
       <Filter>lib\math</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\window_manager_d3d11.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_d3d11.h">
       <Filter>lib\render</Filter>
     </ClInclude>
@@ -717,6 +715,12 @@
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_d3d11.h">
       <Filter>lib\render3d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\window_manager_opengl.h">
+      <Filter>lib\gucci</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\gucci\window_manager_d3d11.h">
+      <Filter>lib\gucci</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
