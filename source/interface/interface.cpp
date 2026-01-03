@@ -375,56 +375,7 @@ void Interface::Update()
 		g_app->ReinitialiseWindow();
 		s_toggleFullscreen = false;
 	}
-		
-	if( g_keyDeltas[KEY_ESC] )
-    {
-#if TARGET_EMSCRIPTEN
-        // REPLAY VIEWER MODE: Block escape key from opening main menu
-        // Still allow panic key functionality (office mode)
-        bool panicKeyEnabled = g_preferences->GetInt(PREFS_INTERFACE_PANICKEY);
-        bool officeMode = (g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_OFFICEMODE);
-        if( officeMode ) panicKeyEnabled = true;
-
-        if( panicKeyEnabled && m_escTimer > 0.0f )
-        {
-            g_app->HideWindow();
-            m_escTimer = 0.0f;
-            g_keys[KEY_ESC] = 0;
-            g_keyDeltas[KEY_ESC] = 0;
-        }
-        
-        // DO NOT register main menu in replay viewer mode
-        m_escTimer = 0.5f;
-#else
-        //
-        // NORMAL MODE: Standard escape key behavior
-        // panic key (double esc)
-
-        bool panicKeyEnabled = g_preferences->GetInt(PREFS_INTERFACE_PANICKEY);
-        bool officeMode = (g_app->GetGame()->GetOptionValue("GameMode") == GAMEMODE_OFFICEMODE);
-        if( officeMode ) panicKeyEnabled = true;
-
-        if( panicKeyEnabled && m_escTimer > 0.0f )
-        {
-            g_app->HideWindow();
-            m_escTimer = 0.0f;
-            g_keys[KEY_ESC] = 0;
-            g_keyDeltas[KEY_ESC] = 0;
-        }        
-        
-        if( !EclGetWindow( "Main Menu" ) )
-        {
-            EclRegisterWindow( new MainMenu() );
-        }
-        else
-        {
-            EclRemoveWindow( "Main Menu" );
-        }
-
-        m_escTimer = 0.5f;
-#endif
-    }
-
+	
 
     if( !g_app->m_gameRunning &&
         EclGetWindows()->Size() == 0 )

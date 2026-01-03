@@ -14,7 +14,6 @@ class Team;
 #define    PREFS_INTERFACE_POPUPSCALE                 "InterfacePopupScale"
 #define    PREFS_INTERFACE_SIDESCROLL                 "InterfaceSideScrolling"
 #define    PREFS_INTERFACE_CAMDRAGGING                "InterfaceCameraDragging"
-#define    PREFS_INTERFACE_PANICKEY                   "InterfacePanicKey"
 #define    PREFS_INTERFACE_STYLE                      "InterfaceStyle"
 #define    PREFS_INTERFACE_KEYBOARDLAYOUT             "InterfaceKeyboard"
 #define    PREFS_INTERFACE_ZOOM_SPEED                 "InterfaceZoomSpeed"

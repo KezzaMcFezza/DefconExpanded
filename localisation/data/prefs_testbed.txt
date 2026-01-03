@@ -38,7 +38,6 @@ InterfaceTooltips = 1
 InterfacePopupScale = 7.00
 InterfaceSideScrolling = 1
 InterfaceCameraDragging = 1
-InterfacePanicKey = 1
 InterfaceStyle = default.txt
 InterfaceZoomSpeed = 1.0
 InterfaceTextLanguage = english

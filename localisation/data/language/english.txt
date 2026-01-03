@@ -266,7 +266,6 @@ dialog_zoomspeed                    Zoom Speed
 dialog_camdragging                  Camera Dragging
 dialog_tooltips                     Show Tooltips
 dialog_popupscale                   Popup Scale
-dialog_panickey                     Panic Key
 dialog_language                     Language
 dialog_restart_required_language    Please restart Defcon for the language\nsettings to take affect.
 dialog_keyboardlayout               Keyboard Layout

@@ -1446,7 +1446,6 @@ class ApplyControlsButton : public InterfaceButton
         g_preferences->SetInt( PREFS_INTERFACE_CAMDRAGGING, cow->m_camDragging );
         g_preferences->SetInt( PREFS_INTERFACE_TOOLTIPS, cow->m_tooltips );
         g_preferences->SetFloat( PREFS_INTERFACE_POPUPSCALE, cow->m_popupScale );
-        g_preferences->SetInt( PREFS_INTERFACE_PANICKEY, cow->m_panicKey );
         g_preferences->SetInt( PREFS_INTERFACE_KEYBOARDLAYOUT, cow->m_keyboardLayout );
 
         g_preferences->Save();
@@ -1483,7 +1482,7 @@ class ApplyControlsButton : public InterfaceButton
 ControlOptionsWindow::ControlOptionsWindow()
 :   InterfaceWindow( "Interface", "dialog_controloptions", true )
 {
-    SetSize( 390, 420 );
+    SetSize( 390, 380 );
     Centralise();
 
     m_sideScrolling   = g_preferences->GetInt( PREFS_INTERFACE_SIDESCROLL );
@@ -1491,7 +1490,6 @@ ControlOptionsWindow::ControlOptionsWindow()
     m_camDragging     = g_preferences->GetInt( PREFS_INTERFACE_CAMDRAGGING );
     m_tooltips        = g_preferences->GetInt( PREFS_INTERFACE_TOOLTIPS );
     m_popupScale      = g_preferences->GetFloat( PREFS_INTERFACE_POPUPSCALE );
-    m_panicKey        = g_preferences->GetInt( PREFS_INTERFACE_PANICKEY );
     m_keyboardLayout  = g_preferences->GetInt( PREFS_INTERFACE_KEYBOARDLAYOUT );
 
 	
@@ -1556,13 +1554,6 @@ void ControlOptionsWindow::Create()
     dropDown->RegisterInt( &m_tooltips );
     RegisterButton(dropDown);
 
-    dropDown = new DropDownMenu();
-    dropDown->SetProperties( "Panic Key", x, y+=h, w, 20, "dialog_panickey", " ", true, false );
-    dropDown->AddOption( "dialog_enabled", 1, true );
-    dropDown->AddOption( "dialog_disabled", 0, true );
-    dropDown->RegisterInt( &m_panicKey );
-    RegisterButton(dropDown);
-
     CreateValueControl( "Popup Scale", x, y+=h, w, 20, InputField::TypeFloat, &m_popupScale, 0.1f, 0.1f, 9.0f, NULL, " ", false );
 
     dropDown = new DropDownMenu();
@@ -1615,7 +1606,6 @@ void ControlOptionsWindow::Render( bool _hasFocus )
 	g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_zoomspeed") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_camdragging") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_tooltips") );
-    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_panickey") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_popupscale") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_keyboardlayout") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_playername") );
