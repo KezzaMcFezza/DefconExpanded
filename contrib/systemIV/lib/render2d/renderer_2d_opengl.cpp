@@ -41,6 +41,7 @@ void Renderer2DOpenGL::InitializeShaders()
 {
     m_colorShaderProgram = g_renderer->CreateShader(VERTEX_2D_SHADER_SOURCE, COLOR_FRAGMENT_2D_SHADER_SOURCE);
     m_textureShaderProgram = g_renderer->CreateShader(VERTEX_2D_SHADER_SOURCE, TEXTURE_FRAGMENT_2D_SHADER_SOURCE);
+    m_lineShaderProgram = m_colorShaderProgram; // OpenGL uses same shader, handles line width via glLineWidth
     m_shaderProgram = m_colorShaderProgram;
 }
 
@@ -65,6 +66,16 @@ void Renderer2DOpenGL::SetColorShaderUniforms()
 {
     glUniformMatrix4fv(m_colorShaderUniforms.projectionLoc, 1, GL_FALSE, m_projectionMatrix.m);
     glUniformMatrix4fv(m_colorShaderUniforms.modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+}
+
+void Renderer2DOpenGL::SetLineShaderUniforms(float lineWidth)
+{
+    glUniformMatrix4fv(m_colorShaderUniforms.projectionLoc, 1, GL_FALSE, m_projectionMatrix.m);
+    glUniformMatrix4fv(m_colorShaderUniforms.modelViewLoc, 1, GL_FALSE, m_modelViewMatrix.m);
+    
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(lineWidth);
+#endif
 }
 
 void Renderer2DOpenGL::SetTextureShaderUniforms()

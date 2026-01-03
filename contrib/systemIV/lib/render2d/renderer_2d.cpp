@@ -40,6 +40,7 @@ Renderer2D::Renderer2D()
       m_shaderProgram(0),
       m_colorShaderProgram(0),
       m_textureShaderProgram(0),
+      m_lineShaderProgram(0),
       m_VAO(0), 
       m_VBO(0),
       m_textVAO(0), 

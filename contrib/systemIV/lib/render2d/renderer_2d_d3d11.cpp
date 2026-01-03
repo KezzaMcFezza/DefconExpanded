@@ -10,6 +10,7 @@
 #include "shaders/vertex.hlsl.h"
 #include "shaders/color_fragment.hlsl.h"
 #include "shaders/texture_fragment.hlsl.h"
+#include "shaders/line_geometry.hlsl.h"
 
 #include <d3dcompiler.h>
 
@@ -27,6 +28,10 @@ Renderer2DD3D11::Renderer2DD3D11()
       m_textureVertexShader(nullptr),
       m_texturePixelShader(nullptr),
       m_inputLayout(nullptr),
+      m_lineGeometryShaderThin(nullptr),
+      m_lineGeometryShaderThick(nullptr),
+      m_lineWidthConstantBuffer(nullptr),
+      m_lineShaderProgram(0),
       m_transformConstantBuffer(nullptr),
       m_lineBuffer(nullptr),
       m_staticSpriteBuffer(nullptr),
@@ -206,9 +211,64 @@ void Renderer2DD3D11::InitializeShaders()
     }
     
     pixelBlob->Release();
-    
+
+    //
+    // Compile thin line geometry shader 
+
+    ID3DBlob* geometryBlob = nullptr;
+
+    hr = D3DCompile(LINE_GEOMETRY_2D_THIN_SHADER_SOURCE_HLSL, 
+                    strlen(LINE_GEOMETRY_2D_THIN_SHADER_SOURCE_HLSL),
+                    nullptr, nullptr, nullptr, "main", "gs_5_0", 0, 0, 
+                    &geometryBlob, &errorBlob);
+
+    if (!CheckHR(hr, "thin line geometry shader compilation", errorBlob)) 
+    {
+        if (geometryBlob) geometryBlob->Release();
+        return;
+    }
+
+    hr = m_device->CreateGeometryShader(geometryBlob->GetBufferPointer(), 
+                                        geometryBlob->GetBufferSize(),
+                                        nullptr, &m_lineGeometryShaderThin);
+
+    if (!CheckHR(hr, "create thin line geometry shader")) 
+    {
+        geometryBlob->Release();
+        return;
+    }
+
+    geometryBlob->Release();
+
+    //
+    // Compile thick line geometry shader 
+
+    hr = D3DCompile(LINE_GEOMETRY_2D_THICK_SHADER_SOURCE_HLSL, 
+                    strlen(LINE_GEOMETRY_2D_THICK_SHADER_SOURCE_HLSL),
+                    nullptr, nullptr, nullptr, "main", "gs_5_0", 0, 0, 
+                    &geometryBlob, &errorBlob);
+
+    if (!CheckHR(hr, "thick line geometry shader compilation", errorBlob)) 
+    {
+        if (geometryBlob) geometryBlob->Release();
+        return;
+    }
+
+    hr = m_device->CreateGeometryShader(geometryBlob->GetBufferPointer(), 
+                                        geometryBlob->GetBufferSize(),
+                                        nullptr, &m_lineGeometryShaderThick);
+
+    if (!CheckHR(hr, "create thick line geometry shader")) 
+    {
+        geometryBlob->Release();
+        return;
+    }
+
+    geometryBlob->Release();
+
     m_colorShaderProgram = 1;
     m_textureShaderProgram = 2;
+    m_lineShaderProgram = 3;
     m_shaderProgram = m_colorShaderProgram;
 }
 
@@ -230,6 +290,14 @@ void Renderer2DD3D11::SetColorShaderUniforms()
         m_deviceContext->VSSetConstantBuffers(0, 1, &m_transformConstantBuffer);
         
         //
+        // Clear geometry shader and its constant buffers
+        
+        m_deviceContext->GSSetShader(nullptr, nullptr, 0);
+        ID3D11Buffer* nullBuffer = nullptr;
+        m_deviceContext->GSSetConstantBuffers(0, 1, &nullBuffer);
+        m_deviceContext->GSSetConstantBuffers(1, 1, &nullBuffer);
+        
+        //
         // Clear texture binding for color shader
 
         ID3D11ShaderResourceView* nullSRV = nullptr;
@@ -248,6 +316,11 @@ void Renderer2DD3D11::SetTextureShaderUniforms()
         m_deviceContext->IASetInputLayout(m_inputLayout);
         m_deviceContext->VSSetConstantBuffers(0, 1, &m_transformConstantBuffer);
         
+        m_deviceContext->GSSetShader(nullptr, nullptr, 0);
+        ID3D11Buffer* nullBuffer = nullptr;
+        m_deviceContext->GSSetConstantBuffers(0, 1, &nullBuffer);
+        m_deviceContext->GSSetConstantBuffers(1, 1, &nullBuffer);
+        
         //
         // Bind current texture if available
 
@@ -260,6 +333,77 @@ void Renderer2DD3D11::SetTextureShaderUniforms()
             ID3D11ShaderResourceView* nullSRV = nullptr;
             m_deviceContext->PSSetShaderResources(0, 1, &nullSRV);
         }
+    }
+}
+
+void Renderer2DD3D11::SetLineShaderUniforms(float lineWidth)
+{
+    UpdateConstantBuffer();
+    
+    if (m_deviceContext) 
+    {
+        m_deviceContext->VSSetShader(m_colorVertexShader, nullptr, 0);
+        m_deviceContext->PSSetShader(m_colorPixelShader, nullptr, 0);
+        m_deviceContext->IASetInputLayout(m_inputLayout);
+        
+        //
+        // For line width 1, use normal line rendering without geometry shader
+
+        if (lineWidth == 1.0f)
+        {
+            //
+            // Clear geometry shader for normal lines
+
+            m_deviceContext->GSSetShader(nullptr, nullptr, 0);
+            ID3D11Buffer* nullBuffer = nullptr;
+            m_deviceContext->GSSetConstantBuffers(0, 1, &nullBuffer);
+            m_deviceContext->GSSetConstantBuffers(1, 1, &nullBuffer);
+        }
+        else
+        {
+            //
+            // Update and bind line width constant buffer
+
+            D3D11_MAPPED_SUBRESOURCE mappedResource;
+            HRESULT hr = m_deviceContext->Map(m_lineWidthConstantBuffer, 0, 
+                                              D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+            
+            if (SUCCEEDED(hr)) 
+            {
+                LineWidthBuffer* lineWidthData = (LineWidthBuffer*)mappedResource.pData;
+                lineWidthData->lineWidth = lineWidth;
+                lineWidthData->viewportWidth = (float)g_windowManager->DrawableWidth();
+                lineWidthData->viewportHeight = (float)g_windowManager->DrawableHeight();
+                lineWidthData->padding = 0.0f;
+                
+                m_deviceContext->Unmap(m_lineWidthConstantBuffer, 0);
+            }
+            
+            //
+            // Select shader based on line width
+
+            if (lineWidth < 1.8f)
+            {
+                //
+                // Use thin line shader (square caps)
+
+                m_deviceContext->GSSetShader(m_lineGeometryShaderThin, nullptr, 0);
+            }
+            else
+            {
+                //
+                // Use thick line shader (miter caps)
+
+                m_deviceContext->GSSetShader(m_lineGeometryShaderThick, nullptr, 0);
+            }
+            
+            m_deviceContext->GSSetConstantBuffers(1, 1, &m_lineWidthConstantBuffer);
+        }
+        
+        m_deviceContext->VSSetConstantBuffers(0, 1, &m_transformConstantBuffer);
+        
+        ID3D11ShaderResourceView* nullSRV = nullptr;
+        m_deviceContext->PSSetShaderResources(0, 1, &nullSRV);
     }
 }
 
@@ -279,6 +423,18 @@ void Renderer2DD3D11::CreateConstantBuffer()
     
     HRESULT hr = m_device->CreateBuffer(&desc, nullptr, &m_transformConstantBuffer);
     CheckHR(hr, "create constant buffer");
+
+    //
+    // Create line width constant buffer
+
+    D3D11_BUFFER_DESC lineWidthBufferDesc = {};
+    lineWidthBufferDesc.ByteWidth = sizeof(LineWidthBuffer);
+    lineWidthBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    lineWidthBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    lineWidthBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+    hr = m_device->CreateBuffer(&lineWidthBufferDesc, nullptr, &m_lineWidthConstantBuffer);
+    CheckHR(hr, "create line width constant buffer");
 }
 
 void Renderer2DD3D11::UpdateConstantBuffer()
@@ -575,7 +731,18 @@ void Renderer2DD3D11::FlushLines()
     
     if (m_lineBuffer && UpdateBufferData(m_lineBuffer, m_lineVertices, m_lineVertexCount)) 
     {
-        SetColorShaderUniforms();
+        if (m_currentLineWidth == 1.0f)
+        {
+            SetColorShaderUniforms();
+            g_renderer->SetShaderProgram(m_colorShaderProgram);
+        }
+        else
+        {
+            SetColorShaderUniforms();
+            g_renderer->SetShaderProgram(m_lineShaderProgram);
+            SetLineShaderUniforms(m_currentLineWidth);
+        }
+
         UINT stride = sizeof(Vertex2D);
         UINT offset = 0;
         m_deviceContext->IASetVertexBuffers(0, 1, &m_lineBuffer, &stride, &offset);
@@ -655,7 +822,18 @@ void Renderer2DD3D11::FlushCircles()
     
     if (m_circleBuffer && UpdateBufferData(m_circleBuffer, m_circleVertices, m_circleVertexCount)) 
     {
-        SetColorShaderUniforms();
+        if (m_currentCircleWidth == 1.0f)
+        {
+            SetColorShaderUniforms();
+            g_renderer->SetShaderProgram(m_colorShaderProgram);
+        }
+        else
+        {
+            SetColorShaderUniforms();
+            g_renderer->SetShaderProgram(m_lineShaderProgram);
+            SetLineShaderUniforms(m_currentCircleWidth);
+        }
+
         UINT stride = sizeof(Vertex2D);
         UINT offset = 0;
         m_deviceContext->IASetVertexBuffers(0, 1, &m_circleBuffer, &stride, &offset);
@@ -694,7 +872,18 @@ void Renderer2DD3D11::FlushRects()
     
     if (m_rectBuffer && UpdateBufferData(m_rectBuffer, m_rectVertices, m_rectVertexCount)) 
     {
-        SetColorShaderUniforms();
+        if (m_currentRectWidth == 1.0f)
+        {
+            SetColorShaderUniforms();
+            g_renderer->SetShaderProgram(m_colorShaderProgram);
+        }
+        else
+        {
+            SetColorShaderUniforms();
+            g_renderer->SetShaderProgram(m_lineShaderProgram);
+            SetLineShaderUniforms(m_currentRectWidth);
+        }
+        
         UINT stride = sizeof(Vertex2D);
         UINT offset = 0;
         m_deviceContext->IASetVertexBuffers(0, 1, &m_rectBuffer, &stride, &offset);
@@ -774,6 +963,24 @@ void Renderer2DD3D11::CleanupBuffers()
     if (m_rectFillBuffer) { m_rectFillBuffer->Release(); m_rectFillBuffer = nullptr; }
     if (m_triangleFillBuffer) { m_triangleFillBuffer->Release(); m_triangleFillBuffer = nullptr; }
     if (m_immediateBuffer) { m_immediateBuffer->Release(); m_immediateBuffer = nullptr; }
+
+    if (m_lineGeometryShaderThin) 
+    {
+        m_lineGeometryShaderThin->Release();
+        m_lineGeometryShaderThin = nullptr;
+    }
+
+    if (m_lineGeometryShaderThick) 
+    {
+        m_lineGeometryShaderThick->Release();
+        m_lineGeometryShaderThick = nullptr;
+    }
+
+    if (m_lineWidthConstantBuffer) 
+    {
+        m_lineWidthConstantBuffer->Release();
+        m_lineWidthConstantBuffer = nullptr;
+    }
     
     //
     // Release all VBOs from map

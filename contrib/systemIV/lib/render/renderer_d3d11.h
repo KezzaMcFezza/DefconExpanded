@@ -115,6 +115,7 @@
      virtual void SetArrayBuffer     (unsigned int buffer)                 override;
      virtual void SetElementBuffer   (unsigned int buffer)                 override;
      virtual void SetLineWidth       (float width)                         override;
+     virtual float GetLineWidth      () const                              override;
      virtual void SetBoundTexture    (unsigned int texture)                override;
      virtual void SetScissorTest     (bool enabled)                        override;
      virtual void SetScissor         (int x, int y, int width, int height) override;

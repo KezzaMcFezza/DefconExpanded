@@ -81,6 +81,7 @@ protected:
   unsigned int m_shaderProgram;
   unsigned int m_colorShaderProgram;
   unsigned int m_textureShaderProgram;
+  unsigned int m_lineShaderProgram;
   unsigned int m_VAO;
   unsigned int m_VBO; 
   unsigned int m_spriteVAO, m_spriteVBO;
@@ -170,6 +171,7 @@ protected:
   virtual void CacheUniformLocations   () = 0;
   virtual void SetupVertexArrays       () = 0;
   virtual void SetColorShaderUniforms  () = 0;
+  virtual void SetLineShaderUniforms   (float lineWidth) = 0;
   virtual void SetTextureShaderUniforms() = 0;
   virtual void UploadVertexData        (const Vertex2D* vertices, int vertexCount) = 0;
   virtual void UploadVertexDataToVBO   (unsigned int vbo, const Vertex2D* vertices, 

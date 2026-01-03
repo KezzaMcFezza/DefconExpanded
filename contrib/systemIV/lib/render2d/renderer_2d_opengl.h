@@ -15,6 +15,7 @@ protected:
     virtual void InitializeShaders       () override;
     virtual void CacheUniformLocations   () override;
     virtual void SetColorShaderUniforms  () override;
+    virtual void SetLineShaderUniforms   (float lineWidth) override;
     virtual void SetTextureShaderUniforms() override;
     
     virtual void SetupVertexArrays       () override;

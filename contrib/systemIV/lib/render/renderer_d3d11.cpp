@@ -746,6 +746,11 @@ void RendererD3D11::SetLineWidth(float width)
     m_currentLineWidth = width;
 }
 
+float RendererD3D11::GetLineWidth() const
+{
+    return m_currentLineWidth;
+}
+
 void RendererD3D11::SetBoundTexture(unsigned int texture)
 {
     if (m_currentBoundTexture != texture) 

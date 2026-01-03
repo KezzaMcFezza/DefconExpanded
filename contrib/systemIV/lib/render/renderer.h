@@ -163,6 +163,7 @@ public:
     virtual void SetArrayBuffer     (unsigned int buffer) = 0;
     virtual void SetElementBuffer   (unsigned int buffer) = 0;
     virtual void SetLineWidth       (float width) = 0;
+    virtual float GetLineWidth      () const = 0;
     virtual void SetBoundTexture    (unsigned int texture) = 0;
     virtual void SetScissorTest     (bool enabled) = 0;
     virtual void SetScissor         (int x, int y, int width, int height) = 0;

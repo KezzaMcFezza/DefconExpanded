@@ -19,6 +19,19 @@ private:
     ID3D11VertexShader* m_textureVertexShader;
     ID3D11PixelShader* m_texturePixelShader;
     ID3D11InputLayout* m_inputLayout;
+    ID3D11GeometryShader* m_lineGeometryShaderThin;
+    ID3D11GeometryShader* m_lineGeometryShaderThick;
+    ID3D11Buffer* m_lineWidthConstantBuffer;
+
+    unsigned int m_lineShaderProgram;
+
+    struct LineWidthBuffer 
+    {
+        float lineWidth;
+        float viewportWidth;
+        float viewportHeight;
+        float padding;
+    };
     
     struct TransformBuffer 
     {
@@ -85,6 +98,7 @@ protected:
     virtual void InitializeShaders       () override;
     virtual void CacheUniformLocations   () override;
     virtual void SetColorShaderUniforms  () override;
+    virtual void SetLineShaderUniforms   (float lineWidth) override;
     virtual void SetTextureShaderUniforms() override;
     
     virtual void SetupVertexArrays       () override;

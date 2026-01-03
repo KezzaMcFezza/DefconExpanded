@@ -181,6 +181,11 @@ void RendererOpenGL::SetLineWidth(float width)
     }
 }
 
+float RendererOpenGL::GetLineWidth() const
+{
+    return m_currentLineWidth;
+}
+
 void RendererOpenGL::SetBoundTexture(unsigned int texture) 
 {
     if (m_currentBoundTexture != texture) {

@@ -20,6 +20,7 @@ void MegaVBO2D::BeginMegaVBO(const char* megaVBOKey, Colour const &col)
     
     m_megaVBOActive = true;
     m_megaVBOColor = col;
+    m_megaVBOWidth = g_renderer->GetLineWidth();
     
     m_megaVertexCount = 0;
     m_megaIndexCount = 0;
@@ -130,8 +131,8 @@ void MegaVBO2D::RenderMegaVBO(const char* megaVBOKey)
 
     g_renderer->StartFlushTiming("MegaVBO_2D");
     
-    g_renderer->SetShaderProgram(g_renderer2d->m_colorShaderProgram);
-    g_renderer2d->SetColorShaderUniforms();
+    g_renderer->SetShaderProgram(g_renderer2d->m_lineShaderProgram);
+    g_renderer2d->SetLineShaderUniforms(cachedVBO->lineWidth);
     
     g_renderer2d->EnableMegaVBOPrimitiveRestart(0xFFFFFFFF);
     
