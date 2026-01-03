@@ -375,6 +375,21 @@ void Interface::Update()
 		g_app->ReinitialiseWindow();
 		s_toggleFullscreen = false;
 	}
+
+    		
+	if( g_keyDeltas[KEY_ESC] )
+    {        
+        if( !EclGetWindow( "Main Menu" ) )
+        {
+            EclRegisterWindow( new MainMenu() );
+        }
+        else
+        {
+            EclRemoveWindow( "Main Menu" );
+        }
+
+        m_escTimer = 0.5f;
+    }
 	
 
     if( !g_app->m_gameRunning &&
