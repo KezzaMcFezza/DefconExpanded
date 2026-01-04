@@ -314,22 +314,22 @@ void MapRenderer::Render()
         g_renderer2d->EndLineBatch();
         g_renderer2d->EndRotatingSpriteBatch();
 
-        //
-        // render radar outside of the main scene to
-        // render it in front of everything, the radar 
-        // system batches internally anyway
-
-        if( g_app->GetWorldRenderer()->m_showRadar )               
-        {
-            RenderRadar();
-        }
-
         if( x < iterations - 1 )
         {
             left += GetLongitudeMod();
             right += GetLongitudeMod();
         }
     }    
+
+    //
+    // render radar outside of the seam iterations to prevent double rendering
+
+    if( g_app->GetWorldRenderer()->m_showRadar )               
+    {
+        GetWindowBounds( &left, &right, &top, &bottom );
+        g_renderer2d->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
+        RenderRadar();
+    }
 
     //
     // render mouse seperately to prevent object info boxes being covered by territory areas
@@ -2187,8 +2187,8 @@ void MapRenderer::RenderMouse()
         if( team ) col = team->GetTeamColour();
         col.m_a = 150;
 
-        g_renderer2d->Circle( predictedLongitude, predictedLatitude, size, 30, col, 2.0f );
-        g_renderer2d->Circle( predictedLongitude, predictedLatitude, size, 30, Colour(255,255,255,100), 2.0f );
+        g_renderer2d->Circle( predictedLongitude, predictedLatitude, size, 30, col, 1.5f );
+        g_renderer2d->Circle( predictedLongitude, predictedLatitude, size, 30, Colour(255,255,255,100), 1.5f );
 
         RenderWorldObjectTargets(highlight);
         RenderWorldObjectDetails(highlight);
@@ -2495,7 +2495,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                     float predictedRange = mobj->m_range.DoubleValue();
 
                     Colour col(0,0,255,255);
-                    g_renderer2d->Circle( predictedLongitude, predictedLatitude, predictedRange, 50, col, 2.0f );
+                    g_renderer2d->Circle( predictedLongitude, predictedLatitude, predictedRange, 50, col, 1.5f );
 
                     if( renderTooltip )
                     {
@@ -3272,8 +3272,25 @@ void MapRenderer::RenderRadar()
     // cannot use batching here as im having issues with depth and blend modes 
     // when flushing
 
-    g_renderer->SetBlendMode( Renderer::BlendModeNormal );        
+    g_renderer->SetBlendMode( Renderer::BlendModeNormal );
+    
+    float left, right, top, bottom;
+    GetWindowBounds( &left, &right, &top, &bottom );
+    
     g_renderer2d->RectFill( -180, -100, 360, 200, Colour(0,0,0,150), true );
+    
+    //
+    // Render at -360 offset if viewport extends before -180
+
+    if( left < -180.0f )
+    {
+        g_renderer2d->RectFill( -180-360, -100, 360, 200, Colour(0,0,0,150), true );
+    }
+    if( right > 180.0f )
+    {
+        g_renderer2d->RectFill( -180+360, -100, 360, 200, Colour(0,0,0,150), true );
+    }
+    
     g_renderer->SetDepthBuffer( false, false );
     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );      
     
