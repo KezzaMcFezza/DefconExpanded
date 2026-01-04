@@ -1146,6 +1146,10 @@ class ApplyGraphicsButton : public InterfaceButton
         
         g_app->GetEarthData()->LoadCoastlines();
 
+#ifndef TARGET_EMSCRIPTEN   
+        g_megavbo2d->InvalidateCachedVBO("MapCoastlines");
+        g_megavbo2d->InvalidateCachedVBO("MapBorders");
+#endif
         g_preferences->Save();
     }
 };

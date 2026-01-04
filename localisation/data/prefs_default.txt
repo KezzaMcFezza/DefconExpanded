@@ -34,12 +34,10 @@ SoundRingMs = 80
 SoundTimedScheduling = 1
 SoundAudioClockedADSR = 1
 
-RenderSmoothLines = 0
 RenderCoastlines = 1
 RenderBorders = 1
 RenderCoastlineThickness = 1.5
-RenderBorderThickness = 0.5
-RenderUnitTrailThickness = 1.5
+RenderBorderThickness = 1.0
 RenderWhiteboardThickness = 3.0
 RenderCityNames = 1
 RenderCountryNames = 0
