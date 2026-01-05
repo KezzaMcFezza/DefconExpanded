@@ -4,9 +4,124 @@
 #ifdef RENDERER_DIRECTX11
 
 #include "renderer_3d.h"
+#include <d3d11.h>
+#include <map>
+#include <vector>
 
 class Renderer3DD3D11 : public Renderer3D
 {
+private:
+    ID3D11Device* m_device;
+    ID3D11DeviceContext* m_deviceContext;
+    
+    ID3D11VertexShader* m_vertexShader3D;
+    ID3D11PixelShader* m_pixelShader3D;
+    ID3D11VertexShader* m_texturedVertexShader3D;
+    ID3D11PixelShader* m_texturedPixelShader3D;
+    ID3D11VertexShader* m_modelVertexShader3D;
+    ID3D11PixelShader* m_modelPixelShader3D;
+    ID3D11InputLayout* m_inputLayout3D;
+    ID3D11InputLayout* m_inputLayoutTextured3D;
+    
+    struct TransformBuffer 
+    {
+        float uProjection[16];
+        float uModelView[16];
+    };
+    
+    struct FogBuffer 
+    {
+        int uFogEnabled;
+        int uFogOrientationBased;
+        float uFogStart;
+        float uFogEnd;
+        float uFogColor[4];
+        float uCameraPos[3];
+        float padding;
+    };
+    
+    struct ModelBuffer 
+    {
+        float uModelMatrix[16];
+        float uModelColor[4];
+        int uUseInstancing;
+        int uInstanceCount;
+        float padding1;
+        float padding2;
+        
+        static constexpr int MAX_INSTANCES = 64;
+        float uModelMatrices[MAX_INSTANCES * 16];
+        float uModelColors[MAX_INSTANCES * 4];
+    };
+    
+    static constexpr int MAX_INSTANCES = 64;
+    
+    ID3D11Buffer* m_transformConstantBuffer;
+    ID3D11Buffer* m_fogConstantBuffer;
+    ID3D11Buffer* m_modelConstantBuffer;
+    
+    ID3D11Buffer* m_lineBuffer3D;
+    ID3D11Buffer* m_staticSpriteBuffer3D;
+    ID3D11Buffer* m_rotatingSpriteBuffer3D;
+    ID3D11Buffer* m_textBuffer3D;
+    ID3D11Buffer* m_circleBuffer3D;
+    ID3D11Buffer* m_circleFillBuffer3D;
+    ID3D11Buffer* m_rectBuffer3D;
+    ID3D11Buffer* m_rectFillBuffer3D;
+    ID3D11Buffer* m_triangleFillBuffer3D;
+    ID3D11Buffer* m_immediateBuffer3D;
+    ID3D11Buffer* m_immediateTexturedBuffer3D;
+    
+    struct LineStripSegment 
+    {
+        unsigned int startIndex;
+        unsigned int indexCount;
+    };
+    
+    std::map<unsigned int, std::vector<LineStripSegment>> m_lineStripSegments;
+    
+    ID3D11ShaderResourceView* m_currentTextureSRV;
+    unsigned int m_currentTextureID;
+
+    std::map<unsigned int, ID3D11Buffer*> m_vboMap;
+    std::map<unsigned int, ID3D11Buffer*> m_iboMap;
+    unsigned int m_nextVBOId;
+    
+    struct VAOBinding 
+    {
+        unsigned int vboId;
+        unsigned int iboId;
+        bool vboUploaded;
+        bool iboUploaded;
+        bool isTextured;
+    };
+    
+    std::map<unsigned int, VAOBinding> m_vaoMap;
+    unsigned int m_currentVAO;
+    
+    bool m_primitiveRestartEnabled;
+    unsigned int m_primitiveRestartIndex;
+    
+    void GetDeviceAndContext();
+    void CreateConstantBuffers();
+    void UpdateTransformBuffer();
+    void UpdateFogBuffer();
+    void UpdateModelBuffer(const Matrix4f& modelMatrix, const Colour& modelColor);
+    void UpdateModelBufferInstanced(const Matrix4f* modelMatrices, const Colour* modelColors, int instanceCount);
+    
+    void RegisterVBO(unsigned int vboId, ID3D11Buffer* buffer);
+    void RegisterIBO(unsigned int iboId, ID3D11Buffer* buffer);
+    
+    ID3D11Buffer* GetVBOFromID(unsigned int vbo);
+    ID3D11Buffer* GetIBOFromID(unsigned int ibo);
+    
+    void BindTexture(unsigned int textureID);
+    bool UpdateBufferData(ID3D11Buffer* buffer, const Vertex3D* vertices, int vertexCount);
+    bool UpdateBufferData(ID3D11Buffer* buffer, const Vertex3DTextured* vertices, int vertexCount);
+    
+    bool CheckHR(HRESULT hr, const char* operation);
+    bool CheckHR(HRESULT hr, const char* operation, ID3DBlob* errorBlob);
+    
 public:
     Renderer3DD3D11();
     virtual ~Renderer3DD3D11();
@@ -75,5 +190,4 @@ protected:
 };
 
 #endif // RENDERER_DIRECTX11
-#endif // _included_renderer3d_directx11_h
-
+#endif // _included_renderer3d_d3d11_h

@@ -174,12 +174,13 @@ void MegaVBO3D::RenderTexturedMegaVBO3D(const char* megaVBOKey)
                              ((unsigned int)cachedVBO->color.m_a);
     
     g_renderer->SetShaderProgram(g_renderer3d->m_shader3DTexturedProgram);
-    g_renderer3d->SetTextured3DShaderUniforms();
     
     if (textureID != 0) {
-        g_renderer->SetActiveTexture(GL_TEXTURE0);
+        g_renderer->SetActiveTexture(0);
         g_renderer->SetBoundTexture(textureID);
     }
+    
+    g_renderer3d->SetTextured3DShaderUniforms();
     
     g_renderer->SetVertexArray(cachedVBO->VAO);
     g_renderer3d->DrawMegaVBOIndexed3D(PRIMITIVE_TRIANGLES, cachedVBO->indexCount);
