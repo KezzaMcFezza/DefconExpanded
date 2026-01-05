@@ -24,6 +24,11 @@ private:
     ID3D11Buffer* m_lineWidthConstantBuffer;
 
     unsigned int m_lineShaderProgram;
+    
+    ID3D11VertexShader* m_currentlyBoundVS;
+    ID3D11PixelShader* m_currentlyBoundPS;
+    ID3D11GeometryShader* m_currentlyBoundGS;
+    ID3D11InputLayout* m_currentlyBoundInputLayout;
 
     struct LineWidthBuffer 
     {
@@ -39,7 +44,15 @@ private:
         float uModelView[16];
     };
 
+    bool m_matricesNeedUpdate;
+    float m_lastProjectionMatrix[16];
+    float m_lastModelViewMatrix[16];
+
+    int m_batchedConstantBufferCount;
+    bool m_supportsConstantBufferOffsets;
+
     ID3D11Buffer* m_transformConstantBuffer;
+    ID3D11Buffer* m_batchedConstantBuffer;
     ID3D11Buffer* m_lineBuffer;
     ID3D11Buffer* m_staticSpriteBuffer;
     ID3D11Buffer* m_rotatingSpriteBuffer;

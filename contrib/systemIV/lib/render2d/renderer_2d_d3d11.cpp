@@ -32,7 +32,15 @@ Renderer2DD3D11::Renderer2DD3D11()
       m_lineGeometryShaderThick(nullptr),
       m_lineWidthConstantBuffer(nullptr),
       m_lineShaderProgram(0),
+      m_currentlyBoundVS(nullptr),
+      m_currentlyBoundPS(nullptr),
+      m_currentlyBoundGS(nullptr),
+      m_currentlyBoundInputLayout(nullptr),
+      m_matricesNeedUpdate(true),
+      m_batchedConstantBufferCount(0),
+      m_supportsConstantBufferOffsets(false),
       m_transformConstantBuffer(nullptr),
+      m_batchedConstantBuffer(nullptr),
       m_lineBuffer(nullptr),
       m_staticSpriteBuffer(nullptr),
       m_rotatingSpriteBuffer(nullptr),
@@ -50,6 +58,15 @@ Renderer2DD3D11::Renderer2DD3D11()
       m_primitiveRestartEnabled(false),
       m_primitiveRestartIndex(0)
 {
+    //
+    // Initialize last matrices to invalid values to force first update
+    
+    for (int i = 0; i < 16; i++) 
+    {
+        m_lastProjectionMatrix[i] = -999999.0f;
+        m_lastModelViewMatrix[i] = -999999.0f;
+    }
+    
     GetDeviceAndContext();
     InitializeShaders();
     CacheUniformLocations();
@@ -284,15 +301,33 @@ void Renderer2DD3D11::SetColorShaderUniforms()
     
     if (m_deviceContext) 
     {
-        m_deviceContext->VSSetShader(m_colorVertexShader, nullptr, 0);
-        m_deviceContext->PSSetShader(m_colorPixelShader, nullptr, 0);
-        m_deviceContext->IASetInputLayout(m_inputLayout);
+        //
+        // Only set shaders/layout if they have changed
+        
+        if (m_currentlyBoundVS != m_colorVertexShader ||
+            m_currentlyBoundPS != m_colorPixelShader ||
+            m_currentlyBoundInputLayout != m_inputLayout) 
+        {
+            m_deviceContext->VSSetShader(m_colorVertexShader, nullptr, 0);
+            m_deviceContext->PSSetShader(m_colorPixelShader, nullptr, 0);
+            m_deviceContext->IASetInputLayout(m_inputLayout);
+            
+            m_currentlyBoundVS = m_colorVertexShader;
+            m_currentlyBoundPS = m_colorPixelShader;
+            m_currentlyBoundInputLayout = m_inputLayout;
+        }
+        
         m_deviceContext->VSSetConstantBuffers(0, 1, &m_transformConstantBuffer);
         
         //
         // Clear geometry shader and its constant buffers
         
-        m_deviceContext->GSSetShader(nullptr, nullptr, 0);
+        if (m_currentlyBoundGS != nullptr) 
+        {
+            m_deviceContext->GSSetShader(nullptr, nullptr, 0);
+            m_currentlyBoundGS = nullptr;
+        }
+
         ID3D11Buffer* nullBuffer = nullptr;
         m_deviceContext->GSSetConstantBuffers(0, 1, &nullBuffer);
         m_deviceContext->GSSetConstantBuffers(1, 1, &nullBuffer);
@@ -311,12 +346,27 @@ void Renderer2DD3D11::SetTextureShaderUniforms()
     
     if (m_deviceContext) 
     {
-        m_deviceContext->VSSetShader(m_textureVertexShader, nullptr, 0);
-        m_deviceContext->PSSetShader(m_texturePixelShader, nullptr, 0);
-        m_deviceContext->IASetInputLayout(m_inputLayout);
+        if (m_currentlyBoundVS != m_textureVertexShader ||
+            m_currentlyBoundPS != m_texturePixelShader ||
+            m_currentlyBoundInputLayout != m_inputLayout) 
+        {
+            m_deviceContext->VSSetShader(m_textureVertexShader, nullptr, 0);
+            m_deviceContext->PSSetShader(m_texturePixelShader, nullptr, 0);
+            m_deviceContext->IASetInputLayout(m_inputLayout);
+            
+            m_currentlyBoundVS = m_textureVertexShader;
+            m_currentlyBoundPS = m_texturePixelShader;
+            m_currentlyBoundInputLayout = m_inputLayout;
+        }
+        
         m_deviceContext->VSSetConstantBuffers(0, 1, &m_transformConstantBuffer);
         
-        m_deviceContext->GSSetShader(nullptr, nullptr, 0);
+        if (m_currentlyBoundGS != nullptr) 
+        {
+            m_deviceContext->GSSetShader(nullptr, nullptr, 0);
+            m_currentlyBoundGS = nullptr;
+        }
+
         ID3D11Buffer* nullBuffer = nullptr;
         m_deviceContext->GSSetConstantBuffers(0, 1, &nullBuffer);
         m_deviceContext->GSSetConstantBuffers(1, 1, &nullBuffer);
@@ -342,9 +392,18 @@ void Renderer2DD3D11::SetLineShaderUniforms(float lineWidth)
     
     if (m_deviceContext) 
     {
-        m_deviceContext->VSSetShader(m_colorVertexShader, nullptr, 0);
-        m_deviceContext->PSSetShader(m_colorPixelShader, nullptr, 0);
-        m_deviceContext->IASetInputLayout(m_inputLayout);
+        if (m_currentlyBoundVS != m_colorVertexShader ||
+            m_currentlyBoundPS != m_colorPixelShader ||
+            m_currentlyBoundInputLayout != m_inputLayout) 
+        {
+            m_deviceContext->VSSetShader(m_colorVertexShader, nullptr, 0);
+            m_deviceContext->PSSetShader(m_colorPixelShader, nullptr, 0);
+            m_deviceContext->IASetInputLayout(m_inputLayout);
+            
+            m_currentlyBoundVS = m_colorVertexShader;
+            m_currentlyBoundPS = m_colorPixelShader;
+            m_currentlyBoundInputLayout = m_inputLayout;
+        }
         
         //
         // For line width 1, use normal line rendering without geometry shader
@@ -354,7 +413,12 @@ void Renderer2DD3D11::SetLineShaderUniforms(float lineWidth)
             //
             // Clear geometry shader for normal lines
 
-            m_deviceContext->GSSetShader(nullptr, nullptr, 0);
+            if (m_currentlyBoundGS != nullptr) 
+            {
+                m_deviceContext->GSSetShader(nullptr, nullptr, 0);
+                m_currentlyBoundGS = nullptr;
+            }
+
             ID3D11Buffer* nullBuffer = nullptr;
             m_deviceContext->GSSetConstantBuffers(0, 1, &nullBuffer);
             m_deviceContext->GSSetConstantBuffers(1, 1, &nullBuffer);
@@ -382,19 +446,12 @@ void Renderer2DD3D11::SetLineShaderUniforms(float lineWidth)
             //
             // Select shader based on line width
 
-            if (lineWidth < 1.8f)
+            ID3D11GeometryShader* geometryShader = (lineWidth < 1.8f) ? m_lineGeometryShaderThin : m_lineGeometryShaderThick;
+            
+            if (m_currentlyBoundGS != geometryShader) 
             {
-                //
-                // Use thin line shader (square caps)
-
-                m_deviceContext->GSSetShader(m_lineGeometryShaderThin, nullptr, 0);
-            }
-            else
-            {
-                //
-                // Use thick line shader (miter caps)
-
-                m_deviceContext->GSSetShader(m_lineGeometryShaderThick, nullptr, 0);
+                m_deviceContext->GSSetShader(geometryShader, nullptr, 0);
+                m_currentlyBoundGS = geometryShader;
             }
             
             m_deviceContext->GSSetConstantBuffers(1, 1, &m_lineWidthConstantBuffer);
@@ -441,6 +498,32 @@ void Renderer2DD3D11::UpdateConstantBuffer()
 {
     if (!m_deviceContext || !m_transformConstantBuffer) return;
     
+    //
+    // Check if matrices have changed to avoid redundant updates
+    
+    bool matricesChanged = false;
+    if (m_matricesNeedUpdate) 
+    {
+        matricesChanged = true;
+    }
+    else 
+    {
+        //
+        // Compare current matrices with last uploaded matrices
+
+        for (int i = 0; i < 16; i++) 
+        {
+            if (m_projectionMatrix.m[i] != m_lastProjectionMatrix[i] ||
+                m_modelViewMatrix.m[i] != m_lastModelViewMatrix[i]) 
+            {
+                matricesChanged = true;
+                break;
+            }
+        }
+    }
+    
+    if (!matricesChanged) return;
+    
     D3D11_MAPPED_SUBRESOURCE mapped;
     HRESULT hr = m_deviceContext->Map(m_transformConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
     if (SUCCEEDED(hr)) 
@@ -454,6 +537,13 @@ void Renderer2DD3D11::UpdateConstantBuffer()
         memcpy(buffer->uModelView, m_modelViewMatrix.m, sizeof(float) * 16);
         
         m_deviceContext->Unmap(m_transformConstantBuffer, 0);
+        
+        //
+        // Update last uploaded matrices
+        
+        memcpy(m_lastProjectionMatrix, m_projectionMatrix.m, sizeof(float) * 16);
+        memcpy(m_lastModelViewMatrix, m_modelViewMatrix.m, sizeof(float) * 16);
+        m_matricesNeedUpdate = false;
     }
 }
 
@@ -949,6 +1039,7 @@ void Renderer2DD3D11::CleanupBuffers()
     if (m_inputLayout) { m_inputLayout->Release(); m_inputLayout = nullptr; }
     
     if (m_transformConstantBuffer) { m_transformConstantBuffer->Release(); m_transformConstantBuffer = nullptr; }
+    if (m_batchedConstantBuffer) { m_batchedConstantBuffer->Release(); m_batchedConstantBuffer = nullptr; }
     
     //
     // Release persistent buffers
