@@ -65,9 +65,11 @@ RendererD3D11::RendererD3D11()
       m_blendStateAdditive(nullptr),
       m_blendStateSubtractive(nullptr),
       m_currentBlendState(nullptr),
+      m_currentlyBoundBlendState(nullptr),
       m_depthStateEnabled(nullptr),
       m_depthStateDisabled(nullptr),
       m_currentDepthState(nullptr),
+      m_currentlyBoundDepthState(nullptr),
       m_rasterizerStateNoCull(nullptr),
       m_rasterizerStateCullBack(nullptr),
       m_rasterizerStateCullFront(nullptr),
@@ -77,6 +79,7 @@ RendererD3D11::RendererD3D11()
       m_rasterizerStateCullFrontScissor(nullptr),
       m_rasterizerStateCullBothScissor(nullptr),
       m_currentRasterizerState(nullptr),
+      m_currentlyBoundRasterizerState(nullptr),
       m_samplerStateLinear(nullptr),
       m_samplerStateLinearMipLinear(nullptr),
       m_currentSamplerState(nullptr),
@@ -508,9 +511,11 @@ void RendererD3D11::UpdateBlendState()
     }
     
     if (!m_deviceContext || !m_currentBlendState) return;
+    if (m_currentBlendState == m_currentlyBoundBlendState) return;
     
     float blendFactor[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
     m_deviceContext->OMSetBlendState(m_currentBlendState, blendFactor, 0xffffffff);
+    m_currentlyBoundBlendState = m_currentBlendState;
 }
 
 void RendererD3D11::UpdateDepthState()
@@ -521,8 +526,10 @@ void RendererD3D11::UpdateDepthState()
     }
     
     if (!m_deviceContext || !m_currentDepthState) return;
+    if (m_currentDepthState == m_currentlyBoundDepthState) return;
     
     m_deviceContext->OMSetDepthStencilState(m_currentDepthState, 0);
+    m_currentlyBoundDepthState = m_currentDepthState;
 }
 
 void RendererD3D11::UpdateRasterizerState()
@@ -533,8 +540,10 @@ void RendererD3D11::UpdateRasterizerState()
     }
     
     if (!m_deviceContext || !m_currentRasterizerState) return;
+    if (m_currentRasterizerState == m_currentlyBoundRasterizerState) return;
     
     m_deviceContext->RSSetState(m_currentRasterizerState);
+    m_currentlyBoundRasterizerState = m_currentRasterizerState;
 }
 
 ID3D11RasterizerState* RendererD3D11::SelectRasterizerState(bool scissorEnabled, bool cullEnabled, int cullMode)
