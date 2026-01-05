@@ -191,8 +191,7 @@ void MapRenderer::Render()
     GetWindowBounds( &left, &right, &top, &bottom );
 
     // Render the landscape first to avoid object clipping at map edges
-    int iterations = GetSeamIterationCount( left, right );
-    for( int x = 0; x < iterations; ++x )
+    for( int x = 0; x < 2; ++x )
     {
         g_renderer2d->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
         Colour blurColour = g_styleTable->GetPrimaryColour( STYLE_WORLD_LAND );
@@ -225,20 +224,15 @@ void MapRenderer::Render()
         g_renderer2d->EndLineBatch();
         g_renderer2d->EndTextBatch();
 		
-        if( x < iterations - 1 )
-        {
-            left += GetLongitudeMod();
-            right += GetLongitudeMod();
-        }
+        left += GetLongitudeMod();
+        right += GetLongitudeMod();
     }
 
     //
     // Now go through and render objects on top of the landscape.
 
     GetWindowBounds( &left, &right, &top, &bottom );
-    iterations = GetSeamIterationCount( left, right );
-    
-    for( int x = 0; x < iterations; ++x )
+    for( int x = 0; x < 2; ++x )
     {
         m_seamIteration = x;  // Track which iteration we're in for seam wrapping
         g_renderer2d->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
@@ -314,30 +308,25 @@ void MapRenderer::Render()
         g_renderer2d->EndLineBatch();
         g_renderer2d->EndRotatingSpriteBatch();
 
-        if( x < iterations - 1 )
+        //
+        // render radar outside of the main scene to
+        // render it in front of everything, the radar 
+        // system batches internally anyway
+
+        if( g_app->GetWorldRenderer()->m_showRadar )               
         {
-            left += GetLongitudeMod();
-            right += GetLongitudeMod();
+            RenderRadar();
         }
+
+        left += GetLongitudeMod();
+        right += GetLongitudeMod();
     }    
-
-    //
-    // render radar outside of the seam iterations to prevent double rendering
-
-    if( g_app->GetWorldRenderer()->m_showRadar )               
-    {
-        GetWindowBounds( &left, &right, &top, &bottom );
-        g_renderer2d->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
-        RenderRadar();
-    }
 
     //
     // render mouse seperately to prevent object info boxes being covered by territory areas
 
     GetWindowBounds( &left, &right, &top, &bottom );
-    iterations = GetSeamIterationCount( left, right );
-    
-    for( int x = 0; x < iterations; ++x )
+    for( int x = 0; x < 2; ++x )
     {
         m_seamIteration = x;  // Track which iteration we're in for seam wrapping
         g_renderer2d->Set2DViewport( left, right, bottom, top, m_pixelX, m_pixelY, m_pixelW, m_pixelH );
@@ -384,11 +373,8 @@ void MapRenderer::Render()
 
         g_renderer->SetBlendMode( Renderer::BlendModeNormal );    // reset blend mode after flush
         
-        if( x < iterations - 1 )
-        {
-            left += GetLongitudeMod();
-            right += GetLongitudeMod();
-        }
+        left += GetLongitudeMod();
+        right += GetLongitudeMod();
     }
 
     END_PROFILE( "MapRenderer" );
@@ -3272,25 +3258,8 @@ void MapRenderer::RenderRadar()
     // cannot use batching here as im having issues with depth and blend modes 
     // when flushing
 
-    g_renderer->SetBlendMode( Renderer::BlendModeNormal );
-    
-    float left, right, top, bottom;
-    GetWindowBounds( &left, &right, &top, &bottom );
-    
+    g_renderer->SetBlendMode( Renderer::BlendModeNormal );        
     g_renderer2d->RectFill( -180, -100, 360, 200, Colour(0,0,0,150), true );
-    
-    //
-    // Render at -360 offset if viewport extends before -180
-
-    if( left < -180.0f )
-    {
-        g_renderer2d->RectFill( -180-360, -100, 360, 200, Colour(0,0,0,150), true );
-    }
-    if( right > 180.0f )
-    {
-        g_renderer2d->RectFill( -180+360, -100, 360, 200, Colour(0,0,0,150), true );
-    }
-    
     g_renderer->SetDepthBuffer( false, false );
     g_renderer->SetBlendMode( Renderer::BlendModeAdditive );      
     
@@ -4471,18 +4440,6 @@ int MapRenderer::GetLongitudeMod()
     {
         return -360;
     }
-}
-
-int MapRenderer::GetSeamIterationCount( float left, float right )
-{
-    //
-    // Check if viewport crosses the -180/+180 longitude seam
-    // If it does, we need 2 iterations for proper seam wrapping
-    // Otherwise, only 1 iteration is needed to avoid unnecessary 
-    // draw calls and driver overhead
-
-    bool needsSeamWrap = (left < -180.0f) || (right > 180.0f);
-    return needsSeamWrap ? 2 : 1;
 }
 
 void MapRenderer::UpdateSelectionAnimation( int id )

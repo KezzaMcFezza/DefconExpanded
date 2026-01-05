@@ -188,7 +188,6 @@ public:
     void    GetPosition( float &_middleX, float &_middleY );
 
     int     GetLongitudeMod();
-    int     GetSeamIterationCount( float left, float right );
     
     Fixed   GetCachedFlightTime(int objectId);
     Fixed   GetLaunchCountdown(int siloId);
