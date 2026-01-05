@@ -823,6 +823,35 @@ SoundInstance *SoundSystem::GetSoundInstance( SoundInstanceId _id )
     // Memory fence to ensure we see up-to-date pointer from any writes
     std::atomic_thread_fence(std::memory_order_acquire);
     
+    //
+    // Re check ValidIndex after memory fence to handle race condition:
+    // Another thread may have removed this slot between the first check and now.
+    // Hopefully this prevents the assertion failure in operator[] when shadow[index] == 0.
+    //
+    // Stack trace:
+    //
+    // Assertion failed: 'shadow[index] != 0'
+    //
+    //0. AppReleaseAssertFailed
+    //   at debug_utils.cpp:410
+    //
+    //1. DArray<Explosion *>::operator[]
+    //   at darray.cpp:242
+    //
+    //2. SoundSystem::LockSoundInstance
+    //   at soundsystem.cpp:842
+    //
+    //3. SoundLibrary3dSoftware::RenderToInterleavedFloat
+    //   at sound_library_3d_software.cpp:476
+    //
+    //4. SoundLibrary2dSDL::RenderFloatBlock
+    //   at sound_library_2d_sdl.cpp:138
+
+    if( !m_sounds.ValidIndex(_id.m_index) )
+    {
+        return NULL;
+    }
+    
     SoundInstance *found = m_sounds[_id.m_index];
     
     // Validate pointer is non-null and ID matches before use
