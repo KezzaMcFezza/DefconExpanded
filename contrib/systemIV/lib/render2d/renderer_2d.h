@@ -314,7 +314,7 @@ public:
   void Shutdown();
 
   void Set2DViewport  (float l, float r, float b, float t, int x, int y, int w,int h);
-  void Reset2DViewport();
+  virtual void Reset2DViewport();
 
 
   void BeginTextBatch();

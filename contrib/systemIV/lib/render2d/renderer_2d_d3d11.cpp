@@ -465,6 +465,30 @@ void Renderer2DD3D11::SetLineShaderUniforms(float lineWidth)
 }
 
 // ============================================================================
+// STATE CACHE INVALIDATION
+// ============================================================================
+
+void Renderer2DD3D11::InvalidateStateCache()
+{
+    m_currentlyBoundVS = nullptr;
+    m_currentlyBoundPS = nullptr;
+    m_currentlyBoundGS = nullptr;
+    m_currentlyBoundInputLayout = nullptr;
+    
+    //
+    // 3D renderer uses different matrices
+    // Force matrix update on next 2D rendering
+    
+    m_matricesNeedUpdate = true;
+}
+
+void Renderer2DD3D11::Reset2DViewport()
+{
+    InvalidateStateCache();
+    Renderer2D::Reset2DViewport();
+}
+
+// ============================================================================
 // CONSTANT BUFFER
 // ============================================================================
 
