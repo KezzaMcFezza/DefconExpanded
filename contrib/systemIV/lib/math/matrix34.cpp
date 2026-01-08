@@ -13,8 +13,11 @@ static float s_openGLFormat[16];
 
 Matrix34 const g_identityMatrix34(0);
 
-
+#ifdef TARGET_OS_MACOSX
 constexpr Matrix34::Matrix34()
+#else
+Matrix34::Matrix34()
+#endif
 {
     SetToIdentity();
 }
