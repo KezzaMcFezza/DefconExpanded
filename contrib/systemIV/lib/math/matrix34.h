@@ -18,7 +18,7 @@ public:
     Vector3<float> pos;
 
 public:
-	Matrix34 ();
+	constexpr Matrix34 ();
 	Matrix34 ( int ignored );
 	constexpr Matrix34 ( Matrix34 const &other ) : r(other.r), u(other.u), f(other.f), pos(other.pos) {}
 	constexpr Matrix34 ( Matrix33 const &orientation, Vector3<float> const &pos ) : r(orientation.r), u(orientation.u), f(orientation.f), pos(pos) {}

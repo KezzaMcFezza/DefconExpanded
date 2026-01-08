@@ -124,6 +124,7 @@ int         GetResourceDirCount();
     #undef TARGET_OS_LINUX
     #undef TARGET_OS_WINDOWS
     #undef TARGET_EMSCRIPTEN
+    #define RENDERER_OPENGL
 #elif defined(TARGET_MSVC)
     #undef TARGET_OS_LINUX
     #undef TARGET_OS_MACOSX

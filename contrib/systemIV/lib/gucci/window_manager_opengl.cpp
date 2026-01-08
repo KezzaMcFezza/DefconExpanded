@@ -1,6 +1,6 @@
-#ifdef RENDERER_OPENGL
-
 #include "systemiv.h"
+
+#ifdef RENDERER_OPENGL
 #include <SDL2/SDL.h>
 
 #ifdef TARGET_OS_MACOSX

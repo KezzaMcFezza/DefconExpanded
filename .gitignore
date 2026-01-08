@@ -44,3 +44,4 @@ CPack*.cmake
 *.kdev*
 .kdev4/
 targets/macosx/Defcon.xcodeproj/project.xcworkspace/xcuserdata
+targets/macosx/Defcon.xcodeproj/xcuserdata

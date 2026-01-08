@@ -1,6 +1,6 @@
-#ifdef RENDERER_OPENGL
-
 #include "systemiv.h"
+
+#ifdef RENDERER_OPENGL
 #include "renderer_3d_opengl.h"
 #include "lib/render/renderer.h"
 #include "shaders/vertex.glsl.h"

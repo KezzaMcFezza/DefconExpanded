@@ -330,7 +330,7 @@ private:
 
 public:
     Renderer3D();
-    ~Renderer3D();
+    virtual ~Renderer3D();
     
     void CreateSurfaceAlignedBillboard    (const Vector3<float>& position, float width, float height, 
                                            Vertex3DTextured* vertices, float u1, float v1, float u2, float v2, 

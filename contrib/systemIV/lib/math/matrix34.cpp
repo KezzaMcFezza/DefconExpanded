@@ -14,7 +14,7 @@ static float s_openGLFormat[16];
 Matrix34 const g_identityMatrix34(0);
 
 
-Matrix34::Matrix34()
+constexpr Matrix34::Matrix34()
 {
     SetToIdentity();
 }

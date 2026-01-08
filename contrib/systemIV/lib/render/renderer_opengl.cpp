@@ -1,7 +1,6 @@
-#ifdef RENDERER_OPENGL
-
 #include "systemiv.h"
 
+#ifdef RENDERER_OPENGL
 #include <string.h>
 #include <time.h>
 

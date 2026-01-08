@@ -56,17 +56,6 @@ static void AddFileOrDirectory( const char *path, std::queue<std::string> &paths
 }
 
 
-static void DisableVSync()
-{
-#ifndef RENDERER_DIRECTX11
-	typedef GLboolean(APIENTRY *FuncTypeWglSwapIntervalEXT)(GLint interval);
-
-	FuncTypeWglSwapIntervalEXT setSwapInterval = (FuncTypeWglSwapIntervalEXT) wglGetProcAddress("wglSwapIntervalEXT");
-	if( setSwapInterval ) (*setSwapInterval)(0);
-#endif
-}
-
-
 void SyncTestRecordings::Initialise()
 {
     // Parse the command line to see if we're enabled.
@@ -96,11 +85,6 @@ void SyncTestRecordings::Initialise()
     }
 
     m_enabled = !m_paths.empty();
-
-	if (m_enabled)
-	{
-		DisableVSync();
-	}
 }
 
 
