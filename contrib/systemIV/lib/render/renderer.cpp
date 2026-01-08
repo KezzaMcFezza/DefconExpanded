@@ -48,6 +48,7 @@ Renderer::Renderer()
       m_msaaSamples(0),
       m_msaaWidth(0),
       m_msaaHeight(0),
+      m_currentPass(RENDER_PASS_NONE),
       m_blendMode(BlendModeNormal),
       m_blendSrcFactor(0),
       m_blendDstFactor(0)

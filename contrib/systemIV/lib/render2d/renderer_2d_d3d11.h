@@ -96,7 +96,6 @@ private:
     void GetDeviceAndContext();
     void CreateConstantBuffer();
     void UpdateConstantBuffer();
-    void InvalidateStateCache();
     void RegisterVBO(unsigned int vboId, ID3D11Buffer* buffer);
     void RegisterIBO(unsigned int iboId, ID3D11Buffer* buffer);
 
@@ -107,8 +106,7 @@ public:
     virtual ~Renderer2DD3D11();
 
     void UpdateCurrentVAO(unsigned int vao);
-    
-    virtual void Reset2DViewport() override;
+    void InvalidateStateCache();
     
 protected:
     virtual void InitializeShaders       () override;

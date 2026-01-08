@@ -3,6 +3,7 @@
 #include "systemiv.h"
 #include "renderer_2d_opengl.h"
 #include "lib/render/renderer.h"
+#include "lib/render/renderer_opengl.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/preferences.h"
 #include "shaders/vertex.glsl.h"
@@ -670,6 +671,25 @@ void Renderer2DOpenGL::DisableMegaVBOPrimitiveRestart()
 #ifndef TARGET_EMSCRIPTEN
     glDisable(GL_PRIMITIVE_RESTART);
 #endif
+}
+
+// ============================================================================
+// STATE CACHE INVALIDATION
+// ============================================================================
+
+void Renderer2DOpenGL::InvalidateStateCache()
+{
+    RendererOpenGL* rendererOpenGL = dynamic_cast<RendererOpenGL*>(g_renderer);
+    if (rendererOpenGL) 
+    {
+        g_renderer->SetShaderProgram(0);
+        g_renderer->SetVertexArray(0);
+        
+        g_renderer->SetArrayBuffer(0);
+        g_renderer->SetElementBuffer(0);
+        
+        g_renderer->SetBoundTexture(0);
+    }
 }
 
 // ============================================================================

@@ -482,12 +482,6 @@ void Renderer2DD3D11::InvalidateStateCache()
     m_matricesNeedUpdate = true;
 }
 
-void Renderer2DD3D11::Reset2DViewport()
-{
-    InvalidateStateCache();
-    Renderer2D::Reset2DViewport();
-}
-
 // ============================================================================
 // CONSTANT BUFFER
 // ============================================================================

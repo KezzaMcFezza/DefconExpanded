@@ -54,6 +54,10 @@ private:
 
     GLenum ConvertTextureAddressMode(int mode);
     GLenum ConvertDepthComparisonFunc(int func);
+    
+    void Setup2DRenderState();
+    void Setup3DRenderState();
+    void CleanupRenderState();
 
 public:
     RendererOpenGL();
@@ -90,7 +94,12 @@ public:
     
     virtual void BeginFrame () override;
     virtual void EndFrame   () override;
-    virtual void BeginScene () override;
+    
+    virtual void Begin2DRendering() override;
+    virtual void End2DRendering() override;
+    virtual void Begin3DRendering() override;
+    virtual void End3DRendering() override;
+    
     virtual void ClearScreen(bool colour, bool depth) override;
     
     virtual void HandleWindowResize()                 override;

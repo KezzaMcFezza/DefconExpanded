@@ -142,6 +142,19 @@ void Renderer3D::EndTriangleFillBatch3D() {
     }
 }
 
+void Renderer3D::FlushAllBatches3D()
+{
+    EndTextBatch3D();
+    EndLineBatch3D();
+    EndRectBatch3D();
+    EndRectFillBatch3D();
+    EndRotatingSpriteBatch3D();
+    EndStaticSpriteBatch3D();
+    EndCircleBatch3D();
+    EndCircleFillBatch3D();
+    EndTriangleFillBatch3D();
+}
+
 // ============================================================================
 // FLUSH IF FULL
 // ============================================================================

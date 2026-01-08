@@ -161,6 +161,19 @@ void Renderer2D::EndTriangleFillBatch() {
     }
 }
 
+void Renderer2D::FlushAllBatches()
+{
+    EndRectFillBatch();
+    EndTriangleFillBatch();
+    EndStaticSpriteBatch();
+    EndRotatingSpriteBatch();
+    EndLineBatch();
+    EndCircleBatch();
+    EndCircleFillBatch();
+    EndRectBatch();
+    EndTextBatch();
+}
+
 // ============================================================================
 // NOW FLUSH IF FULL
 // ============================================================================

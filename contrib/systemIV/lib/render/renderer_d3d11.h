@@ -142,7 +142,12 @@
      
      virtual void BeginFrame () override;
      virtual void EndFrame   () override;
-     virtual void BeginScene () override;
+    
+     virtual void Begin2DRendering() override;
+     virtual void End2DRendering() override;
+     virtual void Begin3DRendering() override;
+     virtual void End3DRendering() override;
+    
      virtual void ClearScreen(bool colour, bool depth) override;
      
      virtual void HandleWindowResize() override;
@@ -168,6 +173,11 @@
     void UpdateBlendState();
     void UpdateDepthState();
     void UpdateRasterizerState();
+    
+    void SetupDeviceRenderState();
+    void Setup2DRenderState();
+    void Setup3DRenderState();
+    void CleanupRenderState();
     
 protected:
     bool CheckHR(HRESULT hr, const char* operation);

@@ -1045,12 +1045,10 @@ void App::Render()
     
 #ifdef ENABLE_FOR_FUN
     g_renderer->ClearScreen( true, false );
-    g_renderer->BeginScene();
     g_renderer->BeginMSAARendering();
 #else
     g_renderer->BeginMSAARendering();
     g_renderer->ClearScreen( true, false );
-    g_renderer->BeginScene();
 #endif
     
     //
@@ -1072,16 +1070,20 @@ void App::Render()
                 //
                 // Render 3D globe
 
+                g_renderer->Begin3DRendering();
                 GetGlobeRenderer()->Update();
                 GetGlobeRenderer()->Render();
+                g_renderer->End3DRendering();
             }
             else
             {
                 //
                 // Render 2D map
 
+                g_renderer->Begin2DRendering();
                 GetMapRenderer()->Update();
                 GetMapRenderer()->Render();
+                g_renderer->End2DRendering();
             }
         }
     }
@@ -1091,13 +1093,18 @@ void App::Render()
     // Lobby graphics
 
     if( !m_gameRunning )
-    {    
+    {
+        g_renderer->Begin2DRendering();
         GetLobbyRenderer()->Render();
+        g_renderer->End2DRendering();
     }
 
 
-    g_renderer2d->Reset2DViewport();
+    //
+    // Eclipse rendering
 
+    g_renderer->Begin2DRendering();
+    
     //
     // eclipse buttons and windows, but first check if UI should be hidden
 
@@ -1178,6 +1185,8 @@ void App::Render()
 #ifdef SHOW_OWNER
     RenderOwner(); 
 #endif
+
+    g_renderer->End2DRendering();
 
     //
     // Flip with FPS limiting

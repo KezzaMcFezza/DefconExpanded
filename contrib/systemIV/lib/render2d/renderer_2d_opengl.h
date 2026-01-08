@@ -11,6 +11,8 @@ public:
     Renderer2DOpenGL();
     virtual ~Renderer2DOpenGL();
     
+    void InvalidateStateCache();
+    
 protected:
     virtual void InitializeShaders       () override;
     virtual void CacheUniformLocations   () override;

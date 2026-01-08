@@ -268,9 +268,6 @@ private:
     int m_prevTriangleVBOCalls3D;
     int m_activeFontBatches3D;
     int m_prevActiveFontBatches3D;
-
-    void InvalidateMatrices3D        () { m_matrices3DNeedUpdate = true; }
-    void InvalidateFog3D             () { m_fog3DNeedsUpdate = true; }
     
     virtual void Initialize3DShaders          () = 0;
     virtual void Cache3DUniformLocations      () = 0;
@@ -374,6 +371,9 @@ public:
     void EnableDistanceFog     (float start, float end, float density, float r, float g, float b, float a);
     void EnableOrientationFog  (float r, float g, float b, float a, float camX, float camY, float camZ);
     void DisableFog            ();
+    
+    void InvalidateMatrices3D  () { m_matrices3DNeedUpdate = true; }
+    void InvalidateFog3D       () { m_fog3DNeedsUpdate = true; }
     
     void BeginFrame3D();
     void EndFrame3D();
@@ -487,9 +487,7 @@ public:
     void EndTriangleFillBatch3D    ();
     void FlushTriangleFills3DIfFull(int verticesNeeded);
     
-    void FlushAllSpecializedBuffers3D();
-    void FlushAllUnitBuffers3D();
-    void FlushAllEffectBuffers3D();
+    void FlushAllBatches3D();
 };
 
 extern Renderer3D *g_renderer3d;

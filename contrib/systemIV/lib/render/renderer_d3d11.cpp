@@ -1363,7 +1363,7 @@ void RendererD3D11::ResetFlushTimings()
 // SCENE MANAGEMENT
 // ============================================================================
 
-void RendererD3D11::BeginScene()
+void RendererD3D11::SetupDeviceRenderState()
 {
     if (!m_device || !m_deviceContext) 
     {
@@ -1408,6 +1408,95 @@ void RendererD3D11::BeginScene()
     
     SetBoundTexture(0);
     SetBlendMode(BlendModeNormal);
+}
+
+void RendererD3D11::Setup2DRenderState()
+{
+    SetupDeviceRenderState();
+    
+    g_renderer3d->InvalidateMatrices3D();
+    g_renderer3d->InvalidateFog3D();
+    
+    Renderer2DD3D11* renderer2dD3D11 = dynamic_cast<Renderer2DD3D11*>(g_renderer2d);
+    if (renderer2dD3D11) 
+    {
+        renderer2dD3D11->InvalidateStateCache();
+    }
+    
+    g_renderer2d->Reset2DViewport();
+    
+    SetDepthBuffer(false, false);
+    SetCullFace(false, CULL_FACE_BACK);
+}
+
+void RendererD3D11::Setup3DRenderState()
+{
+    SetupDeviceRenderState();
+    
+    Renderer2DD3D11* renderer2dD3D11 = dynamic_cast<Renderer2DD3D11*>(g_renderer2d);
+    if (renderer2dD3D11) 
+    {
+        renderer2dD3D11->InvalidateStateCache();
+    }
+    
+    SetDepthBuffer(true, true);
+    
+    SetCullFace(true, CULL_FACE_BACK);
+}
+
+void RendererD3D11::CleanupRenderState()
+{
+    // Empty for now
+}
+
+// ============================================================================
+// RENDER PASS SYSTEM
+// ============================================================================
+
+void RendererD3D11::Begin2DRendering()
+{
+    if (m_currentPass != RENDER_PASS_NONE) 
+    {
+        return;
+    }
+    
+    m_currentPass = RENDER_PASS_2D;
+    Setup2DRenderState();
+}
+
+void RendererD3D11::End2DRendering()
+{
+    if (m_currentPass != RENDER_PASS_2D) 
+    {
+        return;
+    }
+    
+    g_renderer2d->FlushAllBatches();
+    CleanupRenderState();
+    m_currentPass = RENDER_PASS_NONE;
+}
+
+void RendererD3D11::Begin3DRendering()
+{
+    if (m_currentPass != RENDER_PASS_NONE) 
+    {
+        return;
+    }
+    
+    m_currentPass = RENDER_PASS_3D;
+    Setup3DRenderState();
+}
+
+void RendererD3D11::End3DRendering()
+{
+    if (m_currentPass != RENDER_PASS_3D) 
+    {
+        return;
+    }
+    
+    g_renderer3d->FlushAllBatches3D();
+    CleanupRenderState();
+    m_currentPass = RENDER_PASS_NONE;
 }
 
 void RendererD3D11::ClearScreen(bool colour, bool depth) 

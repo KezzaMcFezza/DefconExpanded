@@ -687,10 +687,88 @@ void RendererOpenGL::ResetFlushTimings()
 // SCENE MANAGEMENT
 // ============================================================================
 
-void RendererOpenGL::BeginScene() 
+void RendererOpenGL::Setup2DRenderState()
 {
     SetBoundTexture(0);
     SetBlendMode(BlendModeNormal);
+    
+    g_renderer3d->InvalidateMatrices3D();
+    g_renderer3d->InvalidateFog3D();
+    
+    g_renderer2d->Reset2DViewport();
+    
+    SetDepthBuffer(false, false);
+    SetCullFace(false, CULL_FACE_BACK);
+}
+
+void RendererOpenGL::Setup3DRenderState()
+{
+    SetBoundTexture(0);
+    SetBlendMode(BlendModeNormal);
+    
+    Renderer2DOpenGL* renderer2dOpenGL = dynamic_cast<Renderer2DOpenGL*>(g_renderer2d);
+    if (renderer2dOpenGL) 
+    {
+        renderer2dOpenGL->InvalidateStateCache();
+    }
+    
+    SetDepthBuffer(true, true);
+    SetCullFace(true, CULL_FACE_BACK);
+}
+
+void RendererOpenGL::CleanupRenderState()
+{
+    // Empty for now
+}
+
+// ============================================================================
+// RENDER PASS SYSTEM
+// ============================================================================
+
+void RendererOpenGL::Begin2DRendering()
+{
+    if (m_currentPass != RENDER_PASS_NONE) 
+    {
+        return;
+    }
+    
+    m_currentPass = RENDER_PASS_2D;
+    Setup2DRenderState();
+}
+
+void RendererOpenGL::End2DRendering()
+{
+    if (m_currentPass != RENDER_PASS_2D) 
+    {
+        return;
+    }
+    
+    g_renderer2d->FlushAllBatches();
+    CleanupRenderState();
+    m_currentPass = RENDER_PASS_NONE;
+}
+
+void RendererOpenGL::Begin3DRendering()
+{
+    if (m_currentPass != RENDER_PASS_NONE) 
+    {
+        return;
+    }
+    
+    m_currentPass = RENDER_PASS_3D;
+    Setup3DRenderState();
+}
+
+void RendererOpenGL::End3DRendering()
+{
+    if (m_currentPass != RENDER_PASS_3D) 
+    {
+        return;
+    }
+    
+    g_renderer3d->FlushAllBatches3D();
+    CleanupRenderState();
+    m_currentPass = RENDER_PASS_NONE;
 }
 
 void RendererOpenGL::ClearScreen(bool _colour, bool _depth) 

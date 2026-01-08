@@ -108,6 +108,12 @@ struct RendererFlushTiming {
     bool queryPending;
 };
 
+enum RenderPassType {
+    RENDER_PASS_NONE = 0,
+    RENDER_PASS_2D = 1,
+    RENDER_PASS_3D = 2
+};
+
 class Renderer
 {
 public:
@@ -140,6 +146,8 @@ protected:
     int m_msaaSamples;
     int m_msaaWidth;
     int m_msaaHeight;
+    
+    RenderPassType m_currentPass;
 
 public:
     Renderer();
@@ -191,7 +199,11 @@ public:
     
     virtual void BeginFrame() = 0;
     virtual void EndFrame() = 0;
-    virtual void BeginScene() = 0;
+    
+    virtual void Begin2DRendering() = 0;
+    virtual void End2DRendering() = 0;
+    virtual void Begin3DRendering() = 0;
+    virtual void End3DRendering() = 0;
 
     virtual void ClearScreen       (bool colour, bool depth) = 0;
     virtual void HandleWindowResize() = 0;

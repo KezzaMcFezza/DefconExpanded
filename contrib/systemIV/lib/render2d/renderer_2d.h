@@ -314,7 +314,7 @@ public:
   void Shutdown();
 
   void Set2DViewport  (float l, float r, float b, float t, int x, int y, int w,int h);
-  virtual void Reset2DViewport();
+  void Reset2DViewport();
 
 
   void BeginTextBatch();
@@ -399,6 +399,8 @@ public:
   void RotatingSprite            (Image *src, float x, float y, float w, float h,
                                   Colour const &col, float angle, bool immediateFlush = false);
   void EndRotatingSpriteBatch    ();
+
+  void FlushAllBatches();
 
 
 protected:
