@@ -330,6 +330,8 @@ bool WindowManagerOpenGL::CreateWin(int _width, int _height, bool _windowed, int
     printf("GLAD initialized successfully\n");
 #endif
     
+    SDL_GL_SetSwapInterval(0);
+    
     m_windowDisplayIndex = displayIndex;
     
     //
@@ -401,6 +403,62 @@ void WindowManagerOpenGL::Flip()
         CaptureMouse();
     
     SDL_GL_SwapWindow(m_sdlWindow);
+}
+
+void WindowManagerOpenGL::HandleResize(int newWidth, int newHeight)
+{
+    if (!m_sdlWindow || newWidth <= 0 || newHeight <= 0)
+        return;
+    
+    Uint32 windowFlags = SDL_GetWindowFlags(m_sdlWindow);
+    
+    UpdateStoredMaximizedState();
+
+    if (windowFlags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP))
+        return;
+    
+    if (newWidth == m_screenW && newHeight == m_screenH)
+        return;
+    
+    int oldWidth = m_screenW;
+    int oldHeight = m_screenH;
+    
+    m_screenW = newWidth;
+    m_screenH = newHeight;
+    
+    //CalculateHighDPIScaleFactors();
+    
+    //
+    // Check if window moved to a different display
+
+    int newDisplayIndex = SDL_GetWindowDisplayIndex(m_sdlWindow);
+    if (newDisplayIndex >= 0 && newDisplayIndex != m_windowDisplayIndex)
+    {
+        m_windowDisplayIndex = newDisplayIndex;
+        ListAllDisplayModes(m_windowDisplayIndex);
+    }
+    
+    //
+    // Add current resolution to list if not present
+
+    if (GetResolutionId(newWidth, newHeight) == -1)
+    {
+        WindowResolution *res = new WindowResolution(newWidth, newHeight);
+        m_resolutions.PutData(res);
+    }
+    
+    //
+    // Call resize handler
+
+    if (m_windowResizeHandler)
+    {
+        m_windowResizeHandler(newWidth, newHeight, oldWidth, oldHeight);
+    }
+}
+
+void WindowManagerOpenGL::HandleWindowFocusGained()
+{
+
 }
 
 #endif // RENDERER_OPENGL

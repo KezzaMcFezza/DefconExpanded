@@ -33,7 +33,8 @@ public:
 	virtual void        Flip                () = 0;
 	virtual void        PollForMessages     ();
 	virtual void        SetMousePos         (int x, int y);
-	virtual void        HandleResize        (int newWidth, int newHeight);
+	virtual void        HandleResize        (int newWidth, int newHeight) = 0;
+	virtual void        HandleWindowFocusGained() = 0;
 
 	virtual void        CaptureMouse        ();
 	virtual void        UncaptureMouse      ();

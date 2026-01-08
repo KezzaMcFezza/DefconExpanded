@@ -390,53 +390,12 @@ bool WindowManager::MouseVisible()
 
 void WindowManager::HandleResize(int newWidth, int newHeight)
 {
-    if (!m_sdlWindow || newWidth <= 0 || newHeight <= 0)
-        return;
-    
-    Uint32 windowFlags = SDL_GetWindowFlags(m_sdlWindow);
-    
-    UpdateStoredMaximizedState();
+    // Base implementation does nothing
+}
 
-    if (windowFlags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP))
-        return;
-    
-    if (newWidth == m_screenW && newHeight == m_screenH)
-        return;
-    
-    int oldWidth = m_screenW;
-    int oldHeight = m_screenH;
-    
-    m_screenW = newWidth;
-    m_screenH = newHeight;
-    
-    //CalculateHighDPIScaleFactors();
-    
-    //
-    // Check if window moved to a different display
-
-    int newDisplayIndex = SDL_GetWindowDisplayIndex(m_sdlWindow);
-    if (newDisplayIndex >= 0 && newDisplayIndex != m_windowDisplayIndex)
-    {
-        m_windowDisplayIndex = newDisplayIndex;
-        ListAllDisplayModes(m_windowDisplayIndex);
-    }
-    
-    //
-    // Add current resolution to list if not present
-
-    if (GetResolutionId(newWidth, newHeight) == -1)
-    {
-        WindowResolution *res = new WindowResolution(newWidth, newHeight);
-        m_resolutions.PutData(res);
-    }
-    
-    //
-    // Call resize handler
-
-    if (m_windowResizeHandler)
-    {
-        m_windowResizeHandler(newWidth, newHeight, oldWidth, oldHeight);
-    }
+void WindowManager::HandleWindowFocusGained()
+{
+    // Base implementation does nothing
 }
 
 void WindowManager::CaptureMouse()
@@ -524,6 +483,11 @@ void WindowManager::PollForMessages()
                 case SDL_WINDOWEVENT_MAXIMIZED:
                 case SDL_WINDOWEVENT_RESTORED:
                     HandleResize(sdlEvent.window.data1, sdlEvent.window.data2);
+                    break;
+                
+                case SDL_WINDOWEVENT_FOCUS_GAINED:
+                case SDL_WINDOWEVENT_SHOWN:
+                    HandleWindowFocusGained();
                     break;
                 
                 default:

@@ -20,6 +20,8 @@ public:
     
 	void        DestroyWin          () override;
 	void        Flip                () override;
+	void        HandleResize        (int newWidth, int newHeight) override;
+	void        HandleWindowFocusGained() override;
 
 private:
     SDL_GLContext m_glContext;

@@ -1,7 +1,8 @@
 ScreenWidth = 0
 ScreenHeight = 0
-ScreenWindowed = 2
-ScreenMaximized = 1
+ScreenWindowed = 0
+ScreenBorderless = 1
+ScreenMaximized = 0
 ScreenColourDepth = 0
 ScreenRefresh = 0
 ScreenZDepth = 24

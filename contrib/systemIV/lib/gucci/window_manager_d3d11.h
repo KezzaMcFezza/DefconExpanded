@@ -8,6 +8,7 @@
 #include <windows.h>
 #include <d3d11.h>
 #include <dxgi.h>
+#include <dxgi1_5.h>
 #include <SDL2/SDL.h>
 
 #pragma comment(lib, "d3d11.lib")
@@ -29,6 +30,7 @@ public:
     virtual void DestroyWin() override;
     virtual void Flip() override;
     virtual void HandleResize(int newWidth, int newHeight) override;
+    virtual void HandleWindowFocusGained() override;
 
     ID3D11Device          * GetDevice()           const { return m_device; }
     ID3D11DeviceContext   * GetDeviceContext()    const { return m_deviceContext; }
@@ -49,12 +51,15 @@ private:
     
     D3D_FEATURE_LEVEL m_featureLevel;
     
-    bool m_vsyncEnabled;
+    bool m_tearingSupported;
+    UINT m_swapChainFlags;
+    bool m_isExclusiveFullscreen;
     
     void ShutdownDirectX();
     bool CreateRenderTargetView();
     bool CreateDepthStencilView(int width, int height);
-    bool InitializeDirectX(int width, int height, bool windowed, int msaaSamples);
+    bool InitializeDirectX(int width, int height, bool windowed, bool borderless, int msaaSamples);
+    bool RecoverSwapChain();
 };
 
 #endif // RENDERER_DIRECTX11
