@@ -111,6 +111,8 @@
         "-I${workspaceFolder}/source/app",
         "-I${workspaceFolder}/contrib/systemIV",
         "-I${workspaceFolder}/contrib/systemIV/contrib",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/imgui-1.92.5",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/imgui-1.92.5/backends",
         "-I${workspaceFolder}/contrib/systemIV/contrib/tinygltf-2.9.7",
         "-I${workspaceFolder}/contrib/systemIV/contrib/crashpad/windows/include",
         "-I${workspaceFolder}/contrib/systemIV/contrib/crashpad/crashpad/third_party/mini_chromium/mini_chromium",
