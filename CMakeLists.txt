@@ -7,6 +7,7 @@ set(SYSTEMIV_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV" CACHE PATH "Location of
 set(GLAD_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/glad")
 set(HIGHWAY_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/highway-1.3.0")
 set(TINYGLTF_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/tinygltf-2.9.7")
+set(IMGUI_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/imgui-1.92.5")
 set(RESOURCES_DIR "${ROOT_PATH}/resources")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/result/Debug")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/result/Release")
@@ -94,6 +95,8 @@ include_directories(
     ${GLAD_INCLUDE_DIR}
     ${HIGHWAY_PATH}
     ${TINYGLTF_PATH}
+    ${IMGUI_PATH}
+    ${IMGUI_PATH}/backends
 )
 
 set(RESOURCE_FILES
@@ -203,6 +206,10 @@ if(EMSCRIPTEN)
         ${SYSTEMIV_PATH}/contrib/binreloc/binreloc.c
     )
     
+    list(APPEND IMGUI_SOURCE
+        ${IMGUI_PATH}/backends/imgui_impl_opengl3.cpp
+    )
+    
     set(EXE_TYPE)
     
     set(FILES_TO_EXCLUDE
@@ -295,6 +302,11 @@ elseif(MSVC)
         ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
     )
     
+    list(APPEND IMGUI_SOURCE
+        ${IMGUI_PATH}/backends/imgui_impl_opengl3.cpp
+        ${IMGUI_PATH}/backends/imgui_impl_dx11.cpp
+    )
+    
     set(EXE_TYPE WIN32)
     
     set(FILES_TO_EXCLUDE
@@ -375,6 +387,10 @@ elseif(APPLE)
         ${SYSTEMIV_PATH}/lib/gucci/macosxlibrary.cpp
         ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
         ${MACOS_SPECIFIC_SOURCES}
+    )
+    
+    list(APPEND IMGUI_SOURCE
+        ${IMGUI_PATH}/backends/imgui_impl_opengl3.cpp
     )
     
     set_source_files_properties(${ROOT_PATH}/source/app/dockicon.mm PROPERTIES COMPILE_FLAGS "-x objective-c++")
@@ -458,6 +474,10 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
         ${SYSTEMIV_PATH}/contrib/binreloc/binreloc.c
         ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
+    )
+    
+    list(APPEND IMGUI_SOURCE
+        ${IMGUI_PATH}/backends/imgui_impl_opengl3.cpp
     )
     
     set(EXE_TYPE)
@@ -769,15 +789,24 @@ set(TINYGLTF_SOURCE
     ${TINYGLTF_PATH}/tiny_gltf.cc
 )
 
+set(IMGUI_SOURCE
+    ${IMGUI_PATH}/imgui.cpp
+    ${IMGUI_PATH}/imgui_draw.cpp
+    ${IMGUI_PATH}/imgui_tables.cpp
+    ${IMGUI_PATH}/imgui_widgets.cpp
+    ${IMGUI_PATH}/backends/imgui_impl_sdl2.cpp
+)
+
 foreach(FILE ${FILES_TO_EXCLUDE})
     list(REMOVE_ITEM DEFCON_SOURCE ${FILE})
     list(REMOVE_ITEM SYSTEMIV_SOURCE ${FILE})
     list(REMOVE_ITEM UNRAR_SOURCE ${FILE})
     list(REMOVE_ITEM HIGHWAY_SOURCE ${FILE})
     list(REMOVE_ITEM TINYGLTF_SOURCE ${FILE})
+    list(REMOVE_ITEM IMGUI_SOURCE ${FILE})
 endforeach()
 
-set(ALL_SOURCES ${DEFCON_SOURCE} ${SYSTEMIV_SOURCE} ${UNRAR_SOURCE} ${HIGHWAY_SOURCE} ${TINYGLTF_SOURCE} ${PLATFORM_SPECIFIC_FILES} ${RESOURCE_FILES} ${GLAD_SOURCE_FILE})
+set(ALL_SOURCES ${DEFCON_SOURCE} ${SYSTEMIV_SOURCE} ${UNRAR_SOURCE} ${HIGHWAY_SOURCE} ${TINYGLTF_SOURCE} ${IMGUI_SOURCE} ${PLATFORM_SPECIFIC_FILES} ${RESOURCE_FILES} ${GLAD_SOURCE_FILE})
 
 if(REPLAY_VIEWER_BUILD)
     set(EXECUTABLE_NAME "replay_viewer_${REPLAY_VIEWER_VERSION}")
@@ -865,8 +894,11 @@ elseif(MSVC)
     target_include_directories(${EXECUTABLE_NAME} PRIVATE
         ${ROOT_PATH}/contrib/systemIV/contrib/${VORBIS_ARCH_INCLUDE}
         ${SDL2_INCLUDE_DIRS}
+        ${SDL2_INCLUDE_DIRS}/SDL2
         ${ROOT_PATH}/contrib/ambx1.1/inc
         ${TINYGLTF_PATH}
+        ${IMGUI_PATH}
+        ${IMGUI_PATH}/backends
     )
     
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE 
@@ -928,9 +960,12 @@ else()
     
     target_include_directories(${EXECUTABLE_NAME} PUBLIC 
         ${SDL2_INCLUDE_DIRS}
+        ${SDL2_INCLUDE_DIRS}/SDL2
         ${OPENGL_INCLUDE_DIRS}
         ${VORBIS_INCLUDE_DIRS}
         ${CRASHPAD_INCLUDE_DIRS}
+        ${IMGUI_PATH}
+        ${IMGUI_PATH}/backends
     )
     
     set(CRASHPAD_LIBRARIES
@@ -964,6 +999,8 @@ target_include_directories(${EXECUTABLE_NAME} PUBLIC
     ${ROOT_PATH}/source
     ${SYSTEMIV_PATH}
     ${TINYGLTF_PATH}
+    ${IMGUI_PATH}
+    ${IMGUI_PATH}/backends
 )
 
 
