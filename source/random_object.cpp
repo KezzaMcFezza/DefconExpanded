@@ -2,7 +2,7 @@
 
 #include <stdarg.h>
 
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 
 #include "lib/math/math_utils.h"
 #include "random_object.h"

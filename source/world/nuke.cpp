@@ -12,7 +12,7 @@
 #include "lib/render2d/renderer_2d.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 
 #include "app/app.h"
 #include "app/globals.h"

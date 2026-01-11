@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/netlib/net_socket.h"
 #include "lib/metaserver/authentication.h"
 #include "lib/metaserver/metaserver_defines.h"

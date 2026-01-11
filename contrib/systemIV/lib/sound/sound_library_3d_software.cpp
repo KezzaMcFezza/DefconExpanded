@@ -1,9 +1,9 @@
 #include "systemiv.h"
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/hi_res_time.h"
 #include "lib/math/math_utils.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 #include "lib/gucci/input.h"
 
 #include "sound_filter.h"

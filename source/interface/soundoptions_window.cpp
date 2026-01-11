@@ -7,7 +7,7 @@
 #include "lib/render2d/renderer_2d.h"
 #include "lib/language_table.h"
 #include "lib/preferences.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 
 #include "lib/eclipse/components/drop_down_menu.h"
 #include "lib/eclipse/components/inputfield.h"

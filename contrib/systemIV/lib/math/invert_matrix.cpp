@@ -2,7 +2,7 @@
 
 #include <math.h>
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 
 class Matrix {
 

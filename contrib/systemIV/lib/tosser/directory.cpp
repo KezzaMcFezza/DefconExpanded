@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include "lib/string_utils.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "directory.h"
 
 #define DIRECTORY_MARKERSIZE     1

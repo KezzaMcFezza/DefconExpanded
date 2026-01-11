@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/hi_res_time.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"

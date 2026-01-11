@@ -1,9 +1,9 @@
 #include "systemiv.h"
 #include "lib/tosser/btree.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 #include <string.h>
 #include <algorithm>
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
 #include "lib/hi_res_time.h"
 #include "lib/math/random_number.h"

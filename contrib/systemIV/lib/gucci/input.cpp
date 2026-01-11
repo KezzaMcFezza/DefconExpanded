@@ -4,7 +4,7 @@
 
 #include "lib/hi_res_time.h"
 #include "lib/eclipse/eclipse.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 
 #include "input.h"
 #include "window_manager.h"

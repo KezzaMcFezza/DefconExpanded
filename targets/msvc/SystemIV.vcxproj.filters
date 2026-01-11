@@ -29,22 +29,13 @@
     <ClCompile Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.cc">
       <Filter>contrib\tinygltf</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\debug_utils.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\hi_res_time.cpp">
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\language_table.cpp">
       <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\memory_leak.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\preferences.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\contrib\SystemIV\lib\profiler.cpp">
       <Filter>lib</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\string_utils.cpp">
@@ -353,6 +344,15 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\gucci\window_manager_d3d11.cpp">
       <Filter>lib\gucci</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\debug\debug_utils.cpp">
+      <Filter>lib\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\debug\memory_leak.cpp">
+      <Filter>lib\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\debug\profiler.cpp">
+      <Filter>lib\debug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\contrib\systemIV\systemiv.h" />
@@ -368,22 +368,13 @@
     <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.h">
       <Filter>contrib\tinygltf</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\debug_utils.h">
-      <Filter>lib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\hi_res_time.h">
       <Filter>lib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\language_table.h">
       <Filter>lib</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\memory_leak.h">
-      <Filter>lib</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\preferences.h">
-      <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\SystemIV\lib\profiler.h">
       <Filter>lib</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\string_utils.h">
@@ -722,6 +713,15 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\gucci\window_manager_d3d11.h">
       <Filter>lib\gucci</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\debug\debug_utils.h">
+      <Filter>lib\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\debug\memory_leak.h">
+      <Filter>lib\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\debug\profiler.h">
+      <Filter>lib\debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="contrib">
@@ -795,6 +795,9 @@
     </Filter>
     <Filter Include="lib\resource\tinygltf">
       <UniqueIdentifier>{b9e5912b-5be3-492e-852b-d09f076b7da7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\debug">
+      <UniqueIdentifier>{d9cc2a3b-066f-4da4-b875-b65972466ee3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

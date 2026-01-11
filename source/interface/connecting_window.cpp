@@ -5,7 +5,7 @@
 #include "lib/math/math_utils.h"
 #include "lib/hi_res_time.h"
 #include "lib/language_table.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 
 #include "network/ClientToServer.h"
 

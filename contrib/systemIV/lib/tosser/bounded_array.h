@@ -4,7 +4,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 
 // ****************************************************************************
 // Class BoundedArray

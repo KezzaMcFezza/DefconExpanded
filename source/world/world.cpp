@@ -12,7 +12,7 @@
 #include "lib/resource/bitmap.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 #include "lib/language_table.h"
 #include "lib/math/random_number.h"
 #include "lib/sound/soundsystem.h"

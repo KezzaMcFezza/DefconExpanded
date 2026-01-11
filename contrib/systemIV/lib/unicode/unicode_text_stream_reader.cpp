@@ -2,7 +2,7 @@
 
 #include "unicode_text_stream_reader.h"
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/filesys/filesys_utils.h"
 #include <cstring>
 

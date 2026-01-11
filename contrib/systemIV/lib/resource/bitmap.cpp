@@ -8,7 +8,7 @@
 #include "lib/filesys/file_system.h"
 #include "lib/render/colour.h"
 #include "lib/render/renderer.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
 
 #include "bitmap.h"

@@ -13,7 +13,7 @@
 #include "lib/render2d/megavbo/megavbo_2d.h"
 #include "lib/render/colour.h"
 #include "lib/render/styletable.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 #include "lib/language_table.h"
 #include "lib/preferences.h"
 #include "lib/math/math_utils.h"

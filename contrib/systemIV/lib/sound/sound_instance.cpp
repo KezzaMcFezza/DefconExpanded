@@ -2,9 +2,9 @@
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/math/math_utils.h"
 #include "lib/math/random_number.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/hi_res_time.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 #include "lib/preferences.h"
 
 #include "sound_sample_bank.h"

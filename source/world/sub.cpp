@@ -15,7 +15,7 @@
 #include "renderer/map_renderer.h"
 #include "renderer/globe_renderer.h"
 
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 
 #include "interface/interface.h"
 

@@ -2,7 +2,7 @@
 
 #include "condition.h"
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/gucci/win32library.h"
 #include "net_mutex.h"
 #include "condition_winxp.h"

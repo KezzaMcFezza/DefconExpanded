@@ -3,7 +3,7 @@
 #include "lib/netlib/net_lib.h"
 #include "lib/netlib/thread_controller.h"
 #include "lib/tosser/directory.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/hi_res_time.h"
 #include "lib/math/random_number.h"
 #include "lib/language_table.h"

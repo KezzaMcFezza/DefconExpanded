@@ -1,6 +1,6 @@
 #include "systemiv.h"
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/string_utils.h"
 #include "lib/render/renderer.h"
 #include "lib/render3d/renderer_3d.h"

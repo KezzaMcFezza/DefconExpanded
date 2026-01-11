@@ -6,7 +6,7 @@
 #include <mutex>
 
 #include "lib/math/math_utils.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/hi_res_time.h"
 #include "lib/preferences.h"
 

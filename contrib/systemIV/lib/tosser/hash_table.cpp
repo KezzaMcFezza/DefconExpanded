@@ -1,7 +1,7 @@
 #include <string>
 #include <string_view>
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "hash_table.h"
 
 

@@ -11,7 +11,7 @@
 #include "app/globals.h"
 #include "app/game.h"
 
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"

@@ -15,7 +15,7 @@
 #include "lib/math/matrix4f.h"
 #include "lib/language_table.h"
 #include "lib/preferences.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 #include "lib/render/styletable.h"
 #include "lib/math/math_utils.h"
 #include "lib/math/random_number.h"

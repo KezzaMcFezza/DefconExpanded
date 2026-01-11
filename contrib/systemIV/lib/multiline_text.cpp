@@ -15,7 +15,7 @@
 
 #include "render/renderer.h"
 #include "render2d/renderer_2d.h"
-#include "debug_utils.h"
+#include "lib/debug/debug_utils.h"
 
 #include "multiline_text.h"
 #include "string_utils.h"

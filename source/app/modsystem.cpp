@@ -14,7 +14,7 @@
 #include "lib/render3d/megavbo/megavbo_3d.h"
 #include "lib/sound/soundsystem.h"
 #include "lib/sound/sound_sample_bank.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/string_utils.h"
 #include "lib/preferences.h"
 #include "lib/language_table.h"

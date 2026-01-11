@@ -2,7 +2,7 @@
 
 #include <MMSYSTEM.H>
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
 #include "lib/system_info.h"
 

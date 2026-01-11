@@ -1,5 +1,5 @@
 #include "systemiv.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "unicode_string.h"
 #include <stdarg.h>
 #include "lib/string_utils.h"

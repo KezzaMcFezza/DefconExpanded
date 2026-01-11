@@ -7,7 +7,7 @@
 #include "lib/filesys/filesys_utils.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 
 #include "lib/eclipse/components/drop_down_menu.h"
 #include "lib/eclipse/components/filedialog.h"

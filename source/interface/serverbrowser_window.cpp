@@ -14,7 +14,7 @@
 #include "lib/netlib/net_lib.h"
 #include "lib/string_utils.h"
 #include "lib/math/random_number.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 
 #include "lib/eclipse/components/inputfield.h"
 #include "lib/eclipse/components/drop_down_menu.h"

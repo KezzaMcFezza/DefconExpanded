@@ -1,7 +1,7 @@
 #include "lib/universal_include.h"
 
 #include "curves.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 
 Vector3<float> BezierCurve( float u, Vector3<float> const &p1, Vector3<float> const &c1, Vector3<float> const &c2, Vector3<float> const &p2 )
 {

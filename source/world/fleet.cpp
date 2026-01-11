@@ -2,7 +2,7 @@
 #include "lib/language_table.h"
 #include "lib/math/random_number.h"
 #include "lib/math/math_utils.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 
 #include "app/globals.h"
 #include "app/app.h"

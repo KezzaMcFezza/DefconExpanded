@@ -4,7 +4,7 @@
 
 #include "matrix33.h"
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 
 
 static float s_openGLFormat[16];

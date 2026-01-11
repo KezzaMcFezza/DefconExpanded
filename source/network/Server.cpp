@@ -15,7 +15,7 @@
 #include "lib/netlib/net_thread.h"
 #include "lib/netlib/net_socket.h"
 #include "lib/hi_res_time.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 #include "lib/preferences.h"
 #include "lib/math/math_utils.h"
 #include "lib/math/random_number.h"

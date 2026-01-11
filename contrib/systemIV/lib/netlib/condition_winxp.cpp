@@ -2,7 +2,7 @@
 
 #include "condition_winxp.h"
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 
 
 ConditionVariableWinXP::ConditionVariableWinXP()

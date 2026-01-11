@@ -6,7 +6,7 @@
 #include "lib/filesys/text_stream_readers.h"
 #include "lib/filesys/text_file_writer.h"
 #include "lib/math/random_number.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 
 #include "soundsystem.h"
 #include "sound_parameter.h"

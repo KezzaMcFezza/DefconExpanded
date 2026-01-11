@@ -11,7 +11,7 @@
 #endif
 
 #include "fixed_float.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "random_number.h"
 
 const Fixed Fixed::MAX = Fixed::FromDouble(DBL_MAX);

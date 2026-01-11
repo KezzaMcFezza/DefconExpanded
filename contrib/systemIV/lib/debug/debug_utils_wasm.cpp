@@ -11,7 +11,7 @@
 #include <sstream>
 #include <emscripten/console.h>
 #include <emscripten.h>
-#include "lib/debug_utils.h"
+#include "debug_utils.h"
 
 static std::string s_debugOutRedirect;
 

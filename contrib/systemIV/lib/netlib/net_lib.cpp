@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "net_lib.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 
 
 // ****************************************************************************

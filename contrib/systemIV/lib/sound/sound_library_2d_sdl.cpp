@@ -1,6 +1,6 @@
 #include "systemiv.h"
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
 
 #include "lib/sound/sound_library_2d_sdl.h"

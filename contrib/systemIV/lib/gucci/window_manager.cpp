@@ -2,14 +2,16 @@
 
 #include <limits.h>
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
 
+#include "imgui.h"
 #include "input.h"
 #include "crashpad.h"
 #include "window_manager.h"
 #include "window_manager_d3d11.h"
 #include "window_manager_opengl.h"
+#include "backends/imgui_impl_sdl2.h"
 
 #ifdef TARGET_OS_LINUX
 #include "binreloc.h"
@@ -470,6 +472,14 @@ void WindowManager::PollForMessages()
     
     while (SDL_PollEvent(&sdlEvent))
     {
+        //
+        // Process ImGui events first
+
+        if (ImGui::GetCurrentContext() != nullptr)
+        {
+            ImGui_ImplSDL2_ProcessEvent(&sdlEvent);
+        }
+        
         if (sdlEvent.type == SDL_WINDOWEVENT)
         {
             switch (sdlEvent.window.event)

@@ -2,7 +2,7 @@
 #define CHECK_GL_ERRORS_H
 
 #include "systemiv.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>

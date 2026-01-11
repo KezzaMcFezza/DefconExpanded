@@ -1,5 +1,5 @@
 #include "lib/universal_include.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/hi_res_time.h"
 #include "lib/language_table.h"
 #include "lib/eclipse/eclipse.h"

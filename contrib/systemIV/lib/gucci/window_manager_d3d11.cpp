@@ -2,9 +2,9 @@
 
 #include "systemiv.h"
 #include "window_manager_d3d11.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 #include "input.h"
 
 #include <stdio.h>

@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <algorithm>
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
 #include "window_manager_opengl.h"
 

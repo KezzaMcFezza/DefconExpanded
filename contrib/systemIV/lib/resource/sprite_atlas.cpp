@@ -6,7 +6,7 @@
 #define STB_RECT_PACK_IMPLEMENTATION
 #include "stb_rect_pack.h"
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/filesys/file_system.h"
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/resource/bitmap.h"

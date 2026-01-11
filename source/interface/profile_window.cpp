@@ -6,7 +6,7 @@
 #include "lib/gucci/input.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 #include "lib/language_table.h"
 
 #include "profile_window.h"

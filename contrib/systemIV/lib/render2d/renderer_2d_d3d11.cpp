@@ -6,7 +6,7 @@
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/window_manager_d3d11.h"
 #include "lib/preferences.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "shaders/vertex.hlsl.h"
 #include "shaders/color_fragment.hlsl.h"
 #include "shaders/texture_fragment.hlsl.h"

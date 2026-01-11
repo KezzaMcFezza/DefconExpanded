@@ -4,7 +4,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/hi_res_time.h"
 #include "lib/resource/image.h"
 #include "lib/resource/sprite_atlas.h"

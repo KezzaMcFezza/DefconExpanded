@@ -7,7 +7,7 @@
 #include <cctype>
 #include <optional>
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/string_utils.h"
 #include "btree.h"
 

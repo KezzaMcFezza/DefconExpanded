@@ -194,7 +194,7 @@ if(EMSCRIPTEN)
     
     set(PLATFORM_SPECIFIC_FILES
         ${SYSTEMIV_PATH}/lib/spawn.cpp
-        ${SYSTEMIV_PATH}/lib/debug_utils_wasm.cpp
+        ${SYSTEMIV_PATH}/lib/debug/debug_utils_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_lib_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
@@ -226,7 +226,7 @@ if(EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/netlib/net_socket_listener.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_socket_session.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_udp_packet.cpp
-        ${SYSTEMIV_PATH}/lib/debug_utils.cpp
+        ${SYSTEMIV_PATH}/lib/debug/debug_utils.cpp
         ${HIGHWAY_PATH}/hwy/aligned_allocator.cc # aligned_allocator.cc causes clang crash on wasm32 target with complex pointer arithmetic
     )
 
@@ -467,7 +467,7 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     
     set(PLATFORM_SPECIFIC_FILES
         ${SYSTEMIV_PATH}/lib/spawn.cpp
-        ${SYSTEMIV_PATH}/lib/debug_utils_linux.cpp
+        ${SYSTEMIV_PATH}/lib/debug/debug_utils_linux.cpp
         ${SYSTEMIV_PATH}/lib/gucci/crashpad.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_linux.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_thread_linux.cpp
@@ -711,12 +711,12 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/tosser/directory.cpp
     ${SYSTEMIV_PATH}/lib/unicode/unicode_string.cpp
     ${SYSTEMIV_PATH}/lib/unicode/unicode_text_stream_reader.cpp
-    ${SYSTEMIV_PATH}/lib/debug_utils.cpp
+    ${SYSTEMIV_PATH}/lib/debug/profiler.cpp
+    ${SYSTEMIV_PATH}/lib/debug/debug_utils.cpp
     ${SYSTEMIV_PATH}/lib/hi_res_time.cpp
     ${SYSTEMIV_PATH}/lib/multiline_text.cpp
     ${SYSTEMIV_PATH}/lib/language_table.cpp
     ${SYSTEMIV_PATH}/lib/preferences.cpp
-    ${SYSTEMIV_PATH}/lib/profiler.cpp
     ${SYSTEMIV_PATH}/lib/string_utils.cpp
     ${SYSTEMIV_PATH}/systemiv.cpp
 )

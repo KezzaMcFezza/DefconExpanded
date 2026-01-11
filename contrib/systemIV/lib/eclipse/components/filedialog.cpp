@@ -10,7 +10,7 @@
 #include "lib/resource/resource.h"
 #include "lib/eclipse/eclipse.h"
 #include "lib/hi_res_time.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/language_table.h"
 
 #include "scrollbar.h"

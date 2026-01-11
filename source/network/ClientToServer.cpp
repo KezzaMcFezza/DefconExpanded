@@ -13,7 +13,7 @@
 #include "lib/tosser/directory.h"
 #include "lib/hi_res_time.h"
 #include "lib/gucci/input.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
 #include "lib/string_utils.h"
 #include "lib/language_table.h"

@@ -2,8 +2,8 @@
 
 #include <string.h>
 
-#include "lib/debug_utils.h"
-//#include "lib/profiler.h"
+#include "lib/debug/debug_utils.h"
+//#include "lib/debug/profiler.h"
 
 #include "sound_filter.h"
 

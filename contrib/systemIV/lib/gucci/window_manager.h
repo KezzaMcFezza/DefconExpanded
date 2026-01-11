@@ -80,6 +80,7 @@ public:
     void        WindowHasMoved      ();
     void        UpdateStoredMaximizedState();
     int         GetDefaultDisplayIndex();
+    SDL_Window* GetSDLWindow          () const { return m_sdlWindow; }
 
     LList		<WindowResolution *> m_resolutions;
 

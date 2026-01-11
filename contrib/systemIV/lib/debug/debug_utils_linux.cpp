@@ -12,7 +12,7 @@
 #include <execinfo.h>
 
 #include "app.h"
-#include "lib/debug_utils.h"
+#include "debug_utils.h"
 
 #ifndef NO_WINDOW_MANAGER
 #include "lib/gucci/window_manager.h"

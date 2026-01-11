@@ -6,7 +6,7 @@
 #include "lib/gucci/window_manager.h"
 #include "lib/math/vector3.h"
 #include "lib/math/random_number.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 #include "lib/gucci/input.h"
 #include "lib/language_table.h"
 #include "lib/resource/resource.h"

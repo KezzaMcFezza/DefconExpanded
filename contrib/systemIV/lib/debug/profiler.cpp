@@ -5,7 +5,7 @@
 
 #include "debug_utils.h"
 #include "profiler.h"
-#include "hi_res_time.h"
+#include "lib/hi_res_time.h"
 
 
 #define PROFILE_HISTORY_LENGTH  10

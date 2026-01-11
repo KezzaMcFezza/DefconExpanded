@@ -13,7 +13,7 @@
 #include "lib/language_table.h"
 #include "lib/math/math_utils.h"
 #include "lib/preferences.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 #include "lib/string_utils.h"
 #include "lib/metaserver/matchmaker.h"
 #include "lib/metaserver/metaserver.h"

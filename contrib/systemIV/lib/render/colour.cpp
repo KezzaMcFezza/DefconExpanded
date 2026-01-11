@@ -4,7 +4,7 @@
 #include <string.h>
 #include <algorithm>
 
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "colour.h"
 
 

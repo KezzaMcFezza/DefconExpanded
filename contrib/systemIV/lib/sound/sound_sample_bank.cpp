@@ -2,7 +2,7 @@
 #include "lib/filesys/binary_stream_readers.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/filesys/file_system.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 
 #include "soundsystem.h"
 #include "sound_sample_bank.h"

@@ -25,7 +25,7 @@
 #include <string>
 #include <sstream>
 
-#include "lib/debug_utils.h"
+#include "debug_utils.h"
 #include "lib/string_utils.h"
 #include "lib/filesys/filesys_utils.h"
 

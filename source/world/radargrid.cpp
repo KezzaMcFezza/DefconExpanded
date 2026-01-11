@@ -1,8 +1,8 @@
 #include "lib/universal_include.h"
-#include "lib/debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "lib/resource/bitmap.h"
 #include "lib/resource/image.h"
-#include "lib/profiler.h"
+#include "lib/debug/profiler.h"
 
 #include "world/radargrid.h"
 #include "world/world.h"
