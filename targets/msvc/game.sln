@@ -8,6 +8,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SystemIV", "SystemIV.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Unrar", "Unrar.vcxproj", "{67237266-5380-41D4-88E2-9A30B553475F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGui", "ImGui.vcxproj", "{A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -47,6 +49,16 @@ Global
 		{67237266-5380-41D4-88E2-9A30B553475F}.Release Sync Practice|x64.Build.0 = Release|x64
 		{67237266-5380-41D4-88E2-9A30B553475F}.Release|x64.ActiveCfg = Release|x64
 		{67237266-5380-41D4-88E2-9A30B553475F}.Release|x64.Build.0 = Release|x64
+		{A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}.Debug|x64.ActiveCfg = Debug|x64
+		{A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}.Debug|x64.Build.0 = Debug|x64
+		{A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}.Release Endgame|x64.ActiveCfg = Release|x64
+		{A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}.Release Endgame|x64.Build.0 = Release|x64
+		{A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}.Release Replay Viewer|x64.ActiveCfg = Release|x64
+		{A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}.Release Replay Viewer|x64.Build.0 = Release|x64
+		{A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}.Release Sync Practice|x64.ActiveCfg = Release|x64
+		{A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}.Release Sync Practice|x64.Build.0 = Release|x64
+		{A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}.Release|x64.ActiveCfg = Release|x64
+		{A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
