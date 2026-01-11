@@ -290,7 +290,9 @@ void Renderer3DD3D11::Initialize3DShaders()
     
     pixelBlob->Release();
     
+    #ifdef _DEBUG
     AppDebugOut("Renderer3DD3D11: 3D shaders initialized\n");
+    #endif
 }
 
 void Renderer3DD3D11::Cache3DUniformLocations()
@@ -340,7 +342,9 @@ void Renderer3DD3D11::CreateConstantBuffers()
         return;
     }
     
+    #ifdef _DEBUG
     AppDebugOut("Renderer3DD3D11: Constant buffers created\n");
+    #endif
 }
 
 void Renderer3DD3D11::UpdateTransformBuffer()
