@@ -162,9 +162,6 @@ void ModelBuilder::BuildModelVBO(Model* model)
         
         bool useTexturedVBO = ShouldUseTexturedVBO(group, model);
         BuildVBOForGroup(model, group.meshIndices, group.material, group.totalVertices, group.totalIndices, vboCacheKey, useTexturedVBO);
-        
-        AppDebugOut("ModelBuilder: Built VBO for material '%s' (%d verts, %d indices)\n", 
-                    group.material->name.c_str(), group.totalVertices, group.totalIndices);
     }
 }
 

@@ -348,8 +348,10 @@ void Renderer3DOpenGL::Setup3DVertexArrays()
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-    
+
+    #ifdef _DEBUG
     AppDebugOut("Renderer3D: 3D vertex arrays setup complete\n");
+    #endif
 }
 
 void Renderer3DOpenGL::Setup3DTexturedVertexArrays()
@@ -417,7 +419,9 @@ void Renderer3DOpenGL::Setup3DTexturedVertexArrays()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     
+    #ifdef _DEBUG
     AppDebugOut("Renderer3D: Textured 3D vertex arrays setup complete\n");
+    #endif
 }
 
 void Renderer3DOpenGL::UploadVertexDataTo3DVBO(unsigned int vbo,
