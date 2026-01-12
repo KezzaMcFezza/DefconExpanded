@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\..\contrib\systemIV\systemiv.cpp" />
@@ -351,6 +351,12 @@
       <Filter>lib\debug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\lib\debug\profiler.cpp">
+      <Filter>lib\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\debug\debug_console.cpp">
+      <Filter>lib\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\debug\imgui.cpp">
       <Filter>lib\debug</Filter>
     </ClCompile>
   </ItemGroup>
@@ -720,6 +726,12 @@
       <Filter>lib\debug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\debug\profiler.h">
+      <Filter>lib\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\debug\debug_console.h">
+      <Filter>lib\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\debug\imgui.h">
       <Filter>lib\debug</Filter>
     </ClInclude>
   </ItemGroup>

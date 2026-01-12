@@ -122,6 +122,7 @@ if(EMSCRIPTEN)
     # WebAssembly debug output control (only enabled for Debug builds)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         #add_definitions(-DTOGGLE_SOUND)
+        add_definitions(-DEMSCRIPTEN_PROFILER)
         #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
         add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
         #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
@@ -132,6 +133,7 @@ if(EMSCRIPTEN)
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
     #add_definitions(-DTOGGLE_SOUND)
+    #add_definitions(-DEMSCRIPTEN_PROFILER)
     #add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
     #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
     #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
@@ -204,9 +206,6 @@ if(EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/netlib/net_udp_packet_wasm.cpp
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
         ${SYSTEMIV_PATH}/contrib/binreloc/binreloc.c
-    )
-    
-    list(APPEND IMGUI_SOURCE
         ${IMGUI_PATH}/backends/imgui_impl_opengl3.cpp
     )
     
@@ -300,9 +299,6 @@ elseif(MSVC)
         ${SYSTEMIV_PATH}/contrib/unrar/isnt.cpp
         ${SYSTEMIV_PATH}/contrib/unrar/motw.cpp
         ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
-    )
-    
-    list(APPEND IMGUI_SOURCE
         ${IMGUI_PATH}/backends/imgui_impl_opengl3.cpp
         ${IMGUI_PATH}/backends/imgui_impl_dx11.cpp
     )
@@ -387,9 +383,6 @@ elseif(APPLE)
         ${SYSTEMIV_PATH}/lib/gucci/macosxlibrary.cpp
         ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
         ${MACOS_SPECIFIC_SOURCES}
-    )
-    
-    list(APPEND IMGUI_SOURCE
         ${IMGUI_PATH}/backends/imgui_impl_opengl3.cpp
     )
     
@@ -474,9 +467,6 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
         ${SYSTEMIV_PATH}/lib/netlib/condition_osxlinux.cpp
         ${SYSTEMIV_PATH}/contrib/binreloc/binreloc.c
         ${HIGHWAY_PATH}/hwy/aligned_allocator.cc
-    )
-    
-    list(APPEND IMGUI_SOURCE
         ${IMGUI_PATH}/backends/imgui_impl_opengl3.cpp
     )
     
@@ -713,6 +703,8 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/unicode/unicode_text_stream_reader.cpp
     ${SYSTEMIV_PATH}/lib/debug/profiler.cpp
     ${SYSTEMIV_PATH}/lib/debug/debug_utils.cpp
+    ${SYSTEMIV_PATH}/lib/debug/imgui.cpp
+    ${SYSTEMIV_PATH}/lib/debug/debug_console.cpp
     ${SYSTEMIV_PATH}/lib/hi_res_time.cpp
     ${SYSTEMIV_PATH}/lib/multiline_text.cpp
     ${SYSTEMIV_PATH}/lib/language_table.cpp

@@ -33,6 +33,7 @@ class World;
 class RecordingFileDialog;
 class RendererOverlay;
 class SoundDebugOverlay;
+class DebugConsole;
 
 extern bool g_hideUI;
 
@@ -82,6 +83,7 @@ private:
     NetLib              *m_netLib;
     RendererOverlay     *m_rendererOverlay;
     SoundDebugOverlay   *m_soundOverlay;
+    DebugConsole        *m_debugConsole;
     
     bool        m_mousePointerVisible;
 

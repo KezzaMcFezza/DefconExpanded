@@ -18,7 +18,9 @@
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/styletable.h"
 #include "lib/render/renderer_overlay.h"
+#include "lib/debug/imgui.h"
 #include "lib/debug/debug_utils.h"
+#include "lib/debug/debug_console.h"
 #include "lib/debug/profiler.h"
 #include "lib/hi_res_time.h"
 #include "lib/language_table.h"
@@ -49,6 +51,7 @@
 #include "interface/interface.h"
 #include "interface/authkey_window.h"
 #include "interface/connecting_window.h"
+#include "interface/profile_window.h"
 
 #include "lib/eclipse/components/message_dialog.h"
 #include "interface/demo_window.h"
@@ -147,7 +150,8 @@ App::App()
     m_framesPerSecond(0),
     m_frameCountTimer(1.0f),
     m_rendererOverlay(NULL),
-    m_soundOverlay(NULL)
+    m_soundOverlay(NULL),
+    m_debugConsole(NULL)
 {
     //
     // Initialize replay filename to empty
@@ -184,6 +188,7 @@ App::~App()
 #endif
 	delete m_rendererOverlay;
 	delete m_soundOverlay;
+	delete m_debugConsole;
 }
 
 void App::InitMetaServer()
@@ -490,6 +495,10 @@ void App::MinimalInit()
 
     g_inputManager = InputManager::Create();
 
+    g_imguiManager = new ImGuiManager();
+    g_imguiManager->Initialize();
+
+    m_debugConsole = new DebugConsole();
 }
 
 static bool CheckMainDatVersion()
@@ -543,6 +552,8 @@ void App::FinishInit()
 
     m_interface = new Interface();
     m_interface->Init();
+
+    ImGuiRegisterWindow(m_debugConsole);
 
     //
     // If the main.dat version is different from the 
@@ -896,6 +907,7 @@ void App::ReinitialiseWindow()
     
     bool rendererChanged = (oldRendererType != newRendererType);
     
+    g_imguiManager->Shutdown();
     g_resource->Shutdown();
 
     g_windowManager->DestroyWin();
@@ -934,6 +946,15 @@ void App::ReinitialiseWindow()
 
     delete m_soundOverlay;
     m_soundOverlay = new SoundDebugOverlay();
+    
+    delete g_imguiManager;
+    g_imguiManager = new ImGuiManager();
+    g_imguiManager->Initialize();
+    
+    if (m_debugConsole)
+    {
+        ImGuiRegisterWindow(m_debugConsole);
+    }
 
     m_worldRenderer->Init();
     m_mapRenderer->Init();
@@ -998,6 +1019,34 @@ void App::Update()
             m_showSoundOverlay = !m_showSoundOverlay;
         }
     }
+
+    //
+    // Toggle console with ~ key
+    
+    if( g_keys[KEY_TILDE] && g_keyDeltas[KEY_TILDE] && m_debugConsole )
+    {
+        if( g_preferences && g_preferences->GetInt("DeveloperMode", 0) == 1 )
+        {
+            m_debugConsole->Toggle();
+        }
+    }
+
+    //
+    // F5 toggles profile window
+    
+#ifdef EMSCRIPTEN_PROFILER
+    if( g_keys[KEY_F5] && g_keyDeltas[KEY_F5] )
+    {
+        if( !EclGetWindow( "Profile Window" ) )
+        {
+            EclRegisterWindow( new ProfileWindow( "Profile Window", "dialog_profile", true ) );
+        }
+        else
+        {
+            EclRemoveWindow( "Profile Window" );
+        }
+    }
+#endif
 
     if( m_soundOverlay )
     {
@@ -1178,13 +1227,41 @@ void App::Render()
     
     
     //
-    // Mouse
+    // Mouse 
+    //
+    // If ImGui wants the mouse, show OS cursor and hide game cursor
+    // Otherwise show game cursor and hide OS cursor
 
+    bool imguiWantsMouse = ImGuiWantsMouse();
+    
+    if (imguiWantsMouse)
+    {
+        g_windowManager->UnhideMousePointer();
+        SetMousePointerVisible(false);
+    }
+    else
+    {
+        g_windowManager->HideMousePointer();
+        SetMousePointerVisible(true);
+    }
+    
     GetInterface()->RenderMouse();
    
 #ifdef SHOW_OWNER
     RenderOwner(); 
 #endif
+    
+    //
+    // ImGui rendering
+
+    START_PROFILE( "ImGUI" );
+
+    if( g_imguiManager && g_imguiManager->IsInitialized() ) 
+    {
+        g_imguiManager->Render();
+    }
+    
+    END_PROFILE( "ImGUI" );
 
     g_renderer->End2DRendering();
 

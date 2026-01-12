@@ -23,14 +23,17 @@
 #endif
 
 #include <string>
+#include <vector>
 #include <sstream>
 
 #include "debug_utils.h"
+#include "debug_console.h"
 #include "lib/string_utils.h"
 #include "lib/filesys/filesys_utils.h"
 
 
 static std::string s_debugOutRedirect;
+static std::vector<std::string> s_earlyDebugMessages;
 
 #ifndef WIN32
 inline
@@ -40,6 +43,19 @@ void OutputDebugString( const char *s )
 }
 #endif
 
+
+void AppDebugOutFlushEarlyMessages(DebugConsole* console)
+{
+    if (!console)
+        return;
+    
+    for (size_t i = 0; i < s_earlyDebugMessages.size(); i++)
+    {
+        console->AddLog("%s", s_earlyDebugMessages[i].c_str());
+    }
+    
+    s_earlyDebugMessages.clear();
+}
 
 void AppDebugOutRedirect(const char *_filename)
 {
@@ -75,6 +91,22 @@ void AppDebugOut(const char *_msg, ...)
     va_start (ap, _msg);
     vsnprintf(buf, sizeof(buf), _msg, ap);
     va_end(ap);
+
+    //
+    // Send to console if available
+    
+    DebugConsole* console = DebugConsole::GetInstance();
+    if (console)
+    {
+        console->AddLog("%s", buf);
+    }
+    else
+    {
+        //
+        // Store early messages before console exists
+
+        s_earlyDebugMessages.push_back(std::string(buf));
+    }
 
     if( !s_debugOutRedirect.empty() )
     {

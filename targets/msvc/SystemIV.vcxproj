@@ -219,7 +219,9 @@
     <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\targets.cc" />
     <ClCompile Include="..\..\contrib\systemIV\contrib\highway-1.3.0\hwy\timer.cc" />
     <ClCompile Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.cc" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\debug\debug_console.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\debug\debug_utils.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\debug\imgui.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\debug\memory_leak.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\debug\profiler.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\eclipse\components\checkbox.cpp" />
@@ -334,7 +336,9 @@
     <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\stb_image.h" />
     <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\stb_image_write.h" />
     <ClInclude Include="..\..\contrib\systemIV\contrib\tinygltf-2.9.7\tiny_gltf.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\debug\debug_console.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\debug\debug_utils.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\debug\imgui.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\debug\memory_leak.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\debug\profiler.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\eclipse\components\checkbox.h" />

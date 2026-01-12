@@ -3,7 +3,10 @@
 
 #include <string>
 
-void    AppDebugOut            (const char *_msg, ...);                                           // Outputs to Devstudio output pane
+class DebugConsole;
+
+void    AppDebugOut            (const char *_msg, ...);                                     // Outputs to Devstudio output pane
+void    AppDebugOutFlushEarlyMessages(DebugConsole* console);                               // Flushes early messages to console
 
 void    AppDebugOutData        (void *_data, int _dataLen);                                 // Dumps the data as a hex table
 
