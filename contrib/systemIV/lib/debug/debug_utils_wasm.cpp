@@ -12,15 +12,15 @@
 #include <sstream>
 #include <emscripten/console.h>
 #include <emscripten.h>
-#include "debug_utils.h"
-#include "debug_console.h"
+#include "lib/debug/debug_utils.h"
+#include "lib/imgui/debug_console.h"
 
 static std::string s_debugOutRedirect;
 static std::vector<std::string> s_earlyDebugMessages;
 
 void AppDebugOutFlushEarlyMessages(DebugConsole* console)
 {
-#ifdef EMSCRIPTEN_DEBUG_OUTPUT
+#if defined(EMSCRIPTEN_DEBUG_OUTPUT) || defined(EMSCRIPTEN_IMGUI)
     if (!console)
         return;
     
@@ -35,7 +35,7 @@ void AppDebugOutFlushEarlyMessages(DebugConsole* console)
 
 void AppDebugOutRedirect(const char *_filename)
 {
-#ifdef EMSCRIPTEN_DEBUG_OUTPUT
+#if defined(EMSCRIPTEN_DEBUG_OUTPUT) || defined(EMSCRIPTEN_IMGUI)
     if( !_filename || strcmp( _filename, "" ) == 0 )
     {
         s_debugOutRedirect.clear();
@@ -47,7 +47,7 @@ void AppDebugOutRedirect(const char *_filename)
 
 void AppDebugOut(const char *_msg, ...)
 {
-#ifdef EMSCRIPTEN_DEBUG_OUTPUT
+#if defined(EMSCRIPTEN_DEBUG_OUTPUT) || defined(EMSCRIPTEN_IMGUI)
     char buf[512];
     va_list ap;
     va_start (ap, _msg);
@@ -70,7 +70,7 @@ void AppDebugOut(const char *_msg, ...)
 
 void AppDebugOutData(void *_data, int _dataLen)
 {
-#ifdef EMSCRIPTEN_DEBUG_OUTPUT
+#if defined(EMSCRIPTEN_DEBUG_OUTPUT) || defined(EMSCRIPTEN_IMGUI)
     for( int i = 0; i < _dataLen; ++i )
     {
         if( i % 16 == 0 )

@@ -279,6 +279,16 @@ void ImGuiManager::Render()
         }
     }
 #endif
+
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.WantTextInput)
+    {
+        SDL_StartTextInput();
+    }
+    else
+    {
+        SDL_StopTextInput();
+    }
 }
 
 void ImGuiRegisterWindow(ImGuiWindowBase* window)

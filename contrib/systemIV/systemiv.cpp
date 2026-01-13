@@ -2,12 +2,23 @@
 #include "lib/tosser/llist.h"
 #include "lib/debug/debug_utils.h"
 
+#ifdef TARGET_MSVC
+#include <windows.h>
+#include <shellapi.h>
+#elif defined(TARGET_OS_LINUX) || defined(TARGET_OS_MACOSX)
+#include <unistd.h>
+#endif
+
+extern int g_argc;
+extern char** g_argv;
+
 // ============================================================================
 
 static const char *s_appName        = "SystemIV";
 static const char *s_appVersion     = "1.37";
 static const char *s_appBuildNumber = "1.64";
 static const char *s_realVersion    = "1.64_systemiv";
+static const char *s_preferencesPath = NULL;
 static const char *s_appSystem = 
 #ifdef TARGET_MSVC
     "Windows"
@@ -74,6 +85,71 @@ void SetRealVersion(const char *realVersion)
 void SetAppSystem(const char *system)
 {
     s_appSystem = system;
+}
+
+const char *GetPreferencesPath()
+{
+    return s_preferencesPath;
+}
+
+void SetPreferencesPath(const char *path)
+{
+    s_preferencesPath = path;
+}
+
+void RelaunchApplication()
+{
+#ifndef TARGET_EMSCRIPTEN
+    AppDebugOut("Relaunching application...\n");
+    
+#ifdef TARGET_MSVC
+    
+    if (g_argc > 0 && g_argv && g_argv[0])
+    {
+        SHELLEXECUTEINFOA sei = { sizeof(sei) };
+        sei.fMask = SEE_MASK_DEFAULT;
+        sei.lpVerb = "open";
+        sei.lpFile = g_argv[0];
+        sei.lpParameters = "";
+        sei.nShow = SW_SHOWNORMAL;
+        
+        if (g_argc > 1)
+        {
+            static char params[4096] = "";
+            params[0] = '\0';
+            
+            for (int i = 1; i < g_argc; ++i)
+            {
+                if (i > 1) strcat(params, " ");
+                strcat(params, "\"");
+                strcat(params, g_argv[i]);
+                strcat(params, "\"");
+            }
+            
+            sei.lpParameters = params;
+        }
+        
+        if (ShellExecuteExA(&sei))
+        {
+            exit(0);
+        }
+        else
+        {
+            AppDebugOut("Failed to relaunch application (error: %lu)\n", GetLastError());
+        }
+    }
+    
+#elif defined(TARGET_OS_LINUX) || defined(TARGET_OS_MACOSX)
+    
+    if (g_argc > 0 && g_argv && g_argv[0])
+    {
+        execv(g_argv[0], g_argv);
+        
+        AppDebugOut("Failed to relaunch application (execv failed)\n");
+    }
+    
+#endif
+#endif
 }
 
 

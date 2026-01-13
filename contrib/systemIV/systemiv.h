@@ -94,13 +94,17 @@ const char *GetAppBuildNumber();
 const char *GetRealVersion();
 const char *GetAppSystem();
 const char *GetDataRoot();
+const char *GetPreferencesPath();
 
-void SetAppName       (const char *name);
-void SetAppVersion    (const char *version);
-void SetAppBuildNumber(const char *buildNumber);
-void SetRealVersion   (const char *realVersion);
-void SetAppSystem     (const char *system);
-void SetDataRoot      (const char *path);
+void SetAppName         (const char *name);
+void SetAppVersion      (const char *version);
+void SetAppBuildNumber  (const char *buildNumber);
+void SetRealVersion     (const char *realVersion);
+void SetAppSystem       (const char *system);
+void SetDataRoot        (const char *path);
+void SetPreferencesPath (const char *path);
+
+void RelaunchApplication();
 
 enum RendererType {
     RENDERER_TYPE_OPENGL,
@@ -135,6 +139,12 @@ int         GetResourceDirCount();
 #elif defined(TARGET_EMSCRIPTEN)
     #undef TARGET_OS_MACOSX
     #undef TARGET_OS_WINDOWS
+    //#define EMSCRIPTEN_IMGUI
+    //#define EMSCRIPTEN_DEBUG_OUTPUT
+    //#define EMSCRIPTEN_DEBUG
+    //#define EMSCRIPTEN_NETWORK_TESTBED
+    //#define DTOGGLE_SOUND_TESTBED
+    //#define DEMSCRIPTEN_PLAYBACK_TESTBED
     #include <emscripten.h>
     #include <pthread.h>
     #include <sys/time.h>

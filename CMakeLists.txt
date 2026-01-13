@@ -122,9 +122,9 @@ if(EMSCRIPTEN)
     # WebAssembly debug output control (only enabled for Debug builds)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         #add_definitions(-DTOGGLE_SOUND)
-        add_definitions(-DEMSCRIPTEN_PROFILER)
         #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
         add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
+        add_definitions(-DEMSCRIPTEN_IMGUI)
         #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
         add_definitions(-DTOGGLE_SOUND_TESTBED)
         #add_definitions(-DEMSCRIPTEN_PLAYBACK_TESTBED)
@@ -133,7 +133,7 @@ if(EMSCRIPTEN)
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
     #add_definitions(-DTOGGLE_SOUND)
-    #add_definitions(-DEMSCRIPTEN_PROFILER)
+    #add_definitions(-DEMSCRIPTEN_IMGUI)
     #add_definitions(-DEMSCRIPTEN_DEBUG_OUTPUT)
     #add_definitions(-DEMSCRIPTEN_UNIT_TESTBED)
     #add_definitions(-DEMSCRIPTEN_NETWORK_TESTBED)
@@ -703,8 +703,11 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/unicode/unicode_text_stream_reader.cpp
     ${SYSTEMIV_PATH}/lib/debug/profiler.cpp
     ${SYSTEMIV_PATH}/lib/debug/debug_utils.cpp
-    ${SYSTEMIV_PATH}/lib/debug/imgui.cpp
-    ${SYSTEMIV_PATH}/lib/debug/debug_console.cpp
+    ${SYSTEMIV_PATH}/lib/imgui/imgui.cpp
+    ${SYSTEMIV_PATH}/lib/imgui/debug_console.cpp
+    ${SYSTEMIV_PATH}/lib/imgui/preferences_editor.cpp
+    ${SYSTEMIV_PATH}/lib/imgui/components/menu_bar.cpp
+    ${SYSTEMIV_PATH}/lib/imgui/components/text_editor.cpp
     ${SYSTEMIV_PATH}/lib/hi_res_time.cpp
     ${SYSTEMIV_PATH}/lib/multiline_text.cpp
     ${SYSTEMIV_PATH}/lib/language_table.cpp

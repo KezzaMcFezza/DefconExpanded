@@ -353,11 +353,20 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\debug\profiler.cpp">
       <Filter>lib\debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\debug\debug_console.cpp">
-      <Filter>lib\debug</Filter>
+    <ClCompile Include="..\..\contrib\systemIV\lib\imgui\debug_console.cpp">
+      <Filter>lib\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\debug\imgui.cpp">
-      <Filter>lib\debug</Filter>
+    <ClCompile Include="..\..\contrib\systemIV\lib\imgui\imgui.cpp">
+      <Filter>lib\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\imgui\components\menu_bar.cpp">
+      <Filter>lib\imgui\components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\imgui\components\text_editor.cpp">
+      <Filter>lib\imgui\components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\imgui\preferences_editor.cpp">
+      <Filter>lib\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -728,11 +737,20 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\debug\profiler.h">
       <Filter>lib\debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\debug\debug_console.h">
-      <Filter>lib\debug</Filter>
+    <ClInclude Include="..\..\contrib\systemIV\lib\imgui\debug_console.h">
+      <Filter>lib\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\debug\imgui.h">
-      <Filter>lib\debug</Filter>
+    <ClInclude Include="..\..\contrib\systemIV\lib\imgui\imgui.h">
+      <Filter>lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\imgui\components\menu_bar.h">
+      <Filter>lib\imgui\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\imgui\components\text_editor.h">
+      <Filter>lib\imgui\components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\imgui\preferences_editor.h">
+      <Filter>lib\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -810,6 +828,12 @@
     </Filter>
     <Filter Include="lib\debug">
       <UniqueIdentifier>{d9cc2a3b-066f-4da4-b875-b65972466ee3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\imgui">
+      <UniqueIdentifier>{244386a2-5e1b-4b64-9028-ff8ee00a469c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\imgui\components">
+      <UniqueIdentifier>{e2feb324-fe3d-48d5-9f55-0d6e7ce8a2bb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

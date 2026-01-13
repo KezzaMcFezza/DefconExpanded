@@ -18,9 +18,10 @@
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/styletable.h"
 #include "lib/render/renderer_overlay.h"
-#include "lib/debug/imgui.h"
+#include "lib/imgui/imgui.h"
 #include "lib/debug/debug_utils.h"
-#include "lib/debug/debug_console.h"
+#include "lib/imgui/debug_console.h"
+#include "lib/imgui/components/menu_bar.h"
 #include "lib/debug/profiler.h"
 #include "lib/hi_res_time.h"
 #include "lib/language_table.h"
@@ -150,8 +151,13 @@ App::App()
     m_framesPerSecond(0),
     m_frameCountTimer(1.0f),
     m_rendererOverlay(NULL),
-    m_soundOverlay(NULL),
-    m_debugConsole(NULL)
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)  
+    m_soundOverlay(NULL), 
+    m_debugConsole(NULL),
+    m_menuBar(NULL)
+#else
+    m_soundOverlay(NULL)
+#endif
 {
     //
     // Initialize replay filename to empty
@@ -189,6 +195,9 @@ App::~App()
 	delete m_rendererOverlay;
 	delete m_soundOverlay;
 	delete m_debugConsole;
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)   
+	delete m_menuBar;
+#endif
 }
 
 void App::InitMetaServer()
@@ -495,10 +504,13 @@ void App::MinimalInit()
 
     g_inputManager = InputManager::Create();
 
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)
     g_imguiManager = new ImGuiManager();
     g_imguiManager->Initialize();
 
     m_debugConsole = new DebugConsole();
+    m_menuBar = new MenuBar();
+#endif
 }
 
 static bool CheckMainDatVersion()
@@ -553,7 +565,15 @@ void App::FinishInit()
     m_interface = new Interface();
     m_interface->Init();
 
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)   
     ImGuiRegisterWindow(m_debugConsole);
+    ImGuiRegisterWindow(m_menuBar);
+    
+    if (m_menuBar)
+    {
+        m_menuBar->SetWindowReinitCallback([]() { if (g_app) g_app->RequestWindowReinit(); });
+    }
+#endif
 
     //
     // If the main.dat version is different from the 
@@ -907,7 +927,10 @@ void App::ReinitialiseWindow()
     
     bool rendererChanged = (oldRendererType != newRendererType);
     
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)   
     g_imguiManager->Shutdown();
+#endif
+
     g_resource->Shutdown();
 
     g_windowManager->DestroyWin();
@@ -946,7 +969,8 @@ void App::ReinitialiseWindow()
 
     delete m_soundOverlay;
     m_soundOverlay = new SoundDebugOverlay();
-    
+
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)   
     delete g_imguiManager;
     g_imguiManager = new ImGuiManager();
     g_imguiManager->Initialize();
@@ -955,6 +979,14 @@ void App::ReinitialiseWindow()
     {
         ImGuiRegisterWindow(m_debugConsole);
     }
+    
+    if (m_menuBar)
+    {
+        ImGuiRegisterWindow(m_menuBar);
+        m_menuBar->SetWindowReinitCallback([]() { if (g_app) g_app->RequestWindowReinit(); });
+        m_menuBar->ReregisterWindows();
+    }
+#endif
 
     m_worldRenderer->Init();
     m_mapRenderer->Init();
@@ -1020,33 +1052,56 @@ void App::Update()
         }
     }
 
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)   
+
     //
     // Toggle console with ~ key
     
     if( g_keys[KEY_TILDE] && g_keyDeltas[KEY_TILDE] && m_debugConsole )
     {
-        if( g_preferences && g_preferences->GetInt("DeveloperMode", 0) == 1 )
+        if( (g_preferences && g_preferences->GetInt("DeveloperMode", 0) == 1)
+#ifdef EMSCRIPTEN_IMGUI
+            || true
+#endif
+        )
         {
             m_debugConsole->Toggle();
         }
     }
 
     //
-    // F5 toggles profile window
+    // Toggle menu bar with F10 key
     
-#ifdef EMSCRIPTEN_PROFILER
-    if( g_keys[KEY_F5] && g_keyDeltas[KEY_F5] )
+    if( g_keys[KEY_F10] && g_keyDeltas[KEY_F10] && m_menuBar )
     {
-        if( !EclGetWindow( "Profile Window" ) )
+        if( (g_preferences && g_preferences->GetInt("DeveloperMode", 0) == 1)
+#ifdef EMSCRIPTEN_IMGUI
+            || true
+#endif
+        )
         {
-            EclRegisterWindow( new ProfileWindow( "Profile Window", "dialog_profile", true ) );
-        }
-        else
-        {
-            EclRemoveWindow( "Profile Window" );
+            m_menuBar->Toggle();
         }
     }
 #endif
+
+    //
+    // F5 toggles profile window
+    
+    if( g_keys[KEY_F5] && g_keyDeltas[KEY_F5] )
+    {
+        if( g_preferences && g_preferences->GetInt("DeveloperMode", 0) == 1 )
+        {
+            if( !EclGetWindow( "Profile Window" ) )
+            {
+                EclRegisterWindow( new ProfileWindow( "Profile Window", "dialog_profile", true ) );
+            }
+            else
+            {
+                EclRemoveWindow( "Profile Window" );
+            }
+        }
+    }
 
     if( m_soundOverlay )
     {
@@ -1228,6 +1283,9 @@ void App::Render()
     
     //
     // Mouse 
+
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)   
+
     //
     // If ImGui wants the mouse, show OS cursor and hide game cursor
     // Otherwise show game cursor and hide OS cursor
@@ -1244,13 +1302,16 @@ void App::Render()
         g_windowManager->HideMousePointer();
         SetMousePointerVisible(true);
     }
+#endif
     
     GetInterface()->RenderMouse();
    
 #ifdef SHOW_OWNER
     RenderOwner(); 
 #endif
-    
+   
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)  
+
     //
     // ImGui rendering
 
@@ -1262,6 +1323,7 @@ void App::Render()
     }
     
     END_PROFILE( "ImGUI" );
+#endif
 
     g_renderer->End2DRendering();
 
@@ -1911,6 +1973,8 @@ const char *App::GetPrefsPath()
 #else 
         result = GetPrefsDirectory() + "preferences.txt";
 #endif
+        
+        SetPreferencesPath(result.c_str());
     }
 
     return result.c_str();

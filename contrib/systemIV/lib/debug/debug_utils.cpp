@@ -27,7 +27,7 @@
 #include <sstream>
 
 #include "debug_utils.h"
-#include "debug_console.h"
+#include "lib/imgui/debug_console.h"
 #include "lib/string_utils.h"
 #include "lib/filesys/filesys_utils.h"
 

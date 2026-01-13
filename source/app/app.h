@@ -34,6 +34,7 @@ class RecordingFileDialog;
 class RendererOverlay;
 class SoundDebugOverlay;
 class DebugConsole;
+class MenuBar;
 
 extern bool g_hideUI;
 
@@ -84,6 +85,7 @@ private:
     RendererOverlay     *m_rendererOverlay;
     SoundDebugOverlay   *m_soundOverlay;
     DebugConsole        *m_debugConsole;
+    MenuBar             *m_menuBar;
     
     bool        m_mousePointerVisible;
 

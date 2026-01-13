@@ -8,7 +8,7 @@
 
 #include "imgui-1.92.5/imgui.h"
 #include "debug_console.h"
-#include "debug_utils.h"
+#include "lib/debug/debug_utils.h"
 #include "imgui.h"
 
 static DebugConsole* s_debugConsoleInstance = nullptr;
