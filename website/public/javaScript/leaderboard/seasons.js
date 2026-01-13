@@ -24,21 +24,16 @@ export function getAllSeasons() {
     }
 
     let year = 2;
+    let currentYear = new Date(beginningEnd).getFullYear();
     let season = 0;
-    let seasonStart = new Date(beginningEnd);
-    seasonStart.setDate(seasonStart.getDate() + 1);
 
     while (true) {
-        season = (season % 4) + 1;
+        season = (season % 3) + 1;
 
         const boundary = seasonBoundaries[season - 1];
 
-        let seasonEnd;
-        if (season === 4) {
-            seasonEnd = new Date(seasonStart.getFullYear() + 1, boundary.endMonth - 1, boundary.endDay);
-        } else {
-            seasonEnd = new Date(seasonStart.getFullYear(), boundary.endMonth - 1, boundary.endDay);
-        }
+        const seasonStart = new Date(currentYear, boundary.startMonth - 1, boundary.startDay);
+        const seasonEnd = new Date(currentYear, boundary.endMonth - 1, boundary.endDay);
 
         if (seasonStart <= today) {
             const seasonKey = `y${year}s${season}`;
@@ -54,11 +49,10 @@ export function getAllSeasons() {
             break;
         }
 
-        seasonStart = new Date(seasonEnd);
-        seasonStart.setDate(seasonStart.getDate() + 1);
-
-        if (season === 4) {
+        if (season === 3) {
             year++;
+            currentYear++;
+            season = 0;
         }
 
         if (Object.keys(seasons).length > 20) break;

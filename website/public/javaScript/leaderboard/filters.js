@@ -124,7 +124,7 @@ export function getChristmasTournamentDates() {
     }
     
     const startDate = new Date(startYear, 10, 28);
-    const endDate = new Date(endYear, 0, 1);
+    const endDate = new Date(endYear, 0, 12);
     
     return {
         startDate: startDate.toISOString().split('T')[0],
@@ -141,7 +141,11 @@ export function isInTournamentPeriod() {
         return true;
     }
     
-    if (currentMonth === 0 && currentDay <= 1) {
+    if (currentMonth === 11) {
+        return true;
+    }
+    
+    if (currentMonth === 0 && currentDay <= 12) {
         return true;
     }
     
@@ -152,20 +156,17 @@ export function isTournamentMode() {
     return leaderboardFilters.serverName === 'Christmas Tournament 2025' &&
            leaderboardFilters.startDate && leaderboardFilters.endDate &&
            leaderboardFilters.startDate.includes('-11-28') &&
-           leaderboardFilters.endDate.includes('-01-01');
+           leaderboardFilters.endDate.includes('-01-12');
 }
 
 export function updateTournamentButtonVisibility() {
     const tournamentToggle = document.getElementById('tournament-toggle');
     if (!tournamentToggle) return;
     
-    const tournamentToggleGroup = tournamentToggle.closest('.filter-group');
-    if (!tournamentToggleGroup) return;
-    
     if (isInTournamentPeriod()) {
-        tournamentToggleGroup.style.display = '';
+        tournamentToggle.style.display = 'flex';
     } else {
-        tournamentToggleGroup.style.display = 'none';
+        tournamentToggle.style.display = 'none';
     }
 }
 
