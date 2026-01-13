@@ -578,7 +578,7 @@ async function createDatabaseBackup() {
     }
 }
 
-app.get('*', (req, res) => {
+app.get(/.*/, (req, res) => {
   const requestedPath = path.join(publicDir, req.path);
   
   fs.promises.access(requestedPath)
@@ -597,20 +597,44 @@ app.get('*', (req, res) => {
 
 // watches the demo directory for new dcrec files
 console.log(`Watching demo directory: ${demoDir}`);
-const demoWatcher = chokidar.watch(`${demoDir}/*.{dcrec,d8crec,d10crec}`, {
+const demoWatcher = chokidar.watch(demoDir, {
     ignored: /(^|[\/\\])\../,
-    persistent: true
+    persistent: true,
+    ignoreInitial: true,
+    usePolling: true,
+    interval: 1000,
+    awaitWriteFinish: {
+        stabilityThreshold: 2000,
+        pollInterval: 100
+    }
 });
 
 // watches the log file directory for new json files
 console.log(`Watching log file directory: ${gameLogsDir}`);
-const jsonWatcher = chokidar.watch(`${gameLogsDir}/{game_*.json,game8p_*.json,game10p_*.json}`, {
+const jsonWatcher = chokidar.watch(gameLogsDir, {
     ignored: /(^|[\/\\])\../,
-    persistent: true
+    persistent: true,
+    ignoreInitial: true,
+    usePolling: true,
+    interval: 1000,
+    awaitWriteFinish: {
+        stabilityThreshold: 2000,
+        pollInterval: 100
+    }
 });
 
 demoWatcher
+    .on('ready', () => {
+        console.log('Demo watcher is ready and monitoring for new files');
+    })
     .on('add', async (demoPath) => {
+        const fileName = path.basename(demoPath);
+        const ext = path.extname(fileName).toLowerCase();
+        
+        if (ext !== '.dcrec' && ext !== '.d8crec' && ext !== '.d10crec') {
+            return;
+        }
+        
         debug.level1(`New demo detected: ${demoPath}`);
         const demoFileName = path.basename(demoPath);
         const exists = await demoExistsInDatabase(demoFileName);
@@ -632,7 +656,16 @@ demoWatcher
     .on('error', error => console.error(`Demo watcher error: ${error}`));
 
 jsonWatcher
+    .on('ready', () => {
+        console.log('JSON watcher is ready and monitoring for new files');
+    })
     .on('add', async (jsonPath) => {
+        const fileName = path.basename(jsonPath);
+        
+        if (!fileName.match(/^(game_|game8p_|game10p_).*\.json$/)) {
+            return;
+        }
+        
         console.log(`New JSON log file detected: ${jsonPath}`);
         console.log("Waiting 10 seconds before processing the file...");
         await delay(10000);
@@ -962,4 +995,3 @@ const server = http.listen(port, async () => {
       console.error("Assuming you broke something? - ", error);
     }
 });
-  

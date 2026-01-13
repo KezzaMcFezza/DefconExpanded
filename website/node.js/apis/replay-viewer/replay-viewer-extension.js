@@ -491,7 +491,7 @@ router.get('/replay-viewer/group6/:gameId', checkAuthToken, async (req, res) => 
 });
 
 // SFCON replay viewer route - downloads ZIP file, extracts .dcrec, and serves replay viewer
-router.get('/replay-viewer/sfcon/:gameUrl(*)', checkAuthToken, async (req, res) => {
+router.get(/^\/replay-viewer\/sfcon\/(.+)$/, checkAuthToken, async (req, res) => {
     const gameUrl = req.params.gameUrl;
     
     console.log(`SFCON replay viewer request for URL: ${gameUrl}`);

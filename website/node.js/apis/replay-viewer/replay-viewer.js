@@ -38,7 +38,7 @@ router.use('/replay-viewer', (req, res, next) => {
 });
 
 // serve the .dcrec files directly for the replay viewer
-router.get('/replay-viewer/files/*.dcrec', checkAuthToken, async (req, res) => {
+router.get(/^\/replay-viewer\/files\/.+\.dcrec$/, checkAuthToken, async (req, res) => {
     const startTime = debug.enter('serveDcrecFile', [req.path], 2);
     const filename = path.basename(req.path);
     
@@ -197,7 +197,7 @@ router.get('/replay-viewer/:filename', checkAuthToken, async (req, res) => {
 });
 
 // serve source files for WebAssembly debugging
-router.get('/contrib/*', (req, res) => {
+router.get(/^\/contrib\/.+$/, (req, res) => {
     const startTime = debug.enter('serveSourceFile', [req.path], 2);
     
     // only serve source files in development or when debugging
@@ -241,7 +241,7 @@ router.get('/contrib/*', (req, res) => {
 });
 
 // serve source files from the source directory for WebAssembly debugging
-router.get('/source/*', (req, res) => {
+router.get(/^\/source\/.+$/, (req, res) => {
     const startTime = debug.enter('serveSourceDirectory', [req.path], 2);
     
     // only serve source files in development or when explicitly debugging

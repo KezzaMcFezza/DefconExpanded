@@ -27,9 +27,6 @@ const {
     publicDir
 } = require('./constants');
 
-let pendingInitialization = null;
-let completePendingInitialization = null;
-
 const discordBot = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -37,12 +34,12 @@ const discordBot = new Client({
     ]
 });
 
-discordBot.once('ready', () => {
+discordBot.once('clientReady', () => {
     console.log(`Discord bot logged in as ${discordBot.user.tag}`);
     discordState.isReady = true; 
-    if (pendingInitialization) {
+    if (global.completePendingInitialization) {
         console.log('Discord bot ready, proceeding with pending initialization...');
-        completePendingInitialization();
+        global.completePendingInitialization();
     }
 });
 
@@ -54,7 +51,7 @@ async function sendDemoToDiscord(demo, logData) {
             console.log('Discord bot not ready, waiting...');
             await new Promise((resolve) => {
                 const checkInterval = setInterval(() => {
-                    if (!discordState.isReady) {
+                    if (discordState.isReady) {  // Wait for it to become TRUE
                         clearInterval(checkInterval);
                         resolve();
                     }
