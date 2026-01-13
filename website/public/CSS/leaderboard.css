@@ -225,6 +225,20 @@ input {
     transform: rotate(180deg);
 }
 
+.tournament-toggle-btn {
+    display: none;
+    padding: 0.35rem 0.75rem;
+    white-space: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tournament-toggle-btn.active {
+    background-color: #005aa3;
+}
+
 .leaderboard-filters {
     max-height: 0;
     overflow: hidden;
