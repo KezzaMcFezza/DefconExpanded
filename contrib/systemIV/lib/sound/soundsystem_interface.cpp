@@ -3,82 +3,81 @@
 
 
 SoundObjectId::SoundObjectId()
-:   m_data(-1)
+	: m_data( -1 )
 {
 }
 
 
-SoundObjectId::SoundObjectId(int _data)
+SoundObjectId::SoundObjectId( int _data )
 {
-    m_data = _data;
+	m_data = _data;
 }
 
 
 bool SoundObjectId::IsValid()
 {
-    return( m_data != -1 );
+	return ( m_data != -1 );
 }
 
 
-bool SoundObjectId::operator == (SoundObjectId const &w) const
+bool SoundObjectId::operator==( SoundObjectId const &w ) const
 {
-	return( m_data == w.m_data );
+	return ( m_data == w.m_data );
 }
 
 
-
-bool SoundSystemInterface::ListObjectTypes( LList <char *> *_list )
+bool SoundSystemInterface::ListObjectTypes( LList<char *> *_list )
 {
-    return false;
+	return false;
 }
 
 
-bool SoundSystemInterface::ListObjectEvents( LList <char *> *_list, char *_objType )
+bool SoundSystemInterface::ListObjectEvents( LList<char *> *_list, char *_objType )
 {
-    return false;
+	return false;
 }
 
 
 bool SoundSystemInterface::GetCameraPosition( Vector3<float> &_pos, Vector3<float> &_front, Vector3<float> &_up, Vector3<float> &_vel )
 {
-    return false;
+	return false;
 }
 
 
 bool SoundSystemInterface::DoesObjectExist( SoundObjectId _id )
 {
-    return false;
+	return false;
 }
 
 
 char *SoundSystemInterface::GetObjectType( SoundObjectId _id )
 {
-    return NULL;
+	return NULL;
 }
 
 
-bool SoundSystemInterface::ListProperties( LList <char *> *_list )
+bool SoundSystemInterface::ListProperties( LList<char *> *_list )
 {
-    return false;
+	return false;
 }
 
 
 float SoundSystemInterface::GetPropertyValue( const char *_property, SoundObjectId _id )
 {
-    return 0.0f;
+	return 0.0f;
 }
 
 
 bool SoundSystemInterface::GetPropertyRange( const char *_property, float *_min, float *_max )
 {
-    *_min = 0.0f;
-    *_max = 0.0f;
+	*_min = 0.0f;
+	*_max = 0.0f;
 
-    return false;
+	return false;
 }
 
 
 bool SoundSystemInterface::GetObjectPosition( SoundObjectId _id, Vector3<float> &_pos, Vector3<float> &_vel )
 {
-    return false;
+	return false;
 }

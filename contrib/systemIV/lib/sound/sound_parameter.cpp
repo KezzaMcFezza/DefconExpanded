@@ -13,272 +13,272 @@
 
 
 SoundParameter::SoundParameter()
-:   m_type( TypeFixedValue ),
-    m_link( -1 ),
-    m_updateType( UpdateConstantly ),
-    m_inputLower(0.0f),
-    m_outputLower(0.0f),
-    m_inputUpper(0.0f),
-    m_outputUpper(0.0f),
-    m_input(0.0f),
-    m_output(0.0f),
-    m_desiredOutput(0.0f),
-    m_smooth(0.0f)
+	: m_type( TypeFixedValue ),
+	  m_link( -1 ),
+	  m_updateType( UpdateConstantly ),
+	  m_inputLower( 0.0f ),
+	  m_outputLower( 0.0f ),
+	  m_inputUpper( 0.0f ),
+	  m_outputUpper( 0.0f ),
+	  m_input( 0.0f ),
+	  m_output( 0.0f ),
+	  m_desiredOutput( 0.0f ),
+	  m_smooth( 0.0f )
 {
 }
 
 
 SoundParameter::SoundParameter( float _fixedValue )
-:   m_type( TypeFixedValue ),
-    m_link( -1 ),
-    m_updateType( UpdateConstantly ),
-    m_inputLower(0.0f),
-    m_outputLower(0.0f),
-    m_inputUpper(0.0f),
-    m_outputUpper(0.0f),
-    m_input(0.0f),
-    m_output(0.0f),
-    m_desiredOutput(0.0f),
-    m_smooth(0.0f)
+	: m_type( TypeFixedValue ),
+	  m_link( -1 ),
+	  m_updateType( UpdateConstantly ),
+	  m_inputLower( 0.0f ),
+	  m_outputLower( 0.0f ),
+	  m_inputUpper( 0.0f ),
+	  m_outputUpper( 0.0f ),
+	  m_input( 0.0f ),
+	  m_output( 0.0f ),
+	  m_desiredOutput( 0.0f ),
+	  m_smooth( 0.0f )
 {
-    m_outputLower = _fixedValue;
+	m_outputLower = _fixedValue;
 }
 
 
 void SoundParameter::Copy( SoundParameter *_copyMe )
 {
-    m_type          = _copyMe->m_type;
-    m_link          = _copyMe->m_link;
-    m_updateType    = _copyMe->m_updateType;
-    m_inputLower    = _copyMe->m_inputLower;
-    m_inputUpper    = _copyMe->m_inputUpper;
-    m_outputLower   = _copyMe->m_outputLower;
-    m_outputUpper   = _copyMe->m_outputUpper;
-    m_smooth     = _copyMe->m_smooth;    
+	m_type = _copyMe->m_type;
+	m_link = _copyMe->m_link;
+	m_updateType = _copyMe->m_updateType;
+	m_inputLower = _copyMe->m_inputLower;
+	m_inputUpper = _copyMe->m_inputUpper;
+	m_outputLower = _copyMe->m_outputLower;
+	m_outputUpper = _copyMe->m_outputUpper;
+	m_smooth = _copyMe->m_smooth;
 }
+
 
 void SoundParameter::Recalculate( float _input )
 {
-    m_input = _input;
-    
-    switch( m_type )
-    {
-        case TypeFixedValue:
-        {
-            m_output = m_outputLower;
-            break;
-        }
+	m_input = _input;
 
-        case TypeRangedRandom:
-        {
-            float diff = m_outputUpper - m_outputLower;
-            float random = frand( diff );
-            m_desiredOutput = m_outputLower + random;
-			float smooth = GetSmooth();
-            m_output = m_desiredOutput * (1.0f-smooth) + m_output * smooth;
-            break;
-        }
+	switch ( m_type )
+	{
+		case TypeFixedValue:
+		{
+			m_output = m_outputLower;
+			break;
+		}
 
-        case TypeLinked:
-        {
-            if( _input <= m_inputLower &&
-                _input <= m_inputUpper ) 
-            {
-                m_desiredOutput = m_inputLower < m_inputUpper ? m_outputLower : m_outputUpper;
-            }
-            else if( _input >= m_inputUpper &&
-                     _input >= m_inputLower )
-            {
-                m_desiredOutput = m_inputLower < m_inputUpper ? m_outputUpper : m_outputLower;
-            }
-            else
-            {
-                float inputRange = m_inputUpper - m_inputLower;
-                if (fabsf(inputRange) < 1e-5f)
-                {
-                    // Degenerate mapping: avoid divide-by-zero and pick a neutral midpoint
-                    m_desiredOutput = (m_outputLower + m_outputUpper) * 0.5f;
-                }
-                else
-                {
-                    float inputFraction = (_input - m_inputLower) / inputRange;
-                    m_desiredOutput = m_outputLower + inputFraction * (m_outputUpper - m_outputLower);
-                }
-            }
+		case TypeRangedRandom:
+		{
+			float diff = m_outputUpper - m_outputLower;
+			float random = frand( diff );
+			m_desiredOutput = m_outputLower + random;
 			float smooth = GetSmooth();
-            m_output = m_desiredOutput * (1.0f-smooth) + m_output * smooth;
-            break;
-        }
-    }
+			m_output = m_desiredOutput * ( 1.0f - smooth ) + m_output * smooth;
+			break;
+		}
+
+		case TypeLinked:
+		{
+			if ( _input <= m_inputLower &&
+				 _input <= m_inputUpper )
+			{
+				m_desiredOutput = m_inputLower < m_inputUpper ? m_outputLower : m_outputUpper;
+			}
+			else if ( _input >= m_inputUpper &&
+					  _input >= m_inputLower )
+			{
+				m_desiredOutput = m_inputLower < m_inputUpper ? m_outputUpper : m_outputLower;
+			}
+			else
+			{
+				float inputRange = m_inputUpper - m_inputLower;
+				if ( fabsf( inputRange ) < 1e-5f )
+				{
+					// Degenerate mapping: avoid divide-by-zero and pick a neutral midpoint
+					m_desiredOutput = ( m_outputLower + m_outputUpper ) * 0.5f;
+				}
+				else
+				{
+					float inputFraction = ( _input - m_inputLower ) / inputRange;
+					m_desiredOutput = m_outputLower + inputFraction * ( m_outputUpper - m_outputLower );
+				}
+			}
+			float smooth = GetSmooth();
+			m_output = m_desiredOutput * ( 1.0f - smooth ) + m_output * smooth;
+			break;
+		}
+	}
 }
 
 
 float SoundParameter::GetOutput()
 {
-    return m_output;
+	return m_output;
 }
 
 
 void SoundParameter::Read( TextReader *_in )
 {
-    char *parameter = _in->GetNextToken();
-    AppDebugAssert( stricmp( parameter, "PARAMETER" ) == 0 );
+	char *parameter = _in->GetNextToken();
+	AppDebugAssert( stricmp( parameter, "PARAMETER" ) == 0 );
 
-    char *paramType     = _in->GetNextToken();
-    m_type              = GetParameterType( paramType );
+	char *paramType = _in->GetNextToken();
+	m_type = GetParameterType( paramType );
 
-    switch( m_type )
-    {
-        case TypeFixedValue:
-            m_outputLower       = atof( _in->GetNextToken() );    
-            break;
+	switch ( m_type )
+	{
+		case TypeFixedValue:
+			m_outputLower = atof( _in->GetNextToken() );
+			break;
 
-        case TypeRangedRandom:
-            m_outputLower       = atof( _in->GetNextToken() );
-            m_outputUpper       = atof( _in->GetNextToken() );
-            m_smooth            = atof( _in->GetNextToken() );
-            break;
+		case TypeRangedRandom:
+			m_outputLower = atof( _in->GetNextToken() );
+			m_outputUpper = atof( _in->GetNextToken() );
+			m_smooth = atof( _in->GetNextToken() );
+			break;
 
-        case TypeLinked:            
-            m_inputLower        = atof( _in->GetNextToken() );
-            m_outputLower       = atof( _in->GetNextToken() );
-            m_inputUpper        = atof( _in->GetNextToken() );
-            m_outputUpper       = atof( _in->GetNextToken() );
-            m_smooth            = atof( _in->GetNextToken() );
-            char *linkType      =       _in->GetNextToken();
-            m_link = GetLinkType( linkType );
-            break;
-    }
+		case TypeLinked:
+			m_inputLower = atof( _in->GetNextToken() );
+			m_outputLower = atof( _in->GetNextToken() );
+			m_inputUpper = atof( _in->GetNextToken() );
+			m_outputUpper = atof( _in->GetNextToken() );
+			m_smooth = atof( _in->GetNextToken() );
+			char *linkType = _in->GetNextToken();
+			m_link = GetLinkType( linkType );
+			break;
+	}
 
-    char *updateType = _in->GetNextToken();
-    m_updateType = GetUpdateType( updateType );
+	char *updateType = _in->GetNextToken();
+	m_updateType = GetUpdateType( updateType );
 
-    Recalculate();
+	Recalculate();
 }
 
 
 void SoundParameter::Write( TextFileWriter *_file, const char *_paramName, int _tabs )
 {
-    for( int i = 0; i < _tabs; ++i )
-    {
-        _file->printf( "\t" );
-    }
+	for ( int i = 0; i < _tabs; ++i )
+	{
+		_file->printf( "\t" );
+	}
 
-    _file->printf( "%-18s PARAMETER %-18s",
-                            _paramName,
-                            GetParameterTypeName( m_type ) );
-    
-    switch( m_type )
-    {
-        case TypeFixedValue:
-            _file->printf( "%8.2f", m_outputLower );
-            break;
+	_file->printf( "%-18s PARAMETER %-18s",
+				   _paramName,
+				   GetParameterTypeName( m_type ) );
 
-        case TypeRangedRandom:
-            _file->printf( "%8.2f %8.2f %8.2f", m_outputLower, m_outputUpper, m_smooth );
-            break;
+	switch ( m_type )
+	{
+		case TypeFixedValue:
+			_file->printf( "%8.2f", m_outputLower );
+			break;
 
-        case TypeLinked:
-            _file->printf( "%8.2f %8.2f %8.2f %8.2f %8.2f  %s", 
-                            m_inputLower, m_outputLower,
-                            m_inputUpper, m_outputUpper,
-                            m_smooth,
-                            GetLinkName( m_link ) );
-            break;
-    }
+		case TypeRangedRandom:
+			_file->printf( "%8.2f %8.2f %8.2f", m_outputLower, m_outputUpper, m_smooth );
+			break;
 
-    _file->printf( "  %s", GetUpdateTypeName( m_updateType ) );
-    _file->printf( "\n" );
+		case TypeLinked:
+			_file->printf( "%8.2f %8.2f %8.2f %8.2f %8.2f  %s",
+						   m_inputLower, m_outputLower,
+						   m_inputUpper, m_outputUpper,
+						   m_smooth,
+						   GetLinkName( m_link ) );
+			break;
+	}
+
+	_file->printf( "  %s", GetUpdateTypeName( m_updateType ) );
+	_file->printf( "\n" );
 }
 
 
 bool SoundParameter::IsFixedValue( float _value )
 {
-    return( m_type == TypeFixedValue && m_outputLower == _value );
+	return ( m_type == TypeFixedValue && m_outputLower == _value );
 }
 
 
 float SoundParameter::GetSmooth()
 {
-	return sqrtf(m_smooth);
+	return sqrtf( m_smooth );
 }
 
 
 const char *SoundParameter::GetParameterTypeName( int _type )
 {
-    const char *names[] = {
-                        "TypeFixedValue",
-                        "TypeRangedRandom",
-                        "TypeLinked"
-                    };
+	const char *names[] = {
+		"TypeFixedValue",
+		"TypeRangedRandom",
+		"TypeLinked" };
 
-    AppDebugAssert( _type >= 0 && _type < NumParameterTypes );
-    return names[_type];
+	AppDebugAssert( _type >= 0 && _type < NumParameterTypes );
+	return names[_type];
 }
+
 
 int SoundParameter::GetParameterType( const char *_name )
 {
-    for( int i = 0; i < NumParameterTypes; ++i )
-    {
-        if( stricmp( GetParameterTypeName(i), _name ) == 0 )
-        {
-            return i;
-        }
-    }
-    return -1;
+	for ( int i = 0; i < NumParameterTypes; ++i )
+	{
+		if ( stricmp( GetParameterTypeName( i ), _name ) == 0 )
+		{
+			return i;
+		}
+	}
+	return -1;
 }
 
 
 const char *SoundParameter::GetUpdateTypeName( int _type )
 {
-    const char *names[] = {
-                        "UpdateConstantly",
-                        "UpdateOncePerLoop"
-                    };
+	const char *names[] = {
+		"UpdateConstantly",
+		"UpdateOncePerLoop" };
 
-    AppDebugAssert( _type >= 0 && _type < NumUpdateTypes );
-    return names[ _type ];
+	AppDebugAssert( _type >= 0 && _type < NumUpdateTypes );
+	return names[_type];
 }
 
 
 int SoundParameter::GetUpdateType( const char *_name )
 {
-    for( int i = 0; i < NumUpdateTypes; ++i )
-    {
-        if( stricmp( GetUpdateTypeName(i), _name ) == 0 )
-        {
-            return i;
-        }
-    }
-    return -1;
+	for ( int i = 0; i < NumUpdateTypes; ++i )
+	{
+		if ( stricmp( GetUpdateTypeName( i ), _name ) == 0 )
+		{
+			return i;
+		}
+	}
+	return -1;
 }
-
 
 
 const char *SoundParameter::GetLinkName( int _type )
 {
-    if( _type == -1 ) return "Nothing";
+	if ( _type == -1 )
+		return "Nothing";
 
-    LList<char *> properties;
-    g_soundSystem->m_interface->ListProperties( &properties );
+	LList<char *> properties;
+	g_soundSystem->m_interface->ListProperties( &properties );
 
-    AppDebugAssert( _type >= 0 && _type < properties.Size() );
-    return properties[_type];
+	AppDebugAssert( _type >= 0 && _type < properties.Size() );
+	return properties[_type];
 }
 
 
 int SoundParameter::GetLinkType( const char *_name )
 {
-    LList<char *> properties;
-    g_soundSystem->m_interface->ListProperties( &properties );
+	LList<char *> properties;
+	g_soundSystem->m_interface->ListProperties( &properties );
 
-    for( int i = 0; i < properties.Size(); ++i )
-    {
-        if( stricmp( properties[i], _name ) == 0 )
-        {
-            return i;
-        }
-    }
+	for ( int i = 0; i < properties.Size(); ++i )
+	{
+		if ( stricmp( properties[i], _name ) == 0 )
+		{
+			return i;
+		}
+	}
 
-    return -1;
+	return -1;
 }

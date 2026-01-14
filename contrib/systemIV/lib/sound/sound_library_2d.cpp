@@ -5,7 +5,7 @@
 SoundLibrary2d *g_soundLibrary2d = NULL;
 
 SoundLibrary2d::SoundLibrary2d()
-{	
+{
 }
 
 
