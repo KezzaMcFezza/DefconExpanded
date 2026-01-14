@@ -21,350 +21,370 @@
 
 #include "sprite_atlas.h"
 
-
-
 Resource *g_resource = NULL;
-
-
 
 Resource::Resource()
 {
-    m_spriteAtlasManager = NULL;
+	m_spriteAtlasManager = NULL;
 }
+
 
 Resource::~Resource()
 {
-    Shutdown();
+	Shutdown();
 }
+
 
 void Resource::InitializeAtlases()
 {
-    if (!g_spriteAtlasManager) {
-        g_spriteAtlasManager = new SpriteAtlasManager();
-        g_spriteAtlasManager->Initialize();
-    }
+	if ( !g_spriteAtlasManager )
+	{
+		g_spriteAtlasManager = new SpriteAtlasManager();
+		g_spriteAtlasManager->Initialize();
+	}
 }
+
 
 void Resource::Restart()
 {
-    Shutdown();
-    
-    //
-    // recreate and rebuild atlases for mods
+	Shutdown();
 
-    g_spriteAtlasManager = new SpriteAtlasManager();
-    g_spriteAtlasManager->Initialize();
-    
-    //
-    // invalidate VBOs when resources restart
+	//
+	// recreate and rebuild atlases for mods
 
-    if (g_renderer2d) {
-        g_megavbo2d->InvalidateAllVBOs();
-        AppDebugOut("Resource restart: Invalidated all 2D VBOs for mod loading\n");
-    }
+	g_spriteAtlasManager = new SpriteAtlasManager();
+	g_spriteAtlasManager->Initialize();
 
-    if (g_renderer3d) {
-        g_megavbo3d->InvalidateAll3DVBOs();
-        AppDebugOut("Resource restart: Invalidated all 3D VBOs for mod loading\n");
-    }
+	//
+	// invalidate VBOs when resources restart
+
+	if ( g_renderer2d )
+	{
+		g_megavbo2d->InvalidateAllVBOs();
+		AppDebugOut( "Resource restart: Invalidated all 2D VBOs for mod loading\n" );
+	}
+
+	if ( g_renderer3d )
+	{
+		g_megavbo3d->InvalidateAll3DVBOs();
+		AppDebugOut( "Resource restart: Invalidated all 3D VBOs for mod loading\n" );
+	}
 }
+
 
 void Resource::Shutdown()
 {
 
-    //
-    // Shutdown atlases first
+	//
+	// Shutdown atlases first
 
-    if (g_spriteAtlasManager) {
-        delete g_spriteAtlasManager;
-        g_spriteAtlasManager = NULL;
-    }
+	if ( g_spriteAtlasManager )
+	{
+		delete g_spriteAtlasManager;
+		g_spriteAtlasManager = NULL;
+	}
 
-    //
-    // Image Cache
+	//
+	// Image Cache
 
-    DArray<Image *> *images = m_imageCache.ConvertToDArray();
-    for( int i = 0; i < images->Size(); ++i )
-    {
-        Image *image = images->GetData(i);
-        delete image;
-    }
-    delete images;
-    m_imageCache.Empty();
-
-
-    //
-    // BitmapFont cache
-
-    DArray<BitmapFont *> *fonts = m_bitmapFontCache.ConvertToDArray();
-    for( int i = 0; i < fonts->Size(); ++i )
-    {
-        BitmapFont *font = fonts->GetData(i);
-        delete font;
-    }
-    delete fonts;
-    m_bitmapFontCache.Empty();
+	DArray<Image *> *images = m_imageCache.ConvertToDArray();
+	for ( int i = 0; i < images->Size(); ++i )
+	{
+		Image *image = images->GetData( i );
+		delete image;
+	}
+	delete images;
+	m_imageCache.Empty();
 
 
-    //
-    // TestBitmapFont cache
+	//
+	// BitmapFont cache
 
-    m_testBitmapFontCache.Empty();
+	DArray<BitmapFont *> *fonts = m_bitmapFontCache.ConvertToDArray();
+	for ( int i = 0; i < fonts->Size(); ++i )
+	{
+		BitmapFont *font = fonts->GetData( i );
+		delete font;
+	}
+	delete fonts;
+	m_bitmapFontCache.Empty();
 
-    //
-    // Model cache
 
-    DArray<Model *> *models = m_modelCache.ConvertToDArray();
-    for( int i = 0; i < models->Size(); ++i )
-    {
-        Model *model = models->GetData(i);
-        delete model;
-    }
-    delete models;
-    m_modelCache.Empty();
+	//
+	// TestBitmapFont cache
+
+	m_testBitmapFontCache.Empty();
+
+	//
+	// Model cache
+
+	DArray<Model *> *models = m_modelCache.ConvertToDArray();
+	for ( int i = 0; i < models->Size(); ++i )
+	{
+		Model *model = models->GetData( i );
+		delete model;
+	}
+	delete models;
+	m_modelCache.Empty();
 }
 
 
 void Resource::UnloadImage( const char *filename )
 {
-    if( !filename ) return;
-    
-    char fullFilename[512];
-    sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
-    
-    Image *image = m_imageCache.GetData( fullFilename );
-    if( image )
-    {
-        delete image;
-        m_imageCache.RemoveData( fullFilename );
-    }
-    
+	if ( !filename )
+		return;
+
+	char fullFilename[512];
+	sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
+
+	Image *image = m_imageCache.GetData( fullFilename );
+	if ( image )
+	{
+		delete image;
+		m_imageCache.RemoveData( fullFilename );
+	}
+
 #ifndef NO_UNRAR
-    g_fileSystem->UnloadArchiveFile( fullFilename );
+	g_fileSystem->UnloadArchiveFile( fullFilename );
 #endif
 }
+
 
 void Resource::UnloadImage( const char *filename, float uvAdjustX, float uvAdjustY )
 {
-    if( !filename ) return;
-    
-    char fullFilename[512];
-    sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
-    
-    char cacheKey[512];
-    if( uvAdjustX != 0.0f || uvAdjustY != 0.0f )
-    {
-        sprintf( cacheKey, "%s|uv%.6f|uv%.6f", fullFilename, uvAdjustX, uvAdjustY );
-    }
-    else
-    {
-        strcpy( cacheKey, fullFilename );
-    }
-    
-    Image *image = m_imageCache.GetData( cacheKey );
-    if( image )
-    {
-        delete image;
-        m_imageCache.RemoveData( cacheKey );
-    }
-    
+	if ( !filename )
+		return;
+
+	char fullFilename[512];
+	sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
+
+	char cacheKey[512];
+	if ( uvAdjustX != 0.0f || uvAdjustY != 0.0f )
+	{
+		sprintf( cacheKey, "%s|uv%.6f|uv%.6f", fullFilename, uvAdjustX, uvAdjustY );
+	}
+	else
+	{
+		strcpy( cacheKey, fullFilename );
+	}
+
+	Image *image = m_imageCache.GetData( cacheKey );
+	if ( image )
+	{
+		delete image;
+		m_imageCache.RemoveData( cacheKey );
+	}
+
 #ifndef NO_UNRAR
-    g_fileSystem->UnloadArchiveFile( fullFilename );
+	g_fileSystem->UnloadArchiveFile( fullFilename );
 #endif
 }
 
+
 Image *Resource::TryLoadFromAtlas( const char *filename, float uvAdjustX, float uvAdjustY )
 {
-    if( !filename ) return NULL;
-    
-    if (g_spriteAtlasManager && g_spriteAtlasManager->IsInitialized()) {
-        char dataPath[512];
-        sprintf(dataPath, "%s/%s", GetDataRoot(), filename);
-        
-        RuntimeTextureAtlas* atlas = NULL;
-        const PackedSprite* sprite = g_spriteAtlasManager->GetSpriteFromAnyAtlas(dataPath, &atlas);
-        
-        if (sprite && atlas) {
-            AtlasImage* atlasImage = new AtlasImage((PackedSprite*)sprite, atlas);
-            atlasImage->SetUVAdjust( uvAdjustX, uvAdjustY );
-            return atlasImage;
-        }
-    }
-    
-    return NULL;
+	if ( !filename )
+		return NULL;
+
+	if ( g_spriteAtlasManager && g_spriteAtlasManager->IsInitialized() )
+	{
+		char dataPath[512];
+		sprintf( dataPath, "%s/%s", GetDataRoot(), filename );
+
+		RuntimeTextureAtlas *atlas = NULL;
+		const PackedSprite *sprite = g_spriteAtlasManager->GetSpriteFromAnyAtlas( dataPath, &atlas );
+
+		if ( sprite && atlas )
+		{
+			AtlasImage *atlasImage = new AtlasImage( (PackedSprite *)sprite, atlas );
+			atlasImage->SetUVAdjust( uvAdjustX, uvAdjustY );
+			return atlasImage;
+		}
+	}
+
+	return NULL;
 }
+
 
 Image *Resource::GetImage( const char *filename )
-{   
-    if( !filename ) return NULL;
-    
-    char fullFilename[512];
-    sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
+{
+	if ( !filename )
+		return NULL;
 
-    Image *image = m_imageCache.GetData( fullFilename );
-    if( image )
-    {
-        return image;
-    }
-    
-    image = TryLoadFromAtlas( filename );
-    if( image )
-    {
-        m_imageCache.PutData( fullFilename, image );
-        return image;
-    }
-    
-    image = new Image( fullFilename );
-    m_imageCache.PutData( fullFilename, image );
-    image->MakeTexture( true, true );
-    return image;
+	char fullFilename[512];
+	sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
+
+	Image *image = m_imageCache.GetData( fullFilename );
+	if ( image )
+	{
+		return image;
+	}
+
+	image = TryLoadFromAtlas( filename );
+	if ( image )
+	{
+		m_imageCache.PutData( fullFilename, image );
+		return image;
+	}
+
+	image = new Image( fullFilename );
+	m_imageCache.PutData( fullFilename, image );
+	image->MakeTexture( true, true );
+	return image;
 }
+
 
 Image *Resource::GetImage( const char *filename, float uvAdjustX, float uvAdjustY )
-{   
-    if( !filename ) return NULL;
-    
-    //
-    // Create cache key that includes UV adjustments
-    // Images with different UV adjustments are cached separately
-    
-    char fullFilename[512];
-    sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
-    
-    char cacheKey[512];
-    if( uvAdjustX != 0.0f || uvAdjustY != 0.0f )
-    {
-        sprintf( cacheKey, "%s|uv%.6f|uv%.6f", fullFilename, uvAdjustX, uvAdjustY );
-    }
-    else
-    {
-        strcpy( cacheKey, fullFilename );
-    }
-    
-    Image *image = m_imageCache.GetData( cacheKey );
-    if( image )
-    {
-        return image;
-    }
-    
-    if( uvAdjustX == 0.0f && uvAdjustY == 0.0f )
-    {
-        return GetImage( filename );
-    }
-    
-    image = TryLoadFromAtlas( filename, uvAdjustX, uvAdjustY );
-    if( image )
-    {
-        m_imageCache.PutData( cacheKey, image );
-        return image;
-    }
-    
-    image = new Image( fullFilename );
-    image->MakeTexture( true, true );
-    image->SetUVAdjust( uvAdjustX, uvAdjustY );
-    m_imageCache.PutData( cacheKey, image );
-    return image;
-}
-
-
-BitmapFont *Resource::GetBitmapFont ( const char *filename )
 {
-    if( !filename ) return NULL;
+	if ( !filename )
+		return NULL;
 
-    char fullFilename[512];
-    snprintf( fullFilename, sizeof(fullFilename), "%s/%s", GetDataRoot(), filename );
-    fullFilename[ sizeof(fullFilename) - 1 ] = '\x0';
+	//
+	// Create cache key that includes UV adjustments
+	// Images with different UV adjustments are cached separately
 
-    BitmapFont *font = m_bitmapFontCache.GetData( fullFilename );
-    if( font )
-    {
-        return font;
-    }
-    else
-    {
-        font = new BitmapFont( fullFilename );
-        m_bitmapFontCache.PutData( fullFilename, font );
-        return font;
-    }
+	char fullFilename[512];
+	sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
+
+	char cacheKey[512];
+	if ( uvAdjustX != 0.0f || uvAdjustY != 0.0f )
+	{
+		sprintf( cacheKey, "%s|uv%.6f|uv%.6f", fullFilename, uvAdjustX, uvAdjustY );
+	}
+	else
+	{
+		strcpy( cacheKey, fullFilename );
+	}
+
+	Image *image = m_imageCache.GetData( cacheKey );
+	if ( image )
+	{
+		return image;
+	}
+
+	if ( uvAdjustX == 0.0f && uvAdjustY == 0.0f )
+	{
+		return GetImage( filename );
+	}
+
+	image = TryLoadFromAtlas( filename, uvAdjustX, uvAdjustY );
+	if ( image )
+	{
+		m_imageCache.PutData( cacheKey, image );
+		return image;
+	}
+
+	image = new Image( fullFilename );
+	image->MakeTexture( true, true );
+	image->SetUVAdjust( uvAdjustX, uvAdjustY );
+	m_imageCache.PutData( cacheKey, image );
+	return image;
 }
 
 
-bool Resource::TestBitmapFont ( const char *filename )
+BitmapFont *Resource::GetBitmapFont( const char *filename )
 {
-    if( !filename ) return false;
+	if ( !filename )
+		return NULL;
 
-    char fullFilename[512];
-    snprintf( fullFilename, sizeof(fullFilename), "%s/%s", GetDataRoot(), filename );
-    fullFilename[ sizeof(fullFilename) - 1 ] = '\x0';
+	char fullFilename[512];
+	snprintf( fullFilename, sizeof( fullFilename ), "%s/%s", GetDataRoot(), filename );
+	fullFilename[sizeof( fullFilename ) - 1] = '\x0';
 
-    BitmapFont *font = m_bitmapFontCache.GetData( fullFilename );
-    if( font )
-    {
-        return true;
-    }
-
-    bool fontNotFound = m_testBitmapFontCache.GetData( fullFilename );
-    if( fontNotFound )
-    {
-        return false;
-    }
-
-    BinaryReader *reader = g_fileSystem->GetBinaryReader( fullFilename );
-    if( reader )
-    {
-        delete reader;
-        return true;
-    }
-    m_testBitmapFontCache.PutData( fullFilename, true );
-    return false;
+	BitmapFont *font = m_bitmapFontCache.GetData( fullFilename );
+	if ( font )
+	{
+		return font;
+	}
+	else
+	{
+		font = new BitmapFont( fullFilename );
+		m_bitmapFontCache.PutData( fullFilename, font );
+		return font;
+	}
 }
+
+
+bool Resource::TestBitmapFont( const char *filename )
+{
+	if ( !filename )
+		return false;
+
+	char fullFilename[512];
+	snprintf( fullFilename, sizeof( fullFilename ), "%s/%s", GetDataRoot(), filename );
+	fullFilename[sizeof( fullFilename ) - 1] = '\x0';
+
+	BitmapFont *font = m_bitmapFontCache.GetData( fullFilename );
+	if ( font )
+	{
+		return true;
+	}
+
+	bool fontNotFound = m_testBitmapFontCache.GetData( fullFilename );
+	if ( fontNotFound )
+	{
+		return false;
+	}
+
+	BinaryReader *reader = g_fileSystem->GetBinaryReader( fullFilename );
+	if ( reader )
+	{
+		delete reader;
+		return true;
+	}
+	m_testBitmapFontCache.PutData( fullFilename, true );
+	return false;
+}
+
 
 Model *Resource::GetModel( const char *filename )
 {
-    if( !filename ) return NULL;
-    
-    char fullFilename[512];
-    snprintf( fullFilename, sizeof(fullFilename), "%s/%s", GetDataRoot(), filename );
-    fullFilename[ sizeof(fullFilename) - 1 ] = '\x0';
-    
-    Model *model = m_modelCache.GetData( fullFilename );
-    if( model )
-    {
-        return model;
-    }
-    
-    model = new Model( fullFilename );
-    
-    if( !ModelLoader::LoadFromGLTF( model, fullFilename ) )
-    {
-        AppDebugOut("Model: Failed to load model: %s\n", fullFilename);
-    }
-    else
-    { 
-        ModelBuilder::BuildModelVBO( model );
-    }
-    
-    m_modelCache.PutData( fullFilename, model );
-    return model;
+	if ( !filename )
+		return NULL;
+
+	char fullFilename[512];
+	snprintf( fullFilename, sizeof( fullFilename ), "%s/%s", GetDataRoot(), filename );
+	fullFilename[sizeof( fullFilename ) - 1] = '\x0';
+
+	Model *model = m_modelCache.GetData( fullFilename );
+	if ( model )
+	{
+		return model;
+	}
+
+	model = new Model( fullFilename );
+
+	if ( !ModelLoader::LoadFromGLTF( model, fullFilename ) )
+	{
+		AppDebugOut( "Model: Failed to load model: %s\n", fullFilename );
+	}
+	else
+	{
+		ModelBuilder::BuildModelVBO( model );
+	}
+
+	m_modelCache.PutData( fullFilename, model );
+	return model;
 }
 
 
 void Resource::UnloadModel( const char *filename )
 {
-    if( !filename ) return;
-    
-    char fullFilename[512];
-    snprintf( fullFilename, sizeof(fullFilename), "%s/%s", GetDataRoot(), filename );
-    fullFilename[ sizeof(fullFilename) - 1 ] = '\x0';
-    
-    Model *model = m_modelCache.GetData( fullFilename );
-    if( model )
-    {
-        delete model;
-        m_modelCache.RemoveData( fullFilename );
-    }
-    
+	if ( !filename )
+		return;
+
+	char fullFilename[512];
+	snprintf( fullFilename, sizeof( fullFilename ), "%s/%s", GetDataRoot(), filename );
+	fullFilename[sizeof( fullFilename ) - 1] = '\x0';
+
+	Model *model = m_modelCache.GetData( fullFilename );
+	if ( model )
+	{
+		delete model;
+		m_modelCache.RemoveData( fullFilename );
+	}
+
 #ifndef NO_UNRAR
-    g_fileSystem->UnloadArchiveFile( filename );
+	g_fileSystem->UnloadArchiveFile( filename );
 #endif
 }

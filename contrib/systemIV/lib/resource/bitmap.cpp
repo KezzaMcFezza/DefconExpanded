@@ -14,59 +14,58 @@
 #include "bitmap.h"
 
 
-#define BMP_RGB				0
-#define OS2INFOHEADERSIZE  12
-#define WININFOHEADERSIZE  40
+#define BMP_RGB 0
+#define OS2INFOHEADERSIZE 12
+#define WININFOHEADERSIZE 40
 
 
 class BitmapFileHeader
 {
-public:
-   unsigned short bfType;
-   unsigned long  bfSize;
-   unsigned short bfReserved1;
-   unsigned short bfReserved2;
-   unsigned long  bfOffBits;
+  public:
+	unsigned short bfType;
+	unsigned long bfSize;
+	unsigned short bfReserved1;
+	unsigned short bfReserved2;
+	unsigned long bfOffBits;
 };
 
 
-// Used for both OS/2 and Windows BMP. 
-// Contains only the parameters needed to load the image 
+// Used for both OS/2 and Windows BMP.
+// Contains only the parameters needed to load the image
 class BitmapInfoHeader
 {
-public:
-   unsigned long  biWidth;
-   unsigned long  biHeight;
-   unsigned short biBitCount;
-   unsigned long  biCompression;
+  public:
+	unsigned long biWidth;
+	unsigned long biHeight;
+	unsigned short biBitCount;
+	unsigned long biCompression;
 };
 
 
-class WinBmpInfoHeader  /* size: 40 */
+class WinBmpInfoHeader /* size: 40 */
 {
-public:
-   unsigned long  biWidth;
-   unsigned long  biHeight;
-   unsigned short biPlanes;
-   unsigned short biBitCount;
-   unsigned long  biCompression;
-   unsigned long  biSizeImage;
-   unsigned long  biXPelsPerMeter;
-   unsigned long  biYPelsPerMeter;
-   unsigned long  biClrUsed;
-   unsigned long  biClrImportant;
+  public:
+	unsigned long biWidth;
+	unsigned long biHeight;
+	unsigned short biPlanes;
+	unsigned short biBitCount;
+	unsigned long biCompression;
+	unsigned long biSizeImage;
+	unsigned long biXPelsPerMeter;
+	unsigned long biYPelsPerMeter;
+	unsigned long biClrUsed;
+	unsigned long biClrImportant;
 };
 
 
-class OS2BmpInfoHeader  /* size: 12 */
+class OS2BmpInfoHeader /* size: 12 */
 {
-public:
-   unsigned short biWidth;
-   unsigned short biHeight;
-   unsigned short biPlanes;
-   unsigned short biBitCount;
+  public:
+	unsigned short biWidth;
+	unsigned short biHeight;
+	unsigned short biPlanes;
+	unsigned short biBitCount;
 };
-
 
 
 // ****************************************************************************
@@ -74,20 +73,20 @@ public:
 // ****************************************************************************
 
 // Reads a BMP file header and check that it has the BMP magic number.
-void Bitmap::ReadBMPFileHeader(BinaryReader *f, BitmapFileHeader *fileheader)
+void Bitmap::ReadBMPFileHeader( BinaryReader *f, BitmapFileHeader *fileheader )
 {
 	fileheader->bfType = f->ReadS16();
-	fileheader->bfSize= f->ReadS32();
-	fileheader->bfReserved1= f->ReadS16();
-	fileheader->bfReserved2= f->ReadS16();
-	fileheader->bfOffBits= f->ReadS32();
+	fileheader->bfSize = f->ReadS32();
+	fileheader->bfReserved1 = f->ReadS16();
+	fileheader->bfReserved2 = f->ReadS16();
+	fileheader->bfOffBits = f->ReadS32();
 
-	AppAssert(fileheader->bfType == 19778);
+	AppAssert( fileheader->bfType == 19778 );
 }
 
 
 // Reads information from a BMP file header.
-void Bitmap::ReadWinBMPInfoHeader(BinaryReader *f, BitmapInfoHeader *infoheader)
+void Bitmap::ReadWinBMPInfoHeader( BinaryReader *f, BitmapInfoHeader *infoheader )
 {
 	WinBmpInfoHeader win_infoheader;
 
@@ -110,7 +109,7 @@ void Bitmap::ReadWinBMPInfoHeader(BinaryReader *f, BitmapInfoHeader *infoheader)
 
 
 // Reads information from an OS/2 format BMP file header.
-void Bitmap::ReadOS2BMPInfoHeader(BinaryReader *f, BitmapInfoHeader *infoheader)
+void Bitmap::ReadOS2BMPInfoHeader( BinaryReader *f, BitmapInfoHeader *infoheader )
 {
 	OS2BmpInfoHeader os2_infoheader;
 
@@ -126,63 +125,64 @@ void Bitmap::ReadOS2BMPInfoHeader(BinaryReader *f, BitmapInfoHeader *infoheader)
 }
 
 
-void Bitmap::ReadBMPPalette(int ncols, Colour pal[256], BinaryReader *f, int win_flag)
+void Bitmap::ReadBMPPalette( int ncols, Colour pal[256], BinaryReader *f, int win_flag )
 {
-	for (int i = 0; i < ncols; i++) 
+	for ( int i = 0; i < ncols; i++ )
 	{
-	    pal[i].m_b = f->ReadU8();
-	    pal[i].m_g = f->ReadU8();
-	    pal[i].m_r = f->ReadU8();
+		pal[i].m_b = f->ReadU8();
+		pal[i].m_g = f->ReadU8();
+		pal[i].m_r = f->ReadU8();
 		pal[i].m_a = 255;
-	    if (win_flag) f->ReadU8();
+		if ( win_flag )
+			f->ReadU8();
 	}
 }
 
 
 // Support function for reading the 4 bit bitmap file format.
-void Bitmap::Read4BitLine(int length, BinaryReader *f, Colour pal[256], int y)
+void Bitmap::Read4BitLine( int length, BinaryReader *f, Colour pal[256], int y )
 {
-	for (int x = 0; x < length; x += 2) 
+	for ( int x = 0; x < length; x += 2 )
 	{
 		unsigned char i = f->ReadU8();
 		unsigned idx1 = i & 15;
-		unsigned idx2 = (i >> 4) & 15;
-		PutPixel(x+1, y, pal[idx1]);
-		PutPixel(x, y, pal[idx2]);
+		unsigned idx2 = ( i >> 4 ) & 15;
+		PutPixel( x + 1, y, pal[idx1] );
+		PutPixel( x, y, pal[idx2] );
 	}
 }
 
 
 // Support function for reading the 8 bit bitmap file format.
-void Bitmap::Read8BitLine(int length, BinaryReader *f, Colour pal[256], int y)
+void Bitmap::Read8BitLine( int length, BinaryReader *f, Colour pal[256], int y )
 {
-//	y = m_height - line - 1;
-	for (int x = 0; x < length; ++x) 
+	//	y = m_height - line - 1;
+	for ( int x = 0; x < length; ++x )
 	{
 		unsigned char i = f->ReadU8();
-		PutPixel(x, y, pal[i]);
+		PutPixel( x, y, pal[i] );
 	}
 }
 
 
 // Support function for reading the 24 bit bitmap file format
-void Bitmap::Read24BitLine(int length, BinaryReader *f, int y)
+void Bitmap::Read24BitLine( int length, BinaryReader *f, int y )
 {
 	Colour c;
-	int nbytes=0;
-//	y = m_height - y - 1;
+	int nbytes = 0;
+	//	y = m_height - y - 1;
 	c.m_a = 255;
 
-	for (int i=0; i<length; i++) 
+	for ( int i = 0; i < length; i++ )
 	{
 		c.m_b = f->ReadU8();
 		c.m_g = f->ReadU8();
 		c.m_r = f->ReadU8();
-		PutPixel(i, y, c);
+		PutPixel( i, y, c );
 		nbytes += 3;
 	}
 
-	for (int padding = (4 - nbytes) & 3; padding; --padding) 
+	for ( int padding = ( 4 - nbytes ) & 3; padding; --padding )
 	{
 		f->ReadU8();
 	}
@@ -195,76 +195,76 @@ void Bitmap::Read24BitLine(int length, BinaryReader *f, int y)
 // read operations that work with raw data
 // used for parallel processing
 
-void Bitmap::Read4BitLineFromData(int length, unsigned char *data, Colour pal[256], int y)
+void Bitmap::Read4BitLineFromData( int length, unsigned char *data, Colour pal[256], int y )
 {
-	for (int x = 0; x < length; x += 2) 
+	for ( int x = 0; x < length; x += 2 )
 	{
 		unsigned char i = data[x / 2];
 		unsigned idx1 = i & 15;
-		unsigned idx2 = (i >> 4) & 15;
-		PutPixel(x+1, y, pal[idx1]);
-		PutPixel(x, y, pal[idx2]);
+		unsigned idx2 = ( i >> 4 ) & 15;
+		PutPixel( x + 1, y, pal[idx1] );
+		PutPixel( x, y, pal[idx2] );
 	}
 }
 
 
-void Bitmap::Read8BitLineFromData(int length, unsigned char *data, Colour pal[256], int y)
+void Bitmap::Read8BitLineFromData( int length, unsigned char *data, Colour pal[256], int y )
 {
-	for (int x = 0; x < length; ++x) 
+	for ( int x = 0; x < length; ++x )
 	{
 		unsigned char i = data[x];
-		PutPixel(x, y, pal[i]);
+		PutPixel( x, y, pal[i] );
 	}
 }
 
 
-void Bitmap::Read24BitLineFromData(int length, unsigned char *data, int y)
+void Bitmap::Read24BitLineFromData( int length, unsigned char *data, int y )
 {
 	Colour c;
 	c.m_a = 255;
 
-	for (int i=0; i<length; i++) 
+	for ( int i = 0; i < length; i++ )
 	{
 		c.m_b = data[i * 3];
 		c.m_g = data[i * 3 + 1];
 		c.m_r = data[i * 3 + 2];
-		PutPixel(i, y, c);
+		PutPixel( i, y, c );
 	}
 }
 #endif
 
-void Bitmap::LoadBmp(BinaryReader *_in)
+void Bitmap::LoadBmp( BinaryReader *_in )
 {
 	BitmapFileHeader fileheader;
 	BitmapInfoHeader infoheader;
 	Colour palette[256];
 
-	ReadBMPFileHeader(_in, &fileheader);
+	ReadBMPFileHeader( _in, &fileheader );
 
 	unsigned long biSize = _in->ReadS32();
 
-	if (biSize == WININFOHEADERSIZE) 
+	if ( biSize == WININFOHEADERSIZE )
 	{
-		ReadWinBMPInfoHeader(_in, &infoheader);
-		
-		int ncol = (fileheader.bfOffBits - 54) / 4; // compute number of colors recorded
-		ReadBMPPalette(ncol, palette, _in, 1);
+		ReadWinBMPInfoHeader( _in, &infoheader );
+
+		int ncol = ( fileheader.bfOffBits - 54 ) / 4; // compute number of colors recorded
+		ReadBMPPalette( ncol, palette, _in, 1 );
 	}
-	else if (biSize == OS2INFOHEADERSIZE) 
+	else if ( biSize == OS2INFOHEADERSIZE )
 	{
-	    ReadOS2BMPInfoHeader(_in, &infoheader);
-    
-	    int ncol = (fileheader.bfOffBits - 26) / 3; // compute number of colors recorded
-	    ReadBMPPalette(ncol, palette, _in, 0);
+		ReadOS2BMPInfoHeader( _in, &infoheader );
+
+		int ncol = ( fileheader.bfOffBits - 26 ) / 3; // compute number of colors recorded
+		ReadBMPPalette( ncol, palette, _in, 0 );
 	}
-	else 
+	else
 	{
-	    AppAbort( "Error reading bitmap" );
+		AppAbort( "Error reading bitmap" );
 	}
 
-	Initialise(infoheader.biWidth, infoheader.biHeight);
-	AppAssert(infoheader.biCompression == BMP_RGB); 
-	AppAssert(!_in->m_eof);
+	Initialise( infoheader.biWidth, infoheader.biHeight );
+	AppAssert( infoheader.biCompression == BMP_RGB );
+	AppAssert( !_in->m_eof );
 
 #ifdef OPENMP
 
@@ -273,101 +273,104 @@ void Bitmap::LoadBmp(BinaryReader *_in)
 
 	int bytesPerLine = 0;
 	int totalBytes = 0;
-	
-	switch (infoheader.biBitCount)
+
+	switch ( infoheader.biBitCount )
 	{
-	case 4:
-		bytesPerLine = (infoheader.biWidth + 1) / 2; // 4 bits per pixel, rounded up
-		break;
-	case 8:
-		bytesPerLine = infoheader.biWidth;
-		break;
-	case 24:
-		bytesPerLine = infoheader.biWidth * 3;
-		break;
-	default:
-		AppAbort("Error reading bitmap");
-		break;
+		case 4:
+			bytesPerLine = ( infoheader.biWidth + 1 ) / 2; // 4 bits per pixel, rounded up
+			break;
+		case 8:
+			bytesPerLine = infoheader.biWidth;
+			break;
+		case 24:
+			bytesPerLine = infoheader.biWidth * 3;
+			break;
+		default:
+			AppAbort( "Error reading bitmap" );
+			break;
 	}
-	
+
 	//
 	// add padding for 4-byte alignment
 
-	bytesPerLine = (bytesPerLine + 3) & ~3;
+	bytesPerLine = ( bytesPerLine + 3 ) & ~3;
 	totalBytes = bytesPerLine * infoheader.biHeight;
-	
+
 	//
 	// read all image data into memory
 
 	unsigned char *imageData = new unsigned char[totalBytes];
-	_in->ReadBytes(totalBytes, imageData);
-	
+	_in->ReadBytes( totalBytes, imageData );
+
 	//
 	// process lines in parallel
 
-	#pragma omp parallel for schedule(static, 8)
-	for (int i = 0; i < (int)infoheader.biHeight; ++i) 
+#pragma omp parallel for schedule( static, 8 )
+	for ( int i = 0; i < (int)infoheader.biHeight; ++i )
 	{
-		unsigned char *lineData = imageData + (i * bytesPerLine);
-		
-		switch (infoheader.biBitCount)
+		unsigned char *lineData = imageData + ( i * bytesPerLine );
+
+		switch ( infoheader.biBitCount )
 		{
-		case 4:
-			Read4BitLineFromData(infoheader.biWidth, lineData, palette, i);
-			break;
-		case 8:
-			Read8BitLineFromData(infoheader.biWidth, lineData, palette, i);
-			break;
-		case 24:
-			Read24BitLineFromData(infoheader.biWidth, lineData, i);
-			break;
+			case 4:
+				Read4BitLineFromData( infoheader.biWidth, lineData, palette, i );
+				break;
+			case 8:
+				Read8BitLineFromData( infoheader.biWidth, lineData, palette, i );
+				break;
+			case 24:
+				Read24BitLineFromData( infoheader.biWidth, lineData, i );
+				break;
 		}
 	}
-	
+
 	delete[] imageData;
 #else
 	// Read the image
-	for (int i = 0; i < (int)infoheader.biHeight; ++i) 
+	for ( int i = 0; i < (int)infoheader.biHeight; ++i )
 	{
-		switch (infoheader.biBitCount)
+		switch ( infoheader.biBitCount )
 		{
-		case 4:
-			Read4BitLine(infoheader.biWidth, _in, palette, i);
-			break;
-		case 8:
-			Read8BitLine(infoheader.biWidth, _in, palette, i);
-			break;
-		case 24:
-			Read24BitLine(infoheader.biWidth, _in, i);
-			break;
-		default:
-			AppAbort("Error reading bitmap");
-			break;
+			case 4:
+				Read4BitLine( infoheader.biWidth, _in, palette, i );
+				break;
+			case 8:
+				Read8BitLine( infoheader.biWidth, _in, palette, i );
+				break;
+			case 24:
+				Read24BitLine( infoheader.biWidth, _in, i );
+				break;
+			default:
+				AppAbort( "Error reading bitmap" );
+				break;
 		}
 	}
 #endif
 }
 
+
 // Little endian output functions
-static void writeShort(unsigned short _x, FILE *_out)
+static void writeShort( unsigned short _x, FILE *_out )
 {
-	fputc( _x & 0xFF, _out);
+	fputc( _x & 0xFF, _out );
 	_x >>= 8;
-	fputc( _x & 0xFF, _out);
+	fputc( _x & 0xFF, _out );
 }
 
-static void writeInt(unsigned _x, FILE *_out)
+
+static void writeInt( unsigned _x, FILE *_out )
 {
-	fputc( _x & 0xFF, _out);
+	fputc( _x & 0xFF, _out );
 	_x >>= 8;
-	fputc( _x & 0xFF, _out);
+	fputc( _x & 0xFF, _out );
 	_x >>= 8;
-	fputc( _x & 0xFF, _out);
+	fputc( _x & 0xFF, _out );
 	_x >>= 8;
-	fputc( _x & 0xFF, _out);
+	fputc( _x & 0xFF, _out );
 }
 
-void Bitmap::WriteBMPFileHeader(FILE *_out)
+
+void Bitmap::WriteBMPFileHeader( FILE *_out )
 {
 	BitmapFileHeader fileheader;
 	fileheader.bfType = 19778;
@@ -376,15 +379,15 @@ void Bitmap::WriteBMPFileHeader(FILE *_out)
 	fileheader.bfReserved2 = 0;
 	fileheader.bfOffBits = 54;
 
-	writeShort(fileheader.bfType, _out);
-	writeInt(fileheader.bfSize, _out);
-	writeShort(fileheader.bfReserved1, _out);
-	writeShort(fileheader.bfReserved2, _out);
-	writeInt(fileheader.bfOffBits, _out);
+	writeShort( fileheader.bfType, _out );
+	writeInt( fileheader.bfSize, _out );
+	writeShort( fileheader.bfReserved1, _out );
+	writeShort( fileheader.bfReserved2, _out );
+	writeInt( fileheader.bfOffBits, _out );
 }
 
 
-void Bitmap::WriteWinBMPInfoHeader(FILE *_out)
+void Bitmap::WriteWinBMPInfoHeader( FILE *_out )
 {
 	WinBmpInfoHeader win_infoheader;
 
@@ -399,57 +402,57 @@ void Bitmap::WriteWinBMPInfoHeader(FILE *_out)
 	win_infoheader.biClrUsed = 0;
 	win_infoheader.biClrImportant = 0;
 
-	writeInt(win_infoheader.biWidth, _out);
-	writeInt(win_infoheader.biHeight, _out);
-	writeShort(win_infoheader.biPlanes, _out);
-	writeShort(win_infoheader.biBitCount, _out);
-	writeInt(win_infoheader.biCompression, _out);
-	writeInt(win_infoheader.biSizeImage, _out);
-	writeInt(win_infoheader.biXPelsPerMeter, _out);
-	writeInt(win_infoheader.biYPelsPerMeter, _out);
-	writeInt(win_infoheader.biClrUsed, _out);
-	writeInt(win_infoheader.biClrImportant, _out);
+	writeInt( win_infoheader.biWidth, _out );
+	writeInt( win_infoheader.biHeight, _out );
+	writeShort( win_infoheader.biPlanes, _out );
+	writeShort( win_infoheader.biBitCount, _out );
+	writeInt( win_infoheader.biCompression, _out );
+	writeInt( win_infoheader.biSizeImage, _out );
+	writeInt( win_infoheader.biXPelsPerMeter, _out );
+	writeInt( win_infoheader.biYPelsPerMeter, _out );
+	writeInt( win_infoheader.biClrUsed, _out );
+	writeInt( win_infoheader.biClrImportant, _out );
 }
 
 
-void Bitmap::Write24BitLine(FILE *_out, int _y)
+void Bitmap::Write24BitLine( FILE *_out, int _y )
 {
-	int nbytes=0;
+	int nbytes = 0;
 
-	for (int x = 0; x < m_width; ++x) 
+	for ( int x = 0; x < m_width; ++x )
 	{
-		Colour const &c = GetPixel(x, _y);
-		fputc(c.m_b, _out);
-		fputc(c.m_g, _out);
-		fputc(c.m_r, _out);
+		Colour const &c = GetPixel( x, _y );
+		fputc( c.m_b, _out );
+		fputc( c.m_g, _out );
+		fputc( c.m_r, _out );
 		nbytes += 3;
 	}
 
-	for (int padding = (4 - nbytes) & 3; padding; --padding) 
+	for ( int padding = ( 4 - nbytes ) & 3; padding; --padding )
 	{
-		fputc(0, _out);
+		fputc( 0, _out );
 	}
 }
 
 
-void Bitmap::SaveBmp(char *_filename)
+void Bitmap::SaveBmp( char *_filename )
 {
-	FILE *_out = fopen(_filename, "wb");
+	FILE *_out = fopen( _filename, "wb" );
 	AppAssert( _out );
 
-	WriteBMPFileHeader(_out);
+	WriteBMPFileHeader( _out );
 
 	unsigned long nextHeaderSize = 40;
-	writeInt(nextHeaderSize, _out);
+	writeInt( nextHeaderSize, _out );
 
-	WriteWinBMPInfoHeader(_out);
+	WriteWinBMPInfoHeader( _out );
 
-	for (int y = 0; y < m_height; ++y)
+	for ( int y = 0; y < m_height; ++y )
 	{
-		Write24BitLine(_out, y);
+		Write24BitLine( _out, y );
 	}
 
-	fclose(_out);
+	fclose( _out );
 }
 
 
@@ -459,39 +462,39 @@ void Bitmap::SaveBmp(char *_filename)
 
 
 Bitmap::Bitmap()
-:	m_width(-1),
-	m_height(-1),
-	m_pixels(NULL),
-	m_lines(NULL)
+	: m_width( -1 ),
+	  m_height( -1 ),
+	  m_pixels( NULL ),
+	  m_lines( NULL )
 {
 }
 
 
-Bitmap::Bitmap(Bitmap &_other)
+Bitmap::Bitmap( Bitmap &_other )
 {
-	Initialise(_other.m_width, _other.m_height);
-	memcpy(m_pixels, _other.m_pixels, m_width * m_height * sizeof(Colour));
+	Initialise( _other.m_width, _other.m_height );
+	memcpy( m_pixels, _other.m_pixels, m_width * m_height * sizeof( Colour ) );
 }
 
 
-Bitmap::Bitmap(int width, int height)
-:	m_width(-1),
-	m_height(-1),
-	m_pixels(NULL),
-	m_lines(NULL)
+Bitmap::Bitmap( int width, int height )
+	: m_width( -1 ),
+	  m_height( -1 ),
+	  m_pixels( NULL ),
+	  m_lines( NULL )
 {
-	Initialise(width, height);
+	Initialise( width, height );
 }
 
 
 // *** Constructor: Load from a BinaryReader
-Bitmap::Bitmap(BinaryReader *_reader, const char *_type)
-:	m_width(-1),
-	m_height(-1),
-	m_pixels(NULL),
-	m_lines(NULL)
+Bitmap::Bitmap( BinaryReader *_reader, const char *_type )
+	: m_width( -1 ),
+	  m_height( -1 ),
+	  m_pixels( NULL ),
+	  m_lines( NULL )
 {
-	Initialise(_reader, _type);
+	Initialise( _reader, _type );
 }
 
 
@@ -500,56 +503,56 @@ Bitmap::~Bitmap()
 {
 	m_width = -1;
 	m_height = -1;
-	delete [] m_pixels;
-	delete [] m_lines;
+	delete[] m_pixels;
+	delete[] m_lines;
 	m_pixels = NULL;
 	m_lines = NULL;
 }
 
 
 // *** Initialise
-void Bitmap::Initialise(int width, int height)
+void Bitmap::Initialise( int width, int height )
 {
 	m_width = width;
 	m_height = height;
-    m_pixels = new Colour[width * height + 1 /* For buggy gluBuild2DMipmaps */];
+	m_pixels = new Colour[width * height + 1 /* For buggy gluBuild2DMipmaps */];
 	m_lines = new Colour *[height];
 
-	AppAssert(m_pixels && m_lines);
+	AppAssert( m_pixels && m_lines );
 
-	for (int y = 0; y < height; ++y)
+	for ( int y = 0; y < height; ++y )
 	{
 		m_lines[y] = &m_pixels[y * width];
 	}
 }
 
 
-void Bitmap::Initialise(BinaryReader *_reader, const char *_type)
+void Bitmap::Initialise( BinaryReader *_reader, const char *_type )
 {
-	AppAssert(stricmp(_type, "bmp") == 0);
-	LoadBmp(_reader);
+	AppAssert( stricmp( _type, "bmp" ) == 0 );
+	LoadBmp( _reader );
 }
 
 
 // *** PutPixel
-void Bitmap::PutPixel(int x, int y, Colour const &colour)
+void Bitmap::PutPixel( int x, int y, Colour const &colour )
 {
 	m_lines[y][x] = colour;
 }
 
 
 // *** GetPixel
-Colour &Bitmap::GetPixel(int x, int y) 
+Colour &Bitmap::GetPixel( int x, int y )
 {
 	return m_lines[y][x];
 }
 
 
 // *** PutPixelClipped
-void Bitmap::PutPixelClipped(int x, int y, Colour const &colour)
+void Bitmap::PutPixelClipped( int x, int y, Colour const &colour )
 {
-	if (x < 0 || x >= m_width ||
-		y < 0 || y >= m_height)
+	if ( x < 0 || x >= m_width ||
+		 y < 0 || y >= m_height )
 	{
 		return;
 	}
@@ -559,105 +562,105 @@ void Bitmap::PutPixelClipped(int x, int y, Colour const &colour)
 
 
 // *** GetPixelClipped
-Colour &Bitmap::GetPixelClipped(int x, int y)
+Colour &Bitmap::GetPixelClipped( int x, int y )
 {
-    static Colour s_black(0,0,0);
+	static Colour s_black( 0, 0, 0 );
 
-	if (x < 0 || x >= m_width ||
-		y < 0 || y >= m_height)
+	if ( x < 0 || x >= m_width ||
+		 y < 0 || y >= m_height )
 	{
 		return s_black;
 	}
 
-	return m_lines[y][x]; 
+	return m_lines[y][x];
 }
 
 
-void Bitmap::DrawLine(int x1, int y1, int x2, int y2, Colour const &colour)
+void Bitmap::DrawLine( int x1, int y1, int x2, int y2, Colour const &colour )
 {
-    int numSteps = sqrtf( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) );
-    float dx = float(x2-x1) / (float) numSteps;
-    float dy = float(y2-y1) / (float) numSteps;
+	int numSteps = sqrtf( ( x2 - x1 ) * ( x2 - x1 ) + ( y2 - y1 ) * ( y2 - y1 ) );
+	float dx = float( x2 - x1 ) / (float)numSteps;
+	float dy = float( y2 - y1 ) / (float)numSteps;
 
-    float currentX = x1;
-    float currentY = y1;
+	float currentX = x1;
+	float currentY = y1;
 
-    for( int i = 0; i < numSteps; ++i )
-    {
-        PutPixelClipped( currentX, currentY, colour );
+	for ( int i = 0; i < numSteps; ++i )
+	{
+		PutPixelClipped( currentX, currentY, colour );
 
-        currentX += dx;
-        currentY += dy;
-    }
+		currentX += dx;
+		currentY += dy;
+	}
 }
 
 
 // *** GetInterpolatedPixel
-Colour Bitmap::GetInterpolatedPixel(float _x, float _y) 
+Colour Bitmap::GetInterpolatedPixel( float _x, float _y )
 {
-	int x1 = floorf(_x);
-	int y1 = floorf(_y);
-	int x2 = ceilf(_x);
-	int y2 = ceilf(_y);
+	int x1 = floorf( _x );
+	int y1 = floorf( _y );
+	int x2 = ceilf( _x );
+	int y2 = ceilf( _y );
 
 	float fractionalX = _x - x1;
 	float fractionalY = _y - y1;
 
-	if (x2 == m_width) 
+	if ( x2 == m_width )
 		x2 = m_width - 1;
 
-	if (y2 == m_height)
+	if ( y2 == m_height )
 		y2 = m_height - 1;
-		
-	float weight11 = (1.0f - fractionalX) * (1.0f - fractionalY);
-	float weight12 = (1.0f - fractionalX) * (fractionalY);
-	float weight21 = (fractionalX) * (1.0f - fractionalY);
-	float weight22 = (fractionalX) * (fractionalY);
 
-    Colour &c11 = GetPixelClipped(x1, y1); 
-    Colour &c12 = GetPixelClipped(x1, y2); 
-    Colour &c21 = GetPixelClipped(x2, y1); 
-    Colour &c22 = GetPixelClipped(x2, y2); 
+	float weight11 = ( 1.0f - fractionalX ) * ( 1.0f - fractionalY );
+	float weight12 = ( 1.0f - fractionalX ) * ( fractionalY );
+	float weight21 = ( fractionalX ) * ( 1.0f - fractionalY );
+	float weight22 = ( fractionalX ) * ( fractionalY );
 
-	Colour returnVal((float)c11.m_r * weight11 + (float)c12.m_r * weight12 + (float)c21.m_r * weight21 + (float)c22.m_r * weight22,
-						 (float)c11.m_g * weight11 + (float)c12.m_g * weight12 + (float)c21.m_g * weight21 + (float)c22.m_g * weight22,
-						 (float)c11.m_b * weight11 + (float)c12.m_b * weight12 + (float)c21.m_b * weight21 + (float)c22.m_b * weight22);
+	Colour &c11 = GetPixelClipped( x1, y1 );
+	Colour &c12 = GetPixelClipped( x1, y2 );
+	Colour &c21 = GetPixelClipped( x2, y1 );
+	Colour &c22 = GetPixelClipped( x2, y2 );
+
+	Colour returnVal( (float)c11.m_r * weight11 + (float)c12.m_r * weight12 + (float)c21.m_r * weight21 + (float)c22.m_r * weight22,
+					  (float)c11.m_g * weight11 + (float)c12.m_g * weight12 + (float)c21.m_g * weight21 + (float)c22.m_g * weight22,
+					  (float)c11.m_b * weight11 + (float)c12.m_b * weight12 + (float)c21.m_b * weight21 + (float)c22.m_b * weight22 );
 
 	return returnVal;
 }
 
 
 // *** Blit
-void Bitmap::Blit(int _srcX, int _srcY, int _srcW, int _srcH, Bitmap *_srcBmp, 
-					  int _destX, int _destY, int _destW, int _destH, bool _bilinear)
+void Bitmap::Blit( int _srcX, int _srcY, int _srcW, int _srcH, Bitmap *_srcBmp,
+				   int _destX, int _destY, int _destW, int _destH, bool _bilinear )
 {
-	AppAssert(_srcX + _srcW <= _srcBmp->m_width);
-	AppAssert(_srcY + _srcH <= _srcBmp->m_height);
-	AppAssert(_destX + _destW <= m_width);
-	AppAssert(_destY + _destH <= m_height);
+	AppAssert( _srcX + _srcW <= _srcBmp->m_width );
+	AppAssert( _srcY + _srcH <= _srcBmp->m_height );
+	AppAssert( _destX + _destW <= m_width );
+	AppAssert( _destY + _destH <= m_height );
 
 	float sxPitch = (float)_srcW / (float)_destW;
 	float syPitch = (float)_srcH / (float)_destH;
 
 	float sy = _srcY;
-	for (int dy = _destY; dy < _destY + _destH; ++dy)
+	for ( int dy = _destY; dy < _destY + _destH; ++dy )
 	{
 		float sx = _srcX;
-		if (_bilinear)
+		if ( _bilinear )
 		{
-			for (int dx = _destX; dx < _destX + _destW; ++dx)
+			for ( int dx = _destX; dx < _destX + _destW; ++dx )
 			{
-				Colour const &c = _srcBmp->GetInterpolatedPixel(sx, sy);
-				PutPixel(dx, dy, c);
+				Colour const &c = _srcBmp->GetInterpolatedPixel( sx, sy );
+				PutPixel( dx, dy, c );
 				sx += sxPitch;
 			}
 		}
 		else
 		{
-			for (int dx = _destX; dx < _destX + _destW; ++dx)
+			for ( int dx = _destX; dx < _destX + _destW; ++dx )
 			{
-				Colour const &c = _srcBmp->GetPixelClipped(sx, sy);
-				PutPixel(dx, dy, c);
+				Colour const &c = _srcBmp->GetPixelClipped( sx, sy );
+				PutPixel( dx, dy, c );
 				sx += sxPitch;
 			}
 		}
@@ -668,195 +671,205 @@ void Bitmap::Blit(int _srcX, int _srcY, int _srcW, int _srcH, Bitmap *_srcBmp,
 
 void Bitmap::ApplyDilateFilter()
 {
-    Colour *temp = new Colour[ m_width * m_height ];
-	memcpy( temp, m_pixels, sizeof(Colour) * m_width * m_height );
+	Colour *temp = new Colour[m_width * m_height];
+	memcpy( temp, m_pixels, sizeof( Colour ) * m_width * m_height );
 
 #ifdef OPENMP
-    #pragma omp parallel for schedule(static, 16)
-    for( int x = 1; x < m_width-1; ++x )
-    {
-        for( int y = 1; y < m_height-1; ++y )
-        {
-            float adjacentRed = 0.0f;
-            float adjacentGreen = 0.0f;
-            float adjacentBlue = 0.0f;
-            for( int i = -1; i <= 1; ++i )
-            {
-                for( int j = -1; j <= 1; ++j )
-                {
-                    if( i != 0 || j != 0 )
-                    {
-                        Colour col = temp[ (y+j) * m_width + (x+i) ];
-                        adjacentRed += col.m_r;
-                        adjacentGreen += col.m_g;
-                        adjacentBlue += col.m_b;
-                    }
-                }
-            }
-            adjacentRed /= 8.0f;
-            adjacentGreen /= 8.0f;
-            adjacentBlue /= 8.0f;
+#pragma omp parallel for schedule( static, 16 )
+	for ( int x = 1; x < m_width - 1; ++x )
+	{
+		for ( int y = 1; y < m_height - 1; ++y )
+		{
+			float adjacentRed = 0.0f;
+			float adjacentGreen = 0.0f;
+			float adjacentBlue = 0.0f;
+			for ( int i = -1; i <= 1; ++i )
+			{
+				for ( int j = -1; j <= 1; ++j )
+				{
+					if ( i != 0 || j != 0 )
+					{
+						Colour col = temp[( y + j ) * m_width + ( x + i )];
+						adjacentRed += col.m_r;
+						adjacentGreen += col.m_g;
+						adjacentBlue += col.m_b;
+					}
+				}
+			}
+			adjacentRed /= 8.0f;
+			adjacentGreen /= 8.0f;
+			adjacentBlue /= 8.0f;
 
-            m_pixels[ y * m_width + x ].Set( adjacentRed, adjacentGreen, adjacentBlue );
-        }
-    }
+			m_pixels[y * m_width + x].Set( adjacentRed, adjacentGreen, adjacentBlue );
+		}
+	}
 #else
-    for( int x = 1; x < m_width-1; ++x )
-    {
-        for( int y = 1; y < m_height-1; ++y )
-        {
-            float adjacentRed = 0.0f;
-            float adjacentGreen = 0.0f;
-            float adjacentBlue = 0.0f;
-            for( int i = -1; i <= 1; ++i )
-            {
-                for( int j = -1; j <= 1; ++j )
-                {
-                    if( i != 0 || j != 0 )
-                    {
-                        Colour col = temp[ (y+j) * m_width + (x+i) ];
-                        adjacentRed += col.m_r;
-                        adjacentGreen += col.m_g;
-                        adjacentBlue += col.m_b;
-                    }
-                }
-            }
-            adjacentRed /= 8.0f;
-            adjacentGreen /= 8.0f;
-            adjacentBlue /= 8.0f;
+	for ( int x = 1; x < m_width - 1; ++x )
+	{
+		for ( int y = 1; y < m_height - 1; ++y )
+		{
+			float adjacentRed = 0.0f;
+			float adjacentGreen = 0.0f;
+			float adjacentBlue = 0.0f;
+			for ( int i = -1; i <= 1; ++i )
+			{
+				for ( int j = -1; j <= 1; ++j )
+				{
+					if ( i != 0 || j != 0 )
+					{
+						Colour col = temp[( y + j ) * m_width + ( x + i )];
+						adjacentRed += col.m_r;
+						adjacentGreen += col.m_g;
+						adjacentBlue += col.m_b;
+					}
+				}
+			}
+			adjacentRed /= 8.0f;
+			adjacentGreen /= 8.0f;
+			adjacentBlue /= 8.0f;
 
-            m_pixels[ y * m_width + x ].Set( adjacentRed, adjacentGreen, adjacentBlue );
-        }
-    }
+			m_pixels[y * m_width + x].Set( adjacentRed, adjacentGreen, adjacentBlue );
+		}
+	}
 #endif
-    
-    delete[] temp;
+
+	delete[] temp;
 }
 
 
-void Bitmap::ApplyBlurFilter(float _scale)
+void Bitmap::ApplyBlurFilter( float _scale )
 {
-	AppAssert(m_width > 0 && m_width <= 1024);
-	AppAssert(m_height > 0 && m_height <= 1024);
+	AppAssert( m_width > 0 && m_width <= 1024 );
+	AppAssert( m_height > 0 && m_height <= 1024 );
 
-    Colour *temp = new Colour[ m_width * m_height ];
-	memset(temp, 0, sizeof(Colour) * m_width * m_height);
+	Colour *temp = new Colour[m_width * m_height];
+	memset( temp, 0, sizeof( Colour ) * m_width * m_height );
 
 
 	int const blurSize = 5;
 	int halfBlurSize = 2;
 	float m[blurSize] = { 2, 4, 7, 4, 2 };
-	for (int i = 0; i < blurSize; ++i)
+	for ( int i = 0; i < blurSize; ++i )
 	{
 		m[i] *= _scale * 0.0526f;
 	}
 
 #ifdef OPENMP
 	int numThreads = omp_get_max_threads();
-	if (m_height < numThreads * 4) {
+	if ( m_height < numThreads * 4 )
+	{
 
 		//
 		// image too small, so disable parallelization
 
-		omp_set_num_threads(1);
+		omp_set_num_threads( 1 );
 	}
 
 	//
 	// horizontal blur
-	
-	#pragma omp parallel for schedule(static, 16)
-	for (int y = 0; y < m_height; ++y)
+
+#pragma omp parallel for schedule( static, 16 )
+	for ( int y = 0; y < m_height; ++y )
 	{
-		for (int x = 0; x < m_width; ++x)
+		for ( int x = 0; x < m_width; ++x )
 		{
 			Colour &src = m_lines[y][x];
-			if (src.m_r == 0 && src.m_g == 0 && src.m_b == 0) continue;
+			if ( src.m_r == 0 && src.m_g == 0 && src.m_b == 0 )
+				continue;
 
-			for (int i = 0; i < blurSize; ++i)
+			for ( int i = 0; i < blurSize; ++i )
 			{
 				int a = x + i - halfBlurSize;
-				if (a < 0 || a >= m_width) continue;
+				if ( a < 0 || a >= m_width )
+					continue;
 
 				Colour &dest = temp[y * m_width + a];
-				dest.m_r += int((float)src.m_r * m[i]);
-				dest.m_g += int((float)src.m_g * m[i]);
-				dest.m_b += int((float)src.m_b * m[i]);
+				dest.m_r += int( (float)src.m_r * m[i] );
+				dest.m_g += int( (float)src.m_g * m[i] );
+				dest.m_b += int( (float)src.m_b * m[i] );
 			}
 		}
 	}
 
-	for (int i = 0; i < blurSize; ++i)
+	for ( int i = 0; i < blurSize; ++i )
 	{
 		m[i] *= 2.0f;
 	}
 
 	//
 	// vertical blur
-	
-	Clear(Colour(0,0,0,0));
-	#pragma omp parallel for schedule(static, 16)
-	for (int destY = 0; destY < m_height; ++destY)
+
+	Clear( Colour( 0, 0, 0, 0 ) );
+#pragma omp parallel for schedule( static, 16 )
+	for ( int destY = 0; destY < m_height; ++destY )
 	{
-		for (int x = 0; x < m_width; ++x)
+		for ( int x = 0; x < m_width; ++x )
 		{
-			for (int i = 0; i < blurSize; ++i)
+			for ( int i = 0; i < blurSize; ++i )
 			{
 				int srcY = destY - i + halfBlurSize;
-				if (srcY < 0 || srcY >= m_height) continue;
+				if ( srcY < 0 || srcY >= m_height )
+					continue;
 
 				Colour &src = temp[srcY * m_width + x];
-				if (src.m_r == 0 && src.m_g == 0 && src.m_b == 0) continue;
+				if ( src.m_r == 0 && src.m_g == 0 && src.m_b == 0 )
+					continue;
 
 				Colour &dest = m_lines[destY][x];
-				dest.m_r += int((float)src.m_r * m[i]);
-				dest.m_g += int((float)src.m_g * m[i]);
-				dest.m_b += int((float)src.m_b * m[i]);
+				dest.m_r += int( (float)src.m_r * m[i] );
+				dest.m_g += int( (float)src.m_g * m[i] );
+				dest.m_b += int( (float)src.m_b * m[i] );
 			}
 		}
 	}
-	
+
 	//
 	// clamp values to 255
-	
-	#pragma omp parallel for schedule(static, 32)
-	for (int y = 0; y < m_height; ++y)
+
+#pragma omp parallel for schedule( static, 32 )
+	for ( int y = 0; y < m_height; ++y )
 	{
-		for (int x = 0; x < m_width; ++x)
+		for ( int x = 0; x < m_width; ++x )
 		{
 			Colour &dest = m_lines[y][x];
-			if (dest.m_r > 255) dest.m_r = 255;
-			if (dest.m_g > 255) dest.m_g = 255;
-			if (dest.m_b > 255) dest.m_b = 255;
+			if ( dest.m_r > 255 )
+				dest.m_r = 255;
+			if ( dest.m_g > 255 )
+				dest.m_g = 255;
+			if ( dest.m_b > 255 )
+				dest.m_b = 255;
 		}
 	}
-	
+
 	//
 	// restore original thread count
-	
-	omp_set_num_threads(numThreads);
+
+	omp_set_num_threads( numThreads );
 #else
 	// Horizontal blur
-	for (int y = 0; y < m_height; ++y)
+	for ( int y = 0; y < m_height; ++y )
 	{
-		for (int x = 0; x < m_width; ++x)
+		for ( int x = 0; x < m_width; ++x )
 		{
 			Colour &src = m_lines[y][x];
-			if (src.m_r == 0 && src.m_g == 0 && src.m_b == 0) continue;
+			if ( src.m_r == 0 && src.m_g == 0 && src.m_b == 0 )
+				continue;
 
-			for (int i = 0; i < blurSize; ++i)
+			for ( int i = 0; i < blurSize; ++i )
 			{
 				int a = x + i - halfBlurSize;
-				if (a < 0 || a >= m_width) continue;
+				if ( a < 0 || a >= m_width )
+					continue;
 
 				Colour &dest = temp[y * m_width + a];
-				dest.m_r += int((float)src.m_r * m[i]);
-				dest.m_g += int((float)src.m_g * m[i]);
-				dest.m_b += int((float)src.m_b * m[i]);
+				dest.m_r += int( (float)src.m_r * m[i] );
+				dest.m_g += int( (float)src.m_g * m[i] );
+				dest.m_b += int( (float)src.m_b * m[i] );
 			}
 		}
 	}
 
-	for (int i = 0; i < blurSize; ++i)
+	for ( int i = 0; i < blurSize; ++i )
 	{
 		m[i] *= 2.0f;
 	}
@@ -864,41 +877,46 @@ void Bitmap::ApplyBlurFilter(float _scale)
 
 	//
 	// Vertical blur
-	
-	Clear(Colour(0,0,0,0));
-	for (int y = 0; y < m_height; ++y)
+
+	Clear( Colour( 0, 0, 0, 0 ) );
+	for ( int y = 0; y < m_height; ++y )
 	{
-		for (int x = 0; x < m_width; ++x)
+		for ( int x = 0; x < m_width; ++x )
 		{
 			Colour &src = temp[y * m_width + x];
-			if (src.m_r == 0 && src.m_g == 0 && src.m_b == 0) continue;
+			if ( src.m_r == 0 && src.m_g == 0 && src.m_b == 0 )
+				continue;
 
-			for (int i = 0; i < blurSize; ++i)
+			for ( int i = 0; i < blurSize; ++i )
 			{
 				int a = y + i - halfBlurSize;
-				if (a < 0 || a >= m_height) continue;
+				if ( a < 0 || a >= m_height )
+					continue;
 
 				Colour &dest = m_lines[a][x];
-				dest.m_r += int((float)src.m_r * m[i]);
-				dest.m_g += int((float)src.m_g * m[i]);
-				dest.m_b += int((float)src.m_b * m[i]);
+				dest.m_r += int( (float)src.m_r * m[i] );
+				dest.m_g += int( (float)src.m_g * m[i] );
+				dest.m_b += int( (float)src.m_b * m[i] );
 			}
 		}
 	}
-	
+
 	// Clamp values to 255
-	for (int y = 0; y < m_height; ++y)
+	for ( int y = 0; y < m_height; ++y )
 	{
-		for (int x = 0; x < m_width; ++x)
+		for ( int x = 0; x < m_width; ++x )
 		{
 			Colour &dest = m_lines[y][x];
-			if (dest.m_r > 255) dest.m_r = 255;
-			if (dest.m_g > 255) dest.m_g = 255;
-			if (dest.m_b > 255) dest.m_b = 255;
+			if ( dest.m_r > 255 )
+				dest.m_r = 255;
+			if ( dest.m_g > 255 )
+				dest.m_g = 255;
+			if ( dest.m_b > 255 )
+				dest.m_b = 255;
 		}
 	}
 #endif
-	
+
 	delete[] temp;
 }
 
@@ -906,60 +924,60 @@ void Bitmap::ApplyBlurFilter(float _scale)
 void Bitmap::ConvertColourToAlpha()
 {
 	Colour col;
-    Colour newCol( 255, 255, 255, 0 );
+	Colour newCol( 255, 255, 255, 0 );
 
 #ifdef OPENMP
-    #pragma omp parallel for schedule(static, 32)
-    for( int y = 0; y < m_height; ++y )
-    {
-	    for( int x = 0; x < m_width; ++x )
-        {
-            col = GetPixel( x, y );
-            newCol.m_a = col.m_g;
-            PutPixel( x, y, newCol );
-        }
-    }
+#pragma omp parallel for schedule( static, 32 )
+	for ( int y = 0; y < m_height; ++y )
+	{
+		for ( int x = 0; x < m_width; ++x )
+		{
+			col = GetPixel( x, y );
+			newCol.m_a = col.m_g;
+			PutPixel( x, y, newCol );
+		}
+	}
 #else
-    for( int y = 0; y < m_height; ++y )
-    {
-	    for( int x = 0; x < m_width; ++x )
-        {
-            col = GetPixel( x, y );
-            newCol.m_a = col.m_g;
-            PutPixel( x, y, newCol );
-        }
-    }
+	for ( int y = 0; y < m_height; ++y )
+	{
+		for ( int x = 0; x < m_width; ++x )
+		{
+			col = GetPixel( x, y );
+			newCol.m_a = col.m_g;
+			PutPixel( x, y, newCol );
+		}
+	}
 #endif
 }
 
-		
-void Bitmap::ConvertPinkToTransparent() 
+
+void Bitmap::ConvertPinkToTransparent()
 {
-	Colour pink(255, 0, 255);
-	Colour trans(128,128,128,0);
+	Colour pink( 255, 0, 255 );
+	Colour trans( 128, 128, 128, 0 );
 
 #ifdef OPENMP
-	#pragma omp parallel for schedule(static, 32)
-	for (int y = 0; y < m_height; ++y) 
+#pragma omp parallel for schedule( static, 32 )
+	for ( int y = 0; y < m_height; ++y )
 	{
-		for (int x = 0; x < m_width; ++x) 
+		for ( int x = 0; x < m_width; ++x )
 		{
-			Colour c(GetPixel(x, y));
-			if (c == pink)
+			Colour c( GetPixel( x, y ) );
+			if ( c == pink )
 			{
-				PutPixel(x, y, trans);
+				PutPixel( x, y, trans );
 			}
 		}
 	}
 #else
-	for (int y = 0; y < m_height; ++y) 
+	for ( int y = 0; y < m_height; ++y )
 	{
-		for (int x = 0; x < m_width; ++x) 
+		for ( int x = 0; x < m_width; ++x )
 		{
-			Colour c(GetPixel(x, y));
-			if (c == pink)
+			Colour c( GetPixel( x, y ) );
+			if ( c == pink )
 			{
-				PutPixel(x, y, trans);
+				PutPixel( x, y, trans );
 			}
 		}
 	}
@@ -969,37 +987,36 @@ void Bitmap::ConvertPinkToTransparent()
 
 void Bitmap::Clear( Colour const &colour )
 {
-	for (int x = 0; x < m_width; ++x) 
+	for ( int x = 0; x < m_width; ++x )
 	{
-        PutPixel( x, 0, colour );
-    }
+		PutPixel( x, 0, colour );
+	}
 
-	int size = sizeof(Colour) * m_width;
- 	for (int y = 0; y < m_height; ++y) 
+	int size = sizeof( Colour ) * m_width;
+	for ( int y = 0; y < m_height; ++y )
 	{
-		memcpy(m_lines[y], m_lines[0], size);
-    }
+		memcpy( m_lines[y], m_lines[0], size );
+	}
 }
 
 
-int Bitmap::ConvertToTexture(int _mipmapLevel) 
+int Bitmap::ConvertToTexture( int _mipmapLevel )
 {
-	AppAssert(g_renderer);
-	
+	AppAssert( g_renderer );
+
 	int mipmapLevel = _mipmapLevel;
-	if (mipmapLevel == -1) 
+	if ( mipmapLevel == -1 )
 	{
 		extern Preferences *g_preferences;
-		if (g_preferences) 
+		if ( g_preferences )
 		{
-			mipmapLevel = g_preferences->GetInt(PREFS_SCREEN_MIPMAP_LEVEL, 4);
-		} 
-		else 
+			mipmapLevel = g_preferences->GetInt( PREFS_SCREEN_MIPMAP_LEVEL, 4 );
+		}
+		else
 		{
 			mipmapLevel = 4; // Default to 4 if preferences set
 		}
 	}
-	
-	return (int)g_renderer->CreateTexture(m_width, m_height, m_pixels, mipmapLevel);
-}
 
+	return (int)g_renderer->CreateTexture( m_width, m_height, m_pixels, mipmapLevel );
+}
