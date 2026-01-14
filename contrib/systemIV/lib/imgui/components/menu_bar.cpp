@@ -9,127 +9,130 @@
 #include "lib/imgui/preferences_editor.h"
 
 MenuBar::MenuBar()
-: m_isOpen(false),
-  m_preferencesEdit(NULL),
-  m_immediateMode2D(false),
-  m_immediateMode3D(false),
-  m_frameDebugger(false),
-  m_windowReinitCallback(NULL)
+	: m_isOpen( false ),
+	  m_preferencesEdit( NULL ),
+	  m_immediateMode2D( false ),
+	  m_immediateMode3D( false ),
+	  m_frameDebugger( false ),
+	  m_windowReinitCallback( NULL )
 {
-    SetName("MenuBar");
-    m_preferencesEdit = new PreferencesEdit();
-    ImGuiRegisterWindow(m_preferencesEdit);
+	SetName( "MenuBar" );
+	m_preferencesEdit = new PreferencesEdit();
+	ImGuiRegisterWindow( m_preferencesEdit );
 }
+
 
 MenuBar::~MenuBar()
 {
-    if (m_preferencesEdit)
-    {
-        ImGuiRemoveWindow("Preferences Editor");
-        delete m_preferencesEdit;
-        m_preferencesEdit = NULL;
-    }
+	if ( m_preferencesEdit )
+	{
+		ImGuiRemoveWindow( "Preferences Editor" );
+		delete m_preferencesEdit;
+		m_preferencesEdit = NULL;
+	}
 }
+
 
 void MenuBar::ReregisterWindows()
 {
-    if (m_preferencesEdit)
-    {
-        ImGuiRegisterWindow(m_preferencesEdit);
-    }
+	if ( m_preferencesEdit )
+	{
+		ImGuiRegisterWindow( m_preferencesEdit );
+	}
 }
+
 
 void MenuBar::Draw()
 {
-    if (!m_isOpen)
-        return;
-    
-    if (ImGui::BeginMainMenuBar())
-    {
-        if (ImGui::BeginMenu("File"))
-        {
-            if (ImGui::MenuItem("Save Preferences"))
-            {
-                if (g_preferences)
-                {
-                    g_preferences->Save();
-                    AppDebugOut("Preferences saved\n");
-                }
-            }
-            
-            ImGui::EndMenu();
-        }
-        
-        if (ImGui::BeginMenu("Edit"))
-        {
-            if (ImGui::MenuItem("Edit Preferences"))
-            {
-                if (m_preferencesEdit)
-                {
-                    m_preferencesEdit->Open();
-                }
-            }
-            
-            ImGui::EndMenu();
-        }
-        
-        if (ImGui::BeginMenu("Debug"))
-        {
-            if (ImGui::MenuItem("Console", "~"))
-            {
-                DebugConsole* console = DebugConsole::GetInstance();
-                if (console)
-                {
-                    console->Toggle();
-                }
-            }
-            
-            ImGui::EndMenu();
-        }
-        
+	if ( !m_isOpen )
+		return;
+
+	if ( ImGui::BeginMainMenuBar() )
+	{
+		if ( ImGui::BeginMenu( "File" ) )
+		{
+			if ( ImGui::MenuItem( "Save Preferences" ) )
+			{
+				if ( g_preferences )
+				{
+					g_preferences->Save();
+					AppDebugOut( "Preferences saved\n" );
+				}
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if ( ImGui::BeginMenu( "Edit" ) )
+		{
+			if ( ImGui::MenuItem( "Edit Preferences" ) )
+			{
+				if ( m_preferencesEdit )
+				{
+					m_preferencesEdit->Open();
+				}
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if ( ImGui::BeginMenu( "Debug" ) )
+		{
+			if ( ImGui::MenuItem( "Console", "~" ) )
+			{
+				DebugConsole *console = DebugConsole::GetInstance();
+				if ( console )
+				{
+					console->Toggle();
+				}
+			}
+
+			ImGui::EndMenu();
+		}
+
 #ifndef TARGET_EMSCRIPTEN
-        if (ImGui::BeginMenu("Window"))
-        {
-            if (ImGui::MenuItem("Reinitialize Window"))
-            {
-                if (m_windowReinitCallback)
-                {
-                    m_windowReinitCallback();
-                    AppDebugOut("Window reinitialization requested\n");
-                }
-            }
-            
-            if (ImGui::MenuItem("Relaunch Game"))
-            {
-                RelaunchApplication();
-            }
-            
-            ImGui::EndMenu();
-        }
+		if ( ImGui::BeginMenu( "Window" ) )
+		{
+			if ( ImGui::MenuItem( "Reinitialize Window" ) )
+			{
+				if ( m_windowReinitCallback )
+				{
+					m_windowReinitCallback();
+					AppDebugOut( "Window reinitialization requested\n" );
+				}
+			}
+
+			if ( ImGui::MenuItem( "Relaunch Game" ) )
+			{
+				RelaunchApplication();
+			}
+
+			ImGui::EndMenu();
+		}
 #endif
-        
-        if (ImGui::BeginMenu("Rendering"))
-        {
-            if (ImGui::MenuItem("Immediate Mode 2D", NULL, &m_immediateMode2D))
-            {
-                AppDebugOut("Immediate Mode 2D: %s\n", m_immediateMode2D ? "enabled" : "disabled");
-            }
-            
-            if (ImGui::MenuItem("Immediate Mode 3D", NULL, &m_immediateMode3D))
-            {
-                AppDebugOut("Immediate Mode 3D: %s\n", m_immediateMode3D ? "enabled" : "disabled");
-            }
-            
-            ImGui::Separator();
-            
-            if (ImGui::MenuItem("Frame Debugger", NULL, &m_frameDebugger))
-            {
-                AppDebugOut("Frame Debugger: %s\n", m_frameDebugger ? "enabled" : "disabled");
-            }
-            
-            ImGui::EndMenu();
-        }
-        
-        ImGui::EndMainMenuBar();
-    }
+
+		if ( ImGui::BeginMenu( "Rendering" ) )
+		{
+			if ( ImGui::MenuItem( "Immediate Mode 2D", NULL, &m_immediateMode2D ) )
+			{
+				AppDebugOut( "Immediate Mode 2D: %s\n", m_immediateMode2D ? "enabled" : "disabled" );
+			}
+
+			if ( ImGui::MenuItem( "Immediate Mode 3D", NULL, &m_immediateMode3D ) )
+			{
+				AppDebugOut( "Immediate Mode 3D: %s\n", m_immediateMode3D ? "enabled" : "disabled" );
+			}
+
+			ImGui::Separator();
+
+			if ( ImGui::MenuItem( "Frame Debugger", NULL, &m_frameDebugger ) )
+			{
+				AppDebugOut( "Frame Debugger: %s\n", m_frameDebugger ? "enabled" : "disabled" );
+			}
+
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMainMenuBar();
+	}
 }
