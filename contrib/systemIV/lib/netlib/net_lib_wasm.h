@@ -1,9 +1,6 @@
 #ifndef INCLUDED_NET_LIB_WASM_H
 #define INCLUDED_NET_LIB_WASM_H
 
-// WebAssembly networking stubs
-// WASM doesn't support traditional BSD sockets, so we provide stub implementations
-
 #include <stdint.h>
 
 #ifdef __EMSCRIPTEN_PTHREADS__
@@ -11,8 +8,8 @@
 #include <sys/time.h>
 #endif
 
-// Forward declare a minimal sockaddr_in equivalent for WASM
-struct wasm_sockaddr_in {
+struct wasm_sockaddr_in 
+{
     uint16_t sin_family;
     uint16_t sin_port;
     uint32_t sin_addr;
@@ -21,17 +18,13 @@ struct wasm_sockaddr_in {
 
 class NetUdpPacket;
 
-// Stub function pointer type
 typedef void * (*NetThreadFunc)(void *ptr);
 
-// Define stub implementations for WASM
 #define NetGetLastError()               0
-#define NetSleep(a)                     do {} while(0)  // No-op
+#define NetSleep(a)                     do {} while(0)
 #define NetCloseSocket(a)               0
 #define NetGetHostByName(a)             NULL
 #define NetSetSocketNonBlocking(a)      0
-
-// Define types for WASM - use pthread types when available
 #define NetSocketLenType                int
 #define NetSocketHandle                 int
 #define NetHostDetails                  void
@@ -44,13 +37,9 @@ typedef void * (*NetThreadFunc)(void *ptr);
 #endif
 #define NetCallBackRetType              void *
 #define NetPollObject                   int
-
-// Define stub constants for WASM
 #define NET_SOCKET_ERROR                -1
 #define NCSD_SEND                       1
 #define NCSD_READ                       0
-
-// Define stub condition tests for WASM
 #define NetIsAddrInUse                  true
 #define NetIsSocketError(a)             false
 #define NetIsBlockingError(a)           false

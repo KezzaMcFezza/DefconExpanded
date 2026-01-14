@@ -5,13 +5,12 @@
 #include "net_lib.h"
 #include "net_thread.h"
 
-// WebAssembly threading stubs
-// WASM doesn't support traditional threading
+//
+// WASM is single threaded, so conditions are no ops
 
-NetRetCode NetStartThread(NetThreadFunc functionPointer, void *arg)
+NetRetCode NetStartThread( NetThreadFunc functionPointer, void *arg )
 {
-    // Cannot start threads in WASM, return failure
-    return NetNotSupported;
+	return NetNotSupported;
 }
 
-#endif // TARGET_EMSCRIPTEN 
+#endif // TARGET_EMSCRIPTEN

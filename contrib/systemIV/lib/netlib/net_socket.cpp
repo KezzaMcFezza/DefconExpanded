@@ -5,24 +5,24 @@
 
 
 NetSocket::NetSocket()
-:	m_sockfd( -1 ),
-	m_timeout( 10000 ),
-	m_polltime( 100 ),
-	m_port( 0 ),
-	m_connected( false )
+	: m_sockfd( -1 ),
+	  m_timeout( 10000 ),
+	  m_polltime( 100 ),
+	  m_port( 0 ),
+	  m_connected( false )
 {
-	memset(&m_to, 0, sizeof(m_to));
-	memset(&m_from, 0, sizeof(m_from));
-	memset(&m_listener, 0, sizeof(m_listener));
-	memset(m_hostname, 0, MAX_HOSTNAME_LEN);
+	memset( &m_to, 0, sizeof( m_to ) );
+	memset( &m_from, 0, sizeof( m_from ) );
+	memset( &m_listener, 0, sizeof( m_listener ) );
+	memset( m_hostname, 0, MAX_HOSTNAME_LEN );
 }
 
 
 NetSocket::~NetSocket()
 {
-	if (m_sockfd != -1)
+	if ( m_sockfd != -1 )
 	{
-		NetCloseSocket(m_sockfd);
+		NetCloseSocket( m_sockfd );
 		m_sockfd = -1;
 	}
 }
@@ -39,28 +39,28 @@ NetIpAddress NetSocket::GetLocalAddress()
 }
 
 
-NetRetCode NetSocket::CheckTimeout(unsigned int *timeout, unsigned int *timedout, int haveAllData)
+NetRetCode NetSocket::CheckTimeout( unsigned int *timeout, unsigned int *timedout, int haveAllData )
 {
 	NetRetCode ret = NetOk;
 	*timeout += m_polltime;
-	if (*timeout >= m_timeout)
+	if ( *timeout >= m_timeout )
 	{
 		// If we've reached the timeout limit
 		*timedout = 1;
-		
+
 		// Check if we have all the data
-		switch (haveAllData)
+		switch ( haveAllData )
 		{
 			// If we don't know if we have all the data, just return a time out
 			case -1:
 				ret = NetTimedout;
 				break;
-			
+
 			// If we know we don't have all the data, return a 'more data' value
 			case 0:
 				ret = NetMoreData;
 				break;
-			
+
 			// If we know we have all the data, return success
 			case 1:
 				ret = NetOk;
@@ -72,28 +72,28 @@ NetRetCode NetSocket::CheckTimeout(unsigned int *timeout, unsigned int *timedout
 }
 
 
-NetRetCode NetSocket::Connect(const char *host, unsigned short port)
+NetRetCode NetSocket::Connect( const char *host, unsigned short port )
 {
 	NetRetCode ret = NetFailed;
-	
-	if (host && port)
+
+	if ( host && port )
 	{
 		m_port = port;
-		memset(m_hostname, 0, MAX_HOSTNAME_LEN);
-		memcpy(m_hostname, host, MIN(strlen(host), MAX_HOSTNAME_LEN - 1));
-		
+		memset( m_hostname, 0, MAX_HOSTNAME_LEN );
+		memcpy( m_hostname, host, MIN( strlen( host ), MAX_HOSTNAME_LEN - 1 ) );
+
 		ret = Connect();
 	}
-	
+
 	return ret;
 }
 
 
 void NetSocket::Close()
 {
-	if (m_sockfd != -1)
+	if ( m_sockfd != -1 )
 	{
-		NetCloseSocket(m_sockfd);
+		NetCloseSocket( m_sockfd );
 		m_sockfd = -1;
 	}
 }
@@ -108,71 +108,72 @@ NetRetCode NetSocket::Connect()
 	int sockType = SOCK_DGRAM;
 	int protocol = IPPROTO_UDP;
 
-	m_sockfd = socket(AF_INET, sockType, protocol);    
-	if (!m_sockfd)
+	m_sockfd = socket( AF_INET, sockType, protocol );
+	if ( !m_sockfd )
 	{
 		return NetFailed;
 	}
-	
-	memset(servaddr, 0, sizeof(struct sockaddr_in));
+
+	memset( servaddr, 0, sizeof( struct sockaddr_in ) );
 	servaddr->sin_family = AF_INET;
-	servaddr->sin_port = htons(m_port);
-	
-	NetHostDetails *pHostent = NetGetHostByName(m_hostname);
-	if (!pHostent)
+	servaddr->sin_port = htons( m_port );
+
+	NetHostDetails *pHostent = NetGetHostByName( m_hostname );
+	if ( !pHostent )
 	{
-		AppDebugOut("Host address resolution failed for %s\n", m_hostname);
+		AppDebugOut( "Host address resolution failed for %s\n", m_hostname );
 		return NetFailed;
 	}
-	else 
+	else
 	{
-		servaddr->sin_addr.s_addr = * ((unsigned long *)pHostent->h_addr_list[0]);
+		servaddr->sin_addr.s_addr = *( (unsigned long *)pHostent->h_addr_list[0] );
 	}
-		
+
 	// Set socket to non - blocking mode
-	NetSetSocketNonBlocking(m_sockfd);
-	
+	NetSetSocketNonBlocking( m_sockfd );
+
 	// Attempt the connect until we timeout
-	while (::connect(m_sockfd, (struct sockaddr *)servaddr, sizeof(*servaddr)) < 0)
+	while ( ::connect( m_sockfd, (struct sockaddr *)servaddr, sizeof( *servaddr ) ) < 0 )
 	{
-		AppDebugOut("Connection error: ");
+		AppDebugOut( "Connection error: " );
 		err = NetGetLastError();
-		if (NetIsBlockingError(err))
+		if ( NetIsBlockingError( err ) )
 		{
 			timeout += 100;
-			if (timeout > m_timeout)
+			if ( timeout > m_timeout )
 			{
-				AppDebugOut("Time out connecting to host\n");
+				AppDebugOut( "Time out connecting to host\n" );
 				ret = NetTimedout;
 				break;
 			}
 		}
-		else if (NetIsConnected(err))
+		else if ( NetIsConnected( err ) )
 		{
-			AppDebugOut("Already connected\n");
+			AppDebugOut( "Already connected\n" );
 			break;
 		}
 		else
 		{
-			AppDebugOut("Connect to host failed: %d\n", err);
+			AppDebugOut( "Connect to host failed: %d\n", err );
 			ret = NetFailed;
 			break;
 		}
-		NetSleep(100);
+		NetSleep( 100 );
 	}
-	
-	if (ret == 0) {
+
+	if ( ret == 0 )
+	{
 		m_connected = true;
-		socklen_t size = sizeof(m_from);
-		getsockname(m_sockfd, (struct sockaddr *) &m_from, &size);
+		socklen_t size = sizeof( m_from );
+		getsockname( m_sockfd, (struct sockaddr *)&m_from, &size );
 	}
-	
+
 	return ret;
 }
 
 
 // Write method using select
-NetRetCode NetSocket::WriteData(void *bufAsVoid, int bufLen, int *numActualBytes)
+NetRetCode NetSocket::WriteData( void *bufAsVoid, int bufLen, int *numActualBytes )
 {
 	NetRetCode ret = NetOk;
 	char *buf = (char *)bufAsVoid;
@@ -182,74 +183,74 @@ NetRetCode NetSocket::WriteData(void *bufAsVoid, int bufLen, int *numActualBytes
 	unsigned int timeout = 0;
 	unsigned int timedout = 0;
 	int haveAllData = 0;
-	
+
 	struct timeval timeVal;
-	long timeoutSeconds = (long)((m_polltime*1000) / 100000);
-	long timeoutUSeconds = (long)((m_polltime*1000) % 100000);
+	long timeoutSeconds = (long)( ( m_polltime * 1000 ) / 100000 );
+	long timeoutUSeconds = (long)( ( m_polltime * 1000 ) % 100000 );
 
 
-	if (!m_connected)
+	if ( !m_connected )
 	{
 		err = Connect();
-		if (err != 0)
-			return NetRetCode(err);
+		if ( err != 0 )
+			return NetRetCode( err );
 	}
-	
-	while ((bytesLeft > 0) && (!timedout))
+
+	while ( ( bytesLeft > 0 ) && ( !timedout ) )
 	{
-		FD_ZERO(&m_listener);
-		FD_SET(m_sockfd, &m_listener);
-		timeVal.tv_sec  = timeoutSeconds;
+		FD_ZERO( &m_listener );
+		FD_SET( m_sockfd, &m_listener );
+		timeVal.tv_sec = timeoutSeconds;
 		timeVal.tv_usec = timeoutUSeconds;
 		haveAllData = -1;
-		
-		switch (select(m_sockfd + 1, (fd_set *)0, &m_listener, (fd_set *)0, &timeVal))
+
+		switch ( select( m_sockfd + 1, (fd_set *)0, &m_listener, (fd_set *)0, &timeVal ) )
 		{
 			case NET_SOCKET_ERROR:
-				AppDebugOut("WriteData select call failed");
+				AppDebugOut( "WriteData select call failed" );
 				return NetFailed;
 			case 0:
-				if (numActualBytes)
+				if ( numActualBytes )
 				{
-					haveAllData = ((*numActualBytes == bufLen) ? 1 : 0);
+					haveAllData = ( ( *numActualBytes == bufLen ) ? 1 : 0 );
 				}
-				ret = CheckTimeout(&timeout, &timedout, haveAllData);
+				ret = CheckTimeout( &timeout, &timedout, haveAllData );
 				continue;
 			default:
-				if (!FD_ISSET(m_sockfd, &m_listener))
+				if ( !FD_ISSET( m_sockfd, &m_listener ) )
 				{
 					return NetFailed;
 				}
-								
-				bytesSent = send(m_sockfd, (char *)buf, bytesLeft, 0);
+
+				bytesSent = send( m_sockfd, (char *)buf, bytesLeft, 0 );
 				err = NetGetLastError();
-				if (NetIsSocketError(bytesSent) && NetIsReset(err))
+				if ( NetIsSocketError( bytesSent ) && NetIsReset( err ) )
 				{
 					bytesLeft = 0;
-					shutdown(m_sockfd, NCSD_SEND);
+					shutdown( m_sockfd, NCSD_SEND );
 					ret = NetClientDisconnect;
 				}
-				else if ((bytesSent > 0) || NetIsBlockingError(err))
+				else if ( ( bytesSent > 0 ) || NetIsBlockingError( err ) )
 				{
 					bytesLeft -= bytesSent;
 					buf += bytesSent;
-					if (numActualBytes)
+					if ( numActualBytes )
 					{
 						*numActualBytes += bytesSent;
-						haveAllData = ((*numActualBytes == bufLen) ? 1 : 0);
+						haveAllData = ( ( *numActualBytes == bufLen ) ? 1 : 0 );
 					}
-					ret = CheckTimeout(&timeout, &timedout, haveAllData);
+					ret = CheckTimeout( &timeout, &timedout, haveAllData );
 				}
 				else
 				{
-					AppDebugOut("WriteData write call failed");
+					AppDebugOut( "WriteData write call failed" );
 					bytesLeft = 0;
-					shutdown(m_sockfd, NCSD_SEND);
+					shutdown( m_sockfd, NCSD_SEND );
 					ret = NetFailed;
 				}
 				break;
 		}
 	}
-	
+
 	return ret;
 }

@@ -5,27 +5,24 @@
 #include "net_lib.h"
 #include "net_mutex.h"
 
-// WebAssembly mutex stubs
-// WASM is single-threaded, so mutexes are no-ops
+//
+// WASM is single threaded, so conditions are no ops
 
 NetMutex::NetMutex()
 {
-    m_mutex = 0; // Dummy value
+	m_mutex = 0;
 }
 
 NetMutex::~NetMutex()
 {
-    // No-op
 }
 
 void NetMutex::Lock()
 {
-    // No-op - WASM is single-threaded
 }
 
 void NetMutex::Unlock()
 {
-    // No-op - WASM is single-threaded
 }
 
-#endif // TARGET_EMSCRIPTEN 
+#endif // TARGET_EMSCRIPTEN

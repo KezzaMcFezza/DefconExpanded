@@ -5,27 +5,27 @@
 
 NetMutex::NetMutex()
 {
-	InitializeCriticalSection(&m_mutex);
+	InitializeCriticalSection( &m_mutex );
 	m_locked = 0;
 }
 
 
 NetMutex::~NetMutex()
 {
-	DeleteCriticalSection(&m_mutex);
+	DeleteCriticalSection( &m_mutex );
 	m_locked = 0;
 }
 
 
 void NetMutex::Lock()
 {
-	EnterCriticalSection(&m_mutex);
+	EnterCriticalSection( &m_mutex );
 	m_locked = 1;
 }
 
 
 void NetMutex::Unlock()
 {
-	LeaveCriticalSection(&m_mutex);
+	LeaveCriticalSection( &m_mutex );
 	m_locked = false;
 }
