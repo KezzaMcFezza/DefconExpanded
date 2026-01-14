@@ -18,146 +18,153 @@
 static std::string s_debugOutRedirect;
 static std::vector<std::string> s_earlyDebugMessages;
 
-void AppDebugOutFlushEarlyMessages(DebugConsole* console)
+void AppDebugOutFlushEarlyMessages( DebugConsole *console )
 {
-#if defined(EMSCRIPTEN_DEBUG_OUTPUT) || defined(EMSCRIPTEN_IMGUI)
-    if (!console)
-        return;
-    
-    for (size_t i = 0; i < s_earlyDebugMessages.size(); i++)
-    {
-        console->AddLog("%s", s_earlyDebugMessages[i].c_str());
-    }
-    
-    s_earlyDebugMessages.clear();
+#if defined( EMSCRIPTEN_DEBUG_OUTPUT ) || defined( EMSCRIPTEN_IMGUI )
+	if ( !console )
+		return;
+
+	for ( size_t i = 0; i < s_earlyDebugMessages.size(); i++ )
+	{
+		console->AddLog( "%s", s_earlyDebugMessages[i].c_str() );
+	}
+
+	s_earlyDebugMessages.clear();
 #endif
 }
 
-void AppDebugOutRedirect(const char *_filename)
+
+void AppDebugOutRedirect( const char *_filename )
 {
-#if defined(EMSCRIPTEN_DEBUG_OUTPUT) || defined(EMSCRIPTEN_IMGUI)
-    if( !_filename || strcmp( _filename, "" ) == 0 )
-    {
-        s_debugOutRedirect.clear();
-        return;
-    }
-    s_debugOutRedirect = _filename;
+#if defined( EMSCRIPTEN_DEBUG_OUTPUT ) || defined( EMSCRIPTEN_IMGUI )
+	if ( !_filename || strcmp( _filename, "" ) == 0 )
+	{
+		s_debugOutRedirect.clear();
+		return;
+	}
+	s_debugOutRedirect = _filename;
 #endif
 }
 
-void AppDebugOut(const char *_msg, ...)
+
+void AppDebugOut( const char *_msg, ... )
 {
-#if defined(EMSCRIPTEN_DEBUG_OUTPUT) || defined(EMSCRIPTEN_IMGUI)
-    char buf[512];
-    va_list ap;
-    va_start (ap, _msg);
-    vsnprintf(buf, sizeof(buf), _msg, ap);
-    va_end(ap);
+#if defined( EMSCRIPTEN_DEBUG_OUTPUT ) || defined( EMSCRIPTEN_IMGUI )
+	char buf[512];
+	va_list ap;
+	va_start( ap, _msg );
+	vsnprintf( buf, sizeof( buf ), _msg, ap );
+	va_end( ap );
 
-    DebugConsole* console = DebugConsole::GetInstance();
-    if (console)
-    {
-        console->AddLog("%s", buf);
-    }
-    else
-    {
-        s_earlyDebugMessages.push_back(std::string(buf));
-    }
+	DebugConsole *console = DebugConsole::GetInstance();
+	if ( console )
+	{
+		console->AddLog( "%s", buf );
+	}
+	else
+	{
+		s_earlyDebugMessages.push_back( std::string( buf ) );
+	}
 
-    emscripten_console_log( buf );
+	emscripten_console_log( buf );
 #endif
 }
 
-void AppDebugOutData(void *_data, int _dataLen)
+
+void AppDebugOutData( void *_data, int _dataLen )
 {
-#if defined(EMSCRIPTEN_DEBUG_OUTPUT) || defined(EMSCRIPTEN_IMGUI)
-    for( int i = 0; i < _dataLen; ++i )
-    {
-        if( i % 16 == 0 )
-        {
-            AppDebugOut( "\n" );
-        }
-        AppDebugOut( "%02x ", ((unsigned char *)_data)[i] );
-    }    
-    AppDebugOut( "\n\n" );
+#if defined( EMSCRIPTEN_DEBUG_OUTPUT ) || defined( EMSCRIPTEN_IMGUI )
+	for ( int i = 0; i < _dataLen; ++i )
+	{
+		if ( i % 16 == 0 )
+		{
+			AppDebugOut( "\n" );
+		}
+		AppDebugOut( "%02x ", ( (unsigned char *)_data )[i] );
+	}
+	AppDebugOut( "\n\n" );
 #endif
 }
+
 
 #ifdef _DEBUG
-void AppDebugAssert(bool _condition)
+void AppDebugAssert( bool _condition )
 {
-    if(!_condition)
-    {
-        abort();
-    }
+	if ( !_condition )
+	{
+		abort();
+	}
 }
 #endif // _DEBUG
 
-void AppReleaseAssertFailed(char const *_msg, ...)
+void AppReleaseAssertFailed( char const *_msg, ... )
 {
-    char buf[512];
-    va_list ap;
-    va_start (ap, _msg);
-    vsnprintf(buf, sizeof(buf), _msg, ap);
-    va_end(ap);
-    
-    std::ostringstream fullMessage;
-    fullMessage << buf;
-    std::string fullMsg = fullMessage.str();
+	char buf[512];
+	va_list ap;
+	va_start( ap, _msg );
+	vsnprintf( buf, sizeof( buf ), _msg, ap );
+	va_end( ap );
 
-    emscripten_console_error(fullMsg.c_str());
-    
-    //
-    // Show alert dialog in browser
+	std::ostringstream fullMessage;
+	fullMessage << buf;
+	std::string fullMsg = fullMessage.str();
 
-    EM_ASM({
-        alert(UTF8ToString($0));
-    }, fullMsg.c_str());
+	emscripten_console_error( fullMsg.c_str() );
+
+	//
+	// Show alert dialog in browser
+
+	EM_ASM( { alert( UTF8ToString( $0 ) ); }, fullMsg.c_str() );
 
 #ifndef _DEBUG
-    AppGenerateBlackBox("blackbox.txt", fullMsg.c_str());
-    abort();
+	AppGenerateBlackBox( "blackbox.txt", fullMsg.c_str() );
+	abort();
 #else
-    abort();
+	abort();
 #endif // _DEBUG
 }
 
-unsigned *getRetAddress(unsigned *mBP)
-{
-    //
-    // Not supported in WebAssembly
 
-    return NULL;
+unsigned *getRetAddress( unsigned *mBP )
+{
+	//
+	// Not supported in WebAssembly
+
+	return NULL;
 }
+
 
 void AppGenerateBlackBox( const char *_filename, const char *_msg )
 {
-    printf("=========================\n");
-    printf("=   BLACK BOX REPORT    =\n");
-    printf("=========================\n\n");
-    
-    printf("%s %s built %s\n", GetAppName(), GetAppVersion(), __DATE__);
-    
-    time_t timet = time(NULL);
-    tm *thetime = localtime(&timet);
-    printf("Date %d:%d, %d/%d/%d\n\n", thetime->tm_hour, thetime->tm_min, 
-           thetime->tm_mday, thetime->tm_mon+1, thetime->tm_year+1900);
-    
-    if( _msg ) printf("%s\n", _msg);
+	printf( "=========================\n" );
+	printf( "=   BLACK BOX REPORT    =\n" );
+	printf( "=========================\n\n" );
+
+	printf( "%s %s built %s\n", GetAppName(), GetAppVersion(), __DATE__ );
+
+	time_t timet = time( NULL );
+	tm *thetime = localtime( &timet );
+	printf( "Date %d:%d, %d/%d/%d\n\n", thetime->tm_hour, thetime->tm_min,
+			thetime->tm_mday, thetime->tm_mon + 1, thetime->tm_year + 1900 );
+
+	if ( _msg )
+		printf( "%s\n", _msg );
 }
 
-void SetupPathToProgram(const char *program)
+
+void SetupPathToProgram( const char *program )
 {
-    //
-    // Path setup not needed in browser environment
+	//
+	// Path setup not needed in browser environment
 
-    (void)program; 
+	(void)program;
 }
+
 
 void SetupMemoryAccessHandlers()
 {
-    //
-    // Memory access handlers not supported
+	//
+	// Memory access handlers not supported
 }
 
 #endif // TARGET_EMSCRIPTEN

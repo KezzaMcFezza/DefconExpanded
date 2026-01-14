@@ -11,200 +11,203 @@ using namespace std;
 #include "lib/filesys/filesys_utils.h"
 
 
-
-char *LowerCaseString ( const char *thestring )
+char *LowerCaseString( const char *thestring )
 {
 
-	char *thecopy = new char [strlen(thestring)+1];
-	strcpy ( thecopy, thestring );
+	char *thecopy = new char[strlen( thestring ) + 1];
+	strcpy( thecopy, thestring );
 
 	for ( char *p = thecopy; *p != '\x0'; ++p )
 		if ( *p >= 'A' && *p <= 'Z' )
 			*p += 'a' - 'A';
 
 	return thecopy;
-
 }
 
-void ParseMemoryLeakFile ( char *_inputFilename, char *_outputFilename )
+
+void ParseMemoryLeakFile( char *_inputFilename, char *_outputFilename )
 {
 
-    //
-    // Start up
-    //
+	//
+	// Start up
+	//
 
-    BTree <int> combined;
-    BTree <int> frequency;
-    int unrecognised = 0;
+	BTree<int> combined;
+	BTree<int> frequency;
+	int unrecognised = 0;
 
-    //
-    // Open the file and start parsing
-    //
+	//
+	// Open the file and start parsing
+	//
 
-    ifstream memoryfile ( _inputFilename );
+	ifstream memoryfile( _inputFilename );
 
-    while ( !memoryfile.eof () ) 
-    {
-        char thisline [256];
-        memoryfile.getline ( thisline, 256 );
+	while ( !memoryfile.eof() )
+	{
+		char thisline[256];
+		memoryfile.getline( thisline, 256 );
 
-        if ( !strncmp ( thisline, " Data:", 6 ) == 0 &&         // This line is a data line - useless to us
-              strchr ( thisline, ':' ) ) {                      // This line does not have a source file location - useless to us
+		if ( !strncmp( thisline, " Data:", 6 ) == 0 && // This line is a data line - useless to us
+			 strchr( thisline, ':' ) )
+		{ // This line does not have a source file location - useless to us
 
-            // Get the size
+			// Get the size
 
-            char *lastcomma = strrchr ( thisline, ',' );
-            char *ssize = lastcomma+2;
-            int size;
-            char unused [32];
-            sscanf ( ssize, "%d %s", &size, unused );
+			char *lastcomma = strrchr( thisline, ',' );
+			char *ssize = lastcomma + 2;
+			int size;
+			char unused[32];
+			sscanf( ssize, "%d %s", &size, unused );
 
-            // Get the source file name
+			// Get the source file name
 
-            char *sourcelocation = thisline;
-            char *colon = strrchr ( thisline, ':' );
-            *(colon-1) = '\x0';
-            char *lowercasesourcelocation = LowerCaseString ( sourcelocation );
-            
-            // Put the result into our BTree
+			char *sourcelocation = thisline;
+			char *colon = strrchr( thisline, ':' );
+			*( colon - 1 ) = '\x0';
+			char *lowercasesourcelocation = LowerCaseString( sourcelocation );
 
-            BTree <int> *btree = combined.LookupTree ( lowercasesourcelocation );
-            if ( btree ) btree->data += size;
-            else combined.PutData ( lowercasesourcelocation, size );
-            
-            BTree <int> *freq = frequency.LookupTree ( lowercasesourcelocation );
-            if ( freq ) freq->data++;
-            else frequency.PutData ( lowercasesourcelocation, 1 );
+			// Put the result into our BTree
 
-            delete lowercasesourcelocation;
-        }
-        else 
-        {
-            char *lastcomma = strrchr ( thisline, ',' );
-            
-            if ( lastcomma ) 
-            {
+			BTree<int> *btree = combined.LookupTree( lowercasesourcelocation );
+			if ( btree )
+				btree->data += size;
+			else
+				combined.PutData( lowercasesourcelocation, size );
 
-                char *ssize = lastcomma+2;
-                int size;
-                char unused [32];
-                sscanf ( ssize, "%d %s", &size, unused );
+			BTree<int> *freq = frequency.LookupTree( lowercasesourcelocation );
+			if ( freq )
+				freq->data++;
+			else
+				frequency.PutData( lowercasesourcelocation, 1 );
 
-                unrecognised += size;
-            }
-        }
-    }
+			delete lowercasesourcelocation;
+		}
+		else
+		{
+			char *lastcomma = strrchr( thisline, ',' );
 
-    memoryfile.close ();
+			if ( lastcomma )
+			{
 
-    
-    //
-    // Sort the results into a list
-    //
+				char *ssize = lastcomma + 2;
+				int size;
+				char unused[32];
+				sscanf( ssize, "%d %s", &size, unused );
 
-    DArray <int> *sizes = combined.ConvertToDArray ();
-    DArray <std::string> *sources = combined.ConvertIndexToDArray ();
-    LList <std::string> sorted;
-    int totalsize = 0;
+				unrecognised += size;
+			}
+		}
+	}
 
-    for ( int i = 0; i < sources->Size (); ++i )
-    {
-        const std::string &newsource = sources->GetData (i);
-        int newsize = sizes->GetData (i);
-        totalsize += newsize;
-        bool inserted = false;
-
-        for ( int j = 0; j < sorted.Size (); ++j ) {
-
-            const std::string &existingsource = sorted.GetData (j);
-            int existingsize = combined.GetData ( existingsource.c_str() );
-
-            if ( newsize <= existingsize ) {
-
-                sorted.PutDataAtIndex ( newsource, j );
-                inserted = true;
-                break;
-
-            }
-
-        }
-
-        if ( !inserted ) sorted.PutDataAtEnd ( newsource );
-    }
+	memoryfile.close();
 
 
-    //
-    // Open the output file
-    //
+	//
+	// Sort the results into a list
+	//
 
-    FILE *output = fopen( _outputFilename, "wt" );
+	DArray<int> *sizes = combined.ConvertToDArray();
+	DArray<std::string> *sources = combined.ConvertIndexToDArray();
+	LList<std::string> sorted;
+	int totalsize = 0;
 
-    //
-    // Print out our sorted list
-    // 
+	for ( int i = 0; i < sources->Size(); ++i )
+	{
+		const std::string &newsource = sources->GetData( i );
+		int newsize = sizes->GetData( i );
+		totalsize += newsize;
+		bool inserted = false;
 
-    fprintf ( output, "Total recognised memory leaks   : %d Kbytes\n", int(totalsize/1024)  );
-    fprintf ( output, "Total unrecognised memory leaks : %d Kbytes\n\n", int(unrecognised/1024) );
-    
-    for ( int k = sorted.Size () - 1; k >= 0; --k )
-    {
+		for ( int j = 0; j < sorted.Size(); ++j )
+		{
 
-        const std::string &source = sorted.GetData (k);
-        int size = combined.GetData ( source.c_str() );
-        int freq = frequency.GetData ( source.c_str() );
+			const std::string &existingsource = sorted.GetData( j );
+			int existingsize = combined.GetData( existingsource.c_str() );
 
-        if( size > 2048 )
-        {
-            fprintf ( output, "%-95s (%d Kbytes in %d leaks)\n", source.c_str(), int(size/1024), freq );
-        }
-        else
-        {
-            fprintf ( output, "%-95s (%d  bytes in %d leaks)\n", source.c_str(), size, freq );
-        }
-    }
+			if ( newsize <= existingsize )
+			{
+
+				sorted.PutDataAtIndex( newsource, j );
+				inserted = true;
+				break;
+			}
+		}
+
+		if ( !inserted )
+			sorted.PutDataAtEnd( newsource );
+	}
 
 
-    //
-    // Clear up
+	//
+	// Open the output file
+	//
 
-    fclose( output );
+	FILE *output = fopen( _outputFilename, "wt" );
 
-    delete sources;
-    delete sizes;
+	//
+	// Print out our sorted list
+	//
+
+	fprintf( output, "Total recognised memory leaks   : %d Kbytes\n", int( totalsize / 1024 ) );
+	fprintf( output, "Total unrecognised memory leaks : %d Kbytes\n\n", int( unrecognised / 1024 ) );
+
+	for ( int k = sorted.Size() - 1; k >= 0; --k )
+	{
+
+		const std::string &source = sorted.GetData( k );
+		int size = combined.GetData( source.c_str() );
+		int freq = frequency.GetData( source.c_str() );
+
+		if ( size > 2048 )
+		{
+			fprintf( output, "%-95s (%d Kbytes in %d leaks)\n", source.c_str(), int( size / 1024 ), freq );
+		}
+		else
+		{
+			fprintf( output, "%-95s (%d  bytes in %d leaks)\n", source.c_str(), size, freq );
+		}
+	}
+
+
+	//
+	// Clear up
+
+	fclose( output );
+
+	delete sources;
+	delete sizes;
 }
 
 
 void AppPrintMemoryLeaks( char *_filename )
 {
-    //
-    // Print all raw memory leak data to a temporary file
+	//
+	// Print all raw memory leak data to a temporary file
 
-    char tmpFilename[512];
-    sprintf( tmpFilename, "%s.tmp", _filename );
+	char tmpFilename[512];
+	sprintf( tmpFilename, "%s.tmp", _filename );
 
-    OFSTRUCT ofstruct;
-    HFILE file = OpenFile ( tmpFilename,
-                            &ofstruct,
-                            OF_CREATE );
-                     
-    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-    _CrtSetReportFile(_CRT_WARN, (void *) file);
-  
-    _CrtDumpMemoryLeaks ();
+	OFSTRUCT ofstruct;
+	HFILE file = OpenFile( tmpFilename,
+						   &ofstruct,
+						   OF_CREATE );
 
-    _lclose ( file );
+	_CrtSetReportMode( _CRT_WARN, _CRTDBG_MODE_FILE );
+	_CrtSetReportFile( _CRT_WARN, (void *)file );
 
+	_CrtDumpMemoryLeaks();
 
-    //
-    // Parse the temp file into a sensible format
-
-    ParseMemoryLeakFile( tmpFilename, _filename );
+	_lclose( file );
 
 
+	//
+	// Parse the temp file into a sensible format
 
-    //
-    // Delete the temporary file
+	ParseMemoryLeakFile( tmpFilename, _filename );
 
-    DeleteThisFile( tmpFilename );
-   
+
+	//
+	// Delete the temporary file
+
+	DeleteThisFile( tmpFilename );
 }
