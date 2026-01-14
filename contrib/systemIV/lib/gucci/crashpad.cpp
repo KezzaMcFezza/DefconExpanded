@@ -27,165 +27,165 @@ using namespace crashpad;
 
 static CrashpadClient g_crashpadClient;
 
-bool InitializeCrashpad(const char* apiUrl)
+bool InitializeCrashpad( const char *apiUrl )
 {
-    //
-    // API URL, but can literally be anything
+	//
+	// API URL, but can literally be anything
 
-    const char* prefsUrl = nullptr;
-    if (g_preferences)
-    {
-        prefsUrl = g_preferences->GetString(PREFS_CRASHPAD_URL, 0);
-    }
+	const char *prefsUrl = nullptr;
+	if ( g_preferences )
+	{
+		prefsUrl = g_preferences->GetString( PREFS_CRASHPAD_URL, 0 );
+	}
 
 
-    const char* finalUrl = apiUrl;
-    if (!finalUrl || !finalUrl[0])
-    {
-        finalUrl = prefsUrl;
-    }
+	const char *finalUrl = apiUrl;
+	if ( !finalUrl || !finalUrl[0] )
+	{
+		finalUrl = prefsUrl;
+	}
 
-    if (!finalUrl || !finalUrl[0])
-    {
-        AppDebugOut("Crashpad: No CrashpadURL configured in preferences\n");
-        return false;
-    }
+	if ( !finalUrl || !finalUrl[0] )
+	{
+		AppDebugOut( "Crashpad: No CrashpadURL configured in preferences\n" );
+		return false;
+	}
 
-    apiUrl = finalUrl;
+	apiUrl = finalUrl;
 
-    base::FilePath exeFilePath;
-    base::FilePath exeDir;
+	base::FilePath exeFilePath;
+	base::FilePath exeDir;
 
 #ifdef TARGET_MSVC
-    wchar_t exePathW[MAX_PATH] = {};
-    DWORD len = GetModuleFileNameW(nullptr, exePathW, MAX_PATH);
-    if (len == 0 || len == MAX_PATH)
-    {
-        AppDebugOut("Crashpad: GetModuleFileNameW failed, not enabling crash reporting\n");
-        return false;
-    }
+	wchar_t exePathW[MAX_PATH] = {};
+	DWORD len = GetModuleFileNameW( nullptr, exePathW, MAX_PATH );
+	if ( len == 0 || len == MAX_PATH )
+	{
+		AppDebugOut( "Crashpad: GetModuleFileNameW failed, not enabling crash reporting\n" );
+		return false;
+	}
 
-    exeFilePath = base::FilePath(exePathW);
-    exeDir = exeFilePath.DirName();
+	exeFilePath = base::FilePath( exePathW );
+	exeDir = exeFilePath.DirName();
 
-    //
-    // crashpad_handler.exe must be in the same directory as defcon.exe
+	//
+	// crashpad_handler.exe must be in the same directory as defcon.exe
 
-    base::FilePath handlerPath =
-        exeDir.Append(FILE_PATH_LITERAL("crashpad_handler.exe"));
-        
-#elif defined(TARGET_OS_LINUX)
+	base::FilePath handlerPath =
+		exeDir.Append( FILE_PATH_LITERAL( "crashpad_handler.exe" ) );
 
-    char exePath[PATH_MAX] = {};
-    ssize_t len = readlink("/proc/self/exe", exePath, PATH_MAX - 1);
+#elif defined( TARGET_OS_LINUX )
 
-    if (len == -1 || len >= PATH_MAX - 1)
-    {
-        AppDebugOut("Crashpad: readlink(/proc/self/exe) failed, not enabling crash reporting\n");
-        return false;
-    }
-    exePath[len] = '\0';
+	char exePath[PATH_MAX] = {};
+	ssize_t len = readlink( "/proc/self/exe", exePath, PATH_MAX - 1 );
 
-    exeFilePath = base::FilePath(exePath);
-    exeDir = exeFilePath.DirName();
+	if ( len == -1 || len >= PATH_MAX - 1 )
+	{
+		AppDebugOut( "Crashpad: readlink(/proc/self/exe) failed, not enabling crash reporting\n" );
+		return false;
+	}
+	exePath[len] = '\0';
 
-    //
-    // crashpad_handler must be in the same directory as defcon
+	exeFilePath = base::FilePath( exePath );
+	exeDir = exeFilePath.DirName();
 
-    base::FilePath handlerPath =
-        exeDir.Append(FILE_PATH_LITERAL("crashpad_handler"));
+	//
+	// crashpad_handler must be in the same directory as defcon
+
+	base::FilePath handlerPath =
+		exeDir.Append( FILE_PATH_LITERAL( "crashpad_handler" ) );
 
 #endif
 
-    //
-    // Crashpad database directory, minidumps and metadata
+	//
+	// Crashpad database directory, minidumps and metadata
 
-    base::FilePath dbPath =
-        exeDir.Append(FILE_PATH_LITERAL("crashpad_db"));
+	base::FilePath dbPath =
+		exeDir.Append( FILE_PATH_LITERAL( "crashpad_db" ) );
 
-    //
-    // Not used and wont ever be used
+	//
+	// Not used and wont ever be used
 
-    base::FilePath metricsPath;
+	base::FilePath metricsPath;
 
-    //
-    // Crash description, identifies crashes in the console
+	//
+	// Crash description, identifies crashes in the console
 
-    std::map<std::string, std::string> annotations;
-    annotations["Version"]         = GetAppVersion();
-    annotations["InternalVersion"] = GetRealVersion();
-    annotations["Platform"]        = GetAppSystem();
+	std::map<std::string, std::string> annotations;
+	annotations["Version"] = GetAppVersion();
+	annotations["InternalVersion"] = GetRealVersion();
+	annotations["Platform"] = GetAppSystem();
 
-    //
-    // Dont use compression, reduces API complexity
+	//
+	// Dont use compression, reduces API complexity
 
-    std::vector<std::string> arguments;
+	std::vector<std::string> arguments;
 
-    arguments.push_back("--no-upload-gzip");
+	arguments.push_back( "--no-upload-gzip" );
 
-    //
-    // Add log files to attachments, they could be useful
+	//
+	// Add log files to attachments, they could be useful
 
-    std::vector<base::FilePath> attachments;
-    
+	std::vector<base::FilePath> attachments;
+
 #ifdef TARGET_MSVC
 
-    //
-    // On Windows, both files are in the exe directory
+	//
+	// On Windows, both files are in the exe directory
 
-    attachments.push_back(exeDir.Append(FILE_PATH_LITERAL("debug.txt")));
-    attachments.push_back(exeDir.Append(FILE_PATH_LITERAL("blackbox.txt")));
-    
-#elif defined(TARGET_OS_LINUX)
+	attachments.push_back( exeDir.Append( FILE_PATH_LITERAL( "debug.txt" ) ) );
+	attachments.push_back( exeDir.Append( FILE_PATH_LITERAL( "blackbox.txt" ) ) );
 
-    //
-    // On Linux, debug.txt is in ~/.defcon/
+#elif defined( TARGET_OS_LINUX )
 
-    const char* home = getenv("HOME");
-    if (home && home[0])
-    {
-        std::string defconDir = std::string(home) + "/.defcon/";
-        base::FilePath defconPath(defconDir);
-        attachments.push_back(defconPath.Append(FILE_PATH_LITERAL("debug.txt")));
-    }
+	//
+	// On Linux, debug.txt is in ~/.defcon/
+
+	const char *home = getenv( "HOME" );
+	if ( home && home[0] )
+	{
+		std::string defconDir = std::string( home ) + "/.defcon/";
+		base::FilePath defconPath( defconDir );
+		attachments.push_back( defconPath.Append( FILE_PATH_LITERAL( "debug.txt" ) ) );
+	}
 
 #endif
 
-    const bool restartable        = true;
-    const bool asynchronous_start = true;
+	const bool restartable = true;
+	const bool asynchronous_start = true;
 
-    bool startOk = g_crashpadClient.StartHandler(
-        handlerPath,    // crashpad_handler binary
-        dbPath,         // database path
-        metricsPath,    // not used
-        apiUrl,         // upload URL
-        annotations,    // default annotations
-        arguments,      // args
-        restartable,    // restart handler if it crashes
-        asynchronous_start,
-        attachments     // files to attach
-    );
+	bool startOk = g_crashpadClient.StartHandler(
+		handlerPath, // crashpad_handler binary
+		dbPath,		 // database path
+		metricsPath, // not used
+		apiUrl,		 // upload URL
+		annotations, // default annotations
+		arguments,	 // args
+		restartable, // restart handler if it crashes
+		asynchronous_start,
+		attachments // files to attach
+	);
 
-    if (!startOk)
-    {
-        AppDebugOut("Crashpad: StartHandler failed, not enabling crash reporting\n");
-        return false;
-    }
+	if ( !startOk )
+	{
+		AppDebugOut( "Crashpad: StartHandler failed, not enabling crash reporting\n" );
+		return false;
+	}
 
-    AppDebugOut("Crashpad: Handler started successfully\n");
+	AppDebugOut( "Crashpad: Handler started successfully\n" );
 
-    //
-    // Make sure uploads are enabled in the local DB
+	//
+	// Make sure uploads are enabled in the local DB
 
-    std::unique_ptr<CrashReportDatabase> database =
-        CrashReportDatabase::Initialize(dbPath);
+	std::unique_ptr<CrashReportDatabase> database =
+		CrashReportDatabase::Initialize( dbPath );
 
-    if (database && database->GetSettings())
-    {
-        database->GetSettings()->SetUploadsEnabled(true);
-    }
+	if ( database && database->GetSettings() )
+	{
+		database->GetSettings()->SetUploadsEnabled( true );
+	}
 
-    return true;
+	return true;
 }
 
 #endif // USE_CRASHREPORTING
