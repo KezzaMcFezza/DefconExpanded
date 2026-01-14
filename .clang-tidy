@@ -1,0 +1,33 @@
+---
+Checks: >
+  -*,
+  readability-*,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -readability-function-cognitive-complexity,
+  -readability-uppercase-literal-suffix,
+  -readability-named-parameter,
+  -readability-isolate-declaration,
+  -readability-else-after-return,
+  -readability-implicit-bool-conversion,
+  -readability-simplify-boolean-expr,
+  -readability-redundant-*,
+  -readability-container-size-empty,
+  -readability-static-accessed-through-instance,
+  -readability-qualified-auto,
+  -readability-convert-member-functions-to-static,
+  -readability-make-member-function-const,
+  -readability-use-anyofallof,
+  -readability-suspicious-call-argument,
+  -readability-braces-around-statements,
+  -readability-avoid-const-params-in-decls
+
+WarningsAsErrors: ''
+
+HeaderFilterRegex: ''
+
+AnalyzeTemporaryDtors: false
+
+User: ''
+
+---

@@ -33,6 +33,8 @@
     "cmake.useCMakePresets": "never",
     "cmake.sourceDirectory": "${workspaceFolder}",
     "files.associations": {
+        "*.h": "c",
+        "*.hpp": "c",
         "fstream": "cpp",
         "algorithm": "cpp",
         "atomic": "cpp",
@@ -145,7 +147,16 @@
     "C_Cpp.autocomplete": "disabled",
     "C_Cpp.errorSquiggles": "disabled",
     
-    "workbench.colorTheme": "Default Dark+",
+    "[cpp]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    },
+    "[c]": {
+        "editor.formatOnSave": false,
+        "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
+    },
+    "editor.formatOnSave": false,
+    "clangd.formatting.style": "file",
     "workbench.colorCustomizations": {
         "activityBar.background": "#2f2f2f",
         "badge.background": "#0063a5",
