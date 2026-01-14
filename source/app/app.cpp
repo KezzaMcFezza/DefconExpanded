@@ -508,8 +508,6 @@ void App::MinimalInit()
     m_lobbyRenderer = new LobbyRenderer();
     m_lobbyRenderer->Initialise();
 
-    *(int*)0 = 0;
-
     g_inputManager = InputManager::Create();
 
 #if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)

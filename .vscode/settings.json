@@ -148,7 +148,7 @@
     "C_Cpp.errorSquiggles": "disabled",
     
     "[cpp]": {
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
         "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd"
     },
     "[c]": {
@@ -157,6 +157,7 @@
     },
     "editor.formatOnSave": false,
     "clangd.formatting.style": "file",
+    "workbench.colorTheme": "Default Dark+",
     "workbench.colorCustomizations": {
         "activityBar.background": "#2f2f2f",
         "badge.background": "#0063a5",
