@@ -48,7 +48,7 @@ bool InitializeCrashpad( const char *apiUrl )
 	if ( !finalUrl || !finalUrl[0] )
 	{
 		AppDebugOut( "Crashpad: No CrashpadURL configured in preferences\n" );
-		return false;
+		finalUrl = ""; 
 	}
 
 	apiUrl = finalUrl;

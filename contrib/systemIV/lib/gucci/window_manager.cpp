@@ -714,11 +714,6 @@ extern "C" int main( int argc, char **argv )
 		}
 	}
 
-	// Catch every error known to man
-#ifdef USE_CRASHREPORTING
-	InitializeCrashpad();
-#endif
-
 	SDL_version linkedVersion, compiledVersion;
 	SDL_VERSION( &compiledVersion );
 	SDL_GetVersion( &linkedVersion );

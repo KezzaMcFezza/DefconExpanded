@@ -12,6 +12,7 @@
 #pragma comment(lib, "winmm.lib")
 #endif
 #include "lib/gucci/input.h"
+#include "lib/gucci/crashpad.h"
 #include "lib/resource/resource.h"
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
@@ -362,13 +363,6 @@ void App::MinimalInit()
     //
     // Turn everything on
 
-    m_netLib = new NetLib();
-    m_netLib->Initialise();
-
-    ParseCommandLine();
-    InitialiseFloatingPointUnit();
-    InitialiseHighResTime();
-
     g_fileSystem = new FileSystem();
 
     SetDataRoot("data");
@@ -427,6 +421,11 @@ void App::MinimalInit()
 	g_preferences->Load( GetPrefsPath() );
 #endif
 
+// Catch every error known to man
+#ifdef USE_CRASHREPORTING
+	InitializeCrashpad();
+#endif
+
     //
     // set default playername based on build type
     // better than multiple unique prefs files
@@ -436,6 +435,13 @@ void App::MinimalInit()
 #elif defined(SYNC_PRACTICE)
     g_preferences->SetString( "PlayerName", "SyncPracticeClient" );
 #endif
+
+    m_netLib = new NetLib();
+    m_netLib->Initialise();
+
+    ParseCommandLine();
+    InitialiseFloatingPointUnit();
+    InitialiseHighResTime();
 
     g_modSystem = new ModSystem();
     g_modSystem->Initialise();
@@ -501,6 +507,8 @@ void App::MinimalInit()
 
     m_lobbyRenderer = new LobbyRenderer();
     m_lobbyRenderer->Initialise();
+
+    *(int*)0 = 0;
 
     g_inputManager = InputManager::Create();
 
