@@ -15,10 +15,10 @@ LanguageTable *g_languageTable = NULL;
 // ****************************************************************************
 
 LanguageTable::LanguageTable()
- : m_lang(NULL),
-   m_defaultLanguage(NULL),
-   m_onlyDefaultLanguageSelectable(false),
-   m_pathAdditionalTranslation(NULL)
+	: m_lang( NULL ),
+	  m_defaultLanguage( NULL ),
+	  m_onlyDefaultLanguageSelectable( false ),
+	  m_pathAdditionalTranslation( NULL )
 {
 	SetDefaultLanguage( "english" );
 }
@@ -26,63 +26,67 @@ LanguageTable::LanguageTable()
 
 LanguageTable::~LanguageTable()
 {
-    ClearTranslation();
-    ClearBaseLanguage();
+	ClearTranslation();
+	ClearBaseLanguage();
 
 #ifdef TRACK_LANGUAGEPHRASE_ERRORS
 	ClearLanguagePhraseErrors();
 #endif
 
-    m_languages.EmptyAndDelete();
+	m_languages.EmptyAndDelete();
 
-	if( m_lang ) delete m_lang;
-	if( m_defaultLanguage ) delete [] m_defaultLanguage;
-	if( m_pathAdditionalTranslation ) delete [] m_pathAdditionalTranslation;
+	if ( m_lang )
+		delete m_lang;
+	if ( m_defaultLanguage )
+		delete[] m_defaultLanguage;
+	if ( m_pathAdditionalTranslation )
+		delete[] m_pathAdditionalTranslation;
 }
 
 
 void LanguageTable::Initialise()
 {
-    //
-    // Load languages
+	//
+	// Load languages
 
-    LoadLanguages();
+	LoadLanguages();
 }
 
 
 void LanguageTable::SetAdditionalTranslation( const char *_pathAdditionalTranslation )
 {
-	if( m_pathAdditionalTranslation ) delete [] m_pathAdditionalTranslation;
+	if ( m_pathAdditionalTranslation )
+		delete[] m_pathAdditionalTranslation;
 
-	m_pathAdditionalTranslation = new char[ strlen( _pathAdditionalTranslation ) + 1 ];
+	m_pathAdditionalTranslation = new char[strlen( _pathAdditionalTranslation ) + 1];
 	strcpy( m_pathAdditionalTranslation, _pathAdditionalTranslation );
 }
 
 
 void LanguageTable::LoadLanguages()
 {
-    //
-    // Clear out all known languages
+	//
+	// Clear out all known languages
 
-    m_languages.EmptyAndDelete();
+	m_languages.EmptyAndDelete();
 
 
-    //
-    // Explore the data/language directory, looking for languages
+	//
+	// Explore the data/language directory, looking for languages
 
-    LList<char *> *files = g_fileSystem->ListArchive( "data/language/", "*.txt", false );
+	LList<char *> *files = g_fileSystem->ListArchive( "data/language/", "*.txt", false );
 
-    for( int i = 0; i < files->Size(); ++i )
-    {
-        char *thisFile = files->GetData(i);
+	for ( int i = 0; i < files->Size(); ++i )
+	{
+		char *thisFile = files->GetData( i );
 
-        Language *lang = new Language();
+		Language *lang = new Language();
 
-        snprintf( lang->m_name, sizeof(lang->m_name), "%s", thisFile );
-		lang->m_name[ sizeof(lang->m_name) - 1 ] = '\0';
-		for( char *curName = lang->m_name; *curName; curName++ )
+		snprintf( lang->m_name, sizeof( lang->m_name ), "%s", thisFile );
+		lang->m_name[sizeof( lang->m_name ) - 1] = '\0';
+		for ( char *curName = lang->m_name; *curName; curName++ )
 		{
-			if( *curName == '.' )
+			if ( *curName == '.' )
 			{
 				*curName = '\0';
 				break;
@@ -90,18 +94,18 @@ void LanguageTable::LoadLanguages()
 		}
 		strcpy( lang->m_caption, lang->m_name );
 
-        snprintf( lang->m_path, sizeof(lang->m_path), "data/language/%s", thisFile );
-        lang->m_path[ sizeof(lang->m_path) - 1 ] = '\0';
+		snprintf( lang->m_path, sizeof( lang->m_path ), "data/language/%s", thisFile );
+		lang->m_path[sizeof( lang->m_path ) - 1] = '\0';
 
-        if( m_pathAdditionalTranslation )
-        {
-            snprintf( lang->m_pathAdditional, sizeof(lang->m_pathAdditional), m_pathAdditionalTranslation, lang->m_name );
-            lang->m_pathAdditional[ sizeof(lang->m_pathAdditional) - 1 ] = '\0';
-        }
+		if ( m_pathAdditionalTranslation )
+		{
+			snprintf( lang->m_pathAdditional, sizeof( lang->m_pathAdditional ), m_pathAdditionalTranslation, lang->m_name );
+			lang->m_pathAdditional[sizeof( lang->m_pathAdditional ) - 1] = '\0';
+		}
 
-        LoadLanguageCaption( lang );
+		LoadLanguageCaption( lang );
 
-		if( m_onlyDefaultLanguageSelectable && stricmp( m_defaultLanguage, lang->m_name ) != 0 )
+		if ( m_onlyDefaultLanguageSelectable && stricmp( m_defaultLanguage, lang->m_name ) != 0 )
 		{
 			lang->m_selectable = false;
 		}
@@ -110,88 +114,92 @@ void LanguageTable::LoadLanguages()
 			lang->m_selectable = true;
 		}
 
-        m_languages.PutData( lang );
+		m_languages.PutData( lang );
 
-        AppDebugOut( "Found language '%s' with caption '%s' in '%s'\n", 
-                     lang->m_name, 
-                     lang->m_caption, 
-                     lang->m_path );
-    }
+		AppDebugOut( "Found language '%s' with caption '%s' in '%s'\n",
+					 lang->m_name,
+					 lang->m_caption,
+					 lang->m_path );
+	}
 
-    files->EmptyAndDeleteArray();
-    delete files;
+	files->EmptyAndDeleteArray();
+	delete files;
 }
 
 
 bool LanguageTable::LoadLanguageCaption( Language *lang )
 {
-    TextReader *in = g_fileSystem->GetTextReader( lang->m_path );
+	TextReader *in = g_fileSystem->GetTextReader( lang->m_path );
 
-	if( !in ) return false;
+	if ( !in )
+		return false;
 
-	if( !in->IsOpen() )
+	if ( !in->IsOpen() )
 	{
 		delete in;
 		return false;
 	}
 
-    //
+	//
 	// Read all the phrases from the language file
 
-	while (in->ReadLine())
+	while ( in->ReadLine() )
 	{
-		if (!in->TokenAvailable()) continue;
+		if ( !in->TokenAvailable() )
+			continue;
 
 		char *key = in->GetNextToken();
 
 		char *aString = in->GetRestOfLine();
 
-		if( key && aString && stricmp( key, "lang" ) == 0 )
+		if ( key && aString && stricmp( key, "lang" ) == 0 )
 		{
 			//
 			// Strip trailing '\n'
-	        
-			int stringLength = (int) strlen( aString );
-			if( aString[stringLength-1] == '\n' ) 
+
+			int stringLength = (int)strlen( aString );
+			if ( aString[stringLength - 1] == '\n' )
 			{
-				aString[stringLength-1] = '\x0';
+				aString[stringLength - 1] = '\x0';
 			}
 
-			if( aString[stringLength-2] == '\r' )
+			if ( aString[stringLength - 2] == '\r' )
 			{
-				aString[stringLength-2] = '\x0';
+				aString[stringLength - 2] = '\x0';
 			}
 
-            snprintf( lang->m_caption, sizeof(lang->m_caption), "%s", aString );
-			lang->m_caption[ sizeof(lang->m_caption) - 1 ] = '\0';
+			snprintf( lang->m_caption, sizeof( lang->m_caption ), "%s", aString );
+			lang->m_caption[sizeof( lang->m_caption ) - 1] = '\0';
 
 			delete in;
 			return true;
 		}
 	}
 
-    delete in;
+	delete in;
 	return false;
 }
 
 
 void LanguageTable::SetDefaultLanguage( const char *_name, bool _onlySelectable )
 {
-	if( !_name ) return;
+	if ( !_name )
+		return;
 
-	if( m_defaultLanguage ) delete [] m_defaultLanguage;
+	if ( m_defaultLanguage )
+		delete[] m_defaultLanguage;
 
-	m_defaultLanguage = new char[ strlen( _name ) + 1 ];
+	m_defaultLanguage = new char[strlen( _name ) + 1];
 	strcpy( m_defaultLanguage, _name );
 
 	m_onlyDefaultLanguageSelectable = _onlySelectable;
-	if( m_onlyDefaultLanguageSelectable )
+	if ( m_onlyDefaultLanguageSelectable )
 	{
 		int lenLanguages = m_languages.Size();
-		for( int i = 0; i < lenLanguages; ++i )
+		for ( int i = 0; i < lenLanguages; ++i )
 		{
 			Language *thisLang = m_languages.GetData( i );
-			if( stricmp( thisLang->m_name, m_defaultLanguage ) != 0 )
+			if ( stricmp( thisLang->m_name, m_defaultLanguage ) != 0 )
 			{
 				thisLang->m_selectable = false;
 			}
@@ -209,29 +217,29 @@ void LanguageTable::LoadCurrentLanguage( const char *_name )
 	ClearBaseLanguage();
 	ClearTranslation();
 
-	if( m_lang )
+	if ( m_lang )
 	{
 		delete m_lang;
 		m_lang = NULL;
 	}
 
 	const char *interfaceLanguage = _name;
-	if( !interfaceLanguage )
+	if ( !interfaceLanguage )
 	{
 		interfaceLanguage = g_preferences->GetString( PREFS_INTERFACE_LANGUAGE, "english" );
 	}
 
 	AppReleaseAssert( interfaceLanguage, "Couldn't find language preference '%s'", PREFS_INTERFACE_LANGUAGE );
 
-	if( !GetLanguageSelectable( interfaceLanguage ) )
+	if ( !GetLanguageSelectable( interfaceLanguage ) )
 	{
 		interfaceLanguage = m_defaultLanguage;
 	}
 
-	for( int i = 0; i < m_languages.Size(); i++ )
+	for ( int i = 0; i < m_languages.Size(); i++ )
 	{
 		Language *thisLang = m_languages.GetData( i );
-		if( stricmp( thisLang->m_name, interfaceLanguage ) == 0 )
+		if ( stricmp( thisLang->m_name, interfaceLanguage ) == 0 )
 		{
 			m_lang = new Language( *thisLang );
 			break;
@@ -239,13 +247,13 @@ void LanguageTable::LoadCurrentLanguage( const char *_name )
 	}
 
 	AppReleaseAssert( m_lang, "Couldn't find language '%s'", interfaceLanguage );
-	
-    g_languageTable->LoadBaseLanguage( "data/language/english.txt" );
-	if( stricmp( m_lang->m_name, "english" ) != 0 )
+
+	g_languageTable->LoadBaseLanguage( "data/language/english.txt" );
+	if ( stricmp( m_lang->m_name, "english" ) != 0 )
 	{
 		g_languageTable->LoadTranslation( m_lang->m_path );
 
-		if( strcmp( "unknown", m_lang->m_pathAdditional ) != 0 )
+		if ( strcmp( "unknown", m_lang->m_pathAdditional ) != 0 )
 		{
 			g_languageTable->LoadLanguage( m_lang->m_pathAdditional, m_translationAdditional, true, "\t\n\r" );
 		}
@@ -258,7 +266,7 @@ void LanguageTable::LoadCurrentLanguage( const char *_name )
 bool LanguageTable::SaveCurrentLanguage( Language *_lang )
 {
 	const char *curInterfaceLanguage = g_preferences->GetString( PREFS_INTERFACE_LANGUAGE );
-	if( !curInterfaceLanguage || stricmp( curInterfaceLanguage, _lang->m_name ) != 0 )
+	if ( !curInterfaceLanguage || stricmp( curInterfaceLanguage, _lang->m_name ) != 0 )
 	{
 		g_preferences->SetString( PREFS_INTERFACE_LANGUAGE, _lang->m_name );
 		g_preferences->Save();
@@ -271,14 +279,14 @@ bool LanguageTable::SaveCurrentLanguage( Language *_lang )
 bool LanguageTable::GetLanguageSelectable( const char *_name )
 {
 	int lenLanguages = m_languages.Size();
-    for( int i = 0; i < lenLanguages; ++i )
-    {
+	for ( int i = 0; i < lenLanguages; ++i )
+	{
 		Language *thisLang = m_languages.GetData( i );
-		if( stricmp( thisLang->m_name, _name ) == 0 )
+		if ( stricmp( thisLang->m_name, _name ) == 0 )
 		{
 			return thisLang->m_selectable;
 		}
-    }
+	}
 	return false;
 }
 
@@ -286,373 +294,374 @@ bool LanguageTable::GetLanguageSelectable( const char *_name )
 void LanguageTable::SetLanguageSelectable( const char *_name, bool _selectable )
 {
 	int lenLanguages = m_languages.Size();
-    for( int i = 0; i < lenLanguages; ++i )
-    {
+	for ( int i = 0; i < lenLanguages; ++i )
+	{
 		Language *thisLang = m_languages.GetData( i );
-		if( stricmp( thisLang->m_name, _name ) == 0 )
+		if ( stricmp( thisLang->m_name, _name ) == 0 )
 		{
 			thisLang->m_selectable = _selectable;
 			break;
 		}
-    }
+	}
 }
 
 
 void LanguageTable::LoadLanguage( const char *_filename, BTree<char *> &_langTable, bool _facultative, const char *_separators )
 {
-    TextReader *in = g_fileSystem->GetTextReader(_filename);
-	if( !_facultative )
+	TextReader *in = g_fileSystem->GetTextReader( _filename );
+	if ( !_facultative )
 	{
-		AppReleaseAssert(in && in->IsOpen(), "Couldn't open language file %s", _filename );
+		AppReleaseAssert( in && in->IsOpen(), "Couldn't open language file %s", _filename );
 	}
-	else if( !( in && in->IsOpen() ) )
+	else if ( !( in && in->IsOpen() ) )
 	{
 		return;
 	}
 
-	if( _separators )
+	if ( _separators )
 	{
 		in->SetSeperatorChars( _separators );
 	}
 
-    //
+	//
 	// Read all the phrases from the language file
 
-	while (in->ReadLine())
+	while ( in->ReadLine() )
 	{
-		if (!in->TokenAvailable()) continue;
+		if ( !in->TokenAvailable() )
+			continue;
 
-		char *key = in->GetNextToken();	
+		char *key = in->GetNextToken();
 
 
 #ifdef TARGET_OS_MACOSX
-        // 
-        // Special case hack
-        // If this is the Mac version and there is a replacement string
-        // Use the replacement string instead
-        #define MACOSX_MARKER "macosx_"
-        if( strncmp( key, MACOSX_MARKER, strlen(MACOSX_MARKER) ) == 0 )
-        {
-            key += strlen(MACOSX_MARKER);
-        }
+//
+// Special case hack
+// If this is the Mac version and there is a replacement string
+// Use the replacement string instead
+#define MACOSX_MARKER "macosx_"
+		if ( strncmp( key, MACOSX_MARKER, strlen( MACOSX_MARKER ) ) == 0 )
+		{
+			key += strlen( MACOSX_MARKER );
+		}
 #endif
 
 
-        //
+		//
 		// Make sure the this key isn't already used
 
-		if(_langTable.LookupTree(key))
-        {
-            AppDebugOut( "Warning : found duplicate key '%s' in language file %s\n", key, _filename );
+		if ( _langTable.LookupTree( key ) )
+		{
+			AppDebugOut( "Warning : found duplicate key '%s' in language file %s\n", key, _filename );
 
-            _langTable.RemoveData( key );
-        }
+			_langTable.RemoveData( key );
+		}
 
-        char *aString = newStr( in->GetRestOfLine() );
-        
-        //
+		char *aString = newStr( in->GetRestOfLine() );
+
+		//
 		// Make sure a language key always has a some text with it
 
-		if( !aString || aString[0] == '\0' )
+		if ( !aString || aString[0] == '\0' )
 		{
-            AppDebugOut( "Warning : found key '%s' with no translation in language file %s\n", key, _filename );
+			AppDebugOut( "Warning : found key '%s' with no translation in language file %s\n", key, _filename );
 
-			if( aString )
+			if ( aString )
 			{
-				delete [] aString;
+				delete[] aString;
 			}
 			continue;
 		}
 
-        //
-        // String left empty intentionally
+		//
+		// String left empty intentionally
 
-		if( strncmp( "***EMPTY***", aString, sizeof("***EMPTY***") - 1 ) == 0 )
+		if ( strncmp( "***EMPTY***", aString, sizeof( "***EMPTY***" ) - 1 ) == 0 )
 		{
 			aString[0] = ' ';
 			aString[1] = '\n';
 			aString[2] = '\0';
 		}
 
-        //
-        // Convert the string "\n" into a genuine '\n'
+		//
+		// Convert the string "\n" into a genuine '\n'
 
-        for( unsigned int i = 0; i < strlen(aString)-1; ++i )
-        {
-            if( aString[i] == '\\' && aString[i+1] == 'n' )
-            {
-                aString[i] = ' ';
-                aString[i+1] = '\n';
-            }
-        }
-        
-        //
-        // Strip trailing '\n'
-        
-        int stringLength = (int) strlen( aString );
-        if( aString[stringLength-1] == '\n' ) 
-        {
-            aString[stringLength-1] = '\x0';
-        }
+		for ( unsigned int i = 0; i < strlen( aString ) - 1; ++i )
+		{
+			if ( aString[i] == '\\' && aString[i + 1] == 'n' )
+			{
+				aString[i] = ' ';
+				aString[i + 1] = '\n';
+			}
+		}
 
-        if( aString[stringLength-2] == '\r' )
-        {
-            aString[stringLength-2] = '\x0';
-        }
+		//
+		// Strip trailing '\n'
 
-		_langTable.PutData(key, aString);
+		int stringLength = (int)strlen( aString );
+		if ( aString[stringLength - 1] == '\n' )
+		{
+			aString[stringLength - 1] = '\x0';
+		}
+
+		if ( aString[stringLength - 2] == '\r' )
+		{
+			aString[stringLength - 2] = '\x0';
+		}
+
+		_langTable.PutData( key, aString );
 	}
 
-    delete in;
+	delete in;
 }
 
 
-void LanguageTable::LoadBaseLanguage(const char *_filename)
+void LanguageTable::LoadBaseLanguage( const char *_filename )
 {
-    LoadLanguage( _filename, m_baseLanguage );
+	LoadLanguage( _filename, m_baseLanguage );
 }
 
 
-void LanguageTable::LoadTranslation(const char *_filename)
+void LanguageTable::LoadTranslation( const char *_filename )
 {
-    LoadLanguage( _filename, m_translation );
+	LoadLanguage( _filename, m_translation );
 
 #ifdef _DEBUG
-    DArray<std::string> *keys = m_baseLanguage.ConvertIndexToDArray();
+	DArray<std::string> *keys = m_baseLanguage.ConvertIndexToDArray();
 
-    for( int i = 0; i < keys->Size(); ++i )
-    {
-        if( keys->ValidIndex(i) )
-        {
-            const std::string &key = keys->GetData(i);
-			if( !m_translation.GetData( key.c_str() ) )
+	for ( int i = 0; i < keys->Size(); ++i )
+	{
+		if ( keys->ValidIndex( i ) )
+		{
+			const std::string &key = keys->GetData( i );
+			if ( !m_translation.GetData( key.c_str() ) )
 			{
 				AppDebugOut( "Warning : base language key '%s' with no translation in language file %s\n", key.c_str(), _filename );
 			}
-        }
-    }
+		}
+	}
 
-    delete keys;
+	delete keys;
 #endif
 }
 
 
 void LanguageTable::ClearBaseLanguage()
 {
-    DArray<char *> *base = m_baseLanguage.ConvertToDArray();
-    base->EmptyAndDeleteArray();
-    delete base;
-    m_baseLanguage.Empty();
+	DArray<char *> *base = m_baseLanguage.ConvertToDArray();
+	base->EmptyAndDeleteArray();
+	delete base;
+	m_baseLanguage.Empty();
 }
 
 
 void LanguageTable::ClearTranslation()
 {
-    DArray<char *> *translation = m_translation.ConvertToDArray();
-    translation->EmptyAndDeleteArray();
-    delete translation;
-    m_translation.Empty();
+	DArray<char *> *translation = m_translation.ConvertToDArray();
+	translation->EmptyAndDeleteArray();
+	delete translation;
+	m_translation.Empty();
 
-    translation = m_translationAdditional.ConvertToDArray();
-    translation->EmptyAndDeleteArray();
-    delete translation;
-    m_translationAdditional.Empty();
+	translation = m_translationAdditional.ConvertToDArray();
+	translation->EmptyAndDeleteArray();
+	delete translation;
+	m_translationAdditional.Empty();
 }
 
 
-bool LanguageTable::DoesPhraseExist(const char *_key)
+bool LanguageTable::DoesPhraseExist( const char *_key )
 {
-    if( !_key )
-    {
-        return false;
-    }
-    else
-    {
-        char *phrase = m_baseLanguage.GetData(_key);
-        return( phrase != NULL );
-    }
+	if ( !_key )
+	{
+		return false;
+	}
+	else
+	{
+		char *phrase = m_baseLanguage.GetData( _key );
+		return ( phrase != NULL );
+	}
 }
 
 
-bool LanguageTable::DoesTranslationExist(const char *_key)
+bool LanguageTable::DoesTranslationExist( const char *_key )
 {
-    if( !_key )
-    {
-        return false;
-    }
-    else
-    {
-        char *phrase = m_translation.GetData(_key);
-        return( phrase != NULL );
-    }
+	if ( !_key )
+	{
+		return false;
+	}
+	else
+	{
+		char *phrase = m_translation.GetData( _key );
+		return ( phrase != NULL );
+	}
 }
 
 
-const char *LanguageTable::LookupBasePhrase(const char *_key)
+const char *LanguageTable::LookupBasePhrase( const char *_key )
 {
-    char *result = NULL;
+	char *result = NULL;
 
-    if( _key )
-    {
-	    result = m_baseLanguage.GetData(_key);
-    }
-    
-    if( !result )
-    {
-        static char safeAnswer[256];
-        sprintf( safeAnswer, "[%s]", _key ? _key : "null" );
-        result = safeAnswer;
-    }
+	if ( _key )
+	{
+		result = m_baseLanguage.GetData( _key );
+	}
+
+	if ( !result )
+	{
+		static char safeAnswer[256];
+		sprintf( safeAnswer, "[%s]", _key ? _key : "null" );
+		result = safeAnswer;
+	}
 
 	return result;
 }
 
 
-const char *LanguageTable::LookupPhrase(const char *_key)
+const char *LanguageTable::LookupPhrase( const char *_key )
 {
-    char *result = NULL;
+	char *result = NULL;
 
-    if( _key )
-    {
-	    result = m_translation.GetData(_key);
-	    if (!result) result = m_baseLanguage.GetData(_key);
-    }
-    
-    if( !result )
-    {
-        static char safeAnswer[256];
-        sprintf( safeAnswer, "[%s]", _key ? _key : "null" );
-        result = safeAnswer;
-    }
+	if ( _key )
+	{
+		result = m_translation.GetData( _key );
+		if ( !result )
+			result = m_baseLanguage.GetData( _key );
+	}
+
+	if ( !result )
+	{
+		static char safeAnswer[256];
+		sprintf( safeAnswer, "[%s]", _key ? _key : "null" );
+		result = safeAnswer;
+	}
 
 	return result;
 }
 
 
-const char *LanguageTable::LookupPhraseAdditional(const char *_key)
+const char *LanguageTable::LookupPhraseAdditional( const char *_key )
 {
-    char *result = NULL;
+	char *result = NULL;
 
-    if( _key )
-    {
-        result = m_translationAdditional.GetData(_key);
-    }
+	if ( _key )
+	{
+		result = m_translationAdditional.GetData( _key );
+	}
 
-    if( !result )
-    {
-        return _key;
-    }
+	if ( !result )
+	{
+		return _key;
+	}
 
-    return result;
+	return result;
 }
 
 
 void LanguageTable::TestTranslation( const char *_logFilename )
 {
-    //
-    // Open the errors file
+	//
+	// Open the errors file
 
-    FILE *output = fopen( _logFilename, "wt" );
-    AppReleaseAssert( output, "Failed to open logfile %s", _logFilename );
-    
-    
-    //
-    // Look for strings in the base that are not in the translation
-
-    DArray<std::string> *basePhraseIndex = m_baseLanguage.ConvertIndexToDArray();
-    DArray<char *> *basePhrases = m_baseLanguage.ConvertToDArray();
-
-    for( int i = 0; i < basePhraseIndex->Size(); ++i )
-    {
-        if( basePhraseIndex->ValidIndex(i) )
-        {
-            const std::string &baseIndex = basePhraseIndex->GetData(i);
-            char *basePhrase = basePhrases->GetData(i);
-
-            if( !DoesTranslationExist( baseIndex.c_str() ) )
-            {
-                fprintf( output, "ERROR : Failed to find translation for string ID '%s'\n", baseIndex.c_str() );
-            }
-            else
-            {
-                char *translatedPhrase = m_translation.GetData( baseIndex.c_str() );
-                if( strcmp( basePhrase, translatedPhrase ) == 0 )
-                {
-                    fprintf( output, "Warning : String ID appears not to be translated : '%s'\n", baseIndex.c_str() );
-                }
-            }
-        }
-    }
-
-    delete basePhraseIndex;
-    delete basePhrases;
+	FILE *output = fopen( _logFilename, "wt" );
+	AppReleaseAssert( output, "Failed to open logfile %s", _logFilename );
 
 
-    //
-    // Look for phrases in the translation that are not in the base
+	//
+	// Look for strings in the base that are not in the translation
 
-    DArray<std::string> *translatedIndex = m_translation.ConvertIndexToDArray();
+	DArray<std::string> *basePhraseIndex = m_baseLanguage.ConvertIndexToDArray();
+	DArray<char *> *basePhrases = m_baseLanguage.ConvertToDArray();
 
-    for( int i = 0; i < translatedIndex->Size(); ++i )
-    {
-        if( translatedIndex->ValidIndex(i) )
-        {
-            const std::string &index = translatedIndex->GetData(i);
+	for ( int i = 0; i < basePhraseIndex->Size(); ++i )
+	{
+		if ( basePhraseIndex->ValidIndex( i ) )
+		{
+			const std::string &baseIndex = basePhraseIndex->GetData( i );
+			char *basePhrase = basePhrases->GetData( i );
 
-            if( !DoesPhraseExist( index.c_str() ) )
-            {
-                fprintf( output, "Warning : Found new string ID not present in original English : '%s'\n", index.c_str() );
-            }
-        }
-    }
+			if ( !DoesTranslationExist( baseIndex.c_str() ) )
+			{
+				fprintf( output, "ERROR : Failed to find translation for string ID '%s'\n", baseIndex.c_str() );
+			}
+			else
+			{
+				char *translatedPhrase = m_translation.GetData( baseIndex.c_str() );
+				if ( strcmp( basePhrase, translatedPhrase ) == 0 )
+				{
+					fprintf( output, "Warning : String ID appears not to be translated : '%s'\n", baseIndex.c_str() );
+				}
+			}
+		}
+	}
 
-    delete translatedIndex;
+	delete basePhraseIndex;
+	delete basePhrases;
 
-    
-    //
-    // Clean up
-    
-    fclose( output );
+
+	//
+	// Look for phrases in the translation that are not in the base
+
+	DArray<std::string> *translatedIndex = m_translation.ConvertIndexToDArray();
+
+	for ( int i = 0; i < translatedIndex->Size(); ++i )
+	{
+		if ( translatedIndex->ValidIndex( i ) )
+		{
+			const std::string &index = translatedIndex->GetData( i );
+
+			if ( !DoesPhraseExist( index.c_str() ) )
+			{
+				fprintf( output, "Warning : Found new string ID not present in original English : '%s'\n", index.c_str() );
+			}
+		}
+	}
+
+	delete translatedIndex;
+
+
+	//
+	// Clean up
+
+	fclose( output );
 }
 
 
 int LanguageTable::ReplaceStringFlag( char flag, const char *string, char *subject )
 {
-    char final[4096];
-    size_t bufferPosition = 0;
+	char final[4096];
+	size_t bufferPosition = 0;
 	size_t subjectLen = strlen( subject );
 	int nbFound = 0;
 
-    for( size_t i = 0; i <= subjectLen; ++i )
-    {
-        if( subject[i] == '*' &&
-            i+1 < subjectLen )
-        {
-            if( subject[i+1] == flag )
-            {
-				size_t stringLen = strlen(string);
-                for( size_t j = 0; j < stringLen; ++j )
-                {                        
-                    final[bufferPosition] = string[j];
-                    bufferPosition++;
-                }
-                i++;
+	for ( size_t i = 0; i <= subjectLen; ++i )
+	{
+		if ( subject[i] == '*' &&
+			 i + 1 < subjectLen )
+		{
+			if ( subject[i + 1] == flag )
+			{
+				size_t stringLen = strlen( string );
+				for ( size_t j = 0; j < stringLen; ++j )
+				{
+					final[bufferPosition] = string[j];
+					bufferPosition++;
+				}
+				i++;
 				nbFound++;
-            }
-            else
-            {
-                final[bufferPosition] = subject[i];
-                bufferPosition++;
-            }
-
-        }
-        else
-        {
-            final[bufferPosition] = subject[i];
-            bufferPosition++;
-        }
-    }
-    strcpy( subject, final );
+			}
+			else
+			{
+				final[bufferPosition] = subject[i];
+				bufferPosition++;
+			}
+		}
+		else
+		{
+			final[bufferPosition] = subject[i];
+			bufferPosition++;
+		}
+	}
+	strcpy( subject, final );
 	return nbFound;
 }
 
@@ -660,8 +669,8 @@ int LanguageTable::ReplaceStringFlag( char flag, const char *string, char *subje
 int LanguageTable::ReplaceIntegerFlag( char flag, int num, char *subject )
 {
 	char number[16];
-	snprintf( number, sizeof(number), "%d", num );
-	number[ sizeof(number) - 1 ] = '\0';
+	snprintf( number, sizeof( number ), "%d", num );
+	number[sizeof( number ) - 1] = '\0';
 
 	return ReplaceStringFlag( flag, number, subject );
 }
@@ -669,20 +678,21 @@ int LanguageTable::ReplaceIntegerFlag( char flag, int num, char *subject )
 
 bool LanguageTable::DoesFlagExist( char flag, const char *subject )
 {
-	if( !subject ) return false;
+	if ( !subject )
+		return false;
 
 	size_t subjectLen = strlen( subject );
-    for( size_t i = 0; i <= subjectLen; ++i )
-    {
-        if( subject[i] == '*' &&
-            i+1 < subjectLen )
-        {
-            if( subject[i+1] == flag )
-            {
+	for ( size_t i = 0; i <= subjectLen; ++i )
+	{
+		if ( subject[i] == '*' &&
+			 i + 1 < subjectLen )
+		{
+			if ( subject[i + 1] == flag )
+			{
 				return true;
-            }
-        }
-    }
+			}
+		}
+	}
 	return false;
 }
 
@@ -691,34 +701,34 @@ bool LanguageTable::DoesFlagExist( char flag, const char *subject )
 
 void LanguageTable::ClearLanguagePhraseErrors()
 {
-    DArray<char *> *errors = m_languagePhraseErrors.ConvertToDArray();
-    
-    for( int i = 0; i < errors->Size(); ++i )
-    {
-        if( errors->ValidIndex(i) )
-        {
-            char *error = errors->GetData(i);
-            delete [] error;
-        }
-    }
+	DArray<char *> *errors = m_languagePhraseErrors.ConvertToDArray();
 
-    delete errors;
-    m_languagePhraseErrors.Empty();
+	for ( int i = 0; i < errors->Size(); ++i )
+	{
+		if ( errors->ValidIndex( i ) )
+		{
+			char *error = errors->GetData( i );
+			delete[] error;
+		}
+	}
+
+	delete errors;
+	m_languagePhraseErrors.Empty();
 }
 
 
 const char *LanguageTable::DebugLookupPhrase( const char *_file, int _line, const char *_key )
 {
-    const char *result = LookupPhrase( _key );
+	const char *result = LookupPhrase( _key );
 
-	if( result[0] == '[' )
+	if ( result[0] == '[' )
 	{
 		size_t len = strlen( result );
-		if( len >= 2 && result[len - 1] == ']' )
+		if ( len >= 2 && result[len - 1] == ']' )
 		{
-            const char *realKey;
+			const char *realKey;
 			size_t lenRealKey;
-			if( _key )
+			if ( _key )
 			{
 				realKey = _key;
 				lenRealKey = strlen( _key );
@@ -729,22 +739,22 @@ const char *LanguageTable::DebugLookupPhrase( const char *_file, int _line, cons
 				lenRealKey = 4;
 			}
 
-			if( strncmp( result + 1, realKey, lenRealKey ) == 0 )
+			if ( strncmp( result + 1, realKey, lenRealKey ) == 0 )
 			{
 				size_t lenFullKey = lenRealKey + strlen( _file ) + 32;
-				char *fullKey = new char[ lenFullKey + 1 ];
+				char *fullKey = new char[lenFullKey + 1];
 				snprintf( fullKey, lenFullKey + 1, "%s###%s###%d", realKey, _file, _line );
 
-				if( !m_languagePhraseErrors.GetData( fullKey ) )
+				if ( !m_languagePhraseErrors.GetData( fullKey ) )
 				{
 					m_languagePhraseErrors.PutData( fullKey, fullKey );
 
-					AppDebugOut( "Language Table cannot find phrase '%s'. %s:%d\n", 
+					AppDebugOut( "Language Table cannot find phrase '%s'. %s:%d\n",
 								 realKey, _file, _line );
 				}
 				else
 				{
-					delete [] fullKey;
+					delete[] fullKey;
 				}
 			}
 		}
@@ -758,20 +768,20 @@ bool LanguageTable::LanguageTableIsNewLanguagePhraseError( const char *_file, in
 {
 	bool newError = false;
 
-	if( nbFound != 1 )
+	if ( nbFound != 1 )
 	{
 		size_t lenFullKey = strlen( subject ) + strlen( _file ) + 32;
-		char *fullKey = new char[ lenFullKey + 1 ];
+		char *fullKey = new char[lenFullKey + 1];
 		snprintf( fullKey, lenFullKey + 1, "%s###%c###%s###%d", subject, flag, _file, _line );
 
-		if( !m_languagePhraseErrors.GetData( fullKey ) )
+		if ( !m_languagePhraseErrors.GetData( fullKey ) )
 		{
 			m_languagePhraseErrors.PutData( fullKey, fullKey );
 			newError = true;
 		}
 		else
 		{
-			delete [] fullKey;
+			delete[] fullKey;
 		}
 	}
 
@@ -783,18 +793,18 @@ int LanguageTable::DebugReplaceStringFlag( const char *_file, int _line, char fl
 {
 	int nbFound = ReplaceStringFlag( flag, string, subject );
 
-	if( nbFound != 1 )
+	if ( nbFound != 1 )
 	{
-		if( LanguageTableIsNewLanguagePhraseError( _file, _line, flag, subject, nbFound ) )
+		if ( LanguageTableIsNewLanguagePhraseError( _file, _line, flag, subject, nbFound ) )
 		{
-			if( nbFound > 1 )
+			if ( nbFound > 1 )
 			{
-				AppDebugOut( "Language Table found %d occurrence(s) of the flag '%c' in string '%s' and replaced it by string '%s'. %s:%d\n", 
+				AppDebugOut( "Language Table found %d occurrence(s) of the flag '%c' in string '%s' and replaced it by string '%s'. %s:%d\n",
 							 nbFound, flag, subject, string, _file, _line );
 			}
 			else
 			{
-				AppDebugOut( "Language Table cannot find flag '%c' in string '%s' and replace it by string '%s'. %s:%d\n", 
+				AppDebugOut( "Language Table cannot find flag '%c' in string '%s' and replace it by string '%s'. %s:%d\n",
 							 flag, subject, string, _file, _line );
 			}
 		}
@@ -808,18 +818,18 @@ int LanguageTable::DebugReplaceIntegerFlag( const char *_file, int _line, char f
 {
 	int nbFound = ReplaceIntegerFlag( flag, num, subject );
 
-	if( nbFound != 1 )
+	if ( nbFound != 1 )
 	{
-		if( LanguageTableIsNewLanguagePhraseError( _file, _line, flag, subject, nbFound ) )
+		if ( LanguageTableIsNewLanguagePhraseError( _file, _line, flag, subject, nbFound ) )
 		{
-			if( nbFound > 1 )
+			if ( nbFound > 1 )
 			{
-				AppDebugOut( "Language Table found %d occurrence(s) of the flag '%c' in string '%s' and replaced it by the number '%d'. %s:%d\n", 
+				AppDebugOut( "Language Table found %d occurrence(s) of the flag '%c' in string '%s' and replaced it by the number '%d'. %s:%d\n",
 							 nbFound, flag, subject, num, _file, _line );
 			}
 			else
 			{
-				AppDebugOut( "Language Table cannot find flag '%c' in string '%s' and replace it by the number '%d'. %s:%d\n", 
+				AppDebugOut( "Language Table cannot find flag '%c' in string '%s' and replace it by the number '%d'. %s:%d\n",
 							 flag, subject, num, _file, _line );
 			}
 		}
@@ -831,17 +841,15 @@ int LanguageTable::DebugReplaceIntegerFlag( const char *_file, int _line, char f
 #endif
 
 
-
 // ============================================================================
 
 
-
 Language::Language()
-	: m_selectable(true)
+	: m_selectable( true )
 {
-    sprintf( m_name,    "unknown" );
-    sprintf( m_path,    "unknown" );
-    sprintf( m_caption, "unknown" );
+	sprintf( m_name, "unknown" );
+	sprintf( m_path, "unknown" );
+	sprintf( m_caption, "unknown" );
 
-    sprintf( m_pathAdditional, "unknown" );
+	sprintf( m_pathAdditional, "unknown" );
 }

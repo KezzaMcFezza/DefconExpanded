@@ -22,111 +22,118 @@ Preferences *g_preferences = NULL;
 // ***************
 
 PreferencesItem::PreferencesItem()
-:   m_key(NULL),
-    m_str(NULL), 
-    m_int(0),
-    m_float(0.0f)
+	: m_key( NULL ),
+	  m_str( NULL ),
+	  m_int( 0 ),
+	  m_float( 0.0f )
 {
 }
 
-PreferencesItem::PreferencesItem(char *_line)
-:	m_key(NULL),
-	m_str(NULL)
+
+PreferencesItem::PreferencesItem( char *_line )
+	: m_key( NULL ),
+	  m_str( NULL )
 {
 	// Get key
 	char *key = _line;
-	while (!isalnum(*key) && *key != '\0')		// Skip leading whitespace
+	while ( !isalnum( *key ) && *key != '\0' ) // Skip leading whitespace
 	{
 		key++;
 	}
 	char *c = key;
-	while (isalnum(*c))							// Find the end of the key word
+	while ( isalnum( *c ) ) // Find the end of the key word
 	{
 		c++;
 	}
 	*c = '\0';
 
-	m_key = newStr(key);
+	m_key = newStr( key );
 
 	// Get value
 	char *value = c + 1;
-	while (isspace(*value) || *value == '=')
+	while ( isspace( *value ) || *value == '=' )
 	{
 		// Use proper null terminator check
-		if (*value == '\0') break;
+		if ( *value == '\0' )
+			break;
 		value++;
 	}
 
-	if (value[0] == '-' || isdigit(value[0]))
+	if ( value[0] == '-' || isdigit( value[0] ) )
 	{
 		// Guess that number is an int
 		m_type = TypeInt;
-		
+
 		// Verify that guess
 		c = value;
-        int numDots = 0;
-		while (*c != '\0')
+		int numDots = 0;
+		while ( *c != '\0' )
 		{
-			if (*c == '.')
+			if ( *c == '.' )
 			{
-                ++numDots;
+				++numDots;
 			}
 			++c;
 		}
-        if( numDots == 1 ) m_type = TypeFloat;
-        else if(  numDots > 1 ) m_type = TypeString;
+		if ( numDots == 1 )
+			m_type = TypeFloat;
+		else if ( numDots > 1 )
+			m_type = TypeString;
 
 
 		// Convert string into a real number
-		if      (m_type == TypeFloat)	    m_float = atof(value);
-        else if (m_type == TypeString)      m_str = newStr(value);
-		else						        m_int = atoi(value);
+		if ( m_type == TypeFloat )
+			m_float = atof( value );
+		else if ( m_type == TypeString )
+			m_str = newStr( value );
+		else
+			m_int = atoi( value );
 	}
 	else
 	{
 		m_type = TypeString;
-		m_str = newStr(value);
+		m_str = newStr( value );
 
-        int len = (int) strlen(m_str);
-        if( len > 0 && ( m_str[len-1] == '\n' || m_str[len-1] == '\r' ) )
-        {
-            m_str[len-1] = '\x0';
-        }
+		int len = (int)strlen( m_str );
+		if ( len > 0 && ( m_str[len - 1] == '\n' || m_str[len - 1] == '\r' ) )
+		{
+			m_str[len - 1] = '\x0';
+		}
 	}
 }
 
 
-PreferencesItem::PreferencesItem(const char *_key, const char *_str)
-:	m_type(TypeString)
+PreferencesItem::PreferencesItem( const char *_key, const char *_str )
+	: m_type( TypeString )
 {
-	m_key = newStr(_key);
-	m_str = newStr(_str);
+	m_key = newStr( _key );
+	m_str = newStr( _str );
 }
 
 
-PreferencesItem::PreferencesItem(const char *_key, float _float)
-:	m_type(TypeFloat),
-	m_str(NULL),
-	m_float(_float)
+PreferencesItem::PreferencesItem( const char *_key, float _float )
+	: m_type( TypeFloat ),
+	  m_str( NULL ),
+	  m_float( _float )
 {
-	m_key = newStr(_key);
+	m_key = newStr( _key );
 }
 
 
-PreferencesItem::PreferencesItem(const char *_key, int _int)
-:	m_type(TypeInt),
-	m_str(NULL),
-	m_int(_int)
+PreferencesItem::PreferencesItem( const char *_key, int _int )
+	: m_type( TypeInt ),
+	  m_str( NULL ),
+	  m_int( _int )
 {
-	m_key = newStr(_key);
+	m_key = newStr( _key );
 }
 
 
 PreferencesItem::~PreferencesItem()
 {
-	delete [] m_key;
+	delete[] m_key;
 	m_key = NULL;
-	delete [] m_str;
+	delete[] m_str;
 	m_str = NULL;
 }
 
@@ -136,97 +143,100 @@ PreferencesItem::~PreferencesItem()
 // ******************
 
 Preferences::Preferences()
-:	m_filename(NULL)
-{    
+	: m_filename( NULL )
+{
 }
 
 
 Preferences::~Preferences()
 {
-    delete [] m_filename;
+	delete[] m_filename;
 	m_filename = NULL;
 
 	m_items.EmptyAndDelete();
-	
+
 	for ( int i = 0; i < m_fileText.Size(); i++ )
 	{
-		if ( m_fileText.ValidIndex ( i ) )
+		if ( m_fileText.ValidIndex( i ) )
 		{
-			char *text = m_fileText.GetData ( i );
-			delete [] text;
-			m_fileText.RemoveData ( i );
+			char *text = m_fileText.GetData( i );
+			delete[] text;
+			m_fileText.RemoveData( i );
 		}
 	}
 
-    m_fileText.EmptyAndDeleteArray();
+	m_fileText.EmptyAndDeleteArray();
 }
 
 
-bool Preferences::IsLineEmpty(const char *_line)
+bool Preferences::IsLineEmpty( const char *_line )
 {
-	while (_line[0] != '\0')
+	while ( _line[0] != '\0' )
 	{
-		if (_line[0] == '#') return true;
-		if (isalnum(_line[0])) return false;
+		if ( _line[0] == '#' )
+			return true;
+		if ( isalnum( _line[0] ) )
+			return false;
 		++_line;
 	}
 
 	return true;
-}	
-
-
-void Preferences::Load(const char *_filename)
-{
-    if( _filename ) 
-    { 
-        delete [] m_filename; 
-        m_filename = newStr(_filename); 
-    }
-
-	if (!_filename) _filename = m_filename;
-   
-    // Try to read preferences if they exist
-
-    TextReader *reader = g_fileSystem->GetTextReader(_filename);
-
-    if( reader && reader->IsOpen() )
-    {
-        while( reader->ReadLine() )
-        {
-            if( reader->TokenAvailable() )
-            {
-                char *line = reader->GetRestOfLine();
-                AddLine(line);
-            }
-            else
-            {
-                AddLine(" \n" );
-            }
-        }
-    }
-
-    delete reader;
 }
 
 
-void Preferences::SaveItem(FILE *out, PreferencesItem *_item)
+void Preferences::Load( const char *_filename )
 {
-	switch (_item->m_type)
+	if ( _filename )
+	{
+		delete[] m_filename;
+		m_filename = newStr( _filename );
+	}
+
+	if ( !_filename )
+		_filename = m_filename;
+
+	// Try to read preferences if they exist
+
+	TextReader *reader = g_fileSystem->GetTextReader( _filename );
+
+	if ( reader && reader->IsOpen() )
+	{
+		while ( reader->ReadLine() )
+		{
+			if ( reader->TokenAvailable() )
+			{
+				char *line = reader->GetRestOfLine();
+				AddLine( line );
+			}
+			else
+			{
+				AddLine( " \n" );
+			}
+		}
+	}
+
+	delete reader;
+}
+
+
+void Preferences::SaveItem( FILE *out, PreferencesItem *_item )
+{
+	switch ( _item->m_type )
 	{
 		case PreferencesItem::TypeFloat:
-			fprintf(out, "%s = %.2f\n", _item->m_key, _item->m_float);
+			fprintf( out, "%s = %.2f\n", _item->m_key, _item->m_float );
 			break;
 		case PreferencesItem::TypeInt:
-			fprintf(out, "%s = %d\n", _item->m_key, _item->m_int);
+			fprintf( out, "%s = %d\n", _item->m_key, _item->m_int );
 			break;
 		case PreferencesItem::TypeString:
-			fprintf(out, "%s = %s\n", _item->m_key, _item->m_str);
+			fprintf( out, "%s = %s\n", _item->m_key, _item->m_str );
 			break;
 	}
 	_item->m_hasBeenWritten = true;
 }
 
-			
+
 void Preferences::Save()
 {
 	// We've got a copy of the plain text from the prefs file that we initially
@@ -236,73 +246,73 @@ void Preferences::Save()
 	// write out all the new prefs items because they didn't exist in m_fileText.
 
 	// First clear the "has been written" flags on all the items
-	for (unsigned int i = 0; i < m_items.Size(); ++i)
+	for ( unsigned int i = 0; i < m_items.Size(); ++i )
 	{
-		if (m_items.ValidIndex(i)) 
+		if ( m_items.ValidIndex( i ) )
 		{
 			m_items[i]->m_hasBeenWritten = false;
 		}
 	}
 
 	// Now use m_fileText as a template to write most of the items
-	FILE *out = fopen(m_filename, "w");
-	
-	// If we couldn't open the prefs file for writing then just silently fail - 
+	FILE *out = fopen( m_filename, "w" );
+
+	// If we couldn't open the prefs file for writing then just silently fail -
 	// it's better than crashing.
-	if (!out)
+	if ( !out )
 	{
-        AppDebugOut( "Failed to write preferences file %s\n", m_filename );
+		AppDebugOut( "Failed to write preferences file %s\n", m_filename );
 		return;
 	}
 
-    bool writtenSpace = false;
+	bool writtenSpace = false;
 
-	for (int i = 0; i < m_fileText.Size(); ++i)
+	for ( int i = 0; i < m_fileText.Size(); ++i )
 	{
 		char *line = m_fileText[i];
-		if (IsLineEmpty(line))
+		if ( IsLineEmpty( line ) )
 		{
-            if( !writtenSpace )
-            {
-                fprintf(out, "%s", line);
-                writtenSpace = true;
-            }
+			if ( !writtenSpace )
+			{
+				fprintf( out, "%s", line );
+				writtenSpace = true;
+			}
 		}
 		else
 		{
 			char const *c = line;
 			char const *keyStart = NULL;
 			char const *keyEnd = NULL;
-			while( *c != '=' && *c != '\0' ) 
+			while ( *c != '=' && *c != '\0' )
 			{
-				if (keyStart)
+				if ( keyStart )
 				{
-					if (!isalnum(c[0]))
+					if ( !isalnum( c[0] ) )
 					{
 						keyEnd = c;
 					}
 				}
 				else
 				{
-					if (isalnum(c[0]))
+					if ( isalnum( c[0] ) )
 					{
-						keyStart = c; 
+						keyStart = c;
 					}
 				}
 				++c;
 			}
-			if( keyStart && keyEnd )
+			if ( keyStart && keyEnd )
 			{
 				char key[128];
 				int keyLen = keyEnd - keyStart;
-				keyLen = ( keyLen > ( sizeof(key) - 1 ) )? ( sizeof(key) - 1 ) : keyLen;
-				strncpy(key, keyStart, keyLen);
+				keyLen = ( keyLen > ( sizeof( key ) - 1 ) ) ? ( sizeof( key ) - 1 ) : keyLen;
+				strncpy( key, keyStart, keyLen );
 				key[keyLen] = '\0';
-				int itemIndex = m_items.GetIndex(key);
-				if( itemIndex != -1 )
+				int itemIndex = m_items.GetIndex( key );
+				if ( itemIndex != -1 )
 				{
-					PreferencesItem *item = m_items.GetData(itemIndex);
-					SaveItem(out, item);
+					PreferencesItem *item = m_items.GetData( itemIndex );
+					SaveItem( out, item );
 					writtenSpace = false;
 				}
 			}
@@ -310,149 +320,162 @@ void Preferences::Save()
 	}
 
 	// Finally output any items that haven't already been written
-	for (unsigned int i = 0; i < m_items.Size(); ++i)
+	for ( unsigned int i = 0; i < m_items.Size(); ++i )
 	{
-		if (m_items.ValidIndex(i)) 
+		if ( m_items.ValidIndex( i ) )
 		{
-			PreferencesItem *item = m_items.GetData(i);
-			if (!item->m_hasBeenWritten)
+			PreferencesItem *item = m_items.GetData( i );
+			if ( !item->m_hasBeenWritten )
 			{
-				SaveItem(out, item);
+				SaveItem( out, item );
 			}
 		}
 	}
 
-	fclose(out);
+	fclose( out );
 }
 
 
-float Preferences::GetFloat(const char *_key, float _default)
+float Preferences::GetFloat( const char *_key, float _default )
 {
-	int index = m_items.GetIndex(_key);
-	if (index == -1) return _default;
-	PreferencesItem *item = m_items.GetData(index);
-	if (item->m_type != PreferencesItem::TypeFloat) return _default;
+	int index = m_items.GetIndex( _key );
+	if ( index == -1 )
+		return _default;
+	PreferencesItem *item = m_items.GetData( index );
+	if ( item->m_type != PreferencesItem::TypeFloat )
+		return _default;
 	return item->m_float;
 }
 
 
-int Preferences::GetInt(const char *_key, int _default)
+int Preferences::GetInt( const char *_key, int _default )
 {
-	int index = m_items.GetIndex(_key);
-	if (index == -1) return _default;
-	PreferencesItem *item = m_items.GetData(index);
-	if (item->m_type != PreferencesItem::TypeInt) return _default;
+	int index = m_items.GetIndex( _key );
+	if ( index == -1 )
+		return _default;
+	PreferencesItem *item = m_items.GetData( index );
+	if ( item->m_type != PreferencesItem::TypeInt )
+		return _default;
 	return item->m_int;
 }
 
 
-const char *Preferences::GetString(const char *_key, const char *_default)
+const char *Preferences::GetString( const char *_key, const char *_default )
 {
-	int index = m_items.GetIndex(_key);
-	if (index == -1) return _default;
-	PreferencesItem *item = m_items.GetData(index);
-	if (item->m_type != PreferencesItem::TypeString) return _default;
+	int index = m_items.GetIndex( _key );
+	if ( index == -1 )
+		return _default;
+	PreferencesItem *item = m_items.GetData( index );
+	if ( item->m_type != PreferencesItem::TypeString )
+		return _default;
 	return item->m_str;
 }
 
 
-void Preferences::SetString(const char *_key, const char *_string)
+void Preferences::SetString( const char *_key, const char *_string )
 {
-	int index = m_items.GetIndex(_key);
+	int index = m_items.GetIndex( _key );
 
-	if (index == -1)
+	if ( index == -1 )
 	{
-		PreferencesItem *item = new PreferencesItem(_key, _string);
-		m_items.PutData(item->m_key, item);
+		PreferencesItem *item = new PreferencesItem( _key, _string );
+		m_items.PutData( item->m_key, item );
 	}
 	else
 	{
-		PreferencesItem *item = m_items.GetData(index);
-		AppDebugAssert(item->m_type == PreferencesItem::TypeString);
-		char *newString = newStr(_string);
-        delete [] item->m_str;
-        // Note by Chris:
-        // The incoming value of _string might also be item->m_str
-        // So it is essential to copy _string before deleting item->m_str
+		PreferencesItem *item = m_items.GetData( index );
+		AppDebugAssert( item->m_type == PreferencesItem::TypeString );
+		char *newString = newStr( _string );
+		delete[] item->m_str;
+		// Note by Chris:
+		// The incoming value of _string might also be item->m_str
+		// So it is essential to copy _string before deleting item->m_str
 		item->m_str = newString;
 	}
 }
 
 
-void Preferences::SetFloat(const char *_key, float _float)
+void Preferences::SetFloat( const char *_key, float _float )
 {
-	int index = m_items.GetIndex(_key);
+	int index = m_items.GetIndex( _key );
 
-	if (index == -1)
+	if ( index == -1 )
 	{
-		PreferencesItem *item = new PreferencesItem(_key, _float);
-		m_items.PutData(item->m_key, item);
+		PreferencesItem *item = new PreferencesItem( _key, _float );
+		m_items.PutData( item->m_key, item );
 	}
 	else
 	{
-		PreferencesItem *item = m_items.GetData(index);
-		AppDebugAssert(item->m_type == PreferencesItem::TypeFloat);
+		PreferencesItem *item = m_items.GetData( index );
+		AppDebugAssert( item->m_type == PreferencesItem::TypeFloat );
 		item->m_float = _float;
 	}
 }
 
 
-void Preferences::SetInt(const char *_key, int _int)
+void Preferences::SetInt( const char *_key, int _int )
 {
-	int index = m_items.GetIndex(_key);
+	int index = m_items.GetIndex( _key );
 
-	if (index == -1)
+	if ( index == -1 )
 	{
-		PreferencesItem *item = new PreferencesItem(_key, _int);
-		m_items.PutData(item->m_key, item);
+		PreferencesItem *item = new PreferencesItem( _key, _int );
+		m_items.PutData( item->m_key, item );
 	}
 	else
 	{
-		PreferencesItem *item = m_items.GetData(index);
-		AppDebugAssert(item->m_type == PreferencesItem::TypeInt);
+		PreferencesItem *item = m_items.GetData( index );
+		AppDebugAssert( item->m_type == PreferencesItem::TypeInt );
 		item->m_int = _int;
 	}
 }
 
 
-void Preferences::AddLine(const char *_line)
-{	
-    char localCopy[256];
-    strncpy( localCopy, _line, sizeof(localCopy) );
-    localCopy[ sizeof(localCopy) - 1 ] = '\0';
-	if( !IsLineEmpty(localCopy) )				// Skip comment lines and blank lines
+void Preferences::AddLine( const char *_line )
+{
+	char localCopy[256];
+	strncpy( localCopy, _line, sizeof( localCopy ) );
+	localCopy[sizeof( localCopy ) - 1] = '\0';
+	if ( !IsLineEmpty( localCopy ) ) // Skip comment lines and blank lines
 	{
 		char *c = localCopy;
-		while (c[1] != '\0') c++;
-		if (c[0] == '\n')
+		while ( c[1] != '\0' )
+			c++;
+		if ( c[0] == '\n' )
 		{
 			c[0] = '\0';
 		}
-        PreferencesItem item(localCopy);
-        if( !DoesKeyExist(item.m_key) )
-        {
-  	        char *lineCopy = newStr(_line);
-            m_fileText.PutData(lineCopy);
-        }
+		PreferencesItem item( localCopy );
+		if ( !DoesKeyExist( item.m_key ) )
+		{
+			char *lineCopy = newStr( _line );
+			m_fileText.PutData( lineCopy );
+		}
 
-        switch( item.m_type )
-        {
-            case PreferencesItem::TypeInt:      SetInt( item.m_key, item.m_int );         break;
-            case PreferencesItem::TypeFloat:    SetFloat( item.m_key, item.m_float );     break;
-            case PreferencesItem::TypeString:   SetString( item.m_key, item.m_str );      break;
-        }
-	}  
-    else
-    {
-  	    char *lineCopy = newStr(_line);
-        m_fileText.PutData(lineCopy);
-    }
+		switch ( item.m_type )
+		{
+			case PreferencesItem::TypeInt:
+				SetInt( item.m_key, item.m_int );
+				break;
+			case PreferencesItem::TypeFloat:
+				SetFloat( item.m_key, item.m_float );
+				break;
+			case PreferencesItem::TypeString:
+				SetString( item.m_key, item.m_str );
+				break;
+		}
+	}
+	else
+	{
+		char *lineCopy = newStr( _line );
+		m_fileText.PutData( lineCopy );
+	}
 }
 
 
-bool Preferences::DoesKeyExist(const char *_key)
+bool Preferences::DoesKeyExist( const char *_key )
 {
-	int index = m_items.GetIndex(_key);
+	int index = m_items.GetIndex( _key );
 
 	return index != -1;
 }
