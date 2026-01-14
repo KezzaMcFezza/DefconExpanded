@@ -26,14 +26,31 @@ export function getAllSeasons() {
     let year = 2;
     let currentYear = new Date(beginningEnd).getFullYear();
     let season = 0;
+    const firstRegularSeasonStart = new Date(beginningEnd);
+    firstRegularSeasonStart.setDate(firstRegularSeasonStart.getDate() + 1);
 
     while (true) {
         season = (season % 3) + 1;
 
-        const boundary = seasonBoundaries[season - 1];
-
-        const seasonStart = new Date(currentYear, boundary.startMonth - 1, boundary.startDay);
-        const seasonEnd = new Date(currentYear, boundary.endMonth - 1, boundary.endDay);
+        let seasonStart, seasonEnd;
+        
+        if (season === 1) {
+            const janBoundary = seasonBoundaries[3];
+            const febBoundary = seasonBoundaries[0];
+            const fullSeasonStart = new Date(currentYear, janBoundary.startMonth - 1, janBoundary.startDay);
+            
+            if (year === 2 && currentYear === firstRegularSeasonStart.getFullYear() && fullSeasonStart < firstRegularSeasonStart) {
+                seasonStart = firstRegularSeasonStart;
+            } else {
+                seasonStart = fullSeasonStart;
+            }
+            
+            seasonEnd = new Date(currentYear, febBoundary.endMonth - 1, febBoundary.endDay);
+        } else {
+            const boundary = seasonBoundaries[season - 1];
+            seasonStart = new Date(currentYear, boundary.startMonth - 1, boundary.startDay);
+            seasonEnd = new Date(currentYear, boundary.endMonth - 1, boundary.endDay);
+        }
 
         if (seasonStart <= today) {
             const seasonKey = `y${year}s${season}`;
