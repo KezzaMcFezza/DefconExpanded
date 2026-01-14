@@ -9,14 +9,14 @@
 
 static float s_openGLFormat[16];
 
-Matrix33 const g_identityMatrix33(0);
+Matrix33 const g_identityMatrix33( 0 );
 
 
 // ****************************************************************************
 // Constructors
 // ****************************************************************************
 
-Matrix33::Matrix33(int _ignored)
+Matrix33::Matrix33( int _ignored )
 {
 	SetToIdentity();
 }
@@ -35,7 +35,7 @@ Matrix33::Matrix33( float _yaw, float _dive, float _roll )
 // Functions
 // ****************************************************************************
 
-void Matrix33::OrientRU( Vector3<float> const & _r, Vector3<float> const & _u )
+void Matrix33::OrientRU( Vector3<float> const &_r, Vector3<float> const &_u )
 {
 	Vector3<float> tr = _r;
 	tr.Normalise();
@@ -45,7 +45,8 @@ void Matrix33::OrientRU( Vector3<float> const & _r, Vector3<float> const & _u )
 	u = f ^ r;
 }
 
-void Matrix33::OrientRF( Vector3<float> const & _r, Vector3<float> const & _f )
+
+void Matrix33::OrientRF( Vector3<float> const &_r, Vector3<float> const &_f )
 {
 	Vector3<float> tr = _r;
 	tr.Normalise();
@@ -55,7 +56,8 @@ void Matrix33::OrientRF( Vector3<float> const & _r, Vector3<float> const & _f )
 	f = r ^ u;
 }
 
-void Matrix33::OrientUF( Vector3<float> const & _u, Vector3<float> const & _f )
+
+void Matrix33::OrientUF( Vector3<float> const &_u, Vector3<float> const &_f )
 {
 	Vector3<float> tu = _u;
 	tu.Normalise();
@@ -65,7 +67,8 @@ void Matrix33::OrientUF( Vector3<float> const & _u, Vector3<float> const & _f )
 	f = r ^ u;
 }
 
-void Matrix33::OrientUR( Vector3<float> const & _u, Vector3<float> const & _r )
+
+void Matrix33::OrientUR( Vector3<float> const &_u, Vector3<float> const &_r )
 {
 	Vector3<float> tu = _u;
 	tu.Normalise();
@@ -75,7 +78,8 @@ void Matrix33::OrientUR( Vector3<float> const & _u, Vector3<float> const & _r )
 	r = u ^ f;
 }
 
-void Matrix33::OrientFR( Vector3<float> const & _f, Vector3<float> const & _r )
+
+void Matrix33::OrientFR( Vector3<float> const &_f, Vector3<float> const &_r )
 {
 	Vector3<float> tf = _f;
 	tf.Normalise();
@@ -85,7 +89,8 @@ void Matrix33::OrientFR( Vector3<float> const & _f, Vector3<float> const & _r )
 	r = u ^ f;
 }
 
-void Matrix33::OrientFU( Vector3<float> const & _f, Vector3<float> const & _u )
+
+void Matrix33::OrientFU( Vector3<float> const &_f, Vector3<float> const &_u )
 {
 	Vector3<float> tf = _f;
 	tf.Normalise();
@@ -95,6 +100,7 @@ void Matrix33::OrientFU( Vector3<float> const & _f, Vector3<float> const & _u )
 	u = f ^ r;
 }
 
+
 Matrix33 const &Matrix33::RotateAroundR( float angle )
 {
 	float c = (float)cos( angle );
@@ -102,20 +108,21 @@ Matrix33 const &Matrix33::RotateAroundR( float angle )
 
 	float t;
 
-	t = u.x *  c + f.x * s;
+	t = u.x * c + f.x * s;
 	f.x = u.x * -s + f.x * c;
 	u.x = t;
 
-	t =	u.y * c + f.y * s;
+	t = u.y * c + f.y * s;
 	f.y = u.y * -s + f.y * c;
 	u.y = t;
 
-	t =	u.z * c + f.z * s;
+	t = u.z * c + f.z * s;
 	f.z = u.z * -s + f.z * c;
 	u.z = t;
 
 	return *this;
 }
+
 
 Matrix33 const &Matrix33::RotateAroundU( float angle )
 {
@@ -124,20 +131,21 @@ Matrix33 const &Matrix33::RotateAroundU( float angle )
 
 	float t;
 
-	t =	f.x * c + r.x * s;
+	t = f.x * c + r.x * s;
 	r.x = f.x * -s + r.x * c;
 	f.x = t;
 
-	t =	f.y * c + r.y * s;
+	t = f.y * c + r.y * s;
 	r.y = f.y * -s + r.y * c;
 	f.y = t;
 
-	t =	f.z * c + r.z * s;
+	t = f.z * c + r.z * s;
 	r.z = f.z * -s + r.z * c;
 	f.z = t;
 
 	return *this;
 }
+
 
 Matrix33 const &Matrix33::RotateAroundF( float angle )
 {
@@ -146,20 +154,21 @@ Matrix33 const &Matrix33::RotateAroundF( float angle )
 
 	float t;
 
-	t =	  r.x *  c + u.x * s;
+	t = r.x * c + u.x * s;
 	u.x = r.x * -s + u.x * c;
 	r.x = t;
 
-	t =	  r.y *  c + u.y * s;
+	t = r.y * c + u.y * s;
 	u.y = r.y * -s + u.y * c;
 	r.y = t;
 
-	t =	  r.z *  c + u.z * s;
+	t = r.z * c + u.z * s;
 	u.z = r.z * -s + u.z * c;
 	r.z = t;
 
 	return *this;
 }
+
 
 Matrix33 const &Matrix33::RotateAroundX( float angle )
 {
@@ -168,20 +177,21 @@ Matrix33 const &Matrix33::RotateAroundX( float angle )
 
 	float t;
 
-	t = r.y *  c + r.z * s;
+	t = r.y * c + r.z * s;
 	r.z = r.y * -s + r.z * c;
 	r.y = t;
 
-	t = u.y *  c + u.z * s;
+	t = u.y * c + u.z * s;
 	u.z = u.y * -s + u.z * c;
 	u.y = t;
 
-	t = f.y *  c + f.z * s;
+	t = f.y * c + f.z * s;
 	f.z = f.y * -s + f.z * c;
 	f.y = t;
 
 	return *this;
 }
+
 
 Matrix33 const &Matrix33::RotateAroundY( float angle )
 {
@@ -190,20 +200,21 @@ Matrix33 const &Matrix33::RotateAroundY( float angle )
 
 	float t;
 
-	t = r.z *  c + r.x * s;
+	t = r.z * c + r.x * s;
 	r.x = r.z * -s + r.x * c;
 	r.z = t;
 
-	t = u.z *  c + u.x * s;
+	t = u.z * c + u.x * s;
 	u.x = u.z * -s + u.x * c;
 	u.z = t;
 
-	t = f.z *  c + f.x * s;
+	t = f.z * c + f.x * s;
 	f.x = f.z * -s + f.x * c;
 	f.z = t;
 
 	return *this;
 }
+
 
 Matrix33 const &Matrix33::RotateAroundZ( float angle )
 {
@@ -212,89 +223,93 @@ Matrix33 const &Matrix33::RotateAroundZ( float angle )
 
 	float t;
 
-	t = r.x *  c + r.y * s;
+	t = r.x * c + r.y * s;
 	r.y = r.x * -s + r.y * c;
 	r.x = t;
 
-	t = u.x *  c + u.y * s;
+	t = u.x * c + u.y * s;
 	u.y = u.x * -s + u.y * c;
 	u.x = t;
 
-	t = f.x *  c + f.y * s;
+	t = f.x * c + f.y * s;
 	f.y = f.x * -s + f.y * c;
 	f.x = t;
 
 	return *this;
 }
 
+
 // Mag of vector determines the amount to rotate by. This function is useful
 // when you want to do a rotation based on the result of a cross product
 Matrix33 const &Matrix33::RotateAround( Vector3<float> const &_rotationAxis )
 {
 	float magSquared = _rotationAxis.MagSquared();
-	if (magSquared < 0.00001f * 0.00001f)
+	if ( magSquared < 0.00001f * 0.00001f )
 	{
 		return *this;
 	}
 
-	float mag = sqrtf(magSquared);
-	return FastRotateAround(_rotationAxis/mag, mag);
+	float mag = sqrtf( magSquared );
+	return FastRotateAround( _rotationAxis / mag, mag );
 }
 
+
 // Assumes normal is already normalised
-Matrix33 const &Matrix33::FastRotateAround( Vector3<float> const & _norm, float _angle )
+Matrix33 const &Matrix33::FastRotateAround( Vector3<float> const &_norm, float _angle )
 {
-	float s = (float)sin(_angle);
-	float c = (float)cos(_angle);
+	float s = (float)sin( _angle );
+	float c = (float)cos( _angle );
 
 	float dot = r * _norm;
 	Vector3<float> a = _norm * dot;
 	Vector3<float> n1 = r - a;
 	Vector3<float> n2 = _norm ^ n1;
-	r = a + c*n1 + s*n2;
+	r = a + c * n1 + s * n2;
 
 	dot = u * _norm;
 	a = _norm * dot;
 	n1 = u - a;
 	n2 = _norm ^ n1;
-	u = a + c*n1 + s*n2;
+	u = a + c * n1 + s * n2;
 
 	dot = f * _norm;
 	a = _norm * dot;
 	n1 = f - a;
 	n2 = _norm ^ n1;
-	f = a + c*n1 + s*n2;
+	f = a + c * n1 + s * n2;
 
 	return *this;
 }
 
-Matrix33 const &Matrix33::RotateAround( Vector3<float> const & _onorm, float _angle )
+
+Matrix33 const &Matrix33::RotateAround( Vector3<float> const &_onorm, float _angle )
 {
 	Vector3<float> norm = _onorm;
 	norm.Normalise();
-	float s = (float)sin(_angle);
-	float c = (float)cos(_angle);
+	float s = (float)sin( _angle );
+	float c = (float)cos( _angle );
 
 	float dot = r * norm;
 	Vector3<float> a = norm * dot;
 	Vector3<float> n1 = r - a;
 	Vector3<float> n2 = norm ^ n1;
-	r = a + c*n1 + s*n2;
+	r = a + c * n1 + s * n2;
 
 	dot = u * norm;
 	a = norm * dot;
 	n1 = u - a;
 	n2 = norm ^ n1;
-	u = a + c*n1 + s*n2;
+	u = a + c * n1 + s * n2;
 
 	dot = f * norm;
 	a = norm * dot;
 	n1 = f - a;
 	n2 = norm ^ n1;
-	f = a + c*n1 + s*n2;
+	f = a + c * n1 + s * n2;
 
 	return *this;
 }
+
 
 Matrix33 const &Matrix33::Transpose()
 {
@@ -311,11 +326,12 @@ Matrix33 const &Matrix33::Transpose()
 	return *this;
 }
 
+
 Matrix33 const &Matrix33::Invert()
 {
-    // Note by Chris :
-    // We could just call the general case InvertMatrix function here
-    // But this method is much quicker in the 3x3 case
+	// Note by Chris :
+	// We could just call the general case InvertMatrix function here
+	// But this method is much quicker in the 3x3 case
 
 	// pick up values
 	float a1 = r.x;
@@ -329,75 +345,79 @@ Matrix33 const &Matrix33::Invert()
 	float c3 = f.z;
 
 	// generate adjoint of matrix
-	r.x = (b2*c3-c2*b3);
-	u.x =-(b1*c3-c1*b3);
-	f.x = (b1*c2-c1*b2);
-	
-	r.y =-(a2*c3-c2*a3);
-	u.y = (a1*c3-c1*a3);
-	f.y =-(a1*c2-c1*a2);
+	r.x = ( b2 * c3 - c2 * b3 );
+	u.x = -( b1 * c3 - c1 * b3 );
+	f.x = ( b1 * c2 - c1 * b2 );
 
-	r.z = (a2*b3-b2*a3);
-	u.z =-(a1*b3-b1*a3);
-	f.z = (a1*b2-b1*a2);
+	r.y = -( a2 * c3 - c2 * a3 );
+	u.y = ( a1 * c3 - c1 * a3 );
+	f.y = -( a1 * c2 - c1 * a2 );
+
+	r.z = ( a2 * b3 - b2 * a3 );
+	u.z = -( a1 * b3 - b1 * a3 );
+	f.z = ( a1 * b2 - b1 * a2 );
 
 	// calculate determinant (adjoint is useful at this stage)
 	float det = a1 * r.x + a2 * u.x + a3 * f.x;
 
 	// scale result by 1/det
 	det = 1.0f / det;
-	r.x = r.x * det ;
-	r.y = r.y * det ;
-	r.z = r.z * det ;
+	r.x = r.x * det;
+	r.y = r.y * det;
+	r.z = r.z * det;
 
-	u.x = u.x * det ;
-	u.y = u.y * det ;
-	u.z = u.z * det ;
+	u.x = u.x * det;
+	u.y = u.y * det;
+	u.z = u.z * det;
 
-	f.x = f.x * det ;
-	f.y = f.y * det ;
-	f.z = f.z * det ;
+	f.x = f.x * det;
+	f.y = f.y * det;
+	f.z = f.z * det;
 
 	// generate determinant of matrix
 	return *this;
 }
 
+
 Vector3<float> Matrix33::DecomposeToYDR() const
 {
-	//x = dive, y = yaw, z = roll
-	float x,y,z;
+	// x = dive, y = yaw, z = roll
+	float x, y, z;
 	DecomposeToYDR( &x, &y, &z );
 	return Vector3<float>( x, y, z );
 }
 
+
 void Matrix33::DecomposeToYDR( float *_y, float *_d, float *_r ) const
 {
-	//work with a copy..
+	// work with a copy..
 	Matrix33 workingMat( *this );
 
-	//get the yaw
+	// get the yaw
 	*_y = -(float)atan2( workingMat.f.x, workingMat.f.z );
 
-	//get the dive
+	// get the dive
 	//	can't use asin( workingMat.f.y ) 'cos occasionally we get
 	//	blasted precision problems. this sorts us out..
 	*_d = (float)atan2( workingMat.f.y, workingMat.u.y );
 
-	//rotate the matrix back by -yaw and -dive (one at a time)
+	// rotate the matrix back by -yaw and -dive (one at a time)
 	workingMat.RotateAroundY( -*_y );
 	workingMat.RotateAroundX( -*_d );
 
-	//now the roll
+	// now the roll
 	*_r = -(float)atan2( workingMat.r.y, workingMat.r.x );
 }
 
+
 void Matrix33::SetToIdentity()
 {
-	memset(this, 0, sizeof(Matrix33));
+	memset( this, 0, sizeof( Matrix33 ) );
 	r.x = 1.0f;
 	u.y = 1.0f;
 	f.z = 1.0f;
 }
+
 
 void Matrix33::Normalise()
 {
@@ -410,12 +430,13 @@ void Matrix33::Normalise()
 
 void Matrix33::OutputToDebugStream()
 {
-	AppDebugOut("%4.1f %4.1f %4.1f\n", r.x, r.y, r.z );	
-	AppDebugOut("%4.1f %4.1f %4.1f\n", f.x, f.y, f.z );	
-	AppDebugOut("%4.1f %4.1f %4.1f\n", u.x, u.y, u.z );	
+	AppDebugOut( "%4.1f %4.1f %4.1f\n", r.x, r.y, r.z );
+	AppDebugOut( "%4.1f %4.1f %4.1f\n", f.x, f.y, f.z );
+	AppDebugOut( "%4.1f %4.1f %4.1f\n", u.x, u.y, u.z );
 }
 
-float *Matrix33::ConvertToOpenGLFormat(Vector3<float> const *_pos)
+
+float *Matrix33::ConvertToOpenGLFormat( Vector3<float> const *_pos )
 {
 	s_openGLFormat[0] = r.x;
 	s_openGLFormat[1] = r.y;
@@ -430,7 +451,7 @@ float *Matrix33::ConvertToOpenGLFormat(Vector3<float> const *_pos)
 	s_openGLFormat[10] = f.z;
 	s_openGLFormat[11] = 0.0f;
 
-	if (_pos)
+	if ( _pos )
 	{
 		s_openGLFormat[12] = _pos->x;
 		s_openGLFormat[13] = _pos->y;
@@ -452,31 +473,28 @@ float *Matrix33::ConvertToOpenGLFormat(Vector3<float> const *_pos)
 // Operators
 // ****************************************************************************
 
-Matrix33 const &Matrix33::operator = ( Matrix33 const &_o )
+Matrix33 const &Matrix33::operator=( Matrix33 const &_o )
 {
-	memcpy(this, &_o, sizeof(Matrix33));
+	memcpy( this, &_o, sizeof( Matrix33 ) );
 	return *this;
 }
 
 
 // Multiply this matrix by another and write the result back to ourself
-Matrix33 const &Matrix33::operator *= ( Matrix33 const &_o )
+Matrix33 const &Matrix33::operator*=( Matrix33 const &_o )
 {
 	Matrix33 mat(
-			r.x*_o.r.x + r.y*_o.u.x + r.z*_o.f.x,
-			r.x*_o.r.y + r.y*_o.u.y + r.z*_o.f.y,
-			r.x*_o.r.z + r.y*_o.u.z + r.z*_o.f.z,
+		r.x * _o.r.x + r.y * _o.u.x + r.z * _o.f.x,
+		r.x * _o.r.y + r.y * _o.u.y + r.z * _o.f.y,
+		r.x * _o.r.z + r.y * _o.u.z + r.z * _o.f.z,
 
-			u.x*_o.r.x + u.y*_o.u.x + u.z*_o.f.x,
-			u.x*_o.r.y + u.y*_o.u.y + u.z*_o.f.y,
-			u.x*_o.r.z + u.y*_o.u.z + u.z*_o.f.z,
+		u.x * _o.r.x + u.y * _o.u.x + u.z * _o.f.x,
+		u.x * _o.r.y + u.y * _o.u.y + u.z * _o.f.y,
+		u.x * _o.r.z + u.y * _o.u.z + u.z * _o.f.z,
 
-			f.x*_o.r.x + f.y*_o.u.x + f.z*_o.f.x,
-			f.x*_o.r.y + f.y*_o.u.y + f.z*_o.f.y,
-			f.x*_o.r.z + f.y*_o.u.z + f.z*_o.f.z);
+		f.x * _o.r.x + f.y * _o.u.x + f.z * _o.f.x,
+		f.x * _o.r.y + f.y * _o.u.y + f.z * _o.f.y,
+		f.x * _o.r.z + f.y * _o.u.z + f.z * _o.f.z );
 	*this = mat;
 	return *this;
 }
-
-
-

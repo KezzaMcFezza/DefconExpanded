@@ -7,17 +7,16 @@
 #include <float.h>
 
 
-
 // *******************
 //  Private Functions
 // *******************
 
 // *** Compare
-constexpr bool Vector2::Compare(Vector2 const &b) const
+constexpr bool Vector2::Compare( Vector2 const &b ) const
 {
 	constexpr float epsilon = 1.192092896e-07f; // FLT_EPSILON equivalent
-	return ( ((x - b.x) < epsilon && (b.x - x) < epsilon) &&
-			 ((y - b.y) < epsilon && (b.y - y) < epsilon) );
+	return ( ( ( x - b.x ) < epsilon && ( b.x - x ) < epsilon ) &&
+			 ( ( y - b.y ) < epsilon && ( b.y - y ) < epsilon ) );
 }
 
 
@@ -26,9 +25,9 @@ constexpr bool Vector2::Compare(Vector2 const &b) const
 // ******************
 
 // Constructor from Vector3
-Vector2::Vector2(Vector3<float> const &v)
-:	x(v.x),
-	y(v.z)
+Vector2::Vector2( Vector3<float> const &v )
+	: x( v.x ),
+	  y( v.z )
 {
 }
 
@@ -39,7 +38,7 @@ constexpr void Vector2::Zero()
 }
 
 
-constexpr void Vector2::Set(float _x, float _y)
+constexpr void Vector2::Set( float _x, float _y )
 {
 	x = _x;
 	y = _y;
@@ -47,52 +46,52 @@ constexpr void Vector2::Set(float _x, float _y)
 
 
 // Cross Product
-constexpr float Vector2::operator ^ (Vector2 const &b) const
+constexpr float Vector2::operator^( Vector2 const &b ) const
 {
-	return x*b.y - y*b.x;
+	return x * b.y - y * b.x;
 }
 
 
 // Dot Product
-constexpr float Vector2::operator * (Vector2 const &b) const
+constexpr float Vector2::operator*( Vector2 const &b ) const
 {
-	return (x * b.x + y * b.y);
+	return ( x * b.x + y * b.y );
 }
 
 
 // Negate
-constexpr Vector2 Vector2::operator - () const
+constexpr Vector2 Vector2::operator-() const
 {
-	return Vector2(-x, -y);
+	return Vector2( -x, -y );
 }
 
 
-constexpr Vector2 Vector2::operator + (Vector2 const &b) const
+constexpr Vector2 Vector2::operator+( Vector2 const &b ) const
 {
-	return Vector2(x + b.x, y + b.y);
+	return Vector2( x + b.x, y + b.y );
 }
 
 
-constexpr Vector2 Vector2::operator - (Vector2 const &b) const
+constexpr Vector2 Vector2::operator-( Vector2 const &b ) const
 {
-	return Vector2(x - b.x, y - b.y);
+	return Vector2( x - b.x, y - b.y );
 }
 
 
-constexpr Vector2 Vector2::operator * (float const b) const
+constexpr Vector2 Vector2::operator*( float const b ) const
 {
-	return Vector2(x * b, y * b);
+	return Vector2( x * b, y * b );
 }
 
 
-constexpr Vector2 Vector2::operator / (float const b) const
+constexpr Vector2 Vector2::operator/( float const b ) const
 {
 	float multiplier = 1.0f / b;
-	return Vector2(x * multiplier, y * multiplier);
+	return Vector2( x * multiplier, y * multiplier );
 }
 
 
-void Vector2::operator = (Vector2 const &b)
+void Vector2::operator=( Vector2 const &b )
 {
 	x = b.x;
 	y = b.y;
@@ -100,7 +99,7 @@ void Vector2::operator = (Vector2 const &b)
 
 
 // Assign from a Vector3 - throws away Y value of Vector3
-void Vector2::operator = (Vector3<float> const &b)
+void Vector2::operator=( Vector3<float> const &b )
 {
 	x = b.x;
 	y = b.z;
@@ -108,7 +107,7 @@ void Vector2::operator = (Vector3<float> const &b)
 
 
 // Scale
-void Vector2::operator *= (float const b)
+void Vector2::operator*=( float const b )
 {
 	x *= b;
 	y *= b;
@@ -116,7 +115,7 @@ void Vector2::operator *= (float const b)
 
 
 // Scale
-void Vector2::operator /= (float const b)
+void Vector2::operator/=( float const b )
 {
 	float multiplier = 1.0f / b;
 	x *= multiplier;
@@ -124,14 +123,14 @@ void Vector2::operator /= (float const b)
 }
 
 
-void Vector2::operator += (Vector2 const &b)
+void Vector2::operator+=( Vector2 const &b )
 {
 	x += b.x;
 	y += b.y;
 }
 
 
-void Vector2::operator -= (Vector2 const &b)
+void Vector2::operator-=( Vector2 const &b )
 {
 	x -= b.x;
 	y -= b.y;
@@ -140,24 +139,24 @@ void Vector2::operator -= (Vector2 const &b)
 
 Vector2 const &Vector2::Normalise()
 {
-	float lenSqrd = x*x + y*y;
-	if (lenSqrd > 0.0f)
+	float lenSqrd = x * x + y * y;
+	if ( lenSqrd > 0.0f )
 	{
-		float invLen = 1.0f / sqrtf(lenSqrd);
+		float invLen = 1.0f / sqrtf( lenSqrd );
 		x *= invLen;
 		y *= invLen;
 	}
 	else
 	{
 		x = 0.0f;
-        y = 1.0f;
+		y = 1.0f;
 	}
 
 	return *this;
 }
 
 
-void Vector2::SetLength(float _len)
+void Vector2::SetLength( float _len )
 {
 	float scaler = _len / Mag();
 	x *= scaler;
@@ -167,25 +166,25 @@ void Vector2::SetLength(float _len)
 
 float Vector2::Mag() const
 {
-    return sqrtf(x * x + y * y);
+	return sqrtf( x * x + y * y );
 }
 
 
 constexpr float Vector2::MagSquared() const
 {
-    return x * x + y * y;
+	return x * x + y * y;
 }
 
 
-constexpr bool Vector2::operator == (Vector2 const &b) const
+constexpr bool Vector2::operator==( Vector2 const &b ) const
 {
-	return Compare(b);
+	return Compare( b );
 }
 
 
-constexpr bool Vector2::operator != (Vector2 const &b) const
+constexpr bool Vector2::operator!=( Vector2 const &b ) const
 {
-	return !Compare(b);
+	return !Compare( b );
 }
 
 
