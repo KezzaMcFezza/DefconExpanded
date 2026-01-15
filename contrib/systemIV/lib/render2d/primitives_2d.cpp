@@ -32,14 +32,10 @@ void Renderer2D::Line( float x1, float y1, float x2, float y2, Colour const &col
 	m_lineVertices[m_lineVertexCount++] = { x1, y1, r, g, b, a, 0.0f, 0.0f };
 	m_lineVertices[m_lineVertexCount++] = { x2, y2, r, g, b, a, 0.0f, 0.0f };
 
-#if IMMEDIATE_MODE_2D
-	FlushLines();
-#else
-	if ( immediateFlush )
+	if ( m_immediateModeEnabled || immediateFlush )
 	{
 		FlushLines();
 	}
-#endif
 }
 
 
@@ -87,14 +83,10 @@ void Renderer2D::Circle( float x, float y, float radius, int numPoints, Colour c
 		m_circleVertices[m_circleVertexCount++] = { x2, y2, r, g, b, a, 0.0f, 0.0f };
 	}
 
-#if IMMEDIATE_MODE_2D
-	FlushCircles();
-#else
-	if ( immediateFlush )
+	if ( m_immediateModeEnabled || immediateFlush )
 	{
 		FlushCircles();
 	}
-#endif
 }
 
 
@@ -120,14 +112,10 @@ void Renderer2D::CircleFill( float x, float y, float radius, int numPoints, Colo
 		m_circleFillVertices[m_circleFillVertexCount++] = { x2, y2, r, g, b, a, 1.0f, 0.0f };
 	}
 
-#if IMMEDIATE_MODE_2D
-	FlushCircleFills();
-#else
-	if ( immediateFlush )
+	if ( m_immediateModeEnabled || immediateFlush )
 	{
 		FlushCircleFills();
 	}
-#endif
 }
 
 
@@ -164,14 +152,10 @@ void Renderer2D::Rect( float x, float y, float w, float h, Colour const &col, fl
 	m_rectVertices[m_rectVertexCount++] = { x, y + h, r, g, b, a, 0.0f, 0.0f };
 	m_rectVertices[m_rectVertexCount++] = { x, y, r, g, b, a, 0.0f, 0.0f };
 
-#if IMMEDIATE_MODE_2D
-	FlushRects();
-#else
-	if ( immediateFlush )
+	if ( m_immediateModeEnabled || immediateFlush )
 	{
 		FlushRects();
 	}
-#endif
 }
 
 
@@ -214,14 +198,10 @@ void Renderer2D::RectFill( float x, float y, float w, float h, Colour const &col
 	m_rectFillVertices[m_rectFillVertexCount++] = { x + w, y + h, rBR, gBR, bBR, aBR, 1.0f, 1.0f };
 	m_rectFillVertices[m_rectFillVertexCount++] = { x, y + h, rBL, gBL, bBL, aBL, 0.0f, 1.0f };
 
-#if IMMEDIATE_MODE_2D
-	FlushRectFills();
-#else
-	if ( immediateFlush )
+	if ( m_immediateModeEnabled || immediateFlush )
 	{
 		FlushRectFills();
 	}
-#endif
 }
 
 
@@ -235,14 +215,10 @@ void Renderer2D::TriangleFill( float x1, float y1, float x2, float y2, float x3,
 	m_triangleFillVertices[m_triangleFillVertexCount++] = { x2, y2, r, g, b, a, 0.0f, 0.0f };
 	m_triangleFillVertices[m_triangleFillVertexCount++] = { x3, y3, r, g, b, a, 0.0f, 0.0f };
 
-#if IMMEDIATE_MODE_2D
-	FlushTriangleFills();
-#else
-	if ( immediateFlush )
+	if ( m_immediateModeEnabled || immediateFlush )
 	{
 		FlushTriangleFills();
 	}
-#endif
 }
 
 

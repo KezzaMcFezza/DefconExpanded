@@ -6,8 +6,6 @@
 // Set to 1 to disable batching and flush after every draw call
 // Set to 0 to enable batching
 
-#define IMMEDIATE_MODE_2D 0
-
 #include "lib/render/renderer.h"
 #include "lib/math/vector3.h"
 #include "lib/math/matrix4f.h"
@@ -166,6 +164,7 @@ protected:
   BufferType m_activeBuffer;
 
   bool m_batchingTextures;
+  bool m_immediateModeEnabled;
 
   virtual void InitializeShaders       () = 0;
   virtual void CacheUniformLocations   () = 0;
@@ -221,6 +220,9 @@ public:
 
   void SetTextureBatching           (bool enabled) { m_batchingTextures = enabled; }
   bool IsTextureBatchingEnabled     () const { return m_batchingTextures; }
+
+  void SetImmediateModeEnabled      (bool enabled) { m_immediateModeEnabled = enabled; }
+  bool IsImmediateModeEnabled       () const { return m_immediateModeEnabled; }
 
   //
   // Track draw calls, used in app::render()

@@ -118,16 +118,11 @@ void Renderer3D::BlitChar3D( unsigned int textureID, const Vector3<float> &posit
 	m_textVertexCount3D = batch->vertexCount;
 	m_currentTextTexture3D = batch->textureID;
 
-#if IMMEDIATE_MODE_3D
-	FlushTextBuffer3D();
-	batch->vertexCount = 0;
-#else
-	if ( immediateFlush )
+	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
 		FlushTextBuffer3D();
 		batch->vertexCount = 0;
 	}
-#endif
 }
 
 

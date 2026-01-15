@@ -66,7 +66,8 @@ Renderer3D::Renderer3D()
 	  m_circleFillVertexCount3D( 0 ),
 	  m_rectVertexCount3D( 0 ),
 	  m_rectFillVertexCount3D( 0 ),
-	  m_triangleFillVertexCount3D( 0 )
+	  m_triangleFillVertexCount3D( 0 ),
+	  m_immediateModeEnabled3D( false )
 {
 	// Initialize fog parameters
 	m_fogEnabled = false;

@@ -86,16 +86,11 @@ void Renderer2D::BlitChar( unsigned int textureID, float x, float y, float w, fl
 	m_textVertexCount = batch->vertexCount;
 	m_currentTextTexture = batch->textureID;
 
-#if IMMEDIATE_MODE_2D
-	FlushTextBuffer();
-	batch->vertexCount = 0;
-#else
-	if ( immediateFlush )
+	if ( m_immediateModeEnabled || immediateFlush )
 	{
 		FlushTextBuffer();
 		batch->vertexCount = 0;
 	}
-#endif
 }
 
 

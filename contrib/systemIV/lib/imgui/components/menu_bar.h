@@ -29,6 +29,9 @@ public:
     
     void SetWindowReinitCallback(MenuBarCallback callback) { m_windowReinitCallback = callback; }
     void ReregisterWindows();
+
+    bool GetImmediateMode2D() const { return m_immediateMode2D; }
+    bool GetImmediateMode3D() const { return m_immediateMode3D; }
 };
 
 #endif // IMGUI_MENU_BAR_H

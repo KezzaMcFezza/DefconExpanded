@@ -44,14 +44,10 @@ void Renderer2D::StaticSprite( Image *src, float x, float y, float w, float h, C
 	m_staticSpriteVertices[m_staticSpriteVertexCount++] = { x + w, y + h, r, g, b, a, u2, v1 };
 	m_staticSpriteVertices[m_staticSpriteVertexCount++] = { x, y + h, r, g, b, a, u1, v1 };
 
-#if IMMEDIATE_MODE_2D
-	FlushStaticSprites();
-#else
-	if ( immediateFlush )
+	if ( m_immediateModeEnabled || immediateFlush )
 	{
 		FlushStaticSprites();
 	}
-#endif
 }
 
 
@@ -110,12 +106,8 @@ void Renderer2D::RotatingSprite( Image *src, float x, float y, float w, float h,
 	m_rotatingSpriteVertices[m_rotatingSpriteVertexCount++] = { vert3.x, vert3.y, r, g, b, a, u2, v1 };
 	m_rotatingSpriteVertices[m_rotatingSpriteVertexCount++] = { vert4.x, vert4.y, r, g, b, a, u1, v1 };
 
-#if IMMEDIATE_MODE_2D
-	FlushRotatingSprite();
-#else
-	if ( immediateFlush )
+	if ( m_immediateModeEnabled || immediateFlush )
 	{
 		FlushRotatingSprite();
 	}
-#endif
 }

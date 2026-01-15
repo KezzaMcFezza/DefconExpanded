@@ -11,8 +11,6 @@
 // Set to 1 to disable batching and flush after every 3D draw call
 // Set to 0 to enable batching
 
-#define IMMEDIATE_MODE_3D 0
-
 #include "lib/render/renderer.h"
 #include "lib/tosser/btree.h"
 #include "lib/tosser/llist.h"
@@ -210,6 +208,8 @@ protected:
     Vertex3D m_triangleFillVertices3D             [MAX_TRIANGLE_FILL_VERTICES_3D];
     int m_triangleFillVertexCount3D;
     
+    bool m_immediateModeEnabled3D;
+    
     void IncrementDrawCall3D         (const char* bufferType);
     void ResetFrameCounters3D        ();
     
@@ -377,6 +377,9 @@ public:
     
     void BeginFrame3D();
     void EndFrame3D();
+    
+    void SetImmediateModeEnabled3D (bool enabled) { m_immediateModeEnabled3D = enabled; }
+    bool IsImmediateModeEnabled3D  () const { return m_immediateModeEnabled3D; }
     
     int GetTotalDrawCalls           () const { return m_prevDrawCallsPerFrame3D; }
     int GetImmediateTriangleCalls   () const { return m_prevImmediateTriangleCalls3D; }

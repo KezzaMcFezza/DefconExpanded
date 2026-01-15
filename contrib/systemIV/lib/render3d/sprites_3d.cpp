@@ -64,14 +64,10 @@ void Renderer3D::StaticSprite3D( Image *src, float x, float y, float z, float w,
 		m_staticSpriteVertices3D[m_staticSpriteVertexCount3D++] = billboardVertices[i];
 	}
 
-#if IMMEDIATE_MODE_3D
-	FlushStaticSprites3D();
-#else
-	if ( immediateFlush )
+	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
 		FlushStaticSprites3D();
 	}
-#endif
 }
 
 
@@ -141,12 +137,8 @@ void Renderer3D::RotatingSprite3D( Image *src, float x, float y, float z, float 
 		m_rotatingSpriteVertices3D[m_rotatingSpriteVertexCount3D++] = billboardVertices[i];
 	}
 
-#if IMMEDIATE_MODE_3D
-	FlushRotatingSprite3D();
-#else
-	if ( immediateFlush )
+	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
 		FlushRotatingSprite3D();
 	}
-#endif
 }

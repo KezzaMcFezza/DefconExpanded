@@ -93,7 +93,8 @@ Renderer2D::Renderer2D()
 	  m_currentCircleWidth( 1.0f ),
 	  m_currentRectWidth( 1.0f ),
 	  m_activeBuffer( BUFFER_IMMEDIATE ),
-	  m_batchingTextures( true )
+	  m_batchingTextures( true ),
+	  m_immediateModeEnabled( false )
 {
 	m_currentFontBatchIndex = 0;
 	m_textVertices = m_fontBatches[0].vertices;
