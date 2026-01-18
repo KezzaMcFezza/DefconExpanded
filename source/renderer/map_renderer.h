@@ -216,6 +216,7 @@ public:
 
     void    DragCamera();
     void    MoveCam();
+    bool    IsDraggingCamera() const { return m_draggingCamera; }
 
     bool    IsOnScreen( float _longitude, float _latitude, float _expandScreen = 2.0f );
     void    RenderWhiteBoard();

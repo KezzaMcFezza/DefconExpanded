@@ -62,9 +62,6 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer.cpp">
       <Filter>lib\render</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_overlay.cpp">
-      <Filter>lib\render</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\styletable.cpp">
       <Filter>lib\render</Filter>
     </ClCompile>
@@ -368,6 +365,9 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\imgui\preferences_editor.cpp">
       <Filter>lib\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\imgui\frame_debugger.cpp">
+      <Filter>lib\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\contrib\systemIV\systemiv.h" />
@@ -411,9 +411,6 @@
       <Filter>lib\render</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer.h">
-      <Filter>lib\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_overlay.h">
       <Filter>lib\render</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\styletable.h">
@@ -750,6 +747,9 @@
       <Filter>lib\imgui\components</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\lib\imgui\preferences_editor.h">
+      <Filter>lib\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\imgui\frame_debugger.h">
       <Filter>lib\imgui</Filter>
     </ClInclude>
   </ItemGroup>

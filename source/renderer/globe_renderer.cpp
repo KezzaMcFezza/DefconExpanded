@@ -37,8 +37,6 @@
 #include "renderer/globe_renderer.h"
 #include "renderer/animated_icon.h"
 
-#include "lib/render/renderer_overlay.h"
-
 #include "world/world.h"
 #include "world/earthdata.h"
 #include "world/worldobject.h"
@@ -608,8 +606,8 @@ void GlobeRenderer::BuildCullSphereVBO()
     
     float cullRadius = GLOBE_RADIUS * GLOBE_CULL_RADIUS;
     
-    const int numLatitudeSegments = 128;
-    const int numLongitudeSegments = 128;
+    const int numLatitudeSegments = 16;
+    const int numLongitudeSegments = 16;
     
     //
     // Calculate buffer sizes: each quad = 2 triangles = 6 vertices
@@ -681,9 +679,9 @@ void GlobeRenderer::RenderCullSphere()
     g_renderer->SetColorMask(false, false, false, false);
     
     //
-    // Disable backface culling so both sides of sphere write to depth buffer
+    // Cull front faces, only render back faces
     
-    g_renderer->SetCullFace(false, 0);
+    g_renderer->SetCullFace(true, 1);
     
     g_megavbo3d->RenderTriangleMegaVBO3D("CullingSphere");
     
@@ -952,7 +950,25 @@ void GlobeRenderer::Render()
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
 
     RenderCities();
+    
+    //
+    // Disable depth testing for unit trails to prevent overlapping trails from 
+    // overriding each other. This is necessary because DirectX11 depth test 
+    // with LESS comparison rejects overlapping transparent fragments at similar 
+    // depths even with depth writes disabled
+    
+    g_renderer->SetDepthBuffer(false, false);
+
     RenderObjects();
+    
+    //
+    // Flush line batch so unit trails are rendered without depth testing
+    // Then re enable depth testing for sonar pings so they are culled by the globe
+    
+    g_renderer3d->EndLineBatch3D();
+    g_renderer->SetDepthBuffer(true, false);
+    g_renderer3d->BeginLineBatch3D();
+    
     RenderGunfire();
     RenderExplosions();
     RenderAnimations();

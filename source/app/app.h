@@ -31,10 +31,10 @@ class StatusIcon;
 class Tutorial;
 class World;
 class RecordingFileDialog;
-class RendererOverlay;
 class SoundDebugOverlay;
 class DebugConsole;
 class MenuBar;
+class FrameDebugger;
 
 extern bool g_hideUI;
 
@@ -82,10 +82,10 @@ private:
     StatusIcon			*m_statusIcon;
     Tutorial            *m_tutorial;
     NetLib              *m_netLib;
-    RendererOverlay     *m_rendererOverlay;
     SoundDebugOverlay   *m_soundOverlay;
     DebugConsole        *m_debugConsole;
     MenuBar             *m_menuBar;
+    FrameDebugger       *m_frameDebugger;
     
     bool        m_mousePointerVisible;
 

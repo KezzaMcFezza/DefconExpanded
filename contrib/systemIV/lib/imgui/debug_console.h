@@ -28,10 +28,14 @@ public:
     DebugConsole();
     ~DebugConsole();
     
+    void Init() override;
+    void Shutdown() override;
+    void Update() override;
+    
     void Clear();
     void AddLog(const char* fmt, ...);
     
-    void Draw() override;
+    void Render() override;
     bool IsOpen() const override { return m_isOpen; }
     
     void SetOpen(bool open) { m_isOpen = open; }

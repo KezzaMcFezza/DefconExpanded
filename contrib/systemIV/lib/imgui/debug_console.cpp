@@ -41,10 +41,27 @@ DebugConsole::DebugConsole()
 
 DebugConsole::~DebugConsole()
 {
+	Shutdown();
+
 	if ( s_debugConsoleInstance == this )
 	{
 		s_debugConsoleInstance = nullptr;
 	}
+}
+
+
+void DebugConsole::Init()
+{
+}
+
+
+void DebugConsole::Shutdown()
+{
+}
+
+
+void DebugConsole::Update()
+{
 }
 
 
@@ -102,13 +119,10 @@ void DebugConsole::AddLog( const char *fmt, ... )
 }
 
 
-void DebugConsole::Draw()
+void DebugConsole::Render()
 {
 	if ( !m_isOpen )
 		return;
-
-	//
-	// Load window
 
 	Window();
 
@@ -204,22 +218,11 @@ void DebugConsole::Draw()
 
 void DebugConsole::Window()
 {
-	if ( !g_windowManager )
-		return;
-
-	float viewportWidth = (float)g_windowManager->WindowW();
-	float viewportHeight = (float)g_windowManager->WindowH();
-
-	//
-	// Calculate window position and size based on viewport
-
-	float x = viewportWidth * ( DEBUG_CONSOLE_DEFAULT_X_PERCENT / 100.0f );
-	float y = viewportHeight * ( DEBUG_CONSOLE_DEFAULT_Y_PERCENT / 100.0f );
-	float width = viewportWidth * ( DEBUG_CONSOLE_DEFAULT_WIDTH_PERCENT / 100.0f );
-	float height = viewportHeight * ( DEBUG_CONSOLE_DEFAULT_HEIGHT_PERCENT / 100.0f );
-
-	ImGui::SetNextWindowPos( ImVec2( x, y ), ImGuiCond_FirstUseEver );
-	ImGui::SetNextWindowSize( ImVec2( width, height ), ImGuiCond_FirstUseEver );
+	ImGuiSetWindowLayout(
+		DEBUG_CONSOLE_DEFAULT_X_PERCENT,
+		DEBUG_CONSOLE_DEFAULT_Y_PERCENT,
+		DEBUG_CONSOLE_DEFAULT_WIDTH_PERCENT,
+		DEBUG_CONSOLE_DEFAULT_HEIGHT_PERCENT );
 }
 
 

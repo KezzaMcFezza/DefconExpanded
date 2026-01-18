@@ -6,15 +6,12 @@
 #include "imgui-1.92.5/imgui.h"
 #include "menu_bar.h"
 #include "lib/imgui/debug_console.h"
+#include "lib/imgui/frame_debugger.h"
 #include "lib/imgui/preferences_editor.h"
-#include "lib/render2d/renderer_2d.h"
-#include "lib/render3d/renderer_3d.h"
 
 MenuBar::MenuBar()
 	: m_isOpen( false ),
 	  m_preferencesEdit( NULL ),
-	  m_immediateMode2D( false ),
-	  m_immediateMode3D( false ),
 	  m_frameDebugger( false ),
 	  m_windowReinitCallback( NULL )
 {
@@ -44,7 +41,7 @@ void MenuBar::ReregisterWindows()
 }
 
 
-void MenuBar::Draw()
+void MenuBar::Render()
 {
 	if ( !m_isOpen )
 		return;
@@ -115,31 +112,13 @@ void MenuBar::Draw()
 
 		if ( ImGui::BeginMenu( "Rendering" ) )
 		{
-			if ( ImGui::MenuItem( "Immediate Mode 2D", NULL, &m_immediateMode2D ) )
+			if ( ImGui::MenuItem( "Frame Debugger", "F2" ) )
 			{
-				AppDebugOut( "Immediate Mode 2D: %s\n", m_immediateMode2D ? "enabled" : "disabled" );
-
-				if ( g_renderer2d )
+				FrameDebugger *frameDebugger = FrameDebugger::GetInstance();
+				if ( frameDebugger )
 				{
-					g_renderer2d->SetImmediateModeEnabled( m_immediateMode2D );
+					frameDebugger->Toggle();
 				}
-			}
-
-			if ( ImGui::MenuItem( "Immediate Mode 3D", NULL, &m_immediateMode3D ) )
-			{
-				AppDebugOut( "Immediate Mode 3D: %s\n", m_immediateMode3D ? "enabled" : "disabled" );
-
-				if ( g_renderer3d )
-				{
-					g_renderer3d->SetImmediateModeEnabled3D( m_immediateMode3D );
-				}
-			}
-
-			ImGui::Separator();
-
-			if ( ImGui::MenuItem( "Frame Debugger", NULL, &m_frameDebugger ) )
-			{
-				AppDebugOut( "Frame Debugger: %s\n", m_frameDebugger ? "enabled" : "disabled" );
 			}
 
 			ImGui::EndMenu();

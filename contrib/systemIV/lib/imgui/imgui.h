@@ -6,13 +6,23 @@
 
 //
 // Percentages of viewport
-// This means the console has the same layout and position 
+// This means windows have the same layout and position 
 // no matter the users resolution or aspect ratio.
 
-#define DEBUG_CONSOLE_DEFAULT_X_PERCENT      37.3f
-#define DEBUG_CONSOLE_DEFAULT_Y_PERCENT      2.7f
-#define DEBUG_CONSOLE_DEFAULT_WIDTH_PERCENT  61.6f
-#define DEBUG_CONSOLE_DEFAULT_HEIGHT_PERCENT 74.7f
+#define DEBUG_CONSOLE_DEFAULT_X_PERCENT           37.3f
+#define DEBUG_CONSOLE_DEFAULT_Y_PERCENT           2.7f
+#define DEBUG_CONSOLE_DEFAULT_WIDTH_PERCENT       61.6f
+#define DEBUG_CONSOLE_DEFAULT_HEIGHT_PERCENT      74.7f
+
+#define FRAME_DEBUGGER_DEFAULT_X_PERCENT          1.0f
+#define FRAME_DEBUGGER_DEFAULT_Y_PERCENT          2.7f
+#define FRAME_DEBUGGER_DEFAULT_WIDTH_PERCENT      20.2f
+#define FRAME_DEBUGGER_DEFAULT_HEIGHT_PERCENT     45.0f
+
+#define PREFERENCES_EDITOR_DEFAULT_X_PERCENT      37.3f
+#define PREFERENCES_EDITOR_DEFAULT_Y_PERCENT      2.7f
+#define PREFERENCES_EDITOR_DEFAULT_WIDTH_PERCENT  61.6f
+#define PREFERENCES_EDITOR_DEFAULT_HEIGHT_PERCENT 74.7f
 
 #define SIZE_IMGUI_WINDOW_NAME 256
 
@@ -26,7 +36,11 @@ public:
     
     void SetName(const char* name);
     
-    virtual void Draw() = 0;
+    virtual void Init() {}
+    virtual void Shutdown() {}
+    virtual void Update() {}
+    
+    virtual void Render() = 0;
     virtual bool IsOpen() const = 0;
 };
 
@@ -51,6 +65,7 @@ public:
     
     bool Initialize();
     void Shutdown();
+    void Update();
     void Render();
     
     bool IsInitialized() const { return m_initialized; }
@@ -63,9 +78,14 @@ void ImGuiRemoveWindow    (const char* name);
 
 void ImGuiRemoveAllWindows();
 
+void ImGuiUpdate();
+void ImGuiRender();
+
 ImGuiWindowBase         *ImGuiGetWindow(const char* name);
 LList<ImGuiWindowBase*> *ImGuiGetWindows();
 
 bool ImGuiWantsMouse();
+void ImGuiHandleWindowResize();
+void ImGuiSetWindowLayout(float xPercent, float yPercent, float widthPercent, float heightPercent);
 
 #endif // INCLUDED_IMGUI_H

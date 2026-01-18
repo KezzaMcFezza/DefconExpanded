@@ -673,7 +673,6 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/linestrips_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/triangles_3d.cpp
     ${SYSTEMIV_PATH}/lib/render3d/megavbo/instancing_3d.cpp
-    ${SYSTEMIV_PATH}/lib/render/renderer_overlay.cpp
     ${SYSTEMIV_PATH}/lib/render/styletable.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmap.cpp
     ${SYSTEMIV_PATH}/lib/resource/bitmapfont.cpp
@@ -704,6 +703,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/debug/profiler.cpp
     ${SYSTEMIV_PATH}/lib/debug/debug_utils.cpp
     ${SYSTEMIV_PATH}/lib/imgui/imgui.cpp
+    ${SYSTEMIV_PATH}/lib/imgui/frame_debugger.cpp
     ${SYSTEMIV_PATH}/lib/imgui/debug_console.cpp
     ${SYSTEMIV_PATH}/lib/imgui/preferences_editor.cpp
     ${SYSTEMIV_PATH}/lib/imgui/components/menu_bar.cpp

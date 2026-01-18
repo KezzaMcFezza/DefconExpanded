@@ -16,7 +16,7 @@ public:
     TextEditor();
     ~TextEditor();
     
-    void Draw() override;
+    void Render() override;
     bool IsOpen() const override { return m_isOpen; }
     
     void SetOpen(bool open) { m_isOpen = open; }

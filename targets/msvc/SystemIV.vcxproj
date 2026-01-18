@@ -248,6 +248,7 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\imgui\components\menu_bar.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\imgui\components\text_editor.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\imgui\debug_console.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\imgui\frame_debugger.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\imgui\imgui.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\imgui\preferences_editor.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\language_table.cpp" />
@@ -303,7 +304,6 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_d3d11.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_opengl.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_overlay.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\styletable.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmap.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.cpp" />
@@ -368,6 +368,7 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\imgui\components\menu_bar.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\imgui\components\text_editor.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\imgui\debug_console.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\imgui\frame_debugger.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\imgui\imgui.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\imgui\preferences_editor.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\language_table.h" />
@@ -426,7 +427,6 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_d3d11.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_opengl.h" />
-    <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_overlay.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\styletable.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmap.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\resource\bitmapfont.h" />

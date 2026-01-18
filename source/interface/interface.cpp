@@ -18,6 +18,7 @@
 #include "lib/metaserver/matchmaker.h"
 #include "lib/metaserver/metaserver.h"
 #include "lib/render/styletable.h"
+#include "lib/imgui/imgui.h"
 
 #include "network/Server.h"
 #include "network/network_defines.h"
@@ -30,6 +31,7 @@
 
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
+#include "renderer/globe_renderer.h"
 
 #include "world/world.h"
 
@@ -328,6 +330,11 @@ void Interface::Update()
     EclUpdate();
     END_PROFILE( "EclUpdate" );
     
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)
+    START_PROFILE( "ImGuiUpdate" );
+    ImGuiUpdate();
+    END_PROFILE( "ImGuiUpdate" );
+#endif
     
 
     //
@@ -783,6 +790,70 @@ void Interface::Render()
     g_renderer2d->EndTextBatch();
 }
 
+
+bool Interface::IsCameraDragging() const
+{
+    if( g_app->m_gameRunning )
+    {
+        if( g_app->IsGlobeMode() )
+        {
+            GlobeRenderer *globeRenderer = g_app->GetGlobeRenderer();
+            if( globeRenderer && globeRenderer->IsDraggingCamera() )
+            {
+                return true;
+            }
+        }
+        else
+        {
+            MapRenderer *mapRenderer = g_app->GetMapRenderer();
+            if( mapRenderer && mapRenderer->IsDraggingCamera() )
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void Interface::UpdateMousePointerVisibility()
+{
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)
+    
+    //
+    // If camera is being dragged, hide game cursor. The OS cursor 
+    // is already hidden by renderer. If ImGui wants the mouse, show 
+    // OS cursor and hide game cursor Otherwise, show game cursor and 
+    // hide OS cursor.
+    
+    bool cameraDragging = IsCameraDragging();
+    bool imguiWantsMouse = ImGuiWantsMouse();
+    
+    //
+    // Game cursor is always hidden when dragging
+    
+    if( cameraDragging )
+    {
+        g_app->SetMousePointerVisible( false );
+    }
+    else if( imguiWantsMouse )
+    {
+        g_app->SetMousePointerVisible( false );
+    }
+    else
+    {
+        g_app->SetMousePointerVisible( true );
+    }
+    
+    if( imguiWantsMouse )
+    {
+        g_windowManager->UnhideMousePointer();
+    }
+    else
+    {
+        g_windowManager->HideMousePointer();
+    }
+#endif
+}
 
 void Interface::RenderMouse()
 {

@@ -154,7 +154,7 @@ void TextEditor::Close()
 }
 
 
-void TextEditor::Draw()
+void TextEditor::Render()
 {
 	if ( !m_isOpen || !m_textBuffer )
 		return;
@@ -162,8 +162,6 @@ void TextEditor::Draw()
 	char windowTitle[256];
 	snprintf( windowTitle, sizeof( windowTitle ), "Text Editor - %s%s###TextEditor",
 			  m_filePath, m_modified ? " *" : "" );
-
-	ImGui::SetNextWindowSize( ImVec2( 800, 600 ), ImGuiCond_FirstUseEver );
 
 	if ( ImGui::Begin( windowTitle, &m_isOpen, ImGuiWindowFlags_MenuBar ) )
 	{

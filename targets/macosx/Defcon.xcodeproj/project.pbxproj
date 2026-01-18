@@ -43,7 +43,6 @@
 		052BA0092F0FBBB9005D1852 /* triangles_3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 052BA0052F0FBBB9005D1852 /* triangles_3d.cpp */; };
 		052BA00A2F0FBBB9005D1852 /* instancing_3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 052BA0002F0FBBB9005D1852 /* instancing_3d.cpp */; };
 		052BA00B2F0FBBB9005D1852 /* linestrips_3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 052BA0012F0FBBB9005D1852 /* linestrips_3d.cpp */; };
-		052BA00E2F0FBC7E005D1852 /* renderer_overlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 052BA00D2F0FBC7E005D1852 /* renderer_overlay.cpp */; };
 		052BA0182F0FBE21005D1852 /* model_loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 052BA0142F0FBE21005D1852 /* model_loader.cpp */; };
 		052BA0192F0FBE21005D1852 /* model_material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 052BA0162F0FBE21005D1852 /* model_material.cpp */; };
 		052BA01A2F0FBE21005D1852 /* model_builder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 052BA0122F0FBE21005D1852 /* model_builder.cpp */; };
@@ -372,8 +371,7 @@
 		052BA0032F0FBBB9005D1852 /* megavbo_3d.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = megavbo_3d.cpp; sourceTree = "<group>"; };
 		052BA0042F0FBBB9005D1852 /* quads_3d.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = quads_3d.cpp; sourceTree = "<group>"; };
 		052BA0052F0FBBB9005D1852 /* triangles_3d.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = triangles_3d.cpp; sourceTree = "<group>"; };
-		052BA00C2F0FBC7E005D1852 /* renderer_overlay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = renderer_overlay.h; sourceTree = "<group>"; };
-		052BA00D2F0FBC7E005D1852 /* renderer_overlay.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = renderer_overlay.cpp; sourceTree = "<group>"; };
+/* removed renderer_overlay files */
 		052BA00F2F0FBE21005D1852 /* model.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = model.h; sourceTree = "<group>"; };
 		052BA0102F0FBE21005D1852 /* model.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = model.cpp; sourceTree = "<group>"; };
 		052BA0112F0FBE21005D1852 /* model_builder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = model_builder.h; sourceTree = "<group>"; };
@@ -1029,8 +1027,6 @@
 				052BA0622F0FC248005D1852 /* renderer_opengl.cpp */,
 				052BA05E2F0FC1FF005D1852 /* renderer.h */,
 				052BA05F2F0FC1FF005D1852 /* renderer.cpp */,
-				052BA00C2F0FBC7E005D1852 /* renderer_overlay.h */,
-				052BA00D2F0FBC7E005D1852 /* renderer_overlay.cpp */,
 				49E968821344C89A00746827 /* colour.cpp */,
 				49E968841344C89A00746827 /* styletable.cpp */,
 			);
@@ -1810,7 +1806,6 @@
 				052B9FDB2F0FB63E005D1852 /* spawn.cpp in Sources */,
 				052B9FDC2F0FB63E005D1852 /* multiline_text.cpp in Sources */,
 				DFFBC5301486970600C1034F /* random_object.cpp in Sources */,
-				052BA00E2F0FBC7E005D1852 /* renderer_overlay.cpp in Sources */,
 				DFFBC54B14869A2900C1034F /* curves.cpp in Sources */,
 				05DE20BD1F17B17B006D72FE /* recordingparser.cpp in Sources */,
 				052BA06A2F0FC2AE005D1852 /* tiny_gltf.cc in Sources */,

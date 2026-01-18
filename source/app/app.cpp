@@ -18,11 +18,11 @@
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render/styletable.h"
-#include "lib/render/renderer_overlay.h"
 #include "lib/imgui/imgui.h"
 #include "lib/debug/debug_utils.h"
 #include "lib/imgui/debug_console.h"
 #include "lib/imgui/components/menu_bar.h"
+#include "lib/imgui/frame_debugger.h"
 #include "lib/debug/profiler.h"
 #include "lib/hi_res_time.h"
 #include "lib/language_table.h"
@@ -151,7 +151,6 @@ App::App()
     m_currentFrames(0),
     m_framesPerSecond(0),
     m_frameCountTimer(1.0f),
-    m_rendererOverlay(NULL),
 #if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)  
     m_soundOverlay(NULL), 
     m_debugConsole(NULL),
@@ -193,11 +192,11 @@ App::~App()
 #ifdef TOGGLE_SOUND
 	delete g_soundSystem;
 #endif
-	delete m_rendererOverlay;
-	delete m_soundOverlay;
+    delete m_soundOverlay;
 	delete m_debugConsole;
 #if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)   
 	delete m_menuBar;
+	delete m_frameDebugger;
 #endif
 }
 
@@ -491,8 +490,6 @@ void App::MinimalInit()
     
     g_resource->InitializeAtlases();
 
-    m_rendererOverlay = new RendererOverlay();
-
     delete m_soundOverlay;
     m_soundOverlay = new SoundDebugOverlay();
 
@@ -516,6 +513,7 @@ void App::MinimalInit()
 
     m_debugConsole = new DebugConsole();
     m_menuBar = new MenuBar();
+    m_frameDebugger = new FrameDebugger();
 #endif
 }
 
@@ -572,8 +570,17 @@ void App::FinishInit()
     m_interface->Init();
 
 #if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)   
-    ImGuiRegisterWindow(m_debugConsole);
     ImGuiRegisterWindow(m_menuBar);
+    
+    if (m_debugConsole)
+    {
+        ImGuiRegisterWindow(m_debugConsole);
+    }
+    
+    if (m_frameDebugger)
+    {
+        ImGuiRegisterWindow(m_frameDebugger);
+    }
     
     if (m_menuBar)
     {
@@ -969,10 +976,7 @@ void App::ReinitialiseWindow()
     g_resource->Restart();
     
     InitFonts();
-
-    delete m_rendererOverlay;
-    m_rendererOverlay = new RendererOverlay();
-
+    
     delete m_soundOverlay;
     m_soundOverlay = new SoundDebugOverlay();
 
@@ -991,6 +995,11 @@ void App::ReinitialiseWindow()
         ImGuiRegisterWindow(m_menuBar);
         m_menuBar->SetWindowReinitCallback([]() { if (g_app) g_app->RequestWindowReinit(); });
         m_menuBar->ReregisterWindows();
+    }
+
+    if (m_frameDebugger)
+    {
+        ImGuiRegisterWindow(m_frameDebugger);
     }
 #endif
 
@@ -1021,6 +1030,10 @@ void App::OnWindowResized(int newWidth, int newHeight, int oldWidth, int oldHeig
         g_renderer->HandleWindowResize();
     }
 
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)
+    ImGuiHandleWindowResize();
+#endif
+
     if (m_interface)
     {
         m_interface->HandleWindowResize(newWidth, newHeight, oldWidth, oldHeight);
@@ -1032,7 +1045,7 @@ void App::Update()
 {  
 
     //
-    // F1 toggles FPS counter only
+    // F1 toggles FPS counter
 
     if( g_keys[KEY_F1] && g_keyDeltas[KEY_F1] ) m_showFps = !m_showFps;
     
@@ -1041,9 +1054,18 @@ void App::Update()
 
     if( g_keys[KEY_F2] && g_keyDeltas[KEY_F2] )
     {
-        if( g_preferences && g_preferences->GetInt("DeveloperMode", 0) == 1 )
+        if( (g_preferences && g_preferences->GetInt("DeveloperMode", 0) == 1 )
+#ifdef EMSCRIPTEN_IMGUI
+            || true
+#endif
+        )
         {
             m_showRendererOverlay = !m_showRendererOverlay;
+        
+            if( m_frameDebugger )
+            {
+                m_frameDebugger->SetOpen( m_showRendererOverlay );
+            }
         }
     }
 
@@ -1057,8 +1079,6 @@ void App::Update()
             m_showSoundOverlay = !m_showSoundOverlay;
         }
     }
-
-#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)   
 
     //
     // Toggle console with ~ key
@@ -1089,7 +1109,6 @@ void App::Update()
             m_menuBar->Toggle();
         }
     }
-#endif
 
     //
     // F5 toggles profile window
@@ -1266,14 +1285,19 @@ void App::Render()
             g_renderer2d->TextSimple( 25, 25, White, 20.0f, fps );
         }
         
+#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)
+
         //
         // Show debug menu if F2 was pressed
 
-        if( m_showRendererOverlay && m_rendererOverlay )
+        if( m_showRendererOverlay )
         {
-            m_rendererOverlay->Update(lastFrame);
-            m_rendererOverlay->RenderDebugMenu();
+            if( m_frameDebugger )
+            {
+                m_frameDebugger->Update( lastFrame );
+            }
         }
+#endif
 
         //
         // Show sound overlay if F3 was pressed
@@ -1290,26 +1314,7 @@ void App::Render()
     //
     // Mouse 
 
-#if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)   
-
-    //
-    // If ImGui wants the mouse, show OS cursor and hide game cursor
-    // Otherwise show game cursor and hide OS cursor
-
-    bool imguiWantsMouse = ImGuiWantsMouse();
-    
-    if (imguiWantsMouse)
-    {
-        g_windowManager->UnhideMousePointer();
-        SetMousePointerVisible(false);
-    }
-    else
-    {
-        g_windowManager->HideMousePointer();
-        SetMousePointerVisible(true);
-    }
-#endif
-    
+    GetInterface()->UpdateMousePointerVisibility();
     GetInterface()->RenderMouse();
    
 #ifdef SHOW_OWNER
@@ -1321,14 +1326,9 @@ void App::Render()
     //
     // ImGui rendering
 
-    START_PROFILE( "ImGUI" );
-
-    if( g_imguiManager && g_imguiManager->IsInitialized() ) 
-    {
-        g_imguiManager->Render();
-    }
-    
-    END_PROFILE( "ImGUI" );
+    START_PROFILE( "ImGuiRender" );
+    ImGuiRender();
+    END_PROFILE( "ImGuiRender" );
 #endif
 
     g_renderer->End2DRendering();

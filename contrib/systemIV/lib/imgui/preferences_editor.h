@@ -10,11 +10,17 @@ class PreferencesEdit : public ImGuiWindowBase
 private:
     TextEditor* m_textEditor;
     
+    void Window();
+    
 public:
     PreferencesEdit();
     ~PreferencesEdit();
     
-    void Draw() override;
+    void Init() override;
+    void Shutdown() override;
+    void Update() override;
+    
+    void Render() override;
     bool IsOpen() const override;
     
     void Open();

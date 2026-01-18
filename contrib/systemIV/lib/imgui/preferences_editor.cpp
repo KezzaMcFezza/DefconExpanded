@@ -9,23 +9,59 @@ PreferencesEdit::PreferencesEdit()
 	: m_textEditor( NULL )
 {
 	SetName( "Preferences Editor" );
-	m_textEditor = new TextEditor();
 }
 
 
 PreferencesEdit::~PreferencesEdit()
 {
-	delete m_textEditor;
-	m_textEditor = NULL;
+	Shutdown();
 }
 
 
-void PreferencesEdit::Draw()
+void PreferencesEdit::Init()
+{
+	if ( !m_textEditor )
+	{
+		m_textEditor = new TextEditor();
+	}
+}
+
+
+void PreferencesEdit::Shutdown()
 {
 	if ( m_textEditor )
 	{
-		m_textEditor->Draw();
+		delete m_textEditor;
+		m_textEditor = NULL;
 	}
+}
+
+
+void PreferencesEdit::Update()
+{
+}
+
+
+void PreferencesEdit::Window()
+{
+	ImGuiSetWindowLayout(
+		PREFERENCES_EDITOR_DEFAULT_X_PERCENT,
+		PREFERENCES_EDITOR_DEFAULT_Y_PERCENT,
+		PREFERENCES_EDITOR_DEFAULT_WIDTH_PERCENT,
+		PREFERENCES_EDITOR_DEFAULT_HEIGHT_PERCENT );
+}
+
+
+void PreferencesEdit::Render()
+{
+	if ( !IsOpen() )
+		return;
+
+	if ( !m_textEditor )
+		return;
+
+	Window();
+	m_textEditor->Render();
 }
 
 

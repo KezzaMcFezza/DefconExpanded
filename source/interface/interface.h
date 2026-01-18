@@ -65,6 +65,9 @@ public:
     void ShowMessage( Fixed longitude, Fixed latitude, int teamId, const char *msg, bool showLarge=false );
 
 	void SetMouseCursor( const char *filename = NULL );
+	
+	bool IsCameraDragging() const;
+	void UpdateMousePointerVisibility();
 };
 
 void TruncateText(char *dest, const char *src, int maxLength, int suffixLength = 0);

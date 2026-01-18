@@ -19,6 +19,7 @@
 #include "imgui.h"
 
 ImGuiManager *g_imguiManager = nullptr;
+static bool s_windowWasResized = false;
 
 void ImGuiWindowBase::SetName( const char *name )
 {
@@ -255,7 +256,7 @@ void ImGuiManager::Render()
 		ImGuiWindowBase *window = m_windows.GetData( i );
 		if ( window && window->IsOpen() )
 		{
-			window->Draw();
+			window->Render();
 		}
 	}
 
@@ -294,6 +295,27 @@ void ImGuiManager::Render()
 	{
 		SDL_StopTextInput();
 	}
+
+	s_windowWasResized = false;
+}
+
+
+void ImGuiManager::Update()
+{
+	if ( !m_initialized )
+		return;
+
+	//
+	// Update all registered windows
+
+	for ( int i = 0; i < m_windows.Size(); ++i )
+	{
+		ImGuiWindowBase *window = m_windows.GetData( i );
+		if ( window )
+		{
+			window->Update();
+		}
+	}
 }
 
 
@@ -324,6 +346,8 @@ void ImGuiRegisterWindow( ImGuiWindowBase *window )
 	}
 
 	g_imguiManager->m_windows.PutData( window );
+
+	window->Init();
 }
 
 
@@ -337,6 +361,8 @@ void ImGuiRemoveWindow( const char *name )
 		ImGuiWindowBase *window = g_imguiManager->m_windows.GetData( i );
 		if ( window && strcmp( window->m_name, name ) == 0 )
 		{
+
+			window->Shutdown();
 			g_imguiManager->m_windows.RemoveData( i );
 			return;
 		}
@@ -351,7 +377,34 @@ void ImGuiRemoveAllWindows()
 	if ( !g_imguiManager )
 		return;
 
+	for ( int i = 0; i < g_imguiManager->m_windows.Size(); ++i )
+	{
+		ImGuiWindowBase *window = g_imguiManager->m_windows.GetData( i );
+		if ( window )
+		{
+			window->Shutdown();
+		}
+	}
+
 	g_imguiManager->m_windows.Empty();
+}
+
+
+void ImGuiUpdate()
+{
+	if ( g_imguiManager && g_imguiManager->IsInitialized() )
+	{
+		g_imguiManager->Update();
+	}
+}
+
+
+void ImGuiRender()
+{
+	if ( g_imguiManager && g_imguiManager->IsInitialized() )
+	{
+		g_imguiManager->Render();
+	}
 }
 
 
@@ -397,4 +450,33 @@ bool ImGuiWantsMouse()
 	}
 
 	return false;
+}
+
+
+void ImGuiHandleWindowResize()
+{
+	s_windowWasResized = true;
+}
+
+
+void ImGuiSetWindowLayout( float xPercent, float yPercent, float widthPercent, float heightPercent )
+{
+	if ( !g_windowManager )
+		return;
+
+	float viewportWidth = (float)g_windowManager->WindowW();
+	float viewportHeight = (float)g_windowManager->WindowH();
+
+	float x = viewportWidth * ( xPercent / 100.0f );
+	float y = viewportHeight * ( yPercent / 100.0f );
+	float width = viewportWidth * ( widthPercent / 100.0f );
+	float height = viewportHeight * ( heightPercent / 100.0f );
+
+	//
+	// If window was resized reposition immediately otherwise only on first use
+
+	int condition = s_windowWasResized ? ImGuiCond_Always : ImGuiCond_FirstUseEver;
+
+	ImGui::SetNextWindowPos( ImVec2( x, y ), condition );
+	ImGui::SetNextWindowSize( ImVec2( width, height ), condition );
 }
