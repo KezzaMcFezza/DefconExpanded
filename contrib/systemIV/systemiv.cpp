@@ -172,6 +172,8 @@ void RelaunchApplication()
 static RendererType s_rendererType = RENDERER_TYPE_OPENGL;
 static bool s_rendererTypeSet = false;
 
+static TextureFilterMode s_defaultTextureFilterMode = TEXTURE_FILTER_MODE_LINEAR;
+
 void SetRendererType( RendererType type )
 {
 	//
@@ -246,6 +248,18 @@ const char *GetRendererTypeName( RendererType type )
 		default:
 			return "Unknown";
 	}
+}
+
+
+void SetDefaultTextureFilterMode( TextureFilterMode mode )
+{
+	s_defaultTextureFilterMode = mode;
+}
+
+
+TextureFilterMode GetDefaultTextureFilterMode()
+{
+	return s_defaultTextureFilterMode;
 }
 
 

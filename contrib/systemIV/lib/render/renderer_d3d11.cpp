@@ -82,6 +82,8 @@ RendererD3D11::RendererD3D11()
 	  m_currentlyBoundRasterizerState( nullptr ),
 	  m_samplerStateLinear( nullptr ),
 	  m_samplerStateLinearMipLinear( nullptr ),
+	  m_samplerStateNearest( nullptr ),
+	  m_samplerStateNearestMipNearest( nullptr ),
 	  m_currentSamplerState( nullptr ),
 	  m_msaaRenderTarget( nullptr ),
 	  m_msaaRenderTargetView( nullptr ),
@@ -101,11 +103,19 @@ RendererD3D11::RendererD3D11()
 		m_flushTimings[i].callCount = 0;
 		m_flushTimings[i].queryObject = 0;
 		m_flushTimings[i].queryPending = false;
+		m_flushTimings[i].queryPoolSize = 0;
+		m_flushTimings[i].nextQueryIndex = 0;
 
-		m_timingQueries[i].disjointQuery = nullptr;
-		m_timingQueries[i].beginQuery = nullptr;
-		m_timingQueries[i].endQuery = nullptr;
-		m_timingQueries[i].queryPending = false;
+		m_timingQueryPools[i].poolSize = 0;
+		m_timingQueryPools[i].nextQueryIndex = 0;
+
+		for ( int q = 0; q < MAX_QUERIES_PER_TYPE_D3D11; ++q )
+		{
+			m_timingQueryPools[i].queries[q].disjointQuery = nullptr;
+			m_timingQueryPools[i].queries[q].beginQuery = nullptr;
+			m_timingQueryPools[i].queries[q].endQuery = nullptr;
+			m_timingQueryPools[i].queries[q].queryPending = false;
+		}
 	}
 
 	m_blendMode = BlendModeNormal;
@@ -131,17 +141,21 @@ RendererD3D11::~RendererD3D11()
 
 	for ( int i = 0; i < m_timingQueryCount; i++ )
 	{
-		if ( m_timingQueries[i].disjointQuery )
+		TimingQueryPool &pool = m_timingQueryPools[i];
+		for ( int q = 0; q < pool.poolSize; ++q )
 		{
-			m_timingQueries[i].disjointQuery->Release();
-		}
-		if ( m_timingQueries[i].beginQuery )
-		{
-			m_timingQueries[i].beginQuery->Release();
-		}
-		if ( m_timingQueries[i].endQuery )
-		{
-			m_timingQueries[i].endQuery->Release();
+			if ( pool.queries[q].disjointQuery )
+			{
+				pool.queries[q].disjointQuery->Release();
+			}
+			if ( pool.queries[q].beginQuery )
+			{
+				pool.queries[q].beginQuery->Release();
+			}
+			if ( pool.queries[q].endQuery )
+			{
+				pool.queries[q].endQuery->Release();
+			}
 		}
 	}
 
@@ -270,7 +284,7 @@ void RendererD3D11::CreateStateObjects()
 	D3D11_RASTERIZER_DESC rasterDesc = {};
 	rasterDesc.FillMode = D3D11_FILL_SOLID;
 	rasterDesc.CullMode = D3D11_CULL_NONE;
-	rasterDesc.FrontCounterClockwise = FALSE;
+	rasterDesc.FrontCounterClockwise = TRUE;
 	rasterDesc.DepthBias = 0;
 	rasterDesc.DepthBiasClamp = 0.0f;
 	rasterDesc.SlopeScaledDepthBias = 0.0f;
@@ -340,6 +354,22 @@ void RendererD3D11::CreateStateObjects()
 	samplerDesc.MaxAnisotropy = 1;
 	hr = m_device->CreateSamplerState( &samplerDesc, &m_samplerStateLinearMipLinear );
 	CheckHR( hr, "create linear mip linear sampler state" );
+
+	//
+	// Nearest for non mipmapped textures
+
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.MaxAnisotropy = 1;
+	hr = m_device->CreateSamplerState( &samplerDesc, &m_samplerStateNearest );
+	CheckHR( hr, "create nearest sampler state" );
+
+	//
+	// Nearest Mip Linear for mipmapped textures
+
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+	samplerDesc.MaxAnisotropy = 1;
+	hr = m_device->CreateSamplerState( &samplerDesc, &m_samplerStateNearestMipNearest );
+	CheckHR( hr, "create nearest mip linear sampler state" );
 
 	m_currentBlendState = m_blendStateNormal;
 	m_currentDepthState = m_depthStateDisabled;
@@ -437,6 +467,16 @@ void RendererD3D11::ReleaseStateObjects()
 	{
 		m_samplerStateLinearMipLinear->Release();
 		m_samplerStateLinearMipLinear = nullptr;
+	}
+	if ( m_samplerStateNearest )
+	{
+		m_samplerStateNearest->Release();
+		m_samplerStateNearest = nullptr;
+	}
+	if ( m_samplerStateNearestMipNearest )
+	{
+		m_samplerStateNearestMipNearest->Release();
+		m_samplerStateNearestMipNearest = nullptr;
 	}
 
 	if ( m_device )
@@ -974,41 +1014,34 @@ void RendererD3D11::SetTextureParameter( unsigned int pname, int param )
 	if ( !m_deviceContext )
 		return;
 
-	if ( pname == TEXTURE_MIN_FILTER || pname == GL_TEXTURE_MIN_FILTER )
+	if ( pname == TEXTURE_MIN_FILTER )
 	{
 		ID3D11SamplerState *newSampler = nullptr;
 
 		switch ( param )
 		{
 			case TEXTURE_FILTER_LINEAR_MIPMAP_LINEAR:
-			case GL_LINEAR_MIPMAP_LINEAR:
 				newSampler = m_samplerStateLinearMipLinear;
 				break;
 
 			case TEXTURE_FILTER_NEAREST_MIPMAP_LINEAR:
-			case GL_NEAREST_MIPMAP_LINEAR:
 				newSampler = m_samplerStateLinearMipLinear;
 				break;
 
 			case TEXTURE_FILTER_LINEAR_MIPMAP_NEAREST:
-			case GL_LINEAR_MIPMAP_NEAREST:
 				newSampler = m_samplerStateLinear;
 				break;
 
 			case TEXTURE_FILTER_NEAREST_MIPMAP_NEAREST:
-			case GL_NEAREST_MIPMAP_NEAREST:
-				newSampler = m_samplerStateLinear;
+				newSampler = m_samplerStateNearestMipNearest;
 				break;
 
 			case TEXTURE_FILTER_LINEAR:
-			case GL_LINEAR:
 				newSampler = m_samplerStateLinear;
 				break;
 
 			case TEXTURE_FILTER_NEAREST:
-			case GL_NEAREST:
-				// DirectX11 doesnt have a separate nearest sampler
-				newSampler = m_samplerStateLinear;
+				newSampler = m_samplerStateNearest;
 				break;
 
 			default:
@@ -1232,6 +1265,15 @@ void RendererD3D11::SetColorMask( bool r, bool g, bool b, bool a )
 }
 
 
+void RendererD3D11::SetClearColor( float r, float g, float b, float a )
+{
+	m_clearColorR = r;
+	m_clearColorG = g;
+	m_clearColorB = b;
+	m_clearColorA = a;
+}
+
+
 // ============================================================================
 // SHADER SETUP
 // ============================================================================
@@ -1410,10 +1452,15 @@ void RendererD3D11::StartFlushTiming( const char *name )
 	{
 		if ( m_flushTimings[i].name && strcmp( m_flushTimings[i].name, name ) == 0 )
 		{
-			TimingQuery &query = m_timingQueries[i];
+			TimingQueryPool &pool = m_timingQueryPools[i];
+			int queryIndex = pool.nextQueryIndex;
 
-			if ( !query.disjointQuery )
+			if ( pool.poolSize < MAX_QUERIES_PER_TYPE_D3D11 )
 			{
+				//
+				// Create new query objects
+
+				TimingQuery &query = pool.queries[pool.poolSize];
 				D3D11_QUERY_DESC desc = {};
 				desc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
 				m_device->CreateQuery( &desc, &query.disjointQuery );
@@ -1421,14 +1468,25 @@ void RendererD3D11::StartFlushTiming( const char *name )
 				desc.Query = D3D11_QUERY_TIMESTAMP;
 				m_device->CreateQuery( &desc, &query.beginQuery );
 				m_device->CreateQuery( &desc, &query.endQuery );
+
+				queryIndex = pool.poolSize;
+				pool.poolSize++;
+			}
+			else
+			{
+
+				queryIndex = pool.nextQueryIndex % MAX_QUERIES_PER_TYPE_D3D11;
 			}
 
-			if ( !query.queryPending )
-			{
-				m_deviceContext->Begin( query.disjointQuery );
-				m_deviceContext->End( query.beginQuery );
-				query.queryPending = true;
-			}
+			//
+			// Start GPU timing query
+
+			TimingQuery &query = pool.queries[queryIndex];
+			m_deviceContext->Begin( query.disjointQuery );
+			m_deviceContext->End( query.beginQuery );
+			query.queryPending = true;
+
+			pool.nextQueryIndex = ( queryIndex + 1 ) % MAX_QUERIES_PER_TYPE_D3D11;
 			return;
 		}
 	}
@@ -1439,7 +1497,7 @@ void RendererD3D11::StartFlushTiming( const char *name )
 	if ( m_flushTimingCount < MAX_FLUSH_TYPES )
 	{
 		FlushTiming *timing = &m_flushTimings[m_flushTimingCount];
-		TimingQuery &query = m_timingQueries[m_flushTimingCount];
+		TimingQueryPool &pool = m_timingQueryPools[m_flushTimingCount];
 
 		timing->name = name;
 		timing->totalTime = 0.0;
@@ -1447,7 +1505,13 @@ void RendererD3D11::StartFlushTiming( const char *name )
 		timing->callCount = 0;
 		timing->queryObject = 0;
 		timing->queryPending = false;
+		timing->queryPoolSize = 0;
+		timing->nextQueryIndex = 0;
 
+		pool.poolSize = 0;
+		pool.nextQueryIndex = 0;
+
+		TimingQuery &query = pool.queries[0];
 		D3D11_QUERY_DESC desc = {};
 		desc.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
 		m_device->CreateQuery( &desc, &query.disjointQuery );
@@ -1459,6 +1523,9 @@ void RendererD3D11::StartFlushTiming( const char *name )
 		m_deviceContext->Begin( query.disjointQuery );
 		m_deviceContext->End( query.beginQuery );
 		query.queryPending = true;
+
+		pool.poolSize = 1;
+		pool.nextQueryIndex = 1;
 
 		m_flushTimingCount++;
 		m_timingQueryCount++;
@@ -1477,13 +1544,25 @@ void RendererD3D11::EndFlushTiming( const char *name )
 	{
 		if ( m_flushTimings[i].name && strcmp( m_flushTimings[i].name, name ) == 0 )
 		{
-			TimingQuery &query = m_timingQueries[i];
+			TimingQueryPool &pool = m_timingQueryPools[i];
 
-			if ( query.queryPending )
+			//
+			// End the most recently started query
+
+			int queryIndex = ( pool.nextQueryIndex - 1 + MAX_QUERIES_PER_TYPE_D3D11 ) % MAX_QUERIES_PER_TYPE_D3D11;
+			if ( queryIndex < 0 || queryIndex >= pool.poolSize )
+				queryIndex = pool.poolSize - 1;
+
+			if ( queryIndex >= 0 && queryIndex < pool.poolSize )
 			{
-				m_deviceContext->End( query.endQuery );
-				m_deviceContext->End( query.disjointQuery );
-				query.queryPending = false;
+				TimingQuery &query = pool.queries[queryIndex];
+
+				if ( query.queryPending )
+				{
+					m_deviceContext->End( query.endQuery );
+					m_deviceContext->End( query.disjointQuery );
+					query.queryPending = false;
+				}
 			}
 
 			m_flushTimings[i].totalTime += cpuTime;
@@ -1499,23 +1578,31 @@ void RendererD3D11::UpdateGpuTimings()
 	if ( !m_deviceContext )
 		return;
 
+	//
+	// Check all queries in all pools
+
 	for ( int i = 0; i < m_timingQueryCount; i++ )
 	{
-		TimingQuery &query = m_timingQueries[i];
+		TimingQueryPool &pool = m_timingQueryPools[i];
 
-		if ( !query.queryPending && query.disjointQuery && query.beginQuery && query.endQuery )
+		for ( int q = 0; q < pool.poolSize; q++ )
 		{
-			D3D11_QUERY_DATA_TIMESTAMP_DISJOINT disjointData;
-			if ( m_deviceContext->GetData( query.disjointQuery, &disjointData, sizeof( disjointData ), 0 ) == S_OK )
+			TimingQuery &query = pool.queries[q];
+
+			if ( !query.queryPending && query.disjointQuery && query.beginQuery && query.endQuery )
 			{
-				if ( !disjointData.Disjoint )
+				D3D11_QUERY_DATA_TIMESTAMP_DISJOINT disjointData;
+				if ( m_deviceContext->GetData( query.disjointQuery, &disjointData, sizeof( disjointData ), 0 ) == S_OK )
 				{
-					UINT64 beginTime, endTime;
-					if ( m_deviceContext->GetData( query.beginQuery, &beginTime, sizeof( beginTime ), 0 ) == S_OK &&
-						 m_deviceContext->GetData( query.endQuery, &endTime, sizeof( endTime ), 0 ) == S_OK )
+					if ( !disjointData.Disjoint )
 					{
-						double gpuTime = ( endTime - beginTime ) / (double)disjointData.Frequency * 1000.0; // Convert to milliseconds
-						m_flushTimings[i].totalGpuTime += gpuTime;
+						UINT64 beginTime, endTime;
+						if ( m_deviceContext->GetData( query.beginQuery, &beginTime, sizeof( beginTime ), 0 ) == S_OK &&
+							 m_deviceContext->GetData( query.endQuery, &endTime, sizeof( endTime ), 0 ) == S_OK )
+						{
+							double gpuTime = ( endTime - beginTime ) / (double)disjointData.Frequency * 1000.0;
+							m_flushTimings[i].totalGpuTime += gpuTime;
+						}
 					}
 				}
 			}
@@ -1703,7 +1790,7 @@ void RendererD3D11::ClearScreen( bool colour, bool depth )
 
 	if ( colour && renderTarget )
 	{
-		float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		float clearColor[4] = { m_clearColorR, m_clearColorG, m_clearColorB, m_clearColorA };
 		m_deviceContext->ClearRenderTargetView( renderTarget, clearColor );
 	}
 
@@ -2179,9 +2266,30 @@ unsigned int RendererD3D11::CreateTexture( int width, int height, const Colour *
 	{
 		m_deviceContext->GenerateMips( srv );
 
-		if ( m_samplerStateLinearMipLinear && m_currentSamplerState != m_samplerStateLinearMipLinear )
+		TextureFilterMode filterMode = GetDefaultTextureFilterMode();
+		ID3D11SamplerState *targetSampler = ( filterMode == TEXTURE_FILTER_MODE_NEAREST )
+												? m_samplerStateNearestMipNearest
+												: m_samplerStateLinearMipLinear;
+
+		if ( targetSampler && m_currentSamplerState != targetSampler )
 		{
-			m_currentSamplerState = m_samplerStateLinearMipLinear;
+			m_currentSamplerState = targetSampler;
+			if ( m_deviceContext )
+			{
+				m_deviceContext->PSSetSamplers( 0, 1, &m_currentSamplerState );
+			}
+		}
+	}
+	else
+	{
+		TextureFilterMode filterMode = GetDefaultTextureFilterMode();
+		ID3D11SamplerState *targetSampler = ( filterMode == TEXTURE_FILTER_MODE_NEAREST )
+												? m_samplerStateNearest
+												: m_samplerStateLinear;
+
+		if ( targetSampler && m_currentSamplerState != targetSampler )
+		{
+			m_currentSamplerState = targetSampler;
 			if ( m_deviceContext )
 			{
 				m_deviceContext->PSSetSamplers( 0, 1, &m_currentSamplerState );

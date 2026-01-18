@@ -18,7 +18,7 @@ void Renderer2D::Line( float x1, float y1, float x2, float y2, Colour const &col
 
 	if ( m_lineVertexCount > 0 && m_currentLineWidth != lineWidth )
 	{
-		FlushLines();
+		FlushLines( false );
 	}
 
 #ifndef TARGET_EMSCRIPTEN
@@ -34,7 +34,7 @@ void Renderer2D::Line( float x1, float y1, float x2, float y2, Colour const &col
 
 	if ( m_immediateModeEnabled || immediateFlush )
 	{
-		FlushLines();
+		FlushLines( true );
 	}
 }
 
@@ -58,7 +58,7 @@ void Renderer2D::Circle( float x, float y, float radius, int numPoints, Colour c
 
 	if ( m_circleVertexCount > 0 && m_currentCircleWidth != lineWidth )
 	{
-		FlushCircles();
+		FlushCircles( false );
 	}
 
 #ifndef TARGET_EMSCRIPTEN
@@ -85,7 +85,7 @@ void Renderer2D::Circle( float x, float y, float radius, int numPoints, Colour c
 
 	if ( m_immediateModeEnabled || immediateFlush )
 	{
-		FlushCircles();
+		FlushCircles( true );
 	}
 }
 
@@ -114,7 +114,7 @@ void Renderer2D::CircleFill( float x, float y, float radius, int numPoints, Colo
 
 	if ( m_immediateModeEnabled || immediateFlush )
 	{
-		FlushCircleFills();
+		FlushCircleFills( true );
 	}
 }
 
@@ -125,7 +125,7 @@ void Renderer2D::Rect( float x, float y, float w, float h, Colour const &col, fl
 
 	if ( m_rectVertexCount > 0 && m_currentRectWidth != lineWidth )
 	{
-		FlushRects();
+		FlushRects( false );
 	}
 
 #ifndef TARGET_EMSCRIPTEN
@@ -154,7 +154,7 @@ void Renderer2D::Rect( float x, float y, float w, float h, Colour const &col, fl
 
 	if ( m_immediateModeEnabled || immediateFlush )
 	{
-		FlushRects();
+		FlushRects( true );
 	}
 }
 
@@ -200,7 +200,7 @@ void Renderer2D::RectFill( float x, float y, float w, float h, Colour const &col
 
 	if ( m_immediateModeEnabled || immediateFlush )
 	{
-		FlushRectFills();
+		FlushRectFills( true );
 	}
 }
 
@@ -217,7 +217,7 @@ void Renderer2D::TriangleFill( float x1, float y1, float x2, float y2, float x3,
 
 	if ( m_immediateModeEnabled || immediateFlush )
 	{
-		FlushTriangleFills();
+		FlushTriangleFills( true );
 	}
 }
 
@@ -226,7 +226,7 @@ void Renderer2D::BeginLines( Colour const &col, float lineWidth )
 {
 	if ( m_lineVertexCount > 0 && m_currentLineWidth != lineWidth )
 	{
-		FlushLines();
+		FlushLines( false );
 	}
 
 #ifndef TARGET_EMSCRIPTEN

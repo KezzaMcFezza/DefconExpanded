@@ -24,7 +24,7 @@ void Renderer2D::StaticSprite( Image *src, float x, float y, float w, float h, C
 		 m_currentStaticSpriteTexture != effectiveTextureID &&
 		 m_currentStaticSpriteTexture != 0 )
 	{
-		FlushStaticSprites();
+		FlushStaticSprites( false );
 	}
 
 	m_currentStaticSpriteTexture = effectiveTextureID;
@@ -46,7 +46,7 @@ void Renderer2D::StaticSprite( Image *src, float x, float y, float w, float h, C
 
 	if ( m_immediateModeEnabled || immediateFlush )
 	{
-		FlushStaticSprites();
+		FlushStaticSprites( true );
 	}
 }
 
@@ -69,7 +69,7 @@ void Renderer2D::RotatingSprite( Image *src, float x, float y, float w, float h,
 		 m_currentRotatingSpriteTexture != effectiveTextureID &&
 		 m_currentRotatingSpriteTexture != 0 )
 	{
-		FlushRotatingSprite();
+		FlushRotatingSprite( false );
 	}
 
 	m_currentRotatingSpriteTexture = effectiveTextureID;
@@ -108,6 +108,6 @@ void Renderer2D::RotatingSprite( Image *src, float x, float y, float w, float h,
 
 	if ( m_immediateModeEnabled || immediateFlush )
 	{
-		FlushRotatingSprite();
+		FlushRotatingSprite( true );
 	}
 }

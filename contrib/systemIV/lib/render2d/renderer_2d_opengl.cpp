@@ -213,26 +213,6 @@ void Renderer2DOpenGL::SetupVertexArrays()
 	glBufferData( GL_ARRAY_BUFFER, sizeof( Vertex2D ) * MAX_TRIANGLE_FILL_VERTICES, NULL, GL_DYNAMIC_DRAW );
 	setupVertexAttributes();
 
-	//
-	// Create immediate VAO/VBO pair
-
-	glGenVertexArrays( 1, &m_immediateVAO );
-	glGenBuffers( 1, &m_immediateVBO );
-	glBindVertexArray( m_immediateVAO );
-	glBindBuffer( GL_ARRAY_BUFFER, m_immediateVBO );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( Vertex2D ) * MAX_VERTICES, NULL, GL_STREAM_DRAW );
-	setupVertexAttributes();
-
-	//
-	// Old VAO/VBO
-
-	glGenVertexArrays( 1, &m_VAO );
-	glGenBuffers( 1, &m_VBO );
-	glBindVertexArray( m_VAO );
-	glBindBuffer( GL_ARRAY_BUFFER, m_VBO );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( Vertex2D ) * MAX_VERTICES, NULL, GL_DYNAMIC_DRAW );
-	setupVertexAttributes();
-
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindVertexArray( 0 );
 }
@@ -273,44 +253,22 @@ void Renderer2DOpenGL::UploadVertexDataToVBO( unsigned int vbo,
 // CORE FLUSH FUNCTIONS
 // ============================================================================
 
-void Renderer2DOpenGL::FlushTriangles( bool useTexture )
-{
-	if ( m_triangleVertexCount == 0 )
-		return;
 
-	g_renderer->StartFlushTiming( "Immediate_Triangles" );
-	IncrementDrawCall( "immediate_triangles" );
-
-	if ( useTexture )
-	{
-		g_renderer->SetShaderProgram( m_textureShaderProgram );
-		SetTextureShaderUniforms();
-	}
-	else
-	{
-		g_renderer->SetShaderProgram( m_colorShaderProgram );
-		SetColorShaderUniforms();
-	}
-
-	g_renderer->SetVertexArray( m_immediateVAO );
-	g_renderer->SetArrayBuffer( m_immediateVBO );
-	UploadVertexDataToVBO( m_immediateVBO, m_triangleVertices, m_triangleVertexCount, GL_STREAM_DRAW );
-
-	glDrawArrays( GL_TRIANGLES, 0, m_triangleVertexCount );
-
-	m_triangleVertexCount = 0;
-
-	g_renderer->EndFlushTiming( "Immediate_Triangles" );
-}
-
-
-void Renderer2DOpenGL::FlushTextBuffer()
+void Renderer2DOpenGL::FlushTextBuffer( bool isImmediate )
 {
 	if ( m_textVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Text" );
-	IncrementDrawCall( "text" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Text" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_TEXT );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Text" );
+		IncrementDrawCall( DRAW_CALL_TEXT );
+	}
 
 	int currentBlendSrc = g_renderer->GetCurrentBlendSrcFactor();
 	int currentBlendDst = g_renderer->GetCurrentBlendDstFactor();
@@ -340,17 +298,32 @@ void Renderer2DOpenGL::FlushTextBuffer()
 	m_textVertexCount = 0;
 	m_currentTextTexture = 0;
 
-	g_renderer->EndFlushTiming( "Text" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Text" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Text" );
+	}
 }
 
 
-void Renderer2DOpenGL::FlushLines()
+void Renderer2DOpenGL::FlushLines( bool isImmediate )
 {
 	if ( m_lineVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Lines" );
-	IncrementDrawCall( "lines" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Lines" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_LINES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Lines" );
+		IncrementDrawCall( DRAW_CALL_LINES );
+	}
 
 #ifndef TARGET_EMSCRIPTEN
 	g_renderer->SetLineWidth( m_currentLineWidth );
@@ -367,17 +340,32 @@ void Renderer2DOpenGL::FlushLines()
 
 	m_lineVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Lines" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Lines" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Lines" );
+	}
 }
 
 
-void Renderer2DOpenGL::FlushStaticSprites()
+void Renderer2DOpenGL::FlushStaticSprites( bool isImmediate )
 {
 	if ( m_staticSpriteVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Static_Sprite" );
-	IncrementDrawCall( "static_sprites" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Static_Sprite" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_STATIC_SPRITES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Static_Sprite" );
+		IncrementDrawCall( DRAW_CALL_STATIC_SPRITES );
+	}
 
 	g_renderer->SetShaderProgram( m_textureShaderProgram );
 	SetTextureShaderUniforms();
@@ -396,17 +384,32 @@ void Renderer2DOpenGL::FlushStaticSprites()
 
 	m_staticSpriteVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Static_Sprite" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Static_Sprite" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Static_Sprite" );
+	}
 }
 
 
-void Renderer2DOpenGL::FlushRotatingSprite()
+void Renderer2DOpenGL::FlushRotatingSprite( bool isImmediate )
 {
 	if ( m_rotatingSpriteVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Rotating_Sprite" );
-	IncrementDrawCall( "rotating_sprites" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Rotating_Sprite" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_ROTATING_SPRITES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Rotating_Sprite" );
+		IncrementDrawCall( DRAW_CALL_ROTATING_SPRITES );
+	}
 
 	g_renderer->SetShaderProgram( m_textureShaderProgram );
 	SetTextureShaderUniforms();
@@ -425,17 +428,32 @@ void Renderer2DOpenGL::FlushRotatingSprite()
 
 	m_rotatingSpriteVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Rotating_Sprite" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Rotating_Sprite" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Rotating_Sprite" );
+	}
 }
 
 
-void Renderer2DOpenGL::FlushCircles()
+void Renderer2DOpenGL::FlushCircles( bool isImmediate )
 {
 	if ( m_circleVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Circles" );
-	IncrementDrawCall( "circles" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Circles" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_CIRCLES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Circles" );
+		IncrementDrawCall( DRAW_CALL_CIRCLES );
+	}
 
 #ifndef TARGET_EMSCRIPTEN
 	g_renderer->SetLineWidth( m_currentCircleWidth );
@@ -452,17 +470,32 @@ void Renderer2DOpenGL::FlushCircles()
 
 	m_circleVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Circles" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Circles" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Circles" );
+	}
 }
 
 
-void Renderer2DOpenGL::FlushCircleFills()
+void Renderer2DOpenGL::FlushCircleFills( bool isImmediate )
 {
 	if ( m_circleFillVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Circle_Fills" );
-	IncrementDrawCall( "circle_fills" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Circle_Fills" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_CIRCLE_FILLS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Circle_Fills" );
+		IncrementDrawCall( DRAW_CALL_CIRCLE_FILLS );
+	}
 
 	g_renderer->SetShaderProgram( m_colorShaderProgram );
 	SetColorShaderUniforms();
@@ -475,17 +508,32 @@ void Renderer2DOpenGL::FlushCircleFills()
 
 	m_circleFillVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Circle_Fills" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Circle_Fills" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Circle_Fills" );
+	}
 }
 
 
-void Renderer2DOpenGL::FlushRects()
+void Renderer2DOpenGL::FlushRects( bool isImmediate )
 {
 	if ( m_rectVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Rects" );
-	IncrementDrawCall( "rects" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Rects" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_RECTS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Rects" );
+		IncrementDrawCall( DRAW_CALL_RECTS );
+	}
 
 #ifndef TARGET_EMSCRIPTEN
 	g_renderer->SetLineWidth( m_currentRectWidth );
@@ -502,17 +550,32 @@ void Renderer2DOpenGL::FlushRects()
 
 	m_rectVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Rects" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Rects" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Rects" );
+	}
 }
 
 
-void Renderer2DOpenGL::FlushRectFills()
+void Renderer2DOpenGL::FlushRectFills( bool isImmediate )
 {
 	if ( m_rectFillVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Rect_Fills" );
-	IncrementDrawCall( "rect_fills" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Rect_Fills" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_RECT_FILLS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Rect_Fills" );
+		IncrementDrawCall( DRAW_CALL_RECT_FILLS );
+	}
 
 	g_renderer->SetShaderProgram( m_colorShaderProgram );
 	SetColorShaderUniforms();
@@ -525,17 +588,32 @@ void Renderer2DOpenGL::FlushRectFills()
 
 	m_rectFillVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Rect_Fills" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Rect_Fills" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Rect_Fills" );
+	}
 }
 
 
-void Renderer2DOpenGL::FlushTriangleFills()
+void Renderer2DOpenGL::FlushTriangleFills( bool isImmediate )
 {
 	if ( m_triangleFillVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Triangle_Fills" );
-	IncrementDrawCall( "triangle_fills" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Triangle_Fills" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_TRIANGLE_FILLS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Triangle_Fills" );
+		IncrementDrawCall( DRAW_CALL_TRIANGLE_FILLS );
+	}
 
 	g_renderer->SetShaderProgram( m_colorShaderProgram );
 	SetColorShaderUniforms();
@@ -548,7 +626,14 @@ void Renderer2DOpenGL::FlushTriangleFills()
 
 	m_triangleFillVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Triangle_Fills" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Triangle_Fills" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Triangle_Fills" );
+	}
 }
 
 
@@ -787,10 +872,6 @@ void Renderer2DOpenGL::CleanupBuffers()
 		glDeleteProgram( m_colorShaderProgram );
 	if ( m_textureShaderProgram )
 		glDeleteProgram( m_textureShaderProgram );
-	if ( m_VAO )
-		glDeleteVertexArrays( 1, &m_VAO );
-	if ( m_VBO )
-		glDeleteBuffers( 1, &m_VBO );
 	if ( m_textVAO )
 		glDeleteVertexArrays( 1, &m_textVAO );
 	if ( m_textVBO )
@@ -827,10 +908,6 @@ void Renderer2DOpenGL::CleanupBuffers()
 		glDeleteVertexArrays( 1, &m_triangleFillVAO );
 	if ( m_triangleFillVBO )
 		glDeleteBuffers( 1, &m_triangleFillVBO );
-	if ( m_immediateVAO )
-		glDeleteVertexArrays( 1, &m_immediateVAO );
-	if ( m_immediateVBO )
-		glDeleteBuffers( 1, &m_immediateVBO );
 }
 
 #endif // RENDERER_OPENGL

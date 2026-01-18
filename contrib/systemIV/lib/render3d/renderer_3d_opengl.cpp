@@ -279,16 +279,6 @@ void Renderer3DOpenGL::Setup3DVertexArrays()
 	};
 
 	//
-	// Create main 3D VAO/VBO pair
-
-	glGenVertexArrays( 1, &m_VAO3D );
-	glGenBuffers( 1, &m_VBO3D );
-	glBindVertexArray( m_VAO3D );
-	glBindBuffer( GL_ARRAY_BUFFER, m_VBO3D );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( Vertex3D ) * MAX_3D_VERTICES, NULL, GL_DYNAMIC_DRAW );
-	setup3DVertexAttributes();
-
-	//
 	// Create line VAO/VBO pair
 
 	glGenVertexArrays( 1, &m_lineVAO3D );
@@ -348,16 +338,6 @@ void Renderer3DOpenGL::Setup3DVertexArrays()
 	glBufferData( GL_ARRAY_BUFFER, sizeof( Vertex3D ) * MAX_TRIANGLE_FILL_VERTICES_3D, NULL, GL_DYNAMIC_DRAW );
 	setup3DVertexAttributes();
 
-	//
-	// Create immediate VAO/VBO pair
-
-	glGenVertexArrays( 1, &m_immediateVAO3D );
-	glGenBuffers( 1, &m_immediateVBO3D );
-	glBindVertexArray( m_immediateVAO3D );
-	glBindBuffer( GL_ARRAY_BUFFER, m_immediateVBO3D );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( Vertex3D ) * MAX_3D_VERTICES, NULL, GL_DYNAMIC_DRAW );
-	setup3DVertexAttributes();
-
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindVertexArray( 0 );
 
@@ -398,16 +378,6 @@ void Renderer3DOpenGL::Setup3DTexturedVertexArrays()
 		glVertexAttribPointer( 3, 2, GL_FLOAT, GL_FALSE, sizeof( Vertex3DTextured ), (void *)( 10 * sizeof( float ) ) );
 		glEnableVertexAttribArray( 3 );
 	};
-
-	//
-	// Create main textured 3D VAO/VBO pair
-
-	glGenVertexArrays( 1, &m_VAO3DTextured );
-	glGenBuffers( 1, &m_VBO3DTextured );
-	glBindVertexArray( m_VAO3DTextured );
-	glBindBuffer( GL_ARRAY_BUFFER, m_VBO3DTextured );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( Vertex3DTextured ) * MAX_3D_TEXTURED_VERTICES, NULL, GL_DYNAMIC_DRAW );
-	setup3DTexturedVertexAttributes();
 
 	//
 	// Create sprite VAO/VBO pair
@@ -490,78 +460,21 @@ void Renderer3DOpenGL::UploadVertexDataTo3DVBO( unsigned int vbo,
 // CORE FLUSH FUNCTIONS
 // ============================================================================
 
-void Renderer3DOpenGL::Flush3DVertices( unsigned int primitiveType )
-{
-	if ( m_vertex3DCount == 0 )
-		return;
-
-	g_renderer->StartFlushTiming( "Immediate_Vertices_3D" );
-	IncrementDrawCall3D( "immediate_vertices" );
-
-	g_renderer->SetShaderProgram( m_shader3DProgram );
-	Set3DShaderUniforms();
-
-	g_renderer->SetVertexArray( m_immediateVAO3D );
-	UploadVertexDataTo3DVBO( m_immediateVBO3D, m_vertices3D, m_vertex3DCount, GL_DYNAMIC_DRAW );
-
-	glDrawArrays( primitiveType, 0, m_vertex3DCount );
-
-	m_vertex3DCount = 0;
-
-	g_renderer->EndFlushTiming( "Immediate_Vertices_3D" );
-}
-
-
-void Renderer3DOpenGL::Flush3DTexturedVertices()
-{
-	if ( m_vertex3DTexturedCount == 0 )
-		return;
-
-	g_renderer->StartFlushTiming( "Immediate_Triangles_3D" );
-	IncrementDrawCall3D( "immediate_triangles" );
-
-	g_renderer->SetShaderProgram( m_shader3DTexturedProgram );
-	SetTextured3DShaderUniforms();
-
-	g_renderer->SetActiveTexture( GL_TEXTURE0 );
-	g_renderer->SetBoundTexture( m_currentTexture3D );
-
-	g_renderer->SetVertexArray( m_VAO3DTextured );
-	UploadVertexDataTo3DVBO( m_VBO3DTextured, m_vertices3DTextured, m_vertex3DTexturedCount, GL_DYNAMIC_DRAW );
-
-	if ( m_vertex3DTexturedCount == 4 )
-	{
-		Vertex3DTextured triangleVertices[6];
-
-		triangleVertices[0] = m_vertices3DTextured[0];
-		triangleVertices[1] = m_vertices3DTextured[1];
-		triangleVertices[2] = m_vertices3DTextured[2];
-
-		triangleVertices[3] = m_vertices3DTextured[0];
-		triangleVertices[4] = m_vertices3DTextured[2];
-		triangleVertices[5] = m_vertices3DTextured[3];
-
-		UploadVertexDataTo3DVBO( m_VBO3DTextured, triangleVertices, 6, GL_DYNAMIC_DRAW );
-		glDrawArrays( GL_TRIANGLES, 0, 6 );
-	}
-	else
-	{
-		glDrawArrays( GL_TRIANGLE_FAN, 0, m_vertex3DTexturedCount );
-	}
-
-	m_vertex3DTexturedCount = 0;
-
-	g_renderer->EndFlushTiming( "Immediate_Triangles_3D" );
-}
-
-
-void Renderer3DOpenGL::FlushLine3D()
+void Renderer3DOpenGL::FlushLine3D( bool isImmediate )
 {
 	if ( m_lineVertexCount3D == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Batched_Lines_3D" );
-	IncrementDrawCall3D( "batched_lines" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Lines_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_LINES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Batched_Lines_3D" );
+		IncrementDrawCall3D( DRAW_CALL_LINES );
+	}
 
 #ifndef TARGET_EMSCRIPTEN
 	g_renderer->SetLineWidth( m_currentLineWidth3D );
@@ -577,17 +490,32 @@ void Renderer3DOpenGL::FlushLine3D()
 
 	m_lineVertexCount3D = 0;
 
-	g_renderer->EndFlushTiming( "Batched_Lines_3D" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Lines_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Batched_Lines_3D" );
+	}
 }
 
 
-void Renderer3DOpenGL::FlushStaticSprites3D()
+void Renderer3DOpenGL::FlushStaticSprites3D( bool isImmediate )
 {
 	if ( m_staticSpriteVertexCount3D == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Static_Sprite_3D" );
-	IncrementDrawCall3D( "static_sprites" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Static_Sprite_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_STATIC_SPRITES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Static_Sprite_3D" );
+		IncrementDrawCall3D( DRAW_CALL_STATIC_SPRITES );
+	}
 
 	g_renderer->SetDepthMask( false );
 
@@ -608,17 +536,32 @@ void Renderer3DOpenGL::FlushStaticSprites3D()
 
 	m_staticSpriteVertexCount3D = 0;
 
-	g_renderer->EndFlushTiming( "Static_Sprite_3D" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Static_Sprite_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Static_Sprite_3D" );
+	}
 }
 
 
-void Renderer3DOpenGL::FlushRotatingSprite3D()
+void Renderer3DOpenGL::FlushRotatingSprite3D( bool isImmediate )
 {
 	if ( m_rotatingSpriteVertexCount3D == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Unit_Rotating_3D" );
-	IncrementDrawCall3D( "rotating_sprites" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Rotating_Sprite_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_ROTATING_SPRITES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Rotating_Sprite_3D" );
+		IncrementDrawCall3D( DRAW_CALL_ROTATING_SPRITES );
+	}
 
 	g_renderer->SetDepthMask( false );
 
@@ -639,17 +582,32 @@ void Renderer3DOpenGL::FlushRotatingSprite3D()
 
 	m_rotatingSpriteVertexCount3D = 0;
 
-	g_renderer->EndFlushTiming( "Unit_Rotating_3D" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Rotating_Sprite_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Rotating_Sprite_3D" );
+	}
 }
 
 
-void Renderer3DOpenGL::FlushTextBuffer3D()
+void Renderer3DOpenGL::FlushTextBuffer3D( bool isImmediate )
 {
 	if ( m_textVertexCount3D == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Text_3D" );
-	IncrementDrawCall3D( "text" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Text_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_TEXT );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Text_3D" );
+		IncrementDrawCall3D( DRAW_CALL_TEXT );
+	}
 
 	int currentBlendSrc = g_renderer->GetCurrentBlendSrcFactor();
 	int currentBlendDst = g_renderer->GetCurrentBlendDstFactor();
@@ -680,17 +638,32 @@ void Renderer3DOpenGL::FlushTextBuffer3D()
 	m_textVertexCount3D = 0;
 	m_currentTextTexture3D = 0;
 
-	g_renderer->EndFlushTiming( "Text_3D" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Text_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Text_3D" );
+	}
 }
 
 
-void Renderer3DOpenGL::FlushCircles3D()
+void Renderer3DOpenGL::FlushCircles3D( bool isImmediate )
 {
 	if ( m_circleVertexCount3D == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Circles_3D" );
-	IncrementDrawCall3D( "circles" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Circles_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_CIRCLES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Circles_3D" );
+		IncrementDrawCall3D( DRAW_CALL_CIRCLES );
+	}
 
 #ifndef TARGET_EMSCRIPTEN
 	g_renderer->SetLineWidth( m_currentCircleWidth3D );
@@ -706,17 +679,32 @@ void Renderer3DOpenGL::FlushCircles3D()
 
 	m_circleVertexCount3D = 0;
 
-	g_renderer->EndFlushTiming( "Circles_3D" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Circles_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Circles_3D" );
+	}
 }
 
 
-void Renderer3DOpenGL::FlushCircleFills3D()
+void Renderer3DOpenGL::FlushCircleFills3D( bool isImmediate )
 {
 	if ( m_circleFillVertexCount3D == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Circle_Fills_3D" );
-	IncrementDrawCall3D( "circle_fills" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Circle_Fills_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_CIRCLE_FILLS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Circle_Fills_3D" );
+		IncrementDrawCall3D( DRAW_CALL_CIRCLE_FILLS );
+	}
 
 	g_renderer->SetShaderProgram( m_shader3DProgram );
 	Set3DShaderUniforms();
@@ -728,17 +716,32 @@ void Renderer3DOpenGL::FlushCircleFills3D()
 
 	m_circleFillVertexCount3D = 0;
 
-	g_renderer->EndFlushTiming( "Circle_Fills_3D" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Circle_Fills_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Circle_Fills_3D" );
+	}
 }
 
 
-void Renderer3DOpenGL::FlushRects3D()
+void Renderer3DOpenGL::FlushRects3D( bool isImmediate )
 {
 	if ( m_rectVertexCount3D == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Rects_3D" );
-	IncrementDrawCall3D( "rects" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Rects_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_RECTS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Rects_3D" );
+		IncrementDrawCall3D( DRAW_CALL_RECTS );
+	}
 
 #ifndef TARGET_EMSCRIPTEN
 	g_renderer->SetLineWidth( m_currentRectWidth3D );
@@ -754,17 +757,32 @@ void Renderer3DOpenGL::FlushRects3D()
 
 	m_rectVertexCount3D = 0;
 
-	g_renderer->EndFlushTiming( "Rects_3D" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Rects_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Rects_3D" );
+	}
 }
 
 
-void Renderer3DOpenGL::FlushRectFills3D()
+void Renderer3DOpenGL::FlushRectFills3D( bool isImmediate )
 {
 	if ( m_rectFillVertexCount3D == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Rect_Fills_3D" );
-	IncrementDrawCall3D( "rect_fills" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Rect_Fills_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_RECT_FILLS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Rect_Fills_3D" );
+		IncrementDrawCall3D( DRAW_CALL_RECT_FILLS );
+	}
 
 	g_renderer->SetShaderProgram( m_shader3DProgram );
 	Set3DShaderUniforms();
@@ -776,17 +794,32 @@ void Renderer3DOpenGL::FlushRectFills3D()
 
 	m_rectFillVertexCount3D = 0;
 
-	g_renderer->EndFlushTiming( "Rect_Fills_3D" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Rect_Fills_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Rect_Fills_3D" );
+	}
 }
 
 
-void Renderer3DOpenGL::FlushTriangleFills3D()
+void Renderer3DOpenGL::FlushTriangleFills3D( bool isImmediate )
 {
 	if ( m_triangleFillVertexCount3D == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Triangle_Fills_3D" );
-	IncrementDrawCall3D( "triangle_fills" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Triangle_Fills_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_TRIANGLE_FILLS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Triangle_Fills_3D" );
+		IncrementDrawCall3D( DRAW_CALL_TRIANGLE_FILLS );
+	}
 
 	g_renderer->SetShaderProgram( m_shader3DProgram );
 	Set3DShaderUniforms();
@@ -798,7 +831,14 @@ void Renderer3DOpenGL::FlushTriangleFills3D()
 
 	m_triangleFillVertexCount3D = 0;
 
-	g_renderer->EndFlushTiming( "Triangle_Fills_3D" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Triangle_Fills_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Triangle_Fills_3D" );
+	}
 }
 
 
@@ -808,15 +848,6 @@ void Renderer3DOpenGL::FlushTriangleFills3D()
 
 void Renderer3DOpenGL::CleanupBuffers3D()
 {
-	if ( m_VBO3D )
-		glDeleteBuffers( 1, &m_VBO3D );
-	if ( m_VAO3D )
-		glDeleteVertexArrays( 1, &m_VAO3D );
-	if ( m_VBO3DTextured )
-		glDeleteBuffers( 1, &m_VBO3DTextured );
-	if ( m_VAO3DTextured )
-		glDeleteVertexArrays( 1, &m_VAO3DTextured );
-
 	if ( m_spriteVAO3D )
 		glDeleteVertexArrays( 1, &m_spriteVAO3D );
 	if ( m_spriteVBO3D )
@@ -849,10 +880,6 @@ void Renderer3DOpenGL::CleanupBuffers3D()
 		glDeleteVertexArrays( 1, &m_triangleFillVAO3D );
 	if ( m_triangleFillVBO3D )
 		glDeleteBuffers( 1, &m_triangleFillVBO3D );
-	if ( m_immediateVAO3D )
-		glDeleteVertexArrays( 1, &m_immediateVAO3D );
-	if ( m_immediateVBO3D )
-		glDeleteBuffers( 1, &m_immediateVBO3D );
 
 	if ( m_shader3DProgram )
 		glDeleteProgram( m_shader3DProgram );

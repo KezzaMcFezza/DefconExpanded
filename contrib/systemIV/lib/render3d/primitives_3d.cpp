@@ -22,7 +22,7 @@ void Renderer3D::Line3D( float x1, float y1, float z1, float x2, float y2, float
 
 	if ( m_lineVertexCount3D > 0 && m_currentLineWidth3D != lineWidth )
 	{
-		FlushLine3D();
+		FlushLine3D( false );
 	}
 
 #ifndef TARGET_EMSCRIPTEN
@@ -38,7 +38,7 @@ void Renderer3D::Line3D( float x1, float y1, float z1, float x2, float y2, float
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushLine3D();
+		FlushLine3D( true );
 	}
 }
 
@@ -49,7 +49,7 @@ void Renderer3D::Circle3D( float x, float y, float z, float radius, int numPoint
 
 	if ( m_circleVertexCount3D > 0 && m_currentCircleWidth3D != lineWidth )
 	{
-		FlushCircles3D();
+		FlushCircles3D( false );
 	}
 
 #ifndef TARGET_EMSCRIPTEN
@@ -76,7 +76,7 @@ void Renderer3D::Circle3D( float x, float y, float z, float radius, int numPoint
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushCircles3D();
+		FlushCircles3D( true );
 	}
 }
 
@@ -87,7 +87,7 @@ void Renderer3D::Circle3D( const Vector3<float> &pos, const Vector3<float> &tang
 
 	if ( m_circleVertexCount3D > 0 && m_currentCircleWidth3D != lineWidth )
 	{
-		FlushCircles3D();
+		FlushCircles3D( false );
 	}
 
 #ifndef TARGET_EMSCRIPTEN
@@ -120,7 +120,7 @@ void Renderer3D::Circle3D( const Vector3<float> &pos, const Vector3<float> &tang
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushCircles3D();
+		FlushCircles3D( true );
 	}
 }
 
@@ -149,7 +149,7 @@ void Renderer3D::CircleFill3D( float x, float y, float z, float radius, int numP
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushCircleFills3D();
+		FlushCircleFills3D( true );
 	}
 }
 
@@ -184,7 +184,7 @@ void Renderer3D::CircleFill3D( const Vector3<float> &pos, const Vector3<float> &
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushCircleFills3D();
+		FlushCircleFills3D( true );
 	}
 }
 
@@ -195,7 +195,7 @@ void Renderer3D::Rect3D( float x, float y, float z, float w, float h, Colour con
 
 	if ( m_rectVertexCount3D > 0 && m_currentRectWidth3D != lineWidth )
 	{
-		FlushRects3D();
+		FlushRects3D( false );
 	}
 
 #ifndef TARGET_EMSCRIPTEN
@@ -224,7 +224,7 @@ void Renderer3D::Rect3D( float x, float y, float z, float w, float h, Colour con
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushRects3D();
+		FlushRects3D( true );
 	}
 }
 
@@ -235,7 +235,7 @@ void Renderer3D::Rect3D( const Vector3<float> &pos, const Vector3<float> &tangen
 
 	if ( m_rectVertexCount3D > 0 && m_currentRectWidth3D != lineWidth )
 	{
-		FlushRects3D();
+		FlushRects3D( false );
 	}
 
 #ifndef TARGET_EMSCRIPTEN
@@ -272,7 +272,7 @@ void Renderer3D::Rect3D( const Vector3<float> &pos, const Vector3<float> &tangen
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushRects3D();
+		FlushRects3D( true );
 	}
 }
 
@@ -295,7 +295,7 @@ void Renderer3D::RectFill3D( float x, float y, float z, float w, float h, Colour
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushRectFills3D();
+		FlushRectFills3D( true );
 	}
 }
 
@@ -326,7 +326,7 @@ void Renderer3D::RectFill3D( const Vector3<float> &pos, const Vector3<float> &ta
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushRectFills3D();
+		FlushRectFills3D( true );
 	}
 }
 
@@ -343,7 +343,7 @@ void Renderer3D::TriangleFill3D( float x1, float y1, float z1, float x2, float y
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushTriangleFills3D();
+		FlushTriangleFills3D( true );
 	}
 }
 
@@ -364,6 +364,6 @@ void Renderer3D::TriangleFill3D( const Vector3<float> &pos, const Vector3<float>
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushTriangleFills3D();
+		FlushTriangleFills3D( true );
 	}
 }

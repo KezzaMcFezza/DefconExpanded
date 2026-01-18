@@ -72,6 +72,32 @@ enum PrimitiveType {
     PRIMITIVE_LINES = 2
 };
 
+enum DrawCallType {
+    DRAW_CALL_IMMEDIATE_TRIANGLES = 0,
+    DRAW_CALL_IMMEDIATE_LINES,
+    DRAW_CALL_IMMEDIATE_VERTICES_3D,
+    DRAW_CALL_IMMEDIATE_TEXT,
+    DRAW_CALL_IMMEDIATE_STATIC_SPRITES,
+    DRAW_CALL_IMMEDIATE_ROTATING_SPRITES,
+    DRAW_CALL_IMMEDIATE_CIRCLES,
+    DRAW_CALL_IMMEDIATE_CIRCLE_FILLS,
+    DRAW_CALL_IMMEDIATE_RECTS,
+    DRAW_CALL_IMMEDIATE_RECT_FILLS,
+    DRAW_CALL_IMMEDIATE_TRIANGLE_FILLS,
+    DRAW_CALL_TEXT,
+    DRAW_CALL_LINES,
+    DRAW_CALL_STATIC_SPRITES,
+    DRAW_CALL_ROTATING_SPRITES,
+    DRAW_CALL_CIRCLES,
+    DRAW_CALL_CIRCLE_FILLS,
+    DRAW_CALL_RECTS,
+    DRAW_CALL_RECT_FILLS,
+    DRAW_CALL_TRIANGLE_FILLS,
+    DRAW_CALL_LINE_VBO,
+    DRAW_CALL_QUAD_VBO,
+    DRAW_CALL_TRIANGLE_VBO
+};
+
 enum TextureAddressMode {
     TEXTURE_ADDRESS_CLAMP = 0,
     TEXTURE_ADDRESS_REPEAT = 1,
@@ -106,6 +132,11 @@ struct RendererFlushTiming {
     int callCount;
     unsigned int queryObject;
     bool queryPending;
+    
+    static const int MAX_QUERIES_PER_TYPE = 32;
+    unsigned int queryPool[MAX_QUERIES_PER_TYPE];
+    int queryPoolSize;
+    int nextQueryIndex;
 };
 
 enum RenderPassType {
@@ -148,6 +179,11 @@ protected:
     int m_msaaHeight;
     
     RenderPassType m_currentPass;
+    
+    float m_clearColorR;
+    float m_clearColorG;
+    float m_clearColorB;
+    float m_clearColorA;
 
 public:
     Renderer();
@@ -187,6 +223,7 @@ public:
     virtual void SetDepthMask   (bool enabled) = 0;
     virtual void SetCullFace    (bool enabled, int mode) = 0;
     virtual void SetColorMask   (bool r, bool g, bool b, bool a) = 0;
+    virtual void SetClearColor  (float r, float g, float b, float a = 1.0f) = 0;
 
     virtual unsigned int CreateShader(const char* vertexSource, const char* fragmentSource) = 0;
     

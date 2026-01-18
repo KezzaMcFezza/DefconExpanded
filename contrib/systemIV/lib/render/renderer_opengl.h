@@ -82,6 +82,7 @@ public:
     virtual void SetDepthMask       (bool enabled)                        override;
     virtual void SetCullFace        (bool enabled, int mode)              override;
     virtual void SetColorMask       (bool r, bool g, bool b, bool a)      override;
+    virtual void SetClearColor      (float r, float g, float b, float a)  override;
     
     virtual unsigned int CreateShader(const char* vertexSource, const char* fragmentSource) override;
     

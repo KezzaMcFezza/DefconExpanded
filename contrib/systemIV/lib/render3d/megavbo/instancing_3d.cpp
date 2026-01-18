@@ -228,7 +228,7 @@ void MegaVBO3D::RenderInstancedMegaVBO3D( const char *batchKey )
 	g_renderer3d->DrawMegaVBOIndexedInstanced3D( PRIMITIVE_TRIANGLES, cachedVBO->indexCount, batch->instanceCount );
 
 	g_renderer->EndFlushTiming( "MegaVBO_Instanced_3D" );
-	g_renderer3d->IncrementDrawCall3D( "triangle_vbo" );
+	g_renderer3d->IncrementDrawCall3D( DRAW_CALL_TRIANGLE_VBO );
 }
 
 

@@ -189,7 +189,7 @@ void MegaVBO3D::RenderTriangleMegaVBO3D( const char *megaVBOKey )
 	g_renderer3d->DrawMegaVBOIndexed3D( PRIMITIVE_TRIANGLES, cachedVBO->indexCount );
 
 	g_renderer->EndFlushTiming( "MegaVBO_Triangles_3D" );
-	g_renderer3d->IncrementDrawCall3D( "triangle_vbo" );
+	g_renderer3d->IncrementDrawCall3D( DRAW_CALL_TRIANGLE_VBO );
 }
 
 
@@ -212,7 +212,7 @@ void MegaVBO3D::RenderTriangleMegaVBO3DWithMatrix( const char *megaVBOKey,
 	g_renderer3d->DrawMegaVBOIndexed3D( PRIMITIVE_TRIANGLES, cachedVBO->indexCount );
 
 	g_renderer->EndFlushTiming( "MegaVBO_Triangles_Matrix_3D" );
-	g_renderer3d->IncrementDrawCall3D( "triangle_vbo" );
+	g_renderer3d->IncrementDrawCall3D( DRAW_CALL_TRIANGLE_VBO );
 }
 
 

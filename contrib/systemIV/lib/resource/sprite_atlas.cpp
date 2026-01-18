@@ -367,13 +367,13 @@ bool RuntimeTextureAtlas::PackSprites( PackedSprite **sprites, int spriteCount,
 	stbrp_rect *rects = new stbrp_rect[spriteCount];
 
 	//
-	// initialize rectangles with sprite dimensions with 2px padding
+	// initialize rectangles with sprite dimensions with 32px padding
 
 	for ( int i = 0; i < spriteCount; ++i )
 	{
 		rects[i].id = i;
-		rects[i].w = sprites[i]->sourceBitmap->m_width + 2; // 1px padding each side
-		rects[i].h = sprites[i]->sourceBitmap->m_height + 2;
+		rects[i].w = sprites[i]->sourceBitmap->m_width + 32; // 16px padding each side
+		rects[i].h = sprites[i]->sourceBitmap->m_height + 32;
 		rects[i].was_packed = 0;
 	}
 
@@ -452,10 +452,10 @@ bool RuntimeTextureAtlas::PackSprites( PackedSprite **sprites, int spriteCount,
 		PackedSprite *sprite = sprites[rects[i].id];
 
 		//
-		// account for 1px padding offset
+		// account for 16px padding offset
 
-		int x = rects[i].x + 1;
-		int y = rects[i].y + 1;
+		int x = rects[i].x + 16;
+		int y = rects[i].y + 16;
 		int w = sprite->sourceBitmap->m_width;
 		int h = sprite->sourceBitmap->m_height;
 
@@ -464,6 +464,137 @@ bool RuntimeTextureAtlas::PackSprites( PackedSprite **sprites, int spriteCount,
 
 	delete[] rects;
 	return true;
+}
+
+//
+// Extrude edge pixels into padding to prevent mipmap bleeding
+// copy edges outward by 16 pixels in all directions
+
+void RuntimeTextureAtlas::ExtrudeSpriteEdges( Bitmap *src, int x, int y, int w, int h )
+{
+	//
+	// top edge
+
+	for ( int offset = 1; offset <= 16; ++offset )
+	{
+		if ( y - offset >= 0 )
+		{
+			for ( int px = 0; px < w; ++px )
+			{
+				Colour edgePixel = src->GetPixel( px, 0 );
+				m_atlasBitmap->PutPixel( x + px, y - offset, edgePixel );
+			}
+		}
+	}
+
+	//
+	// bottom edge
+
+	for ( int offset = 1; offset <= 16; ++offset )
+	{
+		if ( y + h + offset - 1 < m_height )
+		{
+			for ( int px = 0; px < w; ++px )
+			{
+				Colour edgePixel = src->GetPixel( px, h - 1 );
+				m_atlasBitmap->PutPixel( x + px, y + h + offset - 1, edgePixel );
+			}
+		}
+	}
+
+	//
+	// left edge
+
+	for ( int offset = 1; offset <= 16; ++offset )
+	{
+		if ( x - offset >= 0 )
+		{
+			for ( int py = 0; py < h; ++py )
+			{
+				Colour edgePixel = src->GetPixel( 0, py );
+				m_atlasBitmap->PutPixel( x - offset, y + py, edgePixel );
+			}
+		}
+	}
+
+	//
+	// right edge
+
+	for ( int offset = 1; offset <= 16; ++offset )
+	{
+		if ( x + w + offset - 1 < m_width )
+		{
+			for ( int py = 0; py < h; ++py )
+			{
+				Colour edgePixel = src->GetPixel( w - 1, py );
+				m_atlasBitmap->PutPixel( x + w + offset - 1, y + py, edgePixel );
+			}
+		}
+	}
+
+	//
+	// corners, fill 16x16 corner regions
+
+	Colour topLeftPixel = src->GetPixel( 0, 0 );
+	Colour topRightPixel = src->GetPixel( w - 1, 0 );
+	Colour bottomLeftPixel = src->GetPixel( 0, h - 1 );
+	Colour bottomRightPixel = src->GetPixel( w - 1, h - 1 );
+
+	//
+	// top left corner
+
+	for ( int dy = 1; dy <= 16; ++dy )
+	{
+		for ( int dx = 1; dx <= 16; ++dx )
+		{
+			if ( x - dx >= 0 && y - dy >= 0 )
+			{
+				m_atlasBitmap->PutPixel( x - dx, y - dy, topLeftPixel );
+			}
+		}
+	}
+
+	//
+	// top right corner
+
+	for ( int dy = 1; dy <= 16; ++dy )
+	{
+		for ( int dx = 1; dx <= 16; ++dx )
+		{
+			if ( x + w + dx - 1 < m_width && y - dy >= 0 )
+			{
+				m_atlasBitmap->PutPixel( x + w + dx - 1, y - dy, topRightPixel );
+			}
+		}
+	}
+
+	//
+	// bottom left corner
+
+	for ( int dy = 1; dy <= 16; ++dy )
+	{
+		for ( int dx = 1; dx <= 16; ++dx )
+		{
+			if ( x - dx >= 0 && y + h + dy - 1 < m_height )
+			{
+				m_atlasBitmap->PutPixel( x - dx, y + h + dy - 1, bottomLeftPixel );
+			}
+		}
+	}
+
+	//
+	// bottom right corner
+
+	for ( int dy = 1; dy <= 16; ++dy )
+	{
+		for ( int dx = 1; dx <= 16; ++dx )
+		{
+			if ( x + w + dx - 1 < m_width && y + h + dy - 1 < m_height )
+			{
+				m_atlasBitmap->PutPixel( x + w + dx - 1, y + h + dy - 1, bottomRightPixel );
+			}
+		}
+	}
 }
 
 
@@ -491,6 +622,8 @@ void RuntimeTextureAtlas::BlitSpritesToAtlas( PackedSprite **sprites, int sprite
 			0, 0, src->m_width, src->m_height, src,
 			x, y, src->m_width, src->m_height,
 			false );
+
+		ExtrudeSpriteEdges( src, x, y, src->m_width, src->m_height );
 	}
 }
 

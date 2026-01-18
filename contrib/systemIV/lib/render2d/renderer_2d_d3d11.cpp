@@ -50,7 +50,6 @@ Renderer2DD3D11::Renderer2DD3D11()
 	  m_rectBuffer( nullptr ),
 	  m_rectFillBuffer( nullptr ),
 	  m_triangleFillBuffer( nullptr ),
-	  m_immediateBuffer( nullptr ),
 	  m_currentTextureSRV( nullptr ),
 	  m_currentTextureID( 0 ),
 	  m_nextVBOId( 1 ),
@@ -673,13 +672,6 @@ void Renderer2DD3D11::SetupVBOs()
 	desc.ByteWidth = sizeof( Vertex2D ) * MAX_TRIANGLE_FILL_VERTICES;
 	hr = m_device->CreateBuffer( &desc, nullptr, &m_triangleFillBuffer );
 	CheckHR( hr, "create triangle fill buffer" );
-
-	//
-	// Immediate mode buffer
-
-	desc.ByteWidth = sizeof( Vertex2D ) * MAX_VERTICES;
-	hr = m_device->CreateBuffer( &desc, nullptr, &m_immediateBuffer );
-	CheckHR( hr, "create immediate buffer" );
 }
 
 
@@ -807,32 +799,22 @@ void Renderer2DD3D11::DrawVertices( ID3D11Buffer *vertexBuffer, int vertexCount,
 // CORE FLUSH FUNCTIONS
 // ============================================================================
 
-void Renderer2DD3D11::FlushTriangles( bool useTexture )
-{
-	if ( m_triangleVertexCount == 0 )
-		return;
 
-	g_renderer->StartFlushTiming( "Immediate_Triangles" );
-	IncrementDrawCall( "immediate_triangles" );
-
-	if ( m_immediateBuffer && UpdateBufferData( m_immediateBuffer, m_triangleVertices, m_triangleVertexCount ) )
-	{
-		DrawVertices( m_immediateBuffer, m_triangleVertexCount, useTexture );
-	}
-
-	m_triangleVertexCount = 0;
-
-	g_renderer->EndFlushTiming( "Immediate_Triangles" );
-}
-
-
-void Renderer2DD3D11::FlushTextBuffer()
+void Renderer2DD3D11::FlushTextBuffer( bool isImmediate )
 {
 	if ( m_textVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Text" );
-	IncrementDrawCall( "text" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Text" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_TEXT );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Text" );
+		IncrementDrawCall( DRAW_CALL_TEXT );
+	}
 
 	int currentBlendSrc = g_renderer->GetCurrentBlendSrcFactor();
 	int currentBlendDst = g_renderer->GetCurrentBlendDstFactor();
@@ -864,17 +846,32 @@ void Renderer2DD3D11::FlushTextBuffer()
 	m_textVertexCount = 0;
 	m_currentTextTexture = 0;
 
-	g_renderer->EndFlushTiming( "Text" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Text" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Text" );
+	}
 }
 
 
-void Renderer2DD3D11::FlushLines()
+void Renderer2DD3D11::FlushLines( bool isImmediate )
 {
 	if ( m_lineVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Lines" );
-	IncrementDrawCall( "lines" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Lines" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_LINES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Lines" );
+		IncrementDrawCall( DRAW_CALL_LINES );
+	}
 
 	if ( m_lineBuffer && UpdateBufferData( m_lineBuffer, m_lineVertices, m_lineVertexCount ) )
 	{
@@ -899,17 +896,32 @@ void Renderer2DD3D11::FlushLines()
 
 	m_lineVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Lines" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Lines" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Lines" );
+	}
 }
 
 
-void Renderer2DD3D11::FlushStaticSprites()
+void Renderer2DD3D11::FlushStaticSprites( bool isImmediate )
 {
 	if ( m_staticSpriteVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Static_Sprite" );
-	IncrementDrawCall( "static_sprites" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Static_Sprite" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_STATIC_SPRITES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Static_Sprite" );
+		IncrementDrawCall( DRAW_CALL_STATIC_SPRITES );
+	}
 
 	if ( m_currentStaticSpriteTexture != 0 )
 	{
@@ -930,17 +942,32 @@ void Renderer2DD3D11::FlushStaticSprites()
 
 	m_staticSpriteVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Static_Sprite" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Static_Sprite" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Static_Sprite" );
+	}
 }
 
 
-void Renderer2DD3D11::FlushRotatingSprite()
+void Renderer2DD3D11::FlushRotatingSprite( bool isImmediate )
 {
 	if ( m_rotatingSpriteVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Rotating_Sprite" );
-	IncrementDrawCall( "rotating_sprites" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Rotating_Sprite" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_ROTATING_SPRITES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Rotating_Sprite" );
+		IncrementDrawCall( DRAW_CALL_ROTATING_SPRITES );
+	}
 
 	if ( m_currentRotatingSpriteTexture != 0 )
 	{
@@ -961,17 +988,32 @@ void Renderer2DD3D11::FlushRotatingSprite()
 
 	m_rotatingSpriteVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Rotating_Sprite" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Rotating_Sprite" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Rotating_Sprite" );
+	}
 }
 
 
-void Renderer2DD3D11::FlushCircles()
+void Renderer2DD3D11::FlushCircles( bool isImmediate )
 {
 	if ( m_circleVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Circles" );
-	IncrementDrawCall( "circles" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Circles" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_CIRCLES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Circles" );
+		IncrementDrawCall( DRAW_CALL_CIRCLES );
+	}
 
 	if ( m_circleBuffer && UpdateBufferData( m_circleBuffer, m_circleVertices, m_circleVertexCount ) )
 	{
@@ -996,17 +1038,32 @@ void Renderer2DD3D11::FlushCircles()
 
 	m_circleVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Circles" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Circles" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Circles" );
+	}
 }
 
 
-void Renderer2DD3D11::FlushCircleFills()
+void Renderer2DD3D11::FlushCircleFills( bool isImmediate )
 {
 	if ( m_circleFillVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Circle_Fills" );
-	IncrementDrawCall( "circle_fills" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Circle_Fills" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_CIRCLE_FILLS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Circle_Fills" );
+		IncrementDrawCall( DRAW_CALL_CIRCLE_FILLS );
+	}
 
 	if ( m_circleFillBuffer && UpdateBufferData( m_circleFillBuffer, m_circleFillVertices, m_circleFillVertexCount ) )
 	{
@@ -1015,17 +1072,32 @@ void Renderer2DD3D11::FlushCircleFills()
 
 	m_circleFillVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Circle_Fills" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Circle_Fills" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Circle_Fills" );
+	}
 }
 
 
-void Renderer2DD3D11::FlushRects()
+void Renderer2DD3D11::FlushRects( bool isImmediate )
 {
 	if ( m_rectVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Rects" );
-	IncrementDrawCall( "rects" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Rects" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_RECTS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Rects" );
+		IncrementDrawCall( DRAW_CALL_RECTS );
+	}
 
 	if ( m_rectBuffer && UpdateBufferData( m_rectBuffer, m_rectVertices, m_rectVertexCount ) )
 	{
@@ -1050,17 +1122,32 @@ void Renderer2DD3D11::FlushRects()
 
 	m_rectVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Rects" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Rects" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Rects" );
+	}
 }
 
 
-void Renderer2DD3D11::FlushRectFills()
+void Renderer2DD3D11::FlushRectFills( bool isImmediate )
 {
 	if ( m_rectFillVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Rect_Fills" );
-	IncrementDrawCall( "rect_fills" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Rect_Fills" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_RECT_FILLS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Rect_Fills" );
+		IncrementDrawCall( DRAW_CALL_RECT_FILLS );
+	}
 
 	if ( m_rectFillBuffer && UpdateBufferData( m_rectFillBuffer, m_rectFillVertices, m_rectFillVertexCount ) )
 	{
@@ -1069,17 +1156,32 @@ void Renderer2DD3D11::FlushRectFills()
 
 	m_rectFillVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Rect_Fills" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Rect_Fills" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Rect_Fills" );
+	}
 }
 
 
-void Renderer2DD3D11::FlushTriangleFills()
+void Renderer2DD3D11::FlushTriangleFills( bool isImmediate )
 {
 	if ( m_triangleFillVertexCount == 0 )
 		return;
 
-	g_renderer->StartFlushTiming( "Triangle_Fills" );
-	IncrementDrawCall( "triangle_fills" );
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Triangle_Fills" );
+		IncrementDrawCall( DRAW_CALL_IMMEDIATE_TRIANGLE_FILLS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Triangle_Fills" );
+		IncrementDrawCall( DRAW_CALL_TRIANGLE_FILLS );
+	}
 
 	if ( m_triangleFillBuffer && UpdateBufferData( m_triangleFillBuffer, m_triangleFillVertices, m_triangleFillVertexCount ) )
 	{
@@ -1088,7 +1190,14 @@ void Renderer2DD3D11::FlushTriangleFills()
 
 	m_triangleFillVertexCount = 0;
 
-	g_renderer->EndFlushTiming( "Triangle_Fills" );
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Triangle_Fills" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Triangle_Fills" );
+	}
 }
 
 
@@ -1184,11 +1293,6 @@ void Renderer2DD3D11::CleanupBuffers()
 	{
 		m_triangleFillBuffer->Release();
 		m_triangleFillBuffer = nullptr;
-	}
-	if ( m_immediateBuffer )
-	{
-		m_immediateBuffer->Release();
-		m_immediateBuffer = nullptr;
 	}
 
 	if ( m_lineGeometryShaderThin )

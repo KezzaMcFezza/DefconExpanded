@@ -77,9 +77,11 @@
      ID3D11RasterizerState* m_currentRasterizerState;
      ID3D11RasterizerState* m_currentlyBoundRasterizerState;
      
-     ID3D11SamplerState* m_samplerStateLinear;           // For non mipmapped textures
-     ID3D11SamplerState* m_samplerStateLinearMipLinear;  // For mipmapped textures
-     ID3D11SamplerState* m_currentSamplerState;
+    ID3D11SamplerState* m_samplerStateLinear;           // For non mipmapped textures
+    ID3D11SamplerState* m_samplerStateLinearMipLinear;  // For mipmapped textures
+    ID3D11SamplerState* m_samplerStateNearest;          // For nearest filtering
+    ID3D11SamplerState* m_samplerStateNearestMipNearest; // For nearest with mipmaps
+    ID3D11SamplerState* m_currentSamplerState;
      
      ID3D11Texture2D* m_msaaRenderTarget;
      ID3D11RenderTargetView* m_msaaRenderTargetView;
@@ -103,8 +105,17 @@
          ID3D11Query* endQuery;
          bool queryPending;
      };
- 
-     TimingQuery m_timingQueries[MAX_FLUSH_TYPES];
+
+     static const int MAX_QUERIES_PER_TYPE_D3D11 = 32;
+
+     struct TimingQueryPool
+     {
+         TimingQuery queries[MAX_QUERIES_PER_TYPE_D3D11];
+         int poolSize;
+         int nextQueryIndex;
+     };
+
+     TimingQueryPool m_timingQueryPools[MAX_FLUSH_TYPES];
      int m_timingQueryCount;
  
  public:
@@ -124,12 +135,13 @@
      virtual void SetScissor         (int x, int y, int width, int height) override;
      virtual void SetTextureParameter(unsigned int pname, int param)       override;
      
-     virtual void SetBlendMode   (int blendMode)                override;
-     virtual void SetBlendFunc   (int srcFactor, int dstFactor) override;
-     virtual void SetDepthBuffer (bool enabled, bool clearNow)  override;
-     virtual void SetDepthMask   (bool enabled)                 override;
-     virtual void SetCullFace    (bool enabled, int mode)       override;
-     virtual void SetColorMask   (bool r, bool g, bool b, bool a) override;
+    virtual void SetBlendMode   (int blendMode)                override;
+    virtual void SetBlendFunc   (int srcFactor, int dstFactor) override;
+    virtual void SetDepthBuffer (bool enabled, bool clearNow)  override;
+    virtual void SetDepthMask   (bool enabled)                 override;
+    virtual void SetCullFace    (bool enabled, int mode)       override;
+    virtual void SetColorMask   (bool r, bool g, bool b, bool a) override;
+    virtual void SetClearColor  (float r, float g, float b, float a) override;
      
      virtual unsigned int CreateShader(const char* vertexSource, const char* fragmentSource) override;
      

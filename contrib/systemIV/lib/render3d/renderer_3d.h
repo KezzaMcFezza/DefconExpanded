@@ -125,10 +125,6 @@ protected:
     unsigned int m_shader3DProgram;
     unsigned int m_shader3DTexturedProgram;                 // Textured shader for quads
     unsigned int m_shader3DModelProgram;                    // Model shader with per-instance transforms
-    unsigned int m_VAO3D;
-    unsigned int m_VBO3D;
-    unsigned int m_VAO3DTextured;                           // VAO for textured quads
-    unsigned int m_VBO3DTextured;                           // VBO for textured quads
     unsigned int m_spriteVAO3D, m_spriteVBO3D;              // Unit sprites and highlights
     unsigned int m_lineVAO3D, m_lineVBO3D;                  // Effects lines and trails (non-textured)
     unsigned int m_textVAO3D, m_textVBO3D;                  // Text rendering
@@ -137,7 +133,6 @@ protected:
     unsigned int m_rectVAO3D, m_rectVBO3D;                  // Rect outlines
     unsigned int m_rectFillVAO3D, m_rectFillVBO3D;          // Rect fills
     unsigned int m_triangleFillVAO3D, m_triangleFillVBO3D;  // Triangle fills
-    unsigned int m_immediateVAO3D, m_immediateVBO3D;        // Immediate rendering
     
     Matrix4f m_projectionMatrix3D;
     Matrix4f m_modelViewMatrix3D;
@@ -210,7 +205,7 @@ protected:
     
     bool m_immediateModeEnabled3D;
     
-    void IncrementDrawCall3D         (const char* bufferType);
+    void IncrementDrawCall3D         (DrawCallType type);
     void ResetFrameCounters3D        ();
     
     float m_currentLineWidth3D;
@@ -235,7 +230,16 @@ private:
     
     int m_drawCallsPerFrame3D;
     int m_immediateVertexCalls3D;        
-    int m_immediateTriangleCalls3D;      
+    int m_immediateTriangleCalls3D;
+    int m_immediateLineCalls3D;
+    int m_immediateTextCalls3D;
+    int m_immediateStaticSpriteCalls3D;
+    int m_immediateRotatingSpriteCalls3D;
+    int m_immediateCircleCalls3D;
+    int m_immediateCircleFillCalls3D;
+    int m_immediateRectCalls3D;
+    int m_immediateRectFillCalls3D;
+    int m_immediateTriangleFillCalls3D;
     int m_lineCalls3D;
     int m_staticSpriteCalls3D;
     int m_rotatingSpriteCalls3D;
@@ -253,6 +257,14 @@ private:
     int m_prevImmediateVertexCalls3D;
     int m_prevImmediateTriangleCalls3D;
     int m_prevImmediateLineCalls3D;
+    int m_prevImmediateTextCalls3D;
+    int m_prevImmediateStaticSpriteCalls3D;
+    int m_prevImmediateRotatingSpriteCalls3D;
+    int m_prevImmediateCircleCalls3D;
+    int m_prevImmediateCircleFillCalls3D;
+    int m_prevImmediateRectCalls3D;
+    int m_prevImmediateRectFillCalls3D;
+    int m_prevImmediateTriangleFillCalls3D;
     int m_prevLineCalls3D;
     int m_prevStaticSpriteCalls3D;
     int m_prevRotatingSpriteCalls3D;
@@ -285,17 +297,15 @@ private:
     virtual void UploadVertexDataTo3DVBO          (unsigned int vbo, const Vertex3DTextured* vertices, 
                                                    int vertexCount, unsigned int usageHint) = 0;
     
-    virtual void Flush3DVertices              (unsigned int primitiveType) = 0;
-    virtual void Flush3DTexturedVertices      () = 0;
-    virtual void FlushLine3D                  () = 0;
-    virtual void FlushStaticSprites3D         () = 0;
-    virtual void FlushRotatingSprite3D        () = 0;
-    virtual void FlushTextBuffer3D            () = 0;
-    virtual void FlushCircles3D               () = 0;
-    virtual void FlushCircleFills3D           () = 0;
-    virtual void FlushRects3D                 () = 0;
-    virtual void FlushRectFills3D             () = 0;
-    virtual void FlushTriangleFills3D         () = 0;
+    virtual void FlushLine3D                  (bool isImmediate) = 0;
+    virtual void FlushStaticSprites3D         (bool isImmediate) = 0;
+    virtual void FlushRotatingSprite3D        (bool isImmediate) = 0;
+    virtual void FlushTextBuffer3D            (bool isImmediate) = 0;
+    virtual void FlushCircles3D               (bool isImmediate) = 0;
+    virtual void FlushCircleFills3D           (bool isImmediate) = 0;
+    virtual void FlushRects3D                 (bool isImmediate) = 0;
+    virtual void FlushRectFills3D             (bool isImmediate) = 0;
+    virtual void FlushTriangleFills3D         (bool isImmediate) = 0;
     
     virtual void CleanupBuffers3D             () = 0;
     
@@ -381,9 +391,18 @@ public:
     void SetImmediateModeEnabled3D (bool enabled) { m_immediateModeEnabled3D = enabled; }
     bool IsImmediateModeEnabled3D  () const { return m_immediateModeEnabled3D; }
     
-    int GetTotalDrawCalls           () const { return m_prevDrawCallsPerFrame3D; }
-    int GetImmediateTriangleCalls   () const { return m_prevImmediateTriangleCalls3D; }
-    int GetImmediateLineCalls       () const { return m_prevImmediateLineCalls3D; }         
+    int GetTotalDrawCalls               () const { return m_prevDrawCallsPerFrame3D; }
+    int GetImmediateTriangleCalls       () const { return m_prevImmediateTriangleCalls3D; }
+    int GetImmediateLineCalls           () const { return m_prevImmediateLineCalls3D; }
+    int GetImmediateTextCalls           () const { return m_prevImmediateTextCalls3D; }
+    int GetImmediateStaticSpriteCalls   () const { return m_prevImmediateStaticSpriteCalls3D; }
+    int GetImmediateRotatingSpriteCalls () const { return m_prevImmediateRotatingSpriteCalls3D; }
+    int GetImmediateCircleCalls         () const { return m_prevImmediateCircleCalls3D; }
+    int GetImmediateCircleFillCalls     () const { return m_prevImmediateCircleFillCalls3D; }
+    int GetImmediateRectCalls           () const { return m_prevImmediateRectCalls3D; }
+    int GetImmediateRectFillCalls       () const { return m_prevImmediateRectFillCalls3D; }
+    int GetImmediateTriangleFillCalls   () const { return m_prevImmediateTriangleFillCalls3D; }
+
     int GetTextCalls                () const { return m_prevTextCalls3D; }
     int GetLineCalls                () const { return m_prevLineCalls3D; }
     int GetStaticSpriteCalls        () const { return m_prevStaticSpriteCalls3D; }

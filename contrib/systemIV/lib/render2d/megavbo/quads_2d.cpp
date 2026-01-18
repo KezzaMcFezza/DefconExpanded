@@ -172,7 +172,7 @@ void MegaVBO2D::RenderTexturedMegaVBO( const char *megaVBOKey )
 	g_renderer2d->DrawMegaVBOIndexed( PRIMITIVE_TRIANGLES, cachedVBO->indexCount );
 
 	g_renderer->EndFlushTiming( "MegaVBO_Textured_2D" );
-	g_renderer2d->IncrementDrawCall( "quad_vbo" );
+	g_renderer2d->IncrementDrawCall( DRAW_CALL_QUAD_VBO );
 }
 
 

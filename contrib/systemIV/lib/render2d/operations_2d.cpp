@@ -8,21 +8,6 @@
 #include "lib/render/renderer.h"
 #include "lib/render2d/renderer_2d.h"
 
-void Renderer2D::FlushIfTextureChanged( unsigned int newTextureID, bool useTexture )
-{
-	if ( !m_batchingTextures )
-	{
-		FlushTriangles( useTexture );
-		return;
-	}
-
-	if ( m_triangleVertexCount > 0 && g_renderer->GetCurrentBoundTexture() != newTextureID )
-	{
-		FlushTriangles( useTexture );
-	}
-}
-
-
 // ============================================================================
 // BEGIN SCENES
 // ============================================================================
@@ -117,7 +102,7 @@ void Renderer2D::EndTextBatch()
 			m_textVertexCount = m_fontBatches[i].vertexCount;
 			m_currentTextTexture = m_fontBatches[i].textureID;
 
-			FlushTextBuffer();
+			FlushTextBuffer( false );
 
 			//
 			// mark it as flushed
@@ -145,7 +130,7 @@ void Renderer2D::EndLineBatch()
 {
 	if ( m_lineVertexCount > 0 )
 	{
-		FlushLines();
+		FlushLines( false );
 	}
 }
 
@@ -154,7 +139,7 @@ void Renderer2D::EndStaticSpriteBatch()
 {
 	if ( m_staticSpriteVertexCount > 0 )
 	{
-		FlushStaticSprites();
+		FlushStaticSprites( false );
 	}
 }
 
@@ -163,7 +148,7 @@ void Renderer2D::EndRotatingSpriteBatch()
 {
 	if ( m_rotatingSpriteVertexCount > 0 )
 	{
-		FlushRotatingSprite();
+		FlushRotatingSprite( false );
 	}
 }
 
@@ -172,7 +157,7 @@ void Renderer2D::EndCircleBatch()
 {
 	if ( m_circleVertexCount > 0 )
 	{
-		FlushCircles();
+		FlushCircles( false );
 	}
 }
 
@@ -181,7 +166,7 @@ void Renderer2D::EndCircleFillBatch()
 {
 	if ( m_circleFillVertexCount > 0 )
 	{
-		FlushCircleFills();
+		FlushCircleFills( false );
 	}
 }
 
@@ -190,7 +175,7 @@ void Renderer2D::EndRectBatch()
 {
 	if ( m_rectVertexCount > 0 )
 	{
-		FlushRects();
+		FlushRects( false );
 	}
 }
 
@@ -199,7 +184,7 @@ void Renderer2D::EndRectFillBatch()
 {
 	if ( m_rectFillVertexCount > 0 )
 	{
-		FlushRectFills();
+		FlushRectFills( false );
 	}
 }
 
@@ -208,7 +193,7 @@ void Renderer2D::EndTriangleFillBatch()
 {
 	if ( m_triangleFillVertexCount > 0 )
 	{
-		FlushTriangleFills();
+		FlushTriangleFills( false );
 	}
 }
 
@@ -236,7 +221,7 @@ void Renderer2D::FlushTextBufferIfFull( int charactersNeeded )
 	int verticesNeeded = charactersNeeded * 6;
 	if ( m_textVertexCount + verticesNeeded > MAX_TEXT_VERTICES )
 	{
-		FlushTextBuffer();
+		FlushTextBuffer( false );
 	}
 }
 
@@ -245,7 +230,7 @@ void Renderer2D::FlushLinesIfFull( int segmentsNeeded )
 {
 	if ( m_lineVertexCount + segmentsNeeded > MAX_LINE_VERTICES )
 	{
-		FlushLines();
+		FlushLines( false );
 	}
 }
 
@@ -254,7 +239,7 @@ void Renderer2D::FlushStaticSpritesIfFull( int verticesNeeded )
 {
 	if ( m_staticSpriteVertexCount + verticesNeeded > MAX_STATIC_SPRITE_VERTICES )
 	{
-		FlushStaticSprites();
+		FlushStaticSprites( false );
 	}
 }
 
@@ -263,7 +248,7 @@ void Renderer2D::FlushRotatingSpritesIfFull( int verticesNeeded )
 {
 	if ( m_rotatingSpriteVertexCount + verticesNeeded > MAX_ROTATING_SPRITE_VERTICES )
 	{
-		FlushRotatingSprite();
+		FlushRotatingSprite( false );
 	}
 }
 
@@ -272,7 +257,7 @@ void Renderer2D::FlushCirclesIfFull( int verticesNeeded )
 {
 	if ( m_circleVertexCount + verticesNeeded > MAX_CIRCLE_VERTICES )
 	{
-		FlushCircles();
+		FlushCircles( false );
 	}
 }
 
@@ -281,7 +266,7 @@ void Renderer2D::FlushCircleFillsIfFull( int verticesNeeded )
 {
 	if ( m_circleFillVertexCount + verticesNeeded > MAX_CIRCLE_FILL_VERTICES )
 	{
-		FlushCircleFills();
+		FlushCircleFills( false );
 	}
 }
 
@@ -290,7 +275,7 @@ void Renderer2D::FlushRectsIfFull( int verticesNeeded )
 {
 	if ( m_rectVertexCount + verticesNeeded > MAX_RECT_VERTICES )
 	{
-		FlushRects();
+		FlushRects( false );
 	}
 }
 
@@ -299,7 +284,7 @@ void Renderer2D::FlushRectFillsIfFull( int verticesNeeded )
 {
 	if ( m_rectFillVertexCount + verticesNeeded > MAX_RECT_FILL_VERTICES )
 	{
-		FlushRectFills();
+		FlushRectFills( false );
 	}
 }
 
@@ -308,6 +293,6 @@ void Renderer2D::FlushTriangleFillsIfFull( int verticesNeeded )
 {
 	if ( m_triangleFillVertexCount + verticesNeeded > MAX_TRIANGLE_FILL_VERTICES )
 	{
-		FlushTriangleFills();
+		FlushTriangleFills( false );
 	}
 }

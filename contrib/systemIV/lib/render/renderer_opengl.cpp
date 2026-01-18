@@ -77,6 +77,13 @@ RendererOpenGL::RendererOpenGL()
 		m_flushTimings[i].callCount = 0;
 		m_flushTimings[i].queryObject = 0;
 		m_flushTimings[i].queryPending = false;
+		m_flushTimings[i].queryPoolSize = 0;
+		m_flushTimings[i].nextQueryIndex = 0;
+
+		for ( int q = 0; q < FlushTiming::MAX_QUERIES_PER_TYPE; ++q )
+		{
+			m_flushTimings[i].queryPool[q] = 0;
+		}
 	}
 
 	m_blendMode = BlendModeNormal;
@@ -104,9 +111,12 @@ RendererOpenGL::~RendererOpenGL()
 
 	for ( int i = 0; i < m_flushTimingCount; i++ )
 	{
-		if ( m_flushTimings[i].queryObject != 0 )
+		for ( int q = 0; q < m_flushTimings[i].queryPoolSize; ++q )
 		{
-			glDeleteQueries( 1, &m_flushTimings[i].queryObject );
+			if ( m_flushTimings[i].queryPool[q] != 0 )
+			{
+				glDeleteQueries( 1, &m_flushTimings[i].queryPool[q] );
+			}
 		}
 	}
 }
@@ -537,6 +547,17 @@ void RendererOpenGL::SetColorMask( bool r, bool g, bool b, bool a )
 }
 
 
+void RendererOpenGL::SetClearColor( float r, float g, float b, float a )
+{
+	m_clearColorR = r;
+	m_clearColorG = g;
+	m_clearColorB = b;
+	m_clearColorA = a;
+
+	glClearColor( r, g, b, a );
+}
+
+
 // ============================================================================
 // SHADER SETUP
 // ============================================================================
@@ -660,24 +681,41 @@ void RendererOpenGL::StartFlushTiming( const char *name )
 	{
 		if ( strcmp( m_flushTimings[i].name, name ) == 0 )
 		{
+			FlushTiming *timing = &m_flushTimings[i];
 
-			if ( m_flushTimings[i].queryObject == 0 )
+			//
+			// Get next query from pool
+
+			int queryIndex = timing->nextQueryIndex;
+
+			if ( timing->queryPoolSize < FlushTiming::MAX_QUERIES_PER_TYPE )
 			{
+				//
+				// Create new query object
+
 #ifndef TARGET_EMSCRIPTEN
-				glGenQueries( 1, &m_flushTimings[i].queryObject );
+				glGenQueries( 1, &timing->queryPool[timing->queryPoolSize] );
 #endif
+				queryIndex = timing->queryPoolSize;
+				timing->queryPoolSize++;
+			}
+			else
+			{
+				//
+				// Wrap around in pool
+
+				queryIndex = timing->nextQueryIndex % FlushTiming::MAX_QUERIES_PER_TYPE;
 			}
 
 			//
-			// Only start new query if previous one is complete
+			// Start GPU timing query
 
-			if ( !m_flushTimings[i].queryPending )
-			{
 #ifndef TARGET_EMSCRIPTEN
-				glBeginQuery( GL_TIME_ELAPSED, m_flushTimings[i].queryObject );
+			glBeginQuery( GL_TIME_ELAPSED, timing->queryPool[queryIndex] );
 #endif
-				m_flushTimings[i].queryPending = true;
-			}
+			timing->queryObject = timing->queryPool[queryIndex];
+			timing->queryPending = true;
+			timing->nextQueryIndex = ( queryIndex + 1 ) % FlushTiming::MAX_QUERIES_PER_TYPE;
 			return;
 		}
 	}
@@ -693,12 +731,17 @@ void RendererOpenGL::StartFlushTiming( const char *name )
 		timing->totalGpuTime = 0.0;
 		timing->callCount = 0;
 		timing->queryPending = false;
+		timing->queryPoolSize = 0;
+		timing->nextQueryIndex = 0;
 
 #ifndef TARGET_EMSCRIPTEN
-		glGenQueries( 1, &timing->queryObject );
-		glBeginQuery( GL_TIME_ELAPSED, timing->queryObject );
+		glGenQueries( 1, &timing->queryPool[0] );
+		glBeginQuery( GL_TIME_ELAPSED, timing->queryPool[0] );
 #endif
+		timing->queryObject = timing->queryPool[0];
 		timing->queryPending = true;
+		timing->queryPoolSize = 1;
+		timing->nextQueryIndex = 1;
 		m_flushTimingCount++;
 	}
 }
@@ -734,21 +777,32 @@ void RendererOpenGL::EndFlushTiming( const char *name )
 void RendererOpenGL::UpdateGpuTimings()
 {
 	//
-	// Call this once per frame to collect GPU timing results
+	// Call this once per frame to collect GPU timing results from all queries in pool
 
 	for ( int i = 0; i < m_flushTimingCount; i++ )
 	{
-		int available = 0;
-#ifndef TARGET_EMSCRIPTEN
-		glGetQueryObjectiv( m_flushTimings[i].queryObject, GL_QUERY_RESULT_AVAILABLE, &available );
-#endif
-		if ( available )
+		FlushTiming *timing = &m_flushTimings[i];
+
+		//
+		// Check all queries in the pool
+
+		for ( int q = 0; q < timing->queryPoolSize; q++ )
 		{
-			uint64_t gpuTime;
+			int available = 0;
 #ifndef TARGET_EMSCRIPTEN
-			glGetQueryObjectui64v( m_flushTimings[i].queryObject, GL_QUERY_RESULT, &gpuTime );
+			glGetQueryObjectiv( timing->queryPool[q], GL_QUERY_RESULT_AVAILABLE, &available );
 #endif
-			m_flushTimings[i].totalGpuTime += gpuTime / 1000000.0; // Convert to milliseconds
+			if ( available )
+			{
+				uint64_t gpuTime = 0;
+#ifndef TARGET_EMSCRIPTEN
+				glGetQueryObjectui64v( timing->queryPool[q], GL_QUERY_RESULT, &gpuTime );
+#endif
+				//
+				// Convert nanoseconds to milliseconds
+
+				timing->totalGpuTime += gpuTime / 1000000.0;
+			}
 		}
 	}
 }
@@ -1153,18 +1207,25 @@ unsigned int RendererOpenGL::CreateTexture( int width, int height, const Colour 
 
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, ConvertTextureAddressMode( TEXTURE_ADDRESS_CLAMP ) );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, ConvertTextureAddressMode( TEXTURE_ADDRESS_CLAMP ) );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+	TextureFilterMode filterMode = GetDefaultTextureFilterMode();
+	GLint magFilter = ( filterMode == TEXTURE_FILTER_MODE_NEAREST ) ? GL_NEAREST : GL_LINEAR;
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter );
 
 	if ( mipmapLevel > 0 )
 	{
-		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+		GLint minFilter = ( filterMode == TEXTURE_FILTER_MODE_NEAREST )
+							  ? GL_NEAREST_MIPMAP_LINEAR
+							  : GL_LINEAR_MIPMAP_LINEAR;
+		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter );
 		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmapLevel );
 		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
 		glGenerateMipmap( GL_TEXTURE_2D );
 	}
 	else
 	{
-		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+		GLint minFilter = ( filterMode == TEXTURE_FILTER_MODE_NEAREST ) ? GL_NEAREST : GL_LINEAR;
+		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter );
 		glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0 );
 		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
 	}

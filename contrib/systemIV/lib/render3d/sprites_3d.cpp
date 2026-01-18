@@ -26,7 +26,7 @@ void Renderer3D::StaticSprite3D( Image *src, float x, float y, float z, float w,
 
 	if ( m_staticSpriteVertexCount3D > 0 && m_currentStaticSpriteTexture3D != effectiveTextureID )
 	{
-		FlushStaticSprites3D();
+		FlushStaticSprites3D( false );
 	}
 
 	m_currentStaticSpriteTexture3D = effectiveTextureID;
@@ -66,7 +66,7 @@ void Renderer3D::StaticSprite3D( Image *src, float x, float y, float z, float w,
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushStaticSprites3D();
+		FlushStaticSprites3D( true );
 	}
 }
 
@@ -85,7 +85,7 @@ void Renderer3D::RotatingSprite3D( Image *src, float x, float y, float z, float 
 
 	if ( m_rotatingSpriteVertexCount3D > 0 && m_currentRotatingSpriteTexture3D != effectiveTextureID )
 	{
-		FlushRotatingSprite3D();
+		FlushRotatingSprite3D( false );
 	}
 
 	m_currentRotatingSpriteTexture3D = effectiveTextureID;
@@ -139,6 +139,6 @@ void Renderer3D::RotatingSprite3D( Image *src, float x, float y, float z, float 
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushRotatingSprite3D();
+		FlushRotatingSprite3D( true );
 	}
 }

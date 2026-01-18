@@ -29,8 +29,6 @@ Renderer3D::Renderer3D()
 	: m_shader3DProgram( 0 ),
 	  m_shader3DTexturedProgram( 0 ),
 	  m_shader3DModelProgram( 0 ),
-	  m_VAO3D( 0 ), m_VBO3D( 0 ),
-	  m_VAO3DTextured( 0 ), m_VBO3DTextured( 0 ),
 	  m_spriteVAO3D( 0 ), m_spriteVBO3D( 0 ),
 	  m_lineVAO3D( 0 ), m_lineVBO3D( 0 ),
 	  m_circleVAO3D( 0 ), m_circleVBO3D( 0 ),
@@ -38,7 +36,6 @@ Renderer3D::Renderer3D()
 	  m_rectVAO3D( 0 ), m_rectVBO3D( 0 ),
 	  m_rectFillVAO3D( 0 ), m_rectFillVBO3D( 0 ),
 	  m_triangleFillVAO3D( 0 ), m_triangleFillVBO3D( 0 ),
-	  m_immediateVAO3D( 0 ), m_immediateVBO3D( 0 ),
 	  m_currentShaderProgram3D( 0 ),
 	  m_matrices3DNeedUpdate( true ),
 	  m_fog3DNeedsUpdate( true ),
@@ -240,19 +237,21 @@ void Renderer3D::EndLineStrip3D()
 	//
 	// Clear current buffer and add line segments
 
-	m_vertex3DCount = 0;
+	m_lineVertexCount3D = 0;
 	for ( int i = 0; i < lineVertexCount; i++ )
 	{
-		if ( m_vertex3DCount >= MAX_3D_VERTICES )
+		if ( m_lineVertexCount3D >= MAX_LINE_VERTICES_3D )
 			break;
-		m_vertices3D[m_vertex3DCount++] = lineVertices[i];
+		m_lineVertices3D[m_lineVertexCount3D++] = lineVertices[i];
 	}
+
+	m_vertex3DCount = 0;
 
 #ifndef TARGET_EMSCRIPTEN
 	g_renderer->SetLineWidth( m_lineStrip3DWidth );
 #endif
 
-	Flush3DVertices( GL_LINES );
+	FlushLine3D( false );
 
 	m_lineStrip3DActive = false;
 }
@@ -295,55 +294,6 @@ void Renderer3D::EndLineLoop3D()
 	}
 
 	EndLineStrip3D();
-}
-
-
-void Renderer3D::BeginTexturedQuad3D( unsigned int textureID, Colour const &col )
-{
-	m_texturedQuad3DActive = true;
-	m_texturedQuad3DColor = col;
-	m_currentTexture3D = textureID;
-	m_vertex3DTexturedCount = 0;
-}
-
-
-void Renderer3D::TexturedQuadVertex3D( float x, float y, float z, float u, float v )
-{
-	if ( !m_texturedQuad3DActive )
-		return;
-
-	if ( m_vertex3DTexturedCount >= MAX_3D_TEXTURED_VERTICES )
-	{
-		return;
-	}
-
-	float r = m_texturedQuad3DColor.GetRFloat();
-	float g = m_texturedQuad3DColor.GetGFloat();
-	float b = m_texturedQuad3DColor.GetBFloat();
-	float a = m_texturedQuad3DColor.GetAFloat();
-
-	m_vertices3DTextured[m_vertex3DTexturedCount] = Vertex3DTextured( x, y, z, 0.0f, 1.0f, 0.0f, r, g, b, a, u, v );
-	m_vertex3DTexturedCount++;
-}
-
-
-void Renderer3D::TexturedQuadVertex3D( const Vector3<float> &vertex, float u, float v )
-{
-	TexturedQuadVertex3D( vertex.x, vertex.y, vertex.z, u, v );
-}
-
-
-void Renderer3D::EndTexturedQuad3D()
-{
-	if ( !m_texturedQuad3DActive || m_vertex3DTexturedCount < 4 )
-	{
-		m_texturedQuad3DActive = false;
-		m_vertex3DTexturedCount = 0;
-		return;
-	}
-
-	Flush3DTexturedVertices();
-	m_texturedQuad3DActive = false;
 }
 
 
@@ -576,69 +526,82 @@ void Renderer3D::CalculateSphericalTangents( const Vector3<float> &position, Vec
 //
 // Increment draw calls for the 3d renderer
 
-void Renderer3D::IncrementDrawCall3D( const char *bufferType )
+void Renderer3D::IncrementDrawCall3D( DrawCallType type )
 {
 	m_drawCallsPerFrame3D++;
 
-	constexpr auto hash = []( const char *str ) constexpr
+	switch ( type )
 	{
-		uint32_t hash = 5381;
-		while ( *str )
-		{
-			hash = ( ( hash << 5 ) + hash ) + *str++;
-		}
-		return hash;
-	};
-
-	switch ( hash( bufferType ) )
-	{
-		case hash( "immediate_vertices" ):
+		case DRAW_CALL_IMMEDIATE_VERTICES_3D:
 			m_immediateVertexCalls3D++;
 			break;
-		case hash( "immediate_triangles" ):
+		case DRAW_CALL_IMMEDIATE_TRIANGLES:
 			m_immediateTriangleCalls3D++;
 			break;
-		case hash( "text" ):
+		case DRAW_CALL_IMMEDIATE_LINES:
+			m_immediateLineCalls3D++;
+			break;
+		case DRAW_CALL_IMMEDIATE_TEXT:
+			m_immediateTextCalls3D++;
+			break;
+		case DRAW_CALL_IMMEDIATE_STATIC_SPRITES:
+			m_immediateStaticSpriteCalls3D++;
+			break;
+		case DRAW_CALL_IMMEDIATE_ROTATING_SPRITES:
+			m_immediateRotatingSpriteCalls3D++;
+			break;
+		case DRAW_CALL_IMMEDIATE_CIRCLES:
+			m_immediateCircleCalls3D++;
+			break;
+		case DRAW_CALL_IMMEDIATE_CIRCLE_FILLS:
+			m_immediateCircleFillCalls3D++;
+			break;
+		case DRAW_CALL_IMMEDIATE_RECTS:
+			m_immediateRectCalls3D++;
+			break;
+		case DRAW_CALL_IMMEDIATE_RECT_FILLS:
+			m_immediateRectFillCalls3D++;
+			break;
+		case DRAW_CALL_IMMEDIATE_TRIANGLE_FILLS:
+			m_immediateTriangleFillCalls3D++;
+			break;
+		case DRAW_CALL_TEXT:
 			m_textCalls3D++;
 			break;
-		case hash( "mega_vbo" ):
-			m_megaVBOCalls3D++;
-			break;
-		case hash( "lines" ):
+		case DRAW_CALL_LINES:
 			m_lineCalls3D++;
 			break;
-		case hash( "batched_lines" ):
-			m_lineCalls3D++;
-			break;
-		case hash( "static_sprites" ):
+		case DRAW_CALL_STATIC_SPRITES:
 			m_staticSpriteCalls3D++;
 			break;
-		case hash( "rotating_sprites" ):
+		case DRAW_CALL_ROTATING_SPRITES:
 			m_rotatingSpriteCalls3D++;
 			break;
-		case hash( "circles" ):
+		case DRAW_CALL_CIRCLES:
 			m_circleCalls3D++;
 			break;
-		case hash( "circle_fills" ):
+		case DRAW_CALL_CIRCLE_FILLS:
 			m_circleFillCalls3D++;
 			break;
-		case hash( "rects" ):
+		case DRAW_CALL_RECTS:
 			m_rectCalls3D++;
 			break;
-		case hash( "rect_fills" ):
+		case DRAW_CALL_RECT_FILLS:
 			m_rectFillCalls3D++;
 			break;
-		case hash( "triangle_fills" ):
+		case DRAW_CALL_TRIANGLE_FILLS:
 			m_triangleFillCalls3D++;
 			break;
-		case hash( "line_vbo" ):
+		case DRAW_CALL_LINE_VBO:
 			m_lineVBOCalls3D++;
 			break;
-		case hash( "quad_vbo" ):
+		case DRAW_CALL_QUAD_VBO:
 			m_quadVBOCalls3D++;
 			break;
-		case hash( "triangle_vbo" ):
+		case DRAW_CALL_TRIANGLE_VBO:
 			m_triangleVBOCalls3D++;
+			break;
+		default:
 			break;
 	}
 }
@@ -649,7 +612,15 @@ void Renderer3D::ResetFrameCounters3D()
 	m_prevDrawCallsPerFrame3D = m_drawCallsPerFrame3D;
 	m_prevImmediateVertexCalls3D = m_immediateVertexCalls3D;
 	m_prevImmediateTriangleCalls3D = m_immediateTriangleCalls3D;
-	m_prevImmediateLineCalls3D = m_lineCalls3D;
+	m_prevImmediateLineCalls3D = m_immediateLineCalls3D;
+	m_prevImmediateTextCalls3D = m_immediateTextCalls3D;
+	m_prevImmediateStaticSpriteCalls3D = m_immediateStaticSpriteCalls3D;
+	m_prevImmediateRotatingSpriteCalls3D = m_immediateRotatingSpriteCalls3D;
+	m_prevImmediateCircleCalls3D = m_immediateCircleCalls3D;
+	m_prevImmediateCircleFillCalls3D = m_immediateCircleFillCalls3D;
+	m_prevImmediateRectCalls3D = m_immediateRectCalls3D;
+	m_prevImmediateRectFillCalls3D = m_immediateRectFillCalls3D;
+	m_prevImmediateTriangleFillCalls3D = m_immediateTriangleFillCalls3D;
 	m_prevLineCalls3D = m_lineCalls3D;
 	m_prevStaticSpriteCalls3D = m_staticSpriteCalls3D;
 	m_prevRotatingSpriteCalls3D = m_rotatingSpriteCalls3D;
@@ -671,6 +642,15 @@ void Renderer3D::ResetFrameCounters3D()
 	m_drawCallsPerFrame3D = 0;
 	m_immediateVertexCalls3D = 0;
 	m_immediateTriangleCalls3D = 0;
+	m_immediateLineCalls3D = 0;
+	m_immediateTextCalls3D = 0;
+	m_immediateStaticSpriteCalls3D = 0;
+	m_immediateRotatingSpriteCalls3D = 0;
+	m_immediateCircleCalls3D = 0;
+	m_immediateCircleFillCalls3D = 0;
+	m_immediateRectCalls3D = 0;
+	m_immediateRectFillCalls3D = 0;
+	m_immediateTriangleFillCalls3D = 0;
 	m_lineCalls3D = 0;
 	m_staticSpriteCalls3D = 0;
 	m_rotatingSpriteCalls3D = 0;

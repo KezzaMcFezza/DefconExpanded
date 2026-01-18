@@ -49,6 +49,10 @@ Renderer::Renderer()
 	  m_msaaWidth( 0 ),
 	  m_msaaHeight( 0 ),
 	  m_currentPass( RENDER_PASS_NONE ),
+	  m_clearColorR( 0.0f ),
+	  m_clearColorG( 0.0f ),
+	  m_clearColorB( 0.0f ),
+	  m_clearColorA( 1.0f ),
 	  m_blendMode( BlendModeNormal ),
 	  m_blendSrcFactor( 0 ),
 	  m_blendDstFactor( 0 )

@@ -111,10 +111,18 @@ enum RendererType {
     RENDERER_TYPE_DIRECTX11
 };
 
-void         SetRendererType      (RendererType type);
-RendererType GetRendererType      ();
-bool         IsRendererAvailable  (RendererType type);
-const char  *GetRendererTypeName  (RendererType type);
+enum TextureFilterMode {
+    TEXTURE_FILTER_MODE_LINEAR,
+    TEXTURE_FILTER_MODE_NEAREST
+};
+
+void         SetRendererType            (RendererType type);
+RendererType GetRendererType            ();
+bool         IsRendererAvailable        (RendererType type);
+const char  *GetRendererTypeName        (RendererType type);
+
+void               SetDefaultTextureFilterMode (TextureFilterMode mode);
+TextureFilterMode  GetDefaultTextureFilterMode ();
 
 const char *GetResourceDir                  (int index);
 const char * const *GetResourceDirExclusions(int index, int *count);

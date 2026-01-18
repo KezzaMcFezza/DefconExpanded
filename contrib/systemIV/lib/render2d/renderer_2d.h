@@ -54,15 +54,6 @@ protected:
 
 private:
 
-  enum BufferType {
-    BUFFER_TEXT,
-    BUFFER_SPRITES,
-    BUFFER_LINES,
-    BUFFER_STATIC_SPRITES,
-    BUFFER_ROTATING_SPRITES,
-    BUFFER_IMMEDIATE              
-  };
-
 protected:
 
   static constexpr int MAX_VERTICES                 = 5000;
@@ -80,8 +71,6 @@ protected:
   unsigned int m_colorShaderProgram;
   unsigned int m_textureShaderProgram;
   unsigned int m_lineShaderProgram;
-  unsigned int m_VAO;
-  unsigned int m_VBO; 
   unsigned int m_spriteVAO, m_spriteVBO;
   unsigned int m_rotatingSpriteVAO, m_rotatingSpriteVBO;
   unsigned int m_lineVAO, m_lineVBO;
@@ -91,7 +80,6 @@ protected:
   unsigned int m_rectVAO, m_rectVBO;
   unsigned int m_rectFillVAO, m_rectFillVBO;
   unsigned int m_triangleFillVAO, m_triangleFillVBO;
-  unsigned int m_immediateVAO, m_immediateVBO;
   
   bool m_bufferNeedsUpload;
 
@@ -161,8 +149,6 @@ protected:
   float m_currentCircleWidth;
   float m_currentRectWidth;
 
-  BufferType m_activeBuffer;
-
   bool m_batchingTextures;
   bool m_immediateModeEnabled;
 
@@ -176,16 +162,15 @@ protected:
   virtual void UploadVertexDataToVBO   (unsigned int vbo, const Vertex2D* vertices, 
                                         int vertexCount, unsigned int usageHint) = 0;
   
-  virtual void FlushTriangles          (bool useTexture) = 0;
-  virtual void FlushTextBuffer         () = 0;
-  virtual void FlushLines              () = 0;
-  virtual void FlushStaticSprites      () = 0;
-  virtual void FlushRotatingSprite     () = 0;
-  virtual void FlushCircles            () = 0;
-  virtual void FlushCircleFills        () = 0;
-  virtual void FlushRects              () = 0;
-  virtual void FlushRectFills          () = 0;
-  virtual void FlushTriangleFills      () = 0;
+  virtual void FlushTextBuffer         (bool isImmediate) = 0;
+  virtual void FlushLines              (bool isImmediate) = 0;
+  virtual void FlushStaticSprites      (bool isImmediate) = 0;
+  virtual void FlushRotatingSprite     (bool isImmediate) = 0;
+  virtual void FlushCircles            (bool isImmediate) = 0;
+  virtual void FlushCircleFills        (bool isImmediate) = 0;
+  virtual void FlushRects              (bool isImmediate) = 0;
+  virtual void FlushRectFills          (bool isImmediate) = 0;
+  virtual void FlushTriangleFills      (bool isImmediate) = 0;
   
   virtual void CleanupBuffers          () = 0;
   
@@ -233,6 +218,14 @@ public:
   int m_drawCallsPerFrame;
   int m_immediateTriangleCalls;
   int m_immediateLineCalls;
+  int m_immediateTextCalls;
+  int m_immediateStaticSpriteCalls;
+  int m_immediateRotatingSpriteCalls;
+  int m_immediateCircleCalls;
+  int m_immediateCircleFillCalls;
+  int m_immediateRectCalls;
+  int m_immediateRectFillCalls;
+  int m_immediateTriangleFillCalls;
   int m_textCalls;
   int m_lineCalls;
   int m_staticSpriteCalls;
@@ -248,6 +241,14 @@ public:
   int m_prevDrawCallsPerFrame;
   int m_prevImmediateTriangleCalls;
   int m_prevImmediateLineCalls;
+  int m_prevImmediateTextCalls;
+  int m_prevImmediateStaticSpriteCalls;
+  int m_prevImmediateRotatingSpriteCalls;
+  int m_prevImmediateCircleCalls;
+  int m_prevImmediateCircleFillCalls;
+  int m_prevImmediateRectCalls;
+  int m_prevImmediateRectFillCalls;
+  int m_prevImmediateTriangleFillCalls;
   int m_prevTextCalls;
   int m_prevLineCalls;
   int m_prevStaticSpriteCalls;
@@ -264,11 +265,20 @@ public:
   int m_prevActiveFontBatches;
 
   void ResetFrameCounters       ();
-  void IncrementDrawCall        (const char *bufferType);
+  void IncrementDrawCall        (DrawCallType type);
 
-  int GetTotalDrawCalls         () const { return m_prevDrawCallsPerFrame; }
-  int GetImmediateTriangleCalls () const { return m_prevImmediateTriangleCalls; }
-  int GetImmediateLineCalls     () const { return m_prevImmediateLineCalls; }
+  int GetTotalDrawCalls               () const { return m_prevDrawCallsPerFrame; }
+  int GetImmediateTriangleCalls       () const { return m_prevImmediateTriangleCalls; }
+  int GetImmediateLineCalls           () const { return m_prevImmediateLineCalls; }
+  int GetImmediateTextCalls           () const { return m_prevImmediateTextCalls; }
+  int GetImmediateStaticSpriteCalls   () const { return m_prevImmediateStaticSpriteCalls; }
+  int GetImmediateRotatingSpriteCalls () const { return m_prevImmediateRotatingSpriteCalls; }
+  int GetImmediateCircleCalls         () const { return m_prevImmediateCircleCalls; }
+  int GetImmediateCircleFillCalls     () const { return m_prevImmediateCircleFillCalls; }
+  int GetImmediateRectCalls           () const { return m_prevImmediateRectCalls; }
+  int GetImmediateRectFillCalls       () const { return m_prevImmediateRectFillCalls; }
+  int GetImmediateTriangleFillCalls   () const { return m_prevImmediateTriangleFillCalls; }
+
   int GetTextCalls              () const { return m_prevTextCalls; }
   int GetLineCalls              () const { return m_prevLineCalls; }
   int GetStaticSpriteCalls      () const { return m_prevStaticSpriteCalls; }

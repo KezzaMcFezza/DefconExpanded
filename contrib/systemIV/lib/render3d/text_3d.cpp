@@ -66,7 +66,7 @@ void Renderer3D::BlitChar3D( unsigned int textureID, const Vector3<float> &posit
 		m_textVertices3D = batch->vertices;
 		m_textVertexCount3D = batch->vertexCount;
 		m_currentTextTexture3D = batch->textureID;
-		FlushTextBuffer3D();
+		FlushTextBuffer3D( false );
 		batch->vertexCount = 0;
 	}
 
@@ -120,7 +120,7 @@ void Renderer3D::BlitChar3D( unsigned int textureID, const Vector3<float> &posit
 
 	if ( m_immediateModeEnabled3D || immediateFlush )
 	{
-		FlushTextBuffer3D();
+		FlushTextBuffer3D( true );
 		batch->vertexCount = 0;
 	}
 }
@@ -262,7 +262,7 @@ void Renderer3D::TextSimple3D( float x, float y, float z, Colour const &col, flo
 				m_textVertices3D = m_fontBatches3D[i].vertices;
 				m_textVertexCount3D = m_fontBatches3D[i].vertexCount;
 				m_currentTextTexture3D = m_fontBatches3D[i].textureID;
-				FlushTextBuffer3D();
+				FlushTextBuffer3D( immediateFlush );
 				m_fontBatches3D[i].vertexCount = 0;
 			}
 		}
@@ -379,6 +379,6 @@ void Renderer3D::FlushTextBuffer3DIfFull( int charactersNeeded )
 	int verticesNeeded = charactersNeeded * 6;
 	if ( m_textVertexCount3D + verticesNeeded > MAX_TEXT_VERTICES_3D )
 	{
-		FlushTextBuffer3D();
+		FlushTextBuffer3D( false );
 	}
 }

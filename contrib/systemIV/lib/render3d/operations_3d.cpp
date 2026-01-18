@@ -90,7 +90,7 @@ void Renderer3D::EndLineBatch3D()
 {
 	if ( m_lineVertexCount3D > 0 )
 	{
-		FlushLine3D();
+		FlushLine3D( false );
 	}
 }
 
@@ -99,7 +99,7 @@ void Renderer3D::EndStaticSpriteBatch3D()
 {
 	if ( m_staticSpriteVertexCount3D > 0 )
 	{
-		FlushStaticSprites3D();
+		FlushStaticSprites3D( false );
 	}
 }
 
@@ -108,7 +108,7 @@ void Renderer3D::EndRotatingSpriteBatch3D()
 {
 	if ( m_rotatingSpriteVertexCount3D > 0 )
 	{
-		FlushRotatingSprite3D();
+		FlushRotatingSprite3D( false );
 	}
 }
 
@@ -127,7 +127,7 @@ void Renderer3D::EndTextBatch3D()
 			m_textVertexCount3D = m_fontBatches3D[i].vertexCount;
 			m_currentTextTexture3D = m_fontBatches3D[i].textureID;
 
-			FlushTextBuffer3D();
+			FlushTextBuffer3D( false );
 
 			m_fontBatches3D[i].vertexCount = 0;
 		}
@@ -149,7 +149,7 @@ void Renderer3D::EndCircleBatch3D()
 {
 	if ( m_circleVertexCount3D > 0 )
 	{
-		FlushCircles3D();
+		FlushCircles3D( false );
 	}
 }
 
@@ -158,7 +158,7 @@ void Renderer3D::EndCircleFillBatch3D()
 {
 	if ( m_circleFillVertexCount3D > 0 )
 	{
-		FlushCircleFills3D();
+		FlushCircleFills3D( false );
 	}
 }
 
@@ -167,7 +167,7 @@ void Renderer3D::EndRectBatch3D()
 {
 	if ( m_rectVertexCount3D > 0 )
 	{
-		FlushRects3D();
+		FlushRects3D( false );
 	}
 }
 
@@ -176,7 +176,7 @@ void Renderer3D::EndRectFillBatch3D()
 {
 	if ( m_rectFillVertexCount3D > 0 )
 	{
-		FlushRectFills3D();
+		FlushRectFills3D( false );
 	}
 }
 
@@ -185,7 +185,7 @@ void Renderer3D::EndTriangleFillBatch3D()
 {
 	if ( m_triangleFillVertexCount3D > 0 )
 	{
-		FlushTriangleFills3D();
+		FlushTriangleFills3D( false );
 	}
 }
 
@@ -212,7 +212,7 @@ void Renderer3D::FlushLine3DIfFull( int segmentsNeeded )
 {
 	if ( m_lineVertexCount3D + segmentsNeeded > MAX_LINE_VERTICES_3D )
 	{
-		FlushLine3D();
+		FlushLine3D( false );
 	}
 }
 
@@ -221,7 +221,7 @@ void Renderer3D::FlushStaticSprites3DIfFull( int verticesNeeded )
 {
 	if ( m_staticSpriteVertexCount3D + verticesNeeded > MAX_STATIC_SPRITE_VERTICES_3D )
 	{
-		FlushStaticSprites3D();
+		FlushStaticSprites3D( false );
 	}
 }
 
@@ -230,7 +230,7 @@ void Renderer3D::FlushRotatingSprite3DIfFull( int verticesNeeded )
 {
 	if ( m_rotatingSpriteVertexCount3D + verticesNeeded > MAX_ROTATING_SPRITE_VERTICES_3D )
 	{
-		FlushRotatingSprite3D();
+		FlushRotatingSprite3D( false );
 	}
 }
 
@@ -239,7 +239,7 @@ void Renderer3D::FlushCircles3DIfFull( int verticesNeeded )
 {
 	if ( m_circleVertexCount3D + verticesNeeded > MAX_CIRCLE_VERTICES_3D )
 	{
-		FlushCircles3D();
+		FlushCircles3D( false );
 	}
 }
 
@@ -248,7 +248,7 @@ void Renderer3D::FlushCircleFills3DIfFull( int verticesNeeded )
 {
 	if ( m_circleFillVertexCount3D + verticesNeeded > MAX_CIRCLE_FILL_VERTICES_3D )
 	{
-		FlushCircleFills3D();
+		FlushCircleFills3D( false );
 	}
 }
 
@@ -257,7 +257,7 @@ void Renderer3D::FlushRects3DIfFull( int verticesNeeded )
 {
 	if ( m_rectVertexCount3D + verticesNeeded > MAX_RECT_VERTICES_3D )
 	{
-		FlushRects3D();
+		FlushRects3D( false );
 	}
 }
 
@@ -266,7 +266,7 @@ void Renderer3D::FlushRectFills3DIfFull( int verticesNeeded )
 {
 	if ( m_rectFillVertexCount3D + verticesNeeded > MAX_RECT_FILL_VERTICES_3D )
 	{
-		FlushRectFills3D();
+		FlushRectFills3D( false );
 	}
 }
 
@@ -275,6 +275,6 @@ void Renderer3D::FlushTriangleFills3DIfFull( int verticesNeeded )
 {
 	if ( m_triangleFillVertexCount3D + verticesNeeded > MAX_TRIANGLE_FILL_VERTICES_3D )
 	{
-		FlushTriangleFills3D();
+		FlushTriangleFills3D( false );
 	}
 }

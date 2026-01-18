@@ -142,7 +142,7 @@ void MegaVBO2D::RenderMegaVBO( const char *megaVBOKey )
 		return;
 	}
 
-	g_renderer->StartFlushTiming( "MegaVBO_2D" );
+	g_renderer->StartFlushTiming( "MegaVBO_LineStrips_2D" );
 
 	g_renderer->SetShaderProgram( g_renderer2d->m_lineShaderProgram );
 	g_renderer2d->SetLineShaderUniforms( cachedVBO->lineWidth );
@@ -157,8 +157,8 @@ void MegaVBO2D::RenderMegaVBO( const char *megaVBOKey )
 
 	g_renderer2d->DisableMegaVBOPrimitiveRestart();
 
-	g_renderer->EndFlushTiming( "MegaVBO_2D" );
-	g_renderer2d->IncrementDrawCall( "line_vbo" );
+	g_renderer->EndFlushTiming( "MegaVBO_LineStrips_2D" );
+	g_renderer2d->IncrementDrawCall( DRAW_CALL_LINE_VBO );
 }
 
 

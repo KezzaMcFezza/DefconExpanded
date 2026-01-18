@@ -41,8 +41,6 @@ Renderer2D::Renderer2D()
 	  m_colorShaderProgram( 0 ),
 	  m_textureShaderProgram( 0 ),
 	  m_lineShaderProgram( 0 ),
-	  m_VAO( 0 ),
-	  m_VBO( 0 ),
 	  m_textVAO( 0 ),
 	  m_textVBO( 0 ),
 	  m_spriteVAO( 0 ),
@@ -61,8 +59,6 @@ Renderer2D::Renderer2D()
 	  m_rectFillVBO( 0 ),
 	  m_triangleFillVAO( 0 ),
 	  m_triangleFillVBO( 0 ),
-	  m_immediateVAO( 0 ),
-	  m_immediateVBO( 0 ),
 	  m_bufferNeedsUpload( true ),
 	  m_projMatrixLocation( -1 ),
 	  m_modelViewMatrixLocation( -1 ),
@@ -92,7 +88,6 @@ Renderer2D::Renderer2D()
 	  m_lineStripWidth( 1.0f ),
 	  m_currentCircleWidth( 1.0f ),
 	  m_currentRectWidth( 1.0f ),
-	  m_activeBuffer( BUFFER_IMMEDIATE ),
 	  m_batchingTextures( true ),
 	  m_immediateModeEnabled( false )
 {
@@ -286,6 +281,14 @@ void Renderer2D::ResetFrameCounters()
 	m_prevDrawCallsPerFrame = m_drawCallsPerFrame;
 	m_prevImmediateTriangleCalls = m_immediateTriangleCalls;
 	m_prevImmediateLineCalls = m_immediateLineCalls;
+	m_prevImmediateTextCalls = m_immediateTextCalls;
+	m_prevImmediateStaticSpriteCalls = m_immediateStaticSpriteCalls;
+	m_prevImmediateRotatingSpriteCalls = m_immediateRotatingSpriteCalls;
+	m_prevImmediateCircleCalls = m_immediateCircleCalls;
+	m_prevImmediateCircleFillCalls = m_immediateCircleFillCalls;
+	m_prevImmediateRectCalls = m_immediateRectCalls;
+	m_prevImmediateRectFillCalls = m_immediateRectFillCalls;
+	m_prevImmediateTriangleFillCalls = m_immediateTriangleFillCalls;
 	m_prevTextCalls = m_textCalls;
 	m_prevLineCalls = m_lineCalls;
 	m_prevStaticSpriteCalls = m_staticSpriteCalls;
@@ -306,6 +309,14 @@ void Renderer2D::ResetFrameCounters()
 	m_drawCallsPerFrame = 0;
 	m_immediateTriangleCalls = 0;
 	m_immediateLineCalls = 0;
+	m_immediateTextCalls = 0;
+	m_immediateStaticSpriteCalls = 0;
+	m_immediateRotatingSpriteCalls = 0;
+	m_immediateCircleCalls = 0;
+	m_immediateCircleFillCalls = 0;
+	m_immediateRectCalls = 0;
+	m_immediateRectFillCalls = 0;
+	m_immediateTriangleFillCalls = 0;
 	m_textCalls = 0;
 	m_lineCalls = 0;
 	m_staticSpriteCalls = 0;
@@ -324,63 +335,79 @@ void Renderer2D::ResetFrameCounters()
 //
 // increment draw calls for the 2d renderer
 
-void Renderer2D::IncrementDrawCall( const char *bufferType )
+void Renderer2D::IncrementDrawCall( DrawCallType type )
 {
 	m_drawCallsPerFrame++;
 
-	constexpr auto hash = []( const char *str ) constexpr
+	switch ( type )
 	{
-		uint32_t hash = 5381;
-		while ( *str )
-		{
-			hash = ( ( hash << 5 ) + hash ) + *str++;
-		}
-		return hash;
-	};
-
-	switch ( hash( bufferType ) )
-	{
-		case hash( "immediate_triangles" ):
+		case DRAW_CALL_IMMEDIATE_TRIANGLES:
 			m_immediateTriangleCalls++;
 			break;
-		case hash( "immediate_lines" ):
+		case DRAW_CALL_IMMEDIATE_LINES:
 			m_immediateLineCalls++;
 			break;
-		case hash( "text" ):
+		case DRAW_CALL_IMMEDIATE_TEXT:
+			m_immediateTextCalls++;
+			break;
+		case DRAW_CALL_IMMEDIATE_STATIC_SPRITES:
+			m_immediateStaticSpriteCalls++;
+			break;
+		case DRAW_CALL_IMMEDIATE_ROTATING_SPRITES:
+			m_immediateRotatingSpriteCalls++;
+			break;
+		case DRAW_CALL_IMMEDIATE_CIRCLES:
+			m_immediateCircleCalls++;
+			break;
+		case DRAW_CALL_IMMEDIATE_CIRCLE_FILLS:
+			m_immediateCircleFillCalls++;
+			break;
+		case DRAW_CALL_IMMEDIATE_RECTS:
+			m_immediateRectCalls++;
+			break;
+		case DRAW_CALL_IMMEDIATE_RECT_FILLS:
+			m_immediateRectFillCalls++;
+			break;
+		case DRAW_CALL_IMMEDIATE_TRIANGLE_FILLS:
+			m_immediateTriangleFillCalls++;
+			break;
+		case DRAW_CALL_TEXT:
 			m_textCalls++;
 			break;
-		case hash( "lines" ):
+		case DRAW_CALL_LINES:
 			m_lineCalls++;
 			break;
-		case hash( "static_sprites" ):
+		case DRAW_CALL_STATIC_SPRITES:
 			m_staticSpriteCalls++;
 			break;
-		case hash( "rotating_sprites" ):
+		case DRAW_CALL_ROTATING_SPRITES:
 			m_rotatingSpriteCalls++;
 			break;
-		case hash( "circles" ):
+		case DRAW_CALL_CIRCLES:
 			m_circleCalls++;
 			break;
-		case hash( "circle_fills" ):
+		case DRAW_CALL_CIRCLE_FILLS:
 			m_circleFillCalls++;
 			break;
-		case hash( "rects" ):
+		case DRAW_CALL_RECTS:
 			m_rectCalls++;
 			break;
-		case hash( "rect_fills" ):
+		case DRAW_CALL_RECT_FILLS:
 			m_rectFillCalls++;
 			break;
-		case hash( "triangle_fills" ):
+		case DRAW_CALL_TRIANGLE_FILLS:
 			m_triangleFillCalls++;
 			break;
-		case hash( "line_vbo" ):
+		case DRAW_CALL_LINE_VBO:
 			m_lineVBOCalls++;
 			break;
-		case hash( "quad_vbo" ):
+		case DRAW_CALL_QUAD_VBO:
 			m_quadVBOCalls++;
 			break;
-		case hash( "triangle_vbo" ):
+		case DRAW_CALL_TRIANGLE_VBO:
 			m_triangleVBOCalls++;
+			break;
+		default:
 			break;
 	}
 }

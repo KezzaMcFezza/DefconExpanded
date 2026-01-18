@@ -42,8 +42,6 @@ Renderer3DD3D11::Renderer3DD3D11()
 	  m_rectBuffer3D( nullptr ),
 	  m_rectFillBuffer3D( nullptr ),
 	  m_triangleFillBuffer3D( nullptr ),
-	  m_immediateBuffer3D( nullptr ),
-	  m_immediateTexturedBuffer3D( nullptr ),
 	  m_currentTextureSRV( nullptr ),
 	  m_currentTextureID( 0 ),
 	  m_nextVBOId( 1 ),
@@ -753,13 +751,6 @@ void Renderer3DD3D11::Setup3DVertexArrays()
 	desc.ByteWidth = sizeof( Vertex3D ) * MAX_TRIANGLE_FILL_VERTICES_3D;
 	hr = m_device->CreateBuffer( &desc, nullptr, &m_triangleFillBuffer3D );
 	CheckHR( hr, "create 3D triangle fill buffer" );
-
-	//
-	// Immediate mode buffer
-
-	desc.ByteWidth = sizeof( Vertex3D ) * MAX_3D_VERTICES;
-	hr = m_device->CreateBuffer( &desc, nullptr, &m_immediateBuffer3D );
-	CheckHR( hr, "create 3D immediate buffer" );
 }
 
 
@@ -796,13 +787,6 @@ void Renderer3DD3D11::Setup3DTexturedVertexArrays()
 	desc.ByteWidth = sizeof( Vertex3DTextured ) * MAX_TEXT_VERTICES_3D;
 	hr = m_device->CreateBuffer( &desc, nullptr, &m_textBuffer3D );
 	CheckHR( hr, "create 3D text buffer" );
-
-	//
-	// Immediate textured buffer
-
-	desc.ByteWidth = sizeof( Vertex3DTextured ) * MAX_3D_TEXTURED_VERTICES;
-	hr = m_device->CreateBuffer( &desc, nullptr, &m_immediateTexturedBuffer3D );
-	CheckHR( hr, "create 3D immediate textured buffer" );
 }
 
 
@@ -871,107 +855,21 @@ void Renderer3DD3D11::UploadVertexDataTo3DVBO( unsigned int vbo, const Vertex3DT
 // FLUSH FUNCTIONS
 // ============================================================================
 
-void Renderer3DD3D11::Flush3DVertices( unsigned int primitiveType )
-{
-	if ( m_vertex3DCount == 0 )
-		return;
-
-	//
-	// Convert to appropriate D3D11 primitive topology
-
-	D3D11_PRIMITIVE_TOPOLOGY topology;
-	switch ( primitiveType )
-	{
-		case GL_LINES:
-			topology = D3D11_PRIMITIVE_TOPOLOGY_LINELIST;
-			break;
-		case GL_LINE_STRIP:
-			topology = D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP;
-			break;
-		case GL_TRIANGLES:
-			topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-			break;
-		default:
-			topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-			break;
-	}
-
-	Set3DShaderUniforms();
-
-	if ( m_immediateBuffer3D && UpdateBufferData( m_immediateBuffer3D, m_vertices3D, m_vertex3DCount ) )
-	{
-		UINT stride = sizeof( Vertex3D );
-		UINT offset = 0;
-		m_deviceContext->IASetVertexBuffers( 0, 1, &m_immediateBuffer3D, &stride, &offset );
-		m_deviceContext->IASetPrimitiveTopology( topology );
-		m_deviceContext->Draw( m_vertex3DCount, 0 );
-	}
-
-	m_vertex3DCount = 0;
-}
-
-
-void Renderer3DD3D11::Flush3DTexturedVertices()
-{
-	if ( m_vertex3DTexturedCount == 0 )
-		return;
-
-	RendererD3D11 *rendererD3D11 = dynamic_cast<RendererD3D11 *>( g_renderer );
-	if ( rendererD3D11 )
-	{
-		rendererD3D11->SetBoundTexture( 0 );
-	}
-
-	BindTexture( m_currentTexture3D );
-	SetTextured3DShaderUniforms();
-
-	if ( m_immediateTexturedBuffer3D )
-	{
-		UINT stride = sizeof( Vertex3DTextured );
-		UINT offset = 0;
-		m_deviceContext->IASetVertexBuffers( 0, 1, &m_immediateTexturedBuffer3D, &stride, &offset );
-		m_deviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-
-		//
-		// Convert quad (4 vertices) to two triangles (6 vertices) for proper rendering
-		// This ensures correct winding order
-
-		if ( m_vertex3DTexturedCount == 4 )
-		{
-			Vertex3DTextured triangleVertices[6];
-
-			// First triangle: 0, 1, 2
-			triangleVertices[0] = m_vertices3DTextured[0];
-			triangleVertices[1] = m_vertices3DTextured[1];
-			triangleVertices[2] = m_vertices3DTextured[2];
-
-			// Second triangle: 0, 2, 3
-			triangleVertices[3] = m_vertices3DTextured[0];
-			triangleVertices[4] = m_vertices3DTextured[2];
-			triangleVertices[5] = m_vertices3DTextured[3];
-
-			if ( UpdateBufferData( m_immediateTexturedBuffer3D, triangleVertices, 6 ) )
-			{
-				m_deviceContext->Draw( 6, 0 );
-			}
-		}
-		else
-		{
-			if ( UpdateBufferData( m_immediateTexturedBuffer3D, m_vertices3DTextured, m_vertex3DTexturedCount ) )
-			{
-				m_deviceContext->Draw( m_vertex3DTexturedCount, 0 );
-			}
-		}
-	}
-
-	m_vertex3DTexturedCount = 0;
-}
-
-
-void Renderer3DD3D11::FlushLine3D()
+void Renderer3DD3D11::FlushLine3D( bool isImmediate )
 {
 	if ( m_lineVertexCount3D == 0 )
 		return;
+
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Lines_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_LINES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Batched_Lines_3D" );
+		IncrementDrawCall3D( DRAW_CALL_LINES );
+	}
 
 	Set3DShaderUniforms();
 
@@ -985,13 +883,33 @@ void Renderer3DD3D11::FlushLine3D()
 	}
 
 	m_lineVertexCount3D = 0;
+	
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Lines_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Batched_Lines_3D" );
+	}
 }
 
 
-void Renderer3DD3D11::FlushStaticSprites3D()
+void Renderer3DD3D11::FlushStaticSprites3D( bool isImmediate )
 {
 	if ( m_staticSpriteVertexCount3D == 0 )
 		return;
+
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Static_Sprite_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_STATIC_SPRITES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Static_Sprite_3D" );
+		IncrementDrawCall3D( DRAW_CALL_STATIC_SPRITES );
+	}
 
 	g_renderer->SetDepthMask( false );
 
@@ -1010,13 +928,33 @@ void Renderer3DD3D11::FlushStaticSprites3D()
 	g_renderer->SetDepthMask( true );
 
 	m_staticSpriteVertexCount3D = 0;
+	
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Static_Sprite_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Static_Sprite_3D" );
+	}
 }
 
 
-void Renderer3DD3D11::FlushRotatingSprite3D()
+void Renderer3DD3D11::FlushRotatingSprite3D( bool isImmediate )
 {
 	if ( m_rotatingSpriteVertexCount3D == 0 )
 		return;
+
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Rotating_Sprite_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_ROTATING_SPRITES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Rotating_Sprite_3D" );
+		IncrementDrawCall3D( DRAW_CALL_ROTATING_SPRITES );
+	}
 
 	g_renderer->SetDepthMask( false );
 
@@ -1035,13 +973,33 @@ void Renderer3DD3D11::FlushRotatingSprite3D()
 	g_renderer->SetDepthMask( true );
 
 	m_rotatingSpriteVertexCount3D = 0;
+
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Rotating_Sprite_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Rotating_Sprite_3D" );
+	}
 }
 
 
-void Renderer3DD3D11::FlushTextBuffer3D()
+void Renderer3DD3D11::FlushTextBuffer3D( bool isImmediate )
 {
 	if ( m_textVertexCount3D == 0 )
 		return;
+
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Text_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_TEXT );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Text_3D" );
+		IncrementDrawCall3D( DRAW_CALL_TEXT );
+	}
 
 	//
 	// Save current blend state
@@ -1098,13 +1056,33 @@ void Renderer3DD3D11::FlushTextBuffer3D()
 	}
 	m_currentTextureSRV = nullptr;
 	m_currentTextureID = 0;
+
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Text_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Text_3D" );
+	}
 }
 
 
-void Renderer3DD3D11::FlushCircles3D()
+void Renderer3DD3D11::FlushCircles3D( bool isImmediate )
 {
 	if ( m_circleVertexCount3D == 0 )
 		return;
+
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Circles_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_CIRCLES );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Circles_3D" );
+		IncrementDrawCall3D( DRAW_CALL_CIRCLES );
+	}
 
 	Set3DShaderUniforms();
 
@@ -1118,13 +1096,33 @@ void Renderer3DD3D11::FlushCircles3D()
 	}
 
 	m_circleVertexCount3D = 0;
+	
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Circles_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Circles_3D" );
+	}
 }
 
 
-void Renderer3DD3D11::FlushCircleFills3D()
+void Renderer3DD3D11::FlushCircleFills3D( bool isImmediate )
 {
 	if ( m_circleFillVertexCount3D == 0 )
 		return;
+
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Circle_Fills_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_CIRCLE_FILLS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Circle_Fills_3D" );
+		IncrementDrawCall3D( DRAW_CALL_CIRCLE_FILLS );
+	}
 
 	Set3DShaderUniforms();
 
@@ -1138,13 +1136,33 @@ void Renderer3DD3D11::FlushCircleFills3D()
 	}
 
 	m_circleFillVertexCount3D = 0;
+	
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Circle_Fills_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Circle_Fills_3D" );
+	}
 }
 
 
-void Renderer3DD3D11::FlushRects3D()
+void Renderer3DD3D11::FlushRects3D( bool isImmediate )
 {
 	if ( m_rectVertexCount3D == 0 )
 		return;
+
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Rects_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_RECTS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Rects_3D" );
+		IncrementDrawCall3D( DRAW_CALL_RECTS );
+	}
 
 	Set3DShaderUniforms();
 
@@ -1158,13 +1176,33 @@ void Renderer3DD3D11::FlushRects3D()
 	}
 
 	m_rectVertexCount3D = 0;
+	
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Rects_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Rects_3D" );
+	}
 }
 
 
-void Renderer3DD3D11::FlushRectFills3D()
+void Renderer3DD3D11::FlushRectFills3D( bool isImmediate )
 {
 	if ( m_rectFillVertexCount3D == 0 )
 		return;
+
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Rect_Fills_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_RECT_FILLS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Rect_Fills_3D" );
+		IncrementDrawCall3D( DRAW_CALL_RECT_FILLS );
+	}
 
 	Set3DShaderUniforms();
 
@@ -1178,13 +1216,33 @@ void Renderer3DD3D11::FlushRectFills3D()
 	}
 
 	m_rectFillVertexCount3D = 0;
+
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Rect_Fills_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Rect_Fills_3D" );
+	}
 }
 
 
-void Renderer3DD3D11::FlushTriangleFills3D()
+void Renderer3DD3D11::FlushTriangleFills3D( bool isImmediate )
 {
 	if ( m_triangleFillVertexCount3D == 0 )
 		return;
+
+	if ( isImmediate )
+	{
+		g_renderer->StartFlushTiming( "Immediate_Triangle_Fills_3D" );
+		IncrementDrawCall3D( DRAW_CALL_IMMEDIATE_TRIANGLE_FILLS );
+	}
+	else
+	{
+		g_renderer->StartFlushTiming( "Triangle_Fills_3D" );
+		IncrementDrawCall3D( DRAW_CALL_TRIANGLE_FILLS );
+	}
 
 	Set3DShaderUniforms();
 
@@ -1198,6 +1256,15 @@ void Renderer3DD3D11::FlushTriangleFills3D()
 	}
 
 	m_triangleFillVertexCount3D = 0;
+
+	if ( isImmediate )
+	{
+		g_renderer->EndFlushTiming( "Immediate_Triangle_Fills_3D" );
+	}
+	else
+	{
+		g_renderer->EndFlushTiming( "Triangle_Fills_3D" );
+	}
 }
 
 
@@ -1247,16 +1314,6 @@ void Renderer3DD3D11::CleanupBuffers3D()
 	{
 		m_triangleFillBuffer3D->Release();
 		m_triangleFillBuffer3D = nullptr;
-	}
-	if ( m_immediateBuffer3D )
-	{
-		m_immediateBuffer3D->Release();
-		m_immediateBuffer3D = nullptr;
-	}
-	if ( m_immediateTexturedBuffer3D )
-	{
-		m_immediateTexturedBuffer3D->Release();
-		m_immediateTexturedBuffer3D = nullptr;
 	}
 
 	//

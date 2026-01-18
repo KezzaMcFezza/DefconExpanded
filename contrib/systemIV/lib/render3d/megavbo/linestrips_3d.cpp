@@ -145,7 +145,7 @@ void MegaVBO3D::RenderMegaVBO3D( const char *megaVBOKey )
 		return;
 	}
 
-	g_renderer->StartFlushTiming( "MegaVBO_3D" );
+	g_renderer->StartFlushTiming( "MegaVBO_LineStrips_3D" );
 
 	g_renderer->SetShaderProgram( g_renderer3d->m_shader3DProgram );
 	g_renderer3d->Set3DShaderUniforms();
@@ -160,8 +160,8 @@ void MegaVBO3D::RenderMegaVBO3D( const char *megaVBOKey )
 
 	g_renderer3d->DisableMegaVBOPrimitiveRestart3D();
 
-	g_renderer->EndFlushTiming( "MegaVBO_3D" );
-	g_renderer3d->IncrementDrawCall3D( "line_vbo" );
+	g_renderer->EndFlushTiming( "MegaVBO_LineStrips_3D" );
+	g_renderer3d->IncrementDrawCall3D( DRAW_CALL_LINE_VBO );
 }
 
 

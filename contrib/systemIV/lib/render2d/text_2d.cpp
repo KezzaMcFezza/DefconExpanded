@@ -64,7 +64,7 @@ void Renderer2D::BlitChar( unsigned int textureID, float x, float y, float w, fl
 		m_textVertices = batch->vertices;
 		m_textVertexCount = batch->vertexCount;
 		m_currentTextTexture = batch->textureID;
-		FlushTextBuffer();
+		FlushTextBuffer( false );
 		batch->vertexCount = 0;
 	}
 
@@ -88,7 +88,7 @@ void Renderer2D::BlitChar( unsigned int textureID, float x, float y, float w, fl
 
 	if ( m_immediateModeEnabled || immediateFlush )
 	{
-		FlushTextBuffer();
+		FlushTextBuffer( true );
 		batch->vertexCount = 0;
 	}
 }
@@ -165,7 +165,7 @@ void Renderer2D::TextSimple( float x, float y, Colour const &col, float size, co
 					m_textVertices = m_fontBatches[i].vertices;
 					m_textVertexCount = m_fontBatches[i].vertexCount;
 					m_currentTextTexture = m_fontBatches[i].textureID;
-					FlushTextBuffer();
+					FlushTextBuffer( true );
 					m_fontBatches[i].vertexCount = 0;
 				}
 			}

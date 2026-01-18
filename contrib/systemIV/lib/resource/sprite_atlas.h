@@ -40,6 +40,7 @@ private:
     bool PackSprites              (PackedSprite** sprites, int spriteCount, 
                                    int maxWidth = 2048, int maxHeight = 2048);
     void BlitSpritesToAtlas       (PackedSprite** sprites, int spriteCount);
+    void ExtrudeSpriteEdges       (Bitmap* src, int x, int y, int w, int h);
     void CreateGLTexture          ();
     void LoadSprites (const char* directory, 
                                    const char* const *excludeList, int excludeCount,

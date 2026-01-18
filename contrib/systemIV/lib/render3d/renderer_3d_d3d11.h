@@ -69,8 +69,6 @@ private:
     ID3D11Buffer* m_rectBuffer3D;
     ID3D11Buffer* m_rectFillBuffer3D;
     ID3D11Buffer* m_triangleFillBuffer3D;
-    ID3D11Buffer* m_immediateBuffer3D;
-    ID3D11Buffer* m_immediateTexturedBuffer3D;
     
     struct LineStripSegment 
     {
@@ -146,17 +144,15 @@ protected:
     virtual void UploadVertexDataTo3DVBO      (unsigned int vbo, const Vertex3DTextured* vertices, 
                                                int vertexCount, unsigned int usageHint) override;
     
-    virtual void Flush3DVertices              (unsigned int primitiveType) override;
-    virtual void Flush3DTexturedVertices      () override;
-    virtual void FlushLine3D                  () override;
-    virtual void FlushStaticSprites3D         () override;
-    virtual void FlushRotatingSprite3D        () override;
-    virtual void FlushTextBuffer3D            () override;
-    virtual void FlushCircles3D               () override;
-    virtual void FlushCircleFills3D           () override;
-    virtual void FlushRects3D                 () override;
-    virtual void FlushRectFills3D             () override;
-    virtual void FlushTriangleFills3D         () override;
+    virtual void FlushLine3D                  (bool isImmediate) override;
+    virtual void FlushStaticSprites3D         (bool isImmediate) override;
+    virtual void FlushRotatingSprite3D        (bool isImmediate) override;
+    virtual void FlushTextBuffer3D            (bool isImmediate) override;
+    virtual void FlushCircles3D               (bool isImmediate) override;
+    virtual void FlushCircleFills3D           (bool isImmediate) override;
+    virtual void FlushRects3D                 (bool isImmediate) override;
+    virtual void FlushRectFills3D             (bool isImmediate) override;
+    virtual void FlushTriangleFills3D         (bool isImmediate) override;
     virtual void CleanupBuffers3D             () override;
     
     virtual unsigned int CreateMegaVBOVertexBuffer3D (size_t size, BufferUsageHint usageHint) override;

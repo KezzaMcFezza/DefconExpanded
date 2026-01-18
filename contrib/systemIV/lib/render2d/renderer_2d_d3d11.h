@@ -62,7 +62,6 @@ private:
     ID3D11Buffer* m_rectBuffer;
     ID3D11Buffer* m_rectFillBuffer;
     ID3D11Buffer* m_triangleFillBuffer;
-    ID3D11Buffer* m_immediateBuffer;
 
     struct LineStripSegment 
     {
@@ -120,16 +119,15 @@ protected:
     virtual void UploadVertexDataToVBO   (unsigned int vbo, const Vertex2D* vertices, 
                                          int vertexCount, unsigned int usageHint)    override;
     
-    virtual void FlushTriangles          (bool useTexture) override;
-    virtual void FlushTextBuffer         () override;
-    virtual void FlushLines              () override;
-    virtual void FlushStaticSprites      () override;
-    virtual void FlushRotatingSprite     () override;
-    virtual void FlushCircles            () override;
-    virtual void FlushCircleFills        () override;
-    virtual void FlushRects              () override;
-    virtual void FlushRectFills          () override;
-    virtual void FlushTriangleFills      () override;
+    virtual void FlushTextBuffer         (bool isImmediate) override;
+    virtual void FlushLines              (bool isImmediate) override;
+    virtual void FlushStaticSprites      (bool isImmediate) override;
+    virtual void FlushRotatingSprite     (bool isImmediate) override;
+    virtual void FlushCircles            (bool isImmediate) override;
+    virtual void FlushCircleFills        (bool isImmediate) override;
+    virtual void FlushRects              (bool isImmediate) override;
+    virtual void FlushRectFills          (bool isImmediate) override;
+    virtual void FlushTriangleFills      (bool isImmediate) override;
     
     virtual void CleanupBuffers          () override;
     

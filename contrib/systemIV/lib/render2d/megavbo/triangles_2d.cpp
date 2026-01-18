@@ -150,7 +150,7 @@ void MegaVBO2D::RenderTriangleMegaVBO( const char *megaVBOKey )
 	g_renderer2d->DrawMegaVBOIndexed( PRIMITIVE_TRIANGLES, cachedVBO->indexCount );
 
 	g_renderer->EndFlushTiming( "MegaVBO_Triangles_2D" );
-	g_renderer2d->IncrementDrawCall( "triangle_vbo" );
+	g_renderer2d->IncrementDrawCall( DRAW_CALL_TRIANGLE_VBO );
 }
 
 
