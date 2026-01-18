@@ -30,7 +30,7 @@ public:
 	virtual void		HideWin				();
 	virtual void        CalculateHighDPIScaleFactors();
 	virtual void        DestroyWin          () = 0;
-	virtual void        Flip                () = 0;
+	void                Flip                ();
 	virtual void        PollForMessages     ();
 	virtual void        SetMousePos         (int x, int y);
 	virtual void        HandleResize        (int newWidth, int newHeight) = 0;
@@ -61,7 +61,8 @@ public:
 	bool        		MouseVisible        ();
 
     void        		SuggestDefaultRes   ( int *_width, int *_height, int *_refresh, int *_depth );
-
+	int                 GetCurrentRefreshRate ();
+	
 	int                 GetResolutionId (int _width, int _height);      // Returns -1 if resolution doesn't exist
     WindowResolution    *GetResolution  (int _id);
 
@@ -85,6 +86,8 @@ public:
     LList		<WindowResolution *> m_resolutions;
 
 protected:
+	virtual void DoFlip              () = 0;
+
 	void        InitializeSDL       ();
 	void        CleanupResolutions  ();
 

@@ -1,12 +1,15 @@
 #include "systemiv.h"
 #include "lib/tosser/llist.h"
 #include "lib/debug/debug_utils.h"
+#include "lib/hi_res_time.h"
 
 #ifdef TARGET_MSVC
 #include <windows.h>
+#include <mmsystem.h>
 #include <shellapi.h>
 #elif defined( TARGET_OS_LINUX ) || defined( TARGET_OS_MACOSX )
 #include <unistd.h>
+#include <time.h>
 #endif
 
 extern int g_argc;
@@ -260,6 +263,101 @@ void SetDefaultTextureFilterMode( TextureFilterMode mode )
 TextureFilterMode GetDefaultTextureFilterMode()
 {
 	return s_defaultTextureFilterMode;
+}
+
+
+// ============================================================================
+
+
+static int s_targetFPS = 0;
+static double s_lastFlipTime = 0.0;
+static bool s_timerResolutionSet = false;
+
+void SetTargetFPS( int fps )
+{
+	if ( s_targetFPS != fps )
+	{
+		s_targetFPS = fps;
+		s_lastFlipTime = 0.0;
+	}
+}
+
+
+int GetTargetFPS()
+{
+	return s_targetFPS;
+}
+
+
+void LimitFrameRate()
+{
+	if ( s_targetFPS <= 0 )
+		return;
+
+	double targetFrameTime = 1.0 / (double)s_targetFPS;
+
+#ifdef TARGET_MSVC
+
+	//
+	// High resolution timer for better Sleep() precision
+
+	if ( !s_timerResolutionSet )
+	{
+		timeBeginPeriod( 1 );
+		s_timerResolutionSet = true;
+	}
+#endif
+
+	//
+	// Wait until target frame time has passed
+
+	if ( s_lastFlipTime == 0.0 )
+	{
+		s_lastFlipTime = GetHighResTime();
+		return;
+	}
+
+	double currentTime = GetHighResTime();
+	double timeSinceLastFlip = currentTime - s_lastFlipTime;
+
+	if ( timeSinceLastFlip < targetFrameTime )
+	{
+		double timeToWait = targetFrameTime - timeSinceLastFlip;
+
+#ifdef TARGET_MSVC
+
+		//
+		// Use Sleep() for most of the wait, then busy-wait for precision
+
+		if ( timeToWait > 0.002 )
+		{
+			double sleepTime = timeToWait - 0.001;
+			Sleep( (DWORD)( sleepTime * 1000.0 ) );
+		}
+
+		//
+		// Busy wait for the remaining time
+
+		double endTime = s_lastFlipTime + targetFrameTime;
+		while ( GetHighResTime() < endTime )
+		{
+		}
+#else
+
+		//
+		// On Unix we use nanosleep
+
+		if ( timeToWait > 0.0001 )
+		{
+			struct timespec ts;
+			ts.tv_sec = (time_t)timeToWait;
+			ts.tv_nsec = (long)( ( timeToWait - ts.tv_sec ) * 1000000000.0 );
+			nanosleep( &ts, NULL );
+		}
+#endif
+	}
+
+	s_lastFlipTime = GetHighResTime();
 }
 
 

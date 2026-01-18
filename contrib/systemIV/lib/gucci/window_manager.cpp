@@ -4,6 +4,7 @@
 
 #include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
+#include "lib/hi_res_time.h"
 
 #include "imgui.h"
 #include "input.h"
@@ -90,6 +91,23 @@ void WindowManager::SuggestDefaultRes( int *_width, int *_height, int *_refresh,
 	*_height = m_desktopScreenH;
 	*_refresh = m_desktopRefresh;
 	*_depth = m_desktopColourDepth;
+}
+
+
+int WindowManager::GetCurrentRefreshRate()
+{
+	if ( !m_sdlWindow )
+		return m_desktopRefresh;
+
+	int displayIndex = SDL_GetWindowDisplayIndex( m_sdlWindow );
+	if ( displayIndex < 0 )
+		return m_desktopRefresh;
+
+	SDL_DisplayMode mode;
+	if ( SDL_GetCurrentDisplayMode( displayIndex, &mode ) != 0 )
+		return m_desktopRefresh;
+
+	return mode.refresh_rate > 0 ? mode.refresh_rate : m_desktopRefresh;
 }
 
 
@@ -599,6 +617,13 @@ void WindowManager::OpenWebsite( const char *_url )
 #elif defined TARGET_MSVC
 	ShellExecute( nullptr, "open", _url, nullptr, nullptr, SW_SHOWNORMAL );
 #endif
+}
+
+
+void WindowManager::Flip()
+{
+	LimitFrameRate();
+	DoFlip();
 }
 
 

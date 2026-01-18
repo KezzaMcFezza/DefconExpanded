@@ -602,7 +602,7 @@ void WindowManagerD3D11::DestroyWin()
 }
 
 
-void WindowManagerD3D11::Flip()
+void WindowManagerD3D11::DoFlip()
 {
 	if ( !m_swapChain || !m_deviceContext || !m_renderTargetView )
 		return;

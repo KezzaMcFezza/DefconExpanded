@@ -28,7 +28,7 @@ public:
                           const char *_title) override;
     
     virtual void DestroyWin() override;
-    virtual void Flip() override;
+    virtual void DoFlip() override;
     virtual void HandleResize(int newWidth, int newHeight) override;
     virtual void HandleWindowFocusGained() override;
 

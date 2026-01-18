@@ -259,6 +259,17 @@ void ScreenOptionsWindow::Create()
 {
     InterfaceWindow::Create();
 
+    //
+    // Ensure current resolution is in the list (for windowed modes)
+
+    int currentWidth = g_preferences->GetInt(PREFS_SCREEN_WIDTH);
+    int currentHeight = g_preferences->GetInt(PREFS_SCREEN_HEIGHT);
+    if( g_windowManager->GetResolutionId( currentWidth, currentHeight ) == -1 )
+    {
+        WindowResolution *res = new WindowResolution( currentWidth, currentHeight );
+        g_windowManager->m_resolutions.PutData( res );
+    }
+
     int x = 200;
     int w = m_w - x - 20;
     int y = 30;
@@ -270,6 +281,9 @@ void ScreenOptionsWindow::Create()
 
     ScreenResDropDownMenu *screenRes = new ScreenResDropDownMenu();
     screenRes->SetProperties( "Resolution", x, y+=h, w, 20, "dialog_resolution", " ", true, false );
+
+    m_resId = g_windowManager->GetResolutionId( currentWidth, currentHeight );
+    
     for( int i = 0; i < g_windowManager->m_resolutions.Size(); ++i )
     {
         WindowResolution *resolution = g_windowManager->m_resolutions[i];
@@ -352,7 +366,7 @@ void ScreenOptionsWindow::Create()
     DropDownMenu *fpsLimit = new DropDownMenu();
     fpsLimit->SetProperties( "FPS Limit", x, y+=h, w, 20, "dialog_fpslimit", " ", true, false );
     fpsLimit->AddOption( "dialog_fpslimit_no_limit", 0, true );
-    fpsLimit->AddOption( "dialog_fpslimit_refresh_rate", 69, true );
+    fpsLimit->AddOption( "dialog_fpslimit_refresh_rate", g_windowManager->GetCurrentRefreshRate(), true );
     fpsLimit->AddOption( "dialog_fpslimit_60fps", 60, true );
     fpsLimit->AddOption( "dialog_fpslimit_144fps", 144, true );
     fpsLimit->AddOption( "dialog_fpslimit_240fps", 240, true );

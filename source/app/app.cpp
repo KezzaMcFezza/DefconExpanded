@@ -5,6 +5,7 @@
 #include <time.h>
 
 #include "lib/eclipse/eclipse.h"
+#include "systemiv.h"
 #include "lib/gucci/window_manager.h"
 #ifdef TARGET_MSVC
 #include <windows.h>
@@ -1338,80 +1339,9 @@ void App::Render()
 
     START_PROFILE( "Flip" );
     
-    static double s_lastFlipTime = 0.0;
     int fpsLimit = g_preferences->GetInt(PREFS_SCREEN_FPS_LIMIT, 0);
     
-    if( fpsLimit == 69 )
-    {
-        //
-        // Use refresh rate from screen preferences, please dont flame me for this method 
-
-        fpsLimit = g_preferences->GetInt(PREFS_SCREEN_REFRESH, 60);
-    }
-    
-    if( fpsLimit > 0 )
-    {
-        double targetFrameTime = 1.0 / (double)fpsLimit;
-        
-        #ifdef TARGET_MSVC
-
-            //
-            // High resolution timer for better Sleep() precision
-            
-            static bool s_timerResolutionSet = false;
-            if( !s_timerResolutionSet )
-            {
-                timeBeginPeriod(1); // 1ms timer resolution
-                s_timerResolutionSet = true;
-            }
-        #endif
-        
-        //
-        // Wait until target frame time has passed
-
-        double currentTime = GetHighResTime();
-        double timeSinceLastFlip = currentTime - s_lastFlipTime;
-        
-        if( timeSinceLastFlip < targetFrameTime )
-        {
-            double timeToWait = targetFrameTime - timeSinceLastFlip;
-            
-            #ifdef TARGET_MSVC
-
-                //
-                // Use Sleep() for most of the wait, then busy-wait for precision
-                
-                if( timeToWait > 0.002 ) 
-                {
-                    double sleepTime = timeToWait - 0.001; // Leave 1ms for busy-wait
-                    Sleep( (DWORD)(sleepTime * 1000.0) );
-                }
-                
-                //
-                // Busy wait for the remaining time 
-
-                double endTime = s_lastFlipTime + targetFrameTime;
-                while( GetHighResTime() < endTime )
-                {
-                    // Do nothing
-                }
-            #else
-            
-                //
-                // On Unix we use nanosleep
-                
-                if( timeToWait > 0.0001 )
-                {
-                    struct timespec ts;
-                    ts.tv_sec = (time_t)timeToWait;
-                    ts.tv_nsec = (long)((timeToWait - ts.tv_sec) * 1000000000.0);
-                    nanosleep(&ts, NULL);
-                }
-            #endif
-        }
-        
-        s_lastFlipTime = GetHighResTime();
-    }
+    SetTargetFPS( fpsLimit );
     
     g_renderer->EndMSAARendering();
     

@@ -399,7 +399,7 @@ void WindowManagerOpenGL::DestroyWin()
 }
 
 
-void WindowManagerOpenGL::Flip()
+void WindowManagerOpenGL::DoFlip()
 {
 	if ( m_tryingToCaptureMouse )
 		CaptureMouse();

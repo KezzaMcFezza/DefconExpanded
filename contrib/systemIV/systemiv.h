@@ -124,6 +124,10 @@ const char  *GetRendererTypeName        (RendererType type);
 void               SetDefaultTextureFilterMode (TextureFilterMode mode);
 TextureFilterMode  GetDefaultTextureFilterMode ();
 
+void               SetTargetFPS                (int fps);
+int                GetTargetFPS                ();
+void               LimitFrameRate              ();
+
 const char *GetResourceDir                  (int index);
 const char * const *GetResourceDirExclusions(int index, int *count);
 
