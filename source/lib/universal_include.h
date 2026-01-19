@@ -18,7 +18,7 @@
 #if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
     #define REAL_VERSION    APP_BUILD_NUMBER"_replay_viewer"
 #elif defined(SYNC_PRACTICE)
-    #define REAL_VERSION    "1.16.1_sync_practice"
+    #define REAL_VERSION    "1.16.5_sync_practice"
 #else
     #define REAL_VERSION    APP_BUILD_NUMBER"_defcon_full"
 #endif

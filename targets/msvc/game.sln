@@ -23,8 +23,8 @@ Global
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Debug|x64.Build.0 = Debug|x64
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Endgame|x64.ActiveCfg = Release Endgame|x64
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Endgame|x64.Build.0 = Release Endgame|x64
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Replay Viewer|x64.ActiveCfg = Release|x64
-		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Replay Viewer|x64.Build.0 = Release|x64
+		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Replay Viewer|x64.ActiveCfg = Release Replay Viewer|x64
+		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Replay Viewer|x64.Build.0 = Release Replay Viewer|x64
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Sync Practice|x64.ActiveCfg = Release Sync Practice|x64
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release Sync Practice|x64.Build.0 = Release Sync Practice|x64
 		{72A4F8C9-1B3D-4E6F-9C2A-8D5E7F9B1A3C}.Release|x64.ActiveCfg = Release|x64

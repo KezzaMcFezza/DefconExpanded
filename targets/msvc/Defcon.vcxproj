@@ -108,10 +108,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Endgame|x64'">
     <IntDir>$(Platform)\$(Configuration)\Defcon\</IntDir>
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>Defcon Result\Release Endgame\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Replay Viewer|x64'">
     <IntDir>$(Platform)\$(Configuration)\Defcon\</IntDir>
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>Defcon Result\Release Replay Viewer\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
@@ -288,7 +290,7 @@
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Sync Practice\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;$(ProjectDir)Unrar Result/Release;$(ProjectDir)ImGui Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -358,7 +360,7 @@
       <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;opengl32.lib;glu32.lib;Ws2_32.lib;dbghelp.lib;imm32.lib;setupapi.lib;version.lib;SystemIV Result/Release/SystemIV.lib;Unrar Result/Release/Unrar.lib;ImGui Result/Release/ImGui.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2main.lib;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/lib64/SDL2-static.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/ogg.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbis.lib;../../contrib/systemIV/contrib/oggvorbis64/lib/vorbisfile.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/base.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/client.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/common.lib;../../contrib/systemIV/contrib/crashpad/windows/lib/x64/lib/util.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>Defcon Result\Release Endgame\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;$(ProjectDir)Unrar Result/Release;$(ProjectDir)ImGui Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -429,7 +431,7 @@
       <ShowProgress>NotSet</ShowProgress>
       <OutputFile>Defcon Result\Release Replay Viewer\Defcon.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)SystemIV Result/Release;$(ProjectDir)Unrar Result/Release;$(ProjectDir)ImGui Result/Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcd;libc;libcmtd;libcp;MSVCRT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>

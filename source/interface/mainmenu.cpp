@@ -147,7 +147,7 @@ class MainMenuNewGameButton : public InterfaceButton
 
 
 
-#if !defined(REPLAY_VIEWER_DESKTOP) 
+#if !defined(REPLAY_VIEWER_DESKTOP) && !defined(REPLAY_VIEWER)
 class MainMenuPlaybackRecordingButton : public InterfaceButton
 {
 public:
@@ -824,7 +824,7 @@ void MainMenu::Create()
     //
     // New Game
 
-#if !defined(SYNC_PRACTICE)
+#if !defined(SYNC_PRACTICE) && !defined(REPLAY_VIEWER_DESKTOP) && !defined(REPLAY_VIEWER)
     if( !g_app->m_gameRunning )
     {
         button = new MainMenuNewGameButton();
@@ -837,7 +837,7 @@ void MainMenu::Create()
     //
     // Play back recording.
 
-#if !defined(SYNC_PRACTICE) 
+#if !defined(SYNC_PRACTICE) && !defined(REPLAY_VIEWER_DESKTOP) && !defined(REPLAY_VIEWER)
     if( !g_app->m_gameRunning )
     {
         button = new MainMenuPlaybackRecordingButton();
@@ -849,7 +849,7 @@ void MainMenu::Create()
     //
     // Join Game
 
-#if !defined(SYNC_PRACTICE)
+#if !defined(SYNC_PRACTICE) && !defined(REPLAY_VIEWER_DESKTOP) && !defined(REPLAY_VIEWER)
     button = new MainMenuJoinGameButton();
     button->SetProperties( "Join Game", 10, y+=h+g, m_w-20, h, "dialog_joingame", " ", true, false );
     RegisterButton( button );
@@ -867,7 +867,7 @@ void MainMenu::Create()
     // Tutorial
     // Rolling Demo
 
-#if !defined(SYNC_PRACTICE)
+#if !defined(SYNC_PRACTICE) && !defined(REPLAY_VIEWER_DESKTOP) && !defined(REPLAY_VIEWER)
     if( !g_app->m_gameRunning )
     {
 #ifndef NON_PLAYABLE
