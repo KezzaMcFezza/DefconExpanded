@@ -41,6 +41,7 @@ private:
     bool m_blendEnabled;
     bool m_depthTestEnabled;
     bool m_depthMaskEnabled;
+    int m_depthComparisonFunc;
     bool m_colorMaskR;
     bool m_colorMaskG;
     bool m_colorMaskB;
@@ -80,6 +81,7 @@ public:
     virtual void SetBlendFunc       (int srcFactor, int dstFactor)        override;
     virtual void SetDepthBuffer     (bool enabled, bool clearNow)         override;
     virtual void SetDepthMask       (bool enabled)                        override;
+    virtual void SetDepthComparison (int comparisonFunc)                  override;
     virtual void SetCullFace        (bool enabled, int mode)              override;
     virtual void SetColorMask       (bool r, bool g, bool b, bool a)      override;
     virtual void SetClearColor      (float r, float g, float b, float a)  override;

@@ -13,7 +13,7 @@ class Model;
 class Blip;
 
 #define    GLOBE_RADIUS                                1.0f     // default globe radius
-#define    GLOBE_CULL_RADIUS                           0.997f   // culling sphere radius (inside the globe)
+#define    GLOBE_CULL_RADIUS                           0.9972f   // culling sphere radius (inside the globe)
 #define    GLOBE_ELEVATION                             0.0f     // no elevation, but here incase we do need elevation 
 #define    GLOBE_NUKE_MODEL_SIZE                       0.65f    // nuke model scale
 #define    GLOBE_ANIMATED_ICON_SIZE                    0.06f    // base size of animated icons

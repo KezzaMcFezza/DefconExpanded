@@ -55,6 +55,7 @@ RendererOpenGL::RendererOpenGL()
 	  m_blendEnabled( false ),
 	  m_depthTestEnabled( false ),
 	  m_depthMaskEnabled( false ),
+	  m_depthComparisonFunc( DEPTH_COMPARISON_LESS ),
 	  m_colorMaskR( true ),
 	  m_colorMaskG( true ),
 	  m_colorMaskB( true ),
@@ -464,11 +465,8 @@ void RendererOpenGL::SetDepthBuffer( bool _enabled, bool _clearNow )
 			glEnable( GL_DEPTH_TEST );
 			m_depthTestEnabled = true;
 		}
-		if ( !m_depthMaskEnabled )
-		{
-			glDepthMask( true );
-			m_depthMaskEnabled = true;
-		}
+		glDepthFunc( ConvertDepthComparisonFunc( m_depthComparisonFunc ) );
+		glDepthMask( m_depthMaskEnabled ? GL_TRUE : GL_FALSE );
 	}
 	else
 	{
@@ -476,11 +474,6 @@ void RendererOpenGL::SetDepthBuffer( bool _enabled, bool _clearNow )
 		{
 			glDisable( GL_DEPTH_TEST );
 			m_depthTestEnabled = false;
-		}
-		if ( m_depthMaskEnabled )
-		{
-			glDepthMask( false );
-			m_depthMaskEnabled = false;
 		}
 	}
 
@@ -497,6 +490,19 @@ void RendererOpenGL::SetDepthMask( bool enabled )
 	{
 		glDepthMask( enabled ? GL_TRUE : GL_FALSE );
 		m_depthMaskEnabled = enabled;
+	}
+}
+
+
+void RendererOpenGL::SetDepthComparison( int comparisonFunc )
+{
+	if ( m_depthComparisonFunc != comparisonFunc )
+	{
+		m_depthComparisonFunc = comparisonFunc;
+		if ( m_depthTestEnabled )
+		{
+			glDepthFunc( ConvertDepthComparisonFunc( comparisonFunc ) );
+		}
 	}
 }
 

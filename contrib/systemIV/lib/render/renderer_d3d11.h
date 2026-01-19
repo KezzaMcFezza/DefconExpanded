@@ -41,6 +41,7 @@
      int m_currentBlendDstFactor;
      bool m_depthTestEnabled;
      bool m_depthMaskEnabled;
+     int m_depthComparisonFunc;
      bool m_cullFaceEnabled;
      int m_cullFaceMode;
      bool m_colorMaskR;
@@ -135,13 +136,14 @@
      virtual void SetScissor         (int x, int y, int width, int height) override;
      virtual void SetTextureParameter(unsigned int pname, int param)       override;
      
-    virtual void SetBlendMode   (int blendMode)                override;
-    virtual void SetBlendFunc   (int srcFactor, int dstFactor) override;
-    virtual void SetDepthBuffer (bool enabled, bool clearNow)  override;
-    virtual void SetDepthMask   (bool enabled)                 override;
-    virtual void SetCullFace    (bool enabled, int mode)       override;
-    virtual void SetColorMask   (bool r, bool g, bool b, bool a) override;
-    virtual void SetClearColor  (float r, float g, float b, float a) override;
+     virtual void SetBlendMode       (int blendMode)                       override;
+     virtual void SetBlendFunc       (int srcFactor, int dstFactor)        override;
+     virtual void SetDepthBuffer     (bool enabled, bool clearNow)         override;
+     virtual void SetDepthMask       (bool enabled)                        override;
+     virtual void SetDepthComparison (int comparisonFunc)                  override;
+     virtual void SetCullFace        (bool enabled, int mode)              override;
+     virtual void SetColorMask       (bool r, bool g, bool b, bool a)      override;
+     virtual void SetClearColor      (float r, float g, float b, float a)  override;
      
      virtual unsigned int CreateShader(const char* vertexSource, const char* fragmentSource) override;
      

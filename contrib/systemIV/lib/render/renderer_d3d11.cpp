@@ -51,6 +51,7 @@ RendererD3D11::RendererD3D11()
 	  m_currentBlendDstFactor( -1 ),
 	  m_depthTestEnabled( false ),
 	  m_depthMaskEnabled( false ),
+	  m_depthComparisonFunc( DEPTH_COMPARISON_LESS ),
 	  m_cullFaceEnabled( false ),
 	  m_cullFaceMode( 0 ),
 	  m_colorMaskR( true ),
@@ -268,7 +269,7 @@ void RendererD3D11::CreateStateObjects()
 
 	depthDesc.DepthEnable = TRUE;
 	depthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthDesc.DepthFunc = ConvertDepthComparisonFunc( DEPTH_COMPARISON_LESS );
+	depthDesc.DepthFunc = ConvertDepthComparisonFunc( m_depthComparisonFunc );
 	depthDesc.StencilEnable = FALSE;
 	hr = m_device->CreateDepthStencilState( &depthDesc, &m_depthStateEnabled );
 	CheckHR( hr, "create enabled depth state" );
@@ -1155,15 +1156,47 @@ void RendererD3D11::SetDepthBuffer( bool _enabled, bool _clearNow )
 {
 	if ( _enabled )
 	{
-		m_currentDepthState = m_depthStateEnabled;
 		m_depthTestEnabled = true;
-		m_depthMaskEnabled = true;
+		
+		//
+		// Preserve current depth mask state
+		
+		if ( m_device )
+		{
+			D3D11_DEPTH_STENCIL_DESC desc = {};
+			desc.DepthEnable = true;
+			desc.DepthWriteMask = m_depthMaskEnabled ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+			desc.DepthFunc = ConvertDepthComparisonFunc( m_depthComparisonFunc );
+			desc.StencilEnable = FALSE;
+			
+			if ( m_depthMaskEnabled && m_depthComparisonFunc == DEPTH_COMPARISON_LESS_EQUAL )
+			{
+				m_currentDepthState = m_depthStateEnabled;
+			}
+			else
+			{
+				//
+				// Need custom state
+				
+				ID3D11DepthStencilState *newState = nullptr;
+				HRESULT hr = m_device->CreateDepthStencilState( &desc, &newState );
+				if ( SUCCEEDED( hr ) && newState )
+				{
+					if ( m_currentDepthState && m_currentDepthState != m_depthStateEnabled &&
+						 m_currentDepthState != m_depthStateDisabled )
+					{
+						m_currentDepthState->Release();
+					}
+
+					m_currentDepthState = newState;
+				}
+			}
+		}
 	}
 	else
 	{
 		m_currentDepthState = m_depthStateDisabled;
 		m_depthTestEnabled = false;
-		m_depthMaskEnabled = false;
 	}
 
 	UpdateDepthState();
@@ -1201,7 +1234,42 @@ void RendererD3D11::SetDepthMask( bool enabled )
 			D3D11_DEPTH_STENCIL_DESC desc = {};
 			desc.DepthEnable = m_depthTestEnabled;
 			desc.DepthWriteMask = enabled ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
-			desc.DepthFunc = ConvertDepthComparisonFunc( DEPTH_COMPARISON_LESS );
+			desc.DepthFunc = ConvertDepthComparisonFunc( m_depthComparisonFunc );
+			desc.StencilEnable = FALSE;
+
+			ID3D11DepthStencilState *newState = nullptr;
+			HRESULT hr = m_device->CreateDepthStencilState( &desc, &newState );
+			if ( SUCCEEDED( hr ) && newState )
+			{
+				if ( m_currentDepthState && m_currentDepthState != m_depthStateEnabled &&
+					 m_currentDepthState != m_depthStateDisabled )
+				{
+					m_currentDepthState->Release();
+				}
+
+				m_currentDepthState = newState;
+				UpdateDepthState();
+			}
+		}
+	}
+}
+
+
+void RendererD3D11::SetDepthComparison( int comparisonFunc )
+{
+	if ( m_depthComparisonFunc != comparisonFunc )
+	{
+		m_depthComparisonFunc = comparisonFunc;
+
+		//
+		// Recreate depth state
+
+		if ( m_device )
+		{
+			D3D11_DEPTH_STENCIL_DESC desc = {};
+			desc.DepthEnable = m_depthTestEnabled;
+			desc.DepthWriteMask = m_depthMaskEnabled ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+			desc.DepthFunc = ConvertDepthComparisonFunc( comparisonFunc );
 			desc.StencilEnable = FALSE;
 
 			ID3D11DepthStencilState *newState = nullptr;

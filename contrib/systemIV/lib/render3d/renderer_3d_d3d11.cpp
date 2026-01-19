@@ -871,6 +871,8 @@ void Renderer3DD3D11::FlushLine3D( bool isImmediate )
 		IncrementDrawCall3D( DRAW_CALL_LINES );
 	}
 
+	g_renderer->SetDepthMask( false );
+
 	Set3DShaderUniforms();
 
 	if ( m_lineBuffer3D && UpdateBufferData( m_lineBuffer3D, m_lineVertices3D, m_lineVertexCount3D ) )
@@ -881,6 +883,8 @@ void Renderer3DD3D11::FlushLine3D( bool isImmediate )
 		m_deviceContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_LINELIST );
 		m_deviceContext->Draw( m_lineVertexCount3D, 0 );
 	}
+
+	g_renderer->SetDepthMask( true );
 
 	m_lineVertexCount3D = 0;
 	

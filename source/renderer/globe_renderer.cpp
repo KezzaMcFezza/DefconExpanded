@@ -613,8 +613,8 @@ void GlobeRenderer::BuildCullSphereVBO()
     
     float cullRadius = GLOBE_RADIUS * GLOBE_CULL_RADIUS;
     
-    const int numLatitudeSegments = 16;
-    const int numLongitudeSegments = 16;
+    const int numLatitudeSegments = 36;
+    const int numLongitudeSegments = 36;
     
     //
     // Calculate buffer sizes: each quad = 2 triangles = 6 vertices
@@ -862,9 +862,6 @@ void GlobeRenderer::Render()
     {
         GameCamera();
 
-        g_renderer->SetDepthBuffer(true, false);
-        g_renderer->ClearScreen(false, true);
-            
         START_PROFILE("Culling Sphere");
         RenderCullSphere();
         END_PROFILE("Culling Sphere");
@@ -896,11 +893,6 @@ void GlobeRenderer::Render()
     // Disable fog before rendering main scene
 
     g_renderer3d->DisableFog();
-
-    //
-    // Ensure depth is enabled for starfield rendering
-
-    g_renderer->SetDepthBuffer(true, false);
     
     START_PROFILE("Starfield");
     g_renderer3d->BeginStaticSpriteBatch3D();      // Star field batching
@@ -957,25 +949,7 @@ void GlobeRenderer::Render()
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
 
     RenderCities();
-    
-    //
-    // Disable depth testing for unit trails to prevent overlapping trails from 
-    // overriding each other. This is necessary because DirectX11 depth test 
-    // with LESS comparison rejects overlapping transparent fragments at similar 
-    // depths even with depth writes disabled
-    
-    g_renderer->SetDepthBuffer(false, false);
-
     RenderObjects();
-    
-    //
-    // Flush line batch so unit trails are rendered without depth testing
-    // Then re enable depth testing for sonar pings so they are culled by the globe
-    
-    g_renderer3d->EndLineBatch3D();
-    g_renderer->SetDepthBuffer(true, false);
-    g_renderer3d->BeginLineBatch3D();
-    
     RenderGunfire();
     RenderExplosions();
     RenderAnimations();

@@ -217,13 +217,14 @@ public:
     virtual int          GetCurrentBlendSrcFactor() const = 0;
     virtual int          GetCurrentBlendDstFactor() const = 0;
     
-    virtual void SetBlendMode   (int blendMode) = 0;
-    virtual void SetBlendFunc   (int srcFactor, int dstFactor) = 0;
-    virtual void SetDepthBuffer (bool enabled, bool clearNow) = 0;
-    virtual void SetDepthMask   (bool enabled) = 0;
-    virtual void SetCullFace    (bool enabled, int mode) = 0;
-    virtual void SetColorMask   (bool r, bool g, bool b, bool a) = 0;
-    virtual void SetClearColor  (float r, float g, float b, float a = 1.0f) = 0;
+    virtual void SetBlendMode       (int blendMode) = 0;
+    virtual void SetBlendFunc       (int srcFactor, int dstFactor) = 0;
+    virtual void SetDepthBuffer     (bool enabled, bool clearNow) = 0;
+    virtual void SetDepthMask       (bool enabled) = 0;
+    virtual void SetDepthComparison (int comparisonFunc) = 0;
+    virtual void SetCullFace        (bool enabled, int mode) = 0;
+    virtual void SetColorMask       (bool r, bool g, bool b, bool a) = 0;
+    virtual void SetClearColor      (float r, float g, float b, float a = 1.0f) = 0;
 
     virtual unsigned int CreateShader(const char* vertexSource, const char* fragmentSource) = 0;
     

@@ -204,7 +204,7 @@ void MapRenderer::Render()
         g_renderer2d->BeginTextBatch();
 
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-        g_renderer2d->StaticSprite( bmpBlur, -180, 100, 360, -200, blurColour, true );
+        g_renderer2d->StaticSprite( bmpBlur, -180, 100, 360, -200, blurColour );
 
         g_renderer2d->Line( -540, 100, 1080, 100, blurColour, lineWidth );
         g_renderer2d->Line( -540, -100, 1080, -100, blurColour, lineWidth );
@@ -518,7 +518,7 @@ void MapRenderer::RenderCountryControl()
             bmpWater = g_resource->GetImage( "graphics/water_shaded.bmp" );
         }
 
-        g_renderer2d->StaticSprite( bmpWater, -180, topY, 360, -worldHeight, waterColour, true );
+        g_renderer2d->StaticSprite( bmpWater, -180, topY, 360, -worldHeight, waterColour );
     }
 
 
@@ -538,7 +538,7 @@ void MapRenderer::RenderCountryControl()
             {
                 Image *img = g_app->GetWorldRenderer()->GetTerritoryImage( team->m_territories[j] );
                 g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
-                g_renderer2d->StaticSprite( img, -180, topY, 360, -worldHeight, col, true );
+                g_renderer2d->StaticSprite( img, -180, topY, 360, -worldHeight, col );
 
                 if( m_showAllTeams )
                 {
@@ -2736,7 +2736,7 @@ void MapRenderer::RenderLowDetailCoastlines()
     Image *bmpWorld = g_resource->GetImage( "graphics/map.bmp" );
     Colour col = White;
 
-    g_renderer2d->StaticSprite( bmpWorld, -180, 100, 360, -200, col, true );
+    g_renderer2d->StaticSprite( bmpWorld, -180, 100, 360, -200, col );
 
     END_PROFILE( "Coastlines" );
 }
