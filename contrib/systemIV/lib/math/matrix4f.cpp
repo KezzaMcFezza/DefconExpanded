@@ -1,7 +1,7 @@
 #include <cmath>
 #include <string.h>
 #include "math_utils.h"
-#include "Matrix4f.h"
+#include "matrix4f.h"
 
 void Matrix4f::Perspective( float fovy, float aspect, float nearZ, float farZ )
 {

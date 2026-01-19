@@ -631,7 +631,7 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/math/matrix34.cpp
     ${SYSTEMIV_PATH}/lib/math/invert_matrix.cpp
     ${SYSTEMIV_PATH}/lib/math/hash_data.cpp
-    ${SYSTEMIV_PATH}/lib/math/Matrix4f.cpp
+    ${SYSTEMIV_PATH}/lib/math/matrix4f.cpp
     ${SYSTEMIV_PATH}/lib/math/math_utils.cpp
     ${SYSTEMIV_PATH}/lib/math/random_number.cpp
     ${SYSTEMIV_PATH}/lib/math/vector2.cpp
