@@ -298,6 +298,18 @@ void WindowManager::ListAllDisplayModes( int displayIndex )
 		maxWidth = desktopMode.w;
 		maxHeight = desktopMode.h;
 	}
+	else
+	{
+		//
+		// If desktop mode detection fails, try current display mode
+
+		SDL_DisplayMode currentMode;
+		if ( SDL_GetCurrentDisplayMode( displayIndex, &currentMode ) == 0 )
+		{
+			maxWidth = currentMode.w;
+			maxHeight = currentMode.h;
+		}
+	}
 
 	m_resolutions.EmptyAndDelete();
 
