@@ -1126,7 +1126,7 @@ void App::Update()
         {
             if( !EclGetWindow( "Profile Window" ) )
             {
-                EclRegisterWindow( new ProfileWindow( "Profile Window", "dialog_profile", true ) );
+                EclRegisterWindow( new ProfileWindow( "Profile Window", "dialog_profile_title", true ) );
             }
             else
             {
