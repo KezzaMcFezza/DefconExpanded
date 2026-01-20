@@ -351,6 +351,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		m_screenH = actualH;
 	}
 
+	CalculateHighDPIScaleFactors();
 	UpdateStoredMaximizedState();
 
 	if ( requestMaximized )
@@ -429,7 +430,7 @@ void WindowManagerOpenGL::HandleResize( int newWidth, int newHeight )
 	m_screenW = newWidth;
 	m_screenH = newHeight;
 
-	// CalculateHighDPIScaleFactors();
+	CalculateHighDPIScaleFactors();
 
 	//
 	// Check if window moved to a different display
@@ -462,6 +463,38 @@ void WindowManagerOpenGL::HandleResize( int newWidth, int newHeight )
 
 void WindowManagerOpenGL::HandleWindowFocusGained()
 {
+}
+
+
+void WindowManagerOpenGL::CalculateHighDPIScaleFactors()
+{
+	if ( !m_sdlWindow )
+		return;
+
+	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
+
+	if ( (windowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN )
+	{
+		m_highDPIScaleX = 1.0f;
+		m_highDPIScaleY = 1.0f;
+		return;
+	}
+
+	int clientW, clientH;
+	SDL_GetWindowSize( m_sdlWindow, &clientW, &clientH );
+	int drawableW, drawableH;
+	SDL_GL_GetDrawableSize( m_sdlWindow, &drawableW, &drawableH );
+
+	m_highDPIScaleX = (float)drawableW / clientW;
+	m_highDPIScaleY = (float)drawableH / clientH;
+
+#ifdef _DEBUG
+	if ( m_highDPIScaleX != 1.0f || m_highDPIScaleY != 1.0f )
+	{
+		AppDebugOut( "High DPI detected: window %dx%d, drawable %dx%d, scale %.2fx%.2f\n",
+					 clientW, clientH, drawableW, drawableH, m_highDPIScaleX, m_highDPIScaleY );
+	}
+#endif
 }
 
 #endif // RENDERER_OPENGL

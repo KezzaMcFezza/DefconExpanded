@@ -65,6 +65,11 @@ WindowManager::~WindowManager()
 
 void WindowManager::InitializeSDL()
 {
+#ifdef TARGET_MSVC
+	SDL_SetHint( SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2" );
+	SDL_SetHint( SDL_HINT_WINDOWS_DPI_SCALING, "1" );
+#endif
+
 	AppReleaseAssert( SDL_Init( SDL_INIT_VIDEO ) == 0, "Couldn't initialise SDL" );
 
 	m_windowDisplayIndex = GetDefaultDisplayIndex();
@@ -224,16 +229,21 @@ static float ScaleFactor()
 	}
 }
 
+//
+// Return drawable height scaled by UI scale preference
+// This makes sure the games internal resolution matches
+// the actual pixel resolution rather than the logical
+// window size, which is important for DPI scaling.
 
 int WindowManager::GetLogicalWidth()
 {
-	return (int)( m_screenW * ScaleFactor() );
+	return (int)( DrawableWidth() * ScaleFactor() );
 }
 
 
 int WindowManager::GetLogicalHeight()
 {
-	return (int)( m_screenH * ScaleFactor() );
+	return (int)( DrawableHeight() * ScaleFactor() );
 }
 
 
@@ -275,6 +285,20 @@ void WindowManager::ListAllDisplayModes( int displayIndex )
 	SDL_Rect bounds;
 	SDL_GetDisplayBounds( displayIndex, &bounds );
 
+	SDL_DisplayMode desktopMode;
+	int maxWidth = bounds.w;
+	int maxHeight = bounds.h;
+
+	//
+	// On Windows with DPI scaling, GetDisplayBounds returns logical/scaled size,
+	// but display modes are physical. Use desktop mode to get actual max resolution.
+
+	if ( SDL_GetDesktopDisplayMode( displayIndex, &desktopMode ) == 0 )
+	{
+		maxWidth = desktopMode.w;
+		maxHeight = desktopMode.h;
+	}
+
 	m_resolutions.EmptyAndDelete();
 
 	for ( int modeIndex = 0; modeIndex < SDL_GetNumDisplayModes( displayIndex ); ++modeIndex )
@@ -289,9 +313,9 @@ void WindowManager::ListAllDisplayModes( int displayIndex )
 			continue;
 
 		//
-		// Skip high DPI resolutions
+		// Skip resolutions larger than the desktop mode
 
-		if ( mode.w > bounds.w || mode.h > bounds.h )
+		if ( mode.w > maxWidth || mode.h > maxHeight )
 			continue;
 
 		int resId = GetResolutionId( mode.w, mode.h );
@@ -379,23 +403,13 @@ void WindowManager::RestoreDesktop()
 
 void WindowManager::CalculateHighDPIScaleFactors()
 {
-	//
-	// Disabled because HiDPI Scaling is not supported for now
 
-	// if (!m_sdlWindow)
-	//     return;
-
-	// int clientW, clientH;
-	// SDL_GetWindowSize(m_sdlWindow, &clientW, &clientH);
-
-	// m_highDPIScaleX = 1.0f;
-	// m_highDPIScaleY = 1.0f;
 }
 
 
 void WindowManager::WindowHasMoved()
 {
-	// CalculateHighDPIScaleFactors();
+	CalculateHighDPIScaleFactors();
 
 	if ( m_sdlWindow )
 	{

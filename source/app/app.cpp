@@ -1018,10 +1018,16 @@ void App::OnWindowResized(int newWidth, int newHeight, int oldWidth, int oldHeig
         return;
     }
 
-    if (g_preferences)
+    if (g_preferences && g_windowManager)
     {
-        g_preferences->SetInt(PREFS_SCREEN_WIDTH, newWidth);
-        g_preferences->SetInt(PREFS_SCREEN_HEIGHT, newHeight);
+        //
+        // Save physical dimensions/drawable size to preferences, not logical window size
+
+        int physicalWidth = g_windowManager->DrawableWidth();
+        int physicalHeight = g_windowManager->DrawableHeight();
+
+        g_preferences->SetInt(PREFS_SCREEN_WIDTH, physicalWidth);
+        g_preferences->SetInt(PREFS_SCREEN_HEIGHT, physicalHeight);
         g_preferences->SetInt(PREFS_SCREEN_WINDOWED, 1);
         g_preferences->SetInt(PREFS_SCREEN_BORDERLESS, 0);
     }
