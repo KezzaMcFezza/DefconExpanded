@@ -120,7 +120,6 @@ bool WindowManagerD3D11::InitializeDirectX( int width, int height, bool windowed
 
 	//
 	// Check for tearing support
-	// Tearing allows uncapped framerates even when vsync is not disabled
 
 	m_tearingSupported = false;
 	m_swapChainFlags = 0;
@@ -142,13 +141,24 @@ bool WindowManagerD3D11::InitializeDirectX( int width, int height, bool windowed
 		dxgiFactory5->Release();
 	}
 
+	int drawableWidth, drawableHeight;
+	GetDrawableSize( &drawableWidth, &drawableHeight );
+
+#ifdef _DEBUG
+	if ( drawableWidth != width || drawableHeight != height )
+	{
+		AppDebugOut( "High DPI: Creating swap chain with drawable size %dx%d (logical: %dx%d)\n",
+					 drawableWidth, drawableHeight, width, height );
+	}
+#endif
+
 	//
-	// Create swap chain
+	// Create swap chain with drawable size
 
 	DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
 	swapChainDesc.BufferCount = 3;
-	swapChainDesc.BufferDesc.Width = width;
-	swapChainDesc.BufferDesc.Height = height;
+	swapChainDesc.BufferDesc.Width = drawableWidth;
+	swapChainDesc.BufferDesc.Height = drawableHeight;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 0;
@@ -197,7 +207,7 @@ bool WindowManagerD3D11::InitializeDirectX( int width, int height, bool windowed
 		return false;
 	}
 
-	if ( !CreateDepthStencilView( width, height ) )
+	if ( !CreateDepthStencilView( drawableWidth, drawableHeight ) )
 	{
 #ifdef _DEBUG
 		AppDebugOut( "Failed to create depth stencil view\n" );
@@ -210,16 +220,9 @@ bool WindowManagerD3D11::InitializeDirectX( int width, int height, bool windowed
 	m_deviceContext->OMSetRenderTargets( 1, &m_renderTargetView, m_depthStencilView );
 
 	//
-	// Setup viewport
+	// Setup viewport with drawable size
 
-	D3D11_VIEWPORT viewport = {};
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.Width = static_cast<float>( width );
-	viewport.Height = static_cast<float>( height );
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	m_deviceContext->RSSetViewports( 1, &viewport );
+	SetViewport( drawableWidth, drawableHeight );
 
 	//
 	// Transition to exclusive fullscreen if needed
@@ -229,6 +232,10 @@ bool WindowManagerD3D11::InitializeDirectX( int width, int height, bool windowed
 	if ( m_isExclusiveFullscreen )
 	{
 		hr = m_swapChain->SetFullscreenState( TRUE, NULL );
+		if ( FAILED( hr ) )
+		{
+			m_isExclusiveFullscreen = false;
+		}
 	}
 	else
 	{
@@ -504,10 +511,35 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 
 	m_windowDisplayIndex = displayIndex;
 
+	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
+	bool isFullscreen = ( windowFlags & SDL_WINDOW_FULLSCREEN ) == SDL_WINDOW_FULLSCREEN;
+
+	//
+	// For fullscreen modes, update m_screenW/H to actual drawable size 
+
+	if ( isFullscreen )
+	{
+		int drawableW, drawableH;
+		GetDrawableSize( &drawableW, &drawableH );
+		m_screenW = drawableW;
+		m_screenH = drawableH;
+
+		if ( m_deviceContext )
+		{
+			SetViewport( drawableW, drawableH );
+
+#ifdef _DEBUG
+			AppDebugOut( "Fullscreen: Set viewport to %dx%d\n", drawableW, drawableH );
+#endif
+		}
+	}
+
+	CalculateHighDPIScaleFactors();
+
 	int actualW, actualH;
 	SDL_GetWindowSize( m_sdlWindow, &actualW, &actualH );
 
-	if ( actualW != m_screenW || actualH != m_screenH )
+	if ( !isFullscreen && ( actualW != m_screenW || actualH != m_screenH ) )
 	{
 #ifdef _DEBUG
 		AppDebugOut( "Window size adjusted from requested %dx%d to actual %dx%d\n",
@@ -521,25 +553,22 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 		// Recreate DirectX resources with correct size
 		// This prevents black bar at the bottom of the screen
 
-		if ( m_renderTargetView )
+		ReleaseRenderTargets();
+
+		int drawableW, drawableH;
+		GetDrawableSize( &drawableW, &drawableH );
+
+#ifdef _DEBUG
+		if ( drawableW != actualW || drawableH != actualH )
 		{
-			m_renderTargetView->Release();
-			m_renderTargetView = nullptr;
+			AppDebugOut( "Resizing swap chain with drawable size %dx%d (logical: %dx%d)\n",
+						 drawableW, drawableH, actualW, actualH );
 		}
-		if ( m_depthStencilView )
-		{
-			m_depthStencilView->Release();
-			m_depthStencilView = nullptr;
-		}
-		if ( m_depthStencilBuffer )
-		{
-			m_depthStencilBuffer->Release();
-			m_depthStencilBuffer = nullptr;
-		}
+#endif
 
 		HRESULT hr = m_swapChain->ResizeBuffers(
 			0,
-			actualW, actualH,
+			drawableW, drawableH,
 			DXGI_FORMAT_UNKNOWN,
 			m_swapChainFlags );
 
@@ -552,24 +581,18 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 		else
 		{
 			CreateRenderTargetView();
-			CreateDepthStencilView( actualW, actualH );
+			CreateDepthStencilView( drawableW, drawableH );
 
 			m_deviceContext->OMSetRenderTargets( 1, &m_renderTargetView, m_depthStencilView );
 
 			//
 			// Update viewport to match new size
 
-			D3D11_VIEWPORT viewport = {};
-			viewport.TopLeftX = 0;
-			viewport.TopLeftY = 0;
-			viewport.Width = static_cast<float>( actualW );
-			viewport.Height = static_cast<float>( actualH );
-			viewport.MinDepth = 0.0f;
-			viewport.MaxDepth = 1.0f;
-			m_deviceContext->RSSetViewports( 1, &viewport );
+			SetViewport( drawableW, drawableH );
 		}
 	}
 
+	CalculateHighDPIScaleFactors();
 	UpdateStoredMaximizedState();
 
 	if ( requestMaximized )
@@ -678,23 +701,7 @@ bool WindowManagerD3D11::RecoverSwapChain()
 	//
 	// Release existing render targets
 
-	if ( m_renderTargetView )
-	{
-		m_renderTargetView->Release();
-		m_renderTargetView = nullptr;
-	}
-
-	if ( m_depthStencilView )
-	{
-		m_depthStencilView->Release();
-		m_depthStencilView = nullptr;
-	}
-
-	if ( m_depthStencilBuffer )
-	{
-		m_depthStencilBuffer->Release();
-		m_depthStencilBuffer = nullptr;
-	}
+	ReleaseRenderTargets();
 
 	//
 	// Clear the device context state
@@ -706,7 +713,17 @@ bool WindowManagerD3D11::RecoverSwapChain()
 	}
 
 	int width, height;
-	SDL_GetWindowSize( m_sdlWindow, &width, &height );
+	GetDrawableSize( &width, &height );
+
+#ifdef _DEBUG
+	int logicalWidth, logicalHeight;
+	SDL_GetWindowSize( m_sdlWindow, &logicalWidth, &logicalHeight );
+	if ( width != logicalWidth || height != logicalHeight )
+	{
+		AppDebugOut( "Recovering swap chain with drawable size %dx%d (logical: %dx%d)\n",
+					 width, height, logicalWidth, logicalHeight );
+	}
+#endif
 
 	//
 	// Exit fullscreen if in exclusive mode before resizing buffers
@@ -719,8 +736,7 @@ bool WindowManagerD3D11::RecoverSwapChain()
 	}
 
 	//
-	// Resize swap chain buffers
-	// We must preserve the swap chain flags for correct recovery
+	// Resize swap chain buffers with drawable size
 
 	HRESULT hr = m_swapChain->ResizeBuffers(
 		3,
@@ -761,17 +777,9 @@ bool WindowManagerD3D11::RecoverSwapChain()
 
 	m_deviceContext->OMSetRenderTargets( 1, &m_renderTargetView, m_depthStencilView );
 
-	D3D11_VIEWPORT viewport = {};
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.Width = static_cast<float>( width );
-	viewport.Height = static_cast<float>( height );
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	m_deviceContext->RSSetViewports( 1, &viewport );
+	SetViewport( width, height );
 
-	m_screenW = width;
-	m_screenH = height;
+	SDL_GetWindowSize( m_sdlWindow, &m_screenW, &m_screenH );
 
 	//
 	// Restore exclusive fullscreen state if needed
@@ -786,7 +794,8 @@ bool WindowManagerD3D11::RecoverSwapChain()
 	}
 
 #ifdef _DEBUG
-	AppDebugOut( "Swap chain recovered successfully (%dx%d)\n", width, height );
+	AppDebugOut( "Swap chain recovered successfully (logical: %dx%d, drawable: %dx%d)\n",
+				 m_screenW, m_screenH, width, height );
 #endif
 
 	return true;
@@ -854,28 +863,23 @@ void WindowManagerD3D11::HandleResize( int newWidth, int newHeight )
 	//
 	// Release render targets before resizing
 
-	if ( m_renderTargetView )
-	{
-		m_renderTargetView->Release();
-		m_renderTargetView = nullptr;
-	}
+	ReleaseRenderTargets();
 
-	if ( m_depthStencilView )
-	{
-		m_depthStencilView->Release();
-		m_depthStencilView = nullptr;
-	}
+	int drawableWidth, drawableHeight;
+	GetDrawableSize( &drawableWidth, &drawableHeight );
 
-	if ( m_depthStencilBuffer )
+#ifdef _DEBUG
+	if ( drawableWidth != newWidth || drawableHeight != newHeight )
 	{
-		m_depthStencilBuffer->Release();
-		m_depthStencilBuffer = nullptr;
+		AppDebugOut( "Resizing swap chain with drawable size %dx%d (logical: %dx%d)\n",
+					 drawableWidth, drawableHeight, newWidth, newHeight );
 	}
+#endif
 
 	HRESULT hr = m_swapChain->ResizeBuffers(
 		3,
-		newWidth,
-		newHeight,
+		drawableWidth,
+		drawableHeight,
 		DXGI_FORMAT_UNKNOWN,
 		m_swapChainFlags );
 
@@ -888,25 +892,18 @@ void WindowManagerD3D11::HandleResize( int newWidth, int newHeight )
 	}
 
 	CreateRenderTargetView();
-	CreateDepthStencilView( newWidth, newHeight );
+	CreateDepthStencilView( drawableWidth, drawableHeight );
 	m_deviceContext->OMSetRenderTargets( 1, &m_renderTargetView, m_depthStencilView );
 
 	//
-	// Update viewport to match new size
+	// Update viewport to match drawable size
 
-	D3D11_VIEWPORT viewport = {};
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.Width = static_cast<float>( newWidth );
-	viewport.Height = static_cast<float>( newHeight );
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	m_deviceContext->RSSetViewports( 1, &viewport );
+	SetViewport( drawableWidth, drawableHeight );
 
 	m_screenW = newWidth;
 	m_screenH = newHeight;
 
-	// CalculateHighDPIScaleFactors();
+	CalculateHighDPIScaleFactors();
 
 	//
 	// Check if window moved to a different display
@@ -934,6 +931,115 @@ void WindowManagerD3D11::HandleResize( int newWidth, int newHeight )
 	{
 		m_windowResizeHandler( newWidth, newHeight, oldWidth, oldHeight );
 	}
+}
+
+
+void WindowManagerD3D11::ReleaseRenderTargets()
+{
+	if ( m_renderTargetView )
+	{
+		m_renderTargetView->Release();
+		m_renderTargetView = nullptr;
+	}
+
+	if ( m_depthStencilView )
+	{
+		m_depthStencilView->Release();
+		m_depthStencilView = nullptr;
+	}
+
+	if ( m_depthStencilBuffer )
+	{
+		m_depthStencilBuffer->Release();
+		m_depthStencilBuffer = nullptr;
+	}
+}
+
+
+void WindowManagerD3D11::GetDrawableSize( int *width, int *height )
+{
+	if ( !m_sdlWindow )
+	{
+		if ( width )
+			*width = 0;
+		if ( height )
+			*height = 0;
+		return;
+	}
+
+	SDL_GetWindowSizeInPixels( m_sdlWindow, width, height );
+}
+
+
+void WindowManagerD3D11::SetViewport( int width, int height )
+{
+	if ( !m_deviceContext )
+		return;
+
+	D3D11_VIEWPORT viewport = {};
+	viewport.TopLeftX = 0;
+	viewport.TopLeftY = 0;
+	viewport.Width = static_cast<float>( width );
+	viewport.Height = static_cast<float>( height );
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+	m_deviceContext->RSSetViewports( 1, &viewport );
+}
+
+
+void WindowManagerD3D11::CalculateHighDPIScaleFactors()
+{
+	if ( !m_sdlWindow )
+		return;
+
+	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
+
+	//
+	// For fullscreen modes, set scale to 1.0 and update m_screenW/H to actual drawable size
+
+	if ( ( windowFlags & SDL_WINDOW_FULLSCREEN ) == SDL_WINDOW_FULLSCREEN )
+	{
+		m_highDPIScaleX = 1.0f;
+		m_highDPIScaleY = 1.0f;
+
+		int drawableW, drawableH;
+		GetDrawableSize( &drawableW, &drawableH );
+		m_screenW = drawableW;
+		m_screenH = drawableH;
+
+#ifdef _DEBUG
+		AppDebugOut( "Fullscreen mode: drawable size %dx%d\n", drawableW, drawableH );
+#endif
+		return;
+	}
+
+	//
+	// Get logical and drawable size
+
+	int clientW, clientH;
+	SDL_GetWindowSize( m_sdlWindow, &clientW, &clientH );
+
+	int drawableW, drawableH;
+	GetDrawableSize( &drawableW, &drawableH );
+
+	if ( clientW > 0 && clientH > 0 )
+	{
+		m_highDPIScaleX = (float)drawableW / clientW;
+		m_highDPIScaleY = (float)drawableH / clientH;
+	}
+	else
+	{
+		m_highDPIScaleX = 1.0f;
+		m_highDPIScaleY = 1.0f;
+	}
+
+#ifdef _DEBUG
+	if ( m_highDPIScaleX != 1.0f || m_highDPIScaleY != 1.0f )
+	{
+		AppDebugOut( "High DPI detected: window %dx%d, drawable %dx%d, scale %.2fx%.2f\n",
+					 clientW, clientH, drawableW, drawableH, m_highDPIScaleX, m_highDPIScaleY );
+	}
+#endif
 }
 
 
