@@ -33,7 +33,7 @@ WindowManagerOpenGL::~WindowManagerOpenGL()
 
 bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, int _colourDepth, int _refreshRate, int _zDepth, int _antiAlias, bool _borderless, const char *_title )
 {
-	int displayIndex = GetDefaultDisplayIndex();
+	int displayIndex = GetCurrentDisplayIndex();
 	AppReleaseAssert( displayIndex >= 0, "Failed to get current SDL display index.\n" );
 
 	SDL_DisplayMode displayMode;

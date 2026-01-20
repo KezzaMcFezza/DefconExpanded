@@ -18,6 +18,7 @@ public:
     int     m_fpsLimit;
     int     m_renderer;
     int     m_mipmapLevel;
+    int     m_displayIndex;
 	
 public:
     ScreenOptionsWindow();

@@ -75,14 +75,18 @@ public:
     void                RegisterWindowResizeHandler(WindowResizeHandler _handler);
     WindowResizeHandler GetWindowResizeHandler();
     
-    void        SaveDesktop         ();
-    void        RestoreDesktop      ();
-    void        ListAllDisplayModes (int displayIndex);
-    void        WindowHasMoved      ();
+    void        SaveDesktop               ();
+    void        RestoreDesktop            ();
+    void        ListAllDisplayModes       (int displayIndex);
+    void        WindowHasMoved            ();
     void        UpdateStoredMaximizedState();
-    int         GetDefaultDisplayIndex();
-    SDL_Window* GetSDLWindow          () const { return m_sdlWindow; }
 
+    int         GetDefaultDisplayIndex();
+    int         GetNumDisplays        ();
+    const char* GetDisplayName        (int displayIndex);
+    int         GetCurrentDisplayIndex();
+    
+    SDL_Window* GetSDLWindow          () const { return m_sdlWindow; }
     LList		<WindowResolution *> m_resolutions;
 
 protected:

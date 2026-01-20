@@ -12,6 +12,69 @@
 #include "lib/eclipse/components/drop_down_menu.h"
 #include "screenoptions_window.h"
 
+class MonitorDropDownMenu : public DropDownMenu
+{
+    void SelectOption( int _option )
+    {
+        ScreenOptionsWindow *parent = (ScreenOptionsWindow *) m_parent;
+
+        DropDownMenu::SelectOption( _option );
+
+        g_windowManager->ListAllDisplayModes( _option );
+
+        DropDownMenu *screenRes = (DropDownMenu *) m_parent->GetButton( "Resolution" );
+        if( !screenRes )
+            return;
+
+        screenRes->Empty();
+
+        int currentWidth = g_preferences->GetInt(PREFS_SCREEN_WIDTH);
+        int currentHeight = g_preferences->GetInt(PREFS_SCREEN_HEIGHT);
+        
+        for( int i = 0; i < g_windowManager->m_resolutions.Size(); ++i )
+        {
+            WindowResolution *resolution = g_windowManager->m_resolutions[i];
+
+            char caption[128];
+            strcpy( caption, LANGUAGEPHRASE("dialog_resolution_W_H") );
+            LPREPLACEINTEGERFLAG( 'W', resolution->m_width, caption );
+            LPREPLACEINTEGERFLAG( 'H', resolution->m_height, caption );
+
+            screenRes->AddOption( caption, i );
+        }
+
+        parent->m_resId = g_windowManager->GetResolutionId( currentWidth, currentHeight );
+        if( parent->m_resId < 0 )
+        {
+            parent->m_resId = 0;
+        }
+        screenRes->SelectOption( parent->m_resId );
+
+        DropDownMenu *refresh = (DropDownMenu *) m_parent->GetButton( "Refresh Rate" );
+        if( !refresh )
+            return;
+
+        refresh->Empty();
+
+        WindowResolution *resolution = g_windowManager->GetResolution( parent->m_resId );
+        if( resolution )
+        {
+            for( int i = 0; i < resolution->m_refreshRates.Size(); ++i )
+            {
+                int thisRate = resolution->m_refreshRates[i];
+
+                char caption[128];
+                strcpy( caption, LANGUAGEPHRASE("dialog_refreshrate_X") );
+                LPREPLACEINTEGERFLAG( 'R', thisRate, caption );
+
+                refresh->AddOption( caption, thisRate );
+            }
+            refresh->SelectOption( parent->m_refreshRate );
+        }
+    }
+};
+
+
 class ScreenResDropDownMenu : public DropDownMenu
 {
     void SelectOption( int _option )
@@ -56,7 +119,6 @@ class FullscreenRequiredMenu : public DropDownMenu
         }
         else
         {
-            // Removed glColor4f - color is handled by the modern renderer system
             g_renderer2d->TextSimple( realX+10, realY+9, White, 13, LANGUAGEPHRASE("dialog_windowedmode") );
         }
     }
@@ -170,6 +232,7 @@ class SetScreenButton : public InterfaceButton
         g_preferences->SetInt( PREFS_SCREEN_FPS_LIMIT, parent->m_fpsLimit );
         g_preferences->SetInt( PREFS_SCREEN_RENDERER, parent->m_renderer );
         g_preferences->SetInt( PREFS_SCREEN_MIPMAP_LEVEL, parent->m_mipmapLevel );
+        g_preferences->SetInt( PREFS_SCREEN_DISPLAY_INDEX, parent->m_displayIndex );
 		
         if( resolution && g_app && g_app->GetInterface() )
         {
@@ -207,6 +270,12 @@ class SetScreenButton : public InterfaceButton
         parent->m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
         parent->m_renderer      = g_preferences->GetInt( PREFS_SCREEN_RENDERER, PREFS_RENDERER_OPENGL );
         parent->m_mipmapLevel   = g_preferences->GetInt( PREFS_SCREEN_MIPMAP_LEVEL, 4 );
+        parent->m_displayIndex  = g_preferences->GetInt( PREFS_SCREEN_DISPLAY_INDEX, -1 );
+
+        if( parent->m_displayIndex < 0 || parent->m_displayIndex >= g_windowManager->GetNumDisplays() )
+        {
+            parent->m_displayIndex = g_windowManager->GetCurrentDisplayIndex();
+        }
 
         parent->Remove();
         parent->Create();
@@ -224,9 +293,9 @@ ScreenOptionsWindow::ScreenOptionsWindow()
 :   InterfaceWindow( "ScreenOptions", "dialog_screenoptions", true )
 {
 #ifdef TARGET_MSVC
-	int height = 430;
+	int height = 460;
 #else
-    int height = 390;
+    int height = 420;
 #endif
 
     m_resId = g_windowManager->GetResolutionId( g_preferences->GetInt(PREFS_SCREEN_WIDTH),
@@ -250,6 +319,12 @@ ScreenOptionsWindow::ScreenOptionsWindow()
     m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
     m_renderer      = g_preferences->GetInt( PREFS_SCREEN_RENDERER, PREFS_RENDERER_OPENGL );
     m_mipmapLevel   = g_preferences->GetInt( PREFS_SCREEN_MIPMAP_LEVEL, 4 );
+    m_displayIndex  = g_preferences->GetInt( PREFS_SCREEN_DISPLAY_INDEX, -1 );
+
+    if( m_displayIndex < 0 || m_displayIndex >= g_windowManager->GetNumDisplays() )
+    {
+        m_displayIndex = g_windowManager->GetCurrentDisplayIndex();
+    }
 	
     SetSize( 390, height );
 }
@@ -295,6 +370,29 @@ void ScreenOptionsWindow::Create()
 
         screenRes->AddOption( caption, i );
     }
+
+    MonitorDropDownMenu *monitor = new MonitorDropDownMenu();
+    monitor->SetProperties( "Monitor", x, y+=h, w, 20, "dialog_monitor", " ", true, false );
+    
+    int numDisplays = g_windowManager->GetNumDisplays();
+    for( int i = 0; i < numDisplays; ++i )
+    {
+        const char *displayName = g_windowManager->GetDisplayName( i );
+        char caption[256];
+
+        if( displayName && strlen( displayName ) > 0 )
+        {
+            sprintf( caption, "%d: %s", i, displayName );
+        }
+        else
+        {
+            sprintf( caption, "%d", i );
+        }
+        monitor->AddOption( caption, i, false );
+    }
+    
+    RegisterButton( monitor );
+    monitor->RegisterInt( &m_displayIndex );
 
     DropDownMenu *screenMode = new DropDownMenu();
     screenMode->SetProperties( "Screen Mode", x, y+=h, w, 20, "dialog_screenmode", " ", true, false );
@@ -359,7 +457,16 @@ void ScreenOptionsWindow::Create()
     antiAlias->AddOption( "dialog_antialias_2x", 2, true );
     antiAlias->AddOption( "dialog_antialias_4x", 4, true );
     antiAlias->AddOption( "dialog_antialias_8x", 8, true );
-    antiAlias->AddOption( "dialog_antialias_16x", 16, true );
+
+    //
+    // OpenGL seems to support 16x MSAA, DirectX11 does not support 16x 
+    // on most modern GPUs.
+    
+    if( GetRendererType() == RENDERER_TYPE_OPENGL )
+    {
+        antiAlias->AddOption( "dialog_antialias_16x", 16, true );
+    }
+
     antiAlias->RegisterInt( &m_antiAlias );
     RegisterButton( antiAlias );
 
@@ -404,6 +511,7 @@ void ScreenOptionsWindow::Render( bool _hasFocus )
     int size = 13;
 
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_resolution") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_monitor") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_screenmode") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_refreshrate") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_colourdepth") );

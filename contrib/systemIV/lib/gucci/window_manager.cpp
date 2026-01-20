@@ -72,7 +72,7 @@ void WindowManager::InitializeSDL()
 
 	AppReleaseAssert( SDL_Init( SDL_INIT_VIDEO ) == 0, "Couldn't initialise SDL" );
 
-	m_windowDisplayIndex = GetDefaultDisplayIndex();
+	m_windowDisplayIndex = GetCurrentDisplayIndex();
 	ListAllDisplayModes( m_windowDisplayIndex );
 	SaveDesktop();
 }
@@ -277,6 +277,35 @@ int WindowManager::GetDefaultDisplayIndex()
 	int x, y;
 	SDL_GetGlobalMouseState( &x, &y );
 	return GetDisplayIndexForPoint( x, y );
+}
+
+
+int WindowManager::GetNumDisplays()
+{
+	return SDL_GetNumVideoDisplays();
+}
+
+
+const char* WindowManager::GetDisplayName(int displayIndex)
+{
+	return SDL_GetDisplayName( displayIndex );
+}
+
+
+int WindowManager::GetCurrentDisplayIndex()
+{
+	if ( g_preferences )
+	{
+		int preferredIndex = g_preferences->GetInt( PREFS_SCREEN_DISPLAY_INDEX, -1 );
+		int numDisplays = GetNumDisplays();
+		
+		if ( preferredIndex >= 0 && preferredIndex < numDisplays )
+		{
+			return preferredIndex;
+		}
+	}
+	
+	return GetDefaultDisplayIndex();
 }
 
 
