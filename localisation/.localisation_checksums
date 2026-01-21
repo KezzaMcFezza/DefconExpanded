@@ -99,7 +99,7 @@
   "gui/tb_territory.bmp": "dab0b4090021fdf52e9d866736fc4e1db83ff9a4e88f8858268d5e6a155d340f",
   "gui/tb_units.bmp": "05e9518ffcc0e18282381c4c40184ff632729c30d22d38727a8b287192ec4505",
   "gui/tick.bmp": "5b7aa75bbd2fb1db8d11538512dad33098e90c0b3143283738f991e9affce606",
-  "language/english.txt": "836bd8240dc56cd9a2dc16c0fcbff0520ec72a2c013201d10f8d1ebf63b184e3",
+  "language/english.txt": "cb16dcaa32129f10228f8cb00e454597de394e91fec593c2834bde16ca674e84",
   "language/french.txt": "bfe65008982777f06951cca41e4ad09c3761de93b2085f8b4b15e094c7b16412",
   "language/german.txt": "01fe1f5b3b529a9cb3693dfb44393a29ea471ac75bd91a791af92c8a72c29116",
   "language/italian.txt": "b2e30eb9d58f869cb679e52634e480e0df0a07a48db5770633e2b58164ebfe61",
@@ -120,6 +120,6 @@
   "styles/light.txt": "ba3cb7fbc8b2a3d8c130ce21c2602c67d68ced8b18cb90b4eeab0abf6b257137",
   "styles/red.txt": "aba7a3d1ebc3bb00b4db861f25038901316fe137e0785de47d10dd4cc9db4606",
   "tutorial.txt": "5214c3de6e1d6b9c6414dcafd40f987e02ce17914effbf9bdaeb4f5a4a3b6674",
-  "version.txt": "7e034a4fd0ef00616069675970907e3d291ec42fa56ec65219c755e7eb0bb506",
+  "version.txt": "64e2171119ce675810246da30dff246f056094f5a3c9c446334828d5f036524c",
   "world.dat": "d782b69f61bb55684f0e0558ee62ab302ec8427e49cd3959ed9d9fc4699825dc"
 }
