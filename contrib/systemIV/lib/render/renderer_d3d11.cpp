@@ -52,7 +52,7 @@ RendererD3D11::RendererD3D11()
 	  m_currentBlendSrcFactor( -1 ),
 	  m_currentBlendDstFactor( -1 ),
 	  m_depthTestEnabled( false ),
-	  m_depthMaskEnabled( false ),
+	  m_depthMaskEnabled( true ),
 	  m_depthComparisonFunc( DEPTH_COMPARISON_LESS ),
 	  m_cullFaceEnabled( false ),
 	  m_cullFaceMode( 0 ),

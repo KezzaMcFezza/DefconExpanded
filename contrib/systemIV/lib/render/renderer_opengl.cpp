@@ -56,7 +56,7 @@ RendererOpenGL::RendererOpenGL()
 	  m_cullFaceMode( GL_BACK ),
 	  m_blendEnabled( false ),
 	  m_depthTestEnabled( false ),
-	  m_depthMaskEnabled( false ),
+	  m_depthMaskEnabled( true ),
 	  m_depthComparisonFunc( DEPTH_COMPARISON_LESS ),
 	  m_colorMaskR( true ),
 	  m_colorMaskG( true ),
