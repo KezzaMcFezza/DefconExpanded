@@ -562,10 +562,10 @@ void MapRenderer::RenderCountryControl()
             if( g_app->GetWorld()->GetDefcon() > 3 &&
                 team->m_teamId == g_app->GetWorld()->m_myTeamId )
             {
-                g_renderer->SetDepthBuffer( true, true );
                 g_renderer->SetBlendMode( Renderer::BlendModeNormal );
                 float maxDistance = 5.0f / g_app->GetWorld()->GetGameScale().DoubleValue();
 
+                g_renderer->SetDepthBuffer( true, true );
                 for( int i = 0; i < g_app->GetWorld()->m_objects.Size(); ++i )
                 {
                     if( g_app->GetWorld()->m_objects.ValidIndex(i) )
