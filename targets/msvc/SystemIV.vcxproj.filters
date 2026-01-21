@@ -368,6 +368,15 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\imgui\frame_debugger.cpp">
       <Filter>lib\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\antialiasing\anti_aliasing.cpp">
+      <Filter>lib\render\antialiasing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\antialiasing\msaa_d3d11.cpp">
+      <Filter>lib\render\antialiasing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\antialiasing\msaa_opengl.cpp">
+      <Filter>lib\render\antialiasing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\contrib\systemIV\systemiv.h" />
@@ -752,6 +761,15 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\imgui\frame_debugger.h">
       <Filter>lib\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\antialiasing\anti_aliasing.h">
+      <Filter>lib\render\antialiasing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\antialiasing\msaa_d3d11.h">
+      <Filter>lib\render\antialiasing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\antialiasing\msaa_opengl.h">
+      <Filter>lib\render\antialiasing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="contrib">
@@ -834,6 +852,9 @@
     </Filter>
     <Filter Include="lib\imgui\components">
       <UniqueIdentifier>{e2feb324-fe3d-48d5-9f55-0d6e7ce8a2bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib\render\antialiasing">
+      <UniqueIdentifier>{ce95b5f2-bd1a-4377-ae08-6566e1e56978}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

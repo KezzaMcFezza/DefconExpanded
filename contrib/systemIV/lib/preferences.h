@@ -16,6 +16,7 @@
 #define PREFS_SCREEN_BORDERLESS		"ScreenBorderless"
 #define PREFS_SCREEN_MAXIMIZED      "ScreenMaximized"
 #define PREFS_SCREEN_ANTIALIAS		"ScreenAntiAliasing"
+#define PREFS_SCREEN_ANTIALIAS_TYPE	"ScreenAntiAliasingType"
 #define PREFS_SCREEN_UI_SCALE		"ScreenUIScale"
 #define PREFS_SCREEN_FPS_LIMIT		"ScreenFpsLimit"
 #define PREFS_SCREEN_RENDERER		"ScreenRenderer"

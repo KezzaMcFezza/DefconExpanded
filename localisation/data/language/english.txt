@@ -77,6 +77,7 @@ dialog_yes                          Yes
 dialog_yes_l                        yes
 dialog_no                           No
 dialog_no_l                         no
+dialog_none                         None
 dialog_ok                           Ok
 dialog_cancel                       Cancel
 dialog_cancel_seeking               Cancel seeking and return to normal playback
@@ -185,11 +186,27 @@ dialog_colourdepth_X                *C bit
 dialog_zbufferdepth                 Z Buffer Depth
 dialog_refreshrate_X                *R Hz
 dialog_resolution_W_H               *W x *H
-dialog_antialias                    Use Anti-Aliasing
-dialog_antialias_2x		            2x MSAA
-dialog_antialias_4x                 4x MSAA
-dialog_antialias_8x                 8x MSAA
-dialog_antialias_16x                16x MSAA
+dialog_antialias_type               Anti Aliasing Type
+dialog_antialias_select             Select Quality
+dialog_antialias_type_msaa          MSAA
+dialog_antialias_type_fxaa          FXAA
+dialog_antialias_type_smaa          SMAA
+dialog_antialias_type_taa           TAA
+dialog_alias_type_msaa              MSAA
+dialog_alias_type_fxaa              FXAA
+dialog_alias_type_smaa              SMAA
+dialog_alias_type_taa               TAA
+dialog_antialias                    Anti Aliasing Quality
+dialog_antialias_msaa_2x		    2x MSAA
+dialog_antialias_msaa_4x            4x MSAA
+dialog_antialias_msaa_8x            8x MSAA
+dialog_antialias_msaa_16x           16x MSAA
+dialog_antialias_smaa_1x            1x SMAA
+dialog_antialias_smaa_2x            2x SMAA
+dialog_antialias_smaa_4x            4x SMAA
+dialog_antialias_taa_low            Low Quality
+dialog_antialias_taa_medium         Medium Quality
+dialog_antialias_taa_high           High Quality
 dialog_fpslimit                     FPS Limit
 dialog_fpslimit_no_limit            No Limit
 dialog_fpslimit_refresh_rate        Refresh Rate

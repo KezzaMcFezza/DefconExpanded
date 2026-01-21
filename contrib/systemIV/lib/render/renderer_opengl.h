@@ -49,10 +49,6 @@ private:
     int m_currentBlendSrcFactor;
     int m_currentBlendDstFactor;
 
-    GLuint m_msaaFBO;
-    GLuint m_msaaColorRBO;
-    GLuint m_msaaDepthRBO;
-
     GLenum ConvertTextureAddressMode(int mode);
     GLenum ConvertDepthComparisonFunc(int func);
     
@@ -88,12 +84,12 @@ public:
     
     virtual unsigned int CreateShader(const char* vertexSource, const char* fragmentSource) override;
     
-    virtual void InitializeMSAAFramebuffer(int width, int height, int samples) override;
-    virtual void ResizeMSAAFramebuffer    (int width, int height)              override;
-
-    virtual void DestroyMSAAFramebuffer() override;
-    virtual void BeginMSAARendering    () override;
-    virtual void EndMSAARendering      () override;
+    virtual void InitializeAntiAliasing(AntiAliasingType type, int width, int height, int samples) override;
+    virtual void ResizeAntiAliasing    (int width, int height)                override;
+ 
+    virtual void DestroyAntiAliasing() override;
+    virtual void BeginAntiAliasing    () override;
+    virtual void EndAntiAliasing      () override;
     
     virtual void BeginFrame () override;
     virtual void EndFrame   () override;

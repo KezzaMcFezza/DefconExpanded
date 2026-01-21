@@ -16,6 +16,7 @@
 #include "lib/string_utils.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/render/colour.h"
+#include "lib/render/antialiasing/anti_aliasing.h"
 #include "lib/resource/bitmap.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render2d/renderer_2d_opengl.h"
@@ -23,6 +24,7 @@
 #include "lib/render3d/renderer_3d_opengl.h"
 #include "lib/render2d/megavbo/megavbo_2d.h"
 #include "lib/render3d/megavbo/megavbo_3d.h"
+#include "lib/imgui/frame_debugger.h"
 
 #include "renderer.h"
 #include "renderer_opengl.h"
@@ -61,10 +63,7 @@ RendererOpenGL::RendererOpenGL()
 	  m_colorMaskB( true ),
 	  m_colorMaskA( true ),
 	  m_currentBlendSrcFactor( -1 ),
-	  m_currentBlendDstFactor( -1 ),
-	  m_msaaFBO( 0 ),
-	  m_msaaColorRBO( 0 ),
-	  m_msaaDepthRBO( 0 )
+	  m_currentBlendDstFactor( -1 )
 {
 
 	//
@@ -94,10 +93,7 @@ RendererOpenGL::RendererOpenGL()
 	m_prevTextureSwitches = 0;
 	m_flushTimingCount = 0;
 	m_currentFlushStartTime = 0.0;
-	m_msaaEnabled = false;
-	m_msaaSamples = 0;
-	m_msaaWidth = 0;
-	m_msaaHeight = 0;
+	m_antiAliasing = nullptr;
 
 	g_renderer2d = new Renderer2DOpenGL();
 	g_megavbo2d = new MegaVBO2D();
@@ -108,7 +104,12 @@ RendererOpenGL::RendererOpenGL()
 
 RendererOpenGL::~RendererOpenGL()
 {
-	DestroyMSAAFramebuffer();
+	if ( m_antiAliasing )
+	{
+		m_antiAliasing->Destroy();
+		delete m_antiAliasing;
+		m_antiAliasing = nullptr;
+	}
 
 	for ( int i = 0; i < m_flushTimingCount; i++ )
 	{
@@ -648,7 +649,11 @@ void RendererOpenGL::EndFrame()
 	g_renderer2d->EndFrame2D();
 	g_renderer3d->EndFrame3D();
 
-	UpdateGpuTimings();
+	FrameDebugger *frameDebugger = FrameDebugger::GetInstance();
+	if ( frameDebugger && frameDebugger->IsOpen() )
+	{
+		UpdateGpuTimings();
+	}
 
 	m_prevTextureSwitches = m_textureSwitches;
 }
@@ -663,7 +668,10 @@ void RendererOpenGL::HandleWindowResize()
 	int screenW = g_windowManager->DrawableWidth();
 	int screenH = g_windowManager->DrawableHeight();
 
-	ResizeMSAAFramebuffer( screenW, screenH );
+	if ( m_antiAliasing )
+	{
+		m_antiAliasing->Resize( screenW, screenH );
+	}
 
 	if ( g_renderer2d )
 	{
@@ -930,157 +938,65 @@ void RendererOpenGL::ClearScreen( bool _colour, bool _depth )
 
 
 // ============================================================================
-// MSAA FRAMEBUFFER IMPLEMENTATION
+// ANTI-ALIASING IMPLEMENTATION
 // ============================================================================
 
-void RendererOpenGL::InitializeMSAAFramebuffer( int width, int height, int samples )
+void RendererOpenGL::InitializeAntiAliasing( AntiAliasingType type, int width, int height, int samples )
 {
-	m_msaaWidth = width;
-	m_msaaHeight = height;
-	m_msaaSamples = samples;
-
-	if ( samples <= 0 )
+	if ( m_antiAliasing )
 	{
-		m_msaaEnabled = false;
-		m_msaaFBO = 0;
-		m_msaaColorRBO = 0;
-		m_msaaDepthRBO = 0;
-		return;
+		m_antiAliasing->Destroy();
+		delete m_antiAliasing;
+		m_antiAliasing = nullptr;
 	}
 
-	//
-	// Query the maximum supported samples
-
-	GLint maxSamples = 0;
-	glGetIntegerv( GL_MAX_SAMPLES, &maxSamples );
-
-	//
-	// Generate and bind the MSAA framebuffer
-
-	glGenFramebuffers( 1, &m_msaaFBO );
-	glBindFramebuffer( GL_FRAMEBUFFER, m_msaaFBO );
-
-	//
-	// Create the multisampled color renderbuffer
-
-	glGenRenderbuffers( 1, &m_msaaColorRBO );
-	glBindRenderbuffer( GL_RENDERBUFFER, m_msaaColorRBO );
-	glRenderbufferStorageMultisample( GL_RENDERBUFFER, m_msaaSamples,
-									  GL_RGBA8, width, height );
-	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-							   GL_RENDERBUFFER, m_msaaColorRBO );
-
-	//
-	// Create the multisampled depth renderbuffer
-
-	glGenRenderbuffers( 1, &m_msaaDepthRBO );
-	glBindRenderbuffer( GL_RENDERBUFFER, m_msaaDepthRBO );
-	glRenderbufferStorageMultisample( GL_RENDERBUFFER, m_msaaSamples,
-									  GL_DEPTH_COMPONENT24, width, height );
-	glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-							   GL_RENDERBUFFER, m_msaaDepthRBO );
-
-	//
-	// Check the framebuffer for completeness
-
-	GLenum status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
-	if ( status != GL_FRAMEBUFFER_COMPLETE )
-	{
-		AppDebugOut( "MSAA creation failed with status: 0x%x\n", status );
-
-		if ( m_msaaColorRBO )
-			glDeleteRenderbuffers( 1, &m_msaaColorRBO );
-		if ( m_msaaDepthRBO )
-			glDeleteRenderbuffers( 1, &m_msaaDepthRBO );
-		if ( m_msaaFBO )
-			glDeleteFramebuffers( 1, &m_msaaFBO );
-
-		m_msaaFBO = 0;
-		m_msaaColorRBO = 0;
-		m_msaaDepthRBO = 0;
-		m_msaaEnabled = false;
-		m_msaaSamples = 0;
-	}
-	else
-	{
-		m_msaaEnabled = true;
-		AppDebugOut( "MSAA applied successfully\n" );
-	}
-
-	//
-	// Unbind the framebuffer
-
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-}
-
-
-void RendererOpenGL::ResizeMSAAFramebuffer( int width, int height )
-{
-	if ( !m_msaaEnabled || m_msaaSamples <= 0 )
+	if ( samples <= 0 || type == AA_TYPE_NONE )
 	{
 		return;
 	}
 
-	if ( width == m_msaaWidth && height == m_msaaHeight )
+	m_antiAliasing = AntiAliasing::Create( type, this );
+	if ( m_antiAliasing )
 	{
-		return;
-	}
-
-	//
-	// Destroy and reincarnate the FBO with new dimensions
-
-	DestroyMSAAFramebuffer();
-	InitializeMSAAFramebuffer( width, height, m_msaaSamples );
-}
-
-
-void RendererOpenGL::DestroyMSAAFramebuffer()
-{
-
-	if ( m_msaaColorRBO )
-	{
-		glDeleteRenderbuffers( 1, &m_msaaColorRBO );
-		m_msaaColorRBO = 0;
-	}
-
-	if ( m_msaaDepthRBO )
-	{
-		glDeleteRenderbuffers( 1, &m_msaaDepthRBO );
-		m_msaaDepthRBO = 0;
-	}
-
-	if ( m_msaaFBO )
-	{
-		glDeleteFramebuffers( 1, &m_msaaFBO );
-		m_msaaFBO = 0;
-	}
-
-	m_msaaEnabled = false;
-}
-
-
-void RendererOpenGL::BeginMSAARendering()
-{
-	if ( m_msaaEnabled && m_msaaFBO != 0 )
-	{
-		glBindFramebuffer( GL_FRAMEBUFFER, m_msaaFBO );
+		m_antiAliasing->Initialize( width, height, samples );
 	}
 }
 
 
-void RendererOpenGL::EndMSAARendering()
+void RendererOpenGL::ResizeAntiAliasing( int width, int height )
 {
-	if ( m_msaaEnabled && m_msaaFBO != 0 )
+	if ( m_antiAliasing )
 	{
-		glBindFramebuffer( GL_READ_FRAMEBUFFER, m_msaaFBO );
-		glBindFramebuffer( GL_DRAW_FRAMEBUFFER, 0 );
+		m_antiAliasing->Resize( width, height );
+	}
+}
 
-		glBlitFramebuffer( 0, 0, m_msaaWidth, m_msaaHeight,
-						   0, 0, m_msaaWidth, m_msaaHeight,
-						   GL_COLOR_BUFFER_BIT, GL_NEAREST );
 
-		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+void RendererOpenGL::DestroyAntiAliasing()
+{
+	if ( m_antiAliasing )
+	{
+		m_antiAliasing->Destroy();
+		delete m_antiAliasing;
+		m_antiAliasing = nullptr;
+	}
+}
+
+
+void RendererOpenGL::BeginAntiAliasing()
+{
+	if ( m_antiAliasing )
+	{
+		m_antiAliasing->BeginRendering();
+	}
+}
+
+
+void RendererOpenGL::EndAntiAliasing()
+{
+	if ( m_antiAliasing )
+	{
+		m_antiAliasing->EndRendering();
 	}
 }
 

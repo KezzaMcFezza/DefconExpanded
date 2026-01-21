@@ -1181,9 +1181,9 @@ void App::Render()
     
 #ifdef ENABLE_FOR_FUN
     g_renderer->ClearScreen( true, false );
-    g_renderer->BeginMSAARendering();
+    g_renderer->BeginAntiAliasing();
 #else
-    g_renderer->BeginMSAARendering();
+    g_renderer->BeginAntiAliasing();
     g_renderer->ClearScreen( true, false );
 #endif
     
@@ -1349,7 +1349,7 @@ void App::Render()
     
     SetTargetFPS( fpsLimit );
     
-    g_renderer->EndMSAARendering();
+    g_renderer->EndAntiAliasing();
     
     g_windowManager->Flip();
     END_PROFILE( "Flip" );   

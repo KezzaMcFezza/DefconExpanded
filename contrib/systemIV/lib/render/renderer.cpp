@@ -19,6 +19,7 @@
 #include "lib/render3d/renderer_3d.h"
 #include "lib/render2d/megavbo/megavbo_2d.h"
 #include "lib/render3d/megavbo/megavbo_3d.h"
+#include "lib/render/antialiasing/anti_aliasing.h"
 
 #include "renderer.h"
 #include "renderer_opengl.h"
@@ -44,10 +45,7 @@ Renderer::Renderer()
 	  m_prevTextureSwitches( 0 ),
 	  m_flushTimingCount( 0 ),
 	  m_currentFlushStartTime( 0.0 ),
-	  m_msaaEnabled( false ),
-	  m_msaaSamples( 0 ),
-	  m_msaaWidth( 0 ),
-	  m_msaaHeight( 0 ),
+	  m_antiAliasing( nullptr ),
 	  m_currentPass( RENDER_PASS_NONE ),
 	  m_clearColorR( 0.0f ),
 	  m_clearColorG( 0.0f ),
@@ -111,6 +109,13 @@ Renderer::~Renderer()
 	{
 		delete g_renderer2d;
 		g_renderer2d = NULL;
+	}
+
+	if ( m_antiAliasing )
+	{
+		m_antiAliasing->Destroy();
+		delete m_antiAliasing;
+		m_antiAliasing = nullptr;
 	}
 }
 
@@ -421,4 +426,24 @@ bool Renderer::IsFontLanguageSpecific()
 		}
 	}
 	return false;
+}
+
+
+bool Renderer::IsAntiAliasingEnabled() const
+{
+	if ( m_antiAliasing )
+	{
+		return m_antiAliasing->IsEnabled();
+	}
+	return false;
+}
+
+
+int Renderer::GetAntiAliasingSamples() const
+{
+	if ( m_antiAliasing )
+	{
+		return m_antiAliasing->GetSamples();
+	}
+	return 0;
 }

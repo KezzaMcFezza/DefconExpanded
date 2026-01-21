@@ -15,6 +15,7 @@
 #include "lib/gucci/window_manager_d3d11.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/render/colour.h"
+#include "lib/render/antialiasing/anti_aliasing.h"
 #include "lib/resource/bitmap.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/render3d/renderer_3d.h"
@@ -22,6 +23,7 @@
 #include "lib/render3d/megavbo/megavbo_3d.h"
 #include "lib/render2d/renderer_2d_d3d11.h"
 #include "lib/render3d/renderer_3d_d3d11.h"
+#include "lib/imgui/frame_debugger.h"
 
 #include "renderer.h"
 #include "renderer_d3d11.h"
@@ -86,10 +88,6 @@ RendererD3D11::RendererD3D11()
 	  m_samplerStateNearest( nullptr ),
 	  m_samplerStateNearestMipNearest( nullptr ),
 	  m_currentSamplerState( nullptr ),
-	  m_msaaRenderTarget( nullptr ),
-	  m_msaaRenderTargetView( nullptr ),
-	  m_msaaDepthStencil( nullptr ),
-	  m_msaaDepthStencilView( nullptr ),
 	  m_nextShaderProgramId( 1 ),
 	  m_timingQueryCount( 0 )
 {
@@ -124,10 +122,7 @@ RendererD3D11::RendererD3D11()
 	m_blendDstFactor = BLEND_ZERO;
 	m_flushTimingCount = 0;
 	m_currentFlushStartTime = 0.0;
-	m_msaaEnabled = false;
-	m_msaaSamples = 0;
-	m_msaaWidth = 0;
-	m_msaaHeight = 0;
+	m_antiAliasing = nullptr;
 
 	g_renderer2d = new Renderer2DD3D11();
 	g_megavbo2d = new MegaVBO2D();
@@ -138,7 +133,12 @@ RendererD3D11::RendererD3D11()
 
 RendererD3D11::~RendererD3D11()
 {
-	DestroyMSAAFramebuffer();
+	if ( m_antiAliasing )
+	{
+		m_antiAliasing->Destroy();
+		delete m_antiAliasing;
+		m_antiAliasing = nullptr;
+	}
 
 	for ( int i = 0; i < m_timingQueryCount; i++ )
 	{
@@ -1203,18 +1203,36 @@ void RendererD3D11::SetDepthBuffer( bool _enabled, bool _clearNow )
 
 	if ( _clearNow && m_deviceContext )
 	{
-		WindowManagerD3D11 *windowManager = dynamic_cast<WindowManagerD3D11 *>( g_windowManager );
-		if ( windowManager )
-		{
-			ID3D11DepthStencilView *depthStencil = m_msaaEnabled && m_msaaDepthStencilView
-													   ? m_msaaDepthStencilView
-													   : windowManager->GetDepthStencilView();
+		ID3D11DepthStencilView *depthStencil = nullptr;
 
-			if ( depthStencil )
+		//
+		// If anti-aliasing is enabled, clear the AA depth buffer instead of the back buffer
+
+		if ( m_antiAliasing && m_antiAliasing->IsEnabled() )
+		{
+			AntiAliasingRenderTargetHandle handle = m_antiAliasing->GetRenderTargetHandle();
+			if ( handle.depthStencil )
 			{
-				m_deviceContext->ClearDepthStencilView( depthStencil,
-														D3D11_CLEAR_DEPTH, 1.0f, 0 );
+				depthStencil = static_cast<ID3D11DepthStencilView *>( handle.depthStencil );
 			}
+		}
+
+		//
+		// Fall back to back buffer depth if MSAA not enabled or failed to get MSAA depth
+
+		if ( !depthStencil )
+		{
+			WindowManagerD3D11 *windowManager = dynamic_cast<WindowManagerD3D11 *>( g_windowManager );
+			if ( windowManager )
+			{
+				depthStencil = windowManager->GetDepthStencilView();
+			}
+		}
+
+		if ( depthStencil )
+		{
+			m_deviceContext->ClearDepthStencilView( depthStencil,
+													D3D11_CLEAR_DEPTH, 1.0f, 0 );
 		}
 	}
 }
@@ -1478,7 +1496,11 @@ void RendererD3D11::EndFrame()
 	g_renderer2d->EndFrame2D();
 	g_renderer3d->EndFrame3D();
 
-	UpdateGpuTimings();
+	FrameDebugger *frameDebugger = FrameDebugger::GetInstance();
+	if ( frameDebugger && frameDebugger->IsOpen() )
+	{
+		UpdateGpuTimings();
+	}
 
 	m_prevTextureSwitches = m_textureSwitches;
 }
@@ -1493,7 +1515,10 @@ void RendererD3D11::HandleWindowResize()
 	int screenW = g_windowManager->DrawableWidth();
 	int screenH = g_windowManager->DrawableHeight();
 
-	ResizeMSAAFramebuffer( screenW, screenH );
+	if ( m_antiAliasing )
+	{
+		m_antiAliasing->Resize( screenW, screenH );
+	}
 
 	if ( g_renderer2d )
 	{
@@ -1707,9 +1732,9 @@ void RendererD3D11::SetupDeviceRenderState()
 	}
 
 	//
-	// Only bind render targets if MSAA is not enabled
+	// Only bind render targets if AA is not enabled
 
-	if ( m_deviceContext && !m_msaaEnabled )
+	if ( m_deviceContext && !m_antiAliasing )
 	{
 		WindowManagerD3D11 *windowManager = dynamic_cast<WindowManagerD3D11 *>( g_windowManager );
 		if ( windowManager )
@@ -1848,13 +1873,25 @@ void RendererD3D11::ClearScreen( bool colour, bool depth )
 	if ( !windowManager )
 		return;
 
-	ID3D11RenderTargetView *renderTarget = m_msaaEnabled && m_msaaRenderTargetView
-											   ? m_msaaRenderTargetView
-											   : windowManager->GetRenderTargetView();
+	ID3D11RenderTargetView *renderTarget = nullptr;
+	ID3D11DepthStencilView *depthStencil = nullptr;
 
-	ID3D11DepthStencilView *depthStencil = m_msaaEnabled && m_msaaDepthStencilView
-											   ? m_msaaDepthStencilView
-											   : windowManager->GetDepthStencilView();
+
+	if ( m_antiAliasing && m_antiAliasing->IsEnabled() )
+	{
+		AntiAliasingRenderTargetHandle handle = m_antiAliasing->GetRenderTargetHandle();
+		if ( handle.renderTarget )
+		{
+			renderTarget = static_cast<ID3D11RenderTargetView *>( handle.renderTarget );
+			depthStencil = static_cast<ID3D11DepthStencilView *>( handle.depthStencil );
+		}
+	}
+
+	if ( !renderTarget )
+	{
+		renderTarget = windowManager->GetRenderTargetView();
+		depthStencil = windowManager->GetDepthStencilView();
+	}
 
 	if ( colour && renderTarget )
 	{
@@ -1871,221 +1908,65 @@ void RendererD3D11::ClearScreen( bool colour, bool depth )
 
 
 // ============================================================================
-// MSAA FRAMEBUFFER IMPLEMENTATION
+// ANTI-ALIASING IMPLEMENTATION
 // ============================================================================
 
-void RendererD3D11::InitializeMSAAFramebuffer( int width, int height, int samples )
+void RendererD3D11::InitializeAntiAliasing( AntiAliasingType type, int width, int height, int samples )
 {
-	m_msaaWidth = width;
-	m_msaaHeight = height;
-	m_msaaSamples = samples;
-
-	if ( !m_device || !m_deviceContext )
+	if ( m_antiAliasing )
 	{
-		GetDeviceAndContext();
+		m_antiAliasing->Destroy();
+		delete m_antiAliasing;
+		m_antiAliasing = nullptr;
 	}
 
-	if ( !m_device || samples <= 0 )
-	{
-		m_msaaEnabled = false;
-		m_msaaRenderTarget = nullptr;
-		m_msaaRenderTargetView = nullptr;
-		m_msaaDepthStencil = nullptr;
-		m_msaaDepthStencilView = nullptr;
-		return;
-	}
-
-	DestroyMSAAFramebuffer();
-
-	m_msaaSamples = samples;
-
-	HRESULT hr;
-
-	//
-	// Check MSAA support
-	// Note: On a GTX 1080, 16x MSAA is not supported
-
-	UINT numQualityLevels = 0;
-	hr = m_device->CheckMultisampleQualityLevels( DXGI_FORMAT_R8G8B8A8_UNORM, samples, &numQualityLevels );
-	if ( FAILED( hr ) || numQualityLevels == 0 )
-	{
-		AppDebugOut( "MSAA %dx not supported, falling back to no MSAA\n", samples );
-		m_msaaEnabled = false;
-		return;
-	}
-
-	//
-	// Create MSAA render target
-
-	D3D11_TEXTURE2D_DESC renderTargetDesc = {};
-	renderTargetDesc.Width = width;
-	renderTargetDesc.Height = height;
-	renderTargetDesc.MipLevels = 1;
-	renderTargetDesc.ArraySize = 1;
-	renderTargetDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	renderTargetDesc.SampleDesc.Count = samples;
-	renderTargetDesc.SampleDesc.Quality = numQualityLevels - 1;
-	renderTargetDesc.Usage = D3D11_USAGE_DEFAULT;
-	renderTargetDesc.BindFlags = D3D11_BIND_RENDER_TARGET;
-	renderTargetDesc.CPUAccessFlags = 0;
-	renderTargetDesc.MiscFlags = 0;
-
-	hr = m_device->CreateTexture2D( &renderTargetDesc, nullptr, &m_msaaRenderTarget );
-	if ( !CheckHR( hr, "create MSAA render target" ) )
-	{
-		m_msaaEnabled = false;
-		return;
-	}
-
-	hr = m_device->CreateRenderTargetView( m_msaaRenderTarget, nullptr, &m_msaaRenderTargetView );
-	if ( !CheckHR( hr, "create MSAA render target view" ) )
-	{
-		m_msaaRenderTarget->Release();
-		m_msaaRenderTarget = nullptr;
-		m_msaaEnabled = false;
-		return;
-	}
-
-	//
-	// Create MSAA depth stencil
-
-	D3D11_TEXTURE2D_DESC depthDesc = {};
-	depthDesc.Width = width;
-	depthDesc.Height = height;
-	depthDesc.MipLevels = 1;
-	depthDesc.ArraySize = 1;
-	depthDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthDesc.SampleDesc.Count = samples;
-	depthDesc.SampleDesc.Quality = numQualityLevels - 1;
-	depthDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthDesc.CPUAccessFlags = 0;
-	depthDesc.MiscFlags = 0;
-
-	hr = m_device->CreateTexture2D( &depthDesc, nullptr, &m_msaaDepthStencil );
-	if ( !CheckHR( hr, "create MSAA depth stencil" ) )
-	{
-		m_msaaRenderTargetView->Release();
-		m_msaaRenderTarget->Release();
-		m_msaaRenderTargetView = nullptr;
-		m_msaaRenderTarget = nullptr;
-		m_msaaEnabled = false;
-		return;
-	}
-
-	hr = m_device->CreateDepthStencilView( m_msaaDepthStencil, nullptr, &m_msaaDepthStencilView );
-	if ( !CheckHR( hr, "create MSAA depth stencil view" ) )
-	{
-		m_msaaDepthStencil->Release();
-		m_msaaRenderTargetView->Release();
-		m_msaaRenderTarget->Release();
-		m_msaaDepthStencil = nullptr;
-		m_msaaRenderTargetView = nullptr;
-		m_msaaRenderTarget = nullptr;
-		m_msaaEnabled = false;
-		return;
-	}
-
-	m_msaaEnabled = true;
-
-#ifdef _DEBUG
-	AppDebugOut( "MSAA %dx applied successfully\n", samples );
-#endif
-}
-
-
-void RendererD3D11::ResizeMSAAFramebuffer( int width, int height )
-{
-	if ( !m_msaaEnabled || m_msaaSamples <= 0 )
+	if ( samples <= 0 || type == AA_TYPE_NONE )
 	{
 		return;
 	}
 
-	if ( width == m_msaaWidth && height == m_msaaHeight )
+	m_antiAliasing = AntiAliasing::Create( type, this );
+	if ( m_antiAliasing )
 	{
-		return;
-	}
-
-	int preservedSamples = m_msaaSamples;
-
-	DestroyMSAAFramebuffer();
-	InitializeMSAAFramebuffer( width, height, preservedSamples );
-}
-
-
-void RendererD3D11::DestroyMSAAFramebuffer()
-{
-	if ( m_msaaRenderTargetView )
-	{
-		m_msaaRenderTargetView->Release();
-		m_msaaRenderTargetView = nullptr;
-	}
-
-	if ( m_msaaRenderTarget )
-	{
-		m_msaaRenderTarget->Release();
-		m_msaaRenderTarget = nullptr;
-	}
-
-	if ( m_msaaDepthStencilView )
-	{
-		m_msaaDepthStencilView->Release();
-		m_msaaDepthStencilView = nullptr;
-	}
-
-	if ( m_msaaDepthStencil )
-	{
-		m_msaaDepthStencil->Release();
-		m_msaaDepthStencil = nullptr;
-	}
-
-	m_msaaEnabled = false;
-	m_msaaSamples = 0;
-	m_msaaWidth = 0;
-	m_msaaHeight = 0;
-}
-
-
-void RendererD3D11::BeginMSAARendering()
-{
-
-	if ( !m_deviceContext )
-		return;
-
-	if ( m_msaaEnabled && m_msaaRenderTargetView )
-	{
-		m_deviceContext->OMSetRenderTargets( 1, &m_msaaRenderTargetView, m_msaaDepthStencilView );
+		m_antiAliasing->Initialize( width, height, samples );
 	}
 }
 
 
-void RendererD3D11::EndMSAARendering()
+void RendererD3D11::ResizeAntiAliasing( int width, int height )
 {
-	if ( m_msaaEnabled && m_msaaRenderTarget && m_deviceContext )
+	if ( m_antiAliasing )
 	{
-		WindowManagerD3D11 *windowManager = dynamic_cast<WindowManagerD3D11 *>( g_windowManager );
-		if ( windowManager && windowManager->GetRenderTargetView() )
-		{
-			//
-			// Resolve MSAA render target to back buffer
+		m_antiAliasing->Resize( width, height );
+	}
+}
 
-			ID3D11Resource *backBuffer = nullptr;
-			windowManager->GetRenderTargetView()->GetResource( &backBuffer );
 
-			if ( backBuffer )
-			{
-				m_deviceContext->ResolveSubresource( backBuffer, 0, m_msaaRenderTarget, 0,
-													 DXGI_FORMAT_R8G8B8A8_UNORM );
-				backBuffer->Release();
-			}
+void RendererD3D11::DestroyAntiAliasing()
+{
+	if ( m_antiAliasing )
+	{
+		m_antiAliasing->Destroy();
+		delete m_antiAliasing;
+		m_antiAliasing = nullptr;
+	}
+}
 
-			//
-			// Restore normal render target
 
-			ID3D11RenderTargetView *renderTarget = windowManager->GetRenderTargetView();
-			ID3D11DepthStencilView *depthStencil = windowManager->GetDepthStencilView();
-			m_deviceContext->OMSetRenderTargets( 1, &renderTarget, depthStencil );
-		}
+void RendererD3D11::BeginAntiAliasing()
+{
+	if ( m_antiAliasing )
+	{
+		m_antiAliasing->BeginRendering();
+	}
+}
+
+
+void RendererD3D11::EndAntiAliasing()
+{
+	if ( m_antiAliasing )
+	{
+		m_antiAliasing->EndRendering();
 	}
 }
 

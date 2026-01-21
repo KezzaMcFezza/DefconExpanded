@@ -14,6 +14,7 @@ public:
     int     m_refreshRate;
     int     m_zDepth;
     int		m_antiAlias;
+    int     m_antiAliasType;
     int     m_uiScale;
     int     m_fpsLimit;
     int     m_renderer;

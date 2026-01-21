@@ -290,6 +290,7 @@ elseif(MSVC)
         ${SYSTEMIV_PATH}/lib/gucci/win32library.cpp
         ${SYSTEMIV_PATH}/lib/gucci/window_manager_d3d11.cpp
         ${SYSTEMIV_PATH}/lib/render/renderer_d3d11.cpp
+        ${SYSTEMIV_PATH}/lib/render/antialiasing/msaa_d3d11.cpp
         ${SYSTEMIV_PATH}/lib/render2d/renderer_2d_d3d11.cpp
         ${SYSTEMIV_PATH}/lib/render3d/renderer_3d_d3d11.cpp
         ${SYSTEMIV_PATH}/lib/netlib/net_mutex_win32.cpp
@@ -652,6 +653,8 @@ set(SYSTEMIV_SOURCE
     ${SYSTEMIV_PATH}/lib/render/colour.cpp
     ${SYSTEMIV_PATH}/lib/render/renderer.cpp
     ${SYSTEMIV_PATH}/lib/render/renderer_opengl.cpp
+    ${SYSTEMIV_PATH}/lib/render/antialiasing/anti_aliasing.cpp
+    ${SYSTEMIV_PATH}/lib/render/antialiasing/msaa_opengl.cpp
     ${SYSTEMIV_PATH}/lib/render2d/renderer_2d.cpp
     ${SYSTEMIV_PATH}/lib/render2d/renderer_2d_opengl.cpp
     ${SYSTEMIV_PATH}/lib/render2d/megavbo/megavbo_2d.cpp

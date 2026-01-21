@@ -1,6 +1,7 @@
 #include "systemiv.h"
 #include "lib/language_table.h"
 #include "lib/render/renderer.h"
+#include "lib/render/antialiasing/anti_aliasing.h"
 #include "lib/render2d/renderer_2d.h"
 #include "lib/preferences.h"
 #include "lib/gucci/window_manager.h"
@@ -165,6 +166,91 @@ class RefreshRateRequiredMenu : public DropDownMenu
     }    
 };
 
+class AntiAliasTypeDropDownMenu : public DropDownMenu
+{
+    void SelectOption( int _option )
+    {
+        DropDownMenu::SelectOption( _option );
+
+        if( !m_parent )
+            return;
+
+        ScreenOptionsWindow *parent = (ScreenOptionsWindow *) m_parent;
+
+        DropDownMenu *antiAlias = (DropDownMenu *) m_parent->GetButton( "AntiAlias" );
+        if( !antiAlias )
+            return;
+
+        antiAlias->Empty();
+
+        AntiAliasingType aaType = (AntiAliasingType)_option;
+        parent->m_antiAliasType = _option;
+
+        switch( aaType )
+        {
+            case AA_TYPE_MSAA:
+            {
+                antiAlias->AddOption( "dialog_antialias_select", AA_TYPE_NONE, true );
+                antiAlias->AddOption( "dialog_antialias_msaa_2x", 2, true );
+                antiAlias->AddOption( "dialog_antialias_msaa_4x", 4, true );
+                antiAlias->AddOption( "dialog_antialias_msaa_8x", 8, true );
+                
+                if( GetRendererType() == RENDERER_TYPE_OPENGL )
+                {
+                    antiAlias->AddOption( "dialog_antialias_msaa_16x", 16, true );
+                }
+                break;
+            }
+            #if 0
+            case AA_TYPE_FXAA:
+            {
+                antiAlias->AddOption( "dialog_antialias_select", AA_TYPE_NONE, true );
+                antiAlias->AddOption( "dialog_enabled", 1, true );
+                break;
+            }
+            case AA_TYPE_SMAA:
+            {
+                antiAlias->AddOption( "dialog_antialias_select", AA_TYPE_NONE, true );
+                antiAlias->AddOption( "dialog_antialias_smaa_1x", 1, true );
+                antiAlias->AddOption( "dialog_antialias_smaa_2x", 2, true );
+                antiAlias->AddOption( "dialog_antialias_smaa_4x", 4, true );
+                break;
+            }
+            case AA_TYPE_TAA:
+            {
+                antiAlias->AddOption( "dialog_antialias_select", AA_TYPE_NONE, true );
+                antiAlias->AddOption( "dialog_antialias_taa_low", 1, true );
+                antiAlias->AddOption( "dialog_antialias_taa_medium", 2, true );
+                antiAlias->AddOption( "dialog_antialias_taa_high", 3, true );
+                break;
+            }
+            #endif
+            case AA_TYPE_NONE:
+            default:
+            {
+                antiAlias->AddOption( "dialog_none", 0, true );
+                break;
+            }
+        }
+
+        int currentSamples = parent->m_antiAlias;
+        if( currentSamples == 0 || (aaType == AA_TYPE_NONE) )
+        {
+            antiAlias->SelectOption( 0 );
+            parent->m_antiAlias = 0;
+        }
+        else
+        {
+            antiAlias->SelectOption( currentSamples );
+            if( antiAlias->GetSelectionValue() != currentSamples )
+            {
+                antiAlias->SelectOption( 0 );
+                parent->m_antiAlias = 0;
+            }
+        }
+    }
+};
+
 
 // SetWindowed - switch to windowed or fullscreen mode.
 // Used by lib/input_sdl.cpp 
@@ -229,6 +315,7 @@ class SetScreenButton : public InterfaceButton
         g_preferences->SetInt( PREFS_SCREEN_Z_DEPTH, parent->m_zDepth );
         g_preferences->SetInt( PREFS_SCREEN_UI_SCALE, parent->m_uiScale );
         g_preferences->SetInt( PREFS_SCREEN_ANTIALIAS, parent->m_antiAlias );
+        g_preferences->SetInt( PREFS_SCREEN_ANTIALIAS_TYPE, parent->m_antiAliasType );
         g_preferences->SetInt( PREFS_SCREEN_FPS_LIMIT, parent->m_fpsLimit );
         g_preferences->SetInt( PREFS_SCREEN_RENDERER, parent->m_renderer );
         g_preferences->SetInt( PREFS_SCREEN_MIPMAP_LEVEL, parent->m_mipmapLevel );
@@ -267,6 +354,7 @@ class SetScreenButton : public InterfaceButton
         parent->m_zDepth        = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH, 24 );
         parent->m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
         parent->m_antiAlias     = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
+        parent->m_antiAliasType = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS_TYPE, AA_TYPE_MSAA);
         parent->m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
         parent->m_renderer      = g_preferences->GetInt( PREFS_SCREEN_RENDERER, PREFS_RENDERER_OPENGL );
         parent->m_mipmapLevel   = g_preferences->GetInt( PREFS_SCREEN_MIPMAP_LEVEL, 4 );
@@ -293,9 +381,9 @@ ScreenOptionsWindow::ScreenOptionsWindow()
 :   InterfaceWindow( "ScreenOptions", "dialog_screenoptions", true )
 {
 #ifdef TARGET_MSVC
-	int height = 460;
+	int height = 490;
 #else
-    int height = 420;
+    int height = 450;
 #endif
 
     m_resId = g_windowManager->GetResolutionId( g_preferences->GetInt(PREFS_SCREEN_WIDTH),
@@ -316,6 +404,7 @@ ScreenOptionsWindow::ScreenOptionsWindow()
     m_zDepth        = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH, 24 );
     m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
 	m_antiAlias		= g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
+    m_antiAliasType = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS_TYPE, AA_TYPE_MSAA );
     m_fpsLimit      = g_preferences->GetInt( PREFS_SCREEN_FPS_LIMIT, 0 );
     m_renderer      = g_preferences->GetInt( PREFS_SCREEN_RENDERER, PREFS_RENDERER_OPENGL );
     m_mipmapLevel   = g_preferences->GetInt( PREFS_SCREEN_MIPMAP_LEVEL, 4 );
@@ -452,23 +541,70 @@ void ScreenOptionsWindow::Create()
     RegisterButton( uiScale );
 
     DropDownMenu *antiAlias = new DropDownMenu();
-    antiAlias->SetProperties( LANGUAGEPHRASE("dialog_antialias"), x, y+=h, w, 20 );
-    antiAlias->AddOption( "dialog_no", 0, true );
-    antiAlias->AddOption( "dialog_antialias_2x", 2, true );
-    antiAlias->AddOption( "dialog_antialias_4x", 4, true );
-    antiAlias->AddOption( "dialog_antialias_8x", 8, true );
-
-    //
-    // OpenGL seems to support 16x MSAA, DirectX11 does not support 16x 
-    // on most modern GPUs.
+    antiAlias->SetProperties( "AntiAlias", x, y+=h, w, 20, "dialog_antialias", " ", true, false );
     
-    if( GetRendererType() == RENDERER_TYPE_OPENGL )
+    AntiAliasingType currentAaType = (AntiAliasingType)m_antiAliasType;
+    switch( currentAaType )
     {
-        antiAlias->AddOption( "dialog_antialias_16x", 16, true );
+        case AA_TYPE_MSAA:
+        {
+            antiAlias->AddOption( "dialog_antialias_select", AA_TYPE_NONE, true );
+            antiAlias->AddOption( "dialog_antialias_msaa_2x", 2, true );
+            antiAlias->AddOption( "dialog_antialias_msaa_4x", 4, true );
+            antiAlias->AddOption( "dialog_antialias_msaa_8x", 8, true );
+            
+            if( GetRendererType() == RENDERER_TYPE_OPENGL )
+            {
+                antiAlias->AddOption( "dialog_antialias_msaa_16x", 16, true );
+            }
+            break;
+        }
+        #if 0
+        case AA_TYPE_FXAA:
+        {
+            antiAlias->AddOption( "dialog_antialias_select", AA_TYPE_NONE, true );
+            antiAlias->AddOption( "dialog_enabled", 1, true );
+            break;
+        }
+        case AA_TYPE_SMAA:
+        {
+            antiAlias->AddOption( "dialog_antialias_select", AA_TYPE_NONE, true );
+            antiAlias->AddOption( "dialog_antialias_smaa_1x", 1, true );
+            antiAlias->AddOption( "dialog_antialias_smaa_2x", 2, true );
+            antiAlias->AddOption( "dialog_antialias_smaa_4x", 4, true );
+            break;
+        }
+        case AA_TYPE_TAA:
+        {
+            antiAlias->AddOption( "dialog_antialias_select", AA_TYPE_NONE, true );
+            antiAlias->AddOption( "dialog_antialias_taa_low", 1, true );
+            antiAlias->AddOption( "dialog_antialias_taa_medium", 2, true );
+            antiAlias->AddOption( "dialog_antialias_taa_high", 3, true );
+            break;
+        }
+        #endif
+        case AA_TYPE_NONE:
+        default:
+        {
+            antiAlias->AddOption( "dialog_none", AA_TYPE_NONE, true );
+            break;
+        }
     }
 
     antiAlias->RegisterInt( &m_antiAlias );
     RegisterButton( antiAlias );
+
+    AntiAliasTypeDropDownMenu *antiAliasType = new AntiAliasTypeDropDownMenu();
+    antiAliasType->SetProperties( "Anti-Aliasing Type", x, y+=h, w, 20, "dialog_antialias_type", " ", true, false );
+    antiAliasType->AddOption( "dialog_none", AA_TYPE_NONE, true );
+    antiAliasType->AddOption( "dialog_alias_type_msaa", AA_TYPE_MSAA, true );
+    #if 0
+    antiAliasType->AddOption( "dialog_alias_type_fxaa", AA_TYPE_FXAA, true );
+    antiAliasType->AddOption( "dialog_alias_type_smaa", AA_TYPE_SMAA, true );
+    antiAliasType->AddOption( "dialog_alias_type_taa", AA_TYPE_TAA, true );
+    #endif
+    RegisterButton( antiAliasType );
+    antiAliasType->RegisterInt( &m_antiAliasType );
 
     DropDownMenu *fpsLimit = new DropDownMenu();
     fpsLimit->SetProperties( "FPS Limit", x, y+=h, w, 20, "dialog_fpslimit", " ", true, false );
@@ -519,6 +655,7 @@ void ScreenOptionsWindow::Render( bool _hasFocus )
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_mipmaplevel") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_windowscaling") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_antialias") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_antialias_type") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_fpslimit") );
 #ifdef TARGET_MSVC
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_renderer") );

@@ -4,6 +4,7 @@
 #include "renderer_2d_opengl.h"
 #include "lib/render/renderer.h"
 #include "lib/render/renderer_opengl.h"
+#include "lib/render/antialiasing/anti_aliasing.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/preferences.h"
 #include "shaders/vertex.glsl.h"
@@ -22,11 +23,12 @@ Renderer2DOpenGL::Renderer2DOpenGL()
 	g_renderer->ResetFlushTimings();
 
 	int msaaSamples = g_preferences ? g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 ) : 0;
+	AntiAliasingType aaType = g_preferences ? (AntiAliasingType)g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS_TYPE, AA_TYPE_MSAA ) : AA_TYPE_MSAA;
 
 	int screenW = g_windowManager->DrawableWidth();
 	int screenH = g_windowManager->DrawableHeight();
 
-	g_renderer->InitializeMSAAFramebuffer( screenW, screenH, msaaSamples );
+	g_renderer->InitializeAntiAliasing( aaType, screenW, screenH, msaaSamples );
 }
 
 

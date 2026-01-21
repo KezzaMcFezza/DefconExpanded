@@ -300,6 +300,9 @@
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\renderer_3d_opengl.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\sprites_3d.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render3d\text_3d.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\antialiasing\anti_aliasing.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\antialiasing\msaa_d3d11.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\lib\render\antialiasing\msaa_opengl.cpp" />
     <ClCompile Include="..\..\contrib\SystemIV\lib\render\colour.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\lib\render\renderer_d3d11.cpp" />
@@ -423,6 +426,9 @@
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\textured_vertex.hlsl.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\vertex.glsl.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render3d\shaders\vertex.hlsl.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\antialiasing\anti_aliasing.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\antialiasing\msaa_d3d11.h" />
+    <ClInclude Include="..\..\contrib\systemIV\lib\render\antialiasing\msaa_opengl.h" />
     <ClInclude Include="..\..\contrib\SystemIV\lib\render\colour.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer.h" />
     <ClInclude Include="..\..\contrib\systemIV\lib\render\renderer_d3d11.h" />

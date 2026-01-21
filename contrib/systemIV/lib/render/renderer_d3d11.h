@@ -84,11 +84,6 @@
     ID3D11SamplerState* m_samplerStateNearestMipNearest; // For nearest with mipmaps
     ID3D11SamplerState* m_currentSamplerState;
      
-     ID3D11Texture2D* m_msaaRenderTarget;
-     ID3D11RenderTargetView* m_msaaRenderTargetView;
-     ID3D11Texture2D* m_msaaDepthStencil;
-     ID3D11DepthStencilView* m_msaaDepthStencilView;
-     
      struct ShaderProgram 
      {
          ID3D11VertexShader* vertexShader;
@@ -147,12 +142,12 @@
      
      virtual unsigned int CreateShader(const char* vertexSource, const char* fragmentSource) override;
      
-     virtual void InitializeMSAAFramebuffer(int width, int height, int samples) override;
-     virtual void ResizeMSAAFramebuffer    (int width, int height)              override;
+     virtual void InitializeAntiAliasing(AntiAliasingType type, int width, int height, int samples) override;
+     virtual void ResizeAntiAliasing    (int width, int height)                override;
  
-     virtual void DestroyMSAAFramebuffer() override;
-     virtual void BeginMSAARendering    () override;
-     virtual void EndMSAARendering      () override;
+     virtual void DestroyAntiAliasing() override;
+     virtual void BeginAntiAliasing    () override;
+     virtual void EndAntiAliasing      () override;
      
      virtual void BeginFrame () override;
      virtual void EndFrame   () override;

@@ -15,6 +15,7 @@
 #include "systemiv.h"
 #include "lib/tosser/btree.h"
 #include "lib/tosser/llist.h"
+#include "lib/render/antialiasing/anti_aliasing.h"
 
 class Renderer2D;
 class Renderer2DVBO;
@@ -29,6 +30,7 @@ class RendererD3D11;
 class Renderer;
 struct RendererFlushTiming;
 class Colour;
+class AntiAliasing;
 
 enum TextureParameter {
     TEXTURE_MAG_FILTER = 0,
@@ -173,10 +175,7 @@ protected:
     int m_flushTimingCount;
     double m_currentFlushStartTime;
     
-    bool m_msaaEnabled;
-    int m_msaaSamples;
-    int m_msaaWidth;
-    int m_msaaHeight;
+    AntiAliasing* m_antiAliasing;
     
     RenderPassType m_currentPass;
     
@@ -228,12 +227,12 @@ public:
 
     virtual unsigned int CreateShader(const char* vertexSource, const char* fragmentSource) = 0;
     
-    virtual void InitializeMSAAFramebuffer(int width, int height, int samples) = 0;
-    virtual void ResizeMSAAFramebuffer    (int width, int height) = 0;
+    virtual void InitializeAntiAliasing(AntiAliasingType type, int width, int height, int samples) = 0;
+    virtual void ResizeAntiAliasing    (int width, int height)                = 0;
 
-    virtual void DestroyMSAAFramebuffer() = 0;
-    virtual void BeginMSAARendering() = 0;
-    virtual void EndMSAARendering() = 0;
+    virtual void DestroyAntiAliasing() = 0;
+    virtual void BeginAntiAliasing() = 0;
+    virtual void EndAntiAliasing() = 0;
     
     virtual void BeginFrame() = 0;
     virtual void EndFrame() = 0;
@@ -287,8 +286,8 @@ public:
     
     int GetBlendMode  () const { return m_blendMode; }
     
-    bool IsMSAAEnabled() const { return m_msaaEnabled; }
-    int GetMSAASamples() const { return m_msaaSamples; }
+    bool IsAntiAliasingEnabled() const;
+    int GetAntiAliasingSamples() const;
 };
 
 extern Renderer* g_renderer;
