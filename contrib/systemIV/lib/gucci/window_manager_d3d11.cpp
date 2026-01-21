@@ -656,7 +656,7 @@ void WindowManagerD3D11::DoFlip()
 	}
 	else if ( hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET )
 	{
-// Device was lost or reset, attempt recovery
+        // Device was lost or reset, attempt recovery
 #ifdef _DEBUG
 		AppDebugOut( "Device lost/reset detected (0x%08X), attempting recovery...\n", hr );
 #endif
@@ -669,20 +669,27 @@ void WindowManagerD3D11::DoFlip()
 #endif
 		}
 
-		if ( RecoverSwapChain() )
+		//
+		// Check if window is minimized/hidden before attempting recovery
+		// to prevent infinite recovery loops when window is occluded
+
+		Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
+
+		if ( !( windowFlags & ( SDL_WINDOW_MINIMIZED | SDL_WINDOW_HIDDEN ) ) )
 		{
-			WindowManager::HandleResize( m_screenW, m_screenH );
+			RecoverSwapChain();
 		}
 	}
 	else if ( hr == DXGI_ERROR_INVALID_CALL )
 	{
-#ifdef _DEBUG
-		AppDebugOut( "Swap chain invalid, attempting recovery...\n" );
-#endif
+		Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
 
-		if ( RecoverSwapChain() )
+		if ( !( windowFlags & ( SDL_WINDOW_MINIMIZED | SDL_WINDOW_HIDDEN ) ) )
 		{
-			WindowManager::HandleResize( m_screenW, m_screenH );
+#ifdef _DEBUG
+			AppDebugOut( "Swap chain invalid, attempting recovery...\n" );
+#endif
+			RecoverSwapChain();
 		}
 	}
 	else if ( FAILED( hr ) )
@@ -727,17 +734,26 @@ bool WindowManagerD3D11::RecoverSwapChain()
 #endif
 
 	//
-	// Exit fullscreen if in exclusive mode before resizing buffers
+	// Query the actual fullscreen state from the swap chain
+	// DXGI may have automatically exited fullscreen when window was occluded
 
-	bool wasExclusiveFullscreen = m_isExclusiveFullscreen;
-	if ( m_isExclusiveFullscreen )
+	BOOL isCurrentlyFullscreen = FALSE;
+	IDXGIOutput *output = nullptr;
+
+	m_swapChain->GetFullscreenState( &isCurrentlyFullscreen, &output );
+	if ( output )
+		output->Release();
+
+#ifdef _DEBUG
+	if ( isCurrentlyFullscreen != m_isExclusiveFullscreen )
 	{
-		m_swapChain->SetFullscreenState( FALSE, NULL );
-		m_isExclusiveFullscreen = false;
+		AppDebugOut( "Fullscreen state mismatch: tracked=%d, actual=%d\n",
+					 m_isExclusiveFullscreen, isCurrentlyFullscreen );
 	}
+#endif
 
-	//
-	// Resize swap chain buffers with drawable size
+	m_isExclusiveFullscreen = ( isCurrentlyFullscreen == TRUE );
+
 
 	HRESULT hr = m_swapChain->ResizeBuffers(
 		3,
@@ -782,21 +798,11 @@ bool WindowManagerD3D11::RecoverSwapChain()
 
 	SDL_GetWindowSize( m_sdlWindow, &m_screenW, &m_screenH );
 
-	//
-	// Restore exclusive fullscreen state if needed
-
-	if ( wasExclusiveFullscreen )
-	{
-		hr = m_swapChain->SetFullscreenState( TRUE, NULL );
-		if ( SUCCEEDED( hr ) )
-		{
-			m_isExclusiveFullscreen = true;
-		}
-	}
+	CalculateHighDPIScaleFactors();
 
 #ifdef _DEBUG
-	AppDebugOut( "Swap chain recovered successfully (logical: %dx%d, drawable: %dx%d)\n",
-				 m_screenW, m_screenH, width, height );
+	AppDebugOut( "Swap chain recovered successfully (logical: %dx%d, drawable: %dx%d, fullscreen: %d)\n",
+				 m_screenW, m_screenH, width, height, m_isExclusiveFullscreen );
 #endif
 
 	return true;
@@ -814,6 +820,9 @@ void WindowManagerD3D11::HandleWindowFocusGained()
 
 	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
 
+	if ( windowFlags & ( SDL_WINDOW_MINIMIZED | SDL_WINDOW_HIDDEN ) )
+		return;
+
 	if ( windowFlags & ( SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP ) )
 	{
 		//
@@ -827,10 +836,7 @@ void WindowManagerD3D11::HandleWindowFocusGained()
 #ifdef _DEBUG
 			AppDebugOut( "Swap chain appears invalid, attempting recovery...\n" );
 #endif
-			if ( RecoverSwapChain() )
-			{
-				WindowManager::HandleResize( m_screenW, m_screenH );
-			}
+			RecoverSwapChain();
 		}
 		else
 		{
