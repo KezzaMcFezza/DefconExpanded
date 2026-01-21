@@ -518,6 +518,42 @@ void App::MinimalInit()
 #endif
 }
 
+static int CompareVersions( const char *_version1, const char *_version2 )
+{
+    const char *p1 = _version1;
+    const char *p2 = _version2;
+    
+    while( *p1 || *p2 )
+    {
+        int num1 = 0;
+        int num2 = 0;
+        
+        while( *p1 >= '0' && *p1 <= '9' )
+        {
+            num1 = num1 * 10 + ( *p1 - '0' );
+            p1++;
+        }
+        
+        while( *p2 >= '0' && *p2 <= '9' )
+        {
+            num2 = num2 * 10 + ( *p2 - '0' );
+            p2++;
+        }
+        
+        if( num1 < num2 ) return -1;
+        if( num1 > num2 ) return 1;
+        
+        if( *p1 == '.' ) p1++;
+        if( *p2 == '.' ) p2++;
+        
+        if( !*p1 && !*p2 ) break;
+        if( !*p1 ) return -1;
+        if( !*p2 ) return 1;
+    }
+    
+    return 0;
+}
+
 static bool CheckMainDatVersion()
 {
     TextReader *reader = g_fileSystem->GetTextReader( "data/version.txt" );
@@ -528,7 +564,7 @@ static bool CheckMainDatVersion()
         return false;
     }
 
-    float datVersion = 0.0f;
+    char datVersionStr[256] = "";
     bool found = false;
 
     while( reader->ReadLine() )
@@ -543,7 +579,8 @@ static bool CheckMainDatVersion()
             
             if( *p )
             {
-                datVersion = (float)atof( p );
+                strncpy( datVersionStr, p, sizeof(datVersionStr) - 1 );
+                datVersionStr[sizeof(datVersionStr) - 1] = '\0';
                 found = true;
             }
             break;
@@ -554,9 +591,7 @@ static bool CheckMainDatVersion()
 
     if( !found ) return false;
 
-    float clientVersion = (float)atof( APP_BUILD_NUMBER );
-
-    return datVersion >= clientVersion;
+    return CompareVersions( datVersionStr, APP_BUILD_NUMBER ) >= 0;
 }
 
 void App::FinishInit()
