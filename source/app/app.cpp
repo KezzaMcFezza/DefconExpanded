@@ -1286,10 +1286,12 @@ void App::Render()
 
         if( m_showFps )
         {
+            g_renderer->SetFont( "kremlin" );
             char fps[64];
             strcpy( fps, LANGUAGEPHRASE("dialog_mapr_fps") );
             LPREPLACEINTEGERFLAG( 'F', m_framesPerSecond, fps );
-            g_renderer2d->TextSimple( 25, 25, White, 20.0f, fps );
+            g_renderer2d->TextSimple( 25, 20, White, 30.0f, fps );
+            g_renderer->SetFont();
         }
         
 #if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)

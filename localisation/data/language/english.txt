@@ -754,7 +754,7 @@ dialog_world_dropped                *T DROPPED
 dialog_world_kicked                 *T KICKED
 # T = Team Name
 
-dialog_mapr_fps                     *Ffps
+dialog_mapr_fps                     *FFps
 # F = Frame per seconds (fps)
 dialog_mapr_city_population         POPULATION : *P MILLION
 # P = City Population
