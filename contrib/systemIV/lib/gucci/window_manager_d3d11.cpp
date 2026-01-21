@@ -393,7 +393,7 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 
 		if ( _borderless )
 		{
-			flags |= SDL_WINDOW_BORDERLESS;
+			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 			m_screenW = _width;
 			m_screenH = _height;
 		}

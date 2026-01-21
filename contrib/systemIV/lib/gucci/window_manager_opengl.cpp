@@ -55,7 +55,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	{
 		if ( _borderless )
 		{
-			flags |= SDL_WINDOW_BORDERLESS;
+			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
 			m_screenW = _width;
 			m_screenH = _height;
 		}
