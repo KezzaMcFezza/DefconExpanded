@@ -717,8 +717,29 @@ void GlobeRenderer::GlobeCoastlines()
                 for( int j = 0; j < island->m_points.Size(); j++ )
                 {
                     Vector3<float> *thePoint = island->m_points[j];
-
-                    coastlineVertices.PutData(ConvertLongLatTo3DPosition(thePoint->x, thePoint->y));
+                    Vector3<float> currentPos = ConvertLongLatTo3DPosition(thePoint->x, thePoint->y);
+                    Vector3<float> currentNormal = currentPos.Normalized();
+                    
+                    if (j > 0) 
+                    {
+                        Vector3<float> *prevPoint = island->m_points[j - 1];
+                        Vector3<float> prevPos = ConvertLongLatTo3DPosition(prevPoint->x, prevPoint->y);
+                        Vector3<float> prevNormal = prevPos.Normalized();
+                        
+                        float distance = (currentPos - prevPos).Mag();
+                        int numSegments = (int)(distance / 0.01f) + 1;
+                        numSegments = fmaxf(1, fminf(numSegments, 50));
+                        
+                        for (int seg = 1; seg < numSegments; ++seg) 
+                        {
+                            float t = (float)seg / (float)numSegments;
+                            Vector3<float> interpolatedNormal = SlerpNormal(prevNormal, currentNormal, t);
+                            Vector3<float> interpolatedPos = interpolatedNormal * GLOBE_RADIUS;
+                            coastlineVertices.PutData(interpolatedPos);
+                        }
+                    }
+                    
+                    coastlineVertices.PutData(currentPos);
                 }
                 AddLineStrip(coastlineVertices);
             }
@@ -756,8 +777,29 @@ void GlobeRenderer::GlobeBorders()
                 for( int j = 0; j < island->m_points.Size(); j++ )
                 {
                     Vector3<float> *thePoint = island->m_points[j];
-
-                    borderVertices.PutData(ConvertLongLatTo3DPosition(thePoint->x, thePoint->y));
+                    Vector3<float> currentPos = ConvertLongLatTo3DPosition(thePoint->x, thePoint->y);
+                    Vector3<float> currentNormal = currentPos.Normalized();
+                    
+                    if (j > 0) 
+                    {
+                        Vector3<float> *prevPoint = island->m_points[j - 1];
+                        Vector3<float> prevPos = ConvertLongLatTo3DPosition(prevPoint->x, prevPoint->y);
+                        Vector3<float> prevNormal = prevPos.Normalized();
+                        
+                        float distance = (currentPos - prevPos).Mag();
+                        int numSegments = (int)(distance / 0.01f) + 1;
+                        numSegments = fmaxf(1, fminf(numSegments, 50));
+                        
+                        for (int seg = 1; seg < numSegments; ++seg) 
+                        {
+                            float t = (float)seg / (float)numSegments;
+                            Vector3<float> interpolatedNormal = SlerpNormal(prevNormal, currentNormal, t);
+                            Vector3<float> interpolatedPos = interpolatedNormal * GLOBE_RADIUS;
+                            borderVertices.PutData(interpolatedPos);
+                        }
+                    }
+                    
+                    borderVertices.PutData(currentPos);
                 }
                 AddLineStrip(borderVertices);
             }
@@ -788,7 +830,7 @@ void GlobeRenderer::GlobeGridlines()
     for( float x = -180; x < 180; x += 10 )
     {
         DArray<Vector3<float>> lineVertices;
-        for( float y = -90; y < 90; y += 2.0f )
+        for( float y = -90; y < 90; y += 1.0f )
         {
             lineVertices.PutData(ConvertLongLatTo3DPosition(x, y));
         }
@@ -801,7 +843,7 @@ void GlobeRenderer::GlobeGridlines()
     for( float y = -90; y <= 90; y += 10 )
     {
         DArray<Vector3<float>> lineVertices;
-        for( float x = -180; x <= 180; x += 2.0f )
+        for( float x = -180; x <= 180; x += 1.0f )
         {
             lineVertices.PutData(ConvertLongLatTo3DPosition(x, y));
         }
