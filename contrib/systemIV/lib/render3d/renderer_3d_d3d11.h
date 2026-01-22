@@ -22,6 +22,8 @@ private:
     ID3D11PixelShader* m_modelPixelShader3D;
     ID3D11InputLayout* m_inputLayout3D;
     ID3D11InputLayout* m_inputLayoutTextured3D;
+    ID3D11GeometryShader* m_lineGeometryShaderThin3D;
+    ID3D11GeometryShader* m_lineGeometryShaderThick3D;
     
     struct TransformBuffer 
     {
@@ -54,11 +56,20 @@ private:
         float uModelColors[MAX_INSTANCES * 4];
     };
     
+    struct LineWidthBuffer3D 
+    {
+        float lineWidth;
+        float viewportWidth;
+        float viewportHeight;
+        float padding;
+    };
+    
     static constexpr int MAX_INSTANCES = 64;
     
     ID3D11Buffer* m_transformConstantBuffer;
     ID3D11Buffer* m_fogConstantBuffer;
     ID3D11Buffer* m_modelConstantBuffer;
+    ID3D11Buffer* m_lineWidthConstantBuffer3D;
     
     ID3D11Buffer* m_lineBuffer3D;
     ID3D11Buffer* m_staticSpriteBuffer3D;
@@ -133,6 +144,7 @@ protected:
     virtual void Setup3DTexturedVertexArrays  () override;
     virtual void Set3DShaderUniforms          () override;
     virtual void SetTextured3DShaderUniforms  () override;
+    virtual void SetLineShaderUniforms3D      (float lineWidth) override;
 
     virtual void SetFogUniforms3D                 (unsigned int shaderProgram) override;
     virtual void Set3DModelShaderUniforms         (const Matrix4f& modelMatrix, const Colour& modelColor) override;

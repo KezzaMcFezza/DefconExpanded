@@ -22,6 +22,7 @@ void MegaVBO3D::BeginMegaVBO3D( const char *megaVBOKey, Colour const &col )
 
 	m_megaVBO3DActive = true;
 	m_megaVBO3DColor = col;
+	m_megaVBO3DWidth = g_renderer->GetLineWidth();
 
 	m_megaVertex3DCount = 0;
 	m_megaIndex3DCount = 0;
@@ -128,6 +129,7 @@ void MegaVBO3D::EndMegaVBO3D()
 	cachedVBO->vertexCount = m_megaVertex3DCount;
 	cachedVBO->indexCount = m_megaIndex3DCount;
 	cachedVBO->color = m_megaVBO3DColor;
+	cachedVBO->lineWidth = m_megaVBO3DWidth;
 	cachedVBO->vertexType = VBO_VERTEX_3D;
 	cachedVBO->isValid = true;
 
@@ -148,7 +150,7 @@ void MegaVBO3D::RenderMegaVBO3D( const char *megaVBOKey )
 	g_renderer->StartFlushTiming( "MegaVBO_LineStrips_3D" );
 
 	g_renderer->SetShaderProgram( g_renderer3d->m_shader3DProgram );
-	g_renderer3d->Set3DShaderUniforms();
+	g_renderer3d->SetLineShaderUniforms3D( cachedVBO->lineWidth );
 
 	g_renderer3d->EnableMegaVBOPrimitiveRestart3D( 0xFFFFFFFF );
 

@@ -11,6 +11,7 @@
 #include "shaders/textured_vertex.hlsl.h"
 #include "shaders/textured_fragment.hlsl.h"
 #include "shaders/model_vertex.hlsl.h"
+#include "shaders/line_geometry_3d.hlsl.h"
 
 #include <d3dcompiler.h>
 #pragma comment( lib, "d3dcompiler.lib" )
@@ -30,9 +31,12 @@ Renderer3DD3D11::Renderer3DD3D11()
 	  m_modelPixelShader3D( nullptr ),
 	  m_inputLayout3D( nullptr ),
 	  m_inputLayoutTextured3D( nullptr ),
+	  m_lineGeometryShaderThin3D( nullptr ),
+	  m_lineGeometryShaderThick3D( nullptr ),
 	  m_transformConstantBuffer( nullptr ),
 	  m_fogConstantBuffer( nullptr ),
 	  m_modelConstantBuffer( nullptr ),
+	  m_lineWidthConstantBuffer3D( nullptr ),
 	  m_lineBuffer3D( nullptr ),
 	  m_staticSpriteBuffer3D( nullptr ),
 	  m_rotatingSpriteBuffer3D( nullptr ),
@@ -78,6 +82,12 @@ Renderer3DD3D11::~Renderer3DD3D11()
 		m_inputLayout3D->Release();
 	if ( m_inputLayoutTextured3D )
 		m_inputLayoutTextured3D->Release();
+	if ( m_lineGeometryShaderThin3D )
+		m_lineGeometryShaderThin3D->Release();
+	if ( m_lineGeometryShaderThick3D )
+		m_lineGeometryShaderThick3D->Release();
+	if ( m_lineWidthConstantBuffer3D )
+		m_lineWidthConstantBuffer3D->Release();
 	if ( m_transformConstantBuffer )
 		m_transformConstantBuffer->Release();
 	if ( m_fogConstantBuffer )
@@ -315,6 +325,62 @@ void Renderer3DD3D11::Initialize3DShaders()
 
 	pixelBlob->Release();
 
+	//
+	// Compile thin line geometry shader for 3D
+
+	ID3DBlob *geometryBlob = nullptr;
+
+	hr = D3DCompile( LINE_GEOMETRY_3D_THIN_SHADER_SOURCE_HLSL,
+					 strlen( LINE_GEOMETRY_3D_THIN_SHADER_SOURCE_HLSL ),
+					 nullptr, nullptr, nullptr, "main", "gs_5_0", 0, 0,
+					 &geometryBlob, &errorBlob );
+
+	if ( !CheckHR( hr, "thin 3D line geometry shader compilation", errorBlob ) )
+	{
+		if ( geometryBlob )
+			geometryBlob->Release();
+		return;
+	}
+
+	hr = m_device->CreateGeometryShader( geometryBlob->GetBufferPointer(),
+										 geometryBlob->GetBufferSize(),
+										 nullptr, &m_lineGeometryShaderThin3D );
+
+	if ( !CheckHR( hr, "create thin 3D line geometry shader" ) )
+	{
+		geometryBlob->Release();
+		return;
+	}
+
+	geometryBlob->Release();
+
+	//
+	// Compile thick line geometry shader for 3D
+
+	hr = D3DCompile( LINE_GEOMETRY_3D_THICK_SHADER_SOURCE_HLSL,
+					 strlen( LINE_GEOMETRY_3D_THICK_SHADER_SOURCE_HLSL ),
+					 nullptr, nullptr, nullptr, "main", "gs_5_0", 0, 0,
+					 &geometryBlob, &errorBlob );
+
+	if ( !CheckHR( hr, "thick 3D line geometry shader compilation", errorBlob ) )
+	{
+		if ( geometryBlob )
+			geometryBlob->Release();
+		return;
+	}
+
+	hr = m_device->CreateGeometryShader( geometryBlob->GetBufferPointer(),
+										 geometryBlob->GetBufferSize(),
+										 nullptr, &m_lineGeometryShaderThick3D );
+
+	if ( !CheckHR( hr, "create thick 3D line geometry shader" ) )
+	{
+		geometryBlob->Release();
+		return;
+	}
+
+	geometryBlob->Release();
+
 #ifdef _DEBUG
 	AppDebugOut( "Renderer3DD3D11: 3D shaders initialized\n" );
 #endif
@@ -366,6 +432,16 @@ void Renderer3DD3D11::CreateConstantBuffers()
 	desc.ByteWidth = sizeof( ModelBuffer );
 	hr = m_device->CreateBuffer( &desc, nullptr, &m_modelConstantBuffer );
 	if ( !CheckHR( hr, "create model constant buffer" ) )
+	{
+		return;
+	}
+
+	//
+	// Create line width constant buffer for 3D
+
+	desc.ByteWidth = sizeof( LineWidthBuffer3D );
+	hr = m_device->CreateBuffer( &desc, nullptr, &m_lineWidthConstantBuffer3D );
+	if ( !CheckHR( hr, "create line width constant buffer 3D" ) )
 	{
 		return;
 	}
@@ -532,6 +608,15 @@ void Renderer3DD3D11::Set3DShaderUniforms()
 		m_deviceContext->PSSetConstantBuffers( 0, 2, constantBuffers );
 
 		//
+		// Clear geometry shader and its constant buffers
+
+		m_deviceContext->GSSetShader( nullptr, nullptr, 0 );
+		ID3D11Buffer *nullBuffer = nullptr;
+		m_deviceContext->GSSetConstantBuffers( 0, 1, &nullBuffer );
+		m_deviceContext->GSSetConstantBuffers( 1, 1, &nullBuffer );
+		m_deviceContext->GSSetConstantBuffers( 2, 1, &nullBuffer );
+
+		//
 		// Clear texture binding
 
 		ID3D11ShaderResourceView *nullSRV = nullptr;
@@ -540,6 +625,98 @@ void Renderer3DD3D11::Set3DShaderUniforms()
 		//
 		// Ensure render states are applied
 		// blend, depth, rasterizer
+
+		RendererD3D11 *rendererD3D11 = dynamic_cast<RendererD3D11 *>( g_renderer );
+		if ( rendererD3D11 )
+		{
+			rendererD3D11->UpdateBlendState();
+			rendererD3D11->UpdateDepthState();
+			rendererD3D11->UpdateRasterizerState();
+		}
+	}
+
+	m_currentShaderProgram3D = m_shader3DProgram;
+	m_matrices3DNeedUpdate = false;
+	m_fog3DNeedsUpdate = false;
+}
+
+
+void Renderer3DD3D11::SetLineShaderUniforms3D( float lineWidth )
+{
+	if ( m_matrices3DNeedUpdate || m_currentShaderProgram3D != m_shader3DProgram )
+	{
+		UpdateTransformBuffer();
+	}
+
+	if ( m_fog3DNeedsUpdate || m_currentShaderProgram3D != m_shader3DProgram )
+	{
+		UpdateFogBuffer();
+	}
+
+	if ( m_deviceContext )
+	{
+		m_deviceContext->VSSetShader( m_vertexShader3D, nullptr, 0 );
+		m_deviceContext->PSSetShader( m_pixelShader3D, nullptr, 0 );
+		m_deviceContext->IASetInputLayout( m_inputLayout3D );
+
+		ID3D11Buffer *constantBuffers[] = { m_transformConstantBuffer, m_fogConstantBuffer };
+		m_deviceContext->VSSetConstantBuffers( 0, 2, constantBuffers );
+		m_deviceContext->PSSetConstantBuffers( 0, 2, constantBuffers );
+
+		//
+		// For line width 1, use normal line rendering without geometry shader
+
+		if ( lineWidth == 1.0f )
+		{
+			//
+			// Clear geometry shader for normal lines
+
+			m_deviceContext->GSSetShader( nullptr, nullptr, 0 );
+			ID3D11Buffer *nullBuffer = nullptr;
+			m_deviceContext->GSSetConstantBuffers( 0, 1, &nullBuffer );
+			m_deviceContext->GSSetConstantBuffers( 1, 1, &nullBuffer );
+			m_deviceContext->GSSetConstantBuffers( 2, 1, &nullBuffer );
+		}
+		else
+		{
+			//
+			// Update and bind line width constant buffer
+
+			D3D11_MAPPED_SUBRESOURCE mappedResource;
+			HRESULT hr = m_deviceContext->Map( m_lineWidthConstantBuffer3D, 0,
+											   D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
+
+			if ( SUCCEEDED( hr ) )
+			{
+				LineWidthBuffer3D *lineWidthData = (LineWidthBuffer3D *)mappedResource.pData;
+				lineWidthData->lineWidth = lineWidth;
+				lineWidthData->viewportWidth = (float)g_windowManager->DrawableWidth();
+				lineWidthData->viewportHeight = (float)g_windowManager->DrawableHeight();
+				lineWidthData->padding = 0.0f;
+
+				m_deviceContext->Unmap( m_lineWidthConstantBuffer3D, 0 );
+			}
+
+			ID3D11GeometryShader *geometryShader = ( lineWidth < 1.8f ) ? m_lineGeometryShaderThin3D : m_lineGeometryShaderThick3D;
+
+			m_deviceContext->GSSetShader( geometryShader, nullptr, 0 );
+
+			//
+			// Bind constant buffers to geometry shader
+			// b0 = TransformBuffer, b1 = FogBuffer, b2 = LineWidthBuffer
+
+			ID3D11Buffer *gsConstantBuffers[] = { m_transformConstantBuffer, m_fogConstantBuffer, m_lineWidthConstantBuffer3D };
+			m_deviceContext->GSSetConstantBuffers( 0, 3, gsConstantBuffers );
+		}
+
+		//
+		// Clear texture binding
+
+		ID3D11ShaderResourceView *nullSRV = nullptr;
+		m_deviceContext->PSSetShaderResources( 0, 1, &nullSRV );
+
+		//
+		// Ensure render states are applied
 
 		RendererD3D11 *rendererD3D11 = dynamic_cast<RendererD3D11 *>( g_renderer );
 		if ( rendererD3D11 )
@@ -873,7 +1050,14 @@ void Renderer3DD3D11::FlushLine3D( bool isImmediate )
 
 	g_renderer->SetDepthMask( false );
 
-	Set3DShaderUniforms();
+	if ( m_currentLineWidth3D == 1.0f )
+	{
+		Set3DShaderUniforms();
+	}
+	else
+	{
+		SetLineShaderUniforms3D( m_currentLineWidth3D );
+	}
 
 	if ( m_lineBuffer3D && UpdateBufferData( m_lineBuffer3D, m_lineVertices3D, m_lineVertexCount3D ) )
 	{
@@ -1786,12 +1970,10 @@ void Renderer3DD3D11::DrawMegaVBOIndexed3D( PrimitiveType primitiveType, unsigne
 
 	if ( vaoIt->second.isTextured )
 	{
-		SetTextured3DShaderUniforms();
 		m_deviceContext->IASetInputLayout( m_inputLayoutTextured3D );
 	}
 	else
 	{
-		Set3DShaderUniforms();
 		m_deviceContext->IASetInputLayout( m_inputLayout3D );
 	}
 

@@ -19,6 +19,7 @@ protected:
   bool m_megaVBO3DActive;
   char *m_currentMegaVBO3DKey;
   Colour m_megaVBO3DColor;
+  float m_megaVBO3DWidth;
   Vertex3D *m_megaVertices3D;
   int m_megaVertex3DCount;
   unsigned int *m_megaIndices3D;
@@ -67,6 +68,7 @@ protected:
     int vertexCount;            // Number of actual vertices (no duplication)
     int indexCount;             // Number of indices
     Colour color;
+    float lineWidth;
     VBOVertexType vertexType;
     bool isValid;
   };

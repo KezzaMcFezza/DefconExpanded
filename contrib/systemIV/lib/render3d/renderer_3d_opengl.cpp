@@ -154,6 +154,15 @@ void Renderer3DOpenGL::SetTextured3DShaderUniforms()
 }
 
 
+void Renderer3DOpenGL::SetLineShaderUniforms3D( float lineWidth )
+{
+#ifndef TARGET_EMSCRIPTEN
+	g_renderer->SetLineWidth( lineWidth );
+#endif
+	Set3DShaderUniforms();
+}
+
+
 void Renderer3DOpenGL::SetFogUniforms3D( unsigned int shaderProgram )
 {
 	int fogEnabledLoc = glGetUniformLocation( shaderProgram, "uFogEnabled" );

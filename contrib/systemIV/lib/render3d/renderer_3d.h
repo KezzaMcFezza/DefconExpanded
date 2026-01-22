@@ -287,6 +287,7 @@ private:
     virtual void Setup3DTexturedVertexArrays  () = 0;
     virtual void Set3DShaderUniforms          () = 0;
     virtual void SetTextured3DShaderUniforms  () = 0;
+    virtual void SetLineShaderUniforms3D      (float lineWidth) = 0;
 
     virtual void SetFogUniforms3D                 (unsigned int shaderProgram) = 0;
     virtual void Set3DModelShaderUniforms         (const Matrix4f& modelMatrix, const Colour& modelColor) = 0;

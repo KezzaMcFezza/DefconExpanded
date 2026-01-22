@@ -16,6 +16,7 @@ protected:
     virtual void Cache3DUniformLocations      () override;
     virtual void Set3DShaderUniforms          () override;
     virtual void SetTextured3DShaderUniforms  () override;
+    virtual void SetLineShaderUniforms3D      (float lineWidth) override;
 
     virtual void SetFogUniforms3D                 (unsigned int shaderProgram) override;
     virtual void Set3DModelShaderUniforms         (const Matrix4f& modelMatrix, const Colour& modelColor) override;
