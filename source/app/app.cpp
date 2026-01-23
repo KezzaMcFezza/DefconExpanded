@@ -1259,7 +1259,6 @@ void App::Render()
         }
     }
 
-
     //
     // Lobby graphics
 
@@ -1270,6 +1269,7 @@ void App::Render()
         g_renderer->End2DRendering();
     }
 
+    g_renderer->EndAntiAliasing();
 
     //
     // Eclipse rendering
@@ -1385,8 +1385,6 @@ void App::Render()
     int fpsLimit = g_preferences->GetInt(PREFS_SCREEN_FPS_LIMIT, 0);
     
     SetTargetFPS( fpsLimit );
-    
-    g_renderer->EndAntiAliasing();
     
     g_windowManager->Flip();
     END_PROFILE( "Flip" );   
