@@ -204,9 +204,9 @@ void WorldRenderer::SetShowAllWhiteBoards( bool showAllWhiteBoards )
 
 Team* WorldRenderer::GetEffectiveWhiteBoardTeam()
 {
-	if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
+	if( g_app->GetServer() )
 	{
-		extern int g_desiredPerspectiveTeamId;
+		int g_desiredPerspectiveTeamId = 1;
 		
 		if( g_desiredPerspectiveTeamId != -1 )
 		{

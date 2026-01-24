@@ -264,15 +264,11 @@ elseif(MSVC)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_definitions(-DTOGGLE_SOUND)
         #add_definitions(-DSYNC_PRACTICE)
-        #add_definitions(-DREPLAY_VIEWER) 
-        #add_definitions(-DREPLAY_VIEWER_DESKTOP)
     endif()
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_definitions(-DTOGGLE_SOUND)
     #add_definitions(-DSYNC_PRACTICE)
-    #add_definitions(-DREPLAY_VIEWER) 
-    #add_definitions(-DREPLAY_VIEWER_DESKTOP)
     endif()
     
     set(CMAKE_RC_FLAGS "${CMAKE_RC_FLAGS} /I\"${RESOURCES_DIR}\"")
@@ -343,15 +339,11 @@ elseif(APPLE)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_definitions(-DTOGGLE_SOUND)
         #add_definitions(-DSYNC_PRACTICE)
-        #add_definitions(-DREPLAY_VIEWER) 
-        #add_definitions(-DREPLAY_VIEWER_DESKTOP)
     endif()
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_definitions(-DTOGGLE_SOUND)
     #add_definitions(-DSYNC_PRACTICE)
-    #add_definitions(-DREPLAY_VIEWER) 
-    #add_definitions(-DREPLAY_VIEWER_DESKTOP)
     endif()
     
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F${MACOS_FRAMEWORKS_DIR}")
@@ -438,15 +430,11 @@ elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         add_definitions(-DTOGGLE_SOUND)
         #add_definitions(-DSYNC_PRACTICE)
-        #add_definitions(-DREPLAY_VIEWER) 
-        #add_definitions(-DREPLAY_VIEWER_DESKTOP)
     endif()
 
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_definitions(-DTOGGLE_SOUND)
     #add_definitions(-DSYNC_PRACTICE)
-    #add_definitions(-DREPLAY_VIEWER) 
-    #add_definitions(-DREPLAY_VIEWER_DESKTOP)
     endif()
     
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-deprecated-declarations -Wno-error=format-security -fpermissive")
@@ -582,7 +570,6 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/interface/lobby_window.cpp
     ${ROOT_PATH}/source/interface/interface.cpp
     ${ROOT_PATH}/source/interface/mainmenu.cpp
-    ${ROOT_PATH}/source/interface/playback_control_window.cpp
     ${ROOT_PATH}/source/interface/side_panel.cpp
     ${ROOT_PATH}/source/interface/toolbar.cpp
     ${ROOT_PATH}/source/interface/authkey_window.cpp
@@ -606,8 +593,6 @@ set(DEFCON_SOURCE
     ${ROOT_PATH}/source/interface/soundstats_window.cpp
     ${ROOT_PATH}/source/interface/styleeditor_window.cpp
     ${ROOT_PATH}/source/network/recordingparser.cpp
-    ${ROOT_PATH}/source/interface/recording_selection.cpp
-    ${ROOT_PATH}/source/interface/recording_file_dialog.cpp
 )
 
 set(SYSTEMIV_SOURCE

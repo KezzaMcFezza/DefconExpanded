@@ -134,21 +134,7 @@ int ClientToServer::GetLocalPort()
 {
     if( !m_listener ) return -1;
 
-#ifdef TARGET_EMSCRIPTEN
-
-    //
-    // Return fake local port since we don't actually bind
-
-    return g_preferences->GetInt( PREFS_NETWORKCLIENTPORT );
-
-#else
-
-    //
-    // Return the actual local port
-
     return m_listener->GetPort();
-
-#endif
 }
 
 
@@ -157,29 +143,6 @@ void ClientToServer::OpenConnections()
     if( m_listener ) m_listener->StopListening( &m_listenerThread );
     delete m_listener;
     m_listener = NULL;
-
-#ifdef TARGET_EMSCRIPTEN
-
-    //
-    // For WebAssembly, create a fake client listener that doesn't use networking
-    // This allows connection to local servers and recording playback
-    
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("Starting local client\n");
-#endif
-    
-    int port = g_preferences->GetInt( PREFS_NETWORKCLIENTPORT );
-    m_listener = new NetSocketListener( port );
-
-    //
-    // Don't call Bind() as it will fail in WebAssembly
-    
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("Local client listening on fake port %d\n", port);
-#endif
-    
-    return;
-#else
 
     //
     // Try the requested port number
@@ -220,7 +183,6 @@ void ClientToServer::OpenConnections()
 
     m_listenerThread.Start( &ClientToServer::ListenThread, m_listener );
     AppDebugOut( "Client listening on port %d\n", GetLocalPort() );
-#endif
 }
 
 
@@ -637,39 +599,6 @@ Directory *ClientToServer::GetNextLetter()
     return letter;
 }
 
-#ifdef TARGET_EMSCRIPTEN
-void ClientToServer::RouteServerMessageToClient( Directory *serverMessage )
-{
-
-    //
-    // Server advance messages need to reach the client
-    // so that g_lastServerAdvance gets updated properly
-    
-    if( !serverMessage || m_connectionState < StateHandshaking )
-    {
-        delete serverMessage;
-        return;
-    }
-    
-    serverMessage->SetName( NET_DEFCON_MESSAGE );
-    serverMessage->CreateData( NET_DEFCON_FROMIP, "127.0.0.1" );
-    serverMessage->CreateData( NET_DEFCON_FROMPORT, 5010 ); 
-    
-    ReceiveLetter( serverMessage );
-    
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    if( serverMessage->HasData(NET_DEFCON_SEQID) )
-    {
-        int seqId = serverMessage->GetDataInt(NET_DEFCON_SEQID);
-        if( seqId >= 0 )
-        {
-            AppDebugOut("Successfully routed server message (seqId=%d) to client\n", seqId);
-        }
-    }
-#endif
-}
-#endif
-
 
 int ClientToServer::GetEstimatedServerSeqId()
 {    
@@ -876,28 +805,6 @@ void ClientToServer::ReceiveLetter( Directory *_letter )
 
 void ClientToServer::SendLetter( Directory *letter )
 {
-#ifdef TARGET_EMSCRIPTEN
-
-    //
-    // In WebAssembly local mode, route client messages directly to the server's inbox
-    // instead of trying to send them over the network
-    
-    if( m_connectionState >= StateHandshaking && g_app->GetServer() )
-    {
-        letter->CreateData( NET_DEFCON_FROMIP, "127.0.0.1" );
-        letter->CreateData( NET_DEFCON_FROMPORT, 5011 ); 
-        letter->SetName( NET_DEFCON_MESSAGE );
-        g_app->GetServer()->ReceiveLetter( letter, "127.0.0.1", 5011 );
-        
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-        AppDebugOut("CLIENT: Routed client message (%s) directly to local server\n", 
-                   letter->GetDataString(NET_DEFCON_COMMAND));
-#endif
-        return;  
-    }
-    
-#endif
-
     if( letter )
     {
         AppAssert( letter->HasData(NET_DEFCON_COMMAND,DIRECTORY_TYPE_STRING) );
@@ -978,64 +885,6 @@ bool ClientToServer::ClientJoin( char *ip, int _serverPort )
         return false;
     }
 
-#ifdef TARGET_EMSCRIPTEN
-
-    //
-    // For WebAssembly, fake the entire client-server handshake locally
-    // following the exact same message sequence as real DEFCON
-    
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("CLIENT: bridging local client-server connection\n");
-#endif
-    
-    m_serverIp = newStr(ip);
-    m_serverPort = _serverPort;
-    m_lastValidSequenceIdFromServer = -1;
-    m_serverSequenceId = -1;
-    m_connectionAttempts = 0;
-    m_connectionState = StateConnecting;  
-    m_clientId = -1; 
-    
-    //
-    // Simulate the client connection message
-
-    Directory *clientIdMsg = new Directory();
-    clientIdMsg->SetName(NET_DEFCON_MESSAGE);
-    clientIdMsg->CreateData(NET_DEFCON_COMMAND, NET_DEFCON_CLIENTID);
-    clientIdMsg->CreateData(NET_DEFCON_CLIENTID, 1);           
-    clientIdMsg->CreateData(NET_DEFCON_SEQID, -1);             
-    clientIdMsg->CreateData(NET_DEFCON_VERSION, APP_VERSION);  
-    
-    m_inboxMutex->Lock();
-    m_inbox.PutDataAtStart(clientIdMsg); 
-    m_inboxMutex->Unlock();
-    
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("CLIENT: Queued bridged NET_DEFCON_CLIENTID message\n");
-#endif
-    
-    //
-    // Simulate the client hello message
-    
-    Directory *clientHelloMsg = new Directory();
-    clientHelloMsg->SetName(NET_DEFCON_MESSAGE);
-    clientHelloMsg->CreateData(NET_DEFCON_COMMAND, NET_DEFCON_CLIENTHELLO);
-    clientHelloMsg->CreateData(NET_DEFCON_CLIENTID, 1);
-    clientHelloMsg->CreateData(NET_DEFCON_SEQID, -1);  
-    
-    m_inboxMutex->Lock();
-    m_inbox.PutDataAtEnd(clientHelloMsg); 
-    m_inboxMutex->Unlock();
-    
-#ifdef EMSCRIPTEN_NETWORK_TESTBED
-    AppDebugOut("CLIENT: Queued bridged NET_DEFCON_CLIENTHELLO message\n");
-    
-    AppDebugOut("CLIENT: Local connection established!\n");
-#endif
-    
-    return true;
-#else
-
     m_serverIp = newStr(ip);
     m_serverPort = _serverPort;
     m_lastValidSequenceIdFromServer = -1;
@@ -1046,8 +895,8 @@ bool ClientToServer::ClientJoin( char *ip, int _serverPort )
     m_connectionState = StateConnecting;
     m_retryTimer = 0.0f;
 
+
     return true;
-#endif
 }
 
 
@@ -1522,9 +1371,6 @@ bool ClientToServer::IsClientDemo( int _clientId )
 
 bool ClientToServer::AmIDemoClient()
 {
-#if defined(TARGET_EMSCRIPTEN) || defined(SYNC_PRACTICE)
-    return false;
-#else
     if( IsConnected() )
     {
         return IsClientDemo( m_clientId );
@@ -1535,7 +1381,6 @@ bool ClientToServer::AmIDemoClient()
         Authentication_GetKey( authKey );
         return Authentication_IsDemoKey( authKey );
     }
-#endif
 }
 
 
@@ -1808,8 +1653,7 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
 
                         strcpy( spec->m_name, teamName );        
 
-                        bool isRecordingPlayback = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode());
-                        if( teamId == m_clientId && !isRecordingPlayback )
+                        if( teamId == m_clientId )
                         {
                             if( strcmp( teamName, LANGUAGEPHRASE("gameoption_PlayerName") ) == 0 )
                             {
@@ -1848,8 +1692,7 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
 
                         team->SetTeamName( teamName );
 
-                        bool isRecordingPlayback = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode());
-                        if( teamId == g_app->GetWorld()->m_myTeamId && !isRecordingPlayback )
+                        if( teamId == g_app->GetWorld()->m_myTeamId )
                         {
                             if( strcmp( teamName, LANGUAGEPHRASE("gameoption_PlayerName") ) == 0 )
                             {
@@ -1884,9 +1727,7 @@ void ClientToServer::ProcessServerUpdates( Directory *letter )
                 // In player perspective mode m_myTeamId changes to the viewed team,
                 // so we must verify ownership via team type and client ID.
                 
-                bool isRecordingPlayback = (g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode());
-                bool isOurOwnTeam = !isRecordingPlayback && 
-                                    (team->m_type == Team::TypeLocalPlayer && 
+                bool isOurOwnTeam = (team->m_type == Team::TypeLocalPlayer && 
                                      team->m_clientId == m_clientId);
                 
                 bool needsCreation = true;

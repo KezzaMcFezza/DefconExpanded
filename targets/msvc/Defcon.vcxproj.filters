@@ -267,17 +267,8 @@
     <ClCompile Include="..\..\source\curves.cpp" />
     <ClCompile Include="..\..\source\defcon.cpp" />
     <ClCompile Include="..\..\source\random_object.cpp" />
-    <ClCompile Include="..\..\source\interface\playback_control_window.cpp">
-      <Filter>interface</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\interface\recording_selection.cpp">
-      <Filter>interface</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\renderer\globe_renderer.cpp">
       <Filter>renderer</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\interface\recording_file_dialog.cpp">
-      <Filter>interface</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\renderer\world_renderer.cpp" />
     <ClCompile Include="..\..\source\lib\universal_include.cpp">
@@ -530,15 +521,6 @@
     </ClInclude>
     <ClInclude Include="..\..\source\curves.h" />
     <ClInclude Include="..\..\source\random_object.h" />
-    <ClInclude Include="..\..\source\interface\playback_control_window.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\interface\recording_selection.h">
-      <Filter>interface</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\interface\recording_file_dialog.h">
-      <Filter>interface</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\renderer\world_renderer.h" />
     <ClInclude Include="..\..\source\lib\universal_include.h">
       <Filter>lib</Filter>

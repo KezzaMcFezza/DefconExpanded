@@ -151,9 +151,6 @@ class PlacementWindowButton : public ToolbarButton
 
     void MouseUp()
     {
-        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
-        if( isReplayMode ) return;
-        
         if( !m_disabled )
         {
             if( EclGetWindow( "Side Panel" ) )
@@ -250,9 +247,6 @@ class ShowAlliancesButton : public ToolbarButton
     }
     void MouseUp()
     {
-        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
-        if( isReplayMode ) return;
-        
         if( EclGetWindow( "Alliances" ) )
         {
             EclRemoveWindow( "Alliances" );
@@ -449,33 +443,17 @@ public:
 			ToggleBoolButton::MouseUp();
 
 			g_app->GetWorldRenderer()->SetShowWhiteBoard ( m_toggleValue );
-			
-			// disable editing during replay mode, its important its read only because
-            // that would be stupid if it wasnt
-			bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
-			if( !isReplayMode )
-			{
-				g_app->GetWorldRenderer()->SetEditWhiteBoard ( !g_app->GetWorldRenderer()->GetEditWhiteBoard() );
+			g_app->GetWorldRenderer()->SetEditWhiteBoard ( !g_app->GetWorldRenderer()->GetEditWhiteBoard() );
 
-				if ( g_app->GetWorldRenderer()->GetEditWhiteBoard() )
+			if ( g_app->GetWorldRenderer()->GetEditWhiteBoard() )
+			{
+				if( !EclGetWindow( "WhiteBoardPanel" ) )
 				{
-					if( !EclGetWindow( "WhiteBoardPanel" ) )
-					{
-						EclRegisterWindow( new WhiteBoardPanel( m_w, m_w * 1.2f ) );
-					}
-				}
-				else
-				{
-					if( EclGetWindow( "WhiteBoardPanel" ) )
-					{
-						EclRemoveWindow( "WhiteBoardPanel" );
-					}
+					EclRegisterWindow( new WhiteBoardPanel( m_w, m_w * 1.2f ) );
 				}
 			}
 			else
 			{
-				// during replay, just toggle showing the whiteboard without enabling editing
-				g_app->GetWorldRenderer()->SetEditWhiteBoard( false );
 				if( EclGetWindow( "WhiteBoardPanel" ) )
 				{
 					EclRemoveWindow( "WhiteBoardPanel" );
@@ -553,14 +531,9 @@ void Toolbar::Create()
 
 #ifndef NON_PLAYABLE
     int isSpectator = g_app->GetWorld()->IsSpectating( g_app->GetClientToServer()->m_clientId );
-    bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
-    
-    //
-    // only show units and alliances buttons for non-spectators in non-replay mode
-
-    if( isSpectator == -1 && !isReplayMode )
+    if( isSpectator == -1 )
     {
-        PlacementWindowButton *placement = new PlacementWindowButton();
+		PlacementWindowButton *placement = new PlacementWindowButton();
         placement->SetProperties( "Placement", x, y, iconSize, iconSize, "dialog_toolbar_units", "tooltip_toolbar_units", true, true );
         strcpy(placement->m_iconFilename, "gui/tb_units.bmp" );
         RegisterButton( placement );
@@ -621,21 +594,13 @@ void Toolbar::Create()
     RegisterButton( nukes );
 
 #ifndef NON_PLAYABLE
-    // enable whiteboard for non spectators in live games OR during replay mode
-    if( isSpectator == -1 || isReplayMode )
+    if( isSpectator == -1 )
     {
         bool supportWhiteBoard = VersionManager::DoesSupportWhiteBoard( g_app->GetClientToServer()->m_serverVersion );
         WhiteBoardButton *whiteBoard = new WhiteBoardButton();
         if ( supportWhiteBoard )
         {
-            if( isReplayMode )
-            {
-                whiteBoard->SetProperties( "WhiteBoard", x+=gap, y, iconSize, iconSize, "dialog_toolbar_white_board", "tooltip_toolbar_whiteboard_replay", true, true );
-            }
-            else
-            {
-                whiteBoard->SetProperties( "WhiteBoard", x+=gap, y, iconSize, iconSize, "dialog_toolbar_white_board", "tooltip_toolbar_whiteboard", true, true );
-            }
+            whiteBoard->SetProperties( "WhiteBoard", x+=gap, y, iconSize, iconSize, "dialog_toolbar_white_board", "tooltip_toolbar_whiteboard", true, true );
         }
         else
         {

@@ -155,11 +155,7 @@ public:
     void StopIdentifying    ();
     bool GetIdentity        ( char *_ip, int *_port );
     bool GetServerDetails   ( char *_ip, int *_port );   
-    int  GetLocalPort();                                             // Returns local port client is listening on
-
-#ifdef TARGET_EMSCRIPTEN
-    void RouteServerMessageToClient( Directory *serverMessage );     // Route server messages to client inbox in WebAssembly mode
-#endif
+    int  GetLocalPort();                                        // Returns local port client is listening on
 };
 
 

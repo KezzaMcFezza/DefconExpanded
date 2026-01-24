@@ -52,21 +52,6 @@ public:
     DArray          <unsigned char>    m_recordingSyncBytes;
     int             m_lastRecordedSeqId;
 
-    bool            m_recordingPlaybackMode;
-    double          m_recordingLastAdvanceTime;
-    int             m_recordingCurrentSeqId;
-    int             m_recordingStartSeqId;
-    int             m_recordingEndSeqId;
-
-    LList           <ServerToClientLetter *> m_recordingHistory;
-    bool            m_recordingStarted;
-    bool            m_recordingFastForwardMode;
-    int             m_recordingTargetSeqId;        // Sequence ID to fast-forward to
-    float           m_recordingFastForwardSpeed;   // Multiplier for advance speed (e.g., 20.0f)
-    std::string     m_recordingFilename;           // Filename of current recording
-    bool            m_recordingPaused;             // True when playback is paused
-    float           m_recordingSpeed;              // Current playback speed (0.0 = paused)
-
 public:
     Server();
     ~Server();
@@ -124,21 +109,8 @@ public:
     int  GetLocalPort();                                        // Returns local port server is listening on
 
     bool TestBedReadyToContinue();
-    int  GetHistoryByteSize ();
 
-    bool                StartRecordingPlaybackServer( const std::string &filename );
-    bool                IsRecordingPlaybackMode() const { return m_recordingPlaybackMode; }
-    void                ForceSpectatorMode( int _clientId );
-    bool                ShouldAllowTeamCreation() const { return !m_recordingPlaybackMode; }
-    bool                ShouldAllowServerControls() const { return !m_recordingPlaybackMode; }
-    int                 ExtractGameStartFromHeader();
-    void                EnableFastForward( int targetSeqId, float speedMultiplier = 500.0f );
-    void                CheckDisableFastForward();
-    float               GetRecordingAdvanceSpeedMultiplier();
-    bool                IsRecordingFastForwardMode() const { return m_recordingFastForwardMode; }
-    void                SetRecordingPaused( bool paused );
-    void                SetRecordingSpeed( float speed );
-    bool                IsRecordingPaused() const { return m_recordingPaused; }
+    int  GetHistoryByteSize ();
 };
 
 

@@ -25,10 +25,6 @@
 #include "app/game.h"
 #include "lib/multiline_text.h"
 
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-#include "interface/interface.h"
-#endif
-
 #include "renderer/world_renderer.h"
 #include "renderer/map_renderer.h"
 
@@ -274,7 +270,7 @@ void TeamOptionsWindow::Create()
     // Rename button
 
     if( team->m_type == Team::TypeLocalPlayer ||
-        (team->m_type == Team::TypeAI && g_app->HasServerPrivileges() ) )
+        (team->m_type == Team::TypeAI && g_app->GetServer() ) )
     {
         RenameButton *rename = new RenameButton();
         rename->SetProperties( "Rename", 2, yPos, m_w-4, 17, "dialog_rename", "tooltip_lobby_teamname", true, true );
@@ -286,7 +282,7 @@ void TeamOptionsWindow::Create()
     //
     // Kick button
 
-    if( g_app->HasServerPrivileges() &&
+    if( g_app->GetServer() &&
         m_teamId != g_app->GetWorld()->m_myTeamId &&
         team->m_type != Team::TypeUnassigned )
     {
@@ -318,7 +314,7 @@ void TeamOptionsWindow::Create()
     if( g_app->GetGame()->GetOptionValue("GameMode") != GAMEMODE_DIPLOMACY )
     {
         if( m_teamId == g_app->GetWorld()->m_myTeamId ||
-            (g_app->HasServerPrivileges() && team->m_type == Team::TypeAI ) )
+            (g_app->GetServer() && team->m_type == Team::TypeAI ) )
         {
             yPos += 9;
                             
@@ -390,7 +386,7 @@ public:
 
         if( team->m_type != Team::TypeUnassigned &&
             (team->m_type == Team::TypeLocalPlayer ||
-             g_app->HasServerPrivileges()) )
+             g_app->GetServer()) )
         {
             return true;
         }
@@ -433,7 +429,7 @@ public:
         g_renderer2d->RectFill( realX, realY, m_w, m_h, Colour(15,15,15,100) );            
         g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,30), 0.5f );
 
-        if( highlighted && g_app->HasServerPrivileges() )
+        if( highlighted && g_app->GetServer() )
         {
             g_renderer2d->Rect( realX, realY, m_w, m_h, Colour(255,255,255,100), 1 );
         }
@@ -450,7 +446,7 @@ public:
             Colour col(255,255,255,50);
             g_renderer2d->TextSimple( realX + 10, realY + m_h/2 - 6, col, 12, LANGUAGEPHRASE("dialog_closed") );
                     
-            if( g_app->HasServerPrivileges() )
+            if( g_app->GetServer() )
             {
                 if( g_app->GetClientToServer()->AmIDemoClient() &&
                     m_teamIndex >= maxDemoSize )
@@ -490,7 +486,7 @@ public:
                 }
                 g_renderer2d->TextSimple( realX + 10, realY + m_h/2 - 6, col, 12, LANGUAGEPHRASE("dialog_awaiting_player") );
 
-                if( g_app->HasServerPrivileges() )
+                if( g_app->GetServer() )
                 {
                     Colour col(255,255,255,50);
                     g_renderer2d->TextSimple( realX + 120, realY + m_h/2 - 5, col, 11, LANGUAGEPHRASE("dialog_click_to_close") );
@@ -505,7 +501,7 @@ public:
                 colour.m_a = 200;
                 if( highlighted && 
                     (team->m_type == Team::TypeLocalPlayer ||
-                    (team->m_type == Team::TypeAI && g_app->HasServerPrivileges())))
+                    (team->m_type == Team::TypeAI && g_app->GetServer())))
                 {
                     colour.m_a = 255;
                 }
@@ -595,7 +591,7 @@ public:
                 // Put the extra data into a tooltip
 
                 if( team->m_type != Team::TypeAI &&
-                    g_app->HasServerPrivileges() && 
+                    g_app->GetServer() && 
                     g_app->GetServer()->m_teams.ValidIndex(team->m_teamId) )
                 {
                     ServerTeam *sTeam = g_app->GetServer()->m_teams[team->m_teamId];
@@ -629,7 +625,7 @@ public:
         if( m_teamIndex >= maxTeams )
         {
             // This is a closed slot. Clicking = open the slot (if we are a server)            
-            if( g_app->HasServerPrivileges() )
+            if( g_app->GetServer() )
             {                
                 int maxDemoSize, maxDemoPlayers;
                 bool allowDemoServers;
@@ -693,7 +689,7 @@ public:
             else
             {
                 // Close this slot
-                if( g_app->HasServerPrivileges() )
+                if( g_app->GetServer() )
                 {                
                     int optionIndex = g_app->GetGame()->GetOptionIndex("MaxTeams");
                     g_app->GetClientToServer()->RequestOptionChange( optionIndex, m_teamIndex );
@@ -819,7 +815,7 @@ public:
 
 	bool IsEnable()
 	{
-        if( g_app->HasServerPrivileges() ) 
+        if( g_app->GetServer() ) 
 		{
 			int serverNameIndex = g_app->GetGame()->GetOptionIndex( "ServerName" );
 			if( serverNameIndex != -1 )
@@ -904,7 +900,7 @@ public:
         // Are we turning on or off?
         bool enable = false;
         Team *thisTeam = g_app->GetWorld()->GetMyTeam();
-        bool isServer = g_app->HasServerPrivileges();
+        bool isServer = g_app->GetServer() != NULL;
 
 		if( isServer )
 		{
@@ -1021,7 +1017,7 @@ class RequestAIButton : public InterfaceButton
     void Render( int realX, int realY, bool highlighted, bool clicked )
     {
         if( IsVisible() &&
-            g_app->HasServerPrivileges() )
+            g_app->GetServer() )
         {
             InterfaceButton::Render( realX, realY, highlighted, clicked );
         }
@@ -1030,7 +1026,7 @@ class RequestAIButton : public InterfaceButton
     void MouseUp()
     {
         if( IsVisible() &&
-            g_app->HasServerPrivileges() )
+            g_app->GetServer() )
         {
             g_app->GetClientToServer()->RequestTeam( Team::TypeAI );
         }
@@ -1058,7 +1054,7 @@ class TeamNameInputField : public InputField
         Team *team = g_app->GetWorld()->GetTeam(lobby->m_selectionId);
         if( team && team->m_type != Team::TypeUnassigned &&
             (team->m_teamId == g_app->GetWorld()->m_myTeamId ||
-            (g_app->HasServerPrivileges() && g_app->GetWorld()->GetTeam( lobby->m_selectionId )->m_type == Team::TypeAI )))
+            (g_app->GetServer() && g_app->GetWorld()->GetTeam( lobby->m_selectionId )->m_type == Team::TypeAI )))
         {
             InputField::Render( realX, realY, highlighted, clicked );            
         }
@@ -1077,7 +1073,7 @@ public:
 
         if( lobby->m_selectionId != -1 &&
             (lobby->m_selectionId == g_app->GetWorld()->m_myTeamId ||
-            (g_app->HasServerPrivileges() && g_app->GetWorld()->GetTeam( lobby->m_selectionId )->m_type == Team::TypeAI ) ) ) 
+            (g_app->GetServer() && g_app->GetWorld()->GetTeam( lobby->m_selectionId )->m_type == Team::TypeAI ) ) ) 
         {
             Team *team = g_app->GetWorld()->GetTeam(lobby->m_selectionId);
             if( team && team->OwnsTerritory( m_territoryId ) )
@@ -1097,7 +1093,7 @@ public:
 
         if( lobby->m_selectionId != -1 &&
             (lobby->m_selectionId == g_app->GetWorld()->m_myTeamId ||
-            (g_app->HasServerPrivileges() && g_app->GetWorld()->GetTeam( lobby->m_selectionId )->m_type == Team::TypeAI ) ) ) 
+            (g_app->GetServer() && g_app->GetWorld()->GetTeam( lobby->m_selectionId )->m_type == Team::TypeAI ) ) ) 
         {
             Team *team = g_app->GetWorld()->GetTeam(lobby->m_selectionId);
 
@@ -1122,11 +1118,6 @@ public:
 
 		g_app->SaveGameName();
         g_app->ShutdownCurrentGame();
-        
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-        // In replay viewer mode, go back to recording selection window instead of main menu
-        g_app->GetInterface()->OpenReplayViewerWindow();
-#endif
     }
 };
 
@@ -1270,7 +1261,7 @@ public:
                 if( g_inputManager->m_lmbUnClicked )
                 {                
                     if( selectedTeamId == g_app->GetWorld()->m_myTeamId ||
-                        (g_app->HasServerPrivileges() && 
+                        (g_app->GetServer() && 
                         selectedTeam &&
                         selectedTeam->m_type == Team::TypeAI ) ) 
                     {
@@ -1322,7 +1313,7 @@ void RegisterGameOptionButton( InterfaceWindow *_window,
     textButton->m_fontCol.Set(255,255,255,180);
     _window->RegisterButton( textButton );
 
-    if( g_app->HasServerPrivileges() &&
+    if( g_app->GetServer() &&
         g_app->GetGame()->IsOptionEditable( _optionId ) )
     {
         if( _option->m_change == 0 )
@@ -1517,7 +1508,7 @@ void LobbyOptionsWindow::Update()
         //
         // If we are the server, transmit all modified options
 
-        if( g_app->HasServerPrivileges() )
+        if( g_app->GetServer() )
         {
             SetGameOptions( m_gameOptions );
 
@@ -1770,7 +1761,7 @@ void LobbyWindow::Create()
     int gameModeIndex = g_app->GetGame()->GetOptionIndex("GameMode");
     int scoreModeIndex = g_app->GetGame()->GetOptionIndex("ScoreMode");
 
-    if( g_app->HasServerPrivileges() )
+    if( g_app->GetServer() )
     {
         // Make room for Server IP details
         //boxY -= 10;
@@ -1879,7 +1870,7 @@ void LobbyWindow::Update()
     // If we are a DEMO user, 
     //enforce max players + game tyoe
 
-    if( g_app->HasServerPrivileges() &&
+    if( g_app->GetServer() &&
         g_app->GetClientToServer()->AmIDemoClient() )
     {
         int maxGameSize, maxPlayers;
@@ -1946,7 +1937,7 @@ void LobbyWindow::Update()
         //
         // Set the rest of the options if we are a server
 
-        if( g_app->HasServerPrivileges() )
+        if( g_app->GetServer() )
         {
             SetGameOptions( m_gameOptions );
         }

@@ -34,10 +34,7 @@ public:
     {
         int myTeamId = g_app->GetWorld()->m_myTeamId;
 
-        //
-        // in replay mode, treat as spectator. no speed control
-        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
-        bool speedControllable = !isReplayMode && g_app->GetWorld()->CanSetTimeFactor( m_timeScale );
+        bool speedControllable = g_app->GetWorld()->CanSetTimeFactor( m_timeScale );
 
         if( speedControllable )
         {
@@ -157,8 +154,7 @@ public:
     
     void MouseUp()
     {
-        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
-        bool speedSettable = !isReplayMode && g_app->GetWorld()->CanSetTimeFactor( m_timeScale );
+        bool speedSettable = g_app->GetWorld()->CanSetTimeFactor( m_timeScale );
 
         if( speedSettable )
         {
@@ -506,7 +502,7 @@ void ScoresWindow::Render( bool _hasFocus )
             ServerToClient *client = g_app->GetServer()->GetClient( team->m_clientId );
             if ( client )
             {
-                g_renderer2d->TextRight( m_x, yPos, Colour(255,255,255,150), size, client->m_system );
+                g_renderer->TextRight( m_x, yPos, Colour(255,255,255,150), size, client->m_system );
             }
         }
 #endif

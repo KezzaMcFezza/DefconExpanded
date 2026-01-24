@@ -3147,34 +3147,6 @@ bool World::IsChatMessageVisible( int teamId, int msgChannel, bool spectator )
     // spectator    : If the viewer is a spectator
 
     //
-    // In replay mode, we want different handling of chat messages
-    
-    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
-    {
-        // Block all private messages due to privacy issues
-        if( msgChannel < CHATCHANNEL_PUBLIC )
-        {
-            return false; 
-        }
-        
-        // In replay mode we alwats show these three channels
-        if( msgChannel == CHATCHANNEL_PUBLIC ||     // Public messages
-            msgChannel == CHATCHANNEL_ALLIANCE ||   // Alliance messages  
-            msgChannel == CHATCHANNEL_SPECTATORS )  // Spectator messages
-        {
-            return true; 
-        }
-        
-        // System messages?
-        if( teamId == -1 )
-        {
-            return true;
-        }
-        
-        return false;
-    }
-
-    //
     // public channel, readable by all?
 
     if( msgChannel == CHATCHANNEL_PUBLIC )

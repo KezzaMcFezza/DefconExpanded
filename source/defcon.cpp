@@ -35,6 +35,7 @@
 #include "app/app.h"
 #include "app/game.h"
 #include "app/modsystem.h"
+#include "app/synctestrecordings.h"
 #include "app/version_manager.h"
 
 #include "network/ClientToServer.h"
@@ -50,7 +51,6 @@
 #include "interface/connecting_window.h"
 #include "interface/interface.h"
 #include "interface/badkey_window.h"
-#include "interface/playback_control_window.h"
 
 #ifdef TARGET_OS_MACOSX
 #include "lib/netlib/net_mutex.h"
@@ -404,18 +404,6 @@ bool ProcessServerLetters( Directory *letter )
         int teamId   = letter->GetDataInt(NET_DEFCON_TEAMID);
         int teamType = letter->GetDataInt(NET_DEFCON_TEAMTYPE);
 
-        //
-        // override teamId if we are in replay mode, this way we can manipulate 
-        // it to see other teams radar perspective
-        
-        if( g_app->GetServer() && g_app->GetServer()->m_recordingPlaybackMode )
-        {
-            if( g_desiredPerspectiveTeamId != -1 )
-            {
-                teamId = g_desiredPerspectiveTeamId;
-            }
-        }
-
         if( teamType != Team::TypeAI &&
             clientId != g_app->GetClientToServer()->m_clientId )
         {
@@ -728,26 +716,26 @@ unsigned char GenerateSyncValue()
     // I have tested this with other games with AI players involved and its the same result,
     // the same deterministic result from the real game.
 
-    bool noRNG = false;
-    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
+    //bool noRNG = false;
+    //if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
 
-    {
+    //{
 #ifdef TARGET_EMSCRIPTEN
-        if( g_lastProcessedSequenceId <= 1 ) // web assembly fake networking only creates a hello message
+    //    if( g_lastProcessedSequenceId <= 1 ) // web assembly fake networking only creates a hello message
 #else
-        if( g_lastProcessedSequenceId <= 2 ) // desktop creates a spectator handshake which means
+    //    if( g_lastProcessedSequenceId <= 2 ) // desktop creates a spectator handshake which means
                                              // we need to compensate for this
 #endif
-        {
-            noRNG = true;
-        }
-    }
+    //    {
+    //        noRNG = true;
+    //    }
+    //}
 
-    if( !noRNG )
-    
-    {
+    //if( !noRNG )
+    //
+    //{
         Hash( c, syncfrand(255) );
-    }
+    //}
 	
 	uint32 hashResult[5];
 	sha1_done(&c, hashResult);
@@ -802,18 +790,18 @@ void EmscriptenMainLoop()
         if( g_app->m_gameRunning )
         {
             if( g_app->GetServer()->TestBedReadyToContinue() ||
-                timeNow > g_nextServerAdvanceTime )
+                timeNow > nextServerAdvanceTime )
             {
                 g_app->GetServer()->Advance();
-                g_nextServerAdvanceTime = GetHighResTime() + 0.3f;
+                nextServerAdvanceTime = GetHighResTime() + 0.3f;
             }
         }
         else
         {
-            if( timeNow > g_nextServerAdvanceTime )            
+            if( timeNow > nextServerAdvanceTime )            
             {
                 g_app->GetServer()->Advance();
-                g_nextServerAdvanceTime = GetHighResTime() + 0.5f;
+                nextServerAdvanceTime = GetHighResTime() + 0.5f;
             }
         }            
 #else
@@ -821,39 +809,25 @@ void EmscriptenMainLoop()
         {
             g_app->GetServer()->Advance();
         }
-                    else if( timeNow > g_nextServerAdvanceTime )
+        else if( timeNow > nextServerAdvanceTime )
+        {
+            g_app->GetServer()->Advance();
+            float timeToAdd = SERVER_ADVANCE_PERIOD.DoubleValue();
+            if( !g_app->m_gameRunning ) timeToAdd *= 5.0f;
+            nextServerAdvanceTime += timeToAdd;
+            if (timeNow > nextServerAdvanceTime)
             {
-                bool shouldAdvance = true;
-                if( g_app->GetServer()->IsRecordingPlaybackMode() && 
-                    g_app->GetServer()->IsRecordingPaused() )
-                {
-                    shouldAdvance = false;
-                    g_nextServerAdvanceTime = timeNow + 0.1f;
-                }
-                
-                if( shouldAdvance )
-                {
-                    g_app->GetServer()->Advance();
-                    float timeToAdd = SERVER_ADVANCE_PERIOD.DoubleValue();
-                    if( !g_app->m_gameRunning ) timeToAdd *= 5.0f;
-                    
-                    if( g_app->GetServer()->IsRecordingPlaybackMode() )
-                    {
-                        float speedMultiplier = g_app->GetServer()->GetRecordingAdvanceSpeedMultiplier();
-                        timeToAdd /= speedMultiplier;
-                    }
-               
-                    g_nextServerAdvanceTime += timeToAdd;
-                    if (timeNow > g_nextServerAdvanceTime)
-                    {
-                        g_nextServerAdvanceTime = timeNow + timeToAdd;
-                    }
-                }
-            }        
+                nextServerAdvanceTime = timeNow + timeToAdd;
+            }
+        }        
 #endif
+
     }
 
-
+    if( g_app->GetSyncTestRecordings() )
+    {
+        g_app->GetSyncTestRecordings()->Update();
+    }
 
     if( g_app->GetClientToServer() )
     {            
@@ -1130,7 +1104,7 @@ void DefconMain()
             }
 
 
-#ifdef TESTBED
+            #ifdef TESTBED
             if( g_app->m_gameRunning )
             {
                 if( g_app->GetServer()->TestBedReadyToContinue() ||
@@ -1155,40 +1129,23 @@ void DefconMain()
             }
             else if( timeNow > nextServerAdvanceTime )
             {
-                //
-                // check if recording playback is paused, is so skip advances
-
-                bool shouldAdvance = true;
-                if( g_app->GetServer()->IsRecordingPlaybackMode() && 
-                    g_app->GetServer()->IsRecordingPaused() )
+                g_app->GetServer()->Advance();
+                float timeToAdd = SERVER_ADVANCE_PERIOD.DoubleValue();
+                if( !g_app->m_gameRunning ) timeToAdd *= 5.0f;
+                nextServerAdvanceTime += timeToAdd;
+                if (timeNow > nextServerAdvanceTime)
                 {
-                    shouldAdvance = false;
-                    nextServerAdvanceTime = timeNow + 0.1f;
-                }
-                
-                if( shouldAdvance )
-                {
-                    g_app->GetServer()->Advance();
-                    float timeToAdd = SERVER_ADVANCE_PERIOD.DoubleValue();
-                    if( !g_app->m_gameRunning ) timeToAdd *= 5.0f;
-
-                    if( g_app->GetServer()->IsRecordingPlaybackMode() )
-                    {
-                        float speedMultiplier = g_app->GetServer()->GetRecordingAdvanceSpeedMultiplier();
-                        timeToAdd /= speedMultiplier;
-                    }
-
-                    nextServerAdvanceTime += timeToAdd;
-                    if (timeNow > nextServerAdvanceTime)
-                    {
-                        nextServerAdvanceTime = timeNow + timeToAdd;
-                    }
+                    nextServerAdvanceTime = timeNow + timeToAdd;
                 }
             }        
 #endif
 
         }
 
+        if( g_app->GetSyncTestRecordings() )
+        {
+            g_app->GetSyncTestRecordings()->Update();
+        }
 
         if( g_app->GetClientToServer() )
         {            

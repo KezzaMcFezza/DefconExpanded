@@ -575,7 +575,6 @@ void MovingObject::Render2D()
             }
             colour.m_a *= 0.5f;
         }
-        RenderHealthBar2D();
     }
     else
     {
@@ -647,7 +646,6 @@ void MovingObject::Render3D()
             }
             colour.m_a *= 0.5f;
         }
-        RenderHealthBar3D();
     }
     else
     {

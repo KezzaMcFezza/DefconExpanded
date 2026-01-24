@@ -51,10 +51,6 @@
 #include "interface/info_window.h"
 #include "interface/connecting_window.h"
 #include "interface/resynchronise_window.h"
-#include "interface/playback_control_window.h"
-#if defined(TARGET_EMSCRIPTEN) || defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
-#include "interface/recording_selection.h"
-#endif
 
 
 static bool s_toggleFullscreen = false;
@@ -1010,12 +1006,8 @@ void Interface::OpenGameWindows()
 #ifndef NON_PLAYABLE
     if( localPlayer )
     {
-        bool isReplayMode = g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode();
-        if( !isReplayMode )
-        {
-            SidePanel *sidePanel = new SidePanel("Side Panel");
-            EclRegisterWindow( sidePanel );
-        }
+        SidePanel *sidePanel = new SidePanel("Side Panel");
+        EclRegisterWindow( sidePanel );
     }
 #endif
 
@@ -1028,14 +1020,6 @@ void Interface::OpenGameWindows()
     {
         EclRegisterWindow( new TutorialWindow() );
     }   
-
-    //
-    // If we're in recording playback mode, open the playback control window
-
-    if( g_app->GetServer() && g_app->GetServer()->IsRecordingPlaybackMode() )
-    {
-        EclRegisterWindow( new PlaybackControlWindow() );
-    }
 }
 
 
