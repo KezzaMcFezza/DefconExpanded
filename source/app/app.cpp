@@ -959,6 +959,7 @@ void App::ReinitialiseWindow()
     
     delete m_soundOverlay;
     m_soundOverlay = new SoundDebugOverlay();
+    g_soundSystem->RestartSoundLibrary();
 
 #if !defined(TARGET_EMSCRIPTEN) || defined(EMSCRIPTEN_IMGUI)   
     delete g_imguiManager;
