@@ -12,7 +12,7 @@
 #include "window_manager.h"
 #include "window_manager_d3d11.h"
 #include "window_manager_opengl.h"
-#include "backends/imgui_impl_sdl2.h"
+#include "backends/imgui_impl_sdl3.h"
 
 #ifdef TARGET_OS_LINUX
 #include "binreloc.h"
@@ -21,13 +21,6 @@
 
 #ifdef TARGET_OS_MACOSX
 #include "macosxlibrary.h"
-#endif
-
-#ifdef RENDERER_OPENGL
-#include <SDL2/SDL.h>
-#elif defined( RENDERER_DIRECTX11 )
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
 #endif
 
 #ifdef TARGET_MSVC
@@ -65,12 +58,7 @@ WindowManager::~WindowManager()
 
 void WindowManager::InitializeSDL()
 {
-#ifdef TARGET_MSVC
-	SDL_SetHint( SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2" );
-	SDL_SetHint( SDL_HINT_WINDOWS_DPI_SCALING, "1" );
-#endif
-
-	AppReleaseAssert( SDL_Init( SDL_INIT_VIDEO ) == 0, "Couldn't initialise SDL" );
+	AppReleaseAssert( SDL_Init( SDL_INIT_VIDEO ), "Couldn't initialise SDL" );
 
 	m_windowDisplayIndex = GetCurrentDisplayIndex();
 	ListAllDisplayModes( m_windowDisplayIndex );
@@ -104,15 +92,19 @@ int WindowManager::GetCurrentRefreshRate()
 	if ( !m_sdlWindow )
 		return m_desktopRefresh;
 
-	int displayIndex = SDL_GetWindowDisplayIndex( m_sdlWindow );
-	if ( displayIndex < 0 )
+	SDL_DisplayID displayID = SDL_GetDisplayForWindow( m_sdlWindow );
+	if ( !displayID )
+	{
 		return m_desktopRefresh;
+	}
 
-	SDL_DisplayMode mode;
-	if ( SDL_GetCurrentDisplayMode( displayIndex, &mode ) != 0 )
+	const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode( displayID );
+	if ( !mode )
+	{
 		return m_desktopRefresh;
+	}
 
-	return mode.refresh_rate > 0 ? mode.refresh_rate : m_desktopRefresh;
+	return mode->refresh_rate > 0 ? mode->refresh_rate : m_desktopRefresh;
 }
 
 
@@ -249,19 +241,35 @@ int WindowManager::GetLogicalHeight()
 
 int WindowManager::GetDisplayIndexForPoint( int x, int y )
 {
-	int numVideoDisplays = SDL_GetNumVideoDisplays();
+	int count = 0;
+	SDL_DisplayID *displays = SDL_GetDisplays( &count );
 
-	for ( int displayIndex = 0; displayIndex < numVideoDisplays; ++displayIndex )
+	if ( !displays || count == 0 )
+	{
+		if ( displays )
+		{
+			SDL_free( displays );
+		}
+
+		return 0;
+	}
+
+	for ( int i = 0; i < count; ++i )
 	{
 		SDL_Rect bounds;
-		SDL_GetDisplayBounds( displayIndex, &bounds );
-
-		SDL_Point mouse = { x, y };
-		if ( SDL_PointInRect( &mouse, &bounds ) )
+		if ( SDL_GetDisplayBounds( displays[i], &bounds ) )
 		{
-			return displayIndex;
+			SDL_Point mouse = { x, y };
+			if ( SDL_PointInRect( &mouse, &bounds ) )
+			{
+				int result = i;
+				SDL_free( displays );
+				return result;
+			}
 		}
 	}
+
+	SDL_free( displays );
 
 #ifdef _DEBUG
 	AppDebugOut( "GetDisplayIndexForPoint() could not determine which display is under (%d, %d), returning first display.\n", x, y );
@@ -274,21 +282,45 @@ int WindowManager::GetDisplayIndexForPoint( int x, int y )
 
 int WindowManager::GetDefaultDisplayIndex()
 {
-	int x, y;
+	float x, y;
 	SDL_GetGlobalMouseState( &x, &y );
-	return GetDisplayIndexForPoint( x, y );
+	return GetDisplayIndexForPoint( (int)x, (int)y );
 }
 
 
 int WindowManager::GetNumDisplays()
 {
-	return SDL_GetNumVideoDisplays();
+	int count = 0;
+	SDL_DisplayID *displays = SDL_GetDisplays( &count );
+
+	if ( displays )
+	{
+		SDL_free( displays );
+	}
+
+	return count;
 }
 
 
-const char* WindowManager::GetDisplayName(int displayIndex)
+const char *WindowManager::GetDisplayName( int displayIndex )
 {
-	return SDL_GetDisplayName( displayIndex );
+	int count = 0;
+	SDL_DisplayID *displays = SDL_GetDisplays( &count );
+
+	if ( !displays || displayIndex < 0 || displayIndex >= count )
+	{
+		if ( displays )
+		{
+			SDL_free( displays );
+		}
+
+		return nullptr;
+	}
+
+	const char *name = SDL_GetDisplayName( displays[displayIndex] );
+
+	SDL_free( displays );
+	return name;
 }
 
 
@@ -298,110 +330,143 @@ int WindowManager::GetCurrentDisplayIndex()
 	{
 		int preferredIndex = g_preferences->GetInt( PREFS_SCREEN_DISPLAY_INDEX, -1 );
 		int numDisplays = GetNumDisplays();
-		
+
 		if ( preferredIndex >= 0 && preferredIndex < numDisplays )
 		{
 			return preferredIndex;
 		}
 	}
-	
+
 	return GetDefaultDisplayIndex();
 }
 
 
 void WindowManager::ListAllDisplayModes( int displayIndex )
 {
-	SDL_Rect bounds;
-	SDL_GetDisplayBounds( displayIndex, &bounds );
+	int count = 0;
+	SDL_DisplayID *displays = SDL_GetDisplays( &count );
 
-	SDL_DisplayMode desktopMode;
+	if ( !displays || displayIndex < 0 || displayIndex >= count )
+	{
+		if ( displays )
+		{
+			SDL_free( displays );
+		}
+
+		return;
+	}
+
+	SDL_DisplayID displayID = displays[displayIndex];
+	SDL_Rect bounds;
+
+	if ( !SDL_GetDisplayBounds( displayID, &bounds ) )
+	{
+		if ( displays )
+		{
+			SDL_free( displays );
+		}
+
+		return;
+	}
+
+	const SDL_DisplayMode *desktopMode = SDL_GetDesktopDisplayMode( displayID );
 	int maxWidth = bounds.w;
 	int maxHeight = bounds.h;
 
-	//
-	// On Windows with DPI scaling, GetDisplayBounds returns logical/scaled size,
-	// but display modes are physical. Use desktop mode to get actual max resolution.
-
-	if ( SDL_GetDesktopDisplayMode( displayIndex, &desktopMode ) == 0 )
+	if ( desktopMode )
 	{
-		maxWidth = desktopMode.w;
-		maxHeight = desktopMode.h;
+		maxWidth = desktopMode->w;
+		maxHeight = desktopMode->h;
 	}
 	else
 	{
-		//
-		// If desktop mode detection fails, try current display mode
-
-		SDL_DisplayMode currentMode;
-		if ( SDL_GetCurrentDisplayMode( displayIndex, &currentMode ) == 0 )
+		const SDL_DisplayMode *currentMode = SDL_GetCurrentDisplayMode( displayID );
+		if ( currentMode )
 		{
-			maxWidth = currentMode.w;
-			maxHeight = currentMode.h;
+			maxWidth = currentMode->w;
+			maxHeight = currentMode->h;
 		}
 	}
 
 	m_resolutions.EmptyAndDelete();
 
-	for ( int modeIndex = 0; modeIndex < SDL_GetNumDisplayModes( displayIndex ); ++modeIndex )
+	int modeCount = 0;
+	SDL_DisplayMode **modes = SDL_GetFullscreenDisplayModes( displayID, &modeCount );
+	if ( modes )
 	{
-		SDL_DisplayMode mode;
-		SDL_GetDisplayMode( displayIndex, modeIndex, &mode );
-
-		//
-		// Skip low quality modes
-
-		if ( SDL_BITSPERPIXEL( mode.format ) < 15 || mode.w < 640 || mode.h < 480 )
-			continue;
-
-		//
-		// Skip resolutions larger than the desktop mode
-
-		if ( mode.w > maxWidth || mode.h > maxHeight )
-			continue;
-
-		int resId = GetResolutionId( mode.w, mode.h );
-		WindowResolution *res;
-
-		if ( resId == -1 )
+		for ( int modeIndex = 0; modeIndex < modeCount; ++modeIndex )
 		{
-			res = new WindowResolution( mode.w, mode.h );
-			m_resolutions.PutData( res );
-		}
-		else
-		{
-			res = m_resolutions[resId];
-		}
-
-		if ( mode.refresh_rate != 0 )
-		{
-			//
-			// Only add if this refresh rate isnt already in the list
-
-			if ( res->m_refreshRates.FindData( mode.refresh_rate ) == -1 )
+			SDL_DisplayMode *mode = modes[modeIndex];
+			if ( !mode )
 			{
-				res->m_refreshRates.PutDataAtEnd( mode.refresh_rate );
+				continue;
+			}
+
+			if ( SDL_BITSPERPIXEL( mode->format ) < 15 || mode->w < 640 || mode->h < 480 )
+			{
+				continue;
+			}
+
+			if ( mode->w > maxWidth || mode->h > maxHeight )
+			{
+				continue;
+			}
+
+			int resId = GetResolutionId( mode->w, mode->h );
+			WindowResolution *res;
+
+			if ( resId == -1 )
+			{
+				res = new WindowResolution( mode->w, mode->h );
+				m_resolutions.PutData( res );
+			}
+			else
+			{
+				res = m_resolutions[resId];
+			}
+
+			if ( mode->refresh_rate != 0 )
+			{
+				if ( res->m_refreshRates.FindData( mode->refresh_rate ) == -1 )
+				{
+					res->m_refreshRates.PutDataAtEnd( mode->refresh_rate );
+				}
 			}
 		}
+		SDL_free( modes );
 	}
+
+	SDL_free( displays );
 }
 
 
 void WindowManager::SaveDesktop()
 {
 	int displayIndex = GetDefaultDisplayIndex();
+	int count = 0;
+	SDL_DisplayID *displays = SDL_GetDisplays( &count );
+	if ( !displays || displayIndex < 0 || displayIndex >= count )
+	{
+		if ( displays )
+		{
+			SDL_free( displays );
+		}
 
-	SDL_DisplayMode desktopMode;
-	if ( SDL_GetDesktopDisplayMode( displayIndex, &desktopMode ) != 0 )
+		m_desktopScreenW = 1024;
+		m_desktopScreenH = 768;
+		return;
+	}
+
+	SDL_DisplayID displayID = displays[displayIndex];
+	const SDL_DisplayMode *desktopMode = SDL_GetDesktopDisplayMode( displayID );
+
+	if ( !desktopMode )
 	{
 		AppDebugOut( "Couldn't get desktop display mode for display: %d, error: %s\n", displayIndex, SDL_GetError() );
 		AppDebugOut( "Trying again with a different method...\n" );
 
-
-		//
-		// fallback: get bounds from SDL_GetDisplayBounds which might work
-
 		SDL_Rect displayBounds;
-		if ( SDL_GetDisplayBounds( displayIndex, &displayBounds ) != 0 )
+		if ( !SDL_GetDisplayBounds( displayID, &displayBounds ) )
 		{
 			AppDebugOut( "Still couldn't get display bounds, error: %s\n", SDL_GetError() );
 			AppDebugOut( "Using 1024x768 as fallback resolution\n" );
@@ -414,19 +479,18 @@ void WindowManager::SaveDesktop()
 			m_desktopScreenH = displayBounds.h;
 			AppDebugOut( "Successfully got display bounds: %dx%d\n", m_desktopScreenW, m_desktopScreenH );
 		}
-	}
-	else
-	{
-		//
-		// success! hopefully, print the result incase its not.
-
-		m_desktopScreenW = desktopMode.w;
-		m_desktopScreenH = desktopMode.h;
-		AppDebugOut( "Desktop resolution determined to be: %dx%d\n", m_desktopScreenW, m_desktopScreenH );
+		SDL_free( displays );
+		return;
 	}
 
-	m_desktopColourDepth = SDL_BITSPERPIXEL( desktopMode.format );
-	m_desktopRefresh = desktopMode.refresh_rate;
+	m_desktopScreenW = desktopMode->w;
+	m_desktopScreenH = desktopMode->h;
+	AppDebugOut( "Desktop resolution determined to be: %dx%d\n", m_desktopScreenW, m_desktopScreenH );
+
+	m_desktopColourDepth = SDL_BITSPERPIXEL( desktopMode->format );
+	m_desktopRefresh = desktopMode->refresh_rate;
+
+	SDL_free( displays );
 
 #if defined( TARGET_OS_MACOSX )
 	int width = 0, height = 0;
@@ -444,7 +508,6 @@ void WindowManager::RestoreDesktop()
 
 void WindowManager::CalculateHighDPIScaleFactors()
 {
-
 }
 
 
@@ -454,8 +517,25 @@ void WindowManager::WindowHasMoved()
 
 	if ( m_sdlWindow )
 	{
-		m_windowDisplayIndex = SDL_GetWindowDisplayIndex( m_sdlWindow );
-		ListAllDisplayModes( m_windowDisplayIndex );
+		SDL_DisplayID displayID = SDL_GetDisplayForWindow( m_sdlWindow );
+		if ( displayID )
+		{
+			int count = 0;
+			SDL_DisplayID *displays = SDL_GetDisplays( &count );
+			if ( displays )
+			{
+				for ( int i = 0; i < count; ++i )
+				{
+					if ( displays[i] == displayID )
+					{
+						m_windowDisplayIndex = i;
+						ListAllDisplayModes( m_windowDisplayIndex );
+						break;
+					}
+				}
+				SDL_free( displays );
+			}
+		}
 	}
 }
 
@@ -468,7 +548,7 @@ void WindowManager::UpdateStoredMaximizedState()
 	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
 	bool currentlyMaximized = false;
 
-	if ( m_windowed && !( windowFlags & ( SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP ) ) )
+	if ( m_windowed && !( windowFlags & SDL_WINDOW_FULLSCREEN ) )
 	{
 		currentlyMaximized = ( windowFlags & SDL_WINDOW_MAXIMIZED ) != 0;
 	}
@@ -513,17 +593,7 @@ void WindowManager::CaptureMouse()
 	if ( !m_sdlWindow )
 		return;
 
-	//
-	// Dont grab until mouse is in the window
-
-	int windowFlags = SDL_GetWindowFlags( m_sdlWindow );
-	if ( !( windowFlags & SDL_WINDOW_MOUSE_FOCUS ) )
-	{
-		m_tryingToCaptureMouse = true;
-		return;
-	}
-
-	SDL_SetRelativeMouseMode( SDL_TRUE );
+	SDL_SetWindowRelativeMouseMode( m_sdlWindow, true );
 	m_mouseCaptured = true;
 	m_tryingToCaptureMouse = false;
 }
@@ -533,7 +603,7 @@ void WindowManager::UncaptureMouse()
 {
 	if ( m_sdlWindow )
 	{
-		SDL_SetRelativeMouseMode( SDL_FALSE );
+		SDL_SetWindowRelativeMouseMode( m_sdlWindow, false );
 	}
 
 	m_mouseCaptured = false;
@@ -543,14 +613,14 @@ void WindowManager::UncaptureMouse()
 
 void WindowManager::HideMousePointer()
 {
-	SDL_ShowCursor( SDL_DISABLE );
+	SDL_HideCursor();
 	m_mousePointerVisible = false;
 }
 
 
 void WindowManager::UnhideMousePointer()
 {
-	SDL_ShowCursor( SDL_ENABLE );
+	SDL_ShowCursor();
 	m_mousePointerVisible = true;
 }
 
@@ -581,38 +651,30 @@ void WindowManager::PollForMessages()
 
 		if ( ImGui::GetCurrentContext() != nullptr )
 		{
-			ImGui_ImplSDL2_ProcessEvent( &sdlEvent );
+			ImGui_ImplSDL3_ProcessEvent( &sdlEvent );
 		}
 
-		if ( sdlEvent.type == SDL_WINDOWEVENT )
+		if ( sdlEvent.type == SDL_EVENT_WINDOW_MOVED )
 		{
-			switch ( sdlEvent.window.event )
-			{
-				case SDL_WINDOWEVENT_MOVED:
-					WindowHasMoved();
-					break;
-
-				case SDL_WINDOWEVENT_SIZE_CHANGED:
-				case SDL_WINDOWEVENT_RESIZED:
-				case SDL_WINDOWEVENT_MAXIMIZED:
-				case SDL_WINDOWEVENT_RESTORED:
-					HandleResize( sdlEvent.window.data1, sdlEvent.window.data2 );
-					break;
-
-				case SDL_WINDOWEVENT_FOCUS_GAINED:
-				case SDL_WINDOWEVENT_SHOWN:
-					HandleWindowFocusGained();
-					break;
-
-				default:
-					break;
-			}
+			WindowHasMoved();
+		}
+		else if ( sdlEvent.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED || sdlEvent.type == SDL_EVENT_WINDOW_RESIZED )
+		{
+			HandleResize( sdlEvent.window.data1, sdlEvent.window.data2 );
+		}
+		else if ( sdlEvent.type == SDL_EVENT_WINDOW_MAXIMIZED || sdlEvent.type == SDL_EVENT_WINDOW_RESTORED )
+		{
+			HandleResize( sdlEvent.window.data1, sdlEvent.window.data2 );
+		}
+		else if ( sdlEvent.type == SDL_EVENT_WINDOW_FOCUS_GAINED || sdlEvent.type == SDL_EVENT_WINDOW_SHOWN )
+		{
+			HandleWindowFocusGained();
 		}
 
 		//
 		// Quit event
 
-		if ( sdlEvent.type == SDL_QUIT )
+		if ( sdlEvent.type == SDL_EVENT_QUIT )
 		{
 			if ( g_inputManager )
 			{
@@ -756,6 +818,8 @@ void ChangeToProgramDir( const char *program )
 
 #endif // TARGET_OS_LINUX || TARGET_OS_MACOSX
 
+#include <SDL3/SDL_main.h>
+
 extern "C" int main( int argc, char **argv )
 {
 #if TARGET_OS_LINUX && !defined( TARGET_EMSCRIPTEN )
@@ -794,13 +858,12 @@ extern "C" int main( int argc, char **argv )
 		}
 	}
 
-	SDL_version linkedVersion, compiledVersion;
-	SDL_VERSION( &compiledVersion );
-	SDL_GetVersion( &linkedVersion );
+	int compiledVersion = SDL_VERSION;
+	int linkedVersion = SDL_GetVersion();
 
 	AppDebugOut( "SDL Version: Compiled against %d.%d.%d, running with %d.%d.%d\n",
-				 compiledVersion.major, compiledVersion.minor, compiledVersion.patch,
-				 linkedVersion.major, linkedVersion.minor, linkedVersion.patch );
+				 SDL_VERSIONNUM_MAJOR( compiledVersion ), SDL_VERSIONNUM_MINOR( compiledVersion ), SDL_VERSIONNUM_MICRO( compiledVersion ),
+				 SDL_VERSIONNUM_MAJOR( linkedVersion ), SDL_VERSIONNUM_MINOR( linkedVersion ), SDL_VERSIONNUM_MICRO( linkedVersion ) );
 
 #if TARGET_OS_LINUX
 	// Setup illegal memory access handler

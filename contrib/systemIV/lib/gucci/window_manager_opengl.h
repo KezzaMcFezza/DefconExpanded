@@ -3,7 +3,7 @@
 
 #ifdef RENDERER_OPENGL
 
-#include <SDL2/SDL.h>
+#include "systemiv.h"
 #include "window_manager.h"
 
 class WindowManagerOpenGL : public WindowManager

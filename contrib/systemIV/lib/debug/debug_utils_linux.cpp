@@ -16,7 +16,6 @@
 
 #ifndef NO_WINDOW_MANAGER
 #include "lib/gucci/window_manager.h"
-#include <SDL2/SDL.h>
 #endif
 
 static char *s_pathToProgram = 0;

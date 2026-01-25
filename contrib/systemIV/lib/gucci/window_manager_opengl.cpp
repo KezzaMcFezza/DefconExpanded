@@ -1,7 +1,6 @@
 #include "systemiv.h"
 
 #ifdef RENDERER_OPENGL
-#include <SDL2/SDL.h>
 
 #ifdef TARGET_OS_MACOSX
 #include "macosxlibrary.h"
@@ -36,26 +35,53 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	int displayIndex = GetCurrentDisplayIndex();
 	AppReleaseAssert( displayIndex >= 0, "Failed to get current SDL display index.\n" );
 
-	SDL_DisplayMode displayMode;
-	SDL_GetCurrentDisplayMode( displayIndex, &displayMode );
+	int count = 0;
+	SDL_DisplayID *displays = SDL_GetDisplays( &count );
+
+	if ( !displays || displayIndex >= count )
+	{
+		if ( displays )
+		{
+			SDL_free( displays );
+		}
+
+		return false;
+	}
+
+	SDL_DisplayID displayID = displays[displayIndex];
+	const SDL_DisplayMode *displayModePtr = SDL_GetCurrentDisplayMode( displayID );
+
+	if ( !displayModePtr )
+	{
+		SDL_free( displays );
+		return false;
+	}
+
+	SDL_DisplayMode displayMode = *displayModePtr;
+	SDL_free( displays );
 
 	m_windowed = _windowed;
 
 	int bpp = SDL_BITSPERPIXEL( displayMode.format );
 
 	SDL_Rect displayBounds;
-	SDL_GetDisplayBounds( displayIndex, &displayBounds );
+
+	if ( !SDL_GetDisplayBounds( displayID, &displayBounds ) )
+	{
+		return false;
+	}
 
 	//
 	// Set the flags for creating the mode
 
-	int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
+	int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 	bool requestMaximized = false;
+
 	if ( !_windowed )
 	{
 		if ( _borderless )
 		{
-			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+			flags |= SDL_WINDOW_FULLSCREEN;
 			m_screenW = _width;
 			m_screenH = _height;
 		}
@@ -69,7 +95,8 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	else
 	{
 		SDL_Rect usableBounds;
-		SDL_GetDisplayUsableBounds( displayIndex, &usableBounds );
+		SDL_GetDisplayUsableBounds( displayID, &usableBounds );
+
 		if ( g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
 		{
 			flags |= SDL_WINDOW_MAXIMIZED;
@@ -191,11 +218,9 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		m_glContext = 0;
 
 		//
-		// Use SDL_WINDOWPOS_CENTERED to center the window instead of top-left positioning
+		// Use SDL_WINDOWPOS_CENTERED_DISPLAY to center the window instead of top-left positioning
 
 		m_sdlWindow = SDL_CreateWindow( _title,
-										SDL_WINDOWPOS_CENTERED_DISPLAY( displayIndex ),
-										SDL_WINDOWPOS_CENTERED_DISPLAY( displayIndex ),
 										m_screenW,
 										m_screenH,
 										flags );
@@ -211,9 +236,10 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 				targetMode.w = m_screenW;
 				targetMode.h = m_screenH;
 				targetMode.refresh_rate = _refreshRate;
-				targetMode.format = 0;
+				targetMode.pixel_density = 0;
+				targetMode.format = SDL_PIXELFORMAT_UNKNOWN;
 
-				if ( SDL_SetWindowDisplayMode( m_sdlWindow, &targetMode ) != 0 )
+				if ( SDL_SetWindowFullscreenMode( m_sdlWindow, &targetMode ) != 0 )
 				{
 					AppDebugOut( "Failed to set display mode to %dx%d @ %dHz: %s\n",
 								 m_screenW, m_screenH, _refreshRate, SDL_GetError() );
@@ -261,7 +287,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	{
 		printf( "Could not make SDL OpenGL context current: %s\n", SDL_GetError() );
 
-		SDL_GL_DeleteContext( m_glContext );
+		SDL_GL_DestroyContext( m_glContext );
 		m_glContext = 0;
 
 		SDL_DestroyWindow( m_sdlWindow );
@@ -278,7 +304,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	{
 		printf( "GLAD initialization failed\n" );
 
-		SDL_GL_DeleteContext( m_glContext );
+		SDL_GL_DestroyContext( m_glContext );
 		m_glContext = 0;
 
 		SDL_DestroyWindow( m_sdlWindow );
@@ -297,7 +323,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	{
 		printf( "GLAD initialization failed\n" );
 
-		SDL_GL_DeleteContext( m_glContext );
+		SDL_GL_DestroyContext( m_glContext );
 		m_glContext = 0;
 
 		SDL_DestroyWindow( m_sdlWindow );
@@ -319,7 +345,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	{
 		printf( "GLAD initialization failed\n" );
 
-		SDL_GL_DeleteContext( m_glContext );
+		SDL_GL_DestroyContext( m_glContext );
 		m_glContext = 0;
 
 		SDL_DestroyWindow( m_sdlWindow );
@@ -389,7 +415,7 @@ void WindowManagerOpenGL::DestroyWin()
 {
 	if ( m_glContext )
 	{
-		SDL_GL_DeleteContext( m_glContext );
+		SDL_GL_DestroyContext( m_glContext );
 		m_glContext = 0;
 	}
 
@@ -419,7 +445,7 @@ void WindowManagerOpenGL::HandleResize( int newWidth, int newHeight )
 
 	UpdateStoredMaximizedState();
 
-	if ( windowFlags & ( SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP ) )
+	if ( windowFlags & SDL_WINDOW_FULLSCREEN )
 		return;
 
 	if ( newWidth == m_screenW && newHeight == m_screenH )
@@ -436,11 +462,28 @@ void WindowManagerOpenGL::HandleResize( int newWidth, int newHeight )
 	//
 	// Check if window moved to a different display
 
-	int newDisplayIndex = SDL_GetWindowDisplayIndex( m_sdlWindow );
-	if ( newDisplayIndex >= 0 && newDisplayIndex != m_windowDisplayIndex )
+	SDL_DisplayID displayID = SDL_GetDisplayForWindow( m_sdlWindow );
+	if ( displayID )
 	{
-		m_windowDisplayIndex = newDisplayIndex;
-		ListAllDisplayModes( m_windowDisplayIndex );
+		int count = 0;
+		SDL_DisplayID *displays = SDL_GetDisplays( &count );
+		if ( displays )
+		{
+			for ( int i = 0; i < count; ++i )
+			{
+				if ( displays[i] == displayID )
+				{
+					int newDisplayIndex = i;
+					if ( newDisplayIndex != m_windowDisplayIndex )
+					{
+						m_windowDisplayIndex = newDisplayIndex;
+						ListAllDisplayModes( m_windowDisplayIndex );
+					}
+					break;
+				}
+			}
+			SDL_free( displays );
+		}
 	}
 
 	//
@@ -474,7 +517,7 @@ void WindowManagerOpenGL::CalculateHighDPIScaleFactors()
 
 	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
 
-	if ( (windowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN )
+	if ( ( windowFlags & SDL_WINDOW_FULLSCREEN ) == SDL_WINDOW_FULLSCREEN )
 	{
 		m_highDPIScaleX = 1.0f;
 		m_highDPIScaleY = 1.0f;
@@ -484,7 +527,7 @@ void WindowManagerOpenGL::CalculateHighDPIScaleFactors()
 	int clientW, clientH;
 	SDL_GetWindowSize( m_sdlWindow, &clientW, &clientH );
 	int drawableW, drawableH;
-	SDL_GL_GetDrawableSize( m_sdlWindow, &drawableW, &drawableH );
+	SDL_GetWindowSizeInPixels( m_sdlWindow, &drawableW, &drawableH );
 
 	m_highDPIScaleX = (float)drawableW / clientW;
 	m_highDPIScaleY = (float)drawableH / clientH;

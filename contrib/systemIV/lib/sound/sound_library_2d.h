@@ -34,6 +34,7 @@ public:
 	
 	virtual unsigned 	GetSamplesPerBuffer() = 0;
 	virtual unsigned	GetFreq() = 0;
+	virtual void		Stop() = 0;
 };
 
 

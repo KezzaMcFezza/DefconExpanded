@@ -3,13 +3,13 @@
 
 #ifdef RENDERER_DIRECTX11
 
+#include "systemiv.h"
 #include "window_manager.h"
 
 #include <windows.h>
 #include <d3d11.h>
 #include <dxgi.h>
 #include <dxgi1_5.h>
-#include <SDL2/SDL.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")

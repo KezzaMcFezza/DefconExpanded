@@ -72,6 +72,7 @@ public:
 
 	void Initialise				( SoundSystemInterface *_interface );
     void RestartSoundLibrary    ();
+    void StopSoundLibrary       ();
     
     void Advance();
 

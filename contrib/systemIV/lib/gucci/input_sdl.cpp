@@ -1,7 +1,6 @@
 #include "systemiv.h"
 
 #include <ctime>
-#include <SDL2/SDL.h>
 #include <cstring>
 
 #ifndef TARGET_MSVC
@@ -83,7 +82,7 @@ constexpr static int ConvertSDLKeyIdToWin32KeyId( int _keyCode )
 			return KEY_STOP;
 		case SDLK_SLASH:
 			return KEY_SLASH;
-		case SDLK_QUOTE:
+		case SDLK_APOSTROPHE:
 			return KEY_QUOTE;
 		case SDLK_LEFTBRACKET:
 			return KEY_OPENBRACE;
@@ -109,7 +108,7 @@ constexpr static int ConvertSDLKeyIdToWin32KeyId( int _keyCode )
 			return KEY_CAPSLOCK;
 		case SDLK_BACKSLASH:
 			return KEY_BACKSLASH;
-		case SDLK_BACKQUOTE:
+		case SDLK_GRAVE:
 			return KEY_TILDE;
 		case SDLK_KP_0:
 			return KEY_0_PAD;
@@ -339,7 +338,7 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 
 	switch ( message )
 	{
-		case SDL_MOUSEBUTTONUP:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
 		{
 			if ( sdlEvent->button.button == SDL_BUTTON_LEFT )
 			{
@@ -357,7 +356,7 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 			break;
 		}
 
-		case SDL_MOUSEBUTTONDOWN:
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 		{
 			if ( sdlEvent->button.button == SDL_BUTTON_LEFT )
 			{
@@ -377,7 +376,7 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 			break;
 		}
 
-		case SDL_MOUSEWHEEL:
+		case SDL_EVENT_MOUSE_WHEEL:
 		{
 			if ( sdlEvent->wheel.y > 0 )
 				m_mouseZ += 3;
@@ -386,7 +385,7 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 			break;
 		}
 
-		case SDL_MOUSEMOTION:
+		case SDL_EVENT_MOUSE_MOTION:
 		{
 			if ( g_windowManager->Captured() )
 			{
@@ -432,9 +431,9 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 			break;
 		}
 
-		case SDL_KEYUP:
+		case SDL_EVENT_KEY_UP:
 		{
-			int keyCode = ConvertSDLKeyIdToWin32KeyId( sdlEvent->key.keysym.sym );
+			int keyCode = ConvertSDLKeyIdToWin32KeyId( sdlEvent->key.key );
 			AppDebugAssert( keyCode >= 0 && keyCode < KEY_MAX );
 			if ( g_keys[keyCode] != 0 )
 			{
@@ -445,9 +444,9 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 			break;
 		}
 
-		case SDL_KEYDOWN:
+		case SDL_EVENT_KEY_DOWN:
 		{
-			int keyCode = ConvertSDLKeyIdToWin32KeyId( sdlEvent->key.keysym.sym );
+			int keyCode = ConvertSDLKeyIdToWin32KeyId( sdlEvent->key.key );
 			AppDebugAssert( keyCode >= 0 && keyCode < KEY_MAX );
 			if ( g_keys[keyCode] != 1 )
 			{
@@ -461,9 +460,9 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 
 			break;
 		}
-		case SDL_TEXTINPUT:
+		case SDL_EVENT_TEXT_INPUT:
 		{
-			int x, y;
+			float x, y;
 			SDL_GetMouseState( &x, &y );
 
 			LString text = ToUTF32( sdlEvent->text.text );
@@ -484,36 +483,26 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 			}
 			break;
 		}
-		case SDL_WINDOWEVENT_FOCUS_LOST:
+		case SDL_EVENT_WINDOW_FOCUS_LOST:
 		{
 			m_windowHasFocus = false;
 			break;
 		}
 
-		case SDL_WINDOWEVENT_FOCUS_GAINED:
+		case SDL_EVENT_WINDOW_FOCUS_GAINED:
 		{
 			m_windowHasFocus = true;
 			break;
 		}
 
-		case SDL_WINDOWEVENT:
-		{
-			switch ( sdlEvent->window.event )
-			{
-				case SDL_WINDOWEVENT_SIZE_CHANGED:
-				case SDL_WINDOWEVENT_RESIZED:
-				case SDL_WINDOWEVENT_MINIMIZED:
-				case SDL_WINDOWEVENT_MAXIMIZED:
-				case SDL_WINDOWEVENT_RESTORED:
-					return 0;
+		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+		case SDL_EVENT_WINDOW_RESIZED:
+		case SDL_EVENT_WINDOW_MINIMIZED:
+		case SDL_EVENT_WINDOW_MAXIMIZED:
+		case SDL_EVENT_WINDOW_RESTORED:
+			return 0;
 
-				default:
-					break;
-			}
-			return -1;
-		}
-
-		case SDL_QUIT:
+		case SDL_EVENT_QUIT:
 		{
 			m_quitRequested = true;
 			break;

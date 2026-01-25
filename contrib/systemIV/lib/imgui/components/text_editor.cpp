@@ -198,14 +198,7 @@ void TextEditor::Render()
 
 		if ( ImGui::IsItemActive() )
 		{
-			ImVec2 rectMin = ImGui::GetItemRectMin();
-			ImVec2 rectMax = ImGui::GetItemRectMax();
-			SDL_Rect textInputRect;
-			textInputRect.x = (int)rectMin.x;
-			textInputRect.y = (int)rectMin.y;
-			textInputRect.w = (int)( rectMax.x - rectMin.x );
-			textInputRect.h = (int)( rectMax.y - rectMin.y );
-			SDL_SetTextInputRect( &textInputRect );
+			// SDL3 handles text input rect automatically
 		}
 
 		ImGui::PopFont();

@@ -2,7 +2,7 @@
 #define INCLUDED_WINDOW_MANAGER_H
 
 #include "lib/tosser/llist.h"
-#include <SDL2/SDL.h>
+#include "systemiv.h"
 
 class WindowResolution;
 

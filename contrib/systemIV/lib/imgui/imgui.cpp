@@ -2,7 +2,7 @@
 
 #include <string.h>
 #include "imgui-1.92.5/imgui.h"
-#include "imgui-1.92.5/backends/imgui_impl_sdl2.h"
+#include "imgui-1.92.5/backends/imgui_impl_sdl3.h"
 #include "lib/gucci/window_manager.h"
 #include "lib/gucci/window_manager_opengl.h"
 #include "lib/gucci/window_manager_d3d11.h"
@@ -91,10 +91,10 @@ bool ImGuiManager::Initialize()
 		glsl_version = "#version 330";
 #endif
 
-		if ( !ImGui_ImplSDL2_InitForOpenGL( sdlWindow, glContext ) )
+		if ( !ImGui_ImplSDL3_InitForOpenGL( sdlWindow, glContext ) )
 		{
 #ifdef _DEBUG
-			AppDebugOut( "Failed to initialize ImGui SDL2 backend for OpenGL\n" );
+			AppDebugOut( "Failed to initialize ImGui SDL3 backend for OpenGL\n" );
 #endif
 			ImGui::DestroyContext();
 			return false;
@@ -105,7 +105,7 @@ bool ImGuiManager::Initialize()
 #ifdef _DEBUG
 			AppDebugOut( "Failed to initialize ImGui OpenGL3 backend\n" );
 #endif
-			ImGui_ImplSDL2_Shutdown();
+			ImGui_ImplSDL3_Shutdown();
 			ImGui::DestroyContext();
 			return false;
 		}
@@ -140,10 +140,10 @@ bool ImGuiManager::Initialize()
 			return false;
 		}
 
-		if ( !ImGui_ImplSDL2_InitForD3D( sdlWindow ) )
+		if ( !ImGui_ImplSDL3_InitForD3D( sdlWindow ) )
 		{
 #ifdef _DEBUG
-			AppDebugOut( "Failed to initialize ImGui SDL2 backend for D3D\n" );
+			AppDebugOut( "Failed to initialize ImGui SDL3 backend for D3D\n" );
 #endif
 			ImGui::DestroyContext();
 			return false;
@@ -154,7 +154,7 @@ bool ImGuiManager::Initialize()
 #ifdef _DEBUG
 			AppDebugOut( "Failed to initialize ImGui DirectX11 backend\n" );
 #endif
-			ImGui_ImplSDL2_Shutdown();
+			ImGui_ImplSDL3_Shutdown();
 			ImGui::DestroyContext();
 			return false;
 		}
@@ -192,7 +192,7 @@ void ImGuiManager::Shutdown()
 	}
 #endif
 
-	ImGui_ImplSDL2_Shutdown();
+	ImGui_ImplSDL3_Shutdown();
 	ImGui::DestroyContext();
 
 	m_initialized = false;
@@ -219,7 +219,7 @@ static void ImGuiNewFrame()
 	}
 #endif
 
-	ImGui_ImplSDL2_NewFrame();
+	ImGui_ImplSDL3_NewFrame();
 	ImGui::NewFrame();
 }
 
@@ -289,11 +289,11 @@ void ImGuiManager::Render()
 	ImGuiIO &io = ImGui::GetIO();
 	if ( io.WantTextInput )
 	{
-		SDL_StartTextInput();
+		SDL_StartTextInput( g_windowManager->GetSDLWindow() );
 	}
 	else
 	{
-		SDL_StopTextInput();
+		SDL_StopTextInput( g_windowManager->GetSDLWindow() );
 	}
 
 	s_windowWasResized = false;

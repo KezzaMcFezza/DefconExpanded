@@ -982,6 +982,8 @@ void App::ReinitialiseWindow()
 
     g_resource->Shutdown();
 
+    g_soundSystem->StopSoundLibrary();
+
     g_windowManager->DestroyWin();
     delete g_windowManager;
     g_windowManager = NULL;
@@ -1002,6 +1004,8 @@ void App::ReinitialiseWindow()
     g_windowManager->RegisterWindowResizeHandler(WindowResizeCallback);
     
     InitialiseWindow();
+    
+    g_soundSystem->RestartSoundLibrary();
     
     g_renderer = Renderer::Create();
     
