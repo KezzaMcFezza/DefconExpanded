@@ -8,6 +8,8 @@ set(GLAD_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/glad")
 set(HIGHWAY_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/highway-1.3.0")
 set(TINYGLTF_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/tinygltf-2.9.7")
 set(IMGUI_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/imgui-1.92.5")
+set(SDL3_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/SDL3-3.4.0")
+set(SDL3_INCLUDE_DIRS "${SDL3_PATH}/include")
 set(RESOURCES_DIR "${ROOT_PATH}/resources")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/result/Debug")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/result/Release")
@@ -112,7 +114,13 @@ set(RESOURCE_FILES
 # EMSCRIPTEN (WebAssembly)
 if(EMSCRIPTEN)
     message(STATUS "Configuring for WebAssembly/Emscripten build")
-    
+
+    set(SDL3_LIBRARIES ${SDL3_PATH}/emscripten/lib/libSDL3.a)
+    set(SDL3_FOUND TRUE)
+    if(NOT EXISTS ${SDL3_LIBRARIES})
+        message(FATAL_ERROR "SDL3 Emscripten library not found at: ${SDL3_LIBRARIES}.")
+    endif()
+
     add_definitions(-DTARGET_EMSCRIPTEN -DWASM_BUILD -DTARGET_OS_LINUX -DENABLE_BINRELOC)
     add_definitions(-DSDL_MAIN_HANDLED -DGUI -DSILENT)
     add_definitions(-D__EMSCRIPTEN_PTHREADS__)
@@ -143,7 +151,7 @@ if(EMSCRIPTEN)
     endif()
 
     
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2 -s USE_WEBGL2=1 -s FULL_ES3=1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_WEBGL2=1 -s FULL_ES3=1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s FILESYSTEM=1 -s FORCE_FILESYSTEM=1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_VORBIS=1 -s USE_OGG=1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s STACK_SIZE=8MB -msimd128")
@@ -244,16 +252,11 @@ elseif(MSVC)
         set(VORBIS_ARCH_INCLUDE "oggvorbis/include")
     endif()
 
-    set(SDL2_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/SDL2-2.32.10/windows")
-    set(SDL2_INCLUDE_DIRS ${SDL2_PATH}/include)
-    set(SDL2_LIBRARIES 
-        ${SDL2_PATH}/${ARCH_TYPE}/SDL2main.lib 
-        ${SDL2_PATH}/${ARCH_TYPE}/SDL2-static.lib
-    )
-    set(SDL2_FOUND TRUE)
+    set(SDL3_LIBRARIES ${SDL3_PATH}/windows/lib/SDL3-static.lib)
+    set(SDL3_FOUND TRUE)
 
-    if(NOT EXISTS ${SDL2_PATH}/${ARCH_TYPE})
-        message(FATAL_ERROR "SDL2 library not found at: ${SDL2_PATH}/${ARCH_TYPE}")
+    if(NOT EXISTS ${SDL3_LIBRARIES})
+        message(FATAL_ERROR "SDL3 library not found at: ${SDL3_LIBRARIES}")
     endif()
     
     add_definitions(-D_WIN32 -DWIN32 -DTARGET_MSVC)
@@ -405,13 +408,11 @@ elseif(APPLE)
 
 elseif(UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
 
-    set(SDL2_PATH "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/SDL2-2.32.10/linux")
-    set(SDL2_INCLUDE_DIRS ${SDL2_PATH}/include)
-    set(SDL2_LIBRARIES ${SDL2_PATH}/lib/libSDL2-2.0.so)
-    set(SDL2_FOUND TRUE)
+    set(SDL3_LIBRARIES ${SDL3_PATH}/linux/lib/libSDL3.so)
+    set(SDL3_FOUND TRUE)
 
-    if(NOT EXISTS ${SDL2_LIBRARIES})
-        message(FATAL_ERROR "SDL2 library not found at: ${SDL2_LIBRARIES}")
+    if(NOT EXISTS ${SDL3_LIBRARIES})
+        message(FATAL_ERROR "SDL3 library not found at: ${SDL3_LIBRARIES}")
     endif()
     
     find_package(OpenGL REQUIRED)
@@ -792,7 +793,7 @@ set(IMGUI_SOURCE
     ${IMGUI_PATH}/imgui_draw.cpp
     ${IMGUI_PATH}/imgui_tables.cpp
     ${IMGUI_PATH}/imgui_widgets.cpp
-    ${IMGUI_PATH}/backends/imgui_impl_sdl2.cpp
+    ${IMGUI_PATH}/backends/imgui_impl_sdl3.cpp
 )
 
 foreach(FILE ${FILES_TO_EXCLUDE})
@@ -824,8 +825,14 @@ if(EMSCRIPTEN)
         RUNTIME_OUTPUT_DIRECTORY "${MAIN_EXE_OUTPUT_DIR}"
         SUFFIX ".html"
     )
-    
-    set(EMSCRIPTEN_LINK_FLAGS "-s USE_SDL=2 -s USE_WEBGL2=1 -s FULL_ES3=1")
+
+    target_include_directories(${EXECUTABLE_NAME} PRIVATE
+        ${SDL3_INCLUDE_DIRS}
+        ${SDL3_INCLUDE_DIRS}/SDL3
+    )
+    target_link_libraries(${EXECUTABLE_NAME} PRIVATE ${SDL3_LIBRARIES})
+
+    set(EMSCRIPTEN_LINK_FLAGS "-s USE_WEBGL2=1 -s FULL_ES3=1")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s FILESYSTEM=1 -s FORCE_FILESYSTEM=1")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -s USE_VORBIS=1 -s USE_OGG=1")
     set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -msimd128 -s STACK_SIZE=8MB")
@@ -891,8 +898,8 @@ elseif(MSVC)
     
     target_include_directories(${EXECUTABLE_NAME} PRIVATE
         ${ROOT_PATH}/contrib/systemIV/contrib/${VORBIS_ARCH_INCLUDE}
-        ${SDL2_INCLUDE_DIRS}
-        ${SDL2_INCLUDE_DIRS}/SDL2
+        ${SDL3_INCLUDE_DIRS}
+        ${SDL3_INCLUDE_DIRS}/SDL3
         ${ROOT_PATH}/contrib/ambx1.1/inc
         ${TINYGLTF_PATH}
         ${IMGUI_PATH}
@@ -900,7 +907,7 @@ elseif(MSVC)
     )
     
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE 
-        ${SDL2_LIBRARIES}
+        ${SDL3_LIBRARIES}
         "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/${VORBIS_ARCH_LIB}/ogg.lib"
         "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/${VORBIS_ARCH_LIB}/vorbis.lib"
         "${CMAKE_SOURCE_DIR}/contrib/systemIV/contrib/${VORBIS_ARCH_LIB}/vorbisfile.lib"
@@ -949,6 +956,8 @@ else()
     set_target_properties(${EXECUTABLE_NAME} PROPERTIES
         WIN32_EXECUTABLE FALSE
         RUNTIME_OUTPUT_DIRECTORY "${MAIN_EXE_OUTPUT_DIR}"
+        INSTALL_RPATH "$ORIGIN/lib"
+        BUILD_WITH_INSTALL_RPATH TRUE
     )
     
     set(CRASHPAD_INCLUDE_DIRS 
@@ -957,8 +966,8 @@ else()
     )
     
     target_include_directories(${EXECUTABLE_NAME} PUBLIC 
-        ${SDL2_INCLUDE_DIRS}
-        ${SDL2_INCLUDE_DIRS}/SDL2
+        ${SDL3_INCLUDE_DIRS}
+        ${SDL3_INCLUDE_DIRS}/SDL3
         ${OPENGL_INCLUDE_DIRS}
         ${VORBIS_INCLUDE_DIRS}
         ${CRASHPAD_INCLUDE_DIRS}
@@ -974,7 +983,7 @@ else()
     )
     
     target_link_libraries(${EXECUTABLE_NAME} PRIVATE 
-        ${SDL2_LIBRARIES}
+        ${SDL3_LIBRARIES}
         ${OPENGL_LIBRARIES}
         ${VORBIS_LIBRARIES}
         ${CRASHPAD_LIBRARIES}
