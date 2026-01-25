@@ -118,7 +118,7 @@
         "-I${workspaceFolder}/contrib/systemIV/contrib/tinygltf-2.9.7",
         "-I${workspaceFolder}/contrib/systemIV/contrib/crashpad/windows/include",
         "-I${workspaceFolder}/contrib/systemIV/contrib/crashpad/crashpad/third_party/mini_chromium/mini_chromium",
-        "-I${workspaceFolder}/contrib/systemIV/contrib/SDL2-2.32.10/windows/include",
+        "-I${workspaceFolder}/contrib/systemIV/contrib/SDL3-3.4.0/include",
         "-I${workspaceFolder}/contrib/systemIV/contrib/highway-1.3.0",
         "-I${workspaceFolder}/contrib/systemIV/contrib/unrar",
         "-I${workspaceFolder}/contrib/systemIV/contrib/binreloc",

@@ -8,6 +8,7 @@
         "${workspaceFolder}/source/app",
         "${workspaceFolder}/contrib",
         "${workspaceFolder}/contrib/systemIV",
+        "${workspaceFolder}/contrib/systemIV/contrib/SDL3-3.4.0/include",
         "${workspaceFolder}/contrib/systemIV/contrib/imgui-1.92.5",
         "${workspaceFolder}/contrib/systemIV/contrib/imgui-1.92.5/backends",
         "${workspaceFolder}/contrib/systemIV/contrib/tinygltf-2.9.7",
@@ -40,6 +41,7 @@
         "${workspaceFolder}/source/app",
         "${workspaceFolder}/contrib",
         "${workspaceFolder}/contrib/systemIV",
+        "${workspaceFolder}/contrib/systemIV/contrib/SDL3-3.4.0/include",
         "${workspaceFolder}/contrib/systemIV/contrib/imgui-1.92.5",
         "${workspaceFolder}/contrib/systemIV/contrib/imgui-1.92.5/backends",
         "${workspaceFolder}/contrib/systemIV/contrib/tinygltf-2.9.7",
@@ -55,6 +57,7 @@
         "_DEBUG", 
         "UNICODE", 
         "_UNICODE", 
+        "SDL_ENABLE_OLD_NAMES",
         "RENDERER_DIRECTX11",
         "RENDERER_OPENGL", 
         "TARGET_MSVC"
