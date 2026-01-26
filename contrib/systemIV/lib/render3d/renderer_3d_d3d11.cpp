@@ -690,8 +690,8 @@ void Renderer3DD3D11::SetLineShaderUniforms3D( float lineWidth )
 			{
 				LineWidthBuffer3D *lineWidthData = (LineWidthBuffer3D *)mappedResource.pData;
 				lineWidthData->lineWidth = lineWidth;
-				lineWidthData->viewportWidth = (float)g_windowManager->DrawableWidth();
-				lineWidthData->viewportHeight = (float)g_windowManager->DrawableHeight();
+				lineWidthData->viewportWidth = (float)g_windowManager->GetPhysicalWidth();
+				lineWidthData->viewportHeight = (float)g_windowManager->GetPhysicalHeight();
 				lineWidthData->padding = 0.0f;
 
 				m_deviceContext->Unmap( m_lineWidthConstantBuffer3D, 0 );

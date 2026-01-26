@@ -32,7 +32,6 @@ public:
     virtual void DoFlip() override;
     virtual void HandleResize(int newWidth, int newHeight) override;
     virtual void HandleWindowFocusGained() override;
-    virtual void CalculateHighDPIScaleFactors() override;
 
     ID3D11Device          * GetDevice()           const { return m_device; }
     ID3D11DeviceContext   * GetDeviceContext()    const { return m_deviceContext; }

@@ -23,7 +23,6 @@ public:
 	void        DoFlip              () override;
 	void        HandleResize        (int newWidth, int newHeight) override;
 	void        HandleWindowFocusGained() override;
-	void        CalculateHighDPIScaleFactors() override;
 
 private:
     SDL_GLContext m_glContext;

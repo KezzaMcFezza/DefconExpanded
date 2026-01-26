@@ -83,11 +83,9 @@ int WindowManager::GetDisplayIndexFromID( SDL_DisplayID id )
 }
 
 WindowManager::WindowManager()
-	: m_mousePointerVisible( true ),
+	: m_mouseCaptured( false ),
+	  m_mousePointerVisible( true ),
 	  m_mouseOffsetX( INT_MAX ),
-	  m_mouseCaptured( false ),
-	  m_highDPIScaleX( 1.0f ),
-	  m_highDPIScaleY( 1.0f ),
 	  m_secondaryMessageHandler( NULL ),
 	  m_windowResizeHandler( NULL ),
 	  m_sdlWindow( nullptr ),
@@ -193,18 +191,6 @@ WindowResolution *WindowManager::GetResolution( int _id )
 }
 
 
-float WindowManager::GetHighDPIScaleX() const
-{
-	return m_highDPIScaleX;
-}
-
-
-float WindowManager::GetHighDPIScaleY() const
-{
-	return m_highDPIScaleY;
-}
-
-
 bool WindowManager::Windowed()
 {
 	return m_windowed;
@@ -285,17 +271,57 @@ static float ScaleFactor()
 // the actual pixel resolution rather than the logical
 // window size, which is important for DPI scaling.
 
-int WindowManager::GetLogicalWidth()
+const int WindowManager::GetLogicalWidth()
 {
-	return (int)( DrawableWidth() * ScaleFactor() );
+	return (int)( m_screenW * ScaleFactor() );
 }
 
 
-int WindowManager::GetLogicalHeight()
+const int WindowManager::GetLogicalHeight()
 {
-	return (int)( DrawableHeight() * ScaleFactor() );
+	return (int)( m_screenH * ScaleFactor() );
 }
 
+//
+// Return the actual drawable width and height of the window
+
+const int WindowManager::GetPhysicalWidth()
+{
+	if ( !m_sdlWindow )
+	{
+		return 0;
+	}
+	
+	int width = 0;
+	SDL_GetWindowSizeInPixels( m_sdlWindow, &width, nullptr );
+	return width;
+}
+
+const int WindowManager::GetPhysicalHeight()
+{
+	if (!m_sdlWindow)
+	{
+		return 0;
+	}
+	
+	int height = 0;
+	SDL_GetWindowSizeInPixels( m_sdlWindow, nullptr, &height );
+	return height;
+}
+
+//
+// Kept for backwards compatibility
+// basically just a wrapper for GetLogicalWidth/Height()
+
+const int WindowManager::WindowW()
+{
+	return GetLogicalWidth();
+}
+
+const int WindowManager::WindowH()
+{
+	return GetLogicalHeight();
+}
 
 int WindowManager::GetDisplayIndexForPoint( int x, int y )
 {
@@ -498,16 +524,8 @@ void WindowManager::RestoreDesktop()
 }
 
 
-void WindowManager::CalculateHighDPIScaleFactors()
-{
-
-}
-
-
 void WindowManager::WindowHasMoved()
 {
-	CalculateHighDPIScaleFactors();
-
 	if ( m_sdlWindow )
 	{
 		SDL_DisplayID id = SDL_GetDisplayForWindow( m_sdlWindow );
@@ -617,8 +635,8 @@ void WindowManager::SetMousePos( int x, int y )
 	if ( !m_sdlWindow )
 		return;
 
-	float scaleX = (float)PhysicalWindowW() / (float)WindowW();
-	float scaleY = (float)PhysicalWindowH() / (float)WindowH();
+	float scaleX = (float)GetPhysicalWidth() / (float)GetLogicalWidth();
+	float scaleY = (float)GetPhysicalHeight() / (float)GetLogicalHeight();
 
 	int physicalX = (int)( x * scaleX );
 	int physicalY = (int)( y * scaleY );
@@ -651,8 +669,18 @@ void WindowManager::PollForMessages()
 			case SDL_EVENT_WINDOW_RESIZED:
 			case SDL_EVENT_WINDOW_MAXIMIZED:
 			case SDL_EVENT_WINDOW_RESTORED:
-				HandleResize( sdlEvent.window.data1, sdlEvent.window.data2 );
+			{
+				int w, h;
+				if ( m_sdlWindow && SDL_GetWindowSize( m_sdlWindow, &w, &h ) )
+				{
+					HandleResize( w, h );
+				}
+				else
+				{
+					HandleResize( sdlEvent.window.data1, sdlEvent.window.data2 );
+				}
 				break;
+			}
 
 			case SDL_EVENT_WINDOW_FOCUS_GAINED:
 			case SDL_EVENT_WINDOW_SHOWN:

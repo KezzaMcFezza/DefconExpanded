@@ -173,8 +173,8 @@ void Renderer2D::Set2DViewport( float l, float r, float b, float t, int x, int y
 	//
 	// Calculate scale factors between logical and physical resolution
 
-	float scaleX = (float)g_windowManager->DrawableWidth() / (float)g_windowManager->WindowW();
-	float scaleY = (float)g_windowManager->DrawableHeight() / (float)g_windowManager->WindowH();
+	float scaleX = (float)g_windowManager->GetPhysicalWidth() / (float)g_windowManager->WindowW();
+	float scaleY = (float)g_windowManager->GetPhysicalHeight() / (float)g_windowManager->WindowH();
 
 	//
 	// Apply scaling to convert logical coordinates to physical viewport coordinates
@@ -240,8 +240,8 @@ void Renderer2D::SetClip( int x, int y, int w, int h )
 	//
 	// calculate scale factors between logical and physical resolution
 
-	float scaleX = (float)g_windowManager->DrawableWidth() / (float)g_windowManager->WindowW();
-	float scaleY = (float)g_windowManager->DrawableHeight() / (float)g_windowManager->WindowH();
+	float scaleX = (float)g_windowManager->GetPhysicalWidth() / (float)g_windowManager->WindowW();
+	float scaleY = (float)g_windowManager->GetPhysicalHeight() / (float)g_windowManager->WindowH();
 
 	int sx = int( x * scaleX );
 	int sy = int( ( g_windowManager->WindowH() - h - y ) * scaleY );

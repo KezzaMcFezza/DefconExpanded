@@ -78,8 +78,8 @@ Renderer2DD3D11::Renderer2DD3D11()
 	int msaaSamples = g_preferences ? g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 ) : 0;
 	AntiAliasingType aaType = g_preferences ? (AntiAliasingType)g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS_TYPE, AA_TYPE_MSAA ) : AA_TYPE_MSAA;
 
-	int screenW = g_windowManager->DrawableWidth();
-	int screenH = g_windowManager->DrawableHeight();
+	int screenW = g_windowManager->GetPhysicalWidth();
+	int screenH = g_windowManager->GetPhysicalHeight();
 
 	g_renderer->InitializeAntiAliasing( aaType, screenW, screenH, msaaSamples );
 }
@@ -453,8 +453,8 @@ void Renderer2DD3D11::SetLineShaderUniforms( float lineWidth )
 			{
 				LineWidthBuffer *lineWidthData = (LineWidthBuffer *)mappedResource.pData;
 				lineWidthData->lineWidth = lineWidth;
-				lineWidthData->viewportWidth = (float)g_windowManager->DrawableWidth();
-				lineWidthData->viewportHeight = (float)g_windowManager->DrawableHeight();
+				lineWidthData->viewportWidth = (float)g_windowManager->GetPhysicalWidth();
+				lineWidthData->viewportHeight = (float)g_windowManager->GetPhysicalHeight();
 				lineWidthData->padding = 0.0f;
 
 				m_deviceContext->Unmap( m_lineWidthConstantBuffer, 0 );

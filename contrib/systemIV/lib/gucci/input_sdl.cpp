@@ -420,8 +420,8 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 				// Convert physical coordinates to logical coordinates
 				// Physical mouse coordinates need to be scaled to match logical resolution
 
-				float scaleX = (float)g_windowManager->WindowW() / (float)g_windowManager->PhysicalWindowW();
-				float scaleY = (float)g_windowManager->WindowH() / (float)g_windowManager->PhysicalWindowH();
+				float scaleX = (float)g_windowManager->WindowW() / (float)g_windowManager->GetPhysicalWidth();
+				float scaleY = (float)g_windowManager->WindowH() / (float)g_windowManager->GetPhysicalHeight();
 
 				m_mouseX = (int)( sdlEvent->motion.x * scaleX );
 				m_mouseY = (int)( sdlEvent->motion.y * scaleY );

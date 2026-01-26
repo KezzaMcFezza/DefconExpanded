@@ -533,8 +533,6 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 		}
 	}
 
-	CalculateHighDPIScaleFactors();
-
 	int actualW, actualH;
 	SDL_GetWindowSize( m_sdlWindow, &actualW, &actualH );
 
@@ -591,14 +589,7 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 		}
 	}
 
-	CalculateHighDPIScaleFactors();
 	UpdateStoredMaximizedState();
-
-	if ( requestMaximized )
-	{
-		SDL_GetWindowSize( m_sdlWindow, &m_screenW, &m_screenH );
-		UpdateStoredMaximizedState();
-	}
 
 	if ( !m_mousePointerVisible )
 		HideMousePointer();
@@ -610,6 +601,49 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	// Show window only after position is set
 
 	SDL_ShowWindow( m_sdlWindow );
+
+	if ( requestMaximized )
+	{
+		//
+		// Hidden and  maximized window may report creation size until shown.
+		// Pump events so the window manager applies maximized size, then sync.
+		SDL_PumpEvents();
+
+		int actualW, actualH;
+		if ( SDL_GetWindowSize( m_sdlWindow, &actualW, &actualH ) && ( actualW != m_screenW || actualH != m_screenH ) )
+		{
+			int oldW = m_screenW, oldH = m_screenH;
+			m_screenW = actualW;
+			m_screenH = actualH;
+
+			ReleaseRenderTargets();
+
+			int drawableW, drawableH;
+			GetDrawableSize( &drawableW, &drawableH );
+
+			HRESULT hr = m_swapChain->ResizeBuffers(
+				0,
+				drawableW, drawableH,
+				DXGI_FORMAT_UNKNOWN,
+				m_swapChainFlags );
+
+			if ( SUCCEEDED( hr ) )
+			{
+				CreateRenderTargetView();
+				CreateDepthStencilView( drawableW, drawableH );
+
+				m_deviceContext->OMSetRenderTargets( 1, &m_renderTargetView, m_depthStencilView );
+				
+				SetViewport( drawableW, drawableH );
+			}
+
+			if ( m_windowResizeHandler )
+			{
+				m_windowResizeHandler( m_screenW, m_screenH, oldW, oldH );
+			}
+		}
+		UpdateStoredMaximizedState();
+	}
 
 	return true;
 }
@@ -798,10 +832,8 @@ bool WindowManagerD3D11::RecoverSwapChain()
 	m_deviceContext->OMSetRenderTargets( 1, &m_renderTargetView, m_depthStencilView );
 
 	SetViewport( width, height );
-
 	SDL_GetWindowSize( m_sdlWindow, &m_screenW, &m_screenH );
 
-	CalculateHighDPIScaleFactors();
 
 #ifdef _DEBUG
 	AppDebugOut( "Swap chain recovered successfully (logical: %dx%d, drawable: %dx%d, fullscreen: %d)\n",
@@ -913,8 +945,6 @@ void WindowManagerD3D11::HandleResize( int newWidth, int newHeight )
 	m_screenW = newWidth;
 	m_screenH = newHeight;
 
-	CalculateHighDPIScaleFactors();
-
 	//
 	// Check if window moved to a different display
 
@@ -994,62 +1024,6 @@ void WindowManagerD3D11::SetViewport( int width, int height )
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	m_deviceContext->RSSetViewports( 1, &viewport );
-}
-
-
-void WindowManagerD3D11::CalculateHighDPIScaleFactors()
-{
-	if ( !m_sdlWindow )
-		return;
-
-	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
-
-	//
-	// For fullscreen modes, set scale to 1.0 and update m_screenW/H to actual drawable size
-
-	if ( ( windowFlags & SDL_WINDOW_FULLSCREEN ) == SDL_WINDOW_FULLSCREEN )
-	{
-		m_highDPIScaleX = 1.0f;
-		m_highDPIScaleY = 1.0f;
-
-		int drawableW, drawableH;
-		GetDrawableSize( &drawableW, &drawableH );
-		m_screenW = drawableW;
-		m_screenH = drawableH;
-
-#ifdef _DEBUG
-		AppDebugOut( "Fullscreen mode: drawable size %dx%d\n", drawableW, drawableH );
-#endif
-		return;
-	}
-
-	//
-	// Get logical and drawable size
-
-	int clientW, clientH;
-	SDL_GetWindowSize( m_sdlWindow, &clientW, &clientH );
-
-	int drawableW, drawableH;
-	GetDrawableSize( &drawableW, &drawableH );
-
-	if ( clientW > 0 && clientH > 0 )
-	{
-		m_highDPIScaleX = (float)drawableW / clientW;
-		m_highDPIScaleY = (float)drawableH / clientH;
-	}
-	else
-	{
-		m_highDPIScaleX = 1.0f;
-		m_highDPIScaleY = 1.0f;
-	}
-
-#ifdef _DEBUG
-	if ( m_highDPIScaleX != 1.0f || m_highDPIScaleY != 1.0f )
-	{
-		AppDebugOut( "High DPI detected: window %dx%d, drawable %dx%d, scale %.2fx%.2f\n",
-					 clientW, clientH, drawableW, drawableH, m_highDPIScaleX, m_highDPIScaleY );
-	}
-#endif
 }
 
 

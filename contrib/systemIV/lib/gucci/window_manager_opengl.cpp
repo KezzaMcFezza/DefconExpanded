@@ -100,11 +100,16 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		usableBounds.h -= dragbarHeight;
 #endif
 
-		//
-		// Usually any combination is OK for windowed mode.
-
-		m_screenW = std::min( usableBounds.w, _width );
-		m_screenH = std::min( usableBounds.h, _height );
+		if ( requestMaximized )
+		{
+			m_screenW = usableBounds.w;
+			m_screenH = usableBounds.h;
+		}
+		else
+		{
+			m_screenW = std::min( usableBounds.w, _width );
+			m_screenH = std::min( usableBounds.h, _height );
+		}
 
 		flags |= SDL_WINDOW_RESIZABLE;
 
@@ -357,7 +362,6 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		m_screenH = actualH;
 	}
 
-	CalculateHighDPIScaleFactors();
 	UpdateStoredMaximizedState();
 
 	if ( requestMaximized )
@@ -388,8 +392,30 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 
 	//
 	// Show window only after position is set
-	
+
 	SDL_ShowWindow( m_sdlWindow );
+
+	if ( requestMaximized )
+	{
+		//
+		// Hidden and maximized window may report creation size until shown.
+		// Pump events so the window manager applies maximized size, then sync.
+
+		SDL_PumpEvents();
+
+		int actualW, actualH;
+		if ( SDL_GetWindowSize( m_sdlWindow, &actualW, &actualH ) && ( actualW != m_screenW || actualH != m_screenH ) )
+		{
+			int oldW = m_screenW, oldH = m_screenH;
+			m_screenW = actualW;
+			m_screenH = actualH;
+			
+			if ( m_windowResizeHandler )
+			{
+				m_windowResizeHandler( m_screenW, m_screenH, oldW, oldH );
+			}
+		}
+	}
 
 	return true;
 }
@@ -441,8 +467,6 @@ void WindowManagerOpenGL::HandleResize( int newWidth, int newHeight )
 	m_screenW = newWidth;
 	m_screenH = newHeight;
 
-	CalculateHighDPIScaleFactors();
-
 	//
 	// Check if window moved to a different display
 
@@ -476,36 +500,5 @@ void WindowManagerOpenGL::HandleWindowFocusGained()
 {
 }
 
-
-void WindowManagerOpenGL::CalculateHighDPIScaleFactors()
-{
-	if ( !m_sdlWindow )
-		return;
-
-	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
-
-	if ( (windowFlags & SDL_WINDOW_FULLSCREEN) == SDL_WINDOW_FULLSCREEN )
-	{
-		m_highDPIScaleX = 1.0f;
-		m_highDPIScaleY = 1.0f;
-		return;
-	}
-
-	int clientW, clientH;
-	SDL_GetWindowSize( m_sdlWindow, &clientW, &clientH );
-	int drawableW, drawableH;
-	SDL_GetWindowSizeInPixels( m_sdlWindow, &drawableW, &drawableH );
-
-	m_highDPIScaleX = (float)drawableW / clientW;
-	m_highDPIScaleY = (float)drawableH / clientH;
-
-#ifdef _DEBUG
-	if ( m_highDPIScaleX != 1.0f || m_highDPIScaleY != 1.0f )
-	{
-		AppDebugOut( "High DPI detected: window %dx%d, drawable %dx%d, scale %.2fx%.2f\n",
-					 clientW, clientH, drawableW, drawableH, m_highDPIScaleX, m_highDPIScaleY );
-	}
-#endif
-}
 
 #endif // RENDERER_OPENGL

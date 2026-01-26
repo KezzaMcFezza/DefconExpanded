@@ -665,8 +665,8 @@ void RendererOpenGL::EndFrame()
 
 void RendererOpenGL::HandleWindowResize()
 {
-	int screenW = g_windowManager->DrawableWidth();
-	int screenH = g_windowManager->DrawableHeight();
+	int screenW = g_windowManager->GetPhysicalWidth();
+	int screenH = g_windowManager->GetPhysicalHeight();
 
 	if ( m_antiAliasing )
 	{
@@ -1010,8 +1010,8 @@ void RendererOpenGL::SaveScreenshot()
 	float timeNow = GetHighResTime();
 	char *screenshotsDir = ScreenshotsDirectory();
 
-	int screenW = g_windowManager->DrawableWidth();
-	int screenH = g_windowManager->DrawableHeight();
+	int screenW = g_windowManager->GetPhysicalWidth();
+	int screenH = g_windowManager->GetPhysicalHeight();
 
 	unsigned char *screenBuffer = new unsigned char[screenW * screenH * 3];
 	glReadPixels( 0, 0, screenW, screenH, GL_RGB, GL_UNSIGNED_BYTE, screenBuffer );
