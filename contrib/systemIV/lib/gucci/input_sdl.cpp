@@ -433,7 +433,7 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 
 		case SDL_EVENT_KEY_UP:
 		{
-			int keyCode = ConvertSDLKeyIdToWin32KeyId( sdlEvent->key.key );
+			int keyCode = ConvertSDLKeyIdToWin32KeyId( (int)sdlEvent->key.key );
 			AppDebugAssert( keyCode >= 0 && keyCode < KEY_MAX );
 			if ( g_keys[keyCode] != 0 )
 			{
@@ -446,7 +446,7 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 
 		case SDL_EVENT_KEY_DOWN:
 		{
-			int keyCode = ConvertSDLKeyIdToWin32KeyId( sdlEvent->key.key );
+			int keyCode = ConvertSDLKeyIdToWin32KeyId( (int)sdlEvent->key.key );
 			AppDebugAssert( keyCode >= 0 && keyCode < KEY_MAX );
 			if ( g_keys[keyCode] != 1 )
 			{

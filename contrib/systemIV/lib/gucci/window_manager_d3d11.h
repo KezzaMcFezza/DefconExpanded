@@ -1,9 +1,10 @@
 #ifndef INCLUDED_WINDOW_MANAGER_D3D11_H
 #define INCLUDED_WINDOW_MANAGER_D3D11_H
 
+#include "systemiv.h"
+
 #ifdef RENDERER_DIRECTX11
 
-#include "systemiv.h"
 #include "window_manager.h"
 
 #include <windows.h>

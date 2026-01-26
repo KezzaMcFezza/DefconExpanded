@@ -1,9 +1,10 @@
 #ifndef INCLUDED_WINDOW_MANAGER_OPENGL_H
 #define INCLUDED_WINDOW_MANAGER_OPENGL_H
 
+#include "systemiv.h"
+
 #ifdef RENDERER_OPENGL
 
-#include "systemiv.h"
 #include "window_manager.h"
 
 class WindowManagerOpenGL : public WindowManager

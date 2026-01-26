@@ -1,4 +1,5 @@
 #include "systemiv.h"
+#include <SDL3/SDL_main.h>
 
 #include <limits.h>
 
@@ -32,6 +33,55 @@ WindowManager *g_windowManager = NULL;
 int g_argc = 0;
 char **g_argv = NULL;
 
+SDL_DisplayID WindowManager::GetDisplayIDFromIndex( int index )
+{
+	int count = 0;
+	SDL_DisplayID *ids = SDL_GetDisplays( &count );
+
+	if ( !ids || index < 0 || index >= count )
+	{
+		if ( ids )
+		{
+			SDL_free( ids );
+		}
+
+		return 0;
+	}
+
+	SDL_DisplayID id = ids[index];
+	SDL_free( ids );
+	return id;
+}
+
+int WindowManager::GetDisplayIndexFromID( SDL_DisplayID id )
+{
+	if ( !id )
+	{
+		return 0;
+	}
+
+	int count = 0;
+	SDL_DisplayID *ids = SDL_GetDisplays( &count );
+
+	if ( !ids )
+	{
+		return 0;
+	}
+
+	int index = 0;
+	for ( int i = 0; i < count; ++i )
+	{
+		if ( ids[i] == id )
+		{
+			index = i;
+			break;
+		}
+	}
+
+	SDL_free( ids );
+	return index;
+}
+
 WindowManager::WindowManager()
 	: m_mousePointerVisible( true ),
 	  m_mouseOffsetX( INT_MAX ),
@@ -58,7 +108,11 @@ WindowManager::~WindowManager()
 
 void WindowManager::InitializeSDL()
 {
-	AppReleaseAssert( SDL_Init( SDL_INIT_VIDEO ), "Couldn't initialise SDL" );
+	//
+	// SDL_Init now returns success on 1 with SDL 3.4
+	// So dont get confused :)
+
+	AppReleaseAssert( SDL_Init( SDL_INIT_VIDEO ) == 1, "Couldn't initialise SDL" );
 
 	m_windowDisplayIndex = GetCurrentDisplayIndex();
 	ListAllDisplayModes( m_windowDisplayIndex );
@@ -90,9 +144,12 @@ void WindowManager::SuggestDefaultRes( int *_width, int *_height, int *_refresh,
 int WindowManager::GetCurrentRefreshRate()
 {
 	if ( !m_sdlWindow )
+	{
 		return m_desktopRefresh;
+	}
 
 	SDL_DisplayID displayID = SDL_GetDisplayForWindow( m_sdlWindow );
+
 	if ( !displayID )
 	{
 		return m_desktopRefresh;
@@ -100,11 +157,12 @@ int WindowManager::GetCurrentRefreshRate()
 
 	const SDL_DisplayMode *mode = SDL_GetCurrentDisplayMode( displayID );
 	if ( !mode )
-	{
+	{			
 		return m_desktopRefresh;
 	}
 
-	return mode->refresh_rate > 0 ? mode->refresh_rate : m_desktopRefresh;
+	int rate = (int)( mode->refresh_rate > 0.0f ? mode->refresh_rate : (float)m_desktopRefresh );
+	return rate > 0 ? rate : m_desktopRefresh;
 }
 
 
@@ -241,42 +299,18 @@ int WindowManager::GetLogicalHeight()
 
 int WindowManager::GetDisplayIndexForPoint( int x, int y )
 {
-	int count = 0;
-	SDL_DisplayID *displays = SDL_GetDisplays( &count );
-
-	if ( !displays || count == 0 )
+	SDL_Point point = { x, y };
+	SDL_DisplayID id = SDL_GetDisplayForPoint( &point );
+	if ( !id )
 	{
-		if ( displays )
-		{
-			SDL_free( displays );
-		}
-
+#ifdef _DEBUG
+		AppDebugOut( "GetDisplayIndexForPoint() could not determine which display is under (%d, %d), returning first display.\n", x, y );
+#else
+		printf( "GetDisplayIndexForPoint() could not determine which display is under (%d, %d), so returning the first display.\n", x, y );
+#endif
 		return 0;
 	}
-
-	for ( int i = 0; i < count; ++i )
-	{
-		SDL_Rect bounds;
-		if ( SDL_GetDisplayBounds( displays[i], &bounds ) )
-		{
-			SDL_Point mouse = { x, y };
-			if ( SDL_PointInRect( &mouse, &bounds ) )
-			{
-				int result = i;
-				SDL_free( displays );
-				return result;
-			}
-		}
-	}
-
-	SDL_free( displays );
-
-#ifdef _DEBUG
-	AppDebugOut( "GetDisplayIndexForPoint() could not determine which display is under (%d, %d), returning first display.\n", x, y );
-#else
-	printf( "GetDisplayIndexForPoint() could not determine which display is under (%d, %d), so returning the first display.\n", x, y );
-#endif
-	return 0;
+	return GetDisplayIndexFromID( id );
 }
 
 
@@ -291,36 +325,21 @@ int WindowManager::GetDefaultDisplayIndex()
 int WindowManager::GetNumDisplays()
 {
 	int count = 0;
-	SDL_DisplayID *displays = SDL_GetDisplays( &count );
+	SDL_DisplayID *ids = SDL_GetDisplays( &count );
 
-	if ( displays )
+	if ( ids )
 	{
-		SDL_free( displays );
+		SDL_free( ids );
 	}
 
 	return count;
 }
 
 
-const char *WindowManager::GetDisplayName( int displayIndex )
+const char* WindowManager::GetDisplayName(int displayIndex)
 {
-	int count = 0;
-	SDL_DisplayID *displays = SDL_GetDisplays( &count );
-
-	if ( !displays || displayIndex < 0 || displayIndex >= count )
-	{
-		if ( displays )
-		{
-			SDL_free( displays );
-		}
-
-		return nullptr;
-	}
-
-	const char *name = SDL_GetDisplayName( displays[displayIndex] );
-
-	SDL_free( displays );
-	return name;
+	SDL_DisplayID id = GetDisplayIDFromIndex( displayIndex );
+	return id ? SDL_GetDisplayName( id ) : nullptr;
 }
 
 
@@ -330,49 +349,36 @@ int WindowManager::GetCurrentDisplayIndex()
 	{
 		int preferredIndex = g_preferences->GetInt( PREFS_SCREEN_DISPLAY_INDEX, -1 );
 		int numDisplays = GetNumDisplays();
-
+		
 		if ( preferredIndex >= 0 && preferredIndex < numDisplays )
 		{
 			return preferredIndex;
 		}
 	}
-
+	
 	return GetDefaultDisplayIndex();
 }
 
 
 void WindowManager::ListAllDisplayModes( int displayIndex )
 {
-	int count = 0;
-	SDL_DisplayID *displays = SDL_GetDisplays( &count );
+	SDL_DisplayID displayID = GetDisplayIDFromIndex( displayIndex );
 
-	if ( !displays || displayIndex < 0 || displayIndex >= count )
+	if ( !displayID )
 	{
-		if ( displays )
-		{
-			SDL_free( displays );
-		}
-
 		return;
 	}
 
-	SDL_DisplayID displayID = displays[displayIndex];
 	SDL_Rect bounds;
-
 	if ( !SDL_GetDisplayBounds( displayID, &bounds ) )
 	{
-		if ( displays )
-		{
-			SDL_free( displays );
-		}
-
 		return;
 	}
 
-	const SDL_DisplayMode *desktopMode = SDL_GetDesktopDisplayMode( displayID );
 	int maxWidth = bounds.w;
 	int maxHeight = bounds.h;
 
+	const SDL_DisplayMode *desktopMode = SDL_GetDesktopDisplayMode( displayID );
 	if ( desktopMode )
 	{
 		maxWidth = desktopMode->w;
@@ -380,6 +386,9 @@ void WindowManager::ListAllDisplayModes( int displayIndex )
 	}
 	else
 	{
+		//
+        // If desktop mode detection fails, try current display mode
+		
 		const SDL_DisplayMode *currentMode = SDL_GetCurrentDisplayMode( displayID );
 		if ( currentMode )
 		{
@@ -392,81 +401,68 @@ void WindowManager::ListAllDisplayModes( int displayIndex )
 
 	int modeCount = 0;
 	SDL_DisplayMode **modes = SDL_GetFullscreenDisplayModes( displayID, &modeCount );
-	if ( modes )
+	if ( !modes )
 	{
-		for ( int modeIndex = 0; modeIndex < modeCount; ++modeIndex )
-		{
-			SDL_DisplayMode *mode = modes[modeIndex];
-			if ( !mode )
-			{
-				continue;
-			}
-
-			if ( SDL_BITSPERPIXEL( mode->format ) < 15 || mode->w < 640 || mode->h < 480 )
-			{
-				continue;
-			}
-
-			if ( mode->w > maxWidth || mode->h > maxHeight )
-			{
-				continue;
-			}
-
-			int resId = GetResolutionId( mode->w, mode->h );
-			WindowResolution *res;
-
-			if ( resId == -1 )
-			{
-				res = new WindowResolution( mode->w, mode->h );
-				m_resolutions.PutData( res );
-			}
-			else
-			{
-				res = m_resolutions[resId];
-			}
-
-			if ( mode->refresh_rate != 0 )
-			{
-				if ( res->m_refreshRates.FindData( mode->refresh_rate ) == -1 )
-				{
-					res->m_refreshRates.PutDataAtEnd( mode->refresh_rate );
-				}
-			}
-		}
-		SDL_free( modes );
+		return;
 	}
 
-	SDL_free( displays );
+	for ( int modeIndex = 0; modeIndex < modeCount; ++modeIndex )
+	{
+		const SDL_DisplayMode *mode = modes[modeIndex];
+
+		if ( !mode )
+		{
+			continue;
+		}
+
+		if ( SDL_BITSPERPIXEL( mode->format ) < 15 || mode->w < 640 || mode->h < 480 )
+		{
+			continue;
+		}
+
+		if ( mode->w > maxWidth || mode->h > maxHeight )
+		{
+			continue;
+		}
+
+		int resId = GetResolutionId( mode->w, mode->h );
+		WindowResolution *res;
+
+		if ( resId == -1 )
+		{
+			res = new WindowResolution( mode->w, mode->h );
+			m_resolutions.PutData( res );
+		}
+		else
+		{
+			res = m_resolutions[resId];
+		}
+
+		int refreshRate = (int)( mode->refresh_rate + 0.5f );
+		if ( refreshRate != 0 )
+		{
+			if ( res->m_refreshRates.FindData( refreshRate ) == -1 )
+				res->m_refreshRates.PutDataAtEnd( refreshRate );
+		}
+	}
+
+	SDL_free( modes );
 }
 
 
 void WindowManager::SaveDesktop()
 {
 	int displayIndex = GetDefaultDisplayIndex();
-	int count = 0;
-	SDL_DisplayID *displays = SDL_GetDisplays( &count );
-	if ( !displays || displayIndex < 0 || displayIndex >= count )
-	{
-		if ( displays )
-		{
-			SDL_free( displays );
-		}
+	SDL_DisplayID displayID = GetDisplayIDFromIndex( displayIndex );
 
-		m_desktopScreenW = 1024;
-		m_desktopScreenH = 768;
-		return;
-	}
-
-	SDL_DisplayID displayID = displays[displayIndex];
-	const SDL_DisplayMode *desktopMode = SDL_GetDesktopDisplayMode( displayID );
-
+	const SDL_DisplayMode *desktopMode = displayID ? SDL_GetDesktopDisplayMode( displayID ) : nullptr;
 	if ( !desktopMode )
 	{
 		AppDebugOut( "Couldn't get desktop display mode for display: %d, error: %s\n", displayIndex, SDL_GetError() );
 		AppDebugOut( "Trying again with a different method...\n" );
 
 		SDL_Rect displayBounds;
-		if ( !SDL_GetDisplayBounds( displayID, &displayBounds ) )
+		if ( !displayID || !SDL_GetDisplayBounds( displayID, &displayBounds ) )
 		{
 			AppDebugOut( "Still couldn't get display bounds, error: %s\n", SDL_GetError() );
 			AppDebugOut( "Using 1024x768 as fallback resolution\n" );
@@ -479,18 +475,20 @@ void WindowManager::SaveDesktop()
 			m_desktopScreenH = displayBounds.h;
 			AppDebugOut( "Successfully got display bounds: %dx%d\n", m_desktopScreenW, m_desktopScreenH );
 		}
-		SDL_free( displays );
-		return;
+
+		m_desktopColourDepth = 32;
+		m_desktopRefresh = 0;
 	}
+	else
+	{
+		m_desktopScreenW = desktopMode->w;
+		m_desktopScreenH = desktopMode->h;
 
-	m_desktopScreenW = desktopMode->w;
-	m_desktopScreenH = desktopMode->h;
-	AppDebugOut( "Desktop resolution determined to be: %dx%d\n", m_desktopScreenW, m_desktopScreenH );
+		AppDebugOut( "Desktop resolution determined to be: %dx%d\n", m_desktopScreenW, m_desktopScreenH );
 
-	m_desktopColourDepth = SDL_BITSPERPIXEL( desktopMode->format );
-	m_desktopRefresh = desktopMode->refresh_rate;
-
-	SDL_free( displays );
+		m_desktopColourDepth = SDL_BITSPERPIXEL( desktopMode->format );
+		m_desktopRefresh = (int)( desktopMode->refresh_rate + 0.5f );
+	}
 }
 
 
@@ -502,6 +500,7 @@ void WindowManager::RestoreDesktop()
 
 void WindowManager::CalculateHighDPIScaleFactors()
 {
+
 }
 
 
@@ -511,25 +510,9 @@ void WindowManager::WindowHasMoved()
 
 	if ( m_sdlWindow )
 	{
-		SDL_DisplayID displayID = SDL_GetDisplayForWindow( m_sdlWindow );
-		if ( displayID )
-		{
-			int count = 0;
-			SDL_DisplayID *displays = SDL_GetDisplays( &count );
-			if ( displays )
-			{
-				for ( int i = 0; i < count; ++i )
-				{
-					if ( displays[i] == displayID )
-					{
-						m_windowDisplayIndex = i;
-						ListAllDisplayModes( m_windowDisplayIndex );
-						break;
-					}
-				}
-				SDL_free( displays );
-			}
-		}
+		SDL_DisplayID id = SDL_GetDisplayForWindow( m_sdlWindow );
+		m_windowDisplayIndex = GetDisplayIndexFromID( id );
+		ListAllDisplayModes( m_windowDisplayIndex );
 	}
 }
 
@@ -542,7 +525,7 @@ void WindowManager::UpdateStoredMaximizedState()
 	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
 	bool currentlyMaximized = false;
 
-	if ( m_windowed && !( windowFlags & SDL_WINDOW_FULLSCREEN ) )
+	if ( m_windowed && !( windowFlags & ( SDL_WINDOW_FULLSCREEN ) ) )
 	{
 		currentlyMaximized = ( windowFlags & SDL_WINDOW_MAXIMIZED ) != 0;
 	}
@@ -587,6 +570,16 @@ void WindowManager::CaptureMouse()
 	if ( !m_sdlWindow )
 		return;
 
+	//
+	// Dont grab until mouse is in the window
+
+	int windowFlags = SDL_GetWindowFlags( m_sdlWindow );
+	if ( !( windowFlags & SDL_WINDOW_MOUSE_FOCUS ) )
+	{
+		m_tryingToCaptureMouse = true;
+		return;
+	}
+
 	SDL_SetWindowRelativeMouseMode( m_sdlWindow, true );
 	m_mouseCaptured = true;
 	m_tryingToCaptureMouse = false;
@@ -630,7 +623,7 @@ void WindowManager::SetMousePos( int x, int y )
 	int physicalX = (int)( x * scaleX );
 	int physicalY = (int)( y * scaleY );
 
-	SDL_WarpMouseInWindow( m_sdlWindow, physicalX, physicalY );
+	SDL_WarpMouseInWindow( m_sdlWindow, (float)physicalX, (float)physicalY );
 }
 
 
@@ -648,21 +641,26 @@ void WindowManager::PollForMessages()
 			ImGui_ImplSDL3_ProcessEvent( &sdlEvent );
 		}
 
-		if ( sdlEvent.type == SDL_EVENT_WINDOW_MOVED )
+		switch ( sdlEvent.type )
 		{
-			WindowHasMoved();
-		}
-		else if ( sdlEvent.type == SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED || sdlEvent.type == SDL_EVENT_WINDOW_RESIZED )
-		{
-			HandleResize( sdlEvent.window.data1, sdlEvent.window.data2 );
-		}
-		else if ( sdlEvent.type == SDL_EVENT_WINDOW_MAXIMIZED || sdlEvent.type == SDL_EVENT_WINDOW_RESTORED )
-		{
-			HandleResize( sdlEvent.window.data1, sdlEvent.window.data2 );
-		}
-		else if ( sdlEvent.type == SDL_EVENT_WINDOW_FOCUS_GAINED || sdlEvent.type == SDL_EVENT_WINDOW_SHOWN )
-		{
-			HandleWindowFocusGained();
+			case SDL_EVENT_WINDOW_MOVED:
+				WindowHasMoved();
+				break;
+
+			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+			case SDL_EVENT_WINDOW_RESIZED:
+			case SDL_EVENT_WINDOW_MAXIMIZED:
+			case SDL_EVENT_WINDOW_RESTORED:
+				HandleResize( sdlEvent.window.data1, sdlEvent.window.data2 );
+				break;
+
+			case SDL_EVENT_WINDOW_FOCUS_GAINED:
+			case SDL_EVENT_WINDOW_SHOWN:
+				HandleWindowFocusGained();
+				break;
+
+			default:
+				break;
 		}
 
 		//
@@ -812,8 +810,6 @@ void ChangeToProgramDir( const char *program )
 
 #endif // TARGET_OS_LINUX || TARGET_OS_MACOSX
 
-#include <SDL3/SDL_main.h>
-
 extern "C" int main( int argc, char **argv )
 {
 #if TARGET_OS_LINUX && !defined( TARGET_EMSCRIPTEN )
@@ -852,12 +848,16 @@ extern "C" int main( int argc, char **argv )
 		}
 	}
 
-	int compiledVersion = SDL_VERSION;
 	int linkedVersion = SDL_GetVersion();
+	int compiledVersion = SDL_VERSION;
 
 	AppDebugOut( "SDL Version: Compiled against %d.%d.%d, running with %d.%d.%d\n",
-				 SDL_VERSIONNUM_MAJOR( compiledVersion ), SDL_VERSIONNUM_MINOR( compiledVersion ), SDL_VERSIONNUM_MICRO( compiledVersion ),
-				 SDL_VERSIONNUM_MAJOR( linkedVersion ), SDL_VERSIONNUM_MINOR( linkedVersion ), SDL_VERSIONNUM_MICRO( linkedVersion ) );
+				 SDL_VERSIONNUM_MAJOR( compiledVersion ), 
+				 SDL_VERSIONNUM_MINOR( compiledVersion ), 
+				 SDL_VERSIONNUM_MICRO( compiledVersion ),
+				 SDL_VERSIONNUM_MAJOR( linkedVersion ), 
+				 SDL_VERSIONNUM_MINOR( linkedVersion ), 
+				 SDL_VERSIONNUM_MICRO( linkedVersion ) );
 
 #if TARGET_OS_LINUX
 	// Setup illegal memory access handler

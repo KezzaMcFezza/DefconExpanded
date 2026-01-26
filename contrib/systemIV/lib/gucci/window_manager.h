@@ -1,8 +1,8 @@
 #ifndef INCLUDED_WINDOW_MANAGER_H
 #define INCLUDED_WINDOW_MANAGER_H
 
-#include "lib/tosser/llist.h"
 #include "systemiv.h"
+#include "lib/tosser/llist.h"
 
 class WindowResolution;
 
@@ -85,7 +85,10 @@ public:
     int         GetNumDisplays        ();
     const char* GetDisplayName        (int displayIndex);
     int         GetCurrentDisplayIndex();
-    
+
+	static SDL_DisplayID GetDisplayIDFromIndex( int displayIndex );
+	static int GetDisplayIndexFromID          ( SDL_DisplayID id );
+
     SDL_Window* GetSDLWindow          () const { return m_sdlWindow; }
     LList		<WindowResolution *> m_resolutions;
 

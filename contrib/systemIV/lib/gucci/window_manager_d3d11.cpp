@@ -1,6 +1,7 @@
+#include "systemiv.h"
+
 #ifdef RENDERER_DIRECTX11
 
-#include "systemiv.h"
 #include "window_manager_d3d11.h"
 #include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
@@ -370,37 +371,16 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	int displayIndex = GetCurrentDisplayIndex();
 	AppReleaseAssert( displayIndex >= 0, "Failed to get current SDL display index.\n" );
 
-	int count = 0;
-	SDL_DisplayID *displays = SDL_GetDisplays( &count );
+	SDL_DisplayID displayID = WindowManager::GetDisplayIDFromIndex( displayIndex );
+	AppReleaseAssert( displayID != 0, "Failed to get SDL display ID.\n" );
 
-	if ( !displays || displayIndex >= count )
-	{
-		if ( displays )
-		{
-			SDL_free( displays );
-		}
-
-		return false;
-	}
-
-	SDL_DisplayID displayID = displays[displayIndex];
-	const SDL_DisplayMode *displayModePtr = SDL_GetCurrentDisplayMode( displayID );
-
-	if ( !displayModePtr )
-	{
-		SDL_free( displays );
-		return false;
-	}
-
-	SDL_free( displays );
+	const SDL_DisplayMode *displayMode = SDL_GetCurrentDisplayMode( displayID );
+	AppReleaseAssert( displayMode != nullptr, "Failed to get current display mode.\n" );
 
 	m_windowed = _windowed;
 
 	SDL_Rect displayBounds;
-	if ( !SDL_GetDisplayBounds( displayID, &displayBounds ) )
-	{
-		return false;
-	}
+	SDL_GetDisplayBounds( displayID, &displayBounds );
 
 	//
 	// Set the flags for creating the mode
@@ -415,7 +395,7 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 
 		if ( _borderless )
 		{
-			flags |= SDL_WINDOW_FULLSCREEN;
+			flags |= SDL_WINDOW_BORDERLESS;
 			m_screenW = _width;
 			m_screenH = _height;
 		}
@@ -453,6 +433,12 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 				m_screenH = usableBounds.h;
 		}
 
+		//
+		// Create hidden so we can set position on the target display before first show.
+		// Otherwise the window and its maximized state would apply on the primary display.
+
+		flags |= SDL_WINDOW_HIDDEN;
+
 		if ( _borderless )
 		{
 			flags |= SDL_WINDOW_BORDERLESS;
@@ -467,11 +453,14 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	AppDebugOut( "Creating SDL window: %dx%d (%s)\n", m_screenW, m_screenH, _windowed ? "windowed" : "fullscreen" );
 #endif
 
-	m_sdlWindow = SDL_CreateWindow(
-		_title,
-		m_screenW,
-		m_screenH,
-		flags );
+	m_sdlWindow = SDL_CreateWindow( _title, m_screenW, m_screenH, flags );
+
+	if ( m_sdlWindow )
+	{
+		SDL_SetWindowPosition( m_sdlWindow, 
+	                           SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ), 
+	                           SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ) );
+	}
 
 	if ( !m_sdlWindow )
 	{
@@ -490,8 +479,9 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	//
 	// Get native HWND from SDL window
 
-	m_hwnd = (HWND)SDL_GetPointerProperty( SDL_GetWindowProperties( m_sdlWindow ), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr );
-	if ( !m_hwnd )
+	SDL_PropertiesID props = SDL_GetWindowProperties( m_sdlWindow );
+	void *hwnd = props ? SDL_GetPointerProperty( props, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr ) : nullptr;
+	if ( !hwnd )
 	{
 #ifdef _DEBUG
 		AppDebugOut( "Failed to get window HWND: %s\n", SDL_GetError() );
@@ -501,6 +491,7 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 		return false;
 	}
 
+	m_hwnd = (HWND)hwnd;
 #ifdef _DEBUG
 	AppDebugOut( "Got HWND from SDL: 0x%p\n", m_hwnd );
 #endif
@@ -523,7 +514,7 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	bool isFullscreen = ( windowFlags & SDL_WINDOW_FULLSCREEN ) == SDL_WINDOW_FULLSCREEN;
 
 	//
-	// For fullscreen modes, update m_screenW/H to actual drawable size
+	// For fullscreen modes, update m_screenW/H to actual drawable size 
 
 	if ( isFullscreen )
 	{
@@ -615,6 +606,11 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	if ( m_mouseCaptured )
 		CaptureMouse();
 
+	//
+	// Show window only after position is set
+
+	SDL_ShowWindow( m_sdlWindow );
+
 	return true;
 }
 
@@ -663,7 +659,7 @@ void WindowManagerD3D11::DoFlip()
 	}
 	else if ( hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET )
 	{
-		// Device was lost or reset, attempt recovery
+        // Device was lost or reset, attempt recovery
 #ifdef _DEBUG
 		AppDebugOut( "Device lost/reset detected (0x%08X), attempting recovery...\n", hr );
 #endif
@@ -830,7 +826,7 @@ void WindowManagerD3D11::HandleWindowFocusGained()
 	if ( windowFlags & ( SDL_WINDOW_MINIMIZED | SDL_WINDOW_HIDDEN ) )
 		return;
 
-	if ( windowFlags & SDL_WINDOW_FULLSCREEN )
+	if ( windowFlags & ( SDL_WINDOW_FULLSCREEN ) )
 	{
 		//
 		// Test if the swap chain is still valid by trying to get the back buffer
@@ -865,7 +861,7 @@ void WindowManagerD3D11::HandleResize( int newWidth, int newHeight )
 	//
 	// Dont resize in fullscreen mode
 
-	if ( windowFlags & SDL_WINDOW_FULLSCREEN )
+	if ( windowFlags & ( SDL_WINDOW_FULLSCREEN ) )
 		return;
 
 	if ( newWidth == m_screenW && newHeight == m_screenH )
@@ -922,28 +918,11 @@ void WindowManagerD3D11::HandleResize( int newWidth, int newHeight )
 	//
 	// Check if window moved to a different display
 
-	SDL_DisplayID displayID = SDL_GetDisplayForWindow( m_sdlWindow );
-	if ( displayID )
+	int newDisplayIndex = WindowManager::GetDisplayIndexFromID( SDL_GetDisplayForWindow( m_sdlWindow ) );
+	if ( newDisplayIndex != m_windowDisplayIndex )
 	{
-		int count = 0;
-		SDL_DisplayID *displays = SDL_GetDisplays( &count );
-		if ( displays )
-		{
-			for ( int i = 0; i < count; ++i )
-			{
-				if ( displays[i] == displayID )
-				{
-					int newDisplayIndex = i;
-					if ( newDisplayIndex != m_windowDisplayIndex )
-					{
-						m_windowDisplayIndex = newDisplayIndex;
-						ListAllDisplayModes( m_windowDisplayIndex );
-					}
-					break;
-				}
-			}
-			SDL_free( displays );
-		}
+		m_windowDisplayIndex = newDisplayIndex;
+		ListAllDisplayModes( m_windowDisplayIndex );
 	}
 
 	//
