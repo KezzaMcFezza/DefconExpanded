@@ -1,6 +1,6 @@
-#ifdef RENDERER_OPENGL
-
 #include "systemiv.h"
+
+#ifdef RENDERER_OPENGL
 #include "msaa_opengl.h"
 #include "lib/render/renderer.h"
 #include "lib/debug/debug_utils.h"

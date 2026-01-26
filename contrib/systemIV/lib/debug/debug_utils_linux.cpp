@@ -11,7 +11,7 @@
 #include <errno.h>
 #include <execinfo.h>
 
-#include "app.h"
+#include "app/app.h"
 #include "debug_utils.h"
 
 #ifndef NO_WINDOW_MANAGER

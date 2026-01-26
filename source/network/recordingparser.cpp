@@ -125,13 +125,13 @@ bool RecordingParser::ReadHeaderPacket( Directory &matchHeader )
     }
 
 #ifdef _DEBUG
-    AppDebugOut("ReadHeaderPacket: Successfully read packet, name='%s'\n", matchHeader.m_name);
+    AppDebugOut("ReadHeaderPacket: Successfully read packet, name='%s'\n", matchHeader.m_name.c_str() );
 #endif
 
     if( strcmp( matchHeader.m_name.c_str(), "DCGR" ) != 0 )
     {
 #ifdef _DEBUG
-        AppDebugOut("ReadHeaderPacket: Invalid header name '%s', expected 'DCGR'\n", matchHeader.m_name);
+        AppDebugOut("ReadHeaderPacket: Invalid header name '%s', expected 'DCGR'\n", matchHeader.m_name.c_str() );
 #endif
         return false;
     }
