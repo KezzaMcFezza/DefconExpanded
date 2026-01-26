@@ -491,12 +491,6 @@ void WindowManager::SaveDesktop()
 	m_desktopRefresh = desktopMode->refresh_rate;
 
 	SDL_free( displays );
-
-#if defined( TARGET_OS_MACOSX )
-	int width = 0, height = 0;
-	GetMainDisplayResolution( width, height );
-	AppDebugOut( "macOS native resolution verification: %dx%d\n", width, height );
-#endif
 }
 
 
