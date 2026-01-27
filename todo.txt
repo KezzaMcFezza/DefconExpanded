@@ -17,6 +17,7 @@ COMPLETED:
 - order lines not being depth tested in globe mode             - DONE
 - order line is thicker when using mouse instead of            
   order overlay                                                - DONE
+- rectfill top of menu not actually accurate                   - DONE (hacky, needs proper fix)
 
 IN PROGRESS:
 
@@ -25,7 +26,6 @@ IN PROGRESS:
 - map renderer doesnt scale with different aspect ratios
 - fix assertion at generatechannelsamplefloat()
 - order lines not being batched properly
-- rectfill top of menu not actually accurate
 - sound stops after reinitialising window
 - shift click to order units, maybe a highlight system?
 - crash when selecting fleets after team switching to a new 
