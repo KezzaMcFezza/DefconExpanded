@@ -416,6 +416,10 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 							 sdlEvent->motion.xrel, sdlEvent->motion.yrel );
 #endif // VERBOSE_DEBUG
 
+#ifdef TARGET_OS_MACOSX
+				m_mouseX = (int)sdlEvent->motion.x;
+				m_mouseY = (int)sdlEvent->motion.y;
+#else
 				//
 				// Convert physical coordinates to logical coordinates
 				// Physical mouse coordinates need to be scaled to match logical resolution
@@ -425,6 +429,7 @@ int InputManagerSDL::EventHandler( unsigned int message, long long wParam, int l
 
 				m_mouseX = (int)( sdlEvent->motion.x * scaleX );
 				m_mouseY = (int)( sdlEvent->motion.y * scaleY );
+#endif
 			}
 
 			EclUpdateMouse( m_mouseX, m_mouseY, m_lmb, m_rmb );
