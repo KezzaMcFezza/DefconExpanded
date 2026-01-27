@@ -31,10 +31,21 @@ IN PROGRESS:
 - fix assertion at generatechannelsamplefloat()
 - order lines not being batched properly
 - sound stops after reinitialising window
+- add a render pass system to finally say bye bye to 
+  immediate mode architecture
 - shift click to order units, maybe a highlight system?
 - crash when selecting fleets after team switching to a new 
   team with fleet placement window
-- mouse icon on eclipse popup occluded by alpha fading inside a fading window
+- refactor recording functionality completely, add dcrec 
+  generation to clients
+- implement native file dialogs to systemiv
+- add setters and getters for buffer sizes
+- refactor megavbo system to be a single class
+- add webgpu renderer, this is 100 percent the next renderer
+- figure out why sprites are so cpu intensive
+- fix opengl error in the menu (line width is -1 in opengl)
+- mouse icon on eclipse popup occluded by alpha fading 
+  inside a fading window
 
 
 
