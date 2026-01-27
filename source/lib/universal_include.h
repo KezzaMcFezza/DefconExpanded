@@ -13,12 +13,12 @@
 
 #define APP_NAME        "Defcon"
 #define	APP_VERSION		"1.64 STEAM"
-#define APP_BUILD_NUMBER "1.30.4"
+#define APP_BUILD_NUMBER "1.31"
 
 #if defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
     #define REAL_VERSION    APP_BUILD_NUMBER"_replay_viewer"
 #elif defined(SYNC_PRACTICE)
-    #define REAL_VERSION    "1.16.9_sync_practice"
+    #define REAL_VERSION    "1.17.7_sync_practice"
 #else
     #define REAL_VERSION    APP_BUILD_NUMBER"_defcon_full"
 #endif
