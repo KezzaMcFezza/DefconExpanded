@@ -1,0 +1,39 @@
+COMPLETED:
+
+- fix high dpi scaling, doesnt match OpenGL/SDL window manager - DONE
+- fix 120 fps cap using msaa resolve in fullscreen             - DONE
+- fix 120 fps cap in windowed                                  - DONE
+- radar circles changing color with zoom level                 - DONE
+- selection circle inherits line width from somewhere, 
+  looks like linewidth of 3                                    - DONE
+  for both renderers                                           - DONE
+- DirectX11 3D unit trails have strange behaviour 
+  when overlapping, looks like a blend issue                   - DONE
+- apply 2D optimisations to 3D renderer                        - DONE
+- clean up window manager code                                 - DONE
+- 90 fps cap in windowed mode OpenGL                           - DONE
+- globe mode directx11 middle mouse invisible                  - DONE
+- add settargetfps inside systemiv, app will use it            - DONE
+- order lines not being depth tested in globe mode             - DONE
+- order line is thicker when using mouse instead of            
+  order overlay                                                - DONE
+
+IN PROGRESS:
+
+- fix non modded styles from not having globe styles 
+  (this is not a priority at all)
+- map renderer doesnt scale with different aspect ratios
+- fix assertion at generatechannelsamplefloat()
+- order lines not being batched properly
+- rectfill top of menu not actually accurate
+- sound stops after reinitialising window
+- shift click to order units, maybe a highlight system?
+- crash when selecting fleets after team switching to a new 
+  team with fleet placement window
+- mouse icon on eclipse popup occluded by alpha fading inside a fading window
+- text3d in globe mode flickers with some objects on screen
+
+
+
+
+

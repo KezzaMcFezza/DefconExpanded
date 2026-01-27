@@ -2123,7 +2123,7 @@ void MapRenderer::RenderMouse()
 
         RenderActionLine( predictedLongitude, predictedLatitude, 
                           actionCursorLongitude, actionCursorLatitude, 
-                          actionCursorCol, 2, animateActionLine );
+                          actionCursorCol, 1, animateActionLine );
 
         if( highlight && validCombatTarget )
         {
