@@ -891,14 +891,14 @@ void GlobeRenderer::Render()
     
     if(!g_app->IsGlobeMode()) 
     {
-
         LobbyCamera(); 
-        
-        g_renderer->SetDepthBuffer(false, false);
 
         START_PROFILE("Gridlines");
         GlobeGridlines();
         END_PROFILE("Gridlines");
+
+        g_renderer->SetDepthBuffer( true, true );
+
     }
     else 
     {
