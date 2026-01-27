@@ -20,6 +20,8 @@ COMPLETED:
 - rectfill top of menu not actually accurate                   - DONE (hacky, needs proper fix)
 - sidepanel fleet boxes render too bright, for sure an 
   alpha blending issue                                         - DONE
+- text3d in globe mode flickers with instanced 3d nukes 
+  on screen in directx11                                       - DONE
 
 IN PROGRESS:
 
@@ -33,7 +35,6 @@ IN PROGRESS:
 - crash when selecting fleets after team switching to a new 
   team with fleet placement window
 - mouse icon on eclipse popup occluded by alpha fading inside a fading window
-- text3d in globe mode flickers with some objects on screen
 
 
 

@@ -747,6 +747,13 @@ void Renderer3DD3D11::SetTextured3DShaderUniforms()
 
 	if ( m_deviceContext )
 	{
+		m_deviceContext->GSSetShader( nullptr, nullptr, 0 );
+		ID3D11Buffer *nullBuffer = nullptr;
+
+		m_deviceContext->GSSetConstantBuffers( 0, 1, &nullBuffer );
+		m_deviceContext->GSSetConstantBuffers( 1, 1, &nullBuffer );
+		m_deviceContext->GSSetConstantBuffers( 2, 1, &nullBuffer );
+
 		m_deviceContext->VSSetShader( m_texturedVertexShader3D, nullptr, 0 );
 		m_deviceContext->PSSetShader( m_texturedPixelShader3D, nullptr, 0 );
 		m_deviceContext->IASetInputLayout( m_inputLayoutTextured3D );
@@ -754,6 +761,9 @@ void Renderer3DD3D11::SetTextured3DShaderUniforms()
 		ID3D11Buffer *constantBuffers[] = { m_transformConstantBuffer, m_fogConstantBuffer };
 		m_deviceContext->VSSetConstantBuffers( 0, 2, constantBuffers );
 		m_deviceContext->PSSetConstantBuffers( 0, 2, constantBuffers );
+		
+		m_deviceContext->VSSetConstantBuffers( 2, 1, &nullBuffer );
+		m_deviceContext->PSSetConstantBuffers( 2, 1, &nullBuffer );
 
 		RendererD3D11 *rendererD3D11 = dynamic_cast<RendererD3D11 *>( g_renderer );
 		if ( rendererD3D11 )
