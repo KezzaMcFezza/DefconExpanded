@@ -18,6 +18,8 @@ COMPLETED:
 - order line is thicker when using mouse instead of            
   order overlay                                                - DONE
 - rectfill top of menu not actually accurate                   - DONE (hacky, needs proper fix)
+- sidepanel fleet boxes render too bright, for sure an 
+  alpha blending issue                                         - DONE
 
 IN PROGRESS:
 
