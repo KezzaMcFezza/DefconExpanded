@@ -22,6 +22,8 @@ COMPLETED:
   alpha blending issue                                         - DONE
 - text3d in globe mode flickers with instanced 3d nukes 
   on screen in directx11                                       - DONE
+- fix text input handling in eclipse windows                   - DONE
+- fix opengl error in the menu (line width is -1 in opengl)    - DONE
 
 IN PROGRESS:
 
@@ -43,7 +45,6 @@ IN PROGRESS:
 - refactor megavbo system to be a single class
 - add webgpu renderer, this is 100 percent the next renderer
 - figure out why sprites are so cpu intensive
-- fix opengl error in the menu (line width is -1 in opengl)
 - mouse icon on eclipse popup occluded by alpha fading 
   inside a fading window
 
