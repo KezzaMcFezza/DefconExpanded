@@ -33,6 +33,7 @@
 
 #ifdef TARGET_MSVC
 #include <windows.h>
+#include <intrin.h>
 #endif
 
 static SDL_AudioSpec s_audioSpec;
@@ -796,30 +797,13 @@ void SoundLibrary2dSDL::PrecisionSleep( double milliseconds )
 
 #ifdef TARGET_MSVC
 
-	//
-	// Windows: hybrid sleep + busy-wait for sub-millisecond precision
-	// This matches the approach used in app.cpp for frame limiting
-
-	if ( milliseconds > 1.0 )
+	if ( milliseconds >= 1.0 )
 	{
-		Sleep( (DWORD)( milliseconds - 0.5 ) );
-		double endTime = GetHighResTime() + 0.0005; // 0.5ms
-		while ( GetHighResTime() < endTime )
-		{
-			// Precision spin - we have THREAD_PRIORITY_TIME_CRITICAL so this is safe
-		}
+		Sleep( (DWORD)milliseconds );
 	}
 	else
 	{
-
-		//
-		// For very short sleeps, just busy-wait with high-res timer
-
-		double endTime = GetHighResTime() + ( milliseconds / 1000.0 );
-		while ( GetHighResTime() < endTime )
-		{
-			// Spin
-		}
+		Sleep( 0 );
 	}
 #else
 
