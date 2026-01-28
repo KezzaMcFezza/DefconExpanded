@@ -29,6 +29,7 @@ private:
     ID3D11PixelShader* m_currentlyBoundPS;
     ID3D11GeometryShader* m_currentlyBoundGS;
     ID3D11InputLayout* m_currentlyBoundInputLayout;
+    ID3D11Buffer* m_currentlyBoundVSConstantBuffer;
 
     struct LineWidthBuffer 
     {

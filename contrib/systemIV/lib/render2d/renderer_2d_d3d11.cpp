@@ -37,6 +37,7 @@ Renderer2DD3D11::Renderer2DD3D11()
 	  m_currentlyBoundPS( nullptr ),
 	  m_currentlyBoundGS( nullptr ),
 	  m_currentlyBoundInputLayout( nullptr ),
+	  m_currentlyBoundVSConstantBuffer( nullptr ),
 	  m_matricesNeedUpdate( true ),
 	  m_batchedConstantBufferCount( 0 ),
 	  m_supportsConstantBufferOffsets( false ),
@@ -332,7 +333,14 @@ void Renderer2DD3D11::SetColorShaderUniforms()
 			m_currentlyBoundInputLayout = m_inputLayout;
 		}
 
-		m_deviceContext->VSSetConstantBuffers( 0, 1, &m_transformConstantBuffer );
+		//
+		// Only bind constant buffer if it has changed
+
+		if ( m_currentlyBoundVSConstantBuffer != m_transformConstantBuffer )
+		{
+			m_deviceContext->VSSetConstantBuffers( 0, 1, &m_transformConstantBuffer );
+			m_currentlyBoundVSConstantBuffer = m_transformConstantBuffer;
+		}
 
 		//
 		// Clear geometry shader and its constant buffers
@@ -375,7 +383,14 @@ void Renderer2DD3D11::SetTextureShaderUniforms()
 			m_currentlyBoundInputLayout = m_inputLayout;
 		}
 
-		m_deviceContext->VSSetConstantBuffers( 0, 1, &m_transformConstantBuffer );
+		//
+		// Only bind constant buffer if it has changed
+
+		if ( m_currentlyBoundVSConstantBuffer != m_transformConstantBuffer )
+		{
+			m_deviceContext->VSSetConstantBuffers( 0, 1, &m_transformConstantBuffer );
+			m_currentlyBoundVSConstantBuffer = m_transformConstantBuffer;
+		}
 
 		if ( m_currentlyBoundGS != nullptr )
 		{
@@ -445,20 +460,13 @@ void Renderer2DD3D11::SetLineShaderUniforms( float lineWidth )
 			//
 			// Update and bind line width constant buffer
 
-			D3D11_MAPPED_SUBRESOURCE mappedResource;
-			HRESULT hr = m_deviceContext->Map( m_lineWidthConstantBuffer, 0,
-											   D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
+			LineWidthBuffer lineWidthData;
+			lineWidthData.lineWidth = lineWidth;
+			lineWidthData.viewportWidth = (float)g_windowManager->GetPhysicalWidth();
+			lineWidthData.viewportHeight = (float)g_windowManager->GetPhysicalHeight();
+			lineWidthData.padding = 0.0f;
 
-			if ( SUCCEEDED( hr ) )
-			{
-				LineWidthBuffer *lineWidthData = (LineWidthBuffer *)mappedResource.pData;
-				lineWidthData->lineWidth = lineWidth;
-				lineWidthData->viewportWidth = (float)g_windowManager->GetPhysicalWidth();
-				lineWidthData->viewportHeight = (float)g_windowManager->GetPhysicalHeight();
-				lineWidthData->padding = 0.0f;
-
-				m_deviceContext->Unmap( m_lineWidthConstantBuffer, 0 );
-			}
+			m_deviceContext->UpdateSubresource( m_lineWidthConstantBuffer, 0, nullptr, &lineWidthData, 0, 0 );
 
 			//
 			// Select shader based on line width
@@ -474,7 +482,14 @@ void Renderer2DD3D11::SetLineShaderUniforms( float lineWidth )
 			m_deviceContext->GSSetConstantBuffers( 1, 1, &m_lineWidthConstantBuffer );
 		}
 
-		m_deviceContext->VSSetConstantBuffers( 0, 1, &m_transformConstantBuffer );
+		//
+		// Only bind constant buffer if it has changed
+
+		if ( m_currentlyBoundVSConstantBuffer != m_transformConstantBuffer )
+		{
+			m_deviceContext->VSSetConstantBuffers( 0, 1, &m_transformConstantBuffer );
+			m_currentlyBoundVSConstantBuffer = m_transformConstantBuffer;
+		}
 
 		ID3D11ShaderResourceView *nullSRV = nullptr;
 		m_deviceContext->PSSetShaderResources( 0, 1, &nullSRV );
@@ -492,6 +507,7 @@ void Renderer2DD3D11::InvalidateStateCache()
 	m_currentlyBoundPS = nullptr;
 	m_currentlyBoundGS = nullptr;
 	m_currentlyBoundInputLayout = nullptr;
+	m_currentlyBoundVSConstantBuffer = nullptr;
 
 	//
 	// 3D renderer uses different matrices
@@ -511,10 +527,10 @@ void Renderer2DD3D11::CreateConstantBuffer()
 		return;
 
 	D3D11_BUFFER_DESC desc = {};
-	desc.Usage = D3D11_USAGE_DYNAMIC;
+	desc.Usage = D3D11_USAGE_DEFAULT;
 	desc.ByteWidth = sizeof( TransformBuffer );
 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	desc.CPUAccessFlags = 0;
 
 	HRESULT hr = m_device->CreateBuffer( &desc, nullptr, &m_transformConstantBuffer );
 	CheckHR( hr, "create constant buffer" );
@@ -524,9 +540,9 @@ void Renderer2DD3D11::CreateConstantBuffer()
 
 	D3D11_BUFFER_DESC lineWidthBufferDesc = {};
 	lineWidthBufferDesc.ByteWidth = sizeof( LineWidthBuffer );
-	lineWidthBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lineWidthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	lineWidthBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	lineWidthBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lineWidthBufferDesc.CPUAccessFlags = 0;
 
 	hr = m_device->CreateBuffer( &lineWidthBufferDesc, nullptr, &m_lineWidthConstantBuffer );
 	CheckHR( hr, "create line width constant buffer" );
@@ -565,27 +581,19 @@ void Renderer2DD3D11::UpdateConstantBuffer()
 	if ( !matricesChanged )
 		return;
 
-	D3D11_MAPPED_SUBRESOURCE mapped;
-	HRESULT hr = m_deviceContext->Map( m_transformConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped );
-	if ( SUCCEEDED( hr ) )
-	{
-		TransformBuffer *buffer = (TransformBuffer *)mapped.pData;
 
-		//
-		// Copy projection matrix
+	TransformBuffer buffer;
+	memcpy( buffer.uProjection, m_projectionMatrix.m, sizeof( float ) * 16 );
+	memcpy( buffer.uModelView, m_modelViewMatrix.m, sizeof( float ) * 16 );
 
-		memcpy( buffer->uProjection, m_projectionMatrix.m, sizeof( float ) * 16 );
-		memcpy( buffer->uModelView, m_modelViewMatrix.m, sizeof( float ) * 16 );
+	m_deviceContext->UpdateSubresource( m_transformConstantBuffer, 0, nullptr, &buffer, 0, 0 );
 
-		m_deviceContext->Unmap( m_transformConstantBuffer, 0 );
+	//
+	// Update last uploaded matrices
 
-		//
-		// Update last uploaded matrices
-
-		memcpy( m_lastProjectionMatrix, m_projectionMatrix.m, sizeof( float ) * 16 );
-		memcpy( m_lastModelViewMatrix, m_modelViewMatrix.m, sizeof( float ) * 16 );
-		m_matricesNeedUpdate = false;
-	}
+	memcpy( m_lastProjectionMatrix, m_projectionMatrix.m, sizeof( float ) * 16 );
+	memcpy( m_lastModelViewMatrix, m_modelViewMatrix.m, sizeof( float ) * 16 );
+	m_matricesNeedUpdate = false;
 }
 
 
