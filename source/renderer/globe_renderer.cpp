@@ -2462,7 +2462,7 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
 
             RenderActionLine( predictedLongitude, predictedLatitude, 
                               TpredictedLongitude, TpredictedLatitude, 
-                              actionCursorCol, 0.5f );
+                              actionCursorCol, 1.0f );
         }
         
 
@@ -2513,7 +2513,7 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
 
                 RenderActionLine( predictedLongitude, predictedLatitude, 
                                   actionCursorLongitude, actionCursorLatitude, 
-                                  actionCursorCol, 0.5f );
+                                  actionCursorCol, 1.0f );
             }
         }
 
@@ -2576,7 +2576,7 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
                                                   size, size, col, angle, BILLBOARD_SURFACE_ALIGNED );
                     RenderActionLine( predictedLongitude, predictedLatitude,
                                       targetLongitude, targetLatitude,
-                                      col, 0.5f );
+                                      col, 1.0f );
                 }
             }
         }
