@@ -986,6 +986,8 @@ void GlobeRenderer::Render()
         g_renderer->SetDepthMask(true);
         
         Render3DNukes();
+
+        g_renderer3d->BeginLineBatch3D();
     }
 
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
@@ -2636,15 +2638,23 @@ void GlobeRenderer::RenderActionLine( float fromLong, float fromLat, float toLon
     if( animate )
     {
         //
-        // Animate along the subdivided path
+        // Fix for animation stepping issue:
+        // When converting large time values (e.g. 1062678.059837) directly to float,
+        // the 32 bit floats 7 digit precision causes the fractional part to quantize 
+        // to 1/8 increments (0.125 steps). We now perform fmod() on the double first to 
+        // extract just the fractional part (0.0-1.0)
+
+        double timeValue = GetHighResTime();
+        double timeFrac = fmod(timeValue, 1.0);
         
-        float factor1 = fmodf(GetHighResTime(), 1.0f );
-        float factor2 = fmodf(GetHighResTime(), 1.0f ) + 0.2f;
-        Clamp( factor1, 0.0f, 1.0f );
-        Clamp( factor2, 0.0f, 1.0f );
+        float factor1 = (float)timeFrac;
+        float factor2 = (float)(timeFrac + 0.2);
         
-        if( factor2 > factor1 )
+        if( factor2 <= 1.0f )
         {
+            //
+            // Normal case: draw single segment
+
             Vector3<float> normal1 = SlerpNormal(fromNormal, toNormal, factor1);
             Vector3<float> normal2 = SlerpNormal(fromNormal, toNormal, factor2);
             
@@ -2652,6 +2662,33 @@ void GlobeRenderer::RenderActionLine( float fromLong, float fromLat, float toLon
             Vector3<float> pos2 = GetElevatedPosition(normal2 * GLOBE_RADIUS);
             
             g_renderer3d->Line3D( pos1.x, pos1.y, pos1.z, 
+                                 pos2.x, pos2.y, pos2.z, col, width );
+        }
+        else
+        {
+            //
+            // Wrap around case: draw two segments
+            // First segment: from factor1 to end of line 
+
+            Vector3<float> normal1 = SlerpNormal(fromNormal, toNormal, factor1);
+            Vector3<float> normalEnd = SlerpNormal(fromNormal, toNormal, 1.0f);
+            
+            Vector3<float> pos1 = GetElevatedPosition(normal1 * GLOBE_RADIUS);
+            Vector3<float> posEnd = GetElevatedPosition(normalEnd * GLOBE_RADIUS);
+            
+            g_renderer3d->Line3D( pos1.x, pos1.y, pos1.z, 
+                                 posEnd.x, posEnd.y, posEnd.z, col, width );
+            
+            //
+            // Second segment: from start of line to wrapped amount
+
+            Vector3<float> normalStart = SlerpNormal(fromNormal, toNormal, 0.0f);
+            Vector3<float> normal2 = SlerpNormal(fromNormal, toNormal, factor2 - 1.0f);
+            
+            Vector3<float> posStart = GetElevatedPosition(normalStart * GLOBE_RADIUS);
+            Vector3<float> pos2 = GetElevatedPosition(normal2 * GLOBE_RADIUS);
+            
+            g_renderer3d->Line3D( posStart.x, posStart.y, posStart.z, 
                                  pos2.x, pos2.y, pos2.z, col, width );
         }
     }

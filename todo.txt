@@ -25,6 +25,8 @@ COMPLETED:
 - fix text input handling in eclipse windows                   - DONE
 - fix opengl error in the menu (line width is -1 in opengl)    - DONE
 - order lines not being batched properly                       - DONE
+- order lines not wrapping around correctly                    - DONE
+- order lines dont have smooth animations                      - DONE
 
 IN PROGRESS:
 
@@ -38,6 +40,7 @@ IN PROGRESS:
 - shift click to order units, maybe a highlight system?
 - crash when selecting fleets after team switching to a new 
   team with fleet placement window
+- megavbo triangles uses alot of frame time for no apparent reason
 - refactor recording functionality completely, add dcrec 
   generation to clients
 - implement native file dialogs to systemiv
