@@ -24,6 +24,7 @@ COMPLETED:
   on screen in directx11                                       - DONE
 - fix text input handling in eclipse windows                   - DONE
 - fix opengl error in the menu (line width is -1 in opengl)    - DONE
+- order lines not being batched properly                       - DONE
 
 IN PROGRESS:
 
@@ -31,7 +32,6 @@ IN PROGRESS:
   (this is not a priority at all)
 - map renderer doesnt scale with different aspect ratios
 - fix assertion at generatechannelsamplefloat()
-- order lines not being batched properly
 - sound stops after reinitialising window
 - add a render pass system to finally say bye bye to 
   immediate mode architecture
