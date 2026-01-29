@@ -25,7 +25,6 @@ Resource *g_resource = NULL;
 
 //
 // Manual string building helpers that avoid sprintf and vsprintf
-// usage for GetImage(), GetModel(), UnloadImage() and UnloadModel()
 
 static inline char *fs_copy( char *dst, const char *src )
 {
@@ -378,8 +377,12 @@ BitmapFont *Resource::GetBitmapFont( const char *filename )
 		return NULL;
 
 	char fullFilename[512];
-	snprintf( fullFilename, sizeof( fullFilename ), "%s/%s", GetDataRoot(), filename );
-	fullFilename[sizeof( fullFilename ) - 1] = '\x0';
+	char *p = fullFilename;
+
+	p = fs_copy( p, GetDataRoot() );
+	*p++ = '/';
+	p = fs_copy( p, filename );
+	*p = '\0';
 
 	BitmapFont *font = m_bitmapFontCache.GetData( fullFilename );
 	if ( font )
@@ -401,8 +404,12 @@ bool Resource::TestBitmapFont( const char *filename )
 		return false;
 
 	char fullFilename[512];
-	snprintf( fullFilename, sizeof( fullFilename ), "%s/%s", GetDataRoot(), filename );
-	fullFilename[sizeof( fullFilename ) - 1] = '\x0';
+	char *p = fullFilename;
+
+	p = fs_copy( p, GetDataRoot() );
+	*p++ = '/';
+	p = fs_copy( p, filename );
+	*p = '\0';
 
 	BitmapFont *font = m_bitmapFontCache.GetData( fullFilename );
 	if ( font )
