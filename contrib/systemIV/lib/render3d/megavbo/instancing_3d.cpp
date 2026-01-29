@@ -276,9 +276,14 @@ void MegaVBO3D::InvalidateInstancedMegaVBO( const char *batchKey )
 
 void MegaVBO3D::InvalidateAllInstanceBatches()
 {
+	DArray<std::string> keysToRemove;
 	for ( auto it = m_cachedInstanceBatches.begin(); it != m_cachedInstanceBatches.end(); ++it )
 	{
-		InvalidateInstancedMegaVBO( it.get_key().c_str() );
+		keysToRemove.PutData( it.get_key() );
+	}
+	for ( int i = 0; i < keysToRemove.Size(); ++i )
+	{
+		InvalidateInstancedMegaVBO( keysToRemove[i].c_str() );
 	}
 }
 
@@ -290,13 +295,18 @@ void MegaVBO3D::InvalidateInstanceBatchPrefix( const char *batchKeyPrefix )
 
 	size_t prefixLen = strlen( batchKeyPrefix );
 
+	DArray<std::string> keysToRemove;
 	for ( auto it = m_cachedInstanceBatches.begin(); it != m_cachedInstanceBatches.end(); ++it )
 	{
 		const std::string &key = it.get_key();
 		if ( strncmp( key.c_str(), batchKeyPrefix, prefixLen ) == 0 )
 		{
-			InvalidateInstancedMegaVBO( key.c_str() );
+			keysToRemove.PutData( key );
 		}
+	}
+	for ( int i = 0; i < keysToRemove.Size(); ++i )
+	{
+		InvalidateInstancedMegaVBO( keysToRemove[i].c_str() );
 	}
 }
 
