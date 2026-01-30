@@ -1,7 +1,7 @@
 #ifndef LANGUAGE_TABLE_H
 #define LANGUAGE_TABLE_H
 
-#include "lib/tosser/btree.h"
+#include "lib/tosser/hash_table.h"
 #include "lib/tosser/llist.h"
 
 
@@ -14,9 +14,9 @@ class Language;
 class LanguageTable
 {
 protected:
-	BTree       <char *> m_baseLanguage;                                                // Reference language (english)
-    BTree       <char *> m_translation;                                                 // replacement translations
-    BTree       <char *> m_translationAdditional;                                       // replacement additional translations
+	HashTable   <char *> m_baseLanguage;                                                 // Reference language (english)
+    HashTable   <char *> m_translation;                                                  // replacement translations
+    HashTable   <char *> m_translationAdditional;                                        // replacement additional translations
 
 	char        *m_pathAdditionalTranslation;
 
@@ -26,12 +26,12 @@ protected:
     void        LoadBaseLanguage    (const char *_filename);
     void        LoadTranslation     (const char *_filename);
 
-	void        LoadLanguage        (const char *_filename, BTree<char *> &_langTable, bool _facultative = false, const char *_separators = NULL);
+	void        LoadLanguage        (const char *_filename, HashTable<char *> &_langTable, bool _facultative = false, const char *_separators = NULL);
 
     bool        LoadLanguageCaption (Language *lang);
 
 #ifdef TRACK_LANGUAGEPHRASE_ERRORS
-    BTree       <char *> m_languagePhraseErrors;
+    HashTable   <char *> m_languagePhraseErrors;
     void        ClearLanguagePhraseErrors             ();
 
     bool        LanguageTableIsNewLanguagePhraseError (const char *_file, int _line, char flag, char *subject, int nbFound);

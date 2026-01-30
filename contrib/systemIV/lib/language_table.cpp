@@ -3,6 +3,7 @@
 #include "lib/filesys/file_system.h"
 #include "lib/filesys/filesys_utils.h"
 #include "lib/debug/debug_utils.h"
+#include "lib/string_utils.h"
 #include "lib/language_table.h"
 #include "lib/preferences.h"
 
@@ -306,7 +307,7 @@ void LanguageTable::SetLanguageSelectable( const char *_name, bool _selectable )
 }
 
 
-void LanguageTable::LoadLanguage( const char *_filename, BTree<char *> &_langTable, bool _facultative, const char *_separators )
+void LanguageTable::LoadLanguage( const char *_filename, HashTable<char *> &_langTable, bool _facultative, const char *_separators )
 {
 	TextReader *in = g_fileSystem->GetTextReader( _filename );
 	if ( !_facultative )
@@ -350,7 +351,7 @@ void LanguageTable::LoadLanguage( const char *_filename, BTree<char *> &_langTab
 		//
 		// Make sure the this key isn't already used
 
-		if ( _langTable.LookupTree( key ) )
+		if ( _langTable.GetPointer( key ) )
 		{
 			AppDebugOut( "Warning : found duplicate key '%s' in language file %s\n", key, _filename );
 
@@ -427,45 +428,28 @@ void LanguageTable::LoadTranslation( const char *_filename )
 	LoadLanguage( _filename, m_translation );
 
 #ifdef _DEBUG
-	DArray<std::string> *keys = m_baseLanguage.ConvertIndexToDArray();
-
-	for ( int i = 0; i < keys->Size(); ++i )
+	for ( auto it = m_baseLanguage.begin(); it != m_baseLanguage.end(); ++it )
 	{
-		if ( keys->ValidIndex( i ) )
+		const std::string &key = it.get_key();
+		if ( !m_translation.GetPointer( key.c_str() ) )
 		{
-			const std::string &key = keys->GetData( i );
-			if ( !m_translation.GetData( key.c_str() ) )
-			{
-				AppDebugOut( "Warning : base language key '%s' with no translation in language file %s\n", key.c_str(), _filename );
-			}
+			AppDebugOut( "Warning : base language key '%s' with no translation in language file %s\n", key.c_str(), _filename );
 		}
 	}
-
-	delete keys;
 #endif
 }
 
 
 void LanguageTable::ClearBaseLanguage()
 {
-	DArray<char *> *base = m_baseLanguage.ConvertToDArray();
-	base->EmptyAndDeleteArray();
-	delete base;
-	m_baseLanguage.Empty();
+	m_baseLanguage.EmptyAndDeleteArray();
 }
 
 
 void LanguageTable::ClearTranslation()
 {
-	DArray<char *> *translation = m_translation.ConvertToDArray();
-	translation->EmptyAndDeleteArray();
-	delete translation;
-	m_translation.Empty();
-
-	translation = m_translationAdditional.ConvertToDArray();
-	translation->EmptyAndDeleteArray();
-	delete translation;
-	m_translationAdditional.Empty();
+	m_translation.EmptyAndDeleteArray();
+	m_translationAdditional.EmptyAndDeleteArray();
 }
 
 
@@ -475,11 +459,7 @@ bool LanguageTable::DoesPhraseExist( const char *_key )
 	{
 		return false;
 	}
-	else
-	{
-		char *phrase = m_baseLanguage.GetData( _key );
-		return ( phrase != NULL );
-	}
+	return m_baseLanguage.GetPointer( _key ) != nullptr;
 }
 
 
@@ -489,22 +469,13 @@ bool LanguageTable::DoesTranslationExist( const char *_key )
 	{
 		return false;
 	}
-	else
-	{
-		char *phrase = m_translation.GetData( _key );
-		return ( phrase != NULL );
-	}
+	return m_translation.GetPointer( _key ) != nullptr;
 }
 
 
 const char *LanguageTable::LookupBasePhrase( const char *_key )
 {
-	char *result = NULL;
-
-	if ( _key )
-	{
-		result = m_baseLanguage.GetData( _key );
-	}
+	char *result = _key ? m_baseLanguage.GetData( _key, nullptr ) : nullptr;
 
 	if ( !result )
 	{
@@ -519,13 +490,12 @@ const char *LanguageTable::LookupBasePhrase( const char *_key )
 
 const char *LanguageTable::LookupPhrase( const char *_key )
 {
-	char *result = NULL;
-
+	char *result = nullptr;
 	if ( _key )
 	{
-		result = m_translation.GetData( _key );
+		result = m_translation.GetData( _key, nullptr );
 		if ( !result )
-			result = m_baseLanguage.GetData( _key );
+			result = m_baseLanguage.GetData( _key, nullptr );
 	}
 
 	if ( !result )
@@ -541,12 +511,7 @@ const char *LanguageTable::LookupPhrase( const char *_key )
 
 const char *LanguageTable::LookupPhraseAdditional( const char *_key )
 {
-	char *result = NULL;
-
-	if ( _key )
-	{
-		result = m_translationAdditional.GetData( _key );
-	}
+	char *result = _key ? m_translationAdditional.GetData( _key, nullptr ) : nullptr;
 
 	if ( !result )
 	{
@@ -569,54 +534,38 @@ void LanguageTable::TestTranslation( const char *_logFilename )
 	//
 	// Look for strings in the base that are not in the translation
 
-	DArray<std::string> *basePhraseIndex = m_baseLanguage.ConvertIndexToDArray();
-	DArray<char *> *basePhrases = m_baseLanguage.ConvertToDArray();
-
-	for ( int i = 0; i < basePhraseIndex->Size(); ++i )
+	for ( auto it = m_baseLanguage.begin(); it != m_baseLanguage.end(); ++it )
 	{
-		if ( basePhraseIndex->ValidIndex( i ) )
-		{
-			const std::string &baseIndex = basePhraseIndex->GetData( i );
-			char *basePhrase = basePhrases->GetData( i );
+		const std::string &baseIndex = it.get_key();
+		char *basePhrase = *it;
 
-			if ( !DoesTranslationExist( baseIndex.c_str() ) )
+		if ( !DoesTranslationExist( baseIndex.c_str() ) )
+		{
+			fprintf( output, "ERROR : Failed to find translation for string ID '%s'\n", baseIndex.c_str() );
+		}
+		else
+		{
+			char *translatedPhrase = m_translation.GetData( baseIndex.c_str(), nullptr );
+			if ( translatedPhrase && strcmp( basePhrase, translatedPhrase ) == 0 )
 			{
-				fprintf( output, "ERROR : Failed to find translation for string ID '%s'\n", baseIndex.c_str() );
-			}
-			else
-			{
-				char *translatedPhrase = m_translation.GetData( baseIndex.c_str() );
-				if ( strcmp( basePhrase, translatedPhrase ) == 0 )
-				{
-					fprintf( output, "Warning : String ID appears not to be translated : '%s'\n", baseIndex.c_str() );
-				}
+				fprintf( output, "Warning : String ID appears not to be translated : '%s'\n", baseIndex.c_str() );
 			}
 		}
 	}
-
-	delete basePhraseIndex;
-	delete basePhrases;
 
 
 	//
 	// Look for phrases in the translation that are not in the base
 
-	DArray<std::string> *translatedIndex = m_translation.ConvertIndexToDArray();
-
-	for ( int i = 0; i < translatedIndex->Size(); ++i )
+	for ( auto it = m_translation.begin(); it != m_translation.end(); ++it )
 	{
-		if ( translatedIndex->ValidIndex( i ) )
-		{
-			const std::string &index = translatedIndex->GetData( i );
+		const std::string &index = it.get_key();
 
-			if ( !DoesPhraseExist( index.c_str() ) )
-			{
-				fprintf( output, "Warning : Found new string ID not present in original English : '%s'\n", index.c_str() );
-			}
+		if ( !DoesPhraseExist( index.c_str() ) )
+		{
+			fprintf( output, "Warning : Found new string ID not present in original English : '%s'\n", index.c_str() );
 		}
 	}
-
-	delete translatedIndex;
 
 
 	//
@@ -701,19 +650,7 @@ bool LanguageTable::DoesFlagExist( char flag, const char *subject )
 
 void LanguageTable::ClearLanguagePhraseErrors()
 {
-	DArray<char *> *errors = m_languagePhraseErrors.ConvertToDArray();
-
-	for ( int i = 0; i < errors->Size(); ++i )
-	{
-		if ( errors->ValidIndex( i ) )
-		{
-			char *error = errors->GetData( i );
-			delete[] error;
-		}
-	}
-
-	delete errors;
-	m_languagePhraseErrors.Empty();
+	m_languagePhraseErrors.EmptyAndDeleteArray();
 }
 
 
