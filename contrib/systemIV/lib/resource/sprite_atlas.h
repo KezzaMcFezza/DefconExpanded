@@ -7,9 +7,6 @@
 
 class Bitmap;
 
-//
-// atlas coordinate structure
-
 struct AtlasCoord {
     float u1, v1, u2, v2;  // UV coordinates, normalized 0.0 - 1.0
     int width, height;     // original sprite dimensions
@@ -22,8 +19,8 @@ struct AtlasCoord {
 
 struct PackedSprite {
     char* filename;                 // Full path like "graphics/bomber.bmp"
-    AtlasCoord coord;              // UV coordinates in atlas
-    Bitmap* sourceBitmap;          // Original bitmap (temporary, deleted after packing)
+    AtlasCoord coord;               // UV coordinates in atlas
+    Bitmap* sourceBitmap;           // Original bitmap (temporary, deleted after packing)
     
     PackedSprite();
     ~PackedSprite();
@@ -42,7 +39,7 @@ private:
     void BlitSpritesToAtlas       (PackedSprite** sprites, int spriteCount);
     void ExtrudeSpriteEdges       (Bitmap* src, int x, int y, int w, int h);
     void CreateGLTexture          ();
-    void LoadSprites (const char* directory, 
+    void LoadSprites              (const char* directory, 
                                    const char* const *excludeList, int excludeCount,
                                    PackedSprite*** outSprites, int* outCount);
     
@@ -56,13 +53,13 @@ public:
     
     const PackedSprite* GetSprite (const char* filename) const;
     
-    int GetWidth             () const { return m_width; }
-    int GetHeight            () const { return m_height; }
-    unsigned int GetTextureID() const { return m_textureID; }
-    const char* GetName      () const { return m_name; }
-    int GetSpriteCount       () const { return static_cast<int>( m_spriteMap.NumUsed() ); }
-    
+    int GetWidth             () const;
+    int GetHeight            () const;
+    int GetSpriteCount       () const;
     bool HasSprite           (const char* filename) const;
+
+    unsigned int GetTextureID() const;
+    const char* GetName      () const;
 };
 
 //
@@ -84,7 +81,7 @@ public:
     
     unsigned int GetAtlasTextureID() const;
     
-    RuntimeTextureAtlas* GetAtlas() const { return m_atlas; }
+    RuntimeTextureAtlas* GetAtlas() const;
 };
 
 //
@@ -107,7 +104,7 @@ public:
     const PackedSprite* GetSpriteFromAnyAtlas(const char* filename, 
                                                RuntimeTextureAtlas** outAtlas) const;
     
-    bool IsInitialized                       () const { return m_initialized; }
+    bool IsInitialized                       () const;
 };
 
 extern SpriteAtlasManager* g_spriteAtlasManager;

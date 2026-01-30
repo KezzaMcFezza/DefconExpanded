@@ -746,6 +746,12 @@ const char *AtlasImage::GetFilename() const
 }
 
 
+RuntimeTextureAtlas *AtlasImage::GetAtlas() const
+{
+	return m_atlas;
+}
+
+
 SpriteAtlasManager::SpriteAtlasManager()
 	: m_initialized( false )
 {
@@ -871,4 +877,40 @@ const PackedSprite *SpriteAtlasManager::GetSpriteFromAnyAtlas(
 	if ( outAtlas )
 		*outAtlas = NULL;
 	return NULL;
+}
+
+
+bool SpriteAtlasManager::IsInitialized() const
+{
+	return m_initialized;
+}
+
+
+int RuntimeTextureAtlas::GetWidth() const
+{
+	return m_width;
+}
+
+
+int RuntimeTextureAtlas::GetHeight() const
+{
+	return m_height;
+}
+
+
+unsigned int RuntimeTextureAtlas::GetTextureID() const
+{
+	return m_textureID;
+}
+
+
+const char *RuntimeTextureAtlas::GetName() const
+{
+	return m_name;
+}
+
+
+int RuntimeTextureAtlas::GetSpriteCount() const
+{
+	return static_cast<int>( m_spriteMap.NumUsed() );
 }
