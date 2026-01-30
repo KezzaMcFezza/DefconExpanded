@@ -327,10 +327,10 @@ void Renderer::SetDefaultFont( const char *font, const char *_langName )
 
 void Renderer::SetFontSpacing( const char *font, float _spacing )
 {
-	BTree<float> *fontSpacing = m_fontSpacings.LookupTree( font );
-	if ( fontSpacing )
+	float *p = m_fontSpacings.GetPointer( font );
+	if ( p )
 	{
-		fontSpacing->data = _spacing;
+		*p = _spacing;
 	}
 	else
 	{
@@ -341,12 +341,7 @@ void Renderer::SetFontSpacing( const char *font, float _spacing )
 
 float Renderer::GetFontSpacing( const char *font )
 {
-	BTree<float> *fontSpacing = m_fontSpacings.LookupTree( font );
-	if ( fontSpacing )
-	{
-		return fontSpacing->data;
-	}
-	return BitmapFont::DEFAULT_SPACING;
+	return m_fontSpacings.GetData( font, BitmapFont::DEFAULT_SPACING );
 }
 
 

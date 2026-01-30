@@ -13,7 +13,7 @@
 #define _included_renderer_h
 
 #include "systemiv.h"
-#include "lib/tosser/btree.h"
+#include "lib/tosser/hash_table.h"
 #include "lib/tosser/llist.h"
 #include "lib/render/antialiasing/anti_aliasing.h"
 
@@ -164,7 +164,7 @@ protected:
     bool m_horizFlip;
     bool m_fixedWidth;
     bool m_negative;
-    BTree<float> m_fontSpacings;
+    HashTable<float> m_fontSpacings;
     
     int m_textureSwitches;
     int m_prevTextureSwitches;
