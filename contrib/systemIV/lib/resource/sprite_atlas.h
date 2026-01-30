@@ -1,7 +1,7 @@
 #ifndef _included_sprite_atlas_h
 #define _included_sprite_atlas_h
 
-#include "lib/tosser/btree.h"
+#include "lib/tosser/hash_table.h"
 #include "lib/tosser/llist.h"
 #include "lib/resource/image.h"
 
@@ -34,7 +34,7 @@ private:
     int m_width, m_height;                      // Final atlas dimensions
     unsigned int m_textureID;                   // OpenGL texture ID
     Bitmap* m_atlasBitmap;                      // Combined atlas bitmap
-    BTree<PackedSprite*> m_spriteMap;           // filename -> PackedSprite lookup
+    HashTable<PackedSprite*> m_spriteMap;       // filename -> PackedSprite lookup
     char* m_name;                               // Atlas name for debugging
     
     bool PackSprites              (PackedSprite** sprites, int spriteCount, 
@@ -60,7 +60,7 @@ public:
     int GetHeight            () const { return m_height; }
     unsigned int GetTextureID() const { return m_textureID; }
     const char* GetName      () const { return m_name; }
-    int GetSpriteCount       () const { return m_spriteMap.Size(); }
+    int GetSpriteCount       () const { return static_cast<int>( m_spriteMap.NumUsed() ); }
     
     bool HasSprite           (const char* filename) const;
 };

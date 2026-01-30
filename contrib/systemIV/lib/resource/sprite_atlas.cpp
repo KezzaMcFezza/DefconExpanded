@@ -77,13 +77,7 @@ RuntimeTextureAtlas::~RuntimeTextureAtlas()
 	//
 	// clean up sprites
 
-	DArray<PackedSprite *> *sprites = m_spriteMap.ConvertToDArray();
-	for ( int i = 0; i < sprites->Size(); ++i )
-	{
-		delete sprites->GetData( i );
-	}
-	delete sprites;
-	m_spriteMap.Empty();
+	m_spriteMap.EmptyAndDelete();
 
 	//
 	// clean up atlas bitmap
@@ -690,13 +684,14 @@ bool RuntimeTextureAtlas::BuildFromDirectory( const char *directory,
 
 const PackedSprite *RuntimeTextureAtlas::GetSprite( const char *filename ) const
 {
-	return const_cast<BTree<PackedSprite *> *>( &m_spriteMap )->GetData( filename );
+	const PackedSprite *const *p = m_spriteMap.GetPointerConst( filename );
+	return p ? *p : nullptr;
 }
 
 
 bool RuntimeTextureAtlas::HasSprite( const char *filename ) const
 {
-	return const_cast<BTree<PackedSprite *> *>( &m_spriteMap )->GetData( filename ) != NULL;
+	return m_spriteMap.GetPointerConst( filename ) != nullptr;
 }
 
 
