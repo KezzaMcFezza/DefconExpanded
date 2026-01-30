@@ -27,6 +27,9 @@ COMPLETED:
 - order lines not being batched properly                       - DONE
 - order lines not wrapping around correctly                    - DONE
 - order lines dont have smooth animations                      - DONE
+- 3D nukes in directx11 rendering as wireframes                - DONE
+- optimise resource::getimage()                                - DONE
+- optimise world::getgamescale()                               - DONE
 
 IN PROGRESS:
 
@@ -37,14 +40,20 @@ IN PROGRESS:
 - sound stops after reinitialising window
 - add a render pass system to finally say bye bye to 
   immediate mode architecture
+- optimise renderer::staticsprite()
+- optimise worldobject::getsize()
 - shift click to order units, maybe a highlight system?
 - crash when selecting fleets after team switching to a new 
   team with fleet placement window
 - megavbo triangles uses alot of frame time for no apparent reason
 - refactor recording functionality completely, add dcrec 
   generation to clients
+- remove sprintf usage where possible and use std::to_chars instead
+- remove vsprintf per draw call for text rendering
 - implement native file dialogs to systemiv
 - add setters and getters for buffer sizes
+- add a lazy texture cache, string renders once and then stored for later use.
+  prevents blitchar() churn
 - refactor megavbo system to be a single class
 - add webgpu renderer, this is 100 percent the next renderer
 - figure out why sprites are so cpu intensive

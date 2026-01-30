@@ -819,6 +819,12 @@ void Renderer3DD3D11::Set3DModelShaderUniforms( const Matrix4f &modelMatrix, con
 
 	if ( m_deviceContext )
 	{
+		m_deviceContext->GSSetShader( nullptr, nullptr, 0 );
+		ID3D11Buffer *nullBuffer = nullptr;
+		m_deviceContext->GSSetConstantBuffers( 0, 1, &nullBuffer );
+		m_deviceContext->GSSetConstantBuffers( 1, 1, &nullBuffer );
+		m_deviceContext->GSSetConstantBuffers( 2, 1, &nullBuffer );
+
 		m_deviceContext->VSSetShader( m_modelVertexShader3D, nullptr, 0 );
 		m_deviceContext->PSSetShader( m_modelPixelShader3D, nullptr, 0 );
 		m_deviceContext->IASetInputLayout( m_inputLayout3D );
@@ -860,6 +866,12 @@ void Renderer3DD3D11::Set3DModelShaderUniformsInstanced( const Matrix4f *modelMa
 
 	if ( m_deviceContext )
 	{
+		m_deviceContext->GSSetShader( nullptr, nullptr, 0 );
+		ID3D11Buffer *nullBuffer = nullptr;
+		m_deviceContext->GSSetConstantBuffers( 0, 1, &nullBuffer );
+		m_deviceContext->GSSetConstantBuffers( 1, 1, &nullBuffer );
+		m_deviceContext->GSSetConstantBuffers( 2, 1, &nullBuffer );
+
 		m_deviceContext->VSSetShader( m_modelVertexShader3D, nullptr, 0 );
 		m_deviceContext->PSSetShader( m_modelPixelShader3D, nullptr, 0 );
 		m_deviceContext->IASetInputLayout( m_inputLayout3D );
