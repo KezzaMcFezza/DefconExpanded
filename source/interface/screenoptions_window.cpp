@@ -311,6 +311,10 @@ class SetScreenButton : public InterfaceButton
         
         g_preferences->SetInt( PREFS_SCREEN_WINDOWED, windowed );
         g_preferences->SetInt( PREFS_SCREEN_BORDERLESS, borderless );
+        if ( windowed && !g_windowManager->Windowed() )
+        {
+            g_preferences->SetInt( PREFS_SCREEN_MAXIMIZED, 1 );
+        }
         g_preferences->SetInt( PREFS_SCREEN_COLOUR_DEPTH, parent->m_colourDepth );
         g_preferences->SetInt( PREFS_SCREEN_Z_DEPTH, parent->m_zDepth );
         g_preferences->SetInt( PREFS_SCREEN_UI_SCALE, parent->m_uiScale );
@@ -329,9 +333,9 @@ class SetScreenButton : public InterfaceButton
                                                        oldHeight );
         }
 
-        parent->RestartWindowManager();
-        
-        g_preferences->Save();        
+        g_preferences->Save();
+
+        parent->RestartWindowManager();        
 
         parent->m_resId = g_windowManager->GetResolutionId( g_preferences->GetInt(PREFS_SCREEN_WIDTH),
                                                             g_preferences->GetInt(PREFS_SCREEN_HEIGHT) );
