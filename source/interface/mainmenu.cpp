@@ -1312,8 +1312,11 @@ class ApplyGlobeButton : public InterfaceButton
 #ifndef TARGET_EMSCRIPTEN
         g_preferences->SetFloat( PREFS_GLOBE_COAST_THICKNESS, gow->m_globeCoastThickness );
         g_preferences->SetFloat( PREFS_GLOBE_BORDER_THICKNESS, gow->m_globeBorderThickness );
+        g_preferences->SetFloat( PREFS_GLOBE_GRIDLINE_THICKNESS, gow->m_globeGridlineThickness );
 #endif
-        
+        g_preferences->SetInt( PREFS_GLOBE_GRIDLINES, gow->m_globeGridlines );
+        g_preferences->SetInt( PREFS_GLOBE_GRIDLINE_SPACING, gow->m_globeGridlineSpacing );
+        g_preferences->SetInt( PREFS_GLOBE_FOG, gow->m_globeFog );
         g_preferences->SetInt( PREFS_GLOBE_FOG_DISTANCE, gow->m_globeFogDistance );
         
         //
@@ -1357,9 +1360,9 @@ GlobeOptionsWindow::GlobeOptionsWindow()
 :   InterfaceWindow( "Globe", "dialog_globeoptions", true )
 {
 #ifndef TARGET_EMSCRIPTEN
-    SetSize( 420, 320 );
+    SetSize( 420, 440 );
 #else
-    SetSize( 420, 280 );
+    SetSize( 420, 410 );
 #endif
 
     Centralise();
@@ -1367,7 +1370,11 @@ GlobeOptionsWindow::GlobeOptionsWindow()
 #ifndef TARGET_EMSCRIPTEN
     m_globeCoastThickness    = g_preferences->GetFloat( PREFS_GLOBE_COAST_THICKNESS, 1.0f );
     m_globeBorderThickness   = g_preferences->GetFloat( PREFS_GLOBE_BORDER_THICKNESS, 1.0f );
+    m_globeGridlineThickness = g_preferences->GetFloat( PREFS_GLOBE_GRIDLINE_THICKNESS, 1.0f );
 #endif
+    m_globeGridlines         = g_preferences->GetInt( PREFS_GLOBE_GRIDLINES, 1 );
+    m_globeGridlineSpacing   = g_preferences->GetInt( PREFS_GLOBE_GRIDLINE_SPACING, 1 );
+    m_globeFog               = g_preferences->GetInt( PREFS_GLOBE_FOG, 1 );
     m_globeFogDistance       = g_preferences->GetInt( PREFS_GLOBE_FOG_DISTANCE, 25 );
     m_globeStarfield         = g_preferences->GetInt( PREFS_GLOBE_STARFIELD, 1 );
     m_globeStarSize          = g_preferences->GetFloat( PREFS_GLOBE_STAR_SIZE, 1.5f );
@@ -1391,10 +1398,34 @@ void GlobeOptionsWindow::Create()
 #ifndef TARGET_EMSCRIPTEN
     CreateValueControl( "Coast Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_globeCoastThickness, 0.1f, 0.1f, 10.0f, NULL, " ", false );
     CreateValueControl( "Border Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_globeBorderThickness, 0.1f, 0.1f, 10.0f, NULL, " ", false );
+    CreateValueControl( "Gridline Thickness", x, y+=h, w, 20, InputField::TypeFloat, &m_globeGridlineThickness, 0.1f, 0.1f, 10.0f, NULL, " ", false );
 #endif
-    CreateValueControl( "Fog Distance", x, y+=h, w, 20, InputField::TypeInt, &m_globeFogDistance, 1, 1, 100, NULL, " ", false );
 
     DropDownMenu *dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Gridlines", x, y+=h, w, 20, "dialog_globegridlines", " ", true, false );
+    dropDown->AddOption( "dialog_globegridlines_off", 0, true );
+    dropDown->AddOption( "dialog_globegridlines_lobby", 1, true );
+    dropDown->AddOption( "dialog_globegridlines_on", 2, true );
+    dropDown->RegisterInt( &m_globeGridlines );
+    RegisterButton(dropDown);
+
+    dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Gridline Spacing", x, y+=h, w, 20, "dialog_globegridlinespacing", " ", true, false );
+    dropDown->AddOption( "dialog_globegridline_low", 0, true );
+    dropDown->AddOption( "dialog_globegridline_medium", 1, true );
+    dropDown->AddOption( "dialog_globegridline_high", 2, true );
+    dropDown->RegisterInt( &m_globeGridlineSpacing );
+    RegisterButton(dropDown);
+
+    dropDown = new DropDownMenu();
+    dropDown->SetProperties( "Fog", x, y+=h, w, 20, "dialog_globefog", " ", true, false );
+    dropDown->AddOption( "dialog_enabled", 1, true );
+    dropDown->AddOption( "dialog_disabled", 0, true );
+    dropDown->RegisterInt( &m_globeFog );
+    RegisterButton(dropDown);
+    CreateValueControl( "Fog Distance", x, y+=h, w, 20, InputField::TypeInt, &m_globeFogDistance, 1, 1, 100, NULL, " ", false );
+
+    dropDown = new DropDownMenu();
     dropDown->SetProperties( "Starfield", x, y+=h, w, 20, "dialog_globestarfield", " ", true, false );
     dropDown->AddOption( "dialog_enabled", 1, true );
     dropDown->AddOption( "dialog_disabled", 0, true );
@@ -1426,7 +1457,11 @@ void GlobeOptionsWindow::Render( bool _hasFocus )
 #ifndef TARGET_EMSCRIPTEN
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globecoastthickness") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globeborderthickness") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globegridlinethickness") );
 #endif
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globegridlines") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globegridlinespacing") );
+    g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globefog") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globefogdistance") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestarfield") );
     g_renderer2d->TextSimple( x, y+=h, White, size, LANGUAGEPHRASE("dialog_globestarsize") );

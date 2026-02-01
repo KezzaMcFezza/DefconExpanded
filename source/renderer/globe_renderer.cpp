@@ -821,13 +821,43 @@ void GlobeRenderer::GlobeBorders()
 
 void GlobeRenderer::GlobeGridlines()
 {
-    if (!g_megavbo3d->IsMegaVBO3DValid("GlobeGridlines")) {
+    int spacingPref = g_preferences->GetInt(PREFS_GLOBE_GRIDLINE_SPACING, 1);
+    float spacingDeg = (spacingPref == 0) ? GLOBE_GRIDLINE_SPACING_DEG_LOW
+                    : (spacingPref == 1) ? GLOBE_GRIDLINE_SPACING_DEG_MEDIUM
+                    : GLOBE_GRIDLINE_SPACING_DEG_HIGH;
+
+    if (!g_megavbo3d->IsMegaVBO3DValid("GlobeGridlines")) 
+    {
+        int numMeridians = (int)(360.0f / spacingDeg);
+        int numParallels = (int)(180.0f / spacingDeg) + 1;
+        int verticesPerMeridian = 180;
+        int verticesPerParallel = 361;
+
+        int gridlineVertices = numMeridians * verticesPerMeridian + numParallels * verticesPerParallel;
+        int gridlineIndices = numMeridians * (verticesPerMeridian + 1) + numParallels * (verticesPerParallel + 1);
+
+        int requiredVertices = (gridlineVertices > g_megavbo3d->GetMegaBufferVertexCount3D()) 
+            ? gridlineVertices : g_megavbo3d->GetMegaBufferVertexCount3D();
+
+        int requiredIndices = (gridlineIndices > g_megavbo3d->GetMegaBufferIndexCount3D())
+            ? gridlineIndices : g_megavbo3d->GetMegaBufferIndexCount3D();
+
+        if (gridlineVertices > g_megavbo3d->GetMegaBufferVertexCount3D() ||
+            gridlineIndices > g_megavbo3d->GetMegaBufferIndexCount3D()) 
+        {
+
+            g_megavbo3d->SetMegaVBO3DBufferSizes(requiredVertices, requiredIndices, "GlobeGridlines");
+        }
+
+#ifndef TARGET_EMSCRIPTEN
+        g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_GRIDLINE_THICKNESS, 1.0f));
+#endif
         g_megavbo3d->BeginMegaVBO3D("GlobeGridlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_GRIDLINES ));
-        
+
     //
     // Longitudinal lines (meridians)
 
-    for( float x = -180; x < 180; x += 10 )
+    for( float x = -180; x < 180; x += spacingDeg )
     {
         DArray<Vector3<float>> lineVertices;
         for( float y = -90; y < 90; y += 1.0f )
@@ -840,7 +870,7 @@ void GlobeRenderer::GlobeGridlines()
     //
     // Latitudinal lines (parallels)
 
-    for( float y = -90; y <= 90; y += 10 )
+    for( float y = -90; y <= 90; y += spacingDeg )
     {
         DArray<Vector3<float>> lineVertices;
         for( float x = -180; x <= 180; x += 1.0f )
@@ -849,14 +879,17 @@ void GlobeRenderer::GlobeGridlines()
         }
             AddLineStrip(lineVertices);
     }
-        
+
     g_megavbo3d->EndMegaVBO3D();
 
     }
 
     //
-    // Build it
+    // Render it
 
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_GRIDLINE_THICKNESS, 1.0f));
+#endif
     g_megavbo3d->RenderMegaVBO3D("GlobeGridlines");
 
 }
@@ -889,13 +922,20 @@ void GlobeRenderer::Render()
     float resScale = g_windowManager->WindowH() / 800.0f;
     m_drawScale /= resScale;
     
+    int gridlinesPref = g_preferences->GetInt(PREFS_GLOBE_GRIDLINES, 2);
+    bool showGridlinesLobby = (gridlinesPref >= 1) && !g_app->IsGlobeMode();
+    bool showGridlinesGame  = (gridlinesPref == 2) && g_app->IsGlobeMode();
+
     if(!g_app->IsGlobeMode()) 
     {
         LobbyCamera(); 
 
-        START_PROFILE("Gridlines");
-        GlobeGridlines();
-        END_PROFILE("Gridlines");
+        if (showGridlinesLobby) 
+        {
+            START_PROFILE("Gridlines");
+            GlobeGridlines();
+            END_PROFILE("Gridlines");
+        }
 
         g_renderer->SetDepthBuffer( true, true );
 
@@ -907,6 +947,13 @@ void GlobeRenderer::Render()
         START_PROFILE("Culling Sphere");
         RenderCullSphere();
         END_PROFILE("Culling Sphere");
+
+        if (showGridlinesGame) 
+        {
+            START_PROFILE("Gridlines");
+            GlobeGridlines();
+            END_PROFILE("Gridlines");
+        }
     }
 
     START_PROFILE("Coastlines");
@@ -1293,21 +1340,28 @@ void GlobeRenderer::GameCamera()
 
     g_renderer->SetCullFace(false, 0);
 
-    float fogDistanceSetting = (float)g_preferences->GetInt(PREFS_GLOBE_FOG_DISTANCE, 25);
-    float distanceMultiplier = (fogDistanceSetting / 20.0f - 1.0f) * 2.0f + 1.0f;
+    if (g_preferences->GetInt(PREFS_GLOBE_FOG, 1))
+    {
+        float fogDistanceSetting = (float)g_preferences->GetInt(PREFS_GLOBE_FOG_DISTANCE, 25);
+        float distanceMultiplier = (fogDistanceSetting / 20.0f - 1.0f) * 2.0f + 1.0f;
         
-    //
-    // Scale the camera distance for fog calculations.
-    // We pass in fake camera values here to make the
-    // fog render further or closer to the real camera.
+        //
+        // Scale the camera distance for fog calculations.
+        // We pass in fake camera values here to make the
+        // fog render further or closer to the real camera.
         
-    Vector3<float> fogCameraPos = cameraPos;
-    fogCameraPos = fogCameraPos * distanceMultiplier;
+        Vector3<float> fogCameraPos = cameraPos;
+        fogCameraPos = fogCameraPos * distanceMultiplier;
         
-    g_renderer3d->EnableOrientationFog(0.03f, 0.03f, 0.03f, 25.0f,
+        g_renderer3d->EnableOrientationFog(0.03f, 0.03f, 0.03f, 25.0f,
                                           fogCameraPos.x,
                                           fogCameraPos.y,
                                           fogCameraPos.z);
+    }
+    else
+    {
+        g_renderer3d->DisableFog();
+    }
 }
 
 void GlobeRenderer::LobbyCamera()

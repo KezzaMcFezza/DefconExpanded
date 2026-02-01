@@ -118,7 +118,17 @@ dialog_globecoastthickness          Coastline Thickness
 dialog_globeborderthickness         Border Thickness
 dialog_globecoastcolor              Coastline Color
 dialog_globebordercolor             Border Color
+dialog_globegridlines               Gridlines
+dialog_globegridlines_off           Off
+dialog_globegridlines_lobby         Lobby Only
+dialog_globegridlines_on            On
+dialog_globegridlinethickness       Gridline Thickness
+dialog_globegridlinespacing         Gridline Spacing
+dialog_globegridline_low            Low
+dialog_globegridline_medium         Medium
+dialog_globegridline_high           High
 dialog_globefogdensity              Fog Density
+dialog_globefog                     Fog
 dialog_globefogdistance             Fog Distance
 dialog_globestarfield               Starfield
 dialog_globestarsize                Star Size
