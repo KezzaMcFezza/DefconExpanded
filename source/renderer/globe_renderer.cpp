@@ -821,71 +821,96 @@ void GlobeRenderer::GlobeBorders()
 
 void GlobeRenderer::GlobeGridlines()
 {
-    int spacingPref = g_preferences->GetInt(PREFS_GLOBE_GRIDLINE_SPACING, 1);
-    float spacingDeg = (spacingPref == 0) ? GLOBE_GRIDLINE_SPACING_DEG_LOW
-                    : (spacingPref == 1) ? GLOBE_GRIDLINE_SPACING_DEG_MEDIUM
-                    : GLOBE_GRIDLINE_SPACING_DEG_HIGH;
-
-    if (!g_megavbo3d->IsMegaVBO3DValid("GlobeGridlines")) 
+    if (!g_megavbo3d->IsMegaVBO3DValid("GlobeGridlines"))
     {
-        int numMeridians = (int)(360.0f / spacingDeg);
-        int numParallels = (int)(180.0f / spacingDeg) + 1;
-        int verticesPerMeridian = 180;
-        int verticesPerParallel = 361;
-
-        int gridlineVertices = numMeridians * verticesPerMeridian + numParallels * verticesPerParallel;
-        int gridlineIndices = numMeridians * (verticesPerMeridian + 1) + numParallels * (verticesPerParallel + 1);
-
-        int requiredVertices = (gridlineVertices > g_megavbo3d->GetMegaBufferVertexCount3D()) 
-            ? gridlineVertices : g_megavbo3d->GetMegaBufferVertexCount3D();
-
-        int requiredIndices = (gridlineIndices > g_megavbo3d->GetMegaBufferIndexCount3D())
-            ? gridlineIndices : g_megavbo3d->GetMegaBufferIndexCount3D();
-
-        if (gridlineVertices > g_megavbo3d->GetMegaBufferVertexCount3D() ||
-            gridlineIndices > g_megavbo3d->GetMegaBufferIndexCount3D()) 
-        {
-
-            g_megavbo3d->SetMegaVBO3DBufferSizes(requiredVertices, requiredIndices, "GlobeGridlines");
-        }
-
 #ifndef TARGET_EMSCRIPTEN
         g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_GRIDLINE_THICKNESS, 1.0f));
 #endif
         g_megavbo3d->BeginMegaVBO3D("GlobeGridlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_GRIDLINES ));
 
-    //
-    // Longitudinal lines (meridians)
+        int spacingPref = g_preferences->GetInt( PREFS_GLOBE_GRIDLINE_SPACING, 1 );
+        LList<Island *> *list = (spacingPref == 0) ? &g_app->GetEarthData()->m_gridlinesLow
+                                : (spacingPref == 1) ? &g_app->GetEarthData()->m_gridlinesMedium
+                                : &g_app->GetEarthData()->m_gridlinesHigh;
 
-    for( float x = -180; x < 180; x += spacingDeg )
-    {
-        DArray<Vector3<float>> lineVertices;
-        for( float y = -90; y < 90; y += 1.0f )
+        if ( list->Size() > 0 )
         {
-            lineVertices.PutData(ConvertLongLatTo3DPosition(x, y));
+            int totalVertices = 0;
+            int totalIndices = 0;
+            for ( int i = 0; i < list->Size(); ++i )
+            {
+                Island *segment = (*list)[i];
+                if ( segment && segment->m_points.Size() >= 2 )
+                {
+                    totalVertices += segment->m_points.Size();
+                    totalIndices += segment->m_points.Size() + 1;
+                }
+            }
+            if ( totalVertices > g_megavbo3d->GetMegaBufferVertexCount3D() ||
+                 totalIndices > g_megavbo3d->GetMegaBufferIndexCount3D() )
+            {
+                g_megavbo3d->SetMegaVBO3DBufferSizes(
+                    totalVertices > g_megavbo3d->GetMegaBufferVertexCount3D() ? totalVertices : g_megavbo3d->GetMegaBufferVertexCount3D(),
+                    totalIndices > g_megavbo3d->GetMegaBufferIndexCount3D() ? totalIndices : g_megavbo3d->GetMegaBufferIndexCount3D(),
+                    "GlobeGridlines" );
+            }
+
+            for ( int i = 0; i < list->Size(); ++i )
+            {
+                Island *island = (*list)[i];
+                AppDebugAssert( island );
+
+                DArray<Vector3<float>> gridlineVertices;
+                for ( int j = 0; j < island->m_points.Size(); j++ )
+                {
+                    Vector3<float> *thePoint = island->m_points[j];
+                    gridlineVertices.PutData( ConvertLongLatTo3DPosition( thePoint->x, thePoint->y ) );
+                }
+                AddLineStrip( gridlineVertices );
+            }
         }
-        AddLineStrip(lineVertices);
-    }
-
-    //
-    // Latitudinal lines (parallels)
-
-    for( float y = -90; y <= 90; y += spacingDeg )
-    {
-        DArray<Vector3<float>> lineVertices;
-        for( float x = -180; x <= 180; x += 1.0f )
+        else
         {
-            lineVertices.PutData(ConvertLongLatTo3DPosition(x, y));
+            float spacingDeg = (spacingPref == 0) ? GLOBE_GRIDLINE_SPACING_DEG_LOW
+                                : (spacingPref == 1) ? GLOBE_GRIDLINE_SPACING_DEG_MEDIUM
+                                : GLOBE_GRIDLINE_SPACING_DEG_HIGH;
+            int numMeridians = (int)(360.0f / spacingDeg);
+            int numParallels = (int)(180.0f / spacingDeg) + 1;
+            int verticesPerMeridian = 180;
+            int verticesPerParallel = 361;
+            int gridlineVertices = numMeridians * verticesPerMeridian + numParallels * verticesPerParallel;
+            int gridlineIndices = numMeridians * (verticesPerMeridian + 1) + numParallels * (verticesPerParallel + 1);
+
+            if ( gridlineVertices > g_megavbo3d->GetMegaBufferVertexCount3D() ||
+                 gridlineIndices > g_megavbo3d->GetMegaBufferIndexCount3D() )
+            {
+                g_megavbo3d->SetMegaVBO3DBufferSizes(
+                    gridlineVertices > g_megavbo3d->GetMegaBufferVertexCount3D() ? gridlineVertices : g_megavbo3d->GetMegaBufferVertexCount3D(),
+                    gridlineIndices > g_megavbo3d->GetMegaBufferIndexCount3D() ? gridlineIndices : g_megavbo3d->GetMegaBufferIndexCount3D(),
+                    "GlobeGridlines" );
+            }
+
+            for ( float x = -180; x < 180; x += spacingDeg )
+            {
+                DArray<Vector3<float>> gridlineVertices;
+                for ( float y = -90; y < 90; y += 1.0f )
+                    gridlineVertices.PutData( ConvertLongLatTo3DPosition( x, y ) );
+                AddLineStrip( gridlineVertices );
+            }
+            for ( float y = -90; y <= 90; y += spacingDeg )
+            {
+                DArray<Vector3<float>> gridlineVertices;
+                for ( float x = -180; x <= 180; x += 1.0f )
+                    gridlineVertices.PutData( ConvertLongLatTo3DPosition( x, y ) );
+                AddLineStrip( gridlineVertices );
+            }
         }
-            AddLineStrip(lineVertices);
-    }
 
-    g_megavbo3d->EndMegaVBO3D();
-
+        g_megavbo3d->EndMegaVBO3D();
     }
 
     //
-    // Render it
+    // Build it
 
 #ifndef TARGET_EMSCRIPTEN
     g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_GRIDLINE_THICKNESS, 1.0f));

@@ -27,14 +27,18 @@ EarthData::~EarthData()
 {
     m_islands.EmptyAndDelete();
     m_borders.EmptyAndDelete();
+    m_gridlinesLow.EmptyAndDelete();
+    m_gridlinesMedium.EmptyAndDelete();
+    m_gridlinesHigh.EmptyAndDelete();
     m_cities.EmptyAndDelete();
 }
 
 
 void EarthData::Initialise()
-{        
+{
     LoadCoastlines();
     LoadBorders();
+    LoadGridlines();
     CalculateAndSetBufferSizes();
     LoadCities();
 }
@@ -186,6 +190,77 @@ void EarthData::LoadCoastlines()
 
     double totalTime = GetHighResTime() - startTime;
     AppDebugOut( "Parsing Coastline data (%d islands) : %dms\n", numIslands, int( totalTime * 1000.0f ) );
+}
+
+
+void EarthData::LoadOneGridlineFile( const char *filename, LList<Island *> &outList )
+{
+    double startTime = GetHighResTime();
+
+    outList.EmptyAndDelete();
+
+    int numSegments = 0;
+
+    std::unique_ptr<Island> segment;
+
+    TextReader *reader = g_fileSystem->GetTextReader( filename );
+    if ( !reader || !reader->IsOpen() )
+    {
+        if ( reader )
+        {
+            delete reader;
+        }
+        return;
+    }
+
+    while ( reader->ReadLine() )
+    {
+        char *line = reader->GetRestOfLine();
+        if ( !line )
+        {
+            continue;
+        }
+        if ( line[0] == 'b' )
+        {
+            if ( segment.get() )
+            {
+                outList.PutData( segment.release() );
+                ++numSegments;
+            }
+            segment.reset( new Island() );
+        }
+        else
+        {
+            float longitude, latitude;
+            if ( sscanf( line, "%f %f", &longitude, &latitude ) >= 2 )
+                segment->m_points.PutData( new Vector3<float>( longitude, latitude, 0.0f ) );
+        }
+    }
+
+    if ( segment.get() )
+    {
+        outList.PutData( segment.release() );
+        ++numSegments;
+    }
+
+    delete reader;
+
+    double totalTime = GetHighResTime() - startTime;
+    AppDebugOut( "Parsing Gridline data (%d segments) : %dms\n", numSegments, int( totalTime * 1000.0f ) );
+}
+
+void EarthData::LoadGridlines()
+{
+    LoadOneGridlineFile( "data/earth/gridlines_low.dat", m_gridlinesLow );
+    LoadOneGridlineFile( "data/earth/gridlines_medium.dat", m_gridlinesMedium );
+    LoadOneGridlineFile( "data/earth/gridlines_high.dat", m_gridlinesHigh );
+}
+
+void EarthData::ClearGridlines()
+{
+    m_gridlinesLow.EmptyAndDelete();
+    m_gridlinesMedium.EmptyAndDelete();
+    m_gridlinesHigh.EmptyAndDelete();
 }
 
 

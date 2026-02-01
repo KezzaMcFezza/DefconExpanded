@@ -41,6 +41,8 @@ public:
     bool    IsModGraphic                (const char* filename);
     void    ClearModGraphicsCache       ();
     bool    ModContainsGeographyData    (const char* modPath);
+    bool    ModContainsGridlinesData    (const char* modPath);
+    bool    GeographyModsContainGridlines ();
     void    UpdateGeographyAffectingMods();
     bool    ModContainsStyleData        (const char* modPath);
     void    UpdateStyleAffectingMods    ();
