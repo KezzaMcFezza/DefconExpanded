@@ -103,7 +103,7 @@ void EclUpdateMouse( int _mouseX, int _mouseY, bool _lmb, bool _rmb )
 		EclWindow *currentWindow = EclGetWindow( mouseX, mouseY );
 		if ( currentWindow )
 		{
-			strcpy( windowFocus, currentWindow->m_name );
+			EclSetCurrentFocus( currentWindow->m_name );
 			EclBringWindowToFront( currentWindow->m_name );
 			strcpy( mouseDownWindow, currentWindow->m_name );
 
@@ -138,7 +138,7 @@ void EclUpdateMouse( int _mouseX, int _mouseY, bool _lmb, bool _rmb )
 		{
 			if ( strcmp( windowFocus, "None" ) != 0 )
 			{
-				strcpy( windowFocus, "None" );
+				EclSetCurrentFocus( "None" );
 			}
 		}
 
