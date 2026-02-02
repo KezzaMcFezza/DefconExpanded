@@ -13,6 +13,7 @@
 #include "city.h"
 #include "earthdata.h"
 
+#include "app/modsystem.h"
 #include "renderer/map_renderer.h"
 
 #include <memory>
@@ -38,7 +39,20 @@ void EarthData::Initialise()
 {
     LoadCoastlines();
     LoadBorders();
-    LoadGridlines();
+
+    if (g_modSystem && g_modSystem->GeographyModsContainGridlines())
+    {
+        LoadGridlines();
+    }
+    else if (g_modSystem)
+    {
+        ClearGridlines();
+    }
+    else
+    {
+        LoadGridlines();
+    }
+
     CalculateAndSetBufferSizes();
     LoadCities();
 }
