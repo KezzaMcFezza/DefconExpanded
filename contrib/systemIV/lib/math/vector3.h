@@ -250,6 +250,43 @@ public:
 	}
 };
 
+// Float specializations: use sqrtf/sinf/cosf to avoid double promotion
+template<>
+inline Vector3<float> const &Vector3<float>::Normalise()
+{
+	float lenSqrd = x*x + y*y + z*z;
+	if (lenSqrd > 0.0f)
+	{
+		if (fabsf(lenSqrd - 1.0f) < 1e-4f)
+		{
+			return *this;
+		}
+
+		float invLen = 1.0f / sqrtf(lenSqrd);
+		x *= invLen;
+		y *= invLen;
+		z *= invLen;
+	}
+	else
+	{
+		x = y = 0.0f;
+		z = 1.0f;
+	}
+	return *this;
+}
+
+template<>
+inline void Vector3<float>::FastRotateAround(Vector3<float> const &_norm, float _angle)
+{
+	float dot = (*this) * _norm;
+	Vector3<float> a = _norm * dot;
+	Vector3<float> n1 = *this - a;
+	Vector3<float> n2 = _norm ^ n1;
+	float s = sinf(_angle);
+	float c = cosf(_angle);
+	*this = a + n1 * c + n2 * s;
+}
+
 // Operator * between float and Vector3
 template <class T>
 constexpr inline Vector3<T> operator * (	T _scale, Vector3<T> const &_v )

@@ -387,15 +387,17 @@ void Renderer3D::CreateSurfaceAlignedBillboard( const Vector3<float> &position, 
 	// Create tangent pointing north
 
 	Vector3<float> tangent2 = normal ^ tangent1;
-	tangent2.Normalise();
 
 	//
 	// Apply rotation if specified
 
 	if ( rotation != 0.0f )
 	{
-		Vector3<float> rotatedTangent1 = tangent1 * cosf( rotation ) + tangent2 * sinf( rotation );
-		Vector3<float> rotatedTangent2 = tangent2 * cosf( rotation ) - tangent1 * sinf( rotation );
+		float c = cosf( rotation );
+		float s = sinf( rotation );
+
+		Vector3<float> rotatedTangent1 = tangent1 * c + tangent2 * s;
+		Vector3<float> rotatedTangent2 = tangent2 * c - tangent1 * s;
 		tangent1 = rotatedTangent1;
 		tangent2 = rotatedTangent2;
 	}

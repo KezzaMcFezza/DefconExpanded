@@ -103,20 +103,15 @@ void GlobeRenderer::Reset()
 
 Vector3<float> GlobeRenderer::ConvertLongLatTo3DPosition(float longitude, float latitude)
 {
+    float lonRad = longitude * (float)M_PI / 180.0f;
+    float latRad = latitude * (float)M_PI / 180.0f;
+    float cosLat = cosf(latRad);
+    float sinLat = sinf(latRad);
+    float cosLon = cosf(lonRad);
+    float sinLon = sinf(lonRad);
+    float r = GLOBE_RADIUS;
     
-    float lonRad = longitude * M_PI / 180.0f;
-    float latRad = latitude * M_PI / 180.0f;
-    
-    //
-    // Spherical to cartesian conversion
-
-    Vector3<float> pos(0, 0, GLOBE_RADIUS);
-    pos.RotateAroundY(lonRad);
-    Vector3<float> right = pos ^ Vector3<float>(0, 1, 0);
-    right.Normalise();
-    pos.RotateAround(right * latRad);
-    
-    return pos;
+    return Vector3<float>(r * cosLat * sinLon, r * sinLat, r * cosLat * cosLon);
 }
 
 Vector3<float> GlobeRenderer::GetElevatedPosition(const Vector3<float>& position)
@@ -259,7 +254,10 @@ Vector3<float> GlobeRenderer::CalculateTrajectorySurfacePosition(const GreatCirc
     if (constants.totalDistanceRadians < 0.001f) {
         float lat = constants.lat1 + (constants.lat2 - constants.lat1) * progress;
         float lon = constants.lon1 + (constants.lon2 - constants.lon1) * progress;
-        return ConvertLongLatTo3DPosition(lon * 180.0f / M_PI, lat * 180.0f / M_PI);
+        float cosLat = cosf(lat);
+        float r = GLOBE_RADIUS;
+
+        return Vector3<float>(r * cosLat * sinf(lon), r * sinf(lat), r * cosLat * cosf(lon));
     }
     
     float A = sinf((1.0f - progress) * constants.totalDistanceRadians) / constants.sinDistance;
@@ -268,10 +266,8 @@ Vector3<float> GlobeRenderer::CalculateTrajectorySurfacePosition(const GreatCirc
     float x = A * constants.x1 + B * constants.x2;
     float y = A * constants.y1 + B * constants.y2;
     float z = A * constants.z1 + B * constants.z2;
-    
-    float lat = asinf(z);
-    float lon = atan2f(y, x);
-    return ConvertLongLatTo3DPosition(lon * 180.0f / M_PI, lat * 180.0f / M_PI);
+
+    return Vector3<float>(y * GLOBE_RADIUS, z * GLOBE_RADIUS, x * GLOBE_RADIUS);
 }
 
 //
@@ -290,7 +286,8 @@ Vector3<float> GlobeRenderer::CalculateTrajectoryPointFromConstants(const GreatC
 {
     Vector3<float> surfacePos = CalculateTrajectorySurfacePosition(constants, progress);
     float height = CalculateTrajectoryArcHeight(constants, progress);
-    return surfacePos + surfacePos.Normalized() * height;
+
+    return surfacePos * (1.0f + height / GLOBE_RADIUS);
 }
 
 //
