@@ -255,8 +255,6 @@ void MapRenderer::Render()
             RenderNukeUnits();
         }
 
-        g_renderer2d->BeginTextBatch();
-
         RenderObjects();
         RenderCities();
 #ifdef SYNC_PRACTICE
@@ -264,12 +262,18 @@ void MapRenderer::Render()
         RenderSyncOverlay();
 #endif
 
+        g_renderer2d->BeginCircleFillBatch();
+        g_renderer2d->BeginCircleBatch();
+        
+        RenderNodes();
+
+        g_renderer2d->EndCircleFillBatch();
+        g_renderer2d->EndCircleBatch();
         g_renderer2d->EndTextBatch();
 
         RenderGunfire();           
         RenderBlips();        
 		RenderSanta();
-        RenderNodes();
 
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
