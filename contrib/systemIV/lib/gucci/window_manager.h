@@ -72,7 +72,6 @@ public:
     void        RestoreDesktop            ();
     void        ListAllDisplayModes       (int displayIndex);
     void        WindowHasMoved            ();
-    void        UpdateStoredMaximizedState();
 
     int         GetDefaultDisplayIndex();
     int         GetNumDisplays        ();
@@ -115,7 +114,6 @@ protected:
     
     SDL_Window* m_sdlWindow;
     int         m_windowDisplayIndex;
-    bool        m_isMaximized;
     bool        m_tryingToCaptureMouse;
 };
 

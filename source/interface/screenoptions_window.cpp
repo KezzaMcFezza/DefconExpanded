@@ -311,10 +311,6 @@ class SetScreenButton : public InterfaceButton
         
         g_preferences->SetInt( PREFS_SCREEN_WINDOWED, windowed );
         g_preferences->SetInt( PREFS_SCREEN_BORDERLESS, borderless );
-        if ( windowed && !g_windowManager->Windowed() )
-        {
-            g_preferences->SetInt( PREFS_SCREEN_MAXIMIZED, 1 );
-        }
         g_preferences->SetInt( PREFS_SCREEN_COLOUR_DEPTH, parent->m_colourDepth );
         g_preferences->SetInt( PREFS_SCREEN_Z_DEPTH, parent->m_zDepth );
         g_preferences->SetInt( PREFS_SCREEN_UI_SCALE, parent->m_uiScale );

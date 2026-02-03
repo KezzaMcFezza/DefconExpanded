@@ -52,7 +52,6 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	// Set the flags for creating the mode
 
 	int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIGH_PIXEL_DENSITY;
-	bool requestMaximized = false;
 	if ( !_windowed )
 	{
 		if ( _borderless )
@@ -72,17 +71,6 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	{
 		SDL_Rect usableBounds;
 		SDL_GetDisplayUsableBounds( displayID, &usableBounds );
-		if ( g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
-		{
-			flags |= SDL_WINDOW_MAXIMIZED;
-			requestMaximized = true;
-		}
-
-		//
-		// Create hidden so we can set position on the target display before first show.
-		// Otherwise the window and its maximized state would apply on the primary display.
-
-		flags |= SDL_WINDOW_HIDDEN;
 
 #ifdef TARGET_OS_MACOSX
 		// Mac OS X will allow the window to go off the bottom of the screen
@@ -100,16 +88,9 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		usableBounds.h -= dragbarHeight;
 #endif
 
-		if ( requestMaximized )
-		{
-			m_screenW = usableBounds.w;
-			m_screenH = usableBounds.h;
-		}
-		else
-		{
-			m_screenW = std::min( usableBounds.w, _width );
-			m_screenH = std::min( usableBounds.h, _height );
-		}
+		m_screenW = std::min( usableBounds.w, _width );
+		m_screenH = std::min( usableBounds.h, _height );
+		
 
 		flags |= SDL_WINDOW_RESIZABLE;
 
@@ -362,18 +343,6 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		m_screenH = actualH;
 	}
 
-	UpdateStoredMaximizedState();
-
-	if ( requestMaximized )
-	{
-		//
-		// SDL respects SDL_WINDOW_MAXIMIZED at creation time, but double check
-		// in case we need to sync our cached dimensions after decoration logic.
-
-		SDL_GetWindowSize( m_sdlWindow, &m_screenW, &m_screenH );
-		UpdateStoredMaximizedState();
-	}
-
 	//
 	// Pass back the actual values to the Renderer
 
@@ -394,28 +363,6 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	// Show window only after position is set
 
 	SDL_ShowWindow( m_sdlWindow );
-
-	if ( requestMaximized )
-	{
-		//
-		// Hidden and maximized window may report creation size until shown.
-		// Pump events so the window manager applies maximized size, then sync.
-
-		SDL_PumpEvents();
-
-		int actualW, actualH;
-		if ( SDL_GetWindowSize( m_sdlWindow, &actualW, &actualH ) && ( actualW != m_screenW || actualH != m_screenH ) )
-		{
-			int oldW = m_screenW, oldH = m_screenH;
-			m_screenW = actualW;
-			m_screenH = actualH;
-			
-			if ( m_windowResizeHandler )
-			{
-				m_windowResizeHandler( m_screenW, m_screenH, oldW, oldH );
-			}
-		}
-	}
 
 	return true;
 }
@@ -452,8 +399,6 @@ void WindowManagerOpenGL::HandleResize( int newWidth, int newHeight )
 		return;
 
 	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
-
-	UpdateStoredMaximizedState();
 
 	if ( windowFlags & ( SDL_WINDOW_FULLSCREEN ) )
 		return;

@@ -90,7 +90,6 @@ WindowManager::WindowManager()
 	  m_windowResizeHandler( NULL ),
 	  m_sdlWindow( nullptr ),
 	  m_windowDisplayIndex( 0 ),
-	  m_isMaximized( false ),
 	  m_tryingToCaptureMouse( false )
 {
 	InitializeSDL();
@@ -532,27 +531,6 @@ void WindowManager::WindowHasMoved()
 		m_windowDisplayIndex = GetDisplayIndexFromID( id );
 		ListAllDisplayModes( m_windowDisplayIndex );
 	}
-}
-
-
-void WindowManager::UpdateStoredMaximizedState()
-{
-	if ( !m_sdlWindow || !g_preferences )
-		return;
-
-	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
-	bool currentlyMaximized = false;
-
-	if ( m_windowed && !( windowFlags & ( SDL_WINDOW_FULLSCREEN ) ) )
-	{
-		currentlyMaximized = ( windowFlags & SDL_WINDOW_MAXIMIZED ) != 0;
-	}
-
-	if ( currentlyMaximized == m_isMaximized )
-		return;
-
-	m_isMaximized = currentlyMaximized;
-	g_preferences->SetInt( PREFS_SCREEN_MAXIMIZED, m_isMaximized ? 1 : 0 );
 }
 
 

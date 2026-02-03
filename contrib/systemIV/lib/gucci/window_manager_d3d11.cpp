@@ -386,7 +386,6 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	// Set the flags for creating the mode
 
 	int flags = SDL_WINDOW_HIGH_PIXEL_DENSITY;
-	bool requestMaximized = false;
 
 	if ( !_windowed )
 	{
@@ -415,29 +414,14 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 		SDL_Rect usableBounds;
 		SDL_GetDisplayUsableBounds( displayID, &usableBounds );
 
-		if ( g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
-		{
-			flags |= SDL_WINDOW_MAXIMIZED;
-			requestMaximized = true;
+		m_screenW = _width;
+		m_screenH = _height;
+
+		if ( m_screenW > usableBounds.w )
 			m_screenW = usableBounds.w;
+		if ( m_screenH > usableBounds.h )
 			m_screenH = usableBounds.h;
-		}
-		else
-		{
-			m_screenW = _width;
-			m_screenH = _height;
-
-			if ( m_screenW > usableBounds.w )
-				m_screenW = usableBounds.w;
-			if ( m_screenH > usableBounds.h )
-				m_screenH = usableBounds.h;
-		}
-
-		//
-		// Create hidden so we can set position on the target display before first show.
-		// Otherwise the window and its maximized state would apply on the primary display.
-
-		flags |= SDL_WINDOW_HIDDEN;
+		
 
 		if ( _borderless )
 		{
@@ -589,8 +573,6 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 		}
 	}
 
-	UpdateStoredMaximizedState();
-
 	if ( !m_mousePointerVisible )
 		HideMousePointer();
 
@@ -601,49 +583,6 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	// Show window only after position is set
 
 	SDL_ShowWindow( m_sdlWindow );
-
-	if ( requestMaximized )
-	{
-		//
-		// Hidden and  maximized window may report creation size until shown.
-		// Pump events so the window manager applies maximized size, then sync.
-		SDL_PumpEvents();
-
-		int actualW, actualH;
-		if ( SDL_GetWindowSize( m_sdlWindow, &actualW, &actualH ) && ( actualW != m_screenW || actualH != m_screenH ) )
-		{
-			int oldW = m_screenW, oldH = m_screenH;
-			m_screenW = actualW;
-			m_screenH = actualH;
-
-			ReleaseRenderTargets();
-
-			int drawableW, drawableH;
-			GetDrawableSize( &drawableW, &drawableH );
-
-			HRESULT hr = m_swapChain->ResizeBuffers(
-				0,
-				drawableW, drawableH,
-				DXGI_FORMAT_UNKNOWN,
-				m_swapChainFlags );
-
-			if ( SUCCEEDED( hr ) )
-			{
-				CreateRenderTargetView();
-				CreateDepthStencilView( drawableW, drawableH );
-
-				m_deviceContext->OMSetRenderTargets( 1, &m_renderTargetView, m_depthStencilView );
-				
-				SetViewport( drawableW, drawableH );
-			}
-
-			if ( m_windowResizeHandler )
-			{
-				m_windowResizeHandler( m_screenW, m_screenH, oldW, oldH );
-			}
-		}
-		UpdateStoredMaximizedState();
-	}
 
 	return true;
 }
@@ -887,8 +826,6 @@ void WindowManagerD3D11::HandleResize( int newWidth, int newHeight )
 		return;
 
 	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
-
-	UpdateStoredMaximizedState();
 
 	//
 	// Dont resize in fullscreen mode
