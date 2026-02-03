@@ -151,6 +151,7 @@ def generate_one_gridlines_file(img, out_path, spacing_deg, sample_step=SAMPLE_S
 
 def main():
     ap = argparse.ArgumentParser(description="Generate gridlines_low/medium/high.dat from any .bmp")
+    ap.add_argument("input", help="Input BMP file")
     ap.add_argument("-o", "--output-dir", default="../../",
                     help="Output directory for the 3 .dat files")
     args = ap.parse_args()
