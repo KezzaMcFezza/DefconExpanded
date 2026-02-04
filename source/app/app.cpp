@@ -896,6 +896,21 @@ void App::InitialiseWindow()
         windowed = true;
     }
 
+    //
+    // In windowed mode, if the stored resolution equals the displays usable bounds,
+    // force maximized so the window doesnt end up with title bar off screen and make
+    // the user lose their shit.
+
+    if ( windowed && screenW > 0 && screenH > 0 )
+    {
+        int usableW, usableH;
+        g_windowManager->GetDisplayUsableSize( g_windowManager->GetCurrentDisplayIndex(), &usableW, &usableH );
+        if ( screenW == usableW && screenH == usableH )
+        {
+            g_preferences->SetInt( PREFS_SCREEN_MAXIMIZED, 1 );
+            g_preferences->Save();
+        }
+    }
 
     bool success = g_windowManager->CreateWin( screenW, screenH, windowed, colourDepth, screenRefresh, zDepth, antiAlias, borderless, "DEFCON" );
 

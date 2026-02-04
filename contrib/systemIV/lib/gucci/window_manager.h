@@ -77,7 +77,9 @@ public:
     int         GetNumDisplays        ();
     const char* GetDisplayName        (int displayIndex);
     int         GetCurrentDisplayIndex();
-    void        GetDisplayUsableSize  (int displayIndex, int *outW, int *outH);
+	
+    void        GetDisplayUsableSize   (int displayIndex, int *outW, int *outH);
+    void        GetDisplayDesktopSize  (int displayIndex, int *outW, int *outH);
 
 	static SDL_DisplayID GetDisplayIDFromIndex( int displayIndex );
 	static int GetDisplayIndexFromID          ( SDL_DisplayID id );

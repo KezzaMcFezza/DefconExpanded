@@ -294,21 +294,40 @@ class SetScreenButton : public InterfaceButton
         int oldHeight = g_preferences->GetInt( PREFS_SCREEN_HEIGHT );
 
         WindowResolution *resolution = g_windowManager->GetResolution( parent->m_resId );
-        if( resolution )
-        {
-            g_preferences->SetInt( PREFS_SCREEN_WIDTH, resolution->m_width );
-            g_preferences->SetInt( PREFS_SCREEN_HEIGHT, resolution->m_height );
-        }
+        int applyW = resolution ? resolution->m_width : g_preferences->GetInt( PREFS_SCREEN_WIDTH );
+        int applyH = resolution ? resolution->m_height : g_preferences->GetInt( PREFS_SCREEN_HEIGHT );
 
-        g_preferences->SetInt( PREFS_SCREEN_REFRESH, parent->m_refreshRate );
-        
         //
         // convert screen mode to windowed/borderless flags
         // screenMode: 0 = fullscreen, 1 = borderless fullscreen, 2 = windowed
         
-        int windowed = (parent->m_screenMode == 2) ? 1 : 0;
-        int borderless = (parent->m_screenMode == 1) ? 1 : 0;
+        int windowed = ( parent->m_screenMode == 2 ) ? 1 : 0;
+        int borderless = ( parent->m_screenMode == 1 ) ? 1 : 0;
         
+        int displayIndex = parent->m_displayIndex;
+        if ( displayIndex < 0 || displayIndex >= g_windowManager->GetNumDisplays() )
+        {
+            displayIndex = g_windowManager->GetCurrentDisplayIndex();
+        }
+
+        //
+        // In windowed mode, if user selects native/desktop resolution we use usable bounds
+        // and start maximized so the window fits correctly.
+
+        if ( windowed && resolution )
+        {
+            int desktopW, desktopH;
+            g_windowManager->GetDisplayDesktopSize( displayIndex, &desktopW, &desktopH );
+            if ( resolution->m_width == desktopW && resolution->m_height == desktopH )
+            {
+                g_windowManager->GetDisplayUsableSize( displayIndex, &applyW, &applyH );
+                g_preferences->SetInt( PREFS_SCREEN_MAXIMIZED, 1 );
+            }
+        }
+
+        g_preferences->SetInt( PREFS_SCREEN_WIDTH, applyW );
+        g_preferences->SetInt( PREFS_SCREEN_HEIGHT, applyH );
+        g_preferences->SetInt( PREFS_SCREEN_REFRESH, parent->m_refreshRate );
         g_preferences->SetInt( PREFS_SCREEN_WINDOWED, windowed );
         g_preferences->SetInt( PREFS_SCREEN_BORDERLESS, borderless );
         g_preferences->SetInt( PREFS_SCREEN_COLOUR_DEPTH, parent->m_colourDepth );
@@ -321,10 +340,10 @@ class SetScreenButton : public InterfaceButton
         g_preferences->SetInt( PREFS_SCREEN_MIPMAP_LEVEL, parent->m_mipmapLevel );
         g_preferences->SetInt( PREFS_SCREEN_DISPLAY_INDEX, parent->m_displayIndex );
 		
-        if( resolution && g_app && g_app->GetInterface() )
+        if( g_app && g_app->GetInterface() )
         {
-            g_app->GetInterface()->HandleWindowResize( resolution->m_width,
-                                                       resolution->m_height,
+            g_app->GetInterface()->HandleWindowResize( applyW,
+                                                       applyH,
                                                        oldWidth,
                                                        oldHeight );
         }

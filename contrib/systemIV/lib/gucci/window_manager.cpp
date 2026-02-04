@@ -419,6 +419,32 @@ void WindowManager::GetDisplayUsableSize( int displayIndex, int *outW, int *outH
 }
 
 
+void WindowManager::GetDisplayDesktopSize( int displayIndex, int *outW, int *outH )
+{
+	SDL_DisplayID displayID = GetDisplayIDFromIndex( displayIndex );
+	if ( !outW || !outH )
+	{
+		return;
+	}
+	*outW = 1024;
+	*outH = 768;
+
+	const SDL_DisplayMode *desktopMode = displayID ? SDL_GetDesktopDisplayMode( displayID ) : nullptr;
+	if ( desktopMode )
+	{
+		*outW = desktopMode->w;
+		*outH = desktopMode->h;
+		return;
+	}
+	SDL_Rect displayBounds;
+	if ( displayID && SDL_GetDisplayBounds( displayID, &displayBounds ) )
+	{
+		*outW = displayBounds.w;
+		*outH = displayBounds.h;
+	}
+}
+
+
 void WindowManager::ListAllDisplayModes( int displayIndex )
 {
 	SDL_DisplayID displayID = GetDisplayIDFromIndex( displayIndex );
@@ -679,9 +705,41 @@ void WindowManager::PollForMessages()
 
 			case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
 			case SDL_EVENT_WINDOW_RESIZED:
+			{
+				int w, h;
+				if ( m_sdlWindow && SDL_GetWindowSize( m_sdlWindow, &w, &h ) )
+				{
+					HandleResize( w, h );
+				}
+				else
+				{
+					HandleResize( sdlEvent.window.data1, sdlEvent.window.data2 );
+				}
+				break;
+			}
 			case SDL_EVENT_WINDOW_MAXIMIZED:
+			{
+				if ( m_windowed && g_preferences )
+				{
+					g_preferences->SetInt( PREFS_SCREEN_MAXIMIZED, 1 );
+				}
+				int w, h;
+				if ( m_sdlWindow && SDL_GetWindowSize( m_sdlWindow, &w, &h ) )
+				{
+					HandleResize( w, h );
+				}
+				else
+				{
+					HandleResize( sdlEvent.window.data1, sdlEvent.window.data2 );
+				}
+				break;
+			}
 			case SDL_EVENT_WINDOW_RESTORED:
 			{
+				if ( m_windowed && g_preferences )
+				{
+					g_preferences->SetInt( PREFS_SCREEN_MAXIMIZED, 0 );
+				}
 				int w, h;
 				if ( m_sdlWindow && SDL_GetWindowSize( m_sdlWindow, &w, &h ) )
 				{
