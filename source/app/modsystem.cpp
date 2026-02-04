@@ -1142,6 +1142,38 @@ void ModSystem::Commit()
 }
 
 
+void ModSystem::HotReloadMods()
+{
+    //
+    // Capture current active mod path
+
+    char currentModPath[4096];
+    currentModPath[0] = '\0';
+    char temp[1024];
+
+    for ( int i = 0; i < m_mods.Size(); ++i )
+    {
+        InstalledMod *mod = m_mods[i];
+        if ( mod->m_active )
+        {
+            sprintf( temp, "%s;%s;", mod->m_name, mod->m_version );
+            strcat( currentModPath, temp );
+        }
+    }
+
+    if ( currentModPath[0] == '\0' )
+    {
+        AppDebugOut( "HotReloadMods: no active mods, nothing to reload\n" );
+        return;
+    }
+
+    DeActivateAllMods();
+    Commit();
+    LoadInstalledMods();
+    
+    SetModPath( currentModPath );
+}
+
 
 // ============================================================================
 

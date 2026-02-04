@@ -1156,6 +1156,17 @@ void App::Update()
     }
 
     //
+    // F4 rebuilds all VBOs and reloads the mods
+
+    if( g_keys[KEY_F4] && g_keyDeltas[KEY_F4] )
+    {
+        if( g_preferences && g_preferences->GetInt("DeveloperMode", 0) == 1 )
+        {
+            g_modSystem->HotReloadMods();
+        }
+    }
+
+    //
     // Toggle console with ~ key
     
     if( g_keys[KEY_TILDE] && g_keyDeltas[KEY_TILDE] && m_debugConsole )
