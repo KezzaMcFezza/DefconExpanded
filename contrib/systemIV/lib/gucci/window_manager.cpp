@@ -385,6 +385,40 @@ int WindowManager::GetCurrentDisplayIndex()
 }
 
 
+void WindowManager::GetDisplayUsableSize( int displayIndex, int *outW, int *outH )
+{
+	SDL_DisplayID displayID = GetDisplayIDFromIndex( displayIndex );
+	if ( !displayID || !outW || !outH )
+	{
+		if ( outW ) 
+		{
+			*outW = 1024;
+		}
+		if ( outH ) 
+		{
+			*outH = 768;
+		}
+		return;
+	}
+
+	SDL_Rect usableBounds;
+	if ( !SDL_GetDisplayUsableBounds( displayID, &usableBounds ) )
+	{
+		*outW = 1024;
+		*outH = 768;
+		return;
+	}
+
+	*outW = usableBounds.w;
+	*outH = usableBounds.h;
+
+#ifdef _DEBUG
+	AppDebugOut( "Display %d usable bounds: %dx%d\n", displayIndex, *outW, *outH );
+#endif
+
+}
+
+
 void WindowManager::ListAllDisplayModes( int displayIndex )
 {
 	SDL_DisplayID displayID = GetDisplayIDFromIndex( displayIndex );
