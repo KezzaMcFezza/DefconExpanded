@@ -444,6 +444,11 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 		SDL_SetWindowPosition( m_sdlWindow, 
 	                           SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ), 
 	                           SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ) );
+							   
+		if ( _windowed && g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
+		{
+			SDL_MaximizeWindow( m_sdlWindow );
+		}
 	}
 
 	if ( !m_sdlWindow )
