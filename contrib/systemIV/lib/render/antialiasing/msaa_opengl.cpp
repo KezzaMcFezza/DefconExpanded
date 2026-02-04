@@ -122,8 +122,9 @@ void AntiAliasingMSAA_OpenGL::Resize( int width, int height )
 	//
 	// Destroy and reincarnate the FBO with new dimensions
 
+	int preservedSamples = m_samples;
 	Destroy();
-	Initialize( width, height, m_samples );
+	Initialize( width, height, preservedSamples );
 }
 
 
