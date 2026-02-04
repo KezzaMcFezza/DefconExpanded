@@ -996,6 +996,158 @@ void App::RequestWindowReinit()
 }
 
 
+void App::UpdateRenderSettings()
+{
+    //
+    // Update method that only reinitializes whats necessary
+    // This avoids the expensive full window recreation for most setting changes
+    
+    if (!g_preferences || !g_windowManager || !g_renderer)
+    {
+        return;
+    }
+
+    RendererType currentRendererType = GetRendererType();
+    RendererType newRendererType = SelectRendererFromPreferences(g_preferences);
+    
+    //
+    // We need to track what was last applied to detect changes
+
+    static int lastAppliedWindowed = g_preferences->GetInt(PREFS_SCREEN_WINDOWED, 0);
+    static int lastAppliedBorderless = g_preferences->GetInt(PREFS_SCREEN_BORDERLESS, 0);
+    static int lastAppliedDisplayIndex = g_preferences->GetInt(PREFS_SCREEN_DISPLAY_INDEX, -1);
+    static int lastAppliedZDepth = g_preferences->GetInt(PREFS_SCREEN_Z_DEPTH, 24);
+    static int lastAppliedColourDepth = g_preferences->GetInt(PREFS_SCREEN_COLOUR_DEPTH, 32);
+    
+    int currentWindowed = g_windowManager->Windowed() ? 1 : 0;
+    int newWindowed = g_preferences->GetInt(PREFS_SCREEN_WINDOWED, 0);
+    int newBorderless = g_preferences->GetInt(PREFS_SCREEN_BORDERLESS, 0);
+    
+    int newWidth = g_preferences->GetInt(PREFS_SCREEN_WIDTH);
+    int newHeight = g_preferences->GetInt(PREFS_SCREEN_HEIGHT);
+    int currentWidth = g_windowManager->WindowW();
+    int currentHeight = g_windowManager->WindowH();
+    
+    int currentDisplayIndex = g_windowManager->GetCurrentDisplayIndex();
+    int newDisplayIndex = g_preferences->GetInt(PREFS_SCREEN_DISPLAY_INDEX, -1);
+    if (newDisplayIndex < 0 || newDisplayIndex >= g_windowManager->GetNumDisplays())
+    {
+        newDisplayIndex = currentDisplayIndex;
+    }
+    
+    int newZDepth = g_preferences->GetInt(PREFS_SCREEN_Z_DEPTH, 24);
+    int newColourDepth = g_preferences->GetInt(PREFS_SCREEN_COLOUR_DEPTH, 32);
+    
+    bool rendererTypeChanged = (currentRendererType != newRendererType);
+    bool screenModeChanged = (newWindowed != lastAppliedWindowed) ||
+                            (newBorderless != lastAppliedBorderless);
+
+    bool displayChanged = (newDisplayIndex != lastAppliedDisplayIndex);
+    bool zDepthChanged = (newZDepth != lastAppliedZDepth);
+    bool colourDepthChanged = (newColourDepth != lastAppliedColourDepth);
+    bool resolutionChanged = (newWidth != currentWidth) || (newHeight != currentHeight);
+
+    //
+    // Settings that require a full window reinit: update tracked state and bail out
+    //
+
+    bool needsWindowReinit = rendererTypeChanged;
+
+    if ( screenModeChanged )
+    {
+        lastAppliedWindowed = newWindowed;
+        lastAppliedBorderless = newBorderless;
+        needsWindowReinit = true;
+    }
+
+    if ( displayChanged )
+    {
+        lastAppliedDisplayIndex = newDisplayIndex;
+        needsWindowReinit = true;
+    }
+
+    if ( zDepthChanged )
+    {
+        lastAppliedZDepth = newZDepth;
+        needsWindowReinit = true;
+    }
+
+    if ( colourDepthChanged && currentRendererType == RENDERER_TYPE_DIRECTX11 )
+    {
+        lastAppliedColourDepth = newColourDepth;
+        needsWindowReinit = true;
+    }
+
+    if ( needsWindowReinit )
+    {
+        RequestWindowReinit();
+        return;
+    }
+
+    //
+    // Handle resolution changes in windowed mode
+    
+    if (resolutionChanged && currentWindowed)
+    {
+        //
+        // Check if we should be maximized
+
+        int shouldMaximize = g_preferences->GetInt(PREFS_SCREEN_MAXIMIZED, 0);
+        
+        if (shouldMaximize)
+        {
+            SDL_MaximizeWindow(g_windowManager->GetSDLWindow());
+        }
+        else
+        {
+            SDL_RestoreWindow(g_windowManager->GetSDLWindow());
+            SDL_SetWindowSize(g_windowManager->GetSDLWindow(), newWidth, newHeight);
+            SDL_SetWindowPosition(g_windowManager->GetSDLWindow(),
+                                 SDL_WINDOWPOS_CENTERED,
+                                 SDL_WINDOWPOS_CENTERED);
+        }
+    }
+    else if (resolutionChanged)
+    {
+        RequestWindowReinit();
+        return;
+    }
+    
+    //
+    // Anti aliasing changes
+    
+    int newMSAA = g_preferences->GetInt(PREFS_SCREEN_ANTIALIAS, 0);
+    AntiAliasingType newAAType = (AntiAliasingType)g_preferences->GetInt(PREFS_SCREEN_ANTIALIAS_TYPE, AA_TYPE_MSAA);
+    
+    int screenW = g_windowManager->GetPhysicalWidth();
+    int screenH = g_windowManager->GetPhysicalHeight();
+    
+    g_renderer->InitializeAntiAliasing(newAAType, screenW, screenH, newMSAA);
+    
+    //
+    // Mipmap level changes, requires resource reload
+    
+    static int lastMipmapLevel = g_preferences->GetInt(PREFS_SCREEN_MIPMAP_LEVEL, 4);
+    int newMipmapLevel = g_preferences->GetInt(PREFS_SCREEN_MIPMAP_LEVEL, 4);
+    
+    if (newMipmapLevel != lastMipmapLevel)
+    {
+        g_resource->Shutdown();
+        g_resource->Restart();
+    
+        InitFonts();
+        
+        lastMipmapLevel = newMipmapLevel;
+    }
+
+    lastAppliedWindowed = newWindowed;
+    lastAppliedBorderless = newBorderless;
+    lastAppliedDisplayIndex = newDisplayIndex;
+    lastAppliedZDepth = newZDepth;
+    lastAppliedColourDepth = newColourDepth;
+}
+
+
 void App::ReinitialiseWindow()
 {
     m_pendingWindowReinit = false;

@@ -350,17 +350,17 @@ class SetScreenButton : public InterfaceButton
         g_preferences->SetInt( PREFS_SCREEN_MIPMAP_LEVEL, parent->m_mipmapLevel );
         g_preferences->SetInt( PREFS_SCREEN_DISPLAY_INDEX, parent->m_displayIndex );
 		
-        if( g_app && g_app->GetInterface() )
+        g_preferences->Save();
+
+        parent->RestartWindowManager();
+        
+        if( g_app && g_app->GetInterface() && (applyW != oldWidth || applyH != oldHeight) )
         {
             g_app->GetInterface()->HandleWindowResize( applyW,
                                                        applyH,
                                                        oldWidth,
                                                        oldHeight );
-        }
-
-        g_preferences->Save();
-
-        parent->RestartWindowManager();        
+        }        
 
         parent->m_resId = g_windowManager->GetResolutionId( g_preferences->GetInt(PREFS_SCREEN_WIDTH),
                                                             g_preferences->GetInt(PREFS_SCREEN_HEIGHT) );
@@ -372,15 +372,39 @@ class SetScreenButton : public InterfaceButton
         int tempBorderless = g_preferences->GetInt( PREFS_SCREEN_BORDERLESS, 0 );
 
         if( tempWindowed )
+        {
             parent->m_screenMode = 2;
+        }
         else if( tempBorderless )
+        {
             parent->m_screenMode = 1;
+        }
         else
+        {
             parent->m_screenMode = 0;
+        }
         
         parent->m_colourDepth   = g_preferences->GetInt( PREFS_SCREEN_COLOUR_DEPTH, 16 );
+        
+        //
+        // DirectX11 shits itself with 16 bit color depth
+        
+        if ( GetRendererType() == RENDERER_TYPE_DIRECTX11 && parent->m_colourDepth == 16 )
+        {
+            parent->m_colourDepth = 24;
+        }
+        
         parent->m_refreshRate   = g_preferences->GetInt( PREFS_SCREEN_REFRESH, 60 );	
         parent->m_zDepth        = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH, 24 );
+        
+        //
+        // OpenGL renders black screen with 32 bit z-depth
+        
+        if ( GetRendererType() == RENDERER_TYPE_OPENGL && parent->m_zDepth == 32 )
+        {
+            parent->m_zDepth = 24;
+        }
+
         parent->m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
         parent->m_antiAlias     = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
         parent->m_antiAliasType = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS_TYPE, AA_TYPE_MSAA);
@@ -402,7 +426,7 @@ class SetScreenButton : public InterfaceButton
 
 void ScreenOptionsWindow::RestartWindowManager()
 {
-    g_app->RequestWindowReinit();
+    g_app->UpdateRenderSettings();
 }
 
 
@@ -421,16 +445,34 @@ ScreenOptionsWindow::ScreenOptionsWindow()
     int windowed = g_preferences->GetInt( PREFS_SCREEN_WINDOWED, 0 );
     int borderless = g_preferences->GetInt( PREFS_SCREEN_BORDERLESS, 0 );
     if( windowed )
+    {
         m_screenMode = 2;
+    }
     else if( borderless )
+    {
         m_screenMode = 1;
+    }
     else
+    {
         m_screenMode = 0;
+    }
     
     m_colourDepth   = g_preferences->GetInt( PREFS_SCREEN_COLOUR_DEPTH, 16 );
+    
+    if ( GetRendererType() == RENDERER_TYPE_DIRECTX11 && m_colourDepth == 16 )
+    {
+        m_colourDepth = 24;
+    }
+    
     m_refreshRate   = g_preferences->GetInt( PREFS_SCREEN_REFRESH, 60 );
 	height += 30;
     m_zDepth        = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH, 24 );
+    
+    if ( GetRendererType() == RENDERER_TYPE_OPENGL && m_zDepth == 32 )
+    {
+        m_zDepth = 24;
+    }
+
     m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
 	m_antiAlias		= g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
     m_antiAliasType = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS_TYPE, AA_TYPE_MSAA );
@@ -530,9 +572,14 @@ void ScreenOptionsWindow::Create()
     screenRes->RegisterInt( &m_resId );
 
 
-    FullscreenRequiredMenu *colourDepth = new FullscreenRequiredMenu();
+    DropDownMenu *colourDepth = new DropDownMenu();
     colourDepth->SetProperties( "Colour Depth", x, y+=h, w, 20, "dialog_colourdepth", " ", true, false );
-    colourDepth->AddOption( "dialog_colourdepth_16", 16, true );
+    
+    if ( GetRendererType() != RENDERER_TYPE_DIRECTX11 )
+    {
+        colourDepth->AddOption( "dialog_colourdepth_16", 16, true );
+    }
+
     colourDepth->AddOption( "dialog_colourdepth_24", 24, true );
     colourDepth->AddOption( "dialog_colourdepth_32", 32, true );
     colourDepth->RegisterInt( &m_colourDepth );
@@ -542,6 +589,12 @@ void ScreenOptionsWindow::Create()
     zDepth->SetProperties( "Z Buffer Depth", x, y+=h, w, 20, "dialog_zbufferdepth", " ", true, false );
     zDepth->AddOption( "dialog_colourdepth_16", 16, true );
     zDepth->AddOption( "dialog_colourdepth_24", 24, true );
+    
+    if ( GetRendererType() != RENDERER_TYPE_OPENGL )
+    {
+        zDepth->AddOption( "dialog_colourdepth_32", 32, true );
+    }
+    
     zDepth->RegisterInt( &m_zDepth );
     RegisterButton( zDepth );
 
