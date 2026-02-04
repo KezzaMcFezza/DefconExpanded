@@ -431,6 +431,14 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 		{
 			flags |= SDL_WINDOW_RESIZABLE;
 		}
+
+		//
+		// Create the window hidden in maximized mode to avoid a visible jump on create/reinit.
+		
+		if ( g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
+		{
+			flags |= SDL_WINDOW_HIDDEN;
+		}
 	}
 
 #ifdef _DEBUG
@@ -441,13 +449,23 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 
 	if ( m_sdlWindow )
 	{
-		SDL_SetWindowPosition( m_sdlWindow, 
-	                           SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ), 
-	                           SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ) );
-							   
 		if ( _windowed && g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
 		{
+			SDL_SetWindowPosition( m_sdlWindow,
+			                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ),
+			                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ) );
 			SDL_MaximizeWindow( m_sdlWindow );
+
+			//
+			// Now we can unhide the window 
+
+			SDL_ShowWindow( m_sdlWindow );
+		}
+		else
+		{
+			SDL_SetWindowPosition( m_sdlWindow,
+			                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ),
+			                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ) );
 		}
 	}
 

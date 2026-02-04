@@ -95,6 +95,14 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		flags |= SDL_WINDOW_RESIZABLE;
 
 		//
+		// Create the window hidden in maximized mode to avoid a visible jump on create/reinit.
+
+		if ( g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
+		{
+			flags |= SDL_WINDOW_HIDDEN;
+		}
+
+		//
 		// Add it to the list of screen resolutions if need be
 
 		WindowResolution *found = NULL;
@@ -187,13 +195,23 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		m_sdlWindow = SDL_CreateWindow( _title, m_screenW, m_screenH, flags );
 		if ( m_sdlWindow )
 		{
-			SDL_SetWindowPosition( m_sdlWindow, 
-		                           SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ), 
-		                           SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ) );
-								   
 			if ( _windowed && g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
 			{
+				SDL_SetWindowPosition( m_sdlWindow,
+				                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ),
+				                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ) );
 				SDL_MaximizeWindow( m_sdlWindow );
+
+				//
+				// Now we can unhide the window 
+				
+				SDL_ShowWindow( m_sdlWindow );
+			}
+			else
+			{
+				SDL_SetWindowPosition( m_sdlWindow,
+				                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ),
+				                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ) );
 			}
 		}
 		if ( m_sdlWindow )
