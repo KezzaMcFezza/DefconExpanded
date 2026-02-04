@@ -120,7 +120,7 @@ class FullscreenRequiredMenu : public DropDownMenu
         }
         else
         {
-            g_renderer2d->TextSimple( realX+10, realY+9, White, 13, LANGUAGEPHRASE("dialog_windowedmode") );
+            g_renderer2d->TextSimple( realX+10, realY+4, White, 13, LANGUAGEPHRASE("dialog_windowedmode") );
         }
     }
 
@@ -151,7 +151,7 @@ class RefreshRateRequiredMenu : public DropDownMenu
         }
         else
         {
-            g_renderer2d->TextSimple( realX+10, realY+9, White, 13, LANGUAGEPHRASE("dialog_windowedmode") );
+            g_renderer2d->TextSimple( realX+30, realY+4, White, 13, LANGUAGEPHRASE("dialog_windowedmode") );
         }
     }
 
@@ -165,6 +165,34 @@ class RefreshRateRequiredMenu : public DropDownMenu
         }
     }    
 };
+
+class MsaaQualityRequiredMenu : public DropDownMenu
+{
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {
+        DropDownMenu *aaTypeMenu = (DropDownMenu *) m_parent->GetButton( "Anti-Aliasing Type" );
+        bool available = aaTypeMenu && (aaTypeMenu->GetSelectionValue() != (int)AA_TYPE_NONE);
+        if( available )
+        {
+            DropDownMenu::Render( realX, realY, highlighted, clicked );
+        }
+        else
+        {
+            g_renderer2d->TextSimple( realX+70, realY+4, White, 13, LANGUAGEPHRASE("dialog_none") );
+        }
+    }
+
+    void MouseUp()
+    {
+        DropDownMenu *aaTypeMenu = (DropDownMenu *) m_parent->GetButton( "Anti-Aliasing Type" );
+        bool available = aaTypeMenu && (aaTypeMenu->GetSelectionValue() != (int)AA_TYPE_NONE);
+        if( available )
+        {
+            DropDownMenu::MouseUp();
+        }
+    }
+};
+
 
 class AntiAliasTypeDropDownMenu : public DropDownMenu
 {
@@ -622,7 +650,7 @@ void ScreenOptionsWindow::Create()
     uiScale->RegisterInt( &m_uiScale );
     RegisterButton( uiScale );
 
-    DropDownMenu *antiAlias = new DropDownMenu();
+    MsaaQualityRequiredMenu *antiAlias = new MsaaQualityRequiredMenu();
     antiAlias->SetProperties( "AntiAlias", x, y+=h, w, 20, "dialog_antialias", " ", true, false );
     
     AntiAliasingType currentAaType = (AntiAliasingType)m_antiAliasType;
