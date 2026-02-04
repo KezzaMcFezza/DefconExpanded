@@ -870,6 +870,20 @@ void App::InitialiseWindow()
     if( screenW == 0 || screenH == 0 )
     {
         g_windowManager->SuggestDefaultRes( &screenW, &screenH, &screenRefresh, &colourDepth );
+        
+        //
+        // When launching windowed with maximized, use usable display bounds (desktop minus taskbar)
+        // so the windows restored size matches the maximized area and the title bar fits on unmaximize.
+
+        if ( windowed && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
+        {
+            int usableW, usableH;
+            g_windowManager->GetDisplayUsableSize( g_windowManager->GetCurrentDisplayIndex(), &usableW, &usableH );
+            
+            screenW = usableW;
+            screenH = usableH;
+        }
+
         g_preferences->SetInt( PREFS_SCREEN_WIDTH, screenW );
         g_preferences->SetInt( PREFS_SCREEN_HEIGHT, screenH );
         g_preferences->SetInt( PREFS_SCREEN_REFRESH, screenRefresh );
