@@ -313,15 +313,25 @@ class SetScreenButton : public InterfaceButton
         //
         // In windowed mode, if user selects native/desktop resolution we use usable bounds
         // and start maximized so the window fits correctly.
+        // If they pick any other resolution (not native, not usable bounds), exit maximized.
 
-        if ( windowed && resolution )
+        int desktopW = 0, desktopH = 0, usableW = 0, usableH = 0;
+        if ( windowed )
         {
-            int desktopW, desktopH;
             g_windowManager->GetDisplayDesktopSize( displayIndex, &desktopW, &desktopH );
-            if ( resolution->m_width == desktopW && resolution->m_height == desktopH )
+            g_windowManager->GetDisplayUsableSize( displayIndex, &usableW, &usableH );
+            if ( resolution && resolution->m_width == desktopW && resolution->m_height == desktopH )
             {
-                g_windowManager->GetDisplayUsableSize( displayIndex, &applyW, &applyH );
+                applyW = usableW;
+                applyH = usableH;
                 g_preferences->SetInt( PREFS_SCREEN_MAXIMIZED, 1 );
+            }
+            else if ( applyW != desktopW || applyH != desktopH )
+            {
+                if ( applyW != usableW || applyH != usableH )
+                {
+                    g_preferences->SetInt( PREFS_SCREEN_MAXIMIZED, 0 );
+                }
             }
         }
 
