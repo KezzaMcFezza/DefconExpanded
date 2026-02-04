@@ -55,11 +55,19 @@ private:
     bool m_tearingSupported;
     UINT m_swapChainFlags;
     bool m_isExclusiveFullscreen;
+
+    int m_colourDepth;
+    DXGI_FORMAT m_swapChainFormat;
+    int m_zDepth;
+    DXGI_FORMAT m_depthStencilFormat;
     
     void ShutdownDirectX();
     bool CreateRenderTargetView();
     bool CreateDepthStencilView(int width, int height);
-    bool InitializeDirectX(int width, int height, bool windowed, bool borderless, int msaaSamples);
+    bool InitializeDirectX(int width, int height, bool windowed, bool borderless, int msaaSamples, int colourDepth, int zDepth);
+    
+    DXGI_FORMAT GetFormatFromColourDepth(int colourDepth);
+    DXGI_FORMAT GetFormatFromZDepth(int zDepth);
     bool RecoverSwapChain();
 
     void GetDrawableSize(int* width, int* height);

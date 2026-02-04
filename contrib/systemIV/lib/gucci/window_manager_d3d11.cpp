@@ -24,7 +24,11 @@ WindowManagerD3D11::WindowManagerD3D11()
 	  m_featureLevel( D3D_FEATURE_LEVEL_11_0 ),
 	  m_tearingSupported( false ),
 	  m_swapChainFlags( 0 ),
-	  m_isExclusiveFullscreen( false )
+	  m_isExclusiveFullscreen( false ),
+	  m_colourDepth( 32 ),
+	  m_swapChainFormat( DXGI_FORMAT_R8G8B8A8_UNORM ),
+	  m_zDepth( 24 ),
+	  m_depthStencilFormat( DXGI_FORMAT_D24_UNORM_S8_UINT )
 {
 	m_hInstance = GetModuleHandle( nullptr );
 }
@@ -36,9 +40,54 @@ WindowManagerD3D11::~WindowManagerD3D11()
 }
 
 
-bool WindowManagerD3D11::InitializeDirectX( int width, int height, bool windowed, bool borderless, int msaaSamples )
+DXGI_FORMAT WindowManagerD3D11::GetFormatFromColourDepth( int colourDepth )
+{
+	//
+	// Clamp to 24 bit
+	
+	if ( colourDepth == 16 )
+	{
+		colourDepth = 24;
+#ifdef _DEBUG
+		AppDebugOut( "DirectX11: 16-bit color depth not supported, clamping to 24-bit\n" );
+#endif
+	}
+	
+	switch ( colourDepth )
+	{
+		case 24:
+		case 32:
+		default:
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
+	}
+}
+
+
+DXGI_FORMAT WindowManagerD3D11::GetFormatFromZDepth( int zDepth )
+{
+	switch ( zDepth )
+	{
+		case 16:
+			return DXGI_FORMAT_D16_UNORM;
+		case 24:
+			return DXGI_FORMAT_D24_UNORM_S8_UINT;
+		case 32:
+			return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+		default:
+			return DXGI_FORMAT_D24_UNORM_S8_UINT;
+	}
+}
+
+
+bool WindowManagerD3D11::InitializeDirectX( int width, int height, bool windowed, bool borderless, int msaaSamples, int colourDepth, int zDepth )
 {
 	HRESULT hr;
+	
+	m_colourDepth = colourDepth;
+	m_swapChainFormat = GetFormatFromColourDepth( colourDepth );
+
+	m_zDepth = zDepth;
+	m_depthStencilFormat = GetFormatFromZDepth( zDepth );
 
 	//
 	// Create device and device context
@@ -158,7 +207,7 @@ bool WindowManagerD3D11::InitializeDirectX( int width, int height, bool windowed
 	swapChainDesc.BufferCount = 3;
 	swapChainDesc.BufferDesc.Width = drawableWidth;
 	swapChainDesc.BufferDesc.Height = drawableHeight;
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferDesc.Format = m_swapChainFormat;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 0;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -282,7 +331,7 @@ bool WindowManagerD3D11::CreateDepthStencilView( int width, int height )
 	depthStencilDesc.Height = height;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
-	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilDesc.Format = m_depthStencilFormat;
 	depthStencilDesc.SampleDesc.Count = 1;
 	depthStencilDesc.SampleDesc.Quality = 0;
 	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -506,7 +555,7 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	//
 	// Initialize DirectX using the SDL-provided HWND
 
-	if ( !InitializeDirectX( m_screenW, m_screenH, _windowed, _borderless, _antiAlias ) )
+	if ( !InitializeDirectX( m_screenW, m_screenH, _windowed, _borderless, _antiAlias, _colourDepth, _zDepth ) )
 	{
 		AppDebugOut( "DirectX 11 initialization failed\n" );
 		SDL_DestroyWindow( m_sdlWindow );
@@ -758,7 +807,7 @@ bool WindowManagerD3D11::RecoverSwapChain()
 		3,
 		width,
 		height,
-		DXGI_FORMAT_UNKNOWN,
+		m_swapChainFormat,
 		m_swapChainFlags );
 
 	if ( FAILED( hr ) )

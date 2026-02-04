@@ -32,6 +32,16 @@ WindowManagerOpenGL::~WindowManagerOpenGL()
 
 bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, int _colourDepth, int _refreshRate, int _zDepth, int _antiAlias, bool _borderless, const char *_title )
 {
+	//
+	// OpenGL doesnt reliably support 32 bit zbuffer depth
+	// Clamp to 24 bit
+	
+	int clampedZDepth = _zDepth;
+	if ( clampedZDepth == 32 )
+	{
+		clampedZDepth = 24;
+	}
+	
 	int displayIndex = GetCurrentDisplayIndex();
 	AppReleaseAssert( displayIndex >= 0, "Failed to get current SDL display index.\n" );
 
@@ -141,7 +151,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	}
 
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, _zDepth );
+	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, clampedZDepth );
 
 #if defined( TARGET_EMSCRIPTEN )
 
@@ -247,10 +257,12 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 				SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 0 );
 				tryingToCreateWindow = true;
 			}
-			else if ( _zDepth != 16 )
+			else if ( clampedZDepth == 24 )
 			{
-				printf( "Falling back to z-depth of 16.\n" );
-				_zDepth = 16;
+				printf( "Falling back from z-depth of 24 to 16.\n" );
+				clampedZDepth = 16;
+				SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, clampedZDepth );
+				SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0 );
 				tryingToCreateWindow = true;
 			}
 		}
