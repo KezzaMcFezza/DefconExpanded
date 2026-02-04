@@ -53,7 +53,10 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 
 	m_windowed = _windowed;
 
-	int bpp = SDL_BITSPERPIXEL( displayMode->format );
+	//
+	// Use the user's color depth preference (same as DirectX11) for the GL pixel format,
+	// so the option has effect in both windowed and fullscreen.
+	//
 
 	SDL_Rect displayBounds;
 	SDL_GetDisplayBounds( displayID, &displayBounds );
@@ -133,7 +136,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		}
 	}
 
-	switch ( bpp )
+	switch ( _colourDepth )
 	{
 		case 24:
 		case 32:
@@ -383,7 +386,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 
 	_width = m_screenW;
 	_height = m_screenH;
-	_colourDepth = bpp;
+	// _colourDepth already holds the user's preference (used for GL pixel format)
 
 	//
 	// Hide the mouse pointer again
