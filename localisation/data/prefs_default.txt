@@ -1,11 +1,15 @@
 ScreenWidth = 0
 ScreenHeight = 0
-ScreenWindowed = 0
-ScreenBorderless = 1
-ScreenMaximized = 0
+ScreenDisplayIndex = 0
+ScreenWindowed = 1
+ScreenBorderless = 0
+ScreenMaximized = 1
 ScreenColourDepth = 0
+ScreenUIScale = 100
 ScreenRefresh = 0
+ScreenFpsLimit = 0
 ScreenZDepth = 24
+ScreenAntiAliasingType = 1
 ScreenAntiAliasing = 4
 ScreenMipmapLevel = 4
 ScreenRenderer = 1
@@ -34,6 +38,7 @@ SoundDeviceQueueHighMs = 70
 SoundRingMs = 80
 SoundTimedScheduling = 1
 SoundAudioClockedADSR = 1
+SoundAudioDriver =
 
 RenderCoastlines = 1
 RenderBorders = 1
