@@ -63,7 +63,7 @@ void ActionMarker::Render2D()
             int thisAlpha = size * 64;
             Clamp( thisAlpha, 0, 255 );
             lineCol.m_a = thisAlpha;
-            g_app->GetMapRenderer()->RenderActionLine( obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue(), m_longitude, m_latitude, lineCol, 2.0f, false );
+            g_app->GetMapRenderer()->RenderActionLine( obj->m_longitude.DoubleValue(), obj->m_latitude.DoubleValue(), m_longitude, m_latitude, lineCol, 1.0f, false );
         }
 
         Image *img = g_resource->GetImage( "graphics/cursor_target.bmp");
