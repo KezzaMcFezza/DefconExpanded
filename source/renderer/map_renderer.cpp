@@ -255,8 +255,6 @@ void MapRenderer::Render()
             RenderNukeUnits();
         }
 
-        g_renderer2d->BeginTextBatch();
-
         RenderObjects();
         RenderCities();
 #ifdef SYNC_PRACTICE
@@ -264,12 +262,18 @@ void MapRenderer::Render()
         RenderSyncOverlay();
 #endif
 
+        g_renderer2d->BeginCircleFillBatch();
+        g_renderer2d->BeginCircleBatch();
+        
+        RenderNodes();
+
+        g_renderer2d->EndCircleFillBatch();
+        g_renderer2d->EndCircleBatch();
         g_renderer2d->EndTextBatch();
 
         RenderGunfire();           
         RenderBlips();        
 		RenderSanta();
-        RenderNodes();
 
         g_renderer->SetBlendMode( Renderer::BlendModeAdditive );
 
@@ -2123,7 +2127,7 @@ void MapRenderer::RenderMouse()
 
         RenderActionLine( predictedLongitude, predictedLatitude, 
                           actionCursorLongitude, actionCursorLatitude, 
-                          actionCursorCol, 2, animateActionLine );
+                          actionCursorCol, 1.0f, animateActionLine );
 
         if( highlight && validCombatTarget )
         {
@@ -2410,15 +2414,48 @@ void MapRenderer::RenderActionLine( float fromLong, float fromLat, float toLong,
 
     if( animate )
     {
-        Vector3<float> lineVector( toLong - fromLong, toLat - fromLat, 0 );
-        float factor1 = fmodf(GetHighResTime(), 1.0f );
-        float factor2 = fmodf(GetHighResTime(), 1.0f ) + 0.2f;
-        Clamp( factor1, 0.0f, 1.0f );
-        Clamp( factor2, 0.0f, 1.0f );
-        Vector3<float> fromVector = Vector3<float>(fromLong,fromLat,0) + lineVector * factor1;
-        Vector3<float> toVector =  Vector3<float>(fromLong,fromLat,0) + lineVector * factor2;
 
-        g_renderer2d->Line( fromVector.x, fromVector.y, toVector.x, toVector.y, col, width );
+        //
+        // Fix for animation stepping issue:
+        // When converting large time values (e.g. 1062678.059837) directly to float,
+        // the 32 bit floats 7 digit precision causes the fractional part to quantize 
+        // to 1/8 increments (0.125 steps). We now perform fmod() on the double first to 
+        // extract just the fractional part (0.0-1.0)
+
+        double timeValue = GetHighResTime();
+        double timeFrac = fmod(timeValue, 1.0);
+        
+        float factor1 = (float)timeFrac;
+        float factor2 = (float)(timeFrac + 0.2);
+        
+        Vector3<float> lineVector( toLong - fromLong, toLat - fromLat, 0 );
+        
+        if( factor2 <= 1.0f )
+        {
+            //
+            // Normal case: draw single segment
+
+            Vector3<float> fromVector = Vector3<float>(fromLong,fromLat,0) + lineVector * factor1;
+            Vector3<float> toVector = Vector3<float>(fromLong,fromLat,0) + lineVector * factor2;
+            g_renderer2d->Line( fromVector.x, fromVector.y, toVector.x, toVector.y, col, width );
+        }
+        else
+        {
+            //
+            // Wrap around case: draw two segments
+            // First segment: from factor1 to end of line 
+
+            Vector3<float> fromVector1 = Vector3<float>(fromLong,fromLat,0) + lineVector * factor1;
+            Vector3<float> toVector1 = Vector3<float>(fromLong,fromLat,0) + lineVector * 1.0f;
+            g_renderer2d->Line( fromVector1.x, fromVector1.y, toVector1.x, toVector1.y, col, width );
+            
+            //
+            // Second segment: from start of line to wrapped amount
+
+            Vector3<float> fromVector2 = Vector3<float>(fromLong,fromLat,0) + lineVector * 0.0f;
+            Vector3<float> toVector2 = Vector3<float>(fromLong,fromLat,0) + lineVector * (factor2 - 1.0f);
+            g_renderer2d->Line( fromVector2.x, fromVector2.y, toVector2.x, toVector2.y, col, width );
+        }
     }
 
 #endif
@@ -2520,7 +2557,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 
             RenderActionLine( predictedLongitude, predictedLatitude, 
                               TpredictedLongitude, TpredictedLatitude, 
-                              actionCursorCol, 0.5f );
+                              actionCursorCol, 1.0f );
         }
         
 
@@ -2571,7 +2608,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
 
                 RenderActionLine( predictedLongitude, predictedLatitude, 
                                   actionCursorLongitude, actionCursorLatitude, 
-                                  actionCursorCol, 0.5f );
+                                  actionCursorCol, 1.0f );
             }
         }
 
@@ -2632,7 +2669,7 @@ void MapRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges )
                                                   
                     RenderActionLine( predictedLongitude, predictedLatitude,
                                       targetLongitude, targetLatitude,
-                                      col, 0.5f );
+                                      col, 1.0f );
                 }
             }
         }

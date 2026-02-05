@@ -120,13 +120,18 @@ void MegaVBO2D::InvalidateAllVBOs()
 	//
 	// Delete each VBO, but skip protected ones
 
+	DArray<std::string> keysToInvalidate;
 	for ( auto it = m_cachedVBOs.begin(); it != m_cachedVBOs.end(); ++it )
 	{
 		const std::string &key = it.get_key();
 		if ( !IsVBOProtected( key.c_str() ) )
 		{
-			InvalidateCachedVBO( key.c_str() );
+			keysToInvalidate.PutData( key );
 		}
+	}
+	for ( int i = 0; i < keysToInvalidate.Size(); ++i )
+	{
+		InvalidateCachedVBO( keysToInvalidate[i].c_str() );
 	}
 }
 

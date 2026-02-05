@@ -12,7 +12,7 @@
 #ifndef _included_resource_h
 #define _included_resource_h
 
-#include "lib/tosser/btree.h"
+#include "lib/tosser/hash_table.h"
 
 // Forward declarations
 class Image;
@@ -25,10 +25,10 @@ class Model;
 class Resource
 {
 protected:
-    BTree   <Image *>           m_imageCache;
-    BTree   <BitmapFont *>      m_bitmapFontCache;
-    BTree   <bool>              m_testBitmapFontCache;
-    BTree   <Model *>         m_modelCache;
+    HashTable   <Image *>           m_imageCache;
+    HashTable   <BitmapFont *>      m_bitmapFontCache;
+    HashTable   <bool>              m_testBitmapFontCache;
+    HashTable   <Model *>           m_modelCache;
 
     SpriteAtlasManager* m_spriteAtlasManager;
 

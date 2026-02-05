@@ -437,6 +437,17 @@ void LobbyRenderer::RenderBorder()
     float windowH = g_windowManager->WindowH();
     float borderSize = 50;
 
+    //
+    // Not entirely sure what happened here, with the old steam source code
+    // the RectFill border would cover the top edge just fine.
+    // But in the new version of defcon there is a small sliver at the top that
+    // allows the globe to render through the border. So for now this is a small
+    // hack to make sure it covers the top edge of the screen.
+
+    float extrude = 2.0f;
+
+    // TODO: Fix me properly
+
     Colour fillCol(0,20,0,220);
     Colour lineCol(0,255,0,150);
 
@@ -444,10 +455,10 @@ void LobbyRenderer::RenderBorder()
 
     g_renderer2d->BeginRectFillBatch();
 
-    g_renderer2d->RectFill( 0, 0, windowW, borderSize, fillCol );
-    g_renderer2d->RectFill( 0, windowH-borderSize, windowW, borderSize, fillCol );
-    g_renderer2d->RectFill( 0, borderSize, borderSize, windowH-borderSize*2, fillCol );
-    g_renderer2d->RectFill( windowW-borderSize, borderSize, borderSize, windowH-borderSize*2, fillCol );
+    g_renderer2d->RectFill( -extrude, -extrude, windowW + extrude * 2.0f, borderSize + extrude, fillCol );
+    g_renderer2d->RectFill( -extrude, windowH - borderSize - extrude, windowW + extrude * 2.0f, borderSize + extrude, fillCol );
+    g_renderer2d->RectFill( -extrude, borderSize, borderSize + extrude, windowH - borderSize * 2.0f, fillCol );
+    g_renderer2d->RectFill( windowW - borderSize - extrude, borderSize, borderSize + extrude, windowH - borderSize * 2.0f, fillCol );
 
     g_renderer2d->EndRectFillBatch();
 
@@ -467,7 +478,7 @@ void LobbyRenderer::RenderBorder()
 void LobbyRenderer::RenderVersionInfo()
 {
 #if defined(SYNC_PRACTICE)
-    char currentVersion[256] = "BETA" "  " "1.16.9";
+    char currentVersion[256] = "BETA" "  " "1.17.7";
 #elif defined(REPLAY_VIEWER) || defined(REPLAY_VIEWER_DESKTOP)
     char currentVersion[256] = "RELEASE" "  " APP_BUILD_NUMBER;
 #else

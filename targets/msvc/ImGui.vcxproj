@@ -120,7 +120,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>../../contrib/systemIV/contrib/imgui-1.92.5;../../contrib/systemIV/contrib/imgui-1.92.5/backends;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include/SDL2;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../contrib/systemIV/contrib/imgui-1.92.5;../../contrib/systemIV/contrib/imgui-1.92.5/backends;../../contrib/systemIV/contrib/SDL3-3.4.0/include/SDL3;../../contrib/systemIV/contrib/SDL3-3.4.0/include;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;RENDERER_OPENGL;RENDERER_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <SmallerTypeCheck>false</SmallerTypeCheck>
@@ -171,7 +171,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../contrib/systemIV/contrib/imgui-1.92.5;../../contrib/systemIV/contrib/imgui-1.92.5/backends;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include/SDL2;../../contrib/systemIV/contrib/SDL2-2.32.10/windows/include;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../contrib/systemIV/contrib/imgui-1.92.5;../../contrib/systemIV/contrib/imgui-1.92.5/backends;../../contrib/systemIV/contrib/SDL3-3.4.0/include/SDL3;../../contrib/systemIV/contrib/SDL3-3.4.0/include;../../contrib/systemIV/contrib/glad/desktop/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>TARGET_MSVC;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;USE_CRASHREPORTING;RENDERER_OPENGL;RENDERER_DIRECTX11;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -214,7 +214,7 @@
     <ClCompile Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\imgui_draw.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\imgui_tables.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\imgui_widgets.cpp" />
-    <ClCompile Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_sdl2.cpp" />
+    <ClCompile Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_sdl3.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_dx11.cpp" />
   </ItemGroup>
@@ -225,7 +225,7 @@
     <ClInclude Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\imstb_rectpack.h" />
     <ClInclude Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\imstb_textedit.h" />
     <ClInclude Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\imstb_truetype.h" />
-    <ClInclude Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_sdl2.h" />
+    <ClInclude Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_sdl3.h" />
     <ClInclude Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_dx11.h" />
   </ItemGroup>

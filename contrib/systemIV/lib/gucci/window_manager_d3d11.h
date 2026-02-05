@@ -1,6 +1,8 @@
 #ifndef INCLUDED_WINDOW_MANAGER_D3D11_H
 #define INCLUDED_WINDOW_MANAGER_D3D11_H
 
+#include "systemiv.h"
+
 #ifdef RENDERER_DIRECTX11
 
 #include "window_manager.h"
@@ -9,7 +11,6 @@
 #include <d3d11.h>
 #include <dxgi.h>
 #include <dxgi1_5.h>
-#include <SDL2/SDL.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -31,7 +32,6 @@ public:
     virtual void DoFlip() override;
     virtual void HandleResize(int newWidth, int newHeight) override;
     virtual void HandleWindowFocusGained() override;
-    virtual void CalculateHighDPIScaleFactors() override;
 
     ID3D11Device          * GetDevice()           const { return m_device; }
     ID3D11DeviceContext   * GetDeviceContext()    const { return m_deviceContext; }
@@ -55,11 +55,19 @@ private:
     bool m_tearingSupported;
     UINT m_swapChainFlags;
     bool m_isExclusiveFullscreen;
+
+    int m_colourDepth;
+    DXGI_FORMAT m_swapChainFormat;
+    int m_zDepth;
+    DXGI_FORMAT m_depthStencilFormat;
     
     void ShutdownDirectX();
     bool CreateRenderTargetView();
     bool CreateDepthStencilView(int width, int height);
-    bool InitializeDirectX(int width, int height, bool windowed, bool borderless, int msaaSamples);
+    bool InitializeDirectX(int width, int height, bool windowed, bool borderless, int msaaSamples, int colourDepth, int zDepth);
+    
+    DXGI_FORMAT GetFormatFromColourDepth(int colourDepth);
+    DXGI_FORMAT GetFormatFromZDepth(int zDepth);
     bool RecoverSwapChain();
 
     void GetDrawableSize(int* width, int* height);

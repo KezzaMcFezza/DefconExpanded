@@ -1,6 +1,7 @@
+#include "systemiv.h"
+
 #ifdef RENDERER_DIRECTX11
 
-#include "systemiv.h"
 #include "msaa_d3d11.h"
 #include "lib/render/renderer.h"
 #include "lib/render/renderer_d3d11.h"

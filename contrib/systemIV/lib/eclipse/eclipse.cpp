@@ -6,6 +6,7 @@
 #include <time.h>
 
 #include "lib/tosser/llist.h"
+#include "lib/gucci/window_manager.h"
 #include "lib/hi_res_time.h"
 #include "lib/debug/debug_utils.h"
 #include "lib/debug/profiler.h"
@@ -102,7 +103,7 @@ void EclUpdateMouse( int _mouseX, int _mouseY, bool _lmb, bool _rmb )
 		EclWindow *currentWindow = EclGetWindow( mouseX, mouseY );
 		if ( currentWindow )
 		{
-			strcpy( windowFocus, currentWindow->m_name );
+			EclSetCurrentFocus( currentWindow->m_name );
 			EclBringWindowToFront( currentWindow->m_name );
 			strcpy( mouseDownWindow, currentWindow->m_name );
 
@@ -137,7 +138,7 @@ void EclUpdateMouse( int _mouseX, int _mouseY, bool _lmb, bool _rmb )
 		{
 			if ( strcmp( windowFocus, "None" ) != 0 )
 			{
-				strcpy( windowFocus, "None" );
+				EclSetCurrentFocus( "None" );
 			}
 		}
 
@@ -759,10 +760,26 @@ const char *EclGetCurrentFocus()
 
 void EclSetCurrentFocus( const char *name )
 {
-	if ( strlen( name ) < SIZE_ECLWINDOW_NAME )
-	{
-		strcpy( windowFocus, name );
-	}
+    const char *newName = name ? name : "None";
+
+    if ( strcmp( newName, "None" ) != 0 && strlen( newName ) < SIZE_ECLWINDOW_NAME )
+    {
+        if ( !SDL_TextInputActive(g_windowManager->GetSDLWindow() ) )
+        {
+            SDL_StartTextInput( g_windowManager->GetSDLWindow() );
+        }
+
+        strcpy( windowFocus, newName );
+    }
+    else
+    {
+        if ( SDL_TextInputActive(g_windowManager->GetSDLWindow() ) )
+        {
+            SDL_StopTextInput( g_windowManager->GetSDLWindow() );
+        }
+
+        strcpy( windowFocus, "None" );
+    }
 }
 
 

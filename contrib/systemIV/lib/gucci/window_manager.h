@@ -1,8 +1,8 @@
 #ifndef INCLUDED_WINDOW_MANAGER_H
 #define INCLUDED_WINDOW_MANAGER_H
 
+#include "systemiv.h"
 #include "lib/tosser/llist.h"
-#include <SDL2/SDL.h>
 
 class WindowResolution;
 
@@ -28,7 +28,6 @@ public:
 		                                     const char *_title ) = 0;
 
 	virtual void		HideWin				();
-	virtual void        CalculateHighDPIScaleFactors();
 	virtual void        DestroyWin          () = 0;
 	void                Flip                ();
 	virtual void        PollForMessages     ();
@@ -43,18 +42,15 @@ public:
 	virtual void        UnhideMousePointer  ();
 
     virtual void        OpenWebsite			(const char *_url);
-
-    int         		WindowW				() { return GetLogicalWidth(); }
-    int         		WindowH				() { return GetLogicalHeight(); }
     
-    int         		PhysicalWindowW		() { return m_screenW; } // Physical window dimensions (actual pixels)
-    int         		PhysicalWindowH		() { return m_screenH; }
+	const int           WindowW             (); // Kept for backwards compatibility
+	const int           WindowH             (); // ^^^^^^^^^^^^^^
 
-	int                 DrawableWidth       ()  const { return int(m_screenW * m_highDPIScaleX); }
-    int                 DrawableHeight      ()  const { return int(m_screenH * m_highDPIScaleY); }
+    const int         	GetPhysicalWidth	(); // Physical window dimensions (actual pixels)
+    const int         	GetPhysicalHeight   (); // ^^^^^^^^^^^^^^
     
-    int         		GetLogicalWidth		();                      // Logical window dimensions (what the game thinks the resolution is)
-    int         		GetLogicalHeight	();					     // ^^^^^^^^^^^^^^
+    const int           GetLogicalWidth		(); // Logical window dimensions (what the game thinks the resolution is)
+    const int         	GetLogicalHeight	();	// ^^^^^^^^^^^^^^
 
     bool        		Windowed            ();
 	bool        		Captured            ();
@@ -66,9 +62,6 @@ public:
 	int                 GetResolutionId (int _width, int _height);      // Returns -1 if resolution doesn't exist
     WindowResolution    *GetResolution  (int _id);
 
-    float               GetHighDPIScaleX() const;
-    float               GetHighDPIScaleY() const;
-
     void        		RegisterMessageHandler (SecondaryEventHandler _messageHandler );
     SecondaryEventHandler GetSecondaryMessageHandler();
     
@@ -79,13 +72,18 @@ public:
     void        RestoreDesktop            ();
     void        ListAllDisplayModes       (int displayIndex);
     void        WindowHasMoved            ();
-    void        UpdateStoredMaximizedState();
 
     int         GetDefaultDisplayIndex();
     int         GetNumDisplays        ();
     const char* GetDisplayName        (int displayIndex);
     int         GetCurrentDisplayIndex();
-    
+	
+    void        GetDisplayUsableSize   (int displayIndex, int *outW, int *outH);
+    void        GetDisplayDesktopSize  (int displayIndex, int *outW, int *outH);
+
+	static SDL_DisplayID GetDisplayIDFromIndex( int displayIndex );
+	static int GetDisplayIndexFromID          ( SDL_DisplayID id );
+
     SDL_Window* GetSDLWindow          () const { return m_sdlWindow; }
     LList		<WindowResolution *> m_resolutions;
 
@@ -111,9 +109,6 @@ protected:
     int         m_desktopScreenH;           // Original starting values
     int         m_desktopColourDepth;       // Original starting values
     int         m_desktopRefresh;           // Original starting values
-    
-    float       m_highDPIScaleX;
-    float       m_highDPIScaleY;
 
 	static int  GetDisplayIndexForPoint(int x, int y);
 
@@ -122,7 +117,6 @@ protected:
     
     SDL_Window* m_sdlWindow;
     int         m_windowDisplayIndex;
-    bool        m_isMaximized;
     bool        m_tryingToCaptureMouse;
 };
 

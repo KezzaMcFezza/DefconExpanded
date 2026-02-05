@@ -13,7 +13,7 @@
     <ClCompile Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\imgui_widgets.cpp">
       <Filter>contrib\imgui\core</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_sdl2.cpp">
+    <ClCompile Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_sdl3.cpp">
       <Filter>contrib\imgui\backends\platform</Filter>
     </ClCompile>
     <ClCompile Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_opengl3.cpp">
@@ -42,7 +42,7 @@
     <ClInclude Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\imstb_truetype.h">
       <Filter>contrib\imgui\core</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_sdl2.h">
+    <ClInclude Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_sdl3.h">
       <Filter>contrib\imgui\backends\platform</Filter>
     </ClInclude>
     <ClInclude Include="..\..\contrib\systemIV\contrib\imgui-1.92.5\backends\imgui_impl_opengl3.h">

@@ -1,6 +1,7 @@
+#include "systemiv.h"
+
 #ifdef RENDERER_DIRECTX11
 
-#include "systemiv.h"
 #include "window_manager_d3d11.h"
 #include "lib/debug/debug_utils.h"
 #include "lib/preferences.h"
@@ -9,8 +10,6 @@
 
 #include <stdio.h>
 #include <shellapi.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_syswm.h>
 
 // *** Constructor
 WindowManagerD3D11::WindowManagerD3D11()
@@ -25,7 +24,11 @@ WindowManagerD3D11::WindowManagerD3D11()
 	  m_featureLevel( D3D_FEATURE_LEVEL_11_0 ),
 	  m_tearingSupported( false ),
 	  m_swapChainFlags( 0 ),
-	  m_isExclusiveFullscreen( false )
+	  m_isExclusiveFullscreen( false ),
+	  m_colourDepth( 32 ),
+	  m_swapChainFormat( DXGI_FORMAT_R8G8B8A8_UNORM ),
+	  m_zDepth( 24 ),
+	  m_depthStencilFormat( DXGI_FORMAT_D24_UNORM_S8_UINT )
 {
 	m_hInstance = GetModuleHandle( nullptr );
 }
@@ -37,9 +40,54 @@ WindowManagerD3D11::~WindowManagerD3D11()
 }
 
 
-bool WindowManagerD3D11::InitializeDirectX( int width, int height, bool windowed, bool borderless, int msaaSamples )
+DXGI_FORMAT WindowManagerD3D11::GetFormatFromColourDepth( int colourDepth )
+{
+	//
+	// Clamp to 24 bit
+	
+	if ( colourDepth == 16 )
+	{
+		colourDepth = 24;
+#ifdef _DEBUG
+		AppDebugOut( "DirectX11: 16-bit color depth not supported, clamping to 24-bit\n" );
+#endif
+	}
+	
+	switch ( colourDepth )
+	{
+		case 24:
+		case 32:
+		default:
+			return DXGI_FORMAT_R8G8B8A8_UNORM;
+	}
+}
+
+
+DXGI_FORMAT WindowManagerD3D11::GetFormatFromZDepth( int zDepth )
+{
+	switch ( zDepth )
+	{
+		case 16:
+			return DXGI_FORMAT_D16_UNORM;
+		case 24:
+			return DXGI_FORMAT_D24_UNORM_S8_UINT;
+		case 32:
+			return DXGI_FORMAT_D32_FLOAT_S8X24_UINT;
+		default:
+			return DXGI_FORMAT_D24_UNORM_S8_UINT;
+	}
+}
+
+
+bool WindowManagerD3D11::InitializeDirectX( int width, int height, bool windowed, bool borderless, int msaaSamples, int colourDepth, int zDepth )
 {
 	HRESULT hr;
+	
+	m_colourDepth = colourDepth;
+	m_swapChainFormat = GetFormatFromColourDepth( colourDepth );
+
+	m_zDepth = zDepth;
+	m_depthStencilFormat = GetFormatFromZDepth( zDepth );
 
 	//
 	// Create device and device context
@@ -159,7 +207,7 @@ bool WindowManagerD3D11::InitializeDirectX( int width, int height, bool windowed
 	swapChainDesc.BufferCount = 3;
 	swapChainDesc.BufferDesc.Width = drawableWidth;
 	swapChainDesc.BufferDesc.Height = drawableHeight;
-	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferDesc.Format = m_swapChainFormat;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 0;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
@@ -283,7 +331,7 @@ bool WindowManagerD3D11::CreateDepthStencilView( int width, int height )
 	depthStencilDesc.Height = height;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
-	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilDesc.Format = m_depthStencilFormat;
 	depthStencilDesc.SampleDesc.Count = 1;
 	depthStencilDesc.SampleDesc.Quality = 0;
 	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -372,19 +420,21 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	int displayIndex = GetCurrentDisplayIndex();
 	AppReleaseAssert( displayIndex >= 0, "Failed to get current SDL display index.\n" );
 
-	SDL_DisplayMode displayMode;
-	SDL_GetCurrentDisplayMode( displayIndex, &displayMode );
+	SDL_DisplayID displayID = WindowManager::GetDisplayIDFromIndex( displayIndex );
+	AppReleaseAssert( displayID != 0, "Failed to get SDL display ID.\n" );
+
+	const SDL_DisplayMode *displayMode = SDL_GetCurrentDisplayMode( displayID );
+	AppReleaseAssert( displayMode != nullptr, "Failed to get current display mode.\n" );
 
 	m_windowed = _windowed;
 
 	SDL_Rect displayBounds;
-	SDL_GetDisplayBounds( displayIndex, &displayBounds );
+	SDL_GetDisplayBounds( displayID, &displayBounds );
 
 	//
 	// Set the flags for creating the mode
 
-	int flags = SDL_WINDOW_ALLOW_HIGHDPI;
-	bool requestMaximized = false;
+	int flags = SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
 	if ( !_windowed )
 	{
@@ -393,7 +443,7 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 
 		if ( _borderless )
 		{
-			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+			flags |= SDL_WINDOW_BORDERLESS;
 			m_screenW = _width;
 			m_screenH = _height;
 		}
@@ -411,25 +461,16 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 		// Windowed mode
 
 		SDL_Rect usableBounds;
-		SDL_GetDisplayUsableBounds( displayIndex, &usableBounds );
+		SDL_GetDisplayUsableBounds( displayID, &usableBounds );
 
-		if ( g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
-		{
-			flags |= SDL_WINDOW_MAXIMIZED;
-			requestMaximized = true;
+		m_screenW = _width;
+		m_screenH = _height;
+
+		if ( m_screenW > usableBounds.w )
 			m_screenW = usableBounds.w;
+		if ( m_screenH > usableBounds.h )
 			m_screenH = usableBounds.h;
-		}
-		else
-		{
-			m_screenW = _width;
-			m_screenH = _height;
-
-			if ( m_screenW > usableBounds.w )
-				m_screenW = usableBounds.w;
-			if ( m_screenH > usableBounds.h )
-				m_screenH = usableBounds.h;
-		}
+		
 
 		if ( _borderless )
 		{
@@ -439,19 +480,43 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 		{
 			flags |= SDL_WINDOW_RESIZABLE;
 		}
+
+		//
+		// Create the window hidden in maximized mode to avoid a visible jump on create/reinit.
+		
+		if ( g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
+		{
+			flags |= SDL_WINDOW_HIDDEN;
+		}
 	}
 
 #ifdef _DEBUG
 	AppDebugOut( "Creating SDL window: %dx%d (%s)\n", m_screenW, m_screenH, _windowed ? "windowed" : "fullscreen" );
 #endif
 
-	m_sdlWindow = SDL_CreateWindow(
-		_title,
-		SDL_WINDOWPOS_CENTERED_DISPLAY( displayIndex ),
-		SDL_WINDOWPOS_CENTERED_DISPLAY( displayIndex ),
-		m_screenW,
-		m_screenH,
-		flags );
+	m_sdlWindow = SDL_CreateWindow( _title, m_screenW, m_screenH, flags );
+
+	if ( m_sdlWindow )
+	{
+		if ( _windowed && g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
+		{
+			SDL_SetWindowPosition( m_sdlWindow,
+			                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ),
+			                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ) );
+			SDL_MaximizeWindow( m_sdlWindow );
+
+			//
+			// Now we can unhide the window 
+
+			SDL_ShowWindow( m_sdlWindow );
+		}
+		else
+		{
+			SDL_SetWindowPosition( m_sdlWindow,
+			                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ),
+			                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ) );
+		}
+	}
 
 	if ( !m_sdlWindow )
 	{
@@ -470,30 +535,19 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	//
 	// Get native HWND from SDL window
 
-	SDL_SysWMinfo wmInfo;
-	SDL_VERSION( &wmInfo.version );
-
-	if ( !SDL_GetWindowWMInfo( m_sdlWindow, &wmInfo ) )
+	SDL_PropertiesID props = SDL_GetWindowProperties( m_sdlWindow );
+	void *hwnd = props ? SDL_GetPointerProperty( props, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr ) : nullptr;
+	if ( !hwnd )
 	{
 #ifdef _DEBUG
-		AppDebugOut( "Failed to get window info: %s\n", SDL_GetError() );
+		AppDebugOut( "Failed to get window HWND: %s\n", SDL_GetError() );
 #endif
 		SDL_DestroyWindow( m_sdlWindow );
 		m_sdlWindow = nullptr;
 		return false;
 	}
 
-	if ( wmInfo.subsystem != SDL_SYSWM_WINDOWS )
-	{
-#ifdef _DEBUG
-		AppDebugOut( "Not running on Windows!\n" );
-#endif
-		SDL_DestroyWindow( m_sdlWindow );
-		m_sdlWindow = nullptr;
-		return false;
-	}
-
-	m_hwnd = wmInfo.info.win.window;
+	m_hwnd = (HWND)hwnd;
 #ifdef _DEBUG
 	AppDebugOut( "Got HWND from SDL: 0x%p\n", m_hwnd );
 #endif
@@ -501,7 +555,7 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 	//
 	// Initialize DirectX using the SDL-provided HWND
 
-	if ( !InitializeDirectX( m_screenW, m_screenH, _windowed, _borderless, _antiAlias ) )
+	if ( !InitializeDirectX( m_screenW, m_screenH, _windowed, _borderless, _antiAlias, _colourDepth, _zDepth ) )
 	{
 		AppDebugOut( "DirectX 11 initialization failed\n" );
 		SDL_DestroyWindow( m_sdlWindow );
@@ -534,8 +588,6 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 #endif
 		}
 	}
-
-	CalculateHighDPIScaleFactors();
 
 	int actualW, actualH;
 	SDL_GetWindowSize( m_sdlWindow, &actualW, &actualH );
@@ -593,20 +645,16 @@ bool WindowManagerD3D11::CreateWin( int _width, int _height, bool _windowed, int
 		}
 	}
 
-	CalculateHighDPIScaleFactors();
-	UpdateStoredMaximizedState();
-
-	if ( requestMaximized )
-	{
-		SDL_GetWindowSize( m_sdlWindow, &m_screenW, &m_screenH );
-		UpdateStoredMaximizedState();
-	}
-
 	if ( !m_mousePointerVisible )
 		HideMousePointer();
 
 	if ( m_mouseCaptured )
 		CaptureMouse();
+
+	//
+	// Show window only after position is set
+
+	SDL_ShowWindow( m_sdlWindow );
 
 	return true;
 }
@@ -759,7 +807,7 @@ bool WindowManagerD3D11::RecoverSwapChain()
 		3,
 		width,
 		height,
-		DXGI_FORMAT_UNKNOWN,
+		m_swapChainFormat,
 		m_swapChainFlags );
 
 	if ( FAILED( hr ) )
@@ -795,10 +843,8 @@ bool WindowManagerD3D11::RecoverSwapChain()
 	m_deviceContext->OMSetRenderTargets( 1, &m_renderTargetView, m_depthStencilView );
 
 	SetViewport( width, height );
-
 	SDL_GetWindowSize( m_sdlWindow, &m_screenW, &m_screenH );
 
-	CalculateHighDPIScaleFactors();
 
 #ifdef _DEBUG
 	AppDebugOut( "Swap chain recovered successfully (logical: %dx%d, drawable: %dx%d, fullscreen: %d)\n",
@@ -823,7 +869,7 @@ void WindowManagerD3D11::HandleWindowFocusGained()
 	if ( windowFlags & ( SDL_WINDOW_MINIMIZED | SDL_WINDOW_HIDDEN ) )
 		return;
 
-	if ( windowFlags & ( SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP ) )
+	if ( windowFlags & ( SDL_WINDOW_FULLSCREEN ) )
 	{
 		//
 		// Test if the swap chain is still valid by trying to get the back buffer
@@ -853,12 +899,10 @@ void WindowManagerD3D11::HandleResize( int newWidth, int newHeight )
 
 	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
 
-	UpdateStoredMaximizedState();
-
 	//
 	// Dont resize in fullscreen mode
 
-	if ( windowFlags & ( SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP ) )
+	if ( windowFlags & ( SDL_WINDOW_FULLSCREEN ) )
 		return;
 
 	if ( newWidth == m_screenW && newHeight == m_screenH )
@@ -910,13 +954,11 @@ void WindowManagerD3D11::HandleResize( int newWidth, int newHeight )
 	m_screenW = newWidth;
 	m_screenH = newHeight;
 
-	CalculateHighDPIScaleFactors();
-
 	//
 	// Check if window moved to a different display
 
-	int newDisplayIndex = SDL_GetWindowDisplayIndex( m_sdlWindow );
-	if ( newDisplayIndex >= 0 && newDisplayIndex != m_windowDisplayIndex )
+	int newDisplayIndex = WindowManager::GetDisplayIndexFromID( SDL_GetDisplayForWindow( m_sdlWindow ) );
+	if ( newDisplayIndex != m_windowDisplayIndex )
 	{
 		m_windowDisplayIndex = newDisplayIndex;
 		ListAllDisplayModes( m_windowDisplayIndex );
@@ -991,62 +1033,6 @@ void WindowManagerD3D11::SetViewport( int width, int height )
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	m_deviceContext->RSSetViewports( 1, &viewport );
-}
-
-
-void WindowManagerD3D11::CalculateHighDPIScaleFactors()
-{
-	if ( !m_sdlWindow )
-		return;
-
-	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
-
-	//
-	// For fullscreen modes, set scale to 1.0 and update m_screenW/H to actual drawable size
-
-	if ( ( windowFlags & SDL_WINDOW_FULLSCREEN ) == SDL_WINDOW_FULLSCREEN )
-	{
-		m_highDPIScaleX = 1.0f;
-		m_highDPIScaleY = 1.0f;
-
-		int drawableW, drawableH;
-		GetDrawableSize( &drawableW, &drawableH );
-		m_screenW = drawableW;
-		m_screenH = drawableH;
-
-#ifdef _DEBUG
-		AppDebugOut( "Fullscreen mode: drawable size %dx%d\n", drawableW, drawableH );
-#endif
-		return;
-	}
-
-	//
-	// Get logical and drawable size
-
-	int clientW, clientH;
-	SDL_GetWindowSize( m_sdlWindow, &clientW, &clientH );
-
-	int drawableW, drawableH;
-	GetDrawableSize( &drawableW, &drawableH );
-
-	if ( clientW > 0 && clientH > 0 )
-	{
-		m_highDPIScaleX = (float)drawableW / clientW;
-		m_highDPIScaleY = (float)drawableH / clientH;
-	}
-	else
-	{
-		m_highDPIScaleX = 1.0f;
-		m_highDPIScaleY = 1.0f;
-	}
-
-#ifdef _DEBUG
-	if ( m_highDPIScaleX != 1.0f || m_highDPIScaleY != 1.0f )
-	{
-		AppDebugOut( "High DPI detected: window %dx%d, drawable %dx%d, scale %.2fx%.2f\n",
-					 clientW, clientH, drawableW, drawableH, m_highDPIScaleX, m_highDPIScaleY );
-	}
-#endif
 }
 
 

@@ -133,19 +133,8 @@ void SoundSystem::Initialise( SoundSystemInterface *_interface )
 }
 
 
-void SoundSystem::RestartSoundLibrary()
+void SoundSystem::StopSoundLibrary()
 {
-	float prefUpdate = g_preferences ? g_preferences->GetFloat( PREFS_SOUND_UPDATEPERIOD, m_updatePeriod ) : m_updatePeriod;
-	if ( prefUpdate <= 0.0f )
-		prefUpdate = kDefaultUpdatePeriod;
-	m_updatePeriod = std::max( kMinUpdatePeriod, prefUpdate );
-	if ( g_preferences )
-		g_preferences->SetFloat( PREFS_SOUND_UPDATEPERIOD, m_updatePeriod );
-
-	//
-	// Shut down existing sound library safely
-	//
-
 	//
 	// Disable callback quickly to reduce activity in callback mode
 
@@ -159,12 +148,32 @@ void SoundSystem::RestartSoundLibrary()
 
 	if ( g_soundLibrary2d )
 	{
-		SoundLibrary2dSDL *sdl2d = dynamic_cast<SoundLibrary2dSDL *>( g_soundLibrary2d );
-		if ( sdl2d )
-		{
-			sdl2d->Stop();
-		}
+		g_soundLibrary2d->Stop();
 	}
+}
+
+
+void SoundSystem::RestartSoundLibrary()
+{
+	float prefUpdate = g_preferences ? g_preferences->GetFloat( PREFS_SOUND_UPDATEPERIOD, m_updatePeriod ) : m_updatePeriod;
+
+	if ( prefUpdate <= 0.0f )
+	{
+		prefUpdate = kDefaultUpdatePeriod;
+	}
+
+	m_updatePeriod = std::max( kMinUpdatePeriod, prefUpdate );
+
+	if ( g_preferences )
+	{
+		g_preferences->SetFloat( PREFS_SOUND_UPDATEPERIOD, m_updatePeriod );
+	}
+
+	//
+	// Shut down existing sound library safely
+	//
+
+	StopSoundLibrary();
 
 	//
 	// Make sure to stop all currently playing sounds before we clear caches

@@ -218,9 +218,40 @@ void World::LoadNodes()
 
 Fixed World::GetGameScale()
 {
-    GameOption *option = g_app->GetGame()->GetOption( "WorldScale" );
-    Fixed gameScale = Fixed::FromDouble(option->m_currentValue / option->m_default);
-    return gameScale;
+	//
+    // Cache the game scale when the game is running, since it cannot change during gameplay
+
+	static Fixed s_cachedGameScale = Fixed(0);
+	static bool s_cacheValid = false;
+	
+    //
+	// Check if game is running
+    
+	if ( g_app->m_gameRunning && s_cacheValid )
+	{
+		return s_cachedGameScale;
+	}
+	
+    //
+	// Game not running 
+
+	GameOption *option = g_app->GetGame()->GetOption( "WorldScale" );
+	Fixed gameScale = Fixed::FromDouble(option->m_currentValue / option->m_default);
+	
+    //
+	// Cache the value if game is running
+
+	if ( g_app->m_gameRunning )
+	{
+		s_cachedGameScale = gameScale;
+		s_cacheValid = true;
+	}
+	else
+	{
+		s_cacheValid = false;
+	}
+	
+	return gameScale;
 }
 
 

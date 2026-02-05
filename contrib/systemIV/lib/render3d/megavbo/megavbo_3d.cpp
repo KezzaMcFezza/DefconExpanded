@@ -148,13 +148,18 @@ MegaVBO3D::~MegaVBO3D()
 
 void MegaVBO3D::InvalidateAll3DVBOs()
 {
+	DArray<std::string> keysToInvalidate;
 	for ( auto it = m_cached3DVBOs.begin(); it != m_cached3DVBOs.end(); ++it )
 	{
 		const std::string &key = it.get_key();
 		if ( !Is3DVBOProtected( key.c_str() ) )
 		{
-			InvalidateCached3DVBO( key.c_str() );
+			keysToInvalidate.PutData( key );
 		}
+	}
+	for ( int i = 0; i < keysToInvalidate.Size(); ++i )
+	{
+		InvalidateCached3DVBO( keysToInvalidate[i].c_str() );
 	}
 }
 

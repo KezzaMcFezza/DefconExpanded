@@ -84,6 +84,10 @@ class GlobeOptionsWindow : public InterfaceWindow
 public:
     float   m_globeCoastThickness;
     float   m_globeBorderThickness;
+    int     m_globeGridlines;
+    float   m_globeGridlineThickness;
+    int     m_globeGridlineSpacing;
+    int     m_globeFog;
     int     m_globeFogDistance;
     int     m_globeStarfield;
     float   m_globeStarSize;

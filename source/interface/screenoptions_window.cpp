@@ -120,7 +120,7 @@ class FullscreenRequiredMenu : public DropDownMenu
         }
         else
         {
-            g_renderer2d->TextSimple( realX+10, realY+9, White, 13, LANGUAGEPHRASE("dialog_windowedmode") );
+            g_renderer2d->TextSimple( realX+10, realY+4, White, 13, LANGUAGEPHRASE("dialog_windowedmode") );
         }
     }
 
@@ -151,7 +151,7 @@ class RefreshRateRequiredMenu : public DropDownMenu
         }
         else
         {
-            g_renderer2d->TextSimple( realX+10, realY+9, White, 13, LANGUAGEPHRASE("dialog_windowedmode") );
+            g_renderer2d->TextSimple( realX+30, realY+4, White, 13, LANGUAGEPHRASE("dialog_windowedmode") );
         }
     }
 
@@ -165,6 +165,34 @@ class RefreshRateRequiredMenu : public DropDownMenu
         }
     }    
 };
+
+class MsaaQualityRequiredMenu : public DropDownMenu
+{
+    void Render( int realX, int realY, bool highlighted, bool clicked )
+    {
+        DropDownMenu *aaTypeMenu = (DropDownMenu *) m_parent->GetButton( "Anti-Aliasing Type" );
+        bool available = aaTypeMenu && (aaTypeMenu->GetSelectionValue() != (int)AA_TYPE_NONE);
+        if( available )
+        {
+            DropDownMenu::Render( realX, realY, highlighted, clicked );
+        }
+        else
+        {
+            g_renderer2d->TextSimple( realX+70, realY+4, White, 13, LANGUAGEPHRASE("dialog_none") );
+        }
+    }
+
+    void MouseUp()
+    {
+        DropDownMenu *aaTypeMenu = (DropDownMenu *) m_parent->GetButton( "Anti-Aliasing Type" );
+        bool available = aaTypeMenu && (aaTypeMenu->GetSelectionValue() != (int)AA_TYPE_NONE);
+        if( available )
+        {
+            DropDownMenu::MouseUp();
+        }
+    }
+};
+
 
 class AntiAliasTypeDropDownMenu : public DropDownMenu
 {
@@ -294,21 +322,50 @@ class SetScreenButton : public InterfaceButton
         int oldHeight = g_preferences->GetInt( PREFS_SCREEN_HEIGHT );
 
         WindowResolution *resolution = g_windowManager->GetResolution( parent->m_resId );
-        if( resolution )
-        {
-            g_preferences->SetInt( PREFS_SCREEN_WIDTH, resolution->m_width );
-            g_preferences->SetInt( PREFS_SCREEN_HEIGHT, resolution->m_height );
-        }
+        int applyW = resolution ? resolution->m_width : g_preferences->GetInt( PREFS_SCREEN_WIDTH );
+        int applyH = resolution ? resolution->m_height : g_preferences->GetInt( PREFS_SCREEN_HEIGHT );
 
-        g_preferences->SetInt( PREFS_SCREEN_REFRESH, parent->m_refreshRate );
-        
         //
         // convert screen mode to windowed/borderless flags
         // screenMode: 0 = fullscreen, 1 = borderless fullscreen, 2 = windowed
         
-        int windowed = (parent->m_screenMode == 2) ? 1 : 0;
-        int borderless = (parent->m_screenMode == 1) ? 1 : 0;
+        int windowed = ( parent->m_screenMode == 2 ) ? 1 : 0;
+        int borderless = ( parent->m_screenMode == 1 ) ? 1 : 0;
         
+        int displayIndex = parent->m_displayIndex;
+        if ( displayIndex < 0 || displayIndex >= g_windowManager->GetNumDisplays() )
+        {
+            displayIndex = g_windowManager->GetCurrentDisplayIndex();
+        }
+
+        //
+        // In windowed mode, if user selects native/desktop resolution we use usable bounds
+        // and start maximized so the window fits correctly.
+        // If they pick any other resolution (not native, not usable bounds), exit maximized.
+
+        int desktopW = 0, desktopH = 0, usableW = 0, usableH = 0;
+        if ( windowed )
+        {
+            g_windowManager->GetDisplayDesktopSize( displayIndex, &desktopW, &desktopH );
+            g_windowManager->GetDisplayUsableSize( displayIndex, &usableW, &usableH );
+            if ( resolution && resolution->m_width == desktopW && resolution->m_height == desktopH )
+            {
+                applyW = usableW;
+                applyH = usableH;
+                g_preferences->SetInt( PREFS_SCREEN_MAXIMIZED, 1 );
+            }
+            else if ( applyW != desktopW || applyH != desktopH )
+            {
+                if ( applyW != usableW || applyH != usableH )
+                {
+                    g_preferences->SetInt( PREFS_SCREEN_MAXIMIZED, 0 );
+                }
+            }
+        }
+
+        g_preferences->SetInt( PREFS_SCREEN_WIDTH, applyW );
+        g_preferences->SetInt( PREFS_SCREEN_HEIGHT, applyH );
+        g_preferences->SetInt( PREFS_SCREEN_REFRESH, parent->m_refreshRate );
         g_preferences->SetInt( PREFS_SCREEN_WINDOWED, windowed );
         g_preferences->SetInt( PREFS_SCREEN_BORDERLESS, borderless );
         g_preferences->SetInt( PREFS_SCREEN_COLOUR_DEPTH, parent->m_colourDepth );
@@ -321,17 +378,17 @@ class SetScreenButton : public InterfaceButton
         g_preferences->SetInt( PREFS_SCREEN_MIPMAP_LEVEL, parent->m_mipmapLevel );
         g_preferences->SetInt( PREFS_SCREEN_DISPLAY_INDEX, parent->m_displayIndex );
 		
-        if( resolution && g_app && g_app->GetInterface() )
-        {
-            g_app->GetInterface()->HandleWindowResize( resolution->m_width,
-                                                       resolution->m_height,
-                                                       oldWidth,
-                                                       oldHeight );
-        }
+        g_preferences->Save();
 
         parent->RestartWindowManager();
         
-        g_preferences->Save();        
+        if( g_app && g_app->GetInterface() && (applyW != oldWidth || applyH != oldHeight) )
+        {
+            g_app->GetInterface()->HandleWindowResize( applyW,
+                                                       applyH,
+                                                       oldWidth,
+                                                       oldHeight );
+        }        
 
         parent->m_resId = g_windowManager->GetResolutionId( g_preferences->GetInt(PREFS_SCREEN_WIDTH),
                                                             g_preferences->GetInt(PREFS_SCREEN_HEIGHT) );
@@ -343,15 +400,39 @@ class SetScreenButton : public InterfaceButton
         int tempBorderless = g_preferences->GetInt( PREFS_SCREEN_BORDERLESS, 0 );
 
         if( tempWindowed )
+        {
             parent->m_screenMode = 2;
+        }
         else if( tempBorderless )
+        {
             parent->m_screenMode = 1;
+        }
         else
+        {
             parent->m_screenMode = 0;
+        }
         
         parent->m_colourDepth   = g_preferences->GetInt( PREFS_SCREEN_COLOUR_DEPTH, 16 );
+        
+        //
+        // DirectX11 shits itself with 16 bit color depth
+        
+        if ( GetRendererType() == RENDERER_TYPE_DIRECTX11 && parent->m_colourDepth == 16 )
+        {
+            parent->m_colourDepth = 24;
+        }
+        
         parent->m_refreshRate   = g_preferences->GetInt( PREFS_SCREEN_REFRESH, 60 );	
         parent->m_zDepth        = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH, 24 );
+        
+        //
+        // OpenGL renders black screen with 32 bit z-depth
+        
+        if ( GetRendererType() == RENDERER_TYPE_OPENGL && parent->m_zDepth == 32 )
+        {
+            parent->m_zDepth = 24;
+        }
+
         parent->m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
         parent->m_antiAlias     = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
         parent->m_antiAliasType = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS_TYPE, AA_TYPE_MSAA);
@@ -373,7 +454,7 @@ class SetScreenButton : public InterfaceButton
 
 void ScreenOptionsWindow::RestartWindowManager()
 {
-    g_app->RequestWindowReinit();
+    g_app->UpdateRenderSettings();
 }
 
 
@@ -392,16 +473,34 @@ ScreenOptionsWindow::ScreenOptionsWindow()
     int windowed = g_preferences->GetInt( PREFS_SCREEN_WINDOWED, 0 );
     int borderless = g_preferences->GetInt( PREFS_SCREEN_BORDERLESS, 0 );
     if( windowed )
+    {
         m_screenMode = 2;
+    }
     else if( borderless )
+    {
         m_screenMode = 1;
+    }
     else
+    {
         m_screenMode = 0;
+    }
     
     m_colourDepth   = g_preferences->GetInt( PREFS_SCREEN_COLOUR_DEPTH, 16 );
+    
+    if ( GetRendererType() == RENDERER_TYPE_DIRECTX11 && m_colourDepth == 16 )
+    {
+        m_colourDepth = 24;
+    }
+    
     m_refreshRate   = g_preferences->GetInt( PREFS_SCREEN_REFRESH, 60 );
 	height += 30;
     m_zDepth        = g_preferences->GetInt( PREFS_SCREEN_Z_DEPTH, 24 );
+    
+    if ( GetRendererType() == RENDERER_TYPE_OPENGL && m_zDepth == 32 )
+    {
+        m_zDepth = 24;
+    }
+
     m_uiScale       = g_preferences->GetInt( PREFS_SCREEN_UI_SCALE, 100 );
 	m_antiAlias		= g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS, 0 );
     m_antiAliasType = g_preferences->GetInt( PREFS_SCREEN_ANTIALIAS_TYPE, AA_TYPE_MSAA );
@@ -501,9 +600,14 @@ void ScreenOptionsWindow::Create()
     screenRes->RegisterInt( &m_resId );
 
 
-    FullscreenRequiredMenu *colourDepth = new FullscreenRequiredMenu();
+    DropDownMenu *colourDepth = new DropDownMenu();
     colourDepth->SetProperties( "Colour Depth", x, y+=h, w, 20, "dialog_colourdepth", " ", true, false );
-    colourDepth->AddOption( "dialog_colourdepth_16", 16, true );
+    
+    if ( GetRendererType() != RENDERER_TYPE_DIRECTX11 )
+    {
+        colourDepth->AddOption( "dialog_colourdepth_16", 16, true );
+    }
+
     colourDepth->AddOption( "dialog_colourdepth_24", 24, true );
     colourDepth->AddOption( "dialog_colourdepth_32", 32, true );
     colourDepth->RegisterInt( &m_colourDepth );
@@ -513,6 +617,12 @@ void ScreenOptionsWindow::Create()
     zDepth->SetProperties( "Z Buffer Depth", x, y+=h, w, 20, "dialog_zbufferdepth", " ", true, false );
     zDepth->AddOption( "dialog_colourdepth_16", 16, true );
     zDepth->AddOption( "dialog_colourdepth_24", 24, true );
+    
+    if ( GetRendererType() != RENDERER_TYPE_OPENGL )
+    {
+        zDepth->AddOption( "dialog_colourdepth_32", 32, true );
+    }
+    
     zDepth->RegisterInt( &m_zDepth );
     RegisterButton( zDepth );
 
@@ -540,7 +650,7 @@ void ScreenOptionsWindow::Create()
     uiScale->RegisterInt( &m_uiScale );
     RegisterButton( uiScale );
 
-    DropDownMenu *antiAlias = new DropDownMenu();
+    MsaaQualityRequiredMenu *antiAlias = new MsaaQualityRequiredMenu();
     antiAlias->SetProperties( "AntiAlias", x, y+=h, w, 20, "dialog_antialias", " ", true, false );
     
     AntiAliasingType currentAaType = (AntiAliasingType)m_antiAliasType;

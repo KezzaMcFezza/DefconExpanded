@@ -806,8 +806,38 @@ bool ModSystem::ModContainsGeographyData(const char* modPath)
     char internationalPath[512];
     sprintf(internationalPath, "%sdata/earth/international.dat", modPath);
     if (DoesFileExist(internationalPath)) return true;
-    
+
+    char gridlinesPath[512];
+    sprintf(gridlinesPath, "%sdata/earth/gridlines_low.dat", modPath);
+    if (DoesFileExist(gridlinesPath)) return true;
+    sprintf(gridlinesPath, "%sdata/earth/gridlines_medium.dat", modPath);
+    if (DoesFileExist(gridlinesPath)) return true;
+    sprintf(gridlinesPath, "%sdata/earth/gridlines_high.dat", modPath);
+    if (DoesFileExist(gridlinesPath)) return true;
+
     return false;
+}
+
+bool ModSystem::ModContainsGridlinesData(const char* modPath)
+{
+    if (!modPath) return false;
+
+    char gridlinesPath[512];
+    sprintf(gridlinesPath, "%sdata/earth/gridlines_low.dat", modPath);
+    if (DoesFileExist(gridlinesPath)) return true;
+    sprintf(gridlinesPath, "%sdata/earth/gridlines_medium.dat", modPath);
+    if (DoesFileExist(gridlinesPath)) return true;
+    sprintf(gridlinesPath, "%sdata/earth/gridlines_high.dat", modPath);
+    if (DoesFileExist(gridlinesPath)) return true;
+
+    return false;
+}
+
+bool ModSystem::GeographyModsContainGridlines()
+{
+    if (m_geographyAffectingMods.Size() == 0)
+        return true;
+    return ModContainsGridlinesData(m_geographyAffectingMods[0]);
 }
 
 void ModSystem::UpdateGeographyAffectingMods()
@@ -1050,6 +1080,16 @@ void ModSystem::Commit()
         {
             g_app->GetEarthData()->LoadCoastlines();
             g_app->GetEarthData()->LoadBorders();
+
+            if (GeographyModsContainGridlines())
+            {
+                g_app->GetEarthData()->LoadGridlines();
+            }
+            else
+            {
+                g_app->GetEarthData()->ClearGridlines();
+            }
+
             g_app->GetEarthData()->CalculateAndSetBufferSizes();
         }
 
@@ -1101,6 +1141,38 @@ void ModSystem::Commit()
     g_preferences->Save();
 }
 
+
+void ModSystem::HotReloadMods()
+{
+    //
+    // Capture current active mod path
+
+    char currentModPath[4096];
+    currentModPath[0] = '\0';
+    char temp[1024];
+
+    for ( int i = 0; i < m_mods.Size(); ++i )
+    {
+        InstalledMod *mod = m_mods[i];
+        if ( mod->m_active )
+        {
+            sprintf( temp, "%s;%s;", mod->m_name, mod->m_version );
+            strcat( currentModPath, temp );
+        }
+    }
+
+    if ( currentModPath[0] == '\0' )
+    {
+        AppDebugOut( "HotReloadMods: no active mods, nothing to reload\n" );
+        return;
+    }
+
+    DeActivateAllMods();
+    Commit();
+    LoadInstalledMods();
+    
+    SetModPath( currentModPath );
+}
 
 
 // ============================================================================

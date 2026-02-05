@@ -9,9 +9,8 @@
 #include <stdint.h>
 #include <vector>
 
-// Forward declarations for SDL types used in member pointers
 struct SDL_Thread;
-struct SDL_mutex;
+struct SDL_Mutex;
 
 //*****************************************************************************
 // Class SoundLibrary2dSDL
@@ -26,7 +25,7 @@ private:
 
     // Push/queue mode state
     SDL_Thread *     m_feederThread = NULL;
-    SDL_mutex *      m_feederMutex = NULL;
+    struct SDL_Mutex * m_feederMutex = NULL;
     volatile int     m_feederRun = 0;
     unsigned         m_periodFrames = 0;           // device period in frames
     unsigned         m_bytesPerFrame = 0;          // channels * bytes/sample
@@ -47,7 +46,7 @@ private:
     int             m_timedScheduling = 1;         // enable timeline scheduling
     int             m_audioClockedADSR = 0;        // enable ADSR against audio clock
     bool            m_lastQueueCritical = false;
-    NetMutex        m_deviceStateLock;
+    mutable NetMutex m_deviceStateLock;
 
     public:
 		struct RuntimeStats {

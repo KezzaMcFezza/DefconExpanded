@@ -103,20 +103,15 @@ void GlobeRenderer::Reset()
 
 Vector3<float> GlobeRenderer::ConvertLongLatTo3DPosition(float longitude, float latitude)
 {
+    float lonRad = longitude * (float)M_PI / 180.0f;
+    float latRad = latitude * (float)M_PI / 180.0f;
+    float cosLat = cosf(latRad);
+    float sinLat = sinf(latRad);
+    float cosLon = cosf(lonRad);
+    float sinLon = sinf(lonRad);
+    float r = GLOBE_RADIUS;
     
-    float lonRad = longitude * M_PI / 180.0f;
-    float latRad = latitude * M_PI / 180.0f;
-    
-    //
-    // Spherical to cartesian conversion
-
-    Vector3<float> pos(0, 0, GLOBE_RADIUS);
-    pos.RotateAroundY(lonRad);
-    Vector3<float> right = pos ^ Vector3<float>(0, 1, 0);
-    right.Normalise();
-    pos.RotateAround(right * latRad);
-    
-    return pos;
+    return Vector3<float>(r * cosLat * sinLon, r * sinLat, r * cosLat * cosLon);
 }
 
 Vector3<float> GlobeRenderer::GetElevatedPosition(const Vector3<float>& position)
@@ -259,7 +254,10 @@ Vector3<float> GlobeRenderer::CalculateTrajectorySurfacePosition(const GreatCirc
     if (constants.totalDistanceRadians < 0.001f) {
         float lat = constants.lat1 + (constants.lat2 - constants.lat1) * progress;
         float lon = constants.lon1 + (constants.lon2 - constants.lon1) * progress;
-        return ConvertLongLatTo3DPosition(lon * 180.0f / M_PI, lat * 180.0f / M_PI);
+        float cosLat = cosf(lat);
+        float r = GLOBE_RADIUS;
+
+        return Vector3<float>(r * cosLat * sinf(lon), r * sinf(lat), r * cosLat * cosf(lon));
     }
     
     float A = sinf((1.0f - progress) * constants.totalDistanceRadians) / constants.sinDistance;
@@ -268,10 +266,8 @@ Vector3<float> GlobeRenderer::CalculateTrajectorySurfacePosition(const GreatCirc
     float x = A * constants.x1 + B * constants.x2;
     float y = A * constants.y1 + B * constants.y2;
     float z = A * constants.z1 + B * constants.z2;
-    
-    float lat = asinf(z);
-    float lon = atan2f(y, x);
-    return ConvertLongLatTo3DPosition(lon * 180.0f / M_PI, lat * 180.0f / M_PI);
+
+    return Vector3<float>(y * GLOBE_RADIUS, z * GLOBE_RADIUS, x * GLOBE_RADIUS);
 }
 
 //
@@ -290,7 +286,8 @@ Vector3<float> GlobeRenderer::CalculateTrajectoryPointFromConstants(const GreatC
 {
     Vector3<float> surfacePos = CalculateTrajectorySurfacePosition(constants, progress);
     float height = CalculateTrajectoryArcHeight(constants, progress);
-    return surfacePos + surfacePos.Normalized() * height;
+
+    return surfacePos * (1.0f + height / GLOBE_RADIUS);
 }
 
 //
@@ -817,42 +814,100 @@ void GlobeRenderer::GlobeBorders()
 
 void GlobeRenderer::GlobeGridlines()
 {
-    if (!g_megavbo3d->IsMegaVBO3DValid("GlobeGridlines")) {
+    if (!g_megavbo3d->IsMegaVBO3DValid("GlobeGridlines"))
+    {
+#ifndef TARGET_EMSCRIPTEN
+        g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_GRIDLINE_THICKNESS, 1.0f));
+#endif
         g_megavbo3d->BeginMegaVBO3D("GlobeGridlines", g_styleTable->GetPrimaryColour( STYLE_GLOBE_GRIDLINES ));
-        
-    //
-    // Longitudinal lines (meridians)
 
-    for( float x = -180; x < 180; x += 10 )
-    {
-        DArray<Vector3<float>> lineVertices;
-        for( float y = -90; y < 90; y += 1.0f )
+        int spacingPref = g_preferences->GetInt( PREFS_GLOBE_GRIDLINE_SPACING, 1 );
+        LList<Island *> *list = (spacingPref == 0) ? &g_app->GetEarthData()->m_gridlinesLow
+                                : (spacingPref == 1) ? &g_app->GetEarthData()->m_gridlinesMedium
+                                : &g_app->GetEarthData()->m_gridlinesHigh;
+
+        if ( list->Size() > 0 )
         {
-            lineVertices.PutData(ConvertLongLatTo3DPosition(x, y));
+            int totalVertices = 0;
+            int totalIndices = 0;
+            for ( int i = 0; i < list->Size(); ++i )
+            {
+                Island *segment = (*list)[i];
+                if ( segment && segment->m_points.Size() >= 2 )
+                {
+                    totalVertices += segment->m_points.Size();
+                    totalIndices += segment->m_points.Size() + 1;
+                }
+            }
+            if ( totalVertices > g_megavbo3d->GetMegaBufferVertexCount3D() ||
+                 totalIndices > g_megavbo3d->GetMegaBufferIndexCount3D() )
+            {
+                g_megavbo3d->SetMegaVBO3DBufferSizes(
+                    totalVertices > g_megavbo3d->GetMegaBufferVertexCount3D() ? totalVertices : g_megavbo3d->GetMegaBufferVertexCount3D(),
+                    totalIndices > g_megavbo3d->GetMegaBufferIndexCount3D() ? totalIndices : g_megavbo3d->GetMegaBufferIndexCount3D(),
+                    "GlobeGridlines" );
+            }
+
+            for ( int i = 0; i < list->Size(); ++i )
+            {
+                Island *island = (*list)[i];
+                AppDebugAssert( island );
+
+                DArray<Vector3<float>> gridlineVertices;
+                for ( int j = 0; j < island->m_points.Size(); j++ )
+                {
+                    Vector3<float> *thePoint = island->m_points[j];
+                    gridlineVertices.PutData( ConvertLongLatTo3DPosition( thePoint->x, thePoint->y ) );
+                }
+                AddLineStrip( gridlineVertices );
+            }
         }
-        AddLineStrip(lineVertices);
-    }
-
-    //
-    // Latitudinal lines (parallels)
-
-    for( float y = -90; y <= 90; y += 10 )
-    {
-        DArray<Vector3<float>> lineVertices;
-        for( float x = -180; x <= 180; x += 1.0f )
+        else
         {
-            lineVertices.PutData(ConvertLongLatTo3DPosition(x, y));
-        }
-            AddLineStrip(lineVertices);
-    }
-        
-    g_megavbo3d->EndMegaVBO3D();
+            float spacingDeg = (spacingPref == 0) ? GLOBE_GRIDLINE_SPACING_DEG_LOW
+                                : (spacingPref == 1) ? GLOBE_GRIDLINE_SPACING_DEG_MEDIUM
+                                : GLOBE_GRIDLINE_SPACING_DEG_HIGH;
+            int numMeridians = (int)(360.0f / spacingDeg);
+            int numParallels = (int)(180.0f / spacingDeg) + 1;
+            int verticesPerMeridian = 180;
+            int verticesPerParallel = 361;
+            int gridlineVertices = numMeridians * verticesPerMeridian + numParallels * verticesPerParallel;
+            int gridlineIndices = numMeridians * (verticesPerMeridian + 1) + numParallels * (verticesPerParallel + 1);
 
+            if ( gridlineVertices > g_megavbo3d->GetMegaBufferVertexCount3D() ||
+                 gridlineIndices > g_megavbo3d->GetMegaBufferIndexCount3D() )
+            {
+                g_megavbo3d->SetMegaVBO3DBufferSizes(
+                    gridlineVertices > g_megavbo3d->GetMegaBufferVertexCount3D() ? gridlineVertices : g_megavbo3d->GetMegaBufferVertexCount3D(),
+                    gridlineIndices > g_megavbo3d->GetMegaBufferIndexCount3D() ? gridlineIndices : g_megavbo3d->GetMegaBufferIndexCount3D(),
+                    "GlobeGridlines" );
+            }
+
+            for ( float x = -180; x < 180; x += spacingDeg )
+            {
+                DArray<Vector3<float>> gridlineVertices;
+                for ( float y = -90; y < 90; y += 1.0f )
+                    gridlineVertices.PutData( ConvertLongLatTo3DPosition( x, y ) );
+                AddLineStrip( gridlineVertices );
+            }
+            for ( float y = -90; y <= 90; y += spacingDeg )
+            {
+                DArray<Vector3<float>> gridlineVertices;
+                for ( float x = -180; x <= 180; x += 1.0f )
+                    gridlineVertices.PutData( ConvertLongLatTo3DPosition( x, y ) );
+                AddLineStrip( gridlineVertices );
+            }
+        }
+
+        g_megavbo3d->EndMegaVBO3D();
     }
 
     //
     // Build it
 
+#ifndef TARGET_EMSCRIPTEN
+    g_renderer->SetLineWidth(g_preferences->GetFloat(PREFS_GLOBE_GRIDLINE_THICKNESS, 1.0f));
+#endif
     g_megavbo3d->RenderMegaVBO3D("GlobeGridlines");
 
 }
@@ -885,16 +940,23 @@ void GlobeRenderer::Render()
     float resScale = g_windowManager->WindowH() / 800.0f;
     m_drawScale /= resScale;
     
+    int gridlinesPref = g_preferences->GetInt(PREFS_GLOBE_GRIDLINES, 2);
+    bool showGridlinesLobby = (gridlinesPref >= 1) && !g_app->IsGlobeMode();
+    bool showGridlinesGame  = (gridlinesPref == 2) && g_app->IsGlobeMode();
+
     if(!g_app->IsGlobeMode()) 
     {
-
         LobbyCamera(); 
-        
-        g_renderer->SetDepthBuffer(false, false);
 
-        START_PROFILE("Gridlines");
-        GlobeGridlines();
-        END_PROFILE("Gridlines");
+        if (showGridlinesLobby) 
+        {
+            START_PROFILE("Gridlines");
+            GlobeGridlines();
+            END_PROFILE("Gridlines");
+        }
+
+        g_renderer->SetDepthBuffer( true, true );
+
     }
     else 
     {
@@ -903,6 +965,13 @@ void GlobeRenderer::Render()
         START_PROFILE("Culling Sphere");
         RenderCullSphere();
         END_PROFILE("Culling Sphere");
+
+        if (showGridlinesGame) 
+        {
+            START_PROFILE("Gridlines");
+            GlobeGridlines();
+            END_PROFILE("Gridlines");
+        }
     }
 
     START_PROFILE("Coastlines");
@@ -982,6 +1051,8 @@ void GlobeRenderer::Render()
         g_renderer->SetDepthMask(true);
         
         Render3DNukes();
+
+        g_renderer3d->BeginLineBatch3D();
     }
 
     g_renderer->SetBlendMode(Renderer::BlendModeAdditive);
@@ -1287,21 +1358,28 @@ void GlobeRenderer::GameCamera()
 
     g_renderer->SetCullFace(false, 0);
 
-    float fogDistanceSetting = (float)g_preferences->GetInt(PREFS_GLOBE_FOG_DISTANCE, 25);
-    float distanceMultiplier = (fogDistanceSetting / 20.0f - 1.0f) * 2.0f + 1.0f;
+    if (g_preferences->GetInt(PREFS_GLOBE_FOG, 1))
+    {
+        float fogDistanceSetting = (float)g_preferences->GetInt(PREFS_GLOBE_FOG_DISTANCE, 25);
+        float distanceMultiplier = (fogDistanceSetting / 20.0f - 1.0f) * 2.0f + 1.0f;
         
-    //
-    // Scale the camera distance for fog calculations.
-    // We pass in fake camera values here to make the
-    // fog render further or closer to the real camera.
+        //
+        // Scale the camera distance for fog calculations.
+        // We pass in fake camera values here to make the
+        // fog render further or closer to the real camera.
         
-    Vector3<float> fogCameraPos = cameraPos;
-    fogCameraPos = fogCameraPos * distanceMultiplier;
+        Vector3<float> fogCameraPos = cameraPos;
+        fogCameraPos = fogCameraPos * distanceMultiplier;
         
-    g_renderer3d->EnableOrientationFog(0.03f, 0.03f, 0.03f, 25.0f,
+        g_renderer3d->EnableOrientationFog(0.03f, 0.03f, 0.03f, 25.0f,
                                           fogCameraPos.x,
                                           fogCameraPos.y,
                                           fogCameraPos.z);
+    }
+    else
+    {
+        g_renderer3d->DisableFog();
+    }
 }
 
 void GlobeRenderer::LobbyCamera()
@@ -2458,7 +2536,7 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
 
             RenderActionLine( predictedLongitude, predictedLatitude, 
                               TpredictedLongitude, TpredictedLatitude, 
-                              actionCursorCol, 0.5f );
+                              actionCursorCol, 1.0f );
         }
         
 
@@ -2509,7 +2587,7 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
 
                 RenderActionLine( predictedLongitude, predictedLatitude, 
                                   actionCursorLongitude, actionCursorLatitude, 
-                                  actionCursorCol, 0.5f );
+                                  actionCursorCol, 1.0f );
             }
         }
 
@@ -2572,7 +2650,7 @@ void GlobeRenderer::RenderWorldObjectTargets( WorldObject *wobj, bool maxRanges 
                                                   size, size, col, angle, BILLBOARD_SURFACE_ALIGNED );
                     RenderActionLine( predictedLongitude, predictedLatitude,
                                       targetLongitude, targetLatitude,
-                                      col, 0.5f );
+                                      col, 1.0f );
                 }
             }
         }
@@ -2632,15 +2710,23 @@ void GlobeRenderer::RenderActionLine( float fromLong, float fromLat, float toLon
     if( animate )
     {
         //
-        // Animate along the subdivided path
+        // Fix for animation stepping issue:
+        // When converting large time values (e.g. 1062678.059837) directly to float,
+        // the 32 bit floats 7 digit precision causes the fractional part to quantize 
+        // to 1/8 increments (0.125 steps). We now perform fmod() on the double first to 
+        // extract just the fractional part (0.0-1.0)
+
+        double timeValue = GetHighResTime();
+        double timeFrac = fmod(timeValue, 1.0);
         
-        float factor1 = fmodf(GetHighResTime(), 1.0f );
-        float factor2 = fmodf(GetHighResTime(), 1.0f ) + 0.2f;
-        Clamp( factor1, 0.0f, 1.0f );
-        Clamp( factor2, 0.0f, 1.0f );
+        float factor1 = (float)timeFrac;
+        float factor2 = (float)(timeFrac + 0.2);
         
-        if( factor2 > factor1 )
+        if( factor2 <= 1.0f )
         {
+            //
+            // Normal case: draw single segment
+
             Vector3<float> normal1 = SlerpNormal(fromNormal, toNormal, factor1);
             Vector3<float> normal2 = SlerpNormal(fromNormal, toNormal, factor2);
             
@@ -2648,6 +2734,33 @@ void GlobeRenderer::RenderActionLine( float fromLong, float fromLat, float toLon
             Vector3<float> pos2 = GetElevatedPosition(normal2 * GLOBE_RADIUS);
             
             g_renderer3d->Line3D( pos1.x, pos1.y, pos1.z, 
+                                 pos2.x, pos2.y, pos2.z, col, width );
+        }
+        else
+        {
+            //
+            // Wrap around case: draw two segments
+            // First segment: from factor1 to end of line 
+
+            Vector3<float> normal1 = SlerpNormal(fromNormal, toNormal, factor1);
+            Vector3<float> normalEnd = SlerpNormal(fromNormal, toNormal, 1.0f);
+            
+            Vector3<float> pos1 = GetElevatedPosition(normal1 * GLOBE_RADIUS);
+            Vector3<float> posEnd = GetElevatedPosition(normalEnd * GLOBE_RADIUS);
+            
+            g_renderer3d->Line3D( pos1.x, pos1.y, pos1.z, 
+                                 posEnd.x, posEnd.y, posEnd.z, col, width );
+            
+            //
+            // Second segment: from start of line to wrapped amount
+
+            Vector3<float> normalStart = SlerpNormal(fromNormal, toNormal, 0.0f);
+            Vector3<float> normal2 = SlerpNormal(fromNormal, toNormal, factor2 - 1.0f);
+            
+            Vector3<float> posStart = GetElevatedPosition(normalStart * GLOBE_RADIUS);
+            Vector3<float> pos2 = GetElevatedPosition(normal2 * GLOBE_RADIUS);
+            
+            g_renderer3d->Line3D( posStart.x, posStart.y, posStart.z, 
                                  pos2.x, pos2.y, pos2.z, col, width );
         }
     }

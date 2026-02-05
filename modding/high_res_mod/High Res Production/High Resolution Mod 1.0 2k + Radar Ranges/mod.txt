@@ -1,0 +1,5 @@
+Name		High Resolution 2k + Radar Ranges
+Version		v1.0
+Author		Sievert, KezzaMcFezza
+Comment		2K Resolution, and 1:10 meter coastlines alongside berts radar ranges mod
+Website		https://www.youtube.com/@megasievert

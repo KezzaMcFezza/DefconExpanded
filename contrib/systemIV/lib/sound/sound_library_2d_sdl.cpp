@@ -7,7 +7,6 @@
 #include "lib/sound/sound_library_2d_mode.h"
 #include "lib/sound/sound_library_3d_software.h"
 
-#include <SDL2/SDL.h>
 #include <vector>
 #include <algorithm>
 #include <cstring>
@@ -34,11 +33,12 @@
 
 #ifdef TARGET_MSVC
 #include <windows.h>
+#include <intrin.h>
 #endif
 
 static SDL_AudioSpec s_audioSpec;
-static SDL_AudioDeviceID s_audioDevice = 0;
-static int s_audioStarted = 0;
+static SDL_AudioStream *s_audioStream = NULL;
+static std::atomic<int> s_audioStarted{ 0 };
 static bool s_audioSubsystemInitialisedByLibrary = false;
 
 #include "lib/sound/soundsystem.h"
@@ -53,16 +53,37 @@ static int FeederThreadEntry( void *userdata )
 }
 
 
-static void sdlAudioCallback( void *userdata, Uint8 *stream, int len )
+static void sdlAudioStreamCallback( void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount )
 {
 	SoundLibrary2dSDL *self = static_cast<SoundLibrary2dSDL *>( userdata );
-	if ( !s_audioStarted || !self )
+
+	if ( s_audioStarted.load( std::memory_order_acquire ) == 0 || !self || additional_amount <= 0 )
 	{
 		return;
 	}
-	unsigned bytesPerFrame = self ? self->GetBytesPerFrame() : 0;
-	unsigned frames = ( bytesPerFrame > 0 ) ? (unsigned)( len / bytesPerFrame ) : 0;
-	self->AudioCallback( reinterpret_cast<float *>( stream ), frames );
+
+	unsigned bytesPerFrame = self->GetBytesPerFrame();
+
+	if ( bytesPerFrame == 0 )
+	{
+		return;
+	}
+
+	unsigned frames = (unsigned)( additional_amount / bytesPerFrame );
+
+	if ( frames == 0 )
+	{
+		return;
+	}
+
+	static std::vector<float> s_callbackScratch;
+	if ( s_callbackScratch.size() < (size_t)frames * 2 )
+	{
+		s_callbackScratch.resize( (size_t)frames * 2, 0.0f );
+	}
+
+	self->AudioCallback( s_callbackScratch.data(), frames );
+	SDL_PutAudioStreamData( stream, s_callbackScratch.data(), (int)( frames * bytesPerFrame ) );
 }
 
 
@@ -316,14 +337,8 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 
 	SDL_AudioSpec desired;
 	SDL_zero( desired );
-
 	desired.freq = m_freq;
-
-	//
-	// Request 32-bit float output so SDL performs the final quantisation.
-
-	desired.format = AUDIO_F32SYS;
-	desired.samples = m_samplesPerBuffer;
+	desired.format = SDL_AUDIO_F32;
 	desired.channels = 2;
 
 #ifdef TARGET_MSVC
@@ -360,24 +375,17 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	m_timedScheduling = g_preferences->GetInt( "SoundTimedScheduling", 1 );
 	m_audioClockedADSR = g_preferences->GetInt( "SoundAudioClockedADSR", 1 );
 
-	desired.userdata = this;
-
-	//
-	// In push/queue mode, we disable the SDL callback and feed via SDL_QueueAudio.
-
-	desired.callback = m_usePushMode ? NULL : sdlAudioCallback;
-
 	AppDebugOut( "Initialising SDL Audio\n" );
 
 #ifdef TARGET_MSVC
 	if ( audioDriverPref == 1 )
 	{
-		SDL_setenv( "SDL_AUDIODRIVER", "directsound", 1 );
+		SDL_setenv_unsafe( "SDL_AUDIODRIVER", "directsound", 1 );
 		AppDebugOut( "Using DirectSound audio driver\n" );
 	}
 	else
 	{
-		SDL_setenv( "SDL_AUDIODRIVER", "wasapi", 1 );
+		SDL_setenv_unsafe( "SDL_AUDIODRIVER", "wasapi", 1 );
 		AppDebugOut( "Using WASAPI audio driver\n" );
 	}
 #endif
@@ -385,7 +393,7 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 	bool audioInitialised = ( SDL_WasInit( SDL_INIT_AUDIO ) & SDL_INIT_AUDIO ) != 0;
 	if ( !audioInitialised )
 	{
-		if ( SDL_InitSubSystem( SDL_INIT_AUDIO ) < 0 )
+		if ( !SDL_InitSubSystem( SDL_INIT_AUDIO ) )
 		{
 			const char *errString = SDL_GetError();
 			AppReleaseAssert( false, "Failed to initialise SDL audio subsystem: \"%s\"", errString ? errString : "unknown error" );
@@ -393,47 +401,36 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 		s_audioSubsystemInitialisedByLibrary = true;
 	}
 
-	SDL_AudioSpec obtainedSpec;
-	SDL_AudioSpec *obtainedPtr = &obtainedSpec;
+	SDL_AudioStreamCallback streamCallback = m_usePushMode ? NULL : sdlAudioStreamCallback;
+	s_audioStream = SDL_OpenAudioDeviceStream( SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &desired, streamCallback, this );
 
-	//
-	// Set period based on mode: in push mode, request the preferred small period
-
-	if ( m_usePushMode && periodPref > 0 )
-	{
-		desired.samples = static_cast<Uint16>( periodPref );
-	}
-
-	s_audioDevice = SDL_OpenAudioDevice( NULL, 0, &desired, obtainedPtr, 0 );
-
-	if ( s_audioDevice == 0 )
+	if ( !s_audioStream )
 	{
 		const char *errString = SDL_GetError();
-		AppReleaseAssert( false, "Failed to open audio output device: \"%s\"", errString ? errString : "unknown error" );
-	}
-
-
-	// Use the actual device spec for all platforms
-	s_audioSpec = obtainedSpec;
-
-	// Enforce the float stereo contract expected by the mixer
-	if ( s_audioSpec.format != AUDIO_F32SYS || s_audioSpec.channels != 2 )
-	{
-		SDL_AudioDeviceID badDevice = s_audioDevice;
-		s_audioDevice = 0;
-		if ( badDevice != 0 )
-		{
-			SDL_CloseAudioDevice( badDevice );
-		}
 		if ( s_audioSubsystemInitialisedByLibrary )
 		{
 			SDL_QuitSubSystem( SDL_INIT_AUDIO );
 			s_audioSubsystemInitialisedByLibrary = false;
 		}
-		AppReleaseAssert( false,
-						  "SDL audio device returned unsupported format (format=0x%x, channels=%d). 32-bit float stereo is required.",
-						  s_audioSpec.format, s_audioSpec.channels );
+		AppReleaseAssert( false, "Failed to open audio output device: \"%s\"", errString ? errString : "unknown error" );
 	}
+
+	SDL_AudioDeviceID devid = SDL_GetAudioStreamDevice( s_audioStream );
+
+	int periodFrames = 0;
+
+	SDL_AudioSpec devSpec;
+	SDL_zero( devSpec );
+	SDL_GetAudioDeviceFormat( devid, &devSpec, &periodFrames );
+
+	if ( periodFrames <= 0 )
+	{
+		periodFrames = m_usePushMode && periodPref > 0 ? periodPref : (int)m_samplesPerBuffer;
+	}
+
+	s_audioSpec.format = SDL_AUDIO_F32;
+	s_audioSpec.channels = 2;
+	s_audioSpec.freq = m_freq;
 
 	const char *driverName = SDL_GetCurrentAudioDriver();
 	if ( driverName )
@@ -447,24 +444,16 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 		m_currentOutputDevice.clear();
 	}
 
-	//
-	// Snapshot the device id for tagging buffers
-
-	m_deviceId = s_audioDevice;
-
+	m_deviceId = devid;
 	m_actualFreq = s_audioSpec.freq;
-	m_actualSamplesPerBuffer = s_audioSpec.samples;
+	m_actualSamplesPerBuffer = (unsigned)periodFrames;
 	m_actualChannels = s_audioSpec.channels;
-	m_actualFormat = s_audioSpec.format;
-
-	m_periodFrames = s_audioSpec.samples;
+	m_actualFormat = (unsigned)s_audioSpec.format;
+	m_periodFrames = (unsigned)periodFrames;
 	m_usingFloatDevice = true;
 	m_bytesPerFrame = ( SDL_AUDIO_BITSIZE( s_audioSpec.format ) / 8 ) * s_audioSpec.channels;
 	m_totalQueuedFrames = 0;
 	m_lastSliceStartSample = 0;
-
-	//
-	// Allocate ring (power of two frames)
 
 	auto nextPow2 = []( uint32_t v ) -> uint32_t
 	{
@@ -485,15 +474,12 @@ SoundLibrary2dSDL::SoundLibrary2dSDL()
 		ringFramesTarget = GetPeriodFrames() * 4;
 	m_ringFrames = nextPow2( ringFramesTarget );
 	m_ringMask = m_ringFrames - 1;
-	m_ring.assign( static_cast<size_t>( m_ringFrames ) * s_audioSpec.channels, 0.0f );
+	m_ring.assign( static_cast<size_t>( m_ringFrames ) * (unsigned)s_audioSpec.channels, 0.0f );
 
 	m_copyIndex = 0;
 	m_fillIndex = 0;
-	s_audioStarted = 1;
-
-	m_samplesPerBuffer = s_audioSpec.samples;
-
-	// Defer starting playback/threads until Start() is called after 3D init
+	s_audioStarted.store( 1, std::memory_order_release );
+	m_samplesPerBuffer = (unsigned)periodFrames;
 }
 
 
@@ -535,7 +521,7 @@ unsigned SoundLibrary2dSDL::GetActualFormat() const
 
 bool SoundLibrary2dSDL::IsAudioStarted() const
 {
-	return s_audioStarted != 0;
+	return s_audioStarted.load( std::memory_order_acquire ) != 0;
 }
 
 
@@ -553,9 +539,9 @@ void SoundLibrary2dSDL::Start()
 	//
 	// Start audio device if sound is enabled
 
-	if ( s_audioDevice && g_preferences->GetInt( "Sound", 1 ) )
+	if ( s_audioStream && g_preferences->GetInt( "Sound", 1 ) )
 	{
-		SDL_PauseAudioDevice( s_audioDevice, 0 );
+		SDL_ResumeAudioStreamDevice( s_audioStream );
 	}
 
 	//
@@ -604,19 +590,24 @@ void SoundLibrary2dSDL::GetRuntimeStats( RuntimeStats &_outStats )
 
 	_outStats.periodFrames = m_periodFrames;
 	_outStats.usingPushMode = m_usePushMode ? 1 : 0;
-	SDL_AudioDeviceID statsDevice = 0;
+
+	SDL_AudioStream *statsStream = NULL;
+
 	m_deviceStateLock.Lock();
-	statsDevice = s_audioDevice;
+	statsStream = s_audioStream;
 	m_deviceStateLock.Unlock();
-	if ( m_usePushMode && statsDevice != 0 )
+
+	if ( m_usePushMode && statsStream )
 	{
-		Uint32 q = SDL_GetQueuedAudioSize( statsDevice );
+		int q = SDL_GetAudioStreamQueued( statsStream );
 		unsigned bpf = m_bytesPerFrame ? m_bytesPerFrame : (unsigned)( ( SDL_AUDIO_BITSIZE( s_audioSpec.format ) / 8 ) * s_audioSpec.channels );
 		unsigned freq = GetActualFreq();
-		_outStats.queuedBytes = q;
+
+		_outStats.queuedBytes = (uint32_t)( q > 0 ? q : 0 );
+
 		if ( bpf > 0 && freq > 0 )
 		{
-			_outStats.queuedMs = (double)q / (double)bpf / (double)freq * 1000.0;
+			_outStats.queuedMs = (double)( q > 0 ? q : 0 ) / (double)bpf / (double)freq * 1000.0;
 		}
 		else
 		{
@@ -654,32 +645,21 @@ void SoundLibrary2dSDL::Stop()
 	}
 	m_lastQueueCritical = false;
 
-	SDL_AudioDeviceID deviceToClose = 0;
+	SDL_AudioStream *streamToClose = NULL;
 
 	m_deviceStateLock.Lock();
-	deviceToClose = s_audioDevice;
-	if ( deviceToClose != 0 )
-	{
-		SDL_LockAudioDevice( deviceToClose );
-	}
-	m_deviceStateLock.Unlock();
-
-	if ( deviceToClose != 0 )
-	{
-		SDL_ClearQueuedAudio( deviceToClose );
-		SDL_PauseAudioDevice( deviceToClose, 1 );
-		SDL_UnlockAudioDevice( deviceToClose );
-		SDL_CloseAudioDevice( deviceToClose );
-	}
-
-	m_deviceStateLock.Lock();
-	if ( s_audioDevice == deviceToClose )
-	{
-		s_audioDevice = 0;
-	}
+	streamToClose = s_audioStream;
+	s_audioStream = NULL;
 	m_deviceId = 0;
-	s_audioStarted = 0;
+	s_audioStarted.store( 0, std::memory_order_release );
 	m_deviceStateLock.Unlock();
+
+	if ( streamToClose )
+	{
+		SDL_ClearAudioStream( streamToClose );
+		SDL_PauseAudioStreamDevice( streamToClose );
+		SDL_DestroyAudioStream( streamToClose );
+	}
 
 	if ( m_feederMutex )
 	{
@@ -817,30 +797,13 @@ void SoundLibrary2dSDL::PrecisionSleep( double milliseconds )
 
 #ifdef TARGET_MSVC
 
-	//
-	// Windows: hybrid sleep + busy-wait for sub-millisecond precision
-	// This matches the approach used in app.cpp for frame limiting
-
-	if ( milliseconds > 1.0 )
+	if ( milliseconds >= 1.0 )
 	{
-		Sleep( (DWORD)( milliseconds - 0.5 ) );
-		double endTime = GetHighResTime() + 0.0005; // 0.5ms
-		while ( GetHighResTime() < endTime )
-		{
-			// Precision spin - we have THREAD_PRIORITY_TIME_CRITICAL so this is safe
-		}
+		Sleep( (DWORD)milliseconds );
 	}
 	else
 	{
-
-		//
-		// For very short sleeps, just busy-wait with high-res timer
-
-		double endTime = GetHighResTime() + ( milliseconds / 1000.0 );
-		while ( GetHighResTime() < endTime )
-		{
-			// Spin
-		}
+		Sleep( 0 );
 	}
 #else
 
@@ -865,17 +828,25 @@ int SoundLibrary2dSDL::FeederLoop()
 
 	const unsigned freq = GetActualFreq();
 	const unsigned bytesPerFrame = m_bytesPerFrame ? m_bytesPerFrame : (unsigned)( ( SDL_AUDIO_BITSIZE( s_audioSpec.format ) / 8 ) * s_audioSpec.channels );
-	const unsigned periodFrames = m_periodFrames ? m_periodFrames : s_audioSpec.samples;
+	const unsigned periodFrames = m_periodFrames ? m_periodFrames : m_actualSamplesPerBuffer;
+
 	if ( bytesPerFrame == 0 || periodFrames == 0 || freq == 0 )
+	{
 		return 0;
+	}
 
 	unsigned deviceLowFrames = MsToFrames( GetDeviceQueueLowMs() );
 	unsigned deviceHighFrames = MsToFrames( GetDeviceQueueHighMs() );
 	unsigned ringHorizonFrames = MsToFrames( m_ringMs );
 	unsigned criticalLowFrames = periodFrames / 2;
+
 	if ( criticalLowFrames == 0 )
+	{
 		criticalLowFrames = 1;
+	}
+
 	unsigned deviceLowFramesSafe = std::max( 1u, deviceLowFrames );
+
 	if ( deviceLowFramesSafe > 0 )
 	{
 		criticalLowFrames = std::min( criticalLowFrames, deviceLowFramesSafe );
@@ -920,7 +891,18 @@ int SoundLibrary2dSDL::FeederLoop()
 	m_lastQueueCritical = false;
 	while ( m_feederRun )
 	{
-		Uint32 queuedBytes = SDL_GetQueuedAudioSize( s_audioDevice );
+		SDL_AudioStream *stream = NULL;
+		m_deviceStateLock.Lock();
+		stream = s_audioStream;
+		m_deviceStateLock.Unlock();
+
+		if ( !stream )
+		{
+			break;
+		}
+
+		int qb = SDL_GetAudioStreamQueued( stream );
+		Uint32 queuedBytes = (Uint32)( qb > 0 ? qb : 0 );
 		unsigned queuedFrames = (unsigned)( queuedBytes / (Uint32)std::max( 1u, bytesPerFrame ) );
 		double queuedMs = (double)queuedFrames / (double)freq * 1000.0;
 		bool queueCritical = ( queuedFrames <= criticalLowFrames );
@@ -934,15 +916,19 @@ int SoundLibrary2dSDL::FeederLoop()
 		m_stats.queuedMs = queuedMs;
 		m_stats.periodFrames = periodFrames;
 		m_stats.usingPushMode = 1;
+
 		if ( queuedFrames == 0 )
 		{
 			m_stats.deviceUnderruns++;
 		}
+
 		if ( queueCritical && !queueWasCritical )
 		{
 			m_stats.deviceLowHits++;
 		}
+
 		m_statsLock.Unlock();
+
 		m_lastQueueCritical = queueCritical;
 
 		if ( queuedFrames < deviceLowFrames )
@@ -1082,6 +1068,16 @@ unsigned SoundLibrary2dSDL::CopyFromRingToSDL( unsigned framesToCopy )
 	if ( framesToCopy == 0 || m_bytesPerFrame == 0 )
 		return 0;
 
+	SDL_AudioStream *stream = NULL;
+	m_deviceStateLock.Lock();
+	stream = s_audioStream;
+	m_deviceStateLock.Unlock();
+
+	if ( !stream )
+	{
+		return 0;
+	}
+
 	//
 	// Limit to available mixed frames
 
@@ -1099,9 +1095,9 @@ unsigned SoundLibrary2dSDL::CopyFromRingToSDL( unsigned framesToCopy )
 	const unsigned channels = s_audioSpec.channels ? s_audioSpec.channels : 2;
 	if ( first > 0 )
 	{
-		if ( SDL_QueueAudio( s_audioDevice, &m_ring[(size_t)ringPos * channels], bytesFirst ) != 0 )
+		if ( !SDL_PutAudioStreamData( stream, &m_ring[(size_t)ringPos * channels], (int)bytesFirst ) )
 		{
-			return 0; // Failed, try later
+			return 0;
 		}
 	}
 
@@ -1109,7 +1105,7 @@ unsigned SoundLibrary2dSDL::CopyFromRingToSDL( unsigned framesToCopy )
 	if ( second > 0 )
 	{
 		unsigned bytesSecond = second * m_bytesPerFrame;
-		if ( SDL_QueueAudio( s_audioDevice, &m_ring[0], bytesSecond ) != 0 )
+		if ( !SDL_PutAudioStreamData( stream, &m_ring[0], (int)bytesSecond ) )
 		{
 			frames = first; // Only copied the first segment
 		}
@@ -1123,9 +1119,23 @@ unsigned SoundLibrary2dSDL::CopyFromRingToSDL( unsigned framesToCopy )
 
 unsigned SoundLibrary2dSDL::GetQueuedFrames() const
 {
-	if ( !s_audioDevice || m_bytesPerFrame == 0 )
+	if ( m_bytesPerFrame == 0 )
+	{
 		return 0;
-	Uint32 bytesQueued = SDL_GetQueuedAudioSize( s_audioDevice );
+	}
+
+	SDL_AudioStream *stream = NULL;
+	m_deviceStateLock.Lock();
+	stream = s_audioStream;
+	m_deviceStateLock.Unlock();
+
+	if ( !stream )
+	{
+		return 0;
+	}
+
+	int q = SDL_GetAudioStreamQueued( stream );
+	Uint32 bytesQueued = (Uint32)( q > 0 ? q : 0 );
 	return (unsigned)( bytesQueued / (Uint32)std::max( 1u, m_bytesPerFrame ) );
 }
 

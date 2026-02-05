@@ -6,7 +6,7 @@ orbs:
 executors:
   ubuntu:
     docker:
-      - image: buildpack-deps:focal
+      - image: buildpack-deps:jammy
   mac_arm64:
     environment:
       EMSDK_NOTTY: "1"
@@ -14,10 +14,10 @@ executors:
       # brew itself which takes more than 4 minutes.
       HOMEBREW_NO_AUTO_UPDATE: "1"
     macos:
-      # Corresponds to macOS 12.6.1
+      # Corresponds to macOS 13.2.1
       # See https://circleci.com/docs/guides/execution-managed/using-macos/#supported-xcode-versions
-      xcode: "14.0.1"
-    resource_class: macos.m1.medium.gen1
+      xcode: "14.3.1"
+    resource_class: m4pro.medium
   linux_arm64:
     machine:
       image: ubuntu-2004:2023.07.1
@@ -75,7 +75,7 @@ commands:
             .\test\test_bazel.ps1
 
 jobs:
-  flake8:
+  lint:
     executor: ubuntu
     steps:
       - checkout
@@ -83,21 +83,14 @@ jobs:
           name: install python deps
           command: |
             apt-get update -q
-            apt-get install -q -y python2 python3-pip
+            apt-get install -q -y python3-pip
       - run:
-          name: python2 flake8
-          command: |
-            curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
-            python2 get-pip.py
-            python2 -m pip install flake8==3.9.2
-            python2 -m flake8 --show-source --statistics --extend-exclude=./scripts
-      - run:
-          name: python3 flake8
+          name: python lint
           command: |
             python3 -m pip install --upgrade pip
-            python3 -m pip install flake8==7.1.1
+            python3 -m pip install flake8==7.1.1 ruff==0.14.1
             python3 -m flake8 --show-source --statistics --extend-exclude=./scripts
-
+            python3 -m ruff check
   test-linux:
     executor: ubuntu
     environment:
@@ -245,7 +238,7 @@ jobs:
           name: push image
           command: |
             docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
-            make -C ./docker version=${CIRCLE_TAG} alias=${CIRCLE_TAG}-x64 only_alias=true push
+            make -C ./docker version=${CIRCLE_TAG} tag=${CIRCLE_TAG}-x64 push
 
   publish-docker-image-arm64:
     executor: linux_arm64
@@ -261,7 +254,7 @@ jobs:
           name: push image
           command: |
             docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
-            make -C ./docker version=${CIRCLE_TAG} alias=${CIRCLE_TAG}-arm64 only_alias=true push
+            make -C ./docker version=${CIRCLE_TAG} tag=${CIRCLE_TAG}-arm64 push
 
   publish-docker-image-multiplatform:
     executor: linux_arm64
@@ -271,7 +264,8 @@ jobs:
           name: push image
           command: |
             docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
-            make -C ./docker version=${CIRCLE_TAG} alias="latest" push-multiplatform
+            make -C ./docker version=${CIRCLE_TAG} tag=${CIRCLE_TAG} push-multiplatform
+            make -C ./docker version=${CIRCLE_TAG} tag="latest" push-multiplatform
 
   test-bazel7-linux:
     executor: ubuntu
@@ -321,9 +315,9 @@ jobs:
       - test-bazel-windows
 
 workflows:
-  flake8:
+  lint:
     jobs:
-      - flake8
+      - lint
   test-linux:
     jobs:
       - test-linux

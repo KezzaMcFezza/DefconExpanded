@@ -13,6 +13,9 @@ class EarthData
 public:
     LList           <Island *>          m_islands;
     LList           <Island *>          m_borders;
+    LList           <Island *>          m_gridlinesLow;
+    LList           <Island *>          m_gridlinesMedium;
+    LList           <Island *>          m_gridlinesHigh;
     LList           <City *>            m_cities;
 
 public:
@@ -24,7 +27,12 @@ public:
     void LoadBorders();
     void LoadCities();
     void LoadCoastlines();
+    void LoadGridlines();
+    void ClearGridlines();
     void CalculateAndSetBufferSizes();
+    
+private:
+    void LoadOneGridlineFile( const char *filename, LList<Island *> &outList );
 };
 
 

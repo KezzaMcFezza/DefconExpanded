@@ -858,7 +858,7 @@ void RendererD3D11::SetViewport( int x, int y, int width, int height )
 		//
 		// D3D is top left origin
 
-		int screenHeight = g_windowManager->DrawableHeight();
+		int screenHeight = g_windowManager->GetPhysicalHeight();
 		int d3dY = screenHeight - y - height;
 
 		D3D11_VIEWPORT viewport = {};
@@ -991,7 +991,7 @@ void RendererD3D11::SetScissor( int x, int y, int width, int height )
 		if ( !m_deviceContext )
 			return;
 
-		int screenHeight = g_windowManager->DrawableHeight();
+		int screenHeight = g_windowManager->GetPhysicalHeight();
 		int d3dY = screenHeight - y - height;
 
 		D3D11_RECT rect;
@@ -1512,8 +1512,8 @@ void RendererD3D11::EndFrame()
 
 void RendererD3D11::HandleWindowResize()
 {
-	int screenW = g_windowManager->DrawableWidth();
-	int screenH = g_windowManager->DrawableHeight();
+	int screenW = g_windowManager->GetPhysicalWidth();
+	int screenH = g_windowManager->GetPhysicalHeight();
 
 	if ( m_antiAliasing )
 	{
@@ -1986,8 +1986,8 @@ void RendererD3D11::SaveScreenshot()
 
 	char *screenshotsDir = ScreenshotsDirectory();
 
-	int screenW = g_windowManager->DrawableWidth();
-	int screenH = g_windowManager->DrawableHeight();
+	int screenW = g_windowManager->GetPhysicalWidth();
+	int screenH = g_windowManager->GetPhysicalHeight();
 
 	WindowManagerD3D11 *windowManager = dynamic_cast<WindowManagerD3D11 *>( g_windowManager );
 	if ( !windowManager )

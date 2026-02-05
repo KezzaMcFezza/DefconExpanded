@@ -77,13 +77,7 @@ RuntimeTextureAtlas::~RuntimeTextureAtlas()
 	//
 	// clean up sprites
 
-	DArray<PackedSprite *> *sprites = m_spriteMap.ConvertToDArray();
-	for ( int i = 0; i < sprites->Size(); ++i )
-	{
-		delete sprites->GetData( i );
-	}
-	delete sprites;
-	m_spriteMap.Empty();
+	m_spriteMap.EmptyAndDelete();
 
 	//
 	// clean up atlas bitmap
@@ -690,13 +684,14 @@ bool RuntimeTextureAtlas::BuildFromDirectory( const char *directory,
 
 const PackedSprite *RuntimeTextureAtlas::GetSprite( const char *filename ) const
 {
-	return const_cast<BTree<PackedSprite *> *>( &m_spriteMap )->GetData( filename );
+	const PackedSprite *const *p = m_spriteMap.GetPointerConst( filename );
+	return p ? *p : nullptr;
 }
 
 
 bool RuntimeTextureAtlas::HasSprite( const char *filename ) const
 {
-	return const_cast<BTree<PackedSprite *> *>( &m_spriteMap )->GetData( filename ) != NULL;
+	return m_spriteMap.GetPointerConst( filename ) != nullptr;
 }
 
 
@@ -748,6 +743,12 @@ unsigned int AtlasImage::GetAtlasTextureID() const
 const char *AtlasImage::GetFilename() const
 {
 	return m_packedSprite ? m_packedSprite->filename : NULL;
+}
+
+
+RuntimeTextureAtlas *AtlasImage::GetAtlas() const
+{
+	return m_atlas;
 }
 
 
@@ -876,4 +877,40 @@ const PackedSprite *SpriteAtlasManager::GetSpriteFromAnyAtlas(
 	if ( outAtlas )
 		*outAtlas = NULL;
 	return NULL;
+}
+
+
+bool SpriteAtlasManager::IsInitialized() const
+{
+	return m_initialized;
+}
+
+
+int RuntimeTextureAtlas::GetWidth() const
+{
+	return m_width;
+}
+
+
+int RuntimeTextureAtlas::GetHeight() const
+{
+	return m_height;
+}
+
+
+unsigned int RuntimeTextureAtlas::GetTextureID() const
+{
+	return m_textureID;
+}
+
+
+const char *RuntimeTextureAtlas::GetName() const
+{
+	return m_name;
+}
+
+
+int RuntimeTextureAtlas::GetSpriteCount() const
+{
+	return static_cast<int>( m_spriteMap.NumUsed() );
 }

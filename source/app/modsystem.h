@@ -41,6 +41,8 @@ public:
     bool    IsModGraphic                (const char* filename);
     void    ClearModGraphicsCache       ();
     bool    ModContainsGeographyData    (const char* modPath);
+    bool    ModContainsGridlinesData    (const char* modPath);
+    bool    GeographyModsContainGridlines ();
     void    UpdateGeographyAffectingMods();
     bool    ModContainsStyleData        (const char* modPath);
     void    UpdateStyleAffectingMods    ();
@@ -60,6 +62,7 @@ public:
 
     bool    CommitRequired      ();
     void    Commit              ();                                             // Commits the mod settings to the file system
+    void    HotReloadMods       ();                                             // Deactivate, commit, reload from disk, reactivate, commit
 };
 
 

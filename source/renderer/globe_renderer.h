@@ -13,12 +13,15 @@ class Model;
 class Blip;
 
 #define    GLOBE_RADIUS                                1.0f     // default globe radius
-#define    GLOBE_CULL_RADIUS                           0.9972f   // culling sphere radius (inside the globe)
+#define    GLOBE_CULL_RADIUS                           0.9972f  // culling sphere radius (inside the globe)
 #define    GLOBE_ELEVATION                             0.0f     // no elevation, but here incase we do need elevation 
 #define    GLOBE_NUKE_MODEL_SIZE                       0.65f    // nuke model scale
 #define    GLOBE_ANIMATED_ICON_SIZE                    0.06f    // base size of animated icons
 #define    GLOBE_OBJECT_SIZE                           0.0075f  // base size for objects on the globe
 #define    GLOBE_UNIT_ICON_SIZE                        0.35f    // base size for unit icons (smallfighter.bmp etc)
+#define    GLOBE_GRIDLINE_SPACING_DEG_LOW              20.0f    // low: 20 degree spacing
+#define    GLOBE_GRIDLINE_SPACING_DEG_MEDIUM           10.0f    // medium: 10 degree spacing
+#define    GLOBE_GRIDLINE_SPACING_DEG_HIGH             5.0f     // high: 5 degree spacing
 
 #define    STYLE_GLOBE_COASTLINES                     "GlobeCoastlines"
 #define    STYLE_GLOBE_BORDERS                        "GlobeBorders"
@@ -26,6 +29,10 @@ class Blip;
 
 #define    PREFS_GLOBE_COAST_THICKNESS                "GlobeCoastThickness"
 #define    PREFS_GLOBE_BORDER_THICKNESS               "GlobeBorderThickness"
+#define    PREFS_GLOBE_GRIDLINES                      "GlobeGridlines"
+#define    PREFS_GLOBE_GRIDLINE_THICKNESS             "GlobeGridlineThickness"
+#define    PREFS_GLOBE_GRIDLINE_SPACING               "GlobeGridlineSpacing"
+#define    PREFS_GLOBE_FOG                            "GlobeFog"
 #define    PREFS_GLOBE_FOG_DISTANCE                   "GlobeFogDistance"
 #define    PREFS_GLOBE_STARFIELD                      "GlobeStarfield"
 #define    PREFS_GLOBE_STAR_SIZE                      "GlobeStarSize"

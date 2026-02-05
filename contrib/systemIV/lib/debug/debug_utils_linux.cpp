@@ -11,12 +11,11 @@
 #include <errno.h>
 #include <execinfo.h>
 
-#include "app.h"
+#include "app/app.h"
 #include "debug_utils.h"
 
 #ifndef NO_WINDOW_MANAGER
 #include "lib/gucci/window_manager.h"
-#include <SDL2/SDL.h>
 #endif
 
 static char *s_pathToProgram = 0;

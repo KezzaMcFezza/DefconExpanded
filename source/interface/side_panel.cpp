@@ -224,6 +224,8 @@ void SidePanel::Render( bool hasFocus )
                         typeCounts[unitType]--;
                     }
                 }
+
+                g_renderer->SetBlendMode( Renderer::BlendModeNormal );
                 
                 if( m_mode == ModeFleetPlacement )
                 {

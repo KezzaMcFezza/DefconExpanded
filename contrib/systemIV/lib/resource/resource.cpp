@@ -23,6 +23,54 @@
 
 Resource *g_resource = NULL;
 
+//
+// Manual string building helpers that avoid sprintf and vsprintf
+
+static inline char *fs_copy( char *dst, const char *src )
+{
+	while ( *src )
+		*dst++ = *src++;
+	return dst;
+}
+
+static inline char *fs_int( char *dst, int v )
+{
+	char tmp[12];
+	int len = 0;
+
+	if ( v == 0 )
+	{
+		*dst++ = '0';
+		return dst;
+	}
+
+	if ( v < 0 )
+	{
+		*dst++ = '-';
+		v = -v;
+	}
+
+	while ( v )
+	{
+		tmp[len++] = char( '0' + ( v % 10 ) );
+		v /= 10;
+	}
+
+	while ( len-- )
+	{
+		*dst++ = tmp[len];
+	}
+
+	return dst;
+}
+
+
+static inline int uv_to_int( float v )
+{
+	return (int)( v * 1000000.0f );
+}
+
+
 Resource::Resource()
 {
 	m_spriteAtlasManager = NULL;
@@ -87,26 +135,20 @@ void Resource::Shutdown()
 	//
 	// Image Cache
 
-	DArray<Image *> *images = m_imageCache.ConvertToDArray();
-	for ( int i = 0; i < images->Size(); ++i )
+	for ( auto it = m_imageCache.begin(); it != m_imageCache.end(); ++it )
 	{
-		Image *image = images->GetData( i );
-		delete image;
+		delete *it;
 	}
-	delete images;
 	m_imageCache.Empty();
 
 
 	//
 	// BitmapFont cache
 
-	DArray<BitmapFont *> *fonts = m_bitmapFontCache.ConvertToDArray();
-	for ( int i = 0; i < fonts->Size(); ++i )
+	for ( auto it = m_bitmapFontCache.begin(); it != m_bitmapFontCache.end(); ++it )
 	{
-		BitmapFont *font = fonts->GetData( i );
-		delete font;
+		delete *it;
 	}
-	delete fonts;
 	m_bitmapFontCache.Empty();
 
 
@@ -118,13 +160,10 @@ void Resource::Shutdown()
 	//
 	// Model cache
 
-	DArray<Model *> *models = m_modelCache.ConvertToDArray();
-	for ( int i = 0; i < models->Size(); ++i )
+	for ( auto it = m_modelCache.begin(); it != m_modelCache.end(); ++it )
 	{
-		Model *model = models->GetData( i );
-		delete model;
+		delete *it;
 	}
-	delete models;
 	m_modelCache.Empty();
 }
 
@@ -135,7 +174,12 @@ void Resource::UnloadImage( const char *filename )
 		return;
 
 	char fullFilename[512];
-	sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
+	char *p = fullFilename;
+
+	p = fs_copy( p, GetDataRoot() );
+	*p++ = '/';
+	p = fs_copy( p, filename );
+	*p = '\0';
 
 	Image *image = m_imageCache.GetData( fullFilename );
 	if ( image )
@@ -156,16 +200,40 @@ void Resource::UnloadImage( const char *filename, float uvAdjustX, float uvAdjus
 		return;
 
 	char fullFilename[512];
-	sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
+	char *p = fullFilename;
+
+	p = fs_copy( p, GetDataRoot() );
+	*p++ = '/';
+	p = fs_copy( p, filename );
+	*p = '\0';
 
 	char cacheKey[512];
+	char *k = cacheKey;
+
 	if ( uvAdjustX != 0.0f || uvAdjustY != 0.0f )
 	{
-		sprintf( cacheKey, "%s|uv%.6f|uv%.6f", fullFilename, uvAdjustX, uvAdjustY );
+		//
+		// Copy base filename
+
+		k = fs_copy( k, fullFilename );
+
+		//
+		// Append UV key
+
+		*k++ = '|';
+		*k++ = 'u';
+		*k++ = 'v';
+		k = fs_int( k, uv_to_int( uvAdjustX ) );
+		*k++ = '|';
+		*k++ = 'u';
+		*k++ = 'v';
+		k = fs_int( k, uv_to_int( uvAdjustY ) );
+		*k = '\0';
 	}
 	else
 	{
-		strcpy( cacheKey, fullFilename );
+		k = fs_copy( k, fullFilename );
+		*k = '\0';
 	}
 
 	Image *image = m_imageCache.GetData( cacheKey );
@@ -209,10 +277,17 @@ Image *Resource::TryLoadFromAtlas( const char *filename, float uvAdjustX, float 
 Image *Resource::GetImage( const char *filename )
 {
 	if ( !filename )
+	{
 		return NULL;
+	}
 
 	char fullFilename[512];
-	sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
+	char *p = fullFilename;
+
+	p = fs_copy( p, GetDataRoot() );
+	*p++ = '/';
+	p = fs_copy( p, filename );
+	*p = '\0';
 
 	Image *image = m_imageCache.GetData( fullFilename );
 	if ( image )
@@ -230,6 +305,7 @@ Image *Resource::GetImage( const char *filename )
 	image = new Image( fullFilename );
 	m_imageCache.PutData( fullFilename, image );
 	image->MakeTexture( true, true );
+
 	return image;
 }
 
@@ -237,34 +313,46 @@ Image *Resource::GetImage( const char *filename )
 Image *Resource::GetImage( const char *filename, float uvAdjustX, float uvAdjustY )
 {
 	if ( !filename )
+	{
 		return NULL;
+	}
 
 	//
 	// Create cache key that includes UV adjustments
 	// Images with different UV adjustments are cached separately
 
+	if ( uvAdjustX == 0.0f && uvAdjustY == 0.0f )
+	{
+		return GetImage( filename );
+	}
+
 	char fullFilename[512];
-	sprintf( fullFilename, "%s/%s", GetDataRoot(), filename );
+	char *p = fullFilename;
+
+	p = fs_copy( p, GetDataRoot() );
+	*p++ = '/';
+	p = fs_copy( p, filename );
+	*p = '\0';
 
 	char cacheKey[512];
-	if ( uvAdjustX != 0.0f || uvAdjustY != 0.0f )
-	{
-		sprintf( cacheKey, "%s|uv%.6f|uv%.6f", fullFilename, uvAdjustX, uvAdjustY );
-	}
-	else
-	{
-		strcpy( cacheKey, fullFilename );
-	}
+	char *k = cacheKey;
+
+	k = fs_copy( k, fullFilename );
+
+	*k++ = '|';
+	*k++ = 'u';
+	*k++ = 'v';
+	k = fs_int( k, uv_to_int( uvAdjustX ) );
+	*k++ = '|';
+	*k++ = 'u';
+	*k++ = 'v';
+	k = fs_int( k, uv_to_int( uvAdjustY ) );
+	*k = '\0';
 
 	Image *image = m_imageCache.GetData( cacheKey );
 	if ( image )
 	{
 		return image;
-	}
-
-	if ( uvAdjustX == 0.0f && uvAdjustY == 0.0f )
-	{
-		return GetImage( filename );
 	}
 
 	image = TryLoadFromAtlas( filename, uvAdjustX, uvAdjustY );
@@ -278,6 +366,7 @@ Image *Resource::GetImage( const char *filename, float uvAdjustX, float uvAdjust
 	image->MakeTexture( true, true );
 	image->SetUVAdjust( uvAdjustX, uvAdjustY );
 	m_imageCache.PutData( cacheKey, image );
+
 	return image;
 }
 
@@ -288,8 +377,12 @@ BitmapFont *Resource::GetBitmapFont( const char *filename )
 		return NULL;
 
 	char fullFilename[512];
-	snprintf( fullFilename, sizeof( fullFilename ), "%s/%s", GetDataRoot(), filename );
-	fullFilename[sizeof( fullFilename ) - 1] = '\x0';
+	char *p = fullFilename;
+
+	p = fs_copy( p, GetDataRoot() );
+	*p++ = '/';
+	p = fs_copy( p, filename );
+	*p = '\0';
 
 	BitmapFont *font = m_bitmapFontCache.GetData( fullFilename );
 	if ( font )
@@ -311,8 +404,12 @@ bool Resource::TestBitmapFont( const char *filename )
 		return false;
 
 	char fullFilename[512];
-	snprintf( fullFilename, sizeof( fullFilename ), "%s/%s", GetDataRoot(), filename );
-	fullFilename[sizeof( fullFilename ) - 1] = '\x0';
+	char *p = fullFilename;
+
+	p = fs_copy( p, GetDataRoot() );
+	*p++ = '/';
+	p = fs_copy( p, filename );
+	*p = '\0';
 
 	BitmapFont *font = m_bitmapFontCache.GetData( fullFilename );
 	if ( font )
@@ -343,8 +440,12 @@ Model *Resource::GetModel( const char *filename )
 		return NULL;
 
 	char fullFilename[512];
-	snprintf( fullFilename, sizeof( fullFilename ), "%s/%s", GetDataRoot(), filename );
-	fullFilename[sizeof( fullFilename ) - 1] = '\x0';
+	char *p = fullFilename;
+
+	p = fs_copy( p, GetDataRoot() );
+	*p++ = '/';
+	p = fs_copy( p, filename );
+	*p = '\0';
 
 	Model *model = m_modelCache.GetData( fullFilename );
 	if ( model )
@@ -374,8 +475,12 @@ void Resource::UnloadModel( const char *filename )
 		return;
 
 	char fullFilename[512];
-	snprintf( fullFilename, sizeof( fullFilename ), "%s/%s", GetDataRoot(), filename );
-	fullFilename[sizeof( fullFilename ) - 1] = '\x0';
+	char *p = fullFilename;
+
+	p = fs_copy( p, GetDataRoot() );
+	*p++ = '/';
+	p = fs_copy( p, filename );
+	*p = '\0';
 
 	Model *model = m_modelCache.GetData( fullFilename );
 	if ( model )

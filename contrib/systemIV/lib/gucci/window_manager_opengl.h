@@ -1,9 +1,10 @@
 #ifndef INCLUDED_WINDOW_MANAGER_OPENGL_H
 #define INCLUDED_WINDOW_MANAGER_OPENGL_H
 
+#include "systemiv.h"
+
 #ifdef RENDERER_OPENGL
 
-#include <SDL2/SDL.h>
 #include "window_manager.h"
 
 class WindowManagerOpenGL : public WindowManager
@@ -22,7 +23,6 @@ public:
 	void        DoFlip              () override;
 	void        HandleResize        (int newWidth, int newHeight) override;
 	void        HandleWindowFocusGained() override;
-	void        CalculateHighDPIScaleFactors() override;
 
 private:
     SDL_GLContext m_glContext;

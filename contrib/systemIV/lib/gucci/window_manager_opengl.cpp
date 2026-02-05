@@ -1,7 +1,6 @@
 #include "systemiv.h"
 
 #ifdef RENDERER_OPENGL
-#include <SDL2/SDL.h>
 
 #ifdef TARGET_OS_MACOSX
 #include "macosxlibrary.h"
@@ -33,29 +32,44 @@ WindowManagerOpenGL::~WindowManagerOpenGL()
 
 bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, int _colourDepth, int _refreshRate, int _zDepth, int _antiAlias, bool _borderless, const char *_title )
 {
+	//
+	// OpenGL doesnt reliably support 32 bit zbuffer depth
+	// Clamp to 24 bit
+	
+	int clampedZDepth = _zDepth;
+	if ( clampedZDepth == 32 )
+	{
+		clampedZDepth = 24;
+	}
+	
 	int displayIndex = GetCurrentDisplayIndex();
 	AppReleaseAssert( displayIndex >= 0, "Failed to get current SDL display index.\n" );
 
-	SDL_DisplayMode displayMode;
-	SDL_GetCurrentDisplayMode( displayIndex, &displayMode );
+	SDL_DisplayID displayID = WindowManager::GetDisplayIDFromIndex( displayIndex );
+	AppReleaseAssert( displayID != 0, "Failed to get SDL display ID.\n" );
+
+	const SDL_DisplayMode *displayMode = SDL_GetCurrentDisplayMode( displayID );
+	AppReleaseAssert( displayMode != nullptr, "Failed to get current display mode.\n" );
 
 	m_windowed = _windowed;
 
-	int bpp = SDL_BITSPERPIXEL( displayMode.format );
+	//
+	// Use the user's color depth preference (same as DirectX11) for the GL pixel format,
+	// so the option has effect in both windowed and fullscreen.
+	//
 
 	SDL_Rect displayBounds;
-	SDL_GetDisplayBounds( displayIndex, &displayBounds );
+	SDL_GetDisplayBounds( displayID, &displayBounds );
 
 	//
 	// Set the flags for creating the mode
 
-	int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI;
-	bool requestMaximized = false;
+	int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIGH_PIXEL_DENSITY;
 	if ( !_windowed )
 	{
 		if ( _borderless )
 		{
-			flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+			flags |= SDL_WINDOW_FULLSCREEN;
 			m_screenW = _width;
 			m_screenH = _height;
 		}
@@ -69,12 +83,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	else
 	{
 		SDL_Rect usableBounds;
-		SDL_GetDisplayUsableBounds( displayIndex, &usableBounds );
-		if ( g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
-		{
-			flags |= SDL_WINDOW_MAXIMIZED;
-			requestMaximized = true;
-		}
+		SDL_GetDisplayUsableBounds( displayID, &usableBounds );
 
 #ifdef TARGET_OS_MACOSX
 		// Mac OS X will allow the window to go off the bottom of the screen
@@ -92,13 +101,19 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		usableBounds.h -= dragbarHeight;
 #endif
 
-		//
-		// Usually any combination is OK for windowed mode.
-
 		m_screenW = std::min( usableBounds.w, _width );
 		m_screenH = std::min( usableBounds.h, _height );
+		
 
 		flags |= SDL_WINDOW_RESIZABLE;
+
+		//
+		// Create the window hidden in maximized mode to avoid a visible jump on create/reinit.
+
+		if ( g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
+		{
+			flags |= SDL_WINDOW_HIDDEN;
+		}
 
 		//
 		// Add it to the list of screen resolutions if need be
@@ -121,7 +136,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		}
 	}
 
-	switch ( bpp )
+	switch ( _colourDepth )
 	{
 		case 24:
 		case 32:
@@ -139,7 +154,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	}
 
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
-	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, _zDepth );
+	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, clampedZDepth );
 
 #if defined( TARGET_EMSCRIPTEN )
 
@@ -190,16 +205,28 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 
 		m_glContext = 0;
 
-		//
-		// Use SDL_WINDOWPOS_CENTERED to center the window instead of top-left positioning
+		m_sdlWindow = SDL_CreateWindow( _title, m_screenW, m_screenH, flags );
+		if ( m_sdlWindow )
+		{
+			if ( _windowed && g_preferences && g_preferences->GetInt( PREFS_SCREEN_MAXIMIZED, 0 ) )
+			{
+				SDL_SetWindowPosition( m_sdlWindow,
+				                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ),
+				                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ) );
+				SDL_MaximizeWindow( m_sdlWindow );
 
-		m_sdlWindow = SDL_CreateWindow( _title,
-										SDL_WINDOWPOS_CENTERED_DISPLAY( displayIndex ),
-										SDL_WINDOWPOS_CENTERED_DISPLAY( displayIndex ),
-										m_screenW,
-										m_screenH,
-										flags );
-
+				//
+				// Now we can unhide the window 
+				
+				SDL_ShowWindow( m_sdlWindow );
+			}
+			else
+			{
+				SDL_SetWindowPosition( m_sdlWindow,
+				                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ),
+				                       SDL_WINDOWPOS_CENTERED_DISPLAY( displayID ) );
+			}
+		}
 		if ( m_sdlWindow )
 		{
 			//
@@ -207,15 +234,15 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 
 			if ( !_windowed && !_borderless && _refreshRate != 0 )
 			{
-				SDL_DisplayMode targetMode;
+				SDL_DisplayMode targetMode = {};
+				targetMode.displayID = displayID;
 				targetMode.w = m_screenW;
 				targetMode.h = m_screenH;
-				targetMode.refresh_rate = _refreshRate;
-				targetMode.format = 0;
+				targetMode.refresh_rate = (float)_refreshRate;
 
-				if ( SDL_SetWindowDisplayMode( m_sdlWindow, &targetMode ) != 0 )
+				if ( !SDL_SetWindowFullscreenMode( m_sdlWindow, &targetMode ) )
 				{
-					AppDebugOut( "Failed to set display mode to %dx%d @ %dHz: %s\n",
+					AppDebugOut( "Failed to set fullscreen mode %dx%d @ %dHz: %s\n",
 								 m_screenW, m_screenH, _refreshRate, SDL_GetError() );
 				}
 			}
@@ -233,10 +260,12 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 				SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, 0 );
 				tryingToCreateWindow = true;
 			}
-			else if ( _zDepth != 16 )
+			else if ( clampedZDepth == 24 )
 			{
-				printf( "Falling back to z-depth of 16.\n" );
-				_zDepth = 16;
+				printf( "Falling back from z-depth of 24 to 16.\n" );
+				clampedZDepth = 16;
+				SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, clampedZDepth );
+				SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0 );
 				tryingToCreateWindow = true;
 			}
 		}
@@ -261,7 +290,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	{
 		printf( "Could not make SDL OpenGL context current: %s\n", SDL_GetError() );
 
-		SDL_GL_DeleteContext( m_glContext );
+		SDL_GL_DestroyContext( m_glContext );
 		m_glContext = 0;
 
 		SDL_DestroyWindow( m_sdlWindow );
@@ -278,7 +307,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	{
 		printf( "GLAD initialization failed\n" );
 
-		SDL_GL_DeleteContext( m_glContext );
+		SDL_GL_DestroyContext( m_glContext );
 		m_glContext = 0;
 
 		SDL_DestroyWindow( m_sdlWindow );
@@ -297,7 +326,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	{
 		printf( "GLAD initialization failed\n" );
 
-		SDL_GL_DeleteContext( m_glContext );
+		SDL_GL_DestroyContext( m_glContext );
 		m_glContext = 0;
 
 		SDL_DestroyWindow( m_sdlWindow );
@@ -319,7 +348,7 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	{
 		printf( "GLAD initialization failed\n" );
 
-		SDL_GL_DeleteContext( m_glContext );
+		SDL_GL_DestroyContext( m_glContext );
 		m_glContext = 0;
 
 		SDL_DestroyWindow( m_sdlWindow );
@@ -352,25 +381,12 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 		m_screenH = actualH;
 	}
 
-	CalculateHighDPIScaleFactors();
-	UpdateStoredMaximizedState();
-
-	if ( requestMaximized )
-	{
-		//
-		// SDL respects SDL_WINDOW_MAXIMIZED at creation time, but double check
-		// in case we need to sync our cached dimensions after decoration logic.
-
-		SDL_GetWindowSize( m_sdlWindow, &m_screenW, &m_screenH );
-		UpdateStoredMaximizedState();
-	}
-
 	//
 	// Pass back the actual values to the Renderer
 
 	_width = m_screenW;
 	_height = m_screenH;
-	_colourDepth = bpp;
+	// _colourDepth already holds the user's preference (used for GL pixel format)
 
 	//
 	// Hide the mouse pointer again
@@ -381,6 +397,11 @@ bool WindowManagerOpenGL::CreateWin( int _width, int _height, bool _windowed, in
 	if ( m_mouseCaptured )
 		CaptureMouse();
 
+	//
+	// Show window only after position is set
+
+	SDL_ShowWindow( m_sdlWindow );
+
 	return true;
 }
 
@@ -389,7 +410,7 @@ void WindowManagerOpenGL::DestroyWin()
 {
 	if ( m_glContext )
 	{
-		SDL_GL_DeleteContext( m_glContext );
+		SDL_GL_DestroyContext( m_glContext );
 		m_glContext = 0;
 	}
 
@@ -417,9 +438,7 @@ void WindowManagerOpenGL::HandleResize( int newWidth, int newHeight )
 
 	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
 
-	UpdateStoredMaximizedState();
-
-	if ( windowFlags & ( SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP ) )
+	if ( windowFlags & ( SDL_WINDOW_FULLSCREEN ) )
 		return;
 
 	if ( newWidth == m_screenW && newHeight == m_screenH )
@@ -431,13 +450,11 @@ void WindowManagerOpenGL::HandleResize( int newWidth, int newHeight )
 	m_screenW = newWidth;
 	m_screenH = newHeight;
 
-	CalculateHighDPIScaleFactors();
-
 	//
 	// Check if window moved to a different display
 
-	int newDisplayIndex = SDL_GetWindowDisplayIndex( m_sdlWindow );
-	if ( newDisplayIndex >= 0 && newDisplayIndex != m_windowDisplayIndex )
+	int newDisplayIndex = WindowManager::GetDisplayIndexFromID( SDL_GetDisplayForWindow( m_sdlWindow ) );
+	if ( newDisplayIndex != m_windowDisplayIndex )
 	{
 		m_windowDisplayIndex = newDisplayIndex;
 		ListAllDisplayModes( m_windowDisplayIndex );
@@ -466,36 +483,5 @@ void WindowManagerOpenGL::HandleWindowFocusGained()
 {
 }
 
-
-void WindowManagerOpenGL::CalculateHighDPIScaleFactors()
-{
-	if ( !m_sdlWindow )
-		return;
-
-	Uint32 windowFlags = SDL_GetWindowFlags( m_sdlWindow );
-
-	if ( (windowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN )
-	{
-		m_highDPIScaleX = 1.0f;
-		m_highDPIScaleY = 1.0f;
-		return;
-	}
-
-	int clientW, clientH;
-	SDL_GetWindowSize( m_sdlWindow, &clientW, &clientH );
-	int drawableW, drawableH;
-	SDL_GL_GetDrawableSize( m_sdlWindow, &drawableW, &drawableH );
-
-	m_highDPIScaleX = (float)drawableW / clientW;
-	m_highDPIScaleY = (float)drawableH / clientH;
-
-#ifdef _DEBUG
-	if ( m_highDPIScaleX != 1.0f || m_highDPIScaleY != 1.0f )
-	{
-		AppDebugOut( "High DPI detected: window %dx%d, drawable %dx%d, scale %.2fx%.2f\n",
-					 clientW, clientH, drawableW, drawableH, m_highDPIScaleX, m_highDPIScaleY );
-	}
-#endif
-}
 
 #endif // RENDERER_OPENGL

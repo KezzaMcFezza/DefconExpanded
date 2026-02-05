@@ -82,7 +82,7 @@
 
 #include <glad/glad.h>
 #include <hwy/highway.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #ifdef OPENMP
     #include <omp.h>

@@ -1,6 +1,7 @@
+#include "systemiv.h"
+
 #ifdef RENDERER_OPENGL
 
-#include "systemiv.h"
 #include "msaa_opengl.h"
 #include "lib/render/renderer.h"
 #include "lib/debug/debug_utils.h"
@@ -121,8 +122,9 @@ void AntiAliasingMSAA_OpenGL::Resize( int width, int height )
 	//
 	// Destroy and reincarnate the FBO with new dimensions
 
+	int preservedSamples = m_samples;
 	Destroy();
-	Initialize( width, height, m_samples );
+	Initialize( width, height, preservedSamples );
 }
 
 
